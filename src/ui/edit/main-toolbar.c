@@ -876,10 +876,10 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   g_signal_connect(tool_item,"toggled",G_CALLBACK(on_toolbar_loop_toggled),(gpointer)self);
   self->priv->loop_button=tool_item;
   
-  combo_box=gtk_combo_box_new_text();
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box),"A");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box),"M");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box),"S");
+  combo_box=gtk_combo_box_text_new();
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX(combo_box),"A");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX(combo_box),"M");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX(combo_box),"S");
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),0);
   g_signal_connect(combo_box,"changed",G_CALLBACK(on_transport_mode_changed), (gpointer)self);
   
