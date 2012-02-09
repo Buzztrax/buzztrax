@@ -113,8 +113,10 @@ static void bt_audio_session_setup(void) {
       audio_sink=gst_object_ref(gst_element_factory_make(plugin_name,NULL));
       gst_object_sink(audio_sink);
       GST_WARNING("created session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
-      
-      g_object_set(audio_sink,"transport",singleton->priv->transport_mode,NULL);
+
+      if(g_object_class_find_property(G_OBJECT_GET_CLASS(audio_sink),"transport")) {
+        g_object_set(audio_sink,"transport",singleton->priv->transport_mode,NULL);
+      }
 
       // we need this hack to make the ports show up
       bin = gst_pipeline_new("__kickstart__");
