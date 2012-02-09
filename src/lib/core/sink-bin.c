@@ -112,6 +112,9 @@ struct _BtSinkBinPrivate {
 
   gulong bus_handler_id;
 
+  /* player sink or NULL */
+  GstElement *audio_sink;
+
   /* tee */
   G_POINTER_ALIAS(GstElement *,tee);
 
@@ -134,7 +137,7 @@ struct _BtSinkBinPrivate {
 
 //-- the class
 
-static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElement *sink);
+static void bt_sink_bin_configure_latency(const BtSinkBin * const self);
 
 static void bt_sink_bin_tempo_interface_init(gpointer const g_iface, gpointer const iface_data);
 
@@ -171,13 +174,9 @@ static void bt_sink_bin_tempo_change_tempo(GstBtTempo *tempo, glong beats_per_mi
     }
   }
   if(changed) {
-    GstElement *element = gst_bin_get_by_name(GST_BIN(self),"player");
-
     GST_DEBUG("changing tempo to %lu BPM  %lu TPB  %lu STPT",self->priv->beats_per_minute,self->priv->ticks_per_beat,self->priv->subticks_per_tick);
-
-    if(element) {
-      bt_sink_bin_configure_latency(self,element);
-      gst_object_unref(element);
+    if(self->priv->audio_sink) {
+      bt_sink_bin_configure_latency(self);
     }
     else {
       GST_INFO("no player object created yet.");
@@ -265,7 +264,8 @@ static void bt_sink_bin_deactivate_analyzers(const BtSinkBin * const self) {
   bt_bin_deactivate_tee_chain(GST_BIN(self),self->priv->tee,self->priv->analyzers,is_playing);
 }
 
-static void bt_sink_bin_configure_latency(const BtSinkBin * const self,GstElement *sink) {
+static void bt_sink_bin_configure_latency(const BtSinkBin * const self) {
+  GstElement *sink=self->priv->audio_sink;
   if(GST_IS_BASE_AUDIO_SINK(sink)) {
     if(self->priv->beats_per_minute && self->priv->ticks_per_beat) {
       // configure buffer size (e.g.  GST_SECONG*60/120*4
@@ -296,6 +296,7 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
   if(bin->children) {
     GstStateChangeReturn res;
 
+    self->priv->audio_sink=NULL;
     self->priv->caps_filter=NULL;
     self->priv->tee=NULL;
 
@@ -386,7 +387,7 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   g_object_unref(audio_session);
   if(!element) {
     GST_WARNING("No session sink for '%s'",plugin_name);
-    element=gst_element_factory_make(plugin_name,"player");
+    element=gst_element_factory_make(plugin_name,NULL);
   }
   if(!element) {
     /* bt_settings_determine_audiosink_name() does all kind of sanity checks already */
@@ -408,7 +409,8 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
       /*"can-activate-pull",TRUE,*/
 #endif
       NULL);
-    bt_sink_bin_configure_latency(self,element);
+    self->priv->audio_sink=element;
+    bt_sink_bin_configure_latency(self);
   }
   list=g_list_append(list,element);
 

@@ -110,7 +110,7 @@ static void bt_audio_session_setup(void) {
       gboolean loop=TRUE;
   
       // create audio sink and drop floating ref
-      audio_sink=gst_object_ref(gst_element_factory_make(plugin_name,"player"));
+      audio_sink=gst_object_ref(gst_element_factory_make(plugin_name,NULL));
       gst_object_sink(audio_sink);
       GST_WARNING("created session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
       
