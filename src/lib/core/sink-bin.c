@@ -272,10 +272,11 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self) {
       gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat));
 
       // FIXME(ensonic): having a smaller chunk size helps with latency:
-      // - live playback
-      // - changing properties
-      // maybe we can make this an option (for fast machines)
-      chunk>>=6;
+      // - live playback & changing properties
+      // - maybe we can make this an option (for fast machines)
+      // - we also need to make the samples_per_buffer in the sources smaller
+      //   for this to be helpful
+      // - thus we better find a way to increae the ticks_per_beat in idle_loop_mode
 
       GST_INFO_OBJECT(sink,
         "changing audio chunk-size to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",
