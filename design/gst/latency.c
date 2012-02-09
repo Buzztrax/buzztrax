@@ -31,6 +31,7 @@
  *     latency = 162539682 ns = 162 ms
  * - total_latency = (1 + nr_of_queues) * latency
  * - using a smaller blocksize (half of latency) mitigates the problem somewhat
+ *   - resulting latency: target-latency + n-queues * block latency
  * - when using fakesink, our probes are not getting called ?
  * - alsasink fails with some (bpm,tpb) settings (125,4) and then the clock
  *   returns 0 all the time
@@ -42,16 +43,13 @@
  * - see if we could do a delayed wakeup on the queue
  *   - that would need to know how long it takes on average for upstream to
  *     produce a buffer
+ *   - this would make more sense for a threadbarrier element (always one buffer)
+ *     - we need to track when we ask upstream to produce a buffer and
+ *       how long it takes to make it
+ *     - if the buffer-duration is constant, we can delay making the buffers
  * - calculate min,max,avg latencies for each probe-stream
  *   sum=0; cut -d' ' -f2 audiotestsrc0_src_latency.dat | while read v; do sum=`expr $sum + $v`; echo $sum; done | tail -n1
  *
- * - make audiosink a parameter
- *   - ev. parse is using parse launch (needed to do "alsasink device=plughw:0")
- *   - gst_parse_bin_from_description(elem_name,FALSE,NULL) in make_machine()
- *     if elem_name contains spaces
- *     - need to grab the sink from the bin to have the ptr in m->elem (there
- *       must be only one child!
- * - make blocksize divide a parameter
  * - try various sampling rates, right now it is 44100
  */
 
@@ -390,9 +388,10 @@ main (int argc, char **argv)
   guint64 chunk;
   gulong blocksize;
   /* command line options */
-  guint tpb = 8;
+  guint tpb = 4;
   guint bpm = 125;
-  gchar *sink_name = "pulsesink";
+  guint div = 1;
+  gchar *sink_name = SINK_NAME;
 
   /* init gstreamer */
   gst_init (&argc, &argv);
@@ -405,15 +404,18 @@ main (int argc, char **argv)
       bpm = atoi (argv[2]);
       bpm = MAX (1, bpm);
       if (argc>3) {
-        sink_name = argv[3];
+        div = atoi (argv[3]);
+        div = MAX (1, div);
+        if (argc>4) {
+          sink_name = argv[4];
+        }
       }
     }
   }
   chunk=(GST_SECOND*G_GINT64_CONSTANT(60))/(guint64)(bpm*tpb);
-  //blocksize=((2*chunk*44100)/GST_SECOND);
   blocksize=((chunk*44100)/GST_SECOND);
-  GST_INFO("%s| bpm=%u, tpb=%u, audio-chunk-size=%"G_GUINT64_FORMAT" µs=%"G_GUINT64_FORMAT" ms",
-    sink_name, bpm, tpb, GST_TIME_AS_USECONDS(chunk), GST_TIME_AS_MSECONDS(chunk));
+  GST_INFO("%s| bpm=%u, tpb=%u, div=%u, target-latency=%"G_GUINT64_FORMAT" µs=%"G_GUINT64_FORMAT" ms",
+    sink_name, bpm, tpb, div, GST_TIME_AS_USECONDS(chunk), GST_TIME_AS_MSECONDS(chunk));
 
 
   g = g_new0 (Graph, 1);
@@ -436,8 +438,8 @@ main (int argc, char **argv)
   g->m[M_SINK] = make_sink (g, sink_name, "sink");
   
   g_object_set (g->m[M_SRC1]->elem,
-    "num-buffers", NUM_BUFFERS,
-    "blocksize", blocksize,
+    "num-buffers", (NUM_BUFFERS * div),
+    "samplesperbuffer", (blocksize / div),
     NULL);
 
   /* simple setup */

@@ -12,7 +12,7 @@ out="${base}.png"
 mkdir -p $base
 
 title=`grep "µs=" $dbg | cut -c89-`
-target=`echo $title | cut -d'|' -f2 | cut -d' ' -f5 | cut -d= -f2`
+target=`echo $title | cut -d'|' -f2 | cut -d' ' -f6 | cut -d= -f2`
 title=`echo $title | sed 's/|/:/'`
 maxtarget=`expr 6 \* $target`
 grep ":data_probe:" $dbg | cut -c94- >$data
