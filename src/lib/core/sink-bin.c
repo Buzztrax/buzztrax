@@ -268,15 +268,10 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self) {
   GstElement *sink=self->priv->audio_sink;
   if(GST_IS_BASE_AUDIO_SINK(sink)) {
     if(self->priv->beats_per_minute && self->priv->ticks_per_beat) {
+      // we configure stpb in machine.c
+      const gdouble div=60.0/self->priv->subticks_per_tick;
       // configure buffer size (e.g.  GST_SECONG*60/120*4
-      gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat));
-
-      // FIXME(ensonic): having a smaller chunk size helps with latency:
-      // - live playback & changing properties
-      // - maybe we can make this an option (for fast machines)
-      // - we also need to make the samples_per_buffer in the sources smaller
-      //   for this to be helpful
-      // - thus we better find a way to increae the ticks_per_beat in idle_loop_mode
+      gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*div)/(self->priv->beats_per_minute*self->priv->ticks_per_beat));
 
       GST_INFO_OBJECT(sink,
         "changing audio chunk-size to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",
@@ -1024,7 +1019,7 @@ static void bt_sink_bin_set_property(GObject * const object, const guint propert
     case SINK_BIN_TEMPO_BPM:
     case SINK_BIN_TEMPO_TPB:
     case SINK_BIN_TEMPO_STPT:
-	  GST_WARNING("use gstbt_tempo_change_tempo()");
+      GST_WARNING("use gstbt_tempo_change_tempo()");
       break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
