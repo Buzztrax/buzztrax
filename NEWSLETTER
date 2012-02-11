@@ -1,4 +1,10 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
+git diff @{2012-01-01} @{2012-01-31} | diffstat
+
+2012/03 ========================================================================
+
+* latency!
+* more machines ported
 
 2012/02 ========================================================================
 
@@ -21,20 +27,31 @@ In the editor I bumped the required gtk version to get rid of some #ifdef and be
 able to use newer API. I replaced the ruler widgets in volume and panorama 
 popups with with scale markers. Those look nicer and take the scale handle size
 into account. Unfortunately they were almost untested. I made the needed patches
-for gtk-2-24, gtk-3-2 and gtk-HEAD. I could also made workarounds for the issue
-for the time being. So for the time being, don't use inverted ranges on you scale
-and don't use an adjustment with fractions (use 0 .. 100 instead of 0.0 to 1.0).
+for gtk-2-24, gtk-3-2 and gtk-HEAD [1],[2]. I could also made workarounds for
+the issue for the time being. So for the time being, don't use inverted ranges
+on your scales and don't use an adjustment with fractions (use 0 .. 100 instead
+of 0.0 to 1.0).
 
 Most of the work went in the the interaction controller. The controller
 assignment in the UI is a bit more discoverable (content menu not only on main
-widgets, but alos on the label and value label). Controllers can be assigned to
-cobmoboxes too (mapped to enums). We have controllers for note-on midi messages
+widgets, but also on the label and value label). Controllers can be assigned to
+combo-boxes too (mapped to enums). We have controllers for note-on midi messages
 and the velocity that comes with it now.
 
+The other bigger change is that we now have persistent audio sessions (right now
+only enabled for jack). We're basically keep the sink alive across songs and
+also keep it in a resource allocated state. This gives a little speedup on the
+playback startup, but the main motivation was to allow to configure linkage of
+buzztard with other jack client in qjackcontrol. This is also an enabler for
+transport sync support. I have landed initial support for this in gstreamer-git.
+
 There were also a few smaller changes for user feedback on docs and new tips.
+The design folder got more experiments.
 
 [1] https://bugzilla.gnome.org/show_bug.cgi?id=667598
 [2] https://bugzilla.gnome.org/show_bug.cgi?id=667590
+
+485 files changed, 2638 insertions(+), 2033 deletions(-)
 
 2012/01 ========================================================================
 
