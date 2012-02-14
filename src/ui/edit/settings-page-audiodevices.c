@@ -47,6 +47,9 @@
  *   the user is interested in 
  * => we want to check how much ahead of the pipeline clock the data is processed
  *    - compare timestamps we set on buffers in chain functions with the clock
+ * - we need a target latency setting
+ * - in machine.c:bt_machine_init_interfaces() we calculate subticks so that we
+ *   get close to that for the given bpm and tpb
  */
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_AUDIODEVICES_C

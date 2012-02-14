@@ -269,9 +269,9 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self) {
   if(GST_IS_BASE_AUDIO_SINK(sink)) {
     if(self->priv->beats_per_minute && self->priv->ticks_per_beat && self->priv->subticks_per_tick) {
       // we configure stpb in machine.c
-      const gdouble div=60.0/self->priv->subticks_per_tick;
-      // configure buffer size (e.g.  GST_SECONG*60/120*4
-      gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*div)/(self->priv->beats_per_minute*self->priv->ticks_per_beat));
+      const gdouble div=self->priv->beats_per_minute*self->priv->ticks_per_beat*self->priv->subticks_per_tick;
+      // configure buffer size
+      gint64 chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/div);
 
       GST_INFO_OBJECT(sink,
         "changing audio chunk-size to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms",

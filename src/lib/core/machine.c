@@ -946,13 +946,23 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
 
     g_object_get((gpointer)(self->priv->song),"song-info",&song_info,NULL);
     g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
-    // TODO(ensonic): handle stpb (subticks per beat)
+    // IDEA(ensonic): dynamically handle stpb (subticks per beat)
     // - we'd like to set stpb=1 for non interactive playback and recording
     // - we'd like to set stpb>1 for:
     //   - idle-loop play
     //   - open machine windows (with controllers assigned)
-    // start with a reasonable good value for now
-    stpb=16/tpb; 
+    // (GST_SECOND*60)/(bpm*tpb*stpb*1000) = 30
+    // stpb = (GST_SECOND*60)/(bpm*tpb*30*1000000)
+    // TODO(ensonic): get target latency from settings
+    // - maybe we get set target-latency=-1 for no subticks (when recording)
+    // - make this a property on the song that merges latency setting + playback mode?
+    stpb=(GST_SECOND*60)/(bpm*tpb*30*1000000); 
+    GST_WARNING("chosing stpb as : %ld, ideal choise for 20/30/40ms: %ld/%ld/%ld",
+      stpb,
+      (GST_SECOND*60)/(bpm*tpb*20*1000000),
+      (GST_SECOND*60)/(bpm*tpb*30*1000000),
+      (GST_SECOND*60)/(bpm*tpb*40*1000000)
+    ); 
     gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,stpb);
 
     g_signal_connect(song_info,"notify::bpm",G_CALLBACK(bt_machine_on_bpm_changed),(gpointer)self);
