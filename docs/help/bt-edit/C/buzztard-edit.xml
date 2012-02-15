@@ -115,12 +115,14 @@
       when compared to other music composers.
       The tracker concept is more focused on the event data. There is no piano roll (at least not now).
       Instead song fragments (patterns) are shown in a tabular way containing events over time.
+      Both in the sequence view and in the pattern view, time flows from top to
+      bottom, where as in classic sequencers time flows from left to right.
     </para>
     <para>
       The tabbed UI provides several linked views on a song:
       <itemizedlist>
         <listitem><para>A machine view: virtual devices and how they are connected</para></listitem>
-        <listitem><para>A pattern view: each virtual device has a list of event fragments</para></listitem>
+        <listitem><para>A pattern view: each virtual device has a list of fragments with events over time</para></listitem>
         <listitem><para>A sequence view: a timeline where each track contains patterns that should be played at a given time for the machine of the track</para></listitem>
         <listitem><para>A wavetable view: collection of sample clips to be used as sound sources for some machines (optional)</para></listitem>
         <listitem><para>A metadata view: extra information about the song</para></listitem>
