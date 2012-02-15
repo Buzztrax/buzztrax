@@ -151,7 +151,7 @@
         <listitem><para>can render songs to wav/mp3,ogg-vorbis/... including song-meta-data (tags) and multi track exports</para></listitem>
         <listitem><para>uses color-codes for machine-types through its ui</para></listitem>
         <listitem><para>generates cleaner machine UIs (collapsing parts, more distinct widgets)</para></listitem>
-        <listitem><para>has a scalable machine view</para></listitem>
+        <listitem><para>has a scaleable machine view</para></listitem>
         <listitem><para>can use beats other that 4/4</para></listitem>
         <listitem><para>shows volume and pan on wire</para></listitem>
         <listitem><para>does balance on stereo wires</para></listitem>
@@ -299,7 +299,7 @@
     <para>
       Now switch to the <link linkend="bt-edit-main-view-machines">machine view</link>.
       In order to use samples we need to add a special generator that supports the
-      wavetable functionality. Lets use "Generators/BML/Mathilde-Tracker". This
+      wavetable functionality. Lets use "Generators/BML/Matilde-Tracker". This
       machine is part of the ported buzzmachine package. Link the machine to the
       master as usual. Now switch to the <link linkend="bt-edit-main-view-patterns">pattern editor</link>.
       There you can select the "default waveform" from the combo box in the toolbar.
@@ -327,7 +327,7 @@
           <imagedata fileref="figures/main-window.png" format="PNG" contentwidth="65%"/>
         </imageobject>
         <textobject>
-          <phrase>Shows &app; main window with menu bar, toolbars, editor views and status area.</phrase>
+          <phrase>Shows &app; main window with menu bar, tool bars, editor views and status area.</phrase>
         </textobject>
       </mediaobject>
     </screenshot>
@@ -1488,15 +1488,15 @@ i o p</keycap></screen></entry>
     <title id="bt-edit-dialog-missing-song-elements.title">Missing song elements dialog</title>
     <para>
       Songs have external dependencies, such as the machines (generators and
-      effects) and sampled waveforms. In some song formats (e.g. .bzt) the
-      waveforms are part of the song file, in others (e.g. .xml) only the path
+      effects) and sampled wave forms. In some song formats (e.g. .bzt) the
+      wave forms are part of the song file, in others (e.g. .xml) only the path
       to the waveform file is stored. If loading a file detects that some
       dependencies are missing, &app; will gather them and present them in one
       dialog.
     </para>
     <para>
       To solve the problem one needs to install the missing machines or put the
-      external waveforms back to the original place. It would be desirable to
+      external wave forms back to the original place. It would be desirable to
       have some repair feature in &app; to support fixing the song.
     </para>
     <figure id="bt-edit-dialog-missing-song-elements-fig">
