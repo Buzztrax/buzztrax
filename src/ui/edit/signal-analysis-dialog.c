@@ -37,16 +37,6 @@
  *
  * IDEA(ensonic): use own ruler widget or patch up the existing one
  * http://live.gnome.org/GTK%2B/GtkRuler
- *
- * IDEA(ensonic): it would be nice to use this on the sink-machine as well.
- * - need to change it to "analysis-dialog"
- * - the constructor needs variants for machines and wires or we just pass it a
- *   and require that the bin has a "ananlyzers" property
- * - machines need a pre/post hook (idealy we just need it for the sink)
- *   - we have (pre-gain)-level there already
- *   - we have no tee in machines (except the spreader, which we can't misuse
- *     here)
- *   - we could always plug a tee in sink-bin and add the analyzers there
  */
 /* frequency spacing in a FFT is always linear:
  * - for 44100 Hz and 256 bands, spacing is 22050/256 = ~86.13
@@ -74,7 +64,7 @@ typedef enum {
   // real analyzers
   ANALYZER_LEVEL,
   ANALYZER_SPECTRUM,
-  // this can be 'mis'used for an aoszilloscope by connecting to hand-off
+  // this can be 'mis'used for an oszilloscope by connecting to hand-off
   ANALYZER_FAKESINK,
   // how many elements are used
   ANALYZER_COUNT

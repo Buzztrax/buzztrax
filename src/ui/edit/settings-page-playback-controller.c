@@ -26,8 +26,10 @@
  *   - upnp coherence/gupnp
  *   - alsa midi MC
  *   - jack midi MC
+ *   - jack transport
  * - when clicking one, we switch the pane below
- * - in the lst we show name and a checkbox to enable/disable them
+ * - in the list we show name and a checkboxes to enable/disable master and
+ *   slave mode
  */
 
 #define BT_EDIT
