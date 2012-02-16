@@ -446,7 +446,6 @@ static gboolean on_spectrum_freq_axis_expose(GtkWidget *widget,GdkEventExpose *e
   
   // draw beg,end
   x1=0;
-  x2=widget->allocation.width/2;
   x3=widget->allocation.width;
   y1=0;
   y2=(AXIS_THICKNESS-1)/2;
@@ -465,8 +464,37 @@ static gboolean on_spectrum_freq_axis_expose(GtkWidget *widget,GdkEventExpose *e
   w1=lr.width;
   draw_hlabel(widget,window,style,layout,x3-w1,y1,x3-1,y2,y3);
 
-  // draw mid and recurse
-  layout_label(widget,window,style,layout,ad,1,0,m,x1,x3,w1,y1,y2,y3);
+  if(self->priv->frq_map==MAP_LIN) {
+    // recurse
+    layout_label(widget,window,style,layout,ad,1,0,m,x1,x3,w1,y1,y2,y3);
+  }
+  else {
+    gdouble v=self->priv->spect_bands/log10(m);
+    gdouble f=0.0,inc=1.0,end=10.0;
+    gdouble *grid_log10 = self->priv->grid_log10;
+    gint i=0,w2;
+
+    while(f<m) {
+      x2=0.5+v*grid_log10[i++];
+      f+=inc;
+      if(f>=end) {
+        sprintf(str,"<small>%d</small>",(gint)end);
+        pango_layout_set_markup(layout,str,-1);
+        pango_layout_get_pixel_extents(layout,NULL,&lr);  
+        w2=lr.width/2;
+        if ((x2+w2)<(x3-w1)) {
+          draw_hlabel(widget,window,style,layout,x2-w2,y1,x2,y2,y3);
+        }
+        else {
+          draw_hlabel(widget,window,style,NULL,x2,y1,x2,y2,y3);
+        }
+        f=inc=end;
+        end*=10.0;
+      } else {
+        draw_hlabel(widget,window,style,NULL,x2,y1,x2,y2,y3);
+      }
+    }
+  }
   
   gdk_window_end_paint(window);
   g_object_unref(layout);
