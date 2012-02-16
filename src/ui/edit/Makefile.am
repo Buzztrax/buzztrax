@@ -74,7 +74,6 @@ libbtedit_la_SOURCES	= \
 	\
 	pattern-editor.c pattern-editor.h \
 	gtkvumeter.c gtkvumeter.h \
-	ruler.c ruler.h \
 	\
 	btmemoryaudiosrc.c btmemoryaudiosrc.h \
 	\
