@@ -95,6 +95,7 @@ struct _BtSignalAnalysisDialogPrivate {
 
   /* the item to attach the analyzer to */
   GstBin *element;
+  GstBus *bus;
 
   /* the analyzer-graphs */
   GtkWidget *spectrum_drawingarea, *level_drawingarea;
@@ -824,7 +825,6 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   BtSong *song;
   GstBin *bin;
   GstPad *pad;
-  GstBus *bus;
   gchar *title=NULL;
   //GdkPixbuf *window_icon=NULL;
   GtkWidget *vbox, *table;
@@ -1005,9 +1005,8 @@ static gboolean bt_signal_analysis_dialog_init_ui(const BtSignalAnalysisDialog *
   }
 
   g_object_get(song,"bin", &bin, NULL);
-  bus=gst_element_get_bus(GST_ELEMENT(bin));
-  g_signal_connect(bus, "message::element", G_CALLBACK(on_signal_analyser_change), (gpointer)self);
-  gst_object_unref(bus);
+  self->priv->bus=gst_element_get_bus(GST_ELEMENT(bin));
+  g_signal_connect(self->priv->bus, "message::element", G_CALLBACK(on_signal_analyser_change), (gpointer)self);
   self->priv->clock=gst_pipeline_get_clock (GST_PIPELINE(bin));
   gst_object_unref(bin);
 
@@ -1071,7 +1070,6 @@ static void bt_signal_analysis_dialog_set_property(GObject *object, guint proper
 
 static void bt_signal_analysis_dialog_dispose(GObject *object) {
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG(object);
-  BtSong *song;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -1091,18 +1089,9 @@ static void bt_signal_analysis_dialog_dispose(GObject *object) {
 
   GST_DEBUG("!!!! removing signal handler");
 
-  g_object_get(self->priv->app,"song",&song,NULL);
-  if(song) {
-    GstBin *bin;
-    GstBus *bus;
-
-    g_object_get(song,"bin", &bin, NULL);
-
-    bus=gst_element_get_bus(GST_ELEMENT(bin));
-    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_signal_analyser_change,self);
-    gst_object_unref(bus);
-    gst_object_unref(bin);
-    g_object_unref(song);
+  if(self->priv->bus) {
+    g_signal_handlers_disconnect_matched(self->priv->bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_signal_analyser_change,self);
+    gst_object_unref(self->priv->bus);
   }
 
   // this destroys the analyzers too
