@@ -1035,6 +1035,9 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   if(self->priv->preferences_dialog) {
     gtk_widget_destroy(self->priv->preferences_dialog);
   }
+  if(self->priv->analysis_dialog) {
+    gtk_widget_destroy(self->priv->analysis_dialog);
+  }
   GST_DEBUG("  destroying dialogs done");
 
   gdk_cursor_unref(self->priv->drag_cursor);
