@@ -68,6 +68,7 @@ struct _BtSettingsPageAudiodevicesPrivate {
 
   GtkComboBox *samplerate_menu;
   GtkComboBox *channels_menu;
+  GtkSpinButton *latency_entry;
 };
 
 //-- the class
@@ -122,18 +123,34 @@ static void on_channels_menu_changed(GtkComboBox *combo_box, gpointer user_data)
   g_object_unref(settings);
 }
 
+static void on_latency_entry_changed(GtkSpinButton *spinbutton,gpointer user_data) {
+  BtSettingsPageAudiodevices *self=BT_SETTINGS_PAGE_AUDIODEVICES(user_data);
+  BtSettings *settings;
+  guint latency;
+  
+  latency=gtk_spin_button_get_value_as_int(spinbutton);
+  GST_INFO("latency changed : latency=%u",latency);
+
+  g_object_get(self->priv->app,"settings",&settings,NULL);
+  g_object_set(settings,"latency",latency,NULL);
+  g_object_unref(settings);
+}
+
 //-- helper methods
 
 static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevices *self) {
   BtSettings *settings;
+  BtSettingsClass *settings_class;
   GtkWidget *label,*spacer;
+  GtkAdjustment *spin_adjustment;
+  GParamSpecUInt *pspec;
   gchar *audiosink_name,*system_audiosink_name,*str;
   GList *node,*audiosink_factories;
   gboolean use_system_audiosink=TRUE;
   gboolean can_int_caps,can_float_caps;
   //GstCaps *int_caps=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
   //GstCaps *float_caps=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
-  guint sample_rate,channels;
+  guint sample_rate,channels,latency;
   gulong audiosink_index=0,sampling_rate_index,ct;
 
   gtk_widget_set_name(GTK_WIDGET(self),"audio device settings");
@@ -145,8 +162,10 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
     "system-audiosink",&system_audiosink_name,
     "sample-rate",&sample_rate,
     "channels",&channels,
+    "latency",&latency,
     NULL);
   if(BT_IS_STRING(audiosink_name)) use_system_audiosink=FALSE;
+  settings_class=BT_SETTINGS_GET_CLASS(settings);
 
   // add setting widgets
   spacer=gtk_label_new("    ");
@@ -338,6 +357,16 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->channels_menu), 2, 3, 3, 4, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(self->priv->channels_menu, "changed", G_CALLBACK(on_channels_menu_changed), (gpointer)self);
 
+  label=gtk_label_new(_("Latency"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(self),label, 1, 2, 4, 5, GTK_FILL,GTK_SHRINK, 2,1);
+
+  pspec=(GParamSpecUInt *)g_object_class_find_property((GObjectClass *)settings_class,"latency");
+  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(latency, pspec->minimum, pspec->maximum, 5.0, 10.0, 0.0));
+  self->priv->latency_entry=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
+  gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->latency_entry), 2, 3, 4, 5, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+  g_signal_connect(self->priv->latency_entry, "value-changed", G_CALLBACK(on_latency_entry_changed), (gpointer)self);
+
   /* TODO(ensonic): add audiosink parameters
    * e.g. device-name
    * GstBaseSink: preroll-queue-len (buffers), max-lateness (ns)
@@ -375,7 +404,7 @@ BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new() {
   BtSettingsPageAudiodevices *self;
 
   self=BT_SETTINGS_PAGE_AUDIODEVICES(g_object_new(BT_TYPE_SETTINGS_PAGE_AUDIODEVICES,
-    "n-rows",5,
+    "n-rows",6,
     "n-columns",3,
     "homogeneous",FALSE,
     NULL));
