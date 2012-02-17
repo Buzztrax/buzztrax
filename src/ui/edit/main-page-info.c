@@ -401,7 +401,6 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   gtk_widget_set_can_focus(GTK_WIDGET(self->priv->date_changed),FALSE);
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->date_changed), 1, 2, 3, 4, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
-  // @idea have another field with subticks (GstController parameter smoothing)
   // @idea show tick and subtick interval as time (s:ms)
 
   // spacer ?
