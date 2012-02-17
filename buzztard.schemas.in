@@ -177,6 +177,17 @@
         <long>How many audio channels should be used for the generated audio.</long>
       </locale>
     </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/latency</key>
+      <applyto>/apps/buzztard/latency</applyto>
+      <owner>buzztard</owner>
+      <type>int</type>
+      <locale name="C">
+        <default>30</default>
+        <short>Target audio latency in ms</short>
+        <long>What audio latency should the audio engine be configured for.</long>
+      </locale>
+    </schema>
     <!-- playback controller -->
     <schema>
       <key>/schemas/apps/buzztard/playback-controller/coherence-upnp-active</key>

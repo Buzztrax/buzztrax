@@ -333,6 +333,11 @@ static void bt_gconf_settings_get_property(GObject * const object, const guint p
         watch_buzztard(self);
       read_uint_def(self,BT_GCONF_PATH_BUZZTARD"/channels",value,(GParamSpecUInt *)pspec);
     } break;
+    case BT_SETTINGS_LATENCY: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
+      read_uint_def(self,BT_GCONF_PATH_BUZZTARD"/latency",value,(GParamSpecUInt *)pspec);
+    } break;
     /* playback controller */
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE: {
       if (!G_UNLIKELY(self->priv->watch_buzztard))
@@ -462,6 +467,11 @@ static void bt_gconf_settings_set_property(GObject * const object, const guint p
       if (!G_UNLIKELY(self->priv->watch_buzztard))
         watch_buzztard(self);
       write_uint(self,BT_GCONF_PATH_BUZZTARD"/channels",value);
+    } break;
+    case BT_SETTINGS_LATENCY: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
+      write_uint(self,BT_GCONF_PATH_BUZZTARD"/latency",value);
     } break;
     /* playback controller */
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE: {

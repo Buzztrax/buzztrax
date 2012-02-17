@@ -382,6 +382,15 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      2, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property(gobject_class,BT_SETTINGS_LATENCY,
+                                  g_param_spec_uint("latency",
+                                     "latency prop",
+                                     "target audio latency in ms",
+                                     1,
+                                     200,
+                                     30, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
   // playback controller
   g_object_class_install_property(gobject_class,BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE,
                                   g_param_spec_boolean("coherence-upnp-active",
