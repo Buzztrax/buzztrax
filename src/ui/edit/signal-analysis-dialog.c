@@ -35,12 +35,6 @@
  * TODO(ensonic): shall we add a volume and panorama control to the dialog as well?
  * - volume to the right of the spectrum
  * - panorama below the spectrum
- *
- * IDEA(ensonic): use a drawing area for the axis labels
- * - take code from gtkscale
- * - ev. also add a side ruler for the fft-levels
- * - instead of tracking the mouse pos on the axis, we can draw a cross-hair
- *   over the graph
  */
 /* frequency spacing in a FFT is always linear:
  * - for 44100 Hz and 256 bands, spacing is 22050/256 = ~86.13
@@ -266,11 +260,13 @@ static gboolean on_spectrum_expose(GtkWidget *widget,GdkEventExpose *event,gpoin
   guint i,c;
   gdouble x,y,v,f;
   gdouble inc,end,srat2;
+  gint mx,my;
   guint spect_bands=self->priv->spect_bands;
   guint spect_height=self->priv->spect_height;
   GdkRectangle rect = { 0, 0, spect_bands, self->priv->spect_height };
   GdkWindow *window = gtk_widget_get_window (widget);
   gdouble *grid_log10 = self->priv->grid_log10;
+  gdouble *graph_log10 = self->priv->graph_log10;
   gdouble grid_dash_pattern[]={1.0};
   cairo_t *cr;
 
@@ -314,7 +310,6 @@ static gboolean on_spectrum_expose(GtkWidget *widget,GdkEventExpose *event,gpoin
   for(c=0;c<self->priv->spect_channels;c++) {
     if(self->priv->spect[c]) {
       gfloat *spect=self->priv->spect[c];
-      gdouble *graph_log10=self->priv->graph_log10;
       gdouble prec=self->priv->frq_precision;
 
       // set different color for different channels
@@ -356,6 +351,16 @@ static gboolean on_spectrum_expose(GtkWidget *widget,GdkEventExpose *event,gpoin
     }
   }
   g_mutex_unlock(self->priv->lock);
+  
+  // draw cross-hair for mouse
+  gtk_widget_get_pointer(widget,&mx,&my);
+  if ((mx>=0) && (mx<widget->allocation.width)
+    && (my>=0) && (my<widget->allocation.height)) {
+    cairo_set_source_rgba(cr,self->priv->peak_color->red/65535.0,self->priv->peak_color->green/65535.0,self->priv->peak_color->blue/65535.0,0.7);
+    cairo_rectangle(cr,mx-1.0,0.0,2.0,spect_height);
+    cairo_rectangle(cr,0.0,my-1.0,spect_bands,2.0);
+    cairo_fill(cr);
+  }
 
   cairo_destroy(cr);
   gdk_window_end_paint(window);
@@ -787,11 +792,8 @@ static void on_spectrum_frequency_precision_changed(GtkComboBox *combo, gpointer
 
 static gboolean on_spectrum_drawingarea_motion_notify_event(GtkWidget *widget,GdkEventMotion *event,gpointer user_data) {
   BtSignalAnalysisDialog *self=BT_SIGNAL_ANALYSIS_DIALOG(user_data);
-  gdouble pos;
-
-  pos=(event->x*(gdouble)self->priv->srate)/((gdouble)self->priv->spect_bands*2.0);
+  
   gtk_widget_queue_draw(self->priv->spectrum_drawingarea);
-
   return(FALSE);
 }  
 
