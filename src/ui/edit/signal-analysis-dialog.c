@@ -517,7 +517,7 @@ static gboolean on_level_axis_expose(GtkWidget *widget,GdkEventExpose *event,gpo
   GtkStyle *style = gtk_widget_get_style(widget);
   PangoLayout *layout = gtk_widget_create_pango_layout(widget,NULL);
   PangoRectangle lr;
-  gint x1,x2,x3,y1,y2,y3,w1;
+  gint x1,x3,y1,y2,y3,w1;
   gchar str[30];
   BtAxisData ad[] = {
     {200,1,1},
@@ -532,7 +532,6 @@ static gboolean on_level_axis_expose(GtkWidget *widget,GdkEventExpose *event,gpo
   gdk_window_begin_paint_rect(window, &rect);
   
   x1=0;
-  x2=widget->allocation.width/2;
   x3=widget->allocation.width;
   y1=0;
   y2=(AXIS_THICKNESS-1)/2;
