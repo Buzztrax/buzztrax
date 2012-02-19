@@ -549,85 +549,114 @@ BT_START_TEST(test_btsequence_ctrl_two_tracks) {
 }
 BT_END_TEST
 
+typedef struct {
+  gint ct;
+  gint *values;
+} BtSequenceTicksTestData;
+
+static void on_btsequence_ticks_notify(GstObject *machine,GParamSpec *arg,gpointer user_data) {
+  BtSequenceTicksTestData *data=(BtSequenceTicksTestData *)user_data;
+  
+  g_object_get(machine,"wave",&data->values[data->ct],NULL);
+  GST_INFO("val[%d]=%d",data->ct,data->values[data->ct]);
+  data->ct++;
+}
+
+static gboolean on_btsequence_ticks_timeout(gpointer data) {
+  g_main_loop_quit((GMainLoop *)data);
+  return(FALSE);
+}
 
 BT_START_TEST(test_btsequence_ticks) {
   BtApplication *app;
   GError *err=NULL;
   BtSong *song;
   BtSequence *sequence;
-  BtMachine *machine;
+  BtMachine *src,*sink;
   BtPattern *pattern;
   GstObject *element;
+  BtWire *wire=NULL;
   gulong val;
-  GstClockTime bar_time;
+  GMainLoop *loop;
+  BtSequenceTicksTestData data = {0,};
+  gint values[8];
 
   /* create app and song */
   app=bt_test_application_new();
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
-   /* create a source machine and get the gstreamer element */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err));
-  fail_unless(machine!=NULL, NULL);
+  /* create a source machine and get the gstreamer element, 
+   * need a real one that handles tempo and calls gst_object_sync */
+  src=BT_MACHINE(bt_source_machine_new(song,"gen","simsyn",0,&err));
+  fail_unless(src!=NULL, NULL);
   fail_unless(err==NULL, NULL);
+  g_object_get(src,"machine",&element,NULL);
+  
+  /* create sink and link src and sink */
+  sink = BT_MACHINE(bt_sink_machine_new(song,"sink",&err));
+  fail_unless(sink!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  wire = bt_wire_new(song,src,sink,&err);
+  fail_unless(wire!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  
   /* create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,src);
   fail_unless(pattern!=NULL, NULL);
 
   /* enlarge length */
   g_object_set(sequence,"length",8L,NULL);
 
   /* set machine */
-  bt_sequence_add_track(sequence,machine,-1);
+  bt_sequence_add_track(sequence,src,-1);
 
   /* set pattern */
+  bt_pattern_set_global_event(pattern,0,1,"0");
+  bt_pattern_set_global_event(pattern,1,1,"1");
+  bt_pattern_set_global_event(pattern,2,1,"2");
+  bt_pattern_set_global_event(pattern,3,1,"3");
+  bt_pattern_set_global_event(pattern,4,1,"4");
+  bt_pattern_set_global_event(pattern,5,1,"5");
+  bt_pattern_set_global_event(pattern,6,1,"6");
+  bt_pattern_set_global_event(pattern,7,1,"7");
+
   bt_sequence_set_pattern(sequence,0,0,pattern);
-
-  bt_pattern_set_global_event(pattern,0,0,"0");
-  bt_pattern_set_global_event(pattern,1,0,"10");
-  bt_pattern_set_global_event(pattern,2,0,"20");
-  bt_pattern_set_global_event(pattern,3,0,"30");
-  bt_pattern_set_global_event(pattern,4,0,"40");
-  bt_pattern_set_global_event(pattern,5,0,"50");
-  bt_pattern_set_global_event(pattern,6,0,"60");
-  bt_pattern_set_global_event(pattern,7,0,"70");
-
-  g_object_get(machine,"machine",&element,NULL);
 
   /* we should still have the default value */
   g_object_get(element,"g-ulong",&val,NULL);
   fail_unless(val==0, NULL);
 
-  /* pull in the change and verify */
-  bar_time=bt_sequence_get_bar_time(sequence);
-  gst_object_sync_values(G_OBJECT(element),bar_time*0);
-  g_object_get(element,"g-ulong",&val,NULL);
-  fail_unless(val==0, NULL);
-  gst_object_sync_values(G_OBJECT(element),bar_time*1);
-  g_object_get(element,"g-ulong",&val,NULL);
-  fail_unless(val==10, NULL);
-  gst_object_sync_values(G_OBJECT(element),bar_time*2);
-  g_object_get(element,"g-ulong",&val,NULL);
-  fail_unless(val==20, NULL);
-  gst_object_sync_values(G_OBJECT(element),bar_time*3);
-  g_object_get(element,"g-ulong",&val,NULL);
-  fail_unless(val==30, NULL);
-  gst_object_sync_values(G_OBJECT(element),bar_time*4);
-  g_object_get(element,"g-ulong",&val,NULL);
-  fail_unless(val==40, NULL);
-  gst_object_sync_values(G_OBJECT(element),bar_time*5);
-  g_object_get(element,"g-ulong",&val,NULL);
-  fail_unless(val==50, NULL);
-  gst_object_sync_values(G_OBJECT(element),bar_time*6);
-  g_object_get(element,"g-ulong",&val,NULL);
-  fail_unless(val==60, NULL);
-  gst_object_sync_values(G_OBJECT(element),bar_time*7);
-  g_object_get(element,"g-ulong",&val,NULL);
-  fail_unless(val==70, NULL);
+  data.values=values;
+  g_signal_connect(G_OBJECT(element),"notify::wave",G_CALLBACK(on_btsequence_ticks_notify),&data);
+
+  /* play the songs */
+  loop=g_main_loop_new(NULL, FALSE);
+  bt_song_play(song);
+  bt_song_write_to_lowlevel_dot_file(song);
+  // the object_notify() should be triggered from the streaming threads
+  // still we don't see them
+  g_timeout_add(1000,on_btsequence_ticks_timeout,loop);
+  g_main_loop_run(loop);
+  bt_song_stop(song);
+  GST_INFO("ct=%d",data.ct);
+  
+  /* check the captured values changes */
+  fail_unless(data.ct==8, NULL);
+  fail_unless(values[0]==0, NULL);
+  fail_unless(values[1]==1, NULL);
+  fail_unless(values[2]==2, NULL);
+  fail_unless(values[3]==3, NULL);
+  fail_unless(values[4]==4, NULL);
+  fail_unless(values[5]==5, NULL);
+  fail_unless(values[6]==6, NULL);
+  fail_unless(values[7]==7, NULL);
 
   /* clean up */
   gst_object_unref(element);
   g_object_unref(pattern);
-  g_object_unref(machine);
+  g_object_unref(src);
+  g_object_unref(sink);
+  g_object_unref(wire);
   g_object_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
