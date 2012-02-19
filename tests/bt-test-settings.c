@@ -106,6 +106,7 @@ static void bt_test_settings_get_property(GObject * const object,const guint pro
     } break; 
     case BT_SETTINGS_SAMPLE_RATE:
     case BT_SETTINGS_CHANNELS:
+    case BT_SETTINGS_LATENCY:
     case BT_SETTINGS_NEWS_SEEN:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
     {
@@ -169,6 +170,7 @@ static void bt_test_settings_set_property(GObject * const object, const guint pr
     } break; 
     case BT_SETTINGS_SAMPLE_RATE:
     case BT_SETTINGS_CHANNELS:
+    case BT_SETTINGS_LATENCY:
     case BT_SETTINGS_NEWS_SEEN:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
     {
