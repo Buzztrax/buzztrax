@@ -32,6 +32,9 @@
  * to test midi inputs
  * amidi -l
  * amidi -d -p hw:2,0,0
+ *
+ * support reason midi-profiles:
+ * http://www.propellerheads.se/substance/discovering-reason/index.cfm?fuseaction=get_article&article=part33
  */
 #define BTIC_CORE
 #define BTIC_MIDI_DEVICE_C
@@ -378,9 +381,6 @@ static void btic_midi_device_interface_init(gpointer const g_iface, gpointer con
 
 static void btic_midi_device_constructed(GObject *object) {
   const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
-#if 0
-  gint io;
-#endif
 
   if(G_OBJECT_CLASS(btic_midi_device_parent_class)->constructed)
     G_OBJECT_CLASS(btic_midi_device_parent_class)->constructed(object);
@@ -388,7 +388,8 @@ static void btic_midi_device_constructed(GObject *object) {
   btic_learn_load_controller_map(BTIC_LEARN(self));
 
 #if 0
-// we never receive anything back :/
+  // also see design/midi/rawmidi.c 
+  gint io;
   if((io=open(self->priv->devnode,O_NONBLOCK|O_RDWR|O_SYNC))>0) {
     gchar data[17]={0,};
     gsize ct;
@@ -400,16 +401,11 @@ static void btic_midi_device_constructed(GObject *object) {
     data[4]=0x01; // Identity Request
     data[5]=MIDI_SYS_EX_END;
     GST_INFO("send identity request to: %s",self->priv->devnode);
-    /*
-    for(ct=0;ct<6;ct++) {
-      write(io,&data[ct],1);
-      usleep(5000);
-    }
-    */
     if((ct=write(io,data,6))<6)
       goto done;
-    if((ct=read(io,data,17))<15)
-      goto done;
+    do {
+      ct=read(io,data,15);
+    } while(ct==-1);
     GST_MEMDUMP("reply",(guint8 *)data,15);
     // 5:   manufacturer id (if 0, then id is next two bytes)
     // 6,7: family code
