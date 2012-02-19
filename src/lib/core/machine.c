@@ -327,6 +327,7 @@ void bt_machine_on_latency_changed(BtSettings * const settings, const GParamSpec
   g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
   g_object_unref(song_info);
   stpb=(GST_SECOND*60)/(bpm*tpb*latency*1000000);
+  stpb=MAX(1,stpb);
   GST_DEBUG("chosing stpb as : %ld", stpb);
   gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),-1,-1,stpb);
 }
@@ -977,7 +978,8 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
      * - make this a property on the song that merges latency setting + playback mode?
      */
     
-    stpb=(GST_SECOND*60)/(bpm*tpb*latency*1000000); 
+    stpb=(GST_SECOND*60)/(bpm*tpb*latency*1000000);
+    stpb=MAX(1,stpb);
     GST_DEBUG("chosing stpb as : %ld", stpb); 
     gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,stpb);
 
