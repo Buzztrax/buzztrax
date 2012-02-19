@@ -3691,6 +3691,7 @@ static void bt_machine_set_property(GObject * const object, const guint property
 
 static void bt_machine_dispose(GObject * const object) {
   const BtMachine * const self = BT_MACHINE(object);
+  BtSettings *settings;
   const gulong voices=self->priv->voices;
   const gulong global_params=self->priv->global_params;
   const gulong voice_params=self->priv->voice_params;
@@ -3716,7 +3717,10 @@ static void bt_machine_dispose(GObject * const object) {
       g_object_unref(song_info);
     }
   }
-
+  settings=bt_settings_make();
+  g_signal_handlers_disconnect_matched(settings,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_machine_on_latency_changed,(gpointer)self);
+  g_object_unref(settings);
+  
   // unref controllers
   GST_DEBUG("  releasing controllers, global.ref_ct=%d, voices=%lu",
     G_OBJECT_REF_COUNT(self->priv->global_controller),self->priv->voices);

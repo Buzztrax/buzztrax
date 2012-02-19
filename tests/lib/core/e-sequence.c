@@ -550,6 +550,91 @@ BT_START_TEST(test_btsequence_ctrl_two_tracks) {
 BT_END_TEST
 
 
+BT_START_TEST(test_btsequence_ticks) {
+  BtApplication *app;
+  GError *err=NULL;
+  BtSong *song;
+  BtSequence *sequence;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GstObject *element;
+  gulong val;
+  GstClockTime bar_time;
+
+  /* create app and song */
+  app=bt_test_application_new();
+  song=bt_song_new(app);
+  g_object_get(song,"sequence",&sequence,NULL);
+   /* create a source machine and get the gstreamer element */
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err));
+  fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  /* create a pattern */
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+  fail_unless(pattern!=NULL, NULL);
+
+  /* enlarge length */
+  g_object_set(sequence,"length",8L,NULL);
+
+  /* set machine */
+  bt_sequence_add_track(sequence,machine,-1);
+
+  /* set pattern */
+  bt_sequence_set_pattern(sequence,0,0,pattern);
+
+  bt_pattern_set_global_event(pattern,0,0,"0");
+  bt_pattern_set_global_event(pattern,1,0,"10");
+  bt_pattern_set_global_event(pattern,2,0,"20");
+  bt_pattern_set_global_event(pattern,3,0,"30");
+  bt_pattern_set_global_event(pattern,4,0,"40");
+  bt_pattern_set_global_event(pattern,5,0,"50");
+  bt_pattern_set_global_event(pattern,6,0,"60");
+  bt_pattern_set_global_event(pattern,7,0,"70");
+
+  g_object_get(machine,"machine",&element,NULL);
+
+  /* we should still have the default value */
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==0, NULL);
+
+  /* pull in the change and verify */
+  bar_time=bt_sequence_get_bar_time(sequence);
+  gst_object_sync_values(G_OBJECT(element),bar_time*0);
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==0, NULL);
+  gst_object_sync_values(G_OBJECT(element),bar_time*1);
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==10, NULL);
+  gst_object_sync_values(G_OBJECT(element),bar_time*2);
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==20, NULL);
+  gst_object_sync_values(G_OBJECT(element),bar_time*3);
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==30, NULL);
+  gst_object_sync_values(G_OBJECT(element),bar_time*4);
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==40, NULL);
+  gst_object_sync_values(G_OBJECT(element),bar_time*5);
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==50, NULL);
+  gst_object_sync_values(G_OBJECT(element),bar_time*6);
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==60, NULL);
+  gst_object_sync_values(G_OBJECT(element),bar_time*7);
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==70, NULL);
+
+  /* clean up */
+  gst_object_unref(element);
+  g_object_unref(pattern);
+  g_object_unref(machine);
+  g_object_unref(sequence);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+
 BT_START_TEST(test_btsequence_validate_loop) {
   BtApplication *app=NULL;
   BtSong *song;
@@ -593,6 +678,7 @@ TCase *bt_sequence_example_case(void) {
   //tcase_add_test(tc,test_btsequence_update);
   tcase_add_test(tc,test_btsequence_change_pattern);
   tcase_add_test(tc,test_btsequence_ctrl_two_tracks);
+  tcase_add_test(tc,test_btsequence_ticks);
   tcase_add_test(tc,test_btsequence_validate_loop);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
