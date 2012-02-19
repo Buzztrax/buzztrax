@@ -1,5 +1,4 @@
-/* $Id: dynlink2.c 1903 2008-08-07 19:04:18Z ensonic $
- * test dynamic linking
+/* test dynamic linking
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink2.c -o dynlink2
  * gcc -Wall -g -DGST_USE_UNSTABLE_API `pkg-config gstreamer-0.11 --cflags --libs` dynlink2.c -o dynlink2

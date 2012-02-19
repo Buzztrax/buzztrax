@@ -1,6 +1,4 @@
-/* $Id: sequence-grid-model.c 3349 2011-05-02 20:35:54Z ensonic $
- *
- * Buzztard
+/* Buzztard
  * Copyright (C) 2011 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or

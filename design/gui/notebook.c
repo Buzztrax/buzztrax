@@ -1,5 +1,4 @@
-/** $Id: accelpopup.c 1742 2008-04-16 06:30:00Z ensonic $
- * test adding pages to notebook
+/* test adding pages to notebook
  *
  * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` notebook.c -o notebook
  */

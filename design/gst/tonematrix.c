@@ -1,5 +1,4 @@
-/* $Id:
- * audio controller and mixing example
+/* audio controller and mixing example
  *
  * gcc -Wall -g `pkg-config --cflags --libs gstreamer-0.10 gstreamer-controller-0.10 gtk+-2.0` tonematrix.c -o tonematrix
  */
