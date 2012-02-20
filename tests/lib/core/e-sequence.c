@@ -549,6 +549,7 @@ BT_START_TEST(test_btsequence_ctrl_two_tracks) {
 }
 BT_END_TEST
 
+
 typedef struct {
   gint ct;
   gint *values;
@@ -562,29 +563,26 @@ static void on_btsequence_ticks_notify(GstObject *machine,GParamSpec *arg,gpoint
   data->ct++;
 }
 
-static gboolean on_btsequence_ticks_timeout(gpointer data) {
-  g_main_loop_quit((GMainLoop *)data);
-  return(FALSE);
-}
-
 BT_START_TEST(test_btsequence_ticks) {
   BtApplication *app;
   GError *err=NULL;
   BtSong *song;
   BtSequence *sequence;
+  BtSongInfo *song_info;
   BtMachine *src,*sink;
   BtPattern *pattern;
   GstObject *element;
   BtWire *wire=NULL;
-  gulong val;
-  GMainLoop *loop;
+  gint val;
   BtSequenceTicksTestData data = {0,};
   gint values[8];
 
   /* create app and song */
   app=bt_test_application_new();
   song=bt_song_new(app);
-  g_object_get(song,"sequence",&sequence,NULL);
+  g_object_get(song,"sequence",&sequence,"song-info",&song_info,NULL);
+  /* use hight ticks-per-beat to make the test short ~ 0.2 sec */
+  g_object_set(song_info,"bpm",150L,"tpb",16L,NULL);
   /* create a source machine and get the gstreamer element, 
    * need a real one that handles tempo and calls gst_object_sync */
   src=BT_MACHINE(bt_source_machine_new(song,"gen","simsyn",0,&err));
@@ -623,20 +621,15 @@ BT_START_TEST(test_btsequence_ticks) {
   bt_sequence_set_pattern(sequence,0,0,pattern);
 
   /* we should still have the default value */
-  g_object_get(element,"g-ulong",&val,NULL);
+  g_object_get(element,"wave",&val,NULL);
   fail_unless(val==0, NULL);
 
   data.values=values;
   g_signal_connect(G_OBJECT(element),"notify::wave",G_CALLBACK(on_btsequence_ticks_notify),&data);
 
   /* play the songs */
-  loop=g_main_loop_new(NULL, FALSE);
   bt_song_play(song);
-  bt_song_write_to_lowlevel_dot_file(song);
-  // the object_notify() should be triggered from the streaming threads
-  // still we don't see them
-  g_timeout_add(1000,on_btsequence_ticks_timeout,loop);
-  g_main_loop_run(loop);
+  g_usleep(G_USEC_PER_SEC/5);
   bt_song_stop(song);
   GST_INFO("ct=%d",data.ct);
   
@@ -658,6 +651,7 @@ BT_START_TEST(test_btsequence_ticks) {
   g_object_unref(sink);
   g_object_unref(wire);
   g_object_unref(sequence);
+  g_object_unref(song_info);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
