@@ -364,7 +364,7 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
     case SONG_INFO_BPM: {
       gulong val=g_value_get_ulong(value);
       if(self->priv->beats_per_minute!=val) {
-        self->priv->beats_per_minute = g_value_get_ulong(value);
+        self->priv->beats_per_minute = val;
 #if GST_CHECK_VERSION(0,10,12)
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_BEATS_PER_MINUTE, (gdouble)self->priv->beats_per_minute,NULL);
 #endif
@@ -375,7 +375,7 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
     case SONG_INFO_TPB: {
       gulong val=g_value_get_ulong(value);
       if(self->priv->ticks_per_beat!=val) {
-        self->priv->ticks_per_beat = g_value_get_ulong(value);
+        self->priv->ticks_per_beat = val;
         bt_song_info_tempo_changed(self);
         GST_DEBUG("set the tpb for song_info: %lu",self->priv->ticks_per_beat);
       }
@@ -383,7 +383,7 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
     case SONG_INFO_BARS: {
       gulong val=g_value_get_ulong(value);
       if(self->priv->bars!=val) {
-        self->priv->bars = g_value_get_ulong(value);
+        self->priv->bars = val;
         bt_song_info_tempo_changed(self);
         GST_DEBUG("set the bars for song_info: %lu",self->priv->bars);
       }
