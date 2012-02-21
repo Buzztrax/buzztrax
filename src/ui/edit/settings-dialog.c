@@ -90,7 +90,7 @@ GType bt_settings_page_get_type(void) {
 
 //-- event handler
 
-void on_settings_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
+static void on_settings_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
   BtSettingsDialog *self=BT_SETTINGS_DIALOG(user_data);
   GtkTreeSelection *selection;
   GtkTreeModel     *model;

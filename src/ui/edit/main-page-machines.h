@@ -78,8 +78,6 @@ GType bt_main_page_machines_get_type(void) G_GNUC_CONST;
 
 BtMainPageMachines *bt_main_page_machines_new(const BtMainPages *pages);
 
-gboolean machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y);
-
 gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
 gboolean bt_main_page_machines_wire_panorama_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
 

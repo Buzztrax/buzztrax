@@ -233,7 +233,7 @@ static void machine_item_moved(const BtMainPageMachines *self, BtMachineCanvasIt
 }
 
 // TODO(ensonic): this method probably should go to BtMachine, but on the other hand it is GUI related
-gboolean machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
+static gboolean machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
   gboolean res=FALSE;
   gchar *prop;
 

@@ -87,7 +87,7 @@ GType bt_interaction_controller_menu_type_get_type(void) {
 
 //-- event handler
 
-void on_devices_changed(BtIcRegistry * const registry, const GParamSpec * const arg, gconstpointer const user_data) {
+static void on_devices_changed(BtIcRegistry * const registry, const GParamSpec * const arg, gconstpointer const user_data) {
 	BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(user_data);
 	
 	GST_INFO("devices changed");
@@ -95,7 +95,7 @@ void on_devices_changed(BtIcRegistry * const registry, const GParamSpec * const 
 	bt_interaction_controller_menu_init_device_menu(self);
 }
 
-void on_controls_changed(BtIcDevice * const device, const GParamSpec * const arg, gconstpointer const user_data) {
+static void on_controls_changed(BtIcDevice * const device, const GParamSpec * const arg, gconstpointer const user_data) {
 	BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(user_data);
 	
 	GST_INFO("controls changed");
