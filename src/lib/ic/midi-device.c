@@ -158,7 +158,7 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
           if(error)
             log_io_error(error,"NOTE-ON");
           else {
-            /* this CMD drived two controllers, key and velocity, thus we need
+            /* this CMD drives two controllers, key and velocity, thus we need
              * to do the lean in two steps
              * TODO(ensonic): maybe we can add a callback and a extra info message
              * to update_learn_info. The info message can tell, that this will name
