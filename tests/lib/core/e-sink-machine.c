@@ -174,6 +174,76 @@ BT_START_TEST(test_btsinkmachine_fallback) {
 BT_END_TEST
 
 
+BT_START_TEST(test_btsinkmachine_latency) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSongInfo *song_info=NULL;
+  BtSinkMachine *machine;
+  GstElement *sink_bin,*sink=NULL;
+  GError *err=NULL;
+  BtSettings *settings=bt_settings_make();
+  GList *node;
+  gulong bpm, tpb, st, c_bpm, c_tpb;
+  gint64 latency_time,c_latency_time;
+  guint latency;
+
+  /* create app and song */
+  app=bt_test_application_new();
+  song=bt_song_new(app);
+  g_object_get(song,"song-info",&song_info,NULL);
+
+  /* create a machine */
+  machine=bt_sink_machine_new(song,"master",&err);
+  fail_unless(machine != NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  
+  g_object_get(machine,"machine",&sink_bin,NULL);
+  fail_unless(sink_bin != NULL, NULL);
+  fail_unless(BT_IS_SINK_BIN(sink_bin), NULL);
+  // grab the audio sink from the child_list
+  for(node=GST_BIN_CHILDREN(sink_bin);node;node=g_list_next(node)) {
+    if(GST_IS_BASE_AUDIO_SINK(node->data)) {
+      sink=node->data;
+      break;
+    }
+  }
+  fail_unless(sink != NULL, NULL);
+  GST_INFO_OBJECT(sink,"before test loop");
+  
+  // set various bpm, tpb on song_info, set various latency on settings
+  // assert the resulting latency-time properties on the audio_sink
+  for(latency=20;latency<=80;latency+=10) {
+    g_object_set(settings,"latency",latency,NULL);
+    for(bpm=80;bpm<=160;bpm+=10) {
+      g_object_set(song_info,"bpm",bpm,NULL);
+      for(tpb=4;tpb<=8;tpb+=2) {
+        g_object_set(song_info,"bpm",bpm,"tpb",tpb,NULL);
+        g_object_get(sink_bin,"subticks-per-tick",&st,"ticks-per-beat",&c_tpb,"beats-per-minute",&c_bpm,NULL);
+        g_object_get(sink,"latency-time",&c_latency_time,NULL);
+        latency_time=GST_TIME_AS_USECONDS((GST_SECOND*60)/(bpm*tpb*st));
+        GST_INFO_OBJECT(sink,
+          "bpm=%3lu=%3lu, tpb=%1lu=%1lu, stpb=%2lu, target-latency=%2u , latency-time=%6"G_GINT64_FORMAT"=%6"G_GINT64_FORMAT", delta=%+4d ",
+          bpm,c_bpm,tpb,c_tpb,
+          st,latency,
+          latency_time,c_latency_time,
+          (latency_time-((gint)latency*1000))/1000);
+        fail_unless(c_bpm == bpm, NULL);
+        fail_unless(c_tpb == tpb, NULL);
+        fail_unless(c_latency_time == latency_time, NULL);
+      }
+    }
+  }
+
+  gst_object_unref(sink_bin);
+  g_object_try_unref(machine);
+  g_object_unref(settings);
+  g_object_unref(song_info);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+
 TCase *bt_sink_machine_example_case(void) {
   TCase *tc = tcase_create("BtSinkMachineExamples");
 
@@ -181,6 +251,7 @@ TCase *bt_sink_machine_example_case(void) {
   tcase_add_test(tc,test_btsinkmachine_obj2);
   tcase_add_test(tc,test_btsinkmachine_default);
   tcase_add_test(tc,test_btsinkmachine_fallback);
+  tcase_add_test(tc,test_btsinkmachine_latency);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
