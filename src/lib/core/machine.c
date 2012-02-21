@@ -319,7 +319,7 @@ GType bt_machine_state_get_type(void) {
 static glong update_subticks(gulong bpm, gulong tpb, guint latency) {
   glong st=0;
 
-  st=(GST_SECOND*60)/(bpm*tpb*latency*1000000);
+  st=(glong)((GST_SECOND*60)/(bpm*tpb*latency*G_GINT64_CONSTANT(1000000)));
   st=MAX(1,st);
   GST_DEBUG("chosing subticks=%ld from bpm=%lu,tpb=%lu,latency=%u",st,bpm,tpb,latency);
   return(st);
