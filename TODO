@@ -35,6 +35,7 @@
   * sim syn uses a string property for notes
     * these cannot be interpolated, we could use a uint like buzz or an enum
 
+
 * controller api
   * allow to modify interpolation control sequence inplace (scale time or value range)
     - we need a gst_interpolation_control_foreach(cs, callback, user_data)
@@ -48,7 +49,8 @@
       controller for some global state
       - we want to pre-cache the tracks for each machine to speed up finding the
         patterns that apply at a given time
-    
+
+
 * special patterns
   - break works as in breaking patterns
   - mute, solo, bypass don't work at all
@@ -64,6 +66,7 @@
     - we need to avoid setting the song to unsaved when controlling BtMachine::state
     - in sequence.c we need to do handle intern_damage (like global_damage) and we need
       BtMachine::bt_machine_intern_controller_change_value()
+
 
 * undo/redo/journaling
   - links
@@ -81,6 +84,7 @@
     - wavetable view
     - info view
 
+
 * CPU load per machine
   - as we alway plug the tee-elements on each machine and each wire starts with
     a queue we could do CPU load per thread
@@ -93,6 +97,7 @@
     - extra dialog from tools menu?
     - enable/disable from the view menu
 
+
 * Allow disabling level-meters
   - we could iterator over machine, check which levels are activated and
     set the 'message' property true/false
@@ -101,10 +106,79 @@
   - on slow platforms we could offer that in the UI (where)
     - the view menu?
 
+
 * eventually merge machine-rename dialog with machine properties
+
+
 * improve recording dialogs
   - either integrate the progress bar into the recording settings
     - gray out the dialog or progress-bar area depending on phase
   - or use a notebook with hidden pages
     - switch to 2nd page for rendering
+
+
+* control machines (no in/out)
+  - color=gray
+    it is never connected and thus, does not need a desaturated shade
+  - scheduling
+    - from a property notifies on sink-bin
+      - need ts
+    - run a GstTask and sync to the clock
+      - need to implement tempo iface
+      - need to hande seeks (to know direction :/)
+  - we can use that for midi-out
+    - global params: midi-device (enum)
+    - voice params: midi-channel, note, velocity, controller1, control-value1, ... 
+  - subclass the control-machines from GstElement
+    - no pads (and therefore no _loop() or _chain() function
+    - we see them in the registry
+
+
+* play machines via midi
+  - we have machines with one or more note-params
+    - sometimes only one is a trigger though
+    cd bml/tests/testmachine
+    grep -H PT_NOTE *.txt.* | sort | uniq -c | sort -g
+  - we have machines with one or more value trigger parames (drum machines)
+  - we need to have the idle_loop playing when having keyboard assignments
+  - gui workflow:
+    - v1: start from the key-controllers
+      - a toolbar on the bottom
+        - show/hide in the view menu
+        - left a combobox to select the device (keyboard, midi, ...)
+        - next the piano key graphics
+        - next two comboboxes for key assignment and velocity assignment
+          - velocity assignment is empty, when selecting machine+key,
+            it will show possible velocity targets
+          - for drum-machines, we select the parameter with the key and put the
+            velecity into the respective parameter
+      - mark a key-range, assign to machine/note-param (with key offset)
+      - select a key-range, unassign
+      - move key-ranges
+    - v2: start from pattern column headings
+      - have bind/unbind like in machine window
+      - define split'ed devices elsewhere
+  - how to easily assign a series of key to a series of triggers in one machine
+    - have a trigger group  (and assign to white keys only)
+    - this would manage both key-number and velocity as we'd only bind a series
+      of abs-value-controls (velocity) to the drum-machine triggers
+  - how to assign velocity to the machines velocity param
+  - the current code in machine.c (_poly_control_) would increment the voice on
+    each control event, we would need to set both key and velocity though
+    we also need to ensure to set velocity first and then the key
+    - only inc the voice-counter on the trigger param?
+
+
+* text parameters in machines
+  * for a:
+    * text to speech machine we'd like to have strings in the pattern
+    * cmd-out machine we'd like to send a dbus command, run a script etc.
+  * like we have a wavetable, we could have a text table
+    * a list of text snipped (more than 256!)
+    * each snippet has a label and a text block (multiline)
+  * in a text to speech machine we can use text-table index (gint 16 bit),
+    text offset (gint 16 bit char offset), length (unset, to the end) and
+    direction (forward, backward)
+  * in a command out machine, we use the text table index (gint 16 bit) and
+    ev. script parameters (passed as $1, $2, ...)
 

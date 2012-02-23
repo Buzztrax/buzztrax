@@ -27,13 +27,7 @@
  * record mode it uses a tee and plugs both pipelines.
  */
 
-/* TODO(ensonic): detect supported encoders
- * get gst mimetype from the extension
- * and then look at all encoders which supply that mimetype
- * check elements in "codec/encoder/audio", "codec/muxer/audio"
- * build caps using this mimetype
- * gst_element_factory_can_src_caps()
- * problem here is that we need extra option for each encoder (e.g. quality)
+/* TODO(ensonic): use encodebin
  *
  * TODO(ensonic): add properties for bpm and master volume,
  * - bpm
@@ -43,20 +37,24 @@
  *
  * TODO(ensonic): for upnp it would be nice to stream on-demand
  *
- * TODO(ensonic): add parameters for sampling rate and channels
- *   - channels can be used in the capsfilter
- *   - sampling rate could be used there too
- *   - both should be sink-bin properties, so that we can configure them
- *     externally
- *
  * TODO(ensonic): add a metronome
- *   - add a (controllable) gboolean "metronome-beat", "metronome-tick" properties
- *   - add controller pattern to make them emit notifies
- *     - need to update on length changes and bpm/tpb changes
+ *   - a clock properties to sink-bin:
+ *     - two guint properties "beat", "tick"
+ *     - a float/double property: "beat.tick":
+ *       - 3.0, 3.25, 3.50, 3.75, 4.0
+ *       - 3.0, 3.1,  3.2,  3.3,  4.0
  *   - use a pad-probe like master_volume_sync_handler (consider reusing) to sync them
+ *     - this is followed by volume ! level ! capsfilter ! audioresample ! tee ! audiosink
+ *     - this might be good to compensate the processing latency for control-out 
+ *     - we could also plug a fakesink/appsink to the tee
+ *   - we need to calculate beat,tick from the buffer ts
+ *     subtick = ts / chunk
+ *     tick = ts / (chunk * subticks_per_tick)
+ *     beat = (gint) tick / ticks_per_beat 
  *   - the gtk-ui can have two on-screen leds
  *   - sink-bin could use the keyboard leds to indicate them (with #ifdef LINUX)
  *     - need root permissions :/
+ *   - we can also use this to implement control-out machines
  */
 
 #define BT_CORE

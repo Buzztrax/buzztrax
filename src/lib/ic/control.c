@@ -22,7 +22,8 @@
  *
  * Abstract base class for controls.
  */
-/* TODO(ensonic): need flags=BTIC_CONTROL_ABS,BTIC_CONTROL_TRIGGER,... to quickly filter
+/* TODO(ensonic): need flags=BTIC_CONTROL_ABS,BTIC_CONTROL_TRIGGER,... 
+ * to quickly filter e.g. for the controller menu
  *
  * TODO(ensonic): new subclasses:
  * - BTIC_CONTROL_KEY (midi keyboard, computer keyboard)

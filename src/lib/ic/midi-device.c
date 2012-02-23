@@ -187,6 +187,9 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
              * and let the user pick one. For each control we could show where
              * it is bound currently. If we go that route, we would actually not
              * need the controller profiles.
+             *
+             * If we keep the menu, we should show where to a controller is
+             * bound.
              */
             gboolean learn_1st=FALSE;
             GST_DEBUG("note-on: %02x %02x %02x",midi_event[0],midi_event[1],midi_event[2]);
