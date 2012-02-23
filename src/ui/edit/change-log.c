@@ -589,6 +589,9 @@ static void on_song_file_unsaved_changed(const BtEditApplication *app,GParamSpec
   gboolean unsaved;
 
   g_object_get((GObject*)app,"unsaved",&unsaved,"song",&song,NULL);
+  if(!song)
+    return;
+
   g_object_get(song,"song-info",&song_info,NULL);
   if(!unsaved) {    
     GST_WARNING("reset log file");
