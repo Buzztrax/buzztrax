@@ -599,22 +599,26 @@ static void fill_machine_parameter(const BtSongIOBuzz *self,BmxParameter *param,
     GST_DEBUG("sync BmxParameter with machine qdata");
     val=GPOINTER_TO_INT(g_param_spec_get_qdata(pspec,gstbt_property_meta_quark_min_val));
     if(val!=param->minvalue) {
-      GST_WARNING("file has diffent min-value for parameter %s, file=%u != machine=%d",param->name,param->minvalue,val);
+      if(param->minvalue!=-1) {
+        GST_WARNING("file has diffent min-value for parameter %s, file=%d != machine=%d",param->name,param->minvalue,val);
+      }
       param->minvalue=val;
     }
     val=GPOINTER_TO_INT(g_param_spec_get_qdata(pspec,gstbt_property_meta_quark_max_val));
     if(val!=param->maxvalue) {
-      GST_WARNING("file has diffent max-value for parameter %s, file=%u != machine=%d",param->name,param->maxvalue,val);
+      if(param->maxvalue!=-1) {
+        GST_WARNING("file has diffent max-value for parameter %s, file=%d != machine=%d",param->name,param->maxvalue,val);
+      }
       param->maxvalue=val;
     }
     val=GPOINTER_TO_INT(g_param_spec_get_qdata(pspec,gstbt_property_meta_quark_def_val));
     if(val!=param->defvalue) {
-      GST_WARNING("file has diffent def-value for parameter %s, file=%u != machine=%d",param->name,param->defvalue,val);
+      GST_WARNING("file has diffent def-value for parameter %s, file=%d != machine=%d",param->name,param->defvalue,val);
       param->defvalue=val;
     }
     val=GPOINTER_TO_INT(g_param_spec_get_qdata(pspec,gstbt_property_meta_quark_no_val));
     if(val!=param->novalue) {
-      GST_WARNING("file has diffent no-value for parameter %s, file=%u != machine=%d",param->name,param->novalue,val);
+      GST_WARNING("file has diffent no-value for parameter %s, file=%d != machine=%d",param->name,param->novalue,val);
       param->novalue=val;
     }
   }
