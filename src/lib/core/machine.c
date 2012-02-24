@@ -1096,7 +1096,7 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
         if(child_properties) {
           for(j=0;j<number_of_child_properties;j++) {
             if(!strcmp(properties[i]->name,child_properties[j]->name)) {
-              GST_DEBUG("    skipping global_param [%d] \"%s\"",i,properties[i]->name);
+              GST_DEBUG("    skipping global_param [%d] \"%s\", due to voice_param[%d]",i,properties[i]->name,j);
               skip=TRUE;
               properties[i]=NULL;
               break;
