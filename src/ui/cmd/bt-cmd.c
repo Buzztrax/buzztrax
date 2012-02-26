@@ -67,11 +67,11 @@ int main(int argc, char **argv) {
 #endif /* ENABLE_NLS */
 
   static GOptionEntry options[] = {
-    {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     NULL, N_("Print application version"),     NULL },
-    {"quiet",       'q',  G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     NULL, N_("Be quiet"),         NULL },
-    {"command",     'c',  0,                    G_OPTION_ARG_STRING,   NULL, N_("Command name"),     "{info, play, convert, encode}" },
-    {"input-file",  'i',  0,                    G_OPTION_ARG_FILENAME, NULL, N_("Input file name"),  N_("<songfile>") },
-    {"output-file", 'o',  0,                    G_OPTION_ARG_FILENAME, NULL, N_("Output file name"), N_("<songfile>") },
+    {"version",     '\0', 0, G_OPTION_ARG_NONE,     NULL, N_("Print application version"),     NULL },
+    {"quiet",       'q',  0, G_OPTION_ARG_NONE,     NULL, N_("Be quiet"),         NULL },
+    {"command",     'c',  0, G_OPTION_ARG_STRING,   NULL, N_("Command name"),     "{info, play, convert, encode}" },
+    {"input-file",  'i',  0, G_OPTION_ARG_FILENAME, NULL, N_("Input file name"),  N_("<songfile>") },
+    {"output-file", 'o',  0, G_OPTION_ARG_FILENAME, NULL, N_("Output file name"), N_("<songfile>") },
     {NULL}
   };
   // setting this separately gets us from 76 to 10 instructions
