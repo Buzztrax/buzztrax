@@ -1,11 +1,64 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 git diff @{2012-01-01} @{2012-01-31} | diffstat
 
+2012/04 ========================================================================
+
 2012/03 ========================================================================
 
-* latency!
-* more machines ported
+As a big leftover promise from my talk at the GStreamer conference in 2011 I
+spend more time to understand latencies inside GStreamer. For plain playback the
+latencies are not an issue, but for anything interactive, be it entering notes
+or changing parameters while the song is playing, we want much lower latencies.
+For the talk I did some measurements by having a pipeline with two branches -
+src1 ! sink and src2 ! fx1 ! ... ! fxn ! sink. The fx elements where plain
+volume elements. The branches where panned hard left and right. For the
+experiment, I was pulling down the volume on the two sources down to 0 at the
+same time and recoding the audio on the sink. Looking at the wave [1], one could
+see the delay in the signal that went through the effect-chain. The longer the
+effect-chain the larger becomes the delay. Don't misunderstand this, GStreamer
+is properly handling A/V sync. The buffers that get mixed in front of the sink
+have the same time stamps, the problem is that we have a lot more buffers
+traveling the the effect-branch. This is because of the queue elements. In
+buzztard one can freely link generators to effects, effects to effects and
+effects to sinks. This includes diamond shaped connections. Here we need queues
+to not stall processing on one branch. It is sufficient for the queues to keep
+only 1 buffer. Still even knowing the buffer duration, I could not tell a
+formula to explain the measured delays.
+This month I looked at the issue with a new idea. I wrote a small example [2]
+that build pipelines close to what I have in buzztard, but stripped of many
+details. In this code I add buffer probed to all pads. The probe is comparing
+the time-stamp on the buffer to the pipeline clock. This tells how early the
+buffer is. Ideally we want buffers to be generated and processed as much in
+time as possible. When generating audio one needs to configure audio-buffer
+sizes on the source elements and two properties on the audio-sink - buffer-time
+and latency-time. A good scheme is to use buffer-time = 2 * latency-time. That
+configures the sink to have two audio-segments. Initially I also set the buffer
+sizes on the source elements to have a duration of latency-time. Now one problem
+with that is that we will have one buffer waiting on each queue. Thus if there
+are two queues the actual latency is (n-queues + 1) * latency-time. One way to
+improve that a bit is to half the buffer sizes on the sources, then the 2nd
+buffer is calculated when the first one is needed. As the first one won't be
+sufficient to fill the gap, the calculation of the 2nd buffer is scheduled right
+away. The disadvantage of this scheme is that one gets quite jittery latencies.
+In the end I settled on finishing the subtick timing in buzztard. Each tick will
+have n subticks, where n is setup so that we get down to the desired latency.
+So far I get nice low latency on all my machines (inlcuding a atom based
+netbook).
 
+We also ported more buzzmachines and have 49 machines right now. When porting we
+often also fix bugs as gcc is quite good at warnings these days. Finally, the
+machines now also install docs (where available).
+
+In the UI I got rid of the GtkRuler copy again. The analyzer window now has own
+code to draw the rulers. I think they look nice, a lot less noisy then the older
+rulers [3].
+
+[1] http://files.buzztard.org/latencies/
+[2] http://buzztard.git.sourceforge.net/git/gitweb.cgi?p=buzztard/buzztard;a=blob;f=design/gst/latency.c;hb=HEAD
+[3] http://wiki.buzztard.org/images/e/e8/Bt-edit-0.7.0-01.png
+
+62 files changed, 1957 insertions(+), 1844 deletions(-)
+ 
 2012/02 ========================================================================
 
 The first big change after releasing 0.6 was to move from svn to git.
