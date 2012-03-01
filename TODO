@@ -182,3 +182,9 @@
   * in a command out machine, we use the text table index (gint 16 bit) and
     ev. script parameters (passed as $1, $2, ...)
 
+
+* wave table, record entries
+  * we can just keep the buffers from fakesink/appsink in a list and consolidate
+    on eos
+  * need device selection on the source
+

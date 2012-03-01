@@ -1,0 +1,26 @@
+= dynlinkmatrix =
+- have a buzztardlike pipeline with
+  src1, src2, fx1, fx2, sink
+  - use low saw, high sqr for the wave and picth
+  - use a controller pattern on src.volume
+  - use audioecho and freeverb as fx 
+  
+- have a matrix ui like this:
+  src1 . . o o o
+  src2 . . o o o
+   fx1 . . . o o
+   fx2 . . . . o
+  sink . . . . .
+       s s f f s
+   |>  r r x x i
+       c c 1 2 n
+       1 2     k
+
+- with the play toggle one can set the pipeline to play
+- the 'o' buttons are checkboxes to link/unlink
+
+
+= scrubbing/seek-torture =
+- we need a seek torture app
+- when scrubbing over the timeline we can still lookup the application
+  - defer seeks until we get newsegment? 
