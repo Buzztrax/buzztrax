@@ -23,7 +23,23 @@
  * Allows the coherence upnp backend for buzztard to remote control and query
  * buzztard-edit.
  *
- * Function can be tested doing "netcat -n 127.0.0.1 7654".
+ * Function can be tested doing "netcat -n 127.0.0.1 7654". The commands are
+ * implemented in client_cmd_parse_and_process(). The protocol uses strings
+ * that are delimited by '|' chars.
+ *
+ * playlist - buzztard sends a list of labels for the current song
+ *   reply is: '|' delimmited label names
+ * play - play a playlist entry (or from start)
+ *   play|<playlist-entry-number>
+ * stop - stop playback
+ * status - get player status
+ *  reply is: event|<play-state>|<playlist-label>|<play-pos>|<length>|<volume>|<mute-state>|<loop-mode>
+ * {set,get} - set or get a variable
+ *  volume, mute, repeat
+ */
+/* TODO(ensonic):
+ * Maybe we want to do a playbackcontroller helper which provides the commands.
+ * Decide when we have more implementations.
  */
 
 #define BT_EDIT
