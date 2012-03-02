@@ -33,9 +33,10 @@
  *   let the user choose between {-,m,s} = {off,master,slave}
  *   - ardour calls it positional sync source and supports {internal, mtc, jack}
  * - does this need to be stored with the song? settings?
- *   - settings -> playback controller (Jack,UPnP,MMC)
+ *   - settings -> playback controller (Jack,UPnP,MMC,KeyEvent)
  *   - all protocols support auto (don't use), master or slave
- *   - maybe we don't need autonoumous, but flags for: master, slave
+ *   - we don't need autonoumous, but flags for: master, slave
+ *     -> already changed on the jack side
  *   - also is the single transport selection combo sufficient?
  *     - may be we want it to be master for jack, but master & slave on MMC
  *       (when started via MMC, we start the jack clients too)
