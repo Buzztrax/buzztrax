@@ -103,6 +103,12 @@ static void bt_application_dispose(GObject * const object) {
   GST_INFO("settings->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->settings));
 
   if(self->priv->bin) {
+    GstStateChangeReturn res;
+
+    if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
+      GST_WARNING("can't go to null state");
+    }
+    GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
     gst_object_unref(self->priv->bin);
   }
   g_object_try_unref(self->priv->settings);

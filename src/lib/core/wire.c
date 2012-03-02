@@ -221,6 +221,7 @@ static gboolean bt_wire_make_internal_element(const BtWire * const self, const B
     self->priv->sink_pads[part]=gst_element_get_static_pad(self->priv->machines[part],sink_pn[part]);
 
   gst_bin_add(GST_BIN(self),self->priv->machines[part]);
+  gst_element_sync_state_with_parent(self->priv->machines[part]);
   res=TRUE;
 Error:
   return(res);

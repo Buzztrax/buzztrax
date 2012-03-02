@@ -67,10 +67,6 @@
  *   latencies of one machine, by disabling most of the wires on its way. That
  *   will not help though, when we play several machines live (using keyboards)
  */
-/* fast seeking
- * - see bt_song_change_play_rate()
- * - there is a problem with wrapping around in loop mode, when playing backwards
- */
 #define BT_CORE
 #define BT_SONG_C
 
@@ -493,7 +489,7 @@ static gboolean on_song_paused_timeout(gpointer user_data) {
 static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
 
-  //GST_INFO("user_data=%p,<%s>, bin=%p, msg->src=%p,<%s>",
+  //GST_WARNING("user_data=%p,<%s>, bin=%p, msg->src=%p,<%s>",
   //  user_data, G_OBJECT_TYPE_NAME(G_OBJECT(user_data)),
   //  self->priv->bin,GST_MESSAGE_SRC(message),G_OBJECT_TYPE_NAME(GST_MESSAGE_SRC(message)));
   
@@ -506,24 +502,9 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     GST_INFO("state change on the bin: %s -> %s",
       gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
-      /* - if we do this in READY_TO_PAUSED, we get two PAUSED -> PAUSED transitions
-       * - seeking in READY won't work for video
-       * - seeking in PAUSED would discard prerolled data
-       */
-      //case GST_STATE_CHANGE_READY_TO_PAUSED:
-      case GST_STATE_CHANGE_NULL_TO_READY:
-        // here the formats are negotiated
-        //bt_song_write_to_lowlevel_dot_file(self);
-        
+      case GST_STATE_CHANGE_READY_TO_PAUSED:
         // we're prepared to play
         self->priv->is_preparing=FALSE;
-        // this should be sequence->play_start
-        self->priv->play_pos=0;
-        // seek to start time
-        GST_DEBUG_OBJECT(self->priv->master_bin,"seek event: %"GST_PTR_FORMAT,self->priv->play_seek_event);
-        if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->play_seek_event)))) {
-          GST_WARNING_OBJECT(self->priv->master_bin, "bin failed to handle seek event");
-        }
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
         if(!self->priv->is_playing) {
@@ -652,7 +633,7 @@ static gboolean bt_song_idle_start(const BtSong * const self) {
     self->priv->is_idle_active=FALSE;
     return(FALSE);
   }
-  GST_DEBUG("state change returned %d",res);
+  GST_DEBUG("->PAUSED state change returned '%s'",gst_element_state_change_return_get_name(res));
 
   // seek to start time
   if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->idle_seek_event)))) {
@@ -665,7 +646,7 @@ static gboolean bt_song_idle_start(const BtSong * const self) {
     self->priv->is_idle_active=FALSE;
     return(FALSE);
   }
-  GST_DEBUG("state change returned %d",res);
+  GST_DEBUG(">PLAYING state change returned '%s'",gst_element_state_change_return_get_name(res));
   GST_INFO("idle loop running");
   return(TRUE);
 }
@@ -683,11 +664,11 @@ static gboolean bt_song_idle_stop(const BtSong * const self) {
 
   GST_INFO("stopping idle loop");
 
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to null state");
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING("can't go to ready state");
     return(FALSE);
   }
-  GST_DEBUG("state change returned %d",res);
+  GST_DEBUG("state change returned '%s'",gst_element_state_change_return_get_name(res));
   self->priv->is_idle_active=FALSE;
   return(TRUE);
 }
@@ -744,6 +725,14 @@ gboolean bt_song_play(const BtSong * const self) {
   // prepare playback
   self->priv->is_preparing=TRUE;
 
+  // this should be sequence->play_start
+  self->priv->play_pos=0;
+  // seek to start time
+  GST_DEBUG_OBJECT(self->priv->master_bin,"seek event: %"GST_PTR_FORMAT,self->priv->play_seek_event);
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->play_seek_event)))) {
+    GST_WARNING_OBJECT(self->priv->master_bin, "bin failed to handle seek event");
+  }
+
   // send tags
   bt_song_send_tags(self);
 
@@ -785,7 +774,7 @@ gboolean bt_song_stop(const BtSong * const self) {
 
   GST_INFO("stopping playback, is_playing: %d, is_preparing: %d",self->priv->is_playing,self->priv->is_preparing);
 
-  if(!(self->priv->is_preparing || self->priv->is_playing) && (GST_STATE(self->priv->bin)==GST_STATE_NULL)) {
+  if(!(self->priv->is_preparing || self->priv->is_playing) && (GST_STATE(self->priv->bin)<=GST_STATE_READY)) {
     GST_INFO("not playing");
     return(TRUE);
   }
@@ -794,10 +783,6 @@ gboolean bt_song_stop(const BtSong * const self) {
     GST_WARNING("can't go to ready state");
   }
   GST_DEBUG("->READY state change returned '%s'",gst_element_state_change_return_get_name(res));
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to NULL state");
-  }
-  GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
 
   // kill a pending timeout
   if(self->priv->paused_timeout_id) {
@@ -806,7 +791,9 @@ gboolean bt_song_stop(const BtSong * const self) {
   }
   
   // this is needed to make e.g. request_state messages to work
-  /* unfortunately we seem to get state-change messages at random times then :/
+  /* - unfortunately we seem to get state-change messages at random times then :/
+   *   and this causes crashes as the user_data is in a inconsistent state
+   * - lets keep the song in ready instead, we go to NULL in dispose()
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
   if (bus) {
     gst_bus_set_flushing(bus,FALSE);
@@ -1343,6 +1330,7 @@ static void bt_song_persistence_interface_init(gpointer const g_iface, gpointer 
 
 static void bt_song_constructed(GObject *object) {
   BtSong *self=BT_SONG(object);
+  GstStateChangeReturn res;
   
   if(G_OBJECT_CLASS(bt_song_parent_class)->constructed)
     G_OBJECT_CLASS(bt_song_parent_class)->constructed(object);
@@ -1362,6 +1350,8 @@ static void bt_song_constructed(GObject *object) {
     g_signal_connect(bus, "message::clock-lost", G_CALLBACK(on_song_clock_lost), (gpointer)self);
     g_signal_connect(bus, "message::latency", G_CALLBACK(on_song_latency), (gpointer)self);
     g_signal_connect(bus, "message::request-state", G_CALLBACK(on_song_request_state), (gpointer)self);
+    
+    gst_bus_set_flushing(bus,FALSE);
     gst_object_unref(bus);
   }
 
@@ -1381,6 +1371,10 @@ static void bt_song_constructed(GObject *object) {
   GST_DEBUG("  tempo-signals connected");
 
   bt_song_update_play_seek_event_and_play_pos(BT_SONG(self));
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING_OBJECT(self->priv->bin,"can't go to ready state");
+  }
+  GST_WARNING_OBJECT(self->priv->bin,"->READY state change returned '%s'",gst_element_state_change_return_get_name(res));
   GST_INFO("  new song created: %p",self);
 }
 
@@ -1483,7 +1477,6 @@ static void bt_song_set_property(GObject * const object, const guint property_id
 
 static void bt_song_dispose(GObject * const object) {
   const BtSong * const self = BT_SONG(object);
-  GstStateChangeReturn res;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -1498,11 +1491,6 @@ static void bt_song_dispose(GObject * const object) {
   if(self->priv->bin) {
     if(self->priv->is_playing) bt_song_stop(self);
     else if(self->priv->is_idle) bt_song_idle_stop(self);
-
-    if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
-      GST_WARNING("can't go to null state");
-    }
-    GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
 
     GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_state_changed,(gpointer)self);

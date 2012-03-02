@@ -612,6 +612,7 @@ static gboolean update_bin_in_pipeline(const BtSetup * const self,GstBin *bin,gb
   if(is_connected) {
     if(!is_added) {
       gst_bin_add(self->priv->bin,GST_ELEMENT(bin));
+      gst_element_sync_state_with_parent(GST_ELEMENT(bin));
     }
   }
   else {
@@ -1709,8 +1710,8 @@ static void bt_setup_dispose(GObject * const object) {
         g_object_unref(src);
         g_object_unref(dst);
 
+        gst_element_set_state(GST_ELEMENT(obj),GST_STATE_NULL);
         if(GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING)) {
-          gst_element_set_state(GST_ELEMENT(obj),GST_STATE_NULL);
           gst_object_unref(obj);
         }
         else if(self->priv->bin) {
@@ -1728,8 +1729,8 @@ static void bt_setup_dispose(GObject * const object) {
 
         GST_DEBUG_OBJECT(obj,"  free machine: %p, ref=%d, floating? %d",obj,G_OBJECT_REF_COUNT(obj),GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING));
 
+        gst_element_set_state(GST_ELEMENT(obj),GST_STATE_NULL);
         if(GST_OBJECT_FLAG_IS_SET(obj,GST_OBJECT_FLOATING)) {
-          gst_element_set_state(GST_ELEMENT(obj),GST_STATE_NULL);
           gst_object_unref(obj);
         }
         else if(self->priv->bin) {

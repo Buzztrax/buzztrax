@@ -813,6 +813,7 @@ static gboolean bt_machine_make_internal_element(const BtMachine * const self,co
   }
 
   gst_bin_add(GST_BIN(self),self->priv->machines[part]);
+  gst_element_sync_state_with_parent(self->priv->machines[part]);
   res=TRUE;
 Error:
   return(res);
