@@ -130,7 +130,6 @@ void btic_registry_add_device(BtIcDevice *device) {
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
 static void btic_registry_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtIcRegistry * const self = BTIC_REGISTRY(object);
   return_if_disposed();
@@ -138,17 +137,6 @@ static void btic_registry_get_property(GObject * const object, const guint prope
     case REGISTRY_DEVICE_LIST: {
       g_value_set_pointer(value,g_list_copy(self->priv->devices));
     } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
-}
-
-/* sets the given properties for this object */
-static void btic_registry_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtIcRegistry * const self = BTIC_REGISTRY(object);
-  return_if_disposed();
-  switch (property_id) {
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -168,8 +156,8 @@ static void btic_registry_dispose(GObject * const object) {
   g_object_try_unref(self->priv->hal_discoverer);
 #endif
   if(self->priv->devices) {
-    GST_DEBUG("!!!! free devices: %d",g_list_length(self->priv->devices));
     GList* node;
+    GST_DEBUG("!!!! free devices: %d",g_list_length(self->priv->devices));
     for(node=self->priv->devices;node;node=g_list_next(node)) {
       g_object_try_unref(node->data);
       node->data=NULL;
@@ -230,7 +218,6 @@ static void btic_registry_class_init(BtIcRegistryClass * const klass) {
   g_type_class_add_private(klass,sizeof(BtIcRegistryPrivate));
 
   gobject_class->constructor  = btic_registry_constructor;
-  gobject_class->set_property = btic_registry_set_property;
   gobject_class->get_property = btic_registry_get_property;
   gobject_class->dispose      = btic_registry_dispose;
   gobject_class->finalize     = btic_registry_finalize;

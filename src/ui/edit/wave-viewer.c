@@ -354,7 +354,7 @@ bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels,
  * Returns: the widget
  */
 GtkWidget *
-bt_waveform_viewer_new()
+bt_waveform_viewer_new(void)
 {
   return GTK_WIDGET( g_object_new (BT_TYPE_WAVEFORM_VIEWER, NULL ));
 }

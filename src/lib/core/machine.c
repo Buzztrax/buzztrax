@@ -370,7 +370,7 @@ static void bt_machine_on_latency_changed(BtSettings * const settings, const GPa
 /*
  * mute the machine output
  */
-static gboolean bt_machine_set_mute(const BtMachine * const self,const BtSetup * const setup) {
+static gboolean bt_machine_set_mute(const BtMachine * const self) {
   const BtMachinePart part=BT_IS_SINK_MACHINE(self)?PART_INPUT_GAIN:PART_OUTPUT_GAIN;
 
   //if(self->priv->state==BT_MACHINE_STATE_MUTE) return(TRUE);
@@ -386,7 +386,7 @@ static gboolean bt_machine_set_mute(const BtMachine * const self,const BtSetup *
 /*
  * unmute the machine output
  */
-static gboolean bt_machine_unset_mute(const BtMachine *const self, const BtSetup * const setup) {
+static gboolean bt_machine_unset_mute(const BtMachine *const self) {
   const BtMachinePart part=BT_IS_SINK_MACHINE(self)?PART_INPUT_GAIN:PART_OUTPUT_GAIN;
 
   //if(self->priv->state!=BT_MACHINE_STATE_MUTE) return(TRUE);
@@ -423,7 +423,7 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
   // return to normal state
   switch(self->priv->state) {
     case BT_MACHINE_STATE_MUTE:  { // source, processor, sink
-      if(!bt_machine_unset_mute(self,setup)) res=FALSE;
+      if(!bt_machine_unset_mute(self)) res=FALSE;
     } break;
     case BT_MACHINE_STATE_SOLO:  { // source
       GList *node,*machines=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
@@ -432,7 +432,7 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
       for(node=machines;node;node=g_list_next(node)) {
         machine=BT_MACHINE(node->data);
         if(machine!=self) {
-          if(!bt_machine_unset_mute(machine,setup)) res=FALSE;
+          if(!bt_machine_unset_mute(machine)) res=FALSE;
         }
         g_object_unref(machine);
       }
@@ -459,7 +459,7 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
   // set to new state
   switch(new_state) {
     case BT_MACHINE_STATE_MUTE:  { // source, processor, sink
-      if(!bt_machine_set_mute(self,setup)) res=FALSE;
+      if(!bt_machine_set_mute(self)) res=FALSE;
     } break;
     case BT_MACHINE_STATE_SOLO:  { // source
       GList *node,*machines=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
@@ -472,9 +472,9 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
           if(machine->priv->state==BT_MACHINE_STATE_SOLO) {
             machine->priv->state=BT_MACHINE_STATE_NORMAL;
             g_object_notify(G_OBJECT(machine),"state");
-            if(!bt_machine_unset_mute(self,setup)) res=FALSE;
+            if(!bt_machine_unset_mute(self)) res=FALSE;
           }
-          if(!bt_machine_set_mute(machine,setup)) res=FALSE;
+          if(!bt_machine_set_mute(machine)) res=FALSE;
         }
         g_object_unref(machine);
       }

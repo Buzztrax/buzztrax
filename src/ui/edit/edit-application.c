@@ -368,8 +368,8 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       g_object_get((gpointer)self,"bin",&bin,NULL);
 
       if(GST_BIN_NUMCHILDREN(bin)) {
-        GST_WARNING("bin.num_children=%d has left-overs",GST_BIN_NUMCHILDREN(bin));
         GList *node=GST_BIN_CHILDREN(bin);
+        GST_WARNING("bin.num_children=%d has left-overs",GST_BIN_NUMCHILDREN(bin));
 
         while(node) {
           GST_INFO_OBJECT(node->data,"removing object (ref-ct=%d)",G_OBJECT_REF_COUNT(node->data));

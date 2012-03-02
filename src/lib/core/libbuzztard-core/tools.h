@@ -20,27 +20,25 @@
 #ifndef BT_TOOLS_H
 #define BT_TOOLS_H
 
-#ifndef BT_TOOLS_C
-
 #include <gst/gst.h>
 
 //-- gst registry
 
-extern GList *bt_gst_registry_get_element_factories_matching_all_categories(const gchar *class_filter);
-extern GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *class_filter);
-extern gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,const gchar *name);
+GList *bt_gst_registry_get_element_factories_matching_all_categories(const gchar *class_filter);
+GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *class_filter);
+gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,const gchar *name);
 
-extern GList *bt_gst_check_elements(GList *list);
-extern GList *bt_gst_check_core_elements(void);
+GList *bt_gst_check_elements(GList *list);
+GList *bt_gst_check_core_elements(void);
 
 //-- gst safe linking
 
-extern gboolean bt_bin_activate_tee_chain(GstBin *bin, GstElement *tee, GList* analyzers, gboolean is_playing);
-extern gboolean bt_bin_deactivate_tee_chain(GstBin *bin, GstElement *tee, GList* analyzers, gboolean is_playing);
+gboolean bt_bin_activate_tee_chain(GstBin *bin, GstElement *tee, GList* analyzers, gboolean is_playing);
+gboolean bt_bin_deactivate_tee_chain(GstBin *bin, GstElement *tee, GList* analyzers, gboolean is_playing);
 
 //-- gst debugging
 
-extern const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res,GstPad *src_pad,GstPad *sink_pad);
+const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res,GstPad *src_pad,GstPad *sink_pad);
 
 //-- gst compat
 
@@ -50,13 +48,11 @@ extern const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res,GstPa
 
 //-- glib compat & helper
 
-extern GType bt_g_type_get_base_type(const GType type);
+GType bt_g_type_get_base_type(const GType type);
 
 //-- cpu load monitoring
 
-extern guint bt_cpu_load_get_current(void);
-
-#endif // !BT_TOOLS_C
+guint bt_cpu_load_get_current(void);
 
 //-- glib compat & helper
 /**

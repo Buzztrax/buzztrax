@@ -55,7 +55,7 @@ struct _BtWaveformViewerClass {
   GtkWindowClass klass;
 };
 
-GtkWidget *bt_waveform_viewer_new();
+GtkWidget *bt_waveform_viewer_new(void);
 
 void bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels, int length);
 

@@ -400,7 +400,7 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
  *
  * Returns: the new instance
  */
-BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new() {
+BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new(void) {
   BtSettingsPageAudiodevices *self;
 
   self=BT_SETTINGS_PAGE_AUDIODEVICES(g_object_new(BT_TYPE_SETTINGS_PAGE_AUDIODEVICES,
