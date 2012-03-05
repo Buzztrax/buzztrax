@@ -584,6 +584,40 @@ static void on_song_request_state(const GstBus * const bus, GstMessage *message,
   //}
 }
 
+#ifdef DETAILED_CPU_LOAD
+static void on_song_stream_status(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  //const BtSong * const self = BT_SONG(user_data);
+  GstStreamStatusType type;
+  GstElement *owner;
+
+  gst_message_parse_stream_status (message, &type, &owner);
+  
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message), "new stream status '%d' on %s", type, GST_OBJECT_NAME(owner));
+  /* we could use this to determine CPU usage per thread
+   * - for that we need to periodically call getrusage(RUSAGE_THREAD,&ru);
+   *   from each thread
+   * - this could be done from a dataprobe on the pad that starts the thread
+   * - the dataprobe would
+   *   - need a previous ClockTime, elapsed wallclock time and a pointer to the
+   *     BtMachine
+   *   - set the cpu-load value on the BtMachine (no notify!)
+   * - the application can poll the value from a machine property
+   *   and show load-meters in the UI
+   */
+
+  switch (type) {
+    case GST_STREAM_STATUS_TYPE_CREATE:
+      // TODO(ensonic): add to thread-id->machine map
+      break;
+    case GST_STREAM_STATUS_TYPE_DESTROY:
+      // TODO(ensonic): remove from thread-id->machine map
+      break;
+    default:
+      break;
+  }
+}
+#endif
+
 static void bt_song_on_loop_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
   bt_song_update_play_seek_event_and_play_pos(BT_SONG(user_data));
 }
@@ -1339,6 +1373,9 @@ static void bt_song_constructed(GObject *object) {
     g_signal_connect(bus, "message::clock-lost", G_CALLBACK(on_song_clock_lost), (gpointer)self);
     g_signal_connect(bus, "message::latency", G_CALLBACK(on_song_latency), (gpointer)self);
     g_signal_connect(bus, "message::request-state", G_CALLBACK(on_song_request_state), (gpointer)self);
+#ifdef DETAILED_CPU_LOAD
+    g_signal_connect(bus, "message::stream-status", G_CALLBACK(on_song_stream_status), (gpointer)self);
+#endif
     
     gst_bus_set_flushing(bus,FALSE);
     gst_object_unref(bus);
@@ -1489,6 +1526,9 @@ static void bt_song_dispose(GObject * const object) {
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_clock_lost,(gpointer)self);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_latency,(gpointer)self);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_request_state,(gpointer)self);
+#ifdef DETAILED_CPU_LOAD
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_stream_status,(gpointer)self);
+#endif
     gst_bus_remove_signal_watch(bus);
     gst_object_unref(bus);
   }

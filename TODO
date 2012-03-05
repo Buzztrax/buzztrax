@@ -90,12 +90,17 @@
     a queue we could do CPU load per thread
     - sources start their own thread
     - effects and the sink live in the thread of one of the incomming wires
-    - a hackish way would be to run a pad_probe before the machine and
-      send a message to the bus with the thread-id<->machine association
+    - build a thread_id<->machine mapping
+      - a hackish way would be to run a pad_probe before the machine and
+        send a message to the bus with the thread-id<->machine association
+      - a better way would be to use gst_message_parse_stream_status
+        see src/lib/core/song.c::on_song_request_state()
   - ideally we show it on the machine view
-    - bar under machine name?
+    - extra gnome-canvas-item-rect under machine name?
     - extra dialog from tools menu?
     - enable/disable from the view menu
+  - bt-command could have a profile option (for play/encode) and print a summary
+    at the end
 
 
 * Allow disabling level-meters
