@@ -789,17 +789,6 @@ gboolean bt_song_stop(const BtSong * const self) {
     g_source_remove(self->priv->paused_timeout_id);
     self->priv->paused_timeout_id=0;
   }
-  
-  // this is needed to make e.g. request_state messages to work
-  /* - unfortunately we seem to get state-change messages at random times then :/
-   *   and this causes crashes as the user_data is in a inconsistent state
-   * - lets keep the song in ready instead, we go to NULL in dispose()
-  GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
-  if (bus) {
-    gst_bus_set_flushing(bus,FALSE);
-  }
-  gst_object_unref(bus);
-  */
 
   // do not stop if not playing or not preparing
   if(self->priv->is_preparing) {
