@@ -23,20 +23,25 @@
  * Lists available playback controllers and allows to configure them.
  */
 /* TODO(ensonic): add a list of playback controllers:
- *   - upnp coherence/gupnp
- *   - alsa midi MC
+ *   - upnp coherence/gupnp (port)
+ *   - alsa midi MC         (list of devices to enable)
  *   - jack midi MC
  *   - jack transport
  *   - multimedia keys
  *     - slave = key-presses
  *     - master = emit the key-presses
- * - when clicking one, we switch the pane below
+ *   - MPRIS (DBus Media player iface)
  * - in the list we show name and a checkboxes to enable/disable master and
  *   slave mode
+ * - when clicking one, we switch the pane below for additional settings
+ *   - not needed for all types
  * - for alsa/raw midi MC, we need to have the IO-loops running on the devices
  *   - for that it would be good to know which devices actually support it
  *   - then we can only start it for devices that have it, when they are plugged
- *     - list of devices + learn button on the settings page? 
+ *     - list of devices + learn button on the settings page?
+ *     - each one can be enabled or disabled (M/S flags from parent apply)
+ * - need lots of new settings :/
+ *   - GConf does not have enums or flags (save as int={0...3}) 
  */
 
 #define BT_EDIT
