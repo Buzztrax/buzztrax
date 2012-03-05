@@ -532,7 +532,7 @@ static void GST_GNUC_CONSTRUCTOR bt_cpu_load_init(void) {
  * Returns: CPU usage as integer ranging from 0% to 100%
  */
 guint bt_cpu_load_get_current(void) {
-  struct rusage rus,ruc;
+  struct rusage rus;
   GstClockTime tnow,treal,tuser,tsys;
   guint cpuload;
 
@@ -540,13 +540,14 @@ guint bt_cpu_load_get_current(void) {
   tnow=gst_util_get_timestamp();
   treal=tnow-treal_last;
   treal_last=tnow;
-  // check time spent load
+  // check time spent in our process
   getrusage(RUSAGE_SELF,&rus);
-  getrusage(RUSAGE_CHILDREN,&ruc);
-  tnow=GST_TIMEVAL_TO_TIME(rus.ru_utime)+GST_TIMEVAL_TO_TIME(ruc.ru_utime);
+  /* children are child processes, which we don't have 
+   * getrusage(RUSAGE_CHILDREN,&ruc); */
+  tnow=GST_TIMEVAL_TO_TIME(rus.ru_utime);
   tuser=tnow-tuser_last;
   tuser_last=tnow;
-  tnow=GST_TIMEVAL_TO_TIME(rus.ru_stime)+GST_TIMEVAL_TO_TIME(ruc.ru_stime);
+  tnow=GST_TIMEVAL_TO_TIME(rus.ru_stime);
   tsys=tnow-tsys_last;
   tsys_last=tnow;
   // percentage
