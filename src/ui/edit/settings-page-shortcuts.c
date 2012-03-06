@@ -25,7 +25,9 @@
 /* TODO(ensonic): we need a shortcut scheme management (buzz,fasttracker,..)
  * - select current scheme
  * - save edited scheme under new/current name
- * - check the midi-profiles in lib/ic/learn.c for the gkeyfile handling
+ *   - g_build_filename(g_get_user_data_dir(),PACKAGE,"shortcut-maps",NULL);
+ *   - check the midi-profiles in lib/ic/learn.c for the gkeyfile handling
+ * - in the settings we just store the map name
  */
 /* TODO(ensonic): we need a way to edit the current scheme
  * - we can look at the shortcut editor code from the gnome-control-center
