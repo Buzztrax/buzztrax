@@ -836,8 +836,10 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
     GST_INFO("new edit app instantiated");
     // create or ref the shared ui resources
     singleton->priv->ui_resources=bt_ui_resources_new();
-    // create the playback controller
+    // create the playback controllers (we need to create them all as they watch
+    // the settings them self)
     singleton->priv->pb_controller=bt_playback_controller_socket_new();
+    
     // create the interaction controller registry
     singleton->priv->ic_registry=btic_registry_new();
     // create the editor change log

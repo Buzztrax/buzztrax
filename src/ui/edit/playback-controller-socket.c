@@ -37,9 +37,14 @@
  * {set,get} - set or get a variable
  *  volume, mute, repeat
  */
-/* TODO(ensonic):
- * Maybe we want to do a playbackcontroller helper which provides the commands.
- * Decide when we have more implementations.
+/* TODO(ensonic): playbackcontroller baseclass
+ * - this can provide command helpers
+ * - this can provide an interface to query the capabilities
+ */
+/* TODO(ensonic): playbackcontroller manager
+ * - instead of creating and starting each playback controller in
+ *   edit-application, we could have a manager that listens to settings changes
+ *   and creates/destroys them as needed
  */
 
 #define BT_EDIT
