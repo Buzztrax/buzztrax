@@ -61,6 +61,8 @@ struct _BtSettingsPagePlaybackControllerPrivate {
 
   /* the application */
   BtEditApplication *app;
+  
+  BtSettings *settings;
 
   GtkWidget *port_entry;
 };
@@ -74,33 +76,26 @@ G_DEFINE_TYPE (BtSettingsPagePlaybackController, bt_settings_page_playback_contr
 
 static void on_activate_toggled(GtkToggleButton *togglebutton, gpointer user_data) {
   BtSettingsPagePlaybackController *self=BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER(user_data);
-  BtSettings *settings;
   gboolean active=gtk_toggle_button_get_active(togglebutton);
   gboolean active_setting;
 
-  g_object_get(self->priv->app,"settings",&settings,NULL);
-  g_object_get(settings,"coherence-upnp-active",&active_setting,NULL);
+  g_object_get(self->priv->settings,"coherence-upnp-active",&active_setting,NULL);
   GST_INFO("upnp active changes from %d -> %d",active_setting,active);
   if(active!=active_setting) {
-    g_object_set(settings,"coherence-upnp-active",active,NULL);
+    g_object_set(self->priv->settings,"coherence-upnp-active",active,NULL);
   }
   gtk_widget_set_sensitive(self->priv->port_entry,active);
-  g_object_unref(settings);
 }
 
 static void on_port_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtSettingsPagePlaybackController *self=BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER(user_data);
-  BtSettings *settings;
 
-  g_object_get(self->priv->app,"settings",&settings,NULL);
-  g_object_set(settings,"coherence-upnp-port",gtk_spin_button_get_value_as_int(spinbutton),NULL);
-  g_object_unref(settings);
+  g_object_set(self->priv->settings,"coherence-upnp-port",gtk_spin_button_get_value_as_int(spinbutton),NULL);
 }
 
 //-- helper methods
 
 static void bt_settings_page_playback_controller_init_ui(const BtSettingsPagePlaybackController *self) {
-  BtSettings *settings;
   GtkWidget *label,*spacer,*widget;
   GtkAdjustment *spin_adjustment;
   gboolean active;
@@ -110,8 +105,7 @@ static void bt_settings_page_playback_controller_init_ui(const BtSettingsPagePla
   gtk_widget_set_name(GTK_WIDGET(self),"playback controller settings");
 
   // get settings
-  g_object_get(self->priv->app,"settings",&settings,NULL);
-  g_object_get(settings,"coherence-upnp-active",&active,"coherence-upnp-port",&port,NULL);
+  g_object_get(self->priv->settings,"coherence-upnp-active",&active,"coherence-upnp-port",&port,NULL);
 
   // add setting widgets
   spacer=gtk_label_new("    ");
@@ -150,8 +144,6 @@ static void bt_settings_page_playback_controller_init_ui(const BtSettingsPagePla
   g_signal_connect(widget, "toggled", G_CALLBACK(on_activate_toggled), (gpointer)self);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),active);
   g_signal_connect(self->priv->port_entry, "value-changed", G_CALLBACK(on_port_changed), (gpointer)self);
-
-  g_object_unref(settings);
 }
 
 //-- constructor methods
@@ -190,6 +182,7 @@ static void bt_settings_page_playback_controller_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+  g_object_unref(self->priv->settings);
   g_object_unref(self->priv->app);
 
   G_OBJECT_CLASS(bt_settings_page_playback_controller_parent_class)->dispose(object);
@@ -199,6 +192,7 @@ static void bt_settings_page_playback_controller_init(BtSettingsPagePlaybackCont
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER, BtSettingsPagePlaybackControllerPrivate);
   GST_DEBUG("!!!! self=%p",self);
   self->priv->app = bt_edit_application_new();
+  g_object_get(self->priv->app,"settings",&self->priv->settings,NULL);
 }
 
 static void bt_settings_page_playback_controller_class_init(BtSettingsPagePlaybackControllerClass *klass) {
