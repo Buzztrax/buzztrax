@@ -230,22 +230,22 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   self->priv->audiodevices_page=bt_settings_page_audiodevices_new();
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->audiodevices_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_AUDIO_DEVICES),
-  gtk_label_new(_("Audio Devices")));
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_AUDIO_DEVICES),
+    gtk_label_new(_("Audio Devices")));
 
   // add interaction controller page
   self->priv->interaction_controller_page=bt_settings_page_interaction_controller_new();
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->interaction_controller_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_INTERACTION_CONTROLLER),
-  gtk_label_new(_("Interaction Controller")));
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_INTERACTION_CONTROLLER),
+    gtk_label_new(_("Interaction Controller")));
 
   // add playback controller page
   self->priv->playback_controller_page=bt_settings_page_playback_controller_new();
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->playback_controller_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER),
-  gtk_label_new(_("Playback Controller")));
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER),
+    gtk_label_new(_("Playback Controller")));
 
   // add notebook page #4
   // TODO(ensonic): maybe turn that into a theme page (theme-name + colors + icons?)
@@ -254,22 +254,22 @@ static void bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no color settings yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_COLORS),
-  gtk_label_new(_("Colors")));
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_COLORS),
+    gtk_label_new(_("Colors")));
 
   // add notebook page #5
   self->priv->shortcuts_page=bt_settings_page_shortcuts_new();
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->shortcuts_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_SHORTCUTS),
-  gtk_label_new(_("Shortcuts")));
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_SHORTCUTS),
+    gtk_label_new(_("Shortcuts")));
 
   // add notebook page #6
   self->priv->directories_page=bt_settings_page_directories_new();
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->directories_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_DIRECTORIES),
-  gtk_label_new(_("Directories")));
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_DIRECTORIES),
+    gtk_label_new(_("Directories")));
 
   /* TODO(ensonic): more settings
    * - fonts
