@@ -349,6 +349,16 @@ static void bt_gconf_settings_get_property(GObject * const object, const guint p
         watch_buzztard(self);
       read_uint(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-port",value);
     } break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
+      read_boolean(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/jack-transport-master",value);
+    } break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
+      read_boolean(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/jack-transport-slave",value);
+    } break;
     /* directory settings */
     case BT_SETTINGS_FOLDER_SONG: {
       if (!G_UNLIKELY(self->priv->watch_buzztard))
@@ -483,6 +493,16 @@ static void bt_gconf_settings_set_property(GObject * const object, const guint p
       if (!G_UNLIKELY(self->priv->watch_buzztard))
         watch_buzztard(self);
       write_uint(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-port",value);
+    } break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
+      write_boolean(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/jack-transport-master",value);
+    } break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE: {
+      if (!G_UNLIKELY(self->priv->watch_buzztard))
+        watch_buzztard(self);
+      write_boolean(self,BT_GCONF_PATH_BUZZTARD"/playback-controller/jack-transport-slave",value);
     } break;
     /* directory settings */
     case BT_SETTINGS_FOLDER_SONG: {

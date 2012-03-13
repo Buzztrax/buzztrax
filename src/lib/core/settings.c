@@ -408,6 +408,21 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      7654, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property(gobject_class,BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER,
+                                  g_param_spec_boolean("jack-transport-master",
+                                     "jack-transport-master",
+                                     "sync other jack clients to buzztard playback state",
+                                     FALSE, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE,
+                                  g_param_spec_boolean("jack-transport-slave",
+                                     "jack-transport-slave",
+                                     "sync buzztard to the playback state other jack clients",
+                                     FALSE, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+
   // directory settings
   g_object_class_install_property(gobject_class,BT_SETTINGS_FOLDER_SONG,
                                   g_param_spec_string("song-folder",

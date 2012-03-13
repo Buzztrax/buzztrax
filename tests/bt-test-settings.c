@@ -95,6 +95,8 @@ static void bt_test_settings_get_property(GObject * const object,const guint pro
     case BT_SETTINGS_MENU_STATUSBAR_HIDE:
     case BT_SETTINGS_MENU_TABS_HIDE:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER:
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:
     case BT_SETTINGS_SHOW_TIPS:
     {
       if(prop) {

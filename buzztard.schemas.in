@@ -211,6 +211,28 @@
         <long>The port number for the communication with the coherence backend.</long>
       </locale>
     </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/playback-controller/jack-transport-master</key>
+      <applyto>/apps/buzztard/playback-controller/jack-transport-master</applyto>
+      <owner>buzztard</owner>
+      <type>bool</type>
+      <locale name="C">
+        <default>false</default>
+        <short>Sync other jack clients to buzztard playback state</short>
+        <long>Allows to remote control jack applications from buzztard.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/playback-controller/jack-transport-slave</key>
+      <applyto>/apps/buzztard/playback-controller/jack-transport-slave</applyto>
+      <owner>buzztard</owner>
+      <type>bool</type>
+      <locale name="C">
+        <default>false</default>
+        <short>Sync buzztard to the playback state other jack clients</short>
+        <long>Allows to remote control buzztard via jack transport.</long>
+      </locale>
+    </schema>
     <!-- directory settings -->
     <schema>
       <key>/schemas/apps/buzztard/song-folder</key>

@@ -58,9 +58,8 @@ struct _BtAudioSessionPrivate {
   /* the active audio sink */
   gchar *audio_sink_name;
   GstElement *audio_sink;
-  
-  /* play back state sync mode */
-  BtAudioSessionTransportMode transport_mode;
+    
+  BtSettings *settings;
 };
 
 static BtAudioSession *singleton=NULL;
@@ -69,20 +68,24 @@ static BtAudioSession *singleton=NULL;
 
 G_DEFINE_TYPE (BtAudioSession, bt_audio_session, G_TYPE_OBJECT);
 
-//-- enums
+//-- signal handlers
 
-GType bt_audio_session_transport_mode_get_type(void) {
-  static GType type = 0;
-  if(G_UNLIKELY(type==0)) {
-    static const GEnumValue values[] = {
-      { BT_AUDIO_SESSION_TRANSPORT_MODE_AUTONOMOUS,"BT_AUDIO_SESSION_TRANSPORT_MODE_AUTONOMOUS", "No transport support" },
-      { BT_AUDIO_SESSION_TRANSPORT_MODE_MASTER,    "BT_AUDIO_SESSION_TRANSPORT_MODE_MASTER",     "Start and stop transport with song playback" },
-      { BT_AUDIO_SESSION_TRANSPORT_MODE_SLAVE,     "BT_AUDIO_SESSION_TRANSPORT_MODE_SLAVE",      "Follow transport state changes" },
-      { 0, NULL, NULL},
-    };
-    type = g_enum_register_static("BtAudioSessionTransportMode", values);
+static void update_tranport_mode(void) {
+  if(singleton->priv->audio_sink &&
+    g_object_class_find_property(G_OBJECT_GET_CLASS(singleton->priv->audio_sink),"transport")
+  ) {
+    gboolean master,slave;
+
+    g_object_get(singleton->priv->settings,
+      "jack-transport-master",&master,
+      "jack-transport-slave",&slave,
+      NULL);
+    g_object_set(singleton->priv->audio_sink,"transport",((master<<0)|(slave<<1)),NULL);
   }
-  return type;
+}
+
+static void on_jack_transport_mode_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
+  update_tranport_mode();
 }
 
 //-- helper methods
@@ -113,10 +116,6 @@ static void bt_audio_session_setup(void) {
       audio_sink=gst_object_ref(gst_element_factory_make(plugin_name,NULL));
       gst_object_sink(audio_sink);
       GST_WARNING("created session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
-
-      if(g_object_class_find_property(G_OBJECT_GET_CLASS(audio_sink),"transport")) {
-        g_object_set(audio_sink,"transport",singleton->priv->transport_mode,NULL);
-      }
 
       // we need this hack to make the ports show up
       bin = gst_pipeline_new("__kickstart__");
@@ -155,6 +154,7 @@ static void bt_audio_session_setup(void) {
       gst_object_unref(bin);
       
       singleton->priv->audio_sink = audio_sink;
+      update_tranport_mode();
     }
     else {
       GstObject *parent;
@@ -214,9 +214,6 @@ static void bt_audio_session_get_property(GObject * const object, const guint pr
     case AUDIO_SESSION_AUDIO_SINK_NAME:
       g_value_set_string(value, self->priv->audio_sink_name);
       break;
-    case AUDIO_SESSION_TRANSPORT_MODE:
-      g_value_set_enum(value, self->priv->transport_mode);
-      break;
     case AUDIO_SESSION_AUDIO_LOCKED:
       g_value_set_boolean(value, (self->priv->audio_sink?gst_element_is_locked_state(self->priv->audio_sink):FALSE));
       break;
@@ -244,12 +241,6 @@ static void bt_audio_session_set_property(GObject * const object, const guint pr
         gst_element_set_locked_state(self->priv->audio_sink,state);
       }
       break;
-    case AUDIO_SESSION_TRANSPORT_MODE:
-      self->priv->transport_mode=g_value_get_enum(value);
-      if (self->priv->audio_sink) {
-        g_object_set(self->priv->audio_sink,"transport",self->priv->transport_mode,NULL);
-      }
-      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
       break;
@@ -263,6 +254,9 @@ static void bt_audio_session_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
   GST_INFO("!!!! self=%p",self);
 
+  g_signal_handlers_disconnect_matched(self->priv->settings,G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
+  g_object_unref(self->priv->settings);
+  
   bt_audio_session_cleanup();
 
   GST_INFO("chaining up");
@@ -285,7 +279,10 @@ static void bt_audio_session_init(BtAudioSession *self) {
 
   GST_INFO("!!!! self=%p",self);
   
-  self->priv->transport_mode = BT_AUDIO_SESSION_TRANSPORT_MODE_AUTONOMOUS;
+  // watch settings changes
+  self->priv->settings=bt_settings_make();
+  g_signal_connect(self->priv->settings, "notify::jack-transport-master", G_CALLBACK(on_jack_transport_mode_changed), (gpointer)self);
+  g_signal_connect(self->priv->settings, "notify::jack-transport-slave", G_CALLBACK(on_jack_transport_mode_changed), (gpointer)self);
 
   GST_INFO("done");
 }
@@ -322,12 +319,5 @@ static void bt_audio_session_class_init(BtAudioSessionClass * klass) {
                                      FALSE,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
   
-  g_object_class_install_property(gobject_class,AUDIO_SESSION_TRANSPORT_MODE,
-                                  g_param_spec_enum("transport-mode",
-                                     "transport mode prop",
-                                     "play back state sync mode",
-                                     BT_TYPE_AUDIO_SESSION_TRANSPORT_MODE,  /* enum type */
-                                     BT_AUDIO_SESSION_TRANSPORT_MODE_AUTONOMOUS, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 

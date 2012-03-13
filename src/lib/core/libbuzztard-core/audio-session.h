@@ -54,22 +54,8 @@ struct _BtAudioSessionClass {
 
 #define BT_TYPE_AUDIO_SESSION_TRANSPORT_MODE       (bt_audio_session_transport_mode_get_type())
 
-/**
- * BtAudioSessionTransportMode:
- * @BT_AUDIO_SESSION_TRANSPORT_MODE_AUTONOMOUS: No transport support
- * @BT_AUDIO_SESSION_TRANSPORT_MODE_MASTER: Start and stop transport with song playback
- * @BT_AUDIO_SESSION_TRANSPORT_MODE_SLAVE: Follow transport state changes
- *
- * Different modes of remote controling playback state.
- */
-typedef enum {
-  BT_AUDIO_SESSION_TRANSPORT_MODE_AUTONOMOUS=0,
-  BT_AUDIO_SESSION_TRANSPORT_MODE_MASTER,
-  BT_AUDIO_SESSION_TRANSPORT_MODE_SLAVE
-} BtAudioSessionTransportMode;
 
 GType bt_audio_session_get_type(void) G_GNUC_CONST;
-GType bt_audio_session_transport_mode_get_type(void) G_GNUC_CONST;
 
 BtAudioSession *bt_audio_session_new(void);
 

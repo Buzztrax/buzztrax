@@ -112,20 +112,25 @@ static void on_activate_master_toggled(GtkCellRendererToggle *cell_renderer,gcha
   GtkTreeIter iter;
   GtkTreeModel *store;
   gboolean active; // gtk_cell_renderer_toggle_get_active(cell_renderer); <- this does not seem to work
-  //gboolean active_setting;
+  gboolean active_setting;
+  guint id;
 
   store=gtk_tree_view_get_model(self->priv->controller_list);
   gtk_tree_model_get_iter_from_string(store,&iter,path);
-  gtk_tree_model_get(store,&iter,CONTROLLER_LIST_MASTER,&active,-1);
+  gtk_tree_model_get(store,&iter,CONTROLLER_LIST_MASTER,&active,CONTROLLER_LIST_ID,&id,-1);
   active ^= 1;
   gtk_list_store_set(GTK_LIST_STORE(store),&iter,CONTROLLER_LIST_MASTER,active,-1);
+  self->priv->page=id;
 
   switch(self->priv->page) {
     case CONTROLLER_PAGE_UPNP:
       break;
     case CONTROLLER_PAGE_JACK:
-      //g_object_get(self->priv->settings,"jack-transport-master",&active_setting,NULL);
-      //GST_INFO("jack transport master changes from %d -> %d",active_setting,active);
+      g_object_get(self->priv->settings,"jack-transport-master",&active_setting,NULL);
+      GST_INFO("jack transport master changes from %d -> %d",active_setting,active);
+      if(active!=active_setting) {
+        g_object_set(self->priv->settings,"jack-transport-master",active,NULL);
+      }
       break;
   }
 }
@@ -136,12 +141,14 @@ static void on_activate_slave_toggled(GtkCellRendererToggle *cell_renderer,gchar
   GtkTreeModel *store;
   gboolean active; // gtk_cell_renderer_toggle_get_active(cell_renderer); <- this does not seem to work
   gboolean active_setting;
+  guint id;
   
   store=gtk_tree_view_get_model(self->priv->controller_list);
   gtk_tree_model_get_iter_from_string(store,&iter,path);
-  gtk_tree_model_get(store,&iter,CONTROLLER_LIST_SLAVE,&active,-1);
+  gtk_tree_model_get(store,&iter,CONTROLLER_LIST_SLAVE,&active,CONTROLLER_LIST_ID,&id,-1);
   active ^= 1;
   gtk_list_store_set(GTK_LIST_STORE(store),&iter,CONTROLLER_LIST_SLAVE,active,-1);
+  self->priv->page=id;
 
   switch(self->priv->page) {
     case CONTROLLER_PAGE_UPNP:
@@ -153,8 +160,11 @@ static void on_activate_slave_toggled(GtkCellRendererToggle *cell_renderer,gchar
       gtk_widget_set_sensitive(self->priv->port_entry,active);
       break;
     case CONTROLLER_PAGE_JACK:
-      //g_object_get(self->priv->settings,"jack-transport-slave",&active_setting,NULL);
-      //GST_INFO("jack transport slave changes from %d -> %d",active_setting,active);
+      g_object_get(self->priv->settings,"jack-transport-slave",&active_setting,NULL);
+      GST_INFO("jack transport slave changes from %d -> %d",active_setting,active);
+      if(active!=active_setting) {
+        g_object_set(self->priv->settings,"jack-transport-slave",active,NULL);
+      }
       break;
   }
 }
@@ -174,14 +184,20 @@ static void bt_settings_page_playback_controller_init_ui(const BtSettingsPagePla
   GtkTreeSelection *selection;
   GtkTreeIter iter;
   GtkAdjustment *spin_adjustment;
-  gboolean active;
-  guint port;
+  gboolean coherence_upnp_active;
+  guint coherence_upnp_port;
+  gboolean jack_transport_master, jack_transport_slave;
   gchar *str,*plugin_name;
 
   gtk_widget_set_name(GTK_WIDGET(self),"playback controller settings");
 
   // get settings
-  g_object_get(self->priv->settings,"coherence-upnp-active",&active,"coherence-upnp-port",&port,NULL);
+  g_object_get(self->priv->settings,
+    "coherence-upnp-active",&coherence_upnp_active,
+    "coherence-upnp-port",&coherence_upnp_port,
+    "jack-transport-master",&jack_transport_master,
+    "jack-transport-slave",&jack_transport_slave,
+    NULL);
 
   // add setting widgets
   spacer=gtk_label_new("    ");
@@ -233,7 +249,7 @@ static void bt_settings_page_playback_controller_init_ui(const BtSettingsPagePla
                     CONTROLLER_LIST_CAN_MASTER, FALSE,
                     CONTROLLER_LIST_MASTER, FALSE,
                     CONTROLLER_LIST_CAN_SLAVE, TRUE,
-                    CONTROLLER_LIST_SLAVE,  active,
+                    CONTROLLER_LIST_SLAVE,  coherence_upnp_active,
                     -1);
   gtk_list_store_append(store, &iter);
   gtk_list_store_set(store, &iter,
@@ -241,9 +257,9 @@ static void bt_settings_page_playback_controller_init_ui(const BtSettingsPagePla
                     // don't translate, this is a product
                     CONTROLLER_LIST_LABEL, "Jack Transport",
                     CONTROLLER_LIST_CAN_MASTER, TRUE,
-                    CONTROLLER_LIST_MASTER, FALSE,
+                    CONTROLLER_LIST_MASTER, jack_transport_master,
                     CONTROLLER_LIST_CAN_SLAVE, TRUE,
-                    CONTROLLER_LIST_SLAVE,  FALSE,
+                    CONTROLLER_LIST_SLAVE,  jack_transport_slave,
                     -1);
 
   gtk_tree_view_set_model(self->priv->controller_list,GTK_TREE_MODEL(store));
@@ -267,7 +283,7 @@ static void bt_settings_page_playback_controller_init_ui(const BtSettingsPagePla
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
 
-  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)port, 1024.0, 65536.0, 1.0, 5.0, 0.0));
+  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)coherence_upnp_port, 1024.0, 65536.0, 1.0, 5.0, 0.0));
   self->priv->port_entry=gtk_spin_button_new(spin_adjustment,1.0,0);
   g_signal_connect(self->priv->port_entry, "value-changed", G_CALLBACK(on_port_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),self->priv->port_entry, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);

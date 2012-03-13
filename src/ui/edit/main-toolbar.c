@@ -269,17 +269,6 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
   g_object_unref(song);
 }
 
-static void on_transport_mode_changed(GtkComboBox *combo_box,gpointer user_data) {
-  //BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  gint mode;
-
-  if((mode=gtk_combo_box_get_active (combo_box))!=-1) {
-    BtAudioSession *audio_session=bt_audio_session_new();
-    g_object_set(audio_session,"transport-mode",mode,NULL);
-    g_object_unref(audio_session);
-  }
-}
-
 static void set_new_playback_rate(BtMainToolbar *self,gdouble playback_rate) {
   BtSong *song;
 
@@ -809,7 +798,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   BtSettings *settings;
   GtkWidget *tool_item;
-  GtkWidget *box, *child, *combo_box;
+  GtkWidget *box, *child;
   gulong i;
   BtChangeLog *change_log;
 
@@ -880,19 +869,6 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(tool_item,"toggled",G_CALLBACK(on_toolbar_loop_toggled),(gpointer)self);
   self->priv->loop_button=tool_item;
-  
-  combo_box=gtk_combo_box_text_new();
-  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo_box),"A");
-  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo_box),"M");
-  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo_box),"S");
-  gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),0);
-  g_signal_connect(combo_box,"changed",G_CALLBACK(on_transport_mode_changed), (gpointer)self);
-  
-  tool_item=GTK_WIDGET(gtk_tool_item_new());
-  gtk_container_add(GTK_CONTAINER(tool_item),combo_box);
-  gtk_widget_set_name(tool_item,"TransportMode");
-  gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(tool_item),_("Transport mode"));
-  gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
 
   gtk_toolbar_insert(GTK_TOOLBAR(self),gtk_separator_tool_item_new(),-1);
 
