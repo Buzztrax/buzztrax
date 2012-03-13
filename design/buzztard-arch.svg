@@ -1,0 +1,1001 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1052.3622"
+   height="744.09448"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.44.1"
+   version="1.0"
+   sodipodi:docbase="/home/ensonic/presentations/LAC2007"
+   sodipodi:docname="buzztard-arch.svg"
+   inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch.png"
+   inkscape:export-xdpi="100"
+   inkscape:export-ydpi="100">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient6490">
+      <stop
+         style="stop-color:white;stop-opacity:1;"
+         offset="0"
+         id="stop6492" />
+      <stop
+         style="stop-color:#b4b4b4;stop-opacity:0.39215687;"
+         offset="1"
+         id="stop6494" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4710">
+      <stop
+         style="stop-color:#c5ff80;stop-opacity:1;"
+         offset="0"
+         id="stop4712" />
+      <stop
+         style="stop-color:#c4ff80;stop-opacity:0;"
+         offset="1"
+         id="stop4714" />
+    </linearGradient>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path12876"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6496"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,6.527858,17.54393)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6500"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,6.42587,117.6943)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6504"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,6.645299,317.4088)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6508"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,-253.4225,317.6282)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6512"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,-253.203,117.9137)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6516"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,266.7131,117.6943)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6520"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,266.7131,17.61757)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6524"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,516.466,17.61753)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6528"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,516.4659,117.6942)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6532"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,516.6854,217.5515)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6536"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,516.6853,317.6282)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6540"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(4.856582,0,0,0.923354,-1444.359,417.4855)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490"
+       id="linearGradient6544"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.167562,0,0,4.516411,436.4617,-949.8587)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="50"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.1167937"
+     inkscape:cx="526.18109"
+     inkscape:cy="372.04724"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     width="1052.3622px"
+     height="744.09448px"
+     showguides="true"
+     inkscape:guide-bbox="false"
+     inkscape:window-width="1502"
+     inkscape:window-height="1047"
+     inkscape:window-x="416"
+     inkscape:window-y="29"
+     showgrid="true"
+     inkscape:object-points="false"
+     inkscape:object-bbox="false"
+     inkscape:object-paths="false"
+     inkscape:grid-points="false"
+     inkscape:guide-points="false"
+     inkscape:grid-bbox="false">
+    <sodipodi:guide
+       orientation="horizontal"
+       position="100.0051"
+       id="guide2785" />
+    <sodipodi:guide
+       orientation="horizontal"
+       position="199.91755"
+       id="guide3714" />
+    <sodipodi:guide
+       orientation="vertical"
+       position="40.025204"
+       id="guide4610" />
+    <sodipodi:guide
+       orientation="vertical"
+       position="1009.8025"
+       id="guide4612" />
+    <sodipodi:guide
+       orientation="horizontal"
+       position="299.95496"
+       id="guide4625" />
+    <sodipodi:guide
+       orientation="horizontal"
+       position="399.93146"
+       id="guide10878" />
+    <sodipodi:guide
+       orientation="vertical"
+       position="559.98742"
+       id="guide12886" />
+    <sodipodi:guide
+       orientation="horizontal"
+       position="500.20926"
+       id="guide14707" />
+    <sodipodi:guide
+       orientation="horizontal"
+       position="600.46036"
+       id="guide20169" />
+    <sodipodi:guide
+       orientation="horizontal"
+       position="699.65923"
+       id="guide20171" />
+    <sodipodi:guide
+       orientation="vertical"
+       position="299.98056"
+       id="guide1989" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#ebebeb;fill-opacity:1;stroke:#929292;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect14709"
+       width="237.72014"
+       height="358.44614"
+       x="791.13995"
+       y="174.50841"
+       rx="4.381887"
+       ry="4.381887"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="fill:#bfbfbf;fill-opacity:1;stroke:#959595;stroke-width:3.00000024;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1872"
+       width="967.99548"
+       height="77.514656"
+       x="41.001762"
+       y="645.0799"
+       rx="4.0448189"
+       ry="4.0448198"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12.49198437px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="500.46594"
+       y="713.5351"
+       id="text2760"
+       transform="scale(1.049309,0.953008)"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan2762"
+         x="500.46594"
+         y="713.5351"
+         style="font-size:33.3119545px;text-align:center;text-anchor:middle;font-family:sans">Platform</tspan><tspan
+         sodipodi:role="line"
+         x="500.46594"
+         y="742.88197"
+         style="font-size:20.81997299px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan21065">Linux, MacOS, Windows, ...</tspan></text>
+    <rect
+       style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect3708"
+       width="197.97485"
+       height="77.973969"
+       x="41.025097"
+       y="545.12079"
+       rx="4.381887"
+       ry="4.381887"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12.07807636px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="140.36607"
+       y="577.67859"
+       id="text3710"
+       transform="scale(0.993412,1.006632)"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan3712"
+         x="140.36607"
+         y="577.67859"
+         style="font-size:32.20819855px;text-align:center;text-anchor:middle;font-family:sans">Gtk+</tspan><tspan
+         sodipodi:role="line"
+         x="140.36607"
+         y="606.05309"
+         style="font-size:20.13012695px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan19217">ui toolkit</tspan></text>
+    <rect
+       style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4604"
+       width="198.00174"
+       height="78.015495"
+       x="560.99988"
+       y="545.07861"
+       rx="3.7077506"
+       ry="3.7077506"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="658.94604"
+       y="581.52209"
+       id="text4606"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan4608"
+         x="658.94604"
+         y="581.52209"
+         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">GStreamer</tspan><tspan
+         sodipodi:role="line"
+         x="658.94604"
+         y="609.71318"
+         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan19228">media framework</tspan></text>
+    <rect
+       style="fill:#80ffb9;fill-opacity:1;stroke:#00c357;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4629"
+       width="198.00038"
+       height="78.00013"
+       x="561.00012"
+       y="345.09424"
+       rx="4.381887"
+       ry="4.381887"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="659.64874"
+       y="379.34738"
+       id="text4631"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan4633"
+         x="659.64874"
+         y="379.34738"
+         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">libbtcore</tspan><tspan
+         sodipodi:role="line"
+         x="659.64874"
+         y="407.53846"
+         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan19250">song engine</tspan></text>
+    <rect
+       style="fill:#80ffb9;fill-opacity:1;stroke:#00c357;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect8209"
+       width="197.99991"
+       height="77.999802"
+       x="40.999996"
+       y="345.09442"
+       rx="4.381887"
+       ry="4.381887"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#4b4b4b;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="139.99507"
+       y="379.642"
+       id="text8211"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan8213"
+         x="139.99507"
+         y="379.642"
+         style="font-size:32px;text-align:center;text-anchor:middle;fill:#4b4b4b;fill-opacity:1;font-family:sans">libbtui</tspan><tspan
+         sodipodi:role="line"
+         x="139.99507"
+         y="407.83308"
+         style="font-size:20px;text-align:center;text-anchor:middle;fill:#4b4b4b;fill-opacity:1;font-family:sans"
+         id="tspan19239">common widgets</tspan></text>
+    <rect
+       style="fill:#c4ff80;fill-opacity:1;stroke:#5baa00;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect10882"
+       width="198.00024"
+       height="78.000008"
+       x="301.00003"
+       y="245.0945"
+       rx="3.7077506"
+       ry="3.7077506"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="fill:#c4ff80;fill-opacity:1;stroke:#5baa00;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect11791"
+       width="197.99957"
+       height="78.000008"
+       x="560.99976"
+       y="245.0945"
+       rx="4.0448189"
+       ry="4.0448189"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="660.31689"
+       y="281.3349"
+       id="text11793"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan11795"
+         x="660.31689"
+         y="281.3349"
+         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">bt-cmd</tspan><tspan
+         sodipodi:role="line"
+         x="660.31689"
+         y="309.52598"
+         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan19272">command-line tool</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 499.00027,323.09451 L 560,344.09448"
+       id="path11811"
+       inkscape:connector-type="polyline"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 301.00003,323.09451 L 240,344.09448"
+       id="path11813"
+       inkscape:connector-type="polyline"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 660,324.09448 L 660,344.09448"
+       id="path11815"
+       inkscape:connector-type="polyline"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 140,424.09448 L 140,544.09448"
+       id="path11817"
+       inkscape:connector-type="polyline"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 660,424.09448 L 660,544.09448"
+       id="path11819"
+       inkscape:connector-type="polyline"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"
+       sodipodi:nodetypes="cc" />
+    <rect
+       style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect12898"
+       width="197.99095"
+       height="78.029251"
+       x="811.00897"
+       y="545.0813"
+       rx="3.7077506"
+       ry="3.7077506"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="910.65289"
+       y="579.349"
+       id="text12900"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan12902"
+         x="910.65289"
+         y="579.349"
+         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">gst-buzztard</tspan><tspan
+         sodipodi:role="line"
+         x="910.65289"
+         y="607.54008"
+         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan19198">gst extensions</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 760,584.09448 L 810,584.09448"
+       id="path12912"
+       inkscape:connector-type="polyline"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect13801"
+       width="198.00044"
+       height="78.000107"
+       x="810.99963"
+       y="445.09427"
+       rx="3.7077506"
+       ry="3.7077506"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="910.37097"
+       y="479.34741"
+       id="text13803"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan13805"
+         x="910.37097"
+         y="479.34741"
+         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">gstbml</tspan><tspan
+         sodipodi:role="line"
+         x="910.37097"
+         y="507.53849"
+         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan19206">gst wrapper plugin</tspan></text>
+    <rect
+       style="fill:#80ffb9;fill-opacity:1;stroke:#00c357;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect13812"
+       width="197.99986"
+       height="77.999847"
+       x="811.00006"
+       y="245.09445"
+       rx="3.7077506"
+       ry="3.7077506"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="909.21875"
+       y="279.34747"
+       id="text13814"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan13816"
+         x="909.21875"
+         y="279.34747"
+         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">bsl</tspan><tspan
+         id="tspan19162"
+         sodipodi:role="line"
+         x="909.21875"
+         y="307.53856"
+         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans">buzz song loader</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="909.32031"
+       y="211.89803"
+       id="text15599"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan15601"
+         x="909.32031"
+         y="211.89803"
+         style="font-size:24px;text-align:center;text-anchor:middle;font-family:sans">buzz compatibility</tspan></text>
+    <rect
+       style="fill:#80ffb9;fill-opacity:1;stroke:#00c357;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect17382"
+       width="197.99986"
+       height="78.000008"
+       x="811.00006"
+       y="345.09451"
+       rx="4.0448189"
+       ry="4.0448189"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="909.21875"
+       y="381.3349"
+       id="text17384"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan17386"
+         x="909.21875"
+         y="381.3349"
+         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">bml</tspan><tspan
+         sodipodi:role="line"
+         x="909.21875"
+         y="409.52598"
+         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan19177">buzz machine loader</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 910,444.09448 L 910,424.09448"
+       id="path17388"
+       inkscape:connector-type="polyline"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="78.130951"
+       y="87.175163"
+       id="text19280"><tspan
+         sodipodi:role="line"
+         id="tspan19282"
+         x="78.130951"
+         y="87.175163"
+         style="font-size:48px;font-weight:bold;fill:black;fill-opacity:0.31972788;font-family:sans"><tspan
+           style="font-size:56px"
+           id="tspan20175">buzztard</tspan><tspan
+           style="font-weight:normal"
+           id="tspan20173"> architecture</tspan></tspan></text>
+    <rect
+       style="fill:#80ffb9;fill-opacity:1;stroke:#00c357;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1957"
+       width="198.00009"
+       height="78.000023"
+       x="301.00006"
+       y="345.09457"
+       rx="4.0448189"
+       ry="4.0448189"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="399.20911"
+       y="381.40982"
+       id="text1959"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan1961"
+         x="399.20911"
+         y="381.40982"
+         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">libbtic</tspan><tspan
+         sodipodi:role="line"
+         x="399.20911"
+         y="409.6009"
+         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan1963">interaction controller</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 400,324.09448 L 400,344.09448"
+       id="path1965"
+       inkscape:connector-type="polyline"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1979"
+       width="198.00134"
+       height="78.00264"
+       x="300.99881"
+       y="545.0921"
+       rx="3.7077506"
+       ry="3.7077506"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="400.03366"
+       y="581.3338"
+       id="text1981"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan1983"
+         x="400.03366"
+         y="581.3338"
+         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">HAL</tspan><tspan
+         sodipodi:role="line"
+         x="400.03366"
+         y="609.52488"
+         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan1985">hardware abstraction</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 400.50006,424.0843 L 400,544.09448"
+       id="path1987"
+       inkscape:connector-type="polyline"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 301.00003,323.09451 L 240,544.09448"
+       id="path2001"
+       inkscape:connector-type="polyline"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6496);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect4718"
+       width="192.11249"
+       height="72.021683"
+       x="303.91373"
+       y="248.00822"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="399.06265"
+       y="281.3349"
+       id="text10884"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan10886"
+         x="399.06265"
+         y="281.3349"
+         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">bt-edit</tspan><tspan
+         sodipodi:role="line"
+         x="399.06265"
+         y="309.52598"
+         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan19261">ui editor</tspan></text>
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6500);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6498"
+       width="192.11249"
+       height="72.021683"
+       x="303.81174"
+       y="348.15857"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6504);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6502"
+       width="192.11249"
+       height="72.021683"
+       x="304.03119"
+       y="547.87311"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6508);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6506"
+       width="192.11249"
+       height="72.021683"
+       x="43.963387"
+       y="548.09253"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6512);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6510"
+       width="192.11249"
+       height="72.021683"
+       x="44.182854"
+       y="348.37805"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6516);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6514"
+       width="192.11249"
+       height="72.021683"
+       x="564.099"
+       y="348.15857"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6520);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6518"
+       width="192.11249"
+       height="72.021683"
+       x="564.099"
+       y="248.08185"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6524);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6522"
+       width="192.11249"
+       height="72.021683"
+       x="813.85193"
+       y="248.08185"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6528);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6526"
+       width="192.11249"
+       height="72.021683"
+       x="813.85187"
+       y="348.15857"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6532);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6530"
+       width="192.11249"
+       height="72.021683"
+       x="814.07141"
+       y="448.01581"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6536);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6534"
+       width="192.11249"
+       height="72.021683"
+       x="814.07135"
+       y="548.09253"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6540);stroke-width:3.00000048;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6538"
+       width="961.60419"
+       height="72.021683"
+       x="44.182858"
+       y="647.94983"
+       rx="0.6040265"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <rect
+       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6544);stroke-width:3.00000095;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6542"
+       width="231.1776"
+       height="352.28036"
+       x="794.31958"
+       y="177.4137"
+       rx="0.60402656"
+       ry="0.60402632"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 760,544.09448 L 810,524.09448"
+       id="path13818"
+       inkscape:connector-type="polyline"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 910,524.09448 L 910,544.09448"
+       id="path18275"
+       inkscape:connector-type="polyline"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 760,344.09448 L 810,324.09448"
+       id="path13820"
+       inkscape:connector-type="polyline"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+  </g>
+</svg>
