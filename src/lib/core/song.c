@@ -1024,7 +1024,7 @@ void bt_song_write_to_highlevel_dot_file(const BtSong * const self) {
         else if(index==0) {
           this_name=src_name;
         }
-        else if ((index==(count-1))) {
+        else if (index==(count-1)) {
           this_name=dst_name;
         }
         if(last_name) {
