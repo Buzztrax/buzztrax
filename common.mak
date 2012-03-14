@@ -9,11 +9,14 @@ todo::
 	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "IDEA([a-z]*): .*" {} \; | sed "s/IDEA([a-z]*)/note:/"
 
 # make stats           -- run source code stats
-stats:: tags
-	@echo "files by size:"
+stats:: ctags
+	@echo "files by byte size:"
 	@find . \( -name "*.c" -o -name "*.h" \) -printf "%s %p\n" | sort -rn
 	@echo
-	@echo "files by tags:"
+	@echo "files by line size:"
+	@find . \( -name "*.c" -o -name "*.h" \) -exec wc -l {} \; | sort -rn
+	@echo
+	@echo "files by tag entries:"
 	@for file in *.c; do size=`grep $${file} tags | wc -l`;echo $${size} $${file}; done | sort -rn
 
 ## need all -I -D flags
