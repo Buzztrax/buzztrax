@@ -75,9 +75,15 @@
  * bt_machine_init_voice_params()
  * -> bt_parameter_group_new(voice_child,"voice 0",num_params,GParamSpec **properties)
  *
+ * we want to move all the bt_machine_{get,is,set}_{global,voice}_* api to the 
+ * param group and oly leave api in machine to get the param group.
+ *
  * The BtParameterGroup can also be exposed by wires. 
  *
  * Ideally this easily maps into BtPatternEditorColumnGroup (see main-page-patterns.c)
+ *
+ * While we're doing it:
+ * - get rid of GError in bt_machine_get_*_param_index()
  */
 /* TODO(ensonic): machine part creation api
  * - need singel api to create machine parts, instead of individual functions
@@ -3072,80 +3078,6 @@ void bt_machine_dbg_print_parts(const BtMachine * const self) {
     self->priv->machines[PART_SPREADER]?"S":"s"
   );
 }
-
-#if 0
-void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
-  gulong i;
-  FILE *file;
-  gchar *name,*str;
-  GList *list,*node;
-  GstTimedValue *tv;
-
-  if(!self->priv->global_controller)
-    return;
-
-  for(i=0;i<self->priv->global_params;i++) {
-    name=g_strdup_printf("%s"G_DIR_SEPARATOR_S"buzztard-%s_g%02lu.dat",g_get_tmp_dir(),self->priv->id,i);
-    if((file=fopen(name,"wb"))) {
-      fprintf(file,"# global param \"%s\" for machine \"%s\"\n",GLOBAL_PARAM_NAME(i),self->priv->id);
-      GstControlSource *cs;
-
-      list=NULL;
-      if((cs=gst_controller_get_control_source(self->priv->global_controller,GLOBAL_PARAM_NAME(i)))) {
-        list=gst_interpolation_control_source_get_all(GST_INTERPOLATION_CONTROL_SOURCE(cs));
-        g_object_unref(cs);
-      }
-      if(list) {
-        for(node=list;node;node=g_list_next(node)) {
-          tv=(GstTimedValue *)node->data;
-          str=g_strdup_value_contents(&tv->value);
-          fprintf(file,"%"GST_TIME_FORMAT" %"G_GUINT64_FORMAT" %s\n",GST_TIME_ARGS(tv->timestamp),tv->timestamp,str);
-          g_free(str);
-        }
-        g_list_free(list);
-      }
-      fclose(file);
-    }
-    g_free(name);
-  }
-}
-
-void bt_machine_dbg_dump_voice_controller_queue(const BtMachine * const self) {
-  gulong i;
-  FILE *file;
-  gchar *name,*str;
-  GList *list,*node;
-  GstTimedValue *tv;
-
-  if(!self->priv->voice_controllers || !self->priv->voice_controllers[0])
-    return;
-
-  for(i=0;i<self->priv->voice_params;i++) {
-    name=g_strdup_printf("%s"G_DIR_SEPARATOR_S"buzztard-%s_v%02lu.dat",g_get_tmp_dir(),self->priv->id,i);
-    if((file=fopen(name,"wb"))) {
-      fprintf(file,"# voice 0 param \"%s\" for machine \"%s\"\n",VOICE_PARAM_NAME(i),self->priv->id);
-      GstControlSource *cs;
-
-      list=NULL;
-      if((cs=gst_controller_get_control_source(self->priv->voice_controllers[0],VOICE_PARAM_NAME(i)))) {
-        list=gst_interpolation_control_source_get_all(GST_INTERPOLATION_CONTROL_SOURCE(cs));
-        g_object_unref(cs);
-      }
-      if(list) {
-        for(node=list;node;node=g_list_next(node)) {
-          tv=(GstTimedValue *)node->data;
-          str=g_strdup_value_contents(&tv->value);
-          fprintf(file,"%"GST_TIME_FORMAT" %"G_GUINT64_FORMAT" %s\n",GST_TIME_ARGS(tv->timestamp),tv->timestamp,str);
-          g_free(str);
-        }
-        g_list_free(list);
-      }
-      fclose(file);
-    }
-    g_free(name);
-  }
-}
-#endif
 
 //-- io interface
 

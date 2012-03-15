@@ -190,10 +190,5 @@ BtWire *bt_machine_get_wire_by_dst_machine(const BtMachine * const self, const B
 
 GList *bt_machine_get_element_list(const BtMachine * const self);
 void bt_machine_dbg_print_parts(const BtMachine * const self);
-#if 0
-void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self);
-void bt_machine_dbg_dump_voice_controller_queue(const BtMachine * const self);
-#endif
-
 
 #endif // BT_MACHINE_H
