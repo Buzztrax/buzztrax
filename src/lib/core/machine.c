@@ -75,20 +75,18 @@
  * bt_machine_init_voice_params()
  * -> bt_parameter_group_new(voice_child,"voice 0",num_params,GParamSpec **properties)
  *
- * Do we want one ParameterGroup per voice or just one for all voices?
- * bt_machine_set_voice_param_value() and bt_machine_voice_controller_change_value() are voice specific
+ * The BtParameterGroup can also be exposed by wires. 
  *
- * TODO(ensonic): API cleanup
- * - need coherent api to create machine parts
+ * Ideally this easily maps into BtPatternEditorColumnGroup (see main-page-patterns.c)
+ */
+/* TODO(ensonic): machine part creation api
+ * - need singel api to create machine parts, instead of individual functions
  *   - export the enum ?
- *
- * TODO(ensonic): cache the GstControlSource objects?
+ *   - one function that takes flags, or vararg of enum values
+ */
+/* TODO(ensonic): cache the GstControlSource objects?
  * - we look them up a lot, its a linear search in a list, locking and ref/unref
  * - one for each param and again each voice
- *
- * TODO(ensonic): we could determine the pad-names for parts and use gst_element_{link,unlink}_pads
- * - we get a little speedup if the pad-names are known
- * - passing NULL for a pad-name is ok
  */
 
 #define BT_CORE
