@@ -74,7 +74,6 @@ G_DEFINE_ABSTRACT_TYPE (BtApplication, bt_application, G_TYPE_OBJECT);
 
 //-- g_object overrides
 
-/* returns a property for the given property_id for this object */
 static void bt_application_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtApplication * const self = BT_APPLICATION(object);
   return_if_disposed();

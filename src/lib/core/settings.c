@@ -242,7 +242,6 @@ gchar *bt_settings_determine_audiosink_name(const BtSettings * const self) {
 
 //-- g_object overrides
 
-/* returns a property for the given property_id for this object */
 static void bt_settings_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const GObjectClass * const gobject_class = G_OBJECT_GET_CLASS(object);
 
@@ -250,7 +249,6 @@ static void bt_settings_get_property(GObject * const object, const guint propert
   gobject_class->get_property(object,property_id,value,pspec);
 }
 
-/* sets the given properties for this object */
 static void bt_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   GObjectClass * const gobject_class = G_OBJECT_GET_CLASS(object);
 

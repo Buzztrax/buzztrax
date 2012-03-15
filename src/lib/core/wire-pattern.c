@@ -1181,7 +1181,6 @@ static void bt_wire_pattern_constructed(GObject *object) {
   bt_wire_add_wire_pattern(self->priv->wire,self->priv->pattern,self);
 }
 
-/* returns a property for the given property_id for this object */
 static void bt_wire_pattern_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtWirePattern * const self = BT_WIRE_PATTERN(object);
 
@@ -1202,7 +1201,6 @@ static void bt_wire_pattern_get_property(GObject * const object, const guint pro
   }
 }
 
-/* sets the given properties for this object */
 static void bt_wire_pattern_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtWirePattern * const self = BT_WIRE_PATTERN(object);
 

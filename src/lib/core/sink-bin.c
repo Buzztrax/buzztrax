@@ -911,7 +911,6 @@ static GstStateChangeReturn bt_sink_bin_change_state(GstElement * element, GstSt
   return(res);
 }
 
-/* returns a property for the given property_id for this object */
 static void bt_sink_bin_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSinkBin * const self = BT_SINK_BIN(object);
   return_if_disposed();
@@ -955,7 +954,6 @@ static void bt_sink_bin_get_property(GObject * const object, const guint propert
   }
 }
 
-/* sets the given properties for this object */
 static void bt_sink_bin_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtSinkBin * const self = BT_SINK_BIN(object);
   return_if_disposed();

@@ -239,7 +239,6 @@ static void bt_song_info_persistence_interface_init(gpointer const g_iface, gpoi
 
 //-- g_object overrides
 
-/* returns a property for the given property_id for this object */
 static void bt_song_info_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSongInfo * const self = BT_SONG_INFO(object);
   return_if_disposed();
@@ -286,7 +285,6 @@ static void bt_song_info_get_property(GObject * const object, const guint proper
   }
 }
 
-/* sets the given properties for this object */
 static void bt_song_info_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtSongInfo * const self = BT_SONG_INFO(object);
   return_if_disposed();

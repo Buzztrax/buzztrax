@@ -1670,7 +1670,6 @@ static void bt_pattern_constructed(GObject *object) {
   bt_machine_add_pattern(self->priv->machine,self);
 }
 
-/* returns a property for the given property_id for this object */
 static void bt_pattern_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtPattern * const self = BT_PATTERN(object);
 
@@ -1703,7 +1702,6 @@ static void bt_pattern_get_property(GObject * const object, const guint property
   }
 }
 
-/* sets the given properties for this object */
 static void bt_pattern_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   BtPattern * const self = BT_PATTERN(object);
 

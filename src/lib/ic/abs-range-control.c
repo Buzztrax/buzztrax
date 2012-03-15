@@ -86,7 +86,6 @@ Error:
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
 static void btic_abs_range_control_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtIcAbsRangeControl * const self = BTIC_ABS_RANGE_CONTROL(object);
   return_if_disposed();
@@ -109,7 +108,6 @@ static void btic_abs_range_control_get_property(GObject * const object, const gu
   }
 }
 
-/* sets the given properties for this object */
 static void btic_abs_range_control_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtIcAbsRangeControl * const self = BTIC_ABS_RANGE_CONTROL(object);
   return_if_disposed();

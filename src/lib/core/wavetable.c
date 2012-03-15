@@ -256,7 +256,6 @@ static void bt_wavetable_persistence_interface_init(gpointer const g_iface, gpoi
 
 //-- g_object overrides
 
-/* returns a property for the given property_id for this object */
 static void bt_wavetable_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtWavetable * const self = BT_WAVETABLE(object);
   return_if_disposed();
@@ -276,7 +275,6 @@ static void bt_wavetable_get_property(GObject * const object, const guint proper
   }
 }
 
-/* sets the given properties for this object */
 static void bt_wavetable_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtWavetable * const self = BT_WAVETABLE(object);
   return_if_disposed();

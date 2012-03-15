@@ -67,7 +67,6 @@ BtTestSettings *bt_test_settings_new(void) {
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
 static void bt_test_settings_get_property(GObject * const object,const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtTestSettings * const self = BT_TEST_SETTINGS(object);
   GValue *prop=self->priv->settings[property_id];
@@ -137,7 +136,6 @@ static void bt_test_settings_get_property(GObject * const object,const guint pro
   }
 }
 
-/* sets the given properties for this object */
 static void bt_test_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtTestSettings * const self = BT_TEST_SETTINGS(object);
   GValue *prop=self->priv->settings[property_id];

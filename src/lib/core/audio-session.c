@@ -203,7 +203,6 @@ static GObject* bt_audio_session_constructor(GType type, guint n_construct_param
   return object;
 }
     
-/* returns a property for the given property_id for this object */
 static void bt_audio_session_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtAudioSession * const self = BT_AUDIO_SESSION(object);
   return_if_disposed();
@@ -223,7 +222,6 @@ static void bt_audio_session_get_property(GObject * const object, const guint pr
   }
 }
 
-/* sets the given properties for this object */
 static void bt_audio_session_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtAudioSession * const self = BT_AUDIO_SESSION(object);
   return_if_disposed();

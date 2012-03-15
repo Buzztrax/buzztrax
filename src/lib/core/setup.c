@@ -1638,7 +1638,6 @@ static void bt_setup_persistence_interface_init(gpointer const g_iface, gpointer
 
 //-- g_object overrides
 
-/* returns a property for the given property_id for this object */
 static void bt_setup_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSetup * const self = BT_SETUP(object);
   return_if_disposed();
@@ -1670,7 +1669,6 @@ static void bt_setup_get_property(GObject * const object, const guint property_i
   }
 }
 
-/* sets the given properties for this object */
 static void bt_setup_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtSetup * const self = BT_SETUP(object);
   return_if_disposed();

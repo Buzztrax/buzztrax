@@ -75,7 +75,6 @@ G_DEFINE_ABSTRACT_TYPE (BtIcControl, btic_control, G_TYPE_OBJECT);
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
 static void btic_control_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtIcControl * const self = BTIC_CONTROL(object);
   return_if_disposed();
@@ -95,7 +94,6 @@ static void btic_control_get_property(GObject * const object, const guint proper
   }
 }
 
-/* sets the given properties for this object */
 static void btic_control_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtIcControl * const self = BTIC_CONTROL(object);
   return_if_disposed();

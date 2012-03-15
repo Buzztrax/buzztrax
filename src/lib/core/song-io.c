@@ -425,7 +425,6 @@ gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song) {
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
 static void bt_song_io_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSongIO * const self = BT_SONG_IO(object);
   return_if_disposed();
@@ -448,7 +447,6 @@ static void bt_song_io_get_property(GObject * const object, const guint property
   }
 }
 
-/* sets the given properties for this object */
 static void bt_song_io_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtSongIO * const self = BT_SONG_IO(object);
   return_if_disposed();

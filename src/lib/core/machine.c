@@ -3571,7 +3571,6 @@ Error:
   }
 }
 
-/* returns a property for the given property_id for this object */
 static void bt_machine_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtMachine * const self = BT_MACHINE(object);
 
@@ -3644,7 +3643,6 @@ static void bt_machine_get_property(GObject * const object, const guint property
   }
 }
 
-/* sets the given properties for this object */
 static void bt_machine_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtMachine * const self = BT_MACHINE(object);
 

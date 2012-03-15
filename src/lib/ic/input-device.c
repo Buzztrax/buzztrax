@@ -392,7 +392,6 @@ static gboolean btic_input_device_stop(gconstpointer _self) {
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
 static void btic_input_device_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtIcInputDevice * const self = BTIC_INPUT_DEVICE(object);
   return_if_disposed();
@@ -406,7 +405,6 @@ static void btic_input_device_get_property(GObject * const object, const guint p
   }
 }
 
-/* sets the given properties for this object */
 static void btic_input_device_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtIcInputDevice * const self = BTIC_INPUT_DEVICE(object);
   return_if_disposed();

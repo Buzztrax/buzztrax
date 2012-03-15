@@ -641,7 +641,6 @@ Error:
 
 //-- class internals
 
-/* sets the given properties for this object */
 static void bt_cmd_application_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
   return_if_disposed();

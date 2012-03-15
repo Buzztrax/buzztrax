@@ -2090,7 +2090,6 @@ static gboolean bt_song_io_buzz_load(gconstpointer const _self, const BtSong * c
 
 //-- class internals
 
-/* returns a property for the given property_id for this object */
 static void bt_song_io_buzz_get_property(GObject      *object,
                                guint         property_id,
                                GValue       *value,
@@ -2105,7 +2104,6 @@ static void bt_song_io_buzz_get_property(GObject      *object,
   }
 }
 
-/* sets the given properties for this object */
 static void bt_song_io_buzz_set_property(GObject      *object,
                               guint         property_id,
                               const GValue *value,

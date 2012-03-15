@@ -420,7 +420,6 @@ done:
 #endif
 }
 
-/* returns a property for the given property_id for this object */
 static void btic_midi_device_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
   return_if_disposed();
@@ -437,7 +436,6 @@ static void btic_midi_device_get_property(GObject * const object, const guint pr
   }
 }
 
-/* sets the given properties for this object */
 static void btic_midi_device_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
   return_if_disposed();

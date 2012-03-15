@@ -174,7 +174,6 @@ static void bt_wavelevel_constructed(GObject *object) {
   bt_wave_add_wavelevel(self->priv->wave,self);
 }
 
-/* returns a property for the given property_id for this object */
 static void bt_wavelevel_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtWavelevel * const self = BT_WAVELEVEL(object);
   return_if_disposed();
@@ -209,7 +208,6 @@ static void bt_wavelevel_get_property(GObject * const object, const guint proper
   }
 }
 
-/* sets the given properties for this object */
 static void bt_wavelevel_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtWavelevel * const self = BT_WAVELEVEL(object);
   return_if_disposed();

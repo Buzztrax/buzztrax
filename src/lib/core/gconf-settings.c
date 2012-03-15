@@ -250,7 +250,6 @@ BtGConfSettings *bt_gconf_settings_new(void) {
 
 //-- g_object overrides
 
-/* returns a property for the given property_id for this object */
 static void bt_gconf_settings_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtGConfSettings * const self = BT_GCONF_SETTINGS(object);
 
@@ -392,7 +391,6 @@ static void bt_gconf_settings_get_property(GObject * const object, const guint p
   }
 }
 
-/* sets the given properties for this object */
 static void bt_gconf_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
   const BtGConfSettings * const self = BT_GCONF_SETTINGS(object);
 
