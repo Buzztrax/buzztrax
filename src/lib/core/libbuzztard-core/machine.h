@@ -110,10 +110,10 @@ gboolean bt_machine_has_active_adder(const BtMachine * const self);
 gboolean bt_machine_activate_spreader(BtMachine * const self);
 gboolean bt_machine_has_active_spreader(const BtMachine * const self);
 
-// pattern handling
-
 #include "pattern.h"
 #include "wire.h"
+
+//-- pattern handling
 
 void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern);
 void bt_machine_remove_pattern(const BtMachine *self, const BtPattern *pattern);
@@ -125,9 +125,10 @@ BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const g
 gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self);
 gboolean bt_machine_has_patterns(const BtMachine * const self);
 
-// global and voice param handling
+//-- global and voice param handling
 
 gboolean bt_machine_is_polyphonic(const BtMachine * const self);
+void bt_machine_set_param_defaults(const BtMachine *const self);
 
 gboolean bt_machine_is_global_param_trigger(const BtMachine * const self, const gulong index);
 gboolean bt_machine_is_voice_param_trigger(const BtMachine * const self, const gulong index);
@@ -143,7 +144,6 @@ glong bt_machine_get_voice_wave_param_index(const BtMachine * const self);
 
 void bt_machine_set_global_param_default(const BtMachine * const self, const gulong index);
 void bt_machine_set_voice_param_default(const BtMachine * const self, const gulong voice, const gulong index);
-void bt_machine_set_param_defaults(const BtMachine *const self);
 
 glong bt_machine_get_global_param_index(const BtMachine * const self, const gchar * const name, GError **error);
 glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar * const name, GError **error);
@@ -166,7 +166,7 @@ const gchar *bt_machine_get_voice_param_name(const BtMachine * const self, const
 gchar *bt_machine_describe_global_param_value(const BtMachine * const self, const gulong index, GValue * const event);
 gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const gulong index, GValue * const event);
 
-// controller handling
+//-- controller handling
 
 void bt_machine_global_controller_change_value(const BtMachine * const self, const gulong param, const GstClockTime timestamp, GValue *value);
 void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong voice, const gulong param, const GstClockTime timestamp, GValue *value);

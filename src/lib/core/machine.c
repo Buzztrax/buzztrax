@@ -70,10 +70,15 @@
 /* TODO(ensonic): we need BtParameterGroup object with an implementation for the
  * global and one for the voice parameters. Then the machine would have a
  * self->priv->global_params and self->priv->voice_params
+ * In bt_machine_constructed() we replace
  * bt_machine_init_global_params()
  * -> bt_parameter_group_new(self->priv->machines[PART_MACHINE],"global",num_params,GParamSpec **properties)
  * bt_machine_init_voice_params()
  * -> bt_parameter_group_new(voice_child,"voice 0",num_params,GParamSpec **properties)
+ * the code from  bt_{machine,wire}_init_*_params goes bt_param_group_constructed(),
+ * - allthough it will still need to filter the list
+ * - maybe we take the paramspecs and add them so an slist
+ * 
  *
  * we want to move all the bt_machine_{get,is,set}_{global,voice}_* api to the 
  * param group and oly leave api in machine to get the param group.
@@ -81,6 +86,9 @@
  * The BtParameterGroup can also be exposed by wires. 
  *
  * Ideally this easily maps into BtPatternEditorColumnGroup (see main-page-patterns.c)
+ *
+ * Issues
+ * - duplicated groups for voices where only the parent changes
  *
  * While we're doing it:
  * - get rid of GError in bt_machine_get_*_param_index()
@@ -1518,7 +1526,7 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self) {
   return(self->priv->machines[PART_SPREADER]!=NULL);
 }
 
-// pattern handling
+//-- pattern handling
 
 // DEBUG
 #ifdef CHECK_PATTERN_OWNERSHIP
@@ -1733,7 +1741,7 @@ gboolean bt_machine_has_patterns(const BtMachine * const self) {
   return(g_list_length(self->priv->patterns)>self->priv->private_patterns);
 }
 
-// global and voice param handling
+//-- global and voice param handling
 
 /**
  * bt_machine_is_polyphonic:
@@ -1752,6 +1760,20 @@ gboolean bt_machine_is_polyphonic(const BtMachine * const self) {
   GST_INFO(" is machine \"%s\" polyphonic ? %d",self->priv->id,res);
   return(res);
 }
+
+#if 0
+BtParameterGroup *bt_machine_get_global_param_group(const BtMachine * const self) {
+  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
+  return self->priv->global_params;
+}
+
+BtParameterGroup *bt_machine_get_voice_param_group(const BtMachine * const self, const gulong voice) {
+  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
+  g_return_val_if_fail(voice<self->priv->voices,NULL);
+
+  return self->priv->voice_params[voice];
+}
+#endif
 
 /**
  * bt_machine_is_global_param_trigger:
@@ -3473,9 +3495,8 @@ static void bt_machine_constructed(GObject *object) {
 
   GST_DEBUG("machine-ref_ct=%d",G_OBJECT_REF_COUNT(self));
 
-  // register global params
+  // register params
   bt_machine_init_global_params(self);
-  // register voice params
   bt_machine_init_voice_params(self);
 
   GST_DEBUG("machine-ref_ct=%d",G_OBJECT_REF_COUNT(self));
