@@ -110,6 +110,7 @@ gboolean bt_machine_has_active_adder(const BtMachine * const self);
 gboolean bt_machine_activate_spreader(BtMachine * const self);
 gboolean bt_machine_has_active_spreader(const BtMachine * const self);
 
+#include "parameter-group.h"
 #include "pattern.h"
 #include "wire.h"
 
@@ -130,46 +131,8 @@ gboolean bt_machine_has_patterns(const BtMachine * const self);
 gboolean bt_machine_is_polyphonic(const BtMachine * const self);
 void bt_machine_set_param_defaults(const BtMachine *const self);
 
-gboolean bt_machine_is_global_param_trigger(const BtMachine * const self, const gulong index);
-gboolean bt_machine_is_voice_param_trigger(const BtMachine * const self, const gulong index);
-
-gboolean bt_machine_is_global_param_no_value(const BtMachine * const self, const gulong index, GValue * const value);
-gboolean bt_machine_is_voice_param_no_value(const BtMachine *const self, const gulong index, GValue * const value);
-
-GValue *bt_machine_get_global_param_no_value(const BtMachine * const self, const gulong index);
-GValue *bt_machine_get_voice_param_no_value(const BtMachine * const self, const gulong index);
-
-glong bt_machine_get_global_wave_param_index(const BtMachine * const self);
-glong bt_machine_get_voice_wave_param_index(const BtMachine * const self);
-
-void bt_machine_set_global_param_default(const BtMachine * const self, const gulong index);
-void bt_machine_set_voice_param_default(const BtMachine * const self, const gulong voice, const gulong index);
-
-glong bt_machine_get_global_param_index(const BtMachine * const self, const gchar * const name, GError **error);
-glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar * const name, GError **error);
-
-GParamSpec *bt_machine_get_global_param_spec(const BtMachine * const self, const gulong index);
-GParamSpec *bt_machine_get_voice_param_spec(const BtMachine * const self, const gulong index);
-
-void bt_machine_get_global_param_details(const BtMachine * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val);
-void bt_machine_get_voice_param_details(const BtMachine * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val);
-
-GType bt_machine_get_global_param_type(const BtMachine * const self, const gulong index);
-GType bt_machine_get_voice_param_type(const BtMachine * const self, const gulong index);
-
-void bt_machine_set_global_param_value(const BtMachine * const self, const gulong index, GValue * const event);
-void bt_machine_set_voice_param_value(const BtMachine * const self, const gulong voice, const gulong index, GValue * const event);
-
-const gchar *bt_machine_get_global_param_name(const BtMachine * const self, const gulong index);
-const gchar *bt_machine_get_voice_param_name(const BtMachine * const self, const gulong index);
-
-gchar *bt_machine_describe_global_param_value(const BtMachine * const self, const gulong index, GValue * const event);
-gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const gulong index, GValue * const event);
-
-//-- controller handling
-
-void bt_machine_global_controller_change_value(const BtMachine * const self, const gulong param, const GstClockTime timestamp, GValue *value);
-void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong voice, const gulong param, const GstClockTime timestamp, GValue *value);
+BtParameterGroup *bt_machine_get_global_param_group(const BtMachine * const self);
+BtParameterGroup *bt_machine_get_voice_param_group(const BtMachine * const self, const gulong voice);
 
 //-- interaction control
 

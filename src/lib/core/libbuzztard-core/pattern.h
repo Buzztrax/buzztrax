@@ -84,9 +84,6 @@ BtPattern *bt_pattern_new_with_event(const BtSong * const song, const BtMachine 
 
 BtPattern *bt_pattern_copy(const BtPattern * const self);
 
-gulong bt_pattern_get_global_param_index(const BtPattern * const self, const gchar * const name, GError **error);
-gulong bt_pattern_get_voice_param_index(const BtPattern * const self, const gchar * const name, GError **error);
-
 GValue *bt_pattern_get_global_event_data(const BtPattern * const self, const gulong tick, const gulong param);
 GValue *bt_pattern_get_voice_event_data(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param);
 

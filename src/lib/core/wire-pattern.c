@@ -77,6 +77,7 @@ struct _BtWirePatternPrivate {
   gulong num_params;
   /* the wire the wire-pattern belongs to */
   G_POINTER_ALIAS(BtWire *,wire);
+  BtParameterGroup *param_group;
   /* the pattern the wire-pattern belongs to */
   G_POINTER_ALIAS(BtPattern *,pattern);
 
@@ -162,7 +163,7 @@ static void bt_wire_pattern_init_event(const BtWirePattern * const self, GValue 
   g_return_if_fail(BT_IS_WIRE_PATTERN(self));
 
   //GST_DEBUG("at %d",param);
-  g_value_init(event,bt_wire_get_param_type(self->priv->wire,param));
+  g_value_init(event,bt_parameter_group_get_param_type(self->priv->param_group,param));
   g_assert(G_IS_VALUE(event));
 }
 
@@ -601,7 +602,7 @@ static void _blend_column(const BtWirePattern * const self, const gulong start_t
     GST_INFO("Can't blend, beg or end is empty");
     return;
   }
-	property=bt_wire_get_param_spec(self->priv->wire, param);
+  property=bt_parameter_group_get_param_spec(self->priv->param_group, param);
   base_type=bt_g_type_get_base_type(property->value_type);
   
   GST_INFO("blending gvalue type %s",G_VALUE_TYPE_NAME(end));
@@ -693,7 +694,7 @@ static void _flip_column(const BtWirePattern * const self, const gulong start_ti
   GType base_type;
   GValue tmp={0,};
 
-	property=bt_wire_get_param_spec(self->priv->wire, param);
+  property=bt_parameter_group_get_param_spec(self->priv->param_group, param);
   base_type=property->value_type;
 
   GST_INFO("flipping gvalue type %s",G_VALUE_TYPE_NAME(base_type));
@@ -779,7 +780,7 @@ void bt_wire_pattern_flip_columns(const BtWirePattern * const self, const gulong
     } break;
 
 static void _randomize_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-	gulong params=self->priv->num_params;
+  gulong params=self->priv->num_params;
   GValue *beg=&self->priv->data[param+params*start_tick];
   //GValue *end=&self->priv->data[param+params*end_tick];
   gulong i,ticks=(end_tick+1)-start_tick;
@@ -787,7 +788,7 @@ static void _randomize_column(const BtWirePattern * const self, const gulong sta
   GType base_type;
   gdouble rnd;
   
-  property=bt_wire_get_param_spec(self->priv->wire, param);
+  property=bt_parameter_group_get_param_spec(self->priv->param_group, param);
   base_type=bt_g_type_get_base_type(property->value_type);
   
   GST_INFO("blending gvalue type %s",g_type_name(property->value_type));
@@ -884,7 +885,7 @@ static void _serialize_column(const BtWirePattern * const self, const gulong sta
   gulong i,ticks=(end_tick+1)-start_tick;
   gchar *val;
   
-  g_string_append(data,g_type_name(bt_wire_get_param_type(self->priv->wire,param)));
+  g_string_append(data,g_type_name(bt_parameter_group_get_param_type(self->priv->param_group,param)));
 
   for(i=0;i<ticks;i++) {
     if(BT_IS_GVALUE(beg)) {
@@ -981,7 +982,7 @@ gboolean bt_wire_pattern_deserialize_column(const BtWirePattern * const self, co
   fields=g_strsplit_set(data,",",0);
 
   // get types in pattern and clipboard data
-  dtype=bt_wire_get_param_type(self->priv->wire,param);
+  dtype=bt_parameter_group_get_param_type(self->priv->param_group,param);
   
   stype=g_type_from_name(fields[0]);
   if(dtype==stype) {
@@ -1030,6 +1031,7 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
     BtWire *wire;
     const gulong length=self->priv->length;
     const gulong num_params=self->priv->num_params;
+    BtParameterGroup *pg;
     
     g_object_get((gpointer)(self->priv->pattern),"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("pattern-id"),XML_CHAR_PTR(id));
@@ -1044,10 +1046,11 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
         child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("tick"),NULL);
         xmlNewProp(child_node,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
         // save tick data
+        pg=self->priv->param_group;
         for(k=0;k<num_params;k++) {
           if((value=bt_wire_pattern_get_event(self,i,k))) {
             child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("wiredata"),NULL);
-            xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_wire_get_param_name(wire,k)));
+            xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_parameter_group_get_param_name(pg,k)));
             xmlNewProp(child_node2,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));g_free(value);
           }
         }
@@ -1066,7 +1069,6 @@ static BtPersistence *bt_wire_pattern_persistence_load(const GType type, const B
   xmlChar *name,*pattern_id,*tick_str,*value;
   gulong tick,param;
   xmlNodePtr child_node;
-  GError *error=NULL;
 
   GST_DEBUG("PERSISTENCE::wire-pattern");
   g_assert(node);
@@ -1126,13 +1128,12 @@ static BtPersistence *bt_wire_pattern_persistence_load(const GType type, const B
           value=xmlGetProp(child_node,XML_CHAR_PTR("value"));
           //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
           if(!strncmp((char *)child_node->name,"wiredata\0",9)) {
-            param=bt_wire_get_param_index(self->priv->wire,(gchar *)name,&error);
-            if(!error) {
+            param=bt_parameter_group_get_param_index(self->priv->param_group,(gchar *)name);
+            if(param!=-1) {
               bt_wire_pattern_set_event(self,tick,param,(gchar *)value);
             }
             else {
-              GST_WARNING("error while loading wire pattern data at tick %lu, param %lu: %s",tick,param,error->message);
-              g_error_free(error);error=NULL;
+              GST_WARNING("error while loading wire pattern data at tick %lu, param %lu: %s",tick,param);
             }
           }
           xmlFree(name);
@@ -1215,6 +1216,7 @@ static void bt_wire_pattern_set_property(GObject * const object, const guint pro
       if((self->priv->wire = BT_WIRE(g_value_get_object(value)))) {
         g_object_try_weak_ref(self->priv->wire);
         g_object_get((gpointer)(self->priv->wire),"num-params",&self->priv->num_params,NULL);
+        self->priv->param_group=bt_wire_get_param_group(self->priv->wire);
         GST_DEBUG("set the wire for the wire-pattern: %p",self->priv->wire);
       }
     } break;

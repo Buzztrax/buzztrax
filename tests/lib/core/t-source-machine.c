@@ -86,8 +86,8 @@ BT_START_TEST(test_btsourcemachine_obj3){
   GError *err=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
+  BtParameterGroup *pg;
   gulong ix=0;
-  GError *error=NULL;
 
   /* create app and song */
   app=bt_test_application_new();
@@ -98,9 +98,8 @@ BT_START_TEST(test_btsourcemachine_obj3){
   fail_unless(machine!=NULL,NULL);
   fail_unless(err==NULL, NULL);
   /* try to get global param index from audiotestsrc */
-  ix=bt_machine_get_global_param_index(BT_MACHINE(machine),"nonsense",&error);
-  fail_unless(g_error_matches(error, g_quark_from_static_string("BtMachine"),0),NULL);
-  g_error_free(error);
+  pg=bt_machine_get_global_param_group(BT_MACHINE(machine));
+  ix=bt_parameter_group_get_param_index(pg,"nonsense");
   fail_unless(ix==-1);
 
   g_object_unref(machine);

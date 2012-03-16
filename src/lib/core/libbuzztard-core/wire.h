@@ -70,13 +70,9 @@ gboolean bt_wire_reconnect(BtWire *self);
 void bt_wire_add_wire_pattern(const BtWire * const self, const BtPattern * const pattern, const BtWirePattern * const wire_pattern);
 BtWirePattern *bt_wire_get_pattern(const BtWire * const self, const BtPattern * const pattern);
 
-glong bt_wire_get_param_index(const BtWire *const self, const gchar * const name, GError **error);
-GParamSpec *bt_wire_get_param_spec(const BtWire * const self, const gulong index);
-GType bt_wire_get_param_type(const BtWire * const self, const gulong index);
-const gchar *bt_wire_get_param_name(const BtWire * const self, const gulong index);
-void bt_wire_get_param_details(const BtWire * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val);
+BtParameterGroup *bt_wire_get_param_group(const BtWire * const self);
 
-void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value);
+//-- debug helper
 
 GList *bt_wire_get_element_list(const BtWire *self);
 void bt_wire_dbg_print_parts(const BtWire *self);

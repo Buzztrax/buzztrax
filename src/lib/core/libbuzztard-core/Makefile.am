@@ -9,6 +9,7 @@ libbtcore_HEADERS = \
 	childproxy.h \
 	gconf-settings.h\
 	machine.h \
+	parameter-group.h \
 	pattern.h \
 	persistence.h \
 	plainfile-settings.h \

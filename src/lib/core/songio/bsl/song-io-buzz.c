@@ -853,31 +853,39 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
       // get machine types in all cases from plugin (as we map types)
       if(mach->type) {
         GParamSpec *pspec;
+        BtParameterGroup *pg;
+        gulong num_params;
 
-        for(j=0;j<MIN(number_of_global_params,para->number_of_global_params);j++) {
-          if((pspec=bt_machine_get_global_param_spec(machine,j))) {
-            BmxParameter *param=&para->global_params[j];
-            GST_DEBUG("pspec for global param %2d : %s / %s",j,pspec->name, g_type_name(pspec->value_type));
-            // ev. overwite param names as we need to use the snitized version that works as a gobject property name
-            g_free(param->name);
-            param->name=g_strdup(bt_machine_get_global_param_name(machine,j));
-            fill_machine_parameter(self,param,pspec,no_para);
-          }
-          else {
-            GST_WARNING("no pspec for global param %2d",j);
+        if((num_params=MIN(number_of_global_params,para->number_of_global_params))) {
+          pg=bt_machine_get_global_param_group(machine);
+          for(j=0;j<num_params;j++) {
+            if((pspec=bt_parameter_group_get_param_spec(pg,j))) {
+              BmxParameter *param=&para->global_params[j];
+              GST_DEBUG("pspec for global param %2d : %s / %s",j,pspec->name, g_type_name(pspec->value_type));
+              // ev. overwite param names as we need to use the sanitized version that works as a gobject property name
+              g_free(param->name);
+              param->name=g_strdup(pspec->name);
+              fill_machine_parameter(self,param,pspec,no_para);
+            }
+            else {
+              GST_WARNING("no pspec for global param %2d",j);
+            }
           }
         }
-        for(j=0;j<MIN(number_of_track_params,para->number_of_track_params);j++) {
-          if((pspec=bt_machine_get_voice_param_spec(machine,j))) {
-            BmxParameter *param=&para->track_params[j];
-            GST_DEBUG("pspec for voice param %2d : %s / %s",j,pspec->name, g_type_name(pspec->value_type));
-            // ev. overwite param names as we need to use the snitized version that works as a gobject property name
-            g_free(param->name);
-            param->name=g_strdup(bt_machine_get_voice_param_name(machine,j));
-            fill_machine_parameter(self,param,pspec,no_para);
-          }
-          else {
-            GST_WARNING("no pspec for voice param %2d",j);
+        if((num_params=MIN(number_of_track_params,para->number_of_track_params))) {
+          pg=bt_machine_get_voice_param_group(machine,0);
+          for(j=0;j<num_params;j++) {
+            if((pspec=bt_parameter_group_get_param_spec(pg,j))) {
+              BmxParameter *param=&para->track_params[j];
+              GST_DEBUG("pspec for voice param %2d : %s / %s",j,pspec->name, g_type_name(pspec->value_type));
+              // ev. overwite param names as we need to use the sanitized version that works as a gobject property name
+              g_free(param->name);
+              param->name=g_strdup(pspec->name);
+              fill_machine_parameter(self,param,pspec,no_para);
+            }
+            else {
+              GST_WARNING("no pspec for voice param %2d",j);
+            }
           }
         }
       }
@@ -1200,6 +1208,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
   gchar value[G_ASCII_DTOSTR_BUF_SIZE+1];
   const gchar *valuestr;
   gulong wire_params;
+  BtParameterGroup *pg;
   //BmxParameter *params;
 
   // DEBUG
@@ -1283,6 +1292,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
         g_object_try_unref(src_machine);
       }
       // global params
+      pg=bt_machine_get_global_param_group(machine);
       for(k=0;((k<number_of_ticks) && !self->priv->io_error);k++) {
         //str1=g_strdup_printf("      tick: %2d  global:",k);
         for(p=0;p<para->number_of_global_params;p++) {
@@ -1310,7 +1320,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
               // this should be no-val
               valuestr="";
               // now try to map to real value
-              if((pspec=bt_machine_get_global_param_spec(machine,p))) {
+              if((pspec=bt_parameter_group_get_param_spec(pg,p))) {
                 GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(pspec);
                 GEnumClass *enum_class=enum_property->enum_class;
                 GEnumValue *enum_value;
@@ -1363,6 +1373,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
       // track params
       for(l=0;((l<number_of_tracks) && !self->priv->io_error);l++) {
         //str2=g_strdup_printf("%s  ",str1);g_free(str1);str1=str2;
+        pg=bt_machine_get_voice_param_group(machine,l);
         for(k=0;((k<number_of_ticks) && !self->priv->io_error);k++) {
           //str1=g_strdup_printf("      tick: %2d  track:",k);
           for(p=0;p<para->number_of_track_params;p++) {
@@ -1390,7 +1401,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
                 // this should be no-val
                 valuestr="";
                 // now try to map to real value
-                if((pspec=bt_machine_get_voice_param_spec(machine,p))) {
+                if((pspec=bt_parameter_group_get_param_spec(pg,p))) {
                   GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(pspec);
                   GEnumClass *enum_class=enum_property->enum_class;
                   GEnumValue *enum_value;

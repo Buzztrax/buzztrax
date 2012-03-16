@@ -29,6 +29,7 @@ libbuzztard_core_la_SOURCES = \
 	childproxy.c libbuzztard-core/childproxy.h\
 	$(GCONF_SETTINGS_SRC) \
 	machine.c libbuzztard-core/machine.h \
+	parameter-group.c libbuzztard-core/parameter-group.h \
 	pattern.c libbuzztard-core/pattern.h \
 	persistence.c libbuzztard-core/persistence.h \
 	processor-machine.c libbuzztard-core/processor-machine.h \

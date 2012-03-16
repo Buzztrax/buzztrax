@@ -753,7 +753,7 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
   // set controller value
   //if(value) {
     const GstClockTime timestamp=bt_sequence_get_tick_time(self,tick);
-    bt_machine_global_controller_change_value(machine,param,timestamp,value);
+    bt_parameter_group_controller_change_value(bt_machine_get_global_param_group(machine),param,timestamp,value);
   //}
   return(TRUE);
 }
@@ -803,7 +803,7 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
   // set controller value
   //if(value) {
     const GstClockTime timestamp=bt_sequence_get_tick_time(self,tick);
-    bt_machine_voice_controller_change_value(machine,voice,param,timestamp,value);
+    bt_parameter_group_controller_change_value(bt_machine_get_voice_param_group(machine,voice),param,timestamp,value);
   //}
   return(TRUE);
 }
@@ -855,7 +855,7 @@ static gboolean bt_sequence_repair_wire_damage_entry(gpointer key,gpointer _valu
   // set controller value
   //if(value) {
     const GstClockTime timestamp=bt_sequence_get_tick_time(self,tick);
-    bt_wire_controller_change_value(wire,param,timestamp,value);
+    bt_parameter_group_controller_change_value(bt_wire_get_param_group(wire),param,timestamp,value);
   //}
   return(TRUE);
 }

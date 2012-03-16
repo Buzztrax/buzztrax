@@ -271,6 +271,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
     if(self->priv->pattern && self->priv->number_of_groups) {
       GParamSpec *property=NULL;
       BtPatternEditorColumnGroup *group;
+      BtParameterGroup *pg;
       gchar *str=NULL,*desc=NULL;
       const gchar *blurb="";
 
@@ -279,9 +280,11 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
       group = &self->priv->param_groups[self->priv->cursor_group];
       switch (group->type) {
         case PGT_WIRE: {
-          property=bt_wire_get_param_spec(group->user_data, self->priv->cursor_param);
+          BtWire *wire=BT_WIRE(group->user_data);
+          pg=bt_wire_get_param_group(wire);
+          property=bt_parameter_group_get_param_spec(pg, self->priv->cursor_param);
           /* there is no describe here
-          bt_wire_pattern_get_event_data(group->user_data,self->priv->cursor_row,self->priv->cursor_param)
+          bt_wire_pattern_get_event_data(wire_pattern,self->priv->cursor_row,self->priv->cursor_param)
           */
         } break;
         case PGT_GLOBAL: {
@@ -289,20 +292,23 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
           GValue *gval;
 
           g_object_get(self->priv->pattern,"machine",&machine,NULL);
-          property=bt_machine_get_global_param_spec(machine,self->priv->cursor_param);
+          pg=bt_machine_get_global_param_group(machine);
+          property=bt_parameter_group_get_param_spec(pg,self->priv->cursor_param);
           if((gval=bt_pattern_get_global_event_data(self->priv->pattern,self->priv->cursor_row,self->priv->cursor_param)) && G_IS_VALUE(gval)) {
-            desc=bt_machine_describe_global_param_value(machine,self->priv->cursor_param,gval);
+            desc=bt_parameter_group_describe_param_value(pg,self->priv->cursor_param,gval);
           }
           g_object_unref(machine);
         } break;
         case PGT_VOICE: {
           BtMachine *machine;
           GValue *gval;
+          guint voice=GPOINTER_TO_UINT(group->user_data);
 
           g_object_get(self->priv->pattern,"machine",&machine,NULL);
-          property=bt_machine_get_voice_param_spec(machine,self->priv->cursor_param);
-          if((gval=bt_pattern_get_voice_event_data(self->priv->pattern,self->priv->cursor_row,GPOINTER_TO_UINT(group->user_data),self->priv->cursor_param)) && G_IS_VALUE(gval)) {
-            desc=bt_machine_describe_voice_param_value(machine,self->priv->cursor_param,gval);
+          pg=bt_machine_get_voice_param_group(machine,voice);
+          property=bt_parameter_group_get_param_spec(pg,self->priv->cursor_param);
+          if((gval=bt_pattern_get_voice_event_data(self->priv->pattern,self->priv->cursor_row,voice,self->priv->cursor_param)) && G_IS_VALUE(gval)) {
+            desc=bt_parameter_group_describe_param_value(pg,self->priv->cursor_param,gval);
           }
           g_object_unref(machine);
         } break;
@@ -1457,11 +1463,15 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
 
   if(group->type==PGT_GLOBAL || group->type==PGT_VOICE) {
     gboolean is_trigger;
+    BtParameterGroup *pg;
+    glong wave_param;
 
     if(group->type==PGT_GLOBAL)
-      is_trigger=bt_machine_is_global_param_trigger(machine,param);
+      pg=bt_machine_get_global_param_group(machine);
     else
-      is_trigger=bt_machine_is_voice_param_trigger(machine,param);
+      pg=bt_machine_get_voice_param_group(machine, GPOINTER_TO_UINT(group->user_data));
+    is_trigger=bt_parameter_group_is_param_trigger(pg,param);
+    wave_param=bt_parameter_group_get_wave_param_index(pg);
 
     if(is_trigger) {
       gboolean update_wave=FALSE;
@@ -1469,75 +1479,37 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
 
       // play live (notes, triggers)
       if(BT_IS_STRING(str) && self->priv->play_live) {
-        GstObject *element,*voice;
-
-        g_object_get(machine,"machine",&element,NULL);
+        GObject *param_parent;
 
         /* TODO(ensonic): buzz machines need set, tick, unset */
-        if(group->type==PGT_GLOBAL) {
-          GST_INFO("play global trigger: %f,'%s'",value,str);
-          switch(col->type) {
-            case PCT_NOTE: {
-              GEnumClass *enum_class=g_type_class_peek_static(GSTBT_TYPE_NOTE);
-              GEnumValue *enum_value;
-              gint val=0;
-              
-              if((enum_value=g_enum_get_value_by_nick(enum_class,str))) {
-                val=enum_value->value;
-              }
-              g_object_set(element,bt_machine_get_global_param_name(machine,param),val,NULL);
-              //g_object_set(element,bt_machine_get_global_param_name(machine,param),str,NULL);
-            } break;
-            case PCT_SWITCH:
-            case PCT_BYTE:
-            case PCT_WORD: {
-              gint val=atoi(str);
-              if(val==col->def) {
-              	g_object_set(element,bt_machine_get_global_param_name(machine,param),val,NULL);
-              }
-            } break;
-            case PCT_FLOAT: {
-              gfloat val=atof(str);
-              if(val==col->def) {
-              	g_object_set(element,bt_machine_get_global_param_name(machine,param),val,NULL);
-              }
-            } break;
-          }
+        GST_INFO("play trigger: %f,'%s'",value,str);
+        param_parent=bt_parameter_group_get_param_parent(pg,param);
+        switch(col->type) {
+          case PCT_NOTE: {
+            GEnumClass *enum_class=g_type_class_peek_static(GSTBT_TYPE_NOTE);
+            GEnumValue *enum_value;
+            gint val=0;
+            
+            if((enum_value=g_enum_get_value_by_nick(enum_class,str))) {
+              val=enum_value->value;
+            }
+            g_object_set(param_parent,bt_parameter_group_get_param_name(pg,param),val,NULL);
+          } break;
+          case PCT_SWITCH:
+          case PCT_BYTE:
+          case PCT_WORD: {
+            gint val=atoi(str);
+            if(val==col->def) {
+              g_object_set(param_parent,bt_parameter_group_get_param_name(pg,param),val,NULL);
+            }
+          } break;
+          case PCT_FLOAT: {
+            gfloat val=atof(str);
+            if(val==col->def) {
+              g_object_set(param_parent,bt_parameter_group_get_param_name(pg,param),val,NULL);
+            }
+          } break;
         }
-        else {
-          GST_INFO("play voice %u trigger: %f,'%s'",GPOINTER_TO_UINT(group->user_data),value,str);
-          voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(element),GPOINTER_TO_UINT(group->user_data));
-          switch(col->type) {
-            case PCT_NOTE: {
-              GEnumClass *enum_class=g_type_class_peek_static(GSTBT_TYPE_NOTE);
-              GEnumValue *enum_value;
-              gint val=0;
-              
-              if((enum_value=g_enum_get_value_by_nick(enum_class,str))) {
-                val=enum_value->value;
-              }
-              g_object_set(voice,bt_machine_get_voice_param_name(machine,param),val,NULL);
-              //g_object_set(voice,bt_machine_get_voice_param_name(machine,param),str,NULL);
-            } break;
-            case PCT_SWITCH:
-            case PCT_BYTE:
-            case PCT_WORD: {
-              gint val=atoi(str);
-              if(val==col->def) {
-              	g_object_set(voice,bt_machine_get_voice_param_name(machine,param),val,NULL);
-              }
-            } break;
-            case PCT_FLOAT: {
-              gfloat val=atof(str);
-              if(val==col->def) {
-              	g_object_set(voice,bt_machine_get_voice_param_name(machine,param),val,NULL);
-              }
-            } break;
-          }
-
-          gst_object_unref(voice);
-        }
-        gst_object_unref(element);
       }
 
       if(col->type == PCT_NOTE) {
@@ -1560,43 +1532,22 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
           GST_DEBUG("wav index: %d, %s",wave_ix,wave_str);
         }
 
-        switch (group->type) {
-          case PGT_GLOBAL:
-            // search for param that has flags&GSTBT_PROPERTY_META_WAVE in global machine params
-            wave_param=bt_machine_get_global_wave_param_index(machine);
-            GST_DEBUG("global wav param: %ld",wave_param);
-            if(wave_param>-1) {
-              bt_pattern_set_global_event(self->priv->pattern,row,wave_param,wave_str);
-            }
-            break;
-          case PGT_VOICE:
-            // search for param that has flags&GSTBT_PROPERTY_META_WAVE in voice machine params
-            wave_param=bt_machine_get_voice_wave_param_index(machine);
-            GST_DEBUG("voice wav param: %ld",wave_param);
-            if(wave_param>-1) {
-              bt_pattern_set_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),wave_param,wave_str);
-            }
-            break;
-          default:
-            break;
-        }
         if(wave_param>-1) {
+          switch (group->type) {
+            case PGT_GLOBAL:
+              bt_pattern_set_global_event(self->priv->pattern,row,wave_param,wave_str);
+              break;
+            case PGT_VOICE:
+              bt_pattern_set_voice_event(self->priv->pattern,row,GPOINTER_TO_UINT(group->user_data),wave_param,wave_str);
+              break;
+            default:
+              break;
+          }
           gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
         }
       }
     }
     if(group->columns[param].type == PCT_BYTE) {
-      glong wave_param = -1;
-      switch (group->type) {
-        case PGT_GLOBAL:
-          wave_param = bt_machine_get_global_wave_param_index(machine);
-          break;
-        case PGT_VOICE:
-          wave_param=bt_machine_get_voice_wave_param_index(machine);
-          break;
-        default:
-          break;
-      }
       if (wave_param == param) {
         int v = (int)value;
         if (value >= 0 && v < MAX_WAVETABLE_ITEMS + 2 && self->priv->wave_to_combopos[v] != -1)
@@ -1945,6 +1896,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
     gulong number_of_ticks,voices,global_params,voice_params;
     BtMachine *machine;
     BtPatternEditorColumnGroup *group;
+    BtParameterGroup *pg;
     GParamSpec *property;
     GValue *min_val,*max_val,*no_val;
 
@@ -1980,8 +1932,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
         group->num_columns=wire_params;
         group->columns=g_new(BtPatternEditorColumn,wire_params);
         group->width=0;
+        pg=bt_wire_get_param_group(wire);
         for(i=0;i<wire_params;i++) {
-          bt_wire_get_param_details(wire,i,&property,&min_val,&max_val);
+          bt_parameter_group_get_param_details(pg,i,&property,&min_val,&max_val);
           pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val,NULL);
         }
         g_object_unref(src);
@@ -2001,11 +1954,11 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       group->columns=g_new(BtPatternEditorColumn,global_params);
       group->width=0;
       GST_INFO("global parameters");
+      pg=bt_machine_get_global_param_group(machine);
       for(i=0;i<global_params;i++) {
-        bt_machine_get_global_param_details(machine,i,&property,&min_val,&max_val);
-      	no_val=bt_machine_get_global_param_no_value(machine,i);
+        bt_parameter_group_get_param_details(pg,i,&property,&min_val,&max_val);
+      	no_val=bt_parameter_group_get_param_no_value(pg,i);
         pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val,no_val);
-        //g_value_unset(&no_val);
       }
       group++;
     }
@@ -2020,9 +1973,10 @@ static void pattern_table_refresh(const BtMainPagePatterns *self) {
       group->columns=g_new(BtPatternEditorColumn,voice_params);
       group->width=0;
       GST_INFO("voice parameters");
+      pg=bt_machine_get_voice_param_group(machine,0);
       for(i=0;i<voice_params;i++) {
-        bt_machine_get_voice_param_details(machine,i,&property,&min_val,&max_val);
-      	no_val=bt_machine_get_voice_param_no_value(machine,i);
+        bt_parameter_group_get_param_details(pg,i,&property,&min_val,&max_val);
+      	no_val=bt_parameter_group_get_param_no_value(pg,i);
         pattern_edit_fill_column_type(&group->columns[i],property,min_val,max_val,no_val);
       }
       group++;

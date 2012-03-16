@@ -52,6 +52,7 @@
 #include "audio-session.h"
 #include "gconf-settings.h"
 #include "machine.h"
+#include "parameter-group.h"
 #include "pattern.h"
 #include "processor-machine.h"
 #include "sequence.h"

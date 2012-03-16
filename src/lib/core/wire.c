@@ -97,9 +97,7 @@ struct _BtWirePrivate {
   gulong num_params;
 
   /* dynamic parameter control */
-  GstController *wire_controller[BT_WIRE_MAX_NUM_PARAMS];
-  GstInterpolationControlSource *wire_control_sources[BT_WIRE_MAX_NUM_PARAMS];
-  GParamSpec *wire_props[BT_WIRE_MAX_NUM_PARAMS];
+  BtParameterGroup *param_group;
 
   /* event patterns in relation to patterns of the target machine */
   GHashTable *patterns;  // each entry points to BtWirePattern using BtPattern as a key
@@ -230,14 +228,24 @@ Error:
 //-- helper methods
 
 static void bt_wire_init_params(const BtWire * const self) {
-  self->priv->wire_props[0]=g_object_class_find_property(
-    G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_GAIN])),
-    "volume");
   if(self->priv->machines[PART_PAN]) {
-    self->priv->wire_props[1]=g_object_class_find_property(
-      G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_PAN])),"panorama");
     self->priv->num_params=2;
   }
+
+  GParamSpec **params = (GParamSpec ** )g_new(gpointer,self->priv->num_params);
+  GObject **parents = (GObject ** )g_new(gpointer,self->priv->num_params);
+
+  params[0]=g_object_class_find_property(
+    G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_GAIN])),
+    "volume");
+  parents[0]=(GObject *)self->priv->machines[PART_GAIN];
+
+  if(self->priv->machines[PART_PAN]) {
+    params[1]=g_object_class_find_property(
+      G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_PAN])),"panorama");
+    parents[1]=(GObject *)self->priv->machines[PART_PAN];
+  }
+  self->priv->param_group=bt_parameter_group_new(self->priv->num_params,parents,params);
 }
 
 /*
@@ -777,232 +785,9 @@ BtWirePattern *bt_wire_get_pattern(const BtWire * const self, const BtPattern * 
   return(wire_pattern);
 }
 
-/**
- * bt_wire_get_param_index:
- * @self: the wire to search for the param
- * @name: the name of the param
- * @error: the location of an error instance to fill with a message, if an error occures
- *
- * Searches the list of registered param of a wire for a param of
- * the given name and returns the index if found.
- *
- * Returns: the index or sets error if it is not found and returns -1.
- */
-glong bt_wire_get_param_index(const BtWire *const self, const gchar * const name, GError **error) {
-  const gulong num_params=self->priv->num_params;
-  glong ret=-1,i;
-  gboolean found=FALSE;
-
-  g_return_val_if_fail(BT_IS_WIRE(self),-1);
-  g_return_val_if_fail(BT_IS_STRING(name),-1);
-  g_return_val_if_fail(error == NULL || *error == NULL, -1);
-
-  for(i=0;i<num_params;i++) {
-    if(!strcmp(WIRE_PARAM_NAME(i),name)) {
-      ret=i;
-      found=TRUE;
-      break;
-    }
-  }
-  if(!found) {
-    GST_WARNING("wire param for name %s not found", name);
-    if(error) {
-      g_set_error (error, error_domain, /* errorcode= */0,
-                  "wire param for name %s not found", name);
-    }
-  }
-  //g_assert((found || (error && *error)));
-  g_assert(((found && (ret>=0)) || ((ret==-1) && ((error && *error) || !error))));
-  return(ret);
-}
-
-/**
- * bt_wire_get_param_spec:
- * @self: the wire to search for the param
- * @index: the offset in the list of params
- *
- * Retrieves the parameter specification for the param
- *
- * Returns: the #GParamSpec for the requested param
- */
-GParamSpec *bt_wire_get_param_spec(const BtWire * const self, const gulong index) {
+BtParameterGroup *bt_wire_get_param_group(const BtWire * const self) {
   g_return_val_if_fail(BT_IS_WIRE(self),NULL);
-  g_return_val_if_fail(index<self->priv->num_params,NULL);
-
-  return(self->priv->wire_props[index]);
-}
-
-/**
- * bt_wire_get_param_type:
- * @self: the wire to search for the param type
- * @index: the offset in the list of params
- *
- * Retrieves the GType of a param
- *
- * Returns: the requested GType
- */
-GType bt_wire_get_param_type(const BtWire * const self, const gulong index) {
-  g_return_val_if_fail(BT_IS_WIRE(self),G_TYPE_INVALID);
-  g_return_val_if_fail(index<self->priv->num_params,G_TYPE_INVALID);
-
-  return(WIRE_PARAM_TYPE(index));
-}
-
-/**
- * bt_wire_get_param_name:
- * @self: the wire to get the param name from
- * @index: the offset in the list of params
- *
- * Gets the param name. Do not modify returned content.
- *
- * Returns: the requested name
- */
-const gchar *bt_wire_get_param_name(const BtWire * const self, const gulong index) {
-  g_return_val_if_fail(BT_IS_WIRE(self),NULL);
-  g_return_val_if_fail(index<self->priv->num_params,NULL);
-
-  return(WIRE_PARAM_NAME(index));
-}
-
-/**
- * bt_wire_get_param_details:
- * @self: the wire to search for the param details
- * @index: the offset in the list of params
- * @pspec: place for the param spec
- * @min_val: place to hold new GValue with minimum
- * @max_val: place to hold new GValue with maximum
- *
- * Retrieves the details of a voice param. Any detail can be %NULL if its not
- * wanted.
- */
-
-#define _DETAILS(t,T,p)                                                        \
-	case G_TYPE_ ## T: {                                                         \
-		const GParamSpec ## p *p=G_PARAM_SPEC_ ## T(property);                     \
-		if(min_val) g_value_set_ ## t(*min_val,p->minimum);                        \
-		if(max_val) g_value_set_ ## t(*max_val,p->maximum);                        \
-	} break;
-
-void bt_wire_get_param_details(const BtWire * const self, const gulong index, GParamSpec **pspec, GValue **min_val, GValue **max_val) {
-  GParamSpec *property=bt_wire_get_param_spec(self,index);
-
-  if(pspec) {
-    *pspec=property;
-  }
-  if(min_val || max_val) {
-    GType base_type=bt_g_type_get_base_type(property->value_type);
-
-    if(min_val) {
-      *min_val=g_new0(GValue,1);
-      g_value_init(*min_val,property->value_type);
-    }
-    if(max_val) {
-      *max_val=g_new0(GValue,1);
-      g_value_init(*max_val,property->value_type);
-    }
-    switch(base_type) {
-			_DETAILS(int,INT,Int)
-			_DETAILS(uint,UINT,UInt)
-			_DETAILS(int64,INT64,Int64)
-			_DETAILS(uint64,UINT64,UInt64)
-			_DETAILS(long,LONG,Long)
-			_DETAILS(ulong,ULONG,ULong)
-			_DETAILS(float,FLOAT,Float)
-			_DETAILS(double,DOUBLE,Double)
-      case G_TYPE_BOOLEAN:
-        if(min_val) g_value_set_boolean(*min_val,0);
-        if(max_val) g_value_set_boolean(*max_val,0);
-      break;
-      case G_TYPE_ENUM: {
-        const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
-        const GEnumClass *enum_class=enum_property->enum_class;
-        if(min_val) g_value_set_enum(*min_val,enum_class->minimum);
-        if(max_val) g_value_set_enum(*max_val,enum_class->maximum);
-      } break;
-      default:
-        GST_ERROR("unsupported GType=%lu:'%s' ('%s')",(gulong)property->value_type,g_type_name(property->value_type),g_type_name(base_type));
-    }
-  }
-}
-
-/**
- * bt_wire_controller_change_value:
- * @self: the wire to change the param for
- * @param: the parameter index
- * @timestamp: the time stamp of the change
- * @value: the new value or %NULL to unset a previous one
- *
- * Depending on wheter the given value is NULL, sets or unsets the controller
- * value for the specified param and at the given time.
- */
-/* TODO(ensonic): we have no default value handling here (see machine)
- */
-void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value) {
-  GObject *param_parent=NULL;
-  const gchar *param_name;
-  GstInterpolationControlSource *cs;
-
-  g_return_if_fail(BT_IS_WIRE(self));
-  g_return_if_fail(param<self->priv->num_params);
-
-  switch(param) {
-    case 0:
-      param_parent=G_OBJECT(self->priv->machines[PART_GAIN]);
-      break;
-    case 1:
-      param_parent=G_OBJECT(self->priv->machines[PART_PAN]);
-      break;
-    default:
-      GST_WARNING("unimplemented wire param");
-      break;
-  }
-  param_name=WIRE_PARAM_NAME(param);
-  cs=self->priv->wire_control_sources[param];
-
-  if(value) {
-    gboolean add=TRUE;
-
-    // check if the property is alredy controlled
-    if(cs && gst_interpolation_control_source_get_count(cs)) {
-      add=FALSE;
-    }
-    if(G_UNLIKELY(add)) {
-      GstController *ctrl;
-
-      if((ctrl=gst_object_control_properties(param_parent, param_name, NULL))) {
-        cs=gst_interpolation_control_source_new();
-        gst_controller_set_control_source(ctrl,param_name,GST_CONTROL_SOURCE(cs));
-        // set interpolation mode depending on param type
-        gst_interpolation_control_source_set_interpolation_mode(cs,GST_INTERPOLATE_NONE);
-        self->priv->wire_control_sources[param]=cs;
-      }
-
-      // TODO(ensonic): is this needed, we're in add=TRUE after all
-      g_object_try_unref(self->priv->wire_controller[param]);
-      self->priv->wire_controller[param]=ctrl;
-    }
-    //GST_INFO("set wire controller: %"GST_TIME_FORMAT" param %d:%s",GST_TIME_ARGS(timestamp),param,name);
-    gst_interpolation_control_source_set(cs,timestamp,value);
-  }
-  else {
-    if(self->priv->wire_controller[param]) {
-      gboolean remove=TRUE;
-
-      //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
-      if(cs) {
-        gst_interpolation_control_source_unset(cs,timestamp);
-        if(gst_interpolation_control_source_get_count(cs)) {
-          remove=FALSE;
-        }
-      }
-      if(remove) {
-        gst_controller_set_control_source(self->priv->wire_controller[param],param_name,NULL);
-        g_object_unref(cs);
-        self->priv->wire_control_sources[param]=NULL;
-        gst_object_uncontrol_properties(param_parent, param_name, NULL);
-      }
-    }
-  }
+  return self->priv->param_group;
 }
 
 //-- debug helper
@@ -1341,19 +1126,6 @@ static void bt_wire_dispose(GObject * const object) {
 
   GST_DEBUG_OBJECT(self,"!!!! self=%p",self);
 
-  // unref controllers
-  GST_DEBUG("  releasing controllers");
-  if(self->priv->machines[PART_GAIN] && self->priv->wire_props[0]) {
-    g_object_try_unref(self->priv->wire_control_sources[0]);
-    //bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_GAIN]), WIRE_PARAM_NAME(0));
-    self->priv->wire_controller[0]=NULL;
-  }
-  if(self->priv->machines[PART_PAN] && self->priv->wire_props[1]) {
-    g_object_try_unref(self->priv->wire_control_sources[1]);
-    //bt_gst_object_deactivate_controller(G_OBJECT(self->priv->machines[PART_PAN]), WIRE_PARAM_NAME(1));
-    self->priv->wire_controller[1]=NULL;
-  }
-
   // remove the GstElements from the bin
   // TODO(ensonic): is this actually needed?
   bt_wire_unlink_machines(self); // removes helper elements if in use
@@ -1385,6 +1157,10 @@ static void bt_wire_dispose(GObject * const object) {
   GST_DEBUG("  releasing the src %p, src->ref_ct=%d",
     self->priv->src,G_OBJECT_REF_COUNT(self->priv->src));
   g_object_try_unref(self->priv->src);
+  
+  // unref param groups
+  g_object_try_unref(self->priv->param_group);
+
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(bt_wire_parent_class)->dispose(object);
@@ -1421,9 +1197,6 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
   GstElementClass * const gstelement_klass = GST_ELEMENT_CLASS(klass);
 
-  // g_type_qname() is ((TypeNode *)type)->qname;
-  // seems to be save to call in _class_init
-  //error_domain=g_quark_from_static_string("BtWire");
   error_domain=g_type_qname(BT_TYPE_WIRE);
   g_type_class_add_private(klass,sizeof(BtWirePrivate));
 
