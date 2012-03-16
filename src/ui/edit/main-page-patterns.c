@@ -24,51 +24,52 @@
  * Provides an editor for #BtPattern instances.
  */
 
-/* TODO(ensonic): main-page-patterns tasks
- * - shortcuts
- *   - on_pattern_table_key_press_event()
- *   - Ctrl-S : Smooth
- *     - low pass median filter over values
- *     - need to figure what to do with empty slots
- *   - Ctrl-Shift-R: Randomize-Range
- *     - randomize between first and last value
- *   - Ctrl-T : Invert (I is Interpolate already)
- *     - value = max - (value-min))
- *   - Ctrl-Shift-T : Invert-Range
- *     - like invert, but take min, max from the values in the selection
- *   - prev/next for combobox entries
- *     - trigger "move-active" action signal with GTK_SCROLL_STEP_UP/GTK_SCROLL_STEP_DOWN
- *     - what mechanism to use:
- *       - gtk_binding_entry_add_signal (do bindings work when not focused?)
- *       - gtk_widget_add_accelerator (can't specify signal params)
- *
+/* TODO(ensonic): shortcuts
+ * - on_pattern_table_key_press_event()
+ * - Ctrl-S : Smooth
+ *   - low pass median filter over values
+ *   - need to figure what to do with empty slots
+ * - Ctrl-Shift-R: Randomize-Range
+ *   - randomize between first and last value
+ * - Ctrl-T : Invert (I is Interpolate already)
+ *   - value = max - (value-min))
+ * - Ctrl-Shift-T : Invert-Range
+ *   - like invert, but take min, max from the values in the selection
+ * - prev/next for combobox entries
+ *   - trigger "move-active" action signal with GTK_SCROLL_STEP_UP/GTK_SCROLL_STEP_DOWN
+ *   - what mechanism to use:
+ *     - gtk_binding_entry_add_signal (do bindings work when not focused?)
+ *     - gtk_widget_add_accelerator (can't specify signal params)
+ */
+/* TODO(ensonic): show wavetable name for wave-index properties in statusbar
+ * - need a fallback _describe_param_value that cehcks the wavetable
+ */
+/* TODO(ensonic): use gray text color for disconnected machines in the machine
+ * combobox (or machine without patterns) and unused waves
+ * (like for unused patterns)
+ * - sensitve property of renderer does not work in comboboxes
+ *   (unlike in treeviews)
+ *   -> we could use italic text in all of them
+ *     ("style", PANGO_STYLE_ITALIC and "style-set")
+ */
+/* TODO(ensonic): play live note entry
+ * - support midi keyboard for entering notes and triggers
+ * - have poly-input mode
+ *   - if there is a keydown, enter the note
+ *   - if there is another keydown before a keyup, go to next track and
+ *     enter the note there.
+ *   - on keyup, return 'cursor' to that column
+ * - what keys to use for trigger columns?
+ * - should we use shift+note for secondary note in same track (e.g. slide)
+ */
+/* TODO(ensonic): add the same context menu entries as the machines have in
+ * machine view for current machine
+ * - e.g. allow to open machine settings/preferences
+ *   see machine-canvas-item::show_machine_properties_dialog()
+ *   bt_main_page_machines_show_properties_dialog(page,machine);
+ *   bt_main_page_machines_show_preferences_dialog(page,machine);
+ *   .. rename/about/help
  * - also do controller-assignments like in machine-property window
- *
- * - use gray text color for disconnected machines in the machine
- *   combobox (or machine without patterns) and unused waves
- *   (like for unused patterns)
- *   - sensitve property of renderer does not work in comboboxes
- *     (unlike in treeviews)
- *     -> we could use italic text in all of them
- *       ("style", PANGO_STYLE_ITALIC and "style-set")
- *
- * - play live note entry
- *   - support midi keyboard for entering notes and triggers
- *   - have poly-input mode
- *     - if there is a keydown, enter the note
- *     - if there is another keydown before a keyup, go to next track and
- *       enter the note there.
- *     - on keyup, return 'cursor' to that column
- *   - what keys to use for trigger columns?
- *   - should we use shift+note for secondary note in same track (e.g. slide)
- *
- * - add the same context menu entries as the machines have in machine view for
- *   current machine
- *   - e.g. allow to open machine settings/preferences
- *     see machine-canvas-item::show_machine_properties_dialog()
- *     bt_main_page_machines_show_properties_dialog(page,machine);
- *     bt_main_page_machines_show_preferences_dialog(page,machine);
- *     .. rename/about/help
  */
 
 #define BT_EDIT
