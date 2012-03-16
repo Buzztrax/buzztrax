@@ -694,11 +694,10 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     GST_ERROR("linking machines failed : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
     goto Error;
   }
-  else {
-    // register params
-    bt_wire_init_params(self);
-  }
   GST_DEBUG("linking machines succeeded, src->ref_ct=%d, dst->ref_ct=%d",G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
+
+  // register params
+  bt_wire_init_params(self);
 
   res=TRUE;
 
