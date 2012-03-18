@@ -749,7 +749,8 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
 
     data_size=read_dword(self);
     if(data_size) {
-      /* TODO(ensonic): this contains machine specific init data
+      /* TODO(ensonic): this contains machine specific init data, see
+       * FSM/Infector for a machine that can use this
        * we need to pass data_size + fileposition to bsl
        * g_object_set(machine, "blob-size", data_size, "blob-data", data, NULL);
        *
@@ -757,6 +758,9 @@ static gboolean read_mach_section(const BtSongIOBuzz *self,const BtSong *song) {
        * sent there somehow earlier :(
        * 1.) accessing bml directly ?
        *     bml_set_machine_data_input(data_size,data) ?
+       * 2.) moving the code from _init to _constructed
+       *
+       * see aöso: gst-buzztard/src/bml/util.c:gstbml_class_prepare_properties()
        */
       GST_INFO("    skipping machine data : %d (0x%x) bytes",data_size,data_size);
       mem_seek(self,data_size,SEEK_CUR);
