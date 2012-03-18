@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
@@ -13,15 +14,21 @@
    height="744.09448"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.44.1"
+   inkscape:version="0.47 r22583"
    version="1.0"
-   sodipodi:docbase="/home/ensonic/presentations/LAC2007"
    sodipodi:docname="buzztard-arch.svg"
-   inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch.png"
-   inkscape:export-xdpi="100"
-   inkscape:export-ydpi="100">
+   inkscape:export-filename="/home/ensonic/projects/buzztard/buzztard/design/buzztard-arch.png"
+   inkscape:export-xdpi="59.992382"
+   inkscape:export-ydpi="59.992382">
   <defs
      id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 372.04724 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1052.3622 : 372.04724 : 1"
+       inkscape:persp3d-origin="526.18109 : 248.03149 : 1"
+       id="perspective124" />
     <linearGradient
        id="linearGradient6490">
       <stop
@@ -66,13 +73,13 @@
        x2="400.0397"
        y2="329.2442"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.970264,0,0,0.923354,6.527858,17.54393)" />
+       gradientTransform="matrix(0.970264,0,0,0.923354,-251.47214,-82.45607)" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient6490"
        id="linearGradient6500"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.970264,0,0,0.923354,6.42587,117.6943)"
+       gradientTransform="matrix(0.970264,0,0,0.923354,-251.57413,117.6943)"
        x1="400.2836"
        y1="247.94534"
        x2="400.0397"
@@ -82,7 +89,7 @@
        xlink:href="#linearGradient6490"
        id="linearGradient6504"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.970264,0,0,0.923354,6.645299,317.4088)"
+       gradientTransform="matrix(0.970264,0,0,0.923354,-251.3547,317.4088)"
        x1="400.2836"
        y1="247.94534"
        x2="400.0397"
@@ -92,17 +99,7 @@
        xlink:href="#linearGradient6490"
        id="linearGradient6508"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.970264,0,0,0.923354,-253.4225,317.6282)"
-       x1="400.2836"
-       y1="247.94534"
-       x2="400.0397"
-       y2="329.2442" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient6490"
-       id="linearGradient6512"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.970264,0,0,0.923354,-253.203,117.9137)"
+       gradientTransform="matrix(0.970264,0,0,0.923354,5.5329651,316.68434)"
        x1="400.2836"
        y1="247.94534"
        x2="400.0397"
@@ -122,7 +119,7 @@
        xlink:href="#linearGradient6490"
        id="linearGradient6520"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.970264,0,0,0.923354,266.7131,17.61757)"
+       gradientTransform="matrix(0.970264,0,0,0.923354,266.7131,-82.38243)"
        x1="400.2836"
        y1="247.94534"
        x2="400.0397"
@@ -187,6 +184,54 @@
        y1="247.94534"
        x2="400.0397"
        y2="329.2442" />
+    <inkscape:perspective
+       id="perspective2942"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6490-7"
+       id="linearGradient6520-1"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.970264,0,0,0.923354,5.6938913,-83.842811)"
+       x1="400.2836"
+       y1="247.94534"
+       x2="400.0397"
+       y2="329.2442" />
+    <linearGradient
+       id="linearGradient6490-7">
+      <stop
+         style="stop-color:white;stop-opacity:1;"
+         offset="0"
+         id="stop6492-3" />
+      <stop
+         style="stop-color:#b4b4b4;stop-opacity:0.39215687;"
+         offset="1"
+         id="stop6494-6" />
+    </linearGradient>
+    <inkscape:perspective
+       id="perspective2988"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-7"
+       style="overflow:visible">
+      <path
+         id="path12876-6"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;marker-start:none"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -199,25 +244,26 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1167937"
-     inkscape:cx="526.18109"
-     inkscape:cy="372.04724"
+     inkscape:cx="450.20045"
+     inkscape:cy="460.35504"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="1052.3622px"
      height="744.09448px"
      showguides="true"
      inkscape:guide-bbox="false"
-     inkscape:window-width="1502"
-     inkscape:window-height="1047"
-     inkscape:window-x="416"
-     inkscape:window-y="29"
+     inkscape:window-width="1438"
+     inkscape:window-height="824"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
      showgrid="true"
      inkscape:object-points="false"
      inkscape:object-bbox="false"
      inkscape:object-paths="false"
      inkscape:grid-points="false"
      inkscape:guide-points="false"
-     inkscape:grid-bbox="false">
+     inkscape:grid-bbox="false"
+     inkscape:window-maximized="0">
     <sodipodi:guide
        orientation="horizontal"
        position="100.0051"
@@ -271,6 +317,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -323,12 +370,12 @@
          style="font-size:20.81997299px;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan21065">Linux, MacOS, Windows, ...</tspan></text>
     <rect
-       style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect3708"
        width="197.97485"
        height="77.973969"
-       x="41.025097"
-       y="545.12079"
+       x="299.98056"
+       y="544.17694"
        rx="4.381887"
        ry="4.381887"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
@@ -336,23 +383,23 @@
        inkscape:export-ydpi="100" />
     <text
        xml:space="preserve"
-       style="font-size:12.07807636px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="140.36607"
-       y="577.67859"
+       style="font-size:12.07807827px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="401.03891"
+       y="576.74103"
        id="text3710"
-       transform="scale(0.993412,1.006632)"
+       transform="scale(0.99341187,1.0066318)"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan3712"
-         x="140.36607"
-         y="577.67859"
-         style="font-size:32.20819855px;text-align:center;text-anchor:middle;font-family:sans">Gtk+</tspan><tspan
+         x="401.03891"
+         y="576.74103"
+         style="font-size:28px;text-align:center;text-anchor:middle;font-family:sans">Gtk+</tspan><tspan
          sodipodi:role="line"
-         x="140.36607"
-         y="606.05309"
-         style="font-size:20.13012695px;text-align:center;text-anchor:middle;font-family:sans"
+         x="401.03891"
+         y="601.77356"
+         style="font-size:18px;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan19217">ui toolkit</tspan></text>
     <rect
        style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -379,11 +426,11 @@
          id="tspan4608"
          x="658.94604"
          y="581.52209"
-         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">GStreamer</tspan><tspan
+         style="font-size:28;text-align:center;text-anchor:middle;font-family:sans">GStreamer</tspan><tspan
          sodipodi:role="line"
          x="658.94604"
          y="609.71318"
-         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         style="font-size:18;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan19228">media framework</tspan></text>
     <rect
        style="fill:#80ffb9;fill-opacity:1;stroke:#00c357;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -414,58 +461,27 @@
          sodipodi:role="line"
          x="659.64874"
          y="407.53846"
-         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         style="font-size:18;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan19250">song engine</tspan></text>
     <rect
-       style="fill:#80ffb9;fill-opacity:1;stroke:#00c357;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect8209"
-       width="197.99991"
-       height="77.999802"
-       x="40.999996"
-       y="345.09442"
-       rx="4.381887"
-       ry="4.381887"
-       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
-       inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100" />
-    <text
-       xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#4b4b4b;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="139.99507"
-       y="379.642"
-       id="text8211"
-       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
-       inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100"><tspan
-         sodipodi:role="line"
-         id="tspan8213"
-         x="139.99507"
-         y="379.642"
-         style="font-size:32px;text-align:center;text-anchor:middle;fill:#4b4b4b;fill-opacity:1;font-family:sans">libbtui</tspan><tspan
-         sodipodi:role="line"
-         x="139.99507"
-         y="407.83308"
-         style="font-size:20px;text-align:center;text-anchor:middle;fill:#4b4b4b;fill-opacity:1;font-family:sans"
-         id="tspan19239">common widgets</tspan></text>
-    <rect
-       style="fill:#c4ff80;fill-opacity:1;stroke:#5baa00;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:#c4ff80;fill-opacity:1;stroke:#5baa00;stroke-width:3;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect10882"
        width="198.00024"
        height="78.000008"
-       x="301.00003"
-       y="245.0945"
+       x="43.000031"
+       y="145.0945"
        rx="3.7077506"
        ry="3.7077506"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
     <rect
-       style="fill:#c4ff80;fill-opacity:1;stroke:#5baa00;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:#c4ff80;fill-opacity:1;stroke:#5baa00;stroke-width:3;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect11791"
        width="197.99957"
        height="78.000008"
        x="560.99976"
-       y="245.0945"
+       y="145.0945"
        rx="4.0448189"
        ry="4.0448189"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
@@ -473,9 +489,9 @@
        inkscape:export-ydpi="100" />
     <text
        xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
        x="660.31689"
-       y="281.3349"
+       y="181.3349"
        id="text11793"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
        inkscape:export-xdpi="100"
@@ -483,16 +499,16 @@
          sodipodi:role="line"
          id="tspan11795"
          x="660.31689"
-         y="281.3349"
+         y="181.3349"
          style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">bt-cmd</tspan><tspan
          sodipodi:role="line"
          x="660.31689"
-         y="309.52598"
-         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         y="207.38042"
+         style="font-size:18px;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan19272">command-line tool</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 499.00027,323.09451 L 560,344.09448"
+       d="M 239.32832,223.70283 560,344.09448"
        id="path11811"
        inkscape:connector-type="polyline"
        sodipodi:nodetypes="cc"
@@ -501,26 +517,8 @@
        inkscape:export-ydpi="100" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 301.00003,323.09451 L 240,344.09448"
-       id="path11813"
-       inkscape:connector-type="polyline"
-       sodipodi:nodetypes="cc"
-       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
-       inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 660,324.09448 L 660,344.09448"
+       d="m 660,222.91196 0,121.18252"
        id="path11815"
-       inkscape:connector-type="polyline"
-       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
-       inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 140,424.09448 L 140,544.09448"
-       id="path11817"
        inkscape:connector-type="polyline"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
        inkscape:export-xdpi="100"
@@ -560,11 +558,11 @@
          id="tspan12902"
          x="910.65289"
          y="579.349"
-         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">gst-buzztard</tspan><tspan
+         style="font-size:28;text-align:center;text-anchor:middle;font-family:sans">gst-buzztard</tspan><tspan
          sodipodi:role="line"
          x="910.65289"
          y="607.54008"
-         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         style="font-size:18;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan19198">gst extensions</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
@@ -600,11 +598,11 @@
          id="tspan13805"
          x="910.37097"
          y="479.34741"
-         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">gstbml</tspan><tspan
+         style="font-size:28;text-align:center;text-anchor:middle;font-family:sans">gstbml</tspan><tspan
          sodipodi:role="line"
          x="910.37097"
          y="507.53849"
-         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         style="font-size:18;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan19206">gst wrapper plugin</tspan></text>
     <rect
        style="fill:#80ffb9;fill-opacity:1;stroke:#00c357;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -631,12 +629,12 @@
          id="tspan13816"
          x="909.21875"
          y="279.34747"
-         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">bsl</tspan><tspan
+         style="font-size:28;text-align:center;text-anchor:middle;font-family:sans">bsl</tspan><tspan
          id="tspan19162"
          sodipodi:role="line"
          x="909.21875"
          y="307.53856"
-         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans">buzz song loader</tspan></text>
+         style="font-size:18;text-align:center;text-anchor:middle;font-family:sans">buzz song loader</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
@@ -676,11 +674,11 @@
          id="tspan17386"
          x="909.21875"
          y="381.3349"
-         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">bml</tspan><tspan
+         style="font-size:28;text-align:center;text-anchor:middle;font-family:sans">bml</tspan><tspan
          sodipodi:role="line"
          x="909.21875"
          y="409.52598"
-         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         style="font-size:18;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan19177">buzz machine loader</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
@@ -693,25 +691,25 @@
        sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-weight:normal;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="78.130951"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="36.130951"
        y="87.175163"
        id="text19280"><tspan
          sodipodi:role="line"
          id="tspan19282"
-         x="78.130951"
+         x="36.130951"
          y="87.175163"
-         style="font-size:48px;font-weight:bold;fill:black;fill-opacity:0.31972788;font-family:sans"><tspan
+         style="font-size:48px;font-weight:bold;fill:#000000;fill-opacity:0.31972788;font-family:sans"><tspan
            style="font-size:56px"
            id="tspan20175">buzztard</tspan><tspan
            style="font-weight:normal"
            id="tspan20173"> architecture</tspan></tspan></text>
     <rect
-       style="fill:#80ffb9;fill-opacity:1;stroke:#00c357;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:#80ffb9;fill-opacity:1;stroke:#00c357;stroke-width:3;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect1957"
        width="198.00009"
        height="78.000023"
-       x="301.00006"
+       x="43.000061"
        y="345.09457"
        rx="4.0448189"
        ry="4.0448189"
@@ -720,8 +718,8 @@
        inkscape:export-ydpi="100" />
     <text
        xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="399.20911"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="141.20911"
        y="381.40982"
        id="text1959"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
@@ -729,17 +727,17 @@
        inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan1961"
-         x="399.20911"
+         x="141.20911"
          y="381.40982"
          style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">libbtic</tspan><tspan
          sodipodi:role="line"
-         x="399.20911"
-         y="409.6009"
-         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         x="141.20911"
+         y="407.45532"
+         style="font-size:18px;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan1963">interaction controller</tspan></text>
     <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 400,324.09448 L 400,344.09448"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m 142,222.91196 0,121.18252"
        id="path1965"
        inkscape:connector-type="polyline"
        sodipodi:nodetypes="cc"
@@ -747,11 +745,11 @@
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
     <rect
-       style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect1979"
        width="198.00134"
        height="78.00264"
-       x="300.99881"
+       x="42.99881"
        y="545.0921"
        rx="3.7077506"
        ry="3.7077506"
@@ -760,8 +758,8 @@
        inkscape:export-ydpi="100" />
     <text
        xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="400.03366"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="142.03366"
        y="581.3338"
        id="text1981"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
@@ -769,17 +767,17 @@
        inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan1983"
-         x="400.03366"
+         x="142.03366"
          y="581.3338"
-         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">HAL</tspan><tspan
+         style="font-size:28px;text-align:center;text-anchor:middle;font-family:sans">GUdev</tspan><tspan
          sodipodi:role="line"
-         x="400.03366"
-         y="609.52488"
-         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         x="142.03366"
+         y="606.36633"
+         style="font-size:18px;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan1985">hardware abstraction</tspan></text>
     <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 400.50006,424.0843 L 400,544.09448"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 142.50006,424.0843 142,544.09448"
        id="path1987"
        inkscape:connector-type="polyline"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
@@ -787,8 +785,8 @@
        inkscape:export-ydpi="100"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 301.00003,323.09451 L 240,544.09448"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 190.09102,221.99444 397.71714,544.17693"
        id="path2001"
        inkscape:connector-type="polyline"
        sodipodi:nodetypes="cc"
@@ -796,12 +794,12 @@
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
     <rect
-       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6496);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:0.6;fill:none;stroke:url(#linearGradient6496);stroke-width:3.00000072;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect4718"
        width="192.11249"
        height="72.021683"
-       x="303.91373"
-       y="248.00822"
+       x="45.913727"
+       y="148.00822"
        rx="0.60402638"
        ry="0.60402638"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
@@ -809,29 +807,29 @@
        inkscape:export-ydpi="100" />
     <text
        xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:black;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="399.06265"
-       y="281.3349"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="141.06265"
+       y="181.3349"
        id="text10884"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100"><tspan
          sodipodi:role="line"
          id="tspan10886"
-         x="399.06265"
-         y="281.3349"
+         x="141.06265"
+         y="181.3349"
          style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">bt-edit</tspan><tspan
          sodipodi:role="line"
-         x="399.06265"
-         y="309.52598"
-         style="font-size:20px;text-align:center;text-anchor:middle;font-family:sans"
+         x="141.06265"
+         y="207.38042"
+         style="font-size:18px;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan19261">ui editor</tspan></text>
     <rect
-       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6500);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:0.6;fill:none;stroke:url(#linearGradient6500);stroke-width:3.00000072;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect6498"
        width="192.11249"
        height="72.021683"
-       x="303.81174"
+       x="45.811737"
        y="348.15857"
        rx="0.60402638"
        ry="0.60402638"
@@ -839,11 +837,11 @@
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
     <rect
-       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6504);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:0.6;fill:none;stroke:url(#linearGradient6504);stroke-width:3.00000072;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect6502"
        width="192.11249"
        height="72.021683"
-       x="304.03119"
+       x="46.031189"
        y="547.87311"
        rx="0.60402638"
        ry="0.60402638"
@@ -851,24 +849,12 @@
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
     <rect
-       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6508);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:0.6;fill:none;stroke:url(#linearGradient6508);stroke-width:3.00000072;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect6506"
        width="192.11249"
        height="72.021683"
-       x="43.963387"
-       y="548.09253"
-       rx="0.60402638"
-       ry="0.60402638"
-       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
-       inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100" />
-    <rect
-       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6512);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect6510"
-       width="192.11249"
-       height="72.021683"
-       x="44.182854"
-       y="348.37805"
+       x="302.91885"
+       y="547.14868"
        rx="0.60402638"
        ry="0.60402638"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
@@ -887,12 +873,12 @@
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
     <rect
-       style="opacity:0.6;fill:none;fill-opacity:1;stroke:url(#linearGradient6520);stroke-width:3.00000072;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:0.6;fill:none;stroke:url(#linearGradient6520);stroke-width:3.00000072;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect6518"
        width="192.11249"
        height="72.021683"
        x="564.099"
-       y="248.08185"
+       y="148.08185"
        rx="0.60402638"
        ry="0.60402638"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
@@ -997,5 +983,57 @@
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
+    <rect
+       style="fill:#c4ff80;fill-opacity:1;stroke:#5baa00;stroke-width:3;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect11791-7"
+       width="197.99957"
+       height="78.000008"
+       x="299.98056"
+       y="143.63412"
+       rx="4.0448189"
+       ry="4.0448189"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="399.2977"
+       y="179.87453"
+       id="text11793-9"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"><tspan
+         sodipodi:role="line"
+         id="tspan11795-5"
+         x="399.2977"
+         y="179.87453"
+         style="font-size:32px;text-align:center;text-anchor:middle;font-family:sans">bt-dec</tspan><tspan
+         sodipodi:role="line"
+         x="399.2977"
+         y="205.92004"
+         style="font-size:18px;text-align:center;text-anchor:middle;font-family:sans"
+         id="tspan19272-2">gstreamer decoder</tspan></text>
+    <rect
+       style="opacity:0.6;fill:none;stroke:url(#linearGradient6520-1);stroke-width:3.00000072;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect6518-6"
+       width="192.11249"
+       height="72.021683"
+       x="303.0798"
+       y="146.62148"
+       rx="0.60402638"
+       ry="0.60402638"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 401.71027,222.36165 614.82035,344.16302"
+       id="path11815-4"
+       inkscape:connector-type="polyline"
+       inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztard-arch-notitle.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100"
+       sodipodi:nodetypes="cc" />
   </g>
 </svg>
