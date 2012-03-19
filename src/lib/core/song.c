@@ -747,6 +747,9 @@ gboolean bt_song_play(const BtSong * const self) {
   GstStateChangeReturn res;
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
+  
+  // the user can always press play
+  if(!self->priv->master_bin) return(TRUE);
 
   // do not play again
   if(self->priv->is_playing) return(TRUE);
