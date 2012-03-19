@@ -119,12 +119,12 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   fail_unless(G_OBJECT_REF_COUNT(wavetable)==2,NULL);
   
   /* assert machine refcounts */
-  // 1 x setup, 1 x wire
-  assert_machine_refcount(setup,"audio_sink",2);
-  // 1 x setup, 2 x wire
-  assert_machine_refcount(setup,"amp1",3);
-  // 1 x setup, 1 x wire, 1 x sequence
-  assert_machine_refcount(setup,"sine1",3);
+  // 1 x pipeline, 1 x setup, 1 x wire
+  assert_machine_refcount(setup,"audio_sink",3);
+  // 1 x pipeline, 1 x setup, 2 x wire, 1 x sequence
+  assert_machine_refcount(setup,"amp1",5);
+  // 1 x pipeline, 1 x setup, 1 x wire, 1 x sequence
+  assert_machine_refcount(setup,"sine1",4);
 
   /* TODO(ensonic): check more refcounts (wires)
    * grep "ref_ct=" /tmp/bt_core.log
