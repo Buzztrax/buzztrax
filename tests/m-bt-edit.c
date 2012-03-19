@@ -56,11 +56,9 @@ extern Suite *bt_settings_dialog_suite(void);
 extern Suite *bt_signal_analysis_dialog_suite(void);
 extern Suite *bt_tip_dialog_suite(void);
 
-gint test_argc=2;
-gchar test_arg0[]="check_buzzard";
-gchar test_arg1[]="--sync";
-gchar *test_argv[2];
-gchar **test_argvptr;
+gchar *test_argv[] = { "check_buzzard", "--sync" };
+gchar **test_argvptr = test_argv;
+gint test_argc=G_N_ELEMENTS(test_argv) - 1;
 
 static BtSettings *settings;
 
@@ -152,9 +150,6 @@ int main(int argc, char **argv) {
   g_set_application_name("Buzztard");
   setup_log(argc,argv);
   setup_log_capture();
-  test_argv[0]=test_arg0;
-  test_argv[1]=test_arg1;
-  test_argvptr=test_argv;
 
   check_setup_test_server();
 

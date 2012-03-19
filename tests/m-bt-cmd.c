@@ -30,10 +30,9 @@ GST_DEBUG_CATEGORY_EXTERN(bt_cmd_debug);
 
 extern Suite *bt_cmd_application_suite(void);
 
-gint test_argc=1;
-gchar test_arg0[]="check_buzzard";
-gchar *test_argv[1];
-gchar **test_argvptr;
+gchar *test_argv[] = { "check_buzzard" };
+gchar **test_argvptr = test_argv;
+gint test_argc=G_N_ELEMENTS(test_argv) - 1;
 
 /* common setup and teardown code */
 void bt_cmd_setup(void) {
@@ -58,8 +57,6 @@ int main(int argc, char **argv) {
   g_type_init();
   setup_log(argc,argv);
   setup_log_capture();
-  test_argv[0]=test_arg0;
-  test_argvptr=test_argv;
 
   bt_init(&test_argc,&test_argvptr);
   bt_check_init();
