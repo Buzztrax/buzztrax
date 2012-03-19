@@ -3,6 +3,10 @@ git diff @{2012-01-01} @{2012-01-31} | diffstat
 
 2012/04 ========================================================================
 
+* jack-transport settings and there with a refactored playback controller
+  settings ui
+* code cleanups
+
 2012/03 ========================================================================
 
 As a big leftover promise from my talk at the GStreamer conference in 2011 I
