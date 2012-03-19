@@ -83,7 +83,6 @@ int main(int argc, char **argv) {
 
   sr=srunner_create(bt_core_suite());
   srunner_add_suite(sr, bt_machine_suite());
-  srunner_add_suite(sr, bt_network_suite());
   srunner_add_suite(sr, bt_pattern_suite());
   srunner_add_suite(sr, bt_processor_machine_suite());
   srunner_add_suite(sr, bt_sequence_suite());
