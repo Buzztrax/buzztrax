@@ -39,7 +39,7 @@ static void assert_machine_refcount(BtSetup *setup, const gchar *id, guint refs)
   BtMachine *machine=bt_setup_get_machine_by_id(setup,id);
 
   fail_unless(machine!=NULL,NULL);
-  GST_INFO("setup.machine[%s].ref_count=%d",id,G_OBJECT_REF_COUNT(machine));
+  GST_INFO_OBJECT(machine, "setup.machine[%s].ref_count=%d == %d?",id,G_OBJECT_REF_COUNT(machine),refs);
   fail_unless(G_OBJECT_REF_COUNT(machine)==(1+refs),NULL);
   g_object_unref(machine);
 }
@@ -91,7 +91,7 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   song=bt_song_new(app);
 
   /* load the song */
-  song_io=bt_song_io_from_file(check_get_test_song_path("example.xml"));
+  song_io=bt_song_io_from_file(check_get_test_song_path("simple2.xml"));
   fail_unless(song_io != NULL, NULL);
 
   res=bt_song_io_load(song_io,song);
@@ -117,7 +117,7 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   fail_unless(wavetable!=NULL,NULL);
   GST_INFO("wavetable.ref_count=%d",G_OBJECT_REF_COUNT(wavetable));
   fail_unless(G_OBJECT_REF_COUNT(wavetable)==2,NULL);
-
+  
   /* assert machine refcounts */
   // 1 x setup, 1 x wire
   assert_machine_refcount(setup,"audio_sink",2);
@@ -127,7 +127,7 @@ BT_START_TEST(test_btsong_io_native_refcounts) {
   assert_machine_refcount(setup,"sine1",3);
 
   /* TODO(ensonic): check more refcounts (wires)
-   * grep ".ref-count=" /tmp/bt_core.log
+   * grep "ref_ct=" /tmp/bt_core.log
    */
 
   g_object_unref(setup);
@@ -149,7 +149,7 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
   gboolean res;
   GstElement *bin;
   gchar **song_name,*song_names[]={
-    "example.xml",
+    "simple2.xml",
     "test-simple1.xml",
     "test-simple2.xml",
     "test-simple3.xml",
