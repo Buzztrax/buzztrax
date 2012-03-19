@@ -38,7 +38,13 @@
 //-- prototypes ----------------------------------------------------------------
 
 GOptionGroup *btic_init_get_option_group(void);
-gboolean btic_init_check(int *argc, char **argv[], GError **err);
-void btic_init(int *argc, char **argv[]);
+gboolean btic_init_check(gint *argc, gchar **argv[], GError **err);
+void btic_init(gint *argc, gchar **argv[]);
+
+#ifndef BTIC_CORE_C
+extern const guint btic_major_version;
+extern const guint btic_minor_version;
+extern const guint btic_micro_version;
+#endif
 
 #endif // BT_IC_H

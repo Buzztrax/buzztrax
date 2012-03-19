@@ -45,19 +45,19 @@
  *
  * buzztard version stamp, major part; determined from #BT_MAJOR_VERSION
  */
-const unsigned int bt_major_version=BT_MAJOR_VERSION;
+const guint bt_major_version=BT_MAJOR_VERSION;
 /**
  * bt_minor_version:
  *
  * buzztard version stamp, minor part; determined from #BT_MINOR_VERSION
  */
-const unsigned int bt_minor_version=BT_MINOR_VERSION;
+const guint bt_minor_version=BT_MINOR_VERSION;
 /**
  * bt_micro_version:
  *
  * buzztard version stamp, micro part; determined from #BT_MICRO_VERSION
  */
-const unsigned int bt_micro_version=BT_MICRO_VERSION;
+const guint bt_micro_version=BT_MICRO_VERSION;
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
@@ -229,7 +229,7 @@ void bt_init_add_option_groups(GOptionContext * const ctx) {
  *
  * Returns: %TRUE if Buzztard core could be initialized.
  */
-gboolean bt_init_check(int *argc, char **argv[], GError **err) {
+gboolean bt_init_check(gint *argc, gchar **argv[], GError **err) {
   GOptionContext *ctx;
 
   if(bt_initialized) {
@@ -263,7 +263,7 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
  * particular, unknown command line options cause this function to
  * abort program execution.
  */
-void bt_init(int *argc, char **argv[]) {
+void bt_init(gint *argc, gchar **argv[]) {
   GError *err = NULL;
 
   if(!bt_init_check(argc, argv, &err)) {

@@ -35,19 +35,19 @@
  *
  * buzztard version stamp, major part; determined from #BTIC_MAJOR_VERSION
  */
-const unsigned int btic_major_version=BTIC_MAJOR_VERSION;
+const guint btic_major_version=BTIC_MAJOR_VERSION;
 /**
  * btic_minor_version:
  *
  * buzztard version stamp, minor part; determined from #BTIC_MINOR_VERSION
  */
-const unsigned int btic_minor_version=BTIC_MINOR_VERSION;
+const guint btic_minor_version=BTIC_MINOR_VERSION;
 /**
  * btic_micro_version:
  *
  * buzztard version stamp, micro part; determined from #BTIC_MICRO_VERSION
  */
-const unsigned int btic_micro_version=BTIC_MICRO_VERSION;
+const guint btic_micro_version=BTIC_MICRO_VERSION;
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
@@ -137,7 +137,7 @@ GOptionGroup *btic_init_get_option_group(void) {
  *
  * Returns: %TRUE if Buzztard interaction controller could be initialized.
  */
-gboolean btic_init_check(int *argc, char **argv[], GError **err) {
+gboolean btic_init_check(gint *argc, gchar **argv[], GError **err) {
   GOptionContext *ctx;
   gboolean res;
 
@@ -175,7 +175,7 @@ gboolean btic_init_check(int *argc, char **argv[], GError **err) {
  * particular, unknown command line options cause this function to
  * abort program execution.
  */
-void btic_init(int *argc, char **argv[]) {
+void btic_init(gint *argc, gchar **argv[]) {
   GError *err = NULL;
 
   if(!btic_init_check(argc, argv, &err)) {

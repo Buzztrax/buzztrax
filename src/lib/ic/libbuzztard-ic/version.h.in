@@ -27,10 +27,4 @@
 #define BTIC_MINOR_VERSION @BT_MINOR_VERSION@
 #define BTIC_MICRO_VERSION @BT_MICRO_VERSION@
 
-#ifndef BTIC_CORE_C
-extern const unsigned int btic_major_version;
-extern const unsigned int btic_minor_version;
-extern const unsigned int btic_micro_version;
-#endif
-
 #endif // BTIC_VERSION
