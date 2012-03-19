@@ -3493,13 +3493,13 @@ static void bt_machine_constructed(GObject *object) {
     goto Error;
   }
 
-  GST_DEBUG("machine-ref_ct=%d",G_OBJECT_REF_COUNT(self));
+  GST_DEBUG_OBJECT(self,"machine-ref_ct=%d",G_OBJECT_REF_COUNT(self));
 
   // register params
   bt_machine_init_global_params(self);
   bt_machine_init_voice_params(self);
 
-  GST_DEBUG("machine-ref_ct=%d",G_OBJECT_REF_COUNT(self));
+  GST_DEBUG_OBJECT(self,"machine-ref_ct=%d",G_OBJECT_REF_COUNT(self));
 
   // post sanity checks
   GST_INFO("  added machine %p to bin, machine->ref_ct=%d",self->priv->machines[PART_MACHINE],G_OBJECT_REF_COUNT(self->priv->machines[PART_MACHINE]));

@@ -1117,6 +1117,8 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
 
     g_signal_emit((gpointer)self,signals[WIRE_ADDED_EVENT], 0, wire);
     GST_DEBUG_OBJECT(wire,"added wire: %p,ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
+    GST_DEBUG_OBJECT(src,"wire.src: %p,ref_ct=%d",src,G_OBJECT_REF_COUNT(src));
+    GST_DEBUG_OBJECT(dst,"wire.dst: %p,ref_ct=%d",dst,G_OBJECT_REF_COUNT(dst));
 
     g_object_unref(src);
     g_object_unref(dst);
@@ -1188,6 +1190,8 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
     g_object_get((gpointer)wire,"src",&src,"dst",&dst,NULL);
     src->src_wires=g_list_remove(src->src_wires,wire);
     dst->dst_wires=g_list_remove(dst->dst_wires,wire);
+    GST_DEBUG_OBJECT(src,"wire.src: %p,ref_ct=%d",src,G_OBJECT_REF_COUNT(src));
+    GST_DEBUG_OBJECT(dst,"wire.dst: %p,ref_ct=%d",dst,G_OBJECT_REF_COUNT(dst));
     g_object_unref(src);
     g_object_unref(dst);
 
