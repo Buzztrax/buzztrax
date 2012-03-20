@@ -126,19 +126,19 @@ int main(int argc, char **argv) {
 
   // depending on the popt options call the correct method
   if(!strcmp(command,"p") || !strcmp(command,"play")) {
-    if(!input_file_name) usage(argc, argv, ctx);
+    if(!BT_IS_STRING(input_file_name)) usage(argc, argv, ctx);
     res=bt_cmd_application_play(app,input_file_name);
   }
   else if(!strcmp(command,"i") || !strcmp(command,"info")) {
-    if(!input_file_name) usage(argc, argv, ctx);
+    if(!BT_IS_STRING(input_file_name)) usage(argc, argv, ctx);
     res=bt_cmd_application_info(app,input_file_name, output_file_name);
   }
   else if(!strcmp(command,"c") || !strcmp(command,"convert")) {
-    if(!input_file_name || !output_file_name) usage(argc, argv, ctx);
+    if(!BT_IS_STRING(input_file_name) || !BT_IS_STRING(output_file_name)) usage(argc, argv, ctx);
     res=bt_cmd_application_convert(app,input_file_name,output_file_name);
   }
   else if(!strcmp(command,"e") ||!strcmp(command,"encode")) {
-    if(!input_file_name || !output_file_name) usage(argc, argv, ctx);
+    if(!BT_IS_STRING(input_file_name) || !BT_IS_STRING(output_file_name)) usage(argc, argv, ctx);
     res=bt_cmd_application_encode(app,input_file_name,output_file_name);
   }
   else usage(argc, argv, ctx);
