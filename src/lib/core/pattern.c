@@ -35,26 +35,35 @@
  *
  * The patterns are used in the #BtSequence to form the score of a song.
  */
-/* TODO(ensonic):
- * - BtWirePattern is not a good name :/
- *   - maybe we can make BtPattern a base class and also have BtMachinePattern
- * - pattern editing
- *   - flip ticks cursor-column/selection
- *   -inc/dec cursor-cell/selection
- * - cut/copy/paste api
- *   - need private BtPatternFragment object
- *     - copy of the data
- *     - pos and size of the region
- *     - column-types
- *     - eventually wire-pattern fragments
- *   - api
- *     fragment = bt_pattern_copy_fragment (pattern, col1, col2, row1, row2);
- *       return a new fragment object, opaque for the callee
- *     fragment = bt_pattern_cut_fragment (pattern, col1, col2, row1, row2);
- *       calls copy and clears afterwards
- *     success = bt_pattern_paste_fragment(pattern, fragment, col1, row1);
- *       checks if column-types are compatible
- *
+/* TODO(ensonic): BtWirePattern is not a good name :/
+ * - maybe we can make BtPattern a base class and also have BtMachinePattern
+ * - or maybe we can exploit BtParameterGroup
+ *   - each pattern would have a list of groups (BtValueGroup) and
+ *     num_wires, num_global (0/1), num_voice
+ *   - each group would have a pointer to the BtParmeterGroup and a gvalue array
+ *   - changing voice/wires would only need resizing the group-array
+ *   - doing length changs or line inserts/deletion would require applying
+ *     this to each group, on the other hand this would avoid the need for
+ *     wirepattern and the code duplication there and most likely simplify
+ *     main-page pattern, where we do something similar for
+ *     BtPatternEditorColumn
+ */
+/* TODO(ensonic): pattern editing
+ *  - inc/dec cursor-cell/selection
+ */
+/* TODO(ensonic): cut/copy/paste api
+ * - need private BtPatternFragment object
+ *   - copy of the data
+ *   - pos and size of the region
+ *   - column-types
+ *   - eventually wire-pattern fragments
+ * - api
+ *   fragment = bt_pattern_copy_fragment (pattern, col1, col2, row1, row2);
+ *     return a new fragment object, opaque for the callee
+ *   fragment = bt_pattern_cut_fragment (pattern, col1, col2, row1, row2);
+ *     calls copy and clears afterwards
+ *   success = bt_pattern_paste_fragment(pattern, fragment, col1, row1);
+ *     checks if column-types are compatible
  */
 #define BT_CORE
 #define BT_PATTERN_C
