@@ -81,12 +81,11 @@ BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
 	-$(AM_V_GEN)$(G_IR_SCANNER) -v \
 	     --namespace=BuzztardIc \
 	     --nsversion 0.0 \
-	     -I$(builddir)/libbuzztard-ic \
+	     -I$(builddir) \
 	     -I$(srcdir) \
-	     -I$(srcdir)/libbuzztard-ic/ \
 	     --identifier-prefix=BtIc \
 	     --symbol-prefix=btic \
-	     --c-include='libbuzztard-ic/ic.h' \
+	     --c-include='ic.h' \
 	     --include=GLib-2.0 \
 	     --include=GObject-2.0 \
 	     --include=Gst-0.10 \
