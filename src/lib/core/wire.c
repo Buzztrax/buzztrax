@@ -1312,11 +1312,11 @@ static void bt_wire_set_property(GObject * const object, const guint property_id
     } break;
     case WIRE_SRC: {
       self->priv->src=BT_MACHINE(g_value_dup_object(value));
-      GST_DEBUG("set the source element for the wire: %p:%s, ref_ct=%d",self->priv->src,GST_OBJECT_NAME(self->priv->src),G_OBJECT_REF_COUNT(self->priv->src));
+      GST_DEBUG("set the source element for the wire: %p:%s, ref_ct=%d",self->priv->src,(self->priv->src?GST_OBJECT_NAME(self->priv->src):""),G_OBJECT_REF_COUNT(self->priv->src));
     } break;
     case WIRE_DST: {
       self->priv->dst=BT_MACHINE(g_value_dup_object(value));
-      GST_DEBUG("set the target element for the wire: %p:%s, ref_ct=%d",self->priv->dst,GST_OBJECT_NAME(self->priv->dst),G_OBJECT_REF_COUNT(self->priv->dst));
+      GST_DEBUG("set the target element for the wire: %p:%s, ref_ct=%d",self->priv->dst,(self->priv->dst?GST_OBJECT_NAME(self->priv->dst):""),G_OBJECT_REF_COUNT(self->priv->dst));
     } break;
     case WIRE_NUM_PARAMS: {
       self->priv->num_params = g_value_get_ulong(value);
