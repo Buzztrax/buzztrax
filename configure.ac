@@ -616,8 +616,7 @@ AC_CONFIG_FILES(Makefile \
           src/lib/core/songio/bsl/Makefile \
       src/lib/ic/Makefile \
 	  src/lib/ic/libbuzztard-ic.pc \
-        src/lib/ic/libbuzztard-ic/Makefile \
-		src/lib/ic/libbuzztard-ic/version.h \
+		src/lib/ic/version.h \
     src/ui/Makefile \
       src/ui/cmd/Makefile \
       src/ui/dec/Makefile \

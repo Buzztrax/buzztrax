@@ -33,7 +33,7 @@ FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/ \
 	--extra-dir=..
 
 # Used for dependencies. The docs will be rebuilt if any of these change.
-HFILE_GLOB=$(top_srcdir)/src/lib/ic/libbuzztard-ic/*.h
+HFILE_GLOB=$(top_srcdir)/src/lib/ic/*.h
 CFILE_GLOB=$(top_srcdir)/src/lib/ic/*.c
 
 if USE_LINUX_INPUT

@@ -83,16 +83,16 @@
 //-- libbtcore
 #include <libbuzztard-core/tools.h>
 
-#include <libbuzztard-ic/ic.h>
+#include "ic.h"
 #if USE_GUDEV
-#include "libbuzztard-ic/gudev-discoverer.h"
+#include "gudev-discoverer.h"
 #elif USE_HAL
-#include "libbuzztard-ic/hal-discoverer.h"
+#include "hal-discoverer.h"
 #endif
 #ifdef HAVE_LINUX_INPUT_H
-#include "libbuzztard-ic/input-device.h"
+#include "input-device.h"
 #endif
-#include "libbuzztard-ic/midi-device.h"
+#include "midi-device.h"
 
 #include "version.h"
 

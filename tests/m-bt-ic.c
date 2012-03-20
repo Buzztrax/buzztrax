@@ -22,7 +22,7 @@
 #define BT_CHECK
 
 #include "bt-check.h"
-#include "../src/lib/ic/libbuzztard-ic/ic.h"
+#include "../src/lib/ic/ic.h"
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN(btic_debug);
