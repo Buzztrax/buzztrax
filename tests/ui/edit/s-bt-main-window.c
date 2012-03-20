@@ -23,7 +23,7 @@
 extern TCase *bt_main_window_example_case(void);
 
 Suite *bt_main_window_suite(void) {
-  Suite *s=suite_create("BtMainWIndow");
+  Suite *s=suite_create("BtMainWindow");
 
   //suite_add_tcase(s,bt_main_window_test_case());
   suite_add_tcase(s,bt_main_window_example_case());
