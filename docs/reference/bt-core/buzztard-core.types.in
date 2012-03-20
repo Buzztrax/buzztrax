@@ -1,6 +1,7 @@
 #include "libbuzztard-core/core.h"
 
 bt_application_get_type
+bt_audio_session_get_type
 bt_child_proxy_get_type
 @GCONF_DOC_TYPES@bt_gconf_settings_get_type
 bt_machine_get_type

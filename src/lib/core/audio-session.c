@@ -179,6 +179,15 @@ static void bt_audio_session_setup(void) {
 
 //-- constructor methods
 
+/**
+ * bt_audio_session_new:
+ *
+ * Create a new audio-session or return the existing one. The audio session
+ * keeps the audio setup alive across songs. An application can only have one
+ * audio-session. This method can be called several times though.
+ *
+ * Returns: the audio-session, unref when done.
+ */
 BtAudioSession *bt_audio_session_new(void) {
   return(BT_AUDIO_SESSION(g_object_new(BT_TYPE_AUDIO_SESSION,NULL)));
 }

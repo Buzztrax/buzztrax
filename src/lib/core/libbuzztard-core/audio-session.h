@@ -52,9 +52,6 @@ struct _BtAudioSessionClass {
   const GObjectClass parent;
 };
 
-#define BT_TYPE_AUDIO_SESSION_TRANSPORT_MODE       (bt_audio_session_transport_mode_get_type())
-
-
 GType bt_audio_session_get_type(void) G_GNUC_CONST;
 
 BtAudioSession *bt_audio_session_new(void);

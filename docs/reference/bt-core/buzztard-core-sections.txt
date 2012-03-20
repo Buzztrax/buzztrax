@@ -26,6 +26,23 @@ bt_application_get_type
 </SECTION>
 
 <SECTION>
+<FILE>btaudiosession</FILE>
+<TITLE>BtAudioSession</TITLE>
+BtAudioSession
+bt_audio_session_new
+<SUBSECTION Standard>
+BT_AUDIO_SESSION
+BT_AUDIO_SESSION_CLASS
+BT_AUDIO_SESSION_GET_CLASS
+BT_IS_AUDIO_SESSION
+BT_IS_AUDIO_SESSION_CLASS
+BT_TYPE_AUDIO_SESSION
+BtAudioSessionClass
+BtAudioSessionPrivate
+bt_audio_session_get_type
+</SECTION>
+
+<SECTION>
 <FILE>btchildproxy</FILE>
 <TITLE>BtChildProxy</TITLE>
 BtChildProxyInterface

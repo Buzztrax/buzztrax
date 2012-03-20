@@ -24,12 +24,14 @@
  * #BtMachine objects. The events are stored as #GValues. Cells contaning %NULL
  * have no event for the parameter at the time.
  *
- * Patterns can have individual length. The length is meassured in ticks. How
+ * Patterns can have individual lengths. The length is meassured in ticks. How
  * much that is in e.g. milliseconds is determined by #BtSongInfo:bpm and 
  * #BtSongInfo:tpm.
  *
- * The number of voices (tracks) is the same in all patterns of a machine. If
- * the voices are changed on the machine patterns resize themself.
+ * A pattern might consist of several groups. These are mapped to the global 
+ * parameters of a machine and the voice parameters for each machine voice (if 
+ * any). The number of voices (tracks) is the same in all patterns of a machine.
+ * If the voices are changed on the machine patterns resize themself.
  *
  * The patterns are used in the #BtSequence to form the score of a song.
  */
