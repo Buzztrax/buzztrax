@@ -28,7 +28,7 @@
 
 #include "bt-check.h"
 
-#include <libbuzztard-core/core.h>
+#include "core.h"
 #include "bt-test-application.h"
 
 //-- the class

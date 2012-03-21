@@ -38,7 +38,7 @@
 #define BT_SETTINGS_C
 
 #include "core_private.h"
-#include <libbuzztard-core/settings-private.h>
+#include "settings-private.h"
 #include <gst/audio/multichannel.h>
 
 static BtSettingsFactory bt_settings_factory=NULL;

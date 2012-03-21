@@ -29,7 +29,7 @@
 
 #include "bt-check.h"
 
-#include <libbuzztard-core/core.h>
+#include "core.h"
 #include "bt-test-settings.h"
 
 struct _BtTestSettingsPrivate {

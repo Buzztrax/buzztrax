@@ -23,7 +23,7 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include <libbuzztard-ic/ic.h>
+#include "ic.h"
 
 #define BT_TYPE_MACHINE            (bt_machine_get_type ())
 #define BT_MACHINE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE, BtMachine))

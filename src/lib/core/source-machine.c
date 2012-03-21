@@ -27,7 +27,7 @@
 #define BT_SOURCE_MACHINE_C
 
 #include "core_private.h"
-#include <libbuzztard-core/source-machine.h>
+#include "source-machine.h"
 
 //-- the class
 

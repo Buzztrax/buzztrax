@@ -28,7 +28,7 @@
 #define BT_PROCESSOR_MACHINE_C
 
 #include "core_private.h"
-#include <libbuzztard-core/machine.h>
+#include "machine.h"
 
 //-- the class
 

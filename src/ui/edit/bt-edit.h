@@ -71,8 +71,8 @@
 #endif
 #endif
 //-- libbtcore & libbtic
-#include <libbuzztard-core/core.h>
-#include <libbuzztard-ic/ic.h>
+#include "core.h"
+#include "ic.h"
 //-- gstreamer
 #include <gst/base/gstpushsrc.h>
 #include <gst/interfaces/propertyprobe.h>

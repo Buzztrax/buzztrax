@@ -66,7 +66,7 @@
 #endif
 #endif
 //-- libbtcore
-#include <libbuzztard-core/core.h>
+#include "core.h"
 
 #include "cmd-application.h"
 

@@ -40,7 +40,7 @@
 #define BT_PLAINFILE_SETTINGS_C
 
 #include "core_private.h"
-#include <libbuzztard-core/settings-private.h>
+#include "settings-private.h"
 
 struct _BtPlainfileSettingsPrivate {
   /* used to validate if dispose has run */

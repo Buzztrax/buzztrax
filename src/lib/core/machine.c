@@ -82,7 +82,7 @@
 #define BT_MACHINE_C
 
 #include "core_private.h"
-#include <libbuzztard-ic/ic.h>
+#include "ic.h"
 
 // do sanity check for pattern lifecycle
 //#define CHECK_PATTERN_OWNERSHIP 1

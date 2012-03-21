@@ -22,7 +22,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <libbuzztard-core/settings-private.h>
+#include"settings-private.h"
 
 #define BT_TYPE_TEST_SETTINGS            (bt_test_settings_get_type ())
 #define BT_TEST_SETTINGS(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_TEST_SETTINGS, BtTestSettings))

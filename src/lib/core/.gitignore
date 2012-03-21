@@ -10,6 +10,7 @@ Makefile
 Makefile.in
 libbuzztard-core.pc
 marshal.*
+version.h
 *.gir
 *.typelib
 

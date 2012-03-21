@@ -610,8 +610,7 @@ AC_CONFIG_FILES(Makefile \
     src/lib/buzztard.xml \
       src/lib/core/Makefile \
       src/lib/core/libbuzztard-core.pc \
-        src/lib/core/libbuzztard-core/Makefile \
-        src/lib/core/libbuzztard-core/version.h \
+      src/lib/core/version.h \
         src/lib/core/songio/Makefile \
           src/lib/core/songio/bsl/Makefile \
       src/lib/ic/Makefile \

@@ -23,7 +23,7 @@
 #include <gst/gst.h>
 #include <gst/base/gstadapter.h>
 #include <gst/audio/audio.h>
-#include <libbuzztard-core/core.h>
+#include "core.h"
 
 G_BEGIN_DECLS
 

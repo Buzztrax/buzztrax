@@ -85,8 +85,8 @@
 #include <gconf/gconf-client.h>
 #endif
 
-#include "libbuzztard-core/core.h"
-#include "libbuzztard-core/version.h"
+#include "core.h"
+#include "version.h"
 
 #include "marshal.h"
 

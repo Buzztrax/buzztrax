@@ -54,16 +54,16 @@ libbuzztard_ic_la_CFLAGS = \
 
 noinst_HEADERS = version.h
 
-libbtcoredir = $(includedir)/libbuzztard-ic
-libbtcore_HEADERS = \
+libbuzztard_icdir = $(includedir)/libbuzztard-ic
+libbuzztard_ic_HEADERS = \
 	ic.h \
 	version.h \
 	registry.h \
-	$(GUDEV_SOURCES) $(HAL_SOURCES) \
+	$(GUDEV_H_FILES) $(HAL_H_FILES) \
 	\
 	device.h \
 	learn.h \
-	$(LINUX_INPUT_SOURCES) \
+	$(LINUX_INPUT_H_FILES) \
 	midi-device.h \
 	\
 	control.h \

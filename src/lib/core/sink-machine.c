@@ -29,7 +29,7 @@
 #define BT_SINK_MACHINE_C
 
 #include "core_private.h"
-#include <libbuzztard-core/sink-machine.h>
+#include "sink-machine.h"
 
 //-- the class
 

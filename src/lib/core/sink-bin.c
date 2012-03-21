@@ -61,7 +61,7 @@
 #define BT_SINK_BIN_C
 
 #include "core_private.h"
-#include <libbuzztard-core/sink-bin.h>
+#include "sink-bin.h"
 
 /* define this to get diagnostics of the sink data flow */
 //#define BT_MONITOR_SINK_DATA_FLOW

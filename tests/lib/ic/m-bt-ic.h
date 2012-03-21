@@ -19,7 +19,7 @@
 
 #include <check.h>
 #include <signal.h>
-#include <libbuzztard-ic/ic.h>
+#include "ic.h"
 #include "../../bt-check.h"
 
 //-- globals

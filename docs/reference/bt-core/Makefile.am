@@ -36,7 +36,7 @@ FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/ \
 	--extra-dir=..
 
 # Used for dependencies. The docs will be rebuilt if any of these change.
-HFILE_GLOB=$(top_srcdir)/src/lib/core/libbuzztard-core/*.h
+HFILE_GLOB=$(top_srcdir)/src/lib/core/*.h
 CFILE_GLOB=$(top_srcdir)/src/lib/core/*.c
 
 # Header files to ignore when scanning.

@@ -39,7 +39,7 @@
 #define BT_AUDIO_SESSION_C
 
 #include "core_private.h"
-#include <libbuzztard-core/audio-session.h>
+#include "audio-session.h"
 
 //-- property ids
 

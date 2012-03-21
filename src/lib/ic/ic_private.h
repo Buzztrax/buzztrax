@@ -81,7 +81,7 @@
 #endif
 #endif
 //-- libbtcore
-#include <libbuzztard-core/tools.h>
+#include "tools.h"
 
 #include "ic.h"
 #if USE_GUDEV

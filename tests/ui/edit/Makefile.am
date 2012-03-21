@@ -12,7 +12,7 @@ libbt_edit_check_la_SOURCES = m-bt-edit.h \
 	s-bt-edit-application.c e-bt-edit-application.c \
 	s-bt-interaction-controller-menu.c e-bt-interaction-controller-menu.c \
 	s-bt-machine-actions.c e-bt-machine-actions.c \
-	s-bt-machine-page.c e-bt-machine-page.c \	
+	s-bt-machine-page.c e-bt-machine-page.c \
 	s-bt-machine-preset-properties-dialog.c e-bt-machine-preset-properties-dialog.c \
 	s-bt-machine-preferences-dialog.c e-bt-machine-preferences-dialog.c \
 	s-bt-machine-properties-dialog.c e-bt-machine-properties-dialog.c \
@@ -20,7 +20,7 @@ libbt_edit_check_la_SOURCES = m-bt-edit.h \
 	s-bt-main-window.c e-bt-main-window.c \
 	s-bt-missing-framework-elements-dialog.c e-bt-missing-framework-elements-dialog.c \
 	s-bt-missing-song-elements-dialog.c e-bt-missing-song-elements-dialog.c \
-	s-bt-pattern-page.c e-bt-pattern-page.c t-bt-pattern-page.c \	
+	s-bt-pattern-page.c e-bt-pattern-page.c t-bt-pattern-page.c \
 	s-bt-pattern-properties-dialog.c e-bt-pattern-properties-dialog.c \
 	s-bt-render-dialog.c e-bt-render-dialog.c \
 	s-bt-render-progress-dialog.c e-bt-render-progress-dialog.c \
