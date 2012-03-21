@@ -127,6 +127,7 @@
     <chapter>
       <title>Song Class Reference</title>
       <xi:include href="xml/btmachine.xml" />
+      <xi:include href="xml/btparametergroup.xml" />
       <xi:include href="xml/btpattern.xml" />
       <xi:include href="xml/btprocessormachine.xml" />
       <xi:include href="xml/btsequence.xml" />

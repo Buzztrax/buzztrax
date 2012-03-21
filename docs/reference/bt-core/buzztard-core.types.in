@@ -5,6 +5,7 @@ bt_audio_session_get_type
 bt_child_proxy_get_type
 @GCONF_DOC_TYPES@bt_gconf_settings_get_type
 bt_machine_get_type
+bt_parameter_group_get_type
 bt_pattern_get_type
 bt_persistence_get_type
 %bt_plainfile_settings_get_type

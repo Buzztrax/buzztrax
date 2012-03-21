@@ -17,7 +17,7 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * SECTION:btapplication
+ * SECTION:btparametergroup
  * @short_description: a group of parameter
  *
  * A group of parameters, such as used in machines or wires. Once created the
@@ -174,6 +174,16 @@ bt_g_object_randomize_parameter(GObject *self, GParamSpec *property) {
 
 //-- constructor methods
 
+/**
+ * bt_parameter_group_new:
+ * @num_params: the number of parameters
+ * @parents: array of parent #GObjects for each parameter
+ * @params: array of #GParamSpecs for each parameter
+ *
+ * Create a parameter group.
+ *
+ * Returns: the new parameter group
+ */
 BtParameterGroup *bt_parameter_group_new(gulong num_params, GObject ** parents, GParamSpec ** params) {
   return(BT_PARAMETER_GROUP(g_object_new(BT_TYPE_PARAMETER_GROUP,"num-params",num_params,"parents",parents,"params",params,NULL)));
 }
@@ -522,8 +532,8 @@ static gboolean controller_rem_value(GstInterpolationControlSource *cs, const Gs
 }
 
 /**
- * bt_parameter_group_global_controller_change_value:
- * @self: the machine to change the param for
+ * bt_parameter_group_controller_change_value:
+ * @self: the parameter group to change the param for
  * @param: the global parameter index
  * @timestamp: the time stamp of the change
  * @value: the new value or %NULL to unset a previous one
@@ -629,6 +639,13 @@ void bt_parameter_group_controller_change_value(const BtParameterGroup * const s
 
 //-- group changes
 
+/**
+ * bt_parameter_group_set_param_defaults:
+ * @self: the parameter group
+ *
+ * Set a default value that should be used before the first control-point for
+ * each parameter.
+ */
 void bt_parameter_group_set_param_defaults(const BtParameterGroup * const self) {
   const gulong num_params=self->priv->num_params;
   gulong i;
@@ -640,6 +657,12 @@ void bt_parameter_group_set_param_defaults(const BtParameterGroup * const self) 
   }
 }
 
+/**
+ * bt_parameter_group_randomize_values:
+ * @self: the parameter group
+ *
+ * Randomize all parameter values.
+ */
 void bt_parameter_group_randomize_values(const BtParameterGroup * const self) {
   const gulong num_params=self->priv->num_params;
   gulong i;
@@ -649,6 +672,12 @@ void bt_parameter_group_randomize_values(const BtParameterGroup * const self) {
   }
 }
 
+/**
+ * bt_parameter_group_reset_values:
+ * @self: the parameter group
+ *
+ * Reset all parameter values to their defaults.
+ */
 void bt_parameter_group_reset_values(const BtParameterGroup * const self) {
   const gulong num_params=self->priv->num_params;
   GValue gvalue={0,};

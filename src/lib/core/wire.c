@@ -785,6 +785,14 @@ BtWirePattern *bt_wire_get_pattern(const BtWire * const self, const BtPattern * 
   return(wire_pattern);
 }
 
+/**
+ * bt_wire_get_param_group:
+ * @self: the machine
+ *
+ * Get the parameter group.
+ *
+ * Returns: the #BtParametergroup or %NULL
+ */
 BtParameterGroup *bt_wire_get_param_group(const BtWire * const self) {
   g_return_val_if_fail(BT_IS_WIRE(self),NULL);
   return self->priv->param_group;
