@@ -2327,7 +2327,7 @@ static GstPad* bt_machine_request_new_pad(GstElement *element, GstPadTemplate *t
       GST_OBJECT(pad)->flags&GST_PAD_FLUSHING?"flushing, ":"",
       GST_OBJECT(pad)->flags&GST_PAD_BLOCKING?"blocking, ":"");
 
-    if(GST_STATE(element)==GST_STATE_PLAYING) {
+    if(GST_STATE(element)!=GST_STATE_NULL) {
       GST_DEBUG_OBJECT(element,"activating pad");
       gst_pad_set_active(pad, TRUE);
     }
