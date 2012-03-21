@@ -30,7 +30,7 @@
  * playlist - buzztard sends a list of labels for the current song
  *   reply is: '|' delimmited label names
  * play - play a playlist entry (or from start)
- *   play|&tl;playlist-entry-number&gt;
+ *   play|&lt;playlist-entry-number&gt;
  * stop - stop playback
  * status - get player status
  *  reply is: event|&lt;play-state&gt;|&lt;playlist-label&gt;|&lt;play-pos&gt;|&lt;length&gt;|&lt;volume&gt;|&lt;mute-state&gt;|&lt;loop-mode&gt;
