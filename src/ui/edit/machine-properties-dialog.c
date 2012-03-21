@@ -23,14 +23,17 @@
  *
  * A dialog to configure dynamic settings of a #BtMachine. The dialog also
  * allows to editing and manage presets for machines that support them.
+ *
+ * The song remembers the open/close state of the window and its preset pane. It
+ * also remembers the last loaded preset if any.
  */
 
 /* TODO(ensonic): play machines
  * - we want to assign a note-controller to a machines note-trigger property
  *   and boolean-trigger controller to machines trigger properties
  *   - right now we don't show widgets for these
- *
- * TODO(ensonic): add copy and paste (pattern data)
+ */
+/* TODO(ensonic): add copy and paste (pattern data)
  * - context menu for controls, "copy/paste value", "copy/paste  group", "copy/paste  all"
  * - context menu for expanders "copy/paste  group"
  */
@@ -56,6 +59,7 @@ struct _BtMachinePropertiesDialogPrivate {
 
   /* the underlying machine */
   BtMachine *machine;
+  GHashTable *properties;
   gulong voices;
   const gchar *help_uri;
 
@@ -143,14 +147,16 @@ static gboolean preset_list_edit_preset_meta(const BtMachinePropertiesDialog *se
 static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   GstElement *machine;
   GtkListStore *store;
-  GtkTreeIter tree_iter;
+  GtkTreeIter tree_iter,*selected_iter=NULL;
   gchar **presets,**preset;
-  gchar *comment;
+  gchar *comment,*selected_preset;
 
   GST_INFO("rebuilding preset list");
 
   g_object_get(self->priv->machine,"machine",&machine,NULL);
   presets=gst_preset_get_preset_names(GST_PRESET(machine));
+  
+  selected_preset=(gchar *)g_hash_table_lookup(self->priv->properties,"preset");
 
   // we store the string twice, as we use the pointer as the key in the hashmap
   // and the string gets copied
@@ -163,10 +169,20 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
       gtk_list_store_append(store, &tree_iter);
       gtk_list_store_set(store,&tree_iter,PRESET_LIST_LABEL,*preset,PRESET_LIST_COMMENT,comment,-1);
       g_free(comment);
+      
+      if (selected_preset && !strcmp(selected_preset,*preset)) {
+        selected_iter=gtk_tree_iter_copy(&tree_iter);
+      }
     }
   }
   gtk_tree_view_set_model(GTK_TREE_VIEW(self->priv->preset_list),GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
+  if(selected_iter) {
+    // no need to block signal handlers, as loading is triggerd on double-click
+    GtkTreeSelection *tree_sel=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->preset_list));
+    gtk_tree_selection_select_iter(tree_sel,selected_iter);
+    gtk_tree_iter_free(selected_iter);
+  }
   gst_object_unref(machine);
   g_strfreev(presets);
   GST_INFO("rebuilt preset list");
@@ -1304,8 +1320,10 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
 
     gtk_tree_model_get(model,&iter,PRESET_LIST_LABEL,&name,-1);
 
+    // remmeber preset
+    g_hash_table_insert(self->priv->properties,g_strdup("preset"),g_strdup(name));
+    
     g_object_get(self->priv->machine,"machine",&machine,NULL);
-
     GST_INFO("about to load preset : '%s'",name);
     if(gst_preset_load_preset(GST_PRESET(machine),name)) {
       bt_edit_application_set_song_unsaved(self->priv->app);
@@ -1314,8 +1332,6 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
     gst_object_unref(machine);
   }
 }
-
-
 
 static gboolean on_preset_list_query_tooltip(GtkWidget *widget,gint x,gint y,gboolean keyboard_mode,GtkTooltip *tooltip,gpointer user_data) {
   GtkTreeView *tree_view=GTK_TREE_VIEW(widget);
@@ -2296,7 +2312,7 @@ static void bt_machine_properties_dialog_set_property(GObject *object, guint pro
       if(self->priv->machine) {
         GstElement *element;
 
-        g_object_get(self->priv->machine,"machine",&element,NULL);
+        g_object_get(self->priv->machine,"properties",&self->priv->properties,"machine",&element,NULL);
 
 #if GST_CHECK_VERSION(0,10,31)
         self->priv->help_uri=gst_element_factory_get_documentation_uri(gst_element_get_factory(element));
