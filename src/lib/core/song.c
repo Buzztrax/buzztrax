@@ -211,8 +211,7 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
   gboolean loop;
   glong loop_end,length;
 
-  if(!self->priv->is_playing)
-    return;
+  if(!self->priv->is_playing) return;
 
   g_object_get(self->priv->sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
   const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
@@ -543,10 +542,12 @@ static void on_song_clock_lost(const GstBus * const bus, GstMessage *message, gc
   const BtSong * const self = BT_SONG(user_data);
   
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
-    GST_INFO("clock·lost!·PAUSE·and·PLAY·to·select·a·new·clock");
+    if(self->priv->is_playing) {
+      GST_INFO("clock·lost!·PAUSE·and·PLAY·to·select·a·new·clock");
 
-    gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED);
-    gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
+      gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED);
+      gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
+    }
   }
 }
 
