@@ -25,24 +25,30 @@
 /* TODO(ensonic): save sample file length and/or md5sum in file:
  * - if we miss files, we can do a xsesame search and use the details to verify
  * - when loading, we might also use the details as a sanity check
- * IDEA(ensonic): record wave-entries
- * - record wave from alsasrc
+ */
+/* IDEA(ensonic): record wave-entries
+ * - record wave from audio src
  *   - like we load & decode to tempfile, use this to record a sound
  *   - needs some dedicated ui for choosing the input, and format (m/s)
+ *   - we could record to appsink, gather a list of buffers and copy the data
+ *     chucks into a single buffer when done
  * - recording from song playback
  *   - would be nice to have ui in song-recorder to select a wavetable slot
  *     - this would disable the file-selector, record to tempfile and load from
  *       there
  * - all recording features need some error handling when saving to plain xml
  *   song (no waves included)
- * TODO(ensonic): bpm support
+ */
+/* TODO(ensonic): bpm support
  * - listen for tags when loading and show BPM for waves if we have it
  * -if we don't have bpm, but have the bpm detect plugin, offer detection in
  *   context menu
  * - if we have bpm and its different from song-bpm offer adjust in the contect
  *   menu to change base_notes to match it
- * TODO(ensonic): when loading a wave from filesystem we need to somehow also make a
- * copy of the original file to ensure that we can save it
+ */
+/* TODO(ensonic): when loading a wave from filesystem we need to somehow also
+ * make a copy of the original file to ensure that we can save it (if the file
+ * gets changed or remved in the meantime).
  */
 #define BT_CORE
 #define BT_WAVE_C

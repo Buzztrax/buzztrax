@@ -33,9 +33,14 @@
  *   and boolean-trigger controller to machines trigger properties
  *   - right now we don't show widgets for these
  */
-/* TODO(ensonic): add copy and paste (pattern data)
- * - context menu for controls, "copy/paste value", "copy/paste  group", "copy/paste  all"
- * - context menu for expanders "copy/paste  group"
+/* TODO(ensonic): more details in tile
+ * - a machine has:
+ *   - a cannonical name <Author>-<Machine>,
+ *   - an 'id' - the short name used in the song and unique for it
+ *   - a selected preet - if any
+ * - it would be nice to show more info in the title or in a line right below
+ *   the title?
+ * - we might also offer the machien-rename from the properties window
  */
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C
