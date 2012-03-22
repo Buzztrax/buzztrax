@@ -16,6 +16,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+
 /*
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! bt-bin ! fakesink
  * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! buzztard-dec ! fakesink
@@ -29,15 +30,17 @@
  * gst-typefind $HOME/buzztard/share/buzztard/songs/303.bzt
  */
 
-/* - description:
- *   - we use a fakesink in sink-bin
- *   - we take the buffers from it and push them on our src pad
- *   - this way we can keep the song-as a top-level pipeline.
- * - todo
- *   - check for stopped and send eos?
- *   - change bt-bin to be a normal GstElement (no need to be a bin)
- * - issues
- *   - we depend on a running main-loop (for notify::is-playing)
+/* description:
+ * - we use an adapter to receive the whole song-data
+ * - on EOS we load the song and drop the eos.
+ * - we use a fakesink in sink-bin
+ * - we take the buffers from it and push them on our src pad
+ * - this way we can keep the song-as a top-level pipeline.
+ * todo
+ * - check for stopped and send eos?
+ * - change bt-bin to be a normal GstElement (no need to be a bin)
+ * issues
+ * - we depend on a running main-loop (for notify::is-playing)
  */
 
 #ifdef HAVE_CONFIG_H

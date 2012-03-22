@@ -31,7 +31,7 @@
  */
 /* TODO(ensonic): move file-chooser widget to a notebook, to have extra tabs for
  * - loading from online sample sites
- * - recording
+ * - recording (see lib/core/wave.c)
  */
 /* TODO(ensonic): undo/redo (search for bt_edit_application_set_song_unsaved
  * - load/unload a wave
