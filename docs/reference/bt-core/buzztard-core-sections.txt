@@ -504,6 +504,29 @@ bt_song_io_native_xml_get_type
 </SECTION>
 
 <SECTION>
+<FILE>btsongiobuzz</FILE>
+<TITLE>BtSongIOBuzz</TITLE>
+BtSongIOBuzz
+<SUBSECTION Private>
+BmxCompressionValues
+BmxMachSection
+BmxMachineAttributes
+BmxParaSection
+BmxParameter
+BmxSectionEntry
+<SUBSECTION Standard>
+BT_IS_SONG_IO_BUZZ
+BT_IS_SONG_IO_BUZZ_CLASS
+BT_SONG_IO_BUZZ
+BT_SONG_IO_BUZZ_CLASS
+BT_SONG_IO_BUZZ_GET_CLASS
+BT_TYPE_SONG_IO_BUZZ
+BtSongIOBuzzClass
+BtSongIOBuzzPrivate
+bt_song_io_buzz_get_type
+</SECTION>
+
+<SECTION>
 <FILE>btsourcemachine</FILE>
 <TITLE>BtSourceMachine</TITLE>
 BtSourceMachine

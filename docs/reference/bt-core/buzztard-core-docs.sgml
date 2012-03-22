@@ -136,16 +136,19 @@
       <xi:include href="xml/btsinkmachine.xml" />
       <xi:include href="xml/btsong.xml" />
       <xi:include href="xml/btsonginfo.xml" />
-      <xi:include href="xml/btsongio.xml" />
-      <xi:include href="xml/btsongionative.xml" />
-      <xi:include href="xml/btsongionativebzt.xml" />
-      <xi:include href="xml/btsongionativexml.xml" />
       <xi:include href="xml/btsourcemachine.xml" />
       <xi:include href="xml/btwave.xml" />
       <xi:include href="xml/btwavelevel.xml" />
       <xi:include href="xml/btwavetable.xml" />
       <xi:include href="xml/btwire.xml" />
       <xi:include href="xml/btwirepattern.xml" />
+    </chapter>
+    <chapter>
+      <title>Song IO Reference</title>
+      <xi:include href="xml/btsongio.xml" />
+      <xi:include href="xml/btsongionative.xml" />
+      <xi:include href="xml/btsongionativebzt.xml" />
+      <xi:include href="xml/btsongionativexml.xml" />
     </chapter>
   </reference>
 
