@@ -34,6 +34,14 @@
  *   http://git.gnome.org/browse/gnome-control-center/tree/capplets/keybindings?h=gnome-2-32
  * - we need to ensure that keys are unique and not otherwise bound
  */
+/* TODO(ensonic): allow to assign bt-ic trigger events as short cuts
+ * - the list will have 3 columns : short-cut-name, key-command, controller-command 
+ * - when clicking the key-column, one can press a short cut or ESC
+ *   - if a key is already bound, we bring up a dialog, where the user can confirm
+ *     (and unassign the old function) or cancel
+ * - when clicking the controller-command, we could offer a context menu, or
+ *   just wait for the command as well.
+ */
 
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_SHORTCUTS_C

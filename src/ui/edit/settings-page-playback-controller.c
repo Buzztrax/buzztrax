@@ -20,7 +20,11 @@
  * SECTION:btsettingspageplaybackcontroller
  * @short_description: playback controller configuration settings page
  *
- * Lists available playback controllers and allows to configure them.
+ * Lists available playback controllers and allows to configure them. Each
+ * controller type can support a master and a slave mode. Master mode means that
+ * changes in the playback state in buzztard, will relect on the playback state
+ * of clients to that protocol. Slave mode will cause buzztard to sync to the
+ * external playback state.
  */
 /* TODO(ensonic): add a list of playback controllers:
  *   - upnp coherence/gupnp (port)
@@ -31,19 +35,20 @@
  *     - slave = key-presses
  *     - master = emit the key-presses
  *   - MPRIS (DBus Media player iface)
- * - in the list we show name and a checkboxes to enable/disable master and
- *   slave mode
- * - when clicking one, we switch the pane below for additional settings
- *   - not needed for all types
+ *
  * - for alsa/raw midi MC, we need to have the IO-loops running on the devices
- *   - for that it would be good to know which devices actually support it
- *   - then we can only start it for devices that have it, when they are plugged
- *     - list of devices + learn button on the settings page?
+ *   - for that it would be good to know which devices actually support it, so
+ *     that we can only start it for devices that have it, when they are plugged
+ *     - list of devices + learn button on the settings page? or just a list and
+ *       leave it up to the user to tick only suitable devices
  *     - each one can be enabled or disabled (M/S flags from parent apply)
- * - need more settings :/
- *   - GConf does not have enums or flags
- *     - save as int={0...3})
- *     - save as two booleans (better, as thats waht we do already)
+ *     - draw back is that we can only change settings for plugged devices
+ *       - we could also skip that setting initially and just start all devices
+ *         if this playback controller is active
+ *   - see BtPlaybackControllerMidi
+ *   - we also need a enum-based control-type, or a set of trigger controls
+ *    (start, continue, stop), trigger based control we could actually learn
+ *   - we'll only support slave, as bt-ic is input only anyway
  */
 
 #define BT_EDIT

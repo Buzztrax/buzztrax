@@ -90,7 +90,6 @@ struct _BtPlaybackControllerSocketPrivate {
 
 G_DEFINE_TYPE (BtPlaybackControllerSocket, bt_playback_controller_socket, G_TYPE_OBJECT);
 
-
 //-- helper methods
 
 static void client_connection_close(BtPlaybackControllerSocket *self) {
@@ -577,10 +576,7 @@ static void settings_listen(BtPlaybackControllerSocket *self) {
  * Returns: the new instance
  */
 BtPlaybackControllerSocket *bt_playback_controller_socket_new(void) {
-  BtPlaybackControllerSocket *self;
-
-  self=BT_PLAYBACK_CONTROLLER_SOCKET(g_object_new(BT_TYPE_PLAYBACK_CONTROLLER_SOCKET,NULL));
-  return(self);
+  return BT_PLAYBACK_CONTROLLER_SOCKET(g_object_new(BT_TYPE_PLAYBACK_CONTROLLER_SOCKET,NULL));
 }
 
 //-- methods
