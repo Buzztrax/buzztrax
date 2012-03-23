@@ -89,9 +89,12 @@ G_DEFINE_TYPE_WITH_CODE (BtIcMidiDevice, btic_midi_device, BTIC_TYPE_DEVICE,
 #define MIDI_ACTIVE_SENSING      0xfe
 #define MIDI_NON_REALTIME        0x7e
 
-#define MIDI_CTRL_PITCH_WHEEL   128
-#define MIDI_CTRL_NOTE_KEY      129
-#define MIDI_CTRL_NOTE_VELOCITY 130
+#define MIDI_CTRL_PITCH_WHEEL        128
+#define MIDI_CTRL_NOTE_KEY           129
+#define MIDI_CTRL_NOTE_VELOCITY      130
+#define MIDI_CTRL_TRANSPORT_START    140
+#define MIDI_CTRL_TRANSPORT_CONTINUE 141
+#define MIDI_CTRL_TRANSPORT_STOP     142
 
 //-- helper
 
@@ -253,6 +256,25 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
             prev_cmd=midi_event[0];
           }
           break;
+#if
+        case MIDI_TRANSPORT_START:
+          GST_DEBUG("transport-start");
+
+          key=MIDI_CTRL_TRANSPORT_START;
+          if(G_UNLIKELY(self->priv->learn_mode)) {
+            update_learn_info(self,"transport-start",key,1);
+          }
+          if((control=btic_device_get_control_by_id(BTIC_DEVICE(self),key))) {
+            gint32 v=1;
+
+            g_object_set(control,"value",v,NULL);
+          }          
+          break;
+        case MIDI_TRANSPORT_CONTINUE:
+          break;
+        case MIDI_TRANSPORT_STOP:
+          break;
+#endif
         case 0xf0: /* system common/realtime */
           break;
         default:
