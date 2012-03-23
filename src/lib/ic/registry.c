@@ -20,10 +20,8 @@
  * SECTION:bticregistry
  * @short_description: buzztards interaction controller registry
  *
- * Manages a dynamic list of controller devices. It uses HAL and dbus.
- */
-/*
- * http://webcvs.freedesktop.org/hal/hal/doc/spec/hal-spec.html?view=co
+ * Manages a dynamic list of controller devices. It uses a discoverer helper to
+ * scan devices. Right now GUdev or HAL + dbus are supported.
  */
 #define BTIC_CORE
 #define BTIC_REGISTRY_C

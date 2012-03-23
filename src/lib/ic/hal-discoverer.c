@@ -22,7 +22,9 @@
  *
  * Discover input and midi devices using hal.
  */
-
+/*
+ * http://webcvs.freedesktop.org/hal/hal/doc/spec/hal-spec.html?view=co
+ */
 #define BTIC_CORE
 #define BTIC_HAL_DISCOVERER_C
 

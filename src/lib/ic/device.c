@@ -23,7 +23,10 @@
  * Abstract base class for control devices. Subclasses will provide
  * functionality to query capabilities and register #BtIcControl instances.
  * They will also read from the device and trigger the change events on their
- * controls (via value property).
+ * controls (via value property). To activate reading from a device, the
+ * application needs to call btic_device_start(). The device is activates on the
+ * first such call. Each activation is counted and thus should be paired with a
+ * call to btic_device_stop() to stop the device on the last call.
  *
  * This baseclass manages the added controls. The can be queries by calling
  * btic_device_get_control_by_id() or iterating the list in 
