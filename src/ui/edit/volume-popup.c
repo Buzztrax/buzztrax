@@ -23,8 +23,6 @@
  *
  * Shows a popup window containing a vertical slider
  */
-/* TODO(ensonic): use gtk_scale_add_mark() in gtk-2.16 instead of the ruler.
- */
 #define BT_EDIT
 #define VOLUME_POPUP_C
 

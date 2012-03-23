@@ -33,6 +33,12 @@
  *   and boolean-trigger controller to machines trigger properties
  *   - right now we don't show widgets for these
  */
+/* TODO(ensonic): mute/solo/bypass
+ * - have a row with mute/solo/bypass check-boxes in the UI
+ *   - then we can assign controller buttons
+ *   - alternatively allow assigning the buttons in the sequence view
+ *   - another option would be to allow this in the keyboard shortcut editor     
+ */
 /* TODO(ensonic): more details in tile
  * - a machine has:
  *   - a cannonical name <Author>-<Machine>,

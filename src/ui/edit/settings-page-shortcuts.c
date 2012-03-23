@@ -87,7 +87,7 @@ static void bt_settings_page_shortcuts_init_ui(const BtSettingsPageShortcuts *se
   gtk_table_attach(GTK_TABLE(self),label, 0, 3, 0, 1,  GTK_FILL|GTK_EXPAND, GTK_SHRINK, 2,1);
   gtk_table_attach(GTK_TABLE(self),spacer, 0, 1, 1, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
 
-  /* FIXME(ensonic): */
+  /* FIXME(ensonic): add the UI */
   label=gtk_label_new("no keyboard settings yet");
   gtk_misc_set_alignment(GTK_MISC(label),0.5,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 3, 1, 4, GTK_FILL,GTK_FILL, 2,1);

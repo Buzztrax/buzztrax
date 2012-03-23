@@ -22,8 +22,8 @@
  *
  * Song recording status dialog.
  */
-/* TODO(ensonic): 
- * turn off-level meters (and ev. open wire-analysis windows) to speed up recording
+/* TODO(ensonic): turn off-level meters to speed up recording
+ * (and ev. open wire-analysis windows)
  */
 #define BT_EDIT
 #define BT_RENDER_PROGRESS_C

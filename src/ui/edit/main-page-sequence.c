@@ -48,14 +48,6 @@
  *  - we already have a cursor-row property and we could add a cursor-column
  *    property too (and get the notify::cursor-column for free)
  */
-/* TODO(ensonic): handle pattern name changes
- *   - when pattern gets renamed
- *     - we need to update the pattern list (if shown) - done
- *     - we need to update the sequence (if pattern is used)
- *     - we need to catch each pattern addition to listen to notify::name
- *       - right now we only watch for pattern add/remove for current track
- *       - we need to avoid to add the handler multiple times
- */
 /* IDEA(ensonic): add a follow playback checkbox to toolbar to en/disable sequence scrolling
  *   - the scrolling causes quite some repaints and thus slowness
  *   - it would be good if we could deoouple the scolling and the events, so
