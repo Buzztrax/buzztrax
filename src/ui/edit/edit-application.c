@@ -162,25 +162,6 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
     missing=TRUE;
   }
   g_list_free(edit_elements);
-  // DEBUG test if it works, TODO(ensonic): move as a test
-#if 0
-  edit_elements=g_list_prepend(NULL,"ploink");
-  if((missing_elements=bt_gst_check_elements(edit_elements))) {
-    missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
-    missing_edit_elements=g_list_append(missing_edit_elements,"-> You will not be able to ploink.");
-    missing=TRUE;
-  }
-  g_list_free(edit_elements);
-  edit_elements=g_list_prepend(NULL,"grummel");
-  edit_elements=g_list_prepend(edit_elements,"groll");
-  if((missing_elements=bt_gst_check_elements(edit_elements))) {
-    missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
-    missing_edit_elements=g_list_append(missing_edit_elements,"-> You will not be able to grummel and groll.");
-    missing=TRUE;
-  }
-  g_list_free(edit_elements);
-#endif
-  // DEBUG
   // show missing dialog
   if(missing) {
     GtkWidget *dialog;
