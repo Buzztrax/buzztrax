@@ -114,7 +114,7 @@ GOptionGroup *btic_init_get_option_group(void) {
     {NULL}
   };
   
-  group = g_option_group_new("btic-core", _("Buzztard interaction controller options"),_("Show buzztard interaction controller options"), NULL, NULL);
+  group = g_option_group_new("bt-ic", _("Buzztard interaction controller options"),_("Show buzztard interaction controller options"), NULL, NULL);
   g_option_group_set_parse_hooks(group, (GOptionParseFunc)btic_init_pre, (GOptionParseFunc)btic_init_post);
 
   g_option_group_add_entries(group, btic_args);
