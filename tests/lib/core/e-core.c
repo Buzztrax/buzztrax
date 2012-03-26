@@ -1,5 +1,5 @@
 /* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2012 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -24,47 +24,38 @@
 
 //-- tests
 
-// test init with wrong arg usage
-START_TEST(test_btcore_init0  ) {
-  // this shadows the global vars of the same name
-  gint test_argc=2;
-  gchar *test_argv[test_argc];
-  gchar **test_argvptr;
-
-  test_argv[0]="check_buzzard";
-  test_argv[1]="--bt-version=5";
-  test_argvptr=test_argv;
-
+// test if the normal init call works with commandline arguments (no args)
+START_TEST(test_btcore_init0) {
   bt_init(&test_argc,&test_argvptr);
 }
 END_TEST
 
-/*
- * Test nonsense args.
- *
- * This unfortunately exits the test app.
- */
-#ifdef __CHECK_DISABLED__
-// test init with nonsense args
+// test if the init call handles correct null pointers
 START_TEST(test_btcore_init1) {
+  bt_init(NULL,NULL);
+}
+END_TEST
+
+// test if the normal init call works with commandline arguments
+START_TEST(test_btcore_init2) {
   // this shadows the global vars of the same name
   gint test_argc=2;
   gchar *test_argv[test_argc];
   gchar **test_argvptr;
 
   test_argv[0]="check_buzzard";
-  test_argv[1]="--bt-non-sense";
+  test_argv[1]="--bt-version";
   test_argvptr=test_argv;
 
   bt_init(&test_argc,&test_argvptr);
 }
 END_TEST
-#endif
 
-TCase *bt_core_test_case(void) {
-  TCase *tc = tcase_create("BtCoreTests");
+TCase *bt_core_example_case(void) {
+  TCase *tc = tcase_create("BtCoreExamples");
 
   tcase_add_test(tc,test_btcore_init0);
-  //tcase_add_test(tc,test_btcore_init1);
+  tcase_add_test(tc,test_btcore_init1);
+  tcase_add_test(tc,test_btcore_init2);
   return(tc);
 }
