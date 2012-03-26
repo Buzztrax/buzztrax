@@ -256,7 +256,7 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
             prev_cmd=midi_event[0];
           }
           break;
-#if
+#if 0
         case MIDI_TRANSPORT_START:
           GST_DEBUG("transport-start");
 
