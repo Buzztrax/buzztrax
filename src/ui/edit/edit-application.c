@@ -140,7 +140,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
   if((missing_core_elements=bt_gst_check_core_elements())) {
     missing=TRUE;res=FALSE;
   }
-  // TODO(ensonic): check recording 'formats' -> rendering (core?)
+  // TODO(ensonic): check recording 'formats' -> use GstEncodeBin
   edit_elements=g_list_prepend(NULL,"level");
   if((missing_elements=bt_gst_check_elements(edit_elements))) {
     missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
@@ -155,7 +155,14 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
     missing=TRUE;
   }
   g_list_free(edit_elements);
-  // DEBUG test if it works
+  edit_elements=g_list_prepend(NULL,"playbin2");
+  if((missing_elements=bt_gst_check_elements(edit_elements))) {
+    missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
+    missing_edit_elements=g_list_append(missing_edit_elements,_("-> Sample playback previews from the wavetable page will not work."));
+    missing=TRUE;
+  }
+  g_list_free(edit_elements);
+  // DEBUG test if it works, TODO(ensonic): move as a test
 #if 0
   edit_elements=g_list_prepend(NULL,"ploink");
   if((missing_elements=bt_gst_check_elements(edit_elements))) {

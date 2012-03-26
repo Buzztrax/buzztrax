@@ -185,10 +185,18 @@ GList *bt_gst_check_core_elements(void) {
    * There is gst_registry_get_feature_list_cookie() now
    */
   if(!core_elements_checked) {
+    // gstreamer
     core_elements=g_list_prepend(core_elements,"capsfilter");
+    core_elements=g_list_prepend(core_elements,"fdsrc");
+    core_elements=g_list_prepend(core_elements,"fdsink");
+    core_elements=g_list_prepend(core_elements,"filesink");
+    core_elements=g_list_prepend(core_elements,"identity");
     core_elements=g_list_prepend(core_elements,"queue");
     core_elements=g_list_prepend(core_elements,"tee");
+    // gst-plugins-base
     core_elements=g_list_prepend(core_elements,"audioconvert");
+    core_elements=g_list_prepend(core_elements,"audioresample");
+    core_elements=g_list_prepend(core_elements,"audiotestsrc");
     core_elements=g_list_prepend(core_elements,"adder");
     core_elements=g_list_prepend(core_elements,"volume");
     core_elements_checked=TRUE;
