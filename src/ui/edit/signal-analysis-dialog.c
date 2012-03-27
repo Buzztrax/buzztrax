@@ -136,8 +136,9 @@ G_DEFINE_TYPE (BtSignalAnalysisDialog, bt_signal_analysis_dialog, GTK_TYPE_WINDO
 
 //-- event handler helper
 
-static void update_spectrum_ruler(const BtSignalAnalysisDialog *self) {
+static gboolean update_spectrum_ruler(const BtSignalAnalysisDialog *self) {
   gtk_widget_queue_draw(self->priv->spectrum_ruler);
+  return FALSE;
 }
 
 static void update_spectrum_graph_log10(BtSignalAnalysisDialog *self) {
@@ -760,15 +761,16 @@ static void on_caps_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data) {
 
   if((caps=(GstCaps *)gst_pad_get_negotiated_caps(pad))) {
     if(GST_CAPS_IS_SIMPLE(caps)) {
-      GstStructure *structure;
-      if((structure=gst_caps_get_structure(caps,0))) {
-        gint old_srate=self->priv->srate;
-        gst_structure_get_int(structure,"rate",&self->priv->srate);
-        if(self->priv->srate!=old_srate) {
-          update_spectrum_ruler(self);
-          update_spectrum_graph_log10(self);
-        }
+      gint old_srate=self->priv->srate;
+      gst_structure_get_int(gst_caps_get_structure(caps,0),"rate",&self->priv->srate);
+      if(self->priv->srate!=old_srate) {
+        update_spectrum_graph_log10(self);
+        // need to call this via g_idle_add as it triggers the redraw
+        g_idle_add((GSourceFunc)update_spectrum_ruler,self);
       }
+    }
+    else {
+      GST_WARNING_OBJECT(pad, "expecting simple caps"); 
     }
     gst_caps_unref(caps);
   }

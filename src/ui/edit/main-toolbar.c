@@ -51,7 +51,6 @@
 /* lets keep multichannel audio for later :) */
 //#define MAX_VUMETER 4
 #define MAX_VUMETER 2
-#define DEF_VUMETER 2
 #define LOW_VUMETER_VAL -90.0
 
 struct _BtMainToolbarPrivate {
@@ -65,6 +64,7 @@ struct _BtMainToolbarPrivate {
   GtkVUMeter *vumeter[MAX_VUMETER];
   G_POINTER_ALIAS(GstElement *,level);
   GstClock *clock;
+  gint num_channels;
 
   /* the volume gain */
   GtkScale *volume;
@@ -91,7 +91,6 @@ struct _BtMainToolbarPrivate {
 };
 
 static GQuark bus_msg_level_quark=0;
-static GQuark bus_msg_level_caps_changed_quark=0;
 
 static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data);
 static void reset_playback_rate(BtMainToolbar *self);
@@ -511,25 +510,16 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
   }
 }
 
-static void on_song_level_negotiated(GstBus * bus, GstMessage * message, gpointer user_data) {
-  const GstStructure *structure=gst_message_get_structure(message);
-  const GQuark name_id=gst_structure_get_name_id(structure);
+static gboolean update_level_meters(BtMainToolbar *self) {
+  gint i;
 
-  // receive message from on_channels_negotiated()
-  if(name_id==bus_msg_level_caps_changed_quark) {
-    BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-    gint i,channels;
-
-    gst_structure_get_int(structure,"channels",&channels);
-    GST_INFO("received application bus message: channel=%d",channels);
-
-    for(i=0;i<channels;i++) {
-      gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
-    }
-    for(i=channels;i<MAX_VUMETER;i++) {
-      gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
-    }
+  for(i=0;i<self->priv->num_channels;i++) {
+    gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
   }
+  for(i=self->priv->num_channels;i<MAX_VUMETER;i++) {
+    gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
+  }
+  return FALSE;
 }
 
 
@@ -642,28 +632,20 @@ static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_dat
 
   if((caps=(GstCaps *)gst_pad_get_negotiated_caps(pad))) {
     BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-    gint channels=1;
-    GstStructure *structure;
-    GstMessage *message;
-    GstElement *bin;
 
     if(GST_CAPS_IS_SIMPLE(caps)) {
-      gst_structure_get_int(gst_caps_get_structure(caps,0),"channels",&channels);
+      gint old_channels=self->priv->num_channels;
+      gst_structure_get_int(gst_caps_get_structure(caps,0),"channels",&self->priv->num_channels);
+      if(self->priv->num_channels!=old_channels) {
+        GST_INFO("input level src has %d output channels",self->priv->num_channels);
+        // need to call this via g_idle_add as it triggers the redraw
+        g_idle_add((GSourceFunc)update_level_meters,self);
+      }
     }
     else {
       GST_WARNING_OBJECT(pad, "expecting simple caps"); 
     }
     gst_caps_unref(caps);
-    GST_INFO("input level src has %d output channels",channels);
-
-    // post a message to the bus (we can't do gtk+ stuff here)
-    structure = gst_structure_new ("level-caps-changed",
-        "channels", G_TYPE_INT, channels, NULL);
-    message = gst_message_new_application (NULL, structure);
-
-    g_object_get(self->priv->app,"bin",&bin,NULL);
-    gst_element_post_message(bin,message);
-    gst_object_unref(bin);
   }
 }
 
@@ -719,7 +701,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_signal_connect(bus, "message::error", G_CALLBACK(on_song_error), (gpointer)self);
     g_signal_connect(bus, "message::warning", G_CALLBACK(on_song_warning), (gpointer)self);
     g_signal_connect(bus, "message::element", G_CALLBACK(on_song_level_change), (gpointer)self);
-    g_signal_connect(bus, "message::application", G_CALLBACK(on_song_level_negotiated), (gpointer)self);
     gst_object_unref(bus);
 
     if(self->priv->clock) gst_object_unref(self->priv->clock);
@@ -870,7 +851,7 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
     //gtk_vumeter_set_peaks_falloff(self->priv->vumeter[i], GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
     gtk_vumeter_set_scale(self->priv->vumeter[i], GTK_VUMETER_SCALE_LINEAR);
     gtk_widget_set_no_show_all(GTK_WIDGET(self->priv->vumeter[i]),TRUE);
-    if(i<DEF_VUMETER) {
+    if(i<self->priv->num_channels) {
       gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
     }
     else {
@@ -960,7 +941,6 @@ static void bt_main_toolbar_dispose(GObject *object) {
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_error,NULL);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_warning,NULL);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_level_change,NULL);
-    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_level_negotiated,NULL);
     gst_object_unref(bus);
     gst_object_unref(bin);
     g_object_unref(song);
@@ -992,13 +972,13 @@ static void bt_main_toolbar_init(BtMainToolbar *self) {
   self->priv->app = bt_edit_application_new();
   self->priv->lock=g_mutex_new();
   self->priv->playback_rate=1.0;
+  self->priv->num_channels=2;
 }
 
 static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   bus_msg_level_quark=g_quark_from_static_string("level");
-  bus_msg_level_caps_changed_quark=g_quark_from_static_string("level-caps-changed");
 
   g_type_class_add_private(klass,sizeof(BtMainToolbarPrivate));
 
