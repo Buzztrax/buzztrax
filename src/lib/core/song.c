@@ -510,6 +510,11 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
           GST_INFO("playback started");
           self->priv->is_playing=TRUE;
           g_object_notify(G_OBJECT(self),"is-playing");
+          // if the song is empty playback is done
+          if(!GST_BIN_NUMCHILDREN(self->priv->bin)) {
+            GST_INFO("song is empty - stopping playback");
+            bt_song_stop(self);
+          }
         }
         else {
           GST_INFO("looping");
@@ -912,7 +917,7 @@ gboolean bt_song_update_playback_position(const BtSong * const self) {
     GST_WARNING("query playback-pos: failed");
   }
   // don't return FALSE in the WARNING case above, we use the return value to
-  // return from time-out handlers
+  // return from time-out handlers (e.g. toolbar)
   return(TRUE);
 }
 
@@ -1572,7 +1577,8 @@ static void bt_song_dispose(GObject * const object) {
   if(self->priv->idle_seek_event) gst_event_unref(self->priv->idle_seek_event);
   if(self->priv->idle_loop_seek_event) gst_event_unref(self->priv->idle_loop_seek_event);
   if(self->priv->bin) {
-    GST_DEBUG("bin-ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->bin));
+    GST_DEBUG("bin->num_children=%d",GST_BIN_NUMCHILDREN(self->priv->bin));
+    GST_DEBUG("bin->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->bin));
     gst_object_unref(self->priv->bin);
   }
   g_object_try_weak_unref(self->priv->app);

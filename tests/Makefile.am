@@ -129,12 +129,14 @@ songdata_DATA = \
 	songs/melo4.xml \
 	songs/melo5.xml \
 	songs/melo6.xml
+
 noinst_songdata = \
 	songs/broken1.xml \
 	songs/broken1.bzt \
 	songs/broken2.xml \
 	songs/broken3.xml \
 	songs/broken4.xml \
+	songs/empty.xml \
 	songs/example.xml \
 	songs/samples1.bzt \
 	songs/samples2.bzt \

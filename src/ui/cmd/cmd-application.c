@@ -62,6 +62,7 @@ struct _BtCmdApplicationPrivate {
   GMainLoop *loop;
 };
 
+static gboolean wait_for_is_playing_notify=FALSE;
 static gboolean is_playing=FALSE;
 
 //-- the class
@@ -77,10 +78,10 @@ G_DEFINE_TYPE (BtCmdApplication, bt_cmd_application, BT_TYPE_APPLICATION);
  */
 static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpointer user_data) {
   g_object_get((gpointer)song,"is-playing",&is_playing,NULL);
+  wait_for_is_playing_notify=FALSE;
   GST_INFO("%s playing - invoked per signal : song=%p, user_data=%p",
     (is_playing?"started":"stopped"),song,user_data);
 }
-
 
 static void on_song_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtCmdApplication *self=BT_CMD_APPLICATION(user_data);
@@ -151,18 +152,13 @@ static void bt_cmd_application_idle_play_song(const BtCmdApplication *self) {
   gulong cmsec,csec,cmin,tmsec,tsec,tmin;
   gulong length,pos=0;
   GstClockTime bar_time;
-  GstBin *bin;
 
   // DEBUG
   //bt_song_write_to_highlevel_dot_file(song);
   //bt_song_write_to_lowlevel_dot_file(song);
   // DEBUG
 
-  g_object_get((gpointer)song,"sequence",&sequence,"bin",&bin,NULL);
-  if(!GST_BIN_NUMCHILDREN(bin)) {
-    GST_INFO("song is empty");
-    goto Error;
-  }
+  g_object_get((gpointer)song,"sequence",&sequence,NULL);
   g_object_get(sequence,"length",&length,NULL);
 
   bar_time=bt_sequence_get_bar_time(sequence);
@@ -171,6 +167,7 @@ static void bt_cmd_application_idle_play_song(const BtCmdApplication *self) {
   tsec=(gulong)(tmsec/ 1000);tmsec-=(tsec* 1000);
 
   // connection play and stop signals
+  wait_for_is_playing_notify=TRUE;
   g_signal_connect((gpointer)song, "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
   if(bt_song_play(song)) {
     GST_INFO("playing is starting, is_playing=%d",is_playing);
@@ -178,7 +175,7 @@ static void bt_cmd_application_idle_play_song(const BtCmdApplication *self) {
      * we should start a g_timeout_add() from on_song_is_playing_notify()
      * and quit the main-loop there on eos
      */
-    while(!is_playing) {
+    while(wait_for_is_playing_notify) {
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
       g_usleep(G_USEC_PER_SEC/10);
     }
@@ -211,7 +208,6 @@ static void bt_cmd_application_idle_play_song(const BtCmdApplication *self) {
   }
   is_playing=FALSE;
 Error:
-  gst_object_unref(bin);
   g_object_unref(sequence);
   self->priv->res=res;
   g_main_loop_quit(self->priv->loop);

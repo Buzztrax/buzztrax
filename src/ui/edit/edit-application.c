@@ -360,7 +360,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
         GST_WARNING("bin.num_children=%d has left-overs",GST_BIN_NUMCHILDREN(bin));
 
         while(node) {
-          GST_INFO_OBJECT(node->data,"removing object (ref-ct=%d)",G_OBJECT_REF_COUNT(node->data));
+          GST_WARNING_OBJECT(node->data,"removing object (ref-ct=%d)",G_OBJECT_REF_COUNT(node->data));
           gst_bin_remove(bin,GST_ELEMENT(node->data));
           node=GST_BIN_CHILDREN(bin);
         }
@@ -779,26 +779,12 @@ static void bt_edit_application_set_property(GObject *object, guint property_id,
   return_if_disposed();
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
-      BtSong *song=self->priv->song;
-
 #ifdef USE_DEBUG
-      GstElement *bin;
-      g_object_get(self,"bin",&bin,NULL);
-      GST_INFO("bin->num_children=%d",GST_BIN_NUMCHILDREN(bin));
-      gst_object_unref(bin);
-
-      if(song) {
-        if(G_OBJECT_REF_COUNT(song)>1) {
-          GST_WARNING("old song->ref_ct=%d!",G_OBJECT_REF_COUNT(song));
-        }
-        else {
-          GST_INFO("old song->ref_ct=%d",G_OBJECT_REF_COUNT(song));
-        }
-        g_object_unref(song);
+      if(G_OBJECT_REF_COUNT(self->priv->song)!=1) {
+        GST_WARNING("old song->ref_ct=%d!",G_OBJECT_REF_COUNT(self->priv->song));
       }
-#else
-      g_object_try_unref(song);
 #endif
+      g_object_try_unref(self->priv->song);
       self->priv->song=BT_SONG(g_value_dup_object(value));
       GST_DEBUG("new song: %p, song->ref_ct=%d",self->priv->song,G_OBJECT_REF_COUNT(self->priv->song));
     } break;

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<buzztard
+  xmlns="http://www.buzztard.org/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="buzztard.xsd">
+
+  <meta>
+    <info>empty song</info>
+    <name>empty</name>
+    <genre>silence</genre>
+    <create-dts>2012-03-27T07:55:56Z</create-dts>
+    <change-dts>2012-03-27T07:55:56Z</change-dts>
+    <bpm>100</bpm>
+    <tpb>4</tpb>
+    <bars>16</bars>
+  </meta>
+
+  <setup>
+    <machines>
+      <machine type="sink" id="audio_sink">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="0.0"/>
+        </properties>
+      </machine>
+    </machines>
+
+    <wires/>
+  </setup>
+
+  <sequence length="16" tracks="1">
+    <labels/>
+    <tracks/>
+  </sequence>
+
+</buzztard>
