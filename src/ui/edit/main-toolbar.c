@@ -102,33 +102,6 @@ static void on_song_volume_changed(GstElement *gain,GParamSpec *arg,gpointer use
 G_DEFINE_TYPE (BtMainToolbar, bt_main_toolbar, GTK_TYPE_TOOLBAR);
 
 
-//-- helper
-
-static gint gst_caps_get_channels(GstCaps *caps) {
-  GstStructure *structure;
-  gint channels=0;
-
-  g_assert(caps);
-
-  if(GST_CAPS_IS_SIMPLE(caps)) {
-    if((structure=gst_caps_get_structure(caps,0))) {
-      gst_structure_get_int(structure,"channels",&channels);
-      GST_DEBUG("---    simple caps with channels=%d",channels);
-    }
-  }
-  else {
-    gint size,i;
-    size=gst_caps_get_size(caps);
-    for(i=0;i<size;i++) {
-      if((structure=gst_caps_get_structure(caps,i))) {
-        gst_structure_get_int(structure,"channels",&channels);
-        GST_DEBUG("---    caps %d with channels=%d",i,channels);
-      }
-    }
-  }
-  return(channels);
-}
-
 //-- event handler
 
 static gboolean on_song_playback_update(gpointer user_data) {
@@ -669,14 +642,19 @@ static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_dat
 
   if((caps=(GstCaps *)gst_pad_get_negotiated_caps(pad))) {
     BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-    gint channels;
+    gint channels=1;
     GstStructure *structure;
     GstMessage *message;
     GstElement *bin;
 
-    channels=gst_caps_get_channels(caps);
+    if(GST_CAPS_IS_SIMPLE(caps)) {
+      gst_structure_get_int(gst_caps_get_structure(caps,0),"channels",&channels);
+    }
+    else {
+      GST_WARNING_OBJECT(pad, "expecting simple caps"); 
+    }
     gst_caps_unref(caps);
-    GST_INFO("!!!  input level src has %d output channels",channels);
+    GST_INFO("input level src has %d output channels",channels);
 
     // post a message to the bus (we can't do gtk+ stuff here)
     structure = gst_structure_new ("level-caps-changed",
