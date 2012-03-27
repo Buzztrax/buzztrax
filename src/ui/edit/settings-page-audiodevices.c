@@ -148,8 +148,6 @@ static void bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevic
   GList *node,*audiosink_factories;
   gboolean use_system_audiosink=TRUE;
   gboolean can_int_caps,can_float_caps;
-  //GstCaps *int_caps=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
-  //GstCaps *float_caps=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
   guint sample_rate,channels,latency;
   gulong audiosink_index=0,sampling_rate_index,ct;
 
