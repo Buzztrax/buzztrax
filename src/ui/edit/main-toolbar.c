@@ -26,21 +26,8 @@
 
 /* TODO(ensonic): should we separate the toolbars?
  * - common - load, save, ...
+ * - playback - play, stop, loop, seek, ...
  * - volume - gain, levels
- */
-/* TODO(ensonic): transport mode selection 
- * - if the audio-sink supports transport controls we want to show a combobox to
- *   let the user choose between {-,m,s} = {off,master,slave}
- *   - ardour calls it positional sync source and supports {internal, mtc, jack}
- * - does this need to be stored with the song? settings?
- *   - settings -> playback controller (Jack,UPnP,MMC,KeyEvent)
- *   - all protocols support auto (don't use), master or slave
- *   - we don't need autonoumous, but flags for: master, slave
- *     -> already changed on the jack side
- *   - also is the single transport selection combo sufficient?
- *     - may be we want it to be master for jack, but master & slave on MMC
- *       (when started via MMC, we start the jack clients too)
- *     - we coud also just add a shortcut link to the settings?
  */
 #define BT_EDIT
 #define BT_MAIN_TOOLBAR_C
