@@ -37,6 +37,11 @@ BT_MAJORMINOR=$BT_MAJOR_VERSION.$BT_MINOR_VERSION
 dnl we override it here for release candidates - not needed as be bump after releases
 dnl BT_MAJORMINOR=0.6
 
+dnl that is needed to figure the directory name, where the plugin goes to
+GST_MAJORMINOR=0.10
+AC_DEFINE_UNQUOTED(GST_MAJORMINOR, "$GST_MAJORMINOR", [gstreamer series])
+AC_SUBST(GST_MAJORMINOR)
+
 dnl release year and date
 BT_RELEASE_YEAR=`date +%Y`
 BT_RELEASE_DATE=`date +%Y-%m-%d`
@@ -239,8 +244,6 @@ PKG_CHECK_MODULES(GUI_DEPS, \
   gtk+-2.0 >= 2.16.0 \
   libgnomecanvas-2.0 \
 )
-# still the pixbuf loader should have svg support
-# librsvg-2.0
 
 PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
     AM_CONDITIONAL(USE_GCONF, true)
@@ -423,11 +426,6 @@ PKG_CHECK_MODULES(CHECK, check >= 0.9.2,
 
 
 dnl GStreamer plugin build
-dnl that is needed to figure the directory name, where the plugin goes to
-GST_MAJORMINOR=0.10
-AC_DEFINE_UNQUOTED(GST_MAJORMINOR, "$GST_MAJORMINOR", [gstreamer series])
-AC_SUBST(GST_MAJORMINOR)
-
 plugindir="\$(libdir)/gstreamer-$GST_MAJORMINOR"
 AC_SUBST(plugindir)
 GST_PLUGIN_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS"

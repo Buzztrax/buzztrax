@@ -7,7 +7,7 @@ buzztard_edit_LDADD = \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	libbtedit.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
-	-lgstinterfaces-0.10
+	-lgstinterfaces-@GST_MAJORMINOR@
 buzztard_edit_SOURCES= \
 	bt-edit.c bt-edit.h
 
@@ -20,7 +20,7 @@ libbtedit_la_LIBADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
-	-lgstinterfaces-0.10
+	-lgstinterfaces-@GST_MAJORMINOR@
 libbtedit_la_SOURCES	= \
 	about-dialog.c about-dialog.h \
 	change-log.c change-log.h \

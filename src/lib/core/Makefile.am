@@ -15,7 +15,7 @@ lib_LTLIBRARIES = libbuzztard-core.la
 libbuzztard_core_la_LIBADD = \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
-	-lgstaudio-0.10 -lgstpbutils-0.10
+	-lgstaudio-@GST_MAJORMINOR@ -lgstpbutils-@GST_MAJORMINOR@
 libbuzztard_core_la_LDFLAGS = \
 	$(BT_LDFLAGS) \
 	-export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
@@ -137,7 +137,7 @@ BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
 	     --c-include='core.h' \
 	     --include=GLib-2.0 \
 	     --include=GObject-2.0 \
-	     --include=Gst-0.10 \
+	     --include=Gst-@GST_MAJORMINOR@ \
 	     --include=libxml2-2.0 \
 	     --include=BuzztardIc-0.0 \
 	     --library=libbuzztard-core.la \
@@ -146,7 +146,7 @@ BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
 	     --pkg gobject-2.0 \
 	     --pkg libgstbuzztard \
 	     --pkg libxml-2.0 \
-	     --pkg gstreamer-0.10 \
+	     --pkg gstreamer-@GST_MAJORMINOR@ \
 	     --pkg-export libbuzztard-core \
 	     --add-init-section="bt_init(NULL,NULL);" \
 	     --output $@ \
