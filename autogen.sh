@@ -307,7 +307,7 @@ tool_run ()
   }
 }
 
-CONFIGURE_DEF_OPT='--enable-maintainer-mode --enable-compile-warnings --enable-debug=yes'
+CONFIGURE_DEF_OPT='--enable-debug=yes'
 
 autogen_options $@
 

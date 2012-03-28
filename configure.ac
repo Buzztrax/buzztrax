@@ -15,7 +15,7 @@ AC_INIT([buzztard],[0.7.0],[buzztard-devel@lists.sourceforge.net])
 # - we use gnu make extensions
 # - we override uninstallcheck var
 AM_INIT_AUTOMAKE([-Wall check-news std-options])
-AC_CONFIG_SRCDIR([ChangeLog])
+AC_CONFIG_SRCDIR([README])
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR(m4)
 
@@ -23,6 +23,7 @@ AC_CONFIG_MACRO_DIR(m4)
 # by either passing --disable-silent-rules to configure or passing V=1
 # to make
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
 
 BT_MAJOR_VERSION=0
 BT_MINOR_VERSION=7
@@ -54,19 +55,6 @@ AC_DEFINE_UNQUOTED(PACKAGE_VERSION_NUMBER, ${BT_VERSION_NUMBER}, [version as a n
 
 VERSION=${BT_VERSION}
 
-dnl m4 - everyone who develops should have aclocal installed
-AC_PATH_PROG(PROG_ACLOCAL, aclocal, no)
-AC_MSG_CHECKING(where to install .m4 files to)
-if test "$PROG_ACLOCAL" = "no" ; then
-  acdir=${datadir}/aclocal
-else
-  acdir=`$PROG_ACLOCAL --print-ac-dir`
-  if test ! -w "$acdir" ; then
-    acdir=${datadir}/aclocal
-  fi
-fi
-AC_MSG_RESULT($acdir)
-AC_SUBST(acdir)
 
 dnl Checks for programs.
 AC_PROG_CXX
@@ -82,19 +70,6 @@ AM_PROG_MKDIR_P
 IT_PROG_INTLTOOL
 PKG_PROG_PKG_CONFIG
 
-AC_PATH_PROG(xvfb_path, [Xvfb], [no])
-if test "x$xvfb_path" != "xno" ; then
-  have_xvfb="yes"
-  AC_DEFINE_UNQUOTED(XVFB_PATH, "$xvfb_path", [Path of Xvfb executable to be used to run gui unit tests under])
-
-  XFONT_PATH=`xset q | grep fonts | sed 's/^\ *//'`
-  if test "x$XFONT_PATH" != "x"; then
-    AC_DEFINE_UNQUOTED(XFONT_PATH, "$XFONT_PATH", [X font path])
-  fi
-else
-  have_xvfb="no"
-fi
-AC_SUBST(XFONT_PATH)
 
 dnl Initialise gettext
 AM_GNU_GETTEXT_VERSION(0.12.1)
@@ -104,12 +79,9 @@ AC_SUBST(localedir)
 GETTEXT_PACKAGE="buzztard-$BT_MAJORMINOR"
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Package Name for Gettext])
-DATADIRNAME="share"
-AC_SUBST(DATADIRNAME)
 
-dnl this macro comes from gnome.m4, which we do not want to require
-dnl AM_ACLOCAL_INCLUDE(./m4)
 
+dnl common switches for all buzztard modules
 
 dnl enable runtime debugging code
 AC_MSG_CHECKING(whether to enable runtime debugging code)
@@ -206,36 +178,37 @@ AC_ARG_WITH([valgrind],
         [ac_cv_use_valgrind=$withval],
         [ac_cv_use_valgrind=no])
 AC_MSG_RESULT($ac_cv_use_valgrind)
+have_valgrind="no"
 if test "x$ac_cv_use_valgrind" == "xyes"; then
   AC_PATH_PROG(valgrind_path, [valgrind], [no])
   if test "x$valgrind_path" != "xno"; then
     valgrind_path=`dirname $valgrind_path`
     VALGRIND=`dirname $valgrind_path`
+    have_valgrind="yes"
   else
     VALGRIND="no"
   fi
 else
   VALGRIND=$ac_cv_use_valgrind
+  have_valgrind="yes"
 fi
 AC_SUBST(VALGRIND)
 AM_CONDITIONAL(USE_VALGRIND, test "x$VALGRIND" != "xno")
 
-VALGRIND_CPPFLAGS=
-if test "x$ac_cv_use_valgrind" != "xno"; then
-   AC_DEFINE(HAVE_VALGRIND, 1, [Define to 1 if valgrind is to be used.])
-   if test -f $ac_cv_use_valgrind/valgrind.h; then
-      VALGRIND_CFLAGS=-I$ac_cv_use_valgrind
-   elif test -f $ac_cv_use_valgrind/include/valgrind.h; then
-      VALGRIND_CFLAGS=-I$ac_cv_use_valgrind/include
-   elif test -f $ac_cv_use_valgrind/valgrind/valgrind.h; then
-      VALGRIND_CFLAGS=-I$ac_cv_use_valgrind/valgrind
-   elif test -f $ac_cv_use_valgrind/include/valgrind/valgrind.h; then
-      VALGRIND_CFLAGS=-I$ac_cv_use_valgrind/include/valgrind
-   elif test -f $ac_cv_use_valgrind/valgrind/include/valgrind.h; then
-      VALGRIND_CFLAGS=-I$ac_cv_use_valgrind/valgrind/include
-   fi
+
+AC_PATH_PROG(xvfb_path, [Xvfb], [no])
+if test "x$xvfb_path" != "xno" ; then
+  have_xvfb="yes"
+  AC_DEFINE_UNQUOTED(XVFB_PATH, "$xvfb_path", [Path of Xvfb executable to be used to run gui unit tests under])
+
+  XFONT_PATH=`xset q | grep fonts | sed 's/^\ *//'`
+  if test "x$XFONT_PATH" != "x"; then
+    AC_DEFINE_UNQUOTED(XFONT_PATH, "$XFONT_PATH", [X font path])
+  fi
+else
+  have_xvfb="no"
 fi
-AC_SUBST(VALGRIND_CFLAGS)
+AC_SUBST(XFONT_PATH)
 
 
 dnl define custom path for desktop files
@@ -493,9 +466,11 @@ AM_CONDITIONAL(ENABLE_SCROLLKEEPER, test ! x$scrollkeeper_config = xno)
 SCROLLKEEPER_BUILD_REQUIRED=0.3.5
 AC_SUBST(SCROLLKEEPER_BUILD_REQUIRED)
 
+
 dnl Check for aspell (spellcheck the docs)
 AC_CHECK_PROGS(ASPELL,[aspell],[])
 AM_CONDITIONAL(WITH_ASPELL,[test "x$ASPELL" != "x"])
+
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -516,6 +491,7 @@ AC_SUBST(LINUX_INPUT_DOC_TYPES)
 AC_SUBST(LINUX_INPUT_DOC_SECTIONS)
 AM_CONDITIONAL(USE_LINUX_INPUT, test x$have_linux_input_h = xyes)
 
+
 dnl check for SSE intrisics
 ARCH_CFLAGS=""
 ARCH_CPPFLAGS=""
@@ -527,14 +503,17 @@ case "x${host_cpu}" in
     ;;
 esac
 
+
 dnl Checks for typedefs, structures, and compiler characteristics.
 AM_C_PROTOTYPES
 test "x$U" != "x" && AC_MSG_ERROR(Compiler not ANSI compliant)
 AC_C_CONST
 
+
 dnl check for libraries
 AC_CHECK_LIBM
 AC_SUBST(LIBM)
+
 
 dnl Checks for library functions.
 dnl libc functions
@@ -542,6 +521,7 @@ AC_CHECK_FUNCS( sched_setscheduler)
 AC_CHECK_FUNCS( mlockall)
 AC_CHECK_FUNCS( getrusage)
 AC_CHECK_FUNCS( setrlimit)
+
 
 dnl Check for -Bsymbolic-functions linker flag used to avoid
 dnl intra-library PLT jumps, if available.
@@ -570,9 +550,11 @@ if test "x${enable_Bsymbolic}" == "xyes"; then
   BT_LDFLAGS="$BT_LDFLAGS -Wl,-Bsymbolic-functions"
 fi
 
+
 dnl check for desktop and mimetype utilities
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)
 AC_PATH_PROG(UPDATE_DESKTOP_DATABASE, update-desktop-database)
+
 
 dnl Substitutes
 
@@ -585,6 +567,7 @@ AC_SUBST(BASE_DEPS_LIBS)
 AC_SUBST(BASE_DEPS_CFLAGS)
 AC_SUBST(GUI_DEPS_LIBS)
 AC_SUBST(GUI_DEPS_CFLAGS)
+
 
 AC_CONFIG_FILES(Makefile \
   docs/Makefile \
@@ -659,6 +642,7 @@ Configuration
 	UI tests on Xvfb                : ${have_xvfb}
 	Use of deprecated API           : ${enable_deprecated}
 	Check based unit tests          : ${have_check}
+	Use valgrind on the tests       : ${have_valgrind}
 "
 
 if test "x${use_bml}" = "xno" -o "x${use_gudev}" = "xno" -o "x${use_gsf}" = "xno" ; then

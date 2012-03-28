@@ -104,8 +104,7 @@ AM_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"buzztard-check\" \
 	$(BASE_DEPS_CFLAGS) \
 	$(GUI_DEPS_CFLAGS) \
-	$(BT_CFLAGS)\
-	@VALGRIND_CFLAGS@
+	$(BT_CFLAGS)
 
 endif
 
