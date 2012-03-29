@@ -363,9 +363,7 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
       gulong val=g_value_get_ulong(value);
       if(self->priv->beats_per_minute!=val) {
         self->priv->beats_per_minute = val;
-#if GST_CHECK_VERSION(0,10,12)
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_BEATS_PER_MINUTE, (gdouble)self->priv->beats_per_minute,NULL);
-#endif
         bt_song_info_tempo_changed(self);
         GST_DEBUG("set the bpm for song_info: %lu",self->priv->beats_per_minute);
       }
@@ -412,22 +410,14 @@ static void bt_song_info_set_property(GObject * const object, const guint proper
           strcpy(self->priv->change_dts,dts);
           // parse date and update tag
           strptime(dts, "%FT%TZ", &tm);
-#if GLIB_CHECK_VERSION(2,10,0)
           g_date_set_time_t(self->priv->tag_date,mktime(&tm));
-#else
-          g_date_set_time(self->priv->tag_date,mktime(&tm));
-#endif
           gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DATE, self->priv->tag_date,NULL);
         }
       }
       else {
         time_t now=time(NULL);
         strftime(self->priv->change_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
-#if GLIB_CHECK_VERSION(2,10,0)
         g_date_set_time_t(self->priv->tag_date,now);
-#else
-        g_date_set_time(self->priv->tag_date,now);
-#endif
         gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DATE, self->priv->tag_date,NULL);
       }
     } break;
@@ -491,18 +481,12 @@ static void bt_song_info_init(BtSongInfo * self) {
 
   // init taglist
   self->priv->tag_date=g_date_new();
-#if GLIB_CHECK_VERSION(2,10,0)
   g_date_set_time_t(self->priv->tag_date,now);
-#else
-  g_date_set_time(self->priv->tag_date,now);
-#endif
   gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,
     GST_TAG_TITLE, self->priv->name,
     GST_TAG_ARTIST, self->priv->author,
     GST_TAG_DATE, self->priv->tag_date,
-#if GST_CHECK_VERSION(0,10,12)
     GST_TAG_BEATS_PER_MINUTE, (gdouble)self->priv->beats_per_minute,
-#endif
     NULL);
 }
 
