@@ -170,30 +170,20 @@ AM_CONDITIONAL(USE_LCOV, test "x$lcov_path" != "xno")
 
 
 dnl valgrind integration for tests
-AC_MSG_CHECKING(where Valgrind is installed on your system)
-AC_ARG_WITH([valgrind],
-        AS_HELP_STRING([--with-valgrind],[where Valgrind is installed on your system (default is no)]),
-        [ac_cv_use_valgrind=$withval],
-        [ac_cv_use_valgrind=no])
-AC_MSG_RESULT($ac_cv_use_valgrind)
-have_valgrind="no"
-if test "x$ac_cv_use_valgrind" == "xyes"; then
-  AC_PATH_PROG(valgrind_path, [valgrind], [no])
-  if test "x$valgrind_path" != "xno"; then
-    valgrind_path=`dirname $valgrind_path`
-    VALGRIND=`dirname $valgrind_path`
-    have_valgrind="yes"
-  else
-    VALGRIND="no"
-  fi
-else
-  VALGRIND=$ac_cv_use_valgrind
+AC_PATH_PROG(valgrind_path, [valgrind], [no])
+if test "x$valgrind_path" != "xno"; then
+  valgrind_path=`dirname $valgrind_path`
+  VALGRIND=`dirname $valgrind_path`
   have_valgrind="yes"
+else
+  VALGRIND="no"
+  have_valgrind="no"
 fi
 AC_SUBST(VALGRIND)
 AM_CONDITIONAL(USE_VALGRIND, test "x$VALGRIND" != "xno")
 
 
+dnl xvfb for hidden ui tests
 AC_PATH_PROG(xvfb_path, [Xvfb], [no])
 if test "x$xvfb_path" != "xno" ; then
   have_xvfb="yes"
