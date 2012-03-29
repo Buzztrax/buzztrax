@@ -32,11 +32,6 @@ BT_VERSION=$BT_MAJOR_VERSION.$BT_MINOR_VERSION.$BT_MICRO_VERSION
 BT_VERSION_INFO=`expr $BT_MAJOR_VERSION + $BT_MINOR_VERSION`:$BT_MICRO_VERSION:$BT_MINOR_VERSION
 BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + $BT_MICRO_VERSION`
 
-dnl our libraries and install dirs use major.minor as a version
-BT_MAJORMINOR=$BT_MAJOR_VERSION.$BT_MINOR_VERSION
-dnl we override it here for release candidates - not needed as be bump after releases
-dnl BT_MAJORMINOR=0.6
-
 dnl that is needed to figure the directory name, where the plugin goes to
 GST_MAJORMINOR=0.10
 AC_DEFINE_UNQUOTED(GST_MAJORMINOR, "$GST_MAJORMINOR", [gstreamer series])
@@ -52,7 +47,6 @@ AC_SUBST(BT_MICRO_VERSION)
 AC_SUBST(BT_VERSION)
 AC_SUBST(BT_VERSION_INFO)
 AC_SUBST(BT_VERSION_NUMBER)
-AC_SUBST(BT_MAJORMINOR)
 AC_SUBST(BT_RELEASE_YEAR)
 AC_SUBST(BT_RELEASE_DATE)
 
@@ -117,7 +111,6 @@ AC_ARG_ENABLE([deprecated],
 	,
 	[
 		if test -f $ac_top_srcdir/autogen.sh; then
-			is_vcs_version=true
 			enable_deprecated=no
 		else
 			enable_deprecated=yes
