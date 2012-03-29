@@ -521,7 +521,7 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
   g_object_set(element,
     "location",self->priv->record_file_name,
     // only for recording in in realtime and not as fast as we can
-    "sync",TRUE,
+    // "sync",TRUE,
     NULL);
   list=g_list_append(list,element);
   return(list);
