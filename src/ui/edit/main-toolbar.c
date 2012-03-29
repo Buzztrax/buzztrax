@@ -339,14 +339,15 @@ static gboolean on_toolbar_forward_released(GtkWidget *widget,GdkEventButton *ev
 static void on_song_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtMainToolbar * const self=BT_MAIN_TOOLBAR(user_data);
   GError *err = NULL;
-  gchar *dbg = NULL;
+  gchar *desc, *dbg = NULL;
 
   GST_INFO("received %s bus message from %s",
     GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
-  // TODO(ensonic): check domain and code
   gst_message_parse_error(message, &err, &dbg);
-  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
+  desc=gst_error_get_message(err->domain, err->code);
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"ERROR: %s (%s) (%s)", 
+      err->message, desc, (dbg ? dbg : "no debug"));
 
   if(!self->priv->has_error) {
     BtSong *song;
@@ -358,7 +359,7 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
     bt_song_write_to_lowlevel_dot_file(song);
     bt_song_stop(song);
 
-    bt_dialog_message(main_window,_("Error"),_("An error occurred"),err->message);
+    bt_dialog_message(main_window,_("Error"),err->message, desc);
 
     // release the reference
     g_object_unref(song);
@@ -366,6 +367,7 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
   }
   g_error_free(err);
   g_free(dbg);
+  g_free(desc);
 
   self->priv->has_error = TRUE;
 }
@@ -373,14 +375,15 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
 static void on_song_warning(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtMainToolbar * const self=BT_MAIN_TOOLBAR(user_data);
   GError *err = NULL;
-  gchar *dbg = NULL;
+  gchar *desc, *dbg = NULL;
 
   GST_INFO("received %s bus message from %s",
     GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
-  // TODO(ensonic): check domain and code
   gst_message_parse_warning(message, &err, &dbg);
-  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"WARNING: %s (%s)", err->message, (dbg ? dbg : "no details"));
+  desc=gst_error_get_message(err->domain, err->code);
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"WARNING: %s (%s) (%s)", 
+      err->message, desc, (dbg ? dbg : "no debug"));
 
   if(!self->priv->has_error) {
     BtSong *song;
@@ -390,7 +393,7 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
     g_object_get(self->priv->app,"song",&song,"main-window",&main_window,NULL);
     //bt_song_stop(song);
 
-    bt_dialog_message(main_window,_("Warning"),_("A problem occurred"),err->message);
+    bt_dialog_message(main_window,_("Warning"),err->message, desc);
 
     // release the reference
     g_object_unref(song);
@@ -398,6 +401,7 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
   }
   g_error_free(err);
   g_free(dbg);
+  g_free(desc);
 }
 
 static gboolean on_delayed_idle_song_level_change(gpointer user_data) {

@@ -544,24 +544,30 @@ static void on_preview_segment_done(GstBus * bus, GstMessage * message, gpointer
 static void on_preview_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   GError *err = NULL;
-  gchar *dbg = NULL;
+  gchar *desc, *dbg = NULL;
 
   gst_message_parse_error(message, &err, &dbg);
-  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
+  desc=gst_error_get_message(err->domain, err->code);
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"ERROR: %s (%s) (%s)", 
+      err->message, desc, (dbg ? dbg : "no debug"));
   g_error_free(err);
   g_free(dbg);
+  g_free(desc);
   preview_stop(self);
 }
 
 static void on_preview_warning(const GstBus * const bus, GstMessage * message, gconstpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   GError *err = NULL;
-  gchar *dbg = NULL;
+  gchar *desc, *dbg = NULL;
 
   gst_message_parse_warning(message, &err, &dbg);
-  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"WARNING: %s (%s)", err->message, (dbg ? dbg : "no details"));
+  desc=gst_error_get_message(err->domain, err->code);
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"WARNING: %s (%s) (%s)", 
+      err->message, desc, (dbg ? dbg : "no debug"));
   g_error_free(err);
   g_free(dbg);
+  g_free(desc);
   preview_stop(self);
 }
 
