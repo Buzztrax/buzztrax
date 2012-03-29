@@ -1,13 +1,3 @@
-dnl
-dnl current  : the interface         : MAJOR + MINOR
-dnl revision : of the same interface : MICRO
-dnl age      : MINOR
-dnl
-dnl 1: when releasing a changed version : MICRO++
-dnl 2: when the interface has changed (adding functions) : MINOR++, MICRO=0
-dnl 3: when the interface has changed (removing functions) : MAJOR++, MINOR=0, MICRO=0
-dnl
-
 dnl Initialise the autoconf/automake tool
 AC_PREREQ(2.61)
 AC_INIT([buzztard],[0.7.0],[buzztard-devel@lists.sourceforge.net])
@@ -19,12 +9,26 @@ AC_CONFIG_SRCDIR([README])
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR(m4)
 
-# Support silent build rules, requires at least automake-1.11. Disable
-# by either passing --disable-silent-rules to configure or passing V=1
-# to make
+# Support silent build rules, requires at least automake-1.11. Disable by
+# either passing --disable-silent-rules to configure or passing V=1 to make
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 
+dnl dependencies
+REQ_GLIB=2.10.0
+REQ_GTK=2.16.0
+REQ_GST=0.10.14
+
+
+dnl
+dnl current  : the interface         : MAJOR + MINOR
+dnl revision : of the same interface : MICRO
+dnl age      : MINOR
+dnl
+dnl 1: when releasing a changed version : MICRO++
+dnl 2: when the interface has changed (adding functions) : MINOR++, MICRO=0
+dnl 3: when the interface has changed (removing functions) : MAJOR++, MINOR=0, MICRO=0
+dnl
 BT_MAJOR_VERSION=0
 BT_MINOR_VERSION=7
 BT_MICRO_VERSION=0
@@ -214,17 +218,16 @@ dnl Checks for libraries.
 
 dnl mandarory deps
 PKG_CHECK_MODULES(BASE_DEPS, \
-  glib-2.0 >= 2.10.0 gobject-2.0  >= 2.10.0 gthread-2.0 >= 2.10.0 \
-  gmodule-2.0 >= 2.10.0 gio-2.0 >= 2.10.0 \
+  glib-2.0 >= $REQ_GLIB gobject-2.0  >= $REQ_GLIB gthread-2.0 >= $REQ_GLIB \
+  gmodule-2.0 >= $REQ_GLIB gio-2.0 >= $REQ_GLIB \
   libxml-2.0 >= 2.6.0 \
-  gstreamer-0.10 >= 0.10.14 gstreamer-controller-0.10 >= 0.10.14 \
-  gstreamer-base-0.10 >= 0.10.14 \
-  gstreamer-plugins-base-0.10 >= 0.10.14 \
+  gstreamer-0.10 >= $REQ_GST gstreamer-controller-0.10 >= $REQ_GST \
+  gstreamer-base-0.10 >= $REQ_GST \
+  gstreamer-plugins-base-0.10 >= $REQ_GST \
 )
-# gstreamer-app-0.10 >= 0.10.22
 
 PKG_CHECK_MODULES(GUI_DEPS, \
-  gtk+-2.0 >= 2.16.0 \
+  gtk+-2.0 >= $REQ_GTK \
   libgnomecanvas-2.0 \
 )
 
