@@ -102,9 +102,6 @@ static void on_dialog_response(GtkDialog *dialog,
 static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionControllerLearnDialog *self) {
   GtkWidget *label,*box,*table;
   gchar *name,*title;
-#if !GTK_CHECK_VERSION(2,20,0)
-  GList *buttons;
-#endif
 
   gtk_widget_set_name(GTK_WIDGET(self),"interaction controller learn");
 
@@ -122,13 +119,7 @@ static void bt_interaction_controller_learn_dialog_init_ui(const BtInteractionCo
   gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
   // grab okay button, so that we can block if input is not valid
-#if GTK_CHECK_VERSION(2,20,0)
   self->priv->okay_button=gtk_dialog_get_widget_for_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
-#else
-  buttons=gtk_container_get_children(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(self))));
-  self->priv->okay_button=GTK_WIDGET(g_list_nth_data(buttons,1));
-  g_list_free(buttons);
-#endif
 
   gtk_widget_set_sensitive(self->priv->okay_button,FALSE);
   

@@ -131,9 +131,6 @@ struct _BtSongPrivate {
   GstEvent *loop_seek_event;
   GstEvent *idle_seek_event;
   GstEvent *idle_loop_seek_event;
-#if ! GST_CHECK_VERSION(0,10,23)
-  guint expected_segment_done;
-#endif
   /* timeout handlers */
   guint paused_timeout_id,playback_timeout_id;
   
@@ -386,9 +383,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
 #ifndef GST_DISABLE_GST_DEBUG
   GstFormat format;
   gint64 position;
-#if GST_CHECK_VERSION(0,10,22)
   guint32 seek_seqnum=gst_message_get_seqnum((GstMessage *)message);
-#endif
   
   gst_message_parse_segment_done((GstMessage *)message,&format,&position);
 #endif
@@ -401,36 +396,9 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
   }
 #endif
 
-#if GST_CHECK_VERSION(0,10,22)
   GST_INFO("received SEGMENT_DONE (%u) bus message: %p, from %s, with fmt=%s, ts=%"GST_TIME_FORMAT,
     seek_seqnum,message,GST_OBJECT_NAME(GST_MESSAGE_SRC(message)),
     gst_format_get_name(format),GST_TIME_ARGS(position));
-#else
-  GST_WARNING("received SEGMENT_DONE bus message: %p, from %s with fmt=%s, ts=%"GST_TIME_FORMAT,
-    message,GST_OBJECT_NAME(GST_MESSAGE_SRC(message)),
-    gst_format_get_name(format),GST_TIME_ARGS(position));
-#endif
-#if ! GST_CHECK_VERSION(0,10,23)
-  /* @bug: workaround for #575598 */
-  if(!self->priv->expected_segment_done) {
-#if GST_CHECK_VERSION(0,10,22) && GST_VERSION_NANO==1
-    self->priv->expected_segment_done=1;
-#else
-    GList *sources,*node;
-    sources=bt_setup_get_machines_by_type(self->priv->setup,BT_TYPE_SOURCE_MACHINE);
-    self->priv->expected_segment_done=g_list_length(sources);
-    for(node=sources;node;node=g_list_next(node)) {
-      g_object_unref((GObject *)node->data);
-    }
-    g_list_free(sources);
-#endif
-  }
-  self->priv->expected_segment_done--;
-  if(self->priv->expected_segment_done) {
-    GST_WARNING("-> skip");
-    return;
-  }
-#endif
 
   if(self->priv->is_playing || self->priv->is_idle_active) {
     GstEvent *event;
@@ -441,9 +409,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
     else {
       event=gst_event_ref(self->priv->idle_loop_seek_event);
     }
-#if GST_CHECK_VERSION(0,10,22)
     gst_event_set_seqnum(event,gst_util_seqnum_next());
-#endif
     if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),event))) {
       GST_WARNING("element failed to handle continuing play seek event");
     }
@@ -1074,178 +1040,10 @@ void bt_song_write_to_highlevel_dot_file(const BtSong * const self) {
  * </programlisting></informalexample>
  */
 void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
-#if !GST_CHECK_VERSION(0,10,15)
-  FILE *out;
-  gchar * const song_name;
-
-  g_return_if_fail(BT_IS_SONG(self));
-
-  g_object_get(self->priv->song_info,"name",&song_name,NULL);
-  g_strcanon(song_name, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
-
-  // TODO(ensonic): check g_getenv("GST_DEBUG_DUMP_DOT_DIR") for the path
-  // and skip if ""
-  gchar * const file_name=g_alloca(strlen(song_name)+10);
-  g_sprintf(file_name,"/tmp/%s_lowlevel.dot",song_name);
-
-  if((out=fopen(file_name,"wb"))) {
-    GstIterator *element_iter,*pad_iter;
-    gboolean elements_done,pads_done;
-    GstElement *element,*peer_element;
-    GstPad *pad,*peer_pad;
-    GstPadDirection dir;
-    GstCaps *caps;
-    GstStructure *structure;
-    guint src_pads,sink_pads;
-    const gchar *src_media,*dst_media;
-    gchar *pad_name,*element_name,*peer_pad_name,*peer_element_name;
-
-    // write header
-    fprintf(out,
-      "digraph buzztard {\n"
-      "  rankdir=LR;\n"
-      "  fontname=\"Arial\";\n"
-      "  fontsize=\"9\";\n"
-      "  node [style=filled, shape=box, fontsize=\"8\", fontname=\"Arial\"];\n"
-      "  edge [labelfontsize=\"7\", fontsize=\"8\", labelfontname=\"Arial\", fontname=\"Arial\"];\n"
-      "\n"
-    );
-
-    element_iter=gst_bin_iterate_elements(self->priv->bin);
-    elements_done = FALSE;
-    while (!elements_done) {
-      switch (gst_iterator_next (element_iter, (gpointer)&element)) {
-        case GST_ITERATOR_OK:
-          element_name=g_strcanon(g_strdup(GST_OBJECT_NAME(element)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
-          fprintf(out,
-            "  subgraph cluster_%s {\n"
-            "    fontname=\"Arial\";\n"
-            "    fontsize=\"9\";\n"
-            "    style=filled;\n"
-            "    label=\"<%s>\\n%s\";\n"
-            "    color=black;\n\n",
-            element_name,G_OBJECT_TYPE_NAME(element),GST_OBJECT_NAME(element));
-          g_free(element_name);
-
-          pad_iter=gst_element_iterate_pads(element);
-          pads_done=FALSE;
-          src_pads=sink_pads=0;
-          while (!pads_done) {
-            switch (gst_iterator_next (pad_iter, (gpointer)&pad)) {
-              case GST_ITERATOR_OK:
-                dir=gst_pad_get_direction(pad);
-                pad_name=g_strcanon(g_strdup(GST_OBJECT_NAME(pad)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
-                element_name=g_strcanon(g_strdup(GST_OBJECT_NAME(element)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
-                fprintf(out,"    %s_%s [color=black, fillcolor=\"%s\", label=\"%s\"];\n",
-                  element_name,pad_name,
-                  ((dir==GST_PAD_SRC)?"#FFAAAA":((dir==GST_PAD_SINK)?"#AAAAFF":"#FFFFFF")),
-                  GST_OBJECT_NAME(pad));
-                if(dir==GST_PAD_SRC) src_pads++;
-                else if(dir==GST_PAD_SINK) sink_pads++;
-                g_free(pad_name);
-                g_free(element_name);
-                gst_object_unref(pad);
-                break;
-              case GST_ITERATOR_RESYNC:
-                gst_iterator_resync (pad_iter);
-                break;
-              case GST_ITERATOR_ERROR:
-              case GST_ITERATOR_DONE:
-                pads_done = TRUE;
-                break;
-            }
-          }
-          if(src_pads && !sink_pads)
-            fprintf(out,"    fillcolor=\"#FFAAAA\";\n");
-          else if (!src_pads && sink_pads)
-            fprintf(out,"    fillcolor=\"#AAAAFF\";\n");
-          else if (src_pads && sink_pads)
-            fprintf(out,"    fillcolor=\"#AAFFAA\";\n");
-          else
-            fprintf(out,"    fillcolor=\"#FFFFFF\";\n");
-          gst_iterator_free(pad_iter);
-          fprintf(out,"  }\n\n");
-          pad_iter=gst_element_iterate_pads(element);
-          pads_done=FALSE;
-          while (!pads_done) {
-            switch (gst_iterator_next (pad_iter, (gpointer)&pad)) {
-              case GST_ITERATOR_OK:
-                if(gst_pad_is_linked(pad) && gst_pad_get_direction(pad)==GST_PAD_SRC) {
-                  if((peer_pad=gst_pad_get_peer(pad))) {
-                    if((caps=gst_pad_get_negotiated_caps(pad))) {
-                      if(GST_CAPS_IS_SIMPLE(caps)) {
-                        structure=gst_caps_get_structure(caps,0);
-                        src_media=gst_structure_get_name(structure);
-                      }
-                      else src_media="!";
-                      gst_caps_unref(caps);
-                      //src_media=gst_caps_to_string(caps);
-                      //needs to be formatted/filtered and freed later
-                    }
-                    else src_media="?";
-                    if((caps=gst_pad_get_negotiated_caps(peer_pad))) {
-                      if(GST_CAPS_IS_SIMPLE(caps)) {
-                        structure=gst_caps_get_structure(caps,0);
-                        dst_media=gst_structure_get_name(structure);
-                      }
-                      else dst_media="!";
-                      gst_caps_unref(caps);
-                    }
-                    else dst_media="?";
-
-                    peer_element=gst_pad_get_parent_element(peer_pad);
-                    pad_name=g_strcanon(g_strdup(GST_OBJECT_NAME(pad)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
-                    element_name=g_strcanon(g_strdup(GST_OBJECT_NAME(element)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
-                    peer_pad_name=g_strcanon(g_strdup(GST_OBJECT_NAME(peer_pad)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
-                    peer_element_name=g_strcanon(g_strdup(GST_OBJECT_NAME(peer_element)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
-                    fprintf(out,"  %s_%s -> %s_%s [taillabel=\"%s\",headlabel=\"%s\"]\n",
-                      element_name,pad_name, peer_element_name,peer_pad_name,
-                      src_media,dst_media);
-
-                    g_free(pad_name);
-                    g_free(element_name);
-                    g_free(peer_pad_name);
-                    g_free(peer_element_name);
-                    gst_object_unref(peer_element);
-                    gst_object_unref(peer_pad);
-                  }
-                }
-                gst_object_unref(pad);
-                break;
-              case GST_ITERATOR_RESYNC:
-                gst_iterator_resync (pad_iter);
-                break;
-              case GST_ITERATOR_ERROR:
-              case GST_ITERATOR_DONE:
-                pads_done = TRUE;
-                break;
-            }
-          }
-          gst_iterator_free(pad_iter);
-          gst_object_unref(element);
-          break;
-        case GST_ITERATOR_RESYNC:
-          gst_iterator_resync (element_iter);
-          break;
-        case GST_ITERATOR_ERROR:
-        case GST_ITERATOR_DONE:
-          elements_done = TRUE;
-          break;
-      }
-    }
-    gst_iterator_free(element_iter);
-
-    // write footer
-    fprintf(out,"}\n");
-    fclose(out);
-  }
-  g_free(song_name);
-#else
   GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(self->priv->bin,
     GST_DEBUG_GRAPH_SHOW_ALL,
     /*GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS|GST_DEBUG_GRAPH_SHOW_STATES,*/
     PACKAGE_NAME);
-#endif
 }
 
 //-- child proxy interface

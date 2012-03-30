@@ -398,10 +398,8 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
         */
       /*"slave-method",2,*/
       /*"provide-clock",FALSE, */
-#if GST_CHECK_VERSION(0,10,24)
       /* this does not lockup anymore, but does not give us better latencies */
       /*"can-activate-pull",TRUE,*/
-#endif
       NULL);
     self->priv->audio_sink=element;
     bt_sink_bin_configure_latency(self);
@@ -754,29 +752,9 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
       self->priv->caps_filter,(G_OBJECT_REF_COUNT(self->priv->caps_filter)),GST_OBJECT_NAME(self->priv->caps_filter),
       sink_pad,(G_OBJECT_REF_COUNT(sink_pad)));
 
-    /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=596366
-     * at least version 0.10.24-25 suffer from it, fixed with
-     * http://cgit.freedesktop.org/gstreamer/gstreamer/commit/?id=c6f2a9477750be536924bf8e70a830ddec4c1389
-     */
-#if !GST_CHECK_VERSION(0,10,26)
-    {
-      GstPad *peer_pad;
-      if((peer_pad=gst_pad_get_peer(self->priv->sink))) {
-        gst_pad_unlink(peer_pad,self->priv->sink);
-      }
-#endif
-
-      if(!gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad)) {
-        GST_WARNING("failed to link internal pads");
-      }
-
-#if !GST_CHECK_VERSION(0,10,26)
-      if(peer_pad) {
-        gst_pad_link(peer_pad,self->priv->sink);
-        gst_object_unref(peer_pad);
-      }
+    if(!gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad)) {
+      GST_WARNING("failed to link internal pads");
     }
-#endif
 
     GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT_REF_COUNT(sink_pad)));
     // request pads need to be released
@@ -1168,21 +1146,8 @@ static void bt_sink_bin_class_init(BtSinkBinClass * klass) {
 
 //-- plugin handling
 
-#if !GST_CHECK_VERSION(0,10,16)
-static
-#endif
 gboolean bt_sink_bin_plugin_init(GstPlugin * const plugin) {
   gst_element_register(plugin,"bt-sink-bin",GST_RANK_NONE,BT_TYPE_SINK_BIN);
   return TRUE;
 }
-
-#if !GST_CHECK_VERSION(0,10,16)
-GST_PLUGIN_DEFINE_STATIC(
-  GST_VERSION_MAJOR,
-  GST_VERSION_MINOR,
-  "bt-sink-bin",
-  "buzztard sink bin - encapsulates play and record functionality",
-  bt_sink_bin_plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org"
-);
-#endif
 

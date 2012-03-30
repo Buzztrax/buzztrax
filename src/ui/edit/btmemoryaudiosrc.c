@@ -443,9 +443,6 @@ bt_memory_audio_src_dispose (GObject * object)
 
 //-- plugin handling
 
-#if !GST_CHECK_VERSION(0,10,16)
-static
-#endif
 gboolean
 bt_memory_audio_src_plugin_init (GstPlugin * plugin)
 {
@@ -455,14 +452,4 @@ bt_memory_audio_src_plugin_init (GstPlugin * plugin)
   return gst_element_register (plugin, "memoryaudiosrc",
       GST_RANK_NONE, BT_TYPE_MEMORY_AUDIO_SRC);
 }
-
-#if !GST_CHECK_VERSION(0,10,16)
-GST_PLUGIN_DEFINE_STATIC (
-  GST_VERSION_MAJOR,
-  GST_VERSION_MINOR,
-  "memoryaudiosrc",
-  "Plays audio from memory",
-  bt_memory_audio_src_plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org"
-);
-#endif
 

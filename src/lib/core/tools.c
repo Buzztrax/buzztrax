@@ -449,13 +449,8 @@ const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res, GstPad *src
         break;
       }
       case GST_PAD_LINK_NOFORMAT: {
-#if GST_CHECK_VERSION(0,10,26)
         GstCaps *srcc = gst_pad_get_caps_reffed(src_pad);
         GstCaps *sinkc = gst_pad_get_caps_reffed(sink_pad);
-#else
-        GstCaps *srcc = gst_pad_get_caps(src_pad);
-        GstCaps *sinkc = gst_pad_get_caps(sink_pad);
-#endif
         gchar *src_caps = gst_caps_to_string(srcc);
         gchar *sink_caps = gst_caps_to_string(sinkc);
         sprintf(msg2," : caps(src) = %s, caps(sink) = %s",src_caps,sink_caps);
@@ -475,7 +470,6 @@ const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res, GstPad *src
   sprintf(msg1, "%s:%s -> %s:%s : %s%s",
         GST_DEBUG_PAD_NAME(src_pad),GST_DEBUG_PAD_NAME(sink_pad),
         link_res_desc[-link_res], msg2);
-
 
   return msg1;
 }

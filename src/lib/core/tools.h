@@ -42,10 +42,6 @@ const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res,GstPad *src_
 
 //-- gst compat
 
-#if !GST_CHECK_VERSION(0,10,15)
-#define GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(bin, details, name)
-#endif
-
 //-- glib compat & helper
 
 GType bt_g_type_get_base_type(const GType type);
@@ -108,48 +104,6 @@ guint bt_cpu_load_get_current(void);
 #define g_alloca_printf(str,format,...) \
 sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
 */
-
-// since glib 2.13.0
-#ifndef G_PARAM_STATIC_STRINGS
-#define	G_PARAM_STATIC_STRINGS (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
-#endif
-
-// since glib 2.24.0
-#ifndef G_DEFINE_INTERFACE
-#define G_DEFINE_INTERFACE(TN, t_n, T_P)		    G_DEFINE_INTERFACE_WITH_CODE(TN, t_n, T_P, ;)
-#define G_DEFINE_INTERFACE_WITH_CODE(TN, t_n, T_P, _C_)     _G_DEFINE_INTERFACE_EXTENDED_BEGIN(TN, t_n, T_P) {_C_;} _G_DEFINE_INTERFACE_EXTENDED_END()
-
-#define _G_DEFINE_INTERFACE_EXTENDED_BEGIN(TypeName, type_name, TYPE_PREREQ) \
-\
-static void     type_name##_default_init        (TypeName##Interface *klass); \
-\
-GType \
-type_name##_get_type (void) \
-{ \
-  static volatile gsize g_define_type_id__volatile = 0; \
-  if (g_once_init_enter (&g_define_type_id__volatile))  \
-    { \
-      GType g_define_type_id = \
-        g_type_register_static_simple (G_TYPE_INTERFACE, \
-                                       g_intern_static_string (#TypeName), \
-                                       sizeof (TypeName##Interface), \
-                                       (GClassInitFunc)type_name##_default_init, \
-                                       0, \
-                                       (GInstanceInitFunc)NULL, \
-                                       (GTypeFlags) 0); \
-      if (TYPE_PREREQ) \
-        g_type_interface_add_prerequisite (g_define_type_id, TYPE_PREREQ); \
-      { /* custom code follows */
-#define _G_DEFINE_INTERFACE_EXTENDED_END()	\
-        /* following custom code */		\
-      }						\
-      g_once_init_leave (&g_define_type_id__volatile, g_define_type_id); \
-    }						\
-  return g_define_type_id__volatile;			\
-} /* closes type_name##_get_type() */
-
-#endif
-
 
 //-- gobject ref-count debugging & helpers
 

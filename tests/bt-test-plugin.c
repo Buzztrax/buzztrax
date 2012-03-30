@@ -418,9 +418,6 @@ GType bt_test_poly_source_get_type(void) {
 
 //-- plugin handling
 
-#if !GST_CHECK_VERSION(0,10,16)
-static
-#endif
 gboolean bt_test_plugin_init(GstPlugin * plugin) {
   //GST_INFO("registering unit test plugin");
 
@@ -430,14 +427,4 @@ gboolean bt_test_plugin_init(GstPlugin * plugin) {
   //gst_element_register(plugin,"buzztard-test-poly-processor",GST_RANK_NONE,BT_TYPE_TEST_POLY_PROCESSOR);
   return TRUE;
 }
-
-#if !GST_CHECK_VERSION(0,10,16)
-GST_PLUGIN_DEFINE_STATIC(
-  GST_VERSION_MAJOR,
-  GST_VERSION_MINOR,
-  "bt-test",
-  "buzztard test plugin - several unit test support elements",
-  bt_test_plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org"
-);
-#endif
 

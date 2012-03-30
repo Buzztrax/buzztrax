@@ -244,7 +244,6 @@ GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets) {
  * Show the given @uri. Uses same screen as @widget (default if @widget is NULL).
  */
 void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri) {
-#if GTK_CHECK_VERSION(2,14,0)
   GError *error=NULL;
   GdkScreen *screen=NULL;
 
@@ -255,9 +254,6 @@ void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri) {
     GST_WARNING("Failed to display help: %s\n",error->message);
     g_error_free(error);
   }
-#else
-  gnome_vfs_url_show(uri);
-#endif
 }
 
 /*

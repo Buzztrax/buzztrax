@@ -42,31 +42,6 @@ extern void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri);
 
 /* gtk+ compatibillity */
 
-#if !GTK_CHECK_VERSION(2,18,0)
-
-#define gtk_widget_get_allocation(widget, alloc) memcpy(alloc,&(widget->allocation),sizeof(GtkAllocation))
-#define gtk_widget_is_toplevel(widget) GTK_WIDGET_TOPLEVEL(widget)
-#define gtk_widget_set_has_window(widget, flag) \
-  if (!flag) GTK_WIDGET_SET_FLAGS (widget, GTK_NO_WINDOW); \
-  else GTK_WIDGET_UNSET_FLAGS (widget, GTK_NO_WINDOW)
-#define gtk_widget_set_can_focus(widget, flag) \
-  if (flag) GTK_WIDGET_SET_FLAGS (widget, GTK_CAN_FOCUS); \
-  else GTK_WIDGET_UNSET_FLAGS (widget, GTK_CAN_FOCUS)
-#endif
-
-#if !GTK_CHECK_VERSION(2,20,0)
-
-#define gtk_widget_set_realized(widget, flag) \
-  if (flag) GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED); \
-  else GTK_WIDGET_UNSET_FLAGS (widget, GTK_REALIZED)
-
-#define gtk_widget_get_realized(widget) \
-  ((GTK_WIDGET_FLAGS (widget) & GTK_REALIZED) != 0)
-#define gtk_widget_get_mapped(widget) \
-  ((GTK_WIDGET_FLAGS (widget) & GTK_MAPPED) != 0)
-
-#endif
-
 #if !GTK_CHECK_VERSION(2,24,0)
 #define GTK_COMBO_BOX_TEXT(w) GTK_COMBO_BOX(w)
 #define gtk_combo_box_text_new gtk_combo_box_new_text

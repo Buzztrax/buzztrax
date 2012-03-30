@@ -1237,13 +1237,7 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
 
     if(!BT_IS_SINK_MACHINE(self)) {
       // try without converters in effects
-#if GST_CHECK_VERSION(0,10,25)
       skip_convert=gst_caps_can_intersect(bt_default_caps, gst_pad_get_pad_template_caps(sink_pads[PART_MACHINE]));
-#else
-      GstCaps *c=gst_caps_intersect(bt_default_caps, gst_pad_get_pad_template_caps(sink_pads[PART_MACHINE]));
-      skip_convert=!(c && gst_caps_is_empty(c));
-      gst_caps_unref(c);
-#endif
     }
     if(skip_convert) {
       GST_DEBUG_OBJECT(self,"  about to link adder -> dst_elem");

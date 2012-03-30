@@ -111,9 +111,6 @@ static void on_comment_changed(GtkEditable *editable,gpointer user_data) {
 static void bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPropertiesDialog *self) {
   GtkWidget *label,*widget,*box,*table;
   //GdkPixbuf *window_icon=NULL;
-#if !GTK_CHECK_VERSION(2,20,0)
-  GList *buttons;
-#endif
 
   gtk_widget_set_name(GTK_WIDGET(self),"preset name and comment");
 
@@ -137,13 +134,7 @@ static void bt_machine_preset_properties_dialog_init_ui(const BtMachinePresetPro
   gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
   // grab okay button, so that we can block if input is not valid
-#if GTK_CHECK_VERSION(2,20,0)
   self->priv->okay_button=gtk_dialog_get_widget_for_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
-#else
-  buttons=gtk_container_get_children(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(self))));
-  self->priv->okay_button=GTK_WIDGET(g_list_nth_data(buttons,1));
-  g_list_free(buttons);
-#endif
 
   box=gtk_vbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);

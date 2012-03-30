@@ -37,14 +37,6 @@
 
 #include "gtkvumeter.h"
 
-#if !GTK_CHECK_VERSION(2,20,0)
-#define gtk_widget_set_realized(widget, flag) \
-  if (flag) GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED); \
-  else GTK_WIDGET_UNSET_FLAGS (widget, GTK_REALIZED)
-#define gtk_widget_get_realized(widget) \
-  ((GTK_WIDGET_FLAGS (widget) & GTK_REALIZED) != 0)
-#endif
-
 #define MIN_HORIZONTAL_VUMETER_WIDTH   150
 #define HORIZONTAL_VUMETER_HEIGHT  6
 #define VERTICAL_VUMETER_WIDTH     6

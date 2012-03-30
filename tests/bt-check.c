@@ -34,8 +34,6 @@
 #endif
 
 void bt_check_init(void) {
-#if GST_CHECK_VERSION(0,10,16)
-  /* TODO(ensonic): requires gst-0.10.16 */
   extern gboolean bt_test_plugin_init (GstPlugin * plugin);
   gst_plugin_register_static(GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
@@ -43,7 +41,6 @@ void bt_check_init(void) {
     "buzztard test plugin - several unit test support elements",
     bt_test_plugin_init,
     VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
-#endif
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   // no ansi color codes in logfiles please
@@ -1008,10 +1005,6 @@ void check_shutdown_test_server(void) {
 }
 
 // gtk+ gui screenshooter
-
-#if !GTK_CHECK_VERSION(2,18,0)
-#define gtk_widget_get_visible(widget) GTK_WIDGET_VISIBLE(widget)
-#endif
 
 static GdkPixbuf *make_screenshot(GtkWidget *widget) {
   GdkWindow *window=widget->window;

@@ -42,12 +42,9 @@
 #include "bt-edit.h"
 
 static void usage(int argc, char **argv, GOptionContext *ctx) {
-#if GLIB_CHECK_VERSION(2,14,0)
-// IDEA(ensonic): show as dialog?
   gchar *help=g_option_context_get_help(ctx, TRUE, NULL);
   puts(help);
   g_free(help);
-#endif
 }
 
 // see if(arg_version) comment in main() below
@@ -130,8 +127,6 @@ int main(int argc, char **argv) {
   gtk_window_set_default_icon_name("buzztard");
   g_setenv("PULSE_PROP_media.role", "production", TRUE);
 
-  
-#if GST_CHECK_VERSION(0,10,16)
   extern gboolean bt_memory_audio_src_plugin_init (GstPlugin * const plugin);
   gst_plugin_register_static(GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
@@ -139,7 +134,6 @@ int main(int argc, char **argv) {
     "Plays audio from memory",
     bt_memory_audio_src_plugin_init,
     VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
-#endif
 
   GST_INFO("starting: thread=%p",g_thread_self());
   

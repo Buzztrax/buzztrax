@@ -87,8 +87,6 @@ static gboolean bt_init_post (void) {
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 
-#if GST_CHECK_VERSION(0,10,16)
-  /* TODO(ensonic): requires gst-0.10.16 */
   extern gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin);
   gst_plugin_register_static(GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
@@ -96,7 +94,6 @@ static gboolean bt_init_post (void) {
     "buzztard sink bin - encapsulates play and record functionality",
     bt_sink_bin_plugin_init,
     VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
-#endif
 
   bt_default_caps=gst_caps_new_simple("audio/x-raw-float",
     "width",G_TYPE_INT,32,

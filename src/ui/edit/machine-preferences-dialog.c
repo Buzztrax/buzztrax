@@ -230,7 +230,9 @@ static gboolean skip_property(GstElement *element,GParamSpec *pspec) {
   else if(pspec->owner_type==GST_TYPE_BIN) return(TRUE);
   // skip know interface properties (tempo, childbin)
   else if(pspec->owner_type==GSTBT_TYPE_CHILD_BIN) return(TRUE);
+#if !GST_CHECK_VERSION(0,10,31)
   else if(pspec->owner_type==GSTBT_TYPE_HELP) return(TRUE);
+#endif
   else if(pspec->owner_type==GSTBT_TYPE_TEMPO) return(TRUE);
   
   GST_INFO("property: %s, owner-type: %s",pspec->name,g_type_name(pspec->owner_type));

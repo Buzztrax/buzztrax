@@ -739,14 +739,6 @@ static void bt_main_menu_init_ui(const BtMainMenu *self) {
       ix++;
     }
   }
-#if !GLIB_CHECK_VERSION(2,22,2)
-  /* FIXME(ensonic): workaround for http://bugzilla.gnome.org/show_bug.cgi?id=541236
-   * - see also main-window.c
-   * - git describe e63262d49d40a36060613fb1d0ed468ca5dddc19
-   * - people need to clear old $HOME/.recently-used.xbel entries
-   */
-  gtk_recent_filter_add_pattern(filter,"*.xml");
-#endif
   gtk_recent_chooser_add_filter(GTK_RECENT_CHOOSER(item),filter);
   gtk_recent_chooser_set_filter(GTK_RECENT_CHOOSER(item),filter);
 
