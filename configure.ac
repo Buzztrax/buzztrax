@@ -1,4 +1,4 @@
-dnl Initialise the autoconf/automake tool
+dnl Initialise autoconf/automake/libtool
 AC_PREREQ(2.61)
 AC_INIT([buzztard],[0.7.0],[buzztard-devel@lists.sourceforge.net])
 # we can't do -Werror, because
@@ -8,6 +8,8 @@ AM_INIT_AUTOMAKE([-Wall check-news std-options])
 AC_CONFIG_SRCDIR([README])
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR(m4)
+LT_PREREQ([2.2])
+LT_INIT
 
 # Support silent build rules, requires at least automake-1.11. Disable by
 # either passing --disable-silent-rules to configure or passing V=1 to make
@@ -67,7 +69,6 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_SED
 AC_ISC_POSIX
-AC_PROG_LIBTOOL
 AC_PROG_CC
 AM_PROG_MKDIR_P
 IT_PROG_INTLTOOL
