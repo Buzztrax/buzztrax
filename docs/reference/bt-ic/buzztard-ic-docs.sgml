@@ -67,7 +67,6 @@
     <xi:include href="xml/libbtic.xml" />
     <xi:include href="xml/bticregistry.xml" />
     <xi:include href="xml/bticgudevdiscoverer.xml"><xi:fallback /></xi:include>
-    <xi:include href="xml/btichaldiscoverer.xml"><xi:fallback /></xi:include>
     <xi:include href="xml/bticdevice.xml" />
     <xi:include href="xml/bticinputdevice.xml"><xi:fallback /></xi:include>
     <xi:include href="xml/bticmididevice.xml" />

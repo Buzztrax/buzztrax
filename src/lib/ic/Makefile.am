@@ -14,14 +14,6 @@ GUDEV_C_FILES=
 GUDEV_H_FILES=
 endif
 
-if USE_HAL
-HAL_C_FILES=hal-discoverer.c
-HAL_H_FILES=hal-discoverer.h
-else
-HAL_C_FILES=
-HAL_H_FILES=
-endif
-
 lib_LTLIBRARIES = libbuzztard-ic.la
 libbuzztard_ic_la_LIBADD = \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
@@ -32,7 +24,7 @@ libbuzztard_ic_la_LDFLAGS = \
 libbuzztard_ic_la_SOURCES = \
 	ic.c \
 	registry.c\
-	$(GUDEV_C_FILES) $(HAL_C_FILES) \
+	$(GUDEV_C_FILES) \
 	\
 	device.c \
 	learn.c \
@@ -59,7 +51,7 @@ libbuzztard_ic_HEADERS = \
 	ic.h \
 	version.h \
 	registry.h \
-	$(GUDEV_H_FILES) $(HAL_H_FILES) \
+	$(GUDEV_H_FILES) \
 	\
 	device.h \
 	learn.h \

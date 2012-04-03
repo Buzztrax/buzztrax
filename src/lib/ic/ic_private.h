@@ -45,12 +45,6 @@
 //-- gudev / hal/dbus
 #if USE_GUDEV
 #include <gudev/gudev.h>
-#elif USE_HAL
-#include <glib.h>
-#include <libhal.h>
-#include <dbus/dbus.h>
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
 #endif
 //-- i18n
 #ifndef _
@@ -86,8 +80,6 @@
 #include "ic.h"
 #if USE_GUDEV
 #include "gudev-discoverer.h"
-#elif USE_HAL
-#include "hal-discoverer.h"
 #endif
 #ifdef HAVE_LINUX_INPUT_H
 #include "input-device.h"

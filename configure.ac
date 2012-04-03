@@ -294,32 +294,6 @@ PKG_CHECK_MODULES(GUDEV_DEPS, gudev-1.0, [
 AC_SUBST(GUDEV_DOC_TYPES)
 AC_SUBST(GUDEV_DOC_SECTIONS)
 
-PKG_CHECK_MODULES(HAL_DEPS, dbus-glib-1 hal, [
-  AC_DEFINE(USE_HAL, [1], [Define to 1 if we can use hal libraries])
-    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $HAL_DEPS_CFLAGS"
-    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $HAL_DEPS_LIBS"
-    if test x$use_gudev = xno; then
-      AM_CONDITIONAL(USE_HAL, true)
-      use_hal=yes
-      HAL_DOC_TYPES=
-      HAL_DOC_SECTIONS=
-    else
-      AM_CONDITIONAL(USE_HAL, false)
-      use_hal=no
-      HAL_DOC_TYPES=%
-      HAL_DOC_SECTIONS=#
-    fi
-  ],[
-    AM_CONDITIONAL(USE_HAL, false)
-    use_hal=no
-    HAL_DOC_TYPES=%
-    HAL_DOC_SECTIONS=#
-  ]
-)
-AC_SUBST(HAL_DOC_TYPES)
-AC_SUBST(HAL_DOC_SECTIONS)
-
-
 PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
   AM_CONDITIONAL(USE_GSF, true)
   AC_DEFINE(USE_GSF, [1], [Define to 1 if we can use gsf libraries])
@@ -616,7 +590,6 @@ Configuration
 	Documentation (User)            : ${have_scrollkeeper}
 	Bindings Metadata (GIR)         : ${enable_gir}
 	GUdev for interaction ctrl.     : ${use_gudev}
-	HAL for interaction ctrl.       : ${use_hal}
 	Linux HID for interaction ctrl. : ${have_linux_input_h}
 	Buzzmachine Host support        : ${use_bml}
 	Zipped Song file support (bzt)  : ${use_gsf}

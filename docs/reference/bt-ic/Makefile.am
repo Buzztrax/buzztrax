@@ -48,15 +48,9 @@ else
 GUDEV_FILES=gudev-discoverer.h
 endif
 
-if USE_HAL
-HAL_FILES=
-else
-HAL_FILES=hal-discoverer.h
-endif
-
 # Header files to ignore when scanning.
 IGNORE_HFILES=ic_private.h \
-  $(GUDEV_FILES) $(HAL_FILES) \
+  $(GUDEV_FILES) \
   $(LINUX_INPUT_FILES)
 
 # Images to copy into HTML directory.

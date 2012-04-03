@@ -1,13 +1,11 @@
 #include <libbuzztard-ic/ic.h>
 @GUDEV_DOC_TYPES@#include "libbuzztard-ic/gudev-discoverer.h"
-@HAL_DOC_TYPES@#include "libbuzztard-ic/hal-discoverer.h"
 @LINUX_INPUT_DOC_TYPES@#include "libbuzztard-ic/input-device.h"
 #include "libbuzztard-ic/midi-device.h"
 
 btic_control_get_type
 btic_device_get_type
 @GUDEV_DOC_TYPES@btic_gudev_discoverer_get_type
-@HAL_DOC_TYPES@btic_hal_discoverer_get_type
 @LINUX_INPUT_DOC_TYPES@btic_input_device_get_type
 btic_learn_get_type
 btic_midi_device_get_type

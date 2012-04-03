@@ -21,7 +21,7 @@
  * @short_description: buzztards interaction controller registry
  *
  * Manages a dynamic list of controller devices. It uses a discoverer helper to
- * scan devices. Right now GUdev or HAL + dbus are supported.
+ * scan devices. Right now GUdev is supported.
  */
 #define BTIC_CORE
 #define BTIC_REGISTRY_C
@@ -41,8 +41,6 @@ struct _BtIcRegistryPrivate {
 
 #if USE_GUDEV
   BtIcGudevDiscoverer *gudev_discoverer;
-#elif USE_HAL
-  BtIcHalDiscoverer *hal_discoverer;
 #endif
 };
 
@@ -150,8 +148,6 @@ static void btic_registry_dispose(GObject * const object) {
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
 #if USE_GUDEV
   g_object_try_unref(self->priv->gudev_discoverer);
-#elif USE_HAL
-  g_object_try_unref(self->priv->hal_discoverer);
 #endif
   if(self->priv->devices) {
     GList* node;
@@ -193,10 +189,8 @@ static GObject *btic_registry_constructor(GType type,guint n_construct_params,GO
     GST_INFO("new device registry created");
 #if USE_GUDEV
     singleton->priv->gudev_discoverer=btic_gudev_discoverer_new();
-#elif USE_HAL
-    singleton->priv->hal_discoverer=btic_hal_discoverer_new();
 #else
-    GST_INFO("no GUDev/HAL support, empty device registry");
+    GST_INFO("no GUDev support, empty device registry");
 #endif
   }
   else {
