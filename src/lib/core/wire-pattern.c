@@ -41,7 +41,7 @@
  *   - stereo-to-surround (2->4): 1 parameter
  */
 /* TODO(ensonic): BtWirePattern is not a good name :/
- * - maybe we can make BtPattern a base class and also have BtMachinePattern
+ * - see comments in pattern.c
  */
 #define BT_CORE
 #define BT_WIRE_PATTERN_C

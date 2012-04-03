@@ -39,14 +39,21 @@
  * - maybe we can make BtPattern a base class and also have BtMachinePattern
  * - or maybe we can exploit BtParameterGroup
  *   - each pattern would have a list of groups (BtValueGroup) and
- *     num_wires, num_global (0/1), num_voice
+ *     num_wires, num_internal (1), num_global (0/1), num_voice
  *   - each group would have a pointer to the BtParmeterGroup and a gvalue array
  *   - changing voice/wires would only need resizing the group-array
+ *     BtPattern::bt_pattern_on_voices_changed -> voices
+ *     BtMainPagePattern::* -> wires
+ *     - right now we create wire-patterns as needed
  *   - doing length changs or line inserts/deletion would require applying
  *     this to each group, on the other hand this would avoid the need for
  *     wirepattern and the code duplication there and most likely simplify
  *     main-page pattern, where we do something similar for
  *     BtPatternEditorColumn
+ *   - We store wire-patterns under wires right now and need to preserve that
+ *     - loading:
+ *       - create machine, load patterns
+ *       - create wire, realloc wire-pattern part in pattern and load data
  */
 /* TODO(ensonic): pattern editing
  *  - inc/dec cursor-cell/selection
@@ -128,7 +135,8 @@ static guint signals[LAST_SIGNAL]={0,};
 /* Internal parameters:
  * - BtPatternCmd
  * TODO(ensonic): we need more params:
- * - BtMachineState
+ * - we'd need to expose them in the pattern editor ui
+ * - enum BtMachineState
  *   - the machine state (BtMachineState: normal, mute, solo, bypass)
  */
 static const gulong internal_params=1;
