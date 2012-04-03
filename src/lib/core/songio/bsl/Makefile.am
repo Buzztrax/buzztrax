@@ -5,16 +5,16 @@ libdir = ${exec_prefix}/lib/buzztard-songio
 lib_LTLIBRARIES = libbtbsl.la
 libbtbsl_la_LIBADD = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
-  $(BASE_DEPS_LIBS) $(LIBINTL)
-libbtbsl_la_LDFLAGS = -module -avoid-version
+  $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL)
+libbtbsl_la_LDFLAGS = \
+	$(BT_LDFLAGS) \
+	-export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
+	-module -avoid-version
 libbtbsl_la_SOURCES = \
 	bsl.c bsl.h \
 	song-io-buzz.c song-io-buzz.h song-io-buzz-private.h \
 	version.h
 libbtbsl_la_LIBTOOLFLAGS = --tag=disable-static
-libbtbsl_la_CFLAGS = \
-	$(BASE_DEPS_CFLAGS) \
-	$(BT_CFLAGS)
 
 AM_CPPFLAGS = \
 	-I$(srcdir) \
@@ -22,8 +22,10 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
-	-DDATADIR=\"$(datadir)/buzztard\" \
-	-DG_LOG_DOMAIN=\"buzztard\"
+	-DDATADIR=\"$(datadir)\" \
+	-DG_LOG_DOMAIN=\"buzztard\" \
+	$(BASE_DEPS_CFLAGS) \
+	$(BT_CFLAGS)
 
 desktopdir = ${with_desktop_dir}/applications
 desktop_in_files = buzztard-songio-buzz.desktop.in
