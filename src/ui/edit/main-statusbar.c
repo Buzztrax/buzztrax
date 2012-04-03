@@ -290,9 +290,7 @@ static void bt_main_statusbar_init_ui(const BtMainStatusbar *self) {
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->status),TRUE,TRUE,1);
 
   // cpu load
-  // TODO(ensonic): make this dependend on settings (view menu?)
-  // TODO(ensonic): this pushes the height of the status-bar
-  //   (e.g. setting this to 10 instead of -1 saves pixels)
+  // TODO(ensonic): add some settings to show/hide (view menu?)
   self->priv->cpu_load=GTK_PROGRESS_BAR(gtk_progress_bar_new());
   // IDEA(ensonic): this could be used to avoid resizing when the label changes
   //gtk_progress_bar_set_ellipsize(self->priv->cpu_load,PANGO_ELLIPSIZE_END);

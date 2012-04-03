@@ -128,7 +128,6 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   }
   else {
     // update playback position 10 times a second
-    //self->priv->playback_update_id=g_timeout_add(100,on_song_playback_update,(gpointer)song);
     self->priv->playback_update_id=g_timeout_add_full(G_PRIORITY_HIGH,100,on_song_playback_update,(gpointer)song,NULL);
     bt_song_update_playback_position(song);
 
