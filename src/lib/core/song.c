@@ -76,10 +76,10 @@
 // this includes prerolling
 #ifndef USE_HILDON
 // 30 seconds for now
-#define BT_SONG_STATE_CHANGE_TIMEOUT (30*1000)
+#define STATE_CHANGE_TIMEOUT 30
 #else
 // 60 seconds for now
-#define BT_SONG_STATE_CHANGE_TIMEOUT (60*1000)
+#define STATE_CHANGE_TIMEOUT 60
 #endif
 
 //-- property ids
@@ -758,7 +758,7 @@ gboolean bt_song_play(const BtSong * const self) {
     case GST_STATE_CHANGE_ASYNC:
       GST_INFO("->PLAYING needs async wait");
       // start a short timeout that aborts playback if if get not started
-      self->priv->paused_timeout_id=g_timeout_add(BT_SONG_STATE_CHANGE_TIMEOUT, on_song_paused_timeout, (gpointer)self);
+      self->priv->paused_timeout_id=g_timeout_add_seconds(STATE_CHANGE_TIMEOUT, on_song_paused_timeout, (gpointer)self);
       break;
     default:
       GST_WARNING("unexpected state-change-return %d:%s",res,gst_element_state_change_return_get_name(res));

@@ -965,8 +965,8 @@ static void on_wavetable_toolbar_play_clicked(GtkToolButton *button, gpointer us
       // build seek events for looping
       preview_update_seeks(self);
 
-      // update playback position 15 times a second
-      self->priv->preview_update_id=g_timeout_add(1000/15,on_preview_playback_update,(gpointer)self);
+      // update playback position 10 times a second
+      self->priv->preview_update_id=g_timeout_add_full(G_PRIORITY_HIGH,1000/10,on_preview_playback_update,(gpointer)self,NULL);
 
       // set playing
       gst_element_set_state(self->priv->preview,GST_STATE_PLAYING);

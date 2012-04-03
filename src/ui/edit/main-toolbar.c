@@ -128,7 +128,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   }
   else {
     // update playback position 10 times a second
-    self->priv->playback_update_id=g_timeout_add_full(G_PRIORITY_HIGH,100,on_song_playback_update,(gpointer)song,NULL);
+    self->priv->playback_update_id=g_timeout_add_full(G_PRIORITY_HIGH,1000/10,on_song_playback_update,(gpointer)song,NULL);
     bt_song_update_playback_position(song);
 
     // if we started playback remotely activate playbutton
@@ -246,7 +246,7 @@ static void reset_playback_rate(BtMainToolbar *self) {
 }
 
 #define SEEK_FACTOR 1.2
-#define SEEK_TIMEOUT 2000    
+#define SEEK_TIMEOUT 2
 #define SEEK_MAX_RATE 4.0
 
 static gboolean on_song_playback_rate_rewind(gpointer user_data) {
@@ -273,7 +273,7 @@ static gboolean on_toolbar_rewind_pressed(GtkWidget *widget,GdkEventButton *even
   GST_DEBUG(" << pressed");
 
   set_new_playback_rate(self,-1.0);
-  self->priv->playback_rate_id=g_timeout_add(SEEK_TIMEOUT,on_song_playback_rate_rewind,(gpointer)self);
+  self->priv->playback_rate_id=g_timeout_add_seconds(SEEK_TIMEOUT,on_song_playback_rate_rewind,(gpointer)self);
 
   GST_DEBUG(" << <<");
 
@@ -317,7 +317,7 @@ static gboolean on_toolbar_forward_pressed(GtkWidget *widget,GdkEventButton *eve
 
   set_new_playback_rate(self,SEEK_FACTOR);
 
-  self->priv->playback_rate_id=g_timeout_add(SEEK_TIMEOUT,on_song_playback_rate_forward,(gpointer)self);
+  self->priv->playback_rate_id=g_timeout_add_seconds(SEEK_TIMEOUT,on_song_playback_rate_forward,(gpointer)self);
 
   GST_DEBUG(" >> >>");
   return(FALSE);

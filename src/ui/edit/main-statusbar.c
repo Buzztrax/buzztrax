@@ -298,7 +298,7 @@ static void bt_main_statusbar_init_ui(const BtMainStatusbar *self) {
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->cpu_load),_("CPU load"));
 
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->cpu_load),FALSE,FALSE,1);
-  self->priv->cpu_load_handler_id=g_timeout_add(1000, on_cpu_load_update, (gpointer)self);
+  self->priv->cpu_load_handler_id=g_timeout_add_seconds(1, on_cpu_load_update, (gpointer)self);
 #ifdef USE_MAIN_LOOP_IDLE_TRACKER
   self->priv->main_loop_idle_handler_id=g_idle_add_full(G_PRIORITY_LOW, on_main_loop_idle, (gpointer)self,NULL);
 #endif
