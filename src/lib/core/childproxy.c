@@ -35,8 +35,10 @@
  * scheme is recursive. Thus "child1::child2::property" is valid too, if
  * "child1" and "child2" implement the #BtChildProxy interface.
  */
-/* IDEA(ensonic): allow implementors to provide a lookup cache if they have static
- *   name -> object mappings
+/* IDEA(ensonic): allow implementors to provide a lookup cache if they have
+ *   static name -> object mappings
+ * TODO(ensonic): right now, the varargs function would lookup the owner for
+ *   each property even if it is the same
  */
 #include "core_private.h"
 #include <gobject/gvaluecollector.h>

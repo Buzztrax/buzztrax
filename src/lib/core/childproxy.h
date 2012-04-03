@@ -36,7 +36,7 @@ typedef struct _BtChildProxyInterface BtChildProxyInterface;
 /**
  * BtChildProxyInterface:
  * @get_child_by_name: virtual method to fetch the child by name
- * @get_child_by_index: virtual method to fetch the child by position
+ * @get_child_by_index: virtual method to fetch the child by index
  * @get_children_count: virtual method to get the children count
  *
  * #BtChildProxy interface.

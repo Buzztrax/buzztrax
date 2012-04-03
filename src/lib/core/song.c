@@ -141,10 +141,12 @@ struct _BtSongPrivate {
 //-- the class
 
 static void bt_song_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+static void bt_song_child_proxy_init(gpointer const g_iface, gpointer iface_data);
+
 
 G_DEFINE_TYPE_WITH_CODE (BtSong, bt_song, G_TYPE_OBJECT,
-  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
-    bt_song_persistence_interface_init));
+  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE, bt_song_persistence_interface_init)
+  G_IMPLEMENT_INTERFACE (BT_TYPE_CHILD_PROXY, bt_song_child_proxy_init));
 
 
 //-- helper
@@ -1048,39 +1050,55 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
 
 //-- child proxy interface
 
-#if 0
-/* TODO(ensonic): this only works if I turn the children into GstObject
- * the reason is that gst_child_proxy_get_child_by_name() is not a virtual method
- * in the below case we could still map names to objects
- */
-static GstObject *bt_song_child_proxy_get_child_by_index(GstChildProxy * child_proxy, guint index) {
-  const BtSong * const self = BT_SONG(persistence);
-  GstObject *res = NULL;
+static GObject *bt_song_child_proxy_get_child_by_name(BtChildProxy *child_proxy, const gchar *name) {
+  const BtSong * const self = BT_SONG(child_proxy);
+  GObject *res = NULL;
 
-  switch(index) {
-    case 0: res=self->priv->song_info;
-    case 1: res=self->priv->sequence;
-    case 2: res=self->priv->setup;
-    case 3: res=self->priv->wavtable;
-  }
+  if(!name)
+    return NULL;
+
+  if(!strcmp(name,"song-info"))
+    res=(GObject *)self->priv->song_info;
+  else if(!strcmp(name,"sequence"))
+    res=(GObject *)self->priv->sequence;
+  else if(!strcmp(name,"setup"))
+    res=(GObject *)self->priv->setup;
+  else if(!strcmp(name,"wavtable"))
+    res=(GObject *)self->priv->wavetable;
+
   if(res)
-    g_object_ref (res);
+    g_object_ref(res);
   return res;
 }
 
-guint bt_song_child_proxy_get_children_count(GstChildProxy * child_proxy) {
+static GObject *bt_song_child_proxy_get_child_by_index(BtChildProxy *child_proxy, guint index) {
+  const BtSong * const self = BT_SONG(child_proxy);
+  GObject *res = NULL;
+
+  switch(index) {
+    case 0: res=(GObject *)self->priv->song_info;break;
+    case 1: res=(GObject *)self->priv->sequence;break;
+    case 2: res=(GObject *)self->priv->setup;break;
+    case 3: res=(GObject *)self->priv->wavetable;break;
+  }
+  if(res)
+    g_object_ref(res);
+  return res;
+}
+
+guint bt_song_child_proxy_get_children_count(BtChildProxy * child_proxy) {
   return 4;
 }
 
 static void
-bt_song_child_proxy_init(gpointer g_iface, gpointer iface_data)
+bt_song_child_proxy_init(gpointer const g_iface, gpointer iface_data)
 {
-  GstChildProxyInterface *iface = g_iface;
+  BtChildProxyInterface *iface = g_iface;
 
-  iface->get_children_count = bt_song_child_proxy_get_children_count;
+  iface->get_child_by_name = bt_song_child_proxy_get_child_by_name;
   iface->get_child_by_index = bt_song_child_proxy_get_child_by_index;
+  iface->get_children_count = bt_song_child_proxy_get_children_count;
 }
-#endif
 
 //-- io interface
 
