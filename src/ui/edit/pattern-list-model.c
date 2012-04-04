@@ -86,8 +86,8 @@ static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data) {
   g_object_get(pa,"name",&ida,"is-internal",&iia,NULL);
   g_object_get(pb,"name",&idb,"is-internal",&iib,NULL);
   if(iia && iib) {
-    BtPatternCmd ca=bt_pattern_get_cmd(pa,0);
-    BtPatternCmd cb=bt_pattern_get_cmd(pb,0);
+    BtPatternCmd ca=bt_pattern_get_cmd(pa);
+    BtPatternCmd cb=bt_pattern_get_cmd(pb);
     c=(ca<cb)?-1:((ca==cb)?0:1);
   } else if (iia && !iib) {
     c=-1;

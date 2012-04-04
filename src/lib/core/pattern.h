@@ -94,7 +94,7 @@ gchar *bt_pattern_get_voice_event(const BtPattern * const self, const gulong tic
 gboolean bt_pattern_test_global_event(const BtPattern * const self, const gulong tick, const gulong param);
 gboolean bt_pattern_test_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param);
 
-BtPatternCmd bt_pattern_get_cmd(const BtPattern * const self, const gulong tick);
+BtPatternCmd bt_pattern_get_cmd(const BtPattern * const self);
 
 gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tick);
 
