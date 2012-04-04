@@ -395,28 +395,12 @@ static void preview_update_seeks(const BtMainPageWaves *self) {
     }
 
     /* swap and replace */
-    if(old_play_event) {
-      // the double cast is a work-around for : dereferencing type-punned pointer will break strict-aliasing rules
-      g_atomic_pointer_compare_and_exchange((gpointer *)((gpointer)&self->priv->play_seek_event),old_play_event,new_play_event);
-      gst_event_unref(old_play_event);
-    }
-    else {
-      self->priv->play_seek_event=new_play_event;
-    }
-    if(old_loop_event0) {
-      g_atomic_pointer_compare_and_exchange((gpointer *)&self->priv->loop_seek_event[0],old_loop_event0,new_loop_event0);
-      gst_event_unref(old_loop_event0);
-    }
-    else {
-      self->priv->loop_seek_event[0]=new_loop_event0;
-    }
-    if(old_loop_event1) {
-      g_atomic_pointer_compare_and_exchange((gpointer *)&self->priv->loop_seek_event[1],old_loop_event1,new_loop_event1);
-      gst_event_unref(old_loop_event1);
-    }
-    else {
-      self->priv->loop_seek_event[1]=new_loop_event1;
-    }
+    self->priv->play_seek_event=new_play_event;
+    if(old_play_event) gst_event_unref(old_play_event);
+    self->priv->loop_seek_event[0]=new_loop_event0;
+    if(old_loop_event0) gst_event_unref(old_loop_event0);
+    self->priv->loop_seek_event[1]=new_loop_event1;
+    if(old_loop_event1) gst_event_unref(old_loop_event1);
   }
 }
 
