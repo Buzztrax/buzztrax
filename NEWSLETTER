@@ -1,11 +1,47 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 git diff @{2012-01-01} @{2012-01-31} | diffstat
 
+2012/05 ========================================================================
+
+* More autofoo cleanups and removal of old code
+
 2012/04 ========================================================================
 
-* jack-transport settings and there with a refactored playback controller
-  settings ui
-* code cleanups
+I started hacking on the transport settings. The idea here is to have a generic
+scheme for how to control playback (start, stop, seek) externally. This can be a
+midi-controller, but also qjackcontrol or a MPRIS applet. The setting now show
+the available modules and allow to enable master and slave mode as well as mode
+specific settings. I could remove the combobox from the toolbar again.
+
+As a next big thing I started to refactor a big chunk of duplicated code in
+core. Machines have global parameters, per voice parameters and per incoming
+wire parameters. Now we have a parameter-group class that deals with those.
+
+I spend the rest of the month cleaning up the test suite and the autofoo setup.
+On the latter I bumped the required versions. The policy now is to support the
+linux distributions from about the last two years. This allowed me to remove
+large chunks of conditional code. Unfortunately it is not easy to do that. The
+easy part is to check what versions we require, by looking at the pkg-config
+macros in configure.ac. Then we can also grep for conditional section in the
+code:
+find . \( -name "*.c" -o -name "*.h" \) -exec egrep -o "[A-Z]*_CHECK_VERSION\(.*\)" {} \; | sort | uniq
+Now the tricky part is to figure what distributions ship. It is somewhat easier
+for debian/ubuntu as they have pages like:
+http://packages.debian.org/search?suite=all&arch=any&searchon=names&keywords=libgstreamer0.10-0
+http://packages.ubuntu.com/search?suite=all&section=all&arch=any&searchon=names&keywords=libgstreamer0.10
+For fedora Company suggested to look at the spec files in git and iterate over
+the branch names
+http://pkgs.fedoraproject.org/gitweb/?p=gstreamer.git;a=blob;f=gstreamer.spec;hb=f17
+For opensuse Vuntz suggested to use an osc query at which I failed misserably and
+in the end checked the packages in the repo and iterated over the versions:
+http://download.opensuse.org/distribution/12.1/repo/oss/suse/i586/
+Anyone know better tricks? Please share them!
+
+One more motivation for doing this is upcomming gsoc. If I am lucky to get a
+student who will port buzztard to gstreamer 1.0. We'll release a 0.7 of buzztard
+before we switch to the new gstreamer api.
+
+212 files changed, 7954 insertions(+), 7778 deletions(-)
 
 2012/03 ========================================================================
 
