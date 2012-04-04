@@ -15,7 +15,7 @@ rm -f /tmp/bt_cmd_encode.log
 mkdir -p $TESTRESULTDIR
 res=0
 
-trap crashed TERM
+trap crashed SIGTERM SIGSEGV
 crashed()
 {
     echo "!!! crashed"

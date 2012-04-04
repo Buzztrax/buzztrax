@@ -5,7 +5,7 @@
 
 res=0
 
-trap crashed TERM
+trap crashed SIGTERM SIGSEGV
 crashed()
 {
     echo "!!! crashed"

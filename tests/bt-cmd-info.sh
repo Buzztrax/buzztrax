@@ -20,7 +20,7 @@ rm -f /tmp/bt_cmd_info.log
 mkdir -p $TESTRESULTDIR
 res=0
 
-trap crashed TERM
+trap crashed SIGTERM SIGSEGV
 crashed()
 {
     echo "!!! crashed"
@@ -29,6 +29,13 @@ crashed()
 
 # test working examples
 for song in $E_SONGS; do
+  if [ "$BT_CHECKS" != "" ]; then
+    ls -1 $BT_CHECKS | grep >/dev/null $song
+    if [ $? -eq 1 ]; then
+      continue
+    fi
+  fi
+  
   echo "testing $song"
   info=`basename $song .xml`
   info="$TESTRESULTDIR/$info.txt"
@@ -36,12 +43,19 @@ for song in $E_SONGS; do
   GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute $BUZZTARD_CMD >$info 2>>/tmp/bt_cmd_info.log --command=info --input-file=$song
   if [ $? -ne 0 ]; then
     echo "!!! failed"
-    res=1;
+    res=1
   fi
 done
 
 # test failure cases
 for song in $T_SONGS; do
+  if [ "$BT_CHECKS" != "" ]; then
+    ls -1 $BT_CHECKS | grep >/dev/null $song
+    if [ $? -eq 1 ]; then
+      continue
+    fi
+  fi
+
   echo "testing $song"
   info=`basename $song .xml`
   info="$TESTRESULTDIR/$info.txt"
@@ -49,7 +63,7 @@ for song in $T_SONGS; do
   GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute $BUZZTARD_CMD >$info 2>>/tmp/bt_cmd_info.log --command=info --input-file=$song
   if [ $? -eq 0 ]; then
     echo "!!! failed"
-    res=1;
+    res=1
   fi
 done
 

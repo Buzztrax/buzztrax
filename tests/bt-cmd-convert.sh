@@ -14,7 +14,7 @@ rm -f /tmp/bt_cmd_convert.log
 mkdir -p $TESTRESULTDIR
 res=0
 
-trap crashed TERM
+trap crashed SIGTERM SIGSEGV
 crashed()
 {
     echo "!!! crashed"
@@ -23,6 +23,13 @@ crashed()
 
 # test examples
 for song in $E_SONGS; do
+  if [ "$BT_CHECKS" != "" ]; then
+    ls -1 $BT_CHECKS | grep >/dev/null $song
+    if [ $? -eq 1 ]; then
+      continue
+    fi
+  fi
+
   echo "testing $song"
   output=`basename $song .xml`
   tmpout="$TESTRESULTDIR/$output.out.xml"
