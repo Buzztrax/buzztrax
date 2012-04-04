@@ -2615,8 +2615,10 @@ static void bt_machine_dispose(GObject * const object) {
 
   // unref param groups
   g_object_try_unref(self->priv->global_param_group);
-  for(i=0;i<voices;i++) {
-    g_object_try_unref(self->priv->voice_param_groups[i]);
+  if(self->priv->voice_param_groups) {
+    for(i=0;i<voices;i++) {
+      g_object_try_unref(self->priv->voice_param_groups[i]);
+    }
   }
 
   GST_DEBUG("  chaining up");
