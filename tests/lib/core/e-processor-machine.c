@@ -83,7 +83,7 @@ BT_START_TEST(test_btprocessormachine_obj2) {
   fail_unless(voices==0, NULL);
 
   /* try to get the same pattern back per id */
-  ref_pattern=bt_machine_get_pattern_by_id(BT_MACHINE(machine),"pattern-id");
+  ref_pattern=(BtPattern *)bt_machine_get_pattern_by_id(BT_MACHINE(machine),"pattern-id");
   fail_unless(ref_pattern==pattern, NULL);
   g_object_try_unref(ref_pattern);
 

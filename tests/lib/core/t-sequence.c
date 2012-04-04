@@ -224,7 +224,7 @@ BT_START_TEST(test_btsequence_pattern1) {
 
   /* set pattern (which should be rejected - no track has been added) */
 	check_init_error_trapp("bt_sequence_set_pattern","track<self->priv->tracks");
-  bt_sequence_set_pattern(sequence,0,0,pattern);
+  bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern);
 	fail_unless(check_has_error_trapped(), NULL);
 
   /* clean up */
@@ -242,7 +242,7 @@ BT_START_TEST(test_btsequence_pattern2) {
   BtSong *song;
   BtSequence *sequence;
   BtMachine *machine1,*machine2;
-  BtPattern *pattern1,*pattern2,*pattern3;
+  BtCmdPattern *pattern1,*pattern2,*pattern3;
 
   /* create app and song */
   app=bt_test_application_new();
@@ -256,7 +256,7 @@ BT_START_TEST(test_btsequence_pattern2) {
   fail_unless(machine2!=NULL, NULL);
   fail_unless(err==NULL, NULL);
   /* create a pattern */
-  pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine1);
+  pattern1=(BtCmdPattern *)bt_pattern_new(song,"pattern-id","pattern-name",8L,machine1);
   fail_unless(pattern1!=NULL, NULL);
 
   /* enlarge length*/

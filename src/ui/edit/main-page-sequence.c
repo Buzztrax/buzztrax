@@ -599,10 +599,10 @@ static GtkWidget* make_mini_button(const gchar *txt,gfloat rf,gfloat gf,gfloat b
 
 //-- tree model helper
 
-static BtPattern *pattern_list_model_get_pattern_by_key(GtkTreeModel *store,gchar that_key) {
+static BtCmdPattern *pattern_list_model_get_pattern_by_key(GtkTreeModel *store,gchar that_key) {
   GtkTreeIter iter;
   gchar *this_key;
-  BtPattern *pattern=NULL;
+  BtCmdPattern *pattern=NULL;
 
   GST_INFO("look up pattern for key: '%c'",that_key);
 
@@ -624,7 +624,7 @@ static BtPattern *pattern_list_model_get_pattern_by_key(GtkTreeModel *store,gcha
 static void sequence_range_copy(const BtMainPageSequence *self,glong track_beg,glong track_end,glong tick_beg,glong tick_end,GString *data) {
   BtSequence *sequence=self->priv->sequence;
   BtMachine *machine;
-  BtPattern *pattern;
+  BtCmdPattern *pattern;
 	glong i,j,col;
 	gchar *id,*str;
 	gulong sequence_length;
@@ -2165,12 +2165,12 @@ static void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer use
   g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_sequence_table_cursor_changed_idle,user_data,NULL);
 }
 
-static gboolean change_pattern(BtMainPageSequence *self, BtPattern *new_pattern,gulong row,gulong track) {
+static gboolean change_pattern(BtMainPageSequence *self, BtCmdPattern *new_pattern,gulong row,gulong track) {
 	gboolean res=FALSE;
 	BtMachine *machine;
 
 	if((machine=bt_sequence_get_machine(self->priv->sequence,track))) {
-		BtPattern *old_pattern=bt_sequence_get_pattern(self->priv->sequence,row,track);
+		BtCmdPattern *old_pattern=bt_sequence_get_pattern(self->priv->sequence,row,track);
 		gchar *undo_str,*redo_str;
 		gchar *mid,*old_pid=NULL,*new_pid=NULL;
 
@@ -2232,13 +2232,15 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
       // first column is label
       if(track>0) {
         BtMainPagePatterns *patterns_page;
-        BtPattern *pattern;
+        BtCmdPattern *pattern;
 
         bt_child_proxy_get(self->priv->main_window,"pages::patterns-page",&patterns_page,NULL);
         bt_child_proxy_set(self->priv->main_window,"pages::page",BT_MAIN_PAGES_PATTERNS_PAGE,NULL);
         if((row<length) && (pattern=bt_sequence_get_pattern(self->priv->sequence,row,track-1))) {
           GST_INFO("show pattern");
-          bt_main_page_patterns_show_pattern(patterns_page,pattern);
+          if(BT_IS_PATTERN(pattern)) {
+            bt_main_page_patterns_show_pattern(patterns_page,(BtPattern *)pattern);
+          }
           g_object_unref(pattern);
         }
         else {
@@ -2484,7 +2486,7 @@ static gboolean on_sequence_table_key_press_event(GtkWidget *widget,GdkEventKey 
       // first column is label
       if(track>0) {
         gchar key=(gchar)(event->keyval&0xff);
-        BtPattern *new_pattern;
+        BtCmdPattern *new_pattern;
         GtkTreeModel *store;
 
         store=gtk_tree_view_get_model(self->priv->pattern_list);
@@ -2884,7 +2886,7 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
 		bt_change_log_start_group(self->priv->change_log);
   	while((track=bt_sequence_get_track_by_machine(sequence,machine,track))>-1) {
       tick=0;
-      while((tick=bt_sequence_get_tick_by_pattern(sequence,track,pattern,tick))>-1) {
+      while((tick=bt_sequence_get_tick_by_pattern(sequence,track,(BtCmdPattern *)pattern,tick))>-1) {
         undo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,tick,tick,mid,pid);
         redo_str = g_strdup_printf("set_patterns %lu,%lu,%lu,%s,%s",track,tick,tick,mid," ");
         bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
@@ -3483,7 +3485,7 @@ static gboolean sequence_deserialize_pattern_track(BtMainPageSequence *self,GtkT
 		if(!strcmp(id,fields[0])) {
 			if(gtk_tree_model_get_iter(store,&iter,path)) {
 				BtSequence *sequence=self->priv->sequence;
-				BtPattern *pattern;
+				BtCmdPattern *pattern;
 				gint j=1;
 				gulong sequence_length;
 

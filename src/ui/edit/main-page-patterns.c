@@ -2213,7 +2213,7 @@ static void lookup_machine_and_pattern(const BtMainPagePatterns *self,BtMachine 
     *machine=bt_setup_get_machine_by_id(setup,mid);
     if (pid) {
       g_object_try_unref(*pattern);
-      *pattern=bt_machine_get_pattern_by_id(*machine,pid);
+      *pattern=(BtPattern *)bt_machine_get_pattern_by_id(*machine,pid);
       switch_machine_and_pattern(self,*machine,*pattern);
     }
     g_object_unref(setup);
@@ -2221,7 +2221,7 @@ static void lookup_machine_and_pattern(const BtMainPagePatterns *self,BtMachine 
   } else if(pid && (!c_pid || strcmp(pid,c_pid))) {
     // change pattern
     g_object_try_unref(*pattern);
-    *pattern=bt_machine_get_pattern_by_id(*machine,pid);
+    *pattern=(BtPattern *)bt_machine_get_pattern_by_id(*machine,pid);
     switch_machine_and_pattern(self,NULL,*pattern);
   }
 }
@@ -2387,9 +2387,8 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   //BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  BtPattern *pattern=NULL;
   GList *node,*list;
-  gboolean is_internal;
+  BtCmdPattern *pattern;
 
   g_return_if_fail(BT_IS_MACHINE(machine));
 
@@ -2398,9 +2397,8 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   // remove all patterns to ensure we emit "pattern-removed" signals
   g_object_get(machine,"patterns",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
-    pattern=BT_PATTERN(node->data);
-    g_object_get(pattern,"is-internal",&is_internal,NULL);
-    if(!is_internal) {
+    pattern=BT_CMD_PATTERN(node->data);
+    if(BT_IS_PATTERN(pattern)) {
       GST_DEBUG("removing pattern: %p,ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
       bt_machine_remove_pattern(machine,pattern);
       GST_DEBUG("removed pattern: %p,ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
@@ -2542,7 +2540,7 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtSequence *sequence;
   BtMachine *machine,*cur_machine=self->priv->machine;
-  BtPattern *pattern;
+  BtCmdPattern *pattern;
   gulong i,pos,spos;
   glong j;
   gulong tracks,length,sequence_length;
@@ -2568,7 +2566,7 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
           // get pattern for current machine and current tick from sequence
           if((pattern=bt_sequence_get_pattern(sequence,j,i))) {
             // if it is the pattern we currently show, set play-line
-            if(pattern==self->priv->pattern) {
+            if(pattern==(BtCmdPattern *)self->priv->pattern) {
               play_pos=(gdouble)(pos-j)/(gdouble)length;
               g_object_set(self->priv->pattern_table,"play-position",play_pos,NULL);
               found=TRUE;
@@ -2623,7 +2621,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"selected-pattern"))) {
     BtPattern *new_pattern;
 
-    if((new_pattern=bt_machine_get_pattern_by_id(self->priv->machine,prop))) {
+    if((new_pattern=(BtPattern *)bt_machine_get_pattern_by_id(self->priv->machine,prop))) {
       g_object_try_unref(self->priv->pattern);
       self->priv->pattern=new_pattern;
     }
@@ -2678,7 +2676,6 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
   GString *old_data;
   gulong length;
   gint group;
-  gboolean is_internal;
 
   g_object_get(self->priv->machine,"voices",&voices,"id",&mid,"patterns",&list,NULL);
 
@@ -2687,8 +2684,8 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
   redo_str = g_strdup_printf("set_voices \"%s\",%lu",mid,voices-1);
   bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,redo_str);
 
-  /* this is hackish, we muck with self->priv->pattern as some local
-   * methods assume the current pattern */ 
+  /* TODO(ensonic): this is hackish, we muck with self->priv->pattern as
+   * some local methods assume the current pattern */ 
   for(group=0;group<self->priv->number_of_groups;group++) {
     BtPatternEditorColumnGroup *g=&self->priv->param_groups[group];
     if((g->type==PGT_VOICE) && (g->user_data==GUINT_TO_POINTER(voices-1)))
@@ -2697,10 +2694,9 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
   /* save voice-data for *all* patterns of this machine */
   saved_pattern=self->priv->pattern;
   for(node=list;node;node=g_list_next(node)) {
-    self->priv->pattern=BT_PATTERN(node->data);
-    
-    g_object_get(self->priv->pattern,"length",&length,"is-internal",&is_internal,NULL);
-    if(!is_internal) {
+    if(BT_IS_PATTERN(node->data)) {
+      self->priv->pattern=(BtPattern *)(node->data);
+      g_object_get(self->priv->pattern,"length",&length,NULL);
       old_data=g_string_new(NULL);
       pattern_range_copy(self,0,length-1,group,-1,old_data);
       pattern_range_log_undo_redo(self,0,length-1,group,-1,old_data->str,g_strdup(old_data->str));
@@ -2753,7 +2749,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
     context_menu_refresh(self,self->priv->machine);
   }
   else {
-    bt_machine_remove_pattern(self->priv->machine,pattern);
+    bt_machine_remove_pattern(self->priv->machine,(BtCmdPattern *)pattern);
   }
   gtk_widget_destroy(dialog);
 
@@ -2815,10 +2811,9 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
         GString *old_data;
         gulong length;
         gint group,beg_group,end_group;
-        gboolean is_internal;
 
-        /* this is hackish, we muck with self->priv->pattern as some local
-         * methods assume the current pattern */ 
+        /* TODO(ensonic): this is hackish, we muck with self->priv->pattern as
+         * some local methods assume the current pattern */ 
         for(group=0;group<self->priv->number_of_groups;group++) {
           BtPatternEditorColumnGroup *g=&self->priv->param_groups[group];
           if((g->type==PGT_VOICE) && (g->user_data==GUINT_TO_POINTER(new_voices)))
@@ -2829,10 +2824,9 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
         g_object_get(machine,"patterns",&list,NULL);
         saved_pattern=self->priv->pattern;
         for(node=list;node;node=g_list_next(node)) {
-          self->priv->pattern=BT_PATTERN(node->data);
-          
-          g_object_get(self->priv->pattern,"length",&length,"is-internal",&is_internal,NULL);
-          if(!is_internal) {
+          if(BT_IS_PATTERN(node->data)) {
+            self->priv->pattern=(BtPattern *)(node->data);
+            g_object_get(self->priv->pattern,"length",&length,NULL);
             for(group=beg_group;group<end_group;group++) {
               old_data=g_string_new(NULL);
               pattern_range_copy(self,0,length-1,group,-1,old_data);
@@ -2857,7 +2851,7 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
 
 static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  BtPattern *pattern=self->priv->pattern;
+  BtCmdPattern *pattern=(BtCmdPattern *)self->priv->pattern;
 	BtMachine *machine;
 
   g_return_if_fail(pattern);
@@ -2911,7 +2905,7 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
     context_menu_refresh(self,machine);
   }
   else {
-    bt_machine_remove_pattern(machine,pattern);
+    bt_machine_remove_pattern(machine,(BtCmdPattern *)pattern);
   }
   gtk_widget_destroy(dialog);
 
@@ -3655,7 +3649,7 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
 
       GST_DEBUG("-> [%s|%s]",mid,pid);
       lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
-      bt_machine_remove_pattern(machine,pattern);
+      bt_machine_remove_pattern(machine,(BtCmdPattern *)pattern);
       res=TRUE;
 
       context_menu_refresh(self,machine);

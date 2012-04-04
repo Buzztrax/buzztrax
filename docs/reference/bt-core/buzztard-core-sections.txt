@@ -65,6 +65,26 @@ bt_child_proxy_get_type
 </SECTION>
 
 <SECTION>
+<FILE>btcmdpattern</FILE>
+<TITLE>BtCmdPattern</TITLE>
+BtCmdPattern
+BtPatternCmd
+bt_cmd_pattern_new
+<SUBSECTION Standard>
+BT_IS_CMD_PATTERN
+BT_IS_CMD_PATTERN_CLASS
+BT_CMD_PATTERN
+BT_CMD_PATTERN_CLASS
+BT_CMD_PATTERN_GET_CLASS
+BT_TYPE_CMD_PATTERN
+BT_TYPE_PATTERN_CMD
+BtCmdPatternClass
+BtCmdPatternPrivate
+bt_pattern_cmd_get_type
+bt_cmd_pattern_get_type
+</SECTION>
+
+<SECTION>
 <FILE>btgconfsettings</FILE>
 <TITLE>BtGConfSettings</TITLE>
 BtGConfSettings
@@ -169,7 +189,6 @@ bt_parameter_group_get_type
 <FILE>btpattern</FILE>
 <TITLE>BtPattern</TITLE>
 BtPattern
-BtPatternCmd
 bt_pattern_blend_column
 bt_pattern_blend_columns
 bt_pattern_copy
@@ -180,7 +199,6 @@ bt_pattern_delete_row
 bt_pattern_deserialize_column
 bt_pattern_flip_column
 bt_pattern_flip_columns
-bt_pattern_get_cmd
 bt_pattern_get_global_event
 bt_pattern_get_global_event_data
 bt_pattern_get_voice_event
@@ -188,7 +206,6 @@ bt_pattern_get_voice_event_data
 bt_pattern_insert_full_row
 bt_pattern_insert_row
 bt_pattern_new
-bt_pattern_new_with_event
 bt_pattern_randomize_column
 bt_pattern_randomize_columns
 bt_pattern_serialize_column
@@ -205,10 +222,8 @@ BT_PATTERN
 BT_PATTERN_CLASS
 BT_PATTERN_GET_CLASS
 BT_TYPE_PATTERN
-BT_TYPE_PATTERN_CMD
 BtPatternClass
 BtPatternPrivate
-bt_pattern_cmd_get_type
 bt_pattern_get_type
 </SECTION>
 

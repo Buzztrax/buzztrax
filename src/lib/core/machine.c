@@ -64,8 +64,8 @@
  * after deactivation (so that they can be easily reactivated) and destroyed with
  * the #BtMachine object.
  *
- * Furthermore the machine handles a list of #BtPattern instances. These contain
- * event patterns that form a #BtSequence.
+ * Furthermore the machine handles a list of #BtCmdPattern instances. These 
+ * contain event patterns that form a #BtSequence.
  */
 
 /* TODO(ensonic): machine part creation api
@@ -176,7 +176,7 @@ struct _BtMachinePrivate {
   BtParameterGroup *global_param_group,**voice_param_groups;
 
   /* event patterns */
-  GList *patterns;  // each entry points to BtPattern
+  GList *patterns;  // each entry points to BtCmdPattern
   guint private_patterns;
 
   /* the gstreamer elements that are used */
@@ -1398,13 +1398,11 @@ static void check_pattern_ownership (gpointer data, GObject *obj) {
  * Add the supplied pattern to the machine. This is automatically done by
  * bt_pattern_new().
  */
-void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * const pattern) {
+void bt_machine_add_pattern(const BtMachine * const self, const BtCmdPattern * const pattern) {
   g_return_if_fail(BT_IS_MACHINE(self));
-  g_return_if_fail(BT_IS_PATTERN(pattern));
+  g_return_if_fail(BT_IS_CMD_PATTERN(pattern));
 
   if(!g_list_find(self->priv->patterns,pattern)) {
-    gboolean is_internal;
-
     self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref((gpointer)pattern));
 
     // DEBUG
@@ -1414,8 +1412,7 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
     // DEBUG
 
     // check if its a internal pattern and if it is update count of those
-    g_object_get((gpointer)pattern,"is-internal",&is_internal,NULL);
-    if(is_internal) {
+    if(!BT_IS_PATTERN(pattern)) {
       self->priv->private_patterns++;
       GST_DEBUG("adding internal pattern %p,ref_ct=%d, nr=%u",pattern,G_OBJECT_REF_COUNT(pattern),self->priv->private_patterns);
     }
@@ -1436,7 +1433,7 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
  *
  * Remove the given pattern from the machine.
  */
-void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * const pattern) {
+void bt_machine_remove_pattern(const BtMachine * const self, const BtCmdPattern * const pattern) {
   GList *node;
   g_return_if_fail(BT_IS_MACHINE(self));
   g_return_if_fail(BT_IS_PATTERN(pattern));
@@ -1469,11 +1466,11 @@ void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * c
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
  * Unref the pattern, when done with it.
  *
- * Returns: #BtPattern instance or %NULL if not found
+ * Returns: #BtCmdPattern instance or %NULL if not found
  */
-BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar * const id) {
+BtCmdPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar * const id) {
   gboolean found=FALSE;
-  BtPattern *pattern;
+  BtCmdPattern *pattern;
   gchar *pattern_id;
   GList* node;
 
@@ -1483,7 +1480,7 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar
   //GST_DEBUG("pattern-list.length=%d",g_list_length(self->priv->patterns));
 
   for(node=self->priv->patterns;node;node=g_list_next(node)) {
-    pattern=BT_PATTERN(node->data);
+    pattern=BT_CMD_PATTERN(node->data);
     g_object_get(pattern,"id",&pattern_id,NULL);
     if(!strcmp(pattern_id,id)) found=TRUE;
     g_free(pattern_id);
@@ -1502,11 +1499,11 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
  * Unref the pattern, when done with it.
  *
- * Returns: #BtPattern instance or %NULL if not found
+ * Returns: #BtCmdPattern instance or %NULL if not found
  */
-BtPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name) {
+BtCmdPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name) {
   gboolean found=FALSE;
-  BtPattern *pattern;
+  BtCmdPattern *pattern;
   gchar *pattern_name;
   GList* node;
 
@@ -1516,7 +1513,7 @@ BtPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gch
   //GST_DEBUG("pattern-list.length=%d",g_list_length(self->priv->patterns));
 
   for(node=self->priv->patterns;node;node=g_list_next(node)) {
-    pattern=BT_PATTERN(node->data);
+    pattern=BT_CMD_PATTERN(node->data);
     g_object_get(pattern,"name",&pattern_name,NULL);
     if(!strcmp(pattern_name,name)) found=TRUE;
     g_free(pattern_name);
@@ -1535,10 +1532,10 @@ BtPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gch
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
  * Unref the pattern, when done with it.
  *
- * Returns: #BtPattern instance or %NULL if not found
+ * Returns: #BtCmdPattern instance or %NULL if not found
  */
-BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index) {
-  BtPattern *pattern;
+BtCmdPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index) {
+  BtCmdPattern *pattern;
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
 
   if((pattern=g_list_nth_data(self->priv->patterns,(guint)index))) {
@@ -1557,7 +1554,7 @@ BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const g
  * Returns: the newly allocated unique name
  */
 gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self) {
-  BtPattern *pattern=NULL;
+  BtCmdPattern *pattern=NULL;
   gchar *id,*ptr;
   guint8 i=0;
 
@@ -2364,7 +2361,6 @@ static void bt_machine_release_pad(GstElement *element, GstPad *pad) {
 
 static void bt_machine_constructed(GObject *object) {
   BtMachine * const self=BT_MACHINE(object);
-  BtPattern *pattern;
 
   GST_INFO("machine constructed ...");
 
@@ -2408,10 +2404,8 @@ static void bt_machine_constructed(GObject *object) {
   }
 
   // prepare common internal patterns for the machine
-  pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BREAK);
-  g_object_unref(pattern);
-  pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE);
-  g_object_unref(pattern);
+  g_object_unref(bt_cmd_pattern_new(self->priv->song,self,BT_PATTERN_CMD_BREAK));
+  g_object_unref(bt_cmd_pattern_new(self->priv->song,self,BT_PATTERN_CMD_MUTE));
 
   GST_INFO_OBJECT(self,"machine %p,ref_ct=%d has been constructed",self,G_OBJECT_REF_COUNT(self));
   return;

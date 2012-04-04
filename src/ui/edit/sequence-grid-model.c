@@ -196,7 +196,7 @@ static void update_length(BtSequenceGridModel *model,gulong old_length,gulong ne
 
 static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
   BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(user_data);
-  BtPattern *that_pattern;
+  BtCmdPattern *that_pattern;
   GtkTreePath *path;
   GtkTreeIter iter;
   gulong i,j;
@@ -210,7 +210,7 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   for(i=0;i<length;i++) {
     for(j=0;j<tracks;j++) {
       if((that_pattern=bt_sequence_get_pattern(model->priv->sequence,i,j))) {
-        if(that_pattern==pattern) {
+        if(that_pattern==(BtCmdPattern *)pattern) {
           iter.user_data=GUINT_TO_POINTER(i);
           path=gtk_tree_path_new();
           gtk_tree_path_append_index(path,i);
@@ -392,7 +392,6 @@ static GtkTreePath *bt_sequence_grid_model_tree_model_get_path(GtkTreeModel *tre
 
 static void bt_sequence_grid_model_tree_model_get_value(GtkTreeModel *tree_model,GtkTreeIter *iter,gint column,GValue *value) {
   BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(tree_model);
-  BtPattern *pattern;
   guint track,tick;
   
   //GST_DEBUG("getting value for column=%d / (%d+%d)",column,N_COLUMNS,model->priv->tracks);
@@ -429,6 +428,8 @@ static void bt_sequence_grid_model_tree_model_get_value(GtkTreeModel *tree_model
       break;
     default:
       if(tick<model->priv->length) {
+        BtCmdPattern *pattern;
+
         track=column-N_COLUMNS;
         //GST_LOG("getting pattern name for tick=%u,track=%u",tick,track);
         if((pattern=bt_sequence_get_pattern(model->priv->sequence,tick,track))) {

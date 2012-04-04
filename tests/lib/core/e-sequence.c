@@ -280,7 +280,7 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
   BtSong *song;
   BtSequence *sequence;
   BtMachine *machine;
-  BtPattern *pattern1,*pattern2;
+  BtCmdPattern *pattern1,*pattern2;
   gulong i,j,length,tracks;
 
   /* create app and song */
@@ -292,7 +292,7 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
   fail_unless(machine!=NULL, NULL);
   fail_unless(err==NULL, NULL);
   /* try to create a pattern */
-  pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+  pattern1=(BtCmdPattern *)bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   fail_unless(pattern1!=NULL, NULL);
 
   /* try to enlarge length */
@@ -442,7 +442,7 @@ BT_START_TEST(test_btsequence_change_pattern) {
   bt_sequence_add_track(sequence,machine,-1);
 
   /* set pattern */
-  bt_sequence_set_pattern(sequence,0,0,pattern);
+  bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern);
 
   bt_pattern_set_global_event(pattern,0,0,"100");
 
@@ -501,8 +501,8 @@ BT_START_TEST(test_btsequence_ctrl_two_tracks) {
   bt_sequence_add_track(sequence,machine,-1);
 
   /* set pattern */
-  bt_sequence_set_pattern(sequence,0,0,pattern);
-  bt_sequence_set_pattern(sequence,1,1,pattern);
+  bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern);
+  bt_sequence_set_pattern(sequence,1,1,(BtCmdPattern *)pattern);
 
   bt_pattern_set_global_event(pattern,0,0,"50");
   bt_pattern_set_global_event(pattern,1,0,"100");
@@ -618,7 +618,7 @@ BT_START_TEST(test_btsequence_ticks) {
   bt_pattern_set_global_event(pattern,6,1,"6");
   bt_pattern_set_global_event(pattern,7,1,"7");
 
-  bt_sequence_set_pattern(sequence,0,0,pattern);
+  bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern);
 
   /* we should still have the default value */
   g_object_get(element,"wave",&val,NULL);

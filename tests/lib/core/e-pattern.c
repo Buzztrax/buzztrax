@@ -161,7 +161,7 @@ BT_START_TEST(test_btpattern_obj_poly2) {
   bt_sequence_add_track(sequence,machine,-1);
 
   /* set pattern */
-  bt_sequence_set_pattern(sequence,0,0,pattern);
+  bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern);
 
   /* set some test data */
   bt_pattern_set_global_event(pattern,0,0,"5");

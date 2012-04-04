@@ -28,6 +28,7 @@ libbuzztard_core_la_SOURCES = \
 	application.c \
 	audio-session.c \
 	childproxy.c \
+	cmd-pattern.c \
 	$(GCONF_SETTINGS_C_FILES) \
 	machine.c \
 	parameter-group.c \
@@ -81,6 +82,7 @@ libbuzztard_core_HEADERS = \
 	application.h \
 	audio-session.h \
 	childproxy.h \
+	cmd-pattern.h \
 	$(GCONF_SETTINGS_H_FILES) \
 	machine.h \
 	parameter-group.h \

@@ -190,7 +190,6 @@ static void bt_processor_machine_constructed(GObject *object) {
     GstElement * const element;
     BtSong * const song;
     BtSetup *setup;
-    BtPattern *pattern;
     BtMachine *machine=(BtMachine *)self;
 
     g_object_get(self,"machine",&element,"song",&song,NULL);
@@ -198,8 +197,7 @@ static void bt_processor_machine_constructed(GObject *object) {
       gst_base_transform_set_passthrough((GstBaseTransform *)element,FALSE);
     }
     gst_object_unref(element);
-    pattern=bt_pattern_new_with_event(song,machine,BT_PATTERN_CMD_BYPASS);
-    g_object_unref(pattern);
+    g_object_unref(bt_cmd_pattern_new(song,machine,BT_PATTERN_CMD_BYPASS));
 
     bt_machine_activate_adder(machine);
     bt_machine_activate_spreader(machine);

@@ -53,13 +53,13 @@ BT_START_TEST(test_btpattern_obj1) {
   fail_unless(pattern != NULL, NULL);
   g_object_unref(pattern);
 
-  check_init_error_trapp("bt_pattern_","BT_IS_STRING(self->priv->id)");
+  check_init_error_trapp("bt_cmd_pattern_","BT_IS_STRING(self->priv->id)");
   pattern=bt_pattern_new(song,NULL,"pattern-name",1L,NULL);
   fail_unless(check_has_error_trapped(), NULL);
   fail_unless(pattern != NULL, NULL);
   g_object_unref(pattern);
 
-  check_init_error_trapp("bt_pattern_","BT_IS_STRING(self->priv->name)");
+  check_init_error_trapp("bt_cmd_pattern_","BT_IS_STRING(self->priv->name)");
   pattern=bt_pattern_new(song,"pattern-id",NULL,1L,NULL);
   fail_unless(check_has_error_trapped(), NULL);
   fail_unless(pattern != NULL, NULL);

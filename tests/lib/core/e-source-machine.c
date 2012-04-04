@@ -77,8 +77,7 @@ BT_START_TEST(test_btsourcemachine_obj2){
   GError *err=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
-  BtPattern *pattern=NULL;
-  BtPattern *ref_pattern=NULL;
+  BtCmdPattern *pattern=NULL,*ref_pattern=NULL;
   GList *list,*node;
   gulong voices;
 
@@ -92,7 +91,7 @@ BT_START_TEST(test_btsourcemachine_obj2){
   fail_unless(err==NULL, NULL);
 
   /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
+  pattern=(BtCmdPattern *)bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   fail_unless(pattern!=NULL, NULL);
 
   /* verify number of voices */

@@ -1099,7 +1099,7 @@ static BtPersistence *bt_wire_pattern_persistence_load(const GType type, const B
     }
 
     g_object_get(wire,"dst",&dst_machine,NULL);
-    pattern=bt_machine_get_pattern_by_id(dst_machine,(gchar *)pattern_id);
+    pattern=(BtPattern *)bt_machine_get_pattern_by_id(dst_machine,(gchar *)pattern_id);
     
     self=bt_wire_pattern_new(song,wire,pattern);
     result=BT_PERSISTENCE(self);

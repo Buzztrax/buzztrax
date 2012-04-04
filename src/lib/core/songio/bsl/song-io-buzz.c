@@ -1461,7 +1461,7 @@ static gboolean read_sequ_section(const BtSongIOBuzz *self,const BtSong *song) {
   BtSequence *sequence;
   BtSetup *setup;
   BtMachine *machine;
-  BtPattern *pattern;
+  BtCmdPattern *pattern;
   gboolean sequence_changed=FALSE;
 
   if(!entry) return(FALSE);

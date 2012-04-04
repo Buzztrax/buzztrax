@@ -74,36 +74,42 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
 
 // we are comparing by type and name
 static gint model_item_cmp(gconstpointer a,gconstpointer b,gpointer data) {
-  BtPattern *pa=(BtPattern *)a;
-  BtPattern *pb=(BtPattern *)b;
-  gchar *ida,*idb;
+  BtCmdPattern *pa=(BtCmdPattern *)a;
+  BtCmdPattern *pb=(BtCmdPattern *)b;
   gboolean iia,iib;
   gint c;
 
   if(a==b)
     return 0;
 
-  g_object_get(pa,"name",&ida,"is-internal",&iia,NULL);
-  g_object_get(pb,"name",&idb,"is-internal",&iib,NULL);
+  iia=!BT_IS_PATTERN(pa);
+  iib=!BT_IS_PATTERN(pb);
   if(iia && iib) {
-    BtPatternCmd ca=bt_pattern_get_cmd(pa);
-    BtPatternCmd cb=bt_pattern_get_cmd(pb);
+    BtPatternCmd ca,cb;
+    g_object_get(pa,"command",&ca,NULL);
+    g_object_get(pb,"command",&cb,NULL);
     c=(ca<cb)?-1:((ca==cb)?0:1);
+    GST_LOG("comparing %d <-> %d: %d",ca,cb,c);
   } else if (iia && !iib) {
     c=-1;
+    GST_LOG("comparing cmd <-> data: -1");
   } else if (!iia && iib) {
     c=1;
+    GST_LOG("comparing data <-> cmd: 1");
   } else {
+    gchar *ida,*idb;
+    g_object_get(pa,"name",&ida,NULL);
+    g_object_get(pb,"name",&idb,NULL);
     c=strcmp(ida,idb);
+    GST_LOG("comparing %s <-> %s: %d",ida,idb,c);
+    g_free(ida);g_free(idb);
   }
-  GST_LOG("comparing %s <-> %s: %d",ida,idb,c);
-  g_free(ida);g_free(idb);
 
   return (c);
 }
 
 
-static void bt_pattern_list_model_add(BtPatternListModel *model,BtPattern *pattern) {
+static void bt_pattern_list_model_add(BtPatternListModel *model,BtCmdPattern *pattern) {
   GSequence *seq=model->priv->seq;
   GtkTreePath *path;
   GtkTreeIter iter;
@@ -111,9 +117,7 @@ static void bt_pattern_list_model_add(BtPatternListModel *model,BtPattern *patte
 
   // check if pattern is internal
   if(model->priv->skip_internal) {
-    gboolean is_internal;
-    g_object_get(pattern,"is-internal",&is_internal,NULL);
-    if(is_internal) {
+    if(!BT_IS_PATTERN(pattern)) {
       GST_INFO("not adding internal pattern to model");
       return;
     }
@@ -207,7 +211,7 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
 }
 
 
-static void on_pattern_added(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
+static void on_pattern_added(BtMachine *machine,BtCmdPattern *pattern,gpointer user_data) {
   BtPatternListModel *model=BT_PATTERN_LIST_MODEL(user_data);
 
   bt_pattern_list_model_add(model,pattern);
@@ -263,7 +267,7 @@ static void on_sequence_pattern_usage_changed(BtSequence *sequence,BtPattern *pa
 
 BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *sequence,gboolean skip_internal) {
   BtPatternListModel *self;
-  BtPattern *pattern;
+  BtCmdPattern *pattern;
   GList *node,*list;
 
   self=g_object_new(BT_TYPE_PATTERN_LIST_MODEL, NULL);
@@ -292,7 +296,7 @@ BtPatternListModel *bt_pattern_list_model_new(BtMachine *machine,BtSequence *seq
   g_object_get((gpointer)machine,"patterns",&list,NULL);
   // add patterns
   for(node=list;node;node=g_list_next(node)) {
-    pattern=BT_PATTERN(node->data); // we take no extra ref on the patterns here
+    pattern=BT_CMD_PATTERN(node->data); // we take no extra ref on the patterns here
     bt_pattern_list_model_add(self,pattern);
     g_object_unref(pattern);
   }
@@ -399,7 +403,7 @@ static void bt_pattern_list_model_tree_model_get_value(GtkTreeModel *tree_model,
 
         if(!model->priv->skip_internal) {
           /* treat internal patterns as always used */
-          g_object_get(pattern,"is-internal",&is_used,NULL);
+          is_used=!BT_IS_PATTERN(pattern);
         }
         if(!is_used && model->priv->sequence) {
           is_used=bt_sequence_is_pattern_used(model->priv->sequence,pattern);
@@ -412,7 +416,7 @@ static void bt_pattern_list_model_tree_model_get_value(GtkTreeModel *tree_model,
 
         if(!model->priv->skip_internal) {
           /* treat internal patterns as always used */
-          g_object_get(pattern,"is-internal",&is_used,NULL);
+          is_used=!BT_IS_PATTERN(pattern);
         }
         if(!is_used && model->priv->sequence) {
           is_used=bt_sequence_is_pattern_used(model->priv->sequence,pattern);
@@ -526,7 +530,7 @@ static void bt_pattern_list_model_finalize(GObject *object) {
 
   if(self->priv->machine) {
     BtMachine *machine=self->priv->machine;
-    BtPattern *pattern;
+    BtCmdPattern *pattern;
     GList *list, *node;
     
     g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pattern_added,(gpointer)self);
@@ -534,7 +538,7 @@ static void bt_pattern_list_model_finalize(GObject *object) {
 
     g_object_get((gpointer)machine,"patterns",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
-      pattern=BT_PATTERN(node->data);
+      pattern=BT_CMD_PATTERN(node->data);
       g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pattern_name_changed,(gpointer)self);
       g_object_unref(pattern);
     }

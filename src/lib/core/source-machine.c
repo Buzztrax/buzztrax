@@ -176,7 +176,6 @@ static void bt_source_machine_constructed(GObject *object) {
     GstElement * const element;
     BtSong * const song;
     BtSetup *setup;
-    BtPattern *pattern;
     BtMachine *machine=(BtMachine *)self;
 
     g_object_get(self,"machine",&element,"song",&song,NULL);
@@ -191,8 +190,7 @@ static void bt_source_machine_constructed(GObject *object) {
       }
     }
     gst_object_unref(element);
-    pattern=bt_pattern_new_with_event(song,machine,BT_PATTERN_CMD_SOLO);
-    g_object_unref(pattern);
+    g_object_unref(bt_cmd_pattern_new(song,machine,BT_PATTERN_CMD_SOLO));
 
     bt_machine_activate_spreader(machine);
     bt_machine_enable_output_gain(machine);

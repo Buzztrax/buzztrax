@@ -2,7 +2,7 @@
 src/lib/buzztard.xml.in
 src/lib/core/application.c
 src/lib/core/core.c
-src/lib/core/pattern.c
+src/lib/core/cmd-pattern.c
 src/lib/core/song-io-native.c
 src/lib/core/song-io-native-bzt.c
 src/lib/core/song-io-native-xml.c
