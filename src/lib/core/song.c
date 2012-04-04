@@ -22,6 +22,9 @@
  * #BtSetup, #BtSequence and #BtWavetable)
  *
  * A song is the top-level container object to manage all song-related objects.
+ * The #BtSetup contains the machines and their connections, the #BtSequence
+ * contains the overall time-line, the #BtWavetable holds a list of audio
+ * snippets and the #BtSongInfo has a couple of meta-data items for the song. 
  *
  * To load or save a song, use a #BtSongIO object. These implement loading and
  * saving for different file-formats.

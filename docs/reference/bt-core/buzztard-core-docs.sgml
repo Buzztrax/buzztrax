@@ -95,7 +95,7 @@
     <partintro>
       <abstract>
         <para>
-          libbtcore is the main library for the buzztard software system.
+          libbuzztard-core is the main library for the buzztard software system.
           This library contains all classes needed for the components of a song
           like machines, patterns, wires and so on.
           It further defines bases classes for common operations such as
