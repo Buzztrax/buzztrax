@@ -42,7 +42,7 @@ loop_end =  7  n_samples_stop=7          =15-3=12
 #include <string.h>
 
 #include "btmemoryaudiosrc.h"
-#include "libbuzztard-core/tools.h"
+#include "tools.h"
 
 GST_DEBUG_CATEGORY_STATIC (memory_audio_src_debug);
 #define GST_CAT_DEFAULT memory_audio_src_debug
