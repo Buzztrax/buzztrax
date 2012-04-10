@@ -23,7 +23,7 @@
  * Manage a list of audio clips files. Provides an embeded file browser to load
  * files. A waveform viewer can show the selected clip.
  */
-/* TODO(ensonic): need envelop editor and everything for it
+/* TODO(ensonic): need envelope editor and everything for it
  * TODO(ensonic): add shortcuts to play current sample (in browser)
  * - look at gtk_file_chooser_set_preview_widget() and/or
  *   selection-changed/update-preview signals
@@ -42,6 +42,8 @@
 #define BT_MAIN_PAGE_WAVES_C
 
 #include "bt-edit.h"
+
+#define MAX_WAVETABLE_ITEMS 200
 
 struct _BtMainPageWavesPrivate {
   /* used to validate if dispose has run */
@@ -175,7 +177,7 @@ static void waves_list_refresh(const BtMainPageWaves *self) {
   store=gtk_list_store_new(WAVE_TABLE_CT,G_TYPE_ULONG,G_TYPE_STRING,G_TYPE_STRING);
 
   // append waves rows (buzz numbers them from 0x01 to 0xC8=200)
-  for(i=1;i<=200;i++) {
+  for(i=1;i<=MAX_WAVETABLE_ITEMS;i++) {
     gtk_list_store_append(store, &tree_iter);
     // buzz shows index as hex, because trackers needs it this way
     sprintf(hstr,"%02x",i);

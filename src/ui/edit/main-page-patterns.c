@@ -881,7 +881,7 @@ static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *
     g_object_get(self->priv->app,"main-window",&main_window,NULL);
     //bt_child_proxy_get(main_window,"pages::sequence-page",&sequence_page,NULL);
     bt_child_proxy_set(main_window,"pages::page",BT_MAIN_PAGES_SEQUENCE_PAGE,NULL);
-    /* if we came from sequesnce page via Enter we could go back
+    /* if we came from sequence page via Enter we could go back
      * if the machine or pattern has been changed here, we could go to first
      * track and first pos where the new pattern is used.
      */
@@ -1368,9 +1368,9 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
   store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
 
   //-- append waves rows (buzz numbers them from 0x01 to 0xC8=200)
-  for(i=1;i<=200;i++)
+  for(i=1;i<=MAX_WAVETABLE_ITEMS;i++)
     self->priv->wave_to_combopos[i] = self->priv->combopos_to_wave[i] = -1;
-  for(i=1;i<=200;i++) {
+  for(i=1;i<=MAX_WAVETABLE_ITEMS;i++) {
     if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
       self->priv->wave_to_combopos[i] = count;
       self->priv->combopos_to_wave[count] = i;
