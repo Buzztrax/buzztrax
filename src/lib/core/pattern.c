@@ -1470,9 +1470,8 @@ static void bt_pattern_persistence_interface_init(gpointer g_iface, gpointer ifa
 static void bt_pattern_constructed(GObject *object) {
   BtPattern *self=BT_PATTERN(object);
 
-  if(G_OBJECT_CLASS(bt_pattern_parent_class)->constructed)
-    G_OBJECT_CLASS(bt_pattern_parent_class)->constructed(object);
-  
+  G_OBJECT_CLASS(bt_pattern_parent_class)->constructed(object);
+
   /* fetch pointers from base-class */
   g_object_get(self,"song",&self->priv->song,"machine",&self->priv->machine,NULL);
   g_object_try_weak_ref(self->priv->song);
@@ -1487,10 +1486,15 @@ static void bt_pattern_constructed(GObject *object) {
   
   g_object_get((gpointer)(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,NULL);
   self->priv->global_param_group=bt_machine_get_global_param_group(self->priv->machine);
+
   g_signal_connect(self->priv->machine,"notify::voices",G_CALLBACK(bt_pattern_on_voices_changed),(gpointer)self);
   // need to do that so that data is reallocated
   bt_pattern_resize_data_length(self,0);
   bt_pattern_on_voices_changed(self->priv->machine,NULL,(gpointer)self);
+  
+  GST_DEBUG("add pattern to machine");
+  // add the pattern to the machine
+  bt_machine_add_pattern(self->priv->machine,(BtCmdPattern *)self);
 }
 
 static void bt_pattern_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {

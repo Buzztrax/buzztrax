@@ -156,8 +156,11 @@ static void bt_cmd_pattern_constructed(GObject *object) {
   
   GST_DEBUG("new cmd pattern. name='%s', id='%s'",self->priv->name,self->priv->id);
 
-  // add the pattern to the machine
-  bt_machine_add_pattern(self->priv->machine,self);
+  // add the pattern to the machine (if not subclassed, irks)
+  if(self->priv->cmd!=BT_PATTERN_CMD_NORMAL) {
+    GST_DEBUG("add pattern to machine");
+    bt_machine_add_pattern(self->priv->machine,self);
+  }
 }
 
 static void bt_cmd_pattern_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
@@ -212,6 +215,7 @@ static void bt_cmd_pattern_set_property(GObject * const object, const guint prop
     } break;
     case CMD_PATTERN_COMMAND: {
       self->priv->cmd=g_value_get_enum(value);
+      GST_DEBUG("set the cmd for the pattern: %d",self->priv->cmd);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -277,7 +281,7 @@ static void bt_cmd_pattern_class_init(BtCmdPatternClass * const klass) {
                                      "command prop",
                                      "the command of this pattern",
                                      BT_TYPE_PATTERN_CMD,  /* enum type */
-                                     BT_PATTERN_CMD_BREAK, /* default value */
+                                     BT_PATTERN_CMD_NORMAL, /* default value */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
