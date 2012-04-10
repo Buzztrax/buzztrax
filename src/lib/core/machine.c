@@ -1436,7 +1436,7 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtCmdPattern * c
 void bt_machine_remove_pattern(const BtMachine * const self, const BtCmdPattern * const pattern) {
   GList *node;
   g_return_if_fail(BT_IS_MACHINE(self));
-  g_return_if_fail(BT_IS_PATTERN(pattern));
+  g_return_if_fail(BT_IS_CMD_PATTERN(pattern));
 
   if((node=g_list_find(self->priv->patterns,pattern))) {
     // DEBUG
