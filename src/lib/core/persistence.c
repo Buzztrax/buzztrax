@@ -167,7 +167,9 @@ gboolean bt_persistence_save_list(const GList *list,xmlNodePtr const node) {
   gboolean res=TRUE;
 
   for(;(list && res);list=g_list_next(list)) {
-    res&=(bt_persistence_save(BT_PERSISTENCE(list->data),node)!=NULL);
+    if(BT_IS_PERSISTENCE(list->data)) {
+      res&=(bt_persistence_save((BtPersistence *)(list->data),node)!=NULL);
+    }
   }
   return(res);
 }
