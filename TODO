@@ -171,3 +171,15 @@
     on eos
   * need device selection on the source
 
+
+* one framerate for animations
+  * we have a couple of things that we update in intervals:
+    * 10fps: main-page-waves.c: preview_update_id=g_timeout_add_full(G_PRIORITY_HIGH,1000/10,on_preview_playback_update,(gpointer)self,NULL);
+    * 10fps: main-toolbar.c: playback_update_id=g_timeout_add_full(G_PRIORITY_HIGH,1000/10,on_song_playback_update,(gpointer)song,NULL);
+    * 10fps: machine.c: g_object_set(PART_*LEVEL,"interval",(GstClockTime)(0.1*GST_SECOND),...
+    * 10fps: signal-analysis-dialog: g_object_set(ANALYZER_*, "interval",(GstClockTime)(0.1*GST_SECOND),...
+  * we should have one #define somewhere for the UPDATE_INTERVAL
+  * ideally we ensure that the framerate is an integer multiple of it
+  * it would be nice to avoid a setting, but for slow machines it might be worth it
+    (or for fast machine, people could pick a higher rate)
+  * we could use configure and have the define in config.h
