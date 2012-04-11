@@ -1357,10 +1357,11 @@ void check_make_widget_screenshot_with_highlight(GtkWidget *widget, const gchar 
  * check_send_key:
  * @widget: a #GtkWidget to send the key even to
  * @keyval: the key code
+ * @hardware_keycode: the hardware keycode, if needed
  *
  * Send a key-press and a key-release of the given key to the @widget.
  */
-void check_send_key(GtkWidget *widget, guint keyval) {
+void check_send_key(GtkWidget *widget, guint keyval, guint16 hardware_keycode) {
   GdkEventKey *e;
   GdkWindow *w;
 
@@ -1369,6 +1370,7 @@ void check_send_key(GtkWidget *widget, guint keyval) {
   e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
   e->window=g_object_ref(w);
   e->keyval=keyval;
+  e->hardware_keycode=hardware_keycode;
   gtk_main_do_event((GdkEvent *)e);
   while(gtk_events_pending()) gtk_main_iteration();
   gdk_event_free((GdkEvent *)e);
@@ -1376,6 +1378,7 @@ void check_send_key(GtkWidget *widget, guint keyval) {
   e=(GdkEventKey *)gdk_event_new(GDK_KEY_RELEASE);
   e->window=g_object_ref(w);
   e->keyval=keyval;
+  e->hardware_keycode=hardware_keycode;
   e->state|=GDK_RELEASE_MASK;
   gtk_main_do_event((GdkEvent *)e);
   while(gtk_events_pending()) gtk_main_iteration();

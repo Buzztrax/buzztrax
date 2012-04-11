@@ -43,7 +43,11 @@ BT_START_TEST(test_editing) {
   BtMainPagePatterns *pattern_page;
   BtSong *song;
   BtSetup *setup;
-  BtMachine *src_machine;
+  BtMachine *machine;
+  BtCmdPattern *cmd_pattern;
+  BtPattern *pattern;
+  GtkWidget *widget;
+  gchar *str;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
@@ -62,25 +66,52 @@ BT_START_TEST(test_editing) {
   fail_unless(main_window != NULL, NULL);
 
   // make sure the pattern view shows something
-  src_machine=bt_setup_get_machine_by_id(setup,"beep1");
+  machine=bt_setup_get_machine_by_id(setup,"beep1");
+  cmd_pattern=bt_machine_get_pattern_by_id(machine,"beep1::C-3_E-3_G-3");
+  fail_unless(BT_IS_PATTERN(cmd_pattern));
+  pattern=(BtPattern *)cmd_pattern;
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
   g_object_get(G_OBJECT(pages),"patterns-page",&pattern_page,NULL);
-  bt_main_page_patterns_show_machine(pattern_page,src_machine);
 
   // show page
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
   while(gtk_events_pending()) gtk_main_iteration();
+  bt_main_page_patterns_show_pattern(pattern_page,pattern);
+  
+  widget=gtk_window_get_focus((GtkWindow *)main_window);
+  GST_INFO("testing key-press handling on: '%s'", gtk_widget_get_name(widget));
+  fail_unless(!strcmp("pattern editor",gtk_widget_get_name(widget)), NULL);
+
+  str=bt_pattern_get_global_event(pattern,0,0);
+  fail_unless(str != NULL, NULL);
+  fail_unless(!strcmp(str,"c-3"), NULL);
+  g_free(str);
+  
+  // make sure we're at top left
+  check_send_key((GtkWidget *)pattern_page,GDK_Page_Up,0);
+  check_send_key((GtkWidget *)pattern_page,GDK_Home,0);
 
   // send a '.' key-press
-  check_send_key((GtkWidget *)pattern_page,'.');
+  check_send_key((GtkWidget *)pattern_page,'.',0x3c);
+  str=bt_pattern_get_global_event(pattern,0,0);
+  GST_INFO("data at 0,0: '%s'",str); 
+  fail_unless(str == NULL, NULL);
 
-  // send a '0' key-press
-  check_send_key((GtkWidget *)pattern_page,'0');
+  // make sure we're at top left
+  check_send_key((GtkWidget *)pattern_page,GDK_Page_Up,0);
+  check_send_key((GtkWidget *)pattern_page,GDK_Home,0);
 
-  // TODO(ensonic): assert some pattern changes
+  // send a 'q' key-press and check that it results in a 'c-' of any octave
+  check_send_key((GtkWidget *)pattern_page,'q',0x18);
+  str=bt_pattern_get_global_event(pattern,0,0);
+  GST_INFO("data at 0,0: '%s'",str); 
+  fail_unless(str != NULL, NULL);
+  fail_unless(!strncmp(str,"c-",2), NULL);
+  g_free(str);
 
   g_object_unref(pattern_page);
-  g_object_unref(src_machine);
+  g_object_unref(pattern);
+  g_object_unref(machine);
   g_object_unref(setup);
   g_object_unref(pages);
 

@@ -76,10 +76,10 @@ BT_START_TEST(test_editing1) {
   GST_INFO("sending events");
 
   // send a '.' key-press
-  check_send_key((GtkWidget *)pattern_page,'.');
+  check_send_key((GtkWidget *)pattern_page,'.',0x3c);
 
   // send a '0' key-press
-  check_send_key((GtkWidget *)pattern_page,'0');
+  check_send_key((GtkWidget *)pattern_page,'0',0x13);
 
   GST_INFO("test done");
 

@@ -88,7 +88,7 @@ BT_START_TEST(test_active_machine) {
 
   // emit key presses to go though the tracks
   // send a '->' key
-  check_send_key((GtkWidget *)sequence_page,GDK_Right);
+  check_send_key((GtkWidget *)sequence_page,GDK_Right,0);
 
   // make screenshot
   check_make_widget_screenshot((GtkWidget *)sequence_page,"1");
@@ -96,8 +96,8 @@ BT_START_TEST(test_active_machine) {
   GST_INFO("sine2 %p,ref_count=%d",src_machine2,G_OBJECT_REF_COUNT(src_machine2));
 
   // send a '<-' key-press twice
-  check_send_key((GtkWidget *)sequence_page,GDK_Left);
-  check_send_key((GtkWidget *)sequence_page,GDK_Left);
+  check_send_key((GtkWidget *)sequence_page,GDK_Left,0);
+  check_send_key((GtkWidget *)sequence_page,GDK_Left,0);
 
   // make screenshot
   check_make_widget_screenshot((GtkWidget *)sequence_page,"2");
