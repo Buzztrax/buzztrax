@@ -245,12 +245,15 @@ static gboolean bt_wave_load_from_uri(const BtWave * const self, const gchar * c
         break;
       case GST_MESSAGE_ERROR: {
         GError *err;
-        gchar *dbg;
+        gchar *desc, *dbg = NULL;
   
         gst_message_parse_error(msg, &err, &dbg);
-        GST_WARNING_OBJECT(GST_MESSAGE_SRC(msg),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
+        desc=gst_error_get_message(err->domain, err->code);
+        GST_WARNING_OBJECT(GST_MESSAGE_SRC(msg),"ERROR: %s (%s) (%s)",
+            err->message, desc, (dbg ? dbg : "no debug"));
         g_error_free(err);
         g_free(dbg);
+        g_free(desc);
         res=FALSE;
         break;
       }
@@ -446,12 +449,15 @@ static gboolean bt_wave_save_to_fd(const BtWave * const self) {
           break;
         case GST_MESSAGE_ERROR: {
           GError *err;
-          gchar *dbg;
+          gchar *desc, *dbg = NULL;
     
           gst_message_parse_error(msg, &err, &dbg);
-          GST_WARNING_OBJECT(GST_MESSAGE_SRC(msg),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
+          desc=gst_error_get_message(err->domain, err->code);
+          GST_WARNING_OBJECT(GST_MESSAGE_SRC(msg),"ERROR: %s (%s) (%s)",
+              err->message, desc, (dbg ? dbg : "no debug"));
           g_error_free(err);
           g_free(dbg);
+          g_free(desc);
           res=FALSE;
           break;
         }
