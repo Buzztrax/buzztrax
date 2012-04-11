@@ -86,17 +86,19 @@ static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpoin
 static void on_song_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtCmdApplication *self=BT_CMD_APPLICATION(user_data);
   GError *err = NULL;
-  gchar *dbg = NULL;
+  gchar *desc, *dbg = NULL;
 
   GST_INFO("received %s bus message from %s",
     GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
-  // TODO(ensonic): check domain and code
   gst_message_parse_error(message, &err, &dbg);
-  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"ERROR: %s (%s)", err->message, (dbg ? dbg : "no details"));
+  desc=gst_error_get_message(err->domain, err->code);
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message), "ERROR: %s (%s) (%s)",
+      err->message, desc, (dbg ? dbg : "no debug"));
 
   g_error_free(err);
   g_free(dbg);
+  g_free(desc);
 
   self->priv->has_error = TRUE;
 }
@@ -104,17 +106,19 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
 static void on_song_warning(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   //const BtCmdApplication *self=BT_CMD_APPLICATION(user_data);
   GError *err = NULL;
-  gchar *dbg = NULL;
+  gchar *desc, *dbg = NULL;
 
   GST_INFO("received %s bus message from %s",
     GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
-  // TODO(ensonic): check domain and code
   gst_message_parse_warning(message, &err, &dbg);
-  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"WARNING: %s (%s)", err->message, (dbg ? dbg : "no details"));
+  desc=gst_error_get_message(err->domain, err->code);
+  GST_WARNING_OBJECT(GST_MESSAGE_SRC(message),"WARNING: %s (%s) (%s)",
+      err->message, desc, (dbg ? dbg : "no debug"));
 
   g_error_free(err);
   g_free(dbg);
+  g_free(desc);
 }
 
 /*
