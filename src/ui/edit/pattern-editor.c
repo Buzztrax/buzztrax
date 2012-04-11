@@ -792,6 +792,9 @@ bt_pattern_editor_key_press (GtkWidget *widget,
                         GdkEventKey *event)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
+  
+  GST_INFO("pattern_editor key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
+    event->state,event->keyval,event->hardware_keycode,gdk_keyval_name(event->keyval));
 
   if (self->num_groups) {
     // map keypad numbers to ordinary numbers
