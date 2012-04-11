@@ -53,12 +53,11 @@
  * 1.) on the toolbar I could have a button that toggles between "move" and
  *     "link". In "move" mode one can move machines with the mouse and in "link"
  *     mode one can link. Would need to have a keyboard shortcut for toggling.
- * 2.) click-zones on the icons. Link the machine when click+drag the title bar.
- *     Make the 'leds' clickable and move the machines outside of title and led.
- *     Eventualy change the mouse-cursor when hovering over the zones.
+ * 2.) click-zones on the machine-icons. Link the machine when click+drag the
+ *     title bar. Make the 'leds' clickable and move the machines outside of
+ *     title and led. Eventualy change the mouse-cursor when hovering over the
+ *     zones.
  * Option '2' looks nice and would also help on touch-screens.
- */
-/* TODO(ensonic): click in the background to pan canvas around
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
@@ -109,8 +108,7 @@ struct _BtMainPageMachinesPrivate {
   GHashTable *wires;      // each entry points to BtWireCanvasItem
 
   /* interaction state */
-  gboolean connecting,moved;
-  gdouble offx,offy,dragx,dragy;
+  gboolean connecting,moved,dragging;
 
   /* cursor for moving */
   GdkCursor *drag_cursor;
@@ -958,7 +956,11 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
       gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&self->priv->mouse_x,&self->priv->mouse_y);
       if(!(ci=gnome_canvas_get_item_at(self->priv->canvas,self->priv->mouse_x,self->priv->mouse_y))) {
         GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);
-        if(event->button.button==3) {
+        if(event->button.button==1) {
+          // start dragging the canvas
+          self->priv->dragging=TRUE;
+        }
+        else if(event->button.button==3) {
           // show context menu
           gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
           res=TRUE;
@@ -1016,6 +1018,14 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         gnome_canvas_item_set(self->priv->new_wire,"points",self->priv->new_wire_points,"fill-color",color,NULL);
         self->priv->moved=TRUE;
         res=TRUE;
+      } else if (self->priv->dragging) {
+        // snapshot current mousepos and calculate delta
+        gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&mouse_x,&mouse_y);
+        mouse_x=self->priv->mouse_x-mouse_x;
+        mouse_y=self->priv->mouse_y-mouse_y;
+        // scroll canvas
+        gtk_adjustment_set_value(self->priv->hadjustment,gtk_adjustment_get_value(self->priv->hadjustment)+mouse_x);
+        gtk_adjustment_set_value(self->priv->vadjustment,gtk_adjustment_get_value(self->priv->vadjustment)+mouse_y);
       }
       break;
     case GDK_BUTTON_RELEASE:
@@ -1036,6 +1046,8 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         gtk_object_destroy(GTK_OBJECT(self->priv->new_wire));self->priv->new_wire=NULL;
         gnome_canvas_points_free(self->priv->new_wire_points);self->priv->new_wire_points=NULL;
         self->priv->connecting=FALSE;
+      } else if (self->priv->dragging) {
+        self->priv->dragging=FALSE;
       }
       if(self->priv->moving_machine_item) {
         gdouble px, py;
@@ -1900,10 +1912,10 @@ static gboolean bt_main_page_machines_change_logger_change(const BtChangeLogger 
     }          
     /* TODO(ensonic):
     - machine parameters, wire parameters (volume/panorama)
-      - only write them out on realease to not blast to much crap into the log
+      - only write them out on release to not blast to much crap into the log
     - open/close machine/wire windows
       - we do it on remove right, but we don't know about intermediate changes
-        as thats stll done on canvas-item classes
+        as thats still done on canvas-item classes
       - the canvas-items now expose their dialogs as a read-only (widget)
         property, we can listen to the notify
     */
