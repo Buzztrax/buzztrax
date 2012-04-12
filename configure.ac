@@ -214,6 +214,17 @@ AC_ARG_WITH(
 AC_MSG_RESULT($with_desktop_dir)
 AC_SUBST(with_desktop_dir)
 
+dnl enable compact UI (for netbooks/phones)
+AC_MSG_CHECKING(whether to use the compact UI)
+AC_ARG_ENABLE([compact_ui],
+  AS_HELP_STRING([--enable-compact-ui],[enable compact ui (default=no)]),
+  ,
+  [enable_compact_ui=no])
+AC_MSG_RESULT($enable_compact_ui)
+if test "x$enable_compact_ui" = "xyes"; then
+  AC_DEFINE(USE_COMPACT_UI, [1], [enable compact ui])
+fi
+AC_SUBST(USE_COMPACT_UI)
 
 dnl Checks for libraries.
 
@@ -263,16 +274,6 @@ PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.7.0, [
     use_bml=yes
   ],[
     use_bml=no
-  ]
-)
-
-PKG_CHECK_MODULES(HILDON_DEPS, hildon-1 libosso, [
-  AC_DEFINE(USE_HILDON, [1], [Define to 1 if we can use hildon libraries])
-    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $HILDON_DEPS_CFLAGS"
-    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $HILDON_DEPS_LIBS"
-    use_hildon=yes
-  ],[
-    use_hildon=no
   ]
 )
 
@@ -593,7 +594,7 @@ Configuration
 	Linux HID for interaction ctrl. : ${have_linux_input_h}
 	Buzzmachine Host support        : ${use_bml}
 	Zipped Song file support (bzt)  : ${use_gsf}
-	Hildon Desktop Integration      : ${use_hildon}
+	Compact UI (small screen)       : ${enable_compact_ui}
 
 	Debug                           : ${enable_debug}
 	Coverage profiling              : ${enable_coverage} ${using_coverage_tool}

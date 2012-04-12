@@ -102,10 +102,6 @@
 
 //-- librsvg
 //#include <librsvg/rsvg.h>
-//-- hildon
-#ifdef USE_HILDON
-#include <hildon/hildon.h>
-#endif
 
 #include "about-dialog.h"
 #include "change-log.h"
@@ -184,7 +180,7 @@
 #define SCREEN_BORDER_HEIGHT 80
 
 /* borders used in hbox/vbox or other containers */
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
 #define BOX_BORDER 6
 #else
 #define BOX_BORDER 3

@@ -277,10 +277,6 @@ static void bt_main_statusbar_init_ui(const BtMainStatusbar *self) {
   gchar str[]="00:00.000";
 
   gtk_widget_set_name(GTK_WIDGET(self),"status-bar");
-  //#ifdef USE_HILDON /* has no effect */
-  //gtk_box_set_spacing(GTK_BOX(self),0);
-  //gtk_container_set_border_width(GTK_CONTAINER(self),0);
-  //#endif
 
   // context sensitive help statusbar
   self->priv->status=GTK_STATUSBAR(gtk_statusbar_new());

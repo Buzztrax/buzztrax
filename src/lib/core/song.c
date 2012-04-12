@@ -77,13 +77,8 @@
 
 // if a state change not happens within this time, cancel playback
 // this includes prerolling
-#ifndef USE_HILDON
 // 30 seconds for now
 #define STATE_CHANGE_TIMEOUT 30
-#else
-// 60 seconds for now
-#define STATE_CHANGE_TIMEOUT 60
-#endif
 
 //-- property ids
 

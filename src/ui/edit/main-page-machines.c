@@ -1268,7 +1268,7 @@ static void bt_main_page_machines_init_ui(const BtMainPageMachines *self,const B
   g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
 #endif
 
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
 #endif
 

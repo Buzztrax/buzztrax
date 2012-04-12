@@ -57,11 +57,7 @@ struct _BtMainMenuPrivate {
 
 //-- the class
 
-#ifndef USE_HILDON
 G_DEFINE_TYPE (BtMainMenu, bt_main_menu, GTK_TYPE_MENU_BAR);
-#else
-G_DEFINE_TYPE (BtMainMenu, bt_main_menu, GTK_TYPE_MENU);
-#endif
 
 //-- event handler
 

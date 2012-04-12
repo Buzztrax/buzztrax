@@ -1638,7 +1638,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   g_object_unref(machine);
 }
 
-/* val_to_float: read data from attern and convert to float for pattern-editor
+/* val_to_float: read data from pattern and convert to float for pattern-editor
  * used in pattern_edit_get_data_at()
  */
 
@@ -2986,7 +2986,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 #endif
 
@@ -3015,7 +3015,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 #endif
 
@@ -3044,7 +3044,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 #endif
 
@@ -3067,7 +3067,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 #endif
 
@@ -3080,7 +3080,7 @@ static void bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const B
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(tool_item,"toggled",G_CALLBACK(on_play_live_toggled),(gpointer)self);
 
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 #endif
 

@@ -71,11 +71,7 @@ static gint n_drop_types = sizeof(drop_types) / sizeof(GtkTargetEntry);
 
 static void bt_main_window_child_proxy_init(gpointer const g_iface, gconstpointer const iface_data);
 
-#ifndef USE_HILDON
 G_DEFINE_TYPE_WITH_CODE (BtMainWindow, bt_main_window, GTK_TYPE_WINDOW,
-#else
-G_DEFINE_TYPE_WITH_CODE (BtMainWindow, bt_main_window, HILDON_TYPE_WINDOW,
-#endif
   G_IMPLEMENT_INTERFACE (BT_TYPE_CHILD_PROXY,
     bt_main_window_child_proxy_init));
 
@@ -325,18 +321,10 @@ static void bt_main_window_init_ui(const BtMainWindow *self) {
 
   // add the menu-bar
   self->priv->menu=bt_main_menu_new();
-#ifndef USE_HILDON
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->menu),FALSE,FALSE,0);
-#else
-  hildon_window_set_menu(HILDON_WINDOW(self), GTK_MENU(self->priv->menu));
-#endif
   // add the tool-bar
   self->priv->toolbar=bt_main_toolbar_new();
-#ifndef USE_HILDON
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->toolbar),FALSE,FALSE,0);
-#else
-  hildon_window_add_toolbar(HILDON_WINDOW(self), GTK_TOOLBAR(self->priv->toolbar));
-#endif
   // add the window content pages
   self->priv->pages=bt_main_pages_new();
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pages),TRUE,TRUE,0);

@@ -100,9 +100,9 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
 buzztard-edit.desktop: buzztard-edit.desktop.in
 
-# FIXME: don't install bt-edit.hildon.gtkrc on non hildon
+# FIXME: don't install bt-edit.compact.gtkrc if not selected
 gtkrcdir = $(datadir)/$(PACKAGE)
-gtkrc_DATA = bt-edit.gtkrc bt-edit.hildon.gtkrc
+gtkrc_DATA = bt-edit.gtkrc bt-edit.compact.gtkrc
 
 marshal.h: marshal.list
 	glib-genmarshal --header --prefix=bt_marshal $(srcdir)/marshal.list > marshal.h

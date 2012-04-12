@@ -825,7 +825,7 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
   box=gtk_vbox_new(FALSE,0);
   gtk_container_set_border_width(GTK_CONTAINER(box),2);
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   gtk_widget_set_size_request(GTK_WIDGET(box),250,-1);
 #else
   gtk_widget_set_size_request(GTK_WIDGET(box),200,-1);
@@ -855,7 +855,7 @@ static void bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_widget_set_tooltip_text(GTK_WIDGET(self->priv->volume),_("Change playback volume"));
   gtk_scale_set_draw_value(self->priv->volume,FALSE);
   //gtk_range_set_update_policy(GTK_RANGE(self->priv->volume),GTK_UPDATE_DELAYED);
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->volume),TRUE,TRUE,0);
 #else
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->volume),200,-1);

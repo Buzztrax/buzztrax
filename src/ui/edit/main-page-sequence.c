@@ -3050,7 +3050,7 @@ static void bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const B
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 #endif
 

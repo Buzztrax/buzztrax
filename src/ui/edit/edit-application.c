@@ -828,10 +828,6 @@ static GObject* bt_edit_application_constructor(GType type, guint n_construct_pa
 
     // warning: dereferencing type-punned pointer will break strict-aliasing rules
     g_object_add_weak_pointer(G_OBJECT(singleton->priv->main_window),(gpointer*)(gpointer)&singleton->priv->main_window);
-#ifdef USE_HILDON
-    hildon_program_add_window(HILDON_PROGRAM(hildon_program_get_instance()),
-      HILDON_WINDOW(singleton->priv->main_window));
-#endif
     GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT_REF_COUNT(singleton));
     //GST_DEBUG(">>>");
   }

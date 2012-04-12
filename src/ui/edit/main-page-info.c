@@ -306,7 +306,7 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   // first row of vbox
   frame=gtk_frame_new(NULL);
   label=gtk_label_new(NULL);
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   str=g_strdup_printf("<big><b>%s</b></big>",_("song meta data"));
 #else
   str=g_strdup_printf("<b>%s</b>",_("song meta data"));
@@ -409,7 +409,7 @@ static void bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPag
   // second row of hbox
   frame=gtk_frame_new(NULL);
   label=gtk_label_new(NULL);
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   str=g_strdup_printf("<big><b>%s</b></big>",_("free text info"));
 #else
   str=g_strdup_printf("<b>%s</b>",_("free text info"));

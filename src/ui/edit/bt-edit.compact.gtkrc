@@ -1,8 +1,4 @@
-# custom styles for buzztard-edit (hildon/maemo specific)
-
-# the shaded backgrounds may actually be meant as a warning.
-# I believe the background was coloured when scaling was applied to help show
-# which bits were a problem
+# custom styles for buzztard-edit (compact ui)
 
 # Icon sizes                 
 gtk-toolbar-icon-size = GTK_ICON_SIZE_SMALL_TOOLBAR
@@ -14,9 +10,6 @@ style "default-style"
   xthickness = 1
   ythickness = 1
         
-  # modify base font
-  font_name = "Nokia Sans 12"
-                        
   # one can set so called "style properties"
   GtkArrow::arrow-scaling = 0.5
   GtkButton::inner-border = {0, 0, 0, 0}
@@ -33,24 +26,6 @@ style "default-style"
   GtkToolbar::max_child_expand = 24
 }
 class "GtkWidget" style "default-style"
-
-style "small-font-style"
-{
-  # modify base font
-  font_name = "Nokia Sans 10"
-}
-widget "*.status-bar.*" style "small-font-style"
-
-#style "hildon-tap-hold"
-#{
-#  GtkWidget::tap-hold = 1
-#}
-#class "BtPatternEditor" style "hildon-tap-hold"
-#class "GnomeCanvas" style "hildon-tap-hold"
-
-style "osso-ButtonFont" {
-  font_name = "Nokia Sans 12"
-}
 
 include "bt-edit.gtkrc"
 

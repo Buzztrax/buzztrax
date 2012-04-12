@@ -42,22 +42,14 @@ typedef struct _BtMainMenuPrivate BtMainMenuPrivate;
  * the main menu inside the #BtMainWindow
  */
 struct _BtMainMenu {
-#ifndef USE_HILDON
   GtkMenuBar parent;
-#else
-  GtkMenu parent;
-#endif
   
   /*< private >*/
   BtMainMenuPrivate *priv;
 };
 
 struct _BtMainMenuClass {
-#ifndef USE_HILDON
   GtkMenuBarClass parent;
-#else
-  GtkMenuClass parent;
-#endif
 };
 
 GType bt_main_menu_get_type(void) G_GNUC_CONST;

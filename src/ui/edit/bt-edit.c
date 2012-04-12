@@ -88,10 +88,10 @@ int main(int argc, char **argv) {
 #endif
 
   // load our custom gtk-theming
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
   gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"bt-edit.gtkrc");
 #else
-  gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"bt-edit.hildon.gtkrc");
+  gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"bt-edit.compact.gtkrc");
 #endif
 
   // init libraries
