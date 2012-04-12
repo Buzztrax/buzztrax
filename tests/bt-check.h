@@ -118,7 +118,7 @@ __bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal,
 
 //-- testing helper methods
 
-extern void bt_check_init(void);
+void bt_check_init(void);
 
 #define g_object_checked_unref(obj) \
 {\
@@ -130,22 +130,22 @@ extern void bt_check_init(void);
   fail_unless(__objref == NULL, NULL);\
 }
 
-extern void check_init_error_trapp(gchar *method, gchar *test);
-extern gboolean check_has_error_trapped(void);
+void check_init_error_trapp(gchar *method, gchar *test);
+gboolean check_has_error_trapped(void);
 
-extern void setup_log(int argc, char **argv);
-extern void setup_log_capture(void);
+void setup_log(int argc, char **argv);
+void setup_log_capture(void);
 
-extern const gchar *check_get_test_song_path(const gchar *name);
+const gchar *check_get_test_song_path(const gchar *name);
 
-extern gboolean file_contains_str(gchar *tmp_file_name, gchar *string);
+gboolean file_contains_str(gchar *tmp_file_name, gchar *string);
 
-extern gboolean check_gobject_properties(GObject *toCheck);
+gboolean check_gobject_properties(GObject *toCheck);
 
-extern void check_setup_test_server(void);
-extern void check_setup_test_display(void);
-extern void check_shutdown_test_display(void);
-extern void check_shutdown_test_server(void);
+void check_setup_test_server(void);
+void check_setup_test_display(void);
+void check_shutdown_test_display(void);
+void check_shutdown_test_server(void);
 
 enum _BtCheckWidgetScreenshotRegionsMatch {
   BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE = 0,
@@ -165,8 +165,10 @@ struct _BtCheckWidgetScreenshotRegions {
 };
 typedef struct _BtCheckWidgetScreenshotRegions BtCheckWidgetScreenshotRegions;
 
-extern void check_make_widget_screenshot(GtkWidget *widget, const gchar *name);
-extern void check_make_widget_screenshot_with_highlight(GtkWidget *widget, const gchar *name, BtCheckWidgetScreenshotRegions *regions);
+void check_make_widget_screenshot(GtkWidget *widget, const gchar *name);
+void check_make_widget_screenshot_with_highlight(GtkWidget *widget, const gchar *name, BtCheckWidgetScreenshotRegions *regions);
 
-extern void check_send_key(GtkWidget *widget, guint keyval, guint16 hardware_keycode);
+void check_send_key(GtkWidget *widget, guint keyval, guint16 hardware_keycode);
+void check_send_click(GtkWidget *widget, guint button, gdouble x, gdouble y);
+
 #endif /* BT_CHECK_H */

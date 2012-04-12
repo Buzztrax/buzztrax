@@ -108,13 +108,11 @@ BT_START_TEST(test_editing2) {
   BtMainWindow *main_window;
   BtMainPages *pages;
   BtMainPagePatterns *pattern_page;
-  GtkWidget *pattern_editor;
+  GtkWidget *widget;
   BtSong *song;
   BtSetup *setup;
   BtMachine *src_machine;
-  GdkEventButton *e;
   GError *err=NULL;
-  GList *list;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
@@ -137,33 +135,20 @@ BT_START_TEST(test_editing2) {
   // make sure the pattern view shows something
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
   g_object_get(G_OBJECT(pages),"patterns-page",&pattern_page,NULL);
-  bt_main_page_patterns_show_machine(pattern_page,src_machine);
 
   // show page
   gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
   while(gtk_events_pending()) gtk_main_iteration();
+  bt_main_page_patterns_show_machine(pattern_page,src_machine);
 
   GST_INFO("object types: %s",G_OBJECT_TYPE_NAME(pattern_page));
 
-  list=gtk_container_get_children(GTK_CONTAINER(pattern_page));
-  // 1st is toolbat, 2nd is scrollable window
-  pattern_editor=gtk_bin_get_child(GTK_BIN(g_list_nth_data(list,1)));
-  g_list_free(list);
+  widget=gtk_window_get_focus((GtkWindow *)main_window);
+  GST_INFO("testing mouse-press handling on: '%s'", gtk_widget_get_name(widget));
+  fail_unless(!strcmp("pattern editor",gtk_widget_get_name(widget)), NULL);
 
-  GST_INFO("object types: %s",G_OBJECT_TYPE_NAME(pattern_editor));
-
-  GST_INFO("sending events");
-
-  // send a left mouse button press (hopefully on the tick number column)
-  e=(GdkEventButton *)gdk_event_new(GDK_BUTTON_PRESS);
-  e->window=g_object_ref(gtk_widget_get_window((GtkWidget *)pattern_editor));
-  e->button=1; // left-button
-  e->x=10.0;
-  e->y=100.0;
-  e->state=GDK_BUTTON1_MASK;
-  gtk_main_do_event((GdkEvent *)e);
-  while(gtk_events_pending()) gtk_main_iteration();
-  gdk_event_free((GdkEvent *)e);
+  // send a left mouse button press
+  check_send_click(widget,1,10.0,100.0);
 
   GST_INFO("test done");
 

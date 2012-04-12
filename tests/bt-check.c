@@ -1355,7 +1355,7 @@ void check_make_widget_screenshot_with_highlight(GtkWidget *widget, const gchar 
 
 /*
  * check_send_key:
- * @widget: a #GtkWidget to send the key even to
+ * @widget: a #GtkWidget to send the #GdkEventKey to
  * @keyval: the key code
  * @hardware_keycode: the hardware keycode, if needed
  *
@@ -1380,6 +1380,43 @@ void check_send_key(GtkWidget *widget, guint keyval, guint16 hardware_keycode) {
   e->keyval=keyval;
   e->hardware_keycode=hardware_keycode;
   e->state|=GDK_RELEASE_MASK;
+  gtk_main_do_event((GdkEvent *)e);
+  while(gtk_events_pending()) gtk_main_iteration();
+  gdk_event_free((GdkEvent *)e);
+}
+
+/*
+ * check_send_click:
+ * @widget: a #GtkWidget to send the #GdkEventButton to
+ * @button: the button number (1-3)
+ * @x: the x-position of the mouse
+ * @y: the y-position of the mouse
+ *
+ * Send a button-press and a button-release of the given mouse button to the
+ * @widget.
+ */
+void check_send_click(GtkWidget *widget, guint button, gdouble x, gdouble y) {
+  GdkEventButton *e;
+  GdkWindow *w;
+
+  w=gtk_widget_get_window(widget);
+
+  e=(GdkEventButton *)gdk_event_new(GDK_BUTTON_PRESS);
+  e->window=g_object_ref(w);
+  e->button=button;
+  e->x=x;
+  e->y=y;
+  e->state=GDK_BUTTON1_MASK|GDK_BUTTON2_MASK|GDK_BUTTON3_MASK;
+  gtk_main_do_event((GdkEvent *)e);
+  while(gtk_events_pending()) gtk_main_iteration();
+  gdk_event_free((GdkEvent *)e);
+
+  e=(GdkEventButton *)gdk_event_new(GDK_BUTTON_RELEASE);
+  e->window=g_object_ref(w);
+  e->button=button;
+  e->x=x;
+  e->y=y;
+  e->state=GDK_BUTTON1_MASK|GDK_BUTTON2_MASK|GDK_BUTTON3_MASK;
   gtk_main_do_event((GdkEvent *)e);
   while(gtk_events_pending()) gtk_main_iteration();
   gdk_event_free((GdkEvent *)e);
