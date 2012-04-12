@@ -1,4 +1,4 @@
-#include <libbuzztard-core/core.h>
+#include "core.h"
 #include "bt-edit.h"
 #include "btmemoryaudiosrc.h"
 #include "gtkvumeter.h"

@@ -780,7 +780,7 @@ BtWirePattern *bt_wire_get_pattern(const BtWire * const self, const BtPattern * 
  *
  * Get the parameter group.
  *
- * Returns: the #BtParametergroup or %NULL
+ * Returns: the #BtParameterGroup or %NULL
  */
 BtParameterGroup *bt_wire_get_param_group(const BtWire * const self) {
   g_return_val_if_fail(BT_IS_WIRE(self),NULL);

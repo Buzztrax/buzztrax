@@ -1612,7 +1612,7 @@ gboolean bt_machine_is_polyphonic(const BtMachine * const self) {
  *
  * Get the parameter group of global parameters.
  *
- * Returns: the #BtParametergroup or %NULL
+ * Returns: the #BtParameterGroup or %NULL
  */
 BtParameterGroup *bt_machine_get_global_param_group(const BtMachine * const self) {
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
@@ -1626,7 +1626,7 @@ BtParameterGroup *bt_machine_get_global_param_group(const BtMachine * const self
  *
  * Get the parameter group of voice parameters for the given @voice.
  *
- * Returns: the #BtParametergroup or %NULL
+ * Returns: the #BtParameterGroup or %NULL
  */
 BtParameterGroup *bt_machine_get_voice_param_group(const BtMachine * const self, const gulong voice) {
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);

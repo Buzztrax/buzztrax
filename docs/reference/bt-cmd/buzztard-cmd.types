@@ -1,5 +1,5 @@
-#include <libbuzztard-core/core.h>
-#include <bt-cmd.h>
+#include "core.h"
+#include "bt-cmd.h"
 
 bt_cmd_application_get_type
 

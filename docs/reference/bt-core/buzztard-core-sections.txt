@@ -45,6 +45,7 @@ bt_audio_session_get_type
 <SECTION>
 <FILE>btchildproxy</FILE>
 <TITLE>BtChildProxy</TITLE>
+BtChildProxy
 BtChildProxyInterface
 bt_child_proxy_get
 bt_child_proxy_get_child_by_index
@@ -155,6 +156,7 @@ bt_machine_state_get_type
 <SECTION>
 <FILE>btparametergroup</FILE>
 <TITLE>BtParameterGroup</TITLE>
+BtParameterGroup
 bt_parameter_group_controller_change_value
 bt_parameter_group_describe_param_value
 bt_parameter_group_get_param_details
@@ -230,6 +232,7 @@ bt_pattern_get_type
 <SECTION>
 <FILE>btpersistence</FILE>
 <TITLE>BtPersistence</TITLE>
+BtPersistence
 BtPersistenceInterface
 bt_persistence_collect_hashtable_entries
 bt_persistence_get_value
@@ -250,7 +253,6 @@ BT_IS_PERSISTENCE
 BT_PERSISTENCE
 BT_PERSISTENCE_GET_INTERFACE
 BT_TYPE_PERSISTENCE
-BtPersistence
 bt_persistence_get_type
 </SECTION>
 

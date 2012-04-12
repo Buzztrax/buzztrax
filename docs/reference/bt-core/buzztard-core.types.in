@@ -1,4 +1,4 @@
-#include "libbuzztard-core/core.h"
+#include "core.h"
 
 bt_application_get_type
 bt_audio_session_get_type
@@ -19,6 +19,7 @@ bt_sink_machine_get_type
 bt_song_get_type
 bt_song_info_get_type
 bt_song_io_get_type
+%bt_song_io_buzz_get_type
 bt_song_io_native_bzt_get_type
 bt_song_io_native_get_type
 bt_song_io_native_xml_get_type

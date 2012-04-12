@@ -26,7 +26,7 @@
  *
  * Patterns can have individual lengths. The length is measured in ticks. How
  * much that is in e.g. milliseconds is determined by #BtSongInfo:bpm and 
- * #BtSongInfo:tpm.
+ * #BtSongInfo:tpb.
  *
  * A pattern might consist of several groups. These are mapped to the global 
  * parameters of a machine and the voice parameters for each machine voice (if 

@@ -43,19 +43,19 @@
 /**
  * bt_major_version:
  *
- * buzztard version stamp, major part; determined from #BT_MAJOR_VERSION
+ * buzztard version stamp, major part
  */
 const guint bt_major_version=BT_MAJOR_VERSION;
 /**
  * bt_minor_version:
  *
- * buzztard version stamp, minor part; determined from #BT_MINOR_VERSION
+ * buzztard version stamp, minor part
  */
 const guint bt_minor_version=BT_MINOR_VERSION;
 /**
  * bt_micro_version:
  *
- * buzztard version stamp, micro part; determined from #BT_MICRO_VERSION
+ * buzztard version stamp, micro part
  */
 const guint bt_micro_version=BT_MICRO_VERSION;
 
