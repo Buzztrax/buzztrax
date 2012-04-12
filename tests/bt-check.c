@@ -116,6 +116,7 @@ static void check_print_handler(const gchar * const message) {
     FILE *logfile;
     gboolean add_nl=FALSE;
     guint sl=strlen(message);
+    gboolean use_stdout=FALSE;
 
     //-- check if messages has no newline
     if((sl>1) && (message[sl-1]!='\n')) add_nl=TRUE;
@@ -126,11 +127,16 @@ static void check_print_handler(const gchar * const message) {
     else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
 
     if((logfile=fopen(__log_file_name, "a")) || (logfile=fopen(__log_file_name, "w"))) {
-      (void)fwrite(message,sl,1,logfile);
-      if(add_nl) (void)fwrite("\n",1,1,logfile);
-      fclose(logfile);
+      use_stdout|=(fwrite(message,sl,1,logfile)<0);
+      if(add_nl) 
+        use_stdout|=(fwrite("\n",1,1,logfile)<0);
+      use_stdout|=(fclose(logfile)<0);
     }
-    else { /* Fall back to console output if unable to open file */
+    else {
+      use_stdout=TRUE;
+    }
+    
+    if (use_stdout) { /* Fall back to console output if unable to open file */
       printf("%s",message);
       if(add_nl) putchar('\n');
     }
