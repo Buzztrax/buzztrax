@@ -18,6 +18,14 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+/**
+ * SECTION:btsongiobuzz
+ * @short_description: class for song input in buzz bmx and bmw format
+ *
+ * This #BtSongIO plugin implements loading and of songs made using Buzz. Both
+ * songs with and without embedded waveforms are supported. Most aspects of the
+ * file-format are implemented.
+ */
 
 #define BT_SONG_IO_BUZZ_C
 

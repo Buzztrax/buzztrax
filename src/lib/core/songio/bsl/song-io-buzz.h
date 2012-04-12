@@ -19,7 +19,6 @@
  * Boston, MA 02111-1307, USA.
  */
  
-
 #ifndef BT_SONG_IO_BUZZ_H
 #define BT_SONG_IO_BUZZ_H
 
@@ -57,8 +56,6 @@ struct _BtSongIOBuzz {
  */
 struct _BtSongIOBuzzClass {
   BtSongIOClass parent_class;
-
-	/* class data */
 };
 
 /* used by SONG_IO_BUZZ_TYPE */

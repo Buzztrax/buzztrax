@@ -150,6 +150,7 @@
       <xi:include href="xml/btsongionative.xml" />
       <xi:include href="xml/btsongionativebzt.xml" />
       <xi:include href="xml/btsongionativexml.xml" />
+      <xi:include href="xml/btsongiobuzz.xml" />
     </chapter>
   </reference>
 

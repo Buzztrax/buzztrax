@@ -532,13 +532,13 @@ BmxParaSection
 BmxParameter
 BmxSectionEntry
 <SUBSECTION Standard>
+BtSongIOBuzzClass
 BT_IS_SONG_IO_BUZZ
 BT_IS_SONG_IO_BUZZ_CLASS
 BT_SONG_IO_BUZZ
 BT_SONG_IO_BUZZ_CLASS
 BT_SONG_IO_BUZZ_GET_CLASS
 BT_TYPE_SONG_IO_BUZZ
-BtSongIOBuzzClass
 BtSongIOBuzzPrivate
 bt_song_io_buzz_get_type
 </SECTION>

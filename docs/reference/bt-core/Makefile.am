@@ -36,12 +36,13 @@ FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/ \
 	--extra-dir=..
 
 # Used for dependencies. The docs will be rebuilt if any of these change.
-HFILE_GLOB=$(top_srcdir)/src/lib/core/*.h
-CFILE_GLOB=$(top_srcdir)/src/lib/core/*.c
+HFILE_GLOB=$(top_srcdir)/src/lib/core/*.h $(top_srcdir)/src/lib/core/songio/*/*.h
+CFILE_GLOB=$(top_srcdir)/src/lib/core/*.c $(top_srcdir)/src/lib/core/songio/*/*.c
 
 # Header files to ignore when scanning.
 IGNORE_HFILES=core_private.h settings-private.h marshal.h version.h \
-  plainfile-settings.h
+  plainfile-settings.h \
+  bsl.h song-io-buzz-private.h
 
 # Images to copy into HTML directory.
 HTML_IMAGES =
@@ -66,6 +67,7 @@ GTKDOC_CFLAGS = \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = \
 	$(top_builddir)/src/lib/core/libbuzztard-core.la \
+	$(top_builddir)/src/lib/core/songio/bsl/libbtbsl.la \
 	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) \
 	$(BT_LIBS)
