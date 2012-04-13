@@ -736,9 +736,17 @@ gboolean bt_song_play(const BtSong * const self) {
 
   // this should be sequence->play_start
   self->priv->play_pos=0;
-  // seek to start time
+  // seek to start time, go to paused first to unflush the pads
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED))==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING("can't go to paused state");
+    self->priv->is_preparing=FALSE;
+    return(FALSE);
+  }
+  GST_DEBUG("->PAUSED state change returned '%s'",gst_element_state_change_return_get_name(res));
+
   GST_DEBUG_OBJECT(self->priv->master_bin,"seek event: %"GST_PTR_FORMAT,self->priv->play_seek_event);
   if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->play_seek_event)))) {
+    bt_song_write_to_lowlevel_dot_file(self);
     GST_WARNING_OBJECT(self->priv->master_bin, "bin failed to handle seek event");
   }
 
