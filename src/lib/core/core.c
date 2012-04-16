@@ -23,8 +23,6 @@
  * The library offers base objects such as #BtApplication and #BtSong.
  */
 
-/* TODO(ensonic): add check_version stuff like in gstreamer */
-
 #define BT_CORE
 #define BT_CORE_C
 #include "core_private.h"
