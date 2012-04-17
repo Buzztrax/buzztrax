@@ -484,12 +484,12 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
   if(group==-1 && param==-1) {
     BtWire *wire;
     BtWirePattern *wire_pattern;
-    gulong wire_groups, global_params, voices;
+    gulong wire_groups,voices;
     guint g,v;
 
     bt_change_log_start_group(self->priv->change_log);
 
-    g_object_get(machine,"global-params",&global_params,"voices",&voices,NULL);
+    g_object_get(machine,"voices",&voices,NULL);
     wire_groups=g_list_length(machine->dst_wires);
 
     for(g=0;g<wire_groups;g++) {
@@ -510,7 +510,7 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
       }
     }
 
-    if(global_params) {
+    if(self->priv->global_params) {
       pc_group=&self->priv->param_groups[g];
       g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_global_events \"%s\",\"%s\",%u,%u",mid,pid,beg,end);
       pattern_columns_log_undo_redo(self,fmt,pc_group->num_columns,&old_str,&new_str);
@@ -743,14 +743,14 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
     gchar fmt[MAX_CHANGE_LOGGER_METHOD_LEN];
     gchar *mid,*pid,*pname,*str,*undo_str,*redo_str;
     gulong length;
-    gulong wire_params,global_params,voice_params,voices;
+    gulong wire_params,voices;
     guint end;
     GList *node;
     GString *data=g_string_new(NULL);
     guint v;
 
     g_object_get(pattern,"id",&pid,"name",&pname,"length",&length,NULL);
-    g_object_get(machine,"id",&mid,"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
+    g_object_get(machine,"id",&mid,"voices",&voices,NULL);
 
     bt_change_log_start_group(self->priv->change_log);
 
@@ -788,14 +788,14 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
         g_object_unref(wire_pattern);
       }
     }
-    if(global_params) {
+    if(self->priv->global_params) {
       g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_global_events \"%s\",\"%s\",0,%u",mid,pid,end);
-      pattern_columns_log_undo_redo(self,fmt,global_params,&str,NULL);
+      pattern_columns_log_undo_redo(self,fmt,self->priv->global_params,&str,NULL);
     }
     if(voices) {
       for(v=0;v<voices;v++) {
         g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_voice_events \"%s\",\"%s\",0,%u,%u",mid,pid,end,v);
-        pattern_columns_log_undo_redo(self,fmt,voice_params,&str,NULL);
+        pattern_columns_log_undo_redo(self,fmt,self->priv->voice_params,&str,NULL);
       }
     }
     g_string_free(data,TRUE);
@@ -3301,10 +3301,9 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
     gint beg,end;
     gulong pattern_length;
     BtPatternEditorColumnGroup *pc_group;
-    BtMachine *machine;
     gboolean res=TRUE;
 
-    g_object_get(self->priv->pattern,"length",&pattern_length,"machine",&machine,NULL);
+    g_object_get(self->priv->pattern,"length",&pattern_length,NULL);
     pattern_length--;
     // paste from self->priv->cursor_row to MIN(self->priv->cursor_row+ticks,pattern_length)
     beg=self->priv->cursor_row;
@@ -3330,10 +3329,9 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
             res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,p,lines[i]);
             break;
           case PGT_VOICE: {
-            gulong global_params, voice_params, params;
+            guint voice=GPOINTER_TO_UINT(pc_group->user_data);
+            gulong params=self->priv->global_params+(voice*self->priv->voice_params);
 
-            g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
-            params=global_params+(GPOINTER_TO_UINT(pc_group->user_data)*voice_params);
             res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,params+p,lines[i]);
           } break;
         }
@@ -3353,7 +3351,6 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
         }
       }
     }
-    g_object_unref(machine);
     gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
   }
   g_strfreev(lines);
@@ -3428,7 +3425,7 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
     case METHOD_SET_VOICE_EVENTS: {
       guint voice;
       gchar *str,*mid,*pid;
-      gulong global_params,voice_params,param_offset;
+      gulong params;
 
       mid=g_match_info_fetch(match_info,1);
       pid=g_match_info_fetch(match_info,2);
@@ -3441,9 +3438,8 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
 
       GST_DEBUG("-> [%s|%s|%u|%u|%u|%u|%s]",mid,pid,s_row,e_row,voice,param,str);
       lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
-      g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
-      param_offset=global_params+(voice*voice_params);
-      res=bt_pattern_deserialize_column(pattern,s_row,e_row,param_offset+param,str);
+      params=self->priv->global_params+(voice*self->priv->voice_params);
+      res=bt_pattern_deserialize_column(pattern,s_row,e_row,params+param,str);
       g_free(str);
       g_free(mid);
       g_free(pid);
