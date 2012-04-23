@@ -79,6 +79,7 @@
  *   - another complication is that wire-patterns are optional and only created
  *     once we store an event, we don't do that for voices
  *     - if we just create them, we could avoid rechecking the wire_pattern
+ *     - we could also create the GValue array inside the WirePattern on demand
  */
 
 #define BT_EDIT

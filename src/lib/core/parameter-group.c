@@ -24,13 +24,16 @@
  * group will not change.
  */
 
-/* FIXME(ensonic): consider to have a BtParameter and merge 7 arrays into one
- * - for this we need to copy the values from parents & params
+/* FIXME(ensonic): consider to have a BtParameter struct and merge 7 arrays into
+ * one
+ * - for this we need to copy the values from parents & params though
  */
 #define BT_CORE
 #define BT_PARAMETER_GROUP_C
 
 #include "core_private.h"
+
+//-- property ids
 
 enum {
   PARAMETER_GROUP_NUM_PARAMS=1,
