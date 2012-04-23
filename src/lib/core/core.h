@@ -68,6 +68,7 @@
 #include "song-io.h"
 #include "song.h"
 #include "source-machine.h"
+#include "value-group.h"
 #include "wave.h"
 #include "wavelevel.h"
 #include "wavetable.h"

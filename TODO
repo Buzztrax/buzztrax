@@ -11,8 +11,9 @@
     (e.g. bt_machine_get_pattern_by_id)
   * add test for trigger params
   * for ui tests we should have the main-loop under our control:
-    * check g_main_context_set_poll_func()g_main_context_set_poll_func
+    * check g_main_context_set_poll_func()
     * or really *run* the main-loop (not just iterate)
+      * for this our tests would be scattered over several signal handlers
 
 * new stats
   * http://www.chris-lott.org/resources/cmetrics/cyclo-2.0.tar.gz
@@ -183,3 +184,20 @@
   * it would be nice to avoid a setting, but for slow machines it might be worth it
     (or for fast machine, people could pick a higher rate)
   * we could use configure and have the define in config.h
+
+
+* pattern, wire-pattern and main-page-patterns still contain lots of duplicated
+  code
+  * we could introduced a BtValueGroup to take the storage of the pattern values
+    for a wire-pattern, the global paramaters in a pattern and one voice in a
+    pattern
+  * review the pattern, wire-pattern api and heck if we should use the groups
+    directly
+    * if keeping the wrapper we can keep the signals (and might not need
+      signal in the value-group
+    * the signals are used in the sequence to update the controller values,
+      we can remove them all after the control-source rewrite
+    * check if the signals could pass the parameter group, that could
+      potentially simplify the sequence code, in this case we keep the signal
+      on the value-group until the control-source rewrite is done
+        

@@ -92,7 +92,6 @@ void bt_pattern_randomize_columns(const BtPattern * const self, const gulong sta
 
 void bt_pattern_serialize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, GString *data);
 void bt_pattern_serialize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick, GString *data);
-
 gboolean bt_pattern_deserialize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, const gchar *data);
 
 #endif /* BT_PATTERN_H */

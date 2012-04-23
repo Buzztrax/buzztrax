@@ -47,6 +47,7 @@ libbuzztard_core_la_SOURCES = \
 	song-io-native-bzt.c \
 	song-io-native-xml.c \
 	source-machine.c \
+	value-group.c \
 	wavetable.c \
 	wave.c \
 	wavelevel.c \
@@ -102,6 +103,7 @@ libbuzztard_core_HEADERS = \
 	song-io-native-bzt.h \
 	song-io-native-xml.h \
 	source-machine.h \
+	value-group.h \
 	wavetable.h \
 	wave.h \
 	wavelevel.h \
