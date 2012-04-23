@@ -260,12 +260,12 @@ BT_START_TEST(test_btpattern_has_data) {
   fail_unless(data==NULL, "data is '%s' instead of ''",data);
 
   /* test tick lines */
-  res=bt_pattern_tick_has_data(pattern,0);
+  res=bt_pattern_test_tick(pattern,0);
   fail_unless(res==TRUE, NULL);
-  res=bt_pattern_tick_has_data(pattern,4);
+  res=bt_pattern_test_tick(pattern,4);
   fail_unless(res==TRUE, NULL);
 
-  res=bt_pattern_tick_has_data(pattern,1);
+  res=bt_pattern_test_tick(pattern,1);
   fail_unless(res==FALSE, NULL);
 
   /* cleanup */

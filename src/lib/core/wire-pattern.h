@@ -65,17 +65,16 @@ GValue *bt_wire_pattern_get_event_data(const BtWirePattern * const self, const g
 
 gboolean bt_wire_pattern_set_event(const BtWirePattern * const self, const gulong tick, const gulong param, const gchar * const value);
 gchar *bt_wire_pattern_get_event(const BtWirePattern * const self, const gulong tick, const gulong param);
-
 gboolean bt_wire_pattern_test_event(const BtWirePattern * const self, const gulong tick, const gulong param);
-gboolean bt_wire_pattern_tick_has_data(const BtWirePattern * const self, const gulong tick);
+gboolean bt_wire_pattern_test_tick(const BtWirePattern * const self, const gulong tick);
 
 void bt_wire_pattern_insert_row(const BtWirePattern * const self, const gulong tick, const gulong param);
 void bt_wire_pattern_insert_full_row(const BtWirePattern * const self, const gulong tick);
 void bt_wire_pattern_delete_row(const BtWirePattern * const self, const gulong tick, const gulong param);
 void bt_wire_pattern_delete_full_row(const BtWirePattern * const self, const gulong tick);
 
-void bt_wire_pattern_delete_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-void bt_wire_pattern_delete_columns(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick);
+void bt_wire_pattern_clear_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+void bt_wire_pattern_clear_columns(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick);
 
 void bt_wire_pattern_blend_column(const BtWirePattern * const self, const gulong start_tick,const gulong end_tick, const gulong param); 
 void bt_wire_pattern_blend_columns(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick);

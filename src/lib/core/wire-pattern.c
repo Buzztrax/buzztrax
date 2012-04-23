@@ -245,11 +245,11 @@ gboolean bt_wire_pattern_test_event(const BtWirePattern * const self, const gulo
  *
  * Returns: %TRUE is there are events, %FALSE otherwise
  */
-gboolean bt_wire_pattern_tick_has_data(const BtWirePattern * const self, const gulong tick) {
+gboolean bt_wire_pattern_test_tick(const BtWirePattern * const self, const gulong tick) {
   g_return_val_if_fail(BT_IS_WIRE_PATTERN(self),FALSE);
   g_return_val_if_fail(self->priv->value_group,FALSE);
 
-  return(bt_value_group_tick_has_data(self->priv->value_group,tick));
+  return(bt_value_group_test_tick(self->priv->value_group,tick));
 }
 
 /**
@@ -337,11 +337,11 @@ void bt_wire_pattern_delete_full_row(const BtWirePattern * const self, const gul
  *
  * Since: 0.6
  */
-void bt_wire_pattern_delete_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+void bt_wire_pattern_clear_column(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   g_return_if_fail(BT_IS_WIRE_PATTERN(self));
 
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
-  bt_value_group_delete_column(self->priv->value_group,start_tick,end_tick,param);
+  bt_value_group_clear_column(self->priv->value_group,start_tick,end_tick,param);
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
@@ -355,11 +355,11 @@ void bt_wire_pattern_delete_column(const BtWirePattern * const self, const gulon
  *
  * Since: 0.6
  */
-void bt_wire_pattern_delete_columns(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick) {
+void bt_wire_pattern_clear_columns(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick) {
   g_return_if_fail(BT_IS_WIRE_PATTERN(self));
 
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
-  bt_value_group_delete_columns(self->priv->value_group,start_tick,end_tick);
+  bt_value_group_clear_columns(self->priv->value_group,start_tick,end_tick);
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
                           
@@ -552,7 +552,7 @@ static xmlNodePtr bt_wire_pattern_persistence_save(const BtPersistence * const p
     // save pattern data
     for(i=0;i<length;i++) {
       // check if there are any GValues stored ?
-      if(bt_wire_pattern_tick_has_data(self,i)) {
+      if(bt_wire_pattern_test_tick(self,i)) {
         child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("tick"),NULL);
         xmlNewProp(child_node,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
         // save tick data

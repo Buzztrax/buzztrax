@@ -64,8 +64,7 @@ GValue *bt_value_group_get_event_data(const BtValueGroup * const self, const gul
 gboolean bt_value_group_set_event(const BtValueGroup * const self, const gulong tick, const gulong param, const gchar * const value);
 gchar *bt_value_group_get_event(const BtValueGroup * const self, const gulong tick, const gulong param);
 gboolean bt_value_group_test_event(const BtValueGroup * const self, const gulong tick, const gulong param);
-
-gboolean bt_value_group_tick_has_data(const BtValueGroup * const self, const gulong tick);  // FIXME(ensonic): _test_tick()
+gboolean bt_value_group_test_tick(const BtValueGroup * const self, const gulong tick);
 // FIXME(ensonic): add _test_param()?
 
 void bt_value_group_insert_row(const BtValueGroup * const self, const gulong tick, const gulong param);
@@ -73,8 +72,8 @@ void bt_value_group_insert_full_row(const BtValueGroup * const self, const gulon
 void bt_value_group_delete_row(const BtValueGroup * const self, const gulong tick, const gulong param);
 void bt_value_group_delete_full_row(const BtValueGroup * const self, const gulong tick);
 
-void bt_value_group_delete_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param); // FIXME(ensonic): _clear_column()
-void bt_value_group_delete_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);                    // FIXME(ensonic): _clear_columns()
+void bt_value_group_clear_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+void bt_value_group_clear_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
 
 void bt_value_group_blend_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
 void bt_value_group_blend_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);

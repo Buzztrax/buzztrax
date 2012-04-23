@@ -437,17 +437,17 @@ gboolean bt_pattern_test_voice_event(const BtPattern * const self, const gulong 
  *
  * Returns: %TRUE is there are events, %FALSE otherwise
  */
-gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tick) {
+gboolean bt_pattern_test_tick(const BtPattern * const self, const gulong tick) {
   g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
   
-  if(bt_value_group_tick_has_data(self->priv->global_value_group,tick)) {
+  if(bt_value_group_test_tick(self->priv->global_value_group,tick)) {
     return(TRUE);
   }
 
   const gulong voices=self->priv->voices;
   gulong j;
   for(j=0;j<voices;j++) {
-    if(bt_value_group_tick_has_data(self->priv->voice_value_groups[j],tick)) {
+    if(bt_value_group_test_tick(self->priv->voice_value_groups[j],tick)) {
       return(TRUE);
     }
   }
@@ -551,11 +551,11 @@ void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick)
  *
  * Since: 0.6
  */
-void bt_pattern_delete_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+void bt_pattern_clear_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   g_return_if_fail(BT_IS_PATTERN(self));
 
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
-  bt_value_group_delete_column(bt_pattern_get_value_group_for_param(self,(gulong *)&param),start_tick,end_tick,param);
+  bt_value_group_clear_column(bt_pattern_get_value_group_for_param(self,(gulong *)&param),start_tick,end_tick,param);
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
@@ -569,15 +569,15 @@ void bt_pattern_delete_column(const BtPattern * const self, const gulong start_t
  *
  * Since: 0.6
  */
-void bt_pattern_delete_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick) {
+void bt_pattern_clear_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick) {
   g_return_if_fail(BT_IS_PATTERN(self));
 
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
-  bt_value_group_delete_columns(self->priv->global_value_group,start_tick,end_tick);
+  bt_value_group_clear_columns(self->priv->global_value_group,start_tick,end_tick);
   const gulong voices=self->priv->voices;
   gulong j;
   for(j=0;j<voices;j++) {
-    bt_value_group_delete_columns(self->priv->voice_value_groups[j],start_tick,end_tick);
+    bt_value_group_clear_columns(self->priv->voice_value_groups[j],start_tick,end_tick);
   }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
@@ -797,7 +797,7 @@ static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persis
     // save pattern data
     for(i=0;i<length;i++) {
       // check if there are any GValues stored ?
-      if(bt_pattern_tick_has_data(self,i)) {
+      if(bt_pattern_test_tick(self,i)) {
         child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("tick"),NULL);
         xmlNewProp(child_node,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
         // save tick data

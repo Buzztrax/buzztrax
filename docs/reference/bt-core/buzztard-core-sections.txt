@@ -194,8 +194,8 @@ BtPattern
 bt_pattern_blend_column
 bt_pattern_blend_columns
 bt_pattern_copy
-bt_pattern_delete_column
-bt_pattern_delete_columns
+bt_pattern_clear_column
+bt_pattern_clear_columns
 bt_pattern_delete_full_row
 bt_pattern_delete_row
 bt_pattern_deserialize_column
@@ -216,7 +216,7 @@ bt_pattern_set_global_event
 bt_pattern_set_voice_event
 bt_pattern_test_global_event
 bt_pattern_test_voice_event
-bt_pattern_tick_has_data
+bt_pattern_test_tick
 <SUBSECTION Standard>
 BT_IS_PATTERN
 BT_IS_PATTERN_CLASS
@@ -567,8 +567,8 @@ BtValueGroup
 bt_value_group_blend_column
 bt_value_group_blend_columns
 bt_value_group_copy
-bt_value_group_delete_column
-bt_value_group_delete_columns
+bt_value_group_clear_column
+bt_value_group_clear_columns
 bt_value_group_delete_full_row
 bt_value_group_delete_row
 bt_value_group_deserialize_column
@@ -585,7 +585,7 @@ bt_value_group_serialize_column
 bt_value_group_serialize_columns
 bt_value_group_set_event
 bt_value_group_test_event
-bt_value_group_tick_has_data
+bt_value_group_test_tick
 <SUBSECTION Standard>
 BT_IS_VALUE_GROUP
 BT_IS_VALUE_GROUP_CLASS
@@ -691,8 +691,8 @@ BtWirePattern
 bt_wire_pattern_blend_column
 bt_wire_pattern_blend_columns
 bt_wire_pattern_copy
-bt_wire_pattern_delete_column
-bt_wire_pattern_delete_columns
+bt_wire_pattern_clear_column
+bt_wire_pattern_clear_columns
 bt_wire_pattern_delete_full_row
 bt_wire_pattern_delete_row
 bt_wire_pattern_deserialize_column
@@ -709,7 +709,7 @@ bt_wire_pattern_serialize_column
 bt_wire_pattern_serialize_columns
 bt_wire_pattern_set_event
 bt_wire_pattern_test_event
-bt_wire_pattern_tick_has_data
+bt_wire_pattern_test_tick
 <SUBSECTION Standard>
 BT_IS_WIRE_PATTERN
 BT_IS_WIRE_PATTERN_CLASS

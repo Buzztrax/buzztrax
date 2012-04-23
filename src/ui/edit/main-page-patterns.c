@@ -3227,8 +3227,8 @@ static void pattern_clipboard_clear_func(GtkClipboard *clipboard,gpointer data) 
  */
 void bt_main_page_patterns_delete_selection(const BtMainPagePatterns *self) {
   pattern_selection_apply(self,
-    bt_pattern_delete_column,bt_pattern_delete_columns,
-    bt_wire_pattern_delete_column,bt_wire_pattern_delete_columns);
+    bt_pattern_clear_column,bt_pattern_clear_columns,
+    bt_wire_pattern_clear_column,bt_wire_pattern_clear_columns);
 }
 
 /**

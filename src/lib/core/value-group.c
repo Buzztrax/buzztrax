@@ -307,7 +307,7 @@ gboolean bt_value_group_test_event(const BtValueGroup * const self, const gulong
  *
  * Since: 0.7
  */
-gboolean bt_value_group_tick_has_data(const BtValueGroup * const self, const gulong tick) {
+gboolean bt_value_group_test_tick(const BtValueGroup * const self, const gulong tick) {
   const gulong params=self->priv->params;
   gulong i;
   GValue *data;
@@ -462,7 +462,7 @@ void bt_value_group_delete_full_row(const BtValueGroup * const self, const gulon
 }
 
 
-static void _delete_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+static void _clear_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   gulong params=self->priv->params;
   GValue *beg=&self->priv->data[param+params*start_tick];
   gulong i,ticks=(end_tick+1)-start_tick;
@@ -485,14 +485,14 @@ static void _delete_column(const BtValueGroup * const self, const gulong start_t
  *
  * Since: 0.7
  */
-void bt_value_group_delete_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
+void bt_value_group_clear_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
   g_return_if_fail(BT_IS_VALUE_GROUP(self));
   g_return_if_fail(start_tick<self->priv->length);
   g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
   g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,TRUE);
-  _delete_column(self,start_tick,end_tick,param);
+  _clear_column(self,start_tick,end_tick,param);
   g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
 }
 
@@ -506,7 +506,7 @@ void bt_value_group_delete_column(const BtValueGroup * const self, const gulong 
  *
  * Since: 0.7
  */
-void bt_value_group_delete_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick) {
+void bt_value_group_clear_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick) {
   g_return_if_fail(BT_IS_VALUE_GROUP(self));
   g_return_if_fail(start_tick<self->priv->length);
   g_return_if_fail(end_tick<self->priv->length);
@@ -516,7 +516,7 @@ void bt_value_group_delete_columns(const BtValueGroup * const self, const gulong
 
   g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,TRUE);
   for(j=0;j<params;j++) {
-    _delete_column(self,start_tick,end_tick,j);
+    _clear_column(self,start_tick,end_tick,j);
   }
   g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
 }
