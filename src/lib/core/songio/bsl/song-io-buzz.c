@@ -26,6 +26,8 @@
  * songs with and without embedded waveforms are supported. Most aspects of the
  * file-format are implemented.
  */
+/* TODO(ensonic): pdlg and midi chunks
+ */
 
 #define BT_SONG_IO_BUZZ_C
 
