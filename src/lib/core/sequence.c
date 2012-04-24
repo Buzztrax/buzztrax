@@ -479,33 +479,6 @@ static void bt_sequence_invalidate_param(const BtSequence * const self, const Bt
 }
 
 /*
- * bt_sequence_invalidate_global_param:
- *
- * Marks the given tick for the global param of the given machine as invalid.
- */
-static void bt_sequence_invalidate_global_param(const BtSequence * const self, const BtMachine * const machine, const gulong time, const gulong param) {
-  bt_sequence_invalidate_param(self,machine,time,param);
-}
-
-/*
- * bt_sequence_invalidate_voice_param:
- *
- * Marks the given tick for the voice param of the given machine and voice as invalid.
- */
-static void bt_sequence_invalidate_voice_param(const BtSequence * const self, const BtMachine * const machine, const gulong time, const gulong voice, const gulong param) {
-  bt_sequence_invalidate_param(self,machine,time,param);
-}
-
-/*
- * bt_sequence_invalidate_wire_param:
- *
- * Marks the given tick for the wire param of the given machine and voice as invalid.
- */
-static void bt_sequence_invalidate_wire_param(const BtSequence * const self, const BtMachine * const machine, const gulong time, const BtWire *wire, const gulong param) {
-  bt_sequence_invalidate_param(self,machine,time,param);
-}
-
-/*
  * bt_sequence_invalidate_pattern_region:
  * @self: the sequence that hold the patterns
  * @time: the sequence time-offset of the pattern
@@ -650,7 +623,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
           for(j=0;j<wire_params;j++) {
             // mark region covered by change as damaged
             if(bt_wire_pattern_test_event(wire_pattern,i,j)) {
-              bt_sequence_invalidate_wire_param(self,machine,time+i,wire,param_offset+j);
+              bt_sequence_invalidate_param(self,machine,time+i,param_offset+j);
             }
           }
         }
@@ -664,7 +637,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
 					for(j=0;j<wire_params;j++) {
 						// mark region covered by change as damaged
 						if(bt_wire_pattern_test_event(wire_pattern,i,j)) {
-							bt_sequence_invalidate_wire_param(self,machine,time+(i-start),wire,param_offset+j);
+							bt_sequence_invalidate_param(self,machine,time+(i-start),param_offset+j);
 						}
 					}
 				}
@@ -678,7 +651,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
       for(j=0;j<global_params;j++) {
         // mark region covered by change as damaged
         if(bt_pattern_test_global_event(pattern,i,j)) {
-          bt_sequence_invalidate_global_param(self,machine,time+i,j);
+          bt_sequence_invalidate_param(self,machine,time+i,j);
         }
       }
       // check voices
@@ -688,7 +661,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
         for(j=0;j<voice_params;j++) {
           // mark region covered by change as damaged
           if(bt_pattern_test_voice_event(pattern,i,k,j)) {
-            bt_sequence_invalidate_voice_param(self,machine,time+i,k,param_offset+j);
+            bt_sequence_invalidate_param(self,machine,time+i,param_offset+j);
           }
         }
       }
@@ -700,7 +673,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
 			for(j=0;j<global_params;j++) {
 				// mark region covered by change as damaged
 				if(bt_pattern_test_global_event(other_pattern,i,j)) {
-					bt_sequence_invalidate_global_param(self,machine,time+(i-start),j);
+					bt_sequence_invalidate_param(self,machine,time+(i-start),j);
 				}
 			}
 			// check voices
@@ -710,7 +683,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
 				for(j=0;j<voice_params;j++) {
 					// mark region covered by change as damaged
 					if(bt_pattern_test_voice_event(other_pattern,i,k,j)) {
-						bt_sequence_invalidate_voice_param(self,machine,time+(i-start),k,param_offset+j);
+						bt_sequence_invalidate_param(self,machine,time+(i-start),param_offset+j);
 					}
 				}
 			}
@@ -918,26 +891,15 @@ static void bt_sequence_calculate_wait_per_position(const BtSequence * const sel
 
 //-- event handler
 
-/*
- * bt_sequence_on_pattern_global_param_changed:
- *
- * Invalidate the global param change in all pattern uses.
- */
-static void bt_sequence_on_pattern_global_param_changed(const BtPattern * const pattern, const gulong tick, const gulong param, gconstpointer user_data) {
-  const BtSequence * const self=BT_SEQUENCE(user_data);
+static void bt_sequence_on_pattern_param_changed(const BtSequence * const self, const BtPattern * const pattern, const BtMachine * const machine, const gulong tick, const gulong param) {
   const gulong tracks=self->priv->tracks;
   const gulong length=self->priv->length;
-  BtMachine *this_machine;
   gulong i,j,k;
-
-  g_object_get((gpointer)pattern,"machine",&this_machine,NULL);
-
-  GST_INFO("pattern %p changed",pattern);
 
   // for all occurences of pattern
   for(i=0;i<tracks;i++) {
     BtMachine * const that_machine=bt_sequence_get_machine_unchecked(self,i);
-    if(that_machine==this_machine) {
+    if(that_machine==machine) {
       for(j=0;j<length;j++) {
         BtCmdPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
         if(that_pattern==(BtCmdPattern *)pattern) {
@@ -947,15 +909,28 @@ static void bt_sequence_on_pattern_global_param_changed(const BtPattern * const 
           }
           // for tick==0 we always invalidate
           if(!tick || k==tick) {
-            bt_sequence_invalidate_global_param(self,this_machine,j+tick,param);
+            bt_sequence_invalidate_param(self,machine,j+tick,param);
           }
         }
       }
     }
   }
-  g_object_unref(this_machine);
   // repair damage
   bt_sequence_repair_damage(self);
+}
+
+/*
+ * bt_sequence_on_pattern_global_param_changed:
+ *
+ * Invalidate the global param change in all pattern uses.
+ */
+static void bt_sequence_on_pattern_global_param_changed(const BtPattern * const pattern, const gulong tick, const gulong param, gconstpointer user_data) {
+  const BtSequence * const self=BT_SEQUENCE(user_data);
+  BtMachine *machine;
+
+  g_object_get((gpointer)pattern,"machine",&machine,NULL);
+  bt_sequence_on_pattern_param_changed(self,pattern,machine,tick,param);
+  g_object_unref(machine);
 }
 
 /*
@@ -965,37 +940,14 @@ static void bt_sequence_on_pattern_global_param_changed(const BtPattern * const 
  */
 static void bt_sequence_on_pattern_voice_param_changed(const BtPattern * const pattern, const gulong tick, const gulong voice, const gulong param, gconstpointer user_data) {
   const BtSequence * const self=BT_SEQUENCE(user_data);
-  const gulong tracks=self->priv->tracks;
-  const gulong length=self->priv->length;
-  BtMachine *this_machine;
-  gulong i,j,k;
+  BtMachine *machine;
+  gulong global_params,voice_params,param_offset;
 
-  g_object_get((gpointer)pattern,"machine",&this_machine,NULL);
-  // for all occurences of pattern
-  for(i=0;i<tracks;i++) {
-    BtMachine * const that_machine=bt_sequence_get_machine_unchecked(self,i);
-    if(that_machine==this_machine) {
-      for(j=0;j<length;j++) {
-        BtCmdPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
-        if(that_pattern==(BtCmdPattern *)pattern) {
-          // check if pattern plays long enough for the damage to happen
-          for(k=1;((k<tick) && (j+k<length));k++) {
-            if(bt_sequence_test_pattern(self,j+k,i)) break;
-          }
-          // for tick==0 we always invalidate
-          if(!tick || k==tick) {
-            gulong global_params,voice_params,param_offset;
-            g_object_get(this_machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
-            param_offset=global_params+voice*voice_params;
-            bt_sequence_invalidate_voice_param(self,this_machine,j+tick,voice,param_offset+param);
-          }
-        }
-      }
-    }
-  }
-  g_object_unref(this_machine);
-  // repair damage
-  bt_sequence_repair_damage(self);
+  g_object_get((gpointer)pattern,"machine",&machine,NULL);
+  g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,NULL);
+  param_offset=global_params+voice*voice_params;
+  bt_sequence_on_pattern_param_changed(self,pattern,machine,tick,param_offset+param);
+  g_object_unref(machine);
 }
 
 /*
@@ -1005,47 +957,23 @@ static void bt_sequence_on_pattern_voice_param_changed(const BtPattern * const p
  */
 static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern * const wire_pattern, const gulong tick, const BtWire * const wire, const gulong param, gconstpointer user_data) {
   const BtSequence * const self=BT_SEQUENCE(user_data);
-  const gulong tracks=self->priv->tracks;
-  const gulong length=self->priv->length;
   BtCmdPattern *pattern;
-  BtMachine *this_machine;
-  gulong i,j,k;
+  BtMachine *machine;
+  gulong global_params,voice_params,voices,param_offset;
+  gulong l;
+  GList *node;
 
   g_object_get((gpointer)wire_pattern,"pattern",&pattern,NULL);
-  g_object_get(pattern,"machine",&this_machine,NULL);
-  // for all occurences of pattern
-  for(i=0;i<tracks;i++) {
-    BtMachine * const that_machine=bt_sequence_get_machine_unchecked(self,i);
-    if(that_machine==this_machine) {
-      for(j=0;j<length;j++) {
-        BtCmdPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
-        if(that_pattern==pattern) {
-          // check if pattern plays long enough for the damage to happen
-          for(k=1;((k<tick) && (j+k<length));k++) {
-            if(bt_sequence_test_pattern(self,j+k,i)) break;
-          }
-          // for tick==0 we always invalidate
-          if(!tick || k==tick) {
-            gulong global_params,voice_params,voices,param_offset;
-            gulong l;
-            GList *node;
-
-            g_object_get(this_machine,"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
-            // get the index for the given wires
-            for(l=0,node=this_machine->dst_wires;node;node=g_list_next(node),l++) {
-              if(node->data==(gpointer)wire) break;
-            }
-            param_offset=(global_params+voices*voice_params)+(BT_WIRE_MAX_NUM_PARAMS*l);
-            bt_sequence_invalidate_wire_param(self,this_machine,j+tick,wire,param_offset+param);
-          }
-        }
-      }
-    }
+  g_object_get(pattern,"machine",&machine,NULL);
+  g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
+  // get the index for the given wires
+  for(l=0,node=machine->dst_wires;node;node=g_list_next(node),l++) {
+    if(node->data==(gpointer)wire) break;
   }
-  g_object_unref(this_machine);
+  param_offset=(global_params+voices*voice_params)+(BT_WIRE_MAX_NUM_PARAMS*l);
+  bt_sequence_on_pattern_param_changed(self,(BtPattern *)pattern,machine,tick,param_offset+param);
+  g_object_unref(machine);
   g_object_unref(pattern);
-  // repair damage
-  bt_sequence_repair_damage(self);
 }
 
 static void bt_sequence_on_pattern_changed(const BtPattern * const pattern, const gboolean intermediate, gconstpointer user_data) {
