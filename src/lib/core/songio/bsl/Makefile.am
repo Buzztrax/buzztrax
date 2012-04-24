@@ -12,8 +12,7 @@ libbtbsl_la_LDFLAGS = \
 	-module -avoid-version
 libbtbsl_la_SOURCES = \
 	bsl.c bsl.h \
-	song-io-buzz.c song-io-buzz.h song-io-buzz-private.h \
-	version.h
+	song-io-buzz.c song-io-buzz.h song-io-buzz-private.h
 libbtbsl_la_LIBTOOLFLAGS = --tag=disable-static
 
 AM_CPPFLAGS = \
