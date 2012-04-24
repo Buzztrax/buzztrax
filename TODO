@@ -200,4 +200,19 @@
     * check if the signals could pass the parameter group, that could
       potentially simplify the sequence code, in this case we keep the signal
       on the value-group until the control-source rewrite is done
-        
+    * run ./api-cleanup.sh to get a report
+      * when repairing we still look up patterns
+      * in bt_sequence_invalidate_pattern_region() we ideally get a
+        BtValuegroup * for pattern/other_pattern and then loop over the
+        parameters in each group
+      * in bt_sequence_repair_damage() we also would like to just loop over
+        groups and call a common bt_sequence_repair_damage_entry()
+
+
+* generate a dependency matrix
+  * 'make ctags' creates tags files per directory containing symbol locations
+  * 'ctags -x --recurse src tests >xref' creates a single xref table containing
+    all symbol locations
+  * 'find . -name "*.o" -exec nm --undefined-only {} \; | grep " bt_"'
+    creates a list of externally called entries
+  

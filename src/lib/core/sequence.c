@@ -31,7 +31,12 @@
  * The #BtSequence manages the #GstController event queues for the #BtMachines
  * and #BtWires.
  * It uses a damage-repair based two phase algorithm to update the controller
- * queues whenever patterns or the sequence changes.
+ * queues whenever patterns or the sequence changes. For that it watches data
+ * changes on patterns and wire-patterns (through signal handler). When such
+ * changes happen it computes the invalid regions on the time axis (
+ * bt_sequence_invalidate_pattern_region()). In the 2nd step
+ * bt_sequence_repair_damage() will update the event queues for all the
+ * invalidated time-regions and affected parameters.
  */
 /* TODO(ensonic): introduce a BtTrack object
  * - the sequence will have a list of tracks
@@ -485,9 +490,9 @@ static void bt_sequence_invalidate_param(const BtSequence * const self, const Bt
  * @track: the track of the pattern
  * @pattern: the pattern that has been added or removed
  *
- * Calculated the damage region for the given pattern and location.
- * Adds the region to the repair-queue.
- * To determine the regio we need to check patterns before and after this
+ * Calculates the damage region for the given pattern and location in the 
+ * sequence. Adds the region to the repair-queue.
+ * To determine the region we need to check patterns before and after this
  * pattern to handle truncation.
  */
 static void bt_sequence_invalidate_pattern_region(const BtSequence * const self, const gulong time, const gulong track, const BtCmdPattern * const cmd_pattern) {
@@ -609,7 +614,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
  	
  	GST_LOG("doing repair: p: 0 .. %lu, %s: %lu .. %lu",
  		  length,(other_pattern?"op":"--"),start,damage_length);
-
+ 	
   // mark region covered by new pattern as damaged
   // check wires
   param_offset=global_params+voices*voice_params;
