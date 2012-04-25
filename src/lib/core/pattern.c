@@ -110,7 +110,6 @@ struct _BtPatternPrivate {
   gulong voice_params;
   /* the machine the pattern belongs to */
   G_POINTER_ALIAS(BtMachine *,machine);
-  BtParameterGroup *global_param_group,**voice_param_groups;
 
   /* the pattern data */
   BtValueGroup *global_value_group;
@@ -165,12 +164,9 @@ static void bt_pattern_resize_data_voices(const BtPattern * const self, const gu
     }
   }
 
-  self->priv->voice_param_groups=g_renew(BtParameterGroup *,self->priv->voice_param_groups,self->priv->voices);
   self->priv->voice_value_groups=g_renew(BtValueGroup *,self->priv->voice_value_groups,self->priv->voices);
-
   for(i=voices;i<self->priv->voices;i++) {
-    self->priv->voice_param_groups[i]=bt_machine_get_voice_param_group(self->priv->machine,i);
-    self->priv->voice_value_groups[i]=bt_value_group_new(self->priv->voice_param_groups[i], self->priv->length);
+    self->priv->voice_value_groups[i]=bt_value_group_new(bt_machine_get_voice_param_group(self->priv->machine,i), self->priv->length);
   }
 }
 
@@ -801,7 +797,7 @@ static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persis
         child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("tick"),NULL);
         xmlNewProp(child_node,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
         // save tick data
-        pg=self->priv->global_param_group;
+        pg=bt_machine_get_global_param_group(self->priv->machine);
         for(k=0;k<global_params;k++) {
           if((value=bt_pattern_get_global_event(self,i,k))) {
             child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("globaldata"),NULL);
@@ -811,7 +807,7 @@ static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persis
         }
         for(j=0;j<voices;j++) {
           const gchar * const voice_str=bt_persistence_strfmt_ulong(j);
-          pg=self->priv->voice_param_groups[j];
+          pg=bt_machine_get_voice_param_group(self->priv->machine,j);
           for(k=0;k<voice_params;k++) {
             if((value=bt_pattern_get_voice_event(self,i,j,k))) {
               child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("voicedata"),NULL);
@@ -889,7 +885,7 @@ static BtPersistence *bt_pattern_persistence_load(const GType type, const BtPers
           value=xmlGetProp(child_node,XML_CHAR_PTR("value"));
           //GST_LOG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
           if(!strncmp((char *)child_node->name,"globaldata\0",11)) {
-            param=bt_parameter_group_get_param_index(self->priv->global_param_group,(gchar *)name);
+            param=bt_parameter_group_get_param_index(bt_machine_get_global_param_group(self->priv->machine),(gchar *)name);
             if(param!=-1) {
               bt_pattern_set_global_event(self,tick,param,(gchar *)value);
             }
@@ -900,7 +896,7 @@ static BtPersistence *bt_pattern_persistence_load(const GType type, const BtPers
           else if(!strncmp((char *)child_node->name,"voicedata\0",10)) {
             voice_str=xmlGetProp(child_node,XML_CHAR_PTR("voice"));
             voice=atol((char *)voice_str);
-            param=bt_parameter_group_get_param_index(self->priv->voice_param_groups[voice],(gchar *)name);
+            param=bt_parameter_group_get_param_index(bt_machine_get_voice_param_group(self->priv->machine,voice),(gchar *)name);
             if(param!=-1) {
               bt_pattern_set_voice_event(self,tick,voice,param,(gchar *)value);
             }
@@ -949,8 +945,7 @@ static void bt_pattern_constructed(GObject *object) {
   GST_DEBUG("set the machine for pattern: %p (machine-ref_ct=%d)",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
   
   g_object_get((gpointer)(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,NULL);
-  self->priv->global_param_group=bt_machine_get_global_param_group(self->priv->machine);
-  self->priv->global_value_group=bt_value_group_new(self->priv->global_param_group, self->priv->length);
+  self->priv->global_value_group=bt_value_group_new(bt_machine_get_global_param_group(self->priv->machine), self->priv->length);
 
   g_signal_connect(self->priv->machine,"notify::voices",G_CALLBACK(bt_pattern_on_voices_changed),(gpointer)self);
   // need to do that so that data is reallocated
