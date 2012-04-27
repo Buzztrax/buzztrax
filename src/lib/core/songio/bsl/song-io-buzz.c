@@ -1209,7 +1209,6 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
   BtPattern *pattern=NULL;
   BtMachine *machine,*src_machine;
   BtWire *wire;
-  BtWirePattern *wire_pattern;
   guint32 i,j,k,l,p;
   guint16 number_of_patterns,number_of_tracks,number_of_ticks;
   gulong number_of_global_params=0,number_of_track_params=0;
@@ -1266,16 +1265,13 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
         //str1=g_strdup_printf("      input: %2d  machine: %2d  amp,pan:",l,id_src);
         GST_DEBUG("      get src-machine by name %d -> %s", id_src, self->priv->mach_section[id_src].name);
         src_machine=bt_setup_get_machine_by_id(setup,self->priv->mach_section[id_src].name);
-        if(src_machine && machine && (wire=bt_machine_get_wire_by_dst_machine(src_machine,machine))) {
-          wire_pattern=bt_wire_pattern_new(song,wire,pattern);
+        if(src_machine && machine && pattern && (wire=bt_machine_get_wire_by_dst_machine(src_machine,machine))) {
           g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
         }
         else {
           wire=NULL;
-          wire_pattern=NULL;
           wire_params=0;
         }
-        /* TODO(ensonic): we might want to release the wire-pattern, if it was empty */
         for(k=0;((k<number_of_ticks) && !self->priv->io_error);k++) {
           amp=read_word(self);
           pan=read_word(self);
@@ -1286,18 +1282,17 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
               GST_INFO("    wire-pattern data 0x%04x",amp);
               // TODO(ensonic): buzz says 0x0=0% ... 0x4000=100%
               g_ascii_dtostr(value,G_ASCII_DTOSTR_BUF_SIZE,(gdouble)amp/16384.0);
-              bt_wire_pattern_set_event(wire_pattern,k,0,value);
+              bt_pattern_set_wire_event(pattern,k,wire,0,value);
             }
             if(wire_params>1) {
               if(pan!=0xFFFF) {
                 g_ascii_dtostr(value,G_ASCII_DTOSTR_BUF_SIZE,((gdouble)pan/16384.0)-1.0);
-                bt_wire_pattern_set_event(wire_pattern,k,1,value);
+                bt_pattern_set_wire_event(pattern,k,wire,1,value);
               }
             }
           }
         }
         //GST_INFO(str1);g_free(str1);
-        g_object_try_unref(wire_pattern);
         g_object_try_unref(wire);
         g_object_try_unref(src_machine);
       }

@@ -28,18 +28,20 @@
  * Volume and panorama/balance can be sequenced like machine parameters in
  * #BtWirePattern objects.
  */
-
+/* controlable wire parameters
+ * - only for processor machine and sink machine patterns
+ * - volume: is input-volume for the wire
+ *   - one volume per input
+ * - panning: is panorama on the wire, if we connect e.g. mono -> stereo
+ *   - panning parameters can change, if the connection changes
+ *   - mono-to-stereo (1->2): 1 parameter
+ *   - mono-to-suround (1->4): 2 parameters
+ *   - stereo-to-surround (2->4): 1 parameter
+ */
 #define BT_CORE
 #define BT_WIRE_C
 
 #include "core_private.h"
-
-//-- signal ids
-
-enum {
-  PATTERN_CREATED_EVENT,
-  LAST_SIGNAL
-};
 
 //-- property ids
 
@@ -111,8 +113,6 @@ struct _BtWirePrivate {
 };
 
 static GQuark error_domain=0;
-
-static guint signals[LAST_SIGNAL]={0,};
 
 static gchar *src_pn[]={
   "src",    /* queue */
@@ -742,39 +742,6 @@ gboolean bt_wire_reconnect(BtWire * const self) {
 }
 
 /**
- * bt_wire_add_wire_pattern:
- * @self: the wire to add the wire-pattern to
- * @pattern: the pattern that the wire-pattern is associated with
- * @wire_pattern: the new wire-pattern instance
- *
- * Add the supplied wire-pattern to the wire. This is automatically done by
- * #bt_wire_pattern_new().
- */
-void bt_wire_add_wire_pattern(const BtWire * const self, const BtPattern * const pattern, const BtWirePattern * const wire_pattern) {
-  g_hash_table_insert(self->priv->patterns,(gpointer)pattern,(gpointer)g_object_ref((gpointer)wire_pattern));
-  // notify others that the pattern has been created
-  g_signal_emit((gpointer)self,signals[PATTERN_CREATED_EVENT],0,wire_pattern);
-}
-
-/**
- * bt_wire_get_pattern:
- * @self: the wire that has the pattern
- * @pattern: the pattern that the wire-pattern is associated with
- *
- * Gets the wire-pattern that hold the automation data for this @wire.
- *
- * Returns: a reference to the wire-pattern, unref when done.
- */
-BtWirePattern *bt_wire_get_pattern(const BtWire * const self, const BtPattern * const pattern) {
-  BtWirePattern *wire_pattern;
-
-  if((wire_pattern=g_hash_table_lookup(self->priv->patterns,pattern))) {
-    g_object_ref(wire_pattern);
-  }
-  return(wire_pattern);
-}
-
-/**
  * bt_wire_get_param_group:
  * @self: the machine
  *
@@ -827,7 +794,7 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
   const BtWire * const self = BT_WIRE(persistence);
   gchar * const id;
   xmlNodePtr node=NULL;
-  xmlNodePtr child_node;
+  xmlNodePtr child_node,child_node2,child_node3;
 
   GST_DEBUG("PERSISTENCE::wire");
 
@@ -857,16 +824,47 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
       }
       else goto Error;
     }
-    if(self->priv->patterns) {
-      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("wire-patterns"),NULL))) {
-        GList *list=NULL;
-
-        g_hash_table_foreach(self->priv->patterns,bt_persistence_collect_hashtable_entries,(gpointer)&list);
-        bt_persistence_save_list(list,child_node);
-        g_list_free(list);
+    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("wire-patterns"),NULL))) {
+      GList *node,*list=NULL;
+      BtParameterGroup *pg=self->priv->param_group;
+      const gulong num_params=self->priv->num_params;
+      
+      g_object_get(self->priv->dst,"patterns",&list,NULL);
+      for(node=list;node;node=node->next) {
+        if(BT_IS_PATTERN(node->data)) {
+          BtPattern *pattern=BT_PATTERN(node->data);
+          BtValueGroup *vg=bt_pattern_get_wire_group(pattern,self);
+          gulong length,i,k;
+          gchar *value;
+          
+          g_object_get(pattern,"id",&id,"length",&length,NULL);
+          xmlNewProp(child_node,XML_CHAR_PTR("pattern-id"),XML_CHAR_PTR(id));
+          g_free(id);
+          
+          if((child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("wire-pattern"),NULL))) {
+            // save pattern data
+            for(i=0;i<length;i++) {
+              // check if there are any GValues stored ?
+              if(bt_value_group_test_tick(vg,i)) {
+                child_node3=xmlNewChild(child_node2,NULL,XML_CHAR_PTR("tick"),NULL);
+                xmlNewProp(child_node3,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
+                // save tick data
+                for(k=0;k<num_params;k++) {
+                  if((value=bt_value_group_get_event(vg,i,k))) {
+                    child_node3=xmlNewChild(child_node2,NULL,XML_CHAR_PTR("wiredata"),NULL);
+                    xmlNewProp(child_node3,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_parameter_group_get_param_name(pg,k)));
+                    xmlNewProp(child_node3,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));g_free(value);
+                  }
+                }
+              }
+            }         
+          }
+        }
+        g_object_unref(node->data);
       }
-      else goto Error;
+      g_list_free(list);
     }
+    else goto Error;
   }
 Error:
   return(node);
@@ -941,18 +939,50 @@ static BtPersistence *bt_wire_persistence_load(const GType type, const BtPersist
       }
       /* "patterns" is legacy, we need "wire-patterns" as a node name to be unique */
       else if(!strncmp((gchar *)node->name,"wire-patterns\0",14) || !strncmp((gchar *)node->name,"patterns\0",9)) {
-        BtWirePattern *wire_pattern;
-
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wire-pattern\0",13) || (!strncmp((char *)child_node->name,"pattern\0",8)))) {
-            GError *err=NULL;
+            BtPattern *pattern;
+            BtValueGroup *vg;
+            xmlNodePtr child_node2, child_node3;
+            xmlChar *name,*pattern_id,*tick_str,*value;
+            gulong tick,param;
+            
+            pattern_id=xmlGetProp(child_node,XML_CHAR_PTR("pattern-id"));
+            if(!pattern_id) /* "pattern" is legacy, it is conflicting with a node type in the xsd */
+              pattern_id=xmlGetProp(node,XML_CHAR_PTR("pattern"));
+            pattern=(BtPattern *)bt_machine_get_pattern_by_id(self->priv->dst,(gchar *)pattern_id);
+            vg=bt_pattern_get_wire_group(pattern,self);
+            xmlFree(pattern_id);
+            g_object_unref(pattern);
 
-            wire_pattern=BT_WIRE_PATTERN(bt_persistence_load(BT_TYPE_WIRE_PATTERN,NULL,child_node,&err,"song",self->priv->song,"wire",self,NULL));
-            if(err!=NULL) {
-              GST_WARNING("Can't create wire-pattern: %s",err->message);
-              g_error_free(err);
+            // we can't reuse the pattern impl here
+            // load wire-pattern data
+            for(child_node2=child_node->children;child_node2;child_node2=child_node2->next) {
+              if((!xmlNodeIsText(child_node2)) && (!strncmp((gchar *)child_node2->name,"tick\0",5))) {
+                tick_str=xmlGetProp(child_node2,XML_CHAR_PTR("time"));
+                tick=atoi((char *)tick_str);
+                // iterate over children
+                for(child_node3=child_node2->children;child_node3;child_node3=child_node3->next) {
+                  if(!xmlNodeIsText(child_node3)) {
+                    name=xmlGetProp(child_node3,XML_CHAR_PTR("name"));
+                    value=xmlGetProp(child_node3,XML_CHAR_PTR("value"));
+                    //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
+                    if(!strncmp((char *)child_node3->name,"wiredata\0",9)) {
+                      param=bt_parameter_group_get_param_index(self->priv->param_group,(gchar *)name);
+                      if(param!=-1) {
+                        bt_value_group_set_event(vg,tick,param,(gchar *)value);
+                      }
+                      else {
+                        GST_WARNING("error while loading wire pattern data at tick %lu, param %lu: %s",tick,param);
+                      }
+                    }
+                    xmlFree(name);
+                    xmlFree(value);
+                  }
+                }
+                xmlFree(tick_str);
+              }
             }
-            g_object_unref(wire_pattern);
           }
         }
       }
@@ -1158,7 +1188,6 @@ static void bt_wire_dispose(GObject * const object) {
   // unref param groups
   g_object_try_unref(self->priv->param_group);
 
-
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(bt_wire_parent_class)->dispose(object);
   GST_DEBUG("  done");
@@ -1211,26 +1240,6 @@ static void bt_wire_class_init(BtWireClass * const klass) {
 
   gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&wire_src_template));
   gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&wire_sink_template));
-
-  /**
-   * BtWire::pattern-created:
-   * @self: the wire-pattern object that emitted the signal
-   * @tick: the tick position inside the pattern
-   * @param: the parameter index
-   *
-   * signals that a param of this wire-pattern has been changed
-   */
-  signals[PATTERN_CREATED_EVENT] = g_signal_new("pattern-created",
-                                   G_TYPE_FROM_CLASS(klass),
-                                   G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                   0,
-                                   NULL, // accumulator
-                                   NULL, // acc data
-                                   g_cclosure_marshal_VOID__OBJECT,
-                                   G_TYPE_NONE, // return type
-                                   1, // n_params
-                                   BT_TYPE_WIRE_PATTERN // param data
-                                   );
 
   g_object_class_install_property(gobject_class,WIRE_CONSTRUCTION_ERROR,
                                   g_param_spec_pointer("construction-error",

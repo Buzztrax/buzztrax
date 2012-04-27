@@ -15,7 +15,6 @@ libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-source-machine.c e-source-machine.c t-source-machine.c \
 	s-tools.c t-tools.c e-tools.c \
 	s-wire.c t-wire.c \
-	s-wire-pattern.c e-wire-pattern.c \
 	s-settings.c t-settings.c
 
 AM_CPPFLAGS = \

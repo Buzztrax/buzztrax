@@ -186,13 +186,8 @@
   * we could use configure and have the define in config.h
 
 
-* pattern, wire-pattern and main-page-patterns still contain lots of duplicated
-  code
-  * we could introduced a BtValueGroup to take the storage of the pattern values
-    for a wire-pattern, the global paramaters in a pattern and one voice in a
-    pattern
-  * review the pattern, wire-pattern api and heck if we should use the groups
-    directly
+* pattern and main-page-patterns still contain bits of duplicated code
+  * review the pattern api and check if we should use the groups directly
     * if keeping the wrapper we can keep the signals (and might not need
       signal in the value-group
     * the signals are used in the sequence to update the controller values,
@@ -200,13 +195,16 @@
     * check if the signals could pass the parameter group, that could
       potentially simplify the sequence code, in this case we keep the signal
       on the value-group until the control-source rewrite is done
-    * run ./api-cleanup.sh to get a report
-      * when repairing we still look up patterns
-      * in bt_sequence_invalidate_pattern_region() we ideally get a
-        BtValuegroup * for pattern/other_pattern and then loop over the
-        parameters in each group
-      * in bt_sequence_repair_damage() we also would like to just loop over
-        groups and call a common bt_sequence_repair_damage_entry()
+    * run ./api-cleanup.sh to get a report of where the api is used
+      * sequence:
+        * when repairing we still look up patterns
+        * in bt_sequence_invalidate_pattern_region() we ideally get a
+          BtValuegroup * for pattern/other_pattern and then loop over the
+          parameters in each group
+        * in bt_sequence_repair_damage() we also would like to just loop over
+          groups and call a common bt_sequence_repair_damage_entry()
+      * main-page-patterns:
+        * we do a lot of switch(group->type) { PGT_WIRE,PGT_GLOBAL,PGT_VOICE }
 
 
 * generate a dependency matrix

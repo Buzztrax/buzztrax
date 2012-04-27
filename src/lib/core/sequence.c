@@ -144,10 +144,8 @@ static guint signals[LAST_SIGNAL]={0,};
 
 static void bt_sequence_on_pattern_global_param_changed(const BtPattern * const pattern, const gulong tick, const gulong param, gconstpointer user_data);
 static void bt_sequence_on_pattern_voice_param_changed(const BtPattern * const pattern, const gulong tick, const gulong voice, const gulong param, gconstpointer user_data);
+static void bt_sequence_on_pattern_wire_param_changed(const BtPattern * const pattern, const gulong tick, const BtWire * const wire, const gulong param, gconstpointer user_data);
 static void bt_sequence_on_pattern_changed(const BtPattern * const pattern, const gboolean intermediate, gconstpointer user_data);
-static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern * const wire_pattern, const gulong tick, const BtWire * const wire, const gulong param, gconstpointer user_data);
-static void bt_sequence_on_wire_pattern_changed(const BtWirePattern * const wire_pattern, const gboolean intermediate, gconstpointer user_data);
-static void on_wire_pattern_added(BtWire *wire,BtWirePattern *wire_pattern,gpointer user_data);
 
 //-- the class
 
@@ -208,33 +206,14 @@ static void bt_sequence_use_pattern(const BtSequence * const self, BtCmdPattern 
   g_hash_table_insert(self->priv->pattern_usage,(gpointer)pattern,GUINT_TO_POINTER(count+1));
   // check if this is the first usage
   if(count==0) {
-    BtMachine *machine;
-    BtWire *wire;
-    BtWirePattern *wire_pattern;
-    GList *node;
-
     // take one shared ref
     g_object_ref(pattern);
 
     // attach a signal handlers
     g_signal_connect(pattern,"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
     g_signal_connect(pattern,"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
+    g_signal_connect(pattern,"wire-param-changed",G_CALLBACK(bt_sequence_on_pattern_wire_param_changed),(gpointer)self);
     g_signal_connect(pattern,"pattern-changed",G_CALLBACK(bt_sequence_on_pattern_changed),(gpointer)self);
-
-    g_object_get(pattern,"machine",&machine,NULL);
-    for(node=machine->dst_wires;node;node=g_list_next(node)) {
-      wire=BT_WIRE(node->data);
-      if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
-        g_signal_connect(wire_pattern,"param-changed",G_CALLBACK(bt_sequence_on_wire_pattern_wire_param_changed),(gpointer)self);
-        g_signal_connect(wire_pattern,"pattern-changed",G_CALLBACK(bt_sequence_on_wire_pattern_changed),(gpointer)self);
-        g_object_unref(wire_pattern);
-      }
-      else {
-        // we need to wait for the first wire-pattern
-        g_signal_connect(wire,"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
-      }
-    }
-    g_object_unref(machine);
 
     g_signal_emit((gpointer)self,signals[PATTERN_ADDED_EVENT],0,pattern);
   }
@@ -253,28 +232,12 @@ static void bt_sequence_unuse_pattern(const BtSequence * const self, BtCmdPatter
   count=bt_sequence_get_number_of_pattern_uses(self,pattern);
   // check if this is the last usage
   if(count==1) {
-    BtMachine *machine;
-    BtWire *wire;
-    BtWirePattern *wire_pattern;
-    GList *node;
-
     // detach a signal handlers
     g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_global_param_changed,NULL);
     g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_voice_param_changed,NULL);
+    g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_wire_param_changed,NULL);
     g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_changed,NULL);
 
-    g_object_get(pattern,"machine",&machine,NULL);
-    if(machine) {
-			for(node=machine->dst_wires;node;node=g_list_next(node)) {
-				wire=BT_WIRE(node->data);
-				if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
-					g_signal_handlers_disconnect_matched(wire_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
-					g_signal_handlers_disconnect_matched(wire_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_changed,NULL);
-					g_object_unref(wire_pattern);
-				}
-			}
-			g_object_unref(machine);
-		}
     g_signal_emit((gpointer)self,signals[PATTERN_REMOVED_EVENT],0,pattern);
     // release the shared ref
     g_object_unref(pattern);
@@ -500,7 +463,6 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   BtPattern *pattern=NULL,*other_pattern=NULL;
   BtMachine *machine;
   BtWire *wire;
-  BtWirePattern *wire_pattern;
   GList *node;
   gulong i,j,k;
   gulong pattern_length,damage_length,other_pattern_time=0;
@@ -622,32 +584,26 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
     wire=BT_WIRE(node->data);
     g_object_get(wire,"num-params",&wire_params,NULL);
     if(pattern) {
-      if((wire_pattern=bt_wire_get_pattern(wire,pattern))) {
-        for(i=0;i<length;i++) {
-          // check wire params
-          for(j=0;j<wire_params;j++) {
-            // mark region covered by change as damaged
-            if(bt_wire_pattern_test_event(wire_pattern,i,j)) {
-              bt_sequence_invalidate_param(self,machine,time+i,param_offset+j);
-            }
+      for(i=0;i<length;i++) {
+        // check wire params
+        for(j=0;j<wire_params;j++) {
+          // mark region covered by change as damaged
+          if(bt_pattern_test_wire_event(pattern,i,wire,j)) {
+            bt_sequence_invalidate_param(self,machine,time+i,param_offset+j);
           }
         }
-        g_object_unref(wire_pattern);
       }
     }
     if(other_pattern) {
-			if((wire_pattern=bt_wire_get_pattern(wire,other_pattern))) {
-				for(i=start;i<start+damage_length;i++) {
-					// check wire params
-					for(j=0;j<wire_params;j++) {
-						// mark region covered by change as damaged
-						if(bt_wire_pattern_test_event(wire_pattern,i,j)) {
-							bt_sequence_invalidate_param(self,machine,time+(i-start),param_offset+j);
-						}
-					}
-				}
-				g_object_unref(wire_pattern);
-			}
+      for(i=start;i<start+damage_length;i++) {
+        // check wire params
+        for(j=0;j<wire_params;j++) {
+          // mark region covered by change as damaged
+          if(bt_pattern_test_wire_event(other_pattern,i,wire,j)) {
+            bt_sequence_invalidate_param(self,machine,time+(i-start),param_offset+j);
+          }
+        }
+      }
     }
   }
   if(pattern) {
@@ -850,12 +806,10 @@ static gboolean bt_sequence_repair_wire_damage_entry(gpointer key,gpointer _valu
 
         g_object_get(pattern,"length",&length,NULL);
         if(pos<length) {
-          BtWirePattern *wire_pattern=bt_wire_get_pattern(wire,(BtPattern *)pattern);
           // get value at tick position or NULL
-          if((cur_value=bt_wire_pattern_get_event_data(wire_pattern,tick-j,param)) && G_IS_VALUE(cur_value)) {
+          if((cur_value=bt_pattern_get_wire_event_data((BtPattern *)pattern,tick-j,wire,param)) && G_IS_VALUE(cur_value)) {
             value=cur_value;
           }
-          g_object_unref(wire_pattern);
         }
       }
     }
@@ -960,16 +914,14 @@ static void bt_sequence_on_pattern_voice_param_changed(const BtPattern * const p
  *
  * Invalidate the wire param change in all pattern uses.
  */
-static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern * const wire_pattern, const gulong tick, const BtWire * const wire, const gulong param, gconstpointer user_data) {
+static void bt_sequence_on_pattern_wire_param_changed(const BtPattern * const pattern, const gulong tick, const BtWire * const wire, const gulong param, gconstpointer user_data) {
   const BtSequence * const self=BT_SEQUENCE(user_data);
-  BtCmdPattern *pattern;
   BtMachine *machine;
   gulong global_params,voice_params,voices,param_offset;
   gulong l;
   GList *node;
 
-  g_object_get((gpointer)wire_pattern,"pattern",&pattern,NULL);
-  g_object_get(pattern,"machine",&machine,NULL);
+  g_object_get((gpointer)pattern,"machine",&machine,NULL);
   g_object_get(machine,"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
   // get the index for the given wires
   for(l=0,node=machine->dst_wires;node;node=g_list_next(node),l++) {
@@ -978,7 +930,6 @@ static void bt_sequence_on_wire_pattern_wire_param_changed(const BtWirePattern *
   param_offset=(global_params+voices*voice_params)+(BT_WIRE_MAX_NUM_PARAMS*l);
   bt_sequence_on_pattern_param_changed(self,(BtPattern *)pattern,machine,tick,param_offset+param);
   g_object_unref(machine);
-  g_object_unref(pattern);
 }
 
 static void bt_sequence_on_pattern_changed(const BtPattern * const pattern, const gboolean intermediate, gconstpointer user_data) {
@@ -1012,94 +963,6 @@ static void bt_sequence_on_pattern_changed(const BtPattern * const pattern, cons
     bt_sequence_repair_damage(self);
   }
   GST_DEBUG("Done");
-}
-
-static void bt_sequence_on_wire_pattern_changed(const BtWirePattern * const wire_pattern, const gboolean intermediate, gconstpointer user_data) {
-  const BtSequence * const self=BT_SEQUENCE(user_data);
-  const gulong tracks=self->priv->tracks;
-  const gulong length=self->priv->length;
-  BtCmdPattern *pattern;
-  BtMachine *machine;
-  gulong i,j;
-
-  GST_DEBUG("repair damage after a wire-pattern %p has been changed",wire_pattern);
-  g_object_get((gpointer)wire_pattern,"pattern",&pattern,NULL);
-  g_object_get(pattern,"machine",&machine,NULL);
-
-  // for all tracks
-  for(i=0;i<tracks;i++) {
-    BtMachine * const that_machine=bt_sequence_get_machine_unchecked(self,i);
-    // does the track belong to the given machine?
-    if(that_machine==machine) {
-      // for all occurance of pattern
-      for(j=0;j<length;j++) {
-        BtCmdPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
-        if(that_pattern==pattern) {
-          // mark region covered by change as damaged
-          bt_sequence_invalidate_pattern_region(self,j,i,pattern);
-        }
-      }
-    }
-  }
-  g_object_unref(machine);
-  g_object_unref(pattern);
-  if(!intermediate) {
-    // repair damage
-    bt_sequence_repair_damage(self);
-  }
-  GST_DEBUG("Done");
-}
-
-static void on_wire_pattern_added(BtWire *wire,BtWirePattern *wire_pattern,gpointer user_data) {
-  BtSequence *self=BT_SEQUENCE(user_data);
-
-  g_signal_connect(wire_pattern,"param-changed",G_CALLBACK(bt_sequence_on_wire_pattern_wire_param_changed),(gpointer)self);
-  g_signal_handlers_disconnect_matched(wire,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_pattern_added,NULL);
-}
-
-static void on_wire_added(BtSetup *setup,BtWire *wire,gpointer user_data) {
-  BtSequence *self=BT_SEQUENCE(user_data);
-  BtMachine *machine;
-  GList *patterns,*node;
-
-  g_object_get(wire,"dst",&machine,NULL);
-  g_object_get(machine,"patterns",&patterns,NULL);
-  // go over all patterns of the wire.dst
-  for(node=patterns;node;node=g_list_next(node)) {
-    if(BT_IS_PATTERN(node->data)) {
-      if(bt_sequence_get_number_of_pattern_uses(self,(BtPattern *)node->data)>0) {
-        // we need to wait for the first wire-pattern
-        g_signal_connect(wire,"pattern-created",G_CALLBACK(on_wire_pattern_added),(gpointer)self);
-      }
-    }
-    g_object_unref(node->data);
-  }
-  g_list_free(patterns);
-  g_object_unref(machine);
-}
-
-static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
-  BtSequence *self=BT_SEQUENCE(user_data);
-  BtMachine *machine;
-  BtWirePattern *wire_pattern;
-  GList *patterns,*node;
-
-  g_object_get(wire,"dst",&machine,NULL);
-  g_object_get(machine,"patterns",&patterns,NULL);
-  // go over all patterns of the wire.dst
-  for(node=patterns;node;node=g_list_next(node)) {
-    if(BT_IS_PATTERN(node->data)) {
-      if(bt_sequence_get_number_of_pattern_uses(self,(BtPattern *)node->data)>0) {
-        if((wire_pattern=bt_wire_get_pattern(wire,(BtPattern *)node->data))) {
-          g_signal_handlers_disconnect_matched(wire_pattern,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_wire_pattern_wire_param_changed,NULL);
-          g_object_unref(wire_pattern);
-        }
-      }
-    }
-    g_object_unref(node->data);
-  }
-  g_list_free(patterns);
-  g_object_unref(machine);
 }
 
 //-- helper methods
@@ -2170,26 +2033,6 @@ static void bt_sequence_persistence_interface_init(gpointer const g_iface, gpoin
 
 //-- g_object overrides
 
-static void bt_sequence_constructed(GObject *object) {
-  BtSequence *self=BT_SEQUENCE(object);
-  BtSetup *setup;
-
-  if(G_OBJECT_CLASS(bt_sequence_parent_class)->constructed)
-    G_OBJECT_CLASS(bt_sequence_parent_class)->constructed(object);
-
-  g_return_if_fail(BT_IS_SONG(self->priv->song));
-
-  g_object_get((gpointer)(self->priv->song),"setup",&setup,NULL);
-  if(setup) {
-    g_signal_connect(setup,"wire-added",G_CALLBACK(on_wire_added),(gpointer)self);
-    g_signal_connect(setup,"wire-removed",G_CALLBACK(on_wire_removed),(gpointer)self);
-    g_object_unref(setup);
-  }
-  else {
-    GST_WARNING("no setup yet");
-  }
-}
-
 static void bt_sequence_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
   const BtSequence * const self = BT_SEQUENCE(object);
   return_if_disposed();
@@ -2401,7 +2244,6 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
 
   g_type_class_add_private(klass,sizeof(BtSequencePrivate));
 
-  gobject_class->constructed  = bt_sequence_constructed;
   gobject_class->set_property = bt_sequence_set_property;
   gobject_class->get_property = bt_sequence_get_property;
   gobject_class->dispose      = bt_sequence_dispose;

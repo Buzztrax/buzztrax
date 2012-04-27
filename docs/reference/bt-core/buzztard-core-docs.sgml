@@ -143,7 +143,6 @@
       <xi:include href="xml/btwavelevel.xml" />
       <xi:include href="xml/btwavetable.xml" />
       <xi:include href="xml/btwire.xml" />
-      <xi:include href="xml/btwirepattern.xml" />
     </chapter>
     <chapter>
       <title>Song IO Reference</title>

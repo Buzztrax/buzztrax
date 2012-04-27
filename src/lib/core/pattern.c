@@ -35,26 +35,6 @@
  *
  * The patterns are used in the #BtSequence to form the score of a song.
  */
-/* TODO(ensonic): BtWirePattern is not a good name :/
- * - maybe we can make BtPattern a base class and also have BtMachinePattern
- * - or maybe we can exploit BtParameterGroup
- *   - each pattern would have a list of groups (BtValueGroup) and
- *     num_wires, num_global (0/1), num_voice
- *   - each group would have a pointer to the BtParmeterGroup and a gvalue array
- *   - changing voice/wires would only need resizing the group-array
- *     BtPattern::bt_pattern_on_voices_changed -> voices
- *     BtMainPagePattern::* -> wires
- *     - right now we create wire-patterns as needed
- *   - doing length changes or line inserts/deletion would require applying
- *     this to each group, on the other hand this would avoid the need for
- *     wirepattern and the code duplication there and most likely simplify
- *     main-page pattern, where we do something similar for
- *     BtPatternEditorColumn
- *   - We store wire-patterns under wires right now and need to preserve that
- *     - loading:
- *       - create machine, load patterns
- *       - create wire, realloc wire-pattern part in pattern and load data
- */
 /* TODO(ensonic): pattern editing
  *  - inc/dec cursor-cell/selection
  */
@@ -82,6 +62,7 @@
 enum {
   GLOBAL_PARAM_CHANGED_EVENT,
   VOICE_PARAM_CHANGED_EVENT,
+  WIRE_PARAM_CHANGED_EVENT,
   PATTERN_CHANGED_EVENT,
   LAST_SIGNAL
 };
@@ -104,16 +85,13 @@ struct _BtPatternPrivate {
   gulong length;
   /* the number of voices */
   gulong voices;
-  /* the number of dynamic params the machine provides per instance */
-  gulong global_params;
-  /* the number of dynamic params the machine provides per instance and voice */
-  gulong voice_params;
   /* the machine the pattern belongs to */
   G_POINTER_ALIAS(BtMachine *,machine);
 
   /* the pattern data */
   BtValueGroup *global_value_group;
   BtValueGroup **voice_value_groups;
+  GHashTable *wire_value_groups;
 };
 
 static guint signals[LAST_SIGNAL]={0,};
@@ -137,6 +115,9 @@ G_DEFINE_TYPE_WITH_CODE (BtPattern, bt_pattern, BT_TYPE_CMD_PATTERN,
  */
 static void bt_pattern_resize_data_length(const BtPattern * const self) {
   gulong i;
+  GList *node;
+  BtWire *wire;
+  BtValueGroup *vg;
   
   if(!self->priv->global_value_group)
     return;
@@ -144,6 +125,11 @@ static void bt_pattern_resize_data_length(const BtPattern * const self) {
   g_object_set(self->priv->global_value_group,"length",self->priv->length,NULL);
   for(i=0;i<self->priv->voices;i++) {
     g_object_set(self->priv->voice_value_groups[i],"length",self->priv->length,NULL);
+  }
+  for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
+    wire=BT_WIRE(node->data);
+    vg=g_hash_table_lookup(self->priv->wire_value_groups,wire);
+    g_object_set(vg,"length",self->priv->length,NULL);
   }
 }
 
@@ -157,28 +143,14 @@ static void bt_pattern_resize_data_length(const BtPattern * const self) {
 static void bt_pattern_resize_data_voices(const BtPattern * const self, const gulong voices) {
   gulong i;
   
-  if(voices<self->priv->voices) {
-    // unref old voices
-    for(i=self->priv->voices;i<voices;i++) {
-      g_object_try_unref(self->priv->voice_value_groups[i]);
-    }
+  // unref old voices
+  for(i=self->priv->voices;i<voices;i++) {
+    g_object_try_unref(self->priv->voice_value_groups[i]);
   }
-
   self->priv->voice_value_groups=g_renew(BtValueGroup *,self->priv->voice_value_groups,self->priv->voices);
+  // create new voices
   for(i=voices;i<self->priv->voices;i++) {
     self->priv->voice_value_groups[i]=bt_value_group_new(bt_machine_get_voice_param_group(self->priv->machine,i), self->priv->length);
-  }
-}
-
-static BtValueGroup *bt_pattern_get_value_group_for_param(const BtPattern * const self, gulong *param) {
-  if(*param<self->priv->global_params) {
-    return self->priv->global_value_group;
-  }
-  else {
-    *param=*param-self->priv->global_params;
-    gulong voice=*param/self->priv->voice_params;
-    *param-=(voice*self->priv->voice_params);
-    return self->priv->voice_value_groups[voice];
   }
 }
 
@@ -194,6 +166,29 @@ static void bt_pattern_on_voices_changed(BtMachine * const machine, const GParam
     bt_pattern_resize_data_voices(self,old_voices);
     g_object_notify((GObject *)self,"voices");
   }
+}
+
+static void bt_pattern_on_setup_wire_added(BtSetup *setup, BtWire *wire, gconstpointer const user_data) {
+  const BtPattern * const self=BT_PATTERN(user_data);
+  BtMachine *machine;
+
+  g_object_get(wire,"dst",&machine,NULL);
+  if(machine==self->priv->machine) {
+    g_hash_table_insert(self->priv->wire_value_groups,wire,
+        bt_value_group_new(bt_wire_get_param_group(wire), self->priv->length));
+  }
+  g_object_unref(machine);
+}
+
+static void bt_pattern_on_setup_wire_removed(BtSetup *setup, BtWire *wire, gconstpointer const user_data) {
+  const BtPattern * const self=BT_PATTERN(user_data);
+  BtMachine *machine;
+
+  g_object_get(wire,"dst",&machine,NULL);
+  if(machine==self->priv->machine) {
+    g_hash_table_remove(self->priv->wire_value_groups,wire);
+  }
+  g_object_unref(machine);
 }
 
 //-- constructor methods
@@ -227,6 +222,8 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
   BtPattern *pattern;
   gchar *id,*name,*mid;
   gulong i;
+  GList *node;
+  BtWire *wire;
 
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
 
@@ -244,23 +241,11 @@ BtPattern *bt_pattern_copy(const BtPattern * const self) {
     g_object_try_unref(pattern->priv->voice_value_groups[i]);
     pattern->priv->voice_value_groups[i]=bt_value_group_copy(self->priv->voice_value_groups[i]);    
   }
-
-  // we also need to copy the wire patterns
-  if(self->priv->machine->dst_wires) {
-    GList *node;
-    BtWire *wire;
-    BtWirePattern *wp,*wp_new;
-
-    GST_INFO("copying wire-patterns");
-
-    for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
-      wire=BT_WIRE(node->data);
-      wp=bt_wire_get_pattern(wire,self);
-      wp_new=bt_wire_pattern_copy(wp,pattern);
-      g_object_unref(wp_new);
-      g_object_unref(wp);
-    }
-    GST_INFO("  wire-patterns copied");
+  for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
+    wire=BT_WIRE(node->data);
+    g_hash_table_insert(pattern->priv->wire_value_groups,wire,
+        bt_value_group_copy(
+            g_hash_table_lookup(self->priv->wire_value_groups,wire)));
   }
 
   g_free(mid);
@@ -312,6 +297,32 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern * const self, const gulo
 }
 
 /**
+ * bt_pattern_get_wire_event_data:
+ * @self: the pattern to search for the wire param
+ * @tick: the tick (time) position starting with 0
+ * @wire: the related wire object
+ * @param: the number of the wire parameter starting with 0
+ *
+ * Fetches a cell from the given location in the pattern. If there is no event
+ * there, then the %GValue is uninitialized. Test with BT_IS_GVALUE(event).
+ *
+ * Do not modify the contents!
+ *
+ * Returns: the GValue or %NULL if out of the pattern range
+ */
+GValue *bt_pattern_get_wire_event_data(const BtPattern * const self, const gulong tick, const BtWire *wire, const gulong param) {
+  BtValueGroup *vg;
+  
+  g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
+  g_return_val_if_fail(BT_IS_WIRE(wire),NULL);
+  
+  if((vg=g_hash_table_lookup(self->priv->wire_value_groups,wire))) {
+    return(bt_value_group_get_event_data(vg,tick,param));
+  }
+  return NULL;
+}
+
+/**
  * bt_pattern_set_global_event:
  * @self: the pattern the cell belongs to
  * @tick: the tick (time) position starting with 0
@@ -338,7 +349,7 @@ gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong 
  * @self: the pattern the cell belongs to
  * @tick: the tick (time) position starting with 0
  * @voice: the voice number starting with 0
- * @param: the number of the global parameter starting with 0
+ * @param: the number of the voice parameter starting with 0
  * @value: the string representation of the value to store
  *
  * Stores the supplied value into the specified pattern cell.
@@ -346,6 +357,7 @@ gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong 
  * Returns: %TRUE for success
  */
 gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param, const gchar * const value) {
+  g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
   g_return_val_if_fail(voice<self->priv->voices,FALSE);
 
   gboolean res=bt_value_group_set_event(self->priv->voice_value_groups[voice],tick,param,value);
@@ -354,6 +366,35 @@ gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong t
     g_signal_emit((gpointer)self,signals[VOICE_PARAM_CHANGED_EVENT],0,tick,voice,param);
   }
   return(res);
+}
+
+/**
+ * bt_pattern_set_wire_event:
+ * @self: the pattern the cell belongs to
+ * @tick: the tick (time) position starting with 0
+ * @wire: the related wire object
+ * @param: the number of the wire parameter starting with 0
+ * @value: the string representation of the value to store
+ *
+ * Stores the supplied value into the specified pattern cell.
+ *
+ * Returns: %TRUE for success
+ */
+gboolean bt_pattern_set_wire_event(const BtPattern * const self, const gulong tick, const BtWire *wire, const gulong param, const gchar * const value) {
+  BtValueGroup *vg;
+  
+  g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
+  g_return_val_if_fail(BT_IS_WIRE(wire),FALSE);
+
+  if((vg=g_hash_table_lookup(self->priv->wire_value_groups,wire))) {
+    gboolean res=bt_value_group_set_event(vg,tick,param,value);
+    if(res) {
+      // notify others that the data has been changed
+      g_signal_emit((gpointer)self,signals[WIRE_PARAM_CHANGED_EVENT],0,tick,wire,param);
+    }
+    return res;
+  }
+  return FALSE;
 }
 
 /**
@@ -377,7 +418,7 @@ gchar *bt_pattern_get_global_event(const BtPattern * const self, const gulong ti
  * @self: the pattern the cell belongs to
  * @tick: the tick (time) position starting with 0
  * @voice: the voice number starting with 0
- * @param: the number of the global parameter starting with 0
+ * @param: the number of the voice parameter starting with 0
  *
  * Returns the string representation of the specified cell. Free it when done.
  *
@@ -388,6 +429,29 @@ gchar *bt_pattern_get_voice_event(const BtPattern * const self, const gulong tic
   g_return_val_if_fail(voice<self->priv->voices,NULL);
 
   return(bt_value_group_get_event(self->priv->voice_value_groups[voice],tick,param));
+}
+
+/**
+ * bt_pattern_get_wire_event:
+ * @self: the pattern the cell belongs to
+ * @tick: the tick (time) position starting with 0
+ * @wire: the related wire object
+ * @param: the number of the wire parameter starting with 0
+ *
+ * Returns the string representation of the specified cell. Free it when done.
+ *
+ * Returns: a newly allocated string with the data or %NULL on error
+ */
+gchar *bt_pattern_get_wire_event(const BtPattern * const self, const gulong tick, const BtWire *wire, const gulong param) {
+  BtValueGroup *vg;
+  
+  g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
+  g_return_val_if_fail(BT_IS_WIRE(wire),NULL);
+
+  if((vg=g_hash_table_lookup(self->priv->wire_value_groups,wire))) {
+    bt_value_group_get_event(vg,tick,param);
+  }
+  return NULL;
 }
 
 /**
@@ -411,7 +475,7 @@ gboolean bt_pattern_test_global_event(const BtPattern * const self, const gulong
  * @self: the pattern the cell belongs to
  * @tick: the tick (time) position starting with 0
  * @voice: the voice number starting with 0
- * @param: the number of the global parameter starting with 0
+ * @param: the number of the voice parameter starting with 0
  *
  * Tests if there is an event in the specified cell.
  *
@@ -425,7 +489,30 @@ gboolean bt_pattern_test_voice_event(const BtPattern * const self, const gulong 
 }
 
 /**
- * bt_pattern_tick_has_data:
+ * bt_pattern_test_wire_event:
+ * @self: the pattern the cell belongs to
+ * @tick: the tick (time) position starting with 0
+ * @wire: the related wire object
+ * @param: the number of the wire parameter starting with 0
+ *
+ * Tests if there is an event in the specified cell.
+ *
+ * Returns: %TRUE if there is an event
+ */
+gboolean bt_pattern_test_wire_event(const BtPattern * const self, const gulong tick, const BtWire *wire, const gulong param) {
+  BtValueGroup *vg;
+  
+  g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
+  g_return_val_if_fail(BT_IS_WIRE(wire),FALSE);
+
+  if((vg=g_hash_table_lookup(self->priv->wire_value_groups,wire))) {
+    return bt_value_group_test_event(vg,tick,param);
+  }
+  return FALSE;
+}
+
+/**
+ * bt_pattern_test_tick:
  * @self: the pattern to check
  * @tick: the tick index in the pattern
  *
@@ -450,27 +537,39 @@ gboolean bt_pattern_test_tick(const BtPattern * const self, const gulong tick) {
   return(FALSE);
 }
 
+#if 0
+BtValueGroup **bt_pattern_get_groups(const BtPattern * const self) {
+  g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
+
+  // FIXME(ensonic): get an array of all groups
+  // this can be useful in main-page-patterns
+  return NULL;
+}
+#endif
+
+BtValueGroup *bt_pattern_get_global_group(const BtPattern * const self) {
+  g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
+
+  return self->priv->global_value_group;
+}
+
+BtValueGroup *bt_pattern_get_voice_group(const BtPattern * const self, const gulong voice) {
+  g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
+  g_return_val_if_fail(voice<self->priv->voices,NULL);
+
+  return self->priv->voice_value_groups[voice];
+}
+
+BtValueGroup *bt_pattern_get_wire_group(const BtPattern * const self, const BtWire *wire) {
+  g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
+  g_return_val_if_fail(BT_IS_WIRE(wire),NULL);
+
+  return g_hash_table_lookup(self->priv->wire_value_groups,wire);
+}
+
 
 /**
  * bt_pattern_insert_row:
- * @self: the pattern
- * @tick: the position to insert at
- * @param: the parameter
- *
- * Insert one empty row for given @param.
- *
- * Since: 0.3
- */
-void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
-  g_return_if_fail(BT_IS_PATTERN(self));
-
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
-  bt_value_group_insert_row(self->priv->global_value_group,tick,param);
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
-}
-
-/**
- * bt_pattern_insert_full_row:
  * @self: the pattern
  * @tick: the position to insert at
  *
@@ -478,7 +577,7 @@ void bt_pattern_insert_row(const BtPattern * const self, const gulong tick, cons
  *
  * Since: 0.3
  */
-void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick) {
+void bt_pattern_insert_row(const BtPattern * const self, const gulong tick) {
   g_return_if_fail(BT_IS_PATTERN(self));
 
   GST_DEBUG("insert full-row at %lu", tick);
@@ -490,30 +589,15 @@ void bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick)
   for(j=0;j<voices;j++) {
     bt_value_group_insert_full_row(self->priv->voice_value_groups[j],tick);
   }
+  GList *node;
+  for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
+    bt_value_group_insert_full_row(g_hash_table_lookup(self->priv->wire_value_groups,node->data),tick);
+  }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
-
 
 /**
  * bt_pattern_delete_row:
- * @self: the pattern
- * @tick: the position to delete
- * @param: the parameter
- *
- * Delete row for given @param.
- *
- * Since: 0.3
- */
-void bt_pattern_delete_row(const BtPattern * const self, const gulong tick, const gulong param) {
-  g_return_if_fail(BT_IS_PATTERN(self));
-
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
-  bt_value_group_delete_row(self->priv->global_value_group,tick,param);
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
-}
-
-/**
- * bt_pattern_delete_full_row:
  * @self: the pattern
  * @tick: the position to delete
  *
@@ -521,7 +605,7 @@ void bt_pattern_delete_row(const BtPattern * const self, const gulong tick, cons
  *
  * Since: 0.3
  */
-void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick) {
+void bt_pattern_delete_row(const BtPattern * const self, const gulong tick) {
   g_return_if_fail(BT_IS_PATTERN(self));
 
   GST_DEBUG("insert full-row at %lu", tick);
@@ -533,25 +617,10 @@ void bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick)
   for(j=0;j<voices;j++) {
     bt_value_group_delete_full_row(self->priv->voice_value_groups[j],tick);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
-}
-
-/**
- * bt_pattern_delete_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Randomize values from @start_tick to @end_tick for @param.
- *
- * Since: 0.6
- */
-void bt_pattern_clear_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  g_return_if_fail(BT_IS_PATTERN(self));
-
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
-  bt_value_group_clear_column(bt_pattern_get_value_group_for_param(self,(gulong *)&param),start_tick,end_tick,param);
+  GList *node;
+  for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
+    bt_value_group_delete_full_row(g_hash_table_lookup(self->priv->wire_value_groups,node->data),tick);
+  }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
@@ -575,26 +644,10 @@ void bt_pattern_clear_columns(const BtPattern * const self, const gulong start_t
   for(j=0;j<voices;j++) {
     bt_value_group_clear_columns(self->priv->voice_value_groups[j],start_tick,end_tick);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
-}
-
-
-/**
- * bt_pattern_blend_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Fade values from @start_tick to @end_tick for @param.
- *
- * Since: 0.3
- */
-void bt_pattern_blend_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  g_return_if_fail(BT_IS_PATTERN(self));
-
-  // irks need both group and remaining param
-  bt_value_group_blend_column(bt_pattern_get_value_group_for_param(self,(gulong *)&param),start_tick,end_tick,param);
+  GList *node;
+  for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
+    bt_value_group_clear_columns(g_hash_table_lookup(self->priv->wire_value_groups,node->data),start_tick,end_tick);
+  }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
@@ -617,25 +670,10 @@ void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_t
   for(j=0;j<voices;j++) {
     bt_value_group_blend_columns(self->priv->voice_value_groups[j],start_tick,end_tick);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
-}
-
-
-/**
- * bt_pattern_flip_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Flips values from @start_tick to @end_tick for @param up-side down.
- *
- * Since: 0.6
- */
-void bt_pattern_flip_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  g_return_if_fail(BT_IS_PATTERN(self));
-
-  bt_value_group_flip_column(bt_pattern_get_value_group_for_param(self,(gulong *)&param),start_tick,end_tick,param);
+  GList *node;
+  for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
+    bt_value_group_blend_columns(g_hash_table_lookup(self->priv->wire_value_groups,node->data),start_tick,end_tick);
+  }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
@@ -658,25 +696,10 @@ void bt_pattern_flip_columns(const BtPattern * const self, const gulong start_ti
   for(j=0;j<voices;j++) {
     bt_value_group_flip_columns(self->priv->voice_value_groups[j],start_tick,end_tick);
   }
-  g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
-}
-
-
-/**
- * bt_pattern_randomize_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Randomize values from @start_tick to @end_tick for @param.
- *
- * Since: 0.3
- */
-void bt_pattern_randomize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  g_return_if_fail(BT_IS_PATTERN(self));
-
-  bt_value_group_randomize_column(bt_pattern_get_value_group_for_param(self,(gulong *)&param),start_tick,end_tick,param);
+  GList *node;
+  for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
+    bt_value_group_flip_columns(g_hash_table_lookup(self->priv->wire_value_groups,node->data),start_tick,end_tick);
+  }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
 }
 
@@ -699,26 +722,11 @@ void bt_pattern_randomize_columns(const BtPattern * const self, const gulong sta
   for(j=0;j<voices;j++) {
     bt_value_group_randomize_columns(self->priv->voice_value_groups[j],start_tick,end_tick);
   }
+  GList *node;
+  for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
+    bt_value_group_randomize_columns(g_hash_table_lookup(self->priv->wire_value_groups,node->data),start_tick,end_tick);
+  }
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,FALSE);
-}
-
-
-/**
- * bt_pattern_serialize_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- * @data: the target
- *
- * Serializes values from @start_tick to @end_tick for @param into @data.
- *
- * Since: 0.6
- */
-void bt_pattern_serialize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, GString *data) {
-  g_return_if_fail(BT_IS_PATTERN(self));
-
-  bt_value_group_serialize_column(bt_pattern_get_value_group_for_param(self,(gulong *)&param),start_tick,end_tick,param,data);
 }
 
 /**
@@ -735,6 +743,10 @@ void bt_pattern_serialize_column(const BtPattern * const self, const gulong star
 void bt_pattern_serialize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick, GString *data) {
   g_return_if_fail(BT_IS_PATTERN(self));
 
+  GList *node;
+  for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
+    bt_value_group_serialize_columns(g_hash_table_lookup(self->priv->wire_value_groups,node->data),start_tick,end_tick,data);
+  }
   bt_value_group_serialize_columns(self->priv->global_value_group,start_tick,end_tick,data);
   const gulong voices=self->priv->voices;
   gulong j;
@@ -742,28 +754,6 @@ void bt_pattern_serialize_columns(const BtPattern * const self, const gulong sta
     bt_value_group_serialize_columns(self->priv->voice_value_groups[j],start_tick,end_tick,data);
   }
 }
-
-/**
- * bt_pattern_deserialize_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- * @data: the source data
- *
- * Deserializes values to @start_tick to @end_tick for @param from @data.
- *
- * Returns: %TRUE for success, %FALSE e.g. to indicate incompatible GType values
- * for the column specified by @param and the @data.
- *
- * Since: 0.6
- */
-gboolean bt_pattern_deserialize_column(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param, const gchar *data) {
-  g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
-  
-  return(bt_value_group_deserialize_column(bt_pattern_get_value_group_for_param(self,(gulong *)&param),start_tick,end_tick,param,data));
-}
-
 
 //-- io interface
 
@@ -777,13 +767,13 @@ static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persis
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("pattern"),NULL))) {
     const gulong length=self->priv->length;
     const gulong voices=self->priv->voices;
-    const gulong global_params=self->priv->global_params;
-    const gulong voice_params=self->priv->voice_params;
+    gulong global_params, voice_params;
     BtParameterGroup *pg;
     gulong i,j,k;
     gchar *value,*id,*name;
     
     g_object_get((GObject *)self,"id",&id,"name",&name,NULL);
+    g_object_get((gpointer)(self->priv->machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
 
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(id));
     xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(name));
@@ -929,6 +919,9 @@ static void bt_pattern_persistence_interface_init(gpointer g_iface, gpointer ifa
 
 static void bt_pattern_constructed(GObject *object) {
   BtPattern *self=BT_PATTERN(object);
+  BtSetup *setup;
+  GList *node;
+  BtWire *wire;
 
   G_OBJECT_CLASS(bt_pattern_parent_class)->constructed(object);
 
@@ -944,12 +937,21 @@ static void bt_pattern_constructed(GObject *object) {
   
   GST_DEBUG("set the machine for pattern: %p (machine-ref_ct=%d)",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
   
-  g_object_get((gpointer)(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,NULL);
   self->priv->global_value_group=bt_value_group_new(bt_machine_get_global_param_group(self->priv->machine), self->priv->length);
+  // add initial voices
+  bt_pattern_on_voices_changed(self->priv->machine,NULL,(gpointer)self);
+  // add initial wires
+  for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
+    wire=BT_WIRE(node->data);
+    g_hash_table_insert(self->priv->wire_value_groups,wire,
+      bt_value_group_new(bt_wire_get_param_group(wire), self->priv->length));
+  }
 
   g_signal_connect(self->priv->machine,"notify::voices",G_CALLBACK(bt_pattern_on_voices_changed),(gpointer)self);
-  // need to do that so that data is reallocated
-  bt_pattern_on_voices_changed(self->priv->machine,NULL,(gpointer)self);
+  g_object_get(self->priv->song,"setup",&setup,NULL);
+  g_signal_connect(setup,"wire-added",G_CALLBACK(bt_pattern_on_setup_wire_added),(gpointer)self);
+  g_signal_connect(setup,"wire-removed",G_CALLBACK(bt_pattern_on_setup_wire_removed),(gpointer)self);
+  g_object_unref(setup);
   
   GST_DEBUG("add pattern to machine");
   // add the pattern to the machine
@@ -1005,9 +1007,19 @@ static void bt_pattern_dispose(GObject * const object) {
   for(i=0;i<self->priv->voices;i++) {
     g_object_try_unref(self->priv->voice_value_groups[i]);
   }
+  g_hash_table_destroy(self->priv->wire_value_groups);
 
   if(self->priv->machine) {
     g_signal_handlers_disconnect_matched(self->priv->machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_pattern_on_voices_changed,(gpointer)self);
+  }
+  if(self->priv->song) {
+    BtSetup *setup;
+    g_object_get(self->priv->song,"setup",&setup,NULL);
+    if(setup) {
+      g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_pattern_on_setup_wire_added,(gpointer)self);
+      g_signal_handlers_disconnect_matched(setup,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_pattern_on_setup_wire_removed,(gpointer)self);
+      g_object_unref(setup);
+    }
   }
 
   g_object_try_weak_unref(self->priv->song);
@@ -1030,6 +1042,7 @@ static void bt_pattern_finalize(GObject * const object) {
 
 static void bt_pattern_init(BtPattern *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PATTERN, BtPatternPrivate);
+  self->priv->wire_value_groups=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
 }
 
 static void bt_pattern_class_init(BtPatternClass * const klass) {
@@ -1083,6 +1096,28 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
                                         3, // n_params
                                         G_TYPE_ULONG,G_TYPE_ULONG,G_TYPE_ULONG // param data
                                         );
+
+  /**
+   * BtPattern::wire-param-changed:
+   * @self: the pattern object that emitted the signal
+   * @tick: the tick position inside the pattern
+   * @wire: the wire object
+   * @param: the wire parameter index
+   *
+   * Signals that a wire param of this pattern has been changed.
+   */
+  signals[WIRE_PARAM_CHANGED_EVENT] = g_signal_new("wire-param-changed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        0,
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        bt_marshal_VOID__ULONG_OBJECT_ULONG,
+                                        G_TYPE_NONE, // return type
+                                        3, // n_params
+                                        G_TYPE_ULONG,BT_TYPE_WIRE,G_TYPE_ULONG // param data
+                                        );
+
   /**
    * BtPattern::pattern-changed:
    * @self: the pattern object that emitted the signal

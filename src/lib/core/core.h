@@ -72,7 +72,6 @@
 #include "wave.h"
 #include "wavelevel.h"
 #include "wavetable.h"
-#include "wire-pattern.h"
 #include "wire.h"
 
 #include "tools.h"

@@ -30,4 +30,4 @@ bt_wave_get_type
 bt_wavelevel_get_type
 bt_wavetable_get_type
 bt_wire_get_type
-bt_wire_pattern_get_type
+

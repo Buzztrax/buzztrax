@@ -76,10 +76,6 @@
  *   - we could solve this by having ValueGroups (see TODO)
  *     - each BtPatternEditorColumnGroup would have a pointer to the ValueGroup
  *     - this solves the offset issue for voice data access
- *   - another complication is that wire-patterns are optional and only created
- *     once we store an event, we don't do that for voices
- *     - if we just create them, we could avoid rechecking the wire_pattern
- *     - we could also create the GValue array inside the WirePattern on demand
  */
 
 #define BT_EDIT
@@ -294,7 +290,7 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
           BtWire *wire=BT_WIRE(group->user_data);
           pg=bt_wire_get_param_group(wire);
           /* there is no describe here
-          bt_wire_pattern_get_event_data(wire_pattern,self->priv->cursor_row,self->priv->cursor_param)
+          bt_pattern_get_wire_event_data(pattern,self->priv->cursor_row,wire,self->priv->cursor_param)
           */
         } break;
         case PGT_GLOBAL: {
@@ -355,27 +351,12 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
  */
 static void pattern_range_copy(const BtMainPagePatterns *self,gint beg,gint end,gint group,gint param,GString *data) {
   BtPatternEditorColumnGroup *pc_group;
-  guint i;
+  BtValueGroup *vg;
 
   GST_INFO("copying : %d %d , %d %d",beg,end,group,param);
 
   // process full pattern
   if(group==-1 && param==-1) {
-    BtWirePattern *wire_pattern;
-
-    i=0;
-    pc_group=&self->priv->param_groups[0];
-    while(pc_group->type==PGT_WIRE) {
-      wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-      if(wire_pattern) {
-        bt_wire_pattern_serialize_columns(wire_pattern,beg,end,data);
-        g_object_unref(wire_pattern);
-      }
-      i++;
-      if(i==self->priv->number_of_groups)
-        break;
-      pc_group=&self->priv->param_groups[i];
-    }
     bt_pattern_serialize_columns(self->priv->pattern,beg,end,data);
   }
   // process whole group
@@ -383,26 +364,17 @@ static void pattern_range_copy(const BtMainPagePatterns *self,gint beg,gint end,
     pc_group=&self->priv->param_groups[group];
     switch(pc_group->type) {
       case PGT_WIRE: {
-        BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-        if(wire_pattern) {
-          for(i=0;i<pc_group->num_columns;i++) {
-            bt_wire_pattern_serialize_column(wire_pattern,beg,end,i,data);
-          }
-          g_object_unref(wire_pattern);
-        }
+        vg=bt_pattern_get_wire_group(self->priv->pattern,pc_group->user_data);
+        bt_value_group_serialize_columns(vg,beg,end,data);
       } break;
       case PGT_GLOBAL: {
-        for(i=0;i<pc_group->num_columns;i++) {
-          bt_pattern_serialize_column(self->priv->pattern,beg,end,i,data);
-        }
+        vg=bt_pattern_get_global_group(self->priv->pattern);
+        bt_value_group_serialize_columns(vg,beg,end,data);
       } break;
       case PGT_VOICE: {
         guint voice=GPOINTER_TO_UINT(pc_group->user_data);
-        gulong params=self->priv->global_params+(voice*self->priv->voice_params);
-
-        for(i=0;i<pc_group->num_columns;i++) {
-          bt_pattern_serialize_column(self->priv->pattern,beg,end,params+i,data);
-        }
+        vg=bt_pattern_get_voice_group(self->priv->pattern,voice);
+        bt_value_group_serialize_columns(vg,beg,end,data);
       } break;
     }
   }
@@ -411,20 +383,14 @@ static void pattern_range_copy(const BtMainPagePatterns *self,gint beg,gint end,
     pc_group=&self->priv->param_groups[group];
     switch(pc_group->type) {
       case PGT_WIRE: {
-        BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-        if(wire_pattern) {
-          bt_wire_pattern_serialize_column(wire_pattern,beg,end,param,data);
-          g_object_unref(wire_pattern);
-        }
+        bt_value_group_serialize_column(bt_pattern_get_wire_group(self->priv->pattern,pc_group->user_data),beg,end,param,data);
       } break;
       case PGT_GLOBAL:
-        bt_pattern_serialize_column(self->priv->pattern,beg,end,param,data);
+        bt_value_group_serialize_column(bt_pattern_get_global_group(self->priv->pattern),beg,end,param,data);
         break;
       case PGT_VOICE: {
         guint voice=GPOINTER_TO_UINT(pc_group->user_data);
-        gulong params=self->priv->global_params+(voice*self->priv->voice_params);
-
-        bt_pattern_serialize_column(self->priv->pattern,beg,end,params+param,data);
+        bt_value_group_serialize_column(bt_pattern_get_voice_group(self->priv->pattern,voice),beg,end,param,data);
       } break;
     }
   }
@@ -484,7 +450,6 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
   // process full pattern
   if(group==-1 && param==-1) {
     BtWire *wire;
-    BtWirePattern *wire_pattern;
     gulong wire_groups,voices;
     guint g,v;
 
@@ -494,21 +459,18 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
     wire_groups=g_list_length(machine->dst_wires);
 
     for(g=0;g<wire_groups;g++) {
+      BtMachine *smachine;
+      gchar *smid;
+
       pc_group=&self->priv->param_groups[g];
       wire = pc_group->user_data;
-      wire_pattern=bt_wire_get_pattern(wire,self->priv->pattern);
-      if(wire_pattern) {
-        BtMachine *smachine;
-        gchar *smid;
 
-        g_object_get(wire,"src",&smachine,NULL);
-        g_object_get(smachine,"id",&smid,NULL);
-        g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_wire_events \"%s\",\"%s\",\"%s\",%u,%u",smid,mid,pid,beg,end);
-        pattern_columns_log_undo_redo(self,fmt,pc_group->num_columns,&old_str,&new_str);
-        g_free(smid);
-        g_object_unref(smachine);
-        g_object_unref(wire_pattern);
-      }
+      g_object_get(wire,"src",&smachine,NULL);
+      g_object_get(smachine,"id",&smid,NULL);
+      g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_wire_events \"%s\",\"%s\",\"%s\",%u,%u",smid,mid,pid,beg,end);
+      pattern_columns_log_undo_redo(self,fmt,pc_group->num_columns,&old_str,&new_str);
+      g_free(smid);
+      g_object_unref(smachine);
     }
 
     if(self->priv->global_params) {
@@ -517,12 +479,10 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
       pattern_columns_log_undo_redo(self,fmt,pc_group->num_columns,&old_str,&new_str);
       g++;
     }
-    if(voices) {
-      for(v=0;v<voices;v++,g++) {
-        pc_group=&self->priv->param_groups[g];
-        g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_voice_events \"%s\",\"%s\",%u,%u,%u",mid,pid,beg,end,v);
-        pattern_columns_log_undo_redo(self,fmt,pc_group->num_columns,&old_str,&new_str);
-      }
+    for(v=0;v<voices;v++,g++) {
+      pc_group=&self->priv->param_groups[g];
+      g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_voice_events \"%s\",\"%s\",%u,%u,%u",mid,pid,beg,end,v);
+      pattern_columns_log_undo_redo(self,fmt,pc_group->num_columns,&old_str,&new_str);
     }
     bt_change_log_end_group(self->priv->change_log);
   }
@@ -533,20 +493,16 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
     pc_group=&self->priv->param_groups[group];
     switch(pc_group->type) {
       case PGT_WIRE: {
-        BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-        if(wire_pattern) {
-          BtWire *wire = pc_group->user_data;
-          BtMachine *smachine;
-          gchar *smid;
+        BtWire *wire = pc_group->user_data;
+        BtMachine *smachine;
+        gchar *smid;
 
-          g_object_get(wire,"src",&smachine,NULL);
-          g_object_get(smachine,"id",&smid,NULL);
-          g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_wire_events \"%s\",\"%s\",\"%s\",%u,%u",smid,mid,pid,beg,end);
-          pattern_columns_log_undo_redo(self,fmt,pc_group->num_columns,&old_str,&new_str);
-          g_free(smid);
-          g_object_unref(smachine);
-          g_object_unref(wire_pattern);
-        }
+        g_object_get(wire,"src",&smachine,NULL);
+        g_object_get(smachine,"id",&smid,NULL);
+        g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_wire_events \"%s\",\"%s\",\"%s\",%u,%u",smid,mid,pid,beg,end);
+        pattern_columns_log_undo_redo(self,fmt,pc_group->num_columns,&old_str,&new_str);
+        g_free(smid);
+        g_object_unref(smachine);
       } break;
       case PGT_GLOBAL: {
         g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_global_events \"%s\",\"%s\",%u,%u",mid,pid,beg,end);
@@ -565,20 +521,16 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
     pc_group=&self->priv->param_groups[group];
     switch(pc_group->type) {
       case PGT_WIRE: {
-        BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-        if(wire_pattern) {
-          BtWire *wire = pc_group->user_data;
-          BtMachine *smachine;
-          gchar *smid;
+        BtWire *wire = pc_group->user_data;
+        BtMachine *smachine;
+        gchar *smid;
 
-          g_object_get(wire,"src",&smachine,NULL);
-          g_object_get(smachine,"id",&smid,NULL);
-          g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u",smid,mid,pid,beg,end,param);
-          pattern_column_log_undo_redo(self,fmt,&old_str,&new_str);
-          g_free(smid);
-          g_object_unref(smachine);
-          g_object_unref(wire_pattern);
-        }
+        g_object_get(wire,"src",&smachine,NULL);
+        g_object_get(smachine,"id",&smid,NULL);
+        g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u",smid,mid,pid,beg,end,param);
+        pattern_column_log_undo_redo(self,fmt,&old_str,&new_str);
+        g_free(smid);
+        g_object_unref(smachine);
       } break;
       case PGT_GLOBAL:
         g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_global_events \"%s\",\"%s\",%u,%u,%u",mid,pid,beg,end,param);
@@ -611,40 +563,23 @@ static void pattern_range_log_undo_redo(const BtMainPagePatterns *self,gint beg,
  * - _columns(BtPattern * self, gulong start_tick, gulong end_tick, gulong start_param, gulong end_param)
  */
 
-typedef void (*DoBtPatternEditorColumn)(const BtPattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-typedef void (*DoBtPatternEditorColumns)(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
-typedef void (*DoWireBtPatternEditorColumn)(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-typedef void (*DoWireBtPatternEditorColumns)(const BtWirePattern * const self, const gulong start_tick, const gulong end_tick);
+typedef void (*DoValueGroupColumn) (const BtValueGroup  * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+typedef void (*DoValueGroupColumns)(const BtValueGroup  * const self, const gulong start_tick, const gulong end_tick);
+typedef void (*DoPatternColumns)   (const BtPattern     * const self, const gulong start_tick, const gulong end_tick);
 
-static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatternEditorColumn do_pattern_column,DoBtPatternEditorColumns do_pattern_columns,DoWireBtPatternEditorColumn do_wire_pattern_column,DoWireBtPatternEditorColumns do_wire_pattern_columns) {
+static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoValueGroupColumn do_value_group_column,DoValueGroupColumns do_value_group_columns,DoPatternColumns do_pattern_columns) {
   gboolean res=FALSE;
   gint beg,end,group,param;
 
   if(bt_pattern_editor_get_selection(self->priv->pattern_table,&beg,&end,&group,&param)) {
     GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
     BtPatternEditorColumnGroup *pc_group;
-    guint i;
 
     pattern_range_copy(self,beg,end,group,param,old_data);
 
     GST_INFO("applying : %d %d , %d %d",beg,end,group,param);
     // process full pattern
     if(group==-1 && param==-1) {
-      BtWirePattern *wire_pattern;
-
-      i=0;
-      pc_group=&self->priv->param_groups[0];
-      while(pc_group->type==PGT_WIRE) {
-        wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-        if(wire_pattern) {
-          do_wire_pattern_columns(wire_pattern,beg,end);
-          g_object_unref(wire_pattern);
-        }
-        i++;
-        if(i==self->priv->number_of_groups)
-          break;
-        pc_group=&self->priv->param_groups[i];
-      }
       do_pattern_columns(self->priv->pattern,beg,end);
       res=TRUE;
     }
@@ -653,24 +588,17 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
       pc_group=&self->priv->param_groups[group];
       switch(pc_group->type) {
         case PGT_WIRE: {
-          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-          if(wire_pattern) {
-            do_wire_pattern_columns(wire_pattern,beg,end);
-            g_object_unref(wire_pattern);
-          }
+          BtValueGroup *vg=bt_pattern_get_wire_group(self->priv->pattern,pc_group->user_data);
+          do_value_group_columns(vg,beg,end);
         } break;
         case PGT_GLOBAL: {
-          for(i=0;i<pc_group->num_columns;i++) {
-            do_pattern_column(self->priv->pattern,beg,end,i);
-          }
+          BtValueGroup *vg=bt_pattern_get_global_group(self->priv->pattern);
+          do_value_group_columns(vg,beg,end);
         } break;
         case PGT_VOICE: {
           guint voice=GPOINTER_TO_UINT(pc_group->user_data);
-          gulong params=self->priv->global_params+(voice*self->priv->voice_params);
-
-          for(i=0;i<pc_group->num_columns;i++) {
-            do_pattern_column(self->priv->pattern,beg,end,params+i);
-          }
+          BtValueGroup *vg=bt_pattern_get_voice_group(self->priv->pattern, voice);
+          do_value_group_columns(vg,beg,end);
         } break;
       }
       res=TRUE;
@@ -680,19 +608,14 @@ static gboolean pattern_selection_apply(const BtMainPagePatterns *self,DoBtPatte
       pc_group=&self->priv->param_groups[group];
       switch(pc_group->type) {
         case PGT_WIRE: {
-          BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-          if(wire_pattern) {
-            do_wire_pattern_column(wire_pattern,beg,end,param);
-            g_object_unref(wire_pattern);
-          }
+          do_value_group_column(bt_pattern_get_wire_group(self->priv->pattern,pc_group->user_data),beg,end,param);
         } break;
         case PGT_GLOBAL:
-          do_pattern_column(self->priv->pattern,beg,end,param);
+          do_value_group_column(bt_pattern_get_global_group(self->priv->pattern),beg,end,param);
           break;
         case PGT_VOICE: {
           guint voice=GPOINTER_TO_UINT(pc_group->user_data);
-          gulong params=self->priv->global_params+(voice*self->priv->voice_params);
-          do_pattern_column(self->priv->pattern,beg,end,params+param);
+          do_value_group_column(bt_pattern_get_voice_group(self->priv->pattern,voice),beg,end,param);
         } break;
       }
       res=TRUE;
@@ -740,7 +663,6 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
   // add undo/redo details
   if(bt_change_log_is_active(self->priv->change_log)) {
     BtWire *wire;
-    BtWirePattern *wire_pattern;
     gchar fmt[MAX_CHANGE_LOGGER_METHOD_LEN];
     gchar *mid,*pid,*pname,*str,*undo_str,*redo_str;
     gulong length;
@@ -764,40 +686,28 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
      * - we don't have the BtPatternEditorColumnGroup
      */
     end=length-1;
-    for(node=machine->dst_wires;node;node=g_list_next(node)) {
-      if((wire_pattern=bt_wire_get_pattern((BtWire *)node->data,pattern))) {
-        bt_wire_pattern_serialize_columns(wire_pattern,0,end,data);
-        g_object_unref(wire_pattern);
-      }
-    }
     bt_pattern_serialize_columns(pattern,0,end,data);
     str=data->str;
     // log events
     for(node=machine->dst_wires;node;node=g_list_next(node)) {
-      wire=(BtWire *)node->data;
-      wire_pattern=bt_wire_get_pattern(wire,pattern);
-      if(wire_pattern) {
-        BtMachine *smachine;
-        gchar *smid;
+      BtMachine *smachine;
+      gchar *smid;
 
-        g_object_get(wire,"src",&smachine,"num-params",&wire_params,NULL);
-        g_object_get(smachine,"id",&smid,NULL);
-        g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_wire_events \"%s\",\"%s\",\"%s\",0,%u",smid,mid,pid,end);
-        pattern_columns_log_undo_redo(self,fmt,wire_params,&str,NULL);
-        g_free(smid);
-        g_object_unref(smachine);
-        g_object_unref(wire_pattern);
-      }
+      wire=(BtWire *)node->data;
+      g_object_get(wire,"src",&smachine,"num-params",&wire_params,NULL);
+      g_object_get(smachine,"id",&smid,NULL);
+      g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_wire_events \"%s\",\"%s\",\"%s\",0,%u",smid,mid,pid,end);
+      pattern_columns_log_undo_redo(self,fmt,wire_params,&str,NULL);
+      g_free(smid);
+      g_object_unref(smachine);
     }
     if(self->priv->global_params) {
       g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_global_events \"%s\",\"%s\",0,%u",mid,pid,end);
       pattern_columns_log_undo_redo(self,fmt,self->priv->global_params,&str,NULL);
     }
-    if(voices) {
-      for(v=0;v<voices;v++) {
-        g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_voice_events \"%s\",\"%s\",0,%u,%u",mid,pid,end,v);
-        pattern_columns_log_undo_redo(self,fmt,self->priv->voice_params,&str,NULL);
-      }
+    for(v=0;v<voices;v++) {
+      g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_voice_events \"%s\",\"%s\",0,%u,%u",mid,pid,end,v);
+      pattern_columns_log_undo_redo(self,fmt,self->priv->voice_params,&str,NULL);
     }
     g_string_free(data,TRUE);
 
@@ -865,18 +775,8 @@ static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *
 
     if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
       // insert full row
-      BtWirePattern *wire_pattern;
-      guint i=0;
-
       GST_INFO("ctrl-shift-insert pressed, row %lu",self->priv->cursor_row);
-      while(i<self->priv->number_of_groups && self->priv->param_groups[i].type==PGT_WIRE) {
-        if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
-          bt_wire_pattern_insert_full_row(wire_pattern,self->priv->cursor_row);
-          g_object_unref(wire_pattern);
-        }
-        i++;
-      }
-      bt_pattern_insert_full_row(self->priv->pattern,self->priv->cursor_row);
+      bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row);
       res=TRUE;
     }
     else if(modifier&GDK_SHIFT_MASK) {
@@ -885,27 +785,18 @@ static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *
       GST_INFO("shift-insert pressed, row %ld, group %u",self->priv->cursor_row,self->priv->cursor_group);
       switch(group->type) {
         case PGT_WIRE: {
-          BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
-          if(wire_pattern) {
-            bt_wire_pattern_insert_full_row(wire_pattern,self->priv->cursor_row);
-            g_object_unref(wire_pattern);
-          }
+          BtValueGroup *vg=bt_pattern_get_wire_group(self->priv->pattern,group->user_data);
+          bt_value_group_insert_full_row(vg,self->priv->cursor_row);
         } break;
         case PGT_GLOBAL: {
-          guint i;
-
-          for(i=0;i<group->num_columns;i++) {
-            bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, i);
-          }
+          BtValueGroup *vg=bt_pattern_get_global_group(self->priv->pattern);
+          bt_value_group_insert_full_row(vg,self->priv->cursor_row);
         } break;
         case PGT_VOICE: {
-          guint i;
           guint voice=GPOINTER_TO_UINT(group->user_data);
-          gulong params=self->priv->global_params+(voice*self->priv->voice_params);
+          BtValueGroup *vg=bt_pattern_get_voice_group(self->priv->pattern,voice);
+          bt_value_group_insert_full_row(vg,self->priv->cursor_row);
 
-          for(i=0;i<group->num_columns;i++) {
-            bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, params+i);
-          }
         } break;
       }
       res=TRUE;
@@ -916,20 +807,14 @@ static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *
       GST_INFO("insert pressed, row %ld, group %u, param %u",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
       switch(group->type) {
         case PGT_WIRE: {
-          BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
-          if(wire_pattern) {
-            bt_wire_pattern_insert_row(wire_pattern,self->priv->cursor_row, self->priv->cursor_param);
-            g_object_unref(wire_pattern);
-          }
+          bt_value_group_insert_row(bt_pattern_get_wire_group(self->priv->pattern,group->user_data),self->priv->cursor_row, self->priv->cursor_param);
         } break;
         case PGT_GLOBAL:
-          bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, self->priv->cursor_param);
+          bt_value_group_insert_row(bt_pattern_get_global_group(self->priv->pattern),self->priv->cursor_row, self->priv->cursor_param);
           break;
         case PGT_VOICE: {
           guint voice=GPOINTER_TO_UINT(group->user_data);
-          gulong params=self->priv->global_params+(voice*self->priv->voice_params);
-
-          bt_pattern_insert_row(self->priv->pattern,self->priv->cursor_row, params+self->priv->cursor_param);
+          bt_value_group_insert_row(bt_pattern_get_voice_group(self->priv->pattern,voice),self->priv->cursor_row, self->priv->cursor_param);
         } break;
       }
       res=TRUE;
@@ -969,19 +854,8 @@ static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *
 
     if((modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK))==(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
       // delete full row
-      BtWirePattern *wire_pattern;
-      guint i=0;
-
-      g_object_get(self->priv->pattern_table, "cursor-row", &self->priv->cursor_row, NULL);
       GST_INFO("ctrl-shift-delete pressed, row %lu",self->priv->cursor_row);
-      while(i<self->priv->number_of_groups && self->priv->param_groups[i].type==PGT_WIRE) {
-        if((wire_pattern = bt_wire_get_pattern(self->priv->param_groups[i].user_data,self->priv->pattern))) {
-          bt_wire_pattern_delete_full_row(wire_pattern,self->priv->cursor_row);
-          g_object_unref(wire_pattern);
-        }
-        i++;
-      }
-      bt_pattern_delete_full_row(self->priv->pattern,self->priv->cursor_row);
+      bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row);
       res=TRUE;
     }
     else if(modifier&GDK_SHIFT_MASK) {
@@ -990,27 +864,17 @@ static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *
       GST_INFO("delete pressed, row %ld, group %u",self->priv->cursor_row,self->priv->cursor_group);
       switch(group->type) {
         case PGT_WIRE: {
-          BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
-          if(wire_pattern) {
-            bt_wire_pattern_delete_full_row(wire_pattern,self->priv->cursor_row);
-            g_object_unref(wire_pattern);
-          }
+          BtValueGroup *vg=bt_pattern_get_wire_group(self->priv->pattern,group->user_data);
+          bt_value_group_delete_full_row(vg,self->priv->cursor_row);
         } break;
         case PGT_GLOBAL: {
-          guint i;
-
-          for(i=0;i<group->num_columns;i++) {
-            bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, i);
-          }
+          BtValueGroup *vg=bt_pattern_get_global_group(self->priv->pattern);
+          bt_value_group_delete_full_row(vg,self->priv->cursor_row);
         } break;
         case PGT_VOICE: {
-          guint i;
           guint voice=GPOINTER_TO_UINT(group->user_data);
-          gulong params=self->priv->global_params+(voice*self->priv->voice_params);
-
-          for(i=0;i<group->num_columns;i++) {
-            bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, params+i);
-          }
+          BtValueGroup *vg=bt_pattern_get_voice_group(self->priv->pattern,voice);
+          bt_value_group_delete_full_row(vg,self->priv->cursor_row);
         } break;
       }
       res=TRUE;
@@ -1021,20 +885,14 @@ static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *
       GST_INFO("delete pressed, row %ld, group %u, param %u",self->priv->cursor_row,self->priv->cursor_group, self->priv->cursor_param);
       switch(group->type) {
         case PGT_WIRE: {
-          BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
-          if(wire_pattern) {
-            bt_wire_pattern_delete_row(wire_pattern,self->priv->cursor_row, self->priv->cursor_param);
-            g_object_unref(wire_pattern);
-          }
+          bt_value_group_delete_row(bt_pattern_get_wire_group(self->priv->pattern,group->user_data),self->priv->cursor_row, self->priv->cursor_param);
         } break;
         case PGT_GLOBAL:
-          bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, self->priv->cursor_param);
+          bt_value_group_delete_row(bt_pattern_get_global_group(self->priv->pattern),self->priv->cursor_row, self->priv->cursor_param);
           break;
         case PGT_VOICE: {
           guint voice=GPOINTER_TO_UINT(group->user_data);
-          gulong params=self->priv->global_params+(voice*self->priv->voice_params);
-
-          bt_pattern_delete_row(self->priv->pattern,self->priv->cursor_row, params+self->priv->cursor_param);
+          bt_value_group_delete_row(bt_pattern_get_voice_group(self->priv->pattern,voice),self->priv->cursor_row, self->priv->cursor_param);
         } break;
       }
       res=TRUE;
@@ -1051,22 +909,25 @@ static gboolean on_pattern_table_key_press_event(GtkWidget *widget,GdkEventKey *
   else if(event->keyval == GDK_f) {
     if(modifier&GDK_CONTROL_MASK) {
       res=pattern_selection_apply(self,
-        bt_pattern_flip_column,bt_pattern_flip_columns,
-        bt_wire_pattern_flip_column,bt_wire_pattern_flip_columns);
+        bt_value_group_flip_column,
+        bt_value_group_flip_columns,
+        bt_pattern_flip_columns);
     }
   }
   else if(event->keyval == GDK_i) {
     if(modifier&GDK_CONTROL_MASK) {
       res=pattern_selection_apply(self,
-        bt_pattern_blend_column,bt_pattern_blend_columns,
-        bt_wire_pattern_blend_column,bt_wire_pattern_blend_columns);
+        bt_value_group_blend_column,
+        bt_value_group_blend_columns,
+        bt_pattern_blend_columns);
     }
   }
   else if(event->keyval == GDK_r) {
     if(modifier&GDK_CONTROL_MASK) {
       res=pattern_selection_apply(self,
-        bt_pattern_randomize_column,bt_pattern_randomize_columns,
-        bt_wire_pattern_randomize_column,bt_wire_pattern_randomize_columns);
+        bt_value_group_randomize_column,
+        bt_value_group_randomize_columns,
+        bt_pattern_randomize_columns);
     }
   }
   else if((event->keyval == GDK_Up) && (modifier==GDK_CONTROL_MASK)) {
@@ -1356,11 +1217,7 @@ static gfloat pattern_edit_get_data_at(gpointer pattern_data, gpointer column_da
 
   switch (group->type) {
     case PGT_WIRE: {
-      BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
-      if(wire_pattern) {
-        val=bt_wire_pattern_get_event_data(wire_pattern,row,param);
-        g_object_unref(wire_pattern);
-      }
+      val=bt_pattern_get_wire_event_data(self->priv->pattern,row,group->user_data,param);
     } break;
     case PGT_GLOBAL:
       val=bt_pattern_get_global_event_data(self->priv->pattern,row,param);
@@ -1382,6 +1239,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   const gchar *str = NULL;
   BtPatternEditorColumnGroup *group = &self->priv->param_groups[track];
+  BtValueGroup *vg;
   BtMachine *machine;
   gchar fmt[MAX_CHANGE_LOGGER_METHOD_LEN];
   GString *old_data=g_string_new(NULL),*new_data=g_string_new(NULL);
@@ -1493,32 +1351,23 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   switch (group->type) {
     case PGT_WIRE: {
       BtWire *wire = group->user_data;
-      BtWirePattern *wire_pattern = bt_wire_get_pattern(wire,self->priv->pattern);
       BtMachine *smachine;
       gchar *smid,*dmid,*pid;
-
-      if(!wire_pattern) {
-        BtSong *song;
-
-        g_object_get(self->priv->app,"song",&song,NULL);
-        wire_pattern=bt_wire_pattern_new(song,wire,self->priv->pattern);
-        g_object_unref(song);
-      }
 
       g_object_get(wire,"src",&smachine,NULL);
       g_object_get(smachine,"id",&smid,NULL);
       g_object_get(machine,"id",&dmid,NULL);
       g_object_get(self->priv->pattern,"id",&pid,NULL);
 
-      bt_wire_pattern_serialize_column(wire_pattern,row,row,param,old_data);
-      bt_wire_pattern_set_event(wire_pattern,row,param,str);
-      bt_wire_pattern_serialize_column(wire_pattern,row,row,param,new_data);
+      vg=bt_pattern_get_wire_group(self->priv->pattern,wire);
+      bt_value_group_serialize_column(vg,row,row,param,old_data);
+      bt_value_group_set_event(vg,row,param,str);
+      bt_value_group_serialize_column(vg,row,row,param,new_data);
       g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_wire_events \"%s\",\"%s\",\"%s\",%u,%u,%u",smid,dmid,pid,row,row,param);
       old_str=old_data->str;new_str=new_data->str;
       pattern_column_log_undo_redo(self,fmt,&old_str,&new_str);
       g_free(smid);g_free(dmid);g_free(pid);
       g_object_unref(smachine);
-      g_object_unref(wire_pattern);
     } break;
     case PGT_GLOBAL: {
       gchar *mid,*pid;
@@ -1526,9 +1375,10 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       g_object_get(machine,"id",&mid,NULL);
       g_object_get(self->priv->pattern,"id",&pid,NULL);
 
-      bt_pattern_serialize_column(self->priv->pattern,row,row,param,old_data);
-      bt_pattern_set_global_event(self->priv->pattern,row,param,str);
-      bt_pattern_serialize_column(self->priv->pattern,row,row,param,new_data);
+      vg=bt_pattern_get_global_group(self->priv->pattern);
+      bt_value_group_serialize_column(vg,row,row,param,old_data);
+      bt_value_group_set_event(vg,row,param,str);
+      bt_value_group_serialize_column(vg,row,row,param,new_data);
       g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_global_events \"%s\",\"%s\",%u,%u,%u",mid,pid,row,row,param);
       old_str=old_data->str;new_str=new_data->str;
       pattern_column_log_undo_redo(self,fmt,&old_str,&new_str);
@@ -1536,15 +1386,15 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
     } break;
     case PGT_VOICE: {
       guint voice=GPOINTER_TO_UINT(group->user_data);
-      gulong params=self->priv->global_params+(voice*self->priv->voice_params);
       gchar *mid,*pid;
 
       g_object_get(machine,"id",&mid,NULL);
       g_object_get(self->priv->pattern,"id",&pid,NULL);
 
-      bt_pattern_serialize_column(self->priv->pattern,row,row,params+param,old_data);
-      bt_pattern_set_voice_event(self->priv->pattern,row,voice,param,str);
-      bt_pattern_serialize_column(self->priv->pattern,row,row,params+param,new_data);
+      vg=bt_pattern_get_voice_group(self->priv->pattern,voice);
+      bt_value_group_serialize_column(vg,row,row,param,old_data);
+      bt_value_group_set_event(vg,row,param,str);
+      bt_value_group_serialize_column(vg,row,row,param,new_data);
       g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,"set_voice_events \"%s\",\"%s\",%u,%u,%u,%u",mid,pid,row,row,voice,param);
       old_str=old_data->str;new_str=new_data->str;
       pattern_column_log_undo_redo(self,fmt,&old_str,&new_str);
@@ -2363,7 +2213,7 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
     GList *list,*node;
     BtMachine *smachine;
     BtPattern *pattern;
-    BtWirePattern *wire_pattern;
+    BtValueGroup *vg;
     gulong length;
     gulong wire_params;
     gchar *smid,*dmid;
@@ -2373,35 +2223,33 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
     g_object_get(that_machine,"id",&dmid,"patterns",&list,NULL);
 
     for(node=list;node;node=g_list_next(node)) {
+      gchar *undo_str;
+      GString *data=g_string_new(NULL);
+      guint end;
+      gchar *str,*p,*pid;
+      guint i;
+
       pattern=BT_PATTERN(node->data);
-      wire_pattern=bt_wire_get_pattern(wire,pattern);
-      if(wire_pattern) {
-        gchar *undo_str;
-        GString *data=g_string_new(NULL);
-        guint end;
-        gchar *str,*p,*pid;
-        guint i;
+      vg=bt_pattern_get_wire_group(self->priv->pattern,wire);
   
-        g_object_get(pattern,"id",&pid,"length",&length,NULL);
-  
-        end=length-1;
-  
-        bt_wire_pattern_serialize_columns(wire_pattern,0,end,data);
-        str=data->str;
-        
-        bt_change_log_start_group(self->priv->change_log);       
-        for(i=0;i<wire_params;i++) {
-          p=strchr(str,'\n');*p='\0';
-          undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",0,%u,%u,%s",smid,dmid,pid,end,i,str);
-          str=&p[1];
-          bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
-        }
-        bt_change_log_end_group(self->priv->change_log);
-  
-        g_string_free(data,TRUE);
-        g_free(pid);
-        g_object_unref(wire_pattern);
+      g_object_get(pattern,"id",&pid,"length",&length,NULL);
+
+      end=length-1;
+
+      bt_value_group_serialize_columns(vg,0,end,data);
+      str=data->str;
+      
+      bt_change_log_start_group(self->priv->change_log);       
+      for(i=0;i<wire_params;i++) {
+        p=strchr(str,'\n');*p='\0';
+        undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",0,%u,%u,%s",smid,dmid,pid,end,i,str);
+        str=&p[1];
+        bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
       }
+      bt_change_log_end_group(self->priv->change_log);
+
+      g_string_free(data,TRUE);
+      g_free(pid);
       g_object_unref(pattern);
     }
     g_list_free(list);
@@ -3227,8 +3075,9 @@ static void pattern_clipboard_clear_func(GtkClipboard *clipboard,gpointer data) 
  */
 void bt_main_page_patterns_delete_selection(const BtMainPagePatterns *self) {
   pattern_selection_apply(self,
-    bt_pattern_clear_column,bt_pattern_clear_columns,
-    bt_wire_pattern_clear_column,bt_wire_pattern_clear_columns);
+    bt_value_group_clear_column,
+    bt_value_group_clear_columns,
+    bt_pattern_clear_columns);
 }
 
 /**
@@ -3320,20 +3169,14 @@ static void pattern_clipboard_received_func(GtkClipboard *clipboard,GtkSelection
       if(*lines[i]!='\n') {
         switch (pc_group->type) {
           case PGT_WIRE: {
-            BtWirePattern *wire_pattern=bt_wire_get_pattern(pc_group->user_data,self->priv->pattern);
-            if(wire_pattern) {
-              res=bt_wire_pattern_deserialize_column(wire_pattern,beg,end,p,lines[i]);
-              g_object_unref(wire_pattern);
-            }
+            res=bt_value_group_deserialize_column(bt_pattern_get_wire_group(self->priv->pattern,pc_group->user_data),beg,end,p,lines[i]);
           } break;
           case PGT_GLOBAL:
-            res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,p,lines[i]);
+            res=bt_value_group_deserialize_column(bt_pattern_get_global_group(self->priv->pattern),beg,end,p,lines[i]);
             break;
           case PGT_VOICE: {
             guint voice=GPOINTER_TO_UINT(pc_group->user_data);
-            gulong params=self->priv->global_params+(voice*self->priv->voice_params);
-
-            res=bt_pattern_deserialize_column(self->priv->pattern,beg,end,params+p,lines[i]);
+            res=bt_value_group_deserialize_column(bt_pattern_get_voice_group(self->priv->pattern,voice),beg,end,p,lines[i]);
           } break;
         }
       }
@@ -3408,7 +3251,7 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
 
       GST_DEBUG("-> [%s|%s|%u|%u|%u|%s]",mid,pid,s_row,e_row,param,str);
       lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
-      res=bt_pattern_deserialize_column(pattern,s_row,e_row,param,str);
+      res=bt_value_group_deserialize_column(bt_pattern_get_global_group(pattern),s_row,e_row,param,str);
       g_free(str);
       g_free(mid);
       g_free(pid);
@@ -3426,7 +3269,6 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
     case METHOD_SET_VOICE_EVENTS: {
       guint voice;
       gchar *str,*mid,*pid;
-      gulong params;
 
       mid=g_match_info_fetch(match_info,1);
       pid=g_match_info_fetch(match_info,2);
@@ -3439,8 +3281,7 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
 
       GST_DEBUG("-> [%s|%s|%u|%u|%u|%u|%s]",mid,pid,s_row,e_row,voice,param,str);
       lookup_machine_and_pattern(self,&machine,&pattern,mid,c_mid,pid,c_pid);
-      params=self->priv->global_params+(voice*self->priv->voice_params);
-      res=bt_pattern_deserialize_column(pattern,s_row,e_row,params+param,str);
+      res=bt_value_group_deserialize_column(bt_pattern_get_voice_group(pattern,voice),s_row,e_row,param,str);
       g_free(str);
       g_free(mid);
       g_free(pid);
@@ -3461,7 +3302,6 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       BtSetup *setup;
       BtMachine *smachine;
       BtWire *wire;
-      BtWirePattern *wire_pattern;
 
       smid=g_match_info_fetch(match_info,1);
       dmid=g_match_info_fetch(match_info,2);
@@ -3479,16 +3319,11 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       g_object_get(song,"setup",&setup,NULL);
       smachine=bt_setup_get_machine_by_id(setup,smid);
       wire=bt_setup_get_wire_by_machines(setup,smachine,machine);
-      if(!(wire_pattern=bt_wire_get_pattern(wire,pattern))) {
-        wire_pattern=bt_wire_pattern_new(song,wire,pattern);
-      }
-      res=bt_wire_pattern_deserialize_column(wire_pattern,s_row,e_row,param,str);
-      //res=bt_wire_pattern_set_event(wire_pattern,row,param,str);
+      res=bt_value_group_deserialize_column(bt_pattern_get_wire_group(pattern,wire),s_row,e_row,param,str);
       g_free(str);
       g_free(smid);
       g_free(dmid);
       g_free(pid);
-      g_object_unref(wire_pattern);
       g_object_unref(wire);
       g_object_unref(smachine);
       g_object_unref(setup);
@@ -3497,7 +3332,7 @@ static gboolean bt_main_page_patterns_change_logger_change(const BtChangeLogger 
       if(res) {
         // move cursor
         for(group=0;group<self->priv->number_of_groups;group++) {
-          if((self->priv->param_groups[group].type==PGT_WIRE) && (self->priv->param_groups[group].user_data==wire_pattern)) break;
+          if((self->priv->param_groups[group].type==PGT_WIRE) && (self->priv->param_groups[group].user_data==wire)) break;
         }
         g_object_set(self->priv->pattern_table,"cursor-row",s_row,"cursor-group",group,"cursor-param",param,NULL);
         pattern_table_refresh(self);

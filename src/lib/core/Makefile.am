@@ -52,7 +52,6 @@ libbuzztard_core_la_SOURCES = \
 	wave.c \
 	wavelevel.c \
 	wire.c \
-	wire-pattern.c \
 	\
   $(BUILT_SOURCES)
 
@@ -107,8 +106,7 @@ libbuzztard_core_HEADERS = \
 	wavetable.h \
 	wave.h \
 	wavelevel.h \
-	wire.h \
-	wire-pattern.h
+	wire.h
 
 # yet unused sources
 #	plainfile-settings.h \

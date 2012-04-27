@@ -177,6 +177,63 @@ BT_START_TEST(test_btpattern_obj_poly2) {
 }
 BT_END_TEST
 
+BT_START_TEST(test_btpattern_obj_wire) {
+  BtApplication *app=NULL;
+  GError *err=NULL;
+  BtSong *song=NULL;
+  BtMachine *src_machine=NULL,*sink_machine=NULL;
+  BtWire *wire=NULL;
+  BtPattern *pattern=NULL;
+  BtValueGroup *vg;
+  gchar *data;
+
+  /* create app and song */
+  app=bt_test_application_new();
+  song=bt_song_new(app);
+  fail_unless(song!=NULL, NULL);
+
+  /* create a source machine */
+  src_machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
+  fail_unless(src_machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  /* create sink machine (default audio sink) */
+  sink_machine=BT_MACHINE(bt_sink_machine_new(song,"sink",&err));
+  fail_unless(sink_machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+
+  /* create the wire */
+  wire = bt_wire_new(song,src_machine,sink_machine,&err);
+  fail_unless(wire!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  
+  /* create a pattern */
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,sink_machine);
+  fail_unless(pattern!=NULL, NULL);
+  
+  /* create a wire-pattern */
+  vg=bt_pattern_get_wire_group(pattern,wire);
+  fail_unless(vg!=NULL, NULL);
+    
+  /* set some test data */
+  bt_pattern_set_wire_event(pattern,0,wire,0,"100");
+  
+  /* verify data */
+  data=bt_value_group_get_event(vg,0,0);
+  fail_unless(data!=NULL, NULL);
+  fail_if(strncmp(data,"100",1),"data is '%s' instead of '100'",data);
+  g_free(data);
+
+  /* cleanup */
+  g_object_unref(pattern);
+  g_object_unref(wire);
+  g_object_unref(src_machine);
+  g_object_unref(sink_machine);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
 BT_START_TEST(test_btpattern_copy) {
   BtApplication *app=NULL;
   GError *err=NULL;
@@ -512,7 +569,7 @@ BT_START_TEST(test_btpattern_insert_row) {
   bt_pattern_set_global_event(pattern,4,0,"10");
 
   /* insert row */
-  bt_pattern_insert_row(pattern,0,0);
+  bt_value_group_insert_row(bt_pattern_get_global_group(pattern),0,0);
 
   /* verify data */
   data=bt_pattern_get_global_event(pattern,0,0);
@@ -560,8 +617,8 @@ BT_START_TEST(test_btpattern_delete_row) {
   bt_pattern_set_global_event(pattern,0,0,"5");
   bt_pattern_set_global_event(pattern,4,0,"10");
 
-  /* insert row */
-  bt_pattern_delete_row(pattern,0,0);
+  /* delete row */
+  bt_value_group_delete_row(bt_pattern_get_global_group(pattern),0,0);
 
   /* verify data */
   data=bt_pattern_get_global_event(pattern,0,0);
@@ -587,6 +644,7 @@ TCase *bt_pattern_example_case(void) {
   tcase_add_test(tc,test_btpattern_obj_mono1);
   tcase_add_test(tc,test_btpattern_obj_poly1);
   tcase_add_test(tc,test_btpattern_obj_poly2);
+  tcase_add_test(tc,test_btpattern_obj_wire);
   tcase_add_test(tc,test_btpattern_copy);
   tcase_add_test(tc,test_btpattern_has_data);
   tcase_add_test(tc,test_btpattern_enlarge_length);

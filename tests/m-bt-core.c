@@ -42,7 +42,6 @@ extern Suite *bt_song_info_suite(void);
 extern Suite *bt_source_machine_suite(void);
 extern Suite *bt_tools_suite(void);
 extern Suite *bt_wire_suite(void);
-extern Suite *bt_wire_pattern_suite(void);
 extern Suite *bt_settings_suite(void);
 
 gchar *test_argv[] = { "check_buzzard" };
@@ -96,7 +95,6 @@ int main(int argc, char **argv) {
   srunner_add_suite(sr, bt_source_machine_suite());
   srunner_add_suite(sr, bt_tools_suite());
   srunner_add_suite(sr, bt_wire_suite());
-  srunner_add_suite(sr, bt_wire_pattern_suite());
   srunner_add_suite(sr, bt_settings_suite());
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
