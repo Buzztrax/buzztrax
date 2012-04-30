@@ -63,9 +63,7 @@ BT_END_TEST
 BT_START_TEST(test_btsequence_obj1) {
   BtSequence *sequence=NULL;
 
-  check_init_error_trapp("bt_sequence_","BT_IS_SONG(self->priv->song)");
   sequence=bt_sequence_new(NULL);
-  fail_unless(check_has_error_trapped(), NULL);
   fail_unless(sequence != NULL, NULL);
   g_object_unref(sequence);
 }
