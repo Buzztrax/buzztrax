@@ -187,24 +187,22 @@
 
 
 * pattern and main-page-patterns still contain bits of duplicated code
+  * fixup signals
+    * only sequence is using it (search for param-changed")
+    * the handlers adds the cells to the damage regions, which is a flat data-
+      structure, we need to calculate the offsets or introduce groups to also
+      simplify the repair api 
+    * instead of bt_sequence_repair_{global,voice,wire}_damage_entry()
+      we could use one function if we pass the value_group
+      * we don't have the patern in bt_sequence_repair_damage() yet
+      * we would actually look up the pattern over and over again for each
+        parameter tht has damage
   * review the pattern api and check if we should use the groups directly
-    * if keeping the wrapper we can keep the signals (and might not need
-      signal in the value-group
-    * the signals are used in the sequence to update the controller values,
-      we can remove them all after the control-source rewrite
-    * check if the signals could pass the parameter group, that could
-      potentially simplify the sequence code, in this case we keep the signal
-      on the value-group until the control-source rewrite is done
-    * run ./api-cleanup.sh to get a report of where the api is used
-      * sequence:
-        * when repairing we still look up patterns
-        * in bt_sequence_invalidate_pattern_region() we ideally get a
-          BtValuegroup * for pattern/other_pattern and then loop over the
-          parameters in each group
-        * in bt_sequence_repair_damage() we also would like to just loop over
-          groups and call a common bt_sequence_repair_damage_entry()
-      * main-page-patterns:
-        * we do a lot of switch(group->type) { PGT_WIRE,PGT_GLOBAL,PGT_VOICE }
+    (run ./api-cleanup.sh to get a report of where the api is used)
+    * sequence:
+      * when repairing we still look up patterns
+    * main-page-patterns:
+      * we do a lot of switch(group->type) { PGT_WIRE,PGT_GLOBAL,PGT_VOICE }
 
 
 * generate a dependency matrix
