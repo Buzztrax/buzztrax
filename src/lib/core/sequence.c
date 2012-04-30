@@ -796,7 +796,7 @@ static void bt_sequence_on_pattern_param_changed(const BtSequence * const self, 
   const gulong length=self->priv->length;
   gulong i,j,k;
 
-  // for all occurences of pattern
+  // for all occurrences of pattern
   for(i=0;i<tracks;i++) {
     BtMachine * const that_machine=bt_sequence_get_machine_unchecked(self,i);
     if(that_machine==machine) {
@@ -888,7 +888,7 @@ static void bt_sequence_on_pattern_changed(const BtPattern * const pattern, cons
     BtMachine * const that_machine=bt_sequence_get_machine_unchecked(self,i);
     // does the track belong to the given machine?
     if(that_machine==machine) {
-      // for all occurance of pattern
+      // for all occurrence of pattern
       for(j=0;j<length;j++) {
         BtCmdPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
         if(that_pattern==(BtCmdPattern *)pattern) {
@@ -939,14 +939,14 @@ BtSequence *bt_sequence_new(const BtSong * const song) {
 void bt_sequence_repair_damage(const BtSequence * const self) {
   const gulong tracks=self->priv->tracks;
   const gulong length=self->priv->length;
-  gulong i,j,k,l,m;
+  gulong i,j,k,l;
   BtMachine *machine;
   BtWire *wire;
   BtParameterGroup *pg;
   BtPattern *patterns[tracks+1];
   gulong positions[tracks+1];
   GList *node;
-  gulong global_params,voice_params,voices,wire_params;
+  gulong param_offset,global_params,voice_params,voices,wire_params;
   GHashTable *damage=self->priv->damage,*hash,*time_hash;
 
   GST_DEBUG("repair damage");
@@ -974,34 +974,34 @@ void bt_sequence_repair_damage(const BtSequence * const self) {
               wire=BT_WIRE(node->data);
               g_object_get(wire,"num-params",&wire_params,NULL);
               // repair damage of wire params
-              l=(global_params+voices*voice_params+BT_WIRE_MAX_NUM_PARAMS*k);
+              param_offset=(global_params+voices*voice_params+BT_WIRE_MAX_NUM_PARAMS*k);
               pg=bt_wire_get_param_group(wire);
-              for(m=0;m<wire_params;m++) {
-                if(g_hash_table_remove(time_hash,GUINT_TO_POINTER(l+m))) {
-                  bt_parameter_group_controller_change_value(pg,m,timestamp,
-                    bt_sequence_repair_wire_damage_entry(patterns,positions,m,wire));
+              for(l=0;l<wire_params;l++) {
+                if(g_hash_table_remove(time_hash,GUINT_TO_POINTER(param_offset+l))) {
+                  bt_parameter_group_controller_change_value(pg,l,timestamp,
+                    bt_sequence_repair_wire_damage_entry(patterns,positions,l,wire));
                 }
               }
             }
     
             // repair damage of global params
             pg=bt_machine_get_global_param_group(machine);
-            for(m=0;m<global_params;m++) {
-              if(g_hash_table_remove(time_hash,GUINT_TO_POINTER(m))) {
-                bt_parameter_group_controller_change_value(pg,m,timestamp,
-                  bt_sequence_repair_global_damage_entry(patterns,positions,m));
+            for(l=0;l<global_params;l++) {
+              if(g_hash_table_remove(time_hash,GUINT_TO_POINTER(l))) {
+                bt_parameter_group_controller_change_value(pg,l,timestamp,
+                  bt_sequence_repair_global_damage_entry(patterns,positions,l));
               }
             }
     
             // repair damage of voices
             for(k=0;k<voices;k++) {
               // repair damage of voice params
-              l=(global_params+k*voice_params);
+              param_offset=(global_params+k*voice_params);
               pg=bt_machine_get_voice_param_group(machine,k);
-              for(m=0;m<voice_params;m++) {
-                if(g_hash_table_remove(time_hash,GUINT_TO_POINTER(l+m))) {
-                  bt_parameter_group_controller_change_value(pg,m,timestamp,
-                    bt_sequence_repair_voice_damage_entry(patterns,positions,m,k));
+              for(l=0;l<voice_params;l++) {
+                if(g_hash_table_remove(time_hash,GUINT_TO_POINTER(param_offset+l))) {
+                  bt_parameter_group_controller_change_value(pg,l,timestamp,
+                    bt_sequence_repair_voice_damage_entry(patterns,positions,l,k));
                 }
               }
             }

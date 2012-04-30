@@ -194,9 +194,7 @@
       simplify the repair api 
     * instead of bt_sequence_repair_{global,voice,wire}_damage_entry()
       we could use one function if we pass the value_group
-      * we don't have the patern in bt_sequence_repair_damage() yet
-      * we would actually look up the pattern over and over again for each
-        parameter tht has damage
+      * we don't have the pattern in bt_sequence_repair_damage() yet
   * review the pattern api and check if we should use the groups directly
     (run ./api-cleanup.sh to get a report of where the api is used)
     * sequence:
