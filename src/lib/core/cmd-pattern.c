@@ -223,6 +223,18 @@ static void bt_cmd_pattern_set_property(GObject * const object, const guint prop
   }
 }
 
+static void bt_cmd_pattern_dispose(GObject * const object) {
+  const BtCmdPattern * const self = BT_CMD_PATTERN(object);
+
+  return_if_disposed();
+  self->priv->dispose_has_run = TRUE;
+
+  g_object_try_weak_unref(self->priv->machine);
+  g_object_try_weak_unref(self->priv->song);
+  
+  G_OBJECT_CLASS(bt_cmd_pattern_parent_class)->dispose(object);
+}
+
 static void bt_cmd_pattern_finalize(GObject * const object) {
   const BtCmdPattern * const self = BT_CMD_PATTERN(object);
   
@@ -246,6 +258,7 @@ static void bt_cmd_pattern_class_init(BtCmdPatternClass * const klass) {
   gobject_class->constructed  = bt_cmd_pattern_constructed;
   gobject_class->set_property = bt_cmd_pattern_set_property;
   gobject_class->get_property = bt_cmd_pattern_get_property;
+  gobject_class->dispose      = bt_cmd_pattern_dispose;
   gobject_class->finalize     = bt_cmd_pattern_finalize;
 
   g_object_class_install_property(gobject_class,CMD_PATTERN_SONG,
