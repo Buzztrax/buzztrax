@@ -438,14 +438,6 @@ static void bt_sequence_invalidate_pattern_group(const BtSequence * const self, 
   g_object_get(pg,"num-params",&num_params,NULL);
   
   GST_LOG("invalidate pg %p, vg %p for tick=%5lu + %3lu ... %3lu, num-params=%lu",pg,vg,time,is,ie,num_params);
-  
-  // DEBUG
-  GString *s = g_string_new("");
-  bt_value_group_serialize_columns(vg,is,ie-1,s);
-  gchar *d = g_string_free(s, FALSE);
-  GST_LOG("data:\n%s", d);
-  g_free(d);
-  // DEBUG
 
   for(i=is;i<ie;i++) {
     // check wire params
