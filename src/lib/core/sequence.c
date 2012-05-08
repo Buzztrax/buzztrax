@@ -32,11 +32,10 @@
  * and #BtWires.
  * It uses a damage-repair based two phase algorithm to update the controller
  * queues whenever patterns or the sequence changes. For that it watches data
- * changes on patterns and wire-patterns (through signal handler). When such
- * changes happen it computes the invalid regions on the time axis (
- * bt_sequence_invalidate_pattern_region()). In the 2nd step
- * bt_sequence_repair_damage() will update the event queues for all the
- * invalidated time-regions and affected parameters.
+ * changes on patterns (through signal handler). When such changes happen it
+ * computes the invalid regions on the time axis.
+ * In the 2nd step bt_sequence_repair_damage() will update the event queues for
+ * all the invalidated time-regions and affected parameters.
  */
 /* TODO(ensonic): introduce a BtTrack object
  * - the sequence will have a list of tracks
@@ -111,18 +110,10 @@ struct _BtSequencePrivate {
   /* manages damage regions for updating gst-controller queues after changes
    * each entry (per machine) has another GHashTable
    *   each entry (per time) has another GHashTable
-   *     with param:TRUE
+   *     each entry (per param-group) has a list of params
    */
   /* TODO(ensonic): there is quite some overhead because of the nested
    * HashTables:
-   * - maybe we could have this instead:
-   *   each entry (per machine) has another GHashTable
-   *     each entry (per time) has list of changed parameter-numbers
-   *   - the list of changed parameters could be a fixed array, allocated on
-   *     first use (as we know the max number of parameters of a pattern right
-   *     now)
-   *   - benefits would be
-   *     - one less hashtable (but then the array)
    */
   GHashTable *damage;
   

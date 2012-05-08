@@ -574,12 +574,29 @@ BtValueGroup **bt_pattern_get_groups(const BtPattern * const self) {
 }
 #endif
 
+/**
+ * bt_pattern_get_global_group:
+ * @self: the pattern
+ *
+ * Get the #BtValueGroup for global parameters.
+ *
+ * Returns: the group owned by the pattern.
+ */
 BtValueGroup *bt_pattern_get_global_group(const BtPattern * const self) {
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
 
   return self->priv->global_value_group;
 }
 
+/**
+ * bt_pattern_get_voice_group:
+ * @self: the pattern
+ * @voice: the voice to get the group for
+ *
+ * Get the #BtValueGroup for voice parameters.
+ *
+ * Returns: the group owned by the pattern.
+ */
 BtValueGroup *bt_pattern_get_voice_group(const BtPattern * const self, const gulong voice) {
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
   g_return_val_if_fail(voice<self->priv->voices,NULL);
@@ -587,6 +604,15 @@ BtValueGroup *bt_pattern_get_voice_group(const BtPattern * const self, const gul
   return self->priv->voice_value_groups[voice];
 }
 
+/**
+ * bt_pattern_get_wire_group:
+ * @self: the pattern
+ * @wire: the #BtWire to get the group for
+ *
+ * Get the #BtValueGroup for wire parameters.
+ *
+ * Returns: the group owned by the pattern.
+ */
 BtValueGroup *bt_pattern_get_wire_group(const BtPattern * const self, const BtWire *wire) {
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
   g_return_val_if_fail(BT_IS_WIRE(wire),NULL);
@@ -594,6 +620,15 @@ BtValueGroup *bt_pattern_get_wire_group(const BtPattern * const self, const BtWi
   return g_hash_table_lookup(self->priv->wire_value_groups,wire);
 }
 
+/**
+ * bt_pattern_get_group_by_parameter_group:
+ * @self: the pattern
+ * @param_group: the #BtParameterGroup to get the group for
+ *
+ * Get the #BtValueGroup for the given @param_group.
+ *
+ * Returns: the group owned by the pattern.
+ */
 BtValueGroup *bt_pattern_get_group_by_parameter_group(const BtPattern * const self, BtParameterGroup *param_group) {
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
   g_return_val_if_fail(BT_IS_PARAMETER_GROUP(param_group),NULL);
