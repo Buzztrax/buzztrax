@@ -26,7 +26,8 @@
  *
  * Furthermore each wire has a volume and if possible panorama/balance element.
  * Volume and panorama/balance can be sequenced like machine parameters in
- * #BtWirePattern objects.
+ * wire groups of the #BtPattern objects on the target machine (that means
+ * that source-machines don't have the controls).
  */
 /* controlable wire parameters
  * - only for processor machine and sink machine patterns
