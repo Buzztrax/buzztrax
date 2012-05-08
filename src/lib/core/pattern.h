@@ -84,6 +84,7 @@ gboolean bt_pattern_test_tick(const BtPattern * const self, const gulong tick);
 BtValueGroup *bt_pattern_get_global_group(const BtPattern * const self);
 BtValueGroup *bt_pattern_get_voice_group(const BtPattern * const self, const gulong voice);
 BtValueGroup *bt_pattern_get_wire_group(const BtPattern * const self, const BtWire *wire);
+BtValueGroup *bt_pattern_get_group_by_parameter_group(const BtPattern * const self, BtParameterGroup *param_group);
 
 void bt_pattern_insert_row(const BtPattern * const self, const gulong tick);
 void bt_pattern_delete_row(const BtPattern * const self, const gulong tick);

@@ -60,9 +60,8 @@
 //-- signal ids
 
 enum {
-  GLOBAL_PARAM_CHANGED_EVENT,
-  VOICE_PARAM_CHANGED_EVENT,
-  WIRE_PARAM_CHANGED_EVENT,
+  PARAM_CHANGED_EVENT,
+  GROUP_CHANGED_EVENT,
   PATTERN_CHANGED_EVENT,
   LAST_SIGNAL
 };
@@ -92,9 +91,15 @@ struct _BtPatternPrivate {
   BtValueGroup *global_value_group;
   BtValueGroup **voice_value_groups;
   GHashTable *wire_value_groups;
+  GHashTable *param_to_value_groups;
 };
 
 static guint signals[LAST_SIGNAL]={0,};
+
+//-- prototypes
+
+static BtValueGroup * new_value_group(const BtPattern * const self,BtParameterGroup *pg);
+static void del_value_group(const BtPattern * const self,BtValueGroup *vg);
 
 //-- the class
 
@@ -145,12 +150,12 @@ static void bt_pattern_resize_data_voices(const BtPattern * const self, const gu
   
   // unref old voices
   for(i=self->priv->voices;i<voices;i++) {
-    g_object_try_unref(self->priv->voice_value_groups[i]);
+    del_value_group(self,self->priv->voice_value_groups[i]);
   }
   self->priv->voice_value_groups=g_renew(BtValueGroup *,self->priv->voice_value_groups,self->priv->voices);
   // create new voices
   for(i=voices;i<self->priv->voices;i++) {
-    self->priv->voice_value_groups[i]=bt_value_group_new(bt_machine_get_voice_param_group(self->priv->machine,i), self->priv->length);
+    self->priv->voice_value_groups[i]=new_value_group(self,bt_machine_get_voice_param_group(self->priv->machine,i));
   }
 }
 
@@ -175,7 +180,7 @@ static void bt_pattern_on_setup_wire_added(BtSetup *setup, BtWire *wire, gconstp
   g_object_get(wire,"dst",&machine,NULL);
   if(machine==self->priv->machine) {
     g_hash_table_insert(self->priv->wire_value_groups,wire,
-        bt_value_group_new(bt_wire_get_param_group(wire), self->priv->length));
+        new_value_group(self,bt_wire_get_param_group(wire)));
   }
   g_object_unref(machine);
 }
@@ -186,9 +191,46 @@ static void bt_pattern_on_setup_wire_removed(BtSetup *setup, BtWire *wire, gcons
 
   g_object_get(wire,"dst",&machine,NULL);
   if(machine==self->priv->machine) {
-    g_hash_table_remove(self->priv->wire_value_groups,wire);
+    BtValueGroup *vg;
+    if((vg=g_hash_table_lookup(self->priv->wire_value_groups,wire))) {
+      g_hash_table_steal(self->priv->wire_value_groups,wire);
+      del_value_group(self,vg);
+    }
   }
   g_object_unref(machine);
+}
+
+static void bt_pattern_on_param_changed(const BtValueGroup * const group, BtParameterGroup *param_group, const gulong tick, const gulong param, gpointer user_data) {
+  g_signal_emit(user_data,signals[PARAM_CHANGED_EVENT],0,param_group,tick,param);
+}
+
+static void bt_pattern_on_group_changed(const BtValueGroup * const group, BtParameterGroup *param_group, const gulong tick, gpointer user_data) {
+  g_signal_emit(user_data,signals[GROUP_CHANGED_EVENT],0,param_group,tick);
+}
+
+//-- helper methods
+
+static BtValueGroup * new_value_group(const BtPattern * const self,BtParameterGroup *pg) {
+  BtValueGroup *vg;
+  
+  vg=bt_value_group_new(pg,self->priv->length);
+  // attach signal handlers
+  g_signal_connect(vg,"param-changed",G_CALLBACK(bt_pattern_on_param_changed),(gpointer)self);
+  g_signal_connect(vg,"group-changed",G_CALLBACK(bt_pattern_on_group_changed),(gpointer)self);
+  
+  g_hash_table_insert(self->priv->param_to_value_groups,pg,vg);
+  
+  return(vg);
+}
+
+static void del_value_group(const BtPattern * const self,BtValueGroup *vg) {
+  BtParameterGroup *pg;
+  
+  g_object_get(vg,"parameter-group",&pg,NULL);
+  
+  g_hash_table_remove(self->priv->param_to_value_groups,pg);
+  g_object_unref(pg);
+  g_object_try_unref(vg);
 }
 
 //-- constructor methods
@@ -336,12 +378,7 @@ GValue *bt_pattern_get_wire_event_data(const BtPattern * const self, const gulon
 gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong tick, const gulong param, const gchar * const value) {
   g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
 
-  gboolean res=bt_value_group_set_event(self->priv->global_value_group,tick,param,value);
-  if(res) {
-    // notify others that the data has been changed
-    g_signal_emit((gpointer)self,signals[GLOBAL_PARAM_CHANGED_EVENT],0,tick,param);
-  }
-  return(res);
+  return bt_value_group_set_event(self->priv->global_value_group,tick,param,value);
 }
 
 /**
@@ -360,12 +397,7 @@ gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong t
   g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
   g_return_val_if_fail(voice<self->priv->voices,FALSE);
 
-  gboolean res=bt_value_group_set_event(self->priv->voice_value_groups[voice],tick,param,value);
-  if(res) {
-    // notify others that the data has been changed
-    g_signal_emit((gpointer)self,signals[VOICE_PARAM_CHANGED_EVENT],0,tick,voice,param);
-  }
-  return(res);
+  return bt_value_group_set_event(self->priv->voice_value_groups[voice],tick,param,value);
 }
 
 /**
@@ -387,12 +419,7 @@ gboolean bt_pattern_set_wire_event(const BtPattern * const self, const gulong ti
   g_return_val_if_fail(BT_IS_WIRE(wire),FALSE);
 
   if((vg=g_hash_table_lookup(self->priv->wire_value_groups,wire))) {
-    gboolean res=bt_value_group_set_event(vg,tick,param,value);
-    if(res) {
-      // notify others that the data has been changed
-      g_signal_emit((gpointer)self,signals[WIRE_PARAM_CHANGED_EVENT],0,tick,wire,param);
-    }
-    return res;
+    return bt_value_group_set_event(vg,tick,param,value);
   }
   return FALSE;
 }
@@ -567,6 +594,12 @@ BtValueGroup *bt_pattern_get_wire_group(const BtPattern * const self, const BtWi
   return g_hash_table_lookup(self->priv->wire_value_groups,wire);
 }
 
+BtValueGroup *bt_pattern_get_group_by_parameter_group(const BtPattern * const self, BtParameterGroup *param_group) {
+  g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
+  g_return_val_if_fail(BT_IS_PARAMETER_GROUP(param_group),NULL);
+
+  return  g_hash_table_lookup(self->priv->param_to_value_groups,param_group);
+}
 
 /**
  * bt_pattern_insert_row:
@@ -937,14 +970,14 @@ static void bt_pattern_constructed(GObject *object) {
   
   GST_DEBUG("set the machine for pattern: %p (machine-ref_ct=%d)",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
   
-  self->priv->global_value_group=bt_value_group_new(bt_machine_get_global_param_group(self->priv->machine), self->priv->length);
+  self->priv->global_value_group=new_value_group(self,bt_machine_get_global_param_group(self->priv->machine));
   // add initial voices
   bt_pattern_on_voices_changed(self->priv->machine,NULL,(gpointer)self);
   // add initial wires
   for(node=self->priv->machine->dst_wires;node;node=g_list_next(node)) {
     wire=BT_WIRE(node->data);
     g_hash_table_insert(self->priv->wire_value_groups,wire,
-      bt_value_group_new(bt_wire_get_param_group(wire), self->priv->length));
+      new_value_group(self,bt_wire_get_param_group(wire)));
   }
 
   g_signal_connect(self->priv->machine,"notify::voices",G_CALLBACK(bt_pattern_on_voices_changed),(gpointer)self);
@@ -1008,6 +1041,7 @@ static void bt_pattern_dispose(GObject * const object) {
     g_object_try_unref(self->priv->voice_value_groups[i]);
   }
   g_hash_table_destroy(self->priv->wire_value_groups);
+  g_hash_table_destroy(self->priv->param_to_value_groups);
 
   if(self->priv->machine) {
     g_signal_handlers_disconnect_matched(self->priv->machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_pattern_on_voices_changed,(gpointer)self);
@@ -1043,6 +1077,7 @@ static void bt_pattern_finalize(GObject * const object) {
 static void bt_pattern_init(BtPattern *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PATTERN, BtPatternPrivate);
   self->priv->wire_value_groups=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
+  self->priv->param_to_value_groups=g_hash_table_new(NULL,NULL);
 }
 
 static void bt_pattern_class_init(BtPatternClass * const klass) {
@@ -1057,67 +1092,51 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
   gobject_class->finalize     = bt_pattern_finalize;
 
   /**
-   * BtPattern::global-param-changed:
+   * BtPattern::param-changed:
    * @self: the pattern object that emitted the signal
+   * @param_group: the parameter group
    * @tick: the tick position inside the pattern
-   * @param: the global parameter index
+   * @param: the parameter index
    *
-   * Signals that a global param of this pattern has been changed.
+   * Signals that a param of this pattern has been changed.
    */
-  signals[GLOBAL_PARAM_CHANGED_EVENT] = g_signal_new("global-param-changed",
-                                        G_TYPE_FROM_CLASS(klass),
-                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        0,
-                                        NULL, // accumulator
-                                        NULL, // acc data
-                                        bt_marshal_VOID__ULONG_ULONG,
-                                        G_TYPE_NONE, // return type
-                                        2, // n_params
-                                        G_TYPE_ULONG,G_TYPE_ULONG // param data
-                                        );
+  signals[PARAM_CHANGED_EVENT] = g_signal_new("param-changed",
+                                 G_TYPE_FROM_CLASS(klass),
+                                 G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                 0,
+                                 NULL, // accumulator
+                                 NULL, // acc data
+                                 bt_marshal_VOID__OBJECT_ULONG_ULONG,
+                                 G_TYPE_NONE, // return type
+                                 3, // n_params
+                                 BT_TYPE_PARAMETER_GROUP,G_TYPE_ULONG,G_TYPE_ULONG // param data
+                                 );
 
   /**
-   * BtPattern::voice-param-changed:
+   * BtPattern::group-changed:
    * @self: the pattern object that emitted the signal
-   * @tick: the tick position inside the pattern
-   * @voice: the voice number
-   * @param: the voice parameter index
+   * @param_group: the parameter group
+   * @intermediate: flag that is %TRUE to signal that more change are coming
    *
-   * Signals that a voice param of this pattern has been changed.
+   * Signals that a group of this pattern has been changed (more than in one 
+   * place).
+   * When doing e.g. line inserts, one will receive two updates, one before and
+   * one after. The first will have @intermediate=%TRUE. Applications can use
+   * that to defer change-consolidation.
    */
-  signals[VOICE_PARAM_CHANGED_EVENT] = g_signal_new("voice-param-changed",
-                                        G_TYPE_FROM_CLASS(klass),
-                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        0,
-                                        NULL, // accumulator
-                                        NULL, // acc data
-                                        bt_marshal_VOID__ULONG_ULONG_ULONG,
-                                        G_TYPE_NONE, // return type
-                                        3, // n_params
-                                        G_TYPE_ULONG,G_TYPE_ULONG,G_TYPE_ULONG // param data
-                                        );
+  signals[GROUP_CHANGED_EVENT] = g_signal_new("group-changed",
+                                    G_TYPE_FROM_CLASS(klass),
+                                    G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                    0,
+                                    NULL, // accumulator
+                                    NULL, // acc data
+                                    bt_marshal_VOID__OBJECT_BOOLEAN,
+                                    G_TYPE_NONE, // return type
+                                    2, // n_params
+                                    BT_TYPE_PARAMETER_GROUP,G_TYPE_BOOLEAN
+                                    );
 
-  /**
-   * BtPattern::wire-param-changed:
-   * @self: the pattern object that emitted the signal
-   * @tick: the tick position inside the pattern
-   * @wire: the wire object
-   * @param: the wire parameter index
-   *
-   * Signals that a wire param of this pattern has been changed.
-   */
-  signals[WIRE_PARAM_CHANGED_EVENT] = g_signal_new("wire-param-changed",
-                                        G_TYPE_FROM_CLASS(klass),
-                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        0,
-                                        NULL, // accumulator
-                                        NULL, // acc data
-                                        bt_marshal_VOID__ULONG_OBJECT_ULONG,
-                                        G_TYPE_NONE, // return type
-                                        3, // n_params
-                                        G_TYPE_ULONG,BT_TYPE_WIRE,G_TYPE_ULONG // param data
-                                        );
-
+  
   /**
    * BtPattern::pattern-changed:
    * @self: the pattern object that emitted the signal

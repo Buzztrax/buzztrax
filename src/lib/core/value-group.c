@@ -240,7 +240,7 @@ gboolean bt_value_group_set_event(const BtValueGroup * const self, const gulong 
     }
     if(res) {
       // notify others that the data has been changed
-      g_signal_emit((gpointer)self,signals[PARAM_CHANGED_EVENT],0,tick,param);
+      g_signal_emit((gpointer)self,signals[PARAM_CHANGED_EVENT],0,self->priv->param_group,tick,param);
     }
   }
   else {
@@ -293,7 +293,7 @@ gboolean bt_value_group_test_event(const BtValueGroup * const self, const gulong
 
   const GValue * const event=bt_value_group_get_event_data_unchecked(self,tick,param);
 
-  return (event && BT_IS_GVALUE(event));
+  return (BT_IS_GVALUE(event));
 }
 
 /**
@@ -365,9 +365,9 @@ void bt_value_group_insert_row(const BtValueGroup * const self, const gulong tic
   g_return_if_fail(tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,TRUE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
   _insert_row(self,tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 /**
@@ -386,11 +386,11 @@ void bt_value_group_insert_full_row(const BtValueGroup * const self, const gulon
 
   GST_DEBUG("insert full-row at %lu", tick);
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,TRUE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
   for(j=0;j<params;j++) {
     _insert_row(self,tick,j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 
@@ -433,9 +433,9 @@ void bt_value_group_delete_row(const BtValueGroup * const self, const gulong tic
   g_return_if_fail(tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,TRUE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
   _delete_row(self,tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 /**
@@ -454,11 +454,11 @@ void bt_value_group_delete_full_row(const BtValueGroup * const self, const gulon
 
   GST_DEBUG("insert full-row at %lu", tick);
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,TRUE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
   for(j=0;j<params;j++) {
     _delete_row(self,tick,j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 
@@ -491,9 +491,9 @@ void bt_value_group_clear_column(const BtValueGroup * const self, const gulong s
   g_return_if_fail(end_tick<self->priv->length);
   g_return_if_fail(self->priv->data);
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,TRUE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
   _clear_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 /**
@@ -514,11 +514,11 @@ void bt_value_group_clear_columns(const BtValueGroup * const self, const gulong 
 
   gulong j,params=self->priv->params;
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,TRUE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
   for(j=0;j<params;j++) {
     _clear_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 
@@ -613,7 +613,7 @@ void bt_value_group_blend_column(const BtValueGroup * const self, const gulong s
   g_return_if_fail(self->priv->data);
 
   _blend_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 /**
@@ -637,7 +637,7 @@ void bt_value_group_blend_columns(const BtValueGroup * const self, const gulong 
   for(j=0;j<params;j++) {
     _blend_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 
@@ -693,7 +693,7 @@ void bt_value_group_flip_column(const BtValueGroup * const self, const gulong st
   g_return_if_fail(self->priv->data);
 
   _flip_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 /**
@@ -717,7 +717,7 @@ void bt_value_group_flip_columns(const BtValueGroup * const self, const gulong s
   for(j=0;j<params;j++) {
     _flip_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 
@@ -805,7 +805,7 @@ void bt_value_group_randomize_column(const BtValueGroup * const self, const gulo
   g_return_if_fail(self->priv->data);
 
   _randomize_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 /**
@@ -829,7 +829,7 @@ void bt_value_group_randomize_columns(const BtValueGroup * const self, const gul
   for(j=0;j<params;j++) {
     _randomize_column(self,start_tick,end_tick,j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,FALSE);
+  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
 }
 
 
@@ -1019,8 +1019,6 @@ static void bt_value_group_dispose(GObject * const object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  //g_object_try_unref(self->priv->param_group);
-  
   G_OBJECT_CLASS(bt_value_group_parent_class)->dispose(object);
 }
 
@@ -1065,6 +1063,7 @@ static void bt_value_group_class_init(BtValueGroupClass * const klass) {
   /**
    * BtValueGroup::param-changed:
    * @self: the value-group object that emitted the signal
+   * @param_group: the parameter group
    * @tick: the tick position inside the pattern
    * @param: the parameter index
    *
@@ -1076,10 +1075,10 @@ static void bt_value_group_class_init(BtValueGroupClass * const klass) {
                                  0,
                                  NULL, // accumulator
                                  NULL, // acc data
-                                 bt_marshal_VOID__ULONG_OBJECT_ULONG,
+                                 bt_marshal_VOID__OBJECT_ULONG_ULONG,
                                  G_TYPE_NONE, // return type
-                                 2, // n_params
-                                 G_TYPE_ULONG,G_TYPE_ULONG // param data
+                                 3, // n_params
+                                 BT_TYPE_PARAMETER_GROUP,G_TYPE_ULONG,G_TYPE_ULONG // param data
                                  );
 
   /**
@@ -1098,10 +1097,10 @@ static void bt_value_group_class_init(BtValueGroupClass * const klass) {
                                     0,
                                     NULL, // accumulator
                                     NULL, // acc data
-                                    g_cclosure_marshal_VOID__BOOLEAN,
+                                    bt_marshal_VOID__OBJECT_BOOLEAN,
                                     G_TYPE_NONE, // return type
-                                    0, // n_params
-                                    G_TYPE_BOOLEAN
+                                    3, // n_params
+                                    BT_TYPE_PARAMETER_GROUP,G_TYPE_BOOLEAN
                                     );
 
   g_object_class_install_property(gobject_class,VALUE_GROUP_PARAMETER_GROUP,
