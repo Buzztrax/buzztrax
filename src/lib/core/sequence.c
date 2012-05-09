@@ -450,6 +450,84 @@ static void bt_sequence_invalidate_pattern_group(const BtSequence * const self, 
   }
 }
 
+static BtPattern *bt_sequence_lookup_other_pattern(const BtSequence * const self, const gulong track, gulong time, gulong *other_pattern_time, gulong *_damage_length) {
+  gulong damage_length=*_damage_length;
+  const gulong sequence_length=self->priv->length;
+  const gulong pattern_length=damage_length;
+  gulong i,j;
+  BtPattern *other_pattern=NULL;
+
+  // check if from time-1 to 0 a pattern starts with a length that would reach
+  // over this pattern and if so expand damage_length
+  if(time>0) {
+  	gulong other_pattern_length;
+  	BtCmdPattern *other_cmd_pattern;
+
+  	// for long sequences we could speedup by knowing the max-pattern-length per machine
+  	for(i=time,j=time-1;i>0;i--,j--) {
+  		if((other_cmd_pattern=bt_sequence_get_pattern_unchecked(self,j,track))) {
+ 				*other_pattern_time=j;
+ 				if(BT_IS_PATTERN(other_cmd_pattern)) {
+ 				  other_pattern=(BtPattern *)other_cmd_pattern;
+          g_object_get(other_pattern,"length",&other_pattern_length,NULL);
+          if(j+other_pattern_length>time+damage_length) {
+            damage_length=(j+other_pattern_length)-time;
+          } else {
+            // we don't need to check other_pattern for needed repairs
+            other_pattern=NULL;
+          }
+        }
+  		  break;
+  		}
+  	}
+  }
+  // result: damage_length, other_pattern
+
+  // check if from time+1 to time+pattern_length another pattern starts (in this track)
+  // and if so truncate damage_length
+  for(i=1;((i<pattern_length) && (time+i<sequence_length));i++) {
+    if(bt_sequence_test_pattern(self,time+i,track)) {
+    	damage_length=i;
+    	if(damage_length<=pattern_length) {
+				// we don't need to check other_pattern for needed repairs
+    		other_pattern=NULL;
+    	}
+    	break;
+    }
+  }
+  *_damage_length=damage_length;
+  return(other_pattern);
+}
+
+static void bt_sequence_invalidate_pattern_group_region(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern, BtParameterGroup *param_group) {
+  BtPattern *other_pattern=NULL;
+  BtValueGroup *vg;
+  BtMachine *machine;
+  gulong pattern_length,damage_length,other_pattern_time=0;
+  gulong start=0,length;
+
+  g_object_get((gpointer)pattern,"length",&pattern_length,"machine",&machine,NULL);
+
+  // check if there is overlap
+  damage_length=pattern_length;
+  other_pattern=bt_sequence_lookup_other_pattern(self,track,time,&other_pattern_time,&damage_length);
+	length=MIN(pattern_length,damage_length);
+	if(other_pattern) {
+		// we also need to repair the overlapping region
+    start=time-other_pattern_time;
+ 	}
+ 	
+ 	GST_LOG("doing repair: p: 0 .. %lu, %s: %lu .. %lu",
+ 		  length,(other_pattern?"op":"--"),start,damage_length);
+
+  vg=bt_pattern_get_group_by_parameter_group(pattern,param_group);
+  bt_sequence_invalidate_pattern_group(self,machine,param_group,vg,0,length,time);
+  if(other_pattern) {
+    vg=bt_pattern_get_group_by_parameter_group(other_pattern,param_group);
+    bt_sequence_invalidate_pattern_group(self,machine,param_group,vg,start,start+length,time-start);
+  }
+}
+
 /*
  * bt_sequence_invalidate_pattern_region:
  * @self: the sequence that hold the patterns
@@ -463,13 +541,12 @@ static void bt_sequence_invalidate_pattern_group(const BtSequence * const self, 
  * pattern to handle truncation.
  */
 static void bt_sequence_invalidate_pattern_region(const BtSequence * const self, const gulong time, const gulong track, const BtCmdPattern * const cmd_pattern) {
-  const gulong sequence_length=self->priv->length;
   BtPattern *pattern=NULL,*other_pattern=NULL;
   BtParameterGroup *pg;
   BtValueGroup *vg;
   BtMachine *machine;
   GList *node;
-  gulong i,j,k;
+  gulong k;
   gulong pattern_length,damage_length,other_pattern_time=0;
   gulong voices;
   gulong start=0,length;
@@ -532,46 +609,10 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
   }
   g_assert(machine);
   g_object_get(machine,"voices",&voices,NULL);
+
+  // check if there is overlap
   damage_length=pattern_length;
-  
-  // check if from time-1 to 0 a pattern starts with a length that would reach
-  // over this pattern and if so expand damage_length
-  if(time>0) {
-  	gulong other_pattern_length;
-  	BtCmdPattern *other_cmd_pattern;
-
-  	// for long sequences we could speedup by knowing the max-pattern-length per machine
-  	for(i=time,j=time-1;i>0;i--,j--) {
-  		if((other_cmd_pattern=bt_sequence_get_pattern_unchecked(self,j,track))) {
- 				other_pattern_time=j;
- 				if(BT_IS_PATTERN(other_cmd_pattern)) {
- 				  other_pattern=(BtPattern *)other_cmd_pattern;
-          g_object_get(other_pattern,"length",&other_pattern_length,NULL);
-          if(j+other_pattern_length>time+damage_length) {
-            damage_length=(j+other_pattern_length)-time;
-          } else {
-            // we don't need to check other_pattern for needed repairs
-            other_pattern=NULL;
-          }
-        }
-  		  break;
-  		}
-  	}
-  }
-
-  // check if from time+1 to time+pattern_length another pattern starts (in this track)
-  // and if so truncate damage_length
-  for(i=1;((i<pattern_length) && (time+i<sequence_length));i++) {
-    if(bt_sequence_test_pattern(self,time+i,track)) {
-    	damage_length=i;
-    	if(damage_length<=pattern_length) {
-				// we don't need to check other_pattern for needed repairs
-    		other_pattern=NULL;
-    	}
-    	break;
-    }
-  }
-
+  other_pattern=bt_sequence_lookup_other_pattern(self,track,time,&other_pattern_time,&damage_length);
 	length=MIN(pattern_length,damage_length);
 	if(other_pattern) {
 		// we also need to repair the overlapping region
@@ -801,8 +842,7 @@ static void bt_sequence_on_pattern_group_changed(const BtPattern * const pattern
         BtCmdPattern * const that_pattern=bt_sequence_get_pattern_unchecked(self,j,i);
         if(that_pattern==(BtCmdPattern *)pattern) {
           // mark region covered by change as damaged
-          // TODO(ensonic): need variant for a single group
-          bt_sequence_invalidate_pattern_region(self,j,i,(BtCmdPattern *)pattern);
+          bt_sequence_invalidate_pattern_group_region(self,j,i,pattern,param_group);          
         }
       }
     }
