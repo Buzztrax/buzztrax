@@ -469,8 +469,148 @@ BT_START_TEST(test_btsequence_change_pattern) {
 }
 BT_END_TEST
 
+BT_START_TEST(test_btsequence_combine_pattern_shadows) {
+  BtApplication *app;
+  GError *err=NULL;
+  BtSong *song;
+  BtSequence *sequence;
+  BtMachine *machine;
+  BtPattern *pattern1,*pattern2;
+  GstObject *element;
+  gulong val;
+  GstClockTime tick_time;
 
-BT_START_TEST(test_btsequence_ctrl_two_tracks) {
+  /* create app and song */
+  app=bt_test_application_new();
+  song=bt_song_new(app);
+  g_object_get(song,"sequence",&sequence,NULL);
+   /* create a source machine and get the gstreamer element */
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err));
+  fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  /* create patterns */
+  pattern1=bt_pattern_new(song,"pattern1","pattern1",8L,machine);
+  fail_unless(pattern1!=NULL, NULL);
+  pattern2=bt_pattern_new(song,"pattern2","pattern2",8L,machine);
+  fail_unless(pattern2!=NULL, NULL);
+
+  /* setup sequence */
+  g_object_set(sequence,"length",16L,NULL);
+  bt_sequence_add_track(sequence,machine,-1);
+  tick_time=bt_sequence_get_bar_time(sequence);
+
+  /* set patterns */
+  bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern1);
+  bt_sequence_set_pattern(sequence,4,0,(BtCmdPattern *)pattern2);
+
+  /* value in 2nd pattern shadows above */
+  bt_pattern_set_global_event(pattern1,0,0,"50");
+  bt_pattern_set_global_event(pattern1,4,0,"100");
+  bt_pattern_set_global_event(pattern2,0,0,"200");
+
+  g_object_get(machine,"machine",&element,NULL);
+
+  /* pull in the change */
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(0)*tick_time);
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(4)*tick_time);
+
+  /* and verify */
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==200, NULL);
+
+  /* unset pattern */
+  bt_sequence_set_pattern(sequence,4,0,NULL);
+
+  /* pull in the change */
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(0)*tick_time);
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(4)*tick_time);
+
+  /* and verify */
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==100, NULL);
+
+  /* clean up */
+  gst_object_unref(element);
+  g_object_unref(pattern1);
+  g_object_unref(pattern2);
+  g_object_unref(machine);
+  g_object_unref(sequence);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+BT_START_TEST(test_btsequence_combine_value_shadows) {
+  BtApplication *app;
+  GError *err=NULL;
+  BtSong *song;
+  BtSequence *sequence;
+  BtMachine *machine;
+  BtPattern *pattern1,*pattern2;
+  GstObject *element;
+  gulong val;
+  GstClockTime tick_time;
+
+  /* create app and song */
+  app=bt_test_application_new();
+  song=bt_song_new(app);
+  g_object_get(song,"sequence",&sequence,NULL);
+   /* create a source machine and get the gstreamer element */
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err));
+  fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  /* create patterns */
+  pattern1=bt_pattern_new(song,"pattern1","pattern1",8L,machine);
+  fail_unless(pattern1!=NULL, NULL);
+  pattern2=bt_pattern_new(song,"pattern2","pattern2",8L,machine);
+  fail_unless(pattern2!=NULL, NULL);
+
+  /* setup sequence */
+  g_object_set(sequence,"length",16L,NULL);
+  bt_sequence_add_track(sequence,machine,-1);
+  tick_time=bt_sequence_get_bar_time(sequence);
+
+  /* set patterns */
+  bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern1);
+  bt_sequence_set_pattern(sequence,4,0,(BtCmdPattern *)pattern2);
+
+  bt_pattern_set_global_event(pattern1,0,0,"50");
+  bt_pattern_set_global_event(pattern1,4,0,"100");
+  bt_pattern_set_global_event(pattern2,0,0,"200");
+
+  g_object_get(machine,"machine",&element,NULL);
+
+  /* pull in the change */
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(0)*tick_time);
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(4)*tick_time);
+
+  /* and verify */
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==200, NULL);
+
+  /* unset value in 2nd pattern */
+  bt_pattern_set_global_event(pattern2,0,0,NULL);
+
+  /* pull in the change */
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(0)*tick_time);
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(4)*tick_time);
+
+  /* and verify */
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==50, NULL);
+
+  /* clean up */
+  gst_object_unref(element);
+  g_object_unref(pattern1);
+  g_object_unref(pattern2);
+  g_object_unref(machine);
+  g_object_unref(sequence);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+BT_START_TEST(test_btsequence_combine_two_tracks) {
   BtApplication *app;
   GError *err=NULL;
   BtSong *song;
@@ -493,8 +633,9 @@ BT_START_TEST(test_btsequence_ctrl_two_tracks) {
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   fail_unless(pattern!=NULL, NULL);
 
-  /* enlarge length */
+  /* setup sequence */
   g_object_set(sequence,"length",4L,NULL);
+  tick_time=bt_sequence_get_bar_time(sequence);
 
   /* add two tracks for the machine */
   bt_sequence_add_track(sequence,machine,-1);
@@ -508,22 +649,16 @@ BT_START_TEST(test_btsequence_ctrl_two_tracks) {
   bt_pattern_set_global_event(pattern,1,0,"100");
 
   g_object_get(machine,"machine",&element,NULL);
-
-  /* we should still have the default value */
-  g_object_get(element,"g-ulong",&val,NULL);
-  fail_unless(val==0, NULL);
   
-  tick_time=bt_sequence_get_bar_time(sequence);
-
   /* pull in the change for timestamp of the 1st tick */
-  gst_object_sync_values(G_OBJECT(element),0*tick_time);
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(0)*tick_time);
 
   /* and verify */
   g_object_get(element,"g-ulong",&val,NULL);
   fail_unless(val==50, NULL);
 
   /* pull in the change for timestamp of the 2nd tick */
-  gst_object_sync_values(G_OBJECT(element),1*tick_time);
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(1)*tick_time);
 
   /* and verify */
   g_object_get(element,"g-ulong",&val,NULL);
@@ -533,7 +668,7 @@ BT_START_TEST(test_btsequence_ctrl_two_tracks) {
   bt_sequence_set_pattern(sequence,1,1,NULL);
 
   /* pull in the change for timestamp of the 2nd tick */
-  gst_object_sync_values(G_OBJECT(element),1*tick_time);
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(1)*tick_time);
 
   /* and verify */
   g_object_get(element,"g-ulong",&val,NULL);
@@ -548,7 +683,6 @@ BT_START_TEST(test_btsequence_ctrl_two_tracks) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
-
 
 typedef struct {
   gint ct;
@@ -700,7 +834,9 @@ TCase *bt_sequence_example_case(void) {
   tcase_add_test(tc,test_btsequence_enlarge_both_vals);
   //tcase_add_test(tc,test_btsequence_update);
   tcase_add_test(tc,test_btsequence_change_pattern);
-  tcase_add_test(tc,test_btsequence_ctrl_two_tracks);
+  tcase_add_test(tc,test_btsequence_combine_pattern_shadows);
+  tcase_add_test(tc,test_btsequence_combine_value_shadows);
+  tcase_add_test(tc,test_btsequence_combine_two_tracks);
   tcase_add_test(tc,test_btsequence_ticks);
   tcase_add_test(tc,test_btsequence_validate_loop);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
