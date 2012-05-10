@@ -407,46 +407,45 @@ static void bt_sequence_limit_play_pos_internal(const BtSequence * const self) {
   }
 }
 
-static void bt_sequence_invalidate_param(const BtSequence * const self, const BtMachine * const machine, BtParameterGroup *param_group, const gulong time, const gulong param) {
-  GHashTable *hash,*time_hash=NULL;
-  GList *params=NULL;
-  
-  GST_LOG_OBJECT(machine,"invalidate param %2lu in pg %p at tick %5lu",param,param_group,time);
+static GHashTable *bt_sequence_get_damage_ctx_for_machine(GHashTable *dctx, const BtMachine * const machine) {
+  GHashTable *mctx=g_hash_table_lookup(dctx,(gpointer)machine);
+  if(!mctx) {
+    GST_LOG_OBJECT(machine,"create damage ctx for machine");
+    mctx=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_hash_table_destroy);
+    g_hash_table_insert(dctx,(gpointer)machine,mctx);
+  }
+  return(mctx);
+}
 
-  // mark region covered by change as damaged
-  hash=g_hash_table_lookup(self->priv->damage,machine);
-  if(!hash) {
-    GST_LOG_OBJECT(machine,"create damage region for machine");
-    hash=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_hash_table_destroy);
-    g_hash_table_insert(self->priv->damage,(gpointer)machine,hash);
+static GHashTable *bt_sequence_get_damage_ctx_for_time(GHashTable *mctx, const gulong time) {
+  GHashTable *tctx=g_hash_table_lookup(mctx,GUINT_TO_POINTER(time));
+  if(!tctx) {
+    GST_LOG("create damage ctx for time %5lu",time);
+    tctx=g_hash_table_new(NULL,NULL);
+    g_hash_table_insert(mctx,GUINT_TO_POINTER(time),tctx);
   }
-  else {
-    time_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(time));
-  }
-  if(!time_hash) {
-    GST_LOG_OBJECT(machine,"create damage region for time %lu",time);
-    time_hash=g_hash_table_new(NULL,NULL);
-    g_hash_table_insert(hash,GUINT_TO_POINTER(time),time_hash);
-  }
-  params=g_list_prepend(g_hash_table_lookup(time_hash,param_group),GUINT_TO_POINTER(param));
-  g_hash_table_insert(time_hash,param_group,params);
+  return(tctx);
 }
 
 static void bt_sequence_invalidate_pattern_group(const BtSequence * const self, BtMachine *machine, BtParameterGroup *pg, BtValueGroup *vg, gulong is, gulong ie, gulong time) {
   gulong i,j,num_params;
+  GHashTable *mctx=bt_sequence_get_damage_ctx_for_machine(self->priv->damage,machine);
   
   g_object_get(pg,"num-params",&num_params,NULL);
   
   GST_LOG("invalidate pg %p, vg %p for tick=%5lu + %3lu ... %3lu, num-params=%lu",pg,vg,time,is,ie,num_params);
 
   for(i=is;i<ie;i++) {
-    // check wire params
+    GHashTable *tctx=bt_sequence_get_damage_ctx_for_time(mctx,time+i);
+    GSList *params=g_hash_table_lookup(tctx,pg);
+    // check group params
     for(j=0;j<num_params;j++) {
       // mark region covered by change as damaged
       if(bt_value_group_test_event(vg,i,j)) {
-        bt_sequence_invalidate_param(self,machine,pg,time+i,j);
+        params=g_slist_prepend(params,GUINT_TO_POINTER(j));
       }
     }
+    g_hash_table_insert(tctx,pg,params);
   }
 }
 
@@ -619,14 +618,28 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
     start=time-other_pattern_time;
  	}
  	
- 	GST_LOG("doing repair: p: 0 .. %lu, %s: %lu .. %lu",
- 		  length,(other_pattern?"op":"--"),start,damage_length);
+ 	GST_LOG("doing repair: p: 0 .. %lu @ %lu, %s: %lu .. %lu @ %lu",
+ 		  length,time,
+ 		  (other_pattern?"op":"--"),start,start+length,time-start);
  	
-  // mark region covered by new pattern as damaged
-  // check wires
-  GST_LOG("wire-groups");
-  for(node=machine->dst_wires;node;node=g_list_next(node)) {
-    pg=bt_wire_get_param_group(node->data);
+ 	if(length) {
+    // mark region covered by new pattern as damaged
+    // check wires
+    GST_LOG("wire-groups");
+    for(node=machine->dst_wires;node;node=g_list_next(node)) {
+      pg=bt_wire_get_param_group(node->data);
+      if(pattern) {
+        vg=bt_pattern_get_group_by_parameter_group(pattern,pg);
+        bt_sequence_invalidate_pattern_group(self,machine,pg,vg,0,length,time);
+      }
+      if(other_pattern) {
+        vg=bt_pattern_get_group_by_parameter_group(other_pattern,pg);
+        bt_sequence_invalidate_pattern_group(self,machine,pg,vg,start,start+length,time-start);
+      }
+    }
+    // check global params
+    GST_LOG("global-group");
+    pg=bt_machine_get_global_param_group(machine);
     if(pattern) {
       vg=bt_pattern_get_group_by_parameter_group(pattern,pg);
       bt_sequence_invalidate_pattern_group(self,machine,pg,vg,0,length,time);
@@ -635,31 +648,22 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
       vg=bt_pattern_get_group_by_parameter_group(other_pattern,pg);
       bt_sequence_invalidate_pattern_group(self,machine,pg,vg,start,start+length,time-start);
     }
-  }
-  // check global params
-  GST_LOG("global-group");
-  pg=bt_machine_get_global_param_group(machine);
-  if(pattern) {
-    vg=bt_pattern_get_group_by_parameter_group(pattern,pg);
-    bt_sequence_invalidate_pattern_group(self,machine,pg,vg,0,length,time);
-  }
-  if(other_pattern) {
-    vg=bt_pattern_get_group_by_parameter_group(other_pattern,pg);
-    bt_sequence_invalidate_pattern_group(self,machine,pg,vg,start,start+length,time-start);
-  }
-  // check voices
-  GST_LOG("voice-groups");
-  for(k=0;k<voices;k++) {
-    // check voice params
-    pg=bt_machine_get_voice_param_group(machine,k);
-    if(pattern) {
-      vg=bt_pattern_get_group_by_parameter_group(pattern,pg);
-      bt_sequence_invalidate_pattern_group(self,machine,pg,vg,0,length,time);
+    // check voices
+    GST_LOG("voice-groups");
+    for(k=0;k<voices;k++) {
+      // check voice params
+      pg=bt_machine_get_voice_param_group(machine,k);
+      if(pattern) {
+        vg=bt_pattern_get_group_by_parameter_group(pattern,pg);
+        bt_sequence_invalidate_pattern_group(self,machine,pg,vg,0,length,time);
+      }
+      if(other_pattern) {
+        vg=bt_pattern_get_group_by_parameter_group(other_pattern,pg);
+        bt_sequence_invalidate_pattern_group(self,machine,pg,vg,start,start+length,time-start);
+      }
     }
-    if(other_pattern) {
-      vg=bt_pattern_get_group_by_parameter_group(other_pattern,pg);
-      bt_sequence_invalidate_pattern_group(self,machine,pg,vg,start,start+length,time-start);
-    }
+  } else {
+    GST_WARNING("zero size region to invalidate");
   }
   g_object_unref(machine);
   GST_DEBUG("done");
@@ -728,7 +732,7 @@ typedef struct _RepairDamageEntriesData {
  */
 static gboolean bt_sequence_repair_damage_entries(gpointer key, gpointer value, gpointer user_data) {
   BtParameterGroup *pg=BT_PARAMETER_GROUP(key);
-  GList *node=(GList *)value;
+  GSList *node=(GSList *)value;
   RepairDamageEntriesData *hash_params=(RepairDamageEntriesData *)user_data;
   BtPattern **patterns=hash_params->patterns;
   gulong *positions=hash_params->positions;
@@ -736,7 +740,7 @@ static gboolean bt_sequence_repair_damage_entries(gpointer key, gpointer value, 
   
   GST_LOG("repair damage for param-group %p", pg);
 
-  for(;node;node=g_list_next(node)) {
+  for(;node;node=g_slist_next(node)) {
     gint i=0;
     guint p=GPOINTER_TO_UINT(node->data);
     BtValueGroup *vg;  
@@ -754,7 +758,7 @@ static gboolean bt_sequence_repair_damage_entries(gpointer key, gpointer value, 
     }
     bt_parameter_group_controller_change_value(pg,p,timestamp,res);
   }
-  g_list_free(value);
+  g_slist_free(value);
   return(TRUE);
 }
 
@@ -792,8 +796,10 @@ static void bt_sequence_on_pattern_param_changed(const BtPattern * const pattern
   const gulong length=self->priv->length;
   BtMachine *machine;
   gulong i,j,k;
+  GHashTable *mctx;
   
   g_object_get((gpointer)pattern,"machine",&machine,NULL);
+  mctx=bt_sequence_get_damage_ctx_for_machine(self->priv->damage,machine);
 
   GST_LOG_OBJECT(machine,"pattern parameter %5lu for pg %p at tick %5lu changed",param,param_group,tick); 
 
@@ -810,7 +816,9 @@ static void bt_sequence_on_pattern_param_changed(const BtPattern * const pattern
           }
           // for tick==0 we always invalidate
           if(!tick || k==tick) {
-            bt_sequence_invalidate_param(self,machine,param_group,j+tick,param);
+            GHashTable *tctx=bt_sequence_get_damage_ctx_for_time(mctx,j+tick);
+            GSList *params=g_slist_prepend(g_hash_table_lookup(tctx,param_group),GUINT_TO_POINTER(param));
+            g_hash_table_insert(tctx,param_group,params);
           }
         }
       }
