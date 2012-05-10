@@ -662,8 +662,6 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
         bt_sequence_invalidate_pattern_group(self,machine,pg,vg,start,start+length,time-start);
       }
     }
-  } else {
-    GST_WARNING("zero size region to invalidate");
   }
   g_object_unref(machine);
   GST_DEBUG("done");
