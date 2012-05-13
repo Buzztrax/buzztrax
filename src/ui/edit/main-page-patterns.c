@@ -1196,18 +1196,7 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self,BtWavetable *w
 typedef struct {
   gfloat (*val_to_float)(GValue *in, gpointer user_data);
   const gchar *(*float_to_str)(gfloat in, gpointer user_data);
-} BtPatternEditorColumnConvertersCallbacks;
-
-typedef struct {
-  BtPatternEditorColumnConvertersCallbacks callbacks;
   gfloat min,max;
-} BtPatternEditorColumnConvertersFloatCallbacks;
-
-typedef struct {
-  union {
-    BtPatternEditorColumnConvertersCallbacks any_cb;
-    BtPatternEditorColumnConvertersFloatCallbacks float_cb;
-  };
 } BtPatternEditorColumnConverters;
 
 static gfloat pattern_edit_get_data_at(gpointer pattern_data, gpointer column_data, guint row, guint track, guint param) {
@@ -1230,7 +1219,7 @@ static gfloat pattern_edit_get_data_at(gpointer pattern_data, gpointer column_da
   }
 
   if(val &&  BT_IS_GVALUE(val) && column_data) {
-    return ((BtPatternEditorColumnConvertersCallbacks *)column_data)->val_to_float(val,column_data);
+    return ((BtPatternEditorColumnConverters *)column_data)->val_to_float(val,column_data);
   }
   return group->columns[param].def;
 }
@@ -1246,7 +1235,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   gchar *old_str,*new_str;
 
   if(column_data)
-    str=((BtPatternEditorColumnConvertersCallbacks *)column_data)->float_to_str(value,column_data);
+    str=((BtPatternEditorColumnConverters *)column_data)->float_to_str(value,column_data);
   else
     if(value!=group->columns[param].def)
       str=bt_persistence_strfmt_double(value);
@@ -1427,7 +1416,7 @@ static gfloat note_enum_val_to_float(GValue *v, gpointer user_data) {
 
 static gfloat float_val_to_float(GValue *v, gpointer user_data) {
   // scale value into 0...65535 range
-  BtPatternEditorColumnConvertersFloatCallbacks *pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)user_data;
+  BtPatternEditorColumnConverters *pcc=(BtPatternEditorColumnConverters *)user_data;
   gdouble val=g_value_get_float(v);
   gdouble factor=65535.0/(pcc->max-pcc->min);
 
@@ -1437,7 +1426,7 @@ static gfloat float_val_to_float(GValue *v, gpointer user_data) {
 
 static gfloat double_val_to_float(GValue *v, gpointer user_data) {
   // scale value into 0...65535 range
-  BtPatternEditorColumnConvertersFloatCallbacks *pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)user_data;
+  BtPatternEditorColumnConverters *pcc=(BtPatternEditorColumnConverters *)user_data;
   gdouble val=g_value_get_double(v);
   gdouble factor=65535.0/(pcc->max-pcc->min);
 
@@ -1475,7 +1464,7 @@ static const gchar * note_float_to_str(gfloat in, gpointer user_data) {
 
 static const gchar * float_float_to_str(gfloat in, gpointer user_data) {
   // scale value from 0...65535 range
-  BtPatternEditorColumnConvertersFloatCallbacks *pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)user_data;
+  BtPatternEditorColumnConverters *pcc=(BtPatternEditorColumnConverters *)user_data;
   gdouble factor=65535.0/(pcc->max-pcc->min);
   gdouble val=pcc->min+(in/factor);
 
@@ -1487,41 +1476,31 @@ static const gchar * float_float_to_str(gfloat in, gpointer user_data) {
 
 static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec *property, GValue *min_val, GValue *max_val, GValue *no_val) {
   GType type=bt_g_type_get_base_type(property->value_type);
+  BtPatternEditorColumnConverters *pcc;
 
   GST_LOG("filling param type: '%s'::'%s'/'%s' for parameter '%s'",
     g_type_name(property->owner_type),g_type_name(type),
     g_type_name(property->value_type),property->name);
 
+  pcc=col->user_data=g_new(BtPatternEditorColumnConverters,1);
   switch(type) {
     case G_TYPE_STRING: {
-      BtPatternEditorColumnConvertersCallbacks *pcc;
-
       col->type=PCT_NOTE;
       col->min=GSTBT_NOTE_NONE;
       col->max=GSTBT_NOTE_LAST;
       col->def=GSTBT_NOTE_NONE;
-      col->user_data=g_new(BtPatternEditorColumnConverters,1);
-      pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
       pcc->val_to_float=note_number_val_to_float;
       pcc->float_to_str=note_float_to_str;
     } break;
     case G_TYPE_BOOLEAN: {
-      BtPatternEditorColumnConvertersCallbacks *pcc;
-
       col->type=PCT_SWITCH;
       col->min=0;
       col->max=1;
       col->def=BT_IS_GVALUE(no_val)?g_value_get_boolean(no_val):col->max+1;
-      col->user_data=g_new(BtPatternEditorColumnConverters,1);
-      pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
       pcc->val_to_float=boolean_val_to_float;
       pcc->float_to_str=any_float_to_str;
     } break;
     case G_TYPE_ENUM: {
-      BtPatternEditorColumnConvertersCallbacks *pcc;
-
-      col->user_data=g_new(BtPatternEditorColumnConverters,1);
-      pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
       pcc->val_to_float=enum_val_to_float;
       pcc->float_to_str=any_float_to_str;
       if(property->value_type==GSTBT_TYPE_TRIGGER_SWITCH) {
@@ -1547,8 +1526,6 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       }
     } break;
     case G_TYPE_INT: {
-      BtPatternEditorColumnConvertersCallbacks *pcc;
-
       col->type=PCT_WORD;
       col->min=g_value_get_int(min_val);
       col->max=g_value_get_int(max_val);
@@ -1556,14 +1533,10 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
-      col->user_data=g_new(BtPatternEditorColumnConverters,1);
-      pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
       pcc->val_to_float=int_val_to_float;
       pcc->float_to_str=any_float_to_str;
     } break;
     case G_TYPE_UINT: {
-      BtPatternEditorColumnConvertersCallbacks *pcc;
-
       col->type=PCT_WORD;
       col->min=g_value_get_uint(min_val);
       col->max=g_value_get_uint(max_val);
@@ -1571,22 +1544,16 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       if(col->min>=0 && col->max<256) {
         col->type=PCT_BYTE;
       }
-      col->user_data=g_new(BtPatternEditorColumnConverters,1);
-      pcc=(BtPatternEditorColumnConvertersCallbacks *)col->user_data;
       pcc->val_to_float=uint_val_to_float;
       pcc->float_to_str=any_float_to_str;
     } break;
     case G_TYPE_FLOAT: {
-      BtPatternEditorColumnConvertersFloatCallbacks *pcc;
-
       col->type=PCT_WORD;
       col->min=0.0;
       col->max=65535.0;
       col->def=col->max+1;
-      col->user_data=g_new(BtPatternEditorColumnConverters,1);
-      pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)col->user_data;
-      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->val_to_float=float_val_to_float;
-      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
+      pcc->val_to_float=float_val_to_float;
+      pcc->float_to_str=float_float_to_str;
       pcc->min=g_value_get_float(min_val);
       pcc->max=g_value_get_float(max_val);
       /* TODO(ensonic): need scaling
@@ -1604,18 +1571,14 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
        */
     } break;
     case G_TYPE_DOUBLE: {
-      BtPatternEditorColumnConvertersFloatCallbacks *pcc;
-
       col->type=PCT_WORD;
       col->min=0.0;
       col->max=65535.0;
       col->def=col->max+1;
-      col->user_data=g_new(BtPatternEditorColumnConverters,1);
-      pcc=(BtPatternEditorColumnConvertersFloatCallbacks *)col->user_data;
-      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->val_to_float=double_val_to_float;
-      ((BtPatternEditorColumnConvertersCallbacks*)pcc)->float_to_str=float_float_to_str;
+      pcc->val_to_float=double_val_to_float;
+      pcc->float_to_str=float_float_to_str;
       // identify wire-elements
-      // this is not the best way to identify a volume element
+      // TODO(ensonic): this is not the best way to identify a volume element
       // gst_registry_find_feature() is better but too slow here
       if(!strcmp(g_type_name(property->owner_type),"GstVolume")) {
         pcc->min=0.0;
@@ -1630,6 +1593,7 @@ static void pattern_edit_fill_column_type(BtPatternEditorColumn *col,GParamSpec 
       GST_WARNING("unhandled param type: '%s' for parameter '%s'",g_type_name(type),property->name);
       col->type=0;
       col->min=col->max=col->def=0;
+      g_free(col->user_data);
       col->user_data=NULL;
   }
   GST_INFO("%s parameter '%s' min/max/def : %6.4lf/%6.4lf/%6.4lf",g_type_name(type), property->name, col->min,col->max,col->def);
