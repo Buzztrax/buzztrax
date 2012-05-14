@@ -68,21 +68,6 @@ struct _BtPatternEditorColumn {
 typedef struct _BtPatternEditorColumn BtPatternEditorColumn;
 
 /**
- * BtPatternEditorColumnGroupType:
- * @PGT_WIRE: wire parameters
- * @PGT_GLOBAL: global parameters
- * @PGT_VOICE: voice parameters
- *
- * Column group type
- */
-enum _BtPatternEditorColumnGroupType {
-  PGT_WIRE=0,
-  PGT_GLOBAL,
-  PGT_VOICE
-};
-typedef enum _BtPatternEditorColumnGroupType BtPatternEditorColumnGroupType;
-
-/**
  * BtPatternEditorColumnGroup:
  * @type: group type
  * @name: group name
@@ -93,13 +78,13 @@ typedef enum _BtPatternEditorColumnGroupType BtPatternEditorColumnGroupType;
  * A group of #BtPatternEditorColumns, such as a voice or all global parameters.
  */
 struct _BtPatternEditorColumnGroup {
-  // just an id to tell groups apart
-  BtPatternEditorColumnGroupType type;
   // can be used for the headline above the group
   gchar *name;
   guint num_columns;
   BtPatternEditorColumn *columns;
-  gpointer user_data;
+  /* user_data for main-page-patterns */
+  BtValueGroup *vg;
+  gchar *fmt;
   /* < private > */
   /* in pixels for now, may change to chars some day when needed */
   guint width;

@@ -1115,10 +1115,13 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             bt_pattern_editor_refresh_cursor(self);
             if (self->group < self->num_groups - 1) {
               /* jump to same column when jumping from track to track, otherwise jump to first column of the group */
-              if (self->groups[self->group].type != self->groups[self->group + 1].type) {
-                self->parameter = 0; self->digit = 0;
-              }
               self->group++;
+              if (self->parameter>=self->groups[self->group].num_columns) {
+                self->parameter = self->groups[self->group].num_columns - 1;
+              }
+              if(self->groups[self->group].columns[self->parameter].type != self->groups[self->group - 1].columns[self->parameter].type) {
+                self->digit = 0;
+              }
               g_object_notify((gpointer)self,"cursor-group");
             }
             bt_pattern_editor_refresh_cursor_or_scroll (self);
@@ -1130,8 +1133,11 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             bt_pattern_editor_refresh_cursor(self);
             if (self->group > 0) {
               self->group--;
-              if (self->groups[self->group].type != self->groups[self->group + 1].type) {
-                self->parameter = 0; self->digit = 0;
+              if (self->parameter>=self->groups[self->group].num_columns) {
+                self->parameter = self->groups[self->group].num_columns - 1;
+              }
+              if(self->groups[self->group].columns[self->parameter].type != self->groups[self->group + 1].columns[self->parameter].type) {
+                self->digit = 0;
               }
               g_object_notify((gpointer)self,"cursor-group");
             }

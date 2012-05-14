@@ -615,7 +615,6 @@ BtPatternEditorCallbacks
 BtPatternEditorColumn
 BtPatternEditorColumnType
 BtPatternEditorColumnGroup
-BtPatternEditorColumnGroupType
 BtPatternEditorSelectionMode
 bt_pattern_editor_new
 bt_pattern_editor_set_pattern
