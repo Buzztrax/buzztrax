@@ -1099,7 +1099,7 @@ static void bt_value_group_class_init(BtValueGroupClass * const klass) {
                                     NULL, // acc data
                                     bt_marshal_VOID__OBJECT_BOOLEAN,
                                     G_TYPE_NONE, // return type
-                                    3, // n_params
+                                    2, // n_params
                                     BT_TYPE_PARAMETER_GROUP,G_TYPE_BOOLEAN
                                     );
 
