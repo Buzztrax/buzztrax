@@ -14,6 +14,10 @@
     * check g_main_context_set_poll_func()
     * or really *run* the main-loop (not just iterate)
       * for this our tests would be scattered over several signal handlers
+* review tests
+  * ensure we follow Given/When/Then style
+    http://en.wikipedia.org/wiki/Behavior_Driven_Development
+
 
 * new stats
   * http://www.chris-lott.org/resources/cmetrics/cyclo-2.0.tar.gz
@@ -187,20 +191,8 @@
 
 
 * pattern and main-page-patterns still contain bits of duplicated code
-  * fixup signals
-    * only sequence is using it (search for param-changed")
-    * the handlers adds the cells to the damage regions, which is a flat data-
-      structure, we need to calculate the offsets or introduce groups to also
-      simplify the repair api 
-    * instead of bt_sequence_repair_{global,voice,wire}_damage_entry()
-      we could use one function if we pass the value_group
-      * we don't have the pattern in bt_sequence_repair_damage() yet
   * review the pattern api and check if we should use the groups directly
     (run ./api-cleanup.sh to get a report of where the api is used)
-    * sequence:
-      * when repairing we still look up patterns
-    * main-page-patterns:
-      * we do a lot of switch(group->type) { PGT_WIRE,PGT_GLOBAL,PGT_VOICE }
 
 
 * generate a dependency matrix
