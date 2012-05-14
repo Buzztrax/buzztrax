@@ -980,7 +980,7 @@ static void bt_value_group_set_property(GObject * const object, const guint prop
 
   switch (property_id) {
     case VALUE_GROUP_PARAMETER_GROUP: {
-      self->priv->param_group = BT_PARAMETER_GROUP(g_value_get_object(value));
+      self->priv->param_group = BT_PARAMETER_GROUP(g_value_dup_object(value));
       g_object_get((gpointer)(self->priv->param_group),"num-params",&self->priv->params,NULL);
     } break;
     case VALUE_GROUP_LENGTH: {
@@ -1018,6 +1018,8 @@ static void bt_value_group_dispose(GObject * const object) {
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
+  
+  g_object_unref(self->priv->param_group);
 
   G_OBJECT_CLASS(bt_value_group_parent_class)->dispose(object);
 }
