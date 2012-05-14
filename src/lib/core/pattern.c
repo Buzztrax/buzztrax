@@ -148,13 +148,17 @@ static void bt_pattern_resize_data_length(const BtPattern * const self) {
 static void bt_pattern_resize_data_voices(const BtPattern * const self, const gulong voices) {
   gulong i;
   
+  GST_INFO("change voices from %lu -> %lu",voices, self->priv->voices);
+  
   // unref old voices
   for(i=self->priv->voices;i<voices;i++) {
+    GST_INFO("  del %lu", i);
     del_value_group(self,self->priv->voice_value_groups[i]);
   }
   self->priv->voice_value_groups=g_renew(BtValueGroup *,self->priv->voice_value_groups,self->priv->voices);
   // create new voices
   for(i=voices;i<self->priv->voices;i++) {
+    GST_INFO("  add %lu", i);
     self->priv->voice_value_groups[i]=new_value_group(self,bt_machine_get_voice_param_group(self->priv->machine,i));
   }
 }
@@ -204,13 +208,13 @@ static void bt_pattern_on_param_changed(const BtValueGroup * const group, BtPara
   g_signal_emit(user_data,signals[PARAM_CHANGED_EVENT],0,param_group,tick,param);
 }
 
-static void bt_pattern_on_group_changed(const BtValueGroup * const group, BtParameterGroup *param_group, const gulong tick, gpointer user_data) {
-  g_signal_emit(user_data,signals[GROUP_CHANGED_EVENT],0,param_group,tick);
+static void bt_pattern_on_group_changed(const BtValueGroup * const group, BtParameterGroup *param_group, const gboolean intermediate, gpointer user_data) {
+  g_signal_emit(user_data,signals[GROUP_CHANGED_EVENT],0,param_group,intermediate);
 }
 
 //-- helper methods
 
-static BtValueGroup * new_value_group(const BtPattern * const self,BtParameterGroup *pg) {
+static BtValueGroup *new_value_group(const BtPattern * const self,BtParameterGroup *pg) {
   BtValueGroup *vg;
   
   vg=bt_value_group_new(pg,self->priv->length);
@@ -218,7 +222,7 @@ static BtValueGroup * new_value_group(const BtPattern * const self,BtParameterGr
   g_signal_connect(vg,"param-changed",G_CALLBACK(bt_pattern_on_param_changed),(gpointer)self);
   g_signal_connect(vg,"group-changed",G_CALLBACK(bt_pattern_on_group_changed),(gpointer)self);
   
-  g_hash_table_insert(self->priv->param_to_value_groups,pg,vg);
+  g_hash_table_insert(self->priv->param_to_value_groups,pg,g_object_ref(vg));
   
   return(vg);
 }
@@ -226,11 +230,12 @@ static BtValueGroup * new_value_group(const BtPattern * const self,BtParameterGr
 static void del_value_group(const BtPattern * const self,BtValueGroup *vg) {
   BtParameterGroup *pg;
   
-  g_object_get(vg,"parameter-group",&pg,NULL);
+  GST_DEBUG("del vg %p, %d",vg, G_OBJECT_REF_COUNT(vg));
   
+  g_object_get(vg,"parameter-group",&pg,NULL);
   g_hash_table_remove(self->priv->param_to_value_groups,pg);
   g_object_unref(pg);
-  g_object_try_unref(vg);
+  g_object_unref(vg);
 }
 
 //-- constructor methods
@@ -633,7 +638,7 @@ BtValueGroup *bt_pattern_get_group_by_parameter_group(const BtPattern * const se
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
   g_return_val_if_fail(BT_IS_PARAMETER_GROUP(param_group),NULL);
 
-  return  g_hash_table_lookup(self->priv->param_to_value_groups,param_group);
+  return g_hash_table_lookup(self->priv->param_to_value_groups,param_group);
 }
 
 /**
@@ -1112,7 +1117,7 @@ static void bt_pattern_finalize(GObject * const object) {
 static void bt_pattern_init(BtPattern *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PATTERN, BtPatternPrivate);
   self->priv->wire_value_groups=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
-  self->priv->param_to_value_groups=g_hash_table_new(NULL,NULL);
+  self->priv->param_to_value_groups=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
 }
 
 static void bt_pattern_class_init(BtPatternClass * const klass) {
