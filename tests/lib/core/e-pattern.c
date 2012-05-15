@@ -168,6 +168,8 @@ BT_START_TEST(test_btpattern_obj_poly2) {
   bt_pattern_set_global_event(pattern,4,0,"10");
   bt_pattern_set_voice_event(pattern,0,0,0,"5");
   bt_pattern_set_voice_event(pattern,4,0,0,"10");
+  
+  /* TODO(ensonic): assert something? */
 
   g_object_unref(pattern);
   g_object_unref(machine);

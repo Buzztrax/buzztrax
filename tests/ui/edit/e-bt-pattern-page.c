@@ -128,10 +128,80 @@ BT_START_TEST(test_editing) {
 }
 BT_END_TEST
 
+BT_START_TEST(test_pattern_voices) {
+  BtEditApplication *app;
+  GError *err=NULL;
+  BtMainWindow *main_window;
+  BtMainPages *pages;
+  BtMainPagePatterns *pattern_page;
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GtkWidget *widget;
+  gulong voices;
+
+  // prepare
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
+  bt_edit_application_new_song(app);
+
+  g_object_get(app,"song",&song,"main-window",&main_window,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+
+  // make sure the pattern view shows something
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,&err));
+  fail_unless(machine!=NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+  fail_unless(pattern!=NULL,NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  g_object_get(G_OBJECT(pages),"patterns-page",&pattern_page,NULL);
+
+  // show page
+  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
+  while(gtk_events_pending()) gtk_main_iteration();
+  bt_main_page_patterns_show_pattern(pattern_page,pattern);
+  
+  widget=gtk_window_get_focus((GtkWindow *)main_window);
+  GST_INFO("testing key-press handling on: '%s'", gtk_widget_get_name(widget));
+  fail_unless(!strcmp("pattern editor",gtk_widget_get_name(widget)), NULL);
+  
+  // change voices
+  g_object_set(machine,"voices",2L,NULL);
+  g_object_get(pattern,"voices",&voices,NULL);
+  fail_unless(voices==2, NULL);
+  
+  // send two tab keys to ensure the new voice is visible
+  check_send_key((GtkWidget *)pattern_page,GDK_Tab,0);
+  check_send_key((GtkWidget *)pattern_page,GDK_Tab,0);
+
+  // cleanup
+  g_object_unref(pattern_page);
+  g_object_unref(pattern);
+  g_object_unref(machine);
+  g_object_unref(setup);
+  g_object_unref(song);
+  g_object_unref(pages);
+
+  // close window
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+  //GST_INFO("mainlevel is %d",gtk_main_level());
+  //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
+
+  // free application
+  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
+  g_object_checked_unref(app);
+
+}
+BT_END_TEST
+
 TCase *bt_pattern_page_example_case(void) {
   TCase *tc = tcase_create("BtPatternPageExamples");
 
   tcase_add_test(tc,test_editing);
+  tcase_add_test(tc,test_pattern_voices);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   return(tc);
