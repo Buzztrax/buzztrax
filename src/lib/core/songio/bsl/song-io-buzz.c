@@ -1218,6 +1218,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
   const gchar *valuestr;
   gulong wire_params;
   BtParameterGroup *pg;
+  BtValueGroup *vg=NULL;
   //BmxParameter *params;
 
   // DEBUG
@@ -1267,6 +1268,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
         src_machine=bt_setup_get_machine_by_id(setup,self->priv->mach_section[id_src].name);
         if(src_machine && machine && pattern && (wire=bt_machine_get_wire_by_dst_machine(src_machine,machine))) {
           g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
+          vg=bt_pattern_get_wire_group(pattern,wire);
         }
         else {
           wire=NULL;
@@ -1282,12 +1284,12 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
               GST_INFO("    wire-pattern data 0x%04x",amp);
               // TODO(ensonic): buzz says 0x0=0% ... 0x4000=100%
               g_ascii_dtostr(value,G_ASCII_DTOSTR_BUF_SIZE,(gdouble)amp/16384.0);
-              bt_pattern_set_wire_event(pattern,k,wire,0,value);
+              bt_value_group_set_event(vg,k,0,value);
             }
             if(wire_params>1) {
               if(pan!=0xFFFF) {
                 g_ascii_dtostr(value,G_ASCII_DTOSTR_BUF_SIZE,((gdouble)pan/16384.0)-1.0);
-                bt_pattern_set_wire_event(pattern,k,wire,1,value);
+                bt_value_group_set_event(vg,k,1,value);
               }
             }
           }
@@ -1298,6 +1300,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
       }
       // global params
       pg=bt_machine_get_global_param_group(machine);
+      vg=bt_pattern_get_global_group(pattern);
       for(k=0;((k<number_of_ticks) && !self->priv->io_error);k++) {
         //str1=g_strdup_printf("      tick: %2d  global:",k);
         for(p=0;p<para->number_of_global_params;p++) {
@@ -1367,7 +1370,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
               else valuestr="";
             }
             //GST_LOG("setting global parameter %d,%d: %s",k,p,valuestr);
-            bt_pattern_set_global_event(pattern,k,p,valuestr);
+            bt_value_group_set_event(vg,k,p,valuestr);
           }
           //else {
           //  GST_WARNING("skip global parameter machine %p, pattern %p, param %d",machine,pattern,p);
@@ -1379,6 +1382,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
       for(l=0;((l<number_of_tracks) && !self->priv->io_error);l++) {
         //str2=g_strdup_printf("%s  ",str1);g_free(str1);str1=str2;
         pg=bt_machine_get_voice_param_group(machine,l);
+        vg=bt_pattern_get_voice_group(pattern,l);
         for(k=0;((k<number_of_ticks) && !self->priv->io_error);k++) {
           //str1=g_strdup_printf("      tick: %2d  track:",k);
           for(p=0;p<para->number_of_track_params;p++) {
@@ -1433,7 +1437,7 @@ static gboolean read_patt_section(const BtSongIOBuzz *self,const BtSong *song) {
                 valuestr=value;
               }
               //GST_DEBUG("setting voice parameter %d,%d,%d: %s",k,l,p,valuestr);
-              bt_pattern_set_voice_event(pattern,k,l,p,valuestr);
+              bt_value_group_set_event(vg,k,p,valuestr);
             }
           }
         }
