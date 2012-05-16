@@ -10,9 +10,16 @@
 #include <stdlib.h>
 #include <gst/gst.h>
 
-gboolean snoop (GstPad *pad, GstEvent *event, gpointer user_data) {
+static gboolean
+event_snoop (GstPad *pad, GstEvent *event, gpointer user_data) {
   GST_WARNING_OBJECT(pad, "%"GST_PTR_FORMAT, event);
   return TRUE;
+}
+
+static GstBusSyncReply
+bus_snoop (GstBus * bus, GstMessage * message, gpointer user_data) {
+  GST_WARNING_OBJECT(user_data,"%"GST_PTR_FORMAT, message);
+  return GST_BUS_PASS;
 }
 
 int
@@ -21,15 +28,20 @@ main (int argc, char **argv)
   GstElement *bin;
   GstElement *sink;
   GstPad *pad;
+  GstBus *bus;
 
   /* init gstreamer */
   gst_init (&argc, &argv);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "latency", 0, "latency test");
 
   bin = gst_parse_launch ("audiotestsrc ! pulsesink name=sink", NULL);
+  bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
+  gst_bus_set_sync_handler (bus, bus_snoop, bin);
+  gst_object_unref (bus);
+  
   sink = gst_bin_get_by_name (GST_BIN (bin), "sink");
   pad = gst_element_get_static_pad (sink, "sink");
-  gst_pad_add_event_probe (pad, G_CALLBACK (snoop), NULL);
+  gst_pad_add_event_probe (pad, G_CALLBACK (event_snoop), NULL);
   gst_object_unref (pad);
   gst_object_unref (sink);
   gst_element_set_state (bin, GST_STATE_PLAYING);

@@ -228,6 +228,9 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
         GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time,
         GST_SEEK_TYPE_SET, (length+1)*bar_time);
   }
+  /* TODO(ensonic): we should wait for an async done to ensure that the previous
+   * flushing seek is done (see design/gst/event.c)
+   */
   if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),event))) {
     GST_WARNING("element failed to seek to play_pos event");
   }
@@ -284,6 +287,9 @@ static void bt_song_change_play_rate(const BtSong * const self) {
           GST_SEEK_TYPE_SET, self->priv->play_pos*bar_time);
     }
   }
+  /* TODO(ensonic): we should wait for an async done to ensure that the previous
+   * flushing seek is done (see design/gst/event.c)
+   */
   if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),event))) {
     GST_WARNING("element failed to change playback rate");
   }
