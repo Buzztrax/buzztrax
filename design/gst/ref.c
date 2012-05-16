@@ -55,8 +55,8 @@ int main(int argc, char **argv) {
   print_details(src,"removed");
   
   /* release */
-  gst_object_unref(GST_OBJECT (src));
-  gst_object_unref(GST_OBJECT (bin));
+  gst_object_unref(src);
+  gst_object_unref(bin);
   
   exit (0);
 }

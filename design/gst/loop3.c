@@ -301,7 +301,7 @@ int main(int argc, char **argv) {
   gst_element_set_state(bin, GST_STATE_NULL);
 
   /* we don't need a reference to these objects anymore */
-  gst_object_unref(GST_OBJECT (bin));
+  gst_object_unref(bin);
   g_main_loop_unref(main_loop);
 
   exit (0);

@@ -106,8 +106,8 @@ int main(int argc, char **argv) {
 
 
   /* we don't need a reference to these objects anymore */
-  gst_object_unref(GST_OBJECT(bus));
-  gst_object_unref(GST_OBJECT(bin));
+  gst_object_unref(bus);
+  gst_object_unref(bin);
 
   exit (0);
 }

@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
   g_signal_connect (bus, "message::eos", G_CALLBACK(message_received), bin);
   g_signal_connect (bus, "message::segment-done", G_CALLBACK(segment_done), bin);
   g_signal_connect (bus, "message::state-changed", G_CALLBACK(state_changed), bin);
-  gst_object_unref (G_OBJECT (bus));
+  gst_object_unref (bus);
 
   main_loop=g_main_loop_new(NULL,FALSE);
 
