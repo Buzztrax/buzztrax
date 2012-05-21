@@ -60,7 +60,7 @@
 /* other parameters are at the top of main */
 #define USE_QUEUE 1
 
-#define GST_CAT_DEFAULT bt_dynlink
+#define GST_CAT_DEFAULT bt_latency
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 typedef struct Machine_ Machine;
