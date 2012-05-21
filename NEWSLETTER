@@ -1,9 +1,41 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 git diff @{2012-01-01} @{2012-01-31} | diffstat
 
+2012/06 ========================================================================
+
+In May I fininshed the refactoring of the sequence damage-repair code for
+updating the controller time-lines after pattern changes. It is a lot less code
+now and it is also faster. The "less code" is important as there is quite a bit
+of logic to handle combining events from patterns overlapping in time or on
+several tracks.
+
+In the same vein, I could also refactor main-page-patterns with quite a nice
+code removal mount (~400 lines).
+
+- improve scrubbing and trick-playback. Need to wait for async-done to know that
+  a seek is done
+- catching bad x86-32bit dlls in buzzmachine wrapper
+
 2012/05 ========================================================================
 
-* More autofoo cleanups and removal of old code
+More cruft removal this month. We dropped some more configure options (thanks
+Adrian) and removed more old/unused code. The project also got the first commits
+merged from Thomas - our GSoC student.
+
+The pattern class had a boolean parameter to chose between command and data
+patterns. I refactored that into a proper class hierarchy. The downside of that
+is that we need more casts now :/
+
+I also continued in the duplicated code cleanups. We have now a value-group,
+that holds the pattern portion for a parameter-group. This way I could remove
+lots of code from pattern and sequence. Finally I could also remove wire-pattern
+itself. I am not totally happy with the extra code for loading and saving now,
+but have some ideas here too.
+
+The UI tests have a couple more helpers to synthesize events and saw a couple of
+cleanups. The tests have been really useful for all the refactorings.
+
+97 files changed, 4684 insertions(+), 5279 deletions(-)
 
 2012/04 ========================================================================
 
