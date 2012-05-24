@@ -481,7 +481,7 @@ gchar *bt_pattern_get_wire_event(const BtPattern * const self, const gulong tick
   g_return_val_if_fail(BT_IS_WIRE(wire),NULL);
 
   if((vg=g_hash_table_lookup(self->priv->wire_value_groups,wire))) {
-    bt_value_group_get_event(vg,tick,param);
+    return bt_value_group_get_event(vg,tick,param);
   }
   return NULL;
 }
