@@ -676,7 +676,7 @@ static gboolean check_readwrite_property(GParamSpec *paramspec, GObject *toCheck
   return ret;
 }
 
-/** test gobject properties
+/* test gobject properties
  * @toCheck: the object to examine
  *
  * The function runs tests against all registered properties of the given
@@ -726,6 +726,21 @@ gboolean check_gobject_properties(GObject *toCheck) {
     ret=TRUE;
   }
   return ret;
+}
+
+/* helper to get single gobject properties
+ * allows to write 
+ *   fail_unless(check_get_gulong_property(obj,"voice")==1, NULL);
+ * instead of
+ *   gulong voices;
+ *   g_object_get(pattern,"voices",&voices,NULL);
+ *   fail_unless(voices==1, NULL);
+ */
+gulong check_gobject_get_gulong_property(gpointer obj, const gchar *prop) {
+  gulong val;
+  
+  g_object_get(obj,prop,&val,NULL);
+  return val;
 }
 
 // gtk+ gui tests

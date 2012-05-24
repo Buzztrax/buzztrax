@@ -26,28 +26,30 @@
 
 // test if the normal init call works with commandline arguments (no args)
 START_TEST(test_btcore_init0) {
+  /* act */
   bt_init(&test_argc,&test_argvptr);
 }
 END_TEST
 
 // test if the init call handles correct null pointers
 START_TEST(test_btcore_init1) {
+  /* act */
   bt_init(NULL,NULL);
 }
 END_TEST
 
 // test if the normal init call works with commandline arguments
 START_TEST(test_btcore_init2) {
-  // this shadows the global vars of the same name
-  gint test_argc=2;
-  gchar *test_argv[test_argc];
-  gchar **test_argvptr;
+  /* arrange */
+  gchar *test_argv[] = { "check_buzzard", "--bt-version" };
+  gchar **test_argvptr = test_argv;
+  gint test_argc=G_N_ELEMENTS(test_argv) - 1;
 
-  test_argv[0]="check_buzzard";
-  test_argv[1]="--bt-version";
-  test_argvptr=test_argv;
-
+  /* act */
   bt_init(&test_argc,&test_argvptr);
+
+  /* assert */  
+  fail_unless(test_argc==1, NULL);
 }
 END_TEST
 

@@ -141,6 +141,31 @@ const gchar *check_get_test_song_path(const gchar *name);
 gboolean file_contains_str(gchar *tmp_file_name, gchar *string);
 
 gboolean check_gobject_properties(GObject *toCheck);
+gulong check_gobject_get_gulong_property(gpointer obj, const gchar *prop);
+
+/* Comparsion macros with improved output compared to fail_unless(). */
+/* O may be any comparion operator. */
+#define _ck_assert_gulong(O, X, C, Y) do { \
+  gulong __ck = check_gobject_get_gulong_property((O), (X)); \
+  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%d, "#Y"==%d", __ck, Y); \
+} while (0)
+#define ck_assert_gobject_gulong_eq(O, X, Y) _ck_assert_gulong(O, X, ==, Y) 
+#define ck_assert_gobject_gulong_ne(O, X, Y) _ck_assert_gulong(O, X, !=, Y) 
+#define ck_assert_gobject_gulong_gt(O, X, Y) _ck_assert_gulong(O, X, >, Y) 
+#define ck_assert_gobject_gulong_lt(O, X, Y) _ck_assert_gulong(O, X, <, Y) 
+#define ck_assert_gobject_gulong_ge(O, X, Y) _ck_assert_gulong(O, X, >=, Y) 
+#define ck_assert_gobject_gulong_le(O, X, Y) _ck_assert_gulong(O, X, <=, Y) 
+
+/* String comparsion macros with improved output compared to fail_unless() */
+#define _ck_assert_str_and_free(F, X, C, Y) do { \
+  gchar *__ck = X; \
+  fail_unless(F(__ck, Y), "Assertion '"#X#C#Y"' failed: "#X"==\"%s\", "#Y"==\"%s\"", __ck, Y); \
+  g_free(__ck); \
+} while(0)
+#define ck_assert_str_eq_and_free(X, Y) _ck_assert_str_and_free(!g_strcmp0, X, ==, Y)
+#define ck_assert_str_ne_and_free(X, Y) _ck_assert_str_and_free(g_strcmp0, X, !=, Y)
+
+
 
 void check_setup_test_server(void);
 void check_setup_test_display(void);

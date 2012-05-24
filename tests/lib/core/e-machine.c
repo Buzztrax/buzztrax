@@ -21,40 +21,40 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
 static void test_setup(void) {
   bt_core_setup();
+  app=bt_test_application_new();
+  song=bt_song_new(app);
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
   bt_core_teardown();
 }
 
 //-- tests
 
 BT_START_TEST(test_btmachine_obj1) {
-  BtApplication *app;
-  BtSong *song;
-  BtMachine *machine;
+  /* arrange */
+
+  /* act */
   GError *err=NULL;
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  /* create a machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
+  /* assert */
   fail_unless(machine != NULL, NULL);
   fail_unless(err==NULL, NULL);
-
-  /* should have no patterns */
   fail_unless(!bt_machine_has_patterns(machine),NULL);
 
-  g_object_checked_unref(song);
-  g_object_checked_unref(machine);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref(machine);
 }
 BT_END_TEST
 
@@ -62,27 +62,17 @@ BT_END_TEST
  * activate the input level meter in an unconnected machine
  */
 BT_START_TEST(test_btmachine_enable_input_level1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtMachine *machine;
-  GError *err=NULL;
-  gboolean res;
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,NULL));
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  /* create a machine */
-  machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,&err));
-  fail_unless(machine != NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  res=bt_machine_enable_input_pre_level(machine);
+  /* act */
+  gboolean res=bt_machine_enable_input_pre_level(machine);
+  
+  /* assert */
   fail_unless(res == TRUE, NULL);
 
-  g_object_checked_unref(song);
-  g_object_checked_unref(machine);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref(machine);
 }
 BT_END_TEST
 
@@ -90,38 +80,21 @@ BT_END_TEST
  * activate the input level meter in a connected machine
  */
 BT_START_TEST(test_btmachine_enable_input_level2) {
-  BtApplication *app;
-  BtSong *song;
-  BtMachine *machine1,*machine2;
-  BtWire *wire;
-  GError *err=NULL;
-  gboolean res;
+  /* arrange */
+  BtMachine *machine1=BT_MACHINE(bt_processor_machine_new(song,"vol1","volume",0,NULL));
+  BtMachine *machine2=BT_MACHINE(bt_processor_machine_new(song,"vol2","volume",0,NULL));
+  BtWire *wire=bt_wire_new(song,machine1,machine2,NULL);
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  /* act */
+  gboolean res=bt_machine_enable_input_pre_level(machine2);
 
-  /* create two machines */
-  machine1=BT_MACHINE(bt_processor_machine_new(song,"vol1","volume",0,&err));
-  fail_unless(machine1 != NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  machine2=BT_MACHINE(bt_processor_machine_new(song,"vol2","volume",0,&err));
-  fail_unless(machine2 != NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* connect them */
-  wire=bt_wire_new(song,machine1,machine2,&err);
-  fail_unless(wire != NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  res=bt_machine_enable_input_pre_level(machine2);
+  /* assert */
   fail_unless(res == TRUE, NULL);
 
-  g_object_checked_unref(song);
-  g_object_checked_unref(wire);
-  g_object_checked_unref(machine1);
-  g_object_checked_unref(machine2);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref(wire);
+  g_object_unref(machine1);
+  g_object_unref(machine2);
 }
 BT_END_TEST
 
@@ -129,27 +102,17 @@ BT_END_TEST
  * activate the input gain control in an unconnected machine
  */
 BT_START_TEST(test_btmachine_enable_input_gain1) {
-  BtApplication *app;
-  BtSong *song;
-  BtMachine *machine;
-  GError *err=NULL;
-  gboolean res;
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,NULL));
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  /* create a machine */
-  machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,&err));
-  fail_unless(machine != NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  res=bt_machine_enable_input_gain(machine);
+  /* act */
+  gboolean res=bt_machine_enable_input_gain(machine);
+  
+  /* assert */
   fail_unless(res == TRUE, NULL);
 
-  g_object_checked_unref(song);
-  g_object_checked_unref(machine);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref(machine);
 }
 BT_END_TEST
 
@@ -157,27 +120,55 @@ BT_END_TEST
  * activate the output gain control in an unconnected machine
  */
 BT_START_TEST(test_btmachine_enable_output_gain1) {
-  BtApplication *app;
-  BtSong *song;
-  BtMachine *machine;
-  GError *err=NULL;
-  gboolean res;
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,NULL));
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  /* create a machine */
-  machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,&err));
-  fail_unless(machine != NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  res=bt_machine_enable_output_gain(machine);
+  /* act */
+  gboolean res=bt_machine_enable_output_gain(machine);
+  
+  /* assert */
   fail_unless(res == TRUE, NULL);
 
-  g_object_checked_unref(song);
-  g_object_checked_unref(machine);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref(machine);
+}
+BT_END_TEST
+
+/*
+ * add pattern
+ */
+BT_START_TEST(test_btmachine_add_pattern) {
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,NULL));
+
+  /* act */
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+  
+  /* assert */
+  fail_unless(bt_machine_has_patterns(machine),NULL);
+
+  /* cleanup */
+  g_object_unref(machine);
+  g_object_unref(pattern);
+}
+BT_END_TEST
+
+BT_START_TEST(test_btmachine_check_voices) {
+  /* arrange */
+  
+  /* act */
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,NULL));
+
+  /* assert */
+  GstChildProxy *element;
+  g_object_get(machine,"machine",&element,NULL);
+  //fail_unless(gst_child_proxy_get_children_count(element)==2, NULL);
+  ck_assert_int_eq(gst_child_proxy_get_children_count(element),2);
+  //ck_assert_gobject_gulong_eq(machine,"voices",2);
+
+  /* cleanup */
+  gst_object_unref(element);
+  g_object_unref(machine);
 }
 BT_END_TEST
 
@@ -185,41 +176,22 @@ BT_END_TEST
  * change voices and verify that voices in machine and patetrn are in sync
  */
 BT_START_TEST(test_btmachine_change_voices) {
-  BtApplication *app;
-  BtSong *song;
-  BtMachine *machine;
-  BtPattern *p1,*p2;
-  gulong voices;
-  GError *err=NULL;
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,NULL));
+  BtPattern *p1=bt_pattern_new(song,"pattern-id1","pattern-name1",8L,machine);
+  BtPattern *p2=bt_pattern_new(song,"pattern-id2","pattern-name2",8L,machine);
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  /* create a machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,&err));
-  fail_unless(machine != NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* create two patterns */
-  p1=bt_pattern_new(song,"pattern-id1","pattern-name1",8L,machine);
-  fail_unless(p1!=NULL, NULL);
-
-  p2=bt_pattern_new(song,"pattern-id2","pattern-name2",8L,machine);
-  fail_unless(p1!=NULL, NULL);
-
-  /* change voices and verify */
+  /* act */
   g_object_set(machine,"voices",2,NULL);
-  g_object_get(p1,"voices",&voices,NULL);
-  fail_unless(voices==2, NULL);
-  g_object_get(p2,"voices",&voices,NULL);
-  fail_unless(voices==2, NULL);
+  
+  /* assert */
+  ck_assert_gobject_gulong_eq(p1,"voices",2);
+  ck_assert_gobject_gulong_eq(p2,"voices",2);
 
-  g_object_checked_unref(song);
-  g_object_checked_unref(machine);
-  g_object_checked_unref(p1);
-  g_object_checked_unref(p2);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref(machine);
+  g_object_unref(p1);
+  g_object_unref(p2);
 }
 BT_END_TEST
 
@@ -232,6 +204,8 @@ TCase *bt_machine_example_case(void) {
   tcase_add_test(tc,test_btmachine_enable_input_level2);
   tcase_add_test(tc,test_btmachine_enable_input_gain1);
   tcase_add_test(tc,test_btmachine_enable_output_gain1);
+  tcase_add_test(tc,test_btmachine_add_pattern);
+  tcase_add_test(tc,test_btmachine_check_voices);
   tcase_add_test(tc,test_btmachine_change_voices);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
