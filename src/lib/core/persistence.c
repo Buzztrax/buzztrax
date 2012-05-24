@@ -347,9 +347,6 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
  * Returns: a newly allocated string with the data or %NULL on error
  */
 gchar *bt_persistence_get_value(GValue * const gvalue) {
-// we're not showing more digits in the pattern view right now
-//#define FLOAT_BUFFER_LEN 8
-#define FLOAT_BUFFER_LEN G_ASCII_DTOSTR_BUF_SIZE
   GType base_type;
   gchar *res=NULL;
 
@@ -359,16 +356,16 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
   // depending on the type, set the result
   switch(base_type) {
     case G_TYPE_DOUBLE: {
-      gchar str[FLOAT_BUFFER_LEN+1];
+      gchar str[G_ASCII_DTOSTR_BUF_SIZE+1];
       // this is dependend on the locale
       //res=g_strdup_printf("%lf",g_value_get_double(gvalue));
-      res=g_strdup(g_ascii_dtostr(str,FLOAT_BUFFER_LEN,g_value_get_double(gvalue)));
+      res=g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,g_value_get_double(gvalue)));
       } break;
     case G_TYPE_FLOAT: {
-      gchar str[FLOAT_BUFFER_LEN+1];
+      gchar str[G_ASCII_DTOSTR_BUF_SIZE+1];
       // this is dependend on the locale
       //res=g_strdup_printf("%f",g_value_get_float(gvalue));
-      res=g_strdup(g_ascii_dtostr(str,FLOAT_BUFFER_LEN,g_value_get_float(gvalue)));
+      res=g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,g_value_get_float(gvalue)));
       } break;
     case G_TYPE_BOOLEAN:
       res=g_strdup_printf("%d",g_value_get_boolean(gvalue));
