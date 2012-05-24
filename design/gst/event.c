@@ -91,15 +91,16 @@ main (gint argc, gchar **argv)
     }
   }
 
+  /* TODO(ensonic): also add queues */
   switch (type) {
     case 1:
       bin = gst_parse_launch ("audiotestsrc ! adder ! pulsesink", NULL);
       break;
     case 2:
-      bin = gst_parse_launch ("audiotestsrc ! adder name=a0 ! pulsesink audiotestsrc ! a0.", NULL);
+      bin = gst_parse_launch ("audiotestsrc ! adder name=adder0 ! pulsesink audiotestsrc ! adder0.", NULL);
       break;
     case 3:
-      bin = gst_parse_launch ("audiotestsrc ! adder name=a0 ! adder name=a1 ! pulsesink audiotestsrc ! a0. audiotestsrc ! a1.", NULL);
+      bin = gst_parse_launch ("audiotestsrc ! adder name=adder0 ! adder name=adder1 ! pulsesink audiotestsrc ! adder0. audiotestsrc ! adder1.", NULL);
       break;
     case 0:
     default:
@@ -118,7 +119,7 @@ main (gint argc, gchar **argv)
   gst_element_get_state (bin, NULL, NULL, GST_CLOCK_TIME_NONE);
   GST_WARNING("started playback");
   
-  g_usleep (G_USEC_PER_SEC/10);
+  g_usleep (G_USEC_PER_SEC/100);
   GST_WARNING("before seek");
   gst_element_send_event (bin, gst_event_new_seek (1.0, GST_FORMAT_TIME, flags,
         GST_SEEK_TYPE_SET, (GstClockTime)0,
@@ -129,10 +130,10 @@ main (gint argc, gchar **argv)
    * The sink is not posting any message for newsegment.
    */
   GST_WARNING("after seek");
-  g_usleep (G_USEC_PER_SEC/10);
+  g_usleep (G_USEC_PER_SEC/200);
   
   /* cleanup */
-  GST_WARNING("stoping playback");
+  GST_WARNING("stopping playback");
   gst_element_set_state (bin, GST_STATE_NULL);
   gst_object_unref (bin);
   
