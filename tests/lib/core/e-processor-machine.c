@@ -21,101 +21,124 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
 static void test_setup(void) {
   bt_core_setup();
+  app=bt_test_application_new();
+  song=bt_song_new(app);
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
   bt_core_teardown();
 }
 
 //-- tests
 
 BT_START_TEST(test_btprocessormachine_obj1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtProcessorMachine *machine;
+  /* arrange */
+
+  /* act */
   GError *err=NULL;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  /* create a machine */
-  machine=bt_processor_machine_new(song,"vol","volume",0,&err);
+  BtProcessorMachine *machine=bt_processor_machine_new(song,"vol","volume",0,&err);
+  
+  /* assert */
   fail_unless(machine != NULL, NULL);
   fail_unless(err==NULL, NULL);
 
-  g_object_try_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref(machine);
 }
 BT_END_TEST
 
-BT_START_TEST(test_btprocessormachine_obj2) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtProcessorMachine *machine;
-  BtPattern *pattern=NULL;
-  BtPattern *ref_pattern=NULL;
-  GList *list,*node;
-  gulong voices;
+BT_START_TEST(test_btprocessormachine_pattern) {
+  /* arrange */
+  BtProcessorMachine *machine=bt_processor_machine_new(song,"vol","volume",0,NULL);
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  /* create a machine */
-  machine=bt_processor_machine_new(song,"vol","volume",0,&err);
-  fail_unless(machine != NULL, NULL);
-  fail_unless(err==NULL, NULL);
+  /* act */
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   
-  /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
-  fail_unless(pattern!=NULL, NULL);
+  /* assert */
+  ck_assert_gobject_gulong_eq(pattern,"voices",0);
 
-  /* verify number of voices */
-  g_object_get(pattern,"voices",&voices,NULL);
-  fail_unless(voices==0, NULL);
+  /* cleanup */
+  g_object_unref(machine);
+}
+BT_END_TEST
 
-  /* try to get the same pattern back per id */
-  ref_pattern=(BtPattern *)bt_machine_get_pattern_by_id(BT_MACHINE(machine),"pattern-id");
+BT_START_TEST(test_btprocessormachine_pattern_by_id) {
+  /* arrange */
+  BtProcessorMachine *machine=bt_processor_machine_new(song,"vol","volume",0,NULL);
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
+
+  /* act */
+  BtPattern *ref_pattern=(BtPattern *)bt_machine_get_pattern_by_id(BT_MACHINE(machine),"pattern-id");
+  
+  /* assert */
   fail_unless(ref_pattern==pattern, NULL);
-  g_object_try_unref(ref_pattern);
 
+  /* cleanup */
+  g_object_unref(ref_pattern);
+  g_object_unref(pattern);
+  g_object_unref(machine);
+}
+BT_END_TEST
+
+BT_START_TEST(test_btprocessormachine_pattern_by_list) {
+  GList *list,*node;
+
+  /* arrange */
+  BtProcessorMachine *machine=bt_processor_machine_new(song,"vol","volume",0,NULL);
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
-  /* the list should not be null */
-  fail_unless(list!=NULL, NULL);
-  /* source machine has 3 default pattern (break+mute+bypass) */
-  fail_unless(g_list_length(list)==4, NULL);
+
+  /* act */
   node=g_list_last(list);
 
-  /* the returned pointer should point to the same pattern, that we added
-  to the machine before */
-  ref_pattern=node->data;
-  fail_unless(ref_pattern==pattern, NULL);
+  /* assert */
+  fail_unless(node->data==pattern, NULL);
 
   /* cleanup */
   g_list_foreach(list,(GFunc)g_object_unref,NULL);
   g_list_free(list);
-
   g_object_unref(pattern);
   g_object_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
+BT_START_TEST(test_btprocessormachine_def_patterns) {
+  /* arrange */
+  BtProcessorMachine *machine=bt_processor_machine_new(song,"vol","volume",0,NULL);
+
+  /* act */
+  GList *list;
+  g_object_get(machine,"patterns",&list,NULL);
+
+  /* assert */
+  fail_unless(list!=NULL, NULL);
+  ck_assert_int_eq(g_list_length(list),3);
+
+  /* cleanup */
+  g_list_foreach(list,(GFunc)g_object_unref,NULL);
+  g_list_free(list);
+  g_object_unref(machine);
+}
+BT_END_TEST
 
 TCase *bt_processor_machine_example_case(void) {
   TCase *tc = tcase_create("BtProcessorMachineExamples");
 
   tcase_add_test(tc,test_btprocessormachine_obj1);
-  tcase_add_test(tc,test_btprocessormachine_obj2);
+  tcase_add_test(tc,test_btprocessormachine_pattern);
+  tcase_add_test(tc,test_btprocessormachine_pattern_by_id);
+  tcase_add_test(tc,test_btprocessormachine_pattern_by_list);
+  tcase_add_test(tc,test_btprocessormachine_def_patterns);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
