@@ -493,23 +493,21 @@ BT_END_TEST
 
 typedef struct {
   gint ct;
-  gint *values;
+  gint values[8];
 } BtSequenceTicksTestData;
 
 static void on_btsequence_ticks_notify(GstObject *machine,GParamSpec *arg,gpointer user_data) {
   BtSequenceTicksTestData *data=(BtSequenceTicksTestData *)user_data;
-  
-  g_object_get(machine,"wave",&data->values[data->ct],NULL);
-  GST_INFO("val[%d]=%d",data->ct,data->values[data->ct]);
+
+  if(data->ct<9) {
+    g_object_get(machine,"wave",&data->values[data->ct],NULL);
+  }
   data->ct++;
 }
 
 BT_START_TEST(test_btsequence_ticks) {
-  gint val;
-  BtSequenceTicksTestData data = {0,};
-  gint values[8];
-
   /* arrange */
+  BtSequenceTicksTestData data = {0,};
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
   g_object_set(song_info,"bpm",150L,"tpb",16L,NULL);
@@ -519,14 +517,8 @@ BT_START_TEST(test_btsequence_ticks) {
   BtWire *wire = bt_wire_new(song,src,sink,NULL);  
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,src);
   GstObject *element=GST_OBJECT(check_gobject_get_object_property(src,"machine"));
-
-  /* enlarge length */
   g_object_set(sequence,"length",8L,NULL);
-
-  /* set machine */
   bt_sequence_add_track(sequence,src,-1);
-
-  /* set pattern */
   bt_pattern_set_global_event(pattern,0,1,"0");
   bt_pattern_set_global_event(pattern,1,1,"1");
   bt_pattern_set_global_event(pattern,2,1,"2");
@@ -535,32 +527,25 @@ BT_START_TEST(test_btsequence_ticks) {
   bt_pattern_set_global_event(pattern,5,1,"5");
   bt_pattern_set_global_event(pattern,6,1,"6");
   bt_pattern_set_global_event(pattern,7,1,"7");
-
   bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern);
 
-  /* we should still have the default value */
-  g_object_get(element,"wave",&val,NULL);
-  fail_unless(val==0, NULL);
-
-  data.values=values;
   g_signal_connect(G_OBJECT(element),"notify::wave",G_CALLBACK(on_btsequence_ticks_notify),&data);
 
-  /* play the songs */
+  /* act */
   bt_song_play(song);
   g_usleep(G_USEC_PER_SEC/5);
   bt_song_stop(song);
-  GST_INFO("ct=%d",data.ct);
   
-  /* check the captured values changes */
-  fail_unless(data.ct==8, NULL);
-  fail_unless(values[0]==0, NULL);
-  fail_unless(values[1]==1, NULL);
-  fail_unless(values[2]==2, NULL);
-  fail_unless(values[3]==3, NULL);
-  fail_unless(values[4]==4, NULL);
-  fail_unless(values[5]==5, NULL);
-  fail_unless(values[6]==6, NULL);
-  fail_unless(values[7]==7, NULL);
+  /* assert */
+  ck_assert_int_eq(data.ct,8);
+  ck_assert_int_eq(data.values[0],0);
+  ck_assert_int_eq(data.values[1],1);
+  ck_assert_int_eq(data.values[2],2);
+  ck_assert_int_eq(data.values[3],3);
+  ck_assert_int_eq(data.values[4],4);
+  ck_assert_int_eq(data.values[5],5);
+  ck_assert_int_eq(data.values[6],6);
+  ck_assert_int_eq(data.values[7],7);
 
   /* cleanup */
   gst_object_unref(element);
