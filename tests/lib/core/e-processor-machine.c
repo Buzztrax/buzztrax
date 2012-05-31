@@ -78,16 +78,14 @@ BT_END_TEST
 BT_START_TEST(test_btprocessormachine_pattern_by_id) {
   /* arrange */
   BtProcessorMachine *machine=bt_processor_machine_new(song,"vol","volume",0,NULL);
-  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
 
   /* act */
-  BtPattern *ref_pattern=(BtPattern *)bt_machine_get_pattern_by_id(BT_MACHINE(machine),"pattern-id");
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   
   /* assert */
-  fail_unless(ref_pattern==pattern, NULL);
-
+  ck_assert_gobject_eq_and_unref(bt_machine_get_pattern_by_id(BT_MACHINE(machine),"pattern-id"),pattern);
+  
   /* cleanup */
-  g_object_unref(ref_pattern);
   g_object_unref(pattern);
   g_object_unref(machine);
 }

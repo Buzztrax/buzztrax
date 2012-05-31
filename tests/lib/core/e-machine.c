@@ -167,9 +167,7 @@ BT_START_TEST(test_btmachine_check_voices) {
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,NULL));
 
   /* assert */
-  GstChildProxy *element;
-  g_object_get(machine,"machine",&element,NULL);
-  //fail_unless(gst_child_proxy_get_children_count(element)==2, NULL);
+  GstChildProxy *element=(GstChildProxy*)check_gobject_get_object_property(machine,"machine");
   ck_assert_int_eq(gst_child_proxy_get_children_count(element),2);
   //ck_assert_gobject_gulong_eq(machine,"voices",2);
 

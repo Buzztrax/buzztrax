@@ -46,8 +46,7 @@ BT_START_TEST(test_btsequence_new) {
   /* arrange */  
 
   /* act */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
 
   /* assert */
   ck_assert_gobject_gulong_eq(sequence,"length",0);
@@ -64,8 +63,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_labels) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   g_object_set(sequence,"length",8L,NULL);
   
   /* act */
@@ -85,8 +83,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_tracks) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song,"sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
   
   /* act */
@@ -104,8 +101,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_pattern) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
   BtCmdPattern *pattern=(BtCmdPattern *)bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   g_object_set(sequence,"length",8L,NULL);
@@ -130,8 +126,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_enlarge_length) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
 
   /* act */
   g_object_set(sequence,"length",16L,NULL);
@@ -150,8 +145,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_enlarge_length_labels) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   g_object_set(sequence,"length",8L,NULL);
   bt_sequence_set_label(sequence,0,"test");
   bt_sequence_set_label(sequence,7,"test");
@@ -173,8 +167,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_shrink_length) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   g_object_set(sequence,"length",16L,NULL);
 
   /* act */
@@ -191,8 +184,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_enlarge_track) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen-m","buzztard-test-mono-source",0,NULL));
 
   /* act */
@@ -210,8 +202,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_enlarge_track_vals) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
   bt_sequence_add_track(sequence,machine,-1);
 
@@ -232,10 +223,9 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_shrink_track) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
-	g_object_set(sequence,"length",1L,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
+	g_object_set(sequence,"length",1L,NULL);
   bt_sequence_add_track(sequence,machine,-1);
   bt_sequence_add_track(sequence,machine,-1);
 
@@ -253,8 +243,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_enlarge_both_vals) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
   BtCmdPattern *pattern=(BtCmdPattern *)bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   g_object_set(sequence,"length",8L,NULL);
@@ -287,8 +276,7 @@ BT_END_TEST
 // test that removing patterns updates the sequence
 BT_START_TEST(test_btsequence_update) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   g_object_set(sequence,"length",4L,NULL);
@@ -312,12 +300,10 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_change_pattern) {
   /* arrange */
-  BtSequence *sequence;
-  GstObject *element;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
-  g_object_get(machine,"machine",&element,NULL);
+  GstObject *element=GST_OBJECT(check_gobject_get_object_property(machine,"machine"));
   g_object_set(sequence,"length",4L,NULL);
   bt_sequence_add_track(sequence,machine,-1);
   bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern);
@@ -340,13 +326,11 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_hold) {
   /* arrange */
-  BtSequence *sequence;
-  GstObject *element;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
   GstClockTime tick_time=bt_sequence_get_bar_time(sequence);
-  g_object_get(machine,"machine",&element,NULL);
+  GstObject *element=GST_OBJECT(check_gobject_get_object_property(machine,"machine"));
   g_object_set(sequence,"length",4L,NULL);
   bt_sequence_add_track(sequence,machine,-1);
   bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern);
@@ -371,14 +355,12 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_combine_pattern_shadows) {
   /* arrange */
-  BtSequence *sequence;
-  GstObject *element;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
   BtPattern *pattern1=bt_pattern_new(song,"pattern1","pattern1",8L,machine);
   BtPattern *pattern2=bt_pattern_new(song,"pattern2","pattern2",8L,machine);
+  GstObject *element=GST_OBJECT(check_gobject_get_object_property(machine,"machine"));
   GstClockTime tick_time=bt_sequence_get_bar_time(sequence);
-  g_object_get(machine,"machine",&element,NULL);
   g_object_set(sequence,"length",16L,NULL);
   bt_sequence_add_track(sequence,machine,-1);
   bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern1);
@@ -406,14 +388,12 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_combine_pattern_unshadows) {
   /* arrange */
-  BtSequence *sequence;
-  GstObject *element;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
   BtPattern *pattern1=bt_pattern_new(song,"pattern1","pattern1",8L,machine);
   BtPattern *pattern2=bt_pattern_new(song,"pattern2","pattern2",8L,machine);
+  GstObject *element=GST_OBJECT(check_gobject_get_object_property(machine,"machine"));
   GstClockTime tick_time=bt_sequence_get_bar_time(sequence);
-  g_object_get(machine,"machine",&element,NULL);
   g_object_set(sequence,"length",16L,NULL);
   bt_sequence_add_track(sequence,machine,-1);
   bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern1);
@@ -444,14 +424,12 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_combine_value_unshadows) {
   /* arrange */
-  BtSequence *sequence;
-  GstObject *element;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
   BtPattern *pattern1=bt_pattern_new(song,"pattern1","pattern1",8L,machine);
   BtPattern *pattern2=bt_pattern_new(song,"pattern2","pattern2",8L,machine);
+  GstObject *element=GST_OBJECT(check_gobject_get_object_property(machine,"machine"));
   GstClockTime tick_time=bt_sequence_get_bar_time(sequence);
-  g_object_get(machine,"machine",&element,NULL);
   g_object_set(sequence,"length",16L,NULL);
   bt_sequence_add_track(sequence,machine,-1);
   bt_sequence_set_pattern(sequence,0,0,(BtCmdPattern *)pattern1);
@@ -482,13 +460,11 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_combine_two_tracks) {
   /* arrange */
-  BtSequence *sequence;
-  GstObject *element;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+  GstObject *element=GST_OBJECT(check_gobject_get_object_property(machine,"machine"));
   GstClockTime tick_time=bt_sequence_get_bar_time(sequence);
-  g_object_get(machine,"machine",&element,NULL);
   g_object_set(sequence,"length",4L,NULL);
   bt_sequence_add_track(sequence,machine,-1);
   bt_sequence_add_track(sequence,machine,-1);
@@ -529,22 +505,20 @@ static void on_btsequence_ticks_notify(GstObject *machine,GParamSpec *arg,gpoint
 }
 
 BT_START_TEST(test_btsequence_ticks) {
-  GstObject *element;
   gint val;
   BtSequenceTicksTestData data = {0,};
   gint values[8];
 
   /* arrange */
-  BtSequence *sequence;
-  BtSongInfo *song_info;
-  g_object_get(song,"sequence",&sequence,"song-info",&song_info,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
+  BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
   g_object_set(song_info,"bpm",150L,"tpb",16L,NULL);
   /* need a real element that handles tempo and calls gst_object_sync */
   BtMachine *src=BT_MACHINE(bt_source_machine_new(song,"gen","simsyn",0,NULL));
   BtMachine *sink = BT_MACHINE(bt_sink_machine_new(song,"sink",NULL));
   BtWire *wire = bt_wire_new(song,src,sink,NULL);  
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,src);
-  g_object_get(src,"machine",&element,NULL);
+  GstObject *element=GST_OBJECT(check_gobject_get_object_property(src,"machine"));
 
   /* enlarge length */
   g_object_set(sequence,"length",8L,NULL);
@@ -602,8 +576,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsequence_validate_loop) {
   /* arrange */
-  BtSequence *sequence;
-  g_object_get(song,"sequence",&sequence,NULL);
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   g_object_set(sequence,"length",16L,NULL);
 
   /* act */
