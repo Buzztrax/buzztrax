@@ -728,7 +728,7 @@ gboolean check_gobject_properties(GObject *toCheck) {
   return ret;
 }
 
-/* helper to get single gobject properties
+/* helpers to get single gobject properties
  * allows to write 
  *   fail_unless(check_get_gulong_property(obj,"voice")==1, NULL);
  * instead of
@@ -736,8 +736,27 @@ gboolean check_gobject_properties(GObject *toCheck) {
  *   g_object_get(pattern,"voices",&voices,NULL);
  *   fail_unless(voices==1, NULL);
  */
-gulong check_gobject_get_gulong_property(gpointer obj, const gchar *prop) {
+gboolean check_gobject_get_boolean_property(gpointer obj, const gchar *prop) {
+  gboolean val;
+  
+  g_object_get(obj,prop,&val,NULL);
+  return val;
+}
+glong check_gobject_get_long_property(gpointer obj, const gchar *prop) {
+  glong val;
+  
+  g_object_get(obj,prop,&val,NULL);
+  return val;
+}
+gulong check_gobject_get_ulong_property(gpointer obj, const gchar *prop) {
   gulong val;
+  
+  g_object_get(obj,prop,&val,NULL);
+  return val;
+}
+
+GObject *check_gobject_get_object_property(gpointer obj, const gchar *prop) {
+  GObject *val;
   
   g_object_get(obj,prop,&val,NULL);
   return val;

@@ -39,6 +39,7 @@ static void test_teardown(void) {
   bt_core_teardown();
 }
 
+
 //-- tests
 
 BT_START_TEST(test_btmachine_obj1) {
@@ -58,6 +59,7 @@ BT_START_TEST(test_btmachine_obj1) {
 }
 BT_END_TEST
 
+
 /*
  * activate the input level meter in an unconnected machine
  */
@@ -75,6 +77,7 @@ BT_START_TEST(test_btmachine_enable_input_level1) {
   g_object_unref(machine);
 }
 BT_END_TEST
+
 
 /*
  * activate the input level meter in a connected machine
@@ -98,6 +101,7 @@ BT_START_TEST(test_btmachine_enable_input_level2) {
 }
 BT_END_TEST
 
+
 /*
  * activate the input gain control in an unconnected machine
  */
@@ -116,6 +120,7 @@ BT_START_TEST(test_btmachine_enable_input_gain1) {
 }
 BT_END_TEST
 
+
 /*
  * activate the output gain control in an unconnected machine
  */
@@ -133,6 +138,7 @@ BT_START_TEST(test_btmachine_enable_output_gain1) {
   g_object_unref(machine);
 }
 BT_END_TEST
+
 
 /*
  * add pattern
@@ -153,6 +159,7 @@ BT_START_TEST(test_btmachine_add_pattern) {
 }
 BT_END_TEST
 
+
 BT_START_TEST(test_btmachine_check_voices) {
   /* arrange */
   
@@ -171,6 +178,7 @@ BT_START_TEST(test_btmachine_check_voices) {
   g_object_unref(machine);
 }
 BT_END_TEST
+
 
 /*
  * change voices and verify that voices in machine and patetrn are in sync

@@ -25,21 +25,23 @@
 //-- tests
 
 // test if the normal init call works with commandline arguments (no args)
-START_TEST(test_btcore_init0) {
+BT_START_TEST(test_btcore_init0) {
   /* act */
   bt_init(&test_argc,&test_argvptr);
 }
-END_TEST
+BT_END_TEST
+
 
 // test if the init call handles correct null pointers
-START_TEST(test_btcore_init1) {
+BT_START_TEST(test_btcore_init1) {
   /* act */
   bt_init(NULL,NULL);
 }
-END_TEST
+BT_END_TEST
+
 
 // test if the normal init call works with commandline arguments
-START_TEST(test_btcore_init2) {
+BT_START_TEST(test_btcore_init2) {
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--bt-version" };
   gchar **test_argvptr = test_argv;
@@ -51,7 +53,8 @@ START_TEST(test_btcore_init2) {
   /* assert */  
   fail_unless(test_argc==1, NULL);
 }
-END_TEST
+BT_END_TEST
+
 
 TCase *bt_core_example_case(void) {
   TCase *tc = tcase_create("BtCoreExamples");

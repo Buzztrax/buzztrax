@@ -25,7 +25,7 @@
 //-- tests
 
 // test init with wrong arg usage
-START_TEST(test_btcore_init0  ) {
+BT_START_TEST(test_btcore_init0  ) {
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--bt-version=5" };
   gchar **test_argvptr = test_argv;
@@ -34,7 +34,7 @@ START_TEST(test_btcore_init0  ) {
   /* act */
   bt_init(&test_argc,&test_argvptr);
 }
-END_TEST
+BT_END_TEST
 
 /*
  * Test nonsense args.
@@ -43,7 +43,7 @@ END_TEST
  */
 #ifdef __CHECK_DISABLED__
 // test init with nonsense args
-START_TEST(test_btcore_init1) {
+BT_START_TEST(test_btcore_init1) {
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--bt-non-sense" };
   gchar **test_argvptr = test_argv;
@@ -52,7 +52,7 @@ START_TEST(test_btcore_init1) {
   /* act */
   bt_init(&test_argc,&test_argvptr);
 }
-END_TEST
+BT_END_TEST
 #endif
 
 TCase *bt_core_test_case(void) {

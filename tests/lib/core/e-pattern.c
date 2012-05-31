@@ -39,6 +39,7 @@ static void test_teardown(void) {
   bt_core_teardown();
 }
 
+
 //-- tests
 
 BT_START_TEST(test_btpattern_obj_mono1) {
@@ -56,6 +57,7 @@ BT_START_TEST(test_btpattern_obj_mono1) {
   g_object_unref(machine);
 }
 BT_END_TEST
+
 
 BT_START_TEST(test_btpattern_obj_mono2) {
   /* arrange */
@@ -79,6 +81,7 @@ BT_START_TEST(test_btpattern_obj_mono2) {
 }
 BT_END_TEST
 
+
 BT_START_TEST(test_btpattern_obj_poly1) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,NULL));
@@ -94,6 +97,7 @@ BT_START_TEST(test_btpattern_obj_poly1) {
   g_object_unref(machine);
 }
 BT_END_TEST
+
 
 BT_START_TEST(test_btpattern_obj_poly2) {
   /* arrange */
@@ -116,6 +120,7 @@ BT_START_TEST(test_btpattern_obj_poly2) {
 }
 BT_END_TEST
 
+
 BT_START_TEST(test_btpattern_obj_wire1) {
   /* arrange */
   BtMachine *src_machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
@@ -135,6 +140,7 @@ BT_START_TEST(test_btpattern_obj_wire1) {
   g_object_unref(sink_machine);
 }
 BT_END_TEST
+
 
 BT_START_TEST(test_btpattern_obj_wire2) {
   /* arrange */
@@ -156,6 +162,7 @@ BT_START_TEST(test_btpattern_obj_wire2) {
   g_object_unref(sink_machine);
 }
 BT_END_TEST
+
 
 BT_START_TEST(test_btpattern_copy) {
   /* arrange */
@@ -181,6 +188,7 @@ BT_START_TEST(test_btpattern_copy) {
 }
 BT_END_TEST
 
+
 BT_START_TEST(test_btpattern_has_data) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,NULL));
@@ -200,6 +208,7 @@ BT_START_TEST(test_btpattern_has_data) {
   g_object_try_unref(machine);
 }
 BT_END_TEST
+
 
 BT_START_TEST(test_btpattern_enlarge_length) {
   /* arrange */
@@ -223,6 +232,7 @@ BT_START_TEST(test_btpattern_enlarge_length) {
 }
 BT_END_TEST
 
+
 BT_START_TEST(test_btpattern_shrink_length) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
@@ -242,6 +252,7 @@ BT_START_TEST(test_btpattern_shrink_length) {
   g_object_try_unref(machine);
 }
 BT_END_TEST
+
 
 BT_START_TEST(test_btpattern_enlarge_voices) {
   /* arrange */
@@ -265,6 +276,7 @@ BT_START_TEST(test_btpattern_enlarge_voices) {
 }
 BT_END_TEST
 
+
 BT_START_TEST(test_btpattern_shrink_voices) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,NULL));
@@ -285,6 +297,7 @@ BT_START_TEST(test_btpattern_shrink_voices) {
   g_object_unref(machine);
 }
 BT_END_TEST
+
 
 BT_START_TEST(test_btpattern_insert_row) {
   /* arrange */
@@ -307,6 +320,7 @@ BT_START_TEST(test_btpattern_insert_row) {
   g_object_try_unref(machine);
 }
 BT_END_TEST
+
 
 BT_START_TEST(test_btpattern_delete_row) {
   /* arrange */

@@ -39,6 +39,7 @@ static void test_teardown(void) {
   bt_core_teardown();
 }
 
+
 //-- tests
 
 BT_START_TEST(test_btprocessormachine_obj1) {
@@ -57,6 +58,7 @@ BT_START_TEST(test_btprocessormachine_obj1) {
 }
 BT_END_TEST
 
+
 BT_START_TEST(test_btprocessormachine_pattern) {
   /* arrange */
   BtProcessorMachine *machine=bt_processor_machine_new(song,"vol","volume",0,NULL);
@@ -71,6 +73,7 @@ BT_START_TEST(test_btprocessormachine_pattern) {
   g_object_unref(machine);
 }
 BT_END_TEST
+
 
 BT_START_TEST(test_btprocessormachine_pattern_by_id) {
   /* arrange */
@@ -89,6 +92,7 @@ BT_START_TEST(test_btprocessormachine_pattern_by_id) {
   g_object_unref(machine);
 }
 BT_END_TEST
+
 
 BT_START_TEST(test_btprocessormachine_pattern_by_list) {
   GList *list,*node;
@@ -112,6 +116,7 @@ BT_START_TEST(test_btprocessormachine_pattern_by_list) {
 }
 BT_END_TEST
 
+
 BT_START_TEST(test_btprocessormachine_def_patterns) {
   /* arrange */
   BtProcessorMachine *machine=bt_processor_machine_new(song,"vol","volume",0,NULL);
@@ -130,6 +135,7 @@ BT_START_TEST(test_btprocessormachine_def_patterns) {
   g_object_unref(machine);
 }
 BT_END_TEST
+
 
 TCase *bt_processor_machine_example_case(void) {
   TCase *tc = tcase_create("BtProcessorMachineExamples");
