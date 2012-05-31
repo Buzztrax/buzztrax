@@ -42,7 +42,7 @@ static void test_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btprocessormachine_obj1) {
+BT_START_TEST(test_btprocessormachine_new) {
   /* arrange */
 
   /* act */
@@ -59,6 +59,26 @@ BT_START_TEST(test_btprocessormachine_obj1) {
 BT_END_TEST
 
 
+BT_START_TEST(test_btprocessormachine_def_patterns) {
+  /* arrange */
+  BtProcessorMachine *machine=bt_processor_machine_new(song,"vol","volume",0,NULL);
+
+  /* act */
+  GList *list;
+  g_object_get(machine,"patterns",&list,NULL);
+
+  /* assert */
+  fail_unless(list!=NULL, NULL);
+  ck_assert_int_eq(g_list_length(list),3);
+
+  /* cleanup */
+  g_list_foreach(list,(GFunc)g_object_unref,NULL);
+  g_list_free(list);
+  g_object_unref(machine);
+}
+BT_END_TEST
+
+
 BT_START_TEST(test_btprocessormachine_pattern) {
   /* arrange */
   BtProcessorMachine *machine=bt_processor_machine_new(song,"vol","volume",0,NULL);
@@ -67,6 +87,7 @@ BT_START_TEST(test_btprocessormachine_pattern) {
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   
   /* assert */
+  fail_unless(pattern!=NULL, NULL);
   ck_assert_gobject_gulong_eq(pattern,"voices",0);
 
   /* cleanup */
@@ -115,34 +136,14 @@ BT_START_TEST(test_btprocessormachine_pattern_by_list) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btprocessormachine_def_patterns) {
-  /* arrange */
-  BtProcessorMachine *machine=bt_processor_machine_new(song,"vol","volume",0,NULL);
-
-  /* act */
-  GList *list;
-  g_object_get(machine,"patterns",&list,NULL);
-
-  /* assert */
-  fail_unless(list!=NULL, NULL);
-  ck_assert_int_eq(g_list_length(list),3);
-
-  /* cleanup */
-  g_list_foreach(list,(GFunc)g_object_unref,NULL);
-  g_list_free(list);
-  g_object_unref(machine);
-}
-BT_END_TEST
-
-
 TCase *bt_processor_machine_example_case(void) {
   TCase *tc = tcase_create("BtProcessorMachineExamples");
 
-  tcase_add_test(tc,test_btprocessormachine_obj1);
+  tcase_add_test(tc,test_btprocessormachine_new);
+  tcase_add_test(tc,test_btprocessormachine_def_patterns);
   tcase_add_test(tc,test_btprocessormachine_pattern);
   tcase_add_test(tc,test_btprocessormachine_pattern_by_id);
   tcase_add_test(tc,test_btprocessormachine_pattern_by_list);
-  tcase_add_test(tc,test_btprocessormachine_def_patterns);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
