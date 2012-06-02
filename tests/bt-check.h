@@ -151,30 +151,30 @@ GObject *check_gobject_get_object_property(gpointer obj, const gchar *prop);
   gboolean __ck = check_gobject_get_boolean_property((O), (X)); \
   fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%ld, "#Y"==%ld", __ck, Y); \
 } while (0)
-#define ck_assert_gobject_boolean_eq(O, X, Y) _ck_assert_gboolean(O, X, ==, Y) 
-#define ck_assert_gobject_boolean_ne(O, X, Y) _ck_assert_gboolean(O, X, !=, Y) 
+#define ck_assert_gobject_boolean_eq(O, X, Y) _ck_assert_gboolean(O, X, ==, Y)
+#define ck_assert_gobject_boolean_ne(O, X, Y) _ck_assert_gboolean(O, X, !=, Y)
 
 #define _ck_assert_glong(O, X, C, Y) do { \
   glong __ck = check_gobject_get_long_property((O), (X)); \
   fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%ld, "#Y"==%ld", __ck, Y); \
 } while (0)
-#define ck_assert_gobject_glong_eq(O, X, Y) _ck_assert_glong(O, X, ==, Y) 
-#define ck_assert_gobject_glong_ne(O, X, Y) _ck_assert_glong(O, X, !=, Y) 
-#define ck_assert_gobject_glong_gt(O, X, Y) _ck_assert_glong(O, X, >, Y) 
-#define ck_assert_gobject_glong_lt(O, X, Y) _ck_assert_glong(O, X, <, Y) 
-#define ck_assert_gobject_glong_ge(O, X, Y) _ck_assert_glong(O, X, >=, Y) 
+#define ck_assert_gobject_glong_eq(O, X, Y) _ck_assert_glong(O, X, ==, Y)
+#define ck_assert_gobject_glong_ne(O, X, Y) _ck_assert_glong(O, X, !=, Y)
+#define ck_assert_gobject_glong_gt(O, X, Y) _ck_assert_glong(O, X, >, Y)
+#define ck_assert_gobject_glong_lt(O, X, Y) _ck_assert_glong(O, X, <, Y)
+#define ck_assert_gobject_glong_ge(O, X, Y) _ck_assert_glong(O, X, >=, Y)
 #define ck_assert_gobject_glong_le(O, X, Y) _ck_assert_glong(O, X, <=, Y)
 
 #define _ck_assert_gulong(O, X, C, Y) do { \
   gulong __ck = check_gobject_get_ulong_property((O), (X)); \
   fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%lu, "#Y"==%lu", __ck, Y); \
 } while (0)
-#define ck_assert_gobject_gulong_eq(O, X, Y) _ck_assert_gulong(O, X, ==, Y) 
-#define ck_assert_gobject_gulong_ne(O, X, Y) _ck_assert_gulong(O, X, !=, Y) 
-#define ck_assert_gobject_gulong_gt(O, X, Y) _ck_assert_gulong(O, X, >, Y) 
-#define ck_assert_gobject_gulong_lt(O, X, Y) _ck_assert_gulong(O, X, <, Y) 
-#define ck_assert_gobject_gulong_ge(O, X, Y) _ck_assert_gulong(O, X, >=, Y) 
-#define ck_assert_gobject_gulong_le(O, X, Y) _ck_assert_gulong(O, X, <=, Y) 
+#define ck_assert_gobject_gulong_eq(O, X, Y) _ck_assert_gulong(O, X, ==, Y)
+#define ck_assert_gobject_gulong_ne(O, X, Y) _ck_assert_gulong(O, X, !=, Y)
+#define ck_assert_gobject_gulong_gt(O, X, Y) _ck_assert_gulong(O, X, >, Y)
+#define ck_assert_gobject_gulong_lt(O, X, Y) _ck_assert_gulong(O, X, <, Y)
+#define ck_assert_gobject_gulong_ge(O, X, Y) _ck_assert_gulong(O, X, >=, Y)
+#define ck_assert_gobject_gulong_le(O, X, Y) _ck_assert_gulong(O, X, <=, Y)
 
 #define _ck_assert_gobject(O, X, C, Y) do { \
   GObject *__ck = check_gobject_get_object_property ((O), (X)); \
@@ -200,6 +200,14 @@ GObject *check_gobject_get_object_property(gpointer obj, const gchar *prop);
 #define ck_assert_gobject_eq_and_unref(X, Y) _ck_assert_gobject_and_unref(X, ==, Y)
 #define ck_assert_gobject_ne_and_unref(X, Y) _ck_assert_gobject_and_unref(X, !=, Y)
 
+#define _ck_assert_uint64(X, O, Y) ck_assert_msg((X) O (Y), "Assertion '"#X#O#Y"' failed: "#X"==%llu, "#Y"==%llu", X, Y)
+#define ck_assert_uint64_eq(X, Y) _ck_assert_uint64(X, ==, Y)
+#define ck_assert_uint64_ne(X, Y) _ck_assert_uint64(X, !=, Y)
+#define ck_assert_uint64_gt(X, Y) _ck_assert_uint64(X, >, Y)
+#define ck_assert_uint64_lt(X, Y) _ck_assert_uint64(X, <, Y)
+#define ck_assert_uint64_ge(X, Y) _ck_assert_uint64(X, >=, Y)
+#define ck_assert_uint64_le(X, Y) _ck_assert_uint64(X, <=, Y)
+
 void check_setup_test_server(void);
 void check_setup_test_display(void);
 void check_shutdown_test_display(void);
@@ -219,7 +227,7 @@ struct _BtCheckWidgetScreenshotRegions {
   gchar *name;
   gchar *label;
   GType type;
-  GtkPositionType pos; 
+  GtkPositionType pos;
 };
 typedef struct _BtCheckWidgetScreenshotRegions BtCheckWidgetScreenshotRegions;
 
