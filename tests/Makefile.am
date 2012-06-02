@@ -215,10 +215,12 @@ coverage:: $(TESTS_BIN)
 	    -l$(top_builddir)/src/lib/ic/.libs/libbuzztard-ic.so \
 	    ./$$i; \
 	  if test -f .bcovdump; then \
-	    tail -n +5 ~/temp/.bcovdump >>.bcovdump.all; \
+	    tail -n +5 .bcovdump >>.bcovdump.all; \
 	    rm -f .bcovdump; \
 	  fi \
-	done
+	done \
+	mkdir -p coverage \
+	bcov-report -i $(top_abs_srcdir) .bcovdump.all coverage \
 endif
 
 if USE_VALGRIND
