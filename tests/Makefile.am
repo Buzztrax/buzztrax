@@ -220,7 +220,7 @@ coverage:: $(TESTS_BIN)
 	  fi \
 	done \
 	mkdir -p coverage \
-	bcov-report -i $(top_abs_srcdir) .bcovdump.all coverage \
+	bcov-report -i $(top_abs_srcdir) .bcovdump.all coverage
 endif
 
 if USE_VALGRIND
