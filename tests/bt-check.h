@@ -145,6 +145,7 @@ gboolean check_gobject_get_boolean_property(gpointer obj, const gchar *prop);
 glong check_gobject_get_long_property(gpointer obj, const gchar *prop);
 gulong check_gobject_get_ulong_property(gpointer obj, const gchar *prop);
 GObject *check_gobject_get_object_property(gpointer obj, const gchar *prop);
+gchar *check_gobject_get_str_property(gpointer obj, const gchar *prop);
 
 /* comparsion macros with improved output compared to fail_unless(). */
 #define _ck_assert_gboolean(O, X, C, Y) do { \
@@ -191,6 +192,10 @@ GObject *check_gobject_get_object_property(gpointer obj, const gchar *prop);
 } while(0)
 #define ck_assert_str_eq_and_free(X, Y) _ck_assert_str_and_free(!g_strcmp0, X, ==, Y)
 #define ck_assert_str_ne_and_free(X, Y) _ck_assert_str_and_free(g_strcmp0, X, !=, Y)
+
+#define ck_assert_gobject_str_eq(O, X, Y) _ck_assert_str_and_free(!g_strcmp0, check_gobject_get_str_property((O), (X)), ==, Y)
+#define ck_assert_gobject_str_ne(O, X, Y) _ck_assert_str_and_free(g_strcmp0, check_gobject_get_str_property((O), (X)), !=, Y)
+
 
 #define _ck_assert_gobject_and_unref(X, C, Y) do { \
   GObject *__ck = (GObject *)(X); \

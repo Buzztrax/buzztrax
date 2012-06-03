@@ -762,6 +762,13 @@ GObject *check_gobject_get_object_property(gpointer obj, const gchar *prop) {
   return val;
 }
 
+gchar *check_gobject_get_str_property(gpointer obj, const gchar *prop) {
+  gchar *val;
+
+  g_object_get(obj,prop,&val,NULL);
+  return val;  
+}
+
 // gtk+ gui tests
 
 /* it could also be done in a makefile

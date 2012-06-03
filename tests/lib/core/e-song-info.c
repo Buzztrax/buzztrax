@@ -21,51 +21,38 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
 static void test_setup(void) {
   bt_core_setup();
+  app=bt_test_application_new();
+  song=bt_song_new(app);
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
   bt_core_teardown();
 }
 
-/*
-* In this test we show, how to get the creation date of an song from the
-* song info class. We load a example song and try to retrive the creation date
-* from it.
-*/
-BT_START_TEST(test_btsonginfo_createdate) {
-  BtApplication *app=NULL;
-  BtSong *song;
-  BtSongIO *loader;
-  BtSongInfo *song_info=NULL;
-  gchar *create_dts=NULL;
+BT_START_TEST(test_btsonginfo_date_stamps) {
+  /* arrange */
+  BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  /* act */
+  gchar *create_dts=check_gobject_get_str_property(song_info,"create-dts");
 
-  // loading a song xml file
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  mark_point();
-  bt_song_io_load(loader,song);
-  mark_point();
-  // get the song info class from the song property
-  g_object_get(song,"song-info",&song_info,NULL);
-  mark_point();
-  // get the creating date property from the song info
-  g_object_get(song_info,"create-dts",&create_dts,NULL);
-  fail_unless(create_dts!=NULL,NULL);
+  /* assert */
+  fail_unless(create_dts != NULL, NULL);
+  ck_assert_gobject_str_eq(song_info,"change-dts",create_dts);
+
+  /* cleanup */
   g_free(create_dts);
-
   g_object_unref(song_info);
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-
 }
 BT_END_TEST
 
@@ -73,52 +60,30 @@ BT_END_TEST
 * Test changing the tempo
 */
 BT_START_TEST(test_btsonginfo_tempo) {
-  BtApplication *app=NULL;
-  BtSong *song;
-  BtSongIO *loader;
-  BtSongInfo *song_info;
-  BtSequence *sequence;
-  GstClockTime t1, t2;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  // loading a song xml file
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  mark_point();
-  bt_song_io_load(loader,song);
-  mark_point();
-  // get the song info class from the song property
-  g_object_get(song,"song-info",&song_info,"sequence",&sequence,NULL);
-  mark_point();
-  // set a new bpm
+  /* arrange */
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
+  BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
   g_object_set(song_info,"bpm",120,NULL);
-  t1=bt_sequence_get_bar_time(sequence);
+  GstClockTime t1=bt_sequence_get_bar_time(sequence);
 
-  // set a new bpm
+  /* act */
   g_object_set(song_info,"bpm",60,NULL);
-  t2=bt_sequence_get_bar_time(sequence);
-  
-  fail_unless(t2>t1,NULL);
-  fail_unless((t2/2)==t1,NULL);
-  
-  // wait a bit for the change to happen
-  g_usleep(G_USEC_PER_SEC/10);
+  GstClockTime t2=bt_sequence_get_bar_time(sequence);
 
+  /* assert */
+  ck_assert_uint64_gt(t2,t1);
+  ck_assert_uint64_eq((t2/2),t1);
+  
+  /* cleanup */
   g_object_unref(song_info);
   g_object_unref(sequence);
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-
 }
 BT_END_TEST
 
 TCase *bt_song_info_example_case(void) {
   TCase *tc = tcase_create("BtSongInfoExamples");
 
-  tcase_add_test(tc,test_btsonginfo_createdate);
+  tcase_add_test(tc,test_btsonginfo_date_stamps);
   tcase_add_test(tc,test_btsonginfo_tempo);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
