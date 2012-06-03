@@ -218,8 +218,8 @@ coverage:: $(TESTS_BIN)
 	    tail -n +5 .bcovdump >>.bcovdump.all; \
 	    rm -f .bcovdump; \
 	  fi \
-	done \
-	mkdir -p coverage \
+	done; \
+	mkdir -p coverage; \
 	bcov-report -i $(top_abs_srcdir) .bcovdump.all coverage
 endif
 
