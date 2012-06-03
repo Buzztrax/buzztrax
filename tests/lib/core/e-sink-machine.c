@@ -27,18 +27,24 @@ static BtSettings *settings;
 
 //-- fixtures
 
-static void test_setup(void) {
+static void suite_setup(void) {
   bt_core_setup();
+  GST_INFO("================================================================================");
+}
+
+static void test_setup(void) {
   app=bt_test_application_new();
   song=bt_song_new(app);
   settings=bt_settings_make();
-  GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
   g_object_unref(settings);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
+}
+
+static void suite_teardown(void) {
   bt_core_teardown();
 }
 
@@ -139,7 +145,6 @@ BT_START_TEST(test_btsinkmachine_pattern_by_list) {
   /* cleanup */
   g_list_foreach(list,(GFunc)g_object_unref,NULL);
   g_list_free(list);
-
   g_object_unref(pattern);
   g_object_unref(machine);
 }
@@ -147,42 +152,38 @@ BT_END_TEST
 
 
 BT_START_TEST(test_btsinkmachine_default) {
-  BtSinkMachine *machine;
-  GError *err=NULL;
-
-  /* configure a sink for testing */
+  /* arrange */
   g_object_set(settings,"audiosink",NULL,NULL);
 
-  /* arrange */
-
-  /* create a machine */
-  machine=bt_sink_machine_new(song,"master",&err);
+  /* act */
+  GError *err=NULL;
+  BtSinkMachine *machine=bt_sink_machine_new(song,"master",&err);
+  
+  /* assert */
   fail_unless(machine != NULL, NULL);
   fail_unless(err==NULL, NULL);
 
+  /* cleanup */
   g_object_try_unref(machine);
 }
 BT_END_TEST
 
 
 BT_START_TEST(test_btsinkmachine_fallback) {
-  BtSinkMachine *machine;
-  GError *err=NULL;
+  /* arrange */
   gchar *settings_str=NULL;
-
-  /* configure a sink for testing */
   g_object_set(settings,"audiosink",NULL,NULL);
   bt_test_settings_set(BT_TEST_SETTINGS(settings),"system-audiosink",&settings_str);
 
-  /* arrange */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  /* create a machine */
-  machine=bt_sink_machine_new(song,"master",&err);
+  /* act */
+  GError *err=NULL;
+  BtSinkMachine *machine=bt_sink_machine_new(song,"master",&err);
+  
+  /* assert */
   fail_unless(machine != NULL, NULL);
   fail_unless(err==NULL, NULL);
 
+  /* cleanup */
   g_object_try_unref(machine);
 }
 BT_END_TEST
@@ -261,6 +262,7 @@ TCase *bt_sink_machine_example_case(void) {
   tcase_add_test(tc,test_btsinkmachine_default);
   tcase_add_test(tc,test_btsinkmachine_fallback);
   tcase_add_test(tc,test_btsinkmachine_latency);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  tcase_add_checked_fixture(tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture(tc,suite_setup, suite_teardown);
   return(tc);
 }
