@@ -202,9 +202,10 @@ clean-local:
 .PHONY: coverage valgrind test-status
 
 if USE_BCOV
-## LD_PRELOAD=../src/lib/core/.libs/libbuzztard-core.so.0.6.0 CK_FORK=no bcov -l../src/lib/core/.libs/libbuzztard-core.so.0.6.0 ./.libs/bt_cmd
-## LD_PRELOAD=../src/lib/core/.libs/libbuzztard-core.so CK_FORK=no bcov -l../src/lib/core/.libs/libbuzztard-core.so ./.libs/bt_cmd
 ## CK_FORK=no bcov -l../src/lib/core/.libs/libbuzztard-core.so ./.libs/bt_cmd
+## CK_FORK=no bcov -l../src/lib/core/.libs/libbuzztard-core.so -l../src/lib/ic/.libs/libbuzztard-ic.so ./.libs/bt_core
+## CK_FORK=no libtool --mode=execute bcov -l../src/lib/core/.libs/libbuzztard-core.so -l../src/lib/ic/.libs/libbuzztard-ic.so ./bt_core
+## - we're missing the libs coverage, but it is not due to BSymbolic :/
 # make coverage        -- generate coverage report from make check run
 coverage:: $(TESTS_BIN)
 	echo "command make check" >.bcovdump.all; \

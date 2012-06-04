@@ -27,6 +27,7 @@
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
+extern Suite *bt_application_suite(void);
 extern Suite *bt_core_suite(void);
 extern Suite *bt_machine_suite(void);
 extern Suite *bt_network_suite(void);
@@ -81,21 +82,22 @@ int main(int argc, char **argv) {
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
-  sr=srunner_create(bt_core_suite());
+  sr=srunner_create(bt_application_suite());
+  srunner_add_suite(sr, bt_core_suite());
   srunner_add_suite(sr, bt_machine_suite());
   srunner_add_suite(sr, bt_pattern_suite());
   srunner_add_suite(sr, bt_processor_machine_suite());
   srunner_add_suite(sr, bt_sequence_suite());
+  srunner_add_suite(sr, bt_settings_suite());
   srunner_add_suite(sr, bt_setup_suite());
   srunner_add_suite(sr, bt_sink_machine_suite());
-  srunner_add_suite(sr, bt_song_suite());
-  srunner_add_suite(sr, bt_song_io_suite());
-  srunner_add_suite(sr, bt_song_io_native_suite());
   srunner_add_suite(sr, bt_song_info_suite());
+  srunner_add_suite(sr, bt_song_io_native_suite());
+  srunner_add_suite(sr, bt_song_io_suite());
+  srunner_add_suite(sr, bt_song_suite());
   srunner_add_suite(sr, bt_source_machine_suite());
   srunner_add_suite(sr, bt_tools_suite());
   srunner_add_suite(sr, bt_wire_suite());
-  srunner_add_suite(sr, bt_settings_suite());
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
