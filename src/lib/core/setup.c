@@ -1326,6 +1326,7 @@ GList *bt_setup_get_machines_by_type(const BtSetup * const self, const GType typ
   for(node=self->priv->machines;node;node=g_list_next(node)) {
     BtMachine * const machine=BT_MACHINE(node->data);
     if(G_OBJECT_TYPE(machine)==type) {
+      GST_DEBUG_OBJECT(machine,"getting machine: %p,ref_ct %d",machine,G_OBJECT_REF_COUNT(machine));
       machines=g_list_prepend(machines,g_object_ref(machine));
     }
   }
@@ -1404,7 +1405,7 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachin
     if(machine==dst) found=TRUE;
     g_object_unref(machine);
     if(found) {
-      GST_DEBUG_OBJECT(wire,"getting wire: %p,ref_ct %d",wire,G_OBJECT_REF_COUNT(wire));
+      GST_DEBUG_OBJECT(wire,"getting wire: %p,ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
       return(g_object_ref(wire));
     }
   }
