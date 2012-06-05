@@ -29,7 +29,6 @@ static BtSettings *settings;
 
 static void suite_setup(void) {
   bt_core_setup();
-  GST_INFO("================================================================================");
 }
 
 static void test_setup(void) {

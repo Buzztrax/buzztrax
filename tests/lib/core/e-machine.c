@@ -28,7 +28,6 @@ static BtSong *song;
 
 static void suite_setup(void) {
   bt_core_setup();
-  GST_INFO("================================================================================");
 }
 
 static void test_setup(void) {

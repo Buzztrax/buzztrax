@@ -87,6 +87,7 @@ static void cleanup_cache_dir(void) {
 }
 
 void bt_edit_setup(void) {
+  GST_INFO("================================================================================");
   gtk_init(&test_argc,&test_argvptr);
   bt_init(&test_argc,&test_argvptr);
   btic_init(&test_argc,&test_argvptr);

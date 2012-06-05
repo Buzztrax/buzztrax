@@ -21,6 +21,16 @@
 
 //-- globals
 
+//-- fixtures
+
+static void suite_setup(void) {
+  bt_core_setup();
+}
+
+static void suite_teardown(void) {
+  bt_core_teardown();
+}
+
 
 //-- tests
 
@@ -47,5 +57,6 @@ TCase *bt_application_example_case(void) {
   TCase *tc = tcase_create("BtApplicationExamples");
 
   tcase_add_test(tc,test_btapplication_new);
+  tcase_add_unchecked_fixture(tc,suite_setup, suite_teardown);
   return(tc);
 }

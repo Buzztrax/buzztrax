@@ -30,13 +30,13 @@ GST_DEBUG_CATEGORY_EXTERN(btic_debug);
 extern Suite *bt_ic_suite(void);
 extern Suite *bt_registry_suite(void);
 
-gint test_argc=1;
-gchar test_arg0[]="check_buzzard";
-gchar *test_argv[1];
-gchar **test_argvptr;
+gchar *test_argv[] = { "check_buzzard" };
+gchar **test_argvptr = test_argv;
+gint test_argc=G_N_ELEMENTS(test_argv) - 1;
 
 /* common setup and teardown code */
 void bt_ic_setup(void) {
+  GST_INFO("================================================================================");
 }
 
 void bt_ic_teardown(void) {
@@ -57,8 +57,6 @@ int main(int argc, char **argv) {
   g_type_init();
   setup_log(argc,argv);
   setup_log_capture();
-  test_argv[0]=test_arg0;
-  test_argvptr=test_argv;
 
   btic_init(&test_argc,&test_argvptr);
   gst_init(NULL,NULL);

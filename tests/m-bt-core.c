@@ -51,6 +51,7 @@ gint test_argc=G_N_ELEMENTS(test_argv) - 1;
 
 /* common setup and teardown code */
 void bt_core_setup(void) {
+  GST_INFO("================================================================================");
 }
 
 void bt_core_teardown(void) {
