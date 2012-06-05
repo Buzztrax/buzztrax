@@ -142,7 +142,7 @@ BtSettings *bt_settings_make(void) {
     g_object_add_weak_pointer((GObject *)singleton,(gpointer*)(gpointer)&singleton);
   }
   else {
-    GST_INFO("return cached settings object %p (refct=%d)",singleton,G_OBJECT_REF_COUNT(singleton),g_thread_self());
+    GST_INFO("return cached settings object %p (ref_ct=%d)",singleton,G_OBJECT_REF_COUNT(singleton));
     singleton=g_object_ref(singleton);
   }
   return(BT_SETTINGS(singleton));
@@ -163,7 +163,7 @@ void bt_settings_set_factory(BtSettingsFactory factory) {
     bt_settings_factory=factory;
   }
   else {
-    GST_WARNING("can't change factory while having %d usages",G_OBJECT_REF_COUNT(singleton));
+    GST_WARNING("can't change factory while having %d instances in use",G_OBJECT_REF_COUNT(singleton));
   }
 }
 
