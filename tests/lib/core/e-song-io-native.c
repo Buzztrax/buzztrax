@@ -21,27 +21,45 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+static BtSettings *settings;
+
 //-- fixtures
 
-static void test_setup(void) {
+static void suite_setup(void) {
   bt_core_setup();
   GST_INFO("================================================================================");
 }
 
+static void test_setup(void) {
+  app=bt_test_application_new();
+  settings=bt_settings_make();
+  g_object_set(settings,"audiosink","fakesink",NULL);
+  song=bt_song_new(app);
+}
+
 static void test_teardown(void) {
+  g_object_checked_unref(song);
+  g_object_unref(settings);
+  g_object_checked_unref(app);
+}
+
+static void suite_teardown(void) {
   bt_core_teardown();
-  //puts(__FILE__":teardown");
 }
 
 //-- helper
 
-static void assert_machine_refcount(BtSetup *setup, const gchar *id, guint refs) {
+static gint get_machine_refcount(BtSetup *setup, const gchar *id) {
   BtMachine *machine=bt_setup_get_machine_by_id(setup,id);
-
-  fail_unless(machine!=NULL,NULL);
-  GST_INFO_OBJECT(machine, "setup.machine[%s].ref_ct=%d == %d?",id,G_OBJECT_REF_COUNT(machine)-1,refs);
-  fail_unless((G_OBJECT_REF_COUNT(machine)-1)==refs,NULL);
-  g_object_unref(machine);
+  gint ref_ct=0;
+  
+  if(machine) {
+    ref_ct=G_OBJECT_REF_COUNT(machine) - 1;
+    g_object_unref(machine);
+  }
+  return ref_ct;
 }
 
 static void assert_song_part_refcounts(BtSong *song) {
@@ -52,104 +70,205 @@ static void assert_song_part_refcounts(BtSong *song) {
 
   g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&songinfo,"wavetable",&wavetable,NULL);
 
-  fail_unless(setup!=NULL,NULL);
-  GST_INFO("setup.ref_count=%d",G_OBJECT_REF_COUNT(setup));
-  fail_unless(G_OBJECT_REF_COUNT(setup)==2,NULL);
-
-  fail_unless(sequence!=NULL,NULL);
-  GST_INFO("sequence.ref_count=%d",G_OBJECT_REF_COUNT(sequence));
-  fail_unless(G_OBJECT_REF_COUNT(sequence)==2,NULL);
-
-  fail_unless(songinfo!=NULL,NULL);
-  GST_INFO("songinfo.ref_count=%d",G_OBJECT_REF_COUNT(songinfo));
-  fail_unless(G_OBJECT_REF_COUNT(songinfo)==2,NULL);
-
-  fail_unless(wavetable!=NULL,NULL);
-  GST_INFO("wavetable.ref_count=%d",G_OBJECT_REF_COUNT(wavetable));
-  fail_unless(G_OBJECT_REF_COUNT(wavetable)==2,NULL);
+  ck_assert_int_eq(G_OBJECT_REF_COUNT(setup),2);
+  ck_assert_int_eq(G_OBJECT_REF_COUNT(sequence),2);
+  ck_assert_int_eq(G_OBJECT_REF_COUNT(songinfo),2);
+  ck_assert_int_eq(G_OBJECT_REF_COUNT(wavetable),2);
 
   g_object_unref(setup);
   g_object_unref(sequence);
   g_object_unref(songinfo);
   g_object_unref(wavetable);
 }
+
+static gchar *make_tmp_song_path(const gchar *name, const gchar *ext) {
+  gchar *song_name=g_strconcat(name,ext,NULL);
+  gchar *song_path=g_build_filename(g_get_tmp_dir(),song_name,NULL);
+  g_free(song_name);
+  GST_INFO("testing '%s'",song_path);
+  return song_path;
+}
+
+static void make_song_without_externals(void) {
+  BtMachine *sink=BT_MACHINE(bt_sink_machine_new(song,"master",NULL));
+  BtMachine *gen=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
+  BtWire *wire=bt_wire_new(song, gen, sink,NULL);
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(gen));
+  g_object_unref(pattern);
+  g_object_unref(wire);
+  g_object_unref(gen);
+  g_object_unref(sink);
+  GST_INFO("  song created");
+}
+
+static void make_song_with_externals(const gchar *ext_data_uri) {
+  BtMachine *sink=BT_MACHINE(bt_sink_machine_new(song,"master",NULL));
+  BtMachine *gen=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
+  BtWire *wire=bt_wire_new(song, gen, sink,NULL);
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(gen));
+  BtWave *wave=bt_wave_new(song,"sample1",ext_data_uri,1,1.0,BT_WAVE_LOOP_MODE_OFF,0);  
+  g_object_unref(wave);
+  g_object_unref(pattern);
+  g_object_unref(wire);
+  g_object_unref(gen);
+  g_object_unref(sink);
+  GST_INFO("  song created");
+}
+
 
 //-- tests
 
-BT_START_TEST(test_btsong_io_native_refcounts) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *song_io;
-  gboolean res;
-  BtSetup *setup;
-  BtSequence *sequence;
-  BtSongInfo *songinfo;
-  BtWavetable *wavetable;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  /* load the song */
-  song_io=bt_song_io_from_file(check_get_test_song_path("simple2.xml"));
-  fail_unless(song_io != NULL, NULL);
-
-  res=bt_song_io_load(song_io,song);
-  fail_unless(res == TRUE, NULL);
-  GST_INFO("song.ref_count=%d",G_OBJECT_REF_COUNT(song));
-  fail_unless(G_OBJECT_REF_COUNT(song)==1,NULL);
-
-  /* assert main song part refcounts */
-  g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&songinfo,"wavetable",&wavetable,NULL);
-
-  fail_unless(setup!=NULL,NULL);
-  GST_INFO("setup.ref_ct=%d",G_OBJECT_REF_COUNT(setup));
-  fail_unless(G_OBJECT_REF_COUNT(setup)==2,NULL);
-
-  fail_unless(sequence!=NULL,NULL);
-  GST_INFO("sequence.ref_ct=%d",G_OBJECT_REF_COUNT(sequence));
-  fail_unless(G_OBJECT_REF_COUNT(sequence)==2,NULL);
-
-  fail_unless(songinfo!=NULL,NULL);
-  GST_INFO("songinfo.ref_ct=%d",G_OBJECT_REF_COUNT(songinfo));
-  fail_unless(G_OBJECT_REF_COUNT(songinfo)==2,NULL);
-
-  fail_unless(wavetable!=NULL,NULL);
-  GST_INFO("wavetable.ref_ct=%d",G_OBJECT_REF_COUNT(wavetable));
-  fail_unless(G_OBJECT_REF_COUNT(wavetable)==2,NULL);
+BT_START_TEST(test_btsong_io_native_new) {
+  /* arrange */
   
-  /* assert machine refcounts */
-  // 1 x pipeline, 1 x setup, 1 x wire
-  assert_machine_refcount(setup,"audio_sink",3);
-  // 1 x pipeline, 1 x setup, 2 x wire, 1 x sequence
-  assert_machine_refcount(setup,"amp1",5);
-  // 1 x pipeline, 1 x setup, 1 x wire, 1 x sequence
-  assert_machine_refcount(setup,"sine1",4);
-
-  /* TODO(ensonic): check more refcounts (wires)
-   * grep "ref_ct=" /tmp/bt_core.log
-   */
-
-  g_object_unref(setup);
-  g_object_unref(sequence);
-  g_object_unref(songinfo);
-  g_object_unref(wavetable);
-
+  /* act */
+  BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("simple2.xml"));
+  
+  /* assert */
+  fail_unless(song_io != NULL, NULL);
+  
+  /* cleanup */
   g_object_checked_unref(song_io);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/* for testing we use autoaudiosink and that slows down logging files here :/ */
+
+BT_START_TEST(test_btsong_io_native_formats) {
+  /* arrange */
+  BtSongIOFormatInfo *fi=bt_song_io_native_module_info.formats;
+  
+  while(fi->type) {
+    gchar *song_path=make_tmp_song_path("bt-test0-song.",fi->extension);
+
+    /* act */
+    BtSongIO *song_io=bt_song_io_from_file(song_path);
+    
+    /* assert */
+    fail_unless(song_io != NULL, NULL);
+
+    /* cleanup */
+    g_object_checked_unref(song_io);
+    g_free(song_path);
+    fi++;
+  }
+}
+BT_END_TEST
+
+
+BT_START_TEST(test_btsong_io_native_load) {
+  /* arrange */
+  BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("simple2.xml"));
+  
+  /* act */
+  
+  /* assert */
+  fail_unless(bt_song_io_load(song_io,song) == TRUE, NULL);
+  
+  /* cleanup */
+  g_object_checked_unref(song_io);
+}
+BT_END_TEST
+
+
+BT_START_TEST(test_btsong_io_native_core_refcounts) {
+  /* arrange */
+  BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("simple2.xml"));
+
+  /* act */
+  bt_song_io_load(song_io,song);
+
+  /* assert */
+  ck_assert_int_eq(G_OBJECT_REF_COUNT(song),1);
+  assert_song_part_refcounts(song);
+
+  /* cleanup */
+  g_object_checked_unref(song_io);
+}
+BT_END_TEST
+
+
+BT_START_TEST(test_btsong_io_native_setup_refcounts_0) {
+  /* arrange */
+  BtSetup *setup;
+  BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("test-simple0.xml"));
+  g_object_get(song,"setup",&setup,NULL);
+
+  /* act */
+  bt_song_io_load(song_io,song);
+
+  /* assert */
+  // 1 x setup
+  ck_assert_int_eq(get_machine_refcount(setup,"audio_sink"),1);
+
+  /* cleanup */
+  g_object_unref(setup);
+  g_object_checked_unref(song_io);
+}
+BT_END_TEST
+
+
+BT_START_TEST(test_btsong_io_native_setup_refcounts_1) {
+  /* arrange */
+  BtSetup *setup;
+  BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
+  g_object_get(song,"setup",&setup,NULL);
+
+  /* act */
+  bt_song_io_load(song_io,song);
+
+  /* assert */
+  // 1 x pipeline, 1 x setup, 1 x wire
+  ck_assert_int_eq(get_machine_refcount(setup,"audio_sink"),3);
+  // 1 x pipeline, 1 x setup, 1 x wire, 1 x sequence
+  ck_assert_int_eq(get_machine_refcount(setup,"sine1"),4);
+
+  /* TODO(ensonic): check more refcounts (wires)
+   * BT_CHECKS="test_btsong_io_native_setup_refcounts_1" make bt_core.check
+   * grep "ref_ct=" /tmp/bt_core.log
+   */
+
+  /* cleanup */
+  g_object_unref(setup);
+  g_object_checked_unref(song_io);
+}
+BT_END_TEST
+
+
+BT_START_TEST(test_btsong_io_native_setup_refcounts_2) {
+  /* arrange */
+  BtSetup *setup;
+  BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("test-simple2.xml"));
+  g_object_get(song,"setup",&setup,NULL);
+
+  /* act */
+  bt_song_io_load(song_io,song);
+
+  /* assert */
+  // 1 x pipeline, 1 x setup, 1 x wire
+  ck_assert_int_eq(get_machine_refcount(setup,"audio_sink"),3);
+  // 1 x pipeline, 1 x setup, 2 x wire
+  ck_assert_int_eq(get_machine_refcount(setup,"amp1"),4);
+  // 1 x pipeline, 1 x setup, 1 x wire, 1 x sequence
+  ck_assert_int_eq(get_machine_refcount(setup,"sine1"),4);
+
+  /* TODO(ensonic): check more refcounts (wires)
+   * BT_CHECKS="test_btsong_io_native_setup_refcounts_2" make bt_core.check
+   * grep "ref_ct=" /tmp/bt_core.log
+   */
+
+  /* cleanup */
+  g_object_unref(setup);
+  g_object_checked_unref(song_io);
+}
+BT_END_TEST
+
+
 BT_START_TEST(test_btsong_io_native_song_refcounts) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
   BtSongIO *song_io;
   gboolean res;
   GstElement *bin;
-  gchar **song_name,*song_names[]={
-    "simple2.xml",
+  gchar *song_names[]={
+    "test-simple0.xml",
     "test-simple1.xml",
     "test-simple2.xml",
     "test-simple3.xml",
@@ -157,228 +276,140 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
     "test-simple5.xml",
     NULL
   };
-  BtSettings *settings=bt_settings_make();
+  gchar **song_name=song_names;
 
-  /* tweak the config */
-  g_object_set(settings,"audiosink","fakesink",NULL);
-
-  /* create app */
-  app=bt_test_application_new();
+  /* arrange */
   g_object_get(app,"bin",&bin,NULL);
-  GST_INFO("song.elements=%d",GST_BIN_NUMCHILDREN(bin));
-  fail_unless(GST_BIN_NUMCHILDREN(bin) == 0, NULL);
 
-  song_name=song_names;
   while(*song_name) {
     /* load the song */
     song_io=bt_song_io_from_file(check_get_test_song_path(*song_name));
-    fail_unless(song_io != NULL, NULL);
-    song=bt_song_new(app);
     res=bt_song_io_load(song_io,song);
     fail_unless(res == TRUE, NULL);
-    GST_INFO("song.ref_count=%d",G_OBJECT_REF_COUNT(song));
-    fail_unless(G_OBJECT_REF_COUNT(song)==1,NULL);
+
     GST_INFO("song[%s].elements=%d",*song_name,GST_BIN_NUMCHILDREN(bin));
 
-    /* assert main song part refcounts */
+    /* assert  */
+    ck_assert_int_eq(G_OBJECT_REF_COUNT(song),1);
     assert_song_part_refcounts(song);
 
     g_object_checked_unref(song_io);
     g_object_checked_unref(song);
-    GST_INFO("song.elements=%d",GST_BIN_NUMCHILDREN(bin));
-    fail_unless(GST_BIN_NUMCHILDREN(bin) == 0, NULL);
+    song=bt_song_new(app);
+
+    ck_assert_int_eq(GST_BIN_NUMCHILDREN(bin),0);
 
     song_name++;
-  };
+  }
 
+  /* cleanup */
   gst_object_unref(bin);
-  g_object_unref(settings);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-BT_START_TEST(test_btsong_io_write_song1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
+
+BT_START_TEST(test_btsong_io_write_empty_song) {
   BtSongIO *song_io;
   gboolean res;
-  gchar *song_path,*song_name;
-  gchar **format,*formats[]={"xml","bzt",NULL};
-  BtSettings *settings=bt_settings_make();
 
-  /* tweak the config */
-  g_object_set(settings,"audiosink","fakesink",NULL);
+  /* arrange */
+  BtSongIOFormatInfo *fi=bt_song_io_native_module_info.formats;
 
-  /* create app */
-  app=bt_test_application_new();
-
-  /* test the formats */
-  format=formats;
-  while(*format) {
-    song_name=g_strconcat("bt-test1-song.",*format,NULL);
-    song_path=g_build_filename(g_get_tmp_dir(),song_name,NULL);
-
-    GST_INFO("testing write for %s",song_path);
+  while(fi->type) {
+    gchar *song_path=make_tmp_song_path("bt-test1-song.",fi->extension);
 
     /* save empty song */
-    song=bt_song_new(app);
     song_io=bt_song_io_from_file(song_path);
-    fail_unless(song_io != NULL, NULL);
     res=bt_song_io_save(song_io,song);
     fail_unless(res == TRUE, NULL);
 
     g_object_checked_unref(song_io);
     g_object_checked_unref(song);
+    song=bt_song_new(app);
 
     /* load the song */
     song_io=bt_song_io_from_file(song_path);
-    fail_unless(song_io != NULL, NULL);
-    song=bt_song_new(app);
     res=bt_song_io_load(song_io,song);
     fail_unless(res == TRUE, NULL);
 
     g_object_checked_unref(song_io);
     g_object_checked_unref(song);
+    song=bt_song_new(app);
 
+    /* cleanup */
     g_free(song_path);
-    g_free(song_name);
-    format++;
+    fi++;
   }
-
-  g_object_unref(settings);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-BT_START_TEST(test_btsong_io_write_song2) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtMachine *gen,*sink;
-  BtWire *wire;
-  BtPattern *pattern;
+
+BT_START_TEST(test_btsong_io_write_song_without_externals) {
   BtSongIO *song_io;
   gboolean res;
-  gchar *song_path,*song_name;
-  gchar **format,*formats[]={"xml","bzt",NULL};
-  BtSettings *settings=bt_settings_make();
 
-  /* tweak the config */
-  g_object_set(settings,"audiosink","fakesink",NULL);
-
-  /* create app */
-  app=bt_test_application_new();
+  /* arrange */
+  BtSongIOFormatInfo *fi=bt_song_io_native_module_info.formats;
 
   /* test the formats */
-  format=formats;
-  while(*format) {
-    song_name=g_strconcat("bt-test2-song.",*format,NULL);
-    song_path=g_build_filename(g_get_tmp_dir(),song_name,NULL);
+  while(fi->type) {
+    gchar *song_path=make_tmp_song_path("bt-test2-song.",fi->extension);
 
-    GST_INFO("testing write for %s",song_path);
-
-    /* create a test song */
-    song=bt_song_new(app);
-    sink=BT_MACHINE(bt_sink_machine_new(song,"master",NULL));
-    gen=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
-    wire=bt_wire_new(song, gen, sink,NULL);
-    pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(gen));
-    g_object_unref(pattern);
-    g_object_unref(wire);
-    g_object_unref(gen);
-    g_object_unref(sink);
+    make_song_without_externals();
 
     /* save the song*/
     song_io=bt_song_io_from_file(song_path);
-    fail_unless(song_io != NULL, NULL);
     res=bt_song_io_save(song_io,song);
     fail_unless(res == TRUE, NULL);
 
     g_object_checked_unref(song_io);
     g_object_checked_unref(song);
+    song=bt_song_new(app);
 
     /* load the song */
     song_io=bt_song_io_from_file(song_path);
-    fail_unless(song_io != NULL, NULL);
-    song=bt_song_new(app);
     res=bt_song_io_load(song_io,song);
     fail_unless(res == TRUE, NULL);
 
     g_object_checked_unref(song_io);
     g_object_checked_unref(song);
+    song=bt_song_new(app);
 
     g_free(song_path);
-    g_free(song_name);
-    format++;
+    fi++;
   }
-
-  g_object_unref(settings);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-BT_START_TEST(test_btsong_io_write_song3) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtMachine *gen,*sink;
-  BtWire *wire;
-  BtPattern *pattern;
-  BtWave *wave;
+
+BT_START_TEST(test_btsong_io_write_song_with_externals) {
   BtSongIO *song_io;
   gboolean res;
-  gchar *song_path,*song_name;
-  gchar **format,*formats[]={"xml","bzt",NULL};
-  gchar *ext_data_path,*ext_data_uri;
-  BtSettings *settings=bt_settings_make();
 
-  /* make external data */
-  ext_data_path=g_build_filename(g_get_tmp_dir(),"test.wav",NULL);
-  ext_data_uri=g_strconcat("file://",ext_data_path,NULL);
-
-  /* tweak the config */
-  g_object_set(settings,"audiosink","fakesink",NULL);
-
-  /* create app */
-  app=bt_test_application_new();
+  /* arrange */
+  BtSongIOFormatInfo *fi=bt_song_io_native_module_info.formats;
+  gchar *ext_data_path=g_build_filename(g_get_tmp_dir(),"test.wav",NULL);
+  gchar *ext_data_uri=g_strconcat("file://",ext_data_path,NULL);
 
   /* test the formats */
-  format=formats;
-  while(*format) {
-    song_name=g_strconcat("bt-test3-song.",*format,NULL);
-    song_path=g_build_filename(g_get_tmp_dir(),song_name,NULL);
+  while(fi->type) {
+    gchar *song_path=make_tmp_song_path("bt-test3-song.",fi->extension);
 
-    GST_INFO("testing write for %s",song_path);
-
-    /* create a test song with external data */
-    song=bt_song_new(app);
-    sink=BT_MACHINE(bt_sink_machine_new(song,"master",NULL));
-    gen=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
-    wire=bt_wire_new(song, gen, sink,NULL);
-    pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(gen));
-    wave=bt_wave_new(song,"sample1",ext_data_uri,1,1.0,BT_WAVE_LOOP_MODE_OFF,0);
-    fail_unless(wave != NULL, NULL);
+    make_song_with_externals(ext_data_uri);
     
-    GST_INFO("  song created");
-
     /* save the song*/
     song_io=bt_song_io_from_file(song_path);
-    fail_unless(song_io != NULL, NULL);
     res=bt_song_io_save(song_io,song);
     fail_unless(res == TRUE, NULL);
 
-    g_object_unref(sink);
-    g_object_unref(gen);
-    g_object_unref(wire);
-    g_object_unref(pattern);
-    g_object_unref(wave);
     g_object_checked_unref(song_io);
     g_object_checked_unref(song);
+    song=bt_song_new(app);
     
     GST_INFO("  song saved");
 
     /* load the song */
     song_io=bt_song_io_from_file(song_path);
-    fail_unless(song_io != NULL, NULL);
-    song=bt_song_new(app);
     res=bt_song_io_load(song_io,song);
     fail_unless(res == TRUE, NULL);
     
@@ -386,27 +417,34 @@ BT_START_TEST(test_btsong_io_write_song3) {
 
     g_object_checked_unref(song_io);
     g_object_checked_unref(song);
+    song=bt_song_new(app);
 
     g_free(song_path);
-    g_free(song_name);
-    format++;
+    fi++;
   }
 
-  g_object_unref(settings);
-  g_object_checked_unref(app);
+  /* cleanup */
   g_free(ext_data_uri);
   g_free(ext_data_path);
 }
 BT_END_TEST
 
+
 TCase *bt_song_io_native_example_case(void) {
   TCase *tc = tcase_create("BtSongIONativeExamples");
 
-  tcase_add_test(tc,test_btsong_io_native_refcounts);
+  tcase_add_test(tc,test_btsong_io_native_new);
+  tcase_add_test(tc,test_btsong_io_native_formats);
+  tcase_add_test(tc,test_btsong_io_native_load);
+  tcase_add_test(tc,test_btsong_io_native_core_refcounts);
+  tcase_add_test(tc,test_btsong_io_native_setup_refcounts_0);
+  tcase_add_test(tc,test_btsong_io_native_setup_refcounts_1);
+  tcase_add_test(tc,test_btsong_io_native_setup_refcounts_2);
   tcase_add_test(tc,test_btsong_io_native_song_refcounts);
-  tcase_add_test(tc,test_btsong_io_write_song1);
-  tcase_add_test(tc,test_btsong_io_write_song2);
-  tcase_add_test(tc,test_btsong_io_write_song3);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  tcase_add_test(tc,test_btsong_io_write_empty_song);
+  tcase_add_test(tc,test_btsong_io_write_song_without_externals);
+  tcase_add_test(tc,test_btsong_io_write_song_with_externals);
+  tcase_add_checked_fixture(tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture(tc,suite_setup, suite_teardown);
   return(tc);
 }

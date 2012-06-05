@@ -150,6 +150,7 @@ noinst_songdata = \
 	songs/simple3.bzt \
 	songs/simple4.bzt \
 	songs/simple5.bzt \
+	songs/test-simple0.xml \
 	songs/test-simple1.xml \
 	songs/test-simple2.xml \
 	songs/test-simple3.xml \

@@ -45,6 +45,9 @@ static void suite_teardown(void) {
   bt_core_teardown();
 }
 
+
+//-- tests
+
 BT_START_TEST(test_btsonginfo_date_stamps) {
   /* arrange */
   BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
