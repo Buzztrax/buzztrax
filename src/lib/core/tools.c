@@ -119,8 +119,12 @@ gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,c
     tmpl=node->data;
     if(tmpl->direction==GST_PAD_SINK) {
       caps=gst_static_caps_get(&tmpl->static_caps);
-      size=gst_caps_get_size(caps);
       GST_INFO("  testing caps: %" GST_PTR_FORMAT, caps);
+      if(gst_caps_is_any(caps)) {
+        gst_caps_unref(caps);
+        return(TRUE);
+      }
+      size=gst_caps_get_size(caps);
       for(i=0;i<size;i++) {
         s=gst_caps_get_structure(caps,i);
         if(gst_structure_has_name(s,name)) {
