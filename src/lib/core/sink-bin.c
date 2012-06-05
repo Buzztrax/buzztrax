@@ -38,23 +38,23 @@
  * TODO(ensonic): for upnp it would be nice to stream on-demand
  *
  * TODO(ensonic): add a metronome
- *   - a clock properties to sink-bin:
- *     - two guint properties "beat", "tick"
- *     - a float/double property: "beat.tick":
- *       - 3.0, 3.25, 3.50, 3.75, 4.0
- *       - 3.0, 3.1,  3.2,  3.3,  4.0
- *   - use a pad-probe like master_volume_sync_handler (consider reusing) to sync them
- *     - this is followed by volume ! level ! capsfilter ! audioresample ! tee ! audiosink
- *     - this might be good to compensate the processing latency for control-out 
- *     - we could also plug a fakesink/appsink to the tee
- *   - we need to calculate beat,tick from the buffer ts
- *     subtick = ts / chunk
- *     tick = ts / (chunk * subticks_per_tick)
- *     beat = (gint) tick / ticks_per_beat 
- *   - the gtk-ui can have two on-screen leds
- *   - sink-bin could use the keyboard leds to indicate them (with #ifdef LINUX)
- *     - need root permissions :/
- *   - we can also use this to implement control-out machines
+ * - a clock properties to sink-bin:
+ *   - two guint properties "beat", "tick"
+ *   - a float/double property: "beat.tick":
+ *     - 3.0, 3.25, 3.50, 3.75, 4.0
+ *     - 3.0, 3.1,  3.2,  3.3,  4.0
+ * - use a pad-probe like master_volume_sync_handler (consider reusing) to sync them
+ *   - this is followed by volume ! level ! capsfilter ! audioresample ! tee ! audiosink
+ *   - this might be good to compensate the processing latency for control-out 
+ *   - we could also plug a fakesink/appsink to the tee
+ * - we need to calculate beat,tick from the buffer ts
+ *   subtick = ts / chunk
+ *   tick = ts / (chunk * subticks_per_tick)
+ *   beat = (gint) tick / ticks_per_beat 
+ * - the gtk-ui can have two on-screen leds
+ * - sink-bin could use the keyboard leds to indicate them (with #ifdef LINUX)
+ *   - need root permissions :/
+ * - we can also use this to implement control-out machines
  */
 
 #define BT_CORE
@@ -67,11 +67,6 @@
 //#define BT_MONITOR_SINK_DATA_FLOW
 /* define this to verify continuous timestamps */
 //#define BT_MONITOR_TIMESTAMPS
-
-/* this requires gstreamer-0.10.16 */
-#ifndef GST_TIME_AS_USECONDS
-#define GST_TIME_AS_USECONDS(time) ((time) / G_GINT64_CONSTANT (1000))
-#endif
 
 //-- property ids
 
@@ -133,9 +128,12 @@ struct _BtSinkBinPrivate {
   GList *analyzers;
 };
 
-//-- the class
+//-- prototypes
 
 static void bt_sink_bin_configure_latency(const BtSinkBin * const self);
+static void on_audio_sink_child_added(GstBin *bin, GstElement *element, gpointer user_data);
+
+//-- the class
 
 static void bt_sink_bin_tempo_interface_init(gpointer const g_iface, gpointer const iface_data);
 
@@ -282,6 +280,24 @@ static void bt_sink_bin_configure_latency(const BtSinkBin * const self) {
   }
 }
 
+static void bt_sink_bin_set_audio_sink(const BtSinkBin * const self, GstElement *sink) {
+  // enable syncing to timestamps
+  g_object_set(sink,
+    "sync",TRUE,
+    /* if we do this, live pipelines go playing, but still sources don't start */
+    /*"async", FALSE,*/ /* <- this breaks scrubbing on timeline */
+     /* this helps trickplay and scrubbing, there seems to be some time issue
+      * in baseaudiosink
+      */
+    /*"slave-method",2,*/
+    /*"provide-clock",FALSE, */
+    /* this does not lockup anymore, but does not give us better latencies */
+    /*"can-activate-pull",TRUE,*/
+    NULL);
+  self->priv->audio_sink=sink;
+  bt_sink_bin_configure_latency(self);  
+}
+
 static void bt_sink_bin_clear(const BtSinkBin * const self) {
   GstBin * const bin=GST_BIN(self);
   GstElement *elem;
@@ -388,21 +404,9 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
     GST_WARNING("Can't instantiate '%s' element",plugin_name);goto Error;
   }
   if(GST_IS_BASE_SINK(element)) {
-    // enable syncing to timestamps
-    g_object_set(element,
-      "sync",TRUE,
-      /* if we do this, live pipelines go playing, but still sources don't start */
-      /*"async", FALSE,*/ /* <- this breaks scrubbing on timeline */
-       /* this helps trickplay and scrubbing, there seems to be some time issue
-        * in baseaudiosink
-        */
-      /*"slave-method",2,*/
-      /*"provide-clock",FALSE, */
-      /* this does not lockup anymore, but does not give us better latencies */
-      /*"can-activate-pull",TRUE,*/
-      NULL);
-    self->priv->audio_sink=element;
-    bt_sink_bin_configure_latency(self);
+    bt_sink_bin_set_audio_sink(self,element);
+  } else if(GST_IS_BIN(element)) {
+    g_signal_connect(element, "element-added", G_CALLBACK(on_audio_sink_child_added), (gpointer)self);
   }
   list=g_list_append(list,element);
 
@@ -781,6 +785,14 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
 }
 
 //-- event handler
+
+static void on_audio_sink_child_added(GstBin *bin, GstElement *element, gpointer user_data) {
+  BtSinkBin *self = BT_SINK_BIN(user_data);
+  
+  if(GST_IS_BASE_SINK(element)) {
+    bt_sink_bin_set_audio_sink(self,element);
+  }
+}
 
 static void on_audio_sink_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
   BtSinkBin *self = BT_SINK_BIN(user_data);

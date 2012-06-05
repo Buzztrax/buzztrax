@@ -47,6 +47,25 @@ static void suite_teardown(void) {
   bt_core_teardown();
 }
 
+//-- helper
+
+static GstElement *get_sink_element(GstBin *bin) {
+  GstElement *e;
+  GList *node;
+  
+  GST_INFO_OBJECT(bin,"looking for audio_sink");
+  for(node=GST_BIN_CHILDREN(bin);node;node=g_list_next(node)) {
+    e=(GstElement *)node->data;
+    if(GST_IS_BIN(e) && GST_OBJECT_FLAG_IS_SET(e,GST_ELEMENT_IS_SINK)) {
+      return get_sink_element((GstBin *)e);
+    }
+    if(GST_IS_BASE_AUDIO_SINK(e)) {
+      return e;
+    }
+  }
+  return NULL;
+}
+
 
 //-- tests
 
@@ -188,37 +207,38 @@ BT_START_TEST(test_btsinkmachine_fallback) {
 BT_END_TEST
 
 
+BT_START_TEST(test_btsinkmachine_actual_sink) {
+  /* arrange */
+  BtSinkMachine *machine=bt_sink_machine_new(song,"master",NULL);
+
+  /* act */
+  GstElement *sink_bin=GST_ELEMENT(check_gobject_get_object_property(machine,"machine"));
+  gst_element_set_state(sink_bin, GST_STATE_READY);
+  GstElement *sink=get_sink_element((GstBin *)sink_bin);
+  
+  /* assert */
+  fail_unless(sink != NULL, NULL);
+
+  /* cleanup */
+  gst_object_unref(sink_bin);
+  g_object_try_unref(machine);
+}
+BT_END_TEST
+
+
 BT_START_TEST(test_btsinkmachine_latency) {
-  BtSongInfo *song_info=NULL;
-  BtSinkMachine *machine;
-  GstElement *sink_bin,*sink=NULL;
-  GError *err=NULL;
-  GList *node;
   gulong bpm, tpb, st, c_bpm, c_tpb;
   gint64 latency_time,c_latency_time;
   guint latency;
 
   /* arrange */
-  g_object_get(song,"song-info",&song_info,NULL);
-
-  /* create a machine */
-  machine=bt_sink_machine_new(song,"master",&err);
-  fail_unless(machine != NULL, NULL);
-  fail_unless(err==NULL, NULL);
+  BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
+  BtSinkMachine *machine=bt_sink_machine_new(song,"master",NULL);
+  GstElement *sink_bin=GST_ELEMENT(check_gobject_get_object_property(machine,"machine"));
+  gst_element_set_state(sink_bin, GST_STATE_READY);
+  GstElement *sink=get_sink_element((GstBin *)sink_bin);
   
-  g_object_get(machine,"machine",&sink_bin,NULL);
-  fail_unless(sink_bin != NULL, NULL);
-  fail_unless(BT_IS_SINK_BIN(sink_bin), NULL);
-  // grab the audio sink from the child_list
-  for(node=GST_BIN_CHILDREN(sink_bin);node;node=g_list_next(node)) {
-    if(GST_IS_BASE_AUDIO_SINK(node->data)) {
-      sink=node->data;
-      break;
-    }
-  }
-  fail_unless(sink != NULL, NULL);
-  GST_INFO_OBJECT(sink,"before test loop");
-  
+  /* act */
   // set various bpm, tpb on song_info, set various latency on settings
   // assert the resulting latency-time properties on the audio_sink
   for(latency=20;latency<=80;latency+=10) {
@@ -236,13 +256,16 @@ BT_START_TEST(test_btsinkmachine_latency) {
           st,latency,
           latency_time,c_latency_time,
           (latency_time-((gint)latency*1000))/1000);
-        fail_unless(c_bpm == bpm, NULL);
-        fail_unless(c_tpb == tpb, NULL);
-        fail_unless(c_latency_time == latency_time, NULL);
+        
+        /* assert */
+        ck_assert_ulong_eq(c_bpm,bpm);
+        ck_assert_ulong_eq(c_tpb,tpb);
+        ck_assert_int64_eq(c_latency_time,latency_time);
       }
     }
   }
 
+  /* cleanup */
   gst_object_unref(sink_bin);
   g_object_try_unref(machine);
   g_object_unref(song_info);
@@ -260,6 +283,7 @@ TCase *bt_sink_machine_example_case(void) {
   tcase_add_test(tc,test_btsinkmachine_pattern_by_list);
   tcase_add_test(tc,test_btsinkmachine_default);
   tcase_add_test(tc,test_btsinkmachine_fallback);
+  tcase_add_test(tc,test_btsinkmachine_actual_sink);
   tcase_add_test(tc,test_btsinkmachine_latency);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc,suite_setup, suite_teardown);

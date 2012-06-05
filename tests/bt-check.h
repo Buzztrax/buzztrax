@@ -205,6 +205,14 @@ gchar *check_gobject_get_str_property(gpointer obj, const gchar *prop);
 #define ck_assert_gobject_eq_and_unref(X, Y) _ck_assert_gobject_and_unref(X, ==, Y)
 #define ck_assert_gobject_ne_and_unref(X, Y) _ck_assert_gobject_and_unref(X, !=, Y)
 
+#define _ck_assert_ulong(X, O, Y) ck_assert_msg((X) O (Y), "Assertion '"#X#O#Y"' failed: "#X"==%lu, "#Y"==%lu", X, Y)
+#define ck_assert_ulong_eq(X, Y) _ck_assert_ulong(X, ==, Y)
+#define ck_assert_ulong_ne(X, Y) _ck_assert_ulong(X, !=, Y)
+#define ck_assert_ulong_gt(X, Y) _ck_assert_ulong(X, >, Y)
+#define ck_assert_ulong_lt(X, Y) _ck_assert_ulong(X, <, Y)
+#define ck_assert_ulong_ge(X, Y) _ck_assert_ulong(X, >=, Y)
+#define ck_assert_ulong_le(X, Y) _ck_assert_ulong(X, <=, Y)
+
 #define _ck_assert_uint64(X, O, Y) ck_assert_msg((X) O (Y), "Assertion '"#X#O#Y"' failed: "#X"==%llu, "#Y"==%llu", X, Y)
 #define ck_assert_uint64_eq(X, Y) _ck_assert_uint64(X, ==, Y)
 #define ck_assert_uint64_ne(X, Y) _ck_assert_uint64(X, !=, Y)
@@ -212,6 +220,14 @@ gchar *check_gobject_get_str_property(gpointer obj, const gchar *prop);
 #define ck_assert_uint64_lt(X, Y) _ck_assert_uint64(X, <, Y)
 #define ck_assert_uint64_ge(X, Y) _ck_assert_uint64(X, >=, Y)
 #define ck_assert_uint64_le(X, Y) _ck_assert_uint64(X, <=, Y)
+
+#define _ck_assert_int64(X, O, Y) ck_assert_msg((X) O (Y), "Assertion '"#X#O#Y"' failed: "#X"==%lld, "#Y"==%lld", X, Y)
+#define ck_assert_int64_eq(X, Y) _ck_assert_int64(X, ==, Y)
+#define ck_assert_int64_ne(X, Y) _ck_assert_int64(X, !=, Y)
+#define ck_assert_int64_gt(X, Y) _ck_assert_int64(X, >, Y)
+#define ck_assert_int64_lt(X, Y) _ck_assert_int64(X, <, Y)
+#define ck_assert_int64_ge(X, Y) _ck_assert_int64(X, >=, Y)
+#define ck_assert_int64_le(X, Y) _ck_assert_int64(X, <=, Y)
 
 void check_setup_test_server(void);
 void check_setup_test_display(void);
