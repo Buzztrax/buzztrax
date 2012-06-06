@@ -251,7 +251,7 @@ BT_START_TEST(test_btsinkmachine_latency) {
         g_object_get(sink,"latency-time",&c_latency_time,NULL);
         latency_time=GST_TIME_AS_USECONDS((GST_SECOND*60)/(bpm*tpb*st));
         GST_INFO_OBJECT(sink,
-          "bpm=%3lu=%3lu, tpb=%1lu=%1lu, stpb=%2lu, target-latency=%2u , latency-time=%6"G_GINT64_FORMAT"=%6"G_GINT64_FORMAT", delta=%+4d ",
+          "bpm=%3lu=%3lu, tpb=%"G_GUINT64_FORMAT"=%"G_GUINT64_FORMAT", stpb=%2lu, target-latency=%2u , latency-time=%6"G_GINT64_FORMAT"=%6"G_GINT64_FORMAT", delta=%+4d ",
           bpm,c_bpm,tpb,c_tpb,
           st,latency,
           latency_time,c_latency_time,
