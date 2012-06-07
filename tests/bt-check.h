@@ -136,6 +136,8 @@ gboolean check_has_error_trapped(void);
 void setup_log(int argc, char **argv);
 void setup_log_capture(void);
 
+void check_run_main_loop_for_usec(gulong usec);
+
 const gchar *check_get_test_song_path(const gchar *name);
 
 gboolean file_contains_str(gchar *tmp_file_name, gchar *string);

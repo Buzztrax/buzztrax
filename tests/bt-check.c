@@ -275,6 +275,9 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
 
 
 // runtime test selection via env-var BT_CHECKS
+// injected via out tcase_add_test override
+// we could do this also for suite_add_tcase and srunner_add_suite
+// maybe by treating the env-var as <suite>:<tcase>:<test>
 gboolean _bt_check_run_test_func(const gchar * func_name)
 {
   const gchar *checks;
@@ -297,6 +300,20 @@ gboolean _bt_check_run_test_func(const gchar * func_name)
   }
   g_strfreev (funcs);
   return res;
+}
+
+// main loop
+
+static gboolean _check_end_main_loop(gpointer user_data) {
+  g_main_loop_quit((GMainLoop *)user_data);
+  return FALSE;
+}
+
+void check_run_main_loop_for_usec(gulong usec) {
+  GMainLoop *loop=g_main_loop_new(g_main_context_default(),FALSE);
+  
+  g_timeout_add_full(G_PRIORITY_HIGH, usec/1000, _check_end_main_loop, loop, NULL);
+  g_main_loop_run(loop);
 }
 
 // test file access
