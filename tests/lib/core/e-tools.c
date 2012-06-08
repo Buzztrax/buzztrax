@@ -23,32 +23,40 @@
 
 //-- fixtures
 
-static void test_setup(void) {
+static void suite_setup(void) {
   bt_core_setup();
-  GST_INFO("================================================================================");
 }
 
-static void test_teardown(void) {
+static void suite_teardown(void) {
   bt_core_teardown();
 }
 
 //-- tests
 
 BT_START_TEST(test_bttools_element_check0) {
+  /* arrange */
   GList *to_check=g_list_prepend(NULL,"__ploink__");
+  
+  /* act */
   GList *missing=bt_gst_check_elements(to_check);
+  
+  /* assert */
   fail_unless(missing!=NULL,NULL);
-  fail_unless(!strcmp(missing->data,"__ploink__"),NULL);
+  ck_assert_str_eq(missing->data,"__ploink__");
   fail_unless(g_list_next(missing)==NULL,NULL);
 }
 BT_END_TEST
 
 
 BT_START_TEST(test_bttools_element_check1) {
+  /* arrange */
   GList *to_check=g_list_prepend(NULL,"__ploink__");
   to_check=g_list_prepend(to_check,"__bang__");
 
+  /* act */
   GList *missing=bt_gst_check_elements(to_check);
+  
+  /* assert */
   fail_unless(missing!=NULL,NULL);
   fail_unless(g_list_next(missing)!=NULL,NULL);
   fail_unless(g_list_next(g_list_next(missing))==NULL,NULL);
@@ -61,6 +69,6 @@ TCase *bt_tools_example_case(void) {
 
   tcase_add_test(tc,test_bttools_element_check0);
   tcase_add_test(tc,test_bttools_element_check1);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture(tc, suite_setup, suite_teardown);
   return(tc);
 }
