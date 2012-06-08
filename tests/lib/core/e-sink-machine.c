@@ -93,12 +93,11 @@ BT_START_TEST(test_btsinkmachine_def_patterns) {
   BtSinkMachine *machine=bt_sink_machine_new(song,"master",NULL);
 
   /* act */
-  GList *list;
-  g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
+  GList *list=(GList *)check_gobject_get_ptr_property(machine,"patterns");
 
   /* assert */
   fail_unless(list!=NULL, NULL);
-  ck_assert_int_eq(g_list_length(list),2);
+  ck_assert_int_eq(g_list_length(list),2); /* break+mute */
 
   /* cleanup */
   g_list_foreach(list,(GFunc)g_object_unref,NULL);
@@ -146,16 +145,14 @@ BT_END_TEST
 
 
 BT_START_TEST(test_btsinkmachine_pattern_by_list) {
-  GList *list,*node;
-
   /* arrange */
   g_object_set(settings,"audiosink","fakesink",NULL);
   BtSinkMachine *machine=bt_sink_machine_new(song,"master",NULL);
   BtCmdPattern *pattern=(BtCmdPattern *)bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
-  g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
+  GList *list=(GList *)check_gobject_get_ptr_property(machine,"patterns");
 
   /* act */
-  node=g_list_last(list);
+  GList *node=g_list_last(list);
 
   /* assert */
   fail_unless(node->data==pattern, NULL);

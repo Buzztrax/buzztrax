@@ -786,6 +786,13 @@ gchar *check_gobject_get_str_property(gpointer obj, const gchar *prop) {
   return val;  
 }
 
+gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop) {
+  gpointer val;
+
+  g_object_get(obj,prop,&val,NULL);
+  return val;  
+}
+
 // gtk+ gui tests
 
 /* it could also be done in a makefile

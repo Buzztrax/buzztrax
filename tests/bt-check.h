@@ -148,6 +148,7 @@ glong check_gobject_get_long_property(gpointer obj, const gchar *prop);
 gulong check_gobject_get_ulong_property(gpointer obj, const gchar *prop);
 GObject *check_gobject_get_object_property(gpointer obj, const gchar *prop);
 gchar *check_gobject_get_str_property(gpointer obj, const gchar *prop);
+gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 
 /* comparsion macros with improved output compared to fail_unless(). */
 #define _ck_assert_gboolean(O, X, C, Y) do { \
