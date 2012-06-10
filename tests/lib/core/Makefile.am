@@ -9,13 +9,13 @@ libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-sequence.c e-sequence.c t-sequence.c \
 	s-setup.c e-setup.c t-setup.c \
 	s-sink-machine.c e-sink-machine.c t-sink-machine.c \
-	s-song.c t-song.c e-song.c \
+	s-song.c e-song.c t-song.c \
 	s-song-io.c e-song-io.c t-song-io.c \
 	s-song-io-native.c e-song-io-native.c t-song-io-native.c \
 	s-song-info.c e-song-info.c t-song-info.c \
 	s-source-machine.c e-source-machine.c t-source-machine.c \
-	s-tools.c t-tools.c e-tools.c \
-	s-wire.c t-wire.c \
+	s-tools.c e-tools.c t-tools.c \
+	s-wire.c e-wire.c t-wire.c \
 	s-settings.c t-settings.c
 
 AM_CPPFLAGS = \

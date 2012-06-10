@@ -21,11 +21,24 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
 static void suite_setup(void) {
   bt_init(&test_argc,&test_argvptr);
   bt_core_setup();
+}
+
+static void test_setup(void) {
+  app=bt_test_application_new();
+  song=bt_song_new(app);
+}
+
+static void test_teardown(void) {
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 
 static void suite_teardown(void) {
@@ -35,58 +48,32 @@ static void suite_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btsong_io_module_info) {
+BT_START_TEST(test_btwire_new) {
   /* arrange */
+  BtMachine *gen=BT_MACHINE(bt_source_machine_new(song,"gen","audiotestsrc",0L,NULL));
+  BtMachine *sink=BT_MACHINE(bt_sink_machine_new(song,"master",NULL));
 
   /* act */
-  const GList *mi=bt_song_io_get_module_info_list();
-
+  GError *err=NULL;
+  BtWire *wire=bt_wire_new(song, gen, sink,&err);
+  
   /* assert */
-  fail_unless(mi!=NULL, NULL);
-
+  fail_unless(wire != NULL, NULL);
+  fail_unless(err==NULL, NULL);
+  
   /* cleanup */
+  g_object_unref(wire);
+  g_object_unref(gen);
+  g_object_unref(sink);
 }
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_file) {
-  /* arrange */
+TCase *bt_wire_example_case(void) {
+  TCase *tc = tcase_create("BtWireExamples");
 
-  /* act */
-  BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("simple2.xml"));
-
-  /* assert */
-  fail_unless(song_io!=NULL, NULL);
-  fail_unless(BT_IS_SONG_IO_NATIVE(song_io), NULL);
-
-  /* cleanup */
-  g_object_checked_unref(song_io);
-}
-BT_END_TEST
-
-
-BT_START_TEST(test_btsong_io_data) {
-  /* arrange */
-
-  /* act */
-  BtSongIO *song_io=bt_song_io_from_data(NULL,0,"audio/x-bzt-xml");
-
-  /* assert */
-  fail_unless(song_io!=NULL, NULL);
-  fail_unless(BT_IS_SONG_IO_NATIVE(song_io), NULL);
-
-  /* cleanup */
-  g_object_checked_unref(song_io);
-}
-BT_END_TEST
-
-
-TCase *bt_song_io_example_case(void) {
-  TCase *tc = tcase_create("BtSongIOExamples");
-
-  tcase_add_test(tc,test_btsong_io_module_info);
-  tcase_add_test(tc,test_btsong_io_file);
-  tcase_add_test(tc,test_btsong_io_data);
+  tcase_add_test(tc,test_btwire_new);
+  tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc,suite_setup, suite_teardown);
   return(tc);
 }

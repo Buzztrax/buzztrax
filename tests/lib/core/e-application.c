@@ -24,6 +24,7 @@
 //-- fixtures
 
 static void suite_setup(void) {
+  bt_init(&test_argc,&test_argvptr);
   bt_core_setup();
 }
 

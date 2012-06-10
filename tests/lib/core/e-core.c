@@ -55,13 +55,13 @@ BT_START_TEST(test_btcore_init2) {
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--bt-version" };
   gchar **test_argvptr = test_argv;
-  gint test_argc=G_N_ELEMENTS(test_argv) - 1;
+  gint test_argc=G_N_ELEMENTS(test_argv);
 
   /* act */
   bt_init(&test_argc,&test_argvptr);
 
   /* assert */  
-  fail_unless(test_argc==1, NULL);
+  ck_assert_int_eq(test_argc, 1);
 }
 BT_END_TEST
 

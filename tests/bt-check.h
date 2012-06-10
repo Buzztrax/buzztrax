@@ -133,7 +133,7 @@ void bt_check_init(void);
 void check_init_error_trapp(gchar *method, gchar *test);
 gboolean check_has_error_trapped(void);
 
-void setup_log(int argc, char **argv);
+void setup_log(gint argc, gchar **argv);
 void setup_log_capture(void);
 
 void check_run_main_loop_for_usec(gulong usec);

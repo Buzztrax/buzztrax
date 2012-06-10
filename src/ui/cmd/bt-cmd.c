@@ -41,17 +41,18 @@
 
 #include "bt-cmd.h"
 
-static void usage(int argc, char **argv, GOptionContext *ctx) {
+static void usage(gint argc, gchar **argv, GOptionContext *ctx) {
   gchar *help=g_option_context_get_help(ctx, TRUE, NULL);
   puts(help);
   g_free(help);
 }
 
-int main(int argc, char **argv) {
+gint main(gint argc, gchar **argv) {
   gboolean res=FALSE;
   gboolean arg_version=FALSE;
   gboolean arg_quiet=FALSE;
   gchar *command=NULL,*input_file_name=NULL,*output_file_name=NULL;
+  gint saved_argc=argc;
   BtCmdApplication *app;
   GOptionContext *ctx;
   GOptionGroup *group;
@@ -108,7 +109,9 @@ int main(int argc, char **argv) {
     goto Done;
   }
   if(!command) {
-    usage(argc, argv, ctx);
+    if(argc==saved_argc) {
+      usage(argc, argv, ctx);
+    }
     goto Done;
   }
   

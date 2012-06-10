@@ -26,6 +26,10 @@ TESTS = \
 # set theme (check which theme is used)
 #    GTK2_RC_FILES=$HOME/.themes/Darkilouche/gtk-2.0/gtkrc
 #
+# hint alsa/pulseaudio to be quiet
+#    PULSE_SINK=???
+#    ALSA_CARD, ALSA_PCM_CARD, DISPLAY_ALSA_DEVICE, AUDIODEV
+#
 TESTS_ENVIRONMENT = \
 	CK_DEFAULT_TIMEOUT=20 \
 	LANG=C \

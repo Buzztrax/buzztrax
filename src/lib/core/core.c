@@ -60,6 +60,7 @@ const guint bt_micro_version=BT_MICRO_VERSION;
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
 static gboolean bt_initialized = FALSE;
+static gboolean arg_version = FALSE;
 
 GstCaps *bt_default_caps=NULL;
 
@@ -82,6 +83,10 @@ static gboolean bt_init_post (void) {
   //-- initialize dynamic parameter control module
   gst_controller_init(NULL,NULL);
   gst_pb_utils_init();
+  
+  if (arg_version) {
+    g_printf("libbtcore-%d.%d.%d from "PACKAGE_STRING"\n",BT_MAJOR_VERSION,BT_MINOR_VERSION,BT_MICRO_VERSION);
+  }
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 
@@ -115,7 +120,7 @@ static gboolean bt_init_post (void) {
 
 #if 0
 // I just got
-// switching scheduler failed: Die Operation ist nicht erlaubt
+// switching scheduler failed: operation is not permitted
 // see /etc/security/limits.conf
 #ifdef HAVE_SCHED_SETSCHEDULER
   // @idea; only do this in non-debug builds
@@ -152,21 +157,6 @@ static gboolean bt_init_post (void) {
   return(TRUE);
 }
 
-static gboolean parse_goption_arg(const gchar * opt, const gchar * arg, gpointer data, GError ** err)
-{
-  gboolean ret=TRUE;
-
-  if (!strcmp (opt, "--bt-version")) {
-    g_printf("libbtcore-%d.%d.%d from "PACKAGE_STRING"\n",BT_MAJOR_VERSION,BT_MINOR_VERSION,BT_MICRO_VERSION);
-  }
-  else {
-    // TODO(ensonic): need to set error here
-    ret=FALSE;
-  }
-
-  return(ret);
-}
-
 //-- core initialisation
 
 /**
@@ -184,15 +174,16 @@ static gboolean parse_goption_arg(const gchar * opt, const gchar * arg, gpointer
  */
 GOptionGroup *bt_init_get_option_group(void) {
   GOptionGroup *group;
-  static GOptionEntry bt_args[] = {
-    {"bt-version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer)parse_goption_arg, N_("Print the buzztard core version"), NULL},
+  static GOptionEntry options[] = {
+    {"bt-version", 0, 0, G_OPTION_ARG_NONE, NULL, N_("Print the buzztard core version"), NULL},
     {NULL}
   };
+  options[0].arg_data=&arg_version;
 
   group = g_option_group_new("bt-core", _("Buzztard core options"),_("Show buzztard core options"), NULL, NULL);
   g_option_group_set_parse_hooks(group, (GOptionParseFunc)bt_init_pre, (GOptionParseFunc)bt_init_post);
 
-  g_option_group_add_entries(group, bt_args);
+  g_option_group_add_entries(group, options);
   g_option_group_set_translation_domain(group, PACKAGE_NAME);
 
   return group;
@@ -228,7 +219,7 @@ gboolean bt_init_check(gint *argc, gchar **argv[], GError **err) {
   GOptionContext *ctx;
 
   if(bt_initialized) {
-    //g_print("already initialized Buzztard core");
+    g_print("already initialized Buzztard core\n");
     return(TRUE);
   }
 
@@ -283,4 +274,5 @@ void bt_deinit(void) {
   gst_caps_replace(&bt_default_caps,NULL);
   // deinit libraries
   gst_deinit();
+  bt_initialized=FALSE;
 }

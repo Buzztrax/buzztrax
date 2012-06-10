@@ -57,7 +57,7 @@ static gboolean parse_goption_arg (const gchar * opt, const gchar * arg, gpointe
   return(TRUE);
 }
 
-int main(int argc, char **argv) {
+gint main(gint argc, gchar **argv) {
   gboolean res=FALSE;
   //gboolean arg_version=FALSE;
   gchar *command=NULL,*input_file_name=NULL;

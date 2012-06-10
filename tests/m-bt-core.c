@@ -47,7 +47,7 @@ extern Suite *bt_settings_suite(void);
 
 gchar *test_argv[] = { "check_buzzard" };
 gchar **test_argvptr = test_argv;
-gint test_argc=G_N_ELEMENTS(test_argv) - 1;
+gint test_argc=G_N_ELEMENTS(test_argv);
 
 /* common setup and teardown code */
 void bt_core_setup(void) {
@@ -58,8 +58,8 @@ void bt_core_teardown(void) {
 }
 
 /* start the test run */
-int main(int argc, char **argv) {
-  int nf;
+gint main(gint argc, gchar **argv) {
+  gint nf;
   SRunner *sr;
 
 #if !GLIB_CHECK_VERSION (2, 31, 0) 
@@ -70,17 +70,14 @@ int main(int argc, char **argv) {
 #endif
 
   g_type_init();
-  setup_log(argc,argv);
-  setup_log_capture();
+  setup_log(argc,argv); // -> bt_check_init() ?
+  setup_log_capture();  // -> bt_check_init() ?
 
-  bt_init(&test_argc,&test_argvptr);
+  gst_init(NULL,NULL);
   bt_check_init();
   
-  // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_LOG);
-  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+  // set this to e.g. LOG to see more from gst in the log
+  gst_debug_set_default_threshold(GST_LEVEL_DEBUG);
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   sr=srunner_create(bt_application_suite());

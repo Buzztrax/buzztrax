@@ -24,13 +24,12 @@
 //-- fixtures
 
 static void test_setup(void) {
+  btic_init(&test_argc,&test_argvptr);
   bt_ic_setup();
-  GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
   bt_ic_teardown();
-  //puts(__FILE__":teardown");
 }
 
 //-- tests

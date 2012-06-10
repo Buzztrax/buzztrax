@@ -32,7 +32,7 @@ extern Suite *bt_cmd_application_suite(void);
 
 gchar *test_argv[] = { "check_buzzard" };
 gchar **test_argvptr = test_argv;
-gint test_argc=G_N_ELEMENTS(test_argv) - 1;
+gint test_argc=G_N_ELEMENTS(test_argv);
 
 /* common setup and teardown code */
 void bt_cmd_setup(void) {
@@ -43,8 +43,8 @@ void bt_cmd_teardown(void) {
 }
 
 /* start the test run */
-int main(int argc, char **argv) {
-  int nf;
+gint main(gint argc, gchar **argv) {
+  gint nf;
   SRunner *sr;
 
 #if !GLIB_CHECK_VERSION (2, 31, 0) 

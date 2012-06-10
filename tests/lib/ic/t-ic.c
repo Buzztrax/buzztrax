@@ -38,14 +38,10 @@ END_TEST
 
 // test if the normal init call works with commandline arguments
 START_TEST(test_btic_init2) {
-  // this shadows the global vars of the same name
-  gint test_argc=2;
-  gchar *test_argv[test_argc];
-  gchar **test_argvptr;
-
-  test_argv[0]="check_buzzard";
-  test_argv[1]="--btic-version";
-  test_argvptr=test_argv;
+  /* arrange */
+  gchar *test_argv[] = { "check_buzzard", "--btic-version" };
+  gchar **test_argvptr = test_argv;
+  gint test_argc=G_N_ELEMENTS(test_argv);
 
   btic_init(&test_argc,&test_argvptr);
 }

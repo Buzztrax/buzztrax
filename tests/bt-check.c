@@ -190,7 +190,7 @@ static void check_gst_log_handler(GstDebugCategory *category, GstDebugLevel leve
  *
  * Initializes the logoutput channel.
  */
-void setup_log(int argc, char **argv) {
+void setup_log(gint argc, gchar **argv) {
   gchar *basename,*str;
 
   __log_file_name="/tmp/buzztard.log";

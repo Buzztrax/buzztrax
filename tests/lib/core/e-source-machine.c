@@ -27,6 +27,7 @@ static BtSong *song;
 //-- fixtures
 
 static void suite_setup(void) {
+  bt_init(&test_argc,&test_argvptr);
   bt_core_setup();
 }
 
@@ -159,6 +160,7 @@ BT_START_TEST(test_btsourcemachine_change_voices){
   g_object_unref(machine);
 }
 BT_END_TEST
+
 
 TCase *bt_source_machine_example_case(void) {
   TCase *tc = tcase_create("BtSourceMachineExamples");
