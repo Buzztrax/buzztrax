@@ -59,7 +59,6 @@ const guint bt_micro_version=BT_MICRO_VERSION;
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
-static gboolean bt_initialized = FALSE;
 static gboolean arg_version = FALSE;
 
 GstCaps *bt_default_caps=NULL;
@@ -152,8 +151,6 @@ static gboolean bt_init_post (void) {
   _mm_setcsr(_mm_getcsr() | 0x8040); // set DAZ and FZ bits
 #endif
 
-  bt_initialized=TRUE;
-
   return(TRUE);
 }
 
@@ -217,18 +214,14 @@ void bt_init_add_option_groups(GOptionContext * const ctx) {
  */
 gboolean bt_init_check(gint *argc, gchar **argv[], GError **err) {
   GOptionContext *ctx;
-
-  if(bt_initialized) {
-    g_print("already initialized Buzztard core\n");
-    return(TRUE);
-  }
+  gboolean res;
 
   ctx = g_option_context_new(NULL);
   bt_init_add_option_groups(ctx);
-  bt_initialized = g_option_context_parse(ctx, argc, argv, err);
+  res = g_option_context_parse(ctx, argc, argv, err);
   g_option_context_free(ctx);
 
-  return(bt_initialized);
+  return(res);
 }
 
 /**
@@ -274,5 +267,4 @@ void bt_deinit(void) {
   gst_caps_replace(&bt_default_caps,NULL);
   // deinit libraries
   gst_deinit();
-  bt_initialized=FALSE;
 }

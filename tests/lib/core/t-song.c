@@ -27,14 +27,19 @@ static gboolean play_signal_invoked=FALSE;
 
 //-- fixtures
 
+static void case_setup(void) {
+  GST_INFO("================================================================================");
+}
+
 static void test_setup(void) {
-  bt_init(&test_argc,&test_argvptr);
-  bt_core_setup();
 }
 
 static void test_teardown(void) {
-  bt_core_teardown();
 }
+
+static void case_teardown(void) {
+}
+
 
 //-- tests
 
@@ -193,6 +198,7 @@ TCase *bt_song_test_case(void) {
   tcase_add_test(tc,test_btsong_play2);
   tcase_add_test(tc,test_btsong_play3);
   tcase_add_test(tc,test_btsong_setup1);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  tcase_add_checked_fixture(tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
 }

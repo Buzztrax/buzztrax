@@ -34,14 +34,6 @@ gchar *test_argv[] = { "check_buzzard" };
 gchar **test_argvptr = test_argv;
 gint test_argc=G_N_ELEMENTS(test_argv);
 
-/* common setup and teardown code */
-void bt_ic_setup(void) {
-  GST_INFO("================================================================================");
-}
-
-void bt_ic_teardown(void) {
-}
-
 /* start the test run */
 gint main(gint argc, gchar **argv) {
   gint nf;
@@ -60,6 +52,7 @@ gint main(gint argc, gchar **argv) {
 
   gst_init(NULL,NULL);
   bt_check_init();
+  btic_init(&test_argc,&test_argvptr);
 
   // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_default_threshold(GST_LEVEL_DEBUG);

@@ -51,7 +51,6 @@ const guint btic_micro_version=BTIC_MICRO_VERSION;
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
-static gboolean btic_initialized = FALSE;
 static gboolean arg_version = FALSE;
 
 //-- helper methods
@@ -76,8 +75,6 @@ static gboolean btic_init_post (void) {
   }
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-ic", 0, "music production environment / interaction controller library");
-
-  btic_initialized=TRUE;
   
   return(TRUE);
 }
@@ -130,18 +127,14 @@ GOptionGroup *btic_init_get_option_group(void) {
  */
 gboolean btic_init_check(gint *argc, gchar **argv[], GError **err) {
   GOptionContext *ctx;
-
-  if(btic_initialized) {
-    g_print("already initialized Buzztard interaction controller\n");
-    return(TRUE);
-  }
+  gboolean res;
 
   ctx = g_option_context_new(NULL);
   g_option_context_add_group(ctx, btic_init_get_option_group());
-  btic_initialized = g_option_context_parse(ctx, argc, argv, err);
+  res = g_option_context_parse(ctx, argc, argv, err);
   g_option_context_free(ctx);
 
-  return(btic_initialized);
+  return(res);
 }
 
 

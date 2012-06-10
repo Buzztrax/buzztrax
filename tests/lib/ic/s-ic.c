@@ -20,12 +20,12 @@
 #include "m-bt-ic.h"
 
 extern TCase *bt_ic_test_case(void);
-//extern TCase *bt_ic_example_case(void);
+extern TCase *bt_ic_example_case(void);
 
 Suite *bt_ic_suite(void) {
   Suite *s=suite_create("BtIC");
 
   suite_add_tcase(s,bt_ic_test_case());
-  //suite_add_tcase(s,bt_ic_example_case());
+  suite_add_tcase(s,bt_ic_example_case());
   return(s);
 }

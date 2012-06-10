@@ -23,14 +23,17 @@
 
 //-- fixtures
 
+static void case_setup(void) {
+  GST_INFO("================================================================================");
+}
+
 static void test_setup(void) {
-  bt_init(&test_argc,&test_argvptr);
-  bt_core_setup();
 }
 
 static void test_teardown(void) {
-  bt_core_teardown();
-  //puts(__FILE__":teardown");
+}
+
+static void case_teardown(void) {
 }
 
 //-- tests
@@ -229,6 +232,7 @@ TCase *bt_machine_test_case(void) {
   tcase_add_test(tc, test_btmachine_state1);
   tcase_add_test(tc, test_btmachine_state2);
   tcase_add_test(tc, test_btmachine_names);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  tcase_add_checked_fixture(tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
 }

@@ -1,5 +1,5 @@
 /* Buzztard
- * Copyright (C) 2011 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2012 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -33,27 +33,50 @@ static void test_setup(void) {
 static void test_teardown(void) {
 }
 
-
 static void case_teardown(void) {
 }
+
 
 //-- tests
 
 // test if the normal init call works with commandline arguments (no args)
-BT_START_TEST(test_registry_create0) {
-  BtIcRegistry *registry;
-
-  registry=btic_registry_new();
-  fail_unless(registry!=NULL, NULL);
-
-  g_object_checked_unref(registry);
+BT_START_TEST(test_btic_init0) {
+  /* act */
+  btic_init(&test_argc,&test_argvptr);
 }
 BT_END_TEST
 
-TCase *bt_registry_example_case(void) {
-  TCase *tc = tcase_create("BticRegistryExamples");
 
-  tcase_add_test(tc,test_registry_create0);
+// test if the init call handles correct null pointers
+BT_START_TEST(test_btic_init1) {
+  /* act */
+  btic_init(NULL,NULL);
+}
+BT_END_TEST
+
+
+// test if the normal init call works with commandline arguments
+BT_START_TEST(test_btic_init2) {
+  /* arrange */
+  gchar *test_argv[] = { "check_buzzard", "--btic-version" };
+  gchar **test_argvptr = test_argv;
+  gint test_argc=G_N_ELEMENTS(test_argv);
+
+  /* act */
+  btic_init(&test_argc,&test_argvptr);
+
+  /* assert */  
+  ck_assert_int_eq(test_argc, 1);
+}
+BT_END_TEST
+
+
+TCase *bt_ic_example_case(void) {
+  TCase *tc = tcase_create("BtICExamples");
+
+  tcase_add_test(tc,test_btic_init0);
+  tcase_add_test(tc,test_btic_init1);
+  tcase_add_test(tc,test_btic_init2);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

@@ -26,9 +26,8 @@ static BtSong *song;
 
 //-- fixtures
 
-static void suite_setup(void) {
-  bt_init(&test_argc,&test_argvptr);
-  bt_core_setup();
+static void case_setup(void) {
+  GST_INFO("================================================================================");
 }
 
 static void test_setup(void) {
@@ -41,8 +40,7 @@ static void test_teardown(void) {
   g_object_checked_unref(app);
 }
 
-static void suite_teardown(void) {
-  bt_core_teardown();
+static void case_teardown(void) {
 }
 
 
@@ -148,6 +146,6 @@ TCase *bt_processor_machine_example_case(void) {
   tcase_add_test(tc,test_btprocessormachine_pattern_by_id);
   tcase_add_test(tc,test_btprocessormachine_pattern_by_list);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc,suite_setup, suite_teardown);
+  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
 }

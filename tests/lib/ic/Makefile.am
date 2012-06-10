@@ -1,7 +1,7 @@
 noinst_LTLIBRARIES = libbtic-check.la
 libbtic_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtic_check_la_SOURCES = m-bt-ic.h \
-	s-ic.c t-ic.c \
+	s-ic.c e-ic.c t-ic.c \
 	s-registry.c e-registry.c
 
 AM_CPPFLAGS = \

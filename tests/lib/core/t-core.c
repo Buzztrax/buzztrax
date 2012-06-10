@@ -23,12 +23,17 @@
 
 //-- fixtures
 
-static void suite_setup(void) {
-  bt_core_setup();
+static void case_setup(void) {
+  GST_INFO("================================================================================");
 }
 
-static void suite_teardown(void) {
-  bt_core_teardown();
+static void test_setup(void) {
+}
+
+static void test_teardown(void) {
+}
+
+static void case_teardown(void) {
 }
 
 
@@ -49,6 +54,7 @@ BT_START_TEST(test_btcore_init0  ) {
 }
 BT_END_TEST
 
+
 // test init with nonsense args
 BT_START_TEST(test_btcore_init1) {
   /* arrange */
@@ -58,7 +64,7 @@ BT_START_TEST(test_btcore_init1) {
   
   /* arrange */
   GOptionContext *ctx = g_option_context_new(NULL);
-  bt_init_add_option_groups(ctx);
+  g_option_context_add_group(ctx, bt_init_get_option_group());
   g_option_context_set_ignore_unknown_options(ctx, TRUE);
 
   /* act & assert */
@@ -70,11 +76,13 @@ BT_START_TEST(test_btcore_init1) {
 }
 BT_END_TEST
 
+
 TCase *bt_core_test_case(void) {
   TCase *tc = tcase_create("BtCoreTests");
 
   tcase_add_test(tc,test_btcore_init0);
   tcase_add_test(tc,test_btcore_init1);
-  tcase_add_unchecked_fixture(tc,suite_setup, suite_teardown);
+  tcase_add_checked_fixture(tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
 }

@@ -23,13 +23,17 @@
 
 //-- fixtures
 
+static void case_setup(void) {
+  GST_INFO("================================================================================");
+}
+
 static void test_setup(void) {
-  bt_init(&test_argc,&test_argvptr);
-  bt_core_setup();
 }
 
 static void test_teardown(void) {
-  bt_core_teardown();
+}
+
+static void case_teardown(void) {
 }
 
 //-- tests
@@ -996,6 +1000,7 @@ TCase *bt_setup_test_case(void) {
   tcase_add_test(tc,test_btsetup_wire2);
   // TODO(ensonic): make test work
   //tcase_add_test(tc,test_btsetup_wire3);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  tcase_add_checked_fixture(tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
 }
