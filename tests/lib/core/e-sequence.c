@@ -117,6 +117,7 @@ BT_START_TEST(test_btsequence_pattern) {
   bt_sequence_set_pattern(sequence,7,1,pattern);
 
   /* assert */
+  fail_unless(bt_sequence_is_pattern_used(sequence,(BtPattern *)pattern),NULL);
   ck_assert_gobject_eq_and_unref(bt_sequence_get_pattern(sequence,0,0),pattern);
   ck_assert_gobject_eq_and_unref(bt_sequence_get_pattern(sequence,7,1),pattern);
 
