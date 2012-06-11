@@ -160,7 +160,27 @@ BT_START_TEST(test_btmachine_add_pattern) {
   /* cleanup */
   g_object_unref(machine);
   g_object_unref(pattern);
-}
+}             
+BT_END_TEST
+
+
+BT_START_TEST(test_btmachine_pattern_names) {
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,NULL));
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+
+  /* act */
+  gchar *pattern_name=bt_machine_get_unique_pattern_name(machine);
+  
+  /* assert */
+  ck_assert_str_ne(pattern_name,"pattern-name");
+
+  /* cleanup */
+  g_free(pattern_name);
+  g_object_unref(machine);
+  g_object_unref(pattern);
+
+}             
 BT_END_TEST
 
 
@@ -206,6 +226,58 @@ BT_START_TEST(test_btmachine_change_voices) {
 BT_END_TEST
 
 
+BT_START_TEST(test_btmachine_state_mute_no_sideeffects) {
+  /* arrange */
+  BtMachine *src=BT_MACHINE(bt_source_machine_new(song,"gen","audiotestsrc",0L,NULL));
+  BtMachine *proc=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0L,NULL));
+  BtMachine *sink=BT_MACHINE(bt_sink_machine_new(song,"sink",NULL));
+  BtWire *wire1=bt_wire_new(song,src,proc,NULL);
+  BtWire *wire2=bt_wire_new(song,proc,sink,NULL);
+
+  /* act */
+  g_object_set(src,"state",BT_MACHINE_STATE_MUTE,NULL);
+
+  /* assert */
+  ck_assert_gobject_guint_eq(src, "state", BT_MACHINE_STATE_MUTE);
+  ck_assert_gobject_guint_eq(proc, "state", BT_MACHINE_STATE_NORMAL);
+  ck_assert_gobject_guint_eq(sink, "state", BT_MACHINE_STATE_NORMAL);
+
+  /* cleanup */
+  g_object_unref(wire1);
+  g_object_unref(wire2);
+  g_object_unref(sink);
+  g_object_unref(proc);
+  g_object_unref(src);
+}
+BT_END_TEST
+
+
+BT_START_TEST(test_btmachine_state_solo_unmutes_others) {
+  /* arrange */
+  BtMachine *src1=BT_MACHINE(bt_source_machine_new(song,"gen1","audiotestsrc",0L,NULL));
+  BtMachine *src2=BT_MACHINE(bt_source_machine_new(song,"gen2","audiotestsrc",0L,NULL));
+  BtMachine *sink=BT_MACHINE(bt_sink_machine_new(song,"sink",NULL));
+  BtWire *wire1=bt_wire_new(song,src1,sink,NULL);
+  BtWire *wire2=bt_wire_new(song,src2,sink,NULL);
+
+  /* act */
+  g_object_set(src1,"state",BT_MACHINE_STATE_SOLO,NULL);
+  g_object_set(src2,"state",BT_MACHINE_STATE_SOLO,NULL);
+
+  /* assert */
+  ck_assert_gobject_guint_eq(src1, "state", BT_MACHINE_STATE_NORMAL);
+  ck_assert_gobject_guint_eq(src2, "state", BT_MACHINE_STATE_SOLO);
+
+  /* cleanup */
+  g_object_unref(wire1);
+  g_object_unref(wire2);
+  g_object_unref(sink);
+  g_object_unref(src2);
+  g_object_unref(src1);
+}
+BT_END_TEST
+
+
 TCase *bt_machine_example_case(void) {
   TCase *tc = tcase_create("BtMachineExamples");
 
@@ -215,8 +287,11 @@ TCase *bt_machine_example_case(void) {
   tcase_add_test(tc,test_btmachine_enable_input_gain1);
   tcase_add_test(tc,test_btmachine_enable_output_gain1);
   tcase_add_test(tc,test_btmachine_add_pattern);
+  tcase_add_test(tc,test_btmachine_pattern_names);
   tcase_add_test(tc,test_btmachine_check_voices);
   tcase_add_test(tc,test_btmachine_change_voices);
+  tcase_add_test(tc,test_btmachine_state_mute_no_sideeffects);
+  tcase_add_test(tc,test_btmachine_state_solo_unmutes_others);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

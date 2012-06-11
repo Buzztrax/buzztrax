@@ -144,6 +144,7 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *string);
 
 gboolean check_gobject_properties(GObject *toCheck);
 gboolean check_gobject_get_boolean_property(gpointer obj, const gchar *prop);
+guint check_gobject_get_uint_property(gpointer obj, const gchar *prop);
 glong check_gobject_get_long_property(gpointer obj, const gchar *prop);
 gulong check_gobject_get_ulong_property(gpointer obj, const gchar *prop);
 GObject *check_gobject_get_object_property(gpointer obj, const gchar *prop);
@@ -157,6 +158,17 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 } while (0)
 #define ck_assert_gobject_boolean_eq(O, X, Y) _ck_assert_gboolean(O, X, ==, Y)
 #define ck_assert_gobject_boolean_ne(O, X, Y) _ck_assert_gboolean(O, X, !=, Y)
+
+#define _ck_assert_guint(O, X, C, Y) do { \
+  guint __ck = check_gobject_get_uint_property((O), (X)); \
+  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%u, "#Y"==%u", __ck, Y); \
+} while (0)
+#define ck_assert_gobject_guint_eq(O, X, Y) _ck_assert_guint(O, X, ==, Y)
+#define ck_assert_gobject_guint_ne(O, X, Y) _ck_assert_guint(O, X, !=, Y)
+#define ck_assert_gobject_guint_gt(O, X, Y) _ck_assert_guint(O, X, >, Y)
+#define ck_assert_gobject_guint_lt(O, X, Y) _ck_assert_guint(O, X, <, Y)
+#define ck_assert_gobject_guint_ge(O, X, Y) _ck_assert_guint(O, X, >=, Y)
+#define ck_assert_gobject_guint_le(O, X, Y) _ck_assert_guint(O, X, <=, Y)
 
 #define _ck_assert_glong(O, X, C, Y) do { \
   glong __ck = check_gobject_get_long_property((O), (X)); \

@@ -33,7 +33,14 @@
   #include <sys/resource.h>
 #endif
 
+/* this is needed for a hack to make glib log lines gst-debug log alike
+ * Using gst_debug_log would require use to set debug categories for each GLib
+ * log domain.
+ */
+static GstClockTime _priv_gst_info_start_time;
+
 void bt_check_init(void) {
+  _priv_gst_info_start_time=gst_util_get_timestamp();
   extern gboolean bt_test_plugin_init (GstPlugin * plugin);
   gst_plugin_register_static(GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
@@ -88,6 +95,7 @@ void check_init_error_trapp(gchar *method, gchar *test) {
   __check_method=method;
   __check_test=test;
   __check_error_trapped=FALSE;
+  // in case the test suite made warnings and criticals fatal
   __fatal_mask=g_log_set_always_fatal(G_LOG_FATAL_MASK);
 }
 
@@ -154,21 +162,43 @@ static void check_critical_log_handler(const gchar * const log_domain, const GLo
 */
 
 static void check_log_handler(const gchar * const log_domain, const GLogLevelFlags log_level, const gchar * const message, gpointer const user_data) {
-    gchar *msg,*level;
+  gchar *msg,*level;
+  GstClockTime elapsed;
 
-    switch(log_level&G_LOG_LEVEL_MASK) {
-      case G_LOG_LEVEL_ERROR:     level="ERROR";break;
-      case G_LOG_LEVEL_CRITICAL:  level="CRITICAL";break;
-      case G_LOG_LEVEL_WARNING:   level="WARNING";break;
-      case G_LOG_LEVEL_MESSAGE:   level="MESSAGE";break;
-      case G_LOG_LEVEL_INFO:      level="INFO";break;
-      case G_LOG_LEVEL_DEBUG:     level="DEBUG";break;
-      default:                    level="???";break;
-    }
+  //-- check message contents
+  if(__check_method  && (strstr(message,__check_method)!=NULL) && __check_test && (strstr(message,__check_test)!=NULL)) __check_error_trapped=TRUE;
+  else if(__check_method && (strstr(message,__check_method)!=NULL) && !__check_test) __check_error_trapped=TRUE;
+  else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
 
-    msg=g_alloca(strlen(log_domain)+strlen(level)+strlen(message)+3);
-    g_sprintf(msg,"%s-%s %s",log_domain,level,message);
-    check_print_handler(msg);
+  //-- format  
+  switch(log_level&G_LOG_LEVEL_MASK) {
+    case G_LOG_LEVEL_ERROR:     level="ERROR";break;
+    case G_LOG_LEVEL_CRITICAL:  level="CRITICAL";break;
+    case G_LOG_LEVEL_WARNING:   level="WARNING";break;
+    case G_LOG_LEVEL_MESSAGE:   level="MESSAGE";break;
+    case G_LOG_LEVEL_INFO:      level="INFO";break;
+    case G_LOG_LEVEL_DEBUG:     level="DEBUG";break;
+    default:                    level="???";break;
+  }
+
+  elapsed=GST_CLOCK_DIFF(_priv_gst_info_start_time,gst_util_get_timestamp());
+  
+#if defined (GLIB_SIZEOF_VOID_P) && GLIB_SIZEOF_VOID_P == 8
+#define PTR_FMT "14p"
+#else
+#define PTR_FMT "10p"
+#endif
+#define PID_FMT "5d"
+  
+  msg=g_alloca(85 + strlen(log_domain)+strlen(level)+strlen(message));
+  g_sprintf(msg,"%"GST_TIME_FORMAT" %"PID_FMT" %"PTR_FMT" %-7s %20s ::: %s", 
+    GST_TIME_ARGS(elapsed),
+    getpid(),
+    g_thread_self(),
+    level,
+    log_domain,
+    message);
+  check_print_handler(msg);
 }
 
 #ifndef GST_DISABLE_GST_DEBUG
@@ -755,6 +785,12 @@ gboolean check_gobject_properties(GObject *toCheck) {
  */
 gboolean check_gobject_get_boolean_property(gpointer obj, const gchar *prop) {
   gboolean val;
+  
+  g_object_get(obj,prop,&val,NULL);
+  return val;
+}
+guint check_gobject_get_uint_property(gpointer obj, const gchar *prop) {
+  guint val;
   
   g_object_get(obj,prop,&val,NULL);
   return val;
