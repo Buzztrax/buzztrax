@@ -826,23 +826,23 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
       else goto Error;
     }
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("wire-patterns"),NULL))) {
-      GList *node,*list=NULL;
+      GList *lnode,*list=NULL;
       BtParameterGroup *pg=self->priv->param_group;
       const gulong num_params=self->priv->num_params;
       
       g_object_get(self->priv->dst,"patterns",&list,NULL);
-      for(node=list;node;node=node->next) {
-        if(BT_IS_PATTERN(node->data)) {
-          BtPattern *pattern=BT_PATTERN(node->data);
-          BtValueGroup *vg=bt_pattern_get_wire_group(pattern,self);
-          gulong length,i,k;
-          gchar *value;
-          
-          g_object_get(pattern,"id",&id,"length",&length,NULL);
-          xmlNewProp(child_node,XML_CHAR_PTR("pattern-id"),XML_CHAR_PTR(id));
-          g_free(id);
-          
+      for(lnode=list;lnode;lnode=lnode->next) {
+        if(BT_IS_PATTERN(lnode->data)) {
           if((child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("wire-pattern"),NULL))) {
+            BtPattern *pattern=BT_PATTERN(lnode->data);
+            BtValueGroup *vg=bt_pattern_get_wire_group(pattern,self);
+            gulong length,i,k;
+            gchar *value;
+            
+            g_object_get(pattern,"id",&id,"length",&length,NULL);
+            xmlNewProp(child_node2,XML_CHAR_PTR("pattern-id"),XML_CHAR_PTR(id));
+            g_free(id);
+
             // save pattern data
             for(i=0;i<length;i++) {
               // check if there are any GValues stored ?
@@ -861,7 +861,7 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
             }         
           }
         }
-        g_object_unref(node->data);
+        g_object_unref(lnode->data);
       }
       g_list_free(list);
     }
