@@ -84,7 +84,7 @@ static gboolean bt_init_post (void) {
   gst_pb_utils_init();
   
   if (arg_version) {
-    g_printf("libbtcore-%d.%d.%d from "PACKAGE_STRING"\n",BT_MAJOR_VERSION,BT_MINOR_VERSION,BT_MICRO_VERSION);
+    g_printf("libbuzztard-core-%d.%d.%d from "PACKAGE_STRING"\n",BT_MAJOR_VERSION,BT_MINOR_VERSION,BT_MICRO_VERSION);
   }
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");

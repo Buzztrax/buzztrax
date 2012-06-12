@@ -71,7 +71,7 @@ static gboolean btic_init_pre (void) {
 
 static gboolean btic_init_post (void) {
   if (arg_version) {
-    g_printf("libbtic-%d.%d.%d from "PACKAGE_STRING"\n",BTIC_MAJOR_VERSION,BTIC_MINOR_VERSION,BTIC_MICRO_VERSION);
+    g_printf("libbuzztard-ic-%d.%d.%d from "PACKAGE_STRING"\n",BTIC_MAJOR_VERSION,BTIC_MINOR_VERSION,BTIC_MICRO_VERSION);
   }
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-ic", 0, "music production environment / interaction controller library");

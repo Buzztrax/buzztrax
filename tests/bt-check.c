@@ -274,18 +274,25 @@ void setup_log_capture(void) {
 
 /*
  * file output tests:
- * Check if certain text has been outputted to a logfile.
+ *
+ * Check if certain text has been outputted to a (text)file. Pass either a
+ * file-handle or a file_name.
  */
 
-gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
-  FILE *input_file;
+gboolean check_file_contains_str(FILE *input_file,gchar *input_file_name, gchar *str) {
   gchar read_str[1024];
+  gboolean need_close=FALSE;
   gboolean ret=FALSE;
 
-  g_assert(tmp_file_name);
+  g_assert(input_file || input_file_name);
   g_assert(str);
 
-  input_file=fopen(tmp_file_name,"rb");
+  if (!input_file) {
+    input_file=fopen(input_file_name,"rb");
+    need_close=TRUE;
+  } else {
+    fseek(input_file, 0 ,SEEK_SET);
+  }
   if (!input_file) {
     return ret;
   }
@@ -293,13 +300,16 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
     if (!fgets(read_str, 1023, input_file)) {
       break;
     }
+    //GST_LOG("[%s]",read_str);
     read_str[1023]='\0';
     if (strstr(read_str, str)) {
       ret=TRUE;
       break;
     }
   }
-  fclose(input_file);
+  if (need_close) {
+    fclose(input_file);
+  }
   return ret;
 }
 

@@ -21,6 +21,8 @@
 
 //-- globals
 
+static FILE *saved_stdout = NULL;
+
 //-- fixtures
 
 static void case_setup(void) {
@@ -28,9 +30,13 @@ static void case_setup(void) {
 }
 
 static void test_setup(void) {
+  saved_stdout=stdout;
+  stdout=tmpfile();
 }
 
 static void test_teardown(void) {
+  fclose(stdout);
+  stdout=saved_stdout;
 }
 
 static void case_teardown(void) {
@@ -65,8 +71,9 @@ BT_START_TEST(test_btcore_init2) {
   /* act */
   bt_init(&test_argc,&test_argvptr);
 
-  /* assert */  
+  /* assert */
   ck_assert_int_eq(test_argc, 1);
+  fail_unless(check_file_contains_str(stdout, NULL, "libbuzztard-core-"PACKAGE_VERSION" from "PACKAGE_STRING), NULL);
 }
 BT_END_TEST
 
