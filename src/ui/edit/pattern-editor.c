@@ -1161,7 +1161,7 @@ bt_pattern_editor_button_press (GtkWidget *widget,
   gint x = self->ofs_x + event->x;
   gint y = self->ofs_y + event->y;
   gint parameter, digit;
-  gint g;
+  gint g,r;
 
   gtk_widget_grab_focus_savely(GTK_WIDGET(self));
 
@@ -1173,6 +1173,11 @@ bt_pattern_editor_button_press (GtkWidget *widget,
   }
   x -= self->rowhdr_width;
   y -= self->colhdr_height;
+  r = y / self->ch;
+  if (r >= self->num_rows)
+    return FALSE;
+  
+  // local cell and move cursor
   for (g = 0; g < self->num_groups; g++)
   {
     BtPatternEditorColumnGroup *grp = &self->groups[g];
@@ -1181,7 +1186,7 @@ bt_pattern_editor_button_press (GtkWidget *widget,
       if (char_to_coords(x / self->cw, grp->columns, grp->num_columns, &parameter, &digit))
       {
         bt_pattern_editor_refresh_cursor(self);
-        self->row = y / self->ch;
+        self->row = r;
         self->group = g;
         self->parameter = parameter;
         self->digit = digit;
