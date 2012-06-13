@@ -1928,34 +1928,34 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
     g_object_get(that_machine,"id",&dmid,"patterns",&list,NULL);
 
     for(node=list;node;node=g_list_next(node)) {
-      gchar *undo_str;
-      GString *data=g_string_new(NULL);
-      guint end;
-      gchar *str,*p,*pid;
-      guint i;
+      if(BT_IS_PATTERN(node->data)) {
+        gchar *undo_str;
+        GString *data=g_string_new(NULL);
+        guint end;
+        gchar *str,*p,*pid;
+        guint i;
 
-      pattern=BT_PATTERN(node->data);
-      vg=bt_pattern_get_wire_group(self->priv->pattern,wire);
+        pattern=BT_PATTERN(node->data);
+        vg=bt_pattern_get_wire_group(self->priv->pattern,wire);
+        g_object_get(pattern,"id",&pid,"length",&length,NULL);
+        end=length-1;
   
-      g_object_get(pattern,"id",&pid,"length",&length,NULL);
-
-      end=length-1;
-
-      bt_value_group_serialize_columns(vg,0,end,data);
-      str=data->str;
-      
-      bt_change_log_start_group(self->priv->change_log);       
-      for(i=0;i<wire_params;i++) {
-        p=strchr(str,'\n');*p='\0';
-        undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",0,%u,%u,%s",smid,dmid,pid,end,i,str);
-        str=&p[1];
-        bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
-      }
-      bt_change_log_end_group(self->priv->change_log);
-
-      g_string_free(data,TRUE);
-      g_free(pid);
-      g_object_unref(pattern);
+        bt_value_group_serialize_columns(vg,0,end,data);
+        str=data->str;
+        
+        bt_change_log_start_group(self->priv->change_log);       
+        for(i=0;i<wire_params;i++) {
+          p=strchr(str,'\n');*p='\0';
+          undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",0,%u,%u,%s",smid,dmid,pid,end,i,str);
+          str=&p[1];
+          bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
+        }
+        bt_change_log_end_group(self->priv->change_log);
+  
+        g_string_free(data,TRUE);
+        g_free(pid);
+      }          
+      g_object_unref(node->data);
     }
     g_list_free(list);
     g_free(smid);g_free(dmid);
