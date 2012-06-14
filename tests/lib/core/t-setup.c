@@ -530,9 +530,6 @@ BT_START_TEST(test_btsetup_wire_cycle1) {
 BT_END_TEST
 
 
-/* add wire(src1,dst), wire(dst,src2) and wire(src2,scr1) to setup. This
- * should fail (cycle). */
-#ifdef __CHECK_DISABLED__
 // test graph cycles
 BT_START_TEST(test_btsetup_wire_cycle2) {
   /* arrange */
@@ -545,12 +542,11 @@ BT_START_TEST(test_btsetup_wire_cycle2) {
   BtWire *wire1 = bt_wire_new(song, elem1, elem2, NULL);
   BtWire *wire2 = bt_wire_new(song, elem2, elem3, NULL);
 
-  /* this should fail (should it?)
-   * right now goes into endless cycles at
-   * check_connected (self=0xe084e0, dst_machine=<optimized out>, not_visited_machines=<optimized out>, not_visited_wires=0x7fffffffcef8, depth=<optimized out>) at setup.c:676
-   */
+  /* act */
   GError *err=NULL;
   BtWire *wire3 = bt_wire_new(song, elem3, elem1, &err);
+
+  /* assert */
   fail_unless(wire3!=NULL,NULL);
   fail_unless(err!=NULL, NULL);
 
@@ -565,7 +561,6 @@ BT_START_TEST(test_btsetup_wire_cycle2) {
   g_object_unref(setup);
 }
 BT_END_TEST
-#endif
 
 
 TCase *bt_setup_test_case(void) {
@@ -598,8 +593,7 @@ TCase *bt_setup_test_case(void) {
   tcase_add_test(tc,test_btsetup_remove_machine_twice);
   tcase_add_test(tc,test_btsetup_remove_wire_twice);
   tcase_add_test(tc,test_btsetup_wire_cycle1);
-  // TODO(ensonic): make test work
-  //tcase_add_test(tc,test_btsetup_wire_cycle2);
+  tcase_add_test(tc,test_btsetup_wire_cycle2);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

@@ -664,17 +664,19 @@ static gboolean check_connected(const BtSetup * const self,BtMachine *dst_machin
         *not_visited_machines=g_list_remove(*not_visited_machines,(gconstpointer)src_machine);
       }
       else {
-        /* for processor machine we might need to look further,
-         * but if machine is not in not_visited_machines anymore,
-         * check if it is added or not and return */
+        /* for processor machine we might need to look further */
         BtSetupConnectionState state=GET_CONNECTION_STATE(self,src_machine);
 
+        /* If machine is not in "not_visited_machines" anymore,
+         * check if it is added or not and return */
         if((!g_list_find(*not_visited_machines,src_machine)) && (state==CS_CONNECTING || state==CS_CONNECTED)) {
           wire_is_connected=TRUE;
         }
         else {
+          *not_visited_machines=g_list_remove(*not_visited_machines,(gconstpointer)src_machine);
           wire_is_connected|=check_connected(self,src_machine,not_visited_machines,not_visited_wires,depth+2);
         }
+
       }
       GST_INFO_OBJECT(src_machine,"wire target checked, connected=%d?",wire_is_connected);
       if(!wire_is_connected) {

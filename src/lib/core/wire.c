@@ -687,29 +687,27 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   return TRUE;
 }
 
-#if 0
-static gboolean bt_wire_have_wires_for_dst(BtMachine *src, BtMachine *dst) {
+static gboolean bt_wire_have_wires_for_dst(const BtMachine * const src, const BtMachine * const dst) {
   const GList *node;
   
-  for(node=self->src_wires;node;node=g_list_next(node)) {
+  // check all outgoing wires
+  for(node=src->src_wires;node;node=g_list_next(node)) {
     BtWire * const wire=BT_WIRE(node->data);
     BtMachine * const machine;
     gboolean found=FALSE;
 
+    // is the target of the wire, the target we are looking for?
     g_object_get(wire,"dst",&machine,NULL);
-    if(machine==dst) found=TRUE;
-    g_object_unref(machine);
-    if(found) return(TRUE);
-
-    g_object_get(wire,"src",&machine,NULL);
-    found=bt_wire_have_wires_for_dst(machine,dst);
+    if(machine==dst) {
+      found=TRUE;
+    } else {
+      found=bt_wire_have_wires_for_dst(machine,dst);
+    }
     g_object_unref(machine);
     if(found) return(TRUE);
   }
-
   return FALSE;
 }
-#endif
 
 //-- constructor methods
 
@@ -772,18 +770,15 @@ gboolean bt_wire_can_link(const BtWire * const self, const BtMachine * const src
       g_object_unref(wire);
       return FALSE;
     }
-#if 0
-    // FIXME(ensonic) do cycle detection here
-    // go traverse wires from each end and fail if we end of on the other element
-    if(bt_wire_have_wires_for_dst(src,dst)) {
-      GST_WARNING_OBJECT(self,"cycle detected",self);
-    }
-#endif
   }
   if(src->dst_wires && dst->src_wires) {
     if((wire=bt_machine_get_wire_by_dst_machine(dst,src)) && (wire!=self)) {
       GST_WARNING_OBJECT(self,"trying to add create already existing wire (reversed): %p!=%p",wire,self);
       g_object_unref(wire);
+      return FALSE;
+    }
+    if(bt_wire_have_wires_for_dst(dst,src)) {
+      GST_WARNING_OBJECT(self,"cycle detected");
       return FALSE;
     }
   }
