@@ -41,12 +41,16 @@ static void case_teardown(void) {
 
 // test if the normal init call works with commandline arguments (no args)
 BT_START_TEST(test_registry_create0) {
-  BtIcRegistry *registry;
+  /* arrange */
 
-  registry=btic_registry_new();
+  /* act */
+  BtIcRegistry *registry=btic_registry_new();
+  
+  /* assert */
   fail_unless(registry!=NULL, NULL);
-
   g_object_checked_unref(registry);
+
+  /* cleanup */
 }
 BT_END_TEST
 

@@ -83,8 +83,7 @@ BT_END_TEST
 
 BT_START_TEST(test_btsetup_machine_rem_id) {
   /* arrange */
-  BtSetup *setup;
-  g_object_get(song,"setup",&setup,NULL);
+  BtSetup *setup = BT_SETUP(check_gobject_get_object_property(song, "setup"));
   BtMachine *source = BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0,NULL));
 
   /* act */
@@ -106,8 +105,7 @@ BT_START_TEST(test_btsetup_machine_add_list) {
   BtMachine *source = BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0,NULL));
 
   /* act */
-  GList *list;
-  g_object_get(setup,"machines",&list,NULL);
+  GList *list = (GList *)check_gobject_get_ptr_property(setup, "machines");
 
   /* assert */
   fail_unless(list!=NULL, NULL);

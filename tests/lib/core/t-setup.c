@@ -21,6 +21,9 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
 static void case_setup(void) {
@@ -28,952 +31,550 @@ static void case_setup(void) {
 }
 
 static void test_setup(void) {
+  app=bt_test_application_new();
+  song=bt_song_new(app);
 }
 
 static void test_teardown(void) {
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 
 static void case_teardown(void) {
 }
 
+
 //-- tests
 
 BT_START_TEST(test_btsetup_properties) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  gboolean check_prop_ret=FALSE;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  g_object_get(song,"setup",&setup,NULL);
-  
-  check_prop_ret=check_gobject_properties(G_OBJECT(setup));
-  fail_unless(check_prop_ret==TRUE,NULL);
+  /* arrange */
+  GObject *setup=check_gobject_get_object_property(song,"setup");
 
-  /* clean up */
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* act & assert */
+  fail_unless(check_gobject_properties(setup), NULL);
+
+  /* cleanup */
 }
 BT_END_TEST
 
-/*
-* Try to add the same machine twice to the setup
-*/
-BT_START_TEST(test_btsetup_obj1) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtMachine *machine=NULL;
-  gboolean res;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  g_object_get(song,"setup",&setup,NULL);
-  
-  /* create a machine (already adds the machine) */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err));
-  fail_unless(machine != NULL, NULL);
-  fail_unless(err==NULL, NULL);
 
-  /* try to add machine again */
-  res=bt_setup_add_machine(setup,machine);
-  fail_unless(res==FALSE, NULL);
-  
-  /* clean up */
+/* create a new setup with NULL for song object */
+BT_START_TEST(test_btsetup_new_null_song) {
+  /* act */
+  BtSetup *setup=bt_setup_new(NULL);
+
+  /* assert */
+  fail_unless(setup != NULL, NULL);
+
+  /* cleanup */
+  g_object_unref(setup);
+}
+BT_END_TEST
+
+
+/* add the same machine twice to the setup */
+BT_START_TEST(test_btsetup_add_machine_twice) {
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
+
+  /* act & assert */
+  fail_if(bt_setup_add_machine(setup,machine), NULL);
+
+  /* cleanup */
   g_object_unref(machine);
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to add the same wire twice
-*/
-BT_START_TEST(test_btsetup_obj2){
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtMachine *source=NULL;
-  BtMachine *sink=NULL;
-  BtWire *wire1,*wire2;
-  gboolean res;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  g_object_get(song,"setup",&setup,NULL);
-  
-  /* create the source machine */
-  source=BT_MACHINE(bt_source_machine_new(song,"gen","audiotestsrc",0,&err));
-  fail_unless(err==NULL, NULL);
-  
-  /* create the sink machine */
-  sink=BT_MACHINE(bt_sink_machine_new(song,"sink",&err));
-  fail_unless(err==NULL, NULL);
-  
-  /* try to create the wire */
-  wire1=bt_wire_new(song,source,sink,&err);
-  fail_unless(wire1 != NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  
-  /* try to add again the same wire */
-  wire2=bt_wire_new(song,source,sink,&err);
-  fail_unless(wire2 != NULL, NULL);
-  fail_unless(err!=NULL, NULL);
-  
-  /* try to add again the same wire */
-  res=bt_setup_add_wire(setup,wire1);
-  fail_unless(res==FALSE, NULL);
 
-  /* clean up */
-  g_object_unref(wire1);
-  g_object_unref(wire2);
+/* add the same wire twice */
+BT_START_TEST(test_btsetup_add_wire_twice) {
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
+  BtMachine *source=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
+  BtMachine *sink=BT_MACHINE(bt_sink_machine_new(song,"sink",NULL));
+  BtWire *wire=bt_wire_new(song,source,sink,NULL);
+
+  /* act & assert */
+  fail_if(bt_setup_add_wire(setup,wire), NULL);
+
+  /* cleanup */
+  g_object_unref(wire);
   g_object_unref(source);
   g_object_unref(sink);
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
- * try to create a new setup with a NULL song object
- */
-BT_START_TEST(test_btsetup_obj3) {
-  BtSetup *setup=NULL;
-  
-  // we don't use a _constructed method there yet
-  //check_init_error_trapp("bt_setup_","BT_IS_SONG(self->priv->song)");
-  setup=bt_setup_new(NULL);
-  //fail_unless(check_has_error_trapped(), NULL);
-  fail_unless(setup != NULL, NULL);
-  g_object_unref(setup);
-}
-BT_END_TEST
 
-/*
-* try to call bt_setup_add_machine with NULL object for self
-*/
+/* call bt_setup_add_machine with NULL object for self */
 BT_START_TEST(test_btsetup_obj4) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-
+  /* arrange */
   check_init_error_trapp("bt_setup_add_machine","BT_IS_SETUP(self)");
+
+  /* act */
   bt_setup_add_machine(NULL,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
 }
 BT_END_TEST
 
-/*
-* try to call bt_setup_add_machine with NULL object for machine
-*/
+
+/* call bt_setup_add_machine with NULL object for machine */
 BT_START_TEST(test_btsetup_obj5) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_add_machine","BT_IS_MACHINE(machine)");
+
+  /* act */
   bt_setup_add_machine(setup,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to call bt_setup_add_wire with NULL object for self
-*/
+
+/* call bt_setup_add_wire with NULL object for self */
 BT_START_TEST(test_btsetup_obj6) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-
+  /* arrange */
   check_init_error_trapp("bt_setup_add_wire","BT_IS_SETUP(self)");
+
+  /* act */
   bt_setup_add_wire(NULL,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
-  g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
 }
 BT_END_TEST
 
-/*
-* try to call bt_setup_add_wire with NULL object for wire
-*/
+
+/* call bt_setup_add_wire with NULL object for wire */
 BT_START_TEST(test_btsetup_obj7) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_add_wire","BT_IS_WIRE(wire)");
+
+  /* act */
   bt_setup_add_wire(setup,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to call bt_setup_get_machine_by_id with NULL object for self
-*/
+
+/* call bt_setup_get_machine_by_id with NULL object for self */
 BT_START_TEST(test_btsetup_obj8) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-
+  /* arrange */
   check_init_error_trapp("bt_setup_get_machine_by_id","BT_IS_SETUP(self)");
+
+  /* act */
   bt_setup_get_machine_by_id(NULL,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
-  g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
 }
 BT_END_TEST
 
-/*
-* try to call bt_setup_get_machine_by_id with NULL object for id
-*/
+
+/* call bt_setup_get_machine_by_id with NULL object for id */
 BT_START_TEST(test_btsetup_obj9) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_machine_by_id",NULL);
+
+  /* act */
   bt_setup_get_machine_by_id(setup,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
+
 /*
-* try to call bt_setup_get_wire_by_src_machine with NULL for setup parameter 
+* call bt_setup_get_wire_by_src_machine with NULL for setup parameter
 */
 BT_START_TEST(test_btsetup_get_wire_by_src_machine1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
+  /* arrange */
   check_init_error_trapp("bt_setup_get_wire_by_src_machine","BT_IS_SETUP(self)");
+
+  /* act */
   bt_setup_get_wire_by_src_machine(NULL,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
-  g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
 }
 BT_END_TEST
 
-/*
-* try to call bt_setup_get_wire_by_src_machine with NULL for machine parameter 
-*/
+
+/* call bt_setup_get_wire_by_src_machine with NULL for machine parameter */
 BT_START_TEST(test_btsetup_get_wire_by_src_machine2) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_wire_by_src_machine","BT_IS_MACHINE(src)");
+
+  /* act */
   bt_setup_get_wire_by_src_machine(setup,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to get wires by source machine with NULL for setup
-*/
+
+/* get wires by source machine with NULL for setup */
 BT_START_TEST(test_btsetup_get_wires_by_src_machine1) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtSourceMachine *src_machine=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
-  /* create source machine */
-  src_machine=bt_source_machine_new(song,"src","buzztard-test-mono-source",0,&err);
-  fail_unless(err==NULL, NULL);
-  
-  /* try to get the wires */
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
+  BtSourceMachine *src_machine=bt_source_machine_new(song,"src","buzztard-test-mono-source",0L,NULL);
   check_init_error_trapp("bt_setup_get_wires_by_src_machine","BT_IS_SETUP(self)");
+
+  /* act */
   bt_setup_get_wires_by_src_machine(NULL,BT_MACHINE(src_machine));
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(src_machine);
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
 
-/*
-* try to get wires by source machine with NULL for machine
-*/
+/* get wires by source machine with NULL for machine */
 BT_START_TEST(test_btsetup_get_wires_by_src_machine2) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
-  /* try to get the wires */
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_wires_by_src_machine","BT_IS_MACHINE(src)");
+
+  /* act */
   bt_setup_get_wires_by_src_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
 
-/*
-* try to get wires by source machine with a not added machine
-*/
+/* get wires by source machine with a not added machine */
 BT_START_TEST(test_btsetup_get_wires_by_src_machine3) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  GList *wire_list=NULL;
-  BtSourceMachine *src_machine=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
-  /* create source machine */
-  src_machine=bt_source_machine_new(song,"src","buzztard-test-mono-source",0,&err);
-  fail_unless(err==NULL, NULL);
-  
-  /* remove machine from setup */
-  bt_setup_remove_machine(setup, BT_MACHINE(src_machine));
-  
-  /* try to get the wires */
-  wire_list=bt_setup_get_wires_by_src_machine(setup,BT_MACHINE(src_machine));
-  fail_unless(wire_list==NULL,NULL);
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0L,NULL));
+  bt_setup_remove_machine(setup, machine);
 
-  /* clean up */
-  g_object_unref(src_machine);
+  /* act & assert */
+  fail_if(bt_setup_get_wires_by_src_machine(setup,machine), NULL);
+
+  /* cleanup */
+  g_object_unref(machine);
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to call bt_setup_get_wire_by_dst_machine with NULL for setup parameter 
-*/
+
+/* call bt_setup_get_wire_by_dst_machine with NULL for setup parameter */
 BT_START_TEST(test_btsetup_get_wire_by_dst_machine1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_wire_by_dst_machine","BT_IS_SETUP(self)");
+
+  /* act */
   bt_setup_get_wire_by_dst_machine(NULL,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to call bt_setup_get_wire_by_dst_machine with NULL for machine parameter 
-*/
+
+/* call bt_setup_get_wire_by_dst_machine with NULL for machine parameter */
 BT_START_TEST(test_btsetup_get_wire_by_dst_machine2) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_wire_by_dst_machine","BT_IS_MACHINE(dst)");
+
+  /* act */
   bt_setup_get_wire_by_dst_machine(setup,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to get wires by destination machine with NULL for setup
-*/
+
+/* get wires by destination machine with NULL for setup */
 BT_START_TEST(test_btsetup_get_wires_by_dst_machine1) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtSinkMachine *dst_machine=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  g_object_get(song,"setup",&setup,NULL);
-  
-  /* create sink machine */
-  dst_machine=bt_sink_machine_new(song,"dst",&err);
-  fail_unless(err==NULL, NULL);
-  
-  /* try to get the wires */
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
+  BtMachine *machine=BT_MACHINE(bt_sink_machine_new(song,"dst",NULL));
   check_init_error_trapp("bt_setup_get_wires_by_dst_machine","BT_IS_SETUP(self)");
-  bt_setup_get_wires_by_dst_machine(NULL,BT_MACHINE(dst_machine));
+
+  /* act */
+  bt_setup_get_wires_by_dst_machine(NULL,machine);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
-  g_object_unref(dst_machine);
+  /* cleanup */
+  g_object_unref(machine);
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
 
-/*
-* try to get wires by sink machine with NULL for machine
-*/
+/* get wires by sink machine with NULL for machine */
 BT_START_TEST(test_btsetup_get_wires_by_dst_machine2) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  g_object_get(song,"setup",&setup,NULL);
-  
-  /* try to get the wires */
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_wires_by_dst_machine","BT_IS_MACHINE(dst)");
+
+  /* act */
   bt_setup_get_wires_by_dst_machine(setup,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
 
-/*
-* try to get wires by sink machine with a not added machine
-*/
+/* get wires by sink machine with a not added machine */
 BT_START_TEST(test_btsetup_get_wires_by_dst_machine3) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  GList *wire_list=NULL;
-  BtSinkMachine *dst_machine=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  g_object_get(song,"setup",&setup,NULL);
-  
-  /* create sink machine */
-  dst_machine=bt_sink_machine_new(song,"dst",&err);
-  fail_unless(err==NULL, NULL);
-  
-  /* remove machine from setup */
-  bt_setup_remove_machine(setup, BT_MACHINE(dst_machine));
-  
-  /* try to get the wires */
-  wire_list=bt_setup_get_wires_by_dst_machine(setup,BT_MACHINE(dst_machine));
-  fail_unless(wire_list==NULL,NULL);
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
+  BtMachine *machine=BT_MACHINE(bt_sink_machine_new(song,"dst",NULL));
+  bt_setup_remove_machine(setup, machine);
 
-  /* clean up */
-  g_object_unref(dst_machine);
+  /* act & assert */
+  fail_if(bt_setup_get_wires_by_dst_machine(setup,machine), NULL);
+
+  /* cleanup */
+  g_object_unref(machine);
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
 
-/*
-* try to remove a machine from setup with NULL pointer for setup
-*/
-BT_START_TEST(test_btsetup_obj13) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  
+/* remove a machine from setup with NULL pointer for setup */
+BT_START_TEST(test_btsetup_remove_machine_null_setup) {
+  /* arrange */
   check_init_error_trapp("bt_setup_remove_machine",NULL);
+
+  /* act */
   bt_setup_remove_machine(NULL,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
 }
 BT_END_TEST
 
-/*
-* try to remove a wire from setup with NULL pointer for setup
-*/
-BT_START_TEST(test_btsetup_obj14) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  
+
+/* remove a wire from setup with NULL pointer for setup */
+BT_START_TEST(test_btsetup_remove_wire_null_setup) {
+  /* arrange */
   check_init_error_trapp("bt_setup_remove_wire",NULL);
+
+  /* act */
   bt_setup_remove_wire(NULL,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
 }
 BT_END_TEST
 
 
-/*
-* try to remove a machine from setup with NULL pointer for machine
-*/
-BT_START_TEST(test_btsetup_obj15) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
+/* remove a machine from setup with NULL pointer for machine */
+BT_START_TEST(test_btsetup_remove_null_machine) {
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_remove_machine",NULL);
+
+  /* act */
   bt_setup_remove_machine(setup,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to remove a wire from setup with NULL pointer for wire
-*/
-BT_START_TEST(test_btsetup_obj16) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
+
+/* remove a wire from setup with NULL pointer for wire */
+BT_START_TEST(test_btsetup_remove_null_wire) {
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_remove_wire",NULL);
+
+  /* act */
   bt_setup_remove_wire(setup,NULL);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to remove a machine from setup with a machine witch is never added
-*/
-BT_START_TEST(test_btsetup_obj17) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtMachine *gen=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
-  /* try to create generator1 */
-  gen = BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0,&err));
-  fail_unless(gen!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  /* and remove it from setup */
+
+/* remove a machine from setup with a machine witch is never added */
+BT_START_TEST(test_btsetup_remove_machine_twice) {
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
+  BtMachine *gen = BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0L,NULL));
   bt_setup_remove_machine(setup,gen);
-  
-  check_init_error_trapp("bt_setup_remove_machine",
-     "trying to remove machine that is not in setup");
+  check_init_error_trapp("bt_setup_remove_machine", "trying to remove machine that is not in setup");
+
+  /* act */
   bt_setup_remove_machine(setup,gen);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(gen);
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to remove a wire from setup with a wire witch is not added
-*/
-BT_START_TEST(test_btsetup_obj18) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  // machines
-  BtSourceMachine *source=NULL;
-  BtSinkMachine *sink=NULL;
-  // wire
-  BtWire *wire=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
-  /* try to create generator1 */
-  source = bt_source_machine_new(song,"src","audiotestsrc",0,&err);
-  fail_unless(source!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
 
-  /* try to create sink machine */
-  sink = bt_sink_machine_new(song,"sink",&err);
-  fail_unless(sink!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+/* remove a wire from setup with a wire which is not added */
+BT_START_TEST(test_btsetup_remove_wire_twice) {
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
+  BtMachine *gen = BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0L,NULL));
+  BtMachine *sink=BT_MACHINE(bt_sink_machine_new(song,"dst",NULL));
+  BtWire *wire = bt_wire_new(song,gen,sink,NULL);
+  bt_setup_remove_wire(setup,wire);
+  check_init_error_trapp("bt_setup_remove_wire", "trying to remove wire that is not in setup");
 
-  /* try to create the wire */
-  wire = bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink),&err);
-  fail_unless(wire!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  /* and remove it from setup */
+  /* act */
   bt_setup_remove_wire(setup,wire);
-  
-  check_init_error_trapp("bt_setup_remove_wire",
-     "trying to remove wire that is not in setup");
-  bt_setup_remove_wire(setup,wire);
+
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */
-  g_object_unref(source);
+  /* cleanup */
+  g_object_unref(gen);
   g_object_unref(sink);
   g_object_unref(wire);
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to add wire(src,dst) and wire(dst,src) to setup. This should fail (cycle).
-*/
-BT_START_TEST(test_btsetup_wire1) {
-  BtApplication *app=NULL;
+
+/* add wire(src,dst) and wire(dst,src) to setup. This should fail (cycle). */
+BT_START_TEST(test_btsetup_wire_cycle1) {
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
+  BtMachine *src = BT_MACHINE(bt_processor_machine_new(song,"src","volume",0L,NULL));
+  BtMachine *dst = BT_MACHINE(bt_processor_machine_new(song,"src","volume",0L,NULL));
+  BtWire *wire1 = bt_wire_new(song,src,dst,NULL);
+
+  /* act */
   GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  // machines
-  BtMachine *src=NULL;
-  BtMachine *dst=NULL;
-  // wire
-  BtWire *wire1=NULL;
-  BtWire *wire2=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
-  /* try to craete volume machine */
-  src = BT_MACHINE(bt_processor_machine_new(song,"src","volume",0,&err));
-  fail_unless(src!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+  BtWire *wire2 = bt_wire_new(song,dst,src,&err);
 
-  /* try to create volume machine */
-  dst = BT_MACHINE(bt_processor_machine_new(song,"dst","volume",0,&err));
-  fail_unless(dst!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create the wire one */
-  wire1 = bt_wire_new(song,src,dst,&err);
-  fail_unless(wire1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* this should fail */
-  wire2 = bt_wire_new(song,dst,src,&err);
+  /* assert */
   fail_unless(wire2!=NULL,NULL);
   fail_unless(err!=NULL, NULL);
 
-  /* clean up */
+  /* cleanup */
   g_object_unref(src);
   g_object_unref(dst);
   g_object_unref(wire1);
   g_object_unref(wire2);
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* try to add wire(dst,src) and wire(src,dst) to setup. This should fail (cycle).
-*/
-BT_START_TEST(test_btsetup_wire2) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  // machines
-  BtMachine *src=NULL;
-  BtMachine *dst=NULL;
-  // wire
-  BtWire *wire1=NULL;
-  BtWire *wire2=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
-  /* try to craete volume machine */
-  src = BT_MACHINE(bt_processor_machine_new(song,"src","volume",0,&err));
-  fail_unless(src!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
 
-  /* try to create volume machine */
-  dst = BT_MACHINE(bt_processor_machine_new(song,"dst","volume",0,&err));
-  fail_unless(dst!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create the wire one */
-  wire1 = bt_wire_new(song,dst,src,&err);
-  fail_unless(wire1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* this should fail */  
-  wire2 = bt_wire_new(song,src,dst,&err);
-  fail_unless(wire2!=NULL,NULL);
-  fail_unless(err!=NULL, NULL);
-
-  /* clean up */
-  g_object_unref(src);
-  g_object_unref(dst);
-  g_object_unref(wire1);
-  g_object_unref(wire2);
-  g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-/*
- * try to add wire(src1,dst), wire(dst,src2) and wire(src2,scr1) to setup. This 
- * should fail (cycle).
- *
- * <reason ?>
- */
+/* add wire(src1,dst), wire(dst,src2) and wire(src2,scr1) to setup. This
+ * should fail (cycle). */
 #ifdef __CHECK_DISABLED__
 // test graph cycles
-BT_START_TEST(test_btsetup_wire3) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  // machines
-  BtMachine *elem1=NULL;
-  BtMachine *elem2=NULL;
-  BtMachine *elem3=NULL;
-  // wire
-  BtWire *wire_one=NULL;
-  BtWire *wire_two=NULL;
-  BtWire *wire_three=NULL;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  
-  /* try to craete volume machine */
-  elem1 = BT_MACHINE(bt_processor_machine_new(song,"elem1","volume",0));
-  fail_unless(elem1!=NULL, NULL);
-  
-  /* try to craete volume machine */
-  elem2 = BT_MACHINE(bt_processor_machine_new(song,"elem2","volume",0));
-  fail_unless(elem2!=NULL, NULL);
+BT_START_TEST(test_btsetup_wire_cycle2) {
+  /* arrange */
+  BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
+  BtMachine *elem1 = BT_MACHINE(bt_processor_machine_new(song,"src1","volume",0L,NULL));
+  BtMachine *elem2 = BT_MACHINE(bt_processor_machine_new(song,"src2","volume",0L,NULL));
+  BtMachine *elem3 = BT_MACHINE(bt_processor_machine_new(song,"src3","volume",0L,NULL));
+  BtMachine *sink=BT_MACHINE(bt_sink_machine_new(song,"sink",NULL));
+  BtWire *wire0 = bt_wire_new(song, elem3, sink, NULL);
+  BtWire *wire1 = bt_wire_new(song, elem1, elem2, NULL);
+  BtWire *wire2 = bt_wire_new(song, elem2, elem3, NULL);
 
-  /* try to create volume machine */
-  elem3 = BT_MACHINE(bt_processor_machine_new(song,"elem3","volume",0));
-  fail_unless(elem3!=NULL, NULL);
-  
-  /* try to create the wire one and two */
-  wire_one = bt_wire_new(song, elem1, elem2);
-  fail_unless(wire_one!=NULL, NULL);
-  
-  wire_two = bt_wire_new(song, elem2, elem3);
-  fail_unless(wire_two!=NULL,NULL);
-  
-  /* this should fail (should it?) */
-  wire_three = bt_wire_new(song, elem3, elem1);
-  fail_unless(wire_three!=NULL,NULL);
-  
-  /* clean up */
-  g_object_unref(src1);
-  g_object_unref(src2);
-  g_object_unref(dst);
-  g_object_unref(wire_one);
-  g_object_unref(wire_two);
+  /* this should fail (should it?)
+   * right now goes into endless cycles at
+   * check_connected (self=0xe084e0, dst_machine=<optimized out>, not_visited_machines=<optimized out>, not_visited_wires=0x7fffffffcef8, depth=<optimized out>) at setup.c:676
+   */
+  GError *err=NULL;
+  BtWire *wire3 = bt_wire_new(song, elem3, elem1, &err);
+  fail_unless(wire3!=NULL,NULL);
+  fail_unless(err!=NULL, NULL);
+
+  /* cleanup */
+  g_object_unref(elem1);
+  g_object_unref(elem2);
+  g_object_unref(elem3);
+  g_object_unref(wire0);
+  g_object_unref(wire1);
+  g_object_unref(wire2);
+  g_object_unref(wire3);
   g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 #endif
+
 
 TCase *bt_setup_test_case(void) {
   TCase *tc = tcase_create("BtSetupTests");
 
   tcase_add_test(tc,test_btsetup_properties);
-  tcase_add_test(tc,test_btsetup_obj1);
-  tcase_add_test(tc,test_btsetup_obj2);
-  tcase_add_test(tc,test_btsetup_obj3);
+  tcase_add_test(tc,test_btsetup_new_null_song);
+  tcase_add_test(tc,test_btsetup_add_machine_twice);
+  tcase_add_test(tc,test_btsetup_add_wire_twice);
   tcase_add_test(tc,test_btsetup_obj4);
   tcase_add_test(tc,test_btsetup_obj5);
   tcase_add_test(tc,test_btsetup_obj6);
@@ -990,16 +591,15 @@ TCase *bt_setup_test_case(void) {
   tcase_add_test(tc,test_btsetup_get_wires_by_dst_machine1);
   tcase_add_test(tc,test_btsetup_get_wires_by_dst_machine2);
   tcase_add_test(tc,test_btsetup_get_wires_by_dst_machine3);
-  tcase_add_test(tc,test_btsetup_obj13);
-  tcase_add_test(tc,test_btsetup_obj14);
-  tcase_add_test(tc,test_btsetup_obj15);
-  tcase_add_test(tc,test_btsetup_obj16);
-  tcase_add_test(tc,test_btsetup_obj17);
-  tcase_add_test(tc,test_btsetup_obj18);
-  tcase_add_test(tc,test_btsetup_wire1);
-  tcase_add_test(tc,test_btsetup_wire2);
+  tcase_add_test(tc,test_btsetup_remove_machine_null_setup);
+  tcase_add_test(tc,test_btsetup_remove_wire_null_setup);
+  tcase_add_test(tc,test_btsetup_remove_null_machine);
+  tcase_add_test(tc,test_btsetup_remove_null_wire);
+  tcase_add_test(tc,test_btsetup_remove_machine_twice);
+  tcase_add_test(tc,test_btsetup_remove_wire_twice);
+  tcase_add_test(tc,test_btsetup_wire_cycle1);
   // TODO(ensonic): make test work
-  //tcase_add_test(tc,test_btsetup_wire3);
+  //tcase_add_test(tc,test_btsetup_wire_cycle2);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

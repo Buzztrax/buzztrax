@@ -40,23 +40,20 @@ static void case_teardown(void) {
 //-- tests
 
 BT_START_TEST(test_btsettings_get_audiosink1) {
+  /* arrange */
   BtSettings *settings=BT_SETTINGS(bt_gconf_settings_new());
-  gchar *saved_audiosink_name,*test_audiosink_name;
+  gchar *saved_audiosink_name=check_gobject_get_str_property(settings,"audiosink");
 
-  g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
-
+  /* act */
   g_object_set(settings,"audiosink","fakesink",NULL);
 
-  g_object_get(settings,"audiosink",&test_audiosink_name,NULL);
+  /* assert */
+  ck_assert_gobject_str_eq(settings, "audiosink", "fakesink");
 
-  fail_unless(!strcmp(test_audiosink_name,"fakesink"),"sink is %s",test_audiosink_name);
-
+  /* cleanup */
   g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
-
-  /* clean up */
-  g_object_unref(settings);
   g_free(saved_audiosink_name);
-  g_free(test_audiosink_name);
+  g_object_unref(settings);
 }
 BT_END_TEST;
 
