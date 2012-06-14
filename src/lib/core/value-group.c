@@ -894,7 +894,6 @@ void bt_value_group_serialize_columns(const BtValueGroup * const self, const gul
   g_return_if_fail(BT_IS_VALUE_GROUP(self));
   g_return_if_fail(start_tick<self->priv->length);
   g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
   g_return_if_fail(data);
 
   gulong j,params=self->priv->params;
