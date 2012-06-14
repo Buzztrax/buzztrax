@@ -1660,8 +1660,10 @@ static void free_control_data(BtControlData *data) {
 
   // stop the device
   g_object_get((gpointer)(data->control),"device",&device,NULL);
-  btic_device_stop(device);
-  g_object_unref(device);
+  if(device) {
+    btic_device_stop(device);
+    g_object_unref(device);
+  }
 
   // disconnect the handler
   g_signal_handler_disconnect((gpointer)data->control,data->handler_id);
