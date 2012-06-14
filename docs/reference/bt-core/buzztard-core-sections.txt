@@ -667,6 +667,7 @@ BtWire
 bt_wire_get_param_group
 bt_wire_new
 bt_wire_reconnect
+bt_wire_can_link
 <SUBSECTION Private>
 bt_wire_dbg_print_parts
 bt_wire_get_element_list

@@ -48,7 +48,7 @@
  */
 /* TODO(ensonic): easier machine manipulation
  * linking the machines with "shift" pressed comes from buzz and is hard to
- * discover. We now have a "connect machines" item in the conect menut, but
+ * discover. We now have a "connect machines" item in the connect menu, but
  * what about these:
  * 1.) on the toolbar I could have a button that toggles between "move" and
  *     "link". In "move" mode one can move machines with the mouse and in "link"
@@ -503,22 +503,10 @@ static gboolean bt_main_page_machines_check_wire(const BtMainPageMachines *self)
 
   // if the citem->machine is a sink/processor-machine
   if(BT_IS_SINK_MACHINE(dst_machine) || BT_IS_PROCESSOR_MACHINE(dst_machine)) {
-    BtWire *wire;
-
     // check if these machines are not yet connected
-    wire=bt_machine_get_wire_by_dst_machine(src_machine,dst_machine);
-    if(!wire) {
-      wire=bt_machine_get_wire_by_dst_machine(dst_machine,src_machine);
-      if(!wire) {
-        ret=TRUE;
-        GST_INFO("  yes!");
-      }
-      else {
-        g_object_unref(wire);
-      }
-    }
-    else {
-      g_object_unref(wire);
+    if(bt_wire_can_link(NULL,src_machine,dst_machine)) {
+      ret=TRUE;
+      GST_INFO("  yes!");
     }
   }
   g_object_unref(dst_machine);

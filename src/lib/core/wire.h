@@ -65,9 +65,7 @@ GType bt_wire_get_type(void) G_GNUC_CONST;
 BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine, GError **err);
 
 gboolean bt_wire_reconnect(BtWire *self);
-
-//void bt_wire_add_wire_pattern(const BtWire * const self, const BtPattern * const pattern, const BtWirePattern * const wire_pattern);
-//BtWirePattern *bt_wire_get_pattern(const BtWire * const self, const BtPattern * const pattern);
+gboolean bt_wire_can_link(const BtWire * const self, const BtMachine * const src, const BtMachine * const dst);
 
 BtParameterGroup *bt_wire_get_param_group(const BtWire * const self);
 

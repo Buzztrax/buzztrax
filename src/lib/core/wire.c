@@ -594,17 +594,16 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
  * @self: the wire that should be used for this connection
  *
  * Connect two machines with a wire. The source and destination machine must be
- * passed upon construction.
+ * passed at construction time.
  * Each machine can be involved in multiple connections. The method
- * transparently add spreader or adder elements in such cases. It further
+ * transparently adds spreader or adder elements in such cases. It further
  * inserts elements for data-type conversion if necessary.
  *
- * Same way the resulting wire should be added to the setup using #bt_setup_add_wire().
+ * The resulting wire should be added to the setup using #bt_setup_add_wire().
  *
- * Returns: true for success
+ * Returns: %TRUE for success
  */
 static gboolean bt_wire_connect(const BtWire * const self) {
-  gboolean res=FALSE;
   BtWire *other_wire;
   BtMachine * const src=self->priv->src;
   BtMachine * const dst=self->priv->dst;
@@ -615,7 +614,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   // move this to connect?
   if((!src) || (!dst)) {
     GST_WARNING("trying to add create wire with NULL endpoint(s), src=%p and dst=%p",src,dst);
-    return(res);
+    return FALSE;
   }
 
   GST_DEBUG("self=%p, src->ref_ct=%d, dst->ref_ct=%d",self,G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
@@ -623,24 +622,10 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     src,GST_OBJECT_NAME(src),src->src_wires, src->dst_wires,
     dst,GST_OBJECT_NAME(dst),dst->dst_wires, dst->src_wires);
 
-
-  /* check that we don't have such a wire yet */
-  if(src->src_wires && dst->dst_wires) {
-    if((other_wire=bt_machine_get_wire_by_dst_machine(src,dst)) && (other_wire!=self)) {
-      GST_WARNING("trying to add create already existing wire: %p!=%p",other_wire,self);
-      g_object_unref(other_wire);
-      goto Error;
-    }
-    g_object_try_unref(other_wire);
+  if(!bt_wire_can_link(self,src,dst)) {
+    return FALSE;
   }
-  if(src->dst_wires && dst->src_wires) {
-    if((other_wire=bt_machine_get_wire_by_dst_machine(dst,src)) && (other_wire!=self)) {
-      GST_WARNING("trying to add create already existing wire (reversed): %p!=%p",other_wire,self);
-      g_object_unref(other_wire);
-      goto Error;
-    }
-    g_object_try_unref(other_wire);
-  }
+  
 
   // name the wire
   g_object_get(src,"id",&src_name,NULL);
@@ -660,11 +645,12 @@ static gboolean bt_wire_connect(const BtWire * const self) {
       // create spreader (if needed)
       if(!bt_machine_activate_spreader(src)) {
         g_object_unref(other_wire);
-        goto Error;
+        return FALSE;
       }
       // correct the link for the other wire
       if(!bt_wire_link_machines(other_wire)) {
-        GST_ERROR("failed to re-link the machines after inserting internal spreader");goto Error;
+        GST_ERROR("failed to re-link the machines after inserting internal spreader");
+        return FALSE;
       }
     }
   }
@@ -677,11 +663,12 @@ static gboolean bt_wire_connect(const BtWire * const self) {
       // create adder (if needed)
       if(!bt_machine_activate_adder(dst)) {
         g_object_unref(other_wire);
-        goto Error;
+        return FALSE;
       }
       // correct the link for the other wire
       if(!bt_wire_link_machines(other_wire)) {
-        GST_ERROR("failed to re-link the machines after inserting internal adder");goto Error;
+        GST_ERROR("failed to re-link the machines after inserting internal adder");
+        return FALSE;
       }
     }
   }
@@ -690,18 +677,39 @@ static gboolean bt_wire_connect(const BtWire * const self) {
 
   if(!bt_wire_link_machines(self)) {
     GST_ERROR("linking machines failed : %p '%s' -> %p '%s'",src,GST_OBJECT_NAME(src),dst,GST_OBJECT_NAME(dst));
-    goto Error;
+    return FALSE;
   }
   GST_DEBUG("linking machines succeeded, src->ref_ct=%d, dst->ref_ct=%d",G_OBJECT_REF_COUNT(src),G_OBJECT_REF_COUNT(dst));
 
   // register params
   bt_wire_init_params(self);
 
-  res=TRUE;
-
-Error:
-  return(res);
+  return TRUE;
 }
+
+#if 0
+static gboolean bt_wire_have_wires_for_dst(BtMachine *src, BtMachine *dst) {
+  const GList *node;
+  
+  for(node=self->src_wires;node;node=g_list_next(node)) {
+    BtWire * const wire=BT_WIRE(node->data);
+    BtMachine * const machine;
+    gboolean found=FALSE;
+
+    g_object_get(wire,"dst",&machine,NULL);
+    if(machine==dst) found=TRUE;
+    g_object_unref(machine);
+    if(found) return(TRUE);
+
+    g_object_get(wire,"src",&machine,NULL);
+    found=bt_wire_have_wires_for_dst(machine,dst);
+    g_object_unref(machine);
+    if(found) return(TRUE);
+  }
+
+  return FALSE;
+}
+#endif
 
 //-- constructor methods
 
@@ -713,7 +721,7 @@ Error:
  * @err: inform about failed instance creation
  *
  * Create a new instance.
- * The new wire is automaticall added to a songs setup. You don't need to call
+ * The new wire is automatically added to a songs setup. You don't need to call
  * <code>#bt_setup_add_wire(setup,wire);</code>.
  *
  * Returns: the new instance or %NULL in case of an error
@@ -740,6 +748,46 @@ gboolean bt_wire_reconnect(BtWire * const self) {
   GST_DEBUG("relinking machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src),GST_OBJECT_NAME(self->priv->dst));
   bt_wire_unlink_machines(self);
   return(bt_wire_link_machines(self));
+}
+
+/**
+ * bt_wire_can_link:
+ * @self: a wire, can be %NULL if we check this for a new wire
+ * @src: the src machine
+ * @dst: the dst machine
+ *
+ * Check if we don't have such a wire yet and if we can connect the machines.
+ * We can connect if the data flow direction is correct (sources to effects to
+ * sinks) and if the new connect is not creating cycles in the graph.
+ *
+ * Returns: %TRUE if we can link the machines
+ */
+gboolean bt_wire_can_link(const BtWire * const self, const BtMachine * const src, const BtMachine * const dst) {
+  BtWire *wire;
+  
+  /* check that we don't have such a wire yet */
+  if(src->src_wires && dst->dst_wires) {
+    if((wire=bt_machine_get_wire_by_dst_machine(src,dst)) && (wire!=self)) {
+      GST_WARNING_OBJECT(wire,"trying to add create already existing wire: %p!=%p",wire,self);
+      g_object_unref(wire);
+      return FALSE;
+    }
+#if 0
+    // FIXME(ensonic) do cycle detection here
+    // go traverse wires from each end and fail if we end of on the other element
+    if(bt_wire_have_wires_for_dst(src,dst)) {
+      GST_WARNING_OBJECT(self,"cycle detected",self);
+    }
+#endif
+  }
+  if(src->dst_wires && dst->src_wires) {
+    if((wire=bt_machine_get_wire_by_dst_machine(dst,src)) && (wire!=self)) {
+      GST_WARNING_OBJECT(self,"trying to add create already existing wire (reversed): %p!=%p",wire,self);
+      g_object_unref(wire);
+      return FALSE;
+    }
+  }
+  return TRUE;
 }
 
 /**
