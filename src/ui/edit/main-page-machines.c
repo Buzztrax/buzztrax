@@ -504,7 +504,7 @@ static gboolean bt_main_page_machines_check_wire(const BtMainPageMachines *self)
   // if the citem->machine is a sink/processor-machine
   if(BT_IS_SINK_MACHINE(dst_machine) || BT_IS_PROCESSOR_MACHINE(dst_machine)) {
     // check if these machines are not yet connected
-    if(bt_wire_can_link(NULL,src_machine,dst_machine)) {
+    if(bt_wire_can_link(src_machine,dst_machine)) {
       ret=TRUE;
       GST_INFO("  yes!");
     }
@@ -1510,16 +1510,16 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
   bt_change_log_start_group(self->priv->change_log);
 
   /* by doing undo/redo from setup:machine-removed it happens completely
-   * unconstrained, we need to enfore a certain order. Right now the log will
+   * unconstrained, we need to enforce a certain order. Right now the log will
    * reverse the actions. Thus we need to write out the object we remove and
-   * then within the things that get removed by that.
+   * then, within, the things that get removed by that.
    * Thus when removing X -
    * 1) we need to log it directly and not in on_x_removed
    * 2) trigger on_x_removed
-   * Still this won't let us control the order or serialisation of the children
+   * Still this won't let us control the order or serialization of the children
    *
-   * We can't control signal emission. Lile emitting the signal with details or
-   * simmilar approaches won't fix it nicely either.
+   * We can't control signal emission. Like emitting the signal with details or
+   * similar approaches won't fix it nicely either.
    * Somehow the handlers would need to describe their dependencies and then
    * defer their execution. Which they can't as they don't know the context they
    * are called from. A pre-delete signal would not solve it either.
@@ -1545,7 +1545,7 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
    * inside the signal handler:
    * hint = g_signal_get_invocation_hint(object);
    * if (bt_change_log_is_hint(change_log,hint->signal_id) {
-   *   // do undo/redo serialisation
+   *   // do undo/redo serialization
    * }
    *
    * For now we block conflicting handlers.

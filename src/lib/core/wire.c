@@ -589,6 +589,56 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
   }
 }
 
+/* cycle detection helper, look for wires from src that end in dst */
+static gboolean bt_wire_have_wires_for_dst(const BtMachine * const src, const BtMachine * const dst) {
+  const GList *node;
+  
+  // check all outgoing wires
+  for(node=src->src_wires;node;node=g_list_next(node)) {
+    BtWire * const wire=BT_WIRE(node->data);
+    BtMachine * const machine;
+    gboolean found=FALSE;
+
+    // is the target of the wire, the target we are looking for?
+    g_object_get(wire,"dst",&machine,NULL);
+    if(machine==dst) {
+      found=TRUE;
+    } else {
+      found=bt_wire_have_wires_for_dst(machine,dst);
+    }
+    g_object_unref(machine);
+    if(found) return(TRUE);
+  }
+  return FALSE;
+}
+
+/* check if we can link two machines and his will result in a new unique wire */
+static gboolean bt_wire_can_link_internal(const BtWire * const self, const BtMachine * const src, const BtMachine * const dst) {
+  BtWire *wire;
+  
+  /* check that we don't have such a wire yet */
+  if(src->src_wires && dst->dst_wires) {
+    if((wire=bt_machine_get_wire_by_dst_machine(src,dst)) && (wire!=self)) {
+      GST_WARNING_OBJECT(wire,"trying to add create already existing wire: %p!=%p",wire,self);
+      g_object_unref(wire);
+      return FALSE;
+    }
+  }
+  if(src->dst_wires && dst->src_wires) {
+    if((wire=bt_machine_get_wire_by_dst_machine(dst,src)) && (wire!=self)) {
+      GST_WARNING_OBJECT(self,"trying to add create already existing wire (reversed): %p!=%p",wire,self);
+      g_object_unref(wire);
+      return FALSE;
+    }
+    if(bt_wire_have_wires_for_dst(dst,src)) {
+      GST_WARNING_OBJECT(self,"cycle detected");
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
+
 /*
  * bt_wire_connect:
  * @self: the wire that should be used for this connection
@@ -622,7 +672,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     src,GST_OBJECT_NAME(src),src->src_wires, src->dst_wires,
     dst,GST_OBJECT_NAME(dst),dst->dst_wires, dst->src_wires);
 
-  if(!bt_wire_can_link(self,src,dst)) {
+  if(!bt_wire_can_link_internal(self,src,dst)) {
     return FALSE;
   }
   
@@ -687,28 +737,6 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   return TRUE;
 }
 
-static gboolean bt_wire_have_wires_for_dst(const BtMachine * const src, const BtMachine * const dst) {
-  const GList *node;
-  
-  // check all outgoing wires
-  for(node=src->src_wires;node;node=g_list_next(node)) {
-    BtWire * const wire=BT_WIRE(node->data);
-    BtMachine * const machine;
-    gboolean found=FALSE;
-
-    // is the target of the wire, the target we are looking for?
-    g_object_get(wire,"dst",&machine,NULL);
-    if(machine==dst) {
-      found=TRUE;
-    } else {
-      found=bt_wire_have_wires_for_dst(machine,dst);
-    }
-    g_object_unref(machine);
-    if(found) return(TRUE);
-  }
-  return FALSE;
-}
-
 //-- constructor methods
 
 /**
@@ -760,29 +788,11 @@ gboolean bt_wire_reconnect(BtWire * const self) {
  *
  * Returns: %TRUE if we can link the machines
  */
-gboolean bt_wire_can_link(const BtWire * const self, const BtMachine * const src, const BtMachine * const dst) {
-  BtWire *wire;
-  
-  /* check that we don't have such a wire yet */
-  if(src->src_wires && dst->dst_wires) {
-    if((wire=bt_machine_get_wire_by_dst_machine(src,dst)) && (wire!=self)) {
-      GST_WARNING_OBJECT(wire,"trying to add create already existing wire: %p!=%p",wire,self);
-      g_object_unref(wire);
-      return FALSE;
-    }
-  }
-  if(src->dst_wires && dst->src_wires) {
-    if((wire=bt_machine_get_wire_by_dst_machine(dst,src)) && (wire!=self)) {
-      GST_WARNING_OBJECT(self,"trying to add create already existing wire (reversed): %p!=%p",wire,self);
-      g_object_unref(wire);
-      return FALSE;
-    }
-    if(bt_wire_have_wires_for_dst(dst,src)) {
-      GST_WARNING_OBJECT(self,"cycle detected");
-      return FALSE;
-    }
-  }
-  return TRUE;
+gboolean bt_wire_can_link(const BtMachine * const src, const BtMachine * const dst) {
+  g_return_val_if_fail(BT_IS_MACHINE(src),FALSE);
+  g_return_val_if_fail(BT_IS_MACHINE(dst),FALSE);
+
+  return (bt_wire_can_link_internal(NULL,src,dst));
 }
 
 /**
