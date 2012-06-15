@@ -21,6 +21,9 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
 static void case_setup(void) {
@@ -28,9 +31,13 @@ static void case_setup(void) {
 }
 
 static void test_setup(void) {
+  app=bt_test_application_new();
+  song=bt_song_new(app);
 }
 
 static void test_teardown(void) {
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 
 static void case_teardown(void) {
@@ -38,17 +45,28 @@ static void case_teardown(void) {
 
 //-- tests
 
-/*
-* try to create a new setup with a NULL song object
-*/
-BT_START_TEST(test_btsonginfo_obj1) {
-  BtSongInfo *song_info=NULL;
-  
-  // we don't use a _constructed method there yet
-  //check_init_error_trapp("bt_song_info_","BT_IS_SONG(self->priv->song)");
-  song_info=bt_song_info_new(NULL);
-  //fail_unless(check_has_error_trapped(), NULL);
+/* apply generic property tests to song-info */
+BT_START_TEST(test_btsonginfo_properties) {
+  /* arrange */
+  GObject *song_info=check_gobject_get_object_property(song,"song-info");
+
+  /* act & assert */
+  fail_unless(check_gobject_properties(song_info), NULL);
+
+  /* cleanup */
+}
+BT_END_TEST
+
+
+/* create a new song-info with a NULL song object */
+BT_START_TEST(test_btsonginfo_null_song) {
+  /* act */
+  BtSongInfo *song_info=bt_song_info_new(NULL);
+
+  /* assert */
   fail_unless(song_info != NULL, NULL);
+
+  /* cleanup */
   g_object_unref(song_info);
 }
 BT_END_TEST
@@ -57,7 +75,8 @@ BT_END_TEST
 TCase *bt_song_info_test_case(void) {
   TCase *tc = tcase_create("BtSongInfoTests");
 
-  tcase_add_test(tc,test_btsonginfo_obj1);
+  tcase_add_test(tc,test_btsonginfo_properties);
+  tcase_add_test(tc,test_btsonginfo_null_song);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

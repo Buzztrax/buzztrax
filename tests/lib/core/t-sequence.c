@@ -59,7 +59,7 @@ BT_START_TEST(test_btsequence_properties) {
 BT_END_TEST
 
 
-/* try to create a new sequence with NULL for song object */
+/* create a new sequence with NULL for song object */
 BT_START_TEST(test_btsequence_new_null_song) {
   /* act */
   BtSequence *sequence=bt_sequence_new(NULL);
