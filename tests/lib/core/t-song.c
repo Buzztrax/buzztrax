@@ -21,6 +21,7 @@
 
 //-- globals
 
+static BtApplication *app;
 #if 0
 static gboolean play_signal_invoked=FALSE;
 #endif
@@ -32,9 +33,11 @@ static void case_setup(void) {
 }
 
 static void test_setup(void) {
+  app=bt_test_application_new();
 }
 
 static void test_teardown(void) {
+  g_object_checked_unref(app);
 }
 
 static void case_teardown(void) {
@@ -43,161 +46,103 @@ static void case_teardown(void) {
 
 //-- tests
 
-// helper method to test the play signal
-#if 0
-static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
-  play_signal_invoked=TRUE;
-}
-#endif
-
 BT_START_TEST(test_btsong_properties) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  gboolean check_prop_ret=FALSE;
+  /* arrange */
+  GObject *song=(GObject *)bt_song_new(app);
+  
+  /* act & assert */
+  fail_unless(check_gobject_properties(song));
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  check_prop_ret=check_gobject_properties(G_OBJECT(song));
-  fail_unless(check_prop_ret==TRUE,NULL);
-
+  /* cleanup */
   g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
 
 // test if the default constructor handles NULL
-BT_START_TEST(test_btsong_obj1) {
-  BtSong *song;
-
-  /* create a new song */
+BT_START_TEST(test_btsong_new_null_app) {
+  /* arrange */
   check_init_error_trapp("bt_song_","BT_IS_APPLICATION(self->priv->app)");
-  song=bt_song_new(NULL);
+
+  /* act */
+  BtSong *song=bt_song_new(NULL);
+  
+  /* assert */
   fail_unless(check_has_error_trapped(), NULL);
   fail_unless(song != NULL, NULL);
+
+  /* cleanup */
   g_object_unref(song);
 }
 BT_END_TEST
 
+
 // play without loading a song (means don't play anything audible)
-BT_START_TEST(test_btsong_play1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  gboolean res;
+BT_START_TEST(test_btsong_play_empty) {
+  /* arrange */
+  BtSong *song=bt_song_new(app);
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
+  /* act & assert */
+  fail_unless(bt_song_play(song),NULL);
 
-  //play_signal_invoked=FALSE;
-  //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
-
-  // returns TRUE even that the song is empty!
-  res=bt_song_play(song);
-  fail_unless(res==TRUE, NULL);
+  /* cleanup */
   bt_song_stop(song);
-
   g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-/*
-* test if the play method from the song works as aspected if the self parameter
-* is NULL
-*/
-BT_START_TEST(test_btsong_play2) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  /* check if a correct error message is thrown */
+// song is null
+BT_START_TEST(test_btsong_play_null) {
+  /* arrange */
+  BtSong *song=bt_song_new(app);
   check_init_error_trapp("bt_song_play","BT_IS_SONG(self)");
-  bt_song_play(NULL);
-  fail_unless(check_has_error_trapped(),NULL);
-  bt_song_stop(song);
 
+  /* act */
+  bt_song_play(NULL);
+  
+  /* assert */
+  fail_unless(check_has_error_trapped(),NULL);
+
+  /* cleanup */
+  bt_song_stop(song);
   g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
+
 
 // load a new song while the first plays
-BT_START_TEST(test_btsong_play3) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *loader=NULL;
-  gboolean load_ret = FALSE;
-  gboolean res;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
+BT_START_TEST(test_btsong_play_and_load_new) {
+  /* arrange */
+  BtSong *song=bt_song_new(app);
+  BtSongIO *loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
+  bt_song_io_load(loader,song);
   g_object_checked_unref(loader);
-
-  //play_signal_invoked=FALSE;
-  //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
-
-  res=bt_song_play(song);
-  fail_unless(res, NULL);
-
-  // TODO(ensonic): this needs a mainloop!
-  g_usleep(G_USEC_PER_SEC/10);
-  //fail_unless(play_signal_invoked, NULL);
+  bt_song_play(song);
+  check_run_main_loop_for_usec(G_USEC_PER_SEC/10);
   
+  /* act */
   loader=bt_song_io_from_file(check_get_test_song_path("test-simple2.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
-  
-  bt_song_stop(song);
 
+  /* assert */
+  fail_unless(bt_song_io_load(loader,song), NULL);
+
+  /* cleanup */
+  bt_song_stop(song);
   g_object_checked_unref(loader);
   g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-// test if we can get a empty setup from an empty song
-BT_START_TEST(test_btsong_setup1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL, NULL);
-
-  g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
 
 TCase *bt_song_test_case(void) {
   TCase *tc = tcase_create("BtSongTests");
 
   tcase_add_test(tc,test_btsong_properties);
-  tcase_add_test(tc,test_btsong_obj1);
-  tcase_add_test(tc,test_btsong_play1);
-  tcase_add_test(tc,test_btsong_play2);
-  tcase_add_test(tc,test_btsong_play3);
-  tcase_add_test(tc,test_btsong_setup1);
+  tcase_add_test(tc,test_btsong_new_null_app);
+  tcase_add_test(tc,test_btsong_play_empty);
+  tcase_add_test(tc,test_btsong_play_null);
+  tcase_add_test(tc,test_btsong_play_and_load_new);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

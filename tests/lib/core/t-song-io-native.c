@@ -21,6 +21,9 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
 static void case_setup(void) {
@@ -28,9 +31,13 @@ static void case_setup(void) {
 }
 
 static void test_setup(void) {
+  app=bt_test_application_new();
+  song=bt_song_new(app);
 }
 
 static void test_teardown(void) {
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 
 static void case_teardown(void) {
@@ -38,26 +45,33 @@ static void case_teardown(void) {
 
 //-- tests
 
-// try to create a songIO object from file with different format
-BT_START_TEST(test_btsong_io_native_obj1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *song_io;
-  gboolean res;
-  
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  
-  song_io=bt_song_io_from_file(check_get_test_song_path("broken1.xml"));
-  fail_unless(song_io != NULL, NULL);
-  
-  res=bt_song_io_load(song_io,song);
-  fail_unless(res == FALSE, NULL);
+// load file with errors
+BT_START_TEST(test_btsong_io_native_broken_file) {
+  /* arrange */
+  BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("broken1.xml"));
 
+  /* act & assert */  
+  fail_if(bt_song_io_load(song_io,song), NULL);
+
+  /* cleanup */
   g_object_checked_unref(song_io);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+
+// load file into non empty song
+BT_START_TEST(test_btsong_io_native_load_twice) {
+  /* arrange */
+  BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
+  bt_song_io_load(song_io,song);
+  g_object_checked_unref(song_io);
+  song_io=bt_song_io_from_file(check_get_test_song_path("test-simple2.xml"));
+
+  /* act & assert */  
+  fail_unless(bt_song_io_load(song_io,song), NULL);
+
+  /* cleanup */
+  g_object_checked_unref(song_io);
 }
 BT_END_TEST
 
@@ -65,7 +79,8 @@ BT_END_TEST
 TCase *bt_song_io_native_test_case(void) {
   TCase *tc = tcase_create("BtSongIONativeTests");
 
-  tcase_add_test(tc,test_btsong_io_native_obj1);
+  tcase_add_test(tc,test_btsong_io_native_broken_file);
+  tcase_add_test(tc,test_btsong_io_native_load_twice);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
