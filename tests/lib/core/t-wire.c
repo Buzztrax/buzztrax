@@ -21,6 +21,9 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
 static void case_setup(void) {
@@ -28,103 +31,99 @@ static void case_setup(void) {
 }
 
 static void test_setup(void) {
+  app=bt_test_application_new();
+  song=bt_song_new(app);
 }
 
 static void test_teardown(void) {
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 
 static void case_teardown(void) {
 }
 
+
 //-- tests
 
-/*
-* try to create a wire with the same machine as source and dest
-*/
-BT_START_TEST(test_btwire_obj1){
-  BtApplication *app=NULL;
+BT_START_TEST(test_btwire_properties) {
+  /* arrange */
+  BtMachine *src=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
+  BtMachine *dst=BT_MACHINE(bt_processor_machine_new(song,"proc","volume",0L,NULL));
+  BtWire *wire=bt_wire_new(song,src,dst,NULL);
+
+  /* act & assert */
+  fail_unless(check_gobject_properties((GObject*)wire), NULL);
+
+  /* cleanup */
+  g_object_unref(wire);
+  g_object_unref(src);
+  g_object_unref(dst);
+}
+BT_END_TEST
+
+
+/* create a new wire with NULL for song object */
+BT_START_TEST(test_btwire_new_null_song) {
+  /* arrange */
+  BtMachine *src=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
+  BtMachine *dst=BT_MACHINE(bt_processor_machine_new(song,"proc","volume",0L,NULL));
+
+  /* act */
+  BtWire *wire=bt_wire_new(NULL,src,dst,NULL);
+
+  /* assert */
+  fail_unless(wire != NULL, NULL);
+
+  /* cleanup */
+  g_object_unref(wire);
+  g_object_unref(src);
+  g_object_unref(dst);
+}
+BT_END_TEST
+
+
+/* create a new wire with NULL for song object */
+BT_START_TEST(test_btwire_new_null_machine) {
+  /* arrange */
+  BtMachine *src=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
+
+  /* act */
+  BtWire *wire=bt_wire_new(NULL,src,NULL,NULL);
+
+  /* assert */
+  fail_unless(wire != NULL, NULL);
+
+  /* cleanup */
+  g_object_unref(wire);
+  g_object_unref(src);
+}
+BT_END_TEST
+
+
+/* create a wire with the same machine as source and dest */
+BT_START_TEST(test_btwire_same_src_and_dst) {
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_processor_machine_new(song,"id","volume",0,NULL));
+
+  /* act */
   GError *err=NULL;
-  BtSong *song=NULL;
-  BtWire *wire=NULL;
-  // machine
-  BtProcessorMachine *machine=NULL;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-
-  /* try to create a source machine */
-  machine=bt_processor_machine_new(song,"id","volume",0,&err);
-  fail_unless(machine!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to add the machine twice to the wire */
-  wire=bt_wire_new(song,BT_MACHINE(machine),BT_MACHINE(machine),&err);
+  BtWire *wire=bt_wire_new(song,machine,machine,&err);
   fail_unless(wire!=NULL,NULL);
   fail_unless(err!=NULL, NULL);
 
   g_object_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
 }
 BT_END_TEST
 
-BT_START_TEST(test_btwire_obj2){
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtWire *wire1=NULL;
-  BtWire *wire2=NULL;
-  BtSourceMachine *source=NULL;
-  BtProcessorMachine *sink1=NULL;
-  BtProcessorMachine *sink2=NULL;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL, NULL);
-
-  /* try to create a source machine */
-  source=bt_source_machine_new(song,"id","audiotestsrc",0,&err);
-  fail_unless(source!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a volume machine */
-  sink1=bt_processor_machine_new(song,"volume1","volume",0,&err);
-  fail_unless(sink1!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a volume machine */
-  sink2=bt_processor_machine_new(song,"volume2","volume",0,&err);
-  fail_unless(sink2!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to connect source machine to volume1 */
-  wire1=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink1),&err);
-  mark_point();
-  fail_unless(wire1!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to connect source machine to volume2 */
-  wire2=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink2),&err);
-  mark_point();
-  fail_unless(wire2!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
 
 TCase *bt_wire_test_case(void) {
   TCase *tc = tcase_create("BtWireTests");
 
-  tcase_add_test(tc,test_btwire_obj1);
-  tcase_add_test(tc,test_btwire_obj2);
+  tcase_add_test(tc,test_btwire_properties);
+  tcase_add_test(tc,test_btwire_new_null_song);
+  tcase_add_test(tc,test_btwire_new_null_machine);
+  tcase_add_test(tc,test_btwire_same_src_and_dst);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
