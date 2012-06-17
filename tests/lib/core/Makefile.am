@@ -6,7 +6,7 @@ libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-machine.c e-machine.c t-machine.c \
 	s-param-group.c t-param-group.c \
 	s-pattern.c e-pattern.c t-pattern.c \
-	s-processor-machine.c e-processor-machine.c \
+	s-processor-machine.c e-processor-machine.c t-processor-machine.c \
 	s-sequence.c e-sequence.c t-sequence.c \
 	s-setup.c e-setup.c t-setup.c \
 	s-sink-machine.c e-sink-machine.c t-sink-machine.c \
