@@ -32,6 +32,7 @@ extern Suite *bt_core_suite(void);
 extern Suite *bt_machine_suite(void);
 extern Suite *bt_network_suite(void);
 extern Suite *bt_pattern_suite(void);
+extern Suite *bt_param_group_suite(void);
 extern Suite *bt_processor_machine_suite(void);
 extern Suite *bt_sequence_suite(void);
 extern Suite *bt_setup_suite(void);
@@ -76,6 +77,7 @@ gint main(gint argc, gchar **argv) {
   sr=srunner_create(bt_application_suite());
   srunner_add_suite(sr, bt_core_suite());
   srunner_add_suite(sr, bt_machine_suite());
+  srunner_add_suite(sr, bt_param_group_suite());
   srunner_add_suite(sr, bt_pattern_suite());
   srunner_add_suite(sr, bt_processor_machine_suite());
   srunner_add_suite(sr, bt_sequence_suite());

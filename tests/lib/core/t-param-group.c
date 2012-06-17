@@ -1,5 +1,5 @@
 /* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2012 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -46,45 +46,25 @@ static void case_teardown(void) {
 
 //-- tests
 
-/* create a machine with not exising plugin name */
-BT_START_TEST(test_btsourcemachine_wrong_name) {
+// FIXME(ensonic): move to param group tests */
+BT_START_TEST(test_btparamgroup_invalid_param) {
   /* arrange */
+  BtSourceMachine *machine=bt_source_machine_new(song,"id","audiotestsrc",0,NULL);
+  BtParameterGroup *pg=bt_machine_get_global_param_group(BT_MACHINE(machine));
 
-  /* act */
-  GError *err=NULL;
-  BtSourceMachine *machine=bt_source_machine_new(song,"id","nonsense",1,&err);
-
-  /* assert */
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err!=NULL, NULL);
+  /* act && assert */
+  ck_assert_int_eq(bt_parameter_group_get_param_index(pg,"nonsense"), -1);
 
   /* cleanup */
+  g_object_unref(machine);
 }
 BT_END_TEST
 
 
-/* create a machine which is a sink machine and not a source machine */
-BT_START_TEST(test_btsourcemachine_wrong_type) {
-  /* arrange */
+TCase *bt_param_group_test_case(void) {
+  TCase *tc = tcase_create("BtParamGroupTests");
 
-  /*act */
-  GError *err=NULL;
-  BtSourceMachine *machine=bt_source_machine_new(song,"id","autoaudiosink",1,&err);
-
-  /* assert */
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err!=NULL, NULL);
-
-  /* cleanup */
-}
-BT_END_TEST
-
-
-TCase *bt_source_machine_test_case(void) {
-  TCase *tc = tcase_create("BtSourceMachineTests");
-
-  tcase_add_test(tc,test_btsourcemachine_wrong_name);
-  tcase_add_test(tc,test_btsourcemachine_wrong_type);
+  tcase_add_test(tc,test_btparamgroup_invalid_param);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
