@@ -550,13 +550,15 @@ static void _blend_column(const BtValueGroup * const self, const gulong start_ti
   property=bt_parameter_group_get_param_spec(self->priv->param_group,param);
   base_type=bt_g_type_get_base_type(property->value_type);
 
-  GST_INFO("blending gvalue type %s",G_VALUE_TYPE_NAME(end));
+  GST_INFO("blending gvalue type %s",g_type_name(base_type));
 
   // TODO(ensonic): should this honour the cursor stepping? e.g. enter only every second value
 
   switch(base_type) {
   	_BLEND(int,INT)
   	_BLEND(uint,UINT)
+  	_BLEND(long,LONG)
+  	_BLEND(ulong,ULONG)
   	_BLEND(int64,INT64)
   	_BLEND(uint64,UINT64)
   	_BLEND(float,FLOAT)
@@ -591,7 +593,7 @@ static void _blend_column(const BtValueGroup * const self, const gulong start_ti
       }    		
     } break;
     default:
-      GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(end));
+      GST_WARNING("unhandled gvalue type %s",g_type_name(base_type));
   }
 }
 
@@ -652,7 +654,7 @@ static void _flip_column(const BtValueGroup * const self, const gulong start_tic
   property=bt_parameter_group_get_param_spec(self->priv->param_group,param);
   base_type=property->value_type;
 
-  GST_INFO("flipping gvalue type %s",G_VALUE_TYPE_NAME(base_type));
+  GST_INFO("flipping gvalue type %s",g_type_name(base_type));
 
   g_value_init(&tmp,base_type);
   while(beg<end) {
@@ -745,7 +747,7 @@ static void _randomize_column(const BtValueGroup * const self, const gulong star
   property=bt_parameter_group_get_param_spec(self->priv->param_group,param);
   base_type=bt_g_type_get_base_type(property->value_type);
 
-  GST_INFO("blending gvalue type %s",g_type_name(property->value_type));
+  GST_INFO("blending gvalue type %s",g_type_name(base_type));
 
   // TODO(ensonic): should this honour the cursor stepping? e.g. enter only every second value
   // TODO(ensonic): if beg and end are not empty, shall we use them as upper and lower
@@ -754,6 +756,8 @@ static void _randomize_column(const BtValueGroup * const self, const gulong star
   switch(base_type) {
   	_RANDOMIZE(int,INT,Int)
   	_RANDOMIZE(uint,UINT,UInt)
+  	_RANDOMIZE(long,LONG,Long)
+  	_RANDOMIZE(ulong,ULONG,ULong)
   	_RANDOMIZE(int64,INT64,Int64)
   	_RANDOMIZE(uint64,UINT64,UInt64)
   	_RANDOMIZE(float,FLOAT,Float)
@@ -783,7 +787,7 @@ static void _randomize_column(const BtValueGroup * const self, const gulong star
       }
     } break;
     default:
-      GST_WARNING("unhandled gvalue type %s",G_VALUE_TYPE_NAME(base_type));
+      GST_WARNING("unhandled gvalue type %s",g_type_name(base_type));
   }
 }
 
