@@ -348,6 +348,36 @@ BT_START_TEST(test_btpattern_delete_row) {
 BT_END_TEST
 
 
+BT_START_TEST(test_btpattern_mono_get_global_vg) {
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",1L,machine);
+
+  /* act && assert */
+  fail_unless(bt_pattern_get_global_group(pattern)!=NULL, NULL);
+
+  /* cleanup */
+  g_object_unref(pattern);
+  g_object_unref(machine);
+}
+BT_END_TEST
+
+
+BT_START_TEST(test_btpattern_mono_get_voice_vg) {
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",1L,machine);
+
+  /* act && assert */
+  fail_unless(bt_pattern_get_voice_group(pattern, 1)==NULL, NULL);
+
+  /* cleanup */
+  g_object_unref(pattern);
+  g_object_unref(machine);
+}
+BT_END_TEST
+
+
 TCase *bt_pattern_example_case(void) {
   TCase *tc = tcase_create("BtPatternExamples");
 
@@ -365,8 +395,8 @@ TCase *bt_pattern_example_case(void) {
   tcase_add_test(tc,test_btpattern_shrink_voices);
   tcase_add_test(tc,test_btpattern_insert_row);
   tcase_add_test(tc,test_btpattern_delete_row);
-  // blend/randomize
-  // set params multiple times and clear them again
+  tcase_add_test(tc,test_btpattern_mono_get_global_vg);
+  tcase_add_test(tc,test_btpattern_mono_get_voice_vg);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

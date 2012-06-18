@@ -112,6 +112,21 @@ BT_START_TEST(test_btpattern_new_null_name) {
 BT_END_TEST
 
 
+BT_START_TEST(test_btpattern_get_group_by_null_paramgroup) {
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",1L,machine);
+
+  /* act && assert */
+  fail_unless(bt_pattern_get_group_by_parameter_group(pattern,NULL)==NULL, NULL);
+
+  /* cleanup */
+  g_object_unref(pattern);
+  g_object_unref(machine);
+}
+BT_END_TEST
+
+
 TCase *bt_pattern_test_case(void) {
   TCase *tc = tcase_create("BtPatternTests");
 
@@ -119,6 +134,7 @@ TCase *bt_pattern_test_case(void) {
   tcase_add_test(tc,test_btpattern_new_null_machine);
   tcase_add_test(tc,test_btpattern_new_null_id);
   tcase_add_test(tc,test_btpattern_new_null_name);
+  tcase_add_test(tc,test_btpattern_get_group_by_null_paramgroup);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

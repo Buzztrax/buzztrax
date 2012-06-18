@@ -46,13 +46,13 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btparamgroup_invalid_param) {
+BT_START_TEST(test_btparamgroup_param) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
   BtParameterGroup *pg=bt_machine_get_global_param_group(machine);
 
   /* act && assert */
-  ck_assert_int_eq(bt_parameter_group_get_param_index(pg,"nonsense"), -1);
+  ck_assert_int_eq(bt_parameter_group_get_param_index(pg,"g-double"), 1);
 
   /* cleanup */
   g_object_unref(machine);
@@ -60,10 +60,33 @@ BT_START_TEST(test_btparamgroup_invalid_param) {
 BT_END_TEST
 
 
-TCase *bt_param_group_test_case(void) {
-  TCase *tc = tcase_create("BtParamGroupTests");
+/* try describe on a machine that does not implement the interface */
+BT_START_TEST(test_btparamgroup_describe) {
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
+  BtParameterGroup *pg=bt_machine_get_global_param_group(machine);
+  GValue val={0,};
+  g_value_init(&val,G_TYPE_ULONG);
+  g_value_set_ulong(&val,1L);
 
-  tcase_add_test(tc,test_btparamgroup_invalid_param);
+  /* act */
+  gchar *str = bt_parameter_group_describe_param_value(pg,0,&val);
+
+  /* assert */
+  fail_unless(str == NULL, NULL);
+
+  /* cleanup */
+  g_value_unset(&val);
+  g_object_unref(machine);
+}
+BT_END_TEST
+
+
+TCase *bt_param_group_example_case(void) {
+  TCase *tc = tcase_create("BtParamGroupExamples");
+
+  tcase_add_test(tc,test_btparamgroup_param);
+  tcase_add_test(tc,test_btparamgroup_describe);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
