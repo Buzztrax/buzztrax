@@ -2,6 +2,7 @@ noinst_LTLIBRARIES = libbtcore-check.la
 libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-application.c e-application.c \
+	s-audio-session.c e-audio-session.c \
 	s-core.c e-core.c t-core.c \
 	s-gconf-settings.c e-gconf-settings.c \
 	s-machine.c e-machine.c t-machine.c \
