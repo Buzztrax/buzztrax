@@ -47,7 +47,7 @@ static void case_teardown(void) {
 //-- tests
 
 /* apply generic property tests to sequence */
-BT_START_TEST(test_btsequence_properties) {
+BT_START_TEST(test_bt_sequence_properties) {
   /* arrange */
   GObject *sequence=check_gobject_get_object_property(song,"sequence");
 
@@ -60,7 +60,7 @@ BT_END_TEST
 
 
 /* create a new sequence with NULL for song object */
-BT_START_TEST(test_btsequence_new_null_song) {
+BT_START_TEST(test_bt_sequence_new_null_song) {
   /* act */
   BtSequence *sequence=bt_sequence_new(NULL);
   
@@ -73,7 +73,7 @@ BT_START_TEST(test_btsequence_new_null_song) {
 BT_END_TEST
 
 /* try to add a NULL machine to the sequence */
-BT_START_TEST(test_btsequence_add_track1) {
+BT_START_TEST(test_bt_sequence_add_track1) {
   /* arrange */
   BtSequence *sequence=(BtSequence *)check_gobject_get_object_property(song,"sequence");
   check_init_error_trapp("","BT_IS_MACHINE(machine)");
@@ -91,7 +91,7 @@ BT_END_TEST
 
 
 /* try to add a new machine for the sequence with NULL for the sequence parameter */
-BT_START_TEST(test_btsequence_add_track2) {
+BT_START_TEST(test_bt_sequence_add_track2) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   check_init_error_trapp("","BT_IS_SEQUENCE(self)");
@@ -109,7 +109,7 @@ BT_END_TEST
 
 
 /* try to remove a NULL machine from the sequence */
-BT_START_TEST(test_btsequence_rem_track1) {
+BT_START_TEST(test_bt_sequence_rem_track1) {
   /* arrange */
   BtSequence *sequence=(BtSequence *)check_gobject_get_object_property(song,"sequence");
   check_init_error_trapp("","BT_IS_MACHINE(machine)");
@@ -127,7 +127,7 @@ BT_END_TEST
 
 
 /* try to remove a machine from the sequence that has never added */
-BT_START_TEST(test_btsequence_rem_track2) {
+BT_START_TEST(test_bt_sequence_rem_track2) {
   /* arrange */
   BtSequence *sequence=(BtSequence *)check_gobject_get_object_property(song,"sequence");
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
@@ -146,7 +146,7 @@ BT_END_TEST
 
 
 /* try to add a label to the sequence beyond the sequence length */
-BT_START_TEST(test_btsequence_length1) {
+BT_START_TEST(test_bt_sequence_length1) {
   /* arrange */
   BtSequence *sequence=(BtSequence *)check_gobject_get_object_property(song,"sequence");
   g_object_set(sequence,"length",4L,NULL);
@@ -164,7 +164,7 @@ BT_START_TEST(test_btsequence_length1) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_pattern1) {
+BT_START_TEST(test_bt_sequence_pattern1) {
   /* arrange */
   BtSequence *sequence=(BtSequence *)check_gobject_get_object_property(song,"sequence");
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
@@ -186,7 +186,7 @@ BT_START_TEST(test_btsequence_pattern1) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_pattern2) {
+BT_START_TEST(test_bt_sequence_pattern2) {
   BtSequence *sequence=(BtSequence *)check_gobject_get_object_property(song,"sequence");
   BtMachine *machine1=BT_MACHINE(bt_source_machine_new(song,"genm","buzztard-test-mono-source",0L,NULL));
   BtMachine *machine2=BT_MACHINE(bt_source_machine_new(song,"genp","buzztard-test-poly-source",1L,NULL));
@@ -213,15 +213,15 @@ BT_END_TEST
 TCase *bt_sequence_test_case(void) {
   TCase *tc = tcase_create("BtSequenceTests");
 
-  tcase_add_test(tc,test_btsequence_properties);
-  tcase_add_test(tc,test_btsequence_new_null_song);
-  tcase_add_test(tc,test_btsequence_add_track1);
-  tcase_add_test(tc,test_btsequence_add_track2);
-  tcase_add_test(tc,test_btsequence_rem_track1);
-  tcase_add_test(tc,test_btsequence_rem_track2);
-  tcase_add_test(tc,test_btsequence_length1);
-  tcase_add_test(tc,test_btsequence_pattern1);
-  tcase_add_test(tc,test_btsequence_pattern2);
+  tcase_add_test(tc,test_bt_sequence_properties);
+  tcase_add_test(tc,test_bt_sequence_new_null_song);
+  tcase_add_test(tc,test_bt_sequence_add_track1);
+  tcase_add_test(tc,test_bt_sequence_add_track2);
+  tcase_add_test(tc,test_bt_sequence_rem_track1);
+  tcase_add_test(tc,test_bt_sequence_rem_track2);
+  tcase_add_test(tc,test_bt_sequence_length1);
+  tcase_add_test(tc,test_bt_sequence_pattern1);
+  tcase_add_test(tc,test_bt_sequence_pattern2);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

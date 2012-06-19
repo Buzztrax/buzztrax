@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btwire_can_link) {
+BT_START_TEST(test_bt_wire_can_link) {
   /* arrange */
   BtMachine *gen=BT_MACHINE(bt_source_machine_new(song,"gen","audiotestsrc",0L,NULL));
   BtMachine *sink=BT_MACHINE(bt_sink_machine_new(song,"master",NULL));
@@ -61,7 +61,7 @@ BT_START_TEST(test_btwire_can_link) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btwire_new) {
+BT_START_TEST(test_bt_wire_new) {
   /* arrange */
   BtMachine *gen=BT_MACHINE(bt_source_machine_new(song,"gen","audiotestsrc",0L,NULL));
   BtMachine *sink=BT_MACHINE(bt_sink_machine_new(song,"master",NULL));
@@ -85,8 +85,8 @@ BT_END_TEST
 TCase *bt_wire_example_case(void) {
   TCase *tc = tcase_create("BtWireExamples");
 
-  tcase_add_test(tc,test_btwire_can_link);
-  tcase_add_test(tc,test_btwire_new);
+  tcase_add_test(tc,test_bt_wire_can_link);
+  tcase_add_test(tc,test_bt_wire_new);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

@@ -39,7 +39,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btapplication_new) {
+BT_START_TEST(test_bt_application_new) {
   /* arrange */
   BtApplication *app=bt_test_application_new();
 
@@ -61,7 +61,7 @@ BT_END_TEST
 TCase *bt_application_example_case(void) {
   TCase *tc = tcase_create("BtApplicationExamples");
 
-  tcase_add_test(tc,test_btapplication_new);
+  tcase_add_test(tc,test_bt_application_new);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

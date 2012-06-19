@@ -68,7 +68,7 @@ static GstElement *get_sink_element(GstBin *bin) {
 
 //-- tests
 
-BT_START_TEST(test_btsinkmachine_new) {
+BT_START_TEST(test_bt_sink_machine_new) {
   /* arrange */
   g_object_set(settings,"audiosink","fakesink",NULL);
 
@@ -86,7 +86,7 @@ BT_START_TEST(test_btsinkmachine_new) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsinkmachine_def_patterns) {
+BT_START_TEST(test_bt_sink_machine_def_patterns) {
   /* arrange */
   g_object_set(settings,"audiosink","fakesink",NULL);
   BtSinkMachine *machine=bt_sink_machine_new(song,"master",NULL);
@@ -106,7 +106,7 @@ BT_START_TEST(test_btsinkmachine_def_patterns) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsinkmachine_pattern) {
+BT_START_TEST(test_bt_sink_machine_pattern) {
   /* arrange */
   g_object_set(settings,"audiosink","fakesink",NULL);
   BtSinkMachine *machine=bt_sink_machine_new(song,"master",NULL);
@@ -125,7 +125,7 @@ BT_START_TEST(test_btsinkmachine_pattern) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsinkmachine_pattern_by_id) {
+BT_START_TEST(test_bt_sink_machine_pattern_by_id) {
   /* arrange */
   g_object_set(settings,"audiosink","fakesink",NULL);
   BtSinkMachine *machine=bt_sink_machine_new(song,"master",NULL);
@@ -143,7 +143,7 @@ BT_START_TEST(test_btsinkmachine_pattern_by_id) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsinkmachine_pattern_by_list) {
+BT_START_TEST(test_bt_sink_machine_pattern_by_list) {
   /* arrange */
   g_object_set(settings,"audiosink","fakesink",NULL);
   BtSinkMachine *machine=bt_sink_machine_new(song,"master",NULL);
@@ -165,7 +165,7 @@ BT_START_TEST(test_btsinkmachine_pattern_by_list) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsinkmachine_default) {
+BT_START_TEST(test_bt_sink_machine_default) {
   /* arrange */
   g_object_set(settings,"audiosink",NULL,NULL);
 
@@ -183,7 +183,7 @@ BT_START_TEST(test_btsinkmachine_default) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsinkmachine_fallback) {
+BT_START_TEST(test_bt_sink_machine_fallback) {
   /* arrange */
   gchar *settings_str=NULL;
   g_object_set(settings,"audiosink",NULL,NULL);
@@ -203,7 +203,7 @@ BT_START_TEST(test_btsinkmachine_fallback) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsinkmachine_actual_sink) {
+BT_START_TEST(test_bt_sink_machine_actual_sink) {
   /* arrange */
   BtSinkMachine *machine=bt_sink_machine_new(song,"master",NULL);
 
@@ -222,7 +222,7 @@ BT_START_TEST(test_btsinkmachine_actual_sink) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsinkmachine_latency) {
+BT_START_TEST(test_bt_sink_machine_latency) {
   gulong bpm, tpb, st, c_bpm, c_tpb;
   gint64 latency_time,c_latency_time;
   guint latency;
@@ -272,15 +272,15 @@ BT_END_TEST
 TCase *bt_sink_machine_example_case(void) {
   TCase *tc = tcase_create("BtSinkMachineExamples");
 
-  tcase_add_test(tc,test_btsinkmachine_new);
-  tcase_add_test(tc,test_btsinkmachine_def_patterns);
-  tcase_add_test(tc,test_btsinkmachine_pattern);
-  tcase_add_test(tc,test_btsinkmachine_pattern_by_id);
-  tcase_add_test(tc,test_btsinkmachine_pattern_by_list);
-  tcase_add_test(tc,test_btsinkmachine_default);
-  tcase_add_test(tc,test_btsinkmachine_fallback);
-  tcase_add_test(tc,test_btsinkmachine_actual_sink);
-  tcase_add_test(tc,test_btsinkmachine_latency);
+  tcase_add_test(tc,test_bt_sink_machine_new);
+  tcase_add_test(tc,test_bt_sink_machine_def_patterns);
+  tcase_add_test(tc,test_bt_sink_machine_pattern);
+  tcase_add_test(tc,test_bt_sink_machine_pattern_by_id);
+  tcase_add_test(tc,test_bt_sink_machine_pattern_by_list);
+  tcase_add_test(tc,test_bt_sink_machine_default);
+  tcase_add_test(tc,test_bt_sink_machine_fallback);
+  tcase_add_test(tc,test_bt_sink_machine_actual_sink);
+  tcase_add_test(tc,test_bt_sink_machine_latency);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

@@ -45,7 +45,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btmachine_add_pattern) {
+BT_START_TEST(test_bt_machine_add_pattern) {
   /* arrange */
   BtMachine *gen1=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   check_init_error_trapp("","BT_IS_CMD_PATTERN(pattern)");
@@ -63,7 +63,7 @@ BT_END_TEST
 
 
 // FIXME(ensonic): is this really testing something?
-BT_START_TEST(test_btmachine_names) {
+BT_START_TEST(test_bt_machine_names) {
   /* arrange */
   BtMachine *gen1=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   BtMachine *gen2=BT_MACHINE(bt_source_machine_new(song,"gen2","buzztard-test-mono-source",0L,NULL));
@@ -90,8 +90,8 @@ BT_END_TEST
 TCase *bt_machine_test_case(void) {
   TCase *tc = tcase_create("BtMachineTests");
 
-  tcase_add_test(tc, test_btmachine_add_pattern);
-  tcase_add_test(tc, test_btmachine_names);
+  tcase_add_test(tc, test_bt_machine_add_pattern);
+  tcase_add_test(tc, test_bt_machine_names);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

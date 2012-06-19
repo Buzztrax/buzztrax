@@ -55,7 +55,7 @@ BtParameterGroup *get_mono_parameter_group(void) {
 
 //-- tests
 
-BT_START_TEST(test_btparamgroup_param) {
+BT_START_TEST(test_bt_parameter_group_param) {
   /* arrange */
   BtParameterGroup *pg=get_mono_parameter_group();
 
@@ -67,7 +67,7 @@ BT_START_TEST(test_btparamgroup_param) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btparamgroup_size) {
+BT_START_TEST(test_bt_parameter_group_size) {
   /* arrange */
   BtParameterGroup *pg=get_mono_parameter_group();
 
@@ -80,7 +80,7 @@ BT_END_TEST
 
 
 /* try describe on a machine that does not implement the interface */
-BT_START_TEST(test_btparamgroup_describe) {
+BT_START_TEST(test_bt_parameter_group_describe) {
   /* arrange */
   BtParameterGroup *pg=get_mono_parameter_group();
   GValue val={0,};
@@ -102,9 +102,9 @@ BT_END_TEST
 TCase *bt_param_group_example_case(void) {
   TCase *tc = tcase_create("BtParamGroupExamples");
 
-  tcase_add_test(tc,test_btparamgroup_param);
-  tcase_add_test(tc,test_btparamgroup_size);
-  tcase_add_test(tc,test_btparamgroup_describe);
+  tcase_add_test(tc,test_bt_parameter_group_param);
+  tcase_add_test(tc,test_bt_parameter_group_size);
+  tcase_add_test(tc,test_bt_parameter_group_describe);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

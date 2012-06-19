@@ -38,7 +38,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_bttools_element_check0) {
+BT_START_TEST(test_bt_tools_element_check0) {
   /* arrange */
   GList *to_check=g_list_prepend(NULL,"__ploink__");
   
@@ -53,7 +53,7 @@ BT_START_TEST(test_bttools_element_check0) {
 BT_END_TEST
 
 
-BT_START_TEST(test_bttools_element_check1) {
+BT_START_TEST(test_bt_tools_element_check1) {
   /* arrange */
   GList *to_check=g_list_prepend(NULL,"__ploink__");
   to_check=g_list_prepend(to_check,"__bang__");
@@ -72,8 +72,8 @@ BT_END_TEST
 TCase *bt_tools_example_case(void) {
   TCase *tc = tcase_create("BtToolsExamples");
 
-  tcase_add_test(tc,test_bttools_element_check0);
-  tcase_add_test(tc,test_bttools_element_check1);
+  tcase_add_test(tc,test_bt_tools_element_check0);
+  tcase_add_test(tc,test_bt_tools_element_check1);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

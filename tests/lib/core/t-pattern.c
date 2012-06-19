@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btpattern_properties) {
+BT_START_TEST(test_bt_pattern_properties) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -61,7 +61,7 @@ BT_START_TEST(test_btpattern_properties) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_new_null_machine) {
+BT_START_TEST(test_bt_pattern_new_null_machine) {
   /* arrange */
   check_init_error_trapp("bt_pattern_","BT_IS_MACHINE(self->priv->machine)");
 
@@ -78,7 +78,7 @@ BT_START_TEST(test_btpattern_new_null_machine) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_new_null_id) {
+BT_START_TEST(test_bt_pattern_new_null_id) {
   /* arrange */
   check_init_error_trapp("bt_cmd_pattern_","BT_IS_STRING(self->priv->id)");
 
@@ -95,7 +95,7 @@ BT_START_TEST(test_btpattern_new_null_id) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_new_null_name) {
+BT_START_TEST(test_bt_pattern_new_null_name) {
   /* arrange */
   check_init_error_trapp("bt_cmd_pattern_","BT_IS_STRING(self->priv->name)");
 
@@ -112,7 +112,7 @@ BT_START_TEST(test_btpattern_new_null_name) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_get_group_by_null_paramgroup) {
+BT_START_TEST(test_bt_pattern_get_group_by_null_paramgroup) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",1L,machine);
@@ -130,11 +130,11 @@ BT_END_TEST
 TCase *bt_pattern_test_case(void) {
   TCase *tc = tcase_create("BtPatternTests");
 
-  tcase_add_test(tc,test_btpattern_properties);
-  tcase_add_test(tc,test_btpattern_new_null_machine);
-  tcase_add_test(tc,test_btpattern_new_null_id);
-  tcase_add_test(tc,test_btpattern_new_null_name);
-  tcase_add_test(tc,test_btpattern_get_group_by_null_paramgroup);
+  tcase_add_test(tc,test_bt_pattern_properties);
+  tcase_add_test(tc,test_bt_pattern_new_null_machine);
+  tcase_add_test(tc,test_bt_pattern_new_null_id);
+  tcase_add_test(tc,test_bt_pattern_new_null_name);
+  tcase_add_test(tc,test_bt_pattern_get_group_by_null_paramgroup);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

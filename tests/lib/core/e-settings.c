@@ -39,7 +39,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btsettings_singleton) {
+BT_START_TEST(test_bt_settings_singleton) {
   /* arrange */
   BtSettings *settings1=bt_settings_make();
 
@@ -59,7 +59,7 @@ BT_END_TEST;
 TCase *bt_settings_example_case(void) {
   TCase *tc = tcase_create("BtSettingsExamples");
 
-  tcase_add_test(tc,test_btsettings_singleton);
+  tcase_add_test(tc,test_bt_settings_singleton);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

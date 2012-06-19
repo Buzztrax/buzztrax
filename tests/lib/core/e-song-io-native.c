@@ -116,7 +116,7 @@ static void make_song_with_externals(const gchar *ext_data_uri) {
 
 //-- tests
 
-BT_START_TEST(test_btsong_io_native_new) {
+BT_START_TEST(test_bt_song_io_native_new) {
   /* arrange */
   
   /* act */
@@ -131,7 +131,7 @@ BT_START_TEST(test_btsong_io_native_new) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_native_formats) {
+BT_START_TEST(test_bt_song_io_native_formats) {
   /* arrange */
   BtSongIOFormatInfo *fi=bt_song_io_native_module_info.formats;
   
@@ -153,7 +153,7 @@ BT_START_TEST(test_btsong_io_native_formats) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_native_load) {
+BT_START_TEST(test_bt_song_io_native_load) {
   /* arrange */
   BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("simple2.xml"));
   
@@ -168,7 +168,7 @@ BT_START_TEST(test_btsong_io_native_load) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_native_core_refcounts) {
+BT_START_TEST(test_bt_song_io_native_core_refcounts) {
   /* arrange */
   BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("simple2.xml"));
 
@@ -185,7 +185,7 @@ BT_START_TEST(test_btsong_io_native_core_refcounts) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_native_setup_refcounts_0) {
+BT_START_TEST(test_bt_song_io_native_setup_refcounts_0) {
   /* arrange */
   BtSetup *setup;
   BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("test-simple0.xml"));
@@ -205,7 +205,7 @@ BT_START_TEST(test_btsong_io_native_setup_refcounts_0) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_native_setup_refcounts_1) {
+BT_START_TEST(test_bt_song_io_native_setup_refcounts_1) {
   /* arrange */
   BtSetup *setup;
   BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
@@ -232,7 +232,7 @@ BT_START_TEST(test_btsong_io_native_setup_refcounts_1) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_native_setup_refcounts_2) {
+BT_START_TEST(test_bt_song_io_native_setup_refcounts_2) {
   /* arrange */
   BtSetup *setup;
   BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("test-simple2.xml"));
@@ -261,7 +261,7 @@ BT_START_TEST(test_btsong_io_native_setup_refcounts_2) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_native_song_refcounts) {
+BT_START_TEST(test_bt_song_io_native_song_refcounts) {
   BtSongIO *song_io;
   gboolean res;
   GstElement *bin;
@@ -306,7 +306,7 @@ BT_START_TEST(test_btsong_io_native_song_refcounts) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_write_empty_song) {
+BT_START_TEST(test_bt_song_io_write_empty_song) {
   BtSongIO *song_io;
   gboolean res;
 
@@ -342,7 +342,7 @@ BT_START_TEST(test_btsong_io_write_empty_song) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_write_song_without_externals) {
+BT_START_TEST(test_bt_song_io_write_song_without_externals) {
   BtSongIO *song_io;
   gboolean res;
 
@@ -380,7 +380,7 @@ BT_START_TEST(test_btsong_io_write_song_without_externals) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_write_song_with_externals) {
+BT_START_TEST(test_bt_song_io_write_song_with_externals) {
   BtSongIO *song_io;
   gboolean res;
 
@@ -431,17 +431,17 @@ BT_END_TEST
 TCase *bt_song_io_native_example_case(void) {
   TCase *tc = tcase_create("BtSongIONativeExamples");
 
-  tcase_add_test(tc,test_btsong_io_native_new);
-  tcase_add_test(tc,test_btsong_io_native_formats);
-  tcase_add_test(tc,test_btsong_io_native_load);
-  tcase_add_test(tc,test_btsong_io_native_core_refcounts);
-  tcase_add_test(tc,test_btsong_io_native_setup_refcounts_0);
-  tcase_add_test(tc,test_btsong_io_native_setup_refcounts_1);
-  tcase_add_test(tc,test_btsong_io_native_setup_refcounts_2);
-  tcase_add_test(tc,test_btsong_io_native_song_refcounts);
-  tcase_add_test(tc,test_btsong_io_write_empty_song);
-  tcase_add_test(tc,test_btsong_io_write_song_without_externals);
-  tcase_add_test(tc,test_btsong_io_write_song_with_externals);
+  tcase_add_test(tc,test_bt_song_io_native_new);
+  tcase_add_test(tc,test_bt_song_io_native_formats);
+  tcase_add_test(tc,test_bt_song_io_native_load);
+  tcase_add_test(tc,test_bt_song_io_native_core_refcounts);
+  tcase_add_test(tc,test_bt_song_io_native_setup_refcounts_0);
+  tcase_add_test(tc,test_bt_song_io_native_setup_refcounts_1);
+  tcase_add_test(tc,test_bt_song_io_native_setup_refcounts_2);
+  tcase_add_test(tc,test_bt_song_io_native_song_refcounts);
+  tcase_add_test(tc,test_bt_song_io_write_empty_song);
+  tcase_add_test(tc,test_bt_song_io_write_song_without_externals);
+  tcase_add_test(tc,test_bt_song_io_write_song_with_externals);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

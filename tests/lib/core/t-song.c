@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btsong_properties) {
+BT_START_TEST(test_bt_song_properties) {
   /* arrange */
   GObject *song=(GObject *)bt_song_new(app);
   
@@ -60,7 +60,7 @@ BT_END_TEST
 
 
 // test if the default constructor handles NULL
-BT_START_TEST(test_btsong_new_null_app) {
+BT_START_TEST(test_bt_song_new_null_app) {
   /* arrange */
   check_init_error_trapp("bt_song_","BT_IS_APPLICATION(self->priv->app)");
 
@@ -78,7 +78,7 @@ BT_END_TEST
 
 
 // play without loading a song (means don't play anything audible)
-BT_START_TEST(test_btsong_play_empty) {
+BT_START_TEST(test_bt_song_play_empty) {
   /* arrange */
   BtSong *song=bt_song_new(app);
 
@@ -93,7 +93,7 @@ BT_END_TEST
 
 
 // song is null
-BT_START_TEST(test_btsong_play_null) {
+BT_START_TEST(test_bt_song_play_null) {
   /* arrange */
   BtSong *song=bt_song_new(app);
   check_init_error_trapp("bt_song_play","BT_IS_SONG(self)");
@@ -112,7 +112,7 @@ BT_END_TEST
 
 
 // load a new song while the first plays
-BT_START_TEST(test_btsong_play_and_load_new) {
+BT_START_TEST(test_bt_song_play_and_load_new) {
   /* arrange */
   BtSong *song=bt_song_new(app);
   BtSongIO *loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
@@ -138,11 +138,11 @@ BT_END_TEST
 TCase *bt_song_test_case(void) {
   TCase *tc = tcase_create("BtSongTests");
 
-  tcase_add_test(tc,test_btsong_properties);
-  tcase_add_test(tc,test_btsong_new_null_app);
-  tcase_add_test(tc,test_btsong_play_empty);
-  tcase_add_test(tc,test_btsong_play_null);
-  tcase_add_test(tc,test_btsong_play_and_load_new);
+  tcase_add_test(tc,test_bt_song_properties);
+  tcase_add_test(tc,test_bt_song_new_null_app);
+  tcase_add_test(tc,test_bt_song_play_empty);
+  tcase_add_test(tc,test_bt_song_play_null);
+  tcase_add_test(tc,test_bt_song_play_and_load_new);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

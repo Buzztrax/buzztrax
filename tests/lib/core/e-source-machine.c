@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btsourcemachine_new) {
+BT_START_TEST(test_bt_source_machine_new) {
   /* arrange */
 
   /* act */
@@ -63,7 +63,7 @@ BT_START_TEST(test_btsourcemachine_new) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsourcemachine_def_patterns) {
+BT_START_TEST(test_bt_source_machine_def_patterns) {
   /* arrange */
   BtSourceMachine *machine=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL);
 
@@ -82,7 +82,7 @@ BT_START_TEST(test_btsourcemachine_def_patterns) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsourcemachine_pattern) {
+BT_START_TEST(test_bt_source_machine_pattern) {
   /* arrange */
   BtSourceMachine *machine=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL);
 
@@ -99,7 +99,7 @@ BT_START_TEST(test_btsourcemachine_pattern) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsourcemachine_pattern_by_id) {
+BT_START_TEST(test_bt_source_machine_pattern_by_id) {
   /* arrange */
   BtSourceMachine *machine=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL);
 
@@ -116,7 +116,7 @@ BT_START_TEST(test_btsourcemachine_pattern_by_id) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsourcemachine_pattern_by_list) {
+BT_START_TEST(test_bt_source_machine_pattern_by_list) {
   /* arrange */
   BtSourceMachine *machine=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL);
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
@@ -142,7 +142,7 @@ BT_END_TEST
 * newly created pattern to it. The we change the number of voices in the machine
 * and check back the voices in the pattern.
 */
-BT_START_TEST(test_btsourcemachine_change_voices){
+BT_START_TEST(test_bt_source_machine_change_voices){
   /* arrange */
   BtSourceMachine *machine=bt_source_machine_new(song,"gen","buzztard-test-poly-source",1,NULL);
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
@@ -163,12 +163,12 @@ BT_END_TEST
 TCase *bt_source_machine_example_case(void) {
   TCase *tc = tcase_create("BtSourceMachineExamples");
 
-  tcase_add_test(tc,test_btsourcemachine_new);
-  tcase_add_test(tc,test_btsourcemachine_def_patterns);
-  tcase_add_test(tc,test_btsourcemachine_pattern);
-  tcase_add_test(tc,test_btsourcemachine_pattern_by_id);
-  tcase_add_test(tc,test_btsourcemachine_pattern_by_list);
-  tcase_add_test(tc,test_btsourcemachine_change_voices);
+  tcase_add_test(tc,test_bt_source_machine_new);
+  tcase_add_test(tc,test_bt_source_machine_def_patterns);
+  tcase_add_test(tc,test_bt_source_machine_pattern);
+  tcase_add_test(tc,test_bt_source_machine_pattern_by_id);
+  tcase_add_test(tc,test_bt_source_machine_pattern_by_list);
+  tcase_add_test(tc,test_bt_source_machine_change_voices);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

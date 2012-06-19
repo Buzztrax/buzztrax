@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btsetup_properties) {
+BT_START_TEST(test_bt_setup_properties) {
   /* arrange */
   GObject *setup=check_gobject_get_object_property(song,"setup");
 
@@ -59,7 +59,7 @@ BT_END_TEST
 
 
 /* create a new setup with NULL for song object */
-BT_START_TEST(test_btsetup_new_null_song) {
+BT_START_TEST(test_bt_setup_new_null_song) {
   /* act */
   BtSetup *setup=bt_setup_new(NULL);
 
@@ -73,7 +73,7 @@ BT_END_TEST
 
 
 /* add the same machine twice to the setup */
-BT_START_TEST(test_btsetup_add_machine_twice) {
+BT_START_TEST(test_bt_setup_add_machine_twice) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -89,7 +89,7 @@ BT_END_TEST
 
 
 /* add the same wire twice */
-BT_START_TEST(test_btsetup_add_wire_twice) {
+BT_START_TEST(test_bt_setup_add_wire_twice) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   BtMachine *source=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
@@ -109,7 +109,7 @@ BT_END_TEST
 
 
 /* call bt_setup_add_machine with NULL object for self */
-BT_START_TEST(test_btsetup_obj4) {
+BT_START_TEST(test_bt_setup_obj4) {
   /* arrange */
   check_init_error_trapp("bt_setup_add_machine","BT_IS_SETUP(self)");
 
@@ -125,7 +125,7 @@ BT_END_TEST
 
 
 /* call bt_setup_add_machine with NULL object for machine */
-BT_START_TEST(test_btsetup_obj5) {
+BT_START_TEST(test_bt_setup_obj5) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_add_machine","BT_IS_MACHINE(machine)");
@@ -143,7 +143,7 @@ BT_END_TEST
 
 
 /* call bt_setup_add_wire with NULL object for self */
-BT_START_TEST(test_btsetup_obj6) {
+BT_START_TEST(test_bt_setup_obj6) {
   /* arrange */
   check_init_error_trapp("bt_setup_add_wire","BT_IS_SETUP(self)");
 
@@ -159,7 +159,7 @@ BT_END_TEST
 
 
 /* call bt_setup_add_wire with NULL object for wire */
-BT_START_TEST(test_btsetup_obj7) {
+BT_START_TEST(test_bt_setup_obj7) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_add_wire","BT_IS_WIRE(wire)");
@@ -177,7 +177,7 @@ BT_END_TEST
 
 
 /* call bt_setup_get_machine_by_id with NULL object for self */
-BT_START_TEST(test_btsetup_obj8) {
+BT_START_TEST(test_bt_setup_obj8) {
   /* arrange */
   check_init_error_trapp("bt_setup_get_machine_by_id","BT_IS_SETUP(self)");
 
@@ -193,7 +193,7 @@ BT_END_TEST
 
 
 /* call bt_setup_get_machine_by_id with NULL object for id */
-BT_START_TEST(test_btsetup_obj9) {
+BT_START_TEST(test_bt_setup_obj9) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_machine_by_id",NULL);
@@ -213,7 +213,7 @@ BT_END_TEST
 /*
 * call bt_setup_get_wire_by_src_machine with NULL for setup parameter
 */
-BT_START_TEST(test_btsetup_get_wire_by_src_machine1) {
+BT_START_TEST(test_bt_setup_get_wire_by_src_machine1) {
   /* arrange */
   check_init_error_trapp("bt_setup_get_wire_by_src_machine","BT_IS_SETUP(self)");
 
@@ -229,7 +229,7 @@ BT_END_TEST
 
 
 /* call bt_setup_get_wire_by_src_machine with NULL for machine parameter */
-BT_START_TEST(test_btsetup_get_wire_by_src_machine2) {
+BT_START_TEST(test_bt_setup_get_wire_by_src_machine2) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_wire_by_src_machine","BT_IS_MACHINE(src)");
@@ -247,7 +247,7 @@ BT_END_TEST
 
 
 /* get wires by source machine with NULL for setup */
-BT_START_TEST(test_btsetup_get_wires_by_src_machine1) {
+BT_START_TEST(test_bt_setup_get_wires_by_src_machine1) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   BtSourceMachine *src_machine=bt_source_machine_new(song,"src","buzztard-test-mono-source",0L,NULL);
@@ -267,7 +267,7 @@ BT_END_TEST
 
 
 /* get wires by source machine with NULL for machine */
-BT_START_TEST(test_btsetup_get_wires_by_src_machine2) {
+BT_START_TEST(test_bt_setup_get_wires_by_src_machine2) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_wires_by_src_machine","BT_IS_MACHINE(src)");
@@ -283,7 +283,7 @@ BT_END_TEST
 
 
 /* get wires by source machine with a not added machine */
-BT_START_TEST(test_btsetup_get_wires_by_src_machine3) {
+BT_START_TEST(test_bt_setup_get_wires_by_src_machine3) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0L,NULL));
@@ -300,7 +300,7 @@ BT_END_TEST
 
 
 /* call bt_setup_get_wire_by_dst_machine with NULL for setup parameter */
-BT_START_TEST(test_btsetup_get_wire_by_dst_machine1) {
+BT_START_TEST(test_bt_setup_get_wire_by_dst_machine1) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_wire_by_dst_machine","BT_IS_SETUP(self)");
@@ -318,7 +318,7 @@ BT_END_TEST
 
 
 /* call bt_setup_get_wire_by_dst_machine with NULL for machine parameter */
-BT_START_TEST(test_btsetup_get_wire_by_dst_machine2) {
+BT_START_TEST(test_bt_setup_get_wire_by_dst_machine2) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_wire_by_dst_machine","BT_IS_MACHINE(dst)");
@@ -336,7 +336,7 @@ BT_END_TEST
 
 
 /* get wires by destination machine with NULL for setup */
-BT_START_TEST(test_btsetup_get_wires_by_dst_machine1) {
+BT_START_TEST(test_bt_setup_get_wires_by_dst_machine1) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   BtMachine *machine=BT_MACHINE(bt_sink_machine_new(song,"dst",NULL));
@@ -356,7 +356,7 @@ BT_END_TEST
 
 
 /* get wires by sink machine with NULL for machine */
-BT_START_TEST(test_btsetup_get_wires_by_dst_machine2) {
+BT_START_TEST(test_bt_setup_get_wires_by_dst_machine2) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_get_wires_by_dst_machine","BT_IS_MACHINE(dst)");
@@ -374,7 +374,7 @@ BT_END_TEST
 
 
 /* get wires by sink machine with a not added machine */
-BT_START_TEST(test_btsetup_get_wires_by_dst_machine3) {
+BT_START_TEST(test_bt_setup_get_wires_by_dst_machine3) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   BtMachine *machine=BT_MACHINE(bt_sink_machine_new(song,"dst",NULL));
@@ -391,7 +391,7 @@ BT_END_TEST
 
 
 /* remove a machine from setup with NULL pointer for setup */
-BT_START_TEST(test_btsetup_remove_machine_null_setup) {
+BT_START_TEST(test_bt_setup_remove_machine_null_setup) {
   /* arrange */
   check_init_error_trapp("bt_setup_remove_machine",NULL);
 
@@ -407,7 +407,7 @@ BT_END_TEST
 
 
 /* remove a wire from setup with NULL pointer for setup */
-BT_START_TEST(test_btsetup_remove_wire_null_setup) {
+BT_START_TEST(test_bt_setup_remove_wire_null_setup) {
   /* arrange */
   check_init_error_trapp("bt_setup_remove_wire",NULL);
 
@@ -423,7 +423,7 @@ BT_END_TEST
 
 
 /* remove a machine from setup with NULL pointer for machine */
-BT_START_TEST(test_btsetup_remove_null_machine) {
+BT_START_TEST(test_bt_setup_remove_null_machine) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_remove_machine",NULL);
@@ -441,7 +441,7 @@ BT_END_TEST
 
 
 /* remove a wire from setup with NULL pointer for wire */
-BT_START_TEST(test_btsetup_remove_null_wire) {
+BT_START_TEST(test_bt_setup_remove_null_wire) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   check_init_error_trapp("bt_setup_remove_wire",NULL);
@@ -459,7 +459,7 @@ BT_END_TEST
 
 
 /* remove a machine from setup with a machine witch is never added */
-BT_START_TEST(test_btsetup_remove_machine_twice) {
+BT_START_TEST(test_bt_setup_remove_machine_twice) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   BtMachine *gen = BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0L,NULL));
@@ -480,7 +480,7 @@ BT_END_TEST
 
 
 /* remove a wire from setup with a wire which is not added */
-BT_START_TEST(test_btsetup_remove_wire_twice) {
+BT_START_TEST(test_bt_setup_remove_wire_twice) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   BtMachine *gen = BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0L,NULL));
@@ -505,7 +505,7 @@ BT_END_TEST
 
 
 /* add wire(src,dst) and wire(dst,src) to setup. This should fail (cycle). */
-BT_START_TEST(test_btsetup_wire_cycle1) {
+BT_START_TEST(test_bt_setup_wire_cycle1) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   BtMachine *src = BT_MACHINE(bt_processor_machine_new(song,"src","volume",0L,NULL));
@@ -531,7 +531,7 @@ BT_END_TEST
 
 
 // test graph cycles
-BT_START_TEST(test_btsetup_wire_cycle2) {
+BT_START_TEST(test_bt_setup_wire_cycle2) {
   /* arrange */
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
   BtMachine *elem1 = BT_MACHINE(bt_processor_machine_new(song,"src1","volume",0L,NULL));
@@ -566,34 +566,34 @@ BT_END_TEST
 TCase *bt_setup_test_case(void) {
   TCase *tc = tcase_create("BtSetupTests");
 
-  tcase_add_test(tc,test_btsetup_properties);
-  tcase_add_test(tc,test_btsetup_new_null_song);
-  tcase_add_test(tc,test_btsetup_add_machine_twice);
-  tcase_add_test(tc,test_btsetup_add_wire_twice);
-  tcase_add_test(tc,test_btsetup_obj4);
-  tcase_add_test(tc,test_btsetup_obj5);
-  tcase_add_test(tc,test_btsetup_obj6);
-  tcase_add_test(tc,test_btsetup_obj7);
-  tcase_add_test(tc,test_btsetup_obj8);
-  tcase_add_test(tc,test_btsetup_obj9);
-  tcase_add_test(tc,test_btsetup_get_wire_by_src_machine1);
-  tcase_add_test(tc,test_btsetup_get_wire_by_src_machine2);
-  tcase_add_test(tc,test_btsetup_get_wires_by_src_machine1);
-  tcase_add_test(tc,test_btsetup_get_wires_by_src_machine2);
-  tcase_add_test(tc,test_btsetup_get_wires_by_src_machine3);
-  tcase_add_test(tc,test_btsetup_get_wire_by_dst_machine1);
-  tcase_add_test(tc,test_btsetup_get_wire_by_dst_machine2);
-  tcase_add_test(tc,test_btsetup_get_wires_by_dst_machine1);
-  tcase_add_test(tc,test_btsetup_get_wires_by_dst_machine2);
-  tcase_add_test(tc,test_btsetup_get_wires_by_dst_machine3);
-  tcase_add_test(tc,test_btsetup_remove_machine_null_setup);
-  tcase_add_test(tc,test_btsetup_remove_wire_null_setup);
-  tcase_add_test(tc,test_btsetup_remove_null_machine);
-  tcase_add_test(tc,test_btsetup_remove_null_wire);
-  tcase_add_test(tc,test_btsetup_remove_machine_twice);
-  tcase_add_test(tc,test_btsetup_remove_wire_twice);
-  tcase_add_test(tc,test_btsetup_wire_cycle1);
-  tcase_add_test(tc,test_btsetup_wire_cycle2);
+  tcase_add_test(tc,test_bt_setup_properties);
+  tcase_add_test(tc,test_bt_setup_new_null_song);
+  tcase_add_test(tc,test_bt_setup_add_machine_twice);
+  tcase_add_test(tc,test_bt_setup_add_wire_twice);
+  tcase_add_test(tc,test_bt_setup_obj4);
+  tcase_add_test(tc,test_bt_setup_obj5);
+  tcase_add_test(tc,test_bt_setup_obj6);
+  tcase_add_test(tc,test_bt_setup_obj7);
+  tcase_add_test(tc,test_bt_setup_obj8);
+  tcase_add_test(tc,test_bt_setup_obj9);
+  tcase_add_test(tc,test_bt_setup_get_wire_by_src_machine1);
+  tcase_add_test(tc,test_bt_setup_get_wire_by_src_machine2);
+  tcase_add_test(tc,test_bt_setup_get_wires_by_src_machine1);
+  tcase_add_test(tc,test_bt_setup_get_wires_by_src_machine2);
+  tcase_add_test(tc,test_bt_setup_get_wires_by_src_machine3);
+  tcase_add_test(tc,test_bt_setup_get_wire_by_dst_machine1);
+  tcase_add_test(tc,test_bt_setup_get_wire_by_dst_machine2);
+  tcase_add_test(tc,test_bt_setup_get_wires_by_dst_machine1);
+  tcase_add_test(tc,test_bt_setup_get_wires_by_dst_machine2);
+  tcase_add_test(tc,test_bt_setup_get_wires_by_dst_machine3);
+  tcase_add_test(tc,test_bt_setup_remove_machine_null_setup);
+  tcase_add_test(tc,test_bt_setup_remove_wire_null_setup);
+  tcase_add_test(tc,test_bt_setup_remove_null_machine);
+  tcase_add_test(tc,test_bt_setup_remove_null_wire);
+  tcase_add_test(tc,test_bt_setup_remove_machine_twice);
+  tcase_add_test(tc,test_bt_setup_remove_wire_twice);
+  tcase_add_test(tc,test_bt_setup_wire_cycle1);
+  tcase_add_test(tc,test_bt_setup_wire_cycle2);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

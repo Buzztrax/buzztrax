@@ -39,7 +39,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btsong_io_module_info) {
+BT_START_TEST(test_bt_song_io_module_info) {
   /* arrange */
 
   /* act */
@@ -53,7 +53,7 @@ BT_START_TEST(test_btsong_io_module_info) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_file) {
+BT_START_TEST(test_bt_song_io_file) {
   /* arrange */
 
   /* act */
@@ -69,7 +69,7 @@ BT_START_TEST(test_btsong_io_file) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_io_data) {
+BT_START_TEST(test_bt_song_io_data) {
   /* arrange */
 
   /* act */
@@ -88,9 +88,9 @@ BT_END_TEST
 TCase *bt_song_io_example_case(void) {
   TCase *tc = tcase_create("BtSongIOExamples");
 
-  tcase_add_test(tc,test_btsong_io_module_info);
-  tcase_add_test(tc,test_btsong_io_file);
-  tcase_add_test(tc,test_btsong_io_data);
+  tcase_add_test(tc,test_bt_song_io_module_info);
+  tcase_add_test(tc,test_bt_song_io_file);
+  tcase_add_test(tc,test_bt_song_io_data);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

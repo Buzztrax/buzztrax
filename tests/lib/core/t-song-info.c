@@ -46,7 +46,7 @@ static void case_teardown(void) {
 //-- tests
 
 /* apply generic property tests to song-info */
-BT_START_TEST(test_btsonginfo_properties) {
+BT_START_TEST(test_bt_song_info_properties) {
   /* arrange */
   GObject *song_info=check_gobject_get_object_property(song,"song-info");
 
@@ -59,7 +59,7 @@ BT_END_TEST
 
 
 /* create a new song-info with a NULL song object */
-BT_START_TEST(test_btsonginfo_null_song) {
+BT_START_TEST(test_bt_song_info_null_song) {
   /* act */
   BtSongInfo *song_info=bt_song_info_new(NULL);
 
@@ -75,8 +75,8 @@ BT_END_TEST
 TCase *bt_song_info_test_case(void) {
   TCase *tc = tcase_create("BtSongInfoTests");
 
-  tcase_add_test(tc,test_btsonginfo_properties);
-  tcase_add_test(tc,test_btsonginfo_null_song);
+  tcase_add_test(tc,test_bt_song_info_properties);
+  tcase_add_test(tc,test_bt_song_info_null_song);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

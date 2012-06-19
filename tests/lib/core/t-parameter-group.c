@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btparamgroup_invalid_param) {
+BT_START_TEST(test_btinvalid_param) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
   BtParameterGroup *pg=bt_machine_get_global_param_group(machine);
@@ -63,7 +63,7 @@ BT_END_TEST
 TCase *bt_param_group_test_case(void) {
   TCase *tc = tcase_create("BtParamGroupTests");
 
-  tcase_add_test(tc,test_btparamgroup_invalid_param);
+  tcase_add_test(tc,test_btinvalid_param);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

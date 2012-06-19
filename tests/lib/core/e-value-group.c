@@ -58,7 +58,7 @@ BtValueGroup *get_mono_value_group(void) {
 
 //-- tests
 
-BT_START_TEST(test_btvaluegroup_default_empty) {
+BT_START_TEST(test_bt_value_group_default_empty) {
   /* arrange */
   BtValueGroup *vg=get_mono_value_group();
 
@@ -70,7 +70,7 @@ BT_START_TEST(test_btvaluegroup_default_empty) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btvaluegroup_value) {
+BT_START_TEST(test_bt_value_group_value) {
   /* arrange */
   BtValueGroup *vg=get_mono_value_group();
 
@@ -85,7 +85,7 @@ BT_START_TEST(test_btvaluegroup_value) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btvaluegroup_insert_row) {
+BT_START_TEST(test_bt_value_group_insert_row) {
   /* arrange */
   BtValueGroup *vg=get_mono_value_group();
   bt_value_group_set_event(vg,0,0,"10");
@@ -104,7 +104,7 @@ BT_START_TEST(test_btvaluegroup_insert_row) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btvaluegroup_delete_row) {
+BT_START_TEST(test_bt_value_group_delete_row) {
   /* arrange */
   BtValueGroup *vg=get_mono_value_group();
   bt_value_group_set_event(vg,0,0,"10");
@@ -122,7 +122,7 @@ BT_START_TEST(test_btvaluegroup_delete_row) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btvaluegroup_clear_column) {
+BT_START_TEST(test_bt_value_group_clear_column) {
   /* arrange */
   BtValueGroup *vg=get_mono_value_group();
   bt_value_group_set_event(vg,0,0,"10");
@@ -140,7 +140,7 @@ BT_START_TEST(test_btvaluegroup_clear_column) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btvaluegroup_blend_column) {
+BT_START_TEST(test_bt_value_group_blend_column) {
   /* arrange */
   BtValueGroup *vg=get_mono_value_group();
   bt_value_group_set_event(vg,0,0,"10");
@@ -160,7 +160,7 @@ BT_START_TEST(test_btvaluegroup_blend_column) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btvaluegroup_flip_column) {
+BT_START_TEST(test_bt_value_group_flip_column) {
   /* arrange */
   BtValueGroup *vg=get_mono_value_group();
   bt_value_group_set_event(vg,0,0,"10");
@@ -180,7 +180,7 @@ BT_START_TEST(test_btvaluegroup_flip_column) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btvaluegroup_randomize_column) {
+BT_START_TEST(test_bt_value_group_randomize_column) {
   /* arrange */
   BtValueGroup *vg=get_mono_value_group();
   
@@ -201,14 +201,14 @@ BT_END_TEST
 TCase *bt_value_group_example_case(void) {
   TCase *tc = tcase_create("BtValueGroupExamples");
 
-  tcase_add_test(tc,test_btvaluegroup_default_empty);
-  tcase_add_test(tc,test_btvaluegroup_value);
-  tcase_add_test(tc,test_btvaluegroup_insert_row);
-  tcase_add_test(tc,test_btvaluegroup_delete_row);
-  tcase_add_test(tc,test_btvaluegroup_clear_column);
-  tcase_add_test(tc,test_btvaluegroup_blend_column);
-  tcase_add_test(tc,test_btvaluegroup_flip_column);
-  tcase_add_test(tc,test_btvaluegroup_randomize_column);
+  tcase_add_test(tc,test_bt_value_group_default_empty);
+  tcase_add_test(tc,test_bt_value_group_value);
+  tcase_add_test(tc,test_bt_value_group_insert_row);
+  tcase_add_test(tc,test_bt_value_group_delete_row);
+  tcase_add_test(tc,test_bt_value_group_clear_column);
+  tcase_add_test(tc,test_bt_value_group_blend_column);
+  tcase_add_test(tc,test_bt_value_group_flip_column);
+  tcase_add_test(tc,test_bt_value_group_randomize_column);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

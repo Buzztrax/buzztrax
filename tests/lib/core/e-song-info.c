@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btsonginfo_date_stamps) {
+BT_START_TEST(test_bt_song_info_date_stamps) {
   /* arrange */
   BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
 
@@ -66,7 +66,7 @@ BT_END_TEST
 /*
 * Test changing the tempo
 */
-BT_START_TEST(test_btsonginfo_tempo) {
+BT_START_TEST(test_bt_song_info_tempo) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
@@ -90,8 +90,8 @@ BT_END_TEST
 TCase *bt_song_info_example_case(void) {
   TCase *tc = tcase_create("BtSongInfoExamples");
 
-  tcase_add_test(tc,test_btsonginfo_date_stamps);
-  tcase_add_test(tc,test_btsonginfo_tempo);
+  tcase_add_test(tc,test_bt_song_info_date_stamps);
+  tcase_add_test(tc,test_bt_song_info_tempo);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

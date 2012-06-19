@@ -40,7 +40,7 @@ static void case_teardown(void) {
 //-- tests
 
 // test if the normal init call works with commandline arguments (no args)
-BT_START_TEST(test_registry_create0) {
+BT_START_TEST(test_btic_registry_create0) {
   /* arrange */
 
   /* act */
@@ -48,16 +48,16 @@ BT_START_TEST(test_registry_create0) {
   
   /* assert */
   fail_unless(registry!=NULL, NULL);
-  g_object_checked_unref(registry);
 
   /* cleanup */
+  g_object_checked_unref(registry);
 }
 BT_END_TEST
 
 TCase *bt_registry_example_case(void) {
   TCase *tc = tcase_create("BticRegistryExamples");
 
-  tcase_add_test(tc,test_registry_create0);
+  tcase_add_test(tc,test_btic_registry_create0);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

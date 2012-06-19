@@ -40,7 +40,7 @@ static void case_teardown(void) {
 //-- tests
 
 // try to create a SongIO object with NULL pointer
-BT_START_TEST(test_btsong_io_new_null) {
+BT_START_TEST(test_bt_song_io_new_null) {
   /* act */
   BtSongIO *song_io=bt_song_io_from_file(NULL);
 
@@ -51,7 +51,7 @@ BT_END_TEST
 
 
 // try to create a SongIO object with empty string
-BT_START_TEST(test_btsong_io_new_empty_filename) {
+BT_START_TEST(test_bt_song_io_new_empty_filename) {
   /* act */
   BtSongIO *song_io=bt_song_io_from_file("");
 
@@ -62,7 +62,7 @@ BT_END_TEST
 
 
 // try to create a SongIO object from song name without extension
-BT_START_TEST(test_btsong_io_new_wrong_filename) {
+BT_START_TEST(test_bt_song_io_new_wrong_filename) {
   /* act */
   BtSongIO *song_io=bt_song_io_from_file("test");
 
@@ -73,7 +73,7 @@ BT_END_TEST
 
 
 // try to create a SongIO object from song name with unknown extension
-BT_START_TEST(test_btsong_io_new_inexisting_filename) {
+BT_START_TEST(test_bt_song_io_new_inexisting_filename) {
   /* act */
   BtSongIO *song_io=bt_song_io_from_file("test.unk");
 
@@ -86,10 +86,10 @@ BT_END_TEST
 TCase *bt_song_io_test_case(void) {
   TCase *tc = tcase_create("BtSongIOTests");
 
-  tcase_add_test(tc,test_btsong_io_new_null);
-  tcase_add_test(tc,test_btsong_io_new_empty_filename);
-  tcase_add_test(tc,test_btsong_io_new_wrong_filename);
-  tcase_add_test(tc,test_btsong_io_new_inexisting_filename);
+  tcase_add_test(tc,test_bt_song_io_new_null);
+  tcase_add_test(tc,test_bt_song_io_new_empty_filename);
+  tcase_add_test(tc,test_bt_song_io_new_wrong_filename);
+  tcase_add_test(tc,test_bt_song_io_new_inexisting_filename);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

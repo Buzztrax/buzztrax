@@ -65,7 +65,7 @@ static void make_test_song(void) {
 //-- tests
 
 // test attribute handling in sink names
-BT_START_TEST(test_btsinkmachine_settings_name_with_parameter) {
+BT_START_TEST(test_bt_sink_machine_settings_name_with_parameter) {
 
   /* arrange */
   g_object_set(settings,"audiosink","osssink sync=false",NULL);
@@ -89,7 +89,7 @@ BT_END_TEST;
  * This string should be replaced by the sink machine to "ossink" and the
  * machine should be instantiable.
  */
-BT_START_TEST(test_btsinkmachine_settings_name_is_launch_snippet) {
+BT_START_TEST(test_bt_sink_machine_settings_name_is_launch_snippet) {
   /* arrange */
   g_object_set(settings,"audiosink","audioconvert ! osssink sync=false",NULL);
 
@@ -108,7 +108,7 @@ BT_END_TEST;
 
 
 // test attribute handling in sink names
-BT_START_TEST(test_btsinkmachine_settings_wrong_type) {
+BT_START_TEST(test_bt_sink_machine_settings_wrong_type) {
   /* arrange */
   g_object_set(settings,"audiosink","xvimagsink",NULL);
 
@@ -126,7 +126,7 @@ BT_END_TEST;
 
 
 // test attribute handling in sink names
-BT_START_TEST(test_btsinkmachine_settings_wrong_parameters) {
+BT_START_TEST(test_bt_sink_machine_settings_wrong_parameters) {
   /* arrange */
   g_object_set(settings,"audiosink","alsasink device=invalid:666",NULL);
 
@@ -145,7 +145,7 @@ BT_END_TEST;
 
 
 // test attribute handling in sink names
-BT_START_TEST(test_btsinkmachine_settings_inexistent_type) {
+BT_START_TEST(test_bt_sink_machine_settings_inexistent_type) {
   /* arrange */
   g_object_set(settings,"audiosink","doesnotexistssink",NULL);
 
@@ -164,7 +164,7 @@ BT_END_TEST;
 
 
 // test if the song play routine works with fakesink
-BT_START_TEST(test_btsinkmachine_play_fakesink) {
+BT_START_TEST(test_bt_sink_machine_play_fakesink) {
   /* arrange */
   g_object_set(settings,"audiosink","fakesink",NULL);
   make_test_song();
@@ -180,7 +180,7 @@ BT_END_TEST
 
 
 // test if the song play routine handles sink with wrong parameters
-BT_START_TEST(test_btsinkmachine_play_wrong_parameters) {
+BT_START_TEST(test_bt_sink_machine_play_wrong_parameters) {
   /* arrange */
   g_object_set(settings,"audiosink","alsasink device=invalid:666",NULL);
   make_test_song();
@@ -196,7 +196,7 @@ BT_END_TEST
 
 
 // test if the song play routine handles sink with wrong parameters
-BT_START_TEST(test_btsinkmachine_play_inexistent_type) {
+BT_START_TEST(test_bt_sink_machine_play_inexistent_type) {
   /* arrange */ 
   g_object_set(settings,"audiosink","doesnotexistssink",NULL);
 
@@ -215,14 +215,14 @@ BT_END_TEST
 TCase *bt_sink_machine_test_case(void) {
   TCase *tc = tcase_create("BtSinkMachineTests");
 
-  tcase_add_test(tc,test_btsinkmachine_settings_name_with_parameter);
-  tcase_add_test(tc,test_btsinkmachine_settings_name_is_launch_snippet);
-  tcase_add_test(tc,test_btsinkmachine_settings_wrong_type);
-  tcase_add_test(tc,test_btsinkmachine_settings_wrong_parameters);
-  tcase_add_test(tc,test_btsinkmachine_settings_inexistent_type);
-  tcase_add_test(tc,test_btsinkmachine_play_fakesink);
-  tcase_add_test(tc,test_btsinkmachine_play_wrong_parameters);
-  tcase_add_test(tc,test_btsinkmachine_play_inexistent_type);
+  tcase_add_test(tc,test_bt_sink_machine_settings_name_with_parameter);
+  tcase_add_test(tc,test_bt_sink_machine_settings_name_is_launch_snippet);
+  tcase_add_test(tc,test_bt_sink_machine_settings_wrong_type);
+  tcase_add_test(tc,test_bt_sink_machine_settings_wrong_parameters);
+  tcase_add_test(tc,test_bt_sink_machine_settings_inexistent_type);
+  tcase_add_test(tc,test_bt_sink_machine_play_fakesink);
+  tcase_add_test(tc,test_bt_sink_machine_play_wrong_parameters);
+  tcase_add_test(tc,test_bt_sink_machine_play_inexistent_type);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

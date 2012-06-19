@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btmachine_obj1) {
+BT_START_TEST(test_bt_machine_obj1) {
   /* arrange */
 
   /* act */
@@ -67,7 +67,7 @@ BT_END_TEST
 /*
  * activate the input level meter in an unconnected machine
  */
-BT_START_TEST(test_btmachine_enable_input_level1) {
+BT_START_TEST(test_bt_machine_enable_input_level1) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,NULL));
 
@@ -86,7 +86,7 @@ BT_END_TEST
 /*
  * activate the input level meter in a connected machine
  */
-BT_START_TEST(test_btmachine_enable_input_level2) {
+BT_START_TEST(test_bt_machine_enable_input_level2) {
   /* arrange */
   BtMachine *machine1=BT_MACHINE(bt_processor_machine_new(song,"vol1","volume",0,NULL));
   BtMachine *machine2=BT_MACHINE(bt_processor_machine_new(song,"vol2","volume",0,NULL));
@@ -109,7 +109,7 @@ BT_END_TEST
 /*
  * activate the input gain control in an unconnected machine
  */
-BT_START_TEST(test_btmachine_enable_input_gain1) {
+BT_START_TEST(test_bt_machine_enable_input_gain1) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,NULL));
 
@@ -128,7 +128,7 @@ BT_END_TEST
 /*
  * activate the output gain control in an unconnected machine
  */
-BT_START_TEST(test_btmachine_enable_output_gain1) {
+BT_START_TEST(test_bt_machine_enable_output_gain1) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0,NULL));
 
@@ -147,7 +147,7 @@ BT_END_TEST
 /*
  * add pattern
  */
-BT_START_TEST(test_btmachine_add_pattern) {
+BT_START_TEST(test_bt_machine_add_pattern) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,NULL));
 
@@ -164,7 +164,7 @@ BT_START_TEST(test_btmachine_add_pattern) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btmachine_pattern_names) {
+BT_START_TEST(test_bt_machine_pattern_names) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -184,7 +184,7 @@ BT_START_TEST(test_btmachine_pattern_names) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btmachine_check_voices) {
+BT_START_TEST(test_bt_machine_check_voices) {
   /* arrange */
   
   /* act */
@@ -205,7 +205,7 @@ BT_END_TEST
 /*
  * change voices and verify that voices in machine and patetrn are in sync
  */
-BT_START_TEST(test_btmachine_change_voices) {
+BT_START_TEST(test_bt_machine_change_voices) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,NULL));
   BtPattern *p1=bt_pattern_new(song,"pattern-id1","pattern-name1",8L,machine);
@@ -226,7 +226,7 @@ BT_START_TEST(test_btmachine_change_voices) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btmachine_state_mute_no_sideeffects) {
+BT_START_TEST(test_bt_machine_state_mute_no_sideeffects) {
   /* arrange */
   BtMachine *src=BT_MACHINE(bt_source_machine_new(song,"gen","audiotestsrc",0L,NULL));
   BtMachine *proc=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0L,NULL));
@@ -252,7 +252,7 @@ BT_START_TEST(test_btmachine_state_mute_no_sideeffects) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btmachine_state_solo_unmutes_others) {
+BT_START_TEST(test_bt_machine_state_solo_unmutes_others) {
   /* arrange */
   BtMachine *src1=BT_MACHINE(bt_source_machine_new(song,"gen1","audiotestsrc",0L,NULL));
   BtMachine *src2=BT_MACHINE(bt_source_machine_new(song,"gen2","audiotestsrc",0L,NULL));
@@ -281,17 +281,17 @@ BT_END_TEST
 TCase *bt_machine_example_case(void) {
   TCase *tc = tcase_create("BtMachineExamples");
 
-  tcase_add_test(tc,test_btmachine_obj1);
-  tcase_add_test(tc,test_btmachine_enable_input_level1);
-  tcase_add_test(tc,test_btmachine_enable_input_level2);
-  tcase_add_test(tc,test_btmachine_enable_input_gain1);
-  tcase_add_test(tc,test_btmachine_enable_output_gain1);
-  tcase_add_test(tc,test_btmachine_add_pattern);
-  tcase_add_test(tc,test_btmachine_pattern_names);
-  tcase_add_test(tc,test_btmachine_check_voices);
-  tcase_add_test(tc,test_btmachine_change_voices);
-  tcase_add_test(tc,test_btmachine_state_mute_no_sideeffects);
-  tcase_add_test(tc,test_btmachine_state_solo_unmutes_others);
+  tcase_add_test(tc,test_bt_machine_obj1);
+  tcase_add_test(tc,test_bt_machine_enable_input_level1);
+  tcase_add_test(tc,test_bt_machine_enable_input_level2);
+  tcase_add_test(tc,test_bt_machine_enable_input_gain1);
+  tcase_add_test(tc,test_bt_machine_enable_output_gain1);
+  tcase_add_test(tc,test_bt_machine_add_pattern);
+  tcase_add_test(tc,test_bt_machine_pattern_names);
+  tcase_add_test(tc,test_bt_machine_check_voices);
+  tcase_add_test(tc,test_bt_machine_change_voices);
+  tcase_add_test(tc,test_bt_machine_state_mute_no_sideeffects);
+  tcase_add_test(tc,test_bt_machine_state_solo_unmutes_others);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

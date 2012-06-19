@@ -47,7 +47,7 @@ static void case_teardown(void) {
 //-- tests
 
 /* create a machine with not exising plugin name */
-BT_START_TEST(test_btprocessormachine_wrong_name) {
+BT_START_TEST(test_bt_processor_machine_wrong_name) {
   /* arrange */
 
   /* act */
@@ -64,7 +64,7 @@ BT_END_TEST
 
 
 /* create a machine which is a sink machine and not a processor machine */
-BT_START_TEST(test_btprocessormachine_wrong_type) {
+BT_START_TEST(test_bt_processor_machine_wrong_type) {
   /* arrange */
 
   /*act */
@@ -83,8 +83,8 @@ BT_END_TEST
 TCase *bt_processor_machine_test_case(void) {
   TCase *tc = tcase_create("BtProcessorMachineTests");
 
-  tcase_add_test(tc,test_btprocessormachine_wrong_name);
-  tcase_add_test(tc,test_btprocessormachine_wrong_type);
+  tcase_add_test(tc,test_bt_processor_machine_wrong_name);
+  tcase_add_test(tc,test_bt_processor_machine_wrong_type);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btwire_properties) {
+BT_START_TEST(test_bt_wire_properties) {
   /* arrange */
   BtMachine *src=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   BtMachine *dst=BT_MACHINE(bt_processor_machine_new(song,"proc","volume",0L,NULL));
@@ -64,7 +64,7 @@ BT_END_TEST
 
 
 /* create a new wire with NULL for song object */
-BT_START_TEST(test_btwire_new_null_song) {
+BT_START_TEST(test_bt_wire_new_null_song) {
   /* arrange */
   BtMachine *src=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   BtMachine *dst=BT_MACHINE(bt_processor_machine_new(song,"proc","volume",0L,NULL));
@@ -84,7 +84,7 @@ BT_END_TEST
 
 
 /* create a new wire with NULL for song object */
-BT_START_TEST(test_btwire_new_null_machine) {
+BT_START_TEST(test_bt_wire_new_null_machine) {
   /* arrange */
   BtMachine *src=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
 
@@ -102,7 +102,7 @@ BT_END_TEST
 
 
 /* create a wire with the same machine as source and dest */
-BT_START_TEST(test_btwire_same_src_and_dst) {
+BT_START_TEST(test_bt_wire_same_src_and_dst) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_processor_machine_new(song,"id","volume",0,NULL));
 
@@ -120,10 +120,10 @@ BT_END_TEST
 TCase *bt_wire_test_case(void) {
   TCase *tc = tcase_create("BtWireTests");
 
-  tcase_add_test(tc,test_btwire_properties);
-  tcase_add_test(tc,test_btwire_new_null_song);
-  tcase_add_test(tc,test_btwire_new_null_machine);
-  tcase_add_test(tc,test_btwire_same_src_and_dst);
+  tcase_add_test(tc,test_bt_wire_properties);
+  tcase_add_test(tc,test_bt_wire_new_null_song);
+  tcase_add_test(tc,test_bt_wire_new_null_machine);
+  tcase_add_test(tc,test_bt_wire_same_src_and_dst);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

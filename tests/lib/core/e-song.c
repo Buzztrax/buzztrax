@@ -81,7 +81,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
 //-- tests
 
 // test if the default constructor works as expected
-BT_START_TEST(test_btsong_obj1) {
+BT_START_TEST(test_bt_song_obj1) {
   /* arrange */
   
   /* act */
@@ -98,7 +98,7 @@ BT_END_TEST
 
 // test, if a newly created song contains empty setup, sequence, song-info and
 // wavetable
-BT_START_TEST(test_btsong_obj2) {
+BT_START_TEST(test_bt_song_obj2) {
   /* arrange */
   BtSong *song=bt_song_new(app);
   
@@ -129,7 +129,7 @@ BT_START_TEST(test_btsong_obj2) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsong_master) {
+BT_START_TEST(test_bt_song_master) {
   /* arrange */
   BtSong *song=make_new_song();
   
@@ -143,7 +143,7 @@ BT_END_TEST
 
 
 // test if the song play routine works without failure
-BT_START_TEST(test_btsong_play_single) {
+BT_START_TEST(test_bt_song_play_single) {
   /* arrange */
   BtSong *song=make_new_song();
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
@@ -170,7 +170,7 @@ BT_END_TEST
 
 
 // play, wait a little, stop, play again
-BT_START_TEST(test_btsong_play_twice) {
+BT_START_TEST(test_bt_song_play_twice) {
   /* arrange */
   BtSong *song=make_new_song();
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
@@ -193,7 +193,7 @@ BT_END_TEST
 
 
 // load a new song, play, change audiosink to fakesink
-BT_START_TEST(test_btsong_play_and_change_sink) {
+BT_START_TEST(test_bt_song_play_and_change_sink) {
   /* arrange */
   BtSettings *settings=bt_settings_make();
   BtSong *song=make_new_song();
@@ -215,7 +215,7 @@ BT_END_TEST
 
 
 // change audiosink to NULL, load and play a song
-BT_START_TEST(test_btsong_play_fallback_sink) {
+BT_START_TEST(test_bt_song_play_fallback_sink) {
   /* arrange */
   BtSettings *settings=bt_settings_make();
   g_object_set(settings,"audiosink",NULL,"system-audiosink",NULL,NULL);
@@ -232,7 +232,7 @@ BT_END_TEST
 
 
 // test the idle looper
-BT_START_TEST(test_btsong_idle1) {
+BT_START_TEST(test_bt_song_idle1) {
   /* arrange */
   BtSong *song=make_new_song();
 
@@ -251,7 +251,7 @@ BT_END_TEST
 
 
 // test the idle looper and playing transition
-BT_START_TEST(test_btsong_idle2) {
+BT_START_TEST(test_bt_song_idle2) {
   /* arrange */
   BtSong *song=make_new_song();
 
@@ -287,7 +287,7 @@ BT_END_TEST
  * check if we can connect two sine machines to one sink. Also try to play after
  * connecting the machines.
  */
-BT_START_TEST(test_btsong_play_two_sources) {
+BT_START_TEST(test_bt_song_play_two_sources) {
   /* arrange */
   BtSong *song=bt_song_new(app);
   BtSequence *sequence=(BtSequence *)check_gobject_get_object_property(song,"sequence");
@@ -334,7 +334,7 @@ BT_END_TEST
  * check if we can connect two sine machines to one effect and this to the
  * sink. Also try to start play after connecting the machines.
  */
-BT_START_TEST(test_btsong_play_two_sources_and_one_fx) {
+BT_START_TEST(test_bt_song_play_two_sources_and_one_fx) {
   /* arrange */
   BtSong *song=bt_song_new(app);
   BtSequence *sequence=(BtSequence *)check_gobject_get_object_property(song,"sequence");
@@ -384,7 +384,7 @@ BT_END_TEST
  * check if we can connect two sine machines to one sink, then play() and
  * stop(). After stopping remove one machine and play again.
  */
-BT_START_TEST(test_btsong_play_change_replay) {
+BT_START_TEST(test_bt_song_play_change_replay) {
   /* arrange */
   BtSong *song=bt_song_new(app);
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
@@ -447,7 +447,7 @@ BT_END_TEST
 /*
 * check if we can connect a src machine to a sink while playing
 */
-BT_START_TEST(test_btsong_dynamic_add_src) {
+BT_START_TEST(test_bt_song_dynamic_add_src) {
   /* arrange */
   BtSong *song=bt_song_new(app);
   BtSequence *sequence=(BtSequence *)check_gobject_get_object_property(song,"sequence");
@@ -494,7 +494,7 @@ BT_END_TEST
 /*
 * check if we can disconnect a src machine from a sink while playing.
 */
-BT_START_TEST(test_btsong_dynamic_rem_src) {
+BT_START_TEST(test_bt_song_dynamic_rem_src) {
   /* arrange */
   BtSong *song=bt_song_new(app);
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
@@ -547,7 +547,7 @@ BT_END_TEST
 /*
  * check if we can connect a processor machine to a src and sink while playing
  */
-BT_START_TEST(test_btsong_dynamic_add_proc) {
+BT_START_TEST(test_bt_song_dynamic_add_proc) {
   /* arrange */
   BtSong *song=bt_song_new(app);
   BtSequence *sequence=(BtSequence *)check_gobject_get_object_property(song,"sequence");
@@ -594,7 +594,7 @@ BT_END_TEST
 /*
  * check if we can disconnect a processor machine to a src and sink while playing
  */
-BT_START_TEST(test_btsong_dynamic_rem_proc) {
+BT_START_TEST(test_bt_song_dynamic_rem_proc) {
   /* arrange */
   BtSong *song=bt_song_new(app);
   BtSetup *setup=(BtSetup *)check_gobject_get_object_property(song,"setup");
@@ -651,22 +651,22 @@ BT_END_TEST
 TCase *bt_song_example_case(void) {
   TCase *tc = tcase_create("BtSongExamples");
 
-  tcase_add_test(tc,test_btsong_obj1);
-  tcase_add_test(tc,test_btsong_obj2);
-  tcase_add_test(tc,test_btsong_master);
-  tcase_add_test(tc,test_btsong_play_single);
-  tcase_add_test(tc,test_btsong_play_twice);
-  tcase_add_test(tc,test_btsong_play_and_change_sink);
-  tcase_add_test(tc,test_btsong_play_fallback_sink);
-  tcase_add_test(tc,test_btsong_idle1);
-  tcase_add_test(tc,test_btsong_idle2);
-  tcase_add_test(tc,test_btsong_play_two_sources);
-  tcase_add_test(tc,test_btsong_play_two_sources_and_one_fx);
-  tcase_add_test(tc,test_btsong_play_change_replay);
-  tcase_add_test(tc,test_btsong_dynamic_add_src);
-  tcase_add_test(tc,test_btsong_dynamic_rem_src);
-  tcase_add_test(tc,test_btsong_dynamic_add_proc);
-  tcase_add_test(tc,test_btsong_dynamic_rem_proc);
+  tcase_add_test(tc,test_bt_song_obj1);
+  tcase_add_test(tc,test_bt_song_obj2);
+  tcase_add_test(tc,test_bt_song_master);
+  tcase_add_test(tc,test_bt_song_play_single);
+  tcase_add_test(tc,test_bt_song_play_twice);
+  tcase_add_test(tc,test_bt_song_play_and_change_sink);
+  tcase_add_test(tc,test_bt_song_play_fallback_sink);
+  tcase_add_test(tc,test_bt_song_idle1);
+  tcase_add_test(tc,test_bt_song_idle2);
+  tcase_add_test(tc,test_bt_song_play_two_sources);
+  tcase_add_test(tc,test_bt_song_play_two_sources_and_one_fx);
+  tcase_add_test(tc,test_bt_song_play_change_replay);
+  tcase_add_test(tc,test_bt_song_dynamic_add_src);
+  tcase_add_test(tc,test_bt_song_dynamic_rem_src);
+  tcase_add_test(tc,test_bt_song_dynamic_add_proc);
+  tcase_add_test(tc,test_bt_song_dynamic_rem_proc);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btsequence_new) {
+BT_START_TEST(test_bt_sequence_new) {
   /* arrange */  
 
   /* act */
@@ -65,7 +65,7 @@ BT_START_TEST(test_btsequence_new) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_labels) {
+BT_START_TEST(test_bt_sequence_labels) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   g_object_set(sequence,"length",8L,NULL);
@@ -85,7 +85,7 @@ BT_START_TEST(test_btsequence_labels) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_tracks) {
+BT_START_TEST(test_bt_sequence_tracks) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song,"sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -103,7 +103,7 @@ BT_START_TEST(test_btsequence_tracks) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_pattern) {
+BT_START_TEST(test_bt_sequence_pattern) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -129,7 +129,7 @@ BT_START_TEST(test_btsequence_pattern) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_enlarge_length) {
+BT_START_TEST(test_bt_sequence_enlarge_length) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
 
@@ -148,7 +148,7 @@ BT_START_TEST(test_btsequence_enlarge_length) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_enlarge_length_labels) {
+BT_START_TEST(test_bt_sequence_enlarge_length_labels) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   g_object_set(sequence,"length",8L,NULL);
@@ -170,7 +170,7 @@ BT_START_TEST(test_btsequence_enlarge_length_labels) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_shrink_length) {
+BT_START_TEST(test_bt_sequence_shrink_length) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   g_object_set(sequence,"length",16L,NULL);
@@ -187,7 +187,7 @@ BT_START_TEST(test_btsequence_shrink_length) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_enlarge_track) {
+BT_START_TEST(test_bt_sequence_enlarge_track) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen-m","buzztard-test-mono-source",0,NULL));
@@ -205,7 +205,7 @@ BT_START_TEST(test_btsequence_enlarge_track) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_enlarge_track_vals) {
+BT_START_TEST(test_bt_sequence_enlarge_track_vals) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -226,7 +226,7 @@ BT_START_TEST(test_btsequence_enlarge_track_vals) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_shrink_track) {
+BT_START_TEST(test_bt_sequence_shrink_track) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -246,7 +246,7 @@ BT_START_TEST(test_btsequence_shrink_track) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_enlarge_both_vals) {
+BT_START_TEST(test_bt_sequence_enlarge_both_vals) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -279,7 +279,7 @@ BT_END_TEST
  */
 #ifdef __CHECK_DISABLED__
 // test that removing patterns updates the sequence
-BT_START_TEST(test_btsequence_update) {
+BT_START_TEST(test_bt_sequence_update) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -303,7 +303,7 @@ BT_END_TEST
 #endif
 
 
-BT_START_TEST(test_btsequence_change_pattern) {
+BT_START_TEST(test_bt_sequence_change_pattern) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -329,7 +329,7 @@ BT_START_TEST(test_btsequence_change_pattern) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_hold) {
+BT_START_TEST(test_bt_sequence_hold) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -358,7 +358,7 @@ BT_START_TEST(test_btsequence_hold) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_combine_pattern_shadows) {
+BT_START_TEST(test_bt_sequence_combine_pattern_shadows) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -391,7 +391,7 @@ BT_START_TEST(test_btsequence_combine_pattern_shadows) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_combine_pattern_unshadows) {
+BT_START_TEST(test_bt_sequence_combine_pattern_unshadows) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -427,7 +427,7 @@ BT_START_TEST(test_btsequence_combine_pattern_unshadows) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_combine_value_unshadows) {
+BT_START_TEST(test_bt_sequence_combine_value_unshadows) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -463,7 +463,7 @@ BT_START_TEST(test_btsequence_combine_value_unshadows) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_combine_two_tracks) {
+BT_START_TEST(test_bt_sequence_combine_two_tracks) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,NULL));
@@ -510,7 +510,7 @@ static void on_btsequence_ticks_notify(GstObject *machine,GParamSpec *arg,gpoint
   data->ct++;
 }
 
-BT_START_TEST(test_btsequence_ticks) {
+BT_START_TEST(test_bt_sequence_ticks) {
   /* arrange */
   BtSequenceTicksTestData data = {0,};
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
@@ -564,7 +564,7 @@ BT_START_TEST(test_btsequence_ticks) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btsequence_validate_loop) {
+BT_START_TEST(test_bt_sequence_validate_loop) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
   g_object_set(sequence,"length",16L,NULL);
@@ -585,26 +585,26 @@ BT_END_TEST
 TCase *bt_sequence_example_case(void) {
   TCase *tc = tcase_create("BtSequenceExamples");
 
-  tcase_add_test(tc,test_btsequence_new);
-  tcase_add_test(tc,test_btsequence_labels);
-  tcase_add_test(tc,test_btsequence_tracks);
-  tcase_add_test(tc,test_btsequence_pattern);
-  tcase_add_test(tc,test_btsequence_enlarge_length);
-  tcase_add_test(tc,test_btsequence_enlarge_length_labels);
-  tcase_add_test(tc,test_btsequence_shrink_length);
-  tcase_add_test(tc,test_btsequence_enlarge_track);
-  tcase_add_test(tc,test_btsequence_enlarge_track_vals);
-  tcase_add_test(tc,test_btsequence_shrink_track);
-  tcase_add_test(tc,test_btsequence_enlarge_both_vals);
-  //tcase_add_test(tc,test_btsequence_update);
-  tcase_add_test(tc,test_btsequence_change_pattern);
-  tcase_add_test(tc,test_btsequence_hold);
-  tcase_add_test(tc,test_btsequence_combine_pattern_shadows);
-  tcase_add_test(tc,test_btsequence_combine_pattern_unshadows);
-  tcase_add_test(tc,test_btsequence_combine_value_unshadows);
-  tcase_add_test(tc,test_btsequence_combine_two_tracks);
-  tcase_add_test(tc,test_btsequence_ticks);
-  tcase_add_test(tc,test_btsequence_validate_loop);
+  tcase_add_test(tc,test_bt_sequence_new);
+  tcase_add_test(tc,test_bt_sequence_labels);
+  tcase_add_test(tc,test_bt_sequence_tracks);
+  tcase_add_test(tc,test_bt_sequence_pattern);
+  tcase_add_test(tc,test_bt_sequence_enlarge_length);
+  tcase_add_test(tc,test_bt_sequence_enlarge_length_labels);
+  tcase_add_test(tc,test_bt_sequence_shrink_length);
+  tcase_add_test(tc,test_bt_sequence_enlarge_track);
+  tcase_add_test(tc,test_bt_sequence_enlarge_track_vals);
+  tcase_add_test(tc,test_bt_sequence_shrink_track);
+  tcase_add_test(tc,test_bt_sequence_enlarge_both_vals);
+  //tcase_add_test(tc,test_bt_sequence_update);
+  tcase_add_test(tc,test_bt_sequence_change_pattern);
+  tcase_add_test(tc,test_bt_sequence_hold);
+  tcase_add_test(tc,test_bt_sequence_combine_pattern_shadows);
+  tcase_add_test(tc,test_bt_sequence_combine_pattern_unshadows);
+  tcase_add_test(tc,test_bt_sequence_combine_value_unshadows);
+  tcase_add_test(tc,test_bt_sequence_combine_two_tracks);
+  tcase_add_test(tc,test_bt_sequence_ticks);
+  tcase_add_test(tc,test_bt_sequence_validate_loop);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

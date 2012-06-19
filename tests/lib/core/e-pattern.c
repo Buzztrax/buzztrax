@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btpattern_obj_mono1) {
+BT_START_TEST(test_bt_pattern_obj_mono1) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   
@@ -63,7 +63,7 @@ BT_START_TEST(test_btpattern_obj_mono1) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_obj_mono2) {
+BT_START_TEST(test_bt_pattern_obj_mono2) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -86,7 +86,7 @@ BT_START_TEST(test_btpattern_obj_mono2) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_obj_poly1) {
+BT_START_TEST(test_bt_pattern_obj_poly1) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,NULL));
 
@@ -103,7 +103,7 @@ BT_START_TEST(test_btpattern_obj_poly1) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_obj_poly2) {
+BT_START_TEST(test_bt_pattern_obj_poly2) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -125,7 +125,7 @@ BT_START_TEST(test_btpattern_obj_poly2) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_obj_wire1) {
+BT_START_TEST(test_bt_pattern_obj_wire1) {
   /* arrange */
   BtMachine *src_machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   BtMachine *sink_machine=BT_MACHINE(bt_sink_machine_new(song,"sink",NULL));
@@ -146,7 +146,7 @@ BT_START_TEST(test_btpattern_obj_wire1) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_obj_wire2) {
+BT_START_TEST(test_bt_pattern_obj_wire2) {
   /* arrange */
   BtMachine *src_machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   BtMachine *sink_machine=BT_MACHINE(bt_sink_machine_new(song,"sink",NULL));
@@ -168,7 +168,7 @@ BT_START_TEST(test_btpattern_obj_wire2) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_copy) {
+BT_START_TEST(test_bt_pattern_copy) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,NULL));
   BtPattern *pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -193,7 +193,7 @@ BT_START_TEST(test_btpattern_copy) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_has_data) {
+BT_START_TEST(test_bt_pattern_has_data) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -214,7 +214,7 @@ BT_START_TEST(test_btpattern_has_data) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_enlarge_length) {
+BT_START_TEST(test_bt_pattern_enlarge_length) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -237,7 +237,7 @@ BT_START_TEST(test_btpattern_enlarge_length) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_shrink_length) {
+BT_START_TEST(test_bt_pattern_shrink_length) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",16L,machine);
@@ -258,7 +258,7 @@ BT_START_TEST(test_btpattern_shrink_length) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_enlarge_voices) {
+BT_START_TEST(test_bt_pattern_enlarge_voices) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -281,7 +281,7 @@ BT_START_TEST(test_btpattern_enlarge_voices) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_shrink_voices) {
+BT_START_TEST(test_bt_pattern_shrink_voices) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -303,7 +303,7 @@ BT_START_TEST(test_btpattern_shrink_voices) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_insert_row) {
+BT_START_TEST(test_bt_pattern_insert_row) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -326,7 +326,7 @@ BT_START_TEST(test_btpattern_insert_row) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_delete_row) {
+BT_START_TEST(test_bt_pattern_delete_row) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
@@ -348,7 +348,7 @@ BT_START_TEST(test_btpattern_delete_row) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_mono_get_global_vg) {
+BT_START_TEST(test_bt_pattern_mono_get_global_vg) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",1L,machine);
@@ -363,7 +363,7 @@ BT_START_TEST(test_btpattern_mono_get_global_vg) {
 BT_END_TEST
 
 
-BT_START_TEST(test_btpattern_mono_get_voice_vg) {
+BT_START_TEST(test_bt_pattern_mono_get_voice_vg) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",1L,machine);
@@ -381,22 +381,22 @@ BT_END_TEST
 TCase *bt_pattern_example_case(void) {
   TCase *tc = tcase_create("BtPatternExamples");
 
-  tcase_add_test(tc,test_btpattern_obj_mono1);
-  tcase_add_test(tc,test_btpattern_obj_mono2);
-  tcase_add_test(tc,test_btpattern_obj_poly1);
-  tcase_add_test(tc,test_btpattern_obj_poly2);
-  tcase_add_test(tc,test_btpattern_obj_wire1);
-  tcase_add_test(tc,test_btpattern_obj_wire2);
-  tcase_add_test(tc,test_btpattern_copy);
-  tcase_add_test(tc,test_btpattern_has_data);
-  tcase_add_test(tc,test_btpattern_enlarge_length);
-  tcase_add_test(tc,test_btpattern_shrink_length);
-  tcase_add_test(tc,test_btpattern_enlarge_voices);
-  tcase_add_test(tc,test_btpattern_shrink_voices);
-  tcase_add_test(tc,test_btpattern_insert_row);
-  tcase_add_test(tc,test_btpattern_delete_row);
-  tcase_add_test(tc,test_btpattern_mono_get_global_vg);
-  tcase_add_test(tc,test_btpattern_mono_get_voice_vg);
+  tcase_add_test(tc,test_bt_pattern_obj_mono1);
+  tcase_add_test(tc,test_bt_pattern_obj_mono2);
+  tcase_add_test(tc,test_bt_pattern_obj_poly1);
+  tcase_add_test(tc,test_bt_pattern_obj_poly2);
+  tcase_add_test(tc,test_bt_pattern_obj_wire1);
+  tcase_add_test(tc,test_bt_pattern_obj_wire2);
+  tcase_add_test(tc,test_bt_pattern_copy);
+  tcase_add_test(tc,test_bt_pattern_has_data);
+  tcase_add_test(tc,test_bt_pattern_enlarge_length);
+  tcase_add_test(tc,test_bt_pattern_shrink_length);
+  tcase_add_test(tc,test_bt_pattern_enlarge_voices);
+  tcase_add_test(tc,test_bt_pattern_shrink_voices);
+  tcase_add_test(tc,test_bt_pattern_insert_row);
+  tcase_add_test(tc,test_bt_pattern_delete_row);
+  tcase_add_test(tc,test_bt_pattern_mono_get_global_vg);
+  tcase_add_test(tc,test_bt_pattern_mono_get_voice_vg);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

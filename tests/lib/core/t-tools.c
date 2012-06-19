@@ -39,7 +39,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_bttools_element_check) {
+BT_START_TEST(test_bt_tools_element_check) {
   GList *list = bt_gst_check_elements(NULL);
   fail_unless(list==NULL,NULL);  
 }
@@ -49,7 +49,7 @@ BT_END_TEST
 TCase *bt_tools_test_case(void) {
   TCase *tc = tcase_create("BtToolsTests");
 
-  tcase_add_test(tc,test_bttools_element_check);
+  tcase_add_test(tc,test_bt_tools_element_check);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

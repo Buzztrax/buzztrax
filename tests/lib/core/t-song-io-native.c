@@ -46,7 +46,7 @@ static void case_teardown(void) {
 //-- tests
 
 // load file with errors
-BT_START_TEST(test_btsong_io_native_broken_file) {
+BT_START_TEST(test_bt_song_io_native_broken_file) {
   /* arrange */
   BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("broken1.xml"));
 
@@ -60,7 +60,7 @@ BT_END_TEST
 
 
 // load file into non empty song
-BT_START_TEST(test_btsong_io_native_load_twice) {
+BT_START_TEST(test_bt_song_io_native_load_twice) {
   /* arrange */
   BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
   bt_song_io_load(song_io,song);
@@ -79,8 +79,8 @@ BT_END_TEST
 TCase *bt_song_io_native_test_case(void) {
   TCase *tc = tcase_create("BtSongIONativeTests");
 
-  tcase_add_test(tc,test_btsong_io_native_broken_file);
-  tcase_add_test(tc,test_btsong_io_native_load_twice);
+  tcase_add_test(tc,test_bt_song_io_native_broken_file);
+  tcase_add_test(tc,test_bt_song_io_native_load_twice);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

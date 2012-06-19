@@ -46,7 +46,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btvaluegroup_get_beyond_size) {
+BT_START_TEST(test_bt_value_group_get_beyond_size) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
   BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",1L,machine);
@@ -65,7 +65,7 @@ BT_END_TEST
 TCase *bt_value_group_test_case(void) {
   TCase *tc = tcase_create("BtValueGroupTests");
 
-  tcase_add_test(tc,test_btvaluegroup_get_beyond_size);
+  tcase_add_test(tc,test_bt_value_group_get_beyond_size);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

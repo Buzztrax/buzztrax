@@ -39,7 +39,7 @@ static void case_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btsettings_get_audiosink1) {
+BT_START_TEST(test_bt_gconf_settings_get_audiosink1) {
   /* arrange */
   BtSettings *settings=BT_SETTINGS(bt_gconf_settings_new());
   gchar *saved_audiosink_name=check_gobject_get_str_property(settings,"audiosink");
@@ -61,7 +61,7 @@ BT_END_TEST;
 TCase *bt_gconf_settings_example_case(void) {
   TCase *tc = tcase_create("BtSettingsExamples");
 
-  tcase_add_test(tc,test_btsettings_get_audiosink1);
+  tcase_add_test(tc,test_bt_gconf_settings_get_audiosink1);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

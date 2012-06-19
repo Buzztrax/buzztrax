@@ -46,7 +46,7 @@ static void case_teardown(void) {
 //-- tests
 
 // test if the normal init call works with commandline arguments (no args)
-BT_START_TEST(test_btcore_init0) {
+BT_START_TEST(test_bt_core_init0) {
   /* act */
   bt_init(&test_argc,&test_argvptr);
 }
@@ -54,7 +54,7 @@ BT_END_TEST
 
 
 // test if the init call handles correct null pointers
-BT_START_TEST(test_btcore_init1) {
+BT_START_TEST(test_bt_core_init1) {
   /* act */
   bt_init(NULL,NULL);
 }
@@ -62,7 +62,7 @@ BT_END_TEST
 
 
 // test if the normal init call works with commandline arguments
-BT_START_TEST(test_btcore_init2) {
+BT_START_TEST(test_bt_core_init2) {
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--bt-version" };
   gchar **test_argvptr = test_argv;
@@ -81,9 +81,9 @@ BT_END_TEST
 TCase *bt_core_example_case(void) {
   TCase *tc = tcase_create("BtCoreExamples");
 
-  tcase_add_test(tc,test_btcore_init0);
-  tcase_add_test(tc,test_btcore_init1);
-  tcase_add_test(tc,test_btcore_init2);
+  tcase_add_test(tc,test_bt_core_init0);
+  tcase_add_test(tc,test_bt_core_init1);
+  tcase_add_test(tc,test_bt_core_init2);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

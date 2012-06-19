@@ -46,7 +46,7 @@ static void case_teardown(void) {
 //-- tests
 
 // test init with wrong arg usage
-BT_START_TEST(test_btcore_init0  ) {
+BT_START_TEST(test_bt_core_init0  ) {
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--bt-version=5" };
   gchar **test_argvptr = test_argv;
@@ -62,7 +62,7 @@ BT_END_TEST
 
 
 // test init with nonsense args
-BT_START_TEST(test_btcore_init1) {
+BT_START_TEST(test_bt_core_init1) {
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--bt-non-sense" };
   gchar **test_argvptr = test_argv;
@@ -86,8 +86,8 @@ BT_END_TEST
 TCase *bt_core_test_case(void) {
   TCase *tc = tcase_create("BtCoreTests");
 
-  tcase_add_test(tc,test_btcore_init0);
-  tcase_add_test(tc,test_btcore_init1);
+  tcase_add_test(tc,test_bt_core_init0);
+  tcase_add_test(tc,test_bt_core_init1);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
