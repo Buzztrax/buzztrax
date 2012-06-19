@@ -19,11 +19,11 @@
 
 #include "m-bt-core.h"
 
-extern TCase *bt_settings_example_case(void);
+extern TCase *bt_gconf_settings_example_case(void);
 
-Suite *bt_settings_suite(void) { 
-  Suite *s=suite_create("BtSettings"); 
+Suite *bt_gconf_settings_suite(void) { 
+  Suite *s=suite_create("BtGConfSettings"); 
 
-  suite_add_tcase(s,bt_settings_example_case());
+  suite_add_tcase(s,bt_gconf_settings_example_case());
   return(s);
 }

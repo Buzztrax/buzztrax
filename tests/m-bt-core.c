@@ -29,12 +29,13 @@ GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 extern Suite *bt_application_suite(void);
 extern Suite *bt_core_suite(void);
+extern Suite *bt_gconf_settings_suite(void);
 extern Suite *bt_machine_suite(void);
-extern Suite *bt_network_suite(void);
 extern Suite *bt_pattern_suite(void);
 extern Suite *bt_param_group_suite(void);
 extern Suite *bt_processor_machine_suite(void);
 extern Suite *bt_sequence_suite(void);
+extern Suite *bt_settings_suite(void);
 extern Suite *bt_setup_suite(void);
 extern Suite *bt_sink_machine_suite(void);
 extern Suite *bt_song_suite(void);
@@ -45,7 +46,6 @@ extern Suite *bt_source_machine_suite(void);
 extern Suite *bt_tools_suite(void);
 extern Suite *bt_wire_suite(void);
 extern Suite *bt_value_group_suite(void);
-extern Suite *bt_settings_suite(void);
 
 gchar *test_argv[] = { "check_buzzard" };
 gchar **test_argvptr = test_argv;
@@ -77,6 +77,7 @@ gint main(gint argc, gchar **argv) {
 
   sr=srunner_create(bt_application_suite());
   srunner_add_suite(sr, bt_core_suite());
+  srunner_add_suite(sr, bt_gconf_settings_suite());
   srunner_add_suite(sr, bt_machine_suite());
   srunner_add_suite(sr, bt_param_group_suite());
   srunner_add_suite(sr, bt_pattern_suite());

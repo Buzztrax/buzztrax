@@ -3,11 +3,13 @@ libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-application.c e-application.c \
 	s-core.c e-core.c t-core.c \
+	s-gconf-settings.c e-gconf-settings.c \
 	s-machine.c e-machine.c t-machine.c \
 	s-parameter-group.c e-parameter-group.c t-parameter-group.c \
 	s-pattern.c e-pattern.c t-pattern.c \
 	s-processor-machine.c e-processor-machine.c t-processor-machine.c \
 	s-sequence.c e-sequence.c t-sequence.c \
+	s-settings.c e-settings.c \
 	s-setup.c e-setup.c t-setup.c \
 	s-sink-machine.c e-sink-machine.c t-sink-machine.c \
 	s-song.c e-song.c t-song.c \
@@ -17,8 +19,7 @@ libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-source-machine.c e-source-machine.c t-source-machine.c \
 	s-tools.c e-tools.c t-tools.c \
 	s-value-group.c e-value-group.c t-value-group.c \
-	s-wire.c e-wire.c t-wire.c \
-	s-settings.c t-settings.c
+	s-wire.c e-wire.c t-wire.c
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/ic \
