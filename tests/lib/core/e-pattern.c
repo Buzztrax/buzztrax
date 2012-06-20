@@ -46,6 +46,24 @@ static void case_teardown(void) {
 
 //-- tests
 
+BT_START_TEST(test_bt_pattern_name) {
+  /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
+  
+  /* act */
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+
+  /* assert */
+  ck_assert_gobject_str_eq(pattern,"id","pattern-id");
+  ck_assert_gobject_str_eq(pattern,"name","pattern-name");
+
+  /* cleanup */
+  g_object_unref(pattern);
+  g_object_unref(machine);
+}
+BT_END_TEST
+
+
 BT_START_TEST(test_bt_pattern_obj_mono1) {
   /* arrange */
   BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
@@ -381,6 +399,7 @@ BT_END_TEST
 TCase *bt_pattern_example_case(void) {
   TCase *tc = tcase_create("BtPatternExamples");
 
+  tcase_add_test(tc,test_bt_pattern_name);
   tcase_add_test(tc,test_bt_pattern_obj_mono1);
   tcase_add_test(tc,test_bt_pattern_obj_mono2);
   tcase_add_test(tc,test_bt_pattern_obj_poly1);

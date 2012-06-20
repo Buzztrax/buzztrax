@@ -80,10 +80,11 @@ BT_END_TEST
 
 BT_START_TEST(test_bt_pattern_new_null_id) {
   /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
   check_init_error_trapp("bt_cmd_pattern_","BT_IS_STRING(self->priv->id)");
 
   /* act */
-  BtPattern *pattern=bt_pattern_new(song,NULL,"pattern-name",1L,NULL);
+  BtPattern *pattern=bt_pattern_new(song,NULL,"pattern-name",1L,machine);
   
   /* assert */
   fail_unless(check_has_error_trapped(), NULL);
@@ -91,16 +92,18 @@ BT_START_TEST(test_bt_pattern_new_null_id) {
   
   /* cleanup */
   g_object_unref(pattern);
+  g_object_unref(machine);
 }
 BT_END_TEST
 
 
 BT_START_TEST(test_bt_pattern_new_null_name) {
   /* arrange */
+  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
   check_init_error_trapp("bt_cmd_pattern_","BT_IS_STRING(self->priv->name)");
 
   /* act */
-  BtPattern *pattern=bt_pattern_new(song,"pattern-id",NULL,1L,NULL);
+  BtPattern *pattern=bt_pattern_new(song,"pattern-id",NULL,1L,machine);
   
   /* assert */
   fail_unless(check_has_error_trapped(), NULL);
@@ -108,6 +111,7 @@ BT_START_TEST(test_bt_pattern_new_null_name) {
   
   /* cleanup */
   g_object_unref(pattern);
+  g_object_unref(machine);
 }
 BT_END_TEST
 

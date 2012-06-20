@@ -29,6 +29,7 @@ GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 extern Suite *bt_application_suite(void);
 extern Suite *bt_audio_session_suite(void);
+extern Suite *bt_cmd_pattern_suite(void);
 extern Suite *bt_core_suite(void);
 extern Suite *bt_gconf_settings_suite(void);
 extern Suite *bt_machine_suite(void);
@@ -78,6 +79,7 @@ gint main(gint argc, gchar **argv) {
 
   sr=srunner_create(bt_application_suite());
   srunner_add_suite(sr, bt_audio_session_suite());
+  srunner_add_suite(sr, bt_cmd_pattern_suite());
   srunner_add_suite(sr, bt_core_suite());
   srunner_add_suite(sr, bt_gconf_settings_suite());
   srunner_add_suite(sr, bt_machine_suite());

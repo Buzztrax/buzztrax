@@ -109,32 +109,14 @@ GType bt_pattern_cmd_get_type(void) {
  *
  * Create a new default pattern instance containg the given @cmd event.
  * It will be automatically added to the machines pattern list.
- * If @cmd is %BT_PATTERN_CMD_NORMAL use bt_cmd_pattern_new() instead.
+ * If @cmd is %BT_PATTERN_CMD_NORMAL use bt_pattern_new() instead.
  *
  * Don't call this from applications.
  *
  * Returns: the new instance or %NULL in case of an error
  */
 BtCmdPattern *bt_cmd_pattern_new(const BtSong * const song, const BtMachine * const machine, const BtPatternCmd cmd) {
-  BtCmdPattern *self;
-  gchar *id=NULL,*name=NULL;
-
-  if(BT_IS_MACHINE(machine)) {
-    gchar *mid=NULL;
-    // track commands in sequencer
-    const gchar * const cmd_names[]={ N_("normal"),N_("break"),N_("mute"),N_("solo"),N_("bypass") };
-
-    g_object_get((gpointer)machine,"id",&mid,NULL);
-    // use spaces/_ to avoid clashes with normal patterns?
-    id=g_strdup_printf("%s___%s",mid,cmd_names[cmd]);
-    name=g_strdup_printf("   %s",_(cmd_names[cmd]));
-    g_free(mid);
-  }  
-  // create the pattern
-  self=BT_CMD_PATTERN(g_object_new(BT_TYPE_CMD_PATTERN,"song",song,"id",id,"name",name,"machine",machine,"command",cmd,NULL));
-  g_free(id);
-  g_free(name);
-  return(self);
+  return(BT_CMD_PATTERN(g_object_new(BT_TYPE_CMD_PATTERN,"song",song,"machine",machine,"command",cmd,NULL)));
 }
 
 //-- methods
@@ -150,16 +132,29 @@ static void bt_cmd_pattern_constructed(GObject *object) {
     G_OBJECT_CLASS(bt_cmd_pattern_parent_class)->constructed(object);
 
   g_return_if_fail(BT_IS_SONG(self->priv->song));
-  g_return_if_fail(BT_IS_STRING(self->priv->id));
-  g_return_if_fail(BT_IS_STRING(self->priv->name));
   g_return_if_fail(BT_IS_MACHINE(self->priv->machine));
-  
-  GST_DEBUG("new cmd pattern. name='%s', id='%s'",self->priv->name,self->priv->id);
 
-  // add the pattern to the machine (if not subclassed, irks)
+  // finish setup and add the pattern to the machine
+  // (if not subclassed, irks)
   if(self->priv->cmd!=BT_PATTERN_CMD_NORMAL) {
-    GST_DEBUG("add pattern to machine");
+    gchar *id,*name,*mid;
+    // track commands in sequencer
+    const gchar * const cmd_names[]={ N_("normal"),N_("break"),N_("mute"),N_("solo"),N_("bypass") };
+  
+    g_object_get(self->priv->machine,"id",&mid,NULL);
+    // use spaces/_ to avoid clashes with normal patterns?
+    id=g_strdup_printf("%s___%s",mid,cmd_names[self->priv->cmd]);
+    name=g_strdup_printf("   %s",_(cmd_names[self->priv->cmd]));
+    g_free(mid);
+    g_object_set(object,"id",id,"name",name,NULL);
+    g_free(id);
+    g_free(name);
+    
+    GST_DEBUG("new cmd pattern. name='%s', id='%s'",self->priv->name,self->priv->id);
     bt_machine_add_pattern(self->priv->machine,self);
+  } else {
+    g_return_if_fail(BT_IS_STRING(self->priv->id));
+    g_return_if_fail(BT_IS_STRING(self->priv->name));
   }
 }
 
@@ -202,12 +197,12 @@ static void bt_cmd_pattern_set_property(GObject * const object, const guint prop
     case CMD_PATTERN_ID: {
       g_free(self->priv->id);
       self->priv->id = g_value_dup_string(value);
-      GST_DEBUG("set the id for pattern: %s",self->priv->id);
+      GST_DEBUG("set the id for pattern: '%s'",self->priv->id);
     } break;
     case CMD_PATTERN_NAME: {
       g_free(self->priv->name);
       self->priv->name = g_value_dup_string(value);
-      GST_DEBUG("set the display name for the pattern: %s",self->priv->name);
+      GST_DEBUG("set the display name for the pattern: '%s'",self->priv->name);
     } break;
     case CMD_PATTERN_MACHINE: {
       self->priv->machine = BT_MACHINE(g_value_get_object(value));
