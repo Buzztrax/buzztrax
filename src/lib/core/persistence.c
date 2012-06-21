@@ -125,10 +125,12 @@ const gchar *bt_persistence_strfmt_double(const gdouble val) {
  * Returns: a reference to static memory containg the formatted value.
  */
 const gchar *bt_persistence_strfmt_enum(GType enum_type,gint value) {
+  g_return_val_if_fail(G_TYPE_IS_ENUM(enum_type), NULL);
+
   GEnumClass *enum_class=g_type_class_ref(enum_type);
   GEnumValue *enum_value=g_enum_get_value(enum_class,value);
   g_type_class_unref(enum_class);
-  return(enum_value->value_nick);
+  return(enum_value?enum_value->value_nick:NULL);
 }
 
 /**
@@ -142,6 +144,8 @@ const gchar *bt_persistence_strfmt_enum(GType enum_type,gint value) {
  * Returns: the interger value for the enum, or -1 for invalid strings.
  */
 gint bt_persistence_parse_enum(GType enum_type,const gchar *str) {
+  g_return_val_if_fail(G_TYPE_IS_ENUM(enum_type), -1);
+
   if(!str) return(-1);
 
   GEnumClass *enum_class=g_type_class_ref(enum_type);

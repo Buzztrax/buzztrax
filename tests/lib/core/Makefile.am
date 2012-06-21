@@ -9,6 +9,7 @@ libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-machine.c e-machine.c t-machine.c \
 	s-parameter-group.c e-parameter-group.c t-parameter-group.c \
 	s-pattern.c e-pattern.c t-pattern.c \
+	s-persistence.c e-persistence.c t-persistence.c \
 	s-processor-machine.c e-processor-machine.c t-processor-machine.c \
 	s-sequence.c e-sequence.c t-sequence.c \
 	s-settings.c e-settings.c \
