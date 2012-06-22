@@ -365,7 +365,7 @@ bt_dec_load_song (BtDec *self)
         g_object_get (machine,"machine",&sink_bin,NULL);
         g_object_set (sink_bin, "mode", BT_SINK_BIN_MODE_PASS_THRU, NULL);
 
-        target_pad = gst_element_get_pad (GST_ELEMENT (sink_bin), "src");
+        target_pad = gst_element_get_static_pad (GST_ELEMENT (sink_bin), "src");
         /* bahh, dirty ! */
         fakesink = gst_element_factory_make ("fakesink", NULL);
         /* otherwise the song is not starting .. */
@@ -376,7 +376,7 @@ bt_dec_load_song (BtDec *self)
             /*"sync", TRUE, */
             NULL);
         gst_bin_add (GST_BIN (machine), fakesink);
-        probe_pad = gst_element_get_pad (fakesink, "sink");
+        probe_pad = gst_element_get_static_pad (fakesink, "sink");
         gst_pad_link (target_pad, probe_pad);
         gst_pad_add_buffer_probe (probe_pad, (GCallback)bt_dec_move_buffer, (gpointer)self);
         gst_pad_add_event_probe (probe_pad, (GCallback)bt_dec_move_event, (gpointer)self);
