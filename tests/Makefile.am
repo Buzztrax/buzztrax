@@ -1,5 +1,4 @@
 if BUILD_CHECK_TESTS
-  SUBDIRS = lib ui
   TESTS_BIN = bt_core bt_ic bt_cmd bt_edit
   ##TESTS_BIN = bt_core
 else
@@ -42,13 +41,32 @@ noinst_PROGRAMS=$(TESTS_BIN)
 /tmp/test.wav:
 	$(AM_V_GEN) gst-launch-@GST_MAJORMINOR@ -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=$@
 
-noinst_LTLIBRARIES = libbt-check.la
+AM_CPPFLAGS = \
+	-I$(top_srcdir)/src/lib/core \
+	-I$(top_srcdir)/src/lib/ic \
+	-DLOCALEDIR=\"$(localedir)\" \
+	-DLIBDIR=\"$(libdir)\" \
+	-DDATADIR=\"$(datadir)\" \
+	-DTESTSONGDIR=\"$(abs_top_srcdir)/tests/songs\" \
+	-DG_LOG_DOMAIN=\"buzztard-check\" \
+	$(BASE_DEPS_CFLAGS) \
+	$(GUI_DEPS_CFLAGS) \
+	$(BT_CFLAGS)
+
+AM_LDFLAGS = $(BT_LDFLAGS)
+
+noinst_LTLIBRARIES = \
+  libbt-check.la \
+  libbtcore-check.la \
+  libbtic-check.la \
+  libbt-cmd-check.la \
+  libbt-edit-check.la
+
 libbt_check_la_LIBADD = \
-	$(top_builddir)/src/lib/core/libbuzztard-core.la \
+	$(top_builddir)/src/libbuzztard-core.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
 libbt_check_la_LDFLAGS = \
-	$(BT_LDFLAGS) \
-	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
+	-Wl,--rpath -Wl,$(abs_top_builddir)/src/.libs
 libbt_check_la_SOURCES = \
 	bt-check.c bt-check.h \
 	bt-test-application.c bt-test-application.h \
@@ -57,58 +75,107 @@ libbt_check_la_SOURCES = \
 libbt_check_la_DEPENDENCIES = /tmp/test.wav
 
 bt_core_LDADD = \
-	$(top_builddir)/tests/lib/core/libbtcore-check.la \
-	$(top_builddir)/src/lib/core/libbuzztard-core.la \
+	libbtcore-check.la \
+	$(top_builddir)/src/libbuzztard-core.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_core_LDFLAGS =  \
-	$(BT_LDFLAGS) \
-	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
+	-Wl,--rpath -Wl,$(abs_top_builddir)/src/.libs
 bt_core_SOURCES= \
 	m-bt-core.c
 
 bt_ic_LDADD = \
-	$(top_builddir)/tests/lib/ic/libbtic-check.la \
-	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
-	$(top_builddir)/src/lib/core/libbuzztard-core.la \
+	libbtic-check.la \
+	$(top_builddir)/src/libbuzztard-ic.la \
+	$(top_builddir)/src/libbuzztard-core.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_ic_LDFLAGS =  \
-	$(BT_LDFLAGS) \
-	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/ic/.libs
+	-Wl,--rpath -Wl,$(abs_top_builddir)/src/.libs
 bt_ic_SOURCES= \
 	m-bt-ic.c
 
 bt_cmd_LDADD = \
-	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la \
-	$(top_builddir)/src/lib/core/libbuzztard-core.la \
+	libbt-cmd-check.la \
+	$(top_builddir)/src/libbuzztard-core.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_cmd_LDFLAGS =  \
-	$(BT_LDFLAGS) \
-	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs
+	-Wl,--rpath -Wl,$(abs_top_builddir)/src/.libs
 bt_cmd_SOURCES= \
 	m-bt-cmd.c
 
 bt_edit_LDADD = \
-	$(top_builddir)/tests/ui/edit/libbt-edit-check.la \
-	$(top_builddir)/src/lib/core/libbuzztard-core.la \
-	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
+	libbt-edit-check.la \
+	$(top_builddir)/src/libbuzztard-core.la \
+	$(top_builddir)/src/libbuzztard-ic.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_edit_LDFLAGS =  \
-	$(BT_LDFLAGS) \
-	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/core/.libs \
-	-Wl,--rpath -Wl,$(abs_top_builddir)/src/lib/ic/.libs
+	-Wl,--rpath -Wl,$(abs_top_builddir)/src/.libs
 bt_edit_SOURCES= \
 	m-bt-edit.c
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir)/src/lib/core \
-	-I$(top_srcdir)/src/lib/ic \
-	-DLOCALEDIR=\"$(localedir)\" \
-	-DDATADIR=\"$(datadir)\" \
-	-DTESTSONGDIR=\"$(abs_top_srcdir)/tests/songs\" \
-	-DG_LOG_DOMAIN=\"buzztard-check\" \
-	$(BASE_DEPS_CFLAGS) \
-	$(GUI_DEPS_CFLAGS) \
-	$(BT_CFLAGS)
+libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
+libbtcore_check_la_SOURCES = lib/core/m-bt-core.h \
+	lib/core/s-application.c lib/core/e-application.c \
+	lib/core/s-audio-session.c lib/core/e-audio-session.c \
+	lib/core/s-cmd-pattern.c lib/core/e-cmd-pattern.c lib/core/t-cmd-pattern.c \
+	lib/core/s-core.c lib/core/e-core.c lib/core/t-core.c \
+	lib/core/s-gconf-settings.c lib/core/e-gconf-settings.c \
+	lib/core/s-machine.c lib/core/e-machine.c lib/core/t-machine.c \
+	lib/core/s-parameter-group.c lib/core/e-parameter-group.c lib/core/t-parameter-group.c \
+	lib/core/s-pattern.c lib/core/e-pattern.c lib/core/t-pattern.c \
+	lib/core/s-persistence.c lib/core/e-persistence.c lib/core/t-persistence.c \
+	lib/core/s-processor-machine.c lib/core/e-processor-machine.c lib/core/t-processor-machine.c \
+	lib/core/s-sequence.c lib/core/e-sequence.c lib/core/t-sequence.c \
+	lib/core/s-settings.c lib/core/e-settings.c \
+	lib/core/s-setup.c lib/core/e-setup.c lib/core/t-setup.c \
+	lib/core/s-sink-machine.c lib/core/e-sink-machine.c lib/core/t-sink-machine.c \
+	lib/core/s-song.c lib/core/e-song.c lib/core/t-song.c \
+	lib/core/s-song-io.c lib/core/e-song-io.c lib/core/t-song-io.c \
+	lib/core/s-song-io-native.c lib/core/e-song-io-native.c lib/core/t-song-io-native.c \
+	lib/core/s-song-info.c lib/core/e-song-info.c lib/core/t-song-info.c \
+	lib/core/s-source-machine.c lib/core/e-source-machine.c lib/core/t-source-machine.c \
+	lib/core/s-tools.c lib/core/e-tools.c lib/core/t-tools.c \
+	lib/core/s-value-group.c lib/core/e-value-group.c lib/core/t-value-group.c \
+	lib/core/s-wire.c lib/core/e-wire.c lib/core/t-wire.c
+
+libbtic_check_la_LIBADD = $(BASE_DEPS_LIBS)
+libbtic_check_la_SOURCES = lib/ic/m-bt-ic.h \
+	lib/ic/s-ic.c lib/ic/e-ic.c lib/ic/t-ic.c \
+	lib/ic/s-registry.c lib/ic/e-registry.c
+
+libbt_cmd_check_la_LIBADD = \
+	$(top_builddir)/src/libbtcmd.la \
+	$(BASE_DEPS_LIBS)
+libbt_cmd_check_la_SOURCES = ui/cmd/m-bt-cmd.h \
+	ui/cmd/s-bt-cmd-application.c ui/cmd/e-bt-cmd-application.c ui/cmd/t-bt-cmd-application.c
+
+libbt_edit_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
+libbt_edit_check_la_LIBADD = \
+	$(top_builddir)/src/libbtedit.la \
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS)
+libbt_edit_check_la_SOURCES = ui/edit/m-bt-edit.h \
+	ui/edit/s-bt-about-dialog.c ui/edit/e-bt-about-dialog.c \
+	ui/edit/s-bt-change-log.c ui/edit/e-bt-change-log.c \
+	ui/edit/s-bt-controller-learn-dialog.c ui/edit/e-bt-controller-learn-dialog.c \
+	ui/edit/s-bt-crash-recover-dialog.c ui/edit/e-bt-crash-recover-dialog.c \
+	ui/edit/s-bt-edit-application.c ui/edit/e-bt-edit-application.c \
+	ui/edit/s-bt-interaction-controller-menu.c ui/edit/e-bt-interaction-controller-menu.c \
+	ui/edit/s-bt-machine-actions.c ui/edit/e-bt-machine-actions.c \
+	ui/edit/s-bt-machine-page.c ui/edit/e-bt-machine-page.c \
+	ui/edit/s-bt-machine-preset-properties-dialog.c ui/edit/e-bt-machine-preset-properties-dialog.c \
+	ui/edit/s-bt-machine-preferences-dialog.c ui/edit/e-bt-machine-preferences-dialog.c \
+	ui/edit/s-bt-machine-properties-dialog.c ui/edit/e-bt-machine-properties-dialog.c \
+	ui/edit/s-bt-machine-rename-dialog.c ui/edit/e-bt-machine-rename-dialog.c \
+	ui/edit/s-bt-main-window.c ui/edit/e-bt-main-window.c \
+	ui/edit/s-bt-missing-framework-elements-dialog.c ui/edit/e-bt-missing-framework-elements-dialog.c \
+	ui/edit/s-bt-missing-song-elements-dialog.c ui/edit/e-bt-missing-song-elements-dialog.c \
+	ui/edit/s-bt-pattern-page.c ui/edit/e-bt-pattern-page.c ui/edit/t-bt-pattern-page.c \
+	ui/edit/s-bt-pattern-properties-dialog.c ui/edit/e-bt-pattern-properties-dialog.c \
+	ui/edit/s-bt-render-dialog.c ui/edit/e-bt-render-dialog.c \
+	ui/edit/s-bt-render-progress-dialog.c ui/edit/e-bt-render-progress-dialog.c \
+	ui/edit/s-bt-sequence-page.c ui/edit/e-bt-sequence-page.c \
+	ui/edit/s-bt-settings-dialog.c ui/edit/e-bt-settings-dialog.c \
+	ui/edit/s-bt-signal-analysis-dialog.c ui/edit/e-bt-signal-analysis-dialog.c \
+	ui/edit/s-bt-tip-dialog.c ui/edit/e-bt-tip-dialog.c
 
 endif
 
@@ -217,8 +284,8 @@ coverage:: $(TESTS_BIN)
 	echo "date "`date` >>.bcovdump.all; \
 	for i in $^; do \
 	  CK_FORK="no" $(TESTS_ENVIRONMENT) bcov \
-	    -l$(top_builddir)/src/lib/core/.libs/libbuzztard-core.so \
-	    -l$(top_builddir)/src/lib/ic/.libs/libbuzztard-ic.so \
+	    -l$(top_builddir)/src/.libs/libbuzztard-core.so \
+	    -l$(top_builddir)/src/.libs/libbuzztard-ic.so \
 	    ./$$i; \
 	  if test -f .bcovdump; then \
 	    tail -n +5 .bcovdump >>.bcovdump.all; \

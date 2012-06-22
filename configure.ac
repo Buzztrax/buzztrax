@@ -70,6 +70,7 @@ AC_PROG_LN_S
 AC_PROG_SED
 AC_ISC_POSIX
 AC_PROG_CC
+AM_PROG_CC_C_O
 AM_PROG_MKDIR_P
 IT_PROG_INTLTOOL
 PKG_PROG_PKG_CONFIG
@@ -532,46 +533,28 @@ AC_SUBST(GUI_DEPS_CFLAGS)
 AC_CONFIG_FILES(Makefile \
   docs/Makefile \
   docs/version.entities \
-    docs/help/Makefile \
-      docs/help/bt-edit/Makefile \
-        docs/help/bt-edit/C/Makefile \
-        docs/help/bt-edit/C/buzztard-edit-C.omf \
-    docs/reference/Makefile \
-      docs/reference/bt-cmd/Makefile \
-      docs/reference/bt-core/Makefile \
-      docs/reference/bt-core/buzztard-core.types \
-      docs/reference/bt-edit/Makefile \
-      docs/reference/bt-ic/Makefile \
-      docs/reference/bt-ic/buzztard-ic.types \
-      docs/reference/bt-ic/buzztard-ic-sections.txt \
-  pixmaps/Makefile \
-    pixmaps/hicolor/Makefile \
-    pixmaps/gnome/Makefile \
+  docs/help/Makefile \
+  docs/help/bt-edit/Makefile \
+  docs/help/bt-edit/C/Makefile \
+  docs/help/bt-edit/C/buzztard-edit-C.omf \
+  docs/reference/Makefile \
+  docs/reference/bt-cmd/Makefile \
+  docs/reference/bt-core/Makefile \
+  docs/reference/bt-core/buzztard-core.types \
+  docs/reference/bt-edit/Makefile \
+  docs/reference/bt-ic/Makefile \
+  docs/reference/bt-ic/buzztard-ic.types \
+  docs/reference/bt-ic/buzztard-ic-sections.txt \
   po/Makefile.in \
   src/Makefile \
-    src/lib/Makefile \
-    src/lib/buzztard.xml \
-      src/lib/core/Makefile \
-      src/lib/core/libbuzztard-core.pc \
-      src/lib/core/version.h \
-        src/lib/core/songio/Makefile \
-          src/lib/core/songio/bsl/Makefile \
-      src/lib/ic/Makefile \
-	  src/lib/ic/libbuzztard-ic.pc \
-		src/lib/ic/version.h \
-    src/ui/Makefile \
-      src/ui/cmd/Makefile \
-      src/ui/dec/Makefile \
-      src/ui/edit/Makefile \
+  src/lib/buzztard.xml \
+  src/lib/core/libbuzztard-core.pc \
+  src/lib/core/version.h \
+  src/lib/ic/libbuzztard-ic.pc \
+  src/lib/ic/version.h \
   tests/Makefile \
   tests/bt-cfg.sh \
-    tests/lib/Makefile \
-      tests/lib/core/Makefile \
-        tests/lib/core/songio/bsl/bt-cfg.sh \
-      tests/lib/ic/Makefile \
-    tests/ui/Makefile \
-      tests/ui/cmd/Makefile \
-      tests/ui/edit/Makefile \
+  tests/lib/core/songio/bsl/bt-cfg.sh \
 )
 AC_OUTPUT
 
