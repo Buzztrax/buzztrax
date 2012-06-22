@@ -1034,15 +1034,18 @@ BtMachine *bt_sequence_get_machine(const BtSequence * const self,const gulong tr
   if(track>=self->priv->tracks) return(NULL);
   
   BtMachine *machine=bt_sequence_get_machine_unchecked(self,track);
-
-  GST_DEBUG_OBJECT(machine,"getting machine : %p,ref_ct=%d for track %lu",machine,G_OBJECT_REF_COUNT(machine),track);
-  return(g_object_ref(machine));
+  if(machine) {
+    GST_DEBUG_OBJECT(machine,"getting machine : %p,ref_ct=%d for track %lu",machine,G_OBJECT_REF_COUNT(machine),track);
+    return(g_object_ref(machine));
+  }
+  else {
+    /* TODO(ensonic): shouldn't we better make self->priv->tracks a readonly property
+     * and offer methods to insert/remove tracks as it should not be allowed to change
+     * the machine later on
+     */
+    return NULL;
+  }
 }
-
-/*
-TODO(ensonic): shouldn't we better make self->priv->tracks a readonly property and offer methods to insert/remove tracks
-as it should not be allowed to change the machine later on
-*/
 
 /**
  * bt_sequence_add_track:
