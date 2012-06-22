@@ -778,7 +778,6 @@ gboolean bt_wire_reconnect(BtWire * const self) {
 
 /**
  * bt_wire_can_link:
- * @self: a wire, can be %NULL if we check this for a new wire
  * @src: the src machine
  * @dst: the dst machine
  *
