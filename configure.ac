@@ -38,6 +38,10 @@ BT_VERSION=$BT_MAJOR_VERSION.$BT_MINOR_VERSION.$BT_MICRO_VERSION
 BT_VERSION_INFO=`expr $BT_MAJOR_VERSION + $BT_MINOR_VERSION`:$BT_MICRO_VERSION:$BT_MINOR_VERSION
 BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + $BT_MICRO_VERSION`
 
+BT_MAJORMINOR=0.7
+AC_DEFINE_UNQUOTED(BT_MAJORMINOR, "$BT_MAJORMINOR", [buzztard series])
+AC_SUBST(BT_MAJORMINOR)
+
 dnl that is needed to figure the directory name, where the plugin goes to
 GST_MAJORMINOR=0.10
 AC_DEFINE_UNQUOTED(GST_MAJORMINOR, "$GST_MAJORMINOR", [gstreamer series])
@@ -531,13 +535,10 @@ AC_SUBST(GUI_DEPS_CFLAGS)
 
 
 AC_CONFIG_FILES(Makefile \
-  docs/Makefile \
   docs/version.entities \
-  docs/help/Makefile \
   docs/help/bt-edit/Makefile \
   docs/help/bt-edit/C/Makefile \
   docs/help/bt-edit/C/buzztard-edit-C.omf \
-  docs/reference/Makefile \
   docs/reference/bt-cmd/Makefile \
   docs/reference/bt-core/Makefile \
   docs/reference/bt-core/buzztard-core.types \
@@ -546,13 +547,11 @@ AC_CONFIG_FILES(Makefile \
   docs/reference/bt-ic/buzztard-ic.types \
   docs/reference/bt-ic/buzztard-ic-sections.txt \
   po/Makefile.in \
-  src/Makefile \
   src/lib/buzztard.xml \
   src/lib/core/libbuzztard-core.pc \
   src/lib/core/version.h \
   src/lib/ic/libbuzztard-ic.pc \
   src/lib/ic/version.h \
-  tests/Makefile \
   tests/bt-cfg.sh \
   tests/lib/core/songio/bsl/bt-cfg.sh \
 )

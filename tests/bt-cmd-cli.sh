@@ -1,6 +1,7 @@
 #!/bin/sh
 # run buzztard-cmd commandline options
 
+cd tests
 . ./bt-cfg.sh
 
 # test the output a little

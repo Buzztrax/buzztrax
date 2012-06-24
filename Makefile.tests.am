@@ -1,0 +1,341 @@
+if BUILD_CHECK_TESTS
+  TESTS_BIN = bt_core bt_ic bt_cmd bt_edit
+else
+  TESTS_BIN =
+endif
+
+TESTS = \
+  $(TESTS_BIN) \
+  tests/bt-cmd-info.sh \
+  tests/bt-cmd-cli.sh \
+  tests/bt-edit-cli.sh \
+  tests/povalid.sh \
+  tests/xmlvalid.sh
+
+# prevent endless loops, this requires bash, see idea in bt-check.c
+#   ulimit -St20;
+#
+# adding this can help debug gconfd
+#    GCONF_DEBUG_TRACE_CLIENT=1
+#
+# http://www.cynapses.org/tmp/gcc/malloc_perturb
+#    MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
+#
+# set theme (check which theme is used)
+#    GTK2_RC_FILES=$HOME/.themes/Darkilouche/gtk-2.0/gtkrc
+#
+# hint alsa/pulseaudio to be quiet
+#    PULSE_SINK=???
+#    ALSA_CARD, ALSA_PCM_CARD, DISPLAY_ALSA_DEVICE, AUDIODEV
+#
+TESTS_ENVIRONMENT = \
+	CK_DEFAULT_TIMEOUT=20 \
+	LANG=C \
+	XDG_CACHE_HOME=$(abs_builddir) \
+	$(LIBTOOL) --mode=execute
+
+if BUILD_CHECK_TESTS
+noinst_PROGRAMS=$(TESTS_BIN)
+
+/tmp/test.wav:
+	$(AM_V_GEN) gst-launch-@GST_MAJORMINOR@ -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=$@
+
+noinst_LTLIBRARIES += \
+  libbt-check.la \
+  libbtcore-check.la \
+  libbtic-check.la \
+  libbt-cmd-check.la \
+  libbt-edit-check.la
+
+# FIXME(ensonic): all test are linking gtk for the gtk test helpers
+libbt_check_la_LIBADD = \
+	$(top_builddir)/libbuzztard-core.la \
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
+libbt_check_la_LDFLAGS = \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
+libbt_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
+libbt_check_la_SOURCES = \
+	tests/bt-check.c tests/bt-check.h \
+	tests/bt-test-application.c tests/bt-test-application.h \
+	tests/bt-test-plugin.c tests/bt-test-plugin.h \
+	tests/bt-test-settings.c tests/bt-test-settings.h
+libbt_check_la_DEPENDENCIES = /tmp/test.wav
+
+bt_core_LDADD = \
+	libbtcore-check.la \
+	libbuzztard-core.la \
+	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
+bt_core_LDFLAGS =  \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
+bt_core_CFLAGS = $(GUI_DEPS_CFLAGS)
+bt_core_SOURCES = \
+	tests/m-bt-core.c
+
+bt_ic_LDADD = \
+	libbtic-check.la \
+	libbuzztard-ic.la \
+	libbuzztard-core.la \
+	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
+bt_ic_LDFLAGS =  \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
+bt_ic_CFLAGS = $(GUI_DEPS_CFLAGS)
+bt_ic_SOURCES = \
+	tests/m-bt-ic.c
+
+bt_cmd_LDADD = \
+	libbt-cmd-check.la \
+	libbuzztard-core.la \
+	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
+bt_cmd_LDFLAGS =  \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
+bt_cmd_CFLAGS = $(GUI_DEPS_CFLAGS)
+bt_cmd_SOURCES = \
+	tests/m-bt-cmd.c
+
+bt_edit_LDADD = \
+	libbt-edit-check.la \
+	libbuzztard-core.la \
+	libbuzztard-ic.la \
+	libbt-check.la $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
+bt_edit_LDFLAGS =  \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
+bt_edit_CFLAGS = $(GUI_DEPS_CFLAGS)
+bt_edit_SOURCES = \
+	tests/m-bt-edit.c
+
+libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
+libbtcore_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
+libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
+	tests/lib/core/s-application.c tests/lib/core/e-application.c \
+	tests/lib/core/s-audio-session.c tests/lib/core/e-audio-session.c \
+	tests/lib/core/s-cmd-pattern.c tests/lib/core/e-cmd-pattern.c tests/lib/core/t-cmd-pattern.c \
+	tests/lib/core/s-core.c tests/lib/core/e-core.c tests/lib/core/t-core.c \
+	tests/lib/core/s-gconf-settings.c tests/lib/core/e-gconf-settings.c \
+	tests/lib/core/s-machine.c tests/lib/core/e-machine.c tests/lib/core/t-machine.c \
+	tests/lib/core/s-parameter-group.c tests/lib/core/e-parameter-group.c tests/lib/core/t-parameter-group.c \
+	tests/lib/core/s-pattern.c tests/lib/core/e-pattern.c tests/lib/core/t-pattern.c \
+	tests/lib/core/s-persistence.c tests/lib/core/e-persistence.c tests/lib/core/t-persistence.c \
+	tests/lib/core/s-processor-machine.c tests/lib/core/e-processor-machine.c tests/lib/core/t-processor-machine.c \
+	tests/lib/core/s-sequence.c tests/lib/core/e-sequence.c tests/lib/core/t-sequence.c \
+	tests/lib/core/s-settings.c tests/lib/core/e-settings.c \
+	tests/lib/core/s-setup.c tests/lib/core/e-setup.c tests/lib/core/t-setup.c \
+	tests/lib/core/s-sink-machine.c tests/lib/core/e-sink-machine.c tests/lib/core/t-sink-machine.c \
+	tests/lib/core/s-song.c tests/lib/core/e-song.c tests/lib/core/t-song.c \
+	tests/lib/core/s-song-io.c tests/lib/core/e-song-io.c tests/lib/core/t-song-io.c \
+	tests/lib/core/s-song-io-native.c tests/lib/core/e-song-io-native.c tests/lib/core/t-song-io-native.c \
+	tests/lib/core/s-song-info.c tests/lib/core/e-song-info.c tests/lib/core/t-song-info.c \
+	tests/lib/core/s-source-machine.c tests/lib/core/e-source-machine.c tests/lib/core/t-source-machine.c \
+	tests/lib/core/s-tools.c tests/lib/core/e-tools.c tests/lib/core/t-tools.c \
+	tests/lib/core/s-value-group.c tests/lib/core/e-value-group.c tests/lib/core/t-value-group.c \
+	tests/lib/core/s-wire.c tests/lib/core/e-wire.c tests/lib/core/t-wire.c
+
+libbtic_check_la_LIBADD = $(BASE_DEPS_LIBS)
+libbtic_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
+libbtic_check_la_SOURCES = tests/lib/ic/m-bt-ic.h \
+	tests/lib/ic/s-ic.c tests/lib/ic/e-ic.c tests/lib/ic/t-ic.c \
+	tests/lib/ic/s-registry.c tests/lib/ic/e-registry.c
+
+libbt_cmd_check_la_LIBADD = \
+	libbtcmd.la \
+	$(BASE_DEPS_LIBS)
+libbt_cmd_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)	
+libbt_cmd_check_la_SOURCES = tests/ui/cmd/m-bt-cmd.h \
+	tests/ui/cmd/s-bt-cmd-application.c tests/ui/cmd/e-bt-cmd-application.c tests/ui/cmd/t-bt-cmd-application.c
+
+libbt_edit_check_la_LIBADD = \
+	libbtedit.la \
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS)
+libbt_edit_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
+libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
+	tests/ui/edit/s-bt-about-dialog.c tests/ui/edit/e-bt-about-dialog.c \
+	tests/ui/edit/s-bt-change-log.c tests/ui/edit/e-bt-change-log.c \
+	tests/ui/edit/s-bt-controller-learn-dialog.c tests/ui/edit/e-bt-controller-learn-dialog.c \
+	tests/ui/edit/s-bt-crash-recover-dialog.c tests/ui/edit/e-bt-crash-recover-dialog.c \
+	tests/ui/edit/s-bt-edit-application.c tests/ui/edit/e-bt-edit-application.c \
+	tests/ui/edit/s-bt-interaction-controller-menu.c tests/ui/edit/e-bt-interaction-controller-menu.c \
+	tests/ui/edit/s-bt-machine-actions.c tests/ui/edit/e-bt-machine-actions.c \
+	tests/ui/edit/s-bt-machine-page.c tests/ui/edit/e-bt-machine-page.c \
+	tests/ui/edit/s-bt-machine-preset-properties-dialog.c tests/ui/edit/e-bt-machine-preset-properties-dialog.c \
+	tests/ui/edit/s-bt-machine-preferences-dialog.c tests/ui/edit/e-bt-machine-preferences-dialog.c \
+	tests/ui/edit/s-bt-machine-properties-dialog.c tests/ui/edit/e-bt-machine-properties-dialog.c \
+	tests/ui/edit/s-bt-machine-rename-dialog.c tests/ui/edit/e-bt-machine-rename-dialog.c \
+	tests/ui/edit/s-bt-main-window.c tests/ui/edit/e-bt-main-window.c \
+	tests/ui/edit/s-bt-missing-framework-elements-dialog.c tests/ui/edit/e-bt-missing-framework-elements-dialog.c \
+	tests/ui/edit/s-bt-missing-song-elements-dialog.c tests/ui/edit/e-bt-missing-song-elements-dialog.c \
+	tests/ui/edit/s-bt-pattern-page.c tests/ui/edit/e-bt-pattern-page.c tests/ui/edit/t-bt-pattern-page.c \
+	tests/ui/edit/s-bt-pattern-properties-dialog.c tests/ui/edit/e-bt-pattern-properties-dialog.c \
+	tests/ui/edit/s-bt-render-dialog.c tests/ui/edit/e-bt-render-dialog.c \
+	tests/ui/edit/s-bt-render-progress-dialog.c tests/ui/edit/e-bt-render-progress-dialog.c \
+	tests/ui/edit/s-bt-sequence-page.c tests/ui/edit/e-bt-sequence-page.c \
+	tests/ui/edit/s-bt-settings-dialog.c tests/ui/edit/e-bt-settings-dialog.c \
+	tests/ui/edit/s-bt-signal-analysis-dialog.c tests/ui/edit/e-bt-signal-analysis-dialog.c \
+	tests/ui/edit/s-bt-tip-dialog.c tests/ui/edit/e-bt-tip-dialog.c
+
+endif
+
+songdatadir = $(datadir)/$(PACKAGE)/songs
+songdata_DATA = \
+	tests/songs/buzz1.xml \
+	tests/songs/buzz2.xml \
+	tests/songs/buzz3.xml \
+	tests/songs/buzz4.xml \
+	tests/songs/buzz5.xml \
+	tests/songs/buzz6.xml \
+	tests/songs/buzz7.xml \
+	tests/songs/buzz8.xml \
+	tests/songs/buzz9.xml \
+	tests/songs/combi1.xml \
+	tests/songs/combi2.xml \
+	tests/songs/combi3.xml \
+	tests/songs/melo1.xml \
+	tests/songs/melo2.xml \
+	tests/songs/melo3.xml \
+	tests/songs/melo4.xml \
+	tests/songs/melo5.xml \
+	tests/songs/melo6.xml
+
+noinst_songdata = \
+	tests/songs/broken1.xml \
+	tests/songs/broken1.bzt \
+	tests/songs/broken2.xml \
+	tests/songs/broken3.xml \
+	tests/songs/broken4.xml \
+	tests/songs/empty.xml \
+	tests/songs/example.xml \
+	tests/songs/samples1.bzt \
+	tests/songs/samples2.bzt \
+	tests/songs/simple1.xml \
+	tests/songs/simple2.xml \
+	tests/songs/simple3.xml \
+	tests/songs/simple4.xml \
+	tests/songs/simple5.xml \
+	tests/songs/simple6.xml \
+	tests/songs/simple1.bzt \
+	tests/songs/simple2.bzt \
+	tests/songs/simple3.bzt \
+	tests/songs/simple4.bzt \
+	tests/songs/simple5.bzt \
+	tests/songs/test-simple0.xml \
+	tests/songs/test-simple1.xml \
+	tests/songs/test-simple2.xml \
+	tests/songs/test-simple3.xml \
+	tests/songs/test-simple4.xml \
+	tests/songs/test-simple5.xml
+
+EXTRA_DIST += \
+	$(songdata_DATA) $(noinst_songdata) \
+	tests/gtkdoccomplete.sh tests/povalid.sh tests/xmlvalid.sh \
+	tests/bt-cfg.sh.in tests/bt-cmd-info.sh tests/bt-cmd-encode.sh \
+	tests/bt-cmd-cli.sh tests/bt-edit-cli.sh
+
+test-clean-local:
+	rm -f \
+	  $(top_builddir)/tests/songs/*.txt \
+	  $(top_builddir)/tests/songs/*.ogg \
+	  $(abs_builddir)/buzztard/*.log \
+	  $(top_builddir)/tests/event-sound-cache.tdb.* \
+	  /tmp/test.wav
+	-rmdir $(abs_builddir)/buzztard
+
+# make check           -- run all checks
+# make (test).check    -- run the given check once
+#	make (test).check BT_CHECKS="test5*" -- run the given testcase(s) only
+%.check: %
+	@$(TESTS_ENVIRONMENT)	\
+	./$*
+
+# make (test).gdb      -- start up gdb for the given test
+%.gdb: %
+	@CK_FORK=no		\
+	$(TESTS_ENVIRONMENT)	\
+	gdb ./$*
+
+# make (test).refdbg   -- start up refdbg for the given test
+%.refdbg: %
+	@CK_FORK=no		\
+	$(TESTS_ENVIRONMENT)	\
+	refdbg -c "btnum=20 ; logobjs=0 ; $(REFDBG_RULE)" \
+	./$*
+
+## todo: check if code has been compiled using --enable-debug
+##
+##check-local:
+##	echo "========================================"
+##	echo "No check based tests will run"
+##	echo "build with --enable-debug=yes"
+##	echo "========================================"
+
+.PHONY: coverage valgrind test-status
+
+# make coverage        -- generate coverage report from make check run
+if USE_LCOV
+coverage::
+	mkdir -p ./coverage
+	lcov --compat-libtool --directory . --zerocounters
+	-$(MAKE) check
+	lcov --compat-libtool --directory ./src --capture --output-file ./coverage/$(PACKAGE)_tmp.info
+	lcov --compat-libtool --extract ./coverage/$(PACKAGE)_tmp.info "$(PWD)/src*" -o ./coverage/$(PACKAGE).info
+	$(RM) ./coverage/$(PACKAGE)_tmp.info
+	genhtml -o ./coverage --num-spaces 2 ./coverage/$(PACKAGE).info
+endif
+if USE_BCOV
+## CK_FORK=no bcov -l../src/tests/lib/core/.libs/libbuzztard-core.so ./.libs/bt_cmd
+## CK_FORK=no bcov -l../src/tests/lib/core/.libs/libbuzztard-core.so -l../src/tests/lib/ic/.libs/libbuzztard-ic.so ./.libs/bt_core
+## CK_FORK=no libtool --mode=execute bcov -l../src/tests/lib/core/.libs/libbuzztard-core.so -l../src/tests/lib/ic/.libs/libbuzztard-ic.so ./bt_core
+## - we're missing the libs coverage, but it is not due to BSymbolic :/
+coverage:: $(TESTS_BIN)
+	echo "command make check" >.bcovdump.all; \
+	echo "date "`date` >>.bcovdump.all; \
+	for i in $^; do \
+	  CK_FORK="no" $(TESTS_ENVIRONMENT) bcov \
+	    -l$(top_builddir)/src/.libs/libbuzztard-core.so \
+	    -l$(top_builddir)/src/.libs/libbuzztard-ic.so \
+	    ./$$i; \
+	  if test -f .bcovdump; then \
+	    tail -n +5 .bcovdump >>.bcovdump.all; \
+	    rm -f .bcovdump; \
+	  fi \
+	done; \
+	mkdir -p coverage; \
+	bcov-report -i $(top_abs_srcdir) .bcovdump.all coverage
+endif
+
+if USE_VALGRIND
+VALPREFIX = \
+	CK_FORK=no CK_DEFAULT_TIMEOUT=500 \
+	LANG=C XDG_CACHE_HOME=$(abs_builddir) \
+	G_SLICE=always-malloc G_DEBUG=gc-friendly \
+	GLIBCPP_FORCE_NEW=1 GLIBCXX_FORCE_NEW=1
+VALDEFAULT = @VALGRIND@/bin/valgrind
+VALSUPP = @VALGRIND@/lib/valgrind
+VALSUPPRESSIONDEF = --suppressions=$(VALSUPP)/default.supp
+VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztard.supp \
+	--suppressions=$(top_builddir)/gst.supp \
+	--suppressions=$(top_builddir)/gtk.supp
+VALSUPPRESSION = $(VALSUPPRESSIONDEF) $(VALSUPPRESSIONOWN)
+VALOPTIONS = --trace-children=yes --num-callers=30 --read-var-info=yes \
+  --tool=memcheck --leak-check=full --leak-resolution=high --track-origins=yes
+VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS) $(VALSUPPRESSION)
+
+## for file in /tmp/bt_core.valgrind.pid*; do grep -q "ERROR SUMMARY: 0 errors from 0 contexts" $file ; if test $? == 0; then rm $file; fi; done
+## grep -H "ERROR SUMMARY: " /tmp/bt_core.valgrind.pid* | uniq
+
+# make valgrind        -- valgrind all tests
+valgrind:: $(TESTS_BIN)
+	for i in $^; do \
+	  rm -rf /tmp/$$i.valgrind.pid*; \
+	  $(VALCMD) --log-file=/tmp/$$i_valgrind.pid%p ./$$i; \
+	done
+
+# make (test).valgrind -- valgrind the given test"
+%.valgrind: %
+	rm -rf /tmp/$*.valgrind.pid*; \
+	$(VALCMD) --log-file=/tmp/$*.valgrind.pid%p ./$*;
+endif
+
+# make test-status     -- show info about disabled tests
+test-status::
+	@grep -r -A2 -B6 -Hn --include="*.c" "#ifdef __CHECK_DISABLED__" . | grep -e '\.c-[0-9][0-9]*-\(\/\/\|\/\*\|\ \*\|ST\)' 
+	@echo "number of disabled tests"
+	@grep -r -Hn --include="*.c" --color=auto "#ifdef __CHECK_DISABLED__" . | wc -l
+

@@ -75,7 +75,7 @@ GTKDOC_CFLAGS = \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = \
-	$(top_builddir)/src/libbuzztard-ic.la \
+	$(top_builddir)/libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) \
 	$(BT_LIBS)
 

@@ -1,6 +1,7 @@
 #!/bin/sh
 # run buzztard-cmd --command=convert on all example and test for crashes
 
+cd tests
 . ./bt-cfg.sh
 
 #E_SONGS="$TESTSONGDIR/buzz*.xml $TESTSONGDIR/combi*.xml $TESTSONGDIR/melo*.xml $TESTSONGDIR/simple*.xml"
