@@ -182,6 +182,10 @@
       <title>Index of new API in 0.6</title>
       <xi:include href="xml/api-index-0.6.xml"><xi:fallback /></xi:include>
     </index>
+    <index id="api-index-0-7" role="0.7">
+      <title>Index of new API in 0.7</title>
+      <xi:include href="xml/api-index-0.7.xml"><xi:fallback /></xi:include>
+    </index>
 
     <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
   </part>
