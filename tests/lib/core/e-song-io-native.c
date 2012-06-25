@@ -143,22 +143,18 @@ BT_END_TEST
 
 BT_START_TEST(test_bt_song_io_native_formats) {
   /* arrange */
-  BtSongIOFormatInfo *fi=bt_song_io_native_module_info.formats;
+  BtSongIOFormatInfo *fi=&bt_song_io_native_module_info.formats[_i];
+  gchar *song_path=make_tmp_song_path("bt-test0-song.",fi->extension);
+
+  /* act */
+  BtSongIO *song_io=bt_song_io_from_file(song_path);
   
-  while(fi->type) {
-    gchar *song_path=make_tmp_song_path("bt-test0-song.",fi->extension);
+  /* assert */
+  fail_unless(song_io != NULL, NULL);
 
-    /* act */
-    BtSongIO *song_io=bt_song_io_from_file(song_path);
-    
-    /* assert */
-    fail_unless(song_io != NULL, NULL);
-
-    /* cleanup */
-    g_object_checked_unref(song_io);
-    g_free(song_path);
-    fi++;
-  }
+  /* cleanup */
+  g_object_checked_unref(song_io);
+  g_free(song_path);
 }
 BT_END_TEST
 
@@ -406,7 +402,7 @@ TCase *bt_song_io_native_example_case(void) {
   }
 
   tcase_add_test(tc,test_bt_song_io_native_new);
-  tcase_add_test(tc,test_bt_song_io_native_formats);
+  tcase_add_loop_test(tc,test_bt_song_io_native_formats,0,num_formats);
   tcase_add_test(tc,test_bt_song_io_native_load);
   tcase_add_test(tc,test_bt_song_io_native_core_refcounts);
   tcase_add_test(tc,test_bt_song_io_native_setup_refcounts_0);

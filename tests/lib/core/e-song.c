@@ -174,19 +174,18 @@ BT_START_TEST(test_bt_song_play_twice) {
   /* arrange */
   BtSong *song=make_new_song();
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
+  bt_song_play(song);
+  check_run_main_loop_for_usec(G_USEC_PER_SEC/10);
+  bt_song_stop(song);
+  play_signal_invoked=FALSE;
 
-  /* act */
-  gint i;
-  for(i=0;i<2;i++) {
-    fail_unless(bt_song_play(song),NULL);
-  
-    check_run_main_loop_for_usec(G_USEC_PER_SEC/10);
-    fail_unless(play_signal_invoked, NULL);
-    bt_song_stop(song);
-    play_signal_invoked=FALSE;
-  }
+  /* act && assert */
+  fail_unless(bt_song_play(song),NULL);
+  check_run_main_loop_for_usec(G_USEC_PER_SEC/10);
+  fail_unless(play_signal_invoked, NULL);
 
   /* cleanup */
+  bt_song_stop(song);
   g_object_checked_unref(song);
 }
 BT_END_TEST

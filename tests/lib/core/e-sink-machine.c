@@ -222,44 +222,41 @@ BT_START_TEST(test_bt_sink_machine_actual_sink) {
 BT_END_TEST
 
 
+/* the parameter index _i is 2bits for latency, 2bits for bpm, 2 bits for tpb */
 BT_START_TEST(test_bt_sink_machine_latency) {
-  gulong bpm, tpb, st, c_bpm, c_tpb;
-  gint64 latency_time,c_latency_time;
-  guint latency;
-
   /* arrange */
   BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
   BtSinkMachine *machine=bt_sink_machine_new(song,"master",NULL);
   GstElement *sink_bin=GST_ELEMENT(check_gobject_get_object_property(machine,"machine"));
   gst_element_set_state(sink_bin, GST_STATE_READY);
   GstElement *sink=get_sink_element((GstBin *)sink_bin);
+  guint latency = 20 + 20 * (_i & 0x3);
+  gulong bpm = 80 + 20 * ((_i>>2) & 0x3);
+  gulong tpb = 4 + 2 * ((_i>>4) & 0x3);
   
   /* act */
   // set various bpm, tpb on song_info, set various latency on settings
   // assert the resulting latency-time properties on the audio_sink
-  for(latency=20;latency<=80;latency+=10) {
-    g_object_set(settings,"latency",latency,NULL);
-    for(bpm=80;bpm<=160;bpm+=10) {
-      g_object_set(song_info,"bpm",bpm,NULL);
-      for(tpb=4;tpb<=8;tpb+=2) {
-        g_object_set(song_info,"bpm",bpm,"tpb",tpb,NULL);
-        g_object_get(sink_bin,"subticks-per-tick",&st,"ticks-per-beat",&c_tpb,"beats-per-minute",&c_bpm,NULL);
-        g_object_get(sink,"latency-time",&c_latency_time,NULL);
-        latency_time=GST_TIME_AS_USECONDS((GST_SECOND*60)/(bpm*tpb*st));
-        GST_INFO_OBJECT(sink,
-          "bpm=%3lu=%3lu, tpb=%"G_GUINT64_FORMAT"=%"G_GUINT64_FORMAT", stpb=%2lu, target-latency=%2u , latency-time=%6"G_GINT64_FORMAT"=%6"G_GINT64_FORMAT", delta=%+4d ",
-          bpm,c_bpm,tpb,c_tpb,
-          st,latency,
-          latency_time,c_latency_time,
-          (latency_time-((gint)latency*1000))/1000);
+  g_object_set(settings,"latency",latency,NULL);
+  g_object_set(song_info,"bpm",bpm,"tpb",tpb,NULL);
+
+  /* assert */
+  gulong st, c_bpm, c_tpb;
+  gint64 latency_time,c_latency_time;
+  g_object_get(sink_bin,"subticks-per-tick",&st,"ticks-per-beat",&c_tpb,"beats-per-minute",&c_bpm,NULL);
+  g_object_get(sink,"latency-time",&c_latency_time,NULL);
+  latency_time=GST_TIME_AS_USECONDS((GST_SECOND*60)/(bpm*tpb*st));
+
+  GST_INFO_OBJECT(sink,
+    "bpm=%3lu=%3lu, tpb=%"G_GUINT64_FORMAT"=%"G_GUINT64_FORMAT", stpb=%2lu, target-latency=%2u , latency-time=%6"G_GINT64_FORMAT"=%6"G_GINT64_FORMAT", delta=%+4d ",
+    bpm,c_bpm,tpb,c_tpb,
+    st,latency,
+    latency_time,c_latency_time,
+    (latency_time-((gint)latency*1000))/1000);
         
-        /* assert */
-        ck_assert_ulong_eq(c_bpm,bpm);
-        ck_assert_ulong_eq(c_tpb,tpb);
-        ck_assert_int64_eq(c_latency_time,latency_time);
-      }
-    }
-  }
+  ck_assert_ulong_eq(c_bpm,bpm);
+  ck_assert_ulong_eq(c_tpb,tpb);
+  ck_assert_int64_eq(c_latency_time,latency_time);
 
   /* cleanup */
   gst_object_unref(sink_bin);
@@ -280,7 +277,7 @@ TCase *bt_sink_machine_example_case(void) {
   tcase_add_test(tc,test_bt_sink_machine_default);
   tcase_add_test(tc,test_bt_sink_machine_fallback);
   tcase_add_test(tc,test_bt_sink_machine_actual_sink);
-  tcase_add_test(tc,test_bt_sink_machine_latency);
+  tcase_add_loop_test(tc,test_bt_sink_machine_latency,0,64);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);

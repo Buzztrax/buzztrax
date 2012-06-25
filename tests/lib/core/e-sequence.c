@@ -134,13 +134,29 @@ BT_START_TEST(test_bt_sequence_enlarge_length) {
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
 
   /* act */
-  g_object_set(sequence,"length",16L,NULL);
+  g_object_set(sequence,"length",8L,NULL);
   
   /* assert */
-  ck_assert_gobject_gulong_eq(sequence,"length",16);
-  gint i;for(i=0;i<16;i++) {
-    ck_assert_str_eq_and_free(bt_sequence_get_label(sequence,i),NULL);
-  }
+  ck_assert_gobject_gulong_eq(sequence,"length",8);
+
+  /* cleanup */
+  g_object_try_unref(sequence);
+}
+BT_END_TEST
+
+
+BT_START_TEST(test_bt_sequence_enlarge_length_check_labels) {
+  /* arrange */
+  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
+
+  /* act */
+  g_object_set(sequence,"length",4L,NULL);
+  
+  /* assert */
+  ck_assert_str_eq_and_free(bt_sequence_get_label(sequence,0),NULL);
+  ck_assert_str_eq_and_free(bt_sequence_get_label(sequence,1),NULL);
+  ck_assert_str_eq_and_free(bt_sequence_get_label(sequence,2),NULL);
+  ck_assert_str_eq_and_free(bt_sequence_get_label(sequence,3),NULL);
 
   /* cleanup */
   g_object_try_unref(sequence);
@@ -590,6 +606,7 @@ TCase *bt_sequence_example_case(void) {
   tcase_add_test(tc,test_bt_sequence_tracks);
   tcase_add_test(tc,test_bt_sequence_pattern);
   tcase_add_test(tc,test_bt_sequence_enlarge_length);
+  tcase_add_test(tc,test_bt_sequence_enlarge_length_check_labels);
   tcase_add_test(tc,test_bt_sequence_enlarge_length_labels);
   tcase_add_test(tc,test_bt_sequence_shrink_length);
   tcase_add_test(tc,test_bt_sequence_enlarge_track);
