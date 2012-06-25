@@ -25,6 +25,16 @@ static BtApplication *app;
 static BtSong *song;
 static BtSettings *settings;
 
+static gchar *song_names[]={
+  "test-simple0.xml",
+  "test-simple1.xml",
+  "test-simple2.xml",
+  "test-simple3.xml",
+  "test-simple4.xml",
+  "test-simple5.xml"
+};
+
+
 //-- fixtures
 
 static void case_setup(void) {
@@ -262,43 +272,23 @@ BT_END_TEST
 
 
 BT_START_TEST(test_bt_song_io_native_song_refcounts) {
-  BtSongIO *song_io;
-  gboolean res;
-  GstElement *bin;
-  gchar *song_names[]={
-    "test-simple0.xml",
-    "test-simple1.xml",
-    "test-simple2.xml",
-    "test-simple3.xml",
-    "test-simple4.xml",
-    "test-simple5.xml",
-    NULL
-  };
-  gchar **song_name=song_names;
-
   /* arrange */
-  g_object_get(app,"bin",&bin,NULL);
+  GstElement *bin=(GstElement *)check_gobject_get_object_property(app,"bin");
 
-  while(*song_name) {
-    /* load the song */
-    song_io=bt_song_io_from_file(check_get_test_song_path(*song_name));
-    res=bt_song_io_load(song_io,song);
-    fail_unless(res == TRUE, NULL);
+  /* act */
+  const gchar *song_name=song_names[_i];
+  BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path(song_name));
+  GST_INFO("song[%d:%s].elements=%d",_i,song_name,GST_BIN_NUMCHILDREN(bin));
 
-    GST_INFO("song[%s].elements=%d",*song_name,GST_BIN_NUMCHILDREN(bin));
+  /* assert  */
+  ck_assert_int_eq(G_OBJECT_REF_COUNT(song),1);
+  assert_song_part_refcounts(song);
 
-    /* assert  */
-    ck_assert_int_eq(G_OBJECT_REF_COUNT(song),1);
-    assert_song_part_refcounts(song);
+  g_object_checked_unref(song_io);
+  g_object_checked_unref(song);
+  song=bt_song_new(app);
 
-    g_object_checked_unref(song_io);
-    g_object_checked_unref(song);
-    song=bt_song_new(app);
-
-    ck_assert_int_eq(GST_BIN_NUMCHILDREN(bin),0);
-
-    song_name++;
-  }
+  ck_assert_int_eq(GST_BIN_NUMCHILDREN(bin),0);
 
   /* cleanup */
   gst_object_unref(bin);
@@ -307,119 +297,96 @@ BT_END_TEST
 
 
 BT_START_TEST(test_bt_song_io_write_empty_song) {
-  BtSongIO *song_io;
-  gboolean res;
-
   /* arrange */
-  BtSongIOFormatInfo *fi=bt_song_io_native_module_info.formats;
+  BtSongIOFormatInfo *fi=&bt_song_io_native_module_info.formats[_i];
+  gchar *song_path=make_tmp_song_path("bt-test1-song.",fi->extension);
 
-  while(fi->type) {
-    gchar *song_path=make_tmp_song_path("bt-test1-song.",fi->extension);
+  /* save empty song */
+  BtSongIO *song_io=bt_song_io_from_file(song_path);
+  gboolean res=bt_song_io_save(song_io,song);
+  fail_unless(res == TRUE, NULL);
 
-    /* save empty song */
-    song_io=bt_song_io_from_file(song_path);
-    res=bt_song_io_save(song_io,song);
-    fail_unless(res == TRUE, NULL);
+  g_object_checked_unref(song_io);
+  g_object_checked_unref(song);
+  song=bt_song_new(app);
 
-    g_object_checked_unref(song_io);
-    g_object_checked_unref(song);
-    song=bt_song_new(app);
+  /* load the song */
+  song_io=bt_song_io_from_file(song_path);
+  res=bt_song_io_load(song_io,song);
+  fail_unless(res == TRUE, NULL);
 
-    /* load the song */
-    song_io=bt_song_io_from_file(song_path);
-    res=bt_song_io_load(song_io,song);
-    fail_unless(res == TRUE, NULL);
+  g_object_checked_unref(song_io);
+  g_object_checked_unref(song);
+  song=bt_song_new(app);
 
-    g_object_checked_unref(song_io);
-    g_object_checked_unref(song);
-    song=bt_song_new(app);
-
-    /* cleanup */
-    g_free(song_path);
-    fi++;
-  }
+  /* cleanup */
+  g_free(song_path);
 }
 BT_END_TEST
 
 
 BT_START_TEST(test_bt_song_io_write_song_without_externals) {
-  BtSongIO *song_io;
-  gboolean res;
-
   /* arrange */
-  BtSongIOFormatInfo *fi=bt_song_io_native_module_info.formats;
+  BtSongIOFormatInfo *fi=&bt_song_io_native_module_info.formats[_i];
+  gchar *song_path=make_tmp_song_path("bt-test2-song.",fi->extension);
 
-  /* test the formats */
-  while(fi->type) {
-    gchar *song_path=make_tmp_song_path("bt-test2-song.",fi->extension);
+  make_song_without_externals();
 
-    make_song_without_externals();
+  /* save the song*/
+  BtSongIO *song_io=bt_song_io_from_file(song_path);
+  gboolean res=bt_song_io_save(song_io,song);
+  fail_unless(res == TRUE, NULL);
 
-    /* save the song*/
-    song_io=bt_song_io_from_file(song_path);
-    res=bt_song_io_save(song_io,song);
-    fail_unless(res == TRUE, NULL);
+  g_object_checked_unref(song_io);
+  g_object_checked_unref(song);
+  song=bt_song_new(app);
 
-    g_object_checked_unref(song_io);
-    g_object_checked_unref(song);
-    song=bt_song_new(app);
+  /* load the song */
+  song_io=bt_song_io_from_file(song_path);
+  res=bt_song_io_load(song_io,song);
+  fail_unless(res == TRUE, NULL);
 
-    /* load the song */
-    song_io=bt_song_io_from_file(song_path);
-    res=bt_song_io_load(song_io,song);
-    fail_unless(res == TRUE, NULL);
+  g_object_checked_unref(song_io);
+  g_object_checked_unref(song);
+  song=bt_song_new(app);
 
-    g_object_checked_unref(song_io);
-    g_object_checked_unref(song);
-    song=bt_song_new(app);
-
-    g_free(song_path);
-    fi++;
-  }
+  g_free(song_path);
 }
 BT_END_TEST
 
 
 BT_START_TEST(test_bt_song_io_write_song_with_externals) {
-  BtSongIO *song_io;
-  gboolean res;
-
   /* arrange */
-  BtSongIOFormatInfo *fi=bt_song_io_native_module_info.formats;
+  BtSongIOFormatInfo *fi=&bt_song_io_native_module_info.formats[_i];
   gchar *ext_data_path=g_build_filename(g_get_tmp_dir(),"test.wav",NULL);
   gchar *ext_data_uri=g_strconcat("file://",ext_data_path,NULL);
+  gchar *song_path=make_tmp_song_path("bt-test3-song.",fi->extension);
 
-  /* test the formats */
-  while(fi->type) {
-    gchar *song_path=make_tmp_song_path("bt-test3-song.",fi->extension);
+  make_song_with_externals(ext_data_uri);
+  
+  /* save the song*/
+  BtSongIO *song_io=bt_song_io_from_file(song_path);
+  gboolean res=bt_song_io_save(song_io,song);
+  fail_unless(res == TRUE, NULL);
 
-    make_song_with_externals(ext_data_uri);
-    
-    /* save the song*/
-    song_io=bt_song_io_from_file(song_path);
-    res=bt_song_io_save(song_io,song);
-    fail_unless(res == TRUE, NULL);
+  g_object_checked_unref(song_io);
+  g_object_checked_unref(song);
+  song=bt_song_new(app);
+  
+  GST_INFO("  song saved");
 
-    g_object_checked_unref(song_io);
-    g_object_checked_unref(song);
-    song=bt_song_new(app);
-    
-    GST_INFO("  song saved");
+  /* load the song */
+  song_io=bt_song_io_from_file(song_path);
+  res=bt_song_io_load(song_io,song);
+  fail_unless(res == TRUE, NULL);
+  
+  GST_INFO("  song re-loaded");
 
-    /* load the song */
-    song_io=bt_song_io_from_file(song_path);
-    res=bt_song_io_load(song_io,song);
-    fail_unless(res == TRUE, NULL);
-    
-    GST_INFO("  song re-loaded");
+  g_object_checked_unref(song_io);
+  g_object_checked_unref(song);
+  song=bt_song_new(app);
 
-    g_object_checked_unref(song_io);
-    g_object_checked_unref(song);
-    song=bt_song_new(app);
-
-    g_free(song_path);
-    fi++;
-  }
+  g_free(song_path);
 
   /* cleanup */
   g_free(ext_data_uri);
@@ -431,6 +398,13 @@ BT_END_TEST
 TCase *bt_song_io_native_example_case(void) {
   TCase *tc = tcase_create("BtSongIONativeExamples");
 
+  static gint num_formats=0;
+  BtSongIOFormatInfo *fi=bt_song_io_native_module_info.formats;
+  while(fi->name) {
+    num_formats++;
+    fi++;
+  }
+
   tcase_add_test(tc,test_bt_song_io_native_new);
   tcase_add_test(tc,test_bt_song_io_native_formats);
   tcase_add_test(tc,test_bt_song_io_native_load);
@@ -438,10 +412,10 @@ TCase *bt_song_io_native_example_case(void) {
   tcase_add_test(tc,test_bt_song_io_native_setup_refcounts_0);
   tcase_add_test(tc,test_bt_song_io_native_setup_refcounts_1);
   tcase_add_test(tc,test_bt_song_io_native_setup_refcounts_2);
-  tcase_add_test(tc,test_bt_song_io_native_song_refcounts);
-  tcase_add_test(tc,test_bt_song_io_write_empty_song);
-  tcase_add_test(tc,test_bt_song_io_write_song_without_externals);
-  tcase_add_test(tc,test_bt_song_io_write_song_with_externals);
+  tcase_add_loop_test(tc,test_bt_song_io_native_song_refcounts,0,G_N_ELEMENTS(song_names));
+  tcase_add_loop_test(tc,test_bt_song_io_write_empty_song,0,num_formats);
+  tcase_add_loop_test(tc,test_bt_song_io_write_song_without_externals,0,num_formats);
+  tcase_add_loop_test(tc,test_bt_song_io_write_song_with_externals,0,num_formats);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
