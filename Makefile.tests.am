@@ -229,13 +229,13 @@ EXTRA_DIST += \
 	tests/bt-cmd-cli.sh tests/bt-edit-cli.sh
 
 test-clean-local:
-	rm -f \
+	@rm -f \
 	  $(top_builddir)/tests/songs/*.txt \
 	  $(top_builddir)/tests/songs/*.ogg \
 	  $(abs_builddir)/buzztard/*.log \
-	  $(top_builddir)/tests/event-sound-cache.tdb.* \
+	  $(top_builddir)/event-sound-cache.tdb.* \
 	  /tmp/test.wav
-	-rmdir $(abs_builddir)/buzztard
+	-@rmdir $(abs_builddir)/buzztard
 
 # make check           -- run all checks
 # make (test).check    -- run the given check once

@@ -1,6 +1,10 @@
-SUBDIRS = . po docs/help/bt-edit \
+# AM_GNU_GETTEXT requires po in SUBDIRS
+SUBDIRS = po
+# see fake subdir rules
+FAKE_SUBDIRS = docs/help/bt-edit \
   docs/reference/bt-core docs/reference/bt-ic \
   docs/reference/bt-cmd docs/reference/bt-edit
+DIST_SUBDIRS = $(SUBDIRS) $(FAKE_SUBDIRS)
 
 ACLOCAL_AMFLAGS = -I m4
 DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc --enable-debug --disable-scrollkeeper
@@ -56,32 +60,48 @@ include $(top_srcdir)/Makefile.tests.am
 
 @INTLTOOL_SCHEMAS_RULE@
 
-all-local:
-	@cp docs/version.entities docs/reference/
-
-clean-local: test-clean-local
-	-@rm docs/reference/version.entities
-	-@rm -f po/.intltool-merge-cache
-
 if GCONF_SCHEMAS_INSTALL
-install-data-local:
+install-gconf:
 	@if test -z "$(DESTDIR)" ; then \
 		for p in $(schemas_DATA) ; do \
 			GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) \
 			$(GCONFTOOL) --makefile-install-rule $(top_srcdir)/$$p ; \
 		done \
 	fi
-endif
 
-if GCONF_SCHEMAS_INSTALL
-uninstall-local:
+uninstall-gconf:
 	@if test -z "$(DESTDIR)" ; then \
 		for p in $(schemas_DATA) ; do \
 			GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) \
 			$(GCONFTOOL) --makefile-uninstall-rule $(top_srcdir)/$$p ; \
 		done \
 	fi
+else
+install-gconf:
+
+uninstall-gconf:
+
 endif
+
+#-- fake subdir rules
+
+all-local:
+	@cp docs/version.entities docs/reference/
+	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir all; done
+
+check-local:
+	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir check; done
+
+clean-local: test-clean-local
+	-@rm docs/reference/version.entities
+	-@rm -f po/.intltool-merge-cache
+	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir clean; done	
+
+install-data-local: install-gconf
+	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir install-data; done
+
+uninstall-local: uninstall-gconf
+	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir uninstall; done
 
 ## this seems to fail during make distcheck
 ##uninstall-local:
@@ -101,7 +121,10 @@ distuninstallcheck_listfiles += | grep -v '/share/mime'
 distuninstallcheck_listfiles += | grep -v 'icon-theme.cache'
 
 
-.PHONY: dict cc10 cc20
+.PHONY: \
+  install-gconf uninstall-gconf \
+  update-icon-cache update-desktop-db update-mime-db \
+  dict cc10 cc20
 
 # make dict            -- create an aspell dictionary from tags
 dict:: tags

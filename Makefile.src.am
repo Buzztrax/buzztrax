@@ -315,7 +315,7 @@ src/lib/core/songio/bsl/buzztard-songio-buzz.xml: src/lib/core/songio/bsl/buzzta
 # update desktop/mime database
 update-desktop-db:
 	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";
-date-mime-db:
+update-mime-db:
 	test -z "$(UPDATE_MIME_DATABASE)" || $(UPDATE_MIME_DATABASE) "$(DESTDIR)$(sharedmimedir)";
 
 if USE_GIR
