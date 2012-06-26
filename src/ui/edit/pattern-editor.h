@@ -69,11 +69,11 @@ typedef struct _BtPatternEditorColumn BtPatternEditorColumn;
 
 /**
  * BtPatternEditorColumnGroup:
- * @type: group type
  * @name: group name
  * @num_columns: number of columns
  * @columns: array of columns
- * @user_data: extra data to attach
+ * @vg: extra data for main-page-patterns
+ * @fmt: extra data for main-page-patterns
  *
  * A group of #BtPatternEditorColumns, such as a voice or all global parameters.
  */

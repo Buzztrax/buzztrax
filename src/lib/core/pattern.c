@@ -681,7 +681,7 @@ void bt_pattern_insert_row(const BtPattern * const self, const gulong tick) {
 void bt_pattern_delete_row(const BtPattern * const self, const gulong tick) {
   g_return_if_fail(BT_IS_PATTERN(self));
 
-  GST_DEBUG("insert full-row at %lu", tick);
+  GST_DEBUG("delete full-row at %lu", tick);
 
   g_signal_emit((gpointer)self,signals[PATTERN_CHANGED_EVENT],0,TRUE);
   bt_value_group_delete_full_row(self->priv->global_value_group,tick);
@@ -698,7 +698,7 @@ void bt_pattern_delete_row(const BtPattern * const self, const gulong tick) {
 }
 
 /**
- * bt_pattern_delete_columns:
+ * bt_pattern_clear_columns:
  * @self: the pattern
  * @start_tick: the start position for the range
  * @end_tick: the end position for the range

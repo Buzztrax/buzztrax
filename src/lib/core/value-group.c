@@ -297,7 +297,7 @@ gboolean bt_value_group_test_event(const BtValueGroup * const self, const gulong
 }
 
 /**
- * bt_value_group_tick_has_data:
+ * bt_value_group_test_tick:
  * @self: the pattern to check
  * @tick: the tick index in the pattern
  *
@@ -475,13 +475,13 @@ static void _clear_column(const BtValueGroup * const self, const gulong start_ti
 }
 
 /**
- * bt_value_group_delete_column:
+ * bt_value_group_clear_column:
  * @self: the pattern
  * @start_tick: the start position for the range
  * @end_tick: the end position for the range
  * @param: the parameter
  *
- * Randomize values from @start_tick to @end_tick for @param.
+ * Clears values from @start_tick to @end_tick for @param.
  *
  * Since: 0.7
  */
@@ -497,7 +497,7 @@ void bt_value_group_clear_column(const BtValueGroup * const self, const gulong s
 }
 
 /**
- * bt_value_group_delete_columns:
+ * bt_value_group_clear_columns:
  * @self: the pattern
  * @start_tick: the start position for the range
  * @end_tick: the end position for the range
