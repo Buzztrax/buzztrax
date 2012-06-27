@@ -53,6 +53,8 @@
 #define BT_CORE
 #define BT_WAVE_C
 
+#include <unistd.h>
+
 #include "core_private.h"
 
 //-- property ids

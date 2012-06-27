@@ -41,6 +41,9 @@
 #define BT_CORE
 #define BT_SONG_INFO_C
 
+#define _XOPEN_SOURCE /* glibc2 needs this */
+#include <time.h>
+
 #include "core_private.h"
 
 enum {

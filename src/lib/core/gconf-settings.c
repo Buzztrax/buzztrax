@@ -31,6 +31,10 @@
 #include "core_private.h"
 #include "settings-private.h"
 
+#ifdef USE_GCONF
+#include <gconf/gconf-client.h>
+#endif
+
 struct _BtGConfSettingsPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;

@@ -29,7 +29,10 @@
 #define BT_CORE
 #define BT_SONG_IO_NATIVE_BZT_C
 
+#include <unistd.h>
+
 #include "core_private.h"
+
 #ifdef USE_GSF
 //#include <gsf/gsf.h>
 #include <gsf/gsf-utils.h>

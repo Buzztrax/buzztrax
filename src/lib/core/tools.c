@@ -20,6 +20,9 @@
 #define BT_CORE
 #define BT_TOOLS_C
 
+#include <time.h>
+#include <sys/resource.h>
+
 #include "core_private.h"
 
 //-- gst registry
