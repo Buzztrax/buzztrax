@@ -42,18 +42,17 @@ noinst_PROGRAMS=$(TESTS_BIN)
 
 noinst_LTLIBRARIES += \
   libbt-check.la \
+  libbt-check-ui.la \
   libbtcore-check.la \
   libbtic-check.la \
   libbt-cmd-check.la \
   libbt-edit-check.la
 
-# FIXME(ensonic): all test are linking gtk for the gtk test helpers
 libbt_check_la_LIBADD = \
 	$(top_builddir)/libbuzztard-core.la \
-	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) -lcheck
+	$(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
 libbt_check_la_LDFLAGS = \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
-libbt_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
 libbt_check_la_SOURCES = \
 	tests/bt-check.c tests/bt-check.h \
 	tests/bt-test-application.c tests/bt-test-application.h \
@@ -61,13 +60,20 @@ libbt_check_la_SOURCES = \
 	tests/bt-test-settings.c tests/bt-test-settings.h
 libbt_check_la_DEPENDENCIES = /tmp/test.wav
 
+libbt_check_ui_la_LIBADD = \
+  $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) 
+libbt_check_ui_la_LDFLAGS = \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
+libbt_check_ui_la_CFLAGS = $(GUI_DEPS_CFLAGS)
+libbt_check_ui_la_SOURCES = \
+	tests/bt-check-ui.c tests/bt-check-ui.h
+  
 bt_core_LDADD = \
 	libbtcore-check.la \
 	libbuzztard-core.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_core_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
-bt_core_CFLAGS = $(GUI_DEPS_CFLAGS)
 bt_core_SOURCES = \
 	tests/m-bt-core.c
 
@@ -78,7 +84,6 @@ bt_ic_LDADD = \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_ic_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
-bt_ic_CFLAGS = $(GUI_DEPS_CFLAGS)
 bt_ic_SOURCES = \
 	tests/m-bt-ic.c
 
@@ -88,7 +93,6 @@ bt_cmd_LDADD = \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_cmd_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
-bt_cmd_CFLAGS = $(GUI_DEPS_CFLAGS)
 bt_cmd_SOURCES = \
 	tests/m-bt-cmd.c
 
@@ -96,7 +100,8 @@ bt_edit_LDADD = \
 	libbt-edit-check.la \
 	libbuzztard-core.la \
 	libbuzztard-ic.la \
-	libbt-check.la $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
+	libbt-check.la libbt-check-ui.la \
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_edit_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
 bt_edit_CFLAGS = $(GUI_DEPS_CFLAGS)
