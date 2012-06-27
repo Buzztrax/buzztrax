@@ -24,6 +24,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <gst/gst.h>
 
 //-- test_mono_source
 

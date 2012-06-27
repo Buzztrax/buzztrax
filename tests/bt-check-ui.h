@@ -26,19 +26,10 @@
 #  include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 //-- glib/gobject
 #include <glib.h>
-#include <glib-object.h>
-#include <glib/gstdio.h>
 //-- gtk/gdk
 #include <gtk/gtk.h>
-#include <gdk/gdk.h>
-//-- gstreamer
-#include <gst/gst.h>
 
 
 void check_setup_test_server(void);

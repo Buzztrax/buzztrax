@@ -26,15 +26,10 @@
 #  include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <check.h>
 //-- glib/gobject
 #include <glib.h>
 #include <glib-object.h>
-#include <glib/gstdio.h>
 //-- gstreamer
 #include <gst/gst.h>
 //-- buzztard

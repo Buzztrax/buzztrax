@@ -23,9 +23,13 @@
  * @short_description: testing helpers
  */
 
-#include "bt-check.h"
 #include <sys/types.h>
 #include <signal.h>
+#include <unistd.h>
+//-- glib
+#include <glib/gstdio.h>
+
+#include "bt-check.h"
 
 #ifdef HAVE_SETRLIMIT
   #include <sys/time.h>

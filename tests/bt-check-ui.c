@@ -23,8 +23,14 @@
  * @short_description: ui testing helpers
  */
 
+#include <math.h>
+#include <stdlib.h>
+//-- glib
+#include <glib/gstdio.h>
+//-- gstreamer
+#include <gst/gst.h>
+
 #include "bt-check-ui.h"
-#include <math.h> 
 
 // gtk+ gui tests
 
@@ -143,7 +149,7 @@ void check_setup_test_server(void) {
             launched=TRUE;
           }
           else {
-            sleep(1);
+            g_usleep(G_USEC_PER_SEC);
           }
         }
       }
@@ -297,7 +303,7 @@ void check_shutdown_test_server(void) {
     kill(server_pid, SIGINT);
     // wait for the server to finish (use waitpid() here ?)
     while(wait_for_server && wait_count) {
-      sleep(1);
+      g_usleep(G_USEC_PER_SEC);
       wait_count--;
     }
     GST_INFO("test server has been shut down");
