@@ -1,7 +1,9 @@
+## Process this file with automake to produce Makefile.in
+
 # AM_GNU_GETTEXT requires po in SUBDIRS
-SUBDIRS = po
+SUBDIRS = po docs/help/bt-edit
 # see fake subdir rules
-FAKE_SUBDIRS = docs/help/bt-edit \
+FAKE_SUBDIRS = \
   docs/reference/bt-core docs/reference/bt-ic \
   docs/reference/bt-cmd docs/reference/bt-edit
 DIST_SUBDIRS = $(SUBDIRS) $(FAKE_SUBDIRS)
@@ -85,9 +87,24 @@ endif
 
 #-- fake subdir rules
 
-all-local:
+docs: docs-bt-core docs-bt-ic docs-bt-cmd docs-bt-edit 
+
+docs/reference/version.entities:
 	@cp docs/version.entities docs/reference/
-	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir all; done
+
+docs-bt-core: libbuzztard-core.la docs/reference/version.entities
+	@$(MAKE) -C docs/reference/bt-core
+
+docs-bt-ic: libbuzztard-ic.la docs/reference/version.entities
+	@$(MAKE) -C docs/reference/bt-ic
+
+docs-bt-cmd: libbtcmd.la docs/reference/version.entities
+	@$(MAKE) -C docs/reference/bt-cmd
+
+docs-bt-edit: libbtedit.la docs/reference/version.entities
+	@$(MAKE) -C docs/reference/bt-edit
+
+all-local: docs
 
 check-local:
 	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir check; done
@@ -122,6 +139,7 @@ distuninstallcheck_listfiles += | grep -v 'icon-theme.cache'
 
 
 .PHONY: \
+  docs docs-bt-core docs-bt-ic docs-bt-cmd docs-bt-edit \
   install-gconf uninstall-gconf \
   update-icon-cache update-desktop-db update-mime-db \
   dict cc10 cc20
