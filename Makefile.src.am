@@ -322,7 +322,7 @@ if USE_GIR
 libbtcore_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztard_core_la_SOURCES))
 
 BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
-	-$(AM_V_GEN)$(G_IR_SCANNER) -v \
+	-PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):$(top_srcdir)/src/lib/ic/" $(AM_V_GEN)$(G_IR_SCANNER) -v \
 	     --namespace=BuzztardCore \
 	     --nsversion 0.0 \
 	     -I$(builddir) \
