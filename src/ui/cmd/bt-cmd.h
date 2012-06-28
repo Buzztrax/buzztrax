@@ -30,13 +30,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//-- locale
-#ifdef HAVE_X11_XLOCALE_H
-  /* defines a more portable setlocale for X11 (_Xsetlocale) */
-  #include <X11/Xlocale.h>
-#else
-  #include <locale.h>
-#endif
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS

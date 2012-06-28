@@ -41,6 +41,15 @@
 
 #include "bt-cmd.h"
 
+#ifdef ENABLE_NLS
+#ifdef HAVE_X11_XLOCALE_H
+  /* defines a more portable setlocale for X11 (_Xsetlocale) */
+  #include <X11/Xlocale.h>
+#else
+  #include <locale.h>
+#endif
+#endif
+
 static void usage(gint argc, gchar **argv, GOptionContext *ctx) {
   gchar *help=g_option_context_get_help(ctx, TRUE, NULL);
   puts(help);

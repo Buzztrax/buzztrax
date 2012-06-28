@@ -35,13 +35,6 @@
 #include <fcntl.h>
 #include <time.h>
 #include <unistd.h>
-//-- locale
-#ifdef HAVE_X11_XLOCALE_H
-  /* defines a more portable setlocale for X11 (_Xsetlocale) */
-  #include <X11/Xlocale.h>
-#else
-  #include <locale.h>
-#endif
 //-- gudev / hal/dbus
 #if USE_GUDEV
 #include <gudev/gudev.h>
