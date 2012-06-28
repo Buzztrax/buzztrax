@@ -882,7 +882,7 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
   BtMachineListModel *store;
   gint index=-1;
   gint active=-1;
-  
+
 
   // create machine menu
   store=bt_machine_list_model_new((BtSetup *)setup);
@@ -900,11 +900,11 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
   g_signal_connect(store,"row-inserted",G_CALLBACK(on_machine_model_row_inserted),(gpointer)self);
   g_signal_connect(store,"row-deleted",G_CALLBACK(on_machine_model_row_deleted),(gpointer)self);
   GST_INFO("machine menu refreshed, active item %d",active);
-  
+
   if(active==-1) {
     // use the last one, if there is no active one
     active=index;
-  }  
+  }
 
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),(index!=-1));
   gtk_combo_box_set_model(self->priv->machine_menu,GTK_TREE_MODEL(store));
@@ -1016,7 +1016,7 @@ static gfloat pattern_edit_get_data_at(gpointer pattern_data, gpointer column_da
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   GValue *val = NULL;
   BtPatternEditorColumnGroup *group = &self->priv->param_groups[track];
-  
+
   val=bt_value_group_get_event_data(group->vg,row,param);
   if(val &&  BT_IS_GVALUE(val) && column_data) {
     return ((BtPatternEditorColumnConverters *)column_data)->val_to_float(val,column_data);
@@ -1035,7 +1035,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   gboolean is_trigger;
   BtParameterGroup *pg;
   glong wave_param;
-  
+
   g_object_get(self->priv->pattern,"machine",&machine,NULL);
 
   if(column_data)
@@ -1064,7 +1064,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
           GEnumClass *enum_class=g_type_class_peek_static(GSTBT_TYPE_NOTE);
           GEnumValue *enum_value;
           gint val=0;
-          
+
           if((enum_value=g_enum_get_value_by_nick(enum_class,str))) {
             val=enum_value->value;
           }
@@ -1129,7 +1129,7 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   g_snprintf(fmt,MAX_CHANGE_LOGGER_METHOD_LEN,group->fmt,row,row);
   pattern_column_log_undo_redo(self,fmt,param,&old_str,&new_str);
   g_string_free(old_data,TRUE);g_string_free(new_data,TRUE);
-  
+
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
   g_object_unref(machine);
 }
@@ -1578,7 +1578,7 @@ static BtPattern *get_current_pattern(const BtMainPagePatterns *self) {
 
 static void change_current_pattern(const BtMainPagePatterns *self, BtPattern *new_pattern) {
   BtPattern *old_pattern=self->priv->pattern;
-  
+
   GST_DEBUG("change_pattern: %p -> %p",old_pattern,new_pattern);
 
   if(new_pattern==old_pattern) {
@@ -1793,7 +1793,7 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
       if(have_val) // irks, this is also triggered by undo and thus keeping the song dirty
         bt_edit_application_set_song_unsaved(self->priv->app);
     }
-    else if((!have_val) || strcmp(prop,pid)) { 
+    else if((!have_val) || strcmp(prop,pid)) {
       g_hash_table_insert(self->priv->properties,g_strdup("selected-pattern"),pid);
       if(have_val) // irks, this is also triggered by undo and thus keeping the song dirty
         bt_edit_application_set_song_unsaved(self->priv->app);
@@ -1822,7 +1822,7 @@ static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
 
   self->priv->base_octave=gtk_combo_box_get_active(GTK_COMBO_BOX(self->priv->base_octave_menu));
   g_object_set(self->priv->pattern_table,"octave",self->priv->base_octave,NULL);
-  
+
   // remember for machine
   g_object_get(self->priv->machine,"properties",&properties,NULL);
   g_hash_table_insert(properties,g_strdup("base-octave"),g_strdup_printf("%d",self->priv->base_octave));
@@ -1906,7 +1906,7 @@ static void on_wire_added(BtSetup *setup,BtWire *wire,gpointer user_data) {
 static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMachine *this_machine,*that_machine;
-  
+
   if(!self->priv->pattern) return;
 
   g_object_get(self->priv->pattern,"machine",&this_machine,NULL);
@@ -1914,7 +1914,7 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
   if(this_machine==that_machine) {
     pattern_table_refresh(self);
   }
-  
+
   // add undo/redo details
   if(bt_change_log_is_active(self->priv->change_log)) {
     GList *list,*node;
@@ -2000,7 +2000,7 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
     }
     g_free(mid);
   }
-  
+
   // switch to last used base octave of that machine
   g_object_get(self->priv->machine,"properties",&properties,NULL);
   if((prop=(gchar *)g_hash_table_lookup(properties,"base-octave"))) {
@@ -2085,7 +2085,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
   g_object_get(setup,"properties",&self->priv->properties,NULL);
-  
+
   // get stored settings
   if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"selected-machine"))) {
     BtMachine *new_machine;
@@ -2094,7 +2094,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
       g_object_try_unref(self->priv->machine);
       self->priv->machine=new_machine;
     }
-    
+
   }
   if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"selected-pattern"))) {
     BtPattern *new_pattern;
@@ -2170,7 +2170,7 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
       break;
   }
   /* TODO(ensonic): this is hackish, we muck with self->priv->pattern as
-   * some local methods assume the current pattern */ 
+   * some local methods assume the current pattern */
   saved_pattern=self->priv->pattern;
   /* save voice-data for *all* patterns of this machine */
   for(node=list;node;node=g_list_next(node)) {
@@ -2262,7 +2262,7 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
     g_object_get(self->priv->pattern,"id",&pid,"name",&old_name,"length",&old_length,"voices",&old_voices,"machine",&machine,NULL);
     g_object_get(dialog,"name",&new_name,"length",&new_length,"voices",&new_voices,NULL);
     g_object_get(machine,"id",&mid,NULL);
-    
+
 		bt_change_log_start_group(self->priv->change_log);
 
     if(strcmp(old_name,new_name)) {
@@ -2301,7 +2301,7 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
         }
         beg_group=group;end_group=group+(old_voices-new_voices);
         /* TODO(ensonic): this is hackish, we muck with self->priv->pattern as
-         * some local methods assume the current pattern */ 
+         * some local methods assume the current pattern */
         saved_pattern=self->priv->pattern;
         /* save voice-data for *all* patterns of this machine */
         g_object_get(machine,"patterns",&list,NULL);
