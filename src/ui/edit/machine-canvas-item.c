@@ -68,8 +68,6 @@
 #define BT_EDIT
 #define BT_MACHINE_CANVAS_ITEM_C
 
-#include <math.h>
-
 #include "bt-edit.h"
 
 #define LOW_VUMETER_VAL -60.0
@@ -390,22 +388,11 @@ static void on_machine_level_change(GstBus * bus, GstMessage * message, gpointer
       }
       if(GST_CLOCK_TIME_IS_VALID(waittime)) {
         GnomeCanvasItem *meter=NULL;
-        const GValue *l_peak;
-        gdouble peak=0.0;
-        guint i,size;
+        gdouble peak;
         gint new_skip=FALSE,old_skip=FALSE;
 
         // check the value and calculate the average for the channels
-        l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-        size=gst_value_list_get_size(l_peak);
-        for(i=0;i<size;i++) {
-          peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
-        }
-        if(G_UNLIKELY(isinf(peak) || isnan(peak))) {
-          //GST_WARNING_OBJECT(level,"peak was INF or NAN, %lf",peak);
-          peak=LOW_VUMETER_VAL;
-        }
-        else peak/=size;
+        peak=bt_gst_level_message_get_aggregated_field(structure, "peak", LOW_VUMETER_VAL);
         // check if we are very loud
         if(peak>0.0) {
           new_skip=2; // beyond max level

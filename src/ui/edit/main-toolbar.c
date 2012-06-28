@@ -414,7 +414,7 @@ static gboolean on_delayed_idle_song_level_change(gpointer user_data) {
     const GstStructure *structure=gst_message_get_structure(message);
     const GValue *l_cur,*l_peak;
     gdouble cur, peak;
-    guint i;
+    guint i,size;
 
     g_mutex_lock(self->priv->lock);
     g_object_remove_weak_pointer((gpointer)self,(gpointer *)&params[0]);
@@ -425,8 +425,8 @@ static gboolean on_delayed_idle_song_level_change(gpointer user_data) {
 
     l_cur=(GValue *)gst_structure_get_value(structure, "decay");
     l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-
-    for(i=0;i<gst_value_list_get_size(l_cur);i++) {
+    size=gst_value_list_get_size(l_cur);
+    for(i=0;i<size;i++) {
       cur=g_value_get_double(gst_value_list_get_value(l_cur,i));
       peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
       if(isinf(cur) || isnan(cur)) cur=LOW_VUMETER_VAL;

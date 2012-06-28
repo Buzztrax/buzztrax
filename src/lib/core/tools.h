@@ -40,6 +40,10 @@ gboolean bt_bin_deactivate_tee_chain(GstBin *bin, GstElement *tee, GList* analyz
 
 const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res,GstPad *src_pad,GstPad *sink_pad);
 
+//-- gst element messages
+
+gdouble bt_gst_level_message_get_aggregated_field(const GstStructure *structure, const gchar *field_name, gdouble default_value);
+
 //-- gst compat
 
 //-- glib compat & helper

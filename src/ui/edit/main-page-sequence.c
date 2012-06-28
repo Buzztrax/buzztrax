@@ -85,8 +85,6 @@
 #define BT_EDIT
 #define BT_MAIN_PAGE_SEQUENCE_C
 
-#include <math.h>
-
 #include "bt-edit.h"
 #include "gtkvumeter.h"
 
@@ -934,28 +932,11 @@ static void on_track_level_change(GstBus * bus, GstMessage * message, gpointer u
         waittime=gst_segment_to_running_time(&GST_BASE_TRANSFORM(level)->segment, GST_FORMAT_TIME, timestamp);
       }
       if(GST_CLOCK_TIME_IS_VALID(waittime)) {
-        const GValue *l_decay,*l_peak;
-        gdouble decay=0.0, peak=0.0;
-        guint i,size;
+        gdouble decay, peak;
         gint new_skip=FALSE,old_skip=FALSE;
 
-        l_decay=(GValue *)gst_structure_get_value(structure, "decay");
-        l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-        size=gst_value_list_get_size(l_decay);
-        for(i=0;i<size;i++) {
-          decay+=g_value_get_double(gst_value_list_get_value(l_decay,i));
-          peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
-        }
-        if(G_UNLIKELY(isinf(decay) || isnan(decay))) {
-          //GST_WARNING_OBJECT(level,"decay was INF or NAN, %lf",decay);
-          decay=LOW_VUMETER_VAL;
-        }
-        else decay/=size;
-        if(G_UNLIKELY(isinf(peak) || isnan(peak)))  {
-          //GST_WARNING_OBJECT(level,"peak was INF or NAN, %lf",peak);
-          peak=LOW_VUMETER_VAL;
-        }
-        else peak/=size;
+        peak=bt_gst_level_message_get_aggregated_field(structure, "peak", LOW_VUMETER_VAL);
+        decay=bt_gst_level_message_get_aggregated_field(structure, "decay", LOW_VUMETER_VAL);
         // check if we a silent or very loud
         if(decay<=LOW_VUMETER_VAL && peak<=LOW_VUMETER_VAL)
           new_skip=1; // below min level

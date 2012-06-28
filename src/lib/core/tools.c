@@ -20,6 +20,7 @@
 #define BT_CORE
 #define BT_TOOLS_C
 
+#include <math.h>
 #include <time.h>
 #include <sys/resource.h>
 
@@ -479,6 +480,35 @@ const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res, GstPad *src
         link_res_desc[-link_res], msg2);
 
   return msg1;
+}
+
+//-- gst element messages
+
+/**
+ * bt_gst_level_message_get_aggregated_field:
+ * @structure: the message structure
+ * @field_name: the field, such as 'decay' or 'peak'
+ * @default_value: a default, in the case of inf/nan levels
+ *
+ * Aggregate the levels per channel and return the averaged level.
+ *
+ * Returns: the average level field for all channels
+ */
+gdouble bt_gst_level_message_get_aggregated_field(const GstStructure *structure, const gchar *field_name, gdouble default_value) {
+  const GValue *list;
+  guint i,size;
+  gdouble value=0.0;
+
+  list=gst_structure_get_value(structure, field_name);
+  size=gst_value_list_get_size(list);
+  for(i=0;i<size;i++) {
+    value+=g_value_get_double(gst_value_list_get_value(list,i));
+  }
+  if(G_UNLIKELY(isinf(value) || isnan(value))) {
+    //GST_WARNING("levela %s was INF or NAN, %lf",field_name,value);
+    return default_value;
+  }
+  return (value/size);
 }
 
 //-- gst compat
