@@ -56,4 +56,7 @@ GType bt_song_info_get_type(void) G_GNUC_CONST;
 
 BtSongInfo *bt_song_info_new(const BtSong * const song);
 
+gint bt_song_info_get_seconds_since_last_saved(const BtSongInfo * const self);
+const gchar* bt_song_info_get_change_dts_in_local_tz(const BtSongInfo * const self);
+
 #endif // BT_SONG_INFO_H

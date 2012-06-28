@@ -212,6 +212,11 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 #define ck_assert_gobject_eq_and_unref(X, Y) _ck_assert_gobject_and_unref(X, ==, Y)
 #define ck_assert_gobject_ne_and_unref(X, Y) _ck_assert_gobject_and_unref(X, !=, Y)
 
+#define ck_assert_int_gt(X, Y) _ck_assert_int(X, >, Y)
+#define ck_assert_int_lt(X, Y) _ck_assert_int(X, <, Y)
+#define ck_assert_int_ge(X, Y) _ck_assert_int(X, >=, Y)
+#define ck_assert_int_le(X, Y) _ck_assert_int(X, <=, Y)
+
 #define _ck_assert_ulong(X, O, Y) ck_assert_msg((X) O (Y), "Assertion '"#X#O#Y"' failed: "#X"==%lu, "#Y"==%lu", X, Y)
 #define ck_assert_ulong_eq(X, Y) _ck_assert_ulong(X, ==, Y)
 #define ck_assert_ulong_ne(X, Y) _ck_assert_ulong(X, !=, Y)

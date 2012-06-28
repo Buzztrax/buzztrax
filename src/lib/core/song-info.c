@@ -126,6 +126,23 @@ static void bt_song_info_tempo_changed(const BtSongInfo * const self) {
   g_object_unref(sequence);
 }
 
+static time_t bt_song_info_get_change_dts_in_local_time(const BtSongInfo * const self) {
+  struct tm tm={0,};
+  time_t t;
+  gdouble td;
+  
+  // figure UTC local tz offset -- do once and store?
+  t=time(NULL);
+  td=difftime(mktime(localtime(&t)),mktime(gmtime(&t)));
+  
+  GST_LOG("timezone delta: td=%lf",td);
+
+  // convert timestamp to human readable format (and local timezone)
+  strptime(self->priv->change_dts, "%FT%TZ", &tm);
+  // need to apply td for UTC->localtime
+  return mktime(&tm)+(gint)td;
+}
+
 //-- constructor methods
 
 /**
@@ -142,6 +159,45 @@ BtSongInfo *bt_song_info_new(const BtSong * const song) {
 
 //-- methods
 
+/**
+ * bt_song_info_get_seconds_since_last_saved:
+ * @self: the song_info
+ *
+ * Calculate the seconds since last save time or the creation time if the song
+ * is new.
+ *
+ * Return: the seconds
+ */
+gint bt_song_info_get_seconds_since_last_saved(const BtSongInfo * const self) {
+  time_t t,tn;
+  gdouble td;
+
+  t=time(NULL);
+  tn=mktime(localtime(&t));
+  
+  t=bt_song_info_get_change_dts_in_local_time(self);
+  td=difftime(tn,t);
+
+  return((gint)(td+0.5));
+}
+
+/**
+ * bt_song_info_get_change_dts_in_local_tz:
+ * @self: the song_info
+ *
+ * Convert the BtSongInfo::change-dts to local time zone.
+ *
+ * Return: the time stamp in iso 8601 format
+ */
+const gchar* bt_song_info_get_change_dts_in_local_tz(const BtSongInfo * const self) {
+  static gchar hdts[200];
+  time_t t;
+
+  t=bt_song_info_get_change_dts_in_local_time(self);
+  strftime(hdts,199,"%c",localtime(&t));
+
+  return(hdts);
+}
 
 //-- io interface
 

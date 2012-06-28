@@ -63,9 +63,7 @@ BT_START_TEST(test_bt_song_info_date_stamps) {
 }
 BT_END_TEST
 
-/*
-* Test changing the tempo
-*/
+/* Test changing the tempo */
 BT_START_TEST(test_bt_song_info_tempo) {
   /* arrange */
   BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
@@ -87,11 +85,30 @@ BT_START_TEST(test_bt_song_info_tempo) {
 }
 BT_END_TEST
 
+
+BT_START_TEST(test_bt_song_info_seconds_since_last_saved) {
+  /* arrange */
+  BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
+
+  /* act */
+  g_usleep(G_USEC_PER_SEC);
+  gint ts=bt_song_info_get_seconds_since_last_saved(song_info);
+  
+  /* assert */
+  ck_assert_int_gt(ts,0);
+
+  /* cleanup */
+  g_object_unref(song_info);
+}
+BT_END_TEST
+
+
 TCase *bt_song_info_example_case(void) {
   TCase *tc = tcase_create("BtSongInfoExamples");
 
   tcase_add_test(tc,test_bt_song_info_date_stamps);
   tcase_add_test(tc,test_bt_song_info_tempo);
+  tcase_add_test(tc,test_bt_song_info_seconds_since_last_saved);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
   return(tc);
