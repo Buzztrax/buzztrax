@@ -549,6 +549,8 @@ static void on_pattern_removed(BtMachine *machine,BtPattern *pattern,gpointer us
      */
     end=length-1;
     bt_pattern_serialize_columns(pattern,0,end,data);
+    GST_WARNING("serialized size: %d", data->len);
+    g_string_append_c(data,'\n');
     str=data->str;
     // log events
     for(node=machine->dst_wires;node;node=g_list_next(node)) {
@@ -1922,40 +1924,40 @@ static void on_wire_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
     gulong length;
     gulong wire_params;
     gchar *smid,*dmid;
-    
+
     g_object_get(wire,"src",&smachine,"num-params",&wire_params,NULL);
     g_object_get(smachine,"id",&smid,NULL);
     g_object_get(that_machine,"id",&dmid,"patterns",&list,NULL);
 
     for(node=list;node;node=g_list_next(node)) {
       if(BT_IS_PATTERN(node->data)) {
-        pattern=BT_PATTERN(node->data);
-        if((vg=bt_pattern_get_wire_group(self->priv->pattern,wire))) {
-          gchar *undo_str;
-          GString *data=g_string_new(NULL);
-          guint end;
-          gchar *str,*p,*pid;
-          guint i;
+        gchar *undo_str;
+        GString *data=g_string_new(NULL);
+        guint end;
+        gchar *str,*p,*pid;
+        guint i;
 
-          g_object_get(pattern,"id",&pid,"length",&length,NULL);
-          end=length-1;
-    
-          bt_value_group_serialize_columns(vg,0,end,data);
-          str=data->str;
-          
-          bt_change_log_start_group(self->priv->change_log);       
-          for(i=0;i<wire_params;i++) {
-            p=strchr(str,'\n');*p='\0';
-            undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",0,%u,%u,%s",smid,dmid,pid,end,i,str);
-            str=&p[1];
-            bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
-          }
-          bt_change_log_end_group(self->priv->change_log);
-    
-          g_string_free(data,TRUE);
-          g_free(pid);
+        pattern=BT_PATTERN(node->data);
+        vg=bt_pattern_get_wire_group(self->priv->pattern,wire);
+
+        g_object_get(pattern,"id",&pid,"length",&length,NULL);
+        end=length-1;
+
+        bt_value_group_serialize_columns(vg,0,end,data);
+        str=data->str;
+
+        bt_change_log_start_group(self->priv->change_log);
+        for(i=0;i<wire_params;i++) {
+          p=strchr(str,'\n');*p='\0';
+          undo_str = g_strdup_printf("set_wire_events \"%s\",\"%s\",\"%s\",0,%u,%u,%s",smid,dmid,pid,end,i,str);
+          str=&p[1];
+          bt_change_log_add(self->priv->change_log,BT_CHANGE_LOGGER(self),undo_str,g_strdup(undo_str));
         }
-      }          
+        bt_change_log_end_group(self->priv->change_log);
+
+        g_string_free(data,TRUE);
+        g_free(pid);
+      }
       g_object_unref(node->data);
     }
     g_list_free(list);
