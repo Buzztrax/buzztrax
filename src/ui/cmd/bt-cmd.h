@@ -24,12 +24,6 @@
 #  include "config.h"
 #endif
 
-//-- ansi c
-//#define __USE_ISOC99 /* for round() and co. */
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS

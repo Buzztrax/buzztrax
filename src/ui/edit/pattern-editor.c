@@ -52,6 +52,10 @@
  */
 
 #define BT_EDIT
+
+#include <ctype.h>
+#include <math.h>
+
 #include "bt-edit.h"
 
 enum {

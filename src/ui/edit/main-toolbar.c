@@ -32,6 +32,8 @@
 #define BT_EDIT
 #define BT_MAIN_TOOLBAR_C
 
+#include <math.h>
+
 #include "bt-edit.h"
 #include "gtkvumeter.h"
 

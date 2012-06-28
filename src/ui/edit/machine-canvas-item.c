@@ -68,6 +68,8 @@
 #define BT_EDIT
 #define BT_MACHINE_CANVAS_ITEM_C
 
+#include <math.h>
+
 #include "bt-edit.h"
 
 #define LOW_VUMETER_VAL -60.0

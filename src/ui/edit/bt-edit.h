@@ -25,13 +25,7 @@
 #endif
 
 //-- ansi c
-#include <ctype.h>
-//#define __USE_ISOC99 /* for round() and co. */
-#include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS

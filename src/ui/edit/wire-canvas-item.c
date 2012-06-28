@@ -38,6 +38,8 @@
 #define BT_EDIT
 #define BT_WIRE_CANVAS_ITEM_C
 
+#include <math.h>
+
 #include "bt-edit.h"
 
 //-- property ids

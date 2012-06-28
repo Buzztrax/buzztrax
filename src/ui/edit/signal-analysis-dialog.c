@@ -43,6 +43,8 @@
 #define BT_EDIT
 #define BT_SIGNAL_ANALYSIS_DIALOG_C
 
+#include <math.h>
+
 #include "bt-edit.h"
 
 //-- property ids

@@ -28,6 +28,8 @@
 #define BT_EDIT
 #define BT_SEQUENCE_VIEW_C
 
+#include <math.h>
+
 #include "bt-edit.h"
 
 enum {
