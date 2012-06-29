@@ -24,12 +24,63 @@ endif
 
 # -- libs ----------------------------------------------------------------------
 
-lib_LTLIBRARIES = libbuzztard-core.la libbuzztard-ic.la
+lib_LTLIBRARIES = libbuzztard-ic.la libbuzztard-core.la
+
+libbuzztard_ic_la_LIBADD = \
+	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
+libbuzztard_ic_la_LDFLAGS = \
+	-export-symbols-regex ^_?\(btic_\|BtIc\|BTIC_\).* \
+	-version-info @BT_VERSION_INFO@
+libbuzztard_ic_la_CFLAGS = -I$(top_builddir)/src/lib/ic
+libbuzztard_ic_la_SOURCES = \
+	src/lib/ic/ic.c \
+	src/lib/ic/registry.c\
+	$(GUDEV_C_FILES) \
+	src/lib/ic/device.c \
+	src/lib/ic/learn.c \
+	$(LINUX_INPUT_C_FILES) \
+	src/lib/ic/midi-device.c \
+	src/lib/ic/control.c \
+	src/lib/ic/abs-range-control.c \
+	src/lib/ic/trigger-control.c
+
+libbuzztard_icdir = $(includedir)/libbuzztard-ic
+libbuzztard_ic_HEADERS = \
+	src/lib/ic/ic.h \
+	src/lib/ic/version.h \
+	src/lib/ic/registry.h \
+	$(GUDEV_H_FILES) \
+	src/lib/ic/device.h \
+	src/lib/ic/learn.h \
+	$(LINUX_INPUT_H_FILES) \
+	src/lib/ic/midi-device.h \
+	src/lib/ic/control.h \
+	src/lib/ic/abs-range-control.h \
+	src/lib/ic/trigger-control.h
+
+noinst_HEADERS = \
+  src/lib/core/core_private.h \
+  src/lib/core/marshal.h \
+  src/lib/core/settings-private.h
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = \
+  src/lib/core/libbuzztard-core.pc \
+  src/lib/ic/libbuzztard-ic.pc
+
+src/lib/core/marshal.h: src/lib/core/marshal.list
+	$(AM_V_GEN) glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
+
+src/lib/core/marshal.c: src/lib/core/marshal.list
+	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
+
+BUILT_SOURCES += src/lib/core/marshal.c src/lib/core/marshal.h
+CLEANFILES += src/lib/core/marshal.c src/lib/core/marshal.h
 
 EXTRA_libbuzztard_core_la_SOURCES = src/lib/core/marshal.list
 nodist_libbuzztard_core_la_SOURCES = src/lib/core/marshal.c src/lib/core/marshal.h
 libbuzztard_core_la_LIBADD = \
-	$(top_builddir)/libbuzztard-ic.la \
+	libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
 	-lgstaudio-@GST_MAJORMINOR@ -lgstpbutils-@GST_MAJORMINOR@
 libbuzztard_core_la_LDFLAGS = \
@@ -110,62 +161,11 @@ libbuzztard_core_HEADERS = \
 #	plainfile-settings.h \
 #
 
-libbuzztard_ic_la_LIBADD = \
-	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
-libbuzztard_ic_la_LDFLAGS = \
-	-export-symbols-regex ^_?\(btic_\|BtIc\|BTIC_\).* \
-	-version-info @BT_VERSION_INFO@
-libbuzztard_ic_la_CFLAGS = -I$(top_builddir)/src/lib/ic
-libbuzztard_ic_la_SOURCES = \
-	src/lib/ic/ic.c \
-	src/lib/ic/registry.c\
-	$(GUDEV_C_FILES) \
-	src/lib/ic/device.c \
-	src/lib/ic/learn.c \
-	$(LINUX_INPUT_C_FILES) \
-	src/lib/ic/midi-device.c \
-	src/lib/ic/control.c \
-	src/lib/ic/abs-range-control.c \
-	src/lib/ic/trigger-control.c
-
-libbuzztard_icdir = $(includedir)/libbuzztard-ic
-libbuzztard_ic_HEADERS = \
-	src/lib/ic/ic.h \
-	src/lib/ic/version.h \
-	src/lib/ic/registry.h \
-	$(GUDEV_H_FILES) \
-	src/lib/ic/device.h \
-	src/lib/ic/learn.h \
-	$(LINUX_INPUT_H_FILES) \
-	src/lib/ic/midi-device.h \
-	src/lib/ic/control.h \
-	src/lib/ic/abs-range-control.h \
-	src/lib/ic/trigger-control.h
-
-noinst_HEADERS = \
-  src/lib/core/core_private.h \
-  src/lib/core/marshal.h \
-  src/lib/core/settings-private.h
-
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = \
-  src/lib/core/libbuzztard-core.pc \
-  src/lib/ic/libbuzztard-ic.pc
-
-src/lib/core/marshal.h: src/lib/core/marshal.list
-	$(AM_V_GEN) glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
-
-src/lib/core/marshal.c: src/lib/core/marshal.list
-	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
-
-BUILT_SOURCES += src/lib/core/marshal.c src/lib/core/marshal.h
-CLEANFILES += src/lib/core/marshal.c src/lib/core/marshal.h
-
 # -- songio plugins
 songiodir = ${exec_prefix}/lib/buzztard-songio
 songio_LTLIBRARIES = libbtbsl.la
 libbtbsl_la_LIBADD = \
-	$(top_builddir)/libbuzztard-core.la \
+	libbuzztard-core.la \
   $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL)
 libbtbsl_la_LDFLAGS = \
 	$(BT_LDFLAGS) \
@@ -186,24 +186,24 @@ noinst_LTLIBRARIES = libbtcmd.la libbtedit.la
 plugin_LTLIBRARIES = libbuzztarddec.la
 
 buzztard_cmd_LDADD = \
-	$(top_builddir)/libbuzztard-core.la \
-	$(top_builddir)/libbuzztard-ic.la \
-	$(top_builddir)/libbtcmd.la \
+	libbuzztard-core.la \
+	libbuzztard-ic.la \
+	libbtcmd.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS)
 buzztard_cmd_SOURCES= \
 	src/ui/cmd/bt-cmd.c src/ui/cmd/bt-cmd.h
 
 libbtcmd_la_LIBDADD = \
-	$(top_builddir)/libbuzztard-core.la \
-	$(top_builddir)/libbuzztard-ic.la \
+	libbuzztard-core.la \
+	libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbtcmd_la_SOURCES =	\
 	src/ui/cmd/cmd-application.c src/ui/cmd/cmd-application.h
 
 buzztard_edit_LDADD = \
-	$(top_builddir)/libbuzztard-core.la \
-	$(top_builddir)/libbuzztard-ic.la \
-	$(top_builddir)/libbtedit.la \
+	libbuzztard-core.la \
+	libbuzztard-ic.la \
+	libbtedit.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
 	-lgstinterfaces-@GST_MAJORMINOR@
 buzztard_edit_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
@@ -213,8 +213,8 @@ buzztard_edit_SOURCES= \
 EXTRA_libbtedit_la_SOURCES = src/ui/edit/marshal.list
 nodist_libbtedit_la_SOURCES = src/ui/edit/marshal.c src/ui/edit/marshal.h
 libbtedit_la_LIBADD = \
-	$(top_builddir)/libbuzztard-core.la \
-	$(top_builddir)/libbuzztard-ic.la \
+	libbuzztard-core.la \
+	libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
 	-lgstinterfaces-@GST_MAJORMINOR@
 libbtedit_la_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
@@ -289,8 +289,8 @@ gtkrc_DATA = src/ui/edit/bt-edit.gtkrc src/ui/edit/bt-edit.compact.gtkrc
 
 libbuzztarddec_la_CFLAGS = $(GST_PLUGIN_CFLAGS)
 libbuzztarddec_la_LIBADD = \
-	$(top_builddir)/libbuzztard-core.la \
-	$(top_builddir)/libbuzztard-ic.la \
+	libbuzztard-core.la \
+	libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) $(LIBM)
 libbuzztarddec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libbuzztarddec_la_SOURCES = src/ui/dec/bt-dec.c src/ui/dec/bt-dec.h
@@ -369,7 +369,7 @@ BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
 	     --include=GLib-2.0 \
 	     --include=GObject-2.0 \
 	     --include=Gst-@GST_MAJORMINOR@ \
-	     --library=src/lib/ic/libbuzztard-ic.la \
+	     --library=libbuzztard-ic.la \
 	     --libtool="$(top_builddir)/libtool" \
 	     --pkg glib-2.0 \
 	     --pkg gobject-2.0 \

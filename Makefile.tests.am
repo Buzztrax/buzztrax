@@ -49,7 +49,7 @@ noinst_LTLIBRARIES += \
   libbt-edit-check.la
 
 libbt_check_la_LIBADD = \
-	$(top_builddir)/libbuzztard-core.la \
+	libbuzztard-core.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
 libbt_check_la_LDFLAGS = \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
