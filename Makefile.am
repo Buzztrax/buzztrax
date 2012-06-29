@@ -127,6 +127,10 @@ install-data-local: install-gconf
 uninstall-local: uninstall-gconf
 	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir uninstall; done
 
+# silly hack to fix make distcheck on a clean package
+po/$(GETTEXT_PACKAGE).pot:
+	$(MAKE) -C po update-po
+
 ## this seems to fail during make distcheck
 ##uninstall-local:
 ##	rm -r $(datadir)/$(PACKAGE)
