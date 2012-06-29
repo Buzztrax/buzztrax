@@ -153,10 +153,10 @@ pkgconfig_DATA = \
   src/lib/ic/libbuzztard-ic.pc
 
 src/lib/core/marshal.h: src/lib/core/marshal.list
-	glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
+	$(AM_V_GEN) glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
 
 src/lib/core/marshal.c: src/lib/core/marshal.list
-	glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
+	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
 
 # -- songio plugins
 songiodir = ${exec_prefix}/lib/buzztard-songio
@@ -272,10 +272,10 @@ libbtedit_la_SOURCES	= \
 	src/ui/edit/marshal.c src/ui/edit/marshal.h
 
 src/ui/edit/marshal.h: src/ui/edit/marshal.list
-	glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
+	$(AM_V_GEN) glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
 
 src/ui/edit/marshal.c: src/ui/edit/marshal.list
-	glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
+	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
 
 # FIXME: don't install bt-edit.compact.gtkrc if not selected
 gtkrcdir = $(datadir)/$(PACKAGE)
