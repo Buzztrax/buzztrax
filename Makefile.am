@@ -112,7 +112,11 @@ check-local:
 clean-local: test-clean-local
 	-@rm docs/reference/version.entities
 	-@rm -f po/.intltool-merge-cache
-	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir clean; done	
+	@for dir in $(FAKE_SUBDIRS); do \
+	  if test -f $$dir/Makefile; then \
+	    $(MAKE) -C $$dir clean; \
+	  fi; \
+	done	
 
 install-data-local: install-gconf
 	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir install-data; done

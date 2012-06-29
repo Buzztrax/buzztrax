@@ -240,7 +240,9 @@ test-clean-local:
 	  $(abs_builddir)/buzztard/*.log \
 	  $(top_builddir)/event-sound-cache.tdb.* \
 	  /tmp/test.wav
-	-@rmdir $(abs_builddir)/buzztard
+	@if test -d $(abs_builddir)/buzztard; then \
+	  rmdir $(abs_builddir)/buzztard; \
+	fi;
 
 # make check           -- run all checks
 # make (test).check    -- run the given check once
