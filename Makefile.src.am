@@ -381,10 +381,10 @@ BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
 
 BUILT_GIRSOURCES = BuzztardCore-0.0.gir BuzztardIc-0.0.gir
 
-girdir = $(GIRDIR)
+girdir = $(datadir)/gir
 dist_gir_DATA = $(BUILT_GIRSOURCES)
 
-typelibsdir = $(TYPELIBDIR)
+typelibsdir = $(libdir)/girepository
 typelibs_DATA = $(dist_gir_DATA:.gir=.typelib)
 
 TXML = $(dist_gir_DATA:.gir=.gir.txml)
