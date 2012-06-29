@@ -29,7 +29,7 @@ lib_LTLIBRARIES = libbuzztard-core.la libbuzztard-ic.la
 EXTRA_libbuzztard_core_la_SOURCES = src/lib/core/marshal.list
 nodist_libbuzztard_core_la_SOURCES = src/lib/core/marshal.c src/lib/core/marshal.h
 libbuzztard_core_la_LIBADD = \
-	libbuzztard-ic.la \
+	$(top_builddir)/libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
 	-lgstaudio-@GST_MAJORMINOR@ -lgstpbutils-@GST_MAJORMINOR@
 libbuzztard_core_la_LDFLAGS = \
@@ -165,7 +165,7 @@ CLEANFILES += src/lib/core/marshal.c src/lib/core/marshal.h
 songiodir = ${exec_prefix}/lib/buzztard-songio
 songio_LTLIBRARIES = libbtbsl.la
 libbtbsl_la_LIBADD = \
-	libbuzztard-core.la \
+	$(top_builddir)/libbuzztard-core.la \
   $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL)
 libbtbsl_la_LDFLAGS = \
 	$(BT_LDFLAGS) \
@@ -186,24 +186,24 @@ noinst_LTLIBRARIES = libbtcmd.la libbtedit.la
 plugin_LTLIBRARIES = libbuzztarddec.la
 
 buzztard_cmd_LDADD = \
-	libbuzztard-core.la \
-	libbuzztard-ic.la \
-	libbtcmd.la \
+	$(top_builddir)/libbuzztard-core.la \
+	$(top_builddir)/libbuzztard-ic.la \
+	$(top_builddir)/libbtcmd.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS)
 buzztard_cmd_SOURCES= \
 	src/ui/cmd/bt-cmd.c src/ui/cmd/bt-cmd.h
 
 libbtcmd_la_LIBDADD = \
-	libbuzztard-core.la \
-	libbuzztard-ic.la \
+	$(top_builddir)/libbuzztard-core.la \
+	$(top_builddir)/libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbtcmd_la_SOURCES =	\
 	src/ui/cmd/cmd-application.c src/ui/cmd/cmd-application.h
 
 buzztard_edit_LDADD = \
-	libbuzztard-core.la \
-	libbuzztard-ic.la \
-	libbtedit.la \
+	$(top_builddir)/libbuzztard-core.la \
+	$(top_builddir)/libbuzztard-ic.la \
+	$(top_builddir)/libbtedit.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
 	-lgstinterfaces-@GST_MAJORMINOR@
 buzztard_edit_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
@@ -213,8 +213,8 @@ buzztard_edit_SOURCES= \
 EXTRA_libbtedit_la_SOURCES = src/ui/edit/marshal.list
 nodist_libbtedit_la_SOURCES = src/ui/edit/marshal.c src/ui/edit/marshal.h
 libbtedit_la_LIBADD = \
-	libbuzztard-core.la \
-	libbuzztard-ic.la \
+	$(top_builddir)/libbuzztard-core.la \
+	$(top_builddir)/libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
 	-lgstinterfaces-@GST_MAJORMINOR@
 libbtedit_la_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
@@ -289,8 +289,8 @@ gtkrc_DATA = src/ui/edit/bt-edit.gtkrc src/ui/edit/bt-edit.compact.gtkrc
 
 libbuzztarddec_la_CFLAGS = $(GST_PLUGIN_CFLAGS)
 libbuzztarddec_la_LIBADD = \
-	libbuzztard-core.la \
-	libbuzztard-ic.la \
+	$(top_builddir)/libbuzztard-core.la \
+	$(top_builddir)/libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) $(LIBM)
 libbuzztarddec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libbuzztarddec_la_SOURCES = src/ui/dec/bt-dec.c src/ui/dec/bt-dec.h
