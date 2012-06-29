@@ -58,20 +58,17 @@ libbuzztard_ic_HEADERS = \
 	src/lib/ic/abs-range-control.h \
 	src/lib/ic/trigger-control.h
 
-noinst_HEADERS = \
-  src/lib/core/core_private.h \
-  src/lib/core/marshal.h \
-  src/lib/core/settings-private.h
-
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = \
   src/lib/core/libbuzztard-core.pc \
   src/lib/ic/libbuzztard-ic.pc
 
 src/lib/core/marshal.h: src/lib/core/marshal.list
+	$(AM_V_GEN) $(MKDIR_P) src/lib/core
 	$(AM_V_GEN) glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
 
 src/lib/core/marshal.c: src/lib/core/marshal.list
+	$(AM_V_GEN) $(MKDIR_P) src/lib/core
 	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
 
 BUILT_SOURCES += src/lib/core/marshal.c src/lib/core/marshal.h
@@ -179,6 +176,11 @@ libbtbsl_la_SOURCES = \
 	src/lib/core/songio/bsl/song-io-buzz.h \
 	src/lib/core/songio/bsl/song-io-buzz-private.h
 
+noinst_HEADERS = \
+  src/lib/core/core_private.h \
+  src/lib/core/settings-private.h \
+  src/lib/ic/ic_private.h
+
 # -- apps ----------------------------------------------------------------------
 
 bin_PROGRAMS = buzztard-cmd buzztard-edit
@@ -275,9 +277,11 @@ libbtedit_la_SOURCES = \
 	src/ui/edit/btmemoryaudiosrc.c src/ui/edit/btmemoryaudiosrc.h
 
 src/ui/edit/marshal.h: src/ui/edit/marshal.list
+	$(AM_V_GEN) $(MKDIR_P) src/ui/edit
 	$(AM_V_GEN) glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
 
 src/ui/edit/marshal.c: src/ui/edit/marshal.list
+	$(AM_V_GEN) $(MKDIR_P) src/ui/edit
 	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
 
 BUILT_SOURCES += src/ui/edit/marshal.c src/ui/edit/marshal.h
