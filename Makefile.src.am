@@ -158,6 +158,7 @@ src/lib/core/marshal.h: src/lib/core/marshal.list
 src/lib/core/marshal.c: src/lib/core/marshal.list
 	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
 
+BUILT_SOURCES += src/lib/core/marshal.c src/lib/core/marshal.h
 CLEANFILES += src/lib/core/marshal.c src/lib/core/marshal.h
 
 # -- songio plugins
@@ -279,6 +280,7 @@ src/ui/edit/marshal.h: src/ui/edit/marshal.list
 src/ui/edit/marshal.c: src/ui/edit/marshal.list
 	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
 
+BUILT_SOURCES += src/ui/edit/marshal.c src/ui/edit/marshal.h
 CLEANFILES += src/ui/edit/marshal.c src/ui/edit/marshal.h
 
 # FIXME: don't install bt-edit.compact.gtkrc if not selected
