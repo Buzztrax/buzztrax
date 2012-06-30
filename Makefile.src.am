@@ -64,11 +64,11 @@ pkgconfig_DATA = \
   src/lib/ic/libbuzztard-ic.pc
 
 src/lib/core/marshal.h: src/lib/core/marshal.list
-	$(AM_V_GEN) $(MKDIR_P) src/lib/core
+	$(AM_V_at)$(MKDIR_P) src/lib/core
 	$(AM_V_GEN) glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
 
 src/lib/core/marshal.c: src/lib/core/marshal.list
-	$(AM_V_GEN) $(MKDIR_P) src/lib/core
+	$(AM_V_at)$(MKDIR_P) src/lib/core
 	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
 
 BUILT_SOURCES += src/lib/core/marshal.c src/lib/core/marshal.h
@@ -277,11 +277,11 @@ libbtedit_la_SOURCES = \
 	src/ui/edit/btmemoryaudiosrc.c src/ui/edit/btmemoryaudiosrc.h
 
 src/ui/edit/marshal.h: src/ui/edit/marshal.list
-	$(AM_V_GEN) $(MKDIR_P) src/ui/edit
+	$(AM_V_at)$(MKDIR_P) src/ui/edit
 	$(AM_V_GEN) glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
 
 src/ui/edit/marshal.c: src/ui/edit/marshal.list
-	$(AM_V_GEN) $(MKDIR_P) src/ui/edit
+	$(AM_V_at)$(MKDIR_P) src/ui/edit
 	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
 
 BUILT_SOURCES += src/ui/edit/marshal.c src/ui/edit/marshal.h
@@ -308,8 +308,6 @@ desktop_in_files = \
   src/ui/edit/buzztard-edit.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
-src/lib/core/songio/bsl/buzztard-songio-buzz.desktop: src/lib/core/songio/bsl/buzztard-songio-buzz.desktop.in
-src/ui/edit/buzztard-edit.desktop: src/ui/edit/buzztard-edit.desktop.in
 
 # install .xml mime info file
 sharedmimedir = $(datadir)/mime
@@ -319,8 +317,6 @@ sharedmimepackage_in_files = \
   src/lib/core/songio/bsl/buzztard-songio-buzz.xml.in
 sharedmimepackage_DATA = $(sharedmimepackage_in_files:.xml.in=.xml)
 @INTLTOOL_XML_RULE@
-src/lib/buzztard.xml: src/lib/buzztard.xml.in
-src/lib/core/songio/bsl/buzztard-songio-buzz.xml: src/lib/core/songio/bsl/buzztard-songio-buzz.xml.in
 
 # update desktop/mime database
 update-desktop-db:
