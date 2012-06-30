@@ -138,8 +138,6 @@
 #include "wave-viewer.h"
 #include "wire-canvas-item.h"
 
-#include "marshal.h"
-
 //-- misc
 #ifndef GST_CAT_DEFAULT
   #define GST_CAT_DEFAULT bt_edit_debug

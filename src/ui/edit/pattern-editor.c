@@ -58,6 +58,8 @@
 
 #include "bt-edit.h"
 
+#include "marshal.h"
+
 enum {
   PATTERN_EDITOR_PLAY_POSITION=1,
   PATTERN_EDITOR_OCTAVE,
