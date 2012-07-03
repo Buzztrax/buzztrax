@@ -254,7 +254,6 @@ libbtedit_la_SOURCES = \
 	src/ui/edit/pattern-properties-dialog.c src/ui/edit/pattern-properties-dialog.h \
 	src/ui/edit/playback-controller-socket.c src/ui/edit/playback-controller-socket.h \
 	src/ui/edit/render-dialog.c src/ui/edit/render-dialog.h \
-	src/ui/edit/render-progress.c src/ui/edit/render-progress.h \
 	src/ui/edit/sequence-grid-model.c src/ui/edit/sequence-grid-model.h \
 	src/ui/edit/sequence-view.c src/ui/edit/sequence-view.h \
 	src/ui/edit/settings-dialog.c src/ui/edit/settings-dialog.h \

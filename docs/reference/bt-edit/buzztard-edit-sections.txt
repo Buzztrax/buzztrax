@@ -709,25 +709,6 @@ bt_render_mode_get_type
 
 
 <SECTION>
-<FILE>btrenderprogress</FILE>
-<TITLE>BtRenderProgress</TITLE>
-BtRenderProgress
-bt_render_progress_new
-bt_render_progress_run
-<SUBSECTION Standard>
-BtRenderProgressClass
-BT_RENDER_PROGRESS
-BT_IS_RENDER_PROGRESS
-BT_TYPE_RENDER_PROGRESS
-BT_RENDER_PROGRESS_CLASS
-BT_IS_RENDER_PROGRESS_CLASS
-BT_RENDER_PROGRESS_GET_CLASS
-bt_render_progress_get_type
-BtRenderProgressPrivate
-</SECTION>
-
-
-<SECTION>
 <FILE>btsequencegridmodel</FILE>
 <TITLE>BtSequenceGridModel</TITLE>
 BtSequenceGridModel

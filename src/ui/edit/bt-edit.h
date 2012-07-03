@@ -121,7 +121,6 @@
 #include "pattern-editor.h"
 #include "playback-controller-socket.h"
 #include "render-dialog.h"
-#include "render-progress.h"
 #include "sequence-grid-model.h"
 #include "sequence-view.h"
 #include "settings-dialog.h"

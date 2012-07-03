@@ -170,7 +170,6 @@ libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/s-bt-pattern-page.c tests/ui/edit/e-bt-pattern-page.c tests/ui/edit/t-bt-pattern-page.c \
 	tests/ui/edit/s-bt-pattern-properties-dialog.c tests/ui/edit/e-bt-pattern-properties-dialog.c \
 	tests/ui/edit/s-bt-render-dialog.c tests/ui/edit/e-bt-render-dialog.c \
-	tests/ui/edit/s-bt-render-progress-dialog.c tests/ui/edit/e-bt-render-progress-dialog.c \
 	tests/ui/edit/s-bt-sequence-page.c tests/ui/edit/e-bt-sequence-page.c \
 	tests/ui/edit/s-bt-settings-dialog.c tests/ui/edit/e-bt-settings-dialog.c \
 	tests/ui/edit/s-bt-signal-analysis-dialog.c tests/ui/edit/e-bt-signal-analysis-dialog.c \

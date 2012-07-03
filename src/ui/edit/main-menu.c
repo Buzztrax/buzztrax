@@ -143,21 +143,15 @@ static void on_menu_recover_changed(const BtChangeLog *change_log,GParamSpec *ar
 
 static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  GtkWidget *settings,*progress;
+  GtkWidget *settings;
 
   GST_INFO("menu render event occurred");
   settings=GTK_WIDGET(bt_render_dialog_new());
   bt_edit_application_attach_child_window(self->priv->app,GTK_WINDOW(settings));
   gtk_widget_show_all(settings);
-  if(gtk_dialog_run(GTK_DIALOG(settings))==GTK_RESPONSE_ACCEPT) {
-    gtk_widget_hide(settings);
-    progress=GTK_WIDGET(bt_render_progress_new(BT_RENDER_DIALOG(settings)));
-    gtk_window_set_transient_for(GTK_WINDOW(progress),GTK_WINDOW(self->priv->main_window));
-    gtk_widget_show_all(progress);
-    // run song rendering
-    bt_render_progress_run(BT_RENDER_PROGRESS(progress));
-    gtk_widget_destroy(progress);
-  }
+  gtk_dialog_run(GTK_DIALOG(settings));
+  GST_INFO("rendering done");
+  gtk_widget_hide(settings);
   gtk_widget_destroy(settings);
 }
 

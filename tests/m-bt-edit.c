@@ -51,7 +51,6 @@ extern Suite *bt_missing_song_elements_dialog_suite(void);
 extern Suite *bt_pattern_page_suite(void);
 extern Suite *bt_pattern_properties_dialog_suite(void);
 extern Suite *bt_render_dialog_suite(void);
-extern Suite *bt_render_progress_dialog_suite(void);
 extern Suite *bt_sequence_page_suite(void);
 extern Suite *bt_settings_dialog_suite(void);
 extern Suite *bt_signal_analysis_dialog_suite(void);
@@ -173,7 +172,6 @@ gint main(gint argc, gchar **argv) {
   srunner_add_suite(sr, bt_pattern_page_suite());
   srunner_add_suite(sr, bt_pattern_properties_dialog_suite());
   srunner_add_suite(sr, bt_render_dialog_suite());
-  srunner_add_suite(sr, bt_render_progress_dialog_suite());
   srunner_add_suite(sr, bt_sequence_page_suite());
   srunner_add_suite(sr, bt_settings_dialog_suite());
   srunner_add_suite(sr, bt_signal_analysis_dialog_suite());

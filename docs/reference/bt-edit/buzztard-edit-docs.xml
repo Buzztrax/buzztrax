@@ -100,7 +100,6 @@
       <xi:include href="xml/btpatternlistmodel.xml" />
       <xi:include href="xml/btpatternpropertiesdialog.xml" />
       <xi:include href="xml/btrenderdialog.xml" />
-      <xi:include href="xml/btrenderprogress.xml" />
       <xi:include href="xml/btsequencegridmodel.xml" />
       <xi:include href="xml/btsequenceview.xml" />
       <xi:include href="xml/btsettingsdialog.xml" />
