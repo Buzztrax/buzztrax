@@ -56,6 +56,8 @@
 
 #include "bt-edit.h"
 
+#include <gst/interfaces/propertyprobe.h>
+
 struct _BtSettingsPageAudiodevicesPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;

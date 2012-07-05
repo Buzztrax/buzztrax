@@ -57,9 +57,6 @@
 //-- libbtcore & libbtic
 #include "core.h"
 #include "ic.h"
-//-- gstreamer
-#include <gst/base/gstpushsrc.h>
-#include <gst/interfaces/propertyprobe.h>
 //-- gstbuzztard
 #include <libgstbuzztard/musicenums.h>
 #include <libgstbuzztard/toneconversion.h>
