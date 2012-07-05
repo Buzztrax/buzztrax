@@ -1,9 +1,80 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 git diff @{2012-01-01} @{2012-01-31} | diffstat
 
+2012/08 ========================================================================
+
+* streamline recordign dialogs
+
+2012/07 ========================================================================
+
+I did more test cleanups and finally the libs are done. I am going to increase
+the coverage more, but it is quite good already. We're having more than 200 test
+for libbuzztard-core now. That helps making changes.
+
+One aspect of writing tests is also to check the API for testability. While
+working on the wire tests I noticed that we had a disabled test to check for
+cycles in the machine graph. There where basics checks in the UI, which I now
+moved to core as new API, expanded it to actuall do a full cycle check and
+enabled the tests.
+
+While updating the test suites I had a couple tests that I still did not like
+much. They were all iterating over an array of parameters (input files,
+extensions) and tested them. What is the problem? It is only a problem if things
+fail. In the current setup, the test would stop on the first failing parameter.
+If it would also run for the remaining parameters, I might get a better idea
+what actually wrong. Besides that, I also don't see right now for which
+parameter it fails (I need to log it and take a look at the log). Luckily the 
+Check library has loop tests. They are simple to use, instead of 
+tcase_add_test(), use tcase_add_loop_test() and pass the start/stop index to the
+test. From within the test you can access '_i' to fetch the parameter set. If
+the tests run via CK_FORK=yes (which is the default), each loop runs in a new
+process.
+
+I gave a talk at work about electronic music and used buzztard to demo a few
+things. While preparing the demos, I naturally found quite a few bugs. This
+time I also wrote more tests for these things.
+
+The other big change in the repo is the migration to non-recursive make. I
+started on the buzztard module. The first step was to still recurse into docs,
+po, src and tests. That gave some nice speedup already. Then I rebased also src
+and test to the project root and used includes to keep the Makefile
+maintainable. This unfortunately made things  little slower as I have to do:
+  SUBDIR = . po docs
+The problem here is that the docs will link the libraries to introspect them,
+but don't depend on them :/ Adding a dependency in there does not work, as the
+Makefile in the docs-dir does not know the rules for how to make them.
+On the slow down, the config.status run is faster (two less Makefiles to make),
+but the '.' in SUBDIRS causes a recursive make invocation for the project root.
+And thats where we have the big Makefile :/ The workaround I am using now is to
+have own all-local, check-local, clean-local, install-data-local and
+uninstall-local targets. The good thing of it is, that now the rules to build
+the api docs have proper dependencies on the libraries they introspect.  In
+order to see how far I can speed up things, I also trimmed the includes. The
+effect of this can be seen in the third group of measurements. The benchmarking
+was not to elaborate, but the big picture is clear. [1]
+
+Some general tips for how to do the change below:
+* in the Makefile.am, first set all kind of vars (so that in includes you can do
+  VAR += ...)
+* include the per subdir rules
+* add common rules
+* targets in e.g. "lib_LTLIBRARIES = libabc.la libdef.la" have to be in
+  dependency order, wtf! [2]
+
+So far, this looks good (aka 'make distcheck' passes). Will do this for the
+other modules next month.
+
+Tom made good progress on the audiosynth base class. I just merged the branch.
+Now it writing a audio synth is a lot less code.
+
+169 files changed, 7236 insertions(+), 6459 deletions(-)
+
+[1] http://buzztard.org/wp-content/uploads/buildbench.png
+[2] http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/Makefile.am
+
 2012/06 ========================================================================
 
-In May I fininshed the refactoring of the sequence damage-repair code for
+In May I finished the refactoring of the sequence damage-repair code for
 updating the controller time-lines after pattern changes. It is a lot less code
 now and it is also faster. The "less code" is important as there is quite a bit
 of logic to handle combining events from patterns overlapping in time or on
@@ -12,9 +83,15 @@ several tracks.
 In the same vein, I could also refactor main-page-patterns with quite a nice
 code removal mount (~400 lines).
 
-- improve scrubbing and trick-playback. Need to wait for async-done to know that
-  a seek is done
-- catching bad x86-32bit dlls in buzzmachine wrapper
+While reading "The Art of Unit Testing" [1] I decided to start cleaning up the
+test suite in buzztard. The changes so far result in tests that are more
+focused, less brittle and a lot smaller. I am writing down some of the tips on
+the wiki [2].
+
+36 files changed, 2085 insertions(+), 2517 deletions(-)
+
+[1] http://www.amazon.com/The-Art-Unit-Testing-Examples/dp/1933988274/ref=sr_1_1?s=books&ie=UTF8&qid=1338748288&sr=1-1
+[2] http://wiki.buzztard.org/index.php/Testing
 
 2012/05 ========================================================================
 
