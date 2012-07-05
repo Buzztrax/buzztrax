@@ -61,9 +61,6 @@
 #include <gst/base/gstpushsrc.h>
 #include <gst/interfaces/propertyprobe.h>
 //-- gstbuzztard
-#if !GST_CHECK_VERSION(0,10,31)
-#include <libgstbuzztard/help.h>
-#endif
 #include <libgstbuzztard/musicenums.h>
 #include <libgstbuzztard/toneconversion.h>
 //-- glib

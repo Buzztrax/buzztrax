@@ -919,10 +919,7 @@ static void bt_machine_canvas_item_set_property(GObject *object, guint property_
 #if GST_CHECK_VERSION(0,10,31)
         self->priv->help_uri=gst_element_factory_get_documentation_uri(gst_element_get_factory(element));
 #else
-        if(GSTBT_IS_HELP(element))
-          g_object_get(element,"documentation-uri",&self->priv->help_uri,NULL);
-        else
-          self->priv->help_uri=NULL;
+        self->priv->help_uri=NULL;
 #endif
         gst_object_unref(element);
 
