@@ -82,6 +82,7 @@ typedef enum {
  * @BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC: ogg flac
  * @BT_SINK_BIN_RECORD_FORMAT_MP4_AAC: mp4 aac
  * @BT_SINK_BIN_RECORD_FORMAT_RAW: raw
+ * @BT_SINK_BIN_RECORD_FORMAT_COUNT: number of formats
  *
  * #BtSinkMachine can record audio in several formats.
  */
@@ -91,7 +92,8 @@ typedef enum {
   BT_SINK_BIN_RECORD_FORMAT_WAV,
   BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,
   BT_SINK_BIN_RECORD_FORMAT_MP4_AAC,
-  BT_SINK_BIN_RECORD_FORMAT_RAW
+  BT_SINK_BIN_RECORD_FORMAT_RAW,
+  BT_SINK_BIN_RECORD_FORMAT_COUNT
 } BtSinkBinRecordFormat;
 
 

@@ -76,6 +76,17 @@ static void make_new_song(void) {
   GST_INFO("  song created");
 }
 
+static GstElement *get_sink_bin(void) {
+  BtSetup *setup=BT_SETUP(check_gobject_get_object_property(song, "setup"));
+  BtMachine *machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE);
+  GstElement *sink_bin=GST_ELEMENT(check_gobject_get_object_property(machine,"machine"));
+
+  g_object_try_unref(machine);
+  g_object_unref(setup);
+  
+  return sink_bin;
+}
+
 static GstElement *get_sink_element(GstBin *bin) {
   GstElement *e;
   GList *node;
@@ -91,6 +102,14 @@ static GstElement *get_sink_element(GstBin *bin) {
     }
   }
   return NULL;
+}
+
+static gchar *make_tmp_song_path(const gchar *name, const gchar *ext) {
+  gchar *song_name=g_strconcat(name,ext,NULL);
+  gchar *song_path=g_build_filename(g_get_tmp_dir(),song_name,NULL);
+  g_free(song_name);
+  GST_INFO("testing '%s'",song_path);
+  return song_path;
 }
  
 static void
@@ -123,8 +142,35 @@ BT_START_TEST(test_bt_sink_bin_new) {
 }
 BT_END_TEST
 
-/* test playback */
-/* test recording */
+/* test playback (we test this elsewhere too) */
+/* test recording (loop test over BtSinkBinRecordFormat */
+BT_START_TEST(test_bt_sink_bin_record) {
+  /* arrange */
+  make_new_song();
+  GstElement *sink_bin=get_sink_bin();
+  GEnumClass *enum_class=g_type_class_peek_static(BT_TYPE_SINK_BIN_RECORD_FORMAT);
+  GEnumValue *enum_value=g_enum_get_value(enum_class,_i);
+  gchar *filename=make_tmp_song_path("record",enum_value->value_name);
+  g_object_set(sink_bin,
+    "mode",BT_SINK_BIN_MODE_RECORD,
+    "record-format",_i,
+    "record-file-name",filename,
+    NULL);
+
+  /* act */
+  bt_song_play(song);
+  check_run_main_loop_for_usec(G_USEC_PER_SEC/10);
+  bt_song_stop(song);
+
+  /* assert */
+  fail_unless(g_file_test(filename, G_FILE_TEST_IS_REGULAR));
+
+  /* cleanup */
+  g_free(filename);
+  gst_object_unref(sink_bin);
+}
+BT_END_TEST
+
 /* test playback + recording */
 
 /* test master volume, using appsink? */
@@ -133,9 +179,7 @@ BT_START_TEST(test_bt_sink_bin_master_volume) {
   gdouble volume=1.0/(gdouble)_i;
   g_object_set(settings,"audiosink","fakesink",NULL);
   make_new_song();
-  BtSetup *setup=BT_SETUP(check_gobject_get_object_property(song, "setup"));
-  BtMachine *machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE);
-  GstElement *sink_bin=GST_ELEMENT(check_gobject_get_object_property(machine,"machine"));
+  GstElement *sink_bin=get_sink_bin();
   gst_element_set_state(sink_bin, GST_STATE_READY);
   GstElement *fakesink=get_sink_element((GstBin *)sink_bin);
   g_object_set(fakesink,"signal-handoffs",TRUE,NULL);
@@ -154,8 +198,6 @@ BT_START_TEST(test_bt_sink_bin_master_volume) {
   /* cleanup */
   bt_song_stop(song);
   gst_object_unref(sink_bin);
-  g_object_try_unref(machine);
-  g_object_unref(setup);
 }
 BT_END_TEST
 
@@ -163,9 +205,7 @@ BT_END_TEST
 BT_START_TEST(test_bt_sink_bin_analyzers) {
   /* arrange */
   make_new_song();
-  BtSetup *setup=BT_SETUP(check_gobject_get_object_property(song, "setup"));
-  BtMachine *machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE);
-  GstElement *sink_bin=GST_ELEMENT(check_gobject_get_object_property(machine,"machine"));
+  GstElement *sink_bin=get_sink_bin();
   GstElement *fakesink=gst_element_factory_make("fakesink",NULL);
   GstElement *queue=gst_element_factory_make("queue",NULL);
   GList *analyzers_list=g_list_prepend(g_list_prepend(NULL,fakesink),queue);
@@ -186,7 +226,6 @@ BT_START_TEST(test_bt_sink_bin_analyzers) {
   /* cleanup */
   bt_song_stop(song);
   gst_object_unref(sink_bin);
-  g_object_try_unref(machine);
 }
 BT_END_TEST
 
@@ -195,6 +234,7 @@ TCase *bt_sink_bin_example_case(void) {
   TCase *tc = tcase_create("BtSinkBinExamples");
 
   tcase_add_test(tc,test_bt_sink_bin_new);
+  tcase_add_loop_test(tc,test_bt_sink_bin_record,0,BT_SINK_BIN_RECORD_FORMAT_COUNT);
   tcase_add_loop_test(tc,test_bt_sink_bin_master_volume,1,3);
   tcase_add_test(tc,test_bt_sink_bin_analyzers);
   tcase_add_checked_fixture(tc, test_setup, test_teardown);

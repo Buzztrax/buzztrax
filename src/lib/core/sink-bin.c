@@ -517,6 +517,9 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
     case BT_SINK_BIN_RECORD_FORMAT_RAW:
       // no element needed
       break;
+    case BT_SINK_BIN_RECORD_FORMAT_COUNT:
+    default:
+      break;
   }
   // create filesink, set location property
   element=gst_element_factory_make("filesink","filesink");
