@@ -236,7 +236,7 @@ static void bt_sink_bin_activate_analyzers(const BtSinkBin * const self) {
 
   //g_object_get(self->priv->song,"is-playing",&is_playing,NULL);
   if((gst_element_get_state(GST_ELEMENT(self),&state,NULL,GST_MSECOND)==GST_STATE_CHANGE_SUCCESS)) {
-      if(state<GST_STATE_PAUSED) is_playing=FALSE;
+    if(state<GST_STATE_PAUSED) is_playing=FALSE;
   }
   bt_bin_activate_tee_chain(GST_BIN(self),self->priv->tee,self->priv->analyzers,is_playing);
 }
@@ -255,7 +255,7 @@ static void bt_sink_bin_deactivate_analyzers(const BtSinkBin * const self) {
 
   //g_object_get(self->priv->song,"is-playing",&is_playing,NULL);
   if((gst_element_get_state(GST_ELEMENT(self),&state,NULL,GST_MSECOND)==GST_STATE_CHANGE_SUCCESS)) {
-      if(state<GST_STATE_PAUSED) is_playing=FALSE;
+    if(state<GST_STATE_PAUSED) is_playing=FALSE;
   }
   bt_bin_deactivate_tee_chain(GST_BIN(self),self->priv->tee,self->priv->analyzers,is_playing);
 }

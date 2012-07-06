@@ -62,7 +62,7 @@ struct _BtSinkBinClass {
  * @BT_SINK_BIN_MODE_PLAY_AND_RECORD: play and record together
  * @BT_SINK_BIN_MODE_PASS_THRU: output audio on sometimes src pad
  *
- * #BtSinkMachine supports several modes of operation. Playing is the default
+ * #BtSinkBin supports several modes of operation. Playing is the default
  * mode. Passthru is only needed if the song is plugged in another pipeline.
  */
 typedef enum {
