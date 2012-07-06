@@ -40,6 +40,7 @@ extern Suite *bt_processor_machine_suite(void);
 extern Suite *bt_sequence_suite(void);
 extern Suite *bt_settings_suite(void);
 extern Suite *bt_setup_suite(void);
+extern Suite *bt_sink_bin_suite(void);
 extern Suite *bt_sink_machine_suite(void);
 extern Suite *bt_song_suite(void);
 extern Suite *bt_song_io_suite(void);
@@ -91,6 +92,7 @@ gint main(gint argc, gchar **argv) {
   srunner_add_suite(sr, bt_sequence_suite());
   srunner_add_suite(sr, bt_settings_suite());
   srunner_add_suite(sr, bt_setup_suite());
+  srunner_add_suite(sr, bt_sink_bin_suite());
   srunner_add_suite(sr, bt_sink_machine_suite());
   srunner_add_suite(sr, bt_song_info_suite());
   srunner_add_suite(sr, bt_song_io_native_suite());

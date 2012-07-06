@@ -241,4 +241,12 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 #define ck_assert_int64_ge(X, Y) _ck_assert_int64(X, >=, Y)
 #define ck_assert_int64_le(X, Y) _ck_assert_int64(X, <=, Y)
 
+#define _ck_assert_float(X, O, Y) ck_assert_msg((X) O (Y), "Assertion '"#X#O#Y"' failed: "#X"==%f, "#Y"==%f", X, Y)
+#define ck_assert_float_eq(X, Y) _ck_assert_float(X, ==, Y)
+#define ck_assert_float_ne(X, Y) _ck_assert_float(X, !=, Y)
+#define ck_assert_float_gt(X, Y) _ck_assert_float(X, >, Y)
+#define ck_assert_float_lt(X, Y) _ck_assert_float(X, <, Y)
+#define ck_assert_float_ge(X, Y) _ck_assert_float(X, >=, Y)
+#define ck_assert_float_le(X, Y) _ck_assert_float(X, <=, Y)
+
 #endif /* BT_CHECK_H */
