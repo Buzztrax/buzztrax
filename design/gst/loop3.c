@@ -47,12 +47,10 @@ static GstEvent *play_seek_event=NULL;
 static GstEvent *loop_seek_event=NULL; 
 
 static void message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
-  const GstStructure *s;
-
-  s = gst_message_get_structure (message);
+  const GstStructure *s = gst_message_get_structure (message);
   g_print ("message from \"%s\" (%s): ",
       GST_STR_NULL (GST_ELEMENT_NAME (GST_MESSAGE_SRC (message))),
-      gst_message_type_get_name (GST_MESSAGE_TYPE (message)));
+       GST_MESSAGE_TYPE_NAME (message));
   if (s) {
     gchar *sstr;
 
