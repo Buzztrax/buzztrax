@@ -20,7 +20,7 @@
  * SECTION:btmemoryaudiosrc
  * @short_description: play samples from memory
  *
- * Gstreamer audio source to play samples from memory. Supports interleaved
+ * GStreamer audio source to play samples from memory. Supports interleaved
  * multi-channels audio. Supports trickmode playback (resampling and ping-pong
  * loops).
  */
@@ -32,6 +32,10 @@ loop_end =  7  n_samples_stop=7          =15-3=12
   length = 15
 */
 
+/* TODO(ensonic): we could also use giostreamsrc + a GMemoryInputStream.
+ * See this example here:
+ * http://cgit.freedesktop.org/gstreamer/gst-plugins-base/tree/tests/check/pipelines/gio.c#n60
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
