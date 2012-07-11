@@ -120,7 +120,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
   GType type;
   gboolean have_submenu;
 
-  /* list known gstreamer element that are not useful unde buzztard,
+  /* list known gstreamer element that are not useful under buzztard,
    * but we can't detect otherwise */
   const gchar *blacklist[] = {
     "audiorate",
