@@ -2,8 +2,13 @@
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` duration.c -o duration
  *
- * the duration query seems to only report a duration if it works for *all*
- * sources, as soon as one source return -1, it returns -1
+ * - the bin will query the duration from the sink(s)
+ * - this will take the max value
+ * - we only have one sink - filesink
+ * - filesink does not know the duration and thus asks upstream
+ * - once we hit adder, adder will ask each upstream branch and take the max,
+ *   but as soon as a source reports -1 (unknown) adder overrides the max with
+ *   -1 in turn 
  */
 
 #include <gst/gst.h>
