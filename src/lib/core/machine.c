@@ -345,6 +345,18 @@ static void bt_machine_on_latency_changed(BtSettings * const settings, const GPa
   gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),-1,-1,update_subticks(bpm,tpb,latency));
 }
 
+static void bt_machine_on_duration_changed(BtSequence * const sequence, const GParamSpec * const arg, gconstpointer const user_data) {
+  const BtMachine * const self=BT_MACHINE(user_data);
+  GstClockTime duration;
+  glong length;
+  
+  GST_DEBUG_OBJECT(self,"length changed");
+  g_object_get(sequence,"length",&length,NULL);
+  duration=bt_sequence_get_bar_time(sequence)*length;
+  GST_BASE_SRC(self->priv->machines[PART_MACHINE])->segment.duration=duration;
+  GST_INFO("  duration: %"GST_TIME_FORMAT, GST_TIME_ARGS(duration));
+}
+
 //-- helper methods
 
 /*
@@ -944,6 +956,23 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
     g_signal_connect(settings,"notify::latency",G_CALLBACK(bt_machine_on_latency_changed),(gpointer)self);
     g_object_unref(settings);
     GST_INFO("  tempo iface initialized");
+  }
+  // sync duration with song
+  if(GST_IS_BASE_SRC(self->priv->machines[PART_MACHINE])) {
+    BtSequence *sequence;
+    GstClockTime duration;
+    glong length;
+    
+    g_object_get((gpointer)(self->priv->song),"sequence",&sequence,NULL);
+    g_object_get(sequence,"length",&length,NULL);
+    duration=bt_sequence_get_bar_time(sequence)*length;
+
+    GST_BASE_SRC(self->priv->machines[PART_MACHINE])->segment.duration=duration;
+    GST_INFO("  duration: %"GST_TIME_FORMAT, GST_TIME_ARGS(duration));
+    g_signal_connect(sequence,"notify::length",G_CALLBACK(bt_machine_on_duration_changed),(gpointer)self);
+    
+    g_object_unref(sequence);
+    GST_INFO("  duration sync initialized");
   }
   GST_INFO("machine element instantiated and interfaces initialized");
 }
@@ -2568,8 +2597,14 @@ static void bt_machine_dispose(GObject * const object) {
 
   // disconnect notify handlers
   if(self->priv->song) {
+    BtSequence *sequence;
     BtSongInfo *song_info;
-    g_object_get((gpointer)(self->priv->song),"song-info",&song_info,NULL);
+    g_object_get((gpointer)(self->priv->song),"sequence",&sequence,"song-info",&song_info,NULL);
+    if(sequence) {
+      GST_DEBUG("  disconnecting sequence handlers");
+      g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_machine_on_duration_changed,(gpointer)self);
+      g_object_unref(sequence);
+    }
     if(song_info) {
       GST_DEBUG("  disconnecting song-info handlers");
       g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_machine_on_bpm_changed,(gpointer)self);
