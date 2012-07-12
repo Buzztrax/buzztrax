@@ -8,7 +8,7 @@
  * - filesink does not know the duration and thus asks upstream
  * - once we hit adder, adder will ask each upstream branch and take the max,
  *   but as soon as a source reports -1 (unknown) adder overrides the max with
- *   -1 in turn 
+ *   -1 in turn
  */
 
 #include <gst/gst.h>

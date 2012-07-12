@@ -1,11 +1,15 @@
 /* Record n seconds of beep to a file
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` encode.c -o encode
+ * gcc -Wall -g `pkg-config gstreamer-0.10 gstreamer-base-0.10 --cflags --libs` encode.c -o encode
  *
- * for fmt in `seq 0 5`; do ./encode $fmt; done
+ * for fmt in `seq 0 6`; do ./encode $fmt; done
+ *
+ * when passing '1' as a second parameter, we don't seek, but set a duration,
+ * this is not enough to trigger an eos though.
  */
 
 #include <gst/gst.h>
+#include <gst/base/gstbasesrc.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,6 +54,7 @@ main (gint argc, gchar ** argv)
   GstElement *bin;
   gchar *pipeline = NULL;
   gint format = 0;
+  gint method = 0;
   GstFormat query_fmt = GST_FORMAT_TIME;
   gint64 duration;
 
@@ -57,43 +62,59 @@ main (gint argc, gchar ** argv)
   
   if(argc>1) {
     format=atoi(argv[1]);
+    if(argc>2) {
+      method=atoi(argv[2]);
+    }
   }
   switch(format) {
     case 0:
-      pipeline = "audiotestsrc ! vorbisenc ! oggmux ! filesink location=encode.ogg";
+      pipeline = "audiotestsrc name=s ! vorbisenc ! oggmux ! filesink location=encode.vorbis.ogg";
       puts("encoding ogg vorbis");
       break;
     case 1:
-      pipeline = "audiotestsrc ! lamemp3enc ! filesink location=encode.mp3";
+      pipeline = "audiotestsrc name=s ! lamemp3enc ! filesink location=encode.mp3";
       puts("encoding mp3");
       break;
     case 2:
-      pipeline = "audiotestsrc ! wavenc ! filesink location=encode.wav";
+      pipeline = "audiotestsrc name=s ! wavenc ! filesink location=encode.wav";
       puts("encoding wav");
       break;
     case 3:
-      pipeline = "audiotestsrc ! flacenc ! oggmux ! filesink location=encode.flac";
+      pipeline = "audiotestsrc name=s ! flacenc ! oggmux ! filesink location=encode.flac.ogg";
       puts("encoding ogg flac");
       break;
     case 4:
-      pipeline = "audiotestsrc ! faac ! mp4mux ! filesink location=encode.m4a";
+      pipeline = "audiotestsrc name=s ! faac ! mp4mux ! filesink location=encode.m4a";
       puts("encoding m4a");
       break;
     case 5:
-      pipeline = "audiotestsrc ! filesink location=encode.raw";
+      pipeline = "audiotestsrc name=s ! flacenc ! filesink location=encode.flac";
+      puts("encoding ogg flac");
+      break;
+    case 6:
+      pipeline = "audiotestsrc name=s ! filesink location=encode.raw";
       puts("encoding raw");
       break;
     default:
-      puts("format must be 0-5");
+      puts("format must be 0-6");
       return -1;
   }
   bin = gst_parse_launch (pipeline, NULL);
   
+  if(method==1) {
+    GstElement *src=gst_bin_get_by_name (GST_BIN (bin), "s");
+    
+    GST_BASE_SRC (src)->segment.duration = GST_SECOND;
+    gst_object_unref (src);
+  }
+  
   gst_element_set_state (GST_ELEMENT (bin), GST_STATE_PAUSED);
-  if(!gst_element_seek (bin, 1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
-      GST_SEEK_TYPE_SET, GST_SECOND*0,
-      GST_SEEK_TYPE_SET, GST_SECOND*1))
-    puts("seek failed");
+  if(method==0) {
+    if(!gst_element_seek (bin, 1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
+        GST_SEEK_TYPE_SET, GST_SECOND*0,
+        GST_SEEK_TYPE_SET, GST_SECOND*1))
+      puts("seek failed");
+  }
   
   gst_element_set_state (GST_ELEMENT (bin), GST_STATE_PLAYING);
   
