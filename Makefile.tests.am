@@ -124,6 +124,7 @@ libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
 	tests/lib/core/s-sequence.c tests/lib/core/e-sequence.c tests/lib/core/t-sequence.c \
 	tests/lib/core/s-settings.c tests/lib/core/e-settings.c \
 	tests/lib/core/s-setup.c tests/lib/core/e-setup.c tests/lib/core/t-setup.c \
+	tests/lib/core/s-sink-bin.c tests/lib/core/e-sink-bin.c tests/lib/core/t-sink-bin.c \
 	tests/lib/core/s-sink-machine.c tests/lib/core/e-sink-machine.c tests/lib/core/t-sink-machine.c \
 	tests/lib/core/s-song.c tests/lib/core/e-song.c tests/lib/core/t-song.c \
 	tests/lib/core/s-song-io.c tests/lib/core/e-song-io.c tests/lib/core/t-song-io.c \
