@@ -1237,7 +1237,7 @@ static void bt_song_constructed(GObject *object) {
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING_OBJECT(self->priv->bin,"can't go to ready state");
   }
-  GST_WARNING_OBJECT(self->priv->bin,"->READY state change returned '%s'",gst_element_state_change_return_get_name(res));
+  GST_INFO_OBJECT(self->priv->bin,"->READY state change returned '%s'",gst_element_state_change_return_get_name(res));
   GST_INFO("  new song created: %p",self);
 }
 
