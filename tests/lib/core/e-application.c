@@ -23,46 +23,54 @@
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
+static void
+test_setup (void)
+{
 }
 
-static void test_teardown(void) {
+static void
+test_teardown (void)
+{
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
-BT_START_TEST(test_bt_application_new) {
+BT_START_TEST (test_bt_application_new)
+{
   /* arrange */
-  BtApplication *app=bt_test_application_new();
+  BtApplication *app = bt_test_application_new ();
 
   /* act */
   GstElement *bin;
-  g_object_get(app,"bin",&bin,NULL);
+  g_object_get (app, "bin", &bin, NULL);
 
   /* assert */
-  ck_assert_int_eq(GST_BIN_NUMCHILDREN(bin),0);
-  
+  ck_assert_int_eq (GST_BIN_NUMCHILDREN (bin), 0);
+
   /* cleanup */
-  gst_object_unref(bin);
-  g_object_checked_unref(app);
+  gst_object_unref (bin);
+  g_object_checked_unref (app);
 }
-BT_END_TEST
 
+BT_END_TEST TCase * bt_application_example_case (void)
+{
+  TCase *tc = tcase_create ("BtApplicationExamples");
 
-
-TCase *bt_application_example_case(void) {
-  TCase *tc = tcase_create("BtApplicationExamples");
-
-  tcase_add_test(tc,test_bt_application_new);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_application_new);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

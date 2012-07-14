@@ -23,44 +23,57 @@
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
+static void
+test_setup (void)
+{
 }
 
-static void test_teardown(void) {
+static void
+test_teardown (void)
+{
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
-BT_START_TEST(test_bt_audio_session_singleton) {
+BT_START_TEST (test_bt_audio_session_singleton)
+{
   /* arrange */
-  BtAudioSession *session1=bt_audio_session_new();
+  BtAudioSession *session1 = bt_audio_session_new ();
 
   /* act */
-  BtAudioSession *session2=bt_audio_session_new();
+  BtAudioSession *session2 = bt_audio_session_new ();
 
   /* assert */
-  fail_unless(session1==session2, NULL);
+  fail_unless (session1 == session2, NULL);
 
   /* cleanup */
-  g_object_unref(session2);
-  g_object_checked_unref(session1);
+  g_object_unref (session2);
+  g_object_checked_unref (session1);
 }
+
 BT_END_TEST;
 
 
-TCase *bt_audio_session_example_case(void) {
-  TCase *tc = tcase_create("BtAudioSessionExamples");
+TCase *
+bt_audio_session_example_case (void)
+{
+  TCase *tc = tcase_create ("BtAudioSessionExamples");
 
-  tcase_add_test(tc,test_bt_audio_session_singleton);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_audio_session_singleton);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

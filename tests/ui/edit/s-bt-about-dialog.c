@@ -20,12 +20,14 @@
 #include "m-bt-edit.h"
 
 //extern TCase *bt_about_dialog_test_case(void);
-extern TCase *bt_about_dialog_example_case(void);
+extern TCase *bt_about_dialog_example_case (void);
 
-Suite *bt_about_dialog_suite(void) { 
-  Suite *s=suite_create("BtAboutDialog"); 
+Suite *
+bt_about_dialog_suite (void)
+{
+  Suite *s = suite_create ("BtAboutDialog");
 
   //suite_add_tcase(s,bt_about_dialog_test_case());
-  suite_add_tcase(s,bt_about_dialog_example_case());
-  return(s);
+  suite_add_tcase (s, bt_about_dialog_example_case ());
+  return (s);
 }

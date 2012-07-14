@@ -26,66 +26,77 @@ static BtSong *song;
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  song = bt_song_new (app);
 }
 
-static void test_teardown(void) {
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+static void
+test_teardown (void)
+{
+  g_object_checked_unref (song);
+  g_object_checked_unref (app);
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
 /* create a machine with not exising plugin name */
-BT_START_TEST(test_bt_source_machine_wrong_name) {
+BT_START_TEST (test_bt_source_machine_wrong_name)
+{
   /* arrange */
 
   /* act */
-  GError *err=NULL;
-  BtSourceMachine *machine=bt_source_machine_new(song,"id","nonsense",1,&err);
+  GError *err = NULL;
+  BtSourceMachine *machine =
+      bt_source_machine_new (song, "id", "nonsense", 1, &err);
 
   /* assert */
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err!=NULL, NULL);
+  fail_unless (machine != NULL, NULL);
+  fail_unless (err != NULL, NULL);
 
   /* cleanup */
 }
+
 BT_END_TEST
-
-
 /* create a machine which is a sink machine and not a source machine */
-BT_START_TEST(test_bt_source_machine_wrong_type) {
+BT_START_TEST (test_bt_source_machine_wrong_type)
+{
   /* arrange */
 
   /*act */
-  GError *err=NULL;
-  BtSourceMachine *machine=bt_source_machine_new(song,"id","autoaudiosink",1,&err);
+  GError *err = NULL;
+  BtSourceMachine *machine =
+      bt_source_machine_new (song, "id", "autoaudiosink", 1, &err);
 
   /* assert */
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err!=NULL, NULL);
+  fail_unless (machine != NULL, NULL);
+  fail_unless (err != NULL, NULL);
 
   /* cleanup */
 }
-BT_END_TEST
 
+BT_END_TEST TCase * bt_source_machine_test_case (void)
+{
+  TCase *tc = tcase_create ("BtSourceMachineTests");
 
-TCase *bt_source_machine_test_case(void) {
-  TCase *tc = tcase_create("BtSourceMachineTests");
-
-  tcase_add_test(tc,test_bt_source_machine_wrong_name);
-  tcase_add_test(tc,test_bt_source_machine_wrong_type);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_source_machine_wrong_name);
+  tcase_add_test (tc, test_bt_source_machine_wrong_type);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

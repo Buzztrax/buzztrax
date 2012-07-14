@@ -26,90 +26,104 @@ static BtSong *song;
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  song = bt_song_new (app);
 }
 
-static void test_teardown(void) {
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+static void
+test_teardown (void)
+{
+  g_object_checked_unref (song);
+  g_object_checked_unref (app);
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
-BT_START_TEST(test_bt_song_info_date_stamps) {
+BT_START_TEST (test_bt_song_info_date_stamps)
+{
   /* arrange */
-  BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
+  BtSongInfo *song_info =
+      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
 
   /* act */
-  gchar *create_dts=check_gobject_get_str_property(song_info,"create-dts");
+  gchar *create_dts = check_gobject_get_str_property (song_info, "create-dts");
 
   /* assert */
-  fail_unless(create_dts != NULL, NULL);
-  ck_assert_gobject_str_eq(song_info,"change-dts",create_dts);
+  fail_unless (create_dts != NULL, NULL);
+  ck_assert_gobject_str_eq (song_info, "change-dts", create_dts);
 
   /* cleanup */
-  g_free(create_dts);
-  g_object_unref(song_info);
+  g_free (create_dts);
+  g_object_unref (song_info);
 }
-BT_END_TEST
 
+BT_END_TEST
 /* Test changing the tempo */
-BT_START_TEST(test_bt_song_info_tempo) {
+BT_START_TEST (test_bt_song_info_tempo)
+{
   /* arrange */
-  BtSequence *sequence=BT_SEQUENCE(check_gobject_get_object_property(song, "sequence"));
-  BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
-  g_object_set(song_info,"bpm",120,NULL);
-  GstClockTime t1=bt_sequence_get_bar_time(sequence);
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtSongInfo *song_info =
+      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
+  g_object_set (song_info, "bpm", 120, NULL);
+  GstClockTime t1 = bt_sequence_get_bar_time (sequence);
 
   /* act */
-  g_object_set(song_info,"bpm",60,NULL);
-  GstClockTime t2=bt_sequence_get_bar_time(sequence);
+  g_object_set (song_info, "bpm", 60, NULL);
+  GstClockTime t2 = bt_sequence_get_bar_time (sequence);
 
   /* assert */
-  ck_assert_uint64_gt(t2,t1);
-  ck_assert_uint64_eq((t2/2),t1);
-  
+  ck_assert_uint64_gt (t2, t1);
+  ck_assert_uint64_eq ((t2 / 2), t1);
+
   /* cleanup */
-  g_object_unref(song_info);
-  g_object_unref(sequence);
+  g_object_unref (song_info);
+  g_object_unref (sequence);
 }
+
 BT_END_TEST
-
-
-BT_START_TEST(test_bt_song_info_seconds_since_last_saved) {
+BT_START_TEST (test_bt_song_info_seconds_since_last_saved)
+{
   /* arrange */
-  BtSongInfo *song_info=BT_SONG_INFO(check_gobject_get_object_property(song, "song-info"));
+  BtSongInfo *song_info =
+      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
 
   /* act */
-  g_usleep(G_USEC_PER_SEC);
-  gint ts=bt_song_info_get_seconds_since_last_saved(song_info);
-  
+  g_usleep (G_USEC_PER_SEC);
+  gint ts = bt_song_info_get_seconds_since_last_saved (song_info);
+
   /* assert */
-  ck_assert_int_gt(ts,0);
+  ck_assert_int_gt (ts, 0);
 
   /* cleanup */
-  g_object_unref(song_info);
+  g_object_unref (song_info);
 }
-BT_END_TEST
 
+BT_END_TEST TCase * bt_song_info_example_case (void)
+{
+  TCase *tc = tcase_create ("BtSongInfoExamples");
 
-TCase *bt_song_info_example_case(void) {
-  TCase *tc = tcase_create("BtSongInfoExamples");
-
-  tcase_add_test(tc,test_bt_song_info_date_stamps);
-  tcase_add_test(tc,test_bt_song_info_tempo);
-  tcase_add_test(tc,test_bt_song_info_seconds_since_last_saved);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_song_info_date_stamps);
+  tcase_add_test (tc, test_bt_song_info_tempo);
+  tcase_add_test (tc, test_bt_song_info_seconds_since_last_saved);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

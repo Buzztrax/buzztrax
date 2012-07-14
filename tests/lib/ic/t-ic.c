@@ -25,70 +25,79 @@ static FILE *saved_stdout = NULL;
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
-  saved_stdout=stdout;
-  stdout=tmpfile();
+static void
+test_setup (void)
+{
+  saved_stdout = stdout;
+  stdout = tmpfile ();
 }
 
-static void test_teardown(void) {
-  fclose(stdout);
-  stdout=saved_stdout;
+static void
+test_teardown (void)
+{
+  fclose (stdout);
+  stdout = saved_stdout;
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
 // test init with wrong arg usage
-BT_START_TEST(test_btic_init0  ) {
+BT_START_TEST (test_btic_init0)
+{
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--btic-version=5" };
   gchar **test_argvptr = test_argv;
-  gint test_argc=G_N_ELEMENTS(test_argv);
+  gint test_argc = G_N_ELEMENTS (test_argv);
 
   /* act */
-  btic_init(&test_argc,&test_argvptr);
-  
+  btic_init (&test_argc, &test_argvptr);
+
   /* assert */
-  mark_point();
+  mark_point ();
 }
+
 BT_END_TEST
-
-
 // test init with nonsense args
-BT_START_TEST(test_btic_init1) {
+BT_START_TEST (test_btic_init1)
+{
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--btic-non-sense" };
   gchar **test_argvptr = test_argv;
-  gint test_argc=G_N_ELEMENTS(test_argv);
-  
+  gint test_argc = G_N_ELEMENTS (test_argv);
+
   /* arrange */
-  GOptionContext *ctx = g_option_context_new(NULL);
-  g_option_context_add_group(ctx, btic_init_get_option_group());
-  g_option_context_set_ignore_unknown_options(ctx, TRUE);
+  GOptionContext *ctx = g_option_context_new (NULL);
+  g_option_context_add_group (ctx, btic_init_get_option_group ());
+  g_option_context_set_ignore_unknown_options (ctx, TRUE);
 
   /* act & assert */
-  fail_unless(g_option_context_parse(ctx, &test_argc, &test_argvptr, NULL));
-  ck_assert_int_eq(test_argc, 2);
+  fail_unless (g_option_context_parse (ctx, &test_argc, &test_argvptr, NULL));
+  ck_assert_int_eq (test_argc, 2);
 
   /* cleanup */
-  g_option_context_free(ctx);
+  g_option_context_free (ctx);
 }
-BT_END_TEST
 
+BT_END_TEST TCase * bt_ic_test_case (void)
+{
+  TCase *tc = tcase_create ("BtICTests");
 
-TCase *bt_ic_test_case(void) {
-  TCase *tc = tcase_create("BtICTests");
-
-  tcase_add_test(tc,test_btic_init0);
-  tcase_add_test(tc,test_btic_init1);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_btic_init0);
+  tcase_add_test (tc, test_btic_init1);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

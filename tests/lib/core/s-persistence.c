@@ -19,13 +19,15 @@
 
 #include "m-bt-core.h"
 
-extern TCase *bt_persistence_test_case(void);
-extern TCase *bt_persistence_example_case(void);
+extern TCase *bt_persistence_test_case (void);
+extern TCase *bt_persistence_example_case (void);
 
-Suite *bt_persistence_suite(void) { 
-  Suite *s=suite_create("BtPersistence"); 
+Suite *
+bt_persistence_suite (void)
+{
+  Suite *s = suite_create ("BtPersistence");
 
-  suite_add_tcase(s,bt_persistence_test_case());
-  suite_add_tcase(s,bt_persistence_example_case());
-  return(s);
+  suite_add_tcase (s, bt_persistence_test_case ());
+  suite_add_tcase (s, bt_persistence_example_case ());
+  return (s);
 }

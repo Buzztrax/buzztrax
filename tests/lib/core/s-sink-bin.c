@@ -19,13 +19,15 @@
 
 #include "m-bt-core.h"
 
-extern TCase *bt_sink_bin_test_case(void);
-extern TCase *bt_sink_bin_example_case(void);
+extern TCase *bt_sink_bin_test_case (void);
+extern TCase *bt_sink_bin_example_case (void);
 
-Suite *bt_sink_bin_suite(void) { 
-  Suite *s=suite_create("BtSinkBin"); 
+Suite *
+bt_sink_bin_suite (void)
+{
+  Suite *s = suite_create ("BtSinkBin");
 
-  suite_add_tcase(s,bt_sink_bin_test_case());
-  suite_add_tcase(s,bt_sink_bin_example_case());
-  return(s);
+  suite_add_tcase (s, bt_sink_bin_test_case ());
+  suite_add_tcase (s, bt_sink_bin_example_case ());
+  return (s);
 }

@@ -20,12 +20,14 @@
 #include "m-bt-core.h"
 
 //extern TCase *bt_application_test_case(void);
-extern TCase *bt_application_example_case(void);
+extern TCase *bt_application_example_case (void);
 
-Suite *bt_application_suite(void) { 
-  Suite *s=suite_create("BtApplication"); 
+Suite *
+bt_application_suite (void)
+{
+  Suite *s = suite_create ("BtApplication");
 
   //suite_add_tcase(s,bt_application_test_case());
-  suite_add_tcase(s,bt_application_example_case());
-  return(s);
+  suite_add_tcase (s, bt_application_example_case ());
+  return (s);
 }

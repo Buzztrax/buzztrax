@@ -23,70 +23,81 @@
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
+static void
+test_setup (void)
+{
 }
 
-static void test_teardown(void) {
+static void
+test_teardown (void)
+{
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
-BT_START_TEST(test_bt_persistence_parse_enum_wrong_type) {
+BT_START_TEST (test_bt_persistence_parse_enum_wrong_type)
+{
   /* act */
-  gint v=bt_persistence_parse_enum(G_TYPE_INVALID, "hello");
+  gint v = bt_persistence_parse_enum (G_TYPE_INVALID, "hello");
 
   /*assert */
-  ck_assert_int_eq(v, -1);
+  ck_assert_int_eq (v, -1);
 }
+
 BT_END_TEST
-
-
-BT_START_TEST(test_bt_persistence_parse_enum_null_str) {
+BT_START_TEST (test_bt_persistence_parse_enum_null_str)
+{
   /* act */
-  gint v=bt_persistence_parse_enum(BT_TYPE_MACHINE_STATE, NULL);
+  gint v = bt_persistence_parse_enum (BT_TYPE_MACHINE_STATE, NULL);
 
   /*assert */
-  ck_assert_int_eq(v, -1);
+  ck_assert_int_eq (v, -1);
 }
+
 BT_END_TEST
-
-
-BT_START_TEST(test_bt_persistence_strfmt_enum_wrong_type) {
+BT_START_TEST (test_bt_persistence_strfmt_enum_wrong_type)
+{
   /* act */
-  const gchar *v=bt_persistence_strfmt_enum(G_TYPE_INVALID, 1);
+  const gchar *v = bt_persistence_strfmt_enum (G_TYPE_INVALID, 1);
 
   /*assert */
-  fail_unless(v==NULL, NULL);
+  fail_unless (v == NULL, NULL);
 }
+
 BT_END_TEST
-
-
-BT_START_TEST(test_bt_persistence_strfmt_enum_wrong_value) {
+BT_START_TEST (test_bt_persistence_strfmt_enum_wrong_value)
+{
   /* act */
-  const gchar *v=bt_persistence_strfmt_enum(BT_TYPE_MACHINE_STATE, BT_MACHINE_STATE_COUNT);
+  const gchar *v =
+      bt_persistence_strfmt_enum (BT_TYPE_MACHINE_STATE,
+      BT_MACHINE_STATE_COUNT);
 
   /*assert */
-  fail_unless(v==NULL, NULL);
+  fail_unless (v == NULL, NULL);
 }
-BT_END_TEST
 
+BT_END_TEST TCase * bt_persistence_test_case (void)
+{
+  TCase *tc = tcase_create ("BtPersistenceTests");
 
-TCase *bt_persistence_test_case(void) {
-  TCase *tc = tcase_create("BtPersistenceTests");
-
-  tcase_add_test(tc,test_bt_persistence_parse_enum_wrong_type);
-  tcase_add_test(tc,test_bt_persistence_parse_enum_null_str);
-  tcase_add_test(tc,test_bt_persistence_strfmt_enum_wrong_type);
-  tcase_add_test(tc,test_bt_persistence_strfmt_enum_wrong_value);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_persistence_parse_enum_wrong_type);
+  tcase_add_test (tc, test_bt_persistence_parse_enum_null_str);
+  tcase_add_test (tc, test_bt_persistence_strfmt_enum_wrong_type);
+  tcase_add_test (tc, test_bt_persistence_strfmt_enum_wrong_value);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

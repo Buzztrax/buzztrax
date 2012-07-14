@@ -19,13 +19,15 @@
 
 #include "m-bt-core.h"
 
-extern TCase *bt_sequence_test_case(void);
-extern TCase *bt_sequence_example_case(void);
+extern TCase *bt_sequence_test_case (void);
+extern TCase *bt_sequence_example_case (void);
 
-Suite *bt_sequence_suite(void) { 
-  Suite *s=suite_create("BtSequence"); 
+Suite *
+bt_sequence_suite (void)
+{
+  Suite *s = suite_create ("BtSequence");
 
-  suite_add_tcase(s,bt_sequence_test_case());
-  suite_add_tcase(s,bt_sequence_example_case());
-  return(s);
+  suite_add_tcase (s, bt_sequence_test_case ());
+  suite_add_tcase (s, bt_sequence_example_case ());
+  return (s);
 }

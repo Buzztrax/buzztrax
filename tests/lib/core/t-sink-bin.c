@@ -26,46 +26,59 @@ static BtSong *song;
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  song = bt_song_new (app);
 }
 
-static void test_teardown(void) {
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+static void
+test_teardown (void)
+{
+  g_object_checked_unref (song);
+  g_object_checked_unref (app);
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 //-- tests
 
-BT_START_TEST(test_bt_sink_bin_properties) {
+BT_START_TEST (test_bt_sink_bin_properties)
+{
   /* arrange */
-  GstElement *bin=gst_element_factory_make("bt-sink-bin",NULL);
+  GstElement *bin = gst_element_factory_make ("bt-sink-bin", NULL);
 
   /* act & assert */
-  fail_unless(check_gobject_properties((GObject *)bin),NULL);
+  fail_unless (check_gobject_properties ((GObject *) bin), NULL);
 
   /* cleanup */
-  mark_point();
+  mark_point ();
 }
+
 BT_END_TEST;
 
 /* set bad record-file-name */
 /* set empty analyzer list */
 
 
-TCase *bt_sink_bin_test_case(void) {
-  TCase *tc = tcase_create("BtSinkBinTests");
+TCase *
+bt_sink_bin_test_case (void)
+{
+  TCase *tc = tcase_create ("BtSinkBinTests");
 
-  tcase_add_test(tc,test_bt_sink_bin_properties);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_sink_bin_properties);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

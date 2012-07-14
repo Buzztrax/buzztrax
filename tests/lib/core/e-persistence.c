@@ -23,56 +23,67 @@
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
+static void
+test_setup (void)
+{
 }
 
-static void test_teardown(void) {
+static void
+test_teardown (void)
+{
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
-BT_START_TEST(test_bt_persistence_parse_enum) {
+BT_START_TEST (test_bt_persistence_parse_enum)
+{
   /* arrange */
 
   /* act */
-  gint v=bt_persistence_parse_enum(BT_TYPE_MACHINE_STATE, "normal");
+  gint v = bt_persistence_parse_enum (BT_TYPE_MACHINE_STATE, "normal");
 
   /* assert */
-  ck_assert_int_eq(v, BT_MACHINE_STATE_NORMAL);
+  ck_assert_int_eq (v, BT_MACHINE_STATE_NORMAL);
 
   /* cleanup */
 }
+
 BT_END_TEST
-
-
-BT_START_TEST(test_bt_persistence_strfmt_enum) {
+BT_START_TEST (test_bt_persistence_strfmt_enum)
+{
   /* arrange */
 
   /* act */
-  const gchar *v=bt_persistence_strfmt_enum(BT_TYPE_MACHINE_STATE, BT_MACHINE_STATE_NORMAL);
+  const gchar *v =
+      bt_persistence_strfmt_enum (BT_TYPE_MACHINE_STATE,
+      BT_MACHINE_STATE_NORMAL);
 
   /* assert */
-  ck_assert_str_eq(v, "normal");
+  ck_assert_str_eq (v, "normal");
 
   /* cleanup */
 }
-BT_END_TEST
 
+BT_END_TEST TCase * bt_persistence_example_case (void)
+{
+  TCase *tc = tcase_create ("BtPersistenceExamples");
 
-TCase *bt_persistence_example_case(void) {
-  TCase *tc = tcase_create("BtPersistenceExamples");
-
-  tcase_add_test(tc,test_bt_persistence_parse_enum);
-  tcase_add_test(tc,test_bt_persistence_strfmt_enum);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_persistence_parse_enum);
+  tcase_add_test (tc, test_bt_persistence_strfmt_enum);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

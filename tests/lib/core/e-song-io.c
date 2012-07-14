@@ -23,75 +23,85 @@
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
+static void
+test_setup (void)
+{
 }
 
-static void test_teardown(void) {
+static void
+test_teardown (void)
+{
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
-BT_START_TEST(test_bt_song_io_module_info) {
+BT_START_TEST (test_bt_song_io_module_info)
+{
   /* arrange */
 
   /* act */
-  const GList *mi=bt_song_io_get_module_info_list();
+  const GList *mi = bt_song_io_get_module_info_list ();
 
   /* assert */
-  fail_unless(mi!=NULL, NULL);
+  fail_unless (mi != NULL, NULL);
 
   /* cleanup */
 }
+
 BT_END_TEST
-
-
-BT_START_TEST(test_bt_song_io_file) {
+BT_START_TEST (test_bt_song_io_file)
+{
   /* arrange */
 
   /* act */
-  BtSongIO *song_io=bt_song_io_from_file(check_get_test_song_path("simple2.xml"));
+  BtSongIO *song_io =
+      bt_song_io_from_file (check_get_test_song_path ("simple2.xml"));
 
   /* assert */
-  fail_unless(song_io!=NULL, NULL);
-  fail_unless(BT_IS_SONG_IO_NATIVE(song_io), NULL);
+  fail_unless (song_io != NULL, NULL);
+  fail_unless (BT_IS_SONG_IO_NATIVE (song_io), NULL);
 
   /* cleanup */
-  g_object_checked_unref(song_io);
+  g_object_checked_unref (song_io);
 }
+
 BT_END_TEST
-
-
-BT_START_TEST(test_bt_song_io_data) {
+BT_START_TEST (test_bt_song_io_data)
+{
   /* arrange */
 
   /* act */
-  BtSongIO *song_io=bt_song_io_from_data(NULL,0,"audio/x-bzt-xml");
+  BtSongIO *song_io = bt_song_io_from_data (NULL, 0, "audio/x-bzt-xml");
 
   /* assert */
-  fail_unless(song_io!=NULL, NULL);
-  fail_unless(BT_IS_SONG_IO_NATIVE(song_io), NULL);
+  fail_unless (song_io != NULL, NULL);
+  fail_unless (BT_IS_SONG_IO_NATIVE (song_io), NULL);
 
   /* cleanup */
-  g_object_checked_unref(song_io);
+  g_object_checked_unref (song_io);
 }
-BT_END_TEST
 
+BT_END_TEST TCase * bt_song_io_example_case (void)
+{
+  TCase *tc = tcase_create ("BtSongIOExamples");
 
-TCase *bt_song_io_example_case(void) {
-  TCase *tc = tcase_create("BtSongIOExamples");
-
-  tcase_add_test(tc,test_bt_song_io_module_info);
-  tcase_add_test(tc,test_bt_song_io_file);
-  tcase_add_test(tc,test_bt_song_io_data);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_song_io_module_info);
+  tcase_add_test (tc, test_bt_song_io_file);
+  tcase_add_test (tc, test_bt_song_io_data);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

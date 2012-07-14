@@ -27,85 +27,99 @@ static BtMachine *machine;
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  song = bt_song_new (app);
 }
 
-static void test_teardown(void) {
-  g_object_unref(machine);machine=NULL;
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+static void
+test_teardown (void)
+{
+  g_object_unref (machine);
+  machine = NULL;
+  g_object_checked_unref (song);
+  g_object_checked_unref (app);
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 //-- helper
 
-BtParameterGroup *get_mono_parameter_group(void) {
-  machine=BT_MACHINE(bt_source_machine_new(song,"id","buzztard-test-mono-source",0,NULL));
-  return bt_machine_get_global_param_group(machine);
+BtParameterGroup *
+get_mono_parameter_group (void)
+{
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztard-test-mono-source", 0, NULL));
+  return bt_machine_get_global_param_group (machine);
 }
 
 
 //-- tests
 
-BT_START_TEST(test_bt_parameter_group_param) {
+BT_START_TEST (test_bt_parameter_group_param)
+{
   /* arrange */
-  BtParameterGroup *pg=get_mono_parameter_group();
+  BtParameterGroup *pg = get_mono_parameter_group ();
 
   /* act && assert */
-  ck_assert_int_eq(bt_parameter_group_get_param_index(pg,"g-double"), 1);
+  ck_assert_int_eq (bt_parameter_group_get_param_index (pg, "g-double"), 1);
 
   /* cleanup */
 }
+
 BT_END_TEST
-
-
-BT_START_TEST(test_bt_parameter_group_size) {
+BT_START_TEST (test_bt_parameter_group_size)
+{
   /* arrange */
-  BtParameterGroup *pg=get_mono_parameter_group();
+  BtParameterGroup *pg = get_mono_parameter_group ();
 
   /* act && assert */
-  ck_assert_gobject_glong_eq(pg,"num-params",3);
+  ck_assert_gobject_glong_eq (pg, "num-params", 3);
 
   /* cleanup */
 }
+
 BT_END_TEST
-
-
 /* try describe on a machine that does not implement the interface */
-BT_START_TEST(test_bt_parameter_group_describe) {
+BT_START_TEST (test_bt_parameter_group_describe)
+{
   /* arrange */
-  BtParameterGroup *pg=get_mono_parameter_group();
-  GValue val={0,};
-  g_value_init(&val,G_TYPE_ULONG);
-  g_value_set_ulong(&val,1L);
+  BtParameterGroup *pg = get_mono_parameter_group ();
+  GValue val = { 0, };
+  g_value_init (&val, G_TYPE_ULONG);
+  g_value_set_ulong (&val, 1L);
 
   /* act */
-  gchar *str = bt_parameter_group_describe_param_value(pg,0,&val);
+  gchar *str = bt_parameter_group_describe_param_value (pg, 0, &val);
 
   /* assert */
-  fail_unless(str == NULL, NULL);
+  fail_unless (str == NULL, NULL);
 
   /* cleanup */
-  g_value_unset(&val);
+  g_value_unset (&val);
 }
-BT_END_TEST
 
+BT_END_TEST TCase * bt_param_group_example_case (void)
+{
+  TCase *tc = tcase_create ("BtParamGroupExamples");
 
-TCase *bt_param_group_example_case(void) {
-  TCase *tc = tcase_create("BtParamGroupExamples");
-
-  tcase_add_test(tc,test_bt_parameter_group_param);
-  tcase_add_test(tc,test_bt_parameter_group_size);
-  tcase_add_test(tc,test_bt_parameter_group_describe);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_parameter_group_param);
+  tcase_add_test (tc, test_bt_parameter_group_size);
+  tcase_add_test (tc, test_bt_parameter_group_describe);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

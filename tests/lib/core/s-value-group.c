@@ -19,13 +19,15 @@
 
 #include "m-bt-core.h"
 
-extern TCase *bt_value_group_test_case(void);
-extern TCase *bt_value_group_example_case(void);
+extern TCase *bt_value_group_test_case (void);
+extern TCase *bt_value_group_example_case (void);
 
-Suite *bt_value_group_suite(void) { 
-  Suite *s=suite_create("BtValueGroup"); 
+Suite *
+bt_value_group_suite (void)
+{
+  Suite *s = suite_create ("BtValueGroup");
 
-  suite_add_tcase(s,bt_value_group_test_case());
-  suite_add_tcase(s,bt_value_group_example_case());
-  return(s);
+  suite_add_tcase (s, bt_value_group_test_case ());
+  suite_add_tcase (s, bt_value_group_example_case ());
+  return (s);
 }

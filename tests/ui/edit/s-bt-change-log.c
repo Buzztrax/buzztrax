@@ -20,12 +20,14 @@
 #include "m-bt-edit.h"
 
 //extern TCase *bt_change_log_test_case(void);
-extern TCase *bt_change_log_example_case(void);
+extern TCase *bt_change_log_example_case (void);
 
-Suite *bt_change_log_suite(void) {
-  Suite *s=suite_create("BtChangeLog");
+Suite *
+bt_change_log_suite (void)
+{
+  Suite *s = suite_create ("BtChangeLog");
 
   //suite_add_tcase(s,bt_change_log_test_case());
-  suite_add_tcase(s,bt_change_log_example_case());
-  return(s);
+  suite_add_tcase (s, bt_change_log_example_case ());
+  return (s);
 }

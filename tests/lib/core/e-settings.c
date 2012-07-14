@@ -23,44 +23,57 @@
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
+static void
+test_setup (void)
+{
 }
 
-static void test_teardown(void) {
+static void
+test_teardown (void)
+{
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
-BT_START_TEST(test_bt_settings_singleton) {
+BT_START_TEST (test_bt_settings_singleton)
+{
   /* arrange */
-  BtSettings *settings1=bt_settings_make();
+  BtSettings *settings1 = bt_settings_make ();
 
   /* act */
-  BtSettings *settings2=bt_settings_make();
+  BtSettings *settings2 = bt_settings_make ();
 
   /* assert */
-  fail_unless(settings1==settings2, NULL);
+  fail_unless (settings1 == settings2, NULL);
 
   /* cleanup */
-  g_object_unref(settings2);
-  g_object_checked_unref(settings1);
+  g_object_unref (settings2);
+  g_object_checked_unref (settings1);
 }
+
 BT_END_TEST;
 
 
-TCase *bt_settings_example_case(void) {
-  TCase *tc = tcase_create("BtSettingsExamples");
+TCase *
+bt_settings_example_case (void)
+{
+  TCase *tc = tcase_create ("BtSettingsExamples");
 
-  tcase_add_test(tc,test_bt_settings_singleton);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_settings_singleton);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

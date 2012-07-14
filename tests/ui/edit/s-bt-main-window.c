@@ -20,12 +20,14 @@
 #include "m-bt-edit.h"
 
 //extern TCase *bt_main_window_test_case(void);
-extern TCase *bt_main_window_example_case(void);
+extern TCase *bt_main_window_example_case (void);
 
-Suite *bt_main_window_suite(void) {
-  Suite *s=suite_create("BtMainWindow");
+Suite *
+bt_main_window_suite (void)
+{
+  Suite *s = suite_create ("BtMainWindow");
 
   //suite_add_tcase(s,bt_main_window_test_case());
-  suite_add_tcase(s,bt_main_window_example_case());
-  return(s);
+  suite_add_tcase (s, bt_main_window_example_case ());
+  return (s);
 }

@@ -20,12 +20,14 @@
 #include "m-bt-ic.h"
 
 //extern TCase *bt_registry_test_case(void);
-extern TCase *bt_registry_example_case(void);
+extern TCase *bt_registry_example_case (void);
 
-Suite *bt_registry_suite(void) {
-  Suite *s=suite_create("BticRegistry");
+Suite *
+bt_registry_suite (void)
+{
+  Suite *s = suite_create ("BticRegistry");
 
   //suite_add_tcase(s,bt_registry_test_case());
-  suite_add_tcase(s,bt_registry_example_case());
-  return(s);
+  suite_add_tcase (s, bt_registry_example_case ());
+  return (s);
 }

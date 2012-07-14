@@ -23,82 +23,94 @@
 
 //-- fixtures
 
-static void test_setup(void) {
-  bt_edit_setup();
+static void
+test_setup (void)
+{
+  bt_edit_setup ();
 }
 
-static void test_teardown(void) {
-  bt_edit_teardown();
+static void
+test_teardown (void)
+{
+  bt_edit_teardown ();
 }
 
 //-- tests
 
 // this tests triggering certain dialog resposes
-static struct {
+static struct
+{
   GtkDialog *dialog;
   gint response;
 } dialog_data;
 
-static gboolean leave_dialog(gpointer user_data) {
+static gboolean
+leave_dialog (gpointer user_data)
+{
   if (dialog_data.dialog) {
-    gtk_dialog_response(dialog_data.dialog,dialog_data.response);
+    gtk_dialog_response (dialog_data.dialog, dialog_data.response);
     return FALSE;
   } else {
-    BtMainWindow *main_window=BT_MAIN_WINDOW(user_data);
+    BtMainWindow *main_window = BT_MAIN_WINDOW (user_data);
 
     // need to get get the dialog here
-    g_object_get(main_window,"dialog",&dialog_data.dialog,NULL);
+    g_object_get (main_window, "dialog", &dialog_data.dialog, NULL);
     return TRUE;
   }
 }
 
 // create app and then unconditionally destroy window
-BT_START_TEST(test_about_dialog) {
+BT_START_TEST (test_about_dialog)
+{
   BtEditApplication *app;
-  GError *err=NULL;
+  GError *err = NULL;
   BtMainWindow *main_window;
   BtSong *song;
   BtMachine *machine;
 
-  app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
-  fail_unless(app != NULL, NULL);
+  app = bt_edit_application_new ();
+  GST_INFO ("back in test app=%p, app->ref_ct=%d", app,
+      G_OBJECT_REF_COUNT (app));
+  fail_unless (app != NULL, NULL);
 
   // create a new song
-  bt_edit_application_new_song(app);
+  bt_edit_application_new_song (app);
 
   // get window && song
-  g_object_get(app,"main-window",&main_window,"song",&song,NULL);
-  fail_unless(main_window != NULL, NULL);
-  fail_unless(song != NULL, NULL);
+  g_object_get (app, "main-window", &main_window, "song", &song, NULL);
+  fail_unless (main_window != NULL, NULL);
+  fail_unless (song != NULL, NULL);
 
   // create a source machine
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0, &err));
+  fail_unless (machine != NULL, NULL);
+  fail_unless (err == NULL, NULL);
 
-  dialog_data.dialog=NULL;
-  dialog_data.response=GTK_RESPONSE_ACCEPT;
-  g_idle_add(leave_dialog,(gpointer)main_window);
-  bt_machine_action_about(machine,main_window);
+  dialog_data.dialog = NULL;
+  dialog_data.response = GTK_RESPONSE_ACCEPT;
+  g_idle_add (leave_dialog, (gpointer) main_window);
+  bt_machine_action_about (machine, main_window);
 
   // close window
-  gtk_widget_destroy(GTK_WIDGET(main_window));
-  while(gtk_events_pending()) gtk_main_iteration();
-  
+  gtk_widget_destroy (GTK_WIDGET (main_window));
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
+
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
-  g_object_unref(machine);
-  g_object_unref(song);
-  g_object_checked_unref(app);
+  GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
+  g_object_unref (machine);
+  g_object_unref (song);
+  g_object_checked_unref (app);
 }
-BT_END_TEST
 
-TCase *bt_machine_actions_example_case(void) {
-  TCase *tc = tcase_create("BtMachineActionsExamples");
+BT_END_TEST TCase * bt_machine_actions_example_case (void)
+{
+  TCase *tc = tcase_create ("BtMachineActionsExamples");
 
-  tcase_add_test(tc,test_about_dialog);
+  tcase_add_test (tc, test_about_dialog);
   // we *must* use a checked fixture, as only this runs in the same context
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  return (tc);
 }

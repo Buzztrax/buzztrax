@@ -24,47 +24,50 @@
 #include "bt-check.h"
 #include "../src/lib/ic/ic.h"
 
-GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
-GST_DEBUG_CATEGORY_EXTERN(btic_debug);
+GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
+GST_DEBUG_CATEGORY_EXTERN (btic_debug);
 
-extern Suite *bt_ic_suite(void);
-extern Suite *bt_registry_suite(void);
+extern Suite *bt_ic_suite (void);
+extern Suite *bt_registry_suite (void);
 
 gchar *test_argv[] = { "check_buzzard" };
+
 gchar **test_argvptr = test_argv;
-gint test_argc=G_N_ELEMENTS(test_argv);
+gint test_argc = G_N_ELEMENTS (test_argv);
 
 /* start the test run */
-gint main(gint argc, gchar **argv) {
+gint
+main (gint argc, gchar ** argv)
+{
   gint nf;
   SRunner *sr;
 
-#if !GLIB_CHECK_VERSION (2, 31, 0) 
+#if !GLIB_CHECK_VERSION (2, 31, 0)
   // initialize as soon as possible
-  if(!g_thread_supported()) {
-    g_thread_init(NULL);
+  if (!g_thread_supported ()) {
+    g_thread_init (NULL);
   }
 #endif
 
-  g_type_init();
-  setup_log(argc,argv);
-  setup_log_capture();
+  g_type_init ();
+  setup_log (argc, argv);
+  setup_log_capture ();
 
-  gst_init(NULL,NULL);
-  bt_check_init();
-  btic_init(&test_argc,&test_argvptr);
+  gst_init (NULL, NULL);
+  bt_check_init ();
+  btic_init (&test_argc, &test_argvptr);
 
   // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_default_threshold(GST_LEVEL_DEBUG);
+  gst_debug_set_default_threshold (GST_LEVEL_DEBUG);
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
-  sr=srunner_create(bt_ic_suite());
-  srunner_add_suite(sr, bt_registry_suite());
-  srunner_run_all(sr,CK_NORMAL);
-  nf=srunner_ntests_failed(sr);
-  srunner_free(sr);
+  sr = srunner_create (bt_ic_suite ());
+  srunner_add_suite (sr, bt_registry_suite ());
+  srunner_run_all (sr, CK_NORMAL);
+  nf = srunner_ntests_failed (sr);
+  srunner_free (sr);
 
   //g_mem_profile();
 
-  return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE;
+  return (nf == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

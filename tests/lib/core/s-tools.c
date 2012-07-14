@@ -19,13 +19,15 @@
 
 #include "m-bt-core.h"
 
-extern TCase *bt_tools_test_case(void);
-extern TCase *bt_tools_example_case(void);
+extern TCase *bt_tools_test_case (void);
+extern TCase *bt_tools_example_case (void);
 
-Suite *bt_tools_suite(void) { 
-  Suite *s=suite_create("BtTools"); 
+Suite *
+bt_tools_suite (void)
+{
+  Suite *s = suite_create ("BtTools");
 
-  suite_add_tcase(s,bt_tools_test_case());
-  suite_add_tcase(s,bt_tools_example_case());
-  return(s);
+  suite_add_tcase (s, bt_tools_test_case ());
+  suite_add_tcase (s, bt_tools_example_case ());
+  return (s);
 }

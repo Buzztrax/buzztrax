@@ -25,66 +25,76 @@ static FILE *saved_stdout = NULL;
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
-  saved_stdout=stdout;
-  stdout=tmpfile();
+static void
+test_setup (void)
+{
+  saved_stdout = stdout;
+  stdout = tmpfile ();
 }
 
-static void test_teardown(void) {
-  fclose(stdout);
-  stdout=saved_stdout;
+static void
+test_teardown (void)
+{
+  fclose (stdout);
+  stdout = saved_stdout;
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
 // test if the normal init call works with commandline arguments (no args)
-BT_START_TEST(test_btic_init0) {
+BT_START_TEST (test_btic_init0)
+{
   /* act */
-  btic_init(&test_argc,&test_argvptr);
+  btic_init (&test_argc, &test_argvptr);
 }
+
 BT_END_TEST
-
-
 // test if the init call handles correct null pointers
-BT_START_TEST(test_btic_init1) {
+BT_START_TEST (test_btic_init1)
+{
   /* act */
-  btic_init(NULL,NULL);
+  btic_init (NULL, NULL);
 }
+
 BT_END_TEST
-
-
 // test if the normal init call works with commandline arguments
-BT_START_TEST(test_btic_init2) {
+BT_START_TEST (test_btic_init2)
+{
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--btic-version" };
   gchar **test_argvptr = test_argv;
-  gint test_argc=G_N_ELEMENTS(test_argv);
+  gint test_argc = G_N_ELEMENTS (test_argv);
 
   /* act */
-  btic_init(&test_argc,&test_argvptr);
+  btic_init (&test_argc, &test_argvptr);
 
-  /* assert */  
-  ck_assert_int_eq(test_argc, 1);
-  fail_unless(check_file_contains_str(stdout, NULL, "libbuzztard-ic-"PACKAGE_VERSION" from "PACKAGE_STRING), NULL);
+  /* assert */
+  ck_assert_int_eq (test_argc, 1);
+  fail_unless (check_file_contains_str (stdout, NULL,
+          "libbuzztard-ic-" PACKAGE_VERSION " from " PACKAGE_STRING), NULL);
 }
-BT_END_TEST
 
+BT_END_TEST TCase * bt_ic_example_case (void)
+{
+  TCase *tc = tcase_create ("BtICExamples");
 
-TCase *bt_ic_example_case(void) {
-  TCase *tc = tcase_create("BtICExamples");
-
-  tcase_add_test(tc,test_btic_init0);
-  tcase_add_test(tc,test_btic_init1);
-  tcase_add_test(tc,test_btic_init2);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_btic_init0);
+  tcase_add_test (tc, test_btic_init1);
+  tcase_add_test (tc, test_btic_init2);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

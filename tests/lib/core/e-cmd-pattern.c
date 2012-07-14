@@ -26,66 +26,81 @@ static BtSong *song;
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  song = bt_song_new (app);
 }
 
-static void test_teardown(void) {
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+static void
+test_teardown (void)
+{
+  g_object_checked_unref (song);
+  g_object_checked_unref (app);
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
-BT_START_TEST(test_bt_cmd_pattern_obj_mono1) {
+BT_START_TEST (test_bt_cmd_pattern_obj_mono1)
+{
   /* arrange */
-  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,NULL));
-  
-  /* act */
-  BtCmdPattern *pattern=bt_cmd_pattern_new(song,machine,BT_PATTERN_CMD_MUTE);
-
-  /* assert */
-  ck_assert_gobject_guint_eq(pattern,"command",BT_PATTERN_CMD_MUTE);
-
-  /* cleanup */
-  g_object_unref(pattern);
-  g_object_unref(machine);
-}
-BT_END_TEST
-
-
-BT_START_TEST(test_bt_cmd_pattern_obj_poly1) {
-  /* arrange */
-  BtMachine *machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,NULL));
+  BtMachine *machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
 
   /* act */
-  BtCmdPattern *pattern=bt_cmd_pattern_new(song,machine,BT_PATTERN_CMD_MUTE);
-  
+  BtCmdPattern *pattern =
+      bt_cmd_pattern_new (song, machine, BT_PATTERN_CMD_MUTE);
+
   /* assert */
-  ck_assert_gobject_guint_eq(pattern,"command",BT_PATTERN_CMD_MUTE);
+  ck_assert_gobject_guint_eq (pattern, "command", BT_PATTERN_CMD_MUTE);
 
   /* cleanup */
-  g_object_unref(pattern);
-  g_object_unref(machine);
+  g_object_unref (pattern);
+  g_object_unref (machine);
 }
+
 BT_END_TEST
+BT_START_TEST (test_bt_cmd_pattern_obj_poly1)
+{
+  /* arrange */
+  BtMachine *machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-poly-source", 2L, NULL));
 
+  /* act */
+  BtCmdPattern *pattern =
+      bt_cmd_pattern_new (song, machine, BT_PATTERN_CMD_MUTE);
 
-TCase *bt_cmd_pattern_example_case(void) {
-  TCase *tc = tcase_create("BtCmdPatternExamples");
+  /* assert */
+  ck_assert_gobject_guint_eq (pattern, "command", BT_PATTERN_CMD_MUTE);
 
-  tcase_add_test(tc,test_bt_cmd_pattern_obj_mono1);
-  tcase_add_test(tc,test_bt_cmd_pattern_obj_poly1);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  /* cleanup */
+  g_object_unref (pattern);
+  g_object_unref (machine);
+}
+
+BT_END_TEST TCase * bt_cmd_pattern_example_case (void)
+{
+  TCase *tc = tcase_create ("BtCmdPatternExamples");
+
+  tcase_add_test (tc, test_bt_cmd_pattern_obj_mono1);
+  tcase_add_test (tc, test_bt_cmd_pattern_obj_poly1);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

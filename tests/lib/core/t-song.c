@@ -23,127 +23,137 @@
 
 static BtApplication *app;
 #if 0
-static gboolean play_signal_invoked=FALSE;
+static gboolean play_signal_invoked = FALSE;
 #endif
 
 //-- fixtures
 
-static void case_setup(void) {
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_setup(void) {
-  app=bt_test_application_new();
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
 }
 
-static void test_teardown(void) {
-  g_object_checked_unref(app);
+static void
+test_teardown (void)
+{
+  g_object_checked_unref (app);
 }
 
-static void case_teardown(void) {
+static void
+case_teardown (void)
+{
 }
 
 
 //-- tests
 
-BT_START_TEST(test_bt_song_properties) {
+BT_START_TEST (test_bt_song_properties)
+{
   /* arrange */
-  GObject *song=(GObject *)bt_song_new(app);
-  
+  GObject *song = (GObject *) bt_song_new (app);
+
   /* act & assert */
-  fail_unless(check_gobject_properties(song));
+  fail_unless (check_gobject_properties (song));
 
   /* cleanup */
-  g_object_checked_unref(song);
+  g_object_checked_unref (song);
 }
+
 BT_END_TEST
-
-
 // test if the default constructor handles NULL
-BT_START_TEST(test_bt_song_new_null_app) {
+BT_START_TEST (test_bt_song_new_null_app)
+{
   /* arrange */
-  check_init_error_trapp("bt_song_","BT_IS_APPLICATION(self->priv->app)");
+  check_init_error_trapp ("bt_song_", "BT_IS_APPLICATION (self->priv->app)");
 
   /* act */
-  BtSong *song=bt_song_new(NULL);
-  
+  BtSong *song = bt_song_new (NULL);
+
   /* assert */
-  fail_unless(check_has_error_trapped(), NULL);
-  fail_unless(song != NULL, NULL);
+  fail_unless (check_has_error_trapped (), NULL);
+  fail_unless (song != NULL, NULL);
 
   /* cleanup */
-  g_object_unref(song);
+  g_object_unref (song);
 }
+
 BT_END_TEST
-
-
 // play without loading a song (means don't play anything audible)
-BT_START_TEST(test_bt_song_play_empty) {
+BT_START_TEST (test_bt_song_play_empty)
+{
   /* arrange */
-  BtSong *song=bt_song_new(app);
+  BtSong *song = bt_song_new (app);
 
   /* act & assert */
-  fail_unless(bt_song_play(song),NULL);
+  fail_unless (bt_song_play (song), NULL);
 
   /* cleanup */
-  bt_song_stop(song);
-  g_object_checked_unref(song);
+  bt_song_stop (song);
+  g_object_checked_unref (song);
 }
+
 BT_END_TEST
-
-
 // song is null
-BT_START_TEST(test_bt_song_play_null) {
+BT_START_TEST (test_bt_song_play_null)
+{
   /* arrange */
-  BtSong *song=bt_song_new(app);
-  check_init_error_trapp("bt_song_play","BT_IS_SONG(self)");
+  BtSong *song = bt_song_new (app);
+  check_init_error_trapp ("bt_song_play", "BT_IS_SONG (self)");
 
   /* act */
-  bt_song_play(NULL);
-  
+  bt_song_play (NULL);
+
   /* assert */
-  fail_unless(check_has_error_trapped(),NULL);
+  fail_unless (check_has_error_trapped (), NULL);
 
   /* cleanup */
-  bt_song_stop(song);
-  g_object_checked_unref(song);
+  bt_song_stop (song);
+  g_object_checked_unref (song);
 }
+
 BT_END_TEST
-
-
 // load a new song while the first plays
-BT_START_TEST(test_bt_song_play_and_load_new) {
+BT_START_TEST (test_bt_song_play_and_load_new)
+{
   /* arrange */
-  BtSong *song=bt_song_new(app);
-  BtSongIO *loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  bt_song_io_load(loader,song);
-  g_object_checked_unref(loader);
-  bt_song_play(song);
-  check_run_main_loop_for_usec(G_USEC_PER_SEC/10);
-  
+  BtSong *song = bt_song_new (app);
+  BtSongIO *loader =
+      bt_song_io_from_file (check_get_test_song_path ("test-simple1.xml"));
+  bt_song_io_load (loader, song);
+  g_object_checked_unref (loader);
+  bt_song_play (song);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+
   /* act */
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple2.xml"));
+  loader = bt_song_io_from_file (check_get_test_song_path ("test-simple2.xml"));
 
   /* assert */
-  fail_unless(bt_song_io_load(loader,song), NULL);
+  fail_unless (bt_song_io_load (loader, song), NULL);
 
   /* cleanup */
-  bt_song_stop(song);
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
+  bt_song_stop (song);
+  g_object_checked_unref (loader);
+  g_object_checked_unref (song);
 }
-BT_END_TEST
 
+BT_END_TEST TCase * bt_song_test_case (void)
+{
+  TCase *tc = tcase_create ("BtSongTests");
 
-TCase *bt_song_test_case(void) {
-  TCase *tc = tcase_create("BtSongTests");
-
-  tcase_add_test(tc,test_bt_song_properties);
-  tcase_add_test(tc,test_bt_song_new_null_app);
-  tcase_add_test(tc,test_bt_song_play_empty);
-  tcase_add_test(tc,test_bt_song_play_null);
-  tcase_add_test(tc,test_bt_song_play_and_load_new);
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  tcase_add_unchecked_fixture(tc, case_setup, case_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_song_properties);
+  tcase_add_test (tc, test_bt_song_new_null_app);
+  tcase_add_test (tc, test_bt_song_play_empty);
+  tcase_add_test (tc, test_bt_song_play_null);
+  tcase_add_test (tc, test_bt_song_play_and_load_new);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

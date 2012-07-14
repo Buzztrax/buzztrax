@@ -23,12 +23,16 @@
 
 //-- fixtures
 
-static void test_setup(void) {
-  bt_edit_setup();
+static void
+test_setup (void)
+{
+  bt_edit_setup ();
 }
 
-static void test_teardown(void) {
-  bt_edit_teardown();
+static void
+test_teardown (void)
+{
+  bt_edit_teardown ();
 }
 
 //-- helper
@@ -36,7 +40,8 @@ static void test_teardown(void) {
 //-- tests
 
 // view all tabs
-BT_START_TEST(test_machine_ref) {
+BT_START_TEST (test_machine_ref)
+{
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
@@ -45,73 +50,79 @@ BT_START_TEST(test_machine_ref) {
   BtSetup *setup;
   BtMachine *src_machine;
 
-  app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
-  fail_unless(app != NULL, NULL);
+  app = bt_edit_application_new ();
+  GST_INFO ("back in test app=%p, app->ref_ct=%d", app,
+      G_OBJECT_REF_COUNT (app));
+  fail_unless (app != NULL, NULL);
 
   // create a new song
-  bt_edit_application_new_song(app);
+  bt_edit_application_new_song (app);
 
   // get the empty song
-  g_object_get(app,"song",&song,NULL);
-  fail_unless(song != NULL, NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  g_object_unref(song);
+  g_object_get (app, "song", &song, NULL);
+  fail_unless (song != NULL, NULL);
+  g_object_get (song, "setup", &setup, NULL);
+  g_object_unref (song);
 
   // get window
-  g_object_get(app,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-  fail_unless(pages != NULL, NULL);
-  g_object_get(G_OBJECT(pages),"machines-page",&machines_page,NULL);
-  fail_unless(machines_page != NULL, NULL);
+  g_object_get (app, "main-window", &main_window, NULL);
+  fail_unless (main_window != NULL, NULL);
+  g_object_get (G_OBJECT (main_window), "pages", &pages, NULL);
+  fail_unless (pages != NULL, NULL);
+  g_object_get (G_OBJECT (pages), "machines-page", &machines_page, NULL);
+  fail_unless (machines_page != NULL, NULL);
   /* remove some other pages
-  // (ev. run for all combinations - if a test using all pages fails?)
-  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
-  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
-  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
-  gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
-  */
+     // (ev. run for all combinations - if a test using all pages fails?)
+     gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
+     gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
+     gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
+     gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
+   */
   // show page
-  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_MACHINES_PAGE);
-  g_object_unref(pages);
+  gtk_notebook_set_current_page (GTK_NOTEBOOK (pages),
+      BT_MAIN_PAGES_MACHINES_PAGE);
+  g_object_unref (pages);
 
   // add and get a source machine
-  bt_main_page_machines_add_source_machine(machines_page,"beep1","simsyn");
-  src_machine=bt_setup_get_machine_by_id(setup,"beep1");
-  fail_unless(src_machine != NULL, NULL);
-  g_object_unref(setup);
+  bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
+  src_machine = bt_setup_get_machine_by_id (setup, "beep1");
+  fail_unless (src_machine != NULL, NULL);
+  g_object_unref (setup);
 
-  while(gtk_events_pending()) gtk_main_iteration();
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
 
-  GST_INFO("machine %p,ref_count=%d has been created",src_machine,G_OBJECT_REF_COUNT(src_machine));
+  GST_INFO ("machine %p,ref_count=%d has been created", src_machine,
+      G_OBJECT_REF_COUNT (src_machine));
 
   // remove the machine and check that it is disposed
-  bt_main_page_machines_delete_machine(machines_page,src_machine);
-  g_object_unref(machines_page);
+  bt_main_page_machines_delete_machine (machines_page, src_machine);
+  g_object_unref (machines_page);
 
-  while(gtk_events_pending()) gtk_main_iteration();
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
 
-  g_object_checked_unref(src_machine);
+  g_object_checked_unref (src_machine);
 
   // close window
-  gtk_widget_destroy(GTK_WIDGET(main_window));
-  while(gtk_events_pending()) gtk_main_iteration();
+  gtk_widget_destroy (GTK_WIDGET (main_window));
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
   //GST_INFO("mainlevel is %d",gtk_main_level());
   //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
-  g_object_checked_unref(app);
+  GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
+  g_object_checked_unref (app);
 
 }
-BT_END_TEST
 
-TCase *bt_machine_page_example_case(void) {
-  TCase *tc = tcase_create("BtMachinePageExamples");
+BT_END_TEST TCase * bt_machine_page_example_case (void)
+{
+  TCase *tc = tcase_create ("BtMachinePageExamples");
 
-  tcase_add_test(tc,test_machine_ref);
+  tcase_add_test (tc, test_machine_ref);
   // we *must* use a checked fixture, as only this runs in the same context
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  return (tc);
 }

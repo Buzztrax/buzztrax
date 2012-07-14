@@ -19,11 +19,13 @@
 
 #include "m-bt-core.h"
 
-extern TCase *bt_audio_session_example_case(void);
+extern TCase *bt_audio_session_example_case (void);
 
-Suite *bt_audio_session_suite(void) { 
-  Suite *s=suite_create("BtAudioSession"); 
+Suite *
+bt_audio_session_suite (void)
+{
+  Suite *s = suite_create ("BtAudioSession");
 
-  suite_add_tcase(s,bt_audio_session_example_case());
-  return(s);
+  suite_add_tcase (s, bt_audio_session_example_case ());
+  return (s);
 }

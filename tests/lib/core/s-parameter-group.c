@@ -19,13 +19,15 @@
 
 #include "m-bt-core.h"
 
-extern TCase *bt_param_group_test_case(void);
-extern TCase *bt_param_group_example_case(void);
+extern TCase *bt_param_group_test_case (void);
+extern TCase *bt_param_group_example_case (void);
 
-Suite *bt_param_group_suite(void) { 
-  Suite *s=suite_create("BtParamGroup"); 
+Suite *
+bt_param_group_suite (void)
+{
+  Suite *s = suite_create ("BtParamGroup");
 
-  suite_add_tcase(s,bt_param_group_test_case());
-  suite_add_tcase(s,bt_param_group_example_case());
-  return(s);
+  suite_add_tcase (s, bt_param_group_test_case ());
+  suite_add_tcase (s, bt_param_group_example_case ());
+  return (s);
 }
