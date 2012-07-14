@@ -27,7 +27,7 @@
  * The visible length can be greater then the real length of the underlying
  * sequence, by setting the BtSequenceGridModel::length property.
  */
- 
+
 /* design:
  * - support reordering tracks without rebuilding the model
  *   - check on_track_move_left_activated()
@@ -57,22 +57,24 @@
 
 //-- property ids
 
-enum {
-  SEQUENCE_GRID_MODEL_POS_FORMAT=1,
+enum
+{
+  SEQUENCE_GRID_MODEL_POS_FORMAT = 1,
   SEQUENCE_GRID_MODEL_BARS,
   SEQUENCE_GRID_MODEL_LENGTH
 };
 
 //-- structs
 
-struct _BtSequenceGridModelPrivate {
+struct _BtSequenceGridModelPrivate
+{
   gint stamp;
   BtSequence *sequence;
-  
+
   BtSequenceGridModelPosFormat pos_format;
   gulong bars;
   gulong ticks_per_beat;
-  
+
   GType param_types[N_COLUMNS];
   gulong length, tracks;
   gulong visible_length;
@@ -80,203 +82,249 @@ struct _BtSequenceGridModelPrivate {
 
 //-- enums
 
-GType bt_sequence_grid_model_pos_format_get_type(void) {
+GType
+bt_sequence_grid_model_pos_format_get_type (void)
+{
   static GType type = 0;
-  if(G_UNLIKELY(type == 0)) {
+  if (G_UNLIKELY (type == 0)) {
     static const GEnumValue values[] = {
-      { BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS,"BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS","ticks" },
-      { BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME, "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME", "time"  },
-      { BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS, "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS", "beats"  },
-      { 0, NULL, NULL},
+      {BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS,
+            "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS", "ticks"},
+      {BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME,
+            "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME", "time"},
+      {BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS,
+            "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS", "beats"},
+      {0, NULL, NULL},
     };
-    type = g_enum_register_static("BtSequenceGridModelPosFormat", values);
+    type = g_enum_register_static ("BtSequenceGridModelPosFormat", values);
   }
   return type;
 }
 
 //-- the class
 
-static void bt_sequence_grid_model_tree_model_init(gpointer const g_iface, gpointer const iface_data);
+static void bt_sequence_grid_model_tree_model_init (gpointer const g_iface,
+    gpointer const iface_data);
 
-G_DEFINE_TYPE_WITH_CODE (BtSequenceGridModel, bt_sequence_grid_model, G_TYPE_OBJECT,
-			 G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL,
-						bt_sequence_grid_model_tree_model_init));
+G_DEFINE_TYPE_WITH_CODE (BtSequenceGridModel, bt_sequence_grid_model,
+    G_TYPE_OBJECT, G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL,
+        bt_sequence_grid_model_tree_model_init));
 
 //-- helper
 
-static gchar *format_position(const BtSequenceGridModel *model,gulong pos) {
+static gchar *
+format_position (const BtSequenceGridModel * model, gulong pos)
+{
   static gchar pos_str[20];
 
-  switch(model->priv->pos_format) {
+  switch (model->priv->pos_format) {
     case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS:
-      g_snprintf(pos_str,5,"%lu",pos);
+      g_snprintf (pos_str, 5, "%lu", pos);
       break;
-    case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME: {
-      gulong msec,sec,min;
+    case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME:{
+      gulong msec, sec, min;
       // this is cached in sequence and properly updated
-      const GstClockTime bar_time=bt_sequence_get_bar_time(model->priv->sequence);
+      const GstClockTime bar_time =
+          bt_sequence_get_bar_time (model->priv->sequence);
 
-      msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
-      min=(gulong)(msec/60000);msec-=(min*60000);
-      sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-      g_sprintf(pos_str,"%02lu:%02lu.%03lu",min,sec,msec);
+      msec = (gulong) ((pos * bar_time) / G_USEC_PER_SEC);
+      min = (gulong) (msec / 60000);
+      msec -= (min * 60000);
+      sec = (gulong) (msec / 1000);
+      msec -= (sec * 1000);
+      g_sprintf (pos_str, "%02lu:%02lu.%03lu", min, sec, msec);
     } break;
-    case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS: {
+    case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS:{
       gulong beat, tick;
       gint tick_chars;
 
-      beat=pos/model->priv->ticks_per_beat;
-      tick=pos-(beat*model->priv->ticks_per_beat);
-      if(model->priv->ticks_per_beat>=100)
-        tick_chars=3;
-      else if(model->priv->ticks_per_beat>=10)
-        tick_chars=2;
+      beat = pos / model->priv->ticks_per_beat;
+      tick = pos - (beat * model->priv->ticks_per_beat);
+      if (model->priv->ticks_per_beat >= 100)
+        tick_chars = 3;
+      else if (model->priv->ticks_per_beat >= 10)
+        tick_chars = 2;
       else
-        tick_chars=1;
-      g_sprintf(pos_str,"%lu.%0*lu",beat,tick_chars,tick);
-    } break; 
+        tick_chars = 1;
+      g_sprintf (pos_str, "%lu.%0*lu", beat, tick_chars, tick);
+    }
+      break;
     default:
-      *pos_str='\0';
-      GST_WARNING("unimplemented time format %d",model->priv->pos_format);
+      *pos_str = '\0';
+      GST_WARNING ("unimplemented time format %d", model->priv->pos_format);
   }
-  return(pos_str);
+  return (pos_str);
 }
 
-static void bt_sequence_grid_model_rows_changed(BtSequenceGridModel *model,gulong beg, gulong end) {
+static void
+bt_sequence_grid_model_rows_changed (BtSequenceGridModel * model, gulong beg,
+    gulong end)
+{
   GtkTreePath *path;
   GtkTreeIter iter;
   gulong i;
-    
+
   // trigger row-changed for all rows
-  iter.stamp=model->priv->stamp;
-  for(i=beg;i<=end;i++) {
-    iter.user_data=GUINT_TO_POINTER(i);
-    path=gtk_tree_path_new();
-    gtk_tree_path_append_index(path,i);
-    gtk_tree_model_row_changed(GTK_TREE_MODEL(model),path,&iter);
-    gtk_tree_path_free(path);
+  iter.stamp = model->priv->stamp;
+  for (i = beg; i <= end; i++) {
+    iter.user_data = GUINT_TO_POINTER (i);
+    path = gtk_tree_path_new ();
+    gtk_tree_path_append_index (path, i);
+    gtk_tree_model_row_changed (GTK_TREE_MODEL (model), path, &iter);
+    gtk_tree_path_free (path);
   }
 }
 
-static void bt_sequence_grid_model_all_rows_changed(BtSequenceGridModel *model) {
-  bt_sequence_grid_model_rows_changed(model,0,model->priv->visible_length-1);
+static void
+bt_sequence_grid_model_all_rows_changed (BtSequenceGridModel * model)
+{
+  bt_sequence_grid_model_rows_changed (model, 0,
+      model->priv->visible_length - 1);
 }
 
-static void update_length(BtSequenceGridModel *model,gulong old_length,gulong new_length) {
+static void
+update_length (BtSequenceGridModel * model, gulong old_length,
+    gulong new_length)
+{
   GtkTreePath *path;
   glong i;
-  
-  GST_INFO("resize length : %lu -> %lu",old_length,new_length);
 
-  if(old_length<new_length) {
+  GST_INFO ("resize length : %lu -> %lu", old_length, new_length);
+
+  if (old_length < new_length) {
     GtkTreeIter iter;
 
     // trigger row-inserted
-    iter.stamp=model->priv->stamp;
-    for(i=old_length;i<new_length;i++) {
-      iter.user_data=GUINT_TO_POINTER(i);
-      path=gtk_tree_path_new();
-      gtk_tree_path_append_index(path,i);
-      gtk_tree_model_row_inserted(GTK_TREE_MODEL(model),path,&iter);
-      gtk_tree_path_free(path);
+    iter.stamp = model->priv->stamp;
+    for (i = old_length; i < new_length; i++) {
+      iter.user_data = GUINT_TO_POINTER (i);
+      path = gtk_tree_path_new ();
+      gtk_tree_path_append_index (path, i);
+      gtk_tree_model_row_inserted (GTK_TREE_MODEL (model), path, &iter);
+      gtk_tree_path_free (path);
+    }
+  } else if (old_length > new_length) {
+    // trigger row-deleted
+    for (i = old_length - 1; i >= new_length; i--) {
+      path = gtk_tree_path_new ();
+      gtk_tree_path_append_index (path, i);
+      gtk_tree_model_row_deleted (GTK_TREE_MODEL (model), path);
+      gtk_tree_path_free (path);
     }
   }
-  else if(old_length>new_length) {
-    // trigger row-deleted
-    for(i=old_length-1;i>=new_length;i--) {
-      path=gtk_tree_path_new();
-      gtk_tree_path_append_index(path,i);
-      gtk_tree_model_row_deleted(GTK_TREE_MODEL(model),path);
-      gtk_tree_path_free(path);
-    }
-  } 
 }
 
 //-- signal handlers
 
-static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(user_data);
+static void
+on_pattern_name_changed (BtPattern * pattern, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (user_data);
   BtCmdPattern *that_pattern;
   GtkTreePath *path;
   GtkTreeIter iter;
-  gulong i,j;
-  gulong length=model->priv->length;
-  gulong tracks=model->priv->tracks;
-  
-  iter.stamp=model->priv->stamp;
+  gulong i, j;
+  gulong length = model->priv->length;
+  gulong tracks = model->priv->tracks;
+
+  iter.stamp = model->priv->stamp;
 
   // find all affected rows and signal updates
   // FIXME(ensonic): skip tracks with wrong machine (do a first run and build a list of tracks)
-  for(i=0;i<length;i++) {
-    for(j=0;j<tracks;j++) {
-      if((that_pattern=bt_sequence_get_pattern(model->priv->sequence,i,j))) {
-        if(that_pattern==(BtCmdPattern *)pattern) {
-          iter.user_data=GUINT_TO_POINTER(i);
-          path=gtk_tree_path_new();
-          gtk_tree_path_append_index(path,i);
-          gtk_tree_model_row_changed(GTK_TREE_MODEL(model),path,&iter);
-          gtk_tree_path_free(path);
-          g_object_unref(that_pattern);
+  for (i = 0; i < length; i++) {
+    for (j = 0; j < tracks; j++) {
+      if ((that_pattern =
+              bt_sequence_get_pattern (model->priv->sequence, i, j))) {
+        if (that_pattern == (BtCmdPattern *) pattern) {
+          iter.user_data = GUINT_TO_POINTER (i);
+          path = gtk_tree_path_new ();
+          gtk_tree_path_append_index (path, i);
+          gtk_tree_model_row_changed (GTK_TREE_MODEL (model), path, &iter);
+          gtk_tree_path_free (path);
+          g_object_unref (that_pattern);
           break;
-        }
-        else {
-          g_object_unref(that_pattern);
+        } else {
+          g_object_unref (that_pattern);
         }
       }
     }
   }
 }
 
-static void on_song_info_tpb_changed(BtSongInfo *song_info,GParamSpec *arg,gpointer user_data) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(user_data);
-  
-  g_object_get(song_info,"tpb",&model->priv->ticks_per_beat,NULL);
-  bt_sequence_grid_model_all_rows_changed(model);
+static void
+on_song_info_tpb_changed (BtSongInfo * song_info, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (user_data);
+
+  g_object_get (song_info, "tpb", &model->priv->ticks_per_beat, NULL);
+  bt_sequence_grid_model_all_rows_changed (model);
 }
 
-static void on_sequence_length_changed(BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(user_data);
-  gulong old_length=model->priv->length;
+static void
+on_sequence_length_changed (BtSequence * sequence, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (user_data);
+  gulong old_length = model->priv->length;
 
-  g_object_get((gpointer)sequence,"length",&model->priv->length,NULL);
-  if(model->priv->length!=old_length) {
-    gulong old_visible_length=model->priv->visible_length;
-    model->priv->visible_length=MAX(old_visible_length,model->priv->length);
-    GST_INFO("sequence length changed: %lu -> %lu",old_length,model->priv->length);
-  
-    update_length(model,old_visible_length,model->priv->visible_length);
+  g_object_get ((gpointer) sequence, "length", &model->priv->length, NULL);
+  if (model->priv->length != old_length) {
+    gulong old_visible_length = model->priv->visible_length;
+    model->priv->visible_length = MAX (old_visible_length, model->priv->length);
+    GST_INFO ("sequence length changed: %lu -> %lu", old_length,
+        model->priv->length);
+
+    update_length (model, old_visible_length, model->priv->visible_length);
   }
 }
 
-static void on_sequence_tracks_changed(BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(user_data);
-  gulong old_tracks=model->priv->tracks;
-  
-  g_object_get((gpointer)sequence,"tracks",&model->priv->tracks,NULL);
-  if(model->priv->tracks!=old_tracks) {
-    GST_INFO("sequence tracks changed: %lu -> %lu",old_tracks,model->priv->tracks);
-  
-    if(model->priv->visible_length)
-      bt_sequence_grid_model_all_rows_changed(model);
+static void
+on_sequence_tracks_changed (BtSequence * sequence, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (user_data);
+  gulong old_tracks = model->priv->tracks;
+
+  g_object_get ((gpointer) sequence, "tracks", &model->priv->tracks, NULL);
+  if (model->priv->tracks != old_tracks) {
+    GST_INFO ("sequence tracks changed: %lu -> %lu", old_tracks,
+        model->priv->tracks);
+
+    if (model->priv->visible_length)
+      bt_sequence_grid_model_all_rows_changed (model);
   }
 }
 
-static void on_sequence_rows_changed(BtSequence *sequence,gulong beg,gulong end,gpointer user_data) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(user_data);
+static void
+on_sequence_rows_changed (BtSequence * sequence, gulong beg, gulong end,
+    gpointer user_data)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (user_data);
 
-  bt_sequence_grid_model_rows_changed(model,beg,end);
+  bt_sequence_grid_model_rows_changed (model, beg, end);
 }
 
-static void on_sequence_pattern_added(BtSequence *sequence,BtPattern *pattern,gpointer user_data) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(user_data);
+static void
+on_sequence_pattern_added (BtSequence * sequence, BtPattern * pattern,
+    gpointer user_data)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (user_data);
 
-  g_signal_connect(pattern,"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)model);
+  g_signal_connect (pattern, "notify::name",
+      G_CALLBACK (on_pattern_name_changed), (gpointer) model);
 }
 
-static void on_sequence_pattern_removed(BtSequence *sequence,BtPattern *pattern,gpointer user_data) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(user_data);
+static void
+on_sequence_pattern_removed (BtSequence * sequence, BtPattern * pattern,
+    gpointer user_data)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (user_data);
 
-  g_signal_handlers_disconnect_matched(pattern,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_pattern_name_changed,(gpointer)model);
+  g_signal_handlers_disconnect_matched (pattern,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_pattern_name_changed, (gpointer) model);
 }
 
 //-- constructor methods
@@ -298,336 +346,404 @@ static void on_sequence_pattern_removed(BtSequence *sequence,BtPattern *pattern,
  *
  * Returns: the sequence model.
  */
-BtSequenceGridModel *bt_sequence_grid_model_new(BtSequence *sequence,gulong bars) {
+BtSequenceGridModel *
+bt_sequence_grid_model_new (BtSequence * sequence, gulong bars)
+{
   BtSequenceGridModel *self;
   BtSong *song;
   BtSongInfo *song_info;
 
-  self=g_object_new(BT_TYPE_SEQUENCE_GRID_MODEL, NULL);
+  self = g_object_new (BT_TYPE_SEQUENCE_GRID_MODEL, NULL);
 
-  self->priv->sequence=sequence;
-  g_object_add_weak_pointer((GObject *)sequence,(gpointer *)&self->priv->sequence);
-  self->priv->bars=bars;
+  self->priv->sequence = sequence;
+  g_object_add_weak_pointer ((GObject *) sequence,
+      (gpointer *) & self->priv->sequence);
+  self->priv->bars = bars;
 
   // static columns
-  self->priv->param_types[BT_SEQUENCE_GRID_MODEL_SHADE ]=G_TYPE_BOOLEAN;
-  self->priv->param_types[BT_SEQUENCE_GRID_MODEL_POS   ]=G_TYPE_LONG;
-  self->priv->param_types[BT_SEQUENCE_GRID_MODEL_POSSTR]=G_TYPE_STRING;
-  self->priv->param_types[BT_SEQUENCE_GRID_MODEL_LABEL ]=G_TYPE_STRING;
+  self->priv->param_types[BT_SEQUENCE_GRID_MODEL_SHADE] = G_TYPE_BOOLEAN;
+  self->priv->param_types[BT_SEQUENCE_GRID_MODEL_POS] = G_TYPE_LONG;
+  self->priv->param_types[BT_SEQUENCE_GRID_MODEL_POSSTR] = G_TYPE_STRING;
+  self->priv->param_types[BT_SEQUENCE_GRID_MODEL_LABEL] = G_TYPE_STRING;
 
   // add enough rows for current length
-  on_sequence_tracks_changed(sequence,NULL,(gpointer)self);
-  on_sequence_length_changed(sequence,NULL,(gpointer)self);
-  
-  g_object_get(sequence,"song",&song,NULL);
-  g_object_get(song,"song-info",&song_info,NULL);
-  g_object_get(song_info,"tpb",&self->priv->ticks_per_beat,NULL);
-  g_signal_connect(song_info,"notify::tpb",G_CALLBACK(on_song_info_tpb_changed),(gpointer)self);
-  g_object_unref(song_info);
-  g_object_unref(song);  
+  on_sequence_tracks_changed (sequence, NULL, (gpointer) self);
+  on_sequence_length_changed (sequence, NULL, (gpointer) self);
+
+  g_object_get (sequence, "song", &song, NULL);
+  g_object_get (song, "song-info", &song_info, NULL);
+  g_object_get (song_info, "tpb", &self->priv->ticks_per_beat, NULL);
+  g_signal_connect (song_info, "notify::tpb",
+      G_CALLBACK (on_song_info_tpb_changed), (gpointer) self);
+  g_object_unref (song_info);
+  g_object_unref (song);
 
   // follow sequence grid size changes
-  g_signal_connect(sequence,"notify::length",G_CALLBACK(on_sequence_length_changed),(gpointer)self);
-  g_signal_connect(sequence,"notify::tracks",G_CALLBACK(on_sequence_tracks_changed),(gpointer)self);
-  g_signal_connect(sequence,"rows-changed",G_CALLBACK(on_sequence_rows_changed),(gpointer)self);
+  g_signal_connect (sequence, "notify::length",
+      G_CALLBACK (on_sequence_length_changed), (gpointer) self);
+  g_signal_connect (sequence, "notify::tracks",
+      G_CALLBACK (on_sequence_tracks_changed), (gpointer) self);
+  g_signal_connect (sequence, "rows-changed",
+      G_CALLBACK (on_sequence_rows_changed), (gpointer) self);
   // track pattern first additions, last removal
-  g_signal_connect(sequence,"pattern-added",G_CALLBACK(on_sequence_pattern_added),(gpointer)self);
-  g_signal_connect(sequence,"pattern-removed",G_CALLBACK(on_sequence_pattern_removed),(gpointer)self);
+  g_signal_connect (sequence, "pattern-added",
+      G_CALLBACK (on_sequence_pattern_added), (gpointer) self);
+  g_signal_connect (sequence, "pattern-removed",
+      G_CALLBACK (on_sequence_pattern_removed), (gpointer) self);
 
-  return(self);
+  return (self);
 }
 
 //-- methods
 
 //-- tree model interface
 
-static GtkTreeModelFlags bt_sequence_grid_model_tree_model_get_flags(GtkTreeModel *tree_model) {
-  return(GTK_TREE_MODEL_ITERS_PERSIST | GTK_TREE_MODEL_LIST_ONLY);
+static GtkTreeModelFlags
+bt_sequence_grid_model_tree_model_get_flags (GtkTreeModel * tree_model)
+{
+  return (GTK_TREE_MODEL_ITERS_PERSIST | GTK_TREE_MODEL_LIST_ONLY);
 }
 
-static gint bt_sequence_grid_model_tree_model_get_n_columns(GtkTreeModel *tree_model) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(tree_model);
+static gint
+bt_sequence_grid_model_tree_model_get_n_columns (GtkTreeModel * tree_model)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (tree_model);
 
-  return(N_COLUMNS+model->priv->tracks);
+  return (N_COLUMNS + model->priv->tracks);
 }
 
-static GType bt_sequence_grid_model_tree_model_get_column_type(GtkTreeModel *tree_model,gint index) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(tree_model);
+static GType
+bt_sequence_grid_model_tree_model_get_column_type (GtkTreeModel * tree_model,
+    gint index)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (tree_model);
 
-  g_return_val_if_fail(index<N_COLUMNS+model->priv->tracks,G_TYPE_INVALID);
+  g_return_val_if_fail (index < N_COLUMNS + model->priv->tracks,
+      G_TYPE_INVALID);
 
-  if(index<N_COLUMNS)
-    return(model->priv->param_types[index]);
+  if (index < N_COLUMNS)
+    return (model->priv->param_types[index]);
   else
-    return(G_TYPE_STRING);
+    return (G_TYPE_STRING);
 }
 
-static gboolean bt_sequence_grid_model_tree_model_get_iter(GtkTreeModel *tree_model,GtkTreeIter *iter,GtkTreePath *path) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(tree_model);
-  guint tick=gtk_tree_path_get_indices (path)[0];
+static gboolean
+bt_sequence_grid_model_tree_model_get_iter (GtkTreeModel * tree_model,
+    GtkTreeIter * iter, GtkTreePath * path)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (tree_model);
+  guint tick = gtk_tree_path_get_indices (path)[0];
 
-  if(tick>=model->priv->visible_length)
-    return(FALSE);
+  if (tick >= model->priv->visible_length)
+    return (FALSE);
 
-  iter->stamp=model->priv->stamp;
-  iter->user_data=GUINT_TO_POINTER(tick);
+  iter->stamp = model->priv->stamp;
+  iter->user_data = GUINT_TO_POINTER (tick);
 
-  return(TRUE);
+  return (TRUE);
 }
 
-static GtkTreePath *bt_sequence_grid_model_tree_model_get_path(GtkTreeModel *tree_model,GtkTreeIter *iter) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(tree_model);
+static GtkTreePath *
+bt_sequence_grid_model_tree_model_get_path (GtkTreeModel * tree_model,
+    GtkTreeIter * iter)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (tree_model);
   GtkTreePath *path;
 
-  g_return_val_if_fail(iter->stamp==model->priv->stamp,NULL);
+  g_return_val_if_fail (iter->stamp == model->priv->stamp, NULL);
 
-  if(g_sequence_iter_is_end(iter->user_data))
-    return(NULL);
+  if (g_sequence_iter_is_end (iter->user_data))
+    return (NULL);
 
-  path=gtk_tree_path_new();
-  gtk_tree_path_append_index(path,GPOINTER_TO_UINT(iter->user_data));
+  path = gtk_tree_path_new ();
+  gtk_tree_path_append_index (path, GPOINTER_TO_UINT (iter->user_data));
 
-  return(path);
+  return (path);
 }
 
-static void bt_sequence_grid_model_tree_model_get_value(GtkTreeModel *tree_model,GtkTreeIter *iter,gint column,GValue *value) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(tree_model);
-  guint track,tick;
-  
+static void
+bt_sequence_grid_model_tree_model_get_value (GtkTreeModel * tree_model,
+    GtkTreeIter * iter, gint column, GValue * value)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (tree_model);
+  guint track, tick;
+
   //GST_DEBUG("getting value for column=%d / (%d+%d)",column,N_COLUMNS,model->priv->tracks);
 
-  g_return_if_fail(column<N_COLUMNS+model->priv->tracks);
+  g_return_if_fail (column < N_COLUMNS + model->priv->tracks);
 
-  if(column<N_COLUMNS)
-    g_value_init(value,model->priv->param_types[column]);
+  if (column < N_COLUMNS)
+    g_value_init (value, model->priv->param_types[column]);
   else
-    g_value_init(value,G_TYPE_STRING);
-  tick=GPOINTER_TO_UINT(iter->user_data);
+    g_value_init (value, G_TYPE_STRING);
+  tick = GPOINTER_TO_UINT (iter->user_data);
 
-  switch(column) {
-    case BT_SEQUENCE_GRID_MODEL_SHADE: {
-      guint shade=(tick%(model->priv->bars*2));
-      if(shade==0) {
-        g_value_set_boolean(value,FALSE);
+  switch (column) {
+    case BT_SEQUENCE_GRID_MODEL_SHADE:{
+      guint shade = (tick % (model->priv->bars * 2));
+      if (shade == 0) {
+        g_value_set_boolean (value, FALSE);
       } else {
         // we're only interested in shade==bars, but lets set the others too
         // even though we should not be called for those
-        g_value_set_boolean(value,TRUE);
+        g_value_set_boolean (value, TRUE);
       }
-    } break;
+    }
+      break;
     case BT_SEQUENCE_GRID_MODEL_POS:
-      g_value_set_long(value,tick);
+      g_value_set_long (value, tick);
       break;
     case BT_SEQUENCE_GRID_MODEL_POSSTR:
-      g_value_set_string(value,format_position(model,tick));
+      g_value_set_string (value, format_position (model, tick));
       break;
     case BT_SEQUENCE_GRID_MODEL_LABEL:
-      if(tick<model->priv->length) {
-        g_value_take_string(value,bt_sequence_get_label(model->priv->sequence,tick));
+      if (tick < model->priv->length) {
+        g_value_take_string (value,
+            bt_sequence_get_label (model->priv->sequence, tick));
       }
       break;
     default:
-      if(tick<model->priv->length) {
+      if (tick < model->priv->length) {
         BtCmdPattern *pattern;
 
-        track=column-N_COLUMNS;
+        track = column - N_COLUMNS;
         //GST_LOG("getting pattern name for tick=%u,track=%u",tick,track);
-        if((pattern=bt_sequence_get_pattern(model->priv->sequence,tick,track))) {
-          g_object_get_property((GObject *)pattern,"name",value);
-          g_object_unref(pattern);
+        if ((pattern =
+                bt_sequence_get_pattern (model->priv->sequence, tick, track))) {
+          g_object_get_property ((GObject *) pattern, "name", value);
+          g_object_unref (pattern);
         }
       }
   }
 }
 
-static gboolean bt_sequence_grid_model_tree_model_iter_next(GtkTreeModel *tree_model,GtkTreeIter *iter) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(tree_model);
+static gboolean
+bt_sequence_grid_model_tree_model_iter_next (GtkTreeModel * tree_model,
+    GtkTreeIter * iter)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (tree_model);
   guint tick;
 
-  g_return_val_if_fail(model->priv->stamp==iter->stamp,FALSE);
+  g_return_val_if_fail (model->priv->stamp == iter->stamp, FALSE);
 
-  tick=GPOINTER_TO_UINT(iter->user_data)+1;
-  if(tick<model->priv->visible_length) {
-    iter->user_data=GUINT_TO_POINTER(tick);
+  tick = GPOINTER_TO_UINT (iter->user_data) + 1;
+  if (tick < model->priv->visible_length) {
+    iter->user_data = GUINT_TO_POINTER (tick);
     return TRUE;
-  }
-  else {
-    iter->stamp=0;
+  } else {
+    iter->stamp = 0;
     return FALSE;
   }
 }
 
-static gboolean bt_sequence_grid_model_tree_model_iter_children(GtkTreeModel *tree_model,GtkTreeIter *iter,GtkTreeIter *parent) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(tree_model);
+static gboolean
+bt_sequence_grid_model_tree_model_iter_children (GtkTreeModel * tree_model,
+    GtkTreeIter * iter, GtkTreeIter * parent)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (tree_model);
 
   /* this is a list, nodes have no children */
   if (!parent) {
-    if (model->priv->visible_length>0) {
-      iter->stamp=model->priv->stamp;
-      iter->user_data=GUINT_TO_POINTER(0);
-      return(TRUE);
+    if (model->priv->visible_length > 0) {
+      iter->stamp = model->priv->stamp;
+      iter->user_data = GUINT_TO_POINTER (0);
+      return (TRUE);
     }
   }
-  iter->stamp=0;
-  return(FALSE);
+  iter->stamp = 0;
+  return (FALSE);
 }
 
-static gboolean bt_sequence_grid_model_tree_model_iter_has_child(GtkTreeModel *tree_model,GtkTreeIter *iter) {
-  return(FALSE);
+static gboolean
+bt_sequence_grid_model_tree_model_iter_has_child (GtkTreeModel * tree_model,
+    GtkTreeIter * iter)
+{
+  return (FALSE);
 }
 
-static gint bt_sequence_grid_model_tree_model_iter_n_children(GtkTreeModel *tree_model,GtkTreeIter *iter) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(tree_model);
+static gint
+bt_sequence_grid_model_tree_model_iter_n_children (GtkTreeModel * tree_model,
+    GtkTreeIter * iter)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (tree_model);
 
   if (iter == NULL)
-    return(model->priv->visible_length);
+    return (model->priv->visible_length);
 
-  g_return_val_if_fail(model->priv->stamp==iter->stamp,-1);
-  return(0);
+  g_return_val_if_fail (model->priv->stamp == iter->stamp, -1);
+  return (0);
 }
 
-static gboolean  bt_sequence_grid_model_tree_model_iter_nth_child(GtkTreeModel *tree_model,GtkTreeIter *iter,GtkTreeIter *parent,gint n) {
-  BtSequenceGridModel *model=BT_SEQUENCE_GRID_MODEL(tree_model);
+static gboolean
+bt_sequence_grid_model_tree_model_iter_nth_child (GtkTreeModel * tree_model,
+    GtkTreeIter * iter, GtkTreeIter * parent, gint n)
+{
+  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (tree_model);
 
-  if (parent || n>=model->priv->visible_length) {
-    iter->stamp=0;
-    return(FALSE);
+  if (parent || n >= model->priv->visible_length) {
+    iter->stamp = 0;
+    return (FALSE);
   }
 
-  iter->stamp=model->priv->stamp;
-  iter->user_data=GUINT_TO_POINTER(n);
+  iter->stamp = model->priv->stamp;
+  iter->user_data = GUINT_TO_POINTER (n);
 
-  return(TRUE);
+  return (TRUE);
 }
 
-static gboolean bt_sequence_grid_model_tree_model_iter_parent(GtkTreeModel *tree_model,GtkTreeIter *iter,GtkTreeIter *child) {
-  iter->stamp=0;
-  return(FALSE);
+static gboolean
+bt_sequence_grid_model_tree_model_iter_parent (GtkTreeModel * tree_model,
+    GtkTreeIter * iter, GtkTreeIter * child)
+{
+  iter->stamp = 0;
+  return (FALSE);
 }
 
-static void bt_sequence_grid_model_tree_model_init(gpointer const g_iface, gpointer const iface_data) {
-  GtkTreeModelIface * const iface = g_iface;
+static void
+bt_sequence_grid_model_tree_model_init (gpointer const g_iface,
+    gpointer const iface_data)
+{
+  GtkTreeModelIface *const iface = g_iface;
 
-  iface->get_flags       = bt_sequence_grid_model_tree_model_get_flags;
-  iface->get_n_columns   = bt_sequence_grid_model_tree_model_get_n_columns;
+  iface->get_flags = bt_sequence_grid_model_tree_model_get_flags;
+  iface->get_n_columns = bt_sequence_grid_model_tree_model_get_n_columns;
   iface->get_column_type = bt_sequence_grid_model_tree_model_get_column_type;
-  iface->get_iter        = bt_sequence_grid_model_tree_model_get_iter;
-  iface->get_path        = bt_sequence_grid_model_tree_model_get_path;
-  iface->get_value       = bt_sequence_grid_model_tree_model_get_value;
-  iface->iter_next       = bt_sequence_grid_model_tree_model_iter_next;
-  iface->iter_children   = bt_sequence_grid_model_tree_model_iter_children;
-  iface->iter_has_child  = bt_sequence_grid_model_tree_model_iter_has_child;
+  iface->get_iter = bt_sequence_grid_model_tree_model_get_iter;
+  iface->get_path = bt_sequence_grid_model_tree_model_get_path;
+  iface->get_value = bt_sequence_grid_model_tree_model_get_value;
+  iface->iter_next = bt_sequence_grid_model_tree_model_iter_next;
+  iface->iter_children = bt_sequence_grid_model_tree_model_iter_children;
+  iface->iter_has_child = bt_sequence_grid_model_tree_model_iter_has_child;
   iface->iter_n_children = bt_sequence_grid_model_tree_model_iter_n_children;
-  iface->iter_nth_child  = bt_sequence_grid_model_tree_model_iter_nth_child;
-  iface->iter_parent     = bt_sequence_grid_model_tree_model_iter_parent;
+  iface->iter_nth_child = bt_sequence_grid_model_tree_model_iter_nth_child;
+  iface->iter_parent = bt_sequence_grid_model_tree_model_iter_parent;
 }
 
 //-- class internals
 
-static void bt_sequence_grid_model_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  BtSequenceGridModel *self = BT_SEQUENCE_GRID_MODEL(object);
+static void
+bt_sequence_grid_model_get_property (GObject * const object,
+    const guint property_id, GValue * const value, GParamSpec * const pspec)
+{
+  BtSequenceGridModel *self = BT_SEQUENCE_GRID_MODEL (object);
 
   switch (property_id) {
-    case SEQUENCE_GRID_MODEL_POS_FORMAT: {
-      g_value_set_enum(value, self->priv->pos_format);
-    } break;
-    case SEQUENCE_GRID_MODEL_BARS: {
-      g_value_set_ulong(value, self->priv->bars);
-    } break;
-    case SEQUENCE_GRID_MODEL_LENGTH: {
-      g_value_set_ulong(value, self->priv->visible_length);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case SEQUENCE_GRID_MODEL_POS_FORMAT:{
+      g_value_set_enum (value, self->priv->pos_format);
+    }
+      break;
+    case SEQUENCE_GRID_MODEL_BARS:{
+      g_value_set_ulong (value, self->priv->bars);
+    }
+      break;
+    case SEQUENCE_GRID_MODEL_LENGTH:{
+      g_value_set_ulong (value, self->priv->visible_length);
+    }
+      break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static void bt_sequence_grid_model_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  BtSequenceGridModel *self = BT_SEQUENCE_GRID_MODEL(object);
+static void
+bt_sequence_grid_model_set_property (GObject * const object,
+    const guint property_id, const GValue * const value,
+    GParamSpec * const pspec)
+{
+  BtSequenceGridModel *self = BT_SEQUENCE_GRID_MODEL (object);
 
   switch (property_id) {
-    case SEQUENCE_GRID_MODEL_POS_FORMAT: {
-      BtSequenceGridModelPosFormat old_pos_format=self->priv->pos_format;      
-      self->priv->pos_format=g_value_get_enum(value);
-      if(self->priv->pos_format!=old_pos_format)
-        bt_sequence_grid_model_all_rows_changed(self);
-    } break;
-    case SEQUENCE_GRID_MODEL_BARS: {
-      gulong old_bars=self->priv->bars;
-      self->priv->bars=g_value_get_ulong(value);
-      if(self->priv->bars!=old_bars)
-        bt_sequence_grid_model_all_rows_changed(self);
-    } break;
-    case SEQUENCE_GRID_MODEL_LENGTH: {
-      gulong old_length=self->priv->visible_length;
-      self->priv->visible_length=g_value_get_ulong(value);
-      self->priv->visible_length=MAX(self->priv->visible_length,self->priv->length);
-      GST_DEBUG("visible length changed: %lu",self->priv->visible_length);
-      update_length(self,old_length,self->priv->visible_length);
-    } break;        
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case SEQUENCE_GRID_MODEL_POS_FORMAT:{
+      BtSequenceGridModelPosFormat old_pos_format = self->priv->pos_format;
+      self->priv->pos_format = g_value_get_enum (value);
+      if (self->priv->pos_format != old_pos_format)
+        bt_sequence_grid_model_all_rows_changed (self);
+    }
+      break;
+    case SEQUENCE_GRID_MODEL_BARS:{
+      gulong old_bars = self->priv->bars;
+      self->priv->bars = g_value_get_ulong (value);
+      if (self->priv->bars != old_bars)
+        bt_sequence_grid_model_all_rows_changed (self);
+    }
+      break;
+    case SEQUENCE_GRID_MODEL_LENGTH:{
+      gulong old_length = self->priv->visible_length;
+      self->priv->visible_length = g_value_get_ulong (value);
+      self->priv->visible_length =
+          MAX (self->priv->visible_length, self->priv->length);
+      GST_DEBUG ("visible length changed: %lu", self->priv->visible_length);
+      update_length (self, old_length, self->priv->visible_length);
+    }
+      break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static void bt_sequence_grid_model_finalize(GObject *object) {
-  BtSequenceGridModel *self = BT_SEQUENCE_GRID_MODEL(object);
+static void
+bt_sequence_grid_model_finalize (GObject * object)
+{
+  BtSequenceGridModel *self = BT_SEQUENCE_GRID_MODEL (object);
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG ("!!!! self=%p", self);
 
-  if(self->priv->sequence) {
-    BtSequence *sequence=self->priv->sequence;
+  if (self->priv->sequence) {
+    BtSequence *sequence = self->priv->sequence;
 
-    g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_length_changed,(gpointer)self);
-    g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_tracks_changed,(gpointer)self);
-    g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_rows_changed,(gpointer)self);
-    g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_pattern_added,(gpointer)self);
-    g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_sequence_pattern_removed,(gpointer)self);
+    g_signal_handlers_disconnect_matched (sequence,
+        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+        on_sequence_length_changed, (gpointer) self);
+    g_signal_handlers_disconnect_matched (sequence,
+        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+        on_sequence_tracks_changed, (gpointer) self);
+    g_signal_handlers_disconnect_matched (sequence,
+        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+        on_sequence_rows_changed, (gpointer) self);
+    g_signal_handlers_disconnect_matched (sequence,
+        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+        on_sequence_pattern_added, (gpointer) self);
+    g_signal_handlers_disconnect_matched (sequence,
+        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+        on_sequence_pattern_removed, (gpointer) self);
   }
 
-  G_OBJECT_CLASS(bt_sequence_grid_model_parent_class)->finalize(object);
+  G_OBJECT_CLASS (bt_sequence_grid_model_parent_class)->finalize (object);
 }
 
-static void bt_sequence_grid_model_init(BtSequenceGridModel *self) {
-  self->priv=G_TYPE_INSTANCE_GET_PRIVATE(self,BT_TYPE_SEQUENCE_GRID_MODEL,BtSequenceGridModelPrivate);
+static void
+bt_sequence_grid_model_init (BtSequenceGridModel * self)
+{
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SEQUENCE_GRID_MODEL,
+      BtSequenceGridModelPrivate);
 
   // random int to check whether an iter belongs to our model
-  self->priv->stamp=g_random_int();
+  self->priv->stamp = g_random_int ();
 }
 
-static void bt_sequence_grid_model_class_init(BtSequenceGridModelClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void
+bt_sequence_grid_model_class_init (BtSequenceGridModelClass * klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private(klass,sizeof(BtSequenceGridModelPrivate));
+  g_type_class_add_private (klass, sizeof (BtSequenceGridModelPrivate));
 
   gobject_class->set_property = bt_sequence_grid_model_set_property;
   gobject_class->get_property = bt_sequence_grid_model_get_property;
-  gobject_class->finalize     = bt_sequence_grid_model_finalize;
+  gobject_class->finalize = bt_sequence_grid_model_finalize;
 
-  g_object_class_install_property(gobject_class,SEQUENCE_GRID_MODEL_POS_FORMAT,
-                                  g_param_spec_enum("pos-format",
-                                     "position format prop",
-                                     "the display format for position columns",
-                                     BT_TYPE_SEQUENCE_GRID_MODEL_POS_FORMAT,  /* enum type */
-                                     BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SEQUENCE_GRID_MODEL_POS_FORMAT, g_param_spec_enum ("pos-format", "position format prop", "the display format for position columns", BT_TYPE_SEQUENCE_GRID_MODEL_POS_FORMAT,   /* enum type */
+          BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS,      /* default value */
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,SEQUENCE_GRID_MODEL_BARS,
-                                  g_param_spec_ulong("bars",
-                                     "bars prop",
-                                     "tick stepping for the color shading",
-                                     1,G_MAXUINT,
-                                     16, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SEQUENCE_GRID_MODEL_BARS, g_param_spec_ulong ("bars", "bars prop", "tick stepping for the color shading", 1, G_MAXUINT, 16,   /* default value */
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,SEQUENCE_GRID_MODEL_LENGTH,
-                                  g_param_spec_ulong("length",
-                                     "length prop",
-                                     "visible length of the sequence (>= real length)",
-                                     0,G_MAXUINT,
-                                     0, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SEQUENCE_GRID_MODEL_LENGTH, g_param_spec_ulong ("length", "length prop", "visible length of the sequence (>= real length)", 0, G_MAXUINT, 0,  /* default value */
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
-

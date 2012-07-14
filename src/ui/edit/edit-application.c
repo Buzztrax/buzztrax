@@ -47,17 +47,19 @@
 
 //-- property ids
 
-enum {
-  EDIT_APPLICATION_SONG=1,
+enum
+{
+  EDIT_APPLICATION_SONG = 1,
   EDIT_APPLICATION_MAIN_WINDOW,
   EDIT_APPLICATION_IC_REGISTRY,
   EDIT_APPLICATION_UNSAVED
 };
 
 // this needs to be here because of gtk-doc and unit-tests
-GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
+GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 
-struct _BtEditApplicationPrivate {
+struct _BtEditApplicationPrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -79,12 +81,12 @@ struct _BtEditApplicationPrivate {
 
   /* interaction controller registry */
   BtIcRegistry *ic_registry;
-  
+
   /* persistent audio session */
   BtAudioSession *audio_session;
 };
 
-static BtEditApplication *singleton=NULL;
+static BtEditApplication *singleton = NULL;
 
 //-- the class
 
@@ -92,32 +94,38 @@ G_DEFINE_TYPE (BtEditApplication, bt_edit_application, BT_TYPE_APPLICATION);
 
 //-- event handler
 
-static void on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer user_data) {
-  BtEditApplication *self=BT_EDIT_APPLICATION(user_data);
+static void
+on_songio_status_changed (BtSongIO * songio, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtEditApplication *self = BT_EDIT_APPLICATION (user_data);
   BtMainStatusbar *statusbar;
   gchar *str;
 
   /* IDEA(ensonic): bind properties */
-  g_object_get(self->priv->main_window,"statusbar",&statusbar,NULL);
-  g_object_get(songio,"status",&str,NULL);
-  GST_INFO("songio_status has changed : \"%s\"",safe_string(str));
-  g_object_set(statusbar,"status",str,NULL);
-  g_object_unref(statusbar);
-  g_free(str);
+  g_object_get (self->priv->main_window, "statusbar", &statusbar, NULL);
+  g_object_get (songio, "status", &str, NULL);
+  GST_INFO ("songio_status has changed : \"%s\"", safe_string (str));
+  g_object_set (statusbar, "status", str, NULL);
+  g_object_unref (statusbar);
+  g_free (str);
 }
 
-static void on_changelog_can_undo_changed(BtChangeLog *change_log,GParamSpec *arg,gpointer user_data) {
-  BtEditApplication *self=BT_EDIT_APPLICATION(user_data);
+static void
+on_changelog_can_undo_changed (BtChangeLog * change_log, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtEditApplication *self = BT_EDIT_APPLICATION (user_data);
 
-  if(self->priv->need_dts_reset) {
+  if (self->priv->need_dts_reset) {
     BtSongInfo *song_info;
 
-    self->priv->need_dts_reset=FALSE;
-    g_object_get(self->priv->song,"song-info",&song_info,NULL);
+    self->priv->need_dts_reset = FALSE;
+    g_object_get (self->priv->song, "song-info", &song_info, NULL);
     // this updates the time-stamp (we need that to show the since when we have
     // unsaved changes, if some one closes the song)
-    g_object_set(song_info,"change-dts",NULL,NULL);
-    g_object_unref(song_info);
+    g_object_set (song_info, "change-dts", NULL, NULL);
+    g_object_unref (song_info);
   }
 }
 
@@ -132,53 +140,71 @@ static void on_changelog_can_undo_changed(BtChangeLog *change_log,GParamSpec *ar
  *
  * Returns: %TRUE is no critical elements are missing
  */
-static gboolean bt_edit_application_check_missing(const BtEditApplication *self) {
-  GList *missing_core_elements,*missing_edit_elements=NULL,*missing_elements;
-  GList *edit_elements=NULL;
-  gboolean res=TRUE,missing=FALSE;
+static gboolean
+bt_edit_application_check_missing (const BtEditApplication * self)
+{
+  GList *missing_core_elements, *missing_edit_elements =
+      NULL, *missing_elements;
+  GList *edit_elements = NULL;
+  gboolean res = TRUE, missing = FALSE;
 
-  if((missing_core_elements=bt_gst_check_core_elements())) {
-    missing=TRUE;res=FALSE;
+  if ((missing_core_elements = bt_gst_check_core_elements ())) {
+    missing = TRUE;
+    res = FALSE;
   }
   // TODO(ensonic): check recording 'formats' -> use GstEncodeBin
-  edit_elements=g_list_prepend(NULL,"level");
-  if((missing_elements=bt_gst_check_elements(edit_elements))) {
-    missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
-    missing_edit_elements=g_list_append(missing_edit_elements,_("-> You will not see any level-meters."));
-    missing=TRUE;
+  edit_elements = g_list_prepend (NULL, "level");
+  if ((missing_elements = bt_gst_check_elements (edit_elements))) {
+    missing_edit_elements =
+        g_list_concat (missing_edit_elements, g_list_copy (missing_elements));
+    missing_edit_elements =
+        g_list_append (missing_edit_elements,
+        _("-> You will not see any level-meters."));
+    missing = TRUE;
   }
-  g_list_free(edit_elements);
-  edit_elements=g_list_prepend(NULL,"spectrum");
-  if((missing_elements=bt_gst_check_elements(edit_elements))) {
-    missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
-    missing_edit_elements=g_list_append(missing_edit_elements,_("-> You will not see the frequency spectrum in the analyzer window."));
-    missing=TRUE;
+  g_list_free (edit_elements);
+  edit_elements = g_list_prepend (NULL, "spectrum");
+  if ((missing_elements = bt_gst_check_elements (edit_elements))) {
+    missing_edit_elements =
+        g_list_concat (missing_edit_elements, g_list_copy (missing_elements));
+    missing_edit_elements =
+        g_list_append (missing_edit_elements,
+        _
+        ("-> You will not see the frequency spectrum in the analyzer window."));
+    missing = TRUE;
   }
-  g_list_free(edit_elements);
-  edit_elements=g_list_prepend(NULL,"playbin2");
-  if((missing_elements=bt_gst_check_elements(edit_elements))) {
-    missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
-    missing_edit_elements=g_list_append(missing_edit_elements,_("-> Sample playback previews from the wavetable page will not work."));
-    missing=TRUE;
+  g_list_free (edit_elements);
+  edit_elements = g_list_prepend (NULL, "playbin2");
+  if ((missing_elements = bt_gst_check_elements (edit_elements))) {
+    missing_edit_elements =
+        g_list_concat (missing_edit_elements, g_list_copy (missing_elements));
+    missing_edit_elements =
+        g_list_append (missing_edit_elements,
+        _
+        ("-> Sample playback previews from the wavetable page will not work."));
+    missing = TRUE;
   }
-  g_list_free(edit_elements);
+  g_list_free (edit_elements);
   // show missing dialog
-  if(missing) {
+  if (missing) {
     GtkWidget *dialog;
 
-    if((dialog=GTK_WIDGET(bt_missing_framework_elements_dialog_new(missing_core_elements, missing_edit_elements)))) {
-      bt_edit_application_attach_child_window(self,GTK_WINDOW(dialog));
-      gtk_widget_show_all(dialog);
+    if ((dialog =
+            GTK_WIDGET (bt_missing_framework_elements_dialog_new
+                (missing_core_elements, missing_edit_elements)))) {
+      bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
+      gtk_widget_show_all (dialog);
 
-      gtk_dialog_run(GTK_DIALOG(dialog));
-      bt_missing_framework_elements_dialog_apply(BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(dialog));
-      gtk_widget_destroy(dialog);
+      gtk_dialog_run (GTK_DIALOG (dialog));
+      bt_missing_framework_elements_dialog_apply
+          (BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG (dialog));
+      gtk_widget_destroy (dialog);
     }
   }
   // don't free. its static
   //g_list_free(missing_core_elements);
-  g_list_free(missing_edit_elements);
-  return(res);
+  g_list_free (missing_edit_elements);
+  return (res);
 }
 
 /*
@@ -191,46 +217,48 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
  *
  * Returns: %TRUE for success
  */
-static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
+static gboolean
+bt_edit_application_run_ui (const BtEditApplication * self)
+{
   BtSettings *settings;
   guint version;
-  gboolean res,show_tips;
+  gboolean res, show_tips;
 
-  g_assert(self);
-  g_assert(self->priv->main_window);
+  g_assert (self);
+  g_assert (self->priv->main_window);
 
-  GST_INFO("application.run_ui launched");
+  GST_INFO ("application.run_ui launched");
 
-  g_object_get((gpointer)self,"settings",&settings,NULL);
-  g_object_get(settings,"news-seen",&version,"show-tips",&show_tips,NULL);
+  g_object_get ((gpointer) self, "settings", &settings, NULL);
+  g_object_get (settings, "news-seen", &version, "show-tips", &show_tips, NULL);
 
-  if(PACKAGE_VERSION_NUMBER>version) {
+  if (PACKAGE_VERSION_NUMBER > version) {
     // show about
-    bt_edit_application_show_about(self);
+    bt_edit_application_show_about (self);
     // store new version
-    version=PACKAGE_VERSION_NUMBER;
-    g_object_set(settings,"news-seen",version,NULL);
-  } else if(show_tips) {
+    version = PACKAGE_VERSION_NUMBER;
+    g_object_set (settings, "news-seen", version, NULL);
+  } else if (show_tips) {
     // show tip-of-the-day
-    bt_edit_application_show_tip(self);
+    bt_edit_application_show_tip (self);
   }
-  g_object_unref(settings);
+  g_object_unref (settings);
 
   // check for missing elements
-  if(!(res=bt_edit_application_check_missing(self)))
+  if (!(res = bt_edit_application_check_missing (self)))
     goto Error;
 
   // check for recoverable songs
-  bt_edit_application_crash_log_recover(self);
+  bt_edit_application_crash_log_recover (self);
 
-  GST_INFO("before running the UI");
-  gtk_main();
-  GST_INFO("after running the UI");
-  res=TRUE;
+  GST_INFO ("before running the UI");
+  gtk_main ();
+  GST_INFO ("after running the UI");
+  res = TRUE;
 
 Error:
-  GST_INFO("application.run_ui finished : %d",res);
-  return(res);
+  GST_INFO ("application.run_ui finished : %d", res);
+  return (res);
 }
 
 //-- constructor methods
@@ -242,8 +270,10 @@ Error:
  *
  * Returns: the new singleton instance
  */
-BtEditApplication *bt_edit_application_new(void) {
-  return(BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL)));
+BtEditApplication *
+bt_edit_application_new (void)
+{
+  return (BT_EDIT_APPLICATION (g_object_new (BT_TYPE_EDIT_APPLICATION, NULL)));
 }
 
 //-- methods
@@ -257,8 +287,10 @@ BtEditApplication *bt_edit_application_new(void) {
  *
  * Returns: %TRUE for success
  */
-gboolean bt_edit_application_new_song(const BtEditApplication *self) {
-  gboolean res=FALSE;
+gboolean
+bt_edit_application_new_song (const BtEditApplication * self)
+{
+  gboolean res = FALSE;
   BtSong *song;
   BtSetup *setup;
   BtSequence *sequence;
@@ -266,57 +298,59 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   BtMachine *machine;
   gchar *id;
   gulong bars;
-  GError *err=NULL;
+  GError *err = NULL;
 
-  g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
+  g_return_val_if_fail (BT_IS_EDIT_APPLICATION (self), FALSE);
 
   // create new song
-  song=bt_song_new(BT_APPLICATION(self));
+  song = bt_song_new (BT_APPLICATION (self));
 
-  g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&song_info,NULL);
+  g_object_get (song, "setup", &setup, "sequence", &sequence, "song-info",
+      &song_info, NULL);
   // make initial song length 4 timelines
-  g_object_get(song_info,"bars",&bars,NULL);
-  g_object_set(sequence,"length",bars*4,NULL);
+  g_object_get (song_info, "bars", &bars, NULL);
+  g_object_set (sequence, "length", bars * 4, NULL);
   // add audiosink
-  id=bt_setup_get_unique_machine_id(setup,"master");
-  machine=BT_MACHINE(bt_sink_machine_new(song,id,&err));
-  if(err==NULL) {
+  id = bt_setup_get_unique_machine_id (setup, "master");
+  machine = BT_MACHINE (bt_sink_machine_new (song, id, &err));
+  if (err == NULL) {
     GHashTable *properties;
 
-    GST_DEBUG("sink-machine=%p,ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
-    g_object_get(machine,"properties",&properties,NULL);
-    if(properties) {
+    GST_DEBUG ("sink-machine=%p,ref_ct=%d", machine,
+        G_OBJECT_REF_COUNT (machine));
+    g_object_get (machine, "properties", &properties, NULL);
+    if (properties) {
       gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-      g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
-      g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
+      g_hash_table_insert (properties, g_strdup ("xpos"),
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, 0.0)));
+      g_hash_table_insert (properties, g_strdup ("ypos"),
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, 0.0)));
     }
-    if(bt_machine_enable_input_post_level(machine)) {
-      GST_DEBUG("sink-machine-ref_ct=%d",G_OBJECT_REF_COUNT(machine));
+    if (bt_machine_enable_input_post_level (machine)) {
+      GST_DEBUG ("sink-machine-ref_ct=%d", G_OBJECT_REF_COUNT (machine));
       // set new song in application
-      g_object_set((gpointer)self,"song",song,NULL);
-      res=TRUE;
+      g_object_set ((gpointer) self, "song", song, NULL);
+      res = TRUE;
+    } else {
+      GST_WARNING ("Can't add input level/gain element in sink machine");
     }
-    else {
-      GST_WARNING("Can't add input level/gain element in sink machine");
-    }
-    GST_DEBUG("sink-machine-ref_ct=%d",G_OBJECT_REF_COUNT(machine));
+    GST_DEBUG ("sink-machine-ref_ct=%d", G_OBJECT_REF_COUNT (machine));
+  } else {
+    GST_WARNING ("Can't create sink machine: %s", err->message);
+    g_error_free (err);
   }
-  else {
-    GST_WARNING("Can't create sink machine: %s",err->message);
-    g_error_free(err);
-  }
-  g_object_unref(machine);
-  g_free(id);
+  g_object_unref (machine);
+  g_free (id);
 
-  self->priv->unsaved=FALSE;
-  g_object_notify(G_OBJECT(self),"unsaved");
+  self->priv->unsaved = FALSE;
+  g_object_notify (G_OBJECT (self), "unsaved");
 
   // release references
-  g_object_unref(song_info);
-  g_object_unref(setup);
-  g_object_unref(sequence);
-  g_object_unref(song);
-  return(res);
+  g_object_unref (song_info);
+  g_object_unref (setup);
+  g_object_unref (sequence);
+  g_object_unref (song);
+  return (res);
 }
 
 /**
@@ -328,106 +362,111 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
  *
  * Returns: true for success
  */
-gboolean bt_edit_application_load_song(const BtEditApplication *self,const char *file_name) {
-  gboolean res=FALSE;
+gboolean
+bt_edit_application_load_song (const BtEditApplication * self,
+    const char *file_name)
+{
+  gboolean res = FALSE;
   BtSongIO *loader;
   BtSong *song;
 
-  g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
+  g_return_val_if_fail (BT_IS_EDIT_APPLICATION (self), FALSE);
 
-  GST_INFO("song name = %s",file_name);
+  GST_INFO ("song name = %s", file_name);
 
-  if((loader=bt_song_io_from_file(file_name))) {
+  if ((loader = bt_song_io_from_file (file_name))) {
     BtSetup *setup;
     BtWavetable *wavetable;
-    GList *missing_machines,*missing_waves;
+    GList *missing_machines, *missing_waves;
 
-    bt_edit_application_ui_lock(self);
-    g_signal_connect(loader,"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
+    bt_edit_application_ui_lock (self);
+    g_signal_connect (loader, "notify::status",
+        G_CALLBACK (on_songio_status_changed), (gpointer) self);
 
     // create new song and release the previous one
-    song=bt_song_new(BT_APPLICATION(self));
-    g_object_set((gpointer)self,"song",NULL,NULL);
+    song = bt_song_new (BT_APPLICATION (self));
+    g_object_set ((gpointer) self, "song", NULL, NULL);
 
 #ifdef USE_DEBUG
     // do sanity check that bin is empty
     {
       GstBin *bin;
-      g_object_get((gpointer)self,"bin",&bin,NULL);
+      g_object_get ((gpointer) self, "bin", &bin, NULL);
 
-      if(GST_BIN_NUMCHILDREN(bin)) {
-        GList *node=GST_BIN_CHILDREN(bin);
-        GST_WARNING("bin.num_children=%d has left-overs",GST_BIN_NUMCHILDREN(bin));
+      if (GST_BIN_NUMCHILDREN (bin)) {
+        GList *node = GST_BIN_CHILDREN (bin);
+        GST_WARNING ("bin.num_children=%d has left-overs",
+            GST_BIN_NUMCHILDREN (bin));
 
-        while(node) {
-          GST_WARNING_OBJECT(node->data,"removing object (ref-ct=%d)",G_OBJECT_REF_COUNT(node->data));
-          gst_bin_remove(bin,GST_ELEMENT(node->data));
-          node=GST_BIN_CHILDREN(bin);
+        while (node) {
+          GST_WARNING_OBJECT (node->data, "removing object (ref-ct=%d)",
+              G_OBJECT_REF_COUNT (node->data));
+          gst_bin_remove (bin, GST_ELEMENT (node->data));
+          node = GST_BIN_CHILDREN (bin);
         }
       }
-      gst_object_unref(bin);
+      gst_object_unref (bin);
     }
 #endif
 
-    if(bt_song_io_load(loader,song)) {
+    if (bt_song_io_load (loader, song)) {
       BtMachine *machine;
 
       // get sink-machine
-      g_object_get(song,"setup",&setup,NULL);
-      if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
-        if(bt_machine_enable_input_post_level(machine)) {
+      g_object_get (song, "setup", &setup, NULL);
+      if ((machine =
+              bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE))) {
+        if (bt_machine_enable_input_post_level (machine)) {
           // DEBUG
           //bt_song_write_to_highlevel_dot_file(song);
           // DEBUG
           // set new song
-          g_object_set((gpointer)self,"song",song,NULL);
-          res=TRUE;
-          GST_INFO("new song activated");
+          g_object_set ((gpointer) self, "song", song, NULL);
+          res = TRUE;
+          GST_INFO ("new song activated");
+        } else {
+          GST_WARNING ("Can't add input level/gain element in sink machine");
         }
-        else {
-          GST_WARNING("Can't add input level/gain element in sink machine");
-        }
-        GST_DEBUG("unreffing stuff after loading");
-        g_object_unref(machine);
+        GST_DEBUG ("unreffing stuff after loading");
+        g_object_unref (machine);
+      } else {
+        GST_WARNING ("Can't look up sink machine");
       }
-      else {
-        GST_WARNING("Can't look up sink machine");
-      }
-      g_object_unref(setup);
+      g_object_unref (setup);
+    } else {
+      GST_ERROR ("could not load song \"%s\"", file_name);
     }
-    else {
-      GST_ERROR("could not load song \"%s\"",file_name);
-    }
-    self->priv->unsaved=FALSE;
-    g_object_notify(G_OBJECT(self),"unsaved");
+    self->priv->unsaved = FALSE;
+    g_object_notify (G_OBJECT (self), "unsaved");
 
-    bt_edit_application_ui_unlock(self);
+    bt_edit_application_ui_unlock (self);
 
     // get missing element info
-    g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
-    g_object_get(setup,"missing-machines",&missing_machines,NULL);
-    g_object_get(wavetable,"missing-waves",&missing_waves,NULL);
+    g_object_get (song, "setup", &setup, "wavetable", &wavetable, NULL);
+    g_object_get (setup, "missing-machines", &missing_machines, NULL);
+    g_object_get (wavetable, "missing-waves", &missing_waves, NULL);
     // tell about missing machines and/or missing waves
-    if(missing_machines || missing_waves) {
+    if (missing_machines || missing_waves) {
       GtkWidget *dialog;
 
-      if((dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(missing_machines,missing_waves)))) {
-        bt_edit_application_attach_child_window(self,GTK_WINDOW(dialog));
-        gtk_widget_show_all(dialog);
+      if ((dialog =
+              GTK_WIDGET (bt_missing_song_elements_dialog_new (missing_machines,
+                      missing_waves)))) {
+        bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
+        gtk_widget_show_all (dialog);
 
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
+        gtk_dialog_run (GTK_DIALOG (dialog));
+        gtk_widget_destroy (dialog);
       }
     }
-    g_object_unref(setup);
-    g_object_unref(wavetable);
-    g_object_unref(song);
-    g_object_unref(loader);
+    g_object_unref (setup);
+    g_object_unref (wavetable);
+    g_object_unref (song);
+    g_object_unref (loader);
+  } else {
+    GST_WARNING ("Unknown extension \"%s\"", file_name);
   }
-  else {
-    GST_WARNING("Unknown extension \"%s\"",file_name);
-  }
-  return(res);
+  return (res);
 }
 
 /**
@@ -439,24 +478,28 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
  *
  * Returns: true for success
  */
-gboolean bt_edit_application_save_song(const BtEditApplication *self,const char *file_name) {
-  gboolean res=FALSE;
+gboolean
+bt_edit_application_save_song (const BtEditApplication * self,
+    const char *file_name)
+{
+  gboolean res = FALSE;
   BtSongIO *saver;
 
-  g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
+  g_return_val_if_fail (BT_IS_EDIT_APPLICATION (self), FALSE);
 
-  GST_INFO("song name = %s",file_name);
+  GST_INFO ("song name = %s", file_name);
 
-  if((saver=bt_song_io_from_file(file_name))) {
+  if ((saver = bt_song_io_from_file (file_name))) {
     BtSongInfo *song_info;
-    gchar *old_file_name=NULL,*bak_file_name=NULL;
+    gchar *old_file_name = NULL, *bak_file_name = NULL;
 
-    bt_edit_application_ui_lock(self);
-    g_signal_connect(saver,"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
+    bt_edit_application_ui_lock (self);
+    g_signal_connect (saver, "notify::status",
+        G_CALLBACK (on_songio_status_changed), (gpointer) self);
 
-    g_object_get(self->priv->song,"song-info",&song_info,NULL);
-    g_object_get(song_info,"file-name",&old_file_name,NULL);
-    g_object_unref(song_info);
+    g_object_get (self->priv->song, "song-info", &song_info, NULL);
+    g_object_get (song_info, "file-name", &old_file_name, NULL);
+    g_object_unref (song_info);
 
     /* save file saving (bak files)
      * save
@@ -489,41 +532,39 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
      *     (if unchanged)
      * - if the user deletes the file that is currently open -> user error
      */
-    if(g_file_test(file_name,G_FILE_TEST_EXISTS)) {
-      bak_file_name=g_strconcat(file_name,".bak",NULL);
-      g_rename(file_name,bak_file_name);
+    if (g_file_test (file_name, G_FILE_TEST_EXISTS)) {
+      bak_file_name = g_strconcat (file_name, ".bak", NULL);
+      g_rename (file_name, bak_file_name);
     }
-    if(bt_song_io_save(saver,self->priv->song)) {
-      res=TRUE;
-      if(!old_file_name || strcmp(old_file_name,file_name)) {
+    if (bt_song_io_save (saver, self->priv->song)) {
+      res = TRUE;
+      if (!old_file_name || strcmp (old_file_name, file_name)) {
         // saving worked, we remove the bak file as
         // - there was no old_file_name and/or
         // - user has chosen to overwrite this file
-        g_unlink(bak_file_name);
+        g_unlink (bak_file_name);
       }
-    }
-    else {
-      GST_ERROR("could not save song \"%s\"",file_name);
-      if(bak_file_name) {
+    } else {
+      GST_ERROR ("could not save song \"%s\"", file_name);
+      if (bak_file_name) {
         // saving failed, so move a file we renamed to .bak back
-        g_rename(bak_file_name,file_name);
+        g_rename (bak_file_name, file_name);
       }
     }
-    GST_INFO("saving done");
-    self->priv->unsaved=FALSE;
-    g_object_notify(G_OBJECT(self),"unsaved");
-    self->priv->need_dts_reset=TRUE;
-    
-    bt_edit_application_ui_unlock(self);
+    GST_INFO ("saving done");
+    self->priv->unsaved = FALSE;
+    g_object_notify (G_OBJECT (self), "unsaved");
+    self->priv->need_dts_reset = TRUE;
 
-    g_free(old_file_name);
-    g_free(bak_file_name);
-    g_object_unref(saver);
+    bt_edit_application_ui_unlock (self);
+
+    g_free (old_file_name);
+    g_free (bak_file_name);
+    g_object_unref (saver);
+  } else {
+    GST_WARNING ("Unknown extension \"%s\"", file_name);
   }
-  else {
-    GST_WARNING("Unknown extension \"%s\"",file_name);
-  }
-  return(res);
+  return (res);
 }
 
 /**
@@ -534,18 +575,20 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
  *
  * Returns: %TRUE for success
  */
-gboolean bt_edit_application_run(const BtEditApplication *self) {
-  gboolean res=FALSE;
+gboolean
+bt_edit_application_run (const BtEditApplication * self)
+{
+  gboolean res = FALSE;
 
-  g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
+  g_return_val_if_fail (BT_IS_EDIT_APPLICATION (self), FALSE);
 
-  GST_INFO("application.run launched");
+  GST_INFO ("application.run launched");
 
-  if(bt_edit_application_new_song(self)) {
-    res=bt_edit_application_run_ui(self);
+  if (bt_edit_application_new_song (self)) {
+    res = bt_edit_application_run_ui (self);
   }
-  GST_INFO("application.run finished");
-  return(res);
+  GST_INFO ("application.run finished");
+  return (res);
 }
 
 /**
@@ -557,24 +600,26 @@ gboolean bt_edit_application_run(const BtEditApplication *self) {
  *
  * Returns: true for success
  */
-gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const gchar *input_file_name) {
-  gboolean res=FALSE;
+gboolean
+bt_edit_application_load_and_run (const BtEditApplication * self,
+    const gchar * input_file_name)
+{
+  gboolean res = FALSE;
 
-  g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
+  g_return_val_if_fail (BT_IS_EDIT_APPLICATION (self), FALSE);
 
-  GST_INFO("application.load_and_run launched");
+  GST_INFO ("application.load_and_run launched");
 
-  if(bt_edit_application_load_song(self,input_file_name)) {
-    res=bt_edit_application_run_ui(self);
-  }
-  else {
-    GST_WARNING("loading song failed");
+  if (bt_edit_application_load_song (self, input_file_name)) {
+    res = bt_edit_application_run_ui (self);
+  } else {
+    GST_WARNING ("loading song failed");
     // start normaly
-    bt_edit_application_run(self);
+    bt_edit_application_run (self);
     // TODO(ensonic): show error message
   }
-  GST_INFO("application.load_and_run finished");
-  return(res);
+  GST_INFO ("application.load_and_run finished");
+  return (res);
 }
 
 /**
@@ -585,21 +630,24 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
  *
  * Returns: %TRUE it ending the application was confirmed
  */
-gboolean bt_edit_application_quit(const BtEditApplication *self) {
-  if(bt_main_window_check_quit(self->priv->main_window)) {
+gboolean
+bt_edit_application_quit (const BtEditApplication * self)
+{
+  if (bt_main_window_check_quit (self->priv->main_window)) {
     BtSettings *settings;
     gint x, y, w, h;
 
     // remember window size
-    g_object_get((gpointer)self,"settings",&settings,NULL);
-    gtk_window_get_position(GTK_WINDOW(self->priv->main_window),&x,&y);
-    gtk_window_get_size(GTK_WINDOW(self->priv->main_window),&w,&h);
-    g_object_set(settings,"window-xpos",x,"window-ypos",y,"window-width",w,"window-height",h,NULL);
-    g_object_unref(settings);
+    g_object_get ((gpointer) self, "settings", &settings, NULL);
+    gtk_window_get_position (GTK_WINDOW (self->priv->main_window), &x, &y);
+    gtk_window_get_size (GTK_WINDOW (self->priv->main_window), &w, &h);
+    g_object_set (settings, "window-xpos", x, "window-ypos", y, "window-width",
+        w, "window-height", h, NULL);
+    g_object_unref (settings);
 
-    return(TRUE);
+    return (TRUE);
   }
-  return(FALSE);
+  return (FALSE);
 }
 
 /**
@@ -608,15 +656,17 @@ gboolean bt_edit_application_quit(const BtEditApplication *self) {
  *
  * Shows the applications about window
  */
-void bt_edit_application_show_about(const BtEditApplication *self) {
+void
+bt_edit_application_show_about (const BtEditApplication * self)
+{
   GtkWidget *dialog;
 
-  if((dialog=GTK_WIDGET(bt_about_dialog_new()))) {
-    bt_edit_application_attach_child_window(self,GTK_WINDOW(dialog));
-    gtk_widget_show_all(dialog);
+  if ((dialog = GTK_WIDGET (bt_about_dialog_new ()))) {
+    bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
+    gtk_widget_show_all (dialog);
 
-    gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
+    gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
   }
 }
 
@@ -628,15 +678,17 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
  *
  * Since: 0.6
  */
-void bt_edit_application_show_tip(const BtEditApplication *self) {
+void
+bt_edit_application_show_tip (const BtEditApplication * self)
+{
   GtkWidget *dialog;
 
-  if((dialog=GTK_WIDGET(bt_tip_dialog_new()))) {
-    bt_edit_application_attach_child_window(self,GTK_WINDOW(dialog));
-    gtk_widget_show_all(dialog);
+  if ((dialog = GTK_WIDGET (bt_tip_dialog_new ()))) {
+    bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
+    gtk_widget_show_all (dialog);
 
-    gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
+    gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
   }
 }
 
@@ -648,20 +700,22 @@ void bt_edit_application_show_tip(const BtEditApplication *self) {
  *
  * Since: 0.6
  */
-void bt_edit_application_crash_log_recover(const BtEditApplication *self) {
+void
+bt_edit_application_crash_log_recover (const BtEditApplication * self)
+{
   GList *crash_logs;
 
-  g_object_get(self->priv->change_log,"crash-logs",&crash_logs, NULL);
-  if(crash_logs) {
+  g_object_get (self->priv->change_log, "crash-logs", &crash_logs, NULL);
+  if (crash_logs) {
     GtkWidget *dialog;
 
-    GST_INFO("have found crash logs");
-    if((dialog=GTK_WIDGET(bt_crash_recover_dialog_new(crash_logs)))) {
-      bt_edit_application_attach_child_window(self,GTK_WINDOW(dialog));
-      gtk_widget_show_all(dialog);
+    GST_INFO ("have found crash logs");
+    if ((dialog = GTK_WIDGET (bt_crash_recover_dialog_new (crash_logs)))) {
+      bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
+      gtk_widget_show_all (dialog);
 
-      gtk_dialog_run(GTK_DIALOG(dialog));
-      gtk_widget_destroy(dialog);
+      gtk_dialog_run (GTK_DIALOG (dialog));
+      gtk_widget_destroy (dialog);
     }
   }
 }
@@ -676,9 +730,12 @@ void bt_edit_application_crash_log_recover(const BtEditApplication *self) {
  *
  * Since: 0.6
  */
-void bt_edit_application_attach_child_window(const BtEditApplication *self, GtkWindow *window) {
-  gtk_window_set_transient_for(window, GTK_WINDOW(self->priv->main_window));
-  gtk_window_set_destroy_with_parent(window, TRUE);
+void
+bt_edit_application_attach_child_window (const BtEditApplication * self,
+    GtkWindow * window)
+{
+  gtk_window_set_transient_for (window, GTK_WINDOW (self->priv->main_window));
+  gtk_window_set_destroy_with_parent (window, TRUE);
 }
 
 
@@ -688,14 +745,18 @@ void bt_edit_application_attach_child_window(const BtEditApplication *self, GtkW
  *
  * Sets the main window insensitive and show a wait cursor.
  */
-void bt_edit_application_ui_lock(const BtEditApplication *self) {
-  GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
+void
+bt_edit_application_ui_lock (const BtEditApplication * self)
+{
+  GdkCursor *cursor = gdk_cursor_new (GDK_WATCH);
 
-  gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(self->priv->main_window)),cursor);
-  gdk_cursor_unref(cursor);
-  gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
+              main_window)), cursor);
+  gdk_cursor_unref (cursor);
+  gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), FALSE);
 
-  while(gtk_events_pending()) gtk_main_iteration();
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
 }
 
 /**
@@ -704,9 +765,12 @@ void bt_edit_application_ui_lock(const BtEditApplication *self) {
  *
  * Sets the main window sensitive again and unset the wait cursor.
  */
-void bt_edit_application_ui_unlock(const BtEditApplication *self) {
-  gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
-  gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(self->priv->main_window)),NULL);
+void
+bt_edit_application_ui_unlock (const BtEditApplication * self)
+{
+  gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), TRUE);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
+              main_window)), NULL);
 }
 
 /**
@@ -717,12 +781,14 @@ void bt_edit_application_ui_unlock(const BtEditApplication *self) {
  *
  * Returns: %TRUE if there are pending changes
  */
-gboolean bt_edit_application_is_song_unsaved(const BtEditApplication *self) {
-  gboolean unsaved=self->priv->unsaved;
+gboolean
+bt_edit_application_is_song_unsaved (const BtEditApplication * self)
+{
+  gboolean unsaved = self->priv->unsaved;
 
-  if(!unsaved)
-    g_object_get(self->priv->change_log,"can-undo",&unsaved,NULL);
-  return(unsaved);
+  if (!unsaved)
+    g_object_get (self->priv->change_log, "can-undo", &unsaved, NULL);
+  return (unsaved);
 }
 
 /**
@@ -731,17 +797,19 @@ gboolean bt_edit_application_is_song_unsaved(const BtEditApplication *self) {
  *
  * Flag unsaved changes in the applications song.
  */
-void bt_edit_application_set_song_unsaved(const BtEditApplication *self) {
+void
+bt_edit_application_set_song_unsaved (const BtEditApplication * self)
+{
   /* this is not successfully preventing setting the flag when we create an
    * undo-able change
-  gboolean can_undo;
+   gboolean can_undo;
 
-  g_object_get(self->priv->change_log,"can-undo",&can_undo,NULL);
-  if((!self->priv->unsaved) && (!can_undo)) {
-  */
-  if(!self->priv->unsaved) {
-    self->priv->unsaved=TRUE;
-    g_object_notify(G_OBJECT(self),"unsaved");
+   g_object_get(self->priv->change_log,"can-undo",&can_undo,NULL);
+   if((!self->priv->unsaved) && (!can_undo)) {
+   */
+  if (!self->priv->unsaved) {
+    self->priv->unsaved = TRUE;
+    g_object_notify (G_OBJECT (self), "unsaved");
   }
 
 }
@@ -752,96 +820,122 @@ void bt_edit_application_set_song_unsaved(const BtEditApplication *self) {
 
 //-- class internals
 
-static void bt_edit_application_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-  BtEditApplication *self = BT_EDIT_APPLICATION(object);
-  return_if_disposed();
+static void
+bt_edit_application_get_property (GObject * object, guint property_id,
+    GValue * value, GParamSpec * pspec)
+{
+  BtEditApplication *self = BT_EDIT_APPLICATION (object);
+  return_if_disposed ();
   switch (property_id) {
-    case EDIT_APPLICATION_SONG: {
-      g_value_set_object(value, self->priv->song);
-    } break;
-    case EDIT_APPLICATION_MAIN_WINDOW: {
-      g_value_set_object(value, self->priv->main_window);
-    } break;
-    case EDIT_APPLICATION_IC_REGISTRY: {
-      g_value_set_object(value, self->priv->ic_registry);
-    } break;
-    case EDIT_APPLICATION_UNSAVED: {
-      g_value_set_boolean(value, self->priv->unsaved);
-    } break;
-    default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case EDIT_APPLICATION_SONG:{
+      g_value_set_object (value, self->priv->song);
+    }
+      break;
+    case EDIT_APPLICATION_MAIN_WINDOW:{
+      g_value_set_object (value, self->priv->main_window);
+    }
+      break;
+    case EDIT_APPLICATION_IC_REGISTRY:{
+      g_value_set_object (value, self->priv->ic_registry);
+    }
+      break;
+    case EDIT_APPLICATION_UNSAVED:{
+      g_value_set_boolean (value, self->priv->unsaved);
+    }
+      break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static void bt_edit_application_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtEditApplication *self = BT_EDIT_APPLICATION(object);
-  return_if_disposed();
+static void
+bt_edit_application_set_property (GObject * object, guint property_id,
+    const GValue * value, GParamSpec * pspec)
+{
+  BtEditApplication *self = BT_EDIT_APPLICATION (object);
+  return_if_disposed ();
   switch (property_id) {
-    case EDIT_APPLICATION_SONG: {
+    case EDIT_APPLICATION_SONG:{
 #ifdef USE_DEBUG
-      if(G_OBJECT_REF_COUNT(self->priv->song)!=1) {
-        GST_WARNING("old song->ref_ct=%d!",G_OBJECT_REF_COUNT(self->priv->song));
+      if (G_OBJECT_REF_COUNT (self->priv->song) != 1) {
+        GST_WARNING ("old song->ref_ct=%d!",
+            G_OBJECT_REF_COUNT (self->priv->song));
       }
 #endif
-      g_object_try_unref(self->priv->song);
-      self->priv->song=BT_SONG(g_value_dup_object(value));
-      GST_DEBUG("new song: %p, song->ref_ct=%d",self->priv->song,G_OBJECT_REF_COUNT(self->priv->song));
-    } break;
-    case EDIT_APPLICATION_UNSAVED: {
-      self->priv->unsaved = g_value_get_boolean(value);
-      GST_INFO("set the unsaved flag for the song",self->priv->unsaved);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+      g_object_try_unref (self->priv->song);
+      self->priv->song = BT_SONG (g_value_dup_object (value));
+      GST_DEBUG ("new song: %p, song->ref_ct=%d", self->priv->song,
+          G_OBJECT_REF_COUNT (self->priv->song));
+    }
+      break;
+    case EDIT_APPLICATION_UNSAVED:{
+      self->priv->unsaved = g_value_get_boolean (value);
+      GST_INFO ("set the unsaved flag for the song", self->priv->unsaved);
+    }
+      break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static GObject* bt_edit_application_constructor(GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
+static GObject *
+bt_edit_application_constructor (GType type, guint n_construct_params,
+    GObjectConstructParam * construct_params)
+{
   GObject *object;
 
-  if(G_UNLIKELY(!singleton)) {
-    object=G_OBJECT_CLASS(bt_edit_application_parent_class)->constructor(type,n_construct_params,construct_params);
-    singleton=BT_EDIT_APPLICATION(object);
-    g_object_add_weak_pointer(object,(gpointer*)(gpointer)&singleton);
+  if (G_UNLIKELY (!singleton)) {
+    object =
+        G_OBJECT_CLASS (bt_edit_application_parent_class)->constructor (type,
+        n_construct_params, construct_params);
+    singleton = BT_EDIT_APPLICATION (object);
+    g_object_add_weak_pointer (object, (gpointer *) (gpointer) & singleton);
 
     //GST_DEBUG("<<<");
-    GST_INFO("new edit app instantiated");
+    GST_INFO ("new edit app instantiated");
     // create or ref the shared ui resources
-    singleton->priv->ui_resources=bt_ui_resources_new();
+    singleton->priv->ui_resources = bt_ui_resources_new ();
     // create the playback controllers (we need to create them all as they watch
     // the settings them self)
-    singleton->priv->pb_controller=bt_playback_controller_socket_new();
-    
+    singleton->priv->pb_controller = bt_playback_controller_socket_new ();
+
     // create the interaction controller registry
-    singleton->priv->ic_registry=btic_registry_new();
+    singleton->priv->ic_registry = btic_registry_new ();
     // create the editor change log
-    singleton->priv->change_log=bt_change_log_new();
-    g_signal_connect(singleton->priv->change_log,"notify::can-undo",G_CALLBACK(on_changelog_can_undo_changed),(gpointer)singleton);
+    singleton->priv->change_log = bt_change_log_new ();
+    g_signal_connect (singleton->priv->change_log, "notify::can-undo",
+        G_CALLBACK (on_changelog_can_undo_changed), (gpointer) singleton);
     // create the audio_session
-    singleton->priv->audio_session=bt_audio_session_new();
+    singleton->priv->audio_session = bt_audio_session_new ();
 
     // create main window
-    GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT_REF_COUNT(singleton));
-    singleton->priv->main_window=bt_main_window_new();
+    GST_INFO ("new edit app created, app->ref_ct=%d",
+        G_OBJECT_REF_COUNT (singleton));
+    singleton->priv->main_window = bt_main_window_new ();
 
     // warning: dereferencing type-punned pointer will break strict-aliasing rules
-    g_object_add_weak_pointer(G_OBJECT(singleton->priv->main_window),(gpointer*)(gpointer)&singleton->priv->main_window);
-    GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT_REF_COUNT(singleton));
+    g_object_add_weak_pointer (G_OBJECT (singleton->priv->main_window),
+        (gpointer *) (gpointer) & singleton->priv->main_window);
+    GST_INFO ("new edit app created, app->ref_ct=%d",
+        G_OBJECT_REF_COUNT (singleton));
     //GST_DEBUG(">>>");
-  }
-  else {
-    object=g_object_ref(singleton);
+  } else {
+    object = g_object_ref (singleton);
   }
   return object;
 }
 
 
-static void bt_edit_application_dispose(GObject *object) {
-  BtEditApplication *self = BT_EDIT_APPLICATION(object);
+static void
+bt_edit_application_dispose (GObject * object)
+{
+  BtEditApplication *self = BT_EDIT_APPLICATION (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
   /* This should destroy the window as this is a child of the app.
@@ -849,79 +943,72 @@ static void bt_edit_application_dispose(GObject *object) {
    * strong reference to the app.
    * Solution 1: Only use weak refs when reffing upstream objects
    */
-  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
+  GST_DEBUG ("!!!! self=%p, self->ref_ct=%d", self, G_OBJECT_REF_COUNT (self));
 
-  if(self->priv->song) {
-    GST_INFO("song->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->song));
-    bt_song_stop(self->priv->song);
-    g_object_unref(self->priv->song);
-    self->priv->song=NULL;
+  if (self->priv->song) {
+    GST_INFO ("song->ref_ct=%d", G_OBJECT_REF_COUNT (self->priv->song));
+    bt_song_stop (self->priv->song);
+    g_object_unref (self->priv->song);
+    self->priv->song = NULL;
   }
 
-  if(self->priv->main_window) {
-    GST_INFO("main_window->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->main_window));
+  if (self->priv->main_window) {
+    GST_INFO ("main_window->ref_ct=%d",
+        G_OBJECT_REF_COUNT (self->priv->main_window));
     //main-menu.c::on_menu_quit_activate
-    gtk_widget_destroy(GTK_WIDGET(self->priv->main_window));
+    gtk_widget_destroy (GTK_WIDGET (self->priv->main_window));
     // we get this if we unref
     // GLib-GObject-WARNING **: instance of invalid non-instantiable type `<invalid>'
     //////g_object_unref(self->priv->main_window);
   }
 
-  GST_DEBUG("  more unrefs");
-  g_object_try_unref(self->priv->ui_resources);
-  g_object_try_unref(self->priv->pb_controller);
-  g_object_try_unref(self->priv->ic_registry);
-  g_object_try_unref(self->priv->change_log);
-  g_object_try_unref(self->priv->audio_session);
+  GST_DEBUG ("  more unrefs");
+  g_object_try_unref (self->priv->ui_resources);
+  g_object_try_unref (self->priv->pb_controller);
+  g_object_try_unref (self->priv->ic_registry);
+  g_object_try_unref (self->priv->change_log);
+  g_object_try_unref (self->priv->audio_session);
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(bt_edit_application_parent_class)->dispose(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (bt_edit_application_parent_class)->dispose (object);
+  GST_DEBUG ("  done");
 }
 
-static void bt_edit_application_init(BtEditApplication *self) {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_EDIT_APPLICATION, BtEditApplicationPrivate);
+static void
+bt_edit_application_init (BtEditApplication * self)
+{
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_EDIT_APPLICATION,
+      BtEditApplicationPrivate);
 }
 
-static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void
+bt_edit_application_class_init (BtEditApplicationClass * klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private(klass,sizeof(BtEditApplicationPrivate));
+  g_type_class_add_private (klass, sizeof (BtEditApplicationPrivate));
 
-  gobject_class->constructor  = bt_edit_application_constructor;
+  gobject_class->constructor = bt_edit_application_constructor;
   gobject_class->set_property = bt_edit_application_set_property;
   gobject_class->get_property = bt_edit_application_get_property;
-  gobject_class->dispose      = bt_edit_application_dispose;
+  gobject_class->dispose = bt_edit_application_dispose;
 
   klass->song_changed = NULL;
 
-  g_object_class_install_property(gobject_class,EDIT_APPLICATION_SONG,
-                                  g_param_spec_object("song",
-                                     "song prop",
-                                     "the current song object",
-                                     BT_TYPE_SONG, /* object type */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, EDIT_APPLICATION_SONG, g_param_spec_object ("song", "song prop", "the current song object", BT_TYPE_SONG,     /* object type */
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,EDIT_APPLICATION_MAIN_WINDOW,
-                                  g_param_spec_object("main-window",
-                                     "main window prop",
-                                     "the main window of this application",
-                                     BT_TYPE_MAIN_WINDOW, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, EDIT_APPLICATION_MAIN_WINDOW, g_param_spec_object ("main-window", "main window prop", "the main window of this application", BT_TYPE_MAIN_WINDOW,     /* object type */
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,EDIT_APPLICATION_IC_REGISTRY,
-                                  g_param_spec_object("ic-registry",
-                                     "ic registry prop",
-                                     "the interaction controller registry of this application",
-                                     BTIC_TYPE_REGISTRY, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, EDIT_APPLICATION_IC_REGISTRY, g_param_spec_object ("ic-registry", "ic registry prop", "the interaction controller registry of this application", BTIC_TYPE_REGISTRY,  /* object type */
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,EDIT_APPLICATION_UNSAVED,
-                                  g_param_spec_boolean("unsaved",
-                                     "unsaved prop",
-                                     "tell whether the current state of the song has been saved",
-                                     TRUE,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, EDIT_APPLICATION_UNSAVED,
+      g_param_spec_boolean ("unsaved",
+          "unsaved prop",
+          "tell whether the current state of the song has been saved",
+          TRUE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 }
-

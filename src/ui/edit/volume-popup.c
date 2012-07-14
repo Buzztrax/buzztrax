@@ -35,23 +35,23 @@ G_DEFINE_TYPE (BtVolumePopup, bt_volume_popup, GTK_TYPE_WINDOW);
 //-- event handler
 
 static void
-cb_scale_changed(GtkRange *range, gpointer  user_data)
+cb_scale_changed (GtkRange * range, gpointer user_data)
 {
-  GtkLabel *label=GTK_LABEL(user_data);
+  GtkLabel *label = GTK_LABEL (user_data);
   gchar str[6];
 
   // FIXME(ensonic): workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
-  g_sprintf(str,"%3d %%",400-(gint)(gtk_range_get_value(range)));
-  gtk_label_set_text(label,str);
+  g_sprintf (str, "%3d %%", 400 - (gint) (gtk_range_get_value (range)));
+  gtk_label_set_text (label, str);
 }
 
 /*
  * hide popup when clicking outside
  */
 static gboolean
-cb_dock_press(GtkWidget * widget, GdkEventButton * event, gpointer data)
+cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
 {
-  BtVolumePopup *self = BT_VOLUME_POPUP(data);
+  BtVolumePopup *self = BT_VOLUME_POPUP (data);
 
   //if(!gtk_widget_get_realized(GTK_WIDGET(self)) return FALSE;
 
@@ -62,15 +62,15 @@ cb_dock_press(GtkWidget * widget, GdkEventButton * event, gpointer data)
     //GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",event->button,event->device,event->x_root,event->y_root);
 
     /*
-    GtkWidget *parent=GTK_WIDGET(gtk_window_get_transient_for(GTK_WINDOW(self)));
-    //GtkWidget *parent=gtk_widget_get_parent(GTK_WIDGET(self));
-    //gboolean retval;
+       GtkWidget *parent=GTK_WIDGET(gtk_window_get_transient_for(GTK_WINDOW(self)));
+       //GtkWidget *parent=gtk_widget_get_parent(GTK_WIDGET(self));
+       //gboolean retval;
 
-    GST_INFO("FORWARD : popup=%p, widget=%p", self, widget);
-    GST_INFO("FORWARD : parent=%p, parent->window=%p", parent, parent->window);
-    */
+       GST_INFO("FORWARD : popup=%p, widget=%p", self, widget);
+       GST_INFO("FORWARD : parent=%p, parent->window=%p", parent, parent->window);
+     */
 
-    bt_volume_popup_hide(self);
+    bt_volume_popup_hide (self);
 
     // forward event
     e = (GdkEventButton *) gdk_event_copy ((GdkEvent *) event);
@@ -110,64 +110,76 @@ cb_dock_press(GtkWidget * widget, GdkEventButton * event, gpointer data)
  * Returns: the new instance or %NULL in case of an error
  */
 GtkWidget *
-bt_volume_popup_new(GtkAdjustment *adj) {
+bt_volume_popup_new (GtkAdjustment * adj)
+{
   GtkWidget *box, *scale, *frame, *label;
   BtVolumePopup *self;
 
-  self = g_object_new(BT_TYPE_VOLUME_POPUP, "type", GTK_WINDOW_POPUP, NULL);
+  self = g_object_new (BT_TYPE_VOLUME_POPUP, "type", GTK_WINDOW_POPUP, NULL);
 
-  frame = gtk_frame_new(NULL);
-  gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
+  frame = gtk_frame_new (NULL);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_OUT);
 
-  box = gtk_vbox_new(FALSE, 0);
+  box = gtk_vbox_new (FALSE, 0);
 
-  label=gtk_label_new("");
-  gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(box), gtk_hseparator_new(), FALSE, FALSE, 0);
+  label = gtk_label_new ("");
+  gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (box), gtk_hseparator_new (), FALSE, FALSE, 0);
 
-  scale=gtk_vscale_new(adj);
-  self->scale=GTK_RANGE(scale);
-  gtk_widget_set_size_request(scale, -1, 200);
+  scale = gtk_vscale_new (adj);
+  self->scale = GTK_RANGE (scale);
+  gtk_widget_set_size_request (scale, -1, 200);
   // FIXME(ensonic): workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
   //gtk_range_set_inverted(self->scale, TRUE);
-  gtk_scale_set_draw_value(GTK_SCALE(scale), FALSE);
+  gtk_scale_set_draw_value (GTK_SCALE (scale), FALSE);
 #if 0
-  gtk_scale_add_mark(GTK_SCALE(scale), 0.0, GTK_POS_LEFT, "<small>0 %</small>");
-  gtk_scale_add_mark(GTK_SCALE(scale), 25.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 50.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 75.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 100.0, GTK_POS_LEFT, "<small>100 %</small>");
-  gtk_scale_add_mark(GTK_SCALE(scale), 150.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 200.0, GTK_POS_LEFT, "<small>200 %</small>");
-  gtk_scale_add_mark(GTK_SCALE(scale), 250.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 300.0, GTK_POS_LEFT, "<small>300 %</small>");
-  gtk_scale_add_mark(GTK_SCALE(scale), 350.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0, GTK_POS_LEFT, "<small>400 %</small>");
+  gtk_scale_add_mark (GTK_SCALE (scale), 0.0, GTK_POS_LEFT,
+      "<small>0 %</small>");
+  gtk_scale_add_mark (GTK_SCALE (scale), 25.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 50.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 75.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 100.0, GTK_POS_LEFT,
+      "<small>100 %</small>");
+  gtk_scale_add_mark (GTK_SCALE (scale), 150.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 200.0, GTK_POS_LEFT,
+      "<small>200 %</small>");
+  gtk_scale_add_mark (GTK_SCALE (scale), 250.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 300.0, GTK_POS_LEFT,
+      "<small>300 %</small>");
+  gtk_scale_add_mark (GTK_SCALE (scale), 350.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0, GTK_POS_LEFT,
+      "<small>400 %</small>");
 #else
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-0.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-25.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-50.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-75.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-100.0, GTK_POS_LEFT, "<small>100 %</small>");
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-150.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-200.0, GTK_POS_LEFT, "<small>200 %</small>");
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-250.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-300.0, GTK_POS_LEFT, "<small>300 %</small>");
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-350.0, GTK_POS_LEFT, NULL);
-  gtk_scale_add_mark(GTK_SCALE(scale), 400.0-400.0, GTK_POS_LEFT, "<small>400 %</small>");
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0 - 0.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0 - 25.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0 - 50.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0 - 75.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0 - 100.0, GTK_POS_LEFT,
+      "<small>100 %</small>");
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0 - 150.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0 - 200.0, GTK_POS_LEFT,
+      "<small>200 %</small>");
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0 - 250.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0 - 300.0, GTK_POS_LEFT,
+      "<small>300 %</small>");
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0 - 350.0, GTK_POS_LEFT, NULL);
+  gtk_scale_add_mark (GTK_SCALE (scale), 400.0 - 400.0, GTK_POS_LEFT,
+      "<small>400 %</small>");
 #endif
 
-  g_signal_connect(self->scale, "value-changed", G_CALLBACK(cb_scale_changed), label);
-  cb_scale_changed(self->scale,label);
-  gtk_box_pack_start(GTK_BOX(box), scale, TRUE, TRUE, 0);
+  g_signal_connect (self->scale, "value-changed", G_CALLBACK (cb_scale_changed),
+      label);
+  cb_scale_changed (self->scale, label);
+  gtk_box_pack_start (GTK_BOX (box), scale, TRUE, TRUE, 0);
 
-  gtk_container_add(GTK_CONTAINER(frame), box);
-  gtk_container_add(GTK_CONTAINER(self), frame);
-  gtk_widget_show_all(frame);
+  gtk_container_add (GTK_CONTAINER (frame), box);
+  gtk_container_add (GTK_CONTAINER (self), frame);
+  gtk_widget_show_all (frame);
 
-  g_signal_connect(self, "button-press-event", G_CALLBACK (cb_dock_press), self);
+  g_signal_connect (self, "button-press-event", G_CALLBACK (cb_dock_press),
+      self);
 
-  return GTK_WIDGET(self);
+  return GTK_WIDGET (self);
 }
 
 //-- methods
@@ -178,22 +190,23 @@ bt_volume_popup_new(GtkAdjustment *adj) {
  *
  * Show and activate the widget
  */
-void bt_volume_popup_show(BtVolumePopup *self) {
+void
+bt_volume_popup_show (BtVolumePopup * self)
+{
   GdkWindow *window;
 
-  gtk_widget_show_all(GTK_WIDGET(self));
+  gtk_widget_show_all (GTK_WIDGET (self));
   //gtk_widget_realize(GTK_WIDGET(self)); // not needed (yet)
-  window = gtk_widget_get_window(GTK_WIDGET(self));
+  window = gtk_widget_get_window (GTK_WIDGET (self));
 
   /* grab focus */
-  gtk_widget_grab_focus_savely(GTK_WIDGET(self));
-  gtk_grab_add(GTK_WIDGET(self));
-  gdk_pointer_grab(window, TRUE,
-        GDK_BUTTON_PRESS_MASK |
-        GDK_BUTTON_RELEASE_MASK |
-        GDK_POINTER_MOTION_MASK,
-        NULL, NULL, GDK_CURRENT_TIME);
-  gdk_keyboard_grab(window, TRUE, GDK_CURRENT_TIME);
+  gtk_widget_grab_focus_savely (GTK_WIDGET (self));
+  gtk_grab_add (GTK_WIDGET (self));
+  gdk_pointer_grab (window, TRUE,
+      GDK_BUTTON_PRESS_MASK |
+      GDK_BUTTON_RELEASE_MASK |
+      GDK_POINTER_MOTION_MASK, NULL, NULL, GDK_CURRENT_TIME);
+  gdk_keyboard_grab (window, TRUE, GDK_CURRENT_TIME);
 }
 
 /**
@@ -202,13 +215,15 @@ void bt_volume_popup_show(BtVolumePopup *self) {
  *
  * Hide and deactivate the widget
  */
-void bt_volume_popup_hide(BtVolumePopup *self) {
+void
+bt_volume_popup_hide (BtVolumePopup * self)
+{
   /* ungrab focus */
-  gdk_keyboard_ungrab(GDK_CURRENT_TIME);
-  gdk_pointer_ungrab(GDK_CURRENT_TIME);
-  gtk_grab_remove(GTK_WIDGET(self));
+  gdk_keyboard_ungrab (GDK_CURRENT_TIME);
+  gdk_pointer_ungrab (GDK_CURRENT_TIME);
+  gtk_grab_remove (GTK_WIDGET (self));
 
-  gtk_widget_hide(GTK_WIDGET(self));
+  gtk_widget_hide (GTK_WIDGET (self));
 }
 
 //-- wrapper
@@ -216,29 +231,28 @@ void bt_volume_popup_hide(BtVolumePopup *self) {
 //-- class internals
 
 static void
-bt_volume_popup_dispose(GObject *object)
+bt_volume_popup_dispose (GObject * object)
 {
-  BtVolumePopup *popup = BT_VOLUME_POPUP(object);
+  BtVolumePopup *popup = BT_VOLUME_POPUP (object);
 
   if (popup->timeout) {
-    g_source_remove(popup->timeout);
+    g_source_remove (popup->timeout);
     popup->timeout = 0;
   }
 
-  G_OBJECT_CLASS(bt_volume_popup_parent_class)->dispose (object);
+  G_OBJECT_CLASS (bt_volume_popup_parent_class)->dispose (object);
 }
 
 static void
-bt_volume_popup_class_init(BtVolumePopupClass *klass)
+bt_volume_popup_class_init (BtVolumePopupClass * klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->dispose = bt_volume_popup_dispose;
 }
 
 static void
-bt_volume_popup_init(BtVolumePopup *popup)
+bt_volume_popup_init (BtVolumePopup * popup)
 {
   popup->timeout = 0;
 }
-

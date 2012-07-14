@@ -35,36 +35,43 @@
  *
  * Shows the about dialog for the given @machine.
  */
-void bt_machine_action_about(BtMachine *machine,BtMainWindow *main_window) {
+void
+bt_machine_action_about (BtMachine * machine, BtMainWindow * main_window)
+{
   GstElementFactory *element_factory;
   GstElement *element;
-  
-  GST_INFO("context_menu about event occurred");
+
+  GST_INFO ("context_menu about event occurred");
   // show info about machine
-  g_object_get(machine,"machine",&element,NULL);
-  if((element_factory=gst_element_get_factory(element))) {
-    const gchar *element_longname=gst_element_factory_get_longname(element_factory);
-    const gchar *element_author=gst_element_factory_get_author(element_factory);
-    const gchar *element_description=gst_element_factory_get_description(element_factory);
-    gchar *str,*str_author,*str_desc;
+  g_object_get (machine, "machine", &element, NULL);
+  if ((element_factory = gst_element_get_factory (element))) {
+    const gchar *element_longname =
+        gst_element_factory_get_longname (element_factory);
+    const gchar *element_author =
+        gst_element_factory_get_author (element_factory);
+    const gchar *element_description =
+        gst_element_factory_get_description (element_factory);
+    gchar *str, *str_author, *str_desc;
 
-    str_desc=g_markup_escape_text(element_description,strlen(element_description));
-    str_author=g_markup_escape_text(element_author,strlen(element_author));
+    str_desc =
+        g_markup_escape_text (element_description,
+        strlen (element_description));
+    str_author = g_markup_escape_text (element_author, strlen (element_author));
     // add a '\n' after each ',' to nicely format the message_box
-    str=str_author;
-    while((str=strchr(str,','))) {
+    str = str_author;
+    while ((str = strchr (str, ','))) {
       str++;
-      if(*str==' ') *str='\n';
+      if (*str == ' ')
+        *str = '\n';
     }
-    
-    // format about message for machines
-    str=g_strdup_printf(_("by %s\n\n%s"),
-      str_author,str_desc
-    );
-    bt_dialog_message(main_window,_("About..."),element_longname,str);
-    
-    g_free(str);g_free(str_author);g_free(str_desc);
-  }
-  gst_object_unref(element);
-}
 
+    // format about message for machines
+    str = g_strdup_printf (_("by %s\n\n%s"), str_author, str_desc);
+    bt_dialog_message (main_window, _("About..."), element_longname, str);
+
+    g_free (str);
+    g_free (str_author);
+    g_free (str_desc);
+  }
+  gst_object_unref (element);
+}

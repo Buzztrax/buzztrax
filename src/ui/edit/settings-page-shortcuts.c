@@ -48,7 +48,8 @@
 
 #include "bt-edit.h"
 
-struct _BtSettingsPageShortcutsPrivate {
+struct _BtSettingsPageShortcutsPrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -58,7 +59,8 @@ struct _BtSettingsPageShortcutsPrivate {
 
 //-- the class
 
-G_DEFINE_TYPE (BtSettingsPageShortcuts, bt_settings_page_shortcuts, GTK_TYPE_TABLE);
+G_DEFINE_TYPE (BtSettingsPageShortcuts, bt_settings_page_shortcuts,
+    GTK_TYPE_TABLE);
 
 
 
@@ -66,33 +68,38 @@ G_DEFINE_TYPE (BtSettingsPageShortcuts, bt_settings_page_shortcuts, GTK_TYPE_TAB
 
 //-- helper methods
 
-static void bt_settings_page_shortcuts_init_ui(const BtSettingsPageShortcuts *self) {
+static void
+bt_settings_page_shortcuts_init_ui (const BtSettingsPageShortcuts * self)
+{
   BtSettings *settings;
-  GtkWidget *label,*spacer;
+  GtkWidget *label, *spacer;
   gchar *str;
 
-  gtk_widget_set_name(GTK_WIDGET(self),"keyboard shortcut settings");
+  gtk_widget_set_name (GTK_WIDGET (self), "keyboard shortcut settings");
 
   // get settings
-  g_object_get(self->priv->app,"settings",&settings,NULL);
+  g_object_get (self->priv->app, "settings", &settings, NULL);
   //g_object_get(settings,NULL);
 
   // add setting widgets
-  spacer=gtk_label_new("    ");
-  label=gtk_label_new(NULL);
-  str=g_strdup_printf("<big><b>%s</b></big>",_("Shortcuts"));
-  gtk_label_set_markup(GTK_LABEL(label),str);
-  g_free(str);
-  gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
-  gtk_table_attach(GTK_TABLE(self),label, 0, 3, 0, 1,  GTK_FILL|GTK_EXPAND, GTK_SHRINK, 2,1);
-  gtk_table_attach(GTK_TABLE(self),spacer, 0, 1, 1, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
+  spacer = gtk_label_new ("    ");
+  label = gtk_label_new (NULL);
+  str = g_strdup_printf ("<big><b>%s</b></big>", _("Shortcuts"));
+  gtk_label_set_markup (GTK_LABEL (label), str);
+  g_free (str);
+  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  gtk_table_attach (GTK_TABLE (self), label, 0, 3, 0, 1, GTK_FILL | GTK_EXPAND,
+      GTK_SHRINK, 2, 1);
+  gtk_table_attach (GTK_TABLE (self), spacer, 0, 1, 1, 4, GTK_SHRINK,
+      GTK_SHRINK, 2, 1);
 
   /* FIXME(ensonic): add the UI */
-  label=gtk_label_new("no keyboard settings yet");
-  gtk_misc_set_alignment(GTK_MISC(label),0.5,0.5);
-  gtk_table_attach(GTK_TABLE(self),label, 1, 3, 1, 4, GTK_FILL,GTK_FILL, 2,1);
+  label = gtk_label_new ("no keyboard settings yet");
+  gtk_misc_set_alignment (GTK_MISC (label), 0.5, 0.5);
+  gtk_table_attach (GTK_TABLE (self), label, 1, 3, 1, 4, GTK_FILL, GTK_FILL, 2,
+      1);
 
-  g_object_unref(settings);
+  g_object_unref (settings);
 }
 
 //-- constructor methods
@@ -104,17 +111,17 @@ static void bt_settings_page_shortcuts_init_ui(const BtSettingsPageShortcuts *se
  *
  * Returns: the new instance
  */
-BtSettingsPageShortcuts *bt_settings_page_shortcuts_new(void) {
+BtSettingsPageShortcuts *
+bt_settings_page_shortcuts_new (void)
+{
   BtSettingsPageShortcuts *self;
 
-  self=BT_SETTINGS_PAGE_SHORTCUTS(g_object_new(BT_TYPE_SETTINGS_PAGE_SHORTCUTS,
-    "n-rows",4,
-    "n-columns",3,
-    "homogeneous",FALSE,
-    NULL));
-  bt_settings_page_shortcuts_init_ui(self);
-  gtk_widget_show_all(GTK_WIDGET(self));
-  return(self);
+  self =
+      BT_SETTINGS_PAGE_SHORTCUTS (g_object_new (BT_TYPE_SETTINGS_PAGE_SHORTCUTS,
+          "n-rows", 4, "n-columns", 3, "homogeneous", FALSE, NULL));
+  bt_settings_page_shortcuts_init_ui (self);
+  gtk_widget_show_all (GTK_WIDGET (self));
+  return (self);
 }
 
 //-- methods
@@ -123,37 +130,46 @@ BtSettingsPageShortcuts *bt_settings_page_shortcuts_new(void) {
 
 //-- class internals
 
-static void bt_settings_page_shortcuts_dispose(GObject *object) {
-  BtSettingsPageShortcuts *self = BT_SETTINGS_PAGE_SHORTCUTS(object);
-  return_if_disposed();
+static void
+bt_settings_page_shortcuts_dispose (GObject * object)
+{
+  BtSettingsPageShortcuts *self = BT_SETTINGS_PAGE_SHORTCUTS (object);
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p",self);
-  g_object_unref(self->priv->app);
+  GST_DEBUG ("!!!! self=%p", self);
+  g_object_unref (self->priv->app);
 
-  G_OBJECT_CLASS(bt_settings_page_shortcuts_parent_class)->dispose(object);
+  G_OBJECT_CLASS (bt_settings_page_shortcuts_parent_class)->dispose (object);
 }
 
-static void bt_settings_page_shortcuts_finalize(GObject *object) {
-  BtSettingsPageShortcuts *self = BT_SETTINGS_PAGE_SHORTCUTS(object);
+static void
+bt_settings_page_shortcuts_finalize (GObject * object)
+{
+  BtSettingsPageShortcuts *self = BT_SETTINGS_PAGE_SHORTCUTS (object);
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG ("!!!! self=%p", self);
 
-  G_OBJECT_CLASS(bt_settings_page_shortcuts_parent_class)->finalize(object);
+  G_OBJECT_CLASS (bt_settings_page_shortcuts_parent_class)->finalize (object);
 }
 
-static void bt_settings_page_shortcuts_init(BtSettingsPageShortcuts *self) {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_PAGE_SHORTCUTS, BtSettingsPageShortcutsPrivate);
-  GST_DEBUG("!!!! self=%p",self);
-  self->priv->app = bt_edit_application_new();
+static void
+bt_settings_page_shortcuts_init (BtSettingsPageShortcuts * self)
+{
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SETTINGS_PAGE_SHORTCUTS,
+      BtSettingsPageShortcutsPrivate);
+  GST_DEBUG ("!!!! self=%p", self);
+  self->priv->app = bt_edit_application_new ();
 }
 
-static void bt_settings_page_shortcuts_class_init(BtSettingsPageShortcutsClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void
+bt_settings_page_shortcuts_class_init (BtSettingsPageShortcutsClass * klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private(klass,sizeof(BtSettingsPageShortcutsPrivate));
+  g_type_class_add_private (klass, sizeof (BtSettingsPageShortcutsPrivate));
 
-  gobject_class->dispose      = bt_settings_page_shortcuts_dispose;
-  gobject_class->finalize     = bt_settings_page_shortcuts_finalize;
+  gobject_class->dispose = bt_settings_page_shortcuts_dispose;
+  gobject_class->finalize = bt_settings_page_shortcuts_finalize;
 }
-
