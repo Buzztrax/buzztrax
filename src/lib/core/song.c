@@ -426,8 +426,7 @@ on_song_segment_done (const GstBus * const bus,
   /* time it takes from emitting to handling the event, depends on a change in
    * gstreamer core to timestamp messages */
   {
-    GstClockTime delta =
-        GST_CLOCK_DIFF (GST_MESSAGE_TIMESTAMP (message),
+    GstClockTime delta = GST_CLOCK_DIFF (GST_MESSAGE_TIMESTAMP (message),
         gst_util_get_timestamp ());
     GST_WARNING ("received SEGMENT_DONE after=%" GST_TIME_FORMAT,
         GST_TIME_ARGS (delta));

@@ -76,8 +76,8 @@ static void
 update_tranport_mode (void)
 {
   if (singleton->priv->audio_sink &&
-      g_object_class_find_property (G_OBJECT_GET_CLASS (singleton->priv->
-              audio_sink), "transport")
+      g_object_class_find_property (G_OBJECT_GET_CLASS (singleton->
+              priv->audio_sink), "transport")
       ) {
     gboolean master, slave;
 
@@ -248,8 +248,8 @@ bt_audio_session_get_property (GObject * const object, const guint property_id,
       break;
     case AUDIO_SESSION_AUDIO_LOCKED:
       g_value_set_boolean (value,
-          (self->priv->audio_sink ? gst_element_is_locked_state (self->priv->
-                  audio_sink) : FALSE));
+          (self->priv->audio_sink ? gst_element_is_locked_state (self->
+                  priv->audio_sink) : FALSE));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);

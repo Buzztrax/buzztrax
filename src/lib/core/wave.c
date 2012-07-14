@@ -680,8 +680,7 @@ bt_wave_persistence_load (const GType type,
   const gdouble volume =
       volume_str ? g_ascii_strtod ((char *) volume_str, NULL) : 0.0;
   xmlChar *const loop_mode_str = xmlGetProp (node, XML_CHAR_PTR ("loop-mode"));
-  gint loop_mode =
-      bt_persistence_parse_enum (BT_TYPE_WAVE_LOOP_MODE,
+  gint loop_mode = bt_persistence_parse_enum (BT_TYPE_WAVE_LOOP_MODE,
       (char *) loop_mode_str);
   if (loop_mode == -1)
     loop_mode = BT_WAVE_LOOP_MODE_OFF;

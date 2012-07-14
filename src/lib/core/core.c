@@ -179,7 +179,7 @@ bt_init_get_option_group (void)
   GOptionGroup *group;
   static GOptionEntry options[] = {
     {"bt-version", 0, 0, G_OPTION_ARG_NONE, NULL,
-          N_("Print the buzztard core version"), NULL},
+        N_("Print the buzztard core version"), NULL},
     {NULL}
   };
   options[0].arg_data = &arg_version;

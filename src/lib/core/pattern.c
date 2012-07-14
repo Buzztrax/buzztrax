@@ -778,8 +778,8 @@ bt_pattern_insert_row (const BtPattern * const self, const gulong tick)
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_insert_full_row (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), tick);
+    bt_value_group_insert_full_row (g_hash_table_lookup (self->
+            priv->wire_value_groups, node->data), tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -809,8 +809,8 @@ bt_pattern_delete_row (const BtPattern * const self, const gulong tick)
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_delete_full_row (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), tick);
+    bt_value_group_delete_full_row (g_hash_table_lookup (self->
+            priv->wire_value_groups, node->data), tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -842,8 +842,8 @@ bt_pattern_clear_columns (const BtPattern * const self, const gulong start_tick,
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_clear_columns (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), start_tick, end_tick);
+    bt_value_group_clear_columns (g_hash_table_lookup (self->
+            priv->wire_value_groups, node->data), start_tick, end_tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -874,8 +874,8 @@ bt_pattern_blend_columns (const BtPattern * const self, const gulong start_tick,
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_blend_columns (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), start_tick, end_tick);
+    bt_value_group_blend_columns (g_hash_table_lookup (self->
+            priv->wire_value_groups, node->data), start_tick, end_tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -906,8 +906,8 @@ bt_pattern_flip_columns (const BtPattern * const self, const gulong start_tick,
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_flip_columns (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), start_tick, end_tick);
+    bt_value_group_flip_columns (g_hash_table_lookup (self->
+            priv->wire_value_groups, node->data), start_tick, end_tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -938,8 +938,8 @@ bt_pattern_randomize_columns (const BtPattern * const self,
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_randomize_columns (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), start_tick, end_tick);
+    bt_value_group_randomize_columns (g_hash_table_lookup (self->
+            priv->wire_value_groups, node->data), start_tick, end_tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -963,8 +963,8 @@ bt_pattern_serialize_columns (const BtPattern * const self,
 
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_serialize_columns (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), start_tick, end_tick, data);
+    bt_value_group_serialize_columns (g_hash_table_lookup (self->
+            priv->wire_value_groups, node->data), start_tick, end_tick, data);
   }
   bt_value_group_serialize_columns (self->priv->global_value_group, start_tick,
       end_tick, data);

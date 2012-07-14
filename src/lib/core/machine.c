@@ -458,13 +458,13 @@ bt_machine_change_state (const BtMachine * const self,
   // return to normal state
   switch (self->priv->state) {
     case BT_MACHINE_STATE_MUTE:{
-                                // source, processor, sink
+      // source, processor, sink
       if (!bt_machine_unset_mute (self))
         res = FALSE;
     }
       break;
     case BT_MACHINE_STATE_SOLO:{
-                                // source
+      // source
       GList *node, *machines =
           bt_setup_get_machines_by_type (setup, BT_TYPE_SOURCE_MACHINE);
       BtMachine *machine;
@@ -483,7 +483,7 @@ bt_machine_change_state (const BtMachine * const self,
     }
       break;
     case BT_MACHINE_STATE_BYPASS:{
-                                // processor
+      // processor
       const GstElement *const element = self->priv->machines[PART_MACHINE];
       if (GST_IS_BASE_TRANSFORM (element)) {
         gst_base_transform_set_passthrough (GST_BASE_TRANSFORM (element),
@@ -505,13 +505,13 @@ bt_machine_change_state (const BtMachine * const self,
   // set to new state
   switch (new_state) {
     case BT_MACHINE_STATE_MUTE:{
-                                // source, processor, sink
+      // source, processor, sink
       if (!bt_machine_set_mute (self))
         res = FALSE;
     }
       break;
     case BT_MACHINE_STATE_SOLO:{
-                                // source
+      // source
       GList *node, *machines =
           bt_setup_get_machines_by_type (setup, BT_TYPE_SOURCE_MACHINE);
       BtMachine *machine;
@@ -537,7 +537,7 @@ bt_machine_change_state (const BtMachine * const self,
     }
       break;
     case BT_MACHINE_STATE_BYPASS:{
-                                // processor
+      // processor
       const GstElement *element = self->priv->machines[PART_MACHINE];
       if (GST_IS_BASE_TRANSFORM (element)) {
         gst_base_transform_set_passthrough (GST_BASE_TRANSFORM (element), TRUE);
@@ -654,8 +654,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->dst_wires->
-                        data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -683,8 +683,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->src_wires->
-                        data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -748,8 +748,8 @@ bt_machine_resize_voices (const BtMachine * const self, const gulong old_voices)
     for (v = old_voices; v < new_voices; v++) {
       // get child for voice
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), v))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), v))) {
         GParamSpec **properties;
         guint number_of_properties;
 
@@ -1077,8 +1077,8 @@ bt_machine_init_interfaces (const BtMachine * const self)
    * buzzmachines can then call c function of the host
    * would be good to set this as early as possible
    */
-  if (g_object_class_find_property (G_OBJECT_CLASS (BT_MACHINE_GET_CLASS (self->
-                  priv->machines[PART_MACHINE])), "host-callbacks")) {
+  if (g_object_class_find_property (G_OBJECT_CLASS (BT_MACHINE_GET_CLASS
+              (self->priv->machines[PART_MACHINE])), "host-callbacks")) {
     extern void *bt_buzz_callbacks_get (BtSong * song);
 
     g_object_set (self->priv->machines[PART_MACHINE], "host-callbacks",
@@ -1223,8 +1223,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1285,8 +1285,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                    machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -2893,9 +2893,8 @@ Error:
   GST_WARNING_OBJECT (self, "failed to create machine: %s",
       self->priv->plugin_name);
   if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain, /* errorcode= */
-        0,
-        "failed to setup the machine.");
+    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+        0, "failed to setup the machine.");
   }
 }
 

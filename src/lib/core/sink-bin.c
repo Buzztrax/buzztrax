@@ -217,7 +217,7 @@ bt_sink_bin_mode_get_type (void)
       {BT_SINK_BIN_MODE_PLAY, "BT_SINK_BIN_MODE_PLAY", "play"},
       {BT_SINK_BIN_MODE_RECORD, "BT_SINK_BIN_MODE_RECORD", "record"},
       {BT_SINK_BIN_MODE_PLAY_AND_RECORD, "BT_SINK_BIN_MODE_PLAY_AND_RECORD",
-            "play-and-record"},
+          "play-and-record"},
       {BT_SINK_BIN_MODE_PASS_THRU, "BT_SINK_BIN_MODE_PASS_THRU", "pass-thru"},
       {0, NULL, NULL},
     };

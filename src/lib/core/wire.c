@@ -740,7 +740,6 @@ bt_wire_connect (const BtWire * const self)
   if (!bt_wire_can_link_internal (self, src, dst)) {
     return FALSE;
   }
-
   // name the wire
   g_object_get (src, "id", &src_name, NULL);
   g_object_get (dst, "id", &dst_name, NULL);
@@ -1140,8 +1139,8 @@ bt_wire_persistence_load (const GType type,
                     //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
                     if (!strncmp ((char *) child_node3->name, "wiredata\0", 9)) {
                       param =
-                          bt_parameter_group_get_param_index (self->priv->
-                          param_group, (gchar *) name);
+                          bt_parameter_group_get_param_index (self->
+                          priv->param_group, (gchar *) name);
                       if (param != -1) {
                         bt_value_group_set_event (vg, tick, param,
                             (gchar *) value);
@@ -1218,41 +1217,36 @@ bt_wire_constructed (GObject * object)
 ConnectError:
   GST_WARNING ("failed to connect wire");
   if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain, /* errorcode= */
-        0,
-        "failed to connect wire.");
+    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+        0, "failed to connect wire.");
   }
   return;
 SrcIsSinkMachineError:
   GST_WARNING ("src is sink-machine");
   if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain, /* errorcode= */
-        0,
-        "src is sink-machine.");
+    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+        0, "src is sink-machine.");
   }
   return;
 SinkIsSrcMachineError:
   GST_WARNING ("sink is src-machine");
   if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain, /* errorcode= */
-        0,
-        "sink is src-machine.");
+    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+        0, "sink is src-machine.");
   }
   return;
 SrcIsSinkError:
   GST_WARNING ("src and sink are the same machine");
   if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain, /* errorcode= */
-        0,
-        "src and sink are the same machine.");
+    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+        0, "src and sink are the same machine.");
   }
   return;
 NoMachinesError:
   GST_WARNING ("src and/or sink are NULL");
   if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain, /* errorcode= */
-        0,
-        "src=%p and/or sink=%p are NULL.", self->priv->src, self->priv->dst);
+    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+        0, "src=%p and/or sink=%p are NULL.", self->priv->src, self->priv->dst);
   }
   return;
 }

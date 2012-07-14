@@ -582,8 +582,9 @@ bt_parameter_group_describe_param_value (const BtParameterGroup * const self,
   g_return_val_if_fail (G_IS_VALUE (event), NULL);
 
   if (GSTBT_IS_PROPERTY_META (self->priv->parents[index])) {
-    return gstbt_property_meta_describe_property (GSTBT_PROPERTY_META (self->
-            priv->parents[index]), index, event);
+    return
+        gstbt_property_meta_describe_property (GSTBT_PROPERTY_META (self->priv->
+            parents[index]), index, event);
   }
   return NULL;
 }
@@ -846,8 +847,9 @@ bt_parameter_group_constructed (GObject * object)
         self->priv->flags[i] =
             GPOINTER_TO_INT (g_param_spec_get_qdata (param,
                 gstbt_property_meta_quark_flags));
-        if (!(bt_parameter_group_get_property_meta_value (&self->priv->
-                    no_val[i], param, gstbt_property_meta_quark_no_val))) {
+        if (!(bt_parameter_group_get_property_meta_value (&self->
+                    priv->no_val[i], param,
+                    gstbt_property_meta_quark_no_val))) {
           GST_WARNING
               ("can't get no-val property-meta for param [%u/%lu] \"%s\"", i,
               num_params, param->name);

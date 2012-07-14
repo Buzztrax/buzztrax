@@ -916,21 +916,18 @@ read_mach_section (const BtSongIOBuzz * self, const BtSong * song)
         machine = BT_MACHINE (bt_sink_machine_new (song, name, &err));
         break;
       case 1:
-        machine =
-            BT_MACHINE (bt_source_machine_new (song, name, plugin_name,
+        machine = BT_MACHINE (bt_source_machine_new (song, name, plugin_name,
                 /*voices */ 1, &err));
         break;
       case 2:
-        machine =
-            BT_MACHINE (bt_processor_machine_new (song, name, plugin_name,
+        machine = BT_MACHINE (bt_processor_machine_new (song, name, plugin_name,
                 /*voices */ 1, &err));
         // some buzz src register as FX to be stereo, try again
         if (err) {
           GError *err2 = NULL;
           GST_WARNING ("failed to create processor machine '%s', try as source",
               plugin_name);
-          machine =
-              BT_MACHINE (bt_source_machine_new (song, name, plugin_name,
+          machine = BT_MACHINE (bt_source_machine_new (song, name, plugin_name,
                   /*voices */ 1, &err2));
           if (err2) {
             GST_WARNING ("failed to create processor machine '%s' as source",
@@ -1422,8 +1419,7 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
       if (machine) {
         id = g_strdup_printf ("%s_%s", mach->name, name);
         GST_DEBUG ("    pattern id: %s", id);
-        pattern =
-            bt_pattern_new (song, id, name, number_of_ticks,
+        pattern = bt_pattern_new (song, id, name, number_of_ticks,
             /*number_of_tracks, */ machine);
         g_free (id);
       } else
