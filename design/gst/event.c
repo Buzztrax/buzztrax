@@ -14,25 +14,26 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 static gboolean
-event_snoop (GstPad *pad, GstEvent *event, gpointer user_data)
+event_snoop (GstPad * pad, GstEvent * event, gpointer user_data)
 {
-  GST_WARNING_OBJECT(pad, "%"GST_PTR_FORMAT, event);
+  GST_WARNING_OBJECT (pad, "%" GST_PTR_FORMAT, event);
   return TRUE;
 }
 
 static GstBusSyncReply
 bus_snoop (GstBus * bus, GstMessage * message, gpointer user_data)
 {
-  GST_WARNING_OBJECT(user_data, "%"GST_PTR_FORMAT, message);
+  GST_WARNING_OBJECT (user_data, "%" GST_PTR_FORMAT, message);
   return GST_BUS_PASS;
 }
 
 static void
-add_probes (GstBin *bin) {
+add_probes (GstBin * bin)
+{
   GstIterator *it1, *it2;
   gpointer data1, data2;
   gboolean done1, done2;
-  
+
   it1 = gst_bin_iterate_recurse (bin);
   done1 = FALSE;
   while (!done1) {
@@ -42,8 +43,9 @@ add_probes (GstBin *bin) {
         done2 = FALSE;
         while (!done2) {
           switch (gst_iterator_next (it2, &data2)) {
-            case GST_ITERATOR_OK:        
-              gst_pad_add_event_probe (GST_PAD (data2), G_CALLBACK (event_snoop), NULL);
+            case GST_ITERATOR_OK:
+              gst_pad_add_event_probe (GST_PAD (data2),
+                  G_CALLBACK (event_snoop), NULL);
               gst_object_unref (data2);
             case GST_ITERATOR_DONE:
               done2 = TRUE;
@@ -74,7 +76,7 @@ add_probes (GstBin *bin) {
 }
 
 gint
-main (gint argc, gchar **argv)
+main (gint argc, gchar ** argv)
 {
   GstElement *bin;
   GstBus *bus;
@@ -84,7 +86,7 @@ main (gint argc, gchar **argv)
   /* init gstreamer */
   gst_init (&argc, &argv);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "event", 0, "seek event test");
-  if(argc > 1) {
+  if (argc > 1) {
     flags = (atoi (argv[1]) == 0) ? GST_SEEK_FLAG_NONE : GST_SEEK_FLAG_FLUSH;
     if (argc > 2) {
       type = atoi (argv[2]);
@@ -97,17 +99,23 @@ main (gint argc, gchar **argv)
       bin = gst_parse_launch ("audiotestsrc ! adder ! pulsesink", NULL);
       break;
     case 2:
-      bin = gst_parse_launch ("audiotestsrc ! adder name=adder0 ! pulsesink audiotestsrc ! adder0.", NULL);
+      bin =
+          gst_parse_launch
+          ("audiotestsrc ! adder name=adder0 ! pulsesink audiotestsrc ! adder0.",
+          NULL);
       break;
     case 3:
-      bin = gst_parse_launch ("audiotestsrc ! adder name=adder0 ! adder name=adder1 ! pulsesink audiotestsrc ! adder0. audiotestsrc ! adder1.", NULL);
+      bin =
+          gst_parse_launch
+          ("audiotestsrc ! adder name=adder0 ! adder name=adder1 ! pulsesink audiotestsrc ! adder0. audiotestsrc ! adder1.",
+          NULL);
       break;
     case 0:
     default:
       bin = gst_parse_launch ("audiotestsrc ! pulsesink", NULL);
       break;
   }
-  
+
   /* instrument the pipeline */
   bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
   gst_bus_set_sync_handler (bus, bus_snoop, bin);
@@ -117,25 +125,25 @@ main (gint argc, gchar **argv)
   /* play */
   gst_element_set_state (bin, GST_STATE_PLAYING);
   gst_element_get_state (bin, NULL, NULL, GST_CLOCK_TIME_NONE);
-  GST_WARNING("started playback");
-  
-  g_usleep (G_USEC_PER_SEC/100);
-  GST_WARNING("before seek");
+  GST_WARNING ("started playback");
+
+  g_usleep (G_USEC_PER_SEC / 100);
+  GST_WARNING ("before seek");
   gst_element_send_event (bin, gst_event_new_seek (1.0, GST_FORMAT_TIME, flags,
-        GST_SEEK_TYPE_SET, (GstClockTime)0,
-        GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE));
+          GST_SEEK_TYPE_SET, (GstClockTime) 0,
+          GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE));
   /* This returns when flush start, seek, flush stop have been sent and
    * considerered by all elments, but before the newsegment has reached
    * the sink.
    * The sink is not posting any message for newsegment.
    */
-  GST_WARNING("after seek");
-  g_usleep (G_USEC_PER_SEC/200);
-  
+  GST_WARNING ("after seek");
+  g_usleep (G_USEC_PER_SEC / 200);
+
   /* cleanup */
-  GST_WARNING("stopping playback");
+  GST_WARNING ("stopping playback");
   gst_element_set_state (bin, GST_STATE_NULL);
   gst_object_unref (bin);
-  
+
   exit (0);
 }

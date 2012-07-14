@@ -11,18 +11,20 @@
 #include <glib.h>
 #include <glib-object.h>
 
-gint main(gint argc, gchar *argv[]) {
+gint
+main (gint argc, gchar * argv[])
+{
   GObject *o1, *o2;
-  
-  g_type_init();
-  
+
+  g_type_init ();
+
   o1 = g_object_new (G_TYPE_OBJECT, NULL);
-  g_object_add_weak_pointer(o1, (gpointer *)&o1);
-  g_object_unref(o1);
-  g_assert(o1 == NULL);
-  
+  g_object_add_weak_pointer (o1, (gpointer *) & o1);
+  g_object_unref (o1);
+  g_assert (o1 == NULL);
+
   // also test g_atomic_pointer_compare_and_exchange()
   // seems that glib uses G_GNUC_MAY_ALIAS nowadays
-  
+
   return 0;
 }

@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 // select loop or start offset mode
-static gboolean loop=FALSE;
+static gboolean loop = FALSE;
 
 //#define PLAY_BROKEN 1
 
@@ -32,56 +32,61 @@ event_loop (GstElement * bin)
     message = gst_bus_poll (bus, GST_MESSAGE_ANY, -1);
 
     g_assert (message != NULL);
-    
-    GST_INFO("message %s received",GST_MESSAGE_TYPE_NAME(message));
+
+    GST_INFO ("message %s received", GST_MESSAGE_TYPE_NAME (message));
 
     switch (message->type) {
       case GST_MESSAGE_EOS:
         gst_message_unref (message);
         return;
-      case GST_MESSAGE_SEGMENT_DONE: {
-	event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-	    GST_SEEK_FLAG_SEGMENT,
-	    GST_SEEK_TYPE_SET, (GstClockTime)0 * GST_SECOND,
-	    GST_SEEK_TYPE_SET, (GstClockTime)6 * GST_SECOND);
-	if(!(gst_element_send_event(GST_ELEMENT(bin),event))) {
-	  GST_WARNING("element failed to handle seek event");
-	}
-      } break;
+      case GST_MESSAGE_SEGMENT_DONE:{
+        event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
+            GST_SEEK_FLAG_SEGMENT,
+            GST_SEEK_TYPE_SET, (GstClockTime) 0 * GST_SECOND,
+            GST_SEEK_TYPE_SET, (GstClockTime) 6 * GST_SECOND);
+        if (!(gst_element_send_event (GST_ELEMENT (bin), event))) {
+          GST_WARNING ("element failed to handle seek event");
+        }
+      }
+        break;
 
 // this fails, if we do this in main it works
 #ifdef PLAY_BROKEN
       case GST_MESSAGE_STATE_CHANGED:
-        if(GST_MESSAGE_SRC(message) == GST_OBJECT(bin)) {
+        if (GST_MESSAGE_SRC (message) == GST_OBJECT (bin)) {
           GstStateChangeReturn state_res;
-          GstState oldstate,newstate,pending;
+          GstState oldstate, newstate, pending;
 
-          gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
-          GST_INFO("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
-          switch(GST_STATE_TRANSITION(oldstate,newstate)) {
+          gst_message_parse_state_changed (message, &oldstate, &newstate,
+              &pending);
+          GST_INFO ("state change on the bin: %s -> %s",
+              gst_element_state_get_name (oldstate),
+              gst_element_state_get_name (newstate));
+          switch (GST_STATE_TRANSITION (oldstate, newstate)) {
             case GST_STATE_CHANGE_READY_TO_PAUSED:
               if (loop) {
-                event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+                event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
                     GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-                    GST_SEEK_TYPE_SET, (GstClockTime)0 * GST_SECOND,
-                    GST_SEEK_TYPE_SET, (GstClockTime)6 * GST_SECOND);
+                    GST_SEEK_TYPE_SET, (GstClockTime) 0 * GST_SECOND,
+                    GST_SEEK_TYPE_SET, (GstClockTime) 6 * GST_SECOND);
               } else {
-                event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+                event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
                     GST_SEEK_FLAG_FLUSH,
-                    GST_SEEK_TYPE_SET, (GstClockTime)3 * GST_SECOND,
-                    GST_SEEK_TYPE_SET, (GstClockTime)7 * GST_SECOND);
+                    GST_SEEK_TYPE_SET, (GstClockTime) 3 * GST_SECOND,
+                    GST_SEEK_TYPE_SET, (GstClockTime) 7 * GST_SECOND);
               }
-              if(!(gst_element_send_event(GST_ELEMENT(bin),event))) {
-                GST_WARNING("element failed to handle seek event");
+              if (!(gst_element_send_event (GST_ELEMENT (bin), event))) {
+                GST_WARNING ("element failed to handle seek event");
               }
-            
               // start playback for 7 second
-              if ((state_res = gst_element_set_state(GST_ELEMENT(bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
-                GST_WARNING("can't go to playing state");
+              if ((state_res =
+                      gst_element_set_state (GST_ELEMENT (bin),
+                          GST_STATE_PLAYING)) == GST_STATE_CHANGE_FAILURE) {
+                GST_WARNING ("can't go to playing state");
                 return;
               }
-              if(state_res == GST_STATE_CHANGE_ASYNC) {
-                GST_INFO("->PLAYING needs async wait");
+              if (state_res == GST_STATE_CHANGE_ASYNC) {
+                GST_INFO ("->PLAYING needs async wait");
               }
               break;
             default:
@@ -89,22 +94,24 @@ event_loop (GstElement * bin)
           }
         }
         break;
-      case GST_MESSAGE_ASYNC_DONE: {
-          GstStateChangeReturn state_res;
-          GST_INFO("retry playing after async wait");
-          // start playback for 7 second
-          if ((state_res = gst_element_set_state(GST_ELEMENT(bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
-            GST_WARNING("can't go to playing state");
-            return;
-          }
-          if(state_res == GST_STATE_CHANGE_ASYNC) {
-            GST_INFO("->PLAYING needs async wait");
-          }
+      case GST_MESSAGE_ASYNC_DONE:{
+        GstStateChangeReturn state_res;
+        GST_INFO ("retry playing after async wait");
+        // start playback for 7 second
+        if ((state_res =
+                gst_element_set_state (GST_ELEMENT (bin),
+                    GST_STATE_PLAYING)) == GST_STATE_CHANGE_FAILURE) {
+          GST_WARNING ("can't go to playing state");
+          return;
         }
+        if (state_res == GST_STATE_CHANGE_ASYNC) {
+          GST_INFO ("->PLAYING needs async wait");
+        }
+      }
         break;
 #endif
       case GST_MESSAGE_WARNING:
-      case GST_MESSAGE_ERROR: {
+      case GST_MESSAGE_ERROR:{
         GError *gerror;
         gchar *debug;
 
@@ -133,12 +140,13 @@ main (gint argc, gchar ** argv)
   GstStateChangeReturn state_res;
   GstBus *bus;
 
-  if(argc>1) {
-    if(!strcasecmp("loop",argv[1])) loop=TRUE;
-    else if(!strcasecmp("seek",argv[1])) loop=FALSE;
-  }
-  else {
-    puts("Usage: seek1 [loop|seek]\n  using seek by default");
+  if (argc > 1) {
+    if (!strcasecmp ("loop", argv[1]))
+      loop = TRUE;
+    else if (!strcasecmp ("seek", argv[1]))
+      loop = FALSE;
+  } else {
+    puts ("Usage: seek1 [loop|seek]\n  using seek by default");
   }
 
   gst_init (&argc, &argv);
@@ -159,7 +167,8 @@ main (gint argc, gchar ** argv)
     goto Error;
   }
   // set interpolation
-  gst_controller_set_interpolation_mode (ctrl, "volume", GST_INTERPOLATE_LINEAR);
+  gst_controller_set_interpolation_mode (ctrl, "volume",
+      GST_INTERPOLATE_LINEAR);
   gst_controller_set_interpolation_mode (ctrl, "freq", GST_INTERPOLATE_LINEAR);
 
   // set control values
@@ -183,41 +192,43 @@ main (gint argc, gchar ** argv)
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
 
   // prepare playback
-  if ((state_res = gst_element_set_state(GST_ELEMENT(bin),GST_STATE_PAUSED))==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to paused state");
+  if ((state_res =
+          gst_element_set_state (GST_ELEMENT (bin),
+              GST_STATE_PAUSED)) == GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING ("can't go to paused state");
     goto Error;
   }
-  if(state_res == GST_STATE_CHANGE_ASYNC) {
-    GST_INFO("->PAUSED needs async wait");
+  if (state_res == GST_STATE_CHANGE_ASYNC) {
+    GST_INFO ("->PAUSED needs async wait");
   }
-
   // this works, if we do this in the bus handler it does not :/
 #ifndef PLAY_BROKEN
   {
     GstEvent *event;
 
     if (loop) {
-      event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+      event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-          GST_SEEK_TYPE_SET, (GstClockTime)0 * GST_SECOND,
-          GST_SEEK_TYPE_SET, (GstClockTime)6 * GST_SECOND);
+          GST_SEEK_TYPE_SET, (GstClockTime) 0 * GST_SECOND,
+          GST_SEEK_TYPE_SET, (GstClockTime) 6 * GST_SECOND);
     } else {
-      event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+      event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH,
-          GST_SEEK_TYPE_SET, (GstClockTime)3 * GST_SECOND,
-          GST_SEEK_TYPE_SET, (GstClockTime)7 * GST_SECOND);
+          GST_SEEK_TYPE_SET, (GstClockTime) 3 * GST_SECOND,
+          GST_SEEK_TYPE_SET, (GstClockTime) 7 * GST_SECOND);
     }
-    if(!(gst_element_send_event(GST_ELEMENT(bin),event))) {
-      GST_WARNING("element failed to handle seek event");
+    if (!(gst_element_send_event (GST_ELEMENT (bin), event))) {
+      GST_WARNING ("element failed to handle seek event");
     }
-  
     // start playback for 7 second
-    if ((state_res = gst_element_set_Â´state(GST_ELEMENT(bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
-      GST_WARNING("can't go to playing state");
+    if ((state_res =
+            gst_element_set_ Â ´state (GST_ELEMENT (bin),
+                GST_STATE_PLAYING)) == GST_STATE_CHANGE_FAILURE) {
+      GST_WARNING ("can't go to playing state");
       goto Error;
     }
-    if(state_res == GST_STATE_CHANGE_ASYNC) {
-      GST_INFO("->PLAYING needs async wait");
+    if (state_res == GST_STATE_CHANGE_ASYNC) {
+      GST_INFO ("->PLAYING needs async wait");
     }
   }
 #endif

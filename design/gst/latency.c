@@ -119,15 +119,16 @@ make_machine (Graph * g, const gchar * elem_name, const gchar * bin_name)
 
   m = g_new0 (Machine, 1);
   m->g = g;
-  
+
 #if 1
-  if (!(m->bin = (GstBin *) gst_parse_bin_from_description (elem_name, FALSE, NULL))) {
+  if (!(m->bin =
+          (GstBin *) gst_parse_bin_from_description (elem_name, FALSE, NULL))) {
     GST_ERROR ("Can't create bin");
     exit (-1);
   }
   gst_object_set_name ((GstObject *) m->bin, bin_name);
   gst_bin_add (g->bin, (GstElement *) m->bin);
-  
+
   m->elem = m->bin->children->data;
 #else
   if (!(m->bin = (GstBin *) gst_bin_new (bin_name))) {
@@ -142,7 +143,7 @@ make_machine (Graph * g, const gchar * elem_name, const gchar * bin_name)
   }
   gst_bin_add (m->bin, m->elem);
 #endif
-  
+
   return (m);
 }
 
@@ -169,32 +170,33 @@ add_mix (Machine * m)
 }
 
 static gboolean
-data_probe (GstPad *pad, GstBuffer *buf, Graph * g)
+data_probe (GstPad * pad, GstBuffer * buf, Graph * g)
 {
   GstClockTime ct, bt;
   GstClockTimeDiff d;
-  
+
   if (!g->clock)
     return TRUE;
-    
+
   ct = gst_clock_get_time (g->clock);
   bt = GST_BUFFER_TIMESTAMP (buf);
-  if (/*GST_CLOCK_TIME_IS_VALID (ct) && GST_CLOCK_TIME_IS_VALID (bt) &&*/ (ct<bt)) {
+  if ( /*GST_CLOCK_TIME_IS_VALID (ct) && GST_CLOCK_TIME_IS_VALID (bt) && */ (ct
+          < bt)) {
     d = GST_CLOCK_DIFF (ct, bt);
     // clock-time, latency
-    GST_DEBUG_OBJECT (pad, "%"G_GUINT64_FORMAT" %"G_GUINT64_FORMAT,
-      GST_TIME_AS_MSECONDS (ct), GST_TIME_AS_MSECONDS (d));
+    GST_DEBUG_OBJECT (pad, "%" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT,
+        GST_TIME_AS_MSECONDS (ct), GST_TIME_AS_MSECONDS (d));
   }
   return TRUE;
 }
 
 static void
-add_data_probe (Graph * g, GstElement * e, const gchar *pad_name)
+add_data_probe (Graph * g, GstElement * e, const gchar * pad_name)
 {
   GstPad *p;
 
   p = gst_element_get_static_pad (e, pad_name);
-  gst_pad_add_data_probe (p, (GCallback)data_probe, (gpointer)g);
+  gst_pad_add_data_probe (p, (GCallback) data_probe, (gpointer) g);
 }
 
 static Machine *
@@ -264,11 +266,9 @@ link_add (Graph * g, gint s, gint d)
     exit (-1);
   }
   g_object_set (G_OBJECT (w->queue),
-    "max-size-buffers",1,
-    "max-size-bytes",0,
-    "max-size-time",G_GUINT64_CONSTANT (0),
-    "silent",TRUE,
-    NULL);
+      "max-size-buffers", 1,
+      "max-size-bytes", 0,
+      "max-size-time", G_GUINT64_CONSTANT (0), "silent", TRUE, NULL);
 #else
   // try and see if the queue is causing the latency
   if (!(w->queue = gst_element_factory_make ("identity", NULL))) {
@@ -308,7 +308,7 @@ link_add (Graph * g, gint s, gint d)
 
   /* add wire to pipeline */
   gst_bin_add (g->bin, (GstElement *) w->bin);
-  
+
   /* link pads */
   plr = gst_pad_link (w->peer_src_ghost, w->dst_ghost);
   g_assert (plr == GST_PAD_LINK_OK);
@@ -396,26 +396,27 @@ main (int argc, char **argv)
   /* init gstreamer */
   gst_init (&argc, &argv);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "latency", 0, "latency test");
-  
-  if (argc>1) {
+
+  if (argc > 1) {
     tpb = atoi (argv[1]);
     tpb = MAX (1, tpb);
-    if (argc>2) {
+    if (argc > 2) {
       bpm = atoi (argv[2]);
       bpm = MAX (1, bpm);
-      if (argc>3) {
+      if (argc > 3) {
         div = atoi (argv[3]);
         div = MAX (1, div);
-        if (argc>4) {
+        if (argc > 4) {
           sink_name = argv[4];
         }
       }
     }
   }
-  chunk=(GST_SECOND*G_GINT64_CONSTANT(60))/(guint64)(bpm*tpb);
-  blocksize=((chunk*44100)/GST_SECOND);
-  GST_INFO("%s| bpm=%u, tpb=%u, div=%u, target-latency=%"G_GUINT64_FORMAT" µs=%"G_GUINT64_FORMAT" ms",
-    sink_name, bpm, tpb, div, GST_TIME_AS_USECONDS(chunk), GST_TIME_AS_MSECONDS(chunk));
+  chunk = (GST_SECOND * G_GINT64_CONSTANT (60)) / (guint64) (bpm * tpb);
+  blocksize = ((chunk * 44100) / GST_SECOND);
+  GST_INFO ("%s| bpm=%u, tpb=%u, div=%u, target-latency=%" G_GUINT64_FORMAT
+      " µs=%" G_GUINT64_FORMAT " ms", sink_name, bpm, tpb, div,
+      GST_TIME_AS_USECONDS (chunk), GST_TIME_AS_MSECONDS (chunk));
 
 
   g = g_new0 (Graph, 1);
@@ -436,11 +437,10 @@ main (int argc, char **argv)
   /* make machines */
   g->m[M_SRC1] = make_src (g, SRC_NAME, "src1");
   g->m[M_SINK] = make_sink (g, sink_name, "sink");
-  
+
   g_object_set (g->m[M_SRC1]->elem,
-    "num-buffers", (NUM_BUFFERS * div),
-    "samplesperbuffer", (blocksize / div),
-    NULL);
+      "num-buffers", (NUM_BUFFERS * div),
+      "samplesperbuffer", (blocksize / div), NULL);
 
   /* simple setup */
 #if 1
@@ -460,9 +460,7 @@ main (int argc, char **argv)
   g->m[M_SRC2] = make_src (g, SRC_NAME, "src2");
   g->m[M_FX1] = make_fx (g, "fx1");
   g_object_set (g->m[M_SRC2]->elem,
-    "num-buffers", NUM_BUFFERS,
-    "blocksize", blocksize,
-    NULL);
+      "num-buffers", NUM_BUFFERS, "blocksize", blocksize, NULL);
 
   link_add (g, M_SRC1, M_FX1);
   link_add (g, M_SRC2, M_FX1);
@@ -471,17 +469,14 @@ main (int argc, char **argv)
 
   /* configure the sink */
   g_object_set (g->m[M_SINK]->elem,
-    "latency-time",  GST_TIME_AS_USECONDS(chunk),
-    "buffer-time", GST_TIME_AS_USECONDS(chunk<<1),
-    // no observable effect
-    "provide-clock", TRUE,
-    "blocksize", blocksize,
-    "sync", TRUE,
-    NULL);
+      "latency-time", GST_TIME_AS_USECONDS (chunk),
+      "buffer-time", GST_TIME_AS_USECONDS (chunk << 1),
+      // no observable effect
+      "provide-clock", TRUE, "blocksize", blocksize, "sync", TRUE, NULL);
 
   /* create a main-loop */
   g->loop = g_main_loop_new (NULL, FALSE);
-  
+
   gst_element_set_state ((GstElement *) g->bin, GST_STATE_PLAYING);
 
   /* run a main-loop */

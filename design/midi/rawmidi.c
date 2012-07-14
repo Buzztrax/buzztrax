@@ -28,65 +28,72 @@
 #define MIDI_NON_REALTIME        0x7e
 
 gint
-main(gint argc, gchar **argv) {
-  gchar *devnode="/dev/snd/midiC1D0";
+main (gint argc, gchar ** argv)
+{
+  gchar *devnode = "/dev/snd/midiC1D0";
   gint io;
-  
-  gst_init(&argc, &argv);
-  
-  if(argc>1) {
-    devnode=argv[1];
+
+  gst_init (&argc, &argv);
+
+  if (argc > 1) {
+    devnode = argv[1];
   }
-
   // we never receive anything back :/
-  if((io=open(devnode,O_NONBLOCK|O_RDWR|O_SYNC))>0) {
-    gchar data[20]={0,},*dp;
-    gsize ct,h;
+  if ((io = open (devnode, O_NONBLOCK | O_RDWR | O_SYNC)) > 0) {
+    gchar data[20] = { 0, }
+    , *dp;
+    gsize ct, h;
 
-    data[0]=MIDI_SYS_EX_START;
-    data[1]=MIDI_NON_REALTIME;
-    data[2]=0x7f; // SysEx channel, set to "disregard"
-    data[3]=0x06; // General Information
-    data[4]=0x01; // Identity Request
-    data[5]=MIDI_SYS_EX_END;
+    data[0] = MIDI_SYS_EX_START;
+    data[1] = MIDI_NON_REALTIME;
+    data[2] = 0x7f;             // SysEx channel, set to "disregard"
+    data[3] = 0x06;             // General Information
+    data[4] = 0x01;             // Identity Request
+    data[5] = MIDI_SYS_EX_END;
 
-    printf("sending identity request to: %s\n",devnode);
-    ct=write(io,data,6);
-    printf("%"G_GSSIZE_FORMAT" bytes sent\n",ct);
-    if(ct<6) {
+    printf ("sending identity request to: %s\n", devnode);
+    ct = write (io, data, 6);
+    printf ("%" G_GSSIZE_FORMAT " bytes sent\n", ct);
+    if (ct < 6) {
       goto done;
     }
-    memset(data, 0, sizeof(data));
-    printf("receiving identity replay from: %s\n",devnode);
-    dp=data;h=0;
+    memset (data, 0, sizeof (data));
+    printf ("receiving identity replay from: %s\n", devnode);
+    dp = data;
+    h = 0;
     do {
-      ct=read(io,dp,15-h);
+      ct = read (io, dp, 15 - h);
       if (ct != -1) {
-        printf("%"G_GSSIZE_FORMAT" bytes read\n",ct);
-        dp=&dp[ct];
-        h+=ct;
-        printf("have %"G_GSSIZE_FORMAT" bytes\n",h);
+        printf ("%" G_GSSIZE_FORMAT " bytes read\n", ct);
+        dp = &dp[ct];
+        h += ct;
+        printf ("have %" G_GSSIZE_FORMAT " bytes\n", h);
       }
-    } while (h<15);
-    GST_MEMDUMP("reply",(guint8 *)data,15);
-    printf("sysex start     : 0x%02hhx==0x%02hhx\n",data[0],MIDI_SYS_EX_START);
-    printf("non realtime    : 0x%02hhx==0x%02hhx\n",data[1],MIDI_NON_REALTIME);
-    printf("channel         : 0x%02hhx==0x7f\n",data[2]);
-    printf("sub id          : 0x%02hhx==0x06 0x%02hhx==0x02\n",data[3],data[4]);
-    printf("manufacturer id : 0x%02hhx\n",data[5]);
-    printf("family code     : 0x%02hhx 0x%02hhx\n",data[6],data[7]);
-    printf("model code      : 0x%02hhx 0x%02hhx\n",data[8],data[9]);
-    printf("version number  : 0x%02hhx 0x%02hhx 0x%02hhx 0x%02hhx\n",data[10],data[11],data[12],data[13]);
-    printf("sysex end       : 0x%02hhx==0x%02hhx\n",data[14],MIDI_SYS_EX_END);
+    } while (h < 15);
+    GST_MEMDUMP ("reply", (guint8 *) data, 15);
+    printf ("sysex start     : 0x%02hhx==0x%02hhx\n", data[0],
+        MIDI_SYS_EX_START);
+    printf ("non realtime    : 0x%02hhx==0x%02hhx\n", data[1],
+        MIDI_NON_REALTIME);
+    printf ("channel         : 0x%02hhx==0x7f\n", data[2]);
+    printf ("sub id          : 0x%02hhx==0x06 0x%02hhx==0x02\n", data[3],
+        data[4]);
+    printf ("manufacturer id : 0x%02hhx\n", data[5]);
+    printf ("family code     : 0x%02hhx 0x%02hhx\n", data[6], data[7]);
+    printf ("model code      : 0x%02hhx 0x%02hhx\n", data[8], data[9]);
+    printf ("version number  : 0x%02hhx 0x%02hhx 0x%02hhx 0x%02hhx\n", data[10],
+        data[11], data[12], data[13]);
+    printf ("sysex end       : 0x%02hhx==0x%02hhx\n", data[14],
+        MIDI_SYS_EX_END);
     // 5:   manufacturer id (if 0, then id is next two bytes)
     //      e.g. 0x42 for Korg
     // 6,7: family code
     // 8,9: model code
     // 10,11,12,13: version number
-done:
-    close(io);
+  done:
+    close (io);
   } else {
-    fprintf(stderr,"failed to open device: %s\n",devnode);
+    fprintf (stderr, "failed to open device: %s\n", devnode);
   }
   return 0;
 }

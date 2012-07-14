@@ -23,15 +23,15 @@ event_loop (GstElement * bin)
   GstMessage *message = NULL;
 
   while (TRUE) {
-    message = gst_bus_poll (bus, GST_MESSAGE_ANY, -1);   
-    GST_INFO("message %s received",GST_MESSAGE_TYPE_NAME(message));
+    message = gst_bus_poll (bus, GST_MESSAGE_ANY, -1);
+    GST_INFO ("message %s received", GST_MESSAGE_TYPE_NAME (message));
 
     switch (message->type) {
       case GST_MESSAGE_EOS:
         gst_message_unref (message);
         return;
       case GST_MESSAGE_WARNING:
-      case GST_MESSAGE_ERROR: {
+      case GST_MESSAGE_ERROR:{
         GError *gerror;
         gchar *debug;
 
@@ -58,36 +58,37 @@ main (gint argc, gchar ** argv)
   gchar *name = "s0";
 
   gst_init (&argc, &argv);
-    
-  bin = gst_parse_launch (
-    "audiotestsrc name=s0 ! adder name=mix ! vorbisenc ! oggmux ! filesink location=duration.ogg "
-    "audiotestsrc name=s1 ! mix. audiotestsrc name=s2 ! mix."
-    /*
-    "audiotestsrc name=s0 num-buffers=10000 ! adder name=mix ! vorbisenc ! oggmux ! filesink location=duration.ogg "
-    "audiotestsrc name=s1 num-buffers=10000  ! mix. audiotestsrc name=s2 num-buffers=10000 ! mix."
-    */
-    , NULL);
-  
-  if (argc>1) {
+
+  bin =
+      gst_parse_launch
+      ("audiotestsrc name=s0 ! adder name=mix ! vorbisenc ! oggmux ! filesink location=duration.ogg "
+      "audiotestsrc name=s1 ! mix. audiotestsrc name=s2 ! mix."
+      /*
+         "audiotestsrc name=s0 num-buffers=10000 ! adder name=mix ! vorbisenc ! oggmux ! filesink location=duration.ogg "
+         "audiotestsrc name=s1 num-buffers=10000  ! mix. audiotestsrc name=s2 num-buffers=10000 ! mix."
+       */
+      , NULL);
+
+  if (argc > 1) {
     name = argv[1];
   }
-  
+
   src = gst_bin_get_by_name (GST_BIN (bin), name);
   if (src) {
     g_object_set (src, "num-buffers", 1000, NULL);
     gst_object_unref (src);
   } else {
-    puts("unknown src, not setting duration");
+    puts ("unknown src, not setting duration");
   }
-  
+
   gst_element_set_state (GST_ELEMENT (bin), GST_STATE_PAUSED);
-  if(!gst_element_query_duration (GST_ELEMENT (bin), &query_fmt, &duration)) {
-    puts("duration query failed");
+  if (!gst_element_query_duration (GST_ELEMENT (bin), &query_fmt, &duration)) {
+    puts ("duration query failed");
   } else {
-    if (duration==GST_CLOCK_TIME_NONE) {
-      puts("duration: unknown");
+    if (duration == GST_CLOCK_TIME_NONE) {
+      puts ("duration: unknown");
     } else {
-      printf("duration: %s :%" GST_TIME_FORMAT "\n", 
+      printf ("duration: %s :%" GST_TIME_FORMAT "\n",
           gst_format_get_name (query_fmt), GST_TIME_ARGS (duration));
     }
   }

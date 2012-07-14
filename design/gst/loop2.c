@@ -57,11 +57,13 @@
 #define SINK_NAME "pulsesink"
 
 
-static GMainLoop *main_loop=NULL;
-static GstEvent *play_seek_event=NULL;
-static GstEvent *loop_seek_event=NULL;
+static GMainLoop *main_loop = NULL;
+static GstEvent *play_seek_event = NULL;
+static GstEvent *loop_seek_event = NULL;
 
-static void message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
+static void
+message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
+{
   const GstStructure *s;
 
   s = gst_message_get_structure (message);
@@ -74,42 +76,43 @@ static void message_received (GstBus * bus, GstMessage * message, GstPipeline * 
     sstr = gst_structure_to_string (s);
     puts (sstr);
     g_free (sstr);
-  }
-  else {
+  } else {
     puts ("no message details");
   }
 
-  g_main_loop_quit(main_loop);
+  g_main_loop_quit (main_loop);
 }
 
-static void state_changed(const GstBus * const bus, GstMessage *message,  GstElement *bin) {
-  if(GST_MESSAGE_SRC(message) == GST_OBJECT(bin)) {
+static void
+state_changed (const GstBus * const bus, GstMessage * message, GstElement * bin)
+{
+  if (GST_MESSAGE_SRC (message) == GST_OBJECT (bin)) {
     GstStateChangeReturn res;
-    GstState oldstate,newstate,pending;
+    GstState oldstate, newstate, pending;
 
-    gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
-    switch(GST_STATE_TRANSITION(oldstate,newstate)) {
+    gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
+    switch (GST_STATE_TRANSITION (oldstate, newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
-        GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(bin),GST_DEBUG_GRAPH_SHOW_ALL,"loop2");
+        GST_DEBUG_BIN_TO_DOT_FILE (GST_BIN (bin), GST_DEBUG_GRAPH_SHOW_ALL,
+            "loop2");
         // seek to start time
-        puts("initial seek ===========================================================\n");
-        if(!(gst_element_send_event(bin,play_seek_event))) {
-          fprintf(stderr,"element failed to handle seek event");
-          g_main_loop_quit(main_loop);
+        puts ("initial seek ===========================================================\n");
+        if (!(gst_element_send_event (bin, play_seek_event))) {
+          fprintf (stderr, "element failed to handle seek event");
+          g_main_loop_quit (main_loop);
         }
         // start playback
-        puts("start playing ==========================================================\n");
-        res=gst_element_set_state(bin,GST_STATE_PLAYING);
-        if(res==GST_STATE_CHANGE_FAILURE) {
-          fprintf(stderr,"can't go to playing state\n");
-          g_main_loop_quit(main_loop);
-        }
-        else if(res==GST_STATE_CHANGE_ASYNC) {
-          puts("->PLAYING needs async wait");
+        puts ("start playing ==========================================================\n");
+        res = gst_element_set_state (bin, GST_STATE_PLAYING);
+        if (res == GST_STATE_CHANGE_FAILURE) {
+          fprintf (stderr, "can't go to playing state\n");
+          g_main_loop_quit (main_loop);
+        } else if (res == GST_STATE_CHANGE_ASYNC) {
+          puts ("->PLAYING needs async wait");
         }
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-        puts("playback started =======================================================\n");
+        puts ("playback started =======================================================\n");
         break;
       default:
         break;
@@ -117,20 +120,25 @@ static void state_changed(const GstBus * const bus, GstMessage *message,  GstEle
   }
 }
 
-static void segment_done(const GstBus * const bus, const GstMessage * const message,  GstElement *bin) {
-  puts("loop playback ==========================================================\n");
-  if(!(gst_element_send_event(bin,gst_event_ref(loop_seek_event)))) {
-    fprintf(stderr,"element failed to handle continuing play seek event\n");
-    g_main_loop_quit(main_loop);
+static void
+segment_done (const GstBus * const bus, const GstMessage * const message,
+    GstElement * bin)
+{
+  puts ("loop playback ==========================================================\n");
+  if (!(gst_element_send_event (bin, gst_event_ref (loop_seek_event)))) {
+    fprintf (stderr, "element failed to handle continuing play seek event\n");
+    g_main_loop_quit (main_loop);
   }
 }
 
-static GstElement *make_src(void) {
+static GstElement *
+make_src (void)
+{
   GstElement *e;
   GstController *ctrl;
   GValue val = { 0, };
 
-  if(!(e = gst_element_factory_make (SRC_NAME, NULL))) {
+  if (!(e = gst_element_factory_make (SRC_NAME, NULL))) {
     return NULL;
   }
   g_object_set (e, "wave", 2, NULL);
@@ -138,13 +146,15 @@ static GstElement *make_src(void) {
   /* setup controller */
   g_value_init (&val, G_TYPE_DOUBLE);
   if (!(ctrl = gst_controller_new (G_OBJECT (e), "freq", "volume", NULL))) {
-    fprintf(stderr,"can't control source element");exit (-1);
+    fprintf (stderr, "can't control source element");
+    exit (-1);
   }
-  gst_controller_set_interpolation_mode (ctrl, "volume", GST_INTERPOLATE_LINEAR);
+  gst_controller_set_interpolation_mode (ctrl, "volume",
+      GST_INTERPOLATE_LINEAR);
   gst_controller_set_interpolation_mode (ctrl, "freq", GST_INTERPOLATE_LINEAR);
   /* set control values */
   g_value_set_double (&val, 1.0);
-  gst_controller_set (ctrl, "volume",   0 * GST_MSECOND, &val);
+  gst_controller_set (ctrl, "volume", 0 * GST_MSECOND, &val);
   g_value_set_double (&val, 0.0);
   gst_controller_set (ctrl, "volume", 249 * GST_MSECOND, &val);
   g_value_set_double (&val, 1.0);
@@ -161,105 +171,114 @@ static GstElement *make_src(void) {
   gst_controller_set (ctrl, "volume", 999 * GST_MSECOND, &val);
 
   g_value_set_double (&val, 110.0);
-  gst_controller_set (ctrl, "freq",   0 * GST_MSECOND, &val);
+  gst_controller_set (ctrl, "freq", 0 * GST_MSECOND, &val);
   g_value_set_double (&val, 440.0);
   gst_controller_set (ctrl, "freq", 999 * GST_MSECOND, &val);
-  
+
   return e;
 }
 
-static GstElement *make_sink(void) {
+static GstElement *
+make_sink (void)
+{
   GstElement *e;
   gint64 chunk;
-  
-  if(!(e = gst_element_factory_make (SINK_NAME, NULL))) {
+
+  if (!(e = gst_element_factory_make (SINK_NAME, NULL))) {
     return NULL;
   }
-  chunk=GST_TIME_AS_USECONDS((GST_SECOND*60)/(120*8));
-  printf("changing audio chunk-size for sink to %"G_GUINT64_FORMAT" µs = %"G_GUINT64_FORMAT" ms\n",
-    chunk, (chunk/G_GINT64_CONSTANT(1000)));
-  g_object_set(e,
-    "latency-time",chunk,
-    "buffer-time",chunk<<1,
-    NULL);
+  chunk = GST_TIME_AS_USECONDS ((GST_SECOND * 60) / (120 * 8));
+  printf ("changing audio chunk-size for sink to %" G_GUINT64_FORMAT " µs = %"
+      G_GUINT64_FORMAT " ms\n", chunk, (chunk / G_GINT64_CONSTANT (1000)));
+  g_object_set (e, "latency-time", chunk, "buffer-time", chunk << 1, NULL);
 
   return e;
 }
 
-int main(int argc, char **argv) {
+int
+main (int argc, char **argv)
+{
   GstElement *bin;
   /* elements used in pipeline */
-  GstElement *src,*fx1,*fx2,*sink;
+  GstElement *src, *fx1, *fx2, *sink;
   GstBus *bus;
   GstStateChangeReturn res;
 
   /* init gstreamer */
-  gst_init(&argc, &argv);
-  g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
+  gst_init (&argc, &argv);
+  g_log_set_always_fatal (G_LOG_LEVEL_WARNING);
 
   /* create a new bin to hold the elements */
   bin = gst_pipeline_new ("pipeline");
   /* see if we get errors */
   bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  g_signal_connect (bus, "message::error", G_CALLBACK(message_received), bin);
-  g_signal_connect (bus, "message::warning", G_CALLBACK(message_received), bin);
-  g_signal_connect (bus, "message::eos", G_CALLBACK(message_received), bin);
-  g_signal_connect (bus, "message::segment-done", G_CALLBACK(segment_done), bin);
-  g_signal_connect (bus, "message::state-changed", G_CALLBACK(state_changed), bin);
+  g_signal_connect (bus, "message::error", G_CALLBACK (message_received), bin);
+  g_signal_connect (bus, "message::warning", G_CALLBACK (message_received),
+      bin);
+  g_signal_connect (bus, "message::eos", G_CALLBACK (message_received), bin);
+  g_signal_connect (bus, "message::segment-done", G_CALLBACK (segment_done),
+      bin);
+  g_signal_connect (bus, "message::state-changed", G_CALLBACK (state_changed),
+      bin);
   gst_object_unref (G_OBJECT (bus));
 
-  main_loop=g_main_loop_new(NULL,FALSE);
+  main_loop = g_main_loop_new (NULL, FALSE);
 
   /* make elements and add them to the bin */
-  if(!(src = make_src ())) {
-    fprintf(stderr,"Can't create element \""SRC_NAME"\"\n");exit (-1);
+  if (!(src = make_src ())) {
+    fprintf (stderr, "Can't create element \"" SRC_NAME "\"\n");
+    exit (-1);
   }
-  if(!(fx1 = gst_element_factory_make (FX1_NAME, NULL))) {
-    fprintf(stderr,"Can't create element \""FX1_NAME"\"\n");exit (-1);
+  if (!(fx1 = gst_element_factory_make (FX1_NAME, NULL))) {
+    fprintf (stderr, "Can't create element \"" FX1_NAME "\"\n");
+    exit (-1);
   }
-  if(!(fx2 = gst_element_factory_make (FX2_NAME, NULL))) {
-    fprintf(stderr,"Can't create element \""FX2_NAME"\"\n");exit (-1);
+  if (!(fx2 = gst_element_factory_make (FX2_NAME, NULL))) {
+    fprintf (stderr, "Can't create element \"" FX2_NAME "\"\n");
+    exit (-1);
   }
-  if(!(sink = make_sink ())) {
-    fprintf(stderr,"Can't create element \""SINK_NAME"\"\n");exit (-1);
+  if (!(sink = make_sink ())) {
+    fprintf (stderr, "Can't create element \"" SINK_NAME "\"\n");
+    exit (-1);
   }
   gst_bin_add_many (GST_BIN (bin), src, fx1, fx2, sink, NULL);
 
   /* link elements */
-  if(!gst_element_link_many (src, fx1, fx2, sink, NULL)) {
-    fprintf(stderr,"Can't link elements\n");exit (-1);
+  if (!gst_element_link_many (src, fx1, fx2, sink, NULL)) {
+    fprintf (stderr, "Can't link elements\n");
+    exit (-1);
   }
 
   /* initial seek event */
-  play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, (GstClockTime)0,
-        GST_SEEK_TYPE_SET, (GstClockTime)(GST_SECOND / 2));
+  play_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
+      GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+      GST_SEEK_TYPE_SET, (GstClockTime) 0,
+      GST_SEEK_TYPE_SET, (GstClockTime) (GST_SECOND / 2));
   /* loop seek event (without flush) */
-  loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, (GstClockTime)0,
-        GST_SEEK_TYPE_SET, (GstClockTime)(GST_SECOND / 2));
+  loop_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
+      GST_SEEK_FLAG_SEGMENT,
+      GST_SEEK_TYPE_SET, (GstClockTime) 0,
+      GST_SEEK_TYPE_SET, (GstClockTime) (GST_SECOND / 2));
 
   /* prepare playing */
-  puts("prepare playing ========================================================\n");
-  res=gst_element_set_state (bin, GST_STATE_PAUSED);
-  if(res==GST_STATE_CHANGE_FAILURE) {
-    fprintf(stderr,"Can't go to paused\n");exit(-1);
+  puts ("prepare playing ========================================================\n");
+  res = gst_element_set_state (bin, GST_STATE_PAUSED);
+  if (res == GST_STATE_CHANGE_FAILURE) {
+    fprintf (stderr, "Can't go to paused\n");
+    exit (-1);
+  } else if (res == GST_STATE_CHANGE_ASYNC) {
+    puts ("->PAUSED needs async wait");
   }
-  else if(res==GST_STATE_CHANGE_ASYNC) {
-    puts("->PAUSED needs async wait");
-  }
-  g_main_loop_run(main_loop);
+  g_main_loop_run (main_loop);
 
   /* stop the pipeline */
-  puts("exiting ================================================================\n");
+  puts ("exiting ================================================================\n");
   gst_element_set_state (bin, GST_STATE_NULL);
 
   /* we don't need a reference to these objects anymore */
   gst_object_unref (GST_OBJECT (bin));
-  g_main_loop_unref(main_loop);
+  g_main_loop_unref (main_loop);
 
   exit (0);
 }
