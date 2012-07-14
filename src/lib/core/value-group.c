@@ -37,7 +37,8 @@
 
 //-- signal ids
 
-enum {
+enum
+{
   PARAM_CHANGED_EVENT,
   GROUP_CHANGED_EVENT,
   LAST_SIGNAL
@@ -45,12 +46,14 @@ enum {
 
 //-- property ids
 
-enum {
-  VALUE_GROUP_PARAMETER_GROUP=1,
+enum
+{
+  VALUE_GROUP_PARAMETER_GROUP = 1,
   VALUE_GROUP_LENGTH
 };
 
-struct _BtValueGroupPrivate {
+struct _BtValueGroupPrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -61,7 +64,7 @@ struct _BtValueGroupPrivate {
   GValue *data;
 };
 
-static guint signals[LAST_SIGNAL]={0,};
+static guint signals[LAST_SIGNAL] = { 0, };
 
 //-- the class
 
@@ -78,45 +81,53 @@ G_DEFINE_TYPE (BtValueGroup, bt_value_group, G_TYPE_OBJECT);
  *
  * Resizes the event data grid to the new length. Keeps previous values.
  */
-static void bt_value_group_resize_data_length(const BtValueGroup * const self, const gulong length) {
-  const gulong old_data_count=            length*self->priv->params;
-  const gulong new_data_count=self->priv->length*self->priv->params;
-  GValue * const data=self->priv->data;
+static void
+bt_value_group_resize_data_length (const BtValueGroup * const self,
+    const gulong length)
+{
+  const gulong old_data_count = length * self->priv->params;
+  const gulong new_data_count = self->priv->length * self->priv->params;
+  GValue *const data = self->priv->data;
 
   // allocate new space
-  if((self->priv->data=g_try_new0(GValue,new_data_count))) {
-    if(data) {
-      gulong count=MIN(old_data_count,new_data_count);
-      GST_DEBUG("keeping data count=%lu, old=%lu, new=%lu",count,old_data_count,new_data_count);
+  if ((self->priv->data = g_try_new0 (GValue, new_data_count))) {
+    if (data) {
+      gulong count = MIN (old_data_count, new_data_count);
+      GST_DEBUG ("keeping data count=%lu, old=%lu, new=%lu", count,
+          old_data_count, new_data_count);
       // copy old values over
-      memcpy(self->priv->data,data,count*sizeof(GValue));
+      memcpy (self->priv->data, data, count * sizeof (GValue));
       // free gvalues
-      if(old_data_count>new_data_count) {
+      if (old_data_count > new_data_count) {
         gulong i;
 
-        for(i=new_data_count;i<old_data_count;i++) {
-          if(BT_IS_GVALUE(&data[i]))
-            g_value_unset(&data[i]);
+        for (i = new_data_count; i < old_data_count; i++) {
+          if (BT_IS_GVALUE (&data[i]))
+            g_value_unset (&data[i]);
         }
       }
       // free old data
-      g_free(data);
+      g_free (data);
     }
-    GST_DEBUG("extended value-group length from %lu to %lu : data_count=%lu = length=%lu * np=%lu)",
-      length,self->priv->length,
-      new_data_count,self->priv->length,self->priv->params);
-  }
-  else {
-    GST_INFO("extending value-group length from %lu to %lu failed : data_count=%lu = length=%lu * np=%lu)",
-      length,self->priv->length,
-      new_data_count,self->priv->length,self->priv->params);
+    GST_DEBUG
+        ("extended value-group length from %lu to %lu : data_count=%lu = length=%lu * np=%lu)",
+        length, self->priv->length, new_data_count, self->priv->length,
+        self->priv->params);
+  } else {
+    GST_INFO
+        ("extending value-group length from %lu to %lu failed : data_count=%lu = length=%lu * np=%lu)",
+        length, self->priv->length, new_data_count, self->priv->length,
+        self->priv->params);
     //self->priv->data=data;
     //self->priv->length=length;
   }
 }
 
-GValue *bt_value_group_get_event_data_unchecked(const BtValueGroup * const self, const gulong tick, const gulong param) {
-  return(&self->priv->data[(tick*self->priv->params)+param]);
+GValue *
+bt_value_group_get_event_data_unchecked (const BtValueGroup * const self,
+    const gulong tick, const gulong param)
+{
+  return (&self->priv->data[(tick * self->priv->params) + param]);
 }
 
 
@@ -133,8 +144,12 @@ GValue *bt_value_group_get_event_data_unchecked(const BtValueGroup * const self,
  *
  * Since: 0.7
  */
-BtValueGroup *bt_value_group_new(const BtParameterGroup * const param_group, const gulong length) {
-  return(BT_VALUE_GROUP(g_object_new(BT_TYPE_VALUE_GROUP,"parameter-group",param_group,"length",length,NULL)));
+BtValueGroup *
+bt_value_group_new (const BtParameterGroup * const param_group,
+    const gulong length)
+{
+  return (BT_VALUE_GROUP (g_object_new (BT_TYPE_VALUE_GROUP, "parameter-group",
+              param_group, "length", length, NULL)));
 }
 
 /**
@@ -147,27 +162,31 @@ BtValueGroup *bt_value_group_new(const BtParameterGroup * const param_group, con
  *
  * Since: 0.7
  */
-BtValueGroup *bt_value_group_copy(const BtValueGroup * const self) {
+BtValueGroup *
+bt_value_group_copy (const BtValueGroup * const self)
+{
   BtValueGroup *value_group;
   gulong i, data_count;
 
-  g_return_val_if_fail(BT_IS_VALUE_GROUP(self),NULL);
+  g_return_val_if_fail (BT_IS_VALUE_GROUP (self), NULL);
 
-  GST_INFO("copying group");
+  GST_INFO ("copying group");
 
-  value_group=bt_value_group_new(self->priv->param_group,self->priv->length);
+  value_group =
+      bt_value_group_new (self->priv->param_group, self->priv->length);
 
-  data_count=self->priv->length*(self->priv->params);
+  data_count = self->priv->length * (self->priv->params);
   // deep copy data
-  for(i=0;i<data_count;i++) {
-    if(BT_IS_GVALUE(&self->priv->data[i])) {
-      g_value_init(&value_group->priv->data[i],G_VALUE_TYPE(&self->priv->data[i]));
-      g_value_copy(&self->priv->data[i],&value_group->priv->data[i]);
+  for (i = 0; i < data_count; i++) {
+    if (BT_IS_GVALUE (&self->priv->data[i])) {
+      g_value_init (&value_group->priv->data[i],
+          G_VALUE_TYPE (&self->priv->data[i]));
+      g_value_copy (&self->priv->data[i], &value_group->priv->data[i]);
     }
   }
-  GST_INFO("  data copied");
+  GST_INFO ("  data copied");
 
-  return(value_group);
+  return (value_group);
 }
 
 //-- methods
@@ -185,15 +204,19 @@ BtValueGroup *bt_value_group_copy(const BtValueGroup * const self) {
  *
  * Since: 0.7
  */
-GValue *bt_value_group_get_event_data(const BtValueGroup * const self, const gulong tick, const gulong param) {
-  g_return_val_if_fail(BT_IS_VALUE_GROUP(self),NULL);
-  g_return_val_if_fail(self->priv->data,NULL);
-  g_return_val_if_fail(tick<self->priv->length,NULL);
-  g_return_val_if_fail(param<self->priv->params,NULL);
+GValue *
+bt_value_group_get_event_data (const BtValueGroup * const self,
+    const gulong tick, const gulong param)
+{
+  g_return_val_if_fail (BT_IS_VALUE_GROUP (self), NULL);
+  g_return_val_if_fail (self->priv->data, NULL);
+  g_return_val_if_fail (tick < self->priv->length, NULL);
+  g_return_val_if_fail (param < self->priv->params, NULL);
 
-  GST_DEBUG("getting gvalue at tick=%lu/%lu and param %lu/%lu",tick,self->priv->length,param,self->priv->params);
+  GST_DEBUG ("getting gvalue at tick=%lu/%lu and param %lu/%lu", tick,
+      self->priv->length, param, self->priv->params);
 
-  return(bt_value_group_get_event_data_unchecked(self,tick,param));
+  return (bt_value_group_get_event_data_unchecked (self, tick, param));
 }
 
 /**
@@ -209,44 +232,48 @@ GValue *bt_value_group_get_event_data(const BtValueGroup * const self, const gul
  *
  * Since: 0.7
  */
-gboolean bt_value_group_set_event(const BtValueGroup * const self, const gulong tick, const gulong param, const gchar * const value) {
-  gboolean res=FALSE;
+gboolean
+bt_value_group_set_event (const BtValueGroup * const self, const gulong tick,
+    const gulong param, const gchar * const value)
+{
+  gboolean res = FALSE;
   GValue *event;
 
-  g_return_val_if_fail(BT_IS_VALUE_GROUP(self),FALSE);
-  g_return_val_if_fail(tick<self->priv->length,FALSE);
-  g_return_val_if_fail(param<self->priv->params,FALSE);
+  g_return_val_if_fail (BT_IS_VALUE_GROUP (self), FALSE);
+  g_return_val_if_fail (tick < self->priv->length, FALSE);
+  g_return_val_if_fail (param < self->priv->params, FALSE);
 
-  if((event=bt_value_group_get_event_data_unchecked(self,tick,param))) {
-    if(BT_IS_STRING(value)) {
-      if(!BT_IS_GVALUE(event)) {
-        g_value_init(event,bt_parameter_group_get_param_type(self->priv->param_group,param));
+  if ((event = bt_value_group_get_event_data_unchecked (self, tick, param))) {
+    if (BT_IS_STRING (value)) {
+      if (!BT_IS_GVALUE (event)) {
+        g_value_init (event,
+            bt_parameter_group_get_param_type (self->priv->param_group, param));
       }
-      if(bt_persistence_set_value(event,value)) {
-        if(bt_parameter_group_is_param_no_value(self->priv->param_group,param,event)) {
-          g_value_unset(event);
+      if (bt_persistence_set_value (event, value)) {
+        if (bt_parameter_group_is_param_no_value (self->priv->param_group,
+                param, event)) {
+          g_value_unset (event);
         }
-        res=TRUE;
+        res = TRUE;
+      } else {
+        GST_INFO ("failed to set GValue for cell at tick=%lu, param=%lu", tick,
+            param);
       }
-      else {
-        GST_INFO("failed to set GValue for cell at tick=%lu, param=%lu",tick,param);
+    } else {
+      if (BT_IS_GVALUE (event)) {
+        g_value_unset (event);
       }
+      res = TRUE;
     }
-    else {
-      if(BT_IS_GVALUE(event)) {
-        g_value_unset(event);
-      }
-      res=TRUE;
-    }
-    if(res) {
+    if (res) {
       // notify others that the data has been changed
-      g_signal_emit((gpointer)self,signals[PARAM_CHANGED_EVENT],0,self->priv->param_group,tick,param);
+      g_signal_emit ((gpointer) self, signals[PARAM_CHANGED_EVENT], 0,
+          self->priv->param_group, tick, param);
     }
+  } else {
+    GST_DEBUG ("no GValue found for cell at tick=%lu, param=%lu", tick, param);
   }
-  else {
-    GST_DEBUG("no GValue found for cell at tick=%lu, param=%lu",tick,param);
-  }
-  return(res);
+  return (res);
 }
 
 /**
@@ -261,17 +288,21 @@ gboolean bt_value_group_set_event(const BtValueGroup * const self, const gulong 
  *
  * Since: 0.7
  */
-gchar *bt_value_group_get_event(const BtValueGroup * const self, const gulong tick, const gulong param) {
-  g_return_val_if_fail(BT_IS_VALUE_GROUP(self),NULL);
-  g_return_val_if_fail(tick<self->priv->length,NULL);
-  g_return_val_if_fail(param<self->priv->params,NULL);
+gchar *
+bt_value_group_get_event (const BtValueGroup * const self, const gulong tick,
+    const gulong param)
+{
+  g_return_val_if_fail (BT_IS_VALUE_GROUP (self), NULL);
+  g_return_val_if_fail (tick < self->priv->length, NULL);
+  g_return_val_if_fail (param < self->priv->params, NULL);
 
-  GValue * const event=bt_value_group_get_event_data_unchecked(self,tick,param);
+  GValue *const event =
+      bt_value_group_get_event_data_unchecked (self, tick, param);
 
-  if(event && BT_IS_GVALUE(event)) {
-    return(bt_persistence_get_value(event));
+  if (event && BT_IS_GVALUE (event)) {
+    return (bt_persistence_get_value (event));
   }
-  return(NULL);
+  return (NULL);
 }
 
 /**
@@ -286,14 +317,18 @@ gchar *bt_value_group_get_event(const BtValueGroup * const self, const gulong ti
  *
  * Since: 0.7
  */
-gboolean bt_value_group_test_event(const BtValueGroup * const self, const gulong tick, const gulong param) {
-  g_return_val_if_fail(BT_IS_VALUE_GROUP(self),FALSE);
-  g_return_val_if_fail(tick<self->priv->length,FALSE);
-  g_return_val_if_fail(param<self->priv->params,FALSE);
+gboolean
+bt_value_group_test_event (const BtValueGroup * const self, const gulong tick,
+    const gulong param)
+{
+  g_return_val_if_fail (BT_IS_VALUE_GROUP (self), FALSE);
+  g_return_val_if_fail (tick < self->priv->length, FALSE);
+  g_return_val_if_fail (param < self->priv->params, FALSE);
 
-  const GValue * const event=bt_value_group_get_event_data_unchecked(self,tick,param);
+  const GValue *const event =
+      bt_value_group_get_event_data_unchecked (self, tick, param);
 
-  return (BT_IS_GVALUE(event));
+  return (BT_IS_GVALUE (event));
 }
 
 /**
@@ -307,46 +342,50 @@ gboolean bt_value_group_test_event(const BtValueGroup * const self, const gulong
  *
  * Since: 0.7
  */
-gboolean bt_value_group_test_tick(const BtValueGroup * const self, const gulong tick) {
-  const gulong params=self->priv->params;
+gboolean
+bt_value_group_test_tick (const BtValueGroup * const self, const gulong tick)
+{
+  const gulong params = self->priv->params;
   gulong i;
   GValue *data;
 
-  g_return_val_if_fail(BT_IS_VALUE_GROUP(self),FALSE);
-  g_return_val_if_fail(tick<self->priv->length,FALSE);
+  g_return_val_if_fail (BT_IS_VALUE_GROUP (self), FALSE);
+  g_return_val_if_fail (tick < self->priv->length, FALSE);
 
-  data=&self->priv->data[tick*params];
-  for(i=0;i<params;i++) {
-    if(BT_IS_GVALUE(data)) {
-      return(TRUE);
+  data = &self->priv->data[tick * params];
+  for (i = 0; i < params; i++) {
+    if (BT_IS_GVALUE (data)) {
+      return (TRUE);
     }
     data++;
   }
-  return(FALSE);
+  return (FALSE);
 }
 
 
-static void _insert_row(const BtValueGroup * const self, const gulong tick, const gulong param) {
-  gulong i,length=self->priv->length;
-  gulong params=self->priv->params;
-  GValue *src=&self->priv->data[param+params*(length-2)];
-  GValue *dst=&self->priv->data[param+params*(length-1)];
+static void
+_insert_row (const BtValueGroup * const self, const gulong tick,
+    const gulong param)
+{
+  gulong i, length = self->priv->length;
+  gulong params = self->priv->params;
+  GValue *src = &self->priv->data[param + params * (length - 2)];
+  GValue *dst = &self->priv->data[param + params * (length - 1)];
 
-  GST_INFO("insert row at %lu,%lu", tick, param);
+  GST_INFO ("insert row at %lu,%lu", tick, param);
 
-  for(i=tick;i<length-1;i++) {
-    if(BT_IS_GVALUE(src)) {
-      if(!BT_IS_GVALUE(dst))
-        g_value_init(dst,G_VALUE_TYPE(src));
-      g_value_copy(src,dst);
-      g_value_unset(src);
+  for (i = tick; i < length - 1; i++) {
+    if (BT_IS_GVALUE (src)) {
+      if (!BT_IS_GVALUE (dst))
+        g_value_init (dst, G_VALUE_TYPE (src));
+      g_value_copy (src, dst);
+      g_value_unset (src);
+    } else {
+      if (BT_IS_GVALUE (dst))
+        g_value_unset (dst);
     }
-    else {
-      if(BT_IS_GVALUE(dst))
-        g_value_unset(dst);
-    }
-    src-=params;
-    dst-=params;
+    src -= params;
+    dst -= params;
   }
 }
 
@@ -360,14 +399,19 @@ static void _insert_row(const BtValueGroup * const self, const gulong tick, cons
  *
  * Since: 0.7
  */
-void bt_value_group_insert_row(const BtValueGroup * const self, const gulong tick, const gulong param) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
+void
+bt_value_group_insert_row (const BtValueGroup * const self, const gulong tick,
+    const gulong param)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
-  _insert_row(self,tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, TRUE);
+  _insert_row (self, tick, param);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 /**
@@ -379,42 +423,49 @@ void bt_value_group_insert_row(const BtValueGroup * const self, const gulong tic
  *
  * Since: 0.7
  */
-void bt_value_group_insert_full_row(const BtValueGroup * const self, const gulong tick) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
+void
+bt_value_group_insert_full_row (const BtValueGroup * const self,
+    const gulong tick)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
 
-  gulong j,params=self->priv->params;
+  gulong j, params = self->priv->params;
 
-  GST_DEBUG("insert full-row at %lu", tick);
+  GST_DEBUG ("insert full-row at %lu", tick);
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
-  for(j=0;j<params;j++) {
-    _insert_row(self,tick,j);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, TRUE);
+  for (j = 0; j < params; j++) {
+    _insert_row (self, tick, j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 
-static void _delete_row(const BtValueGroup * const self, const gulong tick, const gulong param) {
-  gulong i,length=self->priv->length;
-  gulong params=self->priv->params;
-  GValue *src=&self->priv->data[param+params*(tick+1)];
-  GValue *dst=&self->priv->data[param+params*tick];
+static void
+_delete_row (const BtValueGroup * const self, const gulong tick,
+    const gulong param)
+{
+  gulong i, length = self->priv->length;
+  gulong params = self->priv->params;
+  GValue *src = &self->priv->data[param + params * (tick + 1)];
+  GValue *dst = &self->priv->data[param + params * tick];
 
-  GST_INFO("insert row at %lu,%lu", tick, param);
+  GST_INFO ("insert row at %lu,%lu", tick, param);
 
-  for(i=tick;i<length-1;i++) {
-    if(BT_IS_GVALUE(src)) {
-      if(!BT_IS_GVALUE(dst))
-        g_value_init(dst,G_VALUE_TYPE(src));
-      g_value_copy(src,dst);
-      g_value_unset(src);
+  for (i = tick; i < length - 1; i++) {
+    if (BT_IS_GVALUE (src)) {
+      if (!BT_IS_GVALUE (dst))
+        g_value_init (dst, G_VALUE_TYPE (src));
+      g_value_copy (src, dst);
+      g_value_unset (src);
+    } else {
+      if (BT_IS_GVALUE (dst))
+        g_value_unset (dst);
     }
-    else {
-      if(BT_IS_GVALUE(dst))
-        g_value_unset(dst);
-    }
-    src+=params;
-    dst+=params;
+    src += params;
+    dst += params;
   }
 }
 
@@ -428,14 +479,19 @@ static void _delete_row(const BtValueGroup * const self, const gulong tick, cons
  *
  * Since: 0.7
  */
-void bt_value_group_delete_row(const BtValueGroup * const self, const gulong tick, const gulong param) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
+void
+bt_value_group_delete_row (const BtValueGroup * const self, const gulong tick,
+    const gulong param)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
-  _delete_row(self,tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, TRUE);
+  _delete_row (self, tick, param);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 /**
@@ -447,30 +503,38 @@ void bt_value_group_delete_row(const BtValueGroup * const self, const gulong tic
  *
  * Since: 0.7
  */
-void bt_value_group_delete_full_row(const BtValueGroup * const self, const gulong tick) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
+void
+bt_value_group_delete_full_row (const BtValueGroup * const self,
+    const gulong tick)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
 
-  gulong j,params=self->priv->params;
+  gulong j, params = self->priv->params;
 
-  GST_DEBUG("insert full-row at %lu", tick);
+  GST_DEBUG ("insert full-row at %lu", tick);
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
-  for(j=0;j<params;j++) {
-    _delete_row(self,tick,j);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, TRUE);
+  for (j = 0; j < params; j++) {
+    _delete_row (self, tick, j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 
-static void _clear_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  gulong params=self->priv->params;
-  GValue *beg=&self->priv->data[param+params*start_tick];
-  gulong i,ticks=(end_tick+1)-start_tick;
+static void
+_clear_column (const BtValueGroup * const self, const gulong start_tick,
+    const gulong end_tick, const gulong param)
+{
+  gulong params = self->priv->params;
+  GValue *beg = &self->priv->data[param + params * start_tick];
+  gulong i, ticks = (end_tick + 1) - start_tick;
 
-  for(i=0;i<ticks;i++) {
-    if(BT_IS_GVALUE(beg))
-      g_value_unset(beg);
-    beg+=params;
+  for (i = 0; i < ticks; i++) {
+    if (BT_IS_GVALUE (beg))
+      g_value_unset (beg);
+    beg += params;
   }
 }
 
@@ -485,15 +549,20 @@ static void _clear_column(const BtValueGroup * const self, const gulong start_ti
  *
  * Since: 0.7
  */
-void bt_value_group_clear_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(start_tick<self->priv->length);
-  g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
+void
+bt_value_group_clear_column (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick, const gulong param)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
-  _clear_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, TRUE);
+  _clear_column (self, start_tick, end_tick, param);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 /**
@@ -506,19 +575,24 @@ void bt_value_group_clear_column(const BtValueGroup * const self, const gulong s
  *
  * Since: 0.7
  */
-void bt_value_group_clear_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(start_tick<self->priv->length);
-  g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
+void
+bt_value_group_clear_columns (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
 
-  gulong j,params=self->priv->params;
+  gulong j, params = self->priv->params;
 
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,TRUE);
-  for(j=0;j<params;j++) {
-    _clear_column(self,start_tick,end_tick,j);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, TRUE);
+  for (j = 0; j < params; j++) {
+    _clear_column (self, start_tick, end_tick, j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 
@@ -535,65 +609,70 @@ void bt_value_group_clear_columns(const BtValueGroup * const self, const gulong 
 		}                                                                          \
 	} break;
 
-static void _blend_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  gulong params=self->priv->params;
-  GValue *beg=&self->priv->data[param+params*start_tick];
-  GValue *end=&self->priv->data[param+params*end_tick];
-  gulong i,ticks=end_tick-start_tick;
+static void
+_blend_column (const BtValueGroup * const self, const gulong start_tick,
+    const gulong end_tick, const gulong param)
+{
+  gulong params = self->priv->params;
+  GValue *beg = &self->priv->data[param + params * start_tick];
+  GValue *end = &self->priv->data[param + params * end_tick];
+  gulong i, ticks = end_tick - start_tick;
   GParamSpec *property;
   GType base_type;
 
-  if(!BT_IS_GVALUE(beg) || !BT_IS_GVALUE(end)) {
-    GST_INFO("Can't blend, beg or end is empty");
+  if (!BT_IS_GVALUE (beg) || !BT_IS_GVALUE (end)) {
+    GST_INFO ("Can't blend, beg or end is empty");
     return;
   }
-  property=bt_parameter_group_get_param_spec(self->priv->param_group,param);
-  base_type=bt_g_type_get_base_type(property->value_type);
+  property = bt_parameter_group_get_param_spec (self->priv->param_group, param);
+  base_type = bt_g_type_get_base_type (property->value_type);
 
-  GST_INFO("blending gvalue type %s",g_type_name(base_type));
+  GST_INFO ("blending gvalue type %s", g_type_name (base_type));
 
   // TODO(ensonic): should this honour the cursor stepping? e.g. enter only every second value
 
-  switch(base_type) {
-  	_BLEND(int,INT)
-  	_BLEND(uint,UINT)
-  	_BLEND(long,LONG)
-  	_BLEND(ulong,ULONG)
-  	_BLEND(int64,INT64)
-  	_BLEND(uint64,UINT64)
-  	_BLEND(float,FLOAT)
-  	_BLEND(double,DOUBLE)
-    case G_TYPE_ENUM:{
-      GParamSpecEnum *p=G_PARAM_SPEC_ENUM (property);
-      GEnumClass *e=p->enum_class;
-			gdouble step;
-      gint v,v1,v2;
-      
+  switch (base_type) {
+      _BLEND (int, INT)
+        _BLEND (uint, UINT)
+        _BLEND (long, LONG)
+        _BLEND (ulong, ULONG)
+        _BLEND (int64, INT64)
+        _BLEND (uint64, UINT64)
+        _BLEND (float, FLOAT)
+        _BLEND (double, DOUBLE)
+      case G_TYPE_ENUM:
+    {
+      GParamSpecEnum *p = G_PARAM_SPEC_ENUM (property);
+      GEnumClass *e = p->enum_class;
+      gdouble step;
+      gint v, v1, v2;
+
       // we need the index of the enum value and the number of values inbetween
-      v=g_value_get_enum(beg);
-      for(v1=0;v1<e->n_values;v1++) {
-        if (e->values[v1].value==v)
+      v = g_value_get_enum (beg);
+      for (v1 = 0; v1 < e->n_values; v1++) {
+        if (e->values[v1].value == v)
           break;
       }
-      v=g_value_get_enum(end);
-      for(v2=0;v2<e->n_values;v2++) {
-        if (e->values[v2].value==v)
+      v = g_value_get_enum (end);
+      for (v2 = 0; v2 < e->n_values; v2++) {
+        if (e->values[v2].value == v)
           break;
       }
-      step=(gdouble)(v2-v1)/(gdouble)ticks;
+      step = (gdouble) (v2 - v1) / (gdouble) ticks;
       //GST_DEBUG("v1 = %d, v2=%d, step=%lf",v1,v2,step);
 
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,property->value_type);
-        v=(gint)(v1+(step*i));
-				// handle sparse enums
-        g_value_set_enum(beg,e->values[v].value);
-        beg+=params;
-      }    		
-    } break;
+      for (i = 0; i < ticks; i++) {
+        if (!BT_IS_GVALUE (beg))
+          g_value_init (beg, property->value_type);
+        v = (gint) (v1 + (step * i));
+        // handle sparse enums
+        g_value_set_enum (beg, e->values[v].value);
+        beg += params;
+      }
+    }
+      break;
     default:
-      GST_WARNING("unhandled gvalue type %s",g_type_name(base_type));
+      GST_WARNING ("unhandled gvalue type %s", g_type_name (base_type));
   }
 }
 
@@ -608,14 +687,18 @@ static void _blend_column(const BtValueGroup * const self, const gulong start_ti
  *
  * Since: 0.7
  */
-void bt_value_group_blend_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(start_tick<self->priv->length);
-  g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
+void
+bt_value_group_blend_column (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick, const gulong param)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
 
-  _blend_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  _blend_column (self, start_tick, end_tick, param);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 /**
@@ -628,53 +711,60 @@ void bt_value_group_blend_column(const BtValueGroup * const self, const gulong s
  *
  * Since: 0.7
  */
-void bt_value_group_blend_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(start_tick<self->priv->length);
-  g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
+void
+bt_value_group_blend_columns (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
 
-  gulong j,params=self->priv->params;
+  gulong j, params = self->priv->params;
 
-  for(j=0;j<params;j++) {
-    _blend_column(self,start_tick,end_tick,j);
+  for (j = 0; j < params; j++) {
+    _blend_column (self, start_tick, end_tick, j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 
-static void _flip_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  gulong params=self->priv->params;
-  GValue *beg=&self->priv->data[param+params*start_tick];
-  GValue *end=&self->priv->data[param+params*end_tick];
+static void
+_flip_column (const BtValueGroup * const self, const gulong start_tick,
+    const gulong end_tick, const gulong param)
+{
+  gulong params = self->priv->params;
+  GValue *beg = &self->priv->data[param + params * start_tick];
+  GValue *end = &self->priv->data[param + params * end_tick];
   GParamSpec *property;
   GType base_type;
-  GValue tmp={0,};
+  GValue tmp = { 0, };
 
-  property=bt_parameter_group_get_param_spec(self->priv->param_group,param);
-  base_type=property->value_type;
+  property = bt_parameter_group_get_param_spec (self->priv->param_group, param);
+  base_type = property->value_type;
 
-  GST_INFO("flipping gvalue type %s",g_type_name(base_type));
+  GST_INFO ("flipping gvalue type %s", g_type_name (base_type));
 
-  g_value_init(&tmp,base_type);
-  while(beg<end) {
-		if(BT_IS_GVALUE(beg) && BT_IS_GVALUE(end)) {
-			g_value_copy(beg,&tmp);
-			g_value_copy(end,beg);
-			g_value_copy(&tmp,end);
-		} else if(!BT_IS_GVALUE(beg) && BT_IS_GVALUE(end)) {
-			g_value_init(beg,base_type);
-			g_value_copy(end,beg);
-			g_value_unset(end);
-		} else if(BT_IS_GVALUE(beg) && !BT_IS_GVALUE(end)) {
-			g_value_init(end,base_type);
-			g_value_copy(beg,end);
-			g_value_unset(beg);
-		}
-    beg+=params;
-    end-=params;
+  g_value_init (&tmp, base_type);
+  while (beg < end) {
+    if (BT_IS_GVALUE (beg) && BT_IS_GVALUE (end)) {
+      g_value_copy (beg, &tmp);
+      g_value_copy (end, beg);
+      g_value_copy (&tmp, end);
+    } else if (!BT_IS_GVALUE (beg) && BT_IS_GVALUE (end)) {
+      g_value_init (beg, base_type);
+      g_value_copy (end, beg);
+      g_value_unset (end);
+    } else if (BT_IS_GVALUE (beg) && !BT_IS_GVALUE (end)) {
+      g_value_init (end, base_type);
+      g_value_copy (beg, end);
+      g_value_unset (beg);
+    }
+    beg += params;
+    end -= params;
   }
-  g_value_unset(&tmp);
+  g_value_unset (&tmp);
 }
 
 /**
@@ -688,14 +778,18 @@ static void _flip_column(const BtValueGroup * const self, const gulong start_tic
  *
  * Since: 0.7
  */
-void bt_value_group_flip_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(start_tick<self->priv->length);
-  g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
+void
+bt_value_group_flip_column (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick, const gulong param)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
 
-  _flip_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  _flip_column (self, start_tick, end_tick, param);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 /**
@@ -708,18 +802,22 @@ void bt_value_group_flip_column(const BtValueGroup * const self, const gulong st
  *
  * Since: 0.7
  */
-void bt_value_group_flip_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(start_tick<self->priv->length);
-  g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
+void
+bt_value_group_flip_columns (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
 
-  gulong j,params=self->priv->params;
+  gulong j, params = self->priv->params;
 
-  for(j=0;j<params;j++) {
-    _flip_column(self,start_tick,end_tick,j);
+  for (j = 0; j < params; j++) {
+    _flip_column (self, start_tick, end_tick, j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 
@@ -735,59 +833,65 @@ void bt_value_group_flip_columns(const BtValueGroup * const self, const gulong s
       }                                                                        \
     } break;
 
-static void _randomize_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  gulong params=self->priv->params;
-  GValue *beg=&self->priv->data[param+params*start_tick];
+static void
+_randomize_column (const BtValueGroup * const self, const gulong start_tick,
+    const gulong end_tick, const gulong param)
+{
+  gulong params = self->priv->params;
+  GValue *beg = &self->priv->data[param + params * start_tick];
   //GValue *end=&self->priv->data[param+params*end_tick];
-  gulong i,ticks=(end_tick+1)-start_tick;
+  gulong i, ticks = (end_tick + 1) - start_tick;
   GParamSpec *property;
   GType base_type;
   gdouble rnd;
 
-  property=bt_parameter_group_get_param_spec(self->priv->param_group,param);
-  base_type=bt_g_type_get_base_type(property->value_type);
+  property = bt_parameter_group_get_param_spec (self->priv->param_group, param);
+  base_type = bt_g_type_get_base_type (property->value_type);
 
-  GST_INFO("blending gvalue type %s",g_type_name(base_type));
+  GST_INFO ("blending gvalue type %s", g_type_name (base_type));
 
   // TODO(ensonic): should this honour the cursor stepping? e.g. enter only every second value
   // TODO(ensonic): if beg and end are not empty, shall we use them as upper and lower
   // bounds instead of the pspec values (ev. have a flag on the function)
 
-  switch(base_type) {
-  	_RANDOMIZE(int,INT,Int)
-  	_RANDOMIZE(uint,UINT,UInt)
-  	_RANDOMIZE(long,LONG,Long)
-  	_RANDOMIZE(ulong,ULONG,ULong)
-  	_RANDOMIZE(int64,INT64,Int64)
-  	_RANDOMIZE(uint64,UINT64,UInt64)
-  	_RANDOMIZE(float,FLOAT,Float)
-  	_RANDOMIZE(double,DOUBLE,Double)
-    case G_TYPE_BOOLEAN:{
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,G_TYPE_BOOLEAN);
-        rnd=((gdouble)rand())/(RAND_MAX+1.0);
-        g_value_set_boolean(beg,(gboolean)(2*rnd));
+  switch (base_type) {
+      _RANDOMIZE (int, INT, Int)
+        _RANDOMIZE (uint, UINT, UInt)
+        _RANDOMIZE (long, LONG, Long)
+        _RANDOMIZE (ulong, ULONG, ULong)
+        _RANDOMIZE (int64, INT64, Int64)
+        _RANDOMIZE (uint64, UINT64, UInt64)
+        _RANDOMIZE (float, FLOAT, Float)
+        _RANDOMIZE (double, DOUBLE, Double)
+      case G_TYPE_BOOLEAN:
+    {
+      for (i = 0; i < ticks; i++) {
+        if (!BT_IS_GVALUE (beg))
+          g_value_init (beg, G_TYPE_BOOLEAN);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_boolean (beg, (gboolean) (2 * rnd));
       }
-    } break;
+    }
+      break;
     case G_TYPE_ENUM:{
-      const GParamSpecEnum *p=G_PARAM_SPEC_ENUM (property);
-      const GEnumClass *e=p->enum_class;
-      gint nv=e->n_values-1; // don't use no_value
+      const GParamSpecEnum *p = G_PARAM_SPEC_ENUM (property);
+      const GEnumClass *e = p->enum_class;
+      gint nv = e->n_values - 1;        // don't use no_value
       gint v;
 
-      for(i=0;i<ticks;i++) {
-        if(!BT_IS_GVALUE(beg))
-          g_value_init(beg,property->value_type);
-        rnd=((gdouble)rand())/(RAND_MAX+1.0);
-        v=(gint)(nv*rnd);
-				// handle sparse enums
-        g_value_set_enum(beg,e->values[v].value);
-        beg+=params;
+      for (i = 0; i < ticks; i++) {
+        if (!BT_IS_GVALUE (beg))
+          g_value_init (beg, property->value_type);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        v = (gint) (nv * rnd);
+        // handle sparse enums
+        g_value_set_enum (beg, e->values[v].value);
+        beg += params;
       }
-    } break;
+    }
+      break;
     default:
-      GST_WARNING("unhandled gvalue type %s",g_type_name(base_type));
+      GST_WARNING ("unhandled gvalue type %s", g_type_name (base_type));
   }
 }
 
@@ -802,14 +906,18 @@ static void _randomize_column(const BtValueGroup * const self, const gulong star
  *
  * Since: 0.7
  */
-void bt_value_group_randomize_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(start_tick<self->priv->length);
-  g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
+void
+bt_value_group_randomize_column (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick, const gulong param)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
 
-  _randomize_column(self,start_tick,end_tick,param);
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  _randomize_column (self, start_tick, end_tick, param);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 /**
@@ -822,43 +930,51 @@ void bt_value_group_randomize_column(const BtValueGroup * const self, const gulo
  *
  * Since: 0.7
  */
-void bt_value_group_randomize_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(start_tick<self->priv->length);
-  g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
+void
+bt_value_group_randomize_columns (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
 
-  gulong j,params=self->priv->params;
+  gulong j, params = self->priv->params;
 
-  for(j=0;j<params;j++) {
-    _randomize_column(self,start_tick,end_tick,j);
+  for (j = 0; j < params; j++) {
+    _randomize_column (self, start_tick, end_tick, j);
   }
-  g_signal_emit((gpointer)self,signals[GROUP_CHANGED_EVENT],0,self->priv->param_group,FALSE);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
 }
 
 
-static void _serialize_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param, GString *data) {
-  gulong params=self->priv->params;
-  GValue *beg=&self->priv->data[param+params*start_tick];
-  gulong i,ticks=(end_tick+1)-start_tick;
+static void
+_serialize_column (const BtValueGroup * const self, const gulong start_tick,
+    const gulong end_tick, const gulong param, GString * data)
+{
+  gulong params = self->priv->params;
+  GValue *beg = &self->priv->data[param + params * start_tick];
+  gulong i, ticks = (end_tick + 1) - start_tick;
   gchar *val;
 
-  g_string_append(data,g_type_name(bt_parameter_group_get_param_type(self->priv->param_group,param)));
-  for(i=0;i<ticks;i++) {
-    if(BT_IS_GVALUE(beg)) {
-      if((val=bt_persistence_get_value(beg))) {
-        g_string_append_c(data,',');
-        g_string_append(data,val);
-        g_free(val);
+  g_string_append (data,
+      g_type_name (bt_parameter_group_get_param_type (self->priv->param_group,
+              param)));
+  for (i = 0; i < ticks; i++) {
+    if (BT_IS_GVALUE (beg)) {
+      if ((val = bt_persistence_get_value (beg))) {
+        g_string_append_c (data, ',');
+        g_string_append (data, val);
+        g_free (val);
       }
-    }
-    else {
+    } else {
       // empty cell
-      g_string_append(data,", ");
+      g_string_append (data, ", ");
     }
-    beg+=params;
+    beg += params;
   }
-  g_string_append_c(data,'\n');
+  g_string_append_c (data, '\n');
 }
 
 /**
@@ -873,14 +989,18 @@ static void _serialize_column(const BtValueGroup * const self, const gulong star
  *
  * Since: 0.7
  */
-void bt_value_group_serialize_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param, GString *data) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(start_tick<self->priv->length);
-  g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(self->priv->data);
-  g_return_if_fail(data);
+void
+bt_value_group_serialize_column (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick, const gulong param,
+    GString * data)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
+  g_return_if_fail (data);
 
-  _serialize_column(self,start_tick,end_tick,param,data);
+  _serialize_column (self, start_tick, end_tick, param, data);
 }
 
 /**
@@ -894,16 +1014,19 @@ void bt_value_group_serialize_column(const BtValueGroup * const self, const gulo
  *
  * Since: 0.7
  */
-void bt_value_group_serialize_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, GString *data) {
-  g_return_if_fail(BT_IS_VALUE_GROUP(self));
-  g_return_if_fail(start_tick<self->priv->length);
-  g_return_if_fail(end_tick<self->priv->length);
-  g_return_if_fail(data);
+void
+bt_value_group_serialize_columns (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick, GString * data)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (data);
 
-  gulong j,params=self->priv->params;
+  gulong j, params = self->priv->params;
 
-  for(j=0;j<params;j++) {
-    _serialize_column(self,start_tick,end_tick,j,data);
+  for (j = 0; j < params; j++) {
+    _serialize_column (self, start_tick, end_tick, j, data);
   }
 }
 
@@ -922,148 +1045,177 @@ void bt_value_group_serialize_columns(const BtValueGroup * const self, const gul
  *
  * Since: 0.7
  */
-gboolean bt_value_group_deserialize_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param, const gchar *data) {
-  g_return_val_if_fail(BT_IS_VALUE_GROUP(self),FALSE);
-  g_return_val_if_fail(start_tick<self->priv->length,FALSE);
-  g_return_val_if_fail(end_tick<self->priv->length,FALSE);
-  g_return_val_if_fail(self->priv->data,FALSE);
-  g_return_val_if_fail(data,FALSE);
-  g_return_val_if_fail(param<self->priv->params,FALSE);
+gboolean
+bt_value_group_deserialize_column (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick, const gulong param,
+    const gchar * data)
+{
+  g_return_val_if_fail (BT_IS_VALUE_GROUP (self), FALSE);
+  g_return_val_if_fail (start_tick < self->priv->length, FALSE);
+  g_return_val_if_fail (end_tick < self->priv->length, FALSE);
+  g_return_val_if_fail (self->priv->data, FALSE);
+  g_return_val_if_fail (data, FALSE);
+  g_return_val_if_fail (param < self->priv->params, FALSE);
 
-  gboolean ret=TRUE;
-  gchar **fields=g_strsplit_set(data,",",0);
-  GType dtype=bt_parameter_group_get_param_type(self->priv->param_group,param);
-  GType stype=g_type_from_name(fields[0]);
+  gboolean ret = TRUE;
+  gchar **fields = g_strsplit_set (data, ",", 0);
+  GType dtype =
+      bt_parameter_group_get_param_type (self->priv->param_group, param);
+  GType stype = g_type_from_name (fields[0]);
 
-  if(dtype==stype) {
-    gint i=1;
-    gulong params=self->priv->params;
-    GValue *beg=&self->priv->data[param+params*start_tick];
-    GValue *end=&self->priv->data[param+params*end_tick];
+  if (dtype == stype) {
+    gint i = 1;
+    gulong params = self->priv->params;
+    GValue *beg = &self->priv->data[param + params * start_tick];
+    GValue *end = &self->priv->data[param + params * end_tick];
 
-    GST_INFO("types match %s <-> %s",fields[0],g_type_name(dtype));
+    GST_INFO ("types match %s <-> %s", fields[0], g_type_name (dtype));
 
-    while(fields[i] && *fields[i] && (beg<=end)) {
-      if(*fields[i]!=' ') {
-        if(!BT_IS_GVALUE(beg)) {
-          g_value_init(beg,dtype);
+    while (fields[i] && *fields[i] && (beg <= end)) {
+      if (*fields[i] != ' ') {
+        if (!BT_IS_GVALUE (beg)) {
+          g_value_init (beg, dtype);
         }
-        bt_persistence_set_value(beg, fields[i]);
+        bt_persistence_set_value (beg, fields[i]);
       } else {
-        if(BT_IS_GVALUE(beg)) {
-          g_value_unset(beg);
+        if (BT_IS_GVALUE (beg)) {
+          g_value_unset (beg);
         }
       }
-      beg+=params;
+      beg += params;
       i++;
     }
+  } else {
+    GST_INFO ("types don't match in %s <-> %s", fields[0], g_type_name (dtype));
+    ret = FALSE;
   }
-  else {
-    GST_INFO("types don't match in %s <-> %s",fields[0],g_type_name(dtype));
-    ret=FALSE;
-  }
-  g_strfreev(fields);
-  return(ret);
+  g_strfreev (fields);
+  return (ret);
 }
 
 //-- g_object overrides
 
-static void bt_value_group_constructed(GObject *object) {
-  BtValueGroup * const self = BT_VALUE_GROUP(object);
+static void
+bt_value_group_constructed (GObject * object)
+{
+  BtValueGroup *const self = BT_VALUE_GROUP (object);
 
-  if(G_OBJECT_CLASS(bt_value_group_parent_class)->constructed)
-    G_OBJECT_CLASS(bt_value_group_parent_class)->constructed(object);
+  if (G_OBJECT_CLASS (bt_value_group_parent_class)->constructed)
+    G_OBJECT_CLASS (bt_value_group_parent_class)->constructed (object);
 
-  bt_value_group_resize_data_length(self,0);
-}  
+  bt_value_group_resize_data_length (self, 0);
+}
 
-static void bt_value_group_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtValueGroup * const self = BT_VALUE_GROUP(object);
-  return_if_disposed();
+static void
+bt_value_group_set_property (GObject * const object, const guint property_id,
+    const GValue * const value, GParamSpec * const pspec)
+{
+  const BtValueGroup *const self = BT_VALUE_GROUP (object);
+  return_if_disposed ();
 
   switch (property_id) {
-    case VALUE_GROUP_PARAMETER_GROUP: {
-      self->priv->param_group = BT_PARAMETER_GROUP(g_value_dup_object(value));
-      g_object_get((gpointer)(self->priv->param_group),"num-params",&self->priv->params,NULL);
-    } break;
-    case VALUE_GROUP_LENGTH: {
-      gulong length=self->priv->length;
-      self->priv->length = g_value_get_ulong(value);
-      if (length!=self->priv->length) {
-        bt_value_group_resize_data_length(self,length);
+    case VALUE_GROUP_PARAMETER_GROUP:{
+      self->priv->param_group = BT_PARAMETER_GROUP (g_value_dup_object (value));
+      g_object_get ((gpointer) (self->priv->param_group), "num-params",
+          &self->priv->params, NULL);
+    }
+      break;
+    case VALUE_GROUP_LENGTH:{
+      gulong length = self->priv->length;
+      self->priv->length = g_value_get_ulong (value);
+      if (length != self->priv->length) {
+        bt_value_group_resize_data_length (self, length);
       }
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    }
+      break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static void bt_value_group_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  const BtValueGroup * const self = BT_VALUE_GROUP(object);
-  return_if_disposed();
+static void
+bt_value_group_get_property (GObject * const object, const guint property_id,
+    GValue * const value, GParamSpec * const pspec)
+{
+  const BtValueGroup *const self = BT_VALUE_GROUP (object);
+  return_if_disposed ();
 
   switch (property_id) {
-    case VALUE_GROUP_PARAMETER_GROUP: {
-      g_value_set_object(value, self->priv->param_group);
-    } break;
-    case VALUE_GROUP_LENGTH: {
-      g_value_set_ulong(value, self->priv->length);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case VALUE_GROUP_PARAMETER_GROUP:{
+      g_value_set_object (value, self->priv->param_group);
+    }
+      break;
+    case VALUE_GROUP_LENGTH:{
+      g_value_set_ulong (value, self->priv->length);
+    }
+      break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static void bt_value_group_dispose(GObject * const object) {
-  const BtValueGroup * const self = BT_VALUE_GROUP(object);
+static void
+bt_value_group_dispose (GObject * const object)
+{
+  const BtValueGroup *const self = BT_VALUE_GROUP (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
-  
-  g_object_unref(self->priv->param_group);
 
-  G_OBJECT_CLASS(bt_value_group_parent_class)->dispose(object);
+  g_object_unref (self->priv->param_group);
+
+  G_OBJECT_CLASS (bt_value_group_parent_class)->dispose (object);
 }
 
-static void bt_value_group_finalize(GObject * const object) {
-  const BtValueGroup * const self = BT_VALUE_GROUP(object);
+static void
+bt_value_group_finalize (GObject * const object)
+{
+  const BtValueGroup *const self = BT_VALUE_GROUP (object);
   GValue *v;
   gulong i;
 
-  if(self->priv->data) {
-    const gulong data_count=self->priv->length*self->priv->params;
+  if (self->priv->data) {
+    const gulong data_count = self->priv->length * self->priv->params;
     // free gvalues in self->priv->data
-    for(i=0;i<data_count;i++) {
-      v=&self->priv->data[i];
-      if(BT_IS_GVALUE(v))
-        g_value_unset(v);
+    for (i = 0; i < data_count; i++) {
+      v = &self->priv->data[i];
+      if (BT_IS_GVALUE (v))
+        g_value_unset (v);
     }
-    g_free(self->priv->data);
+    g_free (self->priv->data);
   }
 
-  G_OBJECT_CLASS(bt_value_group_parent_class)->finalize(object);
+  G_OBJECT_CLASS (bt_value_group_parent_class)->finalize (object);
 }
 
 //-- class internals
 
-static void bt_value_group_init(BtValueGroup *self) {
-  GST_DEBUG("!!!! self=%p",self);
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_VALUE_GROUP, BtValueGroupPrivate);
+static void
+bt_value_group_init (BtValueGroup * self)
+{
+  GST_DEBUG ("!!!! self=%p", self);
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_VALUE_GROUP,
+      BtValueGroupPrivate);
 }
 
-static void bt_value_group_class_init(BtValueGroupClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+static void
+bt_value_group_class_init (BtValueGroupClass * const klass)
+{
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
-  GST_DEBUG("!!!!");
-  g_type_class_add_private(klass,sizeof(BtValueGroupPrivate));
+  GST_DEBUG ("!!!!");
+  g_type_class_add_private (klass, sizeof (BtValueGroupPrivate));
 
-  gobject_class->constructed  = bt_value_group_constructed;
+  gobject_class->constructed = bt_value_group_constructed;
   gobject_class->set_property = bt_value_group_set_property;
   gobject_class->get_property = bt_value_group_get_property;
-  gobject_class->dispose      = bt_value_group_dispose;
-  gobject_class->finalize     = bt_value_group_finalize;
+  gobject_class->dispose = bt_value_group_dispose;
+  gobject_class->finalize = bt_value_group_finalize;
 
   /**
    * BtValueGroup::param-changed:
@@ -1074,17 +1226,12 @@ static void bt_value_group_class_init(BtValueGroupClass * const klass) {
    *
    * Signals that a param of this value-group has been changed.
    */
-  signals[PARAM_CHANGED_EVENT] = g_signal_new("param-changed",
-                                 G_TYPE_FROM_CLASS(klass),
-                                 G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                 0,
-                                 NULL, // accumulator
-                                 NULL, // acc data
-                                 bt_marshal_VOID__OBJECT_ULONG_ULONG,
-                                 G_TYPE_NONE, // return type
-                                 3, // n_params
-                                 BT_TYPE_PARAMETER_GROUP,G_TYPE_ULONG,G_TYPE_ULONG // param data
-                                 );
+  signals[PARAM_CHANGED_EVENT] = g_signal_new ("param-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,        // accumulator
+      NULL,                     // acc data
+      bt_marshal_VOID__OBJECT_ULONG_ULONG, G_TYPE_NONE, // return type
+      3,                        // n_params
+      BT_TYPE_PARAMETER_GROUP, G_TYPE_ULONG, G_TYPE_ULONG       // param data
+      );
 
   /**
    * BtValueGroup::group-changed:
@@ -1096,32 +1243,20 @@ static void bt_value_group_class_init(BtValueGroupClass * const klass) {
    * one after. The first will have @intermediate=%TRUE. Applications can use
    * that to defer change-consolidation.
    */
-  signals[GROUP_CHANGED_EVENT] = g_signal_new("group-changed",
-                                    G_TYPE_FROM_CLASS(klass),
-                                    G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                    0,
-                                    NULL, // accumulator
-                                    NULL, // acc data
-                                    bt_marshal_VOID__OBJECT_BOOLEAN,
-                                    G_TYPE_NONE, // return type
-                                    2, // n_params
-                                    BT_TYPE_PARAMETER_GROUP,G_TYPE_BOOLEAN
-                                    );
+  signals[GROUP_CHANGED_EVENT] = g_signal_new ("group-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,        // accumulator
+      NULL,                     // acc data
+      bt_marshal_VOID__OBJECT_BOOLEAN, G_TYPE_NONE,     // return type
+      2,                        // n_params
+      BT_TYPE_PARAMETER_GROUP, G_TYPE_BOOLEAN);
 
-  g_object_class_install_property(gobject_class,VALUE_GROUP_PARAMETER_GROUP,
-                                  g_param_spec_object("parameter-group",
-                                     "parameter group construct prop",
-                                     "Parameter group for the values",
-                                     BT_TYPE_PARAMETER_GROUP, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, VALUE_GROUP_PARAMETER_GROUP, g_param_spec_object ("parameter-group", "parameter group construct prop", "Parameter group for the values", BT_TYPE_PARAMETER_GROUP,     /* object type */
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,VALUE_GROUP_LENGTH,
-                                  g_param_spec_ulong("length",
-                                     "length prop",
-                                     "length of the pattern in ticks",
-                                     0,
-                                     G_MAXULONG,
-                                     1,
-                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, VALUE_GROUP_LENGTH,
+      g_param_spec_ulong ("length",
+          "length prop",
+          "length of the pattern in ticks",
+          0,
+          G_MAXULONG,
+          1, G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
-

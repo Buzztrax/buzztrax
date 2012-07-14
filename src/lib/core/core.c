@@ -43,30 +43,32 @@
  *
  * buzztard version stamp, major part
  */
-const guint bt_major_version=BT_MAJOR_VERSION;
+const guint bt_major_version = BT_MAJOR_VERSION;
 /**
  * bt_minor_version:
  *
  * buzztard version stamp, minor part
  */
-const guint bt_minor_version=BT_MINOR_VERSION;
+const guint bt_minor_version = BT_MINOR_VERSION;
 /**
  * bt_micro_version:
  *
  * buzztard version stamp, micro part
  */
-const guint bt_micro_version=BT_MICRO_VERSION;
+const guint bt_micro_version = BT_MICRO_VERSION;
 
-GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
+GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 
 static gboolean arg_version = FALSE;
 
-GstCaps *bt_default_caps=NULL;
+GstCaps *bt_default_caps = NULL;
 
 //-- helper methods
 
 /* we have no fail cases yet, but maybe in the future */
-static gboolean bt_init_pre (void) {
+static gboolean
+bt_init_pre (void)
+{
 #ifdef ENABLE_NLS
   bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -78,44 +80,47 @@ static gboolean bt_init_pre (void) {
   return TRUE;
 }
 
-static gboolean bt_init_post (void) {
+static gboolean
+bt_init_post (void)
+{
   //-- initialize dynamic parameter control module
-  gst_controller_init(NULL,NULL);
-  gst_pb_utils_init();
-  
+  gst_controller_init (NULL, NULL);
+  gst_pb_utils_init ();
+
   if (arg_version) {
-    g_printf("libbuzztard-core-%d.%d.%d from "PACKAGE_STRING"\n",BT_MAJOR_VERSION,BT_MINOR_VERSION,BT_MICRO_VERSION);
+    g_printf ("libbuzztard-core-%d.%d.%d from " PACKAGE_STRING "\n",
+        BT_MAJOR_VERSION, BT_MINOR_VERSION, BT_MICRO_VERSION);
   }
 
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-core", 0,
+      "music production environment / core library");
 
   extern gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin);
-  gst_plugin_register_static(GST_VERSION_MAJOR,
-    GST_VERSION_MINOR,
-    "bt-sink-bin",
-    "buzztard sink bin - encapsulates play and record functionality",
-    bt_sink_bin_plugin_init,
-    VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
+  gst_plugin_register_static (GST_VERSION_MAJOR,
+      GST_VERSION_MINOR,
+      "bt-sink-bin",
+      "buzztard sink bin - encapsulates play and record functionality",
+      bt_sink_bin_plugin_init,
+      VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
 
-  bt_default_caps=gst_caps_new_simple("audio/x-raw-float",
-    "width",G_TYPE_INT,32,
-    "channels",GST_TYPE_INT_RANGE,1,2,
-    "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
-    "endianness",G_TYPE_INT,G_BYTE_ORDER,
-    NULL);
+  bt_default_caps = gst_caps_new_simple ("audio/x-raw-float",
+      "width", G_TYPE_INT, 32,
+      "channels", GST_TYPE_INT_RANGE, 1, 2,
+      "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
+      "endianness", G_TYPE_INT, G_BYTE_ORDER, NULL);
 
-  GST_DEBUG("init xml");
+  GST_DEBUG ("init xml");
   //-- initialize libxml
   // set own error handler
   //xmlSetGenericErrorFunc("libxml-error: ",&gitk_libxmlxslt_error_func);
   // initialize the xml parser
-  xmlInitParser();
+  xmlInitParser ();
   // xmlInitParser does that for us
   //xmlXPathInit();
   // we don't use entities
-  xmlSubstituteEntitiesDefault(0);
-  xmlLoadExtDtdDefaultValue=FALSE;          // do not always load DTD default values
-  xmlDoValidityCheckingDefaultValue=FALSE;  // do not validate files
+  xmlSubstituteEntitiesDefault (0);
+  xmlLoadExtDtdDefaultValue = FALSE;    // do not always load DTD default values
+  xmlDoValidityCheckingDefaultValue = FALSE;    // do not validate files
 
 #if 0
 // I just got
@@ -125,18 +130,17 @@ static gboolean bt_init_post (void) {
   // @idea; only do this in non-debug builds
   //http://www.gnu.org/software/libc/manual/html_node/Basic-Scheduling-Functions.html
   {
-    struct sched_param p={0,};
+    struct sched_param p = { 0, };
 
-    p.sched_priority=sched_get_priority_min(SCHED_RR);
+    p.sched_priority = sched_get_priority_min (SCHED_RR);
     //p.sched_priority=sched_get_priority_max(SCHED_RR);
-    if(sched_setscheduler(0,SCHED_RR,&p)<0) {
-      GST_WARNING("switching scheduler failed: %s",g_strerror(errno));
-    }
-    else {
-      GST_INFO("switched scheduler");
+    if (sched_setscheduler (0, SCHED_RR, &p) < 0) {
+      GST_WARNING ("switching scheduler failed: %s", g_strerror (errno));
+    } else {
+      GST_INFO ("switched scheduler");
 #if HAVE_MLOCKALL
-      if(mlockall(MCL_CURRENT)<0)
-        GST_WARNING("locking memory pages failed: %s",g_strerror(errno));
+      if (mlockall (MCL_CURRENT) < 0)
+        GST_WARNING ("locking memory pages failed: %s", g_strerror (errno));
 #endif
     }
   }
@@ -148,10 +152,10 @@ static gboolean bt_init_post (void) {
   // see http://www.mail-archive.com/linux-audio-dev@music.columbia.edu/msg19520.html
   //   [linux-audio-dev] Channels and best practice
   // _MM_FLUSH_ZERO_ON = FZ
-  _mm_setcsr(_mm_getcsr() | 0x8040); // set DAZ and FZ bits
+  _mm_setcsr (_mm_getcsr () | 0x8040);  // set DAZ and FZ bits
 #endif
 
-  return(TRUE);
+  return (TRUE);
 }
 
 //-- core initialisation
@@ -169,19 +173,25 @@ static gboolean bt_init_post (void) {
  *
  * Returns: a pointer to a GOption group. Should be dereferenced after use.
  */
-GOptionGroup *bt_init_get_option_group(void) {
+GOptionGroup *
+bt_init_get_option_group (void)
+{
   GOptionGroup *group;
   static GOptionEntry options[] = {
-    {"bt-version", 0, 0, G_OPTION_ARG_NONE, NULL, N_("Print the buzztard core version"), NULL},
+    {"bt-version", 0, 0, G_OPTION_ARG_NONE, NULL,
+          N_("Print the buzztard core version"), NULL},
     {NULL}
   };
-  options[0].arg_data=&arg_version;
+  options[0].arg_data = &arg_version;
 
-  group = g_option_group_new("bt-core", _("Buzztard core options"),_("Show buzztard core options"), NULL, NULL);
-  g_option_group_set_parse_hooks(group, (GOptionParseFunc)bt_init_pre, (GOptionParseFunc)bt_init_post);
+  group =
+      g_option_group_new ("bt-core", _("Buzztard core options"),
+      _("Show buzztard core options"), NULL, NULL);
+  g_option_group_set_parse_hooks (group, (GOptionParseFunc) bt_init_pre,
+      (GOptionParseFunc) bt_init_post);
 
-  g_option_group_add_entries(group, options);
-  g_option_group_set_translation_domain(group, PACKAGE_NAME);
+  g_option_group_add_entries (group, options);
+  g_option_group_set_translation_domain (group, PACKAGE_NAME);
 
   return group;
 
@@ -193,9 +203,11 @@ GOptionGroup *bt_init_get_option_group(void) {
  *
  * Adds all option groups to the main context the core library will pull in.
  */
-void bt_init_add_option_groups(GOptionContext * const ctx) {
-  g_option_context_add_group(ctx, gst_init_get_option_group());
-  g_option_context_add_group(ctx, bt_init_get_option_group());
+void
+bt_init_add_option_groups (GOptionContext * const ctx)
+{
+  g_option_context_add_group (ctx, gst_init_get_option_group ());
+  g_option_context_add_group (ctx, bt_init_get_option_group ());
 }
 
 /**
@@ -212,16 +224,18 @@ void bt_init_add_option_groups(GOptionContext * const ctx) {
  *
  * Returns: %TRUE if Buzztard core could be initialized.
  */
-gboolean bt_init_check(gint *argc, gchar **argv[], GError **err) {
+gboolean
+bt_init_check (gint * argc, gchar ** argv[], GError ** err)
+{
   GOptionContext *ctx;
   gboolean res;
 
-  ctx = g_option_context_new(NULL);
-  bt_init_add_option_groups(ctx);
-  res = g_option_context_parse(ctx, argc, argv, err);
-  g_option_context_free(ctx);
+  ctx = g_option_context_new (NULL);
+  bt_init_add_option_groups (ctx);
+  res = g_option_context_parse (ctx, argc, argv, err);
+  g_option_context_free (ctx);
 
-  return(res);
+  return (res);
 }
 
 /**
@@ -242,15 +256,18 @@ gboolean bt_init_check(gint *argc, gchar **argv[], GError **err) {
  * particular, unknown command line options cause this function to
  * abort program execution.
  */
-void bt_init(gint *argc, gchar **argv[]) {
+void
+bt_init (gint * argc, gchar ** argv[])
+{
   GError *err = NULL;
 
-  if(!bt_init_check(argc, argv, &err)) {
-    g_print("Could not initialized Buzztard core: %s\n", err ? err->message : "unknown error occurred");
-    if(err) {
-      g_error_free(err);
+  if (!bt_init_check (argc, argv, &err)) {
+    g_print ("Could not initialized Buzztard core: %s\n",
+        err ? err->message : "unknown error occurred");
+    if (err) {
+      g_error_free (err);
     }
-    exit(1);
+    exit (1);
   }
 }
 
@@ -262,9 +279,11 @@ void bt_init(gint *argc, gchar **argv[]) {
  * This function is therefore mostly used by testsuites and other memory
  * profiling tools.
  */
-void bt_deinit(void) {
+void
+bt_deinit (void)
+{
   // release some static ressources
-  gst_caps_replace(&bt_default_caps,NULL);
+  gst_caps_replace (&bt_default_caps, NULL);
   // deinit libraries
-  gst_deinit();
+  gst_deinit ();
 }

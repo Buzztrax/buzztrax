@@ -22,7 +22,7 @@
  * settings handling
  *
  * Platform independent implementation for persistence of application settings.
- */ 
+ */
 
 /*
   idea1: is to use a XML file like below
@@ -42,10 +42,11 @@
 #include "core_private.h"
 #include "settings-private.h"
 
-struct _BtPlainfileSettingsPrivate {
+struct _BtPlainfileSettingsPrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* key=value list, keys are defined in BtSettings */
   //GHashTable *settings;
   //xmlDoc *settings;
@@ -64,8 +65,11 @@ G_DEFINE_TYPE (BtPlainfileSettings, bt_plainfile_settings, BT_TYPE_SETTINGS);
  *
  * Returns: the new instance or %NULL in case of an error
  */
-const BtPlainfileSettings *bt_plainfile_settings_new(void) {
-  return(BT_PLAINFILE_SETTINGS(g_object_new(BT_TYPE_PLAINFILE_SETTINGS,NULL)));
+const BtPlainfileSettings *
+bt_plainfile_settings_new (void)
+{
+  return (BT_PLAINFILE_SETTINGS (g_object_new (BT_TYPE_PLAINFILE_SETTINGS,
+              NULL)));
 }
 
 //-- methods
@@ -74,75 +78,95 @@ const BtPlainfileSettings *bt_plainfile_settings_new(void) {
 
 //-- class internals
 
-static void bt_plainfile_settings_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  const BtPlainfileSettings * const self = BT_PLAINFILE_SETTINGS(object);
-  return_if_disposed();
+static void
+bt_plainfile_settings_get_property (GObject * const object,
+    const guint property_id, GValue * const value, GParamSpec * const pspec)
+{
+  const BtPlainfileSettings *const self = BT_PLAINFILE_SETTINGS (object);
+  return_if_disposed ();
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK:
-    case BT_SETTINGS_SYSTEM_AUDIOSINK: {
-      g_value_set_static_string(value, "autoaudiosink");
-    } break;
-    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
-      g_value_set_static_string(value, "both");
-      } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case BT_SETTINGS_SYSTEM_AUDIOSINK:{
+      g_value_set_static_string (value, "autoaudiosink");
+    }
+      break;
+    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:{
+      g_value_set_static_string (value, "both");
+    }
+      break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static void bt_plainfile_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtPlainfileSettings * const self = BT_PLAINFILE_SETTINGS(object);
-  return_if_disposed();
+static void
+bt_plainfile_settings_set_property (GObject * const object,
+    const guint property_id, const GValue * const value,
+    GParamSpec * const pspec)
+{
+  const BtPlainfileSettings *const self = BT_PLAINFILE_SETTINGS (object);
+  return_if_disposed ();
   switch (property_id) {
-    case BT_SETTINGS_AUDIOSINK: {
-      gchar * const prop=g_value_dup_string(value);
-      GST_DEBUG("application writes audiosink plainfile_settings : %s",prop);
+    case BT_SETTINGS_AUDIOSINK:{
+      gchar *const prop = g_value_dup_string (value);
+      GST_DEBUG ("application writes audiosink plainfile_settings : %s", prop);
       // TODO(ensonic): set property value
-      g_free(prop);
+      g_free (prop);
     } break;
-     default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static void bt_plainfile_settings_dispose(GObject * const object) {
-  const BtPlainfileSettings * const self = BT_PLAINFILE_SETTINGS(object);
+static void
+bt_plainfile_settings_dispose (GObject * const object)
+{
+  const BtPlainfileSettings *const self = BT_PLAINFILE_SETTINGS (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
-  
-  GST_DEBUG("!!!! self=%p",self);
-  G_OBJECT_CLASS(bt_plainfile_settings_parent_class)->dispose(object);
+
+  GST_DEBUG ("!!!! self=%p", self);
+  G_OBJECT_CLASS (bt_plainfile_settings_parent_class)->dispose (object);
 }
 
-static void bt_plainfile_settings_finalize(GObject * const object) {
-  const BtPlainfileSettings * const self = BT_PLAINFILE_SETTINGS(object);
+static void
+bt_plainfile_settings_finalize (GObject * const object)
+{
+  const BtPlainfileSettings *const self = BT_PLAINFILE_SETTINGS (object);
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG ("!!!! self=%p", self);
 
   //g_hash_table_destroy(self->priv->settings);
 
-  G_OBJECT_CLASS(bt_plainfile_settings_parent_class)->finalize(object);
+  G_OBJECT_CLASS (bt_plainfile_settings_parent_class)->finalize (object);
 }
 
-static void bt_plainfile_settings_init(BtPlainfileSettings *self) {
-  BtPlainfileSettings * const self = BT_PLAINFILE_SETTINGS(instance);
-  
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PLAINFILE_SETTINGS, BtPlainfileSettingsPrivate);
+static void
+bt_plainfile_settings_init (BtPlainfileSettings * self)
+{
+  BtPlainfileSettings *const self = BT_PLAINFILE_SETTINGS (instance);
+
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_PLAINFILE_SETTINGS,
+      BtPlainfileSettingsPrivate);
   //self->priv->settings=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
 }
 
-static void bt_plainfile_settings_class_init(BtPlainfileSettingsClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+static void
+bt_plainfile_settings_class_init (BtPlainfileSettingsClass * const klass)
+{
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
-  parent_class=g_type_class_peek_parent(klass);
-  g_type_class_add_private(klass,sizeof(BtPlainfileSettingsPrivate));
+  parent_class = g_type_class_peek_parent (klass);
+  g_type_class_add_private (klass, sizeof (BtPlainfileSettingsPrivate));
 
   gobject_class->set_property = bt_plainfile_settings_set_property;
   gobject_class->get_property = bt_plainfile_settings_get_property;
-  gobject_class->dispose      = bt_plainfile_settings_dispose;
-  gobject_class->finalize     = bt_plainfile_settings_finalize;
+  gobject_class->dispose = bt_plainfile_settings_dispose;
+  gobject_class->finalize = bt_plainfile_settings_finalize;
 }
-

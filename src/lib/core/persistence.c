@@ -61,11 +61,13 @@ G_DEFINE_INTERFACE (BtPersistence, bt_persistence, 0);
  *
  * Returns: a reference to static memory containg the formatted value.
  */
-const gchar *bt_persistence_strfmt_uchar(const guchar val) {
+const gchar *
+bt_persistence_strfmt_uchar (const guchar val)
+{
   static gchar str[20];
 
-  g_sprintf(str,"%u",val);
-  return(str);
+  g_sprintf (str, "%u", val);
+  return (str);
 }
 
 /**
@@ -76,11 +78,13 @@ const gchar *bt_persistence_strfmt_uchar(const guchar val) {
  *
  * Returns: a reference to static memory containg the formatted value.
  */
-const gchar *bt_persistence_strfmt_long(const glong val) {
+const gchar *
+bt_persistence_strfmt_long (const glong val)
+{
   static gchar str[20];
 
-  g_sprintf(str,"%ld",val);
-  return(str);
+  g_sprintf (str, "%ld", val);
+  return (str);
 }
 
 /**
@@ -91,11 +95,13 @@ const gchar *bt_persistence_strfmt_long(const glong val) {
  *
  * Returns: a reference to static memory containg the formatted value.
  */
-const gchar *bt_persistence_strfmt_ulong(const gulong val) {
+const gchar *
+bt_persistence_strfmt_ulong (const gulong val)
+{
   static gchar str[20];
 
-  g_sprintf(str,"%lu",val);
-  return(str);
+  g_sprintf (str, "%lu", val);
+  return (str);
 }
 
 /**
@@ -106,11 +112,13 @@ const gchar *bt_persistence_strfmt_ulong(const gulong val) {
  *
  * Returns: a reference to static memory containg the formatted value.
  */
-const gchar *bt_persistence_strfmt_double(const gdouble val) {
-  static gchar str[G_ASCII_DTOSTR_BUF_SIZE+1];
+const gchar *
+bt_persistence_strfmt_double (const gdouble val)
+{
+  static gchar str[G_ASCII_DTOSTR_BUF_SIZE + 1];
 
-  g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val);
-  return(str);
+  g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, val);
+  return (str);
 }
 
 // string parsing helper
@@ -124,13 +132,15 @@ const gchar *bt_persistence_strfmt_double(const gdouble val) {
  *
  * Returns: a reference to static memory containg the formatted value.
  */
-const gchar *bt_persistence_strfmt_enum(GType enum_type,gint value) {
-  g_return_val_if_fail(G_TYPE_IS_ENUM(enum_type), NULL);
+const gchar *
+bt_persistence_strfmt_enum (GType enum_type, gint value)
+{
+  g_return_val_if_fail (G_TYPE_IS_ENUM (enum_type), NULL);
 
-  GEnumClass *enum_class=g_type_class_ref(enum_type);
-  GEnumValue *enum_value=g_enum_get_value(enum_class,value);
-  g_type_class_unref(enum_class);
-  return(enum_value?enum_value->value_nick:NULL);
+  GEnumClass *enum_class = g_type_class_ref (enum_type);
+  GEnumValue *enum_value = g_enum_get_value (enum_class, value);
+  g_type_class_unref (enum_class);
+  return (enum_value ? enum_value->value_nick : NULL);
 }
 
 /**
@@ -143,15 +153,18 @@ const gchar *bt_persistence_strfmt_enum(GType enum_type,gint value) {
  *
  * Returns: the interger value for the enum, or -1 for invalid strings.
  */
-gint bt_persistence_parse_enum(GType enum_type,const gchar *str) {
-  g_return_val_if_fail(G_TYPE_IS_ENUM(enum_type), -1);
+gint
+bt_persistence_parse_enum (GType enum_type, const gchar * str)
+{
+  g_return_val_if_fail (G_TYPE_IS_ENUM (enum_type), -1);
 
-  if(!str) return(-1);
+  if (!str)
+    return (-1);
 
-  GEnumClass *enum_class=g_type_class_ref(enum_type);
-  GEnumValue *enum_value=g_enum_get_value_by_nick(enum_class,str);
-  g_type_class_unref(enum_class);
-  return(enum_value?enum_value->value:-1);
+  GEnumClass *enum_class = g_type_class_ref (enum_type);
+  GEnumValue *enum_value = g_enum_get_value_by_nick (enum_class, str);
+  g_type_class_unref (enum_class);
+  return (enum_value ? enum_value->value : -1);
 }
 
 //-- list helper
@@ -167,15 +180,18 @@ gint bt_persistence_parse_enum(GType enum_type,const gchar *str) {
  *
  * Returns: %TRUE if all elements have been serialized.
  */
-gboolean bt_persistence_save_list(const GList *list,xmlNodePtr const node) {
-  gboolean res=TRUE;
+gboolean
+bt_persistence_save_list (const GList * list, xmlNodePtr const node)
+{
+  gboolean res = TRUE;
 
-  for(;(list && res);list=g_list_next(list)) {
-    if(BT_IS_PERSISTENCE(list->data)) {
-      res&=(bt_persistence_save((BtPersistence *)(list->data),node)!=NULL);
+  for (; (list && res); list = g_list_next (list)) {
+    if (BT_IS_PERSISTENCE (list->data)) {
+      res &=
+          (bt_persistence_save ((BtPersistence *) (list->data), node) != NULL);
     }
   }
-  return(res);
+  return (res);
 }
 
 /*
@@ -202,18 +218,24 @@ gboolean bt_persistence_load_list(const GList *list,xmlNodePtr node,const gchar 
  *
  * Gather #GHashTable entries in a list. Should be used with g_hash_table_foreach().
  */
-void bt_persistence_collect_hashtable_entries(gpointer const key, gpointer const value, gpointer const user_data) {
-  GList **list=(GList **)user_data;
+void
+bt_persistence_collect_hashtable_entries (gpointer const key,
+    gpointer const value, gpointer const user_data)
+{
+  GList **list = (GList **) user_data;
 
-  *list=g_list_prepend(*list,value);
+  *list = g_list_prepend (*list, value);
 }
 
-static void bt_persistence_save_hashtable_entries(gpointer const key, gpointer const value, gpointer const user_data) {
+static void
+bt_persistence_save_hashtable_entries (gpointer const key, gpointer const value,
+    gpointer const user_data)
+{
   xmlNodePtr node;
 
-  node=xmlNewChild(user_data,NULL,XML_CHAR_PTR("property"),NULL);
-  xmlNewProp(node,XML_CHAR_PTR("key"),XML_CHAR_PTR(key));
-  xmlNewProp(node,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));
+  node = xmlNewChild (user_data, NULL, XML_CHAR_PTR ("property"), NULL);
+  xmlNewProp (node, XML_CHAR_PTR ("key"), XML_CHAR_PTR (key));
+  xmlNewProp (node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (value));
 }
 
 /**
@@ -225,12 +247,15 @@ static void bt_persistence_save_hashtable_entries(gpointer const key, gpointer c
  *
  * Returns: %TRUE if all elements have been serialized.
  */
-gboolean bt_persistence_save_hashtable(GHashTable *hashtable, xmlNodePtr const node) {
-  gboolean res=TRUE;
+gboolean
+bt_persistence_save_hashtable (GHashTable * hashtable, xmlNodePtr const node)
+{
+  gboolean res = TRUE;
 
-  g_hash_table_foreach(hashtable,bt_persistence_save_hashtable_entries,(gpointer)node);
+  g_hash_table_foreach (hashtable, bt_persistence_save_hashtable_entries,
+      (gpointer) node);
 
-  return(res);
+  return (res);
 }
 
 /**
@@ -242,21 +267,24 @@ gboolean bt_persistence_save_hashtable(GHashTable *hashtable, xmlNodePtr const n
  *
  * Returns: %TRUE if all elements have been deserialized.
  */
-gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node) {
-  xmlChar *key,*value;
+gboolean
+bt_persistence_load_hashtable (GHashTable * hashtable, xmlNodePtr node)
+{
+  xmlChar *key, *value;
 
   // iterate over children
-  for(node=node->children;node;node=node->next) {
-    if(!xmlNodeIsText(node) && !strncmp((char *)node->name,"property\0",9)) {
-      key=xmlGetProp(node,XML_CHAR_PTR("key"));
-      value=xmlGetProp(node,XML_CHAR_PTR("value"));
+  for (node = node->children; node; node = node->next) {
+    if (!xmlNodeIsText (node)
+        && !strncmp ((char *) node->name, "property\0", 9)) {
+      key = xmlGetProp (node, XML_CHAR_PTR ("key"));
+      value = xmlGetProp (node, XML_CHAR_PTR ("value"));
       //GST_DEBUG("    [%s] => [%s]",key,value);
-      g_hash_table_insert(hashtable,key,value);
+      g_hash_table_insert (hashtable, key, value);
       // do not free, as the hastable now owns the memory
       //xmlFree(key);xmlFree(value);
     }
   }
-  return(TRUE);
+  return (TRUE);
 }
 
 //-- gvalue helper
@@ -270,76 +298,80 @@ gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node) {
  *
  * Returns: %TRUE for success
  */
-gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
+gboolean
+bt_persistence_set_value (GValue * const gvalue, const gchar * svalue)
+{
   GType base_type;
 
-  g_return_val_if_fail(G_IS_VALUE(gvalue),FALSE);
+  g_return_val_if_fail (G_IS_VALUE (gvalue), FALSE);
 
-  base_type=bt_g_type_get_base_type(G_VALUE_TYPE(gvalue));
+  base_type = bt_g_type_get_base_type (G_VALUE_TYPE (gvalue));
   // depending on the type, set the GValue
-  switch(base_type) {
-    case G_TYPE_DOUBLE: {
+  switch (base_type) {
+    case G_TYPE_DOUBLE:{
       //gdouble val=atof(svalue); // this is dependend on the locale
-      const gdouble val=svalue?g_ascii_strtod(svalue,NULL):0.0;
-      g_value_set_double(gvalue,val);
+      const gdouble val = svalue ? g_ascii_strtod (svalue, NULL) : 0.0;
+      g_value_set_double (gvalue, val);
     } break;
-    case G_TYPE_FLOAT: {
-      const gfloat val=svalue?(gfloat)g_ascii_strtod(svalue,NULL):0.0;
-      g_value_set_float(gvalue,val);
+    case G_TYPE_FLOAT:{
+      const gfloat val = svalue ? (gfloat) g_ascii_strtod (svalue, NULL) : 0.0;
+      g_value_set_float (gvalue, val);
     } break;
-    case G_TYPE_BOOLEAN: {
-      const gboolean val=svalue?atoi(svalue):FALSE;
-      g_value_set_boolean(gvalue,val);
+    case G_TYPE_BOOLEAN:{
+      const gboolean val = svalue ? atoi (svalue) : FALSE;
+      g_value_set_boolean (gvalue, val);
     } break;
-    case G_TYPE_STRING: {
-      g_value_set_string(gvalue,svalue);
-    } break;
-    case G_TYPE_ENUM: {
-      if(G_VALUE_TYPE(gvalue)==GSTBT_TYPE_NOTE) {
-        GEnumClass *enum_class=g_type_class_peek_static(GSTBT_TYPE_NOTE);
+    case G_TYPE_STRING:{
+      g_value_set_string (gvalue, svalue);
+    }
+      break;
+    case G_TYPE_ENUM:{
+      if (G_VALUE_TYPE (gvalue) == GSTBT_TYPE_NOTE) {
+        GEnumClass *enum_class = g_type_class_peek_static (GSTBT_TYPE_NOTE);
         GEnumValue *enum_value;
-        gint val=0;
-        
-        if((enum_value=g_enum_get_value_by_nick(enum_class,svalue))) {
-          val=enum_value->value;
+        gint val = 0;
+
+        if ((enum_value = g_enum_get_value_by_nick (enum_class, svalue))) {
+          val = enum_value->value;
         }
         //GST_INFO("mapping '%s' -> %d", svalue, val);
-        g_value_set_enum(gvalue,val);
+        g_value_set_enum (gvalue, val);
       } else {
-        const gint val=svalue?atoi(svalue):0;
+        const gint val = svalue ? atoi (svalue) : 0;
         //GST_INFO("-> %d",val);
-        g_value_set_enum(gvalue,val);
+        g_value_set_enum (gvalue, val);
       }
     } break;
-    case G_TYPE_INT: {
-      const gint val=svalue?atoi(svalue):0;
-      g_value_set_int(gvalue,val);
+    case G_TYPE_INT:{
+      const gint val = svalue ? atoi (svalue) : 0;
+      g_value_set_int (gvalue, val);
     } break;
-    case G_TYPE_UINT: {
-      const guint val=svalue?atoi(svalue):0;
-      g_value_set_uint(gvalue,val);
+    case G_TYPE_UINT:{
+      const guint val = svalue ? atoi (svalue) : 0;
+      g_value_set_uint (gvalue, val);
     } break;
-    case G_TYPE_INT64: {
-      const gint64 val=svalue?g_ascii_strtoll(svalue,NULL,10):0;
-      g_value_set_int64(gvalue,val);
+    case G_TYPE_INT64:{
+      const gint64 val = svalue ? g_ascii_strtoll (svalue, NULL, 10) : 0;
+      g_value_set_int64 (gvalue, val);
     } break;
-    case G_TYPE_UINT64: {
-      const guint64 val=svalue?g_ascii_strtoull(svalue,NULL,10):0;
-      g_value_set_uint64(gvalue,val);
+    case G_TYPE_UINT64:{
+      const guint64 val = svalue ? g_ascii_strtoull (svalue, NULL, 10) : 0;
+      g_value_set_uint64 (gvalue, val);
     } break;
-    case G_TYPE_LONG: {
-      const glong val=svalue?atol(svalue):0;
-      g_value_set_long(gvalue,val);
+    case G_TYPE_LONG:{
+      const glong val = svalue ? atol (svalue) : 0;
+      g_value_set_long (gvalue, val);
     } break;
-    case G_TYPE_ULONG: {
-      const gulong val=svalue?atol(svalue):0;
-      g_value_set_ulong(gvalue,val);
+    case G_TYPE_ULONG:{
+      const gulong val = svalue ? atol (svalue) : 0;
+      g_value_set_ulong (gvalue, val);
     } break;
     default:
-      GST_ERROR("unsupported GType=%lu:'%s' for value=\"%s\"",(gulong)G_VALUE_TYPE(gvalue),G_VALUE_TYPE_NAME(gvalue),svalue);
-      return(FALSE);
+      GST_ERROR ("unsupported GType=%lu:'%s' for value=\"%s\"",
+          (gulong) G_VALUE_TYPE (gvalue), G_VALUE_TYPE_NAME (gvalue), svalue);
+      return (FALSE);
   }
-  return(TRUE);
+  return (TRUE);
 }
 
 /**
@@ -350,71 +382,80 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
  *
  * Returns: a newly allocated string with the data or %NULL on error
  */
-gchar *bt_persistence_get_value(GValue * const gvalue) {
+gchar *
+bt_persistence_get_value (GValue * const gvalue)
+{
   GType base_type;
-  gchar *res=NULL;
+  gchar *res = NULL;
 
-  g_return_val_if_fail(G_IS_VALUE(gvalue),NULL);
+  g_return_val_if_fail (G_IS_VALUE (gvalue), NULL);
 
-  base_type=bt_g_type_get_base_type(G_VALUE_TYPE(gvalue));
+  base_type = bt_g_type_get_base_type (G_VALUE_TYPE (gvalue));
   // depending on the type, set the result
-  switch(base_type) {
-    case G_TYPE_DOUBLE: {
-      gchar str[G_ASCII_DTOSTR_BUF_SIZE+1];
+  switch (base_type) {
+    case G_TYPE_DOUBLE:{
+      gchar str[G_ASCII_DTOSTR_BUF_SIZE + 1];
       // this is dependend on the locale
       //res=g_strdup_printf("%lf",g_value_get_double(gvalue));
-      res=g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,g_value_get_double(gvalue)));
-      } break;
-    case G_TYPE_FLOAT: {
-      gchar str[G_ASCII_DTOSTR_BUF_SIZE+1];
+      res =
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE,
+              g_value_get_double (gvalue)));
+    }
+      break;
+    case G_TYPE_FLOAT:{
+      gchar str[G_ASCII_DTOSTR_BUF_SIZE + 1];
       // this is dependend on the locale
       //res=g_strdup_printf("%f",g_value_get_float(gvalue));
-      res=g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,g_value_get_float(gvalue)));
-      } break;
+      res =
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE,
+              g_value_get_float (gvalue)));
+    }
+      break;
     case G_TYPE_BOOLEAN:
-      res=g_strdup_printf("%d",g_value_get_boolean(gvalue));
+      res = g_strdup_printf ("%d", g_value_get_boolean (gvalue));
       break;
     case G_TYPE_STRING:
-      res=g_value_dup_string(gvalue);
+      res = g_value_dup_string (gvalue);
       break;
     case G_TYPE_ENUM:
-      if(G_VALUE_TYPE(gvalue)==GSTBT_TYPE_NOTE) {
-        GEnumClass *enum_class=g_type_class_peek_static(GSTBT_TYPE_NOTE);
+      if (G_VALUE_TYPE (gvalue) == GSTBT_TYPE_NOTE) {
+        GEnumClass *enum_class = g_type_class_peek_static (GSTBT_TYPE_NOTE);
         GEnumValue *enum_value;
-        gint val=g_value_get_enum(gvalue);
+        gint val = g_value_get_enum (gvalue);
 
-        if((enum_value=g_enum_get_value(enum_class,val))) {
-          res=g_strdup(enum_value->value_nick);
+        if ((enum_value = g_enum_get_value (enum_class, val))) {
+          res = g_strdup (enum_value->value_nick);
         } else {
-          res=g_strdup("");
+          res = g_strdup ("");
         }
       } else {
-        res=g_strdup_printf("%d",g_value_get_enum(gvalue));
+        res = g_strdup_printf ("%d", g_value_get_enum (gvalue));
       }
       break;
     case G_TYPE_INT:
-      res=g_strdup_printf("%d",g_value_get_int(gvalue));
+      res = g_strdup_printf ("%d", g_value_get_int (gvalue));
       break;
     case G_TYPE_UINT:
-      res=g_strdup_printf("%u",g_value_get_uint(gvalue));
+      res = g_strdup_printf ("%u", g_value_get_uint (gvalue));
       break;
     case G_TYPE_INT64:
-      res=g_strdup_printf("%"G_GINT64_FORMAT,g_value_get_int64(gvalue));
+      res = g_strdup_printf ("%" G_GINT64_FORMAT, g_value_get_int64 (gvalue));
       break;
     case G_TYPE_UINT64:
-      res=g_strdup_printf("%"G_GUINT64_FORMAT,g_value_get_uint64(gvalue));
+      res = g_strdup_printf ("%" G_GUINT64_FORMAT, g_value_get_uint64 (gvalue));
       break;
     case G_TYPE_LONG:
-      res=g_strdup_printf("%ld",g_value_get_long(gvalue));
+      res = g_strdup_printf ("%ld", g_value_get_long (gvalue));
       break;
     case G_TYPE_ULONG:
-      res=g_strdup_printf("%lu",g_value_get_ulong(gvalue));
+      res = g_strdup_printf ("%lu", g_value_get_ulong (gvalue));
       break;
     default:
-      GST_ERROR("unsupported GType=%lu:'%s'",(gulong)G_VALUE_TYPE(gvalue),G_VALUE_TYPE_NAME(gvalue));
-      return(NULL);
+      GST_ERROR ("unsupported GType=%lu:'%s'", (gulong) G_VALUE_TYPE (gvalue),
+          G_VALUE_TYPE_NAME (gvalue));
+      return (NULL);
   }
-  return(res);
+  return (res);
 }
 
 
@@ -429,7 +470,10 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
  *
  * Returns: the new node if the object has been serialized, else %NULL.
  */
-xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr const parent_node) {
+xmlNodePtr
+bt_persistence_save (const BtPersistence * const self,
+    xmlNodePtr const parent_node)
+{
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
 
   return (BT_PERSISTENCE_GET_INTERFACE (self)->save (self, parent_node));
@@ -448,11 +492,14 @@ xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr cons
  *
  * Returns: the deserialized object or %NULL.
  */
-BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const self, xmlNodePtr node, GError **err, ...) {
+BtPersistence *
+bt_persistence_load (const GType type, const BtPersistence * const self,
+    xmlNodePtr node, GError ** err, ...)
+{
   BtPersistence *result;
   va_list var_args;
 
-  if(!self) {
+  if (!self) {
     GObjectClass *klass;
     BtPersistenceInterface *iface;
 
@@ -463,13 +510,14 @@ BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const
     va_start (var_args, err);
     result = iface->load (type, self, node, err, var_args);
     va_end (var_args);
-    g_type_class_unref(klass);
-  }
-  else {
+    g_type_class_unref (klass);
+  } else {
     g_return_val_if_fail (BT_IS_PERSISTENCE (self), NULL);
 
     va_start (var_args, err);
-    result = BT_PERSISTENCE_GET_INTERFACE (self)->load (type, self, node, err, var_args);
+    result =
+        BT_PERSISTENCE_GET_INTERFACE (self)->load (type, self, node, err,
+        var_args);
     va_end (var_args);
   }
   return (result);
@@ -477,5 +525,7 @@ BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const
 
 //-- interface internals
 
-static void bt_persistence_default_init(BtPersistenceInterface *klass) {
+static void
+bt_persistence_default_init (BtPersistenceInterface * klass)
+{
 }

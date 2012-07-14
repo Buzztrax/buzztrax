@@ -43,12 +43,14 @@
 
 #include "core_private.h"
 
-enum {
-  APPLICATION_BIN=1,
+enum
+{
+  APPLICATION_BIN = 1,
   APPLICATION_SETTINGS
 };
 
-struct _BtApplicationPrivate {
+struct _BtApplicationPrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -74,56 +76,71 @@ G_DEFINE_ABSTRACT_TYPE (BtApplication, bt_application, G_TYPE_OBJECT);
 
 //-- g_object overrides
 
-static void bt_application_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  const BtApplication * const self = BT_APPLICATION(object);
-  return_if_disposed();
+static void
+bt_application_get_property (GObject * const object, const guint property_id,
+    GValue * const value, GParamSpec * const pspec)
+{
+  const BtApplication *const self = BT_APPLICATION (object);
+  return_if_disposed ();
   switch (property_id) {
-    case APPLICATION_BIN: {
-      g_value_set_object(value, self->priv->bin);
-    } break;
-    case APPLICATION_SETTINGS: {
-      g_value_set_object(value, self->priv->settings);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case APPLICATION_BIN:{
+      g_value_set_object (value, self->priv->bin);
+    }
+      break;
+    case APPLICATION_SETTINGS:{
+      g_value_set_object (value, self->priv->settings);
+    }
+      break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static void bt_application_dispose(GObject * const object) {
-  const BtApplication * const self = BT_APPLICATION(object);
+static void
+bt_application_dispose (GObject * const object)
+{
+  const BtApplication *const self = BT_APPLICATION (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
-  GST_INFO("bin->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->bin));
-  GST_INFO("bin->numchildren=%d",GST_BIN(self->priv->bin)->numchildren);
-  GST_INFO("settings->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->settings));
+  GST_DEBUG ("!!!! self=%p, self->ref_ct=%d", self, G_OBJECT_REF_COUNT (self));
+  GST_INFO ("bin->ref_ct=%d", G_OBJECT_REF_COUNT (self->priv->bin));
+  GST_INFO ("bin->numchildren=%d", GST_BIN (self->priv->bin)->numchildren);
+  GST_INFO ("settings->ref_ct=%d", G_OBJECT_REF_COUNT (self->priv->settings));
 
-  if(self->priv->bin) {
+  if (self->priv->bin) {
     GstStateChangeReturn res;
 
-    if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
-      GST_WARNING("can't go to null state");
+    if ((res =
+            gst_element_set_state (GST_ELEMENT (self->priv->bin),
+                GST_STATE_NULL)) == GST_STATE_CHANGE_FAILURE) {
+      GST_WARNING ("can't go to null state");
     }
-    GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
-    gst_object_unref(self->priv->bin);
+    GST_DEBUG ("->NULL state change returned '%s'",
+        gst_element_state_change_return_get_name (res));
+    gst_object_unref (self->priv->bin);
   }
-  g_object_try_unref(self->priv->settings);
+  g_object_try_unref (self->priv->settings);
 
-  G_OBJECT_CLASS(bt_application_parent_class)->dispose(object);
-  GST_DEBUG("  done");
+  G_OBJECT_CLASS (bt_application_parent_class)->dispose (object);
+  GST_DEBUG ("  done");
 }
 
 //-- class internals
 
-static void bt_application_init(BtApplication *self) {
-  GST_DEBUG("!!!! self=%p",self);
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_APPLICATION, BtApplicationPrivate);
-  self->priv->bin = gst_pipeline_new("song");
-  g_assert(GST_IS_ELEMENT(self->priv->bin));
-  GST_DEBUG("bin->ref_ct=%d",G_OBJECT_REF_COUNT(self->priv->bin));
+static void
+bt_application_init (BtApplication * self)
+{
+  GST_DEBUG ("!!!! self=%p", self);
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_APPLICATION,
+      BtApplicationPrivate);
+  self->priv->bin = gst_pipeline_new ("song");
+  g_assert (GST_IS_ELEMENT (self->priv->bin));
+  GST_DEBUG ("bin->ref_ct=%d", G_OBJECT_REF_COUNT (self->priv->bin));
 
   // tried this when debuging a case where we don't get bus messages
   //gst_pipeline_set_auto_flush_bus(GST_PIPELINE(self->priv->bin),FALSE);
@@ -131,19 +148,21 @@ static void bt_application_init(BtApplication *self) {
   // if we enable this we get lots of diagnostics
   //g_signal_connect (self->priv->bin, "deep_notify", G_CALLBACK(gst_object_default_deep_notify), NULL);
 
-  self->priv->settings=bt_settings_make();
-  g_assert(BT_IS_SETTINGS(self->priv->settings));
-  GST_INFO("app has settings %p",self->priv->settings);
+  self->priv->settings = bt_settings_make ();
+  g_assert (BT_IS_SETTINGS (self->priv->settings));
+  GST_INFO ("app has settings %p", self->priv->settings);
 }
 
-static void bt_application_class_init(BtApplicationClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+static void
+bt_application_class_init (BtApplicationClass * const klass)
+{
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
-  GST_DEBUG("!!!!");
-  g_type_class_add_private(klass,sizeof(BtApplicationPrivate));
+  GST_DEBUG ("!!!!");
+  g_type_class_add_private (klass, sizeof (BtApplicationPrivate));
 
   gobject_class->get_property = bt_application_get_property;
-  gobject_class->dispose      = bt_application_dispose;
+  gobject_class->dispose = bt_application_dispose;
 
   /**
    * BtApplication:bin
@@ -151,18 +170,9 @@ static void bt_application_class_init(BtApplicationClass * const klass) {
    * The top-level gstreamer element for the song, e.g. a #GstPipeline or
    * #GstBin.
    */
-  g_object_class_install_property(gobject_class,APPLICATION_BIN,
-                                  g_param_spec_object("bin",
-                                     "bin ro prop",
-                                     "applications top-level GstElement container",
-                                     GST_TYPE_BIN, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, APPLICATION_BIN, g_param_spec_object ("bin", "bin ro prop", "applications top-level GstElement container", GST_TYPE_BIN,      /* object type */
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,APPLICATION_SETTINGS,
-                                  g_param_spec_object("settings",
-                                     "settings ro prop",
-                                     "applications configuration settings",
-                                     BT_TYPE_SETTINGS, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, APPLICATION_SETTINGS, g_param_spec_object ("settings", "settings ro prop", "applications configuration settings", BT_TYPE_SETTINGS,   /* object type */
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
-
