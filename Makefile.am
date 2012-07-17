@@ -26,13 +26,6 @@ AM_CPPFLAGS = \
 
 AM_LDFLAGS = $(BT_LDFLAGS)
 
-# -- gconf
-
-schemasdir = $(GCONF_SCHEMA_FILE_DIR)
-schemas_in_files = buzztard.schemas.in
-schemas_DATA = $(schemas_in_files:.schemas.in=.schemas)
-
-
 EXTRA_DIST = \
 	$(schemas_DATA) \
 	intltool-extract.in \
@@ -62,6 +55,12 @@ DISTCLEANFILES = \
 include $(top_srcdir)/Makefile.pixmaps.am
 include $(top_srcdir)/Makefile.src.am
 include $(top_srcdir)/Makefile.tests.am
+
+# -- gconf
+
+schemasdir = $(GCONF_SCHEMA_FILE_DIR)
+schemas_in_files = buzztard.schemas.in
+schemas_DATA = $(schemas_in_files:.schemas.in=.schemas)
 
 @INTLTOOL_SCHEMAS_RULE@
 
