@@ -54,12 +54,12 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_machine_add_pattern (BT_TEST_ARGS)
+static void
+test_bt_machine_add_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *gen1 =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   check_init_error_trapp ("", "BT_IS_CMD_PATTERN (pattern)");
 
@@ -75,15 +75,14 @@ static void test_bt_machine_add_pattern (BT_TEST_ARGS)
 }
 
 // FIXME(ensonic): is this really testing something?
-static void test_bt_machine_names (BT_TEST_ARGS)
+static void
+test_bt_machine_names (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *gen1 =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
-  BtMachine *gen2 =
-      BT_MACHINE (bt_source_machine_new (song, "gen2",
+  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen2",
           "buzztard-test-mono-source", 0L, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
 
@@ -104,7 +103,9 @@ static void test_bt_machine_names (BT_TEST_ARGS)
   g_object_unref (gen1);
   BT_TEST_END;
 }
- TCase * bt_machine_test_case (void)
+
+TCase *
+bt_machine_test_case (void)
 {
   TCase *tc = tcase_create ("BtMachineTests");
 

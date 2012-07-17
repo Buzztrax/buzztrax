@@ -48,7 +48,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_application_new (BT_TEST_ARGS)
+static void
+test_bt_application_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -66,7 +67,9 @@ static void test_bt_application_new (BT_TEST_ARGS)
   g_object_checked_unref (app);
   BT_TEST_END;
 }
- TCase * bt_application_example_case (void)
+
+TCase *
+bt_application_example_case (void)
 {
   TCase *tc = tcase_create ("BtApplicationExamples");
 

@@ -48,7 +48,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_settings_singleton (BT_TEST_ARGS)
+static void
+test_bt_settings_singleton (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -65,6 +66,7 @@ static void test_bt_settings_singleton (BT_TEST_ARGS)
   g_object_checked_unref (settings1);
   BT_TEST_END;
 }
+
 ;
 
 

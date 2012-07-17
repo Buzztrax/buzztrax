@@ -56,7 +56,8 @@ case_teardown (void)
 //-- tests
 
 /* apply generic property tests to sequence */
-static void test_bt_sequence_properties (BT_TEST_ARGS)
+static void
+test_bt_sequence_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -70,7 +71,8 @@ static void test_bt_sequence_properties (BT_TEST_ARGS)
 }
 
 /* create a new sequence with NULL for song object */
-static void test_bt_sequence_new_null_song (BT_TEST_ARGS)
+static void
+test_bt_sequence_new_null_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* act */
@@ -85,7 +87,8 @@ static void test_bt_sequence_new_null_song (BT_TEST_ARGS)
 }
 
 /* try to add a NULL machine to the sequence */
-static void test_bt_sequence_add_track1 (BT_TEST_ARGS)
+static void
+test_bt_sequence_add_track1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -105,12 +108,12 @@ static void test_bt_sequence_add_track1 (BT_TEST_ARGS)
 }
 
 /* try to add a new machine for the sequence with NULL for the sequence parameter */
-static void test_bt_sequence_add_track2 (BT_TEST_ARGS)
+static void
+test_bt_sequence_add_track2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   check_init_error_trapp ("", "BT_IS_SEQUENCE (self)");
 
@@ -126,7 +129,8 @@ static void test_bt_sequence_add_track2 (BT_TEST_ARGS)
 }
 
 /* try to remove a NULL machine from the sequence */
-static void test_bt_sequence_rem_track1 (BT_TEST_ARGS)
+static void
+test_bt_sequence_rem_track1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -146,14 +150,14 @@ static void test_bt_sequence_rem_track1 (BT_TEST_ARGS)
 }
 
 /* try to remove a machine from the sequence that has never added */
-static void test_bt_sequence_rem_track2 (BT_TEST_ARGS)
+static void
+test_bt_sequence_rem_track2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
 
   /* act */
@@ -169,7 +173,8 @@ static void test_bt_sequence_rem_track2 (BT_TEST_ARGS)
 }
 
 /* try to add a label to the sequence beyond the sequence length */
-static void test_bt_sequence_length1 (BT_TEST_ARGS)
+static void
+test_bt_sequence_length1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -189,14 +194,14 @@ static void test_bt_sequence_length1 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_sequence_pattern1 (BT_TEST_ARGS)
+static void
+test_bt_sequence_pattern1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
@@ -217,16 +222,15 @@ static void test_bt_sequence_pattern1 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_sequence_pattern2 (BT_TEST_ARGS)
+static void
+test_bt_sequence_pattern2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
-  BtMachine *machine1 =
-      BT_MACHINE (bt_source_machine_new (song, "genm",
+  BtMachine *machine1 = BT_MACHINE (bt_source_machine_new (song, "genm",
           "buzztard-test-mono-source", 0L, NULL));
-  BtMachine *machine2 =
-      BT_MACHINE (bt_source_machine_new (song, "genp",
+  BtMachine *machine2 = BT_MACHINE (bt_source_machine_new (song, "genp",
           "buzztard-test-poly-source", 1L, NULL));
   BtCmdPattern *pattern1 =
       (BtCmdPattern *) bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
@@ -250,7 +254,9 @@ static void test_bt_sequence_pattern2 (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
- TCase * bt_sequence_test_case (void)
+
+TCase *
+bt_sequence_test_case (void)
 {
   TCase *tc = tcase_create ("BtSequenceTests");
 

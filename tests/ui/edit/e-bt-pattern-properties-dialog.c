@@ -38,7 +38,8 @@ test_teardown (void)
 //-- tests
 
 // create app and then unconditionally destroy window
-static void test_create_dialog (BT_TEST_ARGS)
+static void
+test_create_dialog (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -98,7 +99,9 @@ static void test_create_dialog (BT_TEST_ARGS)
   g_object_checked_unref (app);
   BT_TEST_END;
 }
- TCase * bt_pattern_properties_dialog_example_case (void)
+
+TCase *
+bt_pattern_properties_dialog_example_case (void)
 {
   TCase *tc = tcase_create ("BtPatternPropertiesDialogExamples");
 

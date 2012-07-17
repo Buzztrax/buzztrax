@@ -55,7 +55,8 @@ case_teardown (void)
 //-- tests
 
 // test init with wrong arg usage
-static void test_bt_core_init0 (BT_TEST_ARGS)
+static void
+test_bt_core_init0 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -72,7 +73,8 @@ static void test_bt_core_init0 (BT_TEST_ARGS)
 }
 
 // test init with nonsense args
-static void test_bt_core_init1 (BT_TEST_ARGS)
+static void
+test_bt_core_init1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -93,7 +95,9 @@ static void test_bt_core_init1 (BT_TEST_ARGS)
   g_option_context_free (ctx);
   BT_TEST_END;
 }
- TCase * bt_core_test_case (void)
+
+TCase *
+bt_core_test_case (void)
 {
   TCase *tc = tcase_create ("BtCoreTests");
 

@@ -55,7 +55,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_song_info_date_stamps (BT_TEST_ARGS)
+static void
+test_bt_song_info_date_stamps (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -76,7 +77,8 @@ static void test_bt_song_info_date_stamps (BT_TEST_ARGS)
 }
 
 /* Test changing the tempo */
-static void test_bt_song_info_tempo (BT_TEST_ARGS)
+static void
+test_bt_song_info_tempo (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -101,7 +103,8 @@ static void test_bt_song_info_tempo (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_info_seconds_since_last_saved (BT_TEST_ARGS)
+static void
+test_bt_song_info_seconds_since_last_saved (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -119,7 +122,9 @@ static void test_bt_song_info_seconds_since_last_saved (BT_TEST_ARGS)
   g_object_unref (song_info);
   BT_TEST_END;
 }
- TCase * bt_song_info_example_case (void)
+
+TCase *
+bt_song_info_example_case (void)
 {
   TCase *tc = tcase_create ("BtSongInfoExamples");
 

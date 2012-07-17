@@ -55,12 +55,12 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_cmd_pattern_properties (BT_TEST_ARGS)
+static void
+test_bt_cmd_pattern_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   BtCmdPattern *pattern =
       bt_cmd_pattern_new (song, machine, BT_PATTERN_CMD_MUTE);
@@ -74,7 +74,8 @@ static void test_bt_cmd_pattern_properties (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_cmd_pattern_new_null_machine (BT_TEST_ARGS)
+static void
+test_bt_cmd_pattern_new_null_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -92,7 +93,9 @@ static void test_bt_cmd_pattern_new_null_machine (BT_TEST_ARGS)
   g_object_unref (pattern);
   BT_TEST_END;
 }
- TCase * bt_cmd_pattern_test_case (void)
+
+TCase *
+bt_cmd_pattern_test_case (void)
 {
   TCase *tc = tcase_create ("BtCmdPatternTests");
 

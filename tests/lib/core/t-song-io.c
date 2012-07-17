@@ -49,7 +49,8 @@ case_teardown (void)
 //-- tests
 
 // try to create a SongIO object with NULL pointer
-static void test_bt_song_io_new_null (BT_TEST_ARGS)
+static void
+test_bt_song_io_new_null (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* act */
@@ -61,7 +62,8 @@ static void test_bt_song_io_new_null (BT_TEST_ARGS)
 }
 
 // try to create a SongIO object with empty string
-static void test_bt_song_io_new_empty_filename (BT_TEST_ARGS)
+static void
+test_bt_song_io_new_empty_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* act */
@@ -73,7 +75,8 @@ static void test_bt_song_io_new_empty_filename (BT_TEST_ARGS)
 }
 
 // try to create a SongIO object from song name without extension
-static void test_bt_song_io_new_wrong_filename (BT_TEST_ARGS)
+static void
+test_bt_song_io_new_wrong_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* act */
@@ -85,7 +88,8 @@ static void test_bt_song_io_new_wrong_filename (BT_TEST_ARGS)
 }
 
 // try to create a SongIO object from song name with unknown extension
-static void test_bt_song_io_new_inexisting_filename (BT_TEST_ARGS)
+static void
+test_bt_song_io_new_inexisting_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* act */
@@ -95,7 +99,9 @@ static void test_bt_song_io_new_inexisting_filename (BT_TEST_ARGS)
   fail_unless (song_io == NULL, NULL);
   BT_TEST_END;
 }
- TCase * bt_song_io_test_case (void)
+
+TCase *
+bt_song_io_test_case (void)
 {
   TCase *tc = tcase_create ("BtSongIOTests");
 

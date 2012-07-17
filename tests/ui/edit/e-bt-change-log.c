@@ -111,7 +111,8 @@ test_teardown (void)
 //-- tests
 
 // test lifecycle/refcounts
-static void test_create_and_destroy1 (BT_TEST_ARGS)
+static void
+test_create_and_destroy1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtChangeLog *cl;
@@ -123,7 +124,8 @@ static void test_create_and_destroy1 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_create_and_destroy2 (BT_TEST_ARGS)
+static void
+test_create_and_destroy2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -150,7 +152,8 @@ static void test_create_and_destroy2 (BT_TEST_ARGS)
 }
 
 // test single undo/redo actions
-static void test_undo_redo_1 (BT_TEST_ARGS)
+static void
+test_undo_redo_1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -214,7 +217,8 @@ static void test_undo_redo_1 (BT_TEST_ARGS)
 }
 
 // test double undo/redo actions
-static void test_undo_redo_2 (BT_TEST_ARGS)
+static void
+test_undo_redo_2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -299,7 +303,8 @@ static void test_undo_redo_2 (BT_TEST_ARGS)
 }
 
 // test single and then double undo/redo actions
-static void test_undo_redo_3 (BT_TEST_ARGS)
+static void
+test_undo_redo_3 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -408,7 +413,8 @@ static void test_undo_redo_3 (BT_TEST_ARGS)
 }
 
 // test truncating the undo/redo stack
-static void test_stack_trunc (BT_TEST_ARGS)
+static void
+test_stack_trunc (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -470,7 +476,9 @@ static void test_stack_trunc (BT_TEST_ARGS)
   g_object_checked_unref (app);
   BT_TEST_END;
 }
- TCase * bt_change_log_example_case (void)
+
+TCase *
+bt_change_log_example_case (void)
 {
   TCase *tc = tcase_create ("BtChangeLogExamples");
 

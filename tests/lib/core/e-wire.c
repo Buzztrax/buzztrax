@@ -55,7 +55,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_wire_can_link (BT_TEST_ARGS)
+static void
+test_bt_wire_can_link (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -73,7 +74,8 @@ static void test_bt_wire_can_link (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_wire_new (BT_TEST_ARGS)
+static void
+test_bt_wire_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -96,7 +98,9 @@ static void test_bt_wire_new (BT_TEST_ARGS)
   g_object_unref (sink);
   BT_TEST_END;
 }
- TCase * bt_wire_example_case (void)
+
+TCase *
+bt_wire_example_case (void)
 {
   TCase *tc = tcase_create ("BtWireExamples");
 

@@ -55,7 +55,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_song_properties (BT_TEST_ARGS)
+static void
+test_bt_song_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -70,7 +71,8 @@ static void test_bt_song_properties (BT_TEST_ARGS)
 }
 
 // test if the default constructor handles NULL
-static void test_bt_song_new_null_app (BT_TEST_ARGS)
+static void
+test_bt_song_new_null_app (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -89,7 +91,8 @@ static void test_bt_song_new_null_app (BT_TEST_ARGS)
 }
 
 // play without loading a song (means don't play anything audible)
-static void test_bt_song_play_empty (BT_TEST_ARGS)
+static void
+test_bt_song_play_empty (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -105,7 +108,8 @@ static void test_bt_song_play_empty (BT_TEST_ARGS)
 }
 
 // song is null
-static void test_bt_song_play_null (BT_TEST_ARGS)
+static void
+test_bt_song_play_null (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -125,7 +129,8 @@ static void test_bt_song_play_null (BT_TEST_ARGS)
 }
 
 // load a new song while the first plays
-static void test_bt_song_play_and_load_new (BT_TEST_ARGS)
+static void
+test_bt_song_play_and_load_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -149,7 +154,9 @@ static void test_bt_song_play_and_load_new (BT_TEST_ARGS)
   g_object_checked_unref (song);
   BT_TEST_END;
 }
- TCase * bt_song_test_case (void)
+
+TCase *
+bt_song_test_case (void)
 {
   TCase *tc = tcase_create ("BtSongTests");
 

@@ -55,12 +55,12 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_wire_properties (BT_TEST_ARGS)
+static void
+test_bt_wire_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *src =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   BtMachine *dst =
       BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0L, NULL));
@@ -77,12 +77,12 @@ static void test_bt_wire_properties (BT_TEST_ARGS)
 }
 
 /* create a new wire with NULL for song object */
-static void test_bt_wire_new_null_song (BT_TEST_ARGS)
+static void
+test_bt_wire_new_null_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *src =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   BtMachine *dst =
       BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0L, NULL));
@@ -101,12 +101,12 @@ static void test_bt_wire_new_null_song (BT_TEST_ARGS)
 }
 
 /* create a new wire with NULL for song object */
-static void test_bt_wire_new_null_machine (BT_TEST_ARGS)
+static void
+test_bt_wire_new_null_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *src =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
 
   /* act */
@@ -122,7 +122,8 @@ static void test_bt_wire_new_null_machine (BT_TEST_ARGS)
 }
 
 /* create a wire with the same machine as source and dest */
-static void test_bt_wire_same_src_and_dst (BT_TEST_ARGS)
+static void
+test_bt_wire_same_src_and_dst (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -138,7 +139,9 @@ static void test_bt_wire_same_src_and_dst (BT_TEST_ARGS)
   g_object_unref (machine);
   BT_TEST_END;
 }
- TCase * bt_wire_test_case (void)
+
+TCase *
+bt_wire_test_case (void)
 {
   TCase *tc = tcase_create ("BtWireTests");
 

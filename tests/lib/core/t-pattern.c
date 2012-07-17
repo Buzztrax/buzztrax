@@ -55,12 +55,12 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_pattern_properties (BT_TEST_ARGS)
+static void
+test_bt_pattern_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
@@ -74,7 +74,8 @@ static void test_bt_pattern_properties (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_pattern_new_null_machine (BT_TEST_ARGS)
+static void
+test_bt_pattern_new_null_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -93,12 +94,12 @@ static void test_bt_pattern_new_null_machine (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_pattern_new_null_id (BT_TEST_ARGS)
+static void
+test_bt_pattern_new_null_id (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
           "buzztard-test-mono-source", 0, NULL));
   check_init_error_trapp ("bt_cmd_pattern_", "BT_IS_STRING (self->priv->id)");
 
@@ -115,12 +116,12 @@ static void test_bt_pattern_new_null_id (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_pattern_new_null_name (BT_TEST_ARGS)
+static void
+test_bt_pattern_new_null_name (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
           "buzztard-test-mono-source", 0, NULL));
   check_init_error_trapp ("bt_cmd_pattern_", "BT_IS_STRING (self->priv->name)");
 
@@ -137,12 +138,12 @@ static void test_bt_pattern_new_null_name (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_pattern_get_group_by_null_paramgroup (BT_TEST_ARGS)
+static void
+test_bt_pattern_get_group_by_null_paramgroup (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "id",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
           "buzztard-test-mono-source", 0, NULL));
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 1L, machine);
@@ -156,7 +157,9 @@ static void test_bt_pattern_get_group_by_null_paramgroup (BT_TEST_ARGS)
   g_object_unref (machine);
   BT_TEST_END;
 }
- TCase * bt_pattern_test_case (void)
+
+TCase *
+bt_pattern_test_case (void)
 {
   TCase *tc = tcase_create ("BtPatternTests");
 

@@ -48,7 +48,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_gconf_settings_get_audiosink1 (BT_TEST_ARGS)
+static void
+test_bt_gconf_settings_get_audiosink1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -68,6 +69,7 @@ static void test_bt_gconf_settings_get_audiosink1 (BT_TEST_ARGS)
   g_object_unref (settings);
   BT_TEST_END;
 }
+
 ;
 
 

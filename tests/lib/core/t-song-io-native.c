@@ -55,7 +55,8 @@ case_teardown (void)
 //-- tests
 
 // load file with errors
-static void test_bt_song_io_native_broken_file (BT_TEST_ARGS)
+static void
+test_bt_song_io_native_broken_file (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -71,7 +72,8 @@ static void test_bt_song_io_native_broken_file (BT_TEST_ARGS)
 }
 
 // load file into non empty song
-static void test_bt_song_io_native_load_twice (BT_TEST_ARGS)
+static void
+test_bt_song_io_native_load_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -89,7 +91,9 @@ static void test_bt_song_io_native_load_twice (BT_TEST_ARGS)
   g_object_checked_unref (song_io);
   BT_TEST_END;
 }
- TCase * bt_song_io_native_test_case (void)
+
+TCase *
+bt_song_io_native_test_case (void)
 {
   TCase *tc = tcase_create ("BtSongIONativeTests");
 

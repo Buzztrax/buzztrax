@@ -48,7 +48,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_persistence_parse_enum (BT_TEST_ARGS)
+static void
+test_bt_persistence_parse_enum (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -63,14 +64,14 @@ static void test_bt_persistence_parse_enum (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_persistence_strfmt_enum (BT_TEST_ARGS)
+static void
+test_bt_persistence_strfmt_enum (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
 
   /* act */
-  const gchar *v =
-      bt_persistence_strfmt_enum (BT_TYPE_MACHINE_STATE,
+  const gchar *v = bt_persistence_strfmt_enum (BT_TYPE_MACHINE_STATE,
       BT_MACHINE_STATE_NORMAL);
 
   /* assert */
@@ -79,7 +80,9 @@ static void test_bt_persistence_strfmt_enum (BT_TEST_ARGS)
   /* cleanup */
   BT_TEST_END;
 }
- TCase * bt_persistence_example_case (void)
+
+TCase *
+bt_persistence_example_case (void)
 {
   TCase *tc = tcase_create ("BtPersistenceExamples");
 

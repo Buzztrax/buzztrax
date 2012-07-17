@@ -117,8 +117,7 @@ static void
 make_song_without_externals (void)
 {
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   BtWire *wire = bt_wire_new (song, gen, sink, NULL);
   BtPattern *pattern =
@@ -134,8 +133,7 @@ static void
 make_song_with_externals (const gchar * ext_data_uri)
 {
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   BtWire *wire = bt_wire_new (song, gen, sink, NULL);
   BtPattern *pattern =
@@ -154,7 +152,8 @@ make_song_with_externals (const gchar * ext_data_uri)
 
 //-- tests
 
-static void test_bt_song_io_native_new (BT_TEST_ARGS)
+static void
+test_bt_song_io_native_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -171,7 +170,8 @@ static void test_bt_song_io_native_new (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_io_native_formats (BT_TEST_ARGS)
+static void
+test_bt_song_io_native_formats (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -190,7 +190,8 @@ static void test_bt_song_io_native_formats (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_io_native_load (BT_TEST_ARGS)
+static void
+test_bt_song_io_native_load (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -207,7 +208,8 @@ static void test_bt_song_io_native_load (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_io_native_core_refcounts (BT_TEST_ARGS)
+static void
+test_bt_song_io_native_core_refcounts (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -226,7 +228,8 @@ static void test_bt_song_io_native_core_refcounts (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_io_native_setup_refcounts_0 (BT_TEST_ARGS)
+static void
+test_bt_song_io_native_setup_refcounts_0 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -248,7 +251,8 @@ static void test_bt_song_io_native_setup_refcounts_0 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
+static void
+test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -277,7 +281,8 @@ static void test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
+static void
+test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -308,7 +313,8 @@ static void test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
+static void
+test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -337,7 +343,8 @@ static void test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_io_write_empty_song (BT_TEST_ARGS)
+static void
+test_bt_song_io_write_empty_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -367,7 +374,8 @@ static void test_bt_song_io_write_empty_song (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_io_write_song_without_externals (BT_TEST_ARGS)
+static void
+test_bt_song_io_write_song_without_externals (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -398,7 +406,8 @@ static void test_bt_song_io_write_song_without_externals (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
+static void
+test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -438,7 +447,9 @@ static void test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
   g_free (ext_data_path);
   BT_TEST_END;
 }
- TCase * bt_song_io_native_example_case (void)
+
+TCase *
+bt_song_io_native_example_case (void)
 {
   TCase *tc = tcase_create ("BtSongIONativeExamples");
 

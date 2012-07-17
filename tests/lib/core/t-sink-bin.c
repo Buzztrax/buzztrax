@@ -54,7 +54,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_sink_bin_properties (BT_TEST_ARGS)
+static void
+test_bt_sink_bin_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -67,6 +68,7 @@ static void test_bt_sink_bin_properties (BT_TEST_ARGS)
   mark_point ();
   BT_TEST_END;
 }
+
 ;
 
 /* set bad record-file-name */

@@ -40,7 +40,8 @@ test_teardown (void)
 //-- tests
 
 // show pattern page with empty pattern and emit key-presses
-static void test_editing1 (BT_TEST_ARGS)
+static void
+test_editing1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -114,7 +115,8 @@ static void test_editing1 (BT_TEST_ARGS)
 }
 
 // show pattern page with empty pattern and emit mouse klicks
-static void test_editing2 (BT_TEST_ARGS)
+static void
+test_editing2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -189,7 +191,9 @@ static void test_editing2 (BT_TEST_ARGS)
 
   BT_TEST_END;
 }
- TCase * bt_pattern_page_test_case (void)
+
+TCase *
+bt_pattern_page_test_case (void)
 {
   TCase *tc = tcase_create ("BtPatternPageTests");
 

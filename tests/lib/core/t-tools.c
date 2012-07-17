@@ -48,14 +48,17 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_tools_element_check (BT_TEST_ARGS)
+static void
+test_bt_tools_element_check (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GList *list = bt_gst_check_elements (NULL);
   fail_unless (list == NULL, NULL);
   BT_TEST_END;
 }
- TCase * bt_tools_test_case (void)
+
+TCase *
+bt_tools_test_case (void)
 {
   TCase *tc = tcase_create ("BtToolsTests");
 

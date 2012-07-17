@@ -41,7 +41,8 @@ test_teardown (void)
 
 //-- tests
 
-static void test_create_app (BT_TEST_ARGS)
+static void
+test_create_app (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtCmdApplication *app;
@@ -55,7 +56,8 @@ static void test_create_app (BT_TEST_ARGS)
 }
 
 // postive test, this test should not fail
-static void test_play1 (BT_TEST_ARGS)
+static void
+test_play1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtCmdApplication *app;
@@ -72,7 +74,8 @@ static void test_play1 (BT_TEST_ARGS)
 }
 
 // postive test, this test should not fail
-static void test_play2 (BT_TEST_ARGS)
+static void
+test_play2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtCmdApplication *app;
@@ -90,7 +93,8 @@ static void test_play2 (BT_TEST_ARGS)
 
 // Tests to play one song after another
 // This is a positive test.
-static void test_play3 (BT_TEST_ARGS)
+static void
+test_play3 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtCmdApplication *app;
@@ -115,7 +119,8 @@ static void test_play3 (BT_TEST_ARGS)
 
 // Tests if the info method works as expected.
 // This is a positive test.
-static void test_info1 (BT_TEST_ARGS)
+static void
+test_info1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtCmdApplication *app;
@@ -138,7 +143,9 @@ static void test_info1 (BT_TEST_ARGS)
   g_object_checked_unref (app);
   BT_TEST_END;
 }
- TCase * bt_cmd_application_example_case (void)
+
+TCase *
+bt_cmd_application_example_case (void)
 {
   TCase *tc = tcase_create ("BtCmdApplicationExamples");
 

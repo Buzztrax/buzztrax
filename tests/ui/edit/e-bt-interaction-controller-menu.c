@@ -40,7 +40,8 @@ test_teardown (void)
 //-- tests
 
 // view all tabs
-static void test_create_menu (BT_TEST_ARGS)
+static void
+test_create_menu (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -58,14 +59,12 @@ static void test_create_menu (BT_TEST_ARGS)
   GST_INFO ("main_window->ref_ct=%d", G_OBJECT_REF_COUNT (main_window));
 
   // make menus
-  menu =
-      (GtkWidget *)
+  menu = (GtkWidget *)
       bt_interaction_controller_menu_new (BT_INTERACTION_CONTROLLER_RANGE_MENU);
   fail_unless (menu != NULL, NULL);
   gtk_widget_destroy (menu);
 
-  menu =
-      (GtkWidget *)
+  menu = (GtkWidget *)
       bt_interaction_controller_menu_new
       (BT_INTERACTION_CONTROLLER_TRIGGER_MENU);
   fail_unless (menu != NULL, NULL);
@@ -79,7 +78,9 @@ static void test_create_menu (BT_TEST_ARGS)
 
   BT_TEST_END;
 }
- TCase * bt_interaction_controller_menu_example_case (void)
+
+TCase *
+bt_interaction_controller_menu_example_case (void)
 {
   TCase *tc = tcase_create ("BtInteractionControllerMenuExamples");
 

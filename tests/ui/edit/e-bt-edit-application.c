@@ -49,7 +49,8 @@ static gboolean timeout(gpointer data) {
 //-- tests
 
 // create app and then unconditionally destroy window
-static void test_create (BT_TEST_ARGS)
+static void
+test_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -71,15 +72,15 @@ static void test_create (BT_TEST_ARGS)
   {
     BtCheckWidgetScreenshotRegions regions[] = {
       {BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_TYPE, NULL, NULL,
-            BT_TYPE_MAIN_MENU, GTK_POS_LEFT},
+          BT_TYPE_MAIN_MENU, GTK_POS_LEFT},
       {BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_TYPE, NULL, NULL,
-            BT_TYPE_MAIN_TOOLBAR, GTK_POS_LEFT},
+          BT_TYPE_MAIN_TOOLBAR, GTK_POS_LEFT},
       {BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_TYPE, NULL, NULL,
-            BT_TYPE_MAIN_STATUSBAR, GTK_POS_LEFT},
+          BT_TYPE_MAIN_STATUSBAR, GTK_POS_LEFT},
       {BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_LABEL, NULL, "Grid",
-            G_TYPE_INVALID, GTK_POS_RIGHT},
+          G_TYPE_INVALID, GTK_POS_RIGHT},
       {BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE, NULL, NULL, G_TYPE_INVALID,
-            0}
+          0}
     };
     check_make_widget_screenshot_with_highlight (GTK_WIDGET (main_window),
         "highlight", regions);
@@ -110,7 +111,8 @@ static void test_create (BT_TEST_ARGS)
   g_object_checked_unref (app);
   BT_TEST_END;
 }
- static gboolean
+
+static gboolean
 finish_main_loops (gpointer user_data)
 {
   // this does not work for dialogs (gtk_dialog_run)!
@@ -119,7 +121,8 @@ finish_main_loops (gpointer user_data)
 }
 
 // create app and then unconditionally destroy window
-static void test_run (BT_TEST_ARGS)
+static void
+test_run (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -150,7 +153,8 @@ static void test_run (BT_TEST_ARGS)
 }
 
 // create a new song
-static void test_new1 (BT_TEST_ARGS)
+static void
+test_new1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -191,7 +195,8 @@ static void test_new1 (BT_TEST_ARGS)
 }
 
 // load a song
-static void test_load1 (BT_TEST_ARGS)
+static void
+test_load1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -235,7 +240,8 @@ static void test_load1 (BT_TEST_ARGS)
 }
 
 // load a song, free it, load another
-static void test_load2 (BT_TEST_ARGS)
+static void
+test_load2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -290,7 +296,8 @@ static void test_load2 (BT_TEST_ARGS)
 }
 
 // load a song, free it, load another
-static void test_load3 (BT_TEST_ARGS)
+static void
+test_load3 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -353,7 +360,7 @@ static void test_load3 (BT_TEST_ARGS)
 }
 
 // load a song with a ui page disabled
-    static void
+static void
 test_load_ui_page_disabled (gint page_num)
 {
   BtEditApplication *app;
@@ -395,7 +402,8 @@ test_load_ui_page_disabled (gint page_num)
 }
 
 // load a song with machines view disabled
-static void test_load_machines_view_disabled (BT_TEST_ARGS)
+static void
+test_load_machines_view_disabled (BT_TEST_ARGS)
 {
   BT_TEST_START;
   test_load_ui_page_disabled (BT_MAIN_PAGES_MACHINES_PAGE);
@@ -403,7 +411,8 @@ static void test_load_machines_view_disabled (BT_TEST_ARGS)
 }
 
 // load a song with patterns view disabled
-static void test_load_patterns_view_disabled (BT_TEST_ARGS)
+static void
+test_load_patterns_view_disabled (BT_TEST_ARGS)
 {
   BT_TEST_START;
   test_load_ui_page_disabled (BT_MAIN_PAGES_PATTERNS_PAGE);
@@ -411,7 +420,8 @@ static void test_load_patterns_view_disabled (BT_TEST_ARGS)
 }
 
 // load a song with sequence view disabled
-static void test_load_sequence_view_disabled (BT_TEST_ARGS)
+static void
+test_load_sequence_view_disabled (BT_TEST_ARGS)
 {
   BT_TEST_START;
   test_load_ui_page_disabled (BT_MAIN_PAGES_SEQUENCE_PAGE);
@@ -419,7 +429,8 @@ static void test_load_sequence_view_disabled (BT_TEST_ARGS)
 }
 
 // load a song with info view disabled
-static void test_load_info_view_disabled (BT_TEST_ARGS)
+static void
+test_load_info_view_disabled (BT_TEST_ARGS)
 {
   BT_TEST_START;
   test_load_ui_page_disabled (BT_MAIN_PAGES_INFO_PAGE);
@@ -427,7 +438,8 @@ static void test_load_info_view_disabled (BT_TEST_ARGS)
 }
 
 // load a song with waves view disabled
-static void test_load_waves_view_disabled (BT_TEST_ARGS)
+static void
+test_load_waves_view_disabled (BT_TEST_ARGS)
 {
   BT_TEST_START;
   test_load_ui_page_disabled (BT_MAIN_PAGES_WAVES_PAGE);
@@ -435,7 +447,8 @@ static void test_load_waves_view_disabled (BT_TEST_ARGS)
 }
 
 // load a song and play it
-static void test_load_and_play1 (BT_TEST_ARGS)
+static void
+test_load_and_play1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -485,7 +498,8 @@ static void test_load_and_play1 (BT_TEST_ARGS)
 }
 
 // load a song, free it, load another song and play it
-static void test_load_and_play2 (BT_TEST_ARGS)
+static void
+test_load_and_play2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -546,7 +560,8 @@ static void test_load_and_play2 (BT_TEST_ARGS)
 }
 
 // view all tabs
-static void test_tabs1 (BT_TEST_ARGS)
+static void
+test_tabs1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -633,7 +648,8 @@ static void test_tabs1 (BT_TEST_ARGS)
 }
 
 // view all tabs
-static void test_tabs_playing (BT_TEST_ARGS)
+static void
+test_tabs_playing (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -718,7 +734,8 @@ static void test_tabs_playing (BT_TEST_ARGS)
 }
 
 // load a song and remove a machine
-static void test_machine_view_edit0 (BT_TEST_ARGS)
+static void
+test_machine_view_edit0 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -769,7 +786,8 @@ static void test_machine_view_edit0 (BT_TEST_ARGS)
 }
 
 // load a song and remove machines
-static void test_machine_view_edit1 (BT_TEST_ARGS)
+static void
+test_machine_view_edit1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -832,7 +850,8 @@ static void test_machine_view_edit1 (BT_TEST_ARGS)
 
 // load a song and remove machines
 // (same as above with order in which we remove the machines swapped)
-static void test_machine_view_edit2 (BT_TEST_ARGS)
+static void
+test_machine_view_edit2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -899,7 +918,8 @@ static void test_machine_view_edit2 (BT_TEST_ARGS)
 }
 
 // load a song and remove machines
-static void test_machine_view_edit3 (BT_TEST_ARGS)
+static void
+test_machine_view_edit3 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -988,7 +1008,9 @@ static void test_machine_view_edit3 (BT_TEST_ARGS)
   g_object_checked_unref (app);
   BT_TEST_END;
 }
- TCase * bt_edit_application_example_case (void)
+
+TCase *
+bt_edit_application_example_case (void)
 {
   TCase *tc = tcase_create ("BtEditApplicationExamples");
 

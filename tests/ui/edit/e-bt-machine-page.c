@@ -40,7 +40,8 @@ test_teardown (void)
 //-- tests
 
 // view all tabs
-static void test_machine_ref (BT_TEST_ARGS)
+static void
+test_machine_ref (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -118,7 +119,9 @@ static void test_machine_ref (BT_TEST_ARGS)
 
   BT_TEST_END;
 }
- TCase * bt_machine_page_example_case (void)
+
+TCase *
+bt_machine_page_example_case (void)
 {
   TCase *tc = tcase_create ("BtMachinePageExamples");
 

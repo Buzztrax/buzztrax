@@ -100,7 +100,8 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
 //-- tests
 
 // test if the default constructor works as expected
-static void test_bt_song_obj1 (BT_TEST_ARGS)
+static void
+test_bt_song_obj1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -119,7 +120,8 @@ static void test_bt_song_obj1 (BT_TEST_ARGS)
 
 // test, if a newly created song contains empty setup, sequence, song-info and
 // wavetable
-static void test_bt_song_obj2 (BT_TEST_ARGS)
+static void
+test_bt_song_obj2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -155,7 +157,8 @@ static void test_bt_song_obj2 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_song_master (BT_TEST_ARGS)
+static void
+test_bt_song_master (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -170,7 +173,8 @@ static void test_bt_song_master (BT_TEST_ARGS)
 }
 
 // test if the song play routine works without failure
-static void test_bt_song_play_single (BT_TEST_ARGS)
+static void
+test_bt_song_play_single (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -199,7 +203,8 @@ static void test_bt_song_play_single (BT_TEST_ARGS)
 }
 
 // play, wait a little, stop, play again
-static void test_bt_song_play_twice (BT_TEST_ARGS)
+static void
+test_bt_song_play_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -223,7 +228,8 @@ static void test_bt_song_play_twice (BT_TEST_ARGS)
 }
 
 // load a new song, play, change audiosink to fakesink
-static void test_bt_song_play_and_change_sink (BT_TEST_ARGS)
+static void
+test_bt_song_play_and_change_sink (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -246,7 +252,8 @@ static void test_bt_song_play_and_change_sink (BT_TEST_ARGS)
 }
 
 // change audiosink to NULL, load and play a song
-static void test_bt_song_play_fallback_sink (BT_TEST_ARGS)
+static void
+test_bt_song_play_fallback_sink (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -264,7 +271,8 @@ static void test_bt_song_play_fallback_sink (BT_TEST_ARGS)
 }
 
 // test the idle looper
-static void test_bt_song_idle1 (BT_TEST_ARGS)
+static void
+test_bt_song_idle1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -284,7 +292,8 @@ static void test_bt_song_idle1 (BT_TEST_ARGS)
 }
 
 // test the idle looper and playing transition
-static void test_bt_song_idle2 (BT_TEST_ARGS)
+static void
+test_bt_song_idle2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -321,7 +330,8 @@ static void test_bt_song_idle2 (BT_TEST_ARGS)
  * check if we can connect two sine machines to one sink. Also try to play after
  * connecting the machines.
  */
-static void test_bt_song_play_two_sources (BT_TEST_ARGS)
+static void
+test_bt_song_play_two_sources (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -376,7 +386,8 @@ static void test_bt_song_play_two_sources (BT_TEST_ARGS)
  * check if we can connect two sine machines to one effect and this to the
  * sink. Also try to start play after connecting the machines.
  */
-static void test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
+static void
+test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -435,7 +446,8 @@ static void test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
  * check if we can connect two sine machines to one sink, then play() and
  * stop(). After stopping remove one machine and play again.
  */
-static void test_bt_song_play_change_replay (BT_TEST_ARGS)
+static void
+test_bt_song_play_change_replay (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -507,7 +519,8 @@ static void test_bt_song_play_change_replay (BT_TEST_ARGS)
 /*
 * check if we can connect a src machine to a sink while playing
 */
-static void test_bt_song_dynamic_add_src (BT_TEST_ARGS)
+static void
+test_bt_song_dynamic_add_src (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -562,7 +575,8 @@ static void test_bt_song_dynamic_add_src (BT_TEST_ARGS)
 /*
 * check if we can disconnect a src machine from a sink while playing.
 */
-static void test_bt_song_dynamic_rem_src (BT_TEST_ARGS)
+static void
+test_bt_song_dynamic_rem_src (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -624,7 +638,8 @@ static void test_bt_song_dynamic_rem_src (BT_TEST_ARGS)
 /*
  * check if we can connect a processor machine to a src and sink while playing
  */
-static void test_bt_song_dynamic_add_proc (BT_TEST_ARGS)
+static void
+test_bt_song_dynamic_add_proc (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -677,7 +692,8 @@ static void test_bt_song_dynamic_add_proc (BT_TEST_ARGS)
 /*
  * check if we can disconnect a processor machine to a src and sink while playing
  */
-static void test_bt_song_dynamic_rem_proc (BT_TEST_ARGS)
+static void
+test_bt_song_dynamic_rem_proc (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -737,7 +753,8 @@ static void test_bt_song_dynamic_rem_proc (BT_TEST_ARGS)
 }
 
 /* should we have variants, where we remove the machines instead of the wires? */
-    TCase * bt_song_example_case (void)
+TCase *
+bt_song_example_case (void)
 {
   TCase *tc = tcase_create ("BtSongExamples");
 

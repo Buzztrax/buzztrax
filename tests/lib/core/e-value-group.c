@@ -73,7 +73,8 @@ get_mono_value_group (void)
 
 //-- tests
 
-static void test_bt_value_group_default_empty (BT_TEST_ARGS)
+static void
+test_bt_value_group_default_empty (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -86,7 +87,8 @@ static void test_bt_value_group_default_empty (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_value_group_value (BT_TEST_ARGS)
+static void
+test_bt_value_group_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -102,7 +104,8 @@ static void test_bt_value_group_value (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_value_group_insert_row (BT_TEST_ARGS)
+static void
+test_bt_value_group_insert_row (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -122,7 +125,8 @@ static void test_bt_value_group_insert_row (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_value_group_delete_row (BT_TEST_ARGS)
+static void
+test_bt_value_group_delete_row (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -141,7 +145,8 @@ static void test_bt_value_group_delete_row (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_value_group_clear_column (BT_TEST_ARGS)
+static void
+test_bt_value_group_clear_column (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -160,7 +165,8 @@ static void test_bt_value_group_clear_column (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_value_group_blend_column (BT_TEST_ARGS)
+static void
+test_bt_value_group_blend_column (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -181,7 +187,8 @@ static void test_bt_value_group_blend_column (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_value_group_flip_column (BT_TEST_ARGS)
+static void
+test_bt_value_group_flip_column (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -202,7 +209,8 @@ static void test_bt_value_group_flip_column (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_value_group_randomize_column (BT_TEST_ARGS)
+static void
+test_bt_value_group_randomize_column (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -220,7 +228,9 @@ static void test_bt_value_group_randomize_column (BT_TEST_ARGS)
   /* cleanup */
   BT_TEST_END;
 }
- TCase * bt_value_group_example_case (void)
+
+TCase *
+bt_value_group_example_case (void)
 {
   TCase *tc = tcase_create ("BtValueGroupExamples");
 

@@ -55,7 +55,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_setup_new (BT_TEST_ARGS)
+static void
+test_bt_setup_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -74,15 +75,15 @@ static void test_bt_setup_new (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_setup_machine_add_id (BT_TEST_ARGS)
+static void
+test_bt_setup_machine_add_id (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
 
   /* act */
-  BtMachine *source =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0, NULL));
 
   /* assert */
@@ -95,13 +96,13 @@ static void test_bt_setup_machine_add_id (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_setup_machine_rem_id (BT_TEST_ARGS)
+static void
+test_bt_setup_machine_rem_id (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
-  BtMachine *source =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0, NULL));
 
   /* act */
@@ -117,13 +118,13 @@ static void test_bt_setup_machine_rem_id (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_setup_machine_add_list (BT_TEST_ARGS)
+static void
+test_bt_setup_machine_add_list (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
-  BtMachine *source =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0, NULL));
 
   /* act */
@@ -141,13 +142,13 @@ static void test_bt_setup_machine_add_list (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_setup_wire_add_machine_id (BT_TEST_ARGS)
+static void
+test_bt_setup_wire_add_machine_id (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
-  BtMachine *source =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
 
@@ -166,13 +167,13 @@ static void test_bt_setup_wire_add_machine_id (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_setup_wire_rem_machine_id (BT_TEST_ARGS)
+static void
+test_bt_setup_wire_rem_machine_id (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
-  BtMachine *source =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
@@ -192,13 +193,13 @@ static void test_bt_setup_wire_rem_machine_id (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_setup_wire_add_src_list (BT_TEST_ARGS)
+static void
+test_bt_setup_wire_add_src_list (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
-  BtMachine *source =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
@@ -220,13 +221,13 @@ static void test_bt_setup_wire_add_src_list (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_setup_wire_add_dst_list (BT_TEST_ARGS)
+static void
+test_bt_setup_wire_add_dst_list (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
-  BtMachine *source =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
@@ -251,13 +252,13 @@ static void test_bt_setup_wire_add_dst_list (BT_TEST_ARGS)
 /*
 * In this example you can see, how we get a source machine back by its type.
 */
-static void test_bt_setup_machine_type (BT_TEST_ARGS)
+static void
+test_bt_setup_machine_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
-  BtMachine *source =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0, NULL));
 
   /* act */
@@ -277,13 +278,13 @@ static void test_bt_setup_machine_type (BT_TEST_ARGS)
 /*
 * In this test case we check the _unique_id function.
 */
-static void test_bt_setup_unique_id1 (BT_TEST_ARGS)
+static void
+test_bt_setup_unique_id1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
-  BtMachine *source =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0, NULL));
 
   /* act */
@@ -300,7 +301,9 @@ static void test_bt_setup_unique_id1 (BT_TEST_ARGS)
   g_object_unref (setup);
   BT_TEST_END;
 }
- TCase * bt_setup_example_case (void)
+
+TCase *
+bt_setup_example_case (void)
 {
   TCase *tc = tcase_create ("BtSetupExamples");
 

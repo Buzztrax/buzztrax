@@ -79,7 +79,8 @@ make_test_song (void)
 //-- tests
 
 // test attribute handling in sink names
-static void test_bt_sink_machine_settings_name_with_parameter (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_settings_name_with_parameter (BT_TEST_ARGS)
 {
   BT_TEST_START;
 
@@ -99,6 +100,7 @@ static void test_bt_sink_machine_settings_name_with_parameter (BT_TEST_ARGS)
   g_object_unref (machine);
   BT_TEST_END;
 }
+
 ;
 
 
@@ -106,7 +108,8 @@ static void test_bt_sink_machine_settings_name_with_parameter (BT_TEST_ARGS)
  * This string should be replaced by the sink machine to "ossink" and the
  * machine should be instantiable.
  */
-static void test_bt_sink_machine_settings_name_is_launch_snippet (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_settings_name_is_launch_snippet (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -125,11 +128,13 @@ static void test_bt_sink_machine_settings_name_is_launch_snippet (BT_TEST_ARGS)
   g_object_unref (machine);
   BT_TEST_END;
 }
+
 ;
 
 
 // test attribute handling in sink names
-static void test_bt_sink_machine_settings_wrong_type (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_settings_wrong_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -146,11 +151,13 @@ static void test_bt_sink_machine_settings_wrong_type (BT_TEST_ARGS)
   g_object_unref (machine);
   BT_TEST_END;
 }
+
 ;
 
 
 // test attribute handling in sink names
-static void test_bt_sink_machine_settings_wrong_parameters (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_settings_wrong_parameters (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -168,11 +175,13 @@ static void test_bt_sink_machine_settings_wrong_parameters (BT_TEST_ARGS)
   g_object_unref (machine);
   BT_TEST_END;
 }
+
 ;
 
 
 // test attribute handling in sink names
-static void test_bt_sink_machine_settings_inexistent_type (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_settings_inexistent_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -190,11 +199,13 @@ static void test_bt_sink_machine_settings_inexistent_type (BT_TEST_ARGS)
   g_object_unref (machine);
   BT_TEST_END;
 }
+
 ;
 
 
 // test if the song play routine works with fakesink
-static void test_bt_sink_machine_play_fakesink (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_play_fakesink (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -211,7 +222,8 @@ static void test_bt_sink_machine_play_fakesink (BT_TEST_ARGS)
 }
 
 // test if the song play routine handles sink with wrong parameters
-static void test_bt_sink_machine_play_wrong_parameters (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_play_wrong_parameters (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -228,7 +240,8 @@ static void test_bt_sink_machine_play_wrong_parameters (BT_TEST_ARGS)
 }
 
 // test if the song play routine handles sink with wrong parameters
-static void test_bt_sink_machine_play_inexistent_type (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_play_inexistent_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -244,7 +257,9 @@ static void test_bt_sink_machine_play_inexistent_type (BT_TEST_ARGS)
   /* cleanup */
   BT_TEST_END;
 }
- TCase * bt_sink_machine_test_case (void)
+
+TCase *
+bt_sink_machine_test_case (void)
 {
   TCase *tc = tcase_create ("BtSinkMachineTests");
 

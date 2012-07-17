@@ -55,15 +55,15 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_machine_obj1 (BT_TEST_ARGS)
+static void
+test_bt_machine_obj1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
 
   /* act */
   GError *err = NULL;
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, &err));
 
   /* assert */
@@ -79,7 +79,8 @@ static void test_bt_machine_obj1 (BT_TEST_ARGS)
 /*
  * activate the input level meter in an unconnected machine
  */
-static void test_bt_machine_enable_input_level1 (BT_TEST_ARGS)
+static void
+test_bt_machine_enable_input_level1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -100,7 +101,8 @@ static void test_bt_machine_enable_input_level1 (BT_TEST_ARGS)
 /*
  * activate the input level meter in a connected machine
  */
-static void test_bt_machine_enable_input_level2 (BT_TEST_ARGS)
+static void
+test_bt_machine_enable_input_level2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -126,7 +128,8 @@ static void test_bt_machine_enable_input_level2 (BT_TEST_ARGS)
 /*
  * activate the input gain control in an unconnected machine
  */
-static void test_bt_machine_enable_input_gain1 (BT_TEST_ARGS)
+static void
+test_bt_machine_enable_input_gain1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -147,7 +150,8 @@ static void test_bt_machine_enable_input_gain1 (BT_TEST_ARGS)
 /*
  * activate the output gain control in an unconnected machine
  */
-static void test_bt_machine_enable_output_gain1 (BT_TEST_ARGS)
+static void
+test_bt_machine_enable_output_gain1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -168,12 +172,12 @@ static void test_bt_machine_enable_output_gain1 (BT_TEST_ARGS)
 /*
  * add pattern
  */
-static void test_bt_machine_add_pattern (BT_TEST_ARGS)
+static void
+test_bt_machine_add_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-poly-source", 1L, NULL));
 
   /* act */
@@ -189,12 +193,12 @@ static void test_bt_machine_add_pattern (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_machine_pattern_names (BT_TEST_ARGS)
+static void
+test_bt_machine_pattern_names (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-poly-source", 1L, NULL));
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
@@ -213,14 +217,14 @@ static void test_bt_machine_pattern_names (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_machine_check_voices (BT_TEST_ARGS)
+static void
+test_bt_machine_check_voices (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
 
   /* act */
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-poly-source", 2L, NULL));
 
   /* assert */
@@ -238,12 +242,12 @@ static void test_bt_machine_check_voices (BT_TEST_ARGS)
 /*
  * change voices and verify that voices in machine and patetrn are in sync
  */
-static void test_bt_machine_change_voices (BT_TEST_ARGS)
+static void
+test_bt_machine_change_voices (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-poly-source", 1L, NULL));
   BtPattern *p1 =
       bt_pattern_new (song, "pattern-id1", "pattern-name1", 8L, machine);
@@ -264,7 +268,8 @@ static void test_bt_machine_change_voices (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_machine_state_mute_no_sideeffects (BT_TEST_ARGS)
+static void
+test_bt_machine_state_mute_no_sideeffects (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -294,7 +299,8 @@ static void test_bt_machine_state_mute_no_sideeffects (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_machine_state_solo_unmutes_others (BT_TEST_ARGS)
+static void
+test_bt_machine_state_solo_unmutes_others (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -324,7 +330,9 @@ static void test_bt_machine_state_solo_unmutes_others (BT_TEST_ARGS)
   g_object_unref (src1);
   BT_TEST_END;
 }
- TCase * bt_machine_example_case (void)
+
+TCase *
+bt_machine_example_case (void)
 {
   TCase *tc = tcase_create ("BtMachineExamples");
 

@@ -55,7 +55,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_source_machine_new (BT_TEST_ARGS)
+static void
+test_bt_source_machine_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -74,7 +75,8 @@ static void test_bt_source_machine_new (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_source_machine_def_patterns (BT_TEST_ARGS)
+static void
+test_bt_source_machine_def_patterns (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -95,7 +97,8 @@ static void test_bt_source_machine_def_patterns (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_source_machine_pattern (BT_TEST_ARGS)
+static void
+test_bt_source_machine_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -103,8 +106,7 @@ static void test_bt_source_machine_pattern (BT_TEST_ARGS)
       bt_source_machine_new (song, "gen", "buzztard-test-mono-source", 0, NULL);
 
   /* act */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
+  BtPattern *pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
       BT_MACHINE (machine));
 
   /* assert */
@@ -116,7 +118,8 @@ static void test_bt_source_machine_pattern (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_source_machine_pattern_by_id (BT_TEST_ARGS)
+static void
+test_bt_source_machine_pattern_by_id (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -124,8 +127,7 @@ static void test_bt_source_machine_pattern_by_id (BT_TEST_ARGS)
       bt_source_machine_new (song, "gen", "buzztard-test-mono-source", 0, NULL);
 
   /* act */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
+  BtPattern *pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
       BT_MACHINE (machine));
 
   /* assert */
@@ -138,14 +140,14 @@ static void test_bt_source_machine_pattern_by_id (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_source_machine_pattern_by_list (BT_TEST_ARGS)
+static void
+test_bt_source_machine_pattern_by_list (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSourceMachine *machine =
       bt_source_machine_new (song, "gen", "buzztard-test-mono-source", 0, NULL);
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
+  BtPattern *pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
       BT_MACHINE (machine));
   GList *list = (GList *) check_gobject_get_ptr_property (machine, "patterns");
 
@@ -168,14 +170,14 @@ static void test_bt_source_machine_pattern_by_list (BT_TEST_ARGS)
 * newly created pattern to it. The we change the number of voices in the machine
 * and check back the voices in the pattern.
 */
-static void test_bt_source_machine_change_voices (BT_TEST_ARGS)
+static void
+test_bt_source_machine_change_voices (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSourceMachine *machine =
       bt_source_machine_new (song, "gen", "buzztard-test-poly-source", 1, NULL);
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
+  BtPattern *pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
       BT_MACHINE (machine));
 
   /* act */
@@ -189,7 +191,9 @@ static void test_bt_source_machine_change_voices (BT_TEST_ARGS)
   g_object_unref (machine);
   BT_TEST_END;
 }
- TCase * bt_source_machine_example_case (void)
+
+TCase *
+bt_source_machine_example_case (void)
 {
   TCase *tc = tcase_create ("BtSourceMachineExamples");
 

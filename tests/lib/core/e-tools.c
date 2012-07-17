@@ -47,7 +47,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_tools_element_check0 (BT_TEST_ARGS)
+static void
+test_bt_tools_element_check0 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -63,7 +64,8 @@ static void test_bt_tools_element_check0 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_tools_element_check1 (BT_TEST_ARGS)
+static void
+test_bt_tools_element_check1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -79,7 +81,9 @@ static void test_bt_tools_element_check1 (BT_TEST_ARGS)
   fail_unless (g_list_next (g_list_next (missing)) == NULL, NULL);
   BT_TEST_END;
 }
- TCase * bt_tools_example_case (void)
+
+TCase *
+bt_tools_example_case (void)
 {
   TCase *tc = tcase_create ("BtToolsExamples");
 

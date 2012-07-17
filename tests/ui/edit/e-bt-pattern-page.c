@@ -40,7 +40,8 @@ test_teardown (void)
 //-- tests
 
 // test some key presses
-static void test_editing (BT_TEST_ARGS)
+static void
+test_editing (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -139,7 +140,8 @@ static void test_editing (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_pattern_voices (BT_TEST_ARGS)
+static void
+test_pattern_voices (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -216,7 +218,9 @@ static void test_pattern_voices (BT_TEST_ARGS)
 
   BT_TEST_END;
 }
- TCase * bt_pattern_page_example_case (void)
+
+TCase *
+bt_pattern_page_example_case (void)
 {
   TCase *tc = tcase_create ("BtPatternPageExamples");
 

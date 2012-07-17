@@ -55,7 +55,8 @@ case_teardown (void)
 //-- tests
 
 /* apply generic property tests to song-info */
-static void test_bt_song_info_properties (BT_TEST_ARGS)
+static void
+test_bt_song_info_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -69,7 +70,8 @@ static void test_bt_song_info_properties (BT_TEST_ARGS)
 }
 
 /* create a new song-info with a NULL song object */
-static void test_bt_song_info_null_song (BT_TEST_ARGS)
+static void
+test_bt_song_info_null_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* act */
@@ -82,7 +84,9 @@ static void test_bt_song_info_null_song (BT_TEST_ARGS)
   g_object_unref (song_info);
   BT_TEST_END;
 }
- TCase * bt_song_info_test_case (void)
+
+TCase *
+bt_song_info_test_case (void)
 {
   TCase *tc = tcase_create ("BtSongInfoTests");
 

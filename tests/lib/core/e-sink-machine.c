@@ -79,7 +79,8 @@ get_sink_element (GstBin * bin)
 
 //-- tests
 
-static void test_bt_sink_machine_new (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -98,7 +99,8 @@ static void test_bt_sink_machine_new (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_sink_machine_def_patterns (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_def_patterns (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -119,7 +121,8 @@ static void test_bt_sink_machine_def_patterns (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_sink_machine_pattern (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -141,7 +144,8 @@ static void test_bt_sink_machine_pattern (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_sink_machine_pattern_by_id (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_pattern_by_id (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -163,7 +167,8 @@ static void test_bt_sink_machine_pattern_by_id (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_sink_machine_pattern_by_list (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_pattern_by_list (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -188,7 +193,8 @@ static void test_bt_sink_machine_pattern_by_list (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_sink_machine_default (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_default (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -207,7 +213,8 @@ static void test_bt_sink_machine_default (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_sink_machine_fallback (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_fallback (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -229,7 +236,8 @@ static void test_bt_sink_machine_fallback (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void test_bt_sink_machine_actual_sink (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_actual_sink (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -251,7 +259,8 @@ static void test_bt_sink_machine_actual_sink (BT_TEST_ARGS)
 }
 
 /* the parameter index _i is 2bits for latency, 2bits for bpm, 2 bits for tpb */
-static void test_bt_sink_machine_latency (BT_TEST_ARGS)
+static void
+test_bt_sink_machine_latency (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -297,7 +306,9 @@ static void test_bt_sink_machine_latency (BT_TEST_ARGS)
   g_object_unref (song_info);
   BT_TEST_END;
 }
- TCase * bt_sink_machine_example_case (void)
+
+TCase *
+bt_sink_machine_example_case (void)
 {
   TCase *tc = tcase_create ("BtSinkMachineExamples");
 

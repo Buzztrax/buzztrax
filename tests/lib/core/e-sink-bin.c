@@ -252,7 +252,8 @@ run_main_loop_until_eos (void)
 
 //-- tests
 
-static void test_bt_sink_bin_new (BT_TEST_ARGS)
+static void
+test_bt_sink_bin_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -270,7 +271,8 @@ static void test_bt_sink_bin_new (BT_TEST_ARGS)
 
 /* test playback (we test this elsewhere too) */
 /* test recording (loop test over BtSinkBinRecordFormat */
-static void test_bt_sink_bin_record (BT_TEST_ARGS)
+static void
+test_bt_sink_bin_record (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -302,7 +304,8 @@ static void test_bt_sink_bin_record (BT_TEST_ARGS)
 }
 
 /* test playback + recording, same as above */
-static void test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
+static void
+test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -334,7 +337,8 @@ static void test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
 }
 
 /* test master volume, using appsink? */
-static void test_bt_sink_bin_master_volume (BT_TEST_ARGS)
+static void
+test_bt_sink_bin_master_volume (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -364,7 +368,8 @@ static void test_bt_sink_bin_master_volume (BT_TEST_ARGS)
 }
 
 /* insert analyzers */
-static void test_bt_sink_bin_analyzers (BT_TEST_ARGS)
+static void
+test_bt_sink_bin_analyzers (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -393,7 +398,9 @@ static void test_bt_sink_bin_analyzers (BT_TEST_ARGS)
   gst_object_unref (sink_bin);
   BT_TEST_END;
 }
- TCase * bt_sink_bin_example_case (void)
+
+TCase *
+bt_sink_bin_example_case (void)
 {
   TCase *tc = tcase_create ("BtSinkBinExamples");
 

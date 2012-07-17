@@ -55,7 +55,8 @@ case_teardown (void)
 
 //-- tests
 
-static void test_bt_setup_properties (BT_TEST_ARGS)
+static void
+test_bt_setup_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -69,7 +70,8 @@ static void test_bt_setup_properties (BT_TEST_ARGS)
 }
 
 /* create a new setup with NULL for song object */
-static void test_bt_setup_new_null_song (BT_TEST_ARGS)
+static void
+test_bt_setup_new_null_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* act */
@@ -84,14 +86,14 @@ static void test_bt_setup_new_null_song (BT_TEST_ARGS)
 }
 
 /* add the same machine twice to the setup */
-static void test_bt_setup_add_machine_twice (BT_TEST_ARGS)
+static void
+test_bt_setup_add_machine_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0, NULL));
 
   /* act & assert */
@@ -104,14 +106,14 @@ static void test_bt_setup_add_machine_twice (BT_TEST_ARGS)
 }
 
 /* add the same wire twice */
-static void test_bt_setup_add_wire_twice (BT_TEST_ARGS)
+static void
+test_bt_setup_add_wire_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *source =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
@@ -128,7 +130,8 @@ static void test_bt_setup_add_wire_twice (BT_TEST_ARGS)
 }
 
 /* call bt_setup_add_machine with NULL object for self */
-static void test_bt_setup_obj4 (BT_TEST_ARGS)
+static void
+test_bt_setup_obj4 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -145,7 +148,8 @@ static void test_bt_setup_obj4 (BT_TEST_ARGS)
 }
 
 /* call bt_setup_add_machine with NULL object for machine */
-static void test_bt_setup_obj5 (BT_TEST_ARGS)
+static void
+test_bt_setup_obj5 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -165,7 +169,8 @@ static void test_bt_setup_obj5 (BT_TEST_ARGS)
 }
 
 /* call bt_setup_add_wire with NULL object for self */
-static void test_bt_setup_obj6 (BT_TEST_ARGS)
+static void
+test_bt_setup_obj6 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -182,7 +187,8 @@ static void test_bt_setup_obj6 (BT_TEST_ARGS)
 }
 
 /* call bt_setup_add_wire with NULL object for wire */
-static void test_bt_setup_obj7 (BT_TEST_ARGS)
+static void
+test_bt_setup_obj7 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -202,7 +208,8 @@ static void test_bt_setup_obj7 (BT_TEST_ARGS)
 }
 
 /* call bt_setup_get_machine_by_id with NULL object for self */
-static void test_bt_setup_obj8 (BT_TEST_ARGS)
+static void
+test_bt_setup_obj8 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -219,7 +226,8 @@ static void test_bt_setup_obj8 (BT_TEST_ARGS)
 }
 
 /* call bt_setup_get_machine_by_id with NULL object for id */
-static void test_bt_setup_obj9 (BT_TEST_ARGS)
+static void
+test_bt_setup_obj9 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -241,7 +249,8 @@ static void test_bt_setup_obj9 (BT_TEST_ARGS)
 /*
 * call bt_setup_get_wire_by_src_machine with NULL for setup parameter
 */
-static void test_bt_setup_get_wire_by_src_machine1 (BT_TEST_ARGS)
+static void
+test_bt_setup_get_wire_by_src_machine1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -259,7 +268,8 @@ static void test_bt_setup_get_wire_by_src_machine1 (BT_TEST_ARGS)
 }
 
 /* call bt_setup_get_wire_by_src_machine with NULL for machine parameter */
-static void test_bt_setup_get_wire_by_src_machine2 (BT_TEST_ARGS)
+static void
+test_bt_setup_get_wire_by_src_machine2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -280,7 +290,8 @@ static void test_bt_setup_get_wire_by_src_machine2 (BT_TEST_ARGS)
 }
 
 /* get wires by source machine with NULL for setup */
-static void test_bt_setup_get_wires_by_src_machine1 (BT_TEST_ARGS)
+static void
+test_bt_setup_get_wires_by_src_machine1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -305,7 +316,8 @@ static void test_bt_setup_get_wires_by_src_machine1 (BT_TEST_ARGS)
 }
 
 /* get wires by source machine with NULL for machine */
-static void test_bt_setup_get_wires_by_src_machine2 (BT_TEST_ARGS)
+static void
+test_bt_setup_get_wires_by_src_machine2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -324,14 +336,14 @@ static void test_bt_setup_get_wires_by_src_machine2 (BT_TEST_ARGS)
 }
 
 /* get wires by source machine with a not added machine */
-static void test_bt_setup_get_wires_by_src_machine3 (BT_TEST_ARGS)
+static void
+test_bt_setup_get_wires_by_src_machine3 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *machine =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0L, NULL));
   bt_setup_remove_machine (setup, machine);
 
@@ -345,7 +357,8 @@ static void test_bt_setup_get_wires_by_src_machine3 (BT_TEST_ARGS)
 }
 
 /* call bt_setup_get_wire_by_dst_machine with NULL for setup parameter */
-static void test_bt_setup_get_wire_by_dst_machine1 (BT_TEST_ARGS)
+static void
+test_bt_setup_get_wire_by_dst_machine1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -366,7 +379,8 @@ static void test_bt_setup_get_wire_by_dst_machine1 (BT_TEST_ARGS)
 }
 
 /* call bt_setup_get_wire_by_dst_machine with NULL for machine parameter */
-static void test_bt_setup_get_wire_by_dst_machine2 (BT_TEST_ARGS)
+static void
+test_bt_setup_get_wire_by_dst_machine2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -387,7 +401,8 @@ static void test_bt_setup_get_wire_by_dst_machine2 (BT_TEST_ARGS)
 }
 
 /* get wires by destination machine with NULL for setup */
-static void test_bt_setup_get_wires_by_dst_machine1 (BT_TEST_ARGS)
+static void
+test_bt_setup_get_wires_by_dst_machine1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -410,7 +425,8 @@ static void test_bt_setup_get_wires_by_dst_machine1 (BT_TEST_ARGS)
 }
 
 /* get wires by sink machine with NULL for machine */
-static void test_bt_setup_get_wires_by_dst_machine2 (BT_TEST_ARGS)
+static void
+test_bt_setup_get_wires_by_dst_machine2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -431,7 +447,8 @@ static void test_bt_setup_get_wires_by_dst_machine2 (BT_TEST_ARGS)
 }
 
 /* get wires by sink machine with a not added machine */
-static void test_bt_setup_get_wires_by_dst_machine3 (BT_TEST_ARGS)
+static void
+test_bt_setup_get_wires_by_dst_machine3 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -450,7 +467,8 @@ static void test_bt_setup_get_wires_by_dst_machine3 (BT_TEST_ARGS)
 }
 
 /* remove a machine from setup with NULL pointer for setup */
-static void test_bt_setup_remove_machine_null_setup (BT_TEST_ARGS)
+static void
+test_bt_setup_remove_machine_null_setup (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -467,7 +485,8 @@ static void test_bt_setup_remove_machine_null_setup (BT_TEST_ARGS)
 }
 
 /* remove a wire from setup with NULL pointer for setup */
-static void test_bt_setup_remove_wire_null_setup (BT_TEST_ARGS)
+static void
+test_bt_setup_remove_wire_null_setup (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -484,7 +503,8 @@ static void test_bt_setup_remove_wire_null_setup (BT_TEST_ARGS)
 }
 
 /* remove a machine from setup with NULL pointer for machine */
-static void test_bt_setup_remove_null_machine (BT_TEST_ARGS)
+static void
+test_bt_setup_remove_null_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -504,7 +524,8 @@ static void test_bt_setup_remove_null_machine (BT_TEST_ARGS)
 }
 
 /* remove a wire from setup with NULL pointer for wire */
-static void test_bt_setup_remove_null_wire (BT_TEST_ARGS)
+static void
+test_bt_setup_remove_null_wire (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -524,14 +545,14 @@ static void test_bt_setup_remove_null_wire (BT_TEST_ARGS)
 }
 
 /* remove a machine from setup with a machine witch is never added */
-static void test_bt_setup_remove_machine_twice (BT_TEST_ARGS)
+static void
+test_bt_setup_remove_machine_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0L, NULL));
   bt_setup_remove_machine (setup, gen);
   check_init_error_trapp ("bt_setup_remove_machine",
@@ -550,14 +571,14 @@ static void test_bt_setup_remove_machine_twice (BT_TEST_ARGS)
 }
 
 /* remove a wire from setup with a wire which is not added */
-static void test_bt_setup_remove_wire_twice (BT_TEST_ARGS)
+static void
+test_bt_setup_remove_wire_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
-  BtMachine *gen =
-      BT_MACHINE (bt_source_machine_new (song, "src",
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0L, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "dst", NULL));
   BtWire *wire = bt_wire_new (song, gen, sink, NULL);
@@ -580,7 +601,8 @@ static void test_bt_setup_remove_wire_twice (BT_TEST_ARGS)
 }
 
 /* add wire(src,dst) and wire(dst,src) to setup. This should fail (cycle). */
-static void test_bt_setup_wire_cycle1 (BT_TEST_ARGS)
+static void
+test_bt_setup_wire_cycle1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -610,7 +632,8 @@ static void test_bt_setup_wire_cycle1 (BT_TEST_ARGS)
 }
 
 // test graph cycles
-static void test_bt_setup_wire_cycle2 (BT_TEST_ARGS)
+static void
+test_bt_setup_wire_cycle2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -646,7 +669,9 @@ static void test_bt_setup_wire_cycle2 (BT_TEST_ARGS)
   g_object_unref (setup);
   BT_TEST_END;
 }
- TCase * bt_setup_test_case (void)
+
+TCase *
+bt_setup_test_case (void)
 {
   TCase *tc = tcase_create ("BtSetupTests");
 

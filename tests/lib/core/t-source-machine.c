@@ -56,7 +56,8 @@ case_teardown (void)
 //-- tests
 
 /* create a machine with not exising plugin name */
-static void test_bt_source_machine_wrong_name (BT_TEST_ARGS)
+static void
+test_bt_source_machine_wrong_name (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -75,7 +76,8 @@ static void test_bt_source_machine_wrong_name (BT_TEST_ARGS)
 }
 
 /* create a machine which is a sink machine and not a source machine */
-static void test_bt_source_machine_wrong_type (BT_TEST_ARGS)
+static void
+test_bt_source_machine_wrong_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -92,7 +94,9 @@ static void test_bt_source_machine_wrong_type (BT_TEST_ARGS)
   /* cleanup */
   BT_TEST_END;
 }
- TCase * bt_source_machine_test_case (void)
+
+TCase *
+bt_source_machine_test_case (void)
 {
   TCase *tc = tcase_create ("BtSourceMachineTests");
 

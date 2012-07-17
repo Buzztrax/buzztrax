@@ -40,7 +40,8 @@ test_teardown (void)
 //-- tests
 
 // load a song and show machine properties dialog
-static void test_machine_preferences_dialog (BT_TEST_ARGS)
+static void
+test_machine_preferences_dialog (BT_TEST_ARGS)
 {
   BT_TEST_START;
   BtEditApplication *app;
@@ -94,7 +95,9 @@ static void test_machine_preferences_dialog (BT_TEST_ARGS)
 
   BT_TEST_END;
 }
- TCase * bt_machine_preferences_dialog_example_case (void)
+
+TCase *
+bt_machine_preferences_dialog_example_case (void)
 {
   TCase *tc = tcase_create ("BtMachinePreferencesDialogExamples");
 
