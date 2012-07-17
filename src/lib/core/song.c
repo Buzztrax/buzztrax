@@ -516,6 +516,8 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
       case GST_STATE_CHANGE_READY_TO_PAUSED:
         // we're prepared to play
         self->priv->is_preparing = FALSE;
+        // ensure that sources set their durations
+        g_object_notify (G_OBJECT (self->priv->sequence), "length");
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
         if (!self->priv->is_playing) {
