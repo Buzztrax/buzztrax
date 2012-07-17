@@ -729,6 +729,83 @@ static void test_bt_sequence_validate_loop (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void test_bt_sequence_duration (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  g_object_set (sequence, "length", 16L, NULL);
+  GstClockTime tick_time = bt_sequence_get_bar_time (sequence);
+  BtMachine *gen =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtWire *wire = bt_wire_new (song, gen, sink, NULL);
+  GstElement *sink_bin =
+      GST_ELEMENT (check_gobject_get_object_property (sink, "machine"));
+
+  /* act */
+  GstFormat fmt = GST_FORMAT_TIME;
+  gint64 duration;
+  gboolean res = gst_element_query_duration (sink_bin, &fmt, &duration);
+
+  /* assert */
+  fail_unless (res, NULL);
+  ck_assert_int64_ne (duration, -1);
+  ck_assert_uint64_eq (duration, 16L * tick_time);
+
+  /* cleanup */
+  gst_object_unref (sink_bin);
+  g_object_unref (wire);
+  g_object_unref (gen);
+  g_object_try_unref (sink);
+  g_object_try_unref (sequence);
+  BT_TEST_END;
+}
+
+static void test_bt_sequence_duration_play (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  g_object_set (sequence, "length", 16L, NULL);
+  GstClockTime tick_time = bt_sequence_get_bar_time (sequence);
+  BtMachine *gen =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtWire *wire = bt_wire_new (song, gen, sink, NULL);
+  GstElement *element =
+      (GstElement *) check_gobject_get_object_property (gen, "machine");
+  g_object_set (element, "wave", /* silence */ 4, NULL);
+  GstElement *sink_bin =
+      GST_ELEMENT (check_gobject_get_object_property (sink, "machine"));
+  bt_song_play (song);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+
+  /* act */
+  GstFormat fmt = GST_FORMAT_TIME;
+  gint64 duration;
+  gboolean res = gst_element_query_duration (sink_bin, &fmt, &duration);
+
+  /* assert */
+  fail_unless (res, NULL);
+  ck_assert_int64_ne (duration, -1);
+  ck_assert_uint64_eq (duration, 16L * tick_time);
+
+  /* cleanup */
+  bt_song_stop (song);
+  gst_object_unref (element);
+  gst_object_unref (sink_bin);
+  g_object_unref (wire);
+  g_object_unref (gen);
+  g_object_try_unref (sink);
+  g_object_try_unref (sequence);
+  BT_TEST_END;
+}
+
 
 TCase * bt_sequence_example_case (void)
 {
@@ -755,6 +832,8 @@ TCase * bt_sequence_example_case (void)
   tcase_add_test (tc, test_bt_sequence_combine_two_tracks);
   tcase_add_test (tc, test_bt_sequence_ticks);
   tcase_add_test (tc, test_bt_sequence_validate_loop);
+  tcase_add_test (tc, test_bt_sequence_duration);
+  tcase_add_test (tc, test_bt_sequence_duration_play);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
