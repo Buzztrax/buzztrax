@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_cmd_pattern_obj_mono1)
+static void test_bt_cmd_pattern_obj_mono1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -72,11 +73,12 @@ BT_START_TEST (test_bt_cmd_pattern_obj_mono1)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_cmd_pattern_obj_poly1)
+static void test_bt_cmd_pattern_obj_poly1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -92,9 +94,9 @@ BT_START_TEST (test_bt_cmd_pattern_obj_poly1)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_cmd_pattern_example_case (void)
+ TCase * bt_cmd_pattern_example_case (void)
 {
   TCase *tc = tcase_create ("BtCmdPatternExamples");
 

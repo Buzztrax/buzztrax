@@ -56,8 +56,9 @@ case_teardown (void)
 //-- tests
 
 /* create a machine with not exising plugin name */
-BT_START_TEST (test_bt_processor_machine_wrong_name)
+static void test_bt_processor_machine_wrong_name (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -70,12 +71,13 @@ BT_START_TEST (test_bt_processor_machine_wrong_name)
   fail_unless (err != NULL, NULL);
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* create a machine which is a sink machine and not a processor machine */
-BT_START_TEST (test_bt_processor_machine_wrong_type)
+static void test_bt_processor_machine_wrong_type (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /*act */
@@ -88,9 +90,9 @@ BT_START_TEST (test_bt_processor_machine_wrong_type)
   fail_unless (err != NULL, NULL);
 
   /* cleanup */
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_processor_machine_test_case (void)
+ TCase * bt_processor_machine_test_case (void)
 {
   TCase *tc = tcase_create ("BtProcessorMachineTests");
 

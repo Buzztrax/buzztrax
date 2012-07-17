@@ -56,8 +56,9 @@ case_teardown (void)
 //-- tests
 
 /* apply generic property tests to sequence */
-BT_START_TEST (test_bt_sequence_properties)
+static void test_bt_sequence_properties (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   GObject *sequence = check_gobject_get_object_property (song, "sequence");
 
@@ -65,12 +66,13 @@ BT_START_TEST (test_bt_sequence_properties)
   fail_unless (check_gobject_properties (sequence), NULL);
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* create a new sequence with NULL for song object */
-BT_START_TEST (test_bt_sequence_new_null_song)
+static void test_bt_sequence_new_null_song (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* act */
   BtSequence *sequence = bt_sequence_new (NULL);
 
@@ -79,12 +81,13 @@ BT_START_TEST (test_bt_sequence_new_null_song)
 
   /* cleanup */
   g_object_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* try to add a NULL machine to the sequence */
-BT_START_TEST (test_bt_sequence_add_track1)
+static void test_bt_sequence_add_track1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
@@ -98,12 +101,13 @@ BT_START_TEST (test_bt_sequence_add_track1)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* try to add a new machine for the sequence with NULL for the sequence parameter */
-BT_START_TEST (test_bt_sequence_add_track2)
+static void test_bt_sequence_add_track2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -118,12 +122,13 @@ BT_START_TEST (test_bt_sequence_add_track2)
 
   /* cleanup */
   g_object_try_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* try to remove a NULL machine from the sequence */
-BT_START_TEST (test_bt_sequence_rem_track1)
+static void test_bt_sequence_rem_track1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
@@ -137,12 +142,13 @@ BT_START_TEST (test_bt_sequence_rem_track1)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* try to remove a machine from the sequence that has never added */
-BT_START_TEST (test_bt_sequence_rem_track2)
+static void test_bt_sequence_rem_track2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
@@ -159,12 +165,13 @@ BT_START_TEST (test_bt_sequence_rem_track2)
   /* cleanup */
   g_object_try_unref (machine);
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* try to add a label to the sequence beyond the sequence length */
-BT_START_TEST (test_bt_sequence_length1)
+static void test_bt_sequence_length1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
@@ -179,11 +186,12 @@ BT_START_TEST (test_bt_sequence_length1)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_pattern1)
+static void test_bt_sequence_pattern1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
@@ -206,11 +214,12 @@ BT_START_TEST (test_bt_sequence_pattern1)
   g_object_try_unref (pattern);
   g_object_try_unref (machine);
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_pattern2)
+static void test_bt_sequence_pattern2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   BtMachine *machine1 =
@@ -239,9 +248,9 @@ BT_START_TEST (test_bt_sequence_pattern2)
   g_object_unref (machine1);
   g_object_unref (machine2);
   g_object_unref (sequence);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_sequence_test_case (void)
+ TCase * bt_sequence_test_case (void)
 {
   TCase *tc = tcase_create ("BtSequenceTests");
 

@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_value_group_get_beyond_size)
+static void test_bt_value_group_get_beyond_size (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "id",
@@ -71,9 +72,9 @@ BT_START_TEST (test_bt_value_group_get_beyond_size)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_value_group_test_case (void)
+ TCase * bt_value_group_test_case (void)
 {
   TCase *tc = tcase_create ("BtValueGroupTests");
 

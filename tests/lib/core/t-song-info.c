@@ -55,8 +55,9 @@ case_teardown (void)
 //-- tests
 
 /* apply generic property tests to song-info */
-BT_START_TEST (test_bt_song_info_properties)
+static void test_bt_song_info_properties (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   GObject *song_info = check_gobject_get_object_property (song, "song-info");
 
@@ -64,12 +65,13 @@ BT_START_TEST (test_bt_song_info_properties)
   fail_unless (check_gobject_properties (song_info), NULL);
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* create a new song-info with a NULL song object */
-BT_START_TEST (test_bt_song_info_null_song)
+static void test_bt_song_info_null_song (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* act */
   BtSongInfo *song_info = bt_song_info_new (NULL);
 
@@ -78,9 +80,9 @@ BT_START_TEST (test_bt_song_info_null_song)
 
   /* cleanup */
   g_object_unref (song_info);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_song_info_test_case (void)
+ TCase * bt_song_info_test_case (void)
 {
   TCase *tc = tcase_create ("BtSongInfoTests");
 

@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_machine_obj1)
+static void test_bt_machine_obj1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -72,14 +73,15 @@ BT_START_TEST (test_bt_machine_obj1)
 
   /* cleanup */
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
  * activate the input level meter in an unconnected machine
  */
-BT_START_TEST (test_bt_machine_enable_input_level1)
+static void test_bt_machine_enable_input_level1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0, NULL));
@@ -92,14 +94,15 @@ BT_START_TEST (test_bt_machine_enable_input_level1)
 
   /* cleanup */
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
  * activate the input level meter in a connected machine
  */
-BT_START_TEST (test_bt_machine_enable_input_level2)
+static void test_bt_machine_enable_input_level2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine1 =
       BT_MACHINE (bt_processor_machine_new (song, "vol1", "volume", 0, NULL));
@@ -117,14 +120,15 @@ BT_START_TEST (test_bt_machine_enable_input_level2)
   g_object_unref (wire);
   g_object_unref (machine1);
   g_object_unref (machine2);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
  * activate the input gain control in an unconnected machine
  */
-BT_START_TEST (test_bt_machine_enable_input_gain1)
+static void test_bt_machine_enable_input_gain1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0, NULL));
@@ -137,14 +141,15 @@ BT_START_TEST (test_bt_machine_enable_input_gain1)
 
   /* cleanup */
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
  * activate the output gain control in an unconnected machine
  */
-BT_START_TEST (test_bt_machine_enable_output_gain1)
+static void test_bt_machine_enable_output_gain1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0, NULL));
@@ -157,14 +162,15 @@ BT_START_TEST (test_bt_machine_enable_output_gain1)
 
   /* cleanup */
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
  * add pattern
  */
-BT_START_TEST (test_bt_machine_add_pattern)
+static void test_bt_machine_add_pattern (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -180,11 +186,12 @@ BT_START_TEST (test_bt_machine_add_pattern)
   /* cleanup */
   g_object_unref (machine);
   g_object_unref (pattern);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_machine_pattern_names)
+static void test_bt_machine_pattern_names (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -203,11 +210,12 @@ BT_START_TEST (test_bt_machine_pattern_names)
   g_object_unref (machine);
   g_object_unref (pattern);
 
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_machine_check_voices)
+static void test_bt_machine_check_voices (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -224,14 +232,15 @@ BT_START_TEST (test_bt_machine_check_voices)
   /* cleanup */
   gst_object_unref (element);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
  * change voices and verify that voices in machine and patetrn are in sync
  */
-BT_START_TEST (test_bt_machine_change_voices)
+static void test_bt_machine_change_voices (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -252,11 +261,12 @@ BT_START_TEST (test_bt_machine_change_voices)
   g_object_unref (machine);
   g_object_unref (p1);
   g_object_unref (p2);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_machine_state_mute_no_sideeffects)
+static void test_bt_machine_state_mute_no_sideeffects (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *src =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
@@ -281,11 +291,12 @@ BT_START_TEST (test_bt_machine_state_mute_no_sideeffects)
   g_object_unref (sink);
   g_object_unref (proc);
   g_object_unref (src);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_machine_state_solo_unmutes_others)
+static void test_bt_machine_state_solo_unmutes_others (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *src1 =
       BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
@@ -311,9 +322,9 @@ BT_START_TEST (test_bt_machine_state_solo_unmutes_others)
   g_object_unref (sink);
   g_object_unref (src2);
   g_object_unref (src1);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_machine_example_case (void)
+ TCase * bt_machine_example_case (void)
 {
   TCase *tc = tcase_create ("BtMachineExamples");
 

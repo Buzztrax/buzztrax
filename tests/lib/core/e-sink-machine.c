@@ -79,8 +79,9 @@ get_sink_element (GstBin * bin)
 
 //-- tests
 
-BT_START_TEST (test_bt_sink_machine_new)
+static void test_bt_sink_machine_new (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "fakesink", NULL);
 
@@ -94,11 +95,12 @@ BT_START_TEST (test_bt_sink_machine_new)
 
   /* cleanup */
   g_object_try_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sink_machine_def_patterns)
+static void test_bt_sink_machine_def_patterns (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "fakesink", NULL);
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
@@ -114,11 +116,12 @@ BT_START_TEST (test_bt_sink_machine_def_patterns)
   g_list_foreach (list, (GFunc) g_object_unref, NULL);
   g_list_free (list);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sink_machine_pattern)
+static void test_bt_sink_machine_pattern (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "fakesink", NULL);
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
@@ -135,11 +138,12 @@ BT_START_TEST (test_bt_sink_machine_pattern)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sink_machine_pattern_by_id)
+static void test_bt_sink_machine_pattern_by_id (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "fakesink", NULL);
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
@@ -156,11 +160,12 @@ BT_START_TEST (test_bt_sink_machine_pattern_by_id)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sink_machine_pattern_by_list)
+static void test_bt_sink_machine_pattern_by_list (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "fakesink", NULL);
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
@@ -180,11 +185,12 @@ BT_START_TEST (test_bt_sink_machine_pattern_by_list)
   g_list_free (list);
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sink_machine_default)
+static void test_bt_sink_machine_default (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", NULL, NULL);
 
@@ -198,11 +204,12 @@ BT_START_TEST (test_bt_sink_machine_default)
 
   /* cleanup */
   g_object_try_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sink_machine_fallback)
+static void test_bt_sink_machine_fallback (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   gchar *settings_str = NULL;
   g_object_set (settings, "audiosink", NULL, NULL);
@@ -219,11 +226,12 @@ BT_START_TEST (test_bt_sink_machine_fallback)
 
   /* cleanup */
   g_object_try_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sink_machine_actual_sink)
+static void test_bt_sink_machine_actual_sink (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
 
@@ -239,12 +247,13 @@ BT_START_TEST (test_bt_sink_machine_actual_sink)
   /* cleanup */
   gst_object_unref (sink_bin);
   g_object_try_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* the parameter index _i is 2bits for latency, 2bits for bpm, 2 bits for tpb */
-BT_START_TEST (test_bt_sink_machine_latency)
+static void test_bt_sink_machine_latency (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
@@ -286,9 +295,9 @@ BT_START_TEST (test_bt_sink_machine_latency)
   gst_object_unref (sink_bin);
   g_object_try_unref (machine);
   g_object_unref (song_info);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_sink_machine_example_case (void)
+ TCase * bt_sink_machine_example_case (void)
 {
   TCase *tc = tcase_create ("BtSinkMachineExamples");
 

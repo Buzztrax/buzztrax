@@ -154,8 +154,9 @@ make_song_with_externals (const gchar * ext_data_uri)
 
 //-- tests
 
-BT_START_TEST (test_bt_song_io_native_new)
+static void test_bt_song_io_native_new (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -167,11 +168,12 @@ BT_START_TEST (test_bt_song_io_native_new)
 
   /* cleanup */
   g_object_checked_unref (song_io);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_native_formats)
+static void test_bt_song_io_native_formats (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
   gchar *song_path = make_tmp_song_path ("bt-test0-song.", fi->extension);
@@ -185,11 +187,12 @@ BT_START_TEST (test_bt_song_io_native_formats)
   /* cleanup */
   g_object_checked_unref (song_io);
   g_free (song_path);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_native_load)
+static void test_bt_song_io_native_load (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("simple2.xml"));
@@ -201,11 +204,12 @@ BT_START_TEST (test_bt_song_io_native_load)
 
   /* cleanup */
   g_object_checked_unref (song_io);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_native_core_refcounts)
+static void test_bt_song_io_native_core_refcounts (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("simple2.xml"));
@@ -219,11 +223,12 @@ BT_START_TEST (test_bt_song_io_native_core_refcounts)
 
   /* cleanup */
   g_object_checked_unref (song_io);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_native_setup_refcounts_0)
+static void test_bt_song_io_native_setup_refcounts_0 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup;
   BtSongIO *song_io =
@@ -240,11 +245,12 @@ BT_START_TEST (test_bt_song_io_native_setup_refcounts_0)
   /* cleanup */
   g_object_unref (setup);
   g_object_checked_unref (song_io);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_native_setup_refcounts_1)
+static void test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup;
   BtSongIO *song_io =
@@ -268,11 +274,12 @@ BT_START_TEST (test_bt_song_io_native_setup_refcounts_1)
   /* cleanup */
   g_object_unref (setup);
   g_object_checked_unref (song_io);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_native_setup_refcounts_2)
+static void test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup;
   BtSongIO *song_io =
@@ -298,11 +305,12 @@ BT_START_TEST (test_bt_song_io_native_setup_refcounts_2)
   /* cleanup */
   g_object_unref (setup);
   g_object_checked_unref (song_io);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_native_song_refcounts)
+static void test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   GstElement *bin =
       (GstElement *) check_gobject_get_object_property (app, "bin");
@@ -326,11 +334,12 @@ BT_START_TEST (test_bt_song_io_native_song_refcounts)
 
   /* cleanup */
   gst_object_unref (bin);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_write_empty_song)
+static void test_bt_song_io_write_empty_song (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
   gchar *song_path = make_tmp_song_path ("bt-test1-song.", fi->extension);
@@ -355,11 +364,12 @@ BT_START_TEST (test_bt_song_io_write_empty_song)
 
   /* cleanup */
   g_free (song_path);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_write_song_without_externals)
+static void test_bt_song_io_write_song_without_externals (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
   gchar *song_path = make_tmp_song_path ("bt-test2-song.", fi->extension);
@@ -385,11 +395,12 @@ BT_START_TEST (test_bt_song_io_write_song_without_externals)
   song = bt_song_new (app);
 
   g_free (song_path);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_write_song_with_externals)
+static void test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
   gchar *ext_data_path = g_build_filename (g_get_tmp_dir (), "test.wav", NULL);
@@ -425,9 +436,9 @@ BT_START_TEST (test_bt_song_io_write_song_with_externals)
   /* cleanup */
   g_free (ext_data_uri);
   g_free (ext_data_path);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_song_io_native_example_case (void)
+ TCase * bt_song_io_native_example_case (void)
 {
   TCase *tc = tcase_create ("BtSongIONativeExamples");
 

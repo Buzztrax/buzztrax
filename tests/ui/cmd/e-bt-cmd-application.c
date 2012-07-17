@@ -41,8 +41,9 @@ test_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_create_app)
+static void test_create_app (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtCmdApplication *app;
 
   app = bt_cmd_application_new (TRUE);
@@ -50,12 +51,13 @@ BT_START_TEST (test_create_app)
   fail_unless (G_OBJECT_REF_COUNT (app) == 1, NULL);
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // postive test, this test should not fail
-BT_START_TEST (test_play1)
+static void test_play1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtCmdApplication *app;
   gboolean ret = FALSE;
 
@@ -66,12 +68,13 @@ BT_START_TEST (test_play1)
   fail_unless (ret == TRUE, NULL);
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // postive test, this test should not fail
-BT_START_TEST (test_play2)
+static void test_play2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtCmdApplication *app;
   gboolean ret = FALSE;
 
@@ -82,13 +85,14 @@ BT_START_TEST (test_play2)
   fail_unless (ret == TRUE, NULL);
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // Tests to play one song after another
 // This is a positive test.
-BT_START_TEST (test_play3)
+static void test_play3 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtCmdApplication *app;
   gboolean ret = FALSE;
 
@@ -106,13 +110,14 @@ BT_START_TEST (test_play3)
 
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // Tests if the info method works as expected.
 // This is a positive test.
-BT_START_TEST (test_info1)
+static void test_info1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtCmdApplication *app;
   gboolean ret = FALSE;
   gchar *tmp_file_name;
@@ -131,9 +136,9 @@ BT_START_TEST (test_info1)
   g_free (tmp_file_name);
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_cmd_application_example_case (void)
+ TCase * bt_cmd_application_example_case (void)
 {
   TCase *tc = tcase_create ("BtCmdApplicationExamples");
 

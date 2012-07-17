@@ -49,8 +49,9 @@ case_teardown (void)
 //-- tests
 
 // test if the normal init call works with commandline arguments (no args)
-BT_START_TEST (test_btic_registry_create0)
+static void test_btic_registry_create0 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -61,9 +62,9 @@ BT_START_TEST (test_btic_registry_create0)
 
   /* cleanup */
   g_object_checked_unref (registry);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_registry_example_case (void)
+ TCase * bt_registry_example_case (void)
 {
   TCase *tc = tcase_create ("BticRegistryExamples");
 

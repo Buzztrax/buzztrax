@@ -54,8 +54,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_sink_bin_properties)
+static void test_bt_sink_bin_properties (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   GstElement *bin = gst_element_factory_make ("bt-sink-bin", NULL);
 
@@ -64,9 +65,9 @@ BT_START_TEST (test_bt_sink_bin_properties)
 
   /* cleanup */
   mark_point ();
+  BT_TEST_END;
 }
-
-BT_END_TEST;
+;
 
 /* set bad record-file-name */
 /* set empty analyzer list */

@@ -111,19 +111,21 @@ test_teardown (void)
 //-- tests
 
 // test lifecycle/refcounts
-BT_START_TEST (test_create_and_destroy1)
+static void test_create_and_destroy1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtChangeLog *cl;
 
   cl = bt_change_log_new ();
   fail_unless (cl != NULL, NULL);
 
   g_object_checked_unref (cl);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_create_and_destroy2)
+static void test_create_and_destroy2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtChangeLog *cl;
@@ -144,12 +146,13 @@ BT_START_TEST (test_create_and_destroy2)
 
   g_object_unref (cl);
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test single undo/redo actions
-BT_START_TEST (test_undo_redo_1)
+static void test_undo_redo_1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtChangeLog *cl;
@@ -207,12 +210,13 @@ BT_START_TEST (test_undo_redo_1)
   g_object_unref (tcl);
   g_object_unref (cl);
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test double undo/redo actions
-BT_START_TEST (test_undo_redo_2)
+static void test_undo_redo_2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtChangeLog *cl;
@@ -291,12 +295,13 @@ BT_START_TEST (test_undo_redo_2)
   g_object_unref (tcl);
   g_object_unref (cl);
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test single and then double undo/redo actions
-BT_START_TEST (test_undo_redo_3)
+static void test_undo_redo_3 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtChangeLog *cl;
@@ -399,12 +404,13 @@ BT_START_TEST (test_undo_redo_3)
   g_object_unref (tcl);
   g_object_unref (cl);
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test truncating the undo/redo stack
-BT_START_TEST (test_stack_trunc)
+static void test_stack_trunc (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtChangeLog *cl;
@@ -462,9 +468,9 @@ BT_START_TEST (test_stack_trunc)
   g_object_unref (tcl);
   g_object_unref (cl);
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_change_log_example_case (void)
+ TCase * bt_change_log_example_case (void)
 {
   TCase *tc = tcase_create ("BtChangeLogExamples");
 

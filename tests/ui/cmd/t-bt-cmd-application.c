@@ -41,8 +41,9 @@ test_teardown (void)
 
 // tests if the play method works without exceptions if we put NULL as filename.
 // This test is a negative test
-BT_START_TEST (test_play1)
+static void test_play1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtCmdApplication *app = NULL;
   gboolean ret = FALSE;
   GstBin *bin = NULL;
@@ -62,12 +63,13 @@ BT_START_TEST (test_play1)
   fail_unless (settings != NULL, NULL);
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // file not found test. this is a negative test
-BT_START_TEST (test_play2)
+static void test_play2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtCmdApplication *app;
   gboolean ret = FALSE;
 
@@ -80,13 +82,14 @@ BT_START_TEST (test_play2)
   fail_unless (ret == FALSE, NULL);
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test if the info method works with NULL argument for the filename,
 // This is a negative test
-BT_START_TEST (test_info1)
+static void test_info1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtCmdApplication *app;
   gboolean ret = FALSE;
 
@@ -99,13 +102,14 @@ BT_START_TEST (test_info1)
   fail_unless (ret == FALSE, NULL);
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test if the info method works with a empty filename.
 // This is a negative test
-BT_START_TEST (test_info2)
+static void test_info2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtCmdApplication *app;
   gboolean ret = FALSE;
 
@@ -118,9 +122,9 @@ BT_START_TEST (test_info2)
   fail_unless (ret == FALSE, NULL);
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_cmd_application_test_case (void)
+ TCase * bt_cmd_application_test_case (void)
 {
   TCase *tc = tcase_create ("BtCmdApplicationTests");
 

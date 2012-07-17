@@ -100,8 +100,9 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
 //-- tests
 
 // test if the default constructor works as expected
-BT_START_TEST (test_bt_song_obj1)
+static void test_bt_song_obj1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -113,13 +114,14 @@ BT_START_TEST (test_bt_song_obj1)
 
   /* cleanup */
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test, if a newly created song contains empty setup, sequence, song-info and
 // wavetable
-BT_START_TEST (test_bt_song_obj2)
+static void test_bt_song_obj2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = bt_song_new (app);
 
@@ -150,11 +152,12 @@ BT_START_TEST (test_bt_song_obj2)
   g_object_unref (songinfo);
   g_object_unref (wavetable);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_master)
+static void test_bt_song_master (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = make_new_song ();
 
@@ -163,12 +166,13 @@ BT_START_TEST (test_bt_song_master)
 
   /* cleanup */
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test if the song play routine works without failure
-BT_START_TEST (test_bt_song_play_single)
+static void test_bt_song_play_single (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = make_new_song ();
   g_signal_connect (G_OBJECT (song), "notify::is-playing",
@@ -191,12 +195,13 @@ BT_START_TEST (test_bt_song_play_single)
 
   /* cleanup */
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // play, wait a little, stop, play again
-BT_START_TEST (test_bt_song_play_twice)
+static void test_bt_song_play_twice (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = make_new_song ();
   g_signal_connect (G_OBJECT (song), "notify::is-playing",
@@ -214,12 +219,13 @@ BT_START_TEST (test_bt_song_play_twice)
   /* cleanup */
   bt_song_stop (song);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a new song, play, change audiosink to fakesink
-BT_START_TEST (test_bt_song_play_and_change_sink)
+static void test_bt_song_play_and_change_sink (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSettings *settings = bt_settings_make ();
   BtSong *song = make_new_song ();
@@ -236,12 +242,13 @@ BT_START_TEST (test_bt_song_play_and_change_sink)
   /* cleanup */
   bt_song_stop (song);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // change audiosink to NULL, load and play a song
-BT_START_TEST (test_bt_song_play_fallback_sink)
+static void test_bt_song_play_fallback_sink (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSettings *settings = bt_settings_make ();
   g_object_set (settings, "audiosink", NULL, "system-audiosink", NULL, NULL);
@@ -253,12 +260,13 @@ BT_START_TEST (test_bt_song_play_fallback_sink)
   /* cleanup */
   bt_song_stop (song);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test the idle looper
-BT_START_TEST (test_bt_song_idle1)
+static void test_bt_song_idle1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = make_new_song ();
 
@@ -272,12 +280,13 @@ BT_START_TEST (test_bt_song_idle1)
 
   /* cleanup */
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test the idle looper and playing transition
-BT_START_TEST (test_bt_song_idle2)
+static void test_bt_song_idle2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = make_new_song ();
 
@@ -305,15 +314,16 @@ BT_START_TEST (test_bt_song_idle2)
   /* cleanup */
   g_object_set (G_OBJECT (song), "is-idle", FALSE, NULL);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
  * check if we can connect two sine machines to one sink. Also try to play after
  * connecting the machines.
  */
-BT_START_TEST (test_bt_song_play_two_sources)
+static void test_bt_song_play_two_sources (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = bt_song_new (app);
   BtSequence *sequence =
@@ -359,15 +369,16 @@ BT_START_TEST (test_bt_song_play_two_sources)
   g_object_unref (wire2);
   g_object_unref (sequence);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
  * check if we can connect two sine machines to one effect and this to the
  * sink. Also try to start play after connecting the machines.
  */
-BT_START_TEST (test_bt_song_play_two_sources_and_one_fx)
+static void test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = bt_song_new (app);
   BtSequence *sequence =
@@ -417,15 +428,16 @@ BT_START_TEST (test_bt_song_play_two_sources_and_one_fx)
   g_object_unref (wire3);
   g_object_unref (sequence);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
  * check if we can connect two sine machines to one sink, then play() and
  * stop(). After stopping remove one machine and play again.
  */
-BT_START_TEST (test_bt_song_play_change_replay)
+static void test_bt_song_play_change_replay (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = bt_song_new (app);
   BtSetup *setup =
@@ -489,14 +501,15 @@ BT_START_TEST (test_bt_song_play_change_replay)
   g_object_unref (setup);
   g_object_unref (sequence);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
 * check if we can connect a src machine to a sink while playing
 */
-BT_START_TEST (test_bt_song_dynamic_add_src)
+static void test_bt_song_dynamic_add_src (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = bt_song_new (app);
   BtSequence *sequence =
@@ -543,14 +556,15 @@ BT_START_TEST (test_bt_song_dynamic_add_src)
   g_object_unref (wire1);
   g_object_unref (sequence);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
 * check if we can disconnect a src machine from a sink while playing.
 */
-BT_START_TEST (test_bt_song_dynamic_rem_src)
+static void test_bt_song_dynamic_rem_src (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = bt_song_new (app);
   BtSetup *setup =
@@ -604,14 +618,15 @@ BT_START_TEST (test_bt_song_dynamic_rem_src)
   g_object_unref (setup);
   g_object_unref (sequence);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
  * check if we can connect a processor machine to a src and sink while playing
  */
-BT_START_TEST (test_bt_song_dynamic_add_proc)
+static void test_bt_song_dynamic_add_proc (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = bt_song_new (app);
   BtSequence *sequence =
@@ -656,14 +671,15 @@ BT_START_TEST (test_bt_song_dynamic_add_proc)
   g_object_unref (wire1);
   g_object_unref (sequence);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
  * check if we can disconnect a processor machine to a src and sink while playing
  */
-BT_START_TEST (test_bt_song_dynamic_rem_proc)
+static void test_bt_song_dynamic_rem_proc (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = bt_song_new (app);
   BtSetup *setup =
@@ -717,9 +733,9 @@ BT_START_TEST (test_bt_song_dynamic_rem_proc)
   g_object_unref (setup);
   g_object_unref (sequence);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* should we have variants, where we remove the machines instead of the wires? */
     TCase * bt_song_example_case (void)
 {

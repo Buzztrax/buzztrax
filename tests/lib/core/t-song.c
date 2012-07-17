@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_song_properties)
+static void test_bt_song_properties (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   GObject *song = (GObject *) bt_song_new (app);
 
@@ -65,12 +66,13 @@ BT_START_TEST (test_bt_song_properties)
 
   /* cleanup */
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test if the default constructor handles NULL
-BT_START_TEST (test_bt_song_new_null_app)
+static void test_bt_song_new_null_app (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   check_init_error_trapp ("bt_song_", "BT_IS_APPLICATION (self->priv->app)");
 
@@ -83,12 +85,13 @@ BT_START_TEST (test_bt_song_new_null_app)
 
   /* cleanup */
   g_object_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // play without loading a song (means don't play anything audible)
-BT_START_TEST (test_bt_song_play_empty)
+static void test_bt_song_play_empty (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = bt_song_new (app);
 
@@ -98,12 +101,13 @@ BT_START_TEST (test_bt_song_play_empty)
   /* cleanup */
   bt_song_stop (song);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // song is null
-BT_START_TEST (test_bt_song_play_null)
+static void test_bt_song_play_null (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = bt_song_new (app);
   check_init_error_trapp ("bt_song_play", "BT_IS_SONG (self)");
@@ -117,12 +121,13 @@ BT_START_TEST (test_bt_song_play_null)
   /* cleanup */
   bt_song_stop (song);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a new song while the first plays
-BT_START_TEST (test_bt_song_play_and_load_new)
+static void test_bt_song_play_and_load_new (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSong *song = bt_song_new (app);
   BtSongIO *loader =
@@ -142,9 +147,9 @@ BT_START_TEST (test_bt_song_play_and_load_new)
   bt_song_stop (song);
   g_object_checked_unref (loader);
   g_object_checked_unref (song);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_song_test_case (void)
+ TCase * bt_song_test_case (void)
 {
   TCase *tc = tcase_create ("BtSongTests");
 

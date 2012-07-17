@@ -69,8 +69,9 @@ get_mono_parameter_group (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_parameter_group_param)
+static void test_bt_parameter_group_param (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtParameterGroup *pg = get_mono_parameter_group ();
 
@@ -78,11 +79,12 @@ BT_START_TEST (test_bt_parameter_group_param)
   ck_assert_int_eq (bt_parameter_group_get_param_index (pg, "g-double"), 1);
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_parameter_group_size)
+static void test_bt_parameter_group_size (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtParameterGroup *pg = get_mono_parameter_group ();
 
@@ -90,12 +92,13 @@ BT_START_TEST (test_bt_parameter_group_size)
   ck_assert_gobject_glong_eq (pg, "num-params", 3);
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* try describe on a machine that does not implement the interface */
-BT_START_TEST (test_bt_parameter_group_describe)
+static void test_bt_parameter_group_describe (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtParameterGroup *pg = get_mono_parameter_group ();
   GValue val = { 0, };
@@ -110,9 +113,9 @@ BT_START_TEST (test_bt_parameter_group_describe)
 
   /* cleanup */
   g_value_unset (&val);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_param_group_example_case (void)
+ TCase * bt_param_group_example_case (void)
 {
   TCase *tc = tcase_create ("BtParamGroupExamples");
 

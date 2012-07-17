@@ -40,8 +40,9 @@ test_teardown (void)
 //-- tests
 
 // show pattern page with empty pattern and emit key-presses
-BT_START_TEST (test_editing1)
+static void test_editing1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
@@ -109,12 +110,13 @@ BT_START_TEST (test_editing1)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // show pattern page with empty pattern and emit mouse klicks
-BT_START_TEST (test_editing2)
+static void test_editing2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
@@ -185,9 +187,9 @@ BT_START_TEST (test_editing2)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_pattern_page_test_case (void)
+ TCase * bt_pattern_page_test_case (void)
 {
   TCase *tc = tcase_create ("BtPatternPageTests");
 

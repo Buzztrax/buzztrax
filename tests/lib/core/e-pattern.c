@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_pattern_name)
+static void test_bt_pattern_name (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -73,11 +74,12 @@ BT_START_TEST (test_bt_pattern_name)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_obj_mono1)
+static void test_bt_pattern_obj_mono1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -93,11 +95,12 @@ BT_START_TEST (test_bt_pattern_obj_mono1)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_obj_mono2)
+static void test_bt_pattern_obj_mono2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -120,11 +123,12 @@ BT_START_TEST (test_bt_pattern_obj_mono2)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_obj_poly1)
+static void test_bt_pattern_obj_poly1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -140,11 +144,12 @@ BT_START_TEST (test_bt_pattern_obj_poly1)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_obj_poly2)
+static void test_bt_pattern_obj_poly2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -167,11 +172,12 @@ BT_START_TEST (test_bt_pattern_obj_poly2)
 
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_obj_wire1)
+static void test_bt_pattern_obj_wire1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *src_machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -192,11 +198,12 @@ BT_START_TEST (test_bt_pattern_obj_wire1)
   g_object_unref (wire);
   g_object_unref (src_machine);
   g_object_unref (sink_machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_obj_wire2)
+static void test_bt_pattern_obj_wire2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *src_machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -219,11 +226,12 @@ BT_START_TEST (test_bt_pattern_obj_wire2)
   g_object_unref (wire);
   g_object_unref (src_machine);
   g_object_unref (sink_machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_copy)
+static void test_bt_pattern_copy (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -247,11 +255,12 @@ BT_START_TEST (test_bt_pattern_copy)
   g_object_try_unref (pattern1);
   g_object_try_unref (pattern2);
   g_object_try_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_has_data)
+static void test_bt_pattern_has_data (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -271,11 +280,12 @@ BT_START_TEST (test_bt_pattern_has_data)
   /* cleanup */
   g_object_try_unref (pattern);
   g_object_try_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_enlarge_length)
+static void test_bt_pattern_enlarge_length (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -298,11 +308,12 @@ BT_START_TEST (test_bt_pattern_enlarge_length)
   /* cleanup */
   g_object_try_unref (pattern);
   g_object_try_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_shrink_length)
+static void test_bt_pattern_shrink_length (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -322,11 +333,12 @@ BT_START_TEST (test_bt_pattern_shrink_length)
   /* cleanup */
   g_object_try_unref (pattern);
   g_object_try_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_enlarge_voices)
+static void test_bt_pattern_enlarge_voices (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -350,11 +362,12 @@ BT_START_TEST (test_bt_pattern_enlarge_voices)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_shrink_voices)
+static void test_bt_pattern_shrink_voices (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -376,11 +389,12 @@ BT_START_TEST (test_bt_pattern_shrink_voices)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_insert_row)
+static void test_bt_pattern_insert_row (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -402,11 +416,12 @@ BT_START_TEST (test_bt_pattern_insert_row)
   /* cleanup */
   g_object_try_unref (pattern);
   g_object_try_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_delete_row)
+static void test_bt_pattern_delete_row (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -427,11 +442,12 @@ BT_START_TEST (test_bt_pattern_delete_row)
   /* cleanup */
   g_object_try_unref (pattern);
   g_object_try_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_mono_get_global_vg)
+static void test_bt_pattern_mono_get_global_vg (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "id",
@@ -445,11 +461,12 @@ BT_START_TEST (test_bt_pattern_mono_get_global_vg)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_mono_get_voice_vg)
+static void test_bt_pattern_mono_get_voice_vg (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "id",
@@ -463,9 +480,9 @@ BT_START_TEST (test_bt_pattern_mono_get_voice_vg)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_pattern_example_case (void)
+ TCase * bt_pattern_example_case (void)
 {
   TCase *tc = tcase_create ("BtPatternExamples");
 

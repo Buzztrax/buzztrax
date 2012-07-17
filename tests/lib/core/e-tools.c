@@ -47,8 +47,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_tools_element_check0)
+static void test_bt_tools_element_check0 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   GList *to_check = g_list_prepend (NULL, "__ploink__");
 
@@ -59,11 +60,12 @@ BT_START_TEST (test_bt_tools_element_check0)
   fail_unless (missing != NULL, NULL);
   ck_assert_str_eq (missing->data, "__ploink__");
   fail_unless (g_list_next (missing) == NULL, NULL);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_tools_element_check1)
+static void test_bt_tools_element_check1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   GList *to_check = g_list_prepend (NULL, "__ploink__");
   to_check = g_list_prepend (to_check, "__bang__");
@@ -75,9 +77,9 @@ BT_START_TEST (test_bt_tools_element_check1)
   fail_unless (missing != NULL, NULL);
   fail_unless (g_list_next (missing) != NULL, NULL);
   fail_unless (g_list_next (g_list_next (missing)) == NULL, NULL);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_tools_example_case (void)
+ TCase * bt_tools_example_case (void)
 {
   TCase *tc = tcase_create ("BtToolsExamples");
 

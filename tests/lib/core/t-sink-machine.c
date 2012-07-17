@@ -79,8 +79,9 @@ make_test_song (void)
 //-- tests
 
 // test attribute handling in sink names
-BT_START_TEST (test_bt_sink_machine_settings_name_with_parameter)
+static void test_bt_sink_machine_settings_name_with_parameter (BT_TEST_ARGS)
 {
+  BT_TEST_START;
 
   /* arrange */
   g_object_set (settings, "audiosink", "osssink sync=false", NULL);
@@ -96,17 +97,18 @@ BT_START_TEST (test_bt_sink_machine_settings_name_with_parameter)
 
   /* cleanup */
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST;
+;
 
 
 /* Check if we handle a sink setting of "audioconvert ! osssink sync=false".
  * This string should be replaced by the sink machine to "ossink" and the
  * machine should be instantiable.
  */
-BT_START_TEST (test_bt_sink_machine_settings_name_is_launch_snippet)
+static void test_bt_sink_machine_settings_name_is_launch_snippet (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "audioconvert ! osssink sync=false",
       NULL);
@@ -121,14 +123,15 @@ BT_START_TEST (test_bt_sink_machine_settings_name_is_launch_snippet)
 
   /* cleanup */
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST;
+;
 
 
 // test attribute handling in sink names
-BT_START_TEST (test_bt_sink_machine_settings_wrong_type)
+static void test_bt_sink_machine_settings_wrong_type (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "xvimagsink", NULL);
 
@@ -141,14 +144,15 @@ BT_START_TEST (test_bt_sink_machine_settings_wrong_type)
   fail_unless (err == NULL, NULL);
 
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST;
+;
 
 
 // test attribute handling in sink names
-BT_START_TEST (test_bt_sink_machine_settings_wrong_parameters)
+static void test_bt_sink_machine_settings_wrong_parameters (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "alsasink device=invalid:666", NULL);
 
@@ -162,14 +166,15 @@ BT_START_TEST (test_bt_sink_machine_settings_wrong_parameters)
 
   /* cleanup */
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST;
+;
 
 
 // test attribute handling in sink names
-BT_START_TEST (test_bt_sink_machine_settings_inexistent_type)
+static void test_bt_sink_machine_settings_inexistent_type (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "doesnotexistssink", NULL);
 
@@ -183,14 +188,15 @@ BT_START_TEST (test_bt_sink_machine_settings_inexistent_type)
 
   /* cleanup */
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST;
+;
 
 
 // test if the song play routine works with fakesink
-BT_START_TEST (test_bt_sink_machine_play_fakesink)
+static void test_bt_sink_machine_play_fakesink (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "fakesink", NULL);
   make_test_song ();
@@ -201,12 +207,13 @@ BT_START_TEST (test_bt_sink_machine_play_fakesink)
   bt_song_stop (song);
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test if the song play routine handles sink with wrong parameters
-BT_START_TEST (test_bt_sink_machine_play_wrong_parameters)
+static void test_bt_sink_machine_play_wrong_parameters (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "alsasink device=invalid:666", NULL);
   make_test_song ();
@@ -217,12 +224,13 @@ BT_START_TEST (test_bt_sink_machine_play_wrong_parameters)
   bt_song_stop (song);
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test if the song play routine handles sink with wrong parameters
-BT_START_TEST (test_bt_sink_machine_play_inexistent_type)
+static void test_bt_sink_machine_play_inexistent_type (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   g_object_set (settings, "audiosink", "doesnotexistssink", NULL);
 
@@ -234,9 +242,9 @@ BT_START_TEST (test_bt_sink_machine_play_inexistent_type)
   bt_song_stop (song);
 
   /* cleanup */
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_sink_machine_test_case (void)
+ TCase * bt_sink_machine_test_case (void)
 {
   TCase *tc = tcase_create ("BtSinkMachineTests");
 

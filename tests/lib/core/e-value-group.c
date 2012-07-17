@@ -73,8 +73,9 @@ get_mono_value_group (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_value_group_default_empty)
+static void test_bt_value_group_default_empty (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtValueGroup *vg = get_mono_value_group ();
 
@@ -82,11 +83,12 @@ BT_START_TEST (test_bt_value_group_default_empty)
   fail_unless (!G_IS_VALUE (bt_value_group_get_event_data (vg, 0, 0)), NULL);
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_value_group_value)
+static void test_bt_value_group_value (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtValueGroup *vg = get_mono_value_group ();
 
@@ -97,11 +99,12 @@ BT_START_TEST (test_bt_value_group_value)
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 0), "10");
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_value_group_insert_row)
+static void test_bt_value_group_insert_row (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtValueGroup *vg = get_mono_value_group ();
   bt_value_group_set_event (vg, 0, 0, "10");
@@ -116,11 +119,12 @@ BT_START_TEST (test_bt_value_group_insert_row)
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 2, 0), "20");
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_value_group_delete_row)
+static void test_bt_value_group_delete_row (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtValueGroup *vg = get_mono_value_group ();
   bt_value_group_set_event (vg, 0, 0, "10");
@@ -134,11 +138,12 @@ BT_START_TEST (test_bt_value_group_delete_row)
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 1, 0), NULL);
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_value_group_clear_column)
+static void test_bt_value_group_clear_column (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtValueGroup *vg = get_mono_value_group ();
   bt_value_group_set_event (vg, 0, 0, "10");
@@ -152,11 +157,12 @@ BT_START_TEST (test_bt_value_group_clear_column)
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 1, 0), NULL);
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_value_group_blend_column)
+static void test_bt_value_group_blend_column (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtValueGroup *vg = get_mono_value_group ();
   bt_value_group_set_event (vg, 0, 0, "10");
@@ -172,11 +178,12 @@ BT_START_TEST (test_bt_value_group_blend_column)
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 3, 0), "40");
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_value_group_flip_column)
+static void test_bt_value_group_flip_column (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtValueGroup *vg = get_mono_value_group ();
   bt_value_group_set_event (vg, 0, 0, "10");
@@ -192,11 +199,12 @@ BT_START_TEST (test_bt_value_group_flip_column)
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 3, 0), "10");
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_value_group_randomize_column)
+static void test_bt_value_group_randomize_column (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtValueGroup *vg = get_mono_value_group ();
 
@@ -210,9 +218,9 @@ BT_START_TEST (test_bt_value_group_randomize_column)
   fail_unless (G_IS_VALUE (bt_value_group_get_event_data (vg, 3, 0)), NULL);
 
   /* cleanup */
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_value_group_example_case (void)
+ TCase * bt_value_group_example_case (void)
 {
   TCase *tc = tcase_create ("BtValueGroupExamples");
 

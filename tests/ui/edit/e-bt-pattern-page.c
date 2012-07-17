@@ -40,8 +40,9 @@ test_teardown (void)
 //-- tests
 
 // test some key presses
-BT_START_TEST (test_editing)
+static void test_editing (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
@@ -135,11 +136,12 @@ BT_START_TEST (test_editing)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_pattern_voices)
+static void test_pattern_voices (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   GError *err = NULL;
   BtMainWindow *main_window;
@@ -212,9 +214,9 @@ BT_START_TEST (test_pattern_voices)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_pattern_page_example_case (void)
+ TCase * bt_pattern_page_example_case (void)
 {
   TCase *tc = tcase_create ("BtPatternPageExamples");
 

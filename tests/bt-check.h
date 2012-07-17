@@ -52,22 +52,20 @@ extern gchar **test_argvptr;
 
 #define CHECK_VERSION (CHECK_MAJOR_VERSION * 10000 + CHECK_MINOR_VERSION * 100 + CHECK_MICRO_VERSION)
 #if CHECK_VERSION <= 903
-#define BT_START_TEST(__testname) \
-static void __testname (void)\
-{\
-  GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
-  tcase_fn_start (""# __testname, __FILE__, __LINE__);
+#define BT_TEST_ARGS  void
 #else
-#define BT_START_TEST(__testname) \
-static void __testname (int _i __attribute__((unused)))\
-{\
-  GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
-  tcase_fn_start (""# __testname, __FILE__, __LINE__);
+#define BT_TEST_ARGS int _i __attribute__((unused))
 #endif
 
-#define BT_END_TEST \
-  GST_DEBUG ("test end ----------------------------------------------------------------------\n"); \
-}
+#define BT_TEST_START \
+  GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
+  tcase_fn_start (__FUNCTION__, __FILE__, __LINE__); \
+  {
+
+#define BT_TEST_END \
+  } \
+  GST_DEBUG ("test end ----------------------------------------------------------------------\n");
+
 
 /* Hack to allow run-time selection of unit tests to run via the
  * BT_CHECKS environment variable (test function names, comma-separated)

@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_wire_can_link)
+static void test_bt_wire_can_link (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *gen =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
@@ -69,11 +70,12 @@ BT_START_TEST (test_bt_wire_can_link)
   /* cleanup */
   g_object_unref (gen);
   g_object_unref (sink);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_wire_new)
+static void test_bt_wire_new (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *gen =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
@@ -92,9 +94,9 @@ BT_START_TEST (test_bt_wire_new)
   g_object_unref (wire);
   g_object_unref (gen);
   g_object_unref (sink);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_wire_example_case (void)
+ TCase * bt_wire_example_case (void)
 {
   TCase *tc = tcase_create ("BtWireExamples");
 

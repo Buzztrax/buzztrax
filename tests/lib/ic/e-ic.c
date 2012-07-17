@@ -55,24 +55,27 @@ case_teardown (void)
 //-- tests
 
 // test if the normal init call works with commandline arguments (no args)
-BT_START_TEST (test_btic_init0)
+static void test_btic_init0 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* act */
   btic_init (&test_argc, &test_argvptr);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test if the init call handles correct null pointers
-BT_START_TEST (test_btic_init1)
+static void test_btic_init1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* act */
   btic_init (NULL, NULL);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test if the normal init call works with commandline arguments
-BT_START_TEST (test_btic_init2)
+static void test_btic_init2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--btic-version" };
   gchar **test_argvptr = test_argv;
@@ -85,9 +88,9 @@ BT_START_TEST (test_btic_init2)
   ck_assert_int_eq (test_argc, 1);
   fail_unless (check_file_contains_str (stdout, NULL,
           "libbuzztard-ic-" PACKAGE_VERSION " from " PACKAGE_STRING), NULL);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_ic_example_case (void)
+ TCase * bt_ic_example_case (void)
 {
   TCase *tc = tcase_create ("BtICExamples");
 

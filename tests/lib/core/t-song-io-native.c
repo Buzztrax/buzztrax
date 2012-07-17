@@ -55,8 +55,9 @@ case_teardown (void)
 //-- tests
 
 // load file with errors
-BT_START_TEST (test_bt_song_io_native_broken_file)
+static void test_bt_song_io_native_broken_file (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("broken1.xml"));
@@ -66,12 +67,13 @@ BT_START_TEST (test_bt_song_io_native_broken_file)
 
   /* cleanup */
   g_object_checked_unref (song_io);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load file into non empty song
-BT_START_TEST (test_bt_song_io_native_load_twice)
+static void test_bt_song_io_native_load_twice (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("test-simple1.xml"));
@@ -85,9 +87,9 @@ BT_START_TEST (test_bt_song_io_native_load_twice)
 
   /* cleanup */
   g_object_checked_unref (song_io);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_song_io_native_test_case (void)
+ TCase * bt_song_io_native_test_case (void)
 {
   TCase *tc = tcase_create ("BtSongIONativeTests");
 

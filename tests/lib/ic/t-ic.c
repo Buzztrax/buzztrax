@@ -55,8 +55,9 @@ case_teardown (void)
 //-- tests
 
 // test init with wrong arg usage
-BT_START_TEST (test_btic_init0)
+static void test_btic_init0 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--btic-version=5" };
   gchar **test_argvptr = test_argv;
@@ -67,12 +68,13 @@ BT_START_TEST (test_btic_init0)
 
   /* assert */
   mark_point ();
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test init with nonsense args
-BT_START_TEST (test_btic_init1)
+static void test_btic_init1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   gchar *test_argv[] = { "check_buzzard", "--btic-non-sense" };
   gchar **test_argvptr = test_argv;
@@ -89,9 +91,9 @@ BT_START_TEST (test_btic_init1)
 
   /* cleanup */
   g_option_context_free (ctx);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_ic_test_case (void)
+ TCase * bt_ic_test_case (void)
 {
   TCase *tc = tcase_create ("BtICTests");
 

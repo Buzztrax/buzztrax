@@ -60,8 +60,9 @@ leave_dialog (gpointer user_data)
 }
 
 // create app and then unconditionally destroy window
-BT_START_TEST (test_about_dialog)
+static void test_about_dialog (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   GError *err = NULL;
   BtMainWindow *main_window;
@@ -103,9 +104,9 @@ BT_START_TEST (test_about_dialog)
   g_object_unref (machine);
   g_object_unref (song);
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_machine_actions_example_case (void)
+ TCase * bt_machine_actions_example_case (void)
 {
   TCase *tc = tcase_create ("BtMachineActionsExamples");
 

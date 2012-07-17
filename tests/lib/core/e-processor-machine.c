@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_processor_machine_new)
+static void test_bt_processor_machine_new (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -70,11 +71,12 @@ BT_START_TEST (test_bt_processor_machine_new)
 
   /* cleanup */
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_processor_machine_def_patterns)
+static void test_bt_processor_machine_def_patterns (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtProcessorMachine *machine =
       bt_processor_machine_new (song, "vol", "volume", 0, NULL);
@@ -90,11 +92,12 @@ BT_START_TEST (test_bt_processor_machine_def_patterns)
   g_list_foreach (list, (GFunc) g_object_unref, NULL);
   g_list_free (list);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_processor_machine_pattern)
+static void test_bt_processor_machine_pattern (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtProcessorMachine *machine =
       bt_processor_machine_new (song, "vol", "volume", 0, NULL);
@@ -110,11 +113,12 @@ BT_START_TEST (test_bt_processor_machine_pattern)
 
   /* cleanup */
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_processor_machine_pattern_by_id)
+static void test_bt_processor_machine_pattern_by_id (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtProcessorMachine *machine =
       bt_processor_machine_new (song, "vol", "volume", 0, NULL);
@@ -131,11 +135,12 @@ BT_START_TEST (test_bt_processor_machine_pattern_by_id)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_processor_machine_pattern_by_list)
+static void test_bt_processor_machine_pattern_by_list (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtProcessorMachine *machine =
       bt_processor_machine_new (song, "vol", "volume", 0, NULL);
@@ -155,9 +160,9 @@ BT_START_TEST (test_bt_processor_machine_pattern_by_list)
   g_list_free (list);
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_processor_machine_example_case (void)
+ TCase * bt_processor_machine_example_case (void)
 {
   TCase *tc = tcase_create ("BtProcessorMachineExamples");
 

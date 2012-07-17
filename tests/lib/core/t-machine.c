@@ -54,8 +54,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_machine_add_pattern)
+static void test_bt_machine_add_pattern (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *gen1 =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -70,12 +71,13 @@ BT_START_TEST (test_bt_machine_add_pattern)
 
   /* cleanup */
   g_object_try_unref (gen1);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // FIXME(ensonic): is this really testing something?
-BT_START_TEST (test_bt_machine_names)
+static void test_bt_machine_names (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *gen1 =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -100,9 +102,9 @@ BT_START_TEST (test_bt_machine_names)
   g_object_unref (sink);
   g_object_unref (gen2);
   g_object_unref (gen1);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_machine_test_case (void)
+ TCase * bt_machine_test_case (void)
 {
   TCase *tc = tcase_create ("BtMachineTests");
 

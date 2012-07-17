@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_setup_new)
+static void test_bt_setup_new (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
 
@@ -70,11 +71,12 @@ BT_START_TEST (test_bt_setup_new)
 
   /* cleanup */
   g_object_unref (setup);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_setup_machine_add_id)
+static void test_bt_setup_machine_add_id (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
 
@@ -90,11 +92,12 @@ BT_START_TEST (test_bt_setup_machine_add_id)
   /* cleanup */
   g_object_unref (source);
   g_object_unref (setup);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_setup_machine_rem_id)
+static void test_bt_setup_machine_rem_id (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source =
@@ -111,11 +114,12 @@ BT_START_TEST (test_bt_setup_machine_rem_id)
   /* cleanup */
   g_object_unref (source);
   g_object_unref (setup);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_setup_machine_add_list)
+static void test_bt_setup_machine_add_list (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source =
@@ -134,11 +138,12 @@ BT_START_TEST (test_bt_setup_machine_add_list)
   g_list_free (list);
   g_object_unref (source);
   g_object_unref (setup);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_setup_wire_add_machine_id)
+static void test_bt_setup_wire_add_machine_id (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source =
@@ -158,11 +163,12 @@ BT_START_TEST (test_bt_setup_wire_add_machine_id)
   g_object_unref (sink);
   g_object_unref (source);
   g_object_unref (setup);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_setup_wire_rem_machine_id)
+static void test_bt_setup_wire_rem_machine_id (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source =
@@ -183,11 +189,12 @@ BT_START_TEST (test_bt_setup_wire_rem_machine_id)
   g_object_unref (sink);
   g_object_unref (source);
   g_object_unref (setup);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_setup_wire_add_src_list)
+static void test_bt_setup_wire_add_src_list (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source =
@@ -210,11 +217,12 @@ BT_START_TEST (test_bt_setup_wire_add_src_list)
   g_object_unref (sink);
   g_object_unref (source);
   g_object_unref (setup);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_setup_wire_add_dst_list)
+static void test_bt_setup_wire_add_dst_list (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source =
@@ -237,14 +245,15 @@ BT_START_TEST (test_bt_setup_wire_add_dst_list)
   g_object_unref (sink);
   g_object_unref (source);
   g_object_unref (setup);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
 * In this example you can see, how we get a source machine back by its type.
 */
-BT_START_TEST (test_bt_setup_machine_type)
+static void test_bt_setup_machine_type (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source =
@@ -262,14 +271,15 @@ BT_START_TEST (test_bt_setup_machine_type)
   g_object_unref (machine);
   g_object_unref (source);
   g_object_unref (setup);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /*
 * In this test case we check the _unique_id function.
 */
-BT_START_TEST (test_bt_setup_unique_id1)
+static void test_bt_setup_unique_id1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source =
@@ -288,9 +298,9 @@ BT_START_TEST (test_bt_setup_unique_id1)
   g_free (id);
   g_object_unref (source);
   g_object_unref (setup);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_setup_example_case (void)
+ TCase * bt_setup_example_case (void)
 {
   TCase *tc = tcase_create ("BtSetupExamples");
 

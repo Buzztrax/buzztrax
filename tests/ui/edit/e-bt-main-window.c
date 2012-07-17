@@ -71,8 +71,9 @@ leave_dialog (gpointer user_data)
 }
 
 // test message dialog
-BT_START_TEST (test_message_dialog1)
+static void test_message_dialog1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
 
@@ -96,12 +97,13 @@ BT_START_TEST (test_message_dialog1)
 
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test question dialog
-BT_START_TEST (test_question_dialog1)
+static void test_question_dialog1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   gboolean res;
@@ -127,12 +129,13 @@ BT_START_TEST (test_question_dialog1)
 
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test open a song, but cancel
-BT_START_TEST (test_open_song)
+static void test_open_song (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
 
@@ -156,12 +159,13 @@ BT_START_TEST (test_open_song)
 
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // test open a song, but cancel
-BT_START_TEST (test_save_song_as)
+static void test_save_song_as (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
 
@@ -188,9 +192,9 @@ BT_START_TEST (test_save_song_as)
 
   // free everything
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_main_window_example_case (void)
+ TCase * bt_main_window_example_case (void)
 {
   TCase *tc = tcase_create ("BtMainWindowExamples");
 

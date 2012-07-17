@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_sequence_new)
+static void test_bt_sequence_new (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -72,11 +73,12 @@ BT_START_TEST (test_bt_sequence_new)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_labels)
+static void test_bt_sequence_labels (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -93,11 +95,12 @@ BT_START_TEST (test_bt_sequence_labels)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_tracks)
+static void test_bt_sequence_tracks (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -115,11 +118,12 @@ BT_START_TEST (test_bt_sequence_tracks)
   /* cleanup */
   g_object_try_unref (machine);
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_pattern)
+static void test_bt_sequence_pattern (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -149,11 +153,12 @@ BT_START_TEST (test_bt_sequence_pattern)
   g_object_try_unref (pattern);
   g_object_try_unref (machine);
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_enlarge_length)
+static void test_bt_sequence_enlarge_length (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -166,11 +171,12 @@ BT_START_TEST (test_bt_sequence_enlarge_length)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_enlarge_length_check_labels)
+static void test_bt_sequence_enlarge_length_check_labels (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -186,11 +192,12 @@ BT_START_TEST (test_bt_sequence_enlarge_length_check_labels)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_enlarge_length_labels)
+static void test_bt_sequence_enlarge_length_labels (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -209,11 +216,12 @@ BT_START_TEST (test_bt_sequence_enlarge_length_labels)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_shrink_length)
+static void test_bt_sequence_shrink_length (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -227,11 +235,12 @@ BT_START_TEST (test_bt_sequence_shrink_length)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_enlarge_track)
+static void test_bt_sequence_enlarge_track (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -248,11 +257,12 @@ BT_START_TEST (test_bt_sequence_enlarge_track)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_enlarge_track_vals)
+static void test_bt_sequence_enlarge_track_vals (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -273,11 +283,12 @@ BT_START_TEST (test_bt_sequence_enlarge_track_vals)
   /* cleanup */
   g_object_try_unref (machine);
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_shrink_track)
+static void test_bt_sequence_shrink_track (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -297,11 +308,12 @@ BT_START_TEST (test_bt_sequence_shrink_track)
   /* cleanup */
   g_object_try_unref (machine);
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_enlarge_both_vals)
+static void test_bt_sequence_enlarge_both_vals (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -332,16 +344,17 @@ BT_START_TEST (test_bt_sequence_enlarge_both_vals)
   g_object_try_unref (pattern);
   g_object_try_unref (machine);
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* we moved these updates to the app, to give the undo/redo framework a chance
  * to backup the data
  */
 #ifdef __CHECK_DISABLED__
 // test that removing patterns updates the sequence
-BT_START_TEST (test_bt_sequence_update)
+static void test_bt_sequence_update (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -365,12 +378,13 @@ BT_START_TEST (test_bt_sequence_update)
   g_object_try_unref (pattern);
   g_object_try_unref (machine);
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 #endif
-BT_START_TEST (test_bt_sequence_change_pattern)
+static void test_bt_sequence_change_pattern (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -397,11 +411,12 @@ BT_START_TEST (test_bt_sequence_change_pattern)
   g_object_unref (pattern);
   g_object_unref (machine);
   g_object_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_hold)
+static void test_bt_sequence_hold (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -433,11 +448,12 @@ BT_START_TEST (test_bt_sequence_hold)
   g_object_unref (pattern);
   g_object_unref (machine);
   g_object_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_combine_pattern_shadows)
+static void test_bt_sequence_combine_pattern_shadows (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -474,11 +490,12 @@ BT_START_TEST (test_bt_sequence_combine_pattern_shadows)
   g_object_unref (pattern2);
   g_object_unref (machine);
   g_object_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_combine_pattern_unshadows)
+static void test_bt_sequence_combine_pattern_unshadows (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -520,11 +537,12 @@ BT_START_TEST (test_bt_sequence_combine_pattern_unshadows)
   g_object_unref (pattern2);
   g_object_unref (machine);
   g_object_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_combine_value_unshadows)
+static void test_bt_sequence_combine_value_unshadows (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -566,11 +584,12 @@ BT_START_TEST (test_bt_sequence_combine_value_unshadows)
   g_object_unref (pattern2);
   g_object_unref (machine);
   g_object_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_combine_two_tracks)
+static void test_bt_sequence_combine_two_tracks (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -607,9 +626,11 @@ BT_START_TEST (test_bt_sequence_combine_two_tracks)
   g_object_unref (pattern);
   g_object_unref (machine);
   g_object_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST typedef struct
+
+typedef struct
 {
   gint ct;
   gint values[8];
@@ -627,8 +648,9 @@ on_btsequence_ticks_notify (GstObject * machine, GParamSpec * arg,
   data->ct++;
 }
 
-BT_START_TEST (test_bt_sequence_ticks)
+static void test_bt_sequence_ticks (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequenceTicksTestData data = { 0, };
   BtSequence *sequence =
@@ -684,11 +706,12 @@ BT_START_TEST (test_bt_sequence_ticks)
   g_object_unref (wire);
   g_object_unref (sequence);
   g_object_unref (song_info);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_sequence_validate_loop)
+static void test_bt_sequence_validate_loop (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
@@ -703,9 +726,11 @@ BT_START_TEST (test_bt_sequence_validate_loop)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
 }
 
-BT_END_TEST TCase * bt_sequence_example_case (void)
+
+TCase * bt_sequence_example_case (void)
 {
   TCase *tc = tcase_create ("BtSequenceExamples");
 

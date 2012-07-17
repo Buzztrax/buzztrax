@@ -48,8 +48,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_audio_session_singleton)
+static void test_bt_audio_session_singleton (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtAudioSession *session1 = bt_audio_session_new ();
 
@@ -62,9 +63,9 @@ BT_START_TEST (test_bt_audio_session_singleton)
   /* cleanup */
   g_object_unref (session2);
   g_object_checked_unref (session1);
+  BT_TEST_END;
 }
-
-BT_END_TEST;
+;
 
 
 TCase *

@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_btinvalid_param)
+static void test_btinvalid_param (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "id",
@@ -68,9 +69,9 @@ BT_START_TEST (test_btinvalid_param)
 
   /* cleanup */
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_param_group_test_case (void)
+ TCase * bt_param_group_test_case (void)
 {
   TCase *tc = tcase_create ("BtParamGroupTests");
 

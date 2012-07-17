@@ -48,8 +48,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_settings_singleton)
+static void test_bt_settings_singleton (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtSettings *settings1 = bt_settings_make ();
 
@@ -62,9 +63,9 @@ BT_START_TEST (test_bt_settings_singleton)
   /* cleanup */
   g_object_unref (settings2);
   g_object_checked_unref (settings1);
+  BT_TEST_END;
 }
-
-BT_END_TEST;
+;
 
 
 TCase *

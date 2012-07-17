@@ -40,8 +40,9 @@ test_teardown (void)
 //-- tests
 
 // activate tracks
-BT_START_TEST (test_active_machine)
+static void test_active_machine (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
@@ -138,9 +139,9 @@ BT_START_TEST (test_active_machine)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_sequence_page_example_case (void)
+ TCase * bt_sequence_page_example_case (void)
 {
   TCase *tc = tcase_create ("BtSequencePageExamples");
 

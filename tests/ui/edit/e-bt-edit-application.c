@@ -49,8 +49,9 @@ static gboolean timeout(gpointer data) {
 //-- tests
 
 // create app and then unconditionally destroy window
-BT_START_TEST (test_create)
+static void test_create (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
 
@@ -107,9 +108,9 @@ BT_START_TEST (test_create)
   // free application
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
-
-BT_END_TEST static gboolean
+ static gboolean
 finish_main_loops (gpointer user_data)
 {
   // this does not work for dialogs (gtk_dialog_run)!
@@ -118,8 +119,9 @@ finish_main_loops (gpointer user_data)
 }
 
 // create app and then unconditionally destroy window
-BT_START_TEST (test_run)
+static void test_run (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSettings *settings = bt_settings_make ();
@@ -144,12 +146,13 @@ BT_START_TEST (test_run)
 
   // free application
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // create a new song
-BT_START_TEST (test_new1)
+static void test_new1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
@@ -184,12 +187,13 @@ BT_START_TEST (test_new1)
   // free application
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song
-BT_START_TEST (test_load1)
+static void test_load1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
@@ -227,12 +231,13 @@ BT_START_TEST (test_load1)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song, free it, load another
-BT_START_TEST (test_load2)
+static void test_load2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song1, *song2;
@@ -281,12 +286,13 @@ BT_START_TEST (test_load2)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song, free it, load another
-BT_START_TEST (test_load3)
+static void test_load3 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
@@ -343,9 +349,9 @@ BT_START_TEST (test_load3)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song with a ui page disabled
     static void
 test_load_ui_page_disabled (gint page_num)
@@ -389,43 +395,49 @@ test_load_ui_page_disabled (gint page_num)
 }
 
 // load a song with machines view disabled
-BT_START_TEST (test_load_machines_view_disabled)
+static void test_load_machines_view_disabled (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   test_load_ui_page_disabled (BT_MAIN_PAGES_MACHINES_PAGE);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song with patterns view disabled
-BT_START_TEST (test_load_patterns_view_disabled)
+static void test_load_patterns_view_disabled (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   test_load_ui_page_disabled (BT_MAIN_PAGES_PATTERNS_PAGE);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song with sequence view disabled
-BT_START_TEST (test_load_sequence_view_disabled)
+static void test_load_sequence_view_disabled (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   test_load_ui_page_disabled (BT_MAIN_PAGES_SEQUENCE_PAGE);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song with info view disabled
-BT_START_TEST (test_load_info_view_disabled)
+static void test_load_info_view_disabled (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   test_load_ui_page_disabled (BT_MAIN_PAGES_INFO_PAGE);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song with waves view disabled
-BT_START_TEST (test_load_waves_view_disabled)
+static void test_load_waves_view_disabled (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   test_load_ui_page_disabled (BT_MAIN_PAGES_WAVES_PAGE);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song and play it
-BT_START_TEST (test_load_and_play1)
+static void test_load_and_play1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
@@ -469,12 +481,13 @@ BT_START_TEST (test_load_and_play1)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song, free it, load another song and play it
-BT_START_TEST (test_load_and_play2)
+static void test_load_and_play2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song1, *song2;
@@ -529,12 +542,13 @@ BT_START_TEST (test_load_and_play2)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // view all tabs
-BT_START_TEST (test_tabs1)
+static void test_tabs1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
@@ -615,12 +629,13 @@ BT_START_TEST (test_tabs1)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // view all tabs
-BT_START_TEST (test_tabs_playing)
+static void test_tabs_playing (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
@@ -699,12 +714,13 @@ BT_START_TEST (test_tabs_playing)
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
 
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song and remove a machine
-BT_START_TEST (test_machine_view_edit0)
+static void test_machine_view_edit0 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
@@ -749,12 +765,13 @@ BT_START_TEST (test_machine_view_edit0)
   // free application
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song and remove machines
-BT_START_TEST (test_machine_view_edit1)
+static void test_machine_view_edit1 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
@@ -810,13 +827,14 @@ BT_START_TEST (test_machine_view_edit1)
   // free application
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song and remove machines
 // (same as above with order in which we remove the machines swapped)
-BT_START_TEST (test_machine_view_edit2)
+static void test_machine_view_edit2 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
@@ -877,12 +895,13 @@ BT_START_TEST (test_machine_view_edit2)
   // free application
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 // load a song and remove machines
-BT_START_TEST (test_machine_view_edit3)
+static void test_machine_view_edit3 (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
@@ -967,9 +986,9 @@ BT_START_TEST (test_machine_view_edit3)
   // free application
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_edit_application_example_case (void)
+ TCase * bt_edit_application_example_case (void)
 {
   TCase *tc = tcase_create ("BtEditApplicationExamples");
 

@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_pattern_properties)
+static void test_bt_pattern_properties (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -70,11 +71,12 @@ BT_START_TEST (test_bt_pattern_properties)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_new_null_machine)
+static void test_bt_pattern_new_null_machine (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   check_init_error_trapp ("bt_pattern_", "BT_IS_MACHINE (self->priv->machine)");
 
@@ -88,11 +90,12 @@ BT_START_TEST (test_bt_pattern_new_null_machine)
 
   /* cleanup */
   g_object_unref (pattern);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_new_null_id)
+static void test_bt_pattern_new_null_id (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "id",
@@ -109,11 +112,12 @@ BT_START_TEST (test_bt_pattern_new_null_id)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_new_null_name)
+static void test_bt_pattern_new_null_name (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "id",
@@ -130,11 +134,12 @@ BT_START_TEST (test_bt_pattern_new_null_name)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_pattern_get_group_by_null_paramgroup)
+static void test_bt_pattern_get_group_by_null_paramgroup (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_source_machine_new (song, "id",
@@ -149,9 +154,9 @@ BT_START_TEST (test_bt_pattern_get_group_by_null_paramgroup)
   /* cleanup */
   g_object_unref (pattern);
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_pattern_test_case (void)
+ TCase * bt_pattern_test_case (void)
 {
   TCase *tc = tcase_create ("BtPatternTests");
 

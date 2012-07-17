@@ -252,8 +252,9 @@ run_main_loop_until_eos (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_sink_bin_new)
+static void test_bt_sink_bin_new (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -264,13 +265,14 @@ BT_START_TEST (test_bt_sink_bin_new)
 
   /* cleanup */
   gst_object_unref (bin);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* test playback (we test this elsewhere too) */
 /* test recording (loop test over BtSinkBinRecordFormat */
-BT_START_TEST (test_bt_sink_bin_record)
+static void test_bt_sink_bin_record (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   make_new_song ( /*silence */ 4);
   GstElement *sink_bin = get_sink_bin ();
@@ -296,12 +298,13 @@ BT_START_TEST (test_bt_sink_bin_record)
   /* cleanup */
   g_free (filename);
   gst_object_unref (sink_bin);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* test playback + recording, same as above */
-BT_START_TEST (test_bt_sink_bin_record_and_play)
+static void test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   make_new_song ( /*silence */ 4);
   GstElement *sink_bin = get_sink_bin ();
@@ -327,12 +330,13 @@ BT_START_TEST (test_bt_sink_bin_record_and_play)
   /* cleanup */
   g_free (filename);
   gst_object_unref (sink_bin);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* test master volume, using appsink? */
-BT_START_TEST (test_bt_sink_bin_master_volume)
+static void test_bt_sink_bin_master_volume (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   gdouble volume = 1.0 / (gdouble) _i;
   g_object_set (settings, "audiosink", "fakesink", NULL);
@@ -356,12 +360,13 @@ BT_START_TEST (test_bt_sink_bin_master_volume)
   /* cleanup */
   bt_song_stop (song);
   gst_object_unref (sink_bin);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* insert analyzers */
-BT_START_TEST (test_bt_sink_bin_analyzers)
+static void test_bt_sink_bin_analyzers (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   make_new_song ( /*square */ 1);
   GstElement *sink_bin = get_sink_bin ();
@@ -386,9 +391,9 @@ BT_START_TEST (test_bt_sink_bin_analyzers)
   /* cleanup */
   bt_song_stop (song);
   gst_object_unref (sink_bin);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_sink_bin_example_case (void)
+ TCase * bt_sink_bin_example_case (void)
 {
   TCase *tc = tcase_create ("BtSinkBinExamples");
 

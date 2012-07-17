@@ -38,8 +38,9 @@ test_teardown (void)
 //-- tests
 
 // create app and then unconditionally destroy window
-BT_START_TEST (test_create_dialog)
+static void test_create_dialog (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   GtkWidget *dialog;
@@ -74,9 +75,9 @@ BT_START_TEST (test_create_dialog)
   // free application
   GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_about_dialog_example_case (void)
+ TCase * bt_about_dialog_example_case (void)
 {
   TCase *tc = tcase_create ("BtAboutDialogExamples");
 

@@ -55,8 +55,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_wire_properties)
+static void test_bt_wire_properties (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *src =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -72,12 +73,13 @@ BT_START_TEST (test_bt_wire_properties)
   g_object_unref (wire);
   g_object_unref (src);
   g_object_unref (dst);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* create a new wire with NULL for song object */
-BT_START_TEST (test_bt_wire_new_null_song)
+static void test_bt_wire_new_null_song (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *src =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -95,12 +97,13 @@ BT_START_TEST (test_bt_wire_new_null_song)
   g_object_unref (wire);
   g_object_unref (src);
   g_object_unref (dst);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* create a new wire with NULL for song object */
-BT_START_TEST (test_bt_wire_new_null_machine)
+static void test_bt_wire_new_null_machine (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *src =
       BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -115,12 +118,13 @@ BT_START_TEST (test_bt_wire_new_null_machine)
   /* cleanup */
   g_object_unref (wire);
   g_object_unref (src);
+  BT_TEST_END;
 }
 
-BT_END_TEST
 /* create a wire with the same machine as source and dest */
-BT_START_TEST (test_bt_wire_same_src_and_dst)
+static void test_bt_wire_same_src_and_dst (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
   BtMachine *machine =
       BT_MACHINE (bt_processor_machine_new (song, "id", "volume", 0, NULL));
@@ -132,9 +136,9 @@ BT_START_TEST (test_bt_wire_same_src_and_dst)
   fail_unless (err != NULL, NULL);
 
   g_object_unref (machine);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_wire_test_case (void)
+ TCase * bt_wire_test_case (void)
 {
   TCase *tc = tcase_create ("BtWireTests");
 

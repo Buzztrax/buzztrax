@@ -48,8 +48,9 @@ case_teardown (void)
 
 //-- tests
 
-BT_START_TEST (test_bt_song_io_module_info)
+static void test_bt_song_io_module_info (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -59,11 +60,12 @@ BT_START_TEST (test_bt_song_io_module_info)
   fail_unless (mi != NULL, NULL);
 
   /* cleanup */
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_file)
+static void test_bt_song_io_file (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -76,11 +78,12 @@ BT_START_TEST (test_bt_song_io_file)
 
   /* cleanup */
   g_object_checked_unref (song_io);
+  BT_TEST_END;
 }
 
-BT_END_TEST
-BT_START_TEST (test_bt_song_io_data)
+static void test_bt_song_io_data (BT_TEST_ARGS)
 {
+  BT_TEST_START;
   /* arrange */
 
   /* act */
@@ -92,9 +95,9 @@ BT_START_TEST (test_bt_song_io_data)
 
   /* cleanup */
   g_object_checked_unref (song_io);
+  BT_TEST_END;
 }
-
-BT_END_TEST TCase * bt_song_io_example_case (void)
+ TCase * bt_song_io_example_case (void)
 {
   TCase *tc = tcase_create ("BtSongIOExamples");
 
