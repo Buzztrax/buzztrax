@@ -172,21 +172,6 @@ autoheader_check ()
   fi
 
 }
-autoconf_2_52d_check ()
-{
-  # autoconf 2.52d has a weird issue involving a yes:no error
-  # so don't allow it's use
-  test -z "$NOCHECK" && {
-    ac_version=`$autoconf --version|head -n 1|sed 's/^[a-zA-Z\.\ ()]*//;s/ .*$//'`
-    if test "$ac_version" = "2.52d"; then
-      echo "autoconf 2.52d has an issue with our current build."
-      echo "We don't know who's to blame however.  So until we do, get a"
-      echo "regular version.  RPM's of a working version are on the gstreamer site."
-      exit 1
-    fi
-  }
-  return 0
-}
 
 die_check ()
 {
@@ -315,8 +300,8 @@ have_gtkdoc_1_9=0
 
 echo -n "+ check for build tools"
 if test ! -z "$NOCHECK"; then echo ": skipped version checks"; else  echo; fi
-version_check "autoconf" "$AUTOCONF autoconf autoconf-2.54 autoconf-2.53 autoconf-2.52" \
-              "ftp://ftp.gnu.org/pub/gnu/autoconf/" 2 52 || DIE=1
+version_check "autoconf" "$AUTOCONF autoconf" \
+              "ftp://ftp.gnu.org/pub/gnu/autoconf/" 2 61 || DIE=1
 version_check "automake" "$AUTOMAKE automake automake-1.7 automake17 automake-1.6" \
               "ftp://ftp.gnu.org/pub/gnu/automake/" 1 6 || DIE=1
 version_check "autopoint" "autopoint" \
@@ -329,13 +314,12 @@ fi
 version_check "intltoolize" "" \
               "ftp://ftp.gnome.org/pub/gnome/sources/intltool/" 0 1 5 || DIE=1
 version_check "libtoolize" "libtoolize" \
-              "ftp://ftp.gnu.org/pub/gnu/libtool/" 1 5 0 || DIE=1
+              "ftp://ftp.gnu.org/pub/gnu/libtool/" 2 2 0 || DIE=1
 version_check "pkg-config" "" \
               "ftp://ftp.gnome.org/pub/gnome/sources/pkgconfig/" 0 8 0 || DIE=1
 
 die_check $DIE
 
-autoconf_2_52d_check || DIE=1
 aclocal_check || DIE=1
 autoheader_check || DIE=1
 

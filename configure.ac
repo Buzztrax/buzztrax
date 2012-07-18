@@ -71,7 +71,6 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_SED
-AC_ISC_POSIX
 AM_PROG_CC_C_O
 AM_PROG_MKDIR_P
 IT_PROG_INTLTOOL
@@ -465,12 +464,6 @@ case "x${host_cpu}" in
     AC_CHECK_HEADERS([xmmintrin.h])
     ;;
 esac
-
-
-dnl Checks for typedefs, structures, and compiler characteristics.
-AM_C_PROTOTYPES
-test "x$U" != "x" && AC_MSG_ERROR(Compiler not ANSI compliant)
-AC_C_CONST
 
 
 dnl check for libraries
