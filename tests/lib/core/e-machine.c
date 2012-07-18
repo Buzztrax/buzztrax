@@ -169,9 +169,7 @@ test_bt_machine_enable_output_gain1 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-/*
- * add pattern
- */
+/* add pattern */
 static void
 test_bt_machine_add_pattern (BT_TEST_ARGS)
 {
@@ -186,6 +184,28 @@ test_bt_machine_add_pattern (BT_TEST_ARGS)
 
   /* assert */
   fail_unless (bt_machine_has_patterns (machine), NULL);
+
+  /* cleanup */
+  g_object_unref (machine);
+  g_object_unref (pattern);
+  BT_TEST_END;
+}
+
+static void
+test_bt_machine_rem_pattern (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-poly-source", 1L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+
+  /* act */
+  bt_machine_remove_pattern (machine, (BtCmdPattern *) pattern);
+
+  /* assert */
+  fail_if (bt_machine_has_patterns (machine), NULL);
 
   /* cleanup */
   g_object_unref (machine);
@@ -342,6 +362,7 @@ bt_machine_example_case (void)
   tcase_add_test (tc, test_bt_machine_enable_input_gain1);
   tcase_add_test (tc, test_bt_machine_enable_output_gain1);
   tcase_add_test (tc, test_bt_machine_add_pattern);
+  tcase_add_test (tc, test_bt_machine_rem_pattern);
   tcase_add_test (tc, test_bt_machine_pattern_names);
   tcase_add_test (tc, test_bt_machine_check_voices);
   tcase_add_test (tc, test_bt_machine_change_voices);
