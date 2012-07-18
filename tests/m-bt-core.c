@@ -48,8 +48,9 @@ extern Suite *bt_song_io_native_suite (void);
 extern Suite *bt_song_info_suite (void);
 extern Suite *bt_source_machine_suite (void);
 extern Suite *bt_tools_suite (void);
-extern Suite *bt_wire_suite (void);
 extern Suite *bt_value_group_suite (void);
+extern Suite *bt_wave_table_suite (void);
+extern Suite *bt_wire_suite (void);
 
 gchar *test_argv[] = { "check_buzzard" };
 
@@ -104,6 +105,7 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_source_machine_suite ());
   srunner_add_suite (sr, bt_tools_suite ());
   srunner_add_suite (sr, bt_value_group_suite ());
+  srunner_add_suite (sr, bt_wave_table_suite ());
   srunner_add_suite (sr, bt_wire_suite ());
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);

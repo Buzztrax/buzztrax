@@ -133,7 +133,8 @@ libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
 	tests/lib/core/s-source-machine.c tests/lib/core/e-source-machine.c tests/lib/core/t-source-machine.c \
 	tests/lib/core/s-tools.c tests/lib/core/e-tools.c tests/lib/core/t-tools.c \
 	tests/lib/core/s-value-group.c tests/lib/core/e-value-group.c tests/lib/core/t-value-group.c \
-	tests/lib/core/s-wire.c tests/lib/core/e-wire.c tests/lib/core/t-wire.c
+	tests/lib/core/s-wire.c tests/lib/core/e-wire.c tests/lib/core/t-wire.c \
+	tests/lib/core/s-wave-table.c tests/lib/core/e-wave-table.c tests/lib/core/t-wave-table.c
 
 libbtic_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtic_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
