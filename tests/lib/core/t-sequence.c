@@ -67,6 +67,7 @@ test_bt_sequence_properties (BT_TEST_ARGS)
   fail_unless (check_gobject_properties (sequence), NULL);
 
   /* cleanup */
+  g_object_unref (sequence);
   BT_TEST_END;
 }
 
