@@ -654,8 +654,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->
-                        dst_wires->data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->dst_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -683,8 +683,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->
-                        src_wires->data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->src_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -713,21 +713,27 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
 static void
 bt_machine_resize_voices (const BtMachine * const self, const gulong old_voices)
 {
-  const gulong new_voices = self->priv->voices;
+  gulong new_voices = self->priv->voices;
   const gulong voice_params = self->priv->voice_params;
-  GST_INFO ("changing machine %s:%p voices from %ld to %ld", self->priv->id,
-      self->priv->machines[PART_MACHINE], old_voices, new_voices);
+  GstElement *machine = self->priv->machines[PART_MACHINE];
 
   // TODO(ensonic): GSTBT_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
-  if ((!self->priv->machines[PART_MACHINE])
-      || (!GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE]))) {
+  if (!machine || !GSTBT_IS_CHILD_BIN (machine)) {
     GST_WARNING_OBJECT (self, "machine %s:%p is NULL or not polyphonic!",
-        self->priv->id, self->priv->machines[PART_MACHINE]);
+        self->priv->id, machine);
     return;
   }
 
-  g_object_set (self->priv->machines[PART_MACHINE], "children", new_voices,
-      NULL);
+  g_object_set (machine, "children", new_voices, NULL);
+  g_object_get (machine, "children", &self->priv->voices, NULL);
+  if (old_voices == self->priv->voices) {
+    GST_INFO_OBJECT (self, "not changing changing machine voices");
+    return;
+  }
+  new_voices = self->priv->voices;
+
+  GST_INFO_OBJECT (self, "changing machine %s:%p voices from %ld to %ld",
+      self->priv->id, machine, old_voices, new_voices);
 
   if (old_voices > new_voices) {
     gulong v;
@@ -748,8 +754,8 @@ bt_machine_resize_voices (const BtMachine * const self, const gulong old_voices)
     for (v = old_voices; v < new_voices; v++) {
       // get child for voice
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                      priv->machines[PART_MACHINE]), v))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine),
+                  v))) {
         GParamSpec **properties;
         guint number_of_properties;
 
@@ -1223,8 +1229,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                      priv->machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                      machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1285,8 +1291,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                    priv->machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                    machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
