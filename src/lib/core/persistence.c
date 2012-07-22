@@ -57,9 +57,9 @@ G_DEFINE_INTERFACE (BtPersistence, bt_persistence, 0);
  * bt_persistence_strfmt_uchar:
  * @val: a value
  *
- * Convinience methods, that formats a value to be serialized as a string.
+ * Convenience methods, that formats a value to be serialized as a string.
  *
- * Returns: a reference to static memory containg the formatted value.
+ * Returns: a reference to static memory containing the formatted value.
  */
 const gchar *
 bt_persistence_strfmt_uchar (const guchar val)
@@ -74,9 +74,9 @@ bt_persistence_strfmt_uchar (const guchar val)
  * bt_persistence_strfmt_long:
  * @val: a value
  *
- * Convinience methods, that formats a value to be serialized as a string.
+ * Convenience methods, that formats a value to be serialized as a string.
  *
- * Returns: a reference to static memory containg the formatted value.
+ * Returns: a reference to static memory containing the formatted value.
  */
 const gchar *
 bt_persistence_strfmt_long (const glong val)
@@ -91,9 +91,9 @@ bt_persistence_strfmt_long (const glong val)
  * bt_persistence_strfmt_ulong:
  * @val: a value
  *
- * Convinience methods, that formats a value to be serialized as a string.
+ * Convenience methods, that formats a value to be serialized as a string.
  *
- * Returns: a reference to static memory containg the formatted value.
+ * Returns: a reference to static memory containing the formatted value.
  */
 const gchar *
 bt_persistence_strfmt_ulong (const gulong val)
@@ -108,9 +108,9 @@ bt_persistence_strfmt_ulong (const gulong val)
  * bt_persistence_strfmt_double:
  * @val: a value
  *
- * Convinience methods, that formats a value to be serialized as a string.
+ * Convenience methods, that formats a value to be serialized as a string.
  *
- * Returns: a reference to static memory containg the formatted value.
+ * Returns: a reference to static memory containing the formatted value.
  */
 const gchar *
 bt_persistence_strfmt_double (const gdouble val)
@@ -128,9 +128,9 @@ bt_persistence_strfmt_double (const gdouble val)
  * @enum_type: the #GType for the enum
  * @value: the integer value for the enum
  *
- * Convinience methods, that formats a value to be serialized as a string.
+ * Convenience methods, that formats a value to be serialized as a string.
  *
- * Returns: a reference to static memory containg the formatted value.
+ * Returns: a reference to static memory containing the formatted value.
  */
 const gchar *
 bt_persistence_strfmt_enum (GType enum_type, gint value)
@@ -148,10 +148,10 @@ bt_persistence_strfmt_enum (GType enum_type, gint value)
  * @enum_type: the #GType for the enum
  * @str: the enum value name
  *
- * Convinience methods, that parses a enum value nick and to get the
- * corresponding intger value.
+ * Convenience methods, that parses a enum value nick and to get the
+ * corresponding integer value.
  *
- * Returns: the interger value for the enum, or -1 for invalid strings.
+ * Returns: the integer value for the enum, or -1 for invalid strings.
  */
 gint
 bt_persistence_parse_enum (GType enum_type, const gchar * str)
