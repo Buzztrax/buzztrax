@@ -73,6 +73,7 @@
 
 #include "core_private.h"
 #include "sink-bin.h"
+#include <gst/pbutils/encoding-profile.h>
 
 /* define this to get diagnostics of the sink data flow */
 //#define BT_MONITOR_SINK_DATA_FLOW
@@ -243,6 +244,104 @@ bt_sink_bin_record_format_get_type (void)
     type = g_enum_register_static ("BtSinkBinRecordFormat", values);
   }
   return type;
+}
+
+//-- profile methods
+
+GstEncodingProfile *
+bt_sink_bin_create_ogg_vorbis_profile (void)
+{
+  GstEncodingContainerProfile *profile;
+  GstCaps *caps;
+
+  caps = gst_caps_from_string ("application/ogg");
+  profile = gst_encoding_container_profile_new ("Ogg Vorbis",
+      "Standard OGG/VORBIS", caps, NULL);
+  gst_caps_unref (caps);
+  caps = gst_caps_from_string ("audio/x-vorbis");
+  gst_encoding_container_profile_add_profile (profile,
+      (GstEncodingProfile *) gst_encoding_audio_profile_new (caps, NULL, NULL,
+          1));
+  gst_caps_unref (caps);
+
+  return (GstEncodingProfile *) profile;
+}
+
+GstEncodingProfile *
+bt_sink_bin_create_mp3_profile (void)
+{
+  GstEncodingContainerProfile *profile;
+  GstCaps *caps;
+
+  caps = gst_caps_from_string ("application/x-id3");
+  profile = gst_encoding_container_profile_new ("MP3 audio",
+      "Standard MP3", caps, NULL);
+  gst_caps_unref (caps);
+  caps = gst_caps_from_string ("audio/mpeg, mpegversion=1, layer=3");
+  gst_encoding_container_profile_add_profile (profile,
+      (GstEncodingProfile *) gst_encoding_audio_profile_new (caps, NULL, NULL,
+          1));
+  gst_caps_unref (caps);
+
+  return (GstEncodingProfile *) profile;
+}
+
+GstEncodingProfile *
+bt_sink_bin_create_wav_profile (void)
+{
+  GstEncodingContainerProfile *profile;
+  GstCaps *caps;
+
+  caps = gst_caps_from_string ("audio/x-wav");
+  profile = gst_encoding_container_profile_new ("WAV audio",
+      "Standard WAV", caps, NULL);
+  gst_caps_unref (caps);
+  caps = gst_caps_from_string ("audio/x-raw-int, width=16, depth=16");
+  gst_encoding_container_profile_add_profile (profile,
+      (GstEncodingProfile *) gst_encoding_audio_profile_new (caps, NULL, NULL,
+          1));
+  gst_caps_unref (caps);
+  return (GstEncodingProfile *) profile;
+}
+
+GstEncodingProfile *
+bt_sink_bin_create_ogg_flac_profile (void)
+{
+  GstEncodingContainerProfile *profile;
+  GstCaps *caps;
+
+  caps = gst_caps_from_string ("application/ogg");
+  profile = gst_encoding_container_profile_new ("Ogg FLAC",
+      "Standard OGG/FLAC", caps, NULL);
+  gst_caps_unref (caps);
+
+  caps = gst_caps_from_string ("audio/x-flac");
+  gst_encoding_container_profile_add_profile (profile,
+      (GstEncodingProfile *) gst_encoding_audio_profile_new (caps, NULL, NULL,
+          1));
+  gst_caps_unref (caps);
+
+  return (GstEncodingProfile *) profile;
+}
+
+GstEncodingProfile *
+bt_sink_bin_create_m4a_profile (void)
+{
+  GstEncodingContainerProfile *profile;
+  GstCaps *caps;
+
+  caps = gst_caps_from_string ("video/quicktime");
+  profile = gst_encoding_container_profile_new ("M4A audio",
+      "Standard M4A", caps, NULL);
+  gst_caps_unref (caps);
+
+  caps = gst_caps_from_string ("audio/mpeg, mpegversion=(int)4");
+  gst_encoding_container_profile_add_profile (profile,
+      (GstEncodingProfile *) gst_encoding_audio_profile_new (caps, NULL, NULL,
+          1));
+  gst_caps_unref (caps);
+
+  return (GstEncodingProfile *) profile;
 }
 
 //-- helper methods
@@ -423,20 +522,6 @@ bt_sink_bin_link_many (const BtSinkBin * const self, GstElement * last_elem,
   }
 }
 
-#define BT_SINK_BIN_MISSING_ELEMENT(elem_name) bt_sink_bin_missing_element(self,elem_name,__FILE__,GST_FUNCTION,__LINE__)
-
-static void
-bt_sink_bin_missing_element (const BtSinkBin * const self,
-    const gchar * elem_name, const gchar * file, const gchar * func,
-    const gint line)
-{
-  gchar *msg = g_strdup_printf ("Can't instantiate %s element", elem_name);
-
-  gst_element_message_full (GST_ELEMENT (self), GST_MESSAGE_ERROR,
-      GST_CORE_ERROR, GST_CORE_ERROR_MISSING_PLUGIN,
-      msg, g_strdup (msg), file, func, line);
-}
-
 static GList *
 bt_sink_bin_get_player_elements (const BtSinkBin * const self)
 {
@@ -482,11 +567,11 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 {
   GList *list = NULL;
   GstElement *element;
+  GstEncodingProfile *profile = NULL;
 
   GST_DEBUG ("get record elements");
 
   // TODO(ensonic): check extension ?
-  // TODO(ensonic): need to lookup encoders by caps
 
   // start with a queue
   element = gst_element_factory_make ("queue", "record-queue");
@@ -496,87 +581,22 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
   }
   list = g_list_append (list, element);
 
-  /*
-     element=gst_element_factory_make("audioconvert","record-convert");
-     list=g_list_append(list,element);
-   */
-
-  // generate recorder elements
+  // generate recorder profiles and set encodebin accordingly
   switch (self->priv->record_format) {
     case BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS:
-      // vorbisenc ! oggmux ! filesink location="song.ogg"
-      /* we use float internally anyway
-         if(!(element=gst_element_factory_make("audioconvert","makefloat"))) {
-         GST_INFO("Can't instantiate 'audioconvert' element");goto Error;
-         }
-         list=g_list_append(list,element);
-       */
-      if (!(element = gst_element_factory_make ("vorbisenc", "vorbisenc"))) {
-        BT_SINK_BIN_MISSING_ELEMENT ("'vorbisenc'");
-        goto Error;
-      }
-      list = g_list_append (list, element);
-      if (!(element = gst_element_factory_make ("oggmux", "oggmux"))) {
-        BT_SINK_BIN_MISSING_ELEMENT ("'oggmux'");
-        goto Error;
-      }
-      list = g_list_append (list, element);
+      profile = bt_sink_bin_create_ogg_vorbis_profile ();
       break;
     case BT_SINK_BIN_RECORD_FORMAT_MP3:
-      // lame ! id3mux ! filesink location="song.mp3"
-      if (!(element = gst_element_factory_make ("lamemp3enc", "lame"))) {
-        if (!(element = gst_element_factory_make ("lame", "lame"))) {
-          // FIXME(ensonic): for some reason this does not show up on the bus
-          /*GstCaps *caps=gst_caps_from_string("audio/mpeg, mpegversion=1, layer=3");
-
-             gst_element_post_message(GST_ELEMENT(self),
-             gst_missing_encoder_message_new(GST_ELEMENT(self), caps));
-             gst_caps_unref(caps);
-           */
-          BT_SINK_BIN_MISSING_ELEMENT ("'lamemp3enc'/'lame'");
-          goto Error;
-        }
-      }
-      list = g_list_append (list, element);
-      if (!(element = gst_element_factory_make ("id3mux", "id3mux"))) {
-        BT_SINK_BIN_MISSING_ELEMENT ("'id3mux'");
-        goto Error;
-      }
-      list = g_list_append (list, element);
+      profile = bt_sink_bin_create_mp3_profile ();
       break;
     case BT_SINK_BIN_RECORD_FORMAT_WAV:
-      // wavenc ! filesink location="song.wav"
-      if (!(element = gst_element_factory_make ("wavenc", "wavenc"))) {
-        BT_SINK_BIN_MISSING_ELEMENT ("'wavenc'");
-        goto Error;
-      }
-      list = g_list_append (list, element);
+      profile = bt_sink_bin_create_wav_profile ();
       break;
     case BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC:
-      // flacenc ! oggmux ! filesink location="song.flac"
-      if (!(element = gst_element_factory_make ("flacenc", "flacenc"))) {
-        BT_SINK_BIN_MISSING_ELEMENT ("'flacenc'");
-        goto Error;
-      }
-      list = g_list_append (list, element);
-      if (!(element = gst_element_factory_make ("oggmux", "oggmux"))) {
-        BT_SINK_BIN_MISSING_ELEMENT ("'oggmux'");
-        goto Error;
-      }
-      list = g_list_append (list, element);
+      profile = bt_sink_bin_create_ogg_flac_profile ();
       break;
     case BT_SINK_BIN_RECORD_FORMAT_MP4_AAC:
-      // faac ! mp4mux ! filesink location="song.m4a"
-      if (!(element = gst_element_factory_make ("faac", "faac"))) {
-        BT_SINK_BIN_MISSING_ELEMENT ("'faac'");
-        goto Error;
-      }
-      list = g_list_append (list, element);
-      if (!(element = gst_element_factory_make ("mp4mux", "mp4mux"))) {
-        BT_SINK_BIN_MISSING_ELEMENT ("'mp4mux'");
-        goto Error;
-      }
-      list = g_list_append (list, element);
+      profile = bt_sink_bin_create_m4a_profile ();
       break;
     case BT_SINK_BIN_RECORD_FORMAT_RAW:
       // no element needed
@@ -585,20 +605,21 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
     default:
       break;
   }
+  // next an encodebin
+  if (profile) {
+    element = gst_element_factory_make ("encodebin", "sink-encodebin");
+    GST_DEBUG_OBJECT (element, "set profile");
+    g_object_set (element, "profile", profile, NULL);
+    list = g_list_append (list, element);
+  }
   // create filesink, set location property
   element = gst_element_factory_make ("filesink", "filesink");
   g_object_set (element, "location", self->priv->record_file_name,
       // only for recording in in realtime and not as fast as we can
-      // "sync",TRUE,
+      // "sync", TRUE,
       NULL);
   list = g_list_append (list, element);
   return (list);
-Error:
-  for (; list; list = list->next) {
-    gst_object_unref (GST_OBJECT (list->data));
-  }
-  g_list_free (g_list_first (list));
-  return (NULL);
 }
 
 #ifdef BT_MONITOR_SINK_DATA_FLOW
@@ -786,7 +807,7 @@ bt_sink_bin_update (const BtSinkBin * const self)
         GST_WARNING ("Can't get playback element list");
         return (FALSE);
       }
-      // add recorder elems
+      // add recorder elements 
       GList *const list2 = bt_sink_bin_get_recorder_elements (self);
       if (list2) {
         bt_sink_bin_add_many (self, list2);
