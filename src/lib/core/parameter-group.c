@@ -582,9 +582,10 @@ bt_parameter_group_describe_param_value (const BtParameterGroup * const self,
   g_return_val_if_fail (G_IS_VALUE (event), NULL);
 
   if (GSTBT_IS_PROPERTY_META (self->priv->parents[index])) {
+    guint prop_id = self->priv->params[index]->param_id;
     return
         gstbt_property_meta_describe_property (GSTBT_PROPERTY_META (self->priv->
-            parents[index]), index + 1, event);
+            parents[index]), prop_id, event);
   }
   return NULL;
 }
