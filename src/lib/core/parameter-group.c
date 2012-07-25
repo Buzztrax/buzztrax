@@ -584,7 +584,7 @@ bt_parameter_group_describe_param_value (const BtParameterGroup * const self,
   if (GSTBT_IS_PROPERTY_META (self->priv->parents[index])) {
     return
         gstbt_property_meta_describe_property (GSTBT_PROPERTY_META (self->priv->
-            parents[index]), index, event);
+            parents[index]), index + 1, event);
   }
   return NULL;
 }
