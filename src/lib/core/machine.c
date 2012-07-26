@@ -654,8 +654,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->dst_wires->
-                        data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -683,8 +683,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->src_wires->
-                        data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1079,31 +1079,31 @@ Error:
 static void
 bt_machine_init_interfaces (const BtMachine * const self)
 {
+  GstElement *machine = self->priv->machines[PART_MACHINE];
   /* initialize buzz-host-callbacks (structure with callbacks)
    * buzzmachines can then call c function of the host
    * would be good to set this as early as possible
    */
-  if (g_object_class_find_property (G_OBJECT_CLASS (BT_MACHINE_GET_CLASS
-              (self->priv->machines[PART_MACHINE])), "host-callbacks")) {
+  if (g_object_class_find_property (G_OBJECT_GET_CLASS (machine),
+          "host-callbacks")) {
     extern void *bt_buzz_callbacks_get (BtSong * song);
 
-    g_object_set (self->priv->machines[PART_MACHINE], "host-callbacks",
+    g_object_set (machine, "host-callbacks",
         bt_buzz_callbacks_get (self->priv->song), NULL);
     GST_INFO ("  host-callbacks iface initialized");
   }
   // initialize child-proxy iface properties
-  if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
+  if (GSTBT_IS_CHILD_BIN (machine)) {
     if (!self->priv->voices) {
       GST_WARNING_OBJECT (self, "voices==0");
-      //g_object_get(self->priv->machines[PART_MACHINE],"children",&self->priv->voices,NULL);
+      //g_object_get(machine,"children",&self->priv->voices,NULL);
     } else {
-      g_object_set (self->priv->machines[PART_MACHINE], "children",
-          self->priv->voices, NULL);
+      g_object_set (machine, "children", self->priv->voices, NULL);
     }
     GST_INFO ("  child proxy iface initialized");
   }
   // initialize tempo iface properties
-  if (GSTBT_IS_TEMPO (self->priv->machines[PART_MACHINE])) {
+  if (GSTBT_IS_TEMPO (machine)) {
     BtSongInfo *song_info;
     BtSettings *settings;
     gulong bpm, tpb;
@@ -1113,7 +1113,7 @@ bt_machine_init_interfaces (const BtMachine * const self)
     g_object_get (song_info, "bpm", &bpm, "tpb", &tpb, NULL);
     settings = bt_settings_make ();
     g_object_get (settings, "latency", &latency, NULL);
-    gstbt_tempo_change_tempo (GSTBT_TEMPO (self->priv->machines[PART_MACHINE]),
+    gstbt_tempo_change_tempo (GSTBT_TEMPO (machine),
         (glong) bpm, (glong) tpb, update_subticks (bpm, tpb, latency));
 
     g_signal_connect (song_info, "notify::bpm",
@@ -1127,7 +1127,7 @@ bt_machine_init_interfaces (const BtMachine * const self)
     GST_INFO ("  tempo iface initialized");
   }
   // sync duration with song
-  if (GST_IS_BASE_SRC (self->priv->machines[PART_MACHINE])) {
+  if (GST_IS_BASE_SRC (machine)) {
     BtSequence *sequence;
     GstClockTime duration;
     glong length;
@@ -1136,8 +1136,7 @@ bt_machine_init_interfaces (const BtMachine * const self)
     g_object_get (sequence, "length", &length, NULL);
     duration = bt_sequence_get_bar_time (sequence) * length;
 
-    GST_BASE_SRC (self->priv->machines[PART_MACHINE])->segment.duration =
-        duration;
+    GST_BASE_SRC (machine)->segment.duration = duration;
     GST_INFO ("  duration: %" GST_TIME_FORMAT, GST_TIME_ARGS (duration));
     g_signal_connect (sequence, "notify::length",
         G_CALLBACK (bt_machine_on_duration_changed), (gpointer) self);
@@ -1229,8 +1228,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1291,8 +1290,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                    machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
