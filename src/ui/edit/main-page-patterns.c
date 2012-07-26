@@ -1252,10 +1252,9 @@ pattern_edit_set_data_at (gpointer pattern_data, gpointer column_data,
         update_wave = TRUE;
       }
     }
-    // if machine can play wave, lookup wave column and enter wave index
-    if (update_wave) {
+    // if machine can play waves, enter wave index
+    if (update_wave && (wave_param > -1)) {
       const gchar *wave_str = "";
-      glong wave_param = -1;
 
       if (BT_IS_STRING (str)) {
         gint wave_ix = gtk_combo_box_get_active (self->priv->wavetable_menu);
@@ -1263,13 +1262,11 @@ pattern_edit_set_data_at (gpointer pattern_data, gpointer column_data,
           wave_ix = self->priv->combopos_to_wave[wave_ix];
           wave_str = bt_persistence_strfmt_ulong (wave_ix);
         }
-        GST_DEBUG ("wav index: %d, %s", wave_ix, wave_str);
+        GST_DEBUG ("wave index: %d, %s", wave_ix, wave_str);
       }
-
-      if (wave_param > -1) {
-        bt_value_group_set_event (group->vg, row, wave_param, wave_str);
-        gtk_widget_queue_draw (GTK_WIDGET (self->priv->pattern_table));
-      }
+      GST_DEBUG ("set wave for: %d, %d to %s", row, wave_param, wave_str);
+      bt_value_group_set_event (group->vg, row, wave_param, wave_str);
+      gtk_widget_queue_draw (GTK_WIDGET (self->priv->pattern_table));
     }
   }
   if (group->columns[param].type == PCT_BYTE) {
