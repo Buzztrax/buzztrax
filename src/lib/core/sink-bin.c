@@ -45,12 +45,12 @@
  *     - 3.0, 3.1,  3.2,  3.3,  4.0
  * - use a pad-probe like master_volume_sync_handler (consider reusing) to sync them
  *   - this is followed by volume ! level ! capsfilter ! audioresample ! tee ! audiosink
- *   - this might be good to compensate the processing latency for control-out 
+ *   - this might be good to compensate the processing latency for control-out
  *   - we could also plug a fakesink/appsink to the tee
  * - we need to calculate beat,tick from the buffer ts
  *   subtick = ts / chunk
  *   tick = ts / (chunk * subticks_per_tick)
- *   beat = (gint) tick / ticks_per_beat 
+ *   beat = (gint) tick / ticks_per_beat
  * - the gtk-ui can have two on-screen leds
  * - sink-bin could use the keyboard leds to indicate them (with #ifdef LINUX)
  *   - need root permissions :/
@@ -94,6 +94,28 @@ enum
   SINK_BIN_TEMPO_BPM,
   SINK_BIN_TEMPO_TPB,
   SINK_BIN_TEMPO_STPT,
+};
+
+typedef struct
+{
+  gchar *name;
+  gchar *desc;
+  gchar *container_caps;
+  gchar *audio_caps;
+} BtSinkBinRecordFormatInfo;
+
+static const BtSinkBinRecordFormatInfo formats[] = {
+  {"Ogg Vorbis record format", "Ogg Vorbis", "application/ogg",
+      "audio/x-vorbis"},
+  {"MP3 record format", "MP3 Audio",
+      "application/x-id3", "audio/mpeg, mpegversion=1, layer=3"},
+  {"WAV record format", "WAV Audio", "audio/x-wav",
+      "audio/x-raw-int, width=16, depth=16"},
+  {"Ogg Flac record format", "Ogg Flac", "application/ogg",
+      "audio/x-flac"},
+  {"Raw format", "Raw", NULL, NULL},
+  {"M4A record format", "M4A Audio", "video/quicktime",
+      "audio/mpeg, mpegversion=(int)4"}
 };
 
 struct _BtSinkBinPrivate
@@ -246,96 +268,29 @@ bt_sink_bin_record_format_get_type (void)
   return type;
 }
 
-//-- profile methods
+//-- profile method
 
-GstEncodingProfile *
-bt_sink_bin_create_ogg_vorbis_profile (void)
+static GstEncodingProfile *
+bt_sink_bin_create_recording_profile (const BtSinkBinRecordFormatInfo * info)
 {
   GstEncodingContainerProfile *profile;
   GstCaps *caps;
 
-  caps = gst_caps_from_string ("application/ogg");
-  profile = gst_encoding_container_profile_new ("Ogg Vorbis",
-      "Standard OGG/VORBIS", caps, NULL);
-  gst_caps_unref (caps);
-  caps = gst_caps_from_string ("audio/x-vorbis");
-  gst_encoding_container_profile_add_profile (profile,
-      (GstEncodingProfile *) gst_encoding_audio_profile_new (caps, NULL, NULL,
-          1));
-  gst_caps_unref (caps);
+  if ((!info->container_caps) || (!info->audio_caps))
+    return NULL;
 
-  return (GstEncodingProfile *) profile;
-}
-
-GstEncodingProfile *
-bt_sink_bin_create_mp3_profile (void)
-{
-  GstEncodingContainerProfile *profile;
-  GstCaps *caps;
-
-  caps = gst_caps_from_string ("application/x-id3");
-  profile = gst_encoding_container_profile_new ("MP3 audio",
-      "Standard MP3", caps, NULL);
-  gst_caps_unref (caps);
-  caps = gst_caps_from_string ("audio/mpeg, mpegversion=1, layer=3");
-  gst_encoding_container_profile_add_profile (profile,
-      (GstEncodingProfile *) gst_encoding_audio_profile_new (caps, NULL, NULL,
-          1));
+  if (!(caps = gst_caps_from_string (info->container_caps))) {
+    GST_WARNING ("can't parse caps \"%s\"", info->container_caps);
+    return NULL;
+  }
+  profile =
+      gst_encoding_container_profile_new (info->name, info->desc, caps, NULL);
   gst_caps_unref (caps);
 
-  return (GstEncodingProfile *) profile;
-}
-
-GstEncodingProfile *
-bt_sink_bin_create_wav_profile (void)
-{
-  GstEncodingContainerProfile *profile;
-  GstCaps *caps;
-
-  caps = gst_caps_from_string ("audio/x-wav");
-  profile = gst_encoding_container_profile_new ("WAV audio",
-      "Standard WAV", caps, NULL);
-  gst_caps_unref (caps);
-  caps = gst_caps_from_string ("audio/x-raw-int, width=16, depth=16");
-  gst_encoding_container_profile_add_profile (profile,
-      (GstEncodingProfile *) gst_encoding_audio_profile_new (caps, NULL, NULL,
-          1));
-  gst_caps_unref (caps);
-  return (GstEncodingProfile *) profile;
-}
-
-GstEncodingProfile *
-bt_sink_bin_create_ogg_flac_profile (void)
-{
-  GstEncodingContainerProfile *profile;
-  GstCaps *caps;
-
-  caps = gst_caps_from_string ("application/ogg");
-  profile = gst_encoding_container_profile_new ("Ogg FLAC",
-      "Standard OGG/FLAC", caps, NULL);
-  gst_caps_unref (caps);
-
-  caps = gst_caps_from_string ("audio/x-flac");
-  gst_encoding_container_profile_add_profile (profile,
-      (GstEncodingProfile *) gst_encoding_audio_profile_new (caps, NULL, NULL,
-          1));
-  gst_caps_unref (caps);
-
-  return (GstEncodingProfile *) profile;
-}
-
-GstEncodingProfile *
-bt_sink_bin_create_m4a_profile (void)
-{
-  GstEncodingContainerProfile *profile;
-  GstCaps *caps;
-
-  caps = gst_caps_from_string ("video/quicktime");
-  profile = gst_encoding_container_profile_new ("M4A audio",
-      "Standard M4A", caps, NULL);
-  gst_caps_unref (caps);
-
-  caps = gst_caps_from_string ("audio/mpeg, mpegversion=(int)4");
+  if (!(caps = gst_caps_from_string (info->audio_caps))) {
+    GST_WARNING ("can't parse caps \"%s\"", info->audio_caps);
+    return NULL;
+  }
   gst_encoding_container_profile_add_profile (profile,
       (GstEncodingProfile *) gst_encoding_audio_profile_new (caps, NULL, NULL,
           1));
@@ -581,31 +536,10 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
   }
   list = g_list_append (list, element);
 
-  // generate recorder profiles and set encodebin accordingly
-  switch (self->priv->record_format) {
-    case BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS:
-      profile = bt_sink_bin_create_ogg_vorbis_profile ();
-      break;
-    case BT_SINK_BIN_RECORD_FORMAT_MP3:
-      profile = bt_sink_bin_create_mp3_profile ();
-      break;
-    case BT_SINK_BIN_RECORD_FORMAT_WAV:
-      profile = bt_sink_bin_create_wav_profile ();
-      break;
-    case BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC:
-      profile = bt_sink_bin_create_ogg_flac_profile ();
-      break;
-    case BT_SINK_BIN_RECORD_FORMAT_MP4_AAC:
-      profile = bt_sink_bin_create_m4a_profile ();
-      break;
-    case BT_SINK_BIN_RECORD_FORMAT_RAW:
-      // no element needed
-      break;
-    case BT_SINK_BIN_RECORD_FORMAT_COUNT:
-    default:
-      break;
-  }
-  // next an encodebin
+  // generate recorder profile and set encodebin accordingly
+  profile =
+      bt_sink_bin_create_recording_profile (&formats[self->priv->
+          record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
@@ -807,7 +741,7 @@ bt_sink_bin_update (const BtSinkBin * const self)
         GST_WARNING ("Can't get playback element list");
         return (FALSE);
       }
-      // add recorder elements 
+      // add recorder elements
       GList *const list2 = bt_sink_bin_get_recorder_elements (self);
       if (list2) {
         bt_sink_bin_add_many (self, list2);
