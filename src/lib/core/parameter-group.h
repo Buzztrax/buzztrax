@@ -73,7 +73,6 @@ glong bt_parameter_group_get_wave_param_index(const BtParameterGroup * const sel
 void bt_parameter_group_set_param_default(const BtParameterGroup * const self, const gulong index);
 
 void bt_parameter_group_set_param_value(const BtParameterGroup * const self, const gulong index, GValue * const event);
-const gchar *bt_parameter_group_get_param_name(const BtParameterGroup * const self, const gulong index);
 gchar *bt_parameter_group_describe_param_value(const BtParameterGroup * const self, const gulong index, GValue * const event);
 
 //-- controller handling
