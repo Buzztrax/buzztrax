@@ -301,11 +301,13 @@ bt_persistence_load_hashtable (GHashTable * hashtable, xmlNodePtr node)
 gboolean
 bt_persistence_set_value (GValue * const gvalue, const gchar * svalue)
 {
-  GType base_type;
+  gboolean res = TRUE;
+  GType value_type, base_type;
 
   g_return_val_if_fail (G_IS_VALUE (gvalue), FALSE);
 
-  base_type = bt_g_type_get_base_type (G_VALUE_TYPE (gvalue));
+  value_type = G_VALUE_TYPE (gvalue);
+  base_type = bt_g_type_get_base_type (value_type);
   // depending on the type, set the GValue
   switch (base_type) {
     case G_TYPE_DOUBLE:{
@@ -326,22 +328,32 @@ bt_persistence_set_value (GValue * const gvalue, const gchar * svalue)
     }
       break;
     case G_TYPE_ENUM:{
-      if (G_VALUE_TYPE (gvalue) == GSTBT_TYPE_NOTE) {
+      if (value_type == GSTBT_TYPE_NOTE) {
         GEnumClass *enum_class = g_type_class_peek_static (GSTBT_TYPE_NOTE);
         GEnumValue *enum_value;
-        gint val = 0;
 
         if ((enum_value = g_enum_get_value_by_nick (enum_class, svalue))) {
-          val = enum_value->value;
+          //GST_INFO("mapping '%s' -> %d", svalue, enum_value->value);
+          g_value_set_enum (gvalue, enum_value->value);
+        } else {
+          GST_INFO ("-> %s out of range", svalue);
+          res = FALSE;
         }
-        //GST_INFO("mapping '%s' -> %d", svalue, val);
-        g_value_set_enum (gvalue, val);
       } else {
         const gint val = svalue ? atoi (svalue) : 0;
-        //GST_INFO("-> %d",val);
-        g_value_set_enum (gvalue, val);
+        GEnumClass *enum_class = g_type_class_peek_static (value_type);
+        GEnumValue *enum_value = g_enum_get_value (enum_class, val);
+
+        if (enum_value) {
+          //GST_INFO("-> %d",val);
+          g_value_set_enum (gvalue, val);
+        } else {
+          GST_INFO ("-> %d out of range", val);
+          res = FALSE;
+        }
       }
-    } break;
+    }
+      break;
     case G_TYPE_INT:{
       const gint val = svalue ? atoi (svalue) : 0;
       g_value_set_int (gvalue, val);
@@ -371,7 +383,7 @@ bt_persistence_set_value (GValue * const gvalue, const gchar * svalue)
           (gulong) G_VALUE_TYPE (gvalue), G_VALUE_TYPE_NAME (gvalue), svalue);
       return (FALSE);
   }
-  return (TRUE);
+  return (res);
 }
 
 /**

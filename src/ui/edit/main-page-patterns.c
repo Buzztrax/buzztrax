@@ -1145,13 +1145,14 @@ wavetable_menu_refresh (const BtMainPagePatterns * self,
   g_object_unref (store);       // drop with comboxbox
 }
 
-/* - we are using GValue directly for reading out the patterns
- * - TODO(ensonic): for changes from the pattern editor we still convert the float
- *   values to strings and then to GValues.
+/* - TODO(ensonic): we're converting GValue <-> str <-> float
+ * - we use bt_persistence to convert between GValue* and char*
+ * - we have bits and pieces here to convert between char* and float
+ * - bt_value_group can return strings or pointers to the GValue
  */
 typedef struct
 {
-  gfloat (*val_to_float) (GValue * in, gpointer user_data);
+  gfloat (*val_to_float) (gchar * in, gpointer user_data);
   const gchar *(*float_to_str) (gfloat in, gpointer user_data);
   gfloat min, max;
 } BtPatternEditorColumnConverters;
@@ -1161,13 +1162,14 @@ pattern_edit_get_data_at (gpointer pattern_data, gpointer column_data,
     guint row, guint track, guint param)
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (pattern_data);
-  GValue *val = NULL;
   BtPatternEditorColumnGroup *group = &self->priv->param_groups[track];
 
-  val = bt_value_group_get_event_data (group->vg, row, param);
-  if (val && BT_IS_GVALUE (val) && column_data) {
-    return ((BtPatternEditorColumnConverters *) column_data)->val_to_float (val,
-        column_data);
+  if (column_data) {
+    gchar *val = bt_value_group_get_event (group->vg, row, param);
+    if (BT_IS_STRING (val)) {
+      return ((BtPatternEditorColumnConverters *)
+          column_data)->val_to_float (val, column_data);
+    }
   }
   return group->columns[param].def;
 }
@@ -1298,19 +1300,24 @@ pattern_edit_set_data_at (gpointer pattern_data, gpointer column_data,
   if (cancel_edit) {
     gtk_widget_queue_draw (GTK_WIDGET (self->priv->pattern_table));
   } else {
-    gchar fmt[MAX_CHANGE_LOGGER_METHOD_LEN];
     GString *old_data = g_string_new (NULL), *new_data = g_string_new (NULL);
-    gchar *old_str, *new_str;
 
     bt_value_group_serialize_column (group->vg, row, row, param, old_data);
-    bt_value_group_set_event (group->vg, row, param, str);
-    bt_value_group_serialize_column (group->vg, row, row, param, new_data);
-    old_str = old_data->str;
-    new_str = new_data->str;
-    g_snprintf (fmt, MAX_CHANGE_LOGGER_METHOD_LEN, group->fmt, row, row);
-    pattern_column_log_undo_redo (self, fmt, param, &old_str, &new_str);
+    if (bt_value_group_set_event (group->vg, row, param, str)) {
+      gchar fmt[MAX_CHANGE_LOGGER_METHOD_LEN];
+      gchar *old_str, *new_str;
+
+      bt_value_group_serialize_column (group->vg, row, row, param, new_data);
+      old_str = old_data->str;
+      new_str = new_data->str;
+      g_snprintf (fmt, MAX_CHANGE_LOGGER_METHOD_LEN, group->fmt, row, row);
+      pattern_column_log_undo_redo (self, fmt, param, &old_str, &new_str);
+      g_string_free (new_data, TRUE);
+    } else {
+      // reject edit (e.g. value out of range)
+      gtk_widget_queue_draw (GTK_WIDGET (self->priv->pattern_table));
+    }
     g_string_free (old_data, TRUE);
-    g_string_free (new_data, TRUE);
   }
 
   pattern_view_update_column_description (self, UPDATE_COLUMN_UPDATE);
@@ -1322,69 +1329,28 @@ pattern_edit_set_data_at (gpointer pattern_data, gpointer column_data,
  */
 
 static gfloat
-note_number_val_to_float (GValue * v, gpointer user_data)
+note_val_to_float (gchar * in, gpointer user_data)
 {
-  const gchar *note = g_value_get_string (v);
-  if (note)
-    return (gfloat) gstbt_tone_conversion_note_string_2_number (note);
+  if (in)
+    return (gfloat) gstbt_tone_conversion_note_string_2_number (in);
   return 0.0;
 }
 
 static gfloat
-note_enum_val_to_float (GValue * v, gpointer user_data)
-{
-  const GstBtNote note = g_value_get_enum (v);
-  return (gfloat) note;
-}
-
-static gfloat
-float_val_to_float (GValue * v, gpointer user_data)
+float_val_to_float (gchar * in, gpointer user_data)
 {
   // scale value into 0...65535 range
   BtPatternEditorColumnConverters *pcc =
       (BtPatternEditorColumnConverters *) user_data;
-  gdouble val = g_value_get_float (v);
   gdouble factor = 65535.0 / (pcc->max - pcc->min);
 
-  //GST_DEBUG("> val %lf, factor %lf, result %lf",val,factor,(val-pcc->min)*factor);
-  return (val - pcc->min) * factor;
+  return (g_ascii_strtod (in, NULL) - pcc->min) * factor;
 }
 
 static gfloat
-double_val_to_float (GValue * v, gpointer user_data)
+int_val_to_float (gchar * in, gpointer user_data)
 {
-  // scale value into 0...65535 range
-  BtPatternEditorColumnConverters *pcc =
-      (BtPatternEditorColumnConverters *) user_data;
-  gdouble val = g_value_get_double (v);
-  gdouble factor = 65535.0 / (pcc->max - pcc->min);
-
-  //GST_DEBUG("> val %lf, factor %lf, result %lf",val,factor,(val-pcc->min)*factor);
-  return (val - pcc->min) * factor;
-}
-
-static gfloat
-boolean_val_to_float (GValue * v, gpointer user_data)
-{
-  return (gfloat) g_value_get_boolean (v);
-}
-
-static gfloat
-enum_val_to_float (GValue * v, gpointer user_data)
-{
-  return (gfloat) g_value_get_enum (v);
-}
-
-static gfloat
-int_val_to_float (GValue * v, gpointer user_data)
-{
-  return (gfloat) g_value_get_int (v);
-}
-
-static gfloat
-uint_val_to_float (GValue * v, gpointer user_data)
-{
-  return (gfloat) g_value_get_uint (v);
+  return (gfloat) atoi (in);
 }
 
 /* float_to_str: convert the float value to a deserializable string
@@ -1436,7 +1402,7 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
       col->min = GSTBT_NOTE_NONE;
       col->max = GSTBT_NOTE_LAST;
       col->def = GSTBT_NOTE_NONE;
-      pcc->val_to_float = note_number_val_to_float;
+      pcc->val_to_float = note_val_to_float;
       pcc->float_to_str = note_float_to_str;
     }
       break;
@@ -1446,12 +1412,12 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
       col->max = 1;
       col->def =
           BT_IS_GVALUE (no_val) ? g_value_get_boolean (no_val) : col->max + 1;
-      pcc->val_to_float = boolean_val_to_float;
+      pcc->val_to_float = int_val_to_float;
       pcc->float_to_str = any_float_to_str;
     }
       break;
     case G_TYPE_ENUM:{
-      pcc->val_to_float = enum_val_to_float;
+      pcc->val_to_float = int_val_to_float;
       pcc->float_to_str = any_float_to_str;
       if (property->value_type == GSTBT_TYPE_TRIGGER_SWITCH) {
         col->type = PCT_SWITCH;
@@ -1464,7 +1430,7 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
         col->max = GSTBT_NOTE_LAST;
         col->def = GSTBT_NOTE_NONE;
         // we are using buzz like note values
-        pcc->val_to_float = note_enum_val_to_float;
+        pcc->val_to_float = note_val_to_float;
         pcc->float_to_str = note_float_to_str;
       } else {
         col->type = PCT_BYTE;
@@ -1497,7 +1463,7 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
       if (col->min >= 0 && col->max < 256) {
         col->type = PCT_BYTE;
       }
-      pcc->val_to_float = uint_val_to_float;
+      pcc->val_to_float = int_val_to_float;
       pcc->float_to_str = any_float_to_str;
     }
       break;
@@ -1530,7 +1496,7 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
       col->min = 0.0;
       col->max = 65535.0;
       col->def = col->max + 1;
-      pcc->val_to_float = double_val_to_float;
+      pcc->val_to_float = float_val_to_float;
       pcc->float_to_str = float_float_to_str;
       // identify wire-elements
       // TODO(ensonic): this is not the best way to identify a volume element
