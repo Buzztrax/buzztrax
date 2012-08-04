@@ -97,7 +97,7 @@ bt_edit_setup (void)
   gtk_init (&test_argc, &test_argvptr);
   bt_init (&test_argc, &test_argvptr);
   btic_init (&test_argc, &test_argvptr);
-  add_pixmap_directory (".." G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S);
+  add_pixmap_directory ("." G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S);
   /* TODO(ensonic): we need to ensure icons are found when running uninstalled
    * one problem is that we have them under "pixmaps" and not "icons"
    * maybe we should rename in the repo
