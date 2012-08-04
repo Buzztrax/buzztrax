@@ -48,6 +48,7 @@ struct _BtTestMonoSource {
   gulong ulong_val;
   gdouble double_val;
   gboolean switch_val;
+  GstBtNote note_val;
 };
 /* structure of the test_mono_source class */
 struct _BtTestMonoSourceClass {
@@ -79,6 +80,7 @@ struct _BtTestPolySource {
   gulong ulong_val;
   gdouble double_val;
   gboolean switch_val;
+  GstBtNote note_val;
 
   // the number of voices the plugin has
   gulong num_voices;

@@ -39,14 +39,15 @@
 
 enum
 {
-  ARG_BPM = 1,                  // tempo iface
-  ARG_TPB,
-  ARG_STPT,
-  ARG_VOICES,                   // child bin iface
-  ARG_ULONG,
-  ARG_DOUBLE,
-  ARG_SWITCH,
-  ARG_COUNT
+  PROP_BPM = 1,                 // tempo iface
+  PROP_TPB,
+  PROP_STPT,
+  PROP_VOICES,                  // child bin iface
+  PROP_ULONG,
+  PROP_DOUBLE,
+  PROP_SWITCH,
+  PROP_NOTE,
+  PROP_COUNT
 };
 
 //-- pad templates
@@ -126,13 +127,13 @@ bt_test_mono_source_get_property (GObject * object, guint property_id,
   BtTestMonoSource *self = BT_TEST_MONO_SOURCE (object);
 
   switch (property_id) {
-    case ARG_ULONG:
+    case PROP_ULONG:
       g_value_set_ulong (value, self->ulong_val);
       break;
-    case ARG_DOUBLE:
+    case PROP_DOUBLE:
       g_value_set_double (value, self->double_val);
       break;
-    case ARG_SWITCH:
+    case PROP_SWITCH:
       g_value_set_boolean (value, self->switch_val);
       break;
     default:
@@ -148,14 +149,17 @@ bt_test_mono_source_set_property (GObject * object, guint property_id,
   BtTestMonoSource *self = BT_TEST_MONO_SOURCE (object);
 
   switch (property_id) {
-    case ARG_ULONG:
+    case PROP_ULONG:
       self->ulong_val = g_value_get_ulong (value);
       break;
-    case ARG_DOUBLE:
+    case PROP_DOUBLE:
       self->double_val = g_value_get_double (value);
       break;
-    case ARG_SWITCH:
+    case PROP_SWITCH:
       self->switch_val = g_value_get_boolean (value);
+      break;
+    case PROP_NOTE:
+      self->note_val = g_value_get_enum (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -185,28 +189,38 @@ bt_test_mono_source_class_init (BtTestMonoSourceClass * klass)
   gobject_class->set_property = bt_test_mono_source_set_property;
   gobject_class->get_property = bt_test_mono_source_get_property;
 
-  g_object_class_override_property (gobject_class, ARG_BPM, "beats-per-minute");
-  g_object_class_override_property (gobject_class, ARG_TPB, "ticks-per-beat");
-  g_object_class_override_property (gobject_class, ARG_STPT,
+  g_object_class_override_property (gobject_class, PROP_BPM,
+      "beats-per-minute");
+  g_object_class_override_property (gobject_class, PROP_TPB, "ticks-per-beat");
+  g_object_class_override_property (gobject_class, PROP_STPT,
       "subticks-per-tick");
 
-  g_object_class_install_property (gobject_class, ARG_ULONG,
+  g_object_class_install_property (gobject_class, PROP_ULONG,
       g_param_spec_ulong ("g-ulong",
           "ulong prop",
           "ulong number parameter for the test_mono_source",
-          0, G_MAXULONG, 0, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
+          0, G_MAXULONG, 0,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, ARG_DOUBLE,
+  g_object_class_install_property (gobject_class, PROP_DOUBLE,
       g_param_spec_double ("g-double",
           "double prop",
           "double number parameter for the test_mono_source",
-          -1000.0, 1000.0, 0, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
+          -1000.0, 1000.0, 0,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, ARG_SWITCH,
+  g_object_class_install_property (gobject_class, PROP_SWITCH,
       g_param_spec_boolean ("g-switch",
           "switch prop",
           "switch parameter for the test_mono_source",
-          FALSE, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
+          FALSE,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_NOTE,
+      g_param_spec_enum ("g-note", "note prop",
+          "note parameter for the test_mono_source",
+          GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
+          G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 }
 
 static void
@@ -263,16 +277,16 @@ bt_test_poly_source_get_property (GObject * object, guint property_id,
   BtTestPolySource *self = BT_TEST_POLY_SOURCE (object);
 
   switch (property_id) {
-    case ARG_VOICES:
+    case PROP_VOICES:
       g_value_set_ulong (value, self->num_voices);
       break;
-    case ARG_ULONG:
+    case PROP_ULONG:
       g_value_set_ulong (value, self->ulong_val);
       break;
-    case ARG_DOUBLE:
+    case PROP_DOUBLE:
       g_value_set_double (value, self->double_val);
       break;
-    case ARG_SWITCH:
+    case PROP_SWITCH:
       g_value_set_boolean (value, self->switch_val);
       break;
     default:
@@ -290,7 +304,7 @@ bt_test_poly_source_set_property (GObject * object, guint property_id,
   gulong i, num_voices;
 
   switch (property_id) {
-    case ARG_VOICES:
+    case PROP_VOICES:
       num_voices = self->num_voices;
       self->num_voices = g_value_get_ulong (value);
       GST_INFO ("machine %p, changing voices from %lu to %lu", object,
@@ -313,14 +327,17 @@ bt_test_poly_source_set_property (GObject * object, guint property_id,
         }
       }
       break;
-    case ARG_ULONG:
+    case PROP_ULONG:
       self->ulong_val = g_value_get_ulong (value);
       break;
-    case ARG_DOUBLE:
+    case PROP_DOUBLE:
       self->double_val = g_value_get_double (value);
       break;
-    case ARG_SWITCH:
+    case PROP_SWITCH:
       self->switch_val = g_value_get_boolean (value);
+      break;
+    case PROP_NOTE:
+      self->note_val = g_value_get_enum (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -374,29 +391,36 @@ bt_test_poly_source_class_init (BtTestPolySourceClass * klass)
   //gobject_class->dispose      = bt_test_poly_source_dispose;
   gobject_class->finalize = bt_test_poly_source_finalize;
 
-  g_object_class_override_property (gobject_class, ARG_BPM, "beats-per-minute");
-  g_object_class_override_property (gobject_class, ARG_TPB, "ticks-per-beat");
-  g_object_class_override_property (gobject_class, ARG_STPT,
+  g_object_class_override_property (gobject_class, PROP_BPM,
+      "beats-per-minute");
+  g_object_class_override_property (gobject_class, PROP_TPB, "ticks-per-beat");
+  g_object_class_override_property (gobject_class, PROP_STPT,
       "subticks-per-tick");
-  g_object_class_override_property (gobject_class, ARG_VOICES, "children");
+  g_object_class_override_property (gobject_class, PROP_VOICES, "children");
 
-  g_object_class_install_property (gobject_class, ARG_ULONG,
+  g_object_class_install_property (gobject_class, PROP_ULONG,
       g_param_spec_ulong ("v-ulong",
           "ulong prop",
           "ulong number parameter for the test_poly_source",
           0, G_MAXULONG, 0, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
 
-  g_object_class_install_property (gobject_class, ARG_DOUBLE,
+  g_object_class_install_property (gobject_class, PROP_DOUBLE,
       g_param_spec_double ("g-double",
           "double prop",
           "double number parameter for the test_poly_source",
           -1000.0, 1000.0, 0, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
 
-  g_object_class_install_property (gobject_class, ARG_SWITCH,
+  g_object_class_install_property (gobject_class, PROP_SWITCH,
       g_param_spec_boolean ("g-switch",
           "switch prop",
           "switch parameter for the test_poly_source",
           FALSE, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
+
+  g_object_class_install_property (gobject_class, PROP_NOTE,
+      g_param_spec_enum ("g-note", "note prop",
+          "note parameter for the test_mono_source",
+          GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
+          G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 }
 
 static void
