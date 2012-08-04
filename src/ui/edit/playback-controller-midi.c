@@ -20,7 +20,7 @@
  * SECTION:btplaybackcontrollermidi
  * @short_description: sockets based playback controller
  *
- * Activates midi devices and listents to playback controls.
+ * Activates midi devices and listens to playback controls.
  */
 /* TODO(ensonic): baseclass + manager (see playback-controller-socket) */
 
