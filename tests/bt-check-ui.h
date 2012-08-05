@@ -58,7 +58,7 @@ typedef struct _BtCheckWidgetScreenshotRegions BtCheckWidgetScreenshotRegions;
 void check_make_widget_screenshot(GtkWidget *widget, const gchar *name);
 void check_make_widget_screenshot_with_highlight(GtkWidget *widget, const gchar *name, BtCheckWidgetScreenshotRegions *regions);
 
-void check_send_key(GtkWidget *widget, guint keyval, guint16 hardware_keycode);
+void check_send_key(GtkWidget *widget, guint state, guint keyval, guint16 hardware_keycode);
 void check_send_click(GtkWidget *widget, guint button, gdouble x, gdouble y);
 
 #endif /* BT_CHECK_UI_H */

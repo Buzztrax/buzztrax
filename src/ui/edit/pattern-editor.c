@@ -849,6 +849,9 @@ bt_pattern_editor_key_press (GtkWidget * widget, GdkEventKey * event)
         self->callbacks->set_data_func) {
       BtPatternEditorColumn *col =
           &self->groups[self->group].columns[self->parameter];
+
+      GST_INFO ("edit group %d, parameter %d, digit %d, type %d",
+          self->group, self->parameter, self->digit, col->type);
       if (event->keyval == '.') {
         self->callbacks->set_data_func (self->pattern_data, col->user_data,
             self->row, self->group, self->parameter, self->digit, col->def);
@@ -954,6 +957,9 @@ bt_pattern_editor_key_press (GtkWidget * widget, GdkEventKey * event)
       gint control = (event->state & GDK_CONTROL_MASK) != 0;
       gint shift = (event->state & GDK_SHIFT_MASK) != 0;
       gint modifier = event->state & gtk_accelerator_get_default_mod_mask ();
+
+      GST_INFO ("cmd group %d, parameter %d, digit %d",
+          self->group, self->parameter, self->digit);
 
       if (control && event->keyval >= '1' && event->keyval <= '9') {
         self->step = event->keyval - '0';
@@ -1149,6 +1155,15 @@ bt_pattern_editor_key_press (GtkWidget * widget, GdkEventKey * event)
             }
             bt_pattern_editor_refresh_cursor_or_scroll (self);
             return TRUE;
+          } else if (shift) {
+            bt_pattern_editor_refresh_cursor (self);
+            if (self->parameter > 0) {
+              self->parameter--;
+              self->digit = 0;
+              g_object_notify ((gpointer) self, "cursor-param");
+            }
+            bt_pattern_editor_refresh_cursor_or_scroll (self);
+            return TRUE;
           }
           break;
         case GDK_Right:
@@ -1168,6 +1183,15 @@ bt_pattern_editor_key_press (GtkWidget * widget, GdkEventKey * event)
               self->digit = 0;
               /* only notify group, param will be read along anyway */
               g_object_notify ((gpointer) self, "cursor-group");
+            }
+            bt_pattern_editor_refresh_cursor_or_scroll (self);
+            return TRUE;
+          } else if (shift) {
+            bt_pattern_editor_refresh_cursor (self);
+            if (self->parameter < self->groups[self->group].num_columns - 1) {
+              self->parameter++;
+              self->digit = 0;
+              g_object_notify ((gpointer) self, "cursor-param");
             }
             bt_pattern_editor_refresh_cursor_or_scroll (self);
             return TRUE;
