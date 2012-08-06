@@ -405,19 +405,19 @@ bt_test_poly_source_class_init (BtTestPolySourceClass * klass)
           0, G_MAXULONG, 0, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
 
   g_object_class_install_property (gobject_class, PROP_DOUBLE,
-      g_param_spec_double ("g-double",
+      g_param_spec_double ("v-double",
           "double prop",
           "double number parameter for the test_poly_source",
           -1000.0, 1000.0, 0, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
 
   g_object_class_install_property (gobject_class, PROP_SWITCH,
-      g_param_spec_boolean ("g-switch",
+      g_param_spec_boolean ("v-switch",
           "switch prop",
           "switch parameter for the test_poly_source",
           FALSE, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
 
   g_object_class_install_property (gobject_class, PROP_NOTE,
-      g_param_spec_enum ("g-note", "note prop",
+      g_param_spec_enum ("v-note", "note prop",
           "note parameter for the test_mono_source",
           GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
           G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
