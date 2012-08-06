@@ -152,6 +152,38 @@ test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+  gchar *str;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  move_cursor_to ((GtkWidget *) pattern_page, 0, 3, 0, 0);
+
+  /* act */
+  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
+
+  /* assert */
+  str = bt_pattern_get_global_event (pattern, 0, 3);
+  ck_assert_str_eq_and_free (str, "off");
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
 // test entering notes
 static void
 test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
@@ -207,12 +239,13 @@ test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
   // change voices
   g_object_set (machine, "voices", 2L, NULL);
   g_object_get (pattern, "voices", &voices, NULL);
+
   /* assert */
   fail_unless (voices == 2, NULL);
-
   // send two tab keys to ensure the new voice is visible
   check_send_key ((GtkWidget *) pattern_page, 0, GDK_Tab, 0);
   check_send_key ((GtkWidget *) pattern_page, 0, GDK_Tab, 0);
+  mark_point ();
 
   /* cleanup */
   g_object_unref (pattern_page);
@@ -228,6 +261,7 @@ bt_pattern_page_example_case (void)
 
   tcase_add_test (tc, test_bt_main_page_patterns_focus);
   tcase_add_test (tc, test_bt_main_page_patterns_enter_note);
+  tcase_add_test (tc, test_bt_main_page_patterns_enter_note_off);
   tcase_add_test (tc, test_bt_main_page_patterns_clear_note);
   tcase_add_test (tc, test_bt_main_page_patterns_pattern_voices);
   // we *must* use a checked fixture, as only this runs in the same context
