@@ -60,6 +60,31 @@ test_teardown (void)
 
 //-- helper
 
+static void
+move_cursor_to (GtkWidget * w, guint group, guint param, guint digit, guint row)
+{
+  guint i;
+
+  // move to top-left
+  check_send_key (w, 0, GDK_Page_Up, 0);
+  check_send_key (w, 0, GDK_Home, 0);
+
+  // move to column
+  for (i = 0; i < row; i++) {
+    check_send_key (w, 0, GDK_Down, 0);
+  }
+
+  // move to parameter
+  for (i = 0; i < param; i++) {
+    check_send_key (w, GDK_SHIFT_MASK, GDK_Right, 0);
+  }
+
+  // move to digit
+  for (i = 0; i < digit; i++) {
+    check_send_key (w, 0, GDK_Right, 0);
+  }
+}
+
 //-- tests
 
 // show pattern page with empty pattern and emit key-presses
@@ -117,6 +142,73 @@ test_bt_main_page_patterns_mouse_click_in_empty_pattern (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+// test entering non note key
+static void
+test_bt_main_page_patterns_non_note_key_press (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  move_cursor_to ((GtkWidget *) pattern_page, 0, 3, 0, 0);
+
+  /* act */
+  // send a '4' key-press
+  check_send_key ((GtkWidget *) pattern_page, 0, '4', 0x0d);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3), NULL);
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+// test that cursor pos stays unchanged on invalid key presses
+static void
+test_bt_main_page_patterns_cursor_pos_on_non_note_key (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  move_cursor_to ((GtkWidget *) pattern_page, 0, 3, 0, 0);
+
+  /* act */
+  // send a '4' key-press
+  check_send_key ((GtkWidget *) pattern_page, 0, '4', 0x0d);
+  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3),
+      "off");
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+
 TCase *
 bt_pattern_page_test_case (void)
 {
@@ -124,6 +216,8 @@ bt_pattern_page_test_case (void)
 
   tcase_add_test (tc, test_bt_main_page_patterns_key_press_in_empty_pattern);
   tcase_add_test (tc, test_bt_main_page_patterns_mouse_click_in_empty_pattern);
+  tcase_add_test (tc, test_bt_main_page_patterns_non_note_key_press);
+  tcase_add_test (tc, test_bt_main_page_patterns_cursor_pos_on_non_note_key);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   return (tc);

@@ -159,7 +159,6 @@ test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
   BtPattern *pattern;
-  gchar *str;
 
   /* arrange */
   machine =
@@ -174,8 +173,8 @@ test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
   check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
 
   /* assert */
-  str = bt_pattern_get_global_event (pattern, 0, 3);
-  ck_assert_str_eq_and_free (str, "off");
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3),
+      "off");
 
   /* cleanup */
   g_object_unref (pattern_page);
@@ -217,6 +216,133 @@ test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
   g_object_unref (machine);
   BT_TEST_END;
 }
+
+// test entering booleans
+static void
+test_bt_main_page_patterns_enter_switch (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  move_cursor_to ((GtkWidget *) pattern_page, 0, 2, 0, 0);
+
+  /* act */
+  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 2), "1");
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+// test entering sparse enum
+static void
+test_bt_main_page_patterns_enter_sparse_enum (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  move_cursor_to ((GtkWidget *) pattern_page, 0, 4, 1, 0);
+
+  /* act */
+  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 4), "1");
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+// test entering sparse enum
+static void
+test_bt_main_page_patterns_enter_invalid_sparse_enum (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  move_cursor_to ((GtkWidget *) pattern_page, 0, 4, 0, 0);
+
+  /* act */
+  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
+
+  /* assert */
+  fail_if (bt_pattern_test_global_event (pattern, 0, 4));
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+// test entering sparse enum
+static void
+test_bt_main_page_patterns_enter_sparse_enum_in_2_steps (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  move_cursor_to ((GtkWidget *) pattern_page, 0, 4, 0, 0);
+
+  /* act */
+  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
+  move_cursor_to ((GtkWidget *) pattern_page, 0, 4, 1, 0);
+  check_send_key ((GtkWidget *) pattern_page, 0, '4', 0x0d);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 4), "20");
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
 
 static void
 test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
@@ -263,6 +389,10 @@ bt_pattern_page_example_case (void)
   tcase_add_test (tc, test_bt_main_page_patterns_enter_note);
   tcase_add_test (tc, test_bt_main_page_patterns_enter_note_off);
   tcase_add_test (tc, test_bt_main_page_patterns_clear_note);
+  tcase_add_test (tc, test_bt_main_page_patterns_enter_switch);
+  tcase_add_test (tc, test_bt_main_page_patterns_enter_sparse_enum);
+  tcase_add_test (tc, test_bt_main_page_patterns_enter_invalid_sparse_enum);
+  tcase_add_test (tc, test_bt_main_page_patterns_enter_sparse_enum_in_2_steps);
   tcase_add_test (tc, test_bt_main_page_patterns_pattern_voices);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture (tc, test_setup, test_teardown);

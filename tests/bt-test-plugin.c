@@ -27,13 +27,36 @@
  * (in the monophonic class) and 'v-' for 'voice' in the poly class.
  */
 /* TODO(ensonic):
- * - implement the tempo, property-meta ifaces in the test machines
+ * - implement the property-meta iface in the test machines
  * - add a trigger param to the machines
- * - the trigger param counts how often it gets triggered
- * - the count is exposed as a read-only param
+ *   - the trigger param counts how often it gets triggered
+ *   - the count is exposed as a read-only param
  */
 
 #include "bt-check.h"
+
+//-- enums
+
+#define BT_TYPE_TEST_SPARSE_ENUM (bt_test_sparse_enum_get_type())
+static GType
+bt_test_sparse_enum_get_type (void)
+{
+  static GType type = 0;
+  static const GEnumValue enums[] = {
+    {BT_TEST_SPARSE_ENUM_ZERO, "Zero", "zero"},
+    {BT_TEST_SPARSE_ENUM_ONE, "One", "one"},
+    {BT_TEST_SPARSE_ENUM_TEN, "Ten", "ten"},
+    {BT_TEST_SPARSE_ENUM_TWENTY, "Twenty", "twenty"},
+    {BT_TEST_SPARSE_ENUM_TWENTY_ONE, "TwentyOne", "twenty-one"},
+    {BT_TEST_SPARSE_ENUM_TWO_HUNDRED, "TwoHundred", "two-hundred"},
+    {0, NULL, NULL},
+  };
+
+  if (G_UNLIKELY (!type)) {
+    type = g_enum_register_static ("BtTestSparseEnum", enums);
+  }
+  return type;
+}
 
 //-- property ids
 
@@ -47,6 +70,7 @@ enum
   PROP_DOUBLE,
   PROP_SWITCH,
   PROP_NOTE,
+  PROP_SPARSE_ENUM,
   PROP_COUNT
 };
 
@@ -136,6 +160,9 @@ bt_test_mono_source_get_property (GObject * object, guint property_id,
     case PROP_SWITCH:
       g_value_set_boolean (value, self->switch_val);
       break;
+    case PROP_SPARSE_ENUM:
+      g_value_set_enum (value, self->sparse_enum_val);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -160,6 +187,9 @@ bt_test_mono_source_set_property (GObject * object, guint property_id,
       break;
     case PROP_NOTE:
       self->note_val = g_value_get_enum (value);
+      break;
+    case PROP_SPARSE_ENUM:
+      self->sparse_enum_val = g_value_get_enum (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -221,6 +251,12 @@ bt_test_mono_source_class_init (BtTestMonoSourceClass * klass)
           "note parameter for the test_mono_source",
           GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
           G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_SPARSE_ENUM,
+      g_param_spec_enum ("g-sparse-enum", "sparse enum prop",
+          "sparse enum parameter for the test_mono_source",
+          BT_TYPE_TEST_SPARSE_ENUM, BT_TEST_SPARSE_ENUM_ZERO,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 }
 
 static void
@@ -289,6 +325,9 @@ bt_test_poly_source_get_property (GObject * object, guint property_id,
     case PROP_SWITCH:
       g_value_set_boolean (value, self->switch_val);
       break;
+    case PROP_SPARSE_ENUM:
+      g_value_set_enum (value, self->sparse_enum_val);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -338,6 +377,9 @@ bt_test_poly_source_set_property (GObject * object, guint property_id,
       break;
     case PROP_NOTE:
       self->note_val = g_value_get_enum (value);
+      break;
+    case PROP_SPARSE_ENUM:
+      self->sparse_enum_val = g_value_get_enum (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -418,9 +460,15 @@ bt_test_poly_source_class_init (BtTestPolySourceClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_NOTE,
       g_param_spec_enum ("v-note", "note prop",
-          "note parameter for the test_mono_source",
+          "note parameter for the test_poly_source",
           GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
           G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_SPARSE_ENUM,
+      g_param_spec_enum ("v-sparse-enum", "sparse enum prop",
+          "sparse enum parameter for the test_poly_source",
+          BT_TYPE_TEST_SPARSE_ENUM, BT_TEST_SPARSE_ENUM_ZERO,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 }
 
 static void
@@ -496,7 +544,11 @@ bt_test_plugin_init (GstPlugin * plugin)
       BT_TYPE_TEST_MONO_SOURCE);
   gst_element_register (plugin, "buzztard-test-poly-source", GST_RANK_NONE,
       BT_TYPE_TEST_POLY_SOURCE);
-  //gst_element_register(plugin,"buzztard-test-mono-processor",GST_RANK_NONE,BT_TYPE_TEST_MONO_PROCESSOR);
-  //gst_element_register(plugin,"buzztard-test-poly-processor",GST_RANK_NONE,BT_TYPE_TEST_POLY_PROCESSOR);
+  /*
+     gst_element_register (plugin, "buzztard-test-mono-processor", GST_RANK_NONE,
+     BT_TYPE_TEST_MONO_PROCESSOR);
+     gst_element_register (plugin, "buzztard-test-poly-processor", GST_RANK_NONE,
+     BT_TYPE_TEST_POLY_PROCESSOR);
+   */
   return TRUE;
 }
