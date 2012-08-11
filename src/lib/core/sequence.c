@@ -38,11 +38,24 @@
  * all the invalidated time-regions and affected parameters.
  */
 /* TODO(ensonic): introduce a BtTrack object
- * - the sequence will have a list of tracks
+ * - the sequence will have a array of tracks
  * - each track has a machine and a array with patterns
  * - this makes it easier to e.g. pass old track data to track-removed
  * - also insert/delete can be done per track
  * - need to be careful to make getting the pattern not slow
+ * - this would also make it easier to have BtTrackGroups
+ *   - essentially an array of BtTracks per machine (in the order of appearance
+ *     in the sequence)
+ *   - this would make it more easy to determine the effective pattern cells for
+ *     the controller
+ *   - when reordering tracks, the per machine lists would need to be updated as
+ *     well
+ *
+ * Sequence -+- Track 1 -+- TrackGroup 1
+ *           +- Track 2 -´
+ *           +- Track 3 --- TrackGroup 2
+ *           +- Track 4 -+- TrackGroup 3
+ *           `- Track 5 -´
  */
 
 #define BT_CORE
