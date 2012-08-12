@@ -718,7 +718,7 @@ check_send_key (GtkWidget * widget, guint state, guint keyval,
   e->window = g_object_ref (w);
   e->keyval = keyval;
   e->hardware_keycode = hardware_keycode;
-  e->state = state;
+  e->state |= state;
   gtk_main_do_event ((GdkEvent *) e);
   while (gtk_events_pending ())
     gtk_main_iteration ();

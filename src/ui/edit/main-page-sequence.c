@@ -2559,7 +2559,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     return (FALSE);
 
   GST_INFO
-      ("sequence_table key key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
+      ("sequence_table key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
       event->state, event->keyval, event->hardware_keycode,
       gdk_keyval_name (event->keyval));
 
@@ -4582,13 +4582,11 @@ bt_main_page_sequence_get_property (GObject * object, guint property_id,
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (object);
   return_if_disposed ();
   switch (property_id) {
-    case MAIN_PAGE_SEQUENCE_CURSOR_ROW:{
+    case MAIN_PAGE_SEQUENCE_CURSOR_ROW:
       g_value_set_long (value, self->priv->cursor_row);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
