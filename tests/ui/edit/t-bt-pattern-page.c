@@ -63,26 +63,8 @@ test_teardown (void)
 static void
 move_cursor_to (GtkWidget * w, guint group, guint param, guint digit, guint row)
 {
-  guint i;
-
-  // move to top-left
-  check_send_key (w, 0, GDK_Page_Up, 0);
-  check_send_key (w, 0, GDK_Home, 0);
-
-  // move to column
-  for (i = 0; i < row; i++) {
-    check_send_key (w, 0, GDK_Down, 0);
-  }
-
-  // move to parameter
-  for (i = 0; i < param; i++) {
-    check_send_key (w, GDK_SHIFT_MASK, GDK_Right, 0);
-  }
-
-  // move to digit
-  for (i = 0; i < digit; i++) {
-    check_send_key (w, 0, GDK_Right, 0);
-  }
+  g_object_set (w, "cursor-group", group, "cursor-param", param, "cursor-digit",
+      digit, "cursor-row", row, NULL);
 }
 
 //-- tests
@@ -94,16 +76,18 @@ test_bt_main_page_patterns_key_press_in_empty_pattern (BT_TEST_ARGS)
   BT_TEST_START;
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
+  GtkWidget *pattern_editor;
 
   /* arrange */
   machine =
       BT_MACHINE (bt_source_machine_new (song, "gen", "fakesrc", 0, NULL));
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_machine (pattern_page, machine);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
 
   /* act */
-  check_send_key ((GtkWidget *) pattern_page, 0, '.', 0x3c);
-  check_send_key ((GtkWidget *) pattern_page, 0, '0', 0x13);
+  check_send_key (pattern_editor, 0, '.', 0x3c);
+  check_send_key (pattern_editor, 0, '0', 0x13);
 
   /* assert */
   mark_point ();
@@ -121,17 +105,17 @@ test_bt_main_page_patterns_mouse_click_in_empty_pattern (BT_TEST_ARGS)
   BT_TEST_START;
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
-  GtkWidget *widget;
+  GtkWidget *pattern_editor;
 
   /* arrange */
   machine =
       BT_MACHINE (bt_source_machine_new (song, "gen", "fakesrc", 0, NULL));
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_machine (pattern_page, machine);
-  widget = gtk_window_get_focus ((GtkWindow *) main_window);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
 
   /* act */
-  check_send_click (widget, 1, 10.0, 100.0);
+  check_send_click (pattern_editor, 1, 10.0, 100.0);
 
   /* assert */
   mark_point ();
@@ -150,6 +134,7 @@ test_bt_main_page_patterns_non_note_key_press (BT_TEST_ARGS)
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
   BtPattern *pattern;
+  GtkWidget *pattern_editor;
 
   /* arrange */
   machine =
@@ -158,11 +143,12 @@ test_bt_main_page_patterns_non_note_key_press (BT_TEST_ARGS)
   pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
-  move_cursor_to ((GtkWidget *) pattern_page, 0, 3, 0, 0);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 3, 0, 0);
 
   /* act */
   // send a '4' key-press
-  check_send_key ((GtkWidget *) pattern_page, 0, '4', 0x0d);
+  check_send_key (pattern_editor, 0, '4', 0x0d);
 
   /* assert */
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3), NULL);
@@ -182,6 +168,7 @@ test_bt_main_page_patterns_cursor_pos_on_non_note_key (BT_TEST_ARGS)
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
   BtPattern *pattern;
+  GtkWidget *pattern_editor;
 
   /* arrange */
   machine =
@@ -190,12 +177,13 @@ test_bt_main_page_patterns_cursor_pos_on_non_note_key (BT_TEST_ARGS)
   pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
-  move_cursor_to ((GtkWidget *) pattern_page, 0, 3, 0, 0);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 3, 0, 0);
 
   /* act */
   // send a '4' key-press
-  check_send_key ((GtkWidget *) pattern_page, 0, '4', 0x0d);
-  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
+  check_send_key (pattern_editor, 0, '4', 0x0d);
+  check_send_key (pattern_editor, 0, '1', 0x0a);
 
   /* assert */
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3),

@@ -66,6 +66,7 @@ enum
   PATTERN_EDITOR_OCTAVE,
   PATTERN_EDITOR_CURSOR_GROUP,
   PATTERN_EDITOR_CURSOR_PARAM,
+  PATTERN_EDITOR_CURSOR_DIGIT,
   PATTERN_EDITOR_CURSOR_ROW
 };
 
@@ -1333,21 +1334,20 @@ bt_pattern_editor_get_property (GObject * object,
   BtPatternEditor *self = BT_PATTERN_EDITOR (object);
 
   switch (property_id) {
-    case PATTERN_EDITOR_CURSOR_GROUP:{
+    case PATTERN_EDITOR_CURSOR_GROUP:
       g_value_set_uint (value, self->group);
-    }
       break;
-    case PATTERN_EDITOR_CURSOR_PARAM:{
+    case PATTERN_EDITOR_CURSOR_PARAM:
       g_value_set_uint (value, self->parameter);
-    }
       break;
-    case PATTERN_EDITOR_CURSOR_ROW:{
+    case PATTERN_EDITOR_CURSOR_DIGIT:
+      g_value_set_uint (value, self->digit);
+      break;
+    case PATTERN_EDITOR_CURSOR_ROW:
       g_value_set_uint (value, self->row);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -1379,33 +1379,40 @@ bt_pattern_editor_set_property (GObject * object,
             allocation.width, 2);
         //GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",0, y-1, allocation.width, 2);
       }
-    }
       break;
-    case PATTERN_EDITOR_OCTAVE:{
-      self->octave = g_value_get_uint (value);
     }
+    case PATTERN_EDITOR_OCTAVE:
+      self->octave = g_value_get_uint (value);
       break;
     case PATTERN_EDITOR_CURSOR_GROUP:{
       guint old = self->group;
       self->group = g_value_get_uint (value);
-      if (self->group != old)
+      if (self->group != old) {
         self->parameter = self->digit = 0;
-    }
+        bt_pattern_editor_refresh_cursor_or_scroll (self);
+      }
       break;
+    }
     case PATTERN_EDITOR_CURSOR_PARAM:{
       guint old = self->parameter;
       self->parameter = g_value_get_uint (value);
-      if (self->parameter != old)
+      if (self->parameter != old) {
         self->digit = 0;
-    }
+        bt_pattern_editor_refresh_cursor_or_scroll (self);
+      }
       break;
-    case PATTERN_EDITOR_CURSOR_ROW:{
+    }
+    case PATTERN_EDITOR_CURSOR_DIGIT:
+      self->digit = g_value_get_uint (value);
+      bt_pattern_editor_refresh_cursor_or_scroll (self);
+      break;
+    case PATTERN_EDITOR_CURSOR_ROW:
       self->row = g_value_get_uint (value);
-    }
+      bt_pattern_editor_refresh_cursor_or_scroll (self);
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
+
       break;
   }
 }
@@ -1484,6 +1491,12 @@ bt_pattern_editor_class_init (BtPatternEditorClass * klass)
           "cursor param prop.",
           "The current parameter the cursor is at",
           0, G_MAXUINT, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PATTERN_EDITOR_CURSOR_DIGIT,
+      g_param_spec_uint ("cursor-digit",
+          "cursor digit prop.",
+          "The current digit of the parameter the cursor is at",
+          0, 3, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PATTERN_EDITOR_CURSOR_ROW,
       g_param_spec_uint ("cursor-row",

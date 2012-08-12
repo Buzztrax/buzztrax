@@ -1401,16 +1401,15 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
 
   pcc = col->user_data = g_new (BtPatternEditorColumnConverters, 1);
   switch (type) {
-    case G_TYPE_STRING:{
+    case G_TYPE_STRING:
       col->type = PCT_NOTE;
       col->min = GSTBT_NOTE_NONE;
       col->max = GSTBT_NOTE_LAST;
       col->def = GSTBT_NOTE_NONE;
       pcc->val_to_float = note_val_to_float;
       pcc->float_to_str = note_float_to_str;
-    }
       break;
-    case G_TYPE_BOOLEAN:{
+    case G_TYPE_BOOLEAN:
       col->type = PCT_SWITCH;
       col->min = 0;
       col->max = 1;
@@ -1418,9 +1417,8 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
           BT_IS_GVALUE (no_val) ? g_value_get_boolean (no_val) : col->max + 1;
       pcc->val_to_float = int_val_to_float;
       pcc->float_to_str = any_float_to_str;
-    }
       break;
-    case G_TYPE_ENUM:{
+    case G_TYPE_ENUM:
       pcc->val_to_float = int_val_to_float;
       pcc->float_to_str = any_float_to_str;
       if (property->value_type == GSTBT_TYPE_TRIGGER_SWITCH) {
@@ -1443,9 +1441,8 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
         col->def =
             BT_IS_GVALUE (no_val) ? g_value_get_enum (no_val) : col->max + 1;
       }
-    }
       break;
-    case G_TYPE_INT:{
+    case G_TYPE_INT:
       col->type = PCT_WORD;
       col->min = g_value_get_int (min_val);
       col->max = g_value_get_int (max_val);
@@ -1456,9 +1453,8 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
       }
       pcc->val_to_float = int_val_to_float;
       pcc->float_to_str = any_float_to_str;
-    }
       break;
-    case G_TYPE_UINT:{
+    case G_TYPE_UINT:
       col->type = PCT_WORD;
       col->min = g_value_get_uint (min_val);
       col->max = g_value_get_uint (max_val);
@@ -1469,9 +1465,32 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
       }
       pcc->val_to_float = int_val_to_float;
       pcc->float_to_str = any_float_to_str;
-    }
       break;
-    case G_TYPE_FLOAT:{
+    case G_TYPE_LONG:
+      col->type = PCT_WORD;
+      col->min = g_value_get_long (min_val);
+      col->max = g_value_get_long (max_val);
+      col->def =
+          BT_IS_GVALUE (no_val) ? g_value_get_long (no_val) : col->max + 1;
+      if (col->min >= 0 && col->max < 256) {
+        col->type = PCT_BYTE;
+      }
+      pcc->val_to_float = int_val_to_float;
+      pcc->float_to_str = any_float_to_str;
+      break;
+    case G_TYPE_ULONG:
+      col->type = PCT_WORD;
+      col->min = g_value_get_ulong (min_val);
+      col->max = g_value_get_ulong (max_val);
+      col->def =
+          BT_IS_GVALUE (no_val) ? g_value_get_ulong (no_val) : col->max + 1;
+      if (col->min >= 0 && col->max < 256) {
+        col->type = PCT_BYTE;
+      }
+      pcc->val_to_float = int_val_to_float;
+      pcc->float_to_str = any_float_to_str;
+      break;
+    case G_TYPE_FLOAT:
       col->type = PCT_WORD;
       col->min = 0.0;
       col->max = 65535.0;
@@ -1493,9 +1512,8 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
        * - we might need to put the scaling factor into the user_data
        * - how can we detect master-volume (log mapping)
        */
-    }
       break;
-    case G_TYPE_DOUBLE:{
+    case G_TYPE_DOUBLE:
       col->type = PCT_WORD;
       col->min = 0.0;
       col->max = 65535.0;
@@ -1512,7 +1530,6 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
         pcc->min = g_value_get_double (min_val);
         pcc->max = g_value_get_double (max_val);
       }
-    }
       break;
     default:
       GST_WARNING ("unhandled param type: '%s' for parameter '%s'",

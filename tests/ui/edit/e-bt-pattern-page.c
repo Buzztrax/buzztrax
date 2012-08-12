@@ -63,26 +63,8 @@ test_teardown (void)
 static void
 move_cursor_to (GtkWidget * w, guint group, guint param, guint digit, guint row)
 {
-  guint i;
-
-  // move to top-left
-  check_send_key (w, 0, GDK_Page_Up, 0);
-  check_send_key (w, 0, GDK_Home, 0);
-
-  // move to column
-  for (i = 0; i < row; i++) {
-    check_send_key (w, 0, GDK_Down, 0);
-  }
-
-  // move to parameter
-  for (i = 0; i < param; i++) {
-    check_send_key (w, GDK_SHIFT_MASK, GDK_Right, 0);
-  }
-
-  // move to digit
-  for (i = 0; i < digit; i++) {
-    check_send_key (w, 0, GDK_Right, 0);
-  }
+  g_object_set (w, "cursor-group", group, "cursor-param", param, "cursor-digit",
+      digit, "cursor-row", row, NULL);
 }
 
 //-- tests
@@ -124,6 +106,7 @@ test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
   BtPattern *pattern;
+  GtkWidget *pattern_editor;
   gchar *str;
 
   /* arrange */
@@ -133,11 +116,12 @@ test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
   pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
-  move_cursor_to ((GtkWidget *) pattern_page, 0, 3, 0, 0);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 3, 0, 0);
 
   /* act */
   // send a 'q' key-press and check that it results in a 'c-' of any octave
-  check_send_key ((GtkWidget *) pattern_page, 0, 'q', 0x18);
+  check_send_key (pattern_editor, 0, 'q', 0x18);
 
   /* assert */
   str = bt_pattern_get_global_event (pattern, 0, 3);
@@ -159,6 +143,7 @@ test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
   BtPattern *pattern;
+  GtkWidget *pattern_editor;
 
   /* arrange */
   machine =
@@ -167,10 +152,11 @@ test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
   pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
-  move_cursor_to ((GtkWidget *) pattern_page, 0, 3, 0, 0);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 3, 0, 0);
 
   /* act */
-  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
+  check_send_key (pattern_editor, 0, '1', 0x0a);
 
   /* assert */
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3),
@@ -191,6 +177,7 @@ test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
   BtPattern *pattern;
+  GtkWidget *pattern_editor;
 
   /* arrange */
   machine =
@@ -199,13 +186,14 @@ test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
   pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
-  move_cursor_to ((GtkWidget *) pattern_page, 0, 3, 0, 0);
-  check_send_key ((GtkWidget *) pattern_page, 0, 'q', 0x18);
-  check_send_key ((GtkWidget *) pattern_page, 0, GDK_Page_Up, 0);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 3, 0, 0);
+  check_send_key (pattern_editor, 0, 'q', 0x18);
+  check_send_key (pattern_editor, 0, GDK_Page_Up, 0);
 
   /* act */
   // send a '.' key-press
-  check_send_key ((GtkWidget *) pattern_page, 0, '.', 0x3c);
+  check_send_key (pattern_editor, 0, '.', 0x3c);
 
   /* assert */
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3), NULL);
@@ -225,6 +213,7 @@ test_bt_main_page_patterns_enter_switch (BT_TEST_ARGS)
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
   BtPattern *pattern;
+  GtkWidget *pattern_editor;
 
   /* arrange */
   machine =
@@ -233,10 +222,11 @@ test_bt_main_page_patterns_enter_switch (BT_TEST_ARGS)
   pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
-  move_cursor_to ((GtkWidget *) pattern_page, 0, 2, 0, 0);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 2, 0, 0);
 
   /* act */
-  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
+  check_send_key (pattern_editor, 0, '1', 0x0a);
 
   /* assert */
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 2), "1");
@@ -256,6 +246,7 @@ test_bt_main_page_patterns_enter_sparse_enum (BT_TEST_ARGS)
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
   BtPattern *pattern;
+  GtkWidget *pattern_editor;
 
   /* arrange */
   machine =
@@ -264,10 +255,11 @@ test_bt_main_page_patterns_enter_sparse_enum (BT_TEST_ARGS)
   pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
-  move_cursor_to ((GtkWidget *) pattern_page, 0, 4, 1, 0);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 4, 1, 0);
 
   /* act */
-  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
+  check_send_key (pattern_editor, 0, '1', 0x0a);
 
   /* assert */
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 4), "1");
@@ -287,6 +279,7 @@ test_bt_main_page_patterns_enter_invalid_sparse_enum (BT_TEST_ARGS)
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
   BtPattern *pattern;
+  GtkWidget *pattern_editor;
 
   /* arrange */
   machine =
@@ -295,10 +288,11 @@ test_bt_main_page_patterns_enter_invalid_sparse_enum (BT_TEST_ARGS)
   pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
-  move_cursor_to ((GtkWidget *) pattern_page, 0, 4, 0, 0);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 4, 0, 0);
 
   /* act */
-  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
+  check_send_key (pattern_editor, 0, '1', 0x0a);
 
   /* assert */
   fail_if (bt_pattern_test_global_event (pattern, 0, 4));
@@ -318,6 +312,7 @@ test_bt_main_page_patterns_enter_sparse_enum_in_2_steps (BT_TEST_ARGS)
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
   BtPattern *pattern;
+  GtkWidget *pattern_editor;
 
   /* arrange */
   machine =
@@ -326,12 +321,13 @@ test_bt_main_page_patterns_enter_sparse_enum_in_2_steps (BT_TEST_ARGS)
   pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
-  move_cursor_to ((GtkWidget *) pattern_page, 0, 4, 0, 0);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 4, 0, 0);
 
   /* act */
-  check_send_key ((GtkWidget *) pattern_page, 0, '1', 0x0a);
-  move_cursor_to ((GtkWidget *) pattern_page, 0, 4, 1, 0);
-  check_send_key ((GtkWidget *) pattern_page, 0, '4', 0x0d);
+  check_send_key (pattern_editor, 0, '1', 0x0a);
+  move_cursor_to (pattern_editor, 0, 4, 1, 0);
+  check_send_key (pattern_editor, 0, '4', 0x0d);
 
   /* assert */
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 4), "20");
@@ -351,6 +347,7 @@ test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
   BtMainPagePatterns *pattern_page;
   BtMachine *machine;
   BtPattern *pattern;
+  GtkWidget *pattern_editor;
   gulong voices;
 
   /* arrange */
@@ -360,6 +357,7 @@ test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
   pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
 
   /* act */
   // change voices
@@ -369,8 +367,8 @@ test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
   /* assert */
   fail_unless (voices == 2, NULL);
   // send two tab keys to ensure the new voice is visible
-  check_send_key ((GtkWidget *) pattern_page, 0, GDK_Tab, 0);
-  check_send_key ((GtkWidget *) pattern_page, 0, GDK_Tab, 0);
+  check_send_key (pattern_editor, 0, GDK_Tab, 0);
+  check_send_key (pattern_editor, 0, GDK_Tab, 0);
   mark_point ();
 
   /* cleanup */
