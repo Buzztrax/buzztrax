@@ -1,0 +1,418 @@
+if USE_GCONF
+GCONF_SETTINGS_C_FILES = src/lib/core/gconf-settings.c
+GCONF_SETTINGS_H_FILES = src/lib/core/gconf-settings.h
+else
+GCONF_SETTINGS_C_FILES =
+GCONF_SETTINGS_H_FILES =
+endif
+
+if USE_GUDEV
+GUDEV_C_FILES=src/lib/ic/gudev-discoverer.c
+GUDEV_H_FILES=src/lib/ic/gudev-discoverer.h
+else
+GUDEV_C_FILES=
+GUDEV_H_FILES=
+endif
+
+if USE_LINUX_INPUT
+LINUX_INPUT_C_FILES=src/lib/ic/input-device.c
+LINUX_INPUT_H_FILES=src/lib/ic/input-device.h
+else
+LINUX_INPUT_C_FILES=
+LINUX_INPUT_H_FILES=
+endif
+
+# -- libs ----------------------------------------------------------------------
+
+lib_LTLIBRARIES = libbuzztard-ic.la libbuzztard-core.la
+
+libbuzztard_ic_la_LIBADD = \
+	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
+libbuzztard_ic_la_LDFLAGS = \
+	-export-symbols-regex ^_?\(btic_\|BtIc\|BTIC_\).* \
+	-version-info @BT_VERSION_INFO@
+libbuzztard_ic_la_CFLAGS = -I$(top_builddir)/src/lib/ic
+libbuzztard_ic_la_SOURCES = \
+	src/lib/ic/ic.c \
+	src/lib/ic/registry.c\
+	$(GUDEV_C_FILES) \
+	src/lib/ic/device.c \
+	src/lib/ic/learn.c \
+	$(LINUX_INPUT_C_FILES) \
+	src/lib/ic/midi-device.c \
+	src/lib/ic/control.c \
+	src/lib/ic/abs-range-control.c \
+	src/lib/ic/trigger-control.c
+
+libbuzztard_icdir = $(includedir)/libbuzztard-ic
+libbuzztard_ic_HEADERS = \
+	src/lib/ic/ic.h \
+	src/lib/ic/version.h \
+	src/lib/ic/registry.h \
+	$(GUDEV_H_FILES) \
+	src/lib/ic/device.h \
+	src/lib/ic/learn.h \
+	$(LINUX_INPUT_H_FILES) \
+	src/lib/ic/midi-device.h \
+	src/lib/ic/control.h \
+	src/lib/ic/abs-range-control.h \
+	src/lib/ic/trigger-control.h
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = \
+  src/lib/core/libbuzztard-core.pc \
+  src/lib/ic/libbuzztard-ic.pc
+
+src/lib/core/marshal.h: src/lib/core/marshal.list
+	$(AM_V_at)$(MKDIR_P) src/lib/core
+	$(AM_V_GEN) glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
+
+src/lib/core/marshal.c: src/lib/core/marshal.list
+	$(AM_V_at)$(MKDIR_P) src/lib/core
+	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
+
+BUILT_SOURCES += src/lib/core/marshal.c src/lib/core/marshal.h
+CLEANFILES += src/lib/core/marshal.c src/lib/core/marshal.h
+
+EXTRA_libbuzztard_core_la_SOURCES = src/lib/core/marshal.list
+nodist_libbuzztard_core_la_SOURCES = src/lib/core/marshal.c src/lib/core/marshal.h
+libbuzztard_core_la_LIBADD = \
+	libbuzztard-ic.la \
+	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
+	-lgstaudio-@GST_MAJORMINOR@ -lgstpbutils-@GST_MAJORMINOR@
+libbuzztard_core_la_LDFLAGS = \
+	-export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
+	-version-info @BT_VERSION_INFO@
+libbuzztard_core_la_CFLAGS = -I$(top_builddir)/src/lib/core
+libbuzztard_core_la_SOURCES = \
+	src/lib/core/core.c \
+	src/lib/core/tools.c \
+	src/lib/core/buzzcallbacks.c \
+	src/lib/core/application.c \
+	src/lib/core/audio-session.c \
+	src/lib/core/childproxy.c \
+	src/lib/core/cmd-pattern.c \
+	$(GCONF_SETTINGS_C_FILES) \
+	src/lib/core/machine.c \
+	src/lib/core/parameter-group.c \
+	src/lib/core/pattern.c \
+	src/lib/core/persistence.c \
+	src/lib/core/processor-machine.c \
+	src/lib/core/sequence.c \
+	src/lib/core/settings.c \
+	src/lib/core/setup.c \
+	src/lib/core/sink-bin.c \
+	src/lib/core/sink-machine.c \
+	src/lib/core/song.c \
+	src/lib/core/song-info.c \
+	src/lib/core/song-io.c \
+	src/lib/core/song-io-native.c \
+	src/lib/core/song-io-native-bzt.c \
+	src/lib/core/song-io-native-xml.c \
+	src/lib/core/source-machine.c \
+	src/lib/core/value-group.c \
+	src/lib/core/wavetable.c \
+	src/lib/core/wave.c \
+	src/lib/core/wavelevel.c \
+	src/lib/core/wire.c
+
+# yet unused sources
+#	plainfile-settings.c libbuzztard-core/plainfile-settings.h \
+#
+
+libbuzztard_coredir = $(includedir)/libbuzztard-core
+libbuzztard_core_HEADERS = \
+	src/lib/core/core.h \
+	src/lib/core/tools.h \
+	src/lib/core/version.h \
+	src/lib/core/application.h \
+	src/lib/core/audio-session.h \
+	src/lib/core/childproxy.h \
+	src/lib/core/cmd-pattern.h \
+	$(GCONF_SETTINGS_H_FILES) \
+	src/lib/core/machine.h \
+	src/lib/core/parameter-group.h \
+	src/lib/core/pattern.h \
+	src/lib/core/persistence.h \
+	src/lib/core/plainfile-settings.h \
+	src/lib/core/processor-machine.h \
+	src/lib/core/sequence.h \
+	src/lib/core/settings.h \
+	src/lib/core/setup.h \
+	src/lib/core/sink-bin.h \
+	src/lib/core/sink-machine.h \
+	src/lib/core/song.h \
+	src/lib/core/song-info.h \
+	src/lib/core/song-io.h \
+	src/lib/core/song-io-native.h \
+	src/lib/core/song-io-native-bzt.h \
+	src/lib/core/song-io-native-xml.h \
+	src/lib/core/source-machine.h \
+	src/lib/core/value-group.h \
+	src/lib/core/wavetable.h \
+	src/lib/core/wave.h \
+	src/lib/core/wavelevel.h \
+	src/lib/core/wire.h
+
+# yet unused sources
+#	plainfile-settings.h \
+#
+
+# -- songio plugins
+songiodir = ${exec_prefix}/lib/buzztard-songio
+songio_LTLIBRARIES = libbtbsl.la
+libbtbsl_la_LIBADD = \
+	libbuzztard-core.la \
+  $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL)
+libbtbsl_la_LDFLAGS = \
+	$(BT_LDFLAGS) \
+	-export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
+	-module -avoid-version
+libbtbsl_la_LIBTOOLFLAGS = --tag=disable-static
+libbtbsl_la_SOURCES = \
+	src/lib/core/songio/bsl/bsl.c \
+	src/lib/core/songio/bsl/song-io-buzz.c \
+	src/lib/core/songio/bsl/bsl.h \
+	src/lib/core/songio/bsl/song-io-buzz.h \
+	src/lib/core/songio/bsl/song-io-buzz-private.h
+
+noinst_HEADERS = \
+  src/lib/core/core_private.h \
+  src/lib/core/settings-private.h \
+  src/lib/ic/ic_private.h
+
+# -- apps ----------------------------------------------------------------------
+
+bin_PROGRAMS = buzztard-cmd buzztard-edit
+noinst_LTLIBRARIES = libbtcmd.la libbtedit.la
+plugin_LTLIBRARIES = libbuzztarddec.la
+
+buzztard_cmd_LDADD = \
+	libbuzztard-core.la \
+	libbuzztard-ic.la \
+	libbtcmd.la \
+	$(BASE_DEPS_LIBS) $(BT_LIBS)
+buzztard_cmd_SOURCES= \
+	src/ui/cmd/bt-cmd.c src/ui/cmd/bt-cmd.h
+
+libbtcmd_la_LIBDADD = \
+	libbuzztard-core.la \
+	libbuzztard-ic.la \
+	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
+libbtcmd_la_SOURCES =	\
+	src/ui/cmd/cmd-application.c src/ui/cmd/cmd-application.h
+
+buzztard_edit_LDADD = \
+	libbuzztard-core.la \
+	libbuzztard-ic.la \
+	libbtedit.la \
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
+	-lgstinterfaces-@GST_MAJORMINOR@
+buzztard_edit_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
+buzztard_edit_SOURCES= \
+	src/ui/edit/bt-edit.c src/ui/edit/bt-edit.h
+
+EXTRA_libbtedit_la_SOURCES = src/ui/edit/marshal.list
+nodist_libbtedit_la_SOURCES = src/ui/edit/marshal.c src/ui/edit/marshal.h
+libbtedit_la_LIBADD = \
+	libbuzztard-core.la \
+	libbuzztard-ic.la \
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
+	-lgstinterfaces-@GST_MAJORMINOR@
+libbtedit_la_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
+libbtedit_la_SOURCES = \
+	src/ui/edit/about-dialog.c src/ui/edit/about-dialog.h \
+	src/ui/edit/change-log.c src/ui/edit/change-log.h \
+	src/ui/edit/change-logger.c src/ui/edit/change-logger.h \
+	src/ui/edit/crash-recover-dialog.c src/ui/edit/crash-recover-dialog.h \
+	src/ui/edit/edit-application.c src/ui/edit/edit-application.h \
+	src/ui/edit/interaction-controller-menu.c src/ui/edit/interaction-controller-menu.h \
+	src/ui/edit/interaction-controller-learn-dialog.c src/ui/edit/interaction-controller-learn-dialog.h \
+	src/ui/edit/machine-canvas-item.c src/ui/edit/machine-canvas-item.h \
+	src/ui/edit/machine-menu.c src/ui/edit/machine-menu.h \
+	src/ui/edit/machine-actions.c src/ui/edit/machine-actions.h \
+	src/ui/edit/machine-list-model.c src/ui/edit/machine-list-model.h \
+	src/ui/edit/machine-preset-properties-dialog.c src/ui/edit/machine-preset-properties-dialog.h \
+	src/ui/edit/machine-properties-dialog.c src/ui/edit/machine-properties-dialog.h \
+	src/ui/edit/machine-preferences-dialog.c src/ui/edit/machine-preferences-dialog.h \
+	src/ui/edit/machine-rename-dialog.c src/ui/edit/machine-rename-dialog.h \
+	src/ui/edit/main-window.c src/ui/edit/main-window.h \
+	src/ui/edit/main-menu.c src/ui/edit/main-menu.h \
+	src/ui/edit/main-toolbar.c src/ui/edit/main-toolbar.h \
+	src/ui/edit/main-pages.c src/ui/edit/main-pages.h \
+	src/ui/edit/main-page-machines.c src/ui/edit/main-page-machines.h \
+	src/ui/edit/main-page-patterns.c src/ui/edit/main-page-patterns.h \
+	src/ui/edit/main-page-sequence.c src/ui/edit/main-page-sequence.h \
+	src/ui/edit/main-page-waves.c src/ui/edit/main-page-waves.h \
+	src/ui/edit/main-page-info.c src/ui/edit/main-page-info.h \
+	src/ui/edit/main-statusbar.c src/ui/edit/main-statusbar.h \
+	src/ui/edit/missing-framework-elements-dialog.c src/ui/edit/missing-framework-elements-dialog.h \
+	src/ui/edit/missing-song-elements-dialog.c src/ui/edit/missing-song-elements-dialog.h \
+	src/ui/edit/object-list-model.c src/ui/edit/object-list-model.h \
+	src/ui/edit/panorama-popup.c src/ui/edit/panorama-popup.h \
+	src/ui/edit/pattern-list-model.c src/ui/edit/pattern-list-model.h \
+	src/ui/edit/pattern-properties-dialog.c src/ui/edit/pattern-properties-dialog.h \
+	src/ui/edit/playback-controller-socket.c src/ui/edit/playback-controller-socket.h \
+	src/ui/edit/render-dialog.c src/ui/edit/render-dialog.h \
+	src/ui/edit/sequence-grid-model.c src/ui/edit/sequence-grid-model.h \
+	src/ui/edit/sequence-view.c src/ui/edit/sequence-view.h \
+	src/ui/edit/settings-dialog.c src/ui/edit/settings-dialog.h \
+	src/ui/edit/settings-page-audiodevices.c src/ui/edit/settings-page-audiodevices.h \
+	src/ui/edit/settings-page-directories.c src/ui/edit/settings-page-directories.h \
+	src/ui/edit/settings-page-interaction-controller.c src/ui/edit/settings-page-interaction-controller.h \
+	src/ui/edit/settings-page-playback-controller.c src/ui/edit/settings-page-playback-controller.h \
+	src/ui/edit/settings-page-shortcuts.c src/ui/edit/settings-page-shortcuts.h \
+	src/ui/edit/signal-analysis-dialog.c src/ui/edit/signal-analysis-dialog.h \
+	src/ui/edit/tip-dialog.c src/ui/edit/tip-dialog.h \
+	src/ui/edit/tools.c src/ui/edit/tools.h \
+	src/ui/edit/ui-resources.c src/ui/edit/ui-resources.h \
+	src/ui/edit/volume-popup.c src/ui/edit/volume-popup.h \
+	src/ui/edit/wave-viewer.c src/ui/edit/wave-viewer.h \
+	src/ui/edit/wire-canvas-item.c src/ui/edit/wire-canvas-item.h \
+	\
+	src/ui/edit/pattern-editor.c src/ui/edit/pattern-editor.h \
+	src/ui/edit/gtkvumeter.c src/ui/edit/gtkvumeter.h \
+	\
+	src/ui/edit/btmemoryaudiosrc.c src/ui/edit/btmemoryaudiosrc.h
+
+src/ui/edit/marshal.h: src/ui/edit/marshal.list
+	$(AM_V_at)$(MKDIR_P) src/ui/edit
+	$(AM_V_GEN) glib-genmarshal --header --prefix=bt_marshal $(srcdir)/$< >$@
+
+src/ui/edit/marshal.c: src/ui/edit/marshal.list
+	$(AM_V_at)$(MKDIR_P) src/ui/edit
+	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
+
+BUILT_SOURCES += src/ui/edit/marshal.c src/ui/edit/marshal.h
+CLEANFILES += src/ui/edit/marshal.c src/ui/edit/marshal.h
+
+# FIXME: don't install bt-edit.compact.gtkrc if not selected
+gtkrcdir = $(datadir)/$(PACKAGE)
+gtkrc_DATA = src/ui/edit/bt-edit.gtkrc src/ui/edit/bt-edit.compact.gtkrc
+
+libbuzztarddec_la_CFLAGS = $(GST_PLUGIN_CFLAGS)
+libbuzztarddec_la_LIBADD = \
+	libbuzztard-core.la \
+	libbuzztard-ic.la \
+	$(BASE_DEPS_LIBS) $(LIBM)
+libbuzztarddec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libbuzztarddec_la_SOURCES = src/ui/dec/bt-dec.c src/ui/dec/bt-dec.h
+libbuzztarddec_la_LIBTOOLFLAGS = --tag=disable-static
+
+# -- common --------------------------------------------------------------------
+
+desktopdir = ${with_desktop_dir}/applications
+desktop_in_files = \
+  src/lib/core/songio/bsl/buzztard-songio-buzz.desktop.in \
+  src/ui/edit/buzztard-edit.desktop.in
+desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
+@INTLTOOL_DESKTOP_RULE@
+
+# install .xml mime info file
+sharedmimedir = $(datadir)/mime
+sharedmimepackagedir = $(sharedmimedir)/packages
+sharedmimepackage_in_files = \
+  src/lib/buzztard.xml.in \
+  src/lib/core/songio/bsl/buzztard-songio-buzz.xml.in
+sharedmimepackage_DATA = $(sharedmimepackage_in_files:.xml.in=.xml)
+@INTLTOOL_XML_RULE@
+
+# update desktop/mime database
+update-desktop-db:
+	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";
+update-mime-db:
+	test -z "$(UPDATE_MIME_DATABASE)" || $(UPDATE_MIME_DATABASE) "$(DESTDIR)$(sharedmimedir)";
+
+if USE_GIR
+libbtcore_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztard_core_la_SOURCES))
+
+BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
+	-PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):$(top_srcdir)/src/lib/ic/" $(AM_V_GEN)$(G_IR_SCANNER) -v \
+	     --namespace=BuzztardCore \
+	     --nsversion 0.0 \
+	     -I$(builddir) \
+	     -I$(srcdir) \
+	     -I$(top_srcdir)/src/src/lib/ic/ \
+	     --add-include-path=$(top_srcdir)/src/src/lib/ic/ \
+	     --identifier-prefix=Bt \
+	     --symbol-prefix=bt \
+	     --c-include='src/lib/core/core.h' \
+	     --include=GLib-2.0 \
+	     --include=GObject-2.0 \
+	     --include=Gst-@GST_MAJORMINOR@ \
+	     --include=libxml2-2.0 \
+	     --include=BuzztardIc-0.0 \
+	     --library=libbuzztard-core.la \
+	     --libtool="$(top_builddir)/libtool" \
+	     --pkg glib-2.0 \
+	     --pkg gobject-2.0 \
+	     --pkg libgstbuzztard \
+	     --pkg libxml-2.0 \
+	     --pkg gstreamer-@GST_MAJORMINOR@ \
+	     --pkg-export libbuzztard-core \
+	     --add-init-section="bt_init(NULL,NULL);" \
+	     --output $@ \
+	     $(libbtcore_gir_sources) || touch $@
+
+libbtic_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztard_ic_la_SOURCES))
+
+BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
+	-$(AM_V_GEN)$(G_IR_SCANNER) -v \
+	     --namespace=BuzztardIc \
+	     --nsversion 0.0 \
+	     -I$(builddir) \
+	     -I$(srcdir) \
+	     --identifier-prefix=BtIc \
+	     --symbol-prefix=btic \
+	     --c-include='src/lib/ic/ic.h' \
+	     --include=GLib-2.0 \
+	     --include=GObject-2.0 \
+	     --include=Gst-@GST_MAJORMINOR@ \
+	     --library=libbuzztard-ic.la \
+	     --libtool="$(top_builddir)/libtool" \
+	     --pkg glib-2.0 \
+	     --pkg gobject-2.0 \
+	     --pkg gstreamer-@GST_MAJORMINOR@ \
+	     --pkg-export libbuzztard-ic \
+	     --add-init-section="btic_init(NULL,NULL);" \
+	     --output $@ \
+	     $(libbtic_gir_sources) || touch $@
+
+BUILT_GIRSOURCES = BuzztardCore-0.0.gir BuzztardIc-0.0.gir
+
+girdir = $(datadir)/gir
+dist_gir_DATA = $(BUILT_GIRSOURCES)
+
+typelibsdir = $(libdir)/girepository
+typelibs_DATA = $(dist_gir_DATA:.gir=.typelib)
+
+TXML = $(dist_gir_DATA:.gir=.gir.txml)
+
+.gir.typelib:
+	-$(AM_V_GEN)$(G_IR_COMPILER) --includedir=. $(G_IR_COMPILER_OPTS) $< -o $@  || touch $@
+else
+BUILT_GIRSOURCES=
+endif
+
+EXTRA_DIST += \
+  $(desktop_in_files) $(sharedmimepackage_in_files) \
+  $(gtkrc_DATA) \
+	src/lib/core/libbuzztard-core.pc.in \
+	src/lib/core/marshal.list \
+	src/lib/core/version.h.in \
+	src/lib/ic/libbuzztard-ic.pc.in \
+	src/lib/ic/version.h.in \
+	src/ui/edit/marshal.list
+
+# CLEANFILES is for files generated by make
+CLEANFILES += \
+  $(desktop_DATA) $(sharedmimepackage_DATA) \
+  $(typelibs_DATA) $(TXML) \
+  $(BUILT_GIRSOURCES)
+
+# DISTCLEANFILES is for files generated by configure
+DISTCLEANFILES += \
+  $(pkgconfig_DATA) \
+  src/lib/core/version.h \
+  src/lib/ic/version.h
+

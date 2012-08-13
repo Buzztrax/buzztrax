@@ -12,12 +12,14 @@
 #include <gdk/gdkkeysyms.h>
 #include <glib.h>
 
-static GtkWidget *window=NULL;
-static GtkWidget *play_button=NULL;
+static GtkWidget *window = NULL;
+static GtkWidget *play_button = NULL;
 
 
-static void destroy(GtkWidget *widget,gpointer data) {
-  gtk_main_quit();
+static void
+destroy (GtkWidget * widget, gpointer data)
+{
+  gtk_main_quit ();
 }
 
 /*
@@ -53,95 +55,112 @@ static void destroy(GtkWidget *widget,gpointer data) {
 #29 0x080491e5 in main (argc=1073741826, argv=0xb79f90c0) at acceltoolbar.c:120
 */
 
-static void on_play_clicked(GtkButton *button, gpointer user_data) {
-  if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button))) {
-    gtk_label_set_text(GTK_LABEL(user_data),"now playing");
-    g_message("now playing");
-  }
-  else {
-    g_message("play deativated");
+static void
+on_play_clicked (GtkButton * button, gpointer user_data)
+{
+  if (gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (button))) {
+    gtk_label_set_text (GTK_LABEL (user_data), "now playing");
+    g_message ("now playing");
+  } else {
+    g_message ("play deativated");
   }
 }
 
-static void on_stop_clicked(GtkButton *button, gpointer user_data) {
-  gtk_label_set_text(GTK_LABEL(user_data),"stop");
-  g_message("stop");
-  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(play_button),FALSE);
+static void
+on_stop_clicked (GtkButton * button, gpointer user_data)
+{
+  gtk_label_set_text (GTK_LABEL (user_data), "stop");
+  g_message ("stop");
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (play_button),
+      FALSE);
 }
 
-static void init() {
+static void
+init ()
+{
   GtkWidget *vbox;
-  GtkWidget *tb,*ti;
+  GtkWidget *tb, *ti;
   GtkAccelGroup *accel_group;
   GtkWidget *label;
 
-  window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title(GTK_WINDOW(window), "Toolbar with accelerator");
-  g_signal_connect(G_OBJECT(window), "destroy",	G_CALLBACK (destroy), NULL);
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title (GTK_WINDOW (window), "Toolbar with accelerator");
+  g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
-  accel_group=gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(window),accel_group);
+  accel_group = gtk_accel_group_new ();
+  gtk_window_add_accel_group (GTK_WINDOW (window), accel_group);
 
-  vbox=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(window),vbox);
+  vbox = gtk_vbox_new (FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (window), vbox);
 
   // message area
-  label=gtk_label_new("");
+  label = gtk_label_new ("");
 
   // regular toolbar
-  tb=gtk_toolbar_new();
-  gtk_container_add(GTK_CONTAINER(vbox),tb);
+  tb = gtk_toolbar_new ();
+  gtk_container_add (GTK_CONTAINER (vbox), tb);
 
-  ti=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
+  ti = GTK_WIDGET (gtk_toggle_tool_button_new_from_stock
+      (GTK_STOCK_MEDIA_PLAY));
 #if 0
   // this leads to: gtk_widget_set_accel_path: assertion `GTK_WIDGET_GET_CLASS (widget)->activate_signal != 0' failed
   // fix localy in gtktoolbutton.c:261 : widget_class->activate_signal = toolbutton_signals[CLICKED];
-  gtk_widget_set_accel_path (ti, "<Buzztard-Main>/MainToolbar/Play",accel_group);
+  gtk_widget_set_accel_path (ti, "<Buzztard-Main>/MainToolbar/Play",
+      accel_group);
   gtk_accel_map_add_entry ("<Buzztard-Main>/MainToolbar/Play", GDK_F5, 0);
 #endif
 #if 1
   // this does not toggle the toggle button
-  gtk_widget_add_accelerator(ti, "clicked", accel_group, GDK_F5, 0, 0);
+  gtk_widget_add_accelerator (ti, "clicked", accel_group, GDK_F5, 0, 0);
 #endif
 #if 0
   // this does not trigger anything at all
   GtkActionGroup *action_group;
   GtkAction *action;
 
-  action_group=gtk_action_group_new("MainToolbar");
-  action=GTK_ACTION(gtk_toggle_action_new("Play","Play","Play this song",GTK_STOCK_MEDIA_PLAY));
-  gtk_action_set_accel_path(action,"<Buzztard-Main>/MainToolbar/Play");
-  gtk_action_group_add_action_with_accel(action_group, action, "F5");
-  gtk_action_connect_proxy(action,ti);
+  action_group = gtk_action_group_new ("MainToolbar");
+  action =
+      GTK_ACTION (gtk_toggle_action_new ("Play", "Play", "Play this song",
+          GTK_STOCK_MEDIA_PLAY));
+  gtk_action_set_accel_path (action, "<Buzztard-Main>/MainToolbar/Play");
+  gtk_action_group_add_action_with_accel (action_group, action, "F5");
+  gtk_action_connect_proxy (action, ti);
 #endif
-  gtk_toolbar_insert(GTK_TOOLBAR(tb),GTK_TOOL_ITEM(ti),-1);
-  g_signal_connect(G_OBJECT(ti),"clicked",G_CALLBACK(on_play_clicked),(gpointer)label);
-  play_button=ti;
+  gtk_toolbar_insert (GTK_TOOLBAR (tb), GTK_TOOL_ITEM (ti), -1);
+  g_signal_connect (G_OBJECT (ti), "clicked", G_CALLBACK (on_play_clicked),
+      (gpointer) label);
+  play_button = ti;
 
-  ti=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
+  ti = GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_MEDIA_STOP));
   //gtk_widget_set_accel_path (ti, "<Buzztard-Main>/MainToolbar/Play",accel_group);
   //gtk_accel_map_add_entry ("<Buzztard-Main>/MainToolbar/Play", GDK_F8, 0);
-  gtk_widget_add_accelerator(ti, "clicked", accel_group, GDK_F8, 0, 0);
-  gtk_toolbar_insert(GTK_TOOLBAR(tb),GTK_TOOL_ITEM(ti),-1);
-  g_signal_connect(G_OBJECT(ti),"clicked",G_CALLBACK(on_stop_clicked),(gpointer)label);
-  
+  gtk_widget_add_accelerator (ti, "clicked", accel_group, GDK_F8, 0, 0);
+  gtk_toolbar_insert (GTK_TOOLBAR (tb), GTK_TOOL_ITEM (ti), -1);
+  g_signal_connect (G_OBJECT (ti), "clicked", G_CALLBACK (on_stop_clicked),
+      (gpointer) label);
+
   // message area
-  gtk_container_add(GTK_CONTAINER(vbox),label);
-  gtk_container_add(GTK_CONTAINER(vbox),gtk_label_new("F5: play, F8: stop"));
+  gtk_container_add (GTK_CONTAINER (vbox), label);
+  gtk_container_add (GTK_CONTAINER (vbox),
+      gtk_label_new ("F5: play, F8: stop"));
 
-  gtk_widget_show_all(window);
+  gtk_widget_show_all (window);
 }
 
-static void done() {
+static void
+done ()
+{
 
 }
 
-int main(int argc, char **argv) {
-  gtk_init(&argc,&argv);
+int
+main (int argc, char **argv)
+{
+  gtk_init (&argc, &argv);
 
-  init();
-  gtk_main();
-  done();
+  init ();
+  gtk_main ();
+  done ();
 
-  return(0);
+  return (0);
 }

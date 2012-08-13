@@ -50,6 +50,7 @@
 
 #include "application.h"
 #include "audio-session.h"
+#include "cmd-pattern.h"
 #include "gconf-settings.h"
 #include "machine.h"
 #include "parameter-group.h"
@@ -67,10 +68,10 @@
 #include "song-io.h"
 #include "song.h"
 #include "source-machine.h"
+#include "value-group.h"
 #include "wave.h"
 #include "wavelevel.h"
 #include "wavetable.h"
-#include "wire-pattern.h"
 #include "wire.h"
 
 #include "tools.h"

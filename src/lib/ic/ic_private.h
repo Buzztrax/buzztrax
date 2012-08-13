@@ -25,23 +25,11 @@
 #endif
 
 //-- ansi c
-#define __USE_ISOC99 /* for isinf() and co. */
-#include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 //#define _XOPEN_SOURCE /* glibc2 needs this */
 #define __USE_XOPEN
-#include <fcntl.h>
-#include <time.h>
 #include <unistd.h>
-//-- locale
-#ifdef HAVE_X11_XLOCALE_H
-  /* defines a more portable setlocale for X11 (_Xsetlocale) */
-  #include <X11/Xlocale.h>
-#else
-  #include <locale.h>
-#endif
 //-- gudev / hal/dbus
 #if USE_GUDEV
 #include <gudev/gudev.h>

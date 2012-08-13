@@ -8,3 +8,8 @@
 *.bbg
 Makefile
 Makefile.in
+*.gir
+*.typelib
+buzztard-cmd
+buzztard-edit
+

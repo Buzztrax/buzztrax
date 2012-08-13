@@ -116,12 +116,12 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self);
 
 //-- pattern handling
 
-void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern);
-void bt_machine_remove_pattern(const BtMachine *self, const BtPattern *pattern);
+void bt_machine_add_pattern(const BtMachine *self, const BtCmdPattern *pattern);
+void bt_machine_remove_pattern(const BtMachine *self, const BtCmdPattern *pattern);
 
-BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, const gchar * const id);
-BtPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name);
-BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index);
+BtCmdPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, const gchar * const id);
+BtCmdPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name);
+BtCmdPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index);
 
 gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self);
 gboolean bt_machine_has_patterns(const BtMachine * const self);

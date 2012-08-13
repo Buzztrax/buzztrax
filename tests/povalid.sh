@@ -6,7 +6,7 @@ if [ -z $srcdir ]; then
 fi
 
 pwd=`pwd`;
-cd $srcdir/../po
+cd $srcdir/po
 
 res=0
 fails=0;

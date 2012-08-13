@@ -615,7 +615,6 @@ BtPatternEditorCallbacks
 BtPatternEditorColumn
 BtPatternEditorColumnType
 BtPatternEditorColumnGroup
-BtPatternEditorColumnGroupType
 BtPatternEditorSelectionMode
 bt_pattern_editor_new
 bt_pattern_editor_set_pattern
@@ -706,25 +705,6 @@ bt_render_dialog_get_type
 BtRenderDialogPrivate
 BT_TYPE_RENDER_MODE
 bt_render_mode_get_type
-</SECTION>
-
-
-<SECTION>
-<FILE>btrenderprogress</FILE>
-<TITLE>BtRenderProgress</TITLE>
-BtRenderProgress
-bt_render_progress_new
-bt_render_progress_run
-<SUBSECTION Standard>
-BtRenderProgressClass
-BT_RENDER_PROGRESS
-BT_IS_RENDER_PROGRESS
-BT_TYPE_RENDER_PROGRESS
-BT_RENDER_PROGRESS_CLASS
-BT_IS_RENDER_PROGRESS_CLASS
-BT_RENDER_PROGRESS_GET_CLASS
-bt_render_progress_get_type
-BtRenderProgressPrivate
 </SECTION>
 
 
@@ -1041,6 +1021,10 @@ GTK_CHECK_CLASS_CAST
 GTK_CHECK_CLASS_TYPE
 GTK_CHECK_GET_CLASS
 GTK_CHECK_TYPE
+GTK_COMBO_BOX_TEXT
+gtk_combo_box_text_append_text
+gtk_combo_box_text_get_active_text
+gtk_combo_box_text_new
 gtk_dialog_get_action_area
 gtk_dialog_get_content_area
 gtk_menu_tool_button_set_arrow_tooltip_text

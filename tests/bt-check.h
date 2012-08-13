@@ -26,18 +26,10 @@
 #  include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <check.h>
 //-- glib/gobject
 #include <glib.h>
 #include <glib-object.h>
-#include <glib/gstdio.h>
-//-- gtk/gdk
-#include <gtk/gtk.h>
-#include <gdk/gdk.h>
 //-- gstreamer
 #include <gst/gst.h>
 //-- buzztard
@@ -60,22 +52,20 @@ extern gchar **test_argvptr;
 
 #define CHECK_VERSION (CHECK_MAJOR_VERSION * 10000 + CHECK_MINOR_VERSION * 100 + CHECK_MICRO_VERSION)
 #if CHECK_VERSION <= 903
-#define BT_START_TEST(__testname) \
-static void __testname (void)\
-{\
-  GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
-  tcase_fn_start (""# __testname, __FILE__, __LINE__);
+#define BT_TEST_ARGS  void
 #else
-#define BT_START_TEST(__testname) \
-static void __testname (int _i __attribute__((unused)))\
-{\
-  GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
-  tcase_fn_start (""# __testname, __FILE__, __LINE__);
+#define BT_TEST_ARGS int _i __attribute__((unused))
 #endif
 
-#define BT_END_TEST \
-  GST_DEBUG ("test end ----------------------------------------------------------------------\n"); \
-}
+#define BT_TEST_START \
+  GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
+  tcase_fn_start (__FUNCTION__, __FILE__, __LINE__); \
+  {
+
+#define BT_TEST_END \
+  } \
+  GST_DEBUG ("test end ----------------------------------------------------------------------\n");
+
 
 /* Hack to allow run-time selection of unit tests to run via the
  * BT_CHECKS environment variable (test function names, comma-separated)
@@ -118,7 +108,7 @@ __bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal,
 
 //-- testing helper methods
 
-extern void bt_check_init(void);
+void bt_check_init(void);
 
 #define g_object_checked_unref(obj) \
 {\
@@ -130,43 +120,131 @@ extern void bt_check_init(void);
   fail_unless(__objref == NULL, NULL);\
 }
 
-extern void check_init_error_trapp(gchar *method, gchar *test);
-extern gboolean check_has_error_trapped(void);
+void check_init_error_trapp(gchar *method, gchar *test);
+gboolean check_has_error_trapped(void);
 
-extern void setup_log(int argc, char **argv);
-extern void setup_log_capture(void);
+void setup_log(gint argc, gchar **argv);
+void setup_log_capture(void);
 
-extern const gchar *check_get_test_song_path(const gchar *name);
+void check_run_main_loop_for_usec(gulong usec);
 
-extern gboolean file_contains_str(gchar *tmp_file_name, gchar *string);
+const gchar *check_get_test_song_path(const gchar *name);
 
-extern gboolean check_gobject_properties(GObject *toCheck);
+gboolean check_file_contains_str(FILE *input_file, gchar *input_file_name, gchar *string);
 
-extern void check_setup_test_server(void);
-extern void check_setup_test_display(void);
-extern void check_shutdown_test_display(void);
-extern void check_shutdown_test_server(void);
+gboolean check_gobject_properties(GObject *toCheck);
+gboolean check_gobject_get_boolean_property(gpointer obj, const gchar *prop);
+guint check_gobject_get_uint_property(gpointer obj, const gchar *prop);
+glong check_gobject_get_long_property(gpointer obj, const gchar *prop);
+gulong check_gobject_get_ulong_property(gpointer obj, const gchar *prop);
+GObject *check_gobject_get_object_property(gpointer obj, const gchar *prop);
+gchar *check_gobject_get_str_property(gpointer obj, const gchar *prop);
+gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 
-enum _BtCheckWidgetScreenshotRegionsMatch {
-  BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE = 0,
-  BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_TYPE = (1<<0),
-  BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NAME = (1<<1),
-  BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_LABEL = (1<<2),
-};
+/* comparsion macros with improved output compared to fail_unless(). */
+#define _ck_assert_gboolean(O, X, C, Y) do { \
+  gboolean __ck = check_gobject_get_boolean_property((O), (X)); \
+  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%ld, "#Y"==%ld", __ck, Y); \
+} while (0)
+#define ck_assert_gobject_boolean_eq(O, X, Y) _ck_assert_gboolean(O, X, ==, Y)
+#define ck_assert_gobject_boolean_ne(O, X, Y) _ck_assert_gboolean(O, X, !=, Y)
 
-typedef enum _BtCheckWidgetScreenshotRegionsMatch BtCheckWidgetScreenshotRegionsMatch;
+#define _ck_assert_guint(O, X, C, Y) do { \
+  guint __ck = check_gobject_get_uint_property((O), (X)); \
+  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%u, "#Y"==%u", __ck, Y); \
+} while (0)
+#define ck_assert_gobject_guint_eq(O, X, Y) _ck_assert_guint(O, X, ==, Y)
+#define ck_assert_gobject_guint_ne(O, X, Y) _ck_assert_guint(O, X, !=, Y)
+#define ck_assert_gobject_guint_gt(O, X, Y) _ck_assert_guint(O, X, >, Y)
+#define ck_assert_gobject_guint_lt(O, X, Y) _ck_assert_guint(O, X, <, Y)
+#define ck_assert_gobject_guint_ge(O, X, Y) _ck_assert_guint(O, X, >=, Y)
+#define ck_assert_gobject_guint_le(O, X, Y) _ck_assert_guint(O, X, <=, Y)
 
-struct _BtCheckWidgetScreenshotRegions {
-  BtCheckWidgetScreenshotRegionsMatch match;
-  gchar *name;
-  gchar *label;
-  GType type;
-  GtkPositionType pos; 
-};
-typedef struct _BtCheckWidgetScreenshotRegions BtCheckWidgetScreenshotRegions;
+#define _ck_assert_glong(O, X, C, Y) do { \
+  glong __ck = check_gobject_get_long_property((O), (X)); \
+  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%ld, "#Y"==%ld", __ck, Y); \
+} while (0)
+#define ck_assert_gobject_glong_eq(O, X, Y) _ck_assert_glong(O, X, ==, Y)
+#define ck_assert_gobject_glong_ne(O, X, Y) _ck_assert_glong(O, X, !=, Y)
+#define ck_assert_gobject_glong_gt(O, X, Y) _ck_assert_glong(O, X, >, Y)
+#define ck_assert_gobject_glong_lt(O, X, Y) _ck_assert_glong(O, X, <, Y)
+#define ck_assert_gobject_glong_ge(O, X, Y) _ck_assert_glong(O, X, >=, Y)
+#define ck_assert_gobject_glong_le(O, X, Y) _ck_assert_glong(O, X, <=, Y)
 
-extern void check_make_widget_screenshot(GtkWidget *widget, const gchar *name);
-extern void check_make_widget_screenshot_with_highlight(GtkWidget *widget, const gchar *name, BtCheckWidgetScreenshotRegions *regions);
+#define _ck_assert_gulong(O, X, C, Y) do { \
+  gulong __ck = check_gobject_get_ulong_property((O), (X)); \
+  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%lu, "#Y"==%lu", __ck, Y); \
+} while (0)
+#define ck_assert_gobject_gulong_eq(O, X, Y) _ck_assert_gulong(O, X, ==, Y)
+#define ck_assert_gobject_gulong_ne(O, X, Y) _ck_assert_gulong(O, X, !=, Y)
+#define ck_assert_gobject_gulong_gt(O, X, Y) _ck_assert_gulong(O, X, >, Y)
+#define ck_assert_gobject_gulong_lt(O, X, Y) _ck_assert_gulong(O, X, <, Y)
+#define ck_assert_gobject_gulong_ge(O, X, Y) _ck_assert_gulong(O, X, >=, Y)
+#define ck_assert_gobject_gulong_le(O, X, Y) _ck_assert_gulong(O, X, <=, Y)
 
-extern void check_send_key(GtkWidget *widget, guint keyval);
+#define _ck_assert_gobject(O, X, C, Y) do { \
+  GObject *__ck = check_gobject_get_object_property ((O), (X)); \
+  fail_unless(__ck C (GObject *)(Y), "Assertion '"#X#C#Y"' failed: "#X"==%p, "#Y"==%p", __ck, Y); \
+  if(__ck) g_object_unref(__ck); \
+} while(0)
+#define ck_assert_gobject_object_eq(O, X, Y) _ck_assert_gobject(O, X, ==, Y)
+#define ck_assert_gobject_object_ne(O, X, Y) _ck_assert_gobject(O, X, !=, Y)
+
+#define _ck_assert_str_and_free(F, X, C, Y) do { \
+  gchar *__ck = (X); \
+  fail_unless(F(__ck, (Y)), "Assertion '"#X#C#Y"' failed: "#X"==\"%s\", "#Y"==\"%s\"", __ck, Y); \
+  g_free(__ck); \
+} while(0)
+#define ck_assert_str_eq_and_free(X, Y) _ck_assert_str_and_free(!g_strcmp0, X, ==, Y)
+#define ck_assert_str_ne_and_free(X, Y) _ck_assert_str_and_free(g_strcmp0, X, !=, Y)
+
+#define ck_assert_gobject_str_eq(O, X, Y) _ck_assert_str_and_free(!g_strcmp0, check_gobject_get_str_property((O), (X)), ==, Y)
+#define ck_assert_gobject_str_ne(O, X, Y) _ck_assert_str_and_free(g_strcmp0, check_gobject_get_str_property((O), (X)), !=, Y)
+
+
+#define _ck_assert_gobject_and_unref(X, C, Y) do { \
+  GObject *__ck = (GObject *)(X); \
+  fail_unless(__ck C (GObject *)(Y), "Assertion '"#X#C#Y"' failed: "#X"==%p, "#Y"==%p", __ck, Y); \
+  if(__ck) g_object_unref(__ck); \
+} while(0)
+#define ck_assert_gobject_eq_and_unref(X, Y) _ck_assert_gobject_and_unref(X, ==, Y)
+#define ck_assert_gobject_ne_and_unref(X, Y) _ck_assert_gobject_and_unref(X, !=, Y)
+
+#define ck_assert_int_gt(X, Y) _ck_assert_int(X, >, Y)
+#define ck_assert_int_lt(X, Y) _ck_assert_int(X, <, Y)
+#define ck_assert_int_ge(X, Y) _ck_assert_int(X, >=, Y)
+#define ck_assert_int_le(X, Y) _ck_assert_int(X, <=, Y)
+
+#define _ck_assert_ulong(X, O, Y) ck_assert_msg((X) O (Y), "Assertion '"#X#O#Y"' failed: "#X"==%lu, "#Y"==%lu", X, Y)
+#define ck_assert_ulong_eq(X, Y) _ck_assert_ulong(X, ==, Y)
+#define ck_assert_ulong_ne(X, Y) _ck_assert_ulong(X, !=, Y)
+#define ck_assert_ulong_gt(X, Y) _ck_assert_ulong(X, >, Y)
+#define ck_assert_ulong_lt(X, Y) _ck_assert_ulong(X, <, Y)
+#define ck_assert_ulong_ge(X, Y) _ck_assert_ulong(X, >=, Y)
+#define ck_assert_ulong_le(X, Y) _ck_assert_ulong(X, <=, Y)
+
+#define _ck_assert_uint64(X, O, Y) ck_assert_msg((X) O (Y), "Assertion '"#X#O#Y"' failed: "#X"==%"G_GUINT64_FORMAT", "#Y"==%"G_GUINT64_FORMAT, X, Y)
+#define ck_assert_uint64_eq(X, Y) _ck_assert_uint64(X, ==, Y)
+#define ck_assert_uint64_ne(X, Y) _ck_assert_uint64(X, !=, Y)
+#define ck_assert_uint64_gt(X, Y) _ck_assert_uint64(X, >, Y)
+#define ck_assert_uint64_lt(X, Y) _ck_assert_uint64(X, <, Y)
+#define ck_assert_uint64_ge(X, Y) _ck_assert_uint64(X, >=, Y)
+#define ck_assert_uint64_le(X, Y) _ck_assert_uint64(X, <=, Y)
+
+#define _ck_assert_int64(X, O, Y) ck_assert_msg((X) O (Y), "Assertion '"#X#O#Y"' failed: "#X"==%"G_GINT64_FORMAT", "#Y"==%"G_GINT64_FORMAT, X, Y)
+#define ck_assert_int64_eq(X, Y) _ck_assert_int64(X, ==, Y)
+#define ck_assert_int64_ne(X, Y) _ck_assert_int64(X, !=, Y)
+#define ck_assert_int64_gt(X, Y) _ck_assert_int64(X, >, Y)
+#define ck_assert_int64_lt(X, Y) _ck_assert_int64(X, <, Y)
+#define ck_assert_int64_ge(X, Y) _ck_assert_int64(X, >=, Y)
+#define ck_assert_int64_le(X, Y) _ck_assert_int64(X, <=, Y)
+
+#define _ck_assert_float(X, O, Y) ck_assert_msg((X) O (Y), "Assertion '"#X#O#Y"' failed: "#X"==%f, "#Y"==%f", X, Y)
+#define ck_assert_float_eq(X, Y) _ck_assert_float(X, ==, Y)
+#define ck_assert_float_ne(X, Y) _ck_assert_float(X, !=, Y)
+#define ck_assert_float_gt(X, Y) _ck_assert_float(X, >, Y)
+#define ck_assert_float_lt(X, Y) _ck_assert_float(X, <, Y)
+#define ck_assert_float_ge(X, Y) _ck_assert_float(X, >=, Y)
+#define ck_assert_float_le(X, Y) _ck_assert_float(X, <=, Y)
+
 #endif /* BT_CHECK_H */

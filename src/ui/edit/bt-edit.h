@@ -25,23 +25,7 @@
 #endif
 
 //-- ansi c
-#include <ctype.h>
-//#define __USE_ISOC99 /* for round() and co. */
-#include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-//#define _XOPEN_SOURCE /* glibc2 needs this */
-#define __USE_XOPEN
-#include <time.h>
-#include <unistd.h>
-//-- locale
-#ifdef HAVE_X11_XLOCALE_H
-  /* defines a more portable setlocale for X11 (_Xsetlocale) */
-  #include <X11/Xlocale.h>
-#else
-  #include <locale.h>
-#endif
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS
@@ -73,13 +57,7 @@
 //-- libbtcore & libbtic
 #include "core.h"
 #include "ic.h"
-//-- gstreamer
-#include <gst/base/gstpushsrc.h>
-#include <gst/interfaces/propertyprobe.h>
 //-- gstbuzztard
-#if !GST_CHECK_VERSION(0,10,31)
-#include <libgstbuzztard/help.h>
-#endif
 #include <libgstbuzztard/musicenums.h>
 #include <libgstbuzztard/toneconversion.h>
 //-- glib
@@ -102,10 +80,6 @@
 
 //-- librsvg
 //#include <librsvg/rsvg.h>
-//-- hildon
-#ifdef USE_HILDON
-#include <hildon/hildon.h>
-#endif
 
 #include "about-dialog.h"
 #include "change-log.h"
@@ -141,7 +115,6 @@
 #include "pattern-editor.h"
 #include "playback-controller-socket.h"
 #include "render-dialog.h"
-#include "render-progress.h"
 #include "sequence-grid-model.h"
 #include "sequence-view.h"
 #include "settings-dialog.h"
@@ -157,8 +130,6 @@
 #include "volume-popup.h"
 #include "wave-viewer.h"
 #include "wire-canvas-item.h"
-
-#include "marshal.h"
 
 //-- misc
 #ifndef GST_CAT_DEFAULT
@@ -184,7 +155,7 @@
 #define SCREEN_BORDER_HEIGHT 80
 
 /* borders used in hbox/vbox or other containers */
-#ifndef USE_HILDON
+#ifndef USE_COMPACT_UI
 #define BOX_BORDER 6
 #else
 #define BOX_BORDER 3

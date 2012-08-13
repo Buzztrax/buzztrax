@@ -45,6 +45,7 @@ bt_audio_session_get_type
 <SECTION>
 <FILE>btchildproxy</FILE>
 <TITLE>BtChildProxy</TITLE>
+BtChildProxy
 BtChildProxyInterface
 bt_child_proxy_get
 bt_child_proxy_get_child_by_index
@@ -62,6 +63,26 @@ BT_CHILD_PROXY_GET_INTERFACE
 BT_IS_CHILD_PROXY
 BT_TYPE_CHILD_PROXY
 bt_child_proxy_get_type
+</SECTION>
+
+<SECTION>
+<FILE>btcmdpattern</FILE>
+<TITLE>BtCmdPattern</TITLE>
+BtCmdPattern
+BtPatternCmd
+bt_cmd_pattern_new
+<SUBSECTION Standard>
+BT_IS_CMD_PATTERN
+BT_IS_CMD_PATTERN_CLASS
+BT_CMD_PATTERN
+BT_CMD_PATTERN_CLASS
+BT_CMD_PATTERN_GET_CLASS
+BT_TYPE_CMD_PATTERN
+BT_TYPE_PATTERN_CMD
+BtCmdPatternClass
+BtCmdPatternPrivate
+bt_pattern_cmd_get_type
+bt_cmd_pattern_get_type
 </SECTION>
 
 <SECTION>
@@ -135,6 +156,7 @@ bt_machine_state_get_type
 <SECTION>
 <FILE>btparametergroup</FILE>
 <TITLE>BtParameterGroup</TITLE>
+BtParameterGroup
 bt_parameter_group_controller_change_value
 bt_parameter_group_describe_param_value
 bt_parameter_group_get_param_details
@@ -169,35 +191,32 @@ bt_parameter_group_get_type
 <FILE>btpattern</FILE>
 <TITLE>BtPattern</TITLE>
 BtPattern
-BtPatternCmd
-bt_pattern_blend_column
 bt_pattern_blend_columns
+bt_pattern_clear_columns
 bt_pattern_copy
-bt_pattern_delete_column
-bt_pattern_delete_columns
-bt_pattern_delete_full_row
 bt_pattern_delete_row
-bt_pattern_deserialize_column
-bt_pattern_flip_column
 bt_pattern_flip_columns
-bt_pattern_get_cmd
 bt_pattern_get_global_event
 bt_pattern_get_global_event_data
+bt_pattern_get_global_group
+bt_pattern_get_group_by_parameter_group
 bt_pattern_get_voice_event
 bt_pattern_get_voice_event_data
-bt_pattern_insert_full_row
+bt_pattern_get_voice_group
+bt_pattern_get_wire_event
+bt_pattern_get_wire_event_data
+bt_pattern_get_wire_group
 bt_pattern_insert_row
 bt_pattern_new
-bt_pattern_new_with_event
-bt_pattern_randomize_column
 bt_pattern_randomize_columns
-bt_pattern_serialize_column
 bt_pattern_serialize_columns
 bt_pattern_set_global_event
 bt_pattern_set_voice_event
+bt_pattern_set_wire_event
 bt_pattern_test_global_event
+bt_pattern_test_tick
 bt_pattern_test_voice_event
-bt_pattern_tick_has_data
+bt_pattern_test_wire_event
 <SUBSECTION Standard>
 BT_IS_PATTERN
 BT_IS_PATTERN_CLASS
@@ -205,16 +224,15 @@ BT_PATTERN
 BT_PATTERN_CLASS
 BT_PATTERN_GET_CLASS
 BT_TYPE_PATTERN
-BT_TYPE_PATTERN_CMD
 BtPatternClass
 BtPatternPrivate
-bt_pattern_cmd_get_type
 bt_pattern_get_type
 </SECTION>
 
 <SECTION>
 <FILE>btpersistence</FILE>
 <TITLE>BtPersistence</TITLE>
+BtPersistence
 BtPersistenceInterface
 bt_persistence_collect_hashtable_entries
 bt_persistence_get_value
@@ -235,7 +253,6 @@ BT_IS_PERSISTENCE
 BT_PERSISTENCE
 BT_PERSISTENCE_GET_INTERFACE
 BT_TYPE_PERSISTENCE
-BtPersistence
 bt_persistence_get_type
 </SECTION>
 
@@ -415,6 +432,8 @@ bt_song_get_type
 <TITLE>BtSongInfo</TITLE>
 BtSongInfo
 bt_song_info_new
+bt_song_info_get_change_dts_in_local_tz
+bt_song_info_get_seconds_since_last_saved
 <SUBSECTION Standard>
 BT_IS_SONG_INFO
 BT_IS_SONG_INFO_CLASS
@@ -515,13 +534,13 @@ BmxParaSection
 BmxParameter
 BmxSectionEntry
 <SUBSECTION Standard>
+BtSongIOBuzzClass
 BT_IS_SONG_IO_BUZZ
 BT_IS_SONG_IO_BUZZ_CLASS
 BT_SONG_IO_BUZZ
 BT_SONG_IO_BUZZ_CLASS
 BT_SONG_IO_BUZZ_GET_CLASS
 BT_TYPE_SONG_IO_BUZZ
-BtSongIOBuzzClass
 BtSongIOBuzzPrivate
 bt_song_io_buzz_get_type
 </SECTION>
@@ -541,6 +560,44 @@ BT_SOURCE_MACHINE_GET_CLASS
 BT_TYPE_SOURCE_MACHINE
 BtSourceMachineClass
 bt_source_machine_get_type
+</SECTION>
+
+<SECTION>
+<FILE>btvaluegroup</FILE>
+<TITLE>BtValueGroup</TITLE>
+BtValueGroup
+bt_value_group_blend_column
+bt_value_group_blend_columns
+bt_value_group_copy
+bt_value_group_clear_column
+bt_value_group_clear_columns
+bt_value_group_delete_full_row
+bt_value_group_delete_row
+bt_value_group_deserialize_column
+bt_value_group_flip_column
+bt_value_group_flip_columns
+bt_value_group_get_event
+bt_value_group_get_event_data
+bt_value_group_insert_full_row
+bt_value_group_insert_row
+bt_value_group_new
+bt_value_group_randomize_column
+bt_value_group_randomize_columns
+bt_value_group_serialize_column
+bt_value_group_serialize_columns
+bt_value_group_set_event
+bt_value_group_test_event
+bt_value_group_test_tick
+<SUBSECTION Standard>
+BT_IS_VALUE_GROUP
+BT_IS_VALUE_GROUP_CLASS
+BT_TYPE_VALUE_GROUP
+BT_VALUE_GROUP
+BT_VALUE_GROUP_CLASS
+BT_VALUE_GROUP_GET_CLASS
+BtValueGroupClass
+BtValueGroupPrivate
+bt_value_group_get_type
 </SECTION>
 
 <SECTION>
@@ -609,11 +666,10 @@ bt_wavetable_get_type
 <TITLE>BtWire</TITLE>
 BT_WIRE_MAX_NUM_PARAMS
 BtWire
-bt_wire_add_wire_pattern
 bt_wire_get_param_group
-bt_wire_get_pattern
 bt_wire_new
 bt_wire_reconnect
+bt_wire_can_link
 <SUBSECTION Private>
 bt_wire_dbg_print_parts
 bt_wire_get_element_list
@@ -627,44 +683,6 @@ BT_WIRE_GET_CLASS
 BtWireClass
 BtWirePrivate
 bt_wire_get_type
-</SECTION>
-
-<SECTION>
-<FILE>btwirepattern</FILE>
-<TITLE>BtWirePattern</TITLE>
-BtWirePattern
-bt_wire_pattern_blend_column
-bt_wire_pattern_blend_columns
-bt_wire_pattern_copy
-bt_wire_pattern_delete_column
-bt_wire_pattern_delete_columns
-bt_wire_pattern_delete_full_row
-bt_wire_pattern_delete_row
-bt_wire_pattern_deserialize_column
-bt_wire_pattern_flip_column
-bt_wire_pattern_flip_columns
-bt_wire_pattern_get_event
-bt_wire_pattern_get_event_data
-bt_wire_pattern_insert_full_row
-bt_wire_pattern_insert_row
-bt_wire_pattern_new
-bt_wire_pattern_randomize_column
-bt_wire_pattern_randomize_columns
-bt_wire_pattern_serialize_column
-bt_wire_pattern_serialize_columns
-bt_wire_pattern_set_event
-bt_wire_pattern_test_event
-bt_wire_pattern_tick_has_data
-<SUBSECTION Standard>
-BT_IS_WIRE_PATTERN
-BT_IS_WIRE_PATTERN_CLASS
-BT_TYPE_WIRE_PATTERN
-BT_WIRE_PATTERN
-BT_WIRE_PATTERN_CLASS
-BT_WIRE_PATTERN_GET_CLASS
-BtWirePatternClass
-BtWirePatternPrivate
-bt_wire_pattern_get_type
 </SECTION>
 
 <SECTION>
@@ -701,6 +719,7 @@ bt_gst_debug_pad_link_return
 bt_gst_element_factory_can_sink_media_type
 bt_gst_registry_get_element_factories_matching_all_categories
 bt_gst_registry_get_element_names_matching_all_categories
+bt_gst_level_message_get_aggregated_field
 <SUBSECTION Standard>
 # glib extras
 G_OPTION_FLAG_NO_ARG

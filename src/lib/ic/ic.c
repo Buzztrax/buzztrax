@@ -51,7 +51,7 @@ const guint btic_micro_version=BTIC_MICRO_VERSION;
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
-static gboolean btic_initialized = FALSE;
+static gboolean arg_version = FALSE;
 
 //-- helper methods
 
@@ -70,26 +70,13 @@ static gboolean btic_init_pre (void) {
 }
 
 static gboolean btic_init_post (void) {
-  gboolean res=FALSE;
+  if (arg_version) {
+    g_printf("libbuzztard-ic-%d.%d.%d from "PACKAGE_STRING"\n",BTIC_MAJOR_VERSION,BTIC_MINOR_VERSION,BTIC_MICRO_VERSION);
+  }
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-ic", 0, "music production environment / interaction controller library");
   
-  res=TRUE;
-  
-//Error:
-  return(res);
-}
-
-static gboolean parse_goption_arg(const gchar *opt, const gchar * arg, gpointer data, GError ** err)
-{
-  gboolean ret=TRUE;
-  
-  if(!strcmp (opt, "--btic-version")) {
-    g_printf("libbtic-%d.%d.%d from "PACKAGE_STRING"\n",BTIC_MAJOR_VERSION,BTIC_MINOR_VERSION,BTIC_MICRO_VERSION);
-  }
-  else ret=FALSE;
-    
-  return(ret);
+  return(TRUE);
 }
 
 //-- ic initialisation
@@ -109,15 +96,16 @@ static gboolean parse_goption_arg(const gchar *opt, const gchar * arg, gpointer 
  */
 GOptionGroup *btic_init_get_option_group(void) {  
   GOptionGroup *group;
-  static GOptionEntry btic_args[] = {
-    {"btic-version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer)parse_goption_arg, N_("Print the buzztard interaction controller version"), NULL},
+  static GOptionEntry options[] = {
+    {"btic-version", 0, 0, G_OPTION_ARG_NONE, NULL, N_("Print the buzztard interaction controller version"), NULL},
     {NULL}
   };
+  options[0].arg_data=&arg_version;
   
   group = g_option_group_new("bt-ic", _("Buzztard interaction controller options"),_("Show buzztard interaction controller options"), NULL, NULL);
   g_option_group_set_parse_hooks(group, (GOptionParseFunc)btic_init_pre, (GOptionParseFunc)btic_init_post);
 
-  g_option_group_add_entries(group, btic_args);
+  g_option_group_add_entries(group, options);
   g_option_group_set_translation_domain(group, PACKAGE_NAME);
 
   return group;
@@ -141,17 +129,10 @@ gboolean btic_init_check(gint *argc, gchar **argv[], GError **err) {
   GOptionContext *ctx;
   gboolean res;
 
-  if(btic_initialized) {
-    //g_print("already initialized Buzztard interaction controller");
-    return(TRUE);
-  }
-
   ctx = g_option_context_new(NULL);
   g_option_context_add_group(ctx, btic_init_get_option_group());
   res = g_option_context_parse(ctx, argc, argv, err);
   g_option_context_free(ctx);
-    
-  btic_initialized=TRUE;
 
   return(res);
 }

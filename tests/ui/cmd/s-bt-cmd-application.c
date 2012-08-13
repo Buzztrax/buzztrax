@@ -19,13 +19,15 @@
 
 #include "m-bt-cmd.h"
 
-extern TCase *bt_cmd_application_test_case(void);
-extern TCase *bt_cmd_application_example_case(void);
+extern TCase *bt_cmd_application_test_case (void);
+extern TCase *bt_cmd_application_example_case (void);
 
-Suite *bt_cmd_application_suite(void) { 
-  Suite *s=suite_create("BtCmdApplication"); 
+Suite *
+bt_cmd_application_suite (void)
+{
+  Suite *s = suite_create ("BtCmdApplication");
 
-  suite_add_tcase(s,bt_cmd_application_test_case());
-  suite_add_tcase(s,bt_cmd_application_example_case());
-  return(s);
+  suite_add_tcase (s, bt_cmd_application_test_case ());
+  suite_add_tcase (s, bt_cmd_application_example_case ());
+  return (s);
 }

@@ -21,87 +21,378 @@
 
 //-- globals
 
+static BtEditApplication *app;
+static BtSong *song;
+static BtMainWindow *main_window;
+static BtMainPages *pages;
+
 //-- fixtures
 
-static void test_setup(void) {
-  bt_edit_setup();
+static void
+test_setup (void)
+{
+  bt_edit_setup ();
+  app = bt_edit_application_new ();
+  bt_edit_application_new_song (app);
+  g_object_get (app, "song", &song, "main-window", &main_window, NULL);
+  g_object_get (G_OBJECT (main_window), "pages", &pages, NULL);
+
+  gtk_notebook_set_current_page (GTK_NOTEBOOK (pages),
+      BT_MAIN_PAGES_PATTERNS_PAGE);
+
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
 }
 
-static void test_teardown(void) {
-  bt_edit_teardown();
+static void
+test_teardown (void)
+{
+  g_object_unref (song);
+  g_object_unref (pages);
+
+  gtk_widget_destroy (GTK_WIDGET (main_window));
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
+
+  g_object_checked_unref (app);
+  bt_edit_teardown ();
 }
 
 //-- helper
 
+static void
+move_cursor_to (GtkWidget * w, guint group, guint param, guint digit, guint row)
+{
+  g_object_set (w, "cursor-group", group, "cursor-param", param, "cursor-digit",
+      digit, "cursor-row", row, NULL);
+}
+
 //-- tests
 
-// test some key presses
-BT_START_TEST(test_editing) {
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  BtMainPages *pages;
+static void
+test_bt_main_page_patterns_focus (BT_TEST_ARGS)
+{
+  BT_TEST_START;
   BtMainPagePatterns *pattern_page;
-  BtSong *song;
-  BtSetup *setup;
-  BtMachine *src_machine;
+  BtMachine *machine;
+  BtPattern *pattern;
 
-  app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
-  fail_unless(app != NULL, NULL);
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
 
-  // load a song
-  bt_edit_application_load_song(app,check_get_test_song_path("melo3.xml"));
-  g_object_get(app,"song",&song,NULL);
-  fail_unless(song != NULL, NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  g_object_unref(song);
-  GST_INFO("song loaded");
+  /* act */
+  GtkWidget *widget = gtk_window_get_focus ((GtkWindow *) main_window);
 
-  // get window
-  g_object_get(app,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
+  /* assert */
+  ck_assert_str_eq ("pattern editor", gtk_widget_get_name (widget));
 
-  // make sure the pattern view shows something
-  src_machine=bt_setup_get_machine_by_id(setup,"beep1");
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-  g_object_get(G_OBJECT(pages),"patterns-page",&pattern_page,NULL);
-  bt_main_page_patterns_show_machine(pattern_page,src_machine);
-
-  // show page
-  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
-  while(gtk_events_pending()) gtk_main_iteration();
-
-  // send a '.' key-press
-  check_send_key((GtkWidget *)pattern_page,'.');
-
-  // send a '0' key-press
-  check_send_key((GtkWidget *)pattern_page,'0');
-
-  // TODO(ensonic): assert some pattern changes
-
-  g_object_unref(pattern_page);
-  g_object_unref(src_machine);
-  g_object_unref(setup);
-  g_object_unref(pages);
-
-  // close window
-  gtk_widget_destroy(GTK_WIDGET(main_window));
-  while(gtk_events_pending()) gtk_main_iteration();
-  //GST_INFO("mainlevel is %d",gtk_main_level());
-  //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
-
-  // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
-  g_object_checked_unref(app);
-
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-TCase *bt_pattern_page_example_case(void) {
-  TCase *tc = tcase_create("BtPatternPageExamples");
+// test entering notes
+static void
+test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GtkWidget *pattern_editor;
+  gchar *str;
 
-  tcase_add_test(tc,test_editing);
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 3, 0, 0);
+
+  /* act */
+  // send a 'q' key-press and check that it results in a 'c-' of any octave
+  check_send_key (pattern_editor, 0, 'q', 0x18);
+
+  /* assert */
+  str = bt_pattern_get_global_event (pattern, 0, 3);
+  fail_unless (str != NULL, NULL);
+  str[2] = '0';
+  ck_assert_str_eq_and_free (str, "c-0");
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+static void
+test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GtkWidget *pattern_editor;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 3, 0, 0);
+
+  /* act */
+  check_send_key (pattern_editor, 0, '1', 0x0a);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3),
+      "off");
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+// test entering notes
+static void
+test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GtkWidget *pattern_editor;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 3, 0, 0);
+  check_send_key (pattern_editor, 0, 'q', 0x18);
+  check_send_key (pattern_editor, 0, GDK_Page_Up, 0);
+
+  /* act */
+  // send a '.' key-press
+  check_send_key (pattern_editor, 0, '.', 0x3c);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3), NULL);
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+// test entering booleans
+static void
+test_bt_main_page_patterns_enter_switch (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GtkWidget *pattern_editor;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 2, 0, 0);
+
+  /* act */
+  check_send_key (pattern_editor, 0, '1', 0x0a);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 2), "1");
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+// test entering sparse enum
+static void
+test_bt_main_page_patterns_enter_sparse_enum (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GtkWidget *pattern_editor;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 4, 1, 0);
+
+  /* act */
+  check_send_key (pattern_editor, 0, '1', 0x0a);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 4), "1");
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+// test entering sparse enum
+static void
+test_bt_main_page_patterns_enter_invalid_sparse_enum (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GtkWidget *pattern_editor;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 4, 0, 0);
+
+  /* act */
+  check_send_key (pattern_editor, 0, '1', 0x0a);
+
+  /* assert */
+  fail_if (bt_pattern_test_global_event (pattern, 0, 4));
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+// test entering sparse enum
+static void
+test_bt_main_page_patterns_enter_sparse_enum_in_2_steps (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GtkWidget *pattern_editor;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 4, 0, 0);
+
+  /* act */
+  check_send_key (pattern_editor, 0, '1', 0x0a);
+  move_cursor_to (pattern_editor, 0, 4, 1, 0);
+  check_send_key (pattern_editor, 0, '4', 0x0d);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 4), "20");
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+
+static void
+test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GtkWidget *pattern_editor;
+  gulong voices;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-poly-source", 1L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+
+  /* act */
+  // change voices
+  g_object_set (machine, "voices", 2L, NULL);
+  g_object_get (pattern, "voices", &voices, NULL);
+
+  /* assert */
+  fail_unless (voices == 2, NULL);
+  // send two tab keys to ensure the new voice is visible
+  check_send_key (pattern_editor, 0, GDK_Tab, 0);
+  check_send_key (pattern_editor, 0, GDK_Tab, 0);
+  mark_point ();
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+TCase *
+bt_pattern_page_example_case (void)
+{
+  TCase *tc = tcase_create ("BtPatternPageExamples");
+
+  tcase_add_test (tc, test_bt_main_page_patterns_focus);
+  tcase_add_test (tc, test_bt_main_page_patterns_enter_note);
+  tcase_add_test (tc, test_bt_main_page_patterns_enter_note_off);
+  tcase_add_test (tc, test_bt_main_page_patterns_clear_note);
+  tcase_add_test (tc, test_bt_main_page_patterns_enter_switch);
+  tcase_add_test (tc, test_bt_main_page_patterns_enter_sparse_enum);
+  tcase_add_test (tc, test_bt_main_page_patterns_enter_invalid_sparse_enum);
+  tcase_add_test (tc, test_bt_main_page_patterns_enter_sparse_enum_in_2_steps);
+  tcase_add_test (tc, test_bt_main_page_patterns_pattern_voices);
   // we *must* use a checked fixture, as only this runs in the same context
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  return (tc);
 }

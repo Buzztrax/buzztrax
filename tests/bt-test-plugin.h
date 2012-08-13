@@ -24,6 +24,19 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <gst/gst.h>
+
+//-- test_sparse_enum
+
+typedef enum
+{
+  BT_TEST_SPARSE_ENUM_ZERO = 0,
+  BT_TEST_SPARSE_ENUM_ONE = 1,
+  BT_TEST_SPARSE_ENUM_TEN = 0xa,
+  BT_TEST_SPARSE_ENUM_TWENTY = 0x14,
+  BT_TEST_SPARSE_ENUM_TWENTY_ONE = 0x15,
+  BT_TEST_SPARSE_ENUM_TWO_HUNDRED = 0xc8,
+} BtTestSparseEnum;
 
 //-- test_mono_source
 
@@ -47,6 +60,8 @@ struct _BtTestMonoSource {
   gulong ulong_val;
   gdouble double_val;
   gboolean switch_val;
+  GstBtNote note_val;
+  BtTestSparseEnum sparse_enum_val;
 };
 /* structure of the test_mono_source class */
 struct _BtTestMonoSourceClass {
@@ -78,6 +93,8 @@ struct _BtTestPolySource {
   gulong ulong_val;
   gdouble double_val;
   gboolean switch_val;
+  GstBtNote note_val;
+  BtTestSparseEnum sparse_enum_val;
 
   // the number of voices the plugin has
   gulong num_voices;

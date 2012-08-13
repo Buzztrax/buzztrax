@@ -33,7 +33,7 @@
 G_DEFINE_INTERFACE (BtChangeLogger, bt_change_logger, 0);
 
 //-- common helper
-       
+
 /**
  * bt_change_logger_match_method:
  * @change_logger_methods: array of change log methods
@@ -46,26 +46,31 @@ G_DEFINE_INTERFACE (BtChangeLogger, bt_change_logger, 0);
  * Returns: the command id from @change_logger_methods or -1 for no match. Free
  * the match_info on positive matches. 
  */
-gint bt_change_logger_match_method(BtChangeLoggerMethods *change_logger_methods,const gchar *data, GMatchInfo **match_info) {
-  gint i=0,res=-1;
-  BtChangeLoggerMethods *clm=change_logger_methods;
+gint
+bt_change_logger_match_method (BtChangeLoggerMethods * change_logger_methods,
+    const gchar * data, GMatchInfo ** match_info)
+{
+  gint i = 0, res = -1;
+  BtChangeLoggerMethods *clm = change_logger_methods;
 
   while (clm->name) {
-    if(!strncmp(data,clm->name,clm->name_len)) {
-      if(!clm->regex) {
-        clm->regex=g_regex_new(clm->regex_str,0,0,NULL);
+    if (!strncmp (data, clm->name, clm->name_len)) {
+      if (!clm->regex) {
+        clm->regex = g_regex_new (clm->regex_str, 0, 0, NULL);
       }
-      if(g_regex_match_full(clm->regex,data,-1,clm->name_len,0,match_info,NULL)) {
-        res=i;
-      }
-      else {
-        GST_WARNING("no match for command %s in regexp \"%s\" for data \"%s\"",clm->name,g_regex_get_pattern(clm->regex),&data[clm->name_len]);
+      if (g_regex_match_full (clm->regex, data, -1, clm->name_len, 0,
+              match_info, NULL)) {
+        res = i;
+      } else {
+        GST_WARNING ("no match for command %s in regexp \"%s\" for data \"%s\"",
+            clm->name, g_regex_get_pattern (clm->regex), &data[clm->name_len]);
       }
       break;
     }
-    i++;clm++;
+    i++;
+    clm++;
   }
-  return(res);
+  return (res);
 }
 
 //-- wrapper
@@ -79,14 +84,17 @@ gint bt_change_logger_match_method(BtChangeLoggerMethods *change_logger_methods,
  *
  * Returns: %TRUE for success.
  */
-gboolean bt_change_logger_change(const BtChangeLogger *self,const gchar *data) {
+gboolean
+bt_change_logger_change (const BtChangeLogger * self, const gchar * data)
+{
   g_return_val_if_fail (BT_IS_CHANGE_LOGGER (self), FALSE);
 
-  return (BT_CHANGE_LOGGER_GET_INTERFACE (self)->change(self, data));
+  return (BT_CHANGE_LOGGER_GET_INTERFACE (self)->change (self, data));
 }
 
 //-- interface internals
 
-static void bt_change_logger_default_init(BtChangeLoggerInterface *klass) {
+static void
+bt_change_logger_default_init (BtChangeLoggerInterface * klass)
+{
 }
-

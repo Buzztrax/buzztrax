@@ -21,14 +21,12 @@ stats:: ctags
 
 ## need all -I -D flags
 ## ideally we use a gcc wrapper to dump the cpp flags for each file we compile
-## and use that, that'd be also useful for clang
+## and use that, that'd be also useful for clang-check
 # make splint          -- check sources using splint
 splint::
-	@if test -n "*.c"; then \
-	  iflags=`grep -o -e '\-I[a-zA-Z0-9/.-]* ' Makefile | xargs echo`; \
-	  splint +posixlib -weak $$iflags *.c *.h; \
-	fi
-	@for dr in $(SUBDIRS); do $(MAKE) -C $$dir splint ; done
+	@globs=`find src -name "*.c" -printf "%h/*.c %h/*.h\n" | sort | uniq | xargs echo`; \
+	iflags=`grep -o -e '\-I[a-zA-Z0-9/.-]* ' Makefile | xargs echo`; \
+	splint +posixlib -weak $$iflags $$globs;
 
 # make help            -- this list
 help::

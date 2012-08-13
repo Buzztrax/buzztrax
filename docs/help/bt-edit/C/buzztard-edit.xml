@@ -419,8 +419,11 @@
         them around.
         To connect machines, move the pointer over the source, press shift+left
         mouse-button and drag the wire to the target machine. The wire turns
-        green, if the connection can be made. Fully connected machines are shown
-        in bright color and disconnected ones in a desaturated style. 
+        green, if the connection can be made. Sources can be connected to
+        Effects and the Master. Effects can be inked to other Effects and the
+        Master. It is not possible to create loops in the signal flow.
+        Fully connected machines are shown in bright color and disconnected ones
+        in a desaturated style. 
         Alternatively you can select "connect machines" from the right-click
         context menu of a machine. Again you need to move the mouse to the target
         machine and click it.

@@ -21,9 +21,9 @@
 
 #include "bsl.h"
 
-GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
+GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 
-static gboolean bt_song_io_init(void);
+static gboolean bt_song_io_init (void);
 
 /**
  * bt_song_io_module_info:
@@ -33,27 +33,29 @@ static gboolean bt_song_io_init(void);
 BtSongIOModuleInfo bt_song_io_module_info = {
   bt_song_io_init,
   {
-    { 0, "buzz song with waves", "audio/x-bmx", "bmx" },
-    { 0, "buzz song without waves", "audio/x-bmw", "bmw" },
-    { 0, NULL, NULL, NULL}
-  }
+        {0, "buzz song with waves", "audio/x-bmx", "bmx"},
+        {0, "buzz song without waves", "audio/x-bmw", "bmw"},
+        {0, NULL, NULL, NULL}
+      }
 };
 
-static gboolean bt_song_io_init(void) {
-  static gboolean first_run=TRUE;
+static gboolean
+bt_song_io_init (void)
+{
+  static gboolean first_run = TRUE;
 
-  if(first_run) {
+  if (first_run) {
 #ifdef ENABLE_NLS
     bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 #endif /* ENABLE_NLS */
 
-    GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-bsl", 0, "music production environment / buzz song io plugin");
-    
-    bt_song_io_module_info.formats[0].type=BT_TYPE_SONG_IO_BUZZ;
-    bt_song_io_module_info.formats[1].type=BT_TYPE_SONG_IO_BUZZ;
-    first_run=FALSE;
-  }
-  return(TRUE);
-}
+    GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-bsl", 0,
+        "music production environment / buzz song io plugin");
 
+    bt_song_io_module_info.formats[0].type = BT_TYPE_SONG_IO_BUZZ;
+    bt_song_io_module_info.formats[1].type = BT_TYPE_SONG_IO_BUZZ;
+    first_run = FALSE;
+  }
+  return (TRUE);
+}

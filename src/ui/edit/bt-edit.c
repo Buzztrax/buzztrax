@@ -41,75 +41,100 @@
 
 #include "bt-edit.h"
 
-static void usage(int argc, char **argv, GOptionContext *ctx) {
-  gchar *help=g_option_context_get_help(ctx, TRUE, NULL);
-  puts(help);
-  g_free(help);
+#ifdef ENABLE_NLS
+#ifdef HAVE_X11_XLOCALE_H
+  /* defines a more portable setlocale for X11 (_Xsetlocale) */
+#include <X11/Xlocale.h>
+#else
+#include <locale.h>
+#endif
+#endif
+
+static void
+usage (int argc, char **argv, GOptionContext * ctx)
+{
+  gchar *help = g_option_context_get_help (ctx, TRUE, NULL);
+  puts (help);
+  g_free (help);
 }
 
 // see if(arg_version) comment in main() below
-static gboolean parse_goption_arg (const gchar * opt, const gchar * arg, gpointer data, GError ** err)
+static gboolean
+parse_goption_arg (const gchar * opt, const gchar * arg, gpointer data,
+    GError ** err)
 {
   if (!strcmp (opt, "--version")) {
-    g_printf("%s from "PACKAGE_STRING"\n", (gchar *)data);
-    exit(0);
+    g_printf ("%s from " PACKAGE_STRING "\n", (gchar *) data);
+    exit (0);
   }
-  return(TRUE);
+  return (TRUE);
 }
 
-int main(int argc, char **argv) {
-  gboolean res=FALSE;
+gint
+main (gint argc, gchar ** argv)
+{
+  gboolean res = FALSE;
   //gboolean arg_version=FALSE;
-  gchar *command=NULL,*input_file_name=NULL;
+  gchar *command = NULL, *input_file_name = NULL;
   BtEditApplication *app;
-  GOptionContext *ctx=NULL;
+  GOptionContext *ctx = NULL;
   GOptionGroup *group;
-  GError *err=NULL;
-  
+  GError *err = NULL;
+
 #ifdef ENABLE_NLS
-  setlocale(LC_ALL, "");
-  bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
-  bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-  textdomain(GETTEXT_PACKAGE);
+  setlocale (LC_ALL, "");
+  bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+  textdomain (GETTEXT_PACKAGE);
 #endif /* ENABLE_NLS */
 
   GOptionEntry options[] = {
-    {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer)parse_goption_arg,     N_("Print application version"),    NULL },
-    {"command",     'c',  0,                    G_OPTION_ARG_STRING,   &command,         N_("Command name"),    "{load}" },
-    {"input-file",  'i',  0,                    G_OPTION_ARG_FILENAME, &input_file_name, N_("Input file name"), N_("<songfile>") },
+    {"version", '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK,
+          (gpointer) parse_goption_arg, N_("Print application version"), NULL}
+    ,
+    {"command", 'c', 0, G_OPTION_ARG_STRING, &command, N_("Command name"),
+          "{load}"}
+    ,
+    {"input-file", 'i', 0, G_OPTION_ARG_FILENAME, &input_file_name,
+          N_("Input file name"), N_("<songfile>")}
+    ,
     {NULL}
   };
-  
-#if !GLIB_CHECK_VERSION (2, 31, 0) 
+
+#if !GLIB_CHECK_VERSION (2, 31, 0)
   // initialize as soon as possible
-  if(!g_thread_supported()) {
-    g_thread_init(NULL);
+  if (!g_thread_supported ()) {
+    g_thread_init (NULL);
   }
 #endif
 
   // load our custom gtk-theming
-#ifndef USE_HILDON
-  gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"bt-edit.gtkrc");
+#ifndef USE_COMPACT_UI
+  gtk_rc_parse (DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
+      "bt-edit.gtkrc");
 #else
-  gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"bt-edit.hildon.gtkrc");
+  gtk_rc_parse (DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
+      "bt-edit.compact.gtkrc");
 #endif
 
   // init libraries
-  ctx=g_option_context_new(NULL);
+  ctx = g_option_context_new (NULL);
   //g_option_context_add_main_entries (ctx, options, GETTEXT_PACKAGE);
-  group=g_option_group_new("main", _("buzztard-edit options"),_("Show buzztard-edit options"), argv[0], NULL);
-  g_option_group_add_entries(group, options);
-  g_option_group_set_translation_domain(group, GETTEXT_PACKAGE);
-  g_option_context_set_main_group(ctx, group);
-  
-  bt_init_add_option_groups(ctx);
-  g_option_context_add_group(ctx, btic_init_get_option_group());
-  g_option_context_add_group(ctx, gtk_get_option_group(TRUE));
+  group =
+      g_option_group_new ("main", _("buzztard-edit options"),
+      _("Show buzztard-edit options"), argv[0], NULL);
+  g_option_group_add_entries (group, options);
+  g_option_group_set_translation_domain (group, GETTEXT_PACKAGE);
+  g_option_context_set_main_group (ctx, group);
 
-  if(!g_option_context_parse(ctx, &argc, &argv, &err)) {
-    g_print("Error initializing: %s\n", safe_string(err->message));
-    g_option_context_free(ctx);
-    exit(1);
+  bt_init_add_option_groups (ctx);
+  g_option_context_add_group (ctx, btic_init_get_option_group ());
+  g_option_context_add_group (ctx, gtk_get_option_group (TRUE));
+
+  if (!g_option_context_parse (ctx, &argc, &argv, &err)) {
+    g_print ("Error initializing: %s\n", safe_string (err->message));
+    g_option_context_free (ctx);
+    exit (1);
   }
   // if we use this, all other libs are initialized and their options are processed
   // this causes #1777461 (fail if we don't have X)
@@ -118,74 +143,73 @@ int main(int argc, char **argv) {
   //  res=TRUE;
   //  goto DONE;
   //}
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
-  
-  add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-edit", 0,
+      "music production environment / editor ui");
+
+  add_pixmap_directory (DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE ""
+      G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S);
 
   // give some global context info
-  g_set_application_name("Buzztard");
-  gtk_window_set_default_icon_name("buzztard");
-  g_setenv("PULSE_PROP_media.role", "production", TRUE);
+  g_set_application_name ("Buzztard");
+  gtk_window_set_default_icon_name ("buzztard");
+  g_setenv ("PULSE_PROP_media.role", "production", TRUE);
 
   extern gboolean bt_memory_audio_src_plugin_init (GstPlugin * const plugin);
-  gst_plugin_register_static(GST_VERSION_MAJOR,
-    GST_VERSION_MINOR,
-    "memoryaudiosrc",
-    "Plays audio from memory",
-    bt_memory_audio_src_plugin_init,
-    VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
+  gst_plugin_register_static (GST_VERSION_MAJOR,
+      GST_VERSION_MINOR,
+      "memoryaudiosrc",
+      "Plays audio from memory",
+      bt_memory_audio_src_plugin_init,
+      VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
 
-  GST_INFO("starting: thread=%p",g_thread_self());
-  
+  GST_INFO ("starting: thread=%p", g_thread_self ());
+
 #if 0
   /* check if LIBDIR"/gstreamer-0.10" is in $GST_PLUGIN_PATH
    * gst_default_registry_get_path_list() is useless right now,
    * see https://bugzilla.gnome.org/show_bug.cgi?id=608841
    */
   {
-    const gchar plugin_path[]=LIBDIR G_DIR_SEPARATOR_S "gstreamer-0.10";
-    GList *node,*paths=gst_default_registry_get_path_list();
+    const gchar plugin_path[] = LIBDIR G_DIR_SEPARATOR_S "gstreamer-0.10";
+    GList *node, *paths = gst_default_registry_get_path_list ();
     // irks, that list is NULL, gst, checks GST_PLUGIN_PATH, GST_PLUGIN_STSTEM_PATH
     // and if !GST_PLUGIN_STSTEM_PATH PLUGINDIR
 
-    GST_INFO("check that %s is scanned by gst registry",plugin_path);
-    for(node=paths;node;node=g_list_next(node)) {
-      GST_INFO("  checking %s",(gchar *)node->data);
+    GST_INFO ("check that %s is scanned by gst registry", plugin_path);
+    for (node = paths; node; node = g_list_next (node)) {
+      GST_INFO ("  checking %s", (gchar *) node->data);
     }
-    g_list_free(paths);
+    g_list_free (paths);
   }
 #endif
 
-  app=bt_edit_application_new();
-  
-  if(command) {
+  app = bt_edit_application_new ();
+
+  if (command) {
     // depending on the popt options call the correct method
-    if(!strcmp(command,"l") || !strcmp(command,"load")) {
-      if(!input_file_name) {
-        usage(argc, argv, ctx);
+    if (!strcmp (command, "l") || !strcmp (command, "load")) {
+      if (!input_file_name) {
+        usage (argc, argv, ctx);
         // if commandline options where wrong, just start
-        res=bt_edit_application_run(app);
+        res = bt_edit_application_run (app);
+      } else {
+        res = bt_edit_application_load_and_run (app, input_file_name);
       }
-      else {
-        res=bt_edit_application_load_and_run(app,input_file_name);
-      }
-    }
-    else {
-      usage(argc, argv, ctx);
+    } else {
+      usage (argc, argv, ctx);
       // if commandline options where wrong, just start
-      res=bt_edit_application_run(app);
+      res = bt_edit_application_run (app);
     }
-  }
-  else {
-    res=bt_edit_application_run(app);
+  } else {
+    res = bt_edit_application_run (app);
   }
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
-  g_object_unref(app);
+  GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
+  g_object_unref (app);
 
-  g_free(command);
-  g_free(input_file_name);
-  g_option_context_free(ctx);
-  return(!res);
+  g_free (command);
+  g_free (input_file_name);
+  g_option_context_free (ctx);
+  return (!res);
 }

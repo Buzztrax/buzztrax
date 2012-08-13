@@ -11,8 +11,13 @@
     (e.g. bt_machine_get_pattern_by_id)
   * add test for trigger params
   * for ui tests we should have the main-loop under our control:
-    * check g_main_context_set_poll_func()g_main_context_set_poll_func
+    * check g_main_context_set_poll_func()
     * or really *run* the main-loop (not just iterate)
+      * for this our tests would be scattered over several signal handlers
+* review tests
+  * ensure we follow Given/When/Then style
+    http://en.wikipedia.org/wiki/Behavior_Driven_Development
+
 
 * new stats
   * http://www.chris-lott.org/resources/cmetrics/cyclo-2.0.tar.gz
@@ -31,11 +36,6 @@
   make CC=cgcc
 
 
-* design issues
-  * sim syn uses a string property for notes
-    * these cannot be interpolated, we could use a uint like buzz or an enum
-
-
 * controller api
   * allow to modify interpolation control sequence inplace (scale time or value range)
     - we need a gst_interpolation_control_foreach(cs, callback, user_data)
@@ -49,23 +49,6 @@
       controller for some global state
       - we want to pre-cache the tracks for each machine to speed up finding the
         patterns that apply at a given time
-
-
-* special patterns
-  - break works as in breaking patterns
-  - mute, solo, bypass don't work at all
-    - the mute-pattern wold need to control the mute-parameter of a machines
-      output-volume (input-volume for master)
-    - solo would be interpreted as mute on all other generators
-    - bypass would need a (controlable) gobject property
-    - break would need to be able to undo mute, solo, bypass
-  - for now we would need to handle the special patterns in bt_sequence_repair_global_damage_entry
-  - we could see if we can make BtMachine::state controlable
-    - we would need a pad-probe to call gst_object_sync()
-    - break would set the BtMachine::state=NORMAL
-    - we need to avoid setting the song to unsaved when controlling BtMachine::state
-    - in sequence.c we need to do handle intern_damage (like global_damage) and we need
-      BtMachine::bt_machine_intern_controller_change_value()
 
 
 * undo/redo/journaling
@@ -193,3 +176,29 @@
     on eos
   * need device selection on the source
 
+
+* one framerate for animations
+  * we have a couple of things that we update in intervals:
+    * 10fps: main-page-waves.c: preview_update_id=g_timeout_add_full(G_PRIORITY_HIGH,1000/10,on_preview_playback_update,(gpointer)self,NULL);
+    * 10fps: main-toolbar.c: playback_update_id=g_timeout_add_full(G_PRIORITY_HIGH,1000/10,on_song_playback_update,(gpointer)song,NULL);
+    * 10fps: machine.c: g_object_set(PART_*LEVEL,"interval",(GstClockTime)(0.1*GST_SECOND),...
+    * 10fps: signal-analysis-dialog: g_object_set(ANALYZER_*, "interval",(GstClockTime)(0.1*GST_SECOND),...
+  * we should have one #define somewhere for the UPDATE_INTERVAL
+  * ideally we ensure that the framerate is an integer multiple of it
+  * it would be nice to avoid a setting, but for slow machines it might be worth it
+    (or for fast machine, people could pick a higher rate)
+  * we could use configure and have the define in config.h
+
+
+* pattern and main-page-patterns still contain bits of duplicated code
+  * review the pattern api and check if we should use the groups directly
+    (run ./api-cleanup.sh to get a report of where the api is used)
+
+
+* generate a dependency matrix
+  * 'make ctags' creates tags files per directory containing symbol locations
+  * 'ctags -x --recurse src tests >xref' creates a single xref table containing
+    all symbol locations
+  * 'find . -name "*.o" -exec nm --undefined-only {} \; | grep " bt_"'
+    creates a list of externally called entries
+  

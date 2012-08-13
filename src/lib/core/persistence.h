@@ -34,7 +34,12 @@
 
 /* type macros */
 
-typedef struct _BtPersistence BtPersistence; /* dummy object */
+/**
+ * BtPersistence:
+ *
+ * Opaque interface handle.
+ */
+typedef struct _BtPersistence BtPersistence;
 typedef struct _BtPersistenceInterface BtPersistenceInterface;
 
 /**

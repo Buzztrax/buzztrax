@@ -23,58 +23,69 @@
 
 //-- fixtures
 
-static void test_setup(void) {
-  bt_edit_setup();
+static void
+test_setup (void)
+{
+  bt_edit_setup ();
 }
 
-static void test_teardown(void) {
-  bt_edit_teardown();
+static void
+test_teardown (void)
+{
+  bt_edit_teardown ();
 }
 
 //-- tests
 
 // create app and then unconditionally destroy window
-BT_START_TEST(test_create_dialog) {
+static void
+test_create_dialog (BT_TEST_ARGS)
+{
+  BT_TEST_START;
   BtEditApplication *app;
   BtMainWindow *main_window;
   GtkWidget *dialog;
 
-  app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
-  fail_unless(app != NULL, NULL);
+  app = bt_edit_application_new ();
+  GST_INFO ("back in test app=%p, app->ref_ct=%d", app,
+      G_OBJECT_REF_COUNT (app));
+  fail_unless (app != NULL, NULL);
 
   // get window
-  g_object_get(app,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
+  g_object_get (app, "main-window", &main_window, NULL);
+  fail_unless (main_window != NULL, NULL);
 
   // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_tip_dialog_new());
-  fail_unless(dialog!=NULL, NULL);
-  GST_INFO("dialog created");
-  gtk_widget_show_all(dialog);
+  dialog = GTK_WIDGET (bt_tip_dialog_new ());
+  fail_unless (dialog != NULL, NULL);
+  GST_INFO ("dialog created");
+  gtk_widget_show_all (dialog);
   // leave out that line! (modal dialog)
   //gtk_dialog_run(GTK_DIALOG(dialog));
 
   // make screenshot
-  check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
+  check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
-  gtk_widget_destroy(dialog);
+  gtk_widget_destroy (dialog);
 
   // close window
-  gtk_widget_destroy(GTK_WIDGET(main_window));
-  while(gtk_events_pending()) gtk_main_iteration();
+  gtk_widget_destroy (GTK_WIDGET (main_window));
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
 
   // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
-  g_object_checked_unref(app);
+  GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
+  g_object_checked_unref (app);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-TCase *bt_tip_dialog_example_case(void) {
-  TCase *tc = tcase_create("BtTipDialogExamples");
+TCase *
+bt_tip_dialog_example_case (void)
+{
+  TCase *tc = tcase_create ("BtTipDialogExamples");
 
-  tcase_add_test(tc,test_create_dialog);
+  tcase_add_test (tc, test_create_dialog);
   // we *must* use a checked fixture, as only this runs in the same context
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  return (tc);
 }

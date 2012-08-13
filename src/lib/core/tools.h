@@ -40,6 +40,10 @@ gboolean bt_bin_deactivate_tee_chain(GstBin *bin, GstElement *tee, GList* analyz
 
 const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res,GstPad *src_pad,GstPad *sink_pad);
 
+//-- gst element messages
+
+gdouble bt_gst_level_message_get_aggregated_field(const GstStructure *structure, const gchar *field_name, gdouble default_value);
+
 //-- gst compat
 
 //-- glib compat & helper
@@ -107,15 +111,6 @@ sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
 
 //-- gobject ref-count debugging & helpers
 
-/*
-GCC 4.1 introduced this crazy warning that complains about casting between
-different pointer types. The question is why this includes void* ?
-Sadly they don't gave tips how they belive to get rid of the warning.
-
-#define bt_type_pun_to_gpointer(val) \
-  (((union { gpointer __a; __typeof__((val)) __b; }){__b:(val)}).__a)
-*/
-
 /**
  * g_object_try_weak_ref:
  * @obj: the object to reference
@@ -124,14 +119,6 @@ Sadly they don't gave tips how they belive to get rid of the warning.
  * g_object_add_weak_pointer().
  */
 #define g_object_try_weak_ref(obj) if(obj) g_object_add_weak_pointer(G_OBJECT(obj),(gpointer *)&obj##_ptr);
-/*
-#define g_object_try_weak_ref(obj) \
-  if(obj) { \
-    gpointer *ptr=&bt_type_pun_to_gpointer(obj); \
-    GST_DEBUG("  reffing : %p",ptr); \
-    g_object_add_weak_pointer(G_OBJECT(obj),ptr); \
-  }
-*/
 
 /**
  * g_object_try_weak_unref:
@@ -141,14 +128,6 @@ Sadly they don't gave tips how they belive to get rid of the warning.
  * g_object_remove_weak_pointer().
  */
 #define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj##_ptr);
-/*
-#define g_object_try_weak_unref(obj) \
-  if(obj) { \
-    gpointer *ptr=&bt_type_pun_to_gpointer(obj); \
-    GST_DEBUG("  unreffing : %p",ptr); \
-    g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&bt_type_pun_to_gpointer(obj)); \
-  }
-*/
 
 /**
  * G_POINTER_ALIAS:
@@ -156,7 +135,11 @@ Sadly they don't gave tips how they belive to get rid of the warning.
  * @var: the variable name
  *
  * Defines a anonymous union to handle gcc-4.1s type punning warning that one
- * gets when using e.g. g_object_try_weak_ref()
+ * gets when using e.g. g_object_try_weak_ref(). Since glib 2.14 api can also
+ * be annotated with G_GNUC_MAY_ALIAS to avoid the union.
+ *
+ * Also using a union is technically wrong. It is not allowed to write to one
+ * field and read from the other (or vice versa).
  */
 #define G_POINTER_ALIAS(type,var) \
 union { \

@@ -1,7 +1,7 @@
-#include <libbuzztard-ic/ic.h>
-@GUDEV_DOC_TYPES@#include "libbuzztard-ic/gudev-discoverer.h"
-@LINUX_INPUT_DOC_TYPES@#include "libbuzztard-ic/input-device.h"
-#include "libbuzztard-ic/midi-device.h"
+#include "ic.h"
+@GUDEV_DOC_TYPES@#include "gudev-discoverer.h"
+@LINUX_INPUT_DOC_TYPES@#include "input-device.h"
+#include "midi-device.h"
 
 btic_control_get_type
 btic_device_get_type

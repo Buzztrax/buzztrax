@@ -21,582 +21,491 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
-static void test_setup(void) {
-  bt_core_setup();
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_teardown(void) {
-  bt_core_teardown();
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  song = bt_song_new (app);
 }
+
+static void
+test_teardown (void)
+{
+  g_object_checked_unref (song);
+  g_object_checked_unref (app);
+}
+
+static void
+case_teardown (void)
+{
+}
+
 
 //-- tests
 
-BT_START_TEST(test_btpattern_obj_mono1) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtMachine *machine=NULL;
-  BtPattern *pattern=NULL;
-  gchar *data;
+static void
+test_bt_pattern_name (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL, NULL);
+  /* act */
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
 
-  /* create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
-  fail_unless(pattern!=NULL, NULL);
-
-  /* should have patterns now */
-  fail_unless(bt_machine_has_patterns(machine),NULL);
-
-  /* set some test data */
-  bt_pattern_set_global_event(pattern,0,0,"5");
-  bt_pattern_set_global_event(pattern,0,1,"2.5");
-  bt_pattern_set_global_event(pattern,0,2,"1");
-
-  /* verify test data */
-  data=bt_pattern_get_global_event(pattern,0,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"5",1),"data is '%s' instead of '5'",data);
-  g_free(data);
-  data=bt_pattern_get_global_event(pattern,0,1);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"2.5",1),"data is '%s' instead of '2.5'",data);
-  g_free(data);
-  data=bt_pattern_get_global_event(pattern,0,2);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"1",1),"data is '%s' instead of '1'",data);
-  g_free(data);
-
-  g_object_try_unref(pattern);
-  g_object_try_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-BT_START_TEST(test_btpattern_obj_poly1) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtMachine *machine=NULL;
-  BtPattern *pattern=NULL;
-  GstElement *element;
-  gulong voices;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL, NULL);
-
-  /* create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  g_object_get(machine,"machine",&element,NULL);
-  voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(element));
-  gst_object_unref(element);
-  fail_unless(voices==2, NULL);
-
-  /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
-  fail_unless(pattern!=NULL, NULL);
-
-  g_object_get(pattern,"voices",&voices,NULL);
-  fail_unless(voices==2, NULL);
-
-  g_object_unref(pattern);
-  g_object_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-BT_START_TEST(test_btpattern_obj_poly2) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSequence *sequence;
-  BtMachine *machine=NULL;
-  BtPattern *pattern=NULL;
-
-  GstElement *element;
-  gulong voices;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL, NULL);
-  g_object_get(song,"sequence",&sequence,NULL);
-
-  /* create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  g_object_get(machine,"machine",&element,NULL);
-  voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(element));
-  gst_object_unref(element);
-  fail_unless(voices==2, NULL);
-
-  /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
-  fail_unless(pattern!=NULL, NULL);
-
-   /* enlarge length */
-  g_object_set(sequence,"length",4L,NULL);
-
-  /* set machine */
-  bt_sequence_add_track(sequence,machine,-1);
-
-  /* set pattern */
-  bt_sequence_set_pattern(sequence,0,0,pattern);
-
-  /* set some test data */
-  bt_pattern_set_global_event(pattern,0,0,"5");
-  bt_pattern_set_global_event(pattern,4,0,"10");
-  bt_pattern_set_voice_event(pattern,0,0,0,"5");
-  bt_pattern_set_voice_event(pattern,4,0,0,"10");
-
-  g_object_unref(pattern);
-  g_object_unref(machine);
-  g_object_unref(sequence);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-BT_START_TEST(test_btpattern_copy) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtMachine *machine=NULL;
-  BtPattern *pattern1=NULL,*pattern2=NULL;
-  gulong length1,length2,voices1,voices2;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL, NULL);
-
-  /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a pattern */
-  pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
-  fail_unless(pattern1!=NULL, NULL);
-
-  /* set some test data */
-  bt_pattern_set_global_event(pattern1,0,0,"5");
-
-  /* create a copy */
-  pattern2=bt_pattern_copy(pattern1);
-  fail_unless(pattern2!=NULL, NULL);
-  fail_unless(pattern2!=pattern1, NULL);
-
-  /* compare */
-  g_object_get(pattern1,"length",&length1,"voices",&voices1,NULL);
-  g_object_get(pattern2,"length",&length2,"voices",&voices2,NULL);
-  fail_unless(length1==length2, NULL);
-  fail_unless(voices1==voices2, NULL);
-
-  g_object_try_unref(pattern1);
-  g_object_try_unref(pattern2);
-  g_object_try_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-BT_START_TEST(test_btpattern_has_data) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtMachine *machine=NULL;
-  BtPattern *pattern=NULL;
-  gchar *data;
-  gboolean res;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
-  fail_unless(pattern!=NULL, NULL);
-
-  /* set some test data */
-  bt_pattern_set_global_event(pattern,0,0,"5");
-  bt_pattern_set_global_event(pattern,4,0,"10");
-
-  /* verify data */
-  data=bt_pattern_get_global_event(pattern,0,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"5",1),"data is '%s' instead of '5'",data);
-  g_free(data);
-  data=bt_pattern_get_global_event(pattern,4,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"10",2),"data is '%s' instead of '10'",data);
-  g_free(data);
-
-  data=bt_pattern_get_global_event(pattern,6,0);
-  fail_unless(data==NULL, "data is '%s' instead of ''",data);
-
-  /* test tick lines */
-  res=bt_pattern_tick_has_data(pattern,0);
-  fail_unless(res==TRUE, NULL);
-  res=bt_pattern_tick_has_data(pattern,4);
-  fail_unless(res==TRUE, NULL);
-
-  res=bt_pattern_tick_has_data(pattern,1);
-  fail_unless(res==FALSE, NULL);
+  /* assert */
+  ck_assert_gobject_str_eq (pattern, "id", "pattern-id");
+  ck_assert_gobject_str_eq (pattern, "name", "pattern-name");
 
   /* cleanup */
-  g_object_try_unref(pattern);
-  g_object_try_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-BT_START_TEST(test_btpattern_enlarge_length) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtMachine *machine=NULL;
-  BtPattern *pattern=NULL;
-  gulong length;
-  gchar *data;
+static void
+test_bt_pattern_obj_mono1 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  /* try to create a source machine */
-  // TODO(ensonic): try "bml-ErsKick" before and fall back to "buzztard-test-mono-source" as long as we don't have multi-voice machine in gst
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+  /* act */
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
 
-  /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
-  fail_unless(pattern!=NULL, NULL);
-
-  /* set some test data */
-  bt_pattern_set_global_event(pattern,0,0,"5");
-  bt_pattern_set_global_event(pattern,4,0,"10");
-
-  /* verify length */
-  g_object_get(pattern,"length",&length,NULL);
-  fail_unless(length==8, NULL);
-
-  /* change and verify length */
-  g_object_set(pattern,"length",16L,NULL);
-  g_object_get(pattern,"length",&length,NULL);
-  fail_unless(length==16, NULL);
-
-  /* verify data */
-  data=bt_pattern_get_global_event(pattern,0,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"5",1),"data is '%s' instead of '5'",data);
-  g_free(data);
-  data=bt_pattern_get_global_event(pattern,4,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"10",2),"data is '%s' instead of '10'",data);
-  g_free(data);
-
-  data=bt_pattern_get_global_event(pattern,10,0);
-  fail_unless(data==NULL, "data is '%s' instead of ''",data);
+  /* assert */
+  ck_assert_gobject_gulong_eq (pattern, "voices", 0);
 
   /* cleanup */
-  g_object_try_unref(pattern);
-  g_object_try_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-BT_START_TEST(test_btpattern_shrink_length) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtMachine *machine=NULL;
-  BtPattern *pattern=NULL;
-  gulong length;
-  gchar *data;
+static void
+test_bt_pattern_obj_mono2 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+  /* act */
+  bt_pattern_set_global_event (pattern, 0, 0, "5");
+  bt_pattern_set_global_event (pattern, 0, 1, "2.5");
+  bt_pattern_set_global_event (pattern, 0, 2, "1");
 
-  /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",16L,BT_MACHINE(machine));
-  fail_unless(pattern!=NULL, NULL);
-
-  /* set some test data */
-  bt_pattern_set_global_event(pattern,0,0,"5");
-  bt_pattern_set_global_event(pattern,12,0,"10");
-
-  /* verify length */
-  g_object_get(pattern,"length",&length,NULL);
-  fail_unless(length==16, NULL);
-
-  /* change and verify length */
-  g_object_set(pattern,"length",8L,NULL);
-  g_object_get(pattern,"length",&length,NULL);
-  fail_unless(length==8, NULL);
-
-  /* verify data */
-  data=bt_pattern_get_global_event(pattern,0,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"5",1),"data is '%s' instead of '5'",data);
-  g_free(data);
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 1),
+      "2.5");
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 2), "1");
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 6, 0), NULL);
 
   /* cleanup */
-  g_object_try_unref(pattern);
-  g_object_try_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-BT_START_TEST(test_btpattern_enlarge_voices) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtMachine *machine=NULL;
-  BtPattern *pattern=NULL;
-  gulong voices;
-  gchar *data;
+static void
+test_bt_pattern_obj_poly1 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-poly-source", 2L, NULL));
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+  /* act */
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
 
-  /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
-  fail_unless(pattern!=NULL, NULL);
-
-  /* set some test data */
-  bt_pattern_set_global_event(pattern,0,0,"5");
-  bt_pattern_set_voice_event(pattern,4,0,0,"10");
-
-  /* verify voices */
-  g_object_get(pattern,"voices",&voices,NULL);
-  fail_unless(voices==1, NULL);
-
-  /* change and verify voices */
-  g_object_set(machine,"voices",2L,NULL);
-  g_object_get(pattern,"voices",&voices,NULL);
-  fail_unless(voices==2, NULL);
-
-  /* verify data */
-  data=bt_pattern_get_global_event(pattern,0,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"5",1),"data is '%s' instead of '5'",data);
-  g_free(data);
-  data=bt_pattern_get_voice_event(pattern,4,0,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"10",2),"data is '%s' instead of '10'",data);
-  g_free(data);
-
-  data=bt_pattern_get_voice_event(pattern,0,1,0);
-  fail_unless(data==NULL, "data is '%s' instead of ''",data);
+  /* assert */
+  ck_assert_gobject_gulong_eq (pattern, "voices", 2);
 
   /* cleanup */
-  g_object_unref(pattern);
-  g_object_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-BT_START_TEST(test_btpattern_shrink_voices) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtMachine *machine=NULL;
-  BtPattern *pattern=NULL;
-  gulong voices;
-  gchar *data;
+static void
+test_bt_pattern_obj_poly2 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-poly-source", 2L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+  /* act */
+  bt_pattern_set_global_event (pattern, 0, 0, "5");
+  bt_pattern_set_global_event (pattern, 4, 0, "10");
+  bt_pattern_set_voice_event (pattern, 0, 0, 0, "5");
+  bt_pattern_set_voice_event (pattern, 4, 0, 0, "10");
 
-  /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
-  fail_unless(pattern!=NULL, NULL);
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
+  ck_assert_str_eq_and_free (bt_pattern_get_voice_event (pattern, 4, 0, 0),
+      "10");
+  ck_assert_str_eq_and_free (bt_pattern_get_voice_event (pattern, 6, 0, 0),
+      NULL);
 
-  /* set some test data */
-  bt_pattern_set_global_event(pattern,0,0,"5");
-  bt_pattern_set_voice_event(pattern,4,0,0,"10");
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
 
-  /* verify voices */
-  g_object_get(pattern,"voices",&voices,NULL);
-  fail_unless(voices==2, NULL);
+static void
+test_bt_pattern_obj_wire1 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *src_machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtMachine *sink_machine =
+      BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+  BtWire *wire = bt_wire_new (song, src_machine, sink_machine, NULL);
 
-  /* change and verify voices */
-  g_object_set(machine,"voices",1L,NULL);
-  g_object_get(pattern,"voices",&voices,NULL);
-  fail_unless(voices==1, NULL);
+  /* act */
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, sink_machine);
 
-  /* verify data */
-  data=bt_pattern_get_global_event(pattern,0,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"5",1),"data is '%s' instead of '5'",data);
-  g_free(data);
-  data=bt_pattern_get_voice_event(pattern,4,0,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"10",2),"data is '%s' instead of '10'",data);
-  g_free(data);
+  /* assert */
+  fail_unless (bt_pattern_get_wire_group (pattern, wire) != NULL, NULL);
 
   /* cleanup */
-  g_object_unref(pattern);
-  g_object_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  g_object_unref (pattern);
+  g_object_unref (wire);
+  g_object_unref (src_machine);
+  g_object_unref (sink_machine);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-BT_START_TEST(test_btpattern_insert_row) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtMachine *machine=NULL;
-  BtPattern *pattern=NULL;
-  gchar *data;
+static void
+test_bt_pattern_obj_wire2 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *src_machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtMachine *sink_machine =
+      BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+  BtWire *wire = bt_wire_new (song, src_machine, sink_machine, NULL);
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, sink_machine);
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+  /* act */
+  bt_pattern_set_wire_event (pattern, 0, wire, 0, "100");
 
-  /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
-  fail_unless(pattern!=NULL, NULL);
-
-  /* set some test data */
-  bt_pattern_set_global_event(pattern,0,0,"5");
-  bt_pattern_set_global_event(pattern,4,0,"10");
-
-  /* insert row */
-  bt_pattern_insert_row(pattern,0,0);
-
-  /* verify data */
-  data=bt_pattern_get_global_event(pattern,0,0);
-  fail_unless(data==NULL, "data is '%s' instead of ''",data);
-  data=bt_pattern_get_global_event(pattern,1,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"5",1),"data is '%s' instead of '5'",data);
-  g_free(data);
-  data=bt_pattern_get_global_event(pattern,4,0);
-  fail_unless(data==NULL, "data is '%s' instead of ''",data);
-  data=bt_pattern_get_global_event(pattern,5,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"10",2),"data is '%s' instead of '10'",data);
-  g_free(data);
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_wire_event (pattern, 0, wire, 0),
+      "100");
 
   /* cleanup */
-  g_object_try_unref(pattern);
-  g_object_try_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  g_object_unref (pattern);
+  g_object_unref (wire);
+  g_object_unref (src_machine);
+  g_object_unref (sink_machine);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-BT_START_TEST(test_btpattern_delete_row) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtMachine *machine=NULL;
-  BtPattern *pattern=NULL;
-  gchar *data;
+static void
+test_bt_pattern_copy (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-poly-source", 2L, NULL));
+  BtPattern *pattern1 =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  bt_pattern_set_global_event (pattern1, 0, 0, "5");
+  bt_pattern_set_voice_event (pattern1, 4, 0, 0, "10");
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  /* try to create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L,&err));
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+  /* act */
+  BtPattern *pattern2 = bt_pattern_copy (pattern1);
 
-  /* try to create a pattern */
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
-  fail_unless(pattern!=NULL, NULL);
-
-  /* set some test data */
-  bt_pattern_set_global_event(pattern,0,0,"5");
-  bt_pattern_set_global_event(pattern,4,0,"10");
-
-  /* insert row */
-  bt_pattern_delete_row(pattern,0,0);
-
-  /* verify data */
-  data=bt_pattern_get_global_event(pattern,0,0);
-  fail_unless(data==NULL, "data is '%s' instead of ''",data);
-  data=bt_pattern_get_global_event(pattern,3,0);
-  fail_unless(data!=NULL, NULL);
-  fail_if(strncmp(data,"10",2),"data is '%s' instead of '10'",data);
-  g_free(data);
-  data=bt_pattern_get_global_event(pattern,4,0);
-  fail_unless(data==NULL, "data is '%s' instead of ''",data);
+  /* assert */
+  fail_unless (pattern2 != NULL, NULL);
+  fail_unless (pattern2 != pattern1, NULL);
+  ck_assert_gobject_gulong_eq (pattern2, "voices", 2);
+  ck_assert_gobject_gulong_eq (pattern2, "length", 8);
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern2, 0, 0), "5");
 
   /* cleanup */
-  g_object_try_unref(pattern);
-  g_object_try_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  g_object_try_unref (pattern1);
+  g_object_try_unref (pattern2);
+  g_object_try_unref (machine);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-TCase *bt_pattern_example_case(void) {
-  TCase *tc = tcase_create("BtPatternExamples");
+static void
+test_bt_pattern_has_data (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-poly-source", 1L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
 
-  tcase_add_test(tc,test_btpattern_obj_mono1);
-  tcase_add_test(tc,test_btpattern_obj_poly1);
-  tcase_add_test(tc,test_btpattern_obj_poly2);
-  tcase_add_test(tc,test_btpattern_copy);
-  tcase_add_test(tc,test_btpattern_has_data);
-  tcase_add_test(tc,test_btpattern_enlarge_length);
-  tcase_add_test(tc,test_btpattern_shrink_length);
-  tcase_add_test(tc,test_btpattern_enlarge_voices);
-  tcase_add_test(tc,test_btpattern_shrink_voices);
-  tcase_add_test(tc,test_btpattern_insert_row);
-  tcase_add_test(tc,test_btpattern_delete_row);
-  // blend/randomize
-  // set params multiple times and clear them again
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  /* act */
+  bt_pattern_set_global_event (pattern, 0, 0, "5");
+  bt_pattern_set_global_event (pattern, 4, 0, "10");
+
+  /* assert */
+  fail_unless (bt_pattern_test_tick (pattern, 0) == TRUE, NULL);
+  fail_unless (bt_pattern_test_tick (pattern, 4) == TRUE, NULL);
+  fail_unless (bt_pattern_test_tick (pattern, 1) == FALSE, NULL);
+
+  /* cleanup */
+  g_object_try_unref (pattern);
+  g_object_try_unref (machine);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_enlarge_length (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  bt_pattern_set_global_event (pattern, 0, 0, "5");
+  bt_pattern_set_global_event (pattern, 4, 0, "10");
+
+  /* act */
+  g_object_set (pattern, "length", 16L, NULL);
+
+  /* assert */
+  ck_assert_gobject_gulong_eq (pattern, "length", 16);
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 4, 0), "10");
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 10, 0),
+      NULL);
+
+  /* cleanup */
+  g_object_try_unref (pattern);
+  g_object_try_unref (machine);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_shrink_length (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 16L, machine);
+  bt_pattern_set_global_event (pattern, 0, 0, "5");
+  bt_pattern_set_global_event (pattern, 12, 0, "10");
+
+  /* act */
+  g_object_set (pattern, "length", 8L, NULL);
+
+  /* assert */
+  ck_assert_gobject_gulong_eq (pattern, "length", 8);
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
+
+  /* cleanup */
+  g_object_try_unref (pattern);
+  g_object_try_unref (machine);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_enlarge_voices (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-poly-source", 1L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  bt_pattern_set_global_event (pattern, 0, 0, "5");
+  bt_pattern_set_voice_event (pattern, 4, 0, 0, "10");
+
+  /* act */
+  g_object_set (machine, "voices", 2L, NULL);
+
+  /* assert */
+  ck_assert_gobject_gulong_eq (pattern, "voices", 2);
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
+  ck_assert_str_eq_and_free (bt_pattern_get_voice_event (pattern, 4, 0, 0),
+      "10");
+  ck_assert_str_eq_and_free (bt_pattern_get_voice_event (pattern, 0, 1, 0),
+      NULL);
+
+  /* cleanup */
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_shrink_voices (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-poly-source", 2L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  bt_pattern_set_global_event (pattern, 0, 0, "5");
+  bt_pattern_set_voice_event (pattern, 4, 0, 0, "10");
+
+  /* act */
+  g_object_set (machine, "voices", 1L, NULL);
+
+  /* assert */
+  ck_assert_gobject_gulong_eq (pattern, "voices", 1);
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
+  ck_assert_str_eq_and_free (bt_pattern_get_voice_event (pattern, 4, 0, 0),
+      "10");
+
+  /* cleanup */
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_insert_row (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  bt_pattern_set_global_event (pattern, 0, 0, "5");
+  bt_pattern_set_global_event (pattern, 4, 0, "10");
+
+  /* act */
+  bt_value_group_insert_row (bt_pattern_get_global_group (pattern), 0, 0);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), NULL);
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 1, 0), "5");
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 4, 0), NULL);
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 5, 0), "10");
+
+  /* cleanup */
+  g_object_try_unref (pattern);
+  g_object_try_unref (machine);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_delete_row (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  bt_pattern_set_global_event (pattern, 0, 0, "5");
+  bt_pattern_set_global_event (pattern, 4, 0, "10");
+
+  /* act */
+  bt_value_group_delete_row (bt_pattern_get_global_group (pattern), 0, 0);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), NULL);
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 3, 0), "10");
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 4, 0), NULL);
+
+  /* cleanup */
+  g_object_try_unref (pattern);
+  g_object_try_unref (machine);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_mono_get_global_vg (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztard-test-mono-source", 0, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 1L, machine);
+
+  /* act && assert */
+  fail_unless (bt_pattern_get_global_group (pattern) != NULL, NULL);
+
+  /* cleanup */
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_mono_get_voice_vg (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztard-test-mono-source", 0, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 1L, machine);
+
+  /* act && assert */
+  fail_unless (bt_pattern_get_voice_group (pattern, 1) == NULL, NULL);
+
+  /* cleanup */
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+TCase *
+bt_pattern_example_case (void)
+{
+  TCase *tc = tcase_create ("BtPatternExamples");
+
+  tcase_add_test (tc, test_bt_pattern_name);
+  tcase_add_test (tc, test_bt_pattern_obj_mono1);
+  tcase_add_test (tc, test_bt_pattern_obj_mono2);
+  tcase_add_test (tc, test_bt_pattern_obj_poly1);
+  tcase_add_test (tc, test_bt_pattern_obj_poly2);
+  tcase_add_test (tc, test_bt_pattern_obj_wire1);
+  tcase_add_test (tc, test_bt_pattern_obj_wire2);
+  tcase_add_test (tc, test_bt_pattern_copy);
+  tcase_add_test (tc, test_bt_pattern_has_data);
+  tcase_add_test (tc, test_bt_pattern_enlarge_length);
+  tcase_add_test (tc, test_bt_pattern_shrink_length);
+  tcase_add_test (tc, test_bt_pattern_enlarge_voices);
+  tcase_add_test (tc, test_bt_pattern_shrink_voices);
+  tcase_add_test (tc, test_bt_pattern_insert_row);
+  tcase_add_test (tc, test_bt_pattern_delete_row);
+  tcase_add_test (tc, test_bt_pattern_mono_get_global_vg);
+  tcase_add_test (tc, test_bt_pattern_mono_get_voice_vg);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

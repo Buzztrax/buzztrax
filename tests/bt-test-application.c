@@ -44,8 +44,10 @@ G_DEFINE_TYPE (BtTestApplication, bt_test_application, BT_TYPE_APPLICATION);
  *
  * Returns: the new instance
  */
-BtApplication *bt_test_application_new(void) {
-  return BT_APPLICATION(g_object_new(BT_TYPE_TEST_APPLICATION,NULL));
+BtApplication *
+bt_test_application_new (void)
+{
+  return BT_APPLICATION (g_object_new (BT_TYPE_TEST_APPLICATION, NULL));
 }
 
 //-- methods
@@ -54,9 +56,12 @@ BtApplication *bt_test_application_new(void) {
 
 //-- class internals
 
-static void bt_test_application_init(BtTestApplication *self) {
+static void
+bt_test_application_init (BtTestApplication * self)
+{
 }
 
-static void bt_test_application_class_init(BtTestApplicationClass *klass) {
+static void
+bt_test_application_class_init (BtTestApplicationClass * klass)
+{
 }
-

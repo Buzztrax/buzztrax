@@ -28,5 +28,3 @@ GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 //-- prototypes
 
-extern void bt_core_setup(void);
-extern void bt_core_teardown(void);

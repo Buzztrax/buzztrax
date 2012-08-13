@@ -24,8 +24,8 @@
  * implements loading and saving of this format.
  * The format is an archive, that contains an XML file and optionally binary
  * data, such as audio samples.
- */ 
- 
+ */
+
 #define BT_CORE
 #define BT_SONG_IO_NATIVE_C
 
@@ -37,7 +37,7 @@ G_DEFINE_ABSTRACT_TYPE (BtSongIONative, bt_song_io_native, BT_TYPE_SONG_IO);
 
 //-- plugin detect
 
-static gboolean bt_song_io_init(void);
+static gboolean bt_song_io_init (void);
 
 /**
  * bt_song_io_native_module_info:
@@ -48,33 +48,36 @@ BtSongIOModuleInfo bt_song_io_native_module_info = {
   bt_song_io_init,
   {
 #ifdef USE_GSF
-    { 0, "buzztard song with externals", "audio/x-bzt", "bzt" },
+        {0, "buzztard song with externals", "audio/x-bzt", "bzt"},
 #endif
-    { 0, "buzztard song without externals", "audio/x-bzt-xml", "xml" },
-    { 0, NULL, NULL, NULL }
-  }
+        {0, "buzztard song without externals", "audio/x-bzt-xml", "xml"},
+        {0, NULL, NULL, NULL}
+      }
 };
 
-static gboolean bt_song_io_init(void) {
-  static gboolean first_run=TRUE;
+static gboolean
+bt_song_io_init (void)
+{
+  static gboolean first_run = TRUE;
 
-  if(first_run) {
+  if (first_run) {
 #ifdef ENABLE_NLS
     bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 #endif /* ENABLE_NLS */
 
-    GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-bsl", 0, "music production environment / buzz song io plugin");
-    
+    GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-bsl", 0,
+        "music production environment / buzz song io plugin");
+
 #ifdef USE_GSF
-    bt_song_io_native_module_info.formats[0].type=BT_TYPE_SONG_IO_NATIVE_BZT;
-    bt_song_io_native_module_info.formats[1].type=BT_TYPE_SONG_IO_NATIVE_XML;
+    bt_song_io_native_module_info.formats[0].type = BT_TYPE_SONG_IO_NATIVE_BZT;
+    bt_song_io_native_module_info.formats[1].type = BT_TYPE_SONG_IO_NATIVE_XML;
 #else
-    bt_song_io_native_module_info.formats[0].type=BT_TYPE_SONG_IO_NATIVE_XML;
+    bt_song_io_native_module_info.formats[0].type = BT_TYPE_SONG_IO_NATIVE_XML;
 #endif
-    first_run=FALSE;
+    first_run = FALSE;
   }
-  return(TRUE);
+  return (TRUE);
 }
 
 //-- methods
@@ -83,10 +86,13 @@ static gboolean bt_song_io_init(void) {
 
 //-- class internals
 
-static void bt_song_io_native_init(BtSongIONative *self) {
+static void
+bt_song_io_native_init (BtSongIONative * self)
+{
 }
 
-static void bt_song_io_native_class_init(BtSongIONativeClass * const klass) {
+static void
+bt_song_io_native_class_init (BtSongIONativeClass * const klass)
+{
   //g_type_class_add_private(klass,sizeof(BtSongIONativePrivate));
 }
-

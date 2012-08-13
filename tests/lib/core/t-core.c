@@ -21,50 +21,89 @@
 
 //-- globals
 
+static FILE *saved_stdout = NULL;
+
+//-- fixtures
+
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
+}
+
+static void
+test_setup (void)
+{
+  saved_stdout = stdout;
+  stdout = tmpfile ();
+}
+
+static void
+test_teardown (void)
+{
+  fclose (stdout);
+  stdout = saved_stdout;
+}
+
+static void
+case_teardown (void)
+{
+}
+
 
 //-- tests
 
 // test init with wrong arg usage
-START_TEST(test_btcore_init0  ) {
-  // this shadows the global vars of the same name
-  gint test_argc=2;
-  gchar *test_argv[test_argc];
-  gchar **test_argvptr;
+static void
+test_bt_core_init0 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  gchar *test_argv[] = { "check_buzzard", "--bt-version=5" };
+  gchar **test_argvptr = test_argv;
+  gint test_argc = G_N_ELEMENTS (test_argv);
 
-  test_argv[0]="check_buzzard";
-  test_argv[1]="--bt-version=5";
-  test_argvptr=test_argv;
+  /* act */
+  bt_init (&test_argc, &test_argvptr);
 
-  bt_init(&test_argc,&test_argvptr);
+  /* assert */
+  mark_point ();
+  BT_TEST_END;
 }
-END_TEST
 
-/*
- * Test nonsense args.
- *
- * This unfortunately exits the test app.
- */
-#ifdef __CHECK_DISABLED__
 // test init with nonsense args
-START_TEST(test_btcore_init1) {
-  // this shadows the global vars of the same name
-  gint test_argc=2;
-  gchar *test_argv[test_argc];
-  gchar **test_argvptr;
+static void
+test_bt_core_init1 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  gchar *test_argv[] = { "check_buzzard", "--bt-non-sense" };
+  gchar **test_argvptr = test_argv;
+  gint test_argc = G_N_ELEMENTS (test_argv);
 
-  test_argv[0]="check_buzzard";
-  test_argv[1]="--bt-non-sense";
-  test_argvptr=test_argv;
+  /* arrange */
+  GOptionContext *ctx = g_option_context_new (NULL);
+  g_option_context_add_group (ctx, bt_init_get_option_group ());
+  g_option_context_set_ignore_unknown_options (ctx, TRUE);
 
-  bt_init(&test_argc,&test_argvptr);
+  /* act & assert */
+  fail_unless (g_option_context_parse (ctx, &test_argc, &test_argvptr, NULL));
+  ck_assert_int_eq (test_argc, 2);
+
+  /* cleanup */
+  g_option_context_free (ctx);
+  BT_TEST_END;
 }
-END_TEST
-#endif
 
-TCase *bt_core_test_case(void) {
-  TCase *tc = tcase_create("BtCoreTests");
+TCase *
+bt_core_test_case (void)
+{
+  TCase *tc = tcase_create ("BtCoreTests");
 
-  tcase_add_test(tc,test_btcore_init0);
-  //tcase_add_test(tc,test_btcore_init1);
-  return(tc);
+  tcase_add_test (tc, test_bt_core_init0);
+  tcase_add_test (tc, test_bt_core_init1);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

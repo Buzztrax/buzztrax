@@ -13,3 +13,4 @@ bt_ic
 bt_cmd
 bt_edit
 bt-cfg.sh
+event-sound-cache.tdb.*

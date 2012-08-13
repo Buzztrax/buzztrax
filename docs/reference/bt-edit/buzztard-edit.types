@@ -1,4 +1,4 @@
-#include <libbuzztard-core/core.h>
+#include "core.h"
 #include "bt-edit.h"
 #include "btmemoryaudiosrc.h"
 #include "gtkvumeter.h"
@@ -35,7 +35,6 @@ bt_pattern_list_model_get_type
 bt_pattern_properties_dialog_get_type
 bt_playback_controller_socket_get_type
 bt_render_dialog_get_type
-bt_render_progress_get_type
 bt_sequence_grid_model_get_type
 bt_sequence_view_get_type
 bt_settings_dialog_get_type

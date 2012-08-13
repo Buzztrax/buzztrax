@@ -21,177 +21,192 @@
 
 //-- globals
 
+static BtEditApplication *app;
+static BtSong *song;
+static BtMainWindow *main_window;
+static BtMainPages *pages;
+
 //-- fixtures
 
-static void test_setup(void) {
-  bt_edit_setup();
+static void
+test_setup (void)
+{
+  bt_edit_setup ();
+  app = bt_edit_application_new ();
+  bt_edit_application_new_song (app);
+  g_object_get (app, "song", &song, "main-window", &main_window, NULL);
+  g_object_get (G_OBJECT (main_window), "pages", &pages, NULL);
+
+  gtk_notebook_set_current_page (GTK_NOTEBOOK (pages),
+      BT_MAIN_PAGES_PATTERNS_PAGE);
+
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
 }
 
-static void test_teardown(void) {
-  bt_edit_teardown();
+static void
+test_teardown (void)
+{
+  g_object_unref (song);
+  g_object_unref (pages);
+
+  gtk_widget_destroy (GTK_WIDGET (main_window));
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
+
+  g_object_checked_unref (app);
+  bt_edit_teardown ();
 }
 
 //-- helper
 
+static void
+move_cursor_to (GtkWidget * w, guint group, guint param, guint digit, guint row)
+{
+  g_object_set (w, "cursor-group", group, "cursor-param", param, "cursor-digit",
+      digit, "cursor-row", row, NULL);
+}
+
 //-- tests
 
 // show pattern page with empty pattern and emit key-presses
-BT_START_TEST(test_editing1) {
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  BtMainPages *pages;
+static void
+test_bt_main_page_patterns_key_press_in_empty_pattern (BT_TEST_ARGS)
+{
+  BT_TEST_START;
   BtMainPagePatterns *pattern_page;
-  BtSong *song;
-  BtSetup *setup;
-  BtMachine *src_machine;
-  GError *err=NULL;
-
-  app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
-  fail_unless(app != NULL, NULL);
-
-  // create a new song
-  bt_edit_application_new_song(app);
-
-  // get window && song
-  g_object_get(app,"song",&song,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
-  fail_unless(song != NULL, NULL);
-  g_object_get(song,"setup",&setup,NULL);
-
-  // create a source machine
-  src_machine=BT_MACHINE(bt_source_machine_new(song,"gen","fakesrc",0,&err));
-  fail_unless(src_machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  // make sure the pattern view shows something
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-  g_object_get(G_OBJECT(pages),"patterns-page",&pattern_page,NULL);
-  bt_main_page_patterns_show_machine(pattern_page,src_machine);
-
-  // show page
-  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
-  while(gtk_events_pending()) gtk_main_iteration();
-
-  GST_INFO("sending events");
-
-  // send a '.' key-press
-  check_send_key((GtkWidget *)pattern_page,'.');
-
-  // send a '0' key-press
-  check_send_key((GtkWidget *)pattern_page,'0');
-
-  GST_INFO("test done");
-
-  g_object_unref(pattern_page);
-  g_object_unref(src_machine);
-  g_object_unref(setup);
-  g_object_unref(pages);
-
-  // close window
-  gtk_widget_destroy(GTK_WIDGET(main_window));
-  while(gtk_events_pending()) gtk_main_iteration();
-  //GST_INFO("mainlevel is %d",gtk_main_level());
-  //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
-
-  // free application
-  g_object_unref(song);
-  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
-  g_object_checked_unref(app);
-
-}
-BT_END_TEST
-
-// show pattern page with empty pattern and emit mouse klicks
-BT_START_TEST(test_editing2) {
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  BtMainPages *pages;
-  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
   GtkWidget *pattern_editor;
-  BtSong *song;
-  BtSetup *setup;
-  BtMachine *src_machine;
-  GdkEventButton *e;
-  GError *err=NULL;
-  GList *list;
 
-  app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT_REF_COUNT(app));
-  fail_unless(app != NULL, NULL);
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "fakesrc", 0, NULL));
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_machine (pattern_page, machine);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
 
-  // create a new song
-  bt_edit_application_new_song(app);
+  /* act */
+  check_send_key (pattern_editor, 0, '.', 0x3c);
+  check_send_key (pattern_editor, 0, '0', 0x13);
 
-  // get window && song
-  g_object_get(app,"song",&song,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
-  fail_unless(song != NULL, NULL);
-  g_object_get(song,"setup",&setup,NULL);
+  /* assert */
+  mark_point ();
 
-  // create a source machine
-  src_machine=BT_MACHINE(bt_source_machine_new(song,"gen","fakesrc",0,&err));
-  fail_unless(src_machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  // make sure the pattern view shows something
-  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-  g_object_get(G_OBJECT(pages),"patterns-page",&pattern_page,NULL);
-  bt_main_page_patterns_show_machine(pattern_page,src_machine);
-
-  // show page
-  gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
-  while(gtk_events_pending()) gtk_main_iteration();
-
-  GST_INFO("object types: %s",G_OBJECT_TYPE_NAME(pattern_page));
-
-  list=gtk_container_get_children(GTK_CONTAINER(pattern_page));
-  // 1st is toolbat, 2nd is scrollable window
-  pattern_editor=gtk_bin_get_child(GTK_BIN(g_list_nth_data(list,1)));
-  g_list_free(list);
-
-  GST_INFO("object types: %s",G_OBJECT_TYPE_NAME(pattern_editor));
-
-  GST_INFO("sending events");
-
-  // send a left mouse button press (hopefully on the tick number column)
-  e=(GdkEventButton *)gdk_event_new(GDK_BUTTON_PRESS);
-  e->window=g_object_ref(gtk_widget_get_window((GtkWidget *)pattern_editor));
-  e->button=1; // left-button
-  e->x=10.0;
-  e->y=100.0;
-  e->state=GDK_BUTTON1_MASK;
-  gtk_main_do_event((GdkEvent *)e);
-  while(gtk_events_pending()) gtk_main_iteration();
-  gdk_event_free((GdkEvent *)e);
-
-  GST_INFO("test done");
-
-  g_object_unref(pattern_page);
-  g_object_unref(src_machine);
-  g_object_unref(setup);
-  g_object_unref(pages);
-
-  // close window
-  gtk_widget_destroy(GTK_WIDGET(main_window));
-  while(gtk_events_pending()) gtk_main_iteration();
-  //GST_INFO("mainlevel is %d",gtk_main_level());
-  //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
-
-  // free application
-  g_object_unref(song);
-  GST_INFO("app->ref_ct=%d",G_OBJECT_REF_COUNT(app));
-  g_object_checked_unref(app);
-
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (machine);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-TCase *bt_pattern_page_test_case(void) {
-  TCase *tc = tcase_create("BtPatternPageTests");
+// show pattern page with empty pattern and emit mouse clicks
+static void
+test_bt_main_page_patterns_mouse_click_in_empty_pattern (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  GtkWidget *pattern_editor;
 
-  tcase_add_test(tc,test_editing1);
-  tcase_add_test(tc,test_editing2);
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "fakesrc", 0, NULL));
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_machine (pattern_page, machine);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+
+  /* act */
+  check_send_click (pattern_editor, 1, 10.0, 100.0);
+
+  /* assert */
+  mark_point ();
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+// test entering non note key
+static void
+test_bt_main_page_patterns_non_note_key_press (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GtkWidget *pattern_editor;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 3, 0, 0);
+
+  /* act */
+  // send a '4' key-press
+  check_send_key (pattern_editor, 0, '4', 0x0d);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3), NULL);
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+// test that cursor pos stays unchanged on invalid key presses
+static void
+test_bt_main_page_patterns_cursor_pos_on_non_note_key (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  BtMainPagePatterns *pattern_page;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GtkWidget *pattern_editor;
+
+  /* arrange */
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
+  bt_main_page_patterns_show_pattern (pattern_page, pattern);
+  pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
+  move_cursor_to (pattern_editor, 0, 3, 0, 0);
+
+  /* act */
+  // send a '4' key-press
+  check_send_key (pattern_editor, 0, '4', 0x0d);
+  check_send_key (pattern_editor, 0, '1', 0x0a);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3),
+      "off");
+
+  /* cleanup */
+  g_object_unref (pattern_page);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+
+TCase *
+bt_pattern_page_test_case (void)
+{
+  TCase *tc = tcase_create ("BtPatternPageTests");
+
+  tcase_add_test (tc, test_bt_main_page_patterns_key_press_in_empty_pattern);
+  tcase_add_test (tc, test_bt_main_page_patterns_mouse_click_in_empty_pattern);
+  tcase_add_test (tc, test_bt_main_page_patterns_non_note_key_press);
+  tcase_add_test (tc, test_bt_main_page_patterns_cursor_pos_on_non_note_key);
   // we *must* use a checked fixture, as only this runs in the same context
-  tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  return (tc);
 }

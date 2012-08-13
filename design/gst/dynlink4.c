@@ -110,14 +110,14 @@ struct Graph_
 static gint step = 0;
 /* skip some partially connected setups */
 static int steps[] = {
-  0,  /* 0000000: */
-  4,  /* 0000100: src2 -> sink */ 
-  9,  /* 0001001: src1 -> fx, fx -> sink */
-  10, /* 0001010: src2 -> fx, fx -> sink */
-  11, /* 0001011: src1 -> fx, src2 -> fx, fx -> sink */
-  13, /* 0001101: src1 -> fx, fx -> sink, src2 -> sink */
-  14, /* 0001110: src2 -> fx, fx -> sink, src2 -> sink */
-  15, /* 0001111: src1 -> fx, src2 -> fx, fx -> sink, src2 -> sink */
+  0,                            /* 0000000: */
+  4,                            /* 0000100: src2 -> sink */
+  9,                            /* 0001001: src1 -> fx, fx -> sink */
+  10,                           /* 0001010: src2 -> fx, fx -> sink */
+  11,                           /* 0001011: src1 -> fx, src2 -> fx, fx -> sink */
+  13,                           /* 0001101: src1 -> fx, fx -> sink, src2 -> sink */
+  14,                           /* 0001110: src2 -> fx, fx -> sink, src2 -> sink */
+  15,                           /* 0001111: src1 -> fx, src2 -> fx, fx -> sink, src2 -> sink */
   14, 13, 11, 10, 9, 4, 0
 };
 
@@ -131,9 +131,10 @@ dump_pipeline (Graph * g, gchar * suffix)
   gchar t[100];
   static GstDebugGraphDetails graph_details =
       GST_DEBUG_GRAPH_SHOW_ALL & ~GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS;
-      //GST_DEBUG_GRAPH_SHOW_ALL;
+  //GST_DEBUG_GRAPH_SHOW_ALL;
 
-  snprintf (t, 100, "dyn%02d%s%s", step, (suffix ? "_" : ""), (suffix ? suffix : ""));
+  snprintf (t, 100, "dyn%02d%s%s", step, (suffix ? "_" : ""),
+      (suffix ? suffix : ""));
   t[99] = '\0';
   GST_DEBUG_BIN_TO_DOT_FILE (g->bin, graph_details, t);
 }
@@ -219,7 +220,8 @@ make_sink (Graph * g, const gchar * m_name)
 
 #if GST_CHECK_VERSION(0,11,0)
 static GstProbeReturn
-post_link_add (GstPad *pad, GstProbeType type, gpointer type_data, gpointer user_data)
+post_link_add (GstPad * pad, GstProbeType type, gpointer type_data,
+    gpointer user_data)
 #else
 static void
 post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
@@ -273,11 +275,11 @@ post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
           GST_SEEK_FLAG_FLUSH, pos);
 #else
       GST_WARNING ("seek on %s", GST_OBJECT_NAME (w->src_ghost));
-      gst_pad_send_event (w->src_ghost, gst_event_new_seek (1.0, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH,
-          GST_SEEK_TYPE_SET, pos, GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE));
+      gst_pad_send_event (w->src_ghost, gst_event_new_seek (1.0,
+              GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH, GST_SEEK_TYPE_SET, pos,
+              GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE));
 #endif
-  
+
       scr = gst_element_set_state ((GstElement *) ms->bin, GST_STATE_PLAYING);
       g_assert (scr != GST_STATE_CHANGE_FAILURE);
     } else {
@@ -292,7 +294,7 @@ post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
       GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin), g->pending_changes);
 
   if (g->pending_changes == 0)
-    if (GST_STATE (g->bin) == GST_STATE_PLAYING) /* because of initial link */
+    if (GST_STATE (g->bin) == GST_STATE_PLAYING)        /* because of initial link */
       g_timeout_add_seconds (1, (GSourceFunc) do_test_step, g);
 
 #if GST_CHECK_VERSION(0,11,0)
@@ -370,10 +372,10 @@ link_add (Graph * g, gint s, gint d)
 
   /* add wire to pipeline */
   gst_bin_add (g->bin, (GstElement *) w->bin);
-  
+
   plr = gst_pad_link (w->peer_src_ghost, w->dst_ghost);
   g_assert (plr == GST_PAD_LINK_OK);
-  
+
   /* block w->peer_src_ghost (before linking) */
   if ((GST_STATE (g->bin) == GST_STATE_PLAYING) && w->as && M_IS_SRC (ms)) {
     GST_WARNING ("activate %s", GST_OBJECT_NAME (ms->bin));
@@ -381,7 +383,9 @@ link_add (Graph * g, gint s, gint d)
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
 #if GST_CHECK_VERSION(0,11,0)
-    blocked = (gst_pad_add_probe (w->peer_dst, GST_PROBE_TYPE_BLOCK, post_link_add, w, NULL) != 0);
+    blocked =
+        (gst_pad_add_probe (w->peer_dst, GST_PROBE_TYPE_BLOCK, post_link_add, w,
+            NULL) != 0);
 #else
     blocked = gst_pad_set_blocked_async (w->peer_dst, TRUE, post_link_add, w);
 #endif
@@ -411,16 +415,17 @@ link_add (Graph * g, gint s, gint d)
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
 #if GST_CHECK_VERSION(0,11,0)
-      post_link_add (NULL, GST_PROBE_TYPE_BLOCK, NULL, w);
+    post_link_add (NULL, GST_PROBE_TYPE_BLOCK, NULL, w);
 #else
-      post_link_add (NULL, TRUE, w);
+    post_link_add (NULL, TRUE, w);
 #endif
   }
 }
 
 #if GST_CHECK_VERSION(0,11,0)
 static GstProbeReturn
-post_link_rem (GstPad *pad, GstProbeType type, gpointer type_data, gpointer user_data)
+post_link_rem (GstPad * pad, GstProbeType type, gpointer type_data,
+    gpointer user_data)
 #else
 static void
 post_link_rem (GstPad * pad, gboolean blocked, gpointer user_data)
@@ -510,7 +515,9 @@ link_rem (Graph * g, gint s, gint d)
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
 #if GST_CHECK_VERSION(0,11,0)
-    blocked = (gst_pad_add_probe (w->peer_dst, GST_PROBE_TYPE_BLOCK, post_link_rem, w, NULL) != 0);
+    blocked =
+        (gst_pad_add_probe (w->peer_dst, GST_PROBE_TYPE_BLOCK, post_link_rem, w,
+            NULL) != 0);
 #else
     blocked = gst_pad_set_blocked_async (w->peer_dst, TRUE, post_link_rem, w);
 #endif
@@ -671,16 +678,10 @@ main (int argc, char **argv)
 
   /* configure the sources, select different sounds,
    * also use a bigger block size to have less dataflow logging noise */
-  g_object_set (g->m[M_SRC1]->elem, 
-    "freq", (gdouble) 440.0,
-    "wave", 2, 
-    "blocksize", 22050,
-    NULL);
-  g_object_set (g->m[M_SRC2]->elem, 
-    "freq", (gdouble) 110.0, 
-    "wave", 1, 
-    "blocksize", 22050, 
-    NULL);
+  g_object_set (g->m[M_SRC1]->elem,
+      "freq", (gdouble) 440.0, "wave", 2, "blocksize", 22050, NULL);
+  g_object_set (g->m[M_SRC2]->elem,
+      "freq", (gdouble) 110.0, "wave", 1, "blocksize", 22050, NULL);
 
   /* create a main-loop */
   g->loop = g_main_loop_new (NULL, FALSE);
@@ -693,7 +694,7 @@ main (int argc, char **argv)
 
   gst_element_seek_simple ((GstElement *) g->bin, GST_FORMAT_TIME,
       GST_SEEK_FLAG_FLUSH, G_GINT64_CONSTANT (0));
-  
+
   gst_element_set_state ((GstElement *) g->bin, GST_STATE_PLAYING);
 
   /* run a main-loop */

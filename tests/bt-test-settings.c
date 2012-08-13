@@ -22,7 +22,7 @@
  *
  * Non-persistent stub implementation to programmatically test application
  * settings.
- */ 
+ */
 
 #define BT_CORE
 #define BT_TEST_SETTINGS_C
@@ -32,10 +32,11 @@
 #include "core.h"
 #include "bt-test-settings.h"
 
-struct _BtTestSettingsPrivate {
+struct _BtTestSettingsPrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* key=value array, keys are defined in BtSettings */
   GValue *settings[BT_SETTINGS_COUNT];
 };
@@ -53,12 +54,14 @@ G_DEFINE_TYPE (BtTestSettings, bt_test_settings, BT_TYPE_SETTINGS);
  *
  * Returns: the new instance
  */
-BtTestSettings *bt_test_settings_new(void) {
+BtTestSettings *
+bt_test_settings_new (void)
+{
   BtTestSettings *self;
-  self=BT_TEST_SETTINGS(g_object_new(BT_TYPE_TEST_SETTINGS,NULL));
-  
-  GST_INFO("created new settings object from factory %p",self);
-  return(self);
+  self = BT_TEST_SETTINGS (g_object_new (BT_TYPE_TEST_SETTINGS, NULL));
+
+  GST_INFO ("created new settings object from factory %p", self);
+  return (self);
 }
 
 //-- methods
@@ -67,10 +70,13 @@ BtTestSettings *bt_test_settings_new(void) {
 
 //-- class internals
 
-static void bt_test_settings_get_property(GObject * const object,const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  const BtTestSettings * const self = BT_TEST_SETTINGS(object);
-  GValue *prop=self->priv->settings[property_id];
-  return_if_disposed();
+static void
+bt_test_settings_get_property (GObject * const object, const guint property_id,
+    GValue * const value, GParamSpec * const pspec)
+{
+  const BtTestSettings *const self = BT_TEST_SETTINGS (object);
+  GValue *prop = self->priv->settings[property_id];
+  return_if_disposed ();
 
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK:
@@ -83,13 +89,14 @@ static void bt_test_settings_get_property(GObject * const object,const guint pro
     case BT_SETTINGS_FOLDER_SAMPLE:
     case BT_SETTINGS_PRESENTED_TIPS:
     {
-      if(prop) {
-        g_value_set_string(value, g_value_get_string(prop));
+      if (prop) {
+        g_value_set_string (value, g_value_get_string (prop));
+      } else {
+        g_value_set_static_string (value,
+            ((GParamSpecString *) pspec)->default_value);
       }
-      else {
-        g_value_set_static_string(value, ((GParamSpecString *)pspec)->default_value);
-      }
-    } break;
+    }
+      break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
     case BT_SETTINGS_MENU_STATUSBAR_HIDE:
     case BT_SETTINGS_MENU_TABS_HIDE:
@@ -98,48 +105,53 @@ static void bt_test_settings_get_property(GObject * const object,const guint pro
     case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:
     case BT_SETTINGS_SHOW_TIPS:
     {
-      if(prop) {
-        g_value_set_boolean(value, g_value_get_boolean(prop));
+      if (prop) {
+        g_value_set_boolean (value, g_value_get_boolean (prop));
+      } else {
+        g_value_set_boolean (value,
+            ((GParamSpecBoolean *) pspec)->default_value);
       }
-      else {
-        g_value_set_boolean(value, ((GParamSpecBoolean *)pspec)->default_value);
-      }
-    } break; 
+    }
+      break;
     case BT_SETTINGS_SAMPLE_RATE:
     case BT_SETTINGS_CHANNELS:
     case BT_SETTINGS_LATENCY:
     case BT_SETTINGS_NEWS_SEEN:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
     {
-      if(prop) {
-        g_value_set_uint(value, g_value_get_uint(prop));
+      if (prop) {
+        g_value_set_uint (value, g_value_get_uint (prop));
+      } else {
+        g_value_set_uint (value, ((GParamSpecUInt *) pspec)->default_value);
       }
-      else {
-        g_value_set_uint(value, ((GParamSpecUInt *)pspec)->default_value);
-      }
-    } break;
+    }
+      break;
     case BT_SETTINGS_WINDOW_XPOS:
     case BT_SETTINGS_WINDOW_YPOS:
     case BT_SETTINGS_WINDOW_WIDTH:
     case BT_SETTINGS_WINDOW_HEIGHT:
     {
-      if(prop) {
-        g_value_set_int(value, g_value_get_int(prop));
+      if (prop) {
+        g_value_set_int (value, g_value_get_int (prop));
+      } else {
+        g_value_set_int (value, ((GParamSpecInt *) pspec)->default_value);
       }
-      else {
-        g_value_set_int(value, ((GParamSpecInt *)pspec)->default_value);
-      }
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    }
+      break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static void bt_test_settings_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtTestSettings * const self = BT_TEST_SETTINGS(object);
-  GValue *prop=self->priv->settings[property_id];
-  return_if_disposed();
+static void
+bt_test_settings_set_property (GObject * const object, const guint property_id,
+    const GValue * const value, GParamSpec * const pspec)
+{
+  const BtTestSettings *const self = BT_TEST_SETTINGS (object);
+  GValue *prop = self->priv->settings[property_id];
+  return_if_disposed ();
 
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK:
@@ -151,115 +163,135 @@ static void bt_test_settings_set_property(GObject * const object, const guint pr
     case BT_SETTINGS_FOLDER_SAMPLE:
     case BT_SETTINGS_PRESENTED_TIPS:
     {
-      if(!prop) {
-        self->priv->settings[property_id]=prop=g_new0(GValue,1);
-        g_value_init(prop,G_TYPE_STRING);
+      if (!prop) {
+        self->priv->settings[property_id] = prop = g_new0 (GValue, 1);
+        g_value_init (prop, G_TYPE_STRING);
       }
-      g_value_set_string(prop, g_value_get_string(value));
-    } break;
+      g_value_set_string (prop, g_value_get_string (value));
+    }
+      break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
     case BT_SETTINGS_MENU_STATUSBAR_HIDE:
     case BT_SETTINGS_MENU_TABS_HIDE:
     case BT_SETTINGS_SHOW_TIPS:
     {
-      if(!prop) {
-        self->priv->settings[property_id]=prop=g_new0(GValue,1);
-        g_value_init(prop,G_TYPE_BOOLEAN);
+      if (!prop) {
+        self->priv->settings[property_id] = prop = g_new0 (GValue, 1);
+        g_value_init (prop, G_TYPE_BOOLEAN);
       }
-      g_value_set_boolean(prop, g_value_get_boolean(value));
-    } break; 
+      g_value_set_boolean (prop, g_value_get_boolean (value));
+    }
+      break;
     case BT_SETTINGS_SAMPLE_RATE:
     case BT_SETTINGS_CHANNELS:
     case BT_SETTINGS_LATENCY:
     case BT_SETTINGS_NEWS_SEEN:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
     {
-      if(!prop) {
-        self->priv->settings[property_id]=prop=g_new0(GValue,1);
-        g_value_init(prop,G_TYPE_UINT);
+      if (!prop) {
+        self->priv->settings[property_id] = prop = g_new0 (GValue, 1);
+        g_value_init (prop, G_TYPE_UINT);
       }
-      g_value_set_uint(prop, g_value_get_uint(value));
-    } break;
+      g_value_set_uint (prop, g_value_get_uint (value));
+    }
+      break;
     case BT_SETTINGS_WINDOW_XPOS:
     case BT_SETTINGS_WINDOW_YPOS:
     case BT_SETTINGS_WINDOW_WIDTH:
     case BT_SETTINGS_WINDOW_HEIGHT:
     {
-      if(!prop) {
-        self->priv->settings[property_id]=prop=g_new0(GValue,1);
-        g_value_init(prop,G_TYPE_INT);
+      if (!prop) {
+        self->priv->settings[property_id] = prop = g_new0 (GValue, 1);
+        g_value_init (prop, G_TYPE_INT);
       }
-      g_value_set_int(prop, g_value_get_int(value));
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+      g_value_set_int (prop, g_value_get_int (value));
+    }
+      break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static void bt_test_settings_dispose(GObject * const object) {
-  const BtTestSettings * const self = BT_TEST_SETTINGS(object);
+static void
+bt_test_settings_dispose (GObject * const object)
+{
+  const BtTestSettings *const self = BT_TEST_SETTINGS (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
-  
-  GST_DEBUG("!!!! self=%p",self);
-  G_OBJECT_CLASS(bt_test_settings_parent_class)->dispose(object);
+
+  GST_DEBUG ("!!!! self=%p", self);
+  G_OBJECT_CLASS (bt_test_settings_parent_class)->dispose (object);
 }
 
-static void bt_test_settings_finalize(GObject * const object) {
-  const BtTestSettings * const self = BT_TEST_SETTINGS(object);
+static void
+bt_test_settings_finalize (GObject * const object)
+{
+  const BtTestSettings *const self = BT_TEST_SETTINGS (object);
   guint i;
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG ("!!!! self=%p", self);
 
   // SETTINGS start at 1
-  for(i=1;i<BT_SETTINGS_COUNT;i++) {
-    if(self->priv->settings[i]) {
-      g_value_unset(self->priv->settings[i]);
-      g_free(self->priv->settings[i]);
+  for (i = 1; i < BT_SETTINGS_COUNT; i++) {
+    if (self->priv->settings[i]) {
+      g_value_unset (self->priv->settings[i]);
+      g_free (self->priv->settings[i]);
     }
   }
 
-  G_OBJECT_CLASS(bt_test_settings_parent_class)->finalize(object);
+  G_OBJECT_CLASS (bt_test_settings_parent_class)->finalize (object);
 }
 
-static void bt_test_settings_init(BtTestSettings *self) {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_TEST_SETTINGS, BtTestSettingsPrivate);
-  memset(self->priv->settings,0,BT_SETTINGS_COUNT*sizeof(gpointer));
+static void
+bt_test_settings_init (BtTestSettings * self)
+{
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_TEST_SETTINGS,
+      BtTestSettingsPrivate);
+  memset (self->priv->settings, 0, BT_SETTINGS_COUNT * sizeof (gpointer));
 }
 
-static void bt_test_settings_class_init(BtTestSettingsClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+static void
+bt_test_settings_class_init (BtTestSettingsClass * const klass)
+{
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private(klass,sizeof(BtTestSettingsPrivate));
+  g_type_class_add_private (klass, sizeof (BtTestSettingsPrivate));
 
   gobject_class->set_property = bt_test_settings_set_property;
   gobject_class->get_property = bt_test_settings_get_property;
-  gobject_class->dispose      = bt_test_settings_dispose;
-  gobject_class->finalize     = bt_test_settings_finalize;
+  gobject_class->dispose = bt_test_settings_dispose;
+  gobject_class->finalize = bt_test_settings_finalize;
 }
 
 /* helper to test otherwise readonly settings */
-void bt_test_settings_set(BtTestSettings * const self, gchar *property_name, gpointer value) {
-  guint property_id=0;
-  
-  if(!strcmp(property_name,"system-audiosink")) property_id=BT_SETTINGS_SYSTEM_AUDIOSINK;
-  if(!strcmp(property_name,"toolbar-style")) property_id=BT_SETTINGS_SYSTEM_TOOLBAR_STYLE;
-  
+void
+bt_test_settings_set (BtTestSettings * const self, gchar * property_name,
+    gpointer value)
+{
+  guint property_id = 0;
+
+  if (!strcmp (property_name, "system-audiosink"))
+    property_id = BT_SETTINGS_SYSTEM_AUDIOSINK;
+  if (!strcmp (property_name, "toolbar-style"))
+    property_id = BT_SETTINGS_SYSTEM_TOOLBAR_STYLE;
+
   switch (property_id) {
     case BT_SETTINGS_SYSTEM_AUDIOSINK:
-    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
-      gchar **ptr = (gchar **)value;
+    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:{
+      gchar **ptr = (gchar **) value;
       gchar *val = *ptr;
-      GValue *prop=self->priv->settings[property_id];
+      GValue *prop = self->priv->settings[property_id];
 
-      if(!prop) {
-        self->priv->settings[property_id]=prop=g_new0(GValue,1);
-        g_value_init(prop,G_TYPE_STRING);
+      if (!prop) {
+        self->priv->settings[property_id] = prop = g_new0 (GValue, 1);
+        g_value_init (prop, G_TYPE_STRING);
       }
-      g_value_set_string(prop, val);
-    } break;
+      g_value_set_string (prop, val);
+    }
+      break;
   }
 }
-

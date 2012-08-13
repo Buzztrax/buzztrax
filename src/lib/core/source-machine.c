@@ -31,11 +31,12 @@
 
 //-- the class
 
-static void bt_source_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+static void bt_source_machine_persistence_interface_init (gpointer const
+    g_iface, gpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtSourceMachine, bt_source_machine, BT_TYPE_MACHINE,
-  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
-    bt_source_machine_persistence_interface_init));
+    G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+        bt_source_machine_persistence_interface_init));
 
 
 //-- pad templates
@@ -62,87 +63,106 @@ GST_STATIC_PAD_TEMPLATE ("src%d",
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtSourceMachine *bt_source_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices, GError **err) {
-  return(BT_SOURCE_MACHINE(g_object_new(BT_TYPE_SOURCE_MACHINE,"construction-error",err,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL)));
+BtSourceMachine *
+bt_source_machine_new (const BtSong * const song, const gchar * const id,
+    const gchar * const plugin_name, const glong voices, GError ** err)
+{
+  return (BT_SOURCE_MACHINE (g_object_new (BT_TYPE_SOURCE_MACHINE,
+              "construction-error", err, "song", song, "id", id, "plugin-name",
+              plugin_name, "voices", voices, NULL)));
 }
 
 //-- methods
 
 //-- io interface
 
-static xmlNodePtr bt_source_machine_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node) {
-  const BtSourceMachine * const self = BT_SOURCE_MACHINE(persistence);
-  const BtPersistenceInterface * const parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
-  xmlNodePtr node=NULL;
-  gchar * const plugin_name;
+static xmlNodePtr
+bt_source_machine_persistence_save (const BtPersistence * const persistence,
+    xmlNodePtr const parent_node)
+{
+  const BtSourceMachine *const self = BT_SOURCE_MACHINE (persistence);
+  const BtPersistenceInterface *const parent_iface =
+      g_type_interface_peek_parent (BT_PERSISTENCE_GET_INTERFACE (persistence));
+  xmlNodePtr node = NULL;
+  gchar *const plugin_name;
   gulong voices;
 
-  GST_DEBUG("PERSISTENCE::source-machine");
+  GST_DEBUG ("PERSISTENCE::source-machine");
 
   // save parent class stuff
-  if((node=parent_iface->save(persistence,parent_node))) {
-    xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("source"));
+  if ((node = parent_iface->save (persistence, parent_node))) {
+    xmlNewProp (node, XML_CHAR_PTR ("type"), XML_CHAR_PTR ("source"));
 
-    g_object_get((gpointer)self,"plugin-name",&plugin_name,"voices",&voices,NULL);
-    xmlNewProp(node,XML_CHAR_PTR("plugin-name"),XML_CHAR_PTR(plugin_name));
-    xmlNewProp(node,XML_CHAR_PTR("voices"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(voices)));
-    g_free(plugin_name);
+    g_object_get ((gpointer) self, "plugin-name", &plugin_name, "voices",
+        &voices, NULL);
+    xmlNewProp (node, XML_CHAR_PTR ("plugin-name"), XML_CHAR_PTR (plugin_name));
+    xmlNewProp (node, XML_CHAR_PTR ("voices"),
+        XML_CHAR_PTR (bt_persistence_strfmt_ulong (voices)));
+    g_free (plugin_name);
   }
-  return(node);
+  return (node);
 }
 
-static BtPersistence *bt_source_machine_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
+static BtPersistence *
+bt_source_machine_persistence_load (const GType type,
+    const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    va_list var_args)
+{
   BtSourceMachine *self;
   BtPersistence *result;
   BtPersistenceInterface *parent_iface;
 
-  xmlChar * const id=xmlGetProp(node,XML_CHAR_PTR("id"));
-  xmlChar * const plugin_name=xmlGetProp(node,XML_CHAR_PTR("plugin-name"));
-  xmlChar * const voices_str=xmlGetProp(node,XML_CHAR_PTR("voices"));
-  const gulong voices=voices_str?atol((char *)voices_str):0;
+  xmlChar *const id = xmlGetProp (node, XML_CHAR_PTR ("id"));
+  xmlChar *const plugin_name = xmlGetProp (node, XML_CHAR_PTR ("plugin-name"));
+  xmlChar *const voices_str = xmlGetProp (node, XML_CHAR_PTR ("voices"));
+  const gulong voices = voices_str ? atol ((char *) voices_str) : 0;
 
-  if(!persistence) {
-    BtSong *song=NULL;
+  if (!persistence) {
+    BtSong *song = NULL;
     gchar *param_name;
     va_list va;
 
-    G_VA_COPY(va,var_args);
+    G_VA_COPY (va, var_args);
     // we need to get parameters from var_args
-    param_name=va_arg(va,gchar*);
-    while(param_name) {
-      if(!strcmp(param_name,"song")) {
-        song=va_arg(va, gpointer);
-      }
-      else {
-        GST_WARNING("unhandled argument: %s",param_name);
+    param_name = va_arg (va, gchar *);
+    while (param_name) {
+      if (!strcmp (param_name, "song")) {
+        song = va_arg (va, gpointer);
+      } else {
+        GST_WARNING ("unhandled argument: %s", param_name);
         break;
       }
-      param_name=va_arg(va,gchar*);
+      param_name = va_arg (va, gchar *);
     }
 
-    self=bt_source_machine_new(song,(gchar*)id,(gchar *)plugin_name,voices,err);
-    result=BT_PERSISTENCE(self);
+    self =
+        bt_source_machine_new (song, (gchar *) id, (gchar *) plugin_name,
+        voices, err);
+    result = BT_PERSISTENCE (self);
     va_end (va);
-  }
-  else {
-    self=BT_SOURCE_MACHINE(persistence);
-    result=BT_PERSISTENCE(persistence);
+  } else {
+    self = BT_SOURCE_MACHINE (persistence);
+    result = BT_PERSISTENCE (persistence);
 
-    g_object_set(self,"plugin-name",plugin_name,"voices",voices,NULL);
+    g_object_set (self, "plugin-name", plugin_name, "voices", voices, NULL);
   }
-  xmlFree(id);
-  xmlFree(plugin_name);
-  xmlFree(voices_str);
+  xmlFree (id);
+  xmlFree (plugin_name);
+  xmlFree (voices_str);
 
   // load parent class stuff
-  parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(result));
-  parent_iface->load(BT_TYPE_MACHINE,result,node,NULL,var_args);
+  parent_iface =
+      g_type_interface_peek_parent (BT_PERSISTENCE_GET_INTERFACE (result));
+  parent_iface->load (BT_TYPE_MACHINE, result, node, NULL, var_args);
 
-  return(result);
+  return (result);
 }
 
-static void bt_source_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
-  BtPersistenceInterface * const iface = g_iface;
+static void
+bt_source_machine_persistence_interface_init (gpointer const g_iface,
+    gpointer const iface_data)
+{
+  BtPersistenceInterface *const iface = g_iface;
 
   iface->load = bt_source_machine_persistence_load;
   iface->save = bt_source_machine_persistence_save;
@@ -152,77 +172,87 @@ static void bt_source_machine_persistence_interface_init(gpointer const g_iface,
 
 //-- bt_machine overrides
 
-static gboolean bt_source_machine_check_type(const BtMachine * const self, const gulong pad_src_ct, const gulong pad_sink_ct) {
-  if(pad_src_ct==0 || pad_sink_ct>0) {
-    GST_ERROR_OBJECT(self,"plugin has %lu src pads instead of >0 and %lu sink pads instead of 0",
-      pad_src_ct,pad_sink_ct);
-    return(FALSE);
+static gboolean
+bt_source_machine_check_type (const BtMachine * const self,
+    const gulong pad_src_ct, const gulong pad_sink_ct)
+{
+  if (pad_src_ct == 0 || pad_sink_ct > 0) {
+    GST_ERROR_OBJECT (self,
+        "plugin has %lu src pads instead of >0 and %lu sink pads instead of 0",
+        pad_src_ct, pad_sink_ct);
+    return (FALSE);
   }
-  return(TRUE);
+  return (TRUE);
 }
 
 //-- g_object overrides
 
-static void bt_source_machine_constructed(GObject *object) {
-  BtSourceMachine * const self=BT_SOURCE_MACHINE(object);
+static void
+bt_source_machine_constructed (GObject * object)
+{
+  BtSourceMachine *const self = BT_SOURCE_MACHINE (object);
   GError **err;
 
-  GST_INFO("source-machine constructed");
+  GST_INFO ("source-machine constructed");
 
-  G_OBJECT_CLASS(bt_source_machine_parent_class)->constructed(object);
+  G_OBJECT_CLASS (bt_source_machine_parent_class)->constructed (object);
 
-  g_object_get(self,"construction-error",&err,NULL);
-  if(err==NULL || *err==NULL) {
-    GstElement * const element;
-    BtSong * const song;
+  g_object_get (self, "construction-error", &err, NULL);
+  if (err == NULL || *err == NULL) {
+    GstElement *const element;
+    BtSong *const song;
     BtSetup *setup;
-    BtPattern *pattern;
-    BtMachine *machine=(BtMachine *)self;
+    BtMachine *machine = (BtMachine *) self;
 
-    g_object_get(self,"machine",&element,"song",&song,NULL);
-    if(GST_IS_BASE_SRC(element)) {
+    g_object_get (self, "machine", &element, "song", &song, NULL);
+    if (GST_IS_BASE_SRC (element)) {
       // don't ever again get the idea to turn of is_live for basesrc elements
       // if they are live, they are, no matter what we want
       //  we get "can't record audio fast enough"
-      if(gst_base_src_is_live((GstBaseSrc *)element)) {
-        if(GST_IS_BASE_AUDIO_SRC(element)) {
-          g_object_set(element,"buffer-time",150*GST_MSECOND,NULL);
+      if (gst_base_src_is_live ((GstBaseSrc *) element)) {
+        if (GST_IS_BASE_AUDIO_SRC (element)) {
+          g_object_set (element, "buffer-time", 150 * GST_MSECOND, NULL);
         }
       }
     }
-    gst_object_unref(element);
-    pattern=bt_pattern_new_with_event(song,machine,BT_PATTERN_CMD_SOLO);
-    g_object_unref(pattern);
+    gst_object_unref (element);
+    g_object_unref (bt_cmd_pattern_new (song, machine, BT_PATTERN_CMD_SOLO));
 
-    bt_machine_activate_spreader(machine);
-    bt_machine_enable_output_gain(machine);
+    bt_machine_activate_spreader (machine);
+    bt_machine_enable_output_gain (machine);
 
-    GST_INFO_OBJECT(self,"machine %p,ref_ct=%d has been constructed",self,G_OBJECT_REF_COUNT(self));
+    GST_INFO_OBJECT (self, "machine %p,ref_ct=%d has been constructed", self,
+        G_OBJECT_REF_COUNT (self));
 
     // add the machine to the setup of the song
-    g_object_get(song,"setup",&setup,NULL);
-    bt_setup_add_machine(setup,machine);
-    g_object_unref(setup);
+    g_object_get (song, "setup", &setup, NULL);
+    bt_setup_add_machine (setup, machine);
+    g_object_unref (setup);
 
-    g_object_unref(song);
-    GST_INFO_OBJECT(self,"machine %p,ref_ct=%d has been added",self,G_OBJECT_REF_COUNT(self));
+    g_object_unref (song);
+    GST_INFO_OBJECT (self, "machine %p,ref_ct=%d has been added", self,
+        G_OBJECT_REF_COUNT (self));
   }
 }
 
 //-- class internals
 
-static void bt_source_machine_init(BtSourceMachine *self) {
+static void
+bt_source_machine_init (BtSourceMachine * self)
+{
 }
 
-static void bt_source_machine_class_init(BtSourceMachineClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
-  GstElementClass * const gstelement_klass = GST_ELEMENT_CLASS(klass);
-  BtMachineClass * const machine_class = BT_MACHINE_CLASS(klass);
+static void
+bt_source_machine_class_init (BtSourceMachineClass * const klass)
+{
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
+  GstElementClass *const gstelement_klass = GST_ELEMENT_CLASS (klass);
+  BtMachineClass *const machine_class = BT_MACHINE_CLASS (klass);
 
-  gobject_class->constructed  = bt_source_machine_constructed;
+  gobject_class->constructed = bt_source_machine_constructed;
 
-  machine_class->check_type   = bt_source_machine_check_type;
+  machine_class->check_type = bt_source_machine_check_type;
 
-  gst_element_class_add_pad_template(gstelement_klass, gst_static_pad_template_get(&machine_src_template));
+  gst_element_class_add_pad_template (gstelement_klass,
+      gst_static_pad_template_get (&machine_src_template));
 }
-

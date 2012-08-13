@@ -21,59 +21,154 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
-static void test_setup(void) {
-  bt_core_setup();
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_teardown(void) {
-  bt_core_teardown();
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  song = bt_song_new (app);
 }
+
+static void
+test_teardown (void)
+{
+  g_object_checked_unref (song);
+  g_object_checked_unref (app);
+}
+
+static void
+case_teardown (void)
+{
+}
+
 
 //-- tests
 
-/*
- * try creating a pattern for a NULL machine, with an invalid id and an invalid
- * name
- */
-BT_START_TEST(test_btpattern_obj1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtPattern *pattern=NULL;
+static void
+test_bt_pattern_properties (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  /* act & assert */
+  fail_unless (check_gobject_properties ((GObject *) pattern), NULL);
 
-  check_init_error_trapp("bt_pattern_","BT_IS_MACHINE(self->priv->machine)");
-  pattern=bt_pattern_new(song,"pattern-id","pattern-name",1L,NULL);
-  fail_unless(check_has_error_trapped(), NULL);
-  fail_unless(pattern != NULL, NULL);
-  g_object_unref(pattern);
-
-  check_init_error_trapp("bt_pattern_","BT_IS_STRING(self->priv->id)");
-  pattern=bt_pattern_new(song,NULL,"pattern-name",1L,NULL);
-  fail_unless(check_has_error_trapped(), NULL);
-  fail_unless(pattern != NULL, NULL);
-  g_object_unref(pattern);
-
-  check_init_error_trapp("bt_pattern_","BT_IS_STRING(self->priv->name)");
-  pattern=bt_pattern_new(song,"pattern-id",NULL,1L,NULL);
-  fail_unless(check_has_error_trapped(), NULL);
-  fail_unless(pattern != NULL, NULL);
-  g_object_unref(pattern);
-
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-TCase *bt_pattern_test_case(void) {
-  TCase *tc = tcase_create("BtPatternTests");
+static void
+test_bt_pattern_new_null_machine (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  check_init_error_trapp ("bt_pattern_", "BT_IS_MACHINE (self->priv->machine)");
 
-  tcase_add_test(tc,test_btpattern_obj1);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  /* act */
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 1L, NULL);
+
+  /* assert */
+  fail_unless (check_has_error_trapped (), NULL);
+  fail_unless (pattern != NULL, NULL);
+
+  /* cleanup */
+  g_object_unref (pattern);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_new_null_id (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztard-test-mono-source", 0, NULL));
+  check_init_error_trapp ("bt_cmd_pattern_", "BT_IS_STRING (self->priv->id)");
+
+  /* act */
+  BtPattern *pattern = bt_pattern_new (song, NULL, "pattern-name", 1L, machine);
+
+  /* assert */
+  fail_unless (check_has_error_trapped (), NULL);
+  fail_unless (pattern != NULL, NULL);
+
+  /* cleanup */
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_new_null_name (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztard-test-mono-source", 0, NULL));
+  check_init_error_trapp ("bt_cmd_pattern_", "BT_IS_STRING (self->priv->name)");
+
+  /* act */
+  BtPattern *pattern = bt_pattern_new (song, "pattern-id", NULL, 1L, machine);
+
+  /* assert */
+  fail_unless (check_has_error_trapped (), NULL);
+  fail_unless (pattern != NULL, NULL);
+
+  /* cleanup */
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_get_group_by_null_paramgroup (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztard-test-mono-source", 0, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 1L, machine);
+
+  /* act && assert */
+  fail_unless (bt_pattern_get_group_by_parameter_group (pattern, NULL) == NULL,
+      NULL);
+
+  /* cleanup */
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  BT_TEST_END;
+}
+
+TCase *
+bt_pattern_test_case (void)
+{
+  TCase *tc = tcase_create ("BtPatternTests");
+
+  tcase_add_test (tc, test_bt_pattern_properties);
+  tcase_add_test (tc, test_bt_pattern_new_null_machine);
+  tcase_add_test (tc, test_bt_pattern_new_null_id);
+  tcase_add_test (tc, test_bt_pattern_new_null_name);
+  tcase_add_test (tc, test_bt_pattern_get_group_by_null_paramgroup);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

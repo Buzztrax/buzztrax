@@ -54,17 +54,20 @@
 
 //-- property ids
 
-enum {
-  CRASH_RECOVER_DIALOG_ENTRIES=1,
+enum
+{
+  CRASH_RECOVER_DIALOG_ENTRIES = 1,
 };
 
-enum {
-  COL_LOG_NAME=0,
+enum
+{
+  COL_LOG_NAME = 0,
   COL_SONG_FILE_NAME,
   COL_CHANGE_TS
 };
 
-struct _BtCrashRecoverDialogPrivate {
+struct _BtCrashRecoverDialogPrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -81,109 +84,128 @@ G_DEFINE_TYPE (BtCrashRecoverDialog, bt_crash_recover_dialog, GTK_TYPE_DIALOG);
 
 //-- helper
 
-static gboolean check_selection(BtCrashRecoverDialog *self,GtkTreeModel **model,GtkTreeIter *iter) {
+static gboolean
+check_selection (BtCrashRecoverDialog * self, GtkTreeModel ** model,
+    GtkTreeIter * iter)
+{
   GtkTreeSelection *selection;
 
-  selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->entries_list));
-  return gtk_tree_selection_get_selected(selection, model, iter);
+  selection =
+      gtk_tree_view_get_selection (GTK_TREE_VIEW (self->priv->entries_list));
+  return gtk_tree_selection_get_selected (selection, model, iter);
 }
 
-static gchar *get_selected(BtCrashRecoverDialog *self) {
+static gchar *
+get_selected (BtCrashRecoverDialog * self)
+{
   GtkTreeModel *model;
   GtkTreeIter iter;
-  gchar *log_name=NULL;
+  gchar *log_name = NULL;
 
-  if(check_selection(self, &model, &iter)) {
-    gtk_tree_model_get(model,&iter,COL_LOG_NAME,&log_name,-1);
+  if (check_selection (self, &model, &iter)) {
+    gtk_tree_model_get (model, &iter, COL_LOG_NAME, &log_name, -1);
   }
-  return(log_name);
+  return (log_name);
 }
 
-static void remove_selected(BtCrashRecoverDialog *self) {
+static void
+remove_selected (BtCrashRecoverDialog * self)
+{
   GtkTreeModel *model;
   GtkTreeIter iter;
 
-  if(check_selection(self, &model, &iter)) {
-    GtkTreeIter next_iter=iter;
-    gboolean have_next=(gtk_tree_model_iter_next(model,&next_iter) || gtk_tree_model_get_iter_first(model,&next_iter));
+  if (check_selection (self, &model, &iter)) {
+    GtkTreeIter next_iter = iter;
+    gboolean have_next = (gtk_tree_model_iter_next (model, &next_iter)
+        || gtk_tree_model_get_iter_first (model, &next_iter));
 
-    gtk_list_store_remove(GTK_LIST_STORE(model),&iter);
-    if(have_next) {
-      gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->entries_list)),&next_iter);
+    gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+    if (have_next) {
+      gtk_tree_selection_select_iter (gtk_tree_view_get_selection (GTK_TREE_VIEW
+              (self->priv->entries_list)), &next_iter);
     }
   }
 }
 
 //-- event handler
 
-static void on_list_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data) {
-  gint max_height=gdk_screen_get_height(gdk_screen_get_default())/2;
-  gint height=2+MIN(requisition->height,max_height);
+static void
+on_list_size_request (GtkWidget * widget, GtkRequisition * requisition,
+    gpointer user_data)
+{
+  gint max_height = gdk_screen_get_height (gdk_screen_get_default ()) / 2;
+  gint height = 2 + MIN (requisition->height, max_height);
 
   /* make sure the dialog resize without scrollbar until it would reach half
    * screen height */
-  GST_DEBUG(" height=%d",height);
-  gtk_widget_set_size_request(gtk_widget_get_parent(widget),-1,height);
+  GST_DEBUG (" height=%d", height);
+  gtk_widget_set_size_request (gtk_widget_get_parent (widget), -1, height);
 }
 
-static void on_recover_clicked(GtkButton *button, gpointer user_data) {
-  BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(user_data);
-  gchar *log_name=get_selected(self);
-  gboolean res=FALSE;
+static void
+on_recover_clicked (GtkButton * button, gpointer user_data)
+{
+  BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG (user_data);
+  gchar *log_name = get_selected (self);
+  gboolean res = FALSE;
   BtMainWindow *main_window;
 
-  if(log_name) {
-    BtChangeLog *change_log=bt_change_log_new();
+  if (log_name) {
+    BtChangeLog *change_log = bt_change_log_new ();
 
-    GST_INFO("recovering: %s",log_name);
-    if(bt_change_log_recover(change_log,log_name)) {
-      remove_selected(self);
-      res=TRUE;
+    GST_INFO ("recovering: %s", log_name);
+    if (bt_change_log_recover (change_log, log_name)) {
+      remove_selected (self);
+      res = TRUE;
     }
-    g_free(log_name);
-    g_object_try_unref(change_log);
+    g_free (log_name);
+    g_object_try_unref (change_log);
   }
-  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  g_object_get (self->priv->app, "main-window", &main_window, NULL);
   /* close the recovery dialog */
-  gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_CLOSE);
-  if(res) {
-    /* the song recovery has been finished */ 
-    bt_dialog_message(main_window,_("Recovery finished"),
-      _("The selected song has been recovered successful."),
-      _("Please check the song and save it if everything is alright.")
-    );
+  gtk_dialog_response (GTK_DIALOG (self), GTK_RESPONSE_CLOSE);
+  if (res) {
+    /* the song recovery has been finished */
+    bt_dialog_message (main_window, _("Recovery finished"),
+        _("The selected song has been recovered successful."),
+        _("Please check the song and save it if everything is alright.")
+        );
   } else {
     /* FIXME(ensonic): the log is still there
      * - this dialog should be a warning
      * - ev. we want to suggest to ask for support
      */
-    bt_dialog_message(main_window,_("Recovery failed"),
-      _("Sorry, the selected song could not be fully recovered."),
-      _("Please check the song and save it if still looks good.")
-    );
+    bt_dialog_message (main_window, _("Recovery failed"),
+        _("Sorry, the selected song could not be fully recovered."),
+        _("Please check the song and save it if still looks good.")
+        );
   }
-  g_object_unref(main_window);
+  g_object_unref (main_window);
 }
 
-static void on_delete_clicked(GtkButton *button, gpointer user_data) {
-  BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(user_data);
-  gchar *log_name=get_selected(self);
+static void
+on_delete_clicked (GtkButton * button, gpointer user_data)
+{
+  BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG (user_data);
+  gchar *log_name = get_selected (self);
 
-  if(log_name) {
-    g_remove(log_name);
-    remove_selected(self);
-    g_free(log_name);
+  if (log_name) {
+    g_remove (log_name);
+    remove_selected (self);
+    g_free (log_name);
     /* if that was the last entry, close dialog */
-    if(!check_selection(self, NULL, NULL)) {
-    	gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_CLOSE);
+    if (!check_selection (self, NULL, NULL)) {
+      gtk_dialog_response (GTK_DIALOG (self), GTK_RESPONSE_CLOSE);
     }
   }
 }
 
 //-- helper methods
 
-static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
-  GtkWidget *label,*icon,*hbox,*vbox,*btn,*entries_view;
+static void
+bt_crash_recover_dialog_init_ui (const BtCrashRecoverDialog * self)
+{
+  GtkWidget *label, *icon, *hbox, *vbox, *btn, *entries_view;
   gchar *str;
   GtkCellRenderer *renderer;
   GtkListStore *store;
@@ -191,86 +213,95 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
   GList *node;
   BtChangeLogFile *crash_entry;
 
-  GST_DEBUG("prepare crash recover dialog");
+  GST_DEBUG ("prepare crash recover dialog");
 
-  gtk_widget_set_name(GTK_WIDGET(self),"Unsaved song recovery");
-  gtk_window_set_title(GTK_WINDOW(self),_("Unsaved song recovery"));
+  gtk_widget_set_name (GTK_WIDGET (self), "Unsaved song recovery");
+  gtk_window_set_title (GTK_WINDOW (self), _("Unsaved song recovery"));
 
   // add dialog commision widgets (okay)
   // FIXME(ensonic): add Okay, Cancel, Delete
   // select song + okay -> recover
   // select song + delete -> remove log
-  gtk_dialog_add_buttons(GTK_DIALOG(self),
-                          GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
-                          NULL);
+  gtk_dialog_add_buttons (GTK_DIALOG (self),
+      GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE, NULL);
 
   // content area
-  hbox=gtk_hbox_new(FALSE,12);
-  gtk_container_set_border_width(GTK_CONTAINER(hbox),6);
+  hbox = gtk_hbox_new (FALSE, 12);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
 
-  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
-  gtk_box_pack_start(GTK_BOX(hbox),icon,FALSE,FALSE,0);
+  icon = gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
+  gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
 
-  vbox=gtk_vbox_new(FALSE,6);
-  str=g_strdup_printf("<big><b>%s</b></big>\n%s\n",_("Unsaved songs found"),_("Select them one by one and choose 'recover' or 'delete'."));
-  label=g_object_new(GTK_TYPE_LABEL,"use-markup",TRUE,"label",str,NULL);
-  g_free(str);
-  gtk_box_pack_start(GTK_BOX(vbox),label,FALSE,FALSE,0);
+  vbox = gtk_vbox_new (FALSE, 6);
+  str =
+      g_strdup_printf ("<big><b>%s</b></big>\n%s\n", _("Unsaved songs found"),
+      _("Select them one by one and choose 'recover' or 'delete'."));
+  label = g_object_new (GTK_TYPE_LABEL, "use-markup", TRUE, "label", str, NULL);
+  g_free (str);
+  gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
 
-  self->priv->entries_list=GTK_TREE_VIEW(gtk_tree_view_new());
-  g_object_set(self->priv->entries_list,
-    "enable-search",FALSE,
-    "rules-hint",TRUE,
-    /*"fixed-height-mode",TRUE,*/ // causes the first column to be not shown (or getting width=0)
-    NULL);
-  gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->entries_list),GTK_SELECTION_BROWSE);
-  g_signal_connect(self->priv->entries_list,"size-request",G_CALLBACK(on_list_size_request),(gpointer)self);
-  renderer=gtk_cell_renderer_text_new();
-  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
+  self->priv->entries_list = GTK_TREE_VIEW (gtk_tree_view_new ());
+  g_object_set (self->priv->entries_list,
+      "enable-search", FALSE, "rules-hint", TRUE,
+      /*"fixed-height-mode",TRUE, */// causes the first column to be not shown (or getting width=0)
+      NULL);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
+          entries_list), GTK_SELECTION_BROWSE);
+  g_signal_connect (self->priv->entries_list, "size-request",
+      G_CALLBACK (on_list_size_request), (gpointer) self);
+  renderer = gtk_cell_renderer_text_new ();
+  gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
+      (renderer), 1);
   /* column listing song file names to recover */
-  gtk_tree_view_insert_column_with_attributes(self->priv->entries_list,-1,_("Song file"),renderer,
-    "text",COL_SONG_FILE_NAME,
-    NULL);
-  renderer=gtk_cell_renderer_text_new();
-  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
+  gtk_tree_view_insert_column_with_attributes (self->priv->entries_list, -1,
+      _("Song file"), renderer, "text", COL_SONG_FILE_NAME, NULL);
+  renderer = gtk_cell_renderer_text_new ();
+  gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
+      (renderer), 1);
   /* column listing song file names to recover */
-  gtk_tree_view_insert_column_with_attributes(self->priv->entries_list,-1,_("Last changed"),renderer,
-    "text",COL_CHANGE_TS,
-    NULL);
+  gtk_tree_view_insert_column_with_attributes (self->priv->entries_list, -1,
+      _("Last changed"), renderer, "text", COL_CHANGE_TS, NULL);
 
   // fill model from self->priv->entries
-  store=gtk_list_store_new(3,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_STRING);
-  for(node=self->priv->entries;node;node=g_list_next(node)) {
-    crash_entry=(BtChangeLogFile *)node->data;
-    gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,
-      COL_LOG_NAME,crash_entry->log_name,
-      COL_SONG_FILE_NAME,crash_entry->song_file_name,
-      COL_CHANGE_TS,crash_entry->change_ts,
-      -1);
+  store = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+  for (node = self->priv->entries; node; node = g_list_next (node)) {
+    crash_entry = (BtChangeLogFile *) node->data;
+    gtk_list_store_append (store, &tree_iter);
+    gtk_list_store_set (store, &tree_iter,
+        COL_LOG_NAME, crash_entry->log_name,
+        COL_SONG_FILE_NAME, crash_entry->song_file_name,
+        COL_CHANGE_TS, crash_entry->change_ts, -1);
   }
-  gtk_tree_view_set_model(self->priv->entries_list,GTK_TREE_MODEL(store));
-  g_object_unref(store); // drop with treeview
+  gtk_tree_view_set_model (self->priv->entries_list, GTK_TREE_MODEL (store));
+  g_object_unref (store);       // drop with treeview
 
-  entries_view = gtk_scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(entries_view), GTK_SHADOW_IN);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(entries_view), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  gtk_container_add(GTK_CONTAINER(entries_view),GTK_WIDGET(self->priv->entries_list));
+  entries_view = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (entries_view),
+      GTK_SHADOW_IN);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (entries_view),
+      GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_container_add (GTK_CONTAINER (entries_view),
+      GTK_WIDGET (self->priv->entries_list));
 
-  gtk_box_pack_start(GTK_BOX(vbox),entries_view,TRUE,TRUE,0);
+  gtk_box_pack_start (GTK_BOX (vbox), entries_view, TRUE, TRUE, 0);
 
-  gtk_box_pack_start(GTK_BOX(hbox),vbox,TRUE,TRUE,0);
-  gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(self))),hbox,TRUE,TRUE,0);
+  gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
+      hbox, TRUE, TRUE, 0);
 
   // add "undelete" button to action area
   // GTK_STOCK_REVERT_TO_SAVED
-  btn=gtk_button_new_with_label(_("Recover"));
-  g_signal_connect(btn, "clicked", G_CALLBACK(on_recover_clicked), (gpointer)self);
-  gtk_box_pack_start(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(self))),btn,FALSE,FALSE,0);
+  btn = gtk_button_new_with_label (_("Recover"));
+  g_signal_connect (btn, "clicked", G_CALLBACK (on_recover_clicked),
+      (gpointer) self);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_action_area (GTK_DIALOG (self))),
+      btn, FALSE, FALSE, 0);
 
-  btn=gtk_button_new_from_stock(GTK_STOCK_DELETE);
-  g_signal_connect(btn, "clicked", G_CALLBACK(on_delete_clicked), (gpointer)self);
-  gtk_box_pack_start(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(self))),btn,FALSE,FALSE,0);
+  btn = gtk_button_new_from_stock (GTK_STOCK_DELETE);
+  g_signal_connect (btn, "clicked", G_CALLBACK (on_delete_clicked),
+      (gpointer) self);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_action_area (GTK_DIALOG (self))),
+      btn, FALSE, FALSE, 0);
 }
 
 //-- constructor methods
@@ -283,12 +314,16 @@ static void bt_crash_recover_dialog_init_ui(const BtCrashRecoverDialog *self) {
  *
  * Returns: the new instance
  */
-BtCrashRecoverDialog *bt_crash_recover_dialog_new(GList *crash_entries) {
+BtCrashRecoverDialog *
+bt_crash_recover_dialog_new (GList * crash_entries)
+{
   BtCrashRecoverDialog *self;
 
-  self=BT_CRASH_RECOVER_DIALOG(g_object_new(BT_TYPE_CRASH_RECOVER_DIALOG,"entries",crash_entries,NULL));
-  bt_crash_recover_dialog_init_ui(self);
-  return(self);
+  self =
+      BT_CRASH_RECOVER_DIALOG (g_object_new (BT_TYPE_CRASH_RECOVER_DIALOG,
+          "entries", crash_entries, NULL));
+  bt_crash_recover_dialog_init_ui (self);
+  return (self);
 }
 
 //-- methods
@@ -297,50 +332,62 @@ BtCrashRecoverDialog *bt_crash_recover_dialog_new(GList *crash_entries) {
 
 //-- class internals
 
-static void bt_crash_recover_dialog_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-  BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(object);
-  return_if_disposed();
+static void
+bt_crash_recover_dialog_set_property (GObject * object, guint property_id,
+    const GValue * value, GParamSpec * pspec)
+{
+  BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG (object);
+  return_if_disposed ();
   switch (property_id) {
-    case CRASH_RECOVER_DIALOG_ENTRIES: {
-      self->priv->entries = g_value_get_pointer(value);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case CRASH_RECOVER_DIALOG_ENTRIES:{
+      self->priv->entries = g_value_get_pointer (value);
+    }
+      break;
+    default:{
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+      break;
   }
 }
 
-static void bt_crash_recover_dialog_dispose(GObject *object) {
-  BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG(object);
+static void
+bt_crash_recover_dialog_dispose (GObject * object)
+{
+  BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p",self);
-  g_object_unref(self->priv->app);
+  GST_DEBUG ("!!!! self=%p", self);
+  g_object_unref (self->priv->app);
 
-  G_OBJECT_CLASS(bt_crash_recover_dialog_parent_class)->dispose(object);
+  G_OBJECT_CLASS (bt_crash_recover_dialog_parent_class)->dispose (object);
 }
 
-static void bt_crash_recover_dialog_init(BtCrashRecoverDialog *self) {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_CRASH_RECOVER_DIALOG, BtCrashRecoverDialogPrivate);
-  GST_DEBUG("!!!! self=%p",self);
-  self->priv->app = bt_edit_application_new();
+static void
+bt_crash_recover_dialog_init (BtCrashRecoverDialog * self)
+{
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_CRASH_RECOVER_DIALOG,
+      BtCrashRecoverDialogPrivate);
+  GST_DEBUG ("!!!! self=%p", self);
+  self->priv->app = bt_edit_application_new ();
 }
 
-static void bt_crash_recover_dialog_class_init(BtCrashRecoverDialogClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void
+bt_crash_recover_dialog_class_init (BtCrashRecoverDialogClass * klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private(klass,sizeof(BtCrashRecoverDialogPrivate));
+  g_type_class_add_private (klass, sizeof (BtCrashRecoverDialogPrivate));
 
   gobject_class->set_property = bt_crash_recover_dialog_set_property;
-  gobject_class->dispose      = bt_crash_recover_dialog_dispose;
+  gobject_class->dispose = bt_crash_recover_dialog_dispose;
 
-  g_object_class_install_property(gobject_class,CRASH_RECOVER_DIALOG_ENTRIES,
-                                  g_param_spec_pointer("entries",
-                                     "entries construct prop",
-                                     "Set crash-entry list, the dialog handles",
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, CRASH_RECOVER_DIALOG_ENTRIES,
+      g_param_spec_pointer ("entries",
+          "entries construct prop",
+          "Set crash-entry list, the dialog handles",
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 
 }
-

@@ -23,33 +23,56 @@
 
 //-- fixtures
 
-static void test_setup(void) {
-  bt_ic_setup();
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_teardown(void) {
-  bt_ic_teardown();
-  //puts(__FILE__":teardown");
+static void
+test_setup (void)
+{
+}
+
+static void
+test_teardown (void)
+{
+}
+
+
+static void
+case_teardown (void)
+{
 }
 
 //-- tests
 
 // test if the normal init call works with commandline arguments (no args)
-START_TEST(test_registry_create0) {
-  BtIcRegistry *registry;
+static void
+test_btic_registry_create0 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
 
-  registry=btic_registry_new();
-  fail_unless(registry!=NULL, NULL);
+  /* act */
+  BtIcRegistry *registry = btic_registry_new ();
 
-  g_object_checked_unref(registry);
+  /* assert */
+  fail_unless (registry != NULL, NULL);
+
+  /* cleanup */
+  g_object_checked_unref (registry);
+  BT_TEST_END;
 }
-END_TEST
 
-TCase *bt_registry_example_case(void) {
-  TCase *tc = tcase_create("BticRegistryExamples");
+TCase *
+bt_registry_example_case (void)
+{
+  TCase *tc = tcase_create ("BticRegistryExamples");
 
-  tcase_add_test(tc,test_registry_create0);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_test (tc, test_btic_registry_create0);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

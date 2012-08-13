@@ -30,8 +30,11 @@ static GList *pixmaps_directories = NULL;
  *
  * Use this function to set the directory containing installed pixmaps.
  */
-void add_pixmap_directory(const gchar *directory) {
-  pixmaps_directories = g_list_prepend(pixmaps_directories, g_strdup(directory));
+void
+add_pixmap_directory (const gchar * directory)
+{
+  pixmaps_directories =
+      g_list_prepend (pixmaps_directories, g_strdup (directory));
 }
 
 /*
@@ -43,15 +46,18 @@ void add_pixmap_directory(const gchar *directory) {
  *
  * Returns: the path that has this file. Free returned path after use.
  */
-static gchar *find_pixmap_file(const gchar *filename) {
+static gchar *
+find_pixmap_file (const gchar * filename)
+{
   GList *elem;
 
   /* We step through each of the pixmaps directory to find it. */
   elem = pixmaps_directories;
-  while(elem) {
-    gchar *pathname = g_strconcat((gchar*)elem->data, filename, NULL);
-    if (g_file_test(pathname, G_FILE_TEST_EXISTS)) return pathname;
-    g_free(pathname);
+  while (elem) {
+    gchar *pathname = g_strconcat ((gchar *) elem->data, filename, NULL);
+    if (g_file_test (pathname, G_FILE_TEST_EXISTS))
+      return pathname;
+    g_free (pathname);
     elem = elem->next;
   }
   return NULL;
@@ -65,21 +71,24 @@ static gchar *find_pixmap_file(const gchar *filename) {
  *
  * Returns: a new pixmap widget
  */
-GtkWidget *gtk_image_new_from_filename(const gchar *filename) {
+GtkWidget *
+gtk_image_new_from_filename (const gchar * filename)
+{
   gchar *pathname = NULL;
   GtkWidget *pixmap;
 
-  if(!filename || !filename[0]) return gtk_image_new();
+  if (!filename || !filename[0])
+    return gtk_image_new ();
 
-  pathname = find_pixmap_file(filename);
+  pathname = find_pixmap_file (filename);
 
-  if(!pathname) {
+  if (!pathname) {
     g_warning (_("Couldn't find pixmap file: %s"), filename);
     return gtk_image_new ();
   }
 
-  pixmap = gtk_image_new_from_file(pathname);
-  g_free(pathname);
+  pixmap = gtk_image_new_from_file (pathname);
+  g_free (pathname);
   return pixmap;
 }
 
@@ -91,26 +100,30 @@ GtkWidget *gtk_image_new_from_filename(const gchar *filename) {
  *
  * Returns: a new pixbuf, g_object_unref() when done.
  */
-GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename) {
+GdkPixbuf *
+gdk_pixbuf_new_from_filename (const gchar * filename)
+{
   gchar *pathname = NULL;
   GdkPixbuf *pixbuf;
   GError *error = NULL;
 
-  if(!filename || !filename[0]) return NULL;
+  if (!filename || !filename[0])
+    return NULL;
 
-  pathname = find_pixmap_file(filename);
+  pathname = find_pixmap_file (filename);
 
-  if(!pathname) {
+  if (!pathname) {
     g_warning (_("Couldn't find pixmap file: %s"), filename);
     return NULL;
   }
 
-  pixbuf = gdk_pixbuf_new_from_file(pathname, &error);
-  if(!pixbuf) {
-    fprintf(stderr, "Failed to load pixbuf file: %s: %s\n",pathname, error->message);
-    g_error_free(error);
+  pixbuf = gdk_pixbuf_new_from_file (pathname, &error);
+  if (!pixbuf) {
+    fprintf (stderr, "Failed to load pixbuf file: %s: %s\n", pathname,
+        error->message);
+    g_error_free (error);
   }
-  g_free(pathname);
+  g_free (pathname);
   return pixbuf;
 }
 
@@ -123,28 +136,33 @@ GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename) {
  *
  * Returns: a new pixbuf, g_object_unref() when done.
  */
-GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size) {
+GdkPixbuf *
+gdk_pixbuf_new_from_theme (const gchar * name, gint size)
+{
   GdkPixbuf *pixbuf;
   GError *error = NULL;
-  GtkIconTheme *it=gtk_icon_theme_get_default();
+  GtkIconTheme *it = gtk_icon_theme_get_default ();
 
   /* TODO(ensonic): docs recommend to listen to GtkWidget::style-set and update icon or
    * do gdk_pixbuf_copy() to avoid gtk keeping icon-theme loaded if it changes
-  */
-  if(!(pixbuf=gtk_icon_theme_load_icon(it,name,size,GTK_ICON_LOOKUP_FORCE_SVG|GTK_ICON_LOOKUP_FORCE_SIZE,&error))) {
-    GST_WARNING("Couldn't load %s %dx%d icon: %s",name,size,size,error->message);
-    g_error_free(error);
+   */
+  if (!(pixbuf =
+          gtk_icon_theme_load_icon (it, name, size,
+              GTK_ICON_LOOKUP_FORCE_SVG | GTK_ICON_LOOKUP_FORCE_SIZE,
+              &error))) {
+    GST_WARNING ("Couldn't load %s %dx%d icon: %s", name, size, size,
+        error->message);
+    g_error_free (error);
     /* TODO(ensonic): machine icons are in 'gnome' theme, how can we use this as a
      * fallback
      * gtk_icon_theme_set_custom_theme(it,"gnome");
      * is a bit brutal 
      */
-    return gdk_pixbuf_new(GDK_COLORSPACE_RGB,TRUE,8,size,size);
+    return gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, size, size);
     //return NULL;
-  }
-  else {
-    GdkPixbuf *result = gdk_pixbuf_copy(pixbuf);
-    g_object_unref(pixbuf);
+  } else {
+    GdkPixbuf *result = gdk_pixbuf_copy (pixbuf);
+    g_object_unref (pixbuf);
     return result;
   }
 }
@@ -160,23 +178,22 @@ GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size) {
  *
  * Returns: the style id
  */
-GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name) {
+GtkToolbarStyle
+gtk_toolbar_get_style_from_string (const gchar * style_name)
+{
 
-  g_return_val_if_fail(style_name,GTK_TOOLBAR_BOTH);
+  g_return_val_if_fail (style_name, GTK_TOOLBAR_BOTH);
 
-  if (!strcmp(style_name,"icons")) {
-    return(GTK_TOOLBAR_ICONS);
+  if (!strcmp (style_name, "icons")) {
+    return (GTK_TOOLBAR_ICONS);
+  } else if (!strcmp (style_name, "both")) {
+    return (GTK_TOOLBAR_BOTH);
+  } else if (!strcmp (style_name, "both-horiz")) {
+    return (GTK_TOOLBAR_BOTH_HORIZ);
+  } else if (!strcmp (style_name, "text")) {
+    return (GTK_TOOLBAR_TEXT);
   }
-  else if (!strcmp(style_name,"both")) {
-    return(GTK_TOOLBAR_BOTH);
-  }
-  else if (!strcmp(style_name,"both-horiz")) {
-    return(GTK_TOOLBAR_BOTH_HORIZ);
-  }
-  else if (!strcmp(style_name,"text")) {
-    return(GTK_TOOLBAR_TEXT);
-  }
-  return(GTK_TOOLBAR_BOTH);
+  return (GTK_TOOLBAR_BOTH);
 }
 
 
@@ -188,16 +205,17 @@ GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name) {
  *
  * Grab focus only if widget has been realized and is mapped.
  */
-void gtk_widget_grab_focus_savely(GtkWidget *widget) {
-  gboolean realized=gtk_widget_get_realized(widget);
-  gboolean mapped=gtk_widget_get_mapped(widget);
+void
+gtk_widget_grab_focus_savely (GtkWidget * widget)
+{
+  gboolean realized = gtk_widget_get_realized (widget);
+  gboolean mapped = gtk_widget_get_mapped (widget);
 
-  if(realized && mapped) {
-    gtk_widget_grab_focus(widget);
-  }
-  else {
-    GST_WARNING("not grabbing widget '%s', realized: %d, mapped %d",
-      gtk_widget_get_name(widget),realized,mapped);
+  if (realized && mapped) {
+    gtk_widget_grab_focus (widget);
+  } else {
+    GST_WARNING ("not grabbing widget '%s', realized: %d, mapped %d",
+        gtk_widget_get_name (widget), realized, mapped);
   }
 }
 
@@ -214,7 +232,9 @@ void gtk_widget_grab_focus_savely(GtkWidget *widget) {
  *
  * Returns: the table and the size in the out variable @n_targets 
  */
-GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets) {
+GtkTargetEntry *
+gtk_target_table_make (GdkAtom format_atom, gint * n_targets)
+{
   GtkTargetList *list;
   GtkTargetEntry *targets;
 
@@ -222,15 +242,18 @@ GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets) {
   gtk_target_list_add (list, format_atom, 0, 0);
 #if USE_DEBUG
   // this allows to paste into a text editor
-  gtk_target_list_add (list, gdk_atom_intern_static_string ("UTF8_STRING"), 0, 1);
+  gtk_target_list_add (list, gdk_atom_intern_static_string ("UTF8_STRING"), 0,
+      1);
   gtk_target_list_add (list, gdk_atom_intern_static_string ("TEXT"), 0, 2);
-  gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain"), 0, 3);
-  gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain;charset=utf-8"), 0, 4);
+  gtk_target_list_add (list, gdk_atom_intern_static_string ("text/plain"), 0,
+      3);
+  gtk_target_list_add (list,
+      gdk_atom_intern_static_string ("text/plain;charset=utf-8"), 0, 4);
 #endif
   targets = gtk_target_table_new_from_list (list, n_targets);
   gtk_target_list_unref (list);
-  
-  return(targets);
+
+  return (targets);
 }
 
 
@@ -243,16 +266,18 @@ GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets) {
  * 
  * Show the given @uri. Uses same screen as @widget (default if @widget is NULL).
  */
-void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri) {
-  GError *error=NULL;
-  GdkScreen *screen=NULL;
+void
+gtk_show_uri_simple (GtkWidget * widget, const gchar * uri)
+{
+  GError *error = NULL;
+  GdkScreen *screen = NULL;
 
-  if(widget)
-    screen=gtk_widget_get_screen(widget);
+  if (widget)
+    screen = gtk_widget_get_screen (widget);
 
-  if(!gtk_show_uri(screen,uri,gtk_get_current_event_time(),&error)) {
-    GST_WARNING("Failed to display help: %s\n",error->message);
-    g_error_free(error);
+  if (!gtk_show_uri (screen, uri, gtk_get_current_event_time (), &error)) {
+    GST_WARNING ("Failed to display help: %s\n", error->message);
+    g_error_free (error);
   }
 }
 
@@ -265,11 +290,13 @@ void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri) {
  * Return: %TRUE if the token is found in the env-var.
  */
 #if USE_DEBUG
-gboolean bt_edit_ui_config(const gchar *str) {
-  const gchar *env=g_getenv("BT_EDIT_UI_CFG");
-  if (env && strstr(env, str)) {
-    return(TRUE);
+gboolean
+bt_edit_ui_config (const gchar * str)
+{
+  const gchar *env = g_getenv ("BT_EDIT_UI_CFG");
+  if (env && strstr (env, str)) {
+    return (TRUE);
   }
-  return(FALSE);
+  return (FALSE);
 }
 #endif

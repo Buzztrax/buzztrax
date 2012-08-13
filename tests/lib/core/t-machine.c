@@ -21,214 +21,97 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
-static void test_setup(void) {
-  bt_core_setup();
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
 }
 
-static void test_teardown(void) {
-  bt_core_teardown();
-  //puts(__FILE__":teardown");
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  song = bt_song_new (app);
+}
+
+static void
+test_teardown (void)
+{
+  g_object_checked_unref (song);
+  g_object_checked_unref (app);
+}
+
+static void
+case_teardown (void)
+{
 }
 
 //-- tests
 
-/* this is an abstract base class, which should not be instantiable
- * unfortunately glib manages again to error out here in a fashion that exits the app :(
- */
-/*
-BT_START_TEST(test_btmachine_abstract) {
-  BtMachine *machine;
+static void
+test_bt_machine_add_pattern (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  check_init_error_trapp ("", "BT_IS_CMD_PATTERN (pattern)");
 
-  machine=g_object_new(BT_TYPE_MACHINE,NULL);
-  fail_unless(machine==NULL,NULL);
+  /* act */
+  bt_machine_add_pattern (gen1, NULL);
+
+  /* assert */
+  fail_unless (check_has_error_trapped (), NULL);
+
+  /* cleanup */
+  g_object_try_unref (gen1);
+  BT_TEST_END;
 }
-BT_END_TEST
-*/
 
-/*
- * audiotestsrc | volume | audio_sink
- * mute audiotestsrc, mute volume, unmute volume, test if volume still is muted
- */
-BT_START_TEST(test_btmachine_state1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  GError *err=NULL;
-  // machines
-  BtSourceMachine *source=NULL;
-  BtProcessorMachine *volume=NULL;
-  BtSinkMachine *sink=NULL;
-  // wires
-  BtWire *wire_src_proc=NULL;
-  BtWire *wire_proc_sink=NULL;
-  // machine states
-  BtMachineState state_ref;
+// FIXME(ensonic): is this really testing something?
+static void
+test_bt_machine_names (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen2",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  g_object_get(song,"setup",&setup,NULL);
+  /* act */
+  g_object_set (gen1, "id", "beep1", NULL);
+  g_object_set (gen2, "id", "beep2", NULL);
+  BtWire *wire2 = bt_wire_new (song, gen1, sink, NULL);
+  BtWire *wire1 = bt_wire_new (song, gen2, sink, NULL);
 
-  /* create a new source machine */
-  source=bt_source_machine_new(song,"source","audiotestsrc",0,&err);
+  /* assert */
+  mark_point ();
 
-  /* create a new processor machine */
-  volume=bt_processor_machine_new(song,"volume","volume",0,&err);
-
-  /* create a new sink machine */
-  sink=bt_sink_machine_new(song, "alsasink",&err);
-
-  /* create wire (src,proc) */
-  wire_src_proc=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(volume),&err);
-
-  /* create wire (proc,sink) */
-  wire_proc_sink=bt_wire_new(song,BT_MACHINE(volume),BT_MACHINE(sink),&err);
-
-  /* start setting the states */
-  g_object_set(source,"state",BT_MACHINE_STATE_MUTE,NULL);
-  g_object_get(source,"state",&state_ref,NULL);
-  fail_unless(state_ref==BT_MACHINE_STATE_MUTE,NULL);
-
-  g_object_set(volume,"state",BT_MACHINE_STATE_MUTE,NULL);
-  g_object_get(volume,"state",&state_ref,NULL);
-  fail_unless(state_ref==BT_MACHINE_STATE_MUTE,NULL);
-
-  g_object_set(source,"state",BT_MACHINE_STATE_NORMAL,NULL);
-  g_object_get(source,"state",&state_ref,NULL);
-  fail_unless(state_ref==BT_MACHINE_STATE_NORMAL,NULL);
-
-  g_object_get(volume,"state",&state_ref,NULL);
-  fail_unless(state_ref==BT_MACHINE_STATE_MUTE,NULL);
-
-  g_object_unref(wire_proc_sink);
-  g_object_unref(wire_src_proc);
-  g_object_unref(sink);
-  g_object_unref(volume);
-  g_object_unref(source);
-  g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref (wire1);
+  g_object_unref (wire2);
+  g_object_unref (sink);
+  g_object_unref (gen2);
+  g_object_unref (gen1);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-/*
- * audiotestsrc1, audiotestsrc2 | audio_sink
- * solo audiotestsrc1, solo audiotestsrc2, test that audiotestsrc1 is not solo
- */
-BT_START_TEST(test_btmachine_state2) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  GError *err=NULL;
-  // machines
-  BtSourceMachine *sine1=NULL;
-  BtSourceMachine *sine2=NULL;
-  BtSinkMachine *sink=NULL;
-  // wires
-  BtWire *wire_sine1_sink=NULL;
-  BtWire *wire_sine2_sink=NULL;
-  // machine states
-  BtMachineState state_ref;
+TCase *
+bt_machine_test_case (void)
+{
+  TCase *tc = tcase_create ("BtMachineTests");
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  g_object_get(song,"setup",&setup,NULL);
-
-  /* create a new sine source machine */
-  sine1=bt_source_machine_new(song,"sine1","audiotestsrc",0,&err);
-
-  /* create a new sine source machine */
-  sine2=bt_source_machine_new(song,"sine2","audiotestsrc",0,&err);
-
-  /* create a new sink machine */
-  sink=bt_sink_machine_new(song,"alsasink",&err);
-
-  /* create wire (sine1,src) */
-  wire_sine1_sink=bt_wire_new(song,BT_MACHINE(sine1),BT_MACHINE(sink),&err);
-
-  /* create wire (sine2,src) */
-  wire_sine2_sink=bt_wire_new(song,BT_MACHINE(sine2),BT_MACHINE(sink),&err);
-  mark_point();
-
-  /* start setting the states */
-  g_object_set(sine1,"state",BT_MACHINE_STATE_SOLO,NULL);
-  g_object_set(sine2,"state",BT_MACHINE_STATE_SOLO,NULL);
-  g_object_get(sine1,"state",&state_ref,NULL);
-  fail_unless(state_ref!=BT_MACHINE_STATE_SOLO,NULL);
-
-  g_object_unref(wire_sine1_sink);
-  g_object_unref(wire_sine2_sink);
-  g_object_unref(sink);
-  g_object_unref(sine2);
-  g_object_unref(sine1);
-  g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-/*
- * create two machines from the same type, rename them and then link them in
- * checks that we ensure unique names
- */
-BT_START_TEST(test_btmachine_names) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  GError *err=NULL;
-  // machines
-  BtSourceMachine *sine1=NULL;
-  BtSourceMachine *sine2=NULL;
-  BtSinkMachine *sink=NULL;
-  // wires
-  BtWire *wire_sine1_sink=NULL;
-  BtWire *wire_sine2_sink=NULL;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  g_object_get(song,"setup",&setup,NULL);
-
-  /* create a new sine source machine */
-  sine1=bt_source_machine_new(song,"sine1","audiotestsrc",0,&err);
-  g_object_set(sine1, "id", "beep1", NULL);
-
-  /* create a new sine source machine */
-  sine2=bt_source_machine_new(song,"sine2","audiotestsrc",0,&err);
-  g_object_set(sine2, "id", "beep2", NULL);
-
-  /* create a new sink machine */
-  sink=bt_sink_machine_new(song,"alsasink",&err);
-  mark_point();
-
-  /* create wires */
-  wire_sine2_sink=bt_wire_new(song,BT_MACHINE(sine2),BT_MACHINE(sink),&err);
-  wire_sine1_sink=bt_wire_new(song,BT_MACHINE(sine1),BT_MACHINE(sink),&err);
-  mark_point();
-
-  g_object_unref(wire_sine1_sink);
-  g_object_unref(wire_sine2_sink);
-  g_object_unref(sink);
-  g_object_unref(sine2);
-  g_object_unref(sine1);
-  g_object_unref(setup);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-TCase *bt_machine_test_case(void) {
-  TCase *tc = tcase_create("BtMachineTests");
-
-  // TODO(ensonic): try catching the critical log
-  //tcase_add_test(tc, test_btmachine_abstract);
-  tcase_add_test(tc, test_btmachine_state1);
-  tcase_add_test(tc, test_btmachine_state2);
-  tcase_add_test(tc, test_btmachine_names);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_machine_add_pattern);
+  tcase_add_test (tc, test_bt_machine_names);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

@@ -30,7 +30,12 @@ G_BEGIN_DECLS
 #define BT_IS_CHILD_PROXY(obj)	          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_CHILD_PROXY))
 #define BT_CHILD_PROXY_GET_INTERFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), BT_TYPE_CHILD_PROXY, BtChildProxyInterface))
 
-typedef struct _BtChildProxy BtChildProxy;    /* dummy object */
+/**
+ * BtChildProxy:
+ *
+ * Opaque interface handle.
+ */
+typedef struct _BtChildProxy BtChildProxy;
 typedef struct _BtChildProxyInterface BtChildProxyInterface;
 
 /**

@@ -2,9 +2,13 @@
 browser
 connection?
 controller
+event
+event.*
+event_*.*
 gst?
 fmtnego
 latency
+latencies_*/
 link?
 loop?
 net?
