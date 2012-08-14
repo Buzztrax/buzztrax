@@ -24,14 +24,13 @@
  * A dialog to configure static settings of a #BtMachine.
  */
 
-/* TODO(ensonic): filter certain properties (tempo iface, ...)
- *
- * TODO(ensonic): we have a few notifies, but not for all types
+/* TODO(ensonic): we have a few notifies, but not for all types
  * - do we need them at all? who else could change things?
- *
- * TODO(ensonic): we should only be able to have one preferences for each machien type
- *
- * TODO(ensonic): save the chosen settings somewhere
+ */
+/* TODO(ensonic): we should only be able to have one preferences for each
+ *   machine type
+ */
+/* TODO(ensonic): save the chosen settings somewhere
  * - gconf would need some sort of schema
  */
 
@@ -67,6 +66,9 @@ G_DEFINE_TYPE (BtMachinePreferencesDialog, bt_machine_preferences_dialog,
     GTK_TYPE_WINDOW);
 
 //-- event handler
+
+static void on_combobox_property_changed (GtkComboBox * combobox,
+    gpointer user_data);
 
 static void
 on_range_property_notify (const GstElement * machine, GParamSpec * property,
@@ -115,7 +117,13 @@ on_combobox_property_notify (const GstElement * machine, GParamSpec * property,
       break;
   } while (gtk_tree_model_iter_next (store, &iter));
 
+  g_signal_handlers_block_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_combobox_property_changed, (gpointer) machine);
   gtk_combo_box_set_active_iter (GTK_COMBO_BOX (widget), &iter);
+  g_signal_handlers_unblock_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_combobox_property_changed, (gpointer) machine);
 }
 
 
@@ -208,11 +216,17 @@ on_combobox_property_changed (GtkComboBox * combobox, gpointer user_data)
   GtkTreeIter iter;
 
   GST_INFO ("preferences value change received for: '%s'", name);
-  //value=gtk_combo_box_get_active(combobox);
   store = gtk_combo_box_get_model (combobox);
   if (gtk_combo_box_get_active_iter (combobox, &iter)) {
     gtk_tree_model_get (store, &iter, 0, &value, -1);
+    GST_INFO ("change preferences value for: '%s' to %d", name, value);
+    g_signal_handlers_block_matched (machine,
+        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+        on_combobox_property_notify, (gpointer) combobox);
     g_object_set (machine, name, value, NULL);
+    g_signal_handlers_unblock_matched (machine,
+        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+        on_combobox_property_notify, (gpointer) combobox);
   }
   bt_edit_application_set_song_unsaved (self->priv->app);
 }
@@ -270,7 +284,9 @@ skip_property (GstElement * element, GParamSpec * pspec)
   if (pspec->flags & GST_PARAM_CONTROLLABLE)
     return (TRUE);
   // skip uneditable gobject propertes properties
-  else if (G_TYPE_IS_CLASSED (pspec->value_type))
+  else if (G_TYPE_IS_OBJECT (pspec->value_type))
+    return (TRUE);
+  else if (G_TYPE_IS_INTERFACE (pspec->value_type))
     return (TRUE);
   else if (pspec->value_type == G_TYPE_POINTER)
     return (TRUE);
@@ -372,8 +388,7 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
           (scrolled_window), GTK_SHADOW_NONE);
 
       // add machine preferences into the table
-      table =
-          gtk_table_new ( /*rows= */ props /*+1 (space eater) */ , /*columns= */
+      table = gtk_table_new ( /*rows= */ props /*+1 (space eater) */ ,  /*columns= */
           3, /*homogenous= */ FALSE);
       gtk_container_set_border_width (GTK_CONTAINER (table), 6);
       g_signal_connect (table, "size-request",
@@ -482,7 +497,7 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
             GtkCellRenderer *renderer;
             GtkListStore *store;
             GtkTreeIter iter;
-            gint value, ivalue;
+            gint value;
 
             widget1 = gtk_combo_box_new ();
             GST_INFO ("enum range: %d, %d", enum_class->minimum,
@@ -493,7 +508,6 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
                 value++) {
               if ((enum_value = g_enum_get_value (enum_class, value))) {
                 //GST_INFO("enum value: %d, '%s', '%s'",enum_value->value,enum_value->value_name,enum_value->value_nick);
-                //gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(widget1),enum_value->value_nick);
                 gtk_list_store_append (store, &iter);
                 gtk_list_store_set (store, &iter,
                     0, enum_value->value, 1, enum_value->value_nick, -1);
@@ -509,20 +523,11 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
                 "text", 1, NULL);
             gtk_combo_box_set_model (GTK_COMBO_BOX (widget1),
                 GTK_TREE_MODEL (store));
-
-            g_object_get (machine, property->name, &value, NULL);
-            gtk_tree_model_get_iter_first (GTK_TREE_MODEL (store), &iter);
-            do {
-              gtk_tree_model_get ((GTK_TREE_MODEL (store)), &iter, 0, &ivalue,
-                  -1);
-              if (ivalue == value)
-                break;
-            } while (gtk_tree_model_iter_next (GTK_TREE_MODEL (store), &iter));
-
-            gtk_combo_box_set_active_iter (GTK_COMBO_BOX (widget1), &iter);
             gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
             g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
                 (gpointer) self);
+
+            on_combobox_property_notify (machine, property, (gpointer) widget1);
 
             signal_name = g_strdup_printf ("notify::%s", property->name);
             g_signal_connect (machine, signal_name,
@@ -534,8 +539,7 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
           }
             break;
           default:{
-            gchar *str =
-                g_strdup_printf ("unhandled type \"%s\"",
+            gchar *str = g_strdup_printf ("unhandled type \"%s\"",
                 G_PARAM_SPEC_TYPE_NAME (property));
             widget1 = gtk_label_new (str);
             g_free (str);
@@ -648,6 +652,8 @@ bt_machine_preferences_dialog_dispose (GObject * object)
       NULL, on_range_property_notify, NULL);
   g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
       NULL, on_double_entry_property_notify, NULL);
+  g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
+      NULL, on_combobox_property_notify, NULL);
   g_object_unref (machine);
 
   g_object_try_unref (self->priv->machine);
