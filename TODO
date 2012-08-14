@@ -14,9 +14,28 @@
     * check g_main_context_set_poll_func()
     * or really *run* the main-loop (not just iterate)
       * for this our tests would be scattered over several signal handlers
+* test infrastructure
+  * add a stub song-io saver
+  * add a stub processor machine
+  * add a test application to be able to make the application abstract 
 * review tests
-  * ensure we follow Given/When/Then style
+  * ensure we follow Arrange/Act/assert or Given/When/Then style
     http://en.wikipedia.org/wiki/Behavior_Driven_Development
+  * check that each class is covered by test suites
+    (cd src/lib/core; ls -1 *.c) | grep -v "marshal" >/tmp/c1.txt;
+    (cd tests/lib/core/; ls -1 s-*.c | cut -c3-) >/tmp/c2.txt;
+    comm -2 -3 /tmp/c{1,2}.txt
+    rm /tmp/{1,2}.txt
+  * check that all public api is used in tests
+    nm --defined-only .libs/libbuzztard-core.a | grep " T " | cut -d' ' -f3 | grep -v "marshal" | sort >/tmp/m1.txt;
+    nm --undefined-only .libs/libbtcore-check.a | grep " U bt" | cut -c20- | sort | uniq >/tmp/m2.txt;
+    comm -2 -3 /tmp/m{1,2}.txt
+    
+    grep ");" src/lib/core/core.h | cut -d'(' -f1 | cut -d' ' -f2 | cut -d'*' -f2
+    find src/lib/core -name "*.h" -exec grep ");" {} \; | cut -d'(' -f1 | cut -d' ' -f2 | cut -d'*' -f2
+
+  * check that we use loop-tests
+    find lib/ -name "*.c" -exec egrep -Hn "(for|while)\s*\(" {} \; | egrep -v "(:\s*\*|://)"
 
 
 * new stats
@@ -51,6 +70,21 @@
         patterns that apply at a given time
 
 
+* OSC support
+  * settings
+    * the OSC port for listening
+    * add song to path (/<song>/...)
+  * namespace
+    * ../<machine>/set_{wire,global,voice}_param 
+    * ../<machine>/set_{mute,solo,bypass}
+    * ../<machine>/<pattern>/set_{wire,global,voice}_event
+    * ../{play,stop,pause}
+  * ui (if osc enabled)
+    * show the osc path both in machine and pattern view
+    * eventually make it editable (ensure unique)
+    * store with song
+
+
 * undo/redo/journaling
   - links
     http://www.buzztard.org/index.php/Undo,_redo
@@ -66,6 +100,72 @@
       - machine/wire parameters
     - wavetable view
     - info view
+  - order of serialisation and destruction
+    - see main-page-machines.c:1512
+    - use g_signal_connect_after() for the '-removed' handler that are
+      destructive (search for '-removed",G_CALLBACK') can help
+    - g_object_add_weak_ref is not useful as the object is already gone
+    - example: bt_setup_remove_machine
+      - what we want:
+        machine data {
+          track data
+          pattern data 0
+          ...
+          pattern data n
+        }
+      - what happens:
+        emit "removed" signal
+          pre:
+            main-page-machines:on_machine_removed: beg log undo/redo + machine-data
+            main-page-sequence:on_machine_removed: track data + remove track
+          default: bt_setup_on_machine_removed ?
+            foreach pattern do: bt_machine_remove_pattern
+              emit "removed" signal
+                pre:
+                  main-page-patterns:on_pattern_removed: beg log undo/redo + pattern data
+                  main-page-sequence:on_pattern_removed: no track -> skip
+                default: bt_machine_on_pattern_removed ?
+                  -
+                after:
+                  end log undo/redo
+              remove & unref
+          after:
+            end log undo/redo
+        remove & unref
+    - generic phases:
+      1) owner:before_xxx_removed: beg log undo/redo + xxx data
+      2) others:on_xxx_removed: log other object
+      3) children: emit 'removed'
+      4) owner: after_xxx_removed: end log undo/redo
+      5) remove & unref
+    - it is probably easier to have explicit api in the participating UI object
+      - we will not rely on the signals
+      - before calling xxx_remove on libcore, we will serialize the objects
+
+
+* Hide libxml2 use behind a PersistenceIO interface in a XMLPersistenceIO
+  implementation. The API would also allow to change the implementation to use
+  e.g. json or a binary representation instead. We need an API like:
+  PersistenceIONode: opaque handle
+  // for saving
+  PersistenceIONode *bt_persistence_io_new_node(PersistenceIONode *parent, gchar *name);
+  gboolean bt_persistence_io_set_value(PersistenceIONode *parent, gchar *value);
+  gboolean bt_persistence_io_set_attribute(PersistenceIONode *parent, gchar *name, gchar *value);
+  // a varargs function that takes (gchar *name, GType type, <type> value)
+  // triplets, terminated by NULL 
+  gboolean bt_persistence_io_set_attributes(PersistenceIONode *parent, 
+    gchar *name, ...);
+  // collection api ...
+  gboolean bt_persistence_io_set_attributes_from_hash_table(PersistenceIONode *parent, GHashTable *hash_table);
+  
+  // for loading
+  GList *bt_persistence_io_get_nodes(PersistenceIONode *parent);
+  gchar *bt_persistence_io_get_value(PersistenceIONode *parent);
+  gchar *bt_persistence_io_get_attribute(PersistenceIONode *parent, gchar *name);
+  // a varargs function that takes (gchar *name, GType type, <type *> value)
+  // triplets, terminated by NULL 
+  gboolean bt_persistence_io_get_attributes(PersistenceIONode *parent, 
+    gchar *name, ...);
 
 
 * CPU load per machine
@@ -193,6 +293,44 @@
 * pattern and main-page-patterns still contain bits of duplicated code
   * review the pattern api and check if we should use the groups directly
     (run ./api-cleanup.sh to get a report of where the api is used)
+
+
+* sparse enums
+  * we need to avoid them, they cause troubles
+    * with backwards compatibility (we could handle that in the loader)
+    * with stepwise data entry
+  * we need to use them, the allow
+    * useful randomize/blend
+  1) we could use a gint for enum parameters in value-groups and translate them
+    to the machine parameters, filtering out invalid ones
+    * param-group could expose enums as int
+      * no changes in value-group
+      * but probably breakage in the machine UI
+    * value-group maps enum to int (keeping the range)
+      * needs changes in bt_parameter_group_controller_change_value() or
+        bt_sequence_repair_damage_entries() to map  them back
+      * bt_value_group_blend/randomize would still need to check the enum to
+        handle sparse operations
+  2) we could have extra columns in the pattern for each enum column
+    * these columns would have an int type
+    * bt_value_group_set_event() would set the int and the real column if the
+      value is valid
+    * bt_value_group_get_event() would get the real column or the int value if
+      real is not valid
+    * bt_value_group_get_event_data() would get the real column value pointer
+    * invalid values are treated like empty cells
+    * need to change bt_value_group_resize_data_length() and
+      bt_value_group_finalize() for the data alloc/free
+    * Questions:
+      * should blend consider the closest valid value?
+      * do we want API to tell wheter a value is valid
+        * the pattern editor could use the that shade the color of invalid cells
+      * do we also copy shadow data?
+        * when copying patterns or doing copy/paste operations
+      * do we need this for other types? 
+        pattern-editor does already min/max clamping
+     
+    
 
 
 * generate a dependency matrix
