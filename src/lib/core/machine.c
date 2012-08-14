@@ -106,6 +106,7 @@ enum
   MACHINE_ID,
   MACHINE_PLUGIN_NAME,
   MACHINE_VOICES,
+  MACHINE_PROPERTY_PARAMS,
   MACHINE_GLOBAL_PARAMS,
   MACHINE_VOICE_PARAMS,
   MACHINE_MACHINE,
@@ -168,6 +169,8 @@ struct _BtMachinePrivate
 
   /* the number of voices the machine provides */
   gulong voices;
+  /* the number of static params the machine provides per instance */
+  gulong property_params;
   /* the number of dynamic params the machine provides per instance */
   gulong global_params;
   /* the number of dynamic params the machine provides per instance and voice */
@@ -176,7 +179,8 @@ struct _BtMachinePrivate
   /* the current state of the machine */
   BtMachineState state;
 
-  /* dynamic parameter control */
+  /* parameter groups */
+  BtParameterGroup *property_param_group;
   BtParameterGroup *global_param_group, **voice_param_groups;
 
   /* event patterns */
@@ -654,8 +658,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->dst_wires->
-                        data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -683,8 +687,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->src_wires->
-                        data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1206,6 +1210,73 @@ bt_machine_check_type (const BtMachine * const self)
 }
 
 static void
+bt_machine_init_property_params (const BtMachine * const self)
+{
+  GParamSpec **properties;
+  guint number_of_properties;
+  GstElement *machine = self->priv->machines[PART_MACHINE];
+
+  if ((properties =
+          g_object_class_list_properties (G_OBJECT_CLASS (GST_ELEMENT_GET_CLASS
+                  (machine)), &number_of_properties))) {
+    guint i, j;
+    gboolean skip;
+
+    for (i = 0; i < number_of_properties; i++) {
+      skip = FALSE;
+      if (properties[i]->flags & GST_PARAM_CONTROLLABLE)
+        skip = TRUE;
+      // skip uneditable gobject propertes properties
+      else if (G_TYPE_IS_OBJECT (properties[i]->value_type))
+        skip = TRUE;
+      else if (G_TYPE_IS_INTERFACE (properties[i]->value_type))
+        skip = TRUE;
+      else if (properties[i]->value_type == G_TYPE_POINTER)
+        skip = TRUE;
+      // skip baseclass properties
+      else if (!strncmp (properties[i]->name, "name\0", 5))
+        skip = TRUE;
+      else if (properties[i]->owner_type == GST_TYPE_BASE_SRC)
+        skip = TRUE;
+      else if (properties[i]->owner_type == GST_TYPE_BASE_TRANSFORM)
+        skip = TRUE;
+      else if (properties[i]->owner_type == GST_TYPE_BASE_SINK)
+        skip = TRUE;
+      else if (properties[i]->owner_type == GST_TYPE_BIN)
+        skip = TRUE;
+      // skip know interface properties (tempo, childbin)
+      else if (properties[i]->owner_type == GSTBT_TYPE_CHILD_BIN)
+        skip = TRUE;
+      else if (properties[i]->owner_type == GSTBT_TYPE_TEMPO)
+        skip = TRUE;
+
+      if (skip) {
+        properties[i] = NULL;
+      } else {
+        self->priv->property_params++;
+      }
+    }
+    GST_INFO ("found %lu property params", self->priv->property_params);
+    GParamSpec **params =
+        (GParamSpec **) g_new (gpointer, self->priv->property_params);
+    GObject **parents =
+        (GObject **) g_new (gpointer, self->priv->property_params);
+
+    for (i = j = 0; i < number_of_properties; i++) {
+      if (properties[i]) {
+        params[j] = properties[i];
+        parents[j] = (GObject *) machine;
+        j++;
+      }
+    }
+    self->priv->property_param_group =
+        bt_parameter_group_new (self->priv->property_params, parents, params);
+
+    g_free (properties);
+  }
+}
+
+static void
 bt_machine_init_global_params (const BtMachine * const self)
 {
   GParamSpec **properties;
@@ -1228,8 +1299,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1238,25 +1309,25 @@ bt_machine_init_global_params (const BtMachine * const self)
     }
     // count number of controlable params
     for (i = 0; i < number_of_properties; i++) {
-      if (properties[i]->flags & GST_PARAM_CONTROLLABLE) {
+      skip = FALSE;
+      if (!(properties[i]->flags & GST_PARAM_CONTROLLABLE)) {
+        skip = TRUE;
+      } else if (child_properties) {
         // check if this param is also registered as child param, if so skip
-        skip = FALSE;
-        if (child_properties) {
-          for (j = 0; j < number_of_child_properties; j++) {
-            if (!strcmp (properties[i]->name, child_properties[j]->name)) {
-              GST_DEBUG
-                  ("    skipping global_param [%d] \"%s\", due to voice_param[%d]",
-                  i, properties[i]->name, j);
-              skip = TRUE;
-              properties[i] = NULL;
-              break;
-            }
+        for (j = 0; j < number_of_child_properties; j++) {
+          if (!strcmp (properties[i]->name, child_properties[j]->name)) {
+            GST_DEBUG
+                ("    skipping global_param [%d] \"%s\", due to voice_param[%d]",
+                i, properties[i]->name, j);
+            skip = TRUE;
+            break;
           }
         }
-        if (!skip)
-          self->priv->global_params++;
-      } else {
+      }
+      if (skip) {
         properties[i] = NULL;
+      } else {
+        self->priv->global_params++;
       }
     }
     GST_INFO ("found %lu global params", self->priv->global_params);
@@ -1290,8 +1361,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                    machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -1920,6 +1991,22 @@ bt_machine_is_polyphonic (const BtMachine * const self)
 }
 
 /**
+ * bt_machine_get_property_param_group:
+ * @self: the machine
+ *
+ * Get the parameter group of machine properties. Properties are settings that
+ * cannot be changed during playback. 
+ *
+ * Returns: the #BtParameterGroup or %NULL
+ */
+BtParameterGroup *
+bt_machine_get_property_param_group (const BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
+  return self->priv->property_param_group;
+}
+
+/**
  * bt_machine_get_global_param_group:
  * @self: the machine
  *
@@ -2447,7 +2534,8 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
         XML_CHAR_PTR (bt_persistence_strfmt_enum (BT_TYPE_MACHINE_STATE,
                 self->priv->state)));
 
-    // TODO(ensonic): also store non-controllable parameters (preferences) <prefsdata name="" value="">
+    // TODO(ensonic): also store self->priv->property_param_group parameters
+    // (preferences) as <prefsdata name="" value="">
     machine = GST_OBJECT (self->priv->machines[PART_MACHINE]);
     for (i = 0; i < global_params; i++) {
       // skip trigger parameters
@@ -2874,6 +2962,7 @@ bt_machine_constructed (GObject * object)
   GST_DEBUG_OBJECT (self, "machine-ref_ct=%d", G_OBJECT_REF_COUNT (self));
 
   // register params
+  bt_machine_init_property_params (self);
   bt_machine_init_global_params (self);
   bt_machine_init_voice_params (self);
 
@@ -2913,71 +3002,58 @@ bt_machine_get_property (GObject * const object, const guint property_id,
 
   return_if_disposed ();
   switch (property_id) {
-    case MACHINE_CONSTRUCTION_ERROR:{
+    case MACHINE_CONSTRUCTION_ERROR:
       g_value_set_pointer (value, self->priv->constrution_error);
-    }
       break;
-    case MACHINE_PROPERTIES:{
+    case MACHINE_PROPERTIES:
       g_value_set_pointer (value, self->priv->properties);
-    }
       break;
-    case MACHINE_SONG:{
+    case MACHINE_SONG:
       g_value_set_object (value, self->priv->song);
-    }
       break;
-    case MACHINE_ID:{
+    case MACHINE_ID:
       g_value_set_string (value, self->priv->id);
-    }
       break;
-    case MACHINE_PLUGIN_NAME:{
+    case MACHINE_PLUGIN_NAME:
       g_value_set_string (value, self->priv->plugin_name);
-    }
       break;
-    case MACHINE_VOICES:{
+    case MACHINE_VOICES:
       g_value_set_ulong (value, self->priv->voices);
-    }
       break;
-    case MACHINE_GLOBAL_PARAMS:{
+    case MACHINE_PROPERTY_PARAMS:
+      g_value_set_ulong (value, self->priv->property_params);
+      break;
+    case MACHINE_GLOBAL_PARAMS:
       g_value_set_ulong (value, self->priv->global_params);
-    }
       break;
-    case MACHINE_VOICE_PARAMS:{
+    case MACHINE_VOICE_PARAMS:
       g_value_set_ulong (value, self->priv->voice_params);
-    }
       break;
-    case MACHINE_MACHINE:{
+    case MACHINE_MACHINE:
       g_value_set_object (value, self->priv->machines[PART_MACHINE]);
-    }
       break;
-    case MACHINE_ADDER_CONVERT:{
+    case MACHINE_ADDER_CONVERT:
       g_value_set_object (value, self->priv->machines[PART_ADDER_CONVERT]);
-    }
       break;
-    case MACHINE_INPUT_PRE_LEVEL:{
+    case MACHINE_INPUT_PRE_LEVEL:
       g_value_set_object (value, self->priv->machines[PART_INPUT_PRE_LEVEL]);
-    }
       break;
-    case MACHINE_INPUT_GAIN:{
+    case MACHINE_INPUT_GAIN:
       g_value_set_object (value, self->priv->machines[PART_INPUT_GAIN]);
-    }
       break;
-    case MACHINE_INPUT_POST_LEVEL:{
+    case MACHINE_INPUT_POST_LEVEL:
       g_value_set_object (value, self->priv->machines[PART_INPUT_POST_LEVEL]);
-    }
       break;
-    case MACHINE_OUTPUT_PRE_LEVEL:{
+    case MACHINE_OUTPUT_PRE_LEVEL:
       g_value_set_object (value, self->priv->machines[PART_OUTPUT_PRE_LEVEL]);
-    }
       break;
-    case MACHINE_OUTPUT_GAIN:{
+    case MACHINE_OUTPUT_GAIN:
       g_value_set_object (value, self->priv->machines[PART_OUTPUT_GAIN]);
-    }
       break;
-    case MACHINE_OUTPUT_POST_LEVEL:{
+    case MACHINE_OUTPUT_POST_LEVEL:
       g_value_set_object (value, self->priv->machines[PART_OUTPUT_POST_LEVEL]);
-    }
       break;
-    case MACHINE_PATTERNS:{
+    case MACHINE_PATTERNS:
       if (self->priv->patterns) {
         GList *list = g_list_copy (self->priv->patterns);
         g_list_foreach (list, (GFunc) g_object_ref, NULL);
@@ -2985,15 +3061,12 @@ bt_machine_get_property (GObject * const object, const guint property_id,
       } else {
         g_value_set_pointer (value, NULL);
       }
-    }
       break;
-    case MACHINE_STATE:{
+    case MACHINE_STATE:
       g_value_set_enum (value, self->priv->state);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -3006,17 +3079,15 @@ bt_machine_set_property (GObject * const object, const guint property_id,
 
   return_if_disposed ();
   switch (property_id) {
-    case MACHINE_CONSTRUCTION_ERROR:{
+    case MACHINE_CONSTRUCTION_ERROR:
       self->priv->constrution_error = (GError **) g_value_get_pointer (value);
-    }
       break;
-    case MACHINE_SONG:{
+    case MACHINE_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
       //GST_DEBUG_OBJECT(self,"set the song for machine: %p",self->priv->song);
-    }
       break;
-    case MACHINE_ID:{
+    case MACHINE_ID:
       g_free (self->priv->id);
       self->priv->id = g_value_dup_string (value);
       GST_INFO_OBJECT (self, "set the id for machine: %s", self->priv->id);
@@ -3028,14 +3099,12 @@ bt_machine_set_property (GObject * const object, const guint property_id,
           gst_object_unref (parent);
         }
       }
-    }
       break;
-    case MACHINE_PLUGIN_NAME:{
+    case MACHINE_PLUGIN_NAME:
       g_free (self->priv->plugin_name);
       self->priv->plugin_name = g_value_dup_string (value);
       GST_DEBUG_OBJECT (self, "set the plugin_name for machine: %s",
           self->priv->plugin_name);
-    }
       break;
     case MACHINE_VOICES:{
       const gulong voices = self->priv->voices;
@@ -3051,22 +3120,13 @@ bt_machine_set_property (GObject * const object, const guint property_id,
               voices, self->priv->voices);
         }
       }
-    }
       break;
-    case MACHINE_GLOBAL_PARAMS:{
-      self->priv->global_params = g_value_get_ulong (value);
     }
-      break;
-    case MACHINE_VOICE_PARAMS:{
-      self->priv->voice_params = g_value_get_ulong (value);
-    }
-      break;
-    case MACHINE_STATE:{
+    case MACHINE_STATE:
       if (bt_machine_change_state (self, g_value_get_enum (value))) {
         GST_DEBUG_OBJECT (self, "set the state for machine: %d",
             self->priv->state);
       }
-    }
       break;
     default:{
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -3152,6 +3212,7 @@ bt_machine_dispose (GObject * const object)
     }
   }
   // unref param groups
+  g_object_try_unref (self->priv->property_param_group);
   g_object_try_unref (self->priv->global_param_group);
   if (self->priv->voice_param_groups) {
     for (i = 0; i < voices; i++) {
@@ -3278,13 +3339,19 @@ bt_machine_class_init (BtMachineClass * const klass)
           "hashtable of machine properties",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_SONG, g_param_spec_object ("song", "song contruct prop", "song object, the machine belongs to", BT_TYPE_SONG, /* object type */
+  g_object_class_install_property (gobject_class, MACHINE_SONG,
+      g_param_spec_object ("song", "song contruct prop",
+          "song object, the machine belongs to", BT_TYPE_SONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_ID, g_param_spec_string ("id", "id contruct prop", "machine identifier", "unamed machine",    /* default value */
+  g_object_class_install_property (gobject_class, MACHINE_ID,
+      g_param_spec_string ("id", "id contruct prop", "machine identifier",
+          "unamed machine",
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_PLUGIN_NAME, g_param_spec_string ("plugin-name", "plugin-name construct prop", "the name of the gst plugin for the machine", "unamed machine",        /* default value */
+  g_object_class_install_property (gobject_class, MACHINE_PLUGIN_NAME,
+      g_param_spec_string ("plugin-name", "plugin-name construct prop",
+          "the name of the gst plugin for the machine", "unamed machine",
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, MACHINE_VOICES,
@@ -3295,40 +3362,62 @@ bt_machine_class_init (BtMachineClass * const klass)
           G_MAXULONG,
           0, G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class, MACHINE_PROPERTY_PARAMS,
+      g_param_spec_ulong ("property-params",
+          "property-params prop",
+          "number of static params for the machine",
+          0, G_MAXULONG, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
   g_object_class_install_property (gobject_class, MACHINE_GLOBAL_PARAMS,
       g_param_spec_ulong ("global-params",
           "global-params prop",
-          "number of params for the machine",
-          0, G_MAXULONG, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          "number of dynamic params for the machine",
+          0, G_MAXULONG, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, MACHINE_VOICE_PARAMS,
       g_param_spec_ulong ("voice-params",
           "voice-params prop",
-          "number of params for each machine voice",
-          0, G_MAXULONG, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          "number of dynamic params for each machine voice",
+          0, G_MAXULONG, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_MACHINE, g_param_spec_object ("machine", "machine element prop", "the machine element, if any", GST_TYPE_ELEMENT,     /* object type */
+  g_object_class_install_property (gobject_class, MACHINE_MACHINE,
+      g_param_spec_object ("machine", "machine element prop",
+          "the machine element, if any", GST_TYPE_ELEMENT,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_ADDER_CONVERT, g_param_spec_object ("adder-convert", "adder-convert prop", "the after mixing format converter element, if any", GST_TYPE_ELEMENT,     /* object type */
+  g_object_class_install_property (gobject_class, MACHINE_ADDER_CONVERT,
+      g_param_spec_object ("adder-convert", "adder-convert prop",
+          "the after mixing format converter element, if any", GST_TYPE_ELEMENT,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_INPUT_PRE_LEVEL, g_param_spec_object ("input-pre-level", "input-pre-level prop", "the pre-gain input-level element, if any", GST_TYPE_ELEMENT,        /* object type */
+  g_object_class_install_property (gobject_class, MACHINE_INPUT_PRE_LEVEL,
+      g_param_spec_object ("input-pre-level", "input-pre-level prop",
+          "the pre-gain input-level element, if any", GST_TYPE_ELEMENT,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_INPUT_GAIN, g_param_spec_object ("input-gain", "input-gain prop", "the input-gain element, if any", GST_TYPE_ELEMENT, /* object type */
+  g_object_class_install_property (gobject_class, MACHINE_INPUT_GAIN,
+      g_param_spec_object ("input-gain", "input-gain prop",
+          "the input-gain element, if any", GST_TYPE_ELEMENT,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_INPUT_POST_LEVEL, g_param_spec_object ("input-post-level", "input-post-level prop", "the post-gain input-level element, if any", GST_TYPE_ELEMENT,    /* object type */
+  g_object_class_install_property (gobject_class, MACHINE_INPUT_POST_LEVEL,
+      g_param_spec_object ("input-post-level", "input-post-level prop",
+          "the post-gain input-level element, if any", GST_TYPE_ELEMENT,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_OUTPUT_PRE_LEVEL, g_param_spec_object ("output-pre-level", "output-pre-level prop", "the pre-gain output-level element, if any", GST_TYPE_ELEMENT,    /* object type */
+  g_object_class_install_property (gobject_class, MACHINE_OUTPUT_PRE_LEVEL,
+      g_param_spec_object ("output-pre-level", "output-pre-level prop",
+          "the pre-gain output-level element, if any", GST_TYPE_ELEMENT,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_OUTPUT_GAIN, g_param_spec_object ("output-gain", "output-gain prop", "the output-gain element, if any", GST_TYPE_ELEMENT,     /* object type */
+  g_object_class_install_property (gobject_class, MACHINE_OUTPUT_GAIN,
+      g_param_spec_object ("output-gain", "output-gain prop",
+          "the output-gain element, if any", GST_TYPE_ELEMENT,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_OUTPUT_POST_LEVEL, g_param_spec_object ("output-post-level", "output-post-level prop", "the post-gain output-level element, if any", GST_TYPE_ELEMENT,        /* object type */
+  g_object_class_install_property (gobject_class, MACHINE_OUTPUT_POST_LEVEL,
+      g_param_spec_object ("output-post-level", "output-post-level prop",
+          "the post-gain output-level element, if any", GST_TYPE_ELEMENT,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, MACHINE_PATTERNS,
@@ -3338,6 +3427,5 @@ bt_machine_class_init (BtMachineClass * const klass)
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, MACHINE_STATE, g_param_spec_enum ("state", "state prop", "the current state of this machine", BT_TYPE_MACHINE_STATE,  /* enum type */
-          BT_MACHINE_STATE_NORMAL,      /* default value */
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          BT_MACHINE_STATE_NORMAL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

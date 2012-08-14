@@ -26,12 +26,11 @@
 
 /* TODO(ensonic): we have a few notifies, but not for all types
  * - do we need them at all? who else could change things?
- */
-/* TODO(ensonic): we should only be able to have one preferences for each
- *   machine type
+ * - do we do this for entry fields with multiple controls (slider + entry box)?
  */
 /* TODO(ensonic): save the chosen settings somewhere
  * - gconf would need some sort of schema
+ * - see TODO comment in machine.c to save them with the song
  */
 
 #define BT_EDIT
@@ -277,42 +276,6 @@ on_machine_id_changed (const BtMachine * machine, GParamSpec * arg,
 
 //-- helper methods
 
-static gboolean
-skip_property (GstElement * element, GParamSpec * pspec)
-{
-  // skip controlable properties
-  if (pspec->flags & GST_PARAM_CONTROLLABLE)
-    return (TRUE);
-  // skip uneditable gobject propertes properties
-  else if (G_TYPE_IS_OBJECT (pspec->value_type))
-    return (TRUE);
-  else if (G_TYPE_IS_INTERFACE (pspec->value_type))
-    return (TRUE);
-  else if (pspec->value_type == G_TYPE_POINTER)
-    return (TRUE);
-  // skip baseclass properties
-  else if (!strncmp (pspec->name, "name\0", 5))
-    return (TRUE);
-  else if (pspec->owner_type == GST_TYPE_BASE_SRC)
-    return (TRUE);
-  else if (pspec->owner_type == GST_TYPE_BASE_TRANSFORM)
-    return (TRUE);
-  else if (pspec->owner_type == GST_TYPE_BASE_SINK)
-    return (TRUE);
-  else if (pspec->owner_type == GST_TYPE_BIN)
-    return (TRUE);
-  // skip know interface properties (tempo, childbin)
-  else if (pspec->owner_type == GSTBT_TYPE_CHILD_BIN)
-    return (TRUE);
-  else if (pspec->owner_type == GSTBT_TYPE_TEMPO)
-    return (TRUE);
-
-  GST_INFO ("property: %s, owner-type: %s", pspec->name,
-      g_type_name (pspec->owner_type));
-
-  return (FALSE);
-}
-
 #define _MAKE_SPIN_BUTTON(t,T,p)                                               \
 	case G_TYPE_ ## T: {                                                         \
 		GParamSpec ## p *p=G_PARAM_SPEC_ ## T(property);                           \
@@ -340,8 +303,12 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
   GtkAdjustment *spin_adjustment;
   GdkPixbuf *window_icon = NULL;
   GstElement *machine;
+  BtParameterGroup *pg;
   GParamSpec **properties, *property;
-  guint i, k, props, number_of_properties;
+  gulong i, number_of_properties;
+  gchar *signal_name;
+  gchar *tool_tip_text;
+  GType param_type, base_type;
 
   gtk_widget_set_name (GTK_WIDGET (self), "machine preferences");
 
@@ -364,216 +331,185 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
   on_machine_id_changed (self->priv->machine, NULL, (gpointer) self);
 
   // get machine properties
-  if ((properties =
-          g_object_class_list_properties (G_OBJECT_CLASS (GST_ELEMENT_GET_CLASS
-                  (machine)), &number_of_properties))) {
-    gchar *signal_name;
-    gchar *tool_tip_text;
-    GType param_type, base_type;
+  pg = bt_machine_get_property_param_group (self->priv->machine);
+  g_object_get (pg, "num-params", &number_of_properties, "params", &properties,
+      NULL);
 
-    GST_INFO ("machine has %d properties", number_of_properties);
+  // machine preferences inside a scrolled window
+  scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+      GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW
+      (scrolled_window), GTK_SHADOW_NONE);
 
-    props = number_of_properties;
-    for (i = 0; i < number_of_properties; i++) {
-      if (skip_property (machine, properties[i]))
-        props--;
-    }
-    GST_INFO ("machine has %d preferences", props);
-    if (props) {
-      // machine preferences inside a scrolled window
-      scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-      gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
-          GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-      gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW
-          (scrolled_window), GTK_SHADOW_NONE);
+  // add machine preferences into the table
+  table = gtk_table_new ( /*rows= */ number_of_properties,
+      /*columns= */ 3, /*homogenous= */ FALSE);
+  gtk_container_set_border_width (GTK_CONTAINER (table), 6);
+  g_signal_connect (table, "size-request",
+      G_CALLBACK (on_table_size_request), (gpointer) self);
 
-      // add machine preferences into the table
-      table = gtk_table_new ( /*rows= */ props /*+1 (space eater) */ ,  /*columns= */
-          3, /*homogenous= */ FALSE);
-      gtk_container_set_border_width (GTK_CONTAINER (table), 6);
-      g_signal_connect (table, "size-request",
-          G_CALLBACK (on_table_size_request), (gpointer) self);
+  for (i = 0; i < number_of_properties; i++) {
+    property = properties[i];
 
-      for (i = 0, k = 0; i < number_of_properties; i++) {
-        property = properties[i];
-        // skip some properties
-        if (skip_property (machine, property))
-          continue;
+    GST_INFO ("property %p has name '%s'", property, property->name);
+    tool_tip_text = (gchar *) g_param_spec_get_blurb (property);
 
-        GST_INFO ("property %p has name '%s'", property, property->name);
-        tool_tip_text = (gchar *) g_param_spec_get_blurb (property);
+    // get name
+    label = gtk_label_new (property->name);
+    gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+    gtk_widget_set_tooltip_text (label, tool_tip_text);
+    gtk_table_attach (GTK_TABLE (table), label, 0, 1, i, i + 1, GTK_FILL,
+        GTK_SHRINK, 2, 1);
 
-        // get name
-        label = gtk_label_new (property->name);
-        gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-        gtk_widget_set_tooltip_text (label, tool_tip_text);
-        gtk_table_attach (GTK_TABLE (table), label, 0, 1, k, k + 1, GTK_FILL,
-            GTK_SHRINK, 2, 1);
+    param_type = property->value_type;
+    while ((base_type = g_type_parent (param_type)))
+      param_type = base_type;
+    GST_INFO ("... base type is : %s", g_type_name (param_type));
 
-        param_type = property->value_type;
-        while ((base_type = g_type_parent (param_type)))
-          param_type = base_type;
-        GST_INFO ("... base type is : %s", g_type_name (param_type));
+    switch (param_type) {
+      case G_TYPE_STRING:{
+        gchar *value;
 
-        switch (param_type) {
-          case G_TYPE_STRING:{
-            gchar *value;
-
-            g_object_get (machine, property->name, &value, NULL);
-            widget1 = gtk_entry_new ();
-            gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
-            g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
-                (gpointer) self);
-            gtk_entry_set_text (GTK_ENTRY (widget1), safe_string (value));
-            g_free (value);
-            widget2 = NULL;
-            // connect handlers
-            g_signal_connect (widget1, "changed",
-                G_CALLBACK (on_entry_property_changed), (gpointer) machine);
-          }
-            break;
-          case G_TYPE_BOOLEAN:{
-            gboolean value;
-
-            g_object_get (machine, property->name, &value, NULL);
-            widget1 = gtk_check_button_new ();
-            gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
-            g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
-                (gpointer) self);
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget1), value);
-            widget2 = NULL;
-            // connect handlers
-            g_signal_connect (widget1, "toggled",
-                G_CALLBACK (on_checkbox_property_toggled), (gpointer) machine);
-          }
-            break;
-            _MAKE_SPIN_BUTTON (int, INT, Int)
-              _MAKE_SPIN_BUTTON (uint, UINT, UInt)
-              _MAKE_SPIN_BUTTON (int64, INT64, Int64)
-              _MAKE_SPIN_BUTTON (uint64, UINT64, UInt64)
-              _MAKE_SPIN_BUTTON (long, LONG, Long)
-              _MAKE_SPIN_BUTTON (ulong, ULONG, ULong)
-            case G_TYPE_DOUBLE:
-          {
-            GParamSpecDouble *p = G_PARAM_SPEC_DOUBLE (property);
-            gdouble step, value;
-            gchar *str_value;
-
-            g_object_get (machine, property->name, &value, NULL);
-            // get max(max,-min), count digits -> to determine needed length of field
-            str_value = g_strdup_printf ("%7.2lf", value);
-            step = (p->maximum - p->minimum) / 1024.0;
-            widget1 = gtk_hscale_new_with_range (p->minimum, p->maximum, step);
-            gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
-            g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
-                (gpointer) self);
-            gtk_scale_set_draw_value (GTK_SCALE (widget1), FALSE);
-            gtk_range_set_value (GTK_RANGE (widget1), value);
-            widget2 = gtk_entry_new ();
-            gtk_widget_set_name (GTK_WIDGET (widget2), property->name);
-            g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
-                (gpointer) self);
-            gtk_entry_set_text (GTK_ENTRY (widget2), str_value);
-            g_object_set (widget2, "max-length", 9, "width-chars", 9, NULL);
-            g_free (str_value);
-            signal_name = g_strdup_printf ("notify::%s", property->name);
-            g_signal_connect (machine, signal_name,
-                G_CALLBACK (on_range_property_notify), (gpointer) widget1);
-            g_signal_connect (machine, signal_name,
-                G_CALLBACK (on_double_entry_property_notify),
-                (gpointer) widget2);
-            g_signal_connect (widget1, "value-changed",
-                G_CALLBACK (on_range_property_changed), (gpointer) machine);
-            g_signal_connect (widget2, "changed",
-                G_CALLBACK (on_double_entry_property_changed),
-                (gpointer) machine);
-            g_free (signal_name);
-          }
-            break;
-          case G_TYPE_ENUM:{
-            GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
-            GEnumClass *enum_class = enum_property->enum_class;
-            GEnumValue *enum_value;
-            GtkCellRenderer *renderer;
-            GtkListStore *store;
-            GtkTreeIter iter;
-            gint value;
-
-            widget1 = gtk_combo_box_new ();
-            GST_INFO ("enum range: %d, %d", enum_class->minimum,
-                enum_class->maximum);
-            // need a real model because of sparse enums
-            store = gtk_list_store_new (2, G_TYPE_ULONG, G_TYPE_STRING);
-            for (value = enum_class->minimum; value <= enum_class->maximum;
-                value++) {
-              if ((enum_value = g_enum_get_value (enum_class, value))) {
-                //GST_INFO("enum value: %d, '%s', '%s'",enum_value->value,enum_value->value_name,enum_value->value_nick);
-                gtk_list_store_append (store, &iter);
-                gtk_list_store_set (store, &iter,
-                    0, enum_value->value, 1, enum_value->value_nick, -1);
-              }
-            }
-            renderer = gtk_cell_renderer_text_new ();
-            gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
-            gtk_cell_renderer_text_set_fixed_height_from_font
-                (GTK_CELL_RENDERER_TEXT (renderer), 1);
-            gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget1), renderer,
-                TRUE);
-            gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (widget1), renderer,
-                "text", 1, NULL);
-            gtk_combo_box_set_model (GTK_COMBO_BOX (widget1),
-                GTK_TREE_MODEL (store));
-            gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
-            g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
-                (gpointer) self);
-
-            on_combobox_property_notify (machine, property, (gpointer) widget1);
-
-            signal_name = g_strdup_printf ("notify::%s", property->name);
-            g_signal_connect (machine, signal_name,
-                G_CALLBACK (on_combobox_property_notify), (gpointer) widget1);
-            g_signal_connect (widget1, "changed",
-                G_CALLBACK (on_combobox_property_changed), (gpointer) machine);
-            g_free (signal_name);
-            widget2 = NULL;
-          }
-            break;
-          default:{
-            gchar *str = g_strdup_printf ("unhandled type \"%s\"",
-                G_PARAM_SPEC_TYPE_NAME (property));
-            widget1 = gtk_label_new (str);
-            g_free (str);
-            widget2 = NULL;
-          }
-        }
-        gtk_widget_set_tooltip_text (widget1, tool_tip_text);
-        if (!widget2) {
-          gtk_table_attach (GTK_TABLE (table), widget1, 1, 3, k, k + 1,
-              GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
-        } else {
-          gtk_widget_set_tooltip_text (widget2, tool_tip_text);
-          gtk_table_attach (GTK_TABLE (table), widget1, 1, 2, k, k + 1,
-              GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
-          gtk_table_attach (GTK_TABLE (table), widget2, 2, 3, k, k + 1,
-              GTK_FILL, GTK_SHRINK, 2, 1);
-        }
-        k++;
+        g_object_get (machine, property->name, &value, NULL);
+        widget1 = gtk_entry_new ();
+        gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
+        g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
+            (gpointer) self);
+        gtk_entry_set_text (GTK_ENTRY (widget1), safe_string (value));
+        g_free (value);
+        widget2 = NULL;
+        // connect handlers
+        g_signal_connect (widget1, "changed",
+            G_CALLBACK (on_entry_property_changed), (gpointer) machine);
       }
-      // eat remaning space
-      //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-      gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW
-          (scrolled_window), table);
-      gtk_container_add (GTK_CONTAINER (self), scrolled_window);
-    } else {
-      label = gtk_label_new (_("no settings"));
-      gtk_container_add (GTK_CONTAINER (self), label);
-      gtk_widget_set_size_request (GTK_WIDGET (self), 250, -1);
+        break;
+      case G_TYPE_BOOLEAN:{
+        gboolean value;
+
+        g_object_get (machine, property->name, &value, NULL);
+        widget1 = gtk_check_button_new ();
+        gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
+        g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
+            (gpointer) self);
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget1), value);
+        widget2 = NULL;
+        // connect handlers
+        g_signal_connect (widget1, "toggled",
+            G_CALLBACK (on_checkbox_property_toggled), (gpointer) machine);
+      }
+        break;
+        _MAKE_SPIN_BUTTON (int, INT, Int)
+          _MAKE_SPIN_BUTTON (uint, UINT, UInt)
+          _MAKE_SPIN_BUTTON (int64, INT64, Int64)
+          _MAKE_SPIN_BUTTON (uint64, UINT64, UInt64)
+          _MAKE_SPIN_BUTTON (long, LONG, Long)
+          _MAKE_SPIN_BUTTON (ulong, ULONG, ULong)
+        case G_TYPE_DOUBLE:
+      {
+        GParamSpecDouble *p = G_PARAM_SPEC_DOUBLE (property);
+        gdouble step, value;
+        gchar *str_value;
+
+        g_object_get (machine, property->name, &value, NULL);
+        // get max(max,-min), count digits -> to determine needed length of field
+        str_value = g_strdup_printf ("%7.2lf", value);
+        step = (p->maximum - p->minimum) / 1024.0;
+        widget1 = gtk_hscale_new_with_range (p->minimum, p->maximum, step);
+        gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
+        g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
+            (gpointer) self);
+        gtk_scale_set_draw_value (GTK_SCALE (widget1), FALSE);
+        gtk_range_set_value (GTK_RANGE (widget1), value);
+        widget2 = gtk_entry_new ();
+        gtk_widget_set_name (GTK_WIDGET (widget2), property->name);
+        g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
+            (gpointer) self);
+        gtk_entry_set_text (GTK_ENTRY (widget2), str_value);
+        g_object_set (widget2, "max-length", 9, "width-chars", 9, NULL);
+        g_free (str_value);
+        signal_name = g_strdup_printf ("notify::%s", property->name);
+        g_signal_connect (machine, signal_name,
+            G_CALLBACK (on_range_property_notify), (gpointer) widget1);
+        g_signal_connect (machine, signal_name,
+            G_CALLBACK (on_double_entry_property_notify), (gpointer) widget2);
+        g_signal_connect (widget1, "value-changed",
+            G_CALLBACK (on_range_property_changed), (gpointer) machine);
+        g_signal_connect (widget2, "changed",
+            G_CALLBACK (on_double_entry_property_changed), (gpointer) machine);
+        g_free (signal_name);
+      }
+        break;
+      case G_TYPE_ENUM:{
+        GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
+        GEnumClass *enum_class = enum_property->enum_class;
+        GEnumValue *enum_value;
+        GtkCellRenderer *renderer;
+        GtkListStore *store;
+        GtkTreeIter iter;
+        gint value;
+
+        widget1 = gtk_combo_box_new ();
+        GST_INFO ("enum range: %d, %d", enum_class->minimum,
+            enum_class->maximum);
+        // need a real model because of sparse enums
+        store = gtk_list_store_new (2, G_TYPE_ULONG, G_TYPE_STRING);
+        for (value = enum_class->minimum; value <= enum_class->maximum; value++) {
+          if ((enum_value = g_enum_get_value (enum_class, value))) {
+            //GST_INFO("enum value: %d, '%s', '%s'",enum_value->value,enum_value->value_name,enum_value->value_nick);
+            gtk_list_store_append (store, &iter);
+            gtk_list_store_set (store, &iter,
+                0, enum_value->value, 1, enum_value->value_nick, -1);
+          }
+        }
+        renderer = gtk_cell_renderer_text_new ();
+        gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
+        gtk_cell_renderer_text_set_fixed_height_from_font
+            (GTK_CELL_RENDERER_TEXT (renderer), 1);
+        gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget1), renderer, TRUE);
+        gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (widget1), renderer,
+            "text", 1, NULL);
+        gtk_combo_box_set_model (GTK_COMBO_BOX (widget1),
+            GTK_TREE_MODEL (store));
+        gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
+        g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
+            (gpointer) self);
+
+        on_combobox_property_notify (machine, property, (gpointer) widget1);
+
+        signal_name = g_strdup_printf ("notify::%s", property->name);
+        g_signal_connect (machine, signal_name,
+            G_CALLBACK (on_combobox_property_notify), (gpointer) widget1);
+        g_signal_connect (widget1, "changed",
+            G_CALLBACK (on_combobox_property_changed), (gpointer) machine);
+        g_free (signal_name);
+        widget2 = NULL;
+      }
+        break;
+      default:{
+        gchar *str = g_strdup_printf ("unhandled type \"%s\"",
+            G_PARAM_SPEC_TYPE_NAME (property));
+        widget1 = gtk_label_new (str);
+        g_free (str);
+        widget2 = NULL;
+      }
     }
-    g_free (properties);
-  } else {
-    gtk_container_add (GTK_CONTAINER (self),
-        gtk_label_new (_("machine has no preferences")));
+    gtk_widget_set_tooltip_text (widget1, tool_tip_text);
+    if (!widget2) {
+      gtk_table_attach (GTK_TABLE (table), widget1, 1, 3, i, i + 1,
+          GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+    } else {
+      gtk_widget_set_tooltip_text (widget2, tool_tip_text);
+      gtk_table_attach (GTK_TABLE (table), widget1, 1, 2, i, i + 1,
+          GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+      gtk_table_attach (GTK_TABLE (table), widget2, 2, 3, i, i + 1,
+          GTK_FILL, GTK_SHRINK, 2, 1);
+    }
   }
+  // eat remaning space
+  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolled_window),
+      table);
+  gtk_container_add (GTK_CONTAINER (self), scrolled_window);
 
   // track machine name (keep window title up-to-date)
   g_signal_connect (self->priv->machine, "notify::id",
