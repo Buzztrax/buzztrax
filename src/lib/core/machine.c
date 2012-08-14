@@ -106,7 +106,7 @@ enum
   MACHINE_ID,
   MACHINE_PLUGIN_NAME,
   MACHINE_VOICES,
-  MACHINE_PROPERTY_PARAMS,
+  MACHINE_PREFS_PARAMS,
   MACHINE_GLOBAL_PARAMS,
   MACHINE_VOICE_PARAMS,
   MACHINE_MACHINE,
@@ -170,7 +170,7 @@ struct _BtMachinePrivate
   /* the number of voices the machine provides */
   gulong voices;
   /* the number of static params the machine provides per instance */
-  gulong property_params;
+  gulong prefs_params;
   /* the number of dynamic params the machine provides per instance */
   gulong global_params;
   /* the number of dynamic params the machine provides per instance and voice */
@@ -180,7 +180,7 @@ struct _BtMachinePrivate
   BtMachineState state;
 
   /* parameter groups */
-  BtParameterGroup *property_param_group;
+  BtParameterGroup *prefs_param_group;
   BtParameterGroup *global_param_group, **voice_param_groups;
 
   /* event patterns */
@@ -658,8 +658,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->
-                        dst_wires->data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->dst_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -687,8 +687,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->
-                        src_wires->data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->src_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1210,7 +1210,7 @@ bt_machine_check_type (const BtMachine * const self)
 }
 
 static void
-bt_machine_init_property_params (const BtMachine * const self)
+bt_machine_init_prefs_params (const BtMachine * const self)
 {
   GParamSpec **properties;
   guint number_of_properties;
@@ -1253,14 +1253,13 @@ bt_machine_init_property_params (const BtMachine * const self)
       if (skip) {
         properties[i] = NULL;
       } else {
-        self->priv->property_params++;
+        self->priv->prefs_params++;
       }
     }
-    GST_INFO ("found %lu property params", self->priv->property_params);
+    GST_INFO ("found %lu property params", self->priv->prefs_params);
     GParamSpec **params =
-        (GParamSpec **) g_new (gpointer, self->priv->property_params);
-    GObject **parents =
-        (GObject **) g_new (gpointer, self->priv->property_params);
+        (GParamSpec **) g_new (gpointer, self->priv->prefs_params);
+    GObject **parents = (GObject **) g_new (gpointer, self->priv->prefs_params);
 
     for (i = j = 0; i < number_of_properties; i++) {
       if (properties[i]) {
@@ -1269,8 +1268,8 @@ bt_machine_init_property_params (const BtMachine * const self)
         j++;
       }
     }
-    self->priv->property_param_group =
-        bt_parameter_group_new (self->priv->property_params, parents, params);
+    self->priv->prefs_param_group =
+        bt_parameter_group_new (self->priv->prefs_params, parents, params);
 
     g_free (properties);
   }
@@ -1299,8 +1298,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                      priv->machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                      machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1361,8 +1360,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                    priv->machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                    machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -1991,7 +1990,7 @@ bt_machine_is_polyphonic (const BtMachine * const self)
 }
 
 /**
- * bt_machine_get_property_param_group:
+ * bt_machine_get_prefs_param_group:
  * @self: the machine
  *
  * Get the parameter group of machine properties. Properties are settings that
@@ -2000,10 +1999,10 @@ bt_machine_is_polyphonic (const BtMachine * const self)
  * Returns: the #BtParameterGroup or %NULL
  */
 BtParameterGroup *
-bt_machine_get_property_param_group (const BtMachine * const self)
+bt_machine_get_prefs_param_group (const BtMachine * const self)
 {
   g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
-  return self->priv->property_param_group;
+  return self->priv->prefs_param_group;
 }
 
 /**
@@ -2522,9 +2521,11 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
 
   if ((node = xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("machine"), NULL))) {
     const gulong voices = self->priv->voices;
+    const gulong prefs_params = self->priv->prefs_params;
     const gulong global_params = self->priv->global_params;
     const gulong voice_params = self->priv->voice_params;
     const gchar *pname;
+    BtParameterGroup *prefs_param_group = self->priv->prefs_param_group;
     BtParameterGroup *global_param_group = self->priv->global_param_group;
     BtParameterGroup **voice_param_groups =
         self->priv->voice_param_groups, *voice_param_group;
@@ -2534,9 +2535,21 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
         XML_CHAR_PTR (bt_persistence_strfmt_enum (BT_TYPE_MACHINE_STATE,
                 self->priv->state)));
 
-    // TODO(ensonic): also store self->priv->property_param_group parameters
-    // (preferences) as <prefsdata name="" value="">
     machine = GST_OBJECT (self->priv->machines[PART_MACHINE]);
+    for (i = 0; i < prefs_params; i++) {
+      if ((child_node =
+              xmlNewChild (node, NULL, XML_CHAR_PTR ("prefsdata"), NULL))) {
+        pname = bt_parameter_group_get_param_name (prefs_param_group, i);
+        g_value_init (&value,
+            bt_parameter_group_get_param_type (prefs_param_group, i));
+        g_object_get_property (G_OBJECT (machine), pname, &value);
+        gchar *const str = bt_persistence_get_value (&value);
+        xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
+        xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
+        g_free (str);
+        g_value_unset (&value);
+      }
+    }
     for (i = 0; i < global_params; i++) {
       // skip trigger parameters
       if (bt_parameter_group_is_param_trigger (global_param_group, i))
@@ -2690,8 +2703,22 @@ bt_machine_persistence_load (const GType type,
 
     for (node = node->children; node; node = node->next) {
       if (!xmlNodeIsText (node)) {
-        // TODO(ensonic): load prefsdata
-        if (!strncmp ((gchar *) node->name, "globaldata\0", 11)) {
+        if (!strncmp ((gchar *) node->name, "prefsdata\0", 10)) {
+          name = xmlGetProp (node, XML_CHAR_PTR ("name"));
+          value_str = xmlGetProp (node, XML_CHAR_PTR ("value"));
+          pg = self->priv->prefs_param_group;
+          param = bt_parameter_group_get_param_index (pg, (gchar *) name);
+          if ((param != -1) && value_str) {
+            g_value_init (&value, bt_parameter_group_get_param_type (pg,
+                    param));
+            bt_persistence_set_value (&value, (gchar *) value_str);
+            g_object_set_property (bt_parameter_group_get_param_parent (pg,
+                    param), (gchar *) name, &value);
+            g_value_unset (&value);
+          }
+          xmlFree (name);
+          xmlFree (value_str);
+        } else if (!strncmp ((gchar *) node->name, "globaldata\0", 11)) {
           name = xmlGetProp (node, XML_CHAR_PTR ("name"));
           value_str = xmlGetProp (node, XML_CHAR_PTR ("value"));
           pg = self->priv->global_param_group;
@@ -2962,7 +2989,7 @@ bt_machine_constructed (GObject * object)
   GST_DEBUG_OBJECT (self, "machine-ref_ct=%d", G_OBJECT_REF_COUNT (self));
 
   // register params
-  bt_machine_init_property_params (self);
+  bt_machine_init_prefs_params (self);
   bt_machine_init_global_params (self);
   bt_machine_init_voice_params (self);
 
@@ -3020,8 +3047,8 @@ bt_machine_get_property (GObject * const object, const guint property_id,
     case MACHINE_VOICES:
       g_value_set_ulong (value, self->priv->voices);
       break;
-    case MACHINE_PROPERTY_PARAMS:
-      g_value_set_ulong (value, self->priv->property_params);
+    case MACHINE_PREFS_PARAMS:
+      g_value_set_ulong (value, self->priv->prefs_params);
       break;
     case MACHINE_GLOBAL_PARAMS:
       g_value_set_ulong (value, self->priv->global_params);
@@ -3212,7 +3239,7 @@ bt_machine_dispose (GObject * const object)
     }
   }
   // unref param groups
-  g_object_try_unref (self->priv->property_param_group);
+  g_object_try_unref (self->priv->prefs_param_group);
   g_object_try_unref (self->priv->global_param_group);
   if (self->priv->voice_param_groups) {
     for (i = 0; i < voices; i++) {
@@ -3362,8 +3389,8 @@ bt_machine_class_init (BtMachineClass * const klass)
           G_MAXULONG,
           0, G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_PROPERTY_PARAMS,
-      g_param_spec_ulong ("property-params",
+  g_object_class_install_property (gobject_class, MACHINE_PREFS_PARAMS,
+      g_param_spec_ulong ("prefs-params",
           "property-params prop",
           "number of static params for the machine",
           0, G_MAXULONG, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));

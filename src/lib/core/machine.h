@@ -131,7 +131,7 @@ gboolean bt_machine_has_patterns(const BtMachine * const self);
 gboolean bt_machine_is_polyphonic(const BtMachine * const self);
 void bt_machine_set_param_defaults(const BtMachine *const self);
 
-BtParameterGroup *bt_machine_get_property_param_group(const BtMachine * const self);
+BtParameterGroup *bt_machine_get_prefs_param_group(const BtMachine * const self);
 BtParameterGroup *bt_machine_get_global_param_group(const BtMachine * const self);
 BtParameterGroup *bt_machine_get_voice_param_group(const BtMachine * const self, const gulong voice);
 

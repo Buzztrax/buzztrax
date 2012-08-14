@@ -832,8 +832,8 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
   BtMachineState state;
   gulong num_property_params;
 
-  g_object_get (machine, "state", &state, "property-params",
-      &num_property_params, NULL);
+  g_object_get (machine, "state", &state, "prefs-params", &num_property_params,
+      NULL);
 
   self->priv->menu_item_mute = menu_item =
       gtk_check_menu_item_new_with_label (_("Mute"));

@@ -1768,7 +1768,7 @@ context_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
       gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
               context_menu_pattern_copy), FALSE);
     }
-    g_object_get (machine, "property-params", &num_property_params, NULL);
+    g_object_get (machine, "prefs-params", &num_property_params, NULL);
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
             context_menu_machine_preferences), (num_property_params != 0));
   } else {

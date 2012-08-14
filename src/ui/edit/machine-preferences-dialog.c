@@ -331,7 +331,7 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
   on_machine_id_changed (self->priv->machine, NULL, (gpointer) self);
 
   // get machine properties
-  pg = bt_machine_get_property_param_group (self->priv->machine);
+  pg = bt_machine_get_prefs_param_group (self->priv->machine);
   g_object_get (pg, "num-params", &number_of_properties, "params", &properties,
       NULL);
 
