@@ -102,9 +102,10 @@ test_bt_main_page_sequence_active_machine (BT_TEST_ARGS)
   GtkWidget *sequence_view;
 
   /* arrange */
-  // cough, we need to add the fx first as we can't trigger a refresh of the
-  // view. When adding a src, a track is added automatically and this updates
-  // the view though
+  // We need to add the fx first as we can't trigger a refresh of the view
+  // (main-page-sequence is not listening for "track-added" signal).
+  // When adding a src, a track is added automatically and this updates the
+  // view though.
   machine1 =
       BT_MACHINE (bt_processor_machine_new (song, "fx", "volume", 0L, NULL));
   bt_sequence_add_track (sequence, machine1, -1);
