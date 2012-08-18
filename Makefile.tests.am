@@ -148,7 +148,7 @@ libbt_cmd_check_la_LIBADD = \
 	$(BASE_DEPS_LIBS)
 libbt_cmd_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)	
 libbt_cmd_check_la_SOURCES = tests/ui/cmd/m-bt-cmd.h \
-	tests/ui/cmd/s-bt-cmd-application.c tests/ui/cmd/e-bt-cmd-application.c tests/ui/cmd/t-bt-cmd-application.c
+	tests/ui/cmd/s-cmd-application.c tests/ui/cmd/e-cmd-application.c tests/ui/cmd/t-cmd-application.c
 
 libbt_edit_check_la_LIBADD = \
 	libbtedit.la \
