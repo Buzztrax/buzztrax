@@ -29,13 +29,20 @@ static BtMainPages *pages;
 //-- fixtures
 
 static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
+}
+
+static void
 test_setup (void)
 {
   bt_edit_setup ();
   app = bt_edit_application_new ();
   bt_edit_application_new_song (app);
   g_object_get (app, "song", &song, "main-window", &main_window, NULL);
-  g_object_get (G_OBJECT (main_window), "pages", &pages, NULL);
+  g_object_get (main_window, "pages", &pages, NULL);
 
   gtk_notebook_set_current_page (GTK_NOTEBOOK (pages),
       BT_MAIN_PAGES_PATTERNS_PAGE);
@@ -56,6 +63,11 @@ test_teardown (void)
 
   g_object_checked_unref (app);
   bt_edit_teardown ();
+}
+
+static void
+case_teardown (void)
+{
 }
 
 //-- helper
@@ -206,7 +218,7 @@ bt_pattern_page_test_case (void)
   tcase_add_test (tc, test_bt_main_page_patterns_mouse_click_in_empty_pattern);
   tcase_add_test (tc, test_bt_main_page_patterns_non_note_key_press);
   tcase_add_test (tc, test_bt_main_page_patterns_cursor_pos_on_non_note_key);
-  // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }

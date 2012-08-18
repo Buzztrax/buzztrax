@@ -29,13 +29,34 @@ static BtMainPages *pages;
 //-- fixtures
 
 static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
+}
+
+static void
 test_setup (void)
 {
   bt_edit_setup ();
   app = bt_edit_application_new ();
   bt_edit_application_new_song (app);
   g_object_get (app, "song", &song, "main-window", &main_window, NULL);
-  g_object_get (G_OBJECT (main_window), "pages", &pages, NULL);
+  g_object_get (main_window, "pages", &pages, NULL);
+
+  gtk_notebook_set_current_page (GTK_NOTEBOOK (pages),
+      BT_MAIN_PAGES_MACHINES_PAGE);
+
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
+
+  // TODO(ensonic): why is gtk not invoking focus()?
+  {
+    GtkWidget *page;
+    g_object_get (pages, "machines-page", &page, NULL);
+    GTK_WIDGET_GET_CLASS (page)->focus (page, GTK_DIR_TAB_FORWARD);
+    g_object_unref (page);
+  }
 }
 
 static void
@@ -52,9 +73,32 @@ test_teardown (void)
   bt_edit_teardown ();
 }
 
+static void
+case_teardown (void)
+{
+}
+
 //-- helper
 
 //-- tests
+
+
+static void
+test_bt_main_page_machines_focus (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+
+  /* arrange */
+
+  /* act */
+  GtkWidget *widget = gtk_window_get_focus ((GtkWindow *) main_window);
+
+  /* assert */
+  ck_assert_str_eq ("machine-and-wire-editor", gtk_widget_get_name (widget));
+
+  /* cleanup */
+  BT_TEST_END;
+}
 
 static void
 test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
@@ -109,8 +153,9 @@ bt_machine_page_example_case (void)
 {
   TCase *tc = tcase_create ("BtMachinePageExamples");
 
+  tcase_add_test (tc, test_bt_main_page_machines_focus);
   tcase_add_test (tc, test_bt_main_page_machines_machine_ref);
-  // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }

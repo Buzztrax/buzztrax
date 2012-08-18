@@ -30,6 +30,13 @@ static BtMainPages *pages;
 //-- fixtures
 
 static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
+}
+
+static void
 test_setup (void)
 {
   bt_edit_setup ();
@@ -37,7 +44,7 @@ test_setup (void)
   bt_edit_application_new_song (app);
   g_object_get (app, "song", &song, "main-window", &main_window, NULL);
   g_object_get (song, "sequence", &sequence, NULL);
-  g_object_get (G_OBJECT (main_window), "pages", &pages, NULL);
+  g_object_get (main_window, "pages", &pages, NULL);
 
   gtk_notebook_set_current_page (GTK_NOTEBOOK (pages),
       BT_MAIN_PAGES_SEQUENCE_PAGE);
@@ -45,14 +52,13 @@ test_setup (void)
   while (gtk_events_pending ())
     gtk_main_iteration ();
 
-  {                             // TODO(ensonic): why is gtk not invoking focus()?
-    BtMainPageSequence *sequence_page;
-    g_object_get (G_OBJECT (pages), "sequence-page", &sequence_page, NULL);
-    GTK_WIDGET_GET_CLASS ((GtkWidget *) sequence_page)->focus ((GtkWidget *)
-        sequence_page, GTK_DIR_TAB_FORWARD);
-    g_object_unref (sequence_page);
+  // TODO(ensonic): why is gtk not invoking focus()?
+  {
+    GtkWidget *page;
+    g_object_get (pages, "sequence-page", &page, NULL);
+    GTK_WIDGET_GET_CLASS (page)->focus (page, GTK_DIR_TAB_FORWARD);
+    g_object_unref (page);
   }
-
 }
 
 static void
@@ -68,6 +74,11 @@ test_teardown (void)
 
   g_object_checked_unref (app);
   bt_edit_teardown ();
+}
+
+static void
+case_teardown (void)
+{
 }
 
 //-- helper
@@ -183,7 +194,7 @@ bt_sequence_page_example_case (void)
   tcase_add_test (tc, test_bt_main_page_sequence_focus);
   tcase_add_test (tc, test_bt_main_page_sequence_active_machine);
   tcase_add_test (tc, test_bt_main_page_sequence_enter_pattern);
-  // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }

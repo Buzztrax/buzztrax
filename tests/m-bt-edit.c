@@ -89,6 +89,9 @@ cleanup_cache_dir (void)
   }
 }
 
+/* we *must* call this from a checked fixture, as only this runs in the same
+ * process context
+ */
 void
 bt_edit_setup (void)
 {
