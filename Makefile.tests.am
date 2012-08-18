@@ -155,28 +155,28 @@ libbt_edit_check_la_LIBADD = \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS)
 libbt_edit_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
 libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
-	tests/ui/edit/s-bt-about-dialog.c tests/ui/edit/e-bt-about-dialog.c \
-	tests/ui/edit/s-bt-change-log.c tests/ui/edit/e-bt-change-log.c \
-	tests/ui/edit/s-bt-controller-learn-dialog.c tests/ui/edit/e-bt-controller-learn-dialog.c \
-	tests/ui/edit/s-bt-crash-recover-dialog.c tests/ui/edit/e-bt-crash-recover-dialog.c \
-	tests/ui/edit/s-bt-edit-application.c tests/ui/edit/e-bt-edit-application.c \
-	tests/ui/edit/s-bt-interaction-controller-menu.c tests/ui/edit/e-bt-interaction-controller-menu.c \
-	tests/ui/edit/s-bt-machine-actions.c tests/ui/edit/e-bt-machine-actions.c \
-	tests/ui/edit/s-bt-machine-page.c tests/ui/edit/e-bt-machine-page.c \
-	tests/ui/edit/s-bt-machine-preset-properties-dialog.c tests/ui/edit/e-bt-machine-preset-properties-dialog.c \
-	tests/ui/edit/s-bt-machine-preferences-dialog.c tests/ui/edit/e-bt-machine-preferences-dialog.c \
-	tests/ui/edit/s-bt-machine-properties-dialog.c tests/ui/edit/e-bt-machine-properties-dialog.c \
-	tests/ui/edit/s-bt-machine-rename-dialog.c tests/ui/edit/e-bt-machine-rename-dialog.c \
-	tests/ui/edit/s-bt-main-window.c tests/ui/edit/e-bt-main-window.c \
-	tests/ui/edit/s-bt-missing-framework-elements-dialog.c tests/ui/edit/e-bt-missing-framework-elements-dialog.c \
-	tests/ui/edit/s-bt-missing-song-elements-dialog.c tests/ui/edit/e-bt-missing-song-elements-dialog.c \
-	tests/ui/edit/s-bt-pattern-page.c tests/ui/edit/e-bt-pattern-page.c tests/ui/edit/t-bt-pattern-page.c \
-	tests/ui/edit/s-bt-pattern-properties-dialog.c tests/ui/edit/e-bt-pattern-properties-dialog.c \
-	tests/ui/edit/s-bt-render-dialog.c tests/ui/edit/e-bt-render-dialog.c \
-	tests/ui/edit/s-bt-sequence-page.c tests/ui/edit/e-bt-sequence-page.c \
-	tests/ui/edit/s-bt-settings-dialog.c tests/ui/edit/e-bt-settings-dialog.c \
-	tests/ui/edit/s-bt-signal-analysis-dialog.c tests/ui/edit/e-bt-signal-analysis-dialog.c \
-	tests/ui/edit/s-bt-tip-dialog.c tests/ui/edit/e-bt-tip-dialog.c
+	tests/ui/edit/s-about-dialog.c tests/ui/edit/e-about-dialog.c \
+	tests/ui/edit/s-change-log.c tests/ui/edit/e-change-log.c \
+	tests/ui/edit/s-crash-recover-dialog.c tests/ui/edit/e-crash-recover-dialog.c \
+	tests/ui/edit/s-edit-application.c tests/ui/edit/e-edit-application.c \
+	tests/ui/edit/s-interaction-controller-learn-dialog.c tests/ui/edit/e-interaction-controller-learn-dialog.c \
+	tests/ui/edit/s-interaction-controller-menu.c tests/ui/edit/e-interaction-controller-menu.c \
+	tests/ui/edit/s-machine-actions.c tests/ui/edit/e-machine-actions.c \
+	tests/ui/edit/s-machine-preset-properties-dialog.c tests/ui/edit/e-machine-preset-properties-dialog.c \
+	tests/ui/edit/s-machine-preferences-dialog.c tests/ui/edit/e-machine-preferences-dialog.c \
+	tests/ui/edit/s-machine-properties-dialog.c tests/ui/edit/e-machine-properties-dialog.c \
+	tests/ui/edit/s-machine-rename-dialog.c tests/ui/edit/e-machine-rename-dialog.c \
+	tests/ui/edit/s-main-page-machines.c tests/ui/edit/e-main-page-machines.c \
+	tests/ui/edit/s-main-page-patterns.c tests/ui/edit/e-main-page-patterns.c tests/ui/edit/t-main-page-patterns.c \
+	tests/ui/edit/s-main-page-sequence.c tests/ui/edit/e-main-page-sequence.c \
+	tests/ui/edit/s-main-window.c tests/ui/edit/e-main-window.c \
+	tests/ui/edit/s-missing-framework-elements-dialog.c tests/ui/edit/e-missing-framework-elements-dialog.c \
+	tests/ui/edit/s-missing-song-elements-dialog.c tests/ui/edit/e-missing-song-elements-dialog.c \
+	tests/ui/edit/s-pattern-properties-dialog.c tests/ui/edit/e-pattern-properties-dialog.c \
+	tests/ui/edit/s-render-dialog.c tests/ui/edit/e-render-dialog.c \
+	tests/ui/edit/s-settings-dialog.c tests/ui/edit/e-settings-dialog.c \
+	tests/ui/edit/s-signal-analysis-dialog.c tests/ui/edit/e-signal-analysis-dialog.c \
+	tests/ui/edit/s-tip-dialog.c tests/ui/edit/e-tip-dialog.c
 
 endif
 
