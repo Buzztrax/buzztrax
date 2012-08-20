@@ -26,7 +26,7 @@
 //-- fixtures
 
 static void
-test_setup (void)
+case_setup (void)
 {
   bt_cmd_setup ();
   GST_INFO
@@ -34,7 +34,17 @@ test_setup (void)
 }
 
 static void
+test_setup (void)
+{
+}
+
+static void
 test_teardown (void)
+{
+}
+
+static void
+case_teardown (void)
 {
   bt_cmd_teardown ();
 }
@@ -45,101 +55,80 @@ static void
 test_create_app (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtCmdApplication *app;
+  /* arrange */
 
-  app = bt_cmd_application_new (TRUE);
+  /* act */
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
+
+  /* assert */
   fail_unless (app != NULL, NULL);
   fail_unless (G_OBJECT_REF_COUNT (app) == 1, NULL);
-  // free application
+
+  /* cleanup */
   g_object_checked_unref (app);
   BT_TEST_END;
 }
 
-// postive test, this test should not fail
 static void
-test_play1 (BT_TEST_ARGS)
+test_play (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtCmdApplication *app;
-  gboolean ret = FALSE;
+  /* arrange */
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
 
-  app = bt_cmd_application_new (TRUE);
-  ret =
-      bt_cmd_application_play (app,
+  /* act */
+  gboolean ret = bt_cmd_application_play (app,
       check_get_test_song_path ("test-simple1.xml"));
+
+  /* assert */
   fail_unless (ret == TRUE, NULL);
-  // free application
+
+  /* cleanup */
   g_object_checked_unref (app);
   BT_TEST_END;
 }
 
-// postive test, this test should not fail
 static void
-test_play2 (BT_TEST_ARGS)
+test_play_two_files (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtCmdApplication *app;
-  gboolean ret = FALSE;
+  /* arrange */
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
 
-  app = bt_cmd_application_new (TRUE);
-  ret =
-      bt_cmd_application_play (app,
+  /* act */
+  bt_cmd_application_play (app, check_get_test_song_path ("test-simple1.xml"));
+  gboolean ret = bt_cmd_application_play (app,
       check_get_test_song_path ("test-simple2.xml"));
+
+  /* assert */
   fail_unless (ret == TRUE, NULL);
-  // free application
+
+  /* cleanup */
   g_object_checked_unref (app);
   BT_TEST_END;
 }
 
-// Tests to play one song after another
-// This is a positive test.
 static void
-test_play3 (BT_TEST_ARGS)
+test_info (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtCmdApplication *app;
-  gboolean ret = FALSE;
-
-  app = bt_cmd_application_new (TRUE);
-
-  ret =
-      bt_cmd_application_play (app,
-      check_get_test_song_path ("test-simple1.xml"));
-  fail_unless (ret == TRUE, NULL);
-
-  ret =
-      bt_cmd_application_play (app,
-      check_get_test_song_path ("test-simple2.xml"));
-  fail_unless (ret == TRUE, NULL);
-
-  // free application
-  g_object_checked_unref (app);
-  BT_TEST_END;
-}
-
-// Tests if the info method works as expected.
-// This is a positive test.
-static void
-test_info1 (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  BtCmdApplication *app;
-  gboolean ret = FALSE;
-  gchar *tmp_file_name;
-
-  app = bt_cmd_application_new (TRUE);
-  tmp_file_name =
+  /* arrange */
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
+  gchar *tmp_file_name =
       g_build_filename (g_get_tmp_dir (), "test-simple1.xml.txt", NULL);
-  ret =
-      bt_cmd_application_info (app,
+
+  /* act */
+  gboolean ret = bt_cmd_application_info (app,
       check_get_test_song_path ("test-simple1.xml"), tmp_file_name);
+
+  /* assert */
   fail_unless (ret == TRUE, NULL);
   fail_unless (check_file_contains_str (NULL, tmp_file_name,
           "song.song_info.name: \"test simple 1\""), NULL);
-  // remove tmp-file and free filename
+
+  /* cleanup */
   g_unlink (tmp_file_name);
   g_free (tmp_file_name);
-  // free application
   g_object_checked_unref (app);
   BT_TEST_END;
 }
@@ -150,10 +139,10 @@ bt_cmd_application_example_case (void)
   TCase *tc = tcase_create ("BtCmdApplicationExamples");
 
   tcase_add_test (tc, test_create_app);
-  tcase_add_test (tc, test_play1);
-  tcase_add_test (tc, test_play2);
-  tcase_add_test (tc, test_play3);
-  tcase_add_test (tc, test_info1);
-  tcase_add_unchecked_fixture (tc, test_setup, test_teardown);
+  tcase_add_test (tc, test_play);
+  tcase_add_test (tc, test_play_two_files);
+  tcase_add_test (tc, test_info);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }

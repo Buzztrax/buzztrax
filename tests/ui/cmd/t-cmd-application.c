@@ -24,7 +24,7 @@
 //-- fixtures
 
 static void
-test_setup (void)
+case_setup (void)
 {
   bt_cmd_setup ();
   GST_INFO
@@ -32,7 +32,17 @@ test_setup (void)
 }
 
 static void
+test_setup (void)
+{
+}
+
+static void
 test_teardown (void)
+{
+}
+
+static void
+case_teardown (void)
 {
   bt_cmd_teardown ();
 }
@@ -40,91 +50,89 @@ test_teardown (void)
 //-- tests
 
 // tests if the play method works without exceptions if we put NULL as filename.
-// This test is a negative test
 static void
-test_play1 (BT_TEST_ARGS)
+test_play_null_as_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtCmdApplication *app = NULL;
-  gboolean ret = FALSE;
-  GstBin *bin = NULL;
-  BtSettings *settings = NULL;
-
-  app = bt_cmd_application_new (TRUE);
-  fail_unless (G_OBJECT_REF_COUNT (app) == 1, NULL);
-
+  /* arrange */
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
   check_init_error_trapp ("bt_cmd_application_play",
       "BT_IS_STRING (input_file_name)");
-  ret = bt_cmd_application_play (app, NULL);
+
+  /* act */
+  gboolean ret = bt_cmd_application_play (app, NULL);
+
+  /* assert */
   fail_unless (check_has_error_trapped (), NULL);
   fail_unless (ret == FALSE, NULL);
 
-  g_object_get (G_OBJECT (app), "bin", &bin, "settings", &settings, NULL);
-  fail_unless (bin != NULL, NULL);
-  fail_unless (settings != NULL, NULL);
-  // free application
+  /* cleanup */
   g_object_checked_unref (app);
   BT_TEST_END;
 }
 
 // file not found test. this is a negative test
 static void
-test_play2 (BT_TEST_ARGS)
+test_play_non_existing_file (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtCmdApplication *app;
-  gboolean ret = FALSE;
-
-  app = bt_cmd_application_new (TRUE);
-
+  /* arrange */
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
   check_init_error_trapp ("bt_cmd_application_play",
       "BT_IS_STRING (input_file_name)");
-  ret = bt_cmd_application_play (app, "");
+
+  /* act */
+  gboolean ret = bt_cmd_application_play (app, "");
+
+  /* assert */
   fail_unless (check_has_error_trapped (), NULL);
   fail_unless (ret == FALSE, NULL);
-  // free application
+
+  /* cleanup */
   g_object_checked_unref (app);
   BT_TEST_END;
 }
 
 // test if the info method works with NULL argument for the filename,
-// This is a negative test
 static void
-test_info1 (BT_TEST_ARGS)
+test_info_null_as_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtCmdApplication *app;
-  gboolean ret = FALSE;
-
-  app = bt_cmd_application_new (TRUE);
-
+  /* arrange */
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
   check_init_error_trapp ("bt_cmd_application_info",
       "BT_IS_STRING (input_file_name)");
-  ret = bt_cmd_application_info (app, NULL, NULL);
+
+  /* act */
+  gboolean ret = bt_cmd_application_info (app, NULL, NULL);
+
+  /* assert */
   fail_unless (check_has_error_trapped (), NULL);
   fail_unless (ret == FALSE, NULL);
-  // free application
+
+  /* cleanup */
   g_object_checked_unref (app);
   BT_TEST_END;
 }
 
 // test if the info method works with a empty filename.
-// This is a negative test
 static void
-test_info2 (BT_TEST_ARGS)
+test_info_non_existing_file (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtCmdApplication *app;
-  gboolean ret = FALSE;
-
-  app = bt_cmd_application_new (TRUE);
-
+  /* arrange */
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
   check_init_error_trapp ("bt_cmd_application_info",
       "BT_IS_STRING (input_file_name)");
-  ret = bt_cmd_application_info (app, "", NULL);
+
+  /* act */
+  gboolean ret = bt_cmd_application_info (app, "", NULL);
+
+  /* assert */
   fail_unless (check_has_error_trapped (), NULL);
   fail_unless (ret == FALSE, NULL);
-  // free application
+
+  /* cleanup */
   g_object_checked_unref (app);
   BT_TEST_END;
 }
@@ -134,10 +142,11 @@ bt_cmd_application_test_case (void)
 {
   TCase *tc = tcase_create ("BtCmdApplicationTests");
 
-  tcase_add_test (tc, test_play1);
-  tcase_add_test (tc, test_play2);
-  tcase_add_test (tc, test_info1);
-  tcase_add_test (tc, test_info2);
-  tcase_add_unchecked_fixture (tc, test_setup, test_teardown);
+  tcase_add_test (tc, test_play_null_as_filename);
+  tcase_add_test (tc, test_play_non_existing_file);
+  tcase_add_test (tc, test_info_null_as_filename);
+  tcase_add_test (tc, test_info_non_existing_file);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }
