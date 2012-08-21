@@ -51,7 +51,7 @@ case_teardown (void)
 
 // tests if the play method works without exceptions if we put NULL as filename.
 static void
-test_play_null_as_filename (BT_TEST_ARGS)
+test_bt_cmd_application_play_null_as_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -73,7 +73,7 @@ test_play_null_as_filename (BT_TEST_ARGS)
 
 // file not found test. this is a negative test
 static void
-test_play_non_existing_file (BT_TEST_ARGS)
+test_bt_cmd_application_play_non_existing_file (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -95,7 +95,7 @@ test_play_non_existing_file (BT_TEST_ARGS)
 
 // test if the info method works with NULL argument for the filename,
 static void
-test_info_null_as_filename (BT_TEST_ARGS)
+test_bt_cmd_application_info_null_as_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -117,7 +117,7 @@ test_info_null_as_filename (BT_TEST_ARGS)
 
 // test if the info method works with a empty filename.
 static void
-test_info_non_existing_file (BT_TEST_ARGS)
+test_bt_cmd_application_info_non_existing_file (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -142,10 +142,10 @@ bt_cmd_application_test_case (void)
 {
   TCase *tc = tcase_create ("BtCmdApplicationTests");
 
-  tcase_add_test (tc, test_play_null_as_filename);
-  tcase_add_test (tc, test_play_non_existing_file);
-  tcase_add_test (tc, test_info_null_as_filename);
-  tcase_add_test (tc, test_info_non_existing_file);
+  tcase_add_test (tc, test_bt_cmd_application_play_null_as_filename);
+  tcase_add_test (tc, test_bt_cmd_application_play_non_existing_file);
+  tcase_add_test (tc, test_bt_cmd_application_info_null_as_filename);
+  tcase_add_test (tc, test_bt_cmd_application_info_non_existing_file);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

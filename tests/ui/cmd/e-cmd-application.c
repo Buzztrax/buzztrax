@@ -52,7 +52,7 @@ case_teardown (void)
 //-- tests
 
 static void
-test_create_app (BT_TEST_ARGS)
+test_bt_cmd_application_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -70,7 +70,7 @@ test_create_app (BT_TEST_ARGS)
 }
 
 static void
-test_play (BT_TEST_ARGS)
+test_bt_cmd_application_play (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -89,7 +89,7 @@ test_play (BT_TEST_ARGS)
 }
 
 static void
-test_play_two_files (BT_TEST_ARGS)
+test_bt_cmd_application_play_two_files (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -109,7 +109,7 @@ test_play_two_files (BT_TEST_ARGS)
 }
 
 static void
-test_info (BT_TEST_ARGS)
+test_bt_cmd_application_info (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -138,10 +138,10 @@ bt_cmd_application_example_case (void)
 {
   TCase *tc = tcase_create ("BtCmdApplicationExamples");
 
-  tcase_add_test (tc, test_create_app);
-  tcase_add_test (tc, test_play);
-  tcase_add_test (tc, test_play_two_files);
-  tcase_add_test (tc, test_info);
+  tcase_add_test (tc, test_bt_cmd_application_create);
+  tcase_add_test (tc, test_bt_cmd_application_play);
+  tcase_add_test (tc, test_bt_cmd_application_play_two_files);
+  tcase_add_test (tc, test_bt_cmd_application_info);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

@@ -94,386 +94,364 @@ bt_test_change_logger_new (void)
 
 //-- globals
 
+static BtEditApplication *app;
+static BtMainWindow *main_window;
+
 //-- fixtures
+
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
+}
 
 static void
 test_setup (void)
 {
   bt_edit_setup ();
+  app = bt_edit_application_new ();
+  bt_edit_application_new_song (app);
+  g_object_get (app, "main-window", &main_window, NULL);
+
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
 }
 
 static void
 test_teardown (void)
 {
+  gtk_widget_destroy (GTK_WIDGET (main_window));
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
+
+  g_object_checked_unref (app);
   bt_edit_teardown ();
+}
+
+static void
+case_teardown (void)
+{
 }
 
 //-- tests
 
 // test lifecycle/refcounts
 static void
-test_create_and_destroy1 (BT_TEST_ARGS)
+test_bt_change_log_create_and_destroy (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtChangeLog *cl;
+  /* arrange */
 
-  cl = bt_change_log_new ();
+  /* act */
+  BtChangeLog *cl = bt_change_log_new ();
+
+  /* assert */
   fail_unless (cl != NULL, NULL);
 
-  g_object_checked_unref (cl);
+  /* cleanup */
+  g_object_unref (cl);
   BT_TEST_END;
 }
 
 static void
-test_create_and_destroy2 (BT_TEST_ARGS)
+test_bt_change_log_initial_undo_redo_state (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  BtChangeLog *cl;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  gboolean can_undo, can_redo;
 
-  app = bt_edit_application_new ();
-  GST_INFO ("app=%p, app->ref_ct=%d", app, G_OBJECT_REF_COUNT (app));
-  fail_unless (app != NULL, NULL);
+  /* act */
+  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
-  cl = bt_change_log_new ();
-  GST_INFO ("cl=%p, cl->ref_ct=%d", cl, G_OBJECT_REF_COUNT (cl));
-  fail_unless (cl != NULL, NULL);
+  /* assert */
+  fail_unless (!can_undo, NULL);
+  fail_unless (!can_redo, NULL);
 
-  // close window
-  g_object_get (app, "main-window", &main_window, NULL);
-  gtk_widget_destroy (GTK_WIDGET (main_window));
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
-
+  /* cleanup */
   g_object_unref (cl);
-  g_object_checked_unref (app);
+  BT_TEST_END;
+}
+
+static void
+test_bt_change_log_undo_redo_state_after_single_change (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  BtTestChangeLogger *tcl = bt_test_change_logger_new ();
+  gboolean can_undo, can_redo;
+
+  /* act */
+  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
+
+  /* assert */
+  fail_unless (can_undo, NULL);
+  fail_unless (!can_redo, NULL);
+
+  /* cleanup */
+  g_object_unref (tcl);
+  g_object_unref (cl);
+  BT_TEST_END;
+}
+
+static void
+test_bt_change_log_undo_redo_state_single_change_after_undo (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  BtTestChangeLogger *tcl = bt_test_change_logger_new ();
+  gboolean can_undo, can_redo;
+
+  /* act */
+  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  bt_change_log_undo (tcl->change_log);
+  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
+
+  /* assert */
+  fail_unless (!can_undo, NULL);
+  fail_unless (can_redo, NULL);
+
+  /* cleanup */
+  g_object_unref (tcl);
+  g_object_unref (cl);
+  BT_TEST_END;
+}
+
+static void
+test_bt_change_log_undo_redo_state_single_change_after_redo (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  BtTestChangeLogger *tcl = bt_test_change_logger_new ();
+  gboolean can_undo, can_redo;
+
+  /* act */
+  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  bt_change_log_undo (tcl->change_log);
+  bt_change_log_redo (tcl->change_log);
+  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
+
+  /* assert */
+  fail_unless (can_undo, NULL);
+  fail_unless (!can_redo, NULL);
+
+  /* cleanup */
+  g_object_unref (tcl);
+  g_object_unref (cl);
+  BT_TEST_END;
+}
+
+static void
+test_bt_change_log_undo_redo_state_double_change_after_undo (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  BtTestChangeLogger *tcl = bt_test_change_logger_new ();
+  gboolean can_undo, can_redo;
+
+  /* act */
+  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+      g_strdup ("set_val 5"), g_strdup ("set_val 10"));
+  bt_change_log_undo (tcl->change_log);
+  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
+
+  /* assert */
+  fail_unless (can_undo, NULL);
+  fail_unless (can_redo, NULL);
+
+  /* cleanup */
+  g_object_unref (tcl);
+  g_object_unref (cl);
+  BT_TEST_END;
+}
+
+
+// test truncating the undo/redo stack
+static void
+test_bt_change_log_undo_redo_state_stack_trunc (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  BtTestChangeLogger *tcl = bt_test_change_logger_new ();
+  gboolean can_undo, can_redo;
+
+  /* act */
+  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  bt_change_log_undo (tcl->change_log);
+  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+      g_strdup ("set_val 0"), g_strdup ("set_val 10"));
+  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
+
+  /* assert */
+  fail_unless (can_undo, NULL);
+  fail_unless (!can_redo, NULL);
+
+  /* cleanup */
+  g_object_unref (tcl);
+  g_object_unref (cl);
   BT_TEST_END;
 }
 
 // test single undo/redo actions
 static void
-test_undo_redo_1 (BT_TEST_ARGS)
+test_bt_change_log_single_change_after_undo (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  BtChangeLog *cl;
-  BtTestChangeLogger *tcl;
-  gboolean can_undo, can_redo;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
-  // testing the change log needs a active song as a context
-  app = bt_edit_application_new ();
-  GST_INFO ("back in test app=%p, app->ref_ct=%d", app,
-      G_OBJECT_REF_COUNT (app));
-  fail_unless (app != NULL, NULL);
-  bt_edit_application_new_song (app);
-
-  cl = bt_change_log_new ();
-  fail_unless (cl != NULL, NULL);
-
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (!can_undo, NULL);
-  fail_unless (!can_redo, NULL);
-
-  // create a test instance that implements changelogger iface
-  tcl = bt_test_change_logger_new ();
-  fail_unless (tcl != NULL, NULL);
-
-  // make 1 change
+  /* act */
   tcl->val = 5;
   bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 5"));
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
-
-  // undo & verify
   bt_change_log_undo (tcl->change_log);
+
+  /* assert */
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 0, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (!can_undo, NULL);
-  fail_unless (can_redo, NULL);
 
-  // redo & verify
-  bt_change_log_redo (tcl->change_log);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 5, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
-
-  // close window
-  g_object_get (app, "main-window", &main_window, NULL);
-  gtk_widget_destroy (GTK_WIDGET (main_window));
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
-
+  /* cleanup */
   g_object_unref (tcl);
   g_object_unref (cl);
-  g_object_checked_unref (app);
+  BT_TEST_END;
+}
+
+// test single undo/redo actions
+static void
+test_bt_change_log_single_change_after_redo (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  BtTestChangeLogger *tcl = bt_test_change_logger_new ();
+
+  /* act */
+  tcl->val = 5;
+  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  bt_change_log_undo (tcl->change_log);
+  bt_change_log_redo (tcl->change_log);
+
+  /* assert */
+  GST_DEBUG ("val=%d", tcl->val);
+  fail_unless (tcl->val == 5, NULL);
+
+  /* cleanup */
+  g_object_unref (tcl);
+  g_object_unref (cl);
   BT_TEST_END;
 }
 
 // test double undo/redo actions
 static void
-test_undo_redo_2 (BT_TEST_ARGS)
+test_bt_change_log_two_changes (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  BtChangeLog *cl;
-  BtTestChangeLogger *tcl;
-  gboolean can_undo, can_redo;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
-  // testing the change log needs a active song as a context
-  app = bt_edit_application_new ();
-  GST_INFO ("back in test app=%p, app->ref_ct=%d", app,
-      G_OBJECT_REF_COUNT (app));
-  fail_unless (app != NULL, NULL);
-  bt_edit_application_new_song (app);
-
-  cl = bt_change_log_new ();
-  fail_unless (cl != NULL, NULL);
-
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (!can_undo, NULL);
-  fail_unless (!can_redo, NULL);
-
-  // create a test instance that implements changelogger iface
-  tcl = bt_test_change_logger_new ();
-  fail_unless (tcl != NULL, NULL);
-
-  // make 2 changes
+  /* act (make 2 changes) */
   tcl->val = 5;
   bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 5"));
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
 
   tcl->val = 10;
   bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 5"), g_strdup ("set_val 10"));
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
 
   // undo & verify
   bt_change_log_undo (tcl->change_log);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 5, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (can_redo, NULL);
 
   bt_change_log_undo (tcl->change_log);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 0, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (!can_undo, NULL);
-  fail_unless (can_redo, NULL);
 
   // redo & verify
   bt_change_log_redo (tcl->change_log);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 5, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (can_redo, NULL);
 
   bt_change_log_redo (tcl->change_log);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 10, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
 
-  // close window
-  g_object_get (app, "main-window", &main_window, NULL);
-  gtk_widget_destroy (GTK_WIDGET (main_window));
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
-
+  /* cleanup */
   g_object_unref (tcl);
   g_object_unref (cl);
-  g_object_checked_unref (app);
   BT_TEST_END;
 }
 
 // test single and then double undo/redo actions
 static void
-test_undo_redo_3 (BT_TEST_ARGS)
+test_bt_change_log_single_then_double_change (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  BtChangeLog *cl;
-  BtTestChangeLogger *tcl;
-  gboolean can_undo, can_redo;
-
-  // testing the change log needs a active song as a context
-  app = bt_edit_application_new ();
-  GST_INFO ("back in test app=%p, app->ref_ct=%d", app,
-      G_OBJECT_REF_COUNT (app));
-  fail_unless (app != NULL, NULL);
-  bt_edit_application_new_song (app);
-
-  cl = bt_change_log_new ();
-  fail_unless (cl != NULL, NULL);
-
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (!can_undo, NULL);
-  fail_unless (!can_redo, NULL);
-
-  // create a test instance that implements changelogger iface
-  tcl = bt_test_change_logger_new ();
-  fail_unless (tcl != NULL, NULL);
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
   // make 1 change
   tcl->val = 2;
   bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 2"));
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
 
   // undo & verify
   bt_change_log_undo (tcl->change_log);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 0, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (!can_undo, NULL);
-  fail_unless (can_redo, NULL);
 
   // redo & verify
   bt_change_log_redo (tcl->change_log);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 2, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
 
   // make 2 changes
   tcl->val = 5;
   bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 2"), g_strdup ("set_val 5"));
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
 
   tcl->val = 10;
   bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 5"), g_strdup ("set_val 10"));
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
 
   // undo & verify
   bt_change_log_undo (tcl->change_log);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 5, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (can_redo, NULL);
 
   bt_change_log_undo (tcl->change_log);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 2, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (can_redo, NULL);
 
   // redo & verify
   bt_change_log_redo (tcl->change_log);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 5, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (can_redo, NULL);
 
   bt_change_log_redo (tcl->change_log);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 10, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
 
-  // close window
-  g_object_get (app, "main-window", &main_window, NULL);
-  gtk_widget_destroy (GTK_WIDGET (main_window));
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
-
+  /* cleanup */
   g_object_unref (tcl);
   g_object_unref (cl);
-  g_object_checked_unref (app);
-  BT_TEST_END;
-}
-
-// test truncating the undo/redo stack
-static void
-test_stack_trunc (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  BtChangeLog *cl;
-  BtTestChangeLogger *tcl;
-  gboolean can_undo, can_redo;
-
-  // testing the change log needs a active song as a context
-  app = bt_edit_application_new ();
-  GST_INFO ("back in test app=%p, app->ref_ct=%d", app,
-      G_OBJECT_REF_COUNT (app));
-  fail_unless (app != NULL, NULL);
-  bt_edit_application_new_song (app);
-
-  cl = bt_change_log_new ();
-  fail_unless (cl != NULL, NULL);
-
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (!can_undo, NULL);
-  fail_unless (!can_redo, NULL);
-
-  // create a test instance that implements changelogger iface
-  tcl = bt_test_change_logger_new ();
-  fail_unless (tcl != NULL, NULL);
-
-  // make 1 change
-  tcl->val = 5;
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
-
-  // undo & verify
-  bt_change_log_undo (tcl->change_log);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 0, NULL);
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (!can_undo, NULL);
-  fail_unless (can_redo, NULL);
-
-  // make 1 change
-  tcl->val = 10;
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 10"));
-  g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
-  fail_unless (can_undo, NULL);
-  fail_unless (!can_redo, NULL);
-
-  // close window
-  g_object_get (app, "main-window", &main_window, NULL);
-  gtk_widget_destroy (GTK_WIDGET (main_window));
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
-
-  g_object_unref (tcl);
-  g_object_unref (cl);
-  g_object_checked_unref (app);
   BT_TEST_END;
 }
 
@@ -482,13 +460,21 @@ bt_change_log_example_case (void)
 {
   TCase *tc = tcase_create ("BtChangeLogExamples");
 
-  tcase_add_test (tc, test_create_and_destroy1);
-  tcase_add_test (tc, test_create_and_destroy2);
-  tcase_add_test (tc, test_undo_redo_1);
-  tcase_add_test (tc, test_undo_redo_2);
-  tcase_add_test (tc, test_undo_redo_3);
-  tcase_add_test (tc, test_stack_trunc);
-  // we *must* use a checked fixture, as only this runs in the same context
+  tcase_add_test (tc, test_bt_change_log_create_and_destroy);
+  tcase_add_test (tc, test_bt_change_log_initial_undo_redo_state);
+  tcase_add_test (tc, test_bt_change_log_undo_redo_state_after_single_change);
+  tcase_add_test (tc,
+      test_bt_change_log_undo_redo_state_single_change_after_undo);
+  tcase_add_test (tc,
+      test_bt_change_log_undo_redo_state_single_change_after_redo);
+  tcase_add_test (tc,
+      test_bt_change_log_undo_redo_state_double_change_after_undo);
+  tcase_add_test (tc, test_bt_change_log_undo_redo_state_stack_trunc);
+  tcase_add_test (tc, test_bt_change_log_single_change_after_undo);
+  tcase_add_test (tc, test_bt_change_log_single_change_after_redo);
+  tcase_add_test (tc, test_bt_change_log_two_changes);
+  tcase_add_test (tc, test_bt_change_log_single_then_double_change);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }

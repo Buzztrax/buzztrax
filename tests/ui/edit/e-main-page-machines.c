@@ -82,12 +82,10 @@ case_teardown (void)
 
 //-- tests
 
-
 static void
 test_bt_main_page_machines_focus (BT_TEST_ARGS)
 {
   BT_TEST_START;
-
   /* arrange */
 
   /* act */
