@@ -21,74 +21,67 @@
 
 //-- globals
 
+static BtEditApplication *app;
+static BtMainWindow *main_window;
+
 //-- fixtures
+
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
+}
 
 static void
 test_setup (void)
 {
   bt_edit_setup ();
+  app = bt_edit_application_new ();
+  g_object_get (app, "main-window", &main_window, NULL);
+
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
 }
 
 static void
 test_teardown (void)
 {
-  bt_edit_teardown ();
-}
-
-//-- tests
-
-// create app and then unconditionally destroy window
-static void
-test_create_dialog (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  GtkWidget *dialog;
-  GEnumClass *enum_class;
-  GEnumValue *enum_value;
-  guint i;
-
-  app = bt_edit_application_new ();
-  GST_INFO ("back in test app=%p, app->ref_ct=%d", app,
-      G_OBJECT_REF_COUNT (app));
-  fail_unless (app != NULL, NULL);
-
-  // get window
-  g_object_get (app, "main-window", &main_window, NULL);
-  fail_unless (main_window != NULL, NULL);
-
-  // create, show and destroy dialog
-  dialog = GTK_WIDGET (bt_settings_dialog_new ());
-  fail_unless (dialog != NULL, NULL);
-  gtk_widget_show_all (dialog);
-  // leave out that line! (modal dialog)
-  //gtk_dialog_run(GTK_DIALOG(dialog));
-
-  // snapshot all dialog pages
-  enum_class = g_type_class_peek_static (BT_TYPE_SETTINGS_PAGE);
-  for (i = enum_class->minimum; i <= enum_class->maximum; i++) {
-    if ((enum_value = g_enum_get_value (enum_class, i))) {
-      g_object_set (G_OBJECT (dialog), "page", i, NULL);
-
-      // make screenshot
-      check_make_widget_screenshot (GTK_WIDGET (dialog),
-          enum_value->value_nick);
-      while (gtk_events_pending ())
-        gtk_main_iteration ();
-    }
-  }
-
-  gtk_widget_destroy (dialog);
-
-  // close window
   gtk_widget_destroy (GTK_WIDGET (main_window));
   while (gtk_events_pending ())
     gtk_main_iteration ();
 
-  // free application
-  GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
   g_object_checked_unref (app);
+  bt_edit_teardown ();
+}
+
+static void
+case_teardown (void)
+{
+}
+
+//-- tests
+
+static void
+test_bt_settings_dialog_create (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  GEnumClass *enum_class = g_type_class_ref (BT_TYPE_SETTINGS_PAGE);
+  GEnumValue *enum_value = g_enum_get_value (enum_class, _i);
+
+  /* act */
+  GtkWidget *dialog = GTK_WIDGET (bt_settings_dialog_new ());
+
+  /* assert */
+  fail_unless (dialog != NULL, NULL);
+  g_object_set (G_OBJECT (dialog), "page", _i, NULL);
+  gtk_widget_show_all (dialog);
+  check_make_widget_screenshot (dialog, enum_value->value_nick);
+
+  /* cleanup */
+  gtk_widget_destroy (dialog);
+  g_type_class_unref (enum_class);
   BT_TEST_END;
 }
 
@@ -97,8 +90,9 @@ bt_settings_dialog_example_case (void)
 {
   TCase *tc = tcase_create ("BtSettingsDialogExamples");
 
-  tcase_add_test (tc, test_create_dialog);
-  // we *must* use a checked fixture, as only this runs in the same context
+  tcase_add_loop_test (tc, test_bt_settings_dialog_create, 0,
+      BT_SETTINGS_PAGE_DIRECTORIES + 1);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }
