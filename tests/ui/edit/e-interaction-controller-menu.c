@@ -21,61 +21,83 @@
 
 //-- globals
 
+static BtEditApplication *app;
+static BtMainWindow *main_window;
+
 //-- fixtures
+
+static void
+case_setup (void)
+{
+  GST_INFO
+      ("================================================================================");
+}
 
 static void
 test_setup (void)
 {
   bt_edit_setup ();
+  app = bt_edit_application_new ();
+  g_object_get (app, "main-window", &main_window, NULL);
+
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
 }
 
 static void
 test_teardown (void)
 {
+  gtk_widget_destroy (GTK_WIDGET (main_window));
+  while (gtk_events_pending ())
+    gtk_main_iteration ();
+
+  g_object_checked_unref (app);
   bt_edit_teardown ();
+}
+
+static void
+case_teardown (void)
+{
 }
 
 //-- helper
 
 //-- tests
 
-// view all tabs
 static void
-test_create_menu (BT_TEST_ARGS)
+test_bt_interaction_controller_menu_create_range_menu (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  GtkWidget *menu;
+  /* arrange */
 
-  app = bt_edit_application_new ();
-  GST_INFO ("back in test app=%p, app->ref_ct=%d", app,
-      G_OBJECT_REF_COUNT (app));
-  fail_unless (app != NULL, NULL);
-
-  // get window
-  g_object_get (app, "main-window", &main_window, NULL);
-  fail_unless (main_window != NULL, NULL);
-  GST_INFO ("main_window->ref_ct=%d", G_OBJECT_REF_COUNT (main_window));
-
-  // make menus
-  menu = (GtkWidget *)
+  /* act */
+  GtkWidget *menu = (GtkWidget *)
       bt_interaction_controller_menu_new (BT_INTERACTION_CONTROLLER_RANGE_MENU);
-  fail_unless (menu != NULL, NULL);
-  gtk_widget_destroy (menu);
 
-  menu = (GtkWidget *)
+  /* assert */
+  fail_unless (menu != NULL, NULL);
+
+  /* cleanup */
+  gtk_widget_destroy (menu);
+  BT_TEST_END;
+}
+
+static void
+test_bt_interaction_controller_menu_create_trigger_menu (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+
+  /* act */
+  GtkWidget *menu = (GtkWidget *)
       bt_interaction_controller_menu_new
       (BT_INTERACTION_CONTROLLER_TRIGGER_MENU);
+
+  /* assert */
   fail_unless (menu != NULL, NULL);
+
+  /* cleanup */
   gtk_widget_destroy (menu);
-
-  gtk_widget_destroy (GTK_WIDGET (main_window));
-
-  // free application
-  GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
-  g_object_checked_unref (app);
-
   BT_TEST_END;
 }
 
@@ -84,8 +106,9 @@ bt_interaction_controller_menu_example_case (void)
 {
   TCase *tc = tcase_create ("BtInteractionControllerMenuExamples");
 
-  tcase_add_test (tc, test_create_menu);
-  // we *must* use a checked fixture, as only this runs in the same context
+  tcase_add_test (tc, test_bt_interaction_controller_menu_create_range_menu);
+  tcase_add_test (tc, test_bt_interaction_controller_menu_create_trigger_menu);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }
