@@ -1,9 +1,58 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 git diff @{2012-01-01} @{2012-01-31} | diffstat
 
+2012/09 ========================================================================
+
+* songs save non-dynamic settings + ui refactories to not show empty dialogs if
+  a machine has no static settings
+* more UI tests
+* cleanup all UI tests, 82 tests now
+* gstreamer preset can handle machines with children (sidsyn in my case or e.g.
+  the parametric eq in gstreamer)
+* preset handling in buzzmachine will store presets in user-data-dir to allow
+  machine updates without overwriting user presets.
+
 2012/08 ========================================================================
 
-* streamline recordign dialogs
+I started the month with some preparational work for the 2nd GSoc task - to use
+GstEncodeBin for recording. The first change was to streamline the recording UI.
+Instead of two dialog - one for setting and one for the progress - we now just
+show one. This causes less noise on the screen and avoids us some data passing.
+I also added a bunch of unit tests for sink bin to provide a means to check for
+regressions when switching the implementation. This also uncovered some
+unimplemented code path on the gstreamer side. Those are now fixed or handled on
+our side.
+
+In the mid of the month I could merge the encodebin transition. It is a very
+decent code simplification (68 insertions(+), 113 deletions(-)). Adding new
+output formats is a piece of cake now. And as a bonus, the code is now platform
+independent - instead of specifying the explicit elements to use, we now specify
+the container and audio track format. This way encodebin would pick suitable
+elements depending on what is available.
+
+After the audiosynth baseclass was added, I wanted to see how well it works and
+started with a long time todo - a c64 sid synthesizer plugin. This wraps the
+rsid library - an awesome cycle based sid emulation. The library API is quite
+simple; basically:
+  init(); update(regs[29]); clock(*buffer, num_samples); release();
+I was really happy to also see a lot of technical information about the sid chip
+available on the net. When designing the gstreamer element API one needs to have
+a little understanding how the chip is use to still provide a convenient access
+to the parameters, but now hide important modes. That needs a bit of experiments
+to decide whether individual bits need to be exposed or only certain
+combinations make sense. In addition I implemented a couple of the typical
+effects. The normal timing resolution of a tracker song is not too high and thus
+one needs support from the element to provide things like arpeggio, portamento
+and vibrato.
+
+The sidsyn is the first more complex audio synth we have in buzztard. It is also
+the first one that uses more of the gst-buzztard API. This was a good
+opportunity to review and cleanup the APIs a bit. With those cleanups I also
+killed the help interface, as new enough gstreamer has the required feature on
+the element metadata side and the feature is not crucial any way.
+
+This month I skip the git stats, as I took the indent git commit hook into use
+and reformatted the buzztard code base. Voilà: buzztard - now with whitespace!
 
 2012/07 ========================================================================
 
