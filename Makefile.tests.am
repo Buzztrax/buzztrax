@@ -274,7 +274,9 @@ test-clean-local:
 ##	echo "build with --enable-debug=yes"
 ##	echo "========================================"
 
-.PHONY: coverage valgrind test-status
+.PHONY: \
+  coverage class-coverage \
+  valgrind test-status
 
 # make coverage        -- generate coverage report from make check run
 if USE_LCOV
@@ -308,6 +310,20 @@ coverage:: $(TESTS_BIN)
 	mkdir -p coverage; \
 	bcov-report -i $(top_abs_srcdir) .bcovdump.all coverage
 endif
+
+# make class-coverage  -- generate coverage report on class level
+class-coverage::
+	@for dir in lib/core/ lib/ic ui/cmd ui/edit; do \
+	  (cd $(top_srcdir)/src/$$dir; ls -1 *.c) | egrep -v "(marshal|bt-edit|bt-cmd)" >/tmp/c1.txt; \
+	  (cd $(top_srcdir)/tests/$$dir; ls -1 s-*.c | cut -c3-) >/tmp/c2.txt; \
+	  total=`cat /tmp/c1.txt | wc -l`; \
+	  done=`comm -1 -2 /tmp/c1.txt /tmp/c2.txt | wc -l`; \
+	  percent=`echo "$${done}00/$$total" | bc`; \
+	  echo "# $$percent % ($$done/$$total) $$dir"; \
+	  comm -2 -3 /tmp/c1.txt /tmp/c2.txt | sed "s/^/  /g"; \
+	done; \
+	rm /tmp/c1.txt /tmp/c2.txt
+
 
 if USE_VALGRIND
 VALPREFIX = \

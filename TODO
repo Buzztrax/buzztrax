@@ -21,23 +21,6 @@
 * review tests
   * ensure we follow Arrange/Act/assert or Given/When/Then style
     http://en.wikipedia.org/wiki/Behavior_Driven_Development
-  * check that each class is covered by test suites
-    lib/core/
-      (cd src/lib/core; ls -1 *.c) | grep -v "marshal" >/tmp/c1.txt;
-      (cd tests/lib/core; ls -1 s-*.c | cut -c3-) >/tmp/c2.txt;
-    lib/ic
-      (cd src/lib/ic; ls -1 *.c) | grep -v "marshal" >/tmp/c1.txt;
-      (cd tests/lib/ic; ls -1 s-*.c | cut -c3-) >/tmp/c2.txt;
-    ui/cmd
-      (cd src/ui/cmd; ls -1 *.c) | grep -v "marshal" >/tmp/c1.txt;
-      (cd tests/ui/cmd; ls -1 s-*.c | cut -c3-) >/tmp/c2.txt;
-    ui/edit
-      (cd src/ui/edit; ls -1 *.c) | grep -v "marshal" >/tmp/c1.txt;
-      (cd tests/ui/edit; ls -1 s-*.c | cut -c3-) >/tmp/c2.txt;
-    *
-      comm -2 -3 /tmp/c{1,2}.txt
-      rm /tmp/{1,2}.txt
-    
   * check that all public api is used in tests
     nm --defined-only .libs/libbuzztard-core.a | grep " T " | cut -d' ' -f3 | grep -v "marshal" | sort >/tmp/m1.txt;
     nm --undefined-only .libs/libbtcore-check.a | grep " U bt" | cut -c20- | sort | uniq >/tmp/m2.txt;
