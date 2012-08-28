@@ -2,8 +2,18 @@
 browser
 connection?
 controller
+duration
+duration.ogg
+encode
+encode.flac
+encode.m*
+encode.raw
+encode.*ogg
+encode.wav
 event
-event.*
+event.bus.*
+event.elem.*
+event.gp
 event_*.*
 gst?
 fmtnego
@@ -12,6 +22,7 @@ latencies_*/
 link?
 loop?
 net?
+oggmux
 ref
 registry?
 seek?
