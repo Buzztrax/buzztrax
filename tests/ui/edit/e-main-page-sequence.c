@@ -49,8 +49,7 @@ test_setup (void)
   gtk_notebook_set_current_page (GTK_NOTEBOOK (pages),
       BT_MAIN_PAGES_SEQUENCE_PAGE);
 
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
 
   // TODO(ensonic): why is gtk not invoking focus()?
   {
@@ -69,8 +68,7 @@ test_teardown (void)
   g_object_unref (pages);
 
   gtk_widget_destroy (GTK_WIDGET (main_window));
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
 
   g_object_checked_unref (app);
   bt_edit_teardown ();

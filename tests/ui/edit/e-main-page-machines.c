@@ -47,8 +47,7 @@ test_setup (void)
   gtk_notebook_set_current_page (GTK_NOTEBOOK (pages),
       BT_MAIN_PAGES_MACHINES_PAGE);
 
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
 
   // TODO(ensonic): why is gtk not invoking focus()?
   {
@@ -66,8 +65,7 @@ test_teardown (void)
   g_object_unref (pages);
 
   gtk_widget_destroy (GTK_WIDGET (main_window));
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
 
   g_object_checked_unref (app);
   bt_edit_teardown ();
@@ -116,6 +114,7 @@ test_bt_main_page_machines_machine_create (BT_TEST_ARGS)
 
   /* assert */
   fail_unless (src_machine != NULL, NULL);
+  flush_main_loop ();
 
   /* cleanup */
   g_object_unref (src_machine);
@@ -147,8 +146,7 @@ test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
   bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
   src_machine = bt_setup_get_machine_by_id (setup, "beep1");
 
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
 
   GST_INFO ("machine %p,ref_count=%d has been created", src_machine,
       G_OBJECT_REF_COUNT (src_machine));
@@ -158,13 +156,11 @@ test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
   bt_main_page_machines_delete_machine (machines_page, src_machine);
   g_object_unref (machines_page);
 
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
-
   /* assert */
   g_object_checked_unref (src_machine);
 
   /* cleanup */
+  flush_main_loop ();
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -188,8 +184,7 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
 
   /* act */
   bt_setup_remove_machine (setup, machine);
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   GST_INFO ("setup.machine[sine2].ref_count=%d", G_OBJECT_REF_COUNT (machine));
 
   /* assert */
@@ -221,8 +216,7 @@ test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
 
   /* act */
   bt_setup_remove_machine (setup, machine);
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine));
 
   /* assert */
@@ -258,8 +252,7 @@ test_bt_main_page_machines_remove_wire (BT_TEST_ARGS)
 
   /* act */
   bt_setup_remove_wire (setup, wire);
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   GST_INFO ("setup.wire[sine1->amp1].ref_count=%d", G_OBJECT_REF_COUNT (wire));
 
   /* assert */
@@ -313,8 +306,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   wire = bt_setup_get_wire_by_machines (setup, machine1, machine2);
   GST_INFO ("setup.wire[sine1->amp1].ref_count=%d", G_OBJECT_REF_COUNT (wire));
   bt_setup_remove_wire (setup, wire);
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   GST_INFO ("setup.wire[sine1->amp1].ref_count=%d", G_OBJECT_REF_COUNT (wire));
   // ref count should be 1 now
   fail_unless (G_OBJECT_REF_COUNT (wire) == 1, NULL);
@@ -323,8 +315,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   // remove a source
   GST_INFO ("setup.machine[sine1].ref_count=%d", G_OBJECT_REF_COUNT (machine1));
   bt_setup_remove_machine (setup, machine1);
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   GST_INFO ("setup.machine[sine1].ref_count=%d", G_OBJECT_REF_COUNT (machine1));
   // ref count should be 1 now
   fail_unless (G_OBJECT_REF_COUNT (machine1) == 1, NULL);
@@ -333,8 +324,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   // remove an effect
   GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine2));
   bt_setup_remove_machine (setup, machine2);
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine2));
   // ref count should be 1 now
   fail_unless (G_OBJECT_REF_COUNT (machine2) == 1, NULL);

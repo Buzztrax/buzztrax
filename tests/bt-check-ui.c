@@ -339,8 +339,7 @@ make_screenshot (GtkWidget * widget)
     //gtk_window_move(GTK_WINDOW(widget),30,30);
   }
   gtk_widget_queue_draw (widget);
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
 
   gdk_window_get_geometry (window, NULL, NULL, &ww, &wh, NULL);
   return (gdk_pixbuf_get_from_drawable (NULL, window, NULL, 0, 0, 0, 0, ww,
@@ -720,8 +719,7 @@ check_send_key (GtkWidget * widget, guint state, guint keyval,
   e->hardware_keycode = hardware_keycode;
   e->state |= state;
   gtk_main_do_event ((GdkEvent *) e);
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   gdk_event_free ((GdkEvent *) e);
 
   e = (GdkEventKey *) gdk_event_new (GDK_KEY_RELEASE);
@@ -730,8 +728,7 @@ check_send_key (GtkWidget * widget, guint state, guint keyval,
   e->hardware_keycode = hardware_keycode;
   e->state |= GDK_RELEASE_MASK;
   gtk_main_do_event ((GdkEvent *) e);
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   gdk_event_free ((GdkEvent *) e);
 }
 
@@ -760,8 +757,7 @@ check_send_click (GtkWidget * widget, guint button, gdouble x, gdouble y)
   e->y = y;
   e->state = GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK;
   gtk_main_do_event ((GdkEvent *) e);
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   gdk_event_free ((GdkEvent *) e);
 
   e = (GdkEventButton *) gdk_event_new (GDK_BUTTON_RELEASE);
@@ -771,7 +767,18 @@ check_send_click (GtkWidget * widget, guint button, gdouble x, gdouble y)
   e->y = y;
   e->state = GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK;
   gtk_main_do_event ((GdkEvent *) e);
+  flush_main_loop ();
+  gdk_event_free ((GdkEvent *) e);
+}
+
+/*
+ * flush_main_loop:
+ *
+ * Process pending events.
+ */
+void
+flush_main_loop (void)
+{
   while (gtk_events_pending ())
     gtk_main_iteration ();
-  gdk_event_free ((GdkEvent *) e);
 }

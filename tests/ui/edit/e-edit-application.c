@@ -40,16 +40,14 @@ test_setup (void)
   app = bt_edit_application_new ();
   g_object_get (app, "main-window", &main_window, NULL);
 
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
 }
 
 static void
 test_teardown (void)
 {
   gtk_widget_destroy (GTK_WIDGET (main_window));
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
 
   g_object_checked_unref (app);
   bt_edit_teardown ();
@@ -286,8 +284,7 @@ test_bt_edit_application_load_and_play (BT_TEST_ARGS)
   fail_unless (playing == TRUE, NULL);
 
   /* cleanup */
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   bt_song_stop (song);
   g_object_unref (song);
   BT_TEST_END;
@@ -340,12 +337,10 @@ test_bt_edit_application_view_all_tabs (BT_TEST_ARGS)
       BT_WAVE_LOOP_MODE_OFF, 0);
   fail_unless (wave != NULL, NULL);
   // sample loading is async
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   // stimulate ui update
   g_object_notify (G_OBJECT (app), "song");
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   // free resources
   g_object_unref (wave);
   g_object_unref (song);
@@ -401,12 +396,10 @@ test_bt_edit_application_view_all_tabs_playing (BT_TEST_ARGS)
       BT_WAVE_LOOP_MODE_OFF, 0);
   fail_unless (wave != NULL, NULL);
   // sample loading is async
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   // stimulate ui update
   g_object_notify (G_OBJECT (app), "song");
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   // free resources
   g_object_unref (wave);
   g_object_unref (song);

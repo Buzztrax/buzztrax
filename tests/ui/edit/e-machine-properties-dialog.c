@@ -41,16 +41,14 @@ test_setup (void)
   app = bt_edit_application_new ();
   g_object_get (app, "main-window", &main_window, NULL);
 
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
 }
 
 static void
 test_teardown (void)
 {
   gtk_widget_destroy (GTK_WIDGET (main_window));
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
 
   g_object_checked_unref (app);
   bt_edit_teardown ();
@@ -119,8 +117,7 @@ test_bt_machine_properties_dialog_update (BT_TEST_ARGS)
   // play for a while to trigger dialog updates
   bt_song_play (song);
   bt_song_update_playback_position (song);
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  flush_main_loop ();
   bt_song_stop (song);
 
   /* assert */
