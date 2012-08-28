@@ -92,8 +92,8 @@ test_bt_machine_canvas_item_create (BT_TEST_ARGS)
 
   /* cleanup */
   flush_main_loop ();
-  g_object_unref (item);
-  g_object_unref (machine);
+  gtk_object_destroy ((GtkObject *) item);
+  gst_object_unref (machine);
   g_object_unref (machines_page);
   g_object_unref (setup);
   BT_TEST_END;

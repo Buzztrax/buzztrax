@@ -103,21 +103,20 @@ test_bt_main_page_machines_machine_create (BT_TEST_ARGS)
   /* arrange */
   BtMainPageMachines *machines_page;
   BtSetup *setup;
-  BtMachine *src_machine;
 
   g_object_get (song, "setup", &setup, NULL);
   g_object_get (pages, "machines-page", &machines_page, NULL);
 
   /* act */
   bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
-  src_machine = bt_setup_get_machine_by_id (setup, "beep1");
+  BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep1");
 
   /* assert */
-  fail_unless (src_machine != NULL, NULL);
+  fail_unless (machine != NULL, NULL);
   flush_main_loop ();
 
   /* cleanup */
-  g_object_unref (src_machine);
+  gst_object_unref (machine);
   g_object_unref (machines_page);
   g_object_unref (setup);
   BT_TEST_END;
@@ -173,13 +172,12 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   /* arrange */
   BtSong *song;
   BtSetup *setup;
-  BtMachine *machine;
 
   bt_edit_application_load_song (app,
       check_get_test_song_path ("test-simple1.xml"));
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
-  machine = bt_setup_get_machine_by_id (setup, "sine1");
+  BtMachine *machine = bt_setup_get_machine_by_id (setup, "sine1");
   GST_INFO ("setup.machine[sine2].ref_count=%d", G_OBJECT_REF_COUNT (machine));
 
   /* act */
@@ -191,7 +189,7 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   ck_assert_int_eq (G_OBJECT_REF_COUNT (machine), 1);
 
   /* cleanup */
-  g_object_unref (machine);
+  gst_object_unref (machine);
   g_object_unref (setup);
   g_object_unref (song);
   BT_TEST_END;
@@ -205,13 +203,12 @@ test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
   /* arrange */
   BtSong *song;
   BtSetup *setup;
-  BtMachine *machine;
 
   bt_edit_application_load_song (app,
       check_get_test_song_path ("test-simple2.xml"));
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
-  machine = bt_setup_get_machine_by_id (setup, "amp1");
+  BtMachine *machine = bt_setup_get_machine_by_id (setup, "amp1");
   GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine));
 
   /* act */
@@ -223,7 +220,7 @@ test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
   ck_assert_int_eq (G_OBJECT_REF_COUNT (machine), 1);
 
   /* cleanup */
-  g_object_unref (machine);
+  gst_object_unref (machine);
   g_object_unref (setup);
   g_object_unref (song);
   BT_TEST_END;
@@ -236,18 +233,16 @@ test_bt_main_page_machines_remove_wire (BT_TEST_ARGS)
   /* arrange */
   BtSong *song;
   BtSetup *setup;
-  BtWire *wire;
-  BtMachine *machine1, *machine2;
 
   bt_edit_application_load_song (app,
       check_get_test_song_path ("test-simple2.xml"));
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
-  machine1 = bt_setup_get_machine_by_id (setup, "sine1");
+  BtMachine *machine1 = bt_setup_get_machine_by_id (setup, "sine1");
   GST_INFO ("setup.machine[sine1].ref_count=%d", G_OBJECT_REF_COUNT (machine1));
-  machine2 = bt_setup_get_machine_by_id (setup, "amp1");
+  BtMachine *machine2 = bt_setup_get_machine_by_id (setup, "amp1");
   GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine2));
-  wire = bt_setup_get_wire_by_machines (setup, machine1, machine2);
+  BtWire *wire = bt_setup_get_wire_by_machines (setup, machine1, machine2);
   GST_INFO ("setup.wire[sine1->amp1].ref_count=%d", G_OBJECT_REF_COUNT (wire));
 
   /* act */
@@ -259,9 +254,9 @@ test_bt_main_page_machines_remove_wire (BT_TEST_ARGS)
   ck_assert_int_eq (G_OBJECT_REF_COUNT (wire), 1);
 
   /* cleanup */
-  g_object_unref (wire);
-  g_object_unref (machine1);
-  g_object_unref (machine2);
+  gst_object_unref (wire);
+  gst_object_unref (machine1);
+  gst_object_unref (machine2);
   g_object_unref (setup);
   g_object_unref (song);
   BT_TEST_END;
@@ -276,8 +271,6 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   BtMainPages *pages;
   BtSong *song;
   BtSetup *setup;
-  BtWire *wire;
-  BtMachine *machine1, *machine2;
 
   // sine1 ! amp1 ! master + sine2 ! amp1
   //bt_edit_application_load_song(app, check_get_test_song_path("test-simple3.xml"));
@@ -299,18 +292,18 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   g_object_unref (pages);
 
   // remove wire
-  machine1 = bt_setup_get_machine_by_id (setup, "sine1");
+  BtMachine *machine1 = bt_setup_get_machine_by_id (setup, "sine1");
   GST_INFO ("setup.machine[sine1].ref_count=%d", G_OBJECT_REF_COUNT (machine1));
-  machine2 = bt_setup_get_machine_by_id (setup, "amp1");
+  BtMachine *machine2 = bt_setup_get_machine_by_id (setup, "amp1");
   GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine2));
-  wire = bt_setup_get_wire_by_machines (setup, machine1, machine2);
+  BtWire *wire = bt_setup_get_wire_by_machines (setup, machine1, machine2);
   GST_INFO ("setup.wire[sine1->amp1].ref_count=%d", G_OBJECT_REF_COUNT (wire));
   bt_setup_remove_wire (setup, wire);
   flush_main_loop ();
   GST_INFO ("setup.wire[sine1->amp1].ref_count=%d", G_OBJECT_REF_COUNT (wire));
   // ref count should be 1 now
   fail_unless (G_OBJECT_REF_COUNT (wire) == 1, NULL);
-  g_object_unref (wire);
+  gst_object_unref (wire);
 
   // remove a source
   GST_INFO ("setup.machine[sine1].ref_count=%d", G_OBJECT_REF_COUNT (machine1));
@@ -319,7 +312,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   GST_INFO ("setup.machine[sine1].ref_count=%d", G_OBJECT_REF_COUNT (machine1));
   // ref count should be 1 now
   fail_unless (G_OBJECT_REF_COUNT (machine1) == 1, NULL);
-  g_object_unref (machine1);
+  gst_object_unref (machine1);
 
   // remove an effect
   GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine2));
@@ -328,7 +321,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine2));
   // ref count should be 1 now
   fail_unless (G_OBJECT_REF_COUNT (machine2) == 1, NULL);
-  g_object_unref (machine2);
+  gst_object_unref (machine2);
 
   /* cleanup */
   g_object_unref (setup);
