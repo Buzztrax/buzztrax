@@ -99,17 +99,42 @@ test_bt_main_page_machines_focus (BT_TEST_ARGS)
 }
 
 static void
-test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
+test_bt_main_page_machines_machine_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  /* arrange */
   BtMainPageMachines *machines_page;
   BtSetup *setup;
   BtMachine *src_machine;
 
-  /* arrange */
   g_object_get (song, "setup", &setup, NULL);
+  g_object_get (pages, "machines-page", &machines_page, NULL);
 
-  g_object_get (G_OBJECT (pages), "machines-page", &machines_page, NULL);
+  /* act */
+  bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
+  src_machine = bt_setup_get_machine_by_id (setup, "beep1");
+
+  /* assert */
+  fail_unless (src_machine != NULL, NULL);
+
+  /* cleanup */
+  g_object_unref (src_machine);
+  g_object_unref (machines_page);
+  g_object_unref (setup);
+  BT_TEST_END;
+}
+
+static void
+test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMainPageMachines *machines_page;
+  BtSetup *setup;
+  BtMachine *src_machine;
+
+  g_object_get (song, "setup", &setup, NULL);
+  g_object_get (pages, "machines-page", &machines_page, NULL);
   /* remove some other pages
      // (ev. run for all combinations - if a test using all pages fails?)
      gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
@@ -117,14 +142,10 @@ test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
      gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
      gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
    */
-  // show page
-  gtk_notebook_set_current_page (GTK_NOTEBOOK (pages),
-      BT_MAIN_PAGES_MACHINES_PAGE);
 
   // add and get a source machine
   bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
   src_machine = bt_setup_get_machine_by_id (setup, "beep1");
-  fail_unless (src_machine != NULL, NULL);
 
   while (gtk_events_pending ())
     gtk_main_iteration ();
@@ -132,6 +153,7 @@ test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
   GST_INFO ("machine %p,ref_count=%d has been created", src_machine,
       G_OBJECT_REF_COUNT (src_machine));
 
+  /* act */
   // remove the machine and check that it is disposed below
   bt_main_page_machines_delete_machine (machines_page, src_machine);
   g_object_unref (machines_page);
@@ -139,8 +161,10 @@ test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
   while (gtk_events_pending ())
     gtk_main_iteration ();
 
-  /* cleanup */
+  /* assert */
   g_object_checked_unref (src_machine);
+
+  /* cleanup */
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -328,6 +352,7 @@ bt_machine_page_example_case (void)
   TCase *tc = tcase_create ("BtMachinePageExamples");
 
   tcase_add_test (tc, test_bt_main_page_machines_focus);
+  tcase_add_test (tc, test_bt_main_page_machines_machine_create);
   tcase_add_test (tc, test_bt_main_page_machines_machine_ref);
   tcase_add_test (tc, test_bt_main_page_machines_remove_source_machine);
   tcase_add_test (tc, test_bt_main_page_machines_remove_processor_machine);

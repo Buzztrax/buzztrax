@@ -40,6 +40,7 @@ extern Suite *bt_crash_recover_dialog_suite (void);
 extern Suite *bt_edit_application_suite (void);
 extern Suite *bt_interaction_controller_menu_suite (void);
 extern Suite *bt_machine_actions_suite (void);
+extern Suite *bt_machine_canvas_item_suite (void);
 extern Suite *bt_machine_page_suite (void);
 extern Suite *bt_machine_preset_properties_dialog_suite (void);
 extern Suite *bt_machine_preferences_dialog_suite (void);
@@ -55,6 +56,7 @@ extern Suite *bt_sequence_page_suite (void);
 extern Suite *bt_settings_dialog_suite (void);
 extern Suite *bt_signal_analysis_dialog_suite (void);
 extern Suite *bt_tip_dialog_suite (void);
+extern Suite *bt_wire_canvas_item_suite (void);
 
 gchar *test_argv[] = { "check_buzzard", "--sync" };
 
@@ -179,6 +181,7 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_edit_application_suite ());
   srunner_add_suite (sr, bt_interaction_controller_menu_suite ());
   srunner_add_suite (sr, bt_machine_actions_suite ());
+  srunner_add_suite (sr, bt_machine_canvas_item_suite ());
   srunner_add_suite (sr, bt_machine_page_suite ());
   srunner_add_suite (sr, bt_machine_preset_properties_dialog_suite ());
   srunner_add_suite (sr, bt_machine_preferences_dialog_suite ());
@@ -194,6 +197,7 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_settings_dialog_suite ());
   srunner_add_suite (sr, bt_signal_analysis_dialog_suite ());
   srunner_add_suite (sr, bt_tip_dialog_suite ());
+  srunner_add_suite (sr, bt_wire_canvas_item_suite ());
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);
   srunner_free (sr);
