@@ -23,6 +23,7 @@
 
 static BtEditApplication *app;
 static BtSong *song;
+static BtSetup *setup;
 static BtMainWindow *main_window;
 static BtMainPages *pages;
 
@@ -43,6 +44,7 @@ test_setup (void)
   bt_edit_application_new_song (app);
   g_object_get (app, "song", &song, "main-window", &main_window, NULL);
   g_object_get (main_window, "pages", &pages, NULL);
+  g_object_get (song, "setup", &setup, NULL);
 
   gtk_notebook_set_current_page (GTK_NOTEBOOK (pages),
       BT_MAIN_PAGES_MACHINES_PAGE);
@@ -53,6 +55,7 @@ test_setup (void)
 static void
 test_teardown (void)
 {
+  g_object_unref (setup);
   g_object_unref (song);
   g_object_unref (pages);
 
@@ -76,9 +79,7 @@ test_bt_machine_canvas_item_create (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMainPageMachines *machines_page;
-  BtSetup *setup;
 
-  g_object_get (song, "setup", &setup, NULL);
   g_object_get (pages, "machines-page", &machines_page, NULL);
   bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep1");
@@ -95,9 +96,99 @@ test_bt_machine_canvas_item_create (BT_TEST_ARGS)
   gtk_object_destroy ((GtkObject *) item);
   gst_object_unref (machine);
   g_object_unref (machines_page);
-  g_object_unref (setup);
   BT_TEST_END;
 }
+
+static void
+test_bt_machine_canvas_item_show_analyzer (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMainPageMachines *machines_page;
+  GtkWidget *dialog;
+
+  g_object_get (pages, "machines-page", &machines_page, NULL);
+  bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
+  BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep1");
+  BtMachineCanvasItem *item =
+      bt_machine_canvas_item_new (machines_page, machine, 100.0, 100.0, 1.0);
+
+  /* act */
+  bt_machine_show_analyzer_dialog (machine);
+
+  /* assert */
+  g_object_get (item, "analysis-dialog", &dialog, NULL);
+  fail_unless (dialog != NULL, NULL);
+
+  /* cleanup */
+  flush_main_loop ();
+  gtk_widget_destroy (dialog);
+  gtk_object_destroy ((GtkObject *) item);
+  gst_object_unref (machine);
+  g_object_unref (machines_page);
+  BT_TEST_END;
+}
+
+static void
+test_bt_machine_canvas_item_show_preferences (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMainPageMachines *machines_page;
+  GtkWidget *dialog;
+
+  g_object_get (pages, "machines-page", &machines_page, NULL);
+  bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
+  BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep1");
+  BtMachineCanvasItem *item =
+      bt_machine_canvas_item_new (machines_page, machine, 100.0, 100.0, 1.0);
+
+  /* act */
+  bt_machine_show_preferences_dialog (machine);
+
+  /* assert */
+  g_object_get (item, "preferences-dialog", &dialog, NULL);
+  fail_unless (dialog != NULL, NULL);
+
+  /* cleanup */
+  flush_main_loop ();
+  gtk_widget_destroy (dialog);
+  gtk_object_destroy ((GtkObject *) item);
+  gst_object_unref (machine);
+  g_object_unref (machines_page);
+  BT_TEST_END;
+}
+
+static void
+test_bt_machine_canvas_item_show_properties (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMainPageMachines *machines_page;
+  GtkWidget *dialog;
+
+  g_object_get (pages, "machines-page", &machines_page, NULL);
+  bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
+  BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep1");
+  BtMachineCanvasItem *item =
+      bt_machine_canvas_item_new (machines_page, machine, 100.0, 100.0, 1.0);
+
+  /* act */
+  bt_machine_show_properties_dialog (machine);
+
+  /* assert */
+  g_object_get (item, "properties-dialog", &dialog, NULL);
+  fail_unless (dialog != NULL, NULL);
+
+  /* cleanup */
+  flush_main_loop ();
+  gtk_widget_destroy (dialog);
+  gtk_object_destroy ((GtkObject *) item);
+  gst_object_unref (machine);
+  g_object_unref (machines_page);
+  BT_TEST_END;
+}
+
 
 TCase *
 bt_machine_canvas_item_example_case (void)
@@ -105,6 +196,9 @@ bt_machine_canvas_item_example_case (void)
   TCase *tc = tcase_create ("BtMachineCanvasItemExamples");
 
   tcase_add_test (tc, test_bt_machine_canvas_item_create);
+  tcase_add_test (tc, test_bt_machine_canvas_item_show_analyzer);
+  tcase_add_test (tc, test_bt_machine_canvas_item_show_preferences);
+  tcase_add_test (tc, test_bt_machine_canvas_item_show_properties);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
