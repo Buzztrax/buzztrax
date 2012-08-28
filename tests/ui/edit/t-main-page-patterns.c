@@ -208,9 +208,9 @@ test_bt_main_page_patterns_cursor_pos_on_non_note_key (BT_TEST_ARGS)
 
 
 TCase *
-bt_pattern_page_test_case (void)
+bt_main_page_patterns_test_case (void)
 {
-  TCase *tc = tcase_create ("BtPatternPageTests");
+  TCase *tc = tcase_create ("BtMainPagePatternsTests");
 
   tcase_add_test (tc, test_bt_main_page_patterns_key_press_in_empty_pattern);
   tcase_add_test (tc, test_bt_main_page_patterns_mouse_click_in_empty_pattern);

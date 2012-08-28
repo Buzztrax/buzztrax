@@ -185,9 +185,9 @@ test_bt_main_page_sequence_enter_pattern (BT_TEST_ARGS)
 }
 
 TCase *
-bt_sequence_page_example_case (void)
+bt_main_page_sequence_example_case (void)
 {
-  TCase *tc = tcase_create ("BtSequencePageExamples");
+  TCase *tc = tcase_create ("BtMainPageSequenceExamples");
 
   tcase_add_test (tc, test_bt_main_page_sequence_focus);
   tcase_add_test (tc, test_bt_main_page_sequence_active_machine);

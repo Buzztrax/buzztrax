@@ -19,15 +19,15 @@
 
 #include "m-bt-edit.h"
 
-//extern TCase *bt_machine_page_test_case(void);
-extern TCase *bt_machine_page_example_case (void);
+//extern TCase *bt_main_page_machines_test_case(void);
+extern TCase *bt_main_page_machines_example_case (void);
 
 Suite *
-bt_machine_page_suite (void)
+bt_main_page_machines_suite (void)
 {
-  Suite *s = suite_create ("BtMachinePage");
+  Suite *s = suite_create ("BtMainPageMachines");
 
-  //suite_add_tcase(s,bt_machine_page_test_case());
-  suite_add_tcase (s, bt_machine_page_example_case ());
+  //suite_add_tcase(s,bt_main_page_machines_test_case());
+  suite_add_tcase (s, bt_main_page_machines_example_case ());
   return (s);
 }

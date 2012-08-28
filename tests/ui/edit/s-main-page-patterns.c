@@ -19,15 +19,15 @@
 
 #include "m-bt-edit.h"
 
-extern TCase *bt_pattern_page_test_case (void);
-extern TCase *bt_pattern_page_example_case (void);
+extern TCase *bt_main_page_patterns_test_case (void);
+extern TCase *bt_main_page_patterns_example_case (void);
 
 Suite *
-bt_pattern_page_suite (void)
+bt_main_page_patterns_suite (void)
 {
-  Suite *s = suite_create ("BtPatternPage");
+  Suite *s = suite_create ("BtMainPagePatterns");
 
-  suite_add_tcase (s, bt_pattern_page_test_case ());
-  suite_add_tcase (s, bt_pattern_page_example_case ());
+  suite_add_tcase (s, bt_main_page_patterns_test_case ());
+  suite_add_tcase (s, bt_main_page_patterns_example_case ());
   return (s);
 }

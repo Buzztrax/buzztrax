@@ -61,7 +61,7 @@ case_teardown (void)
 //-- tests
 
 static void
-test_bt_controller_learn_dialog_create (BT_TEST_ARGS)
+test_bt_interaction_controller_learn_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -97,11 +97,11 @@ test_bt_controller_learn_dialog_create (BT_TEST_ARGS)
 }
 
 TCase *
-bt_controller_learn_dialog_example_case (void)
+bt_interaction_controller_learn_dialog_example_case (void)
 {
-  TCase *tc = tcase_create ("BtControllerLearnDialogExamples");
+  TCase *tc = tcase_create ("BtInteractionControllerLearnDialogExamples");
 
-  tcase_add_test (tc, test_bt_controller_learn_dialog_create);
+  tcase_add_test (tc, test_bt_interaction_controller_learn_dialog_create);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

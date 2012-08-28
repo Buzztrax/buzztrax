@@ -330,9 +330,9 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
 }
 
 TCase *
-bt_machine_page_example_case (void)
+bt_main_page_machines_example_case (void)
 {
-  TCase *tc = tcase_create ("BtMachinePageExamples");
+  TCase *tc = tcase_create ("BtMainPageMachinesExamples");
 
   tcase_add_test (tc, test_bt_main_page_machines_focus);
   tcase_add_test (tc, test_bt_main_page_machines_machine_create);

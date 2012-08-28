@@ -19,15 +19,15 @@
 
 #include "m-bt-edit.h"
 
-//extern TCase *bt_controller_learn_dialog_test_case(void);
-extern TCase *bt_controller_learn_dialog_example_case (void);
+//extern TCase *bt_interaction_controller_learn_dialog_test_case(void);
+extern TCase *bt_interaction_controller_learn_dialog_example_case (void);
 
 Suite *
-bt_controller_learn_dialog_suite (void)
+bt_interaction_controller_learn_dialog_suite (void)
 {
-  Suite *s = suite_create ("BtControllerLearnDialog");
+  Suite *s = suite_create ("BtInteractionControllerLearnDialog");
 
-  //suite_add_tcase(s,bt_controller_learn_dialog_test_case());
-  suite_add_tcase (s, bt_controller_learn_dialog_example_case ());
+  //suite_add_tcase(s,bt_interaction_controller_learn_dialog_test_case());
+  suite_add_tcase (s, bt_interaction_controller_learn_dialog_example_case ());
   return (s);
 }

@@ -389,9 +389,9 @@ test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
 }
 
 TCase *
-bt_pattern_page_example_case (void)
+bt_main_page_patterns_example_case (void)
 {
-  TCase *tc = tcase_create ("BtPatternPageExamples");
+  TCase *tc = tcase_create ("BtMainPagePatternsExamples");
 
   tcase_add_test (tc, test_bt_main_page_patterns_focus);
   tcase_add_test (tc, test_bt_main_page_patterns_enter_note);
