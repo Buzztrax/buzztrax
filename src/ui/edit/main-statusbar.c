@@ -332,7 +332,7 @@ bt_main_statusbar_init_ui (const BtMainStatusbar * self)
       "default");
   gtk_statusbar_set_has_resize_grip (self->priv->status, FALSE);
   gtk_statusbar_push (GTK_STATUSBAR (self->priv->status),
-      self->priv->status_context_id, _("Ready to rock!"));
+      self->priv->status_context_id, BT_MAIN_STATUSBAR_DEFAULT);
   gtk_box_pack_start (GTK_BOX (self), GTK_WIDGET (self->priv->status), TRUE,
       TRUE, 1);
 
@@ -449,7 +449,7 @@ bt_main_statusbar_set_property (GObject * object, guint property_id,
         g_free (str);
       } else
         gtk_statusbar_push (GTK_STATUSBAR (self->priv->status),
-            self->priv->status_context_id, _("Ready to rock!"));
+            self->priv->status_context_id, BT_MAIN_STATUSBAR_DEFAULT);
       while (gtk_events_pending ())
         gtk_main_iteration ();
       //GST_DEBUG("set the status-text for main_statusbar");
