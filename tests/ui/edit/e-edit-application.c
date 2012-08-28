@@ -313,123 +313,6 @@ test_bt_edit_application_load_while_playing (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-// view all tabs
-static void
-test_bt_edit_application_view_all_tabs (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  BtMainPages *pages;
-  BtMainPagePatterns *pattern_page;
-  BtSong *song;
-  BtSetup *setup;
-  BtWave *wave;
-  BtMachine *src_machine;
-  GList *children;
-  guint i;
-
-  // load a song and a sample
-  // FIXME(ensonic): have a test song with that sample
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
-  g_object_get (app, "song", &song, NULL);
-  g_object_get (song, "setup", &setup, NULL);
-  wave =
-      bt_wave_new (song, "test", "file:///tmp/test.wav", 1, 1.0,
-      BT_WAVE_LOOP_MODE_OFF, 0);
-  fail_unless (wave != NULL, NULL);
-  // sample loading is async
-  flush_main_loop ();
-  // stimulate ui update
-  g_object_notify (G_OBJECT (app), "song");
-  flush_main_loop ();
-  // free resources
-  g_object_unref (wave);
-  g_object_unref (song);
-  GST_INFO ("song loaded");
-
-  // view all tabs
-  g_object_get (G_OBJECT (main_window), "pages", &pages, NULL);
-  // make sure the pattern view shows something
-  src_machine = bt_setup_get_machine_by_id (setup, "beep1");
-  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
-  bt_main_page_patterns_show_machine (pattern_page, src_machine);
-  g_object_unref (pattern_page);
-  g_object_unref (src_machine);
-  g_object_unref (setup);
-
-  children = gtk_container_get_children (GTK_CONTAINER (pages));
-  for (i = 0; i < BT_MAIN_PAGES_COUNT; i++) {
-    GtkWidget *child = GTK_WIDGET (g_list_nth_data (children, i));
-    gtk_notebook_set_current_page (GTK_NOTEBOOK (pages), i);
-
-    // make screenshot
-    check_make_widget_screenshot (GTK_WIDGET (pages),
-        gtk_widget_get_name (child));
-    while (gtk_events_pending ())
-      gtk_main_iteration ();
-  }
-  g_list_free (children);
-  g_object_unref (pages);
-
-  /* cleanup */
-  BT_TEST_END;
-}
-
-// view all tabs
-static void
-test_bt_edit_application_view_all_tabs_playing (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  BtMainPages *pages;
-  BtMainPagePatterns *pattern_page;
-  BtSong *song;
-  BtSetup *setup;
-  BtWave *wave;
-  BtMachine *src_machine;
-  guint i;
-
-  // load a song and a sample
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
-  g_object_get (app, "song", &song, NULL);
-  g_object_get (song, "setup", &setup, NULL);
-  wave =
-      bt_wave_new (song, "test", "file:///tmp/test.wav", 1, 1.0,
-      BT_WAVE_LOOP_MODE_OFF, 0);
-  fail_unless (wave != NULL, NULL);
-  // sample loading is async
-  flush_main_loop ();
-  // stimulate ui update
-  g_object_notify (G_OBJECT (app), "song");
-  flush_main_loop ();
-  // free resources
-  g_object_unref (wave);
-  g_object_unref (song);
-  GST_INFO ("song loaded");
-
-  // view all tabs
-  g_object_get (G_OBJECT (main_window), "pages", &pages, NULL);
-  // make sure the pattern view shows something
-  src_machine = bt_setup_get_machine_by_id (setup, "beep1");
-  g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
-  bt_main_page_patterns_show_machine (pattern_page, src_machine);
-  g_object_unref (pattern_page);
-  g_object_unref (src_machine);
-  g_object_unref (setup);
-
-  // play for a while to trigger screen updates
-  bt_song_play (song);
-  for (i = 0; i < BT_MAIN_PAGES_COUNT; i++) {
-    bt_song_update_playback_position (song);
-
-    gtk_notebook_set_current_page (GTK_NOTEBOOK (pages), i);
-    //while(gtk_events_pending()) gtk_main_iteration();
-  }
-  bt_song_stop (song);
-  g_object_unref (pages);
-
-  /* cleanup */
-  BT_TEST_END;
-}
-
 TCase *
 bt_edit_application_example_case (void)
 {
@@ -448,8 +331,6 @@ bt_edit_application_example_case (void)
       BT_MAIN_PAGES_MACHINES_PAGE, BT_MAIN_PAGES_COUNT);
   tcase_add_test (tc, test_bt_edit_application_load_and_play);
   tcase_add_test (tc, test_bt_edit_application_load_while_playing);
-  tcase_add_test (tc, test_bt_edit_application_view_all_tabs);
-  tcase_add_test (tc, test_bt_edit_application_view_all_tabs_playing);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
