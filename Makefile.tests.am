@@ -180,6 +180,7 @@ libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/s-settings-dialog.c tests/ui/edit/e-settings-dialog.c \
 	tests/ui/edit/s-signal-analysis-dialog.c tests/ui/edit/e-signal-analysis-dialog.c \
 	tests/ui/edit/s-tip-dialog.c tests/ui/edit/e-tip-dialog.c \
+	tests/ui/edit/s-ui-resources.c tests/ui/edit/e-ui-resources.c \
 	tests/ui/edit/s-wire-canvas-item.c tests/ui/edit/e-wire-canvas-item.c
 
 endif
