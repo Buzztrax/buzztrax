@@ -30,7 +30,7 @@
  *   or at least show the resulting metre
  */
 /* TODO(ensonic): undo/redo
- * - for text_view we would need to connect to insert_at_corsor and delete_from_cursor
+ * - for text_view we would need to connect to insert_at_cursor and delete_from_cursor
  *   signals to track changes
  * - for text_enry the signals are inserted_text and deleted_text
  * - optionally we just store the complete before/after
@@ -537,7 +537,6 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   gtk_frame_set_label_widget (GTK_FRAME (frame), label);
   gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_NONE);
   gtk_container_set_border_width (GTK_CONTAINER (frame), BOX_BORDER);
-  gtk_widget_set_name (frame, "free text info");
   gtk_box_pack_start (GTK_BOX (self), frame, TRUE, TRUE, 0);
 
   box = gtk_hbox_new (FALSE, BOX_BORDER);
@@ -547,22 +546,12 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   gtk_box_pack_start (GTK_BOX (box), gtk_label_new ("    "), FALSE, TRUE, 0);
 
   scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
-  gtk_widget_set_name (scrolledwindow, "scrolledwindow");
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow),
       GTK_SHADOW_IN);
   gtk_container_add (GTK_CONTAINER (box), scrolledwindow);
-  GST_DEBUG ("  scrolled window: %p", scrolledwindow);
 
   self->priv->info = GTK_TEXT_VIEW (gtk_text_view_new ());
   gtk_widget_set_name (GTK_WIDGET (self->priv->info), "free text info");
-  /* none of these reduce the border we get on hildon
-     gtk_container_set_border_width(GTK_CONTAINER(self->priv->info),0);
-     gtk_text_view_set_border_window_size(self->priv->info,GTK_TEXT_WINDOW_LEFT,1);
-     gtk_text_view_set_border_window_size(self->priv->info,GTK_TEXT_WINDOW_RIGHT,1);
-     gtk_text_view_set_border_window_size(self->priv->info,GTK_TEXT_WINDOW_TOP,1);
-     gtk_text_view_set_border_window_size(self->priv->info,GTK_TEXT_WINDOW_BOTTOM,1);
-   */
-  GST_DEBUG ("  text view: %p", self->priv->info);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (self->priv->info), GTK_WRAP_WORD);
   gtk_container_add (GTK_CONTAINER (scrolledwindow),
       GTK_WIDGET (self->priv->info));

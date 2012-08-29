@@ -167,6 +167,7 @@ libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/s-machine-preferences-dialog.c tests/ui/edit/e-machine-preferences-dialog.c \
 	tests/ui/edit/s-machine-properties-dialog.c tests/ui/edit/e-machine-properties-dialog.c \
 	tests/ui/edit/s-machine-rename-dialog.c tests/ui/edit/e-machine-rename-dialog.c \
+	tests/ui/edit/s-main-page-info.c tests/ui/edit/e-main-page-info.c \
 	tests/ui/edit/s-main-page-machines.c tests/ui/edit/e-main-page-machines.c \
 	tests/ui/edit/s-main-page-patterns.c tests/ui/edit/e-main-page-patterns.c tests/ui/edit/t-main-page-patterns.c \
 	tests/ui/edit/s-main-page-sequence.c tests/ui/edit/e-main-page-sequence.c \
