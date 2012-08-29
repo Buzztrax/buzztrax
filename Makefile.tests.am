@@ -49,6 +49,7 @@ noinst_LTLIBRARIES += \
   libbt-edit-check.la
 
 libbt_check_la_LIBADD = \
+	libbuzztard-ic.la \
 	libbuzztard-core.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
 libbt_check_la_LDFLAGS = \
@@ -57,7 +58,8 @@ libbt_check_la_SOURCES = \
 	tests/bt-check.c tests/bt-check.h \
 	tests/bt-test-application.c tests/bt-test-application.h \
 	tests/bt-test-plugin.c tests/bt-test-plugin.h \
-	tests/bt-test-settings.c tests/bt-test-settings.h
+	tests/bt-test-settings.c tests/bt-test-settings.h \
+	tests/btic-test-device.c tests/btic-test-device.h
 libbt_check_la_DEPENDENCIES = /tmp/test.wav
 
 libbt_check_ui_la_LIBADD = \
@@ -140,6 +142,7 @@ libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
 libbtic_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtic_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
 libbtic_check_la_SOURCES = tests/lib/ic/m-bt-ic.h \
+	tests/lib/ic/s-device.c tests/lib/ic/e-device.c \
 	tests/lib/ic/s-ic.c tests/lib/ic/e-ic.c tests/lib/ic/t-ic.c \
 	tests/lib/ic/s-registry.c tests/lib/ic/e-registry.c
 

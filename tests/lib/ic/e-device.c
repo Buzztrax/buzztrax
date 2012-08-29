@@ -1,5 +1,5 @@
 /* Buzztard
- * Copyright (C) 2011 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2012 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -49,24 +49,7 @@ case_teardown (void)
 //-- tests
 
 static void
-test_btic_registry_create (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  /* arrange */
-
-  /* act */
-  BtIcRegistry *registry = btic_registry_new ();
-
-  /* assert */
-  fail_unless (registry != NULL, NULL);
-
-  /* cleanup */
-  g_object_checked_unref (registry);
-  BT_TEST_END;
-}
-
-static void
-test_btic_registry_not_empty (BT_TEST_ARGS)
+test_btic_device_lookup (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -75,10 +58,10 @@ test_btic_registry_not_empty (BT_TEST_ARGS)
   /* act */
   GList *devices =
       (GList *) check_gobject_get_ptr_property (registry, "devices");
+  BtIcDevice *device = (BtIcDevice *) devices->data;
 
   /* assert */
-  fail_unless (devices != NULL, NULL);
-  ck_assert_int_gt (g_list_length (devices), 0);
+  fail_unless (device != NULL, NULL);
 
   /* cleanup */
   g_object_checked_unref (registry);
@@ -86,12 +69,11 @@ test_btic_registry_not_empty (BT_TEST_ARGS)
 }
 
 TCase *
-bt_registry_example_case (void)
+bt_device_example_case (void)
 {
-  TCase *tc = tcase_create ("BticRegistryExamples");
+  TCase *tc = tcase_create ("BticDeviceExamples");
 
-  tcase_add_test (tc, test_btic_registry_create);
-  tcase_add_test (tc, test_btic_registry_not_empty);
+  tcase_add_test (tc, test_btic_device_lookup);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
