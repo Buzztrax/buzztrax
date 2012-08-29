@@ -20,7 +20,7 @@
  * SECTION:btmainpagewaves
  * @short_description: the editor wavetable page
  *
- * Manage a list of audio clips files. Provides an embeded file browser to load
+ * Manage a list of audio clips files. Provides an embedded file browser to load
  * files. A waveform viewer can show the selected clip.
  */
 /* TODO(ensonic): need envelope editor and everything for it
@@ -36,6 +36,11 @@
 /* TODO(ensonic): undo/redo (search for bt_edit_application_set_song_unsaved
  * - load/unload a wave
  * - change wave-table properties
+ */
+/* TODO(ensonic): focus on the wavetable tree view?
+ * - unfortunately pressing space/enter activates rename
+ * - being able to play notes with the keys (or some controller keyboard) would
+ *   be sweet
  */
 
 #define BT_EDIT
