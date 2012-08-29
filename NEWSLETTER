@@ -3,14 +3,35 @@ git diff @{2012-01-01} @{2012-01-31} | diffstat
 
 2012/09 ========================================================================
 
-* songs save non-dynamic settings + ui refactories to not show empty dialogs if
-  a machine has no static settings
-* more UI tests
-* cleanup all UI tests, 82 tests now
-* gstreamer preset can handle machines with children (sidsyn in my case or e.g.
-  the parametric eq in gstreamer)
-* preset handling in buzzmachine will store presets in user-data-dir to allow
-  machine updates without overwriting user presets.
+I worked a bit on preset handling in gstreamer. Now machines with variable
+number of parameters with save their properties correctly. One example is the
+parametric equalizer. I needed this for sidsyn in buzztard too. I also updated
+the preset handling for buzzmachines. They now store presets in user-data-dir.
+This avoids that those get overwritten when the plugins get updated. The preset
+handling logic will read user-presets first and then merge in system wide
+presets. One shortcoming here is that we would need a flag on each preset
+whether it comes from a preset file in user-data-dir (and thus is writable) or
+comes from a system dir (and thus is read-only). This would allow the UI to
+require that users pick a new uniqe name when changing a system preset.
+
+Songs in buzztard now also store their non-dynamic settings. This will fix
+fluidsynth forgetting the selected patch file and is also needed for e.g.
+setting the chip-type in sidsyn. I refactored the code a bit and now we don't
+show empty properties dialogs anymore and instead gray out the menu item that
+would invoke them.
+
+The build system now can show the class-coverage of the tests. As this is just a
+few shell commands it quickly shows untested classes. It relies on naming
+conventions for tests. To make that work I also cleaned up the whole UI tests.
+Those are now more robust and actually verify a lot more things (we have 92 ui
+tests now).
+
+ 77 % (24/31) lib/core/
+ 30 % ( 3/10) lib/ic
+100 % ( 1/ 1) ui/cmd
+ 51 % (27/52) ui/edit
+
+* pattern-control-source
 
 2012/08 ========================================================================
 
