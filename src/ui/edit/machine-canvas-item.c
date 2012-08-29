@@ -931,6 +931,7 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
     gtk_widget_show (menu_item);
     g_signal_connect (menu_item, "activate",
         G_CALLBACK (on_context_menu_connect_activate), (gpointer) self);
+
   } else {
     menu_item = gtk_menu_item_new_with_label (_("Signal Analysis..."));
     gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
@@ -938,6 +939,57 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
     gtk_widget_show (menu_item);
     g_signal_connect (menu_item, "activate",
         G_CALLBACK (on_context_menu_analysis_activate), (gpointer) self);
+  }
+
+  if (BT_IS_SOURCE_MACHINE (machine)) {
+    glong pi = -1;
+    BtParameterGroup *pg;
+    // TODO(ensonic): find trigger property in global or first voice params
+    // bt_parameter_group_is_param_trigger (pg, pi);
+    if (pi != -1) {
+      const gchar *property_name = bt_parameter_group_get_param_name (pg, pi);
+      GstObject *param_parent = bt_parameter_group_get_param_parent (pg, pi);
+
+      // this will create the following menu layout:
+      //   play with
+      //     bind controller
+      //       device1
+      //     unbind controller
+      //     unbind all
+      // it would be nice to just have:
+      //   bind controller
+      //     device1
+      //   unbind controller
+      //
+      GtkWidget *item_unbind, *item_unbind_all;
+      GtkWidget *menu =
+          g_object_ref_sink (bt_interaction_controller_menu_new
+          (BT_INTERACTION_CONTROLLER_TRIGGER_MENU));
+
+      menu_item = gtk_menu_item_new_with_label (_("Play with"));
+      gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
+          menu_item);
+      gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), menu);
+      gtk_widget_show (menu_item);
+
+      g_object_get (menu, "item-unbind", &item_unbind, "item-unbind-all",
+          &item_unbind_all, NULL);
+      g_object_set_qdata (G_OBJECT (menu), control_object_quark,
+          (gpointer) param_parent);
+      g_object_set_qdata (G_OBJECT (menu), control_property_quark,
+          (gpointer) property_name);
+      g_object_set_qdata (G_OBJECT (menu), widget_param_group_quark,
+          (gpointer) pg);
+      g_object_set_qdata (G_OBJECT (menu), widget_param_num_quark,
+          GINT_TO_POINTER (pi));
+
+      /*
+         g_signal_connect (menu, "notify::selected-control",
+         G_CALLBACK (on_control_bind), (gpointer) self);
+         g_signal_connect (item_unbind, "activate", G_CALLBACK (on_control_unbind),
+         (gpointer) self);
+       */
+    }
   }
 
   menu_item = gtk_separator_menu_item_new ();
