@@ -30,7 +30,7 @@
     find src/lib/core -name "*.h" -exec grep ");" {} \; | cut -d'(' -f1 | cut -d' ' -f2 | cut -d'*' -f2
 
   * check that we use loop-tests
-    find lib/ -name "*.c" -exec egrep -Hn "(for|while)\s*\(" {} \; | egrep -v "(:\s*\*|://)"
+    find tests/lib/ -name "*.c" -exec egrep -Hn "(for|while)\s*\(" {} \; | egrep -v "(:\s*\*|://)"
 
 
 * new stats
@@ -50,19 +50,11 @@
   make CC=cgcc
 
 
-* controller api
-  * allow to modify interpolation control sequence inplace (scale time or value range)
-    - we need a gst_interpolation_control_foreach(cs, callback, user_data)
-    - the callback will be called for each controlpoint and can change the
-      timestamp and/or value
-    - need a way to do it without exposing GstControlPoint internals
-      - void callback(GstClockTime *timestamp, GValue *value, gpointer user_data);
-  * or have a BtPatternControlSource
-    - then we never need to update the timeline controller
-    - the individual instances should be relative lightweight and use a central
-      controller for some global state
-      - we want to pre-cache the tracks for each machine to speed up finding the
-        patterns that apply at a given time
+* controller api - BtPatternControlSource
+  - the individual instances should be relative lightweight and use a central
+    controller for some global state
+    - we want to pre-cache the tracks for each machine to speed up finding the
+      patterns that apply at a given time
 
 
 * OSC support
@@ -217,7 +209,7 @@
     - we see them in the registry
 
 
-* play machines via midi
+* play machines via midi (interaction controller)
   - we have machines with one or more note-params
     - sometimes only one is a trigger though
     cd bml/tests/testmachine
@@ -249,8 +241,13 @@
   - the current code in machine.c (_poly_control_) would increment the voice on
     each control event, we would need to set both key and velocity though
     we also need to ensure to set velocity first and then the key
-    - only inc the voice-counter on the trigger param?
+    - each controller has a separate voice_ct
 
+  - it would be nice to have a pc-keys interaction controller for playing notes
+    - we can register this from the ui (it would be part of "ui/edit"
+      - the machine view would start-stop it on focus (if bound)
+      - eventually we could use it in pattern-view too and implicitely bind it
+        if "play-notes" is active
 
 * text parameters in machines
   * for a:
