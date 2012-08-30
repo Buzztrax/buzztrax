@@ -68,6 +68,7 @@ void bt_parameter_group_get_param_details(const BtParameterGroup * const self, c
 GType bt_parameter_group_get_param_type(const BtParameterGroup * const self, const gulong index);
 const gchar *bt_parameter_group_get_param_name(const BtParameterGroup * const self, const gulong index);
 GValue *bt_parameter_group_get_param_no_value(const BtParameterGroup * const self, const gulong index);
+glong bt_parameter_group_get_trigger_param_index(const BtParameterGroup * const self);
 glong bt_parameter_group_get_wave_param_index(const BtParameterGroup * const self);
 
 void bt_parameter_group_set_param_default(const BtParameterGroup * const self, const gulong index);

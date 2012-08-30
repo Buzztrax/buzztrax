@@ -476,6 +476,29 @@ bt_parameter_group_get_param_no_value (const BtParameterGroup * const self,
 }
 
 /**
+ * bt_parameter_group_get_trigger_param_index:
+ * @self: the parameter group to lookup the param from
+ *
+ * Searches for the first trigger parameter (if any).
+ *
+ * Returns: the index of the first trigger parameter or -1 if none.
+ */
+glong
+bt_parameter_group_get_trigger_param_index (const BtParameterGroup * const self)
+{
+  const gulong params = self->priv->num_params;
+  guint *flags = self->priv->flags;
+  glong i;
+  g_return_val_if_fail (BT_IS_PARAMETER_GROUP (self), -1);
+
+  for (i = 0; i < params; i++) {
+    if (!(flags[i] & GSTBT_PROPERTY_META_STATE))
+      return (i);
+  }
+  return (-1);
+}
+
+/**
  * bt_parameter_group_get_wave_param_index:
  * @self: the parameter group to lookup the param from
  *
