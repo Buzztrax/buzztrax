@@ -144,6 +144,7 @@ libbtic_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
 libbtic_check_la_SOURCES = tests/lib/ic/m-bt-ic.h \
 	tests/lib/ic/s-device.c tests/lib/ic/e-device.c \
 	tests/lib/ic/s-ic.c tests/lib/ic/e-ic.c tests/lib/ic/t-ic.c \
+	tests/lib/ic/s-learn.c tests/lib/ic/e-learn.c \
 	tests/lib/ic/s-registry.c tests/lib/ic/e-registry.c
 
 libbt_cmd_check_la_LIBADD = \

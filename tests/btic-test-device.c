@@ -34,11 +34,17 @@ struct _BtIcTestDevicePrivate
   gboolean dispose_has_run;
 
   gboolean running;
+  gboolean learn_mode;
+  guint learn_key;
 };
 
 //-- the class
 
-G_DEFINE_TYPE (BtIcTestDevice, btic_test_device, BTIC_TYPE_DEVICE);
+static void btic_test_device_interface_init (gpointer const g_iface,
+    gpointer const iface_data);
+
+G_DEFINE_TYPE_WITH_CODE (BtIcTestDevice, btic_test_device, BTIC_TYPE_DEVICE,
+    G_IMPLEMENT_INTERFACE (BTIC_TYPE_LEARN, btic_test_device_interface_init));
 
 //-- constructor methods
 
@@ -76,6 +82,63 @@ btic_test_device_stop (gconstpointer _self)
   self->priv->running = FALSE;
   return (TRUE);
 }
+
+//-- learn interface
+
+static gboolean
+btic_test_device_learn_start (gconstpointer _self)
+{
+  BtIcTestDevice *self = BTIC_TEST_DEVICE (_self);
+
+  self->priv->learn_mode = TRUE;
+  btic_device_start (BTIC_DEVICE (self));
+
+  return (TRUE);
+}
+
+static gboolean
+btic_test_device_learn_stop (gconstpointer _self)
+{
+  BtIcTestDevice *self = BTIC_TEST_DEVICE (_self);
+
+  self->priv->learn_mode = FALSE;
+  btic_device_stop (BTIC_DEVICE (self));
+
+  return (TRUE);
+}
+
+static BtIcControl *
+btic_test_device_register_learned_control (gconstpointer _self,
+    const gchar * name)
+{
+  BtIcControl *control = NULL;
+  BtIcTestDevice *self = BTIC_TEST_DEVICE (_self);
+
+  GST_INFO ("registering test control as %s", name);
+
+  /* this avoids that we learn a key again */
+  if (!(control =
+          btic_device_get_control_by_id (BTIC_DEVICE (self),
+              self->priv->learn_key))) {
+    control =
+        BTIC_CONTROL (btic_abs_range_control_new (BTIC_DEVICE (self), name,
+            self->priv->learn_key, 0, 255, 0));
+    self->priv->learn_key++;
+  }
+  return (control);
+}
+
+static void
+btic_test_device_interface_init (gpointer const g_iface,
+    gpointer const iface_data)
+{
+  BtIcLearnInterface *iface = (BtIcLearnInterface *) g_iface;
+
+  iface->learn_start = btic_test_device_learn_start;
+  iface->learn_stop = btic_test_device_learn_stop;
+  iface->register_learned_control = btic_test_device_register_learned_control;
+}
+
 
 //-- wrapper
 

@@ -60,8 +60,6 @@ bt_check_init (void)
   gst_debug_set_colored (FALSE);
   // use our dummy settings
   bt_settings_set_factory ((BtSettingsFactory) bt_test_settings_new);
-  // register test device with ic-registry
-  btic_registry_add_device ((BtIcDevice *) btic_test_device_new ("test"));
 
 #ifdef HAVE_SETRLIMIT
   // only fork mode limit cpu/mem usage

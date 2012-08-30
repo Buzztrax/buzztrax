@@ -53,29 +53,35 @@ case_teardown (void)
 //-- tests
 
 static void
-test_btic_device_lookup (BT_TEST_ARGS)
+test_btic_learn_register_control (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
+  GList *list = (GList *) check_gobject_get_ptr_property (registry, "devices");
+  BtIcDevice *device = NULL;
+  for (; list; list = g_list_next (list)) {
+    if (BTIC_IS_TEST_DEVICE (list->data)) {
+      device = (BtIcDevice *) list->data;
+    }
+  }
 
   /* act */
-  GList *devices =
-      (GList *) check_gobject_get_ptr_property (registry, "devices");
-  BtIcDevice *device = (BtIcDevice *) devices->data;
+  BtIcControl *control =
+      btic_learn_register_learned_control (BTIC_LEARN (device), "learn1");
 
   /* assert */
-  fail_unless (device != NULL, NULL);
+  fail_unless (control != NULL, NULL);
 
   /* cleanup */
   BT_TEST_END;
 }
 
 TCase *
-bt_device_example_case (void)
+bt_learn_example_case (void)
 {
-  TCase *tc = tcase_create ("BticDeviceExamples");
+  TCase *tc = tcase_create ("BticLearnExamples");
 
-  tcase_add_test (tc, test_btic_device_lookup);
+  tcase_add_test (tc, test_btic_learn_register_control);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

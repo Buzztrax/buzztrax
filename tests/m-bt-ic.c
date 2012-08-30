@@ -29,6 +29,7 @@ GST_DEBUG_CATEGORY_EXTERN (btic_debug);
 
 extern Suite *bt_device_suite (void);
 extern Suite *bt_ic_suite (void);
+extern Suite *bt_learn_suite (void);
 extern Suite *bt_registry_suite (void);
 
 gchar *test_argv[] = { "check_buzzard" };
@@ -64,6 +65,7 @@ main (gint argc, gchar ** argv)
 
   sr = srunner_create (bt_ic_suite ());
   srunner_add_suite (sr, bt_device_suite ());
+  srunner_add_suite (sr, bt_learn_suite ());
   srunner_add_suite (sr, bt_registry_suite ());
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);

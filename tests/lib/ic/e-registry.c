@@ -71,6 +71,7 @@ test_btic_registry_not_empty (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtIcRegistry *registry = btic_registry_new ();
+  btic_registry_add_device ((BtIcDevice *) btic_test_device_new ("test"));
 
   /* act */
   GList *devices =
