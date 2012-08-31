@@ -30,7 +30,7 @@
 #include "bt-edit.h"
 
 //-- defines
-#define N_COLUMNS __BT_PATTERN_MODEL_N_COLUMNS
+#define N_COLUMNS __BT_PATTERN_LIST_MODEL_N_COLUMNS
 
 //-- globals
 
@@ -317,10 +317,10 @@ bt_pattern_list_model_new (BtMachine * machine, BtSequence * sequence,
       (gpointer *) & self->priv->machine);
   self->priv->skip_internal = skip_internal;
 
-  self->priv->param_types[BT_PATTERN_MODEL_LABEL] = G_TYPE_STRING;
-  self->priv->param_types[BT_PATTERN_MODEL_IS_USED] = G_TYPE_BOOLEAN;
-  self->priv->param_types[BT_PATTERN_MODEL_IS_UNUSED] = G_TYPE_BOOLEAN;
-  self->priv->param_types[BT_PATTERN_MODEL_SHORTCUT] = G_TYPE_STRING;
+  self->priv->param_types[BT_PATTERN_LIST_MODEL_LABEL] = G_TYPE_STRING;
+  self->priv->param_types[BT_PATTERN_LIST_MODEL_IS_USED] = G_TYPE_BOOLEAN;
+  self->priv->param_types[BT_PATTERN_LIST_MODEL_IS_UNUSED] = G_TYPE_BOOLEAN;
+  self->priv->param_types[BT_PATTERN_LIST_MODEL_SHORTCUT] = G_TYPE_STRING;
 
   // shortcut keys (take skiping into account)
   self->priv->pattern_keys =
@@ -459,10 +459,10 @@ bt_pattern_list_model_tree_model_get_value (GtkTreeModel * tree_model,
   if ((pattern = g_sequence_get (iter->user_data))) {
 
     switch (column) {
-      case BT_PATTERN_MODEL_LABEL:
+      case BT_PATTERN_LIST_MODEL_LABEL:
         g_object_get_property ((GObject *) pattern, "name", value);
         break;
-      case BT_PATTERN_MODEL_IS_USED:{
+      case BT_PATTERN_LIST_MODEL_IS_USED:{
         gboolean is_used = FALSE;
 
         if (!model->priv->skip_internal) {
@@ -476,7 +476,7 @@ bt_pattern_list_model_tree_model_get_value (GtkTreeModel * tree_model,
         g_value_set_boolean (value, is_used);
         break;
       }
-      case BT_PATTERN_MODEL_IS_UNUSED:{
+      case BT_PATTERN_LIST_MODEL_IS_UNUSED:{
         gboolean is_used = FALSE;
 
         if (!model->priv->skip_internal) {
@@ -490,7 +490,7 @@ bt_pattern_list_model_tree_model_get_value (GtkTreeModel * tree_model,
         g_value_set_boolean (value, !is_used);
         break;
       }
-      case BT_PATTERN_MODEL_SHORTCUT:{
+      case BT_PATTERN_LIST_MODEL_SHORTCUT:{
         gchar key[2] = { 0, };
         gint index;
 

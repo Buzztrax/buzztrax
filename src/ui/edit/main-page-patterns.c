@@ -2925,8 +2925,8 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (self->priv->pattern_menu),
       renderer, TRUE);
   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (self->priv->pattern_menu),
-      renderer, "text", BT_PATTERN_MODEL_LABEL, "foreground-set",
-      BT_PATTERN_MODEL_IS_UNUSED, NULL);
+      renderer, "text", BT_PATTERN_LIST_MODEL_LABEL, "foreground-set",
+      BT_PATTERN_LIST_MODEL_IS_UNUSED, NULL);
   gtk_box_pack_start (GTK_BOX (box), gtk_label_new (_("Pattern")), FALSE, FALSE,
       2);
   gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->pattern_menu),
