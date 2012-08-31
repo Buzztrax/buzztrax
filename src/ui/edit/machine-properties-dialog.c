@@ -243,8 +243,14 @@ on_control_bind (const BtInteractionControllerMenu * menu, GParamSpec * arg,
   object = g_object_get_qdata (G_OBJECT (menu), control_object_quark);
   property_name = g_object_get_qdata (G_OBJECT (menu), control_property_quark);
 
-  bt_machine_bind_parameter_control (self->priv->machine, object, property_name,
-      control);
+  if (bt_machine_is_polyphonic (self->priv->machine) &&
+      !GST_IS_CHILD_PROXY (object)) {
+    bt_machine_bind_poly_parameter_control (self->priv->machine, property_name,
+        control);
+  } else {
+    bt_machine_bind_parameter_control (self->priv->machine, object,
+        property_name, control);
+  }
   g_object_unref (control);
 }
 
@@ -2187,8 +2193,7 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
       widget2 = NULL;
       break;
     default:{
-      gchar *str =
-          g_strdup_printf ("unhandled type \"%s\"",
+      gchar *str = g_strdup_printf ("unhandled type \"%s\"",
           G_PARAM_SPEC_TYPE_NAME (property));
       widget1 = gtk_label_new (str);
       g_free (str);
@@ -2323,8 +2328,7 @@ make_global_param_box (const BtMachinePropertiesDialog * self,
         G_CALLBACK (on_group_button_press_event), (gpointer) self);
 
     // add global machine controls into the table
-    table =
-        gtk_table_new ( /*rows= */ params + 1, /*columns= */ 3, /*homogenous= */
+    table = gtk_table_new ( /*rows= */ params + 1, /*columns= */ 3,     /*homogenous= */
         FALSE);
 
     for (i = 0, k = 0; i < global_params; i++) {
@@ -2380,8 +2384,7 @@ make_voice_param_box (const BtMachinePropertiesDialog * self,
         G_CALLBACK (on_group_button_press_event), (gpointer) self);
 
     // add voice machine controls into the table
-    table =
-        gtk_table_new ( /*rows= */ params + 1, /*columns= */ 2, /*homogenous= */
+    table = gtk_table_new ( /*rows= */ params + 1, /*columns= */ 2,     /*homogenous= */
         FALSE);
 
     for (i = 0, k = 0; i < voice_params; i++) {
@@ -2436,8 +2439,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->priv->
-            param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->
+            priv->param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
@@ -2500,8 +2503,7 @@ make_wire_param_box (const BtMachinePropertiesDialog * self, BtWire * wire)
         G_CALLBACK (on_group_button_press_event), (gpointer) self);
 
     // add wire controls into the table
-    table =
-        gtk_table_new ( /*rows= */ params + 1, /*columns= */ 2, /*homogenous= */
+    table = gtk_table_new ( /*rows= */ params + 1, /*columns= */ 2,     /*homogenous= */
         FALSE);
 
     for (i = 0; i < params; i++) {
