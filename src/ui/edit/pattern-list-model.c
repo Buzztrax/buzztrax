@@ -361,7 +361,9 @@ bt_pattern_list_model_new (BtMachine * machine, BtSequence * sequence,
  * @model: the model
  * @iter: the iter
  *
- * The the #BtPattern for the iter.
+ * Lookup a pattern.
+ *
+ * Returns: the #BtPattern for the iter.
  */
 BtPattern *
 bt_pattern_list_model_get_object (BtPatternListModel * model,
