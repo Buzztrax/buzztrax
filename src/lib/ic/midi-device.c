@@ -165,12 +165,17 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
             GST_DEBUG ("note-off: %02x %02x %02x", midi_event[0], midi_event[1],
                 midi_event[2]);
 
+#if 0
+            // we probably need to make this another controller that just sends
+            // note-off, sending this as part of the key-controler causes trouble
+            // for the enum scaling
             key = MIDI_CTRL_NOTE_KEY;
             if ((control =
                     btic_device_get_control_by_id (BTIC_DEVICE (self), key))) {
-              g_object_set (control, "value", (glong) 255 /*GSTBT_NOTE_OFF */ ,
+              g_object_set (control, "value", (glong) 255 /* GSTBT_NOTE_OFF */ ,
                   NULL);
             }
+#endif
             prev_cmd = midi_event[0];
           }
           break;
@@ -223,7 +228,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
               g_object_set (control, "value", (gint32) (midi_event[1]), NULL);
             } else {
               if (G_UNLIKELY (self->priv->learn_mode)) {
-                update_learn_info (self, "note-key", key, 8);
+                update_learn_info (self, "note-key", key, 7);
                 learn_1st = TRUE;
               }
             }
