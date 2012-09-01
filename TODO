@@ -33,21 +33,27 @@
     find tests/lib/ -name "*.c" -exec egrep -Hn "(for|while)\s*\(" {} \; | egrep -v "(:\s*\*|://)"
 
 
-* new stats
-  * http://www.chris-lott.org/resources/cmetrics/cyclo-2.0.tar.gz
-    mcstrip tools.c | cyclo -c | sort -k2 -n
-
 * quality checks
   for file in src/lib/core/*.c; do gtkdoc-depscan -v --book gstreamer-0.10:0.10.8 $file; done
-  
+
+
 * check translation markup
   podebug --rewrite=xxx buzztard.pot aa.po
   LC_ALL=aa ./buzztard-edit
   - this creates a translation with all strings wrapped by 'xxx' (Help -> xxxHelpxxx)
   - it is easy to see what is not marked for translation  
 
+
 * sparse
   make CC=cgcc
+
+
+* generate a dependency matrix
+  * 'make ctags' creates tags files per directory containing symbol locations
+  * 'ctags -x --recurse src tests >xref' creates a single xref table containing
+    all symbol locations
+  * 'find . -name "*.o" -exec nm --undefined-only {} \; | grep " bt_"'
+    creates a list of externally called entries
 
 
 * controller api - BtPatternControlSource
@@ -185,13 +191,6 @@
 * eventually merge machine-rename dialog with machine properties
 
 
-* improve recording dialogs
-  - either integrate the progress bar into the recording settings
-    - gray out the dialog or progress-bar area depending on phase
-  - or use a notebook with hidden pages
-    - switch to 2nd page for rendering
-
-
 * control machines (no in/out)
   - color=gray
     it is never connected and thus, does not need a desaturated shade
@@ -233,15 +232,21 @@
     - v2: start from pattern column headings
       - have bind/unbind like in machine window
       - define split'ed devices elsewhere
+    - v3: add controller to context menu on machine-canvas 
   - how to easily assign a series of key to a series of triggers in one machine
     - have a trigger group  (and assign to white keys only)
     - this would manage both key-number and velocity as we'd only bind a series
       of abs-value-controls (velocity) to the drum-machine triggers
   - how to assign velocity to the machines velocity param
-  - the current code in machine.c (_poly_control_) would increment the voice on
-    each control event, we would need to set both key and velocity though
-    we also need to ensure to set velocity first and then the key
-    - each controller has a separate voice_ct
+    - it works for monophonic machines
+  - poly key-press events
+    - the current code in machine.c (_poly_control_) would increment the
+      voice_ct on each control event
+      - we would need to set both key and velocity though
+      - we also need to ensure to set velocity first and then the key
+      - each controller has a separate voice_ct
+      - when assinging a controller to a voice-param, should we always poly-bind
+        it?
 
   - it would be nice to have a pc-keys interaction controller for playing notes
     - we can register this from the ui (it would be part of "ui/edit"
@@ -263,10 +268,14 @@
     ev. script parameters (passed as $1, $2, ...)
 
 
-* wave table, record entries
+* wave table
   * we can just keep the buffers from fakesink/appsink in a list and consolidate
     on eos
-  * need device selection on the source
+  * record audio
+    * need device selection on the source
+  * record from song
+    * need some special setup on sink-bin/encodebin
+    * load raw wave on song::playing==FALSE
 
 
 * one framerate for animations
@@ -286,49 +295,3 @@
   * review the pattern api and check if we should use the groups directly
     (run ./api-cleanup.sh to get a report of where the api is used)
 
-
-* sparse enums
-  * we need to avoid them, they cause troubles
-    * with backwards compatibility (we could handle that in the loader)
-    * with stepwise data entry
-  * we need to use them, the allow
-    * useful randomize/blend
-  1) we could use a gint for enum parameters in value-groups and translate them
-    to the machine parameters, filtering out invalid ones
-    * param-group could expose enums as int
-      * no changes in value-group
-      * but probably breakage in the machine UI
-    * value-group maps enum to int (keeping the range)
-      * needs changes in bt_parameter_group_controller_change_value() or
-        bt_sequence_repair_damage_entries() to map  them back
-      * bt_value_group_blend/randomize would still need to check the enum to
-        handle sparse operations
-  2) we could have extra columns in the pattern for each enum column
-    * these columns would have an int type
-    * bt_value_group_set_event() would set the int and the real column if the
-      value is valid
-    * bt_value_group_get_event() would get the real column or the int value if
-      real is not valid
-    * bt_value_group_get_event_data() would get the real column value pointer
-    * invalid values are treated like empty cells
-    * need to change bt_value_group_resize_data_length() and
-      bt_value_group_finalize() for the data alloc/free
-    * Questions:
-      * should blend consider the closest valid value?
-      * do we want API to tell wheter a value is valid
-        * the pattern editor could use the that shade the color of invalid cells
-      * do we also copy shadow data?
-        * when copying patterns or doing copy/paste operations
-      * do we need this for other types? 
-        pattern-editor does already min/max clamping
-     
-    
-
-
-* generate a dependency matrix
-  * 'make ctags' creates tags files per directory containing symbol locations
-  * 'ctags -x --recurse src tests >xref' creates a single xref table containing
-    all symbol locations
-  * 'find . -name "*.o" -exec nm --undefined-only {} \; | grep " bt_"'
-    creates a list of externally called entries
-  
