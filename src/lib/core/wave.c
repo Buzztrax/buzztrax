@@ -1025,7 +1025,9 @@ bt_wave_class_init (BtWaveClass * const klass)
   gobject_class->dispose = bt_wave_dispose;
   gobject_class->finalize = bt_wave_finalize;
 
-  g_object_class_install_property (gobject_class, WAVE_SONG, g_param_spec_object ("song", "song contruct prop", "Set song object, the wave belongs to", BT_TYPE_SONG,   /* object type */
+  g_object_class_install_property (gobject_class, WAVE_SONG,
+      g_param_spec_object ("song", "song contruct prop",
+          "Set song object, the wave belongs to", BT_TYPE_SONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVE_WAVELEVELS,
@@ -1034,20 +1036,28 @@ bt_wave_class_init (BtWaveClass * const klass)
           "A copy of the list of wavelevels",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WAVE_INDEX, g_param_spec_ulong ("index", "index prop", "The index of the wave in the wavtable", 0, G_MAXULONG, 0,     /* default value */
+  g_object_class_install_property (gobject_class, WAVE_INDEX,
+      g_param_spec_ulong ("index", "index prop",
+          "The index of the wave in the wavtable", 0, G_MAXULONG, 0,
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WAVE_NAME, g_param_spec_string ("name", "name prop", "The name of the wave", "unamed wave",   /* default value */
+  g_object_class_install_property (gobject_class, WAVE_NAME,
+      g_param_spec_string ("name", "name prop", "The name of the wave",
+          "unamed wave",
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WAVE_URI, g_param_spec_string ("uri", "uri prop", "The uri of the wave", NULL,        /* default value */
+  g_object_class_install_property (gobject_class, WAVE_URI,
+      g_param_spec_string ("uri", "uri prop", "The uri of the wave", NULL,
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WAVE_VOLUME, g_param_spec_double ("volume", "volume prop", "The volume of the wave in the wavtable", 0, 1.0, 1.0,     /* default value */
+  g_object_class_install_property (gobject_class, WAVE_VOLUME,
+      g_param_spec_double ("volume", "volume prop",
+          "The volume of the wave in the wavtable", 0, 1.0, 1.0,
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WAVE_LOOP_MODE, g_param_spec_enum ("loop-mode", "loop-mode prop", "mode of loop playback", BT_TYPE_WAVE_LOOP_MODE,    /* enum type */
-          BT_WAVE_LOOP_MODE_OFF,        /* default value */
+  g_object_class_install_property (gobject_class, WAVE_LOOP_MODE,
+      g_param_spec_enum ("loop-mode", "loop-mode prop", "mode of loop playback",
+          BT_TYPE_WAVE_LOOP_MODE, BT_WAVE_LOOP_MODE_OFF,
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVE_CHANNELS,
