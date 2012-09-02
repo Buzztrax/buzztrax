@@ -31,6 +31,7 @@
 
 //-- defines
 #define N_COLUMNS __BT_WAVE_LIST_MODEL_N_COLUMNS
+#define N_ROWS 200
 
 //-- globals
 
@@ -44,7 +45,7 @@ struct _BtWaveListModelPrivate
   BtWavetable *wavetable;
 
   GType param_types[N_COLUMNS];
-  GSequence *seq;
+  GPtrArray *seq;
 };
 
 //-- the class
@@ -58,77 +59,50 @@ G_DEFINE_TYPE_WITH_CODE (BtWaveListModel, bt_wave_list_model,
 
 //-- helper
 
-static gint
-model_item_cmp (gconstpointer a, gconstpointer b, gpointer data)
-{
-  BtWave *wa = (BtWave *) a;
-  BtWave *wb = (BtWave *) b;
-  gint c;
-  glong ida, idb;
-
-  if (a == b)
-    return 0;
-
-  g_object_get (wa, "index", &ida, NULL);
-  g_object_get (wb, "index", &idb, NULL);
-  c = (gint) idb - (gint) ida;
-  GST_LOG ("comparing %ld <-> %ld: %d", ida, idb, c);
-
-  return (c);
-}
-
-
 static void
 bt_wave_list_model_add (BtWaveListModel * model, BtWave * wave)
 {
-  GSequence *seq = model->priv->seq;
   GtkTreePath *path;
   GtkTreeIter iter;
-  gint position;
+  gulong pos;
 
   GST_INFO ("add wave to model");
+  g_object_get (wave, "index", &pos, NULL);
 
   // insert new entry
   iter.stamp = model->priv->stamp;
-  iter.user_data = g_sequence_insert_sorted (seq, wave, model_item_cmp, NULL);
-  position = g_sequence_iter_get_position (iter.user_data);
+  iter.user_data = GINT_TO_POINTER (pos);
+  g_ptr_array_index (model->priv->seq, pos) = wave;
 
   // signal to the view/app
   path = gtk_tree_path_new ();
-  gtk_tree_path_append_index (path, position);
-  gtk_tree_model_row_inserted (GTK_TREE_MODEL (model), path, &iter);
+  gtk_tree_path_append_index (path, pos);
+  gtk_tree_model_row_changed (GTK_TREE_MODEL (model), path, &iter);
   gtk_tree_path_free (path);
-  GST_DEBUG ("inserted wave %p at position %d", wave, position);
+  GST_DEBUG ("inserted wave %p at position %d", wave, pos);
 }
 
 static void
 bt_wave_list_model_rem (BtWaveListModel * model, BtWave * wave)
 {
-  GSequence *seq = model->priv->seq;
   GtkTreePath *path;
-  GSequenceIter *iter;
-  gint position;
+  GtkTreeIter iter;
+  gulong pos;
 
-  GST_INFO ("removing wave from model");
+  GST_INFO ("add wave to model");
+  g_object_get (wave, "index", &pos, NULL);
 
-  // remove entry
-#if GLIB_CHECK_VERSION(2,28,0)
-  iter = g_sequence_lookup (seq, wave, model_item_cmp, NULL);
-#else
-  iter =
-      g_sequence_iter_prev (g_sequence_search (seq, wave, model_item_cmp,
-          NULL));
-#endif
-  position = g_sequence_iter_get_position (iter);
-  g_sequence_remove (iter);
+  // insert new entry
+  iter.stamp = model->priv->stamp;
+  iter.user_data = GINT_TO_POINTER (pos);
+  g_ptr_array_index (model->priv->seq, pos) = NULL;
 
   // signal to the view/app
   path = gtk_tree_path_new ();
-  gtk_tree_path_append_index (path, position);
-  gtk_tree_model_row_deleted (GTK_TREE_MODEL (model), path);
+  gtk_tree_path_append_index (path, pos);
+  gtk_tree_model_row_changed (GTK_TREE_MODEL (model), path, &iter);
   gtk_tree_path_free (path);
-
-  GST_INFO ("removed wave from model at pos %d ", position);
+  GST_DEBUG ("inserted wave %p at position %d", wave, pos);
 }
 
 //-- signal handlers
@@ -209,7 +183,8 @@ bt_wave_list_model_new (BtWavetable * wavetable)
 BtWave *
 bt_wave_list_model_get_object (BtWaveListModel * model, GtkTreeIter * iter)
 {
-  return (g_sequence_get (iter->user_data));
+  return (g_ptr_array_index (model->priv->seq,
+          GPOINTER_TO_INT (iter->user_data)));
 }
 
 //-- tree model interface
@@ -242,14 +217,13 @@ bt_wave_list_model_tree_model_get_iter (GtkTreeModel * tree_model,
     GtkTreeIter * iter, GtkTreePath * path)
 {
   BtWaveListModel *model = BT_WAVE_LIST_MODEL (tree_model);
-  GSequence *seq = model->priv->seq;
   gint i = gtk_tree_path_get_indices (path)[0];
 
-  if (i >= g_sequence_get_length (seq))
+  if (i >= N_ROWS)
     return (FALSE);
 
   iter->stamp = model->priv->stamp;
-  iter->user_data = g_sequence_get_iter_at_pos (seq, i);
+  iter->user_data = GINT_TO_POINTER (i);
 
   return (TRUE);
 }
@@ -263,12 +237,8 @@ bt_wave_list_model_tree_model_get_path (GtkTreeModel * tree_model,
 
   g_return_val_if_fail (iter->stamp == model->priv->stamp, NULL);
 
-  if (g_sequence_iter_is_end (iter->user_data))
-    return (NULL);
-
   path = gtk_tree_path_new ();
-  gtk_tree_path_append_index (path,
-      g_sequence_iter_get_position (iter->user_data));
+  gtk_tree_path_append_index (path, GPOINTER_TO_UINT (iter->user_data));
 
   return (path);
 }
@@ -278,31 +248,35 @@ bt_wave_list_model_tree_model_get_value (GtkTreeModel * tree_model,
     GtkTreeIter * iter, gint column, GValue * value)
 {
   BtWaveListModel *model = BT_WAVE_LIST_MODEL (tree_model);
-  BtWave *wave;
+  BtWave *wave = NULL;
+  gint pos;
 
   g_return_if_fail (column < N_COLUMNS);
 
   g_value_init (value, model->priv->param_types[column]);
 
-  if ((wave = g_sequence_get (iter->user_data))) {
+  pos = GPOINTER_TO_UINT (iter->user_data);
+  if (pos < N_ROWS)
+    wave = g_ptr_array_index (model->priv->seq, pos);
 
-    switch (column) {
-      case BT_WAVE_LIST_MODEL_INDEX:
-        g_object_get_property ((GObject *) wave, "index", value);
-        break;
-      case BT_WAVE_LIST_MODEL_HEX_ID:{
-        gchar hstr[3];
-        glong index;
+  GST_DEBUG ("get data for wave %p at position %d", wave, pos);
 
-        g_object_get ((GObject *) wave, "index", &index, NULL);
-        sprintf (hstr, "%02lx", index);
-        g_value_set_string (value, hstr);
-        break;
-      }
-      case BT_WAVE_LIST_MODEL_NAME:
-        g_object_get_property ((GObject *) wave, "name", value);
-        break;
+  switch (column) {
+    case BT_WAVE_LIST_MODEL_INDEX:
+      g_value_set_ulong (value, pos);
+      break;
+    case BT_WAVE_LIST_MODEL_HEX_ID:{
+      gchar hstr[3];
+
+      sprintf (hstr, "%02x", pos);
+      g_value_set_string (value, hstr);
+      break;
     }
+    case BT_WAVE_LIST_MODEL_NAME:
+      if (wave) {
+        g_object_get_property ((GObject *) wave, "name", value);
+      }
+      break;
   }
 }
 
@@ -311,15 +285,18 @@ bt_wave_list_model_tree_model_iter_next (GtkTreeModel * tree_model,
     GtkTreeIter * iter)
 {
   BtWaveListModel *model = BT_WAVE_LIST_MODEL (tree_model);
-  gboolean res;
+  gint pos;
 
   g_return_val_if_fail (model->priv->stamp == iter->stamp, FALSE);
 
-  iter->user_data = g_sequence_iter_next (iter->user_data);
-  if ((res = g_sequence_iter_is_end (iter->user_data)))
+  pos = GPOINTER_TO_UINT (iter->user_data);
+  if (pos == N_ROWS) {
     iter->stamp = 0;
-
-  return !res;
+    return FALSE;
+  } else {
+    iter->user_data = GINT_TO_POINTER (pos + 1);
+    return TRUE;
+  }
 }
 
 static gboolean
@@ -330,11 +307,9 @@ bt_wave_list_model_tree_model_iter_children (GtkTreeModel * tree_model,
 
   /* this is a list, nodes have no children */
   if (!parent) {
-    if (g_sequence_get_length (model->priv->seq) > 0) {
-      iter->stamp = model->priv->stamp;
-      iter->user_data = g_sequence_get_begin_iter (model->priv->seq);
-      return (TRUE);
-    }
+    iter->stamp = model->priv->stamp;
+    iter->user_data = GINT_TO_POINTER (0);
+    return (TRUE);
   }
   iter->stamp = 0;
   return (FALSE);
@@ -354,7 +329,7 @@ bt_wave_list_model_tree_model_iter_n_children (GtkTreeModel * tree_model,
   BtWaveListModel *model = BT_WAVE_LIST_MODEL (tree_model);
 
   if (iter == NULL)
-    return g_sequence_get_length (model->priv->seq);
+    return N_ROWS;
 
   g_return_val_if_fail (model->priv->stamp == iter->stamp, -1);
   return (0);
@@ -365,20 +340,14 @@ bt_wave_list_model_tree_model_iter_nth_child (GtkTreeModel * tree_model,
     GtkTreeIter * iter, GtkTreeIter * parent, gint n)
 {
   BtWaveListModel *model = BT_WAVE_LIST_MODEL (tree_model);
-  GSequenceIter *child;
 
   iter->stamp = 0;
 
   if (parent)
     return (FALSE);
 
-  child = g_sequence_get_iter_at_pos (model->priv->seq, n);
-
-  if (g_sequence_iter_is_end (child))
-    return (FALSE);
-
   iter->stamp = model->priv->stamp;
-  iter->user_data = child;
+  iter->user_data = GINT_TO_POINTER (n);
 
   return (TRUE);
 }
@@ -433,7 +402,7 @@ bt_wave_list_model_finalize (GObject * object)
     g_object_remove_weak_pointer ((GObject *) wavetable,
         (gpointer *) & self->priv->wavetable);
   }
-  g_sequence_free (self->priv->seq);
+  g_ptr_array_free (self->priv->seq, TRUE);
 
   G_OBJECT_CLASS (bt_wave_list_model_parent_class)->finalize (object);
 }
@@ -445,7 +414,8 @@ bt_wave_list_model_init (BtWaveListModel * self)
       G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_WAVE_LIST_MODEL,
       BtWaveListModelPrivate);
 
-  self->priv->seq = g_sequence_new (NULL);
+  self->priv->seq = g_ptr_array_sized_new (N_ROWS);
+  g_ptr_array_set_size (self->priv->seq, N_ROWS);
   // random int to check whether an iter belongs to our model
   self->priv->stamp = g_random_int ();
 }

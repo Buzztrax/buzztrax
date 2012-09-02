@@ -48,8 +48,6 @@
 
 #include "bt-edit.h"
 
-#define MAX_WAVETABLE_ITEMS 200
-
 struct _BtMainPageWavesPrivate
 {
   /* used to validate if dispose has run */
@@ -180,40 +178,17 @@ wavelevels_list_get_current (const BtMainPageWaves * self, BtWave * wave)
 static void
 waves_list_refresh (const BtMainPageWaves * self)
 {
-  BtWave *wave;
-  GtkListStore *store;
+  BtWaveListModel *store;
   GtkTreeIter tree_iter;
   GtkTreeSelection *selection;
   GtkTreePath *path = NULL;
   GtkTreeModel *old_store;
-  gchar *str, hstr[3];
-  gint i;
   gboolean have_selection = FALSE;
 
   GST_INFO ("refresh waves list: self=%p, wavetable=%p", self,
       self->priv->wavetable);
 
-  store =
-      gtk_list_store_new (WAVE_TABLE_CT, G_TYPE_ULONG, G_TYPE_STRING,
-      G_TYPE_STRING);
-
-  // append waves rows (buzz numbers them from 0x01 to 0xC8=200)
-  for (i = 1; i <= MAX_WAVETABLE_ITEMS; i++) {
-    gtk_list_store_append (store, &tree_iter);
-    // buzz shows index as hex, because trackers needs it this way
-    sprintf (hstr, "%02x", i);
-    gtk_list_store_set (store, &tree_iter, WAVE_TABLE_ID, i, WAVE_TABLE_HEX_ID,
-        hstr, -1);
-    if ((wave = bt_wavetable_get_wave_by_index (self->priv->wavetable, i))) {
-      g_object_get (wave, "name", &str, NULL);
-      GST_INFO ("  adding [%3d] \"%s\"", i, str);
-      gtk_list_store_set (store, &tree_iter, WAVE_TABLE_NAME, str, -1);
-      g_free (str);
-      g_object_unref (wave);
-    } else {
-      GST_DEBUG ("no wave for index: %d", i);
-    }
-  }
+  store = bt_wave_list_model_new (self->priv->wavetable);
 
   // get old selection or get first item
   selection =
@@ -235,7 +210,6 @@ waves_list_refresh (const BtMainPageWaves * self)
     gtk_tree_selection_select_iter (selection, &tree_iter);
     gtk_tree_view_scroll_to_cell (self->priv->waves_list, path, NULL, TRUE, 0.5,
         0.5);
-
   }
   if (path) {
     gtk_tree_path_free (path);
@@ -1136,8 +1110,6 @@ on_wavetable_toolbar_clear_clicked (GtkToolButton * button, gpointer user_data)
     wave = bt_wavetable_get_wave_by_index (self->priv->wavetable, id);
     bt_wavetable_remove_wave (self->priv->wavetable, wave);
     bt_edit_application_set_song_unsaved (self->priv->app);
-    // update page
-    waves_list_refresh (self);
     // release the references
     g_object_unref (wave);
   }
@@ -1183,7 +1155,6 @@ on_file_chooser_load_sample (GtkFileChooser * chooser, gpointer user_data)
     g_free (tmp_name);
     wave = bt_wave_new (song, name, uri, id, 1.0, BT_WAVE_LOOP_MODE_OFF, 0);
     bt_edit_application_set_song_unsaved (self->priv->app);
-    waves_list_refresh (self);
 
     // release the references
     g_object_unref (wave);
