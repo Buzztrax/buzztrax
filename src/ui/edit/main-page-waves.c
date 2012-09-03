@@ -835,7 +835,7 @@ on_wavelevels_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
       g_object_get (wave, "channels", &channels, NULL);
       g_object_get (wavelevel, "length", &length, "data", &data, "loop-start",
           &loop_start, "loop-end", &loop_end, NULL);
-      GST_INFO ("select wave: %p, %lu", data, length);
+      GST_INFO ("select wave-level: %p, %lu", data, length);
 
       bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->
               priv->waveform_viewer), data, channels, length);

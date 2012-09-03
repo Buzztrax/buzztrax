@@ -178,13 +178,14 @@ bt_wave_list_model_new (BtWavetable * wavetable)
  *
  * Lookup a wave.
  *
- * Returns: the #BtWave for the iter.
+ * Returns: the #BtWave for the iter. Unref when done.
  */
 BtWave *
 bt_wave_list_model_get_object (BtWaveListModel * model, GtkTreeIter * iter)
 {
-  return (g_ptr_array_index (model->priv->seq,
-          GPOINTER_TO_INT (iter->user_data)));
+  BtWave *wave = g_ptr_array_index (model->priv->seq,
+      GPOINTER_TO_INT (iter->user_data));
+  return (wave ? g_object_ref (wave) : NULL);
 }
 
 //-- tree model interface
@@ -229,8 +230,8 @@ bt_wave_list_model_tree_model_get_iter (GtkTreeModel * tree_model,
 }
 
 static GtkTreePath *
-bt_wave_list_model_tree_model_get_path (GtkTreeModel * tree_model,
-    GtkTreeIter * iter)
+bt_wave_list_model_tree_model_get_path (GtkTreeModel *
+    tree_model, GtkTreeIter * iter)
 {
   BtWaveListModel *model = BT_WAVE_LIST_MODEL (tree_model);
   GtkTreePath *path;
@@ -259,7 +260,8 @@ bt_wave_list_model_tree_model_get_value (GtkTreeModel * tree_model,
   if (pos < N_ROWS)
     wave = g_ptr_array_index (model->priv->seq, pos);
 
-  GST_DEBUG ("get data for wave %p at position %d", wave, pos);
+  GST_DEBUG ("get data for wave %p at position %d, column %d",
+      wave, pos, column);
 
   switch (column) {
     case BT_WAVE_LIST_MODEL_INDEX:
