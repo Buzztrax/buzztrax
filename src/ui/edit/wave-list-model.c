@@ -17,7 +17,7 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * SECTION:btpatternlistmodel
+ * SECTION:btwavelistmodel
  * @short_description: data model class for widgets showing waves of a wavetable
  *
  * A generic model representing the waves of a wavetable, suitable for
