@@ -169,6 +169,9 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
             // we probably need to make this another controller that just sends
             // note-off, sending this as part of the key-controler causes trouble
             // for the enum scaling
+            // we still need a way to ensure note-off is send to the voice
+            // matching the note, maybe a user_data field in the 
+            // BtPolyControlData struct
             key = MIDI_CTRL_NOTE_KEY;
             if ((control =
                     btic_device_get_control_by_id (BTIC_DEVICE (self), key))) {
