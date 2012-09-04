@@ -268,6 +268,7 @@ libbtedit_la_SOURCES = \
 	src/ui/edit/ui-resources.c src/ui/edit/ui-resources.h \
 	src/ui/edit/volume-popup.c src/ui/edit/volume-popup.h \
 	src/ui/edit/wave-list-model.c src/ui/edit/wave-list-model.h \
+	src/ui/edit/wavelevel-list-model.c src/ui/edit/wavelevel-list-model.h \
 	src/ui/edit/wave-viewer.c src/ui/edit/wave-viewer.h \
 	src/ui/edit/wire-canvas-item.c src/ui/edit/wire-canvas-item.h \
 	\

@@ -129,6 +129,7 @@
 #include "ui-resources.h"
 #include "volume-popup.h"
 #include "wave-list-model.h"
+#include "wavelevel-list-model.h"
 #include "wave-viewer.h"
 #include "wire-canvas-item.h"
 

@@ -386,7 +386,7 @@ bt_wavelevel_class_init (BtWavelevelClass * const klass)
   g_object_class_install_property (gobject_class, WAVELEVEL_WAVE, g_param_spec_object ("wave", "wave contruct prop", "Set wave object, the wavelevel belongs to", BT_TYPE_WAVE, /* object type */
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  // @idea make this an own type
+  // @idea make this an own type -> BtNote enum?
   g_object_class_install_property (gobject_class, WAVELEVEL_ROOT_NOTE,
       g_param_spec_uchar ("root-note",
           "root-note prop",
@@ -395,8 +395,11 @@ bt_wavelevel_class_init (BtWavelevelClass * const klass)
           G_MAXUINT8,
           0, G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WAVELEVEL_LENGTH, g_param_spec_ulong ("length", "length prop", "length of the sample", 0, G_MAXLONG,  // loop-pos are LONG as well
-          0, G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  // loop-pos are LONG as well
+  g_object_class_install_property (gobject_class, WAVELEVEL_LENGTH,
+      g_param_spec_ulong ("length", "length prop", "length of the sample", 0,
+          G_MAXLONG, 0,
+          G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVELEVEL_LOOP_START,
       g_param_spec_long ("loop-start",
