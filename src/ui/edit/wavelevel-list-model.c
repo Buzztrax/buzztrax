@@ -17,10 +17,10 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * SECTION:btpatternlistmodel
- * @short_description: data model class for widgets showing pattern of a song
+ * SECTION:btwavelevellistmodel
+ * @short_description: data model class for widgets showing wavelevel of a wave
  *
- * A generic model representing the patterns of a machine, suitable for
+ * A generic model representing the wavelevels of a wave, suitable for
  * combo-boxes and treeview widgets.
  */
 
