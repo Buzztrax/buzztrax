@@ -113,6 +113,8 @@
       <xi:include href="xml/btuiresources.xml" />
       <xi:include href="xml/btvolumepopup.xml" />
       <xi:include href="xml/btwirecanvasitem.xml" />
+      <xi:include href="xml/btwavelistmodel.xml" />
+      <xi:include href="xml/btwavelevellistmodel.xml" />
     </chapter>
     <chapter>
       <title>Tool Class Reference</title>
