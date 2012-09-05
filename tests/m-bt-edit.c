@@ -59,6 +59,8 @@ extern Suite *bt_settings_dialog_suite (void);
 extern Suite *bt_signal_analysis_dialog_suite (void);
 extern Suite *bt_tip_dialog_suite (void);
 extern Suite *bt_ui_resources_suite (void);
+extern Suite *bt_wave_list_model_suite (void);
+extern Suite *bt_wavelevel_list_model_suite (void);
 extern Suite *bt_wire_canvas_item_suite (void);
 
 gchar *test_argv[] = { "check_buzzard", "--sync" };
@@ -203,6 +205,8 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_signal_analysis_dialog_suite ());
   srunner_add_suite (sr, bt_tip_dialog_suite ());
   srunner_add_suite (sr, bt_ui_resources_suite ());
+  srunner_add_suite (sr, bt_wave_list_model_suite ());
+  srunner_add_suite (sr, bt_wavelevel_list_model_suite ());
   srunner_add_suite (sr, bt_wire_canvas_item_suite ());
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);
