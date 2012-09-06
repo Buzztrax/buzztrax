@@ -167,6 +167,7 @@ libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/s-interaction-controller-menu.c tests/ui/edit/e-interaction-controller-menu.c \
 	tests/ui/edit/s-machine-actions.c tests/ui/edit/e-machine-actions.c \
 	tests/ui/edit/s-machine-canvas-item.c tests/ui/edit/e-machine-canvas-item.c \
+	tests/ui/edit/s-machine-list-model.c tests/ui/edit/e-machine-list-model.c \
 	tests/ui/edit/s-machine-preset-properties-dialog.c tests/ui/edit/e-machine-preset-properties-dialog.c \
 	tests/ui/edit/s-machine-preferences-dialog.c tests/ui/edit/e-machine-preferences-dialog.c \
 	tests/ui/edit/s-machine-properties-dialog.c tests/ui/edit/e-machine-properties-dialog.c \
@@ -179,6 +180,7 @@ libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/s-main-window.c tests/ui/edit/e-main-window.c \
 	tests/ui/edit/s-missing-framework-elements-dialog.c tests/ui/edit/e-missing-framework-elements-dialog.c \
 	tests/ui/edit/s-missing-song-elements-dialog.c tests/ui/edit/e-missing-song-elements-dialog.c \
+	tests/ui/edit/s-pattern-list-model.c tests/ui/edit/e-pattern-list-model.c \
 	tests/ui/edit/s-pattern-properties-dialog.c tests/ui/edit/e-pattern-properties-dialog.c \
 	tests/ui/edit/s-render-dialog.c tests/ui/edit/e-render-dialog.c \
 	tests/ui/edit/s-settings-dialog.c tests/ui/edit/e-settings-dialog.c \

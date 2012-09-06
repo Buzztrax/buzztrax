@@ -1,5 +1,5 @@
 /* Buzztard
- * Copyright (C) 2010 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2012 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -112,8 +112,6 @@ test_bt_wave_list_model_get_null_wave (BT_TEST_ARGS)
   g_object_unref (song);
   BT_TEST_END;
 }
-
-// load a wave and check the wavelevel
 
 TCase *
 bt_wave_list_model_example_case (void)

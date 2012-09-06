@@ -22,8 +22,10 @@
 //-- globals
 
 static BtEditApplication *app;
+static BtSong *song;
+static BtSetup *setup;
+static BtSequence *sequence;
 static BtMainWindow *main_window;
-static gchar *ext_data_path, *ext_data_uri;
 
 //-- fixtures
 
@@ -39,9 +41,9 @@ test_setup (void)
 {
   bt_edit_setup ();
   app = bt_edit_application_new ();
-  g_object_get (app, "main-window", &main_window, NULL);
-  ext_data_path = g_build_filename (g_get_tmp_dir (), "test.wav", NULL);
-  ext_data_uri = g_strconcat ("file://", ext_data_path, NULL);
+  bt_edit_application_new_song (app);
+  g_object_get (app, "song", &song, "main-window", &main_window, NULL);
+  g_object_get (song, "setup", &setup, "sequence", &sequence, NULL);
 
   flush_main_loop ();
 }
@@ -49,11 +51,14 @@ test_setup (void)
 static void
 test_teardown (void)
 {
-  gtk_widget_destroy (GTK_WIDGET (main_window));
+  g_object_unref (sequence);
+  g_object_unref (setup);
+  g_object_unref (song);
+
   flush_main_loop ();
 
-  g_free (ext_data_uri);
-  g_free (ext_data_path);
+  gtk_widget_destroy (GTK_WIDGET (main_window));
+  flush_main_loop ();
 
   g_object_checked_unref (app);
   bt_edit_teardown ();
@@ -67,86 +72,62 @@ case_teardown (void)
 //-- tests
 
 static void
-test_bt_wavelevel_list_model_create_null (BT_TEST_ARGS)
+test_bt_pattern_list_model_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-
-  bt_edit_application_new_song (app);
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0, NULL));
 
   /* act */
-  BtWavelevelListModel *model = bt_wavelevel_list_model_new (NULL);
+  BtPatternListModel *model = bt_pattern_list_model_new (machine, sequence,
+      TRUE);
 
   /* assert */
   fail_unless (model != NULL, NULL);
 
   /* cleanup */
   g_object_unref (model);
+  g_object_unref (machine);
   BT_TEST_END;
 }
 
 static void
-test_bt_wavelevel_list_model_create (BT_TEST_ARGS)
+test_bt_pattern_list_model_get_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtSong *song;
-
-  bt_edit_application_new_song (app);
-  g_object_get (app, "song", &song, NULL);
-  BtWave *wave = bt_wave_new (song, "sample1", ext_data_uri, 1, 1.0,
-      BT_WAVE_LOOP_MODE_OFF, 0);
+  GtkTreeIter iter;
+  BtMachine *machine = machine = bt_setup_get_machine_by_id (setup, "master");
+  BtPattern *pattern1 = bt_pattern_new (song, "test", "test", /*length= */ 16,
+      machine);
+  BtPatternListModel *model = bt_pattern_list_model_new (machine, sequence,
+      TRUE);
+  gtk_tree_model_get_iter_first ((GtkTreeModel *) model, &iter);
 
   /* act */
-  BtWavelevelListModel *model = bt_wavelevel_list_model_new (wave);
+  BtPattern *pattern2 = bt_pattern_list_model_get_object (model, &iter);
 
   /* assert */
-  fail_unless (model != NULL, NULL);
+  fail_unless (pattern1 == pattern2, NULL);
 
   /* cleanup */
   g_object_unref (model);
-  g_object_unref (wave);
-  g_object_unref (song);
+  g_object_unref (pattern2);
+  g_object_unref (pattern1);
+  g_object_unref (machine);
   BT_TEST_END;
 }
 
 // load a wave and check the wavelevel
-static void
-test_bt_wavelevel_list_model_get_wavelevel (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  /* arrange */
-  BtSong *song;
-  GtkTreeIter iter;
-
-  bt_edit_application_new_song (app);
-  g_object_get (app, "song", &song, NULL);
-  BtWave *wave = bt_wave_new (song, "sample1", ext_data_uri, 1, 1.0,
-      BT_WAVE_LOOP_MODE_OFF, 0);
-  BtWavelevelListModel *model = bt_wavelevel_list_model_new (wave);
-  gtk_tree_model_get_iter_first ((GtkTreeModel *) model, &iter);
-
-  /* act */
-  BtWavelevel *wavelevel = bt_wavelevel_list_model_get_object (model, &iter);
-
-  /* assert */
-  fail_unless (wavelevel != NULL, NULL);
-
-  /* cleanup */
-  g_object_unref (wavelevel);
-  g_object_unref (model);
-  g_object_unref (song);
-  BT_TEST_END;
-}
 
 TCase *
-bt_wavelevel_list_model_example_case (void)
+bt_pattern_list_model_example_case (void)
 {
-  TCase *tc = tcase_create ("BtWavelevelListModelExamples");
+  TCase *tc = tcase_create ("BtPatternListModelExamples");
 
-  tcase_add_test (tc, test_bt_wavelevel_list_model_create_null);
-  tcase_add_test (tc, test_bt_wavelevel_list_model_create);
-  tcase_add_test (tc, test_bt_wavelevel_list_model_get_wavelevel);
+  tcase_add_test (tc, test_bt_pattern_list_model_create);
+  tcase_add_test (tc, test_bt_pattern_list_model_get_pattern);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
