@@ -23,7 +23,7 @@
 
 static BtEditApplication *app;
 static BtSong *song;
-static BtSetup *setup;
+static BtSequence *sequence;
 static BtMainWindow *main_window;
 
 //-- fixtures
@@ -42,7 +42,7 @@ test_setup (void)
   app = bt_edit_application_new ();
   bt_edit_application_new_song (app);
   g_object_get (app, "song", &song, "main-window", &main_window, NULL);
-  g_object_get (song, "setup", &setup, NULL);
+  g_object_get (song, "sequence", &sequence, NULL);
 
   flush_main_loop ();
 }
@@ -50,7 +50,7 @@ test_setup (void)
 static void
 test_teardown (void)
 {
-  g_object_unref (setup);
+  g_object_unref (sequence);
   g_object_unref (song);
 
   flush_main_loop ();
@@ -70,13 +70,13 @@ case_teardown (void)
 //-- tests
 
 static void
-test_bt_machine_list_model_create (BT_TEST_ARGS)
+test_bt_sequence_grid_model_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
 
   /* act */
-  BtMachineListModel *model = bt_machine_list_model_new (setup);
+  BtSequenceGridModel *model = bt_sequence_grid_model_new (sequence, 16);
 
   /* assert */
   fail_unless (model != NULL, NULL);
@@ -86,36 +86,12 @@ test_bt_machine_list_model_create (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void
-test_bt_machine_list_model_get_machine (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  /* arrange */
-  GtkTreeIter iter;
-  BtMachine *machine1 = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0, NULL));
-  BtMachineListModel *model = bt_machine_list_model_new (setup);
-  gtk_tree_model_get_iter_first ((GtkTreeModel *) model, &iter);
-
-  /* act */
-  BtMachine *machine2 = bt_machine_list_model_get_object (model, &iter);
-
-  /* assert */
-  fail_unless (machine1 == machine2, NULL);
-
-  /* cleanup */
-  g_object_unref (model);
-  g_object_unref (machine1);
-  BT_TEST_END;
-}
-
 TCase *
-bt_machine_list_model_example_case (void)
+bt_sequence_grid_model_example_case (void)
 {
-  TCase *tc = tcase_create ("BtMachineListModelExamples");
+  TCase *tc = tcase_create ("BtSequenceGridModelExamples");
 
-  tcase_add_test (tc, test_bt_machine_list_model_create);
-  tcase_add_test (tc, test_bt_machine_list_model_get_machine);
+  tcase_add_test (tc, test_bt_sequence_grid_model_create);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

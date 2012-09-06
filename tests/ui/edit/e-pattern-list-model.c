@@ -113,13 +113,10 @@ test_bt_pattern_list_model_get_pattern (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (model);
-  g_object_unref (pattern2);
   g_object_unref (pattern1);
   g_object_unref (machine);
   BT_TEST_END;
 }
-
-// load a wave and check the wavelevel
 
 TCase *
 bt_pattern_list_model_example_case (void)

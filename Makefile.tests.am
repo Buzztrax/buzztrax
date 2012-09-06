@@ -183,6 +183,7 @@ libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/s-pattern-list-model.c tests/ui/edit/e-pattern-list-model.c \
 	tests/ui/edit/s-pattern-properties-dialog.c tests/ui/edit/e-pattern-properties-dialog.c \
 	tests/ui/edit/s-render-dialog.c tests/ui/edit/e-render-dialog.c \
+	tests/ui/edit/s-sequence-grid-model.c tests/ui/edit/e-sequence-grid-model.c \
 	tests/ui/edit/s-settings-dialog.c tests/ui/edit/e-settings-dialog.c \
 	tests/ui/edit/s-signal-analysis-dialog.c tests/ui/edit/e-signal-analysis-dialog.c \
 	tests/ui/edit/s-tip-dialog.c tests/ui/edit/e-tip-dialog.c \

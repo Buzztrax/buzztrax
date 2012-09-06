@@ -57,6 +57,7 @@ extern Suite *bt_missing_song_elements_dialog_suite (void);
 extern Suite *bt_pattern_list_model_suite (void);
 extern Suite *bt_pattern_properties_dialog_suite (void);
 extern Suite *bt_render_dialog_suite (void);
+extern Suite *bt_sequence_grid_model_suite (void);
 extern Suite *bt_settings_dialog_suite (void);
 extern Suite *bt_signal_analysis_dialog_suite (void);
 extern Suite *bt_tip_dialog_suite (void);
@@ -205,6 +206,7 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_pattern_list_model_suite ());
   srunner_add_suite (sr, bt_pattern_properties_dialog_suite ());
   srunner_add_suite (sr, bt_render_dialog_suite ());
+  srunner_add_suite (sr, bt_sequence_grid_model_suite ());
   srunner_add_suite (sr, bt_settings_dialog_suite ());
   srunner_add_suite (sr, bt_signal_analysis_dialog_suite ());
   srunner_add_suite (sr, bt_tip_dialog_suite ());
