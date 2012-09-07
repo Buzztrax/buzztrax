@@ -229,6 +229,25 @@ test_bt_value_group_randomize_column (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_value_group_copy (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtValueGroup *vg1 = get_mono_value_group ();
+  bt_value_group_set_event (vg1, 0, 0, "10");
+
+  /* act */
+  BtValueGroup *vg2 = bt_value_group_copy (vg1);
+
+  /* assert */
+  ck_assert_str_eq_and_free (bt_value_group_get_event (vg2, 0, 0), "10");
+
+  /* cleanup */
+  g_object_unref (vg2);
+  BT_TEST_END;
+}
+
 TCase *
 bt_value_group_example_case (void)
 {
@@ -242,6 +261,7 @@ bt_value_group_example_case (void)
   tcase_add_test (tc, test_bt_value_group_blend_column);
   tcase_add_test (tc, test_bt_value_group_flip_column);
   tcase_add_test (tc, test_bt_value_group_randomize_column);
+  tcase_add_test (tc, test_bt_value_group_copy);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

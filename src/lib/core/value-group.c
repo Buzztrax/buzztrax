@@ -26,7 +26,7 @@
  * The value group maintains two blocks of data values. One for validated fields
  * and one for plain fields. This allows step wise entry of data (multi column
  * entry of sparse enums). The validated cells are only set as the plain value
- * becomes valid. Invalid values are not copies nor are they stored in the song.
+ * becomes valid. Invalid values are not copied nor are they stored in the song.
  */
 /* TODO(ensonic): consider to lazily create the actual GValue *data array, by
  * keeping a count of non-empty cells
@@ -177,6 +177,7 @@ bt_value_group_copy (const BtValueGroup * const self)
 {
   BtValueGroup *value_group;
   gulong i, data_count;
+  GValue *sdata, *ddata;
 
   g_return_val_if_fail (BT_IS_VALUE_GROUP (self), NULL);
 
@@ -186,12 +187,13 @@ bt_value_group_copy (const BtValueGroup * const self)
       bt_value_group_new (self->priv->param_group, self->priv->length);
 
   data_count = self->priv->length * self->priv->columns;
+  sdata = self->priv->data;
+  ddata = value_group->priv->data;
   // deep copy data
   for (i = 0; i < data_count; i++) {
-    if (BT_IS_GVALUE (&self->priv->data[i])) {
-      g_value_init (&value_group->priv->data[i],
-          G_VALUE_TYPE (&self->priv->data[i]));
-      g_value_copy (&self->priv->data[i], &value_group->priv->data[i]);
+    if (BT_IS_GVALUE (&sdata[i])) {
+      g_value_init (&ddata[i], G_VALUE_TYPE (&sdata[i]));
+      g_value_copy (&sdata[i], &ddata[i]);
     }
   }
   GST_INFO ("  data copied");
@@ -1267,12 +1269,11 @@ bt_value_group_class_init (BtValueGroupClass * const klass)
    *
    * Signals that a param of this value-group has been changed.
    */
-  signals[PARAM_CHANGED_EVENT] = g_signal_new ("param-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,        // accumulator
-      NULL,                     // acc data
-      bt_marshal_VOID__OBJECT_ULONG_ULONG, G_TYPE_NONE, // return type
-      3,                        // n_params
-      BT_TYPE_PARAMETER_GROUP, G_TYPE_ULONG, G_TYPE_ULONG       // param data
-      );
+  signals[PARAM_CHANGED_EVENT] =
+      g_signal_new ("param-changed", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, bt_marshal_VOID__OBJECT_ULONG_ULONG, G_TYPE_NONE, 3,
+      BT_TYPE_PARAMETER_GROUP, G_TYPE_ULONG, G_TYPE_ULONG);
 
   /**
    * BtValueGroup::group-changed:
@@ -1284,13 +1285,15 @@ bt_value_group_class_init (BtValueGroupClass * const klass)
    * one after. The first will have @intermediate=%TRUE. Applications can use
    * that to defer change-consolidation.
    */
-  signals[GROUP_CHANGED_EVENT] = g_signal_new ("group-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,        // accumulator
-      NULL,                     // acc data
-      bt_marshal_VOID__OBJECT_BOOLEAN, G_TYPE_NONE,     // return type
-      2,                        // n_params
+  signals[GROUP_CHANGED_EVENT] =
+      g_signal_new ("group-changed", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, bt_marshal_VOID__OBJECT_BOOLEAN, G_TYPE_NONE, 2,
       BT_TYPE_PARAMETER_GROUP, G_TYPE_BOOLEAN);
 
-  g_object_class_install_property (gobject_class, VALUE_GROUP_PARAMETER_GROUP, g_param_spec_object ("parameter-group", "parameter group construct prop", "Parameter group for the values", BT_TYPE_PARAMETER_GROUP,     /* object type */
+  g_object_class_install_property (gobject_class, VALUE_GROUP_PARAMETER_GROUP,
+      g_param_spec_object ("parameter-group", "parameter group construct prop",
+          "Parameter group for the values", BT_TYPE_PARAMETER_GROUP,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, VALUE_GROUP_LENGTH,
