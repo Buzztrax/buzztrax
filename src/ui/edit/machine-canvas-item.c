@@ -20,6 +20,8 @@
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
  *
+ * Provides UI to manipulate the machine state.
+ *
  * The canvas object emits #BtMachineCanvasItem::position-changed signal after
  * it has been moved.
  */
@@ -41,13 +43,18 @@
  *   - use transparency for mute/bypass, solo would switch all other sources to
  *     muted, can't differenciate mute from bypass on an fx
  *
- * TODO(ensonic): add insert before/after to context menu (see wire-canvas item)
- *
  * TODO(ensonic): play machines live (midi keyboard for playing notes and triggers)
  *   - for source-machine context menu add
  *     - one item "play with > [list of keyboard]"
  *     - one more item to disconnect
  *   - playing multiple machines with a split keyboard would be nice too
+ *
+ * TODO(ensonic): add insert before/after to context menu (see wire-canvas item)
+ *   - below the connect item in the context menu add "Add machine and connect"
+ *     for src-machines, "Add machine (before|after) and connect" for effects"
+ *     and "Add machine and connect" for master.
+ *     - the submenu would be the machine menu
+ *     - need to figure a nice way to place the new machine
  *
  * TODO(ensonic): "remove and relink" is difficult if there are non empty wire patterns
  *   - those would need to be copied to new target machine(s) and we would need
@@ -56,10 +63,6 @@
  *     - "don't remove"
  *     - "drop wire patterns"
  *     - "copy wire patterns"
- *
- * TODO(ensonic): gray out "properties"/"preferences" items in context menu if resulting
- * dialog would be empty
- * - can't do that yet as it is code in the dialog that implements the logic
  *
  * TODO(ensonic): make the properties dialog a readable gobject property
  * - then we can go over all of them from machine page and show/hide them

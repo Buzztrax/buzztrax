@@ -31,9 +31,6 @@
  * TODO(ensonic): add "insert effect" to context menu
  *   - could use the machine menu and work simillar to connect menu on canvas
  *   - would turn existing wire into 2nd wire to preserve wirepatterns
- *
- * TODO(ensonic): dialog manager
- *   - see machine-canvas-item.c
  */
 #define BT_EDIT
 #define BT_WIRE_CANVAS_ITEM_C
@@ -857,9 +854,8 @@ bt_wire_canvas_item_event (GnomeCanvasItem * citem, GdkEvent * event)
   /* we don't want the click falling through to the parent canvas item, if we have handled it */
   if (!res) {
     if (GNOME_CANVAS_ITEM_CLASS (bt_wire_canvas_item_parent_class)->event) {
-      res =
-          (GNOME_CANVAS_ITEM_CLASS (bt_wire_canvas_item_parent_class)->
-          event) (citem, event);
+      res = (GNOME_CANVAS_ITEM_CLASS (bt_wire_canvas_item_parent_class)->event)
+          (citem, event);
     }
   }
   return res;
