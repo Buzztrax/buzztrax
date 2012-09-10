@@ -229,7 +229,7 @@ static void on_context_menu_pattern_remove_activate (GtkMenuItem * menuitem,
 static void on_pattern_size_changed (BtPattern * pattern, GParamSpec * arg,
     gpointer user_data);
 
-static void change_current_pattern (const BtMainPagePatterns * self,
+static gboolean change_current_pattern (const BtMainPagePatterns * self,
     BtPattern * new_pattern);
 
 //-- tree model helper
@@ -1200,7 +1200,6 @@ pattern_edit_set_data_at (gpointer pattern_data, gpointer column_data,
       str = bt_persistence_strfmt_double (value);
   }
 
-
   g_object_get (group->vg, "parameter-group", &pg, NULL);
   is_trigger = bt_parameter_group_is_param_trigger (pg, param);
   wave_param = bt_parameter_group_get_wave_param_index (pg);
@@ -1539,7 +1538,7 @@ pattern_edit_fill_column_type (BtPatternEditorColumn * col,
       g_free (col->user_data);
       col->user_data = NULL;
   }
-  GST_INFO ("%s parameter '%s' min/max/def : %6.4lf/%6.4lf/%6.4lf",
+  GST_DEBUG ("%s parameter '%s' min/max/def : %6.4lf/%6.4lf/%6.4lf",
       g_type_name (type), property->name, col->min, col->max, col->def);
   g_value_unset (min_val);
   g_value_unset (max_val);
@@ -1585,17 +1584,14 @@ pattern_table_refresh (const BtMainPagePatterns * self)
     GValue *min_val, *max_val, *no_val;
     gchar *mid, *pid;
 
+    pattern_table_clear (self);
+
     g_object_get (self->priv->pattern, "id", &pid, "length", &number_of_ticks,
         "voices", &voices, "machine", &machine, NULL);
     g_object_get (machine, "id", &mid, "global-params",
         &self->priv->global_params, "voice-params", &self->priv->voice_params,
         NULL);
-    GST_DEBUG ("  size is %2lu,%2lu", number_of_ticks,
-        self->priv->global_params + voices * self->priv->voice_params);
 
-    pattern_table_clear (self);
-
-    // wire pattern data
     self->priv->number_of_groups =
         (self->priv->global_params > 0 ? 1 : 0) + voices;
 
@@ -1609,16 +1605,18 @@ pattern_table_refresh (const BtMainPagePatterns * self)
       self->priv->number_of_groups += g_list_length (node);
       group = self->priv->param_groups =
           g_new (BtPatternEditorColumnGroup, self->priv->number_of_groups);
+      GST_INFO ("refresh pattern %p, size is ticks = %2lu, groups = %2lu",
+          self->priv->pattern, number_of_ticks, self->priv->number_of_groups);
 
-      GST_INFO ("wire parameters (%ld)", g_list_length (node));
+      GST_DEBUG ("wire parameters (%ld)", g_list_length (node));
       for (; node; node = g_list_next (node)) {
         BtMachine *src = NULL;
 
         wire = BT_WIRE (node->data);
         // check wire config
         g_object_get (wire, "num-params", &wire_params, "src", &src, NULL);
-        g_object_get (src, "id", &group->name, NULL),
-            group->vg = bt_pattern_get_wire_group (self->priv->pattern, wire);
+        g_object_get (src, "id", &group->name, NULL);
+        group->vg = bt_pattern_get_wire_group (self->priv->pattern, wire);
         group->fmt =
             g_strdup_printf ("set_wire_events \"%s\",\"%s\",\"%s\",%%u,%%u",
             group->name, mid, pid);
@@ -1638,6 +1636,8 @@ pattern_table_refresh (const BtMainPagePatterns * self)
     } else {
       group = self->priv->param_groups =
           g_new (BtPatternEditorColumnGroup, self->priv->number_of_groups);
+      GST_INFO ("refresh pattern %p, size is ticks = %2lu, groups = %2lu",
+          self->priv->pattern, number_of_ticks, self->priv->number_of_groups);
     }
     if (self->priv->global_params) {
       // create mapping for global params
@@ -1649,7 +1649,7 @@ pattern_table_refresh (const BtMainPagePatterns * self)
       group->num_columns = self->priv->global_params;
       group->columns = g_new (BtPatternEditorColumn, group->num_columns);
       group->width = 0;
-      GST_INFO ("global parameters");
+      GST_DEBUG ("global parameters, vg = %p", group->vg);
       pg = bt_machine_get_global_param_group (machine);
       for (i = 0; i < group->num_columns; i++) {
         bt_parameter_group_get_param_details (pg, i, &property, &min_val,
@@ -1672,7 +1672,7 @@ pattern_table_refresh (const BtMainPagePatterns * self)
       group->num_columns = self->priv->voice_params;
       group->columns = g_new (BtPatternEditorColumn, group->num_columns);
       group->width = 0;
-      GST_INFO ("voice parameters (%lu)", voices);
+      GST_DEBUG ("voice parameters (%lu) , vg = %p", voices, group->vg);
       pg = bt_machine_get_voice_param_group (machine, 0);
       for (i = 0; i < group->num_columns; i++) {
         bt_parameter_group_get_param_details (pg, i, &property, &min_val,
@@ -1703,7 +1703,6 @@ pattern_table_refresh (const BtMainPagePatterns * self)
       }
     }
 
-    GST_INFO ("refreshes %lu groups", self->priv->number_of_groups);
     bt_pattern_editor_set_pattern (self->priv->pattern_table, (gpointer) self,
         number_of_ticks, self->priv->number_of_groups, self->priv->param_groups,
         &callbacks);
@@ -1739,51 +1738,52 @@ context_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
         gulong voices;
 
         g_object_get (machine, "voices", &voices, NULL);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_add), TRUE);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_remove), (voices > 0));
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_add), TRUE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_remove), (voices > 0));
       } else {
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_add), FALSE);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_remove), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_add), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_remove), FALSE);
       }
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_properties), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_remove), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_copy), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_properties), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_remove), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_copy), TRUE);
     } else {
       GST_INFO ("machine has no patterns");
       gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
           FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_track_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_properties), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_copy), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_track_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_properties), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_copy), FALSE);
     }
     g_object_get (machine, "prefs-params", &num_property_params, NULL);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_machine_preferences), (num_property_params != 0));
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_machine_preferences),
+        (num_property_params != 0));
   } else {
     GST_INFO ("no machine");
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
         FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_track_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_pattern_properties), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_pattern_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_pattern_copy), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_track_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_pattern_properties), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_pattern_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_pattern_copy), FALSE);
   }
 }
 
@@ -1816,44 +1816,22 @@ add_new_pattern (const BtMainPagePatterns * self, BtMachine * machine)
   return (pattern);
 }
 
-static BtPattern *
-get_current_pattern (const BtMainPagePatterns * self)
-{
-  BtPattern *pattern;
-  GtkTreeIter iter;
-  GtkTreeModel *store;
-
-  GST_INFO ("get current pattern");
-
-  if (self->priv->machine) {
-    if (gtk_combo_box_get_active_iter (self->priv->pattern_menu, &iter)) {
-      store = gtk_combo_box_get_model (self->priv->pattern_menu);
-      if ((pattern =
-              bt_pattern_list_model_get_object (BT_PATTERN_LIST_MODEL (store),
-                  &iter))) {
-        GST_DEBUG ("  got pattern: %p,pattern-ref_ct=%d", pattern,
-            G_OBJECT_REF_COUNT (pattern));
-        return (g_object_ref (pattern));
-      }
-    }
-  }
-  return (NULL);
-}
-
-static void
+static gboolean
 change_current_pattern (const BtMainPagePatterns * self,
     BtPattern * new_pattern)
 {
   BtPattern *old_pattern = self->priv->pattern;
 
-  GST_DEBUG ("change_pattern: %p -> %p", old_pattern, new_pattern);
+  GST_WARNING ("change_pattern: %p -> %p", old_pattern, new_pattern);
 
   if (new_pattern == old_pattern) {
     GST_WARNING ("new pattern is the same as previous");
-    return;
+    return FALSE;
   }
 
   self->priv->pattern = g_object_try_ref (new_pattern);
+  GST_INFO ("store new pattern : %p,ref_ct=%d", new_pattern,
+      G_OBJECT_REF_COUNT (new_pattern));
   if (old_pattern) {
     if (self->priv->pattern_length_changed) {
       g_signal_handler_disconnect (old_pattern,
@@ -1871,31 +1849,19 @@ change_current_pattern (const BtMainPagePatterns * self,
   }
   // select pattern combo entry
   if (new_pattern) {
-    GtkTreeModel *store;
-    GtkTreeIter iter;
-
-    store = gtk_combo_box_get_model (self->priv->pattern_menu);
-    // get the row where row.pattern==pattern
-    pattern_menu_model_get_iter_by_pattern (store, &iter, new_pattern);
-    gtk_combo_box_set_active_iter (self->priv->pattern_menu, &iter);
-
-    GST_DEBUG ("selecting new pattern");
+    // watch the pattern
+    self->priv->pattern_length_changed =
+        g_signal_connect (new_pattern, "notify::length",
+        G_CALLBACK (on_pattern_size_changed), (gpointer) self);
+    self->priv->pattern_voices_changed =
+        g_signal_connect (new_pattern, "notify::voices",
+        G_CALLBACK (on_pattern_size_changed), (gpointer) self);
   }
   // refresh pattern view
-  GST_INFO ("store new pattern : %p,ref_ct=%d", new_pattern,
-      G_OBJECT_REF_COUNT (new_pattern));
   pattern_table_refresh (self);
   pattern_view_update_column_description (self, UPDATE_COLUMN_UPDATE);
   gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->pattern_table));
-  if (new_pattern) {
-    // watch the pattern
-    self->priv->pattern_length_changed =
-        g_signal_connect_after (new_pattern, "notify::length",
-        G_CALLBACK (on_pattern_size_changed), (gpointer) self);
-    self->priv->pattern_voices_changed =
-        g_signal_connect_after (new_pattern, "notify::voices",
-        G_CALLBACK (on_pattern_size_changed), (gpointer) self);
-  }
+  return TRUE;
 }
 
 static BtMachine *
@@ -2063,7 +2029,9 @@ on_pattern_size_changed (BtPattern * pattern, GParamSpec * arg,
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
 
-  GST_INFO ("pattern size changed : %p", self->priv->pattern);
+  GST_INFO ("pattern size changed (%s): %p", arg->name, self->priv->pattern);
+  // FIXME(ensonic): as length and voices are no constructor properties we seem 
+  // to get notifies for new patterns and thus redraw things twice :/
   pattern_table_refresh (self);
   pattern_view_update_column_description (self, UPDATE_COLUMN_UPDATE);
   gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->pattern_table));
@@ -2073,13 +2041,22 @@ static void
 on_pattern_menu_changed (GtkComboBox * menu, gpointer user_data)
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
-  BtPattern *pattern;
+  BtPattern *pattern = NULL;
+  GtkTreeIter iter;
 
   // refresh pattern view
-  GST_INFO ("unref'ed old pattern: %p,ref_ct=%d",
-      self->priv->pattern, G_OBJECT_REF_COUNT (self->priv->pattern));
-  pattern = get_current_pattern (self);
-  change_current_pattern (self, pattern);
+  if (gtk_combo_box_get_active_iter (self->priv->pattern_menu, &iter)) {
+    GtkTreeModel *store = gtk_combo_box_get_model (self->priv->pattern_menu);
+    if ((pattern =
+            bt_pattern_list_model_get_object (BT_PATTERN_LIST_MODEL (store),
+                &iter))) {
+      GST_DEBUG ("  got new pattern: %p,pattern-ref_ct=%d", pattern,
+          G_OBJECT_REF_COUNT (pattern));
+    }
+  }
+  if (!change_current_pattern (self, pattern)) {
+    return;
+  }
 
   if (self->priv->properties) {
     gchar *prop, *pid = NULL;
@@ -2105,10 +2082,6 @@ on_pattern_menu_changed (GtkComboBox * menu, gpointer user_data)
     }
     g_free (pid);
   }
-
-  g_object_try_unref (pattern);
-  GST_INFO ("ref'ed new pattern: %p,ref_ct=%d",
-      self->priv->pattern, G_OBJECT_REF_COUNT (self->priv->pattern));
 }
 
 /*
@@ -2452,13 +2425,21 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   if ((prop =
           (gchar *) g_hash_table_lookup (self->priv->properties,
               "selected-pattern"))) {
-    BtPattern *new_pattern;
+    BtPattern *pattern;
 
-    if ((new_pattern =
+    if ((pattern =
             (BtPattern *) bt_machine_get_pattern_by_id (self->priv->machine,
                 prop))) {
-      g_object_try_unref (self->priv->pattern);
-      self->priv->pattern = new_pattern;
+      GtkTreeModel *store;
+      GtkTreeIter iter;
+
+      if (change_current_pattern (self, pattern)) {
+        store = gtk_combo_box_get_model (self->priv->pattern_menu);
+        // get the row where row.pattern==pattern
+        pattern_menu_model_get_iter_by_pattern (store, &iter, pattern);
+        gtk_combo_box_set_active_iter (self->priv->pattern_menu, &iter);
+        GST_DEBUG ("selected new pattern");
+      }
     }
   }
   // update page
@@ -2987,12 +2968,12 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   box = gtk_hbox_new (FALSE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->base_octave_menu = gtk_combo_box_text_new ();
-  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->priv->
-          base_octave_menu), FALSE);
+  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->
+          priv->base_octave_menu), FALSE);
   for (i = 0; i < 8; i++) {
     sprintf (oct_str, "%1d", i);
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-            base_octave_menu), oct_str);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+            priv->base_octave_menu), oct_str);
   }
   gtk_combo_box_set_active (GTK_COMBO_BOX (self->priv->base_octave_menu),
       self->priv->base_octave);
