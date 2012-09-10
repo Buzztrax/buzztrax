@@ -88,13 +88,15 @@
     - on replay we can take the prefix og the entry and dispatch
     - on journalling we can probably add the prefix
     - it is a stack of journal entries
+  - classes that implement unod/redo implement the change_logger_interface()
+    and usually have a BtChangeLog reference in their instance struct
   - pending parts that need undo/redo
     - machine view
       - machine/wire parameters
     - wavetable view
     - info view
   - order of serialisation and destruction
-    - see main-page-machines.c:1512
+    - see main-page-machines.c:bt_main_page_machines_delete_machine()
     - use g_signal_connect_after() for the '-removed' handler that are
       destructive (search for '-removed",G_CALLBACK') can help
     - g_object_add_weak_ref is not useful as the object is already gone
@@ -131,9 +133,65 @@
       3) children: emit 'removed'
       4) owner: after_xxx_removed: end log undo/redo
       5) remove & unref
+    - one problem is that objects that gets removed have children and are part of
+      other objects:
+      - machine has patterns and
+      - sequence has tracks that reference machines
     - it is probably easier to have explicit api in the participating UI object
-      - we will not rely on the signals
-      - before calling xxx_remove on libcore, we will serialize the objects
+      - we should split functions like:
+        void bt_main_page_machines_delete_machine (const BtMainPageMachines * self, BtMachine * machine)
+        void bt_main_page_machines_delete_wire (const BtMainPageMachines * self, BtWire * wire)
+        to serialize and to actually delete afterwards, this way we can trigger
+        the deletion of the top-level after serialisation is done 
+      - examples:
+        bt_main_page_machines_delete_machine(self, machine) {
+          bt_main_page_machines_serialize_machine(self, machine) {
+            // 1) serialize own data (properties)
+            // 2) serialize data from object that have a ref to this machine by
+            g_signal_emit(BtMainPageMachines::machine-delete-event, machine);
+              // bt_main_page_sequence_on_machine_delete_event() -> bt_main_page_sequence_delete_track()
+            // 3) serialize all children
+            foreach(pattern) { bt_main_page_patterns_serialize(self,pattern); } 
+          }
+          bt_setup_remove_machine(setup, machine);
+        }
+        bt_main_page_machines_delete_wire(self, wire) {
+          bt_main_page_machines_serialize_wire(self, wire) {
+            // 1) serialize own data (properties)
+            // 2) serialize data from object that have a ref to this wire by
+            g_signal_emit(BtMainPageMachines::wire-delete-event, wire);
+            // 3) serialize all children
+            foreach(pattern) { bt_main_page_patterns_serialize_value_group(self,pattern,wire_value_group); }              
+          }
+          bt_setup_remove_wire(setup, wire);
+        }
+        bt_main_page_patterns_delete_pattern() {
+          bt_main_page_patterns_serialize_pattern(self, pattern) {
+            // 1) serialize own data (properties, value-groups)
+            foreach(value-group) bt_main_page_patterns_serialize_value_group(self, pattern, value-group)
+            // 2) serialize data from object that have a ref to this pattern by
+            g_signal_emit(BtMainPagePatterns::pattern-delete-event, pattern);
+              // bt_main_page_sequence_on_pattern_delete_event() -> serialize tracks data for this pattern
+            // 3) serialize all children
+            // - no children -
+          }
+          bt_machine_remove_pattern(machine, pattern);
+        }
+        bt_main_page_sequence_delete_track(self, sequence, track_id) {
+          // no refs, no children
+        }
+        bt_main_page_waves_delete_wave() {
+          bt_main_page_waves_serialize_wave(self, wave) {
+            // 1) serialize own data (properties)
+            // 2) serialize data from object that have a ref to this wave by
+            // TODO: we probably don't want this, as we won't clear wave-refs in
+            //       pattern when e.g. loading a new wave into an existing slot
+            g_signal_emit(BtMainPagePatterns::wave-delete-event, wave);            
+            // 3) serialize all children
+            // - no children -
+          }
+          bt_wavetable_remove_wave(wavetable, wave);
+        }
 
 
 * Hide libxml2 use behind a PersistenceIO interface in a XMLPersistenceIO
@@ -294,4 +352,10 @@
 * pattern and main-page-patterns still contain bits of duplicated code
   * review the pattern api and check if we should use the groups directly
     (run ./api-cleanup.sh to get a report of where the api is used)
+
+
+* create & add is a bad idea
+  * machines and wires are automatically added to the setup
+  * patterns are automatically added to the machine
+  * this causes trouble for pattern_copy (which we work-around now)
 
