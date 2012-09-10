@@ -685,7 +685,7 @@ bt_pattern_editor_expose (GtkWidget * widget, GdkEventExpose * event)
     return FALSE;
 
   /* this is the dirty region */
-  GST_INFO ("Refresh Area: %d,%d -> %d,%d", rect.x, rect.y, rect.width,
+  GST_DEBUG ("Refresh Area: %d,%d -> %d,%d", rect.x, rect.y, rect.width,
       rect.height);
 
   cr = gdk_cairo_create (widget->window);
@@ -710,7 +710,8 @@ bt_pattern_editor_expose (GtkWidget * widget, GdkEventExpose * event)
   self->rowhdr_width = bt_pattern_editor_rownum_width (self) + self->cw;
   x += self->rowhdr_width;
 
-  GST_INFO ("Scroll: %d,%d, row=%d", self->ofs_x, self->ofs_y, row);
+  GST_DEBUG ("Scroll: %d,%d, row=%d (of %d)", self->ofs_x, self->ofs_y, row,
+      self->num_rows);
 
   /* draw group parameter columns */
   for (g = 0; g < self->num_groups; g++) {
@@ -726,11 +727,12 @@ bt_pattern_editor_expose (GtkWidget * widget, GdkEventExpose * event)
       if ((xs >= rect.x && xs <= rect.x + rect.width) || (xe >= rect.x
               && xe <= rect.x + rect.width) || (xs <= rect.x
               && xe >= rect.x + rect.width)) {
-        GST_DEBUG ("Draw Group/Column: %d,%d : %3d-%3d", g, i, xs, xe);
+        GST_DEBUG ("Draw Group/Column: %d,%d : x=%3d-%3d : y=%3d..%3d", g, i,
+            xs, xe, y - self->ofs_y, max_y);
         bt_pattern_editor_draw_column (self, cr, x - self->ofs_x,
             y - self->ofs_y, col, g, i, row, max_y);
       } else {
-        GST_DEBUG ("Skip Group/Column: %d,%d : %3d-%3d", g, i, xs, xe);
+        GST_DEBUG ("Skip Group/Column: %d,%d : x=%3d-%3d", g, i, xs, xe);
       }
       x += w;
     }
@@ -1543,6 +1545,7 @@ bt_pattern_editor_set_pattern (BtPatternEditor * self, gpointer pattern_data,
     BtPatternEditorColumnGroup * groups, BtPatternEditorCallbacks * cb)
 {
   GtkWidget *widget = GTK_WIDGET (self);
+
   self->num_rows = num_rows;
   self->num_groups = num_groups;
   self->groups = groups;

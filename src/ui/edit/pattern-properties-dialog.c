@@ -261,12 +261,18 @@ bt_pattern_properties_dialog_apply (const BtPatternPropertiesDialog * self)
 
   // avoid notifies of properties that actualy have not changed
   g_object_freeze_notify ((GObject *) (self->priv->pattern));
-  if (strcmp (self->priv->name, name))
+  if (strcmp (self->priv->name, name)) {
+    GST_DEBUG ("set name from '%s' -> '%s'", self->priv->name, name);
     g_object_set (self->priv->pattern, "name", self->priv->name, NULL);
-  if (self->priv->length != length)
+  }
+  if (self->priv->length != length) {
+    GST_DEBUG ("set length from %lu -> %lu", self->priv->length, length);
     g_object_set (self->priv->pattern, "length", self->priv->length, NULL);
-  if (self->priv->voices != voices)
+  }
+  if (self->priv->voices != voices) {
+    GST_DEBUG ("set voices from %lu -> %lu", self->priv->voices, voices);
     g_object_set (self->priv->machine, "voices", self->priv->voices, NULL);
+  }
   g_object_thaw_notify ((GObject *) (self->priv->pattern));
 }
 

@@ -297,19 +297,29 @@ bt_cmd_pattern_class_init (BtCmdPatternClass * const klass)
   gobject_class->dispose = bt_cmd_pattern_dispose;
   gobject_class->finalize = bt_cmd_pattern_finalize;
 
-  g_object_class_install_property (gobject_class, CMD_PATTERN_SONG, g_param_spec_object ("song", "song construct prop", "Song object, the pattern belongs to", BT_TYPE_SONG,    /* object type */
+  g_object_class_install_property (gobject_class, CMD_PATTERN_SONG,
+      g_param_spec_object ("song", "song construct prop",
+          "Song object, the pattern belongs to", BT_TYPE_SONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, CMD_PATTERN_MACHINE, g_param_spec_object ("machine", "machine construct prop", "Machine object, the pattern belongs to", BT_TYPE_MACHINE,     /* object type */
+  g_object_class_install_property (gobject_class, CMD_PATTERN_MACHINE,
+      g_param_spec_object ("machine", "machine construct prop",
+          "Machine object, the pattern belongs to", BT_TYPE_MACHINE,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, CMD_PATTERN_ID, g_param_spec_string ("id", "id construct prop", "pattern identifier (unique per song)", "unnamed pattern",    /* default value */
+  g_object_class_install_property (gobject_class, CMD_PATTERN_ID,
+      g_param_spec_string ("id", "id construct prop",
+          "pattern identifier (unique per song)", "unnamed pattern",
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, CMD_PATTERN_NAME, g_param_spec_string ("name", "name construct prop", "the display-name of the pattern", "unnamed",   /* default value */
+  g_object_class_install_property (gobject_class, CMD_PATTERN_NAME,
+      g_param_spec_string ("name", "name construct prop",
+          "the display-name of the pattern", "unnamed",
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, CMD_PATTERN_COMMAND, g_param_spec_enum ("command", "command prop", "the command of this pattern", BT_TYPE_PATTERN_CMD,        /* enum type */
-          BT_PATTERN_CMD_NORMAL,        /* default value */
+  g_object_class_install_property (gobject_class, CMD_PATTERN_COMMAND,
+      g_param_spec_enum ("command", "command prop",
+          "the command of this pattern", BT_TYPE_PATTERN_CMD,
+          BT_PATTERN_CMD_NORMAL,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

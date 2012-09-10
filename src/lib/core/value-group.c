@@ -181,7 +181,7 @@ bt_value_group_copy (const BtValueGroup * const self)
 
   g_return_val_if_fail (BT_IS_VALUE_GROUP (self), NULL);
 
-  GST_INFO ("copying group");
+  GST_INFO ("copying group vg = %p", self);
 
   value_group =
       bt_value_group_new (self->priv->param_group, self->priv->length);
@@ -196,7 +196,7 @@ bt_value_group_copy (const BtValueGroup * const self)
       g_value_copy (&sdata[i], &ddata[i]);
     }
   }
-  GST_INFO ("  data copied");
+  GST_INFO ("  group vg = %p copied", value_group);
 
   return (value_group);
 }
@@ -1161,19 +1161,18 @@ bt_value_group_set_property (GObject * const object, const guint property_id,
       g_object_get ((gpointer) (self->priv->param_group), "num-params",
           &self->priv->params, NULL);
       self->priv->columns = self->priv->params * 2;
-    }
       break;
+    }
     case VALUE_GROUP_LENGTH:{
       gulong length = self->priv->length;
       self->priv->length = g_value_get_ulong (value);
       if (length != self->priv->length) {
         bt_value_group_resize_data_length (self, length);
       }
-    }
       break;
-    default:{
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
 }
@@ -1186,17 +1185,14 @@ bt_value_group_get_property (GObject * const object, const guint property_id,
   return_if_disposed ();
 
   switch (property_id) {
-    case VALUE_GROUP_PARAMETER_GROUP:{
+    case VALUE_GROUP_PARAMETER_GROUP:
       g_value_set_object (value, self->priv->param_group);
-    }
       break;
-    case VALUE_GROUP_LENGTH:{
+    case VALUE_GROUP_LENGTH:
       g_value_set_ulong (value, self->priv->length);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
