@@ -130,7 +130,7 @@ bt_object_list_model_append (BtObjectListModel * model, GObject * object)
   GtkTreeIter iter;
   gint position;
 
-  g_return_if_fail (G_OBJECT_TYPE (object) != model->priv->object_type);
+  g_return_if_fail (G_OBJECT_TYPE (object) == model->priv->object_type);
 
   position = g_sequence_get_length (seq);
   iter.stamp = model->priv->stamp;

@@ -180,6 +180,7 @@ libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/s-main-window.c tests/ui/edit/e-main-window.c \
 	tests/ui/edit/s-missing-framework-elements-dialog.c tests/ui/edit/e-missing-framework-elements-dialog.c \
 	tests/ui/edit/s-missing-song-elements-dialog.c tests/ui/edit/e-missing-song-elements-dialog.c \
+	tests/ui/edit/s-object-list-model.c tests/ui/edit/e-object-list-model.c tests/ui/edit/t-object-list-model.c \
 	tests/ui/edit/s-pattern-list-model.c tests/ui/edit/e-pattern-list-model.c \
 	tests/ui/edit/s-pattern-properties-dialog.c tests/ui/edit/e-pattern-properties-dialog.c \
 	tests/ui/edit/s-render-dialog.c tests/ui/edit/e-render-dialog.c \

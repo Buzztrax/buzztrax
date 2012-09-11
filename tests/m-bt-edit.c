@@ -54,6 +54,7 @@ extern Suite *bt_main_pages_suite (void);
 extern Suite *bt_main_window_suite (void);
 extern Suite *bt_missing_framework_elements_dialog_suite (void);
 extern Suite *bt_missing_song_elements_dialog_suite (void);
+extern Suite *bt_object_list_model_suite (void);
 extern Suite *bt_pattern_list_model_suite (void);
 extern Suite *bt_pattern_properties_dialog_suite (void);
 extern Suite *bt_render_dialog_suite (void);
@@ -203,6 +204,7 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_main_window_suite ());
   srunner_add_suite (sr, bt_missing_framework_elements_dialog_suite ());
   srunner_add_suite (sr, bt_missing_song_elements_dialog_suite ());
+  srunner_add_suite (sr, bt_object_list_model_suite ());
   srunner_add_suite (sr, bt_pattern_list_model_suite ());
   srunner_add_suite (sr, bt_pattern_properties_dialog_suite ());
   srunner_add_suite (sr, bt_render_dialog_suite ());
