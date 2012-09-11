@@ -21,7 +21,8 @@
  * @short_description: the waveform viewer widget
  * @see_also: #BtWave, #BtMainPageWaves
  *
- * Provides an viewer for audio waveforms.
+ * Provides an viewer for audio waveforms. It can handle multi-channel
+ * waveforms, show loop-markers and a playback cursor.
  */
 
 #define BT_EDIT
