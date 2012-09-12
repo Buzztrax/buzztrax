@@ -61,7 +61,7 @@ struct _BtWavetablePrivate
     G_POINTER_ALIAS (BtSong *, song);
 
   /* IDEA(ensonic): change to GPtrArray, the baseptr does not change when modifying and
-   * we can save the 'index' field in BtWave
+   * we can remove the 'index' field in BtWave
    */
   GList *waves;                 // each entry points to a BtWave
   GList *missing_waves;         // each entry points to a gchar*
