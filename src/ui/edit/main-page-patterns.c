@@ -147,9 +147,6 @@ struct _BtMainPagePatternsPrivate
   gint pattern_length_changed, pattern_voices_changed;
   gint pattern_menu_changed;
 
-  gint wave_to_combopos[MAX_WAVETABLE_ITEMS + 2],
-      combopos_to_wave[MAX_WAVETABLE_ITEMS + 2];
-
   /* cached setup properties */
   GHashTable *properties;
 };
@@ -166,12 +163,6 @@ G_DEFINE_TYPE_WITH_CODE (BtMainPagePatterns, bt_main_page_patterns,
 
 /* we need this in machine-properties-dialog.c too */
 GdkAtom pattern_atom;
-
-enum
-{
-  WAVE_MENU_NUMBER = 0,
-  WAVE_MENU_LABEL,
-};
 
 enum
 {
@@ -1001,6 +992,28 @@ on_pattern_model_row_deleted (GtkTreeModel * tree_model, GtkTreePath * path,
   gtk_combo_box_set_active_iter (self->priv->pattern_menu, &iter);
 }
 
+static void
+on_wave_model_row_inserted (GtkTreeModel * tree_model, GtkTreePath * path,
+    GtkTreeIter * iter, gpointer user_data)
+{
+  BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
+
+  gtk_combo_box_set_active_iter (self->priv->wavetable_menu, iter);
+  gtk_widget_set_sensitive (GTK_WIDGET (self->priv->wavetable_menu), TRUE);
+}
+
+static void
+on_wave_model_row_deleted (GtkTreeModel * tree_model, GtkTreePath * path,
+    gpointer user_data)
+{
+  BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
+  GtkTreeIter iter;
+
+  if (!gtk_combo_box_get_active_iter (self->priv->wavetable_menu, &iter)) {
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->wavetable_menu), FALSE);
+  }
+}
+
 //-- event handler helper
 
 static void
@@ -1011,7 +1024,6 @@ machine_menu_refresh (const BtMainPagePatterns * self, const BtSetup * setup)
   BtMachineListModel *store;
   gint index = -1;
   gint active = -1;
-
 
   // create machine menu
   store = bt_machine_list_model_new ((BtSetup *) setup);
@@ -1106,43 +1118,34 @@ static void
 wavetable_menu_refresh (const BtMainPagePatterns * self,
     BtWavetable * wavetable)
 {
-  BtWave *wave;
-  gchar *str, hstr[3];
-  GtkListStore *store;
-  GtkTreeIter menu_iter;
-  gint i, index = -1, count = 0;
+  BtWaveListModel *store;
+  GtkTreeModel *filtered_store;
+  GtkTreeIter iter;
 
-  // update pattern menu
-  store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
+  store = bt_wave_list_model_new (wavetable);
 
-  //-- append waves rows (buzz numbers them from 0x01 to 0xC8=200)
-  for (i = 1; i <= MAX_WAVETABLE_ITEMS; i++)
-    self->priv->wave_to_combopos[i] = self->priv->combopos_to_wave[i] = -1;
-  for (i = 1; i <= MAX_WAVETABLE_ITEMS; i++) {
-    if ((wave = bt_wavetable_get_wave_by_index (wavetable, i))) {
-      self->priv->wave_to_combopos[i] = count;
-      self->priv->combopos_to_wave[count] = i;
-      gtk_list_store_append (store, &menu_iter);
-      g_object_get (wave, "name", &str, NULL);
-      GST_INFO ("  adding [%3d] \"%s\"", i, str);
-      // buzz shows index as hex, because trackers needs it this way
-      sprintf (hstr, "%02x", i);
-      gtk_list_store_set (store, &menu_iter,
-          WAVE_MENU_NUMBER, hstr, WAVE_MENU_LABEL, str, -1);
-      g_free (str);
-      g_object_unref (wave);
-      if (index == -1)
-        index = i - 1;
-      count++;
-    }
+  // create a filtered model to only show loaded wave slots
+  filtered_store = gtk_tree_model_filter_new (GTK_TREE_MODEL (store), NULL);
+  gtk_tree_model_filter_set_visible_column (GTK_TREE_MODEL_FILTER
+      (filtered_store), BT_WAVE_LIST_MODEL_HAS_WAVE);
+
+  GST_INFO ("new wavetable store: %p / %p", filtered_store, store);
+
+  g_signal_connect (filtered_store, "row-inserted",
+      G_CALLBACK (on_wave_model_row_inserted), (gpointer) self);
+  g_signal_connect (filtered_store, "row-deleted",
+      G_CALLBACK (on_wave_model_row_deleted), (gpointer) self);
+
+  gtk_combo_box_set_model (self->priv->wavetable_menu, filtered_store);
+  if (gtk_tree_model_iter_nth_child (filtered_store, &iter, NULL, 0)) {
+    gtk_combo_box_set_active_iter (self->priv->wavetable_menu, &iter);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->wavetable_menu), TRUE);
+  } else {
+    gtk_combo_box_set_active_iter (self->priv->wavetable_menu, NULL);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->wavetable_menu), FALSE);
   }
-  GST_INFO ("  index=%d", index);
-
-  gtk_widget_set_sensitive (GTK_WIDGET (self->priv->wavetable_menu),
-      (index != -1));
-  gtk_combo_box_set_model (self->priv->wavetable_menu, GTK_TREE_MODEL (store));
-  gtk_combo_box_set_active (self->priv->wavetable_menu, index);
-  g_object_unref (store);       // drop with comboxbox
+  g_object_unref (filtered_store);      // drop with comboxbox
+  g_object_unref (store);
 }
 
 /* - TODO(ensonic): we're converting GValue <-> str <-> float
@@ -1260,14 +1263,21 @@ pattern_edit_set_data_at (gpointer pattern_data, gpointer column_data,
       const gchar *wave_str = "";
 
       if (BT_IS_STRING (str)) {
-        gint wave_ix = gtk_combo_box_get_active (self->priv->wavetable_menu);
-        if (wave_ix >= 0) {
-          wave_ix = self->priv->combopos_to_wave[wave_ix];
-          wave_str = bt_persistence_strfmt_ulong (wave_ix);
+        GtkTreeModel *model;
+        GtkTreeIter iter;
+
+        if ((model = gtk_combo_box_get_model (self->priv->wavetable_menu))) {
+          if (gtk_combo_box_get_active_iter (self->priv->wavetable_menu, &iter)) {
+            gulong wave_ix;
+
+            gtk_tree_model_get (model, &iter, BT_WAVE_LIST_MODEL_INDEX,
+                &wave_ix, -1);
+            wave_str = bt_persistence_strfmt_ulong (wave_ix);
+            // FIXME(ensonic): e.g. Matilde Tracker expects to get a wave, even if
+            // wave table is empty
+            GST_DEBUG ("wave index: %d, %s", wave_ix, wave_str);
+          }
         }
-        // FIXME(ensonic): e.g. Matilde Tracker expects to get a wave, even if
-        // wave table is empty
-        GST_DEBUG ("wave index: %d, %s", wave_ix, wave_str);
       }
       GST_DEBUG ("set wave for: %d, %d to %s", row, wave_param, wave_str);
       bt_value_group_set_event (group->vg, row, wave_param, wave_str);
@@ -1288,12 +1298,24 @@ pattern_edit_set_data_at (gpointer pattern_data, gpointer column_data,
       } else {
         // make wavetable combo follow wave value
         gint v = (gint) value;
-        if (value >= 0 && v < MAX_WAVETABLE_ITEMS + 2
-            && self->priv->wave_to_combopos[v] != -1) {
-          gtk_combo_box_set_active (self->priv->wavetable_menu,
-              self->priv->wave_to_combopos[v]);
-        } else {
-          cancel_edit = TRUE;
+        GtkTreeModel *model, *filter_model;
+        GtkTreeIter iter, filter_iter;
+
+        cancel_edit = TRUE;
+
+        if ((filter_model =
+                gtk_combo_box_get_model (self->priv->wavetable_menu))) {
+          model =
+              gtk_tree_model_filter_get_model (GTK_TREE_MODEL_FILTER
+              (filter_model));
+          if (gtk_tree_model_iter_nth_child (model, &iter, NULL, (v - 1))) {
+            if (gtk_tree_model_filter_convert_child_iter_to_iter
+                (GTK_TREE_MODEL_FILTER (filter_model), &filter_iter, &iter)) {
+              gtk_combo_box_set_active_iter (self->priv->wavetable_menu,
+                  &filter_iter);
+              cancel_edit = FALSE;
+            }
+          }
         }
       }
     }
@@ -1738,52 +1760,51 @@ context_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
         gulong voices;
 
         g_object_get (machine, "voices", &voices, NULL);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_add), TRUE);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_remove), (voices > 0));
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_add), TRUE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_remove), (voices > 0));
       } else {
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_add), FALSE);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_remove), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_add), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_remove), FALSE);
       }
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_properties), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_remove), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_copy), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_properties), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_remove), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_copy), TRUE);
     } else {
       GST_INFO ("machine has no patterns");
       gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
           FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_track_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_properties), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_copy), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_track_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_properties), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_copy), FALSE);
     }
     g_object_get (machine, "prefs-params", &num_property_params, NULL);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_machine_preferences),
-        (num_property_params != 0));
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_machine_preferences), (num_property_params != 0));
   } else {
     GST_INFO ("no machine");
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
         FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_track_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_pattern_properties), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_pattern_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_pattern_copy), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_track_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_pattern_properties), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_pattern_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_pattern_copy), FALSE);
   }
 }
 
@@ -2279,15 +2300,6 @@ on_wire_removed (BtSetup * setup, BtWire * wire, gpointer user_data)
 }
 
 static void
-on_wave_added_or_removed (BtWavetable * wavetable, BtWave * wave,
-    gpointer user_data)
-{
-  BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
-
-  wavetable_menu_refresh (self, wavetable);
-}
-
-static void
 on_machine_menu_changed (GtkComboBox * menu, gpointer user_data)
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
@@ -2454,10 +2466,6 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
       (gpointer) self);
   g_signal_connect (setup, "wire-removed", G_CALLBACK (on_wire_removed),
       (gpointer) self);
-  g_signal_connect (wavetable, "wave-added",
-      G_CALLBACK (on_wave_added_or_removed), (gpointer) self);
-  g_signal_connect (wavetable, "wave-removed",
-      G_CALLBACK (on_wave_added_or_removed), (gpointer) self);
   // subscribe to play-pos changes of song->sequence
   g_signal_connect (song, "notify::play-pos", G_CALLBACK (on_sequence_tick),
       (gpointer) self);
@@ -2939,7 +2947,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (self->priv->wavetable_menu),
       renderer, FALSE);
   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (self->priv->wavetable_menu),
-      renderer, "text", WAVE_MENU_NUMBER, NULL);
+      renderer, "text", BT_WAVE_LIST_MODEL_HEX_ID, NULL);
   renderer = gtk_cell_renderer_text_new ();
   //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
@@ -2947,7 +2955,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (self->priv->wavetable_menu),
       renderer, TRUE);
   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (self->priv->wavetable_menu),
-      renderer, "text", WAVE_MENU_LABEL, NULL);
+      renderer, "text", BT_WAVE_LIST_MODEL_NAME, NULL);
   gtk_box_pack_start (GTK_BOX (box), gtk_label_new (_("Wave")), FALSE, FALSE,
       2);
   gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->wavetable_menu),
@@ -2968,12 +2976,12 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   box = gtk_hbox_new (FALSE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->base_octave_menu = gtk_combo_box_text_new ();
-  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->
-          priv->base_octave_menu), FALSE);
+  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->priv->
+          base_octave_menu), FALSE);
   for (i = 0; i < 8; i++) {
     sprintf (oct_str, "%1d", i);
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-            priv->base_octave_menu), oct_str);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
+            base_octave_menu), oct_str);
   }
   gtk_combo_box_set_active (GTK_COMBO_BOX (self->priv->base_octave_menu),
       self->priv->base_octave);
@@ -3769,8 +3777,6 @@ bt_main_page_patterns_dispose (GObject * object)
         NULL, on_wire_added, NULL);
     g_signal_handlers_disconnect_matched (setup, G_SIGNAL_MATCH_FUNC, 0, 0,
         NULL, on_wire_added, NULL);
-    g_signal_handlers_disconnect_matched (wavetable, G_SIGNAL_MATCH_FUNC, 0, 0,
-        NULL, on_wave_added_or_removed, NULL);
     g_signal_handlers_disconnect_matched (song, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
         on_sequence_tick, NULL);
 
@@ -3816,8 +3822,6 @@ bt_main_page_patterns_finalize (GObject * object)
 static void
 bt_main_page_patterns_init (BtMainPagePatterns * self)
 {
-  guint i;
-
   self->priv =
       G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MAIN_PAGE_PATTERNS,
       BtMainPagePatternsPrivate);
@@ -3832,8 +3836,6 @@ bt_main_page_patterns_init (BtMainPagePatterns * self)
   self->priv->selection_end_row = -1;
 
   self->priv->base_octave = DEFAULT_BASE_OCTAVE;
-  for (i = 0; i < MAX_WAVETABLE_ITEMS + 2; i++)
-    self->priv->wave_to_combopos[i] = self->priv->combopos_to_wave[i] = -1;
 
   // the undo/redo changelogger
   self->priv->change_log = bt_change_log_new ();
