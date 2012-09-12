@@ -469,7 +469,7 @@ on_wave_list_model_row_changed (GtkTreeModel * model, GtkTreePath * path,
 
   wave = bt_wave_list_model_get_object ((BtWaveListModel *) model, iter);
   refresh_after_wave_list_changes (self, wave);
-  g_object_unref (wave);
+  g_object_try_unref (wave);
 }
 
 static void
