@@ -66,8 +66,9 @@ bt_wave_list_model_add (BtWaveListModel * model, BtWave * wave)
   GtkTreeIter iter;
   gulong pos;
 
-  GST_INFO ("add wave to model");
+  GST_INFO ("%p: update wave-model", model);
   g_object_get (wave, "index", &pos, NULL);
+  pos--;
 
   // insert new entry
   iter.stamp = model->priv->stamp;
@@ -79,7 +80,7 @@ bt_wave_list_model_add (BtWaveListModel * model, BtWave * wave)
   gtk_tree_path_append_index (path, pos);
   gtk_tree_model_row_changed (GTK_TREE_MODEL (model), path, &iter);
   gtk_tree_path_free (path);
-  GST_DEBUG ("inserted wave %p at position %d", wave, pos);
+  GST_DEBUG ("%p: notified wave %p at position %d", model, wave, pos);
 }
 
 static void
@@ -89,10 +90,11 @@ bt_wave_list_model_rem (BtWaveListModel * model, BtWave * wave)
   GtkTreeIter iter;
   gulong pos;
 
-  GST_INFO ("add wave to model");
+  GST_INFO ("%p: rem wave from model", model);
   g_object_get (wave, "index", &pos, NULL);
+  pos--;
 
-  // insert new entry
+  // release entry
   iter.stamp = model->priv->stamp;
   iter.user_data = GINT_TO_POINTER (pos);
   g_ptr_array_index (model->priv->seq, pos) = NULL;
@@ -102,7 +104,7 @@ bt_wave_list_model_rem (BtWaveListModel * model, BtWave * wave)
   gtk_tree_path_append_index (path, pos);
   gtk_tree_model_row_changed (GTK_TREE_MODEL (model), path, &iter);
   gtk_tree_path_free (path);
-  GST_DEBUG ("inserted wave %p at position %d", wave, pos);
+  GST_DEBUG ("%p: deleted wave %p at position %d", model, wave, pos);
 }
 
 //-- signal handlers
@@ -266,12 +268,12 @@ bt_wave_list_model_tree_model_get_value (GtkTreeModel * tree_model,
 
   switch (column) {
     case BT_WAVE_LIST_MODEL_INDEX:
-      g_value_set_ulong (value, pos);
+      g_value_set_ulong (value, pos + 1);
       break;
     case BT_WAVE_LIST_MODEL_HEX_ID:{
       gchar hstr[3];
 
-      sprintf (hstr, "%02x", pos);
+      sprintf (hstr, "%02x", pos + 1);
       g_value_set_string (value, hstr);
       break;
     }
