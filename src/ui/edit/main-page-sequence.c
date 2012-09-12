@@ -1315,6 +1315,7 @@ sequence_table_refresh_model (const BtMainPageSequence * self,
   gtk_combo_box_set_model (self->priv->label_menu, filtered_store);
   gtk_combo_box_set_active (self->priv->label_menu, 0);
   g_object_unref (filtered_store);      // drop with widget
+  g_object_unref (store);
 }
 
 
