@@ -151,6 +151,7 @@ bt_wave_list_model_new (BtWavetable * wavetable)
   self->priv->param_types[BT_WAVE_LIST_MODEL_INDEX] = G_TYPE_ULONG;
   self->priv->param_types[BT_WAVE_LIST_MODEL_HEX_ID] = G_TYPE_STRING;
   self->priv->param_types[BT_WAVE_LIST_MODEL_NAME] = G_TYPE_STRING;
+  self->priv->param_types[BT_WAVE_LIST_MODEL_HAS_WAVE] = G_TYPE_BOOLEAN;
 
   // get wave list from wavetable
   g_object_get ((gpointer) wavetable, "waves", &list, NULL);
@@ -278,6 +279,9 @@ bt_wave_list_model_tree_model_get_value (GtkTreeModel * tree_model,
       if (wave) {
         g_object_get_property ((GObject *) wave, "name", value);
       }
+      break;
+    case BT_WAVE_LIST_MODEL_HAS_WAVE:
+      g_value_set_boolean (value, (wave != NULL));
       break;
   }
 }
