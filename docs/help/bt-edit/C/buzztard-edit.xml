@@ -743,8 +743,10 @@ i o p</keycap></screen></entry>
       <para>
         A song consists of several tracks (columns), where in each track patterns
         are played. There can be several tracks for the same machine. 
-        The rows are time slots. The labels can show the time in different
-        formats such as ticks and time.
+        The rows are time slots. The position column can show the time in
+        different formats such as ticks and time. The label column can be use to
+        annotate parts of the song, such as 'verse' and 'chorus' for easy
+        navigation.
       </para>
       <figure id="bt-edit-page-sequence-view-fig">
         <title>Sequence view</title>
@@ -766,13 +768,14 @@ i o p</keycap></screen></entry>
       </para>
       <para>
         The sequence header for the label column offers shortcuts to jump to the
-        selected label. The header for the position column contain a selector
+        selected label. The header for the position column contains a selector
         for the preferred position format.
       </para>
       <para>
         The context menu allows to add or remove tracks, move tracks left or
         right and open the machine <link linkend="bt-edit-dialog-machine-properties">properties</link>/
-        <link linkend="bt-edit-dialog-machine-preferences">preferences</link> for the current track.
+        <link linkend="bt-edit-dialog-machine-preferences">preferences</link>
+        for the current track.
         For new generators a track is added automatically.
       </para>
       <para>
@@ -1007,10 +1010,11 @@ i o p</keycap></screen></entry>
         </screenshot>
       </figure>
       <para>
-        The left column is the wavetable. Samples are loaded by double clicking them
-        in the right side file-browser. The toolbar above the browser allows to
-        pre-listen before loading. Waves in the table can also be played, renamed
-        and removed.
+        The left column is the wavetable. Samples are loaded by double clicking
+        them in the right side file-browser. The play-toggle button on the
+        toolbar above the file-browser allows to pre-listen file as the
+        selection changes. Waves in the table can also be played, renamed and
+        removed.
       </para>
       <para>
         Each wavetable entry can have multiple wave levels, which are shown below
