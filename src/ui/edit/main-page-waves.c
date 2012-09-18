@@ -24,10 +24,8 @@
  * files. A waveform viewer can show the selected clip.
  */
 /* TODO(ensonic): need envelope editor and everything for it
- * TODO(ensonic): add shortcuts to play current sample (in browser)
- * - look at gtk_file_chooser_set_preview_widget() and/or
- *   selection-changed/update-preview signals
- * TODO(ensonic): gray wavetable entries for unused waves
+ */
+/* TODO(ensonic): gray wavetable entries for unused waves
  */
 /* TODO(ensonic): move file-chooser widget to a notebook, to have extra tabs for
  * - loading from online sample sites
@@ -63,7 +61,7 @@ struct _BtMainPageWavesPrivate
 
   /* the toolbar widgets */
   GtkWidget *list_toolbar, *browser_toolbar, *editor_toolbar;
-  GtkWidget *browser_stop, *wavetable_stop;
+  GtkWidget *wavetable_stop;
   GtkWidget *browser_play, *wavetable_play, *wavetable_clear;
 
   /* the list of wavetable entries */
@@ -77,6 +75,7 @@ struct _BtMainPageWavesPrivate
 
   /* the sample chooser */
   GtkWidget *file_chooser;
+  gboolean preview_in_chooser;
 
   /* playbin for filechooser preview */
   GstElement *playbin;
@@ -387,8 +386,8 @@ update_audio_sink (const BtMainPageWaves * self)
     if (state > GST_STATE_READY) {
       preview_stop (self);
       gtk_widget_set_sensitive (self->priv->wavetable_stop, FALSE);
-      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-              priv->wavetable_play), FALSE);
+      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+              wavetable_play), FALSE);
     }
   }
   // determine sink element
@@ -473,35 +472,6 @@ on_wave_list_model_row_changed (GtkTreeModel * model, GtkTreePath * path,
 }
 
 static void
-on_playbin_state_changed (GstBus * bus, GstMessage * message,
-    gpointer user_data)
-{
-  BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
-
-  if (GST_MESSAGE_SRC (message) == GST_OBJECT (self->priv->playbin)) {
-    GstState oldstate, newstate, pending;
-
-    gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
-    GST_INFO ("state change on the bin: %s -> %s",
-        gst_element_state_get_name (oldstate),
-        gst_element_state_get_name (newstate));
-    switch (GST_STATE_TRANSITION (oldstate, newstate)) {
-      case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-        gtk_widget_set_sensitive (self->priv->browser_stop, TRUE);
-        break;
-      case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
-        gtk_widget_set_sensitive (self->priv->browser_stop, FALSE);
-        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-                priv->browser_play), FALSE);
-        gst_element_set_state (self->priv->playbin, GST_STATE_NULL);
-        break;
-      default:
-        break;
-    }
-  }
-}
-
-static void
 on_preview_state_changed (GstBus * bus, GstMessage * message,
     gpointer user_data)
 {
@@ -527,8 +497,8 @@ on_preview_state_changed (GstBus * bus, GstMessage * message,
         break;
       case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
         gtk_widget_set_sensitive (self->priv->wavetable_stop, FALSE);
-        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-                priv->wavetable_play), FALSE);
+        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+                wavetable_play), FALSE);
         gst_element_set_state (self->priv->preview, GST_STATE_NULL);
         break;
       default:
@@ -557,8 +527,8 @@ on_preview_segment_done (GstBus * bus, GstMessage * message, gpointer user_data)
     GST_INFO ("received segment_done on the bin, looping %d",
         self->priv->loop_seek_dir);
     if (!(gst_element_send_event (GST_ELEMENT (self->priv->preview),
-                gst_event_ref (self->priv->loop_seek_event[self->
-                        priv->loop_seek_dir])))) {
+                gst_event_ref (self->priv->loop_seek_event[self->priv->
+                        loop_seek_dir])))) {
       GST_WARNING ("element failed to handle continuing play seek event");
       /* if I set state directly to NULL, I don't get inbetween state-change messages */
       gst_element_set_state (self->priv->preview, GST_STATE_READY);
@@ -808,8 +778,8 @@ on_wavelevels_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
           &loop_start, "loop-end", &loop_end, NULL);
       GST_INFO ("select wave-level: %p, %lu", data, length);
 
-      bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->
-              priv->waveform_viewer), data, channels, length);
+      bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->priv->
+              waveform_viewer), data, channels, length);
 
       g_object_set (self->priv->waveform_viewer, "loop-begin",
           (int64_t) loop_start, "loop-end", (int64_t) loop_end, NULL);
@@ -823,8 +793,8 @@ on_wavelevels_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
     GST_INFO ("no current wave");
   }
   if (!drawn) {
-    bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->
-            priv->waveform_viewer), NULL, 0, 0);
+    bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->priv->
+            waveform_viewer), NULL, 0, 0);
   }
 }
 
@@ -878,42 +848,46 @@ on_default_sample_folder_changed (const BtSettings * settings, GParamSpec * arg,
   gchar *sample_folder;
 
   g_object_get ((gpointer) settings, "sample-folder", &sample_folder, NULL);
-  gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (self->
-          priv->file_chooser), sample_folder);
+  gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (self->priv->
+          file_chooser), sample_folder);
   g_free (sample_folder);
+}
+
+static void
+on_browser_preview_sample (GtkFileChooser * chooser, gpointer user_data)
+{
+  BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
+
+  // get current entry and play
+  if (self->priv->preview_in_chooser) {
+    gchar *uri = gtk_file_chooser_get_uri (chooser);
+    GST_INFO ("current uri : %s", uri);
+    if (uri) {
+      // stop previous play
+      gst_element_set_state (self->priv->playbin, GST_STATE_READY);
+
+      // ... and play
+      g_object_set (self->priv->playbin, "uri", uri, NULL);
+      gst_element_set_state (self->priv->playbin, GST_STATE_PLAYING);
+
+      g_free (uri);
+    }
+  } else {
+    // stop previous play
+    gst_element_set_state (self->priv->playbin, GST_STATE_READY);
+  }
 }
 
 static void
 on_browser_toolbar_play_clicked (GtkToolButton * button, gpointer user_data)
 {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
-  gchar *uri;
 
-  if (!gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (button)))
-    return;
+  self->priv->preview_in_chooser =
+      gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (button));
 
-  // get current entry and play
-  uri = gtk_file_chooser_get_uri (GTK_FILE_CHOOSER (self->priv->file_chooser));
-  GST_INFO ("current uri : %s", uri);
-  if (uri) {
-    // stop previous play
-    gst_element_set_state (self->priv->playbin, GST_STATE_READY);
-
-    // ... and play
-    g_object_set (self->priv->playbin, "uri", uri, NULL);
-    gst_element_set_state (self->priv->playbin, GST_STATE_PLAYING);
-
-    g_free (uri);
-  }
-}
-
-static void
-on_browser_toolbar_stop_clicked (GtkToolButton * button, gpointer user_data)
-{
-  BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
-
-  /* if I set state directly to NULL, I don't get inbetween state-change messages */
-  gst_element_set_state (self->priv->playbin, GST_STATE_READY);
+  on_browser_preview_sample ((GtkFileChooser *) self->priv->file_chooser,
+      user_data);
 }
 
 static gboolean
@@ -1124,8 +1098,8 @@ on_waves_list_row_activated (GtkTreeView * tree_view, GtkTreePath * path,
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
 
   //on_wavetable_toolbar_play_clicked(GTK_TOOL_BUTTON(self->priv->wavetable_play),user_data);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-          priv->wavetable_play), TRUE);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+          wavetable_play), TRUE);
 }
 
 static void
@@ -1135,8 +1109,8 @@ on_wavelevels_list_row_activated (GtkTreeView * tree_view, GtkTreePath * path,
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
 
   //on_wavetable_toolbar_play_clicked(GTK_TOOL_BUTTON(self->priv->wavetable_play),user_data);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-          priv->wavetable_play), TRUE);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+          wavetable_play), TRUE);
 }
 
 static void
@@ -1253,8 +1227,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
       GTK_SHADOW_ETCHED_IN);
   self->priv->waves_list = GTK_TREE_VIEW (gtk_tree_view_new ());
   gtk_widget_set_name (GTK_WIDGET (self->priv->waves_list), "wave-list");
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
-          priv->waves_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
+          waves_list), GTK_SELECTION_BROWSE);
   g_object_set (self->priv->waves_list, "enable-search", FALSE, "rules-hint",
       TRUE, NULL);
   g_signal_connect (self->priv->waves_list, "cursor-changed",
@@ -1302,8 +1276,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   enum_class = g_type_class_ref (BT_TYPE_WAVE_LOOP_MODE);
   for (i = enum_class->minimum; i <= enum_class->maximum; i++) {
     if ((enum_value = g_enum_get_value (enum_class, i))) {
-      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-              priv->loop_mode), enum_value->value_name);
+      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
+              loop_mode), enum_value->value_name);
     }
   }
   g_type_class_unref (enum_class);
@@ -1322,7 +1296,7 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   self->priv->browser_toolbar = gtk_toolbar_new ();
   gtk_widget_set_name (self->priv->browser_toolbar, "sample browser toolbar");
 
-  // add buttons (play,stop,load)
+  // add buttons (play,load)
   self->priv->browser_play = tool_item =
       GTK_WIDGET (gtk_toggle_tool_button_new_from_stock (GTK_STOCK_MEDIA_PLAY));
   gtk_widget_set_name (tool_item, "Play");
@@ -1332,17 +1306,6 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
       GTK_TOOL_ITEM (tool_item), -1);
   g_signal_connect (tool_item, "clicked",
       G_CALLBACK (on_browser_toolbar_play_clicked), (gpointer) self);
-
-  self->priv->browser_stop = tool_item =
-      GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_MEDIA_STOP));
-  gtk_widget_set_name (tool_item, "Stop");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Stop playback of current sample"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->browser_toolbar),
-      GTK_TOOL_ITEM (tool_item), -1);
-  g_signal_connect (tool_item, "clicked",
-      G_CALLBACK (on_browser_toolbar_stop_clicked), (gpointer) self);
-  gtk_widget_set_sensitive (tool_item, FALSE);
 
   tool_item = GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_OPEN));
   gtk_widget_set_name (tool_item, "Open");
@@ -1364,7 +1327,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
       gtk_file_chooser_widget_new (GTK_FILE_CHOOSER_ACTION_OPEN);
   g_signal_connect (self->priv->file_chooser, "file-activated",
       G_CALLBACK (on_file_chooser_load_sample), (gpointer) self);
-  //g_signal_connect(self->priv->file_chooser,"update-preview",G_CALLBACK(on_file_chooser_info_sample),(gpointer)self);
+  g_signal_connect (self->priv->file_chooser, "selection-changed",
+      G_CALLBACK (on_browser_preview_sample), (gpointer) self);
   gtk_box_pack_start (GTK_BOX (box), self->priv->file_chooser, TRUE, TRUE,
       BOX_BORDER);
 
@@ -1390,8 +1354,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   self->priv->wavelevels_list = GTK_TREE_VIEW (gtk_tree_view_new ());
   gtk_widget_set_name (GTK_WIDGET (self->priv->wavelevels_list),
       "wave-level-list");
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
-          priv->wavelevels_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
+          wavelevels_list), GTK_SELECTION_BROWSE);
   g_object_set (self->priv->wavelevels_list, "enable-search", FALSE,
       "rules-hint", TRUE, NULL);
   g_signal_connect (self->priv->wavelevels_list, "cursor-changed",
@@ -1487,7 +1451,6 @@ BtMainPageWaves *
 bt_main_page_waves_new (const BtMainPages * pages)
 {
   BtMainPageWaves *self;
-  GstBus *bus;
 
   self = BT_MAIN_PAGE_WAVES (g_object_new (BT_TYPE_MAIN_PAGE_WAVES, NULL));
   self->priv->settings = bt_settings_make ();
@@ -1495,11 +1458,6 @@ bt_main_page_waves_new (const BtMainPages * pages)
 
   // create playbin
   self->priv->playbin = gst_element_factory_make ("playbin2", NULL);
-  bus = gst_element_get_bus (self->priv->playbin);
-  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  g_signal_connect (bus, "message::state-changed",
-      G_CALLBACK (on_playbin_state_changed), (gpointer) self);
-  gst_object_unref (bus);
 
   // watch settings changes
   g_signal_connect (self->priv->settings, "notify::audiosink",
@@ -1521,7 +1479,6 @@ static void
 bt_main_page_waves_dispose (GObject * object)
 {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (object);
-  GstBus *bus;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
@@ -1541,15 +1498,12 @@ bt_main_page_waves_dispose (GObject * object)
 
   // shut down loader-preview playbin
   gst_element_set_state (self->priv->playbin, GST_STATE_NULL);
-  bus = gst_element_get_bus (GST_ELEMENT (self->priv->playbin));
-  g_signal_handlers_disconnect_matched (bus, G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-      NULL, (gpointer) self);
-  gst_bus_remove_signal_watch (bus);
-  gst_object_unref (bus);
   gst_object_unref (self->priv->playbin);
 
   // shut down wavetable-preview playbin
   if (self->priv->preview) {
+    GstBus *bus;
+
     preview_stop (self);
     gst_element_set_state (self->priv->preview, GST_STATE_NULL);
     bus = gst_element_get_bus (GST_ELEMENT (self->priv->preview));
