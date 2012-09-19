@@ -453,6 +453,35 @@ test_bt_change_log_single_then_double_change (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_change_log_recover (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  gchar *log_name = g_build_filename (g_get_tmp_dir (), "bt-crash.log", NULL);
+  gchar content[] =
+      PACKAGE " edit journal : " PACKAGE_VERSION "\n"
+      "\n"
+      "BtMainPageMachines::add_machine 0,\"synth\",\"simsyn\"\n"
+      "BtMainPageMachines::set_machine_property \"synth\",\"ypos\",\"-0.3\"\n"
+      "BtMainPageMachines::set_machine_property \"synth\",\"xpos\",\"-0.4\"\n";
+  g_file_set_contents (log_name, content, strlen (content), NULL);
+
+  /* act */
+  gboolean res = bt_change_log_recover (cl, log_name);
+
+  /* assert */
+  fail_unless (res, NULL);
+
+  /* cleanup */
+  flush_main_loop ();
+  g_unlink (log_name);
+  g_free (log_name);
+  g_object_unref (cl);
+  BT_TEST_END;
+}
+
 TCase *
 bt_change_log_example_case (void)
 {
@@ -472,6 +501,7 @@ bt_change_log_example_case (void)
   tcase_add_test (tc, test_bt_change_log_single_change_after_redo);
   tcase_add_test (tc, test_bt_change_log_two_changes);
   tcase_add_test (tc, test_bt_change_log_single_then_double_change);
+  tcase_add_test (tc, test_bt_change_log_recover);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

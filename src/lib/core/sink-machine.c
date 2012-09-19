@@ -192,19 +192,22 @@ bt_sink_machine_constructed (GObject * object)
   if (err == NULL || *err == NULL) {
     BtSong *const song;
     GstElement *const element;
-    GstElement *const gain;
     BtSetup *setup;
     BtMachine *machine = (BtMachine *) self;
 
-    bt_machine_activate_adder (machine);
-    bt_machine_enable_input_gain (machine);
+    g_object_get (self, "machine", &element, "song", &song, NULL);
+    if (element) {
+      GstElement *const gain;
 
-    g_object_get (self, "machine", &element, "song", &song, "input-gain", &gain,
-        NULL);
-    g_object_set (element, "input-gain", gain, NULL);
+      bt_machine_activate_adder (machine);
+      bt_machine_enable_input_gain (machine);
+
+      g_object_get (self, "input-gain", &gain, NULL);
+      g_object_set (element, "input-gain", gain, NULL);
+      gst_object_unref (gain);
+      gst_object_unref (element);
+    }
     g_object_set (song, "master", self, NULL);
-    gst_object_unref (element);
-    gst_object_unref (gain);
 
     GST_INFO_OBJECT (self, "machine %p,ref_ct=%d has been constructed", self,
         G_OBJECT_REF_COUNT (self));

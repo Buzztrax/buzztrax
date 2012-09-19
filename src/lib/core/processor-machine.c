@@ -219,15 +219,18 @@ bt_processor_machine_constructed (GObject * object)
     BtMachine *machine = (BtMachine *) self;
 
     g_object_get (self, "machine", &element, "song", &song, NULL);
-    if (GST_IS_BASE_TRANSFORM (element)) {
-      gst_base_transform_set_passthrough ((GstBaseTransform *) element, FALSE);
-    }
-    gst_object_unref (element);
-    g_object_unref (bt_cmd_pattern_new (song, machine, BT_PATTERN_CMD_BYPASS));
+    if (element) {
+      if (GST_IS_BASE_TRANSFORM (element)) {
+        gst_base_transform_set_passthrough ((GstBaseTransform *) element,
+            FALSE);
+      }
+      gst_object_unref (element);
 
-    bt_machine_activate_adder (machine);
-    bt_machine_activate_spreader (machine);
-    bt_machine_enable_output_gain (machine);
+      bt_machine_activate_adder (machine);
+      bt_machine_activate_spreader (machine);
+      bt_machine_enable_output_gain (machine);
+    }
+    g_object_unref (bt_cmd_pattern_new (song, machine, BT_PATTERN_CMD_BYPASS));
 
     GST_INFO_OBJECT (self, "machine %p,ref_ct=%d has been constructed", self,
         G_OBJECT_REF_COUNT (self));

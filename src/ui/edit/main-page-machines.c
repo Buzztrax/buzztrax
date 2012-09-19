@@ -1591,8 +1591,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->vol_popup_adj =
       gtk_adjustment_new (100.0, 0.0, 400.0, 1.0, 10.0, 1.0);
   self->priv->vol_popup =
-      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->priv->
-              vol_popup_adj)));
+      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->
+              priv->vol_popup_adj)));
   g_signal_connect (self->priv->vol_popup_adj, "value-changed",
       G_CALLBACK (on_volume_popup_changed), (gpointer) self);
 
@@ -1600,8 +1600,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->pan_popup_adj =
       gtk_adjustment_new (0.0, -100.0, 100.0, 1.0, 10.0, 1.0);
   self->priv->pan_popup =
-      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->priv->
-              pan_popup_adj)));
+      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->
+              priv->pan_popup_adj)));
   g_signal_connect (self->priv->pan_popup_adj, "value-changed",
       G_CALLBACK (on_panorama_popup_changed), (gpointer) self);
 
@@ -1743,13 +1743,11 @@ bt_main_page_machines_add_machine (const BtMainPageMachines * self, guint type,
   // bt_machine_init_voice_params()
   switch (type) {
     case 0:
-      machine =
-          BT_MACHINE (bt_source_machine_new (song, uid, plugin_name,
+      machine = BT_MACHINE (bt_source_machine_new (song, uid, plugin_name,
               /*voices= */ 1, &err));
       break;
     case 1:
-      machine =
-          BT_MACHINE (bt_processor_machine_new (song, uid, plugin_name,
+      machine = BT_MACHINE (bt_processor_machine_new (song, uid, plugin_name,
               /*voices= */ 1, &err));
       break;
   }
@@ -2036,6 +2034,7 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
   switch (bt_change_logger_match_method (change_logger_methods, data,
           &match_info)) {
     case METHOD_ADD_MACHINE:{
+      GError *err = NULL;
       gchar *mid, *pname;
       guint type;
 
@@ -2051,14 +2050,12 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
       g_object_get (self->priv->app, "song", &song, NULL);
       switch (type) {
         case 0:
-          machine =
-              BT_MACHINE (bt_source_machine_new (song, mid, pname, /*voices= */
-                  1, NULL));
+          machine = BT_MACHINE (bt_source_machine_new (song, mid, pname,        /*voices= */
+                  1, &err));
           break;
         case 1:
-          machine =
-              BT_MACHINE (bt_processor_machine_new (song, mid, pname,
-                  /*voices= */ 1, NULL));
+          machine = BT_MACHINE (bt_processor_machine_new (song, mid, pname,
+                  /*voices= */ 1, &err));
           break;
         default:
           machine = NULL;
@@ -2066,7 +2063,14 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
           break;
       }
       if (machine) {
-        res = TRUE;
+        if (err) {
+          GST_WARNING ("failed to create machine: %s : %s : %s", mid, pname,
+              err->message);
+          g_error_free (err);
+          err = NULL;
+        } else {
+          res = TRUE;
+        }
         g_object_unref (machine);
       }
       g_object_unref (song);

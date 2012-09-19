@@ -160,7 +160,7 @@ libbt_edit_check_la_LIBADD = \
 libbt_edit_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
 libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/s-about-dialog.c tests/ui/edit/e-about-dialog.c \
-	tests/ui/edit/s-change-log.c tests/ui/edit/e-change-log.c \
+	tests/ui/edit/s-change-log.c tests/ui/edit/e-change-log.c tests/ui/edit/t-change-log.c \
 	tests/ui/edit/s-crash-recover-dialog.c tests/ui/edit/e-crash-recover-dialog.c \
 	tests/ui/edit/s-edit-application.c tests/ui/edit/e-edit-application.c \
 	tests/ui/edit/s-interaction-controller-learn-dialog.c tests/ui/edit/e-interaction-controller-learn-dialog.c \

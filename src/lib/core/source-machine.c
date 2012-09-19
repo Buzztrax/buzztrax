@@ -205,21 +205,23 @@ bt_source_machine_constructed (GObject * object)
     BtMachine *machine = (BtMachine *) self;
 
     g_object_get (self, "machine", &element, "song", &song, NULL);
-    if (GST_IS_BASE_SRC (element)) {
-      // don't ever again get the idea to turn of is_live for basesrc elements
-      // if they are live, they are, no matter what we want
-      //  we get "can't record audio fast enough"
-      if (gst_base_src_is_live ((GstBaseSrc *) element)) {
-        if (GST_IS_BASE_AUDIO_SRC (element)) {
-          g_object_set (element, "buffer-time", 150 * GST_MSECOND, NULL);
+    if (element) {
+      if (GST_IS_BASE_SRC (element)) {
+        // don't ever again get the idea to turn of is_live for basesrc elements
+        // if they are live, they are, no matter what we want
+        //  we get "can't record audio fast enough"
+        if (gst_base_src_is_live ((GstBaseSrc *) element)) {
+          if (GST_IS_BASE_AUDIO_SRC (element)) {
+            g_object_set (element, "buffer-time", 150 * GST_MSECOND, NULL);
+          }
         }
       }
-    }
-    gst_object_unref (element);
-    g_object_unref (bt_cmd_pattern_new (song, machine, BT_PATTERN_CMD_SOLO));
+      gst_object_unref (element);
 
-    bt_machine_activate_spreader (machine);
-    bt_machine_enable_output_gain (machine);
+      bt_machine_activate_spreader (machine);
+      bt_machine_enable_output_gain (machine);
+    }
+    g_object_unref (bt_cmd_pattern_new (song, machine, BT_PATTERN_CMD_SOLO));
 
     GST_INFO_OBJECT (self, "machine %p,ref_ct=%d has been constructed", self,
         G_OBJECT_REF_COUNT (self));
