@@ -33,9 +33,20 @@
 /* TODO(ensonic): add more metadata
  *  - copyright: GST_TAG_COPYRIGHT
  *    string: "(C) YYYY <SONG_INFO_AUTHOR>"
+ *  - url to artist homepage
  *  - license: GST_TAG_LICENSE (http://creativecommons.org/licenses/)
+ *    - gchar** gst_tag_get_licenses()
  *    - would be nice to use liblicense (not widely packaged :/)
  *    - we'll have liblicense support in gst-0.10.36
+ *    - CC consists of three parts: permits, requires, prohibits
+ *  - scale/key: we might want to allow selecting the musical scale
+ *    (e.g. C-major == a-minor, ... )
+ *    - this will be configured to the GstToneConversion as a klass wide setting
+ *    - in the UI
+ *      - we can use 'b' instead of '#' in the pattern editor
+ *      - we can show out of scale notes
+ *      - we can suggest chords?
+ *  - need defaults for e.g. url, license, copyright
  */
 
 #define BT_CORE

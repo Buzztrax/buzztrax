@@ -25,6 +25,8 @@
 /* TODO(ensonic): having okay & assign would be nice
  * TODO(ensonic): having a way to train multiple controllers would be nice
  * - we could have: okay, okay & assign, okay & learn more, cancel
+ * - we could also automatically assign here and do the multi-learn in the
+ *   settings (where we have a not so useful page right now)
  */
 #define BT_EDIT
 #define BT_INTERACTION_CONTROLLER_LEARN_DIALOG_C
@@ -244,8 +246,8 @@ bt_interaction_controller_learn_dialog_dispose (GObject * object)
   g_signal_handlers_disconnect_matched (self->priv->device, G_SIGNAL_MATCH_FUNC,
       0, 0, NULL, notify_device_controlchange, NULL);
 
-  G_OBJECT_CLASS (bt_interaction_controller_learn_dialog_parent_class)->
-      dispose (object);
+  G_OBJECT_CLASS (bt_interaction_controller_learn_dialog_parent_class)->dispose
+      (object);
 }
 
 static void
@@ -259,7 +261,7 @@ bt_interaction_controller_learn_dialog_init (BtInteractionControllerLearnDialog
 }
 
 static void
-bt_interaction_controller_learn_dialog_class_init
+    bt_interaction_controller_learn_dialog_class_init
     (BtInteractionControllerLearnDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);

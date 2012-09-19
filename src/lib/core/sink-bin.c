@@ -27,13 +27,13 @@
  * record mode it uses a tee and plugs both pipelines.
  */
 
-/* TODO(ensonic): use encodebin
- *
- * TODO(ensonic): add properties for bpm and master volume,
+/* TODO(ensonic): add properties for bpm, master volume and musical key,
  * - bpm
  *   - tempo-iface is implemented, but is hidden from the ui
  *     (the iface properties are not controllable)
  *   - we could have separate properties and forward the changes
+ * - key
+ *   - this would need to propagate to all sources that support tuning  
  *
  * TODO(ensonic): for upnp it would be nice to stream on-demand
  *
