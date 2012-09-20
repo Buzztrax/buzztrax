@@ -23,13 +23,11 @@
  * List available GStreamer audio devices. User can pick and configure one.
  */
 /* TODO(ensonic): add device selection
- * - we already have the property probing code
+ * - we already have the property probing code (in _init_ui)
  * - we need to add device selection (combobox)
- * - needs a way to store at least the current device
- *   - add a setting: BT_SETTINGS_AUDIOSINK_DEVICE of type string
- *   - set it as "alsa=hw:0.0"
- *   - this goes to BT_GCONF_PATH_BUZZTARD"/audiosink-device/alsa=hw:0.0
- *   - these keys are not in the schema
+ * - use new setting to store the device for the current sink
+ *   - BT_SETTINGS_AUDIOSINK_DEVICE of type string: e.g. "alsa=hw:0.0"
+ *   - needs to be set to NULL on each sink change
  * - needs changes in sink-bin to use the setting
  * - we should probably parse the system-audiosink settings more to eventualy
  *   get the device from the setting
@@ -111,8 +109,8 @@ on_samplerate_menu_changed (GtkComboBox * combo_box, gpointer user_data)
 
   index = gtk_combo_box_get_active (self->priv->samplerate_menu);
   rate =
-      atoi (gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (self->priv->
-              samplerate_menu)));
+      atoi (gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (self->
+              priv->samplerate_menu)));
   GST_INFO ("sample-rate changed : index=%lu, rate=%lu", index, rate);
 
   g_object_get (self->priv->app, "settings", &settings, NULL);
@@ -206,12 +204,12 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
     str =
         g_strdup_printf (_("system default: %s (%s)"), system_audiosink_name,
         (factory ? gst_element_factory_get_description (factory) : "-"));
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-            audiosink_menu), str);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+            priv->audiosink_menu), str);
     g_free (str);
   } else {
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-            audiosink_menu), _("system default: -"));
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+            priv->audiosink_menu), _("system default: -"));
   }
 
   audiosink_factories =
@@ -287,6 +285,9 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
               GstPropertyProbe *probe = GST_PROPERTY_PROBE (sink);
               const GParamSpec *devspec;
 
+              // TODO(ensonic): extract code and use to setup a combobox
+              // always add "Auto" as a first entry and use that if value from
+              // setting == NULL or does not match
               GST_INFO ("sink \"%s\" support property probe", name);
               if ((devspec = gst_property_probe_get_property (probe, "device"))) {
                 GValueArray *array;
@@ -331,8 +332,8 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
           str =
               g_strdup_printf ("%s (%s)", name,
               gst_element_factory_get_description (factory));
-          gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-                  audiosink_menu), str);
+          gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+                  priv->audiosink_menu), str);
           g_free (str);
           // add this to instance list
           self->priv->audiosink_names =
@@ -363,22 +364,22 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
       2, 1);
 
   self->priv->samplerate_menu = GTK_COMBO_BOX (gtk_combo_box_text_new ());
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "8000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "11025");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "16000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "22050");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "32000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "44100");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "48000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "96000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "8000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "11025");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "16000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "22050");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "32000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "44100");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "48000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "96000");
   switch (sample_rate) {
     case 8000:
       sampling_rate_index = 0;
@@ -419,10 +420,10 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
       2, 1);
 
   self->priv->channels_menu = GTK_COMBO_BOX (gtk_combo_box_text_new ());
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          channels_menu), _("mono"));
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          channels_menu), _("stereo"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->channels_menu), _("mono"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->channels_menu), _("stereo"));
   gtk_combo_box_set_active (self->priv->channels_menu, (channels - 1));
   gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->channels_menu), 2,
       3, 3, 4, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
@@ -434,8 +435,7 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
   gtk_table_attach (GTK_TABLE (self), label, 1, 2, 4, 5, GTK_FILL, GTK_SHRINK,
       2, 1);
 
-  pspec =
-      (GParamSpecUInt *) g_object_class_find_property ((GObjectClass *)
+  pspec = (GParamSpecUInt *) g_object_class_find_property ((GObjectClass *)
       settings_class, "latency");
   spin_adjustment =
       GTK_ADJUSTMENT (gtk_adjustment_new (latency, pspec->minimum,
@@ -521,8 +521,8 @@ bt_settings_page_audiodevices_finalize (GObject * object)
   GST_DEBUG ("!!!! self=%p", self);
   g_list_free (self->priv->audiosink_names);
 
-  G_OBJECT_CLASS (bt_settings_page_audiodevices_parent_class)->
-      finalize (object);
+  G_OBJECT_CLASS (bt_settings_page_audiodevices_parent_class)->finalize
+      (object);
 }
 
 static void

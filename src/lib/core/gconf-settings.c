@@ -320,183 +320,163 @@ bt_gconf_settings_get_property (GObject * const object, const guint property_id,
   return_if_disposed ();
   switch (property_id) {
       /* ui */
-    case BT_SETTINGS_NEWS_SEEN:{
+    case BT_SETTINGS_NEWS_SEEN:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_uint (self, BT_GCONF_PATH_BUZZTARD "/news-seen", value);
-    }
       break;
-    case BT_SETTINGS_MISSING_MACHINES:{
+    case BT_SETTINGS_MISSING_MACHINES:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_string (self, BT_GCONF_PATH_BUZZTARD "/missing-machines", value);
-    }
       break;
-    case BT_SETTINGS_PRESENTED_TIPS:{
+    case BT_SETTINGS_PRESENTED_TIPS:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_string (self, BT_GCONF_PATH_BUZZTARD "/presented-tips", value);
-    }
       break;
-    case BT_SETTINGS_SHOW_TIPS:{
+    case BT_SETTINGS_SHOW_TIPS:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_boolean (self, BT_GCONF_PATH_BUZZTARD "/show-tips", value);
-    }
       break;
-    case BT_SETTINGS_MENU_TOOLBAR_HIDE:{
+    case BT_SETTINGS_MENU_TOOLBAR_HIDE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_boolean (self, BT_GCONF_PATH_BUZZTARD "/toolbar-hide", value);
-    }
       break;
-    case BT_SETTINGS_MENU_STATUSBAR_HIDE:{
+    case BT_SETTINGS_MENU_STATUSBAR_HIDE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_boolean (self, BT_GCONF_PATH_BUZZTARD "/statusbar-hide", value);
-    }
       break;
-    case BT_SETTINGS_MENU_TABS_HIDE:{
+    case BT_SETTINGS_MENU_TABS_HIDE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_boolean (self, BT_GCONF_PATH_BUZZTARD "/tabs-hide", value);
-    }
       break;
-    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:{
+    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_string_def (self, BT_GCONF_PATH_BUZZTARD "/grid-density", value,
           (GParamSpecString *) pspec);
-    }
       break;
-    case BT_SETTINGS_WINDOW_XPOS:{
+    case BT_SETTINGS_WINDOW_XPOS:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_int_def (self, BT_GCONF_PATH_BUZZTARD "/window/x-pos", value,
           (GParamSpecInt *) pspec);
-    }
       break;
-    case BT_SETTINGS_WINDOW_YPOS:{
+    case BT_SETTINGS_WINDOW_YPOS:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_int_def (self, BT_GCONF_PATH_BUZZTARD "/window/y-pos", value,
           (GParamSpecInt *) pspec);
-    }
       break;
-    case BT_SETTINGS_WINDOW_WIDTH:{
+    case BT_SETTINGS_WINDOW_WIDTH:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_int_def (self, BT_GCONF_PATH_BUZZTARD "/window/width", value,
           (GParamSpecInt *) pspec);
-    }
       break;
-    case BT_SETTINGS_WINDOW_HEIGHT:{
+    case BT_SETTINGS_WINDOW_HEIGHT:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_int_def (self, BT_GCONF_PATH_BUZZTARD "/window/height", value,
           (GParamSpecInt *) pspec);
-    }
       break;
       /* audio settings */
-    case BT_SETTINGS_AUDIOSINK:{
+    case BT_SETTINGS_AUDIOSINK:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_string_def (self, BT_GCONF_PATH_BUZZTARD "/audiosink", value,
           (GParamSpecString *) pspec);
-    }
       break;
-    case BT_SETTINGS_SAMPLE_RATE:{
+    case BT_SETTINGS_AUDIOSINK_DEVICE:
+      if (!G_UNLIKELY (self->priv->watch_buzztard))
+        watch_buzztard (self);
+      read_string_def (self, BT_GCONF_PATH_BUZZTARD "/audiosink-device", value,
+          (GParamSpecString *) pspec);
+      break;
+    case BT_SETTINGS_SAMPLE_RATE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_uint_def (self, BT_GCONF_PATH_BUZZTARD "/sample-rate", value,
           (GParamSpecUInt *) pspec);
-    }
       break;
-    case BT_SETTINGS_CHANNELS:{
+    case BT_SETTINGS_CHANNELS:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_uint_def (self, BT_GCONF_PATH_BUZZTARD "/channels", value,
           (GParamSpecUInt *) pspec);
-    }
       break;
-    case BT_SETTINGS_LATENCY:{
+    case BT_SETTINGS_LATENCY:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_uint_def (self, BT_GCONF_PATH_BUZZTARD "/latency", value,
           (GParamSpecUInt *) pspec);
-    }
       break;
       /* playback controller */
-    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:{
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_boolean (self,
           BT_GCONF_PATH_BUZZTARD "/playback-controller/coherence-upnp-active",
           value);
-    }
       break;
-    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:{
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_uint (self,
           BT_GCONF_PATH_BUZZTARD "/playback-controller/coherence-upnp-port",
           value);
-    }
       break;
-    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER:{
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_boolean (self,
           BT_GCONF_PATH_BUZZTARD "/playback-controller/jack-transport-master",
           value);
-    }
       break;
-    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:{
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_boolean (self,
           BT_GCONF_PATH_BUZZTARD "/playback-controller/jack-transport-slave",
           value);
-    }
       break;
       /* directory settings */
-    case BT_SETTINGS_FOLDER_SONG:{
+    case BT_SETTINGS_FOLDER_SONG:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_string_def (self, BT_GCONF_PATH_BUZZTARD "/song-folder", value,
           (GParamSpecString *) pspec);
-    }
       break;
-    case BT_SETTINGS_FOLDER_RECORD:{
+    case BT_SETTINGS_FOLDER_RECORD:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_string_def (self, BT_GCONF_PATH_BUZZTARD "/record-folder", value,
           (GParamSpecString *) pspec);
-    }
       break;
-    case BT_SETTINGS_FOLDER_SAMPLE:{
+    case BT_SETTINGS_FOLDER_SAMPLE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       read_string_def (self, BT_GCONF_PATH_BUZZTARD "/sample-folder", value,
           (GParamSpecString *) pspec);
-    }
       break;
       /* system settings */
-    case BT_SETTINGS_SYSTEM_AUDIOSINK:{
+    case BT_SETTINGS_SYSTEM_AUDIOSINK:
       if (!G_UNLIKELY (self->priv->watch_gstreamer))
         watch_gstreamer (self);
       read_string (self, BT_GCONF_PATH_GSTREAMER "/audiosink", value);
-    }
       break;
-    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:{
+    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:
       if (!G_UNLIKELY (self->priv->watch_gnome))
         watch_gnome (self);
       read_string (self, BT_GCONF_PATH_GNOME "/toolbar_style", value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -513,159 +493,140 @@ bt_gconf_settings_set_property (GObject * const object, const guint property_id,
 
   switch (property_id) {
       /* ui */
-    case BT_SETTINGS_NEWS_SEEN:{
+    case BT_SETTINGS_NEWS_SEEN:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_uint (self, BT_GCONF_PATH_BUZZTARD "/news-seen", value);
-    }
       break;
-    case BT_SETTINGS_MISSING_MACHINES:{
+    case BT_SETTINGS_MISSING_MACHINES:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_string (self, BT_GCONF_PATH_BUZZTARD "/missing-machines", value);
-    }
       break;
-    case BT_SETTINGS_PRESENTED_TIPS:{
+    case BT_SETTINGS_PRESENTED_TIPS:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_string (self, BT_GCONF_PATH_BUZZTARD "/presented-tips", value);
-    }
       break;
-    case BT_SETTINGS_SHOW_TIPS:{
+    case BT_SETTINGS_SHOW_TIPS:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_boolean (self, BT_GCONF_PATH_BUZZTARD "/show-tips", value);
-    }
       break;
-    case BT_SETTINGS_MENU_TOOLBAR_HIDE:{
+    case BT_SETTINGS_MENU_TOOLBAR_HIDE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_boolean (self, BT_GCONF_PATH_BUZZTARD "/toolbar-hide", value);
-    }
       break;
-    case BT_SETTINGS_MENU_STATUSBAR_HIDE:{
+    case BT_SETTINGS_MENU_STATUSBAR_HIDE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_boolean (self, BT_GCONF_PATH_BUZZTARD "/statusbar-hide", value);
-    }
       break;
-    case BT_SETTINGS_MENU_TABS_HIDE:{
+    case BT_SETTINGS_MENU_TABS_HIDE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_boolean (self, BT_GCONF_PATH_BUZZTARD "/tabs-hide", value);
-    }
       break;
-    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:{
+    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_string (self, BT_GCONF_PATH_BUZZTARD "/grid-density", value);
-    }
       break;
-    case BT_SETTINGS_WINDOW_XPOS:{
+    case BT_SETTINGS_WINDOW_XPOS:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_int (self, BT_GCONF_PATH_BUZZTARD "/window/x-pos", value);
-    }
       break;
-    case BT_SETTINGS_WINDOW_YPOS:{
+    case BT_SETTINGS_WINDOW_YPOS:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_int (self, BT_GCONF_PATH_BUZZTARD "/window/y-pos", value);
-    }
       break;
-    case BT_SETTINGS_WINDOW_WIDTH:{
+    case BT_SETTINGS_WINDOW_WIDTH:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_int (self, BT_GCONF_PATH_BUZZTARD "/window/width", value);
-    }
       break;
-    case BT_SETTINGS_WINDOW_HEIGHT:{
+    case BT_SETTINGS_WINDOW_HEIGHT:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_int (self, BT_GCONF_PATH_BUZZTARD "/window/height", value);
-    }
       break;
       /* audio settings */
-    case BT_SETTINGS_AUDIOSINK:{
+    case BT_SETTINGS_AUDIOSINK:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_string (self, BT_GCONF_PATH_BUZZTARD "/audiosink", value);
-    }
       break;
-    case BT_SETTINGS_SAMPLE_RATE:{
+    case BT_SETTINGS_AUDIOSINK_DEVICE:
+      if (!G_UNLIKELY (self->priv->watch_buzztard))
+        watch_buzztard (self);
+      write_string (self, BT_GCONF_PATH_BUZZTARD "/audiosink-device", value);
+      break;
+    case BT_SETTINGS_SAMPLE_RATE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_uint (self, BT_GCONF_PATH_BUZZTARD "/sample-rate", value);
-    }
       break;
-    case BT_SETTINGS_CHANNELS:{
+    case BT_SETTINGS_CHANNELS:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_uint (self, BT_GCONF_PATH_BUZZTARD "/channels", value);
-    }
       break;
-    case BT_SETTINGS_LATENCY:{
+    case BT_SETTINGS_LATENCY:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_uint (self, BT_GCONF_PATH_BUZZTARD "/latency", value);
-    }
       break;
       /* playback controller */
-    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:{
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_boolean (self,
           BT_GCONF_PATH_BUZZTARD "/playback-controller/coherence-upnp-active",
           value);
-    }
       break;
-    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:{
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_uint (self,
           BT_GCONF_PATH_BUZZTARD "/playback-controller/coherence-upnp-port",
           value);
-    }
       break;
-    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER:{
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_boolean (self,
           BT_GCONF_PATH_BUZZTARD "/playback-controller/jack-transport-master",
           value);
-    }
       break;
-    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:{
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_boolean (self,
           BT_GCONF_PATH_BUZZTARD "/playback-controller/jack-transport-slave",
           value);
-    }
       break;
       /* directory settings */
-    case BT_SETTINGS_FOLDER_SONG:{
+    case BT_SETTINGS_FOLDER_SONG:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_string (self, BT_GCONF_PATH_BUZZTARD "/song-folder", value);
-    }
       break;
-    case BT_SETTINGS_FOLDER_RECORD:{
+    case BT_SETTINGS_FOLDER_RECORD:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_string (self, BT_GCONF_PATH_BUZZTARD "/record-folder", value);
-    }
       break;
-    case BT_SETTINGS_FOLDER_SAMPLE:{
+    case BT_SETTINGS_FOLDER_SAMPLE:
       if (!G_UNLIKELY (self->priv->watch_buzztard))
         watch_buzztard (self);
       write_string (self, BT_GCONF_PATH_BUZZTARD "/sample-folder", value);
-    }
       break;
       /* system settings */
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

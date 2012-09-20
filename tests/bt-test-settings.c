@@ -80,6 +80,7 @@ bt_test_settings_get_property (GObject * const object, const guint property_id,
 
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK:
+    case BT_SETTINGS_AUDIOSINK_DEVICE:
     case BT_SETTINGS_SYSTEM_AUDIOSINK:
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
     case BT_SETTINGS_MISSING_MACHINES:
@@ -155,6 +156,7 @@ bt_test_settings_set_property (GObject * const object, const guint property_id,
 
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK:
+    case BT_SETTINGS_AUDIOSINK_DEVICE:
     case BT_SETTINGS_SYSTEM_AUDIOSINK:
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
     case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:

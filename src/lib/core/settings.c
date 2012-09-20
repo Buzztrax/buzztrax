@@ -299,28 +299,45 @@ bt_settings_class_init (BtSettingsClass * const klass)
   gobject_class->get_property = bt_settings_get_property;
 
   // ui
-  g_object_class_install_property (gobject_class, BT_SETTINGS_NEWS_SEEN, g_param_spec_uint ("news-seen", "news-seen prop", "version number for that the user has seen the news", 0, G_MAXUINT, 0,       /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_NEWS_SEEN,
+      g_param_spec_uint ("news-seen", "news-seen prop",
+          "version number for that the user has seen the news", 0, G_MAXUINT, 0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_MISSING_MACHINES, g_param_spec_string ("missing-machines", "missing-machines prop", "list of tip-numbers that were shown already", NULL,  /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_MISSING_MACHINES,
+      g_param_spec_string ("missing-machines", "missing-machines prop",
+          "list of tip-numbers that were shown already", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_PRESENTED_TIPS, g_param_spec_string ("presented-tips", "presented-tips prop", "list of missing machines to ignore", NULL, /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_PRESENTED_TIPS,
+      g_param_spec_string ("presented-tips", "presented-tips prop",
+          "list of missing machines to ignore", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_SHOW_TIPS, g_param_spec_boolean ("show-tips", "show-tips prop", "show tips on startup", TRUE,     /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_SHOW_TIPS,
+      g_param_spec_boolean ("show-tips", "show-tips prop",
+          "show tips on startup", TRUE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_MENU_TOOLBAR_HIDE, g_param_spec_boolean ("toolbar-hide", "toolbar-hide prop", "hide main toolbar", FALSE, /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_MENU_TOOLBAR_HIDE,
+      g_param_spec_boolean ("toolbar-hide", "toolbar-hide prop",
+          "hide main toolbar", FALSE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_MENU_STATUSBAR_HIDE, g_param_spec_boolean ("statusbar-hide", "statusbar-hide prop", "hide bottom statusbar", FALSE,       /* default value */
+  g_object_class_install_property (gobject_class,
+      BT_SETTINGS_MENU_STATUSBAR_HIDE, g_param_spec_boolean ("statusbar-hide",
+          "statusbar-hide prop", "hide bottom statusbar", FALSE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_MENU_TABS_HIDE, g_param_spec_boolean ("tabs-hide", "tabs-hide prop", "hide main page tabs", FALSE,        /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_MENU_TABS_HIDE,
+      g_param_spec_boolean ("tabs-hide", "tabs-hide prop",
+          "hide main page tabs", FALSE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY, g_param_spec_string ("grid-density", "grid-density prop", "machine view grid detail level", "low",     /* default value */
+  g_object_class_install_property (gobject_class,
+      BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY,
+      g_param_spec_string ("grid-density", "grid-density prop",
+          "machine view grid detail level", "low",
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, BT_SETTINGS_WINDOW_XPOS,
@@ -348,16 +365,29 @@ bt_settings_class_init (BtSettingsClass * const klass)
           -1, G_MAXINT, -1, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   // audio settings
-  g_object_class_install_property (gobject_class, BT_SETTINGS_AUDIOSINK, g_param_spec_string ("audiosink", "audiosink prop", "audio output gstreamer element", "autoaudiosink", /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_AUDIOSINK,
+      g_param_spec_string ("audiosink", "audiosink prop",
+          "audio output gstreamer element", "autoaudiosink",
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_SAMPLE_RATE, g_param_spec_uint ("sample-rate", "sample-rate prop", "audio output sample-rate", 1, 96000, GST_AUDIO_DEF_RATE,      /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_AUDIOSINK_DEVICE,
+      g_param_spec_string ("audiosink-device", "audiosink-device prop",
+          "audio output device name", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_CHANNELS, g_param_spec_uint ("channels", "channels prop", "number of audio output channels", 1, 2, 2,     /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_SAMPLE_RATE,
+      g_param_spec_uint ("sample-rate", "sample-rate prop",
+          "audio output sample-rate", 1, 96000, GST_AUDIO_DEF_RATE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_LATENCY, g_param_spec_uint ("latency", "latency prop", "target audio latency in ms", 1, 200, 30,  /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_CHANNELS,
+      g_param_spec_uint ("channels", "channels prop",
+          "number of audio output channels", 1, 2, 2,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, BT_SETTINGS_LATENCY,
+      g_param_spec_uint ("latency", "latency prop",
+          "target audio latency in ms", 1, 200, 30,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   // playback controller
@@ -375,19 +405,29 @@ bt_settings_class_init (BtSettingsClass * const klass)
 
 
   // directory settings
-  g_object_class_install_property (gobject_class, BT_SETTINGS_FOLDER_SONG, g_param_spec_string ("song-folder", "song-folder prop", "default directory for songs", g_get_home_dir (),    /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_FOLDER_SONG,
+      g_param_spec_string ("song-folder", "song-folder prop",
+          "default directory for songs", g_get_home_dir (),
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_FOLDER_RECORD, g_param_spec_string ("record-folder", "record-folder prop", "default directory for recordings", g_get_home_dir (), /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_FOLDER_RECORD,
+      g_param_spec_string ("record-folder", "record-folder prop",
+          "default directory for recordings", g_get_home_dir (),
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_FOLDER_SAMPLE, g_param_spec_string ("sample-folder", "sample-folder prop", "default directory for sample-waveforms", g_get_home_dir (),   /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_FOLDER_SAMPLE,
+      g_param_spec_string ("sample-folder", "sample-folder prop",
+          "default directory for sample-waveforms", g_get_home_dir (),
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   // system settings
-  g_object_class_install_property (gobject_class, BT_SETTINGS_SYSTEM_AUDIOSINK, g_param_spec_string ("system-audiosink", "system-audiosink prop", "system audio output gstreamer element", "autoaudiosink",     /* default value */
+  g_object_class_install_property (gobject_class, BT_SETTINGS_SYSTEM_AUDIOSINK,
+      g_param_spec_string ("system-audiosink", "system-audiosink prop",
+          "system audio output gstreamer element", "autoaudiosink",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_SYSTEM_TOOLBAR_STYLE, g_param_spec_string ("toolbar-style", "toolbar-style prop", "system tolbar style", "both",  /* default value */
+  g_object_class_install_property (gobject_class,
+      BT_SETTINGS_SYSTEM_TOOLBAR_STYLE, g_param_spec_string ("toolbar-style",
+          "toolbar-style prop", "system tolbar style", "both",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
