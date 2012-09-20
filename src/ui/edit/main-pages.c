@@ -106,6 +106,7 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
   BtSong *song;
   BtSetup *setup;
   GHashTable *properties;
+  GtkWidget *page;
   gchar *prop;
   guint page_num;
 
@@ -117,6 +118,10 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
 
   g_object_get (notebook, "page", &page_num, NULL);
   GST_INFO ("page has switched : self=%p, page=%d", self, page_num);
+
+  // ensure the new page gets focused, this sounds like a hack though
+  page = gtk_notebook_get_nth_page (notebook, page_num);
+  GTK_WIDGET_GET_CLASS (page)->focus (page, GTK_DIR_TAB_FORWARD);
 
   // remember page
   g_object_get (song, "setup", &setup, NULL);

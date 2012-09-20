@@ -50,14 +50,6 @@ test_setup (void)
       BT_MAIN_PAGES_SEQUENCE_PAGE);
 
   flush_main_loop ();
-
-  // TODO(ensonic): why is gtk not invoking focus()?
-  {
-    GtkWidget *page;
-    g_object_get (pages, "sequence-page", &page, NULL);
-    GTK_WIDGET_GET_CLASS (page)->focus (page, GTK_DIR_TAB_FORWARD);
-    g_object_unref (page);
-  }
 }
 
 static void
