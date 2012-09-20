@@ -779,6 +779,7 @@ bt_machine_resize_voices (const BtMachine * const self, const gulong old_voices)
           self->priv->voice_param_groups[v] =
               bt_parameter_group_new (voice_params, parents, params);
         }
+        g_free (properties);
       } else {
         self->priv->voice_param_groups[v] = NULL;
         GST_WARNING_OBJECT (self, "  can't get voice child %lu!", v);

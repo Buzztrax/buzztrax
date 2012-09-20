@@ -834,6 +834,8 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
           (gpointer) self);
       g_signal_connect (item_unbind_all, "activate",
           G_CALLBACK (on_control_unbind_all), (gpointer) self);
+      g_object_unref (item_unbind);
+      g_object_unref (item_unbind_all);
 
       gtk_menu_popup (menu, NULL, NULL, NULL, NULL, 3,
           gtk_get_current_event_time ());

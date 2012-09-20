@@ -83,9 +83,9 @@ bt_interaction_controller_menu_type_get_type (void)
   if (G_UNLIKELY (type == 0)) {
     static const GEnumValue values[] = {
       {BT_INTERACTION_CONTROLLER_RANGE_MENU,
-            "BT_INTERACTION_CONTROLLER_RANGE_MENU", "range controllers"},
+          "BT_INTERACTION_CONTROLLER_RANGE_MENU", "range controllers"},
       {BT_INTERACTION_CONTROLLER_TRIGGER_MENU,
-            "BT_INTERACTION_CONTROLLER_TRIGGER_MENU", "trigger controllers"},
+          "BT_INTERACTION_CONTROLLER_TRIGGER_MENU", "trigger controllers"},
       {0, NULL, NULL},
     };
     type = g_enum_register_static ("BtInteractionControllerMenuType", values);
@@ -428,6 +428,7 @@ bt_interaction_controller_menu_dispose (GObject * object)
         G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
         on_controls_changed, (gpointer) self);
   }
+  g_list_free (list);
   g_signal_handlers_disconnect_matched (ic_registry,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_devices_changed,
       (gpointer) self);
@@ -436,8 +437,8 @@ bt_interaction_controller_menu_dispose (GObject * object)
   g_object_try_unref (self->priv->selected_control);
   g_object_unref (self->priv->app);
 
-  G_OBJECT_CLASS (bt_interaction_controller_menu_parent_class)->
-      dispose (object);
+  G_OBJECT_CLASS (bt_interaction_controller_menu_parent_class)->dispose
+      (object);
 }
 
 static void

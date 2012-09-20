@@ -1169,9 +1169,12 @@ pattern_edit_get_data_at (gpointer pattern_data, gpointer column_data,
   if (column_data) {
     gchar *val = bt_value_group_get_event (group->vg, row, param);
     if (BT_IS_STRING (val)) {
-      return ((BtPatternEditorColumnConverters *)
+      gfloat res = ((BtPatternEditorColumnConverters *)
           column_data)->val_to_float (val, column_data);
+      g_free (val);
+      return res;
     }
+    g_free (val);
   }
   return group->columns[param].def;
 }
@@ -1759,52 +1762,51 @@ context_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
         gulong voices;
 
         g_object_get (machine, "voices", &voices, NULL);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_add), TRUE);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_remove), (voices > 0));
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_add), TRUE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_remove), (voices > 0));
       } else {
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_add), FALSE);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_remove), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_add), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_remove), FALSE);
       }
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_properties), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_remove), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_copy), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_properties), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_remove), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_copy), TRUE);
     } else {
       GST_INFO ("machine has no patterns");
       gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
           FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_track_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_properties), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_copy), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_track_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_properties), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_copy), FALSE);
     }
     g_object_get (machine, "prefs-params", &num_property_params, NULL);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_machine_preferences),
-        (num_property_params != 0));
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_machine_preferences), (num_property_params != 0));
   } else {
     GST_INFO ("no machine");
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
         FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_track_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_pattern_properties), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_pattern_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_pattern_copy), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_track_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_pattern_properties), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_pattern_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_pattern_copy), FALSE);
   }
 }
 
@@ -2976,12 +2978,12 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   box = gtk_hbox_new (FALSE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->base_octave_menu = gtk_combo_box_text_new ();
-  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->
-          priv->base_octave_menu), FALSE);
+  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->priv->
+          base_octave_menu), FALSE);
   for (i = 0; i < 8; i++) {
     sprintf (oct_str, "%1d", i);
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-            priv->base_octave_menu), oct_str);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
+            base_octave_menu), oct_str);
   }
   gtk_combo_box_set_active (GTK_COMBO_BOX (self->priv->base_octave_menu),
       self->priv->base_octave);
