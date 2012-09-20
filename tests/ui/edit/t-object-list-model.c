@@ -69,7 +69,7 @@ test_bt_object_list_model_add_entry (BT_TEST_ARGS)
   BtObjectListModel *model = bt_object_list_model_new (1, GTK_TYPE_LABEL,
       "label");
   check_init_error_trapp ("",
-      "G_OBJECT_TYPE (object) == model->priv->object_type");
+      "g_type_is_a (G_OBJECT_TYPE (object), model->priv->object_type)");
 
   /* act */
   bt_object_list_model_append (model, (GObject *) b);
