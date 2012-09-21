@@ -2441,8 +2441,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->
-            priv->param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->priv->
+            param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
@@ -2871,9 +2871,10 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
   gtk_container_add (GTK_CONTAINER (self), hbox);
 
   // set focus on first parameters
-  g_signal_connect ((gpointer) self, "show", G_CALLBACK (on_window_show),
-      (gpointer) self);
-
+  if (self->priv->first_widget) {
+    g_signal_connect ((gpointer) self, "show", G_CALLBACK (on_window_show),
+        (gpointer) self);
+  }
   // dynamically adjust voices
   g_signal_connect (self->priv->machine, "notify::voices",
       G_CALLBACK (on_machine_voices_notify), (gpointer) self);
