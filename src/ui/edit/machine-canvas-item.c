@@ -1003,8 +1003,10 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
     // find trigger property in global or first voice params
     if ((pg = bt_machine_get_global_param_group (machine))) {
       if ((pi = bt_parameter_group_get_trigger_param_index (pg)) == -1) {
-        if ((pg = bt_machine_get_voice_param_group (machine, 0))) {
-          pi = bt_parameter_group_get_trigger_param_index (pg);
+        if (bt_machine_is_polyphonic (machine)) {
+          if ((pg = bt_machine_get_voice_param_group (machine, 0))) {
+            pi = bt_parameter_group_get_trigger_param_index (pg);
+          }
         }
       }
     }
