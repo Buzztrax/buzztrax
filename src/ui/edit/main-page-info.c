@@ -81,6 +81,12 @@ G_DEFINE_TYPE (BtMainPageInfo, bt_main_page_info, GTK_TYPE_VBOX);
 //-- event handler
 
 static void
+on_page_mapped (GtkWidget * widget, gpointer user_data)
+{
+  GTK_WIDGET_GET_CLASS (widget)->focus (widget, GTK_DIR_TAB_FORWARD);
+}
+
+static void
 on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
 {
   //BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
@@ -564,6 +570,8 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   // listen to page changes
   g_signal_connect ((gpointer) pages, "notify::page",
       G_CALLBACK (on_page_switched), (gpointer) self);
+  g_signal_connect ((gpointer) self, "map",
+      G_CALLBACK (on_page_mapped), (gpointer) self);
 
   GST_DEBUG ("  done");
 }
