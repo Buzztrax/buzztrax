@@ -23,7 +23,18 @@
  * Lists available interaction controller devices and allows to select
  * controllers that should be used.
  */
-
+/* TODO(ensonic): show a message if the controller has no discoverers
+ */
+/* TODO(ensonic): show the live values for each control
+ */
+/* TODO(ensonic): configure things:
+ * - allow to rename devices (and controls)?
+ * - allow to hide devices
+ * - allow to limit the value range (e.g. for the accelerometer)
+ * - allow to run the learn feature (embedding the dialog?)
+ *   - if we edit a device, auto run learn, when we move the know,
+ *     add the control, the control-name is editable
+ */
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_INTERACTION_CONTROLLER_C
 
@@ -266,8 +277,8 @@ bt_settings_page_interaction_controller_dispose (GObject * object)
 }
 
 static void
-bt_settings_page_interaction_controller_init
-    (BtSettingsPageInteractionController * self)
+bt_settings_page_interaction_controller_init (
+    BtSettingsPageInteractionController * self)
 {
   self->priv =
       G_TYPE_INSTANCE_GET_PRIVATE (self,
@@ -278,8 +289,8 @@ bt_settings_page_interaction_controller_init
 }
 
 static void
-bt_settings_page_interaction_controller_class_init
-    (BtSettingsPageInteractionControllerClass * klass)
+bt_settings_page_interaction_controller_class_init (
+    BtSettingsPageInteractionControllerClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
