@@ -366,12 +366,29 @@ preview_update_seeks (const BtMainPageWaves * self)
   }
 }
 
+static GstElement *
+make_audio_sink (const BtMainPageWaves * self)
+{
+  GstElement *sink = NULL;
+  gchar *element_name, *device_name;
+
+  if (bt_settings_determine_audiosink_name (self->priv->settings, &element_name,
+          &device_name)) {
+    sink = gst_element_factory_make (element_name, NULL);
+    if (BT_IS_STRING (device_name)) {
+      g_object_set (sink, "device", device_name, NULL);
+    }
+    g_free (element_name);
+    g_free (device_name);
+  }
+  return sink;
+}
+
 static void
 update_audio_sink (const BtMainPageWaves * self)
 {
   GstState state;
-  GstElement *sink = NULL;
-  gchar *plugin_name;
+  GstElement *sink;
 
   // check current state
   if (gst_element_get_state (GST_ELEMENT (self->priv->playbin), &state, NULL,
@@ -386,14 +403,12 @@ update_audio_sink (const BtMainPageWaves * self)
     if (state > GST_STATE_READY) {
       preview_stop (self);
       gtk_widget_set_sensitive (self->priv->wavetable_stop, FALSE);
-      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-              wavetable_play), FALSE);
+      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+              priv->wavetable_play), FALSE);
     }
   }
   // determine sink element
-  plugin_name = bt_settings_determine_audiosink_name (self->priv->settings);
-  if (plugin_name) {
-    sink = gst_element_factory_make (plugin_name, NULL);
+  if ((sink = make_audio_sink (self))) {
     g_object_set (self->priv->playbin, "audio-sink", sink, NULL);
 
     if (self->priv->preview) {
@@ -405,13 +420,12 @@ update_audio_sink (const BtMainPageWaves * self)
       gst_object_unref (pad);
       gst_element_set_state (self->priv->preview, GST_STATE_NULL);
       gst_bin_remove (GST_BIN (self->priv->preview), self->priv->preview_sink);
-      self->priv->preview_sink = gst_element_factory_make (plugin_name, NULL);
+      self->priv->preview_sink = make_audio_sink (self);
       gst_bin_add (GST_BIN (self->priv->preview), self->priv->preview_sink);
       pad = gst_element_get_static_pad (self->priv->preview_sink, "sink");
       gst_pad_link (peer_pad, pad);
       gst_object_unref (pad);
     }
-    g_free (plugin_name);
   }
 }
 
@@ -497,8 +511,8 @@ on_preview_state_changed (GstBus * bus, GstMessage * message,
         break;
       case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
         gtk_widget_set_sensitive (self->priv->wavetable_stop, FALSE);
-        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-                wavetable_play), FALSE);
+        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+                priv->wavetable_play), FALSE);
         gst_element_set_state (self->priv->preview, GST_STATE_NULL);
         break;
       default:
@@ -527,8 +541,8 @@ on_preview_segment_done (GstBus * bus, GstMessage * message, gpointer user_data)
     GST_INFO ("received segment_done on the bin, looping %d",
         self->priv->loop_seek_dir);
     if (!(gst_element_send_event (GST_ELEMENT (self->priv->preview),
-                gst_event_ref (self->priv->loop_seek_event[self->priv->
-                        loop_seek_dir])))) {
+                gst_event_ref (self->priv->loop_seek_event[self->
+                        priv->loop_seek_dir])))) {
       GST_WARNING ("element failed to handle continuing play seek event");
       /* if I set state directly to NULL, I don't get inbetween state-change messages */
       gst_element_set_state (self->priv->preview, GST_STATE_READY);
@@ -778,8 +792,8 @@ on_wavelevels_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
           &loop_start, "loop-end", &loop_end, NULL);
       GST_INFO ("select wave-level: %p, %lu", data, length);
 
-      bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->priv->
-              waveform_viewer), data, channels, length);
+      bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->
+              priv->waveform_viewer), data, channels, length);
 
       g_object_set (self->priv->waveform_viewer, "loop-begin",
           (int64_t) loop_start, "loop-end", (int64_t) loop_end, NULL);
@@ -793,8 +807,8 @@ on_wavelevels_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
     GST_INFO ("no current wave");
   }
   if (!drawn) {
-    bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->priv->
-            waveform_viewer), NULL, 0, 0);
+    bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->
+            priv->waveform_viewer), NULL, 0, 0);
   }
 }
 
@@ -848,8 +862,8 @@ on_default_sample_folder_changed (const BtSettings * settings, GParamSpec * arg,
   gchar *sample_folder;
 
   g_object_get ((gpointer) settings, "sample-folder", &sample_folder, NULL);
-  gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (self->priv->
-          file_chooser), sample_folder);
+  gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (self->
+          priv->file_chooser), sample_folder);
   g_free (sample_folder);
 }
 
@@ -929,7 +943,6 @@ on_wavetable_toolbar_play_clicked (GtkToolButton * button, gpointer user_data)
       gulong play_length, play_rate;
       guint play_channels;
       gint16 *play_data;
-      gchar *plugin_name;
 
       // create playback pipeline on demand
       if (!self->priv->preview) {
@@ -941,13 +954,7 @@ on_wavetable_toolbar_play_clicked (GtkToolButton * button, gpointer user_data)
             gst_element_factory_make ("memoryaudiosrc", NULL);
         ares = gst_element_factory_make ("audioresample", NULL);
         aconv = gst_element_factory_make ("audioconvert", NULL);
-        plugin_name =
-            bt_settings_determine_audiosink_name (self->priv->settings);
-        if (plugin_name) {
-          self->priv->preview_sink =
-              gst_element_factory_make (plugin_name, NULL);
-          g_free (plugin_name);
-        } else {
+        if (!(self->priv->preview_sink = make_audio_sink (self))) {
           self->priv->preview_sink =
               gst_element_factory_make ("autoaudiosink", NULL);
         }
@@ -1098,8 +1105,8 @@ on_waves_list_row_activated (GtkTreeView * tree_view, GtkTreePath * path,
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
 
   //on_wavetable_toolbar_play_clicked(GTK_TOOL_BUTTON(self->priv->wavetable_play),user_data);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-          wavetable_play), TRUE);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+          priv->wavetable_play), TRUE);
 }
 
 static void
@@ -1109,8 +1116,8 @@ on_wavelevels_list_row_activated (GtkTreeView * tree_view, GtkTreePath * path,
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
 
   //on_wavetable_toolbar_play_clicked(GTK_TOOL_BUTTON(self->priv->wavetable_play),user_data);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-          wavetable_play), TRUE);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+          priv->wavetable_play), TRUE);
 }
 
 static void
@@ -1120,10 +1127,6 @@ on_audio_sink_changed (const BtSettings * const settings,
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
 
   GST_INFO ("audio-sink has changed");
-  gchar *const plugin_name =
-      bt_settings_determine_audiosink_name (self->priv->settings);
-  GST_INFO ("  -> '%s'", plugin_name);
-  g_free (plugin_name);
   update_audio_sink (self);
 }
 
@@ -1132,21 +1135,21 @@ on_system_audio_sink_changed (const BtSettings * const settings,
     GParamSpec * const arg, gconstpointer const user_data)
 {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
+  gchar *element_name, *sink_name;
 
   GST_INFO ("system audio-sink has changed");
-  gchar *const plugin_name =
-      bt_settings_determine_audiosink_name (self->priv->settings);
-  gchar *sink_name;
 
   // exchange the machine (only if the system-audiosink is in use)
+  bt_settings_determine_audiosink_name (self->priv->settings, &element_name,
+      NULL);
   g_object_get ((gpointer) settings, "system-audiosink-name", &sink_name, NULL);
 
-  GST_INFO ("  -> '%s' (sytem_sink is '%s')", plugin_name, sink_name);
-  if (!strcmp (plugin_name, sink_name)) {
+  GST_INFO ("  -> '%s' (sytem_sink is '%s')", element_name, sink_name);
+  if (!strcmp (element_name, sink_name)) {
     update_audio_sink (self);
   }
   g_free (sink_name);
-  g_free (plugin_name);
+  g_free (element_name);
 }
 
 
@@ -1227,8 +1230,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
       GTK_SHADOW_ETCHED_IN);
   self->priv->waves_list = GTK_TREE_VIEW (gtk_tree_view_new ());
   gtk_widget_set_name (GTK_WIDGET (self->priv->waves_list), "wave-list");
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
-          waves_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
+          priv->waves_list), GTK_SELECTION_BROWSE);
   g_object_set (self->priv->waves_list, "enable-search", FALSE, "rules-hint",
       TRUE, NULL);
   g_signal_connect (self->priv->waves_list, "cursor-changed",
@@ -1276,8 +1279,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   enum_class = g_type_class_ref (BT_TYPE_WAVE_LOOP_MODE);
   for (i = enum_class->minimum; i <= enum_class->maximum; i++) {
     if ((enum_value = g_enum_get_value (enum_class, i))) {
-      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-              loop_mode), enum_value->value_name);
+      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+              priv->loop_mode), enum_value->value_name);
     }
   }
   g_type_class_unref (enum_class);
@@ -1354,8 +1357,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   self->priv->wavelevels_list = GTK_TREE_VIEW (gtk_tree_view_new ());
   gtk_widget_set_name (GTK_WIDGET (self->priv->wavelevels_list),
       "wave-level-list");
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
-          wavelevels_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
+          priv->wavelevels_list), GTK_SELECTION_BROWSE);
   g_object_set (self->priv->wavelevels_list, "enable-search", FALSE,
       "rules-hint", TRUE, NULL);
   g_signal_connect (self->priv->wavelevels_list, "cursor-changed",

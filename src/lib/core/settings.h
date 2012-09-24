@@ -66,6 +66,7 @@ GType bt_settings_get_type(void) G_GNUC_CONST;
 BtSettings *bt_settings_make(void);
 
 void bt_settings_set_factory(BtSettingsFactory factory);
-gchar *bt_settings_determine_audiosink_name(const BtSettings * const self);
+gboolean bt_settings_determine_audiosink_name(const BtSettings * const self,
+    gchar **_element_name, gchar **_device_name);
 
 #endif // BT_SETTINGS_H

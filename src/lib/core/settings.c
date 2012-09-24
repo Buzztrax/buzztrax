@@ -178,34 +178,47 @@ bt_settings_set_factory (BtSettingsFactory factory)
 }
 
 /**
- * bt_settings_determine_audiosink_name:
+ * bt_settings_determine_audiosink:
  * @self: the settings
+ * @element_name: out variable for the element name
+ * @device_name: out variable for the device property, if any
  *
  * Check the settings for the configured audio sink. Pick a fallback if none has
  * been chosen. Verify that the sink works.
  *
- * Returns: the elemnt name, free when done.
+ * Free the strings in the output variables, when done.
+ *
+ * Returns: %TRUE if a audiosink has been found.
  */
-gchar *
-bt_settings_determine_audiosink_name (const BtSettings * const self)
+gboolean
+bt_settings_determine_audiosink_name (const BtSettings * const self,
+    gchar ** _element_name, gchar ** _device_name)
 {
   gchar *audiosink_name, *system_audiosink_name;
-  gchar *plugin_name = NULL;
+  gchar *element_name = NULL;
+
+  g_return_val_if_fail (_element_name, FALSE);
+  if (_device_name) {
+    *_device_name = NULL;
+  }
 
   g_object_get ((GObject *) self, "audiosink", &audiosink_name,
       "system-audiosink", &system_audiosink_name, NULL);
 
   if (BT_IS_STRING (audiosink_name)) {
     GST_INFO ("get audiosink from config");
-    plugin_name = parse_and_check_audio_sink (audiosink_name);
+    element_name = parse_and_check_audio_sink (audiosink_name);
     audiosink_name = NULL;
+    if (element_name && _device_name) {
+      g_object_get ((GObject *) self, "audiosink-device", _device_name, NULL);
+    }
   }
-  if (!plugin_name && BT_IS_STRING (system_audiosink_name)) {
+  if (!element_name && BT_IS_STRING (system_audiosink_name)) {
     GST_INFO ("get audiosink from system config");
-    plugin_name = parse_and_check_audio_sink (system_audiosink_name);
+    element_name = parse_and_check_audio_sink (system_audiosink_name);
     system_audiosink_name = NULL;
   }
-  if (!plugin_name) {
+  if (!element_name) {
     // TODO(ensonic): try autoaudiosink (if it exists)
     // iterate over gstreamer-audiosink list and choose element with highest rank
     const GList *node;
@@ -238,11 +251,11 @@ bt_settings_determine_audiosink_name (const BtSettings * const self)
         cur_rank = gst_plugin_feature_get_rank (GST_PLUGIN_FEATURE (factory));
         GST_INFO ("  trying audio sink: \"%s\" with rank: %d", feature_name,
             cur_rank);
-        if ((cur_rank >= max_rank) || (!plugin_name)) {
-          g_free (plugin_name);
-          plugin_name = g_strdup (feature_name);
+        if ((cur_rank >= max_rank) || (!element_name)) {
+          g_free (element_name);
+          element_name = g_strdup (feature_name);
           max_rank = cur_rank;
-          GST_INFO ("  audio sink \"%s\" is current best sink", plugin_name);
+          GST_INFO ("  audio sink \"%s\" is current best sink", element_name);
         }
       } else {
         GST_INFO ("  skipping audio sink: \"%s\" because of incompatible caps",
@@ -251,12 +264,14 @@ bt_settings_determine_audiosink_name (const BtSettings * const self)
     }
     gst_plugin_feature_list_free (audiosink_factories);
   }
-  GST_INFO ("using audio sink : \"%s\"", plugin_name);
+  GST_INFO ("using audio sink : \"%s\"", element_name);
 
   g_free (system_audiosink_name);
   g_free (audiosink_name);
 
-  return (plugin_name);
+  *_element_name = element_name;
+
+  return (element_name != NULL);
 }
 
 //-- wrapper

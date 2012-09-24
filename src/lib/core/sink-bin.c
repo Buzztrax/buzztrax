@@ -481,27 +481,32 @@ static GList *
 bt_sink_bin_get_player_elements (const BtSinkBin * const self)
 {
   GList *list = NULL;
-  gchar *plugin_name;
+  gchar *element_name, *device_name;
   GstElement *element;
   BtAudioSession *audio_session;
 
   GST_DEBUG ("get playback elements");
 
-  if (!(plugin_name =
-          bt_settings_determine_audiosink_name (self->priv->settings))) {
+  // need to also get the "audiosink-device" setting
+  if (!bt_settings_determine_audiosink_name (self->priv->settings,
+          &element_name, &device_name)) {
     return (NULL);
   }
   audio_session = bt_audio_session_new ();
-  g_object_set (audio_session, "audio-sink-name", plugin_name, NULL);
+  g_object_set (audio_session, "audio-sink-device", device_name,
+      "audio-sink-name", element_name, NULL);
   g_object_get (audio_session, "audio-sink", &element, NULL);
   g_object_unref (audio_session);
   if (!element) {
-    GST_WARNING ("No session sink for '%s'", plugin_name);
-    element = gst_element_factory_make (plugin_name, NULL);
+    GST_WARNING ("No session sink for '%s'", element_name);
+    element = gst_element_factory_make (element_name, NULL);
+    if (BT_IS_STRING (device_name)) {
+      g_object_set (element, "device", device_name, NULL);
+    }
   }
   if (!element) {
-    /* bt_settings_determine_audiosink_name() does all kind of sanity checks already */
-    GST_WARNING ("Can't instantiate '%s' element", plugin_name);
+    /* bt_settings_determine_audiosink() does all kind of sanity checks already */
+    GST_WARNING ("Can't instantiate '%s' element", element_name);
     goto Error;
   }
   if (GST_IS_BASE_SINK (element)) {
@@ -513,7 +518,7 @@ bt_sink_bin_get_player_elements (const BtSinkBin * const self)
   list = g_list_append (list, element);
 
 Error:
-  g_free (plugin_name);
+  g_free (element_name);
   return (list);
 }
 
@@ -538,8 +543,8 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->priv->
-          record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->
+          priv->record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
@@ -838,10 +843,6 @@ on_audio_sink_changed (const BtSettings * const settings,
   BtSinkBin *self = BT_SINK_BIN (user_data);
 
   GST_INFO ("audio-sink has changed");
-  gchar *const plugin_name =
-      bt_settings_determine_audiosink_name (self->priv->settings);
-  GST_INFO ("  -> '%s'", plugin_name);
-  g_free (plugin_name);
 
   // exchange the machine
   switch (self->priv->mode) {
@@ -859,17 +860,17 @@ on_system_audio_sink_changed (const BtSettings * const settings,
     GParamSpec * const arg, gconstpointer const user_data)
 {
   BtSinkBin *self = BT_SINK_BIN (user_data);
+  gchar *element_name, *sink_name;
 
   GST_INFO ("system audio-sink has changed");
-  gchar *const plugin_name =
-      bt_settings_determine_audiosink_name (self->priv->settings);
-  gchar *sink_name;
 
   // exchange the machine (only if the system-audiosink is in use)
+  bt_settings_determine_audiosink_name (self->priv->settings, &element_name,
+      NULL);
   g_object_get ((gpointer) settings, "system-audiosink-name", &sink_name, NULL);
 
-  GST_INFO ("  -> '%s' (sytem_sink is '%s')", plugin_name, sink_name);
-  if (!strcmp (plugin_name, sink_name)) {
+  GST_INFO ("  -> '%s' (sytem_sink is '%s')", element_name, sink_name);
+  if (!strcmp (element_name, sink_name)) {
     // exchange the machine
     switch (self->priv->mode) {
       case BT_SINK_BIN_MODE_PLAY:
@@ -881,7 +882,7 @@ on_system_audio_sink_changed (const BtSettings * const settings,
     }
   }
   g_free (sink_name);
-  g_free (plugin_name);
+  g_free (element_name);
 }
 
 static void
@@ -1165,6 +1166,8 @@ bt_sink_bin_init (BtSinkBin * self)
   self->priv->settings = bt_settings_make ();
   //GST_DEBUG("listen to settings changes (%p)",self->priv->settings);
   g_signal_connect (self->priv->settings, "notify::audiosink",
+      G_CALLBACK (on_audio_sink_changed), (gpointer) self);
+  g_signal_connect (self->priv->settings, "notify::audiosink-device",
       G_CALLBACK (on_audio_sink_changed), (gpointer) self);
   g_signal_connect (self->priv->settings, "notify::system-audiosink",
       G_CALLBACK (on_system_audio_sink_changed), (gpointer) self);

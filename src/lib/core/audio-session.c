@@ -47,6 +47,7 @@ enum
 {
   AUDIO_SESSION_AUDIO_SINK = 1,
   AUDIO_SESSION_AUDIO_SINK_NAME,
+  AUDIO_SESSION_AUDIO_SINK_DEVICE,
   AUDIO_SESSION_AUDIO_LOCKED,
   AUDIO_SESSION_TRANSPORT_MODE,
 
@@ -58,7 +59,7 @@ struct _BtAudioSessionPrivate
   gboolean dispose_has_run;
 
   /* the active audio sink */
-  gchar *audio_sink_name;
+  gchar *audio_sink_name, *audio_sink_device;
   GstElement *audio_sink;
 
   BtSettings *settings;
@@ -113,8 +114,9 @@ bt_audio_session_cleanup (void)
 static void
 bt_audio_session_setup (void)
 {
-  gchar *plugin_name = singleton->priv->audio_sink_name;
-  if (!strcmp (plugin_name, "jackaudiosink")) {
+  gchar *element_name = singleton->priv->audio_sink_name;
+  // audio_sink_device is not used for know session sinks right now
+  if (!strcmp (element_name, "jackaudiosink")) {
     GstElement *audio_sink = singleton->priv->audio_sink;
 
     if (!audio_sink) {
@@ -125,9 +127,8 @@ bt_audio_session_setup (void)
       gboolean loop = TRUE;
 
       // create audio sink and drop floating ref
-      audio_sink =
-          gst_object_ref (gst_element_factory_make (plugin_name, NULL));
-      gst_object_sink (audio_sink);
+      audio_sink = gst_element_factory_make (element_name, NULL);
+      gst_object_ref_sink (audio_sink);
       GST_WARNING ("created session audio sink %p, ref=%d", audio_sink,
           G_OBJECT_REF_COUNT (audio_sink));
 
@@ -246,6 +247,9 @@ bt_audio_session_get_property (GObject * const object, const guint property_id,
     case AUDIO_SESSION_AUDIO_SINK_NAME:
       g_value_set_string (value, self->priv->audio_sink_name);
       break;
+    case AUDIO_SESSION_AUDIO_SINK_DEVICE:
+      g_value_set_string (value, self->priv->audio_sink_device);
+      break;
     case AUDIO_SESSION_AUDIO_LOCKED:
       g_value_set_boolean (value,
           (self->priv->audio_sink ? gst_element_is_locked_state (self->
@@ -269,6 +273,10 @@ bt_audio_session_set_property (GObject * const object, const guint property_id,
       g_free (self->priv->audio_sink_name);
       self->priv->audio_sink_name = g_value_dup_string (value);
       bt_audio_session_setup ();
+      break;
+    case AUDIO_SESSION_AUDIO_SINK_DEVICE:
+      g_free (self->priv->audio_sink_device);
+      self->priv->audio_sink_device = g_value_dup_string (value);
       break;
     case AUDIO_SESSION_AUDIO_LOCKED:
       if (self->priv->audio_sink) {
@@ -311,6 +319,7 @@ bt_audio_session_finalize (GObject * const object)
   GST_DEBUG ("!!!! self=%p", self);
 
   g_free (self->priv->audio_sink_name);
+  g_free (self->priv->audio_sink_device);
 
   G_OBJECT_CLASS (bt_audio_session_parent_class)->finalize (object);
 }
@@ -347,10 +356,20 @@ bt_audio_session_class_init (BtAudioSessionClass * klass)
   gobject_class->dispose = bt_audio_session_dispose;
   gobject_class->finalize = bt_audio_session_finalize;
 
-  g_object_class_install_property (gobject_class, AUDIO_SESSION_AUDIO_SINK, g_param_spec_object ("audio-sink", "audio-sink prop", "the audio-sink for the session", GST_TYPE_ELEMENT,   /* object type */
+  g_object_class_install_property (gobject_class, AUDIO_SESSION_AUDIO_SINK,
+      g_param_spec_object ("audio-sink", "audio-sink prop",
+          "the audio-sink for the session", GST_TYPE_ELEMENT,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, AUDIO_SESSION_AUDIO_SINK_NAME, g_param_spec_string ("audio-sink-name", "audio-sink-name prop", "The name of the audio sink factory", NULL,    /* default value */
+  g_object_class_install_property (gobject_class, AUDIO_SESSION_AUDIO_SINK_NAME,
+      g_param_spec_string ("audio-sink-name", "audio-sink-name prop",
+          "The name of the audio sink factory", NULL,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class,
+      AUDIO_SESSION_AUDIO_SINK_DEVICE,
+      g_param_spec_string ("audio-sink-device", "audio-sink-device prop",
+          "The name of the audio sink device", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, AUDIO_SESSION_AUDIO_LOCKED,

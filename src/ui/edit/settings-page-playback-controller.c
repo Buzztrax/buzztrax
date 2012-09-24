@@ -226,7 +226,7 @@ bt_settings_page_playback_controller_init_ui (const
   gboolean coherence_upnp_active;
   guint coherence_upnp_port;
   gboolean jack_transport_master, jack_transport_slave;
-  gchar *str, *plugin_name;
+  gchar *str, *element_name;
 
   gtk_widget_set_name (GTK_WIDGET (self), "playback controller settings");
 
@@ -348,16 +348,17 @@ bt_settings_page_playback_controller_init_ui (const
 
 
   // jack transport tab
-  plugin_name = bt_settings_determine_audiosink_name (self->priv->settings);
-  str =
-      g_strdup_printf
+  bt_settings_determine_audiosink_name (self->priv->settings, &element_name,
+      NULL);
+  str = g_strdup_printf
       ("Jack transport requires that the jackaudiosink is active."
-      "Your current audiosink is '%s'.", plugin_name);
+      "Your current audiosink is '%s'.",
+      (element_name ? element_name : "none"));
   label = gtk_label_new (str);
   gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
   gtk_label_set_selectable (GTK_LABEL (label), TRUE);
   gtk_container_add (GTK_CONTAINER (self->priv->controller_pages), label);
-  g_free (plugin_name);
+  g_free (element_name);
   g_free (str);
 
 }
@@ -405,8 +406,8 @@ bt_settings_page_playback_controller_dispose (GObject * object)
   g_object_unref (self->priv->settings);
   g_object_unref (self->priv->app);
 
-  G_OBJECT_CLASS (bt_settings_page_playback_controller_parent_class)->
-      dispose (object);
+  G_OBJECT_CLASS (bt_settings_page_playback_controller_parent_class)->dispose
+      (object);
 }
 
 static void
@@ -423,7 +424,7 @@ bt_settings_page_playback_controller_init (BtSettingsPagePlaybackController *
 }
 
 static void
-bt_settings_page_playback_controller_class_init
+    bt_settings_page_playback_controller_class_init
     (BtSettingsPagePlaybackControllerClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
