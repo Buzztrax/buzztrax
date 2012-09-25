@@ -46,6 +46,7 @@ extern void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri);
 #define GTK_COMBO_BOX_TEXT(w) GTK_COMBO_BOX(w)
 #define gtk_combo_box_text_new gtk_combo_box_new_text
 #define gtk_combo_box_text_append_text(w,t) gtk_combo_box_append_text((w),(t))
+#define gtk_combo_box_text_remove_text(w,p) gtk_combo_box_remove_text((w),(p))
 #define gtk_combo_box_text_get_active_text(w) gtk_combo_box_get_active_text(w)
 #endif
 
