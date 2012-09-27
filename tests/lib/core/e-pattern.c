@@ -77,20 +77,27 @@ test_bt_pattern_name (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+
+static gchar *element_names[] = {
+  "buzztard-test-no-arg-mono-source", "buzztard-test-mono-source",
+  "buzztard-test-poly-source", "buzztard-test-poly-source"
+};
+static gulong element_voices[] = { 0, 0, 0, 1 };
+
 static void
-test_bt_pattern_obj_mono1 (BT_TEST_ARGS)
+test_bt_pattern_obj_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          element_names[_i], element_voices[_i], NULL));
 
   /* act */
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
 
   /* assert */
-  ck_assert_gobject_gulong_eq (pattern, "voices", 0);
+  ck_assert_gobject_gulong_eq (pattern, "voices", element_voices[_i]);
 
   /* cleanup */
   g_object_unref (pattern);
@@ -99,7 +106,7 @@ test_bt_pattern_obj_mono1 (BT_TEST_ARGS)
 }
 
 static void
-test_bt_pattern_obj_mono2 (BT_TEST_ARGS)
+test_bt_pattern_obj_mono (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -127,28 +134,7 @@ test_bt_pattern_obj_mono2 (BT_TEST_ARGS)
 }
 
 static void
-test_bt_pattern_obj_poly1 (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  /* arrange */
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 2L, NULL));
-
-  /* act */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
-
-  /* assert */
-  ck_assert_gobject_gulong_eq (pattern, "voices", 2);
-
-  /* cleanup */
-  g_object_unref (pattern);
-  g_object_unref (machine);
-  BT_TEST_END;
-}
-
-static void
-test_bt_pattern_obj_poly2 (BT_TEST_ARGS)
+test_bt_pattern_obj_poly (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -489,10 +475,10 @@ bt_pattern_example_case (void)
   TCase *tc = tcase_create ("BtPatternExamples");
 
   tcase_add_test (tc, test_bt_pattern_name);
-  tcase_add_test (tc, test_bt_pattern_obj_mono1);
-  tcase_add_test (tc, test_bt_pattern_obj_mono2);
-  tcase_add_test (tc, test_bt_pattern_obj_poly1);
-  tcase_add_test (tc, test_bt_pattern_obj_poly2);
+  tcase_add_loop_test (tc, test_bt_pattern_obj_create, 0,
+      G_N_ELEMENTS (element_names));
+  tcase_add_test (tc, test_bt_pattern_obj_mono);
+  tcase_add_test (tc, test_bt_pattern_obj_poly);
   tcase_add_test (tc, test_bt_pattern_obj_wire1);
   tcase_add_test (tc, test_bt_pattern_obj_wire2);
   tcase_add_test (tc, test_bt_pattern_copy);

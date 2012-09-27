@@ -141,6 +141,59 @@ bt_test_child_proxy_interface_init (gpointer g_iface, gpointer iface_data)
   iface->get_children_count = bt_test_child_proxy_get_children_count;
 }
 
+//-- test_no_arg_mono_source
+
+static void
+bt_test_no_arg_mono_source_init (GTypeInstance * instance, gpointer g_class)
+{
+  BtTestNoArgMonoSource *self = BT_TEST_NO_ARG_MONO_SOURCE (instance);
+  GstElementClass *klass = GST_ELEMENT_GET_CLASS (instance);
+  GstPad *src_pad;
+
+  src_pad =
+      gst_pad_new_from_template (gst_element_class_get_pad_template (klass,
+          "src"), "src");
+  gst_element_add_pad (GST_ELEMENT (self), src_pad);
+}
+
+static void
+bt_test_no_arg_mono_source_base_init (BtTestMonoSourceClass * klass)
+{
+  GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
+
+  gst_element_class_add_pad_template (element_class,
+      gst_static_pad_template_get (&src_pad_template));
+
+  gst_element_class_set_details_simple (element_class,
+      "Monophonic source for unit tests with 0 properties",
+      "Source/Audio/MonoSource",
+      "Use in unit tests", "Stefan Sauer <ensonic@users.sf.net>");
+}
+
+GType
+bt_test_no_arg_mono_source_get_type (void)
+{
+  static GType type = 0;
+  if (type == 0) {
+    const GTypeInfo info = {
+      sizeof (BtTestNoArgMonoSourceClass),
+      (GBaseInitFunc) bt_test_no_arg_mono_source_base_init,     // base_init
+      NULL,                     // base_finalize
+      NULL,                     // class_init
+      NULL,                     // class_finalize
+      NULL,                     // class_data
+      sizeof (BtTestNoArgMonoSource),
+      0,                        // n_preallocs
+      (GInstanceInitFunc) bt_test_no_arg_mono_source_init,      // instance_init
+      NULL                      // value_table
+    };
+    type =
+        g_type_register_static (GST_TYPE_ELEMENT,
+        "BtTestNoArgMonoSource", &info, 0);
+  }
+  return type;
+}
+
 
 //-- test_mono_source
 
@@ -540,6 +593,8 @@ bt_test_plugin_init (GstPlugin * plugin)
 {
   //GST_INFO("registering unit test plugin");
 
+  gst_element_register (plugin, "buzztard-test-no-arg-mono-source",
+      GST_RANK_NONE, BT_TYPE_TEST_NO_ARG_MONO_SOURCE);
   gst_element_register (plugin, "buzztard-test-mono-source", GST_RANK_NONE,
       BT_TYPE_TEST_MONO_SOURCE);
   gst_element_register (plugin, "buzztard-test-poly-source", GST_RANK_NONE,

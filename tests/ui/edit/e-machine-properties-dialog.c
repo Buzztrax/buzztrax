@@ -23,7 +23,6 @@
 
 static BtEditApplication *app;
 static BtMainWindow *main_window;
-static gchar *machine_ids[] = { "beep1", "echo1", "audio_sink" };
 
 //-- fixtures
 
@@ -63,21 +62,26 @@ case_teardown (void)
 
 //-- tests
 
-// load a song and show machine properties dialog
+// show machine properties dialog
+static gchar *element_names[] = {
+  "buzztard-test-no-arg-mono-source", "buzztard-test-mono-source",
+  "buzztard-test-poly-source", "buzztard-test-poly-source"
+};
+static gulong element_voices[] = { 0, 0, 0, 1 };
+
 static void
 test_bt_machine_properties_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
   BtSong *song;
-  BtSetup *setup;
   BtMachine *machine;
   GtkWidget *dialog;
 
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
+  bt_edit_application_new_song (app);
   g_object_get (app, "song", &song, NULL);
-  g_object_get (song, "setup", &setup, NULL);
-  machine = bt_setup_get_machine_by_id (setup, "beep1");
+  machine = BT_MACHINE (bt_source_machine_new (song, "gen", element_names[_i],
+          element_voices[_i], NULL));
 
   /* act */
   dialog = GTK_WIDGET (bt_machine_properties_dialog_new (machine));
@@ -90,11 +94,13 @@ test_bt_machine_properties_dialog_create (BT_TEST_ARGS)
   /* cleanup */
   gtk_widget_destroy (dialog);
   g_object_unref (machine);
-  g_object_unref (setup);
   g_object_unref (song);
   BT_TEST_END;
 }
 
+
+// show machine properties dialog while playing to test parameter updates
+static gchar *machine_ids[] = { "beep1", "echo1", "audio_sink" };
 
 static void
 test_bt_machine_properties_dialog_update (BT_TEST_ARGS)
@@ -131,12 +137,15 @@ test_bt_machine_properties_dialog_update (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+// TODO(ensonic): test adding/removing voices/wires while dialog is shown
+
 TCase *
 bt_machine_properties_dialog_example_case (void)
 {
   TCase *tc = tcase_create ("BtMachinePropertiesDialogExamples");
 
-  tcase_add_test (tc, test_bt_machine_properties_dialog_create);
+  tcase_add_loop_test (tc, test_bt_machine_properties_dialog_create, 0,
+      G_N_ELEMENTS (element_names));
   tcase_add_loop_test (tc, test_bt_machine_properties_dialog_update, 0,
       G_N_ELEMENTS (machine_ids));
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
