@@ -23,17 +23,21 @@
  * Lists available interaction controller devices and allows to select
  * controllers that should be used.
  */
-/* TODO(ensonic): show a message if the controller has no discoverers
+/* TODO(ensonic): user-friendly
+ * - show a message if the controller has no discoverers
+ * - show a message if we have discoverers, but no devices
+ * - show a message in the controller pane, if it is a learn-device
  */
-/* TODO(ensonic): show the live values for each control
+/* TODO(ensonic): more information
+ * - show the type as icon
+ * - show the live values for each control
  */
 /* TODO(ensonic): configure things:
  * - allow to rename devices (and controls)?
  * - allow to hide devices
  * - allow to limit the value range (e.g. for the accelerometer)
- * - allow to run the learn feature (embedding the dialog?)
- *   - if we edit a device, auto run learn, when we move the know,
- *     add the control, the control-name is editable
+ * - auto-run learn mode to applicable devices
+ *   - make the control-name editable
  */
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_INTERACTION_CONTROLLER_C
@@ -60,6 +64,10 @@ struct _BtSettingsPageInteractionControllerPrivate
 
   GtkComboBox *device_menu;
   GtkTreeView *controller_list;
+  GtkLabel *message;
+
+  /* the active lear-device or NULL */
+  BtIcLearn *device;
 };
 
 //-- the class
@@ -67,8 +75,24 @@ struct _BtSettingsPageInteractionControllerPrivate
 G_DEFINE_TYPE (BtSettingsPageInteractionController,
     bt_settings_page_interaction_controller, GTK_TYPE_TABLE);
 
+//-- helper
+
 
 //-- event handler
+
+static void
+notify_device_controlchange (const BtIcLearn * learn,
+    GParamSpec * arg, const BtInteractionControllerLearnDialog * user_data)
+{
+  gchar *control;
+  BtSettingsPageInteractionController *self =
+      BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (user_data);
+
+  g_object_get (self->priv->device, "device-controlchange", &control, NULL);
+  btic_learn_register_learned_control (self->priv->device, control);
+  g_free (control);
+  // FIXME(ensonic): add the new control to the list
+}
 
 static void
 on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
@@ -81,6 +105,14 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
   GtkTreeModel *model;
   GtkTreeIter iter;
   GList *node, *list;
+
+  if (self->priv->device) {
+    btic_learn_stop (self->priv->device);
+    g_signal_handlers_disconnect_matched (self->priv->device,
+        G_SIGNAL_MATCH_FUNC, 0, 0, NULL, notify_device_controlchange, NULL);
+    g_object_unref (self->priv->device);
+    self->priv->device = NULL;
+  }
 
   GST_INFO ("interaction controller device changed");
   model = gtk_combo_box_get_model (self->priv->device_menu);
@@ -97,6 +129,17 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
       bt_object_list_model_append (store, (GObject *) control);
     }
     g_list_free (list);
+
+    if (BTIC_IS_LEARN (device)) {
+      self->priv->device = BTIC_LEARN (g_object_ref (device));
+      g_signal_connect (self->priv->device, "notify::device-controlchange",
+          G_CALLBACK (notify_device_controlchange), (gpointer) self);
+      btic_learn_start (self->priv->device);
+      gtk_label_set_text (self->priv->message,
+          _("Use the device's controls to train them."));
+    } else {
+      gtk_label_set_text (self->priv->message, NULL);
+    }
   }
   GST_INFO ("control list refreshed");
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->controller_list),
@@ -126,6 +169,8 @@ on_ic_registry_devices_changed (BtIcRegistry * ic_registry, GParamSpec * arg,
   g_list_free (list);
 
   GST_INFO ("device menu refreshed");
+  gtk_label_set_text (self->priv->message, (device == NULL) ? NULL :
+      _("Plug a USB input device or midi controller"));
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->device_menu),
       (device != NULL));
   gtk_combo_box_set_model (self->priv->device_menu, GTK_TREE_MODEL (store));
@@ -147,6 +192,9 @@ bt_settings_page_interaction_controller_init_ui (const
 
   gtk_widget_set_name (GTK_WIDGET (self), "interaction controller settings");
 
+  // create the widget already so that we can set the initial text
+  self->priv->message = GTK_LABEL (gtk_label_new (NULL));
+
   // add setting widgets
   spacer = gtk_label_new ("    ");
   label = gtk_label_new (NULL);
@@ -164,7 +212,7 @@ bt_settings_page_interaction_controller_init_ui (const
   gtk_table_attach (GTK_TABLE (self), label, 1, 2, 1, 2, GTK_FILL, GTK_SHRINK,
       2, 1);
   self->priv->device_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
-  /* TODO(ensonic): add icon: midi, joystick (from hal?)
+  /* TODO(ensonic): add icon: midi, joystick
    * /usr/share/icons/gnome/24x24/stock/media/stock_midi.png
    * /usr/share/gtk-doc/html/libgimpwidgets/stock-controller-midi-16.png
    * /usr/share/icons/Tango/22x22/devices/joystick.png
@@ -215,10 +263,9 @@ bt_settings_page_interaction_controller_init_ui (const
   gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (scrolled_window), 1, 3, 2, 3,
       GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
 
-  /* TODO(ensonic): add "Learn" and "Tune" buttons
-   * Learn: train new controllers (BTIC_IS_LEARN(device))
-   * Tune: learn real range (useful if real range is less than the one defined by the api
-   */
+  // add a message pane
+  gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->message), 0, 3,
+      3, 4, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
 
   on_device_menu_changed (self->priv->device_menu, (gpointer) self);
 }
@@ -239,7 +286,7 @@ bt_settings_page_interaction_controller_new (void)
 
   self =
       BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (g_object_new
-      (BT_TYPE_SETTINGS_PAGE_INTERACTION_CONTROLLER, "n-rows", 3, "n-columns",
+      (BT_TYPE_SETTINGS_PAGE_INTERACTION_CONTROLLER, "n-rows", 4, "n-columns",
           3, "homogeneous", FALSE, NULL));
   bt_settings_page_interaction_controller_init_ui (self);
   gtk_widget_show_all (GTK_WIDGET (self));
@@ -264,6 +311,13 @@ bt_settings_page_interaction_controller_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
+  if (self->priv->device) {
+    btic_learn_stop (self->priv->device);
+    g_signal_handlers_disconnect_matched (self->priv->device,
+        G_SIGNAL_MATCH_FUNC, 0, 0, NULL, notify_device_controlchange, NULL);
+    g_object_unref (self->priv->device);
+  }
+
   g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);
   g_signal_handlers_disconnect_matched (ic_registry,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
@@ -272,13 +326,13 @@ bt_settings_page_interaction_controller_dispose (GObject * object)
 
   g_object_unref (self->priv->app);
 
-  G_OBJECT_CLASS (bt_settings_page_interaction_controller_parent_class)->
-      dispose (object);
+  G_OBJECT_CLASS (bt_settings_page_interaction_controller_parent_class)->dispose
+      (object);
 }
 
 static void
-bt_settings_page_interaction_controller_init (
-    BtSettingsPageInteractionController * self)
+    bt_settings_page_interaction_controller_init
+    (BtSettingsPageInteractionController * self)
 {
   self->priv =
       G_TYPE_INSTANCE_GET_PRIVATE (self,
@@ -289,8 +343,8 @@ bt_settings_page_interaction_controller_init (
 }
 
 static void
-bt_settings_page_interaction_controller_class_init (
-    BtSettingsPageInteractionControllerClass * klass)
+    bt_settings_page_interaction_controller_class_init
+    (BtSettingsPageInteractionControllerClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
