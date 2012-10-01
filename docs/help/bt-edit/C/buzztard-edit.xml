@@ -1140,7 +1140,7 @@ i o p</keycap></screen></entry>
         For some sinks one can chose the audio device that should be used. For
         all sinks the sampling rate and audio channels can be configured. This
         should be set matching the audio sink. If jack is configured to play at
-        44100 Hz chosing a lower rate might play at lower CPU consumtion, but
+        44100 Hz choosing a lower rate might play at lower CPU consumption, but
         ideally the setting are the same.
       </para>
       <para>
@@ -1150,9 +1150,46 @@ i o p</keycap></screen></entry>
       </para>
     </sect3>
 
+    <sect3 id="bt-edit-prefs-interaction-controller">
+      <title id="bt-edit-prefs-interaction-controller.title">Interaction controller settings</title>
+
+      <para>
+        Machines can be operated using hardware controllers. Buzztard can use
+        several types of controls, such as USB HID devices (mice, joystick) and
+        alsa midi devices. Right now this settings-page only shows the detected
+        devices. If you don't see anything, your application-package might have
+        been build without gudev support. This will be indicated by a warning
+        message in the settings page as well.
+      </para>
+      <figure id="bt-edit-settings-ic-fig">
+        <title>Interaction controller settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-ic.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>Interaction controller settings.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
+
     <sect3 id="bt-edit-prefs-playback-controller">
       <title id="bt-edit-prefs-playback-controller.title">Playback controller settings</title>
 
+      <para>
+        Buzztard implements a few protocols to synchronize playback with
+        external applications or devices. This window lists the controls and
+        allows to configure each of them. For each protocol buzztard can be
+        time master and/or slave (if supported by the protocol or protocol
+        implementation). In master mode, buzztard would also start the playback
+        of the external side, when the playback inside buzztard starts. In slave
+        mode, buzztard would listen to a command from the external side to also
+        start playback when the external side starts. Each of the protocols
+        might show some extra settings below the list when selected.
+      </para>
       <para>
         UPnP A/V remote control via Coherence.
         (FIXME: explain)
@@ -1166,29 +1203,6 @@ i o p</keycap></screen></entry>
             </imageobject>
             <textobject>
               <phrase>Playback controller settings.</phrase>
-            </textobject>
-          </mediaobject>
-        </screenshot>
-      </figure>
-    </sect3>
-
-    <sect3 id="bt-edit-prefs-interaction-controller">
-      <title id="bt-edit-prefs-interaction-controller.title">Interaction controller settings</title>
-
-      <para>
-        Interactive controller for machine parameters. There are actually no
-        settings here right now. It just shows the available devices.
-        (FIXME: no settings yet)
-      </para>
-      <figure id="bt-edit-settings-ic-fig">
-        <title>Interaction controller settings</title>
-        <screenshot>
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="figures/settings-ic.png" format="PNG" contentwidth="65%"/>
-            </imageobject>
-            <textobject>
-              <phrase>Interaction controller settings.</phrase>
             </textobject>
           </mediaobject>
         </screenshot>
