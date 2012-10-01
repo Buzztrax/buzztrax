@@ -386,8 +386,121 @@ test_bt_sequence_update (BT_TEST_ARGS)
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
-
 #endif
+
+static void
+test_bt_sequence_default_value (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0, NULL));
+  BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  GstObject *element =
+      GST_OBJECT (check_gobject_get_object_property (machine, "machine"));
+  g_object_set (sequence, "length", 4L, NULL);
+  bt_sequence_add_track (sequence, machine, -1);
+  bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
+
+  g_object_set (element, "g-ulong", 10, NULL);
+  bt_parameter_group_controller_change_value (pg, 0,
+      G_GUINT64_CONSTANT (0), NULL);
+
+  /* act */
+  gst_object_sync_values (G_OBJECT (element), G_GUINT64_CONSTANT (0));
+
+  /* assert */
+  ck_assert_gobject_gulong_eq (element, "g-ulong", 10);
+
+  /* cleanup */
+  gst_object_unref (element);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  g_object_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_override_default_value (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0, NULL));
+  BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  GstObject *element =
+      GST_OBJECT (check_gobject_get_object_property (machine, "machine"));
+  g_object_set (sequence, "length", 4L, NULL);
+  bt_sequence_add_track (sequence, machine, -1);
+  bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
+
+  g_object_set (element, "g-ulong", 10, NULL);
+  bt_parameter_group_controller_change_value (pg, 0,
+      G_GUINT64_CONSTANT (0), NULL);
+
+  bt_pattern_set_global_event (pattern, 0, 0, "100");
+
+  /* act */
+  gst_object_sync_values (G_OBJECT (element), G_GUINT64_CONSTANT (0));
+
+  /* assert */
+  ck_assert_gobject_gulong_eq (element, "g-ulong", 100);
+
+  /* cleanup */
+  gst_object_unref (element);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  g_object_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_restore_default_value (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0, NULL));
+  BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  GstObject *element =
+      GST_OBJECT (check_gobject_get_object_property (machine, "machine"));
+  g_object_set (sequence, "length", 4L, NULL);
+  bt_sequence_add_track (sequence, machine, -1);
+  bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
+
+  g_object_set (element, "g-ulong", 10, NULL);
+  bt_parameter_group_controller_change_value (pg, 0,
+      G_GUINT64_CONSTANT (0), NULL);
+
+  bt_pattern_set_global_event (pattern, 0, 0, "100");
+  bt_pattern_set_global_event (pattern, 0, 0, NULL);
+
+  /* act */
+  gst_object_sync_values (G_OBJECT (element), G_GUINT64_CONSTANT (0));
+
+  /* assert */
+  ck_assert_gobject_gulong_eq (element, "g-ulong", 10);
+
+  /* cleanup */
+  gst_object_unref (element);
+  g_object_unref (pattern);
+  g_object_unref (machine);
+  g_object_unref (sequence);
+  BT_TEST_END;
+}
+
 static void
 test_bt_sequence_change_pattern (BT_TEST_ARGS)
 {
@@ -835,6 +948,9 @@ bt_sequence_example_case (void)
   tcase_add_test (tc, test_bt_sequence_shrink_track);
   tcase_add_test (tc, test_bt_sequence_enlarge_both_vals);
   //tcase_add_test(tc,test_bt_sequence_update);
+  tcase_add_test (tc, test_bt_sequence_default_value);
+  tcase_add_test (tc, test_bt_sequence_override_default_value);
+  tcase_add_test (tc, test_bt_sequence_restore_default_value);
   tcase_add_test (tc, test_bt_sequence_change_pattern);
   tcase_add_test (tc, test_bt_sequence_hold);
   tcase_add_test (tc, test_bt_sequence_combine_pattern_shadows);
