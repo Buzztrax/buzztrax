@@ -23,11 +23,6 @@
  * Lists available interaction controller devices and allows to select
  * controllers that should be used.
  */
-/* TODO(ensonic): user-friendly
- * - show a message if the controller has no discoverers
- * - show a message if we have discoverers, but no devices
- * - show a message in the controller pane, if it is a learn-device
- */
 /* TODO(ensonic): more information
  * - show the type as icon
  * - show the live values for each control
@@ -256,14 +251,19 @@ bt_settings_page_interaction_controller_init_ui (const
       (renderer), 1);
   gtk_tree_view_insert_column_with_attributes (self->priv->controller_list, -1,
       _("Controller"), renderer, "text", CONTROLLER_LIST_LABEL, NULL);
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
-          controller_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
+          priv->controller_list), GTK_SELECTION_BROWSE);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->controller_list));
   gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (scrolled_window), 1, 3, 2, 3,
       GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
 
   // add a message pane
+#ifndef USE_GUDEV
+  gtk_label_set_text (self->priv->message,
+      _("This package has been built without GUdev support and thus "
+          "supports no interaction controllers."));
+#endif
   gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->message), 0, 3,
       3, 4, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
 
