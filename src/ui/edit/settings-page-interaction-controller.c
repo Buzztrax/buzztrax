@@ -79,14 +79,21 @@ static void
 notify_device_controlchange (const BtIcLearn * learn,
     GParamSpec * arg, const BtInteractionControllerLearnDialog * user_data)
 {
-  gchar *control;
   BtSettingsPageInteractionController *self =
       BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (user_data);
+  gchar *id;
+  BtIcControl *control;
 
-  g_object_get (self->priv->device, "device-controlchange", &control, NULL);
-  btic_learn_register_learned_control (self->priv->device, control);
-  g_free (control);
-  // FIXME(ensonic): add the new control to the list
+  g_object_get (self->priv->device, "device-controlchange", &id, NULL);
+  control = btic_learn_register_learned_control (self->priv->device, id);
+  g_free (id);
+  if (control) {
+    // add the new control to the list
+    BtObjectListModel *store =
+        BT_OBJECT_LIST_MODEL (gtk_tree_view_get_model (self->priv->
+            controller_list));
+    bt_object_list_model_append (store, (GObject *) control);
+  }
 }
 
 static void
