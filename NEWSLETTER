@@ -1,6 +1,39 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 git diff @{2012-01-01} @{2012-01-31} | diffstat
 
+2012/11 ========================================================================
+
+2012/10 ========================================================================
+
+After a discussion on IRC about tunings I looked into adding some of those to
+the ToneConversion class which so far only implemented the usual equal
+temperament. I have to say the wikipedia articles on this matter are awesome,
+detailed and plentiful. I added two 12tone tunings to the ToneConversion class
+now [1] and implemented tuning in sidsyn and simsyn.
+
+I also had a look at the TODO comments and planned items on the wiki. When I was
+writing the list model classes I did not wrote ones for the wavetable and
+wave-level-list. I did this now. The list models can also be tested separately
+from the UI (which is harder to test). I wrote basic tests for all model classes
+which bumps the test coverage in the ui by 10% (61% classes have tests now, 105
+ui tests).
+
+IRC was quite active this month. Another chat was on the wave-table page and
+wave-preview. The workflow was indeed needless complicated. Now preview is a
+toggle and if it is active, moving the selection in the file-browser will play
+sounds. Other discussion motivated me to implement audio-device selection in the
+settings. So far one could only select the protocol. Now for e.g. alsa or
+pulseaudio one can also choose to which device to play the audio. While working
+on the setting I started to make the interaction controller setting more useful.
+So far the only use of this settings-tab was to list the detected settings. I
+added a couple of messages to help the user to know what to do when e.g. the
+list of devices is empty. And I started to implement batch-learning of controls
+to the settings.
+  
+[1] http://en.wikipedia.org/wiki/Just_intonation#Twelve_tone_scale
+
+84 files changed, 4199 insertions(+), 1653 deletions(-)
+
 2012/09 ========================================================================
 
 I worked a bit on preset handling in gstreamer. Now machines with variable
@@ -23,15 +56,24 @@ would invoke them.
 The build system now can show the class-coverage of the tests. As this is just a
 few shell commands it quickly shows untested classes. It relies on naming
 conventions for tests. To make that work I also cleaned up the whole UI tests.
-Those are now more robust and actually verify a lot more things (we have 92 ui
-tests now).
+Those are now more robust and actually verify a lot more things (we went from 54
+to 92 ui tests).
 
  77 % (24/31) lib/core/
- 30 % ( 3/10) lib/ic
+ 40 % ( 4/10) lib/ic
 100 % ( 1/ 1) ui/cmd
  51 % (27/52) ui/edit
 
-* pattern-control-source
+The last thing I worked was to progress on live machine playback. And hell yes,
+it works! One can bind e.g. midi keyboards to machines and play them live. This
+includes a round-robin voice management for polyphonic generators. It is a lot
+of fun to play with. 
+ 
+Tom made good progress on the pattern control source. Most of the tests now
+pass. We hope to be able to merge it soon and to remove the complicated 2step
+controller updating code.
+
+151 files changed, 8453 insertions(+), 6451 deletions(-)
 
 2012/08 ========================================================================
 
