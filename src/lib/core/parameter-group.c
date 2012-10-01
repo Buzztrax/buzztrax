@@ -22,6 +22,9 @@
  *
  * A group of parameters, such as used in machines or wires. Once created the
  * group will not change.
+ *
+ * The function bt_parameter_group_controller_change_value() can be used to
+ * manage the parameter automation for each parameter. 
  */
 
 /* FIXME(ensonic): consider to have a BtParameter struct and merge 7 arrays into
@@ -650,7 +653,7 @@ controller_rem_value (GstInterpolationControlSource * cs,
  * @timestamp: the time stamp of the change
  * @value: the new value or %NULL to unset a previous one
  *
- * Depending on whether the given value is NULL, sets or unsets the controller
+ * Depending on whether the given value is %NULL, sets or unsets the controller
  * value for the specified param and at the given time.
  * If @timestamp is 0 and @value is %NULL it set a default value for the start
  * of the controller sequence, taken from the current value of the parameter.
