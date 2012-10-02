@@ -82,7 +82,7 @@ struct _BtWirePrivate
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
   /* used to signal failed instance creation */
-  GError **constrution_error;
+  GError **construction_error;
 
   /* (ui) properties accociated with this machine */
   GHashTable *properties;
@@ -270,7 +270,8 @@ bt_wire_init_params (const BtWire * const self)
     parents[1] = (GObject *) self->priv->machines[PART_PAN];
   }
   self->priv->param_group =
-      bt_parameter_group_new (self->priv->num_params, parents, params);
+      bt_parameter_group_new (self->priv->num_params, parents, params,
+      self->priv->song, self->priv->dst);
 }
 
 /*
@@ -1199,6 +1200,8 @@ bt_wire_constructed (GObject * object)
     goto SinkIsSrcMachineError;
   if (self->priv->src == self->priv->dst)
     goto SrcIsSinkError;
+  if (!self->priv->song)
+    goto NoSongError;
 
   GST_INFO ("wire constructor, self->priv=%p, between %p and %p", self->priv,
       self->priv->src, self->priv->dst);
@@ -1216,36 +1219,43 @@ bt_wire_constructed (GObject * object)
   return;
 ConnectError:
   GST_WARNING ("failed to connect wire");
-  if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+  if (self->priv->construction_error) {
+    g_set_error (self->priv->construction_error, error_domain,  /* errorcode= */
         0, "failed to connect wire.");
   }
   return;
 SrcIsSinkMachineError:
   GST_WARNING ("src is sink-machine");
-  if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+  if (self->priv->construction_error) {
+    g_set_error (self->priv->construction_error, error_domain,  /* errorcode= */
         0, "src is sink-machine.");
   }
   return;
 SinkIsSrcMachineError:
   GST_WARNING ("sink is src-machine");
-  if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+  if (self->priv->construction_error) {
+    g_set_error (self->priv->construction_error, error_domain,  /* errorcode= */
         0, "sink is src-machine.");
   }
   return;
 SrcIsSinkError:
   GST_WARNING ("src and sink are the same machine");
-  if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+  if (self->priv->construction_error) {
+    g_set_error (self->priv->construction_error, error_domain,  /* errorcode= */
         0, "src and sink are the same machine.");
   }
   return;
 NoMachinesError:
   GST_WARNING ("src and/or sink are NULL");
-  if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+  if (self->priv->construction_error) {
+    g_set_error (self->priv->construction_error, error_domain,  /* errorcode= */
+        0, "src=%p and/or sink=%p are NULL.", self->priv->src, self->priv->dst);
+  }
+  return;
+NoSongError:
+  GST_WARNING ("song is NULL");
+  if (self->priv->construction_error) {
+    g_set_error (self->priv->construction_error, error_domain,  /* errorcode= */
         0, "src=%p and/or sink=%p are NULL.", self->priv->src, self->priv->dst);
   }
   return;
@@ -1259,7 +1269,7 @@ bt_wire_get_property (GObject * const object, const guint property_id,
   return_if_disposed ();
   switch (property_id) {
     case WIRE_CONSTRUCTION_ERROR:{
-      g_value_set_pointer (value, self->priv->constrution_error);
+      g_value_set_pointer (value, self->priv->construction_error);
     }
       break;
     case WIRE_PROPERTIES:{
@@ -1309,7 +1319,7 @@ bt_wire_set_property (GObject * const object, const guint property_id,
   return_if_disposed ();
   switch (property_id) {
     case WIRE_CONSTRUCTION_ERROR:{
-      self->priv->constrution_error = (GError **) g_value_get_pointer (value);
+      self->priv->construction_error = (GError **) g_value_get_pointer (value);
     }
       break;
     case WIRE_SONG:{

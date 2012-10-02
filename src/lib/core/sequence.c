@@ -22,20 +22,11 @@
  *
  * A sequence holds grid of #BtCmdPatterns, with labels on the time axis and
  * #BtMachine instances on the track axis. It tracks first and last use of
- * patterns and provides two signals for notification - 
+ * patterns and provides two signals for notification -
  * #BtSequence::pattern-added and #BtSequence::pattern-removed.
- * 
+ *
  * It supports looping a section of the sequence (see #BtSequence:loop,
  * #BtSequence:loop-start, #BtSequence:loop-end).
- *
- * The #BtSequence manages the #GstController event queues for the #BtMachines
- * and #BtWires.
- * It uses a damage-repair based two phase algorithm to update the controller
- * queues whenever patterns or the sequence changes. For that it watches data
- * changes on patterns (through signal handler). When such changes happen it
- * computes the invalid regions on the time axis.
- * In the 2nd step bt_sequence_repair_damage() will update the event queues for
- * all the invalidated time-regions and affected parameters.
  */
 /* TODO(ensonic): introduce a BtTrack object
  * - the sequence will have a array of tracks
@@ -147,17 +138,6 @@ struct _BtSequencePrivate
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
-//-- prototypes
-
-static void bt_sequence_on_pattern_param_changed (const BtPattern *
-    const pattern, BtParameterGroup * param_group, const gulong tick,
-    const gulong param, gconstpointer user_data);
-static void bt_sequence_on_pattern_group_changed (const BtPattern *
-    const pattern, BtParameterGroup * param_group, const gboolean intermediate,
-    gconstpointer user_data);
-static void bt_sequence_on_pattern_changed (const BtPattern * const pattern,
-    const gboolean intermediate, gconstpointer user_data);
-
 //-- the class
 
 static void bt_sequence_persistence_interface_init (gpointer const g_iface,
@@ -233,15 +213,6 @@ bt_sequence_use_pattern (const BtSequence * const self,
     g_object_ref (pattern);
 
     GST_DEBUG ("first use of pattern %p", pattern);
-
-    // attach a signal handlers
-    g_signal_connect (pattern, "param-changed",
-        G_CALLBACK (bt_sequence_on_pattern_param_changed), (gpointer) self);
-    g_signal_connect (pattern, "group-changed",
-        G_CALLBACK (bt_sequence_on_pattern_group_changed), (gpointer) self);
-    g_signal_connect (pattern, "pattern-changed",
-        G_CALLBACK (bt_sequence_on_pattern_changed), (gpointer) self);
-
     g_signal_emit ((gpointer) self, signals[PATTERN_ADDED_EVENT], 0, pattern);
   }
 }
@@ -262,14 +233,6 @@ bt_sequence_unuse_pattern (const BtSequence * const self,
   count = bt_sequence_get_number_of_pattern_uses (self, pattern);
   // check if this is the last usage
   if (count == 1) {
-    // detach a signal handlers
-    g_signal_handlers_disconnect_matched (pattern, G_SIGNAL_MATCH_FUNC, 0, 0,
-        NULL, bt_sequence_on_pattern_param_changed, NULL);
-    g_signal_handlers_disconnect_matched (pattern, G_SIGNAL_MATCH_FUNC, 0, 0,
-        NULL, bt_sequence_on_pattern_group_changed, NULL);
-    g_signal_handlers_disconnect_matched (pattern, G_SIGNAL_MATCH_FUNC, 0, 0,
-        NULL, bt_sequence_on_pattern_changed, NULL);
-
     g_signal_emit ((gpointer) self, signals[PATTERN_REMOVED_EVENT], 0, pattern);
     // release the shared ref
     g_object_unref (pattern);
@@ -469,307 +432,6 @@ bt_sequence_limit_play_pos_internal (const BtSequence * const self)
   }
 }
 
-static GHashTable *
-bt_sequence_get_damage_ctx_for_machine (GHashTable * dctx,
-    const BtMachine * const machine)
-{
-  GHashTable *mctx = g_hash_table_lookup (dctx, (gpointer) machine);
-  if (!mctx) {
-    GST_LOG_OBJECT (machine, "create damage ctx for machine");
-    mctx =
-        g_hash_table_new_full (NULL, NULL, NULL,
-        (GDestroyNotify) g_hash_table_destroy);
-    g_hash_table_insert (dctx, (gpointer) machine, mctx);
-  }
-  return (mctx);
-}
-
-static GHashTable *
-bt_sequence_get_damage_ctx_for_time (GHashTable * mctx, const gulong time)
-{
-  GHashTable *tctx = g_hash_table_lookup (mctx, GUINT_TO_POINTER (time));
-  if (!tctx) {
-    GST_LOG ("create damage ctx for time %5lu", time);
-    tctx = g_hash_table_new (NULL, NULL);
-    g_hash_table_insert (mctx, GUINT_TO_POINTER (time), tctx);
-  }
-  return (tctx);
-}
-
-static void
-bt_sequence_invalidate_pattern_group (const BtSequence * const self,
-    BtMachine * machine, BtParameterGroup * pg, BtValueGroup * vg, gulong is,
-    gulong ie, gulong time)
-{
-  gulong i, j, num_params;
-  GHashTable *mctx =
-      bt_sequence_get_damage_ctx_for_machine (self->priv->damage, machine);
-
-  g_object_get (pg, "num-params", &num_params, NULL);
-
-  GST_LOG
-      ("invalidate pg %p, vg %p for tick=%5lu + %3lu ... %3lu, num-params=%lu",
-      pg, vg, time, is, ie, num_params);
-
-  for (i = is; i < ie; i++) {
-    GHashTable *tctx = bt_sequence_get_damage_ctx_for_time (mctx, time + i);
-    GSList *params = g_hash_table_lookup (tctx, pg);
-    // check group params
-    for (j = 0; j < num_params; j++) {
-      // mark region covered by change as damaged
-      if (bt_value_group_test_event (vg, i, j)) {
-        params = g_slist_prepend (params, GUINT_TO_POINTER (j));
-      }
-    }
-    g_hash_table_insert (tctx, pg, params);
-  }
-}
-
-static BtPattern *
-bt_sequence_lookup_other_pattern (const BtSequence * const self,
-    const gulong track, gulong time, gulong * other_pattern_time,
-    gulong * _damage_length)
-{
-  gulong damage_length = *_damage_length;
-  const gulong sequence_length = self->priv->length;
-  const gulong pattern_length = damage_length;
-  gulong i, j;
-  BtPattern *other_pattern = NULL;
-
-  // check if from time-1 to 0 a pattern starts with a length that would reach
-  // over this pattern and if so expand damage_length
-  if (time > 0) {
-    gulong other_pattern_length;
-    BtCmdPattern *other_cmd_pattern;
-
-    // for long sequences we could speedup by knowing the max-pattern-length per machine
-    for (i = time, j = time - 1; i > 0; i--, j--) {
-      if ((other_cmd_pattern =
-              bt_sequence_get_pattern_unchecked (self, j, track))) {
-        *other_pattern_time = j;
-        if (BT_IS_PATTERN (other_cmd_pattern)) {
-          other_pattern = (BtPattern *) other_cmd_pattern;
-          g_object_get (other_pattern, "length", &other_pattern_length, NULL);
-          if (j + other_pattern_length > time + damage_length) {
-            damage_length = (j + other_pattern_length) - time;
-          } else {
-            // we don't need to check other_pattern for needed repairs
-            other_pattern = NULL;
-          }
-        }
-        break;
-      }
-    }
-  }
-  // result: damage_length, other_pattern
-
-  // check if from time+1 to time+pattern_length another pattern starts (in this track)
-  // and if so truncate damage_length
-  for (i = 1; ((i < pattern_length) && (time + i < sequence_length)); i++) {
-    if (bt_sequence_test_pattern (self, time + i, track)) {
-      damage_length = i;
-      if (damage_length <= pattern_length) {
-        // we don't need to check other_pattern for needed repairs
-        other_pattern = NULL;
-      }
-      break;
-    }
-  }
-  *_damage_length = damage_length;
-  return (other_pattern);
-}
-
-static void
-bt_sequence_invalidate_pattern_group_region (const BtSequence * const self,
-    const gulong time, const gulong track, const BtPattern * const pattern,
-    BtParameterGroup * param_group)
-{
-  BtPattern *other_pattern = NULL;
-  BtValueGroup *vg;
-  BtMachine *machine;
-  gulong pattern_length, damage_length, other_pattern_time = 0;
-  gulong start = 0, length;
-
-  g_object_get ((gpointer) pattern, "length", &pattern_length, "machine",
-      &machine, NULL);
-
-  // check if there is overlap
-  damage_length = pattern_length;
-  other_pattern =
-      bt_sequence_lookup_other_pattern (self, track, time, &other_pattern_time,
-      &damage_length);
-  length = MIN (pattern_length, damage_length);
-  if (other_pattern) {
-    // we also need to repair the overlapping region
-    start = time - other_pattern_time;
-  }
-
-  GST_LOG ("doing repair: p: 0 .. %lu, %s: %lu .. %lu",
-      length, (other_pattern ? "op" : "--"), start, damage_length);
-
-  vg = bt_pattern_get_group_by_parameter_group (pattern, param_group);
-  bt_sequence_invalidate_pattern_group (self, machine, param_group, vg, 0,
-      length, time);
-  if (other_pattern) {
-    vg = bt_pattern_get_group_by_parameter_group (other_pattern, param_group);
-    bt_sequence_invalidate_pattern_group (self, machine, param_group, vg, start,
-        start + length, time - start);
-  }
-}
-
-/*
- * bt_sequence_invalidate_pattern_region:
- * @self: the sequence that hold the patterns
- * @time: the sequence time-offset of the pattern
- * @track: the track of the pattern
- * @pattern: the pattern that has been added or removed
- *
- * Calculates the damage region for the given pattern and location in the 
- * sequence. Adds the region to the repair-queue.
- * To determine the region we need to check patterns before and after this
- * pattern to handle truncation.
- */
-static void
-bt_sequence_invalidate_pattern_region (const BtSequence * const self,
-    const gulong time, const gulong track,
-    const BtCmdPattern * const cmd_pattern)
-{
-  BtPattern *pattern = NULL, *other_pattern = NULL;
-  BtParameterGroup *pg;
-  BtValueGroup *vg;
-  BtMachine *machine;
-  GList *node;
-  gulong k;
-  gulong pattern_length, damage_length, other_pattern_time = 0;
-  gulong voices;
-  gulong start = 0, length;
-
-  GST_DEBUG ("invalidate pattern %p region for tick=%5lu, track=%3lu",
-      cmd_pattern, time, track);
-  /* TODO(ensonic): if we load a song and thus set a lot of patterns, this is called a
-   * lot. While doing this, there are a few thing that don't change. If we set
-   * 100 patterns for one machine, we query, the machine, its parameters and its
-   * list of incoming wires (and its pattern) again and again.
-   *
-   * It also involves a lot of creating and destoying of hashtables
-   */
-
-  /* determine region of change
-   * pos track1 d1  track2   d2  track3   d3  track4   d4
-   *   0                         + p2 +       + p2 +    
-   *   1                         |    |       |    |    
-   *   2                         | + p1 + #   | + p1 + #
-   *   3                         | |    | #   | |    | #
-   *   4 + p1 + #     + p1 + #   | |    | #   | |    | #
-   *   5 |    | #     |    | #   | +----+ #   | +----+ #
-   *   6 |    | #   + p2 + |     |    |   #   | + p3 +
-   *   7 +----+ #   |    |-+     +----+   #   : |    |
-   *   8            :    :                    : :    :    
-   *
-   * damage regions
-   * track1(t=4,dl=4): 4...7
-   *   p1  (t=4, l=4): 0...3
-   * track2(t=4,dl=2): 4...5
-   *   p1  (t=4, l=4): 0...1
-   *   p2  (t=6, l=-): -----
-   * track3(t=2,dl=6): 2...7 
-   *   p1  (t=2, l=4): 0...3
-   *   p2  (t=0, l=8): 2...7
-   * track4(t=2,dl=4): 2...5
-   *   p1  (t=2, l=4): 0...3
-   *   p2  (t=0, l=-): -----
-   *   p3  (t=6, l=-): -----
-   *
-   * the global damage region is time pos of new pattern + damage-length. The
-   * pattern below new pattern is never repaired (it truncates). The pattern
-   * above is only involved if it would have enlarged the region (track 3,4):
-   *   pattern      :0 ... MIN(pattern_length,damage_length)
-   *   other_pattern:(p1.t+p1+l)-p2.t ... damage_length
-   *
-   * If pattern is a command, pattern_length=0.
-   */
-  if (BT_IS_PATTERN (cmd_pattern)) {
-    pattern = (BtPattern *) cmd_pattern;
-    g_object_get ((gpointer) pattern, "length", &pattern_length, "machine",
-        &machine, NULL);
-    if (G_UNLIKELY (!pattern_length)) {
-      g_object_unref (machine);
-      GST_WARNING ("pattern has length 0");
-      return;
-    }
-  } else {
-    g_object_get ((gpointer) cmd_pattern, "machine", &machine, NULL);
-    pattern_length = 0;
-  }
-  g_assert (machine);
-  g_object_get (machine, "voices", &voices, NULL);
-
-  // check if there is overlap
-  damage_length = pattern_length;
-  other_pattern =
-      bt_sequence_lookup_other_pattern (self, track, time, &other_pattern_time,
-      &damage_length);
-  length = MIN (pattern_length, damage_length);
-  if (other_pattern) {
-    // we also need to repair the overlapping region
-    start = time - other_pattern_time;
-  }
-
-  GST_LOG ("doing repair: p: 0 .. %lu @ %lu, %s: %lu .. %lu @ %lu",
-      length, time,
-      (other_pattern ? "op" : "--"), start, start + length, time - start);
-
-  if (length) {
-    // mark region covered by new pattern as damaged
-    // check wires
-    GST_LOG ("wire-groups");
-    for (node = machine->dst_wires; node; node = g_list_next (node)) {
-      pg = bt_wire_get_param_group (node->data);
-      if (pattern) {
-        vg = bt_pattern_get_group_by_parameter_group (pattern, pg);
-        bt_sequence_invalidate_pattern_group (self, machine, pg, vg, 0, length,
-            time);
-      }
-      if (other_pattern) {
-        vg = bt_pattern_get_group_by_parameter_group (other_pattern, pg);
-        bt_sequence_invalidate_pattern_group (self, machine, pg, vg, start,
-            start + length, time - start);
-      }
-    }
-    // check global params
-    GST_LOG ("global-group");
-    pg = bt_machine_get_global_param_group (machine);
-    if (pattern) {
-      vg = bt_pattern_get_group_by_parameter_group (pattern, pg);
-      bt_sequence_invalidate_pattern_group (self, machine, pg, vg, 0, length,
-          time);
-    }
-    if (other_pattern) {
-      vg = bt_pattern_get_group_by_parameter_group (other_pattern, pg);
-      bt_sequence_invalidate_pattern_group (self, machine, pg, vg, start,
-          start + length, time - start);
-    }
-    // check voices
-    GST_LOG ("voice-groups");
-    for (k = 0; k < voices; k++) {
-      // check voice params
-      pg = bt_machine_get_voice_param_group (machine, k);
-      if (pattern) {
-        vg = bt_pattern_get_group_by_parameter_group (pattern, pg);
-        bt_sequence_invalidate_pattern_group (self, machine, pg, vg, 0, length,
-            time);
-      }
-      if (other_pattern) {
-        vg = bt_pattern_get_group_by_parameter_group (other_pattern, pg);
-        bt_sequence_invalidate_pattern_group (self, machine, pg, vg, start,
-            start + length, time - start);
-      }
-    }
-  }
-  g_object_unref (machine);
-  GST_DEBUG ("done");
-}
-
 /*
  * bt_sequence_get_tick_time:
  * @self: the #BtSequence of the song
@@ -791,90 +453,6 @@ bt_sequence_get_tick_time (const BtSequence * const self, const gulong tick)
       gst_util_uint64_scale (samples, GST_SECOND, (guint64) sample_rate);
 #endif
   return (timestamp);
-}
-
-static void
-bt_sequence_lookup_patterns_for_tick (const BtSequence * const self,
-    BtMachine * machine, gulong track, gulong tick, BtPattern ** patterns,
-    gulong * positions)
-{
-  const gulong tracks = self->priv->tracks;
-  BtMachine **machines = self->priv->machines;
-  gint p = 0;
-  glong i, l;
-  BtCmdPattern *pattern;
-
-  for (i = track; i < tracks; i++) {
-    // track uses the same machine
-    if (machines[i] == machine) {
-      // go from tick position upwards to find pattern for track
-      pattern = NULL;
-      for (l = tick; l >= 0; l--) {
-        if ((pattern = bt_sequence_get_pattern_unchecked (self, l, i)))
-          break;
-      }
-      if (BT_IS_PATTERN (pattern)) {
-        gulong length, pos = tick - l;
-
-        g_object_get (pattern, "length", &length, NULL);
-        if (pos < length) {
-          patterns[p] = (BtPattern *) pattern;
-          positions[p] = pos;
-          p++;
-        }
-      }
-    }
-  }
-  patterns[p] = NULL;
-}
-
-typedef struct _RepairDamageEntriesData
-{
-  BtPattern **patterns;
-  gulong *positions;
-  GstClockTime timestamp;
-} RepairDamageEntriesData;
-
-/*
- * bt_sequence_repair_damage_entries:
- *
- * Loop over dirty parameters of a group, lookup the parameter value that needs
- * to become effective for the given time and update the controller.
- */
-static gboolean
-bt_sequence_repair_damage_entries (gpointer key, gpointer value,
-    gpointer user_data)
-{
-  BtParameterGroup *pg = BT_PARAMETER_GROUP (key);
-  GSList *node = (GSList *) value;
-  RepairDamageEntriesData *hash_params = (RepairDamageEntriesData *) user_data;
-  BtPattern **patterns = hash_params->patterns;
-  gulong *positions = hash_params->positions;
-  const GstClockTime timestamp = hash_params->timestamp;
-
-  GST_LOG ("repair damage for param-group %p", pg);
-
-  for (; node; node = g_slist_next (node)) {
-    gint i = 0;
-    guint p = GPOINTER_TO_UINT (node->data);
-    BtValueGroup *vg;
-    GValue *res = NULL, *cur;
-
-    GST_LOG ("repair damage for param %u", p);
-
-    while (patterns[i]) {
-      vg = bt_pattern_get_group_by_parameter_group (patterns[i], pg);
-      // get value at tick position or NULL
-      if ((cur = bt_value_group_get_event_data (vg, positions[i], p))
-          && G_IS_VALUE (cur)) {
-        res = cur;
-      }
-      i++;
-    }
-    bt_parameter_group_controller_change_value (pg, p, timestamp, res);
-  }
-  g_slist_free (value);
-  return (TRUE);
 }
 
 static void
@@ -911,134 +489,6 @@ bt_sequence_calculate_wait_per_position (const BtSequence * const self)
 
 //-- event handler
 
-static void
-bt_sequence_on_pattern_param_changed (const BtPattern * const pattern,
-    BtParameterGroup * param_group, const gulong tick, const gulong param,
-    gconstpointer user_data)
-{
-  const BtSequence *const self = BT_SEQUENCE (user_data);
-  const gulong tracks = self->priv->tracks;
-  const gulong length = self->priv->length;
-  BtMachine *machine;
-  gulong i, j, k;
-  GHashTable *mctx;
-
-  g_object_get ((gpointer) pattern, "machine", &machine, NULL);
-  mctx = bt_sequence_get_damage_ctx_for_machine (self->priv->damage, machine);
-
-  GST_LOG_OBJECT (machine,
-      "pattern parameter %5lu for pg %p at tick %5lu changed", param,
-      param_group, tick);
-
-  // for all occurrences of pattern
-  for (i = 0; i < tracks; i++) {
-    BtMachine *const that_machine = bt_sequence_get_machine_unchecked (self, i);
-    if (that_machine == machine) {
-      for (j = 0; j < length; j++) {
-        BtCmdPattern *const that_pattern =
-            bt_sequence_get_pattern_unchecked (self, j, i);
-        if (that_pattern == (BtCmdPattern *) pattern) {
-          // check if pattern plays long enough for the damage to happen
-          for (k = 1; ((k < tick) && (j + k < length)); k++) {
-            if (bt_sequence_test_pattern (self, j + k, i))
-              break;
-          }
-          // for tick==0 we always invalidate
-          if (!tick || k == tick) {
-            GHashTable *tctx =
-                bt_sequence_get_damage_ctx_for_time (mctx, j + tick);
-            GSList *params =
-                g_slist_prepend (g_hash_table_lookup (tctx, param_group),
-                GUINT_TO_POINTER (param));
-            g_hash_table_insert (tctx, param_group, params);
-          }
-        }
-      }
-    }
-  }
-  // repair damage
-  bt_sequence_repair_damage (self);
-
-  g_object_unref (machine);
-}
-
-static void
-bt_sequence_on_pattern_group_changed (const BtPattern * const pattern,
-    BtParameterGroup * param_group, const gboolean intermediate,
-    gconstpointer user_data)
-{
-  const BtSequence *const self = BT_SEQUENCE (user_data);
-  const gulong tracks = self->priv->tracks;
-  const gulong length = self->priv->length;
-  BtMachine *machine;
-  gulong i, j;
-
-  GST_DEBUG ("repair damage after a pattern %p has been changed", pattern);
-  g_object_get ((gpointer) pattern, "machine", &machine, NULL);
-
-  // for all tracks
-  for (i = 0; i < tracks; i++) {
-    BtMachine *const that_machine = bt_sequence_get_machine_unchecked (self, i);
-    // does the track belong to the given machine?
-    if (that_machine == machine) {
-      // for all occurrence of pattern
-      for (j = 0; j < length; j++) {
-        BtCmdPattern *const that_pattern =
-            bt_sequence_get_pattern_unchecked (self, j, i);
-        if (that_pattern == (BtCmdPattern *) pattern) {
-          // mark region covered by change as damaged
-          bt_sequence_invalidate_pattern_group_region (self, j, i, pattern,
-              param_group);
-        }
-      }
-    }
-  }
-  g_object_unref (machine);
-  if (!intermediate) {
-    // repair damage
-    bt_sequence_repair_damage (self);
-  }
-  GST_DEBUG ("Done");
-}
-
-static void
-bt_sequence_on_pattern_changed (const BtPattern * const pattern,
-    const gboolean intermediate, gconstpointer user_data)
-{
-  const BtSequence *const self = BT_SEQUENCE (user_data);
-  const gulong tracks = self->priv->tracks;
-  const gulong length = self->priv->length;
-  BtMachine *machine;
-  gulong i, j;
-
-  GST_DEBUG ("repair damage after a pattern %p has been changed", pattern);
-  g_object_get ((gpointer) pattern, "machine", &machine, NULL);
-
-  // for all tracks
-  for (i = 0; i < tracks; i++) {
-    BtMachine *const that_machine = bt_sequence_get_machine_unchecked (self, i);
-    // does the track belong to the given machine?
-    if (that_machine == machine) {
-      // for all occurrence of pattern
-      for (j = 0; j < length; j++) {
-        BtCmdPattern *const that_pattern =
-            bt_sequence_get_pattern_unchecked (self, j, i);
-        if (that_pattern == (BtCmdPattern *) pattern) {
-          // mark region covered by change as damaged
-          bt_sequence_invalidate_pattern_region (self, j, i,
-              (BtCmdPattern *) pattern);
-        }
-      }
-    }
-  }
-  g_object_unref (machine);
-  if (!intermediate) {
-    // repair damage
-    bt_sequence_repair_damage (self);
-  }
-  GST_DEBUG ("Done");
-}
-
 //-- helper methods
 
 //-- constructor methods
@@ -1059,64 +509,6 @@ bt_sequence_new (const BtSong * const song)
 }
 
 //-- methods
-
-/**
- * bt_sequence_repair_damage:
- * @self: the #BtSequence
- *
- * Works through the repair queue and rebuilds controller queues, where needed.
- *
- * There is usualy no need to call that manualy. Only call after soing mass
- * updates using bt_sequence_set_pattern_quick() functions.
- *
- * Since: 0.5
- */
-void
-bt_sequence_repair_damage (const BtSequence * const self)
-{
-  const gulong tracks = self->priv->tracks;
-  const gulong length = self->priv->length;
-  gulong i, j;
-  BtMachine *machine;
-  BtPattern *patterns[tracks + 1];
-  gulong positions[tracks + 1];
-  GHashTable *damage = self->priv->damage, *hash, *time_hash;
-  RepairDamageEntriesData hash_params;
-
-  GST_DEBUG ("repair damage");
-
-  hash_params.patterns = patterns;
-  hash_params.positions = positions;
-
-  // repair damage
-  // for each machine (in order of first occurrence in tracks)
-  for (i = 0; i < tracks; i++) {
-    if ((machine = bt_sequence_get_machine_unchecked (self, i))) {
-      GST_DEBUG ("check damage for track %lu", i);
-      if ((hash = g_hash_table_lookup (damage, machine))) {
-        GST_DEBUG ("repair damage for track %lu", i);
-
-        for (j = 0; j < length; j++) {
-          if ((time_hash = g_hash_table_lookup (hash, GUINT_TO_POINTER (j)))) {
-            GST_LOG ("repair damage for time %lu", j);
-
-            // find all patterns with tick-offsets that are intersected by the tick of the damage
-            bt_sequence_lookup_patterns_for_tick (self, machine, i, j, patterns,
-                positions);
-
-            // now we have a list of params in time_hash[param_group]
-            hash_params.timestamp = bt_sequence_get_tick_time (self, j);
-            g_hash_table_foreach_remove (time_hash,
-                bt_sequence_repair_damage_entries, &hash_params);
-
-            g_hash_table_remove (hash, GUINT_TO_POINTER (j));
-          }
-        }
-        g_hash_table_remove (damage, machine);
-      }
-    }
-  }
-}
 
 /**
  * bt_sequence_get_track_by_machine:
@@ -1536,8 +928,6 @@ bt_sequence_set_pattern_quick (const BtSequence * const self, const gulong time,
   if (old_pattern) {
     bt_sequence_unuse_pattern (self, old_pattern);
 
-    // mark region covered by old pattern as damaged
-    bt_sequence_invalidate_pattern_region (self, time, track, old_pattern);
     changed = TRUE;
     self->priv->patterns[index] = NULL;
   }
@@ -1546,8 +936,6 @@ bt_sequence_set_pattern_quick (const BtSequence * const self, const gulong time,
     // enter the new pattern
     self->priv->patterns[index] = g_object_ref ((gpointer) pattern);
     //g_object_add_weak_pointer((gpointer)pattern,(gpointer *)(&self->priv->patterns[index]));
-    // mark region covered by new pattern as damaged
-    bt_sequence_invalidate_pattern_region (self, time, track, pattern);
     changed = TRUE;
   }
   g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
@@ -1574,10 +962,8 @@ bt_sequence_set_pattern (const BtSequence * const self, const gulong time,
   g_return_if_fail (track < self->priv->tracks);
   g_return_if_fail (self->priv->machines[track]);
 
-  if (bt_sequence_set_pattern_quick (self, time, track, pattern)) {
-    // repair damage
-    bt_sequence_repair_damage (self);
-  }
+  bt_sequence_set_pattern_quick (self, time, track, pattern);
+//TODO(ensonic): change bt_sequence_set_pattern_quick() to bt_sequence_set_pattern_unchecked
 }
 
 /**
@@ -1707,12 +1093,6 @@ insert_rows (const BtSequence * const self, const gulong time,
   }
   /* copy patterns and move upwards */
   for (i = (length - 1); i >= (time + rows); i--) {
-    if (*src) {
-      bt_sequence_invalidate_pattern_region (self, i - rows, track, *src);
-      bt_sequence_invalidate_pattern_region (self, i, track, *src);
-    }
-    if (*dst)
-      bt_sequence_invalidate_pattern_region (self, i, track, *dst);
     *dst = *src;
     *src = NULL;
     src -= tracks;
@@ -1743,7 +1123,6 @@ bt_sequence_insert_rows (const BtSequence * const self, const gulong time,
 
   if (track > -1) {
     insert_rows (self, time, track, rows);
-    bt_sequence_repair_damage (self);
   } else {
     gulong j = 0;
     gchar **const labels = self->priv->labels;
@@ -1797,7 +1176,6 @@ bt_sequence_insert_full_rows (const BtSequence * const self, const gulong time,
   for (j = 0; j < tracks; j++) {
     insert_rows (self, time, j, rows);
   }
-  bt_sequence_repair_damage (self);
   g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
       length + rows);
 }
@@ -1850,12 +1228,6 @@ delete_rows (const BtSequence * const self, const gulong time,
   }
   /* copy patterns and move downwards */
   for (i = time; i < (length - rows); i++) {
-    if (*src) {
-      bt_sequence_invalidate_pattern_region (self, i, track, *src);
-      bt_sequence_invalidate_pattern_region (self, i + rows, track, *src);
-    }
-    if (*dst)
-      bt_sequence_invalidate_pattern_region (self, i, track, *dst);
     *dst = *src;
     //*src=NULL;
     src += tracks;
@@ -1890,7 +1262,6 @@ bt_sequence_delete_rows (const BtSequence * const self, const gulong time,
 
   if (track > -1) {
     delete_rows (self, time, track, rows);
-    bt_sequence_repair_damage (self);
   } else {
     gulong j = 0;
     gchar **const labels = self->priv->labels;
@@ -1948,7 +1319,6 @@ bt_sequence_delete_full_rows (const BtSequence * const self, const gulong time,
   // don't make it shorter because of loop-end ?
   g_object_set ((gpointer) self, "length", length - rows, NULL);
 
-  bt_sequence_repair_damage (self);
   g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
       length - rows);
 }
@@ -1962,26 +1332,7 @@ bt_sequence_delete_full_rows (const BtSequence * const self, const gulong time,
 void
 bt_sequence_update_tempo (const BtSequence * const self)
 {
-  g_return_if_fail (BT_IS_SEQUENCE (self));
-
-  const gulong tracks = self->priv->tracks;
-  const gulong length = self->priv->length;
-  BtCmdPattern **pattern = self->priv->patterns;
-  gulong i, j;
-
-  GST_INFO ("updating gst-controller queues");
-  bt_sequence_calculate_wait_per_position (self);
-
-  /* TODO(ensonic): this is very slow */
-  for (i = 0; i < length; i++) {
-    for (j = 0; j < tracks; j++) {
-      if (*pattern) {
-        bt_sequence_invalidate_pattern_region (self, i, j, *pattern);
-      }
-      pattern++;
-    }
-  }
-  bt_sequence_repair_damage (self);
+  /* TODO(ensonic): remove or update play-pos if we're playing */
 }
 
 //-- io interface
@@ -2083,7 +1434,6 @@ bt_sequence_persistence_load (const GType type,
 {
   BtSequence *const self = BT_SEQUENCE (persistence);
   xmlNodePtr child_node, child_node2;
-  gboolean sequence_changed = FALSE;
 
   GST_DEBUG ("PERSISTENCE::sequence");
   g_assert (node);
@@ -2170,8 +1520,7 @@ bt_sequence_persistence_load (const GType type,
                           (gchar *) pattern_id);
                       if (pattern) {
                         // this refs the pattern
-                        sequence_changed |=
-                            bt_sequence_set_pattern_quick (self,
+                        bt_sequence_set_pattern_quick (self,
                             atol ((char *) time_str), index, pattern);
                         g_object_unref (pattern);
                       } else {
@@ -2200,11 +1549,6 @@ bt_sequence_persistence_load (const GType type,
         bt_persistence_load_hashtable (self->priv->properties, node);
       }
     }
-  }
-
-  if (sequence_changed) {
-    // repair damage
-    bt_sequence_repair_damage (self);
   }
 
   return (BT_PERSISTENCE (persistence));

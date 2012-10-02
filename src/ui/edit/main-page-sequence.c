@@ -3430,8 +3430,6 @@ on_pattern_removed (BtMachine * machine, BtPattern * pattern,
       track++;
     }
     bt_change_log_end_group (self->priv->change_log);
-    bt_sequence_repair_damage (sequence);
-
     g_free (mid);
     g_free (pid);
   }
@@ -4031,15 +4029,12 @@ bt_main_page_sequence_delete_selection (const BtMainPageSequence * self)
       GtkTreeIter iter;
 
       if (gtk_tree_model_get_iter (store, &iter, path)) {
-        gboolean sequence_changed = FALSE;
         glong i, j;
 
         for (i = selection_start_row; i <= selection_end_row; i++) {
           for (j = selection_start_column - 1; j < selection_end_column; j++) {
             GST_DEBUG ("  delete sequence cell: %3ld,%3ld", j, i);
-            sequence_changed |=
-                bt_sequence_set_pattern_quick (self->priv->sequence, i, j,
-                NULL);
+            bt_sequence_set_pattern_quick (self->priv->sequence, i, j, NULL);
           }
           if (!gtk_tree_model_iter_next (store, &iter)) {
             if (j < self->priv->selection_end_column) {
@@ -4047,10 +4042,6 @@ bt_main_page_sequence_delete_selection (const BtMainPageSequence * self)
             }
             break;
           }
-        }
-        if (sequence_changed) {
-          // repair damage
-          bt_sequence_repair_damage (self->priv->sequence);
         }
       } else {
         GST_WARNING ("  can't get tree-iter for row %ld", selection_start_row);
@@ -4136,7 +4127,7 @@ bt_main_page_sequence_copy_selection (const BtMainPageSequence * self)
 static gboolean
 sequence_deserialize_pattern_track (BtMainPageSequence * self,
     GtkTreeModel * store, GtkTreePath * path, gchar ** fields, gulong track,
-    gulong row, gboolean * sequence_changed)
+    gulong row)
 {
   gboolean res = TRUE;
   GtkTreeIter iter;
@@ -4171,10 +4162,8 @@ sequence_deserialize_pattern_track (BtMainPageSequence * self,
             pattern = NULL;
             str = NULL;
           }
-          (*sequence_changed) |=
-              bt_sequence_set_pattern_quick (sequence, row, track, pattern);
-          GST_DEBUG ("inserted %s @ %d,%d - changed=%d", str, row, track,
-              sequence_changed);
+          bt_sequence_set_pattern_quick (sequence, row, track, pattern);
+          GST_DEBUG ("inserted %s @ %d,%d", str, row, track);
           g_object_try_unref (pattern);
           g_free (str);
           if (!gtk_tree_model_iter_next (store, &iter)) {
@@ -4283,7 +4272,6 @@ sequence_clipboard_received_func (GtkClipboard * clipboard,
       GtkTreePath *path;
 
       if ((path = gtk_tree_path_new_from_indices (self->priv->cursor_row, -1))) {
-        gboolean sequence_changed = FALSE;
         // process each line (= pattern column)
         while (lines[i] && *lines[i]
             && (self->priv->cursor_row + (i - 1) <= end) && res) {
@@ -4292,8 +4280,7 @@ sequence_clipboard_received_func (GtkClipboard * clipboard,
           if ((self->priv->cursor_column + (i - 2)) >= 0) {
             res =
                 sequence_deserialize_pattern_track (self, store, path, fields,
-                (self->priv->cursor_column + i - 2), self->priv->cursor_row,
-                &sequence_changed);
+                (self->priv->cursor_column + i - 2), self->priv->cursor_row);
           } else if (*fields[0] == ' ') {
             res =
                 sequence_deserialize_label_track (self, store, path, fields,
@@ -4301,10 +4288,6 @@ sequence_clipboard_received_func (GtkClipboard * clipboard,
           }
           g_strfreev (fields);
           i++;
-        }
-        if (sequence_changed) {
-          // repair damage
-          bt_sequence_repair_damage (self->priv->sequence);
         }
         gtk_tree_path_free (path);
       } else {
@@ -4376,16 +4359,11 @@ bt_main_page_sequence_change_logger_change (const BtChangeLogger * owner,
       if ((store = sequence_model_get_store (self))) {
         GtkTreePath *path;
         if ((path = gtk_tree_path_new_from_indices (s_row, -1))) {
-          gboolean sequence_changed = FALSE;
           gchar **fields = g_strsplit_set (str, ",", 0);
 
           res =
               sequence_deserialize_pattern_track (self, store, path, fields,
-              track, s_row, &sequence_changed);
-          if (sequence_changed) {
-            // repair damage
-            bt_sequence_repair_damage (self->priv->sequence);
-          }
+              track, s_row);
           g_strfreev (fields);
           gtk_tree_path_free (path);
         }

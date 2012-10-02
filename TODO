@@ -57,13 +57,8 @@
 
 
 * controller api
-- BtPatternControlSource
-  - the individual instances should be relative lightweight and use a central
-    controller for some global state
-    - we want to pre-cache the tracks for each machine to speed up finding the
-      patterns that apply at a given time
 - 1.0
-  - we might want to allow to attach a controller to a parameter and controll
+  - we might want to allow to attach a controller to a parameter and control
     the controllers parameters in the pattern instead
   - e.g. user attaches LFO to Filter-CutOff, in the pattern he can now edit:
     center-value, depth, shape, freq (controlable values of the controller)

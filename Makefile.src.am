@@ -96,6 +96,7 @@ libbuzztard_core_la_SOURCES = \
 	src/lib/core/machine.c \
 	src/lib/core/parameter-group.c \
 	src/lib/core/pattern.c \
+	src/lib/core/pattern-control-source.c \
 	src/lib/core/persistence.c \
 	src/lib/core/processor-machine.c \
 	src/lib/core/sequence.c \
@@ -133,6 +134,7 @@ libbuzztard_core_HEADERS = \
 	src/lib/core/machine.h \
 	src/lib/core/parameter-group.h \
 	src/lib/core/pattern.h \
+  	src/lib/core/pattern-control-source.h \
 	src/lib/core/persistence.h \
 	src/lib/core/plainfile-settings.h \
 	src/lib/core/processor-machine.h \

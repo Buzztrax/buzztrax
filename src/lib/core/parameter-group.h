@@ -22,6 +22,8 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include "song.h"
+#include "machine.h"
 
 #define BT_TYPE_PARAMETER_GROUP            (bt_parameter_group_get_type ())
 #define BT_PARAMETER_GROUP(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PARAMETER_GROUP, BtParameterGroup))
@@ -43,17 +45,17 @@ typedef struct _BtParameterGroupPrivate BtParameterGroupPrivate;
  */
 struct _BtParameterGroup {
   const GObject parent;
-  
+
   /*< private >*/
   BtParameterGroupPrivate *priv;
 };
 
 struct _BtParameterGroupClass {
   const GObjectClass parent;
-  
+
 };
 
-BtParameterGroup *bt_parameter_group_new(gulong num_params, GObject ** parents, GParamSpec ** params);
+BtParameterGroup *bt_parameter_group_new(gulong num_params, GObject ** parents, GParamSpec ** params, BtSong * song, const BtMachine * machine);
 
 //-- parameter access
 
@@ -75,10 +77,6 @@ void bt_parameter_group_set_param_default(const BtParameterGroup * const self, c
 
 void bt_parameter_group_set_param_value(const BtParameterGroup * const self, const gulong index, GValue * const event);
 gchar *bt_parameter_group_describe_param_value(const BtParameterGroup * const self, const gulong index, GValue * const event);
-
-//-- controller handling
-
-void bt_parameter_group_controller_change_value(const BtParameterGroup * const self, const gulong param, const GstClockTime timestamp, GValue *value);
 
 //-- group changes
 

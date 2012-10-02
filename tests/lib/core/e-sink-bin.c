@@ -23,6 +23,7 @@
 
 static BtApplication *app;
 static BtSong *song;
+static BtSetup *setup;
 static BtSettings *settings;
 static gfloat minv, maxv;
 
@@ -50,6 +51,7 @@ test_setup (void)
   app = bt_test_application_new ();
   settings = bt_settings_make ();
   song = bt_song_new (app);
+  setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   minv = G_MAXFLOAT;
   maxv = -G_MAXFLOAT;
 }
@@ -57,6 +59,7 @@ test_setup (void)
 static void
 test_teardown (void)
 {
+  g_object_unref (setup);
   g_object_checked_unref (song);
   g_object_unref (settings);
   g_object_checked_unref (app);
@@ -78,6 +81,7 @@ make_new_song (gint wave)
   BtMachine *gen =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
+  BtParameterGroup *pg = bt_machine_get_global_param_group (gen);
   BtWire *wire = bt_wire_new (song, gen, sink, NULL);
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 8L, BT_MACHINE (gen));
@@ -88,6 +92,10 @@ make_new_song (gint wave)
   bt_sequence_add_track (sequence, gen, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
   g_object_set (element, "wave", wave, "volume", 1.0, NULL);
+  bt_parameter_group_set_param_default (pg,
+      bt_parameter_group_get_param_index (pg, "wave"));
+  bt_parameter_group_set_param_default (pg,
+      bt_parameter_group_get_param_index (pg, "volume"));
 
   gst_object_unref (element);
   g_object_unref (pattern);
@@ -101,14 +109,12 @@ make_new_song (gint wave)
 static GstElement *
 get_sink_bin (void)
 {
-  BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *machine =
       bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE);
   GstElement *sink_bin =
       GST_ELEMENT (check_gobject_get_object_property (machine, "machine"));
 
   g_object_try_unref (machine);
-  g_object_unref (setup);
 
   return sink_bin;
 }
@@ -345,7 +351,11 @@ test_bt_sink_bin_master_volume (BT_TEST_ARGS)
   gdouble volume = 1.0 / (gdouble) _i;
   g_object_set (settings, "audiosink", "fakesink", NULL);
   make_new_song ( /*square */ 1);
-  GstElement *sink_bin = get_sink_bin ();
+  BtMachine *machine =
+      bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE);
+  GstElement *sink_bin =
+      GST_ELEMENT (check_gobject_get_object_property (machine, "machine"));
+  BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
   gst_element_set_state (sink_bin, GST_STATE_READY);
   GstElement *fakesink = get_sink_element ((GstBin *) sink_bin);
   g_object_set (fakesink, "signal-handoffs", TRUE, NULL);
@@ -353,6 +363,8 @@ test_bt_sink_bin_master_volume (BT_TEST_ARGS)
 
   /* act */
   g_object_set (sink_bin, "master-volume", volume, NULL);
+  bt_parameter_group_set_param_default (pg,
+      bt_parameter_group_get_param_index (pg, "master-volume"));
   bt_song_play (song);
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
 
@@ -364,6 +376,7 @@ test_bt_sink_bin_master_volume (BT_TEST_ARGS)
   /* cleanup */
   bt_song_stop (song);
   gst_object_unref (sink_bin);
+  g_object_try_unref (machine);
   BT_TEST_END;
 }
 

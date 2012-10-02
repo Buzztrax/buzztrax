@@ -130,6 +130,7 @@
       <xi:include href="xml/btmachine.xml" />
       <xi:include href="xml/btparametergroup.xml" />
       <xi:include href="xml/btpattern.xml" />
+      <xi:include href="xml/btpatterncontrolsource.xml" />
       <xi:include href="xml/btprocessormachine.xml" />
       <xi:include href="xml/btsequence.xml" />
       <xi:include href="xml/btsetup.xml" />

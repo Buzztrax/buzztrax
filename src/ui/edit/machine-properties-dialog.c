@@ -691,8 +691,8 @@ bt_machine_update_default_param_value (BtMachine * self,
     /* TODO(ensonic): it should actualy postpone the disable to the next timestamp
      * (not possible right now).
      *
-     * IDEA(ensonic): can we have a livecontrolsource that subclasses interpolationcs
-     * - when enabling, if would need to delay the enabled to the next control-point
+     * IDEA(ensonic): in pattern-cs
+     * - when enabling, it would need to delay the enabled to the next control-point
      * - it would need to peek at the control-point list :/
      */
     gst_controller_set_property_disabled (ctrl, (gchar *) property_name, FALSE);

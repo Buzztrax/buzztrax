@@ -9,6 +9,7 @@ bt_cmd_pattern_get_type
 bt_machine_get_type
 bt_parameter_group_get_type
 bt_pattern_get_type
+bt_pattern_control_source_get_type
 bt_persistence_get_type
 %bt_plainfile_settings_get_type
 bt_processor_machine_get_type

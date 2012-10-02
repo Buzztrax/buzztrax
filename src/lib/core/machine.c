@@ -64,7 +64,7 @@
  * after deactivation (so that they can be easily reactivated) and destroyed with
  * the #BtMachine object.
  *
- * Furthermore the machine handles a list of #BtCmdPattern instances. These 
+ * Furthermore the machine handles a list of #BtCmdPattern instances. These
  * contain event patterns that form a #BtSequence.
  */
 
@@ -777,7 +777,8 @@ bt_machine_resize_voices (const BtMachine * const self, const gulong old_voices)
             }
           }
           self->priv->voice_param_groups[v] =
-              bt_parameter_group_new (voice_params, parents, params);
+              bt_parameter_group_new (voice_params, parents, params,
+              self->priv->song, self);
         }
         g_free (properties);
       } else {
@@ -1268,7 +1269,8 @@ bt_machine_init_prefs_params (const BtMachine * const self)
       }
     }
     self->priv->prefs_param_group =
-        bt_parameter_group_new (self->priv->prefs_params, parents, params);
+        bt_parameter_group_new (self->priv->prefs_params, parents, params,
+        self->priv->song, self);
 
     g_free (properties);
   }
@@ -1342,7 +1344,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       }
     }
     self->priv->global_param_group =
-        bt_parameter_group_new (self->priv->global_params, parents, params);
+        bt_parameter_group_new (self->priv->global_params, parents, params,
+        self->priv->song, self);
 
     g_free (properties);
     g_free (child_properties);
@@ -1993,7 +1996,7 @@ bt_machine_is_polyphonic (const BtMachine * const self)
  * @self: the machine
  *
  * Get the parameter group of machine properties. Properties are settings that
- * cannot be changed during playback. 
+ * cannot be changed during playback.
  *
  * Returns: the #BtParameterGroup or %NULL
  */

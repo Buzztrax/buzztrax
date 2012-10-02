@@ -159,7 +159,6 @@ bt_machine_state_get_type
 <FILE>btparametergroup</FILE>
 <TITLE>BtParameterGroup</TITLE>
 BtParameterGroup
-bt_parameter_group_controller_change_value
 bt_parameter_group_describe_param_value
 bt_parameter_group_get_param_details
 bt_parameter_group_get_param_index
@@ -233,6 +232,23 @@ bt_pattern_get_type
 </SECTION>
 
 <SECTION>
+<FILE>btpatterncontrolsource</FILE>
+<TITLE>BtPatternControlSource</TITLE>
+BtPatternControlSource
+bt_pattern_control_source_new
+<SUBSECTION Standard>
+BT_IS_PATTERN_CONTROL_SOURCE
+BT_IS_PATTERN_CONTROL_SOURCE_CLASS
+BT_PATTERN_CONTROL_SOURCE
+BT_PATTERN_CONTROL_SOURCE_CLASS
+BT_PATTERN_CONTROL_SOURCE_GET_CLASS
+BT_TYPE_PATTERN_CONTROL_SOURCE
+BtPatternControlSourceClass
+BtPatternControlSourcePrivate
+bt_pattern_control_source_get_type
+</SECTION>
+
+<SECTION>
 <FILE>btpersistence</FILE>
 <TITLE>BtPersistence</TITLE>
 BtPersistence
@@ -299,7 +315,6 @@ bt_sequence_move_track_right
 bt_sequence_new
 bt_sequence_remove_track_by_ix
 bt_sequence_remove_track_by_machine
-bt_sequence_repair_damage
 bt_sequence_set_label
 bt_sequence_set_pattern
 bt_sequence_set_pattern_quick

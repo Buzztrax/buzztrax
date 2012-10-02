@@ -49,7 +49,7 @@ struct _BtMachine {
   const GstBin parent;
 
   /*< public >*/
-  
+
   /*< read-only >*/
   GList *src_wires;
   GList *dst_wires;
@@ -112,6 +112,7 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self);
 
 #include "parameter-group.h"
 #include "pattern.h"
+#include "pattern-control-source.h"
 #include "wire.h"
 
 //-- pattern handling

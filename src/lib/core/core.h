@@ -55,6 +55,7 @@
 #include "machine.h"
 #include "parameter-group.h"
 #include "pattern.h"
+#include "pattern-control-source.h"
 #include "processor-machine.h"
 #include "sequence.h"
 #include "settings.h"

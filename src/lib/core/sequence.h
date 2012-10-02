@@ -61,8 +61,6 @@ GType bt_sequence_get_type(void) G_GNUC_CONST;
 
 BtSequence *bt_sequence_new(const BtSong * const song);
 
-void bt_sequence_repair_damage(const BtSequence * const self);
-
 glong bt_sequence_get_track_by_machine(const BtSequence * const self,const BtMachine * const machine,gulong track);
 glong bt_sequence_get_tick_by_pattern(const BtSequence * const self,gulong track, const BtCmdPattern * const pattern,gulong tick);
 
@@ -92,6 +90,5 @@ void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, c
 void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong time, const gulong rows);
 
 void bt_sequence_update_tempo(const BtSequence * const self);
-
 
 #endif // BT_SEQUENCE_H

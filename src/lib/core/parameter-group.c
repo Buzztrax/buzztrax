@@ -22,9 +22,6 @@
  *
  * A group of parameters, such as used in machines or wires. Once created the
  * group will not change.
- *
- * The function bt_parameter_group_controller_change_value() can be used to
- * manage the parameter automation for each parameter. 
  */
 
 /* FIXME(ensonic): consider to have a BtParameter struct and merge 7 arrays into
@@ -42,7 +39,9 @@ enum
 {
   PARAMETER_GROUP_NUM_PARAMS = 1,
   PARAMETER_GROUP_PARENTS,
-  PARAMETER_GROUP_PARAMS
+  PARAMETER_GROUP_PARAMS,
+  PARAMETER_GROUP_SONG,
+  PARAMETER_GROUP_MACHINE
 };
 
 struct _BtParameterGroupPrivate
@@ -53,14 +52,19 @@ struct _BtParameterGroupPrivate
   /* the number of parameter in the group */
   gulong num_params;
 
+  /* song pointer */
+    G_POINTER_ALIAS (BtSong *, song);
+
+  /* machine pointer */
+    G_POINTER_ALIAS (BtMachine *, machine);
+
   /* parameter data */
   GObject **parents;
   GParamSpec **params;
   guint *flags;                 // only used for wave_index and is_trigger
   GValue *no_val;
-  GQuark *quarks;
   GstController **controller;
-  GstInterpolationControlSource **control_sources;
+  BtPatternControlSource **control_sources;
 };
 
 //-- the class
@@ -195,6 +199,9 @@ bt_g_object_randomize_parameter (GObject * self, GParamSpec * property)
  * @num_params: the number of parameters
  * @parents: array of parent #GObjects for each parameter
  * @params: array of #GParamSpecs for each parameter
+ * @song: the song
+ * @machine: the machine that is owns the parameter-group, use the target
+ *   machine for wires.
  *
  * Create a parameter group.
  *
@@ -202,11 +209,11 @@ bt_g_object_randomize_parameter (GObject * self, GParamSpec * property)
  */
 BtParameterGroup *
 bt_parameter_group_new (gulong num_params, GObject ** parents,
-    GParamSpec ** params)
+    GParamSpec ** params, BtSong * song, const BtMachine * machine)
 {
   return (BT_PARAMETER_GROUP (g_object_new (BT_TYPE_PARAMETER_GROUP,
               "num-params", num_params, "parents", parents, "params", params,
-              NULL)));
+              "song", song, "machine", machine, NULL)));
 }
 
 //-- methods
@@ -525,27 +532,6 @@ bt_parameter_group_get_wave_param_index (const BtParameterGroup * const self)
   return (-1);
 }
 
-
-/*
- * bt_parameter_group_has_param_default_set:
- * @self: the parameter group to check params from
- * @index: the offset in the list of params
- *
- * Tests if the param uses the default at timestamp=0. Parameters have a
- * default if there is no control-point at that timestamp. When interactively
- * changing the parameter, the default needs to be updated by calling
- * bt_parameter_group_controller_change_value().
- *
- * Returns: %TRUE if it has a default there
- */
-static gboolean
-bt_parameter_group_has_param_default_set (const BtParameterGroup * const self,
-    const gulong index)
-{
-  return GPOINTER_TO_INT (g_object_get_qdata (self->priv->parents[index],
-          self->priv->quarks[index]));
-}
-
 /**
  * bt_parameter_group_set_param_default:
  * @self: the parameter group
@@ -560,10 +546,20 @@ bt_parameter_group_set_param_default (const BtParameterGroup * const self,
   g_return_if_fail (BT_IS_PARAMETER_GROUP (self));
   g_return_if_fail (index < self->priv->num_params);
 
-  if (bt_parameter_group_has_param_default_set (self, index)) {
-    GST_WARNING_OBJECT (self, "updating param %d at ts=0", index);
-    bt_parameter_group_controller_change_value (self, index,
-        G_GUINT64_CONSTANT (0), NULL);
+  if (!bt_parameter_group_is_param_trigger (self, index)) {
+    GValue def_value = { 0, };
+
+    GST_INFO ("setting the current value");
+    g_value_init (&def_value, PARAM_TYPE (index));
+    g_object_get_property (self->priv->parents[index], PARAM_NAME (index),
+        &def_value);
+    g_object_set (G_OBJECT (self->priv->control_sources[index]),
+        "default-value", &def_value, NULL);
+    g_value_unset (&def_value);
+  } else {
+    GST_INFO ("setting the no value");
+    g_object_set (G_OBJECT (self->priv->control_sources[index]),
+        "default-value", &self->priv->no_val[index], NULL);
   }
 }
 
@@ -610,160 +606,10 @@ bt_parameter_group_describe_param_value (const BtParameterGroup * const self,
   if (GSTBT_IS_PROPERTY_META (self->priv->parents[index])) {
     guint prop_id = self->priv->params[index]->param_id;
     return
-        gstbt_property_meta_describe_property (GSTBT_PROPERTY_META (self->priv->
-            parents[index]), prop_id, event);
+        gstbt_property_meta_describe_property (GSTBT_PROPERTY_META (self->
+            priv->parents[index]), prop_id, event);
   }
   return NULL;
-}
-
-//-- controller handling
-
-static gboolean
-controller_need_activate (GstInterpolationControlSource * cs)
-{
-  if (cs && gst_interpolation_control_source_get_count (cs)) {
-    return (FALSE);
-  }
-  return (TRUE);
-}
-
-static gboolean
-controller_rem_value (GstInterpolationControlSource * cs,
-    const GstClockTime timestamp, const gboolean has_default)
-{
-  if (cs) {
-    gint count;
-
-    gst_interpolation_control_source_unset (cs, timestamp);
-
-    // check if the property is not having control points anymore
-    count = gst_interpolation_control_source_get_count (cs);
-    if (has_default)            // remove also if there is a default only left
-      count--;
-    // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=538201 -> fixed in 0.10.21
-    return (count == 0);
-  }
-  return (FALSE);
-}
-
-/**
- * bt_parameter_group_controller_change_value:
- * @self: the parameter group to change the param for
- * @param: the global parameter index
- * @timestamp: the time stamp of the change
- * @value: the new value or %NULL to unset a previous one
- *
- * Depending on whether the given value is %NULL, sets or unsets the controller
- * value for the specified param and at the given time.
- * If @timestamp is 0 and @value is %NULL it set a default value for the start
- * of the controller sequence, taken from the current value of the parameter.
- */
-void
-bt_parameter_group_controller_change_value (const BtParameterGroup * const self,
-    const gulong ix, const GstClockTime timestamp, GValue * value)
-{
-  GObject *param_parent;
-  GValue def_value = { 0, };
-  GstInterpolationControlSource *cs;
-  const gchar *param_name;
-
-  g_return_if_fail (BT_IS_PARAMETER_GROUP (self));
-  g_return_if_fail (ix < self->priv->num_params);
-
-  param_parent = self->priv->parents[ix];
-  param_name = PARAM_NAME (ix);
-  cs = self->priv->control_sources[ix];
-
-  if (G_UNLIKELY (!timestamp)) {
-    if (!value) {
-      // we set it later
-      value = &def_value;
-      // need to remember that we set a default, so that we can update it
-      // (bt_parameter_group_has_param_default_set)
-      g_object_set_qdata (param_parent, self->priv->quarks[ix],
-          GINT_TO_POINTER (TRUE));
-      GST_INFO ("set global default for param %lu:%s", ix, param_name);
-    } else {
-      // we set a real value for ts=0, no need to update the default
-      g_object_set_qdata (param_parent, self->priv->quarks[ix],
-          GINT_TO_POINTER (FALSE));
-    }
-  }
-
-  if (value) {
-    gboolean add = controller_need_activate (cs);
-    gboolean is_trigger = bt_parameter_group_is_param_trigger (self, ix);
-
-    if (G_UNLIKELY (value == &def_value)) {
-      // only set default value if this is not the first controlpoint
-      if (!add) {
-        if (!is_trigger) {
-          g_value_init (&def_value, PARAM_TYPE (ix));
-          g_object_get_property (param_parent, param_name, &def_value);
-          GST_LOG ("set controller: %" GST_TIME_FORMAT " param %s:%s",
-              GST_TIME_ARGS (G_GUINT64_CONSTANT (0)),
-              g_type_name (PARAM_TYPE (ix)), param_name);
-          gst_interpolation_control_source_set (cs, G_GUINT64_CONSTANT (0),
-              &def_value);
-          g_value_unset (&def_value);
-        } else {
-          gst_interpolation_control_source_set (cs, G_GUINT64_CONSTANT (0),
-              &self->priv->no_val[ix]);
-        }
-      }
-    } else {
-      if (G_UNLIKELY (add)) {
-        GstController *ctrl;
-
-        if ((ctrl =
-                gst_object_control_properties (param_parent, param_name,
-                    NULL))) {
-          cs = gst_interpolation_control_source_new ();
-          gst_controller_set_control_source (ctrl, param_name,
-              GST_CONTROL_SOURCE (cs));
-          // set interpolation mode depending on param type
-          gst_interpolation_control_source_set_interpolation_mode (cs,
-              is_trigger ? GST_INTERPOLATE_TRIGGER : GST_INTERPOLATE_NONE);
-          self->priv->control_sources[ix] = cs;
-        }
-        // TODO(ensonic): is this needed, we're in add=TRUE after all
-        g_object_try_unref (self->priv->controller[ix]);
-        self->priv->controller[ix] = ctrl;
-
-        if (timestamp) {
-          // also set default value, as first control point is not a time=0
-          GST_LOG ("set controller: %" GST_TIME_FORMAT " param %s:%s",
-              GST_TIME_ARGS (G_GUINT64_CONSTANT (0)),
-              g_type_name (PARAM_TYPE (ix)), param_name);
-          if (!is_trigger) {
-            g_value_init (&def_value, PARAM_TYPE (ix));
-            g_object_get_property (param_parent, param_name, &def_value);
-            gst_interpolation_control_source_set (cs, G_GUINT64_CONSTANT (0),
-                &def_value);
-            g_value_unset (&def_value);
-          } else {
-            gst_interpolation_control_source_set (cs, G_GUINT64_CONSTANT (0),
-                &self->priv->no_val[ix]);
-          }
-        }
-      }
-      GST_LOG ("set controller: %" GST_TIME_FORMAT " param %s:%s",
-          GST_TIME_ARGS (timestamp), g_type_name (PARAM_TYPE (ix)), param_name);
-      gst_interpolation_control_source_set (cs, timestamp, value);
-    }
-  } else {
-    gboolean has_default = bt_parameter_group_has_param_default_set (self, ix);
-
-    GST_LOG ("unset controller: %" GST_TIME_FORMAT " param %s:%s",
-        GST_TIME_ARGS (timestamp), g_type_name (PARAM_TYPE (ix)), param_name);
-    if (controller_rem_value (cs, timestamp, has_default)) {
-      gst_controller_set_control_source (self->priv->controller[ix], param_name,
-          NULL);
-      g_object_unref (cs);
-      self->priv->control_sources[ix] = NULL;
-      gst_object_uncontrol_properties (param_parent, param_name, NULL);
-    }
-  }
 }
 
 //-- group changes
@@ -780,9 +626,8 @@ bt_parameter_group_set_param_defaults (const BtParameterGroup * const self)
 {
   const gulong num_params = self->priv->num_params;
   gulong i;
-
   for (i = 0; i < num_params; i++) {
-    if (self->priv->controller[i]) {
+    if (self->priv->control_sources[i]) {
       bt_parameter_group_set_param_default (self, i);
     }
   }
@@ -833,10 +678,11 @@ static void
 bt_parameter_group_constructed (GObject * object)
 {
   BtParameterGroup *const self = BT_PARAMETER_GROUP (object);
+  BtSequence *sequence;
+  GstController *controller;
   gulong i, num_params = self->priv->num_params;
   GParamSpec *param, **params = self->priv->params;
   GObject *parent, **parents = self->priv->parents;
-  gchar *qname;
 
   if (G_OBJECT_CLASS (bt_parameter_group_parent_class)->constructed)
     G_OBJECT_CLASS (bt_parameter_group_parent_class)->constructed (object);
@@ -845,21 +691,17 @@ bt_parameter_group_constructed (GObject * object)
   GST_INFO ("create group with %lu params", num_params);
   self->priv->flags = (guint *) g_new0 (guint, num_params);
   self->priv->no_val = (GValue *) g_new0 (GValue, num_params);
-  self->priv->quarks = (GQuark *) g_new0 (GQuark, num_params);
   self->priv->controller = (GstController **) g_new0 (gpointer, num_params);
   self->priv->control_sources =
-      (GstInterpolationControlSource **) g_new0 (gpointer, num_params);
+      (BtPatternControlSource **) g_new0 (gpointer, num_params);
+
+  g_object_get (self->priv->song, "sequence", &sequence, NULL);
 
   for (i = 0; i < num_params; i++) {
     param = params[i];
     parent = parents[i];
 
     GST_DEBUG ("adding param [%u/%lu] \"%s\"", i, num_params, param->name);
-
-    qname =
-        g_strdup_printf ("%s::%s", G_OBJECT_TYPE_NAME (parent), param->name);
-    self->priv->quarks[i] = g_quark_from_string (qname);
-    g_free (qname);
 
     // treat not readable params as triggers
     if (param->flags & G_PARAM_READABLE) {
@@ -874,9 +716,8 @@ bt_parameter_group_constructed (GObject * object)
         self->priv->flags[i] =
             GPOINTER_TO_INT (g_param_spec_get_qdata (param,
                 gstbt_property_meta_quark_flags));
-        if (!(bt_parameter_group_get_property_meta_value (&self->
-                    priv->no_val[i], param,
-                    gstbt_property_meta_quark_no_val))) {
+        if (!(bt_parameter_group_get_property_meta_value (&self->priv->
+                    no_val[i], param, gstbt_property_meta_quark_no_val))) {
           GST_WARNING
               ("can't get no-val property-meta for param [%u/%lu] \"%s\"", i,
               num_params, param->name);
@@ -891,7 +732,25 @@ bt_parameter_group_constructed (GObject * object)
     }
     // bind param to machines controller (possibly returns ref to existing)
     GST_DEBUG ("added param [%u/%lu] \"%s\"", i, num_params, param->name);
+
+    // create new controlsources
+    if (param->flags & GST_PARAM_CONTROLLABLE) {
+      // retrieve controller
+      self->priv->controller[i] = controller =
+          gst_object_control_properties (parent, param->name, NULL);
+
+      GST_DEBUG_OBJECT (self->priv->machine,
+          "creating control-source for param %s::%s", GST_OBJECT_NAME (parent),
+          param->name);
+      self->priv->control_sources[i] =
+          bt_pattern_control_source_new (sequence, self->priv->machine, self);
+
+      // set controller
+      gst_controller_set_control_source (controller, param->name,
+          GST_CONTROL_SOURCE (self->priv->control_sources[i]));
+    }
   }
+  g_object_try_unref (sequence);
 }
 
 static void
@@ -903,21 +762,25 @@ bt_parameter_group_set_property (GObject * const object,
   return_if_disposed ();
 
   switch (property_id) {
-    case PARAMETER_GROUP_NUM_PARAMS:{
+    case PARAMETER_GROUP_NUM_PARAMS:
       self->priv->num_params = g_value_get_ulong (value);
-    }
       break;
-    case PARAMETER_GROUP_PARENTS:{
+    case PARAMETER_GROUP_PARENTS:
       self->priv->parents = (GObject **) g_value_get_pointer (value);
-    }
       break;
-    case PARAMETER_GROUP_PARAMS:{
+    case PARAMETER_GROUP_PARAMS:
       self->priv->params = (GParamSpec **) g_value_get_pointer (value);
-    }
       break;
-    default:{
+    case PARAMETER_GROUP_SONG:
+      self->priv->song = BT_SONG (g_value_get_object (value));
+      g_object_try_weak_ref (self->priv->song);
+      break;
+    case PARAMETER_GROUP_MACHINE:
+      self->priv->machine = BT_MACHINE (g_value_get_object (value));
+      g_object_try_weak_ref (self->priv->machine);
+      break;
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -930,21 +793,23 @@ bt_parameter_group_get_property (GObject * const object,
   return_if_disposed ();
 
   switch (property_id) {
-    case PARAMETER_GROUP_NUM_PARAMS:{
+    case PARAMETER_GROUP_NUM_PARAMS:
       g_value_set_ulong (value, self->priv->num_params);
-    }
       break;
-    case PARAMETER_GROUP_PARENTS:{
+    case PARAMETER_GROUP_PARENTS:
       g_value_set_pointer (value, self->priv->parents);
-    }
       break;
-    case PARAMETER_GROUP_PARAMS:{
+    case PARAMETER_GROUP_PARAMS:
       g_value_set_pointer (value, self->priv->params);
-    }
       break;
-    default:{
+    case PARAMETER_GROUP_SONG:
+      g_value_set_object (value, self->priv->song);
+      break;
+    case PARAMETER_GROUP_MACHINE:
+      g_value_set_object (value, self->priv->machine);
+      break;
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -960,9 +825,11 @@ bt_parameter_group_dispose (GObject * const object)
 
   for (i = 0; i < self->priv->num_params; i++) {
     g_object_try_unref (self->priv->control_sources[i]);
-    //bt_gst_object_deactivate_controller(param_parent, PARAM_NAME(i));
     g_object_try_unref (self->priv->controller[i]);
   }
+
+  g_object_try_weak_unref (self->priv->song);
+  g_object_try_weak_unref (self->priv->machine);
 
   G_OBJECT_CLASS (bt_parameter_group_parent_class)->dispose (object);
 }
@@ -982,7 +849,6 @@ bt_parameter_group_finalize (GObject * const object)
 
   g_free (self->priv->parents);
   g_free (self->priv->params);
-  g_free (self->priv->quarks);
   g_free (self->priv->no_val);
   g_free (self->priv->flags);
   g_free (self->priv->controller);
@@ -1035,5 +901,17 @@ bt_parameter_group_class_init (BtParameterGroupClass * const klass)
       g_param_spec_pointer ("params",
           "params prop",
           "pointer to GParamSpec array, takes ownership",
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PARAMETER_GROUP_SONG,
+      g_param_spec_object ("song",
+          "song construct prop",
+          "song object the param group belongs to", BT_TYPE_SONG,
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PARAMETER_GROUP_MACHINE,
+      g_param_spec_object ("machine",
+          "machine construct prop",
+          "the respective machine object", BT_TYPE_MACHINE,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

@@ -686,12 +686,11 @@ on_song_volume_slider_release_event (GtkWidget * widget, GdkEventButton * event,
       bt_parameter_group_set_param_default (pg,
           bt_parameter_group_get_param_index (pg, "master-volume"));
 
-      /*
-       * TODO(ensonic): it should actualy postpone the disable to the next timestamp
+      /* TODO(ensonic): it should actualy postpone the disable to the next timestamp
        * (not possible right now).
        *
-       * IDEA(ensonic): can we have a livecontrolsource that subclasses interpolationcs
-       * - when enabling, if would need to delay the enabled to the next control-point
+       * IDEA(ensonic): in pattern-cs
+       * - when enabling, it would need to delay the enabled to the next control-point
        * - it would need to peek at the control-point list :/
        */
       gst_controller_set_property_disabled (ctrl, "master-volume", FALSE);

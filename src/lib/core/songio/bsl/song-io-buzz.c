@@ -1642,7 +1642,6 @@ read_sequ_section (const BtSongIOBuzz * self, const BtSong * song)
   BtSetup *setup;
   BtMachine *machine;
   BtCmdPattern *pattern;
-  gboolean sequence_changed = FALSE;
 
   if (!entry)
     return (FALSE);
@@ -1768,10 +1767,7 @@ read_sequ_section (const BtSongIOBuzz * self, const BtSong * song)
             break;
         }
         if (pattern) {
-          //bt_sequence_set_pattern(sequence,position,track,pattern);
-          sequence_changed |=
-              bt_sequence_set_pattern_quick (sequence, position, track,
-              pattern);
+          bt_sequence_set_pattern_quick (sequence, position, track, pattern);
           g_object_unref (pattern);
         } else
           GST_WARNING ("  no pattern for ix=%d", event);
@@ -1781,11 +1777,6 @@ read_sequ_section (const BtSongIOBuzz * self, const BtSong * song)
       g_object_unref (machine);
       track++;
     }
-  }
-
-  if (sequence_changed) {
-    // repair damage
-    bt_sequence_repair_damage (sequence);
   }
 
   g_object_try_unref (sequence);
