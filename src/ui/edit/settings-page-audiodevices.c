@@ -85,7 +85,7 @@ update_device_menu (const BtSettingsPageAudiodevices * self,
   gint index = -1;
 
   for (i = 0; i < ct; i++) {
-    gtk_combo_box_text_remove_text (combo_box, 0);
+    gtk_combo_box_text_remove (combo_box, 0);
   }
 
   if (element_name) {
