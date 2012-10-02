@@ -26,6 +26,10 @@
 /* TODO(ensonic): more information
  * - show the type as icon
  * - show the live values for each control
+ *   - while all concrete controls have a value-property, they have a different
+ *     type (trigger: boolean, abs-range: long)
+ *     - we could add a value-str property to BtIcControl and a describe()
+ *       vmethod in subclasses
  */
 /* TODO(ensonic): configure things:
  * - allow to rename devices (and controls)?
@@ -88,11 +92,22 @@ notify_device_controlchange (const BtIcLearn * learn,
   control = btic_learn_register_learned_control (self->priv->device, id);
   g_free (id);
   if (control) {
+    GList *node, *list;
+    gint pos;
     // add the new control to the list
     BtObjectListModel *store =
         BT_OBJECT_LIST_MODEL (gtk_tree_view_get_model (self->priv->
             controller_list));
-    bt_object_list_model_append (store, (GObject *) control);
+
+    // find the position
+    g_object_get (self->priv->device, "controls", &list, NULL);
+    for (pos = 0, node = list; node; node = g_list_next (node), pos++) {
+      if (node->data == control) {
+        break;
+      }
+    }
+
+    bt_object_list_model_insert (store, (GObject *) control, pos);
   }
 }
 

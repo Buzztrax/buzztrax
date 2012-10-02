@@ -102,17 +102,41 @@ bt_object_list_model_new (gint n_columns, GType object_type, ...)
 
 //-- methods
 
-#if 0
-void
-bt_object_list_model_clear (BtObjectListModel * model)
+static void
+_object_list_model_insert (BtObjectListModel * model, GObject * object,
+    gint position)
 {
+  GSequence *seq = model->priv->seq;
+  GtkTreePath *path;
+  GtkTreeIter iter;
+
+  iter.stamp = model->priv->stamp;
+  iter.user_data = g_sequence_append (seq, object);
+
+  path = gtk_tree_path_new ();
+  gtk_tree_path_append_index (path, position);
+  gtk_tree_model_row_inserted (GTK_TREE_MODEL (model), path, &iter);
+  gtk_tree_path_free (path);
 }
 
+/**
+ * bt_object_list_model_insert:
+ * @model: the model
+ * @object: the object to insert
+ * @position: the position of the new row
+ *
+ * Insert a new row to the @model. The @object has to have the same type as
+ * given to bt_object_list_model_new().
+ */
 void
-bt_object_list_model_prepend (BtObjectListModel * model, GObject * object)
+bt_object_list_model_insert (BtObjectListModel * model, GObject * object,
+    gint position)
 {
+  g_return_if_fail (g_type_is_a (G_OBJECT_TYPE (object),
+          model->priv->object_type));
+
+  _object_list_model_insert (model, object, position);
 }
-#endif
 
 /**
  * bt_object_list_model_append:
@@ -126,22 +150,31 @@ void
 bt_object_list_model_append (BtObjectListModel * model, GObject * object)
 {
   GSequence *seq = model->priv->seq;
-  GtkTreePath *path;
-  GtkTreeIter iter;
   gint position;
 
   g_return_if_fail (g_type_is_a (G_OBJECT_TYPE (object),
           model->priv->object_type));
 
   position = g_sequence_get_length (seq);
-  iter.stamp = model->priv->stamp;
-  iter.user_data = g_sequence_append (seq, object);
-
-  path = gtk_tree_path_new ();
-  gtk_tree_path_append_index (path, position);
-  gtk_tree_model_row_inserted (GTK_TREE_MODEL (model), path, &iter);
-  gtk_tree_path_free (path);
+  _object_list_model_insert (model, object, position);
 }
+
+#if 0
+void
+bt_object_list_model_prepend (BtObjectListModel * model, GObject * object)
+{
+  g_return_if_fail (g_type_is_a (G_OBJECT_TYPE (object),
+          model->priv->object_type));
+
+  _object_list_model_insert (model, object, 0);
+}
+
+void
+bt_object_list_model_clear (BtObjectListModel * model)
+{
+}
+
+#endif
 
 /**
  * bt_object_list_model_get_object:

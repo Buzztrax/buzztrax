@@ -55,6 +55,7 @@ struct _BtObjectListModelClass {
 GType bt_object_list_model_get_type(void) G_GNUC_CONST;
 
 BtObjectListModel *bt_object_list_model_new(gint n_columns,GType object_type,...);
+void bt_object_list_model_insert(BtObjectListModel * model,GObject * object,gint position);
 void bt_object_list_model_append(BtObjectListModel *model,GObject *object);
 GObject *bt_object_list_model_get_object(BtObjectListModel *model,GtkTreeIter *iter);
 

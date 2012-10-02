@@ -572,6 +572,7 @@ BtMissingSongElementsDialogPrivate
 <FILE>btobjectlistmodel</FILE>
 <TITLE>BtObjectListModel</TITLE>
 BtObjectListModel
+bt_object_list_model_insert
 bt_object_list_model_append
 bt_object_list_model_get_object
 bt_object_list_model_new
