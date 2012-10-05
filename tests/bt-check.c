@@ -915,6 +915,15 @@ check_gobject_get_boolean_property (gpointer obj, const gchar * prop)
   return val;
 }
 
+gint
+check_gobject_get_int_property (gpointer obj, const gchar * prop)
+{
+  gint val;
+
+  g_object_get (obj, prop, &val, NULL);
+  return val;
+}
+
 guint
 check_gobject_get_uint_property (gpointer obj, const gchar * prop)
 {

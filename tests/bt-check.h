@@ -135,6 +135,7 @@ gboolean check_file_contains_str(FILE *input_file, gchar *input_file_name, gchar
 
 gboolean check_gobject_properties(GObject *toCheck);
 gboolean check_gobject_get_boolean_property(gpointer obj, const gchar *prop);
+gint check_gobject_get_int_property(gpointer obj, const gchar *prop);
 guint check_gobject_get_uint_property(gpointer obj, const gchar *prop);
 glong check_gobject_get_long_property(gpointer obj, const gchar *prop);
 gulong check_gobject_get_ulong_property(gpointer obj, const gchar *prop);
@@ -182,6 +183,14 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 #define ck_assert_gobject_gulong_lt(O, X, Y) _ck_assert_gulong(O, X, <, Y)
 #define ck_assert_gobject_gulong_ge(O, X, Y) _ck_assert_gulong(O, X, >=, Y)
 #define ck_assert_gobject_gulong_le(O, X, Y) _ck_assert_gulong(O, X, <=, Y)
+
+#define _ck_assert_genum(O, X, C, Y) do { \
+  gulong __ck = check_gobject_get_int_property((O), (X)); \
+  fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%lu, "#Y"==%lu", __ck, Y); \
+} while (0)
+#define ck_assert_gobject_genum_eq(O, X, Y) _ck_assert_genum(O, X, ==, Y)
+#define ck_assert_gobject_genum_ne(O, X, Y) _ck_assert_genum(O, X, !=, Y)
+
 
 #define _ck_assert_gobject(O, X, C, Y) do { \
   GObject *__ck = check_gobject_get_object_property ((O), (X)); \
