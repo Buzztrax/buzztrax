@@ -680,44 +680,14 @@ on_uint64_range_property_format_value (GtkScale * scale, gdouble value,
 // TODO(ensonic): should we have this in btmachine.c?
 static void
 bt_machine_update_default_param_value (BtMachine * self,
-    GstObject * param_parent, const gchar * property_name)
+    GstObject * param_parent, const gchar * property_name,
+    BtParameterGroup * pg)
 {
   GstController *ctrl;
 
   if ((ctrl = gst_object_get_controller (G_OBJECT (param_parent)))) {
-    GstElement *element;
-    BtParameterGroup *pg;
-    glong voice = -1;
-
-    g_object_get (self, "machine", &element, NULL);
-
-    // check if we update a voice parameter
-    if ((param_parent != GST_OBJECT (element)) && GST_IS_CHILD_PROXY (element)) {
-      gulong i, voices =
-          gst_child_proxy_get_children_count (GST_CHILD_PROXY (element));
-      GstObject *voice_elem;
-
-      for (i = 0; i < voices; i++) {
-        voice_elem =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (element), i);
-        if (voice_elem == param_parent) {
-          gst_object_unref (voice_elem);
-          voice = i;
-          break;
-        }
-        gst_object_unref (voice_elem);
-      }
-    }
-    // update the default value at ts=0
-    if (voice == -1) {
-      pg = bt_machine_get_global_param_group (self);
-    } else {
-      pg = bt_machine_get_voice_param_group (self, voice);
-    }
     bt_parameter_group_set_param_default (pg,
         bt_parameter_group_get_param_index (pg, property_name));
-    g_object_unref (element);
-
     /* TODO(ensonic): it should actualy postpone the disable to the next timestamp
      * (not possible right now).
      *
@@ -741,7 +711,8 @@ update_param_after_interaction (GtkWidget * widget, gpointer user_data)
           widget_parent_quark));
 
   bt_machine_update_default_param_value (self->priv->machine,
-      GST_OBJECT (user_data), gtk_widget_get_name (GTK_WIDGET (widget)));
+      GST_OBJECT (user_data), gtk_widget_get_name (GTK_WIDGET (widget)),
+      g_object_get_qdata (G_OBJECT (widget), widget_param_group_quark));
 }
 
 static gboolean
@@ -2441,8 +2412,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->priv->
-            param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->
+            priv->param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
