@@ -519,6 +519,7 @@ bt_sink_bin_get_player_elements (const BtSinkBin * const self)
 
 Error:
   g_free (element_name);
+  g_free (device_name);
   return (list);
 }
 
