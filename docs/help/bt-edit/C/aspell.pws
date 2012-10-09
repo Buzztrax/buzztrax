@@ -1,7 +1,8 @@
-personal_ws-1.1 en 57 
+personal_ws-1.1 en 59 
 wiki
 ywyr
 journaling
+USB
 bmw
 bmx
 wiimotes
@@ -25,15 +26,15 @@ FastTracker
 audiosink
 UPnP
 ctrl
-accelerometers
-SoundTracker
 unselect
 vorbis
 statusbar
 desaturated
 Kost
+gudev
 livesrc
 xml
+accelerometers
 audiodelay
 unmute
 bzt
@@ -44,6 +45,7 @@ pre
 pc
 timeline
 overlayed
+SoundTracker
 harddisk
 pulseaudio
 wav
