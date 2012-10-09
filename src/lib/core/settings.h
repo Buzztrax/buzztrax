@@ -67,6 +67,6 @@ BtSettings *bt_settings_make(void);
 
 void bt_settings_set_factory(BtSettingsFactory factory);
 gboolean bt_settings_determine_audiosink_name(const BtSettings * const self,
-    gchar **_element_name, gchar **_device_name);
+    gchar **element_name, gchar **device_name);
 
 #endif // BT_SETTINGS_H

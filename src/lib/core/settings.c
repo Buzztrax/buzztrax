@@ -178,7 +178,7 @@ bt_settings_set_factory (BtSettingsFactory factory)
 }
 
 /**
- * bt_settings_determine_audiosink:
+ * bt_settings_determine_audiosink_name:
  * @self: the settings
  * @element_name: out variable for the element name
  * @device_name: out variable for the device property, if any
