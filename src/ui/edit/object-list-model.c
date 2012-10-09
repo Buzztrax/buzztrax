@@ -109,9 +109,15 @@ _object_list_model_insert (BtObjectListModel * model, GObject * object,
   GSequence *seq = model->priv->seq;
   GtkTreePath *path;
   GtkTreeIter iter;
+  GSequenceIter *seq_iter;
+
+  seq_iter = g_sequence_get_iter_at_pos (seq, position);
+  if (!g_sequence_iter_is_end (seq_iter) &&
+      (g_sequence_get (seq_iter) == object))
+    return;
 
   iter.stamp = model->priv->stamp;
-  iter.user_data = g_sequence_append (seq, object);
+  iter.user_data = g_sequence_insert_before (seq_iter, object);
 
   path = gtk_tree_path_new ();
   gtk_tree_path_append_index (path, position);

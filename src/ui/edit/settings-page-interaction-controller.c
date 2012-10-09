@@ -103,6 +103,7 @@ notify_device_controlchange (const BtIcLearn * learn,
     g_object_get (self->priv->device, "controls", &list, NULL);
     for (pos = 0, node = list; node; node = g_list_next (node), pos++) {
       if (node->data == control) {
+        GST_DEBUG ("found control at pos %d", pos);
         break;
       }
     }
