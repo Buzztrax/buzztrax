@@ -78,10 +78,10 @@ update_device_menu (const BtSettingsPageAudiodevices * self,
     gchar * element_name)
 {
   gboolean has_devices = FALSE;
-  GtkComboBox *combo_box = GTK_COMBO_BOX_TEXT (self->priv->device_menu);
+  GtkComboBoxText *combo_box = GTK_COMBO_BOX_TEXT (self->priv->device_menu);
   gint i, ct =
-      gtk_tree_model_iter_n_children (gtk_combo_box_get_model (combo_box),
-      NULL);
+      gtk_tree_model_iter_n_children (gtk_combo_box_get_model (
+          self->priv->device_menu), NULL);
   gint index = -1;
 
   for (i = 0; i < ct; i++) {
@@ -143,7 +143,7 @@ update_device_menu (const BtSettingsPageAudiodevices * self,
     gst_element_set_state (sink, GST_STATE_NULL);
     gst_object_unref (sink);
   }
-  gtk_combo_box_set_active (combo_box, index);
+  gtk_combo_box_set_active (self->priv->device_menu, index);
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->device_menu), has_devices);
 }
 
