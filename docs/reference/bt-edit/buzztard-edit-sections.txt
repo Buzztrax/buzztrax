@@ -1061,9 +1061,11 @@ GTK_CHECK_CLASS_TYPE
 GTK_CHECK_GET_CLASS
 GTK_CHECK_TYPE
 GTK_COMBO_BOX_TEXT
+GtkComboBoxText
 gtk_combo_box_text_append_text
 gtk_combo_box_text_get_active_text
 gtk_combo_box_text_new
+gtk_combo_box_text_remove
 gtk_dialog_get_action_area
 gtk_dialog_get_content_area
 gtk_menu_tool_button_set_arrow_tooltip_text
