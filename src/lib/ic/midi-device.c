@@ -229,20 +229,16 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
             if ((control =
                     btic_device_get_control_by_id (BTIC_DEVICE (self), key))) {
               g_object_set (control, "value", (gint32) (midi_event[1]), NULL);
-            } else {
-              if (G_UNLIKELY (self->priv->learn_mode)) {
-                update_learn_info (self, "note-key", key, 7);
-                learn_1st = TRUE;
-              }
+            } else if (G_UNLIKELY (self->priv->learn_mode)) {
+              update_learn_info (self, "note-key", key, 7);
+              learn_1st = TRUE;
             }
             key = MIDI_CTRL_NOTE_VELOCITY;
             if ((control =
                     btic_device_get_control_by_id (BTIC_DEVICE (self), key))) {
               g_object_set (control, "value", (gint32) (midi_event[2]), NULL);
-            } else {
-              if (G_UNLIKELY (self->priv->learn_mode) && !learn_1st) {
-                update_learn_info (self, "note-velocity", key, 7);
-              }
+            } else if (G_UNLIKELY (self->priv->learn_mode) && !learn_1st) {
+              update_learn_info (self, "note-velocity", key, 7);
             }
             prev_cmd = midi_event[0];
           }
@@ -257,15 +253,14 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
                 midi_event[1], midi_event[2]);
 
             key = (guint) midi_event[1];        // 0-119 (normal controls), 120-127 (channel mode message)
-            if (G_UNLIKELY (self->priv->learn_mode)) {
+            if ((control =
+                    btic_device_get_control_by_id (BTIC_DEVICE (self), key))) {
+              g_object_set (control, "value", (gint32) (midi_event[2]), NULL);
+            } else if (G_UNLIKELY (self->priv->learn_mode)) {
               static gchar name[20];
 
               sprintf (name, "control-change %u", key);
               update_learn_info (self, name, key, 7);
-            }
-            if ((control =
-                    btic_device_get_control_by_id (BTIC_DEVICE (self), key))) {
-              g_object_set (control, "value", (gint32) (midi_event[2]), NULL);
             }
             prev_cmd = midi_event[0];
           }
@@ -280,14 +275,13 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
                 midi_event[1], midi_event[2]);
 
             key = MIDI_CTRL_PITCH_WHEEL;
-            if (G_UNLIKELY (self->priv->learn_mode)) {
-              update_learn_info (self, "pitch-wheel-change", key, 14);
-            }
             if ((control =
                     btic_device_get_control_by_id (BTIC_DEVICE (self), key))) {
               gint32 v = (((gint32) midi_event[2]) << 7) | (midi_event[1]);
 
               g_object_set (control, "value", v, NULL);
+            } else if (G_UNLIKELY (self->priv->learn_mode)) {
+              update_learn_info (self, "pitch-wheel-change", key, 14);
             }
             prev_cmd = midi_event[0];
           }
@@ -297,14 +291,13 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
           GST_DEBUG ("transport-start");
 
           key = MIDI_CTRL_TRANSPORT_START;
-          if (G_UNLIKELY (self->priv->learn_mode)) {
-            update_learn_info (self, "transport-start", key, 1);
-          }
           if ((control =
                   btic_device_get_control_by_id (BTIC_DEVICE (self), key))) {
             gint32 v = 1;
 
             g_object_set (control, "value", v, NULL);
+          } else if (G_UNLIKELY (self->priv->learn_mode)) {
+            update_learn_info (self, "transport-start", key, 1);
           }
           break;
         case MIDI_TRANSPORT_CONTINUE:
