@@ -1174,6 +1174,14 @@ i o p</keycap></screen></entry>
           </mediaobject>
         </screenshot>
       </figure>
+      <para>
+        For some device types such as midi-devices, the available controls can
+        not be auto-detected. Allthough one can teach these in a simple
+        procedure. Every time such a device is selected, the lean mode will be
+        activated. In this mode one can press the hardware buttons or move
+        sliders and knobs. When this happens, controls not yet in the list will
+        be automatically added.
+      </para>
     </sect3>
 
     <sect3 id="bt-edit-prefs-playback-controller">
@@ -1289,7 +1297,7 @@ i o p</keycap></screen></entry>
     <para>
       Parameters are grouped. There is one group for global parameters and one
       for each voice (for polyphonic machines). Effects and the master also have
-      a group for each input allowing to change volume and panorama. These are
+      a group for each input, allowing to change volume and panorama. These are
       the same parameters that can be changed on the wire in the
       <link linkend="bt-edit-main-view-machines">machine view</link>. Each group
       has a context menu, e.g. to copy the settings for the group.
@@ -1299,7 +1307,10 @@ i o p</keycap></screen></entry>
       to a hardware controller and unbind it. If a parameter is bound, the
       changes on the hardware controller will effect the parameter. &app;
       supports hid (e.g joysticks, wiimotes, harddisk accelerometers) and midi
-      devices.
+      devices. For some device types the submenu with the controls will start
+      with an entry "Learn ...". This will lead to the
+      <link linkend="bt-edit-dialog-interaction-controller-learn">lean dialog</link>,
+      where new controllers can be taught.
     </para>
     <para>
       At the top of the dialog is a small toolbar. One button allows to show or
@@ -1570,10 +1581,28 @@ i o p</keycap></screen></entry>
       </screenshot>
     </figure>
   </sect2>
-<!--
-@todo:
-  interaction-controller-learn.png
--->
+  <sect2 id="bt-edit-dialog-interaction-controller-learn">
+    <title id="bt-edit-dialog-interaction-controller-learn.title">Interaction controller learn dialog</title>
+    <para>
+      When this dialog is open, &app; will listen to control changes. Not yet
+      known controls will show in the dialog with an auto-generated name. This
+      name can be changed. Pressing okay, will store the new control and assign
+      it to the machine parameter (from which the dialog was invoked).
+    </para>
+    <figure id="bt-edit-dialog-crash-recovery-fig">
+      <title>Interaction controller learn dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/interaction-controller-learn.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Interaction controller learn dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
 </sect1>
 
 <sect1 id="bt-edit-reference">
