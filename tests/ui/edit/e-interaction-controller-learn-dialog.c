@@ -23,6 +23,7 @@
 
 static BtEditApplication *app;
 static BtMainWindow *main_window;
+static BtInteractionControllerMenu *menu;
 
 //-- fixtures
 
@@ -39,6 +40,8 @@ test_setup (void)
   bt_edit_setup ();
   app = bt_edit_application_new ();
   g_object_get (app, "main-window", &main_window, NULL);
+  menu =
+      bt_interaction_controller_menu_new (BT_INTERACTION_CONTROLLER_RANGE_MENU);
 
   flush_main_loop ();
 }
@@ -46,6 +49,7 @@ test_setup (void)
 static void
 test_teardown (void)
 {
+  gtk_widget_destroy (GTK_WIDGET (menu));
   gtk_widget_destroy (GTK_WIDGET (main_window));
   flush_main_loop ();
 
@@ -83,7 +87,7 @@ test_bt_interaction_controller_learn_dialog_create (BT_TEST_ARGS)
   if (device && BTIC_IS_LEARN (device)) {
     /* act */
     GtkWidget *dialog =
-        GTK_WIDGET (bt_interaction_controller_learn_dialog_new (device));
+        GTK_WIDGET (bt_interaction_controller_learn_dialog_new (device, menu));
 
     /* assert */
     fail_unless (dialog != NULL, NULL);

@@ -20,13 +20,9 @@
  * SECTION:btinteractioncontrollerlearndialog
  * @short_description: learn dialog for interaction devices
  *
- * A dialog to prompt the user for an interaction controller assignment.
- */
-/* TODO(ensonic): having okay & assign would be nice
- * TODO(ensonic): having a way to train multiple controllers would be nice
- * - we could have: okay, okay & assign, okay & learn more, cancel
- * - we could also automatically assign here and do the multi-learn in the
- *   settings (where we have a not so useful page right now)
+ * A dialog to where the user can train a new control. The user will move the
+ * desired hardware control, then the dialog will show the detected control.
+ * The user can change the auto generated name and then assign it.
  */
 #define BT_EDIT
 #define BT_INTERACTION_CONTROLLER_LEARN_DIALOG_C
@@ -36,7 +32,8 @@
 //-- property ids
 enum
 {
-  LEARN_DIALOG_DEVICE = 1
+  LEARN_DIALOG_DEVICE = 1,
+  LEARN_DIALOG_MENU
 };
 
 struct _BtInteractionControllerLearnDialogPrivate
@@ -45,6 +42,7 @@ struct _BtInteractionControllerLearnDialogPrivate
   gboolean dispose_has_run;
 
     G_POINTER_ALIAS (BtIcDevice *, device);
+    G_POINTER_ALIAS (BtInteractionControllerMenu *, menu);
 
   GtkWidget *label_output, *entry_name;
 
@@ -83,12 +81,17 @@ on_dialog_response (GtkDialog * dialog,
 {
   BtInteractionControllerLearnDialog *self =
       BT_INTERACTION_CONTROLLER_LEARN_DIALOG (user_data);
+  BtIcControl *control;
 
   switch (signal) {
     case GTK_RESPONSE_ACCEPT:
       //GST_INFO("learn dialog okay");
-      btic_learn_register_learned_control (BTIC_LEARN (self->priv->device),
+      control =
+          btic_learn_register_learned_control (BTIC_LEARN (self->priv->device),
           gtk_entry_get_text (GTK_ENTRY (self->priv->entry_name)));
+      if (control) {
+        g_object_set (self->priv->menu, "selected-control", control, NULL);
+      }
       break;
     case GTK_RESPONSE_REJECT:
       //GST_INFO("learn dialog cancel");
@@ -186,19 +189,22 @@ bt_interaction_controller_learn_dialog_init_ui (const
 /**
  * bt_interaction_controller_learn_dialog_new:
  * @device: the device of which the learn events are monitored
+ * @menu: the parent menu to notify about the result
  *
  * Create a new instance.
  *
  * Returns: the new instance
  */
 BtInteractionControllerLearnDialog *
-bt_interaction_controller_learn_dialog_new (BtIcDevice * device)
+bt_interaction_controller_learn_dialog_new (BtIcDevice * device,
+    BtInteractionControllerMenu * menu)
 {
   BtInteractionControllerLearnDialog *self;
 
   self =
       BT_INTERACTION_CONTROLLER_LEARN_DIALOG (g_object_new
-      (BT_TYPE_INTERACTION_CONTROLLER_LEARN_DIALOG, "device", device, NULL));
+      (BT_TYPE_INTERACTION_CONTROLLER_LEARN_DIALOG, "device", device, "menu",
+          menu, NULL));
   bt_interaction_controller_learn_dialog_init_ui (self);
   return (self);
 }
@@ -217,16 +223,19 @@ bt_interaction_controller_learn_dialog_set_property (GObject * object,
       BT_INTERACTION_CONTROLLER_LEARN_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case LEARN_DIALOG_DEVICE:{
-      g_object_try_weak_unref (self->priv->device);
+    case LEARN_DIALOG_DEVICE:
       self->priv->device = BTIC_DEVICE (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->device);
       //GST_DEBUG("set the device for learn_dialog: %p",self->priv->device);
-    }
       break;
-    default:{
+    case LEARN_DIALOG_MENU:
+      self->priv->menu =
+          BT_INTERACTION_CONTROLLER_MENU (g_value_get_object (value));
+      g_object_try_weak_ref (self->priv->menu);
+      //GST_DEBUG("set the menu for learn_dialog: %p",self->priv->menu);
+      break;
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -242,9 +251,11 @@ bt_interaction_controller_learn_dialog_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_object_try_weak_unref (self->priv->device);
   g_signal_handlers_disconnect_matched (self->priv->device, G_SIGNAL_MATCH_FUNC,
       0, 0, NULL, notify_device_controlchange, NULL);
+
+  g_object_try_weak_unref (self->priv->device);
+  g_object_try_weak_unref (self->priv->menu);
 
   G_OBJECT_CLASS (bt_interaction_controller_learn_dialog_parent_class)->dispose
       (object);
@@ -273,6 +284,15 @@ static void
       bt_interaction_controller_learn_dialog_set_property;
   gobject_class->dispose = bt_interaction_controller_learn_dialog_dispose;
 
-  g_object_class_install_property (gobject_class, LEARN_DIALOG_DEVICE, g_param_spec_object ("device", "device construct prop", "Set the device we want to snoop for a new controler", BTIC_TYPE_DEVICE, /* object type */
+  g_object_class_install_property (gobject_class, LEARN_DIALOG_DEVICE,
+      g_param_spec_object ("device", "device construct prop",
+          "Set the device we want to snoop for a new controler",
+          BTIC_TYPE_DEVICE,
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, LEARN_DIALOG_MENU,
+      g_param_spec_object ("menu", "menu construct prop",
+          "The parent menu",
+          BT_TYPE_INTERACTION_CONTROLLER_MENU,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 }

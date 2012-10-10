@@ -164,7 +164,7 @@ on_control_learn_activated (GtkMenuItem * menuitem, gpointer user_data)
   BtIcDevice *device = BTIC_DEVICE (user_data);
   BtInteractionControllerLearnDialog *dialog;
 
-  if ((dialog = bt_interaction_controller_learn_dialog_new (device))) {
+  if ((dialog = bt_interaction_controller_learn_dialog_new (device, self))) {
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (dialog));
     gtk_widget_show_all (GTK_WIDGET (dialog));

@@ -54,6 +54,6 @@ struct _BtInteractionControllerLearnDialogClass {
 
 GType bt_interaction_controller_learn_dialog_get_type(void) G_GNUC_CONST;
 
-BtInteractionControllerLearnDialog *bt_interaction_controller_learn_dialog_new(BtIcDevice *device);
+BtInteractionControllerLearnDialog *bt_interaction_controller_learn_dialog_new(BtIcDevice *device,BtInteractionControllerMenu *menu);
 
 #endif // BT_INTERACTION_CONTROLLER_LEARN_DIALOG_H
