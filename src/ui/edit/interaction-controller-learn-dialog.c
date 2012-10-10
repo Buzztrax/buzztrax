@@ -61,18 +61,18 @@ static void
 notify_device_controlchange (const BtIcLearn * learn,
     GParamSpec * arg, const BtInteractionControllerLearnDialog * user_data)
 {
-  gchar *control;
+  gchar *id;
   BtInteractionControllerLearnDialog *self =
       BT_INTERACTION_CONTROLLER_LEARN_DIALOG (user_data);
 
-  g_object_get (BTIC_LEARN (learn), "device-controlchange", &control, NULL);
-  gtk_label_set_text (GTK_LABEL (self->priv->label_output), control);
-  gtk_entry_set_text (GTK_ENTRY (self->priv->entry_name), control);
+  g_object_get (BTIC_LEARN (learn), "device-controlchange", &id, NULL);
+  gtk_label_set_text (GTK_LABEL (self->priv->label_output), id);
+  gtk_entry_set_text (GTK_ENTRY (self->priv->entry_name), id);
   gtk_editable_select_region (GTK_EDITABLE (self->priv->entry_name), 0, -1);
 
   gtk_widget_set_sensitive (self->priv->okay_button, TRUE);
 
-  g_free (control);
+  g_free (id);
 }
 
 static void
