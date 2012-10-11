@@ -90,6 +90,18 @@ sort_by_name (const gpointer obj1, const gpointer obj2)
 
 //-- handler
 
+static void
+on_control_name_changed (BtIcControl * const control,
+    const GParamSpec * const arg, gconstpointer const user_data)
+{
+  BtIcDevice *self = BTIC_DEVICE (user_data);
+
+  GST_WARNING ("resorting control list");
+  self->priv->controls = g_list_sort (self->priv->controls,
+      (GCompareFunc) sort_by_name);
+  g_object_notify ((GObject *) self, "controls");
+}
+
 //-- constructor methods
 
 //-- methods
@@ -118,6 +130,8 @@ btic_device_add_control (const BtIcDevice * self, const BtIcControl * control)
   g_hash_table_insert (self->priv->controls_by_id, GUINT_TO_POINTER (id),
       (gpointer) control);
 
+  g_signal_connect ((GObject *) control, "notify::name",
+      G_CALLBACK (on_control_name_changed), (gpointer) self);
   g_object_notify ((GObject *) self, "controls");
 }
 

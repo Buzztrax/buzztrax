@@ -64,6 +64,7 @@ struct _BtSettingsPageInteractionControllerPrivate
   GtkComboBox *device_menu;
   GtkTreeView *controller_list;
   GtkLabel *message;
+  GtkCellRenderer *id_renderer;
 
   /* the active lear-device or NULL */
   BtIcLearn *device;
@@ -96,8 +97,8 @@ notify_device_controlchange (const BtIcLearn * learn,
     gint pos;
     // add the new control to the list
     BtObjectListModel *store =
-        BT_OBJECT_LIST_MODEL (gtk_tree_view_get_model (self->priv->
-            controller_list));
+        BT_OBJECT_LIST_MODEL (gtk_tree_view_get_model (self->
+            priv->controller_list));
 
     // find the position
     g_object_get (self->priv->device, "controls", &list, NULL);
@@ -155,8 +156,12 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
       btic_learn_start (self->priv->device);
       gtk_label_set_text (self->priv->message,
           _("Use the device's controls to train them."));
+      g_object_set (self->priv->id_renderer,
+          "mode", GTK_CELL_RENDERER_MODE_EDITABLE, "editable", TRUE, NULL);
     } else {
       gtk_label_set_text (self->priv->message, NULL);
+      g_object_set (self->priv->id_renderer,
+          "mode", GTK_CELL_RENDERER_MODE_INERT, "editable", FALSE, NULL);
     }
   }
   GST_INFO ("control list refreshed");
@@ -195,6 +200,30 @@ on_ic_registry_devices_changed (BtIcRegistry * ic_registry, GParamSpec * arg,
   gtk_combo_box_set_active (self->priv->device_menu,
       ((device != NULL) ? 0 : -1));
   g_object_unref (store);       // drop with comboxbox
+}
+
+static void
+on_control_name_edited (GtkCellRendererText * cellrenderertext,
+    gchar * path_string, gchar * new_text, gpointer user_data)
+{
+  BtSettingsPageInteractionController *self =
+      BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (user_data);
+  GtkTreeModel *store;
+
+  if ((store = gtk_tree_view_get_model (self->priv->controller_list))) {
+    GtkTreeIter iter;
+
+    if (gtk_tree_model_get_iter_from_string (store, &iter, path_string)) {
+      GObject *control;
+
+      if ((control =
+              bt_object_list_model_get_object ((BtObjectListModel *) store,
+                  &iter))) {
+        g_object_set (control, "name", new_text, NULL);
+        on_device_menu_changed (self->priv->device_menu, self);
+      }
+    }
+  }
 }
 
 //-- helper methods
@@ -268,14 +297,16 @@ bt_settings_page_interaction_controller_init_ui (const
    * /usr/share/glade3/pixmaps/hicolor/22x22/actions/
    * /usr/share/icons/gnome/22x22/apps/volume-knob.png
    */
-  renderer = gtk_cell_renderer_text_new ();
+  self->priv->id_renderer = renderer = gtk_cell_renderer_text_new ();
   gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
       (renderer), 1);
+  g_signal_connect (renderer, "edited", G_CALLBACK (on_control_name_edited),
+      (gpointer) self);
   gtk_tree_view_insert_column_with_attributes (self->priv->controller_list, -1,
       _("Controller"), renderer, "text", CONTROLLER_LIST_LABEL, NULL);
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
-          priv->controller_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
+          controller_list), GTK_SELECTION_BROWSE);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->controller_list));
   gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (scrolled_window), 1, 3, 2, 3,
