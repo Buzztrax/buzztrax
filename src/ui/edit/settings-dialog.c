@@ -81,16 +81,16 @@ bt_settings_page_get_type (void)
   if (G_UNLIKELY (type == 0)) {
     static const GEnumValue values[] = {
       {BT_SETTINGS_PAGE_AUDIO_DEVICES, "BT_SETTINGS_PAGE_AUDIO_DEVICES",
-            "audio devices"},
+          "audio devices"},
       {BT_SETTINGS_PAGE_INTERACTION_CONTROLLER,
             "BT_SETTINGS_PAGE_INTERACTION_CONTROLLER",
-            "interaction controller"},
+          "interaction controller"},
       {BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER,
-            "BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER", "playback controller"},
+          "BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER", "playback controller"},
       {BT_SETTINGS_PAGE_COLORS, "BT_SETTINGS_PAGE_COLORS", "colors"},
       {BT_SETTINGS_PAGE_SHORTCUTS, "BT_SETTINGS_PAGE_SHORTCUTS", "shortcuts"},
       {BT_SETTINGS_PAGE_DIRECTORIES, "BT_SETTINGS_PAGE_DIRECTORIES",
-            "directories"},
+          "directories"},
       {0, NULL, NULL},
     };
     type = g_enum_register_static ("BtSettingsPage", values);
@@ -155,6 +155,7 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
   GtkCellRenderer *renderer;
   GtkListStore *store;
   GtkTreeIter tree_iter;
+  GdkPixbuf *icon;
 
   gtk_widget_set_name (GTK_WIDGET (self), "buzztard settings");
 
@@ -189,8 +190,8 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
       (renderer), 1);
   gtk_tree_view_insert_column_with_attributes (self->priv->settings_list, -1,
       NULL, renderer, "text", COL_LABEL, NULL);
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
-          settings_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
+          priv->settings_list), GTK_SELECTION_BROWSE);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->settings_list));
   gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (scrolled_window), FALSE, FALSE,
@@ -206,17 +207,19 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
       G_TYPE_STRING);
   //-- append entries for settings pages
   gtk_list_store_append (store, &tree_iter);
+  icon = gdk_pixbuf_new_from_filename ("prefs-audio-card.png");
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Audio Devices"),
       COL_ID, BT_SETTINGS_PAGE_AUDIO_DEVICES,
-      COL_ICON_PIXBUF, gdk_pixbuf_new_from_filename ("prefs-audio-card.png"),
-      COL_ICON_STOCK_ID, NULL, -1);
+      COL_ICON_PIXBUF, icon, COL_ICON_STOCK_ID, NULL, -1);
+  g_object_unref (icon);
   gtk_list_store_append (store, &tree_iter);
+  icon = gdk_pixbuf_new_from_filename ("prefs-input-gaming.png");
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Interaction Controller"),
       COL_ID, BT_SETTINGS_PAGE_INTERACTION_CONTROLLER,
-      COL_ICON_PIXBUF, gdk_pixbuf_new_from_filename ("prefs-input-gaming.png"),
-      COL_ICON_STOCK_ID, NULL, -1);
+      COL_ICON_PIXBUF, icon, COL_ICON_STOCK_ID, NULL, -1);
+  g_object_unref (icon);
   gtk_list_store_append (store, &tree_iter);
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Playback Controller"),
@@ -228,12 +231,12 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
       COL_ID, BT_SETTINGS_PAGE_COLORS,
       COL_ICON_PIXBUF, NULL, COL_ICON_STOCK_ID, GTK_STOCK_SELECT_COLOR, -1);
   gtk_list_store_append (store, &tree_iter);
+  icon = gdk_pixbuf_new_from_filename ("prefs-input-keyboard.png");
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Shortcuts"),
       COL_ID, BT_SETTINGS_PAGE_SHORTCUTS,
-      COL_ICON_PIXBUF,
-      gdk_pixbuf_new_from_filename ("prefs-input-keyboard.png"),
-      COL_ICON_STOCK_ID, NULL, -1);
+      COL_ICON_PIXBUF, icon, COL_ICON_STOCK_ID, NULL, -1);
+  g_object_unref (icon);
   gtk_list_store_append (store, &tree_iter);
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Directories"),
