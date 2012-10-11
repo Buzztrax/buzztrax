@@ -119,12 +119,12 @@ btic_control_set_property (GObject * const object, const guint property_id,
       gchar *new_name = g_value_dup_string (value);
       if (!self->priv->name) {
         self->priv->name = new_name;
-        GST_WARNING ("setting initial name '%s'!", self->priv->name);
+        GST_DEBUG ("setting initial name '%s'!", self->priv->name);
       } else {
         if (BTIC_IS_LEARN (self->priv->device)) {
           gchar *old_name = self->priv->name;
           self->priv->name = new_name;
-          GST_WARNING ("updating name '%s'!", self->priv->name);
+          GST_DEBUG ("updating name '%s'!", self->priv->name);
           btic_learn_store_controller_map (BTIC_LEARN (self->priv->device));
           g_free (old_name);
         } else {
