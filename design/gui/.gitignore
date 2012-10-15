@@ -2,6 +2,7 @@
 acceltoolbar
 accelpopup
 canvas-redraw
+clutter*
 svgcanvas
 levelmeter
 notebook
