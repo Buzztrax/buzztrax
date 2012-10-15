@@ -209,7 +209,9 @@ typedef struct
   const BtIcControl *control;
   GstObject *object;
   GParamSpec *pspec;
+  BtParameterGroup *pg;
   gulong handler_id;
+  gint pi;
 } BtControlData;
 
 typedef struct
@@ -217,8 +219,10 @@ typedef struct
   const BtIcControl *control;
   BtMachinePrivate *machine_priv;
   GParamSpec *pspec;
+  BtParameterGroup *pg;
   gulong handler_id;
   gint voice_ct;
+  gint pi;
 } BtPolyControlData;
 
 static GQuark error_domain = 0;
@@ -656,8 +660,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->dst_wires->
-                        data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -685,8 +689,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->src_wires->
-                        data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1299,8 +1303,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1362,8 +1366,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                    machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -2090,6 +2094,7 @@ on_boolean_control_notify (const BtIcControl * control, GParamSpec * arg,
 
   g_object_get ((gpointer) (data->control), "value", &value, NULL);
   g_object_set (data->object, data->pspec->name, value, NULL);
+  bt_parameter_group_set_param_default (data->pg, data->pi);
 }
 
 #define ON_CONTROL_NOTIFY(t,T) \
@@ -2103,6 +2108,7 @@ static void on_## t ##_control_notify(const BtIcControl *control,GParamSpec *arg
   dvalue=p->minimum+(g ## t)((svalue-min)*((gdouble)(p->maximum-p->minimum)/(gdouble)(max-min)));      \
   dvalue=CLAMP(dvalue,p->minimum,p->maximum);                                                          \
   g_object_set(data->object,((GParamSpec *)p)->name,dvalue,NULL);                                      \
+  bt_parameter_group_set_param_default (data->pg, data->pi);                                           \
 }
 
 ON_CONTROL_NOTIFY (int, Int);
@@ -2129,6 +2135,7 @@ on_enum_control_notify (const BtIcControl * control,
               min)));
   g_object_set (data->object, ((GParamSpec *) p)->name, e->values[dvalue].value,
       NULL);
+  bt_parameter_group_set_param_default (data->pg, data->pi);
 }
 
 /**
@@ -2137,13 +2144,15 @@ on_enum_control_notify (const BtIcControl * control,
  * @object: child object (global or voice child)
  * @property_name: name of the parameter
  * @control: interaction control object
+ * @pg: the parameter group of the property
  *
  * Connect the interaction control object to the give parameter. Changes of the
  * control-value are mapped into a change of the parameter.
  */
 void
 bt_machine_bind_parameter_control (const BtMachine * const self,
-    GstObject * object, const gchar * property_name, BtIcControl * control)
+    GstObject * object, const gchar * property_name, BtIcControl * control,
+    BtParameterGroup * pg)
 {
   BtControlData *data;
   GParamSpec *pspec;
@@ -2161,6 +2170,8 @@ bt_machine_bind_parameter_control (const BtMachine * const self,
     data = g_new (BtControlData, 1);
     data->object = object;
     data->pspec = pspec;
+    data->pg = pg;
+    data->pi = bt_parameter_group_get_param_index (pg, property_name);
   } else {
     // stop the old device
     g_object_get ((gpointer) (data->control), "device", &device, NULL);
@@ -2175,8 +2186,9 @@ bt_machine_bind_parameter_control (const BtMachine * const self,
   g_object_get ((gpointer) (data->control), "device", &device, NULL);
   btic_device_start (device);
   g_object_unref (device);
-  /* TODO(ensonic): controls need flags to indicate whether they are absolute or relative
-   * we conect a different handler for relative ones that add/sub values to current value
+  /* TODO(ensonic): controls need flags to indicate whether they are absolute or
+   * relative, we connect a different handler for relative ones that add/sub
+   * values to current value
    */
   // connect signal handler
   switch (bt_g_type_get_base_type (pspec->value_type)) {
@@ -2247,6 +2259,7 @@ on_boolean_poly_control_notify (const BtIcControl * control, GParamSpec * arg,
       gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine),
       data->voice_ct);
   g_object_set (object, data->pspec->name, value, NULL);
+  bt_parameter_group_set_param_default (data->pg, data->pi);
   data->voice_ct = (data->voice_ct + 1) % data->machine_priv->voices;
 }
 
@@ -2265,6 +2278,7 @@ static void on_## t ##_poly_control_notify(const BtIcControl *control,GParamSpec
   machine = data->machine_priv->machines[PART_MACHINE];                                                \
   object = gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine), data->voice_ct);             \
   g_object_set(object,((GParamSpec *)p)->name,dvalue,NULL);                                            \
+  bt_parameter_group_set_param_default (data->pg, data->pi);                                           \
   data->voice_ct = (data->voice_ct + 1) % data->machine_priv->voices;                                  \
 }
 
@@ -2299,6 +2313,7 @@ on_enum_poly_control_notify (const BtIcControl * control, GParamSpec * arg,
       data->voice_ct);
   g_object_set (object, ((GParamSpec *) p)->name, e->values[dvalue].value,
       NULL);
+  bt_parameter_group_set_param_default (data->pg, data->pi);
   data->voice_ct = (data->voice_ct + 1) % data->machine_priv->voices;
 }
 
@@ -2307,13 +2322,14 @@ on_enum_poly_control_notify (const BtIcControl * control, GParamSpec * arg,
  * @self: machine
  * @property_name: name of the parameter
  * @control: interaction control object
+ * @pg: the parameter group of the property
  *
  * Connect the interaction control object to the give parameter. Changes of the
  * control-value are mapped into a change of the parameter.
  */
 void
 bt_machine_bind_poly_parameter_control (const BtMachine * const self,
-    const gchar * property_name, BtIcControl * control)
+    const gchar * property_name, BtIcControl * control, BtParameterGroup * pg)
 {
   BtPolyControlData *data;
   GstElement *machine;
@@ -2336,6 +2352,8 @@ bt_machine_bind_poly_parameter_control (const BtMachine * const self,
     data->voice_ct = 0;
     data->machine_priv = self->priv;
     data->pspec = pspec;
+    data->pg = pg;
+    data->pi = bt_parameter_group_get_param_index (pg, property_name);
   } else {
     // stop the old device
     g_object_get ((gpointer) (data->control), "device", &device, NULL);
@@ -2742,7 +2760,7 @@ bt_machine_persistence_load (const GType type,
   xmlNodePtr child_node;
   GValue value = { 0, };
   glong param, voice;
-  GstObject *machine, *machine_voice;
+  GstObject *machine;
   BtParameterGroup *pg;
 
   GST_DEBUG ("PERSISTENCE::machine");
@@ -2885,20 +2903,17 @@ bt_machine_persistence_load (const GType type,
                                 xmlGetProp (child_node,
                                     XML_CHAR_PTR ("global")))) {
                           bt_machine_bind_parameter_control (self, machine,
-                              (gchar *) property_name, control);
+                              (gchar *) property_name, control,
+                              self->priv->global_param_group);
                           xmlFree (global_str);
                         } else {
                           if ((voice_str =
                                   xmlGetProp (child_node,
                                       XML_CHAR_PTR ("voice")))) {
                             voice = atol ((char *) voice_str);
-                            machine_voice =
-                                gst_child_proxy_get_child_by_index
-                                (GST_CHILD_PROXY (machine), voice);
-                            bt_machine_bind_parameter_control (self,
-                                machine_voice, (gchar *) property_name,
-                                control);
-                            g_object_unref (machine_voice);
+                            bt_machine_bind_poly_parameter_control (self,
+                                (gchar *) property_name,
+                                control, self->priv->voice_param_groups[voice]);
                             xmlFree (voice_str);
                           }
                         }

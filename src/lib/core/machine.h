@@ -138,8 +138,8 @@ BtParameterGroup *bt_machine_get_voice_param_group(const BtMachine * const self,
 
 //-- interaction control
 
-void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control);
-void bt_machine_bind_poly_parameter_control(const BtMachine * const self, const gchar * property_name, BtIcControl * control);
+void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control, BtParameterGroup *pg);
+void bt_machine_bind_poly_parameter_control(const BtMachine * const self, const gchar * property_name, BtIcControl * control, BtParameterGroup *pg);
 void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name);
 void bt_machine_unbind_parameter_controls(const BtMachine * const self);
 

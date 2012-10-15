@@ -234,22 +234,21 @@ on_control_bind (const BtInteractionControllerMenu * menu, GParamSpec * arg,
     gpointer user_data)
 {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (user_data);
+  GObject *m = (GObject *) menu;
+  GstObject *object = g_object_get_qdata (m, control_object_quark);
+  gchar *property_name = g_object_get_qdata (m, control_property_quark);
+  BtParameterGroup *pg = g_object_get_qdata (m, widget_param_group_quark);
   BtIcControl *control;
-  GstObject *object;
-  gchar *property_name;
 
   g_object_get ((gpointer) menu, "selected-control", &control, NULL);
-  //GST_INFO("control selected: %p",control);
-  object = g_object_get_qdata (G_OBJECT (menu), control_object_quark);
-  property_name = g_object_get_qdata (G_OBJECT (menu), control_property_quark);
 
   if (bt_machine_is_polyphonic (self->priv->machine) &&
       !GST_IS_CHILD_PROXY (object)) {
     bt_machine_bind_poly_parameter_control (self->priv->machine, property_name,
-        control);
+        control, pg);
   } else {
     bt_machine_bind_parameter_control (self->priv->machine, object,
-        property_name, control);
+        property_name, control, pg);
   }
   g_object_unref (control);
 }
@@ -567,16 +566,12 @@ on_parameters_paste (GtkMenuItem * menuitem, gpointer user_data)
       BT_MACHINE_PROPERTIES_DIALOG (user_data);
   GtkClipboard *cb =
       gtk_widget_get_clipboard (GTK_WIDGET (menuitem), GDK_SELECTION_CLIPBOARD);
-  GtkWidget *menu;
-  PasteData *pd;
+  GObject *menu = (GObject *) gtk_widget_get_parent (GTK_WIDGET (menuitem));
+  PasteData *pd = g_slice_new (PasteData);
 
-  menu = gtk_widget_get_parent (GTK_WIDGET (menuitem));
-  pd = g_slice_new (PasteData);
   pd->self = self;
-  pd->pg = g_object_get_qdata (G_OBJECT (menu), widget_param_group_quark);
-  pd->pi =
-      GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (menu),
-          widget_param_num_quark));
+  pd->pg = g_object_get_qdata (menu, widget_param_group_quark);
+  pd->pi = GPOINTER_TO_INT (g_object_get_qdata (menu, widget_param_num_quark));
 
   gtk_clipboard_request_contents (cb, pattern_atom,
       pattern_clipboard_received_func, (gpointer) pd);
@@ -720,9 +715,10 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
     gpointer user_data, BtInteractionControllerMenuType type)
 {
   GstObject *param_parent = GST_OBJECT (user_data);
-  const gchar *property_name = gtk_widget_get_name (GTK_WIDGET (widget));
+  const gchar *property_name = gtk_widget_get_name (widget);
+  GObject *w = (GObject *) widget;
   BtMachinePropertiesDialog *self =
-      BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (widget),
+      BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (w,
           widget_parent_quark));
   gboolean res = FALSE;
 
@@ -730,43 +726,43 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
       event->type);
   if (event->type == GDK_BUTTON_PRESS) {
     if (event->button == 3) {
-      GtkMenu *menu;
-      GtkWidget *menu_item, *image;
+      GObject *m;
       GtkWidget *item_unbind, *item_unbind_all;
-      BtParameterGroup *pg;
-      gint pi;
-
-      pg = g_object_get_qdata (G_OBJECT (widget), widget_param_group_quark);
-      pi = GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (widget),
-              widget_param_num_quark));
+      BtParameterGroup *pg = g_object_get_qdata (w, widget_param_group_quark);
+      gint pi =
+          GPOINTER_TO_INT (g_object_get_qdata (w, widget_param_num_quark));
 
       // create context menu
       if (!self->priv->param_menu[type]) {
-        self->priv->param_menu[type] = menu =
+        GtkWidget *menu_item, *image;
+        GtkMenuShell *menu;
+
+        self->priv->param_menu[type] =
             GTK_MENU (g_object_ref_sink (bt_interaction_controller_menu_new
                 (type)));
+        menu = GTK_MENU_SHELL (self->priv->param_menu[type]);
 
         // add extra items
         menu_item = gtk_separator_menu_item_new ();
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+        gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
 
         menu_item = gtk_image_menu_item_new_with_label (_("Reset parameter"));
         g_signal_connect (menu_item, "activate",
             G_CALLBACK (on_parameter_reset), (gpointer) self);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+        gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
 
         menu_item =
             gtk_image_menu_item_new_with_label (_("Reset all parameters"));
         g_signal_connect (menu_item, "activate",
             G_CALLBACK (on_parameter_reset_all), (gpointer) self);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+        gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
 
         // add copy/paste item
         menu_item = gtk_separator_menu_item_new ();
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+        gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
 
         // TODO(ensonic): copy parameter/group/all?
@@ -775,7 +771,7 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
         g_signal_connect (menu_item, "activate",
             G_CALLBACK (on_parameters_copy_single), (gpointer) self);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+        gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
 
         menu_item = gtk_image_menu_item_new_with_label (_("Paste"));
@@ -783,23 +779,29 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
         g_signal_connect (menu_item, "activate",
             G_CALLBACK (on_parameters_paste), (gpointer) self);
-        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+        gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
-      } else {
-        menu = self->priv->param_menu[type];
       }
-      g_object_get (menu, "item-unbind", &item_unbind, "item-unbind-all",
+      m = (GObject *) self->priv->param_menu[type];
+      g_object_get (m, "item-unbind", &item_unbind, "item-unbind-all",
           &item_unbind_all, NULL);
-      g_object_set_qdata (G_OBJECT (menu), control_object_quark,
-          (gpointer) param_parent);
-      g_object_set_qdata (G_OBJECT (menu), control_property_quark,
-          (gpointer) property_name);
-      g_object_set_qdata (G_OBJECT (menu), widget_param_group_quark,
-          (gpointer) pg);
-      g_object_set_qdata (G_OBJECT (menu), widget_param_num_quark,
-          GINT_TO_POINTER (pi));
+      g_object_set_qdata (m, control_object_quark, (gpointer) param_parent);
+      g_object_set_qdata (m, control_property_quark, (gpointer) property_name);
+      g_object_set_qdata (m, widget_param_group_quark, (gpointer) pg);
+      g_object_set_qdata (m, widget_param_num_quark, GINT_TO_POINTER (pi));
 
-      g_signal_connect (menu, "notify::selected-control",
+      // disconnect previous handlers
+      g_signal_handlers_disconnect_matched (m,
+          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+          on_control_bind, self);
+      g_signal_handlers_disconnect_matched (item_unbind,
+          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+          on_control_unbind, self);
+      g_signal_handlers_disconnect_matched (item_unbind_all,
+          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+          on_control_unbind, self);
+      // attach handlers
+      g_signal_connect (m, "notify::selected-control",
           G_CALLBACK (on_control_bind), (gpointer) self);
       g_signal_connect (item_unbind, "activate", G_CALLBACK (on_control_unbind),
           (gpointer) self);
@@ -808,7 +810,7 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
       g_object_unref (item_unbind);
       g_object_unref (item_unbind_all);
 
-      gtk_menu_popup (menu, NULL, NULL, NULL, NULL, 3,
+      gtk_menu_popup (GTK_MENU (m), NULL, NULL, NULL, NULL, 3,
           gtk_get_current_event_time ());
       res = TRUE;
     } else if (event->button == 1) {
@@ -2184,22 +2186,25 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
 
   gtk_widget_set_name (GTK_WIDGET (label), property->name);
   g_object_set_qdata (G_OBJECT (label), widget_parent_quark, (gpointer) self);
+  g_object_set_qdata (G_OBJECT (label), widget_param_group_quark,
+      (gpointer) pg);
   gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
   g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark, (gpointer) self);
-  if (widget2) {
-    gtk_widget_set_name (GTK_WIDGET (widget2), property->name);
-    g_object_set_qdata (G_OBJECT (widget1), wdget_peer_quark,
-        (gpointer) widget2);
-    g_object_set_qdata (G_OBJECT (widget2), widget_parent_quark,
-        (gpointer) self);
-    g_object_set_qdata (G_OBJECT (widget2), wdget_peer_quark,
-        (gpointer) widget1);
-  }
   g_object_set_qdata (G_OBJECT (widget1), widget_param_group_quark,
       (gpointer) pg);
   g_object_set_qdata (G_OBJECT (widget1), widget_param_num_quark,
       GINT_TO_POINTER (row));
-
+  if (widget2) {
+    gtk_widget_set_name (GTK_WIDGET (widget2), property->name);
+    g_object_set_qdata (G_OBJECT (widget2), widget_parent_quark,
+        (gpointer) self);
+    g_object_set_qdata (G_OBJECT (widget2), wdget_peer_quark,
+        (gpointer) widget1);
+    g_object_set_qdata (G_OBJECT (widget2), widget_param_group_quark,
+        (gpointer) pg);
+    g_object_set_qdata (G_OBJECT (widget1), wdget_peer_quark,
+        (gpointer) widget2);
+  }
   // update formatted text on labels
   switch (base_type) {
     case G_TYPE_INT:{
@@ -2412,8 +2417,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->
-            priv->param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->priv->
+            param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)

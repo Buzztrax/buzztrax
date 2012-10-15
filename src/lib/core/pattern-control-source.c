@@ -24,13 +24,19 @@
  * The control source will update machine parameters over time, based on the
  * events from the sequences and the patterns. One control-source will handle
  * one single parameter. It implements the logic of computing the parameter
- * value for a givn time, taking multiple tracks and overlapping patterns into
+ * value for a given time, taking multiple tracks and overlapping patterns into
  * account.
+ *
+ * At the begin of the timeline (ts==0) all parameters that have no value in the
+ * sequence will be initialized from #BtPatternControlSource:default-value. For
+ * trigger parameter this usualy is the no-value. For other parameters it is the
+ * last value one has set in the ui or via interaction controller.
  */
 /* TODO(ensonic): create a variant for trigger parameters?
  * - these don't search in the sequence and they have different default_values
  */
 /* TODO(ensonic): only create controllers on machines that have tracks
+ * - parameter-group could connect to sequence::track-{added,removed}?
  */
 
 #define BT_CORE
