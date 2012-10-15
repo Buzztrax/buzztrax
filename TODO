@@ -64,6 +64,10 @@
     center-value, depth, shape, freq (controlable values of the controller)
   - we setup extra controller-functions to scale and shift the value (or
     introduce a special binding for that) 
+  - song format
+    - we store it under machine, next to {global,voice}data, patterns
+    - maybe call it {global,voice}control and have controldata children
+      (name, value)
 
 
 * OSC support

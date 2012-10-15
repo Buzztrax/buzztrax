@@ -3,6 +3,14 @@ git diff @{2012-01-01} @{2012-01-31} | diffstat
 
 2012/11 ========================================================================
 
+Finally pushed the pattern control-source: 26 files changed, 1204 insertions,
+1333 deletions. It looks like only a little gain in code size, but that is not
+true; we added more tests and splitting up a large class always comes with some
+boilerplate for the new class.
+
+* interaction controller workflow (settings, dialog)
+* synth components
+
 2012/10 ========================================================================
 
 After a discussion on IRC about tunings I looked into adding some of those to
@@ -24,11 +32,11 @@ toggle and if it is active, moving the selection in the file-browser will play
 sounds. Other discussion motivated me to implement audio-device selection in the
 settings. So far one could only select the protocol. Now for e.g. alsa or
 pulseaudio one can also choose to which device to play the audio. While working
-on the setting I started to make the interaction controller setting more useful.
-So far the only use of this settings-tab was to list the detected settings. I
-added a couple of messages to help the user to know what to do when e.g. the
-list of devices is empty. And I started to implement batch-learning of controls
-to the settings.
+on the settings I started to make the interaction controller setting more
+useful. So far the only use of this settings-tab was to list the detected
+settings. I added a couple of messages to help the user to know what to do when
+e.g. the list of devices is empty. And I started to implement batch-learning of
+controls to the settings.
   
 [1] http://en.wikipedia.org/wiki/Just_intonation#Twelve_tone_scale
 
