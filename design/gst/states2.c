@@ -1,6 +1,6 @@
 /* test state changing in gst
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states2.c -o states2
+ * gcc -Wall -g states2.c -o states2 `pkg-config gstreamer-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

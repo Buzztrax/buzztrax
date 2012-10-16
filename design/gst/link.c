@@ -1,6 +1,6 @@
 /* test linking in gst
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` link.c -o link
+ * gcc -Wall -g link.c -o link `pkg-config gstreamer-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

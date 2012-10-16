@@ -1,6 +1,6 @@
 /* test for elements in registry
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` registry.c -o registry
+ * gcc -Wall -g registry.c -o registry `pkg-config gstreamer-0.10 --cflags --libs`
  * ./registry
  */
 

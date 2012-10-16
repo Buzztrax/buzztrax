@@ -1,6 +1,6 @@
 /* initial seek to set the duration example
  *
- * gcc -Wall -g `pkg-config --cflags --libs gstreamer-0.10` seekinit.c -o seekinit
+ * gcc -Wall -g seekinit.c -o seekinit `pkg-config --cflags --libs gstreamer-0.10`
  *
  * GST_DEBUG="*:2,seekinit:3" ./seekinit
  * GST_DEBUG_DUMP_DOT_DIR=$PWD GST_DEBUG="*:2,seekinit:3" ./seekinit

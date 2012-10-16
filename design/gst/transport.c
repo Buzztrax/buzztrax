@@ -1,6 +1,6 @@
 /* test transport state handling
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` transport.c -o transport
+ * gcc -Wall -g transport.c -o transport `pkg-config gstreamer-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

@@ -1,6 +1,6 @@
 /* test mute, solo, bypass stuff in gst
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states.c -o states
+ * gcc -Wall -g states.c -o states `pkg-config gstreamer-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

@@ -1,7 +1,7 @@
 /* test glib signal calling order
  *
  * building:
- * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 --cflags --libs` gsignalorder.c -o gsignalorder
+ * gcc -Wall -g gsignalorder.c -o gsignalorder `pkg-config glib-2.0 gobject-2.0 --cflags --libs`
  *
  * running:
  * ./gsignalorder

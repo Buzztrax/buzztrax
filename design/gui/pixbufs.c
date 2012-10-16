@@ -1,6 +1,6 @@
 /* test svg pixbufs
  *
- * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` pixbufs.c -o pixbufs
+ * gcc -Wall -g pixbufs.c -o pixbufs `pkg-config gtk+-2.0 --cflags --libs`
  *
  * GTK_DEBUG=icontheme ./pixbufs
  */

@@ -1,7 +1,7 @@
 /* test mute, solo, bypass stuff in gst
  * - swaps two sources
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states3a.c -o states3a
+ * gcc -Wall -g states3a.c -o states3a `pkg-config gstreamer-0.10 --cflags --libs`
  * ./states3 --gst-debug="basesrc:4"
  */
 

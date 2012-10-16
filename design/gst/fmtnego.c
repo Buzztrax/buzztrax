@@ -1,6 +1,6 @@
 /* test dynamic format negotiation (http://bugzilla.gnome.org/show_bug.cgi?id=418982)
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` fmtnego.c -o fmtnego
+ * gcc -Wall -g fmtnego.c -o fmtnego `pkg-config gstreamer-0.10 --cflags --libs`
  * GST_DEBUG="*:2,adder:3,audioconvert:3,default*:3" ./fmtnego
  * GST_DEBUG="*:2,default*:3" ./fmtnego
  *

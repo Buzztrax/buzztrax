@@ -1,7 +1,7 @@
 /*
  * try zoomable svg images on canvas
  *
- * gcc -Wall -g `pkg-config gtk+-2.0 libgnomecanvas-2.0 librsvg-2.0 --cflags --libs` -lm svgcanvas2.c -o svgcanvas2
+ * gcc -Wall -g -lm svgcanvas2.c -o svgcanvas2 `pkg-config gtk+-2.0 libgnomecanvas-2.0 librsvg-2.0 --cflags --libs`
  */
 
 #include <math.h>

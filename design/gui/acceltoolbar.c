@@ -1,6 +1,6 @@
 /* test accelerators for toolbar items
  *
- * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` acceltoolbar.c -o acceltoolbar
+ * gcc -Wall -g acceltoolbar.c -o acceltoolbar `pkg-config gtk+-2.0 --cflags --libs`
  */
 
 #include <stdio.h>

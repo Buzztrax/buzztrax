@@ -1,6 +1,6 @@
 /* test jack/pulseaudio session handling
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` session.c -o session
+ * gcc -Wall -g session.c -o session `pkg-config gstreamer-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

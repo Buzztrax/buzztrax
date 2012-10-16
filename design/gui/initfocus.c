@@ -1,6 +1,6 @@
 /* try to set initial focus
  *
- * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` initfocus.c -o initfocus
+ * gcc -Wall -g initfocus.c -o initfocus `pkg-config gtk+-2.0 --cflags --libs`
  */
 
 #include <stdio.h>

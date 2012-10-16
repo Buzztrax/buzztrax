@@ -1,6 +1,6 @@
 /* test handling looping in gstreamer
  *
- * gcc -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` loop1.c -o loop1
+ * gcc -g loop1.c -o loop1 `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

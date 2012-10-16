@@ -1,6 +1,6 @@
 /* test seek event execution
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` event.c -o event
+ * gcc -Wall -g event.c -o event `pkg-config gstreamer-0.10 --cflags --libs`
  * GST_DEBUG="event:2" GST_DEBUG_NO_COLOR=1 ./event 2>debug.log <flush:0/1> <pipeline:0..n>
  *
  * A finished flushing seek is indicated by a async-done message on the bus.

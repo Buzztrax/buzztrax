@@ -1,6 +1,6 @@
 /* test handling disconnected elements in gstreamer
  *
- * gcc -g `pkg-config gstreamer-0.10 --cflags --libs` connection1.c -o connection1
+ * gcc -g connection1.c -o connection1 `pkg-config gstreamer-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

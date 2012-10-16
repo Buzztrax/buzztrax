@@ -1,6 +1,6 @@
 /* test hal device monitoring
  *
- * gcc -Wall -g `pkg-config glib-2.0 dbus-glib-1 hal --cflags --libs` halwatch.c -o halwatch
+ * gcc -Wall -g halwatch.c -o halwatch `pkg-config glib-2.0 dbus-glib-1 hal --cflags --libs`
  */
 
 #include <stdio.h>

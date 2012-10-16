@@ -1,7 +1,7 @@
 /* test dynamic linking
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink2.c -o dynlink2
- * gcc -Wall -g -DGST_USE_UNSTABLE_API `pkg-config gstreamer-0.11 --cflags --libs` dynlink2.c -o dynlink2
+ * gcc -Wall -g dynlink2.c -o dynlink2 `pkg-config gstreamer-0.10 --cflags --libs`
+ * gcc -Wall -g -DGST_USE_UNSTABLE_API dynlink2.c -o dynlink2 `pkg-config gstreamer-0.11 --cflags --libs`
  * GST_DEBUG="*:2" ./dynlink2
  * GST_DEBUG_DUMP_DOT_DIR=$PWD ./dynlink2
  * for file in dyn*.dot; do echo $file; dot -Tpng $file -o${file/dot/png}; done

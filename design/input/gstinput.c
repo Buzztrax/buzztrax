@@ -1,7 +1,7 @@
 /* use analysis results from a gstreamer pipleine as values for a fake input
  * device
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` gstinput.c -o gstinput
+ * gcc -Wall -g gstinput.c -o gstinput `pkg-config gstreamer-0.10 --cflags --libs`
  */
 
 #include <errno.h>

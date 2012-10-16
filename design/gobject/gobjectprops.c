@@ -1,11 +1,11 @@
 /* test gobject setter/getters
  *
  * building:
- * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 --cflags --libs` gobjectprops.c -o gobjectprops
- * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 --cflags --libs` -DG_DISABLE_ASSERT -DG_DISABLE_CHECKS -DG_DISABLE_CAST_CHECKS gobjectprops.c -o gobjectprops
+ * gcc -Wall -g gobjectprops.c -o gobjectprops `pkg-config glib-2.0 gobject-2.0 --cflags --libs`
+ * gcc -Wall -g -DG_DISABLE_ASSERT -DG_DISABLE_CHECKS -DG_DISABLE_CAST_CHECKS gobjectprops.c -o gobjectprops `pkg-config glib-2.0 gobject-2.0 --cflags --libs`
  * only set or get
- * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 --cflags --libs` -DSKIP_SET gobjectprops.c -o gobjectprops
- * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 --cflags --libs` -DSKIP_GET gobjectprops.c -o gobjectprops
+ * gcc -Wall -g -DSKIP_SET gobjectprops.c -o gobjectprops `pkg-config glib-2.0 gobject-2.0 --cflags --libs`
+ * gcc -Wall -g -DSKIP_GET gobjectprops.c -o gobjectprops `pkg-config glib-2.0 gobject-2.0 --cflags --libs`
  *
  * running:
  * LD_LIBRARY_PATH=/home/ensonic/debug/lib ./gobjectprops

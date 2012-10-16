@@ -1,7 +1,7 @@
 /* test mute, solo, bypass stuff in gst
  * - just keep muted elements outgoing pad blocked
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states1b.c -o states1b
+ * gcc -Wall -g states1b.c -o states1b`pkg-config gstreamer-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

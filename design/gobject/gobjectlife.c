@@ -1,7 +1,7 @@
 /* test gobject construction/destruction order
  *
  * building:
- * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 --cflags --libs` gobjectlife.c -o gobjectlife
+ * gcc -Wall -g gobjectlife.c -o gobjectlife `pkg-config glib-2.0 gobject-2.0 --cflags --libs`
  *
  * running:
  * LD_LIBRARY_PATH=/home/ensonic/debug/lib ./gobjectlife

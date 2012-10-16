@@ -1,6 +1,6 @@
 /* Record n seconds of beep to an ogg file with intermediate seeks
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` oggmux.c -o oggmux
+ * gcc -Wall -g oggmux.c -o oggmux `pkg-config gstreamer-0.10 --cflags --libs`
  *
  * ./oggmux 0; oggz-validate oggmux.ogg
  * ./oggmux 1; oggz-validate oggmux.ogg

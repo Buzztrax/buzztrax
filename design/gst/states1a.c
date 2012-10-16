@@ -1,7 +1,7 @@
 /* test mute, solo, bypass stuff in gst
  * - alternatively use a silence for src1 and src2
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states1a.c -o states1a
+ * gcc -Wall -g states1a.c -o states1a `pkg-config gstreamer-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

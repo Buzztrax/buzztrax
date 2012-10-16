@@ -2,7 +2,7 @@
  *
  * http://scentric.net/tutorial/
  *
- * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` treeview.c -o treeview
+ * gcc -Wall -g treeview.c -o treeview `pkg-config gtk+-2.0 --cflags --libs`
  */
 
 #include <stdio.h>
@@ -88,9 +88,9 @@ init ()
   GtkListStore *store;
   GtkTreeIter tree_iter;
   GtkTreeViewColumn *tree_col;
-  GstTriggerSwitch triggers[] =
-      { GST_TRIGGER_SWITCH_OFF, GST_TRIGGER_SWITCH_ON,
-        GST_TRIGGER_SWITCH_EMPTY };
+  GstTriggerSwitch triggers[] = { GST_TRIGGER_SWITCH_OFF, GST_TRIGGER_SWITCH_ON,
+    GST_TRIGGER_SWITCH_EMPTY
+  };
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window), "Syncronized views");

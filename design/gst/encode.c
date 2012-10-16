@@ -1,6 +1,6 @@
 /* Record n seconds of beep to a file
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 gstreamer-base-0.10 --cflags --libs` encode.c -o encode
+ * gcc -Wall -g encode.c -o encode `pkg-config gstreamer-0.10 gstreamer-base-0.10 --cflags --libs`
  *
  * for fmt in `seq 0 6`; do ./encode $fmt; done
  *

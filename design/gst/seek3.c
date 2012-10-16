@@ -3,7 +3,7 @@
  *
  * Use different seek variants
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` seek3.c -o seek3
+ * gcc -Wall -g seek3.c -o seek3 `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs`
  */
 
 #include <gst/gst.h>
@@ -155,7 +155,6 @@ main (gint argc, gchar ** argv)
     GST_WARNING ("can't link elements");
     goto Error;
   }
-
   // configure source 1
   g_object_set (src1, "freq", 200.0, NULL);
   // add a controller to the source1

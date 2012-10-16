@@ -1,6 +1,6 @@
 /* test dynamic linking
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink.c -o dynlink
+ * gcc -Wall -g dynlink.c -o dynlink `pkg-config gstreamer-0.10 --cflags --libs`
  * GST_DEBUG="*:3" ./dynlink
  */
 

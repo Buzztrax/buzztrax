@@ -1,4 +1,6 @@
 /* prints all available gst plugins to the console 
+ *
+ * gcc -Wall -g browser.c -o browser `pkg-config gstreamer-0.10 --cflags --libs`
 */
 
 #include <stdio.h>

@@ -1,7 +1,7 @@
 /*
  * try svg images on canvas
  *
- * gcc -Wall -g `pkg-config gtk+-2.0 libgnomecanvas-2.0 --cflags --libs` canvas-redraw.c -o canvas-redraw
+ * gcc -Wall -g canvas-redraw.c -o canvas-redraw `pkg-config gtk+-2.0 libgnomecanvas-2.0 --cflags --libs`
  */
 
 #include <stdio.h>

@@ -2,7 +2,7 @@
  * volume. Use seeks to play partially or as a loop and adds a tee + analyzers.
  * 
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` seek2.c -o seek2
+ * gcc -Wall -g seek2.c -o seek2 `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs`
  */
 
 #include <gst/gst.h>

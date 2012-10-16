@@ -1,6 +1,6 @@
 /* test raw-midi io
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` rawmidi.c -o rawmidi
+ * gcc -Wall -g rawmidi.c -o rawmidi `pkg-config gstreamer-0.10 --cflags --libs`
  */
 
 #include <fcntl.h>

@@ -1,7 +1,7 @@
 /* test audio latency
  * the latency tells us how much too early the audio is generated
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` latency.c -o latency
+ * gcc -Wall -g latency.c -o latency `pkg-config gstreamer-0.10 --cflags --libs`
  * GST_DEBUG="latency:4" ./latency >latency.dbg
  * ./latency.sh | gnuplot; eog latency.png
  */

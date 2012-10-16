@@ -1,7 +1,7 @@
 /* test gobject construction/destruction order
  *
  * building:
- * gcc -Wall -g `pkg-config glib-2.0 gconf-2.0 --cflags --libs` gconftest.c -o gconftest
+ * gcc -Wall -g gconftest.c -o gconftest `pkg-config glib-2.0 gconf-2.0 --cflags --libs`
  *
  * running:
  * GCONF_DEBUG_TRACE_CLIENT=1 ./gconftest

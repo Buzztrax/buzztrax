@@ -1,6 +1,6 @@
 /* test popup menus with accelerator keys
  *
- * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` accelpopup.c -o accelpopup
+ * gcc -Wall -g accelpopup.c -o accelpopup `pkg-config gtk+-2.0 --cflags --libs`
  */
 
 #include <stdio.h>

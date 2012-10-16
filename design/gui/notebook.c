@@ -1,6 +1,6 @@
 /* test adding pages to notebook
  *
- * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` notebook.c -o notebook
+ * gcc -Wall -g notebook.c -o notebook `pkg-config gtk+-2.0 --cflags --libs`
  */
 
 #include <stdio.h>

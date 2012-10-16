@@ -1,7 +1,7 @@
 /* test moditying keyboard leds
  *
  * building:
- * gcc -Wall -g `pkg-config glib-2.0 --cflags --libs` setled.c -o setled
+ * gcc -Wall -g setled.c -o setled `pkg-config glib-2.0 --cflags --libs`
  *
  * damn, access to the devices needs root privileges to run
  */

@@ -1,6 +1,6 @@
 /* test level meter drawing
  *
- * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` -I../../src/ui/edit/ levelmeter.c ../../src/ui/edit/gtkvumeter.c -o levelmeter
+ * gcc -Wall -g -I../../src/ui/edit/ levelmeter.c ../../src/ui/edit/gtkvumeter.c -o levelmeter `pkg-config gtk+-2.0 --cflags --libs`
  */
 
 #include <stdio.h>

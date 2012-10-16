@@ -2,7 +2,7 @@
  * and sweep frequency and volume
  * Use seeks to play partially or as a loop
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` seek1.c -o seek1
+ * gcc -Wall -g seek1.c -o seek1 `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs`
  */
 
 #include <gst/gst.h>

@@ -1,6 +1,6 @@
 /* Record n seconds of beep to an ogg file and checks duration queries
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` duration.c -o duration
+ * gcc -Wall -g duration.c -o duration `pkg-config gstreamer-0.10 --cflags --libs`
  *
  * - the bin will query the duration from the sink(s)
  * - this will take the max value

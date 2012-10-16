@@ -1,7 +1,7 @@
 /*
  * demo app for rulers
  * 
- * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` rulers.c -o rulers
+ * gcc -Wall -g rulers.c -o rulers `pkg-config gtk+-2.0 --cflags --libs`
  *
  * This demo will be used to improve and test the ruler widget. See:
  * http://live.gnome.org/GTK%2B/GtkRuler

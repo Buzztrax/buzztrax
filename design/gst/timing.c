@@ -1,6 +1,6 @@
 /* test timing quantization
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` timing.c -o timing
+ * gcc -Wall -g timing.c -o timing `pkg-config gstreamer-0.10 --cflags --libs`
  *
  * ./timing <sampling-rate> <bpm> <tpb>
  */

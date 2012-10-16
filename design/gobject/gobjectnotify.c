@@ -1,7 +1,7 @@
 /* test gobject notify during construction
  *
  * building:
- * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 gthread-2.0 --cflags --libs` gobjectnotify.c -o gobjectnotify
+ * gcc -Wall -g gobjectnotify.c -o gobjectnotify `pkg-config glib-2.0 gobject-2.0 gthread-2.0 --cflags --libs`
  *
  * running:
  * ./gobjectnotify

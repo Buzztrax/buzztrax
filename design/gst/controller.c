@@ -1,6 +1,6 @@
 /* more complex controller example
  *
- * gcc -Wall -g `pkg-config --cflags --libs gstreamer-0.10 gstreamer-controller-0.10 libgstbuzztard` controller.c -o controller
+ * gcc -Wall -g controller.c -o controller`pkg-config --cflags --libs gstreamer-0.10 gstreamer-controller-0.10 libgstbuzztard`
  */
 
 #include <glib.h>

@@ -1,6 +1,6 @@
 /* test tag writing in gst
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` tags1.c -o tags1
+ * gcc -Wall -g tags1.c -o tags1 `pkg-config gstreamer-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

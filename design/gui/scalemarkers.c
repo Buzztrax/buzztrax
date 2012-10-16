@@ -1,8 +1,8 @@
 /*
  * test app for scale markers
  * 
- * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` scalemarkers.c -o scalemarkers-2
- * gcc -Wall -g `pkg-config gtk+-3.0 --cflags --libs` scalemarkers.c -o scalemarkers-3
+ * gcc -Wall -g scalemarkers.c -o scalemarkers-2`pkg-config gtk+-2.0 --cflags --libs`
+ * gcc -Wall -g scalemarkers.c -o scalemarkers-3 `pkg-config gtk+-3.0 --cflags --libs`
  *
  */
 

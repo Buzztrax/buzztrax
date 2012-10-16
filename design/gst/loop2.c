@@ -34,7 +34,7 @@
  * - src can send segment-start message and new-segment-event right away when
  *   the handle the seek, as they have been paused anyway 
  *
- * gcc -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` loop2.c -o loop2
+ * gcc -g loop2.c -o loop2 `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

@@ -1,7 +1,7 @@
 /* testing dealing with type pun warnings
  *
  * building:
- * gcc -Wall -g `pkg-config glib-2.0 gobject-2.0 --cflags --libs` typepun.c -o typepun
+ * gcc -Wall -g typepun.c -o typepun `pkg-config glib-2.0 gobject-2.0 --cflags --libs`
 */
 
 #include <stdio.h>

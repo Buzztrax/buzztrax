@@ -1,6 +1,6 @@
 /* test gstreamer refcounts
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` ref.c -o ref
+ * gcc -Wall -g ref.c -o ref `pkg-config gstreamer-0.10 --cflags --libs`
  *
  * ./ref
  */

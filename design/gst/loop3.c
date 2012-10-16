@@ -4,7 +4,7 @@
  * issue. This emulates the whole stucture in buzztard, loop2.c has a cut-down
  * version that shows the problem.
  *
- * gcc -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` loop3.c -o loop3
+ * gcc -g loop3.c -o loop3 `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs`
  */
 
 #include <stdio.h>

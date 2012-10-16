@@ -1,7 +1,7 @@
 /*
  * show all colors in a GtkStyle
  *
- * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` stylecolors.c -o stylecolors
+ * gcc -Wall -g stylecolors.c -o stylecolors `pkg-config gtk+-2.0 --cflags --libs`
  *
  * GTK2_RC_FILES=$HOME/.themes/Clearlooks-DarkOrange/gtk-2.0/gtkrc ./stylecolors
  */

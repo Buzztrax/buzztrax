@@ -1,7 +1,7 @@
 /*
  * test to use clutter for a gnome-canvas replacement
  *
- * gcc -Wall -g cluttercanvas.c -o cluttercanvas `pkg-config clutter-1.0 clutter-gtk-0.10 gtk+-2.0 --cflags  --libs`
+ * gcc -Wall -g cluttercanvas.c -o cluttercanvas `pkg-config clutter-1.0 clutter-gtk-1.0 gtk+-2.0 --cflags  --libs`
  */
 
 #include <gtk/gtk.h>

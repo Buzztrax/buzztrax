@@ -1,6 +1,6 @@
 /* test synchonized scrolling of two treeviews
  *
- * gcc -Wall -g `pkg-config gtk+-2.0 --cflags --libs` syncviews.c -o syncviews
+ * gcc -Wall -g syncviews.c -o syncviews `pkg-config gtk+-2.0 --cflags --libs`
  */
 
 #include <stdio.h>
