@@ -1,7 +1,7 @@
 /*
  * try zoomable svg images on canvas
  *
- * gcc -Wall -g -lm svgcanvas2.c -o svgcanvas2 `pkg-config gtk+-2.0 libgnomecanvas-2.0 librsvg-2.0 --cflags --libs`
+ * gcc -Wall -g -lm svgcanvas2.c -o svgcanvas2 `pkg-config glib-2.0 gtk+-2.0 libgnomecanvas-2.0 librsvg-2.0 --cflags --libs`
  */
 
 #include <math.h>
@@ -444,7 +444,7 @@ main (int argc, char **argv)
   gnome_canvas_points_free (points);
 
   // add one svg as a pixbuf item
-#if 0
+#ifdef USE_V1
   RsvgHandle *svg;
   RsvgDimensionData dim;
   const gchar *str;
@@ -465,7 +465,7 @@ main (int argc, char **argv)
   printf ("svg dimensions: w,h = %d,%d,  em,ex = %lf,%lf\n",
       dim.width, dim.height, dim.em, dim.ex);
 
-  // I can affect the size :(
+  // I can't affect the size :(
   //rsvg_handle_set_dpi (svg, 10.0);
   //rsvg_handle_set_dpi_x_y (svg, 30.0, 30.0);
   pixbuf = rsvg_handle_get_pixbuf (svg);

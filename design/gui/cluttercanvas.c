@@ -2,6 +2,9 @@
  * test to use clutter for a gnome-canvas replacement
  *
  * gcc -Wall -g cluttercanvas.c -o cluttercanvas `pkg-config clutter-1.0 clutter-gtk-1.0 gtk+-2.0 --cflags  --libs`
+ *
+ * try machines: clutter_image_new() + clutter_image_set_data ()
+ *
  */
 
 #include <gtk/gtk.h>
@@ -10,6 +13,10 @@
 #include <stdlib.h>
 
 ClutterActor *stage = NULL;
+ClutterActor *canvas = NULL;
+
+#define WIDTH 640.0
+#define HEIGHT 480.0
 
 static gboolean
 on_button_clicked (GtkButton * button, gpointer user_data)
@@ -37,12 +44,27 @@ on_stage_button_press (ClutterStage * stage, ClutterEvent * event,
   return TRUE;                  /* Stop further handling of this event. */
 }
 
+static void
+on_v_scroll (GtkAdjustment * adjustment, gpointer user_data)
+{
+  clutter_actor_set_y (canvas, -gtk_adjustment_get_value (adjustment));
+}
+
+static void
+on_h_scroll (GtkAdjustment * adjustment, gpointer user_data)
+{
+  clutter_actor_set_x (canvas, -gtk_adjustment_get_value (adjustment));
+}
+
 int
 main (int argc, char *argv[])
 {
   gint i;
 
-  gtk_clutter_init (&argc, &argv);
+  if (gtk_clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+    return 1;
+
+  GtkIconTheme *it = gtk_icon_theme_get_default ();
 
   /* Create the window and some child widgets: */
   GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -50,7 +72,7 @@ main (int argc, char *argv[])
   /* Stop the application when the window is closed: */
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
-  GtkWidget *vbox = gtk_vbox_new (FALSE, 6);
+  GtkWidget *vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   gtk_container_add (GTK_CONTAINER (window), vbox);
 
   GtkWidget *button = gtk_button_new_with_label ("Change Color");
@@ -72,56 +94,77 @@ main (int argc, char *argv[])
   stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter_widget));
   ClutterColor stage_color = { 0x00, 0x00, 0x00, 0xff };        /* Black */
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
-  clutter_actor_set_size (stage, 640.0, 480.0);
+  clutter_actor_set_size (stage, WIDTH, HEIGHT);
   clutter_actor_set_position (stage, 0.0, 0.0);
   /* Connect a signal handler to handle mouse clicks and key presses on the stage: */
   g_signal_connect (stage, "button-press-event",
       G_CALLBACK (on_stage_button_press), NULL);
 
-  /* Create a viewport actor to be able to scroll actor. By passing NULL it
-   * will create new GtkAdjustments. */
-  ClutterActor *viewport = gtk_clutter_viewport_new (NULL, NULL, NULL);
-  clutter_actor_set_position (viewport, 0.0, 0.0);
-  clutter_actor_set_size (viewport, 640.0, 480.0);
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), viewport);
+  /* Add canvas (root group) 
+   * we're using this for scrolling
+   * in clutter 1.12 we shoud use ScrollActor
+   */
+  canvas = clutter_group_new ();
+  clutter_container_add_actor (CLUTTER_CONTAINER (stage), canvas);
 
   /* Add boxes */
   for (i = 20; i < 250; i += 30) {
     ClutterColor actor_color = { 0, 255 - i, i, 128 };
     ClutterActor *rect = clutter_rectangle_new_with_color (&actor_color);
-    // FIXME: objects are all at top left
-    //clutter_container_add_actor(CLUTTER_CONTAINER(viewport), rect);
-    clutter_container_add_actor (CLUTTER_CONTAINER (stage), rect);
+    clutter_container_add_actor (CLUTTER_CONTAINER (canvas), rect);
     clutter_actor_set_size (rect, 50.0, 50.0);
     clutter_actor_set_position (rect, (gfloat) i, (gfloat) i);
   }
+  for (i = 20; i < 250; i += 30) {
+    ClutterColor actor_color = { 255 - i, 0, i, 128 };
+    ClutterActor *rect = clutter_rectangle_new_with_color (&actor_color);
+    clutter_container_add_actor (CLUTTER_CONTAINER (canvas), rect);
+    clutter_actor_set_size (rect, 50.0, 50.0);
+    clutter_actor_set_position (rect, (gfloat) 305 - i, (gfloat) i);
+  }
+
+  /* Try an image */
+  GdkPixbuf *pixbuf = gtk_icon_theme_load_icon (it,
+      "buzztard_generator", 64,
+      GTK_ICON_LOOKUP_FORCE_SVG | GTK_ICON_LOOKUP_FORCE_SIZE, NULL);
+  ClutterContent *image = clutter_image_new ();
+  clutter_image_set_data (CLUTTER_IMAGE (image),
+      gdk_pixbuf_get_pixels (pixbuf), gdk_pixbuf_get_has_alpha (pixbuf)
+      ? COGL_PIXEL_FORMAT_RGBA_8888
+      : COGL_PIXEL_FORMAT_RGB_888,
+      gdk_pixbuf_get_width (pixbuf),
+      gdk_pixbuf_get_height (pixbuf), gdk_pixbuf_get_rowstride (pixbuf), NULL);
+  g_object_unref (pixbuf);
+  ClutterActor *box = clutter_actor_new ();
+  //clutter_actor_add_constraint (box, clutter_bind_constraint_new (stage, CLUTTER_BIND_SIZE, 0.0));
+  clutter_actor_set_size (box, 64.0, 64.0);
+  clutter_actor_set_content_scaling_filters (box,
+      CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
+  clutter_actor_set_content (box, image);
+  g_object_unref (image);
+  clutter_container_add_actor (CLUTTER_CONTAINER (canvas), box);
+
+  /* Show all content */
   clutter_actor_show_all (stage);
 
-  /* Create scrollbars and connect them to viewport: */
+  /* Create scrollbars and connect them */
   GtkAdjustment *h_adjustment = NULL, *v_adjustment = NULL;
-  gtk_clutter_scrollable_get_adjustments (GTK_CLUTTER_SCROLLABLE (viewport),
-      &h_adjustment, &v_adjustment);
-  GtkWidget *scrollbar = gtk_vscrollbar_new (v_adjustment);
+  GtkWidget *scrollbar;
+
+  v_adjustment =
+      gtk_adjustment_new (0.0, 0.0, HEIGHT, 1.0, 10.0, HEIGHT / 10.0);
+  g_signal_connect (v_adjustment, "value-changed", G_CALLBACK (on_v_scroll),
+      NULL);
+  scrollbar = gtk_scrollbar_new (GTK_ORIENTATION_VERTICAL, v_adjustment);
   gtk_table_attach (GTK_TABLE (table), scrollbar,
       1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL, 0, 0);
-  gtk_adjustment_set_page_size (v_adjustment,
-      gtk_adjustment_get_page_size (v_adjustment) / 2.0);
-  g_print ("v_adj: %lf ... %lf ... %lf : %lf\n",
-      gtk_adjustment_get_lower (v_adjustment),
-      gtk_adjustment_get_value (v_adjustment),
-      gtk_adjustment_get_upper (v_adjustment),
-      gtk_adjustment_get_page_size (v_adjustment));
 
-  scrollbar = gtk_hscrollbar_new (h_adjustment);
+  h_adjustment = gtk_adjustment_new (0.0, 0.0, WIDTH, 1.0, 10.0, WIDTH / 10.0);
+  g_signal_connect (h_adjustment, "value-changed", G_CALLBACK (on_h_scroll),
+      NULL);
+  scrollbar = gtk_scrollbar_new (GTK_ORIENTATION_HORIZONTAL, h_adjustment);
   gtk_table_attach (GTK_TABLE (table), scrollbar,
       0, 1, 1, 2, GTK_EXPAND | GTK_FILL, 0, 0, 0);
-  gtk_adjustment_set_page_size (h_adjustment,
-      gtk_adjustment_get_page_size (h_adjustment) / 2.0);
-  g_print ("h_adj: %lf ... %lf ... %lf : %lf\n",
-      gtk_adjustment_get_lower (h_adjustment),
-      gtk_adjustment_get_value (h_adjustment),
-      gtk_adjustment_get_upper (h_adjustment),
-      gtk_adjustment_get_page_size (h_adjustment));
 
   /* Show the window: */
   gtk_widget_show_all (GTK_WIDGET (window));
