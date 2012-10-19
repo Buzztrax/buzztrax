@@ -660,8 +660,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->
-                        dst_wires->data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->dst_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -689,8 +689,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->
-                        src_wires->data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->src_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1088,17 +1088,31 @@ static void
 bt_machine_init_interfaces (const BtMachine * const self)
 {
   GstElement *machine = self->priv->machines[PART_MACHINE];
+  GObjectClass *klass = G_OBJECT_GET_CLASS (machine);
+  GParamSpec *pspec;
+
   /* initialize buzz-host-callbacks (structure with callbacks)
    * buzzmachines can then call c function of the host
    * would be good to set this as early as possible
    */
-  if (g_object_class_find_property (G_OBJECT_GET_CLASS (machine),
-          "host-callbacks")) {
-    extern void *bt_buzz_callbacks_get (BtSong * song);
+  pspec = g_object_class_find_property (klass, "host-callbacks");
+  if (pspec && G_IS_PARAM_SPEC_POINTER (pspec)) {
+    extern gpointer bt_buzz_callbacks_get (BtSong * song);
 
     g_object_set (machine, "host-callbacks",
         bt_buzz_callbacks_get (self->priv->song), NULL);
     GST_INFO ("  host-callbacks iface initialized");
+  }
+  pspec = g_object_class_find_property (klass, "wave-callbacks");
+  if (pspec && G_IS_PARAM_SPEC_POINTER (pspec)) {
+    extern gpointer bt_wavetable_callbacks_get (BtWavetable * self);
+    BtWavetable *wavetable;
+
+    g_object_get (self->priv->song, "wavetable", &wavetable, NULL);
+    g_object_set (machine, "wave-callbacks",
+        bt_wavetable_callbacks_get (wavetable), NULL);
+    g_object_unref (wavetable);
+    GST_INFO ("  wave-table bridge initialized");
   }
   // initialize child-proxy iface properties
   if (GSTBT_IS_CHILD_BIN (machine)) {
@@ -1303,8 +1317,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                      priv->machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                      machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1366,8 +1380,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                    priv->machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                    machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 

@@ -380,10 +380,14 @@ bt_wavelevel_class_init (BtWavelevelClass * const klass)
   gobject_class->dispose = bt_wavelevel_dispose;
   gobject_class->finalize = bt_wavelevel_finalize;
 
-  g_object_class_install_property (gobject_class, WAVELEVEL_SONG, g_param_spec_object ("song", "song contruct prop", "Set song object, the wavelevel belongs to", BT_TYPE_SONG, /* object type */
+  g_object_class_install_property (gobject_class, WAVELEVEL_SONG,
+      g_param_spec_object ("song", "song contruct prop",
+          "Set song object, the wavelevel belongs to", BT_TYPE_SONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WAVELEVEL_WAVE, g_param_spec_object ("wave", "wave contruct prop", "Set wave object, the wavelevel belongs to", BT_TYPE_WAVE, /* object type */
+  g_object_class_install_property (gobject_class, WAVELEVEL_WAVE,
+      g_param_spec_object ("wave", "wave contruct prop",
+          "Set wave object, the wavelevel belongs to", BT_TYPE_WAVE,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   // @idea make this an own type -> BtNote enum?

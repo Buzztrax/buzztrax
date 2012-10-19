@@ -434,7 +434,9 @@ bt_wavetable_class_init (BtWavetableClass * const klass)
       BT_TYPE_WAVE              // param data
       );
 
-  g_object_class_install_property (gobject_class, WAVETABLE_SONG, g_param_spec_object ("song", "song contruct prop", "Set song object, the wavetable belongs to", BT_TYPE_SONG, /* object type */
+  g_object_class_install_property (gobject_class, WAVETABLE_SONG,
+      g_param_spec_object ("song", "song contruct prop",
+          "Set song object, the wavetable belongs to", BT_TYPE_SONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVETABLE_WAVES,
@@ -448,4 +450,56 @@ bt_wavetable_class_init (BtWavetableClass * const klass)
           "missing-waves list prop",
           "The list of missing waves, don't change",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+}
+
+//-- wavetable callback hack
+
+static GstBuffer *
+get_wave_buffer (BtWavetable * self, guint wave_ix, guint wave_level_ix)
+{
+  BtWave *wave;
+  BtWavelevel *wavelevel;
+  GstBuffer *buffer = NULL;
+
+  if ((wave = bt_wavetable_get_wave_by_index (self, wave_ix))) {
+    if ((wavelevel = bt_wave_get_level_by_index (wave, wave_level_ix))) {
+      GstCaps *caps;
+      gpointer *data;
+      gulong length;
+      guint channels;
+
+      g_object_get (wave, "channels", &channels, NULL);
+      g_object_get (wavelevel, "data", &data, "length", &length, NULL);
+
+      caps = gst_caps_new_simple ("audio/x-raw-int",
+          "rate", G_TYPE_INT, 44100,
+          "channels", G_TYPE_INT, channels,
+          "width", G_TYPE_INT, 16,
+          "endianness", G_TYPE_INT, G_BYTE_ORDER,
+          "signed", G_TYPE_BOOLEAN, TRUE, NULL);
+
+      buffer = gst_buffer_new ();
+      GST_BUFFER_DATA (buffer) = (guint8 *) data;
+      GST_BUFFER_SIZE (buffer) = channels * length * sizeof (gint16);
+      GST_BUFFER_CAPS (buffer) = caps;
+
+      g_object_unref (wavelevel);
+    }
+    g_object_unref (wave);
+  }
+  return buffer;
+}
+
+static gpointer callbacks[] = {
+  /* user-data */
+  NULL,
+  /* callbacks */
+  get_wave_buffer
+};
+
+gpointer
+bt_wavetable_callbacks_get (BtWavetable * self)
+{
+  callbacks[0] = (gpointer) self;
+  return &callbacks;
 }
