@@ -22,6 +22,7 @@
 
 #include "core_private.h"
 #ifdef USE_BML
+// for CHostCallbacks
 #include <libbml/bml.h>
 
 /*
@@ -65,7 +66,6 @@ GetWave (CHostCallbacks * self, int const i)
   GST_DEBUG ("(%p,%d)", self, i);
   if (G_UNLIKELY (!song))
     return (NULL);
-
 
   g_object_get (song, "wavetable", &wavetable, NULL);
   if (G_UNLIKELY (!wavetable))
@@ -228,7 +228,7 @@ static CHostCallbacks callbacks = {
  *
  * Returns: the callbacks
  */
-void *
+gpointer
 bt_buzz_callbacks_get (BtSong * song)
 {
 #ifdef USE_BML
