@@ -722,14 +722,21 @@ bt_machine_resize_voices (const BtMachine * const self, const gulong old_voices)
   gulong new_voices = self->priv->voices;
   const gulong voice_params = self->priv->voice_params;
   GstElement *machine = self->priv->machines[PART_MACHINE];
+  GParamSpecULong *pspec;
 
-  // TODO(ensonic): GSTBT_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
-  if (!machine || !GSTBT_IS_CHILD_BIN (machine)) {
-    GST_WARNING_OBJECT (self, "machine %s:%p is NULL or not polyphonic!",
-        self->priv->id, machine);
+  // clamp to property bounds
+  if ((pspec = (GParamSpecULong *)
+          g_object_class_find_property (G_OBJECT_GET_CLASS (machine),
+              "children"))) {
+    self->priv->voices = CLAMP (new_voices, pspec->minimum, pspec->maximum);
+  }
+  if (old_voices == self->priv->voices) {
+    GST_INFO_OBJECT (self, "not changing changing machine voices");
     return;
   }
+  new_voices = self->priv->voices;
 
+  // clamp to run-time bounds
   g_object_set (machine, "children", new_voices, NULL);
   g_object_get (machine, "children", &self->priv->voices, NULL);
   if (old_voices == self->priv->voices) {
@@ -1113,16 +1120,6 @@ bt_machine_init_interfaces (const BtMachine * const self)
         bt_wavetable_callbacks_get (wavetable), NULL);
     g_object_unref (wavetable);
     GST_INFO ("  wave-table bridge initialized");
-  }
-  // initialize child-proxy iface properties
-  if (GSTBT_IS_CHILD_BIN (machine)) {
-    if (!self->priv->voices) {
-      GST_WARNING_OBJECT (self, "voices==0");
-      //g_object_get(machine,"children",&self->priv->voices,NULL);
-    } else {
-      g_object_set (machine, "children", self->priv->voices, NULL);
-    }
-    GST_INFO ("  child proxy iface initialized");
   }
   // initialize tempo iface properties
   if (GSTBT_IS_TEMPO (machine)) {
@@ -3220,16 +3217,14 @@ bt_machine_set_property (GObject * const object, const guint property_id,
     case MACHINE_VOICES:{
       const gulong voices = self->priv->voices;
       self->priv->voices = g_value_get_ulong (value);
-      if (voices != self->priv->voices) {
-        if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
-          GST_DEBUG_OBJECT (self, "set the voices for machine: %lu -> %lu",
-              voices, self->priv->voices);
-          bt_machine_resize_voices (self, voices);
-        } else if (self->priv->voices > 1) {
-          GST_WARNING_OBJECT (self,
-              "ignoring change in voices  %lu -> %lu for monophonic machine",
-              voices, self->priv->voices);
-        }
+      if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
+        GST_DEBUG_OBJECT (self, "set the voices for machine: %lu -> %lu",
+            voices, self->priv->voices);
+        bt_machine_resize_voices (self, voices);
+      } else if (self->priv->voices > 1) {
+        GST_WARNING_OBJECT (self,
+            "ignoring change in voices  %lu -> %lu for monophonic machine",
+            voices, self->priv->voices);
       }
       break;
     }

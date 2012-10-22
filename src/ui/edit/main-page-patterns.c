@@ -1759,13 +1759,23 @@ context_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),TRUE);
     if (has_patterns) {
       if (bt_machine_is_polyphonic (machine)) {
-        gulong voices;
+        GstElement *elem;
+        GParamSpecULong *pspec;
+        gulong min_voices = 0, max_voices = G_MAXULONG, voices;
 
-        g_object_get (machine, "voices", &voices, NULL);
+        g_object_get (machine, "voices", &voices, "machine", &elem, NULL);
+        if ((pspec = (GParamSpecULong *)
+                g_object_class_find_property (G_OBJECT_GET_CLASS (elem),
+                    "children"))) {
+          min_voices = pspec->minimum;
+          max_voices = pspec->maximum;
+        }
+
         gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_add), TRUE);
+                priv->context_menu_track_add), (voices < max_voices));
         gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_remove), (voices > 0));
+                priv->context_menu_track_remove), (voices > min_voices));
+        gst_object_unref (elem);
       } else {
         gtk_widget_set_sensitive (GTK_WIDGET (self->
                 priv->context_menu_track_add), FALSE);
