@@ -1121,6 +1121,16 @@ bt_machine_init_interfaces (const BtMachine * const self)
     g_object_unref (wavetable);
     GST_INFO ("  wave-table bridge initialized");
   }
+  // initialize child-proxy iface properties
+  if (GSTBT_IS_CHILD_BIN (machine)) {
+    if (!self->priv->voices) {
+      GST_WARNING_OBJECT (self, "voices==0");
+      //g_object_get(machine,"children",&self->priv->voices,NULL);
+    } else {
+      g_object_set (machine, "children", self->priv->voices, NULL);
+    }
+    GST_INFO ("  child proxy iface initialized");
+  }
   // initialize tempo iface properties
   if (GSTBT_IS_TEMPO (machine)) {
     BtSongInfo *song_info;
