@@ -483,8 +483,8 @@ bt_sequence_calculate_wait_per_position (const BtSequence * const self)
   // release the references
   g_object_unref (song_info);
 
-  GST_INFO ("calculating songs bar-time %" G_GUINT64_FORMAT,
-      self->priv->wait_per_position);
+  GST_INFO ("calculating songs bar-time, tpm=%lf, %" G_GUINT64_FORMAT,
+      ticks_per_minute, self->priv->wait_per_position);
 }
 
 //-- event handler
@@ -975,7 +975,11 @@ bt_sequence_set_pattern (const BtSequence * const self, const gulong time,
  *
  * Returns: the length of one sequence bar in microseconds
  */
-/* TODO(ensonic): rename to bt_sequence_get_tick_duration(), or turn into property ?*/
+/* TODO(ensonic): rename to bt_sequence_get_tick_duration(), or turn into property ?
+ * - with the property we can remove bt_sequence_update_tempo() and move
+ *   bt_sequence_calculate_wait_per_position() to song-info where we set the
+ *   property on sequence to update the value.
+ */
 GstClockTime
 bt_sequence_get_bar_time (const BtSequence * const self)
 {
@@ -1327,12 +1331,12 @@ bt_sequence_delete_full_rows (const BtSequence * const self, const gulong time,
  * bt_sequence_update_tempo:
  * @self: the sequence
  *
- * Refresh sequence after tempo changes. Called from #BtSongInfo.
+ * Recalc timings after tempo changes. Called from #BtSongInfo.
  */
 void
 bt_sequence_update_tempo (const BtSequence * const self)
 {
-  /* TODO(ensonic): remove or update play-pos if we're playing */
+  bt_sequence_calculate_wait_per_position (self);
 }
 
 //-- io interface

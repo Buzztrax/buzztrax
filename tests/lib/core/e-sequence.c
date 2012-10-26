@@ -416,7 +416,7 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
-  g_object_set (song_info, "bpm", 150L, "tpb", 16L, NULL);
+  g_object_set (song_info, "bpm", 250L, "tpb", 16L, NULL);
   /* need a real element that handles tempo and calls gst_object_sync */
   BtMachine *src =
       BT_MACHINE (bt_source_machine_new (song, "gen", "simsyn", 0, NULL));
@@ -437,17 +437,16 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
   bt_pattern_set_global_event (pattern, 6, 1, "6");
   bt_pattern_set_global_event (pattern, 7, 1, "7");
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
-
   g_signal_connect (G_OBJECT (element), "notify::wave",
       G_CALLBACK (on_btsequence_ticks_notify), &data);
 
   /* act */
   bt_song_play (song);
-  g_usleep (G_USEC_PER_SEC / 5);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);    // length=0:00:00.120000000
   bt_song_stop (song);
 
   /* assert */
-  ck_assert_int_eq (data.ct, 8);
+  ck_assert_int_ge (data.ct, 8);
   ck_assert_int_eq (data.values[0], 0);
   ck_assert_int_eq (data.values[1], 1);
   ck_assert_int_eq (data.values[2], 2);
@@ -486,6 +485,58 @@ test_bt_sequence_validate_loop (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_try_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_update_length_after_bpm (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtSongInfo *song_info =
+      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
+  g_object_set (sequence, "length", 8L, NULL);
+  g_object_set (song_info, "bpm", 125L, NULL);
+  GstClockTime t1 = bt_sequence_get_bar_time (sequence);
+
+  /* act */
+  g_object_set (song_info, "bpm", 250L, NULL);
+  GstClockTime t2 = bt_sequence_get_bar_time (sequence);
+
+  /* assert */
+  ck_assert_uint64_eq (t1, t2 + t2);
+
+  /* cleanup */
+  g_object_unref (sequence);
+  g_object_unref (song_info);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_update_length_after_tpb (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtSongInfo *song_info =
+      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
+  g_object_set (sequence, "length", 8L, NULL);
+  g_object_set (song_info, "tpb", 4L, NULL);
+  GstClockTime t1 = bt_sequence_get_bar_time (sequence);
+
+  /* act */
+  g_object_set (song_info, "tpb", 8L, NULL);
+  GstClockTime t2 = bt_sequence_get_bar_time (sequence);
+
+  /* assert */
+  ck_assert_uint64_eq (t1, t2 + t2);
+
+  /* cleanup */
+  g_object_unref (sequence);
+  g_object_unref (song_info);
   BT_TEST_END;
 }
 
@@ -589,6 +640,8 @@ bt_sequence_example_case (void)
   //tcase_add_test(tc,test_bt_sequence_update);
   tcase_add_test (tc, test_bt_sequence_ticks);
   tcase_add_test (tc, test_bt_sequence_validate_loop);
+  tcase_add_test (tc, test_bt_sequence_update_length_after_bpm);
+  tcase_add_test (tc, test_bt_sequence_update_length_after_tpb);
   tcase_add_test (tc, test_bt_sequence_duration);
   tcase_add_test (tc, test_bt_sequence_duration_play);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
