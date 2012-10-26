@@ -143,6 +143,9 @@ bt_pattern_control_source_set_property (GObject * const object,
       break;
     case PATTERN_CONTROL_SOURCE_DEFAULT_VALUE:{
       GValue *new_value = g_value_get_pointer (value);
+      if (!G_IS_VALUE (&self->priv->def_value)) {
+        g_value_init (&self->priv->def_value, G_VALUE_TYPE (new_value));
+      }
       g_value_copy (new_value, &self->priv->def_value);
       GST_DEBUG ("set the def_value for the controlsource: %p",
           self->priv->def_value);
@@ -176,8 +179,12 @@ bt_pattern_control_source_finalize (GObject * const object)
 {
   BtPatternControlSource *self = BT_PATTERN_CONTROL_SOURCE (object);
 
-  g_value_unset (&self->priv->last_value);
-  g_value_unset (&self->priv->def_value);
+  if (G_IS_VALUE (&self->priv->last_value)) {
+    g_value_unset (&self->priv->last_value);
+  }
+  if (G_IS_VALUE (&self->priv->def_value)) {
+    g_value_unset (&self->priv->def_value);
+  }
 
   G_OBJECT_CLASS (bt_pattern_control_source_parent_class)->finalize (object);
 }
@@ -266,7 +273,7 @@ bt_pattern_control_source_bind (GstControlSource * source, GParamSpec * pspec)
     base = type;
   self->priv->base = base;
 
-  GST_DEBUG_OBJECT (self->priv->machine, "type %s, base %s",
+  GST_DEBUG_OBJECT (self->priv->machine, "%s: type %s, base %s", pspec->name,
       g_type_name (self->priv->type), g_type_name (self->priv->base));
 
   source->get_value =
@@ -280,14 +287,16 @@ bt_pattern_control_source_bind (GstControlSource * source, GParamSpec * pspec)
   self->priv->is_trigger =
       bt_parameter_group_is_param_trigger (pg, self->priv->param_index);
 
-  g_value_init (&self->priv->last_value, self->priv->type);
-  g_value_init (&self->priv->def_value, self->priv->type);
-  if (self->priv->is_trigger) {
-    g_value_copy (bt_parameter_group_get_param_no_value (pg,
-            self->priv->param_index), &self->priv->def_value);
-  } else {
-    g_param_value_set_default (pspec, &self->priv->def_value);
+  if (!G_IS_VALUE (&self->priv->def_value)) {
+    g_value_init (&self->priv->def_value, self->priv->type);
+    if (self->priv->is_trigger) {
+      g_value_copy (bt_parameter_group_get_param_no_value (pg,
+              self->priv->param_index), &self->priv->def_value);
+    } else {
+      g_param_value_set_default (pspec, &self->priv->def_value);
+    }
   }
+  g_value_init (&self->priv->last_value, self->priv->type);
   g_value_copy (&self->priv->def_value, &self->priv->last_value);
 
   return TRUE;
@@ -313,6 +322,10 @@ bt_pattern_control_source_get_value (BtPatternControlSource * self,
   GstClockTime bar_time = bt_sequence_get_bar_time (sequence);
   GstClockTime tick = timestamp / bar_time;
   GstClockTime ts = tick * bar_time;
+
+  GST_DEBUG_OBJECT (machine, "get control_value for param %d at tick%4d,"
+      " %1d: %llu == %llu",
+      param_index, tick, (ts == timestamp), timestamp, ts);
 
   // Don't check patterns on a subtick
   if (ts == timestamp) {

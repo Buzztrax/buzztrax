@@ -190,7 +190,97 @@ bt_g_object_randomize_parameter (GObject * self, GParamSpec * property)
   }
 }
 
+static void
+add_control_sources (BtParameterGroup * self, BtSequence * sequence)
+{
+  GstController *ctrl;
+  const gchar *name;
+  gulong i, num_params = self->priv->num_params;
+
+  GST_DEBUG ("add controlsources");
+
+  for (i = 0; i < num_params; i++) {
+    if (self->priv->params[i]->flags & GST_PARAM_CONTROLLABLE) {
+      name = self->priv->params[i]->name;
+      // retrieve controller
+      self->priv->controller[i] = ctrl =
+          gst_object_control_properties (self->priv->parents[i], name, NULL);
+
+      // set controller
+      gst_controller_set_control_source (ctrl, name,
+          GST_CONTROL_SOURCE (self->priv->control_sources[i]));
+    }
+  }
+}
+
+static void
+rem_control_sources (BtParameterGroup * self)
+{
+  GstController *ctrl;
+  const gchar *name;
+  gulong i, num_params = self->priv->num_params;
+
+  GST_DEBUG ("remove controlsources");
+
+  for (i = 0; i < num_params; i++) {
+    if (self->priv->controller[i]) {
+      name = self->priv->params[i]->name;
+      ctrl = self->priv->controller[i];
+      // unset controller
+      gst_controller_set_control_source (ctrl, name, NULL);
+      // release controller
+      gst_controller_remove_properties (ctrl, name, NULL);
+      g_object_unref (self->priv->controller[i]);
+      self->priv->controller[i] = NULL;
+    }
+  }
+}
+
 //-- handler
+
+static void
+on_track_added (BtSequence * sequence, BtMachine * machine, gulong track,
+    gpointer user_data)
+{
+  BtParameterGroup *self = BT_PARAMETER_GROUP (user_data);
+  glong ix;
+
+  if (machine != self->priv->machine) {
+    return;
+  }
+
+  GST_DEBUG_OBJECT (machine, "track added: %d", track);
+
+  // if there is just one track for this machine, this is the first one
+  // add controllers
+  ix = bt_sequence_get_track_by_machine (sequence, machine, 0);
+  if (ix == track &&
+      (bt_sequence_get_track_by_machine (sequence, machine, ix + 1) == -1)) {
+    add_control_sources (self, sequence);
+  }
+}
+
+static void
+on_track_removed (BtSequence * sequence, BtMachine * machine, gulong track,
+    gpointer user_data)
+{
+  BtParameterGroup *self = BT_PARAMETER_GROUP (user_data);
+  glong ix;
+
+  if (machine != self->priv->machine) {
+    return;
+  }
+
+  GST_DEBUG_OBJECT (machine, "track removed: %d", track);
+
+  // if there are no tracks for this machine, this was the last one
+  // remove controllers
+  ix = bt_sequence_get_track_by_machine (sequence, machine, 0);
+  if (ix == track &&
+      (bt_sequence_get_track_by_machine (sequence, machine, ix + 1) == -1)) {
+    rem_control_sources (self);
+  }
+}
 
 //-- constructor methods
 
@@ -583,7 +673,6 @@ bt_parameter_group_set_param_value (const BtParameterGroup * const self,
   g_object_set_property (self->priv->parents[index], PARAM_NAME (index), event);
 }
 
-
 /**
  * bt_parameter_group_describe_param_value:
  * @self: the parameter group to get a param description from
@@ -606,8 +695,8 @@ bt_parameter_group_describe_param_value (const BtParameterGroup * const self,
   if (GSTBT_IS_PROPERTY_META (self->priv->parents[index])) {
     guint prop_id = self->priv->params[index]->param_id;
     return
-        gstbt_property_meta_describe_property (GSTBT_PROPERTY_META (self->
-            priv->parents[index]), prop_id, event);
+        gstbt_property_meta_describe_property (GSTBT_PROPERTY_META (self->priv->
+            parents[index]), prop_id, event);
   }
   return NULL;
 }
@@ -678,11 +767,10 @@ static void
 bt_parameter_group_constructed (GObject * object)
 {
   BtParameterGroup *const self = BT_PARAMETER_GROUP (object);
-  BtSequence *sequence;
-  GstController *controller;
   gulong i, num_params = self->priv->num_params;
   GParamSpec *param, **params = self->priv->params;
   GObject *parent, **parents = self->priv->parents;
+  gboolean is_controllable = FALSE;
 
   if (G_OBJECT_CLASS (bt_parameter_group_parent_class)->constructed)
     G_OBJECT_CLASS (bt_parameter_group_parent_class)->constructed (object);
@@ -694,8 +782,6 @@ bt_parameter_group_constructed (GObject * object)
   self->priv->controller = (GstController **) g_new0 (gpointer, num_params);
   self->priv->control_sources =
       (BtPatternControlSource **) g_new0 (gpointer, num_params);
-
-  g_object_get (self->priv->song, "sequence", &sequence, NULL);
 
   for (i = 0; i < num_params; i++) {
     param = params[i];
@@ -716,8 +802,9 @@ bt_parameter_group_constructed (GObject * object)
         self->priv->flags[i] =
             GPOINTER_TO_INT (g_param_spec_get_qdata (param,
                 gstbt_property_meta_quark_flags));
-        if (!(bt_parameter_group_get_property_meta_value (&self->priv->
-                    no_val[i], param, gstbt_property_meta_quark_no_val))) {
+        if (!(bt_parameter_group_get_property_meta_value (&self->
+                    priv->no_val[i], param,
+                    gstbt_property_meta_quark_no_val))) {
           GST_WARNING
               ("can't get no-val property-meta for param [%u/%lu] \"%s\"", i,
               num_params, param->name);
@@ -735,22 +822,31 @@ bt_parameter_group_constructed (GObject * object)
 
     // create new controlsources
     if (param->flags & GST_PARAM_CONTROLLABLE) {
-      // retrieve controller
-      self->priv->controller[i] = controller =
-          gst_object_control_properties (parent, param->name, NULL);
-
-      GST_DEBUG_OBJECT (self->priv->machine,
-          "creating control-source for param %s::%s", GST_OBJECT_NAME (parent),
-          param->name);
-      self->priv->control_sources[i] =
-          bt_pattern_control_source_new (sequence, self->priv->machine, self);
-
-      // set controller
-      gst_controller_set_control_source (controller, param->name,
-          GST_CONTROL_SOURCE (self->priv->control_sources[i]));
+      is_controllable = TRUE;
     }
   }
-  g_object_try_unref (sequence);
+  if (is_controllable) {
+    BtSequence *sequence;
+    g_object_get (self->priv->song, "sequence", &sequence, NULL);
+
+    GST_DEBUG_OBJECT (self->priv->machine, "belongs to controllable machine");
+    // listen to sequence:track-{added,removed}
+    g_signal_connect (sequence, "track-added", G_CALLBACK (on_track_added),
+        (gpointer) self);
+    g_signal_connect (sequence, "track-removed", G_CALLBACK (on_track_removed),
+        (gpointer) self);
+
+    for (i = 0; i < num_params; i++) {
+      if (param->flags & GST_PARAM_CONTROLLABLE) {
+        GST_DEBUG_OBJECT (self->priv->machine,
+            "creating control-source for param %s::%s",
+            GST_OBJECT_NAME (parent), param->name);
+        self->priv->control_sources[i] =
+            bt_pattern_control_source_new (sequence, self->priv->machine, self);
+      }
+    }
+    g_object_try_unref (sequence);
+  }
 }
 
 static void
@@ -817,15 +913,30 @@ bt_parameter_group_get_property (GObject * const object,
 static void
 bt_parameter_group_dispose (GObject * const object)
 {
-  const BtParameterGroup *const self = BT_PARAMETER_GROUP (object);
-  gulong i;
+  BtParameterGroup *self = BT_PARAMETER_GROUP (object);
+  gulong i, num_params = self->priv->num_params;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  for (i = 0; i < self->priv->num_params; i++) {
+  rem_control_sources (self);
+  for (i = 0; i < num_params; i++) {
     g_object_try_unref (self->priv->control_sources[i]);
     g_object_try_unref (self->priv->controller[i]);
+  }
+
+  if (self->priv->song) {
+    BtSequence *sequence;
+    g_object_get (self->priv->song, "sequence", &sequence, NULL);
+
+    g_signal_handlers_disconnect_matched (sequence,
+        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_track_added,
+        (gpointer) self);
+    g_signal_handlers_disconnect_matched (sequence,
+        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_track_removed,
+        (gpointer) self);
+
+    g_object_try_unref (sequence);
   }
 
   g_object_try_weak_unref (self->priv->song);
@@ -837,11 +948,11 @@ bt_parameter_group_dispose (GObject * const object)
 static void
 bt_parameter_group_finalize (GObject * const object)
 {
-  const BtParameterGroup *const self = BT_PARAMETER_GROUP (object);
+  BtParameterGroup *self = BT_PARAMETER_GROUP (object);
   GValue *v;
-  gulong i;
+  gulong i, num_params = self->priv->num_params;
 
-  for (i = 0; i < self->priv->num_params; i++) {
+  for (i = 0; i < num_params; i++) {
     v = &self->priv->no_val[i];
     if (BT_IS_GVALUE (v))
       g_value_unset (v);

@@ -1504,6 +1504,8 @@ bt_sequence_persistence_load (const GType type,
                   machine, G_OBJECT_REF_COUNT (machine), index);
               if (index < tracks) {
                 self->priv->machines[index] = machine;
+                g_signal_emit ((gpointer) self, signals[TRACK_ADDED_EVENT], 0,
+                    machine, index);
                 GST_DEBUG ("loading track with index=%s for machine=\"%s\"",
                     index_str, machine_id);
                 for (child_node2 = child_node->children; child_node2;
