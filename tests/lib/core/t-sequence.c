@@ -239,7 +239,7 @@ test_bt_sequence_pattern2 (BT_TEST_ARGS)
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine1, -1);
   bt_sequence_add_track (sequence, machine2, -1);
-  check_init_error_trapp ("bt_sequence_set_pattern_quick",
+  check_init_error_trapp ("bt_sequence_set_pattern",
       "adding a pattern to a track with different machine!");
 
   /* act */

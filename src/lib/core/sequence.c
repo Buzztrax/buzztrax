@@ -114,16 +114,6 @@ struct _BtSequencePrivate
   /* cached */
   GstClockTime wait_per_position;
 
-  /* manages damage regions for updating gst-controller queues after changes
-   * each entry (per machine) has another GHashTable
-   *   each entry (per time) has another GHashTable
-   *     each entry (per param-group) has a list of params
-   */
-  /* TODO(ensonic): there is quite some overhead because of the nested
-   * HashTables:
-   */
-  GHashTable *damage;
-
   /* we cache the number of time a pattern is referenced. This way way we have a
    * fast bt_sequence_is_pattern_used() and we can lower the ref-count of the
    * pattern. We will also add singals to notify on first use and after last
@@ -889,11 +879,10 @@ bt_sequence_get_pattern (const BtSequence * const self, const gulong time,
  * @track: the requested track index
  * @pattern: the #BtCmdPattern or %NULL to unset
  *
- * A quick version of bt_sequence_set_pattern() that does not repair damaged
- * area. Useful when doing mass updates.
+ * A quick version of bt_sequence_set_pattern() that does not check parameters.
+ * Useful when doing mass updates.
  *
- * Returns: %TRUE if a change has been made. One should call
- * bt_sequence_repair_damage() in that case.
+ * Returns: %TRUE if a change has been made.
  *
  * Since: 0.5
  */
@@ -902,22 +891,6 @@ bt_sequence_set_pattern_quick (const BtSequence * const self, const gulong time,
     const gulong track, const BtCmdPattern * const pattern)
 {
   gboolean changed = FALSE;
-
-#ifndef G_DISABLE_ASSERT
-  if (pattern) {
-    BtMachine *const machine;
-
-    g_return_val_if_fail (BT_IS_CMD_PATTERN (pattern), FALSE);
-    g_object_get ((gpointer) pattern, "machine", &machine, NULL);
-    if (self->priv->machines[track] != machine) {
-      GST_WARNING ("adding a pattern to a track with different machine!");
-      g_object_unref (machine);
-      return (FALSE);
-    }
-    g_object_unref (machine);
-  }
-#endif
-
   const gulong index = time * self->priv->tracks + track;
   BtCmdPattern *old_pattern = self->priv->patterns[index];
 
@@ -962,6 +935,21 @@ bt_sequence_set_pattern (const BtSequence * const self, const gulong time,
   g_return_if_fail (track < self->priv->tracks);
   g_return_if_fail (self->priv->machines[track]);
 
+#ifndef G_DISABLE_ASSERT
+  if (pattern) {
+    BtMachine *const machine;
+
+    g_return_if_fail (BT_IS_CMD_PATTERN (pattern));
+    g_object_get ((gpointer) pattern, "machine", &machine, NULL);
+    if (self->priv->machines[track] != machine) {
+      GST_WARNING ("adding a pattern to a track with different machine!");
+      g_object_unref (machine);
+      return;
+    }
+    g_object_unref (machine);
+  }
+#endif
+
   bt_sequence_set_pattern_quick (self, time, track, pattern);
 //TODO(ensonic): change bt_sequence_set_pattern_quick() to bt_sequence_set_pattern_unchecked
 }
@@ -979,6 +967,9 @@ bt_sequence_set_pattern (const BtSequence * const self, const gulong time,
  * - with the property we can remove bt_sequence_update_tempo() and move
  *   bt_sequence_calculate_wait_per_position() to song-info where we set the
  *   property on sequence to update the value.
+ * - this needs some care to make the initial update work, as song-info is
+ *   created before sequence, when setting up the song
+ * - we could also rename bt_sequence_get_bar_time -> bt_song_info_get_bar_time 
  */
 GstClockTime
 bt_sequence_get_bar_time (const BtSequence * const self)
@@ -1786,7 +1777,6 @@ bt_sequence_finalize (GObject * const object)
   g_free (self->priv->machines);
   g_free (self->priv->labels);
   g_free (self->priv->patterns);
-  g_hash_table_destroy (self->priv->damage);
   g_hash_table_destroy (self->priv->pattern_usage);
   g_hash_table_destroy (self->priv->properties);
 
@@ -1805,9 +1795,6 @@ bt_sequence_init (BtSequence * self)
   self->priv->loop_start = -1;
   self->priv->loop_end = -1;
   self->priv->wait_per_position = 0.0;
-  self->priv->damage =
-      g_hash_table_new_full (NULL, NULL, NULL,
-      (GDestroyNotify) g_hash_table_destroy);
   self->priv->pattern_usage = g_hash_table_new (NULL, NULL);
   self->priv->properties =
       g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
