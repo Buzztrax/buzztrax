@@ -267,14 +267,13 @@ bt_value_group_set_event (const BtValueGroup * const self, const gulong tick,
         g_value_init (event, G_TYPE_INT);
       }
       bt_persistence_set_value (event, value);
-      GST_DEBUG ("Set shadow value: '%s'", value);
+      GST_DEBUG ("Set shadow value at: %d,%d: '%s'", tick, param, value);
     } else {
       // unset value
       if (BT_IS_GVALUE (event)) {
         g_value_unset (event);
       }
     }
-
   }
   // validated value
   event = bt_value_group_get_event_data_unchecked (self, tick, param);
@@ -287,6 +286,8 @@ bt_value_group_set_event (const BtValueGroup * const self, const gulong tick,
       if (bt_parameter_group_is_param_no_value (self->priv->param_group, param,
               event)) {
         g_value_unset (event);
+      } else {
+        GST_DEBUG ("Set real value at: %d,%d: '%s'", tick, param, value);
       }
       res = TRUE;
     } else {
@@ -336,14 +337,14 @@ bt_value_group_get_event (const BtValueGroup * const self, const gulong tick,
   event = bt_value_group_get_event_data_unchecked (self, tick, param);
   if (BT_IS_GVALUE (event)) {
     value = bt_persistence_get_value (event);
-    GST_DEBUG ("return valid value: '%s'", value);
+    GST_DEBUG ("return valid value at: %d,%d: '%s'", tick, param, value);
   } else {
     // plain value
     event = bt_value_group_get_event_data_unchecked (self, tick,
         self->priv->params + param);
     if (BT_IS_GVALUE (event)) {
       value = bt_persistence_get_value (event);
-      GST_DEBUG ("return plain value: '%s'", value);
+      GST_DEBUG ("return plain value at: %d,%d: '%s'", tick, param, value);
     }
   }
   return value;
