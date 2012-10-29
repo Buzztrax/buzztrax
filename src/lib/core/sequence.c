@@ -112,7 +112,7 @@ struct _BtSequencePrivate
   gulong play_start, play_end;
 
   /* cached */
-  GstClockTime wait_per_position;
+  GstClockTime tick_duration;
 
   /* we cache the number of time a pattern is referenced. This way way we have a
    * fast bt_sequence_is_pattern_used() and we can lower the ref-count of the
@@ -178,7 +178,6 @@ bt_sequence_test_pattern (const BtSequence * const self, const gulong time,
    */
   return (self->priv->patterns[time * self->priv->tracks + track] != NULL);
 }
-
 
 static void
 bt_sequence_use_pattern (const BtSequence * const self,
@@ -445,39 +444,18 @@ bt_sequence_get_tick_time (const BtSequence * const self, const gulong tick)
   return (timestamp);
 }
 
-static void
-bt_sequence_calculate_wait_per_position (const BtSequence * const self)
-{
-  BtSongInfo *const song_info;
-  gulong beats_per_minute, ticks_per_beat;
-
-  g_object_get ((gpointer) (self->priv->song), "song-info", &song_info, NULL);
-  g_object_get (song_info, "tpb", &ticks_per_beat, "bpm", &beats_per_minute,
-      NULL);
-  /* the number of pattern-events for one playline-step,
-   * when using 4 ticks_per_beat then
-   *   for 4/4 bars it is 16 (standart dance rhythm)
-   *   for 3/4 bars it is 12 (walz)
-   * correlation of values:
-   *   bpm    60     60
-   *   tpb     4      8
-   *   tpm   240    480 bpm*tpb
-   *   wpp  0.25  0.125 60/tpm
-   */
-
-  const gdouble ticks_per_minute =
-      (gdouble) (beats_per_minute * ticks_per_beat);
-  self->priv->wait_per_position =
-      (GstClockTime) (0.5 + ((GST_SECOND * 60.0) / ticks_per_minute));
-
-  // release the references
-  g_object_unref (song_info);
-
-  GST_INFO ("calculating songs bar-time, tpm=%lf, %" G_GUINT64_FORMAT,
-      ticks_per_minute, self->priv->wait_per_position);
-}
-
 //-- event handler
+
+static void
+on_tick_duration_changed (BtSongInfo * song_info, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtSequence *self = BT_SEQUENCE (user_data);
+
+  g_object_get (song_info, "tick-duration", &self->priv->tick_duration, NULL);
+
+  GST_INFO ("tick-time update %" G_GUINT64_FORMAT, self->priv->tick_duration);
+}
 
 //-- helper methods
 
@@ -963,24 +941,16 @@ bt_sequence_set_pattern (const BtSequence * const self, const gulong time,
  *
  * Returns: the length of one sequence bar in microseconds
  */
-/* TODO(ensonic): rename to bt_sequence_get_tick_duration(), or turn into property ?
- * - with the property we can remove bt_sequence_update_tempo() and move
- *   bt_sequence_calculate_wait_per_position() to song-info where we set the
- *   property on sequence to update the value.
- * - this needs some care to make the initial update work, as song-info is
- *   created before sequence, when setting up the song
- * - we could also rename bt_sequence_get_bar_time -> bt_song_info_get_bar_time 
+/* TODO(ensonic): remove this method
+ * - code that currently calls this can get BtSongInfo::tick-duration
  */
 GstClockTime
 bt_sequence_get_bar_time (const BtSequence * const self)
 {
-  g_return_val_if_fail (BT_IS_SEQUENCE (self), 0.0);
+  g_return_val_if_fail (BT_IS_SEQUENCE (self), G_GUINT64_CONSTANT (0));
+  g_assert (self->priv->tick_duration);
 
-  if (G_UNLIKELY (self->priv->wait_per_position == 0.0)) {
-    bt_sequence_calculate_wait_per_position (self);
-  }
-
-  return (self->priv->wait_per_position);
+  return (self->priv->tick_duration);
 }
 
 /**
@@ -1000,9 +970,9 @@ bt_sequence_get_loop_time (const BtSequence * const self)
   GST_DEBUG ("%lu .. %lu : %" GST_TIME_FORMAT " : %" GST_TIME_FORMAT,
       self->priv->play_start,
       self->priv->play_end,
-      GST_TIME_ARGS (self->priv->wait_per_position),
+      GST_TIME_ARGS (self->priv->tick_duration),
       GST_TIME_ARGS ((self->priv->play_end -
-              self->priv->play_start) * self->priv->wait_per_position));
+              self->priv->play_start) * self->priv->tick_duration));
 
   const GstClockTime res = bt_sequence_get_tick_time (self,
       self->priv->play_end - self->priv->play_start);
@@ -1318,18 +1288,6 @@ bt_sequence_delete_full_rows (const BtSequence * const self, const gulong time,
       length - rows);
 }
 
-/**
- * bt_sequence_update_tempo:
- * @self: the sequence
- *
- * Recalc timings after tempo changes. Called from #BtSongInfo.
- */
-void
-bt_sequence_update_tempo (const BtSequence * const self)
-{
-  bt_sequence_calculate_wait_per_position (self);
-}
-
 //-- io interface
 
 static xmlNodePtr
@@ -1574,37 +1532,29 @@ bt_sequence_get_property (GObject * const object, const guint property_id,
   const BtSequence *const self = BT_SEQUENCE (object);
   return_if_disposed ();
   switch (property_id) {
-    case SEQUENCE_SONG:{
+    case SEQUENCE_SONG:
       g_value_set_object (value, self->priv->song);
-    }
       break;
-    case SEQUENCE_LENGTH:{
+    case SEQUENCE_LENGTH:
       g_value_set_ulong (value, self->priv->length);
-    }
       break;
-    case SEQUENCE_TRACKS:{
+    case SEQUENCE_TRACKS:
       g_value_set_ulong (value, self->priv->tracks);
-    }
       break;
-    case SEQUENCE_LOOP:{
+    case SEQUENCE_LOOP:
       g_value_set_boolean (value, self->priv->loop);
-    }
       break;
-    case SEQUENCE_LOOP_START:{
+    case SEQUENCE_LOOP_START:
       g_value_set_long (value, self->priv->loop_start);
-    }
       break;
-    case SEQUENCE_LOOP_END:{
+    case SEQUENCE_LOOP_END:
       g_value_set_long (value, self->priv->loop_end);
-    }
       break;
-    case SEQUENCE_PROPERTIES:{
+    case SEQUENCE_PROPERTIES:
       g_value_set_pointer (value, self->priv->properties);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -1617,11 +1567,20 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
 
   return_if_disposed ();
   switch (property_id) {
-    case SEQUENCE_SONG:{
+    case SEQUENCE_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
-      //GST_DEBUG("set the song for sequence: %p",self->priv->song);
-    }
+      GST_DEBUG ("set the song for sequence: %p", self->priv->song);
+      if (self->priv->song) {
+        BtSongInfo *song_info;
+
+        g_object_get ((gpointer) (self->priv->song), "song-info", &song_info,
+            NULL);
+        on_tick_duration_changed (song_info, NULL, (gpointer) self);
+        g_signal_connect (song_info, "notify::tick-duration",
+            G_CALLBACK (on_tick_duration_changed), (gpointer) self);
+        g_object_unref (song_info);
+      }
       break;
     case SEQUENCE_LENGTH:{
       // TODO(ensonic): remove or better stop the song
@@ -1641,8 +1600,8 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
         }
         bt_sequence_limit_play_pos_internal (self);
       }
-    }
       break;
+    }
     case SEQUENCE_TRACKS:{
       // TODO(ensonic): remove or better stop the song
       //if(self->priv->is_playing) bt_sequence_stop(self);
@@ -1654,9 +1613,9 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
             self->priv->tracks);
         bt_sequence_resize_data_tracks (self, tracks);
       }
-    }
       break;
-    case SEQUENCE_LOOP:{
+    }
+    case SEQUENCE_LOOP:
       self->priv->loop = g_value_get_boolean (value);
       GST_DEBUG ("set the loop for sequence: %d", self->priv->loop);
       if (self->priv->loop) {
@@ -1676,9 +1635,8 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
         self->priv->play_end = self->priv->length;
         bt_sequence_limit_play_pos_internal (self);
       }
-    }
       break;
-    case SEQUENCE_LOOP_START:{
+    case SEQUENCE_LOOP_START:
       self->priv->loop_start = g_value_get_long (value);
       if (self->priv->loop_start != -1) {
         // make sure its less then loop_end/length
@@ -1696,9 +1654,8 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
       self->priv->play_start =
           (self->priv->loop_start != -1) ? self->priv->loop_start : 0;
       bt_sequence_limit_play_pos_internal (self);
-    }
       break;
-    case SEQUENCE_LOOP_END:{
+    case SEQUENCE_LOOP_END:
       self->priv->loop_end = g_value_get_long (value);
       if (self->priv->loop_end != -1) {
         // make sure its more then loop-start
@@ -1718,11 +1675,9 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
           (self->priv->loop_end !=
           -1) ? self->priv->loop_end : self->priv->length;
       bt_sequence_limit_play_pos_internal (self);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -1736,12 +1691,20 @@ bt_sequence_dispose (GObject * const object)
   BtCmdPattern **patterns = self->priv->patterns;
   BtMachine **machines = self->priv->machines;
   gchar **const labels = self->priv->labels;
+  BtSongInfo *song_info;
   gulong i, j, k;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
+  if (self->priv->song) {
+    g_object_get ((gpointer) (self->priv->song), "song-info", &song_info, NULL);
+    g_signal_handlers_disconnect_matched (song_info,
+        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+        on_tick_duration_changed, self);
+    g_object_unref (song_info);
+  }
   g_object_try_weak_unref (self->priv->song);
   // unref the machines
   GST_DEBUG ("unref %lu machines", tracks);
@@ -1794,7 +1757,7 @@ bt_sequence_init (BtSequence * self)
       G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SEQUENCE, BtSequencePrivate);
   self->priv->loop_start = -1;
   self->priv->loop_end = -1;
-  self->priv->wait_per_position = 0.0;
+  self->priv->tick_duration = 0.0;
   self->priv->pattern_usage = g_hash_table_new (NULL, NULL);
   self->priv->properties =
       g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
@@ -1882,17 +1845,21 @@ bt_sequence_class_init (BtSequenceClass * const klass)
    *
    * Since: 0.6
    */
-  signals[TRACK_REMOVED_EVENT] = g_signal_new ("track-removed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,        // accumulator
-      NULL,                     // acc data
+  signals[TRACK_REMOVED_EVENT] = g_signal_new ("track-removed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL, NULL,  // acc data
       bt_marshal_VOID__OBJECT_ULONG, G_TYPE_NONE,       // return type
       2,                        // n_params
       BT_TYPE_MACHINE, G_TYPE_ULONG);
 
-  g_object_class_install_property (gobject_class, SEQUENCE_SONG, g_param_spec_object ("song", "song contruct prop", "Set song object, the sequence belongs to", BT_TYPE_SONG,   /* object type */
+  g_object_class_install_property (gobject_class, SEQUENCE_SONG,
+      g_param_spec_object ("song", "song contruct prop",
+          "Set song object, the sequence belongs to", BT_TYPE_SONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SEQUENCE_LENGTH, g_param_spec_ulong ("length", "length prop", "length of the sequence in timeline bars", 0, G_MAXLONG,        // loop-pos are LONG as well
-          0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  // loop-pos are LONG as well
+  g_object_class_install_property (gobject_class, SEQUENCE_LENGTH,
+      g_param_spec_ulong ("length", "length prop",
+          "length of the sequence in timeline bars", 0, G_MAXLONG, 0,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SEQUENCE_TRACKS,
       g_param_spec_ulong ("tracks",

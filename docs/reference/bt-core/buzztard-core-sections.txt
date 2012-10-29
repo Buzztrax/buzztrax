@@ -318,7 +318,6 @@ bt_sequence_remove_track_by_machine
 bt_sequence_set_label
 bt_sequence_set_pattern
 bt_sequence_set_pattern_quick
-bt_sequence_update_tempo
 <SUBSECTION Standard>
 BT_IS_SEQUENCE
 BT_IS_SEQUENCE_CLASS

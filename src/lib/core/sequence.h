@@ -89,6 +89,4 @@ void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong ti
 void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, const glong track, const gulong rows);
 void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong time, const gulong rows);
 
-void bt_sequence_update_tempo(const BtSequence * const self);
-
 #endif // BT_SEQUENCE_H

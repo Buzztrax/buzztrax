@@ -70,7 +70,8 @@ enum
   SONG_INFO_TPB,
   SONG_INFO_BARS,
   SONG_INFO_CREATE_DTS,
-  SONG_INFO_CHANGE_DTS
+  SONG_INFO_CHANGE_DTS,
+  SONG_INFO_TICK_DURATION
 };
 
 struct _BtSongInfoPrivate
@@ -104,6 +105,9 @@ struct _BtSongInfoPrivate
   gulong bars;
   /* date stamps */
   gchar *create_dts, *change_dts;
+
+  /* duration of a tick, calculated from song tempo */
+  GstClockTime tick_duration;
 };
 
 // date time stamp format YYYY-MM-DDThh:mm:ssZ
@@ -135,11 +139,27 @@ static gint safe_strcmp(const gchar *s1, const gchar *s2) {
 static void
 bt_song_info_tempo_changed (const BtSongInfo * const self)
 {
-  BtSequence *sequence;
+  /* the number of pattern-events for one playline-step,
+   * when using 4 ticks_per_beat then
+   *   for 4/4 bars it is 16 (standart dance rhythm)
+   *   for 3/4 bars it is 12 (walz)
+   * correlation of values:
+   *   bpm    60     60
+   *   tpb     4      8
+   *   tpm   240    480 bpm*tpb
+   *   wpp  0.25  0.125 60/tpm
+   */
 
-  g_object_get (self->priv->song, "sequence", &sequence, NULL);
-  bt_sequence_update_tempo (sequence);
-  g_object_unref (sequence);
+  const gdouble ticks_per_minute =
+      (gdouble) (self->priv->beats_per_minute * self->priv->ticks_per_beat);
+
+  // TODO(ensonic): we might need a lock, this can be read from multiple threads
+  self->priv->tick_duration =
+      (GstClockTime) (0.5 + ((GST_SECOND * 60.0) / ticks_per_minute));
+
+  GST_INFO ("calculating songs tick-time, tpm=%lf, %" G_GUINT64_FORMAT,
+      ticks_per_minute, self->priv->tick_duration);
+  g_object_notify ((GObject *) self, "tick-duration");
 }
 
 static time_t
@@ -351,57 +371,47 @@ bt_song_info_get_property (GObject * const object, const guint property_id,
   const BtSongInfo *const self = BT_SONG_INFO (object);
   return_if_disposed ();
   switch (property_id) {
-    case SONG_INFO_SONG:{
+    case SONG_INFO_SONG:
       g_value_set_object (value, self->priv->song);
-    }
       break;
-    case SONG_INFO_TAGLIST:{
+    case SONG_INFO_TAGLIST:
       g_value_set_pointer (value, gst_tag_list_copy (self->priv->taglist));
-    }
       break;
-    case SONG_INFO_FILE_NAME:{
+    case SONG_INFO_FILE_NAME:
       g_value_set_string (value, self->priv->file_name);
-    }
       break;
-    case SONG_INFO_INFO:{
+    case SONG_INFO_INFO:
       g_value_set_string (value, self->priv->info);
-    }
       break;
-    case SONG_INFO_NAME:{
+    case SONG_INFO_NAME:
       g_value_set_string (value, self->priv->name);
-    }
       break;
-    case SONG_INFO_GENRE:{
+    case SONG_INFO_GENRE:
       g_value_set_string (value, self->priv->genre);
-    }
       break;
-    case SONG_INFO_AUTHOR:{
+    case SONG_INFO_AUTHOR:
       g_value_set_string (value, self->priv->author);
-    }
       break;
-    case SONG_INFO_BPM:{
+    case SONG_INFO_BPM:
       g_value_set_ulong (value, self->priv->beats_per_minute);
-    }
       break;
-    case SONG_INFO_TPB:{
+    case SONG_INFO_TPB:
       g_value_set_ulong (value, self->priv->ticks_per_beat);
-    }
       break;
-    case SONG_INFO_BARS:{
+    case SONG_INFO_BARS:
       g_value_set_ulong (value, self->priv->bars);
-    }
       break;
-    case SONG_INFO_CREATE_DTS:{
+    case SONG_INFO_CREATE_DTS:
       g_value_set_string (value, self->priv->create_dts);
-    }
       break;
-    case SONG_INFO_CHANGE_DTS:{
+    case SONG_INFO_CHANGE_DTS:
       g_value_set_string (value, self->priv->change_dts);
-    }
       break;
-    default:{
+    case SONG_INFO_TICK_DURATION:
+      g_value_set_uint64 (value, self->priv->tick_duration);
+      break;
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -413,17 +423,15 @@ bt_song_info_set_property (GObject * const object, const guint property_id,
   const BtSongInfo *const self = BT_SONG_INFO (object);
   return_if_disposed ();
   switch (property_id) {
-    case SONG_INFO_SONG:{
+    case SONG_INFO_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
-      //GST_DEBUG("set the song for song-info: %p",self->priv->song);
-    }
+      GST_DEBUG ("set the song for song-info: %p", self->priv->song);
       break;
-    case SONG_INFO_FILE_NAME:{
+    case SONG_INFO_FILE_NAME:
       g_free (self->priv->file_name);
       self->priv->file_name = g_value_dup_string (value);
       GST_DEBUG ("set the file-name for song_info: %s", self->priv->file_name);
-    }
       break;
     case SONG_INFO_INFO:{
       const gchar *str = g_value_get_string (value);
@@ -440,8 +448,8 @@ bt_song_info_set_property (GObject * const object, const guint property_id,
         }
         GST_DEBUG ("set the info for song_info: %s", self->priv->info);
       }
-    }
       break;
+    }
     case SONG_INFO_NAME:{
       const gchar *str = g_value_get_string (value);
       if ((self->priv->name != str) && (!self->priv->name || !str
@@ -457,8 +465,8 @@ bt_song_info_set_property (GObject * const object, const guint property_id,
         }
         GST_DEBUG ("set the name for song_info: %s", self->priv->name);
       }
-    }
       break;
+    }
     case SONG_INFO_GENRE:{
       const gchar *str = g_value_get_string (value);
       if ((self->priv->genre != str) && (!self->priv->genre || !str
@@ -474,8 +482,8 @@ bt_song_info_set_property (GObject * const object, const guint property_id,
         }
         GST_DEBUG ("set the genre for song_info: %s", self->priv->genre);
       }
-    }
       break;
+    }
     case SONG_INFO_AUTHOR:{
       const gchar *str = g_value_get_string (value);
       if ((self->priv->author != str) && (!self->priv->author || !str
@@ -491,8 +499,8 @@ bt_song_info_set_property (GObject * const object, const guint property_id,
         }
         GST_DEBUG ("set the author for song_info: %s", self->priv->author);
       }
-    }
       break;
+    }
     case SONG_INFO_BPM:{
       gulong val = g_value_get_ulong (value);
       if (self->priv->beats_per_minute != val) {
@@ -504,8 +512,8 @@ bt_song_info_set_property (GObject * const object, const guint property_id,
         GST_DEBUG ("set the bpm for song_info: %lu",
             self->priv->beats_per_minute);
       }
-    }
       break;
+    }
     case SONG_INFO_TPB:{
       gulong val = g_value_get_ulong (value);
       if (self->priv->ticks_per_beat != val) {
@@ -523,8 +531,8 @@ bt_song_info_set_property (GObject * const object, const guint property_id,
         bt_song_info_tempo_changed (self);
         GST_DEBUG ("set the bars for song_info: %lu", self->priv->bars);
       }
-    }
       break;
+    }
     case SONG_INFO_CREATE_DTS:{
       const gchar *const dts = g_value_get_string (value);
 
@@ -540,8 +548,8 @@ bt_song_info_set_property (GObject * const object, const guint property_id,
          */
         strftime (self->priv->create_dts, DTS_LEN + 1, "%FT%TZ", gmtime (&now));
       }
-    }
       break;
+    }
     case SONG_INFO_CHANGE_DTS:{
       const gchar *const dts = g_value_get_string (value);
 
@@ -562,11 +570,10 @@ bt_song_info_set_property (GObject * const object, const guint property_id,
         gst_tag_list_add (self->priv->taglist, GST_TAG_MERGE_REPLACE,
             GST_TAG_DATE, self->priv->tag_date, NULL);
       }
-    }
       break;
-    default:{
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
 }
@@ -623,6 +630,7 @@ bt_song_info_init (BtSongInfo * self)
   self->priv->beats_per_minute = 125;   // 1..1000
   self->priv->ticks_per_beat = 4;       // 1..128
   self->priv->bars = 16;        // 1..16
+  bt_song_info_tempo_changed (self);
   // init dates 'YYYY-MM-DDThh:mm:ssZ'
   self->priv->create_dts = g_new (gchar, DTS_LEN + 1);
   self->priv->change_dts = g_new (gchar, DTS_LEN + 1);
@@ -652,7 +660,9 @@ bt_song_info_class_init (BtSongInfoClass * const klass)
   gobject_class->dispose = bt_song_info_dispose;
   gobject_class->finalize = bt_song_info_finalize;
 
-  g_object_class_install_property (gobject_class, SONG_INFO_SONG, g_param_spec_object ("song", "song contruct prop", "song object, the song-info belongs to", BT_TYPE_SONG,     /* object type */
+  g_object_class_install_property (gobject_class, SONG_INFO_SONG,
+      g_param_spec_object ("song", "song contruct prop",
+          "song object, the song-info belongs to", BT_TYPE_SONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SONG_INFO_TAGLIST,
@@ -661,19 +671,24 @@ bt_song_info_class_init (BtSongInfoClass * const klass)
           "songs meta data as a taglist",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_INFO_FILE_NAME, g_param_spec_string ("file-name", "file name prop", "songs file name", NULL,     /* default value */
+  g_object_class_install_property (gobject_class, SONG_INFO_FILE_NAME,
+      g_param_spec_string ("file-name", "file name prop", "songs file name",
+          NULL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, SONG_INFO_INFO,
+      g_param_spec_string ("info", "info prop", "songs freeform info",
+          "comment me!", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, SONG_INFO_NAME,
+      g_param_spec_string ("name", "name prop", "songs name", DEFAULT_SONG_NAME,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_INFO_INFO, g_param_spec_string ("info", "info prop", "songs freeform info", "comment me!",       /* default value */
+  g_object_class_install_property (gobject_class, SONG_INFO_GENRE,
+      g_param_spec_string ("genre", "genre prop", "songs genre", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_INFO_NAME, g_param_spec_string ("name", "name prop", "songs name", DEFAULT_SONG_NAME,    /* default value */
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, SONG_INFO_GENRE, g_param_spec_string ("genre", "genre prop", "songs genre", NULL,     /* default value */
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, SONG_INFO_AUTHOR, g_param_spec_string ("author", "author prop", "songs author", NULL, /* default value */
+  g_object_class_install_property (gobject_class, SONG_INFO_AUTHOR,
+      g_param_spec_string ("author", "author prop", "songs author", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SONG_INFO_BPM,
@@ -694,9 +709,19 @@ bt_song_info_class_init (BtSongInfoClass * const klass)
           "how many bars per meassure",
           1, 64, 16, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_INFO_CREATE_DTS, g_param_spec_string ("create-dts", "creation dts prop", "song creation date time stamp (iso 8601 format)", NULL,        /* default value */
+  g_object_class_install_property (gobject_class, SONG_INFO_CREATE_DTS,
+      g_param_spec_string ("create-dts", "creation dts prop",
+          "song creation date time stamp (iso 8601 format)", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_INFO_CHANGE_DTS, g_param_spec_string ("change-dts", "changed dts prop", "song changed date time stamp (iso 8601 format)", NULL,  /* default value */
+  g_object_class_install_property (gobject_class, SONG_INFO_CHANGE_DTS,
+      g_param_spec_string ("change-dts", "changed dts prop",
+          "song changed date time stamp (iso 8601 format)", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, SONG_INFO_TICK_DURATION,
+      g_param_spec_uint64 ("tick-duration",
+          "tick duration property",
+          "the duration for a tick in µs calculated form the song tempo",
+          1, G_MAXUINT64, 1, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
