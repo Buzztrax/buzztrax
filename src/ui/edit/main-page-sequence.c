@@ -106,6 +106,8 @@ struct _BtMainPageSequencePrivate
 
   /* the sequence we are showing */
   BtSequence *sequence;
+  /* the song-info for the timing */
+  BtSongInfo *song_info;
   /* machine for current column */
   BtMachine *machine;
 
@@ -317,8 +319,8 @@ label_cell_data_function (GtkTreeViewColumn * col, GtkCellRenderer * renderer,
       ) {
     bg_col =
         ((row /
-            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->priv->
-        selection_bg1;
+            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->
+        priv->selection_bg1;
   }
   if (bg_col) {
     g_object_set (renderer,
@@ -549,8 +551,8 @@ sequence_model_get_store (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))) {
     store = gtk_tree_model_filter_get_model (filtered_store);
   }
   return (store);
@@ -598,8 +600,8 @@ sequence_update_model_length (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))) {
     BtSequenceGridModel *store =
         BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
         (filtered_store));
@@ -1136,8 +1138,8 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
   GST_INFO ("label edited: '%s': '%s'", path_string, new_text);
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))
       && (store = gtk_tree_model_filter_get_model (filtered_store))
       ) {
     GtkTreeIter iter, filter_iter;
@@ -1265,8 +1267,8 @@ sequence_pos_table_init (const BtMainPageSequence * self)
 
   gtk_box_pack_start (GTK_BOX (self->priv->sequence_pos_table_header),
       self->priv->pos_header, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (GTK_WIDGET (self->priv->
-          sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
+  gtk_widget_set_size_request (GTK_WIDGET (self->
+          priv->sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
 
   // add static column
   renderer = gtk_cell_renderer_text_new ();
@@ -1300,7 +1302,8 @@ sequence_table_refresh_model (const BtMainPageSequence * self,
   GST_INFO ("refresh sequence table");
 
   // TODO(ensonic): in the future only do this when loading a new song
-  store = bt_sequence_grid_model_new (self->priv->sequence, self->priv->bars);
+  store = bt_sequence_grid_model_new (self->priv->sequence,
+      self->priv->song_info, self->priv->bars);
   g_object_set (store, "length", self->priv->sequence_length, "pos-format",
       self->priv->pos_format, NULL);
 
@@ -2388,8 +2391,8 @@ on_bars_menu_changed (GtkComboBox * combo_box, gpointer user_data)
       sequence_calculate_visible_lines (self);
       //GST_INFO("  bars = %d",self->priv->bars);
       if ((filtered_store =
-              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                      sequence_table)))) {
+              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                      priv->sequence_table)))) {
         BtSequenceGridModel *store =
             BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
             (filtered_store));
@@ -3058,8 +3061,8 @@ on_sequence_table_button_press_event (GtkWidget * widget,
             // set cell focus
             gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
                 FALSE);
-            gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
-                    sequence_table));
+            gtk_widget_grab_focus_savely (GTK_WIDGET (self->
+                    priv->sequence_table));
             // reset selection
             self->priv->selection_start_column =
                 self->priv->selection_start_row =
@@ -3127,8 +3130,8 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
           }
           gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
               FALSE);
-          gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
-                  sequence_table));
+          gtk_widget_grab_focus_savely (GTK_WIDGET (self->
+                  priv->sequence_table));
           // cursor updates are not yet processed
           on_sequence_table_cursor_changed_idle (self);
           GST_DEBUG ("cursor new/old: %3ld,%3ld -> %3ld,%3ld", cursor_column,
@@ -3454,7 +3457,6 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
   BtSong *song;
-  BtSongInfo *song_info;
   BtSetup *setup;
   GstBin *bin;
   GstBus *bus;
@@ -3464,18 +3466,20 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 
   GST_INFO ("song has changed : app=%p, self=%p", app, self);
   g_object_try_unref (self->priv->sequence);
+  g_object_try_unref (self->priv->song_info);
 
   // get song from app and then setup from song
   g_object_get (self->priv->app, "song", &song, NULL);
   if (!song) {
     self->priv->sequence = NULL;
+    self->priv->song_info = NULL;
     self->priv->properties = NULL;
     return;
   }
   GST_INFO ("song->ref_ct=%d", G_OBJECT_REF_COUNT (song));
 
-  g_object_get (song, "song-info", &song_info, "setup", &setup, "sequence",
-      &self->priv->sequence, "bin", &bin, NULL);
+  g_object_get (song, "setup", &setup, "song-info", &self->priv->song_info,
+      "sequence", &self->priv->sequence, "bin", &bin, NULL);
   g_object_get (self->priv->sequence, "length", &sequence_length, "properties",
       &self->priv->properties, NULL);
   // make sequence_length and step_filter_pos accord to song length
@@ -3516,7 +3520,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   gtk_combo_box_set_active (GTK_COMBO_BOX (self->priv->pos_menu),
       self->priv->pos_format);
   // update toolbar
-  g_object_get (song_info, "bars", &bars, NULL);
+  g_object_get (self->priv->song_info, "bars", &bars, NULL);
   update_bars_menu (self, bars);
 
   // update sequence view
@@ -3538,11 +3542,10 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   g_signal_connect (song, "notify::is-playing",
       G_CALLBACK (on_song_is_playing_notify), (gpointer) self);
   // subscribe to changes in the rythm
-  g_signal_connect (song_info, "notify::bars",
+  g_signal_connect (self->priv->song_info, "notify::bars",
       G_CALLBACK (on_song_info_bars_changed), (gpointer) self);
   //-- release the references
   gst_object_unref (bin);
-  g_object_unref (song_info);
   g_object_unref (setup);
   g_object_unref (song);
   GST_INFO ("song has changed done");
@@ -3644,8 +3647,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   self->priv->context_menu_add =
       GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (_("Add track")));
   image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->priv->
-          context_menu_add), image);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->
+          priv->context_menu_add), image);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
       GTK_WIDGET (self->priv->context_menu_add));
   gtk_widget_show (GTK_WIDGET (self->priv->context_menu_add));
@@ -4593,14 +4596,12 @@ bt_main_page_sequence_dispose (GObject * object)
   g_object_get (self->priv->app, "song", &song, NULL);
   if (song) {
     BtSetup *setup;
-    BtSongInfo *song_info;
     GstBin *bin;
     GstBus *bus;
 
     GST_DEBUG ("disconnect handlers from song=%p, song->ref_ct=%d", song,
         G_OBJECT_REF_COUNT (song));
-    g_object_get (song, "setup", &setup, "song-info", &song_info, "bin", &bin,
-        NULL);
+    g_object_get (song, "setup", &setup, "bin", &bin, NULL);
 
     g_signal_handlers_disconnect_matched (song, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
         on_song_play_pos_notify, NULL);
@@ -4610,8 +4611,6 @@ bt_main_page_sequence_dispose (GObject * object)
         NULL, on_machine_added, NULL);
     g_signal_handlers_disconnect_matched (setup, G_SIGNAL_MATCH_FUNC, 0, 0,
         NULL, on_machine_removed, NULL);
-    g_signal_handlers_disconnect_matched (song_info, G_SIGNAL_MATCH_FUNC, 0, 0,
-        NULL, on_song_info_bars_changed, NULL);
 
     bus = gst_element_get_bus (GST_ELEMENT (bin));
     g_signal_handlers_disconnect_matched (bus, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
@@ -4620,8 +4619,13 @@ bt_main_page_sequence_dispose (GObject * object)
 
     gst_object_unref (bin);
     g_object_unref (setup);
-    g_object_unref (song_info);
     g_object_unref (song);
+  }
+  if (self->priv->song_info) {
+    BtSongInfo *song_info = self->priv->song_info;
+    g_signal_handlers_disconnect_matched (song_info, G_SIGNAL_MATCH_FUNC, 0, 0,
+        NULL, on_song_info_bars_changed, NULL);
+    g_object_unref (song_info);
   }
   if (self->priv->sequence) {
     BtSequence *sequence = self->priv->sequence;

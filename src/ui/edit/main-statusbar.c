@@ -77,7 +77,7 @@ struct _BtMainStatusbarPrivate
 #endif
 
   /* total playtime */
-  GstClockTime total_time;
+  gulong total_ticks;
   gulong last_pos, play_start;
 };
 
@@ -90,18 +90,15 @@ G_DEFINE_TYPE (BtMainStatusbar, bt_main_statusbar, GTK_TYPE_HBOX);
 
 static void
 bt_main_statusbar_update_length (const BtMainStatusbar * self,
-    const BtSong * song, const BtSequence * sequence)
+    const BtSong * song, const BtSequence * sequence,
+    const BtSongInfo * song_info)
 {
   gchar str[2 + 2 + 3 + 3];
   gulong msec, sec, min;
 
   // get new song length
-  msec = (gulong) (bt_sequence_get_loop_time (sequence) / G_USEC_PER_SEC);
-  GST_INFO ("  new msec : %lu", msec);
-  min = (gulong) (msec / 60000);
-  msec -= (min * 60000);
-  sec = (gulong) (msec / 1000);
-  msec -= (sec * 1000);
+  bt_song_info_tick_to_m_s_ms (song_info,
+      bt_sequence_get_loop_length (sequence), &min, &sec, &msec);
   g_sprintf (str, "%02lu:%02lu.%03lu", min, sec, msec);
   // update statusbar fields
   gtk_statusbar_pop (self->priv->loop, self->priv->loop_context_id);
@@ -116,26 +113,21 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
 {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR (user_data);
   BtSequence *sequence;
+  BtSongInfo *song_info;
   // the +4 is not really needed, but I get a stack smashing error on ubuntu without
   gchar str[2 + 2 + 3 + 3 + 4];
   gulong pos, msec, sec, min;
-  GstClockTime bar_time;
 
   GST_DEBUG ("tick update");
 
-  g_object_get ((gpointer) song, "sequence", &sequence, "play-pos", &pos, NULL);
-  if (!sequence)
-    return;
+  g_object_get ((gpointer) song, "sequence", &sequence, "song-info", &song_info,
+      "play-pos", &pos, NULL);
+  if (!sequence || !song_info)
+    goto Error;
 
   //GST_INFO("sequence tick received : %d",pos);
-  bar_time = bt_sequence_get_bar_time (sequence);
-
   // update current statusbar
-  msec = (gulong) ((pos * bar_time) / G_USEC_PER_SEC);
-  min = (gulong) (msec / 60000);
-  msec -= (min * 60000);
-  sec = (gulong) (msec / 1000);
-  msec -= (sec * 1000);
+  bt_song_info_tick_to_m_s_ms (song_info, pos, &min, &sec, &msec);
   // format
   g_sprintf (str, "%02lu:%02lu.%03lu", min, sec, msec);
   // update statusbar fields
@@ -144,17 +136,12 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
 
   // update elapsed statusbar
   if (pos < self->priv->last_pos) {
-    self->priv->total_time += bt_sequence_get_loop_time (sequence);
-    GST_INFO ("wrapped around total_time=%" G_GUINT64_FORMAT,
-        self->priv->total_time);
+    self->priv->total_ticks += bt_sequence_get_loop_length (sequence);
+    GST_INFO ("wrapped around total_ticks=%lu", self->priv->total_ticks);
   }
   pos -= self->priv->play_start;
-  msec =
-      (gulong) (((pos * bar_time) + self->priv->total_time) / G_USEC_PER_SEC);
-  min = (gulong) (msec / 60000);
-  msec -= (min * 60000);
-  sec = (gulong) (msec / 1000);
-  msec -= (sec * 1000);
+  bt_song_info_tick_to_m_s_ms (song_info, pos + self->priv->total_ticks,
+      &min, &sec, &msec);
   // format
   g_sprintf (str, "%02lu:%02lu.%03lu", min, sec, msec);
   // update statusbar fields
@@ -162,7 +149,9 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
   gtk_statusbar_push (self->priv->elapsed, self->priv->elapsed_context_id, str);
 
   self->priv->last_pos = pos;
-  g_object_unref (sequence);
+Error:
+  g_object_try_unref (sequence);
+  g_object_try_unref (song_info);
 }
 
 static void
@@ -175,7 +164,7 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
 
   g_object_get ((gpointer) song, "is-playing", &is_playing, "play-pos",
       &play_start, NULL);
-  self->priv->total_time = G_GINT64_CONSTANT (0);
+  self->priv->total_ticks = 0;
   if (!is_playing) {
     GST_INFO ("play_start=%lu", play_start);
     // update statusbar fields
@@ -201,7 +190,7 @@ on_song_info_rhythm_notify (const BtSongInfo * song_info, GParamSpec * arg,
   g_return_if_fail (song);
   g_object_get (song, "sequence", &sequence, NULL);
 
-  bt_main_statusbar_update_length (self, song, sequence);
+  bt_main_statusbar_update_length (self, song, sequence, song_info);
 
   // release the references
   g_object_unref (sequence);
@@ -214,14 +203,17 @@ on_sequence_loop_time_notify (const BtSequence * sequence, GParamSpec * arg,
 {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR (user_data);
   BtSong *song;
+  BtSongInfo *song_info;
 
   // get song from app
   g_object_get (self->priv->app, "song", &song, NULL);
   g_return_if_fail (song);
+  g_object_get (song, "song-info", &song_info, NULL);
 
-  bt_main_statusbar_update_length (self, song, sequence);
+  bt_main_statusbar_update_length (self, song, sequence, song_info);
 
   // release the references
+  g_object_unref (song_info);
   g_object_unref (song);
 }
 
@@ -241,7 +233,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
     return;
 
   g_object_get (song, "sequence", &sequence, "song-info", &song_info, NULL);
-  bt_main_statusbar_update_length (self, song, sequence);
+  bt_main_statusbar_update_length (self, song, sequence, song_info);
   // subscribe to property changes in song
   g_signal_connect (song, "notify::play-pos",
       G_CALLBACK (on_song_play_pos_notify), (gpointer) self);

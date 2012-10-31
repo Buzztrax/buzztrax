@@ -87,7 +87,7 @@ bt_render_mode_get_type (void)
     static const GEnumValue values[] = {
       {BT_RENDER_MODE_MIXDOWN, "BT_RENDER_MODE_MIXDOWN", "mix to one track"},
       {BT_RENDER_MODE_SINGLE_TRACKS, "BT_RENDER_MODE_SINGLE_TRACKS",
-            "record one track for each source"},
+          "record one track for each source"},
       {0, NULL, NULL},
     };
     type = g_enum_register_static ("BtRenderMode", values);
@@ -395,17 +395,15 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
     gpointer user_data)
 {
   BtRenderDialog *self = BT_RENDER_DIALOG (user_data);
-  BtSequence *sequence;
+  BtSongInfo *song_info;
   gulong pos, length;
   gdouble progress;
   // the +4 is not really needed, but I get a stack smashing error on ubuntu without
   gchar str[3 + 2 * (2 + 2 + 3 + 3) + 4];
-  gulong msec1, sec1, min1, msec2, sec2, min2;
-  GstClockTime bar_time;
+  gulong cmsec, csec, cmin, tmsec, tsec, tmin;
 
-  g_object_get ((gpointer) song, "sequence", &sequence, "play-pos", &pos, NULL);
-  g_object_get (sequence, "length", &length, NULL);
-  bar_time = bt_sequence_get_bar_time (sequence);
+  bt_child_proxy_get ((gpointer) song, "sequence::length", &length, "song-info",
+      &song_info, "play-pos", &pos, NULL);
 
   progress = (gdouble) pos / (gdouble) length;
   if (progress >= 1.0) {
@@ -416,24 +414,16 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
   }
   GST_INFO ("progress %ld/%ld=%lf", pos, length, progress);
 
-  msec1 = (gulong) ((pos * bar_time) / G_USEC_PER_SEC);
-  min1 = (gulong) (msec1 / 60000);
-  msec1 -= (min1 * 60000);
-  sec1 = (gulong) (msec1 / 1000);
-  msec1 -= (sec1 * 1000);
-  msec2 = (gulong) ((length * bar_time) / G_USEC_PER_SEC);
-  min2 = (gulong) (msec2 / 60000);
-  msec2 -= (min2 * 60000);
-  sec2 = (gulong) (msec2 / 1000);
-  msec2 -= (sec2 * 1000);
+  bt_song_info_tick_to_m_s_ms (song_info, length, &tmin, &tsec, &tmsec);
+  bt_song_info_tick_to_m_s_ms (song_info, pos, &cmin, &csec, &cmsec);
   // format
-  g_sprintf (str, "%02lu:%02lu.%03lu / %02lu:%02lu.%03lu", min1, sec1, msec1,
-      min2, sec2, msec2);
+  g_sprintf (str, "%02lu:%02lu.%03lu / %02lu:%02lu.%03lu", cmin, csec, cmsec,
+      tmin, tsec, tmsec);
 
   g_object_set (self->priv->track_progress, "fraction", progress, "text", str,
       NULL);
 
-  g_object_unref (sequence);
+  g_object_unref (song_info);
 }
 
 static void

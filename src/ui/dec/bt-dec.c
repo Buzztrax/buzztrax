@@ -144,10 +144,9 @@ bt_dec_do_seek (BtDec * self, GstEvent * event)
       &start_type, &start, &stop_type, &stop);
 
   if ((start_type == GST_SEEK_TYPE_SET) && (src_format == GST_FORMAT_TIME)) {
-    BtSequence *sequence;
+    BtSongInfo *song_info;
     gulong row;
     gboolean flush;
-    GstClockTime bar_time;
     GstSegment seeksegment;
     gboolean update;
 
@@ -164,14 +163,12 @@ bt_dec_do_seek (BtDec * self, GstEvent * event)
     }
 
     /* seek */
-    g_object_get (self->song, "sequence", &sequence, NULL);
-    bar_time = bt_sequence_get_bar_time (sequence);
-    row = (gulong) (start / bar_time);
+    g_object_get (self->song, "song-info", &song_info, NULL);
+    row = bt_song_info_time_to_tick (song_info, start);
     g_object_set (self->song, "play-pos", row, "play-rate", rate, NULL);
-    g_object_unref (sequence);
-
     GST_INFO_OBJECT (self, "seeked to sequence row %lu", row);
-    start = row * bar_time;
+    start = bt_song_info_tick_to_time (song_info, row);
+    g_object_unref (song_info);
 
     if (flush) {
       GST_DEBUG_OBJECT (self, "flush stop");
@@ -353,14 +350,17 @@ bt_dec_load_song (BtDec * self)
     if (bt_song_io_load (loader, self->song)) {
       BtSetup *setup;
       BtSequence *sequence;
+      BtSongInfo *song_info;
       BtMachine *machine;
 
-      g_object_get (self->song, "setup", &setup, "sequence", &sequence, NULL);
+      g_object_get (self->song, "setup", &setup, "sequence", &sequence,
+          "song-info", &song_info, NULL);
       /* turn off lopps in any case */
       g_object_set (sequence, "loop", FALSE, NULL);
       GST_OBJECT_LOCK (self);
       gst_segment_set_duration (&self->segment, GST_FORMAT_TIME,
-          bt_sequence_get_loop_time (sequence));
+          bt_song_info_tick_to_time (song_info,
+              bt_sequence_get_loop_length (sequence)));
       GST_OBJECT_UNLOCK (self);
 
       if ((machine =
@@ -416,6 +416,7 @@ bt_dec_load_song (BtDec * self)
         res = TRUE;
       }
 
+      g_object_unref (song_info);
       g_object_unref (sequence);
       g_object_unref (setup);
     }

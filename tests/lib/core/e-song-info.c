@@ -78,30 +78,51 @@ test_bt_song_info_date_stamps (BT_TEST_ARGS)
 
 /* Test changing the tempo */
 static void
-test_bt_song_info_tempo (BT_TEST_ARGS)
+test_bt_song_info_update_bpm (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtSequence *sequence =
-      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  GstClockTime t1, t2;
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
   g_object_set (song_info, "bpm", 120, NULL);
-  GstClockTime t1 = bt_sequence_get_bar_time (sequence);
+  g_object_get (song_info, "tick-duration", &t1, NULL);
 
   /* act */
   g_object_set (song_info, "bpm", 60, NULL);
-  GstClockTime t2 = bt_sequence_get_bar_time (sequence);
+  g_object_get (song_info, "tick-duration", &t2, NULL);
 
   /* assert */
-  ck_assert_uint64_gt (t2, t1);
-  ck_assert_uint64_eq ((t2 / 2), t1);
+  ck_assert_uint64_eq (t2, t1 + t1);
 
   /* cleanup */
   g_object_unref (song_info);
-  g_object_unref (sequence);
   BT_TEST_END;
 }
+
+static void
+test_bt_song_info_update_tpb (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  GstClockTime t1, t2;
+  BtSongInfo *song_info =
+      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
+  g_object_set (song_info, "tpb", 8, NULL);
+  g_object_get (song_info, "tick-duration", &t1, NULL);
+
+  /* act */
+  g_object_set (song_info, "tpb", 4, NULL);
+  g_object_get (song_info, "tick-duration", &t2, NULL);
+
+  /* assert */
+  ck_assert_uint64_eq (t2, t1 + t1);
+
+  /* cleanup */
+  g_object_unref (song_info);
+  BT_TEST_END;
+}
+
 
 static void
 test_bt_song_info_seconds_since_last_saved (BT_TEST_ARGS)
@@ -129,7 +150,8 @@ bt_song_info_example_case (void)
   TCase *tc = tcase_create ("BtSongInfoExamples");
 
   tcase_add_test (tc, test_bt_song_info_date_stamps);
-  tcase_add_test (tc, test_bt_song_info_tempo);
+  tcase_add_test (tc, test_bt_song_info_update_bpm);
+  tcase_add_test (tc, test_bt_song_info_update_tpb);
   tcase_add_test (tc, test_bt_song_info_seconds_since_last_saved);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);

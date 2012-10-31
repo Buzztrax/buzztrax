@@ -49,6 +49,7 @@
 enum
 {
   PATTERN_CONTROL_SOURCE_SEQUENCE = 1,
+  PATTERN_CONTROL_SOURCE_SONG_INFO,
   PATTERN_CONTROL_SOURCE_MACHINE,
   PATTERN_CONTROL_SOURCE_PARAMETER_GROUP,
   PATTERN_CONTROL_SOURCE_DEFAULT_VALUE
@@ -59,11 +60,10 @@ struct _BtPatternControlSourcePrivate
   /* used to validate if dipose has run */
   gboolean dispose_has_run;
 
-  /* Sequence this controlsource is bound to */
+  /* parameters */
     G_POINTER_ALIAS (BtSequence *, sequence);
-  /* Machine this controlsource is bound to */
+    G_POINTER_ALIAS (BtSongInfo *, song_info);
     G_POINTER_ALIAS (BtMachine *, machine);
-  /* parameter specific data */
     G_POINTER_ALIAS (BtParameterGroup *, param_group);
   /* type of the handled property */
   GType type;
@@ -73,6 +73,8 @@ struct _BtPatternControlSourcePrivate
   glong param_index;
   GValue last_value, def_value;
   gboolean is_trigger;
+
+  GstClockTime tick_duration;
 };
 
 //-- prototypes
@@ -102,6 +104,9 @@ bt_pattern_control_source_get_property (GObject * const object,
     case PATTERN_CONTROL_SOURCE_SEQUENCE:
       g_value_set_object (value, self->priv->sequence);
       break;
+    case PATTERN_CONTROL_SOURCE_SONG_INFO:
+      g_value_set_object (value, self->priv->song_info);
+      break;
     case PATTERN_CONTROL_SOURCE_MACHINE:
       g_value_set_object (value, self->priv->machine);
       break;
@@ -128,6 +133,12 @@ bt_pattern_control_source_set_property (GObject * const object,
       g_object_try_weak_ref (self->priv->sequence);
       GST_DEBUG ("set the sequence for the controlsource: %p",
           self->priv->sequence);
+      break;
+    case PATTERN_CONTROL_SOURCE_SONG_INFO:
+      self->priv->song_info = BT_SONG_INFO (g_value_get_object (value));
+      g_object_try_weak_ref (self->priv->song_info);
+      GST_DEBUG ("set the song-info for the controlsource: %p",
+          self->priv->song_info);
       break;
     case PATTERN_CONTROL_SOURCE_MACHINE:
       self->priv->machine = BT_MACHINE (g_value_get_object (value));
@@ -167,6 +178,7 @@ bt_pattern_control_source_dispose (GObject * const object)
 
   g_object_try_weak_unref (self->priv->machine);
   g_object_try_weak_unref (self->priv->param_group);
+  g_object_try_weak_unref (self->priv->song_info);
   g_object_try_weak_unref (self->priv->sequence);
 
   GST_DEBUG (" chaining up");
@@ -192,6 +204,7 @@ bt_pattern_control_source_finalize (GObject * const object)
 /**
  * bt_pattern_control_source_new:
  * @sequence: the songs sequence
+ * @song_info: the song info
  * @machine: the machine
  * @param_group: the parameter group
  *
@@ -202,11 +215,13 @@ bt_pattern_control_source_finalize (GObject * const object)
  * Returns: the new pattern control source
  */
 BtPatternControlSource *
-bt_pattern_control_source_new (BtSequence * sequence, const BtMachine * machine,
+bt_pattern_control_source_new (BtSequence * sequence,
+    const BtSongInfo * song_info, const BtMachine * machine,
     BtParameterGroup * param_group)
 {
   return g_object_new (BT_TYPE_PATTERN_CONTROL_SOURCE, "sequence", sequence,
-      "machine", machine, "parameter-group", param_group, NULL);
+      "song-info", song_info, "machine", machine, "parameter-group",
+      param_group, NULL);
 }
 
 // -- class internals
@@ -236,8 +251,15 @@ bt_pattern_control_source_class_init (BtPatternControlSourceClass * const klass)
   g_object_class_install_property (gobject_class,
       PATTERN_CONTROL_SOURCE_SEQUENCE, g_param_spec_object ("sequence",
           "sequence construct prop",
-          "the sequence object, the controlsource belongs to",
+          "the sequence object",
           BT_TYPE_SEQUENCE,
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class,
+      PATTERN_CONTROL_SOURCE_SONG_INFO, g_param_spec_object ("song-info",
+          "song-info construct prop",
+          "the song-info object",
+          BT_TYPE_SONG_INFO,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class,
@@ -313,15 +335,14 @@ bt_pattern_control_source_get_value (BtPatternControlSource * self,
     GstClockTime timestamp, GValue * value)
 {
   BtSequence *sequence = self->priv->sequence;
+  BtSongInfo *song_info = self->priv->song_info;
   BtMachine *machine = self->priv->machine;
   BtParameterGroup *pg = self->priv->param_group;
   glong param_index = self->priv->param_index;
   gboolean ret = FALSE;
   GValue *res = NULL;
-
-  GstClockTime bar_time = bt_sequence_get_bar_time (sequence);
-  GstClockTime tick = timestamp / bar_time;
-  GstClockTime ts = tick * bar_time;
+  GstClockTime tick = bt_song_info_time_to_tick (song_info, timestamp);
+  GstClockTime ts = bt_song_info_tick_to_time (song_info, tick);
 
   GST_DEBUG_OBJECT (machine, "get control_value for param %d at tick%4d,"
       " %1d: %llu == %llu",

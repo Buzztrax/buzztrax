@@ -24,6 +24,7 @@
 static BtEditApplication *app;
 static BtSong *song;
 static BtSequence *sequence;
+static BtSongInfo *song_info;
 static BtMainWindow *main_window;
 
 //-- fixtures
@@ -42,7 +43,7 @@ test_setup (void)
   app = bt_edit_application_new ();
   bt_edit_application_new_song (app);
   g_object_get (app, "song", &song, "main-window", &main_window, NULL);
-  g_object_get (song, "sequence", &sequence, NULL);
+  g_object_get (song, "sequence", &sequence, "song-info", &song_info, NULL);
 
   flush_main_loop ();
 }
@@ -50,6 +51,7 @@ test_setup (void)
 static void
 test_teardown (void)
 {
+  g_object_unref (song_info);
   g_object_unref (sequence);
   g_object_unref (song);
 
@@ -76,7 +78,8 @@ test_bt_sequence_grid_model_create (BT_TEST_ARGS)
   /* arrange */
 
   /* act */
-  BtSequenceGridModel *model = bt_sequence_grid_model_new (sequence, 16);
+  BtSequenceGridModel *model = bt_sequence_grid_model_new (sequence, song_info,
+      16);
 
   /* assert */
   fail_unless (model != NULL, NULL);

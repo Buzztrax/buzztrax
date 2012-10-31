@@ -299,9 +299,8 @@ BtSequence
 bt_sequence_add_track
 bt_sequence_delete_full_rows
 bt_sequence_delete_rows
-bt_sequence_get_bar_time
 bt_sequence_get_label
-bt_sequence_get_loop_time
+bt_sequence_get_loop_length
 bt_sequence_get_machine
 bt_sequence_get_pattern
 bt_sequence_get_tick_by_pattern
@@ -451,6 +450,10 @@ BtSongInfo
 bt_song_info_new
 bt_song_info_get_change_dts_in_local_tz
 bt_song_info_get_seconds_since_last_saved
+bt_song_info_tick_to_time
+bt_song_info_time_to_tick
+bt_song_info_time_to_m_s_ms
+bt_song_info_tick_to_m_s_ms
 <SUBSECTION Standard>
 BT_IS_SONG_INFO
 BT_IS_SONG_INFO_CLASS

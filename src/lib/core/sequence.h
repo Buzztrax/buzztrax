@@ -78,8 +78,7 @@ BtCmdPattern *bt_sequence_get_pattern(const BtSequence * const self, const gulon
 gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulong time, const gulong track, const BtCmdPattern * const pattern);
 void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, const gulong track, const BtCmdPattern * const pattern);
 
-GstClockTime bt_sequence_get_bar_time(const BtSequence * const self);
-GstClockTime bt_sequence_get_loop_time(const BtSequence * const self);
+gulong bt_sequence_get_loop_length(const BtSequence * const self);
 gulong bt_sequence_limit_play_pos(const BtSequence * const self, const gulong play_pos);
 
 gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPattern * const pattern);

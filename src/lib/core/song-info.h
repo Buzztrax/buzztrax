@@ -59,4 +59,10 @@ BtSongInfo *bt_song_info_new(const BtSong * const song);
 gint bt_song_info_get_seconds_since_last_saved(const BtSongInfo * const self);
 const gchar* bt_song_info_get_change_dts_in_local_tz(const BtSongInfo * const self);
 
+GstClockTime bt_song_info_tick_to_time(const BtSongInfo * const self, const gulong tick);
+gulong bt_song_info_time_to_tick(const BtSongInfo * const self, const GstClockTime ts);
+
+void bt_song_info_time_to_m_s_ms(const BtSongInfo * const self, gulong ts, gulong *m, gulong *s, gulong *ms);
+void bt_song_info_tick_to_m_s_ms(const BtSongInfo * const self, const gulong tick, gulong *m, gulong *s, gulong *ms);
+
 #endif // BT_SONG_INFO_H

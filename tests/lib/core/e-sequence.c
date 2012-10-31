@@ -23,6 +23,7 @@
 
 static BtApplication *app;
 static BtSong *song;
+static GstClockTime tick_time;
 
 //-- fixtures
 
@@ -38,6 +39,8 @@ test_setup (void)
 {
   app = bt_test_application_new ();
   song = bt_song_new (app);
+  bt_child_proxy_get ((gpointer) song, "song-info::tick-duration", &tick_time,
+      NULL);
 }
 
 static void
@@ -489,58 +492,6 @@ test_bt_sequence_validate_loop (BT_TEST_ARGS)
 }
 
 static void
-test_bt_sequence_update_length_after_bpm (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  /* arrange */
-  BtSequence *sequence =
-      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtSongInfo *song_info =
-      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
-  g_object_set (sequence, "length", 8L, NULL);
-  g_object_set (song_info, "bpm", 125L, NULL);
-  GstClockTime t1 = bt_sequence_get_bar_time (sequence);
-
-  /* act */
-  g_object_set (song_info, "bpm", 250L, NULL);
-  GstClockTime t2 = bt_sequence_get_bar_time (sequence);
-
-  /* assert */
-  ck_assert_uint64_eq (t1, t2 + t2);
-
-  /* cleanup */
-  g_object_unref (sequence);
-  g_object_unref (song_info);
-  BT_TEST_END;
-}
-
-static void
-test_bt_sequence_update_length_after_tpb (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  /* arrange */
-  BtSequence *sequence =
-      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtSongInfo *song_info =
-      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
-  g_object_set (sequence, "length", 8L, NULL);
-  g_object_set (song_info, "tpb", 4L, NULL);
-  GstClockTime t1 = bt_sequence_get_bar_time (sequence);
-
-  /* act */
-  g_object_set (song_info, "tpb", 8L, NULL);
-  GstClockTime t2 = bt_sequence_get_bar_time (sequence);
-
-  /* assert */
-  ck_assert_uint64_eq (t1, t2 + t2);
-
-  /* cleanup */
-  g_object_unref (sequence);
-  g_object_unref (song_info);
-  BT_TEST_END;
-}
-
-static void
 test_bt_sequence_duration (BT_TEST_ARGS)
 {
   BT_TEST_START;
@@ -548,7 +499,6 @@ test_bt_sequence_duration (BT_TEST_ARGS)
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 16L, NULL);
-  GstClockTime tick_time = bt_sequence_get_bar_time (sequence);
   BtMachine *gen =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
@@ -584,7 +534,6 @@ test_bt_sequence_duration_play (BT_TEST_ARGS)
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   g_object_set (sequence, "length", 16L, NULL);
-  GstClockTime tick_time = bt_sequence_get_bar_time (sequence);
   BtMachine *gen =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
@@ -640,8 +589,6 @@ bt_sequence_example_case (void)
   //tcase_add_test(tc,test_bt_sequence_update);
   tcase_add_test (tc, test_bt_sequence_ticks);
   tcase_add_test (tc, test_bt_sequence_validate_loop);
-  tcase_add_test (tc, test_bt_sequence_update_length_after_bpm);
-  tcase_add_test (tc, test_bt_sequence_update_length_after_tpb);
   tcase_add_test (tc, test_bt_sequence_duration);
   tcase_add_test (tc, test_bt_sequence_duration_play);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);

@@ -25,6 +25,7 @@
 #include <gst/controller/gstcontrolsource.h>
 
 #include "sequence.h"
+#include "song-info.h"
 
 #define BT_TYPE_PATTERN_CONTROL_SOURCE						(bt_pattern_control_source_get_type ())
 #define BT_PATTERN_CONTROL_SOURCE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PATTERN_CONTROL_SOURCE, BtPatternControlSource))
@@ -57,6 +58,6 @@ struct _BtPatternControlSourceClass {
 
 GType bt_pattern_control_source_get_type (void) G_GNUC_CONST;
 
-BtPatternControlSource *bt_pattern_control_source_new (BtSequence * sequence, const BtMachine * machine, BtParameterGroup * param_group);
+BtPatternControlSource *bt_pattern_control_source_new (BtSequence * sequence, const BtSongInfo *song_info, const BtMachine * machine, BtParameterGroup * param_group);
 
 #endif // BT_PATTERN_CONTROL_SOURCE_H

@@ -27,6 +27,9 @@
  *
  * It supports looping a section of the sequence (see #BtSequence:loop,
  * #BtSequence:loop-start, #BtSequence:loop-end).
+ *
+ * The sequence is not aware of timing related information; for this take a look
+ * at #BtSongInfo.
  */
 /* TODO(ensonic): introduce a BtTrack object
  * - the sequence will have a array of tracks
@@ -110,9 +113,6 @@ struct _BtSequencePrivate
 
   /* playback range variables */
   gulong play_start, play_end;
-
-  /* cached */
-  GstClockTime tick_duration;
 
   /* we cache the number of time a pattern is referenced. This way way we have a
    * fast bt_sequence_is_pattern_used() and we can lower the ref-count of the
@@ -421,41 +421,7 @@ bt_sequence_limit_play_pos_internal (const BtSequence * const self)
   }
 }
 
-/*
- * bt_sequence_get_tick_time:
- * @self: the #BtSequence of the song
- * @tick: tick for the event
- *
- * Calculate a timestamp for the event quantizes to samples
- */
-static GstClockTime
-bt_sequence_get_tick_time (const BtSequence * const self, const gulong tick)
-{
-  GstClockTime timestamp = bt_sequence_get_bar_time (self) * tick;
-#if 0
-  /* TODO(ensonic): get this from settings and follow changes */
-  guint sample_rate = GST_AUDIO_DEF_RATE;
-  guint64 samples =
-      gst_util_uint64_scale (timestamp, (guint64) sample_rate, GST_SECOND);
-
-  timestamp =
-      gst_util_uint64_scale (samples, GST_SECOND, (guint64) sample_rate);
-#endif
-  return (timestamp);
-}
-
 //-- event handler
-
-static void
-on_tick_duration_changed (BtSongInfo * song_info, GParamSpec * arg,
-    gpointer user_data)
-{
-  BtSequence *self = BT_SEQUENCE (user_data);
-
-  g_object_get (song_info, "tick-duration", &self->priv->tick_duration, NULL);
-
-  GST_INFO ("tick-time update %" G_GUINT64_FORMAT, self->priv->tick_duration);
-}
 
 //-- helper methods
 
@@ -933,50 +899,23 @@ bt_sequence_set_pattern (const BtSequence * const self, const gulong time,
 }
 
 /**
- * bt_sequence_get_bar_time:
+ * bt_sequence_get_loop_length:
  * @self: the #BtSequence of the song
  *
- * Calculates the length of one sequence bar in microseconds.
- * Divide it by %G_USEC_PER_SEC to get it in milliseconds.
+ * Calculates the length of the song loop in ticks.
  *
- * Returns: the length of one sequence bar in microseconds
- */
-/* TODO(ensonic): remove this method
- * - code that currently calls this can get BtSongInfo::tick-duration
+ * Returns: the length of the song loop in ticks
  */
 GstClockTime
-bt_sequence_get_bar_time (const BtSequence * const self)
-{
-  g_return_val_if_fail (BT_IS_SEQUENCE (self), G_GUINT64_CONSTANT (0));
-  g_assert (self->priv->tick_duration);
-
-  return (self->priv->tick_duration);
-}
-
-/**
- * bt_sequence_get_loop_time:
- * @self: the #BtSequence of the song
- *
- * Calculates the length of the song loop in microseconds.
- * Divide it by %G_USEC_PER_SEC to get it in milliseconds.
- *
- * Returns: the length of the song loop in microseconds
- */
-GstClockTime
-bt_sequence_get_loop_time (const BtSequence * const self)
+bt_sequence_get_loop_length (const BtSequence * const self)
 {
   g_return_val_if_fail (BT_IS_SEQUENCE (self), 0);
+  BtSequencePrivate *p = self->priv;
 
-  GST_DEBUG ("%lu .. %lu : %" GST_TIME_FORMAT " : %" GST_TIME_FORMAT,
-      self->priv->play_start,
-      self->priv->play_end,
-      GST_TIME_ARGS (self->priv->tick_duration),
-      GST_TIME_ARGS ((self->priv->play_end -
-              self->priv->play_start) * self->priv->tick_duration));
+  GST_DEBUG ("%lu .. %lu = %lu", p->play_start, p->play_end,
+      (p->play_end - p->play_start));
 
-  const GstClockTime res = bt_sequence_get_tick_time (self,
-      self->priv->play_end - self->priv->play_start);
-  return (res);
+  return p->play_end - p->play_start;
 }
 
 /**
@@ -1571,16 +1510,6 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
       GST_DEBUG ("set the song for sequence: %p", self->priv->song);
-      if (self->priv->song) {
-        BtSongInfo *song_info;
-
-        g_object_get ((gpointer) (self->priv->song), "song-info", &song_info,
-            NULL);
-        on_tick_duration_changed (song_info, NULL, (gpointer) self);
-        g_signal_connect (song_info, "notify::tick-duration",
-            G_CALLBACK (on_tick_duration_changed), (gpointer) self);
-        g_object_unref (song_info);
-      }
       break;
     case SEQUENCE_LENGTH:{
       // TODO(ensonic): remove or better stop the song
@@ -1691,20 +1620,12 @@ bt_sequence_dispose (GObject * const object)
   BtCmdPattern **patterns = self->priv->patterns;
   BtMachine **machines = self->priv->machines;
   gchar **const labels = self->priv->labels;
-  BtSongInfo *song_info;
   gulong i, j, k;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
-  if (self->priv->song) {
-    g_object_get ((gpointer) (self->priv->song), "song-info", &song_info, NULL);
-    g_signal_handlers_disconnect_matched (song_info,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_tick_duration_changed, self);
-    g_object_unref (song_info);
-  }
   g_object_try_weak_unref (self->priv->song);
   // unref the machines
   GST_DEBUG ("unref %lu machines", tracks);
@@ -1757,7 +1678,6 @@ bt_sequence_init (BtSequence * self)
       G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SEQUENCE, BtSequencePrivate);
   self->priv->loop_start = -1;
   self->priv->loop_end = -1;
-  self->priv->tick_duration = 0.0;
   self->priv->pattern_usage = g_hash_table_new (NULL, NULL);
   self->priv->properties =
       g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);

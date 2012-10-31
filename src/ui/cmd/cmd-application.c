@@ -171,25 +171,19 @@ bt_cmd_application_idle_play_song (const BtCmdApplication * self)
 {
   gboolean res = FALSE;
   const BtSong *song = self->priv->song;
-  BtSequence *sequence = NULL;
+  BtSongInfo *song_info;
   gulong cmsec, csec, cmin, tmsec, tsec, tmin;
   gulong length, pos = 0;
-  GstClockTime bar_time;
 
   // DEBUG
   //bt_song_write_to_highlevel_dot_file(song);
   //bt_song_write_to_lowlevel_dot_file(song);
   // DEBUG
 
-  g_object_get ((gpointer) song, "sequence", &sequence, NULL);
-  g_object_get (sequence, "length", &length, NULL);
+  bt_child_proxy_get ((gpointer) song, "sequence::length", &length, "song-info",
+      &song_info, NULL);
 
-  bar_time = bt_sequence_get_bar_time (sequence);
-  tmsec = (gulong) ((length * bar_time) / G_USEC_PER_SEC);
-  tmin = (gulong) (tmsec / 60000);
-  tmsec -= (tmin * 60000);
-  tsec = (gulong) (tmsec / 1000);
-  tmsec -= (tsec * 1000);
+  bt_song_info_tick_to_m_s_ms (song_info, length, &tmin, &tsec, &tmsec);
 
   // connection play and stop signals
   wait_for_is_playing_notify = TRUE;
@@ -214,12 +208,8 @@ bt_cmd_application_idle_play_song (const BtCmdApplication * self)
       g_object_get ((gpointer) song, "play-pos", &pos, NULL);
 
       if (!self->priv->quiet) {
-        // get song->play-pos and print progress
-        cmsec = (gulong) ((pos * bar_time) / G_USEC_PER_SEC);
-        cmin = (gulong) (cmsec / 60000);
-        cmsec -= (cmin * 60000);
-        csec = (gulong) (cmsec / 1000);
-        cmsec -= (csec * 1000);
+        // get song::play-pos and print progress
+        bt_song_info_tick_to_m_s_ms (song_info, pos, &cmin, &csec, &cmsec);
         printf ("\r%02lu:%02lu.%03lu / %02lu:%02lu.%03lu",
             cmin, csec, cmsec, tmin, tsec, tmsec);
         fflush (stdout);
@@ -239,9 +229,9 @@ bt_cmd_application_idle_play_song (const BtCmdApplication * self)
   }
   is_playing = FALSE;
 Error:
-  g_object_unref (sequence);
   self->priv->res = res;
   g_main_loop_quit (self->priv->loop);
+  g_object_unref (song_info);
 }
 
 static gboolean
@@ -517,13 +507,7 @@ bt_cmd_application_info (const BtCmdApplication * self,
     g_fprintf (output_file, "song.sequence.loop-start: %ld\n", loop_start);
     g_fprintf (output_file, "song.sequence.loop-end: %ld\n", loop_end);
     // print playing-time
-    msec =
-        (gulong) ((length * bt_sequence_get_bar_time (sequence)) /
-        G_USEC_PER_SEC);
-    min = (gulong) (msec / 60000);
-    msec -= (min * 60000);
-    sec = (gulong) (msec / 1000);
-    msec -= (sec * 1000);
+    bt_song_info_tick_to_m_s_ms (song_info, length, &min, &sec, &msec);
     g_fprintf (output_file, "song.sequence.playing_time: %02lu:%02lu.%03lu\n",
         min, sec, msec);
 

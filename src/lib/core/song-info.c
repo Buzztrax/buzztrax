@@ -20,15 +20,17 @@
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
  *
- * Exposes the meta-data of a song as #GObject properties. These are for one
- * pure data fields such as author and song name. These fields get used when
- * recording a song to a file (rendering) in the form of meta-tags.
+ * This class exposes the meta-data of a song as #GObject properties. These are
+ * for one pure data fields such as author and song name. These fields get used
+ * when recording a song to a file (rendering) in the form of meta-tags.
  *
  * Further there are fields that determine rythm and song-speed. The speed is
  * determined by #BtSongInfo:bpm. The rythm is determined by #BtSongInfo:bars
  * and #BtSongInfo:tpb. If 'bars' is 16, than on can have 1/16 notes.
  * And if 'ticks per beat' is 4 one will have 4 beats - a classic 4/4 meassure.
  * For a 3/4 meassure, 'bars' would be 12. Thus bars = beats * tpb.
+ *
+ * Finally, the class offers a couple of timing related conversion functions.
  */
 /* TODO(ensonic): add more metadata
  *  - copyright: GST_TAG_COPYRIGHT
@@ -243,6 +245,77 @@ bt_song_info_get_change_dts_in_local_tz (const BtSongInfo * const self)
   return (hdts);
 }
 
+/**
+ * bt_song_info_tick_to_time:
+ * @self: the song_info
+ * @tick: the tick position
+ *
+ * Convert a given tick position to the time in µs.
+ *
+ * Returns: the time in µs
+ */
+GstClockTime
+bt_song_info_tick_to_time (const BtSongInfo * const self, const gulong tick)
+{
+  return self->priv->tick_duration * tick;
+}
+
+/**
+ * bt_song_info_time_to_tick:
+ * @self: the song_info
+ * @ts: the time in µs
+ *
+ * Convert a given time in µs to the tick position.
+ *
+ * Returns: the integer tick position
+ */
+gulong
+bt_song_info_time_to_tick (const BtSongInfo * const self, const GstClockTime ts)
+{
+  return (gulong) (ts / self->priv->tick_duration);
+}
+
+/**
+ * bt_song_info_time_to_m_s_ms:
+ * @self: the song_info
+ * @ts: the time in µs
+ * @m: location for the minutes
+ * @s: location for the seconds
+ * @ms: location for the milliseconds
+ *
+ * Convert a given time in µs to minutes, seconds and milliseconds.
+ */
+void
+bt_song_info_time_to_m_s_ms (const BtSongInfo * const self, gulong ts,
+    gulong * m, gulong * s, gulong * ms)
+{
+  gulong c;
+
+  *m = c = (gulong) (ts / 60000);
+  ts -= (c * 60000);
+  *s = c = (gulong) (ts / 1000);
+  ts -= (c * 1000);
+  *ms = ts;
+}
+
+/**
+ * bt_song_info_tick_to_m_s_ms:
+ * @self: the song_info
+ * @tick: the tick position
+ * @m: location for the minutes
+ * @s: location for the seconds
+ * @ms: location for the milliseconds
+ *
+ * Convert a given tick position to minutes, seconds and milliseconds.
+ */
+void
+bt_song_info_tick_to_m_s_ms (const BtSongInfo * const self, const gulong tick,
+    gulong * m, gulong * s, gulong * ms)
+{
+  gulong ts = (gulong) ((tick * self->priv->tick_duration) / G_USEC_PER_SEC);
+  bt_song_info_time_to_m_s_ms (self, ts, m, s, ms);
+}
+
 //-- io interface
 
 static xmlNodePtr
@@ -297,11 +370,11 @@ bt_song_info_persistence_save (const BtPersistence * const persistence,
           XML_CHAR_PTR (self->priv->change_dts));
     }
     xmlNewChild (node, NULL, XML_CHAR_PTR ("bpm"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->
-                priv->beats_per_minute)));
+        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->
+                beats_per_minute)));
     xmlNewChild (node, NULL, XML_CHAR_PTR ("tpb"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->
-                priv->ticks_per_beat)));
+        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->
+                ticks_per_beat)));
     xmlNewChild (node, NULL, XML_CHAR_PTR ("bars"),
         XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->bars)));
   }

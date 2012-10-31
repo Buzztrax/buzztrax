@@ -160,10 +160,11 @@ bt_song_update_play_seek_event (const BtSong * const self)
   gboolean loop;
   glong loop_start, loop_end, length;
   gulong play_pos = self->priv->play_pos;
+  GstClockTime tick_duration;
 
   g_object_get (self->priv->sequence, "loop", &loop, "loop-start", &loop_start,
       "loop-end", &loop_end, "length", &length, NULL);
-  const GstClockTime bar_time = bt_sequence_get_bar_time (self->priv->sequence);
+  g_object_get (self->priv->song_info, "tick-duration", &tick_duration, NULL);
 
   //GST_INFO("rate %lf, loop %d? %ld ... %ld, length %ld, pos %lu",self->priv->play_rate,loop,loop_start,loop_end,length,play_pos);
 
@@ -177,9 +178,9 @@ bt_song_update_play_seek_event (const BtSong * const self)
   // remember end for eos
   self->priv->play_end = loop_end;
 
-  GST_INFO ("loop %d? %ld ... %ld, length %ld, pos %lu, bar_time %"
+  GST_INFO ("loop %d? %ld ... %ld, length %ld, pos %lu, tick_duration %"
       GST_TIME_FORMAT, loop, loop_start, loop_end, length, play_pos,
-      GST_TIME_ARGS (bar_time));
+      GST_TIME_ARGS (tick_duration));
 
   if (self->priv->play_seek_event)
     gst_event_unref (self->priv->play_seek_event);
@@ -195,16 +196,16 @@ bt_song_update_play_seek_event (const BtSong * const self)
     self->priv->play_seek_event =
         gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT, GST_SEEK_TYPE_SET,
-        play_pos * bar_time, GST_SEEK_TYPE_SET, loop_end * bar_time);
+        play_pos * tick_duration, GST_SEEK_TYPE_SET, loop_end * tick_duration);
     self->priv->loop_seek_event =
         gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_SEGMENT, GST_SEEK_TYPE_SET, loop_start * bar_time,
-        GST_SEEK_TYPE_SET, loop_end * bar_time);
+        GST_SEEK_FLAG_SEGMENT, GST_SEEK_TYPE_SET, loop_start * tick_duration,
+        GST_SEEK_TYPE_SET, loop_end * tick_duration);
   } else {
     self->priv->play_seek_event =
         gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH, GST_SEEK_TYPE_SET, play_pos * bar_time,
-        GST_SEEK_TYPE_SET, loop_end * bar_time);
+        GST_SEEK_FLAG_FLUSH, GST_SEEK_TYPE_SET, play_pos * tick_duration,
+        GST_SEEK_TYPE_SET, loop_end * tick_duration);
     self->priv->loop_seek_event = NULL;
   }
 }
@@ -222,28 +223,29 @@ bt_song_seek_to_play_pos (const BtSong * const self)
   GstEvent *event;
   gboolean loop;
   glong loop_end, length;
+  GstClockTime tick_duration;
 
   if (!self->priv->is_playing)
     return;
 
   g_object_get (self->priv->sequence, "loop", &loop, "loop-end", &loop_end,
       "length", &length, NULL);
-  const GstClockTime bar_time = bt_sequence_get_bar_time (self->priv->sequence);
+  g_object_get (self->priv->song_info, "tick-duration", &tick_duration, NULL);
 
-  GST_INFO ("loop %d? %ld, length %ld, bar_time %" GST_TIME_FORMAT, loop,
-      loop_end, length, GST_TIME_ARGS (bar_time));
+  GST_INFO ("loop %d? %ld, length %ld, tick_duration %" GST_TIME_FORMAT, loop,
+      loop_end, length, GST_TIME_ARGS (tick_duration));
 
   // we need to flush, otherwise mixing goes out of sync
   if (loop) {
     event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, self->priv->play_pos * bar_time,
-        GST_SEEK_TYPE_SET, (loop_end + 0) * bar_time);
+        GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration,
+        GST_SEEK_TYPE_SET, (loop_end + 0) * tick_duration);
   } else {
     event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH,
-        GST_SEEK_TYPE_SET, self->priv->play_pos * bar_time,
-        GST_SEEK_TYPE_SET, (length + 1) * bar_time);
+        GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration,
+        GST_SEEK_TYPE_SET, (length + 1) * tick_duration);
   }
   /* TODO(ensonic): we should wait for an async done to ensure that the previous
    * flushing seek is done (see design/gst/event.c)
@@ -259,13 +261,14 @@ bt_song_change_play_rate (const BtSong * const self)
   GstEvent *event;
   gboolean loop;
   glong loop_start, loop_end, length;
+  GstClockTime tick_duration;
 
   if (!self->priv->is_playing)
     return;
 
   g_object_get (self->priv->sequence, "loop", &loop, "loop-start", &loop_start,
       "loop-end", &loop_end, "length", &length, NULL);
-  const GstClockTime bar_time = bt_sequence_get_bar_time (self->priv->sequence);
+  g_object_get (self->priv->song_info, "tick-duration", &tick_duration, NULL);
 
   GST_INFO ("rate %lf, loop %d?", self->priv->play_rate, loop);
   bt_song_update_play_seek_event (self);
@@ -281,28 +284,28 @@ bt_song_change_play_rate (const BtSong * const self)
       event = gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
           //GST_SEEK_FLAG_SEGMENT,
-          GST_SEEK_TYPE_SET, self->priv->play_pos * bar_time,
-          GST_SEEK_TYPE_SET, loop_end * bar_time);
+          GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration,
+          GST_SEEK_TYPE_SET, loop_end * tick_duration);
     } else {
       event = gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
           //GST_SEEK_FLAG_SEGMENT,
-          GST_SEEK_TYPE_SET, loop_start * bar_time,
-          GST_SEEK_TYPE_SET, self->priv->play_pos * bar_time);
+          GST_SEEK_TYPE_SET, loop_start * tick_duration,
+          GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration);
     }
   } else {
     if (self->priv->play_rate > 0.0) {
       event = gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH,
           //GST_SEEK_FLAG_NONE,
-          GST_SEEK_TYPE_SET, self->priv->play_pos * bar_time,
-          GST_SEEK_TYPE_SET, (length + 1) * bar_time);
+          GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration,
+          GST_SEEK_TYPE_SET, (length + 1) * tick_duration);
     } else {
       event = gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH,
           //GST_SEEK_FLAG_NONE,
           GST_SEEK_TYPE_SET, G_GINT64_CONSTANT (0),
-          GST_SEEK_TYPE_SET, self->priv->play_pos * bar_time);
+          GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration);
     }
   }
   /* TODO(ensonic): we should wait for an async done to ensure that the previous
@@ -999,9 +1002,8 @@ bt_song_update_playback_position (const BtSong * const self)
     gst_query_parse_position (self->priv->position_query, NULL, &pos_cur);
     if (GST_CLOCK_TIME_IS_VALID (pos_cur)) {
       // calculate new play-pos (in ticks)
-      const GstClockTime bar_time =
-          bt_sequence_get_bar_time (self->priv->sequence);
-      const gulong play_pos = (gulong) (pos_cur / bar_time);
+      const gulong play_pos = bt_song_info_time_to_tick (self->priv->song_info,
+          pos_cur);
       if (play_pos != self->priv->play_pos) {
         self->priv->play_pos = play_pos;
         GST_DEBUG ("query playback-pos: cur=%" G_GINT64_FORMAT ", tick=%lu",

@@ -72,6 +72,7 @@ struct _BtPlaybackControllerSocketPrivate
 
   /* data for the status */
     G_POINTER_ALIAS (BtSequence *, sequence);
+    G_POINTER_ALIAS (BtSongInfo *, song_info);
     G_POINTER_ALIAS (GstElement *, gain);
   gboolean is_playing;
   gchar *length_str;
@@ -132,13 +133,12 @@ client_cmd_parse_and_process (BtPlaybackControllerSocket * self, gchar * cmd)
     return (NULL);
 
   if (!strcasecmp (cmd, "browse")) {
-    BtSequence *sequence;
-    BtSongInfo *song_info;
+    BtSongInfo *song_info = self->priv->song_info;
+    BtSequence *sequence = self->priv->sequence;
     gchar *str, *temp;
     gulong i, length;
     gboolean no_labels = TRUE;
 
-    g_object_get (song, "sequence", &sequence, "song-info", &song_info, NULL);
     g_object_get (song_info, "name", &str, NULL);
     g_object_get (sequence, "length", &length, NULL);
 
@@ -170,8 +170,6 @@ client_cmd_parse_and_process (BtPlaybackControllerSocket * self, gchar * cmd)
       reply = temp;
     }
 
-    g_object_unref (song_info);
-    g_object_unref (sequence);
   } else if (!strncasecmp (cmd, "play|", 5)) {
     g_free (self->priv->cur_label);
 
@@ -210,20 +208,14 @@ client_cmd_parse_and_process (BtPlaybackControllerSocket * self, gchar * cmd)
     gchar *state[] = { "stopped", "playing" };
     gchar *mode[] = { "on", "off" };
     gulong pos, msec, sec, min;
-    GstClockTime bar_time;
     gdouble volume;
     gboolean loop;
 
     g_object_get (song, "play-pos", &pos, NULL);
-    bar_time = bt_sequence_get_bar_time (self->priv->sequence);
     g_object_get (self->priv->sequence, "loop", &loop, NULL);
 
     // calculate playtime
-    msec = (gulong) ((pos * bar_time) / G_USEC_PER_SEC);
-    min = (gulong) (msec / 60000);
-    msec -= (min * 60000);
-    sec = (gulong) (msec / 1000);
-    msec -= (sec * 1000);
+    bt_song_info_tick_to_m_s_ms (self->priv->song_info, pos, &min, &sec, &msec);
 
     // get the current input_gain and adjust volume widget
     g_object_get (self->priv->gain, "volume", &volume, NULL);
@@ -442,10 +434,13 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
       G_CALLBACK (on_song_is_playing_notify), (gpointer) self);
 
   g_object_try_weak_unref (self->priv->sequence);
-  g_object_get (song, "sequence", &self->priv->sequence, "master", &master,
-      NULL);
+  g_object_try_weak_unref (self->priv->song_info);
+  g_object_get (song, "sequence", &self->priv->sequence, "song-info",
+      &self->priv->song_info, "master", &master, NULL);
   g_object_try_weak_ref (self->priv->sequence);
+  g_object_try_weak_ref (self->priv->song_info);
   g_object_unref (self->priv->sequence);
+  g_object_unref (self->priv->song_info);
 
   g_object_try_weak_unref (self->priv->gain);
   g_object_get (master, "input-gain", &self->priv->gain, NULL);
@@ -454,13 +449,8 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 
   // calculate length
   g_free (self->priv->length_str);
-  msec =
-      (gulong) (bt_sequence_get_loop_time (self->priv->sequence) /
-      G_USEC_PER_SEC);
-  min = (gulong) (msec / 60000);
-  msec -= (min * 60000);
-  sec = (gulong) (msec / 1000);
-  msec -= (sec * 1000);
+  bt_song_info_tick_to_m_s_ms (self->priv->song_info,
+      bt_sequence_get_loop_length (self->priv->sequence), &min, &sec, &msec);
   self->priv->length_str =
       g_strdup_printf ("0:%02lu:%02lu.%03lu", min, sec, msec);
 
@@ -634,6 +624,7 @@ bt_playback_controller_socket_dispose (GObject * object)
   GST_DEBUG ("!!!! self=%p", self);
   g_object_try_weak_unref (self->priv->gain);
   g_object_try_weak_unref (self->priv->sequence);
+  g_object_try_weak_unref (self->priv->song_info);
   g_object_try_weak_unref (self->priv->app);
 
   master_connection_close (self);
@@ -656,8 +647,8 @@ bt_playback_controller_socket_finalize (GObject * object)
   g_free (self->priv->length_str);
   g_free (self->priv->cur_label);
 
-  G_OBJECT_CLASS (bt_playback_controller_socket_parent_class)->
-      finalize (object);
+  G_OBJECT_CLASS (bt_playback_controller_socket_parent_class)->finalize
+      (object);
 }
 
 static void

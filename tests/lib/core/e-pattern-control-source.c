@@ -22,10 +22,12 @@
 //-- globals
 static BtApplication *app;
 static BtSong *song;
+static BtSongInfo *song_info;
 static BtSequence *sequence;
 static BtMachine *machine;
 static BtParameterGroup *pg;
 static GstObject *element;
+static GstClockTime tick_time;
 
 //-- fixtures
 
@@ -41,7 +43,8 @@ test_setup (void)
 {
   app = bt_test_application_new ();
   song = bt_song_new (app);
-  sequence = BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  bt_child_proxy_get ((gpointer) song, "sequence", &sequence, "song-info",
+      &song_info, "song-info::tick-duration", &tick_time, NULL);
   machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0, NULL));
   element = GST_OBJECT (check_gobject_get_object_property (machine, "machine"));
@@ -53,6 +56,7 @@ test_teardown (void)
 {
   gst_object_unref (element);
   g_object_unref (machine);
+  g_object_unref (song_info);
   g_object_unref (sequence);
   g_object_checked_unref (song);
   g_object_checked_unref (app);
@@ -73,7 +77,7 @@ test_bt_pattern_control_source_new (BT_TEST_ARGS)
 
   /* act */
   BtPatternControlSource *pcs = bt_pattern_control_source_new (sequence,
-      machine, pg);
+      song_info, machine, pg);
 
   /* assert */
   fail_unless (pcs != NULL, NULL);
@@ -215,7 +219,6 @@ test_bt_pattern_control_source_hold_normal (BT_TEST_ARGS)
   /* arrange */
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
-  GstClockTime tick_time = bt_sequence_get_bar_time (sequence);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
@@ -243,7 +246,6 @@ test_bt_pattern_control_source_release_trigger (BT_TEST_ARGS)
   /* arrange */
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
-  GstClockTime tick_time = bt_sequence_get_bar_time (sequence);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
@@ -273,7 +275,6 @@ test_bt_pattern_control_source_combine_pattern_shadows (BT_TEST_ARGS)
       bt_pattern_new (song, "pattern1", "pattern1", 8L, machine);
   BtPattern *pattern2 =
       bt_pattern_new (song, "pattern2", "pattern2", 8L, machine);
-  GstClockTime tick_time = bt_sequence_get_bar_time (sequence);
   g_object_set (sequence, "length", 16L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern1);
@@ -306,7 +307,6 @@ test_bt_pattern_control_source_combine_pattern_unshadows (BT_TEST_ARGS)
       bt_pattern_new (song, "pattern1", "pattern1", 8L, machine);
   BtPattern *pattern2 =
       bt_pattern_new (song, "pattern2", "pattern2", 8L, machine);
-  GstClockTime tick_time = bt_sequence_get_bar_time (sequence);
   g_object_set (sequence, "length", 16L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern1);
@@ -344,7 +344,6 @@ test_bt_pattern_control_source_combine_value_unshadows (BT_TEST_ARGS)
       bt_pattern_new (song, "pattern1", "pattern1", 8L, machine);
   BtPattern *pattern2 =
       bt_pattern_new (song, "pattern2", "pattern2", 8L, machine);
-  GstClockTime tick_time = bt_sequence_get_bar_time (sequence);
   g_object_set (sequence, "length", 16L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern1);
@@ -380,7 +379,6 @@ test_bt_pattern_control_source_combine_two_tracks (BT_TEST_ARGS)
   /* arrange */
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
-  GstClockTime tick_time = bt_sequence_get_bar_time (sequence);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_add_track (sequence, machine, -1);

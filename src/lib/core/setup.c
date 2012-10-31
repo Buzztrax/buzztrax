@@ -770,24 +770,23 @@ update_play_seek_event (const BtSetup * self)
   gboolean loop;
   glong loop_end, length;
   gulong play_pos;
-  GstClockTime bar_time;
+  GstClockTime tick_duration;
   GstClockTime start, stop;
 
   bt_song_update_playback_position (self->priv->song);
-  g_object_get (self->priv->song, "sequence", &sequence, "play-pos", &play_pos,
-      NULL);
+  bt_child_proxy_get (self->priv->song, "sequence", &sequence, "play-pos",
+      &play_pos, "song-info::tick-duration", &tick_duration, NULL);
   g_object_get (sequence, "loop", &loop, "loop-end", &loop_end, "length",
       &length, NULL);
-  bar_time = bt_sequence_get_bar_time (sequence);
-  start = play_pos * bar_time;
+  start = play_pos * tick_duration;
   // configure self->priv->play_seek_event (sent to newly activated elements)
   if (loop) {
-    stop = (loop_end + 0) * bar_time;
+    stop = (loop_end + 0) * tick_duration;
     self->priv->play_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, start, GST_SEEK_TYPE_SET, stop);
   } else {
-    stop = (length + 1) * bar_time;
+    stop = (length + 1) * tick_duration;
     self->priv->play_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH, GST_SEEK_TYPE_SET, start, GST_SEEK_TYPE_SET, stop);
   }

@@ -70,6 +70,7 @@ struct _BtSequenceGridModelPrivate
 {
   gint stamp;
   BtSequence *sequence;
+  BtSongInfo *song_info;
 
   BtSequenceGridModelPosFormat pos_format;
   gulong bars;
@@ -89,11 +90,11 @@ bt_sequence_grid_model_pos_format_get_type (void)
   if (G_UNLIKELY (type == 0)) {
     static const GEnumValue values[] = {
       {BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS,
-            "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS", "ticks"},
+          "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS", "ticks"},
       {BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME,
-            "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME", "time"},
+          "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME", "time"},
       {BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS,
-            "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS", "beats"},
+          "BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS", "beats"},
       {0, NULL, NULL},
     };
     type = g_enum_register_static ("BtSequenceGridModelPosFormat", values);
@@ -123,17 +124,11 @@ format_position (const BtSequenceGridModel * model, gulong pos)
       break;
     case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TIME:{
       gulong msec, sec, min;
-      // this is cached in sequence and properly updated
-      const GstClockTime bar_time =
-          bt_sequence_get_bar_time (model->priv->sequence);
-
-      msec = (gulong) ((pos * bar_time) / G_USEC_PER_SEC);
-      min = (gulong) (msec / 60000);
-      msec -= (min * 60000);
-      sec = (gulong) (msec / 1000);
-      msec -= (sec * 1000);
+      bt_song_info_tick_to_m_s_ms (model->priv->song_info, pos, &min, &sec,
+          &msec);
       g_sprintf (pos_str, "%02lu:%02lu.%03lu", min, sec, msec);
-    } break;
+    }
+      break;
     case BT_SEQUENCE_GRID_MODEL_POS_FORMAT_BEATS:{
       gulong beat, tick;
       gint tick_chars;
@@ -332,6 +327,7 @@ on_sequence_pattern_removed (BtSequence * sequence, BtPattern * pattern,
 /**
  * bt_sequence_grid_model_new:
  * @sequence: the sequence
+ * @song_info: the song-info
  * @bars: the intial bar-filtering for the view
  *
  * Creates a grid model for the @sequence. The model is automatically updated on
@@ -347,17 +343,20 @@ on_sequence_pattern_removed (BtSequence * sequence, BtPattern * pattern,
  * Returns: the sequence model.
  */
 BtSequenceGridModel *
-bt_sequence_grid_model_new (BtSequence * sequence, gulong bars)
+bt_sequence_grid_model_new (BtSequence * sequence, BtSongInfo * song_info,
+    gulong bars)
 {
   BtSequenceGridModel *self;
   BtSong *song;
-  BtSongInfo *song_info;
 
   self = g_object_new (BT_TYPE_SEQUENCE_GRID_MODEL, NULL);
 
   self->priv->sequence = sequence;
   g_object_add_weak_pointer ((GObject *) sequence,
       (gpointer *) & self->priv->sequence);
+  self->priv->song_info = song_info;
+  g_object_add_weak_pointer ((GObject *) song_info,
+      (gpointer *) & self->priv->song_info);
   self->priv->bars = bars;
 
   // static columns
@@ -710,6 +709,13 @@ bt_sequence_grid_model_finalize (GObject * object)
     g_signal_handlers_disconnect_matched (sequence,
         G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
         on_sequence_pattern_removed, (gpointer) self);
+
+    g_object_remove_weak_pointer ((GObject *) sequence,
+        (gpointer *) & self->priv->sequence);
+  }
+  if (self->priv->song_info) {
+    g_object_remove_weak_pointer ((GObject *) self->priv->song_info,
+        (gpointer *) & self->priv->song_info);
   }
 
   G_OBJECT_CLASS (bt_sequence_grid_model_parent_class)->finalize (object);
