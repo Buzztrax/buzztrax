@@ -139,6 +139,7 @@ gint check_gobject_get_int_property(gpointer obj, const gchar *prop);
 guint check_gobject_get_uint_property(gpointer obj, const gchar *prop);
 glong check_gobject_get_long_property(gpointer obj, const gchar *prop);
 gulong check_gobject_get_ulong_property(gpointer obj, const gchar *prop);
+guint64 check_gobject_get_uint64_property(gpointer obj, const gchar *prop);
 GObject *check_gobject_get_object_property(gpointer obj, const gchar *prop);
 gchar *check_gobject_get_str_property(gpointer obj, const gchar *prop);
 gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);

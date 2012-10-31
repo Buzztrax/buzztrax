@@ -951,6 +951,15 @@ check_gobject_get_ulong_property (gpointer obj, const gchar * prop)
   return val;
 }
 
+guint64
+check_gobject_get_uint64_property (gpointer obj, const gchar * prop)
+{
+  guint64 val;
+
+  g_object_get (obj, prop, &val, NULL);
+  return val;
+}
+
 GObject *
 check_gobject_get_object_property (gpointer obj, const gchar * prop)
 {
