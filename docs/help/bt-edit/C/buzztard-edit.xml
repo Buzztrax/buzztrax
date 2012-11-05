@@ -1589,7 +1589,7 @@ i o p</keycap></screen></entry>
       name can be changed. Pressing okay, will store the new control and assign
       it to the machine parameter (from which the dialog was invoked).
     </para>
-    <figure id="bt-edit-dialog-crash-recovery-fig">
+    <figure id="bt-edit-dialog-interaction-controller-learn-fig">
       <title>Interaction controller learn dialog</title>
       <screenshot>
         <mediaobject>
