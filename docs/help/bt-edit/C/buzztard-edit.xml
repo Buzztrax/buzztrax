@@ -1176,7 +1176,7 @@ i o p</keycap></screen></entry>
       </figure>
       <para>
         For some device types such as midi-devices, the available controls can
-        not be auto-detected. Allthough one can teach these in a simple
+        not be auto-detected. Although one can teach these in a simple
         procedure. Every time such a device is selected, the lean mode will be
         activated. In this mode one can press the hardware buttons or move
         sliders and knobs. When this happens, controls not yet in the list will
@@ -1307,7 +1307,7 @@ i o p</keycap></screen></entry>
       to a hardware controller and unbind it. If a parameter is bound, the
       changes on the hardware controller will effect the parameter. &app;
       supports hid (e.g joysticks, wiimotes, harddisk accelerometers) and midi
-      devices. For some device types the submenu with the controls will start
+      devices. For some device types the sub-menu with the controls will start
       with an entry "Learn ...". This will lead to the
       <link linkend="bt-edit-dialog-interaction-controller-learn">lean dialog</link>,
       where new controllers can be taught.
