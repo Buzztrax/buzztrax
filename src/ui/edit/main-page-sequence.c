@@ -1020,8 +1020,8 @@ on_delayed_track_level_change (GstClock * clock, GstClockTime time,
 static void
 on_track_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
 {
-  const GstStructure *structure = gst_message_get_structure (message);
-  const GQuark name_id = gst_structure_get_name_id (structure);
+  const GstStructure *s = gst_message_get_structure (message);
+  const GQuark name_id = gst_structure_get_name_id (s);
 
   if (name_id == bus_msg_level_quark) {
     BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
@@ -1030,31 +1030,18 @@ on_track_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
 
     // check if its our element (we can have multiple level meters)
     if ((vumeter = g_hash_table_lookup (self->priv->level_to_vumeter, level))) {
-      GstClockTime timestamp, duration;
-      GstClockTime waittime = GST_CLOCK_TIME_NONE;
-
-      if (gst_structure_get_clock_time (structure, "running-time", &timestamp)
-          && gst_structure_get_clock_time (structure, "duration", &duration)) {
-        /* wait for middle of buffer */
-        waittime = timestamp + duration / 2;
-      } else if (gst_structure_get_clock_time (structure, "endtime",
-              &timestamp)) {
-        /* level send endtime as stream_time and not as running_time */
-        waittime =
-            gst_segment_to_running_time (&GST_BASE_TRANSFORM (level)->segment,
-            GST_FORMAT_TIME, timestamp);
-      }
+      GstClockTime waittime = bt_gst_analyzer_get_waittime (level, s, TRUE);
       if (GST_CLOCK_TIME_IS_VALID (waittime)) {
         gdouble decay, peak;
         gint new_skip = FALSE, old_skip = FALSE;
 
         peak =
-            bt_gst_level_message_get_aggregated_field (structure, "peak",
+            bt_gst_level_message_get_aggregated_field (s, "peak",
             LOW_VUMETER_VAL);
         decay =
-            bt_gst_level_message_get_aggregated_field (structure, "decay",
+            bt_gst_level_message_get_aggregated_field (s, "decay",
             LOW_VUMETER_VAL);
-        // check if we a silent or very loud
+        // check if we are silent or very loud
         if (decay <= LOW_VUMETER_VAL && peak <= LOW_VUMETER_VAL)
           new_skip = 1;         // below min level
         else if (decay >= 0.0 && peak >= 0.0)
@@ -1068,12 +1055,11 @@ on_track_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
         if (!old_skip || !new_skip || old_skip != new_skip) {
           BtUpdateIdleData *data;
           GstClockID clock_id;
-          GstClockTime basetime = gst_element_get_base_time (level);
 
           MAKE_UPDATE_IDLE_DATA (data, self, vumeter, peak, decay);
           clock_id =
               gst_clock_new_single_shot_id (self->priv->clock,
-              waittime + basetime);
+              waittime + gst_element_get_base_time (level));
           if (gst_clock_id_wait_async (clock_id, on_delayed_track_level_change,
                   (gpointer) data) != GST_CLOCK_OK) {
             FREE_UPDATE_IDLE_DATA (data);

@@ -563,6 +563,42 @@ bt_gst_level_message_get_aggregated_field (const GstStructure * structure,
   return (value / size);
 }
 
+/**
+ * bt_gst_analyzer_get_waittime:
+ * @analyzer: the analyzer
+ * @structure: the message data
+ * @endtime_is_running_time: some elements (level) report endtime as running
+ *   time and therefore need segment correction
+ *
+ * Get the time to wait for audio corresponding to the analyzed data to be
+ * rendered.
+ *
+ * Returns: the wait time in ns.
+ */
+GstClockTime
+bt_gst_analyzer_get_waittime (GstElement * analyzer,
+    const GstStructure * structure, gboolean endtime_is_running_time)
+{
+  GstClockTime timestamp, duration;
+  GstClockTime waittime = GST_CLOCK_TIME_NONE;
+
+  if (gst_structure_get_clock_time (structure, "running-time", &timestamp)
+      && gst_structure_get_clock_time (structure, "duration", &duration)) {
+    /* wait for middle of buffer */
+    waittime = timestamp + (duration / 2);
+  } else if (gst_structure_get_clock_time (structure, "endtime", &timestamp)) {
+    /* level send endtime as stream_time and not as running_time */
+    if (endtime_is_running_time) {
+      waittime =
+          gst_segment_to_running_time (&GST_BASE_TRANSFORM (analyzer)->segment,
+          GST_FORMAT_TIME, timestamp);
+    } else {
+      waittime = timestamp;
+    }
+  }
+  return waittime;
+}
+
 //-- gst compat
 
 //-- glib compat & helper

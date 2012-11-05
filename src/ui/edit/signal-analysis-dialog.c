@@ -760,8 +760,8 @@ static void
 on_signal_analyser_change (GstBus * bus, GstMessage * message,
     gpointer user_data)
 {
-  const GstStructure *structure = gst_message_get_structure (message);
-  const GQuark name_id = gst_structure_get_name_id (structure);
+  const GstStructure *s = gst_message_get_structure (message);
+  const GQuark name_id = gst_structure_get_name_id (s);
 
   if ((name_id == bus_msg_level_quark) || (name_id == bus_msg_spectrum_quark)) {
     BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
@@ -769,45 +769,28 @@ on_signal_analyser_change (GstBus * bus, GstMessage * message,
 
     if ((meter == self->priv->analyzers[ANALYZER_LEVEL]) ||
         (meter == self->priv->analyzers[ANALYZER_SPECTRUM])) {
-      GstClockTime timestamp, duration;
-      GstClockTime waittime = GST_CLOCK_TIME_NONE;
+      GstClockTime waittime = bt_gst_analyzer_get_waittime (meter, s,
+          (name_id == bus_msg_level_quark));
 
-      if (gst_structure_get_clock_time (structure, "running-time", &timestamp)
-          && gst_structure_get_clock_time (structure, "duration", &duration)) {
-        /* wait for middle of buffer */
-        waittime = timestamp + duration / 2;
-      } else if (gst_structure_get_clock_time (structure, "endtime",
-              &timestamp)) {
-        if (name_id == bus_msg_level_quark) {
-          /* level sends endtime as stream_time and not as running_time */
-          waittime =
-              gst_segment_to_running_time (&GST_BASE_TRANSFORM (meter)->segment,
-              GST_FORMAT_TIME, timestamp);
-        } else {
-          waittime = timestamp;
-        }
-      }
       if (GST_CLOCK_TIME_IS_VALID (waittime)) {
-        gconstpointer *params =
-            (gconstpointer *) g_slice_alloc (2 * sizeof (gconstpointer));
+        gpointer *data = (gpointer *) g_slice_alloc (2 * sizeof (gpointer));
         GstClockID clock_id;
-        GstClockTime basetime = gst_element_get_base_time (meter);
 
         //GST_WARNING("received %s update for waittime %"GST_TIME_FORMAT,
         //  g_quark_to_string(name_id),GST_TIME_ARGS(waittime));
 
-        params[0] = (gpointer) self;
-        params[1] = (gpointer) gst_message_ref (message);
-        g_object_add_weak_pointer ((gpointer) self, (gpointer *) & params[0]);
+        data[0] = (gpointer) self;
+        data[1] = (gpointer) gst_message_ref (message);
+        g_object_add_weak_pointer ((gpointer) self, (gpointer *) & data[0]);
 
         clock_id =
             gst_clock_new_single_shot_id (self->priv->clock,
-            waittime + basetime);
+            waittime + gst_element_get_base_time (meter));
         if (gst_clock_id_wait_async (clock_id,
                 on_delayed_signal_analyser_change,
-                (gpointer) params) != GST_CLOCK_OK) {
+                (gpointer) data) != GST_CLOCK_OK) {
           gst_message_unref (message);
-          g_slice_free1 (2 * sizeof (gconstpointer), params);
+          g_slice_free1 (2 * sizeof (gconstpointer), data);
         }
         gst_clock_id_unref (clock_id);
       }
@@ -971,8 +954,8 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
     BtMachine *src_machine, *dst_machine;
     gchar *src_id, *dst_id;
 
-    g_object_get (self->priv->element, "src", &src_machine, "dst", &dst_machine,
-        NULL);
+    g_object_get (self->priv->element, "src", &src_machine, "dst",
+        &dst_machine, NULL);
     g_object_get (src_machine, "id", &src_id, NULL);
     g_object_get (dst_machine, "id", &dst_id, NULL);
     // set dialog title : machine -> machine analysis

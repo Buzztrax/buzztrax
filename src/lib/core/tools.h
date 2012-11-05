@@ -43,6 +43,7 @@ const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res,GstPad *src_
 //-- gst element messages
 
 gdouble bt_gst_level_message_get_aggregated_field(const GstStructure *structure, const gchar *field_name, gdouble default_value);
+GstClockTime bt_gst_analyzer_get_waittime(GstElement *analyzer, const GstStructure *structure, gboolean endtime_is_running_time);
 
 //-- gst compat
 

@@ -538,8 +538,8 @@ on_delayed_song_level_change (GstClock * clock, GstClockTime time,
 static void
 on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
 {
-  const GstStructure *structure = gst_message_get_structure (message);
-  const GQuark name_id = gst_structure_get_name_id (structure);
+  const GstStructure *s = gst_message_get_structure (message);
+  const GQuark name_id = gst_structure_get_name_id (s);
 
   if (name_id == bus_msg_level_quark) {
     BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
@@ -547,41 +547,26 @@ on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
 
     // check if its our element (we can have multiple level meters)
     if (level == self->priv->level) {
-      GstClockTime timestamp, duration;
-      GstClockTime waittime = GST_CLOCK_TIME_NONE;
-
-      if (gst_structure_get_clock_time (structure, "running-time", &timestamp)
-          && gst_structure_get_clock_time (structure, "duration", &duration)) {
-        /* wait for middle of buffer */
-        waittime = timestamp + duration / 2;
-      } else if (gst_structure_get_clock_time (structure, "endtime",
-              &timestamp)) {
-        /* level send endtime as stream_time and not as running_time */
-        waittime =
-            gst_segment_to_running_time (&GST_BASE_TRANSFORM (level)->segment,
-            GST_FORMAT_TIME, timestamp);
-      }
+      GstClockTime waittime = bt_gst_analyzer_get_waittime (level, s, TRUE);
       if (GST_CLOCK_TIME_IS_VALID (waittime)) {
-        gconstpointer *params =
-            (gconstpointer *) g_slice_alloc (2 * sizeof (gconstpointer));
+        gpointer *data = (gpointer *) g_slice_alloc (2 * sizeof (gpointer));
         GstClockID clock_id;
-        GstClockTime basetime = gst_element_get_base_time (level);
 
         //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
         //  GST_TIME_ARGS(endtime),GST_TIME_ARGS(waittime));
 
-        params[0] = (gpointer) self;
-        params[1] = (gpointer) gst_message_ref (message);
+        data[0] = (gpointer) self;
+        data[1] = (gpointer) gst_message_ref (message);
         g_mutex_lock (self->priv->lock);
-        g_object_add_weak_pointer ((gpointer) self, (gpointer *) & params[0]);
+        g_object_add_weak_pointer ((gpointer) self, (gpointer *) & data[0]);
         g_mutex_unlock (self->priv->lock);
         clock_id =
             gst_clock_new_single_shot_id (self->priv->clock,
-            waittime + basetime);
+            waittime + gst_element_get_base_time (level));
         if (gst_clock_id_wait_async (clock_id, on_delayed_song_level_change,
-                (gpointer) params) != GST_CLOCK_OK) {
+                (gpointer) data) != GST_CLOCK_OK) {
           gst_message_unref (message);
-          g_slice_free1 (2 * sizeof (gconstpointer), params);
+          g_slice_free1 (2 * sizeof (gconstpointer), data);
         }
         gst_clock_id_unref (clock_id);
       }

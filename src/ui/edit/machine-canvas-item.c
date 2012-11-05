@@ -414,8 +414,8 @@ on_delayed_machine_level_change (GstClock * clock, GstClockTime time,
 static void
 on_machine_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
 {
-  const GstStructure *structure = gst_message_get_structure (message);
-  const GQuark name_id = gst_structure_get_name_id (structure);
+  const GstStructure *s = gst_message_get_structure (message);
+  const GQuark name_id = gst_structure_get_name_id (s);
 
   if (name_id == bus_msg_level_quark) {
     BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
@@ -424,20 +424,7 @@ on_machine_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
     // check if its our level-meter
     if ((level == self->priv->output_level) ||
         (level == self->priv->input_level)) {
-      GstClockTime timestamp, duration;
-      GstClockTime waittime = GST_CLOCK_TIME_NONE;
-
-      if (gst_structure_get_clock_time (structure, "running-time", &timestamp)
-          && gst_structure_get_clock_time (structure, "duration", &duration)) {
-        /* wait for middle of buffer */
-        waittime = timestamp + duration / 2;
-      } else if (gst_structure_get_clock_time (structure, "endtime",
-              &timestamp)) {
-        /* level send endtime as stream_time and not as running_time */
-        waittime =
-            gst_segment_to_running_time (&GST_BASE_TRANSFORM (level)->segment,
-            GST_FORMAT_TIME, timestamp);
-      }
+      GstClockTime waittime = bt_gst_analyzer_get_waittime (level, s, TRUE);
       if (GST_CLOCK_TIME_IS_VALID (waittime)) {
         GnomeCanvasItem *meter = NULL;
         gdouble peak;
@@ -445,7 +432,7 @@ on_machine_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
 
         // check the value and calculate the average for the channels
         peak =
-            bt_gst_level_message_get_aggregated_field (structure, "peak",
+            bt_gst_level_message_get_aggregated_field (s, "peak",
             LOW_VUMETER_VAL);
         // check if we are very loud
         if (peak > 0.0) {
@@ -470,13 +457,12 @@ on_machine_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
         }
         if (!old_skip || !new_skip || old_skip != new_skip) {
           BtUpdateIdleData *data;
-          GstClockTime basetime = gst_element_get_base_time (level);
           GstClockID clock_id;
 
           MAKE_UPDATE_IDLE_DATA (data, self, meter, peak);
           clock_id =
               gst_clock_new_single_shot_id (self->priv->clock,
-              waittime + basetime);
+              waittime + gst_element_get_base_time (level));
           if (gst_clock_id_wait_async (clock_id,
                   on_delayed_machine_level_change,
                   (gpointer) data) != GST_CLOCK_OK) {
