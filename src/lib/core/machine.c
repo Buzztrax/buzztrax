@@ -713,6 +713,22 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
   return (res);
 }
 
+static void
+bt_machine_clamp_voices (const BtMachine * const self)
+{
+  GstElement *machine = self->priv->machines[PART_MACHINE];
+  GParamSpecULong *ps;
+
+  // clamp to property bounds
+  if ((ps = (GParamSpecULong *)
+          g_object_class_find_property (G_OBJECT_GET_CLASS (machine),
+              "children"))) {
+    self->priv->voices = CLAMP (self->priv->voices, ps->minimum, ps->maximum);
+  }
+  g_object_set (machine, "children", self->priv->voices, NULL);
+  g_object_get (machine, "children", &self->priv->voices, NULL);
+}
+
 /*
  * bt_machine_resize_voices:
  * @self: the machine which has changed its number of voices
@@ -722,26 +738,12 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
 static void
 bt_machine_resize_voices (const BtMachine * const self, const gulong old_voices)
 {
-  gulong new_voices = self->priv->voices;
+  gulong new_voices;
   const gulong voice_params = self->priv->voice_params;
   GstElement *machine = self->priv->machines[PART_MACHINE];
-  GParamSpecULong *pspec;
 
-  // clamp to property bounds
-  if ((pspec = (GParamSpecULong *)
-          g_object_class_find_property (G_OBJECT_GET_CLASS (machine),
-              "children"))) {
-    self->priv->voices = CLAMP (new_voices, pspec->minimum, pspec->maximum);
-  }
-  if (old_voices == self->priv->voices) {
-    GST_INFO_OBJECT (self, "not changing changing machine voices");
-    return;
-  }
-  new_voices = self->priv->voices;
-
-  // clamp to run-time bounds
-  g_object_set (machine, "children", new_voices, NULL);
-  g_object_get (machine, "children", &self->priv->voices, NULL);
+  // clamp to property and run-time bounds
+  bt_machine_clamp_voices (self);
   if (old_voices == self->priv->voices) {
     GST_INFO_OBJECT (self, "not changing changing machine voices");
     return;
@@ -1130,7 +1132,7 @@ bt_machine_init_interfaces (const BtMachine * const self)
       GST_WARNING_OBJECT (self, "voices==0");
       //g_object_get(machine,"children",&self->priv->voices,NULL);
     } else {
-      g_object_set (machine, "children", self->priv->voices, NULL);
+      bt_machine_clamp_voices (self);
     }
     GST_INFO ("  child proxy iface initialized");
   }
