@@ -40,6 +40,11 @@
  * - being able to play notes with the keys (or some controller keyboard) would
  *   be sweet
  */
+/* TODO(ensonic): we're using two extra pipeline for wave playback (loaded waves
+ * and file-choser preview). This does not work if the choosen audio backend
+ * cannot mix. Using the songs' sink is tricky as we would need to switch the
+ * song to playing mode to play a wave.
+ */
 #define BT_EDIT
 #define BT_MAIN_PAGE_WAVES_C
 

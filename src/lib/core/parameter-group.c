@@ -28,6 +28,10 @@
  * one
  * - for this we need to copy the values from parents & params though
  */
+/* TODO(ensonic): should we have the default values in the param group to be
+ * able to create the controllers as needed, right now we create them
+ * unconditionally, just to track the defautl value. 
+ */
 #define BT_CORE
 #define BT_PARAMETER_GROUP_C
 

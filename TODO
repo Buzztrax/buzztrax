@@ -319,6 +319,7 @@
       - eventually we could use it in pattern-view too and implicitely bind it
         if "play-notes" is active
 
+
 * text parameters in machines
   * for a:
     * text to speech machine we'd like to have strings in the pattern
@@ -366,3 +367,28 @@
   * patterns are automatically added to the machine
   * this causes trouble for pattern_copy (which we work-around now)
 
+
+* change tempo while playing
+  * we would like to ensure that playback continues at the same position, just
+    at different speed
+  * when changing the tempo, we'd need to take a snapshot of the playback pos as
+    time and ticks
+
+
+* gsettings migrations
+  * we should consider dropping the whole settings abstraction, as gsettings is
+    part of glib anyway
+  * for the unit tests we use g_memory_settings_backend_new ()
+  * we'll need a small shim to use
+    GSettings *g_settings_new (const gchar *schema_id);
+    in application code and
+    GSettings *g_settings_new_with_backend (const gchar *schema_id, GSettingsBackend *backend);
+    in the tests
+  * we need to consider splitting the settings into core and app schemas
+  * should we start to use g_settings_bin for the sysem settings (toolbar style)
+    and remove them from the normal settings?
+
+
+* release 0.7, remaining bugs to look at
+  * we still get occational lockups when connecting/disconnecting while playing
+  * undo/redo is still flaky
