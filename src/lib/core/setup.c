@@ -40,7 +40,7 @@
  * When we remove a wire, we run check_connected(self,master,NULL,NULL).
  *
  * We don't need to handle the not_visited_* lists. Disconnected things are
- * never added (see update_bin_in_pipeline()). 
+ * never added (see {add,rem}_bin_in_pipeline()). 
  *
  * When adding/removing a bin while playing, block all src-pads that are
  * connected to existing elements when linking.
@@ -99,7 +99,7 @@
  *     }
  *     foreach(sub_graph) {
  *       // do we need gst_element_set_locked_state(...,TRUE);
- *       update_bin_in_pipeline(...);
+ *       {add,rem}_bin_in_pipeline(...);
  *     }
  *     foreach(src_wires) {
  *       link_wire_and_block(wire,src,dst);
@@ -637,37 +637,40 @@ unlink_wire (const BtSetup * const self, GstElement * wire,
 }
 
 /*
- * update_bin_in_pipeline:
+ * add_bin_in_pipeline:
  * @self: the setup object
  *
- * Add or remove machine or wires to/from the main pipeline.
+ * Add machine or wires to/from the main pipeline.
  */
 static gboolean
-update_bin_in_pipeline (const BtSetup * const self, GstBin * bin,
-    gboolean is_connected, GList ** not_visited)
+add_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
 {
   gboolean is_added = (GST_OBJECT_PARENT (bin) != NULL);
 
-  if (not_visited) {
-    *not_visited = g_list_remove (*not_visited, (gconstpointer) bin);
+  GST_INFO_OBJECT (bin, "add object : added=%d", is_added);
+  if (!is_added) {
+    gst_bin_add (self->priv->bin, GST_ELEMENT (bin));
   }
+  return (TRUE);
+}
 
-  GST_INFO_OBJECT (bin, "update object : connected=%d, added=%d",
-      is_connected, is_added);
+/*
+ * rem_bin_in_pipeline:
+ * @self: the setup object
+ *
+ * Remove machine or wires to/from the main pipeline.
+ */
+static gboolean
+rem_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
+{
+  gboolean is_added = (GST_OBJECT_PARENT (bin) != NULL);
 
-  if (is_connected) {
-    if (!is_added) {
-      gst_bin_add (self->priv->bin, GST_ELEMENT (bin));
-      gst_element_sync_state_with_parent (GST_ELEMENT (bin));
-    }
-  } else {
-    if (is_added) {
-      gst_object_ref (GST_OBJECT (bin));
-      gst_bin_remove (self->priv->bin, GST_ELEMENT (bin));
-      GST_OBJECT_FLAG_SET (bin, GST_OBJECT_FLOATING);
-    }
+  GST_INFO_OBJECT (bin, "rem object : added=%d", is_added);
+  if (is_added) {
+    gst_object_ref (GST_OBJECT (bin));
+    gst_bin_remove (self->priv->bin, GST_ELEMENT (bin));
+    GST_OBJECT_FLAG_SET (bin, GST_OBJECT_FLOATING);
   }
-
   return (TRUE);
 }
 
@@ -851,7 +854,7 @@ add_machine_in_pipeline (gpointer key, gpointer user_data)
   const BtSetup *const self = BT_SETUP (user_data);
 
   GST_INFO_OBJECT (key, "add machine");
-  update_bin_in_pipeline (self, GST_BIN (key), TRUE, NULL);
+  add_bin_in_pipeline (self, GST_BIN (key));
 }
 
 static void
@@ -861,7 +864,7 @@ add_wire_in_pipeline (gpointer key, gpointer user_data)
   GstElement *src, *dst;
 
   GST_INFO_OBJECT (key, "add & link wire");
-  update_bin_in_pipeline (self, GST_BIN (key), TRUE, NULL);
+  add_bin_in_pipeline (self, GST_BIN (key));
 
   g_object_get (key, "src", &src, "dst", &dst, NULL);
   link_wire (self, GST_ELEMENT (key), src, dst);
@@ -883,7 +886,7 @@ del_wire_in_pipeline (gpointer key, gpointer user_data)
   g_object_unref (src);
   g_object_unref (dst);
 
-  update_bin_in_pipeline (self, GST_BIN (key), FALSE, NULL);
+  rem_bin_in_pipeline (self, GST_BIN (key));
 }
 
 static void
@@ -892,7 +895,7 @@ del_machine_in_pipeline (gpointer key, gpointer user_data)
   const BtSetup *const self = BT_SETUP (user_data);
 
   GST_INFO_OBJECT (key, "remove machine");
-  update_bin_in_pipeline (self, GST_BIN (key), FALSE, NULL);
+  rem_bin_in_pipeline (self, GST_BIN (key));
 }
 
 static void
