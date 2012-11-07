@@ -1,15 +1,59 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 git diff @{2012-01-01} @{2012-01-31} | diffstat
 
+2012/12 ========================================================================
+
 2012/11 ========================================================================
 
 Finally pushed the pattern control-source: 26 files changed, 1204 insertions,
 1333 deletions. It looks like only a little gain in code size, but that is not
 true; we added more tests and splitting up a large class always comes with some
-boilerplate for the new class.
+boilerplate for the new class. There are still some oportunities for
+optimizations, which I'll probably try some soon.
 
-* interaction controller workflow (settings, dialog)
-* synth components
+In the UI I improved the interaction controller workflow. For controllers that
+implement control discovery the dialog from the context menu will also bind the
+new controller. The settings are now finally useful, as there one can do
+mass-learning (tweak all knows and then go through the list and name them).
+
+Writing synth plugins for buzztard would be quite a bit of copy and paste. I
+chopped simsyn into pieces as resuable objects in libgst-buzztard. We have a few
+oszillators, envelope objects and the svf-filter. The gst elements would proxy
+some properties of the synth component. Unfortunately that means copy'n'paste of
+the property setup. I've tried this code, but it shows no effect :/  
+
+     GObjectClass * filter_klass = g_type_class_ref (GSTBT_TYPE_FILTER_SVF);
+     g_object_class_install_property (gobject_class, PROP_RESONANCE,
+        g_param_spec_override ("resonance", 
+          g_object_class_find_property (filter_klass, "resonance")));
+     g_type_class_unref (filter_klass);
+
+A full standalone example can be found at [1].
+
+We also have a new element called wavereplay. This is mainly for testing the
+wavetable oscillator, but also has a nice property compared to tracker elements.
+It only has parameters to select the wave to play and it will play it from start
+to finish in syn with the song. That is if you seek to 2:00, the wave will play
+content from 2:00. This is unlike tracker elements that would only play what
+gets triggered from the new time position. One practical use is doing a mixdown
+of the music rendering with the vocal recordings. In such a song you load two
+wave (song, vocals), use two wavereplay elements, add effect elements to the one
+for the vocals and re-render the song to create the mixdown.
+
+I though I knew pretty much about gobject. This month I discovered something old
+I did not know about. It is supported to calls g_object_class_install_property()
+for a property inherited from the baseclass to e.g. narrrow down the value
+range. This is very useful for the "children" property of polyphonic elements
+(where children is the number of voices). The interface does only limmit the
+property to the full int range. With this feature elements like e.g. sidsyn can
+override the range to 3...3 (sid has always 3 voices).
+
+The last bigger change this month was a refactoring cleanup in sequence and
+song-info. This was quite a big of code shuffling, but now all the timing info
+is in song-info (which already has bpm an stuff). This change helped with an
+optimization in the pattern control-sources.
+
+[1] http://buzztard.git.sourceforge.net/git/gitweb.cgi?p=buzztard/buzztard;a=blob;f=design/gobject/propertyproxy.c
 
 2012/10 ========================================================================
 

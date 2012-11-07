@@ -391,4 +391,19 @@
 
 * release 0.7, remaining bugs to look at
   * we still get occational lockups when connecting/disconnecting while playing
+    * grep -v "got request for" dynlink1.log | grep -v "latency_update," | tail
+    * the queue on the new branch is filled, is the mixing element not fetching
+      it?
+    * it seems to be the seek to kickstart the element + the seek of the loop
+      that step onto each other toes
+      
+#4  0x00007ffff6b18497 in gst_pad_pause_task (pad=0x1008690) at gstpad.c:5657
+#5  0x00007ffff6fd5e2c in gst_base_src_perform_seek (src=0xdd8700, event=0x10d2770, unlock=1) at gstbasesrc.c:1383
+#6  0x00007ffff6fd6868 in gst_base_src_default_event (src=0xdd8700, event=0x10d2770) at gstbasesrc.c:1755
+#7  0x00007ffff6fd3de0 in gst_base_src_event_handler (pad=<optimized out>, event=0x10d2770) at gstbasesrc.c:1806
+#8  0x00007ffff6b179c2 in gst_pad_send_event (pad=0x1008690, event=0x10d2770) at gstpad.c:5425
+#9  0x00007ffff6b17f52 in gst_pad_push_event (pad=0x1008990, event=0x10d2770) at gstpad.c:5277
+#10 0x00007ffff6fe0c0e in gst_base_transform_src_eventfunc (trans=0xaa4fe0, event=0x10d2770) at gstbasetransform.c:2341
+#11 0x00007ffff6fdaa25 in gst_base_transform_src_event (pad=<optimized out>, event=0x10d2770) at gstbasetransform.c:2306
+
   * undo/redo is still flaky
