@@ -1051,14 +1051,15 @@ bt_song_write_to_highlevel_dot_file (const BtSong * const self)
     BtMachine *const src, *const dst;
     GstElement *elem;
     GstElementFactory *factory;
-    gchar *const id, *label;
+    gchar *id, *label;
     gchar *this_name = NULL, *last_name, *src_name, *dst_name;
     gulong index, count;
 
     // write header
     fprintf (out,
         "digraph buzztard {\n"
-        "  fontname=\"Arial\";"
+        "  rankdir=LR;\n"
+        "  fontname=\"sans\";\n"
         "  node [style=filled, shape=box, labelfontsize=\"8\", fontsize=\"8\", fontname=\"Arial\"];\n"
         "\n");
 
@@ -1070,9 +1071,9 @@ bt_song_write_to_highlevel_dot_file (const BtSong * const self)
       fprintf (out,
           "  subgraph cluster_%s {\n"
           "    style=filled;\n"
-          "    label=\"%s\";\n"
+          "    label=\"%s\\n%d\";\n"
           "    fillcolor=\"%s\";\n"
-          "    color=black\n\n", id, id,
+          "    color=black\n\n", id, id, G_OBJECT_REF_COUNT (machine),
           BT_IS_SOURCE_MACHINE (machine) ? "#FFAAAA"
           : (BT_IS_SINK_MACHINE (machine) ? "#AAAAFF" : "#AAFFAA"));
 
@@ -1081,11 +1082,12 @@ bt_song_write_to_highlevel_dot_file (const BtSong * const self)
       last_name = NULL;
       for (subnode = sublist; subnode; subnode = g_list_next (subnode)) {
         elem = GST_ELEMENT (subnode->data);
-        this_name = gst_element_get_name (elem);
+        this_name = g_strdelimit (gst_element_get_name (elem), ":", '_');
         factory = gst_element_get_factory (elem);
         label = (gchar *) gst_element_factory_get_longname (factory);
-        fprintf (out, "    %s [color=black, fillcolor=white, label=\"%s\"];\n",
-            this_name, label);
+        fprintf (out,
+            "    %s [color=black, fillcolor=white, label=\"%s\\n%d\"];\n",
+            this_name, label, G_OBJECT_REF_COUNT (elem));
         if (last_name) {
           fprintf (out, "    %s -> %s\n", last_name, this_name);
           g_free (last_name);
@@ -1105,18 +1107,24 @@ bt_song_write_to_highlevel_dot_file (const BtSong * const self)
     for (node = list; node; node = g_list_next (node)) {
       BtWire *const wire = BT_WIRE (node->data);
       g_object_get (wire, "src", &src, "dst", &dst, NULL);
+      id = g_strdelimit (gst_element_get_name (wire), ":", '_');
+
+      fprintf (out,
+          "  subgraph cluster_%s {\n"
+          "    label=\"%s\\n%d\";\n"
+          "    color=black\n\n", id, id, G_OBJECT_REF_COUNT (wire));
 
       // get last_name of src
       sublist = bt_machine_get_element_list (src);
       subnode = g_list_last (sublist);
       elem = GST_ELEMENT (subnode->data);
-      src_name = gst_element_get_name (elem);
+      src_name = g_strdelimit (gst_element_get_name (elem), ":", '_');
       g_list_free (sublist);
       // get first_name of dst
       sublist = bt_machine_get_element_list (dst);
       subnode = g_list_first (sublist);
       elem = GST_ELEMENT (subnode->data);
-      dst_name = gst_element_get_name (elem);
+      dst_name = g_strdelimit (gst_element_get_name (elem), ":", '_');
       g_list_free (sublist);
 
       // query internal element of each wire
@@ -1129,12 +1137,12 @@ bt_song_write_to_highlevel_dot_file (const BtSong * const self)
         // skip first and last
         if ((index > 0) && (index < (count - 1))) {
           elem = GST_ELEMENT (subnode->data);
-          this_name = gst_element_get_name (elem);
+          this_name = g_strdelimit (gst_element_get_name (elem), ":", '_');
           factory = gst_element_get_factory (elem);
           label = (gchar *) gst_element_factory_get_longname (factory);
           fprintf (out,
-              "    %s [color=black, fillcolor=white, label=\"%s\"];\n",
-              this_name, label);
+              "    %s [color=black, fillcolor=white, label=\"%s\\n%d\"];\n",
+              this_name, label, G_OBJECT_REF_COUNT (elem));
         } else if (index == 0) {
           this_name = src_name;
         } else if (index == (count - 1)) {
@@ -1154,6 +1162,9 @@ bt_song_write_to_highlevel_dot_file (const BtSong * const self)
 
       g_object_unref (src);
       g_object_unref (dst);
+      g_free (id);
+
+      fprintf (out, "  }\n\n");
     }
     g_list_free (list);
 
