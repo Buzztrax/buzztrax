@@ -648,19 +648,14 @@ bt_wire_have_wires_for_dst (const BtMachine * const src,
   // check all outgoing wires
   for (node = src->src_wires; node; node = g_list_next (node)) {
     BtWire *const wire = BT_WIRE (node->data);
-    BtMachine *const machine;
-    gboolean found = FALSE;
 
     // is the target of the wire, the target we are looking for?
-    g_object_get (wire, "dst", &machine, NULL);
-    if (machine == dst) {
-      found = TRUE;
+    if (wire->priv->dst == dst) {
+      return TRUE;
     } else {
-      found = bt_wire_have_wires_for_dst (machine, dst);
+      if (bt_wire_have_wires_for_dst (wire->priv->dst, dst))
+        return TRUE;
     }
-    g_object_unref (machine);
-    if (found)
-      return (TRUE);
   }
   return FALSE;
 }
