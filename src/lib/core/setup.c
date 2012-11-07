@@ -931,6 +931,7 @@ activate_element (const BtSetup * const self, gpointer key)
   gst_element_set_locked_state (GST_ELEMENT (key), FALSE);
 
   if (GST_STATE (GST_OBJECT_PARENT (GST_OBJECT (key))) == GST_STATE_PLAYING) {
+    GstStateChangeReturn ret;
     GST_INFO_OBJECT (GST_OBJECT (key), "set from %s to %s",
         gst_element_state_get_name (GST_STATE (key)),
         gst_element_state_get_name (GST_STATE_PLAYING));
@@ -944,7 +945,10 @@ activate_element (const BtSetup * const self, gpointer key)
       // we're trying to address that with the newsegment below, 
       // but that only needs to be send to the active part we're linking to
       // see adder-patch, gst-plugins-base: 0cce8ab97d614ef53970292bd403e7f4460d79f9
-      gst_element_set_state (GST_ELEMENT (key), GST_STATE_READY);
+      ret = gst_element_set_state (GST_ELEMENT (key), GST_STATE_READY);
+      // going to ready should not by async
+      GST_INFO_OBJECT (key, "state-change to READY: %s",
+          gst_element_state_change_return_get_name (ret));
       if (!(gst_element_send_event (GST_ELEMENT (key),
                   gst_event_ref (self->priv->play_seek_event)))) {
         GST_WARNING_OBJECT (key, "failed to handle seek event");
@@ -957,7 +961,9 @@ activate_element (const BtSetup * const self, gpointer key)
       }
       GST_INFO_OBJECT (key, "sent newsegment event");
     }
-    gst_element_set_state (GST_ELEMENT (key), GST_STATE_PLAYING);
+    ret = gst_element_set_state (GST_ELEMENT (key), GST_STATE_PLAYING);
+    GST_INFO_OBJECT (key, "state-change to PLAYING: %s",
+        gst_element_state_change_return_get_name (ret));
   }
 }
 
