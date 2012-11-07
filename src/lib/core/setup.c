@@ -505,22 +505,23 @@ bt_setup_get_wires_by_machine_type (const BtSetup * const self,
 }
 
 static gboolean
-link_wire (const BtSetup * const self, GstElement * wire,
-    GstElement * src_machine, GstElement * dst_machine)
+link_wire (const BtSetup * const self, GstElement * wire)
 {
   GstPadLinkReturn link_res;
+  GstElement *src, *dst;
   GstPad *src_pad, *dst_pad, *peer;
   gboolean res = TRUE;
+
+  g_object_get (wire, "src", &src, "dst", &dst, NULL);
 
   // link start of wire
   dst_pad = gst_element_get_static_pad (GST_ELEMENT (wire), "sink");
   GST_INFO_OBJECT (dst_pad, "linking start of wire");
   if (!(peer = gst_pad_get_peer (dst_pad))) {
-    if ((src_pad =
-            gst_element_get_request_pad (GST_ELEMENT (src_machine), "src%d"))) {
+    if ((src_pad = gst_element_get_request_pad (GST_ELEMENT (src), "src%d"))) {
 #if USE_PAD_BLOCK
-      if (                      /*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) || */
-          (GST_STATE (src_machine) == GST_STATE_PLAYING)) {
+      if (                      /*(BT_IS_SOURCE_MACHINE(src) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) || */
+          (GST_STATE (src) == GST_STATE_PLAYING)) {
         if (gst_pad_is_active (src_pad)) {
           if (gst_pad_set_blocked (src_pad, TRUE)) {
             self->priv->blocked_pads =
@@ -534,11 +535,11 @@ link_wire (const BtSetup * const self, GstElement * wire,
         GST_WARNING ("Can't link start of wire : %s",
             bt_gst_debug_pad_link_return (link_res, src_pad, dst_pad));
         res = FALSE;
-        gst_element_release_request_pad (src_machine, src_pad);
+        gst_element_release_request_pad (src, src_pad);
         // TODO(ensonic): unblock the pad
       }
     } else {
-      GST_WARNING_OBJECT (src_machine,
+      GST_WARNING_OBJECT (src,
           "Can't get request pad for src-peer of start of wire");
       res = FALSE;
     }
@@ -554,17 +555,15 @@ link_wire (const BtSetup * const self, GstElement * wire,
   src_pad = gst_element_get_static_pad (GST_ELEMENT (wire), "src");
   GST_INFO_OBJECT (src_pad, "linking end of wire");
   if (!(peer = gst_pad_get_peer (src_pad))) {
-    if ((dst_pad =
-            gst_element_get_request_pad (GST_ELEMENT (dst_machine),
-                "sink%d"))) {
+    if ((dst_pad = gst_element_get_request_pad (GST_ELEMENT (dst), "sink%d"))) {
       if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (src_pad, dst_pad))) {
         GST_WARNING ("Can't link end of wire : %s",
             bt_gst_debug_pad_link_return (link_res, src_pad, dst_pad));
         res = FALSE;
-        gst_element_release_request_pad (dst_machine, dst_pad);
+        gst_element_release_request_pad (dst, dst_pad);
       }
     } else {
-      GST_WARNING_OBJECT (dst_machine,
+      GST_WARNING_OBJECT (dst,
           "Can't get request pad for sink-peer of end of wire");
       res = FALSE;
     }
@@ -574,14 +573,18 @@ link_wire (const BtSetup * const self, GstElement * wire,
   }
   gst_object_unref (src_pad);
 Error:
+  g_object_unref (src);
+  g_object_unref (dst);
   return res;
 }
 
 static void
-unlink_wire (const BtSetup * const self, GstElement * wire,
-    GstElement * src_machine, GstElement * dst_machine)
+unlink_wire (const BtSetup * const self, GstElement * wire)
 {
+  GstElement *src, *dst;
   GstPad *src_pad, *dst_pad;
+
+  g_object_get (wire, "src", &src, "dst", &dst, NULL);
 
   // unlink end of wire
   src_pad = gst_element_get_static_pad (wire, "src");
@@ -590,13 +593,13 @@ unlink_wire (const BtSetup * const self, GstElement * wire,
     gst_pad_unlink (src_pad, dst_pad);
     gst_pad_send_event (dst_pad, gst_event_new_eos ());
     GST_INFO_OBJECT (dst_pad, "sent eos event");
-    gst_element_release_request_pad (dst_machine, dst_pad);
+    gst_element_release_request_pad (dst, dst_pad);
     // unref twice: one for gst_pad_get_peer() and once for the request_pad
     gst_object_unref (dst_pad);
     gst_object_unref (dst_pad);
   } else {
     GST_WARNING_OBJECT (src_pad, "wire is not linked to dst %s",
-        GST_OBJECT_NAME (dst_machine));
+        GST_OBJECT_NAME (dst));
   }
   gst_object_unref (src_pad);
 
@@ -605,8 +608,8 @@ unlink_wire (const BtSetup * const self, GstElement * wire,
   GST_INFO_OBJECT (dst_pad, "unlinking start of wire");
   if ((src_pad = gst_pad_get_peer (dst_pad))) {
 #ifdef USE_PAD_BLOCK
-    if (                        /*(BT_IS_SOURCE_MACHINE(src_machine) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) || */
-        (GST_STATE (src_machine) == GST_STATE_PLAYING)) {
+    if (                        /*(BT_IS_SOURCE_MACHINE(src) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) || */
+        (GST_STATE (src) == GST_STATE_PLAYING)) {
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (self->priv->bin,
           GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME);
       // this causes trouble if the pads are flushing and/or GST_PAD_ACTIVATE_MODE(pad)==GST_ACTIVATE_NONE
@@ -625,15 +628,18 @@ unlink_wire (const BtSetup * const self, GstElement * wire,
     }
 #endif
     gst_pad_unlink (src_pad, dst_pad);
-    gst_element_release_request_pad (src_machine, src_pad);
+    gst_element_release_request_pad (src, src_pad);
     // unref twice: one for gst_pad_get_peer() and once for the request_pad
     gst_object_unref (src_pad);
     gst_object_unref (src_pad);
   } else {
     GST_WARNING_OBJECT (dst_pad, "wire is not linked to src %s",
-        GST_OBJECT_NAME (src_machine));
+        GST_OBJECT_NAME (src));
   }
   gst_object_unref (dst_pad);
+
+  g_object_unref (src);
+  g_object_unref (dst);
 }
 
 /*
@@ -866,31 +872,21 @@ static void
 add_wire_in_pipeline (gpointer key, gpointer user_data)
 {
   const BtSetup *const self = BT_SETUP (user_data);
-  GstElement *src, *dst;
 
   GST_INFO_OBJECT (key, "add & link wire");
   add_bin_in_pipeline (self, GST_BIN (key));
-
-  g_object_get (key, "src", &src, "dst", &dst, NULL);
-  link_wire (self, GST_ELEMENT (key), src, dst);
+  link_wire (self, GST_ELEMENT (key));
   // TODO(ensonic): what to do if it fails? We should always be able to link in theory
   // maybe dump extensive diagnostics to add debugging
-  g_object_unref (src);
-  g_object_unref (dst);
 }
 
 static void
 del_wire_in_pipeline (gpointer key, gpointer user_data)
 {
   const BtSetup *const self = BT_SETUP (user_data);
-  GstElement *src, *dst;
 
   GST_INFO_OBJECT (key, "remove & unlink wire");
-  g_object_get (key, "src", &src, "dst", &dst, NULL);
-  unlink_wire (self, GST_ELEMENT (key), src, dst);
-  g_object_unref (src);
-  g_object_unref (dst);
-
+  unlink_wire (self, GST_ELEMENT (key));
   rem_bin_in_pipeline (self, GST_BIN (key));
 }
 
@@ -1936,16 +1932,12 @@ bt_setup_dispose (GObject * const object)
     for (node = self->priv->wires; node; node = g_list_next (node)) {
       if (node->data) {
         GObject *obj = node->data;
-        GstElement *src, *dst;
 
         GST_DEBUG_OBJECT (obj, "  free wire: %p, ref=%d, floating? %d", obj,
             G_OBJECT_REF_COUNT (obj), GST_OBJECT_FLAG_IS_SET (obj,
                 GST_OBJECT_FLOATING));
 
-        g_object_get (obj, "src", &src, "dst", &dst, NULL);
-        unlink_wire (self, GST_ELEMENT (obj), src, dst);
-        g_object_unref (src);
-        g_object_unref (dst);
+        unlink_wire (self, GST_ELEMENT (obj));
 
         gst_element_set_state (GST_ELEMENT (obj), GST_STATE_NULL);
         if (GST_OBJECT_FLAG_IS_SET (obj, GST_OBJECT_FLOATING)) {
