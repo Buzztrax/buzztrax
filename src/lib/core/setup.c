@@ -642,16 +642,19 @@ unlink_wire (const BtSetup * const self, GstElement * wire,
  *
  * Add machine or wires to/from the main pipeline.
  */
-static gboolean
+static void
 add_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
 {
   gboolean is_added = (GST_OBJECT_PARENT (bin) != NULL);
 
-  GST_INFO_OBJECT (bin, "add object : added=%d", is_added);
+  GST_INFO_OBJECT (bin, "add object: added=%d,%p,ref_ct=%d", is_added, bin,
+      G_OBJECT_REF_COUNT (bin));
+
   if (!is_added) {
     gst_bin_add (self->priv->bin, GST_ELEMENT (bin));
+    GST_INFO_OBJECT (bin, "addded object: %p,ref_ct=%d", bin,
+        G_OBJECT_REF_COUNT (bin));
   }
-  return (TRUE);
 }
 
 /*
@@ -660,18 +663,20 @@ add_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
  *
  * Remove machine or wires to/from the main pipeline.
  */
-static gboolean
+static void
 rem_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
 {
   gboolean is_added = (GST_OBJECT_PARENT (bin) != NULL);
 
-  GST_INFO_OBJECT (bin, "rem object : added=%d", is_added);
+  GST_INFO_OBJECT (bin, "remove object: added=%d,%p,ref_ct=%d", is_added, bin,
+      G_OBJECT_REF_COUNT (bin));
   if (is_added) {
     gst_object_ref (GST_OBJECT (bin));
     gst_bin_remove (self->priv->bin, GST_ELEMENT (bin));
     GST_OBJECT_FLAG_SET (bin, GST_OBJECT_FLOATING);
+    GST_INFO_OBJECT (bin, "removed object: %p,ref_ct=%d", bin,
+        G_OBJECT_REF_COUNT (bin));
   }
-  return (TRUE);
 }
 
 /*
