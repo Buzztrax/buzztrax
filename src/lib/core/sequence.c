@@ -748,7 +748,7 @@ bt_sequence_remove_track_by_machine (const BtSequence * const self,
     res = bt_sequence_remove_track_by_ix (self, (gulong) track);
   }
   GST_INFO_OBJECT (machine, "removed tracks for machine %"
-      G_OBJECT_REF_COUNT_FMT "res=%d", G_OBJECT_LOG_REF_COUNT (machine), res);
+      G_OBJECT_REF_COUNT_FMT " res=%d", G_OBJECT_LOG_REF_COUNT (machine), res);
   return (res);
 }
 

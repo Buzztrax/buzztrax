@@ -548,8 +548,7 @@ test_bt_setup_remove_machine_twice (BT_TEST_ARGS)
           "buzztard-test-mono-source", 0L, NULL));
   gst_object_ref (gen);
   bt_setup_remove_machine (setup, gen);
-  check_init_error_trapp ("bt_setup_remove_machine",
-      "trying to remove machine that is not in setup");
+  check_init_error_trapp ("bt_setup_remove_machine", "machine is not in setup");
 
   /* act */
   bt_setup_remove_machine (setup, gen);
@@ -577,8 +576,7 @@ test_bt_setup_remove_wire_twice (BT_TEST_ARGS)
   BtWire *wire = bt_wire_new (song, gen, sink, NULL);
   gst_object_ref (wire);
   bt_setup_remove_wire (setup, wire);
-  check_init_error_trapp ("bt_setup_remove_wire",
-      "trying to remove wire that is not in setup");
+  check_init_error_trapp ("bt_setup_remove_wire", "wire is not in setup");
 
   /* act */
   bt_setup_remove_wire (setup, wire);

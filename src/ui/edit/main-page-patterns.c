@@ -2451,7 +2451,6 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
       g_object_try_unref (self->priv->machine);
       self->priv->machine = new_machine;
     }
-
   }
   if ((prop =
           (gchar *) g_hash_table_lookup (self->priv->properties,
