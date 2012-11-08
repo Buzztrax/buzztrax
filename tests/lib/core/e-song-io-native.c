@@ -268,7 +268,7 @@ test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
    * bt_song_write_to_highlevel_dot_file (song);
    * - or -
    * BT_CHECKS="test_bt_song_io_native_setup_refcounts_1" make bt_core.check
-   * grep "ref_ct=" /tmp/bt_core.log
+   * grep "ref_ct" /tmp/bt_core.log
    */
 
   /* cleanup */
@@ -302,7 +302,7 @@ test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
    * bt_song_write_to_highlevel_dot_file (song);
    * - or -
    * BT_CHECKS="test_bt_song_io_native_setup_refcounts_1" make bt_core.check
-   * grep "ref_ct=" /tmp/bt_core.log
+   * grep "ref_ct" /tmp/bt_core.log
    */
 
   /* cleanup */

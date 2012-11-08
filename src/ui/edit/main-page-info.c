@@ -273,7 +273,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
     self->priv->song_info = NULL;
     return;
   }
-  GST_INFO ("song->ref_ct=%d", G_OBJECT_REF_COUNT (song));
+  GST_INFO ("song: %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (song));
 
   g_object_get (song, "song-info", &self->priv->song_info, NULL);
   // update info fields

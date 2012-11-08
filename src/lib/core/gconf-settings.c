@@ -639,13 +639,14 @@ bt_gconf_settings_dispose (GObject * const object)
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG ("!!!! self=%p, self->ref_ct=%d", self, G_OBJECT_REF_COUNT (self));
+  GST_DEBUG ("!!!! self: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self));
 
   if (self->priv->client) {
     GError *error = NULL;
 
-    GST_DEBUG ("!!!! client=%p, client->ref_ct=%d", self->priv->client,
-        G_OBJECT_REF_COUNT (self->priv->client));
+    GST_DEBUG ("!!!! client: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->client));
     // unregister directories to watch and notifies
     if (self->priv->watch_gstreamer) {
       gconf_client_remove_dir (self->priv->client, BT_GCONF_PATH_GSTREAMER,

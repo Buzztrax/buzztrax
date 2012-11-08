@@ -293,7 +293,7 @@ btic_device_dispose (GObject * const object)
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG ("!!!! self=%p, self->ref_ct=%d", self, G_OBJECT_REF_COUNT (self));
+  GST_DEBUG ("!!!! self=%p", self);
 
   GST_DEBUG ("  chaining up");
   G_OBJECT_CLASS (btic_device_parent_class)->dispose (object);

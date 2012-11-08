@@ -316,8 +316,8 @@ bt_edit_application_new_song (const BtEditApplication * self)
   if (err == NULL) {
     GHashTable *properties;
 
-    GST_DEBUG ("sink-machine=%p,ref_ct=%d", machine,
-        G_OBJECT_REF_COUNT (machine));
+    GST_DEBUG ("sink-machine=%" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machine));
     g_object_get (machine, "properties", &properties, NULL);
     if (properties) {
       gchar str[G_ASCII_DTOSTR_BUF_SIZE];
@@ -327,14 +327,16 @@ bt_edit_application_new_song (const BtEditApplication * self)
           g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, 0.0)));
     }
     if (bt_machine_enable_input_post_level (machine)) {
-      GST_DEBUG ("sink-machine-ref_ct=%d", G_OBJECT_REF_COUNT (machine));
+      GST_DEBUG ("sink-machine=%" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (machine));
       // set new song in application
       g_object_set ((gpointer) self, "song", song, NULL);
       res = TRUE;
     } else {
       GST_WARNING ("Can't add input level/gain element in sink machine");
     }
-    GST_DEBUG ("sink-machine-ref_ct=%d", G_OBJECT_REF_COUNT (machine));
+    GST_DEBUG ("sink-machine=%" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machine));
   } else {
     GST_WARNING ("Can't create sink machine: %s", err->message);
     g_error_free (err);
@@ -399,8 +401,8 @@ bt_edit_application_load_song (const BtEditApplication * self,
             GST_BIN_NUMCHILDREN (bin));
 
         while (node) {
-          GST_WARNING_OBJECT (node->data, "removing object (ref-ct=%d)",
-              G_OBJECT_REF_COUNT (node->data));
+          GST_WARNING_OBJECT (node->data, "removing object %"
+              G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (node->data));
           gst_bin_remove (bin, GST_ELEMENT (node->data));
           node = GST_BIN_CHILDREN (bin);
         }
@@ -750,8 +752,8 @@ bt_edit_application_ui_lock (const BtEditApplication * self)
 {
   GdkCursor *cursor = gdk_cursor_new (GDK_WATCH);
 
-  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
-              main_window)), cursor);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
+              priv->main_window)), cursor);
   gdk_cursor_unref (cursor);
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), FALSE);
 
@@ -769,8 +771,8 @@ void
 bt_edit_application_ui_unlock (const BtEditApplication * self)
 {
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), TRUE);
-  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
-              main_window)), NULL);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
+              priv->main_window)), NULL);
 }
 
 /**
@@ -827,25 +829,20 @@ bt_edit_application_get_property (GObject * object, guint property_id,
   BtEditApplication *self = BT_EDIT_APPLICATION (object);
   return_if_disposed ();
   switch (property_id) {
-    case EDIT_APPLICATION_SONG:{
+    case EDIT_APPLICATION_SONG:
       g_value_set_object (value, self->priv->song);
-    }
       break;
-    case EDIT_APPLICATION_MAIN_WINDOW:{
+    case EDIT_APPLICATION_MAIN_WINDOW:
       g_value_set_object (value, self->priv->main_window);
-    }
       break;
-    case EDIT_APPLICATION_IC_REGISTRY:{
+    case EDIT_APPLICATION_IC_REGISTRY:
       g_value_set_object (value, self->priv->ic_registry);
-    }
       break;
-    case EDIT_APPLICATION_UNSAVED:{
+    case EDIT_APPLICATION_UNSAVED:
       g_value_set_boolean (value, self->priv->unsaved);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -857,27 +854,24 @@ bt_edit_application_set_property (GObject * object, guint property_id,
   BtEditApplication *self = BT_EDIT_APPLICATION (object);
   return_if_disposed ();
   switch (property_id) {
-    case EDIT_APPLICATION_SONG:{
+    case EDIT_APPLICATION_SONG:
 #ifdef USE_DEBUG
       if (G_OBJECT_REF_COUNT (self->priv->song) != 1) {
-        GST_WARNING ("old song->ref_ct=%d!",
-            G_OBJECT_REF_COUNT (self->priv->song));
+        GST_WARNING ("old song: %" G_OBJECT_REF_COUNT_FMT,
+            G_OBJECT_LOG_REF_COUNT (self->priv->song));
       }
 #endif
       g_object_try_unref (self->priv->song);
       self->priv->song = BT_SONG (g_value_dup_object (value));
-      GST_DEBUG ("new song: %p, song->ref_ct=%d", self->priv->song,
-          G_OBJECT_REF_COUNT (self->priv->song));
-    }
+      GST_DEBUG ("new song: %: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (self->priv->song));
       break;
-    case EDIT_APPLICATION_UNSAVED:{
+    case EDIT_APPLICATION_UNSAVED:
       self->priv->unsaved = g_value_get_boolean (value);
       GST_INFO ("set the unsaved flag for the song", self->priv->unsaved);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -913,15 +907,15 @@ bt_edit_application_constructor (GType type, guint n_construct_params,
     singleton->priv->audio_session = bt_audio_session_new ();
 
     // create main window
-    GST_INFO ("new edit app created, app->ref_ct=%d",
-        G_OBJECT_REF_COUNT (singleton));
+    GST_INFO ("new edit app created, app: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (singleton));
     singleton->priv->main_window = bt_main_window_new ();
 
     // warning: dereferencing type-punned pointer will break strict-aliasing rules
     g_object_add_weak_pointer (G_OBJECT (singleton->priv->main_window),
         (gpointer *) (gpointer) & singleton->priv->main_window);
-    GST_INFO ("new edit app created, app->ref_ct=%d",
-        G_OBJECT_REF_COUNT (singleton));
+    GST_INFO ("new edit app created, app: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (singleton));
     //GST_DEBUG(">>>");
   } else {
     object = g_object_ref (singleton);
@@ -943,23 +937,21 @@ bt_edit_application_dispose (GObject * object)
    * strong reference to the app.
    * Solution 1: Only use weak refs when reffing upstream objects
    */
-  GST_DEBUG ("!!!! self=%p, self->ref_ct=%d", self, G_OBJECT_REF_COUNT (self));
+  GST_DEBUG ("!!!! self=%p", self);
 
   if (self->priv->song) {
-    GST_INFO ("song->ref_ct=%d", G_OBJECT_REF_COUNT (self->priv->song));
+    GST_INFO ("song: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->song));
     bt_song_stop (self->priv->song);
     g_object_unref (self->priv->song);
     self->priv->song = NULL;
   }
 
   if (self->priv->main_window) {
-    GST_INFO ("main_window->ref_ct=%d",
-        G_OBJECT_REF_COUNT (self->priv->main_window));
+    GST_INFO ("main_window: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->main_window));
     //main-menu.c::on_menu_quit_activate
     gtk_widget_destroy (GTK_WIDGET (self->priv->main_window));
-    // we get this if we unref
-    // GLib-GObject-WARNING **: instance of invalid non-instantiable type `<invalid>'
-    //////g_object_unref(self->priv->main_window);
   }
 
   GST_DEBUG ("  more unrefs");

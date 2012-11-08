@@ -173,8 +173,8 @@ bt_main_pages_init_ui (const BtMainPages * self)
 {
   gtk_widget_set_name (GTK_WIDGET (self), "song views");
 
-  GST_INFO ("before creating pages, app->ref_ct=%d",
-      G_OBJECT_REF_COUNT (self->priv->app));
+  GST_INFO ("before creating pages, app: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->app));
 
   // don't emit notify::page for each add
   g_object_freeze_notify ((GObject *) self);

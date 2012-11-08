@@ -1506,8 +1506,8 @@ bt_song_set_property (GObject * const object, const guint property_id,
       g_object_try_weak_ref (self->priv->master);
       g_object_get ((gpointer) (self->priv->master), "machine",
           &self->priv->master_bin, NULL);
-      GST_DEBUG ("set the master for the song: %p (machine-ref_ct=%d)",
-          self->priv->master, G_OBJECT_REF_COUNT (self->priv->master));
+      GST_DEBUG_OBJECT (self->priv->master, "set the master for the song: %"
+          G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (self->priv->master));
     }
       break;
     case SONG_PLAY_POS:{
@@ -1624,28 +1624,30 @@ bt_song_dispose (GObject * const object)
         bt_song_on_tempo_changed, (gpointer) self);
   }
 
-  GST_DEBUG ("sink-machine-ref_ct=%d", G_OBJECT_REF_COUNT (self->priv->master));
+  GST_DEBUG_OBJECT (self->priv->master, "sink-machine: %"
+      G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (self->priv->master));
   if (self->priv->master_bin)
     gst_object_unref (self->priv->master_bin);
   g_object_try_weak_unref (self->priv->master);
 
   if (self->priv->song_info) {
-    GST_DEBUG ("song_info->ref_ct=%d",
-        G_OBJECT_REF_COUNT (self->priv->song_info));
+    GST_DEBUG ("song_info: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->song_info));
     g_object_unref (self->priv->song_info);
   }
   if (self->priv->sequence) {
-    GST_DEBUG ("sequence->ref_ct=%d",
-        G_OBJECT_REF_COUNT (self->priv->sequence));
+    GST_DEBUG ("sequence: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->sequence));
     g_object_unref (self->priv->sequence);
   }
   if (self->priv->setup) {
-    GST_DEBUG ("setup->ref_ct=%d", G_OBJECT_REF_COUNT (self->priv->setup));
+    GST_DEBUG ("setup: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->setup));
     g_object_unref (self->priv->setup);
   }
   if (self->priv->wavetable) {
-    GST_DEBUG ("wavetable->ref_ct=%d",
-        G_OBJECT_REF_COUNT (self->priv->wavetable));
+    GST_DEBUG ("wavetable: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->wavetable));
     g_object_unref (self->priv->wavetable);
   }
 
@@ -1660,7 +1662,8 @@ bt_song_dispose (GObject * const object)
     gst_event_unref (self->priv->idle_loop_seek_event);
   if (self->priv->bin) {
     GST_DEBUG ("bin->num_children=%d", GST_BIN_NUMCHILDREN (self->priv->bin));
-    GST_DEBUG ("bin->ref_ct=%d", G_OBJECT_REF_COUNT (self->priv->bin));
+    GST_DEBUG_OBJECT (self->priv->bin, "bin: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->bin));
     gst_object_unref (self->priv->bin);
   }
   g_object_try_weak_unref (self->priv->app);

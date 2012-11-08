@@ -152,7 +152,8 @@ btic_test_device_dispose (GObject * const object)
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG ("!!!! self=%p, self->ref_ct=%d", self, G_OBJECT_REF_COUNT (self));
+  GST_DEBUG ("!!!! self: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self));
   btic_test_device_stop (self);
 
   GST_DEBUG ("  chaining up");

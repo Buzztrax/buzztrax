@@ -603,8 +603,8 @@ on_machine_added (BtSetup * setup, BtMachine * machine, gpointer user_data)
   GHashTable *properties;
   gdouble pos_x, pos_y;
 
-  GST_INFO ("new machine %p,ref_ct=%d has been added", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO_OBJECT (machine, "new machine added: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   g_object_get (machine, "properties", &properties, NULL);
   if (properties) {
@@ -633,8 +633,8 @@ on_machine_added (BtSetup * setup, BtMachine * machine, gpointer user_data)
   // draw machine
   machine_item_new (self, machine, pos_x, pos_y);
 
-  GST_INFO ("... machine %p,ref_ct=%d has been added", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO_OBJECT (machine, "... machine added: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 }
 
 static void
@@ -646,8 +646,8 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
   if (!machine)
     return;
 
-  GST_INFO ("machine %p,ref_ct=%d has been removed", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO_OBJECT (machine, "machine removed: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   if ((item = g_hash_table_lookup (self->priv->machines, machine))) {
     GST_INFO ("now removing machine-item : %p", item);
@@ -655,8 +655,8 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
     gtk_object_destroy (GTK_OBJECT (item));
   }
 
-  GST_INFO ("... machine %p,ref_ct=%d has been removed", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO_OBJECT (machine, "... machine removed: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 }
 
 static void
@@ -668,8 +668,8 @@ on_wire_removed (BtSetup * setup, BtWire * wire, gpointer user_data)
   if (!wire)
     return;
 
-  GST_INFO ("wire %p,ref_ct=%d has been removed", wire,
-      G_OBJECT_REF_COUNT (wire));
+  GST_INFO_OBJECT (wire, "wire removed: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (wire));
 
   // add undo/redo details
   if (bt_change_log_is_active (self->priv->change_log)) {
@@ -716,8 +716,8 @@ on_wire_removed (BtSetup * setup, BtWire * wire, gpointer user_data)
     gtk_object_destroy (GTK_OBJECT (item));
   }
 
-  GST_INFO ("... wire %p,ref_ct=%d has been removed", wire,
-      G_OBJECT_REF_COUNT (wire));
+  GST_INFO_OBJECT (wire, "... wire removed: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (wire));
 }
 
 static void
@@ -739,7 +739,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
     GST_INFO ("song (null) has changed done");
     return;
   }
-  GST_INFO ("song->ref_ct=%d", G_OBJECT_REF_COUNT (song));
+  GST_INFO ("song: %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (song));
 
   g_object_get (song, "setup", &self->priv->setup, NULL);
   g_object_get (self->priv->setup, "properties", &self->priv->properties, NULL);
@@ -1763,8 +1763,8 @@ bt_main_page_machines_add_machine (const BtMainPageMachines * self, guint type,
     BtMachineCanvasItem *mi;
     gchar *undo_str, *redo_str;
 
-    GST_INFO_OBJECT (machine, "created machine %p,ref_ct=%d", machine,
-        G_OBJECT_REF_COUNT (machine));
+    GST_INFO_OBJECT (machine, "created machine %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machine));
 
     bt_change_log_start_group (self->priv->change_log);
 
@@ -1843,8 +1843,8 @@ bt_main_page_machines_delete_machine (const BtMainPageMachines * self,
   gulong voices;
   gulong pattern_removed_id;
 
-  GST_INFO ("before removing machine : %p,ref_ct=%d", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("before removing machine : %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
   bt_change_log_start_group (self->priv->change_log);
 
   /* by doing undo/redo from setup:machine-removed it happens completely
@@ -1890,8 +1890,8 @@ bt_main_page_machines_delete_machine (const BtMainPageMachines * self,
    */
 
   // remove patterns for machine, trigger setup::machine-removed
-  GST_INFO ("removing the machine : %p,ref_ct=%d", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("removing the machine : %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   if (BT_IS_SOURCE_MACHINE (machine))
     type = 0;
@@ -1955,8 +1955,6 @@ bt_main_page_machines_delete_machine (const BtMainPageMachines * self,
 
   bt_change_log_end_group (self->priv->change_log);
 
-  // this segfaults if the machine is finalized
-  //GST_INFO("... machine : %p,ref_ct=%d",machine,G_OBJECT_REF_COUNT(machine));
   bt_change_log_end_group (self->priv->change_log);
 }
 
@@ -1971,12 +1969,10 @@ void
 bt_main_page_machines_delete_wire (const BtMainPageMachines * self,
     BtWire * wire)
 {
-  GST_INFO ("now removing wire : %p,ref_ct=%d", wire,
-      G_OBJECT_REF_COUNT (wire));
+  GST_INFO ("now removing wire: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (wire));
   bt_change_log_start_group (self->priv->change_log);
   bt_setup_remove_wire (self->priv->setup, wire);
-  // this segfaults if the wire is finalized
-  //GST_INFO("... wire : %p,ref_ct=%d",wire,G_OBJECT_REF_COUNT(wire));
   bt_change_log_end_group (self->priv->change_log);
 }
 

@@ -160,7 +160,7 @@ btic_registry_dispose (GObject * const object)
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG ("!!!! self=%p, self->ref_ct=%d", self, G_OBJECT_REF_COUNT (self));
+  GST_DEBUG ("!!!! self=%p", self);
 #if USE_GUDEV
   g_object_try_unref (self->priv->gudev_discoverer);
 #endif

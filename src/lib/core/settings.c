@@ -149,8 +149,8 @@ bt_settings_make (void)
     g_object_add_weak_pointer ((GObject *) singleton,
         (gpointer *) (gpointer) & singleton);
   } else {
-    GST_INFO ("return cached settings object %p (ref_ct=%d)", singleton,
-        G_OBJECT_REF_COUNT (singleton));
+    GST_INFO ("return cached settings object %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (singleton));
     singleton = g_object_ref (singleton);
   }
   return (BT_SETTINGS (singleton));

@@ -98,14 +98,14 @@ on_dialog_response (GtkDialog * dialog,
       break;
   }
 
-  GST_DEBUG ("object: %p ref_ct=%d)", self->priv->device,
-      G_OBJECT_REF_COUNT (self->priv->device));
+  GST_DEBUG ("object: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->device));
 
   btic_learn_stop (BTIC_LEARN (self->priv->device));
   gtk_widget_destroy (GTK_WIDGET (dialog));
 
-  GST_DEBUG ("object: %p ref_ct=%d)", self->priv->device,
-      G_OBJECT_REF_COUNT (self->priv->device));
+  GST_DEBUG ("object: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->device));
 }
 
 //-- helper methods

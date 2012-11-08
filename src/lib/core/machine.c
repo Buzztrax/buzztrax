@@ -663,8 +663,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->
-                        dst_wires->data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->dst_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -692,8 +692,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->
-                        src_wires->data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->src_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1087,9 +1087,9 @@ bt_machine_init_core_machine (BtMachine * const self)
   if (!bt_machine_make_internal_element (self, PART_MACHINE,
           self->priv->plugin_name, self->priv->id))
     goto Error;
-  GST_INFO ("  instantiated machine %p, \"%s\", machine->ref_ct=%d",
-      self->priv->machines[PART_MACHINE], self->priv->plugin_name,
-      G_OBJECT_REF_COUNT (self->priv->machines[PART_MACHINE]));
+  GST_INFO ("  instantiated machine \"%s\", %" G_OBJECT_REF_COUNT_FMT,
+      self->priv->plugin_name,
+      G_OBJECT_LOG_REF_COUNT (self->priv->machines[PART_MACHINE]));
 
   res = TRUE;
 Error:
@@ -1323,8 +1323,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                      priv->machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                      machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1386,8 +1386,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                    priv->machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                    machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -1798,11 +1798,11 @@ bt_machine_add_pattern (const BtMachine * const self,
     // check if its a internal pattern and if it is update count of those
     if (!BT_IS_PATTERN (pattern)) {
       self->priv->private_patterns++;
-      GST_DEBUG ("adding internal pattern %p,ref_ct=%d, nr=%u", pattern,
-          G_OBJECT_REF_COUNT (pattern), self->priv->private_patterns);
+      GST_DEBUG ("adding internal pattern %" G_OBJECT_REF_COUNT_FMT ", nr=%u",
+          G_OBJECT_LOG_REF_COUNT (pattern), self->priv->private_patterns);
     } else {
-      GST_DEBUG ("adding pattern %p,ref_ct=%d", pattern,
-          G_OBJECT_REF_COUNT (pattern));
+      GST_DEBUG ("adding pattern %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (pattern));
       g_signal_emit ((gpointer) self, signals[PATTERN_ADDED_EVENT], 0, pattern);
     }
   } else {
@@ -1835,11 +1835,11 @@ bt_machine_remove_pattern (const BtMachine * const self,
 
     self->priv->patterns = g_list_delete_link (self->priv->patterns, node);
 
-    GST_DEBUG ("removing pattern: %p,ref_ct=%d", pattern,
-        G_OBJECT_REF_COUNT (pattern));
+    GST_DEBUG ("removing pattern: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (pattern));
     g_signal_emit ((gpointer) self, signals[PATTERN_REMOVED_EVENT], 0, pattern);
-    GST_DEBUG ("removed pattern: %p,ref_ct=%d", pattern,
-        G_OBJECT_REF_COUNT (pattern));
+    GST_DEBUG ("removed pattern: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (pattern));
     g_object_unref ((gpointer) pattern);
   } else {
     GST_WARNING_OBJECT (self,
@@ -3076,19 +3076,20 @@ bt_machine_constructed (GObject * object)
     goto Error;
   }
 
-  GST_DEBUG_OBJECT (self, "machine-ref_ct=%d", G_OBJECT_REF_COUNT (self));
+  GST_DEBUG_OBJECT (self, "machine: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self));
 
   // register params
   bt_machine_init_prefs_params (self);
   bt_machine_init_global_params (self);
   bt_machine_init_voice_params (self);
 
-  GST_DEBUG_OBJECT (self, "machine-ref_ct=%d", G_OBJECT_REF_COUNT (self));
+  GST_DEBUG_OBJECT (self, "machine: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self));
 
   // post sanity checks
-  GST_INFO ("  added machine %p to bin, machine->ref_ct=%d",
-      self->priv->machines[PART_MACHINE],
-      G_OBJECT_REF_COUNT (self->priv->machines[PART_MACHINE]));
+  GST_INFO ("  added machine %p to bin, %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->machines[PART_MACHINE]));
   g_assert (self->priv->machines[PART_MACHINE] != NULL);
   if (!(self->priv->global_params + self->priv->voice_params)) {
     GST_WARNING_OBJECT (self, "  machine %s has no params", self->priv->id);
@@ -3099,8 +3100,8 @@ bt_machine_constructed (GObject * object)
   g_object_unref (bt_cmd_pattern_new (self->priv->song, self,
           BT_PATTERN_CMD_MUTE));
 
-  GST_INFO_OBJECT (self, "machine %p,ref_ct=%d has been constructed", self,
-      G_OBJECT_REF_COUNT (self));
+  GST_INFO_OBJECT (self, "construction done: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self));
   return;
 Error:
   GST_WARNING_OBJECT (self, "failed to create machine: %s",
@@ -3314,8 +3315,8 @@ bt_machine_dispose (GObject * const object)
   if (self->priv->patterns) {
     GList *node;
     for (node = self->priv->patterns; node; node = g_list_next (node)) {
-      GST_DEBUG ("removing pattern: %p,ref_ct=%d", node->data,
-          G_OBJECT_REF_COUNT (node->data));
+      GST_DEBUG ("removing pattern: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (node->data));
       // DEBUG
 #ifdef CHECK_PATTERN_OWNERSHIP
       g_object_weak_unref ((GObject *) node->data, check_pattern_ownership,

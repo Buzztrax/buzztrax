@@ -102,9 +102,8 @@ static void
 bt_audio_session_cleanup (void)
 {
   if (singleton->priv->audio_sink) {
-    GST_WARNING ("forgetting session audio sink %p, ref_ct=%d",
-        singleton->priv->audio_sink,
-        G_OBJECT_REF_COUNT (singleton->priv->audio_sink));
+    GST_WARNING ("forgetting session audio sink %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (singleton->priv->audio_sink));
     gst_element_set_state (singleton->priv->audio_sink, GST_STATE_NULL);
     gst_object_unref (singleton->priv->audio_sink);
     singleton->priv->audio_sink = NULL;
@@ -129,8 +128,8 @@ bt_audio_session_setup (void)
       // create audio sink and drop floating ref
       audio_sink = gst_element_factory_make (element_name, NULL);
       gst_object_ref_sink (audio_sink);
-      GST_WARNING ("created session audio sink %p, ref_ct=%d", audio_sink,
-          G_OBJECT_REF_COUNT (audio_sink));
+      GST_WARNING ("created session audio sink %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (audio_sink));
 
       // we need this hack to make the ports show up
       bin = gst_pipeline_new ("__kickstart__");
@@ -181,11 +180,11 @@ bt_audio_session_setup (void)
         gst_element_set_state (audio_sink, GST_STATE_READY);
         gst_element_set_locked_state (audio_sink, TRUE);
         gst_object_unref (parent);
-        GST_WARNING ("stole session audio sink %p, ref_ct=%d", audio_sink,
-            G_OBJECT_REF_COUNT (audio_sink));
+        GST_WARNING ("stole session audio sink %" G_OBJECT_REF_COUNT_FMT,
+            G_OBJECT_LOG_REF_COUNT (audio_sink));
       } else {
-        GST_WARNING ("reuse session audio sink %p, ref_ct=%d", audio_sink,
-            G_OBJECT_REF_COUNT (audio_sink));
+        GST_WARNING ("reuse session audio sink %" G_OBJECT_REF_COUNT_FMT,
+            G_OBJECT_LOG_REF_COUNT (audio_sink));
       }
     }
   } else {

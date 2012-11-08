@@ -413,8 +413,8 @@ bt_sink_bin_clear (const BtSinkBin * const self)
 
     while (bin->children) {
       elem = GST_ELEMENT_CAST (bin->children->data);
-      GST_DEBUG_OBJECT (elem, "  removing elem=%p (ref_ct=%d),'%s'",
-          elem, (G_OBJECT_REF_COUNT (elem)), GST_OBJECT_NAME (elem));
+      GST_DEBUG_OBJECT (elem, "  removing elem=%" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (elem));
       gst_element_set_locked_state (elem, FALSE);
       if ((res =
               gst_element_set_state (elem,
@@ -445,8 +445,8 @@ bt_sink_bin_add_many (const BtSinkBin * const self, GList * const list)
 
   for (node = list; node; node = node->next) {
     elem = GST_ELEMENT_CAST (node->data);
-    GST_DEBUG_OBJECT (elem, "  adding elem=%p (ref_ct=%d),'%s'",
-        elem, (G_OBJECT_REF_COUNT (elem)), GST_OBJECT_NAME (elem));
+    GST_DEBUG_OBJECT (elem, "  adding elem=%" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (elem));
     if (!gst_bin_add (GST_BIN (self), elem)) {
       GST_WARNING_OBJECT (self, "can't add element: elem=%s, parent=%s",
           GST_OBJECT_NAME (elem), GST_OBJECT_NAME (GST_OBJECT_PARENT (elem)));
@@ -544,8 +544,8 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->
-          priv->record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->priv->
+          record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
@@ -789,18 +789,18 @@ bt_sink_bin_update (const BtSinkBin * const self)
             GST_OBJECT_NAME (self->priv->caps_filter));
       }
     }
-    GST_INFO
-        ("updating ghost pad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
-        self->priv->caps_filter, (G_OBJECT_REF_COUNT (self->priv->caps_filter)),
-        GST_OBJECT_NAME (self->priv->caps_filter), sink_pad,
-        (G_OBJECT_REF_COUNT (sink_pad)));
+    GST_INFO_OBJECT (self->priv->caps_filter,
+        "updating ghost pad : elem=%" G_OBJECT_REF_COUNT_FMT
+        "pad=%" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->caps_filter),
+        G_OBJECT_LOG_REF_COUNT (sink_pad));
 
     if (!gst_ghost_pad_set_target (GST_GHOST_PAD (self->priv->sink), sink_pad)) {
       GST_WARNING ("failed to link internal pads");
     }
 
-    GST_INFO ("  done, pad=%p (ref_ct=%d)", sink_pad,
-        (G_OBJECT_REF_COUNT (sink_pad)));
+    GST_INFO ("  done, pad=%" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (sink_pad));
     // request pads need to be released
     if (!req_sink_pad) {
       gst_object_unref (sink_pad);
@@ -1132,8 +1132,8 @@ bt_sink_bin_dispose (GObject * const object)
   }
   g_object_try_weak_unref (self->priv->gain);
 
-  GST_INFO ("self->sink=%p, refct=%d", self->priv->sink,
-      G_OBJECT_REF_COUNT (self->priv->sink));
+  GST_INFO ("self->sink=%" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->sink));
   gst_element_remove_pad (GST_ELEMENT (self), self->priv->sink);
   GST_INFO ("sink-bin : children=%d", GST_BIN_NUMCHILDREN (self));
 

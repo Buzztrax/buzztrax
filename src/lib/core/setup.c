@@ -656,13 +656,13 @@ add_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
 {
   gboolean is_added = (GST_OBJECT_PARENT (bin) != NULL);
 
-  GST_INFO_OBJECT (bin, "add object: added=%d,%p,ref_ct=%d", is_added, bin,
-      G_OBJECT_REF_COUNT (bin));
+  GST_INFO_OBJECT (bin, "add object: added=%d,%" G_OBJECT_REF_COUNT_FMT,
+      is_added, G_OBJECT_LOG_REF_COUNT (bin));
 
   if (!is_added) {
     gst_bin_add (self->priv->bin, GST_ELEMENT (bin));
-    GST_INFO_OBJECT (bin, "addded object: %p,ref_ct=%d", bin,
-        G_OBJECT_REF_COUNT (bin));
+    GST_INFO_OBJECT (bin, "addded object: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (bin));
   }
 }
 
@@ -677,13 +677,13 @@ rem_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
 {
   gboolean is_added = (GST_OBJECT_PARENT (bin) != NULL);
 
-  GST_INFO_OBJECT (bin, "remove object: added=%d,%p,ref_ct=%d", is_added, bin,
-      G_OBJECT_REF_COUNT (bin));
+  GST_INFO_OBJECT (bin, "remove object: added=%d,%" G_OBJECT_REF_COUNT_FMT,
+      is_added, G_OBJECT_LOG_REF_COUNT (bin));
   if (is_added) {
     gst_object_ref (GST_OBJECT (bin));
     gst_bin_remove (self->priv->bin, GST_ELEMENT (bin));
-    GST_INFO_OBJECT (bin, "removed object: %p,ref_ct=%d", bin,
-        G_OBJECT_REF_COUNT (bin));
+    GST_INFO_OBJECT (bin, "removed object: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (bin));
   }
 }
 
@@ -1195,8 +1195,8 @@ bt_setup_add_machine (const BtSetup * const self,
   g_return_val_if_fail (BT_IS_SETUP (self), FALSE);
   g_return_val_if_fail (BT_IS_MACHINE (machine), FALSE);
 
-  GST_DEBUG_OBJECT (machine, "adding machine: %p,ref_ct=%d", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_DEBUG_OBJECT (machine, "adding machine: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   if (!g_list_find (self->priv->machines, machine)) {
     ret = TRUE;
@@ -1206,8 +1206,8 @@ bt_setup_add_machine (const BtSetup * const self,
     set_disconnected (self, GST_BIN (machine));
 
     g_signal_emit ((gpointer) self, signals[MACHINE_ADDED_EVENT], 0, machine);
-    GST_DEBUG_OBJECT (machine, "added machine: %p,ref_ct=%d", machine,
-        G_OBJECT_REF_COUNT (machine));
+    GST_DEBUG_OBJECT (machine, "added machine: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machine));
   } else {
     GST_WARNING_OBJECT (machine, "trying to add machine %p again", machine);
   }
@@ -1234,8 +1234,8 @@ bt_setup_add_wire (const BtSetup * const self, const BtWire * const wire)
   g_return_val_if_fail (BT_IS_SETUP (self), FALSE);
   g_return_val_if_fail (BT_IS_WIRE (wire), FALSE);
 
-  GST_DEBUG_OBJECT (wire, "adding wire: %p,ref_ct=%d", wire,
-      G_OBJECT_REF_COUNT (wire));
+  GST_DEBUG_OBJECT (wire, "adding wire: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (wire));
 
   // avoid adding same wire twice, we're checking for unique wires when creating
   // them already
@@ -1254,12 +1254,12 @@ bt_setup_add_wire (const BtSetup * const self, const BtWire * const wire)
     bt_setup_update_pipeline (self);
 
     g_signal_emit ((gpointer) self, signals[WIRE_ADDED_EVENT], 0, wire);
-    GST_DEBUG_OBJECT (wire, "added wire: %p,ref_ct=%d", wire,
-        G_OBJECT_REF_COUNT (wire));
-    GST_DEBUG_OBJECT (src, "wire.src: %p,ref_ct=%d", src,
-        G_OBJECT_REF_COUNT (src));
-    GST_DEBUG_OBJECT (dst, "wire.dst: %p,ref_ct=%d", dst,
-        G_OBJECT_REF_COUNT (dst));
+    GST_DEBUG_OBJECT (wire, "added wire: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (wire));
+    GST_DEBUG_OBJECT (src, "wire.src: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (src));
+    GST_DEBUG_OBJECT (dst, "wire.dst: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (dst));
 
     g_object_unref (src);
     g_object_unref (dst);
@@ -1285,30 +1285,31 @@ bt_setup_remove_machine (const BtSetup * const self,
   g_return_if_fail (BT_IS_SETUP (self));
   g_return_if_fail (BT_IS_MACHINE (machine));
 
-  GST_DEBUG_OBJECT (machine, "trying to remove machine: %p,ref_ct=%d", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_DEBUG_OBJECT (machine, "removing machine: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   if ((node = g_list_find (self->priv->machines, machine))) {
     self->priv->machines = g_list_delete_link (self->priv->machines, node);
 
-    GST_DEBUG_OBJECT (machine, "signaling removal of machine: %p,ref_ct=%d",
-        machine, G_OBJECT_REF_COUNT (machine));
+    GST_DEBUG_OBJECT (machine, "emit remove signal: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machine));
     g_signal_emit ((gpointer) self, signals[MACHINE_REMOVED_EVENT], 0, machine);
 
     g_hash_table_remove (self->priv->connection_state, (gpointer) machine);
     g_hash_table_remove (self->priv->graph_depth, (gpointer) machine);
 
-    GST_DEBUG_OBJECT (machine, "removing machine: %p,ref_ct=%d", machine,
-        G_OBJECT_REF_COUNT (machine));
+    GST_DEBUG_OBJECT (machine, "releasing machine: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machine));
     // this triggers finalize if we don't have a ref
     gst_element_set_state (GST_ELEMENT (machine), GST_STATE_NULL);
     if (((GstObject *) machine)->parent) {
       gst_bin_remove (self->priv->bin, GST_ELEMENT (machine));
+      GST_DEBUG_OBJECT (machine, "unparented machine: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (machine));
     }
     gst_object_unref (GST_OBJECT (machine));
   } else {
-    GST_WARNING_OBJECT (machine,
-        "trying to remove machine that is not in setup");
+    GST_WARNING_OBJECT (machine, "machine is not in setup");
   }
 }
 
@@ -1326,8 +1327,8 @@ bt_setup_remove_wire (const BtSetup * const self, const BtWire * const wire)
   g_return_if_fail (BT_IS_SETUP (self));
   g_return_if_fail (BT_IS_WIRE (wire));
 
-  GST_DEBUG_OBJECT (wire, "trying to remove wire: %p,ref_ct=%d", wire,
-      G_OBJECT_REF_COUNT (wire));
+  GST_DEBUG_OBJECT (wire, "removing wire: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (wire));
 
   if ((node = g_list_find (self->priv->wires, wire))) {
     BtMachine *src, *dst;
@@ -1336,10 +1337,10 @@ bt_setup_remove_wire (const BtSetup * const self, const BtWire * const wire)
     g_object_get ((gpointer) wire, "src", &src, "dst", &dst, NULL);
     src->src_wires = g_list_remove (src->src_wires, wire);
     dst->dst_wires = g_list_remove (dst->dst_wires, wire);
-    GST_DEBUG_OBJECT (src, "wire.src: %p,ref_ct=%d", src,
-        G_OBJECT_REF_COUNT (src));
-    GST_DEBUG_OBJECT (dst, "wire.dst: %p,ref_ct=%d", dst,
-        G_OBJECT_REF_COUNT (dst));
+    GST_DEBUG_OBJECT (src, "wire.src: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (src));
+    GST_DEBUG_OBJECT (dst, "wire.dst: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (dst));
     g_object_unref (src);
     g_object_unref (dst);
 
@@ -1348,23 +1349,25 @@ bt_setup_remove_wire (const BtSetup * const self, const BtWire * const wire)
 
     self->priv->wires = g_list_delete_link (self->priv->wires, node);
 
-    GST_DEBUG_OBJECT (wire, "signaling removal of wire: %p,ref_ct=%d", wire,
-        G_OBJECT_REF_COUNT (wire));
+    GST_DEBUG_OBJECT (wire, "emit remove signal: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (wire));
     g_signal_emit ((gpointer) self, signals[WIRE_REMOVED_EVENT], 0, wire);
 
     g_hash_table_remove (self->priv->connection_state, (gpointer) wire);
     g_hash_table_remove (self->priv->graph_depth, (gpointer) wire);
 
-    GST_DEBUG_OBJECT (wire, "removing wire: %p,ref_ct=%d", wire,
-        G_OBJECT_REF_COUNT (wire));
+    GST_DEBUG_OBJECT (wire, "releasing wire: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (wire));
     gst_element_set_state (GST_ELEMENT (wire), GST_STATE_NULL);
     // this triggers finalize if we don't have a ref
     if (((GstObject *) wire)->parent) {
       gst_bin_remove (self->priv->bin, GST_ELEMENT (wire));
+      GST_DEBUG_OBJECT (wire, "unparented machine: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (wire));
     }
     gst_object_unref (GST_OBJECT (wire));
   } else {
-    GST_WARNING_OBJECT (wire, "trying to remove wire that is not in setup");
+    GST_WARNING_OBJECT (wire, "wire is not in setup");
   }
 }
 
@@ -1422,8 +1425,8 @@ bt_setup_get_machine_by_id (const BtSetup * const self, const gchar * const id)
       found = TRUE;
     g_free (machine_id);
     if (found) {
-      GST_DEBUG_OBJECT (machine, "getting machine (%s): %p,ref_ct %d", id,
-          machine, G_OBJECT_REF_COUNT (machine));
+      GST_DEBUG_OBJECT (machine, "getting machine (%s): %"
+          G_OBJECT_REF_COUNT_FMT, id, G_OBJECT_LOG_REF_COUNT (machine));
       return (g_object_ref (machine));
     }
   }
@@ -1452,8 +1455,8 @@ bt_setup_get_machine_by_type (const BtSetup * const self, const GType type)
   for (node = self->priv->machines; node; node = g_list_next (node)) {
     BtMachine *const machine = BT_MACHINE (node->data);
     if (G_OBJECT_TYPE (machine) == type) {
-      GST_DEBUG_OBJECT (machine, "getting machine: %p,ref_ct %d", machine,
-          G_OBJECT_REF_COUNT (machine));
+      GST_DEBUG_OBJECT (machine, "getting machine: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (machine));
       return (g_object_ref (machine));
     }
   }
@@ -1482,8 +1485,8 @@ bt_setup_get_machines_by_type (const BtSetup * const self, const GType type)
   for (node = self->priv->machines; node; node = g_list_next (node)) {
     BtMachine *const machine = BT_MACHINE (node->data);
     if (G_OBJECT_TYPE (machine) == type) {
-      GST_DEBUG_OBJECT (machine, "getting machine: %p,ref_ct %d", machine,
-          G_OBJECT_REF_COUNT (machine));
+      GST_DEBUG_OBJECT (machine, "getting machine: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (machine));
       machines = g_list_prepend (machines, g_object_ref (machine));
     }
   }
@@ -1573,8 +1576,8 @@ bt_setup_get_wire_by_machines (const BtSetup * const self,
       found = TRUE;
     g_object_unref (machine);
     if (found) {
-      GST_DEBUG_OBJECT (wire, "getting wire: %p,ref_ct=%d", wire,
-          G_OBJECT_REF_COUNT (wire));
+      GST_DEBUG_OBJECT (wire, "getting wire: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (wire));
       return (g_object_ref (wire));
     }
   }
@@ -1930,8 +1933,8 @@ bt_setup_dispose (GObject * const object)
       if (node->data) {
         GObject *obj = node->data;
 
-        GST_DEBUG_OBJECT (obj, "  free wire: %p, ref_ct=%d", obj,
-            G_OBJECT_REF_COUNT (obj));
+        GST_DEBUG_OBJECT (obj, "  free wire: %" G_OBJECT_REF_COUNT_FMT,
+            G_OBJECT_LOG_REF_COUNT (obj));
 
         unlink_wire (self, GST_ELEMENT (obj));
 
@@ -1950,8 +1953,8 @@ bt_setup_dispose (GObject * const object)
       if (node->data) {
         GObject *obj = node->data;
 
-        GST_DEBUG_OBJECT (obj, "  free machine: %p, ref_ct=%d", obj,
-            G_OBJECT_REF_COUNT (obj));
+        GST_DEBUG_OBJECT (obj, "  free machine: %" G_OBJECT_REF_COUNT_FMT,
+            G_OBJECT_LOG_REF_COUNT (obj));
 
         gst_element_set_state (GST_ELEMENT (obj), GST_STATE_NULL);
         if (self->priv->bin && ((GstObject *) obj)->parent) {
@@ -1965,8 +1968,8 @@ bt_setup_dispose (GObject * const object)
 
   if (self->priv->bin) {
     GST_DEBUG_OBJECT (self->priv->bin,
-        "release bin: %p, ref_ct=%d, num_children=%d", self->priv->bin,
-        G_OBJECT_REF_COUNT (self->priv->bin),
+        "release bin: %" G_OBJECT_REF_COUNT_FMT ", num_children=%d",
+        G_OBJECT_LOG_REF_COUNT (self->priv->bin),
         GST_BIN_NUMCHILDREN (self->priv->bin));
     gst_object_unref (self->priv->bin);
     self->priv->bin = NULL;

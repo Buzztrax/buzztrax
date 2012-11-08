@@ -28,7 +28,8 @@
 
 #include "ic_private.h"
 
-struct _BtIcGudevDiscovererPrivate {
+struct _BtIcGudevDiscovererPrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -70,134 +71,154 @@ registry.c:249:on_device_added: midi device added: product=ICE1712 multi OSS MID
 
 */
 
-static void on_uevent(GUdevClient *client,gchar *action,GUdevDevice *udevice,gpointer user_data) {
+static void
+on_uevent (GUdevClient * client, gchar * action, GUdevDevice * udevice,
+    gpointer user_data)
+{
   //BtIcGudevDiscoverer *self=BTIC_GUDEV_DISCOVERER(user_data);
-  const gchar *name=g_udev_device_get_name(udevice);
-  const gchar *subsystem=g_udev_device_get_subsystem(udevice);
-  const gchar *udi=g_udev_device_get_sysfs_path(udevice);
-  const gchar *devnode=g_udev_device_get_device_file(udevice);
+  const gchar *name = g_udev_device_get_name (udevice);
+  const gchar *subsystem = g_udev_device_get_subsystem (udevice);
+  const gchar *udi = g_udev_device_get_sysfs_path (udevice);
+  const gchar *devnode = g_udev_device_get_device_file (udevice);
 
-  GST_INFO("action=%6s: subsys=%8s, devtype=%15s, name=%10s, number=%2s, devnode=%s, driver=%s",
-    action, subsystem, g_udev_device_get_devtype(udevice), name,
-    g_udev_device_get_number(udevice), devnode, g_udev_device_get_driver(udevice));
+  GST_INFO
+      ("action=%6s: subsys=%8s, devtype=%15s, name=%10s, number=%2s, devnode=%s, driver=%s",
+      action, subsystem, g_udev_device_get_devtype (udevice), name,
+      g_udev_device_get_number (udevice), devnode,
+      g_udev_device_get_driver (udevice));
 
-  if(!devnode || !udi)
+  if (!devnode || !udi)
     return;
 
-  if(!strcmp(action,"remove") || !strcmp(action,"change")) {
-    btic_registry_remove_device_by_udi(udi);
+  if (!strcmp (action, "remove") || !strcmp (action, "change")) {
+    btic_registry_remove_device_by_udi (udi);
   }
 
-  if(!strcmp(action,"add") || !strcmp(action,"change")) {
-    BtIcDevice *device=NULL;
-    GUdevDevice *uparent,*t;
-    const gchar *full_name=NULL;
+  if (!strcmp (action, "add") || !strcmp (action, "change")) {
+    BtIcDevice *device = NULL;
+    GUdevDevice *uparent, *t;
+    const gchar *full_name = NULL;
     const gchar *vendor_name, *model_name;
-    gboolean free_full_name=FALSE;
+    gboolean free_full_name = FALSE;
     gchar *cat_full_name;
 
     // skip unreadble device descriptors quickly
-    if(access(devnode,R_OK)==-1) {
+    if (access (devnode, R_OK) == -1) {
       return;
     }
 
     /* FIXME(ensonic): this is a udev bug, the address changes and this causes valgrind
      * warnings: http://www.pastie.org/1589552
      * we copy it for now */
-    if (devnode) devnode=g_strdup(devnode);
+    if (devnode)
+      devnode = g_strdup (devnode);
 
     /* dump properties, also available as:
      * /sbin/udevadm info -qall -p /sys/class/sound/card0
      *
-    const gchar* const *props=g_udev_device_get_property_keys(udevice);
-    while(*props) {
-      GST_INFO("  %s: %s", *props, g_udev_device_get_property(udevice,*props));
-      props++;
-    }
-    */
+     const gchar* const *props=g_udev_device_get_property_keys(udevice);
+     while(*props) {
+     GST_INFO("  %s: %s", *props, g_udev_device_get_property(udevice,*props));
+     props++;
+     }
+     */
 
     /* get human readable device name */
-    uparent=udevice;
-    vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR");
-    if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR_FROM_DATABASE");
-    model_name=g_udev_device_get_property(uparent, "ID_MODEL");
-    if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL_FROM_DATABASE");
+    uparent = udevice;
+    vendor_name = g_udev_device_get_property (uparent, "ID_VENDOR");
+    if (!vendor_name)
+      vendor_name =
+          g_udev_device_get_property (uparent, "ID_VENDOR_FROM_DATABASE");
+    model_name = g_udev_device_get_property (uparent, "ID_MODEL");
+    if (!model_name)
+      model_name =
+          g_udev_device_get_property (uparent, "ID_MODEL_FROM_DATABASE");
 
-    GST_INFO("  v m:  '%s' '%s'",vendor_name,model_name);
-    while(uparent && !(vendor_name && model_name)) {
-      t=uparent;
-      if((uparent=g_udev_device_get_parent(t))) {
-        if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR");
-        if(!vendor_name) vendor_name=g_udev_device_get_property(uparent, "ID_VENDOR_FROM_DATABASE");
-        if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL");
-        if(!model_name) model_name=g_udev_device_get_property(uparent, "ID_MODEL_FROM_DATABASE");
+    GST_INFO ("  v m:  '%s' '%s'", vendor_name, model_name);
+    while (uparent && !(vendor_name && model_name)) {
+      t = uparent;
+      if ((uparent = g_udev_device_get_parent (t))) {
+        if (!vendor_name)
+          vendor_name = g_udev_device_get_property (uparent, "ID_VENDOR");
+        if (!vendor_name)
+          vendor_name =
+              g_udev_device_get_property (uparent, "ID_VENDOR_FROM_DATABASE");
+        if (!model_name)
+          model_name = g_udev_device_get_property (uparent, "ID_MODEL");
+        if (!model_name)
+          model_name =
+              g_udev_device_get_property (uparent, "ID_MODEL_FROM_DATABASE");
       }
-      if(t!=udevice) {
-        g_object_unref(t);
+      if (t != udevice) {
+        g_object_unref (t);
       }
     }
-    if(uparent && uparent!=udevice) {
-      g_object_unref(uparent);
+    if (uparent && uparent != udevice) {
+      g_object_unref (uparent);
     }
-    GST_INFO("  v m:  '%s' '%s'",vendor_name,model_name);
-    if(vendor_name && model_name) {
-      full_name=g_strconcat(vendor_name," ",model_name,NULL);
-      free_full_name=TRUE;
+    GST_INFO ("  v m:  '%s' '%s'", vendor_name, model_name);
+    if (vendor_name && model_name) {
+      full_name = g_strconcat (vendor_name, " ", model_name, NULL);
+      free_full_name = TRUE;
     } else {
-      full_name=name;
+      full_name = name;
     }
 
     /* FIXME(ensonic): we got different names with HAL (we save those in songs :/):
-    * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3400
-    * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3363
-    */
+     * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3400
+     * http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3363
+     */
 
-    if(!strcmp(subsystem,"input")) {
-      cat_full_name=g_strconcat("input: ",full_name,NULL);
-      device=BTIC_DEVICE(btic_input_device_new(udi,cat_full_name,devnode));
-      g_free(cat_full_name);
-    } else if(!strcmp(subsystem,"sound")) {
+    if (!strcmp (subsystem, "input")) {
+      cat_full_name = g_strconcat ("input: ", full_name, NULL);
+      device =
+          BTIC_DEVICE (btic_input_device_new (udi, cat_full_name, devnode));
+      g_free (cat_full_name);
+    } else if (!strcmp (subsystem, "sound")) {
       /* http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3509 */
-      if(!strncmp(name, "midiC", 5)) {
+      if (!strncmp (name, "midiC", 5)) {
         /* alsa */
-        cat_full_name=g_strconcat("alsa midi: ",full_name,NULL);
-        device=BTIC_DEVICE(btic_midi_device_new(udi,cat_full_name,devnode));
-        g_free(cat_full_name);
-      } else if(!strcmp(name, "midi2") || !strcmp(name, "amidi2")) {
+        cat_full_name = g_strconcat ("alsa midi: ", full_name, NULL);
+        device =
+            BTIC_DEVICE (btic_midi_device_new (udi, cat_full_name, devnode));
+        g_free (cat_full_name);
+      } else if (!strcmp (name, "midi2") || !strcmp (name, "amidi2")) {
         /* oss */
-        cat_full_name=g_strconcat("oss midi: ",full_name,NULL);
-        device=BTIC_DEVICE(btic_midi_device_new(udi,cat_full_name,devnode));
-        g_free(cat_full_name);
+        cat_full_name = g_strconcat ("oss midi: ", full_name, NULL);
+        device =
+            BTIC_DEVICE (btic_midi_device_new (udi, cat_full_name, devnode));
+        g_free (cat_full_name);
       }
     }
 
-    if(free_full_name) {
-      g_free((gchar *)full_name);
+    if (free_full_name) {
+      g_free ((gchar *) full_name);
     }
 
-    if(device) {
-      btic_registry_add_device(device);
-    }
-    else {
-      GST_DEBUG("unknown device found, not added: name=%s",name);
+    if (device) {
+      btic_registry_add_device (device);
+    } else {
+      GST_DEBUG ("unknown device found, not added: name=%s", name);
     }
 
     /* FIXME(ensonic): see above */
-    g_free((gchar *)devnode);
+    g_free ((gchar *) devnode);
   }
 }
 
-static void gudev_scan(BtIcGudevDiscoverer *self, const gchar *subsystem) {
-  GList *list,*node;
+static void
+gudev_scan (BtIcGudevDiscoverer * self, const gchar * subsystem)
+{
+  GList *list, *node;
   GUdevDevice *device;
 
-  if((list=g_udev_client_query_by_subsystem(self->priv->client,subsystem))) {
-    for(node=list;node;node=g_list_next(node)) {
-      device=(GUdevDevice *)node->data;
-      on_uevent(self->priv->client,"add",device,(gpointer)self);
-      g_object_unref(device);
+  if ((list = g_udev_client_query_by_subsystem (self->priv->client, subsystem))) {
+    for (node = list; node; node = g_list_next (node)) {
+      device = (GUdevDevice *) node->data;
+      on_uevent (self->priv->client, "add", device, (gpointer) self);
+      g_object_unref (device);
     }
-    g_list_free(list);
+    g_list_free (list);
   }
 }
 
@@ -210,8 +231,10 @@ static void gudev_scan(BtIcGudevDiscoverer *self, const gchar *subsystem) {
  *
  * Returns: the new instance
  */
-BtIcGudevDiscoverer *btic_gudev_discoverer_new(void) {
-  return(g_object_new(BTIC_TYPE_GUDEV_DISCOVERER,NULL));
+BtIcGudevDiscoverer *
+btic_gudev_discoverer_new (void)
+{
+  return (g_object_new (BTIC_TYPE_GUDEV_DISCOVERER, NULL));
 }
 
 //-- methods
@@ -220,58 +243,72 @@ BtIcGudevDiscoverer *btic_gudev_discoverer_new(void) {
 
 //-- class internals
 
-static void btic_gudev_discoverer_dispose(GObject * const object) {
-  const BtIcGudevDiscoverer * const self = BTIC_GUDEV_DISCOVERER(object);
+static void
+btic_gudev_discoverer_dispose (GObject * const object)
+{
+  const BtIcGudevDiscoverer *const self = BTIC_GUDEV_DISCOVERER (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
-  g_object_try_unref(self->priv->client);
+  GST_DEBUG ("!!!! self=%p", self);
+  g_object_try_unref (self->priv->client);
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(btic_gudev_discoverer_parent_class)->dispose(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (btic_gudev_discoverer_parent_class)->dispose (object);
+  GST_DEBUG ("  done");
 }
 
-static GObject *btic_gudev_discoverer_constructor(GType type,guint n_construct_params,GObjectConstructParam *construct_params) {
+static GObject *
+btic_gudev_discoverer_constructor (GType type, guint n_construct_params,
+    GObjectConstructParam * construct_params)
+{
   BtIcGudevDiscoverer *self;
   /* check with 'udevadm monitor' */
-  const gchar * const subsystems[]={
+  const gchar *const subsystems[] = {
     /*
-    "input",
-    "sound",*/
+       "input",
+       "sound", */
     NULL
   };
 
-  self=BTIC_GUDEV_DISCOVERER(G_OBJECT_CLASS(btic_gudev_discoverer_parent_class)->constructor(type,n_construct_params,construct_params));
+  self =
+      BTIC_GUDEV_DISCOVERER (G_OBJECT_CLASS
+      (btic_gudev_discoverer_parent_class)->constructor (type,
+          n_construct_params, construct_params));
 
   // get a gudev client
-  if(!(self->priv->client=g_udev_client_new(subsystems))) {
-    GST_WARNING("Could not create gudev client context");
+  if (!(self->priv->client = g_udev_client_new (subsystems))) {
+    GST_WARNING ("Could not create gudev client context");
     goto done;
   }
   // register notifications
-  g_signal_connect(self->priv->client,"uevent",G_CALLBACK(on_uevent),(gpointer)self);
+  g_signal_connect (self->priv->client, "uevent", G_CALLBACK (on_uevent),
+      (gpointer) self);
 
   // check already known devices
-  gudev_scan(self,"input");
-  gudev_scan(self,"sound");
+  gudev_scan (self, "input");
+  gudev_scan (self, "sound");
 
 done:
-  return((GObject *)self);
+  return ((GObject *) self);
 }
 
-static void btic_gudev_discoverer_init(BtIcGudevDiscoverer *self) {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_GUDEV_DISCOVERER, BtIcGudevDiscovererPrivate);
+static void
+btic_gudev_discoverer_init (BtIcGudevDiscoverer * self)
+{
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_GUDEV_DISCOVERER,
+      BtIcGudevDiscovererPrivate);
 }
 
-static void btic_gudev_discoverer_class_init(BtIcGudevDiscovererClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+static void
+btic_gudev_discoverer_class_init (BtIcGudevDiscovererClass * const klass)
+{
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private(klass,sizeof(BtIcGudevDiscovererPrivate));
+  g_type_class_add_private (klass, sizeof (BtIcGudevDiscovererPrivate));
 
-  gobject_class->constructor  = btic_gudev_discoverer_constructor;
-  gobject_class->dispose      = btic_gudev_discoverer_dispose;
+  gobject_class->constructor = btic_gudev_discoverer_constructor;
+  gobject_class->dispose = btic_gudev_discoverer_dispose;
 }
-

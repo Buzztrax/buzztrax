@@ -62,7 +62,7 @@ test_bt_cmd_application_create (BT_TEST_ARGS)
 
   /* assert */
   fail_unless (app != NULL, NULL);
-  fail_unless (G_OBJECT_REF_COUNT (app) == 1, NULL);
+  ck_assert_int_eq (G_OBJECT_REF_COUNT (app), 1);
 
   /* cleanup */
   g_object_checked_unref (app);

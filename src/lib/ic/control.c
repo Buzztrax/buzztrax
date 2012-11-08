@@ -153,7 +153,7 @@ btic_control_dispose (GObject * const object)
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG ("!!!! self=%p, self->ref_ct=%d", self, G_OBJECT_REF_COUNT (self));
+  GST_DEBUG ("!!!! self=%p", self);
 
   g_object_try_weak_unref (self->priv->device);
 

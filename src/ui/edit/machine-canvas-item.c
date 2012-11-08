@@ -1100,7 +1100,8 @@ bt_machine_canvas_item_new (const BtMainPageMachines * main_page_machines,
           BT_TYPE_MACHINE_CANVAS_ITEM, "machines-page", main_page_machines,
           "machine", machine, "x", xpos, "y", ypos, "zoom", zoom, NULL));
 
-  //GST_INFO("machine canvas item added, ref-ct=%d",G_OBJECT_REF_COUNT(self));
+  GST_DEBUG ("machine canvas item added, %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self));
 
   g_object_unref (canvas);
   return (self);
@@ -1173,36 +1174,28 @@ bt_machine_canvas_item_get_property (GObject * object, guint property_id,
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (object);
   return_if_disposed ();
   switch (property_id) {
-    case MACHINE_CANVAS_ITEM_MACHINES_PAGE:{
+    case MACHINE_CANVAS_ITEM_MACHINES_PAGE:
       g_value_set_object (value, self->priv->main_page_machines);
-    }
       break;
-    case MACHINE_CANVAS_ITEM_MACHINE:{
-      GST_INFO ("getting machine : %p,ref_ct=%d", self->priv->machine,
-          G_OBJECT_REF_COUNT (self->priv->machine));
+    case MACHINE_CANVAS_ITEM_MACHINE:
+      GST_INFO ("getting machine : %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (self->priv->machine));
       g_value_set_object (value, self->priv->machine);
-      //GST_INFO("... : %p,ref_ct=%d",self->priv->machine,G_OBJECT_REF_COUNT(self->priv->machine));
-    }
       break;
-    case MACHINE_CANVAS_ITEM_ZOOM:{
+    case MACHINE_CANVAS_ITEM_ZOOM:
       g_value_set_double (value, self->priv->zoom);
-    }
       break;
-    case MACHINE_CANVAS_ITEM_PROPERTIES_DIALOG:{
+    case MACHINE_CANVAS_ITEM_PROPERTIES_DIALOG:
       g_value_set_object (value, self->priv->properties_dialog);
-    }
       break;
-    case MACHINE_CANVAS_ITEM_PREFERENCES_DIALOG:{
+    case MACHINE_CANVAS_ITEM_PREFERENCES_DIALOG:
       g_value_set_object (value, self->priv->preferences_dialog);
-    }
       break;
-    case MACHINE_CANVAS_ITEM_ANALYSIS_DIALOG:{
+    case MACHINE_CANVAS_ITEM_ANALYSIS_DIALOG:
       g_value_set_object (value, self->priv->analysis_dialog);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -1214,15 +1207,14 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (object);
   return_if_disposed ();
   switch (property_id) {
-    case MACHINE_CANVAS_ITEM_MACHINES_PAGE:{
+    case MACHINE_CANVAS_ITEM_MACHINES_PAGE:
       g_object_try_weak_unref (self->priv->main_page_machines);
       self->priv->main_page_machines =
           BT_MAIN_PAGE_MACHINES (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->main_page_machines);
       //GST_DEBUG("set the main_page_machines for machine_canvas_item: %p",self->priv->main_page_machines);
-    }
       break;
-    case MACHINE_CANVAS_ITEM_MACHINE:{
+    case MACHINE_CANVAS_ITEM_MACHINE:
       g_object_try_unref (self->priv->machine);
       self->priv->machine = BT_MACHINE (g_value_dup_object (value));
       if (self->priv->machine) {
@@ -1231,8 +1223,8 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
         GstBin *bin;
         GstBus *bus;
 
-        GST_INFO ("set the  machine %p,machine->ref_ct=%d for new canvas item",
-            self->priv->machine, G_OBJECT_REF_COUNT (self->priv->machine));
+        GST_INFO ("set the machine %" G_OBJECT_REF_COUNT_FMT,
+            G_OBJECT_LOG_REF_COUNT (self->priv->machine));
         g_object_set_qdata ((GObject *) self->priv->machine,
             machine_canvas_item_quark, (gpointer) self);
         g_object_get (self->priv->machine, "properties",
@@ -1291,9 +1283,8 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
           }
         }
       }
-    }
       break;
-    case MACHINE_CANVAS_ITEM_ZOOM:{
+    case MACHINE_CANVAS_ITEM_ZOOM:
       self->priv->zoom = g_value_get_double (value);
       GST_DEBUG ("set the zoom for machine_canvas_item: %f", self->priv->zoom);
       if (self->priv->label) {
@@ -1304,11 +1295,9 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
       if (self->priv->box) {
         update_machine_graphics (self);
       }
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -1326,8 +1315,8 @@ bt_machine_canvas_item_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  GST_DEBUG ("machine: %p,ref_ct %d", self->priv->machine,
-      G_OBJECT_REF_COUNT (self->priv->machine));
+  GST_DEBUG ("machine: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->machine));
 
   g_signal_handlers_disconnect_matched (self->priv->machine,
       G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, (gpointer) self);
@@ -1371,8 +1360,8 @@ bt_machine_canvas_item_dispose (GObject * object)
 
   gtk_widget_destroy (GTK_WIDGET (self->priv->context_menu));
   g_object_try_unref (self->priv->context_menu);
-  GST_DEBUG ("  destroying done, machine: %p,ref_ct %d", self->priv->machine,
-      G_OBJECT_REF_COUNT (self->priv->machine));
+  GST_DEBUG ("  destroying done, machine: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->machine));
 
   GST_DEBUG ("  chaining up");
   G_OBJECT_CLASS (bt_machine_canvas_item_parent_class)->dispose (object);

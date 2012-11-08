@@ -783,6 +783,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   g_object_get (self->priv->app, "song", &song, NULL);
   if (!song)
     return;
+  GST_INFO ("song: %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (song));
 
   // get the audio_sink (song->master is a bt_sink_machine) if there is one already
   g_object_try_weak_unref (self->priv->master);
@@ -793,8 +794,8 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
     GstPad *pad;
     GstBus *bus;
 
-    GST_INFO ("connect to input-level : song=%p,  master=%p (ref_ct=%d)", song,
-        self->priv->master, G_OBJECT_REF_COUNT (self->priv->master));
+    GST_INFO ("connect to input-level: master=%" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->master));
     g_object_try_weak_ref (self->priv->master);
 
     // get the input_level and input_gain properties from audio_sink

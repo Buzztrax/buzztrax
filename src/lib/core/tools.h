@@ -159,6 +159,9 @@ union { \
  */
 #define G_OBJECT_REF_COUNT(obj) ((obj)?((G_OBJECT(obj))->ref_count):0)
 
+#define G_OBJECT_REF_COUNT_FMT "p,ref_ct=%d"
+#define G_OBJECT_LOG_REF_COUNT(o) (o), G_OBJECT_REF_COUNT ((o))
+
 /**
  * g_object_try_ref:
  * @obj: the object to reference

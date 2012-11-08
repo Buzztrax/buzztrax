@@ -312,8 +312,8 @@ label_cell_data_function (GtkTreeViewColumn * col, GtkCellRenderer * renderer,
       ) {
     bg_col =
         ((row /
-            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->
-        priv->selection_bg1;
+            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->priv->
+        selection_bg1;
   }
   if (bg_col) {
     g_object_set (renderer,
@@ -506,8 +506,8 @@ sequence_model_get_store (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))) {
     store = gtk_tree_model_filter_get_model (filtered_store);
   }
   return (store);
@@ -555,8 +555,8 @@ sequence_update_model_length (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))) {
     BtSequenceGridModel *store =
         BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
         (filtered_store));
@@ -638,8 +638,8 @@ pattern_list_model_get_pattern_by_key (GtkTreeModel * store, gchar that_key)
       pattern =
           g_object_ref (bt_pattern_list_model_get_object ((BtPatternListModel *)
               store, &iter));
-      GST_INFO ("found pattern for key : %p,ref_ct=%d", pattern,
-          G_OBJECT_REF_COUNT (pattern));
+      GST_INFO ("found pattern for key : %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (pattern));
       g_free (this_key);
       break;
     }
@@ -1079,8 +1079,8 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
   GST_INFO ("label edited: '%s': '%s'", path_string, new_text);
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))
       && (store = gtk_tree_model_filter_get_model (filtered_store))
       ) {
     GtkTreeIter iter, filter_iter;
@@ -1208,8 +1208,8 @@ sequence_pos_table_init (const BtMainPageSequence * self)
 
   gtk_box_pack_start (GTK_BOX (self->priv->sequence_pos_table_header),
       self->priv->pos_header, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (GTK_WIDGET (self->
-          priv->sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
+  gtk_widget_set_size_request (GTK_WIDGET (self->priv->
+          sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
 
   // add static column
   renderer = gtk_cell_renderer_text_new ();
@@ -1307,9 +1307,9 @@ sequence_table_clear (const BtMainPageSequence * self)
             0, NULL, on_machine_state_changed_bypass, NULL);
         // need to disconnect the label updates for the seq headers, unfortunately we don#t know the label
         // so we use a weak_ref and on_sequence_header_label_destroy()
-        GST_INFO ("machine %p,ref_ct=%d cleaning sequence table", machine,
-            G_OBJECT_REF_COUNT (machine));
-        g_object_unref (machine);
+        GST_INFO ("machine %" G_OBJECT_REF_COUNT_FMT,
+            G_OBJECT_LOG_REF_COUNT (machine));
+        gst_object_unref (machine);
       }
     }
   }
@@ -1318,8 +1318,8 @@ sequence_table_clear (const BtMainPageSequence * self)
 static void
 remove_container_widget (GtkWidget * widget, gpointer user_data)
 {
-  GST_LOG ("removing: %d, %s", G_OBJECT_REF_COUNT (widget),
-      gtk_widget_get_name (widget));
+  GST_LOG ("removing: %s, %" G_OBJECT_REF_COUNT_FMT,
+      gtk_widget_get_name (widget), G_OBJECT_LOG_REF_COUNT (widget));
   gtk_container_remove (GTK_CONTAINER (user_data), widget);
 }
 
@@ -1351,13 +1351,13 @@ sequence_table_init (const BtMainPageSequence * self)
 
   // do not destroy when flushing the header
   if ((vbox = gtk_widget_get_parent (GTK_WIDGET (self->priv->label_menu)))) {
-    GST_INFO ("holding label widget: %d",
-        G_OBJECT_REF_COUNT (self->priv->label_menu));
+    GST_INFO ("holding label widget: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->label_menu));
     gtk_container_remove (GTK_CONTAINER (vbox),
         GTK_WIDGET (g_object_ref (self->priv->label_menu)));
     //gtk_widget_unparent(GTK_WIDGET(g_object_ref(self->priv->label_menu)));
-    GST_INFO ("                    : %d",
-        G_OBJECT_REF_COUNT (self->priv->label_menu));
+    GST_INFO ("                    : %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->label_menu));
   }
   // empty header widget
   gtk_container_forall (GTK_CONTAINER (self->priv->sequence_table_header),
@@ -1448,8 +1448,8 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
   machine_usage = g_hash_table_new (NULL, NULL);
   for (j = 0; j < track_ct; j++) {
     machine = bt_sequence_get_machine (self->priv->sequence, j);
-    GST_INFO ("machine %p,ref_ct=%d refresh sequence table track %lu", machine,
-        G_OBJECT_REF_COUNT (machine), j);
+    GST_INFO ("refresh track %lu for machine %" G_OBJECT_REF_COUNT_FMT, j,
+        G_OBJECT_LOG_REF_COUNT (machine));
     renderer = gtk_cell_renderer_text_new ();
     g_object_set (renderer,
         "mode", GTK_CELL_RENDERER_MODE_ACTIVATABLE,
@@ -1637,8 +1637,8 @@ pattern_list_refresh (const BtMainPageSequence * self)
     return;
   }
 
-  GST_INFO ("refresh pattern list for machine : %p,ref_ct=%d",
-      self->priv->machine, G_OBJECT_REF_COUNT (self->priv->machine));
+  GST_INFO ("refresh pattern list for machine : %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->machine));
 
   BtPatternListModel *store =
       bt_pattern_list_model_new (self->priv->machine, self->priv->sequence,
@@ -1654,8 +1654,8 @@ pattern_list_refresh (const BtMainPageSequence * self)
     g_object_unref (patterns_page);
   }
 
-  GST_INFO ("refreshed pattern list for machine : %p,ref_ct=%d",
-      self->priv->machine, G_OBJECT_REF_COUNT (self->priv->machine));
+  GST_INFO ("refreshed pattern list for machine : %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->machine));
   gtk_tree_view_set_model (self->priv->pattern_list, GTK_TREE_MODEL (store));
   g_object_unref (store);       // drop with treeview
 }
@@ -1686,14 +1686,13 @@ update_after_track_changed (const BtMainPageSequence * self)
     return;
   }
 
-  GST_INFO ("changing machine %p,ref_ct=%d to %p,ref_ct=%d",
-      self->priv->machine, G_OBJECT_REF_COUNT (self->priv->machine),
-      machine, G_OBJECT_REF_COUNT (machine)
-      );
+  GST_INFO ("changing machine %" G_OBJECT_REF_COUNT_FMT " to %"
+      G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (self->priv->machine),
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   if (self->priv->machine) {
-    GST_INFO ("unref old cur-machine %p,ref_ct=%d", self->priv->machine,
-        G_OBJECT_REF_COUNT (self->priv->machine));
+    GST_INFO ("unref old cur-machine %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->machine));
     g_signal_handler_disconnect (self->priv->machine,
         self->priv->pattern_removed_handler);
     // unref the old machine
@@ -1702,7 +1701,8 @@ update_after_track_changed (const BtMainPageSequence * self)
     self->priv->pattern_removed_handler = 0;
   }
   if (machine) {
-    GST_INFO ("ref new cur-machine: ref_ct=%d", G_OBJECT_REF_COUNT (machine));
+    GST_INFO ("ref new cur-machine: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machine));
     self->priv->pattern_removed_handler =
         g_signal_connect (machine, "pattern-removed",
         G_CALLBACK (on_pattern_removed), (gpointer) self);
@@ -1745,8 +1745,8 @@ machine_menu_refresh (const BtMainPageSequence * self, const BtSetup * setup)
     widgets = gtk_container_get_children (GTK_CONTAINER (menu_item));
     label = g_list_nth_data (widgets, 0);
     if (GTK_IS_LABEL (label)) {
-      GST_DEBUG ("menu item for machine %p,ref_ct=%d", machine,
-          G_OBJECT_REF_COUNT (machine));
+      GST_DEBUG ("menu item for machine %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (machine));
       g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
           NULL, on_machine_id_changed_menu, NULL);
       g_signal_connect (machine, "notify::id",
@@ -1953,8 +1953,8 @@ sequence_add_track (const BtMainPageSequence * self, BtMachine * machine,
 
   bt_sequence_add_track (self->priv->sequence, machine, pos);
 
-  GST_INFO ("machine %p,ref_ct=%d track added", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("track added for machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   // reset selection
   self->priv->selection_start_column = self->priv->selection_start_row =
@@ -1963,8 +1963,8 @@ sequence_add_track (const BtMainPageSequence * self, BtMachine * machine,
   // reinit the view
   sequence_table_refresh_columns (self, song);
 
-  GST_INFO ("machine %p,ref_ct=%d sequence table update", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("track update for machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   // update cursor_column and focus cell
   // (-2 because last column is empty and first is label)
@@ -1974,13 +1974,13 @@ sequence_add_track (const BtMainPageSequence * self, BtMachine * machine,
   g_list_free (columns);
   sequence_view_set_cursor_pos (self);
 
-  GST_INFO ("machine %p,ref_ct=%d cursor moved", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("cursor moved for machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   update_after_track_changed (self);
 
-  GST_INFO ("machine %p,ref_ct=%d adding track and updates done", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("done for machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   g_object_unref (song);
 }
@@ -1999,8 +1999,8 @@ sequence_remove_track (const BtMainPageSequence * self, gulong ix)
         NULL, on_machine_state_changed_solo, NULL);
     g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
         NULL, on_machine_state_changed_bypass, NULL);
-    GST_INFO ("machine %p,ref_ct=%d removing track", machine,
-        G_OBJECT_REF_COUNT (machine));
+    GST_INFO ("removing track for machine %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machine));
 
     // remove the track where the cursor is
     bt_sequence_remove_track_by_ix (self->priv->sequence, ix);
@@ -2315,8 +2315,8 @@ on_bars_menu_changed (GtkComboBox * combo_box, gpointer user_data)
       sequence_calculate_visible_lines (self);
       //GST_INFO("  bars = %d",self->priv->bars);
       if ((filtered_store =
-              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                      priv->sequence_table)))) {
+              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                      sequence_table)))) {
         BtSequenceGridModel *store =
             BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
             (filtered_store));
@@ -2960,8 +2960,8 @@ on_sequence_table_button_press_event (GtkWidget * widget,
             // set cell focus
             gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
                 FALSE);
-            gtk_widget_grab_focus_savely (GTK_WIDGET (self->
-                    priv->sequence_table));
+            gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
+                    sequence_table));
             // reset selection
             self->priv->selection_start_column =
                 self->priv->selection_start_row =
@@ -3029,8 +3029,8 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
           }
           gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
               FALSE);
-          gtk_widget_grab_focus_savely (GTK_WIDGET (self->
-                  priv->sequence_table));
+          gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
+                  sequence_table));
           // cursor updates are not yet processed
           on_sequence_table_cursor_changed_idle (self);
           GST_DEBUG ("cursor new/old: %3ld,%3ld -> %3ld,%3ld", cursor_column,
@@ -3191,18 +3191,19 @@ on_machine_added (BtSetup * setup, BtMachine * machine, gpointer user_data)
 {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
 
-  GST_INFO ("machine %p,ref_ct=%d has been added", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("added machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
   machine_menu_refresh (self, setup);
-  GST_INFO ("machine %p,ref_ct=%d chk1", machine, G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
   // don't create the track, if we already do so from an undo
   if (bt_change_log_is_active (self->priv->change_log)) {
     if (BT_IS_SOURCE_MACHINE (machine)) {
       sequence_add_track (self, machine, -1);
     }
   }
-  GST_INFO ("... machine %p,ref_ct=%d has been added", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("... machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 }
 
 static void
@@ -3214,8 +3215,8 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
 
   g_return_if_fail (BT_IS_MACHINE (machine));
 
-  GST_INFO ("machine %p,ref_ct=%d has been removed", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("removed machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   // reinit the menu
   machine_menu_refresh (self, setup);
@@ -3243,8 +3244,8 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
   }
   update_after_track_changed (self);
 
-  GST_INFO ("... machine %p,ref_ct=%d has been removed", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("... machine removed %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 }
 
 static void
@@ -3257,8 +3258,8 @@ on_track_removed (BtSequence * sequence, BtMachine * machine, gulong track,
   gchar *undo_str, *redo_str;
   gchar *mid;
 
-  GST_INFO ("machine %p,ref_ct=%d has been removed", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("machine removed %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   /* handle undo/redo */
   g_object_get (machine, "id", &mid, NULL);
@@ -3287,8 +3288,8 @@ on_track_removed (BtSequence * sequence, BtMachine * machine, gulong track,
    * this means number-of-tracks is not changed either
    */
 
-  GST_INFO ("machine %p,ref_ct=%d has been removed", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("machine removed %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 }
 
 static void
@@ -3298,8 +3299,8 @@ on_pattern_removed (BtMachine * machine, BtPattern * pattern,
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
   BtSequence *sequence = self->priv->sequence;
 
-  GST_INFO ("pattern has been removed: %p,ref_ct=%d", pattern,
-      G_OBJECT_REF_COUNT (pattern));
+  GST_INFO ("pattern has been removed: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (pattern));
 
   if (bt_sequence_is_pattern_used (sequence, pattern)) {
     glong tick;
@@ -3376,7 +3377,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
     self->priv->properties = NULL;
     return;
   }
-  GST_INFO ("song->ref_ct=%d", G_OBJECT_REF_COUNT (song));
+  GST_INFO ("song: %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (song));
 
   g_object_get (song, "setup", &setup, "song-info", &self->priv->song_info,
       "sequence", &self->priv->sequence, "bin", &bin, NULL);
@@ -3547,8 +3548,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   self->priv->context_menu_add =
       GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (_("Add track")));
   image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->
-          priv->context_menu_add), image);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->priv->
+          context_menu_add), image);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
       GTK_WIDGET (self->priv->context_menu_add));
   gtk_widget_show (GTK_WIDGET (self->priv->context_menu_add));
@@ -4499,8 +4500,8 @@ bt_main_page_sequence_dispose (GObject * object)
     GstBin *bin;
     GstBus *bus;
 
-    GST_DEBUG ("disconnect handlers from song=%p, song->ref_ct=%d", song,
-        G_OBJECT_REF_COUNT (song));
+    GST_DEBUG ("disconnect handlers from song=%" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (song));
     g_object_get (song, "setup", &setup, "bin", &bin, NULL);
 
     g_signal_handlers_disconnect_matched (song, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
@@ -4543,8 +4544,8 @@ bt_main_page_sequence_dispose (GObject * object)
   g_object_unref (self->priv->app);
 
   if (self->priv->machine) {
-    GST_INFO ("unref old cur-machine: %p,ref_ct=%d", self->priv->machine,
-        G_OBJECT_REF_COUNT (self->priv->machine));
+    GST_INFO ("unref old cur-machine: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (self->priv->machine));
     if (self->priv->pattern_removed_handler)
       g_signal_handler_disconnect (self->priv->machine,
           self->priv->pattern_removed_handler);

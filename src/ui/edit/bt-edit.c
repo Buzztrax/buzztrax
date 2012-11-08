@@ -90,13 +90,13 @@ main (gint argc, gchar ** argv)
 
   GOptionEntry options[] = {
     {"version", '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK,
-          (gpointer) parse_goption_arg, N_("Print application version"), NULL}
+        (gpointer) parse_goption_arg, N_("Print application version"), NULL}
     ,
     {"command", 'c', 0, G_OPTION_ARG_STRING, &command, N_("Command name"),
-          "{load}"}
+        "{load}"}
     ,
     {"input-file", 'i', 0, G_OPTION_ARG_FILENAME, &input_file_name,
-          N_("Input file name"), N_("<songfile>")}
+        N_("Input file name"), N_("<songfile>")}
     ,
     {NULL}
   };
@@ -205,7 +205,7 @@ main (gint argc, gchar ** argv)
   }
 
   // free application
-  GST_INFO ("app->ref_ct=%d", G_OBJECT_REF_COUNT (app));
+  GST_INFO ("app %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (app));
   g_object_unref (app);
 
   g_free (command);

@@ -139,8 +139,8 @@ test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
 
   flush_main_loop ();
 
-  GST_INFO ("machine %p,ref_count=%d has been created", src_machine,
-      G_OBJECT_REF_COUNT (src_machine));
+  GST_INFO_OBJECT (src_machine, "new machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (src_machine));
 
   /* act */
   // remove the machine and check that it is disposed below
@@ -170,12 +170,14 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "sine1");
-  GST_INFO ("setup.machine[sine2].ref_count=%d", G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("machine[sine2]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   /* act */
   bt_setup_remove_machine (setup, machine);
   flush_main_loop ();
-  GST_INFO ("setup.machine[sine2].ref_count=%d", G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("machine[sine2]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   /* assert */
   ck_assert_int_eq (G_OBJECT_REF_COUNT (machine), 1);
@@ -201,12 +203,14 @@ test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "amp1");
-  GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   /* act */
   bt_setup_remove_machine (setup, machine);
   flush_main_loop ();
-  GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   /* assert */
   ck_assert_int_eq (G_OBJECT_REF_COUNT (machine), 1);
@@ -231,16 +235,20 @@ test_bt_main_page_machines_remove_wire (BT_TEST_ARGS)
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
   BtMachine *machine1 = bt_setup_get_machine_by_id (setup, "sine1");
-  GST_INFO ("setup.machine[sine1].ref_count=%d", G_OBJECT_REF_COUNT (machine1));
+  GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine1));
   BtMachine *machine2 = bt_setup_get_machine_by_id (setup, "amp1");
-  GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine2));
+  GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine2));
   BtWire *wire = bt_setup_get_wire_by_machines (setup, machine1, machine2);
-  GST_INFO ("setup.wire[sine1->amp1].ref_count=%d", G_OBJECT_REF_COUNT (wire));
+  GST_INFO ("wire[sine1->amp1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (wire));
 
   /* act */
   bt_setup_remove_wire (setup, wire);
   flush_main_loop ();
-  GST_INFO ("setup.wire[sine1->amp1].ref_count=%d", G_OBJECT_REF_COUNT (wire));
+  GST_INFO ("wire[sine1->amp1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (wire));
 
   /* assert */
   ck_assert_int_eq (G_OBJECT_REF_COUNT (wire), 1);
@@ -285,34 +293,42 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
 
   // remove wire
   BtMachine *machine1 = bt_setup_get_machine_by_id (setup, "sine1");
-  GST_INFO ("setup.machine[sine1].ref_count=%d", G_OBJECT_REF_COUNT (machine1));
+  GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine1));
   BtMachine *machine2 = bt_setup_get_machine_by_id (setup, "amp1");
-  GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine2));
+  GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine2));
   BtWire *wire = bt_setup_get_wire_by_machines (setup, machine1, machine2);
-  GST_INFO ("setup.wire[sine1->amp1].ref_count=%d", G_OBJECT_REF_COUNT (wire));
+  GST_INFO ("wire[sine1->amp1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (wire));
   bt_setup_remove_wire (setup, wire);
   flush_main_loop ();
-  GST_INFO ("setup.wire[sine1->amp1].ref_count=%d", G_OBJECT_REF_COUNT (wire));
+  GST_INFO ("wire[sine1->amp1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (wire));
   // ref count should be 1 now
-  fail_unless (G_OBJECT_REF_COUNT (wire) == 1, NULL);
+  ck_assert_int_eq (G_OBJECT_REF_COUNT (wire), 1);
   gst_object_unref (wire);
 
   // remove a source
-  GST_INFO ("setup.machine[sine1].ref_count=%d", G_OBJECT_REF_COUNT (machine1));
+  GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine1));
   bt_setup_remove_machine (setup, machine1);
   flush_main_loop ();
-  GST_INFO ("setup.machine[sine1].ref_count=%d", G_OBJECT_REF_COUNT (machine1));
+  GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine1));
   // ref count should be 1 now
-  fail_unless (G_OBJECT_REF_COUNT (machine1) == 1, NULL);
+  ck_assert_int_eq (G_OBJECT_REF_COUNT (machine1), 1);
   gst_object_unref (machine1);
 
   // remove an effect
-  GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine2));
+  GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine2));
   bt_setup_remove_machine (setup, machine2);
   flush_main_loop ();
-  GST_INFO ("setup.machine[amp1].ref_count=%d", G_OBJECT_REF_COUNT (machine2));
+  GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine2));
   // ref count should be 1 now
-  fail_unless (G_OBJECT_REF_COUNT (machine2) == 1, NULL);
+  ck_assert_int_eq (G_OBJECT_REF_COUNT (machine2), 1);
   gst_object_unref (machine2);
 
   /* cleanup */

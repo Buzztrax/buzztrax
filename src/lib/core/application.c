@@ -106,10 +106,13 @@ bt_application_dispose (GObject * const object)
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG ("!!!! self=%p, self->ref_ct=%d", self, G_OBJECT_REF_COUNT (self));
-  GST_INFO ("bin->ref_ct=%d", G_OBJECT_REF_COUNT (self->priv->bin));
+  GST_DEBUG ("!!!! self: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self));
+  GST_INFO ("bin: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->bin));
   GST_INFO ("bin->numchildren=%d", GST_BIN (self->priv->bin)->numchildren);
-  GST_INFO ("settings->ref_ct=%d", G_OBJECT_REF_COUNT (self->priv->settings));
+  GST_INFO ("settings: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->settings));
 
   if (self->priv->bin) {
     GstStateChangeReturn res;
@@ -140,7 +143,8 @@ bt_application_init (BtApplication * self)
       BtApplicationPrivate);
   self->priv->bin = gst_pipeline_new ("song");
   g_assert (GST_IS_ELEMENT (self->priv->bin));
-  GST_DEBUG ("bin->ref_ct=%d", G_OBJECT_REF_COUNT (self->priv->bin));
+  GST_DEBUG ("bin: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->bin));
 
   // tried this when debuging a case where we don't get bus messages
   //gst_pipeline_set_auto_flush_bus(GST_PIPELINE(self->priv->bin),FALSE);

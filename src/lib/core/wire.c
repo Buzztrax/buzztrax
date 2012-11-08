@@ -567,21 +567,21 @@ bt_wire_link_machines (const BtWire * const self)
   }
   if (res) {
     // update ghostpads
-    GST_INFO
-        ("updating sink ghostpad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
-        machines[six], (G_OBJECT_REF_COUNT (machines[six])),
-        GST_OBJECT_NAME (machines[six]), sink_pads[six],
-        (G_OBJECT_REF_COUNT (sink_pads[six])));
+    GST_INFO_OBJECT (machines[six],
+        "updating sink ghostpad: elem=%" G_OBJECT_REF_COUNT_FMT
+        ", pad=%" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machines[six]),
+        G_OBJECT_LOG_REF_COUNT (sink_pads[six]));
     if (!gst_ghost_pad_set_target (GST_GHOST_PAD (self->priv->sink_pad),
             sink_pads[six])) {
       GST_WARNING ("failed to link internal pads for sink ghostpad");
     }
 
-    GST_INFO
-        ("updating src ghostpad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
-        machines[dix], (G_OBJECT_REF_COUNT (machines[dix])),
-        GST_OBJECT_NAME (machines[dix]), src_pads[dix],
-        (G_OBJECT_REF_COUNT (src_pads[dix])));
+    GST_INFO_OBJECT (machines[dix],
+        "updating src ghostpad : elem=% elem=%" G_OBJECT_REF_COUNT_FMT
+        ", pad=%" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machines[dix]),
+        G_OBJECT_LOG_REF_COUNT (sink_pads[dix]));
     if (!gst_ghost_pad_set_target (GST_GHOST_PAD (self->priv->src_pad),
             src_pads[dix])) {
       GST_WARNING ("failed to link internal pads for src ghostpad");
@@ -727,8 +727,10 @@ bt_wire_connect (const BtWire * const self)
     return FALSE;
   }
 
-  GST_DEBUG ("self=%p, src->ref_ct=%d, dst->ref_ct=%d", self,
-      G_OBJECT_REF_COUNT (src), G_OBJECT_REF_COUNT (dst));
+  GST_DEBUG_OBJECT (self, "self=%" G_OBJECT_REF_COUNT_FMT ", src: %"
+      G_OBJECT_REF_COUNT_FMT ", dst: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self),
+      G_OBJECT_LOG_REF_COUNT (src), G_OBJECT_LOG_REF_COUNT (dst));
   GST_DEBUG ("trying to link machines : %p '%s' [%p %p] -> %p '%s' [%p %p]",
       src, GST_OBJECT_NAME (src), src->src_wires, src->dst_wires, dst,
       GST_OBJECT_NAME (dst), dst->dst_wires, dst->src_wires);
@@ -785,16 +787,18 @@ bt_wire_connect (const BtWire * const self)
     }
   }
 
-  GST_DEBUG ("link prepared, src->ref_ct=%d, dst->ref_ct=%d",
-      G_OBJECT_REF_COUNT (src), G_OBJECT_REF_COUNT (dst));
+  GST_DEBUG_OBJECT (self, "link prepared, src: %"
+      G_OBJECT_REF_COUNT_FMT ", dst: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (src), G_OBJECT_LOG_REF_COUNT (dst));
 
   if (!bt_wire_link_machines (self)) {
     GST_ERROR ("linking machines failed : %p '%s' -> %p '%s'", src,
         GST_OBJECT_NAME (src), dst, GST_OBJECT_NAME (dst));
     return FALSE;
   }
-  GST_DEBUG ("linking machines succeeded, src->ref_ct=%d, dst->ref_ct=%d",
-      G_OBJECT_REF_COUNT (src), G_OBJECT_REF_COUNT (dst));
+  GST_DEBUG_OBJECT (self, "link succeeded, src: %"
+      G_OBJECT_REF_COUNT_FMT ", dst: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (src), G_OBJECT_LOG_REF_COUNT (dst));
 
   // register params
   bt_wire_init_params (self);
@@ -1135,8 +1139,8 @@ bt_wire_persistence_load (const GType type,
                     //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
                     if (!strncmp ((char *) child_node3->name, "wiredata\0", 9)) {
                       param =
-                          bt_parameter_group_get_param_index (self->
-                          priv->param_group, (gchar *) name);
+                          bt_parameter_group_get_param_index (self->priv->
+                          param_group, (gchar *) name);
                       if (param != -1) {
                         bt_value_group_set_event (vg, tick, param,
                             (gchar *) value);
@@ -1263,45 +1267,35 @@ bt_wire_get_property (GObject * const object, const guint property_id,
   const BtWire *const self = BT_WIRE (object);
   return_if_disposed ();
   switch (property_id) {
-    case WIRE_CONSTRUCTION_ERROR:{
+    case WIRE_CONSTRUCTION_ERROR:
       g_value_set_pointer (value, self->priv->construction_error);
-    }
       break;
-    case WIRE_PROPERTIES:{
+    case WIRE_PROPERTIES:
       g_value_set_pointer (value, self->priv->properties);
-    }
       break;
-    case WIRE_SONG:{
+    case WIRE_SONG:
       g_value_set_object (value, self->priv->song);
-    }
       break;
-    case WIRE_SRC:{
+    case WIRE_SRC:
       g_value_set_object (value, self->priv->src);
-    }
       break;
-    case WIRE_DST:{
+    case WIRE_DST:
       g_value_set_object (value, self->priv->dst);
-    }
       break;
-    case WIRE_GAIN:{
+    case WIRE_GAIN:
       g_value_set_object (value, self->priv->machines[PART_GAIN]);
-    }
       break;
-    case WIRE_PAN:{
+    case WIRE_PAN:
       g_value_set_object (value, self->priv->machines[PART_PAN]);
-    }
       break;
-    case WIRE_NUM_PARAMS:{
+    case WIRE_NUM_PARAMS:
       g_value_set_ulong (value, self->priv->num_params);
-    }
       break;
-    case WIRE_ANALYZERS:{
+    case WIRE_ANALYZERS:
       g_value_set_pointer (value, self->priv->analyzers);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -1313,45 +1307,36 @@ bt_wire_set_property (GObject * const object, const guint property_id,
   const BtWire *const self = BT_WIRE (object);
   return_if_disposed ();
   switch (property_id) {
-    case WIRE_CONSTRUCTION_ERROR:{
+    case WIRE_CONSTRUCTION_ERROR:
       self->priv->construction_error = (GError **) g_value_get_pointer (value);
-    }
       break;
-    case WIRE_SONG:{
+    case WIRE_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
       //GST_DEBUG("set the song for wire: %p",self->priv->song);
-    }
       break;
-    case WIRE_SRC:{
+    case WIRE_SRC:
       self->priv->src = BT_MACHINE (g_value_dup_object (value));
-      GST_DEBUG ("set the source element for the wire: %p:%s, ref_ct=%d",
-          self->priv->src,
+      GST_DEBUG ("set the src for the wire: %s, %" G_OBJECT_REF_COUNT_FMT,
           (self->priv->src ? GST_OBJECT_NAME (self->priv->src) : ""),
-          G_OBJECT_REF_COUNT (self->priv->src));
-    }
+          G_OBJECT_LOG_REF_COUNT (self->priv->src));
       break;
-    case WIRE_DST:{
+    case WIRE_DST:
       self->priv->dst = BT_MACHINE (g_value_dup_object (value));
-      GST_DEBUG ("set the target element for the wire: %p:%s, ref_ct=%d",
-          self->priv->dst,
-          (self->priv->dst ? GST_OBJECT_NAME (self->priv->dst) : ""),
-          G_OBJECT_REF_COUNT (self->priv->dst));
-    }
+      GST_DEBUG ("set the dst for the wire: %s, %" G_OBJECT_REF_COUNT_FMT,
+          (self->priv->src ? GST_OBJECT_NAME (self->priv->src) : ""),
+          G_OBJECT_LOG_REF_COUNT (self->priv->src));
       break;
-    case WIRE_NUM_PARAMS:{
+    case WIRE_NUM_PARAMS:
       self->priv->num_params = g_value_get_ulong (value);
-    }
       break;
-    case WIRE_ANALYZERS:{
+    case WIRE_ANALYZERS:
       bt_wire_deactivate_analyzers (self);
       self->priv->analyzers = g_value_get_pointer (value);
       bt_wire_activate_analyzers (self);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -1393,11 +1378,11 @@ bt_wire_dispose (GObject * const object)
 
   g_object_try_weak_unref (self->priv->song);
   //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
-  GST_DEBUG ("  releasing the dst %p, dst->ref_ct=%d",
-      self->priv->dst, G_OBJECT_REF_COUNT (self->priv->dst));
+  GST_DEBUG ("  releasing the dst %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->dst));
   g_object_try_unref (self->priv->dst);
-  GST_DEBUG ("  releasing the src %p, src->ref_ct=%d",
-      self->priv->src, G_OBJECT_REF_COUNT (self->priv->src));
+  GST_DEBUG ("  releasing the src %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->src));
   g_object_try_unref (self->priv->src);
 
   // unref param groups

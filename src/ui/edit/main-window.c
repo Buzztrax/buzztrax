@@ -359,8 +359,8 @@ bt_main_window_init_ui (const BtMainWindow * self)
   box = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (self), box);
 
-  GST_INFO ("before creating content, app->ref_ct=%d",
-      G_OBJECT_REF_COUNT (self->priv->app));
+  GST_INFO ("before creating content, app: " G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->app));
 
   // add the menu-bar
   self->priv->menu = bt_main_menu_new ();
@@ -388,8 +388,8 @@ bt_main_window_init_ui (const BtMainWindow * self)
   g_signal_connect ((gpointer) self, "drag-data-received",
       G_CALLBACK (on_window_dnd_drop), (gpointer) self);
 
-  GST_INFO ("content created, app->ref_ct=%d",
-      G_OBJECT_REF_COUNT (self->priv->app));
+  GST_INFO ("content created, app: " G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->app));
 
   g_signal_connect ((gpointer) self, "delete-event",
       G_CALLBACK (on_window_delete_event), (gpointer) self);
@@ -406,8 +406,8 @@ bt_main_window_init_ui (const BtMainWindow * self)
       G_CALLBACK (on_song_unsaved_changed), (gpointer) self);
   g_object_unref (change_log);
 
-  GST_INFO ("signal connected, app->ref_ct=%d",
-      G_OBJECT_REF_COUNT (self->priv->app));
+  GST_INFO ("signal connected, app: " G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->app));
 }
 
 //-- constructor methods
@@ -1238,7 +1238,7 @@ bt_main_window_finalize (GObject * object)
 {
   BtMainWindow *self = BT_MAIN_WINDOW (object);
 
-  GST_DEBUG ("!!!! self=%p, ref_ct=%d", self, G_OBJECT_REF_COUNT (self));
+  GST_DEBUG ("!!!! self=%p", self);
 
   g_free (self->priv->last_folder);
 

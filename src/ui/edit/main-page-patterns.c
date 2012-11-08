@@ -231,16 +231,16 @@ machine_menu_model_get_iter_by_machine (GtkTreeModel * store,
 {
   BtMachine *this_machine;
 
-  GST_INFO ("look up iter for machine : %p,ref_ct=%d", that_machine,
-      G_OBJECT_REF_COUNT (that_machine));
+  GST_INFO ("look up iter for machine : %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (that_machine));
 
   if (gtk_tree_model_get_iter_first (store, iter)) {
     do {
       this_machine =
           bt_machine_list_model_get_object ((BtMachineListModel *) store, iter);
       if (this_machine == that_machine) {
-        GST_INFO ("found iter for machine : %p,ref_ct=%d", that_machine,
-            G_OBJECT_REF_COUNT (that_machine));
+        GST_INFO ("found iter for machine : %" G_OBJECT_REF_COUNT_FMT,
+            G_OBJECT_LOG_REF_COUNT (that_machine));
         break;
       }
     } while (gtk_tree_model_iter_next (store, iter));
@@ -655,8 +655,8 @@ on_pattern_removed (BtMachine * machine, BtPattern * pattern,
     g_free (pid);
     g_free (pname);
   }
-  GST_DEBUG ("removed pattern: %p,pattern->ref_ct=%d", pattern,
-      G_OBJECT_REF_COUNT (pattern));
+  GST_DEBUG ("removed pattern: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (pattern));
 }
 
 // use key-press-event, as then we get key repeats
@@ -1864,8 +1864,8 @@ change_current_pattern (const BtMainPagePatterns * self,
   }
 
   self->priv->pattern = g_object_try_ref (new_pattern);
-  GST_INFO ("store new pattern : %p,ref_ct=%d", new_pattern,
-      G_OBJECT_REF_COUNT (new_pattern));
+  GST_INFO ("store new pattern : %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (new_pattern));
   if (old_pattern) {
     if (self->priv->pattern_length_changed) {
       g_signal_handler_disconnect (old_pattern,
@@ -1877,8 +1877,8 @@ change_current_pattern (const BtMainPagePatterns * self,
           self->priv->pattern_voices_changed);
       self->priv->pattern_voices_changed = 0;
     }
-    GST_INFO ("unref old pattern: %p,ref_ct=%d", old_pattern,
-        G_OBJECT_REF_COUNT (old_pattern));
+    GST_INFO ("unref old pattern: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (old_pattern));
     g_object_unref (old_pattern);
   }
   // select pattern combo entry
@@ -1912,8 +1912,8 @@ get_current_machine (const BtMainPagePatterns * self)
     if ((machine =
             bt_machine_list_model_get_object (BT_MACHINE_LIST_MODEL (store),
                 &iter))) {
-      GST_DEBUG ("  got machine: %p,machine-ref_ct=%d", machine,
-          G_OBJECT_REF_COUNT (machine));
+      GST_DEBUG ("  got machine: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (machine));
       return (g_object_ref (machine));
     }
   }
@@ -1930,22 +1930,22 @@ change_current_machine (const BtMainPagePatterns * self,
     return;
   }
 
-  GST_INFO ("store new machine %p,ref_ct=%d", new_machine,
-      G_OBJECT_REF_COUNT (new_machine));
+  GST_INFO ("store new machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (new_machine));
   self->priv->machine = g_object_try_ref (new_machine);
 
-  GST_INFO ("unref old machine %p,ref_ct=%d", old_machine,
-      G_OBJECT_REF_COUNT (old_machine));
+  GST_INFO ("unref old machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (old_machine));
   g_object_try_unref (old_machine);
 
   // show new list of pattern in pattern menu
   pattern_menu_refresh (self, new_machine);
-  GST_INFO ("1st done for  machine %p,ref_ct=%d", new_machine,
-      G_OBJECT_REF_COUNT (new_machine));
+  GST_INFO ("1st done for  machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (new_machine));
   // refresh context menu
   context_menu_refresh (self, new_machine);
-  GST_INFO ("2nd done for  machine %p,ref_ct=%d", new_machine,
-      G_OBJECT_REF_COUNT (new_machine));
+  GST_INFO ("2nd done for  machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (new_machine));
 }
 
 static void
@@ -2090,8 +2090,8 @@ on_pattern_menu_changed (GtkComboBox * menu, gpointer user_data)
     if ((pattern =
             bt_pattern_list_model_get_object (BT_PATTERN_LIST_MODEL (store),
                 &iter))) {
-      GST_DEBUG ("  got new pattern: %p,pattern-ref_ct=%d", pattern,
-          G_OBJECT_REF_COUNT (pattern));
+      GST_DEBUG ("  got new pattern: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (pattern));
     }
   }
   if (!change_current_pattern (self, pattern)) {
@@ -2178,8 +2178,8 @@ on_machine_added (BtSetup * setup, BtMachine * machine, gpointer user_data)
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
 
-  GST_INFO ("new machine %p,ref_ct=%d has been added", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("new machine added: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   if (bt_change_log_is_active (self->priv->change_log)) {
     if (BT_IS_SOURCE_MACHINE (machine)) {
@@ -2192,8 +2192,8 @@ on_machine_added (BtSetup * setup, BtMachine * machine, gpointer user_data)
   g_signal_connect (machine, "pattern-removed", G_CALLBACK (on_pattern_removed),
       (gpointer) self);
 
-  GST_INFO ("... machine %p,ref_ct=%d has been added", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("... machine added: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 }
 
 static void
@@ -2205,22 +2205,22 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
 
   g_return_if_fail (BT_IS_MACHINE (machine));
 
-  GST_INFO ("machine %p,ref_ct=%d has been removed", machine,
-      G_OBJECT_REF_COUNT (machine));
+  GST_INFO ("machine removed: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 
   // remove all patterns to ensure we emit "pattern-removed" signals
   g_object_get (machine, "patterns", &list, NULL);
   for (node = list; node; node = g_list_next (node)) {
     pattern = BT_CMD_PATTERN (node->data);
     if (BT_IS_PATTERN (pattern)) {
-      GST_DEBUG ("removing pattern: %p,ref_ct=%d", pattern,
-          G_OBJECT_REF_COUNT (pattern));
+      GST_DEBUG ("removing pattern: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (pattern));
       bt_machine_remove_pattern (machine, pattern);
-      GST_DEBUG ("removed pattern: %p,ref_ct=%d", pattern,
-          G_OBJECT_REF_COUNT (pattern));
+      GST_DEBUG ("removed pattern: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (pattern));
     } else {
-      GST_DEBUG ("keeping pattern: %p,ref_ct=%d", pattern,
-          G_OBJECT_REF_COUNT (pattern));
+      GST_DEBUG ("keeping pattern: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (pattern));
     }
     g_object_unref (pattern);
   }
@@ -2436,7 +2436,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
     GST_INFO ("song (null) has changed done");
     return;
   }
-  GST_INFO ("song->ref_ct=%d", G_OBJECT_REF_COUNT (song));
+  GST_INFO ("song: %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (song));
 
   g_object_get (song, "setup", &setup, "wavetable", &wavetable, NULL);
   g_object_get (setup, "properties", &self->priv->properties, NULL);
@@ -2600,8 +2600,8 @@ on_context_menu_pattern_new_activate (GtkMenuItem * menuitem,
 
     bt_pattern_properties_dialog_apply (BT_PATTERN_PROPERTIES_DIALOG (dialog));
 
-    GST_INFO ("new pattern added : %p,ref_ct=%d", pattern,
-        G_OBJECT_REF_COUNT (pattern));
+    GST_INFO ("new pattern added : %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (pattern));
 
     g_object_get (self->priv->machine, "id", &mid, NULL);
     g_object_get (pattern, "id", &pid, "name", &pname, "length", &length, NULL);
@@ -3786,8 +3786,8 @@ bt_main_page_patterns_dispose (GObject * object)
     BtSetup *setup;
     BtWavetable *wavetable;
 
-    GST_DEBUG ("disconnect handlers from song=%p, song->ref_ct=%d", song,
-        G_OBJECT_REF_COUNT (song));
+    GST_DEBUG ("disconnect handlers from song=%" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (song));
     g_object_get (song, "setup", &setup, "wavetable", &wavetable, NULL);
 
     g_signal_handlers_disconnect_matched (setup, G_SIGNAL_MATCH_FUNC, 0, 0,
@@ -3812,11 +3812,11 @@ bt_main_page_patterns_dispose (GObject * object)
 
   g_object_unref (self->priv->change_log);
   g_object_unref (self->priv->app);
-  GST_DEBUG ("unref pattern: %p,ref_ct=%d", self->priv->pattern,
-      G_OBJECT_REF_COUNT (self->priv->pattern));
+  GST_DEBUG ("unref pattern: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->pattern));
   g_object_try_unref (self->priv->pattern);
-  GST_DEBUG ("unref machine: %p,ref_ct=%d", self->priv->machine,
-      G_OBJECT_REF_COUNT (self->priv->machine));
+  GST_DEBUG ("unref machine: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->machine));
   g_object_try_unref (self->priv->machine);
 
   gtk_widget_destroy (GTK_WIDGET (self->priv->context_menu));
