@@ -271,6 +271,8 @@ test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
   ck_assert_int_eq (get_machine_refcount (setup, "sine1"), 4);
 
   /* TODO(ensonic): check more refcounts (wires)
+   * bt_song_write_to_highlevel_dot_file (song);
+   * - or -
    * BT_CHECKS="test_bt_song_io_native_setup_refcounts_1" make bt_core.check
    * grep "ref_ct=" /tmp/bt_core.log
    */
@@ -303,7 +305,9 @@ test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
   ck_assert_int_eq (get_machine_refcount (setup, "sine1"), 4);
 
   /* TODO(ensonic): check more refcounts (wires)
-   * BT_CHECKS="test_bt_song_io_native_setup_refcounts_2" make bt_core.check
+   * bt_song_write_to_highlevel_dot_file (song);
+   * - or -
+   * BT_CHECKS="test_bt_song_io_native_setup_refcounts_1" make bt_core.check
    * grep "ref_ct=" /tmp/bt_core.log
    */
 

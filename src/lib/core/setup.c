@@ -29,7 +29,10 @@
  * source is fully connected to the sink, that subgraph is added o the pipeline.
  *
  * Applications can watch the GstObject:parent property to see whether a machine
- * is physically inserted into the processing pipeline. 
+ * is physically inserted into the processing pipeline.
+ *
+ * The setup takes ownership of the machines and wires. They are automatically
+ * added when they are created and destroyed together with the setup.
  */
 /* support dynamic (un)linking (while playing)
  *
@@ -679,7 +682,6 @@ rem_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
   if (is_added) {
     gst_object_ref (GST_OBJECT (bin));
     gst_bin_remove (self->priv->bin, GST_ELEMENT (bin));
-    GST_OBJECT_FLAG_SET (bin, GST_OBJECT_FLOATING);
     GST_INFO_OBJECT (bin, "removed object: %p,ref_ct=%d", bin,
         G_OBJECT_REF_COUNT (bin));
   }
@@ -1199,8 +1201,9 @@ bt_setup_add_machine (const BtSetup * const self,
   if (!g_list_find (self->priv->machines, machine)) {
     ret = TRUE;
     self->priv->machines =
-        g_list_prepend (self->priv->machines,
-        g_object_ref ((gpointer) machine));
+        g_list_prepend (self->priv->machines, (gpointer) machine);
+    // TODO(ensonic): we double ref as the creators unref it
+    gst_object_ref_sink (gst_object_ref ((gpointer) machine));
     set_disconnected (self, GST_BIN (machine));
 
     g_signal_emit ((gpointer) self, signals[MACHINE_ADDED_EVENT], 0, machine);
@@ -1241,8 +1244,9 @@ bt_setup_add_wire (const BtSetup * const self, const BtWire * const wire)
     BtMachine *src, *dst;
 
     // add to main list
-    self->priv->wires =
-        g_list_prepend (self->priv->wires, g_object_ref ((gpointer) wire));
+    self->priv->wires = g_list_prepend (self->priv->wires, (gpointer) wire);
+    // TODO(ensonic): we double ref as the creators unref it
+    gst_object_ref_sink (gst_object_ref ((gpointer) wire));
 
     // also add to convenience lists per machine
     g_object_get ((gpointer) wire, "src", &src, "dst", &dst, NULL);
@@ -1300,11 +1304,8 @@ bt_setup_remove_machine (const BtSetup * const self,
         G_OBJECT_REF_COUNT (machine));
     // this triggers finalize if we don't have a ref
     gst_element_set_state (GST_ELEMENT (machine), GST_STATE_NULL);
-    if (!GST_OBJECT_FLAG_IS_SET (machine, GST_OBJECT_FLOATING)) {
-      gst_object_ref (GST_OBJECT (machine));
+    if (((GstObject *) machine)->parent) {
       gst_bin_remove (self->priv->bin, GST_ELEMENT (machine));
-      GST_OBJECT_FLAG_SET (machine, GST_OBJECT_FLOATING);
-
     }
     gst_object_unref (GST_OBJECT (machine));
   } else {
@@ -1360,10 +1361,8 @@ bt_setup_remove_wire (const BtSetup * const self, const BtWire * const wire)
         G_OBJECT_REF_COUNT (wire));
     gst_element_set_state (GST_ELEMENT (wire), GST_STATE_NULL);
     // this triggers finalize if we don't have a ref
-    if (!GST_OBJECT_FLAG_IS_SET (wire, GST_OBJECT_FLOATING)) {
-      gst_object_ref (GST_OBJECT (wire));
+    if (((GstObject *) wire)->parent) {
       gst_bin_remove (self->priv->bin, GST_ELEMENT (wire));
-      GST_OBJECT_FLAG_SET (wire, GST_OBJECT_FLOATING);
     }
     gst_object_unref (GST_OBJECT (wire));
   } else {
@@ -1933,18 +1932,16 @@ bt_setup_dispose (GObject * const object)
       if (node->data) {
         GObject *obj = node->data;
 
-        GST_DEBUG_OBJECT (obj, "  free wire: %p, ref=%d, floating? %d", obj,
-            G_OBJECT_REF_COUNT (obj), GST_OBJECT_FLAG_IS_SET (obj,
-                GST_OBJECT_FLOATING));
+        GST_DEBUG_OBJECT (obj, "  free wire: %p, ref_ct=%d", obj,
+            G_OBJECT_REF_COUNT (obj));
 
         unlink_wire (self, GST_ELEMENT (obj));
 
         gst_element_set_state (GST_ELEMENT (obj), GST_STATE_NULL);
-        if (GST_OBJECT_FLAG_IS_SET (obj, GST_OBJECT_FLOATING)) {
-          gst_object_unref (obj);
-        } else if (self->priv->bin) {
+        if (self->priv->bin) {
           gst_bin_remove (self->priv->bin, GST_ELEMENT (obj));
         }
+        gst_object_unref (obj);
         node->data = NULL;
       }
     }
@@ -1955,16 +1952,14 @@ bt_setup_dispose (GObject * const object)
       if (node->data) {
         GObject *obj = node->data;
 
-        GST_DEBUG_OBJECT (obj, "  free machine: %p, ref=%d, floating? %d", obj,
-            G_OBJECT_REF_COUNT (obj), GST_OBJECT_FLAG_IS_SET (obj,
-                GST_OBJECT_FLOATING));
+        GST_DEBUG_OBJECT (obj, "  free machine: %p, ref_ct=%d", obj,
+            G_OBJECT_REF_COUNT (obj));
 
         gst_element_set_state (GST_ELEMENT (obj), GST_STATE_NULL);
-        if (GST_OBJECT_FLAG_IS_SET (obj, GST_OBJECT_FLOATING)) {
-          gst_object_unref (obj);
-        } else if (self->priv->bin) {
+        if (self->priv->bin) {
           gst_bin_remove (self->priv->bin, GST_ELEMENT (obj));
         }
+        gst_object_unref (obj);
         node->data = NULL;
       }
     }
@@ -1972,7 +1967,7 @@ bt_setup_dispose (GObject * const object)
 
   if (self->priv->bin) {
     GST_DEBUG_OBJECT (self->priv->bin,
-        "release bin: %p, ref=%d, num_children=%d", self->priv->bin,
+        "release bin: %p, ref_ct=%d, num_children=%d", self->priv->bin,
         G_OBJECT_REF_COUNT (self->priv->bin),
         GST_BIN_NUMCHILDREN (self->priv->bin));
     gst_object_unref (self->priv->bin);
