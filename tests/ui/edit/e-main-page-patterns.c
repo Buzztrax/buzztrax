@@ -83,15 +83,12 @@ static void
 test_bt_main_page_patterns_focus (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtMainPagePatterns *pattern_page;
-  BtMachine *machine;
-  BtPattern *pattern;
-
   /* arrange */
-  machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
-  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtMainPagePatterns *pattern_page;
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
 
@@ -104,7 +101,6 @@ test_bt_main_page_patterns_focus (BT_TEST_ARGS)
   /* cleanup */
   g_object_unref (pattern_page);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -113,17 +109,15 @@ static void
 test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
-  BtMachine *machine;
-  BtPattern *pattern;
   GtkWidget *pattern_editor;
   gchar *str;
 
-  /* arrange */
-  machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
-  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
@@ -142,7 +136,6 @@ test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
   /* cleanup */
   g_object_unref (pattern_page);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -150,16 +143,14 @@ static void
 test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
-  BtMachine *machine;
-  BtPattern *pattern;
   GtkWidget *pattern_editor;
 
-  /* arrange */
-  machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
-  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
@@ -175,7 +166,6 @@ test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
   /* cleanup */
   g_object_unref (pattern_page);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -184,16 +174,14 @@ static void
 test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
-  BtMachine *machine;
-  BtPattern *pattern;
   GtkWidget *pattern_editor;
 
-  /* arrange */
-  machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
-  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
@@ -211,7 +199,6 @@ test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
   /* cleanup */
   g_object_unref (pattern_page);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -220,16 +207,14 @@ static void
 test_bt_main_page_patterns_enter_switch (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
-  BtMachine *machine;
-  BtPattern *pattern;
   GtkWidget *pattern_editor;
 
-  /* arrange */
-  machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
-  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
@@ -244,7 +229,6 @@ test_bt_main_page_patterns_enter_switch (BT_TEST_ARGS)
   /* cleanup */
   g_object_unref (pattern_page);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -253,16 +237,14 @@ static void
 test_bt_main_page_patterns_enter_sparse_enum (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
-  BtMachine *machine;
-  BtPattern *pattern;
   GtkWidget *pattern_editor;
 
-  /* arrange */
-  machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
-  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
@@ -277,7 +259,6 @@ test_bt_main_page_patterns_enter_sparse_enum (BT_TEST_ARGS)
   /* cleanup */
   g_object_unref (pattern_page);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -286,16 +267,14 @@ static void
 test_bt_main_page_patterns_enter_invalid_sparse_enum (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
-  BtMachine *machine;
-  BtPattern *pattern;
   GtkWidget *pattern_editor;
 
-  /* arrange */
-  machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
-  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
@@ -310,7 +289,6 @@ test_bt_main_page_patterns_enter_invalid_sparse_enum (BT_TEST_ARGS)
   /* cleanup */
   g_object_unref (pattern_page);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -319,16 +297,14 @@ static void
 test_bt_main_page_patterns_enter_sparse_enum_in_2_steps (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
-  BtMachine *machine;
-  BtPattern *pattern;
   GtkWidget *pattern_editor;
 
-  /* arrange */
-  machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
-  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
@@ -345,7 +321,6 @@ test_bt_main_page_patterns_enter_sparse_enum_in_2_steps (BT_TEST_ARGS)
   /* cleanup */
   g_object_unref (pattern_page);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -354,17 +329,15 @@ static void
 test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-poly-source", 1L, NULL));
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
-  BtMachine *machine;
-  BtPattern *pattern;
   GtkWidget *pattern_editor;
   gulong voices;
 
-  /* arrange */
-  machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 1L, NULL));
-  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
@@ -384,7 +357,6 @@ test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
   /* cleanup */
   g_object_unref (pattern_page);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 

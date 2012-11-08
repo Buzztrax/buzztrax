@@ -88,7 +88,6 @@ test_bt_pattern_list_model_create (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (model);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 

@@ -64,15 +64,12 @@ make_test_song (void)
   BtMachine *gen =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
-  BtWire *wire = bt_wire_new (song, gen, sink, NULL);
+  bt_wire_new (song, gen, sink, NULL);
   GstElement *element =
       (GstElement *) check_gobject_get_object_property (gen, "machine");
   g_object_set (element, "wave", /* silence */ 4, NULL);
 
   gst_object_unref (element);
-  g_object_unref (wire);
-  g_object_unref (gen);
-  g_object_unref (sink);
 }
 
 
@@ -97,11 +94,8 @@ test_bt_sink_machine_settings_name_with_parameter (BT_TEST_ARGS)
   fail_unless (err == NULL, NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   BT_TEST_END;
 }
-
-;
 
 
 /* Check if we handle a sink setting of "audioconvert ! osssink sync=false".
@@ -125,11 +119,8 @@ test_bt_sink_machine_settings_name_is_launch_snippet (BT_TEST_ARGS)
   fail_unless (err == NULL, NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   BT_TEST_END;
 }
-
-;
 
 
 // test attribute handling in sink names
@@ -148,11 +139,9 @@ test_bt_sink_machine_settings_wrong_type (BT_TEST_ARGS)
   fail_unless (machine != NULL, NULL);
   fail_unless (err == NULL, NULL);
 
-  g_object_unref (machine);
+  /* cleanup */
   BT_TEST_END;
 }
-
-;
 
 
 // test attribute handling in sink names
@@ -172,11 +161,8 @@ test_bt_sink_machine_settings_wrong_parameters (BT_TEST_ARGS)
   fail_unless (err == NULL, NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   BT_TEST_END;
 }
-
-;
 
 
 // test attribute handling in sink names
@@ -196,11 +182,8 @@ test_bt_sink_machine_settings_inexistent_type (BT_TEST_ARGS)
   fail_unless (err == NULL, NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   BT_TEST_END;
 }
-
-;
 
 
 // test if the song play routine works with fakesink

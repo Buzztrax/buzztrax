@@ -72,6 +72,7 @@ test_bt_processor_machine_wrong_name (BT_TEST_ARGS)
   fail_unless (err != NULL, NULL);
 
   /* cleanup */
+  g_error_free (err);
   BT_TEST_END;
 }
 
@@ -92,6 +93,7 @@ test_bt_processor_machine_wrong_type (BT_TEST_ARGS)
   fail_unless (err != NULL, NULL);
 
   /* cleanup */
+  g_error_free (err);
   BT_TEST_END;
 }
 

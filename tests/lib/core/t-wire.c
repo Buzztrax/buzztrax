@@ -70,9 +70,6 @@ test_bt_wire_properties (BT_TEST_ARGS)
   fail_unless (check_gobject_properties ((GObject *) wire), NULL);
 
   /* cleanup */
-  g_object_unref (wire);
-  g_object_unref (src);
-  g_object_unref (dst);
   BT_TEST_END;
 }
 
@@ -94,9 +91,7 @@ test_bt_wire_new_null_song (BT_TEST_ARGS)
   fail_unless (wire != NULL, NULL);
 
   /* cleanup */
-  g_object_unref (wire);
-  g_object_unref (src);
-  g_object_unref (dst);
+  g_object_unref (wire);        // there is no setup to take ownership :/
   BT_TEST_END;
 }
 
@@ -116,8 +111,6 @@ test_bt_wire_new_null_machine (BT_TEST_ARGS)
   fail_unless (wire != NULL, NULL);
 
   /* cleanup */
-  g_object_unref (wire);
-  g_object_unref (src);
   BT_TEST_END;
 }
 
@@ -136,7 +129,7 @@ test_bt_wire_same_src_and_dst (BT_TEST_ARGS)
   fail_unless (wire != NULL, NULL);
   fail_unless (err != NULL, NULL);
 
-  g_object_unref (machine);
+  /* cleanup */
   BT_TEST_END;
 }
 

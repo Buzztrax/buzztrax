@@ -1202,8 +1202,7 @@ bt_setup_add_machine (const BtSetup * const self,
     ret = TRUE;
     self->priv->machines =
         g_list_prepend (self->priv->machines, (gpointer) machine);
-    // TODO(ensonic): we double ref as the creators unref it
-    gst_object_ref_sink (gst_object_ref ((gpointer) machine));
+    gst_object_ref_sink ((gpointer) machine);
     set_disconnected (self, GST_BIN (machine));
 
     g_signal_emit ((gpointer) self, signals[MACHINE_ADDED_EVENT], 0, machine);
@@ -1245,8 +1244,7 @@ bt_setup_add_wire (const BtSetup * const self, const BtWire * const wire)
 
     // add to main list
     self->priv->wires = g_list_prepend (self->priv->wires, (gpointer) wire);
-    // TODO(ensonic): we double ref as the creators unref it
-    gst_object_ref_sink (gst_object_ref ((gpointer) wire));
+    gst_object_ref_sink ((gpointer) wire);
 
     // also add to convenience lists per machine
     g_object_get ((gpointer) wire, "src", &src, "dst", &dst, NULL);
@@ -1802,8 +1800,8 @@ bt_setup_persistence_load (const GType type,
 
                   GST_WARNING ("Can't create machine: %s", err->message);
                   g_error_free (err);
+                  gst_object_unref (machine);
                 }
-                g_object_unref (machine);
               }
               xmlFree (type_str);
             }
@@ -1823,8 +1821,8 @@ bt_setup_persistence_load (const GType type,
 
               GST_WARNING ("Can't create wire: %s", err->message);
               g_error_free (err);
+              gst_object_unref (wire);
             }
-            g_object_unref (wire);
           }
         }
       } else if (!strncmp ((gchar *) node->name, "properties\0", 11)) {
@@ -1938,7 +1936,7 @@ bt_setup_dispose (GObject * const object)
         unlink_wire (self, GST_ELEMENT (obj));
 
         gst_element_set_state (GST_ELEMENT (obj), GST_STATE_NULL);
-        if (self->priv->bin) {
+        if (self->priv->bin && ((GstObject *) obj)->parent) {
           gst_bin_remove (self->priv->bin, GST_ELEMENT (obj));
         }
         gst_object_unref (obj);
@@ -1956,7 +1954,7 @@ bt_setup_dispose (GObject * const object)
             G_OBJECT_REF_COUNT (obj));
 
         gst_element_set_state (GST_ELEMENT (obj), GST_STATE_NULL);
-        if (self->priv->bin) {
+        if (self->priv->bin && ((GstObject *) obj)->parent) {
           gst_bin_remove (self->priv->bin, GST_ELEMENT (obj));
         }
         gst_object_unref (obj);

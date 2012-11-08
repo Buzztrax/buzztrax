@@ -63,7 +63,7 @@ make_new_song (void)
   BtMachine *gen =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
-  BtWire *wire = bt_wire_new (song, gen, sink, NULL);
+  bt_wire_new (song, gen, sink, NULL);
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 8L, BT_MACHINE (gen));
   GstElement *element =
@@ -79,9 +79,6 @@ make_new_song (void)
 
   gst_object_unref (element);
   g_object_unref (pattern);
-  g_object_unref (wire);
-  g_object_unref (gen);
-  g_object_unref (sink);
   g_object_unref (sequence);
   GST_INFO ("  song created");
   return song;
@@ -345,8 +342,8 @@ test_bt_song_play_two_sources (BT_TEST_ARGS)
   BtMachine *gen2 =
       BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
           NULL));
-  BtWire *wire1 = bt_wire_new (song, gen1, sink, NULL);
-  BtWire *wire2 = bt_wire_new (song, gen2, sink, NULL);
+  bt_wire_new (song, gen1, sink, NULL);
+  bt_wire_new (song, gen2, sink, NULL);
   GstElement *element1 =
       (GstElement *) check_gobject_get_object_property (gen1, "machine");
   GstElement *element2 =
@@ -372,11 +369,6 @@ test_bt_song_play_two_sources (BT_TEST_ARGS)
   /* cleanup */
   gst_object_unref (element1);
   gst_object_unref (element2);
-  g_object_unref (gen1);
-  g_object_unref (gen2);
-  g_object_unref (sink);
-  g_object_unref (wire1);
-  g_object_unref (wire2);
   g_object_unref (sequence);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -403,9 +395,9 @@ test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
           NULL));
   BtMachine *proc =
       BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0, NULL));
-  BtWire *wire1 = bt_wire_new (song, gen1, proc, NULL);
-  BtWire *wire2 = bt_wire_new (song, gen2, proc, NULL);
-  BtWire *wire3 = bt_wire_new (song, proc, sink, NULL);
+  bt_wire_new (song, gen1, proc, NULL);
+  bt_wire_new (song, gen2, proc, NULL);
+  bt_wire_new (song, proc, sink, NULL);
   GstElement *element1 =
       (GstElement *) check_gobject_get_object_property (gen1, "machine");
   GstElement *element2 =
@@ -430,13 +422,6 @@ test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
 
   gst_object_unref (element1);
   gst_object_unref (element2);
-  g_object_unref (gen1);
-  g_object_unref (gen2);
-  g_object_unref (proc);
-  g_object_unref (sink);
-  g_object_unref (wire1);
-  g_object_unref (wire2);
-  g_object_unref (wire3);
   g_object_unref (sequence);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -463,7 +448,7 @@ test_bt_song_play_change_replay (BT_TEST_ARGS)
   BtMachine *gen2 =
       BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
           NULL));
-  BtWire *wire1 = bt_wire_new (song, gen1, sink, NULL);
+  bt_wire_new (song, gen1, sink, NULL);
   BtWire *wire2 = bt_wire_new (song, gen2, sink, NULL);
   GstElement *element1 =
       (GstElement *) check_gobject_get_object_property (gen1, "machine");
@@ -503,13 +488,9 @@ test_bt_song_play_change_replay (BT_TEST_ARGS)
     fail ("playing song failed again");
   }
 
+  /* cleanup */
   gst_object_unref (element1);
   gst_object_unref (element2);
-  g_object_unref (gen1);
-  g_object_unref (gen2);
-  g_object_unref (sink);
-  g_object_unref (wire1);
-  g_object_unref (wire2);
   g_object_unref (setup);
   g_object_unref (sequence);
   g_object_checked_unref (song);
@@ -531,7 +512,7 @@ test_bt_song_dynamic_add_src (BT_TEST_ARGS)
   BtMachine *gen1 =
       BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
           NULL));
-  BtWire *wire1 = bt_wire_new (song, gen1, sink, NULL);
+  bt_wire_new (song, gen1, sink, NULL);
   GstElement *element1 =
       (GstElement *) check_gobject_get_object_property (gen1, "machine");
 
@@ -551,10 +532,8 @@ test_bt_song_dynamic_add_src (BT_TEST_ARGS)
     GstElement *element2 =
         (GstElement *) check_gobject_get_object_property (gen2, "machine");
     g_object_set (element2, "wave", /* silence */ 4, NULL);
-    BtWire *wire2 = bt_wire_new (song, gen2, sink, NULL);
+    bt_wire_new (song, gen2, sink, NULL);
     gst_object_unref (element2);
-    g_object_unref (gen2);
-    g_object_unref (wire2);
 
     g_usleep (G_USEC_PER_SEC / 10);
 
@@ -564,9 +543,7 @@ test_bt_song_dynamic_add_src (BT_TEST_ARGS)
     fail ("playing of song failed");
   }
 
-  g_object_unref (gen1);
-  g_object_unref (sink);
-  g_object_unref (wire1);
+  /* cleanup */
   g_object_unref (sequence);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -592,7 +569,7 @@ test_bt_song_dynamic_rem_src (BT_TEST_ARGS)
   BtMachine *gen2 =
       BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
           NULL));
-  BtWire *wire1 = bt_wire_new (song, gen1, sink, NULL);
+  bt_wire_new (song, gen1, sink, NULL);
   BtWire *wire2 = bt_wire_new (song, gen2, sink, NULL);
   GstElement *element1 =
       (GstElement *) check_gobject_get_object_property (gen1, "machine");
@@ -624,11 +601,7 @@ test_bt_song_dynamic_rem_src (BT_TEST_ARGS)
     fail ("playing of song failed");
   }
 
-  g_object_unref (gen1);
-  g_object_unref (gen2);
-  g_object_unref (sink);
-  g_object_unref (wire1);
-  g_object_unref (wire2);
+  /* cleanup */
   g_object_unref (setup);
   g_object_unref (sequence);
   g_object_checked_unref (song);
@@ -650,7 +623,7 @@ test_bt_song_dynamic_add_proc (BT_TEST_ARGS)
   BtMachine *gen1 =
       BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
           NULL));
-  BtWire *wire1 = bt_wire_new (song, gen1, sink, NULL);
+  bt_wire_new (song, gen1, sink, NULL);
   GstElement *element1 =
       (GstElement *) check_gobject_get_object_property (gen1, "machine");
 
@@ -667,11 +640,8 @@ test_bt_song_dynamic_add_proc (BT_TEST_ARGS)
 
     BtMachine *proc =
         BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0, NULL));
-    BtWire *wire2 = bt_wire_new (song, gen1, proc, NULL);
-    BtWire *wire3 = bt_wire_new (song, proc, sink, NULL);
-    g_object_unref (proc);
-    g_object_unref (wire2);
-    g_object_unref (wire3);
+    bt_wire_new (song, gen1, proc, NULL);
+    bt_wire_new (song, proc, sink, NULL);
 
     g_usleep (G_USEC_PER_SEC / 10);
 
@@ -681,9 +651,7 @@ test_bt_song_dynamic_add_proc (BT_TEST_ARGS)
     fail ("playing song failed");
   }
 
-  g_object_unref (gen1);
-  g_object_unref (sink);
-  g_object_unref (wire1);
+  /* cleanup */
   g_object_unref (sequence);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -708,7 +676,7 @@ test_bt_song_dynamic_rem_proc (BT_TEST_ARGS)
           NULL));
   BtMachine *proc =
       BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0, NULL));
-  BtWire *wire1 = bt_wire_new (song, gen1, proc, NULL);
+  bt_wire_new (song, gen1, proc, NULL);
   BtWire *wire2 = bt_wire_new (song, gen1, proc, NULL);
   BtWire *wire3 = bt_wire_new (song, proc, sink, NULL);
   GstElement *element1 =
@@ -740,12 +708,7 @@ test_bt_song_dynamic_rem_proc (BT_TEST_ARGS)
     fail ("playing song failed");
   }
 
-  g_object_unref (gen1);
-  g_object_unref (proc);
-  g_object_unref (sink);
-  g_object_unref (wire1);
-  g_object_unref (wire2);
-  g_object_unref (wire3);
+  /* cleanup */
   g_object_unref (setup);
   g_object_unref (sequence);
   g_object_checked_unref (song);

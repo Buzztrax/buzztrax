@@ -125,7 +125,6 @@ test_bt_sequence_add_track2 (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   /* cleanup */
-  g_object_try_unref (machine);
   BT_TEST_END;
 }
 
@@ -168,8 +167,7 @@ test_bt_sequence_rem_track2 (BT_TEST_ARGS)
   mark_point ();
 
   /* cleanup */
-  g_object_try_unref (machine);
-  g_object_try_unref (sequence);
+  g_object_unref (sequence);
   BT_TEST_END;
 }
 
@@ -191,7 +189,7 @@ test_bt_sequence_length1 (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   /* cleanup */
-  g_object_try_unref (sequence);
+  g_object_unref (sequence);
   BT_TEST_END;
 }
 
@@ -217,9 +215,8 @@ test_bt_sequence_pattern1 (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   /* cleanup */
-  g_object_try_unref (pattern);
-  g_object_try_unref (machine);
-  g_object_try_unref (sequence);
+  g_object_unref (pattern);
+  g_object_unref (sequence);
   BT_TEST_END;
 }
 
@@ -250,8 +247,6 @@ test_bt_sequence_pattern2 (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern1);
-  g_object_unref (machine1);
-  g_object_unref (machine2);
   g_object_unref (sequence);
   BT_TEST_END;
 }

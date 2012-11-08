@@ -70,7 +70,6 @@ test_bt_cmd_pattern_properties (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 

@@ -73,7 +73,6 @@ test_bt_pattern_name (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -101,7 +100,6 @@ test_bt_pattern_obj_create (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -129,7 +127,6 @@ test_bt_pattern_obj_mono (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -157,7 +154,6 @@ test_bt_pattern_obj_poly (BT_TEST_ARGS)
       NULL);
 
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -181,9 +177,6 @@ test_bt_pattern_obj_wire1 (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (wire);
-  g_object_unref (src_machine);
-  g_object_unref (sink_machine);
   BT_TEST_END;
 }
 
@@ -209,9 +202,6 @@ test_bt_pattern_obj_wire2 (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (wire);
-  g_object_unref (src_machine);
-  g_object_unref (sink_machine);
   BT_TEST_END;
 }
 
@@ -238,9 +228,8 @@ test_bt_pattern_copy (BT_TEST_ARGS)
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern2, 0, 0), "5");
 
   /* cleanup */
-  g_object_try_unref (pattern1);
-  g_object_try_unref (pattern2);
-  g_object_try_unref (machine);
+  g_object_unref (pattern1);
+  g_object_unref (pattern2);
   BT_TEST_END;
 }
 
@@ -264,8 +253,7 @@ test_bt_pattern_has_data (BT_TEST_ARGS)
   fail_unless (bt_pattern_test_tick (pattern, 1) == FALSE, NULL);
 
   /* cleanup */
-  g_object_try_unref (pattern);
-  g_object_try_unref (machine);
+  g_object_unref (pattern);
   BT_TEST_END;
 }
 
@@ -292,8 +280,7 @@ test_bt_pattern_enlarge_length (BT_TEST_ARGS)
       NULL);
 
   /* cleanup */
-  g_object_try_unref (pattern);
-  g_object_try_unref (machine);
+  g_object_unref (pattern);
   BT_TEST_END;
 }
 
@@ -317,8 +304,7 @@ test_bt_pattern_shrink_length (BT_TEST_ARGS)
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
 
   /* cleanup */
-  g_object_try_unref (pattern);
-  g_object_try_unref (machine);
+  g_object_unref (pattern);
   BT_TEST_END;
 }
 
@@ -347,7 +333,6 @@ test_bt_pattern_enlarge_voices (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -374,7 +359,6 @@ test_bt_pattern_shrink_voices (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -400,8 +384,7 @@ test_bt_pattern_insert_row (BT_TEST_ARGS)
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 5, 0), "10");
 
   /* cleanup */
-  g_object_try_unref (pattern);
-  g_object_try_unref (machine);
+  g_object_unref (pattern);
   BT_TEST_END;
 }
 
@@ -426,8 +409,7 @@ test_bt_pattern_delete_row (BT_TEST_ARGS)
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 4, 0), NULL);
 
   /* cleanup */
-  g_object_try_unref (pattern);
-  g_object_try_unref (machine);
+  g_object_unref (pattern);
   BT_TEST_END;
 }
 
@@ -446,7 +428,6 @@ test_bt_pattern_mono_get_global_vg (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -465,7 +446,6 @@ test_bt_pattern_mono_get_voice_vg (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 

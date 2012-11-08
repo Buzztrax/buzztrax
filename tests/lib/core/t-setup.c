@@ -100,7 +100,6 @@ test_bt_setup_add_machine_twice (BT_TEST_ARGS)
   fail_if (bt_setup_add_machine (setup, machine), NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -122,9 +121,6 @@ test_bt_setup_add_wire_twice (BT_TEST_ARGS)
   fail_if (bt_setup_add_wire (setup, wire), NULL);
 
   /* cleanup */
-  g_object_unref (wire);
-  g_object_unref (source);
-  g_object_unref (sink);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -310,7 +306,6 @@ test_bt_setup_get_wires_by_src_machine1 (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   /* cleanup */
-  g_object_unref (src_machine);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -351,7 +346,6 @@ test_bt_setup_get_wires_by_src_machine3 (BT_TEST_ARGS)
   fail_if (bt_setup_get_wires_by_src_machine (setup, machine), NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -419,7 +413,6 @@ test_bt_setup_get_wires_by_dst_machine1 (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -461,7 +454,6 @@ test_bt_setup_get_wires_by_dst_machine3 (BT_TEST_ARGS)
   fail_if (bt_setup_get_wires_by_dst_machine (setup, machine), NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -554,6 +546,7 @@ test_bt_setup_remove_machine_twice (BT_TEST_ARGS)
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztard-test-mono-source", 0L, NULL));
+  gst_object_ref (gen);
   bt_setup_remove_machine (setup, gen);
   check_init_error_trapp ("bt_setup_remove_machine",
       "trying to remove machine that is not in setup");
@@ -565,7 +558,7 @@ test_bt_setup_remove_machine_twice (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   /* cleanup */
-  g_object_unref (gen);
+  gst_object_unref (gen);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -582,6 +575,7 @@ test_bt_setup_remove_wire_twice (BT_TEST_ARGS)
           "buzztard-test-mono-source", 0L, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "dst", NULL));
   BtWire *wire = bt_wire_new (song, gen, sink, NULL);
+  gst_object_ref (wire);
   bt_setup_remove_wire (setup, wire);
   check_init_error_trapp ("bt_setup_remove_wire",
       "trying to remove wire that is not in setup");
@@ -593,9 +587,7 @@ test_bt_setup_remove_wire_twice (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   /* cleanup */
-  g_object_unref (gen);
-  g_object_unref (sink);
-  g_object_unref (wire);
+  gst_object_unref (wire);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -612,7 +604,7 @@ test_bt_setup_wire_cycle1 (BT_TEST_ARGS)
       BT_MACHINE (bt_processor_machine_new (song, "src", "volume", 0L, NULL));
   BtMachine *dst =
       BT_MACHINE (bt_processor_machine_new (song, "src", "volume", 0L, NULL));
-  BtWire *wire1 = bt_wire_new (song, src, dst, NULL);
+  bt_wire_new (song, src, dst, NULL);
 
   /* act */
   GError *err = NULL;
@@ -623,10 +615,6 @@ test_bt_setup_wire_cycle1 (BT_TEST_ARGS)
   fail_unless (err != NULL, NULL);
 
   /* cleanup */
-  g_object_unref (src);
-  g_object_unref (dst);
-  g_object_unref (wire1);
-  g_object_unref (wire2);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -646,9 +634,9 @@ test_bt_setup_wire_cycle2 (BT_TEST_ARGS)
   BtMachine *elem3 =
       BT_MACHINE (bt_processor_machine_new (song, "src3", "volume", 0L, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
-  BtWire *wire0 = bt_wire_new (song, elem3, sink, NULL);
-  BtWire *wire1 = bt_wire_new (song, elem1, elem2, NULL);
-  BtWire *wire2 = bt_wire_new (song, elem2, elem3, NULL);
+  bt_wire_new (song, elem3, sink, NULL);
+  bt_wire_new (song, elem1, elem2, NULL);
+  bt_wire_new (song, elem2, elem3, NULL);
 
   /* act */
   GError *err = NULL;
@@ -659,13 +647,6 @@ test_bt_setup_wire_cycle2 (BT_TEST_ARGS)
   fail_unless (err != NULL, NULL);
 
   /* cleanup */
-  g_object_unref (elem1);
-  g_object_unref (elem2);
-  g_object_unref (elem3);
-  g_object_unref (wire0);
-  g_object_unref (wire1);
-  g_object_unref (wire2);
-  g_object_unref (wire3);
   g_object_unref (setup);
   BT_TEST_END;
 }

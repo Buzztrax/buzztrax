@@ -91,7 +91,6 @@ test_bt_setup_machine_add_id (BT_TEST_ARGS)
       source);
 
   /* cleanup */
-  g_object_unref (source);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -113,7 +112,6 @@ test_bt_setup_machine_rem_id (BT_TEST_ARGS)
       NULL);
 
   /* cleanup */
-  g_object_unref (source);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -137,7 +135,6 @@ test_bt_setup_machine_add_list (BT_TEST_ARGS)
 
   /* cleanup */
   g_list_free (list);
-  g_object_unref (source);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -160,9 +157,6 @@ test_bt_setup_wire_add_machine_id (BT_TEST_ARGS)
           source), wire);
 
   /* cleanup */
-  g_object_unref (wire);
-  g_object_unref (sink);
-  g_object_unref (source);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -186,9 +180,6 @@ test_bt_setup_wire_rem_machine_id (BT_TEST_ARGS)
           source), NULL);
 
   /* cleanup */
-  g_object_unref (wire);
-  g_object_unref (sink);
-  g_object_unref (source);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -214,9 +205,6 @@ test_bt_setup_wire_add_src_list (BT_TEST_ARGS)
 
   /* cleanup */
   g_list_free (list);
-  g_object_unref (wire);
-  g_object_unref (sink);
-  g_object_unref (source);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -242,9 +230,6 @@ test_bt_setup_wire_add_dst_list (BT_TEST_ARGS)
 
   /* cleanup */
   g_list_free (list);
-  g_object_unref (wire);
-  g_object_unref (sink);
-  g_object_unref (source);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -270,7 +255,6 @@ test_bt_setup_machine_type (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (machine);
-  g_object_unref (source);
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -284,8 +268,7 @@ test_bt_setup_unique_id1 (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
-  BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0, NULL));
+  bt_source_machine_new (song, "src", "buzztard-test-mono-source", 0, NULL);
 
   /* act */
   gchar *id = bt_setup_get_unique_machine_id (setup, "src");
@@ -297,7 +280,6 @@ test_bt_setup_unique_id1 (BT_TEST_ARGS)
 
   /* cleanup */
   g_free (id);
-  g_object_unref (source);
   g_object_unref (setup);
   BT_TEST_END;
 }

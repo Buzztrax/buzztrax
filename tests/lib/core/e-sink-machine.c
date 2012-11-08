@@ -95,7 +95,6 @@ test_bt_sink_machine_new (BT_TEST_ARGS)
   fail_unless (err == NULL, NULL);
 
   /* cleanup */
-  g_object_try_unref (machine);
   BT_TEST_END;
 }
 
@@ -117,7 +116,6 @@ test_bt_sink_machine_def_patterns (BT_TEST_ARGS)
   /* cleanup */
   g_list_foreach (list, (GFunc) g_object_unref, NULL);
   g_list_free (list);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -140,7 +138,6 @@ test_bt_sink_machine_pattern (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -163,7 +160,6 @@ test_bt_sink_machine_pattern_by_id (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -189,7 +185,6 @@ test_bt_sink_machine_pattern_by_list (BT_TEST_ARGS)
   g_list_foreach (list, (GFunc) g_object_unref, NULL);
   g_list_free (list);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -209,7 +204,6 @@ test_bt_sink_machine_default (BT_TEST_ARGS)
   fail_unless (err == NULL, NULL);
 
   /* cleanup */
-  g_object_try_unref (machine);
   BT_TEST_END;
 }
 
@@ -232,7 +226,6 @@ test_bt_sink_machine_fallback (BT_TEST_ARGS)
   fail_unless (err == NULL, NULL);
 
   /* cleanup */
-  g_object_try_unref (machine);
   BT_TEST_END;
 }
 
@@ -254,7 +247,6 @@ test_bt_sink_machine_actual_sink (BT_TEST_ARGS)
 
   /* cleanup */
   gst_object_unref (sink_bin);
-  g_object_try_unref (machine);
   BT_TEST_END;
 }
 
@@ -302,7 +294,6 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
 
   /* cleanup */
   gst_object_unref (sink_bin);
-  g_object_try_unref (machine);
   g_object_unref (song_info);
   BT_TEST_END;
 }

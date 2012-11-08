@@ -539,8 +539,8 @@ bt_main_page_machines_add_wire (const BtMainPageMachines * self)
   } else {
     GST_WARNING ("failed to make wire: %s", err->message);
     g_error_free (err);
+    gst_object_unref (wire);
   }
-  g_object_unref (wire);
   g_object_unref (dst_machine);
   g_object_unref (src_machine);
   g_object_unref (song);
@@ -1783,8 +1783,8 @@ bt_main_page_machines_add_machine (const BtMainPageMachines * self, guint type,
   } else {
     GST_WARNING ("Can't create machine %s: %s", plugin_name, err->message);
     g_error_free (err);
+    gst_object_unref (machine);
   }
-  g_object_unref (machine);
   g_free (uid);
 
   g_object_unref (song);
@@ -2076,10 +2076,10 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
               err->message);
           g_error_free (err);
           err = NULL;
+          gst_object_unref (machine);
         } else {
           res = TRUE;
         }
-        g_object_unref (machine);
       }
       g_object_unref (song);
 
@@ -2191,7 +2191,6 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
         BtMachineCanvasItem *src_machine_item, *dst_machine_item;
 
         wire = bt_wire_new (song, smachine, dmachine, NULL);
-        g_object_unref (wire);
 
         g_object_get (smachine, "properties", &properties, NULL);
         machine_view_get_machine_position (properties, &pos_xs, &pos_ys);

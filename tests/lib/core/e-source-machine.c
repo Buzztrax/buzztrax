@@ -71,7 +71,6 @@ test_bt_source_machine_new (BT_TEST_ARGS)
   fail_unless (err == NULL, NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -93,7 +92,6 @@ test_bt_source_machine_def_patterns (BT_TEST_ARGS)
   /* cleanup */
   g_list_foreach (list, (GFunc) g_object_unref, NULL);
   g_list_free (list);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -114,7 +112,6 @@ test_bt_source_machine_pattern (BT_TEST_ARGS)
   ck_assert_gobject_gulong_eq (pattern, "voices", 0);
 
   /* cleanup */
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -136,7 +133,6 @@ test_bt_source_machine_pattern_by_id (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -161,7 +157,6 @@ test_bt_source_machine_pattern_by_list (BT_TEST_ARGS)
   g_list_foreach (list, (GFunc) g_object_unref, NULL);
   g_list_free (list);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -188,7 +183,6 @@ test_bt_source_machine_change_voices (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 

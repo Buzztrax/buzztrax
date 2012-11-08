@@ -69,8 +69,6 @@ test_bt_wire_can_link (BT_TEST_ARGS)
   fail_unless (bt_wire_can_link (gen, sink));
 
   /* cleanup */
-  g_object_unref (gen);
-  g_object_unref (sink);
   BT_TEST_END;
 }
 
@@ -93,9 +91,6 @@ test_bt_wire_new (BT_TEST_ARGS)
   fail_unless (err == NULL, NULL);
 
   /* cleanup */
-  g_object_unref (wire);
-  g_object_unref (gen);
-  g_object_unref (sink);
   BT_TEST_END;
 }
 

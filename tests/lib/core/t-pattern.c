@@ -70,7 +70,6 @@ test_bt_pattern_properties (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -112,7 +111,6 @@ test_bt_pattern_new_null_id (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -134,7 +132,6 @@ test_bt_pattern_new_null_name (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -154,7 +151,6 @@ test_bt_pattern_get_group_by_null_paramgroup (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 

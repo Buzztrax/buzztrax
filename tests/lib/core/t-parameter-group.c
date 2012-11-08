@@ -56,7 +56,7 @@ case_teardown (void)
 //-- tests
 
 static void
-test_btinvalid_param (BT_TEST_ARGS)
+test_bt_param_group_invalid_param (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -68,7 +68,6 @@ test_btinvalid_param (BT_TEST_ARGS)
   ck_assert_int_eq (bt_parameter_group_get_param_index (pg, "nonsense"), -1);
 
   /* cleanup */
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -77,7 +76,7 @@ bt_param_group_test_case (void)
 {
   TCase *tc = tcase_create ("BtParamGroupTests");
 
-  tcase_add_test (tc, test_btinvalid_param);
+  tcase_add_test (tc, test_bt_param_group_invalid_param);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

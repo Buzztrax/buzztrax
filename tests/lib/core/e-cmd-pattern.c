@@ -72,7 +72,6 @@ test_bt_cmd_pattern_obj_mono1 (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -93,7 +92,6 @@ test_bt_cmd_pattern_obj_poly1 (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 

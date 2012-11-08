@@ -82,7 +82,7 @@ make_new_song (gint wave)
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
   BtParameterGroup *pg = bt_machine_get_global_param_group (gen);
-  BtWire *wire = bt_wire_new (song, gen, sink, NULL);
+  bt_wire_new (song, gen, sink, NULL);
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 8L, BT_MACHINE (gen));
   GstElement *element =
@@ -99,9 +99,6 @@ make_new_song (gint wave)
 
   gst_object_unref (element);
   g_object_unref (pattern);
-  g_object_unref (wire);
-  g_object_unref (gen);
-  g_object_unref (sink);
   g_object_unref (sequence);
   GST_INFO ("  song created");
 }

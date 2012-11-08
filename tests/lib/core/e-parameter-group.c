@@ -44,7 +44,6 @@ test_setup (void)
 static void
 test_teardown (void)
 {
-  g_object_unref (machine);
   machine = NULL;
   g_object_checked_unref (song);
   g_object_checked_unref (app);

@@ -55,7 +55,6 @@ static void
 test_teardown (void)
 {
   gst_object_unref (element);
-  g_object_unref (machine);
   g_object_unref (song_info);
   g_object_unref (sequence);
   g_object_checked_unref (song);

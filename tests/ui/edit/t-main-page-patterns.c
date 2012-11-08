@@ -104,7 +104,6 @@ test_bt_main_page_patterns_key_press_in_empty_pattern (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern_page);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -132,7 +131,6 @@ test_bt_main_page_patterns_mouse_click_in_empty_pattern (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern_page);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -166,7 +164,6 @@ test_bt_main_page_patterns_non_note_key_press (BT_TEST_ARGS)
   /* cleanup */
   g_object_unref (pattern_page);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -202,7 +199,6 @@ test_bt_main_page_patterns_cursor_pos_on_non_note_key (BT_TEST_ARGS)
   /* cleanup */
   g_object_unref (pattern_page);
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 

@@ -1274,7 +1274,6 @@ read_mach_section (const BtSongIOBuzz * self, const BtSong * song)
                     mach->ypos)));
       }
       gst_object_unref (element);
-      g_object_unref (machine);
     } else {
       // collect failed machines
       GST_WARNING ("failed to create machine: %s", plugin_name);
@@ -1344,7 +1343,6 @@ read_conn_section (const BtSongIOBuzz * self, const BtSong * song)
         g_error_free (err);
         err = NULL;
       }
-      g_object_unref (wire);
     } else {
       GST_WARNING ("skipping wire %d, src=%p, dst=%p", i, src, dst);
     }

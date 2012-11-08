@@ -71,7 +71,6 @@ test_bt_value_group_get_beyond_size (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (pattern);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 

@@ -121,7 +121,6 @@ test_bt_sequence_tracks (BT_TEST_ARGS)
       machine);
 
   /* cleanup */
-  g_object_try_unref (machine);
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
@@ -156,7 +155,6 @@ test_bt_sequence_pattern (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_try_unref (pattern);
-  g_object_try_unref (machine);
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
@@ -290,7 +288,6 @@ test_bt_sequence_enlarge_track_vals (BT_TEST_ARGS)
   ck_assert_gobject_eq_and_unref (bt_sequence_get_machine (sequence, 1), NULL);
 
   /* cleanup */
-  g_object_try_unref (machine);
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
@@ -315,7 +312,6 @@ test_bt_sequence_shrink_track (BT_TEST_ARGS)
       machine);
 
   /* cleanup */
-  g_object_try_unref (machine);
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
@@ -351,7 +347,6 @@ test_bt_sequence_enlarge_both_vals (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_try_unref (pattern);
-  g_object_try_unref (machine);
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
@@ -385,7 +380,6 @@ test_bt_sequence_update (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_try_unref (pattern);
-  g_object_try_unref (machine);
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
@@ -424,7 +418,7 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
   BtMachine *src =
       BT_MACHINE (bt_source_machine_new (song, "gen", "simsyn", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
-  BtWire *wire = bt_wire_new (song, src, sink, NULL);
+  bt_wire_new (song, src, sink, NULL);
   BtPattern *pattern =
       bt_pattern_new (song, "pattern-id", "pattern-name", 8L, src);
   GstObject *element =
@@ -462,9 +456,6 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
   /* cleanup */
   gst_object_unref (element);
   g_object_unref (pattern);
-  g_object_unref (src);
-  g_object_unref (sink);
-  g_object_unref (wire);
   g_object_unref (sequence);
   g_object_unref (song_info);
   BT_TEST_END;
@@ -487,7 +478,7 @@ test_bt_sequence_validate_loop (BT_TEST_ARGS)
   ck_assert_gobject_glong_eq (sequence, "loop-end", 16);
 
   /* cleanup */
-  g_object_try_unref (sequence);
+  g_object_unref (sequence);
   BT_TEST_END;
 }
 
@@ -503,7 +494,7 @@ test_bt_sequence_duration (BT_TEST_ARGS)
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
-  BtWire *wire = bt_wire_new (song, gen, sink, NULL);
+  bt_wire_new (song, gen, sink, NULL);
   GstElement *sink_bin =
       GST_ELEMENT (check_gobject_get_object_property (sink, "machine"));
 
@@ -519,10 +510,7 @@ test_bt_sequence_duration (BT_TEST_ARGS)
 
   /* cleanup */
   gst_object_unref (sink_bin);
-  g_object_unref (wire);
-  g_object_unref (gen);
-  g_object_try_unref (sink);
-  g_object_try_unref (sequence);
+  g_object_unref (sequence);
   BT_TEST_END;
 }
 
@@ -538,7 +526,7 @@ test_bt_sequence_duration_play (BT_TEST_ARGS)
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
-  BtWire *wire = bt_wire_new (song, gen, sink, NULL);
+  bt_wire_new (song, gen, sink, NULL);
   GstElement *element =
       (GstElement *) check_gobject_get_object_property (gen, "machine");
   g_object_set (element, "wave", /* silence */ 4, NULL);
@@ -561,10 +549,7 @@ test_bt_sequence_duration_play (BT_TEST_ARGS)
   bt_song_stop (song);
   gst_object_unref (element);
   gst_object_unref (sink_bin);
-  g_object_unref (wire);
-  g_object_unref (gen);
-  g_object_try_unref (sink);
-  g_object_try_unref (sequence);
+  g_object_unref (sequence);
   BT_TEST_END;
 }
 

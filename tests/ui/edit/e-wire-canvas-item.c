@@ -103,7 +103,6 @@ test_bt_wire_canvas_item_create (BT_TEST_ARGS)
   gtk_object_destroy ((GtkObject *) item);
   gtk_object_destroy ((GtkObject *) item1);
   gtk_object_destroy ((GtkObject *) item2);
-  gst_object_unref (wire);
   gst_object_unref (machine1);
   gst_object_unref (machine2);
   g_object_unref (machines_page);
@@ -144,7 +143,6 @@ test_bt_wire_canvas_item_show_analyzer (BT_TEST_ARGS)
   gtk_object_destroy ((GtkObject *) item);
   gtk_object_destroy ((GtkObject *) item1);
   gtk_object_destroy ((GtkObject *) item2);
-  gst_object_unref (wire);
   gst_object_unref (machine1);
   gst_object_unref (machine2);
   g_object_unref (machines_page);

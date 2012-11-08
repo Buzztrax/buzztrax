@@ -338,8 +338,8 @@ bt_edit_application_new_song (const BtEditApplication * self)
   } else {
     GST_WARNING ("Can't create sink machine: %s", err->message);
     g_error_free (err);
+    gst_object_unref (machine);
   }
-  g_object_unref (machine);
   g_free (id);
 
   self->priv->unsaved = FALSE;

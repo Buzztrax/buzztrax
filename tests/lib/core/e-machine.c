@@ -72,7 +72,6 @@ test_bt_machine_obj1 (BT_TEST_ARGS)
   fail_unless (!bt_machine_has_patterns (machine), NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -94,7 +93,6 @@ test_bt_machine_enable_input_level1 (BT_TEST_ARGS)
   fail_unless (res == TRUE, NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -110,7 +108,7 @@ test_bt_machine_enable_input_level2 (BT_TEST_ARGS)
       BT_MACHINE (bt_processor_machine_new (song, "vol1", "volume", 0, NULL));
   BtMachine *machine2 =
       BT_MACHINE (bt_processor_machine_new (song, "vol2", "volume", 0, NULL));
-  BtWire *wire = bt_wire_new (song, machine1, machine2, NULL);
+  bt_wire_new (song, machine1, machine2, NULL);
 
   /* act */
   gboolean res = bt_machine_enable_input_pre_level (machine2);
@@ -119,9 +117,6 @@ test_bt_machine_enable_input_level2 (BT_TEST_ARGS)
   fail_unless (res == TRUE, NULL);
 
   /* cleanup */
-  g_object_unref (wire);
-  g_object_unref (machine1);
-  g_object_unref (machine2);
   BT_TEST_END;
 }
 
@@ -143,7 +138,6 @@ test_bt_machine_enable_input_gain1 (BT_TEST_ARGS)
   fail_unless (res == TRUE, NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -165,7 +159,6 @@ test_bt_machine_enable_output_gain1 (BT_TEST_ARGS)
   fail_unless (res == TRUE, NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -186,7 +179,6 @@ test_bt_machine_add_pattern (BT_TEST_ARGS)
   fail_unless (bt_machine_has_patterns (machine), NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -208,7 +200,6 @@ test_bt_machine_rem_pattern (BT_TEST_ARGS)
   fail_if (bt_machine_has_patterns (machine), NULL);
 
   /* cleanup */
-  g_object_unref (machine);
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -231,7 +222,6 @@ test_bt_machine_pattern_names (BT_TEST_ARGS)
 
   /* cleanup */
   g_free (pattern_name);
-  g_object_unref (machine);
   g_object_unref (pattern);
 
   BT_TEST_END;
@@ -255,7 +245,6 @@ test_bt_machine_check_voices (BT_TEST_ARGS)
 
   /* cleanup */
   gst_object_unref (element);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 
@@ -282,7 +271,6 @@ test_bt_machine_change_voices (BT_TEST_ARGS)
   ck_assert_gobject_gulong_eq (p2, "voices", 2);
 
   /* cleanup */
-  g_object_unref (machine);
   g_object_unref (p1);
   g_object_unref (p2);
   BT_TEST_END;
@@ -299,8 +287,8 @@ test_bt_machine_state_mute_no_sideeffects (BT_TEST_ARGS)
   BtMachine *proc =
       BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0L, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
-  BtWire *wire1 = bt_wire_new (song, src, proc, NULL);
-  BtWire *wire2 = bt_wire_new (song, proc, sink, NULL);
+  bt_wire_new (song, src, proc, NULL);
+  bt_wire_new (song, proc, sink, NULL);
 
   /* act */
   g_object_set (src, "state", BT_MACHINE_STATE_MUTE, NULL);
@@ -311,11 +299,6 @@ test_bt_machine_state_mute_no_sideeffects (BT_TEST_ARGS)
   ck_assert_gobject_guint_eq (sink, "state", BT_MACHINE_STATE_NORMAL);
 
   /* cleanup */
-  g_object_unref (wire1);
-  g_object_unref (wire2);
-  g_object_unref (sink);
-  g_object_unref (proc);
-  g_object_unref (src);
   BT_TEST_END;
 }
 
@@ -331,8 +314,8 @@ test_bt_machine_state_solo_unmutes_others (BT_TEST_ARGS)
       BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
           NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
-  BtWire *wire1 = bt_wire_new (song, src1, sink, NULL);
-  BtWire *wire2 = bt_wire_new (song, src2, sink, NULL);
+  bt_wire_new (song, src1, sink, NULL);
+  bt_wire_new (song, src2, sink, NULL);
 
   /* act */
   g_object_set (src1, "state", BT_MACHINE_STATE_SOLO, NULL);
@@ -343,11 +326,6 @@ test_bt_machine_state_solo_unmutes_others (BT_TEST_ARGS)
   ck_assert_gobject_guint_eq (src2, "state", BT_MACHINE_STATE_SOLO);
 
   /* cleanup */
-  g_object_unref (wire1);
-  g_object_unref (wire2);
-  g_object_unref (sink);
-  g_object_unref (src2);
-  g_object_unref (src1);
   BT_TEST_END;
 }
 

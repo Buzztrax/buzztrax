@@ -105,7 +105,6 @@ test_bt_machine_list_model_get_machine (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (model);
-  g_object_unref (machine1);
   BT_TEST_END;
 }
 

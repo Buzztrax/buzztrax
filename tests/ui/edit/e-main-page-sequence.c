@@ -97,21 +97,18 @@ static void
 test_bt_main_page_sequence_active_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  BtMainPageSequence *sequence_page;
-  BtMachine *machine1;
-  BtMachine *machine2;
-  GtkWidget *sequence_view;
-
   /* arrange */
   // We need to add the fx first as we can't trigger a refresh of the view
   // (main-page-sequence is not listening for "track-added" signal).
   // When adding a src, a track is added automatically and this updates the
   // view though.
-  machine1 =
-      BT_MACHINE (bt_processor_machine_new (song, "fx", "volume", 0L, NULL));
-  bt_sequence_add_track (sequence, machine1, -1);
-  machine2 =
-      BT_MACHINE (bt_source_machine_new (song, "gen", "simsyn", 0L, NULL));
+  bt_sequence_add_track (sequence,
+      BT_MACHINE (bt_processor_machine_new (song, "fx", "volume", 0L, NULL)),
+      -1);
+  bt_source_machine_new (song, "gen", "simsyn", 0L, NULL);
+  BtMainPageSequence *sequence_page;
+  GtkWidget *sequence_view;
+
   g_object_get (G_OBJECT (pages), "sequence-page", &sequence_page, NULL);
   sequence_view = gtk_window_get_focus ((GtkWindow *) main_window);
 
@@ -138,8 +135,6 @@ test_bt_main_page_sequence_active_machine (BT_TEST_ARGS)
 
   /* cleanup */
   g_object_unref (sequence_page);
-  g_object_unref (machine1);
-  g_object_unref (machine2);
   BT_TEST_END;
 }
 
@@ -148,16 +143,14 @@ static void
 test_bt_main_page_sequence_enter_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  /* arrange */
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtPattern *pattern1 =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   BtMainPageSequence *sequence_page;
-  BtMachine *machine;
-  BtPattern *pattern1;
   BtCmdPattern *pattern2;
 
-  /* arrange */
-  machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
-  pattern1 = bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "sequence-page", &sequence_page, NULL);
 
   /* act */
@@ -172,7 +165,6 @@ test_bt_main_page_sequence_enter_pattern (BT_TEST_ARGS)
   g_object_unref (sequence_page);
   g_object_unref (pattern2);
   g_object_unref (pattern1);
-  g_object_unref (machine);
   BT_TEST_END;
 }
 

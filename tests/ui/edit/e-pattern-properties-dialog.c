@@ -89,7 +89,6 @@ test_bt_pattern_properties_dialog_create (BT_TEST_ARGS)
   /* cleanup */
   gtk_widget_destroy (dialog);
   g_object_unref (pattern);
-  g_object_unref (machine);
   g_object_unref (song);
   BT_TEST_END;
 }

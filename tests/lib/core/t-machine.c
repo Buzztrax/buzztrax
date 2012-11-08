@@ -70,7 +70,6 @@ test_bt_machine_add_pattern (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   /* cleanup */
-  g_object_try_unref (gen1);
   BT_TEST_END;
 }
 
@@ -89,18 +88,13 @@ test_bt_machine_names (BT_TEST_ARGS)
   /* act */
   g_object_set (gen1, "id", "beep1", NULL);
   g_object_set (gen2, "id", "beep2", NULL);
-  BtWire *wire2 = bt_wire_new (song, gen1, sink, NULL);
-  BtWire *wire1 = bt_wire_new (song, gen2, sink, NULL);
+  bt_wire_new (song, gen1, sink, NULL);
+  bt_wire_new (song, gen2, sink, NULL);
 
   /* assert */
   mark_point ();
 
   /* cleanup */
-  g_object_unref (wire1);
-  g_object_unref (wire2);
-  g_object_unref (sink);
-  g_object_unref (gen2);
-  g_object_unref (gen1);
   BT_TEST_END;
 }
 
