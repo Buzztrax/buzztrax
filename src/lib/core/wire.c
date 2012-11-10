@@ -1324,8 +1324,8 @@ bt_wire_set_property (GObject * const object, const guint property_id,
     case WIRE_DST:
       self->priv->dst = BT_MACHINE (g_value_dup_object (value));
       GST_DEBUG ("set the dst for the wire: %s, %" G_OBJECT_REF_COUNT_FMT,
-          (self->priv->src ? GST_OBJECT_NAME (self->priv->src) : ""),
-          G_OBJECT_LOG_REF_COUNT (self->priv->src));
+          (self->priv->dst ? GST_OBJECT_NAME (self->priv->dst) : ""),
+          G_OBJECT_LOG_REF_COUNT (self->priv->dst));
       break;
     case WIRE_NUM_PARAMS:
       self->priv->num_params = g_value_get_ulong (value);
