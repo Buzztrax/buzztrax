@@ -186,6 +186,28 @@ test_bt_source_machine_change_voices (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_source_machine_ref (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSourceMachine *machine =
+      bt_source_machine_new (song, "gen", "buzztard-test-mono-source", 0, NULL);
+  BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
+  gst_object_ref (machine);
+
+  /* act */
+  bt_setup_remove_machine (setup, BT_MACHINE (machine));
+
+  /* assert */
+  ck_assert_int_eq (G_OBJECT_REF_COUNT (machine), 1);
+
+  /* cleanup */
+  gst_object_unref (machine);
+  g_object_unref (setup);
+  BT_TEST_END;
+}
+
 TCase *
 bt_source_machine_example_case (void)
 {
@@ -197,6 +219,7 @@ bt_source_machine_example_case (void)
   tcase_add_test (tc, test_bt_source_machine_pattern_by_id);
   tcase_add_test (tc, test_bt_source_machine_pattern_by_list);
   tcase_add_test (tc, test_bt_source_machine_change_voices);
+  tcase_add_test (tc, test_bt_source_machine_ref);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
