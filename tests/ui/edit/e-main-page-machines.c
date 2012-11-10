@@ -125,36 +125,35 @@ test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
 
   g_object_get (song, "setup", &setup, NULL);
   g_object_get (pages, "machines-page", &machines_page, NULL);
-  /* remove some other pages
-     // (ev. run for all combinations - if a test using all pages fails?)
-     gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
-     gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
-     gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
-     gtk_notebook_remove_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
+  /* remove some pages to narrow down ref leaks
+   * BT_EDIT_UI_CFG="no-pattern-page,no-sequence-page" ...
    */
 
   // add and get a source machine
   bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
   src_machine = bt_setup_get_machine_by_id (setup, "beep1");
-
   flush_main_loop ();
-
-  GST_INFO_OBJECT (src_machine, "new machine %" G_OBJECT_REF_COUNT_FMT,
+  GST_INFO_OBJECT (src_machine, "machine[beep1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (src_machine));
 
   /* act */
   // remove the machine and check that it is disposed below
   bt_main_page_machines_delete_machine (machines_page, src_machine);
-  g_object_unref (machines_page);
+  flush_main_loop ();
+  GST_INFO_OBJECT (src_machine, "machine[beep1]: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (src_machine));
 
   /* assert */
   g_object_checked_unref (src_machine);
 
   /* cleanup */
-  flush_main_loop ();
+  g_object_unref (machines_page);
   g_object_unref (setup);
   BT_TEST_END;
 }
+
+// TODO(ensonic): do the same test for a wire, right now adding a wire is not
+// exposed as public api though
 
 // load a song and remove a machine
 static void
@@ -164,26 +163,29 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   /* arrange */
   BtSong *song;
   BtSetup *setup;
+  BtMainPageMachines *machines_page;
 
   bt_edit_application_load_song (app,
       check_get_test_song_path ("test-simple1.xml"));
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
+  g_object_get (pages, "machines-page", &machines_page, NULL);
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "sine1");
-  GST_INFO ("machine[sine2]: %" G_OBJECT_REF_COUNT_FMT,
+  flush_main_loop ();
+  GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
   /* act */
-  bt_setup_remove_machine (setup, machine);
+  bt_main_page_machines_delete_machine (machines_page, machine);
   flush_main_loop ();
-  GST_INFO ("machine[sine2]: %" G_OBJECT_REF_COUNT_FMT,
+  GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
   /* assert */
-  ck_assert_int_eq (G_OBJECT_REF_COUNT (machine), 1);
+  g_object_checked_unref (machine);
 
   /* cleanup */
-  gst_object_unref (machine);
+  g_object_unref (machines_page);
   g_object_unref (setup);
   g_object_unref (song);
   BT_TEST_END;
@@ -197,26 +199,29 @@ test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
   /* arrange */
   BtSong *song;
   BtSetup *setup;
+  BtMainPageMachines *machines_page;
 
   bt_edit_application_load_song (app,
       check_get_test_song_path ("test-simple2.xml"));
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
+  g_object_get (pages, "machines-page", &machines_page, NULL);
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "amp1");
+  flush_main_loop ();
   GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
   /* act */
-  bt_setup_remove_machine (setup, machine);
+  bt_main_page_machines_delete_machine (machines_page, machine);
   flush_main_loop ();
   GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
   /* assert */
-  ck_assert_int_eq (G_OBJECT_REF_COUNT (machine), 1);
+  g_object_checked_unref (machine);
 
   /* cleanup */
-  gst_object_unref (machine);
+  g_object_unref (machines_page);
   g_object_unref (setup);
   g_object_unref (song);
   BT_TEST_END;
@@ -251,10 +256,9 @@ test_bt_main_page_machines_remove_wire (BT_TEST_ARGS)
       G_OBJECT_LOG_REF_COUNT (wire));
 
   /* assert */
-  ck_assert_int_eq (G_OBJECT_REF_COUNT (wire), 1);
+  g_object_checked_unref (wire);
 
   /* cleanup */
-  gst_object_unref (wire);
   gst_object_unref (machine1);
   gst_object_unref (machine2);
   g_object_unref (setup);
@@ -306,8 +310,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   GST_INFO ("wire[sine1->amp1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (wire));
   // ref count should be 1 now
-  ck_assert_int_eq (G_OBJECT_REF_COUNT (wire), 1);
-  gst_object_unref (wire);
+  g_object_checked_unref (wire);
 
   // remove a source
   GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
@@ -317,8 +320,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine1));
   // ref count should be 1 now
-  ck_assert_int_eq (G_OBJECT_REF_COUNT (machine1), 1);
-  gst_object_unref (machine1);
+  g_object_checked_unref (machine1);
 
   // remove an effect
   GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
@@ -328,8 +330,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine2));
   // ref count should be 1 now
-  ck_assert_int_eq (G_OBJECT_REF_COUNT (machine2), 1);
-  gst_object_unref (machine2);
+  g_object_checked_unref (machine2);
 
   /* cleanup */
   g_object_unref (setup);

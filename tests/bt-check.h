@@ -115,10 +115,11 @@ void bt_check_init(void);
 {\
   gpointer __objref=obj;\
   g_assert(__objref);\
-  GST_INFO("object %p ->ref_count: %d",__objref,G_OBJECT(__objref)->ref_count);\
+  gint __objrefct=G_OBJECT(__objref)->ref_count;\
+  GST_INFO("object %p,ref_ct=%d",__objref,__objrefct);\
   g_object_add_weak_pointer(__objref,&__objref);\
   g_object_unref(__objref);\
-  fail_unless(__objref == NULL, NULL);\
+  fail_unless(__objref == NULL, "%d ref(s) left",__objrefct-1);\
 }
 
 void check_init_error_trapp(gchar *method, gchar *test);
