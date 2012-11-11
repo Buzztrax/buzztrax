@@ -169,7 +169,7 @@ struct _BtPatternEditor {
   gdouble play_pos;
   /* own colors */
   gdouble play_pos_color[3], text_color[3], bg_color[3], sel_color[3], cursor_color[3];
-  gdouble bg_shade_color[2][3];
+  gdouble bg_shade_color[2][3], value_color[2][3];
 
   /* scroll adjustments */
   GtkAdjustment *hadj,*vadj;

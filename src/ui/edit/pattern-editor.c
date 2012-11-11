@@ -24,31 +24,41 @@
  * Provides an editor widget for #BtPattern instances.
  */
 
-/* TODO(ensonic):
- * - block operations
+/* TODO(ensonic): block operations
  *       o copy
  *       o paste
  *       o cut
  *       o clear
  *       o expand
  *       o shrink
- * - mouse handling (selections)
- *   bt_pattern_editor_button_press/release
- * - shift + cursor selection does not really work with the buzz keybindings
+ */
+/* TODO(ensonic): mouse handling:
+ * - selections - see bt_pattern_editor_button_press/release
+ * - editing:
+ *   - shift + left mb click: toggle switches
+ *   - shift + left mb drag: paint values in a column
+ */
+/* TODO(ensonic): shift + cursor selection does not really work with the
+ * buzz keybindings
+ */
+/* TODO(ensonic): ui styling
  * - if we want separator bars for headers, look at gtkhseparator.c
- * - drawing
+ * - padding
  *   - having some 1 pixel padding left/right of groups would look better
  *     the group gap is one whole character anyway
- *
- * IDEA(ensonic): use gtk_widget_error_bell (widget); when hitting borders with cursor
+ * - cursor
+ *   - gtk uses a black bar and it is blinking
+ *   - look at GtkSettings::gtk-cursor-blink{,time,timeout}
+ */
+/* IDEA(ensonic): use gtk_widget_error_bell (widget) when hitting borders with
+ * cursor
  */
 /* for more performance, we need to render to memory surfaces and blit them when
  * scolling
+ * - we need to update the memory surfaces when layout or data changes
+ * - do we want to handle the cursor moves like data changes?
  * rendering to memory surfaces:
  * blitting:
- * todo:
- * - we need to update the memory surfaces when layout or data changes
- * - do we want to handle the cursor like data changes?
  */
 
 #define BT_EDIT
@@ -79,6 +89,7 @@ struct ParamType
   gint chars, columns;
   gchar *(*to_string_func) (gchar * dest, gfloat value, gint def);
   guint column_pos[4];
+  gfloat scale;
 };
 
 //-- helper methods
@@ -151,11 +162,11 @@ to_string_float (gchar * buf, gfloat value, gint def)
 }
 
 static struct ParamType param_types[] = {
-  {3, 2, to_string_note, {0, 2}},
-  {1, 1, to_string_trigger, {0}},
-  {2, 2, to_string_byte, {0, 1}},
-  {4, 4, to_string_word, {0, 1, 2, 3}},
-  {8, 1, to_string_float, {0}},
+  {3, 2, to_string_note, {0, 2}, 1.0},
+  {1, 1, to_string_trigger, {0}, 1.0},
+  {2, 2, to_string_byte, {0, 1}, 1.0},
+  {4, 4, to_string_word, {0, 1, 2, 3}, 1.0},
+  {8, 1, to_string_float, {0}, 65535.0},
 };
 
 static gint inline
@@ -292,12 +303,16 @@ bt_pattern_editor_draw_column (BtPatternEditor * self, cairo_t * cr,
 
   while (y < max_y && row < self->num_rows) {
     gint col_w3 = col_w2;
+    gfloat pval = get_data_func (self->pattern_data, col->user_data, row, group,
+        param);
+    gboolean sel = (is_selection_column && in_selection_row (self, row));
+    str = pt->to_string_func (buf, pval, col->def);
 
     /* draw background */
     gdouble *bg_shade_color = self->bg_shade_color[row & 0x1];
     cairo_set_source_rgb (cr, bg_shade_color[0], bg_shade_color[1],
         bg_shade_color[2]);
-    if (is_selection_column && in_selection_row (self, row)) {
+    if (sel) {
       /* the last space should be selected if it's a within-group "glue"
          in multiple column selection, row colour otherwise */
       if (self->selection_mode == PESM_COLUMN) {
@@ -317,6 +332,14 @@ bt_pattern_editor_draw_column (BtPatternEditor * self, cairo_t * cr,
     cairo_rectangle (cr, x, y, col_w3, ch);
     cairo_fill (cr);
 
+    // draw value bar
+    if (!sel && (str[0] != '.')) {
+      gdouble *value_color = self->value_color[row & 0x1];
+      cairo_set_source_rgb (cr, value_color[0], value_color[1], value_color[2]);
+      cairo_rectangle (cr, x, y, (col_w - cw) * (pval / (col->max * pt->scale)),
+          ch);
+      cairo_fill (cr);
+    }
     // draw cursor
     if (row == self->row && is_cursor_column) {
       gint cp = pt->column_pos[self->digit];
@@ -325,9 +348,6 @@ bt_pattern_editor_draw_column (BtPatternEditor * self, cairo_t * cr,
       cairo_rectangle (cr, x + cw * cp, y, cw, ch);
       cairo_fill (cr);
     }
-    str =
-        pt->to_string_func (buf, get_data_func (self->pattern_data,
-            col->user_data, row, group, param), col->def);
     cairo_set_source_rgb (cr, self->text_color[0], self->text_color[1],
         self->text_color[2]);
     cairo_move_to (cr, x, y);
@@ -604,6 +624,13 @@ bt_pattern_editor_realize (GtkWidget * widget)
   self->cursor_color[0] = (gdouble) c->red / 65535.0;
   self->cursor_color[1] = (gdouble) c->green / 65535.0;
   self->cursor_color[2] = (gdouble) c->blue / 65535.0;
+  c = &widget->style->mid[GTK_STATE_NORMAL];
+  self->value_color[0][0] = ((gdouble) c->red * 0.9) / 65535.0;
+  self->value_color[0][1] = ((gdouble) c->green * 0.9) / 65535.0;
+  self->value_color[0][2] = ((gdouble) c->blue * 0.9) / 65535.0;
+  self->value_color[1][0] = (gdouble) c->red / 65535.0;
+  self->value_color[1][1] = (gdouble) c->green / 65535.0;
+  self->value_color[1][2] = (gdouble) c->blue / 65535.0;
 
   /* copy size from default font and use default monospace font */
   GST_WARNING (" default font %p, size %d (is_absolute %d?), scl=%lf",
