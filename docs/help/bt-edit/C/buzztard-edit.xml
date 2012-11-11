@@ -642,6 +642,11 @@ i o p</keycap></screen></entry>
               <entry>clears the field under the cursor</entry>
             </row>
             <row>
+              <entry>live value</entry>
+              <entry><keycap>, (comma)</keycap></entry>
+              <entry>copy the current machine value into the field under the cursor</entry>
+            </row>
+            <row>
               <entry>delete column</entry>
               <entry><keycap>delete</keycap></entry>
               <entry>deletes the row at the cursor for the current column (move entries below up)</entry>
