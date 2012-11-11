@@ -321,18 +321,27 @@ bt_main_pages_class_init (BtMainPagesClass * klass)
   gobject_class->get_property = bt_main_pages_get_property;
   gobject_class->dispose = bt_main_pages_dispose;
 
-  g_object_class_install_property (gobject_class, MAIN_PAGES_MACHINES_PAGE, g_param_spec_object ("machines-page", "machines page prop", "the machines view page", BT_TYPE_MAIN_PAGE_MACHINES,   /* object type */
+  g_object_class_install_property (gobject_class, MAIN_PAGES_MACHINES_PAGE,
+      g_param_spec_object ("machines-page", "machines page prop",
+          "the machines view page", BT_TYPE_MAIN_PAGE_MACHINES,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MAIN_PAGES_PATTERNS_PAGE, g_param_spec_object ("patterns-page", "patterns page prop", "the patterns view page", BT_TYPE_MAIN_PAGE_PATTERNS,   /* object type */
+  g_object_class_install_property (gobject_class, MAIN_PAGES_PATTERNS_PAGE,
+      g_param_spec_object ("patterns-page", "patterns page prop",
+          "the patterns view page", BT_TYPE_MAIN_PAGE_PATTERNS,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MAIN_PAGES_SEQUENCE_PAGE, g_param_spec_object ("sequence-page", "sequence page prop", "the sequence view page", BT_TYPE_MAIN_PAGE_SEQUENCE,   /* object type */
+  g_object_class_install_property (gobject_class, MAIN_PAGES_SEQUENCE_PAGE,
+      g_param_spec_object ("sequence-page", "sequence page prop",
+          "the sequence view page", BT_TYPE_MAIN_PAGE_SEQUENCE,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MAIN_PAGES_WAVES_PAGE, g_param_spec_object ("waves-page", "waves page prop", "the waves view page", BT_TYPE_MAIN_PAGE_WAVES,  /* object type */
+  g_object_class_install_property (gobject_class, MAIN_PAGES_WAVES_PAGE,
+      g_param_spec_object ("waves-page", "waves page prop",
+          "the waves view page", BT_TYPE_MAIN_PAGE_WAVES,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MAIN_PAGES_INFO_PAGE, g_param_spec_object ("info-page", "info page prop", "the info view page", BT_TYPE_MAIN_PAGE_INFO,       /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MAIN_PAGES_INFO_PAGE,
+      g_param_spec_object ("info-page", "info page prop", "the info view page",
+          BT_TYPE_MAIN_PAGE_INFO, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }

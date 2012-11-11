@@ -596,7 +596,8 @@ btic_midi_device_class_init (BtIcMidiDeviceClass * const klass)
   bticdevice_class->start = btic_midi_device_start;
   bticdevice_class->stop = btic_midi_device_stop;
 
-  g_object_class_install_property (gobject_class, DEVICE_DEVNODE, g_param_spec_string ("devnode", "devnode prop", "device node path", NULL,     /* default value */
+  g_object_class_install_property (gobject_class, DEVICE_DEVNODE,
+      g_param_spec_string ("devnode", "devnode prop", "device node path", NULL,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   // override learn interface

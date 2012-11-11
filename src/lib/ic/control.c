@@ -195,10 +195,13 @@ btic_control_class_init (BtIcControlClass * const klass)
   gobject_class->dispose = btic_control_dispose;
   gobject_class->finalize = btic_control_finalize;
 
-  g_object_class_install_property (gobject_class, CONTROL_DEVICE, g_param_spec_object ("device", "device prop", "parent device object", BTIC_TYPE_DEVICE,       /* object type */
+  g_object_class_install_property (gobject_class, CONTROL_DEVICE,
+      g_param_spec_object ("device", "device prop", "parent device object",
+          BTIC_TYPE_DEVICE,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, CONTROL_NAME, g_param_spec_string ("name", "name prop", "control name", NULL, /* default value */
+  g_object_class_install_property (gobject_class, CONTROL_NAME,
+      g_param_spec_string ("name", "name prop", "control name", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, CONTROL_ID,

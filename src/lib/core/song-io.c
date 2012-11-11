@@ -552,7 +552,9 @@ bt_song_io_class_init (BtSongIOClass * const klass)
   gobject_class->dispose = bt_song_io_dispose;
   gobject_class->finalize = bt_song_io_finalize;
 
-  g_object_class_install_property (gobject_class, SONG_IO_FILE_NAME, g_param_spec_string ("file-name", "filename prop", "full filename for load save operations", NULL, /* default value */
+  g_object_class_install_property (gobject_class, SONG_IO_FILE_NAME,
+      g_param_spec_string ("file-name", "filename prop",
+          "full filename for load save operations", NULL,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SONG_IO_DATA,
@@ -567,6 +569,8 @@ bt_song_io_class_init (BtSongIOClass * const klass)
           "in memory block length for load save operations",
           0, G_MAXUINT, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_IO_STATUS, g_param_spec_string ("status", "status prop", "status of load save operations", NULL, /* default value */
+  g_object_class_install_property (gobject_class, SONG_IO_STATUS,
+      g_param_spec_string ("status", "status prop",
+          "status of load save operations", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

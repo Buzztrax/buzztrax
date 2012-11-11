@@ -1733,29 +1733,45 @@ bt_song_class_init (BtSongClass * const klass)
   gobject_class->finalize = bt_song_finalize;
 #endif
 
-  g_object_class_install_property (gobject_class, SONG_APP, g_param_spec_object ("app", "app contruct prop", "set application object, the song belongs to", BT_TYPE_APPLICATION,        /* object type */
-          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SONG_APP,
+      g_param_spec_object ("app", "app contruct prop",
+          "set application object, the song belongs to",
+          BT_TYPE_APPLICATION, G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE |
+          G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_BIN, g_param_spec_object ("bin", "bin construct prop", "songs top-level GstElement container", GST_TYPE_BIN,     /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SONG_BIN,
+      g_param_spec_object ("bin", "bin construct prop",
+          "songs top-level GstElement container",
+          GST_TYPE_BIN, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_MASTER, g_param_spec_object ("master", "master prop", "songs audio_sink", BT_TYPE_SINK_MACHINE,  /* object type */
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SONG_MASTER,
+      g_param_spec_object ("master", "master prop", "songs audio_sink",
+          BT_TYPE_SINK_MACHINE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_SONG_INFO, g_param_spec_object ("song-info", "song-info prop", "songs metadata sub object", BT_TYPE_SONG_INFO,   /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SONG_SONG_INFO,
+      g_param_spec_object ("song-info", "song-info prop",
+          "songs metadata sub object",
+          BT_TYPE_SONG_INFO, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_SEQUENCE, g_param_spec_object ("sequence", "sequence prop", "songs sequence sub object", BT_TYPE_SEQUENCE,       /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SONG_SEQUENCE,
+      g_param_spec_object ("sequence", "sequence prop",
+          "songs sequence sub object",
+          BT_TYPE_SEQUENCE, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_SETUP, g_param_spec_object ("setup", "setup prop", "songs setup sub object", BT_TYPE_SETUP,      /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SONG_SETUP,
+      g_param_spec_object ("setup", "setup prop", "songs setup sub object",
+          BT_TYPE_SETUP, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_WAVETABLE, g_param_spec_object ("wavetable", "wavetable prop", "songs wavetable sub object", BT_TYPE_WAVETABLE,  /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SONG_WAVETABLE,
+      g_param_spec_object ("wavetable", "wavetable prop",
+          "songs wavetable sub object",
+          BT_TYPE_WAVETABLE, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_PLAY_POS, g_param_spec_ulong ("play-pos", "play-pos prop", "position of the play cursor of the sequence in timeline bars", 0, G_MAXLONG, // loop-positions are LONG as well
-          0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  // loop-positions are LONG as well
+  g_object_class_install_property (gobject_class, SONG_PLAY_POS,
+      g_param_spec_ulong ("play-pos", "play-pos prop",
+          "position of the play cursor of the sequence in timeline bars", 0,
+          G_MAXLONG, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SONG_PLAY_RATE,
       g_param_spec_double ("play-rate",
@@ -1775,6 +1791,8 @@ bt_song_class_init (BtSongClass * const klass)
           "request that the song should idle-loop if not playing",
           FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SONG_IO, g_param_spec_object ("song-io", "song-io prop", "the song-io plugin during i/o operations", BT_TYPE_SONG_IO, /* object type */
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SONG_IO,
+      g_param_spec_object ("song-io", "song-io prop",
+          "the song-io plugin during i/o operations",
+          BT_TYPE_SONG_IO, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

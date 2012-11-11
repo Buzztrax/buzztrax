@@ -849,8 +849,8 @@ bt_main_window_save_song_as (const BtMainWindow * self)
           while (info->formats[ix].name && !found) {
             // we ref the class above
             songio_class =
-                (BtSongIOClass *) g_type_class_peek_static (info->formats[ix].
-                type);
+                (BtSongIOClass *) g_type_class_peek_static (info->
+                formats[ix].type);
             if (!songio_class->save) {
               GST_DEBUG ("songio module %s supports no saving",
                   info->formats[ix].name);
@@ -892,8 +892,8 @@ bt_main_window_save_song_as (const BtMainWindow * self)
   gtk_box_pack_start (GTK_BOX (box), gtk_label_new (_("Format")), FALSE, FALSE,
       0);
   gtk_box_pack_start (GTK_BOX (box), format_chooser, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (self->priv->
-              dialog)), box, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (self->
+              priv->dialog)), box, FALSE, FALSE, 0);
   g_signal_connect (format_chooser, "changed",
       G_CALLBACK (on_format_chooser_changed), (gpointer) self);
 
@@ -1036,8 +1036,8 @@ bt_dialog_message (const BtMainWindow * self, const gchar * title,
       "use-markup", TRUE, "selectable", TRUE, "wrap", TRUE, "label", str, NULL);
   g_free (str);
   gtk_container_add (GTK_CONTAINER (box), label);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->priv->
-              dialog)), box);
+  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->
+              priv->dialog)), box);
   gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
   g_object_notify ((gpointer) self, "dialog");
 
@@ -1091,8 +1091,8 @@ bt_dialog_question (const BtMainWindow * self, const gchar * title,
       "use-markup", TRUE, "selectable", TRUE, "wrap", TRUE, "label", str, NULL);
   g_free (str);
   gtk_container_add (GTK_CONTAINER (box), label);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->priv->
-              dialog)), box);
+  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->
+              priv->dialog)), box);
   gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
   g_object_notify ((gpointer) self, "dialog");
 
@@ -1267,15 +1267,19 @@ bt_main_window_class_init (BtMainWindowClass * klass)
   gobject_class->dispose = bt_main_window_dispose;
   gobject_class->finalize = bt_main_window_finalize;
 
-  g_object_class_install_property (gobject_class, MAIN_WINDOW_TOOLBAR, g_param_spec_object ("toolbar", "toolbar prop", "Get the toolbar", BT_TYPE_MAIN_TOOLBAR, /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MAIN_WINDOW_TOOLBAR,
+      g_param_spec_object ("toolbar", "toolbar prop", "Get the toolbar",
+          BT_TYPE_MAIN_TOOLBAR, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MAIN_WINDOW_STATUSBAR, g_param_spec_object ("statusbar", "statusbar prop", "Get the status bar", BT_TYPE_MAIN_STATUSBAR,      /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MAIN_WINDOW_STATUSBAR,
+      g_param_spec_object ("statusbar", "statusbar prop", "Get the status bar",
+          BT_TYPE_MAIN_STATUSBAR, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MAIN_WINDOW_PAGES, g_param_spec_object ("pages", "pages prop", "Get the pages widget", BT_TYPE_MAIN_PAGES,    /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MAIN_WINDOW_PAGES,
+      g_param_spec_object ("pages", "pages prop", "Get the pages widget",
+          BT_TYPE_MAIN_PAGES, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MAIN_WINDOW_DIALOG, g_param_spec_object ("dialog", "dialog prop", "Get the active dialog", GTK_TYPE_DIALOG,   /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MAIN_WINDOW_DIALOG,
+      g_param_spec_object ("dialog", "dialog prop", "Get the active dialog",
+          GTK_TYPE_DIALOG, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }

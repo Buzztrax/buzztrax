@@ -467,15 +467,24 @@ bt_interaction_controller_menu_class_init (BtInteractionControllerMenuClass *
   gobject_class->dispose = bt_interaction_controller_menu_dispose;
 
   g_object_class_install_property (gobject_class, INTERACTION_CONTROLLER_MENU_TYPE, g_param_spec_enum ("type", "menu type construct prop", "control types to list in the menu", BT_TYPE_INTERACTION_CONTROLLER_MENU_TYPE,       /* enum type */
-          BT_INTERACTION_CONTROLLER_RANGE_MENU, /* default value */
+          BT_INTERACTION_CONTROLLER_RANGE_MENU,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL, g_param_spec_object ("selected-control", "selected control prop", "control after menu selection", BTIC_TYPE_CONTROL,    /* object type */
+  g_object_class_install_property (gobject_class,
+      INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL,
+      g_param_spec_object ("selected-control", "selected control prop",
+          "control after menu selection", BTIC_TYPE_CONTROL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, INTERACTION_CONTROLLER_MENU_ITEM_UNBIND, g_param_spec_object ("item-unbind", "item unbind prop", "menu item for unbind command", GTK_TYPE_WIDGET,     /* object type */
+  g_object_class_install_property (gobject_class,
+      INTERACTION_CONTROLLER_MENU_ITEM_UNBIND,
+      g_param_spec_object ("item-unbind", "item unbind prop",
+          "menu item for unbind command", GTK_TYPE_WIDGET,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, INTERACTION_CONTROLLER_MENU_ITEM_UNBIND_ALL, g_param_spec_object ("item-unbind-all", "item unbind-all prop", "menu item for unbind-all command", GTK_TYPE_WIDGET,     /* object type */
+  g_object_class_install_property (gobject_class,
+      INTERACTION_CONTROLLER_MENU_ITEM_UNBIND_ALL,
+      g_param_spec_object ("item-unbind-all", "item unbind-all prop",
+          "menu item for unbind-all command", GTK_TYPE_WIDGET,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }

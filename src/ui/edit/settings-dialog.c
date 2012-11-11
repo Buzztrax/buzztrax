@@ -190,8 +190,8 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
       (renderer), 1);
   gtk_tree_view_insert_column_with_attributes (self->priv->settings_list, -1,
       NULL, renderer, "text", COL_LABEL, NULL);
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
-          priv->settings_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
+          settings_list), GTK_SELECTION_BROWSE);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->settings_list));
   gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (scrolled_window), FALSE, FALSE,
@@ -434,7 +434,8 @@ bt_settings_dialog_class_init (BtSettingsDialogClass * klass)
   gobject_class->get_property = bt_settings_dialog_get_property;
   gobject_class->dispose = bt_settings_dialog_dispose;
 
-  g_object_class_install_property (gobject_class, SETTINGS_DIALOG_PAGE, g_param_spec_enum ("page", "page prop", "Current settings page", BT_TYPE_SETTINGS_PAGE, /* object type */
-          BT_SETTINGS_PAGE_AUDIO_DEVICES,
+  g_object_class_install_property (gobject_class, SETTINGS_DIALOG_PAGE,
+      g_param_spec_enum ("page", "page prop", "Current settings page",
+          BT_TYPE_SETTINGS_PAGE, BT_SETTINGS_PAGE_AUDIO_DEVICES,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

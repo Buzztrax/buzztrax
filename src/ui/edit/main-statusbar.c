@@ -515,6 +515,8 @@ bt_main_statusbar_class_init (BtMainStatusbarClass * klass)
   gobject_class->set_property = bt_main_statusbar_set_property;
   gobject_class->dispose = bt_main_statusbar_dispose;
 
-  g_object_class_install_property (gobject_class, MAIN_STATUSBAR_STATUS, g_param_spec_string ("status", "status prop", "main status text", BT_MAIN_STATUSBAR_DEFAULT,   /* default value */
+  g_object_class_install_property (gobject_class, MAIN_STATUSBAR_STATUS,
+      g_param_spec_string ("status", "status prop", "main status text",
+          BT_MAIN_STATUSBAR_DEFAULT,
           G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 }

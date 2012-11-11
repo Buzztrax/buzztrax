@@ -544,8 +544,8 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->priv->
-          record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->
+          priv->record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
@@ -1213,18 +1213,21 @@ bt_sink_bin_class_init (BtSinkBinClass * klass)
       "subticks-per-tick");
 
   g_object_class_install_property (gobject_class, SINK_BIN_MODE, g_param_spec_enum ("mode", "mode prop", "mode of operation", BT_TYPE_SINK_BIN_MODE,    /* enum type */
-          BT_SINK_BIN_MODE_PLAY,        /* default value */
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          BT_SINK_BIN_MODE_PLAY, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SINK_BIN_RECORD_FORMAT, g_param_spec_enum ("record-format", "record-format prop", "format to use when in record mode", BT_TYPE_SINK_BIN_RECORD_FORMAT,        /* enum type */
-          BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, /* default value */
+          BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SINK_BIN_RECORD_FILE_NAME, g_param_spec_string ("record-file-name", "record-file-name contruct prop", "the file-name to use for recording", NULL,     /* default value */
+  g_object_class_install_property (gobject_class, SINK_BIN_RECORD_FILE_NAME,
+      g_param_spec_string ("record-file-name", "record-file-name contruct prop",
+          "the file-name to use for recording", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SINK_BIN_INPUT_GAIN, g_param_spec_object ("input-gain", "input-gain prop", "the input-gain element, if any", GST_TYPE_ELEMENT,        /* object type */
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SINK_BIN_INPUT_GAIN,
+      g_param_spec_object ("input-gain", "input-gain prop",
+          "the input-gain element, if any",
+          GST_TYPE_ELEMENT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SINK_BIN_MASTER_VOLUME,
       g_param_spec_double ("master-volume",

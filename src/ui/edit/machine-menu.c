@@ -240,8 +240,7 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
         continue;
       }
       // presumably, we're no longer interested in the potentially-unloaded feature
-      type =
-          gst_element_factory_get_element_type ((GstElementFactory *)
+      type = gst_element_factory_get_element_type ((GstElementFactory *)
           loaded_feature);
       // check class hierarchy
       if (g_type_is_a (type, GST_TYPE_PUSH_SRC)) {
@@ -423,6 +422,9 @@ bt_machine_menu_class_init (BtMachineMenuClass * klass)
   gobject_class->set_property = bt_machine_menu_set_property;
   gobject_class->dispose = bt_machine_menu_dispose;
 
-  g_object_class_install_property (gobject_class, MACHINE_MENU_MACHINES_PAGE, g_param_spec_object ("machines-page", "machines-page contruct prop", "Set application object, the window belongs to", BT_TYPE_MAIN_PAGE_MACHINES, /* object type */
+  g_object_class_install_property (gobject_class, MACHINE_MENU_MACHINES_PAGE,
+      g_param_spec_object ("machines-page", "machines-page contruct prop",
+          "Set application object, the window belongs to",
+          BT_TYPE_MAIN_PAGE_MACHINES,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 }

@@ -158,6 +158,7 @@ btic_trigger_control_class_init (BtIcTriggerControlClass * const klass)
   gobject_class->get_property = btic_trigger_control_get_property;
   gobject_class->dispose = btic_trigger_control_dispose;
 
-  g_object_class_install_property (gobject_class, TRIGGER_CONTROL_VALUE, g_param_spec_boolean ("value", "value prop", "control value", FALSE,   /* default value */
+  g_object_class_install_property (gobject_class, TRIGGER_CONTROL_VALUE,
+      g_param_spec_boolean ("value", "value prop", "control value", FALSE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

@@ -116,8 +116,9 @@ bt_song_class_init (BtSongClass * klass)
       0                         // n_params
       );
 
-  bt_song_param_spec = g_param_spec_string ("name", "name contruct prop", "Set songs name", "unnamed song",     /* default value */
-      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+  bt_song_param_spec =
+      g_param_spec_string ("name", "name contruct prop", "Set songs name",
+      "unnamed song", G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
   g_object_class_install_property (gobject_class,
       SONG_NAME, bt_song_param_spec);

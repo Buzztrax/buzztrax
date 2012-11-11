@@ -2417,8 +2417,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->priv->
-            param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->
+            priv->param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
@@ -3115,7 +3115,10 @@ bt_machine_properties_dialog_class_init (BtMachinePropertiesDialogClass * klass)
   gobject_class->dispose = bt_machine_properties_dialog_dispose;
   gobject_class->finalize = bt_machine_properties_dialog_finalize;
 
-  g_object_class_install_property (gobject_class, MACHINE_PROPERTIES_DIALOG_MACHINE, g_param_spec_object ("machine", "machine construct prop", "Set machine object, the dialog handles", BT_TYPE_MACHINE,       /* object type */
+  g_object_class_install_property (gobject_class,
+      MACHINE_PROPERTIES_DIALOG_MACHINE, g_param_spec_object ("machine",
+          "machine construct prop", "Set machine object, the dialog handles",
+          BT_TYPE_MACHINE,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 
 }

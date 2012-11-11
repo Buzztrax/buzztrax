@@ -283,8 +283,9 @@ bt_machine_preset_properties_dialog_set_property (GObject * object,
       self->priv->machine = g_value_dup_object (value);
       GST_DEBUG ("set the machine for preset_dialog: %p", self->priv->machine);
       self->priv->presets =
-          self->priv->machine ? gst_preset_get_preset_names (GST_PRESET (self->
-              priv->machine)) : NULL;
+          self->priv->
+          machine ? gst_preset_get_preset_names (GST_PRESET (self->priv->
+              machine)) : NULL;
     }
       break;
     case MACHINE_PRESET_PROPERTIES_DIALOG_NAME:{
@@ -322,8 +323,8 @@ bt_machine_preset_properties_dialog_dispose (GObject * object)
   g_object_try_unref (self->priv->machine);
   g_object_unref (self->priv->app);
 
-  G_OBJECT_CLASS (bt_machine_preset_properties_dialog_parent_class)->
-      dispose (object);
+  G_OBJECT_CLASS (bt_machine_preset_properties_dialog_parent_class)->dispose
+      (object);
 }
 
 static void
@@ -338,8 +339,8 @@ bt_machine_preset_properties_dialog_finalize (GObject * object)
   g_free (self->priv->comment);
   g_strfreev (self->priv->presets);
 
-  G_OBJECT_CLASS (bt_machine_preset_properties_dialog_parent_class)->
-      finalize (object);
+  G_OBJECT_CLASS (bt_machine_preset_properties_dialog_parent_class)->finalize
+      (object);
 }
 
 static void
@@ -355,7 +356,7 @@ bt_machine_preset_properties_dialog_init (BtMachinePresetPropertiesDialog *
 }
 
 static void
-bt_machine_preset_properties_dialog_class_init
+    bt_machine_preset_properties_dialog_class_init
     (BtMachinePresetPropertiesDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -370,8 +371,11 @@ bt_machine_preset_properties_dialog_class_init
   gobject_class->dispose = bt_machine_preset_properties_dialog_dispose;
   gobject_class->finalize = bt_machine_preset_properties_dialog_finalize;
 
-  g_object_class_install_property (gobject_class, MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE, g_param_spec_object ("machine", "machine construct prop", "Set machine object, the dialog handles", GST_TYPE_ELEMENT,       /* object type */
-          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class,
+      MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE, g_param_spec_object ("machine",
+          "machine construct prop", "Set machine object, the dialog handles",
+          GST_TYPE_ELEMENT, G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE |
+          G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class,
       MACHINE_PRESET_PROPERTIES_DIALOG_NAME, g_param_spec_pointer ("name",

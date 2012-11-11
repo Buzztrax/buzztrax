@@ -406,16 +406,28 @@ bt_settings_class_init (BtSettingsClass * const klass)
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   // playback controller
-  g_object_class_install_property (gobject_class, BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE, g_param_spec_boolean ("coherence-upnp-active", "coherence-upnp-active", "activate Coherence UPnP based playback controller", FALSE,    /* default value */
+  g_object_class_install_property (gobject_class,
+      BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE,
+      g_param_spec_boolean ("coherence-upnp-active", "coherence-upnp-active",
+          "activate Coherence UPnP based playback controller", FALSE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT, g_param_spec_uint ("coherence-upnp-port", "coherence-upnp-port", "the port number for the communication with the coherence backend", 0, G_MAXUINT, 7654, /* default value */
+  g_object_class_install_property (gobject_class,
+      BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT,
+      g_param_spec_uint ("coherence-upnp-port", "coherence-upnp-port",
+          "the port number for the communication with the coherence backend", 0,
+          G_MAXUINT, 7654, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class,
+      BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER,
+      g_param_spec_boolean ("jack-transport-master", "jack-transport-master",
+          "sync other jack clients to buzztard playback state", FALSE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER, g_param_spec_boolean ("jack-transport-master", "jack-transport-master", "sync other jack clients to buzztard playback state", FALSE,   /* default value */
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE, g_param_spec_boolean ("jack-transport-slave", "jack-transport-slave", "sync buzztard to the playback state other jack clients", FALSE,  /* default value */
+  g_object_class_install_property (gobject_class,
+      BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE,
+      g_param_spec_boolean ("jack-transport-slave", "jack-transport-slave",
+          "sync buzztard to the playback state other jack clients", FALSE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 

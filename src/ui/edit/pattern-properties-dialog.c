@@ -377,10 +377,15 @@ bt_pattern_properties_dialog_class_init (BtPatternPropertiesDialogClass * klass)
   gobject_class->dispose = bt_pattern_properties_dialog_dispose;
   gobject_class->finalize = bt_pattern_properties_dialog_finalize;
 
-  g_object_class_install_property (gobject_class, PATTERN_PROPERTIES_DIALOG_PATTERN, g_param_spec_object ("pattern", "pattern construct prop", "Set pattern object, the dialog handles", BT_TYPE_PATTERN,       /* object type */
+  g_object_class_install_property (gobject_class,
+      PATTERN_PROPERTIES_DIALOG_PATTERN, g_param_spec_object ("pattern",
+          "pattern construct prop", "Set pattern object, the dialog handles",
+          BT_TYPE_PATTERN,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, PATTERN_PROPERTIES_DIALOG_NAME, g_param_spec_string ("name", "name prop", "the display-name of the pattern", "unamed",        /* default value */
+  g_object_class_install_property (gobject_class,
+      PATTERN_PROPERTIES_DIALOG_NAME, g_param_spec_string ("name", "name prop",
+          "the display-name of the pattern", "unamed",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class,

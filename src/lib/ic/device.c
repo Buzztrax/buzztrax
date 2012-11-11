@@ -346,10 +346,12 @@ btic_device_class_init (BtIcDeviceClass * const klass)
   klass->start = btic_device_default_start;
   klass->stop = btic_device_default_stop;
 
-  g_object_class_install_property (gobject_class, DEVICE_UDI, g_param_spec_string ("udi", "udi prop", "device udi", NULL,       /* default value */
+  g_object_class_install_property (gobject_class, DEVICE_UDI,
+      g_param_spec_string ("udi", "udi prop", "device udi", NULL,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, DEVICE_NAME, g_param_spec_string ("name", "name prop", "device name", NULL,   /* default value */
+  g_object_class_install_property (gobject_class, DEVICE_NAME,
+      g_param_spec_string ("name", "name prop", "device name", NULL,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, DEVICE_CONTROLS,

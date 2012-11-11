@@ -752,8 +752,8 @@ bt_edit_application_ui_lock (const BtEditApplication * self)
 {
   GdkCursor *cursor = gdk_cursor_new (GDK_WATCH);
 
-  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
-              priv->main_window)), cursor);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
+              main_window)), cursor);
   gdk_cursor_unref (cursor);
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), FALSE);
 
@@ -771,8 +771,8 @@ void
 bt_edit_application_ui_unlock (const BtEditApplication * self)
 {
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), TRUE);
-  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
-              priv->main_window)), NULL);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
+              main_window)), NULL);
 }
 
 /**
@@ -988,14 +988,19 @@ bt_edit_application_class_init (BtEditApplicationClass * klass)
 
   klass->song_changed = NULL;
 
-  g_object_class_install_property (gobject_class, EDIT_APPLICATION_SONG, g_param_spec_object ("song", "song prop", "the current song object", BT_TYPE_SONG,     /* object type */
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, EDIT_APPLICATION_SONG,
+      g_param_spec_object ("song", "song prop", "the current song object",
+          BT_TYPE_SONG, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, EDIT_APPLICATION_MAIN_WINDOW, g_param_spec_object ("main-window", "main window prop", "the main window of this application", BT_TYPE_MAIN_WINDOW,     /* object type */
+  g_object_class_install_property (gobject_class, EDIT_APPLICATION_MAIN_WINDOW,
+      g_param_spec_object ("main-window", "main window prop",
+          "the main window of this application", BT_TYPE_MAIN_WINDOW,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, EDIT_APPLICATION_IC_REGISTRY, g_param_spec_object ("ic-registry", "ic registry prop", "the interaction controller registry of this application", BTIC_TYPE_REGISTRY,  /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, EDIT_APPLICATION_IC_REGISTRY,
+      g_param_spec_object ("ic-registry", "ic registry prop",
+          "the interaction controller registry of this application",
+          BTIC_TYPE_REGISTRY, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, EDIT_APPLICATION_UNSAVED,
       g_param_spec_boolean ("unsaved",

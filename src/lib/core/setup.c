@@ -2103,7 +2103,9 @@ bt_setup_class_init (BtSetupClass * const klass)
           "hashtable of setup properties",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SETUP_SONG, g_param_spec_object ("song", "song construct prop", "Set song object, the setup belongs to", BT_TYPE_SONG,        /* object type */
+  g_object_class_install_property (gobject_class, SETUP_SONG,
+      g_param_spec_object ("song", "song construct prop",
+          "Set song object, the setup belongs to", BT_TYPE_SONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SETUP_MACHINES,

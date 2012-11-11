@@ -288,9 +288,13 @@ bt_machine_rename_dialog_class_init (BtMachineRenameDialogClass * klass)
   gobject_class->dispose = bt_machine_rename_dialog_dispose;
   gobject_class->finalize = bt_machine_rename_dialog_finalize;
 
-  g_object_class_install_property (gobject_class, MACHINE_RENAME_DIALOG_MACHINE, g_param_spec_object ("machine", "machine construct prop", "Set machine object, the dialog handles", BT_TYPE_MACHINE,   /* object type */
+  g_object_class_install_property (gobject_class, MACHINE_RENAME_DIALOG_MACHINE,
+      g_param_spec_object ("machine", "machine construct prop",
+          "Set machine object, the dialog handles", BT_TYPE_MACHINE,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_RENAME_DIALOG_NAME, g_param_spec_string ("name", "name prop", "the display-name of the machine", "unamed",    /* default value */
+  g_object_class_install_property (gobject_class, MACHINE_RENAME_DIALOG_NAME,
+      g_param_spec_string ("name", "name prop",
+          "the display-name of the machine", "unamed",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }

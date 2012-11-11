@@ -787,8 +787,8 @@ bt_wire_canvas_item_realize (GnomeCanvasItem * citem)
       (gchar *) g_hash_table_lookup (self->priv->properties, "analyzer-shown");
   if (prop && prop[0] == '1' && prop[1] == '\0') {
     if ((self->priv->analysis_dialog =
-            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->
-                        priv->wire))))) {
+            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->priv->
+                        wire))))) {
       bt_edit_application_attach_child_window (self->priv->app,
           GTK_WINDOW (self->priv->analysis_dialog));
       g_signal_connect (self->priv->analysis_dialog, "destroy",
@@ -814,13 +814,13 @@ bt_wire_canvas_item_event (GnomeCanvasItem * citem, GdkEvent * event)
             event->button.x, event->button.y,
             event->button.x_root, event->button.y_root);
         if (!(event->button.state & GDK_SHIFT_MASK)) {
-          bt_main_page_machines_wire_volume_popup (self->
-              priv->main_page_machines, self->priv->wire,
-              (gint) event->button.x_root, (gint) event->button.y_root);
+          bt_main_page_machines_wire_volume_popup (self->priv->
+              main_page_machines, self->priv->wire, (gint) event->button.x_root,
+              (gint) event->button.y_root);
         } else {
-          bt_main_page_machines_wire_panorama_popup (self->
-              priv->main_page_machines, self->priv->wire,
-              (gint) event->button.x_root, (gint) event->button.y_root);
+          bt_main_page_machines_wire_panorama_popup (self->priv->
+              main_page_machines, self->priv->wire, (gint) event->button.x_root,
+              (gint) event->button.y_root);
         }
         res = TRUE;
       } else if (event->button.button == 3) {
@@ -911,13 +911,19 @@ bt_wire_canvas_item_class_init (BtWireCanvasItemClass * klass)
   citem_class->realize = bt_wire_canvas_item_realize;
   citem_class->event = bt_wire_canvas_item_event;
 
-  g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_MACHINES_PAGE, g_param_spec_object ("machines-page", "machines-page contruct prop", "Set application object, the window belongs to", BT_TYPE_MAIN_PAGE_MACHINES,     /* object type */
+  g_object_class_install_property (gobject_class,
+      WIRE_CANVAS_ITEM_MACHINES_PAGE, g_param_spec_object ("machines-page",
+          "machines-page contruct prop",
+          "Set application object, the window belongs to",
+          BT_TYPE_MAIN_PAGE_MACHINES,
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
           G_PARAM_CONSTRUCT_ONLY |
 #endif
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_WIRE, g_param_spec_object ("wire", "wire contruct prop", "Set wire object, the item belongs to", BT_TYPE_WIRE,       /* object type */
+  g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_WIRE,
+      g_param_spec_object ("wire", "wire contruct prop",
+          "Set wire object, the item belongs to", BT_TYPE_WIRE,
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
           G_PARAM_CONSTRUCT_ONLY |
 #endif
@@ -937,13 +943,17 @@ bt_wire_canvas_item_class_init (BtWireCanvasItemClass * klass)
           -BT_WIRE_MAX_EXTEND,
           BT_WIRE_MAX_EXTEND, 1.0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_SRC, g_param_spec_object ("src", "src contruct prop", "Set wire src machine canvas item", BT_TYPE_MACHINE_CANVAS_ITEM,       /* object type */
+  g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_SRC,
+      g_param_spec_object ("src", "src contruct prop",
+          "Set wire src machine canvas item", BT_TYPE_MACHINE_CANVAS_ITEM,
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
           G_PARAM_CONSTRUCT_ONLY |
 #endif
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_DST, g_param_spec_object ("dst", "dst contruct prop", "Set wire dst machine canvas item", BT_TYPE_MACHINE_CANVAS_ITEM,       /* object type */
+  g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_DST,
+      g_param_spec_object ("dst", "dst contruct prop",
+          "Set wire dst machine canvas item", BT_TYPE_MACHINE_CANVAS_ITEM,
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
           G_PARAM_CONSTRUCT_ONLY |
 #endif

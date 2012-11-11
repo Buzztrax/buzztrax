@@ -189,15 +189,22 @@ btic_abs_range_control_class_init (BtIcAbsRangeControlClass * const klass)
   gobject_class->get_property = btic_abs_range_control_get_property;
   gobject_class->dispose = btic_abs_range_control_dispose;
 
-  g_object_class_install_property (gobject_class, ABS_RANGE_CONTROL_VALUE, g_param_spec_long ("value", "value prop", "control value", G_MINLONG, G_MAXLONG, 0,  /* default value */
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, ABS_RANGE_CONTROL_VALUE,
+      g_param_spec_long ("value", "value prop", "control value", G_MINLONG,
+          G_MAXLONG, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, ABS_RANGE_CONTROL_MIN, g_param_spec_long ("min", "min prop", "minimum control value", G_MINLONG, G_MAXLONG, G_MINLONG,        /* default value */
+  g_object_class_install_property (gobject_class, ABS_RANGE_CONTROL_MIN,
+      g_param_spec_long ("min", "min prop", "minimum control value", G_MINLONG,
+          G_MAXLONG, G_MINLONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, ABS_RANGE_CONTROL_MAX, g_param_spec_long ("max", "max prop", "maximum control value", G_MINLONG, G_MAXLONG, G_MAXLONG,        /* default value */
+  g_object_class_install_property (gobject_class, ABS_RANGE_CONTROL_MAX,
+      g_param_spec_long ("max", "max prop", "maximum control value", G_MINLONG,
+          G_MAXLONG, G_MAXLONG,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, ABS_RANGE_CONTROL_DEF, g_param_spec_long ("def", "def prop", "default control value", G_MINLONG, G_MAXLONG, 0,        /* default value */
+  g_object_class_install_property (gobject_class, ABS_RANGE_CONTROL_DEF,
+      g_param_spec_long ("def", "def prop", "default control value", G_MINLONG,
+          G_MAXLONG, 0,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

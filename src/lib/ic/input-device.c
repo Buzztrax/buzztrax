@@ -660,6 +660,7 @@ btic_input_device_class_init (BtIcInputDeviceClass * const klass)
   bticdevice_class->start = btic_input_device_start;
   bticdevice_class->stop = btic_input_device_stop;
 
-  g_object_class_install_property (gobject_class, DEVICE_DEVNODE, g_param_spec_string ("devnode", "devnode prop", "device node path", NULL,     /* default value */
+  g_object_class_install_property (gobject_class, DEVICE_DEVNODE,
+      g_param_spec_string ("devnode", "devnode prop", "device node path", NULL,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

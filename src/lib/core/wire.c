@@ -1139,8 +1139,8 @@ bt_wire_persistence_load (const GType type,
                     //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
                     if (!strncmp ((char *) child_node3->name, "wiredata\0", 9)) {
                       param =
-                          bt_parameter_group_get_param_index (self->priv->
-                          param_group, (gchar *) name);
+                          bt_parameter_group_get_param_index (self->
+                          priv->param_group, (gchar *) name);
                       if (param != -1) {
                         bt_value_group_set_event (vg, tick, param,
                             (gchar *) value);
@@ -1464,20 +1464,33 @@ bt_wire_class_init (BtWireClass * const klass)
           "list of wire properties",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WIRE_SONG, g_param_spec_object ("song", "song construct prop", "the song object, the wire belongs to", BT_TYPE_SONG,  /* object type */
-          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, WIRE_SONG,
+      g_param_spec_object ("song", "song construct prop",
+          "the song object, the wire belongs to",
+          BT_TYPE_SONG, G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE |
+          G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WIRE_SRC, g_param_spec_object ("src", "src ro prop", "src machine object, the wire links to", BT_TYPE_MACHINE,        /* object type */
-          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, WIRE_SRC,
+      g_param_spec_object ("src", "src ro prop",
+          "src machine object, the wire links to",
+          BT_TYPE_MACHINE, G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE |
+          G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WIRE_DST, g_param_spec_object ("dst", "dst ro prop", "dst machine object, the wire links to", BT_TYPE_MACHINE,        /* object type */
-          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, WIRE_DST,
+      g_param_spec_object ("dst", "dst ro prop",
+          "dst machine object, the wire links to",
+          BT_TYPE_MACHINE, G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE |
+          G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WIRE_GAIN, g_param_spec_object ("gain", "gain element prop", "the gain element for the connection", GST_TYPE_ELEMENT, /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, WIRE_GAIN,
+      g_param_spec_object ("gain", "gain element prop",
+          "the gain element for the connection",
+          GST_TYPE_ELEMENT, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, WIRE_PAN, g_param_spec_object ("pan", "panorama element prop", "the panorama element for the connection", GST_TYPE_ELEMENT,   /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, WIRE_PAN,
+      g_param_spec_object ("pan", "panorama element prop",
+          "the panorama element for the connection",
+          GST_TYPE_ELEMENT, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WIRE_NUM_PARAMS,
       g_param_spec_ulong ("num-params",

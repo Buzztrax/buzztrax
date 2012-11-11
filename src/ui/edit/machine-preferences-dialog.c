@@ -622,7 +622,10 @@ bt_machine_preferences_dialog_class_init (BtMachinePreferencesDialogClass *
   gobject_class->set_property = bt_machine_preferences_dialog_set_property;
   gobject_class->dispose = bt_machine_preferences_dialog_dispose;
 
-  g_object_class_install_property (gobject_class, MACHINE_PREFERENCES_DIALOG_MACHINE, g_param_spec_object ("machine", "machine construct prop", "Set machine object, the dialog handles", BT_TYPE_MACHINE,      /* object type */
+  g_object_class_install_property (gobject_class,
+      MACHINE_PREFERENCES_DIALOG_MACHINE, g_param_spec_object ("machine",
+          "machine construct prop", "Set machine object, the dialog handles",
+          BT_TYPE_MACHINE,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 
 }

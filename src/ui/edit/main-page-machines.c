@@ -1597,8 +1597,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->vol_popup_adj =
       gtk_adjustment_new (100.0, 0.0, 400.0, 1.0, 10.0, 1.0);
   self->priv->vol_popup =
-      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->priv->
-              vol_popup_adj)));
+      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->
+              priv->vol_popup_adj)));
   g_signal_connect (self->priv->vol_popup_adj, "value-changed",
       G_CALLBACK (on_volume_popup_changed), (gpointer) self);
 
@@ -1606,8 +1606,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->pan_popup_adj =
       gtk_adjustment_new (0.0, -100.0, 100.0, 1.0, 10.0, 1.0);
   self->priv->pan_popup =
-      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->priv->
-              pan_popup_adj)));
+      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->
+              priv->pan_popup_adj)));
   g_signal_connect (self->priv->pan_popup_adj, "value-changed",
       G_CALLBACK (on_panorama_popup_changed), (gpointer) self);
 
@@ -2450,6 +2450,7 @@ bt_main_page_machines_class_init (BtMainPageMachinesClass * klass)
 
   gtkwidget_class->focus = bt_main_page_machines_focus;
 
-  g_object_class_install_property (gobject_class, MAIN_PAGE_MACHINES_CANVAS, g_param_spec_object ("canvas", "canvas prop", "Get the machine canvas", GNOME_TYPE_CANVAS, /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MAIN_PAGE_MACHINES_CANVAS,
+      g_param_spec_object ("canvas", "canvas prop", "Get the machine canvas",
+          GNOME_TYPE_CANVAS, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }

@@ -1073,8 +1073,8 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
     goto Error;
   }
   // added in gst-plugin-good 0.10.29
-  if (g_object_class_find_property (G_OBJECT_GET_CLASS (self->priv->
-              analyzers[ANALYZER_SPECTRUM]), "multi-channel")) {
+  if (g_object_class_find_property (G_OBJECT_GET_CLASS (self->
+              priv->analyzers[ANALYZER_SPECTRUM]), "multi-channel")) {
     g_object_set (self->priv->analyzers[ANALYZER_SPECTRUM], "interval",
         UPDATE_INTERVAL, "message", TRUE, "bands",
         self->priv->spect_bands * self->priv->frq_precision, "threshold",
@@ -1319,7 +1319,10 @@ bt_signal_analysis_dialog_class_init (BtSignalAnalysisDialogClass * klass)
   gobject_class->dispose = bt_signal_analysis_dialog_dispose;
   gobject_class->finalize = bt_signal_analysis_dialog_finalize;
 
-  g_object_class_install_property (gobject_class, SIGNAL_ANALYSIS_DIALOG_ELEMENT, g_param_spec_object ("element", "element construct prop", "Set wire/machine object, the dialog handles", GST_TYPE_BIN,        /* object type */
+  g_object_class_install_property (gobject_class,
+      SIGNAL_ANALYSIS_DIALOG_ELEMENT, g_param_spec_object ("element",
+          "element construct prop",
+          "Set wire/machine object, the dialog handles", GST_TYPE_BIN,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 
 }

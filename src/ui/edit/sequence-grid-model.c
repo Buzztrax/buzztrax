@@ -744,12 +744,16 @@ bt_sequence_grid_model_class_init (BtSequenceGridModelClass * klass)
   gobject_class->finalize = bt_sequence_grid_model_finalize;
 
   g_object_class_install_property (gobject_class, SEQUENCE_GRID_MODEL_POS_FORMAT, g_param_spec_enum ("pos-format", "position format prop", "the display format for position columns", BT_TYPE_SEQUENCE_GRID_MODEL_POS_FORMAT,   /* enum type */
-          BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS,      /* default value */
+          BT_SEQUENCE_GRID_MODEL_POS_FORMAT_TICKS,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SEQUENCE_GRID_MODEL_BARS, g_param_spec_ulong ("bars", "bars prop", "tick stepping for the color shading", 1, G_MAXUINT, 16,   /* default value */
+  g_object_class_install_property (gobject_class, SEQUENCE_GRID_MODEL_BARS,
+      g_param_spec_ulong ("bars", "bars prop",
+          "tick stepping for the color shading", 1, G_MAXUINT, 16,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SEQUENCE_GRID_MODEL_LENGTH, g_param_spec_ulong ("length", "length prop", "visible length of the sequence (>= real length)", 0, G_MAXUINT, 0,  /* default value */
+  g_object_class_install_property (gobject_class, SEQUENCE_GRID_MODEL_LENGTH,
+      g_param_spec_ulong ("length", "length prop",
+          "visible length of the sequence (>= real length)", 0, G_MAXUINT, 0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

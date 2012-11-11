@@ -174,9 +174,13 @@ bt_application_class_init (BtApplicationClass * const klass)
    * The top-level gstreamer element for the song, e.g. a #GstPipeline or
    * #GstBin.
    */
-  g_object_class_install_property (gobject_class, APPLICATION_BIN, g_param_spec_object ("bin", "bin ro prop", "applications top-level GstElement container", GST_TYPE_BIN,      /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, APPLICATION_BIN,
+      g_param_spec_object ("bin", "bin ro prop",
+          "applications top-level GstElement container",
+          GST_TYPE_BIN, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, APPLICATION_SETTINGS, g_param_spec_object ("settings", "settings ro prop", "applications configuration settings", BT_TYPE_SETTINGS,   /* object type */
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, APPLICATION_SETTINGS,
+      g_param_spec_object ("settings", "settings ro prop",
+          "applications configuration settings",
+          BT_TYPE_SETTINGS, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
