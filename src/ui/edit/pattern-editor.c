@@ -1294,7 +1294,7 @@ bt_pattern_editor_button_press (GtkWidget * widget, GdkEventButton * event)
   if (r >= self->num_rows)
     return FALSE;
 
-  // local cell and move cursor
+  // locate cell and move cursor
   for (g = 0; g < self->num_groups; g++) {
     BtPatternEditorColumnGroup *grp = &self->groups[g];
     if (x < grp->width) {
