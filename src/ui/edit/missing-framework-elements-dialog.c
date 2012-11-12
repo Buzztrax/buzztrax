@@ -148,8 +148,8 @@ bt_missing_framework_elements_dialog_init_ui (const
   gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
 
   icon =
-      gtk_image_new_from_stock (self->priv->
-      core_elements ? GTK_STOCK_DIALOG_ERROR : GTK_STOCK_DIALOG_WARNING,
+      gtk_image_new_from_stock (self->
+      priv->core_elements ? GTK_STOCK_DIALOG_ERROR : GTK_STOCK_DIALOG_WARNING,
       GTK_ICON_SIZE_DIALOG);
   gtk_container_add (GTK_CONTAINER (hbox), icon);
 
@@ -277,8 +277,8 @@ bt_missing_framework_elements_dialog_apply (const
 {
 
   if (self->priv->ignore_button
-      && gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (self->priv->
-              ignore_button))) {
+      && gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (self->
+              priv->ignore_button))) {
     BtSettings *settings;
     gchar *machine_ignore_list;
     GList *node, *edit_elements = NULL;
@@ -328,17 +328,14 @@ bt_missing_framework_elements_dialog_set_property (GObject * object,
       BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case MISSING_FRAMEWORK_ELEMENTS_DIALOG_CORE_ELEMENTS:{
+    case MISSING_FRAMEWORK_ELEMENTS_DIALOG_CORE_ELEMENTS:
       self->priv->core_elements = g_value_get_pointer (value);
-    }
       break;
-    case MISSING_FRAMEWORK_ELEMENTS_DIALOG_EDIT_ELEMENTS:{
+    case MISSING_FRAMEWORK_ELEMENTS_DIALOG_EDIT_ELEMENTS:
       self->priv->edit_elements = g_value_get_pointer (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -356,8 +353,8 @@ bt_missing_framework_elements_dialog_dispose (GObject * object)
 
   g_object_unref (self->priv->app);
 
-  G_OBJECT_CLASS (bt_missing_framework_elements_dialog_parent_class)->
-      dispose (object);
+  G_OBJECT_CLASS (bt_missing_framework_elements_dialog_parent_class)->dispose
+      (object);
 }
 
 static void
@@ -373,7 +370,7 @@ bt_missing_framework_elements_dialog_init (BtMissingFrameworkElementsDialog *
 }
 
 static void
-bt_missing_framework_elements_dialog_class_init
+    bt_missing_framework_elements_dialog_class_init
     (BtMissingFrameworkElementsDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);

@@ -968,34 +968,28 @@ bt_sink_bin_get_property (GObject * const object, const guint property_id,
   const BtSinkBin *const self = BT_SINK_BIN (object);
   return_if_disposed ();
   switch (property_id) {
-    case SINK_BIN_MODE:{
+    case SINK_BIN_MODE:
       g_value_set_enum (value, self->priv->mode);
-    }
       break;
-    case SINK_BIN_RECORD_FORMAT:{
+    case SINK_BIN_RECORD_FORMAT:
       g_value_set_enum (value, self->priv->record_format);
-    }
       break;
-    case SINK_BIN_RECORD_FILE_NAME:{
+    case SINK_BIN_RECORD_FILE_NAME:
       g_value_set_string (value, self->priv->record_file_name);
-    }
       break;
-    case SINK_BIN_INPUT_GAIN:{
+    case SINK_BIN_INPUT_GAIN:
       g_value_set_object (value, self->priv->gain);
-    }
       break;
-    case SINK_BIN_MASTER_VOLUME:{
+    case SINK_BIN_MASTER_VOLUME:
       if (self->priv->gain) {
         // FIXME(ensonic): do we need a notify (or weak ptr) to update this?
         g_object_get (self->priv->gain, "volume", &self->priv->volume, NULL);
         GST_DEBUG ("Get master volume: %lf", self->priv->volume);
       }
       g_value_set_double (value, self->priv->volume);
-    }
       break;
-    case SINK_BIN_ANALYZERS:{
+    case SINK_BIN_ANALYZERS:
       g_value_set_pointer (value, self->priv->analyzers);
-    }
       break;
       // tempo iface
     case SINK_BIN_TEMPO_BPM:
@@ -1007,9 +1001,8 @@ bt_sink_bin_get_property (GObject * const object, const guint property_id,
     case SINK_BIN_TEMPO_STPT:
       g_value_set_ulong (value, self->priv->subticks_per_tick);
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -1022,7 +1015,7 @@ bt_sink_bin_set_property (GObject * const object, const guint property_id,
   return_if_disposed ();
 
   switch (property_id) {
-    case SINK_BIN_MODE:{
+    case SINK_BIN_MODE:
       self->priv->mode = g_value_get_enum (value);
       if ((self->priv->mode == BT_SINK_BIN_MODE_PLAY)
           || (self->priv->mode == BT_SINK_BIN_MODE_PASS_THRU)) {
@@ -1036,25 +1029,22 @@ bt_sink_bin_set_property (GObject * const object, const guint property_id,
           bt_sink_bin_update (self);
         }
       }
-    }
       break;
-    case SINK_BIN_RECORD_FORMAT:{
+    case SINK_BIN_RECORD_FORMAT:
       self->priv->record_format = g_value_get_enum (value);
       if (((self->priv->mode == BT_SINK_BIN_MODE_RECORD)
               || (self->priv->mode == BT_SINK_BIN_MODE_PLAY_AND_RECORD))
           && self->priv->record_file_name) {
         bt_sink_bin_update (self);
       }
-    }
       break;
-    case SINK_BIN_RECORD_FILE_NAME:{
+    case SINK_BIN_RECORD_FILE_NAME:
       g_free (self->priv->record_file_name);
       self->priv->record_file_name = g_value_dup_string (value);
       if ((self->priv->mode == BT_SINK_BIN_MODE_RECORD)
           || (self->priv->mode == BT_SINK_BIN_MODE_PLAY_AND_RECORD)) {
         bt_sink_bin_update (self);
       }
-    }
       break;
     case SINK_BIN_INPUT_GAIN:{
       GstPad *sink_pad;
@@ -1070,21 +1060,19 @@ bt_sink_bin_set_property (GObject * const object, const guint property_id,
           gst_pad_add_buffer_probe (sink_pad,
           G_CALLBACK (master_volume_sync_handler), (gpointer) self);
       gst_object_unref (sink_pad);
-    }
       break;
-    case SINK_BIN_MASTER_VOLUME:{
+    }
+    case SINK_BIN_MASTER_VOLUME:
       if (self->priv->gain) {
         self->priv->volume = g_value_get_double (value);
         g_object_set (self->priv->gain, "volume", self->priv->volume, NULL);
         GST_DEBUG ("Set master volume: %lf", self->priv->volume);
       }
-    }
       break;
-    case SINK_BIN_ANALYZERS:{
+    case SINK_BIN_ANALYZERS:
       bt_sink_bin_deactivate_analyzers (self);
       self->priv->analyzers = g_value_get_pointer (value);
       bt_sink_bin_activate_analyzers (self);
-    }
       break;
       // tempo iface
     case SINK_BIN_TEMPO_BPM:
@@ -1092,9 +1080,8 @@ bt_sink_bin_set_property (GObject * const object, const guint property_id,
     case SINK_BIN_TEMPO_STPT:
       GST_WARNING ("use gstbt_tempo_change_tempo()");
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

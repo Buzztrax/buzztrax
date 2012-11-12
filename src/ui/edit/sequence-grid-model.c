@@ -627,21 +627,17 @@ bt_sequence_grid_model_get_property (GObject * const object,
   BtSequenceGridModel *self = BT_SEQUENCE_GRID_MODEL (object);
 
   switch (property_id) {
-    case SEQUENCE_GRID_MODEL_POS_FORMAT:{
+    case SEQUENCE_GRID_MODEL_POS_FORMAT:
       g_value_set_enum (value, self->priv->pos_format);
-    }
       break;
-    case SEQUENCE_GRID_MODEL_BARS:{
+    case SEQUENCE_GRID_MODEL_BARS:
       g_value_set_ulong (value, self->priv->bars);
-    }
       break;
-    case SEQUENCE_GRID_MODEL_LENGTH:{
+    case SEQUENCE_GRID_MODEL_LENGTH:
       g_value_set_ulong (value, self->priv->visible_length);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -659,15 +655,15 @@ bt_sequence_grid_model_set_property (GObject * const object,
       self->priv->pos_format = g_value_get_enum (value);
       if (self->priv->pos_format != old_pos_format)
         bt_sequence_grid_model_all_rows_changed (self);
-    }
       break;
+    }
     case SEQUENCE_GRID_MODEL_BARS:{
       gulong old_bars = self->priv->bars;
       self->priv->bars = g_value_get_ulong (value);
       if (self->priv->bars != old_bars)
         bt_sequence_grid_model_all_rows_changed (self);
-    }
       break;
+    }
     case SEQUENCE_GRID_MODEL_LENGTH:{
       gulong old_length = self->priv->visible_length;
       self->priv->visible_length = g_value_get_ulong (value);
@@ -675,11 +671,10 @@ bt_sequence_grid_model_set_property (GObject * const object,
           MAX (self->priv->visible_length, self->priv->length);
       GST_DEBUG ("visible length changed: %lu", self->priv->visible_length);
       update_length (self, old_length, self->priv->visible_length);
-    }
       break;
-    default:{
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
 }

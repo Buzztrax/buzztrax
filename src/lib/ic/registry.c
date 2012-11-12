@@ -141,13 +141,11 @@ btic_registry_get_property (GObject * const object, const guint property_id,
   const BtIcRegistry *const self = BTIC_REGISTRY (object);
   return_if_disposed ();
   switch (property_id) {
-    case REGISTRY_DEVICES:{
+    case REGISTRY_DEVICES:
       g_value_set_pointer (value, g_list_copy (self->priv->devices));
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

@@ -177,8 +177,8 @@ bt_g_object_randomize_parameter (GObject * self, GParamSpec * property)
       case G_TYPE_BOOLEAN:
     {
       g_object_set (self, n, (gboolean) (2 * rnd), NULL);
-    }
       break;
+    }
     case G_TYPE_ENUM:{
       const GParamSpecEnum *p = G_PARAM_SPEC_ENUM (property);
       const GEnumClass *e = p->enum_class;
@@ -187,7 +187,8 @@ bt_g_object_randomize_parameter (GObject * self, GParamSpec * property)
 
       // handle sparse enums
       g_object_set (self, n, e->values[v].value, NULL);
-    } break;
+      break;
+    }
     default:
       GST_WARNING ("incomplete implementation for GParamSpec type '%s'",
           G_PARAM_SPEC_TYPE_NAME (property));
@@ -699,8 +700,8 @@ bt_parameter_group_describe_param_value (const BtParameterGroup * const self,
   if (GSTBT_IS_PROPERTY_META (self->priv->parents[index])) {
     guint prop_id = self->priv->params[index]->param_id;
     return
-        gstbt_property_meta_describe_property (GSTBT_PROPERTY_META (self->priv->
-            parents[index]), prop_id, event);
+        gstbt_property_meta_describe_property (GSTBT_PROPERTY_META (self->
+            priv->parents[index]), prop_id, event);
   }
   return NULL;
 }
@@ -806,9 +807,8 @@ bt_parameter_group_constructed (GObject * object)
         self->priv->flags[i] =
             GPOINTER_TO_INT (g_param_spec_get_qdata (param,
                 gstbt_property_meta_quark_flags));
-        if (!(bt_parameter_group_get_property_meta_value (&self->
-                    priv->no_val[i], param,
-                    gstbt_property_meta_quark_no_val))) {
+        if (!(bt_parameter_group_get_property_meta_value (&self->priv->
+                    no_val[i], param, gstbt_property_meta_quark_no_val))) {
           GST_WARNING
               ("can't get no-val property-meta for param [%u/%lu] \"%s\"", i,
               num_params, param->name);

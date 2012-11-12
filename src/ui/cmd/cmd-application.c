@@ -693,13 +693,11 @@ bt_cmd_application_set_property (GObject * object, guint property_id,
   BtCmdApplication *self = BT_CMD_APPLICATION (object);
   return_if_disposed ();
   switch (property_id) {
-    case CMD_APP_QUIET:{
+    case CMD_APP_QUIET:
       self->priv->quiet = g_value_get_boolean (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

@@ -339,13 +339,11 @@ bt_crash_recover_dialog_set_property (GObject * object, guint property_id,
   BtCrashRecoverDialog *self = BT_CRASH_RECOVER_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case CRASH_RECOVER_DIALOG_ENTRIES:{
+    case CRASH_RECOVER_DIALOG_ENTRIES:
       self->priv->entries = g_value_get_pointer (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

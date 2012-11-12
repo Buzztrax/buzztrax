@@ -101,25 +101,20 @@ btic_abs_range_control_get_property (GObject * const object,
   const BtIcAbsRangeControl *const self = BTIC_ABS_RANGE_CONTROL (object);
   return_if_disposed ();
   switch (property_id) {
-    case ABS_RANGE_CONTROL_VALUE:{
+    case ABS_RANGE_CONTROL_VALUE:
       g_value_set_long (value, self->priv->value);
-    }
       break;
-    case ABS_RANGE_CONTROL_MIN:{
+    case ABS_RANGE_CONTROL_MIN:
       g_value_set_long (value, self->priv->min);
-    }
       break;
-    case ABS_RANGE_CONTROL_MAX:{
+    case ABS_RANGE_CONTROL_MAX:
       g_value_set_long (value, self->priv->max);
-    }
       break;
-    case ABS_RANGE_CONTROL_DEF:{
+    case ABS_RANGE_CONTROL_DEF:
       g_value_set_long (value, self->priv->def);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -132,25 +127,20 @@ btic_abs_range_control_set_property (GObject * const object,
   const BtIcAbsRangeControl *const self = BTIC_ABS_RANGE_CONTROL (object);
   return_if_disposed ();
   switch (property_id) {
-    case ABS_RANGE_CONTROL_VALUE:{
+    case ABS_RANGE_CONTROL_VALUE:
       self->priv->value = g_value_get_long (value);
-    }
       break;
-    case ABS_RANGE_CONTROL_MIN:{
+    case ABS_RANGE_CONTROL_MIN:
       self->priv->min = g_value_get_long (value);
-    }
       break;
-    case ABS_RANGE_CONTROL_MAX:{
+    case ABS_RANGE_CONTROL_MAX:
       self->priv->max = g_value_get_long (value);
-    }
       break;
-    case ABS_RANGE_CONTROL_DEF:{
+    case ABS_RANGE_CONTROL_DEF:
       self->priv->def = g_value_get_long (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

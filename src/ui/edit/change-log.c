@@ -1082,22 +1082,18 @@ bt_change_log_get_property (GObject * object, guint property_id, GValue * value,
   BtChangeLog *self = BT_CHANGE_LOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case CHANGE_LOG_CAN_UNDO:{
+    case CHANGE_LOG_CAN_UNDO:
       g_value_set_boolean (value, (self->priv->next_undo != -1));
-    }
       break;
-    case CHANGE_LOG_CAN_REDO:{
+    case CHANGE_LOG_CAN_REDO:
       g_value_set_boolean (value,
           (self->priv->next_redo != self->priv->item_ct));
-    }
       break;
-    case CHANGE_LOG_CRASH_LOGS:{
+    case CHANGE_LOG_CRASH_LOGS:
       g_value_set_pointer (value, self->priv->crash_logs);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

@@ -296,21 +296,17 @@ bt_wavetable_get_property (GObject * const object, const guint property_id,
   const BtWavetable *const self = BT_WAVETABLE (object);
   return_if_disposed ();
   switch (property_id) {
-    case WAVETABLE_SONG:{
+    case WAVETABLE_SONG:
       g_value_set_object (value, self->priv->song);
-    }
       break;
-    case WAVETABLE_WAVES:{
+    case WAVETABLE_WAVES:
       g_value_set_pointer (value, g_list_copy (self->priv->waves));
-    }
       break;
-    case WAVETABLE_MISSING_WAVES:{
+    case WAVETABLE_MISSING_WAVES:
       g_value_set_pointer (value, self->priv->missing_waves);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -322,15 +318,13 @@ bt_wavetable_set_property (GObject * const object, const guint property_id,
   const BtWavetable *const self = BT_WAVETABLE (object);
   return_if_disposed ();
   switch (property_id) {
-    case WAVETABLE_SONG:{
+    case WAVETABLE_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
       //GST_DEBUG("set the song for wavetable: %p",self->priv->song);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

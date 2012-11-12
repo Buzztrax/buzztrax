@@ -244,21 +244,17 @@ btic_device_get_property (GObject * const object, const guint property_id,
   const BtIcDevice *const self = BTIC_DEVICE (object);
   return_if_disposed ();
   switch (property_id) {
-    case DEVICE_UDI:{
+    case DEVICE_UDI:
       g_value_set_string (value, self->priv->udi);
-    }
       break;
-    case DEVICE_NAME:{
+    case DEVICE_NAME:
       g_value_set_string (value, self->priv->name);
-    }
       break;
-    case DEVICE_CONTROLS:{
+    case DEVICE_CONTROLS:
       g_value_set_pointer (value, g_list_copy (self->priv->controls));
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -270,17 +266,14 @@ btic_device_set_property (GObject * const object, const guint property_id,
   const BtIcDevice *const self = BTIC_DEVICE (object);
   return_if_disposed ();
   switch (property_id) {
-    case DEVICE_UDI:{
+    case DEVICE_UDI:
       self->priv->udi = g_value_dup_string (value);
-    }
       break;
-    case DEVICE_NAME:{
+    case DEVICE_NAME:
       self->priv->name = g_value_dup_string (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

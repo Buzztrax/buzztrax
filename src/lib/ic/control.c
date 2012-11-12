@@ -84,21 +84,17 @@ btic_control_get_property (GObject * const object, const guint property_id,
   const BtIcControl *const self = BTIC_CONTROL (object);
   return_if_disposed ();
   switch (property_id) {
-    case CONTROL_DEVICE:{
+    case CONTROL_DEVICE:
       g_value_set_object (value, self->priv->device);
-    }
       break;
-    case CONTROL_NAME:{
+    case CONTROL_NAME:
       g_value_set_string (value, self->priv->name);
-    }
       break;
-    case CONTROL_ID:{
+    case CONTROL_ID:
       g_value_set_uint (value, self->priv->id);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -110,10 +106,9 @@ btic_control_set_property (GObject * const object, const guint property_id,
   const BtIcControl *const self = BTIC_CONTROL (object);
   return_if_disposed ();
   switch (property_id) {
-    case CONTROL_DEVICE:{
+    case CONTROL_DEVICE:
       self->priv->device = BTIC_DEVICE (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->device);
-    }
       break;
     case CONTROL_NAME:{
       gchar *new_name = g_value_dup_string (value);
@@ -132,15 +127,13 @@ btic_control_set_property (GObject * const object, const guint property_id,
           g_free (new_name);
         }
       }
-    }
       break;
-    case CONTROL_ID:{
+    }
+    case CONTROL_ID:
       self->priv->id = g_value_get_uint (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

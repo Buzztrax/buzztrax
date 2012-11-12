@@ -229,6 +229,7 @@ on_menu_can_redo_changed (const BtChangeLog * change_log, GParamSpec * arg,
   gtk_widget_set_sensitive (menuitem, enabled);
 }
 
+// TODO(ensonic): call bt_main_pages_cut() and make that dispatch
 static void
 on_menu_cut_activate (GtkMenuItem * menuitem, gpointer user_data)
 {
@@ -237,9 +238,8 @@ on_menu_cut_activate (GtkMenuItem * menuitem, gpointer user_data)
 
   g_object_get (self->priv->main_window, "pages", &pages, NULL);
   switch (gtk_notebook_get_current_page (GTK_NOTEBOOK (pages))) {
-    case BT_MAIN_PAGES_MACHINES_PAGE:{
+    case BT_MAIN_PAGES_MACHINES_PAGE:
       GST_INFO ("menu cut event occurred for machine page");
-    }
       break;
     case BT_MAIN_PAGES_PATTERNS_PAGE:{
       BtMainPagePatterns *page;
@@ -247,23 +247,21 @@ on_menu_cut_activate (GtkMenuItem * menuitem, gpointer user_data)
       g_object_get (pages, "patterns-page", &page, NULL);
       bt_main_page_patterns_cut_selection (page);
       g_object_unref (page);
-    }
       break;
+    }
     case BT_MAIN_PAGES_SEQUENCE_PAGE:{
       BtMainPageSequence *page;
       GST_INFO ("menu cut event occurred for sequence page");
       g_object_get (pages, "sequence-page", &page, NULL);
       bt_main_page_sequence_cut_selection (page);
       g_object_unref (page);
-    }
       break;
-    case BT_MAIN_PAGES_WAVES_PAGE:{
+    }
+    case BT_MAIN_PAGES_WAVES_PAGE:
       GST_INFO ("menu cut event occurred for waves page");
-    }
       break;
-    case BT_MAIN_PAGES_INFO_PAGE:{
+    case BT_MAIN_PAGES_INFO_PAGE:
       GST_INFO ("menu cut event occurred for info page");
-    }
       break;
   }
   g_object_unref (pages);
@@ -277,9 +275,8 @@ on_menu_copy_activate (GtkMenuItem * menuitem, gpointer user_data)
 
   g_object_get (self->priv->main_window, "pages", &pages, NULL);
   switch (gtk_notebook_get_current_page (GTK_NOTEBOOK (pages))) {
-    case BT_MAIN_PAGES_MACHINES_PAGE:{
+    case BT_MAIN_PAGES_MACHINES_PAGE:
       GST_INFO ("menu copy event occurred for machine page");
-    }
       break;
     case BT_MAIN_PAGES_PATTERNS_PAGE:{
       BtMainPagePatterns *page;
@@ -287,23 +284,21 @@ on_menu_copy_activate (GtkMenuItem * menuitem, gpointer user_data)
       g_object_get (pages, "patterns-page", &page, NULL);
       bt_main_page_patterns_copy_selection (page);
       g_object_unref (page);
-    }
       break;
+    }
     case BT_MAIN_PAGES_SEQUENCE_PAGE:{
       BtMainPageSequence *page;
       GST_INFO ("menu copy event occurred for sequence page");
       g_object_get (pages, "sequence-page", &page, NULL);
       bt_main_page_sequence_copy_selection (page);
       g_object_unref (page);
-    }
       break;
-    case BT_MAIN_PAGES_WAVES_PAGE:{
+    }
+    case BT_MAIN_PAGES_WAVES_PAGE:
       GST_INFO ("menu copy event occurred for waves page");
-    }
       break;
-    case BT_MAIN_PAGES_INFO_PAGE:{
+    case BT_MAIN_PAGES_INFO_PAGE:
       GST_INFO ("menu copy event occurred for info page");
-    }
       break;
   }
   g_object_unref (pages);
@@ -317,9 +312,8 @@ on_menu_paste_activate (GtkMenuItem * menuitem, gpointer user_data)
 
   g_object_get (self->priv->main_window, "pages", &pages, NULL);
   switch (gtk_notebook_get_current_page (GTK_NOTEBOOK (pages))) {
-    case BT_MAIN_PAGES_MACHINES_PAGE:{
+    case BT_MAIN_PAGES_MACHINES_PAGE:
       GST_INFO ("menu paste event occurred for machine page");
-    }
       break;
     case BT_MAIN_PAGES_PATTERNS_PAGE:{
       BtMainPagePatterns *page;
@@ -327,23 +321,21 @@ on_menu_paste_activate (GtkMenuItem * menuitem, gpointer user_data)
       g_object_get (pages, "patterns-page", &page, NULL);
       bt_main_page_patterns_paste_selection (page);
       g_object_unref (page);
-    }
       break;
+    }
     case BT_MAIN_PAGES_SEQUENCE_PAGE:{
       BtMainPageSequence *page;
       GST_INFO ("menu paste event occurred for sequence page");
       g_object_get (pages, "sequence-page", &page, NULL);
       bt_main_page_sequence_paste_selection (page);
       g_object_unref (page);
-    }
       break;
-    case BT_MAIN_PAGES_WAVES_PAGE:{
+    }
+    case BT_MAIN_PAGES_WAVES_PAGE:
       GST_INFO ("menu paste event occurred for waves page");
-    }
       break;
-    case BT_MAIN_PAGES_INFO_PAGE:{
+    case BT_MAIN_PAGES_INFO_PAGE:
       GST_INFO ("menu paste event occurred for info page");
-    }
       break;
   }
   g_object_unref (pages);
@@ -357,9 +349,8 @@ on_menu_delete_activate (GtkMenuItem * menuitem, gpointer user_data)
 
   g_object_get (self->priv->main_window, "pages", &pages, NULL);
   switch (gtk_notebook_get_current_page (GTK_NOTEBOOK (pages))) {
-    case BT_MAIN_PAGES_MACHINES_PAGE:{
+    case BT_MAIN_PAGES_MACHINES_PAGE:
       GST_INFO ("menu delete event occurred for machine page");
-    }
       break;
     case BT_MAIN_PAGES_PATTERNS_PAGE:{
       BtMainPagePatterns *page;
@@ -367,23 +358,21 @@ on_menu_delete_activate (GtkMenuItem * menuitem, gpointer user_data)
       g_object_get (pages, "patterns-page", &page, NULL);
       bt_main_page_patterns_delete_selection (page);
       g_object_unref (page);
-    }
       break;
+    }
     case BT_MAIN_PAGES_SEQUENCE_PAGE:{
       BtMainPageSequence *page;
       GST_INFO ("menu delete event occurred for sequence page");
       g_object_get (pages, "sequence-page", &page, NULL);
       bt_main_page_sequence_delete_selection (page);
       g_object_unref (page);
-    }
       break;
-    case BT_MAIN_PAGES_WAVES_PAGE:{
+    }
+    case BT_MAIN_PAGES_WAVES_PAGE:
       GST_INFO ("menu delete event occurred for waves page");
-    }
       break;
-    case BT_MAIN_PAGES_INFO_PAGE:{
+    case BT_MAIN_PAGES_INFO_PAGE:
       GST_INFO ("menu delete event occurred for info page");
-    }
       break;
   }
   g_object_unref (pages);

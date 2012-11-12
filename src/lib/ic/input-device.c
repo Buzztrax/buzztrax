@@ -575,13 +575,11 @@ btic_input_device_get_property (GObject * const object, const guint property_id,
   const BtIcInputDevice *const self = BTIC_INPUT_DEVICE (object);
   return_if_disposed ();
   switch (property_id) {
-    case DEVICE_DEVNODE:{
+    case DEVICE_DEVNODE:
       g_value_set_string (value, self->priv->devnode);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -593,15 +591,13 @@ btic_input_device_set_property (GObject * const object, const guint property_id,
   const BtIcInputDevice *const self = BTIC_INPUT_DEVICE (object);
   return_if_disposed ();
   switch (property_id) {
-    case DEVICE_DEVNODE:{
+    case DEVICE_DEVNODE:
       self->priv->devnode = g_value_dup_string (value);
       //g_assert(!btic_device_has_controls(BTIC_DEVICE(self)));
       register_controls (self);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

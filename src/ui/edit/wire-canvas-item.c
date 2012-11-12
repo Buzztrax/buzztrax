@@ -482,37 +482,29 @@ bt_wire_canvas_item_get_property (GObject * object, guint property_id,
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (object);
   return_if_disposed ();
   switch (property_id) {
-    case WIRE_CANVAS_ITEM_MACHINES_PAGE:{
+    case WIRE_CANVAS_ITEM_MACHINES_PAGE:
       g_value_set_object (value, self->priv->main_page_machines);
-    }
       break;
-    case WIRE_CANVAS_ITEM_WIRE:{
+    case WIRE_CANVAS_ITEM_WIRE:
       g_value_set_object (value, self->priv->wire);
-    }
       break;
-    case WIRE_CANVAS_ITEM_W:{
+    case WIRE_CANVAS_ITEM_W:
       g_value_set_double (value, self->priv->w);
-    }
       break;
-    case WIRE_CANVAS_ITEM_H:{
+    case WIRE_CANVAS_ITEM_H:
       g_value_set_double (value, self->priv->h);
-    }
       break;
-    case WIRE_CANVAS_ITEM_SRC:{
+    case WIRE_CANVAS_ITEM_SRC:
       g_value_set_object (value, self->priv->src);
-    }
       break;
-    case WIRE_CANVAS_ITEM_DST:{
+    case WIRE_CANVAS_ITEM_DST:
       g_value_set_object (value, self->priv->dst);
-    }
       break;
-    case WIRE_CANVAS_ITEM_ANALYSIS_DIALOG:{
+    case WIRE_CANVAS_ITEM_ANALYSIS_DIALOG:
       g_value_set_object (value, self->priv->analysis_dialog);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -524,15 +516,14 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (object);
   return_if_disposed ();
   switch (property_id) {
-    case WIRE_CANVAS_ITEM_MACHINES_PAGE:{
+    case WIRE_CANVAS_ITEM_MACHINES_PAGE:
       g_object_try_weak_unref (self->priv->main_page_machines);
       self->priv->main_page_machines =
           BT_MAIN_PAGE_MACHINES (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->main_page_machines);
       //GST_DEBUG("set the main_page_machines for wire_canvas_item: %p",self->priv->main_page_machines);
-    }
       break;
-    case WIRE_CANVAS_ITEM_WIRE:{
+    case WIRE_CANVAS_ITEM_WIRE:
       g_object_try_unref (self->priv->wire);
       self->priv->wire = BT_WIRE (g_value_dup_object (value));
       if (self->priv->wire) {
@@ -542,17 +533,14 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
         g_object_get (self->priv->wire, "properties", &(self->priv->properties),
             NULL);
       }
-    }
       break;
-    case WIRE_CANVAS_ITEM_W:{
+    case WIRE_CANVAS_ITEM_W:
       self->priv->w = g_value_get_double (value);
-    }
       break;
-    case WIRE_CANVAS_ITEM_H:{
+    case WIRE_CANVAS_ITEM_H:
       self->priv->h = g_value_get_double (value);
-    }
       break;
-    case WIRE_CANVAS_ITEM_SRC:{
+    case WIRE_CANVAS_ITEM_SRC:
       if (self->priv->src) {
         g_signal_handlers_disconnect_matched (self->priv->src,
             G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
@@ -565,9 +553,8 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
             G_CALLBACK (on_wire_src_position_changed), (gpointer) self);
         GST_DEBUG ("set the src for wire_canvas_item: %p", self->priv->src);
       }
-    }
       break;
-    case WIRE_CANVAS_ITEM_DST:{
+    case WIRE_CANVAS_ITEM_DST:
       if (self->priv->dst) {
         g_signal_handlers_disconnect_matched (self->priv->dst,
             G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
@@ -580,11 +567,9 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
             G_CALLBACK (on_wire_dst_position_changed), (gpointer) self);
         GST_DEBUG ("set the dst for wire_canvas_item: %p", self->priv->dst);
       }
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

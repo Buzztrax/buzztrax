@@ -909,8 +909,8 @@ bt_main_window_save_song_as (const BtMainWindow * self)
       g_free (self->priv->last_folder);
       self->priv->last_folder =
           gtk_file_chooser_get_current_folder (self->priv->file_chooser);
-    }
       break;
+    }
     case GTK_RESPONSE_REJECT:
     case GTK_RESPONSE_CANCEL:
     case GTK_RESPONSE_CLOSE:
@@ -1193,25 +1193,20 @@ bt_main_window_get_property (GObject * object, guint property_id,
   BtMainWindow *self = BT_MAIN_WINDOW (object);
   return_if_disposed ();
   switch (property_id) {
-    case MAIN_WINDOW_TOOLBAR:{
+    case MAIN_WINDOW_TOOLBAR:
       g_value_set_object (value, self->priv->toolbar);
-    }
       break;
-    case MAIN_WINDOW_STATUSBAR:{
+    case MAIN_WINDOW_STATUSBAR:
       g_value_set_object (value, self->priv->statusbar);
-    }
       break;
-    case MAIN_WINDOW_PAGES:{
+    case MAIN_WINDOW_PAGES:
       g_value_set_object (value, self->priv->pages);
-    }
       break;
-    case MAIN_WINDOW_DIALOG:{
+    case MAIN_WINDOW_DIALOG:
       g_value_set_object (value, self->priv->dialog);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

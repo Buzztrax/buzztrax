@@ -42,14 +42,12 @@ song_get_property (GObject * object,
   BtSong *self = (BtSong *) object;
   return_if_disposed ();
   switch (property_id) {
-    case SONG_NAME:{
+    case SONG_NAME:
       g_value_set_string (value, self->private->name);
-    }
       break;
-    default:{
+    default:
       g_assert (FALSE);
       break;
-    }
   }
 }
 
@@ -60,11 +58,10 @@ song_set_property (GObject * object,
   BtSong *self = (BtSong *) object;
   return_if_disposed ();
   switch (property_id) {
-    case SONG_NAME:{
+    case SONG_NAME:
       g_free (self->private->name);
       self->private->name = g_value_dup_string (value);
       //g_print("set the name for song: %s\n",self->private->name);
-    }
       break;
   }
 }

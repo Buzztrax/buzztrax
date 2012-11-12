@@ -178,29 +178,23 @@ bt_cmd_pattern_get_property (GObject * const object, const guint property_id,
 
   return_if_disposed ();
   switch (property_id) {
-    case CMD_PATTERN_SONG:{
+    case CMD_PATTERN_SONG:
       g_value_set_object (value, self->priv->song);
-    }
       break;
-    case CMD_PATTERN_ID:{
+    case CMD_PATTERN_ID:
       g_value_set_string (value, self->priv->id);
-    }
       break;
-    case CMD_PATTERN_NAME:{
+    case CMD_PATTERN_NAME:
       g_value_set_string (value, self->priv->name);
-    }
       break;
-    case CMD_PATTERN_MACHINE:{
+    case CMD_PATTERN_MACHINE:
       g_value_set_object (value, self->priv->machine);
-    }
       break;
-    case CMD_PATTERN_COMMAND:{
+    case CMD_PATTERN_COMMAND:
       g_value_set_enum (value, self->priv->cmd);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -213,38 +207,32 @@ bt_cmd_pattern_set_property (GObject * const object, const guint property_id,
 
   return_if_disposed ();
   switch (property_id) {
-    case CMD_PATTERN_SONG:{
+    case CMD_PATTERN_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
       //GST_DEBUG("set the song for pattern: %p",self->priv->song);
-    }
       break;
-    case CMD_PATTERN_ID:{
+    case CMD_PATTERN_ID:
       g_free (self->priv->id);
       self->priv->id = g_value_dup_string (value);
       GST_DEBUG ("set the id for pattern: '%s'", self->priv->id);
-    }
       break;
-    case CMD_PATTERN_NAME:{
+    case CMD_PATTERN_NAME:
       g_free (self->priv->name);
       self->priv->name = g_value_dup_string (value);
       GST_DEBUG ("set the display name for the pattern: '%s'",
           self->priv->name);
-    }
       break;
-    case CMD_PATTERN_MACHINE:{
+    case CMD_PATTERN_MACHINE:
       self->priv->machine = BT_MACHINE (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->machine);
-    }
       break;
-    case CMD_PATTERN_COMMAND:{
+    case CMD_PATTERN_COMMAND:
       self->priv->cmd = g_value_get_enum (value);
       GST_DEBUG ("set the cmd for the pattern: %d", self->priv->cmd);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

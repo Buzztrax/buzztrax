@@ -175,25 +175,20 @@ bt_waveform_viewer_get_property (GObject * object,
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER (object);
 
   switch (property_id) {
-    case WAVE_VIEWER_WAVE_LENGTH:{
+    case WAVE_VIEWER_WAVE_LENGTH:
       g_value_set_int64 (value, self->wave_length);
-    }
       break;
-    case WAVE_VIEWER_LOOP_BEGIN:{
+    case WAVE_VIEWER_LOOP_BEGIN:
       g_value_set_int64 (value, self->loop_begin);
-    }
       break;
-    case WAVE_VIEWER_LOOP_END:{
+    case WAVE_VIEWER_LOOP_END:
       g_value_set_int64 (value, self->loop_end);
-    }
       break;
-    case WAVE_VIEWER_PLAYBACK_CURSOR:{
+    case WAVE_VIEWER_PLAYBACK_CURSOR:
       g_value_set_int64 (value, self->playback_cursor);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -205,30 +200,26 @@ bt_waveform_viewer_set_property (GObject * object,
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER (object);
 
   switch (property_id) {
-    case WAVE_VIEWER_LOOP_BEGIN:{
+    case WAVE_VIEWER_LOOP_BEGIN:
       self->loop_begin = g_value_get_int64 (value);
       if (gtk_widget_get_realized (GTK_WIDGET (self))) {
         gtk_widget_queue_draw (GTK_WIDGET (self));
       }
-    }
       break;
-    case WAVE_VIEWER_LOOP_END:{
+    case WAVE_VIEWER_LOOP_END:
       self->loop_end = g_value_get_int64 (value);
       if (gtk_widget_get_realized (GTK_WIDGET (self))) {
         gtk_widget_queue_draw (GTK_WIDGET (self));
       }
-    }
       break;
-    case WAVE_VIEWER_PLAYBACK_CURSOR:{
+    case WAVE_VIEWER_PLAYBACK_CURSOR:
       self->playback_cursor = g_value_get_int64 (value);
       if (gtk_widget_get_realized (GTK_WIDGET (self))) {
         gtk_widget_queue_draw (GTK_WIDGET (self));
       }
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
   /* printf("SetProperty: loop_begin=%d loop_end=%d\n", (int)self->loop_begin, (int)self->loop_end); */

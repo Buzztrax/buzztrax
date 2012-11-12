@@ -257,29 +257,23 @@ bt_main_pages_get_property (GObject * object, guint property_id, GValue * value,
   BtMainPages *self = BT_MAIN_PAGES (object);
   return_if_disposed ();
   switch (property_id) {
-    case MAIN_PAGES_MACHINES_PAGE:{
+    case MAIN_PAGES_MACHINES_PAGE:
       g_value_set_object (value, self->priv->machines_page);
-    }
       break;
-    case MAIN_PAGES_PATTERNS_PAGE:{
+    case MAIN_PAGES_PATTERNS_PAGE:
       g_value_set_object (value, self->priv->patterns_page);
-    }
       break;
-    case MAIN_PAGES_SEQUENCE_PAGE:{
+    case MAIN_PAGES_SEQUENCE_PAGE:
       g_value_set_object (value, self->priv->sequence_page);
-    }
       break;
-    case MAIN_PAGES_WAVES_PAGE:{
+    case MAIN_PAGES_WAVES_PAGE:
       g_value_set_object (value, self->priv->waves_page);
-    }
       break;
-    case MAIN_PAGES_INFO_PAGE:{
+    case MAIN_PAGES_INFO_PAGE:
       g_value_set_object (value, self->priv->info_page);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

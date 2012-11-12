@@ -86,17 +86,14 @@ bt_plainfile_settings_get_property (GObject * const object,
   return_if_disposed ();
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK:
-    case BT_SETTINGS_SYSTEM_AUDIOSINK:{
+    case BT_SETTINGS_SYSTEM_AUDIOSINK:
       g_value_set_static_string (value, "autoaudiosink");
-    }
       break;
-    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:{
+    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:
       g_value_set_static_string (value, "both");
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -114,10 +111,10 @@ bt_plainfile_settings_set_property (GObject * const object,
       GST_DEBUG ("application writes audiosink plainfile_settings : %s", prop);
       // TODO(ensonic): set property value
       g_free (prop);
-    } break;
-    default:{
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
     }
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
 }

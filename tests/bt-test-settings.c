@@ -89,14 +89,12 @@ bt_test_settings_get_property (GObject * const object, const guint property_id,
     case BT_SETTINGS_FOLDER_RECORD:
     case BT_SETTINGS_FOLDER_SAMPLE:
     case BT_SETTINGS_PRESENTED_TIPS:
-    {
       if (prop) {
         g_value_set_string (value, g_value_get_string (prop));
       } else {
         g_value_set_static_string (value,
             ((GParamSpecString *) pspec)->default_value);
       }
-    }
       break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
     case BT_SETTINGS_MENU_STATUSBAR_HIDE:
@@ -105,43 +103,36 @@ bt_test_settings_get_property (GObject * const object, const guint property_id,
     case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:
     case BT_SETTINGS_SHOW_TIPS:
-    {
       if (prop) {
         g_value_set_boolean (value, g_value_get_boolean (prop));
       } else {
         g_value_set_boolean (value,
             ((GParamSpecBoolean *) pspec)->default_value);
       }
-    }
       break;
     case BT_SETTINGS_SAMPLE_RATE:
     case BT_SETTINGS_CHANNELS:
     case BT_SETTINGS_LATENCY:
     case BT_SETTINGS_NEWS_SEEN:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
-    {
       if (prop) {
         g_value_set_uint (value, g_value_get_uint (prop));
       } else {
         g_value_set_uint (value, ((GParamSpecUInt *) pspec)->default_value);
       }
-    }
       break;
     case BT_SETTINGS_WINDOW_XPOS:
     case BT_SETTINGS_WINDOW_YPOS:
     case BT_SETTINGS_WINDOW_WIDTH:
     case BT_SETTINGS_WINDOW_HEIGHT:
-    {
       if (prop) {
         g_value_set_int (value, g_value_get_int (prop));
       } else {
         g_value_set_int (value, ((GParamSpecInt *) pspec)->default_value);
       }
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -164,54 +155,45 @@ bt_test_settings_set_property (GObject * const object, const guint property_id,
     case BT_SETTINGS_FOLDER_RECORD:
     case BT_SETTINGS_FOLDER_SAMPLE:
     case BT_SETTINGS_PRESENTED_TIPS:
-    {
       if (!prop) {
         self->priv->settings[property_id] = prop = g_new0 (GValue, 1);
         g_value_init (prop, G_TYPE_STRING);
       }
       g_value_set_string (prop, g_value_get_string (value));
-    }
       break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
     case BT_SETTINGS_MENU_STATUSBAR_HIDE:
     case BT_SETTINGS_MENU_TABS_HIDE:
     case BT_SETTINGS_SHOW_TIPS:
-    {
       if (!prop) {
         self->priv->settings[property_id] = prop = g_new0 (GValue, 1);
         g_value_init (prop, G_TYPE_BOOLEAN);
       }
       g_value_set_boolean (prop, g_value_get_boolean (value));
-    }
       break;
     case BT_SETTINGS_SAMPLE_RATE:
     case BT_SETTINGS_CHANNELS:
     case BT_SETTINGS_LATENCY:
     case BT_SETTINGS_NEWS_SEEN:
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
-    {
       if (!prop) {
         self->priv->settings[property_id] = prop = g_new0 (GValue, 1);
         g_value_init (prop, G_TYPE_UINT);
       }
       g_value_set_uint (prop, g_value_get_uint (value));
-    }
       break;
     case BT_SETTINGS_WINDOW_XPOS:
     case BT_SETTINGS_WINDOW_YPOS:
     case BT_SETTINGS_WINDOW_WIDTH:
     case BT_SETTINGS_WINDOW_HEIGHT:
-    {
       if (!prop) {
         self->priv->settings[property_id] = prop = g_new0 (GValue, 1);
         g_value_init (prop, G_TYPE_INT);
       }
       g_value_set_int (prop, g_value_get_int (value));
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

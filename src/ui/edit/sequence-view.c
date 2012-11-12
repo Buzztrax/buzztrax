@@ -229,8 +229,8 @@ bt_sequence_view_set_property (GObject * object, guint property_id,
       if (gtk_widget_get_realized (GTK_WIDGET (self))) {
         bt_sequence_view_invalidate (self, old_pos, self->priv->play_pos);
       }
-    }
       break;
+    }
     case SEQUENCE_VIEW_LOOP_START:{
       gdouble old_pos = self->priv->loop_start;
 
@@ -238,8 +238,8 @@ bt_sequence_view_set_property (GObject * object, guint property_id,
       if (gtk_widget_get_realized (GTK_WIDGET (self))) {
         bt_sequence_view_invalidate (self, old_pos, self->priv->loop_start);
       }
-    }
       break;
+    }
     case SEQUENCE_VIEW_LOOP_END:{
       gdouble old_pos = self->priv->loop_end;
 
@@ -247,19 +247,17 @@ bt_sequence_view_set_property (GObject * object, guint property_id,
       if (gtk_widget_get_realized (GTK_WIDGET (self))) {
         bt_sequence_view_invalidate (self, old_pos, self->priv->loop_end);
       }
-    }
       break;
-    case SEQUENCE_VIEW_VISIBLE_ROWS:{
+    }
+    case SEQUENCE_VIEW_VISIBLE_ROWS:
       self->priv->visible_rows = g_value_get_ulong (value);
       GST_INFO ("visible-rows = %lu", self->priv->visible_rows);
       if (gtk_widget_get_realized (GTK_WIDGET (self))) {
         gtk_widget_queue_draw (GTK_WIDGET (self));
       }
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

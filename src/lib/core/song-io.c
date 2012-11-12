@@ -465,25 +465,20 @@ bt_song_io_get_property (GObject * const object, const guint property_id,
   const BtSongIO *const self = BT_SONG_IO (object);
   return_if_disposed ();
   switch (property_id) {
-    case SONG_IO_FILE_NAME:{
+    case SONG_IO_FILE_NAME:
       g_value_set_string (value, self->priv->file_name);
-    }
       break;
-    case SONG_IO_DATA:{
+    case SONG_IO_DATA:
       g_value_set_pointer (value, self->priv->data);
-    }
       break;
-    case SONG_IO_DATA_LEN:{
+    case SONG_IO_DATA_LEN:
       g_value_set_uint (value, self->priv->len);
-    }
       break;
-    case SONG_IO_STATUS:{
+    case SONG_IO_STATUS:
       g_value_set_string (value, self->priv->status);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -495,15 +490,13 @@ bt_song_io_set_property (GObject * const object, const guint property_id,
   const BtSongIO *const self = BT_SONG_IO (object);
   return_if_disposed ();
   switch (property_id) {
-    case SONG_IO_STATUS:{
+    case SONG_IO_STATUS:
       g_free (self->priv->status);
       self->priv->status = g_value_dup_string (value);
       GST_DEBUG ("set the status for song_io: %s", self->priv->status);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

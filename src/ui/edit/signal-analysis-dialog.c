@@ -1185,14 +1185,12 @@ bt_signal_analysis_dialog_set_property (GObject * object, guint property_id,
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case SIGNAL_ANALYSIS_DIALOG_ELEMENT:{
+    case SIGNAL_ANALYSIS_DIALOG_ELEMENT:
       g_object_try_unref (self->priv->element);
       self->priv->element = g_value_dup_object (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

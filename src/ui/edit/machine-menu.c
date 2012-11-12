@@ -373,17 +373,15 @@ bt_machine_menu_set_property (GObject * object, guint property_id,
   BtMachineMenu *self = BT_MACHINE_MENU (object);
   return_if_disposed ();
   switch (property_id) {
-    case MACHINE_MENU_MACHINES_PAGE:{
+    case MACHINE_MENU_MACHINES_PAGE:
       g_object_try_weak_unref (self->priv->main_page_machines);
       self->priv->main_page_machines =
           BT_MAIN_PAGE_MACHINES (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->main_page_machines);
       //GST_DEBUG("set the main_page_machines for machine_menu: %p",self->priv->main_page_machines);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

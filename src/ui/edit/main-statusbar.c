@@ -445,11 +445,10 @@ bt_main_statusbar_set_property (GObject * object, guint property_id,
       while (gtk_events_pending ())
         gtk_main_iteration ();
       //GST_DEBUG("set the status-text for main_statusbar");
-    }
       break;
-    default:{
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
 }

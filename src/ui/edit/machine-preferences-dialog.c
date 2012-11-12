@@ -382,8 +382,8 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
         // connect handlers
         g_signal_connect (widget1, "changed",
             G_CALLBACK (on_entry_property_changed), (gpointer) machine);
-      }
         break;
+      }
       case G_TYPE_BOOLEAN:{
         gboolean value;
 
@@ -397,8 +397,8 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
         // connect handlers
         g_signal_connect (widget1, "toggled",
             G_CALLBACK (on_checkbox_property_toggled), (gpointer) machine);
-      }
         break;
+      }
         _MAKE_SPIN_BUTTON (int, INT, Int)
           _MAKE_SPIN_BUTTON (uint, UINT, UInt)
           _MAKE_SPIN_BUTTON (int64, INT64, Int64)
@@ -438,8 +438,8 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
         g_signal_connect (widget2, "changed",
             G_CALLBACK (on_double_entry_property_changed), (gpointer) machine);
         g_free (signal_name);
-      }
         break;
+      }
       case G_TYPE_ENUM:{
         GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
         GEnumClass *enum_class = enum_property->enum_class;
@@ -484,14 +484,15 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
             G_CALLBACK (on_combobox_property_changed), (gpointer) machine);
         g_free (signal_name);
         widget2 = NULL;
-      }
         break;
+      }
       default:{
         gchar *str = g_strdup_printf ("unhandled type \"%s\"",
             G_PARAM_SPEC_TYPE_NAME (property));
         widget1 = gtk_label_new (str);
         g_free (str);
         widget2 = NULL;
+        break;
       }
     }
     gtk_widget_set_tooltip_text (widget1, tool_tip_text);
@@ -555,14 +556,12 @@ bt_machine_preferences_dialog_set_property (GObject * object, guint property_id,
   BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case MACHINE_PREFERENCES_DIALOG_MACHINE:{
+    case MACHINE_PREFERENCES_DIALOG_MACHINE:
       g_object_try_unref (self->priv->machine);
       self->priv->machine = g_value_dup_object (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

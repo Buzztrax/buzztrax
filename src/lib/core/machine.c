@@ -466,11 +466,10 @@ bt_machine_change_state (const BtMachine * const self,
 
   // return to normal state
   switch (self->priv->state) {
-    case BT_MACHINE_STATE_MUTE:{
+    case BT_MACHINE_STATE_MUTE:
       // source, processor, sink
       if (!bt_machine_unset_mute (self))
         res = FALSE;
-    }
       break;
     case BT_MACHINE_STATE_SOLO:{
       // source
@@ -489,8 +488,8 @@ bt_machine_change_state (const BtMachine * const self,
       GST_INFO ("unmuted %d elements with result = %d",
           g_list_length (machines), res);
       g_list_free (machines);
-    }
       break;
+    }
     case BT_MACHINE_STATE_BYPASS:{
       // processor
       const GstElement *const element = self->priv->machines[PART_MACHINE];
@@ -501,8 +500,8 @@ bt_machine_change_state (const BtMachine * const self,
         // TODO(ensonic): disconnect its source and sink + set this machine to playing
         GST_INFO ("element does not support passthrough");
       }
-    }
       break;
+    }
     case BT_MACHINE_STATE_NORMAL:
       //g_return_val_if_reached(FALSE);
       break;
@@ -3244,9 +3243,8 @@ bt_machine_set_property (GObject * const object, const guint property_id,
             self->priv->state);
       }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

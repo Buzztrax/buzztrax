@@ -94,13 +94,11 @@ btic_trigger_control_get_property (GObject * const object,
   const BtIcTriggerControl *const self = BTIC_TRIGGER_CONTROL (object);
   return_if_disposed ();
   switch (property_id) {
-    case TRIGGER_CONTROL_VALUE:{
+    case TRIGGER_CONTROL_VALUE:
       g_value_set_boolean (value, self->priv->value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -113,13 +111,11 @@ btic_trigger_control_set_property (GObject * const object,
   const BtIcTriggerControl *const self = BTIC_TRIGGER_CONTROL (object);
   return_if_disposed ();
   switch (property_id) {
-    case TRIGGER_CONTROL_VALUE:{
+    case TRIGGER_CONTROL_VALUE:
       self->priv->value = g_value_get_boolean (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

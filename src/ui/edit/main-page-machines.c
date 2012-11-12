@@ -2347,13 +2347,11 @@ bt_main_page_machines_get_property (GObject * object, guint property_id,
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (object);
   return_if_disposed ();
   switch (property_id) {
-    case MAIN_PAGE_MACHINES_CANVAS:{
+    case MAIN_PAGE_MACHINES_CANVAS:
       g_value_set_object (value, self->priv->canvas);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

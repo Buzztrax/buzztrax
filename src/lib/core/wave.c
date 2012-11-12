@@ -867,41 +867,32 @@ bt_wave_get_property (GObject * const object, const guint property_id,
   const BtWave *const self = BT_WAVE (object);
   return_if_disposed ();
   switch (property_id) {
-    case WAVE_SONG:{
+    case WAVE_SONG:
       g_value_set_object (value, self->priv->song);
-    }
       break;
-    case WAVE_WAVELEVELS:{
+    case WAVE_WAVELEVELS:
       g_value_set_pointer (value, g_list_copy (self->priv->wavelevels));
-    }
       break;
-    case WAVE_INDEX:{
+    case WAVE_INDEX:
       g_value_set_ulong (value, self->priv->index);
-    }
       break;
-    case WAVE_NAME:{
+    case WAVE_NAME:
       g_value_set_string (value, self->priv->name);
-    }
       break;
-    case WAVE_URI:{
+    case WAVE_URI:
       g_value_set_string (value, self->priv->uri);
-    }
       break;
-    case WAVE_VOLUME:{
+    case WAVE_VOLUME:
       g_value_set_double (value, self->priv->volume);
-    }
       break;
-    case WAVE_LOOP_MODE:{
+    case WAVE_LOOP_MODE:
       g_value_set_enum (value, self->priv->loop_mode);
-    }
       break;
-    case WAVE_CHANNELS:{
+    case WAVE_CHANNELS:
       g_value_set_uint (value, self->priv->channels);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -913,45 +904,37 @@ bt_wave_set_property (GObject * const object, const guint property_id,
   const BtWave *const self = BT_WAVE (object);
   return_if_disposed ();
   switch (property_id) {
-    case WAVE_SONG:{
+    case WAVE_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
       //GST_DEBUG("set the song for wave: %p",self->priv->song);
-    }
       break;
-    case WAVE_INDEX:{
+    case WAVE_INDEX:
       self->priv->index = g_value_get_ulong (value);
       GST_DEBUG ("set the index for wave: %lu", self->priv->index);
-    }
       break;
-    case WAVE_NAME:{
+    case WAVE_NAME:
       g_free (self->priv->name);
       self->priv->name = g_value_dup_string (value);
       GST_DEBUG ("set the name for wave: %s", self->priv->name);
-    }
       break;
-    case WAVE_URI:{
+    case WAVE_URI:
       g_free (self->priv->uri);
       self->priv->uri = g_value_dup_string (value);
       GST_DEBUG ("set the uri for wave: %s", self->priv->uri);
-    }
       break;
-    case WAVE_VOLUME:{
+    case WAVE_VOLUME:
       self->priv->volume = g_value_get_double (value);
-    }
       break;
-    case WAVE_LOOP_MODE:{
+    case WAVE_LOOP_MODE:
       self->priv->loop_mode = g_value_get_enum (value);
-    }
       break;
-    case WAVE_CHANNELS:{
+    case WAVE_CHANNELS:
       self->priv->channels = g_value_get_uint (value);
       GST_DEBUG ("set the channels for wave: %d", self->priv->channels);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

@@ -207,41 +207,32 @@ bt_wavelevel_get_property (GObject * const object, const guint property_id,
   const BtWavelevel *const self = BT_WAVELEVEL (object);
   return_if_disposed ();
   switch (property_id) {
-    case WAVELEVEL_SONG:{
+    case WAVELEVEL_SONG:
       g_value_set_object (value, self->priv->song);
-    }
       break;
-    case WAVELEVEL_WAVE:{
+    case WAVELEVEL_WAVE:
       g_value_set_object (value, self->priv->wave);
-    }
       break;
-    case WAVELEVEL_ROOT_NOTE:{
+    case WAVELEVEL_ROOT_NOTE:
       g_value_set_uchar (value, self->priv->root_note);
-    }
       break;
-    case WAVELEVEL_LENGTH:{
+    case WAVELEVEL_LENGTH:
       g_value_set_ulong (value, self->priv->length);
-    }
       break;
-    case WAVELEVEL_LOOP_START:{
+    case WAVELEVEL_LOOP_START:
       g_value_set_long (value, self->priv->loop_start);
-    }
       break;
-    case WAVELEVEL_LOOP_END:{
+    case WAVELEVEL_LOOP_END:
       g_value_set_long (value, self->priv->loop_end);
-    }
       break;
-    case WAVELEVEL_RATE:{
+    case WAVELEVEL_RATE:
       g_value_set_ulong (value, self->priv->rate);
-    }
       break;
-    case WAVELEVEL_DATA:{
+    case WAVELEVEL_DATA:
       g_value_set_pointer (value, self->priv->sample);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -253,29 +244,25 @@ bt_wavelevel_set_property (GObject * const object, const guint property_id,
   const BtWavelevel *const self = BT_WAVELEVEL (object);
   return_if_disposed ();
   switch (property_id) {
-    case WAVELEVEL_SONG:{
+    case WAVELEVEL_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
       //GST_DEBUG("set the song for wavelevel: %p",self->priv->song);
-    }
       break;
-    case WAVELEVEL_WAVE:{
+    case WAVELEVEL_WAVE:
       self->priv->wave = BT_WAVE (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->wave);
       GST_DEBUG ("set the wave for wavelevel: %p", self->priv->wave);
-    }
       break;
-    case WAVELEVEL_ROOT_NOTE:{
+    case WAVELEVEL_ROOT_NOTE:
       self->priv->root_note = g_value_get_uchar (value);
       GST_DEBUG ("set the root-note for wavelevel: %d", self->priv->root_note);
-    }
       break;
-    case WAVELEVEL_LENGTH:{
+    case WAVELEVEL_LENGTH:
       self->priv->length = g_value_get_ulong (value);
       GST_DEBUG ("set the length for wavelevel: %lu", self->priv->length);
-    }
       break;
-    case WAVELEVEL_LOOP_START:{
+    case WAVELEVEL_LOOP_START:
       self->priv->loop_start = g_value_get_long (value);
       if (self->priv->loop_start != -1) {
         // make sure its less then loop_end/length
@@ -290,9 +277,8 @@ bt_wavelevel_set_property (GObject * const object, const guint property_id,
       }
       GST_DEBUG ("set the loop-start for wavelevel: %ld",
           self->priv->loop_start);
-    }
       break;
-    case WAVELEVEL_LOOP_END:{
+    case WAVELEVEL_LOOP_END:
       self->priv->loop_end = g_value_get_long (value);
       if (self->priv->loop_end != -1) {
         // make sure its more then loop-start
@@ -309,22 +295,18 @@ bt_wavelevel_set_property (GObject * const object, const guint property_id,
       }
       GST_DEBUG ("set the loop-start for wavelevel: %ld",
           self->priv->loop_start);
-    }
       break;
-    case WAVELEVEL_RATE:{
+    case WAVELEVEL_RATE:
       self->priv->rate = g_value_get_ulong (value);
       GST_DEBUG ("set the rate for wavelevel: %lu", self->priv->rate);
-    }
       break;
-    case WAVELEVEL_DATA:{
+    case WAVELEVEL_DATA:
       g_free (self->priv->sample);
       self->priv->sample = g_value_get_pointer (value);
       GST_DEBUG ("set the data-pointer for wavelevel: %p", self->priv->sample);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

@@ -196,17 +196,14 @@ bt_missing_song_elements_dialog_set_property (GObject * object,
   BtMissingSongElementsDialog *self = BT_MISSING_SONG_ELEMENTS_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case MISSING_SONG_ELEMENTS_DIALOG_MACHINES:{
+    case MISSING_SONG_ELEMENTS_DIALOG_MACHINES:
       self->priv->machines = g_value_get_pointer (value);
-    }
       break;
-    case MISSING_SONG_ELEMENTS_DIALOG_WAVES:{
+    case MISSING_SONG_ELEMENTS_DIALOG_WAVES:
       self->priv->waves = g_value_get_pointer (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -222,8 +219,8 @@ bt_missing_song_elements_dialog_dispose (GObject * object)
 
   g_object_unref (self->priv->app);
 
-  G_OBJECT_CLASS (bt_missing_song_elements_dialog_parent_class)->
-      dispose (object);
+  G_OBJECT_CLASS (bt_missing_song_elements_dialog_parent_class)->dispose
+      (object);
 }
 
 static void

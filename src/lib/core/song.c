@@ -1432,57 +1432,44 @@ bt_song_get_property (GObject * const object, const guint property_id,
   const BtSong *const self = BT_SONG (object);
   return_if_disposed ();
   switch (property_id) {
-    case SONG_APP:{
+    case SONG_APP:
       g_value_set_object (value, self->priv->app);
-    }
       break;
-    case SONG_BIN:{
+    case SONG_BIN:
       g_value_set_object (value, self->priv->bin);
-    }
       break;
-    case SONG_MASTER:{
+    case SONG_MASTER:
       g_value_set_object (value, self->priv->master);
-    }
       break;
-    case SONG_SONG_INFO:{
+    case SONG_SONG_INFO:
       g_value_set_object (value, self->priv->song_info);
-    }
       break;
-    case SONG_SEQUENCE:{
+    case SONG_SEQUENCE:
       g_value_set_object (value, self->priv->sequence);
-    }
       break;
-    case SONG_SETUP:{
+    case SONG_SETUP:
       g_value_set_object (value, self->priv->setup);
-    }
       break;
-    case SONG_WAVETABLE:{
+    case SONG_WAVETABLE:
       g_value_set_object (value, self->priv->wavetable);
-    }
       break;
-    case SONG_PLAY_POS:{
+    case SONG_PLAY_POS:
       g_value_set_ulong (value, self->priv->play_pos);
-    }
       break;
-    case SONG_PLAY_RATE:{
+    case SONG_PLAY_RATE:
       g_value_set_double (value, self->priv->play_rate);
-    }
       break;
-    case SONG_IS_PLAYING:{
+    case SONG_IS_PLAYING:
       g_value_set_boolean (value, self->priv->is_playing);
-    }
       break;
-    case SONG_IS_IDLE:{
+    case SONG_IS_IDLE:
       g_value_set_boolean (value, self->priv->is_idle);
-    }
       break;
-    case SONG_IO:{
+    case SONG_IO:
       g_value_set_object (value, self->priv->song_io);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -1494,13 +1481,12 @@ bt_song_set_property (GObject * const object, const guint property_id,
   const BtSong *const self = BT_SONG (object);
   return_if_disposed ();
   switch (property_id) {
-    case SONG_APP:{
+    case SONG_APP:
       self->priv->app = BT_APPLICATION (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->app);
       GST_DEBUG ("set the app for the song: %p", self->priv->app);
-    }
       break;
-    case SONG_MASTER:{
+    case SONG_MASTER:
       g_object_try_weak_unref (self->priv->master);
       self->priv->master = BT_SINK_MACHINE (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->master);
@@ -1508,25 +1494,22 @@ bt_song_set_property (GObject * const object, const guint property_id,
           &self->priv->master_bin, NULL);
       GST_DEBUG_OBJECT (self->priv->master, "set the master for the song: %"
           G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (self->priv->master));
-    }
       break;
-    case SONG_PLAY_POS:{
+    case SONG_PLAY_POS:
       self->priv->play_pos =
           bt_sequence_limit_play_pos (self->priv->sequence,
           g_value_get_ulong (value));
       GST_DEBUG ("set the play-pos for sequence: %lu", self->priv->play_pos);
       // seek on playpos changes (if playing)
       bt_song_seek_to_play_pos (self);
-    }
       break;
-    case SONG_PLAY_RATE:{
+    case SONG_PLAY_RATE:
       self->priv->play_rate = g_value_get_double (value);
       GST_DEBUG ("set the play-rate: %lf", self->priv->play_rate);
       // update rate (if playing)
       bt_song_change_play_rate (self);
-    }
       break;
-    case SONG_IS_IDLE:{
+    case SONG_IS_IDLE:
       self->priv->is_idle = g_value_get_boolean (value);
       if (!self->priv->is_playing) {
         if (self->priv->is_idle)
@@ -1535,19 +1518,16 @@ bt_song_set_property (GObject * const object, const guint property_id,
           bt_song_idle_stop (self);
       }
       GST_DEBUG ("idle flag song: %d", self->priv->is_idle);
-    }
       break;
-    case SONG_IO:{
+    case SONG_IO:
       if (self->priv->song_io)
         g_object_unref (self->priv->song_io);
       self->priv->song_io = BT_SONG_IO (g_value_dup_object (value));
       GST_DEBUG ("set the song-io plugin for the song: %p",
           self->priv->song_io);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

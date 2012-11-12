@@ -207,13 +207,11 @@ bt_machine_rename_dialog_get_property (GObject * const object,
   BtMachineRenameDialog *self = BT_MACHINE_RENAME_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case MACHINE_RENAME_DIALOG_NAME:{
+    case MACHINE_RENAME_DIALOG_NAME:
       g_value_set_string (value, self->priv->name);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -225,14 +223,12 @@ bt_machine_rename_dialog_set_property (GObject * object, guint property_id,
   BtMachineRenameDialog *self = BT_MACHINE_RENAME_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case MACHINE_RENAME_DIALOG_MACHINE:{
+    case MACHINE_RENAME_DIALOG_MACHINE:
       g_object_try_unref (self->priv->machine);
       self->priv->machine = g_value_dup_object (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

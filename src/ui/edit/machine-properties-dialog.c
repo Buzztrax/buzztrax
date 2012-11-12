@@ -2173,6 +2173,7 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
       widget1 = gtk_label_new (str);
       g_free (str);
       widget2 = NULL;
+      break;
     }
   }
   if (range_min) {
@@ -2213,38 +2214,38 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
       g_object_get (object, property->name, &value, NULL);
       update_int_range_label (self, GTK_RANGE (widget1), object,
           GTK_LABEL (widget2), (gdouble) value);
-    }
       break;
+    }
     case G_TYPE_UINT:{
       guint value;
 
       g_object_get (object, property->name, &value, NULL);
       update_uint_range_label (self, GTK_RANGE (widget1), object,
           GTK_LABEL (widget2), (gdouble) value);
-    }
       break;
+    }
     case G_TYPE_UINT64:{
       guint64 value;
 
       g_object_get (object, property->name, &value, NULL);
       update_uint64_range_entry (self, GTK_RANGE (widget1), object,
           GTK_ENTRY (widget2), (gdouble) value);
-    }
       break;
+    }
     case G_TYPE_FLOAT:{
       gfloat value;
 
       g_object_get (object, property->name, &value, NULL);
       update_float_range_label (GTK_LABEL (widget2), (gdouble) value);
-    }
       break;
+    }
     case G_TYPE_DOUBLE:{
       gdouble value;
 
       g_object_get (object, property->name, &value, NULL);
       update_double_range_label (GTK_LABEL (widget2), (gdouble) value);
-    }
       break;
+    }
   }
 
   gtk_widget_set_tooltip_text (widget1, tool_tip_text);
@@ -2910,7 +2911,7 @@ bt_machine_properties_dialog_set_property (GObject * object, guint property_id,
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case MACHINE_PROPERTIES_DIALOG_MACHINE:{
+    case MACHINE_PROPERTIES_DIALOG_MACHINE:
       g_object_try_unref (self->priv->machine);
       self->priv->machine = g_value_dup_object (value);
       if (self->priv->machine) {
@@ -2928,11 +2929,9 @@ bt_machine_properties_dialog_set_property (GObject * object, guint property_id,
 #endif
         gst_object_unref (element);
       }
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

@@ -360,25 +360,20 @@ bt_interaction_controller_menu_get_property (GObject * object,
   BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU (object);
   return_if_disposed ();
   switch (property_id) {
-    case INTERACTION_CONTROLLER_MENU_TYPE:{
+    case INTERACTION_CONTROLLER_MENU_TYPE:
       g_value_set_enum (value, self->priv->type);
-    }
       break;
-    case INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL:{
+    case INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL:
       g_value_set_object (value, self->priv->selected_control);
-    }
       break;
-    case INTERACTION_CONTROLLER_MENU_ITEM_UNBIND:{
+    case INTERACTION_CONTROLLER_MENU_ITEM_UNBIND:
       g_value_set_object (value, self->priv->item_unbind);
-    }
       break;
-    case INTERACTION_CONTROLLER_MENU_ITEM_UNBIND_ALL:{
+    case INTERACTION_CONTROLLER_MENU_ITEM_UNBIND_ALL:
       g_value_set_object (value, self->priv->item_unbind_all);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -390,18 +385,15 @@ bt_interaction_controller_menu_set_property (GObject * object,
   BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU (object);
   return_if_disposed ();
   switch (property_id) {
-    case INTERACTION_CONTROLLER_MENU_TYPE:{
+    case INTERACTION_CONTROLLER_MENU_TYPE:
       self->priv->type = g_value_get_enum (value);
-    }
       break;
-    case INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL:{
+    case INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL:
       g_object_try_unref (self->priv->selected_control);
       self->priv->selected_control = BTIC_CONTROL (g_value_dup_object (value));
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

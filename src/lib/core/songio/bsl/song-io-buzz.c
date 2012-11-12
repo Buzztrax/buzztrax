@@ -2341,46 +2341,6 @@ bt_song_io_buzz_load (gconstpointer const _self, const BtSong * const song)
 //-- class internals
 
 static void
-bt_song_io_buzz_get_property (GObject * object,
-    guint property_id, GValue * value, GParamSpec * pspec)
-{
-  BtSongIOBuzz *self = BT_SONG_IO_BUZZ (object);
-  return_if_disposed ();
-  switch (property_id) {
-    default:{
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
-      break;
-  }
-}
-
-static void
-bt_song_io_buzz_set_property (GObject * object,
-    guint property_id, const GValue * value, GParamSpec * pspec)
-{
-  BtSongIOBuzz *self = BT_SONG_IO_BUZZ (object);
-  return_if_disposed ();
-  switch (property_id) {
-    default:{
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
-      break;
-  }
-}
-
-static void
-bt_song_io_buzz_dispose (GObject * object)
-{
-  BtSongIOBuzz *self = BT_SONG_IO_BUZZ (object);
-
-  return_if_disposed ();
-  self->priv->dispose_has_run = TRUE;
-
-  GST_DEBUG ("!!!! self=%p", self);
-  G_OBJECT_CLASS (bt_song_io_buzz_parent_class)->dispose (object);
-}
-
-static void
 bt_song_io_buzz_finalize (GObject * object)
 {
   BtSongIOBuzz *self = BT_SONG_IO_BUZZ (object);
@@ -2445,9 +2405,6 @@ bt_song_io_buzz_class_init (BtSongIOBuzzClass * klass)
 
   g_type_class_add_private (klass, sizeof (BtSongIOBuzzPrivate));
 
-  gobject_class->set_property = bt_song_io_buzz_set_property;
-  gobject_class->get_property = bt_song_io_buzz_get_property;
-  gobject_class->dispose = bt_song_io_buzz_dispose;
   gobject_class->finalize = bt_song_io_buzz_finalize;
 
   /* implement virtual class function. */

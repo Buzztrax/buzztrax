@@ -1860,35 +1860,29 @@ bt_setup_get_property (GObject * const object, const guint property_id,
   const BtSetup *const self = BT_SETUP (object);
   return_if_disposed ();
   switch (property_id) {
-    case SETUP_PROPERTIES:{
+    case SETUP_PROPERTIES:
       g_value_set_pointer (value, self->priv->properties);
-    }
       break;
-    case SETUP_SONG:{
+    case SETUP_SONG:
       g_value_set_object (value, self->priv->song);
-    }
       break;
-    case SETUP_MACHINES:{
+    case SETUP_MACHINES:
       /* TODO(ensonic): this is not good, lists returned by bt_setup_get_xxx_by_yyy
        * returns a new list where one has to unref the elements
        */
       g_value_set_pointer (value, g_list_copy (self->priv->machines));
-    }
       break;
-    case SETUP_WIRES:{
+    case SETUP_WIRES:
       /* TODO(ensonic): this is not good, lists returned by bt_setup_get_xxx_by_yyy
        * returns a new list where one has to unref the elements
        */
       g_value_set_pointer (value, g_list_copy (self->priv->wires));
-    }
       break;
-    case SETUP_MISSING_MACHINES:{
+    case SETUP_MISSING_MACHINES:
       g_value_set_pointer (value, self->priv->missing_machines);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -1900,18 +1894,16 @@ bt_setup_set_property (GObject * const object, const guint property_id,
   const BtSetup *const self = BT_SETUP (object);
   return_if_disposed ();
   switch (property_id) {
-    case SETUP_SONG:{
+    case SETUP_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
       g_object_get ((gpointer) (self->priv->song), "bin", &self->priv->bin,
           NULL);
       GST_INFO ("set the song for setup: %p and get the bin: %p",
           self->priv->song, self->priv->bin);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

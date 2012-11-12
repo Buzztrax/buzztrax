@@ -354,13 +354,11 @@ bt_settings_dialog_get_property (GObject * object, guint property_id,
   BtSettingsDialog *self = BT_SETTINGS_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case SETTINGS_DIALOG_PAGE:{
+    case SETTINGS_DIALOG_PAGE:
       g_value_set_enum (value, self->priv->page);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -391,11 +389,10 @@ bt_settings_dialog_set_property (GObject * object, guint property_id,
               (gpointer) self);
         }
       }
-    }
       break;
-    default:{
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
 }

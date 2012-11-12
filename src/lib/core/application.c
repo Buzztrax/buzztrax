@@ -83,17 +83,14 @@ bt_application_get_property (GObject * const object, const guint property_id,
   const BtApplication *const self = BT_APPLICATION (object);
   return_if_disposed ();
   switch (property_id) {
-    case APPLICATION_BIN:{
+    case APPLICATION_BIN:
       g_value_set_object (value, self->priv->bin);
-    }
       break;
-    case APPLICATION_SETTINGS:{
+    case APPLICATION_SETTINGS:
       g_value_set_object (value, self->priv->settings);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

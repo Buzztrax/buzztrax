@@ -251,21 +251,17 @@ bt_machine_preset_properties_dialog_get_property (GObject * object,
       BT_MACHINE_PRESET_PROPERTIES_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE:{
+    case MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE:
       g_value_set_object (value, self->priv->machine);
-    }
       break;
-    case MACHINE_PRESET_PROPERTIES_DIALOG_NAME:{
+    case MACHINE_PRESET_PROPERTIES_DIALOG_NAME:
       g_value_set_pointer (value, self->priv->name_ptr);
-    }
       break;
-    case MACHINE_PRESET_PROPERTIES_DIALOG_COMMENT:{
+    case MACHINE_PRESET_PROPERTIES_DIALOG_COMMENT:
       g_value_set_pointer (value, self->priv->comment_ptr);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -278,7 +274,7 @@ bt_machine_preset_properties_dialog_set_property (GObject * object,
       BT_MACHINE_PRESET_PROPERTIES_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE:{
+    case MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE:
       g_object_try_unref (self->priv->machine);
       self->priv->machine = g_value_dup_object (value);
       GST_DEBUG ("set the machine for preset_dialog: %p", self->priv->machine);
@@ -286,25 +282,21 @@ bt_machine_preset_properties_dialog_set_property (GObject * object,
           self->priv->
           machine ? gst_preset_get_preset_names (GST_PRESET (self->priv->
               machine)) : NULL;
-    }
       break;
-    case MACHINE_PRESET_PROPERTIES_DIALOG_NAME:{
+    case MACHINE_PRESET_PROPERTIES_DIALOG_NAME:
       self->priv->name_ptr = g_value_get_pointer (value);
       if (self->priv->name_ptr) {
         self->priv->name = g_strdup (*self->priv->name_ptr);
       }
-    }
       break;
-    case MACHINE_PRESET_PROPERTIES_DIALOG_COMMENT:{
+    case MACHINE_PRESET_PROPERTIES_DIALOG_COMMENT:
       self->priv->comment_ptr = g_value_get_pointer (value);
       if (self->priv->comment_ptr) {
         self->priv->comment = g_strdup (*self->priv->comment_ptr);
       }
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }

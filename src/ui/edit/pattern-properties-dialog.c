@@ -287,21 +287,17 @@ bt_pattern_properties_dialog_get_property (GObject * const object,
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case PATTERN_PROPERTIES_DIALOG_NAME:{
+    case PATTERN_PROPERTIES_DIALOG_NAME:
       g_value_set_string (value, self->priv->name);
-    }
       break;
-    case PATTERN_PROPERTIES_DIALOG_LENGTH:{
+    case PATTERN_PROPERTIES_DIALOG_LENGTH:
       g_value_set_ulong (value, self->priv->length);
-    }
       break;
-    case PATTERN_PROPERTIES_DIALOG_VOICES:{
+    case PATTERN_PROPERTIES_DIALOG_VOICES:
       g_value_set_ulong (value, self->priv->voices);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
@@ -313,14 +309,12 @@ bt_pattern_properties_dialog_set_property (GObject * object, guint property_id,
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case PATTERN_PROPERTIES_DIALOG_PATTERN:{
+    case PATTERN_PROPERTIES_DIALOG_PATTERN:
       g_object_try_unref (self->priv->pattern);
       self->priv->pattern = g_value_dup_object (value);
-    }
       break;
-    default:{
+    default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
       break;
   }
 }
