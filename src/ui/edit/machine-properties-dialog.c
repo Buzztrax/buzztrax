@@ -421,14 +421,18 @@ on_parameters_copy_group (GtkMenuItem * menuitem, gpointer user_data)
   for (i = 0; i < num_params; i++) {
     if (parent[i] && property[i]) {
       g_string_append (data, g_type_name (property[i]->value_type));
-      g_value_init (&value, property[i]->value_type);
-      g_object_get_property (parent[i], property[i]->name, &value);
-      if ((val_str = bt_persistence_get_value (&value))) {
+      if (property[i]->flags & G_PARAM_READABLE) {
+        g_value_init (&value, property[i]->value_type);
+        g_object_get_property (parent[i], property[i]->name, &value);
+        if ((val_str = bt_persistence_get_value (&value))) {
+          g_string_append_c (data, ',');
+          g_string_append (data, val_str);
+          g_free (val_str);
+        }
+        g_value_unset (&value);
+      } else {
         g_string_append_c (data, ',');
-        g_string_append (data, val_str);
-        g_free (val_str);
       }
-      g_value_unset (&value);
     }
     g_string_append_c (data, '\n');
   }
