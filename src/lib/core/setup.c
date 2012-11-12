@@ -1899,8 +1899,9 @@ bt_setup_set_property (GObject * const object, const guint property_id,
       g_object_try_weak_ref (self->priv->song);
       g_object_get ((gpointer) (self->priv->song), "bin", &self->priv->bin,
           NULL);
-      GST_INFO ("set the song for setup: %p and get the bin: %p",
-          self->priv->song, self->priv->bin);
+      GST_INFO ("set the song for setup: %p and get the bin: %"
+          G_OBJECT_REF_COUNT_FMT,
+          self->priv->song, G_OBJECT_LOG_REF_COUNT (self->priv->bin));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);

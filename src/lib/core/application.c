@@ -151,7 +151,8 @@ bt_application_init (BtApplication * self)
 
   self->priv->settings = bt_settings_make ();
   g_assert (BT_IS_SETTINGS (self->priv->settings));
-  GST_INFO ("app has settings %p", self->priv->settings);
+  GST_INFO ("app has settings %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->settings));
 }
 
 static void

@@ -249,7 +249,7 @@ static BtMachine *
 bt_sequence_get_machine_unchecked (const BtSequence * const self,
     const gulong track)
 {
-  //GST_DEBUG("getting machine : %p" G_OBJECT_REF_COUNT_FMT,
+  //GST_DEBUG("getting machine : %" G_OBJECT_REF_COUNT_FMT,
   //    G_OBJECT_LOG_REF_COUNT(self->priv->machines[track]));
   return (self->priv->machines[track]);
 }
@@ -1510,7 +1510,7 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
     case SEQUENCE_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
-      GST_DEBUG ("set the song for sequence: %p", self->priv->song);
+      GST_DEBUG ("set the song: %p", self->priv->song);
       break;
     case SEQUENCE_LENGTH:{
       // TODO(ensonic): remove or better stop the song

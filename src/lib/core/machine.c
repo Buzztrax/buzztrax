@@ -662,8 +662,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->dst_wires->
-                        data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -691,8 +691,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->src_wires->
-                        data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -749,8 +749,9 @@ bt_machine_resize_voices (const BtMachine * const self, const gulong old_voices)
   }
   new_voices = self->priv->voices;
 
-  GST_INFO_OBJECT (self, "changing machine %s:%p voices from %ld to %ld",
-      self->priv->id, machine, old_voices, new_voices);
+  GST_INFO_OBJECT (self, "changing machine %" G_OBJECT_REF_COUNT_FMT
+      ", voices from %ld to %ld",
+      G_OBJECT_LOG_REF_COUNT (machine), old_voices, new_voices);
 
   if (old_voices > new_voices) {
     gulong v;
@@ -1322,8 +1323,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1385,8 +1386,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                    machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -3087,7 +3088,7 @@ bt_machine_constructed (GObject * object)
       G_OBJECT_LOG_REF_COUNT (self));
 
   // post sanity checks
-  GST_INFO ("  added machine %p to bin, %" G_OBJECT_REF_COUNT_FMT,
+  GST_INFO ("  added machine to bin, %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self->priv->machines[PART_MACHINE]));
   g_assert (self->priv->machines[PART_MACHINE] != NULL);
   if (!(self->priv->global_params + self->priv->voice_params)) {
@@ -3202,7 +3203,7 @@ bt_machine_set_property (GObject * const object, const guint property_id,
     case MACHINE_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
-      //GST_DEBUG_OBJECT(self,"set the song for machine: %p",self->priv->song);
+      GST_DEBUG ("set the song: %p", self->priv->song);
       break;
     case MACHINE_ID:
       g_free (self->priv->id);
