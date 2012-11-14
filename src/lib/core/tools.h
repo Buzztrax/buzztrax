@@ -119,7 +119,8 @@ sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
  * If the supplied object is not %NULL then reference it via
  * g_object_add_weak_pointer().
  */
-#define g_object_try_weak_ref(obj) if(obj) g_object_add_weak_pointer(G_OBJECT(obj),(gpointer *)&obj##_ptr);
+#define g_object_try_weak_ref(obj) \
+  if(obj) g_object_add_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
 
 /**
  * g_object_try_weak_unref:
@@ -128,25 +129,8 @@ sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
  * If the supplied object is not %NULL then release the reference via
  * g_object_remove_weak_pointer().
  */
-#define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj##_ptr);
-
-/**
- * G_POINTER_ALIAS:
- * @type: the type
- * @var: the variable name
- *
- * Defines a anonymous union to handle gcc-4.1s type punning warning that one
- * gets when using e.g. g_object_try_weak_ref(). Since glib 2.14 api can also
- * be annotated with G_GNUC_MAY_ALIAS to avoid the union.
- *
- * Also using a union is technically wrong. It is not allowed to write to one
- * field and read from the other (or vice versa).
- */
-#define G_POINTER_ALIAS(type,var) \
-union { \
-  type var; \
-  gconstpointer var##_ptr; \
-}
+#define g_object_try_weak_unref(obj) \
+  if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
 
 /**
  * G_OBJECT_REF_COUNT:
@@ -159,7 +143,19 @@ union { \
  */
 #define G_OBJECT_REF_COUNT(obj) ((obj)?((G_OBJECT(obj))->ref_count):0)
 
+/**
+ * G_OBJECT_REF_COUNT_FMT:
+ *
+ * Printf format string for #G_OBJECT_LOG_REF_COUNT.
+ */
 #define G_OBJECT_REF_COUNT_FMT "p,ref_ct=%d"
+
+/**
+ * G_OBJECT_LOG_REF_COUNT:
+ * @o: the object (may be %NULL)
+ *
+ * Logs an object together with its refcounts. Use with #G_OBJECT_REF_COUNT_FMT.
+ */
 #define G_OBJECT_LOG_REF_COUNT(o) (o), G_OBJECT_REF_COUNT ((o))
 
 /**

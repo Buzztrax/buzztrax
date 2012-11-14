@@ -724,7 +724,8 @@ return_val_if_disposed
 safe_string
 # glib extras
 G_OBJECT_REF_COUNT
-G_POINTER_ALIAS
+G_OBJECT_REF_COUNT_FMT
+G_OBJECT_LOG_REF_COUNT
 bt_g_type_get_base_type
 g_object_try_ref
 g_object_try_unref
