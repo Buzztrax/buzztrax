@@ -58,7 +58,7 @@ struct _BtWavetablePrivate
   gboolean dispose_has_run;
 
   /* the song the wavetable belongs to */
-    G_POINTER_ALIAS (BtSong *, song);
+  BtSong *song;
 
   /* IDEA(ensonic): change to GPtrArray, the baseptr does not change when modifying and
    * we can remove the 'index' field in BtWave

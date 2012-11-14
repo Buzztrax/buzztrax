@@ -63,7 +63,7 @@ struct _BtPlaybackControllerSocketPrivate
   gboolean dispose_has_run;
 
   /* the application */
-    G_POINTER_ALIAS (BtEditApplication *, app);
+  BtEditApplication *app;
 
   /* positions for each label */
   GList *playlist;
@@ -71,9 +71,9 @@ struct _BtPlaybackControllerSocketPrivate
   gboolean seek;
 
   /* data for the status */
-    G_POINTER_ALIAS (BtSequence *, sequence);
-    G_POINTER_ALIAS (BtSongInfo *, song_info);
-    G_POINTER_ALIAS (GstElement *, gain);
+  BtSequence *sequence;
+  BtSongInfo *song_info;
+  GstElement *gain;
   gboolean is_playing;
   gchar *length_str;
   gchar *cur_label;

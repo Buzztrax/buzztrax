@@ -52,14 +52,14 @@ struct _BtMainToolbarPrivate
 
   /* the level meters */
   GtkVUMeter *vumeter[MAX_VUMETER];
-    G_POINTER_ALIAS (GstElement *, level);
+  GstElement *level;
   GstClock *clock;
   gint num_channels;
 
   /* the volume gain */
   GtkScale *volume;
-    G_POINTER_ALIAS (GstElement *, gain);
-    G_POINTER_ALIAS (BtMachine *, master);
+  GstElement *gain;
+  BtMachine *master;
 
   /* action buttons */
   GtkWidget *save_button;

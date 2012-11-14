@@ -56,7 +56,7 @@ struct _BtIcControlPrivate
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
-    G_POINTER_ALIAS (BtIcDevice *, device);
+  BtIcDevice *device;
   gchar *name;
   guint id;
 };

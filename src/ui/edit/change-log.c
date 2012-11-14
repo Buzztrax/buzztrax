@@ -208,7 +208,7 @@ struct _BtChangeLogPrivate
   gboolean dispose_has_run;
 
   /* the application */
-    G_POINTER_ALIAS (BtEditApplication *, app);
+  BtEditApplication *app;
 
   /* logging is inactive during song-construction/desctruction and when
    * replaying and undo/redo action */

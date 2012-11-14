@@ -88,7 +88,7 @@ struct _BtSequencePrivate
   gboolean dispose_has_run;
 
   /* the song the sequence belongs to */
-    G_POINTER_ALIAS (BtSong *, song);
+  BtSong *song;
 
   /* the number of timeline entries */
   gulong length;

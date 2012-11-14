@@ -35,7 +35,7 @@ struct _BtPlaybackControllerMidiPrivate
   gboolean dispose_has_run;
 
   /* the application */
-    G_POINTER_ALIAS (BtEditApplication *, app);
+  BtEditApplication *app;
 
 BtRegistry *registry};
 

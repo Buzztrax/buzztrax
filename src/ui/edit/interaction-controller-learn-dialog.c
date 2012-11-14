@@ -41,8 +41,8 @@ struct _BtInteractionControllerLearnDialogPrivate
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
-    G_POINTER_ALIAS (BtIcDevice *, device);
-    G_POINTER_ALIAS (BtInteractionControllerMenu *, menu);
+  BtIcDevice *device;
+  BtInteractionControllerMenu *menu;
 
   GtkWidget *label_output, *entry_name;
 

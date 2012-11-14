@@ -44,7 +44,7 @@ struct _BtMachineMenuPrivate
   BtEditApplication *app;
 
   /* the machine page we belong to */
-    G_POINTER_ALIAS (BtMainPageMachines *, main_page_machines);
+  BtMainPageMachines *main_page_machines;
 };
 
 //-- the class

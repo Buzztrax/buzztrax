@@ -57,10 +57,10 @@ struct _BtParameterGroupPrivate
   gulong num_params;
 
   /* song pointer */
-    G_POINTER_ALIAS (BtSong *, song);
+  BtSong *song;
 
   /* machine pointer */
-    G_POINTER_ALIAS (BtMachine *, machine);
+  BtMachine *machine;
 
   /* parameter data */
   GObject **parents;

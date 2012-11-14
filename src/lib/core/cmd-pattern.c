@@ -62,10 +62,10 @@ struct _BtCmdPatternPrivate
   gboolean dispose_has_run;
 
   /* the song the pattern belongs to */
-    G_POINTER_ALIAS (BtSong *, song);
+  BtSong *song;
 
   /* the machine the pattern belongs to */
-    G_POINTER_ALIAS (BtMachine *, machine);
+  BtMachine *machine;
 
   /* the id, we can use to lookup the pattern */
   gchar *id;

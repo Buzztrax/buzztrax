@@ -118,11 +118,11 @@ struct _BtSongPrivate
   gboolean is_idle, is_idle_active;
 
   /* the application that currently uses the song */
-    G_POINTER_ALIAS (BtApplication *, app);
+  BtApplication *app;
   /* the main gstreamer container element */
   GstBin *bin, *master_bin;
   /* the element that has the clock */
-    G_POINTER_ALIAS (BtSinkMachine *, master);
+  BtSinkMachine *master;
 
   /* the query is used in update_playback_position */
   GstQuery *position_query;

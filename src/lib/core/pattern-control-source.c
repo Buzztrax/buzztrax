@@ -61,10 +61,10 @@ struct _BtPatternControlSourcePrivate
   gboolean dispose_has_run;
 
   /* parameters */
-    G_POINTER_ALIAS (BtSequence *, sequence);
-    G_POINTER_ALIAS (BtSongInfo *, song_info);
-    G_POINTER_ALIAS (BtMachine *, machine);
-    G_POINTER_ALIAS (BtParameterGroup *, param_group);
+  BtSequence *sequence;
+  BtSongInfo *song_info;
+  BtMachine *machine;
+  BtParameterGroup *param_group;
   /* type of the handled property */
   GType type;
   /* base-type of the handled property */

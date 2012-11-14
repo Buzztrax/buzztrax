@@ -82,14 +82,14 @@ struct _BtPatternPrivate
   gboolean dispose_has_run;
 
   /* the song the pattern belongs to */
-    G_POINTER_ALIAS (BtSong *, song);
+  BtSong *song;
 
   /* the number of ticks */
   gulong length;
   /* the number of voices */
   gulong voices;
   /* the machine the pattern belongs to */
-    G_POINTER_ALIAS (BtMachine *, machine);
+  BtMachine *machine;
 
   /* the pattern data */
   BtValueGroup *global_value_group;

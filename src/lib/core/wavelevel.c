@@ -48,10 +48,10 @@ struct _BtWavelevelPrivate
   gboolean dispose_has_run;
 
   /* the song the wavelevel belongs to */
-    G_POINTER_ALIAS (BtSong *, song);
+  BtSong *song;
 
   /* the wave the wavelevel belongs to */
-    G_POINTER_ALIAS (BtWave *, wave);
+  BtWave *wave;
 
   /* the keyboard note associated to this sample */
   guchar root_note;

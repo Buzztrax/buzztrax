@@ -77,7 +77,7 @@ struct _BtWavePrivate
   gboolean dispose_has_run;
 
   /* the song the wave belongs to */
-    G_POINTER_ALIAS (BtSong *, song);
+  BtSong *song;
 
   /* each wave has an index number, the list of waves can have empty slots */
   gulong index;

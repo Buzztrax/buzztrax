@@ -106,7 +106,7 @@ struct _BtMachineCanvasItemPrivate
   BtEditApplication *app;
 
   /* the machine page we are on */
-    G_POINTER_ALIAS (BtMainPageMachines *, main_page_machines);
+  BtMainPageMachines *main_page_machines;
 
   /* the underlying machine */
   BtMachine *machine;
@@ -128,8 +128,8 @@ struct _BtMachineCanvasItemPrivate
   GnomeCanvasItem *label;
   GnomeCanvasItem *box;
   GnomeCanvasItem *output_meter, *input_meter;
-    G_POINTER_ALIAS (GstElement *, output_level);
-    G_POINTER_ALIAS (GstElement *, input_level);
+  GstElement *output_level;
+  GstElement *input_level;
   guint skip_input_level;
   guint skip_output_level;
 

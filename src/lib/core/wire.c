@@ -88,7 +88,7 @@ struct _BtWirePrivate
   GHashTable *properties;
 
   /* the song the wire belongs to */
-    G_POINTER_ALIAS (BtSong *, song);
+  BtSong *song;
 
   /* status in songs pipeline */
   gboolean is_added, is_connected;

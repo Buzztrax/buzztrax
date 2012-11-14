@@ -82,7 +82,7 @@ struct _BtSongInfoPrivate
   gboolean dispose_has_run;
 
   /* the song the song-info belongs to */
-    G_POINTER_ALIAS (BtSong *, song);
+  BtSong *song;
 
   /* the song-info as tag-data */
   GstTagList *taglist;

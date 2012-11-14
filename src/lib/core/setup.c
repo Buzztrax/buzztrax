@@ -323,7 +323,7 @@ struct _BtSetupPrivate
   gboolean dispose_has_run;
 
   /* the song the setup belongs to */
-    G_POINTER_ALIAS (BtSong *, song);
+  BtSong *song;
 
   /* the top-level gstreamer container element */
   GstBin *bin;

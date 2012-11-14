@@ -145,15 +145,15 @@ struct _BtSinkBinPrivate
   GstElement *audio_sink;
 
   /* tee */
-    G_POINTER_ALIAS (GstElement *, tee);
+  GstElement *tee;
 
   /* master volume */
-    G_POINTER_ALIAS (GstElement *, gain);
+  GstElement *gain;
   gulong mv_handler_id;
   gdouble volume;
 
   /* sink format */
-    G_POINTER_ALIAS (GstElement *, caps_filter);
+  GstElement *caps_filter;
 
   /* tempo handling */
   gulong beats_per_minute;
