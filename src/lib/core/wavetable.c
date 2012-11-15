@@ -461,16 +461,19 @@ get_wave_buffer (BtWavetable * self, guint wave_ix, guint wave_level_ix)
       gpointer *data;
       gulong length;
       guint channels;
+      guchar root_note;
 
       g_object_get (wave, "channels", &channels, NULL);
-      g_object_get (wavelevel, "data", &data, "length", &length, NULL);
+      g_object_get (wavelevel, "data", &data, "length", &length, "root-note",
+          &root_note, NULL);
 
       caps = gst_caps_new_simple ("audio/x-raw-int",
           "rate", G_TYPE_INT, 44100,
           "channels", G_TYPE_INT, channels,
           "width", G_TYPE_INT, 16,
           "endianness", G_TYPE_INT, G_BYTE_ORDER,
-          "signed", G_TYPE_BOOLEAN, TRUE, NULL);
+          "signed", G_TYPE_BOOLEAN, TRUE,
+          "root-note", GSTBT_TYPE_NOTE, (guint) root_note, NULL);
 
       buffer = gst_buffer_new ();
       GST_BUFFER_DATA (buffer) = (guint8 *) data;
