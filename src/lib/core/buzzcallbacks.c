@@ -121,7 +121,7 @@ GetWaveLevel (CHostCallbacks * self, int const i, int const level)
     if ((wavelevel = bt_wave_get_level_by_index (wave, level))) {
       gulong length, rate;
       glong ls, le;
-      guchar root_note;
+      GstBtNote root_note;
 
       // fill BuzzWaveLevel
       g_object_get (wavelevel, "length", &length, "rate", &rate,
@@ -165,7 +165,7 @@ GetNearestWaveLevel (CHostCallbacks * self, int const i, int const note)
     GList *list, *node;
     BtWavelevel *wavelevel, *best = NULL;
     gint max_diff = /*NOTE_MAX */ 200 + 1;
-    guchar root_note;
+    GstBtNote root_note;
 
     g_object_get (wave, "wavelevels", &list, NULL);
     for (node = list; node; node = g_list_next (node)) {

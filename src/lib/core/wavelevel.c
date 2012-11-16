@@ -54,7 +54,7 @@ struct _BtWavelevelPrivate
   BtWave *wave;
 
   /* the keyboard note associated to this sample */
-  guchar root_note;
+  GstBtNote root_note;
   /* the number of samples */
   gulong length;
   /* the loop markers, -1 means no loop */
@@ -95,7 +95,7 @@ G_DEFINE_TYPE_WITH_CODE (BtWavelevel, bt_wavelevel, G_TYPE_OBJECT,
  */
 BtWavelevel *
 bt_wavelevel_new (const BtSong * const song, const BtWave * const wave,
-    const guchar root_note, const gulong length, const glong loop_start,
+    const GstBtNote root_note, const gulong length, const glong loop_start,
     const glong loop_end, const gulong rate, gconstpointer sample)
 {
   return (BT_WAVELEVEL (g_object_new (BT_TYPE_WAVELEVEL, "song", song, "wave",
@@ -145,7 +145,7 @@ bt_wavelevel_persistence_load (const GType type,
   xmlChar *root_note_str, *rate_str, *loop_start_str, *loop_end_str;
   glong loop_start, loop_end;
   gulong rate;
-  guchar root_note;
+  GstBtNote root_note;
 
   GST_DEBUG ("PERSISTENCE::wavelevel");
   g_assert (node);
@@ -156,7 +156,7 @@ bt_wavelevel_persistence_load (const GType type,
   loop_start_str = xmlGetProp (node, XML_CHAR_PTR ("loop-start"));
   loop_end_str = xmlGetProp (node, XML_CHAR_PTR ("loop-end"));
 
-  root_note = root_note_str ? atol ((char *) root_note_str) : 0;
+  root_note = root_note_str ? atol ((char *) root_note_str) : GSTBT_NOTE_NONE;
   rate = rate_str ? atol ((char *) rate_str) : 0;
   loop_start = loop_start_str ? atol ((char *) loop_start_str) : -1;
   loop_end = loop_end_str ? atol ((char *) loop_end_str) : -1;
@@ -214,7 +214,7 @@ bt_wavelevel_get_property (GObject * const object, const guint property_id,
       g_value_set_object (value, self->priv->wave);
       break;
     case WAVELEVEL_ROOT_NOTE:
-      g_value_set_uchar (value, self->priv->root_note);
+      g_value_set_enum (value, self->priv->root_note);
       break;
     case WAVELEVEL_LENGTH:
       g_value_set_ulong (value, self->priv->length);
@@ -255,7 +255,7 @@ bt_wavelevel_set_property (GObject * const object, const guint property_id,
       GST_DEBUG ("set the wave for wavelevel: %p", self->priv->wave);
       break;
     case WAVELEVEL_ROOT_NOTE:
-      self->priv->root_note = g_value_get_uchar (value);
+      self->priv->root_note = g_value_get_enum (value);
       GST_DEBUG ("set the root-note for wavelevel: %d", self->priv->root_note);
       break;
     case WAVELEVEL_LENGTH:
@@ -372,14 +372,11 @@ bt_wavelevel_class_init (BtWavelevelClass * const klass)
           "Set wave object, the wavelevel belongs to", BT_TYPE_WAVE,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  // @idea make this an own type -> BtNote enum?
   g_object_class_install_property (gobject_class, WAVELEVEL_ROOT_NOTE,
-      g_param_spec_uchar ("root-note",
-          "root-note prop",
+      g_param_spec_enum ("root-note", "root-note prop",
           "the base note associated with the sample",
-          0,
-          G_MAXUINT8,
-          0, G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
+          G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   // loop-pos are LONG as well
   g_object_class_install_property (gobject_class, WAVELEVEL_LENGTH,

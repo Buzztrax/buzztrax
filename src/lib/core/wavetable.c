@@ -461,7 +461,7 @@ get_wave_buffer (BtWavetable * self, guint wave_ix, guint wave_level_ix)
       gpointer *data;
       gulong length;
       guint channels;
-      guchar root_note;
+      GstBtNote root_note;
 
       g_object_get (wave, "channels", &channels, NULL);
       g_object_get (wavelevel, "data", &data, "length", &length, "root-note",

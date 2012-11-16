@@ -256,7 +256,7 @@ bt_wavelevel_list_model_tree_model_get_value (GtkTreeModel * tree_model,
   if (model->priv->wave && (wavelevel = g_sequence_get (iter->user_data))) {
     switch (column) {
       case BT_WAVELEVEL_LIST_MODEL_ROOT_NOTE:{
-        guchar root_note;
+        GstBtNote root_note;
         g_object_get ((GObject *) wavelevel, "root-note", &root_note, NULL);
         g_value_set_string (value,
             gstbt_tone_conversion_note_number_2_string (root_note));

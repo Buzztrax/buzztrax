@@ -283,7 +283,7 @@ preview_update_seeks (const BtMainPageWaves * self)
     BtWaveLoopMode loop_mode;
     glong loop_start, loop_end;
     gulong length, srate;
-    guchar root_note;
+    GstBtNote root_note;
     gdouble prate;
 
     /* get parameters */
@@ -626,7 +626,7 @@ on_wavelevel_root_note_edited (GtkCellRendererText * cellrenderertext,
   if ((wavelevel =
           wavelevels_get_wavelevel_and_set_iter (self, &iter, &store,
               path_string))) {
-    guchar root_note = gstbt_tone_conversion_note_string_2_number (new_text);
+    GstBtNote root_note = gstbt_tone_conversion_note_string_2_number (new_text);
 
     if (root_note) {
       g_object_set (wavelevel, "root-note", root_note, NULL);
