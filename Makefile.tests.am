@@ -297,7 +297,7 @@ test-clean-local:
 # make coverage        -- generate coverage report from make check run
 if USE_LCOV
 coverage::
-	mkdir -p ./coverage
+	$(MKDIR_P) ./coverage
 	lcov --compat-libtool --directory . --zerocounters
 	-$(MAKE) check
 	lcov --compat-libtool --directory ./src --capture --output-file ./coverage/$(PACKAGE)_tmp.info
@@ -323,7 +323,7 @@ coverage:: $(TESTS_BIN)
 	    rm -f .bcovdump; \
 	  fi \
 	done; \
-	mkdir -p coverage; \
+	$(MKDIR_P) coverage; \
 	bcov-report -i $(top_abs_srcdir) .bcovdump.all coverage
 endif
 
