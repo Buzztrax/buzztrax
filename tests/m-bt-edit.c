@@ -107,7 +107,7 @@ void
 bt_edit_setup (void)
 {
   GST_INFO
-      ("================================================================================");
+      ("................................................................................");
   gtk_init (&test_argc, &test_argvptr);
   bt_init (&test_argc, &test_argvptr);
   btic_init (&test_argc, &test_argvptr);
@@ -122,13 +122,8 @@ bt_edit_setup (void)
 
   GST_DEBUG_CATEGORY_INIT (bt_edit_debug, "bt-edit", 0,
       "music production environment / editor ui");
-  // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_threshold_for_name ("GST_*", GST_LEVEL_WARNING);
-  gst_debug_set_threshold_for_name ("bt-*", GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold (bt_core_debug, GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold (btic_debug, GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold (bt_edit_debug, GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold (bt_check_debug, GST_LEVEL_DEBUG);
+  // set this to e.g. LOG to see more from gst in the log
+  gst_debug_set_default_threshold (GST_LEVEL_DEBUG);
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);  
 
   /* cleanup cache dir before (first) test run */
@@ -148,6 +143,8 @@ bt_edit_setup (void)
 void
 bt_edit_teardown (void)
 {
+  GST_INFO
+      ("................................................................................");
   if (settings) {
     g_object_unref (settings);
     settings = NULL;
@@ -178,7 +175,7 @@ main (gint argc, gchar ** argv)
 
   g_type_init ();
   g_set_application_name ("Buzztard");
-  setup_log (argc, argv);
+  setup_log_base (argc, argv);
   setup_log_capture ();
 
   check_setup_test_server ();

@@ -102,8 +102,7 @@ static BtMainWindow *main_window;
 static void
 case_setup (void)
 {
-  GST_INFO
-      ("================================================================================");
+  BT_CASE_START;
 }
 
 static void

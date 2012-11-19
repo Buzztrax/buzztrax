@@ -56,6 +56,8 @@ bt_check_init (void)
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-check", 0,
       "music production environment / unit tests");
+  // disable logging from gstreamer itself
+  gst_debug_remove_log_function (gst_debug_log_default);
   // no ansi color codes in logfiles please
   gst_debug_set_colored (FALSE);
   // use our dummy settings
@@ -93,7 +95,14 @@ static gchar *__check_method = NULL;
 static gchar *__check_test = NULL;
 static GLogLevelFlags __fatal_mask = 0;
 
-// is set during setup_log_capture()
+#define FALLBACK_LOG_FILE_NAME \
+    G_DIR_SEPARATOR_S "tmp" G_DIR_SEPARATOR_S "" PACKAGE_NAME ".log"
+
+// set during setup_log_*() and leaked :/
+static const gchar *__log_root = NULL;  // /tmp
+static gchar *__log_base = NULL;        // the test binary
+static gchar *__log_case = NULL;        // the test case
+static const gchar *__log_test = NULL;  // the actual test
 static gchar *__log_file_name = NULL;
 
 /*
@@ -130,7 +139,6 @@ check_has_error_trapped (void)
  * log helper:
  * Helpers for handling glib log-messages.
  */
-
 static void
 check_print_handler (const gchar * const message)
 {
@@ -183,6 +191,13 @@ static void check_critical_log_handler(const gchar * const log_domain, const GLo
 }
 */
 
+#if defined (GLIB_SIZEOF_VOID_P) && GLIB_SIZEOF_VOID_P == 8
+#define PTR_FMT "14p"
+#else
+#define PTR_FMT "10p"
+#endif
+#define PID_FMT "5d"
+
 static void
 check_log_handler (const gchar * const log_domain,
     const GLogLevelFlags log_level, const gchar * const message,
@@ -230,13 +245,6 @@ check_log_handler (const gchar * const log_domain,
   elapsed =
       GST_CLOCK_DIFF (_priv_gst_info_start_time, gst_util_get_timestamp ());
 
-#if defined (GLIB_SIZEOF_VOID_P) && GLIB_SIZEOF_VOID_P == 8
-#define PTR_FMT "14p"
-#else
-#define PTR_FMT "10p"
-#endif
-#define PID_FMT "5d"
-
   msg = g_alloca (85 + strlen (log_domain) + strlen (level) + strlen (message));
   g_sprintf (msg,
       "%" GST_TIME_FORMAT " %" PID_FMT " %" PTR_FMT " %-7s %20s ::: %s",
@@ -246,16 +254,23 @@ check_log_handler (const gchar * const log_domain,
 }
 
 #ifndef GST_DISABLE_GST_DEBUG
+/* *INDENT-OFF* */
 static void
-check_gst_log_handler (GstDebugCategory * category, GstDebugLevel level,
-    const gchar * file, const gchar * function, gint line, GObject * object,
-    GstDebugMessage * _message, gpointer data)
+check_gst_log_handler (GstDebugCategory * category,
+    GstDebugLevel level, const gchar * file, const gchar * function, gint line,
+    GObject * object, GstDebugMessage * _message, gpointer data)
     G_GNUC_NO_INSTRUMENT;
-     static void check_gst_log_handler (GstDebugCategory * category,
+/* *INDENT-ON* */
+
+static void
+check_gst_log_handler (GstDebugCategory * category,
     GstDebugLevel level, const gchar * file, const gchar * function, gint line,
     GObject * object, GstDebugMessage * _message, gpointer data)
 {
   const gchar *message = gst_debug_message_get (_message);
+  gchar *msg, *obj_str;
+  const gchar *level_str, *cat_str;
+  GstClockTime elapsed;
 
   //-- check message contents
   if (__check_method && (strstr (function, __check_method) != NULL)
@@ -267,56 +282,151 @@ check_gst_log_handler (GstDebugCategory * category, GstDebugLevel level,
   else if (__check_test && (strstr (message, __check_test) != NULL)
       && !__check_method)
     __check_error_trapped = TRUE;
+
+  elapsed =
+      GST_CLOCK_DIFF (_priv_gst_info_start_time, gst_util_get_timestamp ());
+  level_str = gst_debug_level_get_name (level);
+  cat_str = gst_debug_category_get_name (category);
+  if (object) {
+    // IDEA(ensonic): we could print ref_counts here
+    if (GST_IS_OBJECT (object) && GST_OBJECT_NAME (object)) {
+      obj_str = g_strdup_printf ("<%s>", GST_OBJECT_NAME (object));
+    } else {
+      obj_str = g_strdup_printf ("%p", object);
+    }
+  } else {
+    obj_str = g_strdup ("");
+  }
+
+  msg = g_alloca (95 + strlen (cat_str) + strlen (level_str) + strlen (message)
+      + strlen (file) + strlen (function) + strlen (obj_str));
+  g_sprintf (msg,
+      "%" GST_TIME_FORMAT " %" PID_FMT " %" PTR_FMT " %-7s %20s %s:%d:%s:%s %s",
+      GST_TIME_ARGS (elapsed), getpid (), g_thread_self (),
+      level_str, cat_str, file, line, function, obj_str, message);
+  g_free (obj_str);
+  check_print_handler (msg);
 }
 #endif
 
+static void
+reset_log (gchar * path, gchar * file)
+{
+  if (path) {
+    g_mkdir_with_parents (path, 0755);
+  }
+  g_unlink (file);
+}
+
 /*
- * setup_log:
+ * setup_log_base:
  * @argc: command line argument count received in main()
  * @argv: command line arguments received in main()
  *
  * Initializes the logoutput channel.
  */
 void
-setup_log (gint argc, gchar ** argv)
+setup_log_base (gint argc, gchar ** argv)
 {
-  gchar *basename, *str;
+  gchar *log, *path;
 
-  __log_file_name = "/tmp/buzztard.log";
+  __log_root = g_get_tmp_dir ();
+
   // get basename from argv[0]; -> lt-bt_edit
-  if ((str = g_path_get_basename (argv[0]))) {
-    //fprintf(stderr,"name : '%s'\n",str);fflush(stderr);
-    if ((basename = g_strdup_printf ("%s.log", &str[3]))) {
-      //fprintf(stderr,"basename : '%s'\n",basename);fflush(stderr);
-      // build path rooted in tmpdir (this is a tiny memleak, as we never free __log_file_name)
-      if (!(__log_file_name =
-              g_build_filename (g_get_tmp_dir (), basename, NULL))) {
-        fprintf (stderr, "can't build logname from '%s','%s'\n",
-            g_get_tmp_dir (), basename);
-        fflush (stderr);
-        __log_file_name = "/tmp/buzztard.log";
-      }
-      //fprintf(stderr,"logfilename : '%s'\n",__log_file_name);fflush(stderr);
-      g_free (basename);
-    } else {
-      fprintf (stderr, "can't build basename from: '%s'\n", str);
-      fflush (stderr);
-    }
-    g_free (str);
+  if ((log = g_path_get_basename (argv[0]))) {
+    // cut libtool prefix
+    __log_base = g_strdup (&log[3]);
+    g_free (log);
   } else {
     fprintf (stderr, "can't get basename from: '%s'\n", argv[0]);
     fflush (stderr);
+    __log_base = PACKAGE_NAME;
   }
-  // reset logfile
-  g_unlink (__log_file_name);
-  g_setenv ("GST_DEBUG_FILE", __log_file_name, TRUE);
+
+  log = g_strdup_printf ("%s.log", __log_base);
+  //fprintf(stderr,"logname : '%s'\n",log);fflush(stderr);
+  g_free (__log_file_name);
+  if (!(__log_file_name = g_build_filename (__log_root, log, NULL))) {
+    fprintf (stderr, "can't build logname from '%s','%s'\n", __log_root, log);
+    fflush (stderr);
+    __log_file_name = g_strdup (FALLBACK_LOG_FILE_NAME);
+  }
+  g_free (log);
+
+  // ensure directory and reset log file
+  path = g_build_filename (__log_root, __log_base, NULL);
+  reset_log (path, __log_file_name);
+  g_free (path);
+}
+
+void
+setup_log_case (const gchar * file_name)
+{
+  gchar *log, *path;
+
+  g_free (__log_case);
+  if ((log = g_path_get_basename (file_name))) {
+    // cut ".c" extension
+    log[strlen (log) - 2] = '\0';
+    __log_case = log;
+  } else {
+    fprintf (stderr, "can't get basename from: '%s'\n", file_name);
+    fflush (stderr);
+    __log_case = g_strdup ("case");
+  }
+
+  log = g_strdup_printf ("%s.log", __log_case);
+  //fprintf(stderr,"logname : '%s'\n",log);fflush(stderr);
+  g_free (__log_file_name);
+  if (!(__log_file_name = g_build_filename (__log_root, __log_base, log, NULL))) {
+    fprintf (stderr, "can't build logname from '%s','%s,'%s'\n",
+        __log_root, __log_base, log);
+    fflush (stderr);
+    __log_file_name = g_strdup (FALLBACK_LOG_FILE_NAME);
+  }
+  g_free (log);
+
+  // ensure directory and reset log file
+  path = g_build_filename (__log_root, __log_base, __log_case, NULL);
+  reset_log (path, __log_file_name);
+  g_free (path);
+}
+
+void
+setup_log_test (const gchar * func_name)
+{
+  static gchar *case_log_file_name = NULL;
+  gchar *log;
+
+  __log_test = func_name;
+
+  if (func_name == NULL) {
+    g_free (__log_file_name);
+    __log_file_name = case_log_file_name;
+    return;
+  }
+
+  log = g_strdup_printf ("%s.log", __log_test);
+  //fprintf(stderr,"logname : '%s'\n",log);fflush(stderr);
+  case_log_file_name = __log_file_name;
+  if (!(__log_file_name = g_build_filename (__log_root, __log_base, __log_case,
+              log, NULL))) {
+    fprintf (stderr, "can't build logname from '%s','%s,'%s,'%s'\n",
+        __log_root, __log_base, __log_case, log);
+    fflush (stderr);
+    __log_file_name = g_strdup (FALLBACK_LOG_FILE_NAME);
+  }
+  g_free (log);
+
+  // reset log file
+  reset_log (NULL, __log_file_name);
 }
 
 /*
  * setup_log_capture:
  *
  * Installs own logging handlers to capture and channelize all diagnostic output
- * during testing. In case of probelms that can help to locate the errors.
+ * during testing.
  */
 void
 setup_log_capture (void)

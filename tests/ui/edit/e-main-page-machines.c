@@ -31,8 +31,7 @@ static BtMainPages *pages;
 static void
 case_setup (void)
 {
-  GST_INFO
-      ("================================================================================");
+  BT_CASE_START;
 }
 
 static void
@@ -172,6 +171,9 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   g_object_get (pages, "machines-page", &machines_page, NULL);
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "sine1");
   flush_main_loop ();
+  // core: 1 x pipeline, 1 x setup, 1 x wire, 1 x sequence
+  // edit: 1 x machine-canvas-item, 1 x main-page-patterns, 1 x main-page-sequence
+  // + 1 temp ref in bt_main_page_machines_delete_machine
   GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
@@ -182,6 +184,9 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
       G_OBJECT_LOG_REF_COUNT (machine));
 
   /* assert */
+  // !!! the wire is not released!
+  // core: 1 x pipeline, 1 x setup
+  // edit: 1 x wire-canvas-item
   g_object_checked_unref (machine);
 
   /* cleanup */

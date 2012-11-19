@@ -28,9 +28,7 @@
 static void
 case_setup (void)
 {
-  bt_cmd_setup ();
-  GST_INFO
-      ("================================================================================");
+  BT_CASE_START;
 }
 
 static void
@@ -46,7 +44,6 @@ test_teardown (void)
 static void
 case_teardown (void)
 {
-  bt_cmd_teardown ();
 }
 
 //-- tests

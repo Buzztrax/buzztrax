@@ -28,8 +28,7 @@ static FILE *saved_stdout = NULL;
 static void
 case_setup (void)
 {
-  GST_INFO
-      ("================================================================================");
+  BT_CASE_START;
 }
 
 static void

@@ -74,8 +74,8 @@ main (gint argc, gchar ** argv)
 #endif
 
   g_type_init ();
-  setup_log (argc, argv);       // -> bt_check_init() ?
-  setup_log_capture ();         // -> bt_check_init() ?
+  setup_log_base (argc, argv);
+  setup_log_capture ();
 
   gst_init (NULL, NULL);
   bt_check_init ();

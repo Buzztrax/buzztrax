@@ -30,8 +30,7 @@ static gchar *ext_data_path, *ext_data_uri;
 static void
 case_setup (void)
 {
-  GST_INFO
-      ("================================================================================");
+  BT_CASE_START;
 }
 
 static void

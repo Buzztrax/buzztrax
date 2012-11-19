@@ -30,8 +30,7 @@ static GstClockTime tick_time;
 static void
 case_setup (void)
 {
-  GST_INFO
-      ("================================================================================");
+  BT_CASE_START;
 }
 
 static void

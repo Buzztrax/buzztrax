@@ -58,14 +58,17 @@ extern gchar **test_argvptr;
 #define BT_TEST_ARGS int _i __attribute__((unused))
 #endif
 
+#define BT_CASE_START setup_log_case (__FILE__)
+
+
 #define BT_TEST_START \
-  GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
+  setup_log_test (__FUNCTION__); \
   tcase_fn_start (__FUNCTION__, __FILE__, __LINE__); \
   {
 
 #define BT_TEST_END \
-  } \
-  GST_DEBUG ("test end ----------------------------------------------------------------------\n");
+  setup_log_test (NULL); \
+  }
 
 
 /* Hack to allow run-time selection of unit tests to run via the
@@ -125,7 +128,9 @@ void bt_check_init(void);
 void check_init_error_trapp(gchar *method, gchar *test);
 gboolean check_has_error_trapped(void);
 
-void setup_log(gint argc, gchar **argv);
+void setup_log_base(gint argc, gchar **argv);
+void setup_log_case(const gchar * file_name);
+void setup_log_test(const gchar * func_name);
 void setup_log_capture(void);
 
 void check_run_main_loop_for_usec(gulong usec);

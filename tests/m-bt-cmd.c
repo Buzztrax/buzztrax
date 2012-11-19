@@ -35,19 +35,6 @@ gchar *test_argv[] = { "check_buzzard" };
 gchar **test_argvptr = test_argv;
 gint test_argc = G_N_ELEMENTS (test_argv);
 
-/* common setup and teardown code */
-void
-bt_cmd_setup (void)
-{
-  GST_INFO
-      ("================================================================================");
-}
-
-void
-bt_cmd_teardown (void)
-{
-}
-
 /* start the test run */
 gint
 main (gint argc, gchar ** argv)
@@ -63,7 +50,7 @@ main (gint argc, gchar ** argv)
 #endif
 
   g_type_init ();
-  setup_log (argc, argv);
+  setup_log_base (argc, argv);
   setup_log_capture ();
 
   bt_init (&test_argc, &test_argvptr);
@@ -71,12 +58,8 @@ main (gint argc, gchar ** argv)
 
   GST_DEBUG_CATEGORY_INIT (bt_cmd_debug, "bt-cmd", 0,
       "music production environment / command ui");
-  // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_threshold_for_name ("GST_*", GST_LEVEL_WARNING);
-  gst_debug_set_threshold_for_name ("bt-*", GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold (bt_core_debug, GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold (bt_cmd_debug, GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold (bt_check_debug, GST_LEVEL_DEBUG);
+  // set this to e.g. LOG to see more from gst in the log
+  gst_debug_set_default_threshold (GST_LEVEL_DEBUG);
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) |
       G_LOG_LEVEL_CRITICAL);
