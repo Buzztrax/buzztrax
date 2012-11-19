@@ -81,6 +81,28 @@ get_machine_refcount (BtSetup * setup, const gchar * id)
   return ref_ct;
 }
 
+static gint
+get_wire_refcount (BtSetup * setup, const gchar * sid, const gchar * did)
+{
+  BtMachine *src = bt_setup_get_machine_by_id (setup, sid);
+  BtMachine *dst = bt_setup_get_machine_by_id (setup, did);
+  gint ref_ct = 0;
+
+  if (src && dst) {
+    BtWire *wire = bt_setup_get_wire_by_machines (setup, src, dst);
+
+    if (wire) {
+      ref_ct = G_OBJECT_REF_COUNT (wire) - 1;
+      g_object_unref (wire);
+    }
+  }
+  if (src)
+    g_object_unref (src);
+  if (dst)
+    g_object_unref (dst);
+  return ref_ct;
+}
+
 static void
 assert_song_part_refcounts (BtSong * song)
 {
@@ -263,8 +285,10 @@ test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
   ck_assert_int_eq (get_machine_refcount (setup, "audio_sink"), 3);
   // 1 x pipeline, 1 x setup, 1 x wire, 1 x sequence
   ck_assert_int_eq (get_machine_refcount (setup, "sine1"), 4);
+  // 1 x pipeline, 1 x setup
+  ck_assert_int_eq (get_wire_refcount (setup, "sine1", "audio_sink"), 2);
 
-  /* TODO(ensonic): check more refcounts (wires)
+  /* TODO(ensonic): debug by looking at
    * bt_song_write_to_highlevel_dot_file (song);
    * - or -
    * BT_CHECKS="test_bt_song_io_native_setup_refcounts_1" make bt_core.check
@@ -297,8 +321,12 @@ test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
   ck_assert_int_eq (get_machine_refcount (setup, "amp1"), 4);
   // 1 x pipeline, 1 x setup, 1 x wire, 1 x sequence
   ck_assert_int_eq (get_machine_refcount (setup, "sine1"), 4);
+  // 1 x pipeline, 1 x setup
+  ck_assert_int_eq (get_wire_refcount (setup, "sine1", "amp1"), 2);
+  // 1 x pipeline, 1 x setup
+  ck_assert_int_eq (get_wire_refcount (setup, "amp1", "audio_sink"), 2);
 
-  /* TODO(ensonic): check more refcounts (wires)
+  /* TODO(ensonic): debug by looking at
    * bt_song_write_to_highlevel_dot_file (song);
    * - or -
    * BT_CHECKS="test_bt_song_io_native_setup_refcounts_1" make bt_core.check
