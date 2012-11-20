@@ -127,6 +127,10 @@ void bt_check_init(void);
 
 void check_init_error_trapp(gchar *method, gchar *test);
 gboolean check_has_error_trapped(void);
+gboolean _check_log_contains(gchar *text);
+
+#define check_log_contains(text, msg) \
+  fail_unless (_check_log_contains(text), msg)
 
 void setup_log_base(gint argc, gchar **argv);
 void setup_log_case(const gchar * file_name);

@@ -134,6 +134,28 @@ check_has_error_trapped (void)
 #endif
 }
 
+gboolean
+_check_log_contains (gchar * text)
+{
+  FILE *logfile;
+  gchar line[2000];
+  gboolean res = FALSE;
+
+  if (!(logfile = fopen (__log_file_name, "r")))
+    return FALSE;
+
+  while (!feof (logfile)) {
+    if (fgets (line, 1999, logfile)) {
+      if (strstr (line, text)) {
+        res = TRUE;
+        break;
+      }
+    }
+  }
+
+  fclose (logfile);
+  return res;
+}
 
 /*
  * log helper:
@@ -288,9 +310,12 @@ check_gst_log_handler (GstDebugCategory * category,
   level_str = gst_debug_level_get_name (level);
   cat_str = gst_debug_category_get_name (category);
   if (object) {
-    // IDEA(ensonic): we could print ref_counts here
-    if (GST_IS_OBJECT (object) && GST_OBJECT_NAME (object)) {
-      obj_str = g_strdup_printf ("<%s>", GST_OBJECT_NAME (object));
+    if (GST_IS_OBJECT (object)) {
+      obj_str = g_strdup_printf ("<%s,%" G_OBJECT_REF_COUNT_FMT ">",
+          GST_OBJECT_NAME (object), G_OBJECT_LOG_REF_COUNT (object));
+    } else if (GST_IS_OBJECT (object)) {
+      obj_str = g_strdup_printf ("<%s,%" G_OBJECT_REF_COUNT_FMT ">",
+          G_OBJECT_TYPE_NAME (object), G_OBJECT_LOG_REF_COUNT (object));
     } else {
       obj_str = g_strdup_printf ("%p", object);
     }

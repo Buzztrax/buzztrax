@@ -173,7 +173,6 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   flush_main_loop ();
   // core: 1 x pipeline, 1 x setup, 1 x wire, 1 x sequence
   // edit: 1 x machine-canvas-item, 1 x main-page-patterns, 1 x main-page-sequence
-  // + 1 temp ref in bt_main_page_machines_delete_machine
   GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
@@ -183,10 +182,20 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
+  gchar buf[200];
+  // counts for 2 refs, pipeline + setup
+  //"bt_setup_remove_machine:<sine1,0xc0cc30,ref_ct=3> unparented machine: 0xc0cc30,ref_ct=3"
+  sprintf (buf,
+      ":bt_machine_canvas_item_dispose: release the machine %p,", machine);
+  check_log_contains (buf, "no unref from BtMachineCanvasItem");
+  sprintf (buf,
+      ":update_after_track_changed: unref old cur-machine %p,", machine);
+  check_log_contains (buf, "no unref from BtMainPageSequence");
+
+  // grep "0xc0cc30" /tmp/bt_edit/e-main-page-machines/test_bt_main_page_machines_remove_source_machine.log | grep "wire.c
+  // wire-canvas-item is getting disposed, but something still has a ref on the wire
+
   /* assert */
-  // !!! the wire is not released!
-  // core: 1 x pipeline, 1 x setup
-  // edit: 1 x wire-canvas-item
   g_object_checked_unref (machine);
 
   /* cleanup */
@@ -221,6 +230,7 @@ test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
   flush_main_loop ();
   GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
+  flush_main_loop ();
 
   /* assert */
   g_object_checked_unref (machine);
