@@ -472,7 +472,7 @@ bt_setup_get_wire_by_machine_type (const BtSetup * const self,
       found = TRUE;
     g_object_unref (search_machine);
     if (found)
-      return (g_object_ref (wire));
+      return g_object_ref (wire);
   }
   GST_DEBUG ("no wire found for %s-machine %p", type, machine);
   return (NULL);
@@ -1427,7 +1427,7 @@ bt_setup_get_machine_by_id (const BtSetup * const self, const gchar * const id)
     if (found) {
       GST_DEBUG_OBJECT (machine, "getting machine (%s): %"
           G_OBJECT_REF_COUNT_FMT, id, G_OBJECT_LOG_REF_COUNT (machine));
-      return (g_object_ref (machine));
+      return g_object_ref (machine);
     }
   }
   GST_DEBUG ("no machine found for id \"%s\"", id);
@@ -1457,7 +1457,7 @@ bt_setup_get_machine_by_type (const BtSetup * const self, const GType type)
     if (G_OBJECT_TYPE (machine) == type) {
       GST_DEBUG_OBJECT (machine, "getting machine: %" G_OBJECT_REF_COUNT_FMT,
           G_OBJECT_LOG_REF_COUNT (machine));
-      return (g_object_ref (machine));
+      return g_object_ref (machine);
     }
   }
   GST_DEBUG ("no machine found for this type");
@@ -1578,7 +1578,7 @@ bt_setup_get_wire_by_machines (const BtSetup * const self,
     if (found) {
       GST_DEBUG_OBJECT (wire, "getting wire: %" G_OBJECT_REF_COUNT_FMT,
           G_OBJECT_LOG_REF_COUNT (wire));
-      return (g_object_ref (wire));
+      return g_object_ref (wire);
     }
   }
 #if 0
@@ -1589,7 +1589,7 @@ bt_setup_get_wire_by_machines (const BtSetup * const self,
       found = TRUE;
     g_object_unref (machine);
     if (found)
-      return (g_object_ref (wire));
+      return g_object_ref (wire);
   }
   for (node = self->priv->wires; node; node = g_list_next (node)) {
     BtWire *const wire = BT_WIRE (node->data);
@@ -1599,7 +1599,7 @@ bt_setup_get_wire_by_machines (const BtSetup * const self,
     g_object_unref (src_machine);
     g_object_unref (dst_machine);
     if (found)
-      return (g_object_ref (wire));
+      return g_object_ref (wire);
   }
 #endif
   GST_DEBUG ("no wire found for machines %p:%s %p:%s", src,

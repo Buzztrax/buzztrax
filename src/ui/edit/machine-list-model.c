@@ -261,7 +261,8 @@ bt_machine_list_model_new (BtSetup * setup)
   g_object_get ((gpointer) setup, "machines", &list, NULL);
   // add machines
   for (node = list; node; node = g_list_next (node)) {
-    machine = BT_MACHINE (node->data);  // we take no extra ref on the machines here
+    // we take no extra ref on the machines here
+    machine = BT_MACHINE (node->data);
     bt_machine_list_model_add (self, machine);
   }
   g_list_free (list);

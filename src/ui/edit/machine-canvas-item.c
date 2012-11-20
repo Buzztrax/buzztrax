@@ -1363,8 +1363,6 @@ bt_machine_canvas_item_dispose (GObject * object)
 
   gtk_widget_destroy (GTK_WIDGET (self->priv->context_menu));
   g_object_try_unref (self->priv->context_menu);
-  GST_DEBUG ("  destroying done, machine: %" G_OBJECT_REF_COUNT_FMT,
-      G_OBJECT_LOG_REF_COUNT (self->priv->machine));
 
   GST_DEBUG ("  chaining up");
   G_OBJECT_CLASS (bt_machine_canvas_item_parent_class)->dispose (object);
