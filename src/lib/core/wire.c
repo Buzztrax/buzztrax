@@ -1202,8 +1202,10 @@ bt_wire_constructed (GObject * object)
   if (!self->priv->song)
     goto NoSongError;
 
-  GST_INFO ("wire constructor, self->priv=%p, between %p and %p", self->priv,
-      self->priv->src, self->priv->dst);
+  GST_INFO_OBJECT (self, "wire constructor, for machine %"
+      G_OBJECT_REF_COUNT_FMT "and %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->src),
+      G_OBJECT_LOG_REF_COUNT (self->priv->dst));
   if (self->priv->src && self->priv->dst) {
     if (!bt_wire_connect (self)) {
       goto ConnectError;
@@ -1215,6 +1217,7 @@ bt_wire_constructed (GObject * object)
   } else {
     goto NoMachinesError;
   }
+  GST_INFO_OBJECT (self, "wire constructed");
   return;
 ConnectError:
   GST_WARNING ("failed to connect wire");

@@ -273,12 +273,14 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
 
   g_return_if_fail (BT_IS_MACHINE (machine));
 
+  GST_INFO_OBJECT (self->priv->wire,
+      "machine %" G_OBJECT_REF_COUNT_FMT " has been removed",
+      G_OBJECT_LOG_REF_COUNT (machine));
+
   g_object_get (self->priv->src, "machine", &src, NULL);
   g_object_get (self->priv->dst, "machine", &dst, NULL);
 
-  GST_INFO_OBJECT (self->priv->wire,
-      "machine %" G_OBJECT_REF_COUNT_FMT " has been removed, "
-      "checking wire %p->%p", G_OBJECT_LOG_REF_COUNT (machine), src, dst);
+  GST_INFO_OBJECT (self->priv->wire, "checking wire %p->%p", src, dst);
   if ((src == machine) || (dst == machine) || (src == NULL) || (dst == NULL)) {
     GST_INFO ("the machine, this wire %" G_OBJECT_REF_COUNT_FMT
         " is connected to, has been removed",
@@ -286,13 +288,17 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
     // this will trigger the removal of the wire-canvas-item, see
     // main-page-machines:on_wire_removed()
     bt_setup_remove_wire (setup, self->priv->wire);
+    GST_INFO_OBJECT (machine, "... machine %" G_OBJECT_REF_COUNT_FMT ", src %"
+        G_OBJECT_REF_COUNT_FMT ", dst %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machine), G_OBJECT_LOG_REF_COUNT (src),
+        G_OBJECT_LOG_REF_COUNT (dst));
   }
-  GST_INFO_OBJECT (machine, "... machine %" G_OBJECT_REF_COUNT_FMT ", src %"
-      G_OBJECT_REF_COUNT_FMT ", dst %" G_OBJECT_REF_COUNT_FMT,
-      G_OBJECT_LOG_REF_COUNT (machine), G_OBJECT_LOG_REF_COUNT (src),
-      G_OBJECT_LOG_REF_COUNT (dst));
   g_object_try_unref (src);
   g_object_try_unref (dst);
+
+  GST_INFO_OBJECT (self->priv->wire,
+      "checked wire for machine %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
 }
 
 static void
@@ -776,8 +782,8 @@ bt_wire_canvas_item_realize (GnomeCanvasItem * citem)
       (gchar *) g_hash_table_lookup (self->priv->properties, "analyzer-shown");
   if (prop && prop[0] == '1' && prop[1] == '\0') {
     if ((self->priv->analysis_dialog =
-            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->
-                        priv->wire))))) {
+            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->priv->
+                        wire))))) {
       bt_edit_application_attach_child_window (self->priv->app,
           GTK_WINDOW (self->priv->analysis_dialog));
       g_signal_connect (self->priv->analysis_dialog, "destroy",
@@ -803,13 +809,13 @@ bt_wire_canvas_item_event (GnomeCanvasItem * citem, GdkEvent * event)
             event->button.x, event->button.y,
             event->button.x_root, event->button.y_root);
         if (!(event->button.state & GDK_SHIFT_MASK)) {
-          bt_main_page_machines_wire_volume_popup (self->
-              priv->main_page_machines, self->priv->wire,
-              (gint) event->button.x_root, (gint) event->button.y_root);
+          bt_main_page_machines_wire_volume_popup (self->priv->
+              main_page_machines, self->priv->wire, (gint) event->button.x_root,
+              (gint) event->button.y_root);
         } else {
-          bt_main_page_machines_wire_panorama_popup (self->
-              priv->main_page_machines, self->priv->wire,
-              (gint) event->button.x_root, (gint) event->button.y_root);
+          bt_main_page_machines_wire_panorama_popup (self->priv->
+              main_page_machines, self->priv->wire, (gint) event->button.x_root,
+              (gint) event->button.y_root);
         }
         res = TRUE;
       } else if (event->button.button == 3) {

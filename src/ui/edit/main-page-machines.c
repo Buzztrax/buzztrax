@@ -665,8 +665,9 @@ on_wire_removed (BtSetup * setup, BtWire * wire, gpointer user_data)
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
   BtWireCanvasItem *item;
 
-  if (!wire)
+  if (!wire) {
     return;
+  }
 
   GST_INFO_OBJECT (wire, "wire removed: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (wire));
@@ -1889,8 +1890,7 @@ bt_main_page_machines_delete_machine (const BtMainPageMachines * self,
    * For now we block conflicting handlers.
    */
 
-  // remove patterns for machine, trigger setup::machine-removed
-  GST_INFO ("removing the machine : %" G_OBJECT_REF_COUNT_FMT,
+  GST_INFO ("logging redo the machine : %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
   if (BT_IS_SOURCE_MACHINE (machine))
@@ -1934,6 +1934,10 @@ bt_main_page_machines_delete_machine (const BtMainPageMachines * self,
   g_free (mid);
   g_free (pname);
 
+  // remove patterns for machine, trigger setup::machine-removed
+  GST_INFO ("removing the machine : %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (machine));
+
   // block machine:pattern-removed signal emission for sequence page to not clobber the sequence
   // in theory we we don't need to block it, as we are removing the machine anyway and thus disconnecting
   // but if we disconnect here, disconnecting them on the sequence page would fail
@@ -1944,12 +1948,8 @@ bt_main_page_machines_delete_machine (const BtMainPageMachines * self,
   g_signal_handlers_block_matched (machine,
       G_SIGNAL_MATCH_ID | G_SIGNAL_MATCH_DATA, pattern_removed_id, 0, NULL,
       NULL, (gpointer) sequence_page);
-  g_object_ref (machine);
   bt_setup_remove_machine (self->priv->setup, machine);
-  g_signal_handlers_unblock_matched (machine,
-      G_SIGNAL_MATCH_ID | G_SIGNAL_MATCH_DATA, pattern_removed_id, 0, NULL,
-      NULL, (gpointer) sequence_page);
-  g_object_unref (machine);
+
   g_object_unref (sequence_page);
   g_object_unref (main_window);
 

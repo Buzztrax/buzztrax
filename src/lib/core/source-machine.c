@@ -193,7 +193,7 @@ bt_source_machine_constructed (GObject * object)
   BtSourceMachine *const self = BT_SOURCE_MACHINE (object);
   GError **err;
 
-  GST_INFO ("source-machine constructed");
+  GST_INFO_OBJECT (object, "source-machine constructed");
 
   G_OBJECT_CLASS (bt_source_machine_parent_class)->constructed (object);
 
