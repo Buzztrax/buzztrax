@@ -680,7 +680,6 @@ rem_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
   GST_INFO_OBJECT (bin, "remove object: added=%d,%" G_OBJECT_REF_COUNT_FMT,
       is_added, G_OBJECT_LOG_REF_COUNT (bin));
   if (is_added) {
-    gst_object_ref (GST_OBJECT (bin));
     gst_bin_remove (self->priv->bin, GST_ELEMENT (bin));
     GST_INFO_OBJECT (bin, "removed object: %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (bin));
@@ -1362,7 +1361,7 @@ bt_setup_remove_wire (const BtSetup * const self, const BtWire * const wire)
     // this triggers finalize if we don't have a ref
     if (((GstObject *) wire)->parent) {
       gst_bin_remove (self->priv->bin, GST_ELEMENT (wire));
-      GST_DEBUG_OBJECT (wire, "unparented machine: %" G_OBJECT_REF_COUNT_FMT,
+      GST_DEBUG_OBJECT (wire, "unparented wire: %" G_OBJECT_REF_COUNT_FMT,
           G_OBJECT_LOG_REF_COUNT (wire));
     }
     gst_object_unref (GST_OBJECT (wire));
