@@ -62,6 +62,11 @@
  * - we 'set' the duration by seeking with a stop position, we also sync
  *   basesrc->segment.duration to sequence->length in BtMachine
  * - some muxers reject seeks, in which case we play endlessly when recording
+ *   - we need a pad-probe in the recording case to watch the timestamp on
+ *     passing buffers and send an eos when ts > duration
+ *   - we also need a way to figure the duration though, there is no duration
+ *     event and we won't get a new-segment as the seek was rejected by the
+ *     muxer
  * - some recording elements send duration queries, which no one answers
  *   - we could answer duration queries on the bin
  * - use a silent (GAP) source connected to the master

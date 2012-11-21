@@ -27,13 +27,14 @@ static BtSetup *setup;
 static BtSettings *settings;
 static gfloat minv, maxv;
 
+// keep these in sync with BtSinkBinRecordFormatInfo
 static gchar *media_types[] = {
   "application/ogg",
   "application/x-id3",
   "audio/x-wav",
   "application/ogg",
-  "video/quicktime",
-  NULL
+  NULL,                         /* raw */
+  "video/quicktime"
 };
 
 //-- fixtures
@@ -234,6 +235,30 @@ message_received (GstBus * bus, GstMessage * message, gpointer user_data)
   g_main_loop_quit (user_data);
 }
 
+/* helper to eos when pos reached lengh */
+static gboolean
+on_song_playback_update (gpointer user_data)
+{
+  bt_song_update_playback_position (song);
+  return TRUE;
+}
+
+static void
+on_song_play_pos_notify (BtSong * song, GParamSpec * arg, gpointer user_data)
+{
+  gulong pos, length;
+
+  bt_child_proxy_get ((gpointer) song, "sequence::length", &length,
+      "play-pos", &pos, NULL);
+  if (pos >= length) {
+    GstElement *bin =
+        (GstElement *) check_gobject_get_object_property (song, "bin");
+    gst_element_send_event (bin, gst_event_new_eos ());
+    gst_object_unref (bin);
+    g_main_loop_quit (user_data);
+  }
+}
+
 static void
 run_main_loop_until_eos (void)
 {
@@ -248,8 +273,19 @@ run_main_loop_until_eos (void)
       (gpointer) main_loop);
   gst_object_unref (bus);
   gst_object_unref (bin);
+  // workaround for some muxers not accepting the seek and thus not going to eos
+  // poll playback position 10 times a second
+  guint update_id =
+      g_timeout_add_full (G_PRIORITY_HIGH, 1000 / 10, on_song_playback_update,
+      NULL, NULL);
+  g_signal_connect (song, "notify::play-pos",
+      G_CALLBACK (on_song_play_pos_notify), (gpointer) main_loop);
 
+  bt_song_update_playback_position (song);
+  GST_INFO_OBJECT (song, "running main_loop");
   g_main_loop_run (main_loop);
+  GST_INFO_OBJECT (song, "finished main_loop");
+  g_source_remove (update_id);
 }
 
 //-- tests
@@ -271,7 +307,6 @@ test_bt_sink_bin_new (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-/* test playback (we test this elsewhere too) */
 /* test recording (loop test over BtSinkBinRecordFormat */
 static void
 test_bt_sink_bin_record (BT_TEST_ARGS)
@@ -293,6 +328,7 @@ test_bt_sink_bin_record (BT_TEST_ARGS)
   bt_song_play (song);
   run_main_loop_until_eos ();
   bt_song_stop (song);
+  g_object_set (sink_bin, "mode", BT_SINK_BIN_MODE_PLAY, NULL);
 
   /* assert */
   GST_INFO ("assert: == %s ==", filename);
@@ -326,6 +362,7 @@ test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
   bt_song_play (song);
   run_main_loop_until_eos ();
   bt_song_stop (song);
+  g_object_set (sink_bin, "mode", BT_SINK_BIN_MODE_PLAY, NULL);
 
   /* assert */
   GST_INFO ("assert: == %s ==", filename);
