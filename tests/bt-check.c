@@ -418,20 +418,19 @@ setup_log_case (const gchar * file_name)
 }
 
 void
-setup_log_test (const gchar * func_name)
+setup_log_test (const gchar * func_name, gint i)
 {
   static gchar *case_log_file_name = NULL;
   gchar *log;
 
   __log_test = func_name;
-
   if (func_name == NULL) {
     g_free (__log_file_name);
     __log_file_name = case_log_file_name;
     return;
   }
 
-  log = g_strdup_printf ("%s.log", __log_test);
+  log = g_strdup_printf ("%s.%d.log", __log_test, i);
   //fprintf(stderr,"logname : '%s'\n",log);fflush(stderr);
   case_log_file_name = __log_file_name;
   if (!(__log_file_name = g_build_filename (__log_root, __log_base, __log_case,
