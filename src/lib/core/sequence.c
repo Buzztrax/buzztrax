@@ -907,7 +907,7 @@ bt_sequence_set_pattern (const BtSequence * const self, const gulong time,
  *
  * Returns: the length of the song loop in ticks
  */
-GstClockTime
+gulong
 bt_sequence_get_loop_length (const BtSequence * const self)
 {
   g_return_val_if_fail (BT_IS_SEQUENCE (self), 0);
