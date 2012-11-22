@@ -779,6 +779,8 @@ check_send_click (GtkWidget * widget, guint button, gdouble x, gdouble y)
 void
 flush_main_loop (void)
 {
+  GST_INFO ("flushing pending events ...");
   while (gtk_events_pending ())
     gtk_main_iteration ();
+  GST_INFO ("... done");
 }
