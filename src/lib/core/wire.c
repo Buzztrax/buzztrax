@@ -349,7 +349,7 @@ bt_wire_link_machines (const BtWire * const self)
   const GstCaps *dst_caps = NULL;
   GstPad *pad;
   gboolean skip_convert = FALSE;
-  guint six, dix;
+  guint six = PART_COUNT, dix = PART_COUNT;
 
   g_assert (BT_IS_WIRE (self));
 
@@ -565,7 +565,7 @@ bt_wire_link_machines (const BtWire * const self)
       }
     }
   }
-  if (res) {
+  if (res && (six < PART_COUNT) && (dix < PART_COUNT)) {
     // update ghostpads
     GST_INFO_OBJECT (machines[six],
         "updating sink ghostpad: elem=%" G_OBJECT_REF_COUNT_FMT
@@ -578,7 +578,7 @@ bt_wire_link_machines (const BtWire * const self)
     }
 
     GST_INFO_OBJECT (machines[dix],
-        "updating src ghostpad : elem=% elem=%" G_OBJECT_REF_COUNT_FMT
+        "updating src ghostpad : elem=%" G_OBJECT_REF_COUNT_FMT
         ", pad=%" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (machines[dix]),
         G_OBJECT_LOG_REF_COUNT (sink_pads[dix]));
@@ -588,7 +588,7 @@ bt_wire_link_machines (const BtWire * const self)
     }
     /* we link the wire to the machine in setup as needed */
   } else {
-    GST_INFO ("failed to link the machines");
+    GST_INFO ("failed to link the machines: six: %d, dix: %d", six, dix);
     gst_pad_unlink (src_pads[PART_QUEUE], sink_pads[PART_TEE]);
     gst_pad_unlink (src_pads[PART_TEE], sink_pads[PART_GAIN]);
     // print out the content of both machines (using GST_DEBUG)
