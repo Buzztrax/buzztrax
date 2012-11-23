@@ -139,7 +139,7 @@ test_bt_song_play_and_load_new (BT_TEST_ARGS)
   bt_song_io_load (loader, song);
   g_object_checked_unref (loader);
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
 
   /* act */
   loader = bt_song_io_from_file (check_get_test_song_path ("test-simple2.xml"));

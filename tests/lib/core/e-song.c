@@ -180,7 +180,7 @@ test_bt_song_play_single (BT_TEST_ARGS)
 
   /* act */
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
 
   /* assert */
   fail_unless (play_signal_invoked, NULL);
@@ -208,13 +208,14 @@ test_bt_song_play_twice (BT_TEST_ARGS)
   g_signal_connect (G_OBJECT (song), "notify::is-playing",
       G_CALLBACK (on_song_is_playing_notify), NULL);
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
   bt_song_stop (song);
   play_signal_invoked = FALSE;
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
 
   /* act && assert */
   fail_unless (bt_song_play (song), NULL);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
   fail_unless (play_signal_invoked, NULL);
 
   /* cleanup */
@@ -233,7 +234,7 @@ test_bt_song_play_and_change_sink (BT_TEST_ARGS)
   BtSong *song = make_new_song ();
 
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
 
   /* act */
   g_object_set (settings, "audiosink", "fakesink", NULL);
@@ -300,7 +301,7 @@ test_bt_song_idle2 (BT_TEST_ARGS)
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
   // start regular playback, this should stop the idle loop
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
   GST_INFO ("playing");
 
   /* assert */

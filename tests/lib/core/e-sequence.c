@@ -532,7 +532,7 @@ test_bt_sequence_duration_play (BT_TEST_ARGS)
   GstElement *sink_bin =
       GST_ELEMENT (check_gobject_get_object_property (sink, "machine"));
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
 
   /* act */
   GstFormat fmt = GST_FORMAT_TIME;
