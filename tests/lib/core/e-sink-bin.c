@@ -149,11 +149,11 @@ static void
 handoff_buffer_cb (GstElement * fakesink, GstBuffer * buffer, GstPad * pad,
     gpointer user_data)
 {
-  gint i, num_samples;
   gfloat *data = (gfloat *) GST_BUFFER_DATA (buffer);
-  GST_DEBUG_OBJECT (fakesink, "got buffer %p, caps=%" GST_PTR_FORMAT, buffer,
-      GST_BUFFER_CAPS (buffer));
-  num_samples = GST_BUFFER_SIZE (buffer) / sizeof (gfloat);
+  gint i, num_samples = GST_BUFFER_SIZE (buffer) / sizeof (gfloat);
+
+  GST_DEBUG_OBJECT (fakesink, "got buffer %p, length=%d, caps=%" GST_PTR_FORMAT,
+      buffer, num_samples, GST_BUFFER_CAPS (buffer));
   for (i = 0; i < num_samples; i++) {
     if (data[i] < minv)
       minv = data[i];
