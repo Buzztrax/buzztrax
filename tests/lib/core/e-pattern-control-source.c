@@ -125,7 +125,7 @@ test_bt_pattern_control_source_trigger_default_value (BT_TEST_ARGS)
   gst_object_sync_values (G_OBJECT (element), G_GUINT64_CONSTANT (0));
 
   /* assert */
-  ck_assert_gobject_genum_eq (element, "g-note", GSTBT_NOTE_NONE);
+  ck_assert_int_eq (((BtTestMonoSource *) element)->note_val, GSTBT_NOTE_NONE);
 
   /* cleanup */
   g_object_unref (pattern);
@@ -257,7 +257,7 @@ test_bt_pattern_control_source_release_trigger (BT_TEST_ARGS)
       G_GUINT64_CONSTANT (1) * tick_time);
 
   /* assert */
-  ck_assert_gobject_genum_eq (element, "g-note", GSTBT_NOTE_NONE);
+  ck_assert_int_eq (((BtTestMonoSource *) element)->note_val, GSTBT_NOTE_NONE);
 
   /* cleanup */
   g_object_unref (pattern);
