@@ -419,6 +419,7 @@ test_bt_sink_bin_analyzers (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
+  g_object_set (settings, "audiosink", "fakesink", NULL);
   make_new_song ( /*square */ 1);
   GstElement *sink_bin = get_sink_bin ();
   GstElement *fakesink = gst_element_factory_make ("fakesink", NULL);
