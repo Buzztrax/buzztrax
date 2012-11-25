@@ -38,6 +38,10 @@ BT_VERSION=$BT_MAJOR_VERSION.$BT_MINOR_VERSION.$BT_MICRO_VERSION
 BT_VERSION_INFO=`expr $BT_MAJOR_VERSION + $BT_MINOR_VERSION`:$BT_MICRO_VERSION:$BT_MINOR_VERSION
 BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + $BT_MICRO_VERSION`
 
+BT_MAJORMINOR=0.7
+AC_DEFINE_UNQUOTED(BT_MAJORMINOR, "$BT_MAJORMINOR", [buzztard series])
+AC_SUBST(BT_MAJORMINOR)
+
 dnl that is needed to figure the directory name, where the plugin goes to
 GST_MAJORMINOR=0.10
 AC_DEFINE_UNQUOTED(GST_MAJORMINOR, "$GST_MAJORMINOR", [gstreamer series])
@@ -62,18 +66,17 @@ VERSION=${BT_VERSION}
 
 
 dnl Checks for programs.
-AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
+AC_PROG_MKDIR_P
 AC_PROG_SED
-AC_ISC_POSIX
-AC_PROG_CC
-AM_PROG_MKDIR_P
+AM_PROG_CC_C_O
 IT_PROG_INTLTOOL
 PKG_PROG_PKG_CONFIG
 
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 dnl Initialise gettext
 AM_GNU_GETTEXT_VERSION(0.12.1)
@@ -214,6 +217,17 @@ AC_ARG_WITH(
 AC_MSG_RESULT($with_desktop_dir)
 AC_SUBST(with_desktop_dir)
 
+dnl enable compact UI (for netbooks/phones)
+AC_MSG_CHECKING(whether to use the compact UI)
+AC_ARG_ENABLE([compact_ui],
+  AS_HELP_STRING([--enable-compact-ui],[enable compact ui (default=no)]),
+  ,
+  [enable_compact_ui=no])
+AC_MSG_RESULT($enable_compact_ui)
+if test "x$enable_compact_ui" = "xyes"; then
+  AC_DEFINE(USE_COMPACT_UI, [1], [enable compact ui])
+fi
+AC_SUBST(USE_COMPACT_UI)
 
 dnl Checks for libraries.
 
@@ -263,16 +277,6 @@ PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.7.0, [
     use_bml=yes
   ],[
     use_bml=no
-  ]
-)
-
-PKG_CHECK_MODULES(HILDON_DEPS, hildon-1 libosso, [
-  AC_DEFINE(USE_HILDON, [1], [Define to 1 if we can use hildon libraries])
-    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $HILDON_DEPS_CFLAGS"
-    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $HILDON_DEPS_LIBS"
-    use_hildon=yes
-  ],[
-    use_hildon=no
   ]
 )
 
@@ -463,12 +467,6 @@ case "x${host_cpu}" in
 esac
 
 
-dnl Checks for typedefs, structures, and compiler characteristics.
-AM_C_PROTOTYPES
-test "x$U" != "x" && AC_MSG_ERROR(Compiler not ANSI compliant)
-AC_C_CONST
-
-
 dnl check for libraries
 AC_CHECK_LIBM
 AC_SUBST(LIBM)
@@ -529,48 +527,25 @@ AC_SUBST(GUI_DEPS_CFLAGS)
 
 
 AC_CONFIG_FILES(Makefile \
-  docs/Makefile \
   docs/version.entities \
-    docs/help/Makefile \
-      docs/help/bt-edit/Makefile \
-        docs/help/bt-edit/C/Makefile \
-        docs/help/bt-edit/C/buzztard-edit-C.omf \
-    docs/reference/Makefile \
-      docs/reference/bt-cmd/Makefile \
-      docs/reference/bt-core/Makefile \
-      docs/reference/bt-core/buzztard-core.types \
-      docs/reference/bt-edit/Makefile \
-      docs/reference/bt-ic/Makefile \
-      docs/reference/bt-ic/buzztard-ic.types \
-      docs/reference/bt-ic/buzztard-ic-sections.txt \
-  pixmaps/Makefile \
-    pixmaps/hicolor/Makefile \
-    pixmaps/gnome/Makefile \
+  docs/help/bt-edit/Makefile \
+  docs/help/bt-edit/C/Makefile \
+  docs/help/bt-edit/C/buzztard-edit-C.omf \
+  docs/reference/bt-cmd/Makefile \
+  docs/reference/bt-core/Makefile \
+  docs/reference/bt-core/buzztard-core.types \
+  docs/reference/bt-edit/Makefile \
+  docs/reference/bt-ic/Makefile \
+  docs/reference/bt-ic/buzztard-ic.types \
+  docs/reference/bt-ic/buzztard-ic-sections.txt \
   po/Makefile.in \
-  src/Makefile \
-    src/lib/Makefile \
-    src/lib/buzztard.xml \
-      src/lib/core/Makefile \
-      src/lib/core/libbuzztard-core.pc \
-      src/lib/core/version.h \
-        src/lib/core/songio/Makefile \
-          src/lib/core/songio/bsl/Makefile \
-      src/lib/ic/Makefile \
-	  src/lib/ic/libbuzztard-ic.pc \
-		src/lib/ic/version.h \
-    src/ui/Makefile \
-      src/ui/cmd/Makefile \
-      src/ui/dec/Makefile \
-      src/ui/edit/Makefile \
-  tests/Makefile \
+  src/lib/buzztard.xml \
+  src/lib/core/libbuzztard-core.pc \
+  src/lib/core/version.h \
+  src/lib/ic/libbuzztard-ic.pc \
+  src/lib/ic/version.h \
   tests/bt-cfg.sh \
-    tests/lib/Makefile \
-      tests/lib/core/Makefile \
-        tests/lib/core/songio/bsl/bt-cfg.sh \
-      tests/lib/ic/Makefile \
-    tests/ui/Makefile \
-      tests/ui/cmd/Makefile \
-      tests/ui/edit/Makefile \
+  tests/lib/core/songio/bsl/bt-cfg.sh \
 )
 AC_OUTPUT
 
@@ -593,7 +568,7 @@ Configuration
 	Linux HID for interaction ctrl. : ${have_linux_input_h}
 	Buzzmachine Host support        : ${use_bml}
 	Zipped Song file support (bzt)  : ${use_gsf}
-	Hildon Desktop Integration      : ${use_hildon}
+	Compact UI (small screen)       : ${enable_compact_ui}
 
 	Debug                           : ${enable_debug}
 	Coverage profiling              : ${enable_coverage} ${using_coverage_tool}

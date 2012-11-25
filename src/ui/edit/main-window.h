@@ -42,23 +42,14 @@ typedef struct _BtMainWindowPrivate BtMainWindowPrivate;
  * the root window for the editor application
  */
 struct _BtMainWindow {
-#ifndef USE_HILDON
   GtkWindow parent;
-#else
-  HildonWindow parent;
-#endif
   
   /*< private >*/
   BtMainWindowPrivate *priv;
 };
 
 struct _BtMainWindowClass {
-#ifndef USE_HILDON
-  GtkWindowClass parent;
-#else
-  HildonWindowClass parent;
-#endif
-  
+  GtkWindowClass parent;  
 };
 
 GType bt_main_window_get_type(void) G_GNUC_CONST;

@@ -24,34 +24,9 @@
 #  include "config.h"
 #endif
 
-//-- ansi c
-#define __USE_ISOC99 /* for isinf() and co. */
-#include <ctype.h>
-#include <dirent.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-//#define _XOPEN_SOURCE /* glibc2 needs this */
-#define __USE_XOPEN
-#include <time.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <sys/times.h>
-#include <sys/resource.h>
-//-- locale
-#ifdef HAVE_X11_XLOCALE_H
-  /* defines a more portable setlocale for X11 (_Xsetlocale) */
-  #include <X11/Xlocale.h>
-#else
-  #include <locale.h>
-#endif
 //-- libxml2
 #include <libxml/parser.h>
-#include <libxml/parserInternals.h>
 #include <libxml/xmlmemory.h>
-#include <libxml/xpath.h>
-#include <libxml/xpathInternals.h>
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS
@@ -79,10 +54,6 @@
   #define textdomain(Domain)
   #define bindtextdomain(Package, Directory)
 #endif
-#endif
-//-- gconf
-#ifdef USE_GCONF
-#include <gconf/gconf-client.h>
 #endif
 
 #include "core.h"

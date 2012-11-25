@@ -43,26 +43,29 @@
 
 //-- property ids
 
-enum {
-  AUDIO_SESSION_AUDIO_SINK=1,
+enum
+{
+  AUDIO_SESSION_AUDIO_SINK = 1,
   AUDIO_SESSION_AUDIO_SINK_NAME,
+  AUDIO_SESSION_AUDIO_SINK_DEVICE,
   AUDIO_SESSION_AUDIO_LOCKED,
   AUDIO_SESSION_TRANSPORT_MODE,
 
 };
 
-struct _BtAudioSessionPrivate {
+struct _BtAudioSessionPrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
   /* the active audio sink */
-  gchar *audio_sink_name;
+  gchar *audio_sink_name, *audio_sink_device;
   GstElement *audio_sink;
-    
+
   BtSettings *settings;
 };
 
-static BtAudioSession *singleton=NULL;
+static BtAudioSession *singleton = NULL;
 
 //-- the class
 
@@ -70,110 +73,122 @@ G_DEFINE_TYPE (BtAudioSession, bt_audio_session, G_TYPE_OBJECT);
 
 //-- signal handlers
 
-static void update_tranport_mode(void) {
-  if(singleton->priv->audio_sink &&
-    g_object_class_find_property(G_OBJECT_GET_CLASS(singleton->priv->audio_sink),"transport")
-  ) {
-    gboolean master,slave;
+static void
+update_tranport_mode (void)
+{
+  if (singleton->priv->audio_sink &&
+      g_object_class_find_property (G_OBJECT_GET_CLASS (singleton->
+              priv->audio_sink), "transport")
+      ) {
+    gboolean master, slave;
 
-    g_object_get(singleton->priv->settings,
-      "jack-transport-master",&master,
-      "jack-transport-slave",&slave,
-      NULL);
-    g_object_set(singleton->priv->audio_sink,"transport",((master<<0)|(slave<<1)),NULL);
+    g_object_get (singleton->priv->settings,
+        "jack-transport-master", &master, "jack-transport-slave", &slave, NULL);
+    g_object_set (singleton->priv->audio_sink, "transport",
+        ((master << 0) | (slave << 1)), NULL);
   }
 }
 
-static void on_jack_transport_mode_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
-  update_tranport_mode();
+static void
+on_jack_transport_mode_changed (const BtSettings * const settings,
+    GParamSpec * const arg, gconstpointer const user_data)
+{
+  update_tranport_mode ();
 }
 
 //-- helper methods
 
-static void bt_audio_session_cleanup(void) {  
-  if(singleton->priv->audio_sink) {
-    GST_WARNING("forgetting session audio sink %p, ref=%d",
-        singleton->priv->audio_sink,G_OBJECT_REF_COUNT(singleton->priv->audio_sink));
-    gst_element_set_state(singleton->priv->audio_sink,GST_STATE_NULL);
-    gst_object_unref(singleton->priv->audio_sink);
-    singleton->priv->audio_sink=NULL;
+static void
+bt_audio_session_cleanup (void)
+{
+  if (singleton->priv->audio_sink) {
+    GST_WARNING ("forgetting session audio sink %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (singleton->priv->audio_sink));
+    gst_element_set_state (singleton->priv->audio_sink, GST_STATE_NULL);
+    gst_object_unref (singleton->priv->audio_sink);
+    singleton->priv->audio_sink = NULL;
   }
 }
 
-static void bt_audio_session_setup(void) {
-  gchar *plugin_name = singleton->priv->audio_sink_name; 
-  if(!strcmp(plugin_name,"jackaudiosink")) {
+static void
+bt_audio_session_setup (void)
+{
+  gchar *element_name = singleton->priv->audio_sink_name;
+  // audio_sink_device is not used for know session sinks right now
+  if (!strcmp (element_name, "jackaudiosink")) {
     GstElement *audio_sink = singleton->priv->audio_sink;
 
-    if(!audio_sink) {
+    if (!audio_sink) {
       GstElement *bin;
-      GstElement *sink,*src;
+      GstElement *sink, *src;
       GstBus *bus;
       GstMessage *message;
-      gboolean loop=TRUE;
-  
+      gboolean loop = TRUE;
+
       // create audio sink and drop floating ref
-      audio_sink=gst_object_ref(gst_element_factory_make(plugin_name,NULL));
-      gst_object_sink(audio_sink);
-      GST_WARNING("created session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
+      audio_sink = gst_element_factory_make (element_name, NULL);
+      gst_object_ref_sink (audio_sink);
+      GST_WARNING ("created session audio sink %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (audio_sink));
 
       // we need this hack to make the ports show up
-      bin = gst_pipeline_new("__kickstart__");
-      bus = gst_element_get_bus(bin);
-      src = gst_element_factory_make("audiotestsrc", NULL);
-      sink = gst_object_ref(audio_sink);
-      gst_bin_add_many(GST_BIN (bin), src, sink, NULL);
-      gst_element_link(src, sink);
-      gst_element_set_state(bin, GST_STATE_PAUSED);
-      
-      while(loop) {
-        message=gst_bus_poll(bus,GST_MESSAGE_ANY,-1);
+      bin = gst_pipeline_new ("__kickstart__");
+      bus = gst_element_get_bus (bin);
+      src = gst_element_factory_make ("audiotestsrc", NULL);
+      sink = gst_object_ref (audio_sink);
+      gst_bin_add_many (GST_BIN (bin), src, sink, NULL);
+      gst_element_link (src, sink);
+      gst_element_set_state (bin, GST_STATE_PAUSED);
+
+      while (loop) {
+        message = gst_bus_poll (bus, GST_MESSAGE_ANY, -1);
         switch (message->type) {
           case GST_MESSAGE_STATE_CHANGED:
-            if(GST_MESSAGE_SRC(message) == GST_OBJECT(bin)) {
-              GstState oldstate,newstate;
-    
-              gst_message_parse_state_changed(message,&oldstate,&newstate,NULL);
-              if(GST_STATE_TRANSITION(oldstate,newstate)==GST_STATE_CHANGE_READY_TO_PAUSED)
-                loop=FALSE;
+            if (GST_MESSAGE_SRC (message) == GST_OBJECT (bin)) {
+              GstState oldstate, newstate;
+
+              gst_message_parse_state_changed (message, &oldstate, &newstate,
+                  NULL);
+              if (GST_STATE_TRANSITION (oldstate,
+                      newstate) == GST_STATE_CHANGE_READY_TO_PAUSED)
+                loop = FALSE;
             }
             break;
           case GST_MESSAGE_ERROR:
-            loop=FALSE;
+            loop = FALSE;
             break;
           default:
             break;
         }
-        gst_message_unref(message);
+        gst_message_unref (message);
       }
-      gst_object_unref(bus);
-      
-      gst_element_set_state(bin, GST_STATE_READY);
-      gst_element_set_locked_state(audio_sink, TRUE);
-      gst_element_set_state(bin, GST_STATE_NULL);
-      gst_object_unref(bin);
-      
+      gst_object_unref (bus);
+
+      gst_element_set_state (bin, GST_STATE_READY);
+      gst_element_set_locked_state (audio_sink, TRUE);
+      gst_element_set_state (bin, GST_STATE_NULL);
+      gst_object_unref (bin);
+
       singleton->priv->audio_sink = audio_sink;
-      update_tranport_mode();
-    }
-    else {
+      update_tranport_mode ();
+    } else {
       GstObject *parent;
       // we know that we're not playing anymore, but due to ref-counting the
       // audio_sink might be still plugged, if so steal it!
-      if((parent=gst_object_get_parent(GST_OBJECT(audio_sink)))) {
-        gst_bin_remove(GST_BIN(parent),audio_sink);
-        gst_element_set_state(audio_sink, GST_STATE_READY);
-        gst_element_set_locked_state(audio_sink, TRUE);
-        gst_object_unref(parent);
-        GST_WARNING("stole session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
-      }
-      else {
-        GST_WARNING("reuse session audio sink %p, ref=%d",audio_sink,G_OBJECT_REF_COUNT(audio_sink));
+      if ((parent = gst_object_get_parent (GST_OBJECT (audio_sink)))) {
+        gst_bin_remove (GST_BIN (parent), audio_sink);
+        gst_element_set_state (audio_sink, GST_STATE_READY);
+        gst_element_set_locked_state (audio_sink, TRUE);
+        gst_object_unref (parent);
+        GST_WARNING ("stole session audio sink %" G_OBJECT_REF_COUNT_FMT,
+            G_OBJECT_LOG_REF_COUNT (audio_sink));
+      } else {
+        GST_WARNING ("reuse session audio sink %" G_OBJECT_REF_COUNT_FMT,
+            G_OBJECT_LOG_REF_COUNT (audio_sink));
       }
     }
-  }
-  else {
-    bt_audio_session_cleanup();
+  } else {
+    bt_audio_session_cleanup ();
   }
 }
 
@@ -188,8 +203,10 @@ static void bt_audio_session_setup(void) {
  *
  * Returns: the audio-session, unref when done.
  */
-BtAudioSession *bt_audio_session_new(void) {
-  return(BT_AUDIO_SESSION(g_object_new(BT_TYPE_AUDIO_SESSION,NULL)));
+BtAudioSession *
+bt_audio_session_new (void)
+{
+  return (BT_AUDIO_SESSION (g_object_new (BT_TYPE_AUDIO_SESSION, NULL)));
 }
 
 //-- methods
@@ -198,133 +215,166 @@ BtAudioSession *bt_audio_session_new(void) {
 
 //-- class internals
 
-static GObject* bt_audio_session_constructor(GType type, guint n_construct_params, GObjectConstructParam *construct_params) {
+static GObject *
+bt_audio_session_constructor (GType type, guint n_construct_params,
+    GObjectConstructParam * construct_params)
+{
   GObject *object;
 
-  if(G_UNLIKELY(!singleton)) {
-    object=G_OBJECT_CLASS(bt_audio_session_parent_class)->constructor(type,n_construct_params,construct_params);
-    singleton=BT_AUDIO_SESSION(object);
-    g_object_add_weak_pointer(object,(gpointer*)(gpointer)&singleton);
-  }
-  else {
-    object=g_object_ref(singleton);
+  if (G_UNLIKELY (!singleton)) {
+    object =
+        G_OBJECT_CLASS (bt_audio_session_parent_class)->constructor (type,
+        n_construct_params, construct_params);
+    singleton = BT_AUDIO_SESSION (object);
+    g_object_add_weak_pointer (object, (gpointer *) (gpointer) & singleton);
+  } else {
+    object = g_object_ref (singleton);
   }
   return object;
 }
-    
-static void bt_audio_session_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  const BtAudioSession * const self = BT_AUDIO_SESSION(object);
-  return_if_disposed();
+
+static void
+bt_audio_session_get_property (GObject * const object, const guint property_id,
+    GValue * const value, GParamSpec * const pspec)
+{
+  const BtAudioSession *const self = BT_AUDIO_SESSION (object);
+  return_if_disposed ();
   switch (property_id) {
     case AUDIO_SESSION_AUDIO_SINK:
-      g_value_set_object(value, self->priv->audio_sink);
+      g_value_set_object (value, self->priv->audio_sink);
       break;
     case AUDIO_SESSION_AUDIO_SINK_NAME:
-      g_value_set_string(value, self->priv->audio_sink_name);
+      g_value_set_string (value, self->priv->audio_sink_name);
+      break;
+    case AUDIO_SESSION_AUDIO_SINK_DEVICE:
+      g_value_set_string (value, self->priv->audio_sink_device);
       break;
     case AUDIO_SESSION_AUDIO_LOCKED:
-      g_value_set_boolean(value, (self->priv->audio_sink?gst_element_is_locked_state(self->priv->audio_sink):FALSE));
+      g_value_set_boolean (value,
+          (self->priv->audio_sink ? gst_element_is_locked_state (self->
+                  priv->audio_sink) : FALSE));
       break;
     default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
 }
 
-static void bt_audio_session_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtAudioSession * const self = BT_AUDIO_SESSION(object);
-  return_if_disposed();
+static void
+bt_audio_session_set_property (GObject * const object, const guint property_id,
+    const GValue * const value, GParamSpec * const pspec)
+{
+  const BtAudioSession *const self = BT_AUDIO_SESSION (object);
+  return_if_disposed ();
 
   switch (property_id) {
     case AUDIO_SESSION_AUDIO_SINK_NAME:
-      g_free(self->priv->audio_sink_name);
-      self->priv->audio_sink_name = g_value_dup_string(value);
-      bt_audio_session_setup();
+      g_free (self->priv->audio_sink_name);
+      self->priv->audio_sink_name = g_value_dup_string (value);
+      bt_audio_session_setup ();
+      break;
+    case AUDIO_SESSION_AUDIO_SINK_DEVICE:
+      g_free (self->priv->audio_sink_device);
+      self->priv->audio_sink_device = g_value_dup_string (value);
       break;
     case AUDIO_SESSION_AUDIO_LOCKED:
       if (self->priv->audio_sink) {
-        gboolean state=g_value_get_boolean(value);
-        GST_WARNING_OBJECT(self,"%slock audio sink",(state?"":"un"));
-        gst_element_set_locked_state(self->priv->audio_sink,state);
+        gboolean state = g_value_get_boolean (value);
+        GST_WARNING_OBJECT (self, "%slock audio sink", (state ? "" : "un"));
+        gst_element_set_locked_state (self->priv->audio_sink, state);
       }
       break;
     default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
 }
 
-static void bt_audio_session_dispose(GObject * const object) {
-  const BtAudioSession * const self = BT_AUDIO_SESSION(object);
+static void
+bt_audio_session_dispose (GObject * const object)
+{
+  const BtAudioSession *const self = BT_AUDIO_SESSION (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
-  GST_INFO("!!!! self=%p",self);
+  GST_INFO ("!!!! self=%p", self);
 
-  g_signal_handlers_disconnect_matched(self->priv->settings,G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)self);
-  g_object_unref(self->priv->settings);
-  
-  bt_audio_session_cleanup();
+  g_signal_handlers_disconnect_matched (self->priv->settings,
+      G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, (gpointer) self);
+  g_object_unref (self->priv->settings);
 
-  GST_INFO("chaining up");
-  G_OBJECT_CLASS(bt_audio_session_parent_class)->dispose(object);
-  GST_INFO("done");
+  bt_audio_session_cleanup ();
+
+  GST_INFO ("chaining up");
+  G_OBJECT_CLASS (bt_audio_session_parent_class)->dispose (object);
+  GST_INFO ("done");
 }
 
-static void bt_audio_session_finalize(GObject * const object) {
-  const BtAudioSession * const self = BT_AUDIO_SESSION(object);
+static void
+bt_audio_session_finalize (GObject * const object)
+{
+  const BtAudioSession *const self = BT_AUDIO_SESSION (object);
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG ("!!!! self=%p", self);
 
-  g_free(self->priv->audio_sink_name);
+  g_free (self->priv->audio_sink_name);
+  g_free (self->priv->audio_sink_device);
 
-  G_OBJECT_CLASS(bt_audio_session_parent_class)->finalize(object);
+  G_OBJECT_CLASS (bt_audio_session_parent_class)->finalize (object);
 }
 
-static void bt_audio_session_init(BtAudioSession *self) {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_AUDIO_SESSION, BtAudioSessionPrivate);
+static void
+bt_audio_session_init (BtAudioSession * self)
+{
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_AUDIO_SESSION,
+      BtAudioSessionPrivate);
 
-  GST_INFO("!!!! self=%p",self);
-  
+  GST_INFO ("!!!! self=%p", self);
+
   // watch settings changes
-  self->priv->settings=bt_settings_make();
-  g_signal_connect(self->priv->settings, "notify::jack-transport-master", G_CALLBACK(on_jack_transport_mode_changed), (gpointer)self);
-  g_signal_connect(self->priv->settings, "notify::jack-transport-slave", G_CALLBACK(on_jack_transport_mode_changed), (gpointer)self);
+  self->priv->settings = bt_settings_make ();
+  g_signal_connect (self->priv->settings, "notify::jack-transport-master",
+      G_CALLBACK (on_jack_transport_mode_changed), (gpointer) self);
+  g_signal_connect (self->priv->settings, "notify::jack-transport-slave",
+      G_CALLBACK (on_jack_transport_mode_changed), (gpointer) self);
 
-  GST_INFO("done");
+  GST_INFO ("done");
 }
 
-static void bt_audio_session_class_init(BtAudioSessionClass * klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+static void
+bt_audio_session_class_init (BtAudioSessionClass * klass)
+{
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private(klass,sizeof(BtAudioSessionPrivate));
+  g_type_class_add_private (klass, sizeof (BtAudioSessionPrivate));
 
-  gobject_class->constructor  = bt_audio_session_constructor;
+  gobject_class->constructor = bt_audio_session_constructor;
   gobject_class->set_property = bt_audio_session_set_property;
   gobject_class->get_property = bt_audio_session_get_property;
-  gobject_class->dispose      = bt_audio_session_dispose;
-  gobject_class->finalize     = bt_audio_session_finalize;
+  gobject_class->dispose = bt_audio_session_dispose;
+  gobject_class->finalize = bt_audio_session_finalize;
 
-  g_object_class_install_property(gobject_class,AUDIO_SESSION_AUDIO_SINK,
-                                  g_param_spec_object("audio-sink",
-                                     "audio-sink prop",
-                                     "the audio-sink for the session",
-                                     GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, AUDIO_SESSION_AUDIO_SINK,
+      g_param_spec_object ("audio-sink", "audio-sink prop",
+          "the audio-sink for the session", GST_TYPE_ELEMENT,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,AUDIO_SESSION_AUDIO_SINK_NAME,
-                                  g_param_spec_string("audio-sink-name",
-                                     "audio-sink-name prop",
-                                     "The name of the audio sink factory",
-                                     NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, AUDIO_SESSION_AUDIO_SINK_NAME,
+      g_param_spec_string ("audio-sink-name", "audio-sink-name prop",
+          "The name of the audio sink factory", NULL,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,AUDIO_SESSION_AUDIO_LOCKED,
-                                  g_param_spec_boolean("audio-locked",
-                                     "audio-locked prop",
-                                     "locked state for the audio-sink",
-                                     FALSE,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-  
+  g_object_class_install_property (gobject_class,
+      AUDIO_SESSION_AUDIO_SINK_DEVICE,
+      g_param_spec_string ("audio-sink-device", "audio-sink-device prop",
+          "The name of the audio sink device", NULL,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, AUDIO_SESSION_AUDIO_LOCKED,
+      g_param_spec_boolean ("audio-locked",
+          "audio-locked prop",
+          "locked state for the audio-sink",
+          FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
 }
-

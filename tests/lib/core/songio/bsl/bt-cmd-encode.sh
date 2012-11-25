@@ -7,7 +7,7 @@ if [ -z "$BSL_SONG_PATH" ]; then
   exit 1
 fi
 
-. ./bt-cfg.sh
+. ./tests/lib/core/songio/bsl/bt-cfg.sh
 
 rm -f /tmp/bt_cmd_encode_bsl.log
 mkdir -p audio

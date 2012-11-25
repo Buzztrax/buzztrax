@@ -2,7 +2,7 @@
 src/lib/buzztard.xml.in
 src/lib/core/application.c
 src/lib/core/core.c
-src/lib/core/pattern.c
+src/lib/core/cmd-pattern.c
 src/lib/core/song-io-native.c
 src/lib/core/song-io-native-bzt.c
 src/lib/core/song-io-native-xml.c
@@ -41,7 +41,6 @@ src/ui/edit/missing-framework-elements-dialog.c
 src/ui/edit/missing-song-elements-dialog.c
 src/ui/edit/pattern-properties-dialog.c
 src/ui/edit/render-dialog.c
-src/ui/edit/render-progress.c
 src/ui/edit/settings-dialog.c
 src/ui/edit/settings-page-audiodevices.c
 src/ui/edit/settings-page-directories.c

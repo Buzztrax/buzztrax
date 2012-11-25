@@ -64,8 +64,8 @@
  * after deactivation (so that they can be easily reactivated) and destroyed with
  * the #BtMachine object.
  *
- * Furthermore the machine handles a list of #BtPattern instances. These contain
- * event patterns that form a #BtSequence.
+ * Furthermore the machine handles a list of #BtCmdPattern instances. These
+ * contain event patterns that form a #BtSequence.
  */
 
 /* TODO(ensonic): machine part creation api
@@ -89,7 +89,8 @@
 
 //-- signal ids
 
-enum {
+enum
+{
   PATTERN_ADDED_EVENT,
   PATTERN_REMOVED_EVENT,
   LAST_SIGNAL
@@ -97,13 +98,15 @@ enum {
 
 //-- property ids
 
-enum {
-  MACHINE_CONSTRUCTION_ERROR=1,
+enum
+{
+  MACHINE_CONSTRUCTION_ERROR = 1,
   MACHINE_PROPERTIES,
   MACHINE_SONG,
   MACHINE_ID,
   MACHINE_PLUGIN_NAME,
   MACHINE_VOICES,
+  MACHINE_PREFS_PARAMS,
   MACHINE_GLOBAL_PARAMS,
   MACHINE_VOICE_PARAMS,
   MACHINE_MACHINE,
@@ -119,9 +122,10 @@ enum {
 };
 
 // adder, capsfiter, level, volume are gap-aware
-typedef enum {
+typedef enum
+{
   /* utillity element to allow multiple inputs */
-  PART_ADDER=0,
+  PART_ADDER = 0,
   /* helper to enforce common format for adder inputs */
   PART_CAPS_FILTER,
   /* helper to make adder link to next element */
@@ -142,7 +146,8 @@ typedef enum {
   PART_COUNT
 } BtMachinePart;
 
-struct _BtMachinePrivate {
+struct _BtMachinePrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
   /* used to signal failed instance creation */
@@ -152,10 +157,10 @@ struct _BtMachinePrivate {
   GHashTable *properties;
 
   /* the song the machine belongs to */
-  G_POINTER_ALIAS(BtSong *,song);
+  BtSong *song;
 
   /* status in songs pipeline */
-  gboolean is_added,is_connected;
+  gboolean is_added, is_connected;
 
   /* the id, we can use to lookup the machine */
   gchar *id;
@@ -164,6 +169,8 @@ struct _BtMachinePrivate {
 
   /* the number of voices the machine provides */
   gulong voices;
+  /* the number of static params the machine provides per instance */
+  gulong prefs_params;
   /* the number of dynamic params the machine provides per instance */
   gulong global_params;
   /* the number of dynamic params the machine provides per instance and voice */
@@ -172,86 +179,93 @@ struct _BtMachinePrivate {
   /* the current state of the machine */
   BtMachineState state;
 
-  /* dynamic parameter control */
-  BtParameterGroup *global_param_group,**voice_param_groups;
+  /* parameter groups */
+  BtParameterGroup *prefs_param_group;
+  BtParameterGroup *global_param_group, **voice_param_groups;
 
   /* event patterns */
-  GList *patterns;  // each entry points to BtPattern
+  GList *patterns;              // each entry points to BtCmdPattern
   guint private_patterns;
 
   /* the gstreamer elements that are used */
   GstElement *machines[PART_COUNT];
-  GstPad *src_pads[PART_COUNT],*sink_pads[PART_COUNT];
+  GstPad *src_pads[PART_COUNT], *sink_pads[PART_COUNT];
 
   /* caps filter format */
-  gint format; /* 0=int/1=float */
+  gint format;                  /* 0=int/1=float */
   gint channels;
   gint width;
   gint depth;
 
   /* realtime control (bt-ic) */
-  GHashTable *control_data; // each entry points to BtMachineData
+  GHashTable *control_data;     // each entry points to BtMachineData
 
   /* src/sink ghost-pad counters for the machine */
   gint src_pad_counter, sink_pad_counter;
 };
 
-typedef struct {
+typedef struct
+{
   const BtIcControl *control;
   GstObject *object;
   GParamSpec *pspec;
+  BtParameterGroup *pg;
   gulong handler_id;
+  gint pi;
 } BtControlData;
 
-#if 0
-typedef struct {
+typedef struct
+{
   const BtIcControl *control;
-  BtMachine *machine;
+  BtMachinePrivate *machine_priv;
   GParamSpec *pspec;
+  BtParameterGroup *pg;
   gulong handler_id;
   gint voice_ct;
+  gint pi;
 } BtPolyControlData;
-#endif
 
-static GQuark error_domain=0;
+static GQuark error_domain = 0;
 
-static guint signals[LAST_SIGNAL]={0,};
+static guint signals[LAST_SIGNAL] = { 0, };
 
-static gchar *src_pn[]={
-  "src",  /* adder */
-  "src",  /* caps filter */
-  "src",  /* audioconvert */
-  "src",  /* input pre level */
-  "src",  /* input gain */
-  "src",  /* input post level */
-  "src",  /* machine */
-  "src",  /* output pre level */
-  "src",  /* output gain */
-  "src",  /* output post level */
-  NULL /* tee */
+static gchar *src_pn[] = {
+  "src",                        /* adder */
+  "src",                        /* caps filter */
+  "src",                        /* audioconvert */
+  "src",                        /* input pre level */
+  "src",                        /* input gain */
+  "src",                        /* input post level */
+  "src",                        /* machine */
+  "src",                        /* output pre level */
+  "src",                        /* output gain */
+  "src",                        /* output post level */
+  NULL                          /* tee */
 };
-static gchar *sink_pn[]={
-  NULL, /* adder */
-  "sink",   /* caps filter */
-  "sink",   /* audioconvert */
-  "sink",   /* input pre level */
-  "sink",   /* input gain */
-  "sink",   /* input post level */
-  "sink",   /* machine */
-  "sink",   /* output pre level */
-  "sink",   /* output gain */
-  "sink",   /* output post level */
-  "sink"    /* tee */
+
+static gchar *sink_pn[] = {
+  NULL,                         /* adder */
+  "sink",                       /* caps filter */
+  "sink",                       /* audioconvert */
+  "sink",                       /* input pre level */
+  "sink",                       /* input gain */
+  "sink",                       /* input post level */
+  "sink",                       /* machine */
+  "sink",                       /* output pre level */
+  "sink",                       /* output gain */
+  "sink",                       /* output post level */
+  "sink"                        /* tee */
 };
 
 
 //-- the class
 
-static void bt_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+static void bt_machine_persistence_interface_init (gpointer const g_iface,
+    gpointer const iface_data);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (BtMachine, bt_machine, GST_TYPE_BIN,
-  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
-    bt_machine_persistence_interface_init));
+    G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+        bt_machine_persistence_interface_init));
 
 //-- macros
 
@@ -262,17 +276,19 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (BtMachine, bt_machine, GST_TYPE_BIN,
 
 //-- enums
 
-GType bt_machine_state_get_type(void) {
+GType
+bt_machine_state_get_type (void)
+{
   static GType type = 0;
-  if(G_UNLIKELY(type == 0)) {
+  if (G_UNLIKELY (type == 0)) {
     static const GEnumValue values[] = {
-      { BT_MACHINE_STATE_NORMAL,"BT_MACHINE_STATE_NORMAL","normal" },
-      { BT_MACHINE_STATE_MUTE,  "BT_MACHINE_STATE_MUTE",  "mute" },
-      { BT_MACHINE_STATE_SOLO,  "BT_MACHINE_STATE_SOLO",  "solo" },
-      { BT_MACHINE_STATE_BYPASS,"BT_MACHINE_STATE_BYPASS","bypass" },
-      { 0, NULL, NULL},
+      {BT_MACHINE_STATE_NORMAL, "BT_MACHINE_STATE_NORMAL", "normal"},
+      {BT_MACHINE_STATE_MUTE, "BT_MACHINE_STATE_MUTE", "mute"},
+      {BT_MACHINE_STATE_SOLO, "BT_MACHINE_STATE_SOLO", "solo"},
+      {BT_MACHINE_STATE_BYPASS, "BT_MACHINE_STATE_BYPASS", "bypass"},
+      {0, NULL, NULL},
     };
-    type = g_enum_register_static("BtMachineState", values);
+    type = g_enum_register_static ("BtMachineState", values);
   }
   return type;
 }
@@ -296,53 +312,88 @@ GType bt_machine_state_get_type(void) {
  * - maybe we get set target-latency=-1 for no subticks (=1) e.g. when recording
  * - make this a property on the song that merges latency setting + playback mode?
  */
-static glong update_subticks(gulong bpm, gulong tpb, guint latency) {
-  glong st=0;
+static glong
+update_subticks (gulong bpm, gulong tpb, guint latency)
+{
+  glong st = 0;
 
-  st=(glong)((GST_SECOND*60)/(bpm*tpb*latency*G_GINT64_CONSTANT(1000000)));
-  st=MAX(1,st);
-  GST_DEBUG("chosing subticks=%ld from bpm=%lu,tpb=%lu,latency=%u",st,bpm,tpb,latency);
-  return(st);
+  st = (glong) ((GST_SECOND * 60) / (bpm * tpb * latency *
+          G_GINT64_CONSTANT (1000000)));
+  st = MAX (1, st);
+  GST_DEBUG ("chosing subticks=%ld from bpm=%lu,tpb=%lu,latency=%u", st, bpm,
+      tpb, latency);
+  return (st);
 }
 
-static void bt_machine_on_bpm_changed(BtSongInfo * const song_info, const GParamSpec * const arg, gconstpointer const user_data) {
-  const BtMachine * const self=BT_MACHINE(user_data);
-  BtSettings *settings=bt_settings_make();
-  gulong bpm,tpb;
+static void
+bt_machine_on_bpm_changed (BtSongInfo * const song_info,
+    const GParamSpec * const arg, gconstpointer const user_data)
+{
+  const BtMachine *const self = BT_MACHINE (user_data);
+  BtSettings *settings = bt_settings_make ();
+  gulong bpm, tpb;
   guint latency;
 
-  GST_DEBUG_OBJECT(self,"bpm changed");
-  g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
-  g_object_get(settings,"latency",&latency,NULL);
-  g_object_unref(settings);
-  gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,-1,update_subticks(bpm,tpb,latency));
+  GST_DEBUG_OBJECT (self, "bpm changed");
+  g_object_get (song_info, "bpm", &bpm, "tpb", &tpb, NULL);
+  g_object_get (settings, "latency", &latency, NULL);
+  g_object_unref (settings);
+  gstbt_tempo_change_tempo (GSTBT_TEMPO (self->priv->machines[PART_MACHINE]),
+      (glong) bpm, -1, update_subticks (bpm, tpb, latency));
 }
 
-static void bt_machine_on_tpb_changed(BtSongInfo * const song_info, const GParamSpec * const arg, gconstpointer const user_data) {
-  const BtMachine * const self=BT_MACHINE(user_data);
-  BtSettings *settings=bt_settings_make();
-  gulong bpm,tpb;
+static void
+bt_machine_on_tpb_changed (BtSongInfo * const song_info,
+    const GParamSpec * const arg, gconstpointer const user_data)
+{
+  const BtMachine *const self = BT_MACHINE (user_data);
+  BtSettings *settings = bt_settings_make ();
+  gulong bpm, tpb;
   guint latency;
 
-  GST_DEBUG_OBJECT(self,"tpb changed");
-  g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
-  g_object_get(settings,"latency",&latency,NULL);
-  g_object_unref(settings);
-  gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),-1,(glong)tpb,update_subticks(bpm,tpb,latency));
+  GST_DEBUG_OBJECT (self, "tpb changed");
+  g_object_get (song_info, "bpm", &bpm, "tpb", &tpb, NULL);
+  g_object_get (settings, "latency", &latency, NULL);
+  g_object_unref (settings);
+  gstbt_tempo_change_tempo (GSTBT_TEMPO (self->priv->machines[PART_MACHINE]),
+      -1, (glong) tpb, update_subticks (bpm, tpb, latency));
 }
 
-static void bt_machine_on_latency_changed(BtSettings * const settings, const GParamSpec * const arg, gconstpointer const user_data) {
-  const BtMachine * const self=BT_MACHINE(user_data);
+static void
+bt_machine_on_latency_changed (BtSettings * const settings,
+    const GParamSpec * const arg, gconstpointer const user_data)
+{
+  const BtMachine *const self = BT_MACHINE (user_data);
   BtSongInfo *song_info;
-  gulong bpm,tpb;
+  gulong bpm, tpb;
   guint latency;
 
-  GST_DEBUG_OBJECT(self,"latency changed");
-  g_object_get(settings,"latency",&latency,NULL);
-  g_object_get((gpointer)(self->priv->song),"song-info",&song_info,NULL);
-  g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
-  g_object_unref(song_info);
-  gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),-1,-1,update_subticks(bpm,tpb,latency));
+  GST_DEBUG_OBJECT (self, "latency changed");
+  g_object_get (settings, "latency", &latency, NULL);
+  g_object_get ((gpointer) (self->priv->song), "song-info", &song_info, NULL);
+  g_object_get (song_info, "bpm", &bpm, "tpb", &tpb, NULL);
+  g_object_unref (song_info);
+  gstbt_tempo_change_tempo (GSTBT_TEMPO (self->priv->machines[PART_MACHINE]),
+      -1, -1, update_subticks (bpm, tpb, latency));
+}
+
+static void
+bt_machine_on_duration_changed (BtSequence * const sequence,
+    const GParamSpec * const arg, gconstpointer const user_data)
+{
+  const BtMachine *const self = BT_MACHINE (user_data);
+  GstClockTime duration, tick_duration;
+  glong length;
+
+  GST_DEBUG_OBJECT (self, "length changed");
+
+  g_object_get (sequence, "length", &length, NULL);
+  bt_child_proxy_get (self->priv->song, "song-info::tick-duration",
+      &tick_duration, NULL);
+  duration = tick_duration * length;
+  GST_BASE_SRC (self->priv->machines[PART_MACHINE])->segment.duration =
+      duration;
+  GST_INFO ("  duration: %" GST_TIME_FORMAT, GST_TIME_ARGS (duration));
 }
 
 //-- helper methods
@@ -350,33 +401,39 @@ static void bt_machine_on_latency_changed(BtSettings * const settings, const GPa
 /*
  * mute the machine output
  */
-static gboolean bt_machine_set_mute(const BtMachine * const self) {
-  const BtMachinePart part=BT_IS_SINK_MACHINE(self)?PART_INPUT_GAIN:PART_OUTPUT_GAIN;
+static gboolean
+bt_machine_set_mute (const BtMachine * const self)
+{
+  const BtMachinePart part =
+      BT_IS_SINK_MACHINE (self) ? PART_INPUT_GAIN : PART_OUTPUT_GAIN;
 
   //if(self->priv->state==BT_MACHINE_STATE_MUTE) return(TRUE);
 
-  if(self->priv->machines[part]) {
-    g_object_set(self->priv->machines[part],"mute",TRUE,NULL);
-    return(TRUE);
+  if (self->priv->machines[part]) {
+    g_object_set (self->priv->machines[part], "mute", TRUE, NULL);
+    return (TRUE);
   }
-  GST_WARNING_OBJECT(self,"can't mute element '%s'",self->priv->id);
-  return(FALSE);
+  GST_WARNING_OBJECT (self, "can't mute element '%s'", self->priv->id);
+  return (FALSE);
 }
 
 /*
  * unmute the machine output
  */
-static gboolean bt_machine_unset_mute(const BtMachine *const self) {
-  const BtMachinePart part=BT_IS_SINK_MACHINE(self)?PART_INPUT_GAIN:PART_OUTPUT_GAIN;
+static gboolean
+bt_machine_unset_mute (const BtMachine * const self)
+{
+  const BtMachinePart part =
+      BT_IS_SINK_MACHINE (self) ? PART_INPUT_GAIN : PART_OUTPUT_GAIN;
 
   //if(self->priv->state!=BT_MACHINE_STATE_MUTE) return(TRUE);
 
-  if(self->priv->machines[part]) {
-    g_object_set(self->priv->machines[part],"mute",FALSE,NULL);
-    return(TRUE);
+  if (self->priv->machines[part]) {
+    g_object_set (self->priv->machines[part], "mute", FALSE, NULL);
+    return (TRUE);
   }
-  GST_WARNING_OBJECT(self,"can't unmute element '%s'",self->priv->id);
-  return(FALSE);
+  GST_WARNING_OBJECT (self, "can't unmute element '%s'", self->priv->id);
+  return (FALSE);
 }
 
 /*
@@ -387,101 +444,128 @@ static gboolean bt_machine_unset_mute(const BtMachine *const self) {
  *
  * Returns: %TRUE for success
  */
-static gboolean bt_machine_change_state(const BtMachine * const self, const BtMachineState new_state) {
-  gboolean res=TRUE;
+static gboolean
+bt_machine_change_state (const BtMachine * const self,
+    const BtMachineState new_state)
+{
+  gboolean res = TRUE;
   BtSetup *setup;
 
   // reject a few nonsense changes
-  if((new_state==BT_MACHINE_STATE_BYPASS) && (!BT_IS_PROCESSOR_MACHINE(self))) return(FALSE);
-  if((new_state==BT_MACHINE_STATE_SOLO) && (BT_IS_SINK_MACHINE(self))) return(FALSE);
-  if(self->priv->state==new_state) return(TRUE);
+  if ((new_state == BT_MACHINE_STATE_BYPASS)
+      && (!BT_IS_PROCESSOR_MACHINE (self)))
+    return (FALSE);
+  if ((new_state == BT_MACHINE_STATE_SOLO) && (BT_IS_SINK_MACHINE (self)))
+    return (FALSE);
+  if (self->priv->state == new_state)
+    return (TRUE);
 
-  g_object_get(self->priv->song,"setup",&setup,NULL);
+  g_object_get (self->priv->song, "setup", &setup, NULL);
 
-  GST_INFO("state change for element '%s'",self->priv->id);
+  GST_INFO ("state change for element '%s'", self->priv->id);
 
   // return to normal state
-  switch(self->priv->state) {
-    case BT_MACHINE_STATE_MUTE:  { // source, processor, sink
-      if(!bt_machine_unset_mute(self)) res=FALSE;
-    } break;
-    case BT_MACHINE_STATE_SOLO:  { // source
-      GList *node,*machines=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
+  switch (self->priv->state) {
+    case BT_MACHINE_STATE_MUTE:
+      // source, processor, sink
+      if (!bt_machine_unset_mute (self))
+        res = FALSE;
+      break;
+    case BT_MACHINE_STATE_SOLO:{
+      // source
+      GList *node, *machines =
+          bt_setup_get_machines_by_type (setup, BT_TYPE_SOURCE_MACHINE);
       BtMachine *machine;
       // set all but this machine to playing again
-      for(node=machines;node;node=g_list_next(node)) {
-        machine=BT_MACHINE(node->data);
-        if(machine!=self) {
-          if(!bt_machine_unset_mute(machine)) res=FALSE;
+      for (node = machines; node; node = g_list_next (node)) {
+        machine = BT_MACHINE (node->data);
+        if (machine != self) {
+          if (!bt_machine_unset_mute (machine))
+            res = FALSE;
         }
-        g_object_unref(machine);
+        g_object_unref (machine);
       }
-      GST_INFO("unmuted %d elements with result = %d",g_list_length(machines),res);
-      g_list_free(machines);
-    } break;
-    case BT_MACHINE_STATE_BYPASS:  { // processor
-      const GstElement * const element=self->priv->machines[PART_MACHINE];
-      if(GST_IS_BASE_TRANSFORM(element)) {
-        gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(element),FALSE);
-      }
-      else {
+      GST_INFO ("unmuted %d elements with result = %d",
+          g_list_length (machines), res);
+      g_list_free (machines);
+      break;
+    }
+    case BT_MACHINE_STATE_BYPASS:{
+      // processor
+      const GstElement *const element = self->priv->machines[PART_MACHINE];
+      if (GST_IS_BASE_TRANSFORM (element)) {
+        gst_base_transform_set_passthrough (GST_BASE_TRANSFORM (element),
+            FALSE);
+      } else {
         // TODO(ensonic): disconnect its source and sink + set this machine to playing
-        GST_INFO("element does not support passthrough");
+        GST_INFO ("element does not support passthrough");
       }
-    } break;
+      break;
+    }
     case BT_MACHINE_STATE_NORMAL:
       //g_return_val_if_reached(FALSE);
       break;
     default:
-      GST_WARNING_OBJECT(self,"invalid old machine state: %d",self->priv->state);
+      GST_WARNING_OBJECT (self, "invalid old machine state: %d",
+          self->priv->state);
       break;
   }
   // set to new state
-  switch(new_state) {
-    case BT_MACHINE_STATE_MUTE:  { // source, processor, sink
-      if(!bt_machine_set_mute(self)) res=FALSE;
-    } break;
-    case BT_MACHINE_STATE_SOLO:  { // source
-      GList *node,*machines=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
+  switch (new_state) {
+    case BT_MACHINE_STATE_MUTE:{
+      // source, processor, sink
+      if (!bt_machine_set_mute (self))
+        res = FALSE;
+    }
+      break;
+    case BT_MACHINE_STATE_SOLO:{
+      // source
+      GList *node, *machines =
+          bt_setup_get_machines_by_type (setup, BT_TYPE_SOURCE_MACHINE);
       BtMachine *machine;
       // set all but this machine to paused
-      for(node=machines;node;node=g_list_next(node)) {
-        machine=BT_MACHINE(node->data);
-        if(machine!=self) {
+      for (node = machines; node; node = g_list_next (node)) {
+        machine = BT_MACHINE (node->data);
+        if (machine != self) {
           // if a different machine is solo, set it to normal and unmute the current source
-          if(machine->priv->state==BT_MACHINE_STATE_SOLO) {
-            machine->priv->state=BT_MACHINE_STATE_NORMAL;
-            g_object_notify(G_OBJECT(machine),"state");
-            if(!bt_machine_unset_mute(self)) res=FALSE;
+          if (machine->priv->state == BT_MACHINE_STATE_SOLO) {
+            machine->priv->state = BT_MACHINE_STATE_NORMAL;
+            g_object_notify (G_OBJECT (machine), "state");
+            if (!bt_machine_unset_mute (self))
+              res = FALSE;
           }
-          if(!bt_machine_set_mute(machine)) res=FALSE;
+          if (!bt_machine_set_mute (machine))
+            res = FALSE;
         }
-        g_object_unref(machine);
+        g_object_unref (machine);
       }
-      GST_INFO("muted %d elements with result = %d",g_list_length(machines),res);
-      g_list_free(machines);
-    } break;
-    case BT_MACHINE_STATE_BYPASS:  { // processor
-      const GstElement *element=self->priv->machines[PART_MACHINE];
-      if(GST_IS_BASE_TRANSFORM(element)) {
-        gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(element),TRUE);
-      }
-      else {
+      GST_INFO ("muted %d elements with result = %d", g_list_length (machines),
+          res);
+      g_list_free (machines);
+    }
+      break;
+    case BT_MACHINE_STATE_BYPASS:{
+      // processor
+      const GstElement *element = self->priv->machines[PART_MACHINE];
+      if (GST_IS_BASE_TRANSFORM (element)) {
+        gst_base_transform_set_passthrough (GST_BASE_TRANSFORM (element), TRUE);
+      } else {
         // TODO(ensonic): set this machine to paused + connect its source and sink
-        GST_INFO("element does not support passthrough");
+        GST_INFO ("element does not support passthrough");
       }
-    } break;
+    }
+      break;
     case BT_MACHINE_STATE_NORMAL:
       //g_return_val_if_reached(FALSE);
       break;
     default:
-      GST_WARNING_OBJECT(self,"invalid new machine state: %d",new_state);
+      GST_WARNING_OBJECT (self, "invalid new machine state: %d", new_state);
       break;
   }
-  self->priv->state=new_state;
+  self->priv->state = new_state;
 
-  g_object_unref(setup);
-  return(res);
+  g_object_unref (setup);
+  return (res);
 }
 
 /*
@@ -493,14 +577,18 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
  *
  * Returns: %TRUE for sucess
  */
-static gboolean bt_machine_link_elements(const BtMachine * const self, GstPad *src, GstPad *sink) {
+static gboolean
+bt_machine_link_elements (const BtMachine * const self, GstPad * src,
+    GstPad * sink)
+{
   GstPadLinkReturn plr;
 
-  if((plr=gst_pad_link(src,sink))!=GST_PAD_LINK_OK) {
-    GST_WARNING_OBJECT(self,"can't link %s:%s with %s:%s: %d",GST_DEBUG_PAD_NAME(src),GST_DEBUG_PAD_NAME(sink),plr);
-    return(FALSE);
+  if ((plr = gst_pad_link (src, sink)) != GST_PAD_LINK_OK) {
+    GST_WARNING_OBJECT (self, "can't link %s:%s with %s:%s: %d",
+        GST_DEBUG_PAD_NAME (src), GST_DEBUG_PAD_NAME (sink), plr);
+    return (FALSE);
   }
-  return(TRUE);
+  return (TRUE);
 }
 
 /*
@@ -514,92 +602,130 @@ static gboolean bt_machine_link_elements(const BtMachine * const self, GstPad *s
  *
  * Returns: %TRUE for sucess
  */
-static gboolean bt_machine_insert_element(BtMachine *const self, GstPad * const peer, const BtMachinePart pos) {
-  gboolean res=FALSE;
-  gint i,pre,post;
+static gboolean
+bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
+    const BtMachinePart pos)
+{
+  gboolean res = FALSE;
+  gint i, pre, post;
   BtWire *wire;
-  GstElement ** const machines=self->priv->machines;
-  GstPad ** const src_pads=self->priv->src_pads;
-  GstPad ** const sink_pads=self->priv->sink_pads;
+  GstElement **const machines = self->priv->machines;
+  GstPad **const src_pads = self->priv->src_pads;
+  GstPad **const sink_pads = self->priv->sink_pads;
 
   // look for elements before and after pos
-  pre=post=-1;
-  for(i=pos-1;i>-1;i--) {
-    if(machines[i]) {
-      pre=i;break;
+  pre = post = -1;
+  for (i = pos - 1; i > -1; i--) {
+    if (machines[i]) {
+      pre = i;
+      break;
     }
   }
-  for(i=pos+1;i<PART_COUNT;i++) {
-    if(machines[i]) {
-      post=i;break;
+  for (i = pos + 1; i < PART_COUNT; i++) {
+    if (machines[i]) {
+      post = i;
+      break;
     }
   }
-  GST_INFO("positions: %d ... %d(%s) ... %d",pre,pos,GST_OBJECT_NAME(machines[pos]),post);
+  GST_INFO ("positions: %d ... %d(%s) ... %d", pre, pos,
+      GST_OBJECT_NAME (machines[pos]), post);
   // get pads
-  if((pre!=-1) && (post!=-1)) {
+  if ((pre != -1) && (post != -1)) {
     // unlink old connection
-    gst_pad_unlink(src_pads[pre],sink_pads[post]);
+    gst_pad_unlink (src_pads[pre], sink_pads[post]);
     // link new connection
-    res=bt_machine_link_elements(self,src_pads[pre],sink_pads[pos]);
-    res&=bt_machine_link_elements(self,src_pads[pos],sink_pads[post]);
-    if(!res) {
-      gst_pad_unlink(src_pads[pre],sink_pads[pos]);
-      gst_pad_unlink(src_pads[pos],sink_pads[post]);
-      GST_WARNING_OBJECT(self,"failed to link part '%s' inbetween '%s' and '%s'",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[pre]),GST_OBJECT_NAME(machines[post]));
+    res = bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]);
+    res &= bt_machine_link_elements (self, src_pads[pos], sink_pads[post]);
+    if (!res) {
+      gst_pad_unlink (src_pads[pre], sink_pads[pos]);
+      gst_pad_unlink (src_pads[pos], sink_pads[post]);
+      GST_WARNING_OBJECT (self,
+          "failed to link part '%s' inbetween '%s' and '%s'",
+          GST_OBJECT_NAME (machines[pos]), GST_OBJECT_NAME (machines[pre]),
+          GST_OBJECT_NAME (machines[post]));
       // relink previous connection
-      bt_machine_link_elements(self,src_pads[pre],sink_pads[post]);
+      bt_machine_link_elements (self, src_pads[pre], sink_pads[post]);
     }
-  }
-  else if(pre==-1) {
+  } else if (pre == -1) {
     // unlink old connection
-    gst_pad_unlink(peer,sink_pads[post]);
+    gst_pad_unlink (peer, sink_pads[post]);
     // link new connection
-    res=bt_machine_link_elements(self,peer,sink_pads[pos]);
-    res&=bt_machine_link_elements(self,src_pads[pos],sink_pads[post]);
-    if(!res) {
-      gst_pad_unlink(peer,sink_pads[pos]);
-      gst_pad_unlink(src_pads[pos],sink_pads[post]);
-      GST_WARNING_OBJECT(self,"failed to link part '%s' before '%s'",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[post]));
+    res = bt_machine_link_elements (self, peer, sink_pads[pos]);
+    res &= bt_machine_link_elements (self, src_pads[pos], sink_pads[post]);
+    if (!res) {
+      gst_pad_unlink (peer, sink_pads[pos]);
+      gst_pad_unlink (src_pads[pos], sink_pads[post]);
+      GST_WARNING_OBJECT (self, "failed to link part '%s' before '%s'",
+          GST_OBJECT_NAME (machines[pos]), GST_OBJECT_NAME (machines[post]));
       // try to re-wire
-      if((res=bt_machine_link_elements(self,src_pads[pos],sink_pads[post]))) {
-        if((wire=(self->dst_wires?(BtWire*)(self->dst_wires->data):NULL))) {
-          if(!(res=bt_wire_reconnect(wire))) {
-            GST_WARNING_OBJECT(self,"failed to reconnect wire after linking '%s' before '%s'",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[post]));
+      if ((res =
+              bt_machine_link_elements (self, src_pads[pos],
+                  sink_pads[post]))) {
+        if ((wire =
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
+          if (!(res = bt_wire_reconnect (wire))) {
+            GST_WARNING_OBJECT (self,
+                "failed to reconnect wire after linking '%s' before '%s'",
+                GST_OBJECT_NAME (machines[pos]),
+                GST_OBJECT_NAME (machines[post]));
           }
         }
-      }
-      else {
-        GST_WARNING_OBJECT(self,"failed to link part '%s' before '%s' again",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[post]));
+      } else {
+        GST_WARNING_OBJECT (self, "failed to link part '%s' before '%s' again",
+            GST_OBJECT_NAME (machines[pos]), GST_OBJECT_NAME (machines[post]));
       }
     }
-  }
-  else if(post==-1) {
+  } else if (post == -1) {
     // unlink old connection
-    gst_pad_unlink(src_pads[pre],peer);
+    gst_pad_unlink (src_pads[pre], peer);
     // link new connection
-    res=bt_machine_link_elements(self,src_pads[pre],sink_pads[pos]);
-    res&=bt_machine_link_elements(self,src_pads[pos],peer);
-    if(!res) {
-      gst_pad_unlink(src_pads[pre],sink_pads[pos]);
-      gst_pad_unlink(src_pads[pos],peer);
-      GST_WARNING_OBJECT(self,"failed to link part '%s' after '%s'",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[pre]));
+    res = bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]);
+    res &= bt_machine_link_elements (self, src_pads[pos], peer);
+    if (!res) {
+      gst_pad_unlink (src_pads[pre], sink_pads[pos]);
+      gst_pad_unlink (src_pads[pos], peer);
+      GST_WARNING_OBJECT (self, "failed to link part '%s' after '%s'",
+          GST_OBJECT_NAME (machines[pos]), GST_OBJECT_NAME (machines[pre]));
       // try to re-wire
-      if((res=bt_machine_link_elements(self,src_pads[pre],sink_pads[pos]))) {
-        if((wire=(self->src_wires?(BtWire*)(self->src_wires->data):NULL))) {
-          if(!(res=bt_wire_reconnect(wire))) {
-            GST_WARNING_OBJECT(self,"failed to reconnect wire after linking '%s' after '%s'",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[pre]));
+      if ((res =
+              bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
+        if ((wire =
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
+          if (!(res = bt_wire_reconnect (wire))) {
+            GST_WARNING_OBJECT (self,
+                "failed to reconnect wire after linking '%s' after '%s'",
+                GST_OBJECT_NAME (machines[pos]),
+                GST_OBJECT_NAME (machines[pre]));
           }
         }
-      }
-      else {
-        GST_WARNING_OBJECT(self,"failed to link part '%s' after '%s' again",GST_OBJECT_NAME(machines[pos]),GST_OBJECT_NAME(machines[pre]));
+      } else {
+        GST_WARNING_OBJECT (self, "failed to link part '%s' after '%s' again",
+            GST_OBJECT_NAME (machines[pos]), GST_OBJECT_NAME (machines[pre]));
       }
     }
+  } else {
+    GST_ERROR_OBJECT (self, "failed to link part '%s' in broken machine",
+        GST_OBJECT_NAME (machines[pos]));
   }
-  else {
-    GST_ERROR_OBJECT(self,"failed to link part '%s' in broken machine",GST_OBJECT_NAME(machines[pos]));
+  return (res);
+}
+
+static void
+bt_machine_clamp_voices (const BtMachine * const self)
+{
+  GstElement *machine = self->priv->machines[PART_MACHINE];
+  GParamSpecULong *ps;
+
+  // clamp to property bounds
+  if ((ps = (GParamSpecULong *)
+          g_object_class_find_property (G_OBJECT_GET_CLASS (machine),
+              "children"))) {
+    self->priv->voices = CLAMP (self->priv->voices, ps->minimum, ps->maximum);
   }
-  return(res);
+  g_object_set (machine, "children", self->priv->voices, NULL);
+  g_object_get (machine, "children", &self->priv->voices, NULL);
 }
 
 /*
@@ -608,57 +734,72 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstPad * const 
  *
  * Adjust the private data structure after a change in the number of voices.
  */
-static void bt_machine_resize_voices(const BtMachine * const self, const gulong old_voices) {
-  const gulong new_voices=self->priv->voices;
-  const gulong voice_params=self->priv->voice_params;
-  GST_INFO("changing machine %s:%p voices from %ld to %ld",self->priv->id,self->priv->machines[PART_MACHINE],old_voices,new_voices);
+static void
+bt_machine_resize_voices (const BtMachine * const self, const gulong old_voices)
+{
+  gulong new_voices;
+  const gulong voice_params = self->priv->voice_params;
+  GstElement *machine = self->priv->machines[PART_MACHINE];
 
-  // TODO(ensonic): GSTBT_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
-  if((!self->priv->machines[PART_MACHINE]) || (!GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]))) {
-    GST_WARNING_OBJECT(self,"machine %s:%p is NULL or not polyphonic!",self->priv->id,self->priv->machines[PART_MACHINE]);
+  // clamp to property and run-time bounds
+  bt_machine_clamp_voices (self);
+  if (old_voices == self->priv->voices) {
+    GST_INFO_OBJECT (self, "not changing changing machine voices");
     return;
   }
+  new_voices = self->priv->voices;
 
-  g_object_set(self->priv->machines[PART_MACHINE],"children",new_voices,NULL);
+  GST_INFO_OBJECT (self, "changing machine %" G_OBJECT_REF_COUNT_FMT
+      ", voices from %ld to %ld",
+      G_OBJECT_LOG_REF_COUNT (machine), old_voices, new_voices);
 
-  if(old_voices>new_voices) {
+  if (old_voices > new_voices) {
     gulong v;
 
     // release params for old voices
-    for(v=new_voices;v<old_voices;v++) {
-      g_object_try_unref(self->priv->voice_param_groups[v]);
+    for (v = new_voices; v < old_voices; v++) {
+      g_object_try_unref (self->priv->voice_param_groups[v]);
     }
   }
 
-  self->priv->voice_param_groups=(BtParameterGroup **)g_renew(gpointer,self->priv->voice_param_groups,new_voices);
-  if(old_voices<new_voices) {
+  self->priv->voice_param_groups =
+      (BtParameterGroup **) g_renew (gpointer, self->priv->voice_param_groups,
+      new_voices);
+  if (old_voices < new_voices) {
     GstObject *voice_child;
     gulong v;
-    
-    for(v=old_voices;v<new_voices;v++) {
+
+    for (v = old_voices; v < new_voices; v++) {
       // get child for voice
-      if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),v))) {
+      if ((voice_child =
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine),
+                  v))) {
         GParamSpec **properties;
         guint number_of_properties;
 
-        if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_OBJECT_GET_CLASS(voice_child)),&number_of_properties))) {
-          GParamSpec **params = (GParamSpec ** )g_new(gpointer,voice_params);
-          GObject **parents = (GObject ** )g_new(gpointer,voice_params);
-          guint i,j;
-      
-          for(i=j=0;i<number_of_properties;i++) {
-            if(properties[i]->flags&GST_PARAM_CONTROLLABLE) {
-              params[j]=properties[i];
-              parents[j]=(GObject *)voice_child;
+        if ((properties =
+                g_object_class_list_properties (G_OBJECT_CLASS
+                    (GST_OBJECT_GET_CLASS (voice_child)),
+                    &number_of_properties))) {
+          GParamSpec **params = (GParamSpec **) g_new (gpointer, voice_params);
+          GObject **parents = (GObject **) g_new (gpointer, voice_params);
+          guint i, j;
+
+          for (i = j = 0; i < number_of_properties; i++) {
+            if (properties[i]->flags & GST_PARAM_CONTROLLABLE) {
+              params[j] = properties[i];
+              parents[j] = (GObject *) voice_child;
               j++;
             }
           }
-          self->priv->voice_param_groups[v]=bt_parameter_group_new(voice_params,parents,params);
+          self->priv->voice_param_groups[v] =
+              bt_parameter_group_new (voice_params, parents, params,
+              self->priv->song, self);
         }
-      }
-      else {
-        self->priv->voice_param_groups[v]=NULL;
-        GST_WARNING_OBJECT(self,"  can't get voice child %lu!",v);
+        g_free (properties);
+      } else {
+        self->priv->voice_param_groups[v] = NULL;
+        GST_WARNING_OBJECT (self, "  can't get voice child %lu!", v);
       }
     }
   }
@@ -673,86 +814,96 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
  *
  * This helper is used by the family of bt_machine_enable_xxx() functions.
  */
-static gboolean bt_machine_make_internal_element(const BtMachine * const self,const BtMachinePart part,const gchar * const factory_name,const gchar * const element_name) {
-  gboolean res=FALSE;
+static gboolean
+bt_machine_make_internal_element (const BtMachine * const self,
+    const BtMachinePart part, const gchar * const factory_name,
+    const gchar * const element_name)
+{
+  gboolean res = FALSE;
   GstElement *m;
-  const gchar * const parent_name=GST_OBJECT_NAME(self);
-  gchar * const name=g_alloca(strlen(parent_name)+2+strlen(element_name));
+  const gchar *const parent_name = GST_OBJECT_NAME (self);
+  gchar *const name =
+      g_alloca (strlen (parent_name) + 2 + strlen (element_name));
   gpointer item;
 
-  g_return_val_if_fail((self->priv->machines[part]==NULL),TRUE);
-  
+  g_return_val_if_fail ((self->priv->machines[part] == NULL), TRUE);
+
   // create internal element
   //strcat(name,parent_name);strcat(name,":");strcat(name,element_name);
-  g_sprintf(name,"%s:%s",parent_name,element_name);
-  if(!(self->priv->machines[part]=m=gst_element_factory_make(factory_name,name))) {
-    GST_WARNING_OBJECT(self,"failed to create %s from factory %s",element_name,factory_name);goto Error;
+  g_sprintf (name, "%s:%s", parent_name, element_name);
+  if (!(self->priv->machines[part] = m =
+          gst_element_factory_make (factory_name, name))) {
+    GST_WARNING_OBJECT (self, "failed to create %s from factory %s",
+        element_name, factory_name);
+    goto Error;
   }
-
   // disable deep notify
   {
-    GObjectClass *gobject_class=G_OBJECT_GET_CLASS(m);
-    GObjectClass *parent_class=g_type_class_peek_static(G_TYPE_OBJECT);
-    gobject_class->dispatch_properties_changed=parent_class->dispatch_properties_changed;
+    GObjectClass *gobject_class = G_OBJECT_GET_CLASS (m);
+    GObjectClass *parent_class = g_type_class_peek_static (G_TYPE_OBJECT);
+    gobject_class->dispatch_properties_changed =
+        parent_class->dispatch_properties_changed;
   }
-  
+
   // get the pads
-  if(src_pn[part]) {
-    if(!(self->priv->src_pads[part]=gst_element_get_static_pad(m,src_pn[part]))) {
-      GstIterator *it=gst_element_iterate_src_pads(m);
-      gboolean done=FALSE;
-     
+  if (src_pn[part]) {
+    if (!(self->priv->src_pads[part] =
+            gst_element_get_static_pad (m, src_pn[part]))) {
+      GstIterator *it = gst_element_iterate_src_pads (m);
+      gboolean done = FALSE;
+
       while (!done) {
         switch (gst_iterator_next (it, &item)) {
           case GST_ITERATOR_RESYNC:
-            gst_iterator_resync(it);
+            gst_iterator_resync (it);
             break;
           case GST_ITERATOR_OK:
-            self->priv->src_pads[part]=GST_PAD(item);
+            self->priv->src_pads[part] = GST_PAD (item);
             /* fall through */
           case GST_ITERATOR_ERROR:
           case GST_ITERATOR_DONE:
-            done=TRUE;
+            done = TRUE;
             break;
         }
       }
-      gst_iterator_free(it);
-      if(!self->priv->src_pads[part]) {
-        GST_DEBUG_OBJECT(m,"element has no src pads");
+      gst_iterator_free (it);
+      if (!self->priv->src_pads[part]) {
+        GST_DEBUG_OBJECT (m, "element has no src pads");
       }
     }
   }
-  if(sink_pn[part]) {
-    if(!(self->priv->sink_pads[part]=gst_element_get_static_pad(m,sink_pn[part]))) {
-      GstIterator *it=gst_element_iterate_sink_pads(m);
-      gboolean done=FALSE;
-      
+  if (sink_pn[part]) {
+    if (!(self->priv->sink_pads[part] =
+            gst_element_get_static_pad (m, sink_pn[part]))) {
+      GstIterator *it = gst_element_iterate_sink_pads (m);
+      gboolean done = FALSE;
+
       while (!done) {
         switch (gst_iterator_next (it, &item)) {
           case GST_ITERATOR_RESYNC:
-            gst_iterator_resync(it);
+            gst_iterator_resync (it);
             break;
           case GST_ITERATOR_OK:
-            self->priv->sink_pads[part]=GST_PAD(item);
+            self->priv->sink_pads[part] = GST_PAD (item);
             /* fall through */
           case GST_ITERATOR_ERROR:
           case GST_ITERATOR_DONE:
-            done=TRUE;
+            done = TRUE;
             break;
         }
       }
-      gst_iterator_free(it);
-      if(!self->priv->sink_pads[part]) {
-        GST_DEBUG_OBJECT(m,"element has no sink pads");
+      gst_iterator_free (it);
+      if (!self->priv->sink_pads[part]) {
+        GST_DEBUG_OBJECT (m, "element has no sink pads");
       }
     }
   }
 
-  gst_bin_add(GST_BIN(self),self->priv->machines[part]);
-  gst_element_sync_state_with_parent(self->priv->machines[part]);
-  res=TRUE;
+  gst_bin_add (GST_BIN (self), self->priv->machines[part]);
+  gst_element_sync_state_with_parent (self->priv->machines[part]);
+  res = TRUE;
 Error:
-  return(res);
+  return (res);
 }
 
 /*
@@ -762,44 +913,59 @@ Error:
  *
  * This helper is used by the family of bt_machine_enable_input_xxx() functions.
  */
-static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMachinePart part) {
-  gboolean res=FALSE;
-  GstElement ** const machines=self->priv->machines;
-  GstPad ** const src_pads=self->priv->src_pads;
-  GstPad ** const sink_pads=self->priv->sink_pads;
+static gboolean
+bt_machine_add_input_element (BtMachine * const self, const BtMachinePart part)
+{
+  gboolean res = FALSE;
+  GstElement **const machines = self->priv->machines;
+  GstPad **const src_pads = self->priv->src_pads;
+  GstPad **const sink_pads = self->priv->sink_pads;
   GstPad *peer;
-  guint i, tix=PART_MACHINE;
+  guint i, tix = PART_MACHINE;
 
   // get next element on the source side
-  for(i=part+1;i<=PART_MACHINE;i++) {
-    if(machines[i]) {
-      tix=i;
-      GST_DEBUG("src side target at %d: %s:%s",i,GST_DEBUG_PAD_NAME(sink_pads[tix]));
+  for (i = part + 1; i <= PART_MACHINE; i++) {
+    if (machines[i]) {
+      tix = i;
+      GST_DEBUG ("src side target at %d: %s:%s", i,
+          GST_DEBUG_PAD_NAME (sink_pads[tix]));
       break;
     }
   }
 
   // is the machine connected towards the input side (its sink)?
-  if(!(peer=gst_pad_get_peer(sink_pads[tix]))) {
-    GST_DEBUG("target '%s:%s' is not yet connected on the input side",GST_DEBUG_PAD_NAME(sink_pads[tix]));
-    if(!bt_machine_link_elements(self,src_pads[part],sink_pads[tix])) {
-      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(self),GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
-      GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
+  if (!(peer = gst_pad_get_peer (sink_pads[tix]))) {
+    GST_DEBUG ("target '%s:%s' is not yet connected on the input side",
+        GST_DEBUG_PAD_NAME (sink_pads[tix]));
+    if (!bt_machine_link_elements (self, src_pads[part], sink_pads[tix])) {
+      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
+          GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
+      GST_ERROR_OBJECT (self, "failed to link the element '%s' for '%s'",
+          GST_OBJECT_NAME (machines[part]),
+          GST_OBJECT_NAME (machines[PART_MACHINE]));
+      goto Error;
     }
-    GST_INFO("sucessfully prepended element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
-  }
-  else {
-    GST_DEBUG("target '%s:%s' has peer pad '%s:%s', need to insert",GST_DEBUG_PAD_NAME(sink_pads[tix]),GST_DEBUG_PAD_NAME(peer));
-    if(!bt_machine_insert_element(self,peer,part)) {
-      gst_object_unref(peer);
-      GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
+    GST_INFO ("sucessfully prepended element '%s' for '%s'",
+        GST_OBJECT_NAME (machines[part]),
+        GST_OBJECT_NAME (machines[PART_MACHINE]));
+  } else {
+    GST_DEBUG ("target '%s:%s' has peer pad '%s:%s', need to insert",
+        GST_DEBUG_PAD_NAME (sink_pads[tix]), GST_DEBUG_PAD_NAME (peer));
+    if (!bt_machine_insert_element (self, peer, part)) {
+      gst_object_unref (peer);
+      GST_ERROR_OBJECT (self, "failed to link the element '%s' for '%s'",
+          GST_OBJECT_NAME (machines[part]),
+          GST_OBJECT_NAME (machines[PART_MACHINE]));
+      goto Error;
     }
-    gst_object_unref(peer);
-    GST_INFO("sucessfully inserted element'%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
+    gst_object_unref (peer);
+    GST_INFO ("sucessfully inserted element'%s' for '%s'",
+        GST_OBJECT_NAME (machines[part]),
+        GST_OBJECT_NAME (machines[PART_MACHINE]));
   }
-  res=TRUE;
+  res = TRUE;
 Error:
-  return(res);
+  return (res);
 }
 
 /*
@@ -809,44 +975,59 @@ Error:
  *
  * This helper is used by the family of bt_machine_enable_output_xxx() functions.
  */
-static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMachinePart part) {
-  gboolean res=FALSE;
-  GstElement ** const machines=self->priv->machines;
-  GstPad ** const src_pads=self->priv->src_pads;
-  GstPad ** const sink_pads=self->priv->sink_pads;
+static gboolean
+bt_machine_add_output_element (BtMachine * const self, const BtMachinePart part)
+{
+  gboolean res = FALSE;
+  GstElement **const machines = self->priv->machines;
+  GstPad **const src_pads = self->priv->src_pads;
+  GstPad **const sink_pads = self->priv->sink_pads;
   GstPad *peer;
-  guint i, tix=PART_MACHINE;
+  guint i, tix = PART_MACHINE;
 
   // get next element on the sink side
-  for(i=part-1;i>=PART_MACHINE;i--) {
-    if(machines[i]) {
-      tix=i;
-      GST_DEBUG_OBJECT(self,"sink side target at %d: %s:%s",i,GST_DEBUG_PAD_NAME(src_pads[tix]));
+  for (i = part - 1; i >= PART_MACHINE; i--) {
+    if (machines[i]) {
+      tix = i;
+      GST_DEBUG_OBJECT (self, "sink side target at %d: %s:%s", i,
+          GST_DEBUG_PAD_NAME (src_pads[tix]));
       break;
     }
   }
 
   // is the machine unconnected towards the output side (its source)?
-  if(!(peer=gst_pad_get_peer(src_pads[tix]))) {
-    GST_DEBUG("target '%s:%s' is not yet connected on the output side",GST_DEBUG_PAD_NAME(src_pads[tix]));
-    if(!bt_machine_link_elements(self,src_pads[tix],sink_pads[part])) {
-      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(self),GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
-      GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
+  if (!(peer = gst_pad_get_peer (src_pads[tix]))) {
+    GST_DEBUG ("target '%s:%s' is not yet connected on the output side",
+        GST_DEBUG_PAD_NAME (src_pads[tix]));
+    if (!bt_machine_link_elements (self, src_pads[tix], sink_pads[part])) {
+      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
+          GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
+      GST_ERROR_OBJECT (self, "failed to link the element '%s' for '%s'",
+          GST_OBJECT_NAME (machines[part]),
+          GST_OBJECT_NAME (machines[PART_MACHINE]));
+      goto Error;
     }
-    GST_INFO("sucessfully appended element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
-  }
-  else {
-    GST_DEBUG("target '%s:%s' has peer pad '%s:%s', need to insert",GST_DEBUG_PAD_NAME(src_pads[tix]),GST_DEBUG_PAD_NAME(peer));
-    if(!bt_machine_insert_element(self,peer,part)) {
-      gst_object_unref(peer);
-      GST_ERROR_OBJECT(self,"failed to link the element '%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));goto Error;
+    GST_INFO ("sucessfully appended element '%s' for '%s'",
+        GST_OBJECT_NAME (machines[part]),
+        GST_OBJECT_NAME (machines[PART_MACHINE]));
+  } else {
+    GST_DEBUG ("target '%s:%s' has peer pad '%s:%s', need to insert",
+        GST_DEBUG_PAD_NAME (src_pads[tix]), GST_DEBUG_PAD_NAME (peer));
+    if (!bt_machine_insert_element (self, peer, part)) {
+      gst_object_unref (peer);
+      GST_ERROR_OBJECT (self, "failed to link the element '%s' for '%s'",
+          GST_OBJECT_NAME (machines[part]),
+          GST_OBJECT_NAME (machines[PART_MACHINE]));
+      goto Error;
     }
-    gst_object_unref(peer);
-    GST_INFO("sucessfully inserted element'%s' for '%s'",GST_OBJECT_NAME(machines[part]),GST_OBJECT_NAME(machines[PART_MACHINE]));
+    gst_object_unref (peer);
+    GST_INFO ("sucessfully inserted element'%s' for '%s'",
+        GST_OBJECT_NAME (machines[part]),
+        GST_OBJECT_NAME (machines[PART_MACHINE]));
   }
-  res=TRUE;
+  res = TRUE;
 Error:
-  return(res);
+  return (res);
 }
 
 /* bt_machine_enable_part:
@@ -857,95 +1038,141 @@ Error:
  * can replace _enable_{in,out}put_{level,gain}
  * this is not good enough for adder, ev. okay for spreader
  */
-static gboolean bt_machine_enable_part(BtMachine * const self,const BtMachinePart part,const gchar * const factory_name,const gchar * const element_name) {
-  gboolean res=FALSE;
+static gboolean
+bt_machine_enable_part (BtMachine * const self, const BtMachinePart part,
+    const gchar * const factory_name, const gchar * const element_name)
+{
+  gboolean res = FALSE;
 
-  if(self->priv->machines[part])
-    return(TRUE);
+  if (self->priv->machines[part])
+    return (TRUE);
 
-  if(!bt_machine_make_internal_element(self,part,factory_name,element_name)) goto Error;
+  if (!bt_machine_make_internal_element (self, part, factory_name,
+          element_name))
+    goto Error;
   // configure part
-  switch(part) {
+  switch (part) {
     case PART_INPUT_PRE_LEVEL:
     case PART_INPUT_POST_LEVEL:
     case PART_OUTPUT_PRE_LEVEL:
     case PART_OUTPUT_POST_LEVEL:
-      g_object_set(self->priv->machines[part],
-        "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-        "peak-ttl",(GstClockTime)(0.2*GST_SECOND),"peak-falloff", 50.0,
-        NULL);
+      g_object_set (self->priv->machines[part],
+          "interval", (GstClockTime) (0.1 * GST_SECOND), "message", TRUE,
+          "peak-ttl", (GstClockTime) (0.2 * GST_SECOND), "peak-falloff", 50.0,
+          NULL);
       break;
     default:
       break;
   }
-  if(part<PART_MACHINE) {
-    if(!bt_machine_add_input_element(self,part)) goto Error;
+  if (part < PART_MACHINE) {
+    if (!bt_machine_add_input_element (self, part))
+      goto Error;
+  } else {
+    if (!bt_machine_add_output_element (self, part))
+      goto Error;
   }
-  else {
-    if(!bt_machine_add_output_element(self,part)) goto Error;
-  }
-  res=TRUE;
+  res = TRUE;
 Error:
-  return(res);
+  return (res);
 }
 
 
 //-- init helpers
 
-static gboolean bt_machine_init_core_machine(BtMachine * const self) {
-  gboolean res=FALSE;
+static gboolean
+bt_machine_init_core_machine (BtMachine * const self)
+{
+  gboolean res = FALSE;
 
-  if(!bt_machine_make_internal_element(self,PART_MACHINE,self->priv->plugin_name,self->priv->id)) goto Error;
-  GST_INFO("  instantiated machine %p, \"%s\", machine->ref_ct=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT_REF_COUNT(self->priv->machines[PART_MACHINE]));
+  if (!bt_machine_make_internal_element (self, PART_MACHINE,
+          self->priv->plugin_name, self->priv->id))
+    goto Error;
+  GST_INFO ("  instantiated machine \"%s\", %" G_OBJECT_REF_COUNT_FMT,
+      self->priv->plugin_name,
+      G_OBJECT_LOG_REF_COUNT (self->priv->machines[PART_MACHINE]));
 
-  res=TRUE;
+  res = TRUE;
 Error:
-  return(res);
+  return (res);
 }
 
-static void bt_machine_init_interfaces(const BtMachine * const self) {
+static void
+bt_machine_init_interfaces (const BtMachine * const self)
+{
+  GstElement *machine = self->priv->machines[PART_MACHINE];
+  GObjectClass *klass = G_OBJECT_GET_CLASS (machine);
+  GParamSpec *pspec;
+
   /* initialize buzz-host-callbacks (structure with callbacks)
    * buzzmachines can then call c function of the host
    * would be good to set this as early as possible
    */
-  if(g_object_class_find_property(G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),"host-callbacks")) {
-    extern void *bt_buzz_callbacks_get(BtSong *song);
+  pspec = g_object_class_find_property (klass, "host-callbacks");
+  if (pspec && G_IS_PARAM_SPEC_POINTER (pspec)) {
+    extern gpointer bt_buzz_callbacks_get (BtSong * song);
 
-    g_object_set(self->priv->machines[PART_MACHINE],"host-callbacks",bt_buzz_callbacks_get(self->priv->song),NULL);
-    GST_INFO("  host-callbacks iface initialized");
+    g_object_set (machine, "host-callbacks",
+        bt_buzz_callbacks_get (self->priv->song), NULL);
+    GST_INFO ("  host-callbacks iface initialized");
+  }
+  pspec = g_object_class_find_property (klass, "wave-callbacks");
+  if (pspec && G_IS_PARAM_SPEC_POINTER (pspec)) {
+    extern gpointer bt_wavetable_callbacks_get (BtWavetable * self);
+    BtWavetable *wavetable;
+
+    g_object_get (self->priv->song, "wavetable", &wavetable, NULL);
+    g_object_set (machine, "wave-callbacks",
+        bt_wavetable_callbacks_get (wavetable), NULL);
+    g_object_unref (wavetable);
+    GST_INFO ("  wave-table bridge initialized");
   }
   // initialize child-proxy iface properties
-  if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
-    if(!self->priv->voices) {
-      GST_WARNING_OBJECT(self,"voices==0");
-      //g_object_get(self->priv->machines[PART_MACHINE],"children",&self->priv->voices,NULL);
+  if (GSTBT_IS_CHILD_BIN (machine)) {
+    if (!self->priv->voices) {
+      GST_WARNING_OBJECT (self, "voices==0");
+      //g_object_get(machine,"children",&self->priv->voices,NULL);
+    } else {
+      bt_machine_clamp_voices (self);
     }
-    else {
-      g_object_set(self->priv->machines[PART_MACHINE],"children",self->priv->voices,NULL);
-    }
-    GST_INFO("  child proxy iface initialized");
+    GST_INFO ("  child proxy iface initialized");
   }
   // initialize tempo iface properties
-  if(GSTBT_IS_TEMPO(self->priv->machines[PART_MACHINE])) {
+  if (GSTBT_IS_TEMPO (machine)) {
     BtSongInfo *song_info;
     BtSettings *settings;
-    gulong bpm,tpb;
+    gulong bpm, tpb;
     guint latency;
 
-    g_object_get((gpointer)(self->priv->song),"song-info",&song_info,NULL);
-    g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
-    settings=bt_settings_make();
-    g_object_get(settings,"latency",&latency,NULL);
-    gstbt_tempo_change_tempo(GSTBT_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,update_subticks(bpm,tpb,latency));
+    g_object_get ((gpointer) (self->priv->song), "song-info", &song_info, NULL);
+    g_object_get (song_info, "bpm", &bpm, "tpb", &tpb, NULL);
+    settings = bt_settings_make ();
+    g_object_get (settings, "latency", &latency, NULL);
+    gstbt_tempo_change_tempo (GSTBT_TEMPO (machine),
+        (glong) bpm, (glong) tpb, update_subticks (bpm, tpb, latency));
 
-    g_signal_connect(song_info,"notify::bpm",G_CALLBACK(bt_machine_on_bpm_changed),(gpointer)self);
-    g_signal_connect(song_info,"notify::tpb",G_CALLBACK(bt_machine_on_tpb_changed),(gpointer)self);
-    g_object_unref(song_info);
-    g_signal_connect(settings,"notify::latency",G_CALLBACK(bt_machine_on_latency_changed),(gpointer)self);
-    g_object_unref(settings);
-    GST_INFO("  tempo iface initialized");
+    g_signal_connect (song_info, "notify::bpm",
+        G_CALLBACK (bt_machine_on_bpm_changed), (gpointer) self);
+    g_signal_connect (song_info, "notify::tpb",
+        G_CALLBACK (bt_machine_on_tpb_changed), (gpointer) self);
+    g_object_unref (song_info);
+    g_signal_connect (settings, "notify::latency",
+        G_CALLBACK (bt_machine_on_latency_changed), (gpointer) self);
+    g_object_unref (settings);
+    GST_INFO ("  tempo iface initialized");
   }
-  GST_INFO("machine element instantiated and interfaces initialized");
+  // sync duration with song
+  if (GST_IS_BASE_SRC (machine)) {
+    BtSequence *sequence;
+
+    g_object_get ((gpointer) (self->priv->song), "sequence", &sequence, NULL);
+    bt_machine_on_duration_changed (sequence, NULL, (gpointer) self);
+    g_signal_connect (sequence, "notify::length",
+        G_CALLBACK (bt_machine_on_duration_changed), (gpointer) self);
+
+    g_object_unref (sequence);
+    GST_INFO ("  duration sync initialized");
+  }
+  GST_INFO ("machine element instantiated and interfaces initialized");
 }
 
 /*
@@ -956,32 +1183,37 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
  *
  * Returns: %TRUE if type and pads match
  */
-static gboolean bt_machine_check_type(const BtMachine * const self) {
-  BtMachineClass *klass=BT_MACHINE_GET_CLASS(self);
+static gboolean
+bt_machine_check_type (const BtMachine * const self)
+{
+  BtMachineClass *klass = BT_MACHINE_GET_CLASS (self);
   GstIterator *it;
   GstPad *pad;
-  gulong pad_src_ct=0,pad_sink_ct=0;
+  gulong pad_src_ct = 0, pad_sink_ct = 0;
   gboolean done;
 
-  if(!klass->check_type) {
-    GST_WARNING_OBJECT(self,"no BtMachine::check_type() implemented");
-    return(TRUE);
+  if (!klass->check_type) {
+    GST_WARNING_OBJECT (self, "no BtMachine::check_type() implemented");
+    return (TRUE);
   }
-
   // get pad counts per type
-  it=gst_element_iterate_pads(self->priv->machines[PART_MACHINE]);
+  it = gst_element_iterate_pads (self->priv->machines[PART_MACHINE]);
   done = FALSE;
   while (!done) {
-    switch (gst_iterator_next (it, (gpointer)&pad)) {
+    switch (gst_iterator_next (it, (gpointer) & pad)) {
       case GST_ITERATOR_OK:
-        switch(gst_pad_get_direction(pad)) {
-          case GST_PAD_SRC: pad_src_ct++;break;
-          case GST_PAD_SINK: pad_sink_ct++;break;
+        switch (gst_pad_get_direction (pad)) {
+          case GST_PAD_SRC:
+            pad_src_ct++;
+            break;
+          case GST_PAD_SINK:
+            pad_sink_ct++;
+            break;
           default:
-            GST_INFO("unhandled pad type discovered");
+            GST_INFO ("unhandled pad type discovered");
             break;
         }
-        gst_object_unref(pad);
+        gst_object_unref (pad);
         break;
       case GST_ITERATOR_RESYNC:
         gst_iterator_resync (it);
@@ -992,110 +1224,197 @@ static gboolean bt_machine_check_type(const BtMachine * const self) {
         break;
     }
   }
-  gst_iterator_free(it);
+  gst_iterator_free (it);
 
   // test pad counts and element type
-  if(!((klass->check_type)(self,pad_src_ct,pad_sink_ct))) {
-    return(FALSE);
+  if (!((klass->check_type) (self, pad_src_ct, pad_sink_ct))) {
+    return (FALSE);
   }
-  return(TRUE);
+  return (TRUE);
 }
 
-static void bt_machine_init_global_params(const BtMachine * const self) {
+static void
+bt_machine_init_prefs_params (const BtMachine * const self)
+{
   GParamSpec **properties;
   guint number_of_properties;
-  GstElement *machine=self->priv->machines[PART_MACHINE];
+  GstElement *machine = self->priv->machines[PART_MACHINE];
 
-  if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(machine)),&number_of_properties))) {
-    GParamSpec **child_properties=NULL;
+  if ((properties =
+          g_object_class_list_properties (G_OBJECT_CLASS (GST_ELEMENT_GET_CLASS
+                  (machine)), &number_of_properties))) {
+    guint i, j;
+    gboolean skip;
+
+    for (i = 0; i < number_of_properties; i++) {
+      skip = FALSE;
+      if (properties[i]->flags & GST_PARAM_CONTROLLABLE)
+        skip = TRUE;
+      // skip uneditable gobject propertes properties
+      else if (G_TYPE_IS_OBJECT (properties[i]->value_type))
+        skip = TRUE;
+      else if (G_TYPE_IS_INTERFACE (properties[i]->value_type))
+        skip = TRUE;
+      else if (properties[i]->value_type == G_TYPE_POINTER)
+        skip = TRUE;
+      // skip baseclass properties
+      else if (!strncmp (properties[i]->name, "name\0", 5))
+        skip = TRUE;
+      else if (properties[i]->owner_type == GST_TYPE_BASE_SRC)
+        skip = TRUE;
+      else if (properties[i]->owner_type == GST_TYPE_BASE_TRANSFORM)
+        skip = TRUE;
+      else if (properties[i]->owner_type == GST_TYPE_BASE_SINK)
+        skip = TRUE;
+      else if (properties[i]->owner_type == GST_TYPE_BIN)
+        skip = TRUE;
+      // skip know interface properties (tempo, childbin)
+      else if (properties[i]->owner_type == GSTBT_TYPE_CHILD_BIN)
+        skip = TRUE;
+      else if (properties[i]->owner_type == GSTBT_TYPE_TEMPO)
+        skip = TRUE;
+
+      if (skip) {
+        properties[i] = NULL;
+      } else {
+        self->priv->prefs_params++;
+      }
+    }
+    GST_INFO ("found %lu property params", self->priv->prefs_params);
+    GParamSpec **params =
+        (GParamSpec **) g_new (gpointer, self->priv->prefs_params);
+    GObject **parents = (GObject **) g_new (gpointer, self->priv->prefs_params);
+
+    for (i = j = 0; i < number_of_properties; i++) {
+      if (properties[i]) {
+        params[j] = properties[i];
+        parents[j] = (GObject *) machine;
+        j++;
+      }
+    }
+    self->priv->prefs_param_group =
+        bt_parameter_group_new (self->priv->prefs_params, parents, params,
+        self->priv->song, self);
+
+    g_free (properties);
+  }
+}
+
+static void
+bt_machine_init_global_params (const BtMachine * const self)
+{
+  GParamSpec **properties;
+  guint number_of_properties;
+  GstElement *machine = self->priv->machines[PART_MACHINE];
+
+  if ((properties =
+          g_object_class_list_properties (G_OBJECT_CLASS (GST_ELEMENT_GET_CLASS
+                  (machine)), &number_of_properties))) {
+    GParamSpec **child_properties = NULL;
     //GstController *ctrl;
-    guint number_of_child_properties=0;
-    guint i,j;
+    guint number_of_child_properties = 0;
+    guint i, j;
     gboolean skip;
 
     // check if the elemnt implements the GstBtChildBin interface (implies GstChildProxy)
-    if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+    if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
       GstObject *voice_child;
 
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
-      if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
-        child_properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_OBJECT_GET_CLASS(voice_child)),&number_of_child_properties);
-        g_object_unref(voice_child);
+      if ((voice_child =
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
+        child_properties =
+            g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
+                (voice_child)), &number_of_child_properties);
+        g_object_unref (voice_child);
       }
     }
-
     // count number of controlable params
-    for(i=0;i<number_of_properties;i++) {
-      if(properties[i]->flags&GST_PARAM_CONTROLLABLE) {
+    for (i = 0; i < number_of_properties; i++) {
+      skip = FALSE;
+      if (!(properties[i]->flags & GST_PARAM_CONTROLLABLE)) {
+        skip = TRUE;
+      } else if (child_properties) {
         // check if this param is also registered as child param, if so skip
-        skip=FALSE;
-        if(child_properties) {
-          for(j=0;j<number_of_child_properties;j++) {
-            if(!strcmp(properties[i]->name,child_properties[j]->name)) {
-              GST_DEBUG("    skipping global_param [%d] \"%s\", due to voice_param[%d]",i,properties[i]->name,j);
-              skip=TRUE;
-              properties[i]=NULL;
-              break;
-            }
+        for (j = 0; j < number_of_child_properties; j++) {
+          if (!strcmp (properties[i]->name, child_properties[j]->name)) {
+            GST_DEBUG
+                ("    skipping global_param [%d] \"%s\", due to voice_param[%d]",
+                i, properties[i]->name, j);
+            skip = TRUE;
+            break;
           }
         }
-        if(!skip) self->priv->global_params++;
+      }
+      if (skip) {
+        properties[i] = NULL;
       } else {
-        properties[i]=NULL;
+        self->priv->global_params++;
       }
     }
-    GST_INFO("found %lu global params",self->priv->global_params);
-    GParamSpec **params = (GParamSpec ** )g_new(gpointer,self->priv->global_params);
-    GObject **parents = (GObject ** )g_new(gpointer,self->priv->global_params);
-    
-    for(i=j=0;i<number_of_properties;i++) {
-      if(properties[i]) {
-        params[j]=properties[i];
-        parents[j]=(GObject *)machine;
+    GST_INFO ("found %lu global params", self->priv->global_params);
+    GParamSpec **params =
+        (GParamSpec **) g_new (gpointer, self->priv->global_params);
+    GObject **parents =
+        (GObject **) g_new (gpointer, self->priv->global_params);
+
+    for (i = j = 0; i < number_of_properties; i++) {
+      if (properties[i]) {
+        params[j] = properties[i];
+        parents[j] = (GObject *) machine;
         j++;
       }
     }
-    self->priv->global_param_group=bt_parameter_group_new(self->priv->global_params,parents,params);
+    self->priv->global_param_group =
+        bt_parameter_group_new (self->priv->global_params, parents, params,
+        self->priv->song, self);
 
-    g_free(properties);
-    g_free(child_properties);
+    g_free (properties);
+    g_free (child_properties);
   }
 }
 
-static void bt_machine_init_voice_params(const BtMachine * const self) {
+static void
+bt_machine_init_voice_params (const BtMachine * const self)
+{
   // check if the elemnt implements the GstChildProxy interface
-  if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+  if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
     GstObject *voice_child;
 
     // register voice params
     // get child for voice 0
-    if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
+    if ((voice_child =
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
-      if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_OBJECT_GET_CLASS(voice_child)),&number_of_properties))) {
+      if ((properties =
+              g_object_class_list_properties (G_OBJECT_CLASS
+                  (GST_OBJECT_GET_CLASS (voice_child)),
+                  &number_of_properties))) {
         guint i;
 
         // count number of controlable params
-        for(i=0;i<number_of_properties;i++) {
-          if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->voice_params++;
+        for (i = 0; i < number_of_properties; i++) {
+          if (properties[i]->flags & GST_PARAM_CONTROLLABLE)
+            self->priv->voice_params++;
         }
-        GST_INFO("found %lu voice params",self->priv->voice_params);
+        GST_INFO ("found %lu voice params", self->priv->voice_params);
       }
-      g_free(properties);
+      g_free (properties);
 
       // bind params to machines voice controller
-      bt_machine_resize_voices(self,0);
-      g_object_unref(voice_child);
+      bt_machine_resize_voices (self, 0);
+      g_object_unref (voice_child);
+    } else {
+      GST_WARNING_OBJECT (self, "  can't get first voice child!");
     }
-    else {
-      GST_WARNING_OBJECT(self,"  can't get first voice child!");
-    }
-  }
-  else {
-    GST_INFO("  instance is monophonic!");
-    self->priv->voices=0;
+  } else {
+    GST_INFO ("  instance is monophonic!");
+    self->priv->voices = 0;
   }
 }
 
@@ -1109,11 +1428,14 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
  *
  * Returns: %TRUE for success, %FALSE otherwise
  */
-gboolean bt_machine_enable_input_pre_level(BtMachine * const self) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
-  g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
+gboolean
+bt_machine_enable_input_pre_level (BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
+  g_return_val_if_fail (!BT_IS_SOURCE_MACHINE (self), FALSE);
 
-  return(bt_machine_enable_part(self,PART_INPUT_PRE_LEVEL,"level","input_pre_level"));
+  return (bt_machine_enable_part (self, PART_INPUT_PRE_LEVEL, "level",
+          "input_pre_level"));
 }
 
 /**
@@ -1124,11 +1446,14 @@ gboolean bt_machine_enable_input_pre_level(BtMachine * const self) {
  *
  * Returns: %TRUE for success, %FALSE otherwise
  */
-gboolean bt_machine_enable_input_post_level(BtMachine * const self) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
-  g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
+gboolean
+bt_machine_enable_input_post_level (BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
+  g_return_val_if_fail (!BT_IS_SOURCE_MACHINE (self), FALSE);
 
-  return(bt_machine_enable_part(self,PART_INPUT_POST_LEVEL,"level","input_post_level"));
+  return (bt_machine_enable_part (self, PART_INPUT_POST_LEVEL, "level",
+          "input_post_level"));
 }
 
 /**
@@ -1139,11 +1464,14 @@ gboolean bt_machine_enable_input_post_level(BtMachine * const self) {
  *
  * Returns: %TRUE for success, %FALSE otherwise
  */
-gboolean bt_machine_enable_output_pre_level(BtMachine * const self) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
-  g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
+gboolean
+bt_machine_enable_output_pre_level (BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
+  g_return_val_if_fail (!BT_IS_SINK_MACHINE (self), FALSE);
 
-  return(bt_machine_enable_part(self,PART_OUTPUT_PRE_LEVEL,"level","output_pre_level"));
+  return (bt_machine_enable_part (self, PART_OUTPUT_PRE_LEVEL, "level",
+          "output_pre_level"));
 }
 
 /**
@@ -1154,11 +1482,14 @@ gboolean bt_machine_enable_output_pre_level(BtMachine * const self) {
  *
  * Returns: %TRUE for success, %FALSE otherwise
  */
-gboolean bt_machine_enable_output_post_level(BtMachine * const self) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
-  g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
+gboolean
+bt_machine_enable_output_post_level (BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
+  g_return_val_if_fail (!BT_IS_SINK_MACHINE (self), FALSE);
 
-  return(bt_machine_enable_part(self,PART_OUTPUT_POST_LEVEL,"level","output_post_level"));
+  return (bt_machine_enable_part (self, PART_OUTPUT_POST_LEVEL, "level",
+          "output_post_level"));
 }
 
 /**
@@ -1169,10 +1500,13 @@ gboolean bt_machine_enable_output_post_level(BtMachine * const self) {
  *
  * Returns: %TRUE for success, %FALSE otherwise
  */
-gboolean bt_machine_enable_input_gain(BtMachine * const self) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
-  g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
-  return(bt_machine_enable_part(self,PART_INPUT_GAIN,"volume","input_gain"));
+gboolean
+bt_machine_enable_input_gain (BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
+  g_return_val_if_fail (!BT_IS_SOURCE_MACHINE (self), FALSE);
+  return (bt_machine_enable_part (self, PART_INPUT_GAIN, "volume",
+          "input_gain"));
 }
 
 /**
@@ -1183,10 +1517,13 @@ gboolean bt_machine_enable_input_gain(BtMachine * const self) {
  *
  * Returns: %TRUE for success, %FALSE otherwise
  */
-gboolean bt_machine_enable_output_gain(BtMachine * const self) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
-  g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
-  return(bt_machine_enable_part(self,PART_OUTPUT_GAIN,"volume","output_gain"));
+gboolean
+bt_machine_enable_output_gain (BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
+  g_return_val_if_fail (!BT_IS_SINK_MACHINE (self), FALSE);
+  return (bt_machine_enable_part (self, PART_OUTPUT_GAIN, "volume",
+          "output_gain"));
 }
 
 /**
@@ -1198,104 +1535,133 @@ gboolean bt_machine_enable_output_gain(BtMachine * const self) {
  *
  * Returns: %TRUE for success
  */
-gboolean bt_machine_activate_adder(BtMachine * const self) {
-  gboolean res=FALSE;
+gboolean
+bt_machine_activate_adder (BtMachine * const self)
+{
+  gboolean res = FALSE;
 
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
-  g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
+  g_return_val_if_fail (!BT_IS_SOURCE_MACHINE (self), FALSE);
 
-  GstElement ** const machines=self->priv->machines;
+  GstElement **const machines = self->priv->machines;
 
-  if(!machines[PART_ADDER]) {
-    gboolean skip_convert=FALSE;
-    GstPad ** const src_pads=self->priv->src_pads;
-    GstPad ** const sink_pads=self->priv->sink_pads;
-    guint i, tix=PART_MACHINE;
+  if (!machines[PART_ADDER]) {
+    gboolean skip_convert = FALSE;
+    GstPad **const src_pads = self->priv->src_pads;
+    GstPad **const sink_pads = self->priv->sink_pads;
+    guint i, tix = PART_MACHINE;
 
     // get first element on the source side
-    for(i=PART_INPUT_PRE_LEVEL;i<=PART_MACHINE;i++) {
-      if(machines[i]) {
-        tix=i;
-        GST_DEBUG_OBJECT(self,"src side target at %d: %s:%s",i,GST_DEBUG_PAD_NAME(sink_pads[tix]));
+    for (i = PART_INPUT_PRE_LEVEL; i <= PART_MACHINE; i++) {
+      if (machines[i]) {
+        tix = i;
+        GST_DEBUG_OBJECT (self, "src side target at %d: %s:%s", i,
+            GST_DEBUG_PAD_NAME (sink_pads[tix]));
         break;
       }
     }
 
     // create the adder
-    if(!(bt_machine_make_internal_element(self,PART_ADDER,"adder","adder"))) goto Error;
+    if (!(bt_machine_make_internal_element (self, PART_ADDER, "adder",
+                "adder")))
+      goto Error;
     /* live adder mixes by timestamps and does a timeout if an input is late */
     //if(!(bt_machine_make_internal_element(self,PART_ADDER,"liveadder","adder"))) goto Error;
 
     // try without capsfilter (>= 0.10.24)
-    if(!g_object_class_find_property(G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(machines[PART_ADDER])),"caps")) {
-      if(!(bt_machine_make_internal_element(self,PART_CAPS_FILTER,"capsfilter","capsfilter"))) goto Error;
-      g_object_set(machines[PART_CAPS_FILTER],"caps",bt_default_caps,NULL);
-    }
-    else {
-      g_object_set(machines[PART_ADDER],"caps",bt_default_caps,NULL);
+    if (!g_object_class_find_property (G_OBJECT_CLASS (BT_MACHINE_GET_CLASS
+                (machines[PART_ADDER])), "caps")) {
+      if (!(bt_machine_make_internal_element (self, PART_CAPS_FILTER,
+                  "capsfilter", "capsfilter")))
+        goto Error;
+      g_object_set (machines[PART_CAPS_FILTER], "caps", bt_default_caps, NULL);
+    } else {
+      g_object_set (machines[PART_ADDER], "caps", bt_default_caps, NULL);
     }
 
-    if(!BT_IS_SINK_MACHINE(self)) {
+    if (!BT_IS_SINK_MACHINE (self)) {
       // try without converters in effects
-      skip_convert=gst_caps_can_intersect(bt_default_caps, gst_pad_get_pad_template_caps(sink_pads[PART_MACHINE]));
+      skip_convert =
+          gst_caps_can_intersect (bt_default_caps,
+          gst_pad_get_pad_template_caps (sink_pads[PART_MACHINE]));
     }
-    if(skip_convert) {
-      GST_DEBUG_OBJECT(self,"  about to link adder -> dst_elem");
-      if(!machines[PART_CAPS_FILTER]) {
-        if(!bt_machine_link_elements(self,src_pads[PART_ADDER], sink_pads[tix])) {
-          GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
+    if (skip_convert) {
+      GST_DEBUG_OBJECT (self, "  about to link adder -> dst_elem");
+      if (!machines[PART_CAPS_FILTER]) {
+        if (!bt_machine_link_elements (self, src_pads[PART_ADDER],
+                sink_pads[tix])) {
+          GST_ERROR_OBJECT (self,
+              "failed to link the internal adder of machine");
+          goto Error;
+        }
+      } else {
+        res =
+            bt_machine_link_elements (self, src_pads[PART_ADDER],
+            sink_pads[PART_CAPS_FILTER]);
+        res &=
+            bt_machine_link_elements (self, src_pads[PART_CAPS_FILTER],
+            sink_pads[tix]);
+        if (!res) {
+          gst_pad_unlink (src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
+          gst_pad_unlink (src_pads[PART_CAPS_FILTER], sink_pads[tix]);
+          GST_ERROR_OBJECT (self,
+              "failed to link the internal adder of machine");
           goto Error;
         }
       }
-      else {
-        res=bt_machine_link_elements(self,src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
-        res&=bt_machine_link_elements(self,src_pads[PART_CAPS_FILTER], sink_pads[tix]);
-        if(!res) {
-          gst_pad_unlink(src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
-          gst_pad_unlink(src_pads[PART_CAPS_FILTER], sink_pads[tix]);
-          GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
-          goto Error;
-        }
-      }
-    }
-    else {
-      GST_INFO_OBJECT(self,"adding converter");
-      if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
-      if(!BT_IS_SINK_MACHINE(self)) {
+    } else {
+      GST_INFO_OBJECT (self, "adding converter");
+      if (!(bt_machine_make_internal_element (self, PART_ADDER_CONVERT,
+                  "audioconvert", "audioconvert")))
+        goto Error;
+      if (!BT_IS_SINK_MACHINE (self)) {
         // only do this for the final mix, if at all
-        g_object_set(machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
+        g_object_set (machines[PART_ADDER_CONVERT], "dithering", 0,
+            "noise-shaping", 0, NULL);
       }
-      GST_DEBUG_OBJECT(self,"  about to link adder -> convert -> dst_elem");
-      if(!machines[PART_CAPS_FILTER]) {
-        res=bt_machine_link_elements(self,src_pads[PART_ADDER], sink_pads[PART_ADDER_CONVERT]);
-        res&=bt_machine_link_elements(self,src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
-        if(!res) {
-          gst_pad_unlink(src_pads[PART_ADDER], sink_pads[PART_ADDER_CONVERT]);
-          gst_pad_unlink(src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
-          GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
+      GST_DEBUG_OBJECT (self, "  about to link adder -> convert -> dst_elem");
+      if (!machines[PART_CAPS_FILTER]) {
+        res =
+            bt_machine_link_elements (self, src_pads[PART_ADDER],
+            sink_pads[PART_ADDER_CONVERT]);
+        res &=
+            bt_machine_link_elements (self, src_pads[PART_ADDER_CONVERT],
+            sink_pads[tix]);
+        if (!res) {
+          gst_pad_unlink (src_pads[PART_ADDER], sink_pads[PART_ADDER_CONVERT]);
+          gst_pad_unlink (src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
+          GST_ERROR_OBJECT (self,
+              "failed to link the internal adder of machine");
           goto Error;
         }
-      }
-      else {
-        res=bt_machine_link_elements(self,src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
-        res&=bt_machine_link_elements(self,src_pads[PART_CAPS_FILTER], sink_pads[PART_ADDER_CONVERT]);
-        res&=bt_machine_link_elements(self,src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
-        if(!res) {
-          gst_pad_unlink(src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
-          gst_pad_unlink(src_pads[PART_CAPS_FILTER], sink_pads[PART_ADDER_CONVERT]);
-          gst_pad_unlink(src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
-          GST_ERROR_OBJECT(self,"failed to link the internal adder of machine");
+      } else {
+        res =
+            bt_machine_link_elements (self, src_pads[PART_ADDER],
+            sink_pads[PART_CAPS_FILTER]);
+        res &=
+            bt_machine_link_elements (self, src_pads[PART_CAPS_FILTER],
+            sink_pads[PART_ADDER_CONVERT]);
+        res &=
+            bt_machine_link_elements (self, src_pads[PART_ADDER_CONVERT],
+            sink_pads[tix]);
+        if (!res) {
+          gst_pad_unlink (src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
+          gst_pad_unlink (src_pads[PART_CAPS_FILTER],
+              sink_pads[PART_ADDER_CONVERT]);
+          gst_pad_unlink (src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
+          GST_ERROR_OBJECT (self,
+              "failed to link the internal adder of machine");
           goto Error;
         }
       }
     }
-    GST_DEBUG_OBJECT(self,"  adder activated");
+    GST_DEBUG_OBJECT (self, "  adder activated");
   }
-  res=TRUE;
+  res = TRUE;
 Error:
-  bt_machine_dbg_print_parts(self);
-  bt_song_write_to_lowlevel_dot_file(self->priv->song);
-  return(res);
+  bt_machine_dbg_print_parts (self);
+  bt_song_write_to_lowlevel_dot_file (self->priv->song);
+  return (res);
 }
 
 /**
@@ -1307,10 +1673,12 @@ Error:
  *
  * Returns: %TRUE for success
  */
-gboolean bt_machine_has_active_adder(const BtMachine * const self) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+gboolean
+bt_machine_has_active_adder (const BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
 
-  return(self->priv->machines[PART_ADDER]!=NULL);
+  return (self->priv->machines[PART_ADDER] != NULL);
 }
 
 /**
@@ -1322,41 +1690,47 @@ gboolean bt_machine_has_active_adder(const BtMachine * const self) {
  *
  * Returns: %TRUE for success
  */
-gboolean bt_machine_activate_spreader(BtMachine * const self) {
-  gboolean res=FALSE;
+gboolean
+bt_machine_activate_spreader (BtMachine * const self)
+{
+  gboolean res = FALSE;
 
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
-  g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
+  g_return_val_if_fail (!BT_IS_SINK_MACHINE (self), FALSE);
 
-  GstElement ** const machines=self->priv->machines;
+  GstElement **const machines = self->priv->machines;
 
-  if(!machines[PART_SPREADER]) {
-    GstPad ** const src_pads=self->priv->src_pads;
-    GstPad ** const sink_pads=self->priv->sink_pads;
-    guint i, tix=PART_MACHINE;
+  if (!machines[PART_SPREADER]) {
+    GstPad **const src_pads = self->priv->src_pads;
+    GstPad **const sink_pads = self->priv->sink_pads;
+    guint i, tix = PART_MACHINE;
 
     // get next element on the sink side
-    for(i=PART_OUTPUT_POST_LEVEL;i>=PART_MACHINE;i--) {
-      if(machines[i]) {
-        tix=i;
-        GST_DEBUG_OBJECT(self,"sink side target at %d: %s:%s",i,GST_DEBUG_PAD_NAME(src_pads[tix]));
+    for (i = PART_OUTPUT_POST_LEVEL; i >= PART_MACHINE; i--) {
+      if (machines[i]) {
+        tix = i;
+        GST_DEBUG_OBJECT (self, "sink side target at %d: %s:%s", i,
+            GST_DEBUG_PAD_NAME (src_pads[tix]));
         break;
       }
     }
 
     // create the spreader (tee)
-    if(!(bt_machine_make_internal_element(self,PART_SPREADER,"tee","tee"))) goto Error;
-    if(!bt_machine_link_elements(self,src_pads[tix], sink_pads[PART_SPREADER])) {
-      GST_ERROR_OBJECT(self,"failed to link the internal spreader of machine");
+    if (!(bt_machine_make_internal_element (self, PART_SPREADER, "tee", "tee")))
+      goto Error;
+    if (!bt_machine_link_elements (self, src_pads[tix],
+            sink_pads[PART_SPREADER])) {
+      GST_ERROR_OBJECT (self,
+          "failed to link the internal spreader of machine");
       goto Error;
     }
-    GST_DEBUG_OBJECT(self,"  spreader activated");
+    GST_DEBUG_OBJECT (self, "  spreader activated");
   }
-  res=TRUE;
+  res = TRUE;
 Error:
-  bt_machine_dbg_print_parts(self);
-  bt_song_write_to_lowlevel_dot_file(self->priv->song);
-  return(res);
+  bt_machine_dbg_print_parts (self);
+  bt_song_write_to_lowlevel_dot_file (self->priv->song);
+  return (res);
 }
 
 /**
@@ -1368,22 +1742,27 @@ Error:
  *
  * Returns: %TRUE for success
  */
-gboolean bt_machine_has_active_spreader(const BtMachine * const self) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+gboolean
+bt_machine_has_active_spreader (const BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
 
-  return(self->priv->machines[PART_SPREADER]!=NULL);
+  return (self->priv->machines[PART_SPREADER] != NULL);
 }
 
 //-- pattern handling
 
 // DEBUG
 #ifdef CHECK_PATTERN_OWNERSHIP
-static void check_pattern_ownership (gpointer data, GObject *obj) {
-  BtMachine *self=BT_MACHINE(data);
+static void
+check_pattern_ownership (gpointer data, GObject * obj)
+{
+  BtMachine *self = BT_MACHINE (data);
 
-  GST_DEBUG("destroyed pattern: %p",obj);
-  if(g_list_find(self->priv->patterns,obj)) {
-    GST_WARNING_OBJECT(self, "pattern %p destroyed, but still in machines pattern list", obj);
+  GST_DEBUG ("destroyed pattern: %p", obj);
+  if (g_list_find (self->priv->patterns, obj)) {
+    GST_WARNING_OBJECT (self,
+        "pattern %p destroyed, but still in machines pattern list", obj);
     //g_assert_not_reached();
   }
 }
@@ -1398,34 +1777,36 @@ static void check_pattern_ownership (gpointer data, GObject *obj) {
  * Add the supplied pattern to the machine. This is automatically done by
  * bt_pattern_new().
  */
-void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * const pattern) {
-  g_return_if_fail(BT_IS_MACHINE(self));
-  g_return_if_fail(BT_IS_PATTERN(pattern));
+void
+bt_machine_add_pattern (const BtMachine * const self,
+    const BtCmdPattern * const pattern)
+{
+  g_return_if_fail (BT_IS_MACHINE (self));
+  g_return_if_fail (BT_IS_CMD_PATTERN (pattern));
 
-  if(!g_list_find(self->priv->patterns,pattern)) {
-    gboolean is_internal;
-
-    self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref((gpointer)pattern));
+  if (!g_list_find (self->priv->patterns, pattern)) {
+    self->priv->patterns =
+        g_list_append (self->priv->patterns, g_object_ref ((gpointer) pattern));
 
     // DEBUG
 #ifdef CHECK_PATTERN_OWNERSHIP
-    g_object_weak_ref((GObject *)pattern,check_pattern_ownership,(gpointer)self);
+    g_object_weak_ref ((GObject *) pattern, check_pattern_ownership,
+        (gpointer) self);
 #endif
     // DEBUG
 
     // check if its a internal pattern and if it is update count of those
-    g_object_get((gpointer)pattern,"is-internal",&is_internal,NULL);
-    if(is_internal) {
+    if (!BT_IS_PATTERN (pattern)) {
       self->priv->private_patterns++;
-      GST_DEBUG("adding internal pattern %p,ref_ct=%d, nr=%u",pattern,G_OBJECT_REF_COUNT(pattern),self->priv->private_patterns);
+      GST_DEBUG ("adding internal pattern %" G_OBJECT_REF_COUNT_FMT ", nr=%u",
+          G_OBJECT_LOG_REF_COUNT (pattern), self->priv->private_patterns);
+    } else {
+      GST_DEBUG ("adding pattern %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (pattern));
+      g_signal_emit ((gpointer) self, signals[PATTERN_ADDED_EVENT], 0, pattern);
     }
-    else {
-      GST_DEBUG("adding pattern %p,ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
-      g_signal_emit((gpointer)self,signals[PATTERN_ADDED_EVENT], 0, pattern);
-    }
-  }
-  else {
-    GST_WARNING_OBJECT(self,"trying to add pattern again");
+  } else {
+    GST_WARNING_OBJECT (self, "trying to add pattern again");
   }
 }
 
@@ -1436,27 +1817,33 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
  *
  * Remove the given pattern from the machine.
  */
-void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * const pattern) {
+void
+bt_machine_remove_pattern (const BtMachine * const self,
+    const BtCmdPattern * const pattern)
+{
   GList *node;
-  g_return_if_fail(BT_IS_MACHINE(self));
-  g_return_if_fail(BT_IS_PATTERN(pattern));
+  g_return_if_fail (BT_IS_MACHINE (self));
+  g_return_if_fail (BT_IS_CMD_PATTERN (pattern));
 
-  if((node=g_list_find(self->priv->patterns,pattern))) {
+  if ((node = g_list_find (self->priv->patterns, pattern))) {
     // DEBUG
 #ifdef CHECK_PATTERN_OWNERSHIP
-    g_object_weak_unref((GObject *)pattern,check_pattern_ownership,(gpointer)self);
+    g_object_weak_unref ((GObject *) pattern, check_pattern_ownership,
+        (gpointer) self);
 #endif
     // DEBUG
 
-    self->priv->patterns=g_list_delete_link(self->priv->patterns,node);
+    self->priv->patterns = g_list_delete_link (self->priv->patterns, node);
 
-    GST_DEBUG("removing pattern: %p,ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
-    g_signal_emit((gpointer)self,signals[PATTERN_REMOVED_EVENT], 0, pattern);
-    GST_DEBUG("removed pattern: %p,ref_ct=%d",pattern,G_OBJECT_REF_COUNT(pattern));
-    g_object_unref((gpointer)pattern);
-  }
-  else {
-    GST_WARNING_OBJECT(self,"trying to remove pattern that is not in machine");
+    GST_DEBUG ("removing pattern: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (pattern));
+    g_signal_emit ((gpointer) self, signals[PATTERN_REMOVED_EVENT], 0, pattern);
+    GST_DEBUG ("removed pattern: %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (pattern));
+    g_object_unref ((gpointer) pattern);
+  } else {
+    GST_WARNING_OBJECT (self,
+        "trying to remove pattern that is not in machine");
   }
 }
 
@@ -1469,28 +1856,33 @@ void bt_machine_remove_pattern(const BtMachine * const self, const BtPattern * c
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
  * Unref the pattern, when done with it.
  *
- * Returns: #BtPattern instance or %NULL if not found
+ * Returns: #BtCmdPattern instance or %NULL if not found
  */
-BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar * const id) {
-  gboolean found=FALSE;
-  BtPattern *pattern;
+BtCmdPattern *
+bt_machine_get_pattern_by_id (const BtMachine * const self,
+    const gchar * const id)
+{
+  gboolean found = FALSE;
+  BtCmdPattern *pattern;
   gchar *pattern_id;
-  GList* node;
+  GList *node;
 
-  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(BT_IS_STRING(id),NULL);
+  g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
+  g_return_val_if_fail (BT_IS_STRING (id), NULL);
 
   //GST_DEBUG("pattern-list.length=%d",g_list_length(self->priv->patterns));
 
-  for(node=self->priv->patterns;node;node=g_list_next(node)) {
-    pattern=BT_PATTERN(node->data);
-    g_object_get(pattern,"id",&pattern_id,NULL);
-    if(!strcmp(pattern_id,id)) found=TRUE;
-    g_free(pattern_id);
-    if(found) return(g_object_ref(pattern));
+  for (node = self->priv->patterns; node; node = g_list_next (node)) {
+    pattern = BT_CMD_PATTERN (node->data);
+    g_object_get (pattern, "id", &pattern_id, NULL);
+    if (!strcmp (pattern_id, id))
+      found = TRUE;
+    g_free (pattern_id);
+    if (found)
+      return (g_object_ref (pattern));
   }
-  GST_DEBUG("no pattern found for id \"%s\"",id);
-  return(NULL);
+  GST_DEBUG ("no pattern found for id \"%s\"", id);
+  return (NULL);
 }
 
 /**
@@ -1502,28 +1894,33 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
  * Unref the pattern, when done with it.
  *
- * Returns: #BtPattern instance or %NULL if not found
+ * Returns: #BtCmdPattern instance or %NULL if not found
  */
-BtPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name) {
-  gboolean found=FALSE;
-  BtPattern *pattern;
+BtCmdPattern *
+bt_machine_get_pattern_by_name (const BtMachine * const self,
+    const gchar * const name)
+{
+  gboolean found = FALSE;
+  BtCmdPattern *pattern;
   gchar *pattern_name;
-  GList* node;
+  GList *node;
 
-  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(BT_IS_STRING(name),NULL);
+  g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
+  g_return_val_if_fail (BT_IS_STRING (name), NULL);
 
   //GST_DEBUG("pattern-list.length=%d",g_list_length(self->priv->patterns));
 
-  for(node=self->priv->patterns;node;node=g_list_next(node)) {
-    pattern=BT_PATTERN(node->data);
-    g_object_get(pattern,"name",&pattern_name,NULL);
-    if(!strcmp(pattern_name,name)) found=TRUE;
-    g_free(pattern_name);
-    if(found) return(g_object_ref(pattern));
+  for (node = self->priv->patterns; node; node = g_list_next (node)) {
+    pattern = BT_CMD_PATTERN (node->data);
+    g_object_get (pattern, "name", &pattern_name, NULL);
+    if (!strcmp (pattern_name, name))
+      found = TRUE;
+    g_free (pattern_name);
+    if (found)
+      return (g_object_ref (pattern));
   }
-  GST_DEBUG("no pattern found for name \"%s\"",name);
-  return(NULL);
+  GST_DEBUG ("no pattern found for name \"%s\"", name);
+  return (NULL);
 }
 
 /**
@@ -1535,16 +1932,19 @@ BtPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gch
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
  * Unref the pattern, when done with it.
  *
- * Returns: #BtPattern instance or %NULL if not found
+ * Returns: #BtCmdPattern instance or %NULL if not found
  */
-BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index) {
-  BtPattern *pattern;
-  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
+BtCmdPattern *
+bt_machine_get_pattern_by_index (const BtMachine * const self,
+    const gulong index)
+{
+  BtCmdPattern *pattern;
+  g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
 
-  if((pattern=g_list_nth_data(self->priv->patterns,(guint)index))) {
-    pattern=g_object_ref(pattern);
+  if ((pattern = g_list_nth_data (self->priv->patterns, (guint) index))) {
+    pattern = g_object_ref (pattern);
   }
-  return(pattern);
+  return (pattern);
 }
 
 /**
@@ -1556,24 +1956,26 @@ BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const g
  *
  * Returns: the newly allocated unique name
  */
-gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self) {
-  BtPattern *pattern=NULL;
-  gchar *id,*ptr;
-  guint8 i=0;
+gchar *
+bt_machine_get_unique_pattern_name (const BtMachine * const self)
+{
+  BtCmdPattern *pattern = NULL;
+  gchar *id, *ptr;
+  guint8 i = 0;
 
-  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
+  g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
 
-  id=g_strdup_printf("%s 00",self->priv->id);
-  ptr=&id[strlen(self->priv->id)+1];
+  id = g_strdup_printf ("%s 00", self->priv->id);
+  ptr = &id[strlen (self->priv->id) + 1];
   do {
-    (void)g_sprintf(ptr,"%02u",i++);
-    g_object_try_unref(pattern);
-  } while((pattern=bt_machine_get_pattern_by_id(self,id)) && (i<100));
-  g_object_try_unref(pattern);
-  g_free(id);
+    (void) g_sprintf (ptr, "%02u", i++);
+    g_object_try_unref (pattern);
+  } while ((pattern = bt_machine_get_pattern_by_id (self, id)) && (i < 100));
+  g_object_try_unref (pattern);
+  g_free (id);
   i--;
 
-  return(g_strdup_printf("%02u",i));
+  return (g_strdup_printf ("%02u", i));
 }
 
 /**
@@ -1585,8 +1987,10 @@ gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self) {
  *
  * Returns: %TRUE if it has patterns
  */
-gboolean bt_machine_has_patterns(const BtMachine * const self) {
-  return(g_list_length(self->priv->patterns)>self->priv->private_patterns);
+gboolean
+bt_machine_has_patterns (const BtMachine * const self)
+{
+  return (g_list_length (self->priv->patterns) > self->priv->private_patterns);
 }
 
 //-- global and voice param handling
@@ -1600,13 +2004,31 @@ gboolean bt_machine_has_patterns(const BtMachine * const self) {
  *
  * Returns: %TRUE for polyphic machines, %FALSE for monophonic ones
  */
-gboolean bt_machine_is_polyphonic(const BtMachine * const self) {
+gboolean
+bt_machine_is_polyphonic (const BtMachine * const self)
+{
   gboolean res;
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
 
-  res=GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]);
-  GST_INFO(" is machine \"%s\" polyphonic ? %d",self->priv->id,res);
-  return(res);
+  res = GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE]);
+  GST_INFO (" is machine \"%s\" polyphonic ? %d", self->priv->id, res);
+  return (res);
+}
+
+/**
+ * bt_machine_get_prefs_param_group:
+ * @self: the machine
+ *
+ * Get the parameter group of machine properties. Properties are settings that
+ * cannot be changed during playback.
+ *
+ * Returns: the #BtParameterGroup or %NULL
+ */
+BtParameterGroup *
+bt_machine_get_prefs_param_group (const BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
+  return self->priv->prefs_param_group;
 }
 
 /**
@@ -1615,10 +2037,12 @@ gboolean bt_machine_is_polyphonic(const BtMachine * const self) {
  *
  * Get the parameter group of global parameters.
  *
- * Returns: the #BtParametergroup or %NULL
+ * Returns: the #BtParameterGroup or %NULL
  */
-BtParameterGroup *bt_machine_get_global_param_group(const BtMachine * const self) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
+BtParameterGroup *
+bt_machine_get_global_param_group (const BtMachine * const self)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
   return self->priv->global_param_group;
 }
 
@@ -1629,11 +2053,14 @@ BtParameterGroup *bt_machine_get_global_param_group(const BtMachine * const self
  *
  * Get the parameter group of voice parameters for the given @voice.
  *
- * Returns: the #BtParametergroup or %NULL
+ * Returns: the #BtParameterGroup or %NULL
  */
-BtParameterGroup *bt_machine_get_voice_param_group(const BtMachine * const self, const gulong voice) {
-  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(voice<self->priv->voices,NULL);
+BtParameterGroup *
+bt_machine_get_voice_param_group (const BtMachine * const self,
+    const gulong voice)
+{
+  g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
+  g_return_val_if_fail (voice < self->priv->voices, NULL);
 
   return self->priv->voice_param_groups[voice];
 }
@@ -1646,39 +2073,48 @@ BtParameterGroup *bt_machine_get_voice_param_group(const BtMachine * const self,
  * Should be called, if all parameters are changed (like after switching
  * presets).
  */
-void bt_machine_set_param_defaults(const BtMachine *const self) {
-  const gulong voices=self->priv->voices;
+void
+bt_machine_set_param_defaults (const BtMachine * const self)
+{
+  const gulong voices = self->priv->voices;
   gulong j;
 
-  bt_parameter_group_set_param_defaults(self->priv->global_param_group);
-  for(j=0;j<voices;j++) {
-    bt_parameter_group_set_param_defaults(self->priv->voice_param_groups[j]);
+  bt_parameter_group_set_param_defaults (self->priv->global_param_group);
+  for (j = 0; j < voices; j++) {
+    bt_parameter_group_set_param_defaults (self->priv->voice_param_groups[j]);
   }
 }
 
 //-- interaction control
 
-static void free_control_data(BtControlData *data) {
+static void
+free_control_data (BtControlData * data)
+{
   BtIcDevice *device;
 
   // stop the device
-  g_object_get((gpointer)(data->control),"device",&device,NULL);
-  btic_device_stop(device);
-  g_object_unref(device);
-
+  g_object_get ((gpointer) (data->control), "device", &device, NULL);
+  if (device) {
+    btic_device_stop (device);
+    g_object_unref (device);
+  }
   // disconnect the handler
-  g_signal_handler_disconnect((gpointer)data->control,data->handler_id);
-  g_object_unref((gpointer)(data->control));
+  g_signal_handler_disconnect ((gpointer) data->control, data->handler_id);
+  g_object_unref ((gpointer) (data->control));
 
-  g_free(data);
+  g_free (data);
 }
 
-static void on_boolean_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
-  BtControlData *data=(BtControlData *)(user_data);
+static void
+on_boolean_control_notify (const BtIcControl * control, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtControlData *data = (BtControlData *) (user_data);
   gboolean value;
 
-  g_object_get((gpointer)(data->control),"value",&value,NULL);
-  g_object_set(data->object,data->pspec->name,value,NULL);
+  g_object_get ((gpointer) (data->control), "value", &value, NULL);
+  g_object_set (data->object, data->pspec->name, value, NULL);
+  bt_parameter_group_set_param_default (data->pg, data->pi);
 }
 
 #define ON_CONTROL_NOTIFY(t,T) \
@@ -1692,25 +2128,34 @@ static void on_## t ##_control_notify(const BtIcControl *control,GParamSpec *arg
   dvalue=p->minimum+(g ## t)((svalue-min)*((gdouble)(p->maximum-p->minimum)/(gdouble)(max-min)));      \
   dvalue=CLAMP(dvalue,p->minimum,p->maximum);                                                          \
   g_object_set(data->object,((GParamSpec *)p)->name,dvalue,NULL);                                      \
+  bt_parameter_group_set_param_default (data->pg, data->pi);                                           \
 }
 
-ON_CONTROL_NOTIFY(int,Int)
-ON_CONTROL_NOTIFY(uint,UInt)
-ON_CONTROL_NOTIFY(int64,Int64)
-ON_CONTROL_NOTIFY(uint64,UInt64)
-ON_CONTROL_NOTIFY(float,Float)
-ON_CONTROL_NOTIFY(double,Double)
+ON_CONTROL_NOTIFY (int, Int);
+ON_CONTROL_NOTIFY (uint, UInt);
+ON_CONTROL_NOTIFY (int64, Int64);
+ON_CONTROL_NOTIFY (uint64, UInt64);
+ON_CONTROL_NOTIFY (float, Float);
+ON_CONTROL_NOTIFY (double, Double);
 
-static void on_enum_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
-  BtControlData *data=(BtControlData *)(user_data);
-  GParamSpecEnum *p=(GParamSpecEnum *)data->pspec;
-  GEnumClass *e=p->enum_class;
-  glong svalue,min,max;
+static void
+on_enum_control_notify (const BtIcControl * control,
+    GParamSpec * arg, gpointer user_data)
+{
+  BtControlData *data = (BtControlData *) (user_data);
+  GParamSpecEnum *p = (GParamSpecEnum *) data->pspec;
+  GEnumClass *e = p->enum_class;
+  glong svalue, min, max;
   gint dvalue;
 
-  g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
-  dvalue=(gint)((svalue-min)*((gdouble)(e->n_values)/(gdouble)(max-min)));
-  g_object_set(data->object,((GParamSpec *)p)->name,e->values[dvalue].value,NULL);
+  g_object_get ((gpointer) (data->control), "value", &svalue, "min", &min,
+      "max", &max, NULL);
+  dvalue =
+      (gint) ((svalue - min) * ((gdouble) (e->n_values) / (gdouble) (max -
+              min)));
+  g_object_set (data->object, ((GParamSpec *) p)->name, e->values[dvalue].value,
+      NULL);
+  bt_parameter_group_set_param_default (data->pg, data->pi);
 }
 
 /**
@@ -1719,168 +2164,286 @@ static void on_enum_control_notify(const BtIcControl *control,GParamSpec *arg,gp
  * @object: child object (global or voice child)
  * @property_name: name of the parameter
  * @control: interaction control object
+ * @pg: the parameter group of the property
  *
  * Connect the interaction control object to the give parameter. Changes of the
  * control-value are mapped into a change of the parameter.
  */
-void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control) {
+void
+bt_machine_bind_parameter_control (const BtMachine * const self,
+    GstObject * object, const gchar * property_name, BtIcControl * control,
+    BtParameterGroup * pg)
+{
   BtControlData *data;
   GParamSpec *pspec;
   BtIcDevice *device;
-  gboolean new_data=FALSE;
+  gboolean new_data = FALSE;
 
-  pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name);
+  pspec =
+      g_object_class_find_property (G_OBJECT_GET_CLASS (object), property_name);
 
-  data=(BtControlData *)g_hash_table_lookup(self->priv->control_data,(gpointer)pspec);
-  if(!data) {
-    new_data=TRUE;
-    data=g_new(BtControlData,1);
-    data->object=object;
-    data->pspec=pspec;
-  }
-  else {
+  data =
+      (BtControlData *) g_hash_table_lookup (self->priv->control_data,
+      (gpointer) pspec);
+  if (!data) {
+    new_data = TRUE;
+    data = g_new (BtControlData, 1);
+    data->object = object;
+    data->pspec = pspec;
+    data->pg = pg;
+    data->pi = bt_parameter_group_get_param_index (pg, property_name);
+  } else {
     // stop the old device
-    g_object_get((gpointer)(data->control),"device",&device,NULL);
-    btic_device_stop(device);
-    g_object_unref(device);
+    g_object_get ((gpointer) (data->control), "device", &device, NULL);
+    btic_device_stop (device);
+    g_object_unref (device);
     // disconnect old signal handler
-    g_signal_handler_disconnect((gpointer)data->control,data->handler_id);
-    g_object_unref((gpointer)(data->control));
+    g_signal_handler_disconnect ((gpointer) data->control, data->handler_id);
+    g_object_unref ((gpointer) (data->control));
   }
-  data->control=g_object_ref(control);
+  data->control = g_object_ref (control);
   // start the new device
-  g_object_get((gpointer)(data->control),"device",&device,NULL);
-  btic_device_start(device);
-  g_object_unref(device);
-  /* TODO(ensonic): controls need flags to indicate whether they are absolute or relative
-   * we conect a different handler for relative ones that add/sub values to current value
+  g_object_get ((gpointer) (data->control), "device", &device, NULL);
+  btic_device_start (device);
+  g_object_unref (device);
+  /* TODO(ensonic): controls need flags to indicate whether they are absolute or
+   * relative, we connect a different handler for relative ones that add/sub
+   * values to current value
    */
   // connect signal handler
-  switch(bt_g_type_get_base_type(pspec->value_type)) {
+  switch (bt_g_type_get_base_type (pspec->value_type)) {
     case G_TYPE_BOOLEAN:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_boolean_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_boolean_control_notify), (gpointer) data);
       break;
     case G_TYPE_INT:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_int_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_int_control_notify), (gpointer) data);
       break;
     case G_TYPE_UINT:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_uint_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_uint_control_notify), (gpointer) data);
       break;
     case G_TYPE_INT64:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_int64_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_int64_control_notify), (gpointer) data);
       break;
     case G_TYPE_UINT64:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_uint64_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_uint64_control_notify), (gpointer) data);
       break;
     case G_TYPE_FLOAT:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_float_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_float_control_notify), (gpointer) data);
       break;
     case G_TYPE_DOUBLE:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_double_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_double_control_notify), (gpointer) data);
       break;
     case G_TYPE_ENUM:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_enum_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_enum_control_notify), (gpointer) data);
       break;
     default:
-      GST_WARNING_OBJECT(self,"unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(pspec));
+      GST_WARNING_OBJECT (self, "unhandled type \"%s\"",
+          G_PARAM_SPEC_TYPE_NAME (pspec));
       break;
   }
 
-  if(new_data) {
-    g_hash_table_insert(self->priv->control_data,(gpointer)pspec,(gpointer)data);
+  if (new_data) {
+    g_hash_table_insert (self->priv->control_data, (gpointer) pspec,
+        (gpointer) data);
   }
 }
 
-#if 0
-
-static void on_enum_poly_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
-  BtPolyControlData *data=(BtPolyControlData *)(user_data);
+static void
+on_boolean_poly_control_notify (const BtIcControl * control, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtPolyControlData *data = (BtPolyControlData *) (user_data);
+  GstElement *machine;
   GstObject *object;
-  GParamSpecEnum *p=(GParamSpecEnum *)data->pspec;
-  GEnumClass *e=p->enum_class;
-  glong svalue,min,max;
-  gint dvalue;
+  gboolean value;
 
-  g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
-  dvalue=(gint)((svalue-min)*((gdouble)(e->n_values)/(gdouble)(max-min)));
-  
-  object=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(data->machine),data->voice_ct);
-  g_object_set(object,((GParamSpec *)p)->name,e->values[dvalue].value,NULL);
-  data->voice_ct=(data->voice_ct+1)%data->machine->priv->voices;
+  g_object_get ((gpointer) (data->control), "value", &value, NULL);
+  machine = data->machine_priv->machines[PART_MACHINE];
+  object =
+      gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine),
+      data->voice_ct);
+  g_object_set (object, data->pspec->name, value, NULL);
+  bt_parameter_group_set_param_default (data->pg, data->pi);
+  data->voice_ct = (data->voice_ct + 1) % data->machine_priv->voices;
 }
 
+#define ON_POLY_CONTROL_NOTIFY(t,T) \
+static void on_## t ##_poly_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) { \
+  BtPolyControlData *data=(BtPolyControlData *)(user_data);                                            \
+  GstElement *machine;                                                                                 \
+  GstObject *object;                                                                                   \
+  GParamSpec ## T *p=(GParamSpec ## T *)data->pspec;                                                   \
+  glong svalue,min,max;                                                                                \
+  g ## t dvalue;                                                                                       \
+                                                                                                       \
+  g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);                  \
+  dvalue=p->minimum+(g ## t)((svalue-min)*((gdouble)(p->maximum-p->minimum)/(gdouble)(max-min)));      \
+  dvalue=CLAMP(dvalue,p->minimum,p->maximum);                                                          \
+  machine = data->machine_priv->machines[PART_MACHINE];                                                \
+  object = gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine), data->voice_ct);             \
+  g_object_set(object,((GParamSpec *)p)->name,dvalue,NULL);                                            \
+  bt_parameter_group_set_param_default (data->pg, data->pi);                                           \
+  data->voice_ct = (data->voice_ct + 1) % data->machine_priv->voices;                                  \
+}
 
-void bt_machine_bind_poly_parameter_control(const BtMachine * const self, const gchar *property_name, BtIcControl *control) {
+ON_POLY_CONTROL_NOTIFY (int, Int);
+ON_POLY_CONTROL_NOTIFY (uint, UInt);
+ON_POLY_CONTROL_NOTIFY (int64, Int64);
+ON_POLY_CONTROL_NOTIFY (uint64, UInt64);
+ON_POLY_CONTROL_NOTIFY (float, Float);
+ON_POLY_CONTROL_NOTIFY (double, Double);
+
+static void
+on_enum_poly_control_notify (const BtIcControl * control, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtPolyControlData *data = (BtPolyControlData *) (user_data);
+  GstElement *machine;
+  GstObject *object;
+  GParamSpecEnum *p = (GParamSpecEnum *) data->pspec;
+  GEnumClass *e = p->enum_class;
+  glong svalue, min, max;
+  gint dvalue;
+
+  g_object_get ((gpointer) (data->control), "value", &svalue, "min", &min,
+      "max", &max, NULL);
+  dvalue =
+      (gint) ((svalue - min) * ((gdouble) (e->n_values) / (gdouble) (max -
+              min)));
+
+  machine = data->machine_priv->machines[PART_MACHINE];
+  object =
+      gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine),
+      data->voice_ct);
+  g_object_set (object, ((GParamSpec *) p)->name, e->values[dvalue].value,
+      NULL);
+  bt_parameter_group_set_param_default (data->pg, data->pi);
+  data->voice_ct = (data->voice_ct + 1) % data->machine_priv->voices;
+}
+
+/**
+ * bt_machine_bind_poly_parameter_control:
+ * @self: machine
+ * @property_name: name of the parameter
+ * @control: interaction control object
+ * @pg: the parameter group of the property
+ *
+ * Connect the interaction control object to the give parameter. Changes of the
+ * control-value are mapped into a change of the parameter.
+ */
+void
+bt_machine_bind_poly_parameter_control (const BtMachine * const self,
+    const gchar * property_name, BtIcControl * control, BtParameterGroup * pg)
+{
   BtPolyControlData *data;
+  GstElement *machine;
   GstObject *object;
   GParamSpec *pspec;
   BtIcDevice *device;
-  gboolean new_data=FALSE;
+  gboolean new_data = FALSE;
 
-  object=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self),0);
-  pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name);
+  machine = self->priv->machines[PART_MACHINE];
+  object = gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine), 0);
+  pspec =
+      g_object_class_find_property (G_OBJECT_GET_CLASS (object), property_name);
 
-  data=(BtControlData *)g_hash_table_lookup(self->priv->control_data,(gpointer)pspec);
-  if(!data) {
-    new_data=TRUE;
-    data=g_new(BtPolyControlData,1);
-    data->voice_ct=0;
-    data->machine=self;
-    data->pspec=pspec;
-  }
-  else {
+  data =
+      (BtPolyControlData *) g_hash_table_lookup (self->priv->control_data,
+      (gpointer) pspec);
+  if (!data) {
+    new_data = TRUE;
+    data = g_new (BtPolyControlData, 1);
+    data->voice_ct = 0;
+    data->machine_priv = self->priv;
+    data->pspec = pspec;
+    data->pg = pg;
+    data->pi = bt_parameter_group_get_param_index (pg, property_name);
+  } else {
     // stop the old device
-    g_object_get((gpointer)(data->control),"device",&device,NULL);
-    btic_device_stop(device);
-    g_object_unref(device);
+    g_object_get ((gpointer) (data->control), "device", &device, NULL);
+    btic_device_stop (device);
+    g_object_unref (device);
     // disconnect old signal handler
-    g_signal_handler_disconnect((gpointer)data->control,data->handler_id);
-    g_object_unref((gpointer)(data->control));
+    g_signal_handler_disconnect ((gpointer) data->control, data->handler_id);
+    g_object_unref ((gpointer) (data->control));
   }
-  data->control=g_object_ref(control);
+  data->control = g_object_ref (control);
   // start the new device
-  g_object_get((gpointer)(data->control),"device",&device,NULL);
-  btic_device_start(device);
-  g_object_unref(device);
+  g_object_get ((gpointer) (data->control), "device", &device, NULL);
+  btic_device_start (device);
+  g_object_unref (device);
   /* TODO(ensonic): controls need flags to indicate whether they are absolute or relative
    * we conect a different handler for relative ones that add/sub values to current value
    */
   // connect signal handler
-  switch(bt_g_type_get_base_type(pspec->value_type)) {
+  switch (bt_g_type_get_base_type (pspec->value_type)) {
     case G_TYPE_BOOLEAN:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_boolean_poly_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_boolean_poly_control_notify), (gpointer) data);
       break;
     case G_TYPE_INT:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_int_poly_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_int_poly_control_notify), (gpointer) data);
       break;
     case G_TYPE_UINT:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_uint_poly_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_uint_poly_control_notify), (gpointer) data);
       break;
     case G_TYPE_INT64:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_int64_poly_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_int64_poly_control_notify), (gpointer) data);
       break;
     case G_TYPE_UINT64:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_uint64_poly_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_uint64_poly_control_notify), (gpointer) data);
       break;
     case G_TYPE_FLOAT:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_float_poly_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_float_poly_control_notify), (gpointer) data);
       break;
     case G_TYPE_DOUBLE:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_double_poly_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_double_poly_control_notify), (gpointer) data);
       break;
     case G_TYPE_ENUM:
-      data->handler_id=g_signal_connect(control,"notify::value",G_CALLBACK(on_enum_poly_control_notify),(gpointer)data);
+      data->handler_id =
+          g_signal_connect (control, "notify::value",
+          G_CALLBACK (on_enum_poly_control_notify), (gpointer) data);
       break;
     default:
-      GST_WARNING_OBJECT(self,"unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(pspec));
+      GST_WARNING_OBJECT (self, "unhandled type \"%s\"",
+          G_PARAM_SPEC_TYPE_NAME (pspec));
       break;
   }
 
-  if(new_data) {
-    g_hash_table_insert(self->priv->control_data,(gpointer)pspec,(gpointer)data);
+  if (new_data) {
+    g_hash_table_insert (self->priv->control_data, (gpointer) pspec,
+        (gpointer) data);
   }
 }
-#endif
 
 /**
  * bt_machine_unbind_parameter_control:
@@ -1890,11 +2453,15 @@ void bt_machine_bind_poly_parameter_control(const BtMachine * const self, const 
  *
  * Disconnect the interaction control object from the give parameter.
  */
-void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject *object, const char *property_name) {
+void
+bt_machine_unbind_parameter_control (const BtMachine * const self,
+    GstObject * object, const gchar * property_name)
+{
   GParamSpec *pspec;
 
-  pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name);
-  g_hash_table_remove(self->priv->control_data,(gpointer)pspec);
+  pspec =
+      g_object_class_find_property (G_OBJECT_GET_CLASS (object), property_name);
+  g_hash_table_remove (self->priv->control_data, (gpointer) pspec);
 }
 
 /**
@@ -1903,8 +2470,10 @@ void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject
  *
  * Disconnect all interaction controls.
  */
-void bt_machine_unbind_parameter_controls(const BtMachine * const self) {
-  g_hash_table_remove_all(self->priv->control_data);
+void
+bt_machine_unbind_parameter_controls (const BtMachine * const self)
+{
+  g_hash_table_remove_all (self->priv->control_data);
 }
 
 //-- settings
@@ -1915,15 +2484,17 @@ void bt_machine_unbind_parameter_controls(const BtMachine * const self) {
  *
  * Randomizes machine parameters.
  */
-void bt_machine_randomize_parameters(const BtMachine * const self) {
-  const gulong voices=self->priv->voices;
+void
+bt_machine_randomize_parameters (const BtMachine * const self)
+{
+  const gulong voices = self->priv->voices;
   gulong j;
 
-  bt_parameter_group_randomize_values(self->priv->global_param_group);
-  for(j=0;j<voices;j++) {
-    bt_parameter_group_randomize_values(self->priv->voice_param_groups[j]);
+  bt_parameter_group_randomize_values (self->priv->global_param_group);
+  for (j = 0; j < voices; j++) {
+    bt_parameter_group_randomize_values (self->priv->voice_param_groups[j]);
   }
-  bt_machine_set_param_defaults(self);
+  bt_machine_set_param_defaults (self);
 }
 
 /**
@@ -1932,13 +2503,15 @@ void bt_machine_randomize_parameters(const BtMachine * const self) {
  *
  * Resets machine parameters back to defaults.
  */
-void bt_machine_reset_parameters(const BtMachine * const self) {
-  const gulong voices=self->priv->voices;
+void
+bt_machine_reset_parameters (const BtMachine * const self)
+{
+  const gulong voices = self->priv->voices;
   gulong j;
 
-  bt_parameter_group_reset_values(self->priv->global_param_group);
-  for(j=0;j<voices;j++) {
-    bt_parameter_group_reset_values(self->priv->voice_param_groups[j]);
+  bt_parameter_group_reset_values (self->priv->global_param_group);
+  for (j = 0; j < voices; j++) {
+    bt_parameter_group_reset_values (self->priv->voice_param_groups[j]);
   }
 }
 
@@ -1956,336 +2529,437 @@ void bt_machine_reset_parameters(const BtMachine * const self) {
  *
  * Since: 0.6
  */
-BtWire *bt_machine_get_wire_by_dst_machine(const BtMachine * const self, const BtMachine * const dst) {
-  gboolean found=FALSE;
-  BtMachine * const machine;
+BtWire *
+bt_machine_get_wire_by_dst_machine (const BtMachine * const self,
+    const BtMachine * const dst)
+{
+  gboolean found = FALSE;
+  BtMachine *const machine;
   const GList *node;
 
-  g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
+  g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
+  g_return_val_if_fail (BT_IS_MACHINE (dst), NULL);
 
   // either src or dst has no wires
-  if(!self->src_wires || !dst->dst_wires) return(NULL);
+  if (!self->src_wires || !dst->dst_wires)
+    return (NULL);
 
   // check if self links to dst
   // ideally we would search the shorter of the lists
-  for(node=self->src_wires;node;node=g_list_next(node)) {
-    BtWire * const wire=BT_WIRE(node->data);
-    g_object_get(wire,"dst",&machine,NULL);
-    if(machine==dst) found=TRUE;
-    g_object_unref(machine);
-    if(found) return(g_object_ref(wire));
+  for (node = self->src_wires; node; node = g_list_next (node)) {
+    BtWire *const wire = BT_WIRE (node->data);
+    g_object_get (wire, "dst", &machine, NULL);
+    if (machine == dst)
+      found = TRUE;
+    g_object_unref (machine);
+    if (found)
+      return (g_object_ref (wire));
   }
-  GST_DEBUG("no wire found for machines %p:%s %p:%s",self,GST_OBJECT_NAME(self),dst,GST_OBJECT_NAME(dst));
-  return(NULL);
+  GST_DEBUG ("no wire found for machines %p:%s %p:%s", self,
+      GST_OBJECT_NAME (self), dst, GST_OBJECT_NAME (dst));
+  return (NULL);
 }
 
 
 //-- debug helper
 
 // used in bt_song_write_to_highlevel_dot_file
-GList *bt_machine_get_element_list(const BtMachine * const self) {
-  GList *list=NULL;
+GList *
+bt_machine_get_element_list (const BtMachine * const self)
+{
+  GList *list = NULL;
   gulong i;
 
-  for(i=0;i<PART_COUNT;i++) {
-    if(self->priv->machines[i]) {
-      list=g_list_append(list,self->priv->machines[i]);
+  for (i = 0; i < PART_COUNT; i++) {
+    if (self->priv->machines[i]) {
+      list = g_list_append (list, self->priv->machines[i]);
     }
   }
 
-  return(list);
+  return (list);
 }
 
-void bt_machine_dbg_print_parts(const BtMachine * const self) {
+void
+bt_machine_dbg_print_parts (const BtMachine * const self)
+{
   /* [A AC I<L IG I>L M O<L OG O>L S] */
-  GST_INFO("%s [%s %s %s %s %s %s %s %s %s %s]",
-    self->priv->id,
-    self->priv->machines[PART_ADDER]?"A":"a",
-    self->priv->machines[PART_ADDER_CONVERT]?"AC":"ac",
-    self->priv->machines[PART_INPUT_PRE_LEVEL]?"I<L":"i<l",
-    self->priv->machines[PART_INPUT_GAIN]?"IG":"ig",
-    self->priv->machines[PART_INPUT_POST_LEVEL]?"I>L":"i>l",
-    self->priv->machines[PART_MACHINE]?"M":"m",
-    self->priv->machines[PART_OUTPUT_PRE_LEVEL]?"O<L":"o<l",
-    self->priv->machines[PART_OUTPUT_GAIN]?"OG":"og",
-    self->priv->machines[PART_OUTPUT_POST_LEVEL]?"O>L":"o>l",
-    self->priv->machines[PART_SPREADER]?"S":"s"
-  );
+  GST_INFO ("%s [%s %s %s %s %s %s %s %s %s %s]",
+      self->priv->id,
+      self->priv->machines[PART_ADDER] ? "A" : "a",
+      self->priv->machines[PART_ADDER_CONVERT] ? "AC" : "ac",
+      self->priv->machines[PART_INPUT_PRE_LEVEL] ? "I<L" : "i<l",
+      self->priv->machines[PART_INPUT_GAIN] ? "IG" : "ig",
+      self->priv->machines[PART_INPUT_POST_LEVEL] ? "I>L" : "i>l",
+      self->priv->machines[PART_MACHINE] ? "M" : "m",
+      self->priv->machines[PART_OUTPUT_PRE_LEVEL] ? "O<L" : "o<l",
+      self->priv->machines[PART_OUTPUT_GAIN] ? "OG" : "og",
+      self->priv->machines[PART_OUTPUT_POST_LEVEL] ? "O>L" : "o>l",
+      self->priv->machines[PART_SPREADER] ? "S" : "s");
 }
 
 //-- io interface
 
-static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persistence, const xmlNodePtr const parent_node) {
-  const BtMachine * const self = BT_MACHINE(persistence);
-  GstObject *machine,*machine_voice;
-  xmlNodePtr node=NULL;
+static xmlNodePtr
+bt_machine_persistence_save (const BtPersistence * const persistence,
+    const xmlNodePtr const parent_node)
+{
+  const BtMachine *const self = BT_MACHINE (persistence);
+  GstObject *machine, *machine_voice;
+  xmlNodePtr node = NULL;
   xmlNodePtr child_node;
-  gulong i,j;
-  GValue value={0,};
+  gulong i, j;
+  GValue value = { 0, };
 
-  GST_DEBUG("PERSISTENCE::machine");
+  GST_DEBUG ("PERSISTENCE::machine");
 
-  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("machine"),NULL))) {
-    const gulong voices=self->priv->voices;
-    const gulong global_params=self->priv->global_params;
-    const gulong voice_params=self->priv->voice_params;
+  if ((node = xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("machine"), NULL))) {
+    const gulong voices = self->priv->voices;
+    const gulong prefs_params = self->priv->prefs_params;
+    const gulong global_params = self->priv->global_params;
+    const gulong voice_params = self->priv->voice_params;
     const gchar *pname;
-    BtParameterGroup *global_param_group=self->priv->global_param_group;
-    BtParameterGroup **voice_param_groups=self->priv->voice_param_groups,*voice_param_group;
+    BtParameterGroup *prefs_param_group = self->priv->prefs_param_group;
+    BtParameterGroup *global_param_group = self->priv->global_param_group;
+    BtParameterGroup **voice_param_groups =
+        self->priv->voice_param_groups, *voice_param_group;
 
-    xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
-    xmlNewProp(node,XML_CHAR_PTR("state"),XML_CHAR_PTR(bt_persistence_strfmt_enum(BT_TYPE_MACHINE_STATE,self->priv->state)));
+    xmlNewProp (node, XML_CHAR_PTR ("id"), XML_CHAR_PTR (self->priv->id));
+    xmlNewProp (node, XML_CHAR_PTR ("state"),
+        XML_CHAR_PTR (bt_persistence_strfmt_enum (BT_TYPE_MACHINE_STATE,
+                self->priv->state)));
 
-    // TODO(ensonic): also store non-controllable parameters (preferences) <prefsdata name="" value="">
-    machine=GST_OBJECT(self->priv->machines[PART_MACHINE]);
-    for(i=0;i<global_params;i++) {
-      // skip trigger parameters
-      if(bt_parameter_group_is_param_trigger(global_param_group,i)) continue;
-      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("globaldata"),NULL))) {
-        pname=bt_parameter_group_get_param_name(global_param_group,i);
-        g_value_init(&value,bt_parameter_group_get_param_type(global_param_group,i));
-        g_object_get_property(G_OBJECT(machine),pname,&value);
-        gchar * const str=bt_persistence_get_value(&value);
-        xmlNewProp(child_node,XML_CHAR_PTR("name"),XML_CHAR_PTR(pname));
-        xmlNewProp(child_node,XML_CHAR_PTR("value"),XML_CHAR_PTR(str));
-        g_free(str);
-        g_value_unset(&value);
+    machine = GST_OBJECT (self->priv->machines[PART_MACHINE]);
+    for (i = 0; i < prefs_params; i++) {
+      if ((child_node =
+              xmlNewChild (node, NULL, XML_CHAR_PTR ("prefsdata"), NULL))) {
+        pname = bt_parameter_group_get_param_name (prefs_param_group, i);
+        g_value_init (&value,
+            bt_parameter_group_get_param_type (prefs_param_group, i));
+        g_object_get_property (G_OBJECT (machine), pname, &value);
+        gchar *const str = bt_persistence_get_value (&value);
+        xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
+        xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
+        g_free (str);
+        g_value_unset (&value);
       }
     }
-    for(j=0;j<voices;j++) {
-      machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
-      voice_param_group=voice_param_groups[j];
+    for (i = 0; i < global_params; i++) {
+      // skip trigger parameters
+      if (bt_parameter_group_is_param_trigger (global_param_group, i))
+        continue;
+      if ((child_node =
+              xmlNewChild (node, NULL, XML_CHAR_PTR ("globaldata"), NULL))) {
+        pname = bt_parameter_group_get_param_name (global_param_group, i);
+        g_value_init (&value,
+            bt_parameter_group_get_param_type (global_param_group, i));
+        g_object_get_property (G_OBJECT (machine), pname, &value);
+        gchar *const str = bt_persistence_get_value (&value);
+        xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
+        xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
+        g_free (str);
+        g_value_unset (&value);
+      }
+    }
+    for (j = 0; j < voices; j++) {
+      machine_voice =
+          gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine), j);
+      voice_param_group = voice_param_groups[j];
 
-      for(i=0;i<voice_params;i++) {
+      for (i = 0; i < voice_params; i++) {
         // skip trigger parameters
-        if(bt_parameter_group_is_param_trigger(voice_param_group,i)) continue;
-        if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("voicedata"),NULL))) {
-          pname=bt_parameter_group_get_param_name(voice_param_group,i);
-          g_value_init(&value,bt_parameter_group_get_param_type(voice_param_group,i));
-          g_object_get_property(G_OBJECT(machine_voice),pname,&value);
-          gchar * const str=bt_persistence_get_value(&value);
-          xmlNewProp(child_node,XML_CHAR_PTR("voice"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(j)));
-          xmlNewProp(child_node,XML_CHAR_PTR("name"),XML_CHAR_PTR(pname));
-          xmlNewProp(child_node,XML_CHAR_PTR("value"),XML_CHAR_PTR(str));
-          g_free(str);
-          g_value_unset(&value);
+        if (bt_parameter_group_is_param_trigger (voice_param_group, i))
+          continue;
+        if ((child_node =
+                xmlNewChild (node, NULL, XML_CHAR_PTR ("voicedata"), NULL))) {
+          pname = bt_parameter_group_get_param_name (voice_param_group, i);
+          g_value_init (&value,
+              bt_parameter_group_get_param_type (voice_param_group, i));
+          g_object_get_property (G_OBJECT (machine_voice), pname, &value);
+          gchar *const str = bt_persistence_get_value (&value);
+          xmlNewProp (child_node, XML_CHAR_PTR ("voice"),
+              XML_CHAR_PTR (bt_persistence_strfmt_ulong (j)));
+          xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
+          xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
+          g_free (str);
+          g_value_unset (&value);
         }
       }
-      g_object_unref(machine_voice);
+      g_object_unref (machine_voice);
     }
 
-    if(g_hash_table_size(self->priv->properties)) {
-      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
-        if(!bt_persistence_save_hashtable(self->priv->properties,child_node)) goto Error;
-      }
-      else goto Error;
+    if (g_hash_table_size (self->priv->properties)) {
+      if ((child_node =
+              xmlNewChild (node, NULL, XML_CHAR_PTR ("properties"), NULL))) {
+        if (!bt_persistence_save_hashtable (self->priv->properties, child_node))
+          goto Error;
+      } else
+        goto Error;
     }
-    if(bt_machine_has_patterns(self)) {
-      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("patterns"),NULL))) {
-        bt_persistence_save_list(self->priv->patterns,child_node);
-      }
-      else goto Error;
+    if (bt_machine_has_patterns (self)) {
+      if ((child_node =
+              xmlNewChild (node, NULL, XML_CHAR_PTR ("patterns"), NULL))) {
+        bt_persistence_save_list (self->priv->patterns, child_node);
+      } else
+        goto Error;
     }
-    if(g_hash_table_size(self->priv->control_data)) {
-      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("interaction-controllers"),NULL))) {
-        GList *list=NULL,*lnode;
+    if (g_hash_table_size (self->priv->control_data)) {
+      if ((child_node =
+              xmlNewChild (node, NULL, XML_CHAR_PTR ("interaction-controllers"),
+                  NULL))) {
+        GList *list = NULL, *lnode;
         BtControlData *data;
         BtIcDevice *device;
-        gchar *device_name,*control_name;
+        gchar *device_name, *control_name;
         xmlNodePtr sub_node;
 
-        g_hash_table_foreach(self->priv->control_data,bt_persistence_collect_hashtable_entries,(gpointer)&list);
+        g_hash_table_foreach (self->priv->control_data,
+            bt_persistence_collect_hashtable_entries, (gpointer) & list);
 
-        for(lnode=list;lnode;lnode=g_list_next(lnode)) {
-          data=(BtControlData *)lnode->data;
+        for (lnode = list; lnode; lnode = g_list_next (lnode)) {
+          data = (BtControlData *) lnode->data;
 
-          g_object_get((gpointer)(data->control),"device",&device,"name",&control_name,NULL);
-          g_object_get(device,"name",&device_name,NULL);
-          g_object_unref(device);
+          g_object_get ((gpointer) (data->control), "device", &device, "name",
+              &control_name, NULL);
+          g_object_get (device, "name", &device_name, NULL);
+          g_object_unref (device);
 
-          sub_node=xmlNewChild(child_node,NULL,XML_CHAR_PTR("interaction-controller"),NULL);
+          sub_node =
+              xmlNewChild (child_node, NULL,
+              XML_CHAR_PTR ("interaction-controller"), NULL);
           // we need global or voiceXX here
-          if(data->object==(GstObject *)self->priv->machines[PART_MACHINE]) {
-            xmlNewProp(sub_node,XML_CHAR_PTR("global"),XML_CHAR_PTR("0"));
-          }
-          else {
-            if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+          if (data->object == (GstObject *) self->priv->machines[PART_MACHINE]) {
+            xmlNewProp (sub_node, XML_CHAR_PTR ("global"), XML_CHAR_PTR ("0"));
+          } else {
+            if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
               GstObject *voice_child;
               gulong i;
-              gboolean found=FALSE;
+              gboolean found = FALSE;
 
-              for(i=0;i<voices;i++) {
-                if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),i))) {
-                  if(data->object==voice_child) {
-                    xmlNewProp(sub_node,XML_CHAR_PTR("voice"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
-                    found=TRUE;
+              for (i = 0; i < voices; i++) {
+                if ((voice_child =
+                        gst_child_proxy_get_child_by_index (GST_CHILD_PROXY
+                            (self->priv->machines[PART_MACHINE]), i))) {
+                  if (data->object == voice_child) {
+                    xmlNewProp (sub_node, XML_CHAR_PTR ("voice"),
+                        XML_CHAR_PTR (bt_persistence_strfmt_ulong (i)));
+                    found = TRUE;
                   }
-                  g_object_unref(voice_child);
-                  if(found) break;
+                  g_object_unref (voice_child);
+                  if (found)
+                    break;
                 }
               }
             }
           }
-          xmlNewProp(sub_node,XML_CHAR_PTR("parameter"),XML_CHAR_PTR(data->pspec->name));
-          xmlNewProp(sub_node,XML_CHAR_PTR("device"),XML_CHAR_PTR(device_name));
-          xmlNewProp(sub_node,XML_CHAR_PTR("control"),XML_CHAR_PTR(control_name));
+          xmlNewProp (sub_node, XML_CHAR_PTR ("parameter"),
+              XML_CHAR_PTR (data->pspec->name));
+          xmlNewProp (sub_node, XML_CHAR_PTR ("device"),
+              XML_CHAR_PTR (device_name));
+          xmlNewProp (sub_node, XML_CHAR_PTR ("control"),
+              XML_CHAR_PTR (control_name));
 
-          g_free(device_name);
-          g_free(control_name);
+          g_free (device_name);
+          g_free (control_name);
         }
-        g_list_free(list);
-      }
-      else goto Error;
+        g_list_free (list);
+      } else
+        goto Error;
     }
   }
 Error:
-  return(node);
+  return (node);
 }
 
-static BtPersistence *bt_machine_persistence_load(const GType type, const BtPersistence * const persistence, xmlNodePtr node, GError **err, va_list var_args) {
-  BtMachine * const self = BT_MACHINE(persistence);
-  xmlChar *name,*global_str,*voice_str,*value_str;
+static BtPersistence *
+bt_machine_persistence_load (const GType type,
+    const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
+    va_list var_args)
+{
+  BtMachine *const self = BT_MACHINE (persistence);
+  xmlChar *name, *global_str, *voice_str, *value_str;
   xmlNodePtr child_node;
-  GValue value={0,};
-  glong param,voice;
-  GstObject *machine,*machine_voice;
+  GValue value = { 0, };
+  glong param, voice;
+  GstObject *machine;
   BtParameterGroup *pg;
 
-  GST_DEBUG("PERSISTENCE::machine");
-  g_assert(node);
+  GST_DEBUG ("PERSISTENCE::machine");
+  g_assert (node);
 
-  if((machine=GST_OBJECT(self->priv->machines[PART_MACHINE]))) {
-    if((value_str=xmlGetProp(node,XML_CHAR_PTR("state")))) {
-      self->priv->state=bt_persistence_parse_enum(BT_TYPE_MACHINE_STATE,(gchar *)value_str);
-      xmlFree(value_str);
+  if ((machine = GST_OBJECT (self->priv->machines[PART_MACHINE]))) {
+    if ((value_str = xmlGetProp (node, XML_CHAR_PTR ("state")))) {
+      self->priv->state =
+          bt_persistence_parse_enum (BT_TYPE_MACHINE_STATE,
+          (gchar *) value_str);
+      xmlFree (value_str);
     }
-    
-    for(node=node->children;node;node=node->next) {
-      if(!xmlNodeIsText(node)) {
-        // TODO(ensonic): load prefsdata
-        if(!strncmp((gchar *)node->name,"globaldata\0",11)) {
-          name=xmlGetProp(node,XML_CHAR_PTR("name"));
-          value_str=xmlGetProp(node,XML_CHAR_PTR("value"));
-          pg=self->priv->global_param_group;
-          param=bt_parameter_group_get_param_index(pg,(gchar*)name);
-          if((param!=-1) && value_str) {
-            g_value_init(&value,bt_parameter_group_get_param_type(pg, param));
-            bt_persistence_set_value(&value,(gchar *)value_str);
-            g_object_set_property(G_OBJECT(machine),(gchar *)name,&value);
-            g_value_unset(&value);
-            bt_parameter_group_set_param_default(pg,param);
+
+    for (node = node->children; node; node = node->next) {
+      if (!xmlNodeIsText (node)) {
+        if (!strncmp ((gchar *) node->name, "prefsdata\0", 10)) {
+          name = xmlGetProp (node, XML_CHAR_PTR ("name"));
+          value_str = xmlGetProp (node, XML_CHAR_PTR ("value"));
+          pg = self->priv->prefs_param_group;
+          param = bt_parameter_group_get_param_index (pg, (gchar *) name);
+          if ((param != -1) && value_str) {
+            g_value_init (&value, bt_parameter_group_get_param_type (pg,
+                    param));
+            bt_persistence_set_value (&value, (gchar *) value_str);
+            g_object_set_property (bt_parameter_group_get_param_parent (pg,
+                    param), (gchar *) name, &value);
+            g_value_unset (&value);
           }
-          xmlFree(name);xmlFree(value_str);
-        }
-        else if(!strncmp((gchar *)node->name,"voicedata\0",10)) {
-          voice_str=xmlGetProp(node,XML_CHAR_PTR("voice"));
-          voice=atol((char *)voice_str);
-          name=xmlGetProp(node,XML_CHAR_PTR("name"));
-          value_str=xmlGetProp(node,XML_CHAR_PTR("value"));
-          pg=self->priv->voice_param_groups[voice];
-          param=bt_parameter_group_get_param_index(pg,(gchar*)name);
-          if((param!=-1) && value_str) {
-            g_value_init(&value,bt_parameter_group_get_param_type(pg, param));
-            bt_persistence_set_value(&value,(gchar *)value_str);
-            g_object_set_property(G_OBJECT(machine),(gchar *)name,&value);
-            g_value_unset(&value);
-            bt_parameter_group_set_param_default(pg,param);
+          xmlFree (name);
+          xmlFree (value_str);
+        } else if (!strncmp ((gchar *) node->name, "globaldata\0", 11)) {
+          name = xmlGetProp (node, XML_CHAR_PTR ("name"));
+          value_str = xmlGetProp (node, XML_CHAR_PTR ("value"));
+          pg = self->priv->global_param_group;
+          param = bt_parameter_group_get_param_index (pg, (gchar *) name);
+          if ((param != -1) && value_str) {
+            g_value_init (&value, bt_parameter_group_get_param_type (pg,
+                    param));
+            bt_persistence_set_value (&value, (gchar *) value_str);
+            g_object_set_property (bt_parameter_group_get_param_parent (pg,
+                    param), (gchar *) name, &value);
+            g_value_unset (&value);
+            bt_parameter_group_set_param_default (pg, param);
           }
-          xmlFree(name);xmlFree(value_str);xmlFree(voice_str);
-        }
-        else if(!strncmp((gchar *)node->name,"properties\0",11)) {
-          bt_persistence_load_hashtable(self->priv->properties,node);
-        }
-        else if(!strncmp((gchar *)node->name,"patterns\0",9)) {
+          xmlFree (name);
+          xmlFree (value_str);
+        } else if (!strncmp ((gchar *) node->name, "voicedata\0", 10)) {
+          voice_str = xmlGetProp (node, XML_CHAR_PTR ("voice"));
+          voice = atol ((char *) voice_str);
+          name = xmlGetProp (node, XML_CHAR_PTR ("name"));
+          value_str = xmlGetProp (node, XML_CHAR_PTR ("value"));
+          pg = self->priv->voice_param_groups[voice];
+          param = bt_parameter_group_get_param_index (pg, (gchar *) name);
+          if ((param != -1) && value_str) {
+            g_value_init (&value, bt_parameter_group_get_param_type (pg,
+                    param));
+            bt_persistence_set_value (&value, (gchar *) value_str);
+            g_object_set_property (bt_parameter_group_get_param_parent (pg,
+                    param), (gchar *) name, &value);
+            g_value_unset (&value);
+            bt_parameter_group_set_param_default (pg, param);
+          }
+          xmlFree (name);
+          xmlFree (value_str);
+          xmlFree (voice_str);
+        } else if (!strncmp ((gchar *) node->name, "properties\0", 11)) {
+          bt_persistence_load_hashtable (self->priv->properties, node);
+        } else if (!strncmp ((gchar *) node->name, "patterns\0", 9)) {
           BtPattern *pattern;
 
-          for(child_node=node->children;child_node;child_node=child_node->next) {
-            if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"pattern\0",8))) {
-              GError *err=NULL;
-              pattern=BT_PATTERN(bt_persistence_load(BT_TYPE_PATTERN,NULL,child_node,&err,"song",self->priv->song,"machine",self,NULL));
-              if(err!=NULL) {
-                GST_WARNING_OBJECT(self,"Can't create pattern: %s",err->message);
-                g_error_free(err);
+          for (child_node = node->children; child_node;
+              child_node = child_node->next) {
+            if ((!xmlNodeIsText (child_node))
+                && (!strncmp ((char *) child_node->name, "pattern\0", 8))) {
+              GError *err = NULL;
+              pattern =
+                  BT_PATTERN (bt_persistence_load (BT_TYPE_PATTERN, NULL,
+                      child_node, &err, "song", self->priv->song, "machine",
+                      self, NULL));
+              if (err != NULL) {
+                GST_WARNING_OBJECT (self, "Can't create pattern: %s",
+                    err->message);
+                g_error_free (err);
               }
-              g_object_unref(pattern);
+              g_object_unref (pattern);
             }
           }
-        }
-        else if(!strncmp((gchar *)node->name,"interaction-controllers\0",24)) {
+        } else if (!strncmp ((gchar *) node->name, "interaction-controllers\0",
+                24)) {
           BtIcRegistry *registry;
           BtIcDevice *device;
           BtIcControl *control;
-          GList *lnode,*devices,*controls;
+          GList *lnode, *devices, *controls;
           gchar *name;
-          xmlChar *device_str,*control_str,*property_name;
+          xmlChar *device_str, *control_str, *property_name;
           gboolean found;
 
-          registry=btic_registry_new();
-          g_object_get(registry,"devices",&devices,NULL);
+          registry = btic_registry_new ();
+          g_object_get (registry, "devices", &devices, NULL);
 
-          for(child_node=node->children;child_node;child_node=child_node->next) {
-            if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"interaction-controller\0",23))) {
-              control=NULL;
+          for (child_node = node->children; child_node;
+              child_node = child_node->next) {
+            if ((!xmlNodeIsText (child_node))
+                && (!strncmp ((char *) child_node->name,
+                        "interaction-controller\0", 23))) {
+              control = NULL;
 
-              if((device_str=xmlGetProp(child_node,XML_CHAR_PTR("device")))) {
-                found=FALSE;
-                for(lnode=devices;lnode;lnode=g_list_next(lnode)) {
-                  device=BTIC_DEVICE(lnode->data);
-                  g_object_get(device,"name",&name,NULL);
-                  if(!strcmp(name,(gchar *)device_str))
-                    found=TRUE;
-                  g_free(name);
-                  if(found) break;
+              if ((device_str =
+                      xmlGetProp (child_node, XML_CHAR_PTR ("device")))) {
+                found = FALSE;
+                for (lnode = devices; lnode; lnode = g_list_next (lnode)) {
+                  device = BTIC_DEVICE (lnode->data);
+                  g_object_get (device, "name", &name, NULL);
+                  if (!strcmp (name, (gchar *) device_str))
+                    found = TRUE;
+                  g_free (name);
+                  if (found)
+                    break;
                 }
-                if(found) {
-                  if((control_str=xmlGetProp(child_node,XML_CHAR_PTR("control")))) {
-                    found=FALSE;
-                    g_object_get(device,"controls",&controls,NULL);
-                    for(lnode=controls;lnode;lnode=g_list_next(lnode)) {
-                      control=BTIC_CONTROL(lnode->data);
-                      g_object_get(control,"name",&name,NULL);
-                      if(!strcmp(name,(gchar *)control_str))
-                        found=TRUE;
-                      g_free(name);
-                      if(found) break;
+                if (found) {
+                  if ((control_str =
+                          xmlGetProp (child_node, XML_CHAR_PTR ("control")))) {
+                    found = FALSE;
+                    g_object_get (device, "controls", &controls, NULL);
+                    for (lnode = controls; lnode; lnode = g_list_next (lnode)) {
+                      control = BTIC_CONTROL (lnode->data);
+                      g_object_get (control, "name", &name, NULL);
+                      if (!strcmp (name, (gchar *) control_str))
+                        found = TRUE;
+                      g_free (name);
+                      if (found)
+                        break;
                     }
-                    g_list_free(controls);
-                    if(found) {
-                      if((property_name=xmlGetProp(child_node,XML_CHAR_PTR("parameter")))) {
-                        if((global_str=xmlGetProp(child_node,XML_CHAR_PTR("global")))) {
-                          bt_machine_bind_parameter_control(self,machine,(gchar*)property_name,control);
-                          xmlFree(global_str);
-                        }
-                        else {
-                          if((voice_str=xmlGetProp(child_node,XML_CHAR_PTR("voice")))) {
-                            voice=atol((char *)voice_str);
-                            machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice);
-                            bt_machine_bind_parameter_control(self,machine_voice,(gchar*)property_name,control);
-                            g_object_unref(machine_voice);
-                            xmlFree(voice_str);
+                    g_list_free (controls);
+                    if (found) {
+                      if ((property_name =
+                              xmlGetProp (child_node,
+                                  XML_CHAR_PTR ("parameter")))) {
+                        if ((global_str =
+                                xmlGetProp (child_node,
+                                    XML_CHAR_PTR ("global")))) {
+                          bt_machine_bind_parameter_control (self, machine,
+                              (gchar *) property_name, control,
+                              self->priv->global_param_group);
+                          xmlFree (global_str);
+                        } else {
+                          if ((voice_str =
+                                  xmlGetProp (child_node,
+                                      XML_CHAR_PTR ("voice")))) {
+                            voice = atol ((char *) voice_str);
+                            bt_machine_bind_poly_parameter_control (self,
+                                (gchar *) property_name,
+                                control, self->priv->voice_param_groups[voice]);
+                            xmlFree (voice_str);
                           }
                         }
-                        xmlFree(property_name);
+                        xmlFree (property_name);
                       }
                     }
-                    xmlFree(control_str);
+                    xmlFree (control_str);
                   }
                 }
-                xmlFree(device_str);
+                xmlFree (device_str);
               }
             }
           }
-          g_list_free(devices);
+          g_list_free (devices);
         }
       }
     }
   }
-  return(BT_PERSISTENCE(persistence));
+  return (BT_PERSISTENCE (persistence));
 }
 
-static void bt_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
-  BtPersistenceInterface * const iface = g_iface;
+static void
+bt_machine_persistence_interface_init (gpointer const g_iface,
+    gpointer const iface_data)
+{
+  BtPersistenceInterface *const iface = g_iface;
 
   iface->load = bt_machine_persistence_load;
   iface->save = bt_machine_persistence_save;
@@ -2295,397 +2969,450 @@ static void bt_machine_persistence_interface_init(gpointer const g_iface, gpoint
 
 //-- gstelement overrides
 
-static GstPad* bt_machine_request_new_pad(GstElement *element, GstPadTemplate *templ, const gchar* _name) {
-  BtMachine * const self=BT_MACHINE(element);
+static GstPad *
+bt_machine_request_new_pad (GstElement * element, GstPadTemplate * templ,
+    const gchar * _name)
+{
+  BtMachine *const self = BT_MACHINE (element);
   gchar *name;
   GstPad *pad, *target;
 
   // check direction
-  if(GST_PAD_TEMPLATE_DIRECTION(templ)==GST_PAD_SRC) {
-    target=gst_element_get_request_pad(self->priv->machines[PART_SPREADER],"src%d");
-    name=g_strdup_printf("src%d", self->priv->src_pad_counter++);
-    GST_INFO_OBJECT(element,"request src pad: %s",name);
+  if (GST_PAD_TEMPLATE_DIRECTION (templ) == GST_PAD_SRC) {
+    target =
+        gst_element_get_request_pad (self->priv->machines[PART_SPREADER],
+        "src%d");
+    name = g_strdup_printf ("src%d", self->priv->src_pad_counter++);
+    GST_INFO_OBJECT (element, "request src pad: %s", name);
+  } else {
+    target =
+        gst_element_get_request_pad (self->priv->machines[PART_ADDER],
+        "sink%d");
+    name = g_strdup_printf ("sink%d", self->priv->sink_pad_counter++);
+    GST_INFO_OBJECT (element, "request sink pad: %s", name);
   }
-  else {
-    target=gst_element_get_request_pad(self->priv->machines[PART_ADDER],"sink%d");
-    name=g_strdup_printf ("sink%d", self->priv->sink_pad_counter++);
-    GST_INFO_OBJECT(element,"request sink pad: %s",name);
-  }
-  if((pad=gst_ghost_pad_new(name,target))) {
-    GST_INFO("%s:%s: %s%s%s",GST_DEBUG_PAD_NAME(target),
-      GST_OBJECT(target)->flags&GST_PAD_BLOCKED?"blocked, ":"",
-      GST_OBJECT(target)->flags&GST_PAD_FLUSHING?"flushing, ":"",
-      GST_OBJECT(target)->flags&GST_PAD_BLOCKING?"blocking, ":"");
-    GST_INFO("%s:%s: %s%s%s",GST_DEBUG_PAD_NAME(pad),
-      GST_OBJECT(pad)->flags&GST_PAD_BLOCKED?"blocked, ":"",
-      GST_OBJECT(pad)->flags&GST_PAD_FLUSHING?"flushing, ":"",
-      GST_OBJECT(pad)->flags&GST_PAD_BLOCKING?"blocking, ":"");
+  if ((pad = gst_ghost_pad_new (name, target))) {
+    GST_INFO ("%s:%s: %s%s%s", GST_DEBUG_PAD_NAME (target),
+        GST_OBJECT (target)->flags & GST_PAD_BLOCKED ? "blocked, " : "",
+        GST_OBJECT (target)->flags & GST_PAD_FLUSHING ? "flushing, " : "",
+        GST_OBJECT (target)->flags & GST_PAD_BLOCKING ? "blocking, " : "");
+    GST_INFO ("%s:%s: %s%s%s", GST_DEBUG_PAD_NAME (pad),
+        GST_OBJECT (pad)->flags & GST_PAD_BLOCKED ? "blocked, " : "",
+        GST_OBJECT (pad)->flags & GST_PAD_FLUSHING ? "flushing, " : "",
+        GST_OBJECT (pad)->flags & GST_PAD_BLOCKING ? "blocking, " : "");
 
-    if(GST_STATE(element)!=GST_STATE_NULL) {
-      GST_DEBUG_OBJECT(element,"activating pad");
-      gst_pad_set_active(pad, TRUE);
+    if (GST_STATE (element) != GST_STATE_NULL) {
+      GST_DEBUG_OBJECT (element, "activating pad");
+      gst_pad_set_active (pad, TRUE);
     }
-    gst_element_add_pad(element, pad);
+    gst_element_add_pad (element, pad);
+  } else {
+    GST_WARNING_OBJECT (element, "failed to create ghostpad %s to target %s:%s",
+        name, GST_DEBUG_PAD_NAME (target));
   }
-  else {
-    GST_WARNING_OBJECT(element,"failed to create ghostpad %s to target %s:%s",name,GST_DEBUG_PAD_NAME(target));
-  }
-  gst_object_unref(target);
-  g_free(name);
+  gst_object_unref (target);
+  g_free (name);
 
-  return(pad);
+  return (pad);
 }
 
-static void bt_machine_release_pad(GstElement *element, GstPad *pad) {
-  BtMachine * const self=BT_MACHINE(element);
+static void
+bt_machine_release_pad (GstElement * element, GstPad * pad)
+{
+  BtMachine *const self = BT_MACHINE (element);
   GstPad *target;
 
-  if(GST_STATE(element)==GST_STATE_PLAYING) {
-    GST_DEBUG_OBJECT(element,"deactivating pad");
-    gst_pad_set_active(pad, FALSE);
+  if (GST_STATE (element) == GST_STATE_PLAYING) {
+    GST_DEBUG_OBJECT (element, "deactivating pad");
+    gst_pad_set_active (pad, FALSE);
   }
 
-  target=gst_ghost_pad_get_target(GST_GHOST_PAD(pad));
-  gst_element_remove_pad(element, pad);
+  target = gst_ghost_pad_get_target (GST_GHOST_PAD (pad));
+  gst_element_remove_pad (element, pad);
 
-  if(gst_pad_get_direction(pad)==GST_PAD_SRC) {
-    GST_INFO_OBJECT(element,"release src pad: %s:%s", GST_DEBUG_PAD_NAME(target));
-    gst_element_release_request_pad(self->priv->machines[PART_SPREADER],target);
+  if (gst_pad_get_direction (pad) == GST_PAD_SRC) {
+    GST_INFO_OBJECT (element, "release src pad: %s:%s",
+        GST_DEBUG_PAD_NAME (target));
+    gst_element_release_request_pad (self->priv->machines[PART_SPREADER],
+        target);
+  } else {
+    GST_INFO_OBJECT (element, "release sink pad: %s:%s",
+        GST_DEBUG_PAD_NAME (target));
+    gst_element_release_request_pad (self->priv->machines[PART_ADDER], target);
   }
-  else {
-    GST_INFO_OBJECT(element,"release sink pad: %s:%s", GST_DEBUG_PAD_NAME(target));
-    gst_element_release_request_pad(self->priv->machines[PART_ADDER],target);
-  }
-  gst_object_unref(target);
+  gst_object_unref (target);
 }
 
 
 //-- gobject overrides
 
-static void bt_machine_constructed(GObject *object) {
-  BtMachine * const self=BT_MACHINE(object);
-  BtPattern *pattern;
+static void
+bt_machine_constructed (GObject * object)
+{
+  BtMachine *const self = BT_MACHINE (object);
 
-  GST_INFO("machine constructed ...");
+  GST_INFO ("machine constructed ...");
 
-  if(G_OBJECT_CLASS(bt_machine_parent_class)->constructed)
-    G_OBJECT_CLASS(bt_machine_parent_class)->constructed(object);
+  if (G_OBJECT_CLASS (bt_machine_parent_class)->constructed)
+    G_OBJECT_CLASS (bt_machine_parent_class)->constructed (object);
 
-  g_return_if_fail(BT_IS_SONG(self->priv->song));
-  g_return_if_fail(BT_IS_STRING(self->priv->id));
-  g_return_if_fail(BT_IS_STRING(self->priv->plugin_name));
+  g_return_if_fail (BT_IS_SONG (self->priv->song));
+  g_return_if_fail (BT_IS_STRING (self->priv->id));
+  g_return_if_fail (BT_IS_STRING (self->priv->plugin_name));
 
-  GST_INFO("initializing machine");
+  GST_INFO ("initializing machine");
 
-  gst_object_set_name(GST_OBJECT(self),self->priv->id);
-  GST_INFO("naming machine : %s",self->priv->id);
+  gst_object_set_name (GST_OBJECT (self), self->priv->id);
+  GST_INFO ("naming machine : %s", self->priv->id);
 
   // name the machine and try to instantiate it
-  if(!bt_machine_init_core_machine(self)) {
+  if (!bt_machine_init_core_machine (self)) {
     goto Error;
   }
-
   // initialize iface properties
-  bt_machine_init_interfaces(self);
+  bt_machine_init_interfaces (self);
   // we need to make sure the machine is from the right class
-  if(!bt_machine_check_type(self)) {
+  if (!bt_machine_check_type (self)) {
     goto Error;
   }
 
-  GST_DEBUG_OBJECT(self,"machine-ref_ct=%d",G_OBJECT_REF_COUNT(self));
+  GST_DEBUG_OBJECT (self, "machine: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self));
 
   // register params
-  bt_machine_init_global_params(self);
-  bt_machine_init_voice_params(self);
+  bt_machine_init_prefs_params (self);
+  bt_machine_init_global_params (self);
+  bt_machine_init_voice_params (self);
 
-  GST_DEBUG_OBJECT(self,"machine-ref_ct=%d",G_OBJECT_REF_COUNT(self));
+  GST_DEBUG_OBJECT (self, "machine: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self));
 
   // post sanity checks
-  GST_INFO("  added machine %p to bin, machine->ref_ct=%d",self->priv->machines[PART_MACHINE],G_OBJECT_REF_COUNT(self->priv->machines[PART_MACHINE]));
-  g_assert(self->priv->machines[PART_MACHINE]!=NULL);
-  if(!(self->priv->global_params+self->priv->voice_params)) {
-    GST_WARNING_OBJECT(self,"  machine %s has no params",self->priv->id);
+  GST_INFO ("  added machine to bin, %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self->priv->machines[PART_MACHINE]));
+  g_assert (self->priv->machines[PART_MACHINE] != NULL);
+  if (!(self->priv->global_params + self->priv->voice_params)) {
+    GST_WARNING_OBJECT (self, "  machine %s has no params", self->priv->id);
   }
-
   // prepare common internal patterns for the machine
-  pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BREAK);
-  g_object_unref(pattern);
-  pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE);
-  g_object_unref(pattern);
+  g_object_unref (bt_cmd_pattern_new (self->priv->song, self,
+          BT_PATTERN_CMD_BREAK));
+  g_object_unref (bt_cmd_pattern_new (self->priv->song, self,
+          BT_PATTERN_CMD_MUTE));
 
-  GST_INFO_OBJECT(self,"machine %p,ref_ct=%d has been constructed",self,G_OBJECT_REF_COUNT(self));
+  GST_INFO_OBJECT (self, "construction done: %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self));
   return;
 Error:
-  GST_WARNING_OBJECT(self,"failed to create machine: %s",self->priv->plugin_name);
-  if(self->priv->constrution_error) {
-    g_set_error(self->priv->constrution_error, error_domain, /* errorcode= */0,
-               "failed to setup the machine.");
+  GST_WARNING_OBJECT (self, "failed to create machine: %s",
+      self->priv->plugin_name);
+  if (self->priv->constrution_error) {
+    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+        0, "failed to setup the machine.");
   }
 }
 
-static void bt_machine_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  const BtMachine * const self = BT_MACHINE(object);
+static void
+bt_machine_get_property (GObject * const object, const guint property_id,
+    GValue * const value, GParamSpec * const pspec)
+{
+  const BtMachine *const self = BT_MACHINE (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   switch (property_id) {
-    case MACHINE_CONSTRUCTION_ERROR: {
-      g_value_set_pointer(value, self->priv->constrution_error);
-    } break;
-    case MACHINE_PROPERTIES: {
-      g_value_set_pointer(value, self->priv->properties);
-    } break;
-    case MACHINE_SONG: {
-      g_value_set_object(value, self->priv->song);
-    } break;
-    case MACHINE_ID: {
-      g_value_set_string(value, self->priv->id);
-    } break;
-    case MACHINE_PLUGIN_NAME: {
-      g_value_set_string(value, self->priv->plugin_name);
-    } break;
-    case MACHINE_VOICES: {
-      g_value_set_ulong(value, self->priv->voices);
-    } break;
-    case MACHINE_GLOBAL_PARAMS: {
-      g_value_set_ulong(value, self->priv->global_params);
-    } break;
-    case MACHINE_VOICE_PARAMS: {
-      g_value_set_ulong(value, self->priv->voice_params);
-    } break;
-    case MACHINE_MACHINE: {
-      g_value_set_object(value, self->priv->machines[PART_MACHINE]);
-    } break;
-    case MACHINE_ADDER_CONVERT: {
-      g_value_set_object(value, self->priv->machines[PART_ADDER_CONVERT]);
-    } break;
-    case MACHINE_INPUT_PRE_LEVEL: {
-      g_value_set_object(value, self->priv->machines[PART_INPUT_PRE_LEVEL]);
-    } break;
-    case MACHINE_INPUT_GAIN: {
-      g_value_set_object(value, self->priv->machines[PART_INPUT_GAIN]);
-    } break;
-    case MACHINE_INPUT_POST_LEVEL: {
-      g_value_set_object(value, self->priv->machines[PART_INPUT_POST_LEVEL]);
-    } break;
-    case MACHINE_OUTPUT_PRE_LEVEL: {
-      g_value_set_object(value, self->priv->machines[PART_OUTPUT_PRE_LEVEL]);
-    } break;
-    case MACHINE_OUTPUT_GAIN: {
-      g_value_set_object(value, self->priv->machines[PART_OUTPUT_GAIN]);
-    } break;
-    case MACHINE_OUTPUT_POST_LEVEL: {
-      g_value_set_object(value, self->priv->machines[PART_OUTPUT_POST_LEVEL]);
-    } break;
-    case MACHINE_PATTERNS: {
-      if(self->priv->patterns) {
-        GList *list=g_list_copy(self->priv->patterns);
-        g_list_foreach(list,(GFunc)g_object_ref,NULL);
-        g_value_set_pointer(value,list);
+    case MACHINE_CONSTRUCTION_ERROR:
+      g_value_set_pointer (value, self->priv->constrution_error);
+      break;
+    case MACHINE_PROPERTIES:
+      g_value_set_pointer (value, self->priv->properties);
+      break;
+    case MACHINE_SONG:
+      g_value_set_object (value, self->priv->song);
+      break;
+    case MACHINE_ID:
+      g_value_set_string (value, self->priv->id);
+      break;
+    case MACHINE_PLUGIN_NAME:
+      g_value_set_string (value, self->priv->plugin_name);
+      break;
+    case MACHINE_VOICES:
+      g_value_set_ulong (value, self->priv->voices);
+      break;
+    case MACHINE_PREFS_PARAMS:
+      g_value_set_ulong (value, self->priv->prefs_params);
+      break;
+    case MACHINE_GLOBAL_PARAMS:
+      g_value_set_ulong (value, self->priv->global_params);
+      break;
+    case MACHINE_VOICE_PARAMS:
+      g_value_set_ulong (value, self->priv->voice_params);
+      break;
+    case MACHINE_MACHINE:
+      g_value_set_object (value, self->priv->machines[PART_MACHINE]);
+      break;
+    case MACHINE_ADDER_CONVERT:
+      g_value_set_object (value, self->priv->machines[PART_ADDER_CONVERT]);
+      break;
+    case MACHINE_INPUT_PRE_LEVEL:
+      g_value_set_object (value, self->priv->machines[PART_INPUT_PRE_LEVEL]);
+      break;
+    case MACHINE_INPUT_GAIN:
+      g_value_set_object (value, self->priv->machines[PART_INPUT_GAIN]);
+      break;
+    case MACHINE_INPUT_POST_LEVEL:
+      g_value_set_object (value, self->priv->machines[PART_INPUT_POST_LEVEL]);
+      break;
+    case MACHINE_OUTPUT_PRE_LEVEL:
+      g_value_set_object (value, self->priv->machines[PART_OUTPUT_PRE_LEVEL]);
+      break;
+    case MACHINE_OUTPUT_GAIN:
+      g_value_set_object (value, self->priv->machines[PART_OUTPUT_GAIN]);
+      break;
+    case MACHINE_OUTPUT_POST_LEVEL:
+      g_value_set_object (value, self->priv->machines[PART_OUTPUT_POST_LEVEL]);
+      break;
+    case MACHINE_PATTERNS:
+      if (self->priv->patterns) {
+        GList *list = g_list_copy (self->priv->patterns);
+        g_list_foreach (list, (GFunc) g_object_ref, NULL);
+        g_value_set_pointer (value, list);
+      } else {
+        g_value_set_pointer (value, NULL);
       }
-      else {
-        g_value_set_pointer(value,NULL);
-      }
-    } break;
-    case MACHINE_STATE: {
-      g_value_set_enum(value, self->priv->state);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+      break;
+    case MACHINE_STATE:
+      g_value_set_enum (value, self->priv->state);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
   }
 }
 
-static void bt_machine_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtMachine * const self = BT_MACHINE(object);
+static void
+bt_machine_set_property (GObject * const object, const guint property_id,
+    const GValue * const value, GParamSpec * const pspec)
+{
+  const BtMachine *const self = BT_MACHINE (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   switch (property_id) {
-    case MACHINE_CONSTRUCTION_ERROR: {
-      self->priv->constrution_error=(GError **)g_value_get_pointer(value);
-    } break;
-    case MACHINE_SONG: {
-      self->priv->song = BT_SONG(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->song);
-      //GST_DEBUG_OBJECT(self,"set the song for machine: %p",self->priv->song);
-    } break;
-    case MACHINE_ID: {
-      g_free(self->priv->id);
-      self->priv->id = g_value_dup_string(value);
-      GST_INFO_OBJECT(self,"set the id for machine: %s",self->priv->id);
-      if(self->priv->machines[PART_MACHINE]) {
-        GstObject *parent=gst_object_get_parent(GST_OBJECT(self));
-        if(!parent) {
-          gst_element_set_name(self,self->priv->id);
-        }
-        else {
-          gst_object_unref(parent);
-        }
-      }
-    } break;
-    case MACHINE_PLUGIN_NAME: {
-      g_free(self->priv->plugin_name);
-      self->priv->plugin_name = g_value_dup_string(value);
-      GST_DEBUG_OBJECT(self,"set the plugin_name for machine: %s",self->priv->plugin_name);
-    } break;
-    case MACHINE_VOICES: {
-      const gulong voices=self->priv->voices;
-      self->priv->voices = g_value_get_ulong(value);
-      if(voices!=self->priv->voices) {
-        if(GSTBT_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
-          GST_DEBUG_OBJECT(self,"set the voices for machine: %lu -> %lu",voices,self->priv->voices);
-          bt_machine_resize_voices(self,voices);
-        } else if (self->priv->voices > 1) {
-          GST_WARNING_OBJECT(self,"ignoring change in voices  %lu -> %lu for monophonic machine",voices,self->priv->voices);
+    case MACHINE_CONSTRUCTION_ERROR:
+      self->priv->constrution_error = (GError **) g_value_get_pointer (value);
+      break;
+    case MACHINE_SONG:
+      self->priv->song = BT_SONG (g_value_get_object (value));
+      g_object_try_weak_ref (self->priv->song);
+      GST_DEBUG ("set the song: %p", self->priv->song);
+      break;
+    case MACHINE_ID:
+      g_free (self->priv->id);
+      self->priv->id = g_value_dup_string (value);
+      GST_INFO_OBJECT (self, "set the id for machine: %s", self->priv->id);
+      if (self->priv->machines[PART_MACHINE]) {
+        GstObject *parent = gst_object_get_parent (GST_OBJECT (self));
+        if (!parent) {
+          gst_element_set_name (self, self->priv->id);
+        } else {
+          gst_object_unref (parent);
         }
       }
-    } break;
-    case MACHINE_GLOBAL_PARAMS: {
-      self->priv->global_params = g_value_get_ulong(value);
-    } break;
-    case MACHINE_VOICE_PARAMS: {
-      self->priv->voice_params = g_value_get_ulong(value);
-    } break;
-    case MACHINE_STATE: {
-      if(bt_machine_change_state(self,g_value_get_enum(value))) {
-        GST_DEBUG_OBJECT(self,"set the state for machine: %d",self->priv->state);
+      break;
+    case MACHINE_PLUGIN_NAME:
+      g_free (self->priv->plugin_name);
+      self->priv->plugin_name = g_value_dup_string (value);
+      GST_DEBUG_OBJECT (self, "set the plugin_name for machine: %s",
+          self->priv->plugin_name);
+      break;
+    case MACHINE_VOICES:{
+      const gulong voices = self->priv->voices;
+      self->priv->voices = g_value_get_ulong (value);
+      if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
+        GST_DEBUG_OBJECT (self, "set the voices for machine: %lu -> %lu",
+            voices, self->priv->voices);
+        bt_machine_resize_voices (self, voices);
+      } else if (self->priv->voices > 1) {
+        GST_WARNING_OBJECT (self,
+            "ignoring change in voices  %lu -> %lu for monophonic machine",
+            voices, self->priv->voices);
       }
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+      break;
+    }
+    case MACHINE_STATE:
+      if (bt_machine_change_state (self, g_value_get_enum (value))) {
+        GST_DEBUG_OBJECT (self, "set the state for machine: %d",
+            self->priv->state);
+      }
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
   }
 }
 
-static void bt_machine_dispose(GObject * const object) {
-  const BtMachine * const self = BT_MACHINE(object);
+static void
+bt_machine_dispose (GObject * const object)
+{
+  const BtMachine *const self = BT_MACHINE (object);
   BtSettings *settings;
-  const gulong voices=self->priv->voices;
+  const gulong voices = self->priv->voices;
   gulong i;
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG_OBJECT(self,"!!!! self=%p,%s, song=%p",self,self->priv->id,self->priv->song);
+  GST_DEBUG_OBJECT (self, "!!!! self=%p,%s, song=%p", self, self->priv->id,
+      self->priv->song);
 
   // shut down interaction control setup
-  g_hash_table_destroy(self->priv->control_data);
+  g_hash_table_destroy (self->priv->control_data);
 
   // disconnect notify handlers
-  if(self->priv->song) {
+  if (self->priv->song) {
+    BtSequence *sequence;
     BtSongInfo *song_info;
-    g_object_get((gpointer)(self->priv->song),"song-info",&song_info,NULL);
-    if(song_info) {
-      GST_DEBUG("  disconnecting song-info handlers");
-      g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_machine_on_bpm_changed,(gpointer)self);
-      g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_machine_on_tpb_changed,(gpointer)self);
-      g_object_unref(song_info);
+    g_object_get ((gpointer) (self->priv->song), "sequence", &sequence,
+        "song-info", &song_info, NULL);
+    if (sequence) {
+      GST_DEBUG ("  disconnecting sequence handlers");
+      g_signal_handlers_disconnect_matched (sequence,
+          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+          bt_machine_on_duration_changed, (gpointer) self);
+      g_object_unref (sequence);
+    }
+    if (song_info) {
+      GST_DEBUG ("  disconnecting song-info handlers");
+      g_signal_handlers_disconnect_matched (song_info,
+          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+          bt_machine_on_bpm_changed, (gpointer) self);
+      g_signal_handlers_disconnect_matched (song_info,
+          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+          bt_machine_on_tpb_changed, (gpointer) self);
+      g_object_unref (song_info);
     }
   }
-  settings=bt_settings_make();
-  g_signal_handlers_disconnect_matched(settings,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_machine_on_latency_changed,(gpointer)self);
-  g_object_unref(settings);
+  settings = bt_settings_make ();
+  g_signal_handlers_disconnect_matched (settings,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      bt_machine_on_latency_changed, (gpointer) self);
+  g_object_unref (settings);
 
   // unref the pads
-  for(i=0;i<PART_COUNT;i++) {
-    if(self->priv->src_pads[i])
-      gst_object_unref(self->priv->src_pads[i]);
-    if(self->priv->sink_pads[i])
-      gst_object_unref(self->priv->sink_pads[i]);
+  for (i = 0; i < PART_COUNT; i++) {
+    if (self->priv->src_pads[i])
+      gst_object_unref (self->priv->src_pads[i]);
+    if (self->priv->sink_pads[i])
+      gst_object_unref (self->priv->sink_pads[i]);
   }
 
   // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
-  GST_DEBUG("  releasing song: %p",self->priv->song);
-  g_object_try_weak_unref(self->priv->song);
+  GST_DEBUG ("  releasing song: %p", self->priv->song);
+  g_object_try_weak_unref (self->priv->song);
 
-  GST_DEBUG("  releasing patterns");
+  GST_DEBUG ("  releasing patterns");
   // unref list of patterns
-  if(self->priv->patterns) {
-    GList* node;
-    for(node=self->priv->patterns;node;node=g_list_next(node)) {
-      GST_DEBUG("removing pattern: %p,ref_ct=%d",node->data,G_OBJECT_REF_COUNT(node->data));
+  if (self->priv->patterns) {
+    GList *node;
+    for (node = self->priv->patterns; node; node = g_list_next (node)) {
+      GST_DEBUG ("removing pattern: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (node->data));
       // DEBUG
 #ifdef CHECK_PATTERN_OWNERSHIP
-      g_object_weak_unref((GObject *)node->data,check_pattern_ownership,(gpointer)self);
+      g_object_weak_unref ((GObject *) node->data, check_pattern_ownership,
+          (gpointer) self);
 #endif
       // DEBUG
-      g_object_unref(node->data);
-      node->data=NULL;
+      g_object_unref (node->data);
+      node->data = NULL;
+    }
+  }
+  // unref param groups
+  g_object_try_unref (self->priv->prefs_param_group);
+  g_object_try_unref (self->priv->global_param_group);
+  if (self->priv->voice_param_groups) {
+    for (i = 0; i < voices; i++) {
+      g_object_try_unref (self->priv->voice_param_groups[i]);
     }
   }
 
-  // unref param groups
-  g_object_try_unref(self->priv->global_param_group);
-  for(i=0;i<voices;i++) {
-    g_object_try_unref(self->priv->voice_param_groups[i]);
-  }
-
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(bt_machine_parent_class)->dispose(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (bt_machine_parent_class)->dispose (object);
+  GST_DEBUG ("  done");
 }
 
-static void bt_machine_finalize(GObject * const object) {
-  const BtMachine * const self = BT_MACHINE(object);
+static void
+bt_machine_finalize (GObject * const object)
+{
+  const BtMachine *const self = BT_MACHINE (object);
 
-  GST_DEBUG_OBJECT(self,"!!!! self=%p",self);
+  GST_DEBUG_OBJECT (self, "!!!! self=%p", self);
 
-  g_hash_table_destroy(self->priv->properties);
-  g_free(self->priv->id);
-  g_free(self->priv->plugin_name);
-  g_free(self->priv->voice_param_groups);
+  g_hash_table_destroy (self->priv->properties);
+  g_free (self->priv->id);
+  g_free (self->priv->plugin_name);
+  g_free (self->priv->voice_param_groups);
 
   // free list of patterns
-  if(self->priv->patterns) {
-    g_list_free(self->priv->patterns);
-    self->priv->patterns=NULL;
+  if (self->priv->patterns) {
+    g_list_free (self->priv->patterns);
+    self->priv->patterns = NULL;
   }
 
-  if(self->src_wires) {
-    g_list_free(self->src_wires);
+  if (self->src_wires) {
+    g_list_free (self->src_wires);
   }
-  if(self->dst_wires) {
-    g_list_free(self->dst_wires);
+  if (self->dst_wires) {
+    g_list_free (self->dst_wires);
   }
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(bt_machine_parent_class)->finalize(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (bt_machine_parent_class)->finalize (object);
+  GST_DEBUG ("  done");
 }
 
 //-- class internals
 
-static void bt_machine_init(BtMachine *self) {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE, BtMachinePrivate);
+static void
+bt_machine_init (BtMachine * self)
+{
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MACHINE, BtMachinePrivate);
   // default is no voice, only global params
   //self->priv->voices=1;
-  self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
+  self->priv->properties =
+      g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
-  self->priv->control_data=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)free_control_data);
+  self->priv->control_data =
+      g_hash_table_new_full (NULL, NULL, NULL,
+      (GDestroyNotify) free_control_data);
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG ("!!!! self=%p", self);
 }
 
-static void bt_machine_class_init(BtMachineClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
-  GstElementClass * const gstelement_class = GST_ELEMENT_CLASS(klass);
+static void
+bt_machine_class_init (BtMachineClass * const klass)
+{
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
+  GstElementClass *const gstelement_class = GST_ELEMENT_CLASS (klass);
 
-  error_domain=g_type_qname(BT_TYPE_MACHINE);
-  g_type_class_add_private(klass,sizeof(BtMachinePrivate));
+  error_domain = g_type_qname (BT_TYPE_MACHINE);
+  g_type_class_add_private (klass, sizeof (BtMachinePrivate));
 
-  gobject_class->constructed  = bt_machine_constructed;
+  gobject_class->constructed = bt_machine_constructed;
   gobject_class->set_property = bt_machine_set_property;
   gobject_class->get_property = bt_machine_get_property;
-  gobject_class->dispose      = bt_machine_dispose;
-  gobject_class->finalize     = bt_machine_finalize;
+  gobject_class->dispose = bt_machine_dispose;
+  gobject_class->finalize = bt_machine_finalize;
 
   // disable deep notify
   {
-    GObjectClass *parent_class=g_type_class_peek_static(G_TYPE_OBJECT);
-    gobject_class->dispatch_properties_changed=parent_class->dispatch_properties_changed;
+    GObjectClass *parent_class = g_type_class_peek_static (G_TYPE_OBJECT);
+    gobject_class->dispatch_properties_changed =
+        parent_class->dispatch_properties_changed;
   }
 
   gstelement_class->request_new_pad = bt_machine_request_new_pad;
-  gstelement_class->release_pad     = bt_machine_release_pad;
+  gstelement_class->release_pad = bt_machine_release_pad;
 
   /**
    * BtMachine::pattern-added:
@@ -2694,17 +3421,12 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
    *
    * A new pattern item has been added to the machine
    */
-  signals[PATTERN_ADDED_EVENT] = g_signal_new("pattern-added",
-                                        G_TYPE_FROM_CLASS(klass),
-                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        0,
-                                        NULL, // accumulator
-                                        NULL, // acc data
-                                        g_cclosure_marshal_VOID__OBJECT,
-                                        G_TYPE_NONE, // return type
-                                        1, // n_params
-                                        BT_TYPE_PATTERN // param data
-                                        );
+  signals[PATTERN_ADDED_EVENT] = g_signal_new ("pattern-added", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,        // accumulator
+      NULL,                     // acc data
+      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
+      1,                        // n_params
+      BT_TYPE_PATTERN           // param data
+      );
 
   /**
    * BtMachine::pattern-removed:
@@ -2713,146 +3435,112 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
    *
    * A pattern item has been removed from the machine
    */
-  signals[PATTERN_REMOVED_EVENT] = g_signal_new("pattern-removed",
-                                        G_TYPE_FROM_CLASS(klass),
-                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        0,
-                                        NULL, // accumulator
-                                        NULL, // acc data
-                                        g_cclosure_marshal_VOID__OBJECT,
-                                        G_TYPE_NONE, // return type
-                                        1, // n_params
-                                        BT_TYPE_PATTERN // param data
-                                        );
+  signals[PATTERN_REMOVED_EVENT] = g_signal_new ("pattern-removed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,    // accumulator
+      NULL,                     // acc data
+      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
+      1,                        // n_params
+      BT_TYPE_PATTERN           // param data
+      );
 
-  g_object_class_install_property(gobject_class,MACHINE_CONSTRUCTION_ERROR,
-                                  g_param_spec_pointer("construction-error",
-                                     "construction error prop",
-                                     "signal failed instance creation",
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_CONSTRUCTION_ERROR,
+      g_param_spec_pointer ("construction-error",
+          "construction error prop",
+          "signal failed instance creation",
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_PROPERTIES,
-                                  g_param_spec_pointer("properties",
-                                     "properties prop",
-                                     "hashtable of machine properties",
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_PROPERTIES,
+      g_param_spec_pointer ("properties",
+          "properties prop",
+          "hashtable of machine properties",
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_SONG,
-                                  g_param_spec_object("song",
-                                     "song contruct prop",
-                                     "song object, the machine belongs to",
-                                     BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_SONG,
+      g_param_spec_object ("song", "song contruct prop",
+          "song object, the machine belongs to", BT_TYPE_SONG,
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_ID,
-                                  g_param_spec_string("id",
-                                     "id contruct prop",
-                                     "machine identifier",
-                                     "unamed machine", /* default value */
-                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_ID,
+      g_param_spec_string ("id", "id contruct prop", "machine identifier",
+          "unamed machine",
+          G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_PLUGIN_NAME,
-                                  g_param_spec_string("plugin-name",
-                                     "plugin-name construct prop",
-                                     "the name of the gst plugin for the machine",
-                                     "unamed machine", /* default value */
-                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_PLUGIN_NAME,
+      g_param_spec_string ("plugin-name", "plugin-name construct prop",
+          "the name of the gst plugin for the machine", "unamed machine",
+          G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_VOICES,
-                                  g_param_spec_ulong("voices",
-                                     "voices prop",
-                                     "number of voices in the machine",
-                                     0,
-                                     G_MAXULONG,
-                                     0,
-                                     G_PARAM_CONSTRUCT|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_VOICES,
+      g_param_spec_ulong ("voices",
+          "voices prop",
+          "number of voices in the machine",
+          0,
+          G_MAXULONG,
+          0, G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_GLOBAL_PARAMS,
-                                  g_param_spec_ulong("global-params",
-                                     "global-params prop",
-                                     "number of params for the machine",
-                                     0,
-                                     G_MAXULONG,
-                                     0,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_PREFS_PARAMS,
+      g_param_spec_ulong ("prefs-params",
+          "property-params prop",
+          "number of static params for the machine",
+          0, G_MAXULONG, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_VOICE_PARAMS,
-                                  g_param_spec_ulong("voice-params",
-                                     "voice-params prop",
-                                     "number of params for each machine voice",
-                                     0,
-                                     G_MAXULONG,
-                                     0,
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_GLOBAL_PARAMS,
+      g_param_spec_ulong ("global-params",
+          "global-params prop",
+          "number of dynamic params for the machine",
+          0, G_MAXULONG, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_MACHINE,
-                                  g_param_spec_object("machine",
-                                     "machine element prop",
-                                     "the machine element, if any",
-                                     GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_VOICE_PARAMS,
+      g_param_spec_ulong ("voice-params",
+          "voice-params prop",
+          "number of dynamic params for each machine voice",
+          0, G_MAXULONG, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_ADDER_CONVERT,
-                                  g_param_spec_object("adder-convert",
-                                     "adder-convert prop",
-                                     "the after mixing format converter element, if any",
-                                     GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_MACHINE,
+      g_param_spec_object ("machine", "machine element prop",
+          "the machine element, if any", GST_TYPE_ELEMENT,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_INPUT_PRE_LEVEL,
-                                  g_param_spec_object("input-pre-level",
-                                     "input-pre-level prop",
-                                     "the pre-gain input-level element, if any",
-                                     GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_ADDER_CONVERT,
+      g_param_spec_object ("adder-convert", "adder-convert prop",
+          "the after mixing format converter element, if any", GST_TYPE_ELEMENT,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_INPUT_GAIN,
-                                  g_param_spec_object("input-gain",
-                                     "input-gain prop",
-                                     "the input-gain element, if any",
-                                     GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_INPUT_PRE_LEVEL,
+      g_param_spec_object ("input-pre-level", "input-pre-level prop",
+          "the pre-gain input-level element, if any", GST_TYPE_ELEMENT,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_INPUT_POST_LEVEL,
-                                  g_param_spec_object("input-post-level",
-                                     "input-post-level prop",
-                                     "the post-gain input-level element, if any",
-                                     GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_INPUT_GAIN,
+      g_param_spec_object ("input-gain", "input-gain prop",
+          "the input-gain element, if any", GST_TYPE_ELEMENT,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_OUTPUT_PRE_LEVEL,
-                                  g_param_spec_object("output-pre-level",
-                                     "output-pre-level prop",
-                                     "the pre-gain output-level element, if any",
-                                     GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_INPUT_POST_LEVEL,
+      g_param_spec_object ("input-post-level", "input-post-level prop",
+          "the post-gain input-level element, if any", GST_TYPE_ELEMENT,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_OUTPUT_GAIN,
-                                  g_param_spec_object("output-gain",
-                                     "output-gain prop",
-                                     "the output-gain element, if any",
-                                     GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_OUTPUT_PRE_LEVEL,
+      g_param_spec_object ("output-pre-level", "output-pre-level prop",
+          "the pre-gain output-level element, if any", GST_TYPE_ELEMENT,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_OUTPUT_POST_LEVEL,
-                                  g_param_spec_object("output-post-level",
-                                     "output-post-level prop",
-                                     "the post-gain output-level element, if any",
-                                     GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_OUTPUT_GAIN,
+      g_param_spec_object ("output-gain", "output-gain prop",
+          "the output-gain element, if any", GST_TYPE_ELEMENT,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_PATTERNS,
-                                  g_param_spec_pointer("patterns",
-                                     "pattern list prop",
-                                     "a copy of the list of patterns",
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_OUTPUT_POST_LEVEL,
+      g_param_spec_object ("output-post-level", "output-post-level prop",
+          "the post-gain output-level element, if any", GST_TYPE_ELEMENT,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,MACHINE_STATE,
-                                  g_param_spec_enum("state",
-                                     "state prop",
-                                     "the current state of this machine",
-                                     BT_TYPE_MACHINE_STATE,  /* enum type */
-                                     BT_MACHINE_STATE_NORMAL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, MACHINE_PATTERNS,
+      g_param_spec_pointer ("patterns",
+          "pattern list prop",
+          "a copy of the list of patterns",
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, MACHINE_STATE, g_param_spec_enum ("state", "state prop", "the current state of this machine", BT_TYPE_MACHINE_STATE,  /* enum type */
+          BT_MACHINE_STATE_NORMAL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
-

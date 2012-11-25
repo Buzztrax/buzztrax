@@ -44,17 +44,19 @@
 
 #include "ic_private.h"
 
-enum {
-  CONTROL_DEVICE=1,
+enum
+{
+  CONTROL_DEVICE = 1,
   CONTROL_NAME,
   CONTROL_ID
 };
 
-struct _BtIcControlPrivate {
+struct _BtIcControlPrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
-  G_POINTER_ALIAS(BtIcDevice *,device);
+  BtIcDevice *device;
   gchar *name;
   guint id;
 };
@@ -75,105 +77,130 @@ G_DEFINE_ABSTRACT_TYPE (BtIcControl, btic_control, G_TYPE_OBJECT);
 
 //-- class internals
 
-static void btic_control_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  const BtIcControl * const self = BTIC_CONTROL(object);
-  return_if_disposed();
+static void
+btic_control_get_property (GObject * const object, const guint property_id,
+    GValue * const value, GParamSpec * const pspec)
+{
+  const BtIcControl *const self = BTIC_CONTROL (object);
+  return_if_disposed ();
   switch (property_id) {
-    case CONTROL_DEVICE: {
-      g_value_set_object(value, self->priv->device);
-    } break;
-    case CONTROL_NAME: {
-      g_value_set_string(value, self->priv->name);
-    } break;
-    case CONTROL_ID: {
-      g_value_set_uint(value, self->priv->id);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case CONTROL_DEVICE:
+      g_value_set_object (value, self->priv->device);
+      break;
+    case CONTROL_NAME:
+      g_value_set_string (value, self->priv->name);
+      break;
+    case CONTROL_ID:
+      g_value_set_uint (value, self->priv->id);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
   }
 }
 
-static void btic_control_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtIcControl * const self = BTIC_CONTROL(object);
-  return_if_disposed();
+static void
+btic_control_set_property (GObject * const object, const guint property_id,
+    const GValue * const value, GParamSpec * const pspec)
+{
+  const BtIcControl *const self = BTIC_CONTROL (object);
+  return_if_disposed ();
   switch (property_id) {
-    case CONTROL_DEVICE: {
-      self->priv->device = BTIC_DEVICE(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->device);
-    } break;
-    case CONTROL_NAME: {
-      self->priv->name = g_value_dup_string(value);
-    } break;
-    case CONTROL_ID: {
-      self->priv->id = g_value_get_uint(value);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case CONTROL_DEVICE:
+      self->priv->device = BTIC_DEVICE (g_value_get_object (value));
+      g_object_try_weak_ref (self->priv->device);
+      break;
+    case CONTROL_NAME:{
+      gchar *new_name = g_value_dup_string (value);
+      if (!self->priv->name) {
+        self->priv->name = new_name;
+        GST_DEBUG ("setting initial name '%s'!", self->priv->name);
+      } else {
+        if (BTIC_IS_LEARN (self->priv->device)) {
+          gchar *old_name = self->priv->name;
+          self->priv->name = new_name;
+          GST_DEBUG ("updating name '%s'!", self->priv->name);
+          btic_learn_store_controller_map (BTIC_LEARN (self->priv->device));
+          g_free (old_name);
+        } else {
+          GST_WARNING ("can't change control name '%s'!", self->priv->name);
+          g_free (new_name);
+        }
+      }
+      break;
+    }
+    case CONTROL_ID:
+      self->priv->id = g_value_get_uint (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
   }
 }
 
-static void btic_control_dispose(GObject * const object) {
-  const BtIcControl * const self = BTIC_CONTROL(object);
+static void
+btic_control_dispose (GObject * const object)
+{
+  const BtIcControl *const self = BTIC_CONTROL (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
+  GST_DEBUG ("!!!! self=%p", self);
 
-  g_object_try_weak_unref(self->priv->device);
+  g_object_try_weak_unref (self->priv->device);
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(btic_control_parent_class)->dispose(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (btic_control_parent_class)->dispose (object);
+  GST_DEBUG ("  done");
 }
 
-static void btic_control_finalize(GObject * const object) {
-  const BtIcControl * const self = BTIC_CONTROL(object);
+static void
+btic_control_finalize (GObject * const object)
+{
+  const BtIcControl *const self = BTIC_CONTROL (object);
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG ("!!!! self=%p", self);
 
-  g_free(self->priv->name);
+  g_free (self->priv->name);
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(btic_control_parent_class)->finalize(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (btic_control_parent_class)->finalize (object);
+  GST_DEBUG ("  done");
 }
 
-static void btic_control_init(BtIcControl *self) {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_CONTROL, BtIcControlPrivate);
+static void
+btic_control_init (BtIcControl * self)
+{
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_CONTROL, BtIcControlPrivate);
 }
 
-static void btic_control_class_init(BtIcControlClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+static void
+btic_control_class_init (BtIcControlClass * const klass)
+{
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private(klass,sizeof(BtIcControlPrivate));
+  g_type_class_add_private (klass, sizeof (BtIcControlPrivate));
 
   gobject_class->set_property = btic_control_set_property;
   gobject_class->get_property = btic_control_get_property;
-  gobject_class->dispose      = btic_control_dispose;
-  gobject_class->finalize     = btic_control_finalize;
+  gobject_class->dispose = btic_control_dispose;
+  gobject_class->finalize = btic_control_finalize;
 
-  g_object_class_install_property(gobject_class,CONTROL_DEVICE,
-                                  g_param_spec_object("device",
-                                     "device prop",
-                                     "parent device object",
-                                     BTIC_TYPE_DEVICE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, CONTROL_DEVICE,
+      g_param_spec_object ("device", "device prop", "parent device object",
+          BTIC_TYPE_DEVICE,
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,CONTROL_NAME,
-                                  g_param_spec_string("name",
-                                     "name prop",
-                                     "control name",
-                                     NULL, /* default value */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, CONTROL_NAME,
+      g_param_spec_string ("name", "name prop", "control name", NULL,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,CONTROL_ID,
-                                  g_param_spec_uint("id",
-                                     "id prop",
-                                     "control id (for lookups)",
-                                     0,G_MAXUINT,0,
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, CONTROL_ID,
+      g_param_spec_uint ("id",
+          "id prop",
+          "control id (for lookups)",
+          0, G_MAXUINT, 0,
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
-

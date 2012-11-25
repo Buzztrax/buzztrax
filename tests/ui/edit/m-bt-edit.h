@@ -19,6 +19,7 @@
 
 #include <check.h>
 #include "../../bt-check.h"
+#include "../../bt-check-ui.h"
 #include "../../../src/ui/edit/bt-edit.h"
 
 //-- globals

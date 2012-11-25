@@ -62,7 +62,7 @@ struct _BtSinkBinClass {
  * @BT_SINK_BIN_MODE_PLAY_AND_RECORD: play and record together
  * @BT_SINK_BIN_MODE_PASS_THRU: output audio on sometimes src pad
  *
- * #BtSinkMachine supports several modes of operation. Playing is the default
+ * #BtSinkBin supports several modes of operation. Playing is the default
  * mode. Passthru is only needed if the song is plugged in another pipeline.
  */
 typedef enum {
@@ -82,6 +82,7 @@ typedef enum {
  * @BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC: ogg flac
  * @BT_SINK_BIN_RECORD_FORMAT_MP4_AAC: mp4 aac
  * @BT_SINK_BIN_RECORD_FORMAT_RAW: raw
+ * @BT_SINK_BIN_RECORD_FORMAT_COUNT: number of formats
  *
  * #BtSinkMachine can record audio in several formats.
  */
@@ -91,7 +92,8 @@ typedef enum {
   BT_SINK_BIN_RECORD_FORMAT_WAV,
   BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,
   BT_SINK_BIN_RECORD_FORMAT_MP4_AAC,
-  BT_SINK_BIN_RECORD_FORMAT_RAW
+  BT_SINK_BIN_RECORD_FORMAT_RAW,
+  BT_SINK_BIN_RECORD_FORMAT_COUNT
 } BtSinkBinRecordFormat;
 
 

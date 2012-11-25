@@ -23,33 +23,76 @@
 
 //-- fixtures
 
-static void test_setup(void) {
-  bt_ic_setup();
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  BT_CASE_START;
 }
 
-static void test_teardown(void) {
-  bt_ic_teardown();
-  //puts(__FILE__":teardown");
+static void
+test_setup (void)
+{
+}
+
+static void
+test_teardown (void)
+{
+}
+
+
+static void
+case_teardown (void)
+{
 }
 
 //-- tests
 
-// test if the normal init call works with commandline arguments (no args)
-START_TEST(test_registry_create0) {
-  BtIcRegistry *registry;
+static void
+test_btic_registry_create (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
 
-  registry=btic_registry_new();
-  fail_unless(registry!=NULL, NULL);
+  /* act */
+  BtIcRegistry *registry = btic_registry_new ();
 
-  g_object_checked_unref(registry);
+  /* assert */
+  fail_unless (registry != NULL, NULL);
+
+  /* cleanup */
+  g_object_checked_unref (registry);
+  BT_TEST_END;
 }
-END_TEST
 
-TCase *bt_registry_example_case(void) {
-  TCase *tc = tcase_create("BticRegistryExamples");
+static void
+test_btic_registry_not_empty (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtIcRegistry *registry = btic_registry_new ();
+  btic_registry_add_device ((BtIcDevice *) btic_test_device_new ("test"));
 
-  tcase_add_test(tc,test_registry_create0);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  /* act */
+  GList *devices =
+      (GList *) check_gobject_get_ptr_property (registry, "devices");
+
+  /* assert */
+  fail_unless (devices != NULL, NULL);
+  ck_assert_int_gt (g_list_length (devices), 0);
+
+  /* cleanup */
+  g_object_checked_unref (registry);
+  BT_TEST_END;
+}
+
+TCase *
+bt_registry_example_case (void)
+{
+  TCase *tc = tcase_create ("BticRegistryExamples");
+
+  tcase_add_test (tc, test_btic_registry_create);
+  tcase_add_test (tc, test_btic_registry_not_empty);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

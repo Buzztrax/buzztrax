@@ -65,6 +65,6 @@ GType bt_wavelevel_get_type(void) G_GNUC_CONST;
 #include "song.h"
 #include "wave.h"
 
-BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate, gconstpointer sample);
+BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const GstBtNote root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate, gconstpointer sample);
 
 #endif // BT_WAVELEVEL_H

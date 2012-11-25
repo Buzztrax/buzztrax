@@ -49,7 +49,7 @@ struct _BtMachine {
   const GstBin parent;
 
   /*< public >*/
-  
+
   /*< read-only >*/
   GList *src_wires;
   GList *dst_wires;
@@ -112,16 +112,17 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self);
 
 #include "parameter-group.h"
 #include "pattern.h"
+#include "pattern-control-source.h"
 #include "wire.h"
 
 //-- pattern handling
 
-void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern);
-void bt_machine_remove_pattern(const BtMachine *self, const BtPattern *pattern);
+void bt_machine_add_pattern(const BtMachine *self, const BtCmdPattern *pattern);
+void bt_machine_remove_pattern(const BtMachine *self, const BtCmdPattern *pattern);
 
-BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, const gchar * const id);
-BtPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name);
-BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index);
+BtCmdPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, const gchar * const id);
+BtCmdPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name);
+BtCmdPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index);
 
 gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self);
 gboolean bt_machine_has_patterns(const BtMachine * const self);
@@ -131,13 +132,15 @@ gboolean bt_machine_has_patterns(const BtMachine * const self);
 gboolean bt_machine_is_polyphonic(const BtMachine * const self);
 void bt_machine_set_param_defaults(const BtMachine *const self);
 
+BtParameterGroup *bt_machine_get_prefs_param_group(const BtMachine * const self);
 BtParameterGroup *bt_machine_get_global_param_group(const BtMachine * const self);
 BtParameterGroup *bt_machine_get_voice_param_group(const BtMachine * const self, const gulong voice);
 
 //-- interaction control
 
-void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control);
-void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject *object, const char *property_name);
+void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control, BtParameterGroup *pg);
+void bt_machine_bind_poly_parameter_control(const BtMachine * const self, const gchar * property_name, BtIcControl * control, BtParameterGroup *pg);
+void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name);
 void bt_machine_unbind_parameter_controls(const BtMachine * const self);
 
 //-- settings

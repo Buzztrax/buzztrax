@@ -23,61 +23,92 @@
 
 //-- fixtures
 
-static void test_setup(void) {
-  bt_core_setup();
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  BT_CASE_START;
 }
 
-static void test_teardown(void) {
-  bt_core_teardown();
-  //puts(__FILE__":teardown");
+static void
+test_setup (void)
+{
 }
+
+static void
+test_teardown (void)
+{
+}
+
+static void
+case_teardown (void)
+{
+}
+
 
 //-- tests
 
 // try to create a SongIO object with NULL pointer
-BT_START_TEST(test_btsong_io_obj1) {
-  BtSongIO *song_io;
-  
-  song_io=bt_song_io_from_file(NULL);
-  fail_unless(song_io == NULL, NULL);
+static void
+test_bt_song_io_new_null (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* act */
+  BtSongIO *song_io = bt_song_io_from_file (NULL);
+
+  /*assert */
+  fail_unless (song_io == NULL, NULL);
+  BT_TEST_END;
 }
-BT_END_TEST
 
 // try to create a SongIO object with empty string
-BT_START_TEST(test_btsong_io_obj2) {
-  BtSongIO *song_io;
+static void
+test_bt_song_io_new_empty_filename (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* act */
+  BtSongIO *song_io = bt_song_io_from_file ("");
 
-  song_io=bt_song_io_from_file("");
-  fail_unless(song_io==NULL, NULL);
+  /*assert */
+  fail_unless (song_io == NULL, NULL);
+  BT_TEST_END;
 }
-BT_END_TEST
 
 // try to create a SongIO object from song name without extension
-BT_START_TEST(test_btsong_io_obj3) {
-  BtSongIO *song_io;
+static void
+test_bt_song_io_new_wrong_filename (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* act */
+  BtSongIO *song_io = bt_song_io_from_file ("test");
 
-  song_io=bt_song_io_from_file("test");
-  fail_unless(song_io==NULL, NULL);
+  /*assert */
+  fail_unless (song_io == NULL, NULL);
+  BT_TEST_END;
 }
-BT_END_TEST
 
 // try to create a SongIO object from song name with unknown extension
-BT_START_TEST(test_btsong_io_obj4) {
-  BtSongIO *song_io;
+static void
+test_bt_song_io_new_inexisting_filename (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* act */
+  BtSongIO *song_io = bt_song_io_from_file ("test.unk");
 
-  song_io=bt_song_io_from_file("test.unk");
-  fail_unless(song_io==NULL, NULL);
+  /*assert */
+  fail_unless (song_io == NULL, NULL);
+  BT_TEST_END;
 }
-BT_END_TEST
 
-TCase *bt_song_io_test_case(void) {
-  TCase *tc = tcase_create("BtSongIOTests");
+TCase *
+bt_song_io_test_case (void)
+{
+  TCase *tc = tcase_create ("BtSongIOTests");
 
-  tcase_add_test(tc,test_btsong_io_obj1);
-  tcase_add_test(tc,test_btsong_io_obj2);
-  tcase_add_test(tc,test_btsong_io_obj3);
-  tcase_add_test(tc,test_btsong_io_obj4);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_song_io_new_null);
+  tcase_add_test (tc, test_bt_song_io_new_empty_filename);
+  tcase_add_test (tc, test_bt_song_io_new_wrong_filename);
+  tcase_add_test (tc, test_bt_song_io_new_inexisting_filename);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

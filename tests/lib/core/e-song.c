@@ -21,1184 +21,723 @@
 
 //-- globals
 
-#if 0
-static gboolean play_signal_invoked=FALSE;
-#endif
+static BtApplication *app;
+static gboolean play_signal_invoked = FALSE;
 
 //-- fixtures
 
-static void test_setup(void) {
-  bt_core_setup();
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  BT_CASE_START;
 }
 
-static void test_teardown(void) {
-  bt_core_teardown();
-  //puts(__FILE__":teardown");
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  play_signal_invoked = FALSE;
 }
+
+static void
+test_teardown (void)
+{
+  g_object_checked_unref (app);
+}
+
+static void
+case_teardown (void)
+{
+}
+
+//-- helper
+
+static BtSong *
+make_new_song (void)
+{
+  BtSong *song = bt_song_new (app);
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachine *gen =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+          NULL));
+  bt_wire_new (song, gen, sink, NULL);
+  BtPattern *pattern =
+      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, BT_MACHINE (gen));
+  GstElement *element =
+      (GstElement *) check_gobject_get_object_property (gen, "machine");
+
+  g_object_set (sequence, "length", 64L, NULL);
+  bt_sequence_add_track (sequence, gen, -1);
+  bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
+  bt_sequence_set_pattern (sequence, 16, 0, (BtCmdPattern *) pattern);
+  bt_sequence_set_pattern (sequence, 32, 0, (BtCmdPattern *) pattern);
+  bt_sequence_set_pattern (sequence, 48, 0, (BtCmdPattern *) pattern);
+  g_object_set (element, "wave", /* silence */ 4, NULL);
+
+  gst_object_unref (element);
+  g_object_unref (pattern);
+  g_object_unref (sequence);
+  GST_INFO ("  song created");
+  return song;
+}
+
+// helper method to test the play signal
+static void
+on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
+    gpointer user_data)
+{
+  play_signal_invoked = TRUE;
+  GST_INFO ("got signal");
+}
+
 
 //-- tests
 
-// helper method to test the play signal
-#if 0
-static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
-  play_signal_invoked=TRUE;
-}
-#endif
-
 // test if the default constructor works as expected
-BT_START_TEST(test_btsong_obj1) {
-  BtApplication *app=NULL;
-  BtSong *song;
+static void
+test_bt_song_obj1 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
+  /* act */
+  BtSong *song = bt_song_new (app);
 
-  g_object_checked_unref(song);
+  /* assert */
+  fail_unless (song != NULL, NULL);
+  ck_assert_gobject_object_eq (song, "master", NULL);
 
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_checked_unref (song);
+  BT_TEST_END;
 }
-BT_END_TEST
-
-// test if the song loading works without failure
-BT_START_TEST(test_btsong_load1) {
-  BtApplication *app=NULL;
-  BtSong *song;
-  BtSongIO *loader;
-  gboolean load_ret = FALSE;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  mark_point();
-  fail_unless(loader != NULL, NULL);
-  //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_WARNING);
-  load_ret = bt_song_io_load(loader,song);
-  mark_point();
-  fail_unless(load_ret, NULL);
-
-  mark_point();
-  g_object_checked_unref(loader);
-  mark_point();
-  g_object_checked_unref(song);
-  mark_point();
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-// test if subsequent song loading works without failure
-BT_START_TEST(test_btsong_load2) {
-  BtApplication *app=NULL;
-  BtSong *song;
-  BtSongIO *loader;
-  gboolean load_ret = FALSE;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple2.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-// test if after the song loading everything is there
-BT_START_TEST(test_btsong_load3) {
-  BtApplication *app=NULL;
-  BtSong *song;
-  BtSongIO *loader;
-  gboolean load_ret = FALSE;
-  BtSinkMachine *master;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  mark_point();
-  fail_unless(loader != NULL, NULL);
-  //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_WARNING);
-  load_ret = bt_song_io_load(loader,song);
-  mark_point();
-  fail_unless(load_ret, NULL);
-
-  g_object_get(song,"master",&master,NULL);
-  fail_unless(master != NULL, NULL);
-  g_object_unref(master);
-
-  mark_point();
-  g_object_checked_unref(loader);
-  mark_point();
-  g_object_checked_unref(song);
-  mark_point();
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-// test if the song play routine works without failure
-BT_START_TEST(test_btsong_play1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *loader=NULL;
-  gboolean load_ret = FALSE;
-  gboolean res;
-  gboolean is_playing;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
-
-  //play_signal_invoked=FALSE;
-  //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
-
-  res=bt_song_play(song);
-  fail_unless(res, NULL);
-  
-  // TODO(ensonic): this needs a mainloop!
-  g_usleep(G_USEC_PER_SEC/10);
-  // this song is very short!
-  //g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
-  //fail_unless(is_playing, NULL);
-
-  //fail_unless(play_signal_invoked, NULL);
-  bt_song_stop(song);
-
-  // TODO(ensonic): this needs a mainloop!
-  g_usleep(G_USEC_PER_SEC/10);
-
-  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
-  fail_unless(!is_playing, NULL);
-
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-// play, wait a little, stop, play again
-BT_START_TEST(test_btsong_play2) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *loader=NULL;
-  gboolean load_ret = FALSE;
-  gboolean res;
-  gint i;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
-
-  //play_signal_invoked=FALSE;
-  //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
-
-  for(i=0;i<2;i++) {
-    res=bt_song_play(song);
-    fail_unless(res, NULL);
-  
-    // TODO(ensonic): this needs a mainloop!
-    g_usleep(G_USEC_PER_SEC/10);
-    //fail_unless(play_signal_invoked, NULL);
-    bt_song_stop(song);
-    //play_signal_invoked=FALSE;
-  }
-
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-// load a new song, play, change audiosink to fakesink
-BT_START_TEST(test_btsong_play3) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *loader=NULL;
-  gboolean load_ret = FALSE;
-  gboolean res;
-  BtSettings *settings=bt_settings_make();
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
-
-  //play_signal_invoked=FALSE;
-  //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
-
-  res=bt_song_play(song);
-  fail_unless(res, NULL);
-
-  // TODO(ensonic): this needs a mainloop!
-  g_usleep(G_USEC_PER_SEC/10);
-  
-  // change audiosink
-  g_object_set(settings,"audiosink","fakesink",NULL);
-  
-  //fail_unless(play_signal_invoked, NULL);
-  bt_song_stop(song);
-
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-// change audiosink to NULL, load and play a song
-BT_START_TEST(test_btsong_play4) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *loader=NULL;
-  gboolean load_ret = FALSE;
-  gboolean res;
-  BtSettings *settings=bt_settings_make();
-
-  // change audiosink
-  g_object_set(settings,"audiosink",NULL,"system-audiosink",NULL,NULL);
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
-
-  //play_signal_invoked=FALSE;
-  //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
-
-  res=bt_song_play(song);
-  fail_unless(res, NULL);
-
-  // TODO(ensonic): this needs a mainloop!
-  g_usleep(G_USEC_PER_SEC/10);
-  //fail_unless(play_signal_invoked, NULL);
-  bt_song_stop(song);
-
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
 
 // test, if a newly created song contains empty setup, sequence, song-info and
 // wavetable
-BT_START_TEST(test_btsong_new1){
-  BtApplication *app=NULL,*app2;
-  BtSong *song=NULL,*song2;
-  BtSetup *setup=NULL;
-  BtSequence *sequence=NULL;
-  BtSongInfo *songinfo=NULL;
-  BtWavetable *wavetable=NULL;
+static void
+test_bt_song_obj2 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = bt_song_new (app);
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  g_object_get(song,"app",&app2,NULL);
-  fail_unless(app2==app,NULL);
-  g_object_unref(app2);
+  /* act */
+  BtSetup *setup =
+      (BtSetup *) check_gobject_get_object_property (song, "setup");
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  BtSongInfo *songinfo =
+      (BtSongInfo *) check_gobject_get_object_property (song, "song-info");
+  BtWavetable *wavetable =
+      (BtWavetable *) check_gobject_get_object_property (song, "wavetable");
 
-  // get the setup property
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL,NULL);
-  g_object_get(setup,"song",&song2,NULL);
-  fail_unless(song2==song,NULL);
-  g_object_unref(song2);
-  g_object_unref(setup);
+  /* assert */
+  ck_assert_gobject_object_eq (song, "app", app);
+  fail_unless (setup != NULL, NULL);
+  ck_assert_gobject_object_eq (setup, "song", song);
+  fail_unless (sequence != NULL, NULL);
+  ck_assert_gobject_object_eq (sequence, "song", song);
+  fail_unless (songinfo != NULL, NULL);
+  ck_assert_gobject_object_eq (songinfo, "song", song);
+  fail_unless (wavetable != NULL, NULL);
+  ck_assert_gobject_object_eq (wavetable, "song", song);
 
-  // get the sequence property
-  g_object_get(song,"sequence",&sequence,NULL);
-  fail_unless(sequence!=NULL,NULL);
-  g_object_get(sequence,"song",&song2,NULL);
-  fail_unless(song2==song,NULL);
-  g_object_unref(song2);
-  g_object_unref(sequence);
-
-  // get the song-info property
-  g_object_get(song,"song-info",&songinfo,NULL);
-  fail_unless(songinfo!=NULL,NULL);
-  g_object_get(songinfo,"song",&song2,NULL);
-  fail_unless(song2==song,NULL);
-  g_object_unref(song2);
-  g_object_unref(songinfo);
-
-  // get the wavetable property
-  g_object_get(song,"wavetable",&wavetable,NULL);
-  fail_unless(wavetable!=NULL,NULL);
-  g_object_get(wavetable,"song",&song2,NULL);
-  fail_unless(song2==song,NULL);
-  g_object_unref(song2);
-  g_object_unref(wavetable);
-
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref (setup);
+  g_object_unref (sequence);
+  g_object_unref (songinfo);
+  g_object_unref (wavetable);
+  g_object_checked_unref (song);
+  BT_TEST_END;
 }
-BT_END_TEST
+
+static void
+test_bt_song_master (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = make_new_song ();
+
+  /* assert */
+  ck_assert_gobject_object_ne (song, "master", NULL);
+
+  /* cleanup */
+  g_object_checked_unref (song);
+  BT_TEST_END;
+}
+
+// test if the song play routine works without failure
+static void
+test_bt_song_play_single (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = make_new_song ();
+  g_signal_connect (G_OBJECT (song), "notify::is-playing",
+      G_CALLBACK (on_song_is_playing_notify), NULL);
+
+  /* act */
+  bt_song_play (song);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
+
+  /* assert */
+  fail_unless (play_signal_invoked, NULL);
+  ck_assert_gobject_boolean_eq (song, "is-playing", TRUE);
+
+  /* act */
+  bt_song_stop (song);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+
+  /* assert */
+  ck_assert_gobject_boolean_eq (song, "is-playing", FALSE);
+
+  /* cleanup */
+  g_object_checked_unref (song);
+  BT_TEST_END;
+}
+
+// play, wait a little, stop, play again
+static void
+test_bt_song_play_twice (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = make_new_song ();
+  g_signal_connect (G_OBJECT (song), "notify::is-playing",
+      G_CALLBACK (on_song_is_playing_notify), NULL);
+  bt_song_play (song);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
+  bt_song_stop (song);
+  play_signal_invoked = FALSE;
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+
+  /* act && assert */
+  fail_unless (bt_song_play (song), NULL);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
+  fail_unless (play_signal_invoked, NULL);
+
+  /* cleanup */
+  bt_song_stop (song);
+  g_object_checked_unref (song);
+  BT_TEST_END;
+}
+
+// load a new song, play, change audiosink to fakesink
+static void
+test_bt_song_play_and_change_sink (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSettings *settings = bt_settings_make ();
+  BtSong *song = make_new_song ();
+
+  bt_song_play (song);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
+
+  /* act */
+  g_object_set (settings, "audiosink", "fakesink", NULL);
+
+  /* assert */
+  mark_point ();
+
+  /* cleanup */
+  bt_song_stop (song);
+  g_object_checked_unref (song);
+  BT_TEST_END;
+}
+
+// change audiosink to NULL, load and play a song
+static void
+test_bt_song_play_fallback_sink (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSettings *settings = bt_settings_make ();
+  g_object_set (settings, "audiosink", NULL, "system-audiosink", NULL, NULL);
+  BtSong *song = make_new_song ();
+
+  /* act */
+  fail_unless (bt_song_play (song), NULL);
+
+  /* cleanup */
+  bt_song_stop (song);
+  g_object_checked_unref (song);
+  BT_TEST_END;
+}
 
 // test the idle looper
-BT_START_TEST(test_btsong_idle1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *loader=NULL;
-  gboolean load_ret = FALSE;
+static void
+test_bt_song_idle1 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = make_new_song ();
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
+  /* act */
+  g_object_set (G_OBJECT (song), "is-idle", TRUE, NULL);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+  g_object_set (G_OBJECT (song), "is-idle", FALSE, NULL);
 
-  //play_signal_invoked=FALSE;
-  //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
+  /* assert */
+  mark_point ();
 
-  g_object_set(G_OBJECT(song),"is-idle",TRUE,NULL);
-  
-  // TODO(ensonic): this needs a mainloop!
-  g_usleep(G_USEC_PER_SEC/10);
-  g_object_set(G_OBJECT(song),"is-idle",FALSE,NULL);
-
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_checked_unref (song);
+  BT_TEST_END;
 }
-BT_END_TEST
 
 // test the idle looper and playing transition
-BT_START_TEST(test_btsong_idle2) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *loader=NULL;
-  gboolean load_ret = FALSE;
-  gboolean res;
-  gboolean is_idle,is_playing;
+static void
+test_bt_song_idle2 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = make_new_song ();
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
-
-  g_object_set(G_OBJECT(song),"is-idle",TRUE,NULL);
-
-  // TODO(ensonic): this needs a mainloop!
-  g_usleep(G_USEC_PER_SEC/10);
-  
+  /* act */
+  g_object_set (G_OBJECT (song), "is-idle", TRUE, NULL);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
   // start regular playback, this should stop the idle loop
-  res=bt_song_play(song);
-  fail_unless(res, NULL);
+  bt_song_play (song);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
+  GST_INFO ("playing");
 
-  // TODO(ensonic): this needs a mainloop!
-  g_usleep(G_USEC_PER_SEC/10);
+  /* assert */
+  ck_assert_gobject_boolean_eq (song, "is-playing", TRUE);
+  ck_assert_gobject_boolean_eq (song, "is-idle", TRUE);
 
-  // this song is very short!
-  //g_object_get(G_OBJECT(song),"is-playing",&is_playing,"is-idle",&is_idle,NULL);
-  //fail_unless(is_playing, NULL);
-  //fail_unless(!is_idle, NULL);
+  /* act */
+  bt_song_stop (song);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+  GST_INFO ("stopped");
 
-  bt_song_stop(song);
+  /* assert */
+  ck_assert_gobject_boolean_eq (song, "is-playing", FALSE);
+  ck_assert_gobject_boolean_eq (song, "is-idle", TRUE);
 
-  // TODO(ensonic): this needs a mainloop!
-  g_usleep(G_USEC_PER_SEC/10);
-  
-  g_object_get(G_OBJECT(song),"is-playing",&is_playing,"is-idle",&is_idle,NULL);
-  fail_unless(!is_playing, NULL);
-  fail_unless(is_idle, NULL);
-  
-  g_object_set(G_OBJECT(song),"is-idle",FALSE,NULL);
-
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_set (G_OBJECT (song), "is-idle", FALSE, NULL);
+  g_object_checked_unref (song);
+  BT_TEST_END;
 }
-BT_END_TEST
-
-/*
- * check if we can connect a sine machine to a sink. Also try to play after
- * connecting the machines.
- */
-BT_START_TEST(test_btsong_static1) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  // the song
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtSequence *sequence=NULL;
-  // machines
-  BtMachine *gen1=NULL;
-  BtMachine *sink=NULL;
-  BtMachine *machine;
-  // wires
-  BtWire *wire, *wire1=NULL;
-
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  /* get the song setup and sequence */
-  g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
-  fail_unless(setup!=NULL, NULL);
-
-  /* try to create the sink */
-  sink=BT_MACHINE(bt_sink_machine_new(song,"master",&err));
-  fail_unless(sink!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create generator1 */
-  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0,&err));
-  fail_unless(gen1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* check if we can retrieve the machine via the id */
-  machine=bt_setup_get_machine_by_id(setup,"master");
-  fail_unless(machine==sink, NULL);
-  g_object_unref(machine);
-
-  machine=bt_setup_get_machine_by_id(setup,"generator1");
-  fail_unless(machine==gen1, NULL);
-  g_object_unref(machine);
-
-  /* try to link machines */
-  wire1=bt_wire_new(song, gen1, sink,&err);
-  fail_unless(wire1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* check if we can retrieve the wire via the source machine */
-  wire=bt_setup_get_wire_by_src_machine(setup,gen1);
-  fail_unless(wire==wire1, NULL);
-  g_object_try_unref(wire);
-
-  /* check if we can retrieve the wire via the dest machine */
-  wire=bt_setup_get_wire_by_dst_machine(setup,sink);
-  fail_unless(wire==wire1, NULL);
-  g_object_try_unref(wire);
-
-  /* enlarge the sequence */
-  g_object_set(sequence,"length",1L,"tracks",1L,NULL);
-  bt_sequence_add_track(sequence,gen1,-1);
-
-  /* try to start playing the song */
-  if(bt_song_play(song)) {
-    mark_point();
-    g_usleep(G_USEC_PER_SEC/10);
-    /* stop the song */
-    bt_song_stop(song);
-  } else {
-    fail("playing of network song failed");
-  }
-
-  g_object_unref(gen1);
-  g_object_unref(sink);
-  g_object_unref(wire1);
-  g_object_unref(setup);
-  g_object_unref(sequence);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
 
 /*
  * check if we can connect two sine machines to one sink. Also try to play after
  * connecting the machines.
  */
-BT_START_TEST(test_btsong_static2) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  // the song
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtSequence *sequence=NULL;
-  // machines
-  BtMachine *gen1=NULL,*gen2=NULL;
-  BtMachine *sink=NULL;
-  // wires
-  BtWire *wire1=NULL, *wire2=NULL;
+static void
+test_bt_song_play_two_sources (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = bt_song_new (app);
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachine *gen1 =
+      BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *gen2 =
+      BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
+          NULL));
+  bt_wire_new (song, gen1, sink, NULL);
+  bt_wire_new (song, gen2, sink, NULL);
+  GstElement *element1 =
+      (GstElement *) check_gobject_get_object_property (gen1, "machine");
+  GstElement *element2 =
+      (GstElement *) check_gobject_get_object_property (gen2, "machine");
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  g_object_set (sequence, "length", 16L, NULL);
+  bt_sequence_add_track (sequence, gen1, -1);
+  bt_sequence_add_track (sequence, gen2, -1);
+  g_object_set (element1, "wave", /* silence */ 4, NULL);
+  g_object_set (element2, "wave", /* silence */ 4, NULL);
+  mark_point ();
 
-  /* get the song setup and sequence */
-  g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
-  fail_unless(setup!=NULL, NULL);
-  fail_unless(sequence!=NULL, NULL);
-
-  /* try to create the sink */
-  sink=BT_MACHINE(bt_sink_machine_new(song,"master",&err));
-  fail_unless(sink!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create generator1 */
-  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0,&err));
-  fail_unless(gen1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create generator2 */
-  gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0,&err));
-  fail_unless(gen2!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a wire from gen1 to sink */
-  wire1=bt_wire_new(song, gen1, sink,&err);
-  fail_unless(wire1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a wire from gen2 to sink */
-  wire2=bt_wire_new(song, gen2, sink,&err);
-  fail_unless(wire2!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* enlarge the sequence */
-  g_object_set(sequence,"length",1L,"tracks",2L,NULL);
-  bt_sequence_add_track(sequence,gen1,-1);
-  bt_sequence_add_track(sequence,gen2,-1);
-  mark_point();
-
-  /* try to start playing the song */
-  if(bt_song_play(song)) {
-    mark_point();
-    g_usleep(G_USEC_PER_SEC/10);
+  /* play the song */
+  if (bt_song_play (song)) {
+    mark_point ();
+    g_usleep (G_USEC_PER_SEC / 10);
     /* stop the song */
-    bt_song_stop(song);
+    bt_song_stop (song);
   } else {
-    fail("playing song failed");
+    fail ("playing song failed");
   }
 
-  g_object_unref(gen1);
-  g_object_unref(gen2);
-  g_object_unref(sink);
-  g_object_unref(wire1);
-  g_object_unref(wire2);
-  g_object_unref(setup);
-  g_object_unref(sequence);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  gst_object_unref (element1);
+  gst_object_unref (element2);
+  g_object_unref (sequence);
+  g_object_checked_unref (song);
+  BT_TEST_END;
 }
-BT_END_TEST
 
 /*
  * check if we can connect two sine machines to one effect and this to the
  * sink. Also try to start play after connecting the machines.
  */
-BT_START_TEST(test_btsong_static3) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  // the song
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtSequence *sequence=NULL;
-  BtSongInfo *song_info=NULL;
-  // machines
-  BtMachine *gen1=NULL,*gen2=NULL;
-  BtMachine *proc=NULL;
-  BtMachine *sink=NULL;
-  // wires
-  BtWire *wire1=NULL, *wire2=NULL, *wire3=NULL;
+static void
+test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = bt_song_new (app);
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachine *gen1 =
+      BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *gen2 =
+      BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *proc =
+      BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0, NULL));
+  bt_wire_new (song, gen1, proc, NULL);
+  bt_wire_new (song, gen2, proc, NULL);
+  bt_wire_new (song, proc, sink, NULL);
+  GstElement *element1 =
+      (GstElement *) check_gobject_get_object_property (gen1, "machine");
+  GstElement *element2 =
+      (GstElement *) check_gobject_get_object_property (gen2, "machine");
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  g_object_set (sequence, "length", 16L, NULL);
+  bt_sequence_add_track (sequence, gen1, -1);
+  bt_sequence_add_track (sequence, gen2, -1);
+  g_object_set (element1, "wave", /* silence */ 4, NULL);
+  g_object_set (element2, "wave", /* silence */ 4, NULL);
+  mark_point ();
 
-  /* get the song setup and sequence */
-  g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&song_info,NULL);
-  fail_unless(setup!=NULL, NULL);
-  fail_unless(sequence!=NULL, NULL);
-  fail_unless(song_info!=NULL, NULL);
-  g_object_set(song_info,"name","btsong_example3",NULL);
-
-  /* try to create the sink */
-  sink=BT_MACHINE(bt_sink_machine_new(song,"master",&err));
-  fail_unless(sink!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create generator1 */
-  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0,&err));
-  fail_unless(gen1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create generator2 */
-  gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0,&err));
-  fail_unless(gen2!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a processor with volume */
-  proc=BT_MACHINE(bt_processor_machine_new(song,"processor","volume",0,&err));
-  fail_unless(proc!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a wire from gen1 to proc */
-  wire1=bt_wire_new(song,gen1,proc,&err);
-  fail_unless(wire1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a wire from gen2 to proc */
-  wire2=bt_wire_new(song,gen2,proc,&err);
-  fail_unless(wire2!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a wire from proc to sink */
-  wire3=bt_wire_new(song,proc,sink,&err);
-  fail_unless(wire3!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* enlarge the sequence */
-  g_object_set(sequence,"length",1L,"tracks",2L,NULL);
-  bt_sequence_add_track(sequence,gen1,-1);
-  bt_sequence_add_track(sequence,gen2,-1);
-  mark_point();
-
-  /* try to start playing the song */
-  if(bt_song_play(song)) {
-    mark_point();
-    g_usleep(G_USEC_PER_SEC/10);
+  /* play the song */
+  if (bt_song_play (song)) {
+    mark_point ();
+    g_usleep (G_USEC_PER_SEC / 10);
     /* stop the song */
-    bt_song_stop(song);
+    bt_song_stop (song);
   } else {
-    fail("playing song failed");
+    fail ("playing song failed");
   }
 
-  g_object_unref(gen1);
-  g_object_unref(gen2);
-  g_object_unref(proc);
-  g_object_unref(sink);
-  g_object_unref(wire1);
-  g_object_unref(wire2);
-  g_object_unref(wire3);
-  g_object_unref(setup);
-  g_object_unref(sequence);
-  g_object_unref(song_info);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  gst_object_unref (element1);
+  gst_object_unref (element2);
+  g_object_unref (sequence);
+  g_object_checked_unref (song);
+  BT_TEST_END;
 }
-BT_END_TEST
 
 /*
  * check if we can connect two sine machines to one sink, then play() and
  * stop(). After stopping remove one machine and play again.
  */
-BT_START_TEST(test_btsong_static4) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  // the song
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtSequence *sequence=NULL;
-  BtSongInfo *song_info=NULL;
-  // machines
-  BtMachine *gen1=NULL,*gen2=NULL;
-  BtMachine *sink=NULL;
-  // wires
-  BtWire *wire1=NULL, *wire2=NULL;
-  gboolean res;
+static void
+test_bt_song_play_change_replay (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = bt_song_new (app);
+  BtSetup *setup =
+      (BtSetup *) check_gobject_get_object_property (song, "setup");
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachine *gen1 =
+      BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *gen2 =
+      BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
+          NULL));
+  bt_wire_new (song, gen1, sink, NULL);
+  BtWire *wire2 = bt_wire_new (song, gen2, sink, NULL);
+  GstElement *element1 =
+      (GstElement *) check_gobject_get_object_property (gen1, "machine");
+  GstElement *element2 =
+      (GstElement *) check_gobject_get_object_property (gen2, "machine");
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  g_object_set (sequence, "length", 16L, NULL);
+  bt_sequence_add_track (sequence, gen1, -1);
+  bt_sequence_add_track (sequence, gen2, -1);
+  g_object_set (element1, "wave", /* silence */ 4, NULL);
+  g_object_set (element2, "wave", /* silence */ 4, NULL);
+  mark_point ();
 
-  /* get the song setup and sequence */
-  g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&song_info,NULL);
-  fail_unless(setup!=NULL, NULL);
-  fail_unless(sequence!=NULL, NULL);
-  g_object_set(song_info,"name","btsong_example3",NULL);
-
-  /* try to create the sink */
-  sink=BT_MACHINE(bt_sink_machine_new(song,"master",&err));
-  fail_unless(sink!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create generator1 */
-  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0,&err));
-  fail_unless(gen1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  GST_DEBUG_OBJECT(gen1,"added machine: %p,ref_count=%d",gen1,G_OBJECT_REF_COUNT(gen1));
-
-  /* try to create generator2 */
-  gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0,&err));
-  fail_unless(gen2!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  GST_DEBUG_OBJECT(gen2,"added machine: %p,ref_count=%d",gen2,G_OBJECT_REF_COUNT(gen2));
-
-  /* try to create a wire from gen1 to proc */
-  wire1=bt_wire_new(song,gen1,sink,&err);
-  fail_unless(wire1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  GST_DEBUG_OBJECT(gen1,"linked machine: %p,ref_count=%d",gen1,G_OBJECT_REF_COUNT(gen1));
-
-  /* try to create a wire from gen2 to proc */
-  wire2=bt_wire_new(song,gen2,sink,&err);
-  fail_unless(wire2!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  GST_DEBUG_OBJECT(gen2,"linked machine: %p,ref_count=%d",gen2,G_OBJECT_REF_COUNT(gen2));
-
-  /* enlarge the sequence */
-  g_object_set(sequence,"length",1L,"tracks",2L,NULL);
-  bt_sequence_add_track(sequence,gen1,-1);
-  GST_DEBUG_OBJECT(gen1,"added machine to sequence: %p,ref_count=%d",gen1,G_OBJECT_REF_COUNT(gen1));
-  bt_sequence_add_track(sequence,gen2,-1);
-  GST_DEBUG_OBJECT(gen2,"added machine to sequence: %p,ref_count=%d",gen2,G_OBJECT_REF_COUNT(gen2));
-  mark_point();
-
-  /* try to start playing the song */
-  if(bt_song_play(song)) {
-    mark_point();
-    g_usleep(G_USEC_PER_SEC/10);
+  /* play the song */
+  if (bt_song_play (song)) {
+    mark_point ();
+    g_usleep (G_USEC_PER_SEC / 10);
     /* stop the song */
-    bt_song_stop(song);
+    bt_song_stop (song);
   } else {
-    fail("playing of network song failed");
+    fail ("playing of network song failed");
   }
 
   /* remove one machine */
-  bt_setup_remove_wire(setup,wire2);
-  g_object_unref(wire2);
-  GST_DEBUG_OBJECT(gen2,"unlinked machine: %p,ref_count=%d",gen2,G_OBJECT_REF_COUNT(gen2));
-  res=bt_sequence_remove_track_by_machine(sequence,gen2);
-  fail_unless(res, NULL);
-  bt_setup_remove_machine(setup,gen2);
-  GST_DEBUG_OBJECT(gen2,"removed machine from sequence: %p,ref_count=%d",gen2,G_OBJECT_REF_COUNT(gen2));
-  g_object_unref(gen2);
-  mark_point();
+  bt_setup_remove_wire (setup, wire2);
+  fail_unless (bt_sequence_remove_track_by_machine (sequence, gen2), NULL);
+  bt_setup_remove_machine (setup, gen2);
+  mark_point ();
 
-  /* try to start playing the song again */
-  if(bt_song_play(song)) {
-    mark_point();
-    g_usleep(G_USEC_PER_SEC/10);
+  /* play the song again */
+  if (bt_song_play (song)) {
+    mark_point ();
+    g_usleep (G_USEC_PER_SEC / 10);
     /* stop the song */
-    bt_song_stop(song);
+    bt_song_stop (song);
   } else {
-    fail("playing song failed again");
+    fail ("playing song failed again");
   }
 
-  g_object_unref(gen1);
-  g_object_unref(sink);
-  g_object_unref(wire1);
-  g_object_unref(setup);
-  g_object_unref(sequence);
-  g_object_unref(song_info);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  gst_object_unref (element1);
+  gst_object_unref (element2);
+  g_object_unref (setup);
+  g_object_unref (sequence);
+  g_object_checked_unref (song);
+  BT_TEST_END;
 }
-BT_END_TEST
-
 
 /*
 * check if we can connect a src machine to a sink while playing
 */
-BT_START_TEST(test_btsong_dynamic_add_src) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  // the song
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtSequence *sequence=NULL;
-  // machines
-  BtMachine *gen1=NULL,*gen2=NULL;
-  BtMachine *sink=NULL;
-  // wires
-  BtWire *wire1=NULL, *wire2=NULL;
+static void
+test_bt_song_dynamic_add_src (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = bt_song_new (app);
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachine *gen1 =
+      BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
+          NULL));
+  bt_wire_new (song, gen1, sink, NULL);
+  GstElement *element1 =
+      (GstElement *) check_gobject_get_object_property (gen1, "machine");
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  g_object_set (sequence, "length", 16L, NULL);
+  bt_sequence_add_track (sequence, gen1, -1);
+  g_object_set (element1, "wave", /* silence */ 4, NULL);
 
-  /* get the song setup and sequence */
-  g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
-  fail_unless(setup!=NULL, NULL);
+  /* play the song */
+  if (bt_song_play (song)) {
+    mark_point ();
+    g_usleep (G_USEC_PER_SEC / 10);
+    GST_DEBUG ("song plays");
 
-  /* try to create the sink */
-  sink=BT_MACHINE(bt_sink_machine_new(song,"master",&err));
-  fail_unless(sink!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+    BtMachine *gen2 =
+        BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
+            NULL));
+    GstElement *element2 =
+        (GstElement *) check_gobject_get_object_property (gen2, "machine");
+    g_object_set (element2, "wave", /* silence */ 4, NULL);
+    bt_wire_new (song, gen2, sink, NULL);
+    gst_object_unref (element2);
 
-  /* try to create generator1 */
-  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0,&err));
-  fail_unless(gen1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to link machines */
-  wire1=bt_wire_new(song, gen1, sink,&err);
-  fail_unless(wire1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* enlarge the sequence */
-  g_object_set(sequence,"length",10L,"tracks",1L,NULL);
-  bt_sequence_add_track(sequence,gen1,-1);
-
-  /* try to start playing the song */
-  if(bt_song_play(song)) {
-    mark_point();
-    g_usleep(G_USEC_PER_SEC/10);
-    GST_DEBUG("song plays");
-
-    /* try to create generator1 */
-    gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0,&err));
-    fail_unless(gen2!=NULL, NULL);
-    fail_unless(err==NULL, NULL);
-    GST_DEBUG("generator added");
-
-    /* try to link machines */
-    wire2=bt_wire_new(song, gen2, sink,&err);
-    fail_unless(wire2!=NULL, NULL);
-    fail_unless(err==NULL, NULL);
-    GST_DEBUG("wire added");
-
-    g_usleep(G_USEC_PER_SEC/10);
+    g_usleep (G_USEC_PER_SEC / 10);
 
     /* stop the song */
-    bt_song_stop(song);
+    bt_song_stop (song);
   } else {
-    fail("playing of network song failed");
+    fail ("playing of song failed");
   }
 
-  g_object_unref(gen1);
-  g_object_unref(gen2);
-  g_object_unref(sink);
-  g_object_unref(wire1);
-  g_object_unref(wire2);
-  g_object_unref(setup);
-  g_object_unref(sequence);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref (sequence);
+  g_object_checked_unref (song);
+  BT_TEST_END;
 }
-BT_END_TEST
-
 
 /*
 * check if we can disconnect a src machine from a sink while playing.
 */
-BT_START_TEST(test_btsong_dynamic_rem_src) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  // the song
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtSequence *sequence=NULL;
-  // machines
-  BtMachine *gen1=NULL,*gen2=NULL;
-  BtMachine *sink=NULL;
-  // wires
-  BtWire *wire1=NULL, *wire2=NULL;
+static void
+test_bt_song_dynamic_rem_src (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = bt_song_new (app);
+  BtSetup *setup =
+      (BtSetup *) check_gobject_get_object_property (song, "setup");
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachine *gen1 =
+      BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *gen2 =
+      BT_MACHINE (bt_source_machine_new (song, "gen2", "audiotestsrc", 0L,
+          NULL));
+  bt_wire_new (song, gen1, sink, NULL);
+  BtWire *wire2 = bt_wire_new (song, gen2, sink, NULL);
+  GstElement *element1 =
+      (GstElement *) check_gobject_get_object_property (gen1, "machine");
+  GstElement *element2 =
+      (GstElement *) check_gobject_get_object_property (gen2, "machine");
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  g_object_set (sequence, "length", 16L, NULL);
+  bt_sequence_add_track (sequence, gen1, -1);
+  bt_sequence_add_track (sequence, gen2, -1);
+  g_object_set (element1, "wave", /* silence */ 4, NULL);
+  g_object_set (element2, "wave", /* silence */ 4, NULL);
+  mark_point ();
 
-  /* get the song setup and sequence */
-  g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
-  fail_unless(setup!=NULL, NULL);
+  /* play the song */
+  if (bt_song_play (song)) {
+    mark_point ();
+    g_usleep (G_USEC_PER_SEC / 10);
+    GST_DEBUG ("song plays");
 
-  /* try to create the sink */
-  sink=BT_MACHINE(bt_sink_machine_new(song,"master",&err));
-  fail_unless(sink!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+    /* unlink machines */
+    bt_setup_remove_wire (setup, wire2);
+    GST_DEBUG ("wire removed");
 
-  /* try to create generator1 */
-  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0,&err));
-  fail_unless(gen1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to link machines */
-  wire1=bt_wire_new(song, gen1, sink,&err);
-  fail_unless(wire1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create generator1 */
-  gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0,&err));
-  fail_unless(gen2!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  GST_DEBUG("generator added");
-
-  /* try to link machines */
-  wire2=bt_wire_new(song, gen2, sink,&err);
-  fail_unless(wire2!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  GST_DEBUG("wire added");
-
-  /* enlarge the sequence */
-  g_object_set(sequence,"length",10L,"tracks",1L,NULL);
-  bt_sequence_add_track(sequence,gen1,-1);
-
-  /* try to start playing the song */
-  if(bt_song_play(song)) {
-    mark_point();
-    g_usleep(G_USEC_PER_SEC/10);
-    GST_DEBUG("song plays");
-
-    /* try to unlink machines */
-    bt_setup_remove_wire(setup,wire2);
-    GST_DEBUG("wire removed");
-
-    g_usleep(G_USEC_PER_SEC/10);
+    g_usleep (G_USEC_PER_SEC / 10);
 
     /* stop the song */
-    bt_song_stop(song);
+    bt_song_stop (song);
   } else {
-    fail("playing of network song failed");
+    fail ("playing of song failed");
   }
 
-  g_object_unref(gen1);
-  g_object_unref(gen2);
-  g_object_unref(sink);
-  g_object_unref(wire1);
-  g_object_unref(wire2);
-  g_object_unref(setup);
-  g_object_unref(sequence);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref (setup);
+  g_object_unref (sequence);
+  g_object_checked_unref (song);
+  BT_TEST_END;
 }
-BT_END_TEST
 
 /*
  * check if we can connect a processor machine to a src and sink while playing
  */
-BT_START_TEST(test_btsong_dynamic_add_proc) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  // the song
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtSequence *sequence=NULL;
-  // machines
-  BtMachine *gen1=NULL;
-  BtMachine *proc=NULL;
-  BtMachine *sink=NULL;
-  // wires
-  BtWire *wire1=NULL, *wire2=NULL, *wire3=NULL;
+static void
+test_bt_song_dynamic_add_proc (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = bt_song_new (app);
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachine *gen1 =
+      BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
+          NULL));
+  bt_wire_new (song, gen1, sink, NULL);
+  GstElement *element1 =
+      (GstElement *) check_gobject_get_object_property (gen1, "machine");
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  g_object_set (sequence, "length", 16L, NULL);
+  bt_sequence_add_track (sequence, gen1, -1);
+  g_object_set (element1, "wave", /* silence */ 4, NULL);
+  mark_point ();
 
-  /* get the song setup and sequence */
-  g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
-  fail_unless(setup!=NULL, NULL);
-  fail_unless(sequence!=NULL, NULL);
+  /* play the song */
+  if (bt_song_play (song)) {
+    mark_point ();
+    g_usleep (G_USEC_PER_SEC / 10);
+    GST_DEBUG ("song plays");
 
-  /* try to create the sink */
-  sink=BT_MACHINE(bt_sink_machine_new(song,"master",&err));
-  fail_unless(sink!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+    BtMachine *proc =
+        BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0, NULL));
+    bt_wire_new (song, gen1, proc, NULL);
+    bt_wire_new (song, proc, sink, NULL);
 
-  /* try to create generator1 */
-  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0,&err));
-  fail_unless(gen1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a wire from gen1 to sink */
-  wire1=bt_wire_new(song,gen1,sink,&err);
-  fail_unless(wire1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  GST_DEBUG("wire added");
-
-  /* enlarge the sequence */
-  g_object_set(sequence,"length",10L,"tracks",1L,NULL);
-  bt_sequence_add_track(sequence,gen1,-1);
-  mark_point();
-
-  /* try to start playing the song */
-  if(bt_song_play(song)) {
-    mark_point();
-    g_usleep(G_USEC_PER_SEC/10);
-    GST_DEBUG("song plays");
-
-    /* try to create a processor with volume */
-    proc=BT_MACHINE(bt_processor_machine_new(song,"processor","volume",0,&err));
-    fail_unless(proc!=NULL, NULL);
-    fail_unless(err==NULL, NULL);
-
-    /* try to create a wire from gen1 to proc */
-    wire2=bt_wire_new(song,gen1,proc,&err);
-    fail_unless(wire2!=NULL, NULL);
-    fail_unless(err==NULL, NULL);
-  
-    /* try to create a wire from proc to sink */
-    wire3=bt_wire_new(song,proc,sink,&err);
-    fail_unless(wire3!=NULL, NULL);
-    fail_unless(err==NULL, NULL);
-
-    g_usleep(G_USEC_PER_SEC/10);
+    g_usleep (G_USEC_PER_SEC / 10);
 
     /* stop the song */
-    bt_song_stop(song);
+    bt_song_stop (song);
   } else {
-    fail("playing song failed");
+    fail ("playing song failed");
   }
 
-  g_object_unref(gen1);
-  g_object_unref(proc);
-  g_object_unref(sink);
-  g_object_unref(wire1);
-  g_object_unref(wire2);
-  g_object_unref(wire3);
-  g_object_unref(setup);
-  g_object_unref(sequence);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref (sequence);
+  g_object_checked_unref (song);
+  BT_TEST_END;
 }
-BT_END_TEST
 
 /*
  * check if we can disconnect a processor machine to a src and sink while playing
  */
-BT_START_TEST(test_btsong_dynamic_rem_proc) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  // the song
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtSequence *sequence=NULL;
-  // machines
-  BtMachine *gen1=NULL;
-  BtMachine *proc=NULL;
-  BtMachine *sink=NULL;
-  // wires
-  BtWire *wire1=NULL, *wire2=NULL, *wire3=NULL;
+static void
+test_bt_song_dynamic_rem_proc (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = bt_song_new (app);
+  BtSetup *setup =
+      (BtSetup *) check_gobject_get_object_property (song, "setup");
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachine *gen1 =
+      BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *proc =
+      BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0, NULL));
+  bt_wire_new (song, gen1, proc, NULL);
+  BtWire *wire2 = bt_wire_new (song, gen1, proc, NULL);
+  BtWire *wire3 = bt_wire_new (song, proc, sink, NULL);
+  GstElement *element1 =
+      (GstElement *) check_gobject_get_object_property (gen1, "machine");
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  g_object_set (sequence, "length", 16L, NULL);
+  bt_sequence_add_track (sequence, gen1, -1);
+  g_object_set (element1, "wave", /* silence */ 4, NULL);
+  mark_point ();
 
-  /* get the song setup and sequence */
-  g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
-  fail_unless(setup!=NULL, NULL);
-  fail_unless(sequence!=NULL, NULL);
+  /* play the song */
+  if (bt_song_play (song)) {
+    mark_point ();
+    g_usleep (G_USEC_PER_SEC / 10);
+    GST_DEBUG ("song plays");
 
-  /* try to create the sink */
-  sink=BT_MACHINE(bt_sink_machine_new(song,"master",&err));
-  fail_unless(sink!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+    /* unlink machines */
+    bt_setup_remove_wire (setup, wire2);
+    GST_DEBUG ("wire 2 removed");
 
-  /* try to create generator1 */
-  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0,&err));
-  fail_unless(gen1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+    bt_setup_remove_wire (setup, wire3);
+    GST_DEBUG ("wire 2 removed");
 
-  /* try to create a wire from gen1 to sink */
-  wire1=bt_wire_new(song,gen1,sink,&err);
-  fail_unless(wire1!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-  GST_DEBUG("wire added");
-
-  /* try to create a processor with volume */
-  proc=BT_MACHINE(bt_processor_machine_new(song,"processor","volume",0,&err));
-  fail_unless(proc!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a wire from gen1 to proc */
-  wire2=bt_wire_new(song,gen1,proc,&err);
-  fail_unless(wire2!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a wire from proc to sink */
-  wire3=bt_wire_new(song,proc,sink,&err);
-  fail_unless(wire3!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* enlarge the sequence */
-  g_object_set(sequence,"length",10L,"tracks",1L,NULL);
-  bt_sequence_add_track(sequence,gen1,-1);
-  mark_point();
-
-  /* try to start playing the song */
-  if(bt_song_play(song)) {
-    mark_point();
-    g_usleep(G_USEC_PER_SEC/10);
-    GST_DEBUG("song plays");
-
-    /* try to unlink machines */
-    bt_setup_remove_wire(setup,wire2);
-    GST_DEBUG("wire 2 removed");
-
-    bt_setup_remove_wire(setup,wire3);
-    GST_DEBUG("wire 2 removed");
-
-    g_usleep(G_USEC_PER_SEC/10);
+    g_usleep (G_USEC_PER_SEC / 10);
 
     /* stop the song */
-    bt_song_stop(song);
+    bt_song_stop (song);
   } else {
-    fail("playing song failed");
+    fail ("playing song failed");
   }
 
-  g_object_unref(gen1);
-  g_object_unref(proc);
-  g_object_unref(sink);
-  g_object_unref(wire1);
-  g_object_unref(wire2);
-  g_object_unref(wire3);
-  g_object_unref(setup);
-  g_object_unref(sequence);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref (setup);
+  g_object_unref (sequence);
+  g_object_checked_unref (song);
+  BT_TEST_END;
 }
-BT_END_TEST
 
 /* should we have variants, where we remove the machines instead of the wires? */
+TCase *
+bt_song_example_case (void)
+{
+  TCase *tc = tcase_create ("BtSongExamples");
 
-
-TCase *bt_song_example_case(void) {
-  TCase *tc = tcase_create("BtSongExamples");
-
-  tcase_add_test(tc,test_btsong_obj1);
-  tcase_add_test(tc,test_btsong_load1);
-  tcase_add_test(tc,test_btsong_load2);
-  tcase_add_test(tc,test_btsong_load3);
-  tcase_add_test(tc,test_btsong_play1);
-  tcase_add_test(tc,test_btsong_play2);
-  tcase_add_test(tc,test_btsong_play3);
-  tcase_add_test(tc,test_btsong_play4);
-  tcase_add_test(tc,test_btsong_new1);
-  tcase_add_test(tc,test_btsong_idle1);
-  tcase_add_test(tc,test_btsong_idle2);
-  tcase_add_test(tc,test_btsong_static1);
-  tcase_add_test(tc,test_btsong_static2);
-  tcase_add_test(tc,test_btsong_static3);
-  tcase_add_test(tc,test_btsong_static4);
-  tcase_add_test(tc,test_btsong_dynamic_add_src);
-  tcase_add_test(tc,test_btsong_dynamic_rem_src);
-  tcase_add_test(tc,test_btsong_dynamic_add_proc);
-  tcase_add_test(tc,test_btsong_dynamic_rem_proc);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_song_obj1);
+  tcase_add_test (tc, test_bt_song_obj2);
+  tcase_add_test (tc, test_bt_song_master);
+  tcase_add_test (tc, test_bt_song_play_single);
+  tcase_add_test (tc, test_bt_song_play_twice);
+  tcase_add_test (tc, test_bt_song_play_and_change_sink);
+  tcase_add_test (tc, test_bt_song_play_fallback_sink);
+  tcase_add_test (tc, test_bt_song_idle1);
+  tcase_add_test (tc, test_bt_song_idle2);
+  tcase_add_test (tc, test_bt_song_play_two_sources);
+  tcase_add_test (tc, test_bt_song_play_two_sources_and_one_fx);
+  tcase_add_test (tc, test_bt_song_play_change_replay);
+  tcase_add_test (tc, test_bt_song_dynamic_add_src);
+  tcase_add_test (tc, test_bt_song_dynamic_rem_src);
+  tcase_add_test (tc, test_bt_song_dynamic_add_proc);
+  tcase_add_test (tc, test_bt_song_dynamic_rem_proc);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

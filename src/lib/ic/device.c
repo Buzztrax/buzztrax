@@ -28,27 +28,24 @@
  * first such call. Each activation is counted and thus should be paired with a
  * call to btic_device_stop() to stop the device on the last call.
  *
- * This baseclass manages the added controls. The can be queries by calling
+ * This baseclass manages the added controls. They can be queried by calling
  * btic_device_get_control_by_id() or iterating the list in 
  * BtIcDevice::controls.
- */
-/* TODO(ensonic): need abstract _start() and _stop() method, whenever we bind/unbind a
- *        control we need to call _start/_stop on the respective device. The
- *        methods inc/dec a counter and if the counter is >0 we run the
- *        g_io_channel
  */
 #define BTIC_CORE
 #define BTIC_DEVICE_C
 
 #include "ic_private.h"
 
-enum {
-  DEVICE_UDI=1,
+enum
+{
+  DEVICE_UDI = 1,
   DEVICE_NAME,
-  DEVICE_CONTROL_LIST
+  DEVICE_CONTROLS
 };
 
-struct _BtIcDevicePrivate {
+struct _BtIcDevicePrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -69,25 +66,41 @@ G_DEFINE_ABSTRACT_TYPE (BtIcDevice, btic_device, G_TYPE_OBJECT);
 
 //-- helper
 
-static gint sort_by_name(const gpointer obj1,const gpointer obj2) {
-	gchar *str1,*str2;
-	gchar *str1c,*str2c;
-	gint res;
+static gint
+sort_by_name (const gpointer obj1, const gpointer obj2)
+{
+  gchar *str1, *str2;
+  gchar *str1c, *str2c;
+  gint res;
 
   // TODO(ensonic): this is fragmenting memory :/
   // - we could atleast have a compare func in control
-	g_object_get(obj1,"name",&str1,NULL);
-	g_object_get(obj2,"name",&str2,NULL);
-  str1c=g_utf8_casefold(str1,-1);
-  str2c=g_utf8_casefold(str2,-1);
-  res=g_utf8_collate(str1c,str2c);
+  g_object_get (obj1, "name", &str1, NULL);
+  g_object_get (obj2, "name", &str2, NULL);
+  str1c = g_utf8_casefold (str1, -1);
+  str2c = g_utf8_casefold (str2, -1);
+  res = g_utf8_collate (str1c, str2c);
 
-  g_free(str1c);g_free(str1);
-  g_free(str2c);g_free(str2);
-  return(res);
+  g_free (str1c);
+  g_free (str1);
+  g_free (str2c);
+  g_free (str2);
+  return (res);
 }
 
 //-- handler
+
+static void
+on_control_name_changed (BtIcControl * const control,
+    const GParamSpec * const arg, gconstpointer const user_data)
+{
+  BtIcDevice *self = BTIC_DEVICE (user_data);
+
+  GST_WARNING ("resorting control list");
+  self->priv->controls = g_list_sort (self->priv->controls,
+      (GCompareFunc) sort_by_name);
+  g_object_notify ((GObject *) self, "controls");
+}
 
 //-- constructor methods
 
@@ -101,18 +114,25 @@ static gint sort_by_name(const gpointer obj1,const gpointer obj2) {
  * Add the given @control to the list that the device manages. Takes ownership
  * of the control.
  */
-void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control) {
-	guint id;
-  g_return_if_fail(BTIC_DEVICE(self));
-  g_return_if_fail(BTIC_CONTROL(control));
+void
+btic_device_add_control (const BtIcDevice * self, const BtIcControl * control)
+{
+  guint id;
+  g_return_if_fail (BTIC_DEVICE (self));
+  g_return_if_fail (BTIC_CONTROL (control));
 
-  self->priv->controls=g_list_insert_sorted(self->priv->controls,(gpointer)control,(GCompareFunc)sort_by_name);
+  self->priv->controls =
+      g_list_insert_sorted (self->priv->controls, (gpointer) control,
+      (GCompareFunc) sort_by_name);
 
   // we take the ref and unref when we destroy the device 
-  g_object_get((GObject *)control,"id",&id,NULL);
-  g_hash_table_insert(self->priv->controls_by_id,GUINT_TO_POINTER(id),(gpointer)control);
-  
-  g_object_notify((GObject *)self,"controls");
+  g_object_get ((GObject *) control, "id", &id, NULL);
+  g_hash_table_insert (self->priv->controls_by_id, GUINT_TO_POINTER (id),
+      (gpointer) control);
+
+  g_signal_connect ((GObject *) control, "notify::name",
+      G_CALLBACK (on_control_name_changed), (gpointer) self);
+  g_object_notify ((GObject *) self, "controls");
 }
 
 /**
@@ -126,10 +146,13 @@ void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control)
  *
  * Since: 0.6
  */
-BtIcControl *btic_device_get_control_by_id(const BtIcDevice *self,guint id) {
-  BtIcControl *control=g_hash_table_lookup(self->priv->controls_by_id,GUINT_TO_POINTER(id));
-  
-  return(control);
+BtIcControl *
+btic_device_get_control_by_id (const BtIcDevice * self, guint id)
+{
+  BtIcControl *control =
+      g_hash_table_lookup (self->priv->controls_by_id, GUINT_TO_POINTER (id));
+
+  return (control);
 }
 
 /**
@@ -142,20 +165,26 @@ BtIcControl *btic_device_get_control_by_id(const BtIcDevice *self,guint id) {
  *
  * Since: 0.6
  */
-gboolean btic_device_has_controls(const BtIcDevice *self) {
-  g_return_val_if_fail(BTIC_DEVICE(self),FALSE);
+gboolean
+btic_device_has_controls (const BtIcDevice * self)
+{
+  g_return_val_if_fail (BTIC_DEVICE (self), FALSE);
 
-  return(self->priv->controls!=NULL);
+  return (self->priv->controls != NULL);
 }
 
-static gboolean btic_device_default_start(gconstpointer self) {
-  GST_ERROR("virtual method btic_device_start(self=%p) called",self);
-  return(FALSE);  // this is a base class that can't do anything
+static gboolean
+btic_device_default_start (gconstpointer self)
+{
+  GST_ERROR ("virtual method btic_device_start(self=%p) called", self);
+  return (FALSE);               // this is a base class that can't do anything
 }
 
-static gboolean btic_device_default_stop(gconstpointer self) {
-  GST_ERROR("virtual method btic_device_stop(self=%p) called",self);
-  return(FALSE);  // this is a base class that can't do anything
+static gboolean
+btic_device_default_stop (gconstpointer self)
+{
+  GST_ERROR ("virtual method btic_device_stop(self=%p) called", self);
+  return (FALSE);               // this is a base class that can't do anything
 }
 
 //-- wrapper
@@ -169,15 +198,17 @@ static gboolean btic_device_default_stop(gconstpointer self) {
  *
  * Returns: %TRUE for success
  */
-gboolean btic_device_start(const BtIcDevice *self) {
+gboolean
+btic_device_start (const BtIcDevice * self)
+{
   //const BtIcDevice *self=BTIC_DEVICE(_self);
-  gboolean result=TRUE;
+  gboolean result = TRUE;
 
   self->priv->run_ct++;
-  if(self->priv->run_ct==1) {
-    result=BTIC_DEVICE_GET_CLASS(self)->start(self);
+  if (self->priv->run_ct == 1) {
+    result = BTIC_DEVICE_GET_CLASS (self)->start (self);
   }
-  return(result);
+  return (result);
 }
 
 /**
@@ -189,125 +220,136 @@ gboolean btic_device_start(const BtIcDevice *self) {
  *
  * Returns: %TRUE for success
  */
-gboolean btic_device_stop(const BtIcDevice *self) {
+gboolean
+btic_device_stop (const BtIcDevice * self)
+{
   //const BtIcDevice *self=BTIC_DEVICE(_self);
-  gboolean result=TRUE;
+  gboolean result = TRUE;
 
-  g_assert(self->priv->run_ct>0);
+  g_assert (self->priv->run_ct > 0);
 
   self->priv->run_ct--;
-  if(self->priv->run_ct==0) {
-    result=BTIC_DEVICE_GET_CLASS(self)->stop(self);
+  if (self->priv->run_ct == 0) {
+    result = BTIC_DEVICE_GET_CLASS (self)->stop (self);
   }
-  return(result);
+  return (result);
 }
 
 //-- class internals
 
-static void btic_device_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  const BtIcDevice * const self = BTIC_DEVICE(object);
-  return_if_disposed();
+static void
+btic_device_get_property (GObject * const object, const guint property_id,
+    GValue * const value, GParamSpec * const pspec)
+{
+  const BtIcDevice *const self = BTIC_DEVICE (object);
+  return_if_disposed ();
   switch (property_id) {
-    case DEVICE_UDI: {
-      g_value_set_string(value, self->priv->udi);
-    } break;
-    case DEVICE_NAME: {
-      g_value_set_string(value, self->priv->name);
-    } break;
-    case DEVICE_CONTROL_LIST: {
-      g_value_set_pointer(value,g_list_copy(self->priv->controls));
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case DEVICE_UDI:
+      g_value_set_string (value, self->priv->udi);
+      break;
+    case DEVICE_NAME:
+      g_value_set_string (value, self->priv->name);
+      break;
+    case DEVICE_CONTROLS:
+      g_value_set_pointer (value, g_list_copy (self->priv->controls));
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
   }
 }
 
-static void btic_device_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec) {
-  const BtIcDevice * const self = BTIC_DEVICE(object);
-  return_if_disposed();
+static void
+btic_device_set_property (GObject * const object, const guint property_id,
+    const GValue * const value, GParamSpec * const pspec)
+{
+  const BtIcDevice *const self = BTIC_DEVICE (object);
+  return_if_disposed ();
   switch (property_id) {
-    case DEVICE_UDI: {
-      self->priv->udi = g_value_dup_string(value);
-    } break;
-    case DEVICE_NAME: {
-      self->priv->name = g_value_dup_string(value);
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case DEVICE_UDI:
+      self->priv->udi = g_value_dup_string (value);
+      break;
+    case DEVICE_NAME:
+      self->priv->name = g_value_dup_string (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
   }
 }
 
-static void btic_device_dispose(GObject * const object) {
-  const BtIcDevice * const self = BTIC_DEVICE(object);
+static void
+btic_device_dispose (GObject * const object)
+{
+  const BtIcDevice *const self = BTIC_DEVICE (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
+  GST_DEBUG ("!!!! self=%p", self);
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(btic_device_parent_class)->dispose(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (btic_device_parent_class)->dispose (object);
+  GST_DEBUG ("  done");
 }
 
-static void btic_device_finalize(GObject * const object) {
-  const BtIcDevice * const self = BTIC_DEVICE(object);
+static void
+btic_device_finalize (GObject * const object)
+{
+  const BtIcDevice *const self = BTIC_DEVICE (object);
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG ("!!!! self=%p", self);
 
-  g_free(self->priv->udi);
-  g_free(self->priv->name);
+  g_free (self->priv->udi);
+  g_free (self->priv->name);
 
-  if(self->priv->controls) {
-    g_list_free(self->priv->controls);
-    self->priv->controls=NULL;
+  if (self->priv->controls) {
+    g_list_free (self->priv->controls);
+    self->priv->controls = NULL;
   }
-  g_hash_table_destroy(self->priv->controls_by_id);
+  g_hash_table_destroy (self->priv->controls_by_id);
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(btic_device_parent_class)->finalize(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (btic_device_parent_class)->finalize (object);
+  GST_DEBUG ("  done");
 }
 
-static void btic_device_init(BtIcDevice *self) {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_DEVICE, BtIcDevicePrivate);
-  
-  self->priv->controls_by_id=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_object_unref);
+static void
+btic_device_init (BtIcDevice * self)
+{
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_DEVICE, BtIcDevicePrivate);
+
+  self->priv->controls_by_id =
+      g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) g_object_unref);
 }
 
-static void btic_device_class_init(BtIcDeviceClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+static void
+btic_device_class_init (BtIcDeviceClass * const klass)
+{
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private(klass,sizeof(BtIcDevicePrivate));
+  g_type_class_add_private (klass, sizeof (BtIcDevicePrivate));
 
   gobject_class->set_property = btic_device_set_property;
   gobject_class->get_property = btic_device_get_property;
-  gobject_class->dispose      = btic_device_dispose;
-  gobject_class->finalize     = btic_device_finalize;
+  gobject_class->dispose = btic_device_dispose;
+  gobject_class->finalize = btic_device_finalize;
 
   klass->start = btic_device_default_start;
-  klass->stop  = btic_device_default_stop;
+  klass->stop = btic_device_default_stop;
 
-  g_object_class_install_property(gobject_class,DEVICE_UDI,
-                                  g_param_spec_string("udi",
-                                     "udi prop",
-                                     "device udi",
-                                     NULL, /* default value */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, DEVICE_UDI,
+      g_param_spec_string ("udi", "udi prop", "device udi", NULL,
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,DEVICE_NAME,
-                                  g_param_spec_string("name",
-                                     "name prop",
-                                     "device name",
-                                     NULL, /* default value */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, DEVICE_NAME,
+      g_param_spec_string ("name", "name prop", "device name", NULL,
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,DEVICE_CONTROL_LIST,
-                                  g_param_spec_pointer("controls",
-                                     "control list prop",
-                                     "A copy of the list of device controls",
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, DEVICE_CONTROLS,
+      g_param_spec_pointer ("controls",
+          "control list prop",
+          "A copy of the list of device controls",
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
-

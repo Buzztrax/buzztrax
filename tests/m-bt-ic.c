@@ -24,60 +24,54 @@
 #include "bt-check.h"
 #include "../src/lib/ic/ic.h"
 
-GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
-GST_DEBUG_CATEGORY_EXTERN(btic_debug);
+GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
+GST_DEBUG_CATEGORY_EXTERN (btic_debug);
 
-extern Suite *bt_ic_suite(void);
-extern Suite *bt_registry_suite(void);
+extern Suite *bt_device_suite (void);
+extern Suite *bt_ic_suite (void);
+extern Suite *bt_learn_suite (void);
+extern Suite *bt_registry_suite (void);
 
-gint test_argc=1;
-gchar test_arg0[]="check_buzzard";
-gchar *test_argv[1];
-gchar **test_argvptr;
+gchar *test_argv[] = { "check_buzzard" };
 
-/* common setup and teardown code */
-void bt_ic_setup(void) {
-}
-
-void bt_ic_teardown(void) {
-}
+gchar **test_argvptr = test_argv;
+gint test_argc = G_N_ELEMENTS (test_argv);
 
 /* start the test run */
-int main(int argc, char **argv) {
-  int nf;
+gint
+main (gint argc, gchar ** argv)
+{
+  gint nf;
   SRunner *sr;
 
-#if !GLIB_CHECK_VERSION (2, 31, 0) 
+#if !GLIB_CHECK_VERSION (2, 31, 0)
   // initialize as soon as possible
-  if(!g_thread_supported()) {
-    g_thread_init(NULL);
+  if (!g_thread_supported ()) {
+    g_thread_init (NULL);
   }
 #endif
 
-  g_type_init();
-  setup_log(argc,argv);
-  setup_log_capture();
-  test_argv[0]=test_arg0;
-  test_argvptr=test_argv;
+  g_type_init ();
+  setup_log_base (argc, argv);
+  setup_log_capture ();
 
-  btic_init(&test_argc,&test_argvptr);
-  gst_init(NULL,NULL);
-  bt_check_init();
+  gst_init (NULL, NULL);
+  btic_init (&test_argc, &test_argvptr);
+  bt_check_init ();
 
   // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG);
-  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(btic_debug,GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+  gst_debug_set_default_threshold (GST_LEVEL_DEBUG);
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
-  sr=srunner_create(bt_ic_suite());
-  srunner_add_suite(sr, bt_registry_suite());
-  srunner_run_all(sr,CK_NORMAL);
-  nf=srunner_ntests_failed(sr);
-  srunner_free(sr);
+  sr = srunner_create (bt_ic_suite ());
+  srunner_add_suite (sr, bt_device_suite ());
+  srunner_add_suite (sr, bt_learn_suite ());
+  srunner_add_suite (sr, bt_registry_suite ());
+  srunner_run_all (sr, CK_NORMAL);
+  nf = srunner_ntests_failed (sr);
+  srunner_free (sr);
 
   //g_mem_profile();
 
-  return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE;
+  return (nf == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

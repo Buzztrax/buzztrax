@@ -11,31 +11,8 @@
 = software to check =
 a2jmidid - daemon for exposing legacy ALSA MIDI in JACK MIDI systems
 
-= note support =
-- how to deal with polyphony?
-  - fire the n events in quick succession
-    - 1:n - here we would need to map the value changes to the voices
- - in core/machine.c we have on_xxx_control_notify functions
- - they get bound via bt_machine_bind_parameter_control()
- - maybe we can have a bt_machine_bind_poly_parameter_control() or have a poly flag
- - the BtControlData
-   - will have a gint voice_ct field
-   - in the poly case we need to lookup the child per voice_ct, set the value
-     and voice_ct++ % self->priv->voices;
-   - voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice_ct);
-   - instead of object, we should store the machine 
-- keys are key-number + velocity
-  - we could expose two controls "note-key", "note-velocity", both abs-range
-    value
-
-- where to assign note controllers?
-  - machines can have several trigger columns
-  - pattern editor columns, don't have specific menus
-    - we could investigate
-  - we could have a line of labels in the machine window, so that we can do the
-    controller assignment
-    - we need to handle voices, means we want to assign the controller only for
-      the global parameters/first voice parameters
+aseqdump
+http://git.alsa-project.org/?p=alsa-utils.git;a=blob_plain;f=seq/aseqdump/aseqdump.c
 
 = mmc support =
 

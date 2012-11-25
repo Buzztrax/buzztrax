@@ -21,107 +21,127 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
-static void test_setup(void) {
-  bt_core_setup();
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  BT_CASE_START;
 }
 
-static void test_teardown(void) {
-  bt_core_teardown();
-  //puts(__FILE__":teardown");
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  song = bt_song_new (app);
 }
+
+static void
+test_teardown (void)
+{
+  g_object_checked_unref (song);
+  g_object_checked_unref (app);
+}
+
+static void
+case_teardown (void)
+{
+}
+
 
 //-- tests
 
-/*
-* try to create a wire with the same machine as source and dest
-*/
-BT_START_TEST(test_btwire_obj1){
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtWire *wire=NULL;
-  // machine
-  BtProcessorMachine *machine=NULL;
+static void
+test_bt_wire_properties (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtMachine *dst =
+      BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0L, NULL));
+  BtWire *wire = bt_wire_new (song, src, dst, NULL);
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
+  /* act & assert */
+  fail_unless (check_gobject_properties ((GObject *) wire), NULL);
 
-  /* try to create a source machine */
-  machine=bt_processor_machine_new(song,"id","volume",0,&err);
-  fail_unless(machine!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to add the machine twice to the wire */
-  wire=bt_wire_new(song,BT_MACHINE(machine),BT_MACHINE(machine),&err);
-  fail_unless(wire!=NULL,NULL);
-  fail_unless(err!=NULL, NULL);
-
-  g_object_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  BT_TEST_END;
 }
-BT_END_TEST
 
-BT_START_TEST(test_btwire_obj2){
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSetup *setup=NULL;
-  BtWire *wire1=NULL;
-  BtWire *wire2=NULL;
-  BtSourceMachine *source=NULL;
-  BtProcessorMachine *sink1=NULL;
-  BtProcessorMachine *sink2=NULL;
+/* create a new wire with NULL for song object */
+static void
+test_bt_wire_new_null_song (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
+  BtMachine *dst =
+      BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0L, NULL));
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  fail_unless(setup!=NULL, NULL);
+  /* act */
+  BtWire *wire = bt_wire_new (NULL, src, dst, NULL);
 
-  /* try to create a source machine */
-  source=bt_source_machine_new(song,"id","audiotestsrc",0,&err);
-  fail_unless(source!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
+  /* assert */
+  fail_unless (wire != NULL, NULL);
 
-  /* try to create a volume machine */
-  sink1=bt_processor_machine_new(song,"volume1","volume",0,&err);
-  fail_unless(sink1!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to create a volume machine */
-  sink2=bt_processor_machine_new(song,"volume2","volume",0,&err);
-  fail_unless(sink2!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to connect source machine to volume1 */
-  wire1=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink1),&err);
-  mark_point();
-  fail_unless(wire1!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-
-  /* try to connect source machine to volume2 */
-  wire2=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink2),&err);
-  mark_point();
-  fail_unless(wire2!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  g_object_unref (wire);        // there is no setup to take ownership :/
+  BT_TEST_END;
 }
-BT_END_TEST
 
-TCase *bt_wire_test_case(void) {
-  TCase *tc = tcase_create("BtWireTests");
+/* create a new wire with NULL for song object */
+static void
+test_bt_wire_new_null_machine (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztard-test-mono-source", 0L, NULL));
 
-  tcase_add_test(tc,test_btwire_obj1);
-  tcase_add_test(tc,test_btwire_obj2);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  /* act */
+  BtWire *wire = bt_wire_new (NULL, src, NULL, NULL);
+
+  /* assert */
+  fail_unless (wire != NULL, NULL);
+
+  /* cleanup */
+  BT_TEST_END;
+}
+
+/* create a wire with the same machine as source and dest */
+static void
+test_bt_wire_same_src_and_dst (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMachine *machine =
+      BT_MACHINE (bt_processor_machine_new (song, "id", "volume", 0, NULL));
+
+  /* act */
+  GError *err = NULL;
+  BtWire *wire = bt_wire_new (song, machine, machine, &err);
+  fail_unless (wire != NULL, NULL);
+  fail_unless (err != NULL, NULL);
+
+  /* cleanup */
+  BT_TEST_END;
+}
+
+TCase *
+bt_wire_test_case (void)
+{
+  TCase *tc = tcase_create ("BtWireTests");
+
+  tcase_add_test (tc, test_bt_wire_properties);
+  tcase_add_test (tc, test_bt_wire_new_null_song);
+  tcase_add_test (tc, test_bt_wire_new_null_machine);
+  tcase_add_test (tc, test_bt_wire_same_src_and_dst);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

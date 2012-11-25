@@ -23,46 +23,63 @@
  * @short_description: testing helpers
  */
 
-#include "bt-check.h"
 #include <sys/types.h>
 #include <signal.h>
-#include <math.h> 
+#include <unistd.h>
+//-- glib
+#include <glib/gstdio.h>
+
+#include "bt-check.h"
 
 #ifdef HAVE_SETRLIMIT
-  #include <sys/time.h>
-  #include <sys/resource.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #endif
 
-void bt_check_init(void) {
-  extern gboolean bt_test_plugin_init (GstPlugin * plugin);
-  gst_plugin_register_static(GST_VERSION_MAJOR,
-    GST_VERSION_MINOR,
-    "bt-test",
-    "buzztard test plugin - several unit test support elements",
-    bt_test_plugin_init,
-    VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
+/* this is needed for a hack to make glib log lines gst-debug log alike
+ * Using gst_debug_log would require use to set debug categories for each GLib
+ * log domain.
+ */
+static GstClockTime _priv_gst_info_start_time;
 
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
+void
+bt_check_init (void)
+{
+  _priv_gst_info_start_time = gst_util_get_timestamp ();
+  extern gboolean bt_test_plugin_init (GstPlugin * plugin);
+  gst_plugin_register_static (GST_VERSION_MAJOR,
+      GST_VERSION_MINOR,
+      "bt-test",
+      "buzztard test plugin - several unit test support elements",
+      bt_test_plugin_init,
+      VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
+
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-check", 0,
+      "music production environment / unit tests");
+  // disable logging from gstreamer itself
+  gst_debug_remove_log_function (gst_debug_log_default);
   // no ansi color codes in logfiles please
-  gst_debug_set_colored(FALSE);
+  gst_debug_set_colored (FALSE);
   // use our dummy settings
-  bt_settings_set_factory((BtSettingsFactory)bt_test_settings_new);
+  bt_settings_set_factory ((BtSettingsFactory) bt_test_settings_new);
 
 #ifdef HAVE_SETRLIMIT
   // only fork mode limit cpu/mem usage
   const gchar *mode = g_getenv ("CK_FORK");
-  if (!mode || strcmp(mode, "no")) {
+  if (!mode || strcmp (mode, "no")) {
     struct rlimit rl;
 
     rl.rlim_max = RLIM_INFINITY;
     // limit cpu in seconds
     rl.rlim_cur = 20;
-    if(setrlimit(RLIMIT_CPU,&rl)<0) perror("setrlimit(RLIMIT_CPU) failed");
-    // limit process’s virtual memory in bytes
+    if (setrlimit (RLIMIT_CPU, &rl) < 0)
+      perror ("setrlimit(RLIMIT_CPU) failed");
+    // limit process’s data size in bytes
     // if we get failing tests and "mmap() failed: Cannot allocate memory"
-    // this limmit needs to be increased
-    rl.rlim_cur = 1024 * 1024 * 1024; // 1024 Mb = 1GB
-    if(setrlimit(RLIMIT_AS,&rl)<0) perror("setrlimit(RLIMIT_AS) failed");
+    // this limit needs to be increased
+    rl.rlim_cur = 515 * 1024 * 1024;    // 0.5GB
+    if (setrlimit (RLIMIT_DATA, &rl) < 0)
+      perror ("setrlimit(RLIMIT_DATA) failed");
   }
 #endif
 }
@@ -73,22 +90,32 @@ void bt_check_init(void) {
  * Check for certain log-output.
  */
 
-static gboolean __check_error_trapped=FALSE;
-static gchar *__check_method=NULL;
-static gchar *__check_test=NULL;
-static GLogLevelFlags __fatal_mask=0;
+static gboolean __check_error_trapped = FALSE;
+static gchar *__check_method = NULL;
+static gchar *__check_test = NULL;
+static GLogLevelFlags __fatal_mask = 0;
 
-// is set during setup_log_capture()
-static gchar *__log_file_name=NULL;
+#define FALLBACK_LOG_FILE_NAME \
+    G_DIR_SEPARATOR_S "tmp" G_DIR_SEPARATOR_S "" PACKAGE_NAME ".log"
+
+// set during setup_log_*() and leaked :/
+static const gchar *__log_root = NULL;  // /tmp
+static gchar *__log_base = NULL;        // the test binary
+static gchar *__log_case = NULL;        // the test case
+static const gchar *__log_test = NULL;  // the actual test
+static gchar *__log_file_name = NULL;
 
 /*
  * Install a new error trap for function and output.
  */
-void check_init_error_trapp(gchar *method, gchar *test) {
-  __check_method=method;
-  __check_test=test;
-  __check_error_trapped=FALSE;
-  __fatal_mask=g_log_set_always_fatal(G_LOG_FATAL_MASK);
+void
+check_init_error_trapp (gchar * method, gchar * test)
+{
+  __check_method = method;
+  __check_test = test;
+  __check_error_trapped = FALSE;
+  // in case the test suite made warnings and criticals fatal
+  __fatal_mask = g_log_set_always_fatal (G_LOG_FATAL_MASK);
 }
 
 /*
@@ -96,43 +123,82 @@ void check_init_error_trapp(gchar *method, gchar *test) {
  * If Gstreamer has not been compiled using --gst-enable-debug, this returns
  * %TRUE as there is no logoutput at all.
  */
-gboolean check_has_error_trapped(void) {
-  g_log_set_always_fatal(__fatal_mask);
+gboolean
+check_has_error_trapped (void)
+{
+  g_log_set_always_fatal (__fatal_mask);
 #ifndef GST_DISABLE_GST_DEBUG
-  return(__check_error_trapped);
+  return (__check_error_trapped);
 #else
-  return(TRUE);
+  return (TRUE);
 #endif
 }
 
+gboolean
+_check_log_contains (gchar * text)
+{
+  FILE *logfile;
+  gchar line[2000];
+  gboolean res = FALSE;
+
+  if (!(logfile = fopen (__log_file_name, "r")))
+    return FALSE;
+
+  while (!feof (logfile)) {
+    if (fgets (line, 1999, logfile)) {
+      if (strstr (line, text)) {
+        res = TRUE;
+        break;
+      }
+    }
+  }
+
+  fclose (logfile);
+  return res;
+}
 
 /*
  * log helper:
  * Helpers for handling glib log-messages.
  */
-
-static void check_print_handler(const gchar * const message) {
-  if(message) {
+static void
+check_print_handler (const gchar * const message)
+{
+  if (message) {
     FILE *logfile;
-    gboolean add_nl=FALSE;
-    guint sl=strlen(message);
+    gboolean add_nl = FALSE;
+    guint sl = strlen (message);
+    gboolean use_stdout = FALSE;
 
     //-- check if messages has no newline
-    if((sl>1) && (message[sl-1]!='\n')) add_nl=TRUE;
+    if ((sl > 1) && (message[sl - 1] != '\n'))
+      add_nl = TRUE;
 
     //-- check message contents
-    if(__check_method  && (strstr(message,__check_method)!=NULL) && __check_test && (strstr(message,__check_test)!=NULL)) __check_error_trapped=TRUE;
-    else if(__check_method && (strstr(message,__check_method)!=NULL) && !__check_test) __check_error_trapped=TRUE;
-    else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
+    if (__check_method && (strstr (message, __check_method) != NULL)
+        && __check_test && (strstr (message, __check_test) != NULL))
+      __check_error_trapped = TRUE;
+    else if (__check_method && (strstr (message, __check_method) != NULL)
+        && !__check_test)
+      __check_error_trapped = TRUE;
+    else if (__check_test && (strstr (message, __check_test) != NULL)
+        && !__check_method)
+      __check_error_trapped = TRUE;
 
-    if((logfile=fopen(__log_file_name, "a")) || (logfile=fopen(__log_file_name, "w"))) {
-      (void)fwrite(message,sl,1,logfile);
-      if(add_nl) (void)fwrite("\n",1,1,logfile);
-      fclose(logfile);
+    if ((logfile = fopen (__log_file_name, "a"))
+        || (logfile = fopen (__log_file_name, "w"))) {
+      use_stdout |= (fwrite (message, sl, 1, logfile) < 0);
+      if (add_nl)
+        use_stdout |= (fwrite ("\n", 1, 1, logfile) < 0);
+      use_stdout |= (fclose (logfile) < 0);
+    } else {
+      use_stdout = TRUE;
     }
-    else { /* Fall back to console output if unable to open file */
-      printf("%s",message);
-      if(add_nl) putchar('\n');
+
+    if (use_stdout) {           /* Fall back to console output if unable to open file */
+      printf ("%s", message);
+      if (add_nl)
+        putchar ('\n');
     }
   }
 }
@@ -147,129 +213,326 @@ static void check_critical_log_handler(const gchar * const log_domain, const GLo
 }
 */
 
-static void check_log_handler(const gchar * const log_domain, const GLogLevelFlags log_level, const gchar * const message, gpointer const user_data) {
-    gchar *msg,*level;
+#if defined (GLIB_SIZEOF_VOID_P) && GLIB_SIZEOF_VOID_P == 8
+#define PTR_FMT "14p"
+#else
+#define PTR_FMT "10p"
+#endif
+#define PID_FMT "5d"
 
-    switch(log_level&G_LOG_LEVEL_MASK) {
-      case G_LOG_LEVEL_ERROR:     level="ERROR";break;
-      case G_LOG_LEVEL_CRITICAL:  level="CRITICAL";break;
-      case G_LOG_LEVEL_WARNING:   level="WARNING";break;
-      case G_LOG_LEVEL_MESSAGE:   level="MESSAGE";break;
-      case G_LOG_LEVEL_INFO:      level="INFO";break;
-      case G_LOG_LEVEL_DEBUG:     level="DEBUG";break;
-      default:                    level="???";break;
-    }
+static void
+check_log_handler (const gchar * const log_domain,
+    const GLogLevelFlags log_level, const gchar * const message,
+    gpointer const user_data)
+{
+  gchar *msg, *level;
+  GstClockTime elapsed;
 
-    msg=g_alloca(strlen(log_domain)+strlen(level)+strlen(message)+3);
-    g_sprintf(msg,"%s-%s %s",log_domain,level,message);
-    check_print_handler(msg);
+  //-- check message contents
+  if (__check_method && (strstr (message, __check_method) != NULL)
+      && __check_test && (strstr (message, __check_test) != NULL))
+    __check_error_trapped = TRUE;
+  else if (__check_method && (strstr (message, __check_method) != NULL)
+      && !__check_test)
+    __check_error_trapped = TRUE;
+  else if (__check_test && (strstr (message, __check_test) != NULL)
+      && !__check_method)
+    __check_error_trapped = TRUE;
+
+  //-- format  
+  switch (log_level & G_LOG_LEVEL_MASK) {
+    case G_LOG_LEVEL_ERROR:
+      level = "ERROR";
+      break;
+    case G_LOG_LEVEL_CRITICAL:
+      level = "CRITICAL";
+      break;
+    case G_LOG_LEVEL_WARNING:
+      level = "WARNING";
+      break;
+    case G_LOG_LEVEL_MESSAGE:
+      level = "MESSAGE";
+      break;
+    case G_LOG_LEVEL_INFO:
+      level = "INFO";
+      break;
+    case G_LOG_LEVEL_DEBUG:
+      level = "DEBUG";
+      break;
+    default:
+      level = "???";
+      break;
+  }
+
+  elapsed =
+      GST_CLOCK_DIFF (_priv_gst_info_start_time, gst_util_get_timestamp ());
+
+  msg = g_alloca (85 + strlen (log_domain) + strlen (level) + strlen (message));
+  g_sprintf (msg,
+      "%" GST_TIME_FORMAT " %" PID_FMT " %" PTR_FMT " %-7s %20s ::: %s",
+      GST_TIME_ARGS (elapsed), getpid (), g_thread_self (), level, log_domain,
+      message);
+  check_print_handler (msg);
 }
 
 #ifndef GST_DISABLE_GST_DEBUG
-static void check_gst_log_handler(GstDebugCategory *category, GstDebugLevel level, const gchar *file,const gchar *function,gint line,GObject *object,GstDebugMessage *_message,gpointer data) G_GNUC_NO_INSTRUMENT;
-static void check_gst_log_handler(GstDebugCategory *category, GstDebugLevel level, const gchar *file,const gchar *function,gint line,GObject *object,GstDebugMessage *_message,gpointer data) {
-  const gchar *message=gst_debug_message_get(_message);
+/* *INDENT-OFF* */
+static void
+check_gst_log_handler (GstDebugCategory * category,
+    GstDebugLevel level, const gchar * file, const gchar * function, gint line,
+    GObject * object, GstDebugMessage * _message, gpointer data)
+    G_GNUC_NO_INSTRUMENT;
+/* *INDENT-ON* */
+
+static void
+check_gst_log_handler (GstDebugCategory * category,
+    GstDebugLevel level, const gchar * file, const gchar * function, gint line,
+    GObject * object, GstDebugMessage * _message, gpointer data)
+{
+  const gchar *message = gst_debug_message_get (_message);
+  gchar *msg, *obj_str;
+  const gchar *level_str, *cat_str;
+  GstClockTime elapsed;
 
   //-- check message contents
-  if(__check_method  && (strstr(function,__check_method)!=NULL) && __check_test && (strstr(message,__check_test)!=NULL)) __check_error_trapped=TRUE;
-  else if(__check_method && (strstr(function,__check_method)!=NULL) && !__check_test) __check_error_trapped=TRUE;
-  else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
+  if (__check_method && (strstr (function, __check_method) != NULL)
+      && __check_test && (strstr (message, __check_test) != NULL))
+    __check_error_trapped = TRUE;
+  else if (__check_method && (strstr (function, __check_method) != NULL)
+      && !__check_test)
+    __check_error_trapped = TRUE;
+  else if (__check_test && (strstr (message, __check_test) != NULL)
+      && !__check_method)
+    __check_error_trapped = TRUE;
+
+  elapsed =
+      GST_CLOCK_DIFF (_priv_gst_info_start_time, gst_util_get_timestamp ());
+  level_str = gst_debug_level_get_name (level);
+  cat_str = gst_debug_category_get_name (category);
+  if (object) {
+    if (GST_IS_OBJECT (object)) {
+      obj_str = g_strdup_printf ("<%s,%" G_OBJECT_REF_COUNT_FMT ">",
+          GST_OBJECT_NAME (object), G_OBJECT_LOG_REF_COUNT (object));
+    } else if (GST_IS_OBJECT (object)) {
+      obj_str = g_strdup_printf ("<%s,%" G_OBJECT_REF_COUNT_FMT ">",
+          G_OBJECT_TYPE_NAME (object), G_OBJECT_LOG_REF_COUNT (object));
+    } else {
+      obj_str = g_strdup_printf ("%p", object);
+    }
+  } else {
+    obj_str = g_strdup ("");
+  }
+
+  msg = g_alloca (95 + strlen (cat_str) + strlen (level_str) + strlen (message)
+      + strlen (file) + strlen (function) + strlen (obj_str));
+  g_sprintf (msg,
+      "%" GST_TIME_FORMAT " %" PID_FMT " %" PTR_FMT " %-7s %20s %s:%d:%s:%s %s",
+      GST_TIME_ARGS (elapsed), getpid (), g_thread_self (),
+      level_str, cat_str, file, line, function, obj_str, message);
+  g_free (obj_str);
+  check_print_handler (msg);
 }
 #endif
 
+static void
+reset_log (gchar * path, gchar * file)
+{
+  if (path) {
+    g_mkdir_with_parents (path, 0755);
+  }
+  g_unlink (file);
+}
+
 /*
- * setup_log:
+ * setup_log_base:
  * @argc: command line argument count received in main()
  * @argv: command line arguments received in main()
  *
  * Initializes the logoutput channel.
  */
-void setup_log(int argc, char **argv) {
-  gchar *basename,*str;
+void
+setup_log_base (gint argc, gchar ** argv)
+{
+  gchar *log, *path;
 
-  __log_file_name="/tmp/buzztard.log";
+  __log_root = g_get_tmp_dir ();
+
   // get basename from argv[0]; -> lt-bt_edit
-  if((str=g_path_get_basename(argv[0]))) {
-    //fprintf(stderr,"name : '%s'\n",str);fflush(stderr);
-    if((basename=g_strdup_printf("%s.log",&str[3]))) {
-      //fprintf(stderr,"basename : '%s'\n",basename);fflush(stderr);
-      // build path rooted in tmpdir (this is a tiny memleak, as we never free __log_file_name)
-      if(!(__log_file_name=g_build_filename(g_get_tmp_dir(),basename,NULL))) {
-        fprintf(stderr,"can't build logname from '%s','%s'\n",g_get_tmp_dir(),basename);fflush(stderr);
-        __log_file_name="/tmp/buzztard.log";
-      }
-      //fprintf(stderr,"logfilename : '%s'\n",__log_file_name);fflush(stderr);
-      g_free(basename);
-    }
-    else {
-      fprintf(stderr,"can't build basename from: '%s'\n",str);fflush(stderr);
-    }
-    g_free(str);
+  if ((log = g_path_get_basename (argv[0]))) {
+    // cut libtool prefix
+    __log_base = g_strdup (&log[3]);
+    g_free (log);
+  } else {
+    fprintf (stderr, "can't get basename from: '%s'\n", argv[0]);
+    fflush (stderr);
+    __log_base = PACKAGE_NAME;
   }
-  else {
-    fprintf(stderr,"can't get basename from: '%s'\n",argv[0]);fflush(stderr);
+
+  log = g_strdup_printf ("%s.log", __log_base);
+  //fprintf(stderr,"logname : '%s'\n",log);fflush(stderr);
+  g_free (__log_file_name);
+  if (!(__log_file_name = g_build_filename (__log_root, log, NULL))) {
+    fprintf (stderr, "can't build logname from '%s','%s'\n", __log_root, log);
+    fflush (stderr);
+    __log_file_name = g_strdup (FALLBACK_LOG_FILE_NAME);
   }
-  // reset logfile
-  g_unlink(__log_file_name);
-  g_setenv("GST_DEBUG_FILE", __log_file_name, TRUE);
+  g_free (log);
+
+  // ensure directory and reset log file
+  path = g_build_filename (__log_root, __log_base, NULL);
+  reset_log (path, __log_file_name);
+  g_free (path);
+}
+
+void
+setup_log_case (const gchar * file_name)
+{
+  gchar *log, *path;
+
+  g_free (__log_case);
+  if ((log = g_path_get_basename (file_name))) {
+    // cut ".c" extension
+    log[strlen (log) - 2] = '\0';
+    __log_case = log;
+  } else {
+    fprintf (stderr, "can't get basename from: '%s'\n", file_name);
+    fflush (stderr);
+    __log_case = g_strdup ("case");
+  }
+
+  log = g_strdup_printf ("%s.log", __log_case);
+  //fprintf(stderr,"logname : '%s'\n",log);fflush(stderr);
+  g_free (__log_file_name);
+  if (!(__log_file_name = g_build_filename (__log_root, __log_base, log, NULL))) {
+    fprintf (stderr, "can't build logname from '%s','%s,'%s'\n",
+        __log_root, __log_base, log);
+    fflush (stderr);
+    __log_file_name = g_strdup (FALLBACK_LOG_FILE_NAME);
+  }
+  g_free (log);
+
+  // ensure directory and reset log file
+  path = g_build_filename (__log_root, __log_base, __log_case, NULL);
+  reset_log (path, __log_file_name);
+  g_free (path);
+}
+
+void
+setup_log_test (const gchar * func_name, gint i)
+{
+  static gchar *case_log_file_name = NULL;
+  gchar *log;
+
+  __log_test = func_name;
+  if (func_name == NULL) {
+    g_free (__log_file_name);
+    __log_file_name = case_log_file_name;
+    return;
+  }
+
+  log = g_strdup_printf ("%s.%d.log", __log_test, i);
+  //fprintf(stderr,"logname : '%s'\n",log);fflush(stderr);
+  case_log_file_name = __log_file_name;
+  if (!(__log_file_name = g_build_filename (__log_root, __log_base, __log_case,
+              log, NULL))) {
+    fprintf (stderr, "can't build logname from '%s','%s,'%s,'%s'\n",
+        __log_root, __log_base, __log_case, log);
+    fflush (stderr);
+    __log_file_name = g_strdup (FALLBACK_LOG_FILE_NAME);
+  }
+  g_free (log);
+
+  // reset log file
+  reset_log (NULL, __log_file_name);
 }
 
 /*
  * setup_log_capture:
  *
  * Installs own logging handlers to capture and channelize all diagnostic output
- * during testing. In case of probelms that can help to locate the errors.
+ * during testing.
  */
-void setup_log_capture(void) {
-  (void)g_log_set_default_handler(check_log_handler,NULL);
-  (void)g_log_set_handler(G_LOG_DOMAIN  ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("buzztard"    ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("GStreamer"   ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("GLib"        ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("GLib-GObject",G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler(NULL          ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_set_printerr_handler(check_print_handler);
+void
+setup_log_capture (void)
+{
+  (void) g_log_set_default_handler (check_log_handler, NULL);
+  (void) g_log_set_handler (G_LOG_DOMAIN,
+      G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION,
+      check_log_handler, NULL);
+  (void) g_log_set_handler ("buzztard",
+      G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION,
+      check_log_handler, NULL);
+  (void) g_log_set_handler ("GStreamer",
+      G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION,
+      check_log_handler, NULL);
+  (void) g_log_set_handler ("GLib",
+      G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION,
+      check_log_handler, NULL);
+  (void) g_log_set_handler ("GLib-GObject",
+      G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION,
+      check_log_handler, NULL);
+  (void) g_log_set_handler (NULL,
+      G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION,
+      check_log_handler, NULL);
+  (void) g_set_printerr_handler (check_print_handler);
 
 #ifndef GST_DISABLE_GST_DEBUG
-  gst_debug_add_log_function(check_gst_log_handler, NULL);
+  gst_debug_add_log_function (check_gst_log_handler, NULL);
 #endif
 }
 
 
 /*
  * file output tests:
- * Check if certain text has been outputted to a logfile.
+ *
+ * Check if certain text has been outputted to a (text)file. Pass either a
+ * file-handle or a file_name.
  */
 
-gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
-  FILE *input_file;
+gboolean
+check_file_contains_str (FILE * input_file, gchar * input_file_name,
+    gchar * str)
+{
   gchar read_str[1024];
-  gboolean ret=FALSE;
+  gboolean need_close = FALSE;
+  gboolean ret = FALSE;
 
-  g_assert(tmp_file_name);
-  g_assert(str);
+  g_assert (input_file || input_file_name);
+  g_assert (str);
 
-  input_file=fopen(tmp_file_name,"rb");
+  if (!input_file) {
+    input_file = fopen (input_file_name, "rb");
+    need_close = TRUE;
+  } else {
+    fseek (input_file, 0, SEEK_SET);
+  }
   if (!input_file) {
     return ret;
   }
-  while (!feof(input_file)) {
-    if (!fgets(read_str, 1023, input_file)) {
+  while (!feof (input_file)) {
+    if (!fgets (read_str, 1023, input_file)) {
       break;
     }
-    read_str[1023]='\0';
-    if (strstr(read_str, str)) {
-      ret=TRUE;
+    //GST_LOG("[%s]",read_str);
+    read_str[1023] = '\0';
+    if (strstr (read_str, str)) {
+      ret = TRUE;
       break;
     }
   }
-  fclose(input_file);
+  if (need_close) {
+    fclose (input_file);
+  }
   return ret;
 }
 
 
 // runtime test selection via env-var BT_CHECKS
-gboolean _bt_check_run_test_func(const gchar * func_name)
+// injected via out tcase_add_test override
+// we could do this also for suite_add_tcase and srunner_add_suite
+// maybe by treating the env-var as <suite>:<tcase>:<test>
+gboolean
+_bt_check_run_test_func (const gchar * func_name)
 {
   const gchar *checks;
   gboolean res = FALSE;
@@ -293,384 +556,426 @@ gboolean _bt_check_run_test_func(const gchar * func_name)
   return res;
 }
 
+// main loop
+
+static gboolean
+_check_end_main_loop (gpointer user_data)
+{
+  g_main_loop_quit ((GMainLoop *) user_data);
+  return FALSE;
+}
+
+void
+check_run_main_loop_for_usec (gulong usec)
+{
+  GMainLoop *loop = g_main_loop_new (g_main_context_default (), FALSE);
+
+  g_timeout_add_full (G_PRIORITY_HIGH, usec / 1000, _check_end_main_loop, loop,
+      NULL);
+  g_main_loop_run (loop);
+}
+
 // test file access
 
-const gchar *check_get_test_song_path(const gchar *name) {
+const gchar *
+check_get_test_song_path (const gchar * name)
+{
   static gchar path[2048];
 
   // TESTSONGDIR gets defined in Makefile.am and is an absolute path
-  g_snprintf(path,2047,TESTSONGDIR""G_DIR_SEPARATOR_S"%s",name);
-  GST_INFO("build path: '%s'",path);
-  return(path);
+  g_snprintf (path, 2047, TESTSONGDIR "" G_DIR_SEPARATOR_S "%s", name);
+  GST_INFO ("build path: '%s'", path);
+  return (path);
 }
 
 // test plugins
 
-void check_register_plugins(void) {
+void
+check_register_plugins (void)
+{
   // this is a hack to persuade the linker to not optimize out these :(
-  if(!bt_test_mono_source_get_type()) g_print("registering mono-src faild");
+  if (!bt_test_mono_source_get_type ())
+    g_print ("registering mono-src faild");
 }
 
 // property tests
 
-static gboolean check_read_int_param(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_read_int_param (GParamSpec * paramspec, GObject * toCheck)
+{
   gint check;
-  gboolean ret=FALSE;
+  gboolean ret = FALSE;
 
-  g_object_get(toCheck,paramspec->name,&check,NULL);
-  if ((check >= G_PARAM_SPEC_INT(paramspec)->minimum) &&
-      (check <= G_PARAM_SPEC_INT(paramspec)->maximum)) {
-    ret=TRUE;
-  }
-  else {
-    GST_WARNING("property read range check failed for : %s : %d <= %d <= %d",
-      paramspec->name,
-      G_PARAM_SPEC_INT(paramspec)->minimum,
-      check,
-      G_PARAM_SPEC_INT(paramspec)->maximum
-    );
+  g_object_get (toCheck, paramspec->name, &check, NULL);
+  if ((check >= G_PARAM_SPEC_INT (paramspec)->minimum) &&
+      (check <= G_PARAM_SPEC_INT (paramspec)->maximum)) {
+    ret = TRUE;
+  } else {
+    GST_WARNING ("property read range check failed for : %s : %d <= %d <= %d",
+        paramspec->name,
+        G_PARAM_SPEC_INT (paramspec)->minimum,
+        check, G_PARAM_SPEC_INT (paramspec)->maximum);
   }
   return ret;
 }
 
-static gboolean check_read_uint_param(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_read_uint_param (GParamSpec * paramspec, GObject * toCheck)
+{
   guint check;
-  gboolean ret=FALSE;
+  gboolean ret = FALSE;
 
-  g_object_get(toCheck,paramspec->name,&check,NULL);
-  if ((check >= G_PARAM_SPEC_UINT(paramspec)->minimum) &&
-      (check <= G_PARAM_SPEC_UINT(paramspec)->maximum)) {
-    ret=TRUE;
-  }
-  else {
-    GST_WARNING("property read range check failed for : %s : %u <= %u <= %u",
-      paramspec->name,
-      G_PARAM_SPEC_UINT(paramspec)->minimum,
-      check,
-      G_PARAM_SPEC_UINT(paramspec)->maximum
-    );
+  g_object_get (toCheck, paramspec->name, &check, NULL);
+  if ((check >= G_PARAM_SPEC_UINT (paramspec)->minimum) &&
+      (check <= G_PARAM_SPEC_UINT (paramspec)->maximum)) {
+    ret = TRUE;
+  } else {
+    GST_WARNING ("property read range check failed for : %s : %u <= %u <= %u",
+        paramspec->name,
+        G_PARAM_SPEC_UINT (paramspec)->minimum,
+        check, G_PARAM_SPEC_UINT (paramspec)->maximum);
   }
   return ret;
 }
 
-static gboolean check_read_int64_param(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_read_int64_param (GParamSpec * paramspec, GObject * toCheck)
+{
   gint64 check;
-  gboolean ret=FALSE;
+  gboolean ret = FALSE;
 
-  g_object_get(toCheck,paramspec->name,&check,NULL);
-  if ((check >= G_PARAM_SPEC_INT64(paramspec)->minimum) &&
-      (check <= G_PARAM_SPEC_INT64(paramspec)->maximum)) {
-    ret=TRUE;
-  }
-  else {
-    GST_WARNING("property read range check failed for : %s",paramspec->name);
+  g_object_get (toCheck, paramspec->name, &check, NULL);
+  if ((check >= G_PARAM_SPEC_INT64 (paramspec)->minimum) &&
+      (check <= G_PARAM_SPEC_INT64 (paramspec)->maximum)) {
+    ret = TRUE;
+  } else {
+    GST_WARNING ("property read range check failed for : %s", paramspec->name);
   }
   return ret;
 }
 
-static gboolean check_read_long_param(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_read_long_param (GParamSpec * paramspec, GObject * toCheck)
+{
   glong check;
-  gboolean ret=FALSE;
+  gboolean ret = FALSE;
 
-  g_object_get(toCheck,paramspec->name,&check,NULL);
-  if ((check >= G_PARAM_SPEC_LONG(paramspec)->minimum) &&
-      (check <= G_PARAM_SPEC_LONG(paramspec)->maximum)) {
-    ret=TRUE;
-  }
-  else {
-    GST_WARNING("property read range check failed for : %s : %ld <= %ld <= %ld",
-      paramspec->name,
-      G_PARAM_SPEC_LONG(paramspec)->minimum,
-      check,
-      G_PARAM_SPEC_LONG(paramspec)->maximum
-    );
+  g_object_get (toCheck, paramspec->name, &check, NULL);
+  if ((check >= G_PARAM_SPEC_LONG (paramspec)->minimum) &&
+      (check <= G_PARAM_SPEC_LONG (paramspec)->maximum)) {
+    ret = TRUE;
+  } else {
+    GST_WARNING
+        ("property read range check failed for : %s : %ld <= %ld <= %ld",
+        paramspec->name, G_PARAM_SPEC_LONG (paramspec)->minimum, check,
+        G_PARAM_SPEC_LONG (paramspec)->maximum);
   }
   return ret;
 }
 
-static gboolean check_read_ulong_param(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_read_ulong_param (GParamSpec * paramspec, GObject * toCheck)
+{
   gulong check;
-  gboolean ret=FALSE;
+  gboolean ret = FALSE;
 
-  g_object_get(toCheck,paramspec->name,&check,NULL);
-  if ((check >= G_PARAM_SPEC_ULONG(paramspec)->minimum) &&
-      (check <= G_PARAM_SPEC_ULONG(paramspec)->maximum)) {
-    ret=TRUE;
-  }
-  else {
-    GST_WARNING("property read range check failed for : %s : %lu <= %lu <= %lu",
-      paramspec->name,
-      G_PARAM_SPEC_ULONG(paramspec)->minimum,
-      check,
-      G_PARAM_SPEC_ULONG(paramspec)->maximum
-    );
+  g_object_get (toCheck, paramspec->name, &check, NULL);
+  if ((check >= G_PARAM_SPEC_ULONG (paramspec)->minimum) &&
+      (check <= G_PARAM_SPEC_ULONG (paramspec)->maximum)) {
+    ret = TRUE;
+  } else {
+    GST_WARNING
+        ("property read range check failed for : %s : %lu <= %lu <= %lu",
+        paramspec->name, G_PARAM_SPEC_ULONG (paramspec)->minimum, check,
+        G_PARAM_SPEC_ULONG (paramspec)->maximum);
   }
   return ret;
 }
 
-static gboolean check_read_property(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_read_property (GParamSpec * paramspec, GObject * toCheck)
+{
   GType param_type;
-  gboolean ret=FALSE;
+  gboolean ret = FALSE;
 
-  param_type=G_PARAM_SPEC_TYPE(paramspec);
-  if(param_type == G_TYPE_PARAM_INT) {
-    ret=check_read_int_param(paramspec, toCheck);
+  param_type = G_PARAM_SPEC_TYPE (paramspec);
+  if (param_type == G_TYPE_PARAM_INT) {
+    ret = check_read_int_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_UINT) {
-    ret=check_read_uint_param(paramspec, toCheck);
+    ret = check_read_uint_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_INT64) {
-    ret=check_read_int64_param(paramspec, toCheck);
+    ret = check_read_int64_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_LONG) {
-    ret=check_read_long_param(paramspec, toCheck);
+    ret = check_read_long_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_ULONG) {
-    ret=check_read_ulong_param(paramspec, toCheck);
-  } else { // no check performed
-    ret=TRUE;
+    ret = check_read_ulong_param (paramspec, toCheck);
+  } else {                      // no check performed
+    ret = TRUE;
   }
   return ret;
 }
 
-static gboolean check_write_int_param(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_write_int_param (GParamSpec * paramspec, GObject * toCheck)
+{
   gint check1, check2;
 
-  check1=G_PARAM_SPEC_INT(paramspec)->minimum;
-  g_object_set(toCheck,paramspec->name,check1,NULL);
+  check1 = G_PARAM_SPEC_INT (paramspec)->minimum;
+  g_object_set (toCheck, paramspec->name, check1, NULL);
 
-  check2=G_PARAM_SPEC_INT(paramspec)->maximum;
-  g_object_set(toCheck,paramspec->name,check2,NULL);
+  check2 = G_PARAM_SPEC_INT (paramspec)->maximum;
+  g_object_set (toCheck, paramspec->name, check2, NULL);
 
   return TRUE;
 }
 
-static gboolean check_write_uint_param(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_write_uint_param (GParamSpec * paramspec, GObject * toCheck)
+{
   guint check1, check2;
 
-  check1=G_PARAM_SPEC_UINT(paramspec)->minimum;
-  g_object_set(toCheck,paramspec->name,check1,NULL);
+  check1 = G_PARAM_SPEC_UINT (paramspec)->minimum;
+  g_object_set (toCheck, paramspec->name, check1, NULL);
 
-  check2=G_PARAM_SPEC_UINT(paramspec)->maximum;
-  g_object_set(toCheck,paramspec->name,check2,NULL);
+  check2 = G_PARAM_SPEC_UINT (paramspec)->maximum;
+  g_object_set (toCheck, paramspec->name, check2, NULL);
 
   return TRUE;
 }
 
-static gboolean check_write_int64_param(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_write_int64_param (GParamSpec * paramspec, GObject * toCheck)
+{
   gint64 check1, check2;
 
-  check1=G_PARAM_SPEC_INT64(paramspec)->minimum;
-  g_object_set(toCheck,paramspec->name,check1,NULL);
+  check1 = G_PARAM_SPEC_INT64 (paramspec)->minimum;
+  g_object_set (toCheck, paramspec->name, check1, NULL);
 
-  check2=G_PARAM_SPEC_INT64(paramspec)->maximum;
-  g_object_set(toCheck,paramspec->name,check2,NULL);
+  check2 = G_PARAM_SPEC_INT64 (paramspec)->maximum;
+  g_object_set (toCheck, paramspec->name, check2, NULL);
 
   return TRUE;
 }
 
-static gboolean check_write_long_param(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_write_long_param (GParamSpec * paramspec, GObject * toCheck)
+{
   glong check1, check2;
 
-  check1=G_PARAM_SPEC_LONG(paramspec)->minimum;
-  g_object_set(toCheck,paramspec->name,check1,NULL);
+  check1 = G_PARAM_SPEC_LONG (paramspec)->minimum;
+  g_object_set (toCheck, paramspec->name, check1, NULL);
 
-  check2=G_PARAM_SPEC_LONG(paramspec)->maximum;
-  g_object_set(toCheck,paramspec->name,check2,NULL);
+  check2 = G_PARAM_SPEC_LONG (paramspec)->maximum;
+  g_object_set (toCheck, paramspec->name, check2, NULL);
 
   return TRUE;
 }
 
-static gboolean check_write_ulong_param(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_write_ulong_param (GParamSpec * paramspec, GObject * toCheck)
+{
   gulong check1, check2;
 
-  check1=G_PARAM_SPEC_ULONG(paramspec)->minimum;
-  g_object_set(toCheck,paramspec->name,check1,NULL);
+  check1 = G_PARAM_SPEC_ULONG (paramspec)->minimum;
+  g_object_set (toCheck, paramspec->name, check1, NULL);
 
-  check2=G_PARAM_SPEC_ULONG(paramspec)->maximum;
-  g_object_set(toCheck,paramspec->name,check2,NULL);
+  check2 = G_PARAM_SPEC_ULONG (paramspec)->maximum;
+  g_object_set (toCheck, paramspec->name, check2, NULL);
 
   return TRUE;
 }
 
-static gboolean check_write_property(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_write_property (GParamSpec * paramspec, GObject * toCheck)
+{
   GType param_type;
-  gboolean ret=FALSE;
+  gboolean ret = FALSE;
 
-  param_type=G_PARAM_SPEC_TYPE(paramspec);
-  if(param_type == G_TYPE_PARAM_INT) {
-    ret=check_write_int_param(paramspec, toCheck);
+  param_type = G_PARAM_SPEC_TYPE (paramspec);
+  if (param_type == G_TYPE_PARAM_INT) {
+    ret = check_write_int_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_UINT) {
-    ret=check_write_uint_param(paramspec, toCheck);
+    ret = check_write_uint_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_INT64) {
-    ret=check_write_int64_param(paramspec, toCheck);
+    ret = check_write_int64_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_LONG) {
-    ret=check_write_long_param(paramspec, toCheck);
+    ret = check_write_long_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_ULONG) {
-    ret=check_write_ulong_param(paramspec, toCheck);
-  } else { // no check performed
-    ret=TRUE;
+    ret = check_write_ulong_param (paramspec, toCheck);
+  } else {                      // no check performed
+    ret = TRUE;
   }
   return ret;
 }
 
-static gboolean check_readwrite_int_param(GParamSpec *paramspec, GObject *toCheck) {
-  gint ival,oval;
-  gboolean ret=TRUE;
+static gboolean
+check_readwrite_int_param (GParamSpec * paramspec, GObject * toCheck)
+{
+  gint ival, oval;
+  gboolean ret = TRUE;
 
-  ival=G_PARAM_SPEC_INT(paramspec)->minimum;
-  g_object_set(toCheck,paramspec->name, ival,NULL);
-  g_object_get(toCheck,paramspec->name,&oval,NULL);
-  if(ival!=oval) {
-    GST_WARNING("property read/write minimum check failed for : %s : %d != %d",
-      paramspec->name,
-      ival,oval
-    );
-    ret=FALSE;
+  ival = G_PARAM_SPEC_INT (paramspec)->minimum;
+  g_object_set (toCheck, paramspec->name, ival, NULL);
+  g_object_get (toCheck, paramspec->name, &oval, NULL);
+  if (ival != oval) {
+    GST_WARNING ("property read/write minimum check failed for : %s : %d != %d",
+        paramspec->name, ival, oval);
+    ret = FALSE;
   }
   /*
-  ival=G_PARAM_SPEC_INT(paramspec)->maximum;
-  g_object_set(toCheck,paramspec->name, ival,NULL);
-  g_object_get(toCheck,paramspec->name,&oval,NULL);
-  if(ival!=oval) {
-    GST_WARNING("property read/write maximum check failed for : %s : %d != %d",
-      paramspec->name,
-      ival,oval
-    );
-    ret=FALSE;
-  }
-  */
+     ival=G_PARAM_SPEC_INT(paramspec)->maximum;
+     g_object_set(toCheck,paramspec->name, ival,NULL);
+     g_object_get(toCheck,paramspec->name,&oval,NULL);
+     if(ival!=oval) {
+     GST_WARNING("property read/write maximum check failed for : %s : %d != %d",
+     paramspec->name,
+     ival,oval
+     );
+     ret=FALSE;
+     }
+   */
   return ret;
 }
 
-static gboolean check_readwrite_uint_param(GParamSpec *paramspec, GObject *toCheck) {
-  guint ival,oval;
-  gboolean ret=TRUE;
+static gboolean
+check_readwrite_uint_param (GParamSpec * paramspec, GObject * toCheck)
+{
+  guint ival, oval;
+  gboolean ret = TRUE;
 
-  ival=G_PARAM_SPEC_UINT(paramspec)->minimum;
-  g_object_set(toCheck,paramspec->name, ival,NULL);
-  g_object_get(toCheck,paramspec->name,&oval,NULL);
-  if(ival!=oval) {
-    GST_WARNING("property read/write minimum check failed for : %s : %u != %u",
-      paramspec->name,
-      ival,oval
-    );
-    ret=FALSE;
+  ival = G_PARAM_SPEC_UINT (paramspec)->minimum;
+  g_object_set (toCheck, paramspec->name, ival, NULL);
+  g_object_get (toCheck, paramspec->name, &oval, NULL);
+  if (ival != oval) {
+    GST_WARNING ("property read/write minimum check failed for : %s : %u != %u",
+        paramspec->name, ival, oval);
+    ret = FALSE;
   }
   /*
-  ival=G_PARAM_SPEC_UINT(paramspec)->maximum;
-  g_object_set(toCheck,paramspec->name, ival,NULL);
-  g_object_get(toCheck,paramspec->name,&oval,NULL);
-  if(ival!=oval) {
-    GST_WARNING("property read/write maximum check failed for : %s : %u != %u",
-      paramspec->name,
-      ival,oval
-    );
-    ret=FALSE;
-  }
-  */
+     ival=G_PARAM_SPEC_UINT(paramspec)->maximum;
+     g_object_set(toCheck,paramspec->name, ival,NULL);
+     g_object_get(toCheck,paramspec->name,&oval,NULL);
+     if(ival!=oval) {
+     GST_WARNING("property read/write maximum check failed for : %s : %u != %u",
+     paramspec->name,
+     ival,oval
+     );
+     ret=FALSE;
+     }
+   */
   return ret;
 }
 
-static gboolean check_readwrite_int64_param(GParamSpec *paramspec, GObject *toCheck) {
-  gint64 ival,oval;
-  gboolean ret=TRUE;
+static gboolean
+check_readwrite_int64_param (GParamSpec * paramspec, GObject * toCheck)
+{
+  gint64 ival, oval;
+  gboolean ret = TRUE;
 
-  ival=G_PARAM_SPEC_INT64(paramspec)->minimum;
-  g_object_set(toCheck,paramspec->name, ival,NULL);
-  g_object_get(toCheck,paramspec->name,&oval,NULL);
-  if(ival!=oval) {
-    GST_WARNING("property read/write minimum check failed for : %s",paramspec->name);
-    ret=FALSE;
+  ival = G_PARAM_SPEC_INT64 (paramspec)->minimum;
+  g_object_set (toCheck, paramspec->name, ival, NULL);
+  g_object_get (toCheck, paramspec->name, &oval, NULL);
+  if (ival != oval) {
+    GST_WARNING ("property read/write minimum check failed for : %s",
+        paramspec->name);
+    ret = FALSE;
   }
   /*
-  ival=G_PARAM_SPEC_INT64(paramspec)->maximum;
-  g_object_set(toCheck,paramspec->name, ival,NULL);
-  g_object_get(toCheck,paramspec->name,&oval,NULL);
-  if(ival!=oval) {
-    GST_WARNING("property read/write maxmum check failed for : %s",paramspec->name);
-    ret=FALSE;
-  }
-  */
+     ival=G_PARAM_SPEC_INT64(paramspec)->maximum;
+     g_object_set(toCheck,paramspec->name, ival,NULL);
+     g_object_get(toCheck,paramspec->name,&oval,NULL);
+     if(ival!=oval) {
+     GST_WARNING("property read/write maxmum check failed for : %s",paramspec->name);
+     ret=FALSE;
+     }
+   */
   return ret;
 }
 
-static gboolean check_readwrite_long_param(GParamSpec *paramspec, GObject *toCheck) {
-  glong ival,oval;
-  gboolean ret=TRUE;
+static gboolean
+check_readwrite_long_param (GParamSpec * paramspec, GObject * toCheck)
+{
+  glong ival, oval;
+  gboolean ret = TRUE;
 
-  ival=G_PARAM_SPEC_LONG(paramspec)->default_value;
-  g_object_set(toCheck,paramspec->name, ival,NULL);
-  g_object_get(toCheck,paramspec->name,&oval,NULL);
-  if(ival!=oval) {
-    GST_WARNING("property read/write default_value check failed for : %s : %ld != %ld",
-      paramspec->name,
-      ival,oval
-    );
-    ret=FALSE;
+  ival = G_PARAM_SPEC_LONG (paramspec)->default_value;
+  g_object_set (toCheck, paramspec->name, ival, NULL);
+  g_object_get (toCheck, paramspec->name, &oval, NULL);
+  if (ival != oval) {
+    GST_WARNING
+        ("property read/write default_value check failed for : %s : %ld != %ld",
+        paramspec->name, ival, oval);
+    ret = FALSE;
   }
   /*
-  ival=G_PARAM_SPEC_LONG(paramspec)->maximum;
-  g_object_set(toCheck,paramspec->name, ival,NULL);
-  g_object_get(toCheck,paramspec->name,&oval,NULL);
-  if(ival!=oval) {
-    GST_WARNING("property read/write maxmum check failed for : %s : %ld != %ld",
-      paramspec->name,
-      ival,oval
-    );
-    ret=FALSE;
-  }
-  */
+     ival=G_PARAM_SPEC_LONG(paramspec)->maximum;
+     g_object_set(toCheck,paramspec->name, ival,NULL);
+     g_object_get(toCheck,paramspec->name,&oval,NULL);
+     if(ival!=oval) {
+     GST_WARNING("property read/write maxmum check failed for : %s : %ld != %ld",
+     paramspec->name,
+     ival,oval
+     );
+     ret=FALSE;
+     }
+   */
   return ret;
 }
 
-static gboolean check_readwrite_ulong_param(GParamSpec *paramspec, GObject *toCheck) {
-  gulong ival,oval;
-  gboolean ret=TRUE;
+static gboolean
+check_readwrite_ulong_param (GParamSpec * paramspec, GObject * toCheck)
+{
+  gulong ival, oval;
+  gboolean ret = TRUE;
 
-  ival=G_PARAM_SPEC_ULONG(paramspec)->default_value;
-  g_object_set(toCheck,paramspec->name, ival,NULL);
-  g_object_get(toCheck,paramspec->name,&oval,NULL);
-  if(ival!=oval) {
-    GST_WARNING("property read/write default_value check failed for : %s : %lu != %lu",
-      paramspec->name,
-      ival,oval
-    );
-    ret=FALSE;
+  ival = G_PARAM_SPEC_ULONG (paramspec)->default_value;
+  g_object_set (toCheck, paramspec->name, ival, NULL);
+  g_object_get (toCheck, paramspec->name, &oval, NULL);
+  if (ival != oval) {
+    GST_WARNING
+        ("property read/write default_value check failed for : %s : %lu != %lu",
+        paramspec->name, ival, oval);
+    ret = FALSE;
   }
   /*
-  ival=G_PARAM_SPEC_ULONG(paramspec)->maximum;
-  g_object_set(toCheck,paramspec->name, ival,NULL);
-  g_object_get(toCheck,paramspec->name,&oval,NULL);
-  if(ival!=oval) {
-    GST_WARNING("property read/write maxmum check failed for : %s : %lu != %lu",
-      paramspec->name,
-      ival,oval
-    );
-    ret=FALSE;
-  }
-  */
+     ival=G_PARAM_SPEC_ULONG(paramspec)->maximum;
+     g_object_set(toCheck,paramspec->name, ival,NULL);
+     g_object_get(toCheck,paramspec->name,&oval,NULL);
+     if(ival!=oval) {
+     GST_WARNING("property read/write maxmum check failed for : %s : %lu != %lu",
+     paramspec->name,
+     ival,oval
+     );
+     ret=FALSE;
+     }
+   */
   return ret;
 }
 
-static gboolean check_readwrite_property(GParamSpec *paramspec, GObject *toCheck) {
+static gboolean
+check_readwrite_property (GParamSpec * paramspec, GObject * toCheck)
+{
   GType param_type;
-  gboolean ret=FALSE;
+  gboolean ret = FALSE;
 
-  param_type=G_PARAM_SPEC_TYPE(paramspec);
-  if(param_type == G_TYPE_PARAM_INT) {
-    ret=check_readwrite_int_param(paramspec, toCheck);
+  param_type = G_PARAM_SPEC_TYPE (paramspec);
+  if (param_type == G_TYPE_PARAM_INT) {
+    ret = check_readwrite_int_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_UINT) {
-    ret=check_readwrite_uint_param(paramspec, toCheck);
+    ret = check_readwrite_uint_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_INT64) {
-    ret=check_readwrite_int64_param(paramspec, toCheck);
+    ret = check_readwrite_int64_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_LONG) {
-    ret=check_readwrite_long_param(paramspec, toCheck);
+    ret = check_readwrite_long_param (paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_ULONG) {
-    ret=check_readwrite_ulong_param(paramspec, toCheck);
-  } else { // no check performed
-    ret=TRUE;
+    ret = check_readwrite_ulong_param (paramspec, toCheck);
+  } else {                      // no check performed
+    ret = TRUE;
   }
   return ret;
 }
 
-/** test gobject properties
+/* test gobject properties
  * @toCheck: the object to examine
  *
  * The function runs tests against all registered properties of the given
@@ -684,700 +989,134 @@ static gboolean check_readwrite_property(GParamSpec *paramspec, GObject *toCheck
  * - use test more often :)
  */
 
-gboolean check_gobject_properties(GObject *toCheck) {
-  gboolean ret=FALSE;
-  gboolean check_read=TRUE;
-  gboolean check_write=TRUE;
-  gboolean check_readwrite=TRUE;
+gboolean
+check_gobject_properties (GObject * toCheck)
+{
+  gboolean ret = FALSE;
+  gboolean check_read = TRUE;
+  gboolean check_write = TRUE;
+  gboolean check_readwrite = TRUE;
   guint n_properties;
   guint loop;
   GParamSpec **return_params;
 
-  return_params=g_object_class_list_properties(G_OBJECT_GET_CLASS(toCheck),&n_properties);
+  return_params =
+      g_object_class_list_properties (G_OBJECT_GET_CLASS (toCheck),
+      &n_properties);
   // iterate over properties
-  for (loop=0; loop<n_properties; loop++) {
-    GParamSpec *paramspec=return_params[loop];
+  for (loop = 0; loop < n_properties; loop++) {
+    GParamSpec *paramspec = return_params[loop];
 
-    GST_DEBUG("property check for : %s",paramspec->name);
-    if (paramspec->flags&G_PARAM_READABLE) {
-      if(!(check_read=check_read_property(paramspec, toCheck))) {
-        GST_WARNING("property read check failed for : %s",paramspec->name);
+    GST_DEBUG ("property check for : %s", paramspec->name);
+    if (paramspec->flags & G_PARAM_READABLE) {
+      if (!(check_read = check_read_property (paramspec, toCheck))) {
+        GST_WARNING ("property read check failed for : %s", paramspec->name);
       }
     }
-    if (paramspec->flags&G_PARAM_WRITABLE) {
-      if(!(check_write=check_write_property(paramspec, toCheck))) {
-        GST_WARNING("property write check failed for : %s",paramspec->name);
+    if (paramspec->flags & G_PARAM_WRITABLE) {
+      if (!(check_write = check_write_property (paramspec, toCheck))) {
+        GST_WARNING ("property write check failed for : %s", paramspec->name);
       }
     }
-    if (paramspec->flags&G_PARAM_READWRITE) {
-      if(!(check_readwrite=check_readwrite_property(paramspec, toCheck))) {
-        GST_WARNING("property read/write check failed for : %s",paramspec->name);
+    if (paramspec->flags & G_PARAM_READWRITE) {
+      if (!(check_readwrite = check_readwrite_property (paramspec, toCheck))) {
+        GST_WARNING ("property read/write check failed for : %s",
+            paramspec->name);
       }
     }
   }
-  g_free(return_params);
+  g_free (return_params);
   if (check_read && check_write && check_readwrite) {
-    ret=TRUE;
+    ret = TRUE;
   }
   return ret;
 }
 
-// gtk+ gui tests
-
-/* it could also be done in a makefile
- * http://git.imendio.com/?p=timj/gtk%2B-testing.git;a=blob;f=gtk/tests/Makefile.am;hb=72227f8f808a0343cb420f09ca480fc1847b6601
- *
- * for testing:
- * Xnest :2 -ac &
- * metacity --display=:2 --sm-disable &
- * ./bt-edit --display=:2 &
+/* helpers to get single gobject properties
+ * allows to write 
+ *   fail_unless(check_get_gulong_property(obj,"voice")==1, NULL);
+ * instead of
+ *   gulong voices;
+ *   g_object_get(pattern,"voices",&voices,NULL);
+ *   fail_unless(voices==1, NULL);
  */
+gboolean
+check_gobject_get_boolean_property (gpointer obj, const gchar * prop)
+{
+  gboolean val;
 
-#ifdef XVFB_PATH
-static GPid server_pid;
-static GdkDisplayManager *display_manager=NULL;
-static GdkDisplay *default_display=NULL,*test_display=NULL;
-static volatile gboolean wait_for_server;
-static gchar display_name[3];
-static gint display_number;
-
-static void __test_server_watch(GPid pid,gint status,gpointer data) {
-  if(status==0) {
-    GST_INFO("test x server %d process finished okay",pid);
-  }
-  else {
-    GST_WARNING("test x server %d process finished with error %d",pid,status);
-  }
-  wait_for_server=FALSE;
-  g_spawn_close_pid(pid);
-  server_pid=0;
-}
-#endif
-
-void check_setup_test_server(void) {
-#ifdef XVFB_PATH
-  //gulong flags=G_SPAWN_SEARCH_PATH|G_SPAWN_STDOUT_TO_DEV_NULL|G_SPAWN_STDERR_TO_DEV_NULL;
-  gulong flags=G_SPAWN_SEARCH_PATH;
-  GError *error=NULL;
-  gchar display_file[18];
-  gchar lock_file[14];
-  // we can also use Xnest, but the without "-screen"
-  gchar *server_argv[]={
-    "Xvfb",
-    //"Xnest",
-    ":9",
-    "-ac",
-    "-nolisten","tcp",
-#ifdef XFONT_PATH
-    "-fp", XFONT_PATH, /*"/usr/X11R6/lib/X11/fonts/misc"*/
-#endif
-    "-noreset",
-    /*"-terminate",*/
-    /* 32 bit does not work */
-    "-screen","0","1024x786x24",
-    "-render",/*"color",*/
-    // seems whatever we do, Xvfb won't get xrandr support
-    "-extension", "RANDR",
-    NULL
-  };
-  gboolean found=FALSE,launched=FALSE,trying=TRUE;
-
-  server_pid=0;
-  display_number=0;
-
-  // try display ids starting with '0'
-  while(trying) {
-    wait_for_server=TRUE;
-    g_sprintf(display_name,":%1d",display_number);
-    g_sprintf(display_file,"/tmp/.X11-unix/X%1d",display_number);
-    g_sprintf(lock_file,"/tmp/.X%1d-lock",display_number);
-
-    // if we have a lock file, check if there is an alive process
-    if(g_file_test(lock_file, G_FILE_TEST_EXISTS)) {
-      FILE *pid_file;
-      gchar pid_str[20];
-      guint pid;
-      gchar proc_file[15];
-
-      // read pid, normal X11 is owned by root
-      if((pid_file=fopen(lock_file,"rt"))) {
-        gchar *pid_str_res=fgets(pid_str,20,pid_file);
-        fclose(pid_file);
-
-        if(pid_str_res) {
-          pid=atol(pid_str);
-          g_sprintf(proc_file,"/proc/%d",pid);
-          // check proc entry
-          if(!g_file_test(proc_file, G_FILE_TEST_EXISTS)) {
-            // try to remove file and reuse display number
-            if(!g_unlink(lock_file) && !g_unlink(display_file)) {
-              found=TRUE;
-            }
-          }
-        }
-      }
-    }
-    else {
-      found=TRUE;
-    }
-
-    // this display is not yet in use
-    if(found && !g_file_test(display_file, G_FILE_TEST_EXISTS)) {
-      // create the testing server
-      server_argv[1]=display_name;
-      if(!(g_spawn_async(NULL,server_argv,NULL,flags,NULL,NULL,&server_pid,&error))) {
-        GST_ERROR("error creating virtual x-server : \"%s\"", error->message);
-        g_error_free(error);
-      }
-      else {
-        g_child_watch_add(server_pid,__test_server_watch,NULL);
-
-        while(wait_for_server) {
-          // try also waiting for /tmp/X%1d-lock" files
-          if(g_file_test(display_file, G_FILE_TEST_EXISTS)) {
-            wait_for_server=trying=FALSE;
-            launched=TRUE;
-          }
-          else {
-            sleep(1);
-          }
-        }
-      }
-    }
-    if(!launched) {
-      display_number++;
-      // stop after trying the first ten displays
-      if(display_number==10) trying=FALSE;
-    }
-  }
-  if(!launched) {
-    display_number=-1;
-    GST_WARNING("no free display number found");
-  }
-  else {
-    // we still get a dozen of
-    //   Xlib:  extension "RANDR" missing on display ...
-    // this is a gdk bug:
-    //   https://bugzilla.gnome.org/show_bug.cgi?id=645856
-    //   and it seems to be fixed in Jan.2011
-
-    //printf("####### Server started  \"%s\" is up (pid=%d)\n",display_name,server_pid);
-    g_setenv("DISPLAY",display_name,TRUE);
-    GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
-    /* a window manager is not that useful
-    gchar *wm_argv[]={"metacity", "--sm-disable", NULL };
-    if(!(g_spawn_async(NULL,wm_argv,NULL,flags,NULL,NULL,NULL,&error))) {
-      GST_WARNING("error running window manager : \"%s\"", error->message);
-      g_error_free(error);
-    }
-    */
-    /* this is not working
-    ** (gnome-settings-daemon:17715): WARNING **: Failed to acquire org.gnome.SettingsDaemon
-    ** (gnome-settings-daemon:17715): WARNING **: Could not acquire name
-    gchar *gsd_argv[]={"/usr/lib/gnome-settings-daemon/gnome-settings-daemon", NULL };
-    if(!(g_spawn_async(NULL,gsd_argv,NULL,flags,NULL,NULL,NULL,&error))) {
-      GST_WARNING("error gnome-settings daemon : \"%s\"", error->message);
-      g_error_free(error);
-    }
-    */
-  }
-#endif
+  g_object_get (obj, prop, &val, NULL);
+  return val;
 }
 
-void check_setup_test_display(void) {
-#ifdef XVFB_PATH
-  if(display_number>-1) {
-    // activate the display for use with gtk
-    if((display_manager = gdk_display_manager_get())) {
-      GdkScreen *default_screen;
-      GtkSettings *default_settings;
-      gchar *theme_name;
+gint
+check_gobject_get_int_property (gpointer obj, const gchar * prop)
+{
+  gint val;
 
-      default_display = gdk_display_manager_get_default_display(display_manager);
-      if((default_screen = gdk_display_get_default_screen(default_display))) {
-        /* this block when protected by gdk_threads_enter() and crashes if not :( */
-        //gdk_threads_enter();
-        if((default_settings = gtk_settings_get_for_screen(default_screen))) {
-          g_object_get(default_settings,"gtk-theme-name",&theme_name,NULL);
-          GST_INFO("current theme is \"%s\"",theme_name);
-          //g_object_unref(default_settings);
-        }
-        else GST_WARNING("can't get default_settings");
-        //gdk_threads_leave();
-        //g_object_unref(default_screen);
-      }
-      else GST_WARNING("can't get default_screen");
-
-      if((test_display = gdk_display_open(display_name))) {
-#if 0
-        GdkScreen *test_screen;
-
-        if((test_screen = gdk_display_get_default_screen(test_display))) {
-          GtkSettings *test_settings;
-
-          if((test_settings = gtk_settings_get_for_screen(test_screen))) {
-            // this just switches to the default theme
-            //g_object_set(test_settings,"gtk-theme-name",NULL,NULL);
-            /* Is there a bug in gtk+? None of this reliable creates a working
-             * theme setup
-             */
-            //g_object_set(test_settings,"gtk-theme-name",theme_name,NULL);
-            /* Again this shows no effect */
-            //g_object_set(test_settings,"gtk-toolbar-style",GTK_TOOLBAR_ICONS,NULL);
-            //gtk_rc_reparse_all_for_settings(test_settings,TRUE);
-            //gtk_rc_reset_styles(test_settings);
-            GST_INFO("theme switched ");
-            //g_object_unref(test_settings);
-          }
-          else GST_WARNING("can't get test_settings on display: \"%s\"",display_name);
-          //g_object_unref(test_screen);
-        }
-        else GST_WARNING("can't get test_screen on display: \"%s\"",display_name);
-#endif
-        gdk_display_manager_set_default_display(display_manager,test_display);
-        GST_INFO("display %p,\"%s\" is active",test_display,gdk_display_get_name(test_display));
-      }
-      else {
-        GST_WARNING("failed to open display: \"%s\"",display_name);
-      }
-      //g_free(theme_name);
-    }
-    else {
-      GST_WARNING("can't get display-manager");
-    }
-  }
-#endif
+  g_object_get (obj, prop, &val, NULL);
+  return val;
 }
 
-void check_shutdown_test_display(void) {
-#ifdef XVFB_PATH
-  if(test_display) {
-    wait_for_server=TRUE;
+guint
+check_gobject_get_uint_property (gpointer obj, const gchar * prop)
+{
+  guint val;
 
-    g_assert(GDK_IS_DISPLAY_MANAGER(display_manager));
-    g_assert(GDK_IS_DISPLAY(test_display));
-    g_assert(GDK_IS_DISPLAY(default_display));
-
-    GST_INFO("trying to shut down test display on server %d",server_pid);
-    // restore default and close our display
-    GST_DEBUG("display_manager=%p, test_display=%p,\"%s\" default_display=%p,\"%s\"",
-        display_manager,
-        test_display,gdk_display_get_name(test_display),
-        default_display,gdk_display_get_name(default_display));
-    gdk_display_manager_set_default_display(display_manager,default_display);
-    GST_INFO("display has been restored");
-    // TODO(ensonic): here it hangs, hmm not anymore
-    //gdk_display_close(test_display);
-    /* gdk_display_close() does basically the following (which still hangs):
-    //g_object_run_dispose (G_OBJECT (test_display));
-    GST_INFO("test_display has been disposed");
-    //g_object_unref (test_display);
-    */
-    GST_INFO("display has been closed");
-    test_display=NULL;
-  }
-  else {
-    GST_WARNING("no test display");
-  }
-#endif
+  g_object_get (obj, prop, &val, NULL);
+  return val;
 }
 
-void check_shutdown_test_server(void) {
-#ifdef XVFB_PATH
-  if(server_pid) {
-    guint wait_count=5;
-    wait_for_server=TRUE;
-    GST_INFO("shuting down test server");
+glong
+check_gobject_get_long_property (gpointer obj, const gchar * prop)
+{
+  glong val;
 
-    // kill the testing server - TODO(ensonic): try other signals (SIGQUIT, SIGTERM).
-    kill(server_pid, SIGINT);
-    // wait for the server to finish (use waitpid() here ?)
-    while(wait_for_server && wait_count) {
-      sleep(1);
-      wait_count--;
-    }
-    GST_INFO("test server has been shut down");
-  }
-  else {
-    GST_WARNING("no test server");
-  }
-#endif
+  g_object_get (obj, prop, &val, NULL);
+  return val;
 }
 
-// gtk+ gui screenshooter
+gulong
+check_gobject_get_ulong_property (gpointer obj, const gchar * prop)
+{
+  gulong val;
 
-static GdkPixbuf *make_screenshot(GtkWidget *widget) {
-  GdkWindow *window=widget->window;
-  gint ww,wh;
-
-  // make sure the window gets drawn
-  if(!gtk_widget_get_visible(widget)) {
-    gtk_widget_show_all(widget);
-  }
-  if(GTK_IS_WINDOW(widget)) {
-    gtk_window_present(GTK_WINDOW(widget));
-    //gtk_window_move(GTK_WINDOW(widget),30,30);
-  }
-  gtk_widget_queue_draw(widget);
-  while(gtk_events_pending()) gtk_main_iteration();
-
-  gdk_window_get_geometry(window,NULL,NULL,&ww,&wh,NULL);
-  return(gdk_pixbuf_get_from_drawable(NULL,window,NULL,0,0,0,0,ww,wh));
+  g_object_get (obj, prop, &val, NULL);
+  return val;
 }
 
-static gchar *make_filename(GtkWidget *widget, const gchar *name) {
-  gchar *filename;
+guint64
+check_gobject_get_uint64_property (gpointer obj, const gchar * prop)
+{
+  guint64 val;
 
-  if(!name) {
-    filename=g_strdup_printf("%s"G_DIR_SEPARATOR_S"%s_%s.png",
-      g_get_tmp_dir(),g_get_prgname(),gtk_widget_get_name(widget));
-  }
-  else {
-    filename=g_strdup_printf("%s"G_DIR_SEPARATOR_S"%s_%s_%s.png",
-      g_get_tmp_dir(),g_get_prgname(),gtk_widget_get_name(widget),name);
-  }
-  return(filename);
+  g_object_get (obj, prop, &val, NULL);
+  return val;
 }
 
-static void add_shadow_and_save(cairo_surface_t *image, gchar *filename, gint iw, gint ih) {
-  cairo_surface_t *shadow;
-  cairo_t *cr;
-  gint x,y;
-  gint ss=12;  // shadow size
-  gint so=0;  // shadow offset
-  gint sd=1+(ss-so); // number of draws
+GObject *
+check_gobject_get_object_property (gpointer obj, const gchar * prop)
+{
+  GObject *val;
 
-  // stupid simple drop shadow code
-  shadow=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,iw+ss,ih+ss);
-  cr=cairo_create(shadow);
-  cairo_rectangle(cr,0.0,0.0,iw+ss,ih+ss);
-  cairo_set_source_rgba(cr,1.0,1.0,1.0,1.0);
-  cairo_fill(cr);
-  // we draw sd*sd-24 and we don't want the gray-level to become >0.7
-  cairo_set_source_rgba(cr,0.0,0.0,0.0,0.7/(sd*sd-24.0));
-  for(x=ss;x>=so;x--) {
-    for(y=ss;y>=so;y--) {
-      // skip corners (this would need to be dependend on shadow size)
-      if((x==ss || x==so) && (y>(ss-2) || y<(so+2)))
-        continue;
-      if((y==ss || y==so) && (x>(ss-2) || x<(so+2)))
-        continue;
-      if((x==(ss-1) || x==(so+1)) && (y>(ss-1) || y<(so+1)))
-        continue;
-      if((y==(ss-1) || y==(so+1)) && (x>(ss-1) || x<(so+1)))
-        continue;
-      cairo_mask_surface(cr,image,x,y);
-    }
-  }
-  cairo_set_source_surface(cr,image,3,3);
-  cairo_paint(cr);
-  
-  cairo_surface_write_to_png(shadow,filename);
-  
-  // cleanup
-  cairo_destroy(cr);
-  cairo_surface_destroy(shadow);
+  g_object_get (obj, prop, &val, NULL);
+  return val;
 }
 
-/* TODO(ensonic): remember all names to build an index.html with a table and all images */
-/* TODO(ensonic): create diff images
- * - check if we have a ref image, skip otherwise
- * - should we have ref images in repo?
- * - own diff
- *   - load old image and subtract pixels
- *   - should we return a boolean for detected pixel changes?
- * - imagemagic
- *   - http://www.imagemagick.org/script/compare.php
- * - need to make a html with table containing
- *   [ name, ref image, cur image, diff image ]
- */
-/* TODO(ensonic): write a html image map for selected regions
- * - allows xrefs to the related part in the docs
- * - having tooltips on images wuld be cool
- */
-/*
- * check_make_widget_screenshot:
- * @widget: a #GtkWidget to screenshoot
- * @name: filename or NULL.
- *
- * Captures the given widget as a png file. The filename is built from tmpdir,
- * application-name, widget-name and give @name.
- */
-void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
-  GdkPixbuf *pixbuf, *scaled_pixbuf;
-  gint iw,ih;
-  gchar *filename;
-  cairo_surface_t *surface;
-  cairo_t *cr;
+gchar *
+check_gobject_get_str_property (gpointer obj, const gchar * prop)
+{
+  gchar *val;
 
-  g_return_if_fail(GTK_IS_WIDGET(widget));
-
-  filename=make_filename(widget,name);
-
-  pixbuf = make_screenshot(widget);
-  iw=gdk_pixbuf_get_width(pixbuf)*0.75;
-  ih=gdk_pixbuf_get_height(pixbuf)*0.75;
-  scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf,iw,ih,GDK_INTERP_HYPER);
-  //gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
-
-  // create a image surface with screenshot
-  surface=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,iw,ih);
-  cr=cairo_create(surface);
-  gdk_cairo_set_source_pixbuf(cr,scaled_pixbuf,0,0);
-  cairo_paint(cr);
-  
-  add_shadow_and_save(surface,filename,iw,ih);
-  
-  // cleanup
-  cairo_destroy(cr);
-  cairo_surface_destroy(surface);
-  g_object_unref(pixbuf);
-  g_object_unref(scaled_pixbuf);
-  g_free(filename);
+  g_object_get (obj, prop, &val, NULL);
+  return val;
 }
 
-static GtkWidget *find_child(GtkWidget *w, BtCheckWidgetScreenshotRegions *r) {
-  GtkWidget *f=NULL;
-  gboolean match=TRUE;
-  
-  GST_INFO("  trying widget: '%s', '%s', '%s',%d",
-    gtk_widget_get_name(w),(GTK_IS_LABEL(w)?gtk_label_get_text((GtkLabel *)w):NULL),
-    G_OBJECT_TYPE_NAME(w),G_OBJECT_TYPE(w));
+gpointer
+check_gobject_get_ptr_property (gpointer obj, const gchar * prop)
+{
+  gpointer val;
 
-  if(r->match&BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_TYPE) {
-    if(!g_type_is_a(G_OBJECT_TYPE(w),r->type)) {
-      GST_DEBUG("    wrong type: %d,%s",G_OBJECT_TYPE(w),G_OBJECT_TYPE_NAME(w));
-      match=FALSE;
-    }
-  }
-  if(r->match&BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NAME) {
-    if(g_strcmp0(gtk_widget_get_name(w),r->name)) {
-      GST_DEBUG("    wrong name: %s",gtk_widget_get_name(w));
-      match=FALSE;
-    }
-  }
-  if(r->match&BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_LABEL) {
-    if((!GTK_IS_LABEL(w)) || g_strcmp0(gtk_label_get_text((GtkLabel *)w),r->label)) {
-      GST_DEBUG("    not a label or wrong label text");
-      match=FALSE;
-    }
-  }
-  if(match) {
-    f=w;
-  } else if(GTK_IS_CONTAINER(w)) {
-    GList *node,*list=gtk_container_get_children(GTK_CONTAINER(w));
-    GtkWidget *c=NULL;
-
-    GST_INFO("  searching container: '%s'",G_OBJECT_TYPE_NAME(w));
-    for(node=list;node;node=g_list_next(node)) {
-      c=node->data;
-      if((f=find_child(c,r))) {
-        break;
-      }
-    }
-    g_list_free(list);
-  }
-  return(f);
-}
-
-/*
- * check_make_widget_screenshot_with_highlight:
- * @widget: a #GtkWidget to screenshoot
- * @name: filename or NULL.
- * @regions: array of regions to highlight
- *
- * Captures the given widget as png files. The filename is built from tmpdir,
- * application-name, widget-name and give @name.
- *
- * Locates the widgets listed in @regions, highlights their position and draws
- * callouts to the given position. The callouts are numberd with the array
- * index. Widgets can be specified by name and/or type.
- *
- * The array needs to be terminated with an entry using 
- * match=%BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE.
- */
-void check_make_widget_screenshot_with_highlight(GtkWidget *widget, const gchar *name, BtCheckWidgetScreenshotRegions *regions) {
-  GdkPixbuf *pixbuf, *scaled_pixbuf;
-  GtkWidget *child,*parent;
-  GtkAllocation a;
-  gint iw,ih;
-  gchar *filename;
-  cairo_surface_t *surface;
-  cairo_t *cr;
-  cairo_pattern_t *grad;
-  cairo_text_extents_t extent;
-  BtCheckWidgetScreenshotRegions *r;
-  gint c=12,b=(c/4)+(c*3),bl=c,br=c,bt=c,bb=c;
-  gint wx,wy,ww,wh;
-  gfloat lx1=0.0,ly1=0.0,lx2=0.0,ly2=0.0;
-  gfloat cx=0.0,cy=0.0;
-  gfloat f=0.75;
-  gint num=1;
-  gchar num_str[5];
-  gboolean have_space;
-
-  g_return_if_fail(GTK_IS_WIDGET(widget));
-
-  filename=make_filename(widget,name);
-
-  pixbuf=make_screenshot(widget);
-  iw=gdk_pixbuf_get_width(pixbuf)*f;
-  ih=gdk_pixbuf_get_height(pixbuf)*f;
-  scaled_pixbuf=gdk_pixbuf_scale_simple(pixbuf,iw,ih,GDK_INTERP_HYPER);
-  
-  // check borders
-  r=regions;
-  while(r->match!=BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE) {
-    switch(r->pos) {
-      case GTK_POS_LEFT: 
-        bl=b;
-        break;
-      case GTK_POS_RIGHT:
-        br=b;
-        break;
-      case GTK_POS_TOP:
-        bt=b;
-        break;
-      case GTK_POS_BOTTOM:
-        bb=b;
-        break;
-    }
-    r++;
-  }
-
-  // create a image surface with screenshot
-  surface=cairo_image_surface_create(CAIRO_FORMAT_ARGB32,iw+bl+br,ih+bt+bb);
-  cr=cairo_create(surface);
-  gdk_cairo_set_source_pixbuf(cr,scaled_pixbuf,bl,bt);
-  cairo_paint(cr);
-
-  // locate widgets and highlight the areas
-  r=regions;
-  while(r->match!=BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE) {
-    GST_INFO("searching widget: '%s', '%s', '%s',%d",r->name,r->label,g_type_name(r->type),r->type);
-    if((child=find_child(widget,r))) {
-      // for label matches we look for a sensible parent
-      if(r->match&BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_LABEL) {
-        // TODO(ensonic): should the region include gtk_label_get_mnemonic_widget()?
-        if((parent=gtk_widget_get_ancestor(child,GTK_TYPE_BUTTON))) {
-          child=parent;
-        }
-        if((parent=gtk_widget_get_ancestor(child,GTK_TYPE_TOOL_ITEM))) {
-          child=parent;
-        }
-      }
-      // highlight area
-      parent=gtk_widget_get_parent(child);
-      have_space=FALSE;
-      if(parent) {
-        if(GTK_IS_CONTAINER(parent) && gtk_container_get_border_width((GtkContainer *)parent)>0) {
-          have_space=TRUE;
-        }
-        if(GTK_IS_BOX(parent) && gtk_box_get_spacing((GtkBox *)parent)>0) {
-          have_space=TRUE;
-        }
-      }
-      /* it seems that the API docs are lying and the allocations are relative to
-       * the toplevel and not their parent
-       */
-      // TODO(ensonic): if we don't snapshot a top-level, we need to subtract the offset
-      gtk_widget_get_allocation(child,&a);
-      wx=a.x*f;wy=a.y*f;ww=a.width*f;wh=a.height*f;
-      GST_INFO("found widget at: %d,%d with %dx%d pixel size",a.x,a.y,a.width,a.height);
-
-      if(have_space) {
-        cairo_rectangle(cr,bl+wx,bt+wy,ww,wh);
-      } else {
-        // we make this a bit smaller to separate adjacent widgets
-        cairo_rectangle(cr,bl+wx+1,bt+wy+1,ww-2,wh-2);
-      }
-      cairo_set_source_rgba(cr,1.0,0.0,0.2,0.3);
-      cairo_fill(cr);
-      cairo_set_line_width(cr, 4);
-      // callouts positions
-      switch(r->pos) {
-        case GTK_POS_LEFT:
-          lx1=bl+wx;
-          lx2=b-c;
-          cx=lx2-c;
-          cy=ly1=ly2=bt+wy+wh/2.0;
-          break;
-        case GTK_POS_RIGHT:
-          lx1=bl+wx+ww;
-          lx2=bl+iw+c;
-          cx=lx2+c;
-          cy=ly1=ly2=bt+wy+wh/2.0;
-          break;
-        case GTK_POS_TOP:
-          break;
-        case GTK_POS_BOTTOM:
-          break;
-      }
-      // callout line
-      grad=cairo_pattern_create_linear(lx1,ly1,lx2,ly2);
-      cairo_pattern_add_color_stop_rgba(grad,0.00,1.0,0.0,0.2,0.3);
-      cairo_pattern_add_color_stop_rgba(grad,1.00,1.0,0.0,0.2,1.0);
-      cairo_set_source(cr,grad);
-      cairo_move_to(cr,lx1,ly1);
-      cairo_line_to(cr,lx2,ly2);
-      cairo_stroke(cr);
-      cairo_pattern_destroy(grad);
-      // callout circle
-      cairo_arc(cr,cx,cy,c,0.0,2*M_PI);
-      cairo_set_source_rgba(cr,1.0,0.0,0.2,1.0);
-      cairo_stroke_preserve(cr);
-      cairo_set_source_rgba(cr,1.0,1.0,1.0,1.0);
-      cairo_fill(cr);
-      // callout label
-      sprintf(num_str,"%d",num);
-      cairo_set_source_rgba(cr,0.0,0.0,0.0,1.0); 
-      cairo_set_font_size(cr,10);
-      cairo_text_extents(cr,num_str,&extent);
-       // this is the bottom left pos for the text
-      cairo_move_to(cr,cx-(extent.width/2.0),cy+(extent.height/2.0));
-      cairo_show_text(cr,num_str);
-    } 
-    else {
-      GST_WARNING("widget not found: '%s',%d",r->name,r->type);
-    }
-    r++;
-    num++;
-  }  
-  add_shadow_and_save(surface,filename,iw+bl+br,ih+bt+bb);
-  
-  // cleanup
-  cairo_destroy(cr);
-  cairo_surface_destroy(surface);
-  g_object_unref(pixbuf);
-  g_object_unref(scaled_pixbuf);
-  g_free(filename);
-}
-
-/*
- * check_send_key:
- * @widget: a #GtkWidget to send the key even to
- * @keyval: the key code
- *
- * Send a key-press and a key-release of the given key to the @widget.
- */
-void check_send_key(GtkWidget *widget, guint keyval) {
-  GdkEventKey *e;
-  GdkWindow *w;
-
-  w=gtk_widget_get_window(widget);
-
-  e=(GdkEventKey *)gdk_event_new(GDK_KEY_PRESS);
-  e->window=g_object_ref(w);
-  e->keyval=keyval;
-  gtk_main_do_event((GdkEvent *)e);
-  while(gtk_events_pending()) gtk_main_iteration();
-  gdk_event_free((GdkEvent *)e);
-
-  e=(GdkEventKey *)gdk_event_new(GDK_KEY_RELEASE);
-  e->window=g_object_ref(w);
-  e->keyval=keyval;
-  e->state|=GDK_RELEASE_MASK;
-  gtk_main_do_event((GdkEvent *)e);
-  while(gtk_events_pending()) gtk_main_iteration();
-  gdk_event_free((GdkEvent *)e);
+  g_object_get (obj, prop, &val, NULL);
+  return val;
 }

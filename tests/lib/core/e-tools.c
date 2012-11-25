@@ -23,44 +23,72 @@
 
 //-- fixtures
 
-static void test_setup(void) {
-  bt_core_setup();
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  BT_CASE_START;
 }
 
-static void test_teardown(void) {
-  bt_core_teardown();
+static void
+test_setup (void)
+{
+}
+
+static void
+test_teardown (void)
+{
+}
+
+static void
+case_teardown (void)
+{
 }
 
 //-- tests
 
-BT_START_TEST(test_bttools_element_check0) {
-  GList *to_check=g_list_prepend(NULL,"__ploink__");
-  GList *missing=bt_gst_check_elements(to_check);
-  fail_unless(missing!=NULL,NULL);
-  fail_unless(!strcmp(missing->data,"__ploink__"),NULL);
-  fail_unless(g_list_next(missing)==NULL,NULL);
+static void
+test_bt_tools_element_check0 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  GList *to_check = g_list_prepend (NULL, "__ploink__");
+
+  /* act */
+  GList *missing = bt_gst_check_elements (to_check);
+
+  /* assert */
+  fail_unless (missing != NULL, NULL);
+  ck_assert_str_eq (missing->data, "__ploink__");
+  fail_unless (g_list_next (missing) == NULL, NULL);
+  BT_TEST_END;
 }
-BT_END_TEST
 
+static void
+test_bt_tools_element_check1 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  GList *to_check = g_list_prepend (NULL, "__ploink__");
+  to_check = g_list_prepend (to_check, "__bang__");
 
-BT_START_TEST(test_bttools_element_check1) {
-  GList *to_check=g_list_prepend(NULL,"__ploink__");
-  to_check=g_list_prepend(to_check,"__bang__");
+  /* act */
+  GList *missing = bt_gst_check_elements (to_check);
 
-  GList *missing=bt_gst_check_elements(to_check);
-  fail_unless(missing!=NULL,NULL);
-  fail_unless(g_list_next(missing)!=NULL,NULL);
-  fail_unless(g_list_next(g_list_next(missing))==NULL,NULL);
+  /* assert */
+  fail_unless (missing != NULL, NULL);
+  fail_unless (g_list_next (missing) != NULL, NULL);
+  fail_unless (g_list_next (g_list_next (missing)) == NULL, NULL);
+  BT_TEST_END;
 }
-BT_END_TEST
 
+TCase *
+bt_tools_example_case (void)
+{
+  TCase *tc = tcase_create ("BtToolsExamples");
 
-TCase *bt_tools_example_case(void) {
-  TCase *tc = tcase_create("BtToolsExamples");
-
-  tcase_add_test(tc,test_bttools_element_check0);
-  tcase_add_test(tc,test_bttools_element_check1);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_tools_element_check0);
+  tcase_add_test (tc, test_bt_tools_element_check1);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

@@ -10,5 +10,4 @@ Makefile
 Makefile.in
 buzztard-edit.desktop.in
 buzztard-edit.desktop
-buzztard-edit
 marshal.*

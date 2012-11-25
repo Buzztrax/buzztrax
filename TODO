@@ -11,61 +11,78 @@
     (e.g. bt_machine_get_pattern_by_id)
   * add test for trigger params
   * for ui tests we should have the main-loop under our control:
-    * check g_main_context_set_poll_func()g_main_context_set_poll_func
+    * check g_main_context_set_poll_func()
     * or really *run* the main-loop (not just iterate)
+      * for this our tests would be scattered over several signal handlers
+* test infrastructure
+  * add a stub song-io saver
+  * add a stub processor machine
+  * add a test application to be able to make the application abstract 
+* review tests
+  * ensure we follow Arrange/Act/assert or Given/When/Then style
+    http://en.wikipedia.org/wiki/Behavior_Driven_Development
+  * check that all public api is used in tests
+    nm --defined-only .libs/libbuzztard-core.a | grep " T " | cut -d' ' -f3 | grep -v "marshal" | sort >/tmp/m1.txt;
+    nm --undefined-only .libs/libbtcore-check.a | grep " U bt" | cut -c20- | sort | uniq >/tmp/m2.txt;
+    comm -2 -3 /tmp/m{1,2}.txt
+    
+    grep ");" src/lib/core/core.h | cut -d'(' -f1 | cut -d' ' -f2 | cut -d'*' -f2
+    find src/lib/core -name "*.h" -exec grep ");" {} \; | cut -d'(' -f1 | cut -d' ' -f2 | cut -d'*' -f2
 
-* new stats
-  * http://www.chris-lott.org/resources/cmetrics/cyclo-2.0.tar.gz
-    mcstrip tools.c | cyclo -c | sort -k2 -n
+  * check that we use loop-tests
+    find tests/lib/ -name "*.c" -exec egrep -Hn "(for|while)\s*\(" {} \; | egrep -v "(:\s*\*|://)"
+
 
 * quality checks
   for file in src/lib/core/*.c; do gtkdoc-depscan -v --book gstreamer-0.10:0.10.8 $file; done
-  
+
+
 * check translation markup
   podebug --rewrite=xxx buzztard.pot aa.po
   LC_ALL=aa ./buzztard-edit
   - this creates a translation with all strings wrapped by 'xxx' (Help -> xxxHelpxxx)
   - it is easy to see what is not marked for translation  
 
+
 * sparse
   make CC=cgcc
 
 
-* design issues
-  * sim syn uses a string property for notes
-    * these cannot be interpolated, we could use a uint like buzz or an enum
+* generate a dependency matrix
+  * 'make ctags' creates tags files per directory containing symbol locations
+  * 'ctags -x --recurse src tests >xref' creates a single xref table containing
+    all symbol locations
+  * 'find . -name "*.o" -exec nm --undefined-only {} \; | grep " bt_"'
+    creates a list of externally called entries
 
 
 * controller api
-  * allow to modify interpolation control sequence inplace (scale time or value range)
-    - we need a gst_interpolation_control_foreach(cs, callback, user_data)
-    - the callback will be called for each controlpoint and can change the
-      timestamp and/or value
-    - need a way to do it without exposing GstControlPoint internals
-      - void callback(GstClockTime *timestamp, GValue *value, gpointer user_data);
-  * or have a BtPatternControlSource
-    - then we never need to update the timeline controller
-    - the individual instances should be relative lightweight and use a central
-      controller for some global state
-      - we want to pre-cache the tracks for each machine to speed up finding the
-        patterns that apply at a given time
+- 1.0
+  - we might want to allow to attach a controller to a parameter and control
+    the controllers parameters in the pattern instead
+  - e.g. user attaches LFO to Filter-CutOff, in the pattern he can now edit:
+    center-value, depth, shape, freq (controlable values of the controller)
+  - we setup extra controller-functions to scale and shift the value (or
+    introduce a special binding for that) 
+  - song format
+    - we store it under machine, next to {global,voice}data, patterns
+    - maybe call it {global,voice}control and have controldata children
+      (name, value)
 
 
-* special patterns
-  - break works as in breaking patterns
-  - mute, solo, bypass don't work at all
-    - the mute-pattern wold need to control the mute-parameter of a machines
-      output-volume (input-volume for master)
-    - solo would be interpreted as mute on all other generators
-    - bypass would need a (controlable) gobject property
-    - break would need to be able to undo mute, solo, bypass
-  - for now we would need to handle the special patterns in bt_sequence_repair_global_damage_entry
-  - we could see if we can make BtMachine::state controlable
-    - we would need a pad-probe to call gst_object_sync()
-    - break would set the BtMachine::state=NORMAL
-    - we need to avoid setting the song to unsaved when controlling BtMachine::state
-    - in sequence.c we need to do handle intern_damage (like global_damage) and we need
-      BtMachine::bt_machine_intern_controller_change_value()
+* OSC support
+  * settings
+    * the OSC port for listening
+    * add song to path (/<song>/...)
+  * namespace
+    * ../<machine>/set_{wire,global,voice}_param 
+    * ../<machine>/set_{mute,solo,bypass}
+    * ../<machine>/<pattern>/set_{wire,global,voice}_event
+    * ../{play,stop,pause}
+  * ui (if osc enabled)
+    * show the osc path both in machine and pattern view
+    * eventually make it editable (ensure unique)
+    * store with song
 
 
 * undo/redo/journaling
@@ -78,11 +95,135 @@
     - on replay we can take the prefix og the entry and dispatch
     - on journalling we can probably add the prefix
     - it is a stack of journal entries
+  - classes that implement unod/redo implement the change_logger_interface()
+    and usually have a BtChangeLog reference in their instance struct
   - pending parts that need undo/redo
     - machine view
       - machine/wire parameters
     - wavetable view
     - info view
+  - order of serialisation and destruction
+    - see main-page-machines.c:bt_main_page_machines_delete_machine()
+    - use g_signal_connect_after() for the '-removed' handler that are
+      destructive (search for '-removed",G_CALLBACK') can help
+    - g_object_add_weak_ref is not useful as the object is already gone
+    - example: bt_setup_remove_machine
+      - what we want:
+        machine data {
+          track data
+          pattern data 0
+          ...
+          pattern data n
+        }
+      - what happens:
+        emit "removed" signal
+          pre:
+            main-page-machines:on_machine_removed: beg log undo/redo + machine-data
+            main-page-sequence:on_machine_removed: track data + remove track
+          default: bt_setup_on_machine_removed ?
+            foreach pattern do: bt_machine_remove_pattern
+              emit "removed" signal
+                pre:
+                  main-page-patterns:on_pattern_removed: beg log undo/redo + pattern data
+                  main-page-sequence:on_pattern_removed: no track -> skip
+                default: bt_machine_on_pattern_removed ?
+                  -
+                after:
+                  end log undo/redo
+              remove & unref
+          after:
+            end log undo/redo
+        remove & unref
+    - generic phases:
+      1) owner:before_xxx_removed: beg log undo/redo + xxx data
+      2) others:on_xxx_removed: log other object
+      3) children: emit 'removed'
+      4) owner: after_xxx_removed: end log undo/redo
+      5) remove & unref
+    - one problem is that objects that gets removed have children and are part of
+      other objects:
+      - machine has patterns and
+      - sequence has tracks that reference machines
+    - it is probably easier to have explicit api in the participating UI object
+      - we should split functions like:
+        void bt_main_page_machines_delete_machine (const BtMainPageMachines * self, BtMachine * machine)
+        void bt_main_page_machines_delete_wire (const BtMainPageMachines * self, BtWire * wire)
+        to serialize and to actually delete afterwards, this way we can trigger
+        the deletion of the top-level after serialisation is done 
+      - examples:
+        bt_main_page_machines_delete_machine(self, machine) {
+          bt_main_page_machines_serialize_machine(self, machine) {
+            // 1) serialize own data (properties)
+            // 2) serialize data from object that have a ref to this machine by
+            g_signal_emit(BtMainPageMachines::machine-delete-event, machine);
+              // bt_main_page_sequence_on_machine_delete_event() -> bt_main_page_sequence_delete_track()
+            // 3) serialize all children
+            foreach(pattern) { bt_main_page_patterns_serialize(self,pattern); } 
+          }
+          bt_setup_remove_machine(setup, machine);
+        }
+        bt_main_page_machines_delete_wire(self, wire) {
+          bt_main_page_machines_serialize_wire(self, wire) {
+            // 1) serialize own data (properties)
+            // 2) serialize data from object that have a ref to this wire by
+            g_signal_emit(BtMainPageMachines::wire-delete-event, wire);
+            // 3) serialize all children
+            foreach(pattern) { bt_main_page_patterns_serialize_value_group(self,pattern,wire_value_group); }              
+          }
+          bt_setup_remove_wire(setup, wire);
+        }
+        bt_main_page_patterns_delete_pattern() {
+          bt_main_page_patterns_serialize_pattern(self, pattern) {
+            // 1) serialize own data (properties, value-groups)
+            foreach(value-group) bt_main_page_patterns_serialize_value_group(self, pattern, value-group)
+            // 2) serialize data from object that have a ref to this pattern by
+            g_signal_emit(BtMainPagePatterns::pattern-delete-event, pattern);
+              // bt_main_page_sequence_on_pattern_delete_event() -> serialize tracks data for this pattern
+            // 3) serialize all children
+            // - no children -
+          }
+          bt_machine_remove_pattern(machine, pattern);
+        }
+        bt_main_page_sequence_delete_track(self, sequence, track_id) {
+          // no refs, no children
+        }
+        bt_main_page_waves_delete_wave() {
+          bt_main_page_waves_serialize_wave(self, wave) {
+            // 1) serialize own data (properties)
+            // 2) serialize data from object that have a ref to this wave by
+            // TODO: we probably don't want this, as we won't clear wave-refs in
+            //       pattern when e.g. loading a new wave into an existing slot
+            g_signal_emit(BtMainPagePatterns::wave-delete-event, wave);            
+            // 3) serialize all children
+            // - no children -
+          }
+          bt_wavetable_remove_wave(wavetable, wave);
+        }
+
+
+* Hide libxml2 use behind a PersistenceIO interface in a XMLPersistenceIO
+  implementation. The API would also allow to change the implementation to use
+  e.g. json or a binary representation instead. We need an API like:
+  PersistenceIONode: opaque handle
+  // for saving
+  PersistenceIONode *bt_persistence_io_new_node(PersistenceIONode *parent, gchar *name);
+  gboolean bt_persistence_io_set_value(PersistenceIONode *parent, gchar *value);
+  gboolean bt_persistence_io_set_attribute(PersistenceIONode *parent, gchar *name, gchar *value);
+  // a varargs function that takes (gchar *name, GType type, <type> value)
+  // triplets, terminated by NULL 
+  gboolean bt_persistence_io_set_attributes(PersistenceIONode *parent, 
+    gchar *name, ...);
+  // collection api ...
+  gboolean bt_persistence_io_set_attributes_from_hash_table(PersistenceIONode *parent, GHashTable *hash_table);
+  
+  // for loading
+  GList *bt_persistence_io_get_nodes(PersistenceIONode *parent);
+  gchar *bt_persistence_io_get_value(PersistenceIONode *parent);
+  gchar *bt_persistence_io_get_attribute(PersistenceIONode *parent, gchar *name);
+  // a varargs function that takes (gchar *name, GType type, <type *> value)
+  // triplets, terminated by NULL 
+  gboolean bt_persistence_io_get_attributes(PersistenceIONode *parent, 
+    gchar *name, ...);
 
 
 * CPU load per machine
@@ -115,13 +256,6 @@
 * eventually merge machine-rename dialog with machine properties
 
 
-* improve recording dialogs
-  - either integrate the progress bar into the recording settings
-    - gray out the dialog or progress-bar area depending on phase
-  - or use a notebook with hidden pages
-    - switch to 2nd page for rendering
-
-
 * control machines (no in/out)
   - color=gray
     it is never connected and thus, does not need a desaturated shade
@@ -139,7 +273,7 @@
     - we see them in the registry
 
 
-* play machines via midi
+* play machines via midi (interaction controller)
   - we have machines with one or more note-params
     - sometimes only one is a trigger though
     cd bml/tests/testmachine
@@ -163,15 +297,27 @@
     - v2: start from pattern column headings
       - have bind/unbind like in machine window
       - define split'ed devices elsewhere
+    - v3: add controller to context menu on machine-canvas 
   - how to easily assign a series of key to a series of triggers in one machine
     - have a trigger group  (and assign to white keys only)
     - this would manage both key-number and velocity as we'd only bind a series
       of abs-value-controls (velocity) to the drum-machine triggers
   - how to assign velocity to the machines velocity param
-  - the current code in machine.c (_poly_control_) would increment the voice on
-    each control event, we would need to set both key and velocity though
-    we also need to ensure to set velocity first and then the key
-    - only inc the voice-counter on the trigger param?
+    - it works for monophonic machines
+  - poly key-press events
+    - the current code in machine.c (_poly_control_) would increment the
+      voice_ct on each control event
+      - we would need to set both key and velocity though
+      - we also need to ensure to set velocity first and then the key
+      - each controller has a separate voice_ct
+      - when assinging a controller to a voice-param, should we always poly-bind
+        it?
+
+  - it would be nice to have a pc-keys interaction controller for playing notes
+    - we can register this from the ui (it would be part of "ui/edit"
+      - the machine view would start-stop it on focus (if bound)
+      - eventually we could use it in pattern-view too and implicitely bind it
+        if "play-notes" is active
 
 
 * text parameters in machines
@@ -188,8 +334,76 @@
     ev. script parameters (passed as $1, $2, ...)
 
 
-* wave table, record entries
+* wave table
   * we can just keep the buffers from fakesink/appsink in a list and consolidate
     on eos
-  * need device selection on the source
+  * record audio
+    * need device selection on the source
+  * record from song
+    * need some special setup on sink-bin/encodebin
+    * load raw wave on song::playing==FALSE
 
+
+* one framerate for animations
+  * we have a couple of things that we update in intervals:
+    * 10fps: main-page-waves.c: preview_update_id=g_timeout_add_full(G_PRIORITY_HIGH,1000/10,on_preview_playback_update,(gpointer)self,NULL);
+    * 10fps: main-toolbar.c: playback_update_id=g_timeout_add_full(G_PRIORITY_HIGH,1000/10,on_song_playback_update,(gpointer)song,NULL);
+    * 10fps: machine.c: g_object_set(PART_*LEVEL,"interval",(GstClockTime)(0.1*GST_SECOND),...
+    * 10fps: signal-analysis-dialog: g_object_set(ANALYZER_*, "interval",(GstClockTime)(0.1*GST_SECOND),...
+  * we should have one #define somewhere for the UPDATE_INTERVAL
+  * ideally we ensure that the framerate is an integer multiple of it
+  * it would be nice to avoid a setting, but for slow machines it might be worth it
+    (or for fast machine, people could pick a higher rate)
+  * we could use configure and have the define in config.h
+
+
+* pattern and main-page-patterns still contain bits of duplicated code
+  * review the pattern api and check if we should use the groups directly
+    (run ./api-cleanup.sh to get a report of where the api is used)
+
+
+* create & add is a bad idea
+  * machines and wires are automatically added to the setup
+  * patterns are automatically added to the machine
+  * this causes trouble for pattern_copy (which we work-around now)
+
+
+* change tempo while playing
+  * we would like to ensure that playback continues at the same position, just
+    at different speed
+  * when changing the tempo, we'd need to take a snapshot of the playback pos as
+    time and ticks
+
+
+* gsettings migrations
+  * we should consider dropping the whole settings abstraction, as gsettings is
+    part of glib anyway
+  * for the unit tests we use g_memory_settings_backend_new ()
+  * we'll need a small shim to use
+    GSettings *g_settings_new (const gchar *schema_id);
+    in application code and
+    GSettings *g_settings_new_with_backend (const gchar *schema_id, GSettingsBackend *backend);
+    in the tests
+  * we need to consider splitting the settings into core and app schemas
+  * should we start to use g_settings_bin for the sysem settings (toolbar style)
+    and remove them from the normal settings?
+
+
+* release 0.7, remaining bugs to look at
+  * we still get occational lockups when connecting/disconnecting while playing
+    * grep -v "got request for" dynlink1.log | grep -v "latency_update," | tail
+    * the queue on the new branch is filled, is the mixing element not fetching
+      it?
+    * it seems to be the seek to kickstart the element + the seek of the loop
+      that step onto each other toes
+      
+#4  0x00007ffff6b18497 in gst_pad_pause_task (pad=0x1008690) at gstpad.c:5657
+#5  0x00007ffff6fd5e2c in gst_base_src_perform_seek (src=0xdd8700, event=0x10d2770, unlock=1) at gstbasesrc.c:1383
+#6  0x00007ffff6fd6868 in gst_base_src_default_event (src=0xdd8700, event=0x10d2770) at gstbasesrc.c:1755
+#7  0x00007ffff6fd3de0 in gst_base_src_event_handler (pad=<optimized out>, event=0x10d2770) at gstbasesrc.c:1806
+#8  0x00007ffff6b179c2 in gst_pad_send_event (pad=0x1008690, event=0x10d2770) at gstpad.c:5425
+#9  0x00007ffff6b17f52 in gst_pad_push_event (pad=0x1008990, event=0x10d2770) at gstpad.c:5277
+#10 0x00007ffff6fe0c0e in gst_base_transform_src_eventfunc (trans=0xaa4fe0, event=0x10d2770) at gstbasetransform.c:2341
+#11 0x00007ffff6fdaa25 in gst_base_transform_src_event (pad=<optimized out>, event=0x10d2770) at gstbasetransform.c:2306
+
+  * undo/redo is still flaky

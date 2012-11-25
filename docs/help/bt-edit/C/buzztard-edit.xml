@@ -419,8 +419,11 @@
         them around.
         To connect machines, move the pointer over the source, press shift+left
         mouse-button and drag the wire to the target machine. The wire turns
-        green, if the connection can be made. Fully connected machines are shown
-        in bright color and disconnected ones in a desaturated style. 
+        green, if the connection can be made. Sources can be connected to
+        Effects and the Master. Effects can be inked to other Effects and the
+        Master. It is not possible to create loops in the signal flow.
+        Fully connected machines are shown in bright color and disconnected ones
+        in a desaturated style. 
         Alternatively you can select "connect machines" from the right-click
         context menu of a machine. Again you need to move the mouse to the target
         machine and click it.
@@ -639,6 +642,11 @@ i o p</keycap></screen></entry>
               <entry>clears the field under the cursor</entry>
             </row>
             <row>
+              <entry>live value</entry>
+              <entry><keycap>, (comma)</keycap></entry>
+              <entry>copy the current machine value into the field under the cursor</entry>
+            </row>
+            <row>
               <entry>delete column</entry>
               <entry><keycap>delete</keycap></entry>
               <entry>deletes the row at the cursor for the current column (move entries below up)</entry>
@@ -740,8 +748,10 @@ i o p</keycap></screen></entry>
       <para>
         A song consists of several tracks (columns), where in each track patterns
         are played. There can be several tracks for the same machine. 
-        The rows are time slots. The labels can show the time in different
-        formats such as ticks and time.
+        The rows are time slots. The position column can show the time in
+        different formats such as ticks and time. The label column can be use to
+        annotate parts of the song, such as 'verse' and 'chorus' for easy
+        navigation.
       </para>
       <figure id="bt-edit-page-sequence-view-fig">
         <title>Sequence view</title>
@@ -763,13 +773,14 @@ i o p</keycap></screen></entry>
       </para>
       <para>
         The sequence header for the label column offers shortcuts to jump to the
-        selected label. The header for the position column contain a selector
+        selected label. The header for the position column contains a selector
         for the preferred position format.
       </para>
       <para>
         The context menu allows to add or remove tracks, move tracks left or
         right and open the machine <link linkend="bt-edit-dialog-machine-properties">properties</link>/
-        <link linkend="bt-edit-dialog-machine-preferences">preferences</link> for the current track.
+        <link linkend="bt-edit-dialog-machine-preferences">preferences</link>
+        for the current track.
         For new generators a track is added automatically.
       </para>
       <para>
@@ -1004,10 +1015,11 @@ i o p</keycap></screen></entry>
         </screenshot>
       </figure>
       <para>
-        The left column is the wavetable. Samples are loaded by double clicking them
-        in the right side file-browser. The toolbar above the browser allows to
-        pre-listen before loading. Waves in the table can also be played, renamed
-        and removed.
+        The left column is the wavetable. Samples are loaded by double clicking
+        them in the right side file-browser. The play-toggle button on the
+        toolbar above the file-browser allows to pre-listen file as the
+        selection changes. Waves in the table can also be played, renamed and
+        removed.
       </para>
       <para>
         Each wavetable entry can have multiple wave levels, which are shown below
@@ -1130,13 +1142,67 @@ i o p</keycap></screen></entry>
         or pulseaudio can achieve a reasonable latency.
       </para>
       <para>
-        (FIXME: write more)
+        For some sinks one can chose the audio device that should be used. For
+        all sinks the sampling rate and audio channels can be configured. This
+        should be set matching the audio sink. If jack is configured to play at
+        44100 Hz choosing a lower rate might play at lower CPU consumption, but
+        ideally the setting are the same.
+      </para>
+      <para>
+        The last setting is the target latency. Buzztard will configure the
+        audio rendering to get close to it. A lower latency is good for live
+        modifications on machines, but also causes a higher CPU load.
+      </para>
+    </sect3>
+
+    <sect3 id="bt-edit-prefs-interaction-controller">
+      <title id="bt-edit-prefs-interaction-controller.title">Interaction controller settings</title>
+
+      <para>
+        Machines can be operated using hardware controllers. Buzztard can use
+        several types of controls, such as USB HID devices (mice, joystick) and
+        alsa midi devices. Right now this settings-page only shows the detected
+        devices. If you don't see anything, your application-package might have
+        been build without gudev support. This will be indicated by a warning
+        message in the settings page as well.
+      </para>
+      <figure id="bt-edit-settings-ic-fig">
+        <title>Interaction controller settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-ic.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>Interaction controller settings.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <para>
+        For some device types such as midi-devices, the available controls can
+        not be auto-detected. Although one can teach these in a simple
+        procedure. Every time such a device is selected, the lean mode will be
+        activated. In this mode one can press the hardware buttons or move
+        sliders and knobs. When this happens, controls not yet in the list will
+        be automatically added.
       </para>
     </sect3>
 
     <sect3 id="bt-edit-prefs-playback-controller">
       <title id="bt-edit-prefs-playback-controller.title">Playback controller settings</title>
 
+      <para>
+        Buzztard implements a few protocols to synchronize playback with
+        external applications or devices. This window lists the controls and
+        allows to configure each of them. For each protocol buzztard can be
+        time master and/or slave (if supported by the protocol or protocol
+        implementation). In master mode, buzztard would also start the playback
+        of the external side, when the playback inside buzztard starts. In slave
+        mode, buzztard would listen to a command from the external side to also
+        start playback when the external side starts. Each of the protocols
+        might show some extra settings below the list when selected.
+      </para>
       <para>
         UPnP A/V remote control via Coherence.
         (FIXME: explain)
@@ -1150,29 +1216,6 @@ i o p</keycap></screen></entry>
             </imageobject>
             <textobject>
               <phrase>Playback controller settings.</phrase>
-            </textobject>
-          </mediaobject>
-        </screenshot>
-      </figure>
-    </sect3>
-
-    <sect3 id="bt-edit-prefs-interaction-controller">
-      <title id="bt-edit-prefs-interaction-controller.title">Interaction controller settings</title>
-
-      <para>
-        Interactive controller for machine parameters. There are actually no
-        settings here right now. It just shows the available devices.
-        (FIXME: no settings yet)
-      </para>
-      <figure id="bt-edit-settings-ic-fig">
-        <title>Interaction controller settings</title>
-        <screenshot>
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="figures/settings-ic.png" format="PNG" contentwidth="65%"/>
-            </imageobject>
-            <textobject>
-              <phrase>Interaction controller settings.</phrase>
             </textobject>
           </mediaobject>
         </screenshot>
@@ -1259,7 +1302,7 @@ i o p</keycap></screen></entry>
     <para>
       Parameters are grouped. There is one group for global parameters and one
       for each voice (for polyphonic machines). Effects and the master also have
-      a group for each input allowing to change volume and panorama. These are
+      a group for each input, allowing to change volume and panorama. These are
       the same parameters that can be changed on the wire in the
       <link linkend="bt-edit-main-view-machines">machine view</link>. Each group
       has a context menu, e.g. to copy the settings for the group.
@@ -1269,7 +1312,10 @@ i o p</keycap></screen></entry>
       to a hardware controller and unbind it. If a parameter is bound, the
       changes on the hardware controller will effect the parameter. &app;
       supports hid (e.g joysticks, wiimotes, harddisk accelerometers) and midi
-      devices.
+      devices. For some device types the sub-menu with the controls will start
+      with an entry "Learn ...". This will lead to the
+      <link linkend="bt-edit-dialog-interaction-controller-learn">lean dialog</link>,
+      where new controllers can be taught.
     </para>
     <para>
       At the top of the dialog is a small toolbar. One button allows to show or
@@ -1540,10 +1586,28 @@ i o p</keycap></screen></entry>
       </screenshot>
     </figure>
   </sect2>
-<!--
-@todo:
-  interaction-controller-learn.png
--->
+  <sect2 id="bt-edit-dialog-interaction-controller-learn">
+    <title id="bt-edit-dialog-interaction-controller-learn.title">Interaction controller learn dialog</title>
+    <para>
+      When this dialog is open, &app; will listen to control changes. Not yet
+      known controls will show in the dialog with an auto-generated name. This
+      name can be changed. Pressing okay, will store the new control and assign
+      it to the machine parameter (from which the dialog was invoked).
+    </para>
+    <figure id="bt-edit-dialog-interaction-controller-learn-fig">
+      <title>Interaction controller learn dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/interaction-controller-learn.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Interaction controller learn dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
 </sect1>
 
 <sect1 id="bt-edit-reference">

@@ -80,7 +80,7 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
   <xsd:element name="globaldata">
     <xsd:annotation>
       <xsd:documentation>
-        Pattern data for all voices of a machine.
+        Value of a dynamic parameter of a machine.
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
@@ -89,6 +89,18 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
     </xsd:complexType>
   </xsd:element>
   
+  <xsd:element name="prefsdata">
+    <xsd:annotation>
+      <xsd:documentation>
+        Value of a static parameter of a machine.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:attribute name="name" use="required" type="xsd:string"/>
+      <xsd:attribute name="value" use="required" type="xsd:string"/>
+    </xsd:complexType>
+  </xsd:element>
+
   <xsd:element name="property">
     <xsd:annotation>
       <xsd:documentation>
@@ -117,7 +129,7 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
   <xsd:element name="voicedata">
     <xsd:annotation>
       <xsd:documentation>
-        Pattern data one voice of a machine.
+        Value of a dynamic parameter for one voice of a machine.
       </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
@@ -164,6 +176,7 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
     </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence>
+        <xsd:element ref="prefsdata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="properties" minOccurs="0" maxOccurs="1"/>

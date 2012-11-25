@@ -1,3 +1,6 @@
+design/dll_loader/interlocked.c
+design/dll_loader/libwinelib.c
+design/dll_loader/pthreademu.c
 design/gui/buzztard.glade
 design/gui/sequence.glade
 src/ui/edit/buzztard-edit.desktop.in.in

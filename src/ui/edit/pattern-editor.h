@@ -68,38 +68,23 @@ struct _BtPatternEditorColumn {
 typedef struct _BtPatternEditorColumn BtPatternEditorColumn;
 
 /**
- * BtPatternEditorColumnGroupType:
- * @PGT_WIRE: wire parameters
- * @PGT_GLOBAL: global parameters
- * @PGT_VOICE: voice parameters
- *
- * Column group type
- */
-enum _BtPatternEditorColumnGroupType {
-  PGT_WIRE=0,
-  PGT_GLOBAL,
-  PGT_VOICE
-};
-typedef enum _BtPatternEditorColumnGroupType BtPatternEditorColumnGroupType;
-
-/**
  * BtPatternEditorColumnGroup:
- * @type: group type
  * @name: group name
  * @num_columns: number of columns
  * @columns: array of columns
- * @user_data: extra data to attach
+ * @vg: extra data for main-page-patterns
+ * @fmt: extra data for main-page-patterns
  *
  * A group of #BtPatternEditorColumns, such as a voice or all global parameters.
  */
 struct _BtPatternEditorColumnGroup {
-  // just an id to tell groups apart
-  BtPatternEditorColumnGroupType type;
   // can be used for the headline above the group
   gchar *name;
   guint num_columns;
   BtPatternEditorColumn *columns;
-  gpointer user_data;
+  /* user_data for main-page-patterns */
+  BtValueGroup *vg;
+  gchar *fmt;
   /* < private > */
   /* in pixels for now, may change to chars some day when needed */
   guint width;
@@ -184,7 +169,7 @@ struct _BtPatternEditor {
   gdouble play_pos;
   /* own colors */
   gdouble play_pos_color[3], text_color[3], bg_color[3], sel_color[3], cursor_color[3];
-  gdouble bg_shade_color[2][3];
+  gdouble bg_shade_color[2][3], value_color[2][3];
 
   /* scroll adjustments */
   GtkAdjustment *hadj,*vadj;

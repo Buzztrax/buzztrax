@@ -24,6 +24,44 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <gst/gst.h>
+
+//-- test_sparse_enum
+
+typedef enum
+{
+  BT_TEST_SPARSE_ENUM_ZERO = 0,
+  BT_TEST_SPARSE_ENUM_ONE = 1,
+  BT_TEST_SPARSE_ENUM_TEN = 0xa,
+  BT_TEST_SPARSE_ENUM_TWENTY = 0x14,
+  BT_TEST_SPARSE_ENUM_TWENTY_ONE = 0x15,
+  BT_TEST_SPARSE_ENUM_TWO_HUNDRED = 0xc8,
+} BtTestSparseEnum;
+
+//-- test_no_arg_mono_source
+
+#define BT_TYPE_TEST_NO_ARG_MONO_SOURCE            (bt_test_no_arg_mono_source_get_type ())
+#define BT_TEST_NO_ARG_MONO_SOURCE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_TEST_NO_ARG_MONO_SOURCE, BtTestNoArgMonoSource))
+#define BT_TEST_NO_ARG_MONO_SOURCE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_TEST_NO_ARG_MONO_SOURCE, BtTestNoArgMonoSourceClass))
+#define BT_IS_TEST_NO_ARG_MONO_SOURCE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_TEST_NO_ARG_MONO_SOURCE))
+#define BT_IS_TEST_NO_ARG_MONO_SOURCE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_TEST_NO_ARG_MONO_SOURCE))
+#define BT_TEST_NO_ARG_MONO_SOURCE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_TEST_NO_ARG_MONO_SOURCE, BtTestNoArgMonoSourceClass))
+
+/* type macros */
+
+typedef struct _BtTestNoArgMonoSource BtTestNoArgMonoSource;
+typedef struct _BtTestNoArgMonoSourceClass BtTestNoArgMonoSourceClass;
+
+/* monophonic source element */
+struct _BtTestNoArgMonoSource {
+  GstElement parent;
+};
+/* structure of the test_mono_source class */
+struct _BtTestNoArgMonoSourceClass {
+  GstElementClass parent_class;
+};
+
+GType bt_test_no_arg_mono_source_get_type(void);
 
 //-- test_mono_source
 
@@ -47,13 +85,14 @@ struct _BtTestMonoSource {
   gulong ulong_val;
   gdouble double_val;
   gboolean switch_val;
+  GstBtNote note_val;
+  BtTestSparseEnum sparse_enum_val;
 };
 /* structure of the test_mono_source class */
 struct _BtTestMonoSourceClass {
   GstElementClass parent_class;
 };
 
-/* used by TEST_MONO_SOURCE_TYPE */
 GType bt_test_mono_source_get_type(void);
 
 //-- test_poly_source
@@ -78,6 +117,8 @@ struct _BtTestPolySource {
   gulong ulong_val;
   gdouble double_val;
   gboolean switch_val;
+  GstBtNote note_val;
+  BtTestSparseEnum sparse_enum_val;
 
   // the number of voices the plugin has
   gulong num_voices;
@@ -88,7 +129,6 @@ struct _BtTestPolySourceClass {
   GstElementClass parent_class;
 };
 
-/* used by TEST_POLY_SOURCE_TYPE */
 GType bt_test_poly_source_get_type(void);
 
 //-- test_mono_processor

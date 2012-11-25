@@ -7,7 +7,7 @@ AUTOMAKE_OPTIONS = 1.6
 DOC_MODULE=buzztard-ic
 
 # The top-level SGML file. You can change this if you want to.
-DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml
+DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.xml
 
 # The directory containing the source code. Relative to $(srcdir).
 # gtk-doc will search all .c & .h files beneath here for inline comments
@@ -75,7 +75,7 @@ GTKDOC_CFLAGS = \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = \
-	$(top_builddir)/src/lib/ic/libbuzztard-ic.la \
+	$(top_builddir)/libbuzztard-ic.la \
 	$(BASE_DEPS_LIBS) \
 	$(BT_LIBS)
 

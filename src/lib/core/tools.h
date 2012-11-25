@@ -40,6 +40,11 @@ gboolean bt_bin_deactivate_tee_chain(GstBin *bin, GstElement *tee, GList* analyz
 
 const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res,GstPad *src_pad,GstPad *sink_pad);
 
+//-- gst element messages
+
+gdouble bt_gst_level_message_get_aggregated_field(const GstStructure *structure, const gchar *field_name, gdouble default_value);
+GstClockTime bt_gst_analyzer_get_waittime(GstElement *analyzer, const GstStructure *structure, gboolean endtime_is_running_time);
+
 //-- gst compat
 
 //-- glib compat & helper
@@ -107,15 +112,6 @@ sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
 
 //-- gobject ref-count debugging & helpers
 
-/*
-GCC 4.1 introduced this crazy warning that complains about casting between
-different pointer types. The question is why this includes void* ?
-Sadly they don't gave tips how they belive to get rid of the warning.
-
-#define bt_type_pun_to_gpointer(val) \
-  (((union { gpointer __a; __typeof__((val)) __b; }){__b:(val)}).__a)
-*/
-
 /**
  * g_object_try_weak_ref:
  * @obj: the object to reference
@@ -123,15 +119,8 @@ Sadly they don't gave tips how they belive to get rid of the warning.
  * If the supplied object is not %NULL then reference it via
  * g_object_add_weak_pointer().
  */
-#define g_object_try_weak_ref(obj) if(obj) g_object_add_weak_pointer(G_OBJECT(obj),(gpointer *)&obj##_ptr);
-/*
 #define g_object_try_weak_ref(obj) \
-  if(obj) { \
-    gpointer *ptr=&bt_type_pun_to_gpointer(obj); \
-    GST_DEBUG("  reffing : %p",ptr); \
-    g_object_add_weak_pointer(G_OBJECT(obj),ptr); \
-  }
-*/
+  if(obj) g_object_add_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
 
 /**
  * g_object_try_weak_unref:
@@ -140,29 +129,8 @@ Sadly they don't gave tips how they belive to get rid of the warning.
  * If the supplied object is not %NULL then release the reference via
  * g_object_remove_weak_pointer().
  */
-#define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj##_ptr);
-/*
 #define g_object_try_weak_unref(obj) \
-  if(obj) { \
-    gpointer *ptr=&bt_type_pun_to_gpointer(obj); \
-    GST_DEBUG("  unreffing : %p",ptr); \
-    g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&bt_type_pun_to_gpointer(obj)); \
-  }
-*/
-
-/**
- * G_POINTER_ALIAS:
- * @type: the type
- * @var: the variable name
- *
- * Defines a anonymous union to handle gcc-4.1s type punning warning that one
- * gets when using e.g. g_object_try_weak_ref()
- */
-#define G_POINTER_ALIAS(type,var) \
-union { \
-  type var; \
-  gconstpointer var##_ptr; \
-}
+  if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
 
 /**
  * G_OBJECT_REF_COUNT:
@@ -174,6 +142,21 @@ union { \
  * Returns: the reference counter.
  */
 #define G_OBJECT_REF_COUNT(obj) ((obj)?((G_OBJECT(obj))->ref_count):0)
+
+/**
+ * G_OBJECT_REF_COUNT_FMT:
+ *
+ * Printf format string for #G_OBJECT_LOG_REF_COUNT.
+ */
+#define G_OBJECT_REF_COUNT_FMT "p,ref_ct=%d"
+
+/**
+ * G_OBJECT_LOG_REF_COUNT:
+ * @o: the object (may be %NULL)
+ *
+ * Logs an object together with its refcounts. Use with #G_OBJECT_REF_COUNT_FMT.
+ */
+#define G_OBJECT_LOG_REF_COUNT(o) (o), G_OBJECT_REF_COUNT ((o))
 
 /**
  * g_object_try_ref:

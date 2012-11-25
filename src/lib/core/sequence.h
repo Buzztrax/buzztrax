@@ -43,7 +43,7 @@ typedef struct _BtSequencePrivate BtSequencePrivate;
  * BtSequence:
  *
  * Starting point for the #BtSong timeline data-structures.
- * Holds a series of array of #BtPatterns for time and tracks, which define the
+ * Holds a series of array of #BtCmdPatterns for time and tracks, which define the
  * events that are sent to a #BtMachine at a time.
  */
 struct _BtSequence {
@@ -61,10 +61,8 @@ GType bt_sequence_get_type(void) G_GNUC_CONST;
 
 BtSequence *bt_sequence_new(const BtSong * const song);
 
-void bt_sequence_repair_damage(const BtSequence * const self);
-
 glong bt_sequence_get_track_by_machine(const BtSequence * const self,const BtMachine * const machine,gulong track);
-glong bt_sequence_get_tick_by_pattern(const BtSequence * const self,gulong track, const BtPattern * const pattern,gulong tick);
+glong bt_sequence_get_tick_by_pattern(const BtSequence * const self,gulong track, const BtCmdPattern * const pattern,gulong tick);
 
 BtMachine *bt_sequence_get_machine(const BtSequence * const self,const gulong track);
 
@@ -76,12 +74,11 @@ gboolean bt_sequence_move_track_right(const BtSequence * const self, const gulon
 
 gchar *bt_sequence_get_label(const BtSequence * const self, const gulong time);
 void bt_sequence_set_label(const BtSequence * const self, const gulong time, const gchar * const label);
-BtPattern *bt_sequence_get_pattern(const BtSequence * const self, const gulong time, const gulong track);
-gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern);
-void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern);
+BtCmdPattern *bt_sequence_get_pattern(const BtSequence * const self, const gulong time, const gulong track);
+gboolean bt_sequence_set_pattern_quick(const BtSequence * const self, const gulong time, const gulong track, const BtCmdPattern * const pattern);
+void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, const gulong track, const BtCmdPattern * const pattern);
 
-GstClockTime bt_sequence_get_bar_time(const BtSequence * const self);
-GstClockTime bt_sequence_get_loop_time(const BtSequence * const self);
+gulong bt_sequence_get_loop_length(const BtSequence * const self);
 gulong bt_sequence_limit_play_pos(const BtSequence * const self, const gulong play_pos);
 
 gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPattern * const pattern);
@@ -90,8 +87,5 @@ void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, c
 void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong time, const gulong rows);
 void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, const glong track, const gulong rows);
 void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong time, const gulong rows);
-
-void bt_sequence_update_tempo(const BtSequence * const self);
-
 
 #endif // BT_SEQUENCE_H

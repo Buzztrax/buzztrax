@@ -572,6 +572,7 @@ BtMissingSongElementsDialogPrivate
 <FILE>btobjectlistmodel</FILE>
 <TITLE>BtObjectListModel</TITLE>
 BtObjectListModel
+bt_object_list_model_insert
 bt_object_list_model_append
 bt_object_list_model_get_object
 bt_object_list_model_new
@@ -615,7 +616,6 @@ BtPatternEditorCallbacks
 BtPatternEditorColumn
 BtPatternEditorColumnType
 BtPatternEditorColumnGroup
-BtPatternEditorColumnGroupType
 BtPatternEditorSelectionMode
 bt_pattern_editor_new
 bt_pattern_editor_set_pattern
@@ -706,25 +706,6 @@ bt_render_dialog_get_type
 BtRenderDialogPrivate
 BT_TYPE_RENDER_MODE
 bt_render_mode_get_type
-</SECTION>
-
-
-<SECTION>
-<FILE>btrenderprogress</FILE>
-<TITLE>BtRenderProgress</TITLE>
-BtRenderProgress
-bt_render_progress_new
-bt_render_progress_run
-<SUBSECTION Standard>
-BtRenderProgressClass
-BT_RENDER_PROGRESS
-BT_IS_RENDER_PROGRESS
-BT_TYPE_RENDER_PROGRESS
-BT_RENDER_PROGRESS_CLASS
-BT_IS_RENDER_PROGRESS_CLASS
-BT_RENDER_PROGRESS_GET_CLASS
-bt_render_progress_get_type
-BtRenderProgressPrivate
 </SECTION>
 
 
@@ -961,6 +942,44 @@ bt_volume_popup_get_type
 
 
 <SECTION>
+<FILE>btwavelistmodel</FILE>
+<TITLE>BtWaveListModel</TITLE>
+BtWaveListModel
+bt_wave_list_model_get_object
+bt_wave_list_model_new
+<SUBSECTION Standard>
+BtWaveListModelClass
+BT_WAVE_LIST_MODEL
+BT_IS_WAVE_LIST_MODEL
+BT_WAVE_LIST_MODEL_CLASS
+BT_IS_WAVE_LIST_MODEL_CLASS
+BT_WAVE_LIST_MODEL_GET_CLASS
+BT_TYPE_WAVE_LIST_MODEL
+bt_wave_list_model_get_type
+BtWaveListModelPrivate
+</SECTION>
+
+
+<SECTION>
+<FILE>btwavelevellistmodel</FILE>
+<TITLE>BtWavelevelListModel</TITLE>
+BtWavelevelListModel
+bt_wavelevel_list_model_get_object
+bt_wavelevel_list_model_new
+<SUBSECTION Standard>
+BtWavelevelListModelClass
+BT_WAVELEVEL_LIST_MODEL
+BT_IS_WAVELEVEL_LIST_MODEL
+BT_WAVELEVEL_LIST_MODEL_CLASS
+BT_IS_WAVELEVEL_LIST_MODEL_CLASS
+BT_WAVELEVEL_LIST_MODEL_GET_CLASS
+BT_TYPE_WAVELEVEL_LIST_MODEL
+bt_wavelevel_list_model_get_type
+BtWavelevelListModelPrivate
+</SECTION>
+
+
+<SECTION>
 <FILE>btwaveformviewer</FILE>
 <TITLE>BtWaveformViewer</TITLE>
 BtWaveformViewer
@@ -1041,6 +1060,12 @@ GTK_CHECK_CLASS_CAST
 GTK_CHECK_CLASS_TYPE
 GTK_CHECK_GET_CLASS
 GTK_CHECK_TYPE
+GTK_COMBO_BOX_TEXT
+GtkComboBoxText
+gtk_combo_box_text_append_text
+gtk_combo_box_text_get_active_text
+gtk_combo_box_text_new
+gtk_combo_box_text_remove
 gtk_dialog_get_action_area
 gtk_dialog_get_content_area
 gtk_menu_tool_button_set_arrow_tooltip_text

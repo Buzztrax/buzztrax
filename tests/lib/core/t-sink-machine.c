@@ -21,273 +21,239 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+static BtSettings *settings;
+
 //-- fixtures
 
-static void test_setup(void) {
-  bt_core_setup();
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  BT_CASE_START;
 }
 
-static void test_teardown(void) {
-  bt_core_teardown();
-  //puts(__FILE__":teardown");
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  song = bt_song_new (app);
+  settings = bt_settings_make ();
 }
+
+static void
+test_teardown (void)
+{
+  g_object_unref (settings);
+  g_object_checked_unref (song);
+  g_object_checked_unref (app);
+}
+
+static void
+case_teardown (void)
+{
+}
+
+//-- helper
+
+static void
+make_test_song (void)
+{
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachine *gen =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+          NULL));
+  bt_wire_new (song, gen, sink, NULL);
+  GstElement *element =
+      (GstElement *) check_gobject_get_object_property (gen, "machine");
+  g_object_set (element, "wave", /* silence */ 4, NULL);
+
+  gst_object_unref (element);
+}
+
 
 //-- tests
 
 // test attribute handling in sink names
-BT_START_TEST(test_btsinkmachine_settings1) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSinkMachine *machine=NULL;
-  //gchar *saved_audiosink_name;
-  BtSettings *settings=bt_settings_make();
+static void
+test_bt_sink_machine_settings_name_with_parameter (BT_TEST_ARGS)
+{
+  BT_TEST_START;
 
-  /* create  app, song and get settings */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  mark_point();
+  /* arrange */
+  g_object_set (settings, "audiosink", "osssink sync=false", NULL);
+  mark_point ();
 
-  //g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
-  g_object_set(settings,"audiosink","osssink sync=false",NULL);
-  mark_point();
+  /* act */
+  GError *err = NULL;
+  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
 
-  machine=bt_sink_machine_new(song,"master",&err);
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
+  /* assert */
+  fail_unless (machine != NULL, NULL);
+  fail_unless (err == NULL, NULL);
 
-  //g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
-
-  //g_free(saved_audiosink_name);
-  g_object_unref(machine);
-  g_object_unref(settings);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  BT_TEST_END;
 }
-BT_END_TEST;
 
-/*
- * Try to create a sink machine, if we set the sink property with the gconf
- * properties to the string "audioconvert ! osssink sync=false". This string
- * should be replaced by the sink machine to "ossink" and the machine should be
- * instantiable.
+
+/* Check if we handle a sink setting of "audioconvert ! osssink sync=false".
+ * This string should be replaced by the sink machine to "ossink" and the
+ * machine should be instantiable.
  */
-BT_START_TEST(test_btsinkmachine_settings2) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSinkMachine *machine=NULL;
-  BtSettings *settings=bt_settings_make();
+static void
+test_bt_sink_machine_settings_name_is_launch_snippet (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  g_object_set (settings, "audiosink", "audioconvert ! osssink sync=false",
+      NULL);
 
-  /* create  app, song and get settings */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  mark_point();
+  /* act */
+  GError *err = NULL;
+  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
 
-  g_object_set(settings,"audiosink","audioconvert ! osssink sync=false",NULL);
-  mark_point();
+  /* assert */
+  fail_unless (machine != NULL, NULL);
+  fail_unless (err == NULL, NULL);
 
-  machine=bt_sink_machine_new(song,"master",&err);
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  g_object_unref(settings);
-  g_object_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  BT_TEST_END;
 }
-BT_END_TEST;
+
 
 // test attribute handling in sink names
-BT_START_TEST(test_btsinkmachine_settings3) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSinkMachine *machine=NULL;
-  BtSettings *settings=bt_settings_make();
+static void
+test_bt_sink_machine_settings_wrong_type (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  g_object_set (settings, "audiosink", "xvimagsink", NULL);
 
-  /* create  app, song and get settings */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  mark_point();
+  /* act */
+  GError *err = NULL;
+  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
 
-  g_object_set(settings,"audiosink","xvimagsink",NULL);
-  mark_point();
+  /* assert */
+  fail_unless (machine != NULL, NULL);
+  fail_unless (err == NULL, NULL);
 
-  machine=bt_sink_machine_new(song,"master",&err);
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  g_object_unref(settings);
-  g_object_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  BT_TEST_END;
 }
-BT_END_TEST;
+
 
 // test attribute handling in sink names
-BT_START_TEST(test_btsinkmachine_settings4) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSinkMachine *machine=NULL;
-  BtSettings *settings=bt_settings_make();
+static void
+test_bt_sink_machine_settings_wrong_parameters (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  g_object_set (settings, "audiosink", "alsasink device=invalid:666", NULL);
 
-  /* create  app, song and get settings */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  mark_point();
+  /* act */
+  GError *err = NULL;
+  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
 
-  g_object_set(settings,"audiosink","alsasink device=invalid:666",NULL);
-  mark_point();
+  /* assert */
+  fail_unless (machine != NULL, NULL);
+  fail_unless (err == NULL, NULL);
 
-  machine=bt_sink_machine_new(song,"master",&err);
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  g_object_unref(settings);
-  g_object_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  BT_TEST_END;
 }
-BT_END_TEST;
+
 
 // test attribute handling in sink names
-BT_START_TEST(test_btsinkmachine_settings5) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSinkMachine *machine=NULL;
-  BtSettings *settings=bt_settings_make();
+static void
+test_bt_sink_machine_settings_inexistent_type (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  g_object_set (settings, "audiosink", "doesnotexistssink", NULL);
 
-  /* create  app, song and get settings */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  mark_point();
+  /* act */
+  GError *err = NULL;
+  BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
 
-  g_object_set(settings,"audiosink","doesnotexistssink",NULL);
-  mark_point();
+  /* assert */
+  fail_unless (machine != NULL, NULL);
+  fail_unless (err == NULL, NULL);
 
-  machine=bt_sink_machine_new(song,"master",&err);
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err==NULL, NULL);
-
-  g_object_unref(settings);
-  g_object_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  BT_TEST_END;
 }
-BT_END_TEST;
 
 
 // test if the song play routine works with fakesink
-BT_START_TEST(test_btsinkmachine_play1) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *loader=NULL;
-  gboolean load_ret = FALSE;
-  gboolean res;
-  BtSettings *settings=bt_settings_make();
+static void
+test_bt_sink_machine_play_fakesink (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  g_object_set (settings, "audiosink", "fakesink", NULL);
+  make_test_song ();
 
-  g_object_set(settings,"audiosink","fakesink",NULL);
+  /* act & assert */
+  fail_unless (bt_song_play (song), NULL);
+  g_usleep (G_USEC_PER_SEC / 10);
+  bt_song_stop (song);
 
-  /* create  app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
-
-  res=bt_song_play(song);
-  fail_unless(res, NULL);
-  g_usleep(G_USEC_PER_SEC/10);
-  bt_song_stop(song);
-
-  g_object_unref(settings);
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  BT_TEST_END;
 }
-BT_END_TEST
 
 // test if the song play routine handles sink with wrong parameters
-BT_START_TEST(test_btsinkmachine_play2) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *loader=NULL;
-  gboolean load_ret = FALSE;
-  gboolean res;
-  BtSettings *settings=bt_settings_make();
+static void
+test_bt_sink_machine_play_wrong_parameters (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  g_object_set (settings, "audiosink", "alsasink device=invalid:666", NULL);
+  make_test_song ();
 
-  g_object_set(settings,"audiosink","alsasink device=invalid:666",NULL);
+  /* act & assert */
+  fail_unless (bt_song_play (song), NULL);
+  g_usleep (G_USEC_PER_SEC / 10);
+  bt_song_stop (song);
 
-  /* create  app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
-
-  res=bt_song_play(song);
-  fail_unless(res, NULL);
-  g_usleep(G_USEC_PER_SEC/10);
-  bt_song_stop(song);
-
-  g_object_unref(settings);
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  BT_TEST_END;
 }
-BT_END_TEST
 
 // test if the song play routine handles sink with wrong parameters
-BT_START_TEST(test_btsinkmachine_play3) {
-  BtApplication *app=NULL;
-  BtSong *song=NULL;
-  BtSongIO *loader=NULL;
-  gboolean load_ret = FALSE;
-  gboolean res;
-  BtSettings *settings=bt_settings_make();
+static void
+test_bt_sink_machine_play_inexistent_type (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  g_object_set (settings, "audiosink", "doesnotexistssink", NULL);
 
-  g_object_set(settings,"audiosink","doesnotexistssink",NULL);
+  make_test_song ();
 
-  /* create  app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-  fail_unless(song != NULL, NULL);
-  loader=bt_song_io_from_file(check_get_test_song_path("test-simple1.xml"));
-  fail_unless(loader != NULL, NULL);
-  load_ret = bt_song_io_load(loader,song);
-  fail_unless(load_ret, NULL);
+  /* act & assert */
+  fail_unless (bt_song_play (song), NULL);
+  g_usleep (G_USEC_PER_SEC / 10);
+  bt_song_stop (song);
 
-  res=bt_song_play(song);
-  fail_unless(res, NULL);
-  g_usleep(G_USEC_PER_SEC/10);
-  bt_song_stop(song);
-
-  g_object_unref(settings);
-  g_object_checked_unref(loader);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  BT_TEST_END;
 }
-BT_END_TEST
 
-TCase *bt_sink_machine_test_case(void) {
-  TCase *tc = tcase_create("BtSinkMachineTests");
+TCase *
+bt_sink_machine_test_case (void)
+{
+  TCase *tc = tcase_create ("BtSinkMachineTests");
 
-  tcase_add_test(tc,test_btsinkmachine_settings1);
-  tcase_add_test(tc,test_btsinkmachine_settings2);
-  tcase_add_test(tc,test_btsinkmachine_settings3);
-  tcase_add_test(tc,test_btsinkmachine_settings4);
-  tcase_add_test(tc,test_btsinkmachine_settings5);
-  tcase_add_test(tc,test_btsinkmachine_play1);
-  tcase_add_test(tc,test_btsinkmachine_play2);
-  tcase_add_test(tc,test_btsinkmachine_play3);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_sink_machine_settings_name_with_parameter);
+  tcase_add_test (tc, test_bt_sink_machine_settings_name_is_launch_snippet);
+  tcase_add_test (tc, test_bt_sink_machine_settings_wrong_type);
+  tcase_add_test (tc, test_bt_sink_machine_settings_wrong_parameters);
+  tcase_add_test (tc, test_bt_sink_machine_settings_inexistent_type);
+  tcase_add_test (tc, test_bt_sink_machine_play_fakesink);
+  tcase_add_test (tc, test_bt_sink_machine_play_wrong_parameters);
+  tcase_add_test (tc, test_bt_sink_machine_play_inexistent_type);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

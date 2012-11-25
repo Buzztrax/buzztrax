@@ -28,11 +28,13 @@
 
 #include "ic_private.h"
 
-enum {
-  REGISTRY_DEVICE_LIST=1
+enum
+{
+  REGISTRY_DEVICES = 1
 };
 
-struct _BtIcRegistryPrivate {
+struct _BtIcRegistryPrivate
+{
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
@@ -44,7 +46,7 @@ struct _BtIcRegistryPrivate {
 #endif
 };
 
-static BtIcRegistry *singleton=NULL;
+static BtIcRegistry *singleton = NULL;
 
 //-- the class
 
@@ -61,8 +63,10 @@ G_DEFINE_TYPE (BtIcRegistry, btic_registry, G_TYPE_OBJECT);
  *
  * Returns: the new instance
  */
-BtIcRegistry *btic_registry_new(void) {
-  return(g_object_new(BTIC_TYPE_REGISTRY,NULL));
+BtIcRegistry *
+btic_registry_new (void)
+{
+  return (g_object_new (BTIC_TYPE_REGISTRY, NULL));
 }
 
 //-- methods
@@ -75,26 +79,28 @@ BtIcRegistry *btic_registry_new(void) {
  *
  * Only to be used by discoverers.
  */
-void btic_registry_remove_device_by_udi(const gchar *udi) {
-  BtIcRegistry *self=singleton;
+void
+btic_registry_remove_device_by_udi (const gchar * udi)
+{
+  BtIcRegistry *self = singleton;
   GList *node;
   BtIcDevice *device;
   gchar *device_udi;
 
-  g_return_if_fail(self);
+  g_return_if_fail (self);
 
   // search for device by udi
-  for(node=self->priv->devices;node;node=g_list_next(node)) {
-    device=BTIC_DEVICE(node->data);
-    g_object_get(device,"udi",&device_udi,NULL);
-    if(!strcmp(udi,device_udi)) {
+  for (node = self->priv->devices; node; node = g_list_next (node)) {
+    device = BTIC_DEVICE (node->data);
+    g_object_get (device, "udi", &device_udi, NULL);
+    if (!strcmp (udi, device_udi)) {
       // remove devices from our list and trigger notify
-      self->priv->devices=g_list_delete_link(self->priv->devices,node);
-      g_object_unref(device);
-      g_object_notify(G_OBJECT(self),"devices");
+      self->priv->devices = g_list_delete_link (self->priv->devices, node);
+      g_object_unref (device);
+      g_object_notify (G_OBJECT (self), "devices");
       break;
     }
-    g_free(device_udi);
+    g_free (device_udi);
   }
 }
 
@@ -106,19 +112,21 @@ void btic_registry_remove_device_by_udi(const gchar *udi) {
  *
  * Only to be used by discoverers.
  */
-void btic_registry_add_device(BtIcDevice *device) {
-  BtIcRegistry *self=singleton;
+void
+btic_registry_add_device (BtIcDevice * device)
+{
+  BtIcRegistry *self = singleton;
 
-  g_return_if_fail(self);
+  g_return_if_fail (self);
 
-  if(btic_device_has_controls(device) || BTIC_IS_LEARN(device)) {
+  if (btic_device_has_controls (device) || BTIC_IS_LEARN (device)) {
     // add devices to our list and trigger notify
-    self->priv->devices=g_list_prepend(self->priv->devices,(gpointer)device);
-    g_object_notify(G_OBJECT(self),"devices");
-  }
-  else {
-    GST_DEBUG("device has no controls, not adding");
-    g_object_unref(device);
+    self->priv->devices =
+        g_list_prepend (self->priv->devices, (gpointer) device);
+    g_object_notify (G_OBJECT (self), "devices");
+  } else {
+    GST_DEBUG ("device has no controls, not adding");
+    g_object_unref (device);
   }
 }
 
@@ -126,98 +134,114 @@ void btic_registry_add_device(BtIcDevice *device) {
 
 //-- class internals
 
-static void btic_registry_get_property(GObject * const object, const guint property_id, GValue * const value, GParamSpec * const pspec) {
-  const BtIcRegistry * const self = BTIC_REGISTRY(object);
-  return_if_disposed();
+static void
+btic_registry_get_property (GObject * const object, const guint property_id,
+    GValue * const value, GParamSpec * const pspec)
+{
+  const BtIcRegistry *const self = BTIC_REGISTRY (object);
+  return_if_disposed ();
   switch (property_id) {
-    case REGISTRY_DEVICE_LIST: {
-      g_value_set_pointer(value,g_list_copy(self->priv->devices));
-    } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
+    case REGISTRY_DEVICES:
+      g_value_set_pointer (value, g_list_copy (self->priv->devices));
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
   }
 }
 
-static void btic_registry_dispose(GObject * const object) {
-  const BtIcRegistry * const self = BTIC_REGISTRY(object);
+static void
+btic_registry_dispose (GObject * const object)
+{
+  const BtIcRegistry *const self = BTIC_REGISTRY (object);
 
-  return_if_disposed();
+  return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT_REF_COUNT(self));
+  GST_DEBUG ("!!!! self=%p", self);
 #if USE_GUDEV
-  g_object_try_unref(self->priv->gudev_discoverer);
+  g_object_try_unref (self->priv->gudev_discoverer);
 #endif
-  if(self->priv->devices) {
-    GList* node;
-    GST_DEBUG("!!!! free devices: %d",g_list_length(self->priv->devices));
-    for(node=self->priv->devices;node;node=g_list_next(node)) {
-      g_object_try_unref(node->data);
-      node->data=NULL;
+  if (self->priv->devices) {
+    GList *node;
+    GST_DEBUG ("!!!! free devices: %d", g_list_length (self->priv->devices));
+    for (node = self->priv->devices; node; node = g_list_next (node)) {
+      g_object_try_unref (node->data);
+      node->data = NULL;
     }
   }
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(btic_registry_parent_class)->dispose(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (btic_registry_parent_class)->dispose (object);
+  GST_DEBUG ("  done");
 }
 
-static void btic_registry_finalize(GObject * const object) {
-  const BtIcRegistry * const self = BTIC_REGISTRY(object);
+static void
+btic_registry_finalize (GObject * const object)
+{
+  const BtIcRegistry *const self = BTIC_REGISTRY (object);
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG ("!!!! self=%p", self);
 
-  if(self->priv->devices) {
-    g_list_free(self->priv->devices);
-    self->priv->devices=NULL;
+  if (self->priv->devices) {
+    g_list_free (self->priv->devices);
+    self->priv->devices = NULL;
   }
 
-  GST_DEBUG("  chaining up");
-  G_OBJECT_CLASS(btic_registry_parent_class)->finalize(object);
-  GST_DEBUG("  done");
+  GST_DEBUG ("  chaining up");
+  G_OBJECT_CLASS (btic_registry_parent_class)->finalize (object);
+  GST_DEBUG ("  done");
 }
 
-static GObject *btic_registry_constructor(GType type,guint n_construct_params,GObjectConstructParam *construct_params) {
+static GObject *
+btic_registry_constructor (GType type, guint n_construct_params,
+    GObjectConstructParam * construct_params)
+{
   GObject *object;
 
-  if(G_UNLIKELY(!singleton)) {
-    object=G_OBJECT_CLASS(btic_registry_parent_class)->constructor(type,n_construct_params,construct_params);
-    singleton=BTIC_REGISTRY(object);
-    g_object_add_weak_pointer(object,(gpointer*)(gpointer)&singleton);
+  if (G_UNLIKELY (!singleton)) {
+    object =
+        G_OBJECT_CLASS (btic_registry_parent_class)->constructor (type,
+        n_construct_params, construct_params);
+    singleton = BTIC_REGISTRY (object);
+    g_object_add_weak_pointer (object, (gpointer *) (gpointer) & singleton);
 
-    GST_INFO("new device registry created");
+    GST_INFO ("new device registry created");
 #if USE_GUDEV
-    singleton->priv->gudev_discoverer=btic_gudev_discoverer_new();
+    singleton->priv->gudev_discoverer = btic_gudev_discoverer_new ();
 #else
-    GST_INFO("no GUDev support, empty device registry");
+    GST_INFO ("no GUDev support, empty device registry");
 #endif
-  }
-  else {
-    object=g_object_ref(singleton);
+  } else {
+    object = g_object_ref (singleton);
   }
   return object;
 }
 
 
-static void btic_registry_init(BtIcRegistry *self) {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_REGISTRY, BtIcRegistryPrivate);
+static void
+btic_registry_init (BtIcRegistry * self)
+{
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_REGISTRY,
+      BtIcRegistryPrivate);
 }
 
-static void btic_registry_class_init(BtIcRegistryClass * const klass) {
-  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+static void
+btic_registry_class_init (BtIcRegistryClass * const klass)
+{
+  GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private(klass,sizeof(BtIcRegistryPrivate));
+  g_type_class_add_private (klass, sizeof (BtIcRegistryPrivate));
 
-  gobject_class->constructor  = btic_registry_constructor;
+  gobject_class->constructor = btic_registry_constructor;
   gobject_class->get_property = btic_registry_get_property;
-  gobject_class->dispose      = btic_registry_dispose;
-  gobject_class->finalize     = btic_registry_finalize;
+  gobject_class->dispose = btic_registry_dispose;
+  gobject_class->finalize = btic_registry_finalize;
 
-  g_object_class_install_property(gobject_class,REGISTRY_DEVICE_LIST,
-                                  g_param_spec_pointer("devices",
-                                     "device list prop",
-                                     "A copy of the list of control devices",
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, REGISTRY_DEVICES,
+      g_param_spec_pointer ("devices",
+          "device list prop",
+          "A copy of the list of control devices",
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
-

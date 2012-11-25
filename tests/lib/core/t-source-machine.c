@@ -21,100 +21,87 @@
 
 //-- globals
 
+static BtApplication *app;
+static BtSong *song;
+
 //-- fixtures
 
-static void test_setup(void) {
-  bt_core_setup();
-  GST_INFO("================================================================================");
+static void
+case_setup (void)
+{
+  BT_CASE_START;
 }
 
-static void test_teardown(void) {
-  bt_core_teardown();
-  //puts(__FILE__":teardown");
+static void
+test_setup (void)
+{
+  app = bt_test_application_new ();
+  song = bt_song_new (app);
 }
+
+static void
+test_teardown (void)
+{
+  g_object_checked_unref (song);
+  g_object_checked_unref (app);
+}
+
+static void
+case_teardown (void)
+{
+}
+
 
 //-- tests
 
-/*
-* try to create a machine with not exising plugin name
-*/
-BT_START_TEST(test_btsourcemachine_obj1) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSourceMachine *machine=NULL;
+/* create a machine with not exising plugin name */
+static void
+test_bt_source_machine_wrong_name (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  /* act */
+  GError *err = NULL;
+  BtSourceMachine *machine =
+      bt_source_machine_new (song, "id", "nonsense", 1, &err);
 
-  /* try to create a source machine with wrong pluginname (not existing)*/
-  machine=bt_source_machine_new(song,"id","nonsense",1,&err);
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err!=NULL, NULL);
+  /* assert */
+  fail_unless (machine != NULL, NULL);
+  fail_unless (err != NULL, NULL);
 
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  BT_TEST_END;
 }
-BT_END_TEST
 
-/*
-* try to create a machine which is a sink machine and not a source machine
-*/
-BT_START_TEST(test_btsourcemachine_obj2) {
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSourceMachine *machine=NULL;
+/* create a machine which is a sink machine and not a source machine */
+static void
+test_bt_source_machine_wrong_type (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
+  /*act */
+  GError *err = NULL;
+  BtSourceMachine *machine =
+      bt_source_machine_new (song, "id", "autoaudiosink", 1, &err);
 
-  /* try to create a source machine with wrong plugin type (sink instead of source) */
-  machine=bt_source_machine_new(song,"id","autoaudiosink",1,&err);
-  fail_unless(machine!=NULL, NULL);
-  fail_unless(err!=NULL, NULL);
+  /* assert */
+  fail_unless (machine != NULL, NULL);
+  fail_unless (err != NULL, NULL);
 
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
+  /* cleanup */
+  BT_TEST_END;
 }
-BT_END_TEST
 
-BT_START_TEST(test_btsourcemachine_obj3){
-  BtApplication *app=NULL;
-  GError *err=NULL;
-  BtSong *song=NULL;
-  BtSourceMachine *machine=NULL;
-  BtParameterGroup *pg;
-  gulong ix=0;
+TCase *
+bt_source_machine_test_case (void)
+{
+  TCase *tc = tcase_create ("BtSourceMachineTests");
 
-  /* create app and song */
-  app=bt_test_application_new();
-  song=bt_song_new(app);
-
-  /* try to create a normal sink machine */
-  machine=bt_source_machine_new(song,"id","audiotestsrc",0,&err);
-  fail_unless(machine!=NULL,NULL);
-  fail_unless(err==NULL, NULL);
-  /* try to get global param index from audiotestsrc */
-  pg=bt_machine_get_global_param_group(BT_MACHINE(machine));
-  ix=bt_parameter_group_get_param_index(pg,"nonsense");
-  fail_unless(ix==-1);
-
-  g_object_unref(machine);
-  g_object_checked_unref(song);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
-
-TCase *bt_source_machine_test_case(void) {
-  TCase *tc = tcase_create("BtSourceMachineTests");
-
-  tcase_add_test(tc,test_btsourcemachine_obj1);
-  tcase_add_test(tc,test_btsourcemachine_obj2);
-  tcase_add_test(tc,test_btsourcemachine_obj3);
-  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  return(tc);
+  tcase_add_test (tc, test_bt_source_machine_wrong_name);
+  tcase_add_test (tc, test_bt_source_machine_wrong_type);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

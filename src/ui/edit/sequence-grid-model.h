@@ -83,6 +83,6 @@ typedef enum {
 GType bt_sequence_grid_model_get_type(void) G_GNUC_CONST;
 GType bt_sequence_grid_model_pos_format_get_type(void) G_GNUC_CONST;
 
-BtSequenceGridModel *bt_sequence_grid_model_new(BtSequence *sequence,gulong bars);
+BtSequenceGridModel *bt_sequence_grid_model_new(BtSequence *sequence,BtSongInfo *song_info,gulong bars);
 
 #endif // BT_SEQUENCE_GRID_MODEL_H

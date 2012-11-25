@@ -21,41 +21,87 @@
 
 //-- globals
 
+static FILE *saved_stdout = NULL;
+
+//-- fixtures
+
+static void
+case_setup (void)
+{
+  BT_CASE_START;
+}
+
+static void
+test_setup (void)
+{
+  saved_stdout = stdout;
+  stdout = tmpfile ();
+}
+
+static void
+test_teardown (void)
+{
+  fclose (stdout);
+  stdout = saved_stdout;
+}
+
+static void
+case_teardown (void)
+{
+}
+
 
 //-- tests
 
 // test if the normal init call works with commandline arguments (no args)
-START_TEST(test_btcore_init0) {
-  bt_init(&test_argc,&test_argvptr);
+static void
+test_bt_core_init0 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* act */
+  bt_init (&test_argc, &test_argvptr);
+  BT_TEST_END;
 }
-END_TEST
 
 // test if the init call handles correct null pointers
-START_TEST(test_btcore_init1) {
-  bt_init(NULL,NULL);
+static void
+test_bt_core_init1 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* act */
+  bt_init (NULL, NULL);
+  BT_TEST_END;
 }
-END_TEST
 
 // test if the normal init call works with commandline arguments
-START_TEST(test_btcore_init2) {
-  // this shadows the global vars of the same name
-  gint test_argc=2;
-  gchar *test_argv[test_argc];
-  gchar **test_argvptr;
+static void
+test_bt_core_init2 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  gchar *test_argv[] = { "check_buzzard", "--bt-version" };
+  gchar **test_argvptr = test_argv;
+  gint test_argc = G_N_ELEMENTS (test_argv);
 
-  test_argv[0]="check_buzzard";
-  test_argv[1]="--bt-version";
-  test_argvptr=test_argv;
+  /* act */
+  bt_init (&test_argc, &test_argvptr);
 
-  bt_init(&test_argc,&test_argvptr);
+  /* assert */
+  ck_assert_int_eq (test_argc, 1);
+  fail_unless (check_file_contains_str (stdout, NULL,
+          "libbuzztard-core-" PACKAGE_VERSION " from " PACKAGE_STRING), NULL);
+  BT_TEST_END;
 }
-END_TEST
 
-TCase *bt_core_example_case(void) {
-  TCase *tc = tcase_create("BtCoreExamples");
+TCase *
+bt_core_example_case (void)
+{
+  TCase *tc = tcase_create ("BtCoreExamples");
 
-  tcase_add_test(tc,test_btcore_init0);
-  tcase_add_test(tc,test_btcore_init1);
-  tcase_add_test(tc,test_btcore_init2);
-  return(tc);
+  tcase_add_test (tc, test_bt_core_init0);
+  tcase_add_test (tc, test_bt_core_init1);
+  tcase_add_test (tc, test_bt_core_init2);
+  tcase_add_checked_fixture (tc, test_setup, test_teardown);
+  tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
+  return (tc);
 }

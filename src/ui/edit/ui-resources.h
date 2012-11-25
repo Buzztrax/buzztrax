@@ -39,7 +39,7 @@ typedef struct _BtUIResourcesPrivate BtUIResourcesPrivate;
 /**
  * BtUIResources:
  *
- * a collection of shared ui ressources
+ * a collection of shared ui resources
  */
 struct _BtUIResources {
   GObject parent;
@@ -103,7 +103,7 @@ typedef enum {
   BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,      /* list view even */
   BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        /* --- */
   BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        /* --- */
-  BT_UI_RES_COLOR_ANALYZER_PEAK,             /* analyzer widnow peak marks */
+  BT_UI_RES_COLOR_ANALYZER_PEAK,             /* analyzer window peak marks */
   BT_UI_RES_COLOR_GRID_LINES,                /* grid lines */
   BT_UI_RES_COLOR_COUNT
 } BtUIResourcesColors;
@@ -137,7 +137,7 @@ GtkWidget *bt_ui_resources_get_icon_image_by_machine_type(GType machine_type);
 
 GdkColor *bt_ui_resources_get_gdk_color(BtUIResourcesColors color_type);
 void bt_ui_resources_get_rgb_color(BtUIResourcesColors color_type, gdouble *r, gdouble *g, gdouble *b);
-guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine,BtUIResourcesMachineColors color_type);
+guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine, BtUIResourcesMachineColors color_type);
 
 GtkAccelGroup *bt_ui_resources_get_accel_group(void);
 
