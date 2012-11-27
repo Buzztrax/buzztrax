@@ -347,6 +347,7 @@ test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
+  g_object_set (settings, "audiosink", "fakesink", NULL);
   make_new_song ( /*silence */ 4);
   GstElement *sink_bin = get_sink_bin ();
   GEnumClass *enum_class =
@@ -356,6 +357,10 @@ test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
   g_object_set (sink_bin,
       "mode", BT_SINK_BIN_MODE_PLAY_AND_RECORD,
       "record-format", _i, "record-file-name", filename, NULL);
+
+  /* the tests for ogg/flac hang in the async state change to paused
+   * a lot of pads have the getcaps flag set
+   */
 
   /* act */
   GST_INFO ("act: == %s ==", filename);

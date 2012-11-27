@@ -38,10 +38,16 @@ case_setup (void)
 static void
 test_setup (void)
 {
+  BtSettings *settings;
   BtWave *wave;
 
   bt_edit_setup ();
   app = bt_edit_application_new ();
+
+  // no beeps please
+  settings = bt_settings_make ();
+  g_object_set (settings, "audiosink", "fakesink", NULL);
+  g_object_unref (settings);
 
   // FIXME(ensonic): have a test song with that sample
   bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));

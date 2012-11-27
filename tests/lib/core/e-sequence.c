@@ -36,7 +36,13 @@ case_setup (void)
 static void
 test_setup (void)
 {
+  BtSettings *settings;
+
   app = bt_test_application_new ();
+  // no beeps please
+  settings = bt_settings_make ();
+  g_object_set (settings, "audiosink", "fakesink", NULL);
+  g_object_unref (settings);
   song = bt_song_new (app);
   bt_child_proxy_get ((gpointer) song, "song-info::tick-duration", &tick_time,
       NULL);
@@ -438,7 +444,7 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
 
   /* act */
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);    // length=0:00:00.120000000
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 4);    // length=0:00:00.120000000
   bt_song_stop (song);
 
   /* assert */

@@ -35,9 +35,15 @@ case_setup (void)
 static void
 test_setup (void)
 {
+  BtSettings *settings;
+
   bt_edit_setup ();
   app = bt_edit_application_new ();
   g_object_get (app, "main-window", &main_window, NULL);
+  // no beeps please
+  settings = bt_settings_make ();
+  g_object_set (settings, "audiosink", "fakesink", NULL);
+  g_object_unref (settings);
 
   flush_main_loop ();
 }
