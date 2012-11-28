@@ -746,7 +746,7 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         self->priv->cursor_group, param, 0, pcc->val_to_float (str, pcc));
 
     g_object_get (self->priv->pattern, "length", &number_of_ticks, NULL);
-    if (self->priv->cursor_row < number_of_ticks) {
+    if (self->priv->cursor_row + 1 < number_of_ticks) {
       g_object_set (self->priv->pattern_table, "cursor-row",
           self->priv->cursor_row + 1, NULL);
     }
