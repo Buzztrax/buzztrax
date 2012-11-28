@@ -935,13 +935,14 @@ activate_element (const BtSetup * const self, gpointer key)
 
     if (BT_IS_SOURCE_MACHINE (key)) {
       // TODO(ensonic): this is causing the lockups in the tests under valgrind
-      // it is not the flush-flag of the seek
-      // collect-pads needs a newsegment to define the segment on the pad for the clipfunc
-      // seek in ready will ensure it, but is somewhat non-standard
-      // as a downside, we run into trouble at segment done
-      // we're trying to address that with the newsegment below, 
-      // but that only needs to be send to the active part we're linking to
-      // see adder-patch, gst-plugins-base: 0cce8ab97d614ef53970292bd403e7f4460d79f9
+      // - it is not the flush-flag of the seek
+      // - collect-pads needs a newsegment to define the segment on the pad for
+      //   the clipfunc
+      // - seek in ready will ensure it, but is somewhat non-standard and
+      //   as a downside, we run into trouble at segment done
+      // - we're trying to address that with the newsegment below, 
+      //   but that only needs to be send to the active part we're linking to
+      // - see gst-plugins-base/adder: 0cce8ab97d614ef53970292bd403e7f4460d79f9
       ret = gst_element_set_state (GST_ELEMENT (key), GST_STATE_READY);
       // going to ready should not by async
       GST_INFO_OBJECT (key, "state-change to READY: %s",
