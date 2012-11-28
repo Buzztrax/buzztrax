@@ -1883,6 +1883,7 @@ sequence_set_loop_end (const BtMainPageSequence * self, glong row)
     sequence_length = row;
     g_object_set (self->priv->sequence, "length", sequence_length, NULL);
     sequence_calculate_visible_lines (self);
+    loop_end = old_loop_end;
   } else {
     // set and read back, as sequence might clamp the value
     g_object_set (self->priv->sequence, "loop-end", row, NULL);
