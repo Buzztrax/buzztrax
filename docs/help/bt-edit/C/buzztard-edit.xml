@@ -862,8 +862,7 @@ i o p</keycap></screen></entry>
       <para>
         To set play position click with left-mouse button in the first column at the
         desired time location. To modify the loop start/end instead hold down
-        the <keycap>Ctrl</keycap> or <keycap>Win</keycap> (<keycap>Mod</keycap>)
-        key while clicking.
+        the <keycap>Ctrl</keycap> or <keycap>Ctrl+Shift</keycap> key while clicking.
       </para>
       <para>
         It is also possible to insert and delete full rows or just entries in a
