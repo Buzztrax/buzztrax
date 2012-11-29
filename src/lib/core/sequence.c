@@ -1527,6 +1527,13 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
           if ((self->priv->loop_end > self->priv->length) ||
               (self->priv->loop_end == length)) {
             self->priv->play_end = self->priv->loop_end = self->priv->length;
+            g_object_notify ((GObject *) self, "loop-end");
+            if (self->priv->loop_end <= self->priv->loop_start) {
+              self->priv->loop_start = self->priv->loop_end = -1;
+              self->priv->loop = FALSE;
+              g_object_notify ((GObject *) self, "loop-start");
+              g_object_notify ((GObject *) self, "loop");
+            }
           }
         } else {
           self->priv->play_end = self->priv->length;

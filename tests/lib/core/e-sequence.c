@@ -467,7 +467,7 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
 }
 
 static void
-test_bt_sequence_validate_loop (BT_TEST_ARGS)
+test_bt_sequence_default_loop (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -486,6 +486,96 @@ test_bt_sequence_validate_loop (BT_TEST_ARGS)
   g_object_unref (sequence);
   BT_TEST_END;
 }
+
+static void
+test_bt_sequence_enlarging_length_enlarges_loop (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  g_object_set (sequence, "length", 16L, NULL);
+  g_object_set (sequence, "loop", TRUE, NULL);
+
+  /* act */
+  g_object_set (sequence, "length", 24L, NULL);
+
+  /* assert */
+  ck_assert_gobject_glong_eq (sequence, "loop-start", 0);
+  ck_assert_gobject_glong_eq (sequence, "loop-end", 24);
+
+  /* cleanup */
+  g_object_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_enlarging_length_keeps_loop (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  g_object_set (sequence, "length", 16L, NULL);
+  g_object_set (sequence, "loop", TRUE, NULL);
+  g_object_set (sequence, "loop-end", 8L, NULL);
+
+  /* act */
+  g_object_set (sequence, "length", 12L, NULL);
+
+  /* assert */
+  ck_assert_gobject_glong_eq (sequence, "loop-start", 0);
+  ck_assert_gobject_glong_eq (sequence, "loop-end", 8);
+
+  /* cleanup */
+  g_object_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_shortening_length_truncates_loop (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  g_object_set (sequence, "length", 16L, NULL);
+  g_object_set (sequence, "loop", TRUE, NULL);
+
+  /* act */
+  g_object_set (sequence, "length", 8L, NULL);
+
+  /* assert */
+  ck_assert_gobject_glong_eq (sequence, "loop-start", 0);
+  ck_assert_gobject_glong_eq (sequence, "loop-end", 8);
+
+  /* cleanup */
+  g_object_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_shortening_length_disables_loop (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  g_object_set (sequence, "length", 24L, NULL);
+  g_object_set (sequence, "loop", TRUE, NULL);
+  g_object_set (sequence, "loop-start", 16L, NULL);
+
+  /* act */
+  g_object_set (sequence, "length", 12L, NULL);
+
+  /* assert */
+  ck_assert_gobject_boolean_eq (sequence, "loop", FALSE);
+
+  /* cleanup */
+  g_object_unref (sequence);
+  BT_TEST_END;
+}
+
 
 static void
 test_bt_sequence_duration (BT_TEST_ARGS)
@@ -578,7 +668,11 @@ bt_sequence_example_case (void)
   tcase_add_test (tc, test_bt_sequence_enlarge_both_vals);
   //tcase_add_test(tc,test_bt_sequence_update);
   tcase_add_test (tc, test_bt_sequence_ticks);
-  tcase_add_test (tc, test_bt_sequence_validate_loop);
+  tcase_add_test (tc, test_bt_sequence_default_loop);
+  tcase_add_test (tc, test_bt_sequence_enlarging_length_enlarges_loop);
+  tcase_add_test (tc, test_bt_sequence_enlarging_length_keeps_loop);
+  tcase_add_test (tc, test_bt_sequence_shortening_length_truncates_loop);
+  tcase_add_test (tc, test_bt_sequence_shortening_length_disables_loop);
   tcase_add_test (tc, test_bt_sequence_duration);
   tcase_add_test (tc, test_bt_sequence_duration_play);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
