@@ -1522,7 +1522,10 @@ bt_sequence_set_property (GObject * const object, const guint property_id,
         GST_DEBUG ("set the length for sequence: %lu", self->priv->length);
         bt_sequence_resize_data_length (self, length);
         if (self->priv->loop_end != -1) {
-          if (self->priv->loop_end > self->priv->length) {
+          // clip loopend to length or extend loop-end as well if loop_end was
+          // old length
+          if ((self->priv->loop_end > self->priv->length) ||
+              (self->priv->loop_end == length)) {
             self->priv->play_end = self->priv->loop_end = self->priv->length;
           }
         } else {
