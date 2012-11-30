@@ -2824,6 +2824,7 @@ on_context_menu_pattern_copy_activate (GtkMenuItem * menuitem,
   BtMachine *machine;
   BtPattern *pattern;
   GtkWidget *dialog;
+  gint current_pattern_ix = gtk_combo_box_get_active (self->priv->pattern_menu);
 
   g_return_if_fail (self->priv->pattern);
 
@@ -2863,6 +2864,7 @@ on_context_menu_pattern_copy_activate (GtkMenuItem * menuitem,
     context_menu_refresh (self, machine);
   } else {
     bt_machine_remove_pattern (machine, (BtCmdPattern *) pattern);
+    gtk_combo_box_set_active (self->priv->pattern_menu, current_pattern_ix);
   }
   gtk_widget_destroy (dialog);
 
