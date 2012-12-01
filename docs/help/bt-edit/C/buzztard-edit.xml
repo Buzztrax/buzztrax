@@ -691,6 +691,11 @@ i o p</keycap></screen></entry>
               <entry><keycombo><keycap>ctrl</keycap><keycap>r</keycap></keycombo></entry>
               <entry>enters random values into the selected range</entry>
             </row>
+            <row>
+              <entry>range-randomize</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>R</keycap></keycombo></entry>
+              <entry>enters random values into the selected range using the first and last value in the selection as a random number range</entry>
+            </row>
           </tbody>
         </tgroup>
       </table>

@@ -866,14 +866,15 @@ bt_value_group_flip_columns (const BtValueGroup * const self,
 }
 
 
-#define _RANDOMIZE(t,T,p)                                                       \
+#define _RANDOMIZE(t,T,p)                                                      \
 	case G_TYPE_ ## T: {                                                         \
       const GParamSpec ## p *p=G_PARAM_SPEC_ ## T(property);                   \
+      g ## t d = p->maximum-p->minimum;                                        \
       for(i=0;i<ticks;i++) {                                                   \
         if(!BT_IS_GVALUE(beg))                                                 \
           g_value_init(beg,G_TYPE_ ## T);                                      \
         rnd=((gdouble)rand())/(RAND_MAX+1.0);                                  \
-        g_value_set_ ## t(beg,(g ## t)(p->minimum+((p->maximum-p->minimum)*rnd))); \
+        g_value_set_ ## t(beg,(g ## t)(p->minimum+(d*rnd)));                   \
         beg+=params;                                                           \
       }                                                                        \
     } break;
@@ -884,7 +885,6 @@ _randomize_column (const BtValueGroup * const self, const gulong start_tick,
 {
   gulong params = self->priv->columns;
   GValue *beg = &self->priv->data[param + params * start_tick];
-  //GValue *end=&self->priv->data[param+params*end_tick];
   gulong i, ticks = (end_tick + 1) - start_tick;
   GParamSpec *property;
   GType base_type;
@@ -896,8 +896,6 @@ _randomize_column (const BtValueGroup * const self, const gulong start_tick,
   GST_INFO ("blending gvalue type %s", g_type_name (base_type));
 
   // TODO(ensonic): should this honour the cursor stepping? e.g. enter only every second value
-  // TODO(ensonic): if beg and end are not empty, shall we use them as upper and lower
-  // bounds instead of the pspec values (ev. have a flag on the function)
 
   switch (base_type) {
       _RANDOMIZE (int, INT, Int)
@@ -916,25 +914,25 @@ _randomize_column (const BtValueGroup * const self, const gulong start_tick,
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
         g_value_set_boolean (beg, (gboolean) (2 * rnd));
       }
-    }
       break;
+    }
     case G_TYPE_ENUM:{
       const GParamSpecEnum *p = G_PARAM_SPEC_ENUM (property);
       const GEnumClass *e = p->enum_class;
-      gint nv = e->n_values - 1;        // don't use no_value
+      gint d = e->n_values - 1; // don't use no_value
       gint v;
 
       for (i = 0; i < ticks; i++) {
         if (!BT_IS_GVALUE (beg))
           g_value_init (beg, property->value_type);
         rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
-        v = (gint) (nv * rnd);
+        v = (gint) (d * rnd);
         // handle sparse enums
         g_value_set_enum (beg, e->values[v].value);
         beg += params;
       }
-    }
       break;
+    }
     default:
       GST_WARNING ("unhandled gvalue type %s", g_type_name (base_type));
   }
@@ -988,6 +986,167 @@ bt_value_group_randomize_columns (const BtValueGroup * const self,
 
   for (j = 0; j < params; j++) {
     _randomize_column (self, start_tick, end_tick, j);
+  }
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
+}
+
+
+#define _RANGE_RANDOMIZE(t,T)                                                  \
+	case G_TYPE_ ## T: {                                                         \
+      g ## t mi = g_value_get_ ## t(beg);                                      \
+      g ## t ma = g_value_get_ ## t(end);                                      \
+      if (ma < mi) {                                                           \
+        g ## t d = ma;                                                         \
+        ma = mi;                                                               \
+        mi = d;                                                                \
+      }                                                                        \
+      g ## t d = ma - mi;                                                      \
+      for(i=0;i<ticks;i++) {                                                   \
+        if(!BT_IS_GVALUE(beg))                                                 \
+          g_value_init(beg,G_TYPE_ ## T);                                      \
+        rnd=((gdouble)rand())/(RAND_MAX+1.0);                                  \
+        g_value_set_ ## t(beg,(g ## t)(mi+(d*rnd)));                           \
+        beg+=params;                                                           \
+      }                                                                        \
+    } break;
+
+static void
+_range_randomize_column (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick, const gulong param)
+{
+  gulong params = self->priv->columns;
+  GValue *beg = &self->priv->data[param + params * start_tick];
+  GValue *end = &self->priv->data[param + params * end_tick];
+  gulong i, ticks = (end_tick + 1) - start_tick;
+  GParamSpec *property;
+  GType base_type;
+  gdouble rnd;
+
+  if (!BT_IS_GVALUE (beg) || !BT_IS_GVALUE (end)) {
+    GST_INFO ("Can't ranged randomize, beg or end is empty");
+    return;
+  }
+
+  property = bt_parameter_group_get_param_spec (self->priv->param_group, param);
+  base_type = bt_g_type_get_base_type (property->value_type);
+
+  GST_INFO ("blending gvalue type %s", g_type_name (base_type));
+
+  // TODO(ensonic): should this honour the cursor stepping? e.g. enter only every second value
+  // TODO(ensonic): if beg and end are not empty, shall we use them as upper and lower
+  // bounds instead of the pspec values (ev. have a flag on the function)
+
+  switch (base_type) {
+      _RANGE_RANDOMIZE (int, INT)
+        _RANGE_RANDOMIZE (uint, UINT)
+        _RANGE_RANDOMIZE (long, LONG)
+        _RANGE_RANDOMIZE (ulong, ULONG)
+        _RANGE_RANDOMIZE (int64, INT64)
+        _RANGE_RANDOMIZE (uint64, UINT64)
+        _RANGE_RANDOMIZE (float, FLOAT)
+        _RANGE_RANDOMIZE (double, DOUBLE)
+      case G_TYPE_BOOLEAN:
+    {
+      for (i = 0; i < ticks; i++) {
+        if (!BT_IS_GVALUE (beg))
+          g_value_init (beg, G_TYPE_BOOLEAN);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        g_value_set_boolean (beg, (gboolean) (2 * rnd));
+      }
+      break;
+    }
+    case G_TYPE_ENUM:{
+      const GParamSpecEnum *p = G_PARAM_SPEC_ENUM (property);
+      const GEnumClass *e = p->enum_class;
+      gint mi = g_value_get_enum (beg);
+      for (i = 0; i < e->n_values; i++) {
+        if (e->values[i].value == mi) {
+          mi = i;
+          break;
+        }
+      }
+      gint ma = g_value_get_enum (end);
+      for (i = 0; i < e->n_values; i++) {
+        if (e->values[i].value == ma) {
+          ma = i;
+          break;
+        }
+      }
+      if (ma < mi) {
+        gint d = ma;
+        ma = mi;
+        mi = d;
+      }
+      gint d = ma - mi;
+      gint v;
+
+      for (i = 0; i < ticks; i++) {
+        if (!BT_IS_GVALUE (beg))
+          g_value_init (beg, property->value_type);
+        rnd = ((gdouble) rand ()) / (RAND_MAX + 1.0);
+        v = (gint) (d * rnd);
+        // handle sparse enums
+        g_value_set_enum (beg, e->values[mi + v].value);
+        beg += params;
+      }
+      break;
+    }
+    default:
+      GST_WARNING ("unhandled gvalue type %s", g_type_name (base_type));
+  }
+}
+
+/**
+ * bt_value_group_range_randomize_column:
+ * @self: the pattern
+ * @start_tick: the start position for the range
+ * @end_tick: the end position for the range
+ * @param: the parameter
+ *
+ * Randomize values from @start_tick to @end_tick for @param using the first
+ * and last value as bounds for the random values.
+ *
+ * Since: 0.7
+ */
+void
+bt_value_group_range_randomize_column (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick, const gulong param)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
+
+  _range_randomize_column (self, start_tick, end_tick, param);
+  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+      self->priv->param_group, FALSE);
+}
+
+/**
+ * bt_value_group_range_randomize_columns:
+ * @self: the pattern
+ * @start_tick: the start position for the range
+ * @end_tick: the end position for the range
+ *
+ * Randomize values from @start_tick to @end_tick for all params using the first
+ * and last value as bounds for the random values.
+ *
+ * Since: 0.7
+ */
+void
+bt_value_group_range_randomize_columns (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick)
+{
+  g_return_if_fail (BT_IS_VALUE_GROUP (self));
+  g_return_if_fail (start_tick < self->priv->length);
+  g_return_if_fail (end_tick < self->priv->length);
+  g_return_if_fail (self->priv->data);
+
+  gulong j, params = self->priv->params;
+
+  for (j = 0; j < params; j++) {
+    _range_randomize_column (self, start_tick, end_tick, j);
   }
   g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
       self->priv->param_group, FALSE);

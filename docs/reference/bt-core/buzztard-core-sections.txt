@@ -211,6 +211,7 @@ bt_pattern_get_wire_group
 bt_pattern_insert_row
 bt_pattern_new
 bt_pattern_randomize_columns
+bt_pattern_range_randomize_columns
 bt_pattern_serialize_columns
 bt_pattern_set_global_event
 bt_pattern_set_voice_event
@@ -603,6 +604,8 @@ bt_value_group_insert_row
 bt_value_group_new
 bt_value_group_randomize_column
 bt_value_group_randomize_columns
+bt_value_group_range_randomize_column
+bt_value_group_range_randomize_columns
 bt_value_group_serialize_column
 bt_value_group_serialize_columns
 bt_value_group_set_event
@@ -734,6 +737,7 @@ g_object_try_weak_unref
 # gstreamer extras
 bt_bin_activate_tee_chain
 bt_bin_deactivate_tee_chain
+bt_gst_analyzer_get_waittime
 bt_gst_check_core_elements
 bt_gst_check_elements
 bt_gst_debug_pad_link_return

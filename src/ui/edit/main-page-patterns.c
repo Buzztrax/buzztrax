@@ -889,6 +889,13 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
           bt_value_group_randomize_column,
           bt_value_group_randomize_columns, bt_pattern_randomize_columns);
     }
+  } else if (event->keyval == GDK_R) {
+    if (modifier & GDK_CONTROL_MASK) {
+      res = pattern_selection_apply (self,
+          bt_value_group_range_randomize_column,
+          bt_value_group_range_randomize_columns,
+          bt_pattern_range_randomize_columns);
+    }
   } else if ((event->keyval == GDK_Up) && (modifier == GDK_CONTROL_MASK)) {
     g_signal_emit_by_name (self->priv->machine_menu, "move-active",
         GTK_SCROLL_STEP_BACKWARD, NULL);
