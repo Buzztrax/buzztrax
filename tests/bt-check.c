@@ -187,9 +187,9 @@ check_print_handler (const gchar * const message)
 
     if ((logfile = fopen (__log_file_name, "a"))
         || (logfile = fopen (__log_file_name, "w"))) {
-      use_stdout |= (fwrite (message, sl, 1, logfile) < 0);
+      use_stdout |= (fwrite (message, sl, 1, logfile) != 1);
       if (add_nl)
-        use_stdout |= (fwrite ("\n", 1, 1, logfile) < 0);
+        use_stdout |= (fwrite ("\n", 1, 1, logfile) != 1);
       use_stdout |= (fclose (logfile) < 0);
     } else {
       use_stdout = TRUE;
