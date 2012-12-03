@@ -140,8 +140,7 @@ test_bt_sequence_pattern (BT_TEST_ARGS)
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0, NULL));
   BtCmdPattern *pattern =
-      (BtCmdPattern *) bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
-      machine);
+      (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 8L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_add_track (sequence, machine, -1);
@@ -331,8 +330,7 @@ test_bt_sequence_enlarge_both_vals (BT_TEST_ARGS)
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0, NULL));
   BtCmdPattern *pattern =
-      (BtCmdPattern *) bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
-      machine);
+      (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 8L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_add_track (sequence, machine, -1);
@@ -370,8 +368,7 @@ test_bt_sequence_update (BT_TEST_ARGS)
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0, NULL));
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, pattern);
@@ -424,8 +421,7 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
       BT_MACHINE (bt_source_machine_new (song, "gen", "simsyn", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   bt_wire_new (song, src, sink, NULL);
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, src);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, src);
   GstObject *element =
       GST_OBJECT (check_gobject_get_object_property (src, "machine"));
   g_object_set (sequence, "length", 8L, NULL);

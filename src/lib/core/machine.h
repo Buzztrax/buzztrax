@@ -120,7 +120,6 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self);
 void bt_machine_add_pattern(const BtMachine *self, const BtCmdPattern *pattern);
 void bt_machine_remove_pattern(const BtMachine *self, const BtCmdPattern *pattern);
 
-BtCmdPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, const gchar * const id);
 BtCmdPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name);
 BtCmdPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index);
 

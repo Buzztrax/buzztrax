@@ -61,8 +61,7 @@ test_bt_value_group_get_beyond_size (BT_TEST_ARGS)
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
           "buzztard-test-mono-source", 0, NULL));
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 1L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
   BtValueGroup *vg = bt_pattern_get_global_group (pattern);
 
   /* act && assert */

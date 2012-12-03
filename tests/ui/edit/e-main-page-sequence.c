@@ -145,8 +145,7 @@ test_bt_main_page_sequence_enter_pattern (BT_TEST_ARGS)
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
-  BtPattern *pattern1 =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern1 = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPageSequence *sequence_page;
   BtCmdPattern *pattern2;
 

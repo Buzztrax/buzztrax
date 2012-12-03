@@ -691,7 +691,7 @@ sequence_range_copy (const BtMainPageSequence * self, glong track_beg,
       // store pattern id
       if ((j < sequence_length)
           && (pattern = bt_sequence_get_pattern (sequence, j, i - 1))) {
-        g_object_get (pattern, "id", &id, NULL);
+        g_object_get (pattern, "name", &id, NULL);
         g_string_append_c (data, ',');
         g_string_append (data, id);
         g_free (id);
@@ -2459,11 +2459,11 @@ change_pattern (BtMainPageSequence * self, BtCmdPattern * new_pattern,
     g_object_get (machine, "id", &mid, NULL);
     bt_sequence_set_pattern (self->priv->sequence, row, track, new_pattern);
     if (old_pattern) {
-      g_object_get (old_pattern, "id", &old_pid, NULL);
+      g_object_get (old_pattern, "name", &old_pid, NULL);
       g_object_unref (old_pattern);
     }
     if (new_pattern) {
-      g_object_get (new_pattern, "id", &new_pid, NULL);
+      g_object_get (new_pattern, "name", &new_pid, NULL);
     }
     undo_str =
         g_strdup_printf ("set_patterns %lu,%lu,%lu,%s,%s", track, row, row, mid,
@@ -3313,7 +3313,7 @@ on_pattern_removed (BtMachine * machine, BtPattern * pattern,
     gchar *mid, *pid;
 
     g_object_get (machine, "id", &mid, NULL);
-    g_object_get (pattern, "id", &pid, NULL);
+    g_object_get (pattern, "name", &pid, NULL);
 
     GST_WARNING ("pattern %s is used in sequence, doing undo/redo", pid);
     /* save the cells that use the pattern */
@@ -4058,7 +4058,7 @@ sequence_deserialize_pattern_track (BtMainPageSequence * self,
 
         while ((row < sequence_length) && fields[j] && *fields[j] && res) {
           if (*fields[j] != ' ') {
-            pattern = bt_machine_get_pattern_by_id (machine, fields[j]);
+            pattern = bt_machine_get_pattern_by_name (machine, fields[j]);
             if (!pattern) {
               GST_WARNING ("machine %p on track %d, has no pattern with id %s",
                   machine, track, fields[j]);

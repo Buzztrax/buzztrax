@@ -51,7 +51,6 @@ enum
 {
   CMD_PATTERN_SONG = 1,
   CMD_PATTERN_MACHINE,
-  CMD_PATTERN_ID,
   CMD_PATTERN_NAME,
   CMD_PATTERN_COMMAND
 };
@@ -67,9 +66,7 @@ struct _BtCmdPatternPrivate
   /* the machine the pattern belongs to */
   BtMachine *machine;
 
-  /* the id, we can use to lookup the pattern */
-  gchar *id;
-  /* the display name of the pattern */
+  /* the display name of the pattern (unique for the machine) */
   gchar *name;
 
   BtPatternCmd cmd;
@@ -147,25 +144,19 @@ bt_cmd_pattern_constructed (GObject * object)
   // finish setup and add the pattern to the machine
   // (if not subclassed, irks)
   if (self->priv->cmd != BT_PATTERN_CMD_NORMAL) {
-    gchar *id, *name, *mid;
+    gchar *name;
     // track commands in sequencer
     const gchar *const cmd_names[] =
         { N_("normal"), N_("break"), N_("mute"), N_("solo"), N_("bypass") };
 
-    g_object_get (self->priv->machine, "id", &mid, NULL);
-    // use spaces/_ to avoid clashes with normal patterns?
-    id = g_strdup_printf ("%s___%s", mid, cmd_names[self->priv->cmd]);
+    // use 3 spaces to avoid clashes with normal patterns?
     name = g_strdup_printf ("   %s", _(cmd_names[self->priv->cmd]));
-    g_free (mid);
-    g_object_set (object, "id", id, "name", name, NULL);
-    g_free (id);
+    g_object_set (object, "name", name, NULL);
     g_free (name);
 
-    GST_DEBUG ("new cmd pattern. name='%s', id='%s'", self->priv->name,
-        self->priv->id);
+    GST_DEBUG ("new cmd pattern. name='%s'", self->priv->name);
     bt_machine_add_pattern (self->priv->machine, self);
   } else {
-    g_return_if_fail (BT_IS_STRING (self->priv->id));
     g_return_if_fail (BT_IS_STRING (self->priv->name));
   }
 }
@@ -180,9 +171,6 @@ bt_cmd_pattern_get_property (GObject * const object, const guint property_id,
   switch (property_id) {
     case CMD_PATTERN_SONG:
       g_value_set_object (value, self->priv->song);
-      break;
-    case CMD_PATTERN_ID:
-      g_value_set_string (value, self->priv->id);
       break;
     case CMD_PATTERN_NAME:
       g_value_set_string (value, self->priv->name);
@@ -211,11 +199,6 @@ bt_cmd_pattern_set_property (GObject * const object, const guint property_id,
       self->priv->song = BT_SONG (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->song);
       //GST_DEBUG("set the song for pattern: %p",self->priv->song);
-      break;
-    case CMD_PATTERN_ID:
-      g_free (self->priv->id);
-      self->priv->id = g_value_dup_string (value);
-      GST_DEBUG ("set the id for pattern: '%s'", self->priv->id);
       break;
     case CMD_PATTERN_NAME:
       g_free (self->priv->name);
@@ -256,7 +239,6 @@ bt_cmd_pattern_finalize (GObject * const object)
 {
   const BtCmdPattern *const self = BT_CMD_PATTERN (object);
 
-  g_free (self->priv->id);
   g_free (self->priv->name);
 
   G_OBJECT_CLASS (bt_cmd_pattern_parent_class)->finalize (object);
@@ -294,11 +276,6 @@ bt_cmd_pattern_class_init (BtCmdPatternClass * const klass)
       g_param_spec_object ("machine", "machine construct prop",
           "Machine object, the pattern belongs to", BT_TYPE_MACHINE,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, CMD_PATTERN_ID,
-      g_param_spec_string ("id", "id construct prop",
-          "pattern identifier (unique per song)", "unnamed pattern",
-          G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, CMD_PATTERN_NAME,
       g_param_spec_string ("name", "name construct prop",

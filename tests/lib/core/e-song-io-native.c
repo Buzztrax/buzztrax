@@ -141,8 +141,7 @@ make_song_without_externals (void)
   BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   bt_wire_new (song, gen, sink, NULL);
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, BT_MACHINE (gen));
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
   g_object_unref (pattern);
   GST_INFO ("  song created");
 }
@@ -154,8 +153,7 @@ make_song_with_externals (const gchar * ext_data_uri)
   BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
   bt_wire_new (song, gen, sink, NULL);
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, BT_MACHINE (gen));
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
   BtWave *wave =
       bt_wave_new (song, "sample1", ext_data_uri, 1, 1.0, BT_WAVE_LOOP_MODE_OFF,
       0);

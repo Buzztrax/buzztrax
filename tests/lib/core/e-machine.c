@@ -171,8 +171,7 @@ test_bt_machine_add_pattern (BT_TEST_ARGS)
           "buzztard-test-poly-source", 1L, NULL));
 
   /* act */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   /* assert */
   fail_unless (bt_machine_has_patterns (machine), NULL);
@@ -189,8 +188,7 @@ test_bt_machine_rem_pattern (BT_TEST_ARGS)
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-poly-source", 1L, NULL));
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   /* act */
   bt_machine_remove_pattern (machine, (BtCmdPattern *) pattern);
@@ -210,8 +208,7 @@ test_bt_machine_unique_pattern_name (BT_TEST_ARGS)
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-poly-source", 1L, NULL));
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   /* act */
   gchar *pattern_name = bt_machine_get_unique_pattern_name (machine);
@@ -233,7 +230,7 @@ test_bt_machine_next_pattern_name (BT_TEST_ARGS)
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-poly-source", 1L, NULL));
-  BtPattern *pattern = bt_pattern_new (song, "pattern-id", "00", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "00", 8L, machine);
 
   /* act */
   gchar *pattern_name = bt_machine_get_unique_pattern_name (machine);
@@ -279,10 +276,8 @@ test_bt_machine_change_voices (BT_TEST_ARGS)
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-poly-source", 1L, NULL));
-  BtPattern *p1 =
-      bt_pattern_new (song, "pattern-id1", "pattern-name1", 8L, machine);
-  BtPattern *p2 =
-      bt_pattern_new (song, "pattern-id2", "pattern-name2", 8L, machine);
+  BtPattern *p1 = bt_pattern_new (song, "pattern-name1", 8L, machine);
+  BtPattern *p2 = bt_pattern_new (song, "pattern-name2", 8L, machine);
 
   /* act */
   g_object_set (machine, "voices", 2, NULL);

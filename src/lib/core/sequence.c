@@ -1273,7 +1273,7 @@ bt_sequence_persistence_save (const BtPersistence * const persistence,
     } else
       goto Error;
     if ((child_node = xmlNewChild (node, NULL, XML_CHAR_PTR ("tracks"), NULL))) {
-      gchar *const machine_id, *const pattern_id;
+      gchar *const machine_id, *const pattern_name;
       BtMachine *machine;
       BtCmdPattern *pattern;
 
@@ -1293,15 +1293,15 @@ bt_sequence_persistence_save (const BtPersistence * const persistence,
           // get pattern
           pattern = patterns[i * tracks + j];
           if (pattern) {
-            g_object_get (pattern, "id", &pattern_id, NULL);
+            g_object_get (pattern, "name", &pattern_name, NULL);
             child_node3 =
                 xmlNewChild (child_node2, NULL, XML_CHAR_PTR ("position"),
                 NULL);
             xmlNewProp (child_node3, XML_CHAR_PTR ("time"),
                 XML_CHAR_PTR (bt_persistence_strfmt_ulong (i)));
             xmlNewProp (child_node3, XML_CHAR_PTR ("pattern"),
-                XML_CHAR_PTR (pattern_id));
-            g_free (pattern_id);
+                XML_CHAR_PTR (pattern_name));
+            g_free (pattern_name);
           }
         }
       }
@@ -1318,6 +1318,28 @@ bt_sequence_persistence_save (const BtPersistence * const persistence,
   }
 Error:
   return (node);
+}
+
+// legacy helper for pre-0.7 songs
+static BtCmdPattern *
+get_pattern_by_id (BtMachine * machine, const gchar * const id)
+{
+  BtCmdPattern *res = NULL;
+  GObject *pattern;
+  GList *list, *node;
+
+  g_object_get (machine, "patterns", &list, NULL);
+  for (node = list; node; node = g_list_next (node)) {
+    pattern = (GObject *) node->data;
+    if (!res && !g_strcmp0 (g_object_get_data (pattern, "BtPattern::id"), id)) {
+      res = BT_CMD_PATTERN (pattern);
+    } else {
+      g_object_unref (pattern);
+    }
+  }
+  g_list_free (list);
+  GST_INFO ("legacy pattern lookup for '%s' = %p", id, res);
+  return res;
 }
 
 static BtPersistence *
@@ -1404,24 +1426,28 @@ bt_sequence_persistence_load (const GType type,
                               9))) {
                     xmlChar *const time_str =
                         xmlGetProp (child_node2, XML_CHAR_PTR ("time"));
-                    xmlChar *const pattern_id =
+                    xmlChar *const pattern_name =
                         xmlGetProp (child_node2, XML_CHAR_PTR ("pattern"));
                     GST_DEBUG ("  at %s, machinepattern \"%s\"", time_str,
-                        safe_string (pattern_id));
-                    if (pattern_id) {
-                      // get pattern by name from machine
-                      BtCmdPattern *const pattern =
-                          bt_machine_get_pattern_by_id (machine,
-                          (gchar *) pattern_id);
+                        safe_string (pattern_name));
+                    if (pattern_name) {
+                      BtCmdPattern *pattern =
+                          bt_machine_get_pattern_by_name (machine,
+                          (gchar *) pattern_name);
+                      // support for pre-0.7 songs
+                      if (!pattern) {
+                        pattern = get_pattern_by_id (machine,
+                            (gchar *) pattern_name);
+                      }
                       if (pattern) {
                         // this refs the pattern
                         bt_sequence_set_pattern_quick (self,
                             atol ((char *) time_str), index, pattern);
                         g_object_unref (pattern);
                       } else {
-                        GST_WARNING ("  unknown pattern \"%s\"", pattern_id);
+                        GST_WARNING ("  unknown pattern \"%s\"", pattern_name);
                       }
-                      xmlFree (pattern_id);
+                      xmlFree (pattern_name);
                     }
                     xmlFree (time_str);
                   }

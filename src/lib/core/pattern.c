@@ -298,7 +298,6 @@ del_value_group (const BtPattern * const self, BtValueGroup * vg)
 /**
  * bt_pattern_new:
  * @song: the song the new instance belongs to
- * @id: the id, we can use to lookup the pattern
  * @name: the display name of the pattern
  * @length: the number of ticks
  * @machine: the machine the pattern belongs to
@@ -309,12 +308,11 @@ del_value_group (const BtPattern * const self, BtValueGroup * vg)
  * Returns: the new instance or %NULL in case of an error
  */
 BtPattern *
-bt_pattern_new (const BtSong * const song, const gchar * const id,
-    const gchar * const name, const gulong length,
-    const BtMachine * const machine)
+bt_pattern_new (const BtSong * const song, const gchar * const name,
+    const gulong length, const BtMachine * const machine)
 {
-  return (BT_PATTERN (g_object_new (BT_TYPE_PATTERN, "song", song, "id", id,
-              "name", name, "machine", machine, "length", length, NULL)));
+  return (BT_PATTERN (g_object_new (BT_TYPE_PATTERN, "song", song, "name", name,
+              "machine", machine, "length", length, NULL)));
 }
 
 /**
@@ -329,23 +327,16 @@ BtPattern *
 bt_pattern_copy (const BtPattern * const self)
 {
   BtPattern *pattern;
-  gchar *id, *name, *mid;
+  gchar *name;
 
   g_return_val_if_fail (BT_IS_PATTERN (self), NULL);
 
   GST_INFO ("copying pattern");
 
-  g_object_get ((gpointer) (self->priv->machine), "id", &mid, NULL);
-
   name = bt_machine_get_unique_pattern_name (self->priv->machine);
-  id = g_strdup_printf ("%s %s", mid, name);
-
   pattern = BT_PATTERN (g_object_new (BT_TYPE_PATTERN, "song", self->priv->song,
-          "id", id, "name", name, "machine", self->priv->machine, "length",
+          "name", name, "machine", self->priv->machine, "length",
           self->priv->length, "copy-source", self, NULL));
-
-  g_free (mid);
-  g_free (id);
   g_free (name);
   return (pattern);
 }
@@ -772,8 +763,8 @@ bt_pattern_insert_row (const BtPattern * const self, const gulong tick)
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_insert_full_row (g_hash_table_lookup (self->
-            priv->wire_value_groups, node->data), tick);
+    bt_value_group_insert_full_row (g_hash_table_lookup (self->priv->
+            wire_value_groups, node->data), tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -803,8 +794,8 @@ bt_pattern_delete_row (const BtPattern * const self, const gulong tick)
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_delete_full_row (g_hash_table_lookup (self->
-            priv->wire_value_groups, node->data), tick);
+    bt_value_group_delete_full_row (g_hash_table_lookup (self->priv->
+            wire_value_groups, node->data), tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -836,8 +827,8 @@ bt_pattern_clear_columns (const BtPattern * const self, const gulong start_tick,
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_clear_columns (g_hash_table_lookup (self->
-            priv->wire_value_groups, node->data), start_tick, end_tick);
+    bt_value_group_clear_columns (g_hash_table_lookup (self->priv->
+            wire_value_groups, node->data), start_tick, end_tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -868,8 +859,8 @@ bt_pattern_blend_columns (const BtPattern * const self, const gulong start_tick,
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_blend_columns (g_hash_table_lookup (self->
-            priv->wire_value_groups, node->data), start_tick, end_tick);
+    bt_value_group_blend_columns (g_hash_table_lookup (self->priv->
+            wire_value_groups, node->data), start_tick, end_tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -900,8 +891,8 @@ bt_pattern_flip_columns (const BtPattern * const self, const gulong start_tick,
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_flip_columns (g_hash_table_lookup (self->
-            priv->wire_value_groups, node->data), start_tick, end_tick);
+    bt_value_group_flip_columns (g_hash_table_lookup (self->priv->
+            wire_value_groups, node->data), start_tick, end_tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -932,8 +923,8 @@ bt_pattern_randomize_columns (const BtPattern * const self,
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_randomize_columns (g_hash_table_lookup (self->
-            priv->wire_value_groups, node->data), start_tick, end_tick);
+    bt_value_group_randomize_columns (g_hash_table_lookup (self->priv->
+            wire_value_groups, node->data), start_tick, end_tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -965,8 +956,8 @@ bt_pattern_range_randomize_columns (const BtPattern * const self,
   }
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_range_randomize_columns (g_hash_table_lookup (self->
-            priv->wire_value_groups, node->data), start_tick, end_tick);
+    bt_value_group_range_randomize_columns (g_hash_table_lookup (self->priv->
+            wire_value_groups, node->data), start_tick, end_tick);
   }
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
@@ -990,8 +981,8 @@ bt_pattern_serialize_columns (const BtPattern * const self,
 
   GList *node;
   for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_serialize_columns (g_hash_table_lookup (self->
-            priv->wire_value_groups, node->data), start_tick, end_tick, data);
+    bt_value_group_serialize_columns (g_hash_table_lookup (self->priv->
+            wire_value_groups, node->data), start_tick, end_tick, data);
   }
   bt_value_group_serialize_columns (self->priv->global_value_group, start_tick,
       end_tick, data);
@@ -1021,17 +1012,15 @@ bt_pattern_persistence_save (const BtPersistence * const persistence,
     gulong global_params, voice_params;
     BtParameterGroup *pg;
     gulong i, j, k;
-    gchar *value, *id, *name;
+    gchar *value, *name;
 
-    g_object_get ((GObject *) self, "id", &id, "name", &name, NULL);
+    g_object_get ((GObject *) self, "name", &name, NULL);
     g_object_get ((gpointer) (self->priv->machine), "global-params",
         &global_params, "voice-params", &voice_params, NULL);
 
-    xmlNewProp (node, XML_CHAR_PTR ("id"), XML_CHAR_PTR (id));
     xmlNewProp (node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (name));
     xmlNewProp (node, XML_CHAR_PTR ("length"),
         XML_CHAR_PTR (bt_persistence_strfmt_ulong (length)));
-    g_free (id);
     g_free (name);
 
     // save pattern data
@@ -1118,15 +1107,19 @@ bt_pattern_persistence_load (const GType type,
       param_name = va_arg (var_args, gchar *);
     }
 
-    self = bt_pattern_new (song, (gchar *) id, (gchar *) name, length, machine);
+    self = bt_pattern_new (song, (gchar *) name, length, machine);
     result = BT_PERSISTENCE (self);
   } else {
     self = BT_PATTERN (persistence);
     result = BT_PERSISTENCE (self);
 
-    g_object_set (self, "id", id, "name", name, "length", length, NULL);
+    g_object_set (self, "name", name, "length", length, NULL);
   }
-  xmlFree (id);
+  if (id) {
+    GST_INFO ("have legacy pattern id '%s'", id);
+    g_object_set_data_full ((GObject *) self, "BtPattern::id", id,
+        (GDestroyNotify) xmlFree);
+  }
   xmlFree (name);
   xmlFree (length_str);
 

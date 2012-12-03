@@ -128,7 +128,7 @@ test_bt_sink_machine_pattern (BT_TEST_ARGS)
 
   /* act */
   BtCmdPattern *pattern =
-      (BtCmdPattern *) bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
+      (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L,
       BT_MACHINE (machine));
 
   /* assert */
@@ -150,12 +150,12 @@ test_bt_sink_machine_pattern_by_id (BT_TEST_ARGS)
 
   /* act */
   BtCmdPattern *pattern =
-      (BtCmdPattern *) bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
+      (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L,
       BT_MACHINE (machine));
 
   /* assert */
-  ck_assert_gobject_eq_and_unref (bt_machine_get_pattern_by_id (BT_MACHINE
-          (machine), "pattern-id"), pattern);
+  ck_assert_gobject_eq_and_unref (bt_machine_get_pattern_by_name (BT_MACHINE
+          (machine), "pattern-name"), pattern);
 
   /* cleanup */
   g_object_unref (pattern);
@@ -170,7 +170,7 @@ test_bt_sink_machine_pattern_by_list (BT_TEST_ARGS)
   g_object_set (settings, "audiosink", "fakesink", NULL);
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
   BtCmdPattern *pattern =
-      (BtCmdPattern *) bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
+      (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L,
       BT_MACHINE (machine));
   GList *list = (GList *) check_gobject_get_ptr_property (machine, "patterns");
 

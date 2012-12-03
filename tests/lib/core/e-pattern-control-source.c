@@ -90,8 +90,7 @@ test_bt_pattern_control_source_normal_default_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
@@ -115,8 +114,7 @@ test_bt_pattern_control_source_trigger_default_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
@@ -137,8 +135,7 @@ test_bt_pattern_control_source_override_default_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
@@ -164,8 +161,7 @@ test_bt_pattern_control_source_restore_default_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
@@ -192,8 +188,7 @@ test_bt_pattern_control_source_change_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
@@ -215,8 +210,7 @@ test_bt_pattern_control_source_hold_normal (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
@@ -242,8 +236,7 @@ test_bt_pattern_control_source_release_trigger (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
@@ -269,10 +262,8 @@ test_bt_pattern_control_source_combine_pattern_shadows (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtPattern *pattern1 =
-      bt_pattern_new (song, "pattern1", "pattern1", 8L, machine);
-  BtPattern *pattern2 =
-      bt_pattern_new (song, "pattern2", "pattern2", 8L, machine);
+  BtPattern *pattern1 = bt_pattern_new (song, "pattern1", 8L, machine);
+  BtPattern *pattern2 = bt_pattern_new (song, "pattern2", 8L, machine);
   g_object_set (sequence, "length", 16L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern1);
@@ -301,10 +292,8 @@ test_bt_pattern_control_source_combine_pattern_unshadows (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtPattern *pattern1 =
-      bt_pattern_new (song, "pattern1", "pattern1", 8L, machine);
-  BtPattern *pattern2 =
-      bt_pattern_new (song, "pattern2", "pattern2", 8L, machine);
+  BtPattern *pattern1 = bt_pattern_new (song, "pattern1", 8L, machine);
+  BtPattern *pattern2 = bt_pattern_new (song, "pattern2", 8L, machine);
   g_object_set (sequence, "length", 16L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern1);
@@ -338,10 +327,8 @@ test_bt_pattern_control_source_combine_value_unshadows (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtPattern *pattern1 =
-      bt_pattern_new (song, "pattern1", "pattern1", 8L, machine);
-  BtPattern *pattern2 =
-      bt_pattern_new (song, "pattern2", "pattern2", 8L, machine);
+  BtPattern *pattern1 = bt_pattern_new (song, "pattern1", 8L, machine);
+  BtPattern *pattern2 = bt_pattern_new (song, "pattern2", 8L, machine);
   g_object_set (sequence, "length", 16L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern1);
@@ -375,8 +362,7 @@ test_bt_pattern_control_source_combine_two_tracks (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_add_track (sequence, machine, -1);

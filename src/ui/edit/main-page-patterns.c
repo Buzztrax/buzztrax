@@ -214,7 +214,7 @@ static BtChangeLoggerMethods change_logger_methods[] = {
   BT_CHANGE_LOGGER_METHOD ("set_pattern_property", 21,
       "\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD ("add_pattern", 12,
-      "\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+)$"),
+      "\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\",([0-9]+)$"),
   BT_CHANGE_LOGGER_METHOD ("rem_pattern", 12,
       "\"([-_a-zA-Z0-9 ]+)\",\"([-_a-zA-Z0-9 ]+)\"$"),
   BT_CHANGE_LOGGER_METHOD ("set_voices", 10, "\"([-_a-zA-Z0-9 ]+)\",([0-9]+)$"),
@@ -443,10 +443,8 @@ pattern_range_log_undo_redo (const BtMainPagePatterns * self, gint beg,
   BtPatternEditorColumnGroup *pc_group;
   BtMachine *machine;
   gchar fmt[MAX_CHANGE_LOGGER_METHOD_LEN];
-  gchar *mid, *pid;
 
-  g_object_get (self->priv->pattern, "id", &pid, "machine", &machine, NULL);
-  g_object_get (machine, "id", &mid, NULL);
+  g_object_get (self->priv->pattern, "machine", &machine, NULL);
 
   GST_INFO ("logging : %d %d , %d %d", beg, end, group, param);
   // process full pattern
@@ -497,8 +495,6 @@ pattern_range_log_undo_redo (const BtMainPagePatterns * self, gint beg,
     g_snprintf (fmt, MAX_CHANGE_LOGGER_METHOD_LEN, pc_group->fmt, beg, end);
     pattern_column_log_undo_redo (self, fmt, param, &old_str, &new_str);
   }
-  g_free (mid);
-  g_free (pid);
   g_object_unref (machine);
 }
 
@@ -609,7 +605,7 @@ on_pattern_removed (BtMachine * machine, BtPattern * pattern,
   if (bt_change_log_is_active (self->priv->change_log)) {
     BtWire *wire;
     gchar fmt[MAX_CHANGE_LOGGER_METHOD_LEN];
-    gchar *mid, *pid, *pname, *str, *undo_str, *redo_str;
+    gchar *mid, *pid, *str, *undo_str, *redo_str;
     gulong length;
     gulong wire_params, voices, global_params, voice_params;
     guint end;
@@ -617,15 +613,14 @@ on_pattern_removed (BtMachine * machine, BtPattern * pattern,
     GString *data = g_string_new (NULL);
     guint v;
 
-    g_object_get (pattern, "id", &pid, "name", &pname, "length", &length, NULL);
+    g_object_get (pattern, "name", &pid, "length", &length, NULL);
     g_object_get (machine, "id", &mid, "voices", &voices, "global-params",
         &global_params, "voice-params", &voice_params, NULL);
 
     bt_change_log_start_group (self->priv->change_log);
 
     undo_str =
-        g_strdup_printf ("add_pattern \"%s\",\"%s\",\"%s\",%lu", mid, pid,
-        pname, length);
+        g_strdup_printf ("add_pattern \"%s\",\"%s\",%lu", mid, pid, length);
     redo_str = g_strdup_printf ("rem_pattern \"%s\",\"%s\"", mid, pid);
     bt_change_log_add (self->priv->change_log, BT_CHANGE_LOGGER (self),
         undo_str, redo_str);
@@ -669,7 +664,6 @@ on_pattern_removed (BtMachine * machine, BtPattern * pattern,
 
     g_free (mid);
     g_free (pid);
-    g_free (pname);
   }
   GST_DEBUG ("removed pattern: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (pattern));
@@ -1664,7 +1658,7 @@ pattern_table_refresh (const BtMainPagePatterns * self)
 
     pattern_table_clear (self);
 
-    g_object_get (self->priv->pattern, "id", &pid, "length", &number_of_ticks,
+    g_object_get (self->priv->pattern, "name", &pid, "length", &number_of_ticks,
         "voices", &voices, "machine", &machine, NULL);
     g_object_get (machine, "id", &mid, "global-params",
         &self->priv->global_params, "voice-params", &self->priv->voice_params,
@@ -1825,52 +1819,53 @@ context_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
           max_voices = pspec->maximum;
         }
 
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_add), (voices < max_voices));
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_remove), (voices > min_voices));
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_add), (voices < max_voices));
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_remove), (voices > min_voices));
         gst_object_unref (elem);
       } else {
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_add), FALSE);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_remove), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_add), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_remove), FALSE);
       }
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_properties), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_remove), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_copy), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_properties), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_remove), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_copy), TRUE);
     } else {
       GST_INFO ("machine has no patterns");
       gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
           FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_track_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_properties), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_copy), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_track_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_properties), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_copy), FALSE);
     }
     g_object_get (machine, "prefs-params", &num_property_params, NULL);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_machine_preferences), (num_property_params != 0));
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_machine_preferences),
+        (num_property_params != 0));
   } else {
     GST_INFO ("no machine");
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
         FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_track_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_pattern_properties), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_pattern_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_pattern_copy), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_track_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_pattern_properties), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_pattern_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_pattern_copy), FALSE);
   }
 }
 
@@ -1880,22 +1875,18 @@ add_new_pattern (const BtMainPagePatterns * self, BtMachine * machine)
   BtSong *song;
   BtSongInfo *song_info;
   BtPattern *pattern;
-  gchar *mid, *id, *name;
+  gchar *name;
   gulong bars;
 
   g_object_get (self->priv->app, "song", &song, NULL);
   g_object_get (song, "song-info", &song_info, NULL);
   g_object_get (song_info, "bars", &bars, NULL);
-  g_object_get (machine, "id", &mid, NULL);
 
   name = bt_machine_get_unique_pattern_name (machine);
-  id = g_strdup_printf ("%s %s", mid, name);
   // new_pattern
-  pattern = bt_pattern_new (song, id, name, bars, machine);
+  pattern = bt_pattern_new (song, name, bars, machine);
 
   // free ressources
-  g_free (mid);
-  g_free (id);
   g_free (name);
   g_object_unref (song_info);
   g_object_unref (song);
@@ -2037,7 +2028,7 @@ lookup_machine_and_pattern (const BtMainPagePatterns * self,
     *machine = bt_setup_get_machine_by_id (setup, mid);
     if (pid) {
       g_object_try_unref (*pattern);
-      *pattern = (BtPattern *) bt_machine_get_pattern_by_id (*machine, pid);
+      *pattern = (BtPattern *) bt_machine_get_pattern_by_name (*machine, pid);
       switch_machine_and_pattern (self, *machine, *pattern);
     }
     g_object_unref (setup);
@@ -2045,7 +2036,7 @@ lookup_machine_and_pattern (const BtMainPagePatterns * self,
   } else if (pid && (!c_pid || strcmp (pid, c_pid))) {
     // change pattern
     g_object_try_unref (*pattern);
-    *pattern = (BtPattern *) bt_machine_get_pattern_by_id (*machine, pid);
+    *pattern = (BtPattern *) bt_machine_get_pattern_by_name (*machine, pid);
     switch_machine_and_pattern (self, NULL, *pattern);
   }
 }
@@ -2340,7 +2331,7 @@ on_wire_removed (BtSetup * setup, BtWire * wire, gpointer user_data)
         pattern = BT_PATTERN (node->data);
         vg = bt_pattern_get_wire_group (self->priv->pattern, wire);
 
-        g_object_get (pattern, "id", &pid, "length", &length, NULL);
+        g_object_get (pattern, "name", &pid, "length", &length, NULL);
         end = length - 1;
 
         bt_value_group_serialize_columns (vg, 0, end, data);
@@ -2516,7 +2507,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
     BtPattern *pattern;
 
     if ((pattern =
-            (BtPattern *) bt_machine_get_pattern_by_id (self->priv->machine,
+            (BtPattern *) bt_machine_get_pattern_by_name (self->priv->machine,
                 prop))) {
       GtkTreeModel *store;
       GtkTreeIter iter;
@@ -2652,7 +2643,7 @@ on_context_menu_pattern_new_activate (GtkMenuItem * menuitem,
 
   if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
     gchar *undo_str, *redo_str;
-    gchar *mid, *pid, *pname;
+    gchar *mid, *pid;
     gulong length;
 
     bt_pattern_properties_dialog_apply (BT_PATTERN_PROPERTIES_DIALOG (dialog));
@@ -2661,17 +2652,15 @@ on_context_menu_pattern_new_activate (GtkMenuItem * menuitem,
         G_OBJECT_LOG_REF_COUNT (pattern));
 
     g_object_get (self->priv->machine, "id", &mid, NULL);
-    g_object_get (pattern, "id", &pid, "name", &pname, "length", &length, NULL);
+    g_object_get (pattern, "name", &pid, "length", &length, NULL);
 
     undo_str = g_strdup_printf ("rem_pattern \"%s\",\"%s\"", mid, pid);
     redo_str =
-        g_strdup_printf ("add_pattern \"%s\",\"%s\",\"%s\",%lu", mid, pid,
-        pname, length);
+        g_strdup_printf ("add_pattern \"%s\",\"%s\",%lu", mid, pid, length);
     bt_change_log_add (self->priv->change_log, BT_CHANGE_LOGGER (self),
         undo_str, redo_str);
     g_free (mid);
     g_free (pid);
-    g_free (pname);
 
     context_menu_refresh (self, self->priv->machine);
   } else {
@@ -2704,12 +2693,12 @@ on_context_menu_pattern_properties_activate (GtkMenuItem * menuitem,
     gchar *new_name, *old_name;
     gulong new_length, old_length, new_voices, old_voices;
     gchar *undo_str, *redo_str;
-    gchar *mid, *pid;
+    gchar *mid;
 
     /* we need to check what got changed in the properties to do the undo/redo
      * before applying the changes, we can check the settings from the dialog
      */
-    g_object_get (self->priv->pattern, "id", &pid, "name", &old_name, "length",
+    g_object_get (self->priv->pattern, "name", &old_name, "length",
         &old_length, "voices", &old_voices, "machine", &machine, NULL);
     g_object_get (dialog, "name", &new_name, "length", &new_length, "voices",
         &new_voices, NULL);
@@ -2720,22 +2709,22 @@ on_context_menu_pattern_properties_activate (GtkMenuItem * menuitem,
     if (strcmp (old_name, new_name)) {
       undo_str =
           g_strdup_printf ("set_pattern_property \"%s\",\"%s\",\"name\",\"%s\"",
-          mid, pid, old_name);
+          mid, new_name, old_name);
       redo_str =
           g_strdup_printf ("set_pattern_property \"%s\",\"%s\",\"name\",\"%s\"",
-          mid, pid, new_name);
+          mid, old_name, new_name);
       bt_change_log_add (self->priv->change_log, BT_CHANGE_LOGGER (self),
           undo_str, redo_str);
     }
     if (old_length != new_length) {
       undo_str =
           g_strdup_printf
-          ("set_pattern_property \"%s\",\"%s\",\"length\",\"%lu\"", mid, pid,
-          old_length);
+          ("set_pattern_property \"%s\",\"%s\",\"length\",\"%lu\"", mid,
+          old_name, old_length);
       redo_str =
           g_strdup_printf
-          ("set_pattern_property \"%s\",\"%s\",\"length\",\"%lu\"", mid, pid,
-          new_length);
+          ("set_pattern_property \"%s\",\"%s\",\"length\",\"%lu\"", mid,
+          old_name, new_length);
       bt_change_log_add (self->priv->change_log, BT_CHANGE_LOGGER (self),
           undo_str, redo_str);
       if (old_length > new_length) {
@@ -2795,7 +2784,6 @@ on_context_menu_pattern_properties_activate (GtkMenuItem * menuitem,
 
     bt_pattern_properties_dialog_apply (BT_PATTERN_PROPERTIES_DIALOG (dialog));
     g_free (mid);
-    g_free (pid);
     g_free (old_name);
     g_free (new_name);
   }
@@ -2848,7 +2836,7 @@ on_context_menu_pattern_copy_activate (GtkMenuItem * menuitem,
 
   if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
     gchar *undo_str, *redo_str;
-    gchar *mid, *pid, *pname;
+    gchar *mid, *pid;
     gulong length;
 
     bt_pattern_properties_dialog_apply (BT_PATTERN_PROPERTIES_DIALOG (dialog));
@@ -2856,17 +2844,15 @@ on_context_menu_pattern_copy_activate (GtkMenuItem * menuitem,
     GST_INFO ("new pattern added : %p", pattern);
 
     g_object_get (machine, "id", &mid, NULL);
-    g_object_get (pattern, "id", &pid, "name", &pname, "length", &length, NULL);
+    g_object_get (pattern, "name", &pid, "length", &length, NULL);
 
     undo_str = g_strdup_printf ("rem_pattern \"%s\",\"%s\"", mid, pid);
     redo_str =
-        g_strdup_printf ("add_pattern \"%s\",\"%s\",\"%s\",%lu", mid, pid,
-        pname, length);
+        g_strdup_printf ("add_pattern \"%s\",\"%s\",%lu", mid, pid, length);
     bt_change_log_add (self->priv->change_log, BT_CHANGE_LOGGER (self),
         undo_str, redo_str);
     g_free (mid);
     g_free (pid);
-    g_free (pname);
 
     context_menu_refresh (self, machine);
   } else {
@@ -3054,12 +3040,12 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   box = gtk_hbox_new (FALSE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->base_octave_menu = gtk_combo_box_text_new ();
-  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->priv->
-          base_octave_menu), FALSE);
+  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->
+          priv->base_octave_menu), FALSE);
   for (i = 0; i < 8; i++) {
     sprintf (oct_str, "%1d", i);
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-            base_octave_menu), oct_str);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+            priv->base_octave_menu), oct_str);
   }
   gtk_combo_box_set_active (GTK_COMBO_BOX (self->priv->base_octave_menu),
       self->priv->base_octave);
@@ -3552,7 +3538,7 @@ bt_main_page_patterns_change_logger_change (const BtChangeLogger * owner,
   gchar *s;
 
   if (pattern) {
-    g_object_get (pattern, "machine", &machine, "id", &c_pid, NULL);
+    g_object_get (pattern, "machine", &machine, "name", &c_pid, NULL);
     g_object_get (machine, "id", &c_mid, NULL);
   } else {
     machine = NULL;
@@ -3733,25 +3719,23 @@ bt_main_page_patterns_change_logger_change (const BtChangeLogger * owner,
       break;
     }
     case METHOD_ADD_PATTERN:{
-      gchar *mid, *pid, *pname;
+      gchar *mid, *pid;
       gulong length;
       BtSong *song;
 
       mid = g_match_info_fetch (match_info, 1);
       pid = g_match_info_fetch (match_info, 2);
-      pname = g_match_info_fetch (match_info, 3);
-      s = g_match_info_fetch (match_info, 4);
+      s = g_match_info_fetch (match_info, 3);
       length = atol (s);
       g_free (s);
       g_match_info_free (match_info);
 
-      GST_DEBUG ("-> [%s|%s|%s|%lu]", mid, pid, pname, length);
+      GST_DEBUG ("-> [%s|%s|%lu]", mid, pid, length);
       lookup_machine_and_pattern (self, &machine, NULL, mid, c_mid, NULL, NULL);
       g_object_get (self->priv->app, "song", &song, NULL);
-      pattern = bt_pattern_new (song, pid, pname, length, machine);
+      pattern = bt_pattern_new (song, pid, length, machine);
       g_object_unref (song);
       res = TRUE;
-      g_free (pname);
       g_free (mid);
       g_free (pid);
 

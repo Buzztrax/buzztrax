@@ -69,8 +69,7 @@ make_new_song (void)
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
   bt_wire_new (song, gen, sink, NULL);
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, BT_MACHINE (gen));
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
   GstElement *element =
       (GstElement *) check_gobject_get_object_property (gen, "machine");
 

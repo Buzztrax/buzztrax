@@ -1370,7 +1370,7 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
   guint32 i, j, k, l, p;
   guint16 number_of_patterns, number_of_tracks, number_of_ticks;
   gulong number_of_global_params = 0, number_of_track_params = 0;
-  gchar *name, *id;
+  gchar *name;
   guint16 par = 0, amp, pan, id_src;
   gchar value[G_ASCII_DTOSTR_BUF_SIZE + 1];
   const gchar *valuestr;
@@ -1415,11 +1415,7 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
           name, number_of_ticks, mach->number_of_inputs);
 
       if (machine) {
-        id = g_strdup_printf ("%s_%s", mach->name, name);
-        GST_DEBUG ("    pattern id: %s", id);
-        pattern = bt_pattern_new (song, id, name, number_of_ticks,
-            /*number_of_tracks, */ machine);
-        g_free (id);
+        pattern = bt_pattern_new (song, name, number_of_ticks, machine);
       } else
         pattern = NULL;
 

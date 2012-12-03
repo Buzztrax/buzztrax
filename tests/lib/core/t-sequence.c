@@ -201,8 +201,7 @@ test_bt_sequence_pattern1 (BT_TEST_ARGS)
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0L, NULL));
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, machine);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   check_init_error_trapp ("bt_sequence_set_pattern",
       "track < self->priv->tracks");
@@ -230,8 +229,7 @@ test_bt_sequence_pattern2 (BT_TEST_ARGS)
   BtMachine *machine2 = BT_MACHINE (bt_source_machine_new (song, "genp",
           "buzztard-test-poly-source", 1L, NULL));
   BtCmdPattern *pattern1 =
-      (BtCmdPattern *) bt_pattern_new (song, "pattern-id", "pattern-name", 8L,
-      machine1);
+      (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L, machine1);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine1, -1);
   bt_sequence_add_track (sequence, machine2, -1);

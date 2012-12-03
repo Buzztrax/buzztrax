@@ -1848,44 +1848,6 @@ bt_machine_remove_pattern (const BtMachine * const self,
 }
 
 /**
- * bt_machine_get_pattern_by_id:
- * @self: the machine to search for the pattern
- * @id: the identifier of the pattern
- *
- * Search the machine for a pattern by the supplied id.
- * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
- * Unref the pattern, when done with it.
- *
- * Returns: #BtCmdPattern instance or %NULL if not found
- */
-BtCmdPattern *
-bt_machine_get_pattern_by_id (const BtMachine * const self,
-    const gchar * const id)
-{
-  gboolean found = FALSE;
-  BtCmdPattern *pattern;
-  gchar *pattern_id;
-  GList *node;
-
-  g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
-  g_return_val_if_fail (BT_IS_STRING (id), NULL);
-
-  //GST_DEBUG("pattern-list.length=%d",g_list_length(self->priv->patterns));
-
-  for (node = self->priv->patterns; node; node = g_list_next (node)) {
-    pattern = BT_CMD_PATTERN (node->data);
-    g_object_get (pattern, "id", &pattern_id, NULL);
-    if (!strcmp (pattern_id, id))
-      found = TRUE;
-    g_free (pattern_id);
-    if (found)
-      return (g_object_ref (pattern));
-  }
-  GST_DEBUG ("no pattern found for id \"%s\"", id);
-  return (NULL);
-}
-
-/**
  * bt_machine_get_pattern_by_name:
  * @self: the machine to search for the pattern
  * @name: the name of the pattern
@@ -1920,7 +1882,7 @@ bt_machine_get_pattern_by_name (const BtMachine * const self,
       return (g_object_ref (pattern));
   }
   GST_DEBUG ("no pattern found for name \"%s\"", name);
-  return (NULL);
+  return NULL;
 }
 
 /**

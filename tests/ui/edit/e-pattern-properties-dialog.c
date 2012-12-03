@@ -65,20 +65,16 @@ test_bt_pattern_properties_dialog_create (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSong *song;
-  BtMachine *machine;
-  BtPattern *pattern;
-  GtkWidget *dialog;
 
   // create a new song
   bt_edit_application_new_song (app);
   g_object_get (app, "song", &song, NULL);
-  machine =
-      BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztard-test-mono-source", 0, NULL));
-  pattern = bt_pattern_new (song, "test", "test", /*length= */ 16, machine);
+  BtPattern *pattern = bt_pattern_new (song, "test", /*length= */ 16, machine);
 
   /* act */
-  dialog = GTK_WIDGET (bt_pattern_properties_dialog_new (pattern));
+  GtkWidget *dialog = GTK_WIDGET (bt_pattern_properties_dialog_new (pattern));
 
   /* assert */
   fail_unless (dialog != NULL, NULL);

@@ -83,8 +83,7 @@ make_new_song (gint wave)
           NULL));
   BtParameterGroup *pg = bt_machine_get_global_param_group (gen);
   bt_wire_new (song, gen, sink, NULL);
-  BtPattern *pattern =
-      bt_pattern_new (song, "pattern-id", "pattern-name", 8L, BT_MACHINE (gen));
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
   GstElement *element =
       (GstElement *) check_gobject_get_object_property (gen, "machine");
 

@@ -64,7 +64,7 @@ get_mono_value_group (void)
   machine =
       BT_MACHINE (bt_source_machine_new (song, "id",
           "buzztard-test-mono-source", 0, NULL));
-  pattern = bt_pattern_new (song, "pattern-id", "pattern-name", 4L, machine);
+  pattern = bt_pattern_new (song, "pattern-name", 4L, machine);
   return bt_pattern_get_global_group (pattern);
 }
 

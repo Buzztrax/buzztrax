@@ -61,7 +61,7 @@ GType bt_pattern_get_type(void) G_GNUC_CONST;
 #include "value-group.h"
 #include "wire.h"
 
-BtPattern *bt_pattern_new(const BtSong * const song, const gchar * const id, const gchar * const name, const gulong length, const BtMachine * const machine);
+BtPattern *bt_pattern_new(const BtSong * const song, const gchar * const name, const gulong length, const BtMachine * const machine);
 
 BtPattern *bt_pattern_copy(const BtPattern * const self);
 

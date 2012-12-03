@@ -984,12 +984,13 @@ bt_wire_persistence_save (const BtPersistence * const persistence,
             BtPattern *pattern = BT_PATTERN (lnode->data);
             BtValueGroup *vg = bt_pattern_get_wire_group (pattern, self);
             gulong length, i, k;
-            gchar *value;
+            gchar *value, *pattern_name;
 
-            g_object_get (pattern, "id", &id, "length", &length, NULL);
+            g_object_get (pattern, "name", &pattern_name, "length", &length,
+                NULL);
             xmlNewProp (child_node2, XML_CHAR_PTR ("pattern-id"),
-                XML_CHAR_PTR (id));
-            g_free (id);
+                XML_CHAR_PTR (pattern_name));
+            g_free (pattern_name);
 
             // save pattern data
             for (i = 0; i < length; i++) {
@@ -1109,17 +1110,17 @@ bt_wire_persistence_load (const GType type,
             BtPattern *pattern;
             BtValueGroup *vg;
             xmlNodePtr child_node2, child_node3;
-            xmlChar *name, *pattern_id, *tick_str, *value;
+            xmlChar *name, *pattern_name, *tick_str, *value;
             gulong tick, param;
 
-            pattern_id = xmlGetProp (child_node, XML_CHAR_PTR ("pattern-id"));
-            if (!pattern_id)    /* "pattern" is legacy, it is conflicting with a node type in the xsd */
-              pattern_id = xmlGetProp (node, XML_CHAR_PTR ("pattern"));
+            pattern_name = xmlGetProp (child_node, XML_CHAR_PTR ("pattern-id"));
+            if (!pattern_name)  /* "pattern" is legacy, it is conflicting with a node type in the xsd */
+              pattern_name = xmlGetProp (node, XML_CHAR_PTR ("pattern"));
             pattern =
-                (BtPattern *) bt_machine_get_pattern_by_id (self->priv->dst,
-                (gchar *) pattern_id);
+                (BtPattern *) bt_machine_get_pattern_by_name (self->priv->dst,
+                (gchar *) pattern_name);
             vg = bt_pattern_get_wire_group (pattern, self);
-            xmlFree (pattern_id);
+            xmlFree (pattern_name);
             g_object_unref (pattern);
 
             // we can't reuse the pattern impl here
@@ -1139,8 +1140,8 @@ bt_wire_persistence_load (const GType type,
                     //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
                     if (!strncmp ((char *) child_node3->name, "wiredata\0", 9)) {
                       param =
-                          bt_parameter_group_get_param_index (self->
-                          priv->param_group, (gchar *) name);
+                          bt_parameter_group_get_param_index (self->priv->
+                          param_group, (gchar *) name);
                       if (param != -1) {
                         bt_value_group_set_event (vg, tick, param,
                             (gchar *) value);
