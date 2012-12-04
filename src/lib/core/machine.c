@@ -1784,6 +1784,8 @@ bt_machine_add_pattern (const BtMachine * const self,
   g_return_if_fail (BT_IS_MACHINE (self));
   g_return_if_fail (BT_IS_CMD_PATTERN (pattern));
 
+  // TODO(ensonic): check unique name? we could also have a hashtable to speed up
+  // the lookups
   if (!g_list_find (self->priv->patterns, pattern)) {
     self->priv->patterns =
         g_list_append (self->priv->patterns, g_object_ref ((gpointer) pattern));

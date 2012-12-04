@@ -1198,6 +1198,8 @@ bt_setup_add_machine (const BtSetup * const self,
   GST_DEBUG_OBJECT (machine, "adding machine: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
+  // TODO(ensonic): check unique id? we could also have a hashtable to speed up
+  // the lookups
   if (!g_list_find (self->priv->machines, machine)) {
     ret = TRUE;
     self->priv->machines =
