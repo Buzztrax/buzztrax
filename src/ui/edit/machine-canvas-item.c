@@ -947,7 +947,7 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
 
-  menu_item = gtk_menu_item_new_with_label (_("Rename..."));
+  menu_item = gtk_menu_item_new_with_label (_("Rename…"));
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",
@@ -973,7 +973,7 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
         G_CALLBACK (on_context_menu_connect_activate), (gpointer) self);
 
   } else {
-    menu_item = gtk_menu_item_new_with_label (_("Signal Analysis..."));
+    menu_item = gtk_menu_item_new_with_label (_("Signal Analysis…"));
     gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
         menu_item);
     gtk_widget_show (menu_item);

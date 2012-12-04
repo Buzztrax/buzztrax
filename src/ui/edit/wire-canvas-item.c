@@ -881,7 +881,7 @@ bt_wire_canvas_item_init (BtWireCanvasItem * self)
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
 
-  menu_item = gtk_menu_item_new_with_label (_("Signal Analysis..."));
+  menu_item = gtk_menu_item_new_with_label (_("Signal Analysis…"));
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",

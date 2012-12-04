@@ -67,7 +67,7 @@ bt_machine_action_about (BtMachine * machine, BtMainWindow * main_window)
 
     // format about message for machines
     str = g_strdup_printf (_("by %s\n\n%s"), str_author, str_desc);
-    bt_dialog_message (main_window, _("About..."), element_longname, str);
+    bt_dialog_message (main_window, _("About…"), element_longname, str);
 
     g_free (str);
     g_free (str_author);

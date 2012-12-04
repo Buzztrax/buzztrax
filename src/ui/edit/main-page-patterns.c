@@ -3172,7 +3172,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
 
-  menu_item = gtk_image_menu_item_new_with_label (_("New pattern ..."));
+  menu_item = gtk_image_menu_item_new_with_label (_("New pattern …"));
   image = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
@@ -3186,7 +3186,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
       G_CALLBACK (on_context_menu_pattern_new_activate), (gpointer) self);
 
   self->priv->context_menu_pattern_properties = menu_item =
-      gtk_image_menu_item_new_with_label (_("Pattern properties..."));
+      gtk_image_menu_item_new_with_label (_("Pattern properties…"));
   image = gtk_image_new_from_stock (GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
@@ -3201,7 +3201,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
       (gpointer) self);
 
   self->priv->context_menu_pattern_remove = menu_item =
-      gtk_image_menu_item_new_with_label (_("Remove pattern..."));
+      gtk_image_menu_item_new_with_label (_("Remove pattern…"));
   image = gtk_image_new_from_stock (GTK_STOCK_DELETE, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
@@ -3215,7 +3215,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
       G_CALLBACK (on_context_menu_pattern_remove_activate), (gpointer) self);
 
   self->priv->context_menu_pattern_copy = menu_item =
-      gtk_image_menu_item_new_with_label (_("Copy pattern..."));
+      gtk_image_menu_item_new_with_label (_("Copy pattern…"));
   image = gtk_image_new_from_stock (GTK_STOCK_COPY, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
