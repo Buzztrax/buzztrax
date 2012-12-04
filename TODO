@@ -1,5 +1,3 @@
-* run 'make todo' to get a list of todo comments from source
-
 * when releasing do:
   * make check
   * cd po;intltool-update -M
@@ -14,10 +12,15 @@
     * check g_main_context_set_poll_func()
     * or really *run* the main-loop (not just iterate)
       * for this our tests would be scattered over several signal handlers
+
 * test infrastructure
   * add a stub song-io saver
   * add a stub processor machine
   * add a test application to be able to make the application abstract 
+  * have log marker macros for arrange, act, assert, cleanup
+  * have a means to make a copy of log-files for passing tests
+    * this could help to check 'what changed'
+      
 * review tests
   * ensure we follow Arrange/Act/assert or Given/When/Then style
     http://en.wikipedia.org/wiki/Behavior_Driven_Development

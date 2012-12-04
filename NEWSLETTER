@@ -1,11 +1,39 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 git diff --stat @{2012-01-01} @{2012-01-31}
 
+2013/01 ========================================================================
+
+- range randomize
+- eliminate the 'id' property in patterns: 
+  30 files changed, 246 insertions(+), 404 deletions(-)
+
 2012/12 ========================================================================
 
-* pattern-editor has ',' key command to insert live value
-* pattern-editor shows value bars.
-* code cleanups
+At the beginning of the month I made a few changes to the pattern editor. It now
+has a binding to the ',' key, which insert the current parameter value into the
+pattern. This is a neat shortcut for using the ui to tune a parameter and then
+copy the base value to the pattern. Another change in the pattern editor is that
+it now shows tinted bars under the numeric values. If one ramps a parameter from
+max to min, it would now show that also graphically. At some point I have to add
+mouse editing.
+
+I did a round of code cleanups. The ugly workaround for the type punning
+warnings is gone, as they don't occur anymore.
+
+I also added a new element to gst-buzztard called 'wavetabsyn'. It uses the
+wavetable oscillator component to loop a tiny grain and one can use the offset
+parameter to set the position in the sample where the grain is taken from. The
+osc component can now do trivial resampling, so that one can play melodies. The
+new element also uses the asdr-envelope component.
+ 
+The rest of the month was preparations for the next release: autofoo
+modernisation, test cleanups, api-doc updates and so on. The tests now write
+individual logs for each test. That makes looking at the logs of a failing test
+much easier. I also silenced the remaining tests that where beeping during
+'make check'. Finally I spend more time actually using buzztard [1]. Found and
+fixed a few more bugs and usability quirks.
+
+[1] https://soundcloud.com/ensonic-1/devin
 
 2012/11 ========================================================================
 
