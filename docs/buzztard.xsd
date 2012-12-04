@@ -149,7 +149,6 @@ xsltproc -o buzztard.xsd.html /home/ensonic/download/xs3p-1.1.3/xs3p.xsl buzztar
       <xsd:sequence>
         <xsd:element ref="tick" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
-      <xsd:attribute name="id" use="required" type="xsd:string"/>
       <xsd:attribute name="name" use="required" type="xsd:string"/>
       <xsd:attribute name="length" use="required" type="xsd:integer"/>
     </xsd:complexType>
