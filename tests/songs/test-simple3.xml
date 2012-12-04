@@ -40,7 +40,7 @@
         </properties>
         <globaldata name="volume" value="0.1"/>
         <patterns>
-          <pattern id="sine1_beep" name="beeps" length="3">
+          <pattern name="beeps" length="3">
             <tick time="0">
               <globaldata name="freq" value="440.0"/>
             </tick>
@@ -61,7 +61,7 @@
         </properties>
         <globaldata name="volume" value="0.1"/>
         <patterns>
-          <pattern id="sine2_beep" name="beeps" length="8">
+          <pattern name="beeps" length="8">
             <tick time="0">
               <globaldata name="freq" value="110.0"/>
             </tick>
@@ -90,10 +90,10 @@
     </labels>
     <tracks>
       <track index="0" machine="sine1">
-        <position time="0" pattern="sine1_beep"/>
+        <position time="0" pattern="beeps"/>
       </track>
       <track index="1" machine="sine2">
-        <position time="0" pattern="sine2_beep"/>
+        <position time="0" pattern="beeps"/>
       </track>
     </tracks>
   </sequence>

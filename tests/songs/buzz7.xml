@@ -38,7 +38,7 @@
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern id="bd_beats" name="beats" length="16">
+          <pattern name="beats" length="16">
             <tick time= "0"><voicedata name="Trig" voice="0" value="1"/></tick>
             <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
             <tick time= "8"><voicedata name="Trig" voice="0" value="1"/></tick>
@@ -53,7 +53,7 @@
           <property key="ypos" value="0.0"/>
         </properties>
         <patterns>
-          <pattern id="snr_beats" name="beats" length="16">
+          <pattern name="beats" length="16">
             <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
             <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
           </pattern>
@@ -83,14 +83,14 @@
     </labels>
     <tracks>
       <track index="0" machine="bd">
-        <position time="0" pattern="bd_beats"/>
-        <position time="32" pattern="bd_beats"/>
+        <position time="0" pattern="beats"/>
+        <position time="32" pattern="beats"/>
       </track>
       <track index="1" machine="snr">
-        <position time="0" pattern="snr_beats"/>
-        <position time="16" pattern="snr_beats"/>
-        <position time="32" pattern="snr_beats"/>
-        <position time="48" pattern="snr_beats"/>
+        <position time="0" pattern="beats"/>
+        <position time="16" pattern="beats"/>
+        <position time="32" pattern="beats"/>
+        <position time="48" pattern="beats"/>
       </track>
     </tracks>
   </sequence>

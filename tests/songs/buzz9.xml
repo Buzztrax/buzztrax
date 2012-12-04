@@ -31,7 +31,7 @@
          <property key="ypos" value="0.2" />
         </properties>
         <patterns>
-          <pattern id="beeps_beeps" name="beeps" length="16">
+          <pattern name="beeps" length="16">
             <tick time="0">
               <globaldata name="Dial-Number" value="1"/>
               <globaldata name="Sustain" value="30"/>
@@ -53,7 +53,7 @@
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern id="beats_beats" name="beats" length="16">
+          <pattern name="beats" length="16">
             <tick time="0"><voicedata name="Trigger" voice="0" value="60"/></tick>
             <tick time="4"><voicedata name="Trigger" voice="0" value="40"/></tick>
             <tick time="8"><voicedata name="Trigger" voice="0" value="100"/></tick>
@@ -78,14 +78,14 @@
     </labels>
     <tracks>
       <track index="0" machine="beeps">
-        <position time="0" pattern="beeps_beeps"/>
-        <position time="32" pattern="beeps_beeps"/>
+        <position time="0" pattern="beeps"/>
+        <position time="32" pattern="beeps"/>
       </track>
       <track index="1" machine="beats">
-        <position time="0" pattern="beats_beats"/>
-        <position time="16" pattern="beats_beats"/>
-        <position time="32" pattern="beats_beats"/>
-        <position time="48" pattern="beats_beats"/>
+        <position time="0" pattern="beats"/>
+        <position time="16" pattern="beats"/>
+        <position time="32" pattern="beats"/>
+        <position time="48" pattern="beats"/>
       </track>
     </tracks>
   </sequence>

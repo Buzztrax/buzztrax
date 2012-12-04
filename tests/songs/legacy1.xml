@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <buzztard
   xmlns="http://www.buzztard.org/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
   <meta>
-    <info>a two voice melody</info>
-    <name>melo 1</name>
-    <genre>chip-music</genre>
-    <create-dts>2006-01-12T22:10:56Z</create-dts>
-    <change-dts>2006-01-12T22:10:56Z</change-dts>
+    <info>song with legacy pattern-id references for pre-0.7</info>
+    <name>legacy 1</name>
+    <create-dts>2012-12-04T22:10:56Z</create-dts>
+    <change-dts>2012-12-04T22:10:56Z</change-dts>
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>16</bars>
@@ -25,14 +23,14 @@
         </properties>
       </machine>
             
-      <machine type="source" id="beep1" plugin-name="simsyn" voices="0">
+      <machine type="source" id="beep" plugin-name="simsyn" voices="0">
         <globaldata name="volume" value="1.0"/>
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern name="C-3_E-3_G-3" length="16">
+          <pattern id="beep::C-3_E-3_G-3" name="C-3_E-3_G-3" length="16">
             <tick time="0">
               <globaldata name="note" value="c-3"/>
               <globaldata name="volume" value="1.0"/>
@@ -48,29 +46,10 @@
           </pattern>
         </patterns>
       </machine>
-
-      <machine type="source" id="beep2" plugin-name="simsyn" voices="0">
-        <globaldata name="volume" value="1.0"/>
-        <properties>
-          <property key="xpos" value="-0.7"/>
-          <property key="ypos" value="0.0"/>
-        </properties>
-        <patterns>
-          <pattern name="C-1" length="16">
-            <tick time="0">
-              <globaldata name="note" value="c-1"/>
-              <globaldata name="volume" value="0.5"/>
-              <globaldata name="decay" value="1.0"/>
-              <globaldata name="wave" value="2"/>
-            </tick>
-          </pattern>
-        </patterns>
-      </machine>
     </machines>
     
     <wires>
-      <wire src="beep1" dst="audio_sink" gain="1.0"/>
-      <wire src="beep2" dst="audio_sink" gain="1.0" panorama="-0.5"/>
+      <wire src="beep" dst="audio_sink" gain="1.0"/>
     </wires>
   </setup>
   
@@ -80,17 +59,10 @@
       <label time="63" name="end"/>
     </labels>
     <tracks>
-      <track index="0" machine="beep1">
-        <position time="0" pattern="C-3_E-3_G-3"/>
-        <position time="32" pattern="C-3_E-3_G-3"/>
+      <track index="0" machine="beep">
+        <position time="0" pattern="beep::C-3_E-3_G-3"/>
+        <position time="32" pattern="beep::C-3_E-3_G-3"/>
       </track>
-      <track index="1" machine="beep2">
-        <position time="0" pattern="C-1"/>
-        <position time="16" pattern="C-1"/>
-        <position time="32" pattern="C-1"/>
-        <position time="48" pattern="C-1"/>
-      </track>
-      <track index="2" machine="audio_sink"/>
     </tracks>
   </sequence>
 

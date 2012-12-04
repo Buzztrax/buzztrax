@@ -34,7 +34,7 @@
           <property key="ypos" value="-0.4"/>
         </properties>
         <patterns>
-          <pattern id="beep1::C-3_E-3_G-3" name="C-3_E-3_G-3" length="16">
+          <pattern name="C-3_E-3_G-3" length="16">
             <tick time="0">
               <globaldata name="note" value="c-3"/>
               <globaldata name="cut-off" value="0.8"/>
@@ -59,7 +59,7 @@
           <property key="ypos" value="0.0"/>
         </properties>
         <patterns>
-          <pattern id="beep2::C-1" name="C-1" length="16">
+          <pattern name="C-1" length="16">
             <tick time="0">
               <globaldata name="note" value="c-1"/>
             </tick>
@@ -76,7 +76,7 @@
           <property key="ypos" value="-0.4"/>
         </properties>
         <patterns>
-          <pattern id="echo1::00" name="00" length="16">
+          <pattern name="00" length="16">
             <tick time="0">
               <globaldata name="drywet" value="50.0"/>
             </tick>
@@ -105,17 +105,17 @@
     </labels>
     <tracks>
       <track index="0" machine="beep1">
-        <position time="0" pattern="beep1::C-3_E-3_G-3"/>
-        <position time="32" pattern="beep1::C-3_E-3_G-3"/>
+        <position time="0" pattern="C-3_E-3_G-3"/>
+        <position time="32" pattern="C-3_E-3_G-3"/>
       </track>
       <track index="1" machine="beep2">
-        <position time="0" pattern="beep2::C-1"/>
-        <position time="16" pattern="beep2::C-1"/>
-        <position time="32" pattern="beep2::C-1"/>
-        <position time="48" pattern="beep2::C-1"/>
+        <position time="0" pattern="C-1"/>
+        <position time="16" pattern="C-1"/>
+        <position time="32" pattern="C-1"/>
+        <position time="48" pattern="C-1"/>
       </track>
       <track index="2" machine="echo1">
-        <position time="0" pattern="echo1::00"/>
+        <position time="0" pattern="00"/>
       </track>
       <track index="3" machine="audio_sink"/>
     </tracks>

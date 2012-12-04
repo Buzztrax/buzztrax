@@ -32,7 +32,7 @@
         </properties>
         <globaldata name="volume" value="0.1"/>
         <patterns>
-          <pattern id="sine1_beep" name="beeps" length="3">
+          <pattern name="beeps" length="3">
             <tick time="0">
               <globaldata name="freq" value="440.0"/>
             </tick>

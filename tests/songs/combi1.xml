@@ -32,7 +32,7 @@
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern id="beep1::C-3_E-3_G-3" name="C-3_E-3_G-3" length="16">
+          <pattern name="C-3_E-3_G-3" length="16">
             <tick time="0">
               <globaldata name="note" value="c-3"/>
               <globaldata name="volume" value="1.0"/>
@@ -56,7 +56,7 @@
           <property key="ypos" value="0.0"/>
         </properties>
         <patterns>
-          <pattern id="beep2::C-1" name="C-1" length="16">
+          <pattern name="C-1" length="16">
             <tick time="0">
               <globaldata name="note" value="c-1"/>
               <globaldata name="volume" value="0.5"/>
@@ -83,7 +83,7 @@
           <property key="ypos" value="-0.25"/>
         </properties>
         <patterns>
-          <pattern id="beat_beats" name="beats" length="16">
+          <pattern name="beats" length="16">
             <tick time="0"><voicedata name="Trigger" voice="0" value="60"/></tick>
             <tick time="4"><voicedata name="Trigger" voice="0" value="40"/></tick>
             <tick time="8"><voicedata name="Trigger" voice="0" value="100"/></tick>
@@ -110,22 +110,22 @@
     </labels>
     <tracks>
       <track index="0" machine="beep1">
-        <position time="0" pattern="beep1::C-3_E-3_G-3"/>
-        <position time="32" pattern="beep1::C-3_E-3_G-3"/>
+        <position time="0" pattern="C-3_E-3_G-3"/>
+        <position time="32" pattern="C-3_E-3_G-3"/>
       </track>
       <track index="1" machine="beep2">
-        <position time="0" pattern="beep2::C-1"/>
-        <position time="16" pattern="beep2::C-1"/>
-        <position time="32" pattern="beep2::C-1"/>
-        <position time="48" pattern="beep2::C-1"/>
+        <position time="0" pattern="C-1"/>
+        <position time="16" pattern="C-1"/>
+        <position time="32" pattern="C-1"/>
+        <position time="48" pattern="C-1"/>
       </track>
       <track index="2" machine="echo1"/>
       <track index="3" machine="beat">
-        <position time="0" pattern="beat_beats"/>
-        <position time="32" pattern="beat_beats"/>
-        <position time="48" pattern="beat_beats"/>
-        <position time="64" pattern="beat_beats"/>
-        <position time="80" pattern="beat_beats"/>
+        <position time="0" pattern="beats"/>
+        <position time="32" pattern="beats"/>
+        <position time="48" pattern="beats"/>
+        <position time="64" pattern="beats"/>
+        <position time="80" pattern="beats"/>
       </track>
       <track index="4" machine="audio_sink"/>
     </tracks>

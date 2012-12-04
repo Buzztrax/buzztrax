@@ -31,7 +31,7 @@
          <property key="ypos" value="0.0" />
         </properties>
         <patterns>
-          <pattern id="gen_beeps" name="beeps" length="16">
+          <pattern name="beeps" length="16">
             <tick time="0">
               <globaldata name="Dial-Number" value="1"/>
               <globaldata name="Sustain" value="200"/>
@@ -60,8 +60,8 @@
     </labels>
     <tracks>
       <track index="0" machine="gen">
-        <position time="0" pattern="gen_beeps"/>
-        <position time="32" pattern="gen_beeps"/>
+        <position time="0" pattern="beeps"/>
+        <position time="32" pattern="beeps"/>
       </track>
     </tracks>
   </sequence>

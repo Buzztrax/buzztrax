@@ -31,7 +31,7 @@
           <property key="ypos" value="0.2"/>
         </properties>
         <patterns>
-          <pattern id="amp1_fade" name="fade" length="16">
+          <pattern name="fade" length="16">
             <tick time= "0"><globaldata name="volume" value="1.0"/></tick>
             <tick time= "1"><globaldata name="volume" value="0.75"/></tick>
             <tick time= "2"><globaldata name="volume" value="0.5"/></tick>
@@ -58,7 +58,7 @@
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern id="sine1_beeps" name="beeps" length="16">
+          <pattern name="beeps" length="16">
             <tick time="0">
               <globaldata name="freq" value="440.0"/>
               <globaldata name="volume" value="1.0"/>
@@ -89,12 +89,12 @@
     </labels>
     <tracks>
       <track index="0" machine="sine1">
-        <position time="0" pattern="sine1_beeps"/>
-        <position time="32" pattern="sine1_beeps"/>
+        <position time="0" pattern="beeps"/>
+        <position time="32" pattern="beeps"/>
       </track>
       <track index="1" machine="amp1">
-        <position time="0" pattern="amp1_fade"/>
-        <position time="32" pattern="amp1_fade"/>
+        <position time="0" pattern="fade"/>
+        <position time="32" pattern="fade"/>
       </track>
     </tracks>
   </sequence>

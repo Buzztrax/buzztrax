@@ -27,7 +27,7 @@
       
       <machine type="source" id="missing1" plugin-name="missingsrc" voices="0">
         <patterns>
-          <pattern id="missing1_melo" name="melo" length="3">
+          <pattern name="melo" length="3">
             <tick time="0">
               <voicedata name="freq" voice="0" value="440,0"/>
               <voicedata name="volume" voice="0" value="1,0"/>
@@ -49,7 +49,7 @@
     </labels>
     <tracks>
       <track index="0" machine="missing1">
-        <position time="0" pattern="missing1_melo"/>
+        <position time="0" pattern="melo"/>
       </track>
     </tracks>
   </sequence>

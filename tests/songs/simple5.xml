@@ -31,7 +31,7 @@
           <property key="ypos" value="-0.3"/>
         </properties>
         <patterns>
-          <pattern id="amp1_fade" name="fade" length="16">
+          <pattern name="fade" length="16">
             <tick time= "0"><globaldata name="volume" value="1.0"/></tick>
             <tick time= "1"><globaldata name="volume" value="0.75"/></tick>
             <tick time= "2"><globaldata name="volume" value="0.5"/></tick>
@@ -58,7 +58,7 @@
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern id="sine1_beeps_up" name="beeps_up" length="16">
+          <pattern name="beeps_up" length="16">
             <tick time="0">
               <globaldata name="freq" value="440,0"/>
               <globaldata name="volume" value="1,0"/>
@@ -72,7 +72,7 @@
               <globaldata name="volume" value="1,0"/>
             </tick>
           </pattern>
-          <pattern id="sine1_beeps_down" name="beeps_down" length="16">
+          <pattern name="beeps_down" length="16">
             <tick time="0">
               <globaldata name="freq" value="1760.0"/>
               <globaldata name="volume" value="1.0"/>
@@ -96,13 +96,13 @@
           <property key="ypos" value="0.0"/>
         </properties>
         <patterns>
-          <pattern id="sine2_beeps1" name="beeps1" length="1">
+          <pattern name="beeps1" length="1">
             <tick time="0">
               <globaldata name="freq" value="660,0"/>
               <globaldata name="volume" value="1,0"/>
             </tick>
           </pattern>
-          <pattern id="sine2_beeps2" name="beeps2" length="1">
+          <pattern name="beeps2" length="1">
             <tick time="0">
               <globaldata name="freq" value="1320,0"/>
               <globaldata name="volume" value="1,0"/>
@@ -126,20 +126,20 @@
     </labels>
     <tracks>
       <track index="0" machine="sine1">
-        <position time="0" pattern="sine1_beeps_up"/>
-        <position time="16" pattern="sine1_beeps_down"/>
-        <position time="32" pattern="sine1_beeps_up"/>
-        <position time="48" pattern="sine1_beeps_down"/>
+        <position time="0" pattern="beeps_up"/>
+        <position time="16" pattern="beeps_down"/>
+        <position time="32" pattern="beeps_up"/>
+        <position time="48" pattern="beeps_down"/>
       </track>
       <track index="1" machine="amp1">
-        <position time="0" pattern="amp1_fade"/>
-        <position time="16" pattern="amp1_fade"/>
-        <position time="32" pattern="amp1_fade"/>
-        <position time="48" pattern="amp1_fade"/>
+        <position time="0" pattern="fade"/>
+        <position time="16" pattern="fade"/>
+        <position time="32" pattern="fade"/>
+        <position time="48" pattern="fade"/>
       </track>
       <track index="2" machine="sine2">
-        <position time="0" pattern="sine2_beeps1"/>
-        <position time="32" pattern="sine2_beeps2"/>
+        <position time="0" pattern="beeps1"/>
+        <position time="32" pattern="beeps2"/>
       </track>
     </tracks>
   </sequence>

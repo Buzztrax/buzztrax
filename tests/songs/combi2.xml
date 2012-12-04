@@ -32,7 +32,7 @@
           <property key="ypos" value="-0.8"/>
         </properties>
         <patterns>
-          <pattern id="beep1::C-3" name="C-3" length="32">
+          <pattern name="C-3" length="32">
             <tick time="0">
               <globaldata name="note" value="c-3"/>
               <globaldata name="volume" value="1.0"/>
@@ -56,7 +56,7 @@
             <tick time="28"><globaldata name="note" value="c-3"/></tick>
             <tick time="30"><globaldata name="note" value="a#3"/></tick>
           </pattern>
-          <pattern id="beep1::D-3" name="D-3" length="32">
+          <pattern name="D-3" length="32">
             <tick time="0">
               <globaldata name="note" value="d-3"/>
               <globaldata name="volume" value="1.0"/>
@@ -90,7 +90,7 @@
           <property key="ypos" value="-0.4"/>
         </properties>
         <patterns>
-          <pattern id="beep2::C-1" name="C-1" length="16">
+          <pattern name="C-1" length="16">
             <tick time="2">
               <globaldata name="note" value="c-1"/>
               <globaldata name="volume" value="0.15"/>
@@ -102,7 +102,7 @@
             <tick time="10"><globaldata name="note" value="c-1"/><globaldata name="cut-off" value="0.4"/></tick>
             <tick time="14"><globaldata name="note" value="c-1"/><globaldata name="cut-off" value="0.2"/></tick>
           </pattern>
-          <pattern id="beep2::D-1" name="D-1" length="16">
+          <pattern name="D-1" length="16">
             <tick time="2">
               <globaldata name="note" value="d-1"/>
               <globaldata name="volume" value="0.15"/>
@@ -133,13 +133,13 @@
           <property key="ypos" value="0.0"/>
         </properties>
         <patterns>
-          <pattern id="beat_std" name="std" length="16">
+          <pattern name="std" length="16">
             <tick time="0"><voicedata name="Trigger" voice="0" value="60"/></tick>
             <tick time="4"><voicedata name="Trigger" voice="0" value="60"/></tick>
             <tick time="8"><voicedata name="Trigger" voice="0" value="80"/></tick>
             <tick time="12"><voicedata name="Trigger" voice="0" value="80"/></tick>
           </pattern>
-          <pattern id="beat_off" name="off" length="16">
+          <pattern name="off" length="16">
             <tick time="0"><voicedata name="Trigger" voice="0" value="60"/></tick>
             <tick time="4"><voicedata name="Trigger" voice="0" value="40"/></tick>
             <tick time="8"><voicedata name="Trigger" voice="0" value="100"/></tick>
@@ -155,7 +155,7 @@
           <property key="ypos" value="0.4"/>
         </properties>
         <patterns>
-          <pattern id="snr_beats" name="beats" length="16">
+          <pattern name="beats" length="16">
             <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
             <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
           </pattern>
@@ -168,7 +168,7 @@
           <property key="ypos" value="0.8"/>
         </properties>
         <patterns>
-          <pattern id="hh_beats" name="beats" length="16">
+          <pattern name="beats" length="16">
             <tick time= "2"><voicedata name="OhTrig" voice="0" value="1"/></tick>
             <tick time= "6"><voicedata name="ChTrig" voice="0" value="1"/></tick>
             <tick time="10"><voicedata name="ChTrig" voice="0" value="1"/></tick>
@@ -197,53 +197,53 @@
     </labels>
     <tracks>
       <track index="0" machine="beep1">
-        <position time="0" pattern="beep1::C-3"/>
-        <position time="32" pattern="beep1::C-3"/>
-        <position time="64" pattern="beep1::D-3"/>
-        <position time="96" pattern="beep1::D-3"/>
+        <position time="0" pattern="C-3"/>
+        <position time="32" pattern="C-3"/>
+        <position time="64" pattern="D-3"/>
+        <position time="96" pattern="D-3"/>
       </track>
       <track index="1" machine="beep2">
-        <position time="0" pattern="beep2::C-1"/>
-        <position time="16" pattern="beep2::C-1"/>
-        <position time="32" pattern="beep2::C-1"/>
-        <position time="48" pattern="beep2::C-1"/>
-        <position time="64" pattern="beep2::D-1"/>
-        <position time="80" pattern="beep2::D-1"/>
-        <position time="96" pattern="beep2::D-1"/>
-        <position time="112" pattern="beep2::D-1"/>
+        <position time="0" pattern="C-1"/>
+        <position time="16" pattern="C-1"/>
+        <position time="32" pattern="C-1"/>
+        <position time="48" pattern="C-1"/>
+        <position time="64" pattern="D-1"/>
+        <position time="80" pattern="D-1"/>
+        <position time="96" pattern="D-1"/>
+        <position time="112" pattern="D-1"/>
       </track>
       <track index="2" machine="echo1"/>
       <track index="3" machine="beat">
-        <position time="0" pattern="beat_std"/>
-        <position time="16" pattern="beat_std"/>
-        <position time="32" pattern="beat_std"/>
-        <position time="48" pattern="beat_off"/>
-        <position time="64" pattern="beat_std"/>
-        <position time="80" pattern="beat_std"/>
-        <position time="96" pattern="beat_std"/>
-        <position time="112" pattern="beat_off"/>
-        <position time="128" pattern="beat_std"/>
-        <position time="144" pattern="beat_std"/>
+        <position time="0" pattern="std"/>
+        <position time="16" pattern="std"/>
+        <position time="32" pattern="std"/>
+        <position time="48" pattern="off"/>
+        <position time="64" pattern="std"/>
+        <position time="80" pattern="std"/>
+        <position time="96" pattern="std"/>
+        <position time="112" pattern="off"/>
+        <position time="128" pattern="std"/>
+        <position time="144" pattern="std"/>
       </track>
       <track index="4" machine="snr">
-        <position time="0" pattern="snr_beats"/>
-        <position time="16" pattern="snr_beats"/>
-        <position time="32" pattern="snr_beats"/>
-        <position time="64" pattern="snr_beats"/>
-        <position time="80" pattern="snr_beats"/>
-        <position time="96" pattern="snr_beats"/>
-        <position time="128" pattern="snr_beats"/>
-        <position time="144" pattern="snr_beats"/>
+        <position time="0" pattern="beats"/>
+        <position time="16" pattern="beats"/>
+        <position time="32" pattern="beats"/>
+        <position time="64" pattern="beats"/>
+        <position time="80" pattern="beats"/>
+        <position time="96" pattern="beats"/>
+        <position time="128" pattern="beats"/>
+        <position time="144" pattern="beats"/>
       </track>
       <track index="5" machine="hh">
-        <position time="32" pattern="hh_beats"/>
-        <position time="48" pattern="hh_beats"/>
-        <position time="64" pattern="hh_beats"/>
-        <position time="80" pattern="hh_beats"/>
-        <position time="96" pattern="hh_beats"/>
-        <position time="112" pattern="hh_beats"/>
-        <position time="128" pattern="hh_beats"/>
-        <position time="144" pattern="hh_beats"/>
+        <position time="32" pattern="beats"/>
+        <position time="48" pattern="beats"/>
+        <position time="64" pattern="beats"/>
+        <position time="80" pattern="beats"/>
+        <position time="96" pattern="beats"/>
+        <position time="112" pattern="beats"/>
+        <position time="128" pattern="beats"/>
+        <position time="144" pattern="beats"/>
       </track>
       <track index="6" machine="audio_sink"/>
     </tracks>

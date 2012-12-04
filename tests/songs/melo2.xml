@@ -32,7 +32,7 @@
           <property key="ypos" value="-0.5"/>
         </properties>
         <patterns>
-          <pattern id="beep1::C-3_E-3_G-3" name="C-3_E-3_G-3" length="16">
+          <pattern name="C-3_E-3_G-3" length="16">
             <tick time="0">
               <globaldata name="note" value="c-3"/>
               <globaldata name="volume" value="1.0"/>
@@ -60,7 +60,7 @@
           <property key="xpos" value="0.0"/>
         </properties>
         <patterns>
-          <pattern id="hihat_hats" name="hats" length="16">
+          <pattern name="hats" length="16">
             <tick time="2">
               <globaldata name="note" value="c-4"/>
               <globaldata name="decay" value="0.1"/>
@@ -102,14 +102,14 @@
     </labels>
     <tracks>
       <track index="0" machine="beep1">
-        <position time="0" pattern="beep1::C-3_E-3_G-3"/>
-        <position time="32" pattern="beep1::C-3_E-3_G-3"/>
+        <position time="0" pattern="C-3_E-3_G-3"/>
+        <position time="32" pattern="C-3_E-3_G-3"/>
       </track>
       <track index="1" machine="hihat">
-        <position time="0" pattern="hihat_hats"/>
-        <position time="16" pattern="hihat_hats"/>
-        <position time="32" pattern="hihat_hats"/>
-        <position time="48" pattern="hihat_hats"/>
+        <position time="0" pattern="hats"/>
+        <position time="16" pattern="hats"/>
+        <position time="32" pattern="hats"/>
+        <position time="48" pattern="hats"/>
       </track>
       <track index="2" machine="audio_sink"/>
     </tracks>
