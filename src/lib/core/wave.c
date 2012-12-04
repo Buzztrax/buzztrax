@@ -376,8 +376,11 @@ bt_wave_save_to_fd (const BtWave * const self)
   FILE *tf = NULL;
   gint fd;
 
-  // we should have a wave loaded
-  g_assert (self->priv->wavelevels->data);
+  if (!self->priv->wavelevels) {
+    res = FALSE;
+    GST_WARNING ("No wave data.");
+    goto Error;
+  }
 
   if (!(tf = tmpfile ())) {
     res = FALSE;
