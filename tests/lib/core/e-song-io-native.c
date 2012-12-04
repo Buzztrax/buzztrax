@@ -471,6 +471,36 @@ test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_song_io_native_load_legacy_0_7 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSetup *setup;
+  BtSequence *sequence;
+  BtSongIO *song_io =
+      bt_song_io_from_file (check_get_test_song_path ("legacy1.xml"));
+  g_object_get (song, "sequence", &sequence, "setup", &setup, NULL);
+
+  /* act */
+  bt_song_io_load (song_io, song);
+
+  /* assert */
+  BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep");
+  BtCmdPattern *pattern1 = bt_machine_get_pattern_by_name (machine, "beeps");
+  BtCmdPattern *pattern2 = bt_sequence_get_pattern (sequence, 0, 0);
+  fail_unless (pattern1 == pattern2, NULL);
+
+  /* cleanup */
+  g_object_unref (pattern1);
+  g_object_unref (pattern2);
+  g_object_unref (machine);
+  g_object_unref (setup);
+  g_object_unref (sequence);
+  g_object_checked_unref (song_io);
+  BT_TEST_END;
+}
+
 TCase *
 bt_song_io_native_example_case (void)
 {
@@ -497,6 +527,7 @@ bt_song_io_native_example_case (void)
       num_formats);
   tcase_add_loop_test (tc, test_bt_song_io_write_song_with_externals, 0,
       num_formats);
+  tcase_add_test (tc, test_bt_song_io_native_load_legacy_0_7);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
