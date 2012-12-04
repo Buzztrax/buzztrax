@@ -373,7 +373,9 @@ bt_pattern_list_model_get_object (BtPatternListModel * model,
 }
 
 /* more efficient than main-page-patterns::pattern_menu_model_get_iter_by_pattern()
-gboolean bt_pattern_list_model_get_iter(BtPatternListModel *model,GtkTreeIter *iter,BtPattern *pattern) {
+gboolean 
+bt_pattern_list_model_get_iter (BtPatternListModel *model, GtkTreeIter *iter,
+    BtPattern *pattern) {
   GSequence *seq=model->priv->seq;
 
   iter->stamp=model->priv->stamp;
