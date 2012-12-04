@@ -262,7 +262,7 @@ test_bt_setup_machine_type (BT_TEST_ARGS)
 * In this test case we check the _unique_id function.
 */
 static void
-test_bt_setup_unique_id1 (BT_TEST_ARGS)
+test_bt_setup_unique_machine_id1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -297,7 +297,7 @@ bt_setup_example_case (void)
   tcase_add_test (tc, test_bt_setup_wire_add_src_list);
   tcase_add_test (tc, test_bt_setup_wire_add_dst_list);
   tcase_add_test (tc, test_bt_setup_machine_type);
-  tcase_add_test (tc, test_bt_setup_unique_id1);
+  tcase_add_test (tc, test_bt_setup_unique_machine_id1);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
