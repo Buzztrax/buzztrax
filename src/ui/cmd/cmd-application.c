@@ -166,14 +166,14 @@ bt_cmd_application_song_init (const BtCmdApplication * self)
  *
  * start playback, used by play and record
  */
-static void
+static gboolean
 bt_cmd_application_idle_play_song (const BtCmdApplication * self)
 {
   gboolean res = FALSE;
   const BtSong *song = self->priv->song;
   BtSongInfo *song_info;
   gulong cmsec, csec, cmin, tmsec, tsec, tmin;
-  gulong length, pos = 0;
+  gulong length, pos = 0, last_pos = 0;
 
   // DEBUG
   //bt_song_write_to_highlevel_dot_file(song);
@@ -182,6 +182,7 @@ bt_cmd_application_idle_play_song (const BtCmdApplication * self)
 
   bt_child_proxy_get ((gpointer) song, "sequence::length", &length, "song-info",
       &song_info, NULL);
+  bt_child_proxy_set ((gpointer) song, "sequence::loop", FALSE, NULL);
 
   bt_song_info_tick_to_m_s_ms (song_info, length, &tmin, &tsec, &tmsec);
 
@@ -192,8 +193,10 @@ bt_cmd_application_idle_play_song (const BtCmdApplication * self)
   if (bt_song_play (song)) {
     GST_INFO ("playing is starting, is_playing=%d", is_playing);
     /* FIXME(ensonic): this is a bad idea, now that we have a main loop
-     * we should start a g_timeout_add() from on_song_is_playing_notify()
-     * and quit the main-loop there on eos
+     * - we should start a g_timeout_add() from on_song_is_playing_notify() and quit
+     *   the main-loop there on eos / pos>length
+     * - the problem with the timeout is that fast machines will overrun the length
+     *   quite a bit when rendering
      */
     while (wait_for_is_playing_notify) {
       while (g_main_context_pending (NULL))
@@ -203,21 +206,24 @@ bt_cmd_application_idle_play_song (const BtCmdApplication * self)
     GST_INFO ("playing has started, is_playing=%d", is_playing);
     while (is_playing && (pos < length) && !self->priv->has_error) {
       if (!bt_song_update_playback_position (song)) {
-        bt_song_stop (song);
+        break;
       }
       g_object_get ((gpointer) song, "play-pos", &pos, NULL);
 
-      if (!self->priv->quiet) {
-        // get song::play-pos and print progress
-        bt_song_info_tick_to_m_s_ms (song_info, pos, &cmin, &csec, &cmsec);
-        printf ("\r%02lu:%02lu.%03lu / %02lu:%02lu.%03lu",
-            cmin, csec, cmsec, tmin, tsec, tmsec);
-        fflush (stdout);
+      if (pos != last_pos) {
+        if (!self->priv->quiet) {
+          // get song::play-pos and print progress
+          bt_song_info_tick_to_m_s_ms (song_info, pos, &cmin, &csec, &cmsec);
+          printf ("\r%02lu:%02lu.%03lu / %02lu:%02lu.%03lu",
+              cmin, csec, cmsec, tmin, tsec, tmsec);
+          fflush (stdout);
+        }
+        last_pos = pos;
       }
       while (g_main_context_pending (NULL))
         g_main_context_iteration (NULL, FALSE);
-      g_usleep (G_USEC_PER_SEC / 10);
     }
+    bt_song_stop (song);
     GST_INFO ("finished playing: is_playing=%d, pos=%lu < length=%lu",
         is_playing, pos, length);
     if (!self->priv->quiet)
@@ -232,6 +238,7 @@ Error:
   self->priv->res = res;
   g_main_loop_quit (self->priv->loop);
   g_object_unref (song_info);
+  return FALSE;                 // no more runs of the idle handler
 }
 
 static gboolean

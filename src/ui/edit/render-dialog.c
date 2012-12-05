@@ -68,6 +68,7 @@ struct _BtRenderDialogPrivate
   gint track, tracks;
   gchar *song_name, *file_name;
   gboolean unsaved, has_error;
+  gboolean saved_loop;
 };
 
 static void on_format_menu_changed (GtkComboBox * menu, gpointer user_data);
@@ -159,10 +160,14 @@ static void
 bt_render_dialog_record_init (const BtRenderDialog * self)
 {
   BtSetup *setup;
+  BtSequence *sequence;
   BtMachine *machine;
 
   g_object_get (self->priv->app, "unsaved", &self->priv->unsaved, NULL);
-  g_object_get (self->priv->song, "setup", &setup, NULL);
+  g_object_get (self->priv->song, "setup", &setup, "sequence", &sequence, NULL);
+  g_object_get (sequence, "loop", &self->priv->saved_loop, NULL);
+  g_object_set (sequence, "loop", FALSE, NULL);
+  g_object_unref (sequence);
   // lookup the audio-sink machine and change mode
   if ((machine = bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE))) {
     g_object_get (machine, "machine", &self->priv->sink_bin, "adder-convert",
@@ -212,6 +217,10 @@ bt_render_dialog_record_done (const BtRenderDialog * self)
 
   /* reset dithering/noise-shaping */
   g_object_set (self->priv->convert, "dithering", 0, "noise-shaping", 0, NULL);
+
+  /* reset loop */
+  bt_child_proxy_set (self->priv->song, "sequence::loop",
+      self->priv->saved_loop, NULL);
 
   g_object_set (self->priv->app, "unsaved", self->priv->unsaved, NULL);
 
