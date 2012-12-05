@@ -1320,28 +1320,6 @@ Error:
   return (node);
 }
 
-// legacy helper for pre-0.7 songs
-static BtCmdPattern *
-get_pattern_by_id (BtMachine * machine, const gchar * const id)
-{
-  BtCmdPattern *res = NULL;
-  GObject *pattern;
-  GList *list, *node;
-
-  g_object_get (machine, "patterns", &list, NULL);
-  for (node = list; node; node = g_list_next (node)) {
-    pattern = (GObject *) node->data;
-    if (!res && !g_strcmp0 (g_object_get_data (pattern, "BtPattern::id"), id)) {
-      res = BT_CMD_PATTERN (pattern);
-    } else {
-      g_object_unref (pattern);
-    }
-  }
-  g_list_free (list);
-  GST_INFO ("legacy pattern lookup for '%s' = %p", id, res);
-  return res;
-}
-
 static BtPersistence *
 bt_sequence_persistence_load (const GType type,
     const BtPersistence * const persistence, xmlNodePtr node, GError ** err,
@@ -1436,7 +1414,7 @@ bt_sequence_persistence_load (const GType type,
                           (gchar *) pattern_name);
                       // support for pre-0.7 songs
                       if (!pattern) {
-                        pattern = get_pattern_by_id (machine,
+                        pattern = bt_machine_get_pattern_by_id (machine,
                             (gchar *) pattern_name);
                       }
                       if (pattern) {

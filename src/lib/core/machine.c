@@ -662,8 +662,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->dst_wires->
-                        data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -691,8 +691,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->src_wires->
-                        data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1323,8 +1323,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1386,8 +1386,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                    machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -1906,9 +1906,27 @@ bt_machine_get_pattern_by_index (const BtMachine * const self,
   g_return_val_if_fail (BT_IS_MACHINE (self), NULL);
 
   if ((pattern = g_list_nth_data (self->priv->patterns, (guint) index))) {
-    pattern = g_object_ref (pattern);
+    return g_object_ref (pattern);
   }
-  return (pattern);
+  return NULL;
+}
+
+// legacy helper for pre-0.7 songs
+BtCmdPattern *
+bt_machine_get_pattern_by_id (const BtMachine * const self,
+    const gchar * const id)
+{
+  GObject *pattern;
+  GList *node;
+
+  for (node = self->priv->patterns; node; node = g_list_next (node)) {
+    pattern = (GObject *) node->data;
+    if (!g_strcmp0 (g_object_get_data (pattern, "BtPattern::id"), id)) {
+      GST_INFO ("legacy pattern lookup for '%s' = %p", id, pattern);
+      return g_object_ref (pattern);
+    }
+  }
+  return NULL;
 }
 
 /**

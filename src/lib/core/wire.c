@@ -1107,8 +1107,7 @@ bt_wire_persistence_load (const GType type,
           if ((!xmlNodeIsText (child_node))
               && (!strncmp ((char *) child_node->name, "wire-pattern\0", 13)
                   || (!strncmp ((char *) child_node->name, "pattern\0", 8)))) {
-            BtPattern *pattern;
-            BtValueGroup *vg;
+            BtValueGroup *vg = NULL;
             xmlNodePtr child_node2, child_node3;
             xmlChar *name, *pattern_name, *tick_str, *value;
             gulong tick, param;
@@ -1116,46 +1115,61 @@ bt_wire_persistence_load (const GType type,
             pattern_name = xmlGetProp (child_node, XML_CHAR_PTR ("pattern-id"));
             if (!pattern_name)  /* "pattern" is legacy, it is conflicting with a node type in the xsd */
               pattern_name = xmlGetProp (node, XML_CHAR_PTR ("pattern"));
-            pattern =
-                (BtPattern *) bt_machine_get_pattern_by_name (self->priv->dst,
-                (gchar *) pattern_name);
-            vg = bt_pattern_get_wire_group (pattern, self);
+            if (pattern_name) {
+              BtPattern *pattern =
+                  (BtPattern *) bt_machine_get_pattern_by_name (self->priv->dst,
+                  (gchar *) pattern_name);
+              // support for pre-0.7 songs
+              if (!pattern) {
+                pattern =
+                    (BtPattern *) bt_machine_get_pattern_by_id (self->priv->dst,
+                    (gchar *) pattern_name);
+              }
+              if (pattern) {
+                vg = bt_pattern_get_wire_group (pattern, self);
+                g_object_unref (pattern);
+              } else {
+                GST_WARNING ("  unknown pattern \"%s\"", pattern_name);
+              }
+            }
             xmlFree (pattern_name);
-            g_object_unref (pattern);
 
-            // we can't reuse the pattern impl here
             // load wire-pattern data
-            for (child_node2 = child_node->children; child_node2;
-                child_node2 = child_node2->next) {
-              if ((!xmlNodeIsText (child_node2))
-                  && (!strncmp ((gchar *) child_node2->name, "tick\0", 5))) {
-                tick_str = xmlGetProp (child_node2, XML_CHAR_PTR ("time"));
-                tick = atoi ((char *) tick_str);
-                // iterate over children
-                for (child_node3 = child_node2->children; child_node3;
-                    child_node3 = child_node3->next) {
-                  if (!xmlNodeIsText (child_node3)) {
-                    name = xmlGetProp (child_node3, XML_CHAR_PTR ("name"));
-                    value = xmlGetProp (child_node3, XML_CHAR_PTR ("value"));
-                    //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
-                    if (!strncmp ((char *) child_node3->name, "wiredata\0", 9)) {
-                      param =
-                          bt_parameter_group_get_param_index (self->priv->
-                          param_group, (gchar *) name);
-                      if (param != -1) {
-                        bt_value_group_set_event (vg, tick, param,
-                            (gchar *) value);
-                      } else {
-                        GST_WARNING
-                            ("error while loading wire pattern data at tick %lu, param %lu: %s",
-                            tick, param);
+            if (vg) {
+              // we can't reuse the pattern impl here :/
+              for (child_node2 = child_node->children; child_node2;
+                  child_node2 = child_node2->next) {
+                if ((!xmlNodeIsText (child_node2))
+                    && (!strncmp ((gchar *) child_node2->name, "tick\0", 5))) {
+                  tick_str = xmlGetProp (child_node2, XML_CHAR_PTR ("time"));
+                  tick = atoi ((char *) tick_str);
+                  // iterate over children
+                  for (child_node3 = child_node2->children; child_node3;
+                      child_node3 = child_node3->next) {
+                    if (!xmlNodeIsText (child_node3)) {
+                      name = xmlGetProp (child_node3, XML_CHAR_PTR ("name"));
+                      value = xmlGetProp (child_node3, XML_CHAR_PTR ("value"));
+                      //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
+                      if (!strncmp ((char *) child_node3->name, "wiredata\0",
+                              9)) {
+                        param =
+                            bt_parameter_group_get_param_index (self->
+                            priv->param_group, (gchar *) name);
+                        if (param != -1) {
+                          bt_value_group_set_event (vg, tick, param,
+                              (gchar *) value);
+                        } else {
+                          GST_WARNING
+                              ("error while loading wire pattern data at tick %lu, param %lu: %s",
+                              tick, param);
+                        }
                       }
+                      xmlFree (name);
+                      xmlFree (value);
                     }
-                    xmlFree (name);
-                    xmlFree (value);
                   }
+                  xmlFree (tick_str);
                 }
-                xmlFree (tick_str);
               }
             }
           }
