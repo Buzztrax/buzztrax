@@ -213,10 +213,17 @@ static void
 bt_render_dialog_record_done (const BtRenderDialog * self)
 {
   /* reset play mode */
-  g_object_set (self->priv->sink_bin, "mode", BT_SINK_BIN_MODE_PLAY, NULL);
+  if (self->priv->sink_bin) {
+    g_object_set (self->priv->sink_bin, "mode", BT_SINK_BIN_MODE_PLAY, NULL);
+    gst_object_replace ((GstObject **) & self->priv->sink_bin, NULL);
+  }
 
   /* reset dithering/noise-shaping */
-  g_object_set (self->priv->convert, "dithering", 0, "noise-shaping", 0, NULL);
+  if (self->priv->convert) {
+    g_object_set (self->priv->convert, "dithering", 0, "noise-shaping", 0,
+        NULL);
+    gst_object_replace ((GstObject **) & self->priv->convert, NULL);
+  }
 
   /* reset loop */
   bt_child_proxy_set (self->priv->song, "sequence::loop",
@@ -236,9 +243,6 @@ bt_render_dialog_record_done (const BtRenderDialog * self)
     g_object_unref (song_info);
     g_free (self->priv->song_name);
   }
-  gst_object_replace ((GstObject **) & self->priv->convert, NULL);
-  gst_object_replace ((GstObject **) & self->priv->sink_bin, NULL);
-
   // close the dialog
   gtk_dialog_response (GTK_DIALOG (self), GTK_RESPONSE_NONE);
 }
