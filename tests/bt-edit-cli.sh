@@ -15,15 +15,15 @@ crashed()
 
 # test the output a little
 echo "testing output"
-libtool --mode=execute $BUZZTARD_EDIT --help | grep >/dev/null -- "--help-bt-core"
+$LIBTOOL $BUZZTARD_EDIT --help | grep >/dev/null -- "--help-bt-core"
 if [ $? -ne 0 ]; then exit 1; fi
 
-libtool --mode=execute $BUZZTARD_EDIT --version | grep >/dev/null -- "buzztard-edit from buzztard"
+$LIBTOOL $BUZZTARD_EDIT --version | grep >/dev/null -- "buzztard-edit from buzztard"
 if [ $? -ne 0 ]; then exit 1; fi
 
 # here we test that these don't crash
 echo "testing options"
-libtool --mode=execute $BUZZTARD_EDIT  >/dev/null --nonsense-option
+$LIBTOOL $BUZZTARD_EDIT  >/dev/null --nonsense-option
 if [ $? -ne 1 ]; then exit 1; fi
 
 # other tests would launch the UI - and this is how we could terminate them
@@ -33,12 +33,12 @@ if [ ! -z `which 2>/dev/null Xvfb` ]; then
   xvfb_pid=$!
 
   echo "testing startup"
-  DISPLAY=:9 libtool --mode=execute $BUZZTARD_EDIT &
+  DISPLAY=:9 $LIBTOOL $BUZZTARD_EDIT &
   btedit_pid=$!
   sleep 1s && kill $btedit_pid
 
   echo "testing startup with options"
-  DISPLAY=:9 libtool --mode=execute $BUZZTARD_EDIT >/dev/null --command=test5 &
+  DISPLAY=:9 $LIBTOOL $BUZZTARD_EDIT >/dev/null --command=test5 &
   btedit_pid=$!
   sleep 1s && kill $btedit_pid
 

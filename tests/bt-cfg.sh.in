@@ -7,3 +7,5 @@ BUZZTARD_EDIT=@top_builddir@/buzztard-edit
 
 XFONT_PATH="@XFONT_PATH@"
 
+LIBTOOL="@top_builddir@/libtool --mode=execute"
+
