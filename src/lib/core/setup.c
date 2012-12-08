@@ -952,12 +952,15 @@ activate_element (const BtSetup * const self, gpointer key)
         GST_WARNING_OBJECT (key, "failed to handle seek event");
       }
       GST_INFO_OBJECT (key, "sent seek event");
+#if 0
     } else {
+      // this seems to be a bad idea and causing the lockups
       if (!(gst_element_send_event (GST_ELEMENT (key),
                   gst_event_ref (self->priv->play_newsegment_event)))) {
         GST_WARNING_OBJECT (key, "failed to handle newsegment event");
       }
       GST_INFO_OBJECT (key, "sent newsegment event");
+#endif
     }
     ret = gst_element_set_state (GST_ELEMENT (key), GST_STATE_PLAYING);
     GST_INFO_OBJECT (key, "state-change to PLAYING: %s",
