@@ -116,8 +116,7 @@ static const BtSinkBinRecordFormatInfo formats[] = {
       "application/x-id3", "audio/mpeg, mpegversion=1, layer=3"},
   {"WAV record format", "WAV Audio", "audio/x-wav",
       "audio/x-raw-int, width=16, depth=16"},
-  {"Ogg Flac record format", "Ogg Flac", "application/ogg",
-      "audio/x-flac"},
+  {"Ogg Flac record format", "Ogg Flac", "application/ogg", "audio/x-flac"},
   {"Raw format", "Raw", NULL, NULL},
   {"M4A record format", "M4A Audio", "video/quicktime",
       "audio/mpeg, mpegversion=(int)4"}
@@ -281,11 +280,17 @@ bt_sink_bin_create_recording_profile (const BtSinkBinRecordFormatInfo * info)
   GstEncodingContainerProfile *profile;
   GstCaps *caps;
 
-  if ((!info->container_caps) || (!info->audio_caps))
+  GST_INFO ("create profile for \"%s\", \"%s\", \"%s\"", info->name,
+      info->container_caps, info->audio_caps);
+
+  if ((!info->container_caps) || (!info->audio_caps)) {
+    GST_INFO ("no container nor audio-caps \"%s\"", info->name);
     return NULL;
+  }
 
   if (!(caps = gst_caps_from_string (info->container_caps))) {
-    GST_WARNING ("can't parse caps \"%s\"", info->container_caps);
+    GST_WARNING ("can't parse caps \"%s\" for \"%s\"", info->container_caps,
+        info->name);
     return NULL;
   }
   profile =
@@ -293,7 +298,8 @@ bt_sink_bin_create_recording_profile (const BtSinkBinRecordFormatInfo * info)
   gst_caps_unref (caps);
 
   if (!(caps = gst_caps_from_string (info->audio_caps))) {
-    GST_WARNING ("can't parse caps \"%s\"", info->audio_caps);
+    GST_WARNING ("can't parse caps \"%s\" for \"%s\"", info->audio_caps,
+        info->name);
     return NULL;
   }
   gst_encoding_container_profile_add_profile (profile,
@@ -552,13 +558,15 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->priv->
-          record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->
+          priv->record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
     g_object_set (element, "profile", profile, NULL);
     list = g_list_append (list, element);
+  } else {
+    GST_DEBUG ("no profile, do raw recording");
   }
   // create filesink, set location property
   element = gst_element_factory_make ("filesink", "filesink");
