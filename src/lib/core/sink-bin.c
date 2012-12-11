@@ -620,14 +620,16 @@ bt_sink_bin_format_update (const BtSinkBin * const self)
   sink_format_structures[1] = gst_structure_from_string ("audio/x-raw-float, "
       "channels = (int) 2, "
       "rate = (int) 44100, "
-      "width = (int) { 32, 64 }, "
-      "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }", NULL);
+      "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }, "
+      "width = (int) { 32, 64 }", NULL);
   gst_structure_set (sink_format_structures[0],
       "rate", G_TYPE_INT, self->priv->sample_rate,
-      "channels", G_TYPE_INT, self->priv->channels, NULL);
+      "channels", G_TYPE_INT, self->priv->channels,
+      "endianness", G_TYPE_INT, G_BYTE_ORDER, NULL);
   gst_structure_set (sink_format_structures[1],
       "rate", G_TYPE_INT, self->priv->sample_rate,
-      "channels", G_TYPE_INT, self->priv->channels, NULL);
+      "channels", G_TYPE_INT, self->priv->channels,
+      "endianness", G_TYPE_INT, G_BYTE_ORDER, NULL);
   sink_format_caps =
       gst_caps_new_full (sink_format_structures[0], sink_format_structures[1],
       NULL);
