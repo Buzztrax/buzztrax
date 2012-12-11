@@ -545,21 +545,10 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // TODO(ensonic): check extension ?
 
-  // encodebin starts with a queue already
-  /*
-     // start with a queue
-     element = gst_element_factory_make ("queue", "record-queue");
-     // TODO(ensonic): if we have/require gstreamer-0.10.31 ret rid of the check
-     if (g_object_class_find_property (G_OBJECT_GET_CLASS (element), "silent")) {
-     g_object_set (element, "silent", TRUE, NULL);
-     }
-     list = g_list_append (list, element);
-   */
-
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->
-          priv->record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->priv->
+          record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
@@ -567,6 +556,13 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
     list = g_list_append (list, element);
   } else {
     GST_DEBUG ("no profile, do raw recording");
+    // encodebin starts with a queue already
+    element = gst_element_factory_make ("queue", "record-queue");
+    // TODO(ensonic): if we have/require gstreamer-0.10.31 ret rid of the check
+    if (g_object_class_find_property (G_OBJECT_GET_CLASS (element), "silent")) {
+      g_object_set (element, "silent", TRUE, NULL);
+    }
+    list = g_list_append (list, element);
   }
   // create filesink, set location property
   element = gst_element_factory_make ("filesink", "filesink");
