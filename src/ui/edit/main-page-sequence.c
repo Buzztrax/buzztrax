@@ -24,21 +24,19 @@
  * Provides an editor for #BtSequence instances.
  */
 
-/* TODO(ensonic): main-page-sequence tasks
- * - add third view for eating remaining space
- *   - or block cursor moving there
- * - shortcuts
- *   - Ctrl-<num> :  Stepping
- *     - set increment for cursor-down on edit
- *   - Duplicate pattern: make a copy of pattern under cursor and go to pattern view
- *   - New pattern: open new pattern dialog, insert pattern under cursor and go to pattern view
- * - sequence view context menu
- *   - open pattern properties
- *   - copy current pattern
- *   - allow to switch meters (off, level, scope, spectrum)
- * - when we move between tracks, switch the current-machine in pattern-view
- *   - we could expose current-machine as a property
- * - pattern list
+/* TODO(ensonic): shortcuts
+ * - Ctrl-<num> :  Stepping
+ *   - set increment for cursor-down on edit
+ * - Duplicate pattern: make a copy of pattern under cursor and go to pattern view
+ * - New pattern: open new pattern dialog, insert pattern under cursor and go to
+ *   pattern view
+ */
+/* TODO(ensonic): sequence view context menu
+ * - open pattern properties
+ * - copy current pattern
+ * - allow to switch meters (off, level, scope, spectrum)
+ */
+/* TODO(ensonic): pattern list
  *   - go to next occurence when double clicking a pattern
  *   - show tick-length in pattern list (needs column in model)
  */
@@ -47,10 +45,18 @@
  *    (bt_main_page_patterns_show_machine())
  *  - we already have a cursor-row property and we could add a cursor-column
  *    property too (and get the notify::cursor-column for free)
+ *  - we could expose current-machine as a property
  */
-/* IDEA(ensonic): add a follow playback checkbox to toolbar to en/disable sequence scrolling
+/* TODO(ensonic): allow to rename machines from the track header
+ * - we can change the label into an editable widget
+ *   - this will cost us some pixels
+ *   - it would make it harder to ever do reordering via drag-and-drop
+ * - we can also add "rename machine..." to the context menu
+ */
+/* IDEA(ensonic): add a follow playback checkbox to toolbar to {en,dis}able sequence
+ * scrolling
  *   - the scrolling causes quite some repaints and thus slowness
- *   - it would be good if we could deoouple the scolling and the events, so
+ *   - it would be good if we could decouple the scolling and the events, so
  *     that we e.g. scroll 10 times a second to the latest position
  */
 /* IDEA(ensonic): bold row,label for cursor row
