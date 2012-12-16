@@ -63,7 +63,9 @@ static gchar *tips[] = {
   N_("The wire volume control pops up upon a click on the arrow box on the wire."),
   N_("The wire panorama/balance control pops up upon a shift+click on the arrow box on the wire if available."),
   N_("One can copy settings from the machine window (from the context menu of a group) and paste them to patterns and the other way around."),
-  N_("Install extra machines from http://buzzmachines.sf.net.")
+  N_("Install extra machines from http://buzzmachines.sf.net."),
+  N_("Machines can also be renamed in the headers of the sequence view."),
+  N_("Press the ',' (comma) key in the pattern editor to insert the current value for this parameter.")
 };
 
 struct _BtTipDialogPrivate
