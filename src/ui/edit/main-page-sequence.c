@@ -47,12 +47,6 @@
  *    property too (and get the notify::cursor-column for free)
  *  - we could expose current-machine as a property
  */
-/* TODO(ensonic): allow to rename machines from the track header
- * - we can change the label into an editable widget
- *   - this will cost us some pixels
- *   - it would make it harder to ever do reordering via drag-and-drop
- * - we can also add "rename machine..." to the context menu
- */
 /* IDEA(ensonic): add a follow playback checkbox to toolbar to {en,dis}able sequence
  * scrolling
  *   - the scrolling causes quite some repaints and thus slowness
@@ -193,6 +187,7 @@ struct _BtMainPageSequencePrivate
 
 static GQuark bus_msg_level_quark = 0;
 static GQuark vu_meter_skip_update = 0;
+static GQuark machine_for_track = 0;
 
 static GdkAtom sequence_atom;
 
@@ -318,8 +313,8 @@ label_cell_data_function (GtkTreeViewColumn * col, GtkCellRenderer * renderer,
       ) {
     bg_col =
         ((row /
-            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->
-        priv->selection_bg1;
+            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->priv->
+        selection_bg1;
   }
   if (bg_col) {
     g_object_set (renderer,
@@ -512,8 +507,8 @@ sequence_model_get_store (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))) {
     store = gtk_tree_model_filter_get_model (filtered_store);
   }
   return (store);
@@ -561,8 +556,8 @@ sequence_update_model_length (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))) {
     BtSequenceGridModel *store =
         BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
         (filtered_store));
@@ -807,30 +802,70 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
 }
 
 static void
-on_machine_id_changed (BtMachine * machine, GParamSpec * arg,
-    gpointer user_data)
-{
-  GtkLabel *label = GTK_LABEL (user_data);
-  gchar *str;
-
-  g_object_get (machine, "id", &str, NULL);
-  GST_INFO ("machine id changed to \"%s\"", str);
-  gtk_label_set_text (label, str);
-  g_free (str);
-}
-
-static void
 on_machine_id_changed_seq (BtMachine * machine, GParamSpec * arg,
     gpointer user_data)
 {
-  on_machine_id_changed (machine, arg, user_data);
+  GtkEntry *label = GTK_ENTRY (user_data);
+  gchar *str;
+
+  g_object_get (machine, "id", &str, NULL);
+  GST_INFO ("update seq headers for machine id changed to \"%s\"", str);
+  gtk_entry_set_text (label, str);
+  g_free (str);
 }
 
 static void
 on_machine_id_changed_menu (BtMachine * machine, GParamSpec * arg,
     gpointer user_data)
 {
-  on_machine_id_changed (machine, arg, user_data);
+  GtkLabel *label = GTK_LABEL (user_data);
+  gchar *str;
+
+  g_object_get (machine, "id", &str, NULL);
+  GST_INFO ("update context menu for machine id changed to \"%s\"", str);
+  gtk_label_set_text (label, str);
+  g_free (str);
+}
+
+static void
+on_machine_id_renamed (GtkEntry * entry, gpointer user_data)
+{
+  BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
+  const gchar *name = gtk_entry_get_text (entry);
+  BtMachine *cur_machine =
+      g_object_get_qdata ((GObject *) entry, machine_for_track);
+  gboolean unique = FALSE;
+
+  // ensure uniqueness of the entered data
+  if (*name) {
+    BtSong *song;
+    BtSetup *setup;
+    BtMachine *machine;
+
+    g_object_get (self->priv->app, "song", &song, NULL);
+    g_object_get (song, "setup", &setup, NULL);
+
+    if ((machine = bt_setup_get_machine_by_id (setup, name))) {
+      if (machine == cur_machine) {
+        unique = TRUE;
+      }
+      g_object_unref (machine);
+    } else {
+      unique = TRUE;
+    }
+    g_object_unref (setup);
+    g_object_unref (song);
+  }
+  GST_INFO ("%s" "unique '%s'", (unique ? "" : "not "), name);
+  if (unique) {
+    g_object_set (cur_machine, "id", name, NULL);
+  } else {
+    gchar *id;
+    g_object_get (cur_machine, "id", &id, NULL);
+    gtk_entry_set_text (entry, id);
+    g_free (id);
+  }
+  gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->sequence_table));
 }
 
 /*
@@ -1085,8 +1120,8 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
   GST_INFO ("label edited: '%s': '%s'", path_string, new_text);
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))
       && (store = gtk_tree_model_filter_get_model (filtered_store))
       ) {
     GtkTreeIter iter, filter_iter;
@@ -1214,8 +1249,8 @@ sequence_pos_table_init (const BtMainPageSequence * self)
 
   gtk_box_pack_start (GTK_BOX (self->priv->sequence_pos_table_header),
       self->priv->pos_header, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (GTK_WIDGET (self->
-          priv->sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
+  gtk_widget_set_size_request (GTK_WIDGET (self->priv->
+          sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
 
   // add static column
   renderer = gtk_cell_renderer_text_new ();
@@ -1470,6 +1505,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       GtkVUMeter *vumeter;
       GstElement *level;
       gchar *level_name = "output-post-level";
+      gboolean first_track_for_machine;
 
       GST_DEBUG ("  %3lu build column header", j);
 
@@ -1484,6 +1520,8 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       }
       g_object_get (machine, "id", &str, level_name, &level, NULL);
 
+      first_track_for_machine = !g_hash_table_lookup (machine_usage, machine);
+
       // TODO(ensonic): add context menu like that in the machine_view to the header
 
       // create header widget
@@ -1493,14 +1531,21 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       gtk_box_pack_start (GTK_BOX (header), gtk_vseparator_new (), FALSE, FALSE,
           0);
 
-      label = gtk_label_new (str);
-      gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
+      label = gtk_entry_new ();
+      g_object_set (label, "has-frame", FALSE, "inner-border", 0, "text", str,
+          NULL);
       g_free (str);
+      g_object_set_qdata ((GObject *) label, machine_for_track, machine);
       gtk_box_pack_start (GTK_BOX (vbox), label, TRUE, TRUE, 0);
 
-      // disconnecting old handler here would be better, but then we need to differentiate (see below)
-      g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
-          NULL, on_machine_id_changed_seq, NULL);
+      g_signal_connect (label, "activate", G_CALLBACK (on_machine_id_renamed),
+          (gpointer) self);
+
+      if (first_track_for_machine) {
+        // disconnecting old handler here would be better, but then we need to differentiate (see below)
+        g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0,
+            0, NULL, on_machine_id_changed_seq, NULL);
+      }
       g_signal_connect (machine, "notify::id",
           G_CALLBACK (on_machine_id_changed_seq), (gpointer) label);
       // we need to remove the signal handler when updating the labels
@@ -1519,7 +1564,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
        * - multiple level-meter views for same machine don't work
        * - MSB buttons would need to be synced
        */
-      if (!g_hash_table_lookup (machine_usage, machine)) {
+      if (first_track_for_machine) {
         BtMachineState state;
 
         g_object_get (machine, "state", &state, NULL);
@@ -1569,6 +1614,9 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
         if (level) {
           g_hash_table_insert (self->priv->level_to_vumeter, level, vumeter);
         }
+      } else {
+        // eat space
+        gtk_box_pack_start (GTK_BOX (box), gtk_label_new (""), TRUE, TRUE, 0);
       }
     } else {
       // a missing machine
@@ -1955,7 +2003,6 @@ sequence_add_track (const BtMainPageSequence * self, BtMachine * machine,
   BtSong *song;
   GList *columns;
 
-  // get song from app and then setup from song
   g_object_get (self->priv->app, "song", &song, NULL);
 
   bt_sequence_add_track (self->priv->sequence, machine, pos);
@@ -2322,8 +2369,8 @@ on_bars_menu_changed (GtkComboBox * combo_box, gpointer user_data)
       sequence_calculate_visible_lines (self);
       //GST_INFO("  bars = %d",self->priv->bars);
       if ((filtered_store =
-              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                      priv->sequence_table)))) {
+              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                      sequence_table)))) {
         BtSequenceGridModel *store =
             BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
             (filtered_store));
@@ -2967,8 +3014,8 @@ on_sequence_table_button_press_event (GtkWidget * widget,
             // set cell focus
             gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
                 FALSE);
-            gtk_widget_grab_focus_savely (GTK_WIDGET (self->
-                    priv->sequence_table));
+            gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
+                    sequence_table));
             // reset selection
             self->priv->selection_start_column =
                 self->priv->selection_start_row =
@@ -3039,8 +3086,8 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
           }
           gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
               FALSE);
-          gtk_widget_grab_focus_savely (GTK_WIDGET (self->
-                  priv->sequence_table));
+          gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
+                  sequence_table));
           // cursor updates are not yet processed
           on_sequence_table_cursor_changed_idle (self);
           GST_DEBUG ("cursor new/old: %3ld,%3ld -> %3ld,%3ld", cursor_column,
@@ -3558,8 +3605,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   self->priv->context_menu_add =
       GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (_("Add track")));
   image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->
-          priv->context_menu_add), image);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->priv->
+          context_menu_add), image);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
       GTK_WIDGET (self->priv->context_menu_add));
   gtk_widget_show (GTK_WIDGET (self->priv->context_menu_add));
@@ -4625,6 +4672,8 @@ bt_main_page_sequence_class_init (BtMainPageSequenceClass * klass)
   bus_msg_level_quark = g_quark_from_static_string ("level");
   vu_meter_skip_update =
       g_quark_from_static_string ("BtMainPageSequence::skip-update");
+  machine_for_track =
+      g_quark_from_static_string ("BtMainPageSequence::machine_for_track");
 
   g_type_class_add_private (klass, sizeof (BtMainPageSequencePrivate));
 

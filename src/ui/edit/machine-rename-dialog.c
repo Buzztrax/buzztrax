@@ -68,13 +68,13 @@ static void
 on_name_changed (GtkEditable * editable, gpointer user_data)
 {
   BtMachineRenameDialog *self = BT_MACHINE_RENAME_DIALOG (user_data);
-  BtMachine *machine;
   const gchar *name = gtk_entry_get_text (GTK_ENTRY (editable));
   gboolean unique = FALSE;
 
   GST_DEBUG ("change name");
-  // assure uniqueness of the entered data
+  // ensure uniqueness of the entered data
   if (*name) {
+    BtMachine *machine;
     if ((machine = bt_setup_get_machine_by_id (self->priv->setup, name))) {
       if (machine == self->priv->machine) {
         unique = TRUE;
