@@ -774,7 +774,8 @@ i o p</keycap></screen></entry>
       <para>
         The sequence header for each track shows the name of the machine, mute,
         solo. bypass buttons (depending whether it is a generator, effect or
-        sink) and a level-meter.
+        sink) and a level-meter. The name field is editable and changing it will
+        rename the machine.
       </para>
       <para>
         The sequence header for the label column offers shortcuts to jump to the
