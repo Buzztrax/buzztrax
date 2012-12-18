@@ -47,11 +47,10 @@
  *    property too (and get the notify::cursor-column for free)
  *  - we could expose current-machine as a property
  */
-/* IDEA(ensonic): add a follow playback checkbox to toolbar to {en,dis}able sequence
- * scrolling
- *   - the scrolling causes quite some repaints and thus slowness
- *   - it would be good if we could decouple the scolling and the events, so
- *     that we e.g. scroll 10 times a second to the latest position
+/* IDEA(ensonic): follow-playback
+ * - make this a setting once we switched to dconf
+ * - add a shortcut to jump to playback-pos,
+ *   we have F6 for play from cursor, maybe add Shift+F6 for jump to play pos
  */
 /* IDEA(ensonic): bold row,label for cursor row
  *   - makes it easier to follow position in wide sequences
@@ -161,6 +160,8 @@ struct _BtMainPageSequencePrivate
   /* selection first cell */
   glong selection_column;
   glong selection_row;
+
+  gboolean follow_playback;
 
   /* vumeter data */
   GHashTable *level_to_vumeter;
@@ -314,8 +315,8 @@ label_cell_data_function (GtkTreeViewColumn * col, GtkCellRenderer * renderer,
       ) {
     bg_col =
         ((row /
-            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->
-        priv->selection_bg1;
+            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->priv->
+        selection_bg1;
   }
   if (bg_col) {
     g_object_set (renderer,
@@ -508,8 +509,8 @@ sequence_model_get_store (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))) {
     store = gtk_tree_model_filter_get_model (filtered_store);
   }
   return (store);
@@ -557,8 +558,8 @@ sequence_update_model_length (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))) {
     BtSequenceGridModel *store =
         BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
         (filtered_store));
@@ -566,6 +567,29 @@ sequence_update_model_length (const BtMainPageSequence * self)
     g_object_set (store, "length", self->priv->sequence_length, NULL);
     // somehow the treemodel filter doe not get the new rows otherwise
     gtk_tree_model_filter_refilter (filtered_store);
+  }
+}
+
+static void
+sequence_sync_to_play_pos (const BtMainPageSequence * self, gulong pos)
+{
+  // do nothing for invisible rows
+  if (IS_SEQUENCE_POS_VISIBLE (pos, self->priv->bars)) {
+    GtkTreePath *path;
+    // scroll to make play pos visible
+    if ((path = gtk_tree_path_new_from_indices ((pos / self->priv->bars), -1))) {
+      // that would try to keep the cursor in the middle (means it will scroll more)
+      if (gtk_widget_get_realized (GTK_WIDGET (self->priv->sequence_table))) {
+        gtk_tree_view_scroll_to_cell (self->priv->sequence_table, path, NULL,
+            TRUE, 0.5, 0.5);
+        //gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
+      }
+      if (gtk_widget_get_realized (GTK_WIDGET (self->priv->sequence_pos_table))) {
+        gtk_tree_view_scroll_to_cell (self->priv->sequence_pos_table, path,
+            NULL, TRUE, 0.5, 0.5);
+      }
+      gtk_tree_path_free (path);
+    }
   }
 }
 
@@ -1121,8 +1145,8 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
   GST_INFO ("label edited: '%s': '%s'", path_string, new_text);
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))
       && (store = gtk_tree_model_filter_get_model (filtered_store))
       ) {
     GtkTreeIter iter, filter_iter;
@@ -1250,8 +1274,8 @@ sequence_pos_table_init (const BtMainPageSequence * self)
 
   gtk_box_pack_start (GTK_BOX (self->priv->sequence_pos_table_header),
       self->priv->pos_header, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (GTK_WIDGET (self->
-          priv->sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
+  gtk_widget_set_size_request (GTK_WIDGET (self->priv->
+          sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
 
   // add static column
   renderer = gtk_cell_renderer_text_new ();
@@ -2300,7 +2324,6 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
   gdouble play_pos;
   gulong sequence_length, pos;
-  GtkTreePath *path;
 
   // calculate fractional pos and set into sequence-viewer
   g_object_get ((gpointer) song, "play-pos", &pos, NULL);
@@ -2313,22 +2336,8 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
   }
   //GST_DEBUG("sequence tick received : %d",pos);
 
-  // do nothing for invisible rows
-  if (IS_SEQUENCE_POS_VISIBLE (pos, self->priv->bars)) {
-    // scroll  to make play pos visible
-    if ((path = gtk_tree_path_new_from_indices ((pos / self->priv->bars), -1))) {
-      // that would try to keep the cursor in the middle (means it will scroll more)
-      if (gtk_widget_get_realized (GTK_WIDGET (self->priv->sequence_table))) {
-        gtk_tree_view_scroll_to_cell (self->priv->sequence_table, path, NULL,
-            TRUE, 0.5, 0.5);
-        //gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
-      }
-      if (gtk_widget_get_realized (GTK_WIDGET (self->priv->sequence_pos_table))) {
-        gtk_tree_view_scroll_to_cell (self->priv->sequence_pos_table, path,
-            NULL, TRUE, 0.5, 0.5);
-      }
-      gtk_tree_path_free (path);
-    }
+  if (self->priv->follow_playback) {
+    sequence_sync_to_play_pos (self, pos);
   }
 }
 
@@ -2370,8 +2379,8 @@ on_bars_menu_changed (GtkComboBox * combo_box, gpointer user_data)
       sequence_calculate_visible_lines (self);
       //GST_INFO("  bars = %d",self->priv->bars);
       if ((filtered_store =
-              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                      priv->sequence_table)))) {
+              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                      sequence_table)))) {
         BtSequenceGridModel *store =
             BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
             (filtered_store));
@@ -2384,6 +2393,15 @@ on_bars_menu_changed (GtkComboBox * combo_box, gpointer user_data)
     }
     gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->sequence_table));
   }
+}
+
+static void
+on_follow_playback_toggled (GtkToggleButton * togglebutton, gpointer user_data)
+{
+  BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
+
+  self->priv->follow_playback = gtk_toggle_button_get_active (togglebutton);
+  gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->sequence_table));
 }
 
 static void
@@ -3049,8 +3067,8 @@ on_sequence_table_button_press_event (GtkWidget * widget,
             // set cell focus
             gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
                 FALSE);
-            gtk_widget_grab_focus_savely (GTK_WIDGET (self->
-                    priv->sequence_table));
+            gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
+                    sequence_table));
             // reset selection
             self->priv->selection_start_column =
                 self->priv->selection_start_row =
@@ -3121,8 +3139,8 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
           }
           gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
               FALSE);
-          gtk_widget_grab_focus_savely (GTK_WIDGET (self->
-                  priv->sequence_table));
+          gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
+                  sequence_table));
           // cursor updates are not yet processed
           on_sequence_table_cursor_changed_idle (self);
           GST_DEBUG ("cursor new/old: %3ld,%3ld -> %3ld,%3ld", cursor_column,
@@ -3537,7 +3555,7 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   GtkWidget *split_box, *box, *vbox, *tool_item;
   GtkWidget *scrolled_window, *scrolled_vsync_window, *scrolled_hsync_window;
   GtkWidget *hsync_viewport;
-  GtkWidget *menu_item, *image;
+  GtkWidget *menu_item, *image, *check_button;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
   GtkTreeSelection *tree_sel;
@@ -3586,6 +3604,22 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
       -1);
 #endif
 
+  check_button = gtk_check_button_new_with_label (_("Follow playback"));
+  gtk_toggle_button_set_active ((GtkToggleButton *) check_button,
+      self->priv->follow_playback);
+  g_signal_connect (check_button, "toggled",
+      G_CALLBACK (on_follow_playback_toggled), (gpointer) self);
+
+  tool_item = GTK_WIDGET (gtk_tool_item_new ());
+  gtk_container_add (GTK_CONTAINER (tool_item), check_button);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (tool_item), -1);
+
+
+#ifndef USE_COMPACT_UI
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
+      -1);
+#endif
+
   // popup menu button
   image = gtk_image_new_from_filename ("popup-menu.png");
   tool_item = GTK_WIDGET (gtk_tool_button_new (image, _("Sequence view menu")));
@@ -3606,8 +3640,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   self->priv->context_menu_add =
       GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (_("Add track")));
   image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->
-          priv->context_menu_add), image);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->priv->
+          context_menu_add), image);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
       GTK_WIDGET (self->priv->context_menu_add));
   gtk_widget_show (GTK_WIDGET (self->priv->context_menu_add));
@@ -4653,6 +4687,8 @@ bt_main_page_sequence_init (BtMainPageSequence * self)
   self->priv->selection_end_column = -1;
   self->priv->selection_end_row = -1;
   self->priv->sequence_length = self->priv->bars;
+
+  self->priv->follow_playback = TRUE;
 
   self->priv->lock = g_mutex_new ();
 
