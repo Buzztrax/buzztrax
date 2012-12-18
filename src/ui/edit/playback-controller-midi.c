@@ -37,7 +37,8 @@ struct _BtPlaybackControllerMidiPrivate
   /* the application */
   BtEditApplication *app;
 
-BtRegistry *registry};
+  BtRegistry *registry;
+};
 
 //-- the class
 
