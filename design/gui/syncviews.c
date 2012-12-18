@@ -3,6 +3,7 @@
  * gcc -Wall -g syncviews.c -o syncviews `pkg-config gtk+-2.0 --cflags --libs`
  */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,6 +22,38 @@ static void
 destroy (GtkWidget * widget, gpointer data)
 {
   gtk_main_quit ();
+}
+
+// this is a copy from gtk_scrolled_window_scroll_event() with a small modification
+// to also handle scroll events if the scrollbar is hidden
+static gboolean
+on_scroll_event (GtkWidget * widget, GdkEventScroll * event, gpointer user_data)
+{
+  GtkWidget *range;
+  GdkScrollDirection direction = event->direction;
+
+  if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_DOWN)
+    range = GTK_SCROLLED_WINDOW (widget)->vscrollbar;
+  else
+    range = GTK_SCROLLED_WINDOW (widget)->hscrollbar;
+
+  if (range) {
+    GtkAdjustment *adj = GTK_RANGE (range)->adjustment;
+    gdouble delta, new_value;
+
+    delta = pow (adj->page_size, 2.0 / 3.0);
+    if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_LEFT)
+      delta = -delta;
+    if (((GtkRange *) range)->inverted)
+      delta = -delta;
+
+    new_value =
+        CLAMP (adj->value + delta, adj->lower, adj->upper - adj->page_size);
+
+    gtk_adjustment_set_value (adj, new_value);
+    return TRUE;
+  }
+  return FALSE;
 }
 
 static void
@@ -104,12 +137,16 @@ init ()
   gtk_tree_view_set_model (GTK_TREE_VIEW (tree_view2), GTK_TREE_MODEL (store));
   g_object_unref (store);       // drop with treeview
 
-  // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
+  // make first scrolled-window also use the horiz-scrollbar of the second 
+  // scrolled-window
   vadjust =
       gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW
       (scrolled_window2));
   gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW (scrolled_window1),
       vadjust);
+
+  g_signal_connect (scrolled_window1, "scroll-event",
+      G_CALLBACK (on_scroll_event), NULL);
 
   gtk_widget_show_all (window);
 }
