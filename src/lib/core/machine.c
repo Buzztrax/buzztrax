@@ -204,6 +204,9 @@ struct _BtMachinePrivate
   gint src_pad_counter, sink_pad_counter;
 };
 
+// TODO(ensonic): use a common subtype
+// don't change the layout, bt_machine_persistence_save() interprets them both as
+// BtControlData
 typedef struct
 {
   const BtIcControl *control;
@@ -2695,6 +2698,7 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
             bt_persistence_collect_hashtable_entries, (gpointer) & list);
 
         for (lnode = list; lnode; lnode = g_list_next (lnode)) {
+          // for poly controls, this is actualy BtPolyControlData*
           data = (BtControlData *) lnode->data;
 
           g_object_get ((gpointer) (data->control), "device", &device, "name",
@@ -2710,24 +2714,7 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
             xmlNewProp (sub_node, XML_CHAR_PTR ("global"), XML_CHAR_PTR ("0"));
           } else {
             if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
-              GstObject *voice_child;
-              gulong i;
-              gboolean found = FALSE;
-
-              for (i = 0; i < voices; i++) {
-                if ((voice_child =
-                        gst_child_proxy_get_child_by_index (GST_CHILD_PROXY
-                            (self->priv->machines[PART_MACHINE]), i))) {
-                  if (data->object == voice_child) {
-                    xmlNewProp (sub_node, XML_CHAR_PTR ("voice"),
-                        XML_CHAR_PTR (bt_persistence_strfmt_ulong (i)));
-                    found = TRUE;
-                  }
-                  g_object_unref (voice_child);
-                  if (found)
-                    break;
-                }
-              }
+              xmlNewProp (sub_node, XML_CHAR_PTR ("voice"), XML_CHAR_PTR ("0"));
             }
           }
           xmlNewProp (sub_node, XML_CHAR_PTR ("parameter"),
@@ -2909,10 +2896,9 @@ bt_machine_persistence_load (const GType type,
                           if ((voice_str =
                                   xmlGetProp (child_node,
                                       XML_CHAR_PTR ("voice")))) {
-                            voice = atol ((char *) voice_str);
                             bt_machine_bind_poly_parameter_control (self,
                                 (gchar *) property_name,
-                                control, self->priv->voice_param_groups[voice]);
+                                control, self->priv->voice_param_groups[0]);
                             xmlFree (voice_str);
                           }
                         }
