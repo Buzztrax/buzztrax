@@ -2,6 +2,7 @@
   * make check
   * cd po;intltool-update -M
   * make dist
+  * wget http://www.gnu.org/licenses/lgpl-2.1.txt; mv lgpl-2.1.txt COPYING; 
 
 
 * test infrastructure
