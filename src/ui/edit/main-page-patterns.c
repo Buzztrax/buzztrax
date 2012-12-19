@@ -235,6 +235,8 @@ static void on_pattern_size_changed (BtPattern * pattern, GParamSpec * arg,
 static gboolean change_current_pattern (const BtMainPagePatterns * self,
     BtPattern * new_pattern);
 
+static BtMachine *get_current_machine (const BtMainPagePatterns * self);
+
 static void pattern_edit_set_data_at (gpointer pattern_data,
     gpointer column_data, guint row, guint track, guint param, guint digit,
     gfloat value);
@@ -1056,9 +1058,14 @@ on_wave_model_row_inserted (GtkTreeModel * tree_model, GtkTreePath * path,
     GtkTreeIter * iter, gpointer user_data)
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
+  BtMachine *machine = get_current_machine (self);
 
   gtk_combo_box_set_active_iter (self->priv->wavetable_menu, iter);
-  gtk_widget_set_sensitive (GTK_WIDGET (self->priv->wavetable_menu), TRUE);
+  if (machine) {
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->wavetable_menu),
+        bt_machine_handles_waves (machine));
+    g_object_unref (machine);
+  }
 }
 
 static void
@@ -2412,6 +2419,10 @@ on_machine_menu_changed (GtkComboBox * menu, gpointer user_data)
   }
   gtk_combo_box_set_active (GTK_COMBO_BOX (self->priv->base_octave_menu),
       self->priv->base_octave);
+
+  // enable disable the wave combobox, depending on machine caps
+  gtk_widget_set_sensitive (GTK_WIDGET (self->priv->wavetable_menu),
+      bt_machine_handles_waves (machine));
 
   g_object_try_unref (machine);
 }

@@ -1998,6 +1998,32 @@ bt_machine_is_polyphonic (const BtMachine * const self)
 }
 
 /**
+ * bt_machine_handles_waves:
+ * @self: the machine to check
+ *
+ * Tells if the machine is using the wave-table.
+ *
+ * Since: 0.7
+ * Returns: %TRUE for wavetable machines, %FALSE otherwise
+ */
+gboolean
+bt_machine_handles_waves (const BtMachine * const self)
+{
+  BtParameterGroup *pg;
+  gboolean handles_waves = FALSE;
+
+  if ((pg = self->priv->global_param_group) &&
+      (bt_parameter_group_get_wave_param_index (pg) != -1)) {
+    handles_waves = TRUE;
+  } else if (bt_machine_is_polyphonic (self) &&
+      (pg = self->priv->voice_param_groups[0]) &&
+      (bt_parameter_group_get_wave_param_index (pg) != -1)) {
+    handles_waves = TRUE;
+  }
+  return handles_waves;
+}
+
+/**
  * bt_machine_get_prefs_param_group:
  * @self: the machine
  *
