@@ -204,13 +204,16 @@ struct _BtMachinePrivate
   gint src_pad_counter, sink_pad_counter;
 };
 
-// TODO(ensonic): use a common subtype
-// don't change the layout, bt_machine_persistence_save() interprets them both as
-// BtControlData
+typedef enum
+{
+  BT_MONO_CONTROL_DATA = 0,
+  BT_POLY_CONTROL_DATA
+} BtControlDataType;
+
 typedef struct
 {
+  BtControlDataType type;
   const BtIcControl *control;
-  GstObject *object;
   GParamSpec *pspec;
   BtParameterGroup *pg;
   gulong handler_id;
@@ -219,13 +222,15 @@ typedef struct
 
 typedef struct
 {
-  const BtIcControl *control;
+  BtControlData common;
+  GstObject *object;
+} BtMonoControlData;
+
+typedef struct
+{
+  BtControlData common;
   BtMachinePrivate *machine_priv;
-  GParamSpec *pspec;
-  BtParameterGroup *pg;
-  gulong handler_id;
   gint voice_ct;
-  gint pi;
 } BtPolyControlData;
 
 static GQuark error_domain = 0;
@@ -665,8 +670,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->
-                        dst_wires->data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->dst_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -694,8 +699,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->
-                        src_wires->data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->src_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1326,8 +1331,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                      priv->machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                      machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1389,8 +1394,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                    priv->machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                    machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -2118,16 +2123,18 @@ on_boolean_control_notify (const BtIcControl * control, GParamSpec * arg,
     gpointer user_data)
 {
   BtControlData *data = (BtControlData *) (user_data);
+  BtMonoControlData *mdata = (BtMonoControlData *) (user_data);
   gboolean value;
 
   g_object_get ((gpointer) (data->control), "value", &value, NULL);
-  g_object_set (data->object, data->pspec->name, value, NULL);
+  g_object_set (mdata->object, data->pspec->name, value, NULL);
   bt_parameter_group_set_param_default (data->pg, data->pi);
 }
 
 #define ON_CONTROL_NOTIFY(t,T) \
 static void on_## t ##_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) { \
   BtControlData *data=(BtControlData *)(user_data);                                                    \
+  BtMonoControlData *mdata = (BtMonoControlData *) (user_data);                                        \
   GParamSpec ## T *p=(GParamSpec ## T *)data->pspec;                                                   \
   glong svalue,min,max;                                                                                \
   g ## t dvalue;                                                                                       \
@@ -2135,7 +2142,7 @@ static void on_## t ##_control_notify(const BtIcControl *control,GParamSpec *arg
   g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);                  \
   dvalue=p->minimum+(g ## t)((svalue-min)*((gdouble)(p->maximum-p->minimum)/(gdouble)(max-min)));      \
   dvalue=CLAMP(dvalue,p->minimum,p->maximum);                                                          \
-  g_object_set(data->object,((GParamSpec *)p)->name,dvalue,NULL);                                      \
+  g_object_set(mdata->object,((GParamSpec *)p)->name,dvalue,NULL);                                     \
   bt_parameter_group_set_param_default (data->pg, data->pi);                                           \
 }
 
@@ -2151,6 +2158,7 @@ on_enum_control_notify (const BtIcControl * control,
     GParamSpec * arg, gpointer user_data)
 {
   BtControlData *data = (BtControlData *) (user_data);
+  BtMonoControlData *mdata = (BtMonoControlData *) (user_data);
   GParamSpecEnum *p = (GParamSpecEnum *) data->pspec;
   GEnumClass *e = p->enum_class;
   glong svalue, min, max;
@@ -2161,8 +2169,8 @@ on_enum_control_notify (const BtIcControl * control,
   dvalue =
       (gint) ((svalue - min) * ((gdouble) (e->n_values) / (gdouble) (max -
               min)));
-  g_object_set (data->object, ((GParamSpec *) p)->name, e->values[dvalue].value,
-      NULL);
+  g_object_set (mdata->object, ((GParamSpec *) p)->name,
+      e->values[dvalue].value, NULL);
   bt_parameter_group_set_param_default (data->pg, data->pi);
 }
 
@@ -2195,11 +2203,12 @@ bt_machine_bind_parameter_control (const BtMachine * const self,
       (gpointer) pspec);
   if (!data) {
     new_data = TRUE;
-    data = g_new (BtControlData, 1);
-    data->object = object;
+    data = (BtControlData *) g_new (BtMonoControlData, 1);
+    data->type = BT_MONO_CONTROL_DATA;
     data->pspec = pspec;
     data->pg = pg;
     data->pi = bt_parameter_group_get_param_index (pg, property_name);
+    ((BtMonoControlData *) data)->object = object;
   } else {
     // stop the old device
     g_object_get ((gpointer) (data->control), "device", &device, NULL);
@@ -2276,24 +2285,26 @@ static void
 on_boolean_poly_control_notify (const BtIcControl * control, GParamSpec * arg,
     gpointer user_data)
 {
-  BtPolyControlData *data = (BtPolyControlData *) (user_data);
+  BtControlData *data = (BtControlData *) (user_data);
+  BtPolyControlData *pdata = (BtPolyControlData *) (user_data);
   GstElement *machine;
   GstObject *object;
   gboolean value;
 
   g_object_get ((gpointer) (data->control), "value", &value, NULL);
-  machine = data->machine_priv->machines[PART_MACHINE];
+  machine = pdata->machine_priv->machines[PART_MACHINE];
   object =
       gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine),
-      data->voice_ct);
+      pdata->voice_ct);
   g_object_set (object, data->pspec->name, value, NULL);
   bt_parameter_group_set_param_default (data->pg, data->pi);
-  data->voice_ct = (data->voice_ct + 1) % data->machine_priv->voices;
+  pdata->voice_ct = (pdata->voice_ct + 1) % pdata->machine_priv->voices;
 }
 
 #define ON_POLY_CONTROL_NOTIFY(t,T) \
 static void on_## t ##_poly_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) { \
-  BtPolyControlData *data=(BtPolyControlData *)(user_data);                                            \
+  BtControlData *data = (BtControlData *) (user_data);                                                 \
+  BtPolyControlData *pdata=(BtPolyControlData *)(user_data);                                           \
   GstElement *machine;                                                                                 \
   GstObject *object;                                                                                   \
   GParamSpec ## T *p=(GParamSpec ## T *)data->pspec;                                                   \
@@ -2303,11 +2314,11 @@ static void on_## t ##_poly_control_notify(const BtIcControl *control,GParamSpec
   g_object_get((gpointer)(data->control),"value",&svalue,"min",&min,"max",&max,NULL);                  \
   dvalue=p->minimum+(g ## t)((svalue-min)*((gdouble)(p->maximum-p->minimum)/(gdouble)(max-min)));      \
   dvalue=CLAMP(dvalue,p->minimum,p->maximum);                                                          \
-  machine = data->machine_priv->machines[PART_MACHINE];                                                \
-  object = gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine), data->voice_ct);             \
+  machine = pdata->machine_priv->machines[PART_MACHINE];                                               \
+  object = gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine), pdata->voice_ct);            \
   g_object_set(object,((GParamSpec *)p)->name,dvalue,NULL);                                            \
   bt_parameter_group_set_param_default (data->pg, data->pi);                                           \
-  data->voice_ct = (data->voice_ct + 1) % data->machine_priv->voices;                                  \
+  pdata->voice_ct = (pdata->voice_ct + 1) % pdata->machine_priv->voices;                               \
 }
 
 ON_POLY_CONTROL_NOTIFY (int, Int);
@@ -2321,7 +2332,8 @@ static void
 on_enum_poly_control_notify (const BtIcControl * control, GParamSpec * arg,
     gpointer user_data)
 {
-  BtPolyControlData *data = (BtPolyControlData *) (user_data);
+  BtControlData *data = (BtControlData *) (user_data);
+  BtPolyControlData *pdata = (BtPolyControlData *) (user_data);
   GstElement *machine;
   GstObject *object;
   GParamSpecEnum *p = (GParamSpecEnum *) data->pspec;
@@ -2335,14 +2347,14 @@ on_enum_poly_control_notify (const BtIcControl * control, GParamSpec * arg,
       (gint) ((svalue - min) * ((gdouble) (e->n_values) / (gdouble) (max -
               min)));
 
-  machine = data->machine_priv->machines[PART_MACHINE];
+  machine = pdata->machine_priv->machines[PART_MACHINE];
   object =
       gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (machine),
-      data->voice_ct);
+      pdata->voice_ct);
   g_object_set (object, ((GParamSpec *) p)->name, e->values[dvalue].value,
       NULL);
   bt_parameter_group_set_param_default (data->pg, data->pi);
-  data->voice_ct = (data->voice_ct + 1) % data->machine_priv->voices;
+  pdata->voice_ct = (pdata->voice_ct + 1) % pdata->machine_priv->voices;
 }
 
 /**
@@ -2359,7 +2371,7 @@ void
 bt_machine_bind_poly_parameter_control (const BtMachine * const self,
     const gchar * property_name, BtIcControl * control, BtParameterGroup * pg)
 {
-  BtPolyControlData *data;
+  BtControlData *data;
   GstElement *machine;
   GstObject *object;
   GParamSpec *pspec;
@@ -2372,16 +2384,17 @@ bt_machine_bind_poly_parameter_control (const BtMachine * const self,
       g_object_class_find_property (G_OBJECT_GET_CLASS (object), property_name);
 
   data =
-      (BtPolyControlData *) g_hash_table_lookup (self->priv->control_data,
+      (BtControlData *) g_hash_table_lookup (self->priv->control_data,
       (gpointer) pspec);
   if (!data) {
     new_data = TRUE;
-    data = g_new (BtPolyControlData, 1);
-    data->voice_ct = 0;
-    data->machine_priv = self->priv;
+    data = (BtControlData *) g_new (BtPolyControlData, 1);
+    data->type = BT_POLY_CONTROL_DATA;
     data->pspec = pspec;
     data->pg = pg;
     data->pi = bt_parameter_group_get_param_index (pg, property_name);
+    ((BtPolyControlData *) data)->voice_ct = 0;
+    ((BtPolyControlData *) data)->machine_priv = self->priv;
   } else {
     // stop the old device
     g_object_get ((gpointer) (data->control), "device", &device, NULL);
@@ -2724,7 +2737,6 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
             bt_persistence_collect_hashtable_entries, (gpointer) & list);
 
         for (lnode = list; lnode; lnode = g_list_next (lnode)) {
-          // for poly controls, this is actualy BtPolyControlData*
           data = (BtControlData *) lnode->data;
 
           g_object_get ((gpointer) (data->control), "device", &device, "name",
@@ -2736,7 +2748,7 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
               xmlNewChild (child_node, NULL,
               XML_CHAR_PTR ("interaction-controller"), NULL);
           // we need global or voiceXX here
-          if (data->object == (GstObject *) self->priv->machines[PART_MACHINE]) {
+          if (data->type == BT_MONO_CONTROL_DATA) {
             xmlNewProp (sub_node, XML_CHAR_PTR ("global"), XML_CHAR_PTR ("0"));
           } else {
             if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
