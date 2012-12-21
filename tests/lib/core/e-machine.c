@@ -54,8 +54,15 @@ case_teardown (void)
 
 //-- tests
 
+// show machine properties dialog
+static gchar *element_names[] = {
+  "buzztard-test-no-arg-mono-source", "buzztard-test-mono-source",
+  "buzztard-test-poly-source", "buzztard-test-poly-source"
+};
+static gulong element_voices[] = { 0, 0, 0, 1 };
+
 static void
-test_bt_machine_obj1 (BT_TEST_ARGS)
+test_bt_machine_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -63,7 +70,7 @@ test_bt_machine_obj1 (BT_TEST_ARGS)
   /* act */
   GError *err = NULL;
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, &err));
+          element_names[_i], element_voices[_i], &err));
 
   /* assert */
   fail_unless (machine != NULL, NULL);
@@ -350,7 +357,8 @@ bt_machine_example_case (void)
 {
   TCase *tc = tcase_create ("BtMachineExamples");
 
-  tcase_add_test (tc, test_bt_machine_obj1);
+  tcase_add_loop_test (tc, test_bt_machine_create, 0,
+      G_N_ELEMENTS (element_names));
   tcase_add_test (tc, test_bt_machine_enable_input_level1);
   tcase_add_test (tc, test_bt_machine_enable_input_level2);
   tcase_add_test (tc, test_bt_machine_enable_input_gain1);
