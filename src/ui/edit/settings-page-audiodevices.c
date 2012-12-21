@@ -12,9 +12,7 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * SECTION:btsettingspageaudiodevices
@@ -80,8 +78,8 @@ update_device_menu (const BtSettingsPageAudiodevices * self,
   gboolean has_devices = FALSE;
   GtkComboBoxText *combo_box = GTK_COMBO_BOX_TEXT (self->priv->device_menu);
   gint i, ct =
-      gtk_tree_model_iter_n_children (gtk_combo_box_get_model (
-          self->priv->device_menu), NULL);
+      gtk_tree_model_iter_n_children (gtk_combo_box_get_model (self->priv->
+          device_menu), NULL);
   gint index = -1;
 
   for (i = 0; i < ct; i++) {
@@ -202,8 +200,8 @@ on_samplerate_menu_changed (GtkComboBox * combo_box, gpointer user_data)
 
   index = gtk_combo_box_get_active (self->priv->samplerate_menu);
   rate =
-      atoi (gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (self->priv->
-              samplerate_menu)));
+      atoi (gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (self->
+              priv->samplerate_menu)));
   GST_INFO ("sample-rate changed : index=%lu, rate=%lu", index, rate);
 
   g_object_get (self->priv->app, "settings", &settings, NULL);
@@ -297,12 +295,12 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
     str =
         g_strdup_printf (_("system default: %s (%s)"), system_audiosink_name,
         (factory ? gst_element_factory_get_description (factory) : "-"));
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-            audiosink_menu), str);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+            priv->audiosink_menu), str);
     g_free (str);
   } else {
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-            audiosink_menu), _("system default: -"));
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+            priv->audiosink_menu), _("system default: -"));
   }
 
   audiosink_factories =
@@ -397,8 +395,8 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
         str =
             g_strdup_printf ("%s (%s)", name,
             gst_element_factory_get_description (factory));
-        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-                audiosink_menu), str);
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+                priv->audiosink_menu), str);
         g_free (str);
         // add this to instance list
         self->priv->audiosink_names =
@@ -439,22 +437,22 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
       2, 1);
 
   self->priv->samplerate_menu = GTK_COMBO_BOX (gtk_combo_box_text_new ());
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "8000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "11025");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "16000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "22050");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "32000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "44100");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "48000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "96000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "8000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "11025");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "16000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "22050");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "32000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "44100");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "48000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "96000");
   switch (sample_rate) {
     case 8000:
       sampling_rate_index = 0;
@@ -495,10 +493,10 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
       2, 1);
 
   self->priv->channels_menu = GTK_COMBO_BOX (gtk_combo_box_text_new ());
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          channels_menu), _("mono"));
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          channels_menu), _("stereo"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->channels_menu), _("mono"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->channels_menu), _("stereo"));
   gtk_combo_box_set_active (self->priv->channels_menu, (channels - 1));
   gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->channels_menu), 2,
       3, 4, 5, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);

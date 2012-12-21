@@ -12,9 +12,7 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "m-bt-edit.h"
@@ -69,7 +67,8 @@ test_bt_interaction_controller_menu_create_range_menu (BT_TEST_ARGS)
 
   /* act */
   GtkWidget *menu = (GtkWidget *)
-      bt_interaction_controller_menu_new (BT_INTERACTION_CONTROLLER_RANGE_MENU);
+      bt_interaction_controller_menu_new (BT_INTERACTION_CONTROLLER_RANGE_MENU,
+      NULL);
 
   /* assert */
   fail_unless (menu != NULL, NULL);
@@ -88,7 +87,7 @@ test_bt_interaction_controller_menu_create_trigger_menu (BT_TEST_ARGS)
   /* act */
   GtkWidget *menu = (GtkWidget *)
       bt_interaction_controller_menu_new
-      (BT_INTERACTION_CONTROLLER_TRIGGER_MENU);
+      (BT_INTERACTION_CONTROLLER_TRIGGER_MENU, NULL);
 
   /* assert */
   fail_unless (menu != NULL, NULL);

@@ -12,9 +12,7 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 /**
  * SECTION:btcmd
@@ -80,14 +78,14 @@ main (gint argc, gchar ** argv)
 
   static GOptionEntry options[] = {
     {"version", '\0', 0, G_OPTION_ARG_NONE, NULL,
-          N_("Print application version"), NULL},
+        N_("Print application version"), NULL},
     {"quiet", 'q', 0, G_OPTION_ARG_NONE, NULL, N_("Be quiet"), NULL},
     {"command", 'c', 0, G_OPTION_ARG_STRING, NULL, N_("Command name"),
-          "{info, play, convert, encode}"},
+        "{info, play, convert, encode}"},
     {"input-file", 'i', 0, G_OPTION_ARG_FILENAME, NULL, N_("Input file name"),
-          N_("<songfile>")},
+        N_("<songfile>")},
     {"output-file", 'o', 0, G_OPTION_ARG_FILENAME, NULL, N_("Output file name"),
-          N_("<songfile>")},
+        N_("<songfile>")},
     {NULL}
   };
   // setting this separately gets us from 76 to 10 instructions
