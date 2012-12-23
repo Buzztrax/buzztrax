@@ -94,7 +94,7 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
       _("This package is free software; you can redistribute it and/or "
           "modify it under the terms of the GNU Library General Public "
           "License as published by the Free Software Foundation; either "
-          "version 2 of the License, or (at your option) any later version."
+          "version 2.1 of the License, or (at your option) any later version."
           "\n\n"
           "This package is distributed in the hope that it will be useful, "
           "but WITHOUT ANY WARRANTY; without even the implied warranty of "
@@ -102,8 +102,8 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
           "Library General Public License for more details." "\n\n"
           "You should have received a copy of the GNU Library General Public "
           "License along with this package; if not, write to the "
-          "Free Software Foundation, Inc., 59 Temple Place - Suite 330, "
-          "Boston, MA 02111-1307, USA."), "logo-icon-name", PACKAGE_NAME,
+          "Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, "
+          "Boston, MA  02110-1301  USA."), "logo-icon-name", PACKAGE_NAME,
       "translator-credits", (!strcmp (translators,
               "translator-credits")) ? translators : NULL, "version",
       PACKAGE_VERSION, "website", "http://www.buzztard.org", "wrap-license",
@@ -117,17 +117,19 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (news)),
       //"Development version (do not translate this)"
       _
-      ("Main feature of this release is full undo/redo support. Related to it is the "
-          "journaling of edit action and the crash recovery. This way chances of losing "
-          "changes in the song are quite low. Other UI improvements are: tip of day, "
-          "improved spectrum analyzer, clipboard support, more commands in context menus "
-          "and many more). This release features a gstreamer decoder that enables playback "
-          "of buzztard songs in any gstreamer based media player. "
-          "We also kept the buzztard codebase clean and ported from deprecated APIs to the "
-          "successors (gnomevfs->gio, hal->gudev). The libraries and the applications got "
-          "performance improvements in many areas. "
-          "Also the docs have been improved a lot with tutorials, keyboard shortcut tables, "
-          "better coverage and man-pages. "), -1);
+      ("This release comes with a large number of smaller changes. Audio settings "
+          "are more flexible and allow to choose a target latency. Jack users will be "
+          "happy to see that we keep the session alive. We rewrote our test suite, "
+          "fixed lots of bugs and refactored a large part of the code base. This "
+          "summer we had a GSoC student, who implemented GStreamer EncodeBin support, "
+          "which improves the song rendering code, wrote a audio-synth baseclass that "
+          "greatly simplifies writing a new synth and wrote the pattern control source "
+          "that allowed us to remove a lot of complicated code from the sequencer "
+          "core.\n"
+          "The gst-buzztard module got more modular. There are a few new plugins "
+          "(sidsyn, wave-replay and wavetabsyn).\n"
+          "We changed all modules to use non recursive make and we merged bsl into "
+          "buzztard to make development easier."), -1);
 
   news_view = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (news_view),

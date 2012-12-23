@@ -1,5 +1,17 @@
 0.7.0 victory, not venegance (XX.XXX.2012)
 ================================================================================
+This release comes with a large number of smaller changes. Audio settings are more
+flexible and allow to choose a target latency. Jack users will be happy to see that
+we keep the session alive. We rewrote our test suite, fixed lots of bugs and
+refactored a large part of the code base. This summer we had a GSoC student, who
+implemented GStreamer EncodeBin support, which improves the song rendering code,
+wrote a audio-synth baseclass that greatly simplifies writing a new synth and wrote
+the pattern control source that allowed us to remove a lot of complicated code from
+the sequencer core.
+The gst-buzztard module got more modular. There are a few new plugins (sidsyn, 
+wave-replay and wavetabsyn).
+We changed all modules to use non recursive make and we merged bsl into buzztard to
+make development easier.
 
 0.6.0 black beats blue (25.Dec.2011)
 ================================================================================
