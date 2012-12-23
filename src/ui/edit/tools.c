@@ -14,6 +14,13 @@
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
+/* TODO(ensonic):
+ * - we load some icons several times, we could extend the stock icons
+ * - some pointers:
+ *   gtk_stock_add(...)
+ *   gtk_icon_factory_add(GtkIconFactory *,const gchar *stock_id,GtkIconSet *);
+ *   GtkIconSet *gtk_icon_set_new_from_pixbuf(...)
+ */
 
 #define BT_EDIT
 #define BT_TOOLS_C
