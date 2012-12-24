@@ -67,7 +67,7 @@
  */
 
 /* TODO(ensonic): machine part creation api
- * - need singel api to create machine parts, instead of individual functions
+ * - need single api to create machine parts, instead of individual functions
  *   - export the enum ?
  *   - one function that takes flags, or vararg of enum values
  */
@@ -75,6 +75,7 @@
  * - we look them up a lot, its a linear search in a list, locking and ref/unref
  * - one for each param and again each voice
  */
+/* TODO(ensonic): undo/redo needs to handle controlbindings */
 
 #define BT_CORE
 #define BT_MACHINE_C
@@ -196,7 +197,7 @@ struct _BtMachinePrivate
   gint depth;
 
   /* realtime control (bt-ic) */
-  GHashTable *control_data;     // each entry points to BtMachineData
+  GHashTable *control_data;     // each entry is <GParamSpec,BtMachineData>
 
   /* src/sink ghost-pad counters for the machine */
   gint src_pad_counter, sink_pad_counter;

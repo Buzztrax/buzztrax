@@ -70,6 +70,7 @@ GType bt_interaction_controller_menu_type_get_type(void) G_GNUC_CONST;
 
 GType bt_interaction_controller_menu_get_type(void) G_GNUC_CONST;
 
-BtInteractionControllerMenu *bt_interaction_controller_menu_new(BtInteractionControllerMenuType type);
+
+BtInteractionControllerMenu *bt_interaction_controller_menu_new(BtInteractionControllerMenuType type, BtMachine *machine);
 
 #endif // BT_INTERACTION_CONTROLLER_MENU_H

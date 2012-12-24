@@ -18,7 +18,24 @@
  * SECTION:btinteractioncontrollermenu
  * @short_description: class for the interaction controller assignment popup menu
  *
- * Build a menu with available interaction controllers of a type.
+ * Build a menu with available interaction controllers of a type to be used for a
+ * specified machine. 
+ */
+/* TODO(ensonic): sync the menu initially and for other machines
+ * - machine-name
+ *   - need to listen to notify::name for all machines
+ * - add/rem machines
+ *   - need to listen to machine addition/removal on setup
+ * 
+ * where to ad new api:
+ * - machine
+ *   - we need to add signals, so that this menu can follow
+ *     controller bind/unbind calls (for other machines).
+ *   - we need api to iterate over the bound machines so
+ *     that we can check the initial binding state when creating the menu
+ *   - machine manatins a Map<GParamSpec,ControlData>
+ * - or icregistry
+ *   - let ic-registry know what is bound?
  */
 
 #define BT_EDIT
@@ -31,9 +48,11 @@
 enum
 {
   INTERACTION_CONTROLLER_MENU_TYPE = 1,
+  INTERACTION_CONTROLLER_MENU_MACHINE,
   INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL,
-  INTERACTION_CONTROLLER_MENU_ITEM_UNBIND,
-  INTERACTION_CONTROLLER_MENU_ITEM_UNBIND_ALL
+  INTERACTION_CONTROLLER_MENU_SELECTED_OBJECT,
+  INTERACTION_CONTROLLER_MENU_SELECTED_PARAMETER_GROUP,
+  INTERACTION_CONTROLLER_MENU_SELECTED_PROPERTY_NAME
 };
 
 
@@ -45,10 +64,15 @@ struct _BtInteractionControllerMenuPrivate
   /* the application */
   BtEditApplication *app;
 
+  /* the properties */
   BtInteractionControllerMenuType type;
+  BtMachine *machine;
 
-  /* the selected control */
+  /* the context for the current menu invocation */
   BtIcControl *selected_control;
+  GstObject *selected_object;
+  BtParameterGroup *selected_pg;
+  gchar *selected_property_name;
 
   /* sub menu (needed to update the menu) */
   GtkWidget *device_menu;
@@ -58,9 +82,11 @@ struct _BtInteractionControllerMenuPrivate
 
   /* signal handler id */
   gulong ic_changed_handler_id;
-};
 
-static GQuark widget_parent_quark = 0;
+  /* context for the menu items */
+  GHashTable *menuitem_to_control;
+  GHashTable *menuitem_to_device;
+};
 
 //-- the class
 
@@ -118,12 +144,14 @@ on_controls_changed (BtIcDevice * const device, const GParamSpec * const arg,
 }
 
 static void
-on_control_bind_activated (GtkMenuItem * menuitem, gpointer user_data)
+on_control_bind (GtkMenuItem * menuitem, gpointer user_data)
 {
   BtInteractionControllerMenu *self =
-      BT_INTERACTION_CONTROLLER_MENU (g_object_get_qdata (G_OBJECT (menuitem),
-          widget_parent_quark));
-  BtIcControl *control = BTIC_CONTROL (user_data);
+      BT_INTERACTION_CONTROLLER_MENU (user_data);
+  BtIcControl *control =
+      BTIC_CONTROL (g_hash_table_lookup (self->priv->menuitem_to_control,
+          (gpointer) menuitem));
+  gchar *desc, *mid, *cname;
 
 #if 0
   GtkWidget *parent;
@@ -150,16 +178,35 @@ on_control_bind_activated (GtkMenuItem * menuitem, gpointer user_data)
   GST_WARNING ("5.) %p =? %p (%s)", self, parent, G_OBJECT_TYPE_NAME (parent));
 #endif
 
-  g_object_set (self, "selected-control", control, NULL);
+  if (bt_machine_is_polyphonic (self->priv->machine) &&
+      !GST_IS_CHILD_PROXY (self->priv->selected_object)) {
+    bt_machine_bind_poly_parameter_control (self->priv->machine,
+        self->priv->selected_property_name, control, self->priv->selected_pg);
+  } else {
+    bt_machine_bind_parameter_control (self->priv->machine,
+        self->priv->selected_object, self->priv->selected_property_name,
+        control, self->priv->selected_pg);
+  }
+
+  // set menu item name to show to what we're bound
+  g_object_get (self->priv->machine, "id", &mid, NULL);
+  g_object_get (control, "name", &cname, NULL);
+  desc = g_strdup_printf ("%s (%s:%s)", cname, mid,
+      self->priv->selected_property_name);
+  g_object_set (menuitem, "label", desc, NULL);
+  g_free (desc);
+  g_free (cname);
+  g_free (mid);
 }
 
 static void
-on_control_learn_activated (GtkMenuItem * menuitem, gpointer user_data)
+on_control_learn (GtkMenuItem * menuitem, gpointer user_data)
 {
   BtInteractionControllerMenu *self =
-      BT_INTERACTION_CONTROLLER_MENU (g_object_get_qdata (G_OBJECT (menuitem),
-          widget_parent_quark));
-  BtIcDevice *device = BTIC_DEVICE (user_data);
+      BT_INTERACTION_CONTROLLER_MENU (user_data);
+  BtIcDevice *device =
+      BTIC_DEVICE (g_hash_table_lookup (self->priv->menuitem_to_device,
+          (gpointer) menuitem));
   BtInteractionControllerLearnDialog *dialog;
 
   if ((dialog = bt_interaction_controller_learn_dialog_new (device, self))) {
@@ -168,6 +215,35 @@ on_control_learn_activated (GtkMenuItem * menuitem, gpointer user_data)
     gtk_widget_show_all (GTK_WIDGET (dialog));
   }
   GST_INFO ("learn function activated on device");
+}
+
+static void
+on_control_unbind (GtkMenuItem * menuitem, gpointer user_data)
+{
+  BtInteractionControllerMenu *self =
+      BT_INTERACTION_CONTROLLER_MENU (user_data);
+  BtIcControl *control =
+      BTIC_CONTROL (g_hash_table_lookup (self->priv->menuitem_to_control,
+          (gpointer) menuitem));
+  gchar *cname;
+
+  bt_machine_unbind_parameter_control (self->priv->machine,
+      self->priv->selected_object, self->priv->selected_property_name);
+
+  // reset menu item name
+  g_object_get (control, "name", &cname, NULL);
+  g_object_set (menuitem, "label", cname, NULL);
+  g_free (cname);
+}
+
+static void
+on_control_unbind_all (GtkMenuItem * menuitem, gpointer user_data)
+{
+  BtInteractionControllerMenu *self =
+      BT_INTERACTION_CONTROLLER_MENU (user_data);
+
+  bt_machine_unbind_parameter_controls (self->priv->machine);
+  // TODO(ensonic): update menu-item labels for this machine
 }
 
 //-- helper methods
@@ -187,12 +263,11 @@ bt_interaction_controller_menu_init_control_menu (const
     submenu = gtk_menu_new ();
     menu_item = gtk_image_menu_item_new_with_label (_("Learn…"));
     gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menu_item);
-    g_object_set_qdata (G_OBJECT (menu_item), widget_parent_quark,
-        (gpointer) self);
     gtk_widget_show (menu_item);
     // connect handler
+    g_hash_table_insert (self->priv->menuitem_to_device, menu_item, device);
     g_signal_connect (menu_item, "activate",
-        G_CALLBACK (on_control_learn_activated), device);
+        G_CALLBACK (on_control_learn), (gpointer) self);
   }
   // get list of controls per device
   g_object_get (device, "controls", &list, NULL);
@@ -218,16 +293,15 @@ bt_interaction_controller_menu_init_control_menu (const
       submenu = gtk_menu_new ();
     }
     /* TODO(ensonic): add icon: trigger=button, range=knob/slider (from glade?) */
-    menu_item = gtk_image_menu_item_new_with_label (str);
+    menu_item = gtk_menu_item_new_with_label (str);
     gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menu_item);
-    g_object_set_qdata (G_OBJECT (menu_item), widget_parent_quark,
-        (gpointer) self);
     gtk_widget_show (menu_item);
     g_free (str);
 
     // connect handler
-    g_signal_connect (menu_item, "activate",
-        G_CALLBACK (on_control_bind_activated), (gpointer) control);
+    g_hash_table_insert (self->priv->menuitem_to_control, menu_item, control);
+    g_signal_connect (menu_item, "activate", G_CALLBACK (on_control_bind),
+        (gpointer) self);
   }
   g_list_free (list);
 
@@ -314,6 +388,8 @@ bt_interaction_controller_menu_init_ui (const BtInteractionControllerMenu *
   gtk_menu_shell_append (GTK_MENU_SHELL (self), menu_item);
   image = gtk_image_new_from_stock (GTK_STOCK_REMOVE, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
+  g_signal_connect (menu_item, "activate", G_CALLBACK (on_control_unbind),
+      (gpointer) self);
   gtk_widget_show (menu_item);
 
   self->priv->item_unbind_all = menu_item =
@@ -321,6 +397,8 @@ bt_interaction_controller_menu_init_ui (const BtInteractionControllerMenu *
   gtk_menu_shell_append (GTK_MENU_SHELL (self), menu_item);
   image = gtk_image_new_from_stock (GTK_STOCK_REMOVE, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
+  g_signal_connect (menu_item, "activate", G_CALLBACK (on_control_unbind_all),
+      (gpointer) self);
   gtk_widget_show (menu_item);
 }
 
@@ -335,19 +413,20 @@ bt_interaction_controller_menu_init_ui (const BtInteractionControllerMenu *
  * Returns: the new instance
  */
 BtInteractionControllerMenu *
-bt_interaction_controller_menu_new (BtInteractionControllerMenuType type)
+bt_interaction_controller_menu_new (BtInteractionControllerMenuType type,
+    BtMachine * machine)
 {
   BtInteractionControllerMenu *self;
 
   self =
       BT_INTERACTION_CONTROLLER_MENU (g_object_new
-      (BT_TYPE_INTERACTION_CONTROLLER_MENU, "type", type, NULL));
+      (BT_TYPE_INTERACTION_CONTROLLER_MENU, "type", type, "machine", machine,
+          NULL));
   bt_interaction_controller_menu_init_ui (self);
   return (self);
 }
 
 //-- methods
-
 
 //-- class internals
 
@@ -364,12 +443,14 @@ bt_interaction_controller_menu_get_property (GObject * object,
     case INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL:
       g_value_set_object (value, self->priv->selected_control);
       break;
-    case INTERACTION_CONTROLLER_MENU_ITEM_UNBIND:
-      g_value_set_object (value, self->priv->item_unbind);
+    case INTERACTION_CONTROLLER_MENU_SELECTED_OBJECT:
+      g_value_set_object (value, self->priv->selected_object);
       break;
-    case INTERACTION_CONTROLLER_MENU_ITEM_UNBIND_ALL:
-      g_value_set_object (value, self->priv->item_unbind_all);
+    case INTERACTION_CONTROLLER_MENU_SELECTED_PARAMETER_GROUP:
+      g_value_set_object (value, self->priv->selected_pg);
       break;
+    case INTERACTION_CONTROLLER_MENU_SELECTED_PROPERTY_NAME:
+      g_value_set_string (value, self->priv->selected_property_name);
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -386,9 +467,24 @@ bt_interaction_controller_menu_set_property (GObject * object,
     case INTERACTION_CONTROLLER_MENU_TYPE:
       self->priv->type = g_value_get_enum (value);
       break;
+    case INTERACTION_CONTROLLER_MENU_MACHINE:
+      self->priv->machine = g_value_dup_object (value);
+      break;
     case INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL:
       g_object_try_unref (self->priv->selected_control);
       self->priv->selected_control = BTIC_CONTROL (g_value_dup_object (value));
+      break;
+    case INTERACTION_CONTROLLER_MENU_SELECTED_OBJECT:
+      g_object_try_unref (self->priv->selected_object);
+      self->priv->selected_object = g_value_dup_object (value);
+      break;
+    case INTERACTION_CONTROLLER_MENU_SELECTED_PARAMETER_GROUP:
+      g_object_try_unref (self->priv->selected_pg);
+      self->priv->selected_pg = g_value_dup_object (value);
+      break;
+    case INTERACTION_CONTROLLER_MENU_SELECTED_PROPERTY_NAME:
+      g_free (self->priv->selected_property_name);
+      self->priv->selected_property_name = g_value_dup_string (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -425,9 +521,27 @@ bt_interaction_controller_menu_dispose (GObject * object)
   g_object_unref (ic_registry);
 
   g_object_try_unref (self->priv->selected_control);
+  g_object_try_unref (self->priv->selected_object);
+  g_object_try_unref (self->priv->selected_pg);
+  g_object_try_unref (self->priv->machine);
   g_object_unref (self->priv->app);
 
   G_OBJECT_CLASS (bt_interaction_controller_menu_parent_class)->dispose
+      (object);
+}
+
+static void
+bt_interaction_controller_menu_finalize (GObject * object)
+{
+  BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU (object);
+
+  GST_DEBUG ("!!!! self=%p", self);
+
+  g_free (self->priv->selected_property_name);
+  g_hash_table_destroy (self->priv->menuitem_to_control);
+  g_hash_table_destroy (self->priv->menuitem_to_device);
+
+  G_OBJECT_CLASS (bt_interaction_controller_menu_parent_class)->finalize
       (object);
 }
 
@@ -439,6 +553,8 @@ bt_interaction_controller_menu_init (BtInteractionControllerMenu * self)
       BtInteractionControllerMenuPrivate);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
+  self->priv->menuitem_to_control = g_hash_table_new (NULL, NULL);
+  self->priv->menuitem_to_device = g_hash_table_new (NULL, NULL);
 }
 
 static void
@@ -447,18 +563,25 @@ bt_interaction_controller_menu_class_init (BtInteractionControllerMenuClass *
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  widget_parent_quark =
-      g_quark_from_static_string ("BtInteractionControllerMenu::widget-parent");
-
   g_type_class_add_private (klass, sizeof (BtInteractionControllerMenuPrivate));
 
   gobject_class->set_property = bt_interaction_controller_menu_set_property;
   gobject_class->get_property = bt_interaction_controller_menu_get_property;
   gobject_class->dispose = bt_interaction_controller_menu_dispose;
+  gobject_class->finalize = bt_interaction_controller_menu_finalize;
 
-  g_object_class_install_property (gobject_class, INTERACTION_CONTROLLER_MENU_TYPE, g_param_spec_enum ("type", "menu type construct prop", "control types to list in the menu", BT_TYPE_INTERACTION_CONTROLLER_MENU_TYPE,       /* enum type */
+  g_object_class_install_property (gobject_class,
+      INTERACTION_CONTROLLER_MENU_TYPE, g_param_spec_enum ("type",
+          "menu type construct prop", "control types to list in the menu",
+          BT_TYPE_INTERACTION_CONTROLLER_MENU_TYPE,
           BT_INTERACTION_CONTROLLER_RANGE_MENU,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class,
+      INTERACTION_CONTROLLER_MENU_MACHINE, g_param_spec_object ("machine",
+          "machine construct prop", "Set machine object, the menu handles",
+          BT_TYPE_MACHINE,
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class,
       INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL,
@@ -467,14 +590,22 @@ bt_interaction_controller_menu_class_init (BtInteractionControllerMenuClass *
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class,
-      INTERACTION_CONTROLLER_MENU_ITEM_UNBIND,
-      g_param_spec_object ("item-unbind", "item unbind prop",
-          "menu item for unbind command", GTK_TYPE_WIDGET,
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+      INTERACTION_CONTROLLER_MENU_SELECTED_OBJECT,
+      g_param_spec_object ("selected-object", "selected object prop",
+          "object the menu is invoked on", GST_TYPE_OBJECT,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class,
-      INTERACTION_CONTROLLER_MENU_ITEM_UNBIND_ALL,
-      g_param_spec_object ("item-unbind-all", "item unbind-all prop",
-          "menu item for unbind-all command", GTK_TYPE_WIDGET,
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+      INTERACTION_CONTROLLER_MENU_SELECTED_PARAMETER_GROUP,
+      g_param_spec_object ("selected-parameter-group",
+          "selected parameter-group prop",
+          "object-parameter-group the menu is invoked on",
+          BT_TYPE_PARAMETER_GROUP, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class,
+      INTERACTION_CONTROLLER_MENU_SELECTED_PROPERTY_NAME,
+      g_param_spec_string ("selected-property-name",
+          "selected property-name prop",
+          "object-property-name the menu is invoked on", NULL,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

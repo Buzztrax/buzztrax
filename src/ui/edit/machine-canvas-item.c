@@ -155,12 +155,6 @@ static guint signals[LAST_SIGNAL] = { 0, };
 static GQuark bus_msg_level_quark = 0;
 static GQuark machine_canvas_item_quark = 0;
 
-static GQuark control_object_quark = 0;
-static GQuark control_property_quark = 0;
-
-static GQuark widget_param_group_quark = 0;     /* points to ParamGroup */
-static GQuark widget_param_num_quark = 0;       /* which parameter inside the group */
-
 
 //-- the class
 
@@ -820,48 +814,6 @@ bt_machine_canvas_item_is_over_state_switch (const BtMachineCanvasItem * self,
 
 // interaction control helper
 
-static void
-on_control_bind (const BtInteractionControllerMenu * menu, GParamSpec * arg,
-    gpointer user_data)
-{
-  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
-  GObject *m = (GObject *) menu;
-  GstObject *object = g_object_get_qdata (m, control_object_quark);
-  gchar *property_name = g_object_get_qdata (m, control_property_quark);
-  BtParameterGroup *pg = g_object_get_qdata (m, widget_param_group_quark);
-  BtIcControl *control;
-
-  g_object_get ((gpointer) menu, "selected-control", &control, NULL);
-
-  if (bt_machine_is_polyphonic (self->priv->machine) &&
-      !GST_IS_CHILD_PROXY (object)) {
-    bt_machine_bind_poly_parameter_control (self->priv->machine, property_name,
-        control, pg);
-  } else {
-    bt_machine_bind_parameter_control (self->priv->machine, object,
-        property_name, control, pg);
-  }
-  g_object_unref (control);
-}
-
-static void
-on_control_unbind (GtkMenuItem * menuitem, gpointer user_data)
-{
-  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
-  GtkWidget *menu;
-  GstObject *object;
-  gchar *property_name;
-
-  menu = gtk_widget_get_parent (GTK_WIDGET (menuitem));
-
-  object = g_object_get_qdata (G_OBJECT (menu), control_object_quark);
-  property_name = g_object_get_qdata (G_OBJECT (menu), control_property_quark);
-
-  bt_machine_unbind_parameter_control (self->priv->machine, object,
-      property_name);
-  //g_object_unref(menu);
-}
-
 static gboolean
 bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
 {
@@ -983,6 +935,9 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
     glong pi = -1;
     BtParameterGroup *pg;
 
+    GST_INFO_OBJECT (machine,
+        "check if source machine has a trigger parameter");
+
     // find trigger property in global or first voice params
     if ((pg = bt_machine_get_global_param_group (machine))) {
       if ((pi = bt_parameter_group_get_trigger_param_index (pg)) == -1) {
@@ -1016,9 +971,8 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
       //     device1
       //   unbind controller
       // but maybe that is okay, as this way we can also unbind-all from here.
-      GtkWidget *item_unbind, *item_unbind_all;
       GtkWidget *menu = (GtkWidget *) bt_interaction_controller_menu_new
-          (BT_INTERACTION_CONTROLLER_RANGE_MENU);
+          (BT_INTERACTION_CONTROLLER_RANGE_MENU, self->priv->machine);
 
       menu_item = gtk_menu_item_new_with_label (_("Play with"));
       gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
@@ -1026,24 +980,9 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
       gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), menu);
       gtk_widget_show (menu_item);
 
-      g_object_get (menu, "item-unbind", &item_unbind, "item-unbind-all",
-          &item_unbind_all, NULL);
-
-      g_object_set_qdata (G_OBJECT (menu), control_object_quark,
-          (gpointer) param_parent);
-      g_object_set_qdata (G_OBJECT (menu), control_property_quark,
-          (gpointer) property_name);
-      g_object_set_qdata (G_OBJECT (menu), widget_param_group_quark,
-          (gpointer) pg);
-      g_object_set_qdata (G_OBJECT (menu), widget_param_num_quark,
-          GINT_TO_POINTER (pi));
-
-      g_signal_connect (menu, "notify::selected-control",
-          G_CALLBACK (on_control_bind), (gpointer) self);
-      g_signal_connect (item_unbind, "activate", G_CALLBACK (on_control_unbind),
-          (gpointer) self);
-      g_object_unref (item_unbind);
-      g_object_unref (item_unbind_all);
+      g_object_set (menu, "selected-object", param_parent,
+          "selected-parameter-group", pg, "selected-property-name",
+          property_name, NULL);
     }
   }
 
@@ -1653,16 +1592,6 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
   bus_msg_level_quark = g_quark_from_static_string ("level");
   machine_canvas_item_quark =
       g_quark_from_static_string ("machine-canvas-item");
-  control_object_quark =
-      g_quark_from_static_string ("BtMachineCanvasItem::control-object");
-  control_property_quark =
-      g_quark_from_static_string ("BtMachineCanvasItem::control-property");
-
-  widget_param_group_quark =
-      g_quark_from_static_string ("BtMachineCanvasItem::widget-param-group");
-  widget_param_num_quark =
-      g_quark_from_static_string ("BtMachineCanvasItem::widget-param-num");
-
 
   g_type_class_add_private (klass, sizeof (BtMachineCanvasItemPrivate));
 

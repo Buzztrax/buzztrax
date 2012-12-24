@@ -97,8 +97,7 @@ struct _BtMachinePropertiesDialogPrivate
 
 static GQuark wdget_peer_quark = 0;
 static GQuark widget_parent_quark = 0;
-static GQuark control_object_quark = 0;
-static GQuark control_property_quark = 0;
+static GQuark widget_child_quark = 0;
 
 static GQuark widget_param_group_quark = 0;     /* points to ParamGroup */
 static GQuark widget_param_num_quark = 0;       /* which parameter inside the group */
@@ -228,56 +227,6 @@ get_param_group (const BtMachinePropertiesDialog * self, GObject * param_parent)
 // interaction control helper
 
 static void
-on_control_bind (const BtInteractionControllerMenu * menu, GParamSpec * arg,
-    gpointer user_data)
-{
-  BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (user_data);
-  GObject *m = (GObject *) menu;
-  GstObject *object = g_object_get_qdata (m, control_object_quark);
-  gchar *property_name = g_object_get_qdata (m, control_property_quark);
-  BtParameterGroup *pg = g_object_get_qdata (m, widget_param_group_quark);
-  BtIcControl *control;
-
-  g_object_get ((gpointer) menu, "selected-control", &control, NULL);
-
-  if (bt_machine_is_polyphonic (self->priv->machine) &&
-      !GST_IS_CHILD_PROXY (object)) {
-    bt_machine_bind_poly_parameter_control (self->priv->machine, property_name,
-        control, pg);
-  } else {
-    bt_machine_bind_parameter_control (self->priv->machine, object,
-        property_name, control, pg);
-  }
-  g_object_unref (control);
-}
-
-static void
-on_control_unbind (GtkMenuItem * menuitem, gpointer user_data)
-{
-  BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (user_data);
-  GtkWidget *menu;
-  GstObject *object;
-  gchar *property_name;
-
-  menu = gtk_widget_get_parent (GTK_WIDGET (menuitem));
-
-  object = g_object_get_qdata (G_OBJECT (menu), control_object_quark);
-  property_name = g_object_get_qdata (G_OBJECT (menu), control_property_quark);
-
-  bt_machine_unbind_parameter_control (self->priv->machine, object,
-      property_name);
-  //g_object_unref(menu);
-}
-
-static void
-on_control_unbind_all (GtkMenuItem * menuitem, gpointer user_data)
-{
-  BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (user_data);
-
-  bt_machine_unbind_parameter_controls (self->priv->machine);
-}
-
-static void
 on_parameter_reset (GtkMenuItem * menuitem, gpointer user_data)
 {
   //BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
@@ -288,8 +237,8 @@ on_parameter_reset (GtkMenuItem * menuitem, gpointer user_data)
 
   menu = gtk_widget_get_parent (GTK_WIDGET (menuitem));
 
-  object = g_object_get_qdata (G_OBJECT (menu), control_object_quark);
-  property_name = g_object_get_qdata (G_OBJECT (menu), control_property_quark);
+  g_object_get ((gpointer) menu, "selected-object", &object,
+      "selected-property-name", &property_name, NULL);
 
   if ((pspec =
           g_object_class_find_property (G_OBJECT_GET_CLASS (object),
@@ -301,6 +250,9 @@ on_parameter_reset (GtkMenuItem * menuitem, gpointer user_data)
     g_object_set_property (object, property_name, &gvalue);
     g_value_unset (&gvalue);
   }
+
+  g_object_unref (object);
+  g_free (property_name);
 }
 
 static void
@@ -355,8 +307,8 @@ on_parameters_copy_single (GtkMenuItem * menuitem, gpointer user_data)
 
   menu = gtk_widget_get_parent (GTK_WIDGET (menuitem));
 
-  object = g_object_get_qdata (G_OBJECT (menu), control_object_quark);
-  property_name = g_object_get_qdata (G_OBJECT (menu), control_property_quark);
+  g_object_get ((gpointer) menu, "selected-object", &object,
+      "selected-property-name", &property_name, NULL);
   pspec =
       g_object_class_find_property (G_OBJECT_GET_CLASS (object), property_name);
 
@@ -388,6 +340,8 @@ on_parameters_copy_single (GtkMenuItem * menuitem, gpointer user_data)
   }
 
   gtk_target_table_free (targets, n_targets);
+  g_object_unref (object);
+  g_free (property_name);
 }
 
 static void
@@ -729,7 +683,6 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
   if (event->type == GDK_BUTTON_PRESS) {
     if (event->button == 3) {
       GObject *m;
-      GtkWidget *item_unbind, *item_unbind_all;
       BtParameterGroup *pg = g_object_get_qdata (w, widget_param_group_quark);
       gint pi =
           GPOINTER_TO_INT (g_object_get_qdata (w, widget_param_num_quark));
@@ -741,7 +694,7 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
 
         self->priv->param_menu[type] =
             GTK_MENU (g_object_ref_sink (bt_interaction_controller_menu_new
-                (type)));
+                (type, self->priv->machine)));
         menu = GTK_MENU_SHELL (self->priv->param_menu[type]);
 
         // add extra items
@@ -785,32 +738,12 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
         gtk_widget_show (menu_item);
       }
       m = (GObject *) self->priv->param_menu[type];
-      g_object_get (m, "item-unbind", &item_unbind, "item-unbind-all",
-          &item_unbind_all, NULL);
-      g_object_set_qdata (m, control_object_quark, (gpointer) param_parent);
-      g_object_set_qdata (m, control_property_quark, (gpointer) property_name);
       g_object_set_qdata (m, widget_param_group_quark, (gpointer) pg);
       g_object_set_qdata (m, widget_param_num_quark, GINT_TO_POINTER (pi));
 
-      // disconnect previous handlers
-      g_signal_handlers_disconnect_matched (m,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-          on_control_bind, self);
-      g_signal_handlers_disconnect_matched (item_unbind,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-          on_control_unbind, self);
-      g_signal_handlers_disconnect_matched (item_unbind_all,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-          on_control_unbind, self);
-      // attach handlers
-      g_signal_connect (m, "notify::selected-control",
-          G_CALLBACK (on_control_bind), (gpointer) self);
-      g_signal_connect (item_unbind, "activate", G_CALLBACK (on_control_unbind),
-          (gpointer) self);
-      g_signal_connect (item_unbind_all, "activate",
-          G_CALLBACK (on_control_unbind_all), (gpointer) self);
-      g_object_unref (item_unbind);
-      g_object_unref (item_unbind_all);
+      g_object_set (m, "selected-object", param_parent,
+          "selected-parameter-group", pg, "selected-property-name",
+          property_name, NULL);
 
       gtk_menu_popup (GTK_MENU (m), NULL, NULL, NULL, NULL, 3,
           gtk_get_current_event_time ());
@@ -2914,7 +2847,6 @@ bt_machine_properties_dialog_set_property (GObject * object, guint property_id,
   return_if_disposed ();
   switch (property_id) {
     case MACHINE_PROPERTIES_DIALOG_MACHINE:
-      g_object_try_unref (self->priv->machine);
       self->priv->machine = g_value_dup_object (value);
       if (self->priv->machine) {
         GstElement *element;
@@ -3097,11 +3029,6 @@ bt_machine_properties_dialog_class_init (BtMachinePropertiesDialogClass * klass)
       g_quark_from_static_string ("BtMachinePropertiesDialog::widget-peer");
   widget_parent_quark =
       g_quark_from_static_string ("BtMachinePropertiesDialog::widget-parent");
-  control_object_quark =
-      g_quark_from_static_string ("BtMachinePropertiesDialog::control-object");
-  control_property_quark =
-      g_quark_from_static_string
-      ("BtMachinePropertiesDialog::control-property");
 
   widget_param_group_quark =
       g_quark_from_static_string
@@ -3109,6 +3036,9 @@ bt_machine_properties_dialog_class_init (BtMachinePropertiesDialogClass * klass)
   widget_param_num_quark =
       g_quark_from_static_string
       ("BtMachinePropertiesDialog::widget-param-num");
+
+  widget_child_quark =
+      g_quark_from_static_string ("BtInteractionControllerMenu::widget-child");
 
   g_type_class_add_private (klass, sizeof (BtMachinePropertiesDialogPrivate));
 
