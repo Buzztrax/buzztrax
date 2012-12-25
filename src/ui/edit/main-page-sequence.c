@@ -49,6 +49,7 @@
  * - make this a setting once we switched to dconf
  * - add a shortcut to jump to playback-pos,
  *   we have F6 for play from cursor, maybe add Shift+F6 for jump to play pos
+ * - have a way to disable it externally (for song-recording)
  */
 /* IDEA(ensonic): bold row,label for cursor row
  *   - makes it easier to follow position in wide sequences
