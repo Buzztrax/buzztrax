@@ -24,10 +24,6 @@
  * The menu will show whether a control is bound or not and if it is bound the label
  * will include the currently bound target.
  */
-/* TODO(ensonic): keep the menu in sync
- * - machine-name
- *   - need to listen to notify::name for all machines
- */
 
 #define BT_EDIT
 #define BT_INTERACTION_CONTROLLER_MENU_C
@@ -167,6 +163,15 @@ on_controls_changed (BtIcDevice * const device, const GParamSpec * const arg,
 }
 
 static void
+on_machine_notify_id (BtMachine * const machine,
+    const GParamSpec * const arg, gpointer user_data)
+{
+  // as we just forward the signal, it is safe to leave some of these connected
+  // we take care to not connect them twice
+  g_object_notify (user_data, "bound");
+}
+
+static void
 on_control_notify_bound (BtIcControl * const control,
     const GParamSpec * const arg, gpointer user_data)
 {
@@ -175,9 +180,17 @@ on_control_notify_bound (BtIcControl * const control,
   GObject *menuitem =
       G_OBJECT (g_hash_table_lookup (self->priv->control_to_menuitem,
           (gpointer) control));
+  BtMachine *machine;
   gchar *desc = build_label_for_control (control);
+
   g_object_set (menuitem, "label", desc, NULL);
   g_free (desc);
+
+  machine = g_object_get_qdata ((GObject *) control, bt_machine_machine);
+  if (machine) {
+    g_signal_connect (machine, "notify::id",
+        G_CALLBACK (on_machine_notify_id), (gpointer) control);
+  }
 }
 
 static void
@@ -188,31 +201,6 @@ on_control_bind (GtkMenuItem * menuitem, gpointer user_data)
   BtIcControl *control =
       BTIC_CONTROL (g_hash_table_lookup (self->priv->menuitem_to_control,
           (gpointer) menuitem));
-
-#if 0
-  GtkWidget *parent;
-
-  parent =
-      gtk_widget_get_parent (gtk_widget_get_parent (GTK_WIDGET (menuitem)));
-  GST_WARNING ("1.) %p =? %p (%s)", self, parent, G_OBJECT_TYPE_NAME (parent));
-  parent = gtk_widget_get_toplevel (GTK_WIDGET (menuitem));
-  GST_WARNING ("2.) %p =? %p (%s)", self, parent, G_OBJECT_TYPE_NAME (parent));
-  //parent=gtk_menu_get_attach_widget(GTK_MENU(gtk_widget_get_toplevel(GTK_WIDGET(menuitem))));
-  //GST_WARNING("3.) %p =? %p (%s)",self,parent,G_OBJECT_TYPE_NAME(parent));
-  parent =
-      gtk_menu_get_attach_widget (GTK_MENU (gtk_widget_get_parent (GTK_WIDGET
-              (menuitem))));
-  GST_WARNING ("3.) %p =? %p (%s)", self, parent, G_OBJECT_TYPE_NAME (parent));
-  parent =
-      gtk_widget_get_parent (gtk_menu_get_attach_widget (GTK_MENU
-          (gtk_widget_get_parent (GTK_WIDGET (menuitem)))));
-  GST_WARNING ("4.) %p =? %p (%s)", self, parent, G_OBJECT_TYPE_NAME (parent));
-  parent =
-      gtk_widget_get_parent (gtk_menu_get_attach_widget (GTK_MENU
-          (gtk_widget_get_parent (gtk_menu_get_attach_widget (GTK_MENU
-                      (gtk_widget_get_parent (GTK_WIDGET (menuitem))))))));
-  GST_WARNING ("5.) %p =? %p (%s)", self, parent, G_OBJECT_TYPE_NAME (parent));
-#endif
 
   if (bt_machine_is_polyphonic (self->priv->machine) &&
       !GST_IS_CHILD_PROXY (self->priv->selected_object)) {
@@ -270,6 +258,7 @@ bt_interaction_controller_menu_init_control_menu (const
 {
   BtIcControl *control;
   GtkWidget *menu_item;
+  BtMachine *machine;
   GList *node, *list;
   gchar *str, *desc;
   GtkWidget *submenu = NULL;
@@ -322,6 +311,16 @@ bt_interaction_controller_menu_init_control_menu (const
         (gpointer) self);
     g_signal_connect (control, "notify::bound",
         G_CALLBACK (on_control_notify_bound), (gpointer) self);
+
+    machine = g_object_get_qdata ((GObject *) control, bt_machine_machine);
+    if (machine) {
+      if (!g_signal_handler_find (machine,
+              G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+              on_machine_notify_id, (gpointer) control)) {
+        g_signal_connect (machine, "notify::id",
+            G_CALLBACK (on_machine_notify_id), (gpointer) control);
+      }
+    }
   }
   g_list_free (list);
 
