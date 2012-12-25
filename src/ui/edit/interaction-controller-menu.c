@@ -19,23 +19,14 @@
  * @short_description: class for the interaction controller assignment popup menu
  *
  * Build a menu with available interaction controllers of a type to be used for a
- * specified machine. 
+ * specified machine.
+ *
+ * The menu will show whether a control is bound or not and if it is bound the label
+ * will include the currently bound target.
  */
-/* TODO(ensonic): sync the menu initially and for other machines
+/* TODO(ensonic): keep the menu in sync
  * - machine-name
  *   - need to listen to notify::name for all machines
- * - add/rem machines
- *   - need to listen to machine addition/removal on setup
- * 
- * where to ad new api:
- * - machine
- *   - we need to add signals, so that this menu can follow
- *     controller bind/unbind calls (for other machines).
- *   - we need api to iterate over the bound machines so
- *     that we can check the initial binding state when creating the menu
- *   - machine manatins a Map<GParamSpec,ControlData>
- * - or icregistry
- *   - let ic-registry know what is bound?
  */
 
 #define BT_EDIT
@@ -86,7 +77,11 @@ struct _BtInteractionControllerMenuPrivate
   /* context for the menu items */
   GHashTable *menuitem_to_control;
   GHashTable *menuitem_to_device;
+  GHashTable *control_to_menuitem;
 };
+
+extern GQuark bt_machine_machine;
+extern GQuark bt_machine_property_name;
 
 //-- the class
 
@@ -117,6 +112,34 @@ bt_interaction_controller_menu_type_get_type (void)
   return type;
 }
 
+//-- helper
+
+static gchar *
+build_label_for_control (BtIcControl * const control)
+{
+  gchar *cname, *desc;
+  gboolean is_bound;
+
+  g_object_get (control, "name", &cname, "bound", &is_bound, NULL);
+
+  // build label
+  if (is_bound) {
+    BtMachine *machine = g_object_get_qdata ((GObject *) control,
+        bt_machine_machine);
+    gchar *pname = g_object_get_qdata ((GObject *) control,
+        bt_machine_property_name);
+    gchar *mid;
+
+    g_object_get (machine, "id", &mid, NULL);
+    desc = g_strdup_printf ("%s (%s:%s)", cname, mid, pname);
+    g_free (mid);
+    g_free (cname);
+  } else {
+    desc = cname;
+  }
+  return desc;
+}
+
 //-- event handler
 
 static void
@@ -144,6 +167,20 @@ on_controls_changed (BtIcDevice * const device, const GParamSpec * const arg,
 }
 
 static void
+on_control_notify_bound (BtIcControl * const control,
+    const GParamSpec * const arg, gpointer user_data)
+{
+  BtInteractionControllerMenu *self =
+      BT_INTERACTION_CONTROLLER_MENU (user_data);
+  GObject *menuitem =
+      G_OBJECT (g_hash_table_lookup (self->priv->control_to_menuitem,
+          (gpointer) control));
+  gchar *desc = build_label_for_control (control);
+  g_object_set (menuitem, "label", desc, NULL);
+  g_free (desc);
+}
+
+static void
 on_control_bind (GtkMenuItem * menuitem, gpointer user_data)
 {
   BtInteractionControllerMenu *self =
@@ -151,7 +188,6 @@ on_control_bind (GtkMenuItem * menuitem, gpointer user_data)
   BtIcControl *control =
       BTIC_CONTROL (g_hash_table_lookup (self->priv->menuitem_to_control,
           (gpointer) menuitem));
-  gchar *desc, *mid, *cname;
 
 #if 0
   GtkWidget *parent;
@@ -187,16 +223,6 @@ on_control_bind (GtkMenuItem * menuitem, gpointer user_data)
         self->priv->selected_object, self->priv->selected_property_name,
         control, self->priv->selected_pg);
   }
-
-  // set menu item name to show to what we're bound
-  g_object_get (self->priv->machine, "id", &mid, NULL);
-  g_object_get (control, "name", &cname, NULL);
-  desc = g_strdup_printf ("%s (%s:%s)", cname, mid,
-      self->priv->selected_property_name);
-  g_object_set (menuitem, "label", desc, NULL);
-  g_free (desc);
-  g_free (cname);
-  g_free (mid);
 }
 
 static void
@@ -222,18 +248,9 @@ on_control_unbind (GtkMenuItem * menuitem, gpointer user_data)
 {
   BtInteractionControllerMenu *self =
       BT_INTERACTION_CONTROLLER_MENU (user_data);
-  BtIcControl *control =
-      BTIC_CONTROL (g_hash_table_lookup (self->priv->menuitem_to_control,
-          (gpointer) menuitem));
-  gchar *cname;
 
   bt_machine_unbind_parameter_control (self->priv->machine,
       self->priv->selected_object, self->priv->selected_property_name);
-
-  // reset menu item name
-  g_object_get (control, "name", &cname, NULL);
-  g_object_set (menuitem, "label", cname, NULL);
-  g_free (cname);
 }
 
 static void
@@ -243,7 +260,6 @@ on_control_unbind_all (GtkMenuItem * menuitem, gpointer user_data)
       BT_INTERACTION_CONTROLLER_MENU (user_data);
 
   bt_machine_unbind_parameter_controls (self->priv->machine);
-  // TODO(ensonic): update menu-item labels for this machine
 }
 
 //-- helper methods
@@ -255,8 +271,9 @@ bt_interaction_controller_menu_init_control_menu (const
   BtIcControl *control;
   GtkWidget *menu_item;
   GList *node, *list;
-  gchar *str;
+  gchar *str, *desc;
   GtkWidget *submenu = NULL;
+  gboolean is_bound;
 
   // add learn function entry for device which implement the BtIcLearn interface
   if (BTIC_IS_LEARN (device)) {
@@ -286,22 +303,25 @@ bt_interaction_controller_menu_init_control_menu (const
         break;
     }
 
-    g_object_get (control, "name", &str, NULL);
+    g_object_get (control, "name", &str, "bound", &is_bound, NULL);
     GST_INFO ("  Add control '%s'", str);
 
     if (!submenu) {
       submenu = gtk_menu_new ();
     }
-    /* TODO(ensonic): add icon: trigger=button, range=knob/slider (from glade?) */
-    menu_item = gtk_menu_item_new_with_label (str);
+    desc = build_label_for_control (control);
+    menu_item = gtk_menu_item_new_with_label (desc);
     gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menu_item);
     gtk_widget_show (menu_item);
-    g_free (str);
+    g_free (desc);
 
-    // connect handler
+    // connect handlers
     g_hash_table_insert (self->priv->menuitem_to_control, menu_item, control);
+    g_hash_table_insert (self->priv->control_to_menuitem, control, menu_item);
     g_signal_connect (menu_item, "activate", G_CALLBACK (on_control_bind),
         (gpointer) self);
+    g_signal_connect (control, "notify::bound",
+        G_CALLBACK (on_control_notify_bound), (gpointer) self);
   }
   g_list_free (list);
 
@@ -498,7 +518,8 @@ bt_interaction_controller_menu_dispose (GObject * object)
   BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU (object);
   BtIcRegistry *ic_registry;
   BtIcDevice *device;
-  GList *node, *list;
+  BtIcControl *control;
+  GList *dnode, *cnode, *devices, *controls;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
@@ -507,14 +528,22 @@ bt_interaction_controller_menu_dispose (GObject * object)
 
   // disconnect notify handlers
   g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);
-  g_object_get (ic_registry, "devices", &list, NULL);
-  for (node = list; node; node = g_list_next (node)) {
-    device = BTIC_DEVICE (node->data);
+  g_object_get (ic_registry, "devices", &devices, NULL);
+  for (dnode = devices; dnode; dnode = g_list_next (dnode)) {
+    device = BTIC_DEVICE (dnode->data);
     g_signal_handlers_disconnect_matched (device,
         G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
         on_controls_changed, (gpointer) self);
+    g_object_get (device, "controls", &controls, NULL);
+    for (cnode = controls; cnode; cnode = g_list_next (cnode)) {
+      control = BTIC_CONTROL (cnode->data);
+      g_signal_handlers_disconnect_matched (control,
+          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+          on_control_notify_bound, (gpointer) self);
+    }
+    g_list_free (controls);
   }
-  g_list_free (list);
+  g_list_free (devices);
   g_signal_handlers_disconnect_matched (ic_registry,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_devices_changed,
       (gpointer) self);
@@ -540,6 +569,7 @@ bt_interaction_controller_menu_finalize (GObject * object)
   g_free (self->priv->selected_property_name);
   g_hash_table_destroy (self->priv->menuitem_to_control);
   g_hash_table_destroy (self->priv->menuitem_to_device);
+  g_hash_table_destroy (self->priv->control_to_menuitem);
 
   G_OBJECT_CLASS (bt_interaction_controller_menu_parent_class)->finalize
       (object);
@@ -555,6 +585,7 @@ bt_interaction_controller_menu_init (BtInteractionControllerMenu * self)
   self->priv->app = bt_edit_application_new ();
   self->priv->menuitem_to_control = g_hash_table_new (NULL, NULL);
   self->priv->menuitem_to_device = g_hash_table_new (NULL, NULL);
+  self->priv->control_to_menuitem = g_hash_table_new (NULL, NULL);
 }
 
 static void

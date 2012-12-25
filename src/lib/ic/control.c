@@ -46,7 +46,8 @@ enum
 {
   CONTROL_DEVICE = 1,
   CONTROL_NAME,
-  CONTROL_ID
+  CONTROL_ID,
+  CONTROL_BOUND
 };
 
 struct _BtIcControlPrivate
@@ -57,6 +58,7 @@ struct _BtIcControlPrivate
   BtIcDevice *device;
   gchar *name;
   guint id;
+  gboolean bound;
 };
 
 //-- the class
@@ -90,6 +92,9 @@ btic_control_get_property (GObject * const object, const guint property_id,
       break;
     case CONTROL_ID:
       g_value_set_uint (value, self->priv->id);
+      break;
+    case CONTROL_BOUND:
+      g_value_set_boolean (value, self->priv->bound);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -129,6 +134,9 @@ btic_control_set_property (GObject * const object, const guint property_id,
     }
     case CONTROL_ID:
       self->priv->id = g_value_get_uint (value);
+      break;
+    case CONTROL_BOUND:
+      self->priv->bound = g_value_get_boolean (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -196,9 +204,11 @@ btic_control_class_init (BtIcControlClass * const klass)
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, CONTROL_ID,
-      g_param_spec_uint ("id",
-          "id prop",
-          "control id (for lookups)",
+      g_param_spec_uint ("id", "id prop", "control id (for lookups)",
           0, G_MAXUINT, 0,
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, CONTROL_BOUND,
+      g_param_spec_boolean ("bound", "bound prop", "wheter a control is in use",
+          FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

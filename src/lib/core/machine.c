@@ -197,7 +197,7 @@ struct _BtMachinePrivate
   gint depth;
 
   /* realtime control (bt-ic) */
-  GHashTable *control_data;     // each entry is <GParamSpec,BtMachineData>
+  GHashTable *control_data;     // each entry is <GParamSpec,BtControlData>
 
   /* src/sink ghost-pad counters for the machine */
   gint src_pad_counter, sink_pad_counter;
@@ -212,7 +212,7 @@ typedef enum
 typedef struct
 {
   BtControlDataType type;
-  const BtIcControl *control;
+  BtIcControl *control;
   GParamSpec *pspec;
   BtParameterGroup *pg;
   gulong handler_id;
@@ -233,6 +233,8 @@ typedef struct
 } BtPolyControlData;
 
 static GQuark error_domain = 0;
+GQuark bt_machine_machine = 0;
+GQuark bt_machine_property_name = 0;
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -669,8 +671,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->
-                        dst_wires->data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->dst_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -698,8 +700,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->
-                        src_wires->data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->src_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1330,8 +1332,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                      priv->machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                      machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1393,8 +1395,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                    priv->machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                    machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -2112,7 +2114,11 @@ free_control_data (BtControlData * data)
   }
   // disconnect the handler
   g_signal_handler_disconnect ((gpointer) data->control, data->handler_id);
-  g_object_unref ((gpointer) (data->control));
+  g_object_set (data->control, "bound", FALSE, NULL);
+  g_object_set_qdata ((GObject *) data->control, bt_machine_machine, NULL);
+  g_object_set_qdata ((GObject *) data->control, bt_machine_property_name,
+      NULL);
+  g_object_unref (data->control);
 
   g_free (data);
 }
@@ -2274,9 +2280,14 @@ bt_machine_bind_parameter_control (const BtMachine * const self,
       break;
   }
 
+  g_object_set_qdata ((GObject *) data->control, bt_machine_machine,
+      (gpointer) self);
+  g_object_set_qdata ((GObject *) data->control, bt_machine_property_name,
+      (gpointer) pspec->name);
   if (new_data) {
     g_hash_table_insert (self->priv->control_data, (gpointer) pspec,
         (gpointer) data);
+    g_object_set (data->control, "bound", TRUE, NULL);
   }
 }
 
@@ -2459,9 +2470,14 @@ bt_machine_bind_poly_parameter_control (const BtMachine * const self,
       break;
   }
 
+  g_object_set_qdata ((GObject *) data->control, bt_machine_machine,
+      (gpointer) self);
+  g_object_set_qdata ((GObject *) data->control, bt_machine_property_name,
+      (gpointer) pspec->name);
   if (new_data) {
     g_hash_table_insert (self->priv->control_data, (gpointer) pspec,
         (gpointer) data);
+    g_object_set (data->control, "bound", TRUE, NULL);
   }
 }
 
@@ -3399,6 +3415,10 @@ bt_machine_class_init (BtMachineClass * const klass)
 
   error_domain = g_type_qname (BT_TYPE_MACHINE);
   g_type_class_add_private (klass, sizeof (BtMachinePrivate));
+
+  bt_machine_machine = g_quark_from_static_string ("BtMachine::machine");
+  bt_machine_property_name =
+      g_quark_from_static_string ("BtMachine::property-name");
 
   gobject_class->constructed = bt_machine_constructed;
   gobject_class->set_property = bt_machine_set_property;
