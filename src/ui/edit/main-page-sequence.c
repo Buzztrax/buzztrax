@@ -4430,6 +4430,7 @@ bt_main_page_sequence_change_logger_change (const BtChangeLogger * owner,
       } else if (!strcmp (key, "length")) {
         g_object_set (self->priv->sequence, "length", atol (val), NULL);
         sequence_calculate_visible_lines (self);
+        sequence_update_model_length (self);
       } else {
         GST_WARNING ("unhandled property '%s'", key);
         res = FALSE;
