@@ -121,8 +121,8 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     // disable stop button
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->stop_button), FALSE);
     // switch off play button
-    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-            priv->play_button), FALSE);
+    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+            play_button), FALSE);
     // enable play button
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->play_button), TRUE);
     // reset level meters
@@ -142,13 +142,13 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     bt_song_update_playback_position (song);
 
     // if we started playback remotely activate playbutton
-    if (!gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (self->
-                priv->play_button))) {
+    if (!gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+                play_button))) {
       g_signal_handlers_block_matched (self->priv->play_button,
           G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
           on_toolbar_play_clicked, (gpointer) self);
-      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-              priv->play_button), TRUE);
+      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+              play_button), TRUE);
       g_signal_handlers_unblock_matched (self->priv->play_button,
           G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
           on_toolbar_play_clicked, (gpointer) self);
@@ -549,6 +549,7 @@ on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
       if (GST_CLOCK_TIME_IS_VALID (waittime)) {
         gpointer *data = (gpointer *) g_slice_alloc (2 * sizeof (gpointer));
         GstClockID clock_id;
+        GstClockReturn clk_ret;
 
         //GST_WARNING("target %"GST_TIME_FORMAT" %"GST_TIME_FORMAT,
         //  GST_TIME_ARGS(endtime),GST_TIME_ARGS(waittime));
@@ -561,8 +562,10 @@ on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
         clock_id =
             gst_clock_new_single_shot_id (self->priv->clock,
             waittime + gst_element_get_base_time (level));
-        if (gst_clock_id_wait_async (clock_id, on_delayed_song_level_change,
-                (gpointer) data) != GST_CLOCK_OK) {
+        if ((clk_ret =
+                gst_clock_id_wait_async (clock_id, on_delayed_song_level_change,
+                    (gpointer) data)) != GST_CLOCK_OK) {
+          GST_WARNING_OBJECT (level, "clock wait failed: %d", clk_ret);
           gst_message_unref (message);
           g_slice_free1 (2 * sizeof (gconstpointer), data);
         }
@@ -759,8 +762,8 @@ on_sequence_loop_notify (const BtSequence * sequence, GParamSpec * arg,
   g_signal_handlers_block_matched (self->priv->loop_button,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_toolbar_loop_toggled, (gpointer) self);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-          priv->loop_button), loop);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+          loop_button), loop);
   g_signal_handlers_unblock_matched (self->priv->loop_button,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_toolbar_loop_toggled, (gpointer) self);

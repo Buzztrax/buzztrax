@@ -750,6 +750,8 @@ on_delayed_signal_analyser_change (GstClock * clock, GstClockTime time,
     GstMessage *message = (GstMessage *) params[1];
     gst_message_unref (message);
     g_slice_free1 (2 * sizeof (gconstpointer), user_data);
+    GST_WARNING_OBJECT (GST_MESSAGE_SRC (message),
+        "dropped analyzer update due to invalid ts");
   }
   return (TRUE);
 }
@@ -773,9 +775,18 @@ on_signal_analyser_change (GstBus * bus, GstMessage * message,
       if (GST_CLOCK_TIME_IS_VALID (waittime)) {
         gpointer *data = (gpointer *) g_slice_alloc (2 * sizeof (gpointer));
         GstClockID clock_id;
+        GstClockReturn clk_ret;
+        GstClockTime basetime = gst_element_get_base_time (meter);
 
-        //GST_WARNING("received %s update for waittime %"GST_TIME_FORMAT,
-        //  g_quark_to_string(name_id),GST_TIME_ARGS(waittime));
+        /* debug */
+        GstClockTime playtime;
+        GstFormat fmt = GST_FORMAT_TIME;
+        gst_element_query_position (meter, &fmt, (gint64 *) & playtime);
+        GST_LOG_OBJECT (meter, "update for wait + basetime %" GST_TIME_FORMAT
+            " + %" GST_TIME_FORMAT " at %" GST_TIME_FORMAT,
+            GST_TIME_ARGS (waittime), GST_TIME_ARGS (basetime),
+            GST_TIME_ARGS (playtime));
+        /* debug */
 
         data[0] = (gpointer) self;
         data[1] = (gpointer) gst_message_ref (message);
@@ -783,10 +794,11 @@ on_signal_analyser_change (GstBus * bus, GstMessage * message,
 
         clock_id =
             gst_clock_new_single_shot_id (self->priv->clock,
-            waittime + gst_element_get_base_time (meter));
-        if (gst_clock_id_wait_async (clock_id,
-                on_delayed_signal_analyser_change,
-                (gpointer) data) != GST_CLOCK_OK) {
+            waittime + basetime);
+        if ((clk_ret = gst_clock_id_wait_async (clock_id,
+                    on_delayed_signal_analyser_change,
+                    (gpointer) data)) != GST_CLOCK_OK) {
+          GST_WARNING_OBJECT (meter, "clock wait failed: %d", clk_ret);
           gst_message_unref (message);
           g_slice_free1 (2 * sizeof (gconstpointer), data);
         }
