@@ -1767,16 +1767,16 @@ bt_main_page_machines_add_machine (const BtMainPageMachines * self, guint type,
 
     bt_change_log_start_group (self->priv->change_log);
 
+    if ((mi = g_hash_table_lookup (self->priv->machines, machine))) {
+      machine_item_moved (self, mi);
+    }
+
     undo_str = g_strdup_printf ("rem_machine \"%s\"", uid);
     redo_str =
         g_strdup_printf ("add_machine %u,\"%s\",\"%s\"", type, uid,
         plugin_name);
     bt_change_log_add (self->priv->change_log, BT_CHANGE_LOGGER (self),
         undo_str, redo_str);
-
-    if ((mi = g_hash_table_lookup (self->priv->machines, machine))) {
-      machine_item_moved (self, mi);
-    }
 
     bt_change_log_end_group (self->priv->change_log);
   } else {
