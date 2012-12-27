@@ -658,6 +658,17 @@ add_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
       is_added, G_OBJECT_LOG_REF_COUNT (bin));
 
   if (!is_added) {
+    // when we rename elements after they have been added, the object name stays
+    // unchanged, thus we need to be careful when adding another bjec of the same 
+    // type
+    GstElement *e;
+    if ((e = gst_bin_get_by_name (self->priv->bin, GST_OBJECT_NAME (bin)))) {
+      gchar *name = g_strdup_printf ("%s_%p", GST_OBJECT_NAME (bin), bin);
+      gst_object_set_name (GST_OBJECT (bin), name);
+      g_free (name);
+      gst_object_unref (e);
+    }
+
     gst_bin_add (self->priv->bin, GST_ELEMENT (bin));
     GST_INFO_OBJECT (bin, "addded object: %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (bin));
@@ -923,7 +934,8 @@ determine_state_change_lists (gpointer key, gpointer value, gpointer user_data)
 static void
 activate_element (const BtSetup * const self, gpointer key)
 {
-  gst_element_set_locked_state (GST_ELEMENT (key), FALSE);
+  GstElement *elem = GST_ELEMENT (key);
+  gst_element_set_locked_state (elem, FALSE);
 
   if (GST_STATE (GST_OBJECT_PARENT (GST_OBJECT (key))) == GST_STATE_PLAYING) {
     GstStateChangeReturn ret;
@@ -941,11 +953,11 @@ activate_element (const BtSetup * const self, gpointer key)
       // - we're trying to address that with the newsegment below, 
       //   but that only needs to be send to the active part we're linking to
       // - see gst-plugins-base/adder: 0cce8ab97d614ef53970292bd403e7f4460d79f9
-      ret = gst_element_set_state (GST_ELEMENT (key), GST_STATE_READY);
+      ret = gst_element_set_state (elem, GST_STATE_READY);
       // going to ready should not by async
       GST_INFO_OBJECT (key, "state-change to READY: %s",
           gst_element_state_change_return_get_name (ret));
-      if (!(gst_element_send_event (GST_ELEMENT (key),
+      if (!(gst_element_send_event (elem,
                   gst_event_ref (self->priv->play_seek_event)))) {
         GST_WARNING_OBJECT (key, "failed to handle seek event");
       }
@@ -953,14 +965,14 @@ activate_element (const BtSetup * const self, gpointer key)
 #if 0
     } else {
       // this seems to be a bad idea and causing the lockups
-      if (!(gst_element_send_event (GST_ELEMENT (key),
+      if (!(gst_element_send_event (elem,
                   gst_event_ref (self->priv->play_newsegment_event)))) {
         GST_WARNING_OBJECT (key, "failed to handle newsegment event");
       }
       GST_INFO_OBJECT (key, "sent newsegment event");
 #endif
     }
-    ret = gst_element_set_state (GST_ELEMENT (key), GST_STATE_PLAYING);
+    ret = gst_element_set_state (elem, GST_STATE_PLAYING);
     GST_INFO_OBJECT (key, "state-change to PLAYING: %s",
         gst_element_state_change_return_get_name (ret));
   }
@@ -969,14 +981,15 @@ activate_element (const BtSetup * const self, gpointer key)
 static void
 deactivate_element (const BtSetup * const self, gpointer key)
 {
-  gst_element_set_locked_state (GST_ELEMENT (key), TRUE);
+  GstElement *elem = GST_ELEMENT (key);
+  gst_element_set_locked_state (elem, TRUE);
 
   if (GST_STATE (GST_OBJECT_PARENT (GST_OBJECT (key))) == GST_STATE_PLAYING) {
     GST_INFO_OBJECT (GST_OBJECT (key), "set from %s to %s",
         gst_element_state_get_name (GST_STATE (key)),
         gst_element_state_get_name (GST_STATE_PAUSED));
 
-    gst_element_set_state (GST_ELEMENT (key), GST_STATE_READY);
+    gst_element_set_state (elem, GST_STATE_READY);
   }
 }
 
