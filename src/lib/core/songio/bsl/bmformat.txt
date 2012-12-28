@@ -1,0 +1,291 @@
+Header:
+
+Type/Size       Description
+-------------------------------------------------------------------------
+4               "Buzz"
+dword           number of sections
+12*31           up to 31 section dir entries
+
+=========================================================================
+
+Section dir entry:
+
+Type/Size       Description
+-------------------------------------------------------------------------
+4               four-char name of section
+dword           offset from begin of file
+dword           size in bytes
+
+
+=========================================================================
+
+
+Section 'MACH' - machines
+
+v1.2 note: machines with MIF_CONTROL_MACHINE flag should be the last machines in this section
+
+Type/Size       Description
+-------------------------------------------------------------------------
+word            number of machines
+
+(first machine - always master)
+asciiz          name
+byte            type (0 = master, 1 = generator, 2 = effect)
+asciiz          name of DLL if type is 1 or 2
+float           X coordinate in machines view [-1..1]
+float           Y coordinate in machines view [-1..1]
+dword           size of machine specific data
+x               data
+word            number of attributes
+
+(first attribute)
+asciiz          key
+dword           value
+
+(second attribute)
+...
+
+x                       state of global parameters
+word            number of tracks
+x                       state of track parameters for each track
+
+(second machine)
+...
+
+=========================================================================
+
+Section 'CONN' - machine connections
+
+Type/Size       Description
+-------------------------------------------------------------------------
+word            number of connections
+
+(first connection)
+word            index of source machine
+word            index of destination machine
+word            amp
+word            pan
+
+(second connection)
+...
+
+
+=========================================================================
+
+Section 'PATT' - patterns for each machine
+
+Type/Size       Description
+-------------------------------------------------------------------------
+(first machine)
+word            number of patterns
+word            number of tracks
+
+(first pattern)
+asciiz          name
+word            length of pattern in number of ticks (rows)
+x               pattern data
+
+(second pattern)
+...
+
+(second machine)
+...
+
+=========================================================================
+
+Section 'SEQU' - pattern sequences
+
+Type/Size       Description
+-------------------------------------------------------------------------
+dword           end of song
+dword           begin of loop
+dword           end of loop
+word            number of sequences
+
+(first sequence)
+word            index of machine
+dword           number of events
+byte            bytes per event pos
+byte            bytes per event (2 if there are more than 112 patterns)
+x                       event list (pos, event, pos, event, pos, event...). events:
+                                00 = mute, 01 = break, 02 = thru
+                                0x10 = first pattern, 0x11 = second pattern, etc.
+                                msb=1 indicates loop
+
+(second sequence)
+...
+
+=========================================================================
+
+Section 'WAVT' - wavetable
+
+Type/Size       Description
+-------------------------------------------------------------------------
+word            number of waves
+
+(first wave)
+word            index
+asciiz          full file name, e.g. "c:\waves\blah.wav"
+asciiz          name
+float           volume
+byte            flags:
+                                bit 0: loop
+                                bit 1: don't save
+                                bit 2: floating point memory format
+                                bit 3: stereo (since 1.2)
+                                bit 4: bidirectional loop (since 1.2)
+                                bit 7: envelopes follow (since alpha 14)
+
+if flag bit 7 --------->
+        word            number of envelopes
+
+        (first envelope)
+        word            Attack time
+        word            Decay time
+        word            Sustain level
+        word            Release time
+        byte            ADSR Subdivide
+        byte            ADSR Flags: 0-1 = attack mode, 2-3 = release mode, 4 = linear decay, 5 = sustain
+
+        word            number of points (can be zero) (bit 15 set = envelope disabled)
+
+        (first point)
+        word            x
+        word            y
+        byte            flags: bit 0 = sustain
+
+        (second point)
+        ...
+
+        (second envelope)
+        ...
+<----------- end of if flag bit 7
+
+byte            number of levels
+
+(first level)
+dword           number of samples
+dword           loop begin
+dword           loop end
+dword           samples per second
+byte            root note
+
+(second level)
+...
+
+(second wave)
+...
+
+
+=========================================================================
+
+Section 'CWAV' or 'WAVE' - wave data, check for 'CWAV' first then for 'WAVE'
+
+
+Type/Size       Description
+-------------------------------------------------------------------------
+word            number of waves
+
+(first wave)
+word            index of wave
+byte            format:
+                                0 - raw 16bit, intel byteorder
+                                1 - proprietary compressed format (v1.2 uses this one by default)
+
+format 0:
+
+dword           number of bytes in all levels
+
+(data for first level)
+..
+
+(data for second level)
+...
+
+(second wave)
+...
+
+=========================================================================
+
+Section 'BLAH' - song info
+
+Type/Size       Description
+-------------------------------------------------------------------------
+dword           number of characters
+x               raw ascii text (no zero at end)
+
+=========================================================================
+
+Section 'PARA' - parameter information for machines
+
+ - added in v1.2. This section is not required for loading the song if user
+   has right versions of all machines installed. otherwise the information
+   here can be used to convert pattern data to the new format.
+
+Type/Size       Description
+-------------------------------------------------------------------------
+dword           number of machines
+
+(first machine)
+asciiz          name
+asciiz          type (for example "Jeskola Tracker")
+dword           number of global parameters
+dword           number of track parameters
+
+(first parameter - all global first followed track-parameters)
+ see CMachineParameter in MachineInterface.h for more information
+ all fields except "Description" are saved
+
+byte            type
+asciiz          name
+int             minvalue
+int             maxvalue
+int             novalue
+int             flags
+int             defvalue
+
+(second parameter)
+...
+
+(second machine)
+...
+
+
+=========================================================================
+
+Section 'PDLG' - parameter dialog placements on screen
+- added in v1.2
+
+byte            flags:
+                        bit 1: dialogs visible
+
+list of positions followed by terminating zero byte:
+
+asciiz          name of machine
+WINDOWPLACEMENT win32 window placement structure (see win32 documentation)
+
+
+=========================================================================
+
+Section 'MIDI' - midi controller bindings
+- added in v1.2
+
+list of bindings followed by terminating zero byte:
+
+asciiz          name of machine
+byte            parameter group
+byte            parameter track
+byte            parameter number
+byte            midi channel
+byte            midi controller number
+
+
+=========================================================================
+
+Section 'BVER' - buzz version information
+- added in v1.2
+
+asciiz          buzz version, date and time of build
+
+
+=========================================================================
