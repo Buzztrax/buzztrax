@@ -9,6 +9,7 @@
 *.bbg
 *.gir
 *.typelib
+ar-lib
 buzztard-cmd
 buzztard-edit
 bt_core
@@ -16,6 +17,7 @@ bt_ic
 bt_cmd
 bt_edit
 bt-cfg.sh
+dconf
 event-sound-cache.tdb.*
 stamp-h1
 stamp-h.in
