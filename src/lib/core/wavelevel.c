@@ -55,8 +55,8 @@ struct _BtWavelevelPrivate
   GstBtNote root_note;
   /* the number of samples */
   gulong length;
-  /* the loop markers, -1 means no loop */
-  glong loop_start, loop_end;
+  /* the loop markers */
+  gulong loop_start, loop_end;
   /* the sampling rate */
   gulong rate;
 
@@ -93,8 +93,8 @@ G_DEFINE_TYPE_WITH_CODE (BtWavelevel, bt_wavelevel, G_TYPE_OBJECT,
  */
 BtWavelevel *
 bt_wavelevel_new (const BtSong * const song, const BtWave * const wave,
-    const GstBtNote root_note, const gulong length, const glong loop_start,
-    const glong loop_end, const gulong rate, gconstpointer sample)
+    const GstBtNote root_note, const gulong length, const gulong loop_start,
+    const gulong loop_end, const gulong rate, gconstpointer sample)
 {
   return (BT_WAVELEVEL (g_object_new (BT_TYPE_WAVELEVEL, "song", song, "wave",
               wave, "root-note", root_note, "length", length, "loop_start",
@@ -156,8 +156,8 @@ bt_wavelevel_persistence_load (const GType type,
 
   root_note = root_note_str ? atol ((char *) root_note_str) : GSTBT_NOTE_NONE;
   rate = rate_str ? atol ((char *) rate_str) : 0;
-  loop_start = loop_start_str ? atol ((char *) loop_start_str) : -1;
-  loop_end = loop_end_str ? atol ((char *) loop_end_str) : -1;
+  loop_start = loop_start_str ? atol ((char *) loop_start_str) : 0;
+  loop_end = loop_end_str ? atol ((char *) loop_end_str) : self->priv->length;
 
   g_object_set (self, "root-note", root_note, "rate", rate,
       "loop-start", loop_start, "loop-end", loop_end, NULL);
@@ -218,10 +218,10 @@ bt_wavelevel_get_property (GObject * const object, const guint property_id,
       g_value_set_ulong (value, self->priv->length);
       break;
     case WAVELEVEL_LOOP_START:
-      g_value_set_long (value, self->priv->loop_start);
+      g_value_set_ulong (value, self->priv->loop_start);
       break;
     case WAVELEVEL_LOOP_END:
-      g_value_set_long (value, self->priv->loop_end);
+      g_value_set_ulong (value, self->priv->loop_end);
       break;
     case WAVELEVEL_RATE:
       g_value_set_ulong (value, self->priv->rate);
@@ -261,37 +261,46 @@ bt_wavelevel_set_property (GObject * const object, const guint property_id,
       GST_DEBUG ("set the length for wavelevel: %lu", self->priv->length);
       break;
     case WAVELEVEL_LOOP_START:
-      self->priv->loop_start = g_value_get_long (value);
-      if (self->priv->loop_start != -1) {
-        // make sure its less then loop_end/length
-        if (self->priv->loop_end > 0) {
-          if (self->priv->loop_start >= self->priv->loop_end)
-            self->priv->loop_start = self->priv->loop_end - 1;
-        } else if (self->priv->length > 0) {
-          if (self->priv->loop_start >= self->priv->length)
-            self->priv->loop_start = self->priv->length - 1;
-        } else
-          self->priv->loop_start = -1;
+      self->priv->loop_start = g_value_get_ulong (value);
+      GST_WARNING ("loop: 0 / %lu .. %lu / %lu", self->priv->loop_start,
+          self->priv->loop_end, self->priv->length);
+      // make sure its less then loop_end/length
+      if (self->priv->loop_end > 0) {
+        if (self->priv->loop_start >= self->priv->loop_end) {
+          GST_WARNING ("clip loop-start by loop-end: %lu",
+              self->priv->loop_end);
+          self->priv->loop_start = self->priv->loop_end - 1;
+        }
       }
-      GST_DEBUG ("set the loop-start for wavelevel: %ld",
+      if (self->priv->length > 0) {
+        if (self->priv->loop_start >= self->priv->length) {
+          GST_WARNING ("clip loop-start by length: %lu", self->priv->length);
+          self->priv->loop_start = self->priv->length - 1;
+        }
+      }
+      GST_WARNING ("set the loop-start for wavelevel: %lu",
           self->priv->loop_start);
       break;
     case WAVELEVEL_LOOP_END:
-      self->priv->loop_end = g_value_get_long (value);
-      if (self->priv->loop_end != -1) {
-        // make sure its more then loop-start
-        if (self->priv->loop_start > -1) {
-          if (self->priv->loop_end < self->priv->loop_start)
-            self->priv->loop_end = self->priv->loop_start + 1;
+      self->priv->loop_end = g_value_get_ulong (value);
+      GST_WARNING ("loop: 0 / %lu .. %lu / %lu", self->priv->loop_start,
+          self->priv->loop_end, self->priv->length);
+      // make sure its more then loop-start
+      if (self->priv->loop_start > 0) {
+        if (self->priv->loop_end < self->priv->loop_start) {
+          GST_WARNING ("clip loop-end by loop-start: %lu",
+              self->priv->loop_start);
+          self->priv->loop_end = self->priv->loop_start + 1;
         }
-        // make sure its less then or equal to length
-        if (self->priv->length > 0) {
-          if (self->priv->loop_end > self->priv->length)
-            self->priv->loop_end = self->priv->length;
-        } else
-          self->priv->loop_end = -1;
       }
-      GST_DEBUG ("set the loop-start for wavelevel: %ld",
+      // make sure its less then or equal to length
+      if (self->priv->length > 0) {
+        if (self->priv->loop_end > self->priv->length) {
+          GST_WARNING ("clip loop-end by length: %lu", self->priv->length);
+          self->priv->loop_end = self->priv->length;
+        }
+      }
+      GST_WARNING ("set the loop-start for wavelevel: %lu",
           self->priv->loop_start);
       break;
     case WAVELEVEL_RATE:
@@ -378,37 +387,24 @@ bt_wavelevel_class_init (BtWavelevelClass * const klass)
 
   // loop-pos are LONG as well
   g_object_class_install_property (gobject_class, WAVELEVEL_LENGTH,
-      g_param_spec_ulong ("length", "length prop", "length of the sample", 0,
-          G_MAXLONG, 0,
-          G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+      g_param_spec_ulong ("length", "length prop", "length of the sample",
+          0, G_MAXLONG, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVELEVEL_LOOP_START,
-      g_param_spec_long ("loop-start",
-          "loop-start prop",
+      g_param_spec_ulong ("loop-start", "loop-start prop",
           "start of the sample loop",
-          -1,
-          G_MAXLONG,
-          -1, G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          0, G_MAXULONG, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVELEVEL_LOOP_END,
-      g_param_spec_long ("loop-end",
-          "loop-end prop",
+      g_param_spec_ulong ("loop-end", "loop-end prop",
           "end of the sample loop",
-          -1,
-          G_MAXLONG,
-          -1, G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          0, G_MAXULONG, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVELEVEL_RATE,
-      g_param_spec_ulong ("rate",
-          "rate prop",
-          "sampling rate of the sample",
-          0,
-          G_MAXULONG,
-          0, G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+      g_param_spec_ulong ("rate", "rate prop", "sampling rate of the sample",
+          0, G_MAXULONG, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVELEVEL_DATA,
-      g_param_spec_pointer ("data",
-          "data prop",
-          "the sample data",
-          G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+      g_param_spec_pointer ("data", "data prop", "the sample data",
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

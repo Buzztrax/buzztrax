@@ -140,8 +140,8 @@ bt_wavelevel_list_model_new (BtWave * wave)
   self->priv->param_types[BT_WAVELEVEL_LIST_MODEL_ROOT_NOTE] = G_TYPE_STRING;
   self->priv->param_types[BT_WAVELEVEL_LIST_MODEL_LENGTH] = G_TYPE_ULONG;
   self->priv->param_types[BT_WAVELEVEL_LIST_MODEL_RATE] = G_TYPE_ULONG;
-  self->priv->param_types[BT_WAVELEVEL_LIST_MODEL_LOOP_START] = G_TYPE_LONG;
-  self->priv->param_types[BT_WAVELEVEL_LIST_MODEL_LOOP_END] = G_TYPE_LONG;
+  self->priv->param_types[BT_WAVELEVEL_LIST_MODEL_LOOP_START] = G_TYPE_ULONG;
+  self->priv->param_types[BT_WAVELEVEL_LIST_MODEL_LOOP_END] = G_TYPE_ULONG;
 
   if (wave) {
     GList *node, *list;

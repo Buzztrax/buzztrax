@@ -324,8 +324,9 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
           self->priv->channels = channels;
           g_object_notify (G_OBJECT (self), "channels");
 
-          wavelevel = bt_wavelevel_new (self->priv->song, self, BT_WAVELEVEL_DEFAULT_ROOT_NOTE, (gulong) length, -1, -1,        /* loop */
-              rate, (gconstpointer) data);
+          wavelevel = bt_wavelevel_new (self->priv->song, self,
+              BT_WAVELEVEL_DEFAULT_ROOT_NOTE, (gulong) length, 0, length, rate,
+              (gconstpointer) data);
           g_object_unref (wavelevel);
           GST_INFO ("sample loaded (%" G_GSSIZE_FORMAT "/%ld bytes)", bytes,
               buf.st_size);
@@ -953,13 +954,11 @@ bt_wave_dispose (GObject * const object)
 
   g_object_try_weak_unref (self->priv->song);
   // unref list of wavelevels
-  if (self->priv->wavelevels) {
-    for (node = self->priv->wavelevels; node; node = g_list_next (node)) {
-      GST_DEBUG ("  free wavelevels : %" G_OBJECT_REF_COUNT_FMT,
-          G_OBJECT_LOG_REF_COUNT (node->data));
-      g_object_try_unref (node->data);
-      node->data = NULL;
-    }
+  for (node = self->priv->wavelevels; node; node = g_list_next (node)) {
+    GST_DEBUG ("  free wavelevels : %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (node->data));
+    g_object_try_unref (node->data);
+    node->data = NULL;
   }
   wave_io_free (self);
 
