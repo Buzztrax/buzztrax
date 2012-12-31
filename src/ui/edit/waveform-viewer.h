@@ -37,25 +37,25 @@ typedef struct _BtWaveformViewerClass BtWaveformViewerClass;
  * waveform view widget
  */
 struct _BtWaveformViewer {
-  GtkWindow parent;
+  GtkWidget parent;
 
-  int active;
-  float *peaks;
-  int peaks_size;
-  int channels;
+  gint active;
+  gfloat *peaks;
+  gint peaks_size;
+  gint channels;
     
-  int64_t wave_length;
-  int64_t loop_begin, loop_end;
-  int64_t playback_cursor;
+  gint64 wave_length;
+  gint64 loop_begin, loop_end;
+  gint64 playback_cursor;
 };
 
 struct _BtWaveformViewerClass {
-  GtkWindowClass klass;
+  GtkWidgetClass klass;
 };
 
 GtkWidget *bt_waveform_viewer_new(void);
 
-void bt_waveform_viewer_set_wave(BtWaveformViewer *self, int16_t *data, int channels, int length);
+void bt_waveform_viewer_set_wave(BtWaveformViewer *self, gint16 *data, gint channels, gint length);
 
 GType bt_waveform_viewer_get_type(void) G_GNUC_CONST;
 

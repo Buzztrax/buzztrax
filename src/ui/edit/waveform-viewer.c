@@ -45,20 +45,54 @@ enum
 G_DEFINE_TYPE (BtWaveformViewer, bt_waveform_viewer, GTK_TYPE_WIDGET);
 
 
+static void
+bt_waveform_viewer_realize (GtkWidget * widget)
+{
+  GdkWindowAttr attributes;
+  gint attributes_mask;
+
+  gtk_widget_set_realized (widget, TRUE);
+  attributes.x = widget->allocation.x;
+  attributes.y = widget->allocation.y;
+  attributes.width = widget->allocation.width;
+  attributes.height = widget->allocation.height;
+  attributes.wclass = GDK_INPUT_OUTPUT;
+  attributes.window_type = GDK_WINDOW_CHILD;
+  attributes.event_mask = gtk_widget_get_events (widget) |
+      GDK_EXPOSURE_MASK | GDK_SCROLL_MASK | GDK_KEY_PRESS_MASK |
+      GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+      GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK;
+  attributes.visual = gtk_widget_get_visual (widget);
+  attributes.colormap = gtk_widget_get_colormap (widget);
+  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
+
+  widget->window =
+      gdk_window_new (gtk_widget_get_parent_window (widget), &attributes,
+      attributes_mask);
+  widget->style = gtk_style_attach (widget->style, widget->window);
+  gdk_window_set_user_data (widget->window, widget);
+  gtk_style_set_background (widget->style, widget->window, GTK_STATE_NORMAL);
+
+}
+
 static gboolean
 bt_waveform_viewer_expose (GtkWidget * widget, GdkEventExpose * event)
 {
-  int i, ch;
-
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
-  int ox = widget->allocation.x + 1, oy = widget->allocation.y + 1;
-  int sx = widget->allocation.width - 2, sy = widget->allocation.height - 2;
-
-  cairo_t *c = gdk_cairo_create (GDK_DRAWABLE (widget->window));
-
+  const gint ox = 1, oy = 1;
+  const gint sx = widget->allocation.width - 2, sy =
+      widget->allocation.height - 2;
+  gint i, ch;
+  cairo_t *c;
   GdkColor sc = { 0, 0, 0, 0 };
 
-  g_assert (BT_IS_WAVEFORM_VIEWER (widget));
+  g_return_val_if_fail (BT_IS_WAVEFORM_VIEWER (widget), FALSE);
+  g_return_val_if_fail (event != NULL, FALSE);
+
+  if (event->count > 0)
+    return FALSE;
+
+  c = gdk_cairo_create (widget->window);
 
   gdk_cairo_set_source_color (c, &sc);
   cairo_rectangle (c, ox, oy, sx, sy);
@@ -71,13 +105,13 @@ bt_waveform_viewer_expose (GtkWidget * widget, GdkEventExpose * event)
     cairo_set_line_width (c, 0.5);
 
     for (ch = 0; ch < self->channels; ch++) {
-      int lsy = sy / self->channels;
-      int loy = oy + sy * ch / self->channels;
+      gint lsy = sy / self->channels;
+      gint loy = oy + sy * ch / self->channels;
       for (i = 0; i < 4 * sx; i++) {
-        int imirror = i < 2 * sx ? i : 4 * sx - 1 - i;
-        int item = imirror * self->peaks_size / (2 * sx);
-        int sign = i < 2 * sx ? +1 : -1;
-        double y =
+        gint imirror = i < 2 * sx ? i : 4 * sx - 1 - i;
+        gint item = imirror * self->peaks_size / (2 * sx);
+        gint sign = i < 2 * sx ? +1 : -1;
+        gdouble y =
             (loy + lsy / 2 - (lsy / 2 -
                 1) * sign * self->peaks[item * self->channels + ch]);
         if (y < loy)
@@ -96,12 +130,12 @@ bt_waveform_viewer_expose (GtkWidget * widget, GdkEventExpose * event)
       cairo_stroke (c);
     }
     if (self->loop_begin != -1) {
-      int x;
+      gint x;
 
       cairo_set_source_rgba (c, 1, 0, 0, 0.75);
       cairo_set_line_width (c, 1.0);
       // casting to double loses precision, but we're not planning to deal with multiterabyte waveforms here :)
-      x = (int) (ox + self->loop_begin * (double) sx / self->wave_length);
+      x = (gint) (ox + self->loop_begin * (gdouble) sx / self->wave_length);
       cairo_move_to (c, x, oy + sy);
       cairo_line_to (c, x, oy);
       cairo_stroke (c);
@@ -111,7 +145,7 @@ bt_waveform_viewer_expose (GtkWidget * widget, GdkEventExpose * event)
       cairo_line_to (c, x, oy);
       cairo_fill (c);
 
-      x = (int) (ox + self->loop_end * (double) sx / self->wave_length) - 1;
+      x = (gint) (ox + self->loop_end * (gdouble) sx / self->wave_length) - 1;
       cairo_move_to (c, x, oy + sy);
       cairo_line_to (c, x, oy);
       cairo_stroke (c);
@@ -122,11 +156,11 @@ bt_waveform_viewer_expose (GtkWidget * widget, GdkEventExpose * event)
       cairo_fill (c);
     }
     if (self->playback_cursor != -1) {
-      int x;
+      gint x;
       cairo_set_source_rgba (c, 1, 1, 0, 0.75);
       cairo_set_line_width (c, 1.0);
-      x = (int) (ox + self->playback_cursor * (double) sx / self->wave_length) -
-          1;
+      x = (gint) (ox +
+          self->playback_cursor * (gdouble) sx / self->wave_length) - 1;
       cairo_move_to (c, x, oy + sy);
       cairo_line_to (c, x, oy);
       cairo_stroke (c);
@@ -144,7 +178,7 @@ bt_waveform_viewer_expose (GtkWidget * widget, GdkEventExpose * event)
       GTK_SHADOW_IN, NULL, widget, NULL, ox - 1, oy - 1, sx + 2, sy + 2);
   // printf("exposed %p %d+%d\n", widget->window, widget->allocation.x, widget->allocation.y);
 
-  return TRUE;
+  return FALSE;
 }
 
 static void
@@ -233,6 +267,7 @@ bt_waveform_viewer_class_init (BtWaveformViewerClass * klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
+  widget_class->realize = bt_waveform_viewer_realize;
   widget_class->expose_event = bt_waveform_viewer_expose;
   widget_class->size_allocate = bt_waveform_viewer_size_allocate;
 
@@ -270,14 +305,13 @@ bt_waveform_viewer_init (BtWaveformViewer * self)
 {
   GtkWidget *widget = GTK_WIDGET (self);
 
-  gtk_widget_set_has_window (widget, FALSE);
   widget->requisition.width = 40;
   widget->requisition.height = 40;
 
   self->active = 0;
   self->channels = 2;
   self->peaks_size = 1000;
-  self->peaks = g_malloc (sizeof (float) * self->channels * self->peaks_size);
+  self->peaks = g_malloc (sizeof (gfloat) * self->channels * self->peaks_size);
   self->wave_length = 0;
   self->loop_begin = -1;
   self->loop_end = -1;
@@ -293,11 +327,11 @@ bt_waveform_viewer_init (BtWaveformViewer * self)
  * Set wave data to show in the widget.
  */
 void
-bt_waveform_viewer_set_wave (BtWaveformViewer * self, int16_t * data,
-    int channels, int length)
+bt_waveform_viewer_set_wave (BtWaveformViewer * self, gint16 * data,
+    gint channels, gint length)
 {
-  int i, c, p, cc = channels;
-  int64_t len = length;
+  gint i, c, p, cc = channels;
+  gint64 len = length;
 
   self->channels = channels;
   self->wave_length = length;
@@ -307,18 +341,18 @@ bt_waveform_viewer_set_wave (BtWaveformViewer * self, int16_t * data,
 
   if (!data || !length) {
     self->active = 0;
-    memset (self->peaks, 0, sizeof (float) * self->peaks_size);
+    memset (self->peaks, 0, sizeof (gfloat) * self->peaks_size);
     gtk_widget_queue_draw (GTK_WIDGET (self));
     return;
   }
 
   for (i = 0; i < self->peaks_size; i++) {
-    int p1 = len * i / self->peaks_size;
-    int p2 = len * (i + 1) / self->peaks_size;
+    gint p1 = len * i / self->peaks_size;
+    gint p2 = len * (i + 1) / self->peaks_size;
     for (c = 0; c < self->channels; c++) {
-      float vmin = data[p1 * cc + c], vmax = data[p1 * cc + c];
+      gfloat vmin = data[p1 * cc + c], vmax = data[p1 * cc + c];
       for (p = p1 + 1; p < p2; p++) {
-        float d = data[p * cc + c];
+        gfloat d = data[p * cc + c];
         if (d < vmin)
           vmin = d;
         if (d > vmax)
