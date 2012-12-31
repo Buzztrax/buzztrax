@@ -43,8 +43,13 @@
  * cannot mix. Using the songs' sink is tricky as we would need to switch the
  * song to playing mode to play a wave.
  */
-/* TODO(ensonic): allow to paste samples from other apps
- * - check if e.g. audacity places samples snippets in the clipboard
+/* TODO(ensonic): once we have selections in waveform-viewer, add tools:
+ * - selection to new wave: copy selection to next free wave
+ *   - do a lazy copy to safe extra memory?
+ * - zoom to selection
+ */
+/* IDEA(ensonic): allow to paste samples from other apps
+ * - audacity does not place samples snippets in the clipboard
  */
 #define BT_EDIT
 #define BT_MAIN_PAGE_WAVES_C

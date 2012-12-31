@@ -22,6 +22,10 @@
  * Provides an viewer for audio waveforms. It can handle multi-channel
  * waveforms, show loop-markers and a playback cursor.
  */
+/* TODO(ensonic): allow moving markers withe the mouse */
+/* TODO(ensonic): add seletion support
+ * - export the selection as two properties
+ */
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_WAVES_C
