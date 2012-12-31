@@ -175,7 +175,6 @@ gtk_vumeter_allocate_colors (GtkVUMeter * vumeter)
 static void
 gtk_vumeter_realize (GtkWidget * widget)
 {
-  GtkVUMeter *vumeter;
   GdkWindowAttr attributes;
   gint attributes_mask;
 
@@ -183,7 +182,6 @@ gtk_vumeter_realize (GtkWidget * widget)
   g_return_if_fail (GTK_IS_VUMETER (widget));
 
   gtk_widget_set_realized (widget, TRUE);
-  vumeter = GTK_VUMETER (widget);
 
   attributes.x = widget->allocation.x;
   attributes.y = widget->allocation.y;
@@ -203,7 +201,7 @@ gtk_vumeter_realize (GtkWidget * widget)
   gdk_window_set_user_data (widget->window, widget);
   gtk_style_set_background (widget->style, widget->window, GTK_STATE_NORMAL);
 
-  gtk_vumeter_allocate_colors (vumeter);
+  gtk_vumeter_allocate_colors (GTK_VUMETER (widget));
 }
 
 static void
