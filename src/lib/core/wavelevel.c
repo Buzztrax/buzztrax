@@ -262,33 +262,32 @@ bt_wavelevel_set_property (GObject * const object, const guint property_id,
       break;
     case WAVELEVEL_LOOP_START:
       self->priv->loop_start = g_value_get_ulong (value);
-      GST_WARNING ("loop: 0 / %lu .. %lu / %lu", self->priv->loop_start,
+      GST_INFO ("loop: 0 / %lu .. %lu / %lu", self->priv->loop_start,
           self->priv->loop_end, self->priv->length);
       // make sure its less then loop_end/length
       if (self->priv->loop_end > 0) {
         if (self->priv->loop_start >= self->priv->loop_end) {
-          GST_WARNING ("clip loop-start by loop-end: %lu",
-              self->priv->loop_end);
+          GST_DEBUG ("clip loop-start by loop-end: %lu", self->priv->loop_end);
           self->priv->loop_start = self->priv->loop_end - 1;
         }
       }
       if (self->priv->length > 0) {
         if (self->priv->loop_start >= self->priv->length) {
-          GST_WARNING ("clip loop-start by length: %lu", self->priv->length);
+          GST_DEBUG ("clip loop-start by length: %lu", self->priv->length);
           self->priv->loop_start = self->priv->length - 1;
         }
       }
-      GST_WARNING ("set the loop-start for wavelevel: %lu",
+      GST_DEBUG ("set the loop-start for wavelevel: %lu",
           self->priv->loop_start);
       break;
     case WAVELEVEL_LOOP_END:
       self->priv->loop_end = g_value_get_ulong (value);
-      GST_WARNING ("loop: 0 / %lu .. %lu / %lu", self->priv->loop_start,
+      GST_INFO ("loop: 0 / %lu .. %lu / %lu", self->priv->loop_start,
           self->priv->loop_end, self->priv->length);
       // make sure its more then loop-start
       if (self->priv->loop_start > 0) {
         if (self->priv->loop_end < self->priv->loop_start) {
-          GST_WARNING ("clip loop-end by loop-start: %lu",
+          GST_DEBUG ("clip loop-end by loop-start: %lu",
               self->priv->loop_start);
           self->priv->loop_end = self->priv->loop_start + 1;
         }
@@ -296,11 +295,11 @@ bt_wavelevel_set_property (GObject * const object, const guint property_id,
       // make sure its less then or equal to length
       if (self->priv->length > 0) {
         if (self->priv->loop_end > self->priv->length) {
-          GST_WARNING ("clip loop-end by length: %lu", self->priv->length);
+          GST_DEBUG ("clip loop-end by length: %lu", self->priv->length);
           self->priv->loop_end = self->priv->length;
         }
       }
-      GST_WARNING ("set the loop-start for wavelevel: %lu",
+      GST_DEBUG ("set the loop-start for wavelevel: %lu",
           self->priv->loop_start);
       break;
     case WAVELEVEL_RATE:
