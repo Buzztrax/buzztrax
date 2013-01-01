@@ -409,8 +409,8 @@ update_audio_sink (const BtMainPageWaves * self)
     if (state > GST_STATE_READY) {
       preview_stop (self);
       gtk_widget_set_sensitive (self->priv->wavetable_stop, FALSE);
-      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-              wavetable_play), FALSE);
+      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+              priv->wavetable_play), FALSE);
     }
   }
   // determine sink element
@@ -517,8 +517,8 @@ on_preview_state_changed (GstBus * bus, GstMessage * message,
         break;
       case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
         gtk_widget_set_sensitive (self->priv->wavetable_stop, FALSE);
-        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-                wavetable_play), FALSE);
+        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+                priv->wavetable_play), FALSE);
         gst_element_set_state (self->priv->preview, GST_STATE_NULL);
         break;
       default:
@@ -547,8 +547,8 @@ on_preview_segment_done (GstBus * bus, GstMessage * message, gpointer user_data)
     GST_INFO ("received segment_done on the bin, looping %d",
         self->priv->loop_seek_dir);
     if (!(gst_element_send_event (GST_ELEMENT (self->priv->preview),
-                gst_event_ref (self->priv->loop_seek_event[self->priv->
-                        loop_seek_dir])))) {
+                gst_event_ref (self->priv->loop_seek_event[self->
+                        priv->loop_seek_dir])))) {
       GST_WARNING ("element failed to handle continuing play seek event");
       /* if I set state directly to NULL, I don't get inbetween state-change messages */
       gst_element_set_state (self->priv->preview, GST_STATE_READY);
@@ -679,7 +679,7 @@ on_wavelevel_loop_start_edited (GtkCellRendererText * cellrenderertext,
     g_object_set (wavelevel, "loop-start", loop_start, NULL);
     g_object_get (wavelevel, "loop-start", &loop_start, "loop-end", &loop_end,
         NULL);
-    g_object_set (self->priv->waveform_viewer, "loop-begin",
+    g_object_set (self->priv->waveform_viewer, "loop-start",
         (gint64) loop_start, "loop-end", (gint64) loop_end, NULL);
     preview_update_seeks (self);
     g_object_unref (wavelevel);
@@ -704,7 +704,7 @@ on_wavelevel_loop_end_edited (GtkCellRendererText * cellrenderertext,
     g_object_set (wavelevel, "loop-end", loop_end, NULL);
     g_object_get (wavelevel, "loop-start", &loop_start, "loop-end", &loop_end,
         NULL);
-    g_object_set (self->priv->waveform_viewer, "loop-begin",
+    g_object_set (self->priv->waveform_viewer, "loop-start",
         (gint64) loop_start, "loop-end", (gint64) loop_end, NULL);
     preview_update_seeks (self);
     g_object_unref (wavelevel);
@@ -735,20 +735,22 @@ on_loop_mode_changed (GtkComboBox * menu, gpointer user_data)
   if ((wave = waves_list_get_current (self))) {
     BtWaveLoopMode loop_mode =
         gtk_combo_box_get_active (GTK_COMBO_BOX (self->priv->loop_mode));
-    gulong loop_start = -1, loop_end = -1;
+    gint64 loop_start = -1, loop_end = -1;
 
     g_object_set (wave, "loop-mode", loop_mode, NULL);
     if (loop_mode != BT_WAVE_LOOP_MODE_OFF) {
       BtWavelevel *wavelevel;
 
       if ((wavelevel = wavelevels_list_get_current (self, wave))) {
-        g_object_get (wavelevel, "loop-start", &loop_start, "loop-end",
-            &loop_end, NULL);
+        gulong ls, le;
+        g_object_get (wavelevel, "loop-start", &ls, "loop-end", &le, NULL);
+        loop_start = ls;
+        loop_end = le;
         g_object_unref (wavelevel);
       }
     }
-    g_object_set (self->priv->waveform_viewer, "loop-begin",
-        (int64_t) loop_start, "loop-end", (int64_t) loop_end, NULL);
+    g_object_set (self->priv->waveform_viewer, "loop-start", loop_start,
+        "loop-end", loop_end, NULL);
     g_object_unref (wave);
     preview_update_seeks (self);
     bt_edit_application_set_song_unsaved (self->priv->app);
@@ -781,22 +783,25 @@ on_wavelevels_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
     if ((wavelevel = wavelevels_list_get_current (self, wave))) {
       int16_t *data;
       guint channels;
-      gulong length, loop_start, loop_end;
+      gulong length;
+      gint64 loop_start = -1, loop_end = -1;
       BtWaveLoopMode loop_mode;
 
       g_object_get (wave, "channels", &channels, "loop-mode", &loop_mode, NULL);
-      g_object_get (wavelevel, "length", &length, "loop-start", &loop_start,
-          "loop-end", &loop_end, "data", &data, NULL);
+      g_object_get (wavelevel, "length", &length, "data", &data, NULL);
       GST_INFO ("select wave-level: %p, %lu", data, length);
 
-      if (loop_mode == BT_WAVE_LOOP_MODE_OFF) {
-        loop_start = loop_end = -1;
+      if (loop_mode != BT_WAVE_LOOP_MODE_OFF) {
+        gulong ls, le;
+        g_object_get (wavelevel, "loop-start", &ls, "loop-end", &le, NULL);
+        loop_start = ls;
+        loop_end = le;
       }
 
-      bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->priv->
-              waveform_viewer), data, channels, length);
-      g_object_set (self->priv->waveform_viewer, "loop-begin",
-          (int64_t) loop_start, "loop-end", (int64_t) loop_end, NULL);
+      bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->
+              priv->waveform_viewer), data, channels, length);
+      g_object_set (self->priv->waveform_viewer, "loop-start", loop_start,
+          "loop-end", loop_end, NULL);
 
       g_object_unref (wavelevel);
       drawn = TRUE;
@@ -808,8 +813,58 @@ on_wavelevels_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
     GST_INFO ("no current wave");
   }
   if (!drawn) {
-    bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->priv->
-            waveform_viewer), NULL, 0, 0);
+    bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->
+            priv->waveform_viewer), NULL, 0, 0);
+  }
+}
+
+static void
+on_waveform_viewer_loop_start_changed (GtkWidget * waveform_viewer,
+    GParamSpec * arg, gpointer user_data)
+{
+  BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
+  BtWave *wave;
+  BtWavelevel *wavelevel;
+
+  if ((wave = waves_list_get_current (self))) {
+    if ((wavelevel = wavelevels_list_get_current (self, wave))) {
+      gint64 loop_start;
+
+      g_object_get (waveform_viewer, "loop-start", &loop_start, NULL);
+      if (loop_start != -1) {
+        g_object_set (wavelevel, "loop-start", (gulong) loop_start, NULL);
+
+        preview_update_seeks (self);
+        bt_edit_application_set_song_unsaved (self->priv->app);
+      }
+      g_object_unref (wavelevel);
+    }
+    g_object_unref (wave);
+  }
+}
+
+static void
+on_waveform_viewer_loop_end_changed (GtkWidget * waveform_viewer,
+    GParamSpec * arg, gpointer user_data)
+{
+  BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
+  BtWave *wave;
+  BtWavelevel *wavelevel;
+
+  if ((wave = waves_list_get_current (self))) {
+    if ((wavelevel = wavelevels_list_get_current (self, wave))) {
+      gint64 loop_end;
+
+      g_object_get (waveform_viewer, "loop-end", &loop_end, NULL);
+      if (loop_end != -1) {
+        g_object_set (wavelevel, "loop-end", (gulong) loop_end, NULL);
+
+        preview_update_seeks (self);
+        bt_edit_application_set_song_unsaved (self->priv->app);
+      }
+      g_object_unref (wavelevel);
+    }
+    g_object_unref (wave);
   }
 }
 
@@ -863,8 +918,8 @@ on_default_sample_folder_changed (const BtSettings * settings, GParamSpec * arg,
   gchar *sample_folder;
 
   g_object_get ((gpointer) settings, "sample-folder", &sample_folder, NULL);
-  gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (self->priv->
-          file_chooser), sample_folder);
+  gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (self->
+          priv->file_chooser), sample_folder);
   g_free (sample_folder);
 }
 
@@ -1136,8 +1191,8 @@ on_waves_list_row_activated (GtkTreeView * tree_view, GtkTreePath * path,
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
 
   //on_wavetable_toolbar_play_clicked(GTK_TOOL_BUTTON(self->priv->wavetable_play),user_data);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-          wavetable_play), TRUE);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+          priv->wavetable_play), TRUE);
 }
 
 static void
@@ -1147,8 +1202,8 @@ on_wavelevels_list_row_activated (GtkTreeView * tree_view, GtkTreePath * path,
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
 
   //on_wavetable_toolbar_play_clicked(GTK_TOOL_BUTTON(self->priv->wavetable_play),user_data);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-          wavetable_play), TRUE);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+          priv->wavetable_play), TRUE);
 }
 
 static void
@@ -1261,8 +1316,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
       GTK_SHADOW_ETCHED_IN);
   self->priv->waves_list = GTK_TREE_VIEW (gtk_tree_view_new ());
   gtk_widget_set_name (GTK_WIDGET (self->priv->waves_list), "wave-list");
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
-          waves_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
+          priv->waves_list), GTK_SELECTION_BROWSE);
   g_object_set (self->priv->waves_list, "enable-search", FALSE, "rules-hint",
       TRUE, NULL);
   g_signal_connect (self->priv->waves_list, "cursor-changed",
@@ -1310,8 +1365,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   enum_class = g_type_class_ref (BT_TYPE_WAVE_LOOP_MODE);
   for (i = enum_class->minimum; i <= enum_class->maximum; i++) {
     if ((enum_value = g_enum_get_value (enum_class, i))) {
-      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-              loop_mode), enum_value->value_name);
+      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+              priv->loop_mode), enum_value->value_name);
     }
   }
   g_type_class_unref (enum_class);
@@ -1392,8 +1447,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   self->priv->wavelevels_list = GTK_TREE_VIEW (gtk_tree_view_new ());
   gtk_widget_set_name (GTK_WIDGET (self->priv->wavelevels_list),
       "wave-level-list");
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
-          wavelevels_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
+          priv->wavelevels_list), GTK_SELECTION_BROWSE);
   g_object_set (self->priv->wavelevels_list, "enable-search", FALSE,
       "rules-hint", TRUE, NULL);
   g_signal_connect (self->priv->wavelevels_list, "cursor-changed",
@@ -1462,6 +1517,10 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   // register event handlers
   g_signal_connect (self->priv->app, "notify::song",
       G_CALLBACK (on_song_changed), (gpointer) self);
+  g_signal_connect (self->priv->waveform_viewer, "notify::loop-start",
+      G_CALLBACK (on_waveform_viewer_loop_start_changed), (gpointer) self);
+  g_signal_connect (self->priv->waveform_viewer, "notify::loop-end",
+      G_CALLBACK (on_waveform_viewer_loop_end_changed), (gpointer) self);
 
   // let settings control toolbar style and listen to other settings changes
   on_toolbar_style_changed (self->priv->settings, NULL, (gpointer) self);

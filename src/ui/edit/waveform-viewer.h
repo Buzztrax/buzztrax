@@ -39,14 +39,16 @@ typedef struct _BtWaveformViewerClass BtWaveformViewerClass;
 struct _BtWaveformViewer {
   GtkWidget parent;
 
-  gint active;
   gfloat *peaks;
   gint peaks_size;
   gint channels;
     
   gint64 wave_length;
-  gint64 loop_begin, loop_end;
+  gint64 loop_start, loop_end;
   gint64 playback_cursor;
+  
+  /* state */
+  gboolean edit_loop_start, edit_loop_end, edit_selection;
 };
 
 struct _BtWaveformViewerClass {

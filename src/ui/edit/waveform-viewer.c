@@ -22,7 +22,6 @@
  * Provides an viewer for audio waveforms. It can handle multi-channel
  * waveforms, show loop-markers and a playback cursor.
  */
-/* TODO(ensonic): allow moving markers withe the mouse */
 /* TODO(ensonic): add seletion support
  * - export the selection as two properties
  */
@@ -34,11 +33,13 @@
 
 enum
 {
-  WAVE_VIEWER_WAVE_LENGTH = 1,
-  WAVE_VIEWER_LOOP_BEGIN,
+  WAVE_VIEWER_LOOP_START = 1,
   WAVE_VIEWER_LOOP_END,
   WAVE_VIEWER_PLAYBACK_CURSOR
 };
+
+#define MARKER_BOX_W 6
+#define MARKER_BOX_H 5
 
 //-- the class
 
@@ -129,19 +130,19 @@ bt_waveform_viewer_expose (GtkWidget * widget, GdkEventExpose * event)
       gdk_cairo_set_source_color (c, &sc2);
       cairo_stroke (c);
     }
-    if (self->loop_begin != -1) {
+    if (self->loop_start != -1) {
       gint x;
 
       cairo_set_source_rgba (c, 1, 0, 0, 0.75);
       cairo_set_line_width (c, 1.0);
       // casting to double loses precision, but we're not planning to deal with multiterabyte waveforms here :)
-      x = (gint) (ox + self->loop_begin * (gdouble) sx / self->wave_length);
+      x = (gint) (ox + self->loop_start * (gdouble) sx / self->wave_length);
       cairo_move_to (c, x, oy + sy);
       cairo_line_to (c, x, oy);
       cairo_stroke (c);
-      cairo_line_to (c, x + 5, oy);
-      cairo_line_to (c, x + 5, oy + 5);
-      cairo_line_to (c, x, oy + 5);
+      cairo_line_to (c, x + MARKER_BOX_W, oy);
+      cairo_line_to (c, x + MARKER_BOX_W, oy + MARKER_BOX_H);
+      cairo_line_to (c, x, oy + MARKER_BOX_H);
       cairo_line_to (c, x, oy);
       cairo_fill (c);
 
@@ -149,9 +150,9 @@ bt_waveform_viewer_expose (GtkWidget * widget, GdkEventExpose * event)
       cairo_move_to (c, x, oy + sy);
       cairo_line_to (c, x, oy);
       cairo_stroke (c);
-      cairo_line_to (c, x - 5, oy);
-      cairo_line_to (c, x - 5, oy + 5);
-      cairo_line_to (c, x, oy + 5);
+      cairo_line_to (c, x - MARKER_BOX_W, oy);
+      cairo_line_to (c, x - MARKER_BOX_W, oy + MARKER_BOX_H);
+      cairo_line_to (c, x, oy + MARKER_BOX_H);
       cairo_line_to (c, x, oy);
       cairo_fill (c);
     }
@@ -164,10 +165,10 @@ bt_waveform_viewer_expose (GtkWidget * widget, GdkEventExpose * event)
       cairo_move_to (c, x, oy + sy);
       cairo_line_to (c, x, oy);
       cairo_stroke (c);
-      cairo_move_to (c, x, oy + sy / 2 - 5);
-      cairo_line_to (c, x, oy + sy / 2 + 5);
-      cairo_line_to (c, x + 5, oy + sy / 2);
-      cairo_line_to (c, x, oy + sy / 2 - 5);
+      cairo_move_to (c, x, oy + sy / 2 - MARKER_BOX_H);
+      cairo_line_to (c, x, oy + sy / 2 + MARKER_BOX_H);
+      cairo_line_to (c, x + MARKER_BOX_W, oy + sy / 2);
+      cairo_line_to (c, x, oy + sy / 2 - MARKER_BOX_H);
       cairo_fill (c);
     }
   }
@@ -194,6 +195,79 @@ bt_waveform_viewer_size_allocate (GtkWidget * widget,
   widget->allocation = *allocation;
 }
 
+static gboolean
+bt_waveform_viewer_button_press (GtkWidget * widget, GdkEventButton * event)
+{
+  BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
+  const gint ox = 1, oy = 1;
+  const gint sx = widget->allocation.width - 2;
+
+  if (event->y < oy + MARKER_BOX_H) {
+    // check if we're over a loop-knob 
+    if (self->loop_start != -1) {
+      gint x =
+          (gint) (ox + self->loop_start * (gdouble) sx / self->wave_length);
+      if ((event->x >= x - MARKER_BOX_W) && (event->x <= x + MARKER_BOX_W)) {
+        self->edit_loop_start = TRUE;
+      }
+    }
+    if (self->loop_end != -1) {
+      gint x = (gint) (ox + self->loop_end * (gdouble) sx / self->wave_length);
+      if ((event->x >= x - MARKER_BOX_W) && (event->x <= x + MARKER_BOX_W)) {
+        self->edit_loop_end = TRUE;
+      }
+    }
+  }
+  if (!self->edit_loop_start && !self->edit_loop_end) {
+    self->edit_selection = TRUE;
+  }
+  return FALSE;
+}
+
+static gboolean
+bt_waveform_viewer_button_release (GtkWidget * widget, GdkEventButton * event)
+{
+  BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
+  self->edit_loop_start = self->edit_loop_end = self->edit_selection = FALSE;
+  return FALSE;
+}
+
+static gboolean
+bt_waveform_viewer_motion_notify (GtkWidget * widget, GdkEventMotion * event)
+{
+  BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
+  const gint ox = 1;
+  const gint sx = widget->allocation.width - 2;
+  gint64 pos = (event->x - ox) * (gdouble) self->wave_length / sx;
+
+  pos = CLAMP (pos, 0, self->wave_length);
+
+  // if we're in loop or selection mode, map event->x to sample pos
+  // clip loop/selection boundaries
+  if (self->edit_loop_start) {
+    if (pos >= self->loop_end) {
+      pos = self->loop_end - 1;
+    }
+    if (pos != self->loop_start) {
+      self->loop_start = pos;
+      gtk_widget_queue_draw (GTK_WIDGET (self));
+      g_object_notify ((GObject *) self, "loop-start");
+    }
+  } else if (self->edit_loop_end) {
+    if (pos <= self->loop_start) {
+      pos = self->loop_start + 1;
+    }
+    if (pos != self->loop_end) {
+      self->loop_end = pos;
+      gtk_widget_queue_draw (GTK_WIDGET (self));
+      g_object_notify ((GObject *) self, "loop-end");
+    }
+  } else if (self->edit_selection) {
+
+  }
+  return FALSE;
+}
+
 static void
 bt_waveform_viewer_finalize (GObject * object)
 {
@@ -211,17 +285,11 @@ bt_waveform_viewer_get_property (GObject * object,
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER (object);
 
   switch (property_id) {
-    case WAVE_VIEWER_WAVE_LENGTH:
-      g_value_set_int64 (value, self->wave_length);
-      break;
-    case WAVE_VIEWER_LOOP_BEGIN:
-      g_value_set_int64 (value, self->loop_begin);
+    case WAVE_VIEWER_LOOP_START:
+      g_value_set_int64 (value, self->loop_start);
       break;
     case WAVE_VIEWER_LOOP_END:
       g_value_set_int64 (value, self->loop_end);
-      break;
-    case WAVE_VIEWER_PLAYBACK_CURSOR:
-      g_value_set_int64 (value, self->playback_cursor);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -236,8 +304,8 @@ bt_waveform_viewer_set_property (GObject * object,
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER (object);
 
   switch (property_id) {
-    case WAVE_VIEWER_LOOP_BEGIN:
-      self->loop_begin = g_value_get_int64 (value);
+    case WAVE_VIEWER_LOOP_START:
+      self->loop_start = g_value_get_int64 (value);
       if (gtk_widget_get_realized (GTK_WIDGET (self))) {
         gtk_widget_queue_draw (GTK_WIDGET (self));
       }
@@ -258,7 +326,7 @@ bt_waveform_viewer_set_property (GObject * object,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
-  /* printf("SetProperty: loop_begin=%d loop_end=%d\n", (int)self->loop_begin, (int)self->loop_end); */
+  /* printf("SetProperty: loop_start=%d loop_end=%d\n", (int)self->loop_start, (int)self->loop_end); */
 }
 
 static void
@@ -270,28 +338,25 @@ bt_waveform_viewer_class_init (BtWaveformViewerClass * klass)
   widget_class->realize = bt_waveform_viewer_realize;
   widget_class->expose_event = bt_waveform_viewer_expose;
   widget_class->size_allocate = bt_waveform_viewer_size_allocate;
+  widget_class->button_press_event = bt_waveform_viewer_button_press;
+  widget_class->button_release_event = bt_waveform_viewer_button_release;
+  widget_class->motion_notify_event = bt_waveform_viewer_motion_notify;
 
   gobject_class->set_property = bt_waveform_viewer_set_property;
   gobject_class->get_property = bt_waveform_viewer_get_property;
   gobject_class->finalize = bt_waveform_viewer_finalize;
 
-  g_object_class_install_property (gobject_class, WAVE_VIEWER_WAVE_LENGTH,
-      g_param_spec_int64 ("wave-length",
-          "waveform length property",
-          "The current waveform length",
-          0, G_MAXINT64, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, WAVE_VIEWER_LOOP_BEGIN,
-      g_param_spec_int64 ("loop-begin",
+  g_object_class_install_property (gobject_class, WAVE_VIEWER_LOOP_START,
+      g_param_spec_int64 ("loop-start",
           "waveform loop start position",
           "First sample of the loop or -1 if there is no loop",
-          -1, G_MAXINT64, -1, G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+          -1, G_MAXINT64, -1, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVE_VIEWER_LOOP_END,
       g_param_spec_int64 ("loop-end",
           "waveform loop end position",
           "First sample after the loop or -1 if there is no loop",
-          -1, G_MAXINT64, -1, G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+          -1, G_MAXINT64, -1, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVE_VIEWER_PLAYBACK_CURSOR,
       g_param_spec_int64 ("playback-cursor",
@@ -308,13 +373,11 @@ bt_waveform_viewer_init (BtWaveformViewer * self)
   widget->requisition.width = 40;
   widget->requisition.height = 40;
 
-  self->active = 0;
   self->channels = 2;
   self->peaks_size = 1000;
   self->peaks = g_malloc (sizeof (gfloat) * self->channels * self->peaks_size);
   self->wave_length = 0;
-  self->loop_begin = -1;
-  self->loop_end = -1;
+  self->loop_start = self->loop_end = self->playback_cursor = -1;
 }
 
 /**
@@ -335,12 +398,8 @@ bt_waveform_viewer_set_wave (BtWaveformViewer * self, gint16 * data,
 
   self->channels = channels;
   self->wave_length = length;
-  self->loop_begin = -1;
-  self->loop_end = -1;
-  self->playback_cursor = -1;
 
   if (!data || !length) {
-    self->active = 0;
     memset (self->peaks, 0, sizeof (gfloat) * self->peaks_size);
     gtk_widget_queue_draw (GTK_WIDGET (self));
     return;
@@ -361,11 +420,6 @@ bt_waveform_viewer_set_wave (BtWaveformViewer * self, gint16 * data,
       self->peaks[i * cc + c] = (vmax - vmin) / 32768.0;
     }
   }
-  self->active = 1;
-  g_object_notify ((gpointer) self, "wave-length");
-  g_object_notify ((gpointer) self, "loop-begin");
-  g_object_notify ((gpointer) self, "loop-end");
-  g_object_notify ((gpointer) self, "playback-cursor");
   gtk_widget_queue_draw (GTK_WIDGET (self));
 }
 
