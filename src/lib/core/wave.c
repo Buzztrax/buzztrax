@@ -48,6 +48,11 @@
  * make a copy of the original file to ensure that we can save it (if the file
  * gets changed or remved in the meantime).
  */
+/* TODO(ensonic): multi-sample wave support
+ * - on sample CDs we have multiple waves as separate files
+ * - we could have a uri per wavelevel, if wave.uri==NULL, then loop over wavelevels
+ *   and the uris   
+ */
 #define BT_CORE
 #define BT_WAVE_C
 
