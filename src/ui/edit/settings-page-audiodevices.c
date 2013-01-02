@@ -111,7 +111,7 @@ update_device_menu (const BtSettingsPageAudiodevices * self,
             if (array->n_values) {
               has_devices = TRUE;
               gtk_combo_box_text_append_text (combo_box, _("Auto"));
-              if (*cur_device_name == '\0') {
+              if (!BT_IS_STRING (cur_device_name)) {
                 index = 0;
               }
             }
