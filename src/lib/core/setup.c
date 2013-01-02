@@ -263,6 +263,9 @@
 // see gst-plugins-base/tests/examples/dynamic/sprinkl3.c
 //#define USE_PAD_BLOCK
 
+// play safe when updating the song pipeline
+#define STOP_PLAYBACK_FOR_UPDATES
+
 #define BT_CORE
 #define BT_SETUP_C
 
@@ -786,6 +789,7 @@ check_connected (const BtSetup * const self, BtMachine * dst_machine,
   return (is_connected);
 }
 
+#ifndef STOP_PLAYBACK_FOR_UPDATES
 static void
 update_play_seek_event (const BtSetup * self)
 {
@@ -818,6 +822,7 @@ update_play_seek_event (const BtSetup * self)
       start);
   g_object_unref (sequence);
 }
+#endif
 
 static gint
 sort_by_graph_depth_asc (gconstpointer e1, gconstpointer e2, gpointer user_data)
@@ -936,6 +941,7 @@ activate_element (const BtSetup * const self, gpointer key)
   GstElement *elem = GST_ELEMENT (key);
   gst_element_set_locked_state (elem, FALSE);
 
+#ifndef STOP_PLAYBACK_FOR_UPDATES
   if (GST_STATE (GST_OBJECT_PARENT (GST_OBJECT (key))) == GST_STATE_PLAYING) {
     GstStateChangeReturn ret;
     GST_INFO_OBJECT (GST_OBJECT (key), "set from %s to %s",
@@ -975,6 +981,7 @@ activate_element (const BtSetup * const self, gpointer key)
     GST_INFO_OBJECT (key, "state-change to PLAYING: %s",
         gst_element_state_change_return_get_name (ret));
   }
+#endif
 }
 
 static void
@@ -983,6 +990,7 @@ deactivate_element (const BtSetup * const self, gpointer key)
   GstElement *elem = GST_ELEMENT (key);
   gst_element_set_locked_state (elem, TRUE);
 
+#ifndef STOP_PLAYBACK_FOR_UPDATES
   if (GST_STATE (GST_OBJECT_PARENT (GST_OBJECT (key))) == GST_STATE_PLAYING) {
     GST_INFO_OBJECT (GST_OBJECT (key), "set from %s to %s",
         gst_element_state_get_name (GST_STATE (key)),
@@ -990,6 +998,7 @@ deactivate_element (const BtSetup * const self, gpointer key)
 
     gst_element_set_state (elem, GST_STATE_READY);
   }
+#endif
 }
 
 static void
@@ -999,6 +1008,7 @@ sync_states (const BtSetup * const self)
 
   if (self->priv->elements_to_play) {
     GST_INFO ("starting elements");
+
 #ifndef GST_DISABLE_DEBUG
     for (node = self->priv->elements_to_play; node; node = g_list_next (node)) {
       GST_INFO_OBJECT (GST_OBJECT (node->data),
@@ -1065,22 +1075,40 @@ update_pipeline (const BtSetup * const self)
       g_list_length (self->priv->machines_to_del),
       g_list_length (self->priv->wires_to_del));
 
+#ifndef STOP_PLAYBACK_FOR_UPDATES
   // query segment and position
   update_play_seek_event (self);
+#endif
 
-  // {add|del}_wire_in_pipeline can add pads to the self->priv->blocked_pads list
-  // from {link|unlink}_wire. this is more complicated that it needs to be.
-  //
-  // 1.) when (un)linking a sink pad on an active element hat operates in
-  //     push mode, we only need to block the most downstream src-pad
-  //     (either g_list_first(wires_to_add):src or g_list_last(wires_to_del):src)
-  // 2.) when (un)linking a src pad on an active element hat operates in push
-  //     mode, we only need to block the pad itself
-  //
-  // 3.) we either add or remove stuff on exactly on pad at a time in practice
-  //
-  // this should make it easier to split the update into two parts to correctly
-  // handle the async pad blocking
+  // if we have blocked pads, we would need to ensure here, that the blocking is done
+  // builds elements_to_{play|stop} lists
+  GST_INFO ("determine state change lists");
+  g_hash_table_foreach (self->priv->connection_state,
+      determine_state_change_lists, (gpointer) self);
+
+#ifdef STOP_PLAYBACK_FOR_UPDATES
+  gboolean cont = FALSE;
+  if (self->priv->wires_to_add || self->priv->wires_to_del) {
+    if ((cont = bt_song_update_playback_position (self->priv->song))) {
+      bt_song_stop (self->priv->song);
+    }
+  }
+#endif
+
+  /* {add|del}_wire_in_pipeline can add pads to the self->priv->blocked_pads list
+   * from {link|unlink}_wire. this is more complicated that it needs to be.
+   *
+   * 1.) when (un)linking a sink pad on an active element hat operates in
+   *     push mode, we only need to block the most downstream src-pad
+   *     (either g_list_first(wires_to_add):src or g_list_last(wires_to_del):src)
+   * 2.) when (un)linking a src pad on an active element hat operates in push
+   *     mode, we only need to block the pad itself
+   *
+   * 3.) we either add or remove stuff on exactly on pad at a time in practice
+   *
+   * this should make it easier to split the update into two parts to correctly
+   * handle the async pad blocking
+   */
   GST_INFO ("add machines");
   g_list_foreach (self->priv->machines_to_add, add_machine_in_pipeline,
       (gpointer) self);
@@ -1088,11 +1116,6 @@ update_pipeline (const BtSetup * const self)
   g_list_foreach (self->priv->wires_to_add, add_wire_in_pipeline,
       (gpointer) self);
 
-  // if we have blocked pads, we would need to ensure here, that the blocking is done
-  // builds elements_to_{play|stop} lists
-  GST_INFO ("determine state change lists");
-  g_hash_table_foreach (self->priv->connection_state,
-      determine_state_change_lists, (gpointer) self);
   // apply state changes for the above lists
   GST_INFO ("sync states");
   sync_states (self);
@@ -1102,6 +1125,12 @@ update_pipeline (const BtSetup * const self)
   GST_INFO ("remove machines");
   g_list_foreach (self->priv->machines_to_del, del_machine_in_pipeline,
       (gpointer) self);
+
+#ifdef STOP_PLAYBACK_FOR_UPDATES
+  if (cont) {
+    bt_song_play (self->priv->song);
+  }
+#endif
 
   // free the lists  
   g_list_free (self->priv->machines_to_add);
