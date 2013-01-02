@@ -40,7 +40,7 @@ noinst_PROGRAMS=$(TESTS_BIN)
 /tmp/test.wav:
 	$(AM_V_GEN) gst-launch-@GST_MAJORMINOR@ -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=$@
 
-noinst_LTLIBRARIES += \
+check_LTLIBRARIES = \
   libbt-check.la \
   libbt-check-ui.la \
   libbtcore-check.la \
@@ -63,7 +63,7 @@ libbt_check_la_SOURCES = \
 libbt_check_la_DEPENDENCIES = /tmp/test.wav
 
 libbt_check_ui_la_LIBADD = \
-  $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) 
+  $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS)
 libbt_check_ui_la_LDFLAGS = \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
 libbt_check_ui_la_CFLAGS = $(GUI_DEPS_CFLAGS)
@@ -121,7 +121,7 @@ libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
 	tests/lib/core/s-machine.c tests/lib/core/e-machine.c tests/lib/core/t-machine.c \
 	tests/lib/core/s-parameter-group.c tests/lib/core/e-parameter-group.c tests/lib/core/t-parameter-group.c \
 	tests/lib/core/s-pattern.c tests/lib/core/e-pattern.c tests/lib/core/t-pattern.c \
-    	tests/lib/core/s-pattern-control-source.c tests/lib/core/e-pattern-control-source.c tests/lib/core/t-pattern-control-source.c \
+	tests/lib/core/s-pattern-control-source.c tests/lib/core/e-pattern-control-source.c tests/lib/core/t-pattern-control-source.c \
 	tests/lib/core/s-persistence.c tests/lib/core/e-persistence.c tests/lib/core/t-persistence.c \
 	tests/lib/core/s-processor-machine.c tests/lib/core/e-processor-machine.c tests/lib/core/t-processor-machine.c \
 	tests/lib/core/s-sequence.c tests/lib/core/e-sequence.c tests/lib/core/t-sequence.c \
