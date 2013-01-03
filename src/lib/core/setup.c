@@ -309,6 +309,9 @@ typedef enum
 
 #define GET_CONNECTION_STATE(self,bin) \
   GPOINTER_TO_INT(g_hash_table_lookup(self->priv->connection_state,(gpointer)bin))
+#define SET_CONNECTION_STATE(self,bin,state) \
+  g_hash_table_insert(self->priv->connection_state,(gpointer)bin,\
+      GINT_TO_POINTER (state))
 
 #define GET_GRAPH_DEPTH(self,bin) \
   GPOINTER_TO_INT(g_hash_table_lookup(self->priv->graph_depth,(gpointer)bin))
@@ -386,8 +389,7 @@ set_disconnected (const BtSetup * const self, GstBin * bin)
   BtSetupConnectionState state = GET_CONNECTION_STATE (self, bin);
 
   if (state == 0 || state == CS_DISCONNECTING) {
-    g_hash_table_insert (self->priv->connection_state, (gpointer) bin,
-        GINT_TO_POINTER (CS_DISCONNECTED));
+    SET_CONNECTION_STATE (self, bin, CS_DISCONNECTED);
   } else if (state == CS_CONNECTING) {
     GST_WARNING_OBJECT (bin,
         "disallowed state-change from connecting to disconnected");
@@ -403,8 +405,7 @@ set_disconnecting (const BtSetup * const self, GstBin * bin)
   BtSetupConnectionState state = GET_CONNECTION_STATE (self, bin);
 
   if (state == CS_CONNECTED) {
-    g_hash_table_insert (self->priv->connection_state, (gpointer) bin,
-        GINT_TO_POINTER (CS_DISCONNECTING));
+    SET_CONNECTION_STATE (self, bin, CS_DISCONNECTING);
   } else if (state == CS_CONNECTING) {
     GST_WARNING_OBJECT (bin,
         "disallowed state-change from connecting to disconnecting");
@@ -417,8 +418,7 @@ set_connecting (const BtSetup * const self, GstBin * bin)
   BtSetupConnectionState state = GET_CONNECTION_STATE (self, bin);
 
   if (state == CS_DISCONNECTED) {
-    g_hash_table_insert (self->priv->connection_state, (gpointer) bin,
-        GINT_TO_POINTER (CS_CONNECTING));
+    SET_CONNECTION_STATE (self, bin, CS_CONNECTING);
   } else if (state == CS_DISCONNECTING) {
     GST_WARNING_OBJECT (bin,
         "disallowed state-change from disconnecting to connecting");
@@ -431,8 +431,7 @@ set_connected (const BtSetup * const self, GstBin * bin)
   BtSetupConnectionState state = GET_CONNECTION_STATE (self, bin);
 
   if (state == CS_CONNECTING) {
-    g_hash_table_insert (self->priv->connection_state, (gpointer) bin,
-        GINT_TO_POINTER (CS_CONNECTED));
+    SET_CONNECTION_STATE (self, bin, CS_CONNECTED);
   } else if (state == CS_DISCONNECTING) {
     GST_WARNING_OBJECT (bin,
         "disallowed state-change from disconnecting to connected");
