@@ -1,6 +1,7 @@
 /* audio controller and mixing example
  *
  * gcc -Wall -g tonematrix.c -o tonematrix `pkg-config --cflags --libs gstreamer-0.10 gstreamer-controller-0.10 gtk+-2.0`
+ * gcc -Wall -g -DUSE_OSC tonematrix.c -o tonematrix `pkg-config --cflags --libs gstreamer-0.10 gstreamer-controller-0.10 gtk+-2.0 liblo`
  */
 
 #include <math.h>
@@ -10,11 +11,15 @@
 #include <gst/controller/gstinterpolationcontrolsource.h>
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
+#ifdef USE_OSC
+#include <lo/lo.h>
+#endif
 
 typedef struct
 {
   /* gtk components */
   GtkWidget *window;
+  GtkWidget *trigger[16][16];
   GtkWidget *metro[16];
   GdkColor white, black;
   guint blink_id;
@@ -370,10 +375,21 @@ start_blink (App * app)
 }
 
 static void
+update_controller (App * app, gint j, gint i)
+{
+  GValue val = { 0, };
+
+  g_value_init (&val, app->wave_enum_type);
+  g_value_set_enum (&val, waves[app->matrix[j][i]].ix);
+  gst_interpolation_control_source_set (app->csrc[1][j], i * app->step_time,
+      &val);
+  g_value_unset (&val);
+}
+
+static void
 on_trigger (GtkButton * widget, gpointer data)
 {
   App *app = (App *) data;
-  GValue val = { 0, };
   guint i, j;
 
   /* get position */
@@ -383,16 +399,10 @@ on_trigger (GtkButton * widget, gpointer data)
   if (app->matrix[j][i] == WAVES)
     app->matrix[j][i] = 0;
 
-  /* update cell color */
+  /* update cell color & controller */
   gtk_color_button_set_color (GTK_COLOR_BUTTON (widget),
       &waves[app->matrix[j][i]].color);
-
-  /* update controller */
-  g_value_init (&val, app->wave_enum_type);
-  g_value_set_enum (&val, waves[app->matrix[j][i]].ix);
-  gst_interpolation_control_source_set (app->csrc[1][j], i * app->step_time,
-      &val);
-  g_value_unset (&val);
+  update_controller (app, j, i);
 }
 
 static void
@@ -456,7 +466,7 @@ init_ui (App * app)
   gtk_container_add (GTK_CONTAINER (hbox), matrix);
   for (i = 0; i < 16; i++) {
     for (j = 0; j < 16; j++) {
-      trigger = my_color_button_new ();
+      app->trigger[i][j] = trigger = my_color_button_new ();
       g_object_set_qdata (G_OBJECT (trigger), tpos, GUINT_TO_POINTER (j));
       g_object_set_qdata (G_OBJECT (trigger), fpos, GUINT_TO_POINTER (i));
       gtk_table_attach_defaults (GTK_TABLE (matrix), trigger, j, j + 1, i,
@@ -507,6 +517,73 @@ init_ui (App * app)
   gtk_widget_show_all (app->window);
 }
 
+#ifdef USE_OSC
+
+static gboolean
+update_trigger (gpointer _user_data)
+{
+  gpointer *user_data = (gpointer *) _user_data;
+  App *app = (App *) user_data[0];
+  gint j = GPOINTER_TO_UINT (user_data[1]);
+  gint i = GPOINTER_TO_UINT (user_data[2]);
+  g_slice_free1 (3 * sizeof (gpointer), _user_data);
+  gtk_color_button_set_color (GTK_COLOR_BUTTON (app->trigger[j][i]),
+      &waves[app->matrix[j][i]].color);
+  return FALSE;
+}
+
+static void
+osc_error (int num, const char *msg, const char *path)
+{
+  printf ("liblo server error %d in path %s: %s\n", num, path, msg);
+  fflush (stdout);
+}
+
+/* Use with with TouchOsc on your phone/tablet
+ * /2/multitoggle/6/1 f 1.000000 -> /././freq/time
+ */
+static int
+osc_handler (const char *path, const char *types, lo_arg ** argv, int argc,
+    void *data, void *user_data)
+{
+  App *app = (App *) user_data;
+
+  if (g_str_has_prefix (path, "/2/multitoggle/")) {
+    gchar **p = g_strsplit (&path[1], "/", 5);
+    gint j = atoi (p[2]) - 1;
+    gint i = atoi (p[3]) - 1;
+    g_strfreev (p);
+
+    app->matrix[j][i] = (gint) (argv[0]->f);
+
+    printf ("[%2d][%2d]=[%d]\n", j, i, (gint) (argv[0]->f));
+
+    /* update cell color & controller */
+    gpointer *params = g_slice_alloc (3 * sizeof (gpointer));
+    params[0] = user_data;
+    params[1] = GUINT_TO_POINTER (j);
+    params[2] = GUINT_TO_POINTER (i);
+    g_idle_add (update_trigger, params);
+    update_controller (app, j, i);
+
+    return 0;
+  }
+  return 1;
+}
+
+static void
+init_osc (App * app)
+{
+  /* start a new server on port 8000 */
+  lo_server_thread st = lo_server_thread_new ("8000", osc_error);
+
+  /* add method that will match any path and args */
+  lo_server_thread_add_method (st, NULL, NULL, osc_handler, app);
+
+  lo_server_thread_start (st);
+}
+#endif
+
 gint
 main (gint argc, gchar ** argv)
 {
@@ -522,6 +599,9 @@ main (gint argc, gchar ** argv)
 
   init_ui (&app);
   init_pipeline (&app);
+#ifdef USE_OSC
+  init_osc (&app);
+#endif
   gtk_main ();
   done_pipeline (&app);
 
