@@ -539,12 +539,28 @@ osc_error (int num, const char *msg, const char *path)
   fflush (stdout);
 }
 
+static void
+osc_update_cell (App * app, gint j, gint i, gint c)
+{
+  app->matrix[j][i] = c;
+
+  //printf ("[%2d][%2d]=%d\n", j, i, c);
+
+  /* update cell color & controller */
+  gpointer *params = g_slice_alloc (3 * sizeof (gpointer));
+  params[0] = app;
+  params[1] = GUINT_TO_POINTER (j);
+  params[2] = GUINT_TO_POINTER (i);
+  g_idle_add (update_trigger, params);
+  update_controller (app, j, i);
+}
+
 /* Use with with TouchOsc on your phone/tablet
  * /2/multitoggle/6/1 f 1.000000 -> /././freq/time
  */
 static int
-osc_handler (const char *path, const char *types, lo_arg ** argv, int argc,
-    void *data, void *user_data)
+touch_osc_handler (const char *path, const char *types, lo_arg ** argv,
+    int argc, void *data, void *user_data)
 {
   App *app = (App *) user_data;
 
@@ -554,18 +570,34 @@ osc_handler (const char *path, const char *types, lo_arg ** argv, int argc,
     gint i = atoi (p[3]) - 1;
     g_strfreev (p);
 
-    app->matrix[j][i] = (gint) (argv[0]->f);
+    osc_update_cell (app, j, i, (gint) (argv[0]->f));
+    return 0;
+  }
+  return 1;
+}
 
-    printf ("[%2d][%2d]=[%d]\n", j, i, (gint) (argv[0]->f));
+/* Use with with Control on your phone/tablet
+ * /multi/28 i 127 -> /./freq*time
+ */
+static int
+control_osc_handler (const char *path, const char *types, lo_arg ** argv,
+    int argc, void *data, void *user_data)
+{
+  App *app = (App *) user_data;
 
-    /* update cell color & controller */
-    gpointer *params = g_slice_alloc (3 * sizeof (gpointer));
-    params[0] = user_data;
-    params[1] = GUINT_TO_POINTER (j);
-    params[2] = GUINT_TO_POINTER (i);
-    g_idle_add (update_trigger, params);
-    update_controller (app, j, i);
+  if (g_str_has_prefix (path, "/multi/")) {
+    gint t = atoi (&path[7]);
+    gint j = t / 8;
+    gint i = t - (j * 8);
 
+    osc_update_cell (app, j, i, (argv[0]->i ? 2 : 0));
+    return 0;
+  } else if (g_str_has_prefix (path, "/life/")) {
+    gint t = atoi (&path[6]);
+    gint j = t / 11;
+    gint i = t - (j * 11);
+
+    osc_update_cell (app, j, i, (argv[0]->i ? 2 : 0));
     return 0;
   }
   return 1;
@@ -577,8 +609,9 @@ init_osc (App * app)
   /* start a new server on port 8000 */
   lo_server_thread st = lo_server_thread_new ("8000", osc_error);
 
-  /* add method that will match any path and args */
-  lo_server_thread_add_method (st, NULL, NULL, osc_handler, app);
+  /* add methods that will handle various osc-controller */
+  lo_server_thread_add_method (st, NULL, NULL, touch_osc_handler, app);
+  lo_server_thread_add_method (st, NULL, NULL, control_osc_handler, app);
 
   lo_server_thread_start (st);
 }
