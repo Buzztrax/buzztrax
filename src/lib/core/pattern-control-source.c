@@ -360,7 +360,7 @@ bt_pattern_control_source_get_value (BtPatternControlSource * self,
       // - end of the song
       // - start of the song  (now, as it is faster)
       // - last stop position (not available right now)
-      tick = (length > 0) ? (length - 1) : 0;
+      //tick = (length > 0) ? (length - 1) : 0;
       tick = 0;
       GST_DEBUG_OBJECT (machine, "idle mode detected, using defaults");
     }

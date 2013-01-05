@@ -772,7 +772,7 @@ check_connected (const BtSetup * const self, BtMachine * dst_machine,
       is_connected |= wire_is_connected;
       g_object_unref (src_machine);
     } else {
-      GST_INFO_OBJECT (src_machine, "wire target checked, connected=0?");
+      GST_INFO_OBJECT (wire, "wire target checked, connected=0?");
     }
     *not_visited_wires =
         g_list_remove (*not_visited_wires, (gconstpointer) wire);
