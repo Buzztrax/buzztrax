@@ -1,7 +1,13 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
 git diff --stat @{2012-01-01} @{2012-01-31}
 
+2013/02 ========================================================================
+
+-
+
 2013/01 ========================================================================
+
+Happy new 2013!
 
 Besides a lot of testing and little bug fixes here and there I finished of a few 
 half ready features. One is range-randomize (press Ctrl+Shift+R). In contrast to
@@ -13,7 +19,7 @@ luckily one can turn off the frame. I still get a different background color tho
 
 During testing I noticed some inconsistencies when renaming machines and found a
 rather bad data corruption. Certain interaction would create songs that won't read
-back fully. One can manually fix them up (its xml after all). I fixed the bug and
+back fully. One can manually fix them up (it is xml after all). I fixed the bug and
 could even make the format a bit simpler. I had to touch quite a few places: 
   30 files changed, 246 insertions(+), 404 deletions(-)
 Old songs can still be read, but songs written with the new version, also need the
@@ -22,6 +28,11 @@ new version for reading. One lesson learned, the 'id' attribute in xml is specia
 Another results from testing is that the shell based test scripts can now be run
 standalone to check a bunch of songs (do syntax check, print stats, convert or
 encode songs).
+
+Finally I entered string freeze for 0.7. I already received the first updates for
+the translations, thanks a lot! I am looking forward to release it soon.
+
+438 files changed, 3138 insertions(+), 2800 deletions(-)
 
 2012/12 ========================================================================
 
