@@ -70,18 +70,29 @@
 
 * OSC support
   * settings
-    * the OSC port for listening
-    * add song to path (/<song>/...)
+    - the OSC port for listening
+    - add song to path (/<song>/...)
   * namespace
-    * ../<machine>/set_{wire,global,voice}_param 
-    * ../<machine>/set_{mute,solo,bypass}
-    * ../<machine>/<pattern>/set_{wire,global,voice}_event
-    * ../{play,stop,pause}
+    - ../<machine>/set_{wire,global,voice}_param 
+    - ../<machine>/set_{mute,solo,bypass}
+    - ../<machine>/<pattern>/set_{wire,global,voice}_event
+    - ../{play,stop,pause}
   * ui (if osc enabled)
-    * show the osc path both in machine and pattern view
-    * eventually make it editable (ensure unique)
-    * store with song
+    - show the osc path both in machine and pattern view
+    - eventually make it editable (ensure unique)
+    - store with song
 
+  * we can also expose osc as a 'device' in the btic
+    - it will support the learn-iface
+    - learning will echo all received controls
+    - one can then name it and store
+    - it would be nice to somehow bundle learned controls as a 'device'
+      - then we can have presets per app
+      - we could have a "new osc device" menu item in the control menu
+        and put the learn item under the new device
+
+  * when using android/control, we can push custom surfaces via osc
+    http://charlie-roberts.com/Control/?page_id=32
 
 * undo/redo/journaling
   - links

@@ -20,6 +20,8 @@
  *   gtk_stock_add(...)
  *   gtk_icon_factory_add(GtkIconFactory *,const gchar *stock_id,GtkIconSet *);
  *   GtkIconSet *gtk_icon_set_new_from_pixbuf(...)
+ * - examples:
+ *   https://github.com/jcupitt/nip2/blob/master/src/main.c#L668
  */
 
 #define BT_EDIT
