@@ -470,6 +470,7 @@ bt_interaction_controller_menu_get_property (GObject * object,
       break;
     case INTERACTION_CONTROLLER_MENU_SELECTED_PROPERTY_NAME:
       g_value_set_string (value, self->priv->selected_property_name);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
