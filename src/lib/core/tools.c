@@ -313,7 +313,7 @@ bt_gst_element_get_sink_peer_pad (GstElement * const elem)
  * @bin: the bin
  * @tee: the tee to connect the chain to
  * @analyzers: the list of analyzers
- * @is_playing: wheter the pipeline is streaming data
+ * @is_playing: whether the pipeline is streaming data
  *
  * Add the elements from @analyzers to the @bin and link them. Handle pad
  * blocking in playing mode.
@@ -333,43 +333,69 @@ bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
   g_return_val_if_fail (GST_IS_ELEMENT (tee), FALSE);
   g_return_val_if_fail (analyzers, FALSE);
 
-  GST_INFO ("add analyzers (%d elements)", g_list_length (analyzers));
+  GST_INFO_OBJECT (bin, "add analyzers (%d elements)",
+      g_list_length (analyzers));
 
   // do final link afterwards
   for (node = analyzers; (node && res); node = g_list_next (node)) {
     next = GST_ELEMENT (node->data);
 
     if (!(res = gst_bin_add (bin, next))) {
-      GST_INFO ("cannot add element \"%s\" to bin", GST_OBJECT_NAME (next));
+      GST_INFO_OBJECT (bin, "cannot add element \"%s\" to bin",
+          GST_OBJECT_NAME (next));
     }
     if (prev) {
       if (!(res = gst_element_link (prev, next))) {
-        GST_INFO ("cannot link elements \"%s\" -> \"%s\"",
+        GST_INFO_OBJECT (bin, "cannot link elements \"%s\" -> \"%s\"",
             GST_OBJECT_NAME (prev), GST_OBJECT_NAME (next));
       }
     }
     prev = next;
   }
-  GST_INFO ("blocking tee.src");
+  GST_INFO_OBJECT (bin, "blocking tee.src");
   tee_src = gst_element_get_request_pad (tee, "src%d");
   analyzer_sink =
       gst_element_get_static_pad (GST_ELEMENT (analyzers->data), "sink");
   if (is_playing)
     gst_pad_set_blocked (tee_src, TRUE);
-  GST_INFO ("sync state");
+  GST_INFO_OBJECT (bin, "sync state");
   for (node = analyzers; node; node = g_list_next (node)) {
     next = GST_ELEMENT (node->data);
     if (!(gst_element_sync_state_with_parent (next))) {
-      GST_INFO ("cannot sync state for elements \"%s\"",
+      GST_INFO_OBJECT (bin, "cannot sync state for elements \"%s\"",
           GST_OBJECT_NAME (next));
     }
   }
-  GST_INFO ("linking to tee");
+  GST_INFO_OBJECT (bin, "linking to tee");
   if (GST_PAD_LINK_FAILED (gst_pad_link (tee_src, analyzer_sink))) {
-    GST_INFO ("cannot link analyzers to tee");
+    GST_INFO_OBJECT (bin, "cannot link analyzers to tee");
   }
-  if (is_playing)
+  if (is_playing) {
+    // in setup.c::activate_element() we have disabled this as it caused more
+    // trouble, than it helped
+#if 0
+    GstQuery *qs = gst_query_new_segment (GST_FORMAT_TIME);
+    GstQuery *qp = gst_query_new_position (GST_FORMAT_TIME);
+
+    GST_INFO_OBJECT (bin, "kick-starting the analyzer chain");
+
+    if (gst_element_query (tee, qs) && gst_element_query (tee, qp)) {
+      gdouble rate;
+      GstFormat fmt;
+      gint64 start, stop, pos;
+
+      gst_query_parse_segment (qs, &rate, &fmt, &start, &stop);
+      gst_query_parse_position (qp, &fmt, &pos);
+      if (!gst_pad_send_event (analyzer_sink, gst_event_new_new_segment (FALSE,
+                  rate, GST_FORMAT_TIME, start, stop, pos))) {
+        GST_WARNING_OBJECT (bin, "newsegment event failed");
+      }
+    } else {
+      GST_WARNING_OBJECT (bin, "segment or position query failed");
+    }
+#endif
     gst_pad_set_blocked (tee_src, FALSE);
+  }
   gst_object_unref (analyzer_sink);
   GST_INFO ("add analyzers done");
 
