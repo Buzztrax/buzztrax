@@ -448,11 +448,16 @@ on_song_segment_done (const GstBus * const bus,
     } else {
       event = gst_event_ref (self->priv->idle_loop_seek_event);
     }
+#ifndef GST_DISABLE_GST_DEBUG
+    seek_seqnum = gst_util_seqnum_next ();
+    gst_event_set_seqnum (event, seek_seqnum);
+#else
     gst_event_set_seqnum (event, gst_util_seqnum_next ());
+#endif
     if (!(gst_element_send_event (GST_ELEMENT (self->priv->master_bin), event))) {
       GST_WARNING ("element failed to handle continuing play seek event");
     } else {
-      GST_INFO ("-> loop");
+      GST_INFO ("-> loop (%u)", seek_seqnum);
       /*
          gst_pipeline_set_new_stream_time (GST_PIPELINE (self->priv->bin), 0);
          gst_element_get_state (GST_ELEMENT (self->priv->bin), NULL, NULL, 40 * GST_MSECOND);

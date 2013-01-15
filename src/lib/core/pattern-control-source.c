@@ -342,7 +342,7 @@ bt_pattern_control_source_get_value (BtPatternControlSource * self,
   GstClockTime tick = bt_song_info_time_to_tick (song_info, timestamp);
   GstClockTime ts = bt_song_info_tick_to_time (song_info, tick);
 
-  GST_DEBUG_OBJECT (machine, "get control_value for param %d at tick%4d,"
+  GST_LOG_OBJECT (machine, "get control_value for param %d at tick%4d,"
       " %1d: %llu == %llu",
       param_index, tick, (ts == timestamp), timestamp, ts);
 

@@ -223,7 +223,7 @@ bt_value_group_get_event_data (const BtValueGroup * const self,
   g_return_val_if_fail (tick < self->priv->length, NULL);
   g_return_val_if_fail (param < self->priv->params, NULL);
 
-  GST_DEBUG ("getting gvalue at tick=%lu/%lu and param %lu/%lu", tick,
+  GST_LOG ("getting gvalue at tick=%lu/%lu and param %lu/%lu", tick,
       self->priv->length, param, self->priv->params);
 
   return (bt_value_group_get_event_data_unchecked (self, tick, param));
