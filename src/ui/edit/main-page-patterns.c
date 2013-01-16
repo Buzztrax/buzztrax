@@ -1837,52 +1837,53 @@ context_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
           max_voices = pspec->maximum;
         }
 
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_add), (voices < max_voices));
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_remove), (voices > min_voices));
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_add), (voices < max_voices));
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_remove), (voices > min_voices));
         gst_object_unref (elem);
       } else {
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_add), FALSE);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_remove), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_add), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->
+                priv->context_menu_track_remove), FALSE);
       }
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_properties), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_remove), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_copy), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_properties), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_remove), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_copy), TRUE);
     } else {
       GST_INFO_OBJECT (machine, "machine has no patterns");
       gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
           FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_track_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_properties), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_pattern_copy), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_track_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_properties), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->
+              priv->context_menu_pattern_copy), FALSE);
     }
     g_object_get (machine, "prefs-params", &num_property_params, NULL);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_machine_preferences), (num_property_params != 0));
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_machine_preferences),
+        (num_property_params != 0));
   } else {
     GST_INFO ("no machine");
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
         FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_track_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_pattern_properties), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_pattern_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_pattern_copy), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_track_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_pattern_properties), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_pattern_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->
+            priv->context_menu_pattern_copy), FALSE);
   }
 }
 
@@ -2339,37 +2340,36 @@ on_wire_removed (BtSetup * setup, BtWire * wire, gpointer user_data)
 
     for (node = list; node; node = g_list_next (node)) {
       if (BT_IS_PATTERN (node->data)) {
-        gchar *undo_str;
-        GString *data = g_string_new (NULL);
-        guint end;
-        gchar *str, *p, *pid;
-        guint i;
-
         pattern = BT_PATTERN (node->data);
-        vg = bt_pattern_get_wire_group (self->priv->pattern, wire);
+        if ((vg = bt_pattern_get_wire_group (self->priv->pattern, wire))) {
+          gchar *undo_str;
+          GString *data = g_string_new (NULL);
+          guint end, i;
+          gchar *str, *p, *pid;
 
-        g_object_get (pattern, "name", &pid, "length", &length, NULL);
-        end = length - 1;
+          g_object_get (pattern, "name", &pid, "length", &length, NULL);
+          end = length - 1;
 
-        bt_value_group_serialize_columns (vg, 0, end, data);
-        str = data->str;
+          bt_value_group_serialize_columns (vg, 0, end, data);
+          str = data->str;
 
-        bt_change_log_start_group (self->priv->change_log);
-        for (i = 0; i < wire_params; i++) {
-          p = strchr (str, '\n');
-          *p = '\0';
-          undo_str =
-              g_strdup_printf
-              ("set_wire_events \"%s\",\"%s\",\"%s\",0,%u,%u,%s", smid, dmid,
-              pid, end, i, str);
-          str = &p[1];
-          bt_change_log_add (self->priv->change_log, BT_CHANGE_LOGGER (self),
-              undo_str, g_strdup (undo_str));
+          bt_change_log_start_group (self->priv->change_log);
+          for (i = 0; i < wire_params; i++) {
+            p = strchr (str, '\n');
+            *p = '\0';
+            undo_str =
+                g_strdup_printf
+                ("set_wire_events \"%s\",\"%s\",\"%s\",0,%u,%u,%s", smid, dmid,
+                pid, end, i, str);
+            str = &p[1];
+            bt_change_log_add (self->priv->change_log, BT_CHANGE_LOGGER (self),
+                undo_str, g_strdup (undo_str));
+          }
+          bt_change_log_end_group (self->priv->change_log);
+
+          g_string_free (data, TRUE);
+          g_free (pid);
         }
-        bt_change_log_end_group (self->priv->change_log);
-
-        g_string_free (data, TRUE);
-        g_free (pid);
       }
       g_object_unref (node->data);
     }
@@ -3060,12 +3060,12 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   box = gtk_hbox_new (FALSE, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->base_octave_menu = gtk_combo_box_text_new ();
-  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->priv->
-          base_octave_menu), FALSE);
+  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->
+          priv->base_octave_menu), FALSE);
   for (i = 0; i < 8; i++) {
     sprintf (oct_str, "%1d", i);
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-            base_octave_menu), oct_str);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+            priv->base_octave_menu), oct_str);
   }
   gtk_combo_box_set_active (GTK_COMBO_BOX (self->priv->base_octave_menu),
       self->priv->base_octave);
