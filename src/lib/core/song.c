@@ -444,9 +444,9 @@ on_song_segment_done (const GstBus * const bus,
     GstEvent *event;
 
     if (self->priv->is_playing) {
-      event = gst_event_ref (self->priv->loop_seek_event);
+      event = gst_event_copy (self->priv->loop_seek_event);
     } else {
-      event = gst_event_ref (self->priv->idle_loop_seek_event);
+      event = gst_event_copy (self->priv->idle_loop_seek_event);
     }
 #ifndef GST_DISABLE_GST_DEBUG
     seek_seqnum = gst_util_seqnum_next ();

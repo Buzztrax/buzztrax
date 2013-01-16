@@ -235,6 +235,7 @@ typedef struct
 static GQuark error_domain = 0;
 GQuark bt_machine_machine = 0;
 GQuark bt_machine_property_name = 0;
+static GQuark tee_last_seq_num = 0;
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -1690,6 +1691,53 @@ bt_machine_has_active_adder (const BtMachine * const self)
   return (self->priv->machines[PART_ADDER] != NULL);
 }
 
+// workaround for tee in not handling events, see design/gst/looplock.c
+static gboolean
+gst_tee_src_event (GstPad * pad, GstEvent * event)
+{
+  gboolean res = TRUE;
+
+  switch (GST_EVENT_TYPE (event)) {
+    case GST_EVENT_SEEK:{
+      GstElement *tee = (GstElement *) gst_pad_get_parent (pad);
+      guint last_seq_num =
+          GPOINTER_TO_UINT (g_object_get_qdata ((GObject *) tee,
+              tee_last_seq_num));
+      guint32 seq_num = gst_event_get_seqnum (event);
+      if (seq_num != last_seq_num) {
+        last_seq_num = seq_num;
+        g_object_set_qdata ((GObject *) tee, tee_last_seq_num,
+            GUINT_TO_POINTER (last_seq_num));
+        GST_LOG_OBJECT (pad, "new seek: %u", seq_num);
+        res = gst_pad_event_default (pad, event);
+      } else {
+        GstSeekFlags flags;
+        gst_event_parse_seek (event, NULL, NULL, &flags, NULL, NULL, NULL,
+            NULL);
+        if (flags & GST_SEEK_FLAG_FLUSH) {
+          GST_LOG_OBJECT (pad, "forwarding dup seek: %u", seq_num);
+          res = gst_pad_event_default (pad, event);
+        } else {
+          /* drop duplicated event */
+          GST_LOG_OBJECT (pad, "dropping dup seek: %u", seq_num);
+        }
+      }
+      gst_object_unref (tee);
+      break;
+    }
+    default:
+      res = gst_pad_event_default (pad, event);
+      break;
+  }
+  return res;
+}
+
+static void
+tee_on_pad_added (GstElement * gstelement, GstPad * new_pad, gpointer user_data)
+{
+  gst_pad_set_event_function (new_pad, gst_tee_src_event);
+}
+
 /**
  * bt_machine_activate_spreader:
  * @self: the machine to activate the spreader in
@@ -1727,12 +1775,17 @@ bt_machine_activate_spreader (BtMachine * const self)
     // create the spreader (tee)
     if (!(bt_machine_make_internal_element (self, PART_SPREADER, "tee", "tee")))
       goto Error;
+    // workaround for tee in not handling events, see design/gst/looplock.c
+    g_signal_connect (machines[PART_SPREADER], "pad-added",
+        (GCallback) tee_on_pad_added, NULL);
+
     if (!bt_machine_link_elements (self, src_pads[tix],
             sink_pads[PART_SPREADER])) {
       GST_ERROR_OBJECT (self,
           "failed to link the internal spreader of machine");
       goto Error;
     }
+
     GST_DEBUG_OBJECT (self, "  spreader activated");
   }
   res = TRUE;
@@ -3419,6 +3472,7 @@ bt_machine_class_init (BtMachineClass * const klass)
   bt_machine_machine = g_quark_from_static_string ("BtMachine::machine");
   bt_machine_property_name =
       g_quark_from_static_string ("BtMachine::property-name");
+  tee_last_seq_num = g_quark_from_static_string ("GstTee::last_seq_num");
 
   gobject_class->constructed = bt_machine_constructed;
   gobject_class->set_property = bt_machine_set_property;
