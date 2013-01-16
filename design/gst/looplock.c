@@ -1,19 +1,16 @@
 /* test looping
  *
  * gcc -Wall -g looplock.c -o looplock `pkg-config gstreamer-0.10 --cflags --libs`
+ * # just one source works
+ * ./looplock fakesink 1
+ * # more than 1 source doesn't
+ * ./looplock fakesink 2
  *
  * things we excluded:
  * - seek-events for the looping are non-flushing
  * - it is not pulsesink specific, it also happens with alsasink and even fakesink
  *
  * things to check:
- * - order of events:
- *   - segments_done is first emitted from sources
- *   - does it travel to sinks, then gets via the bus to the apps?
- *   - if so the sources will not do anything after segment_done and the queues are
- *     drained
- *   - when we seek to restrat the loop, the event goes from the sink to the sources
- *   - sources send new-segment events followed by data packets
  * - duplicated events
  *   - we get a couple of "duplicate event found"
  *   - if we drop duplicated seeks, we get seek failures in adder and it also blocks
@@ -37,9 +34,9 @@
 
 /* parameter */
 static gchar *audio_sink = "autoaudiosink";
-static gint num_samples = 64;
 static gint num_srcs = 10;
 /* compile time parameters */
+static const gint num_samples = 64;
 static const gint loop_secs = 1;
 
 #define MAX_SRC 25
@@ -99,45 +96,44 @@ segment_done (GstBus * bus, GstMessage * message, gpointer user_data)
 }
 
 static gboolean
-tee_event_filter (GstPad * pad, GstEvent * event, gpointer user_data)
+gst_tee_src_event (GstPad * pad, GstEvent * event)
 {
-  gint i = GPOINTER_TO_INT (user_data);
-  static guint32 seek_seqnums[MAX_SRC] = { G_MAXUINT32, };
-  static gint ev_balance[MAX_SRC] = { 0, };
-  guint32 seq_num = gst_event_get_seqnum (event);
+  gboolean res = TRUE;
 
   switch (GST_EVENT_TYPE (event)) {
-    case GST_EVENT_SEEK:
-      if (seq_num == seek_seqnums[i]) {
+    case GST_EVENT_SEEK:{
+      GstElement *tee = (GstElement *) gst_pad_get_parent (pad);
+      gint last_seq_num = GPOINTER_TO_INT (g_object_get_data ((GObject *) tee,
+              "tee.sink.last_seq_num"));
+      guint32 seq_num = gst_event_get_seqnum (event);
+      if (seq_num == last_seq_num) {
         fprintf (stderr, "%s.%s: dup seek: %lu from %s.%s\n",
             GST_DEBUG_PAD_NAME (pad), (gulong) seq_num,
             GST_DEBUG_PAD_NAME (GST_EVENT_SRC (event)));
-        ev_balance[i]++;
+        /* dropping */
       } else {
         fprintf (stderr, "%s.%s: new seek: %lu from %s.%s\n",
             GST_DEBUG_PAD_NAME (pad), (gulong) seq_num,
             GST_DEBUG_PAD_NAME (GST_EVENT_SRC (event)));
-        seek_seqnums[i] = seq_num;
-        ev_balance[i] = 1;
+        last_seq_num = seq_num;
+        g_object_set_data ((GObject *) tee, "tee.sink.last_seq_num",
+            GINT_TO_POINTER (last_seq_num));
+        res = gst_pad_event_default (pad, event);
       }
+      gst_object_unref (tee);
       break;
-    case GST_EVENT_NEWSEGMENT:
-      ev_balance[i]--;
-      if (ev_balance[i] < 0) {
-        fprintf (stderr, "%s.%s: dropping newseg: %lu from %s.%s\n",
-            GST_DEBUG_PAD_NAME (pad), (gulong) seq_num,
-            GST_DEBUG_PAD_NAME (GST_EVENT_SRC (event)));
-        return FALSE;
-      } else {
-        fprintf (stderr, "%s.%s: newseg: %lu from %s.%s\n",
-            GST_DEBUG_PAD_NAME (pad), (gulong) seq_num,
-            GST_DEBUG_PAD_NAME (GST_EVENT_SRC (event)));
-      }
-      break;
+    }
     default:
+      res = gst_pad_event_default (pad, event);
       break;
   }
-  return TRUE;
+  return res;
+}
+
+static void
+tee_on_pad_added (GstElement * gstelement, GstPad * new_pad, gpointer user_data)
+{
+  gst_pad_set_event_function (new_pad, gst_tee_src_event);
 }
 
 int
@@ -145,7 +141,6 @@ main (int argc, char **argv)
 {
   GstBus *bus;
   GstElement *src, *tee, *q1, *q2, *mix, *conv, *sink;
-  GstPad *tsp;
   GstCaps *caps;
   gint i;
   gdouble freq = 50.0;
@@ -154,17 +149,11 @@ main (int argc, char **argv)
     i = 1;
     audio_sink = argv[i++];
     if (argc > i) {
-      num_samples = atoi (argv[i++]);
-      num_samples = MAX (1, num_samples);
-      if (argc > i) {
-        num_srcs = atoi (argv[i++]);
-        num_srcs = CLAMP (1, num_srcs, MAX_SRC);
-      }
+      num_srcs = atoi (argv[i++]);
+      num_srcs = CLAMP (1, num_srcs, MAX_SRC);
     }
   }
-  printf
-      ("Playing %d sources with buffers of %d samples on %s.\n",
-      num_srcs, num_samples, audio_sink);
+  printf ("Playing %d sources on %s.\n", num_srcs, audio_sink);
 
   /* init gstreamer */
   gst_init (&argc, &argv);
@@ -205,10 +194,7 @@ main (int argc, char **argv)
 
     tee = gst_element_factory_make ("tee", NULL);
     gst_bin_add (bin, tee);
-    tsp = gst_element_get_static_pad (tee, "sink");
-    gst_pad_add_event_probe (tsp, (GCallback) tee_event_filter,
-        GINT_TO_POINTER (i));
-    gst_object_unref (tsp);
+    g_signal_connect (tee, "pad-added", (GCallback) tee_on_pad_added, NULL);
 
     q1 = gst_element_factory_make ("queue", NULL);
     g_object_set (q1, "silent", TRUE, "max-size-buffers", 1,
