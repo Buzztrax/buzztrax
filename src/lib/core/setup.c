@@ -594,8 +594,6 @@ unlink_wire (const BtSetup * const self, GstElement * wire)
   GST_INFO_OBJECT (src_pad, "unlinking end of wire");
   if ((dst_pad = gst_pad_get_peer (src_pad))) {
     gst_pad_unlink (src_pad, dst_pad);
-    gst_pad_send_event (dst_pad, gst_event_new_eos ());
-    GST_INFO_OBJECT (dst_pad, "sent eos event");
     gst_element_release_request_pad (dst, dst_pad);
     // unref twice: one for gst_pad_get_peer() and once for the request_pad
     gst_object_unref (dst_pad);

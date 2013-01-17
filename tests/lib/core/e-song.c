@@ -701,7 +701,7 @@ test_bt_song_dynamic_rem_proc (BT_TEST_ARGS)
     GST_DEBUG ("wire 2 removed");
 
     bt_setup_remove_wire (setup, wire3);
-    GST_DEBUG ("wire 2 removed");
+    GST_DEBUG ("wire 3 removed");
 
     g_usleep (G_USEC_PER_SEC / 10);
 
