@@ -426,8 +426,9 @@ bt_interaction_controller_menu_init_ui (const BtInteractionControllerMenu *
 /**
  * bt_interaction_controller_menu_new:
  * @type: for which kind of controllers make a menu
+ * @machine: to which machine we want to bind controllers
  *
- * Create a new instance
+ * Create a new instance.
  *
  * Returns: the new instance
  */
