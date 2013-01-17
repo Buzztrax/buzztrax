@@ -669,9 +669,13 @@ add_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
       gst_object_unref (e);
     }
 
-    gst_bin_add (self->priv->bin, GST_ELEMENT (bin));
-    GST_INFO_OBJECT (bin, "addded object: %" G_OBJECT_REF_COUNT_FMT,
-        G_OBJECT_LOG_REF_COUNT (bin));
+    if (gst_bin_add (self->priv->bin, GST_ELEMENT (bin))) {
+      GST_INFO_OBJECT (bin, "addded object: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (bin));
+    } else {
+      GST_WARNING_OBJECT (bin, "error adding object: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (bin));
+    }
   }
 }
 
@@ -689,9 +693,14 @@ rem_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
   GST_INFO_OBJECT (bin, "remove object: added=%d,%" G_OBJECT_REF_COUNT_FMT,
       is_added, G_OBJECT_LOG_REF_COUNT (bin));
   if (is_added) {
-    gst_bin_remove (self->priv->bin, GST_ELEMENT (bin));
-    GST_INFO_OBJECT (bin, "removed object: %" G_OBJECT_REF_COUNT_FMT,
-        G_OBJECT_LOG_REF_COUNT (bin));
+    if (gst_bin_remove (self->priv->bin, GST_ELEMENT (bin))) {
+      GST_INFO_OBJECT (bin, "removed object: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (bin));
+    } else {
+      GST_WARNING_OBJECT (bin,
+          "error removing object: %" G_OBJECT_REF_COUNT_FMT,
+          G_OBJECT_LOG_REF_COUNT (bin));
+    }
   }
 }
 
@@ -1331,12 +1340,11 @@ bt_setup_remove_machine (const BtSetup * const self,
       G_OBJECT_LOG_REF_COUNT (machine));
 
   if ((node = g_list_find (self->priv->machines, machine))) {
-    self->priv->machines = g_list_delete_link (self->priv->machines, node);
-
     GST_DEBUG_OBJECT (machine, "emit remove signal: %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (machine));
     g_signal_emit ((gpointer) self, signals[MACHINE_REMOVED_EVENT], 0, machine);
 
+    self->priv->machines = g_list_delete_link (self->priv->machines, node);
     g_hash_table_remove (self->priv->connection_state, (gpointer) machine);
     g_hash_table_remove (self->priv->graph_depth, (gpointer) machine);
 
