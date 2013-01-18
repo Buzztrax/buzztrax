@@ -2,26 +2,25 @@
 # Copyright (C) 2009 Pavel Fric
 # This file is distributed under the same license as the buzztard package.
 # :encoding=UTF-8:
-# Pavel Fric <pavelfric@seznam.cz>, 2009.
-# Vladimir Michl <Vladimir.Michl@seznam.cz>, 2009.
+# Pavel Fric <pavelfric@seznam.cz>, 2009, 2012.
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztard 0.5.0-pre1\n"
+"Project-Id-Version: buzztard 0.6.0\n"
 "Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2011-12-03 00:16+0100\n"
-"PO-Revision-Date: 2009-08-08 17:05+0100\n"
-"Last-Translator: Vladimir Michl <Vladimir.Michl@seznam.cz>\n"
+"POT-Creation-Date: 2011-10-07 21:35+0200\n"
+"PO-Revision-Date: 2012-05-28 13:44+0200\n"
+"Last-Translator: Pavel Fric <pavelfric@seznam.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 0.3\n"
+"X-Generator: Lokalize 1.4\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: ../src/lib/core/core.c:196
 msgid "Print the buzztard core version"
-msgstr "Vytisknout základní verzi Buzztardu"
+msgstr "Vyvolat základní verzi Buzztardu"
 
 #: ../src/lib/core/core.c:200
 msgid "Buzztard core options"
@@ -34,23 +33,23 @@ msgstr "Ukázat základní volby pro Buzztard"
 #. track commands in sequencer
 #: ../src/lib/core/pattern.c:371
 msgid "normal"
-msgstr "normální"
+msgstr "Normální"
 
 #: ../src/lib/core/pattern.c:371
 msgid "break"
-msgstr "přerušit"
+msgstr "Přerušit"
 
 #: ../src/lib/core/pattern.c:371
 msgid "mute"
-msgstr "ztlumit"
+msgstr "Ztlumit"
 
 #: ../src/lib/core/pattern.c:371
 msgid "solo"
-msgstr "sólo"
+msgstr "Sólo"
 
 #: ../src/lib/core/pattern.c:371
 msgid "bypass"
-msgstr "dotáhnout"
+msgstr "Obejít"
 
 #: ../src/lib/core/song-io-native-bzt.c:243
 #: ../src/lib/core/song-io-native-xml.c:54
@@ -132,49 +131,22 @@ msgstr "Prostředí pro tvorbu hudby"
 
 #: ../src/ui/edit/about-dialog.c:97
 msgid ""
-"This package is free software; you can redistribute it and/or modify it "
-"under the terms of the GNU Library General Public License as published by "
-"the Free Software Foundation; either version 2 of the License, or (at your "
-"option) any later version.\n"
+"This package is free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n"
 "\n"
-"This package is distributed in the hope that it will be useful, but WITHOUT "
-"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
-"FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License "
-"for more details.\n"
+"This package is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.\n"
 "\n"
-"You should have received a copy of the GNU Library General Public License "
-"along with this package; if not, write to the Free Software Foundation, "
-"Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
+"You should have received a copy of the GNU Library General Public License along with this package; if not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
 msgstr ""
-"Tento balík je svobodným softwarem; můžete jej rozdávat a/nebo upravovat za "
-"podmínek GNU General Public License (GPL), jak jsou zveřejněny Free Software "
-"Foundation; buď ve verzi 2 licence, nebo (podle své volby) v kterékoli "
-"pozdější verzi.\n"
+"Tento balík je svobodným softwarem; můžete jej rozdávat a/nebo upravovat za podmínek GNU General Public License (GPL), jak jsou zveřejněny Free Software Foundation; buď ve verzi 2 licence, nebo (podle své volby) v kterékoli pozdější verzi.\n"
 "\n"
-"Tento balík je šířen v naději, že bude užitečný, ale BEZ JAKÉKOLI ZÁRUKY; "
-"také bez předpokládané záruky PRODEJNOSTI nebo POUŽITELNOSTI PRO NĚJAKÝ "
-"URČITÝ ÚČEL: Více podrobností naleznete v GNU Library General Public "
-"License.\n"
+"Tento balík je šířen v naději, že bude užitečný, ale BEZ JAKÉKOLI ZÁRUKY; také bez předpokládané záruky PRODEJNOSTI nebo POUŽITELNOSTI PRO NĚJAKÝ URČITÝ ÚČEL: Více podrobností naleznete v GNU Library General Public License.\n"
 "\n"
-"Kopii GNU Library General Public License byste měl obdržet společně s tímto "
-"balíkem; a pokud ne, napište Free Software Foundation, Inc., 51 Franklin St, "
-"Fifth Floor, Boston, MA 02110, USA."
+"Kopii GNU Library General Public License byste měl obdržet společně s tímto balíkem; a pokud ne, napište Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA."
 
 #. "Development version (do not translate this)"
 #: ../src/ui/edit/about-dialog.c:130
-msgid ""
-"Main feature of this release is full undo/redo support. Related to it is the "
-"journaling of edit action and the crash recovery. This way chances of losing "
-"changes in the song are quite low. Other UI improvements are: tip of day, "
-"improved spectrum analyzer, clipboard support, more commands in context "
-"menus and many more). This release features a gstreamer decoder that enables "
-"playback of buzztard songs in any gstreamer based media player. We also kept "
-"the buzztard codebase clean and ported from deprecated APIs to the "
-"successors (gnomevfs->gio, hal->gudev). The libraries and the applications "
-"got performance improvements in many areas. Also the docs have been improved "
-"a lot with tutorials, keyboard shortcut tables, better coverage and man-"
-"pages. "
-msgstr ""
+msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztard songs in any gstreamer based media player. We also kept the buzztard codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
+msgstr "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztard songs in any gstreamer based media player. We also kept the buzztard codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
 
 #. g_option_context_add_main_entries (ctx, options, GETTEXT_PACKAGE);
 #: ../src/ui/edit/bt-edit.c:103
@@ -185,33 +157,22 @@ msgstr "Volby pro úpravy buzztardu"
 msgid "Show buzztard-edit options"
 msgstr "Ukázat volby pro úpravy buzztardu"
 
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:1
-#, fuzzy
-msgid "Buzztard Music Editor"
-msgstr "Základní volby pro Buzztard"
-
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:2
-#, fuzzy
-msgid "Edit buzztard song files"
-msgstr "Nastavení Buzztardu"
-
 #: ../src/ui/edit/change-log.c:544
-#, fuzzy
 msgid "unsaved song"
-msgstr "Skladbu nelze uložit"
+msgstr "Neuložená skladba"
 
 #. the song recovery has been finished
 #: ../src/ui/edit/crash-recover-dialog.c:153
 msgid "Recovery finished"
-msgstr ""
+msgstr "Obnova dokončena"
 
 #: ../src/ui/edit/crash-recover-dialog.c:154
 msgid "The selected song has been recovered successful."
-msgstr ""
+msgstr "Vybraná skladba byla úspěšně obnovena."
 
 #: ../src/ui/edit/crash-recover-dialog.c:155
 msgid "Please check the song and save it if everything is alright."
-msgstr ""
+msgstr "Prověřte, prosím, skladbu a uložte ji, pokud je vše v pořádku."
 
 #. FIXME: the log is still there
 #. * - this dialog should be a warning
@@ -219,45 +180,43 @@ msgstr ""
 #.
 #: ../src/ui/edit/crash-recover-dialog.c:162
 msgid "Recovery failed"
-msgstr ""
+msgstr "Obnova se nezdařila"
 
 #: ../src/ui/edit/crash-recover-dialog.c:163
 msgid "Sorry, the selected song could not be fully recovered."
-msgstr ""
+msgstr "Promiňte, ale vybranou skladbu se nepodařilo úplně obnovit."
 
 #: ../src/ui/edit/crash-recover-dialog.c:164
 msgid "Please check the song and save it if still looks good."
-msgstr ""
+msgstr "Prověřte, prosím, skladbu a uložte ji, pokud stále vypadá dobře."
 
 #: ../src/ui/edit/crash-recover-dialog.c:199
 msgid "Unsaved song recovery"
-msgstr ""
+msgstr "Obnova neuložené písně"
 
 #: ../src/ui/edit/crash-recover-dialog.c:217
 msgid "Unsaved songs found"
-msgstr ""
+msgstr "Nalezeny neuložené písně"
 
 #: ../src/ui/edit/crash-recover-dialog.c:217
 msgid "Select them one by one and choose 'recover' or 'delete'."
-msgstr ""
+msgstr "Vybírejte je jednu po druhé a zvolte mezi Obnovit nebo Smazat."
 
 #. column listing song file names to recover
 #: ../src/ui/edit/crash-recover-dialog.c:233
-#, fuzzy
 msgid "Song file"
-msgstr "<soubor s písní>"
+msgstr "Soubor s písní"
 
 #. column listing song file names to recover
 #: ../src/ui/edit/crash-recover-dialog.c:239
-#, fuzzy
 msgid "Last changed"
-msgstr "naposledy uložený"
+msgstr "Naposledy změněno"
 
 #. add "undelete" button to action area
 #. GTK_STOCK_REVERT_TO_SAVED
 #: ../src/ui/edit/crash-recover-dialog.c:269
 msgid "Recover"
-msgstr ""
+msgstr "Obnovit"
 
 #: ../src/ui/edit/edit-application.c:146
 msgid "-> You will not see any level-meters."
@@ -269,29 +228,29 @@ msgstr "-> Neuvidíte žádné kmitočtové spektrum v okně s rozborem."
 
 #. set dialog title
 #: ../src/ui/edit/interaction-controller-learn-dialog.c:115
-#, fuzzy, c-format
+#, c-format
 msgid "learn controller for %s"
-msgstr "Napojit ovládací spínač"
+msgstr "Naučit ovládací spínač pro %s"
 
 #: ../src/ui/edit/interaction-controller-learn-dialog.c:142
 msgid "Move or press a controller to detect it."
-msgstr ""
+msgstr "Pohnout nebo stisknout ovládací spínač pro jeho zjištění."
 
 #: ../src/ui/edit/interaction-controller-learn-dialog.c:148
 msgid "detected control"
-msgstr ""
+msgstr "Zjištěné ovládání"
 
 #: ../src/ui/edit/interaction-controller-learn-dialog.c:152
 msgid "none"
-msgstr ""
+msgstr "Žádné"
 
 #: ../src/ui/edit/interaction-controller-learn-dialog.c:156
 msgid "register as"
-msgstr ""
+msgstr "Přihlásit jako"
 
 #: ../src/ui/edit/interaction-controller-menu.c:158
 msgid "Learn..."
-msgstr "Učit se..."
+msgstr "Učit..."
 
 #: ../src/ui/edit/interaction-controller-menu.c:257
 msgid "Bind controller"
@@ -319,7 +278,7 @@ msgstr ""
 
 #: ../src/ui/edit/machine-actions.c:66
 msgid "About..."
-msgstr "O..."
+msgstr "O programu..."
 
 #: ../src/ui/edit/machine-canvas-item.c:697
 msgid "Mute"
@@ -331,16 +290,15 @@ msgstr "Sólo"
 
 #: ../src/ui/edit/machine-canvas-item.c:710
 msgid "Bypass"
-msgstr "Dotáhnout"
+msgstr "Obejít"
 
 #: ../src/ui/edit/machine-canvas-item.c:750
 msgid "Rename..."
 msgstr "Přejmenovat..."
 
 #: ../src/ui/edit/machine-canvas-item.c:764
-#, fuzzy
 msgid "Connect machines"
-msgstr "Nástroje"
+msgstr "Připojit nástroje"
 
 #: ../src/ui/edit/machine-canvas-item.c:769
 #: ../src/ui/edit/wire-canvas-item.c:800
@@ -350,7 +308,7 @@ msgstr "Rozbor signálu..."
 #. generators
 #: ../src/ui/edit/machine-menu.c:280
 msgid "Generators"
-msgstr "Původci"
+msgstr "Generátory"
 
 #. effects
 #: ../src/ui/edit/machine-menu.c:293
@@ -391,41 +349,38 @@ msgstr "%s nastavení"
 
 #: ../src/ui/edit/machine-preferences-dialog.c:462
 msgid "no settings"
-msgstr "žádná nastavení"
+msgstr "Žádná nastavení"
 
 #: ../src/ui/edit/machine-preferences-dialog.c:469
 msgid "machine has no preferences"
 msgstr "Nástroj nemá žádná nastavení"
 
 #: ../src/ui/edit/machine-properties-dialog.c:741
-#, fuzzy
 msgid "Reset parameter"
-msgstr "Parametry přenastavit na výchozí"
+msgstr "Nastavit parametr znovu"
 
 #: ../src/ui/edit/machine-properties-dialog.c:746
-#, fuzzy
 msgid "Reset all parameters"
-msgstr "Parametry přenastavit na výchozí"
+msgstr "Nastavit všechny parametry znovu"
 
 #. @todo: copy parameter/group/all?
 #: ../src/ui/edit/machine-properties-dialog.c:757
-#, fuzzy
 msgid "Copy parameter"
-msgstr "Kopírovat část..."
+msgstr "Kopírovat parametr"
 
 #: ../src/ui/edit/machine-properties-dialog.c:764
 #: ../src/ui/edit/machine-properties-dialog.c:838
 msgid "Paste"
-msgstr ""
+msgstr "Vložit"
 
 #. add copy/paste item
 #: ../src/ui/edit/machine-properties-dialog.c:831
 msgid "Copy group"
-msgstr ""
+msgstr "Kopírovat skupinu"
 
 #: ../src/ui/edit/machine-properties-dialog.c:1861
 msgid "global properties"
-msgstr "souhrnná nastavení"
+msgstr "Celková nastavení"
 
 #: ../src/ui/edit/machine-properties-dialog.c:1912
 #, c-format
@@ -496,9 +451,8 @@ msgid "%s name"
 msgstr "%s název"
 
 #: ../src/ui/edit/main-menu.c:95 ../src/ui/edit/main-window.c:524
-#, fuzzy
 msgid "Load new song?"
-msgstr "Nahrát novou skladbu"
+msgstr "Nahrát novou skladbu?"
 
 #: ../src/ui/edit/main-menu.c:104 ../src/ui/edit/main-window.c:228
 #: ../src/ui/edit/main-window.c:609
@@ -512,9 +466,8 @@ msgid "Can't load song"
 msgstr "Skladbu nelze nahrát"
 
 #: ../src/ui/edit/main-menu.c:132
-#, fuzzy
 msgid "Recover a song?"
-msgstr "Uložit skladbu"
+msgstr "Obnovit skladbu?"
 
 #. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
 #. -- file menu
@@ -524,12 +477,12 @@ msgstr "_Soubor"
 
 #: ../src/ui/edit/main-menu.c:726
 msgid "_Recently used"
-msgstr "_Naposledy použité"
+msgstr "_Naposledy použito"
 
 #. subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDELETE,accel_group);
 #: ../src/ui/edit/main-menu.c:769
 msgid "Recover unsaved songs"
-msgstr ""
+msgstr "Obnovit neuložené skladby"
 
 #. edit menu
 #: ../src/ui/edit/main-menu.c:788
@@ -543,11 +496,11 @@ msgstr "_Pohled"
 
 #: ../src/ui/edit/main-menu.c:845
 msgid "Toolbar"
-msgstr "Nástrojová lišta"
+msgstr "Nástrojový pruh"
 
 #: ../src/ui/edit/main-menu.c:851
 msgid "Statusbar"
-msgstr "Stavová lišta"
+msgstr "Stavový řádek"
 
 #: ../src/ui/edit/main-menu.c:857
 msgid "Tabs"
@@ -557,7 +510,7 @@ msgstr "Karty"
 #. @todo 'Analyzer windows' show/hide toggle
 #: ../src/ui/edit/main-menu.c:866
 msgid "Fullscreen"
-msgstr ""
+msgstr "Celá obrazovka"
 
 #: ../src/ui/edit/main-menu.c:874
 msgid "Go to machine view"
@@ -601,7 +554,7 @@ msgstr "Jít na informace o skladbě"
 #. playback menu
 #: ../src/ui/edit/main-menu.c:930
 msgid "_Playback"
-msgstr "_Přehrání"
+msgstr "_Přehrávání"
 
 #: ../src/ui/edit/main-menu.c:944
 msgid "Play from cursor"
@@ -626,12 +579,12 @@ msgstr "_Nápověda"
 #: ../src/ui/edit/main-menu.c:983 ../src/ui/edit/tip-dialog.c:166
 #: ../src/ui/edit/tip-dialog.c:182
 msgid "Tip of the day"
-msgstr ""
+msgstr "Rada na den"
 
 #. join web-chat
 #: ../src/ui/edit/main-menu.c:989
 msgid "Join IRC discussion"
-msgstr ""
+msgstr "Přidat se k rozhovoru na IRC"
 
 #. @todo 'translate application' -> link to translator project
 #. * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-translate.png
@@ -642,11 +595,11 @@ msgstr ""
 #.
 #: ../src/ui/edit/main-menu.c:1001
 msgid "Report a problem"
-msgstr ""
+msgstr "Nahlásit potíže"
 
 #: ../src/ui/edit/main-page-info.c:312 ../src/ui/edit/main-page-info.c:314
 msgid "song meta data"
-msgstr "Údaje v souboru se skladbou"
+msgstr "Popisné údaje ke skladbě"
 
 #: ../src/ui/edit/main-page-info.c:341
 msgid "genre"
@@ -674,7 +627,7 @@ msgstr "Tiknutí na dobu"
 
 #: ../src/ui/edit/main-page-info.c:398
 msgid "last saved"
-msgstr "naposledy uložený"
+msgstr "Naposledy uloženo"
 
 #: ../src/ui/edit/main-page-info.c:416 ../src/ui/edit/main-page-info.c:418
 msgid "free text info"
@@ -730,27 +683,23 @@ msgid "Show background grid"
 msgstr "Ukázat mřížku"
 
 #: ../src/ui/edit/main-page-machines.c:1266
-#, fuzzy
 msgid "Machine view menu"
-msgstr "Jít na pohled na nástroje"
+msgstr "Nabídka pohledu na nástroje"
 
 #: ../src/ui/edit/main-page-machines.c:1267
-#, fuzzy
 msgid "Menu actions for machine view below"
-msgstr "Jít na pohled na nástroje"
+msgstr "Činnosti v nabídce pro pohled na nástroje níže"
 
 #. it would be nice if we could just do:
 #. * bt_child_proxy_set(self->priv->app,"main-window::statusbar::status",_(".."),NULL);
 #.
 #: ../src/ui/edit/main-page-machines.c:1941
-msgid ""
-"Add new machines from right click context menu. Connect machines with shift"
-"+drag from source to target."
-msgstr ""
+msgid "Add new machines from right click context menu. Connect machines with shift+drag from source to target."
+msgstr "Přidat nové nástroje z nabídky vyvolané klepnutím pravým tlačítkem myši. Připojit nástroje pomocí podržení klávesy Shift a přetažení ze zdroje na cíl."
 
 #: ../src/ui/edit/main-page-patterns.c:329
 msgid "Add new patterns from right click context menu."
-msgstr ""
+msgstr "Přidat nové části z nabídky vyvolané klepnutím pravým tlačítkem myši."
 
 #. label for first global parameter column in a pattern
 #: ../src/ui/edit/main-page-patterns.c:1963
@@ -798,14 +747,12 @@ msgid "Play notes and triggers while editing the pattern"
 msgstr "Při upravování část přehrávat noty a spouště"
 
 #: ../src/ui/edit/main-page-patterns.c:3106
-#, fuzzy
 msgid "Pattern view menu"
-msgstr "Jít na pohled na části"
+msgstr "Nabídka pohledu na části"
 
 #: ../src/ui/edit/main-page-patterns.c:3107
-#, fuzzy
 msgid "Menu actions for pattern view below"
-msgstr "Jít na pohled na části"
+msgstr "Činnosti v nabídce pro pohled na části níže"
 
 #: ../src/ui/edit/main-page-patterns.c:3144
 msgid "New track"
@@ -833,20 +780,18 @@ msgstr "Kopírovat část..."
 
 #: ../src/ui/edit/main-page-patterns.c:3206
 #: ../src/ui/edit/main-page-sequence.c:3119
-#, fuzzy
 msgid "Machine properties"
 msgstr "Vlastnosti nástroje"
 
 #: ../src/ui/edit/main-page-patterns.c:3213
 #: ../src/ui/edit/main-page-sequence.c:3126
-#, fuzzy
 msgid "Machine preferences"
-msgstr "Nástroj nemá žádná nastavení"
+msgstr "Nastavení nástroje"
 
 #. time line position
 #: ../src/ui/edit/main-page-sequence.c:1085
 msgid "Pos."
-msgstr "Poz."
+msgstr "Pol."
 
 #: ../src/ui/edit/main-page-sequence.c:1091
 msgid "Ticks"
@@ -857,7 +802,6 @@ msgid "Time"
 msgstr "Čas"
 
 #: ../src/ui/edit/main-page-sequence.c:1093
-#, fuzzy
 msgid "Beats"
 msgstr "Doby"
 
@@ -868,21 +812,19 @@ msgstr "Popisky"
 
 #: ../src/ui/edit/main-page-sequence.c:3046
 msgid "Show every n-th line"
-msgstr "Ukázat každý n-te řádek"
+msgstr "Ukázat každý n-tý řádek"
 
 #: ../src/ui/edit/main-page-sequence.c:3053
 msgid "Steps"
 msgstr "Rozdělení"
 
 #: ../src/ui/edit/main-page-sequence.c:3067
-#, fuzzy
 msgid "Sequence view menu"
-msgstr "Jít na pohled na sekvence"
+msgstr "Nabídka pohledu na sekvence"
 
 #: ../src/ui/edit/main-page-sequence.c:3068
-#, fuzzy
 msgid "Menu actions for sequence view below"
-msgstr "Jít na pohled na sekvence"
+msgstr "Činnosti v nabídce pro pohled na sekvence níže"
 
 #: ../src/ui/edit/main-page-sequence.c:3078
 msgid "Add track"
@@ -915,7 +857,7 @@ msgstr "Části"
 #. use status bar
 #: ../src/ui/edit/main-page-sequence.c:3881
 msgid "Add new tracks from right click context menu."
-msgstr ""
+msgstr "Přidat nové stopy z nabídky vyvolané klepnutím pravým tlačítkem myši."
 
 #: ../src/ui/edit/main-page-waves.c:1153
 msgid "Play current wave table entry as C-4"
@@ -1023,7 +965,7 @@ msgstr "Připraven na hraní rockové hudby!"
 #. gtk_label_set_single_line_mode(self->priv->cpu_load,TRUE);
 #: ../src/ui/edit/main-statusbar.c:299
 msgid "CPU load"
-msgstr "Zatížení CPU"
+msgstr "Zatížení procesoru"
 
 #: ../src/ui/edit/main-statusbar.c:310
 msgid "Playback time"
@@ -1052,7 +994,7 @@ msgstr "Varování"
 
 #: ../src/ui/edit/main-toolbar.c:418
 msgid "A problem occurred"
-msgstr "Vyskytl se problém"
+msgstr "Vyskytla se problém"
 
 #: ../src/ui/edit/main-toolbar.c:795
 msgid "Prepare a new empty song"
@@ -1067,18 +1009,16 @@ msgid "Save this song"
 msgstr "Uložit tuto skladbu"
 
 #: ../src/ui/edit/main-toolbar.c:818
-#, fuzzy
 msgid "Rewind playback position of this song"
-msgstr "Ukončit přehrávání této skladby"
+msgstr "Převinout polohu přehrávání této skladby zpět"
 
 #: ../src/ui/edit/main-toolbar.c:827
 msgid "Play this song"
 msgstr "Přehrát tuto skladbu"
 
 #: ../src/ui/edit/main-toolbar.c:833
-#, fuzzy
 msgid "Forward playback position of this song"
-msgstr "Ukončit přehrávání této skladby"
+msgstr "Převinout polohu přehrávání této skladby vpřed"
 
 #: ../src/ui/edit/main-toolbar.c:842
 msgid "Stop playback of this song"
@@ -1104,56 +1044,55 @@ msgstr "Změnit hlasitost přehrávání"
 #. we don't use PACKAGE_NAME = 'buzztard' for the window title
 #: ../src/ui/edit/main-window.c:202
 msgid "unsaved"
-msgstr "neuložený"
+msgstr "Neuloženo"
 
 #: ../src/ui/edit/main-window.c:202
 msgid "saved"
-msgstr "uložený"
+msgstr "Uloženo"
 
 #: ../src/ui/edit/main-window.c:285 ../src/ui/edit/main-window.c:287
 #, c-format
 msgid "%d %s and %d %s"
-msgstr ""
+msgstr "%d %s a %d %s"
 
 #: ../src/ui/edit/main-window.c:285
 msgid "hour"
-msgstr ""
+msgstr "hodina"
 
 #: ../src/ui/edit/main-window.c:285
 msgid "hours"
-msgstr ""
+msgstr "hodin"
 
 #: ../src/ui/edit/main-window.c:285 ../src/ui/edit/main-window.c:287
 msgid "minute"
-msgstr ""
+msgstr "minuta"
 
 #: ../src/ui/edit/main-window.c:285 ../src/ui/edit/main-window.c:287
 msgid "minutes"
-msgstr ""
+msgstr "minut"
 
 #: ../src/ui/edit/main-window.c:287 ../src/ui/edit/main-window.c:289
 msgid "second"
-msgstr ""
+msgstr "sekunda"
 
 #: ../src/ui/edit/main-window.c:287 ../src/ui/edit/main-window.c:289
 msgid "seconds"
-msgstr ""
+msgstr "sekund"
 
 #: ../src/ui/edit/main-window.c:289
 #, c-format
 msgid "%d %s"
-msgstr ""
+msgstr "%d %s"
 
 #: ../src/ui/edit/main-window.c:294
-#, fuzzy, c-format
-msgid ""
-"All unsaved changes since %s will be lost. This song was last saved on: %s"
-msgstr "Všechny změny, které nejsou uloženy, pak budou ztraceny."
+#, c-format
+msgid "All unsaved changes since %s will be lost. This song was last saved on: %s"
+msgstr "Všechny změny, které nejsou od %s uloženy, budou ztraceny. Tato skladba byla naposledy uložena: %s"
 
 #: ../src/ui/edit/main-window.c:296
-#, fuzzy, c-format
+#, c-format
 msgid "All unsaved changes since %s will be lost. This song was created on: %s"
-msgstr "Všechny změny, které nejsou uloženy, pak budou ztraceny."
+msgstr "Všechny změny, které nejsou od %s uloženy, budou ztraceny. Tato skladba byla vytvořena: %s"
 
 #: ../src/ui/edit/main-window.c:489
 msgid "Really quit?"
@@ -1192,15 +1131,15 @@ msgstr "Soubor již existuje"
 
 #: ../src/ui/edit/main-window.c:886
 msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
-msgstr "Zvolte 'OK' pro přepsání nebo 'Zrušit' pro přerušení ukládání skladby."
+msgstr "Zvolte OK pro přepsání nebo Zrušit pro přerušení ukládání skladby."
 
 #: ../src/ui/edit/main-window.c:897
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while writing the file '%s': %s"
-msgstr "Při ukládání skladby do souboru '%s' se vyskytla chyba."
+msgstr "Při zápisu souboru '%s' se vyskytla chyba: %s"
 
 #: ../src/ui/edit/main-window.c:909
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred saving the song to file '%s'."
 msgstr "Při ukládání skladby do souboru '%s' se vyskytla chyba."
 
@@ -1215,22 +1154,15 @@ msgstr "Při ukládání skladby do souboru '%s' se vyskytla chyba."
 #: ../src/ui/edit/missing-framework-elements-dialog.c:130
 #: ../src/ui/edit/missing-framework-elements-dialog.c:147
 msgid "Missing GStreamer elements"
-msgstr "Chybějící prvky GStreameru"
+msgstr "Chybí prvky GStreameru"
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:154
-msgid ""
-"The elements listed below are missing from your installation, but are "
-"required."
-msgstr ""
-"Prvky vypsané níže chybějí nebo se je nepodařilo nahrát, jsou ale požadovány."
+msgid "The elements listed below are missing from your installation, but are required."
+msgstr "Prvky vypsané níže chybí nebo se je nepodařilo nahrát, jsou ale požadovány."
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:194
-msgid ""
-"The elements listed below are missing from your installation, but are "
-"recommended for full functionality."
-msgstr ""
-"Prvky vypsané níže chybějí nebo se je nepodařilo nahrát, jsou ale "
-"doporučovány, aby byl program plně funkční."
+msgid "The elements listed below are missing from your installation, but are recommended for full functionality."
+msgstr "Prvky vypsané níže chybí nebo se je nepodařilo nahrát, jsou ale doporučovány, aby byl program plně funkční."
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:196
 msgid "don't warn again"
@@ -1247,15 +1179,15 @@ msgstr "Znovu nevarovat"
 #: ../src/ui/edit/missing-song-elements-dialog.c:116
 #: ../src/ui/edit/missing-song-elements-dialog.c:133
 msgid "Missing elements in song"
-msgstr "Chybějící prvky ve skladbě"
+msgstr "Chybí prvky ve skladbě"
 
 #: ../src/ui/edit/missing-song-elements-dialog.c:140
 msgid "The machines listed below are missing or failed to load."
-msgstr "Nástroje vypsané níže chybějí nebo se je nepodařilo nahrát."
+msgstr "Nástroje vypsané níže chybí nebo se je nepodařilo nahrát."
 
 #: ../src/ui/edit/missing-song-elements-dialog.c:144
 msgid "The waves listed below are missing or failed to load."
-msgstr "Vzorky vypsané níže chybějí nebo se je nepodařilo nahrát."
+msgstr "Vzorky vypsané níže chybí nebo se je nepodařilo nahrát."
 
 #. GtkComboBox : pattern length
 #: ../src/ui/edit/pattern-properties-dialog.c:176
@@ -1288,14 +1220,14 @@ msgstr "Název souboru"
 
 #: ../src/ui/edit/render-dialog.c:304
 msgid "Mode"
-msgstr "Způsob"
+msgstr "Režim"
 
 #: ../src/ui/edit/render-progress.c:118
 #, c-format
 msgid "Recording to: %s"
 msgstr "Nahrávání do: %s"
 
-#: ../src/ui/edit/render-progress.c:149
+#: ../src/ui/edit/render-progress.c:146
 msgid "song render progress"
 msgstr "Postup vytvoření skladby"
 
@@ -1355,7 +1287,7 @@ msgstr "Vzorkovací kmitočet"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:323
 msgid "Channels"
-msgstr "Kanäle"
+msgstr "Kanály"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:328
 msgid "mono"
@@ -1382,140 +1314,116 @@ msgid "Device"
 msgstr "Zařízení"
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:171
-#, fuzzy
 msgid "Controller"
-msgstr "Napojit ovládací spínač"
+msgstr "Ovládací spínač"
 
 #. local network port number for socket communication
 #: ../src/ui/edit/settings-page-playback-controller.c:123
 msgid "Port number"
-msgstr "Číslo portu"
+msgstr "Číslo přípojky"
 
 #. set dialog title : machine -> machine analysis
-#: ../src/ui/edit/signal-analysis-dialog.c:706
+#: ../src/ui/edit/signal-analysis-dialog.c:702
 #, c-format
 msgid "%s -> %s analysis"
 msgstr "%s -> %s rozbor"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:711
-#, fuzzy
+#: ../src/ui/edit/signal-analysis-dialog.c:707
 msgid "master analysis"
-msgstr "%s -> %s rozbor"
+msgstr "Hlavní rozbor"
+
+#: ../src/ui/edit/signal-analysis-dialog.c:766
+msgid "lin."
+msgstr "lin."
+
+#: ../src/ui/edit/signal-analysis-dialog.c:767
+msgid "log."
+msgstr "log."
 
 #: ../src/ui/edit/signal-analysis-dialog.c:770
-msgid "lin."
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:771
-msgid "log."
-msgstr ""
+msgid "frequency mapping"
+msgstr "Přiřazení kmitočtu"
 
 #: ../src/ui/edit/signal-analysis-dialog.c:774
-msgid "frequency mapping"
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:778
 msgid "single"
-msgstr ""
+msgstr "Jednoduchý"
+
+#: ../src/ui/edit/signal-analysis-dialog.c:775
+msgid "double"
+msgstr "Dvojitý"
+
+#: ../src/ui/edit/signal-analysis-dialog.c:776
+msgid "triple"
+msgstr "Trojitý"
 
 #: ../src/ui/edit/signal-analysis-dialog.c:779
-msgid "double"
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:780
-msgid "triple"
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:783
 msgid "spectrum precision"
-msgstr ""
+msgstr "Přesnost spektra"
 
 #: ../src/ui/edit/tip-dialog.c:48
 msgid "New machines are added in machine view from the context menu."
-msgstr ""
+msgstr "Nové nástroje jsou přidány v pohledu na nástroje ze související nabídky."
 
 #: ../src/ui/edit/tip-dialog.c:49
-msgid ""
-"Connect machines by holding the shift key and dragging a connection for the "
-"source to the target machine."
-msgstr ""
+msgid "Connect machines by holding the shift key and dragging a connection for the source to the target machine."
+msgstr "Připojit nástroje držením klávesy Shift a tažením spojení pro zdroj k cílovému nástroji."
 
 #: ../src/ui/edit/tip-dialog.c:50
 msgid "Songs can be recorded as single waves per track to give it to remixers."
-msgstr ""
+msgstr "Skladby lze nahrát jako jednotlivé vlny na stopu pro jejich předání míchačům."
 
 #: ../src/ui/edit/tip-dialog.c:51
-msgid ""
-"Fill the details on the info page. When recording songs, the metadata is "
-"added to the recording as tags."
-msgstr ""
+msgid "Fill the details on the info page. When recording songs, the metadata is added to the recording as tags."
+msgstr "Vyplňte podrobnosti na informační stránce. Při nahrávání skladby jsou popisné údaje do nahrávky přidány jako značky."
 
 #: ../src/ui/edit/tip-dialog.c:52
-msgid ""
-"Use jackaudio sink in audio device settings to get lower latencies for live "
-"machine control."
-msgstr ""
+msgid "Use jackaudio sink in audio device settings to get lower latencies for live machine control."
+msgstr "Použít cíl jackaudio v nastavení zvukového zařízení pro obdržení menších prodlev pro živé ovládání nástroje."
 
 #: ../src/ui/edit/tip-dialog.c:53
-msgid ""
-"You can use input devices such as joysticks, beside midi devices to live "
-"control machine parameters."
-msgstr ""
+msgid "You can use input devices such as joysticks, beside midi devices to live control machine parameters."
+msgstr "Můžete použít vstupní zařízení, jako jsou pákové ovladače, vedle zařízení MIDI pro živé ovládání parametrů nástroje."
 
 #: ../src/ui/edit/tip-dialog.c:54
-msgid ""
-"You can use a upnp media client (e.g. media streamer on nokia tablets) to "
-"remote control buzztard."
-msgstr ""
+msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztard."
+msgstr "Můžete použít upnp media klienta (např. media streamer u tabletů nokia) pro dálkové ovládání programu buzztard."
 
 #: ../src/ui/edit/tip-dialog.c:55
-msgid ""
-"To enter notes, imagine your pc keyboard as a music keyboard in two rows. "
-"Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
-msgstr ""
+msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
+msgstr "Pro zadávání not si představte klávesnici svého počítače jako hudební klávesnici ve dvou řadách. Dolní levá klávesa y/z představuje 'c', s představuje 'c#', x představuje 'd' atd."
 
 #: ../src/ui/edit/tip-dialog.c:56
-msgid ""
-"You can get more help from the community on irc://irc.freenode.net/#buzztard."
-msgstr ""
+msgid "You can get more help from the community on irc://irc.freenode.net/#buzztard."
+msgstr "Více pomoci se vám může dostat od komunity na irc://irc.freenode.net/#buzztard."
 
 #: ../src/ui/edit/tip-dialog.c:57
-msgid ""
-"Pattern layouts are individual for each machine. Look at the statusbar at "
-"the bottom for information about the cursor-column."
-msgstr ""
+msgid "Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."
+msgstr "Rozvržení částí je u každého nástroje individuální. Podívejte se na stavový řádek dole na informace k ukazovátko-sloupec."
 
 #: ../src/ui/edit/tip-dialog.c:58
-msgid ""
-"Click the speaker icon in the pattern-view to hear notes as you enter them."
-msgstr ""
+msgid "Click the speaker icon in the pattern-view to hear notes as you enter them."
+msgstr "Klepněte na ikonu reproduktoru v pohledu na části, abyste slyšeli noty hned, jak je zadáte."
 
 #: ../src/ui/edit/tip-dialog.c:59
-msgid ""
-"Each wire has volume and possible panorama/balance controls. These can also "
-"be adjusted in the machine-window of the machine that has the wire as an "
-"input."
-msgstr ""
+msgid "Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input."
+msgstr "Každé propojení má hlasitost a ovládání pro možná vyvážení. Tato lze upravit v okně s nástroji nástroje, který má propojení jako vstup."
 
 #: ../src/ui/edit/tip-dialog.c:60
-msgid ""
-"The wire volume control pops up upon a click on the arrow box on the wire."
-msgstr ""
+msgid "The wire volume control pops up upon a click on the arrow box on the wire."
+msgstr "Ovládání hlasitosti propojení vyskočí ihned po klepnutí na šipku na propojení."
 
 #: ../src/ui/edit/tip-dialog.c:61
-msgid ""
-"The wire panorama/balance control pops up upon a shift+click on the arrow "
-"box on the wire if available."
-msgstr ""
+msgid "The wire panorama/balance control pops up upon a shift+click on the arrow box on the wire if available."
+msgstr "Ovládání vyvážení propojení vyskočí ihned po Shift+klepnutí na šipku na propojení, je-li dostupné."
 
 #: ../src/ui/edit/tip-dialog.c:199
 msgid "Show tips on startup"
-msgstr ""
+msgstr "Ukázat rady při spuštění"
 
 #: ../src/ui/edit/tools.c:79 ../src/ui/edit/tools.c:106
 #, c-format
 msgid "Couldn't find pixmap file: %s"
-msgstr "Nelze najít soubor s pixmapou: %s"
+msgstr "Nelze najít soubor s obrázkem: %s"
 
 #: ../src/ui/edit/wire-canvas-item.c:791
 msgid "Disconnect"

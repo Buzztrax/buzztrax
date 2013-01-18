@@ -5,11 +5,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzztard 0.5.0-pre1\n"
 "Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2011-12-03 00:16+0100\n"
+"POT-Creation-Date: 2009-07-17 23:30+0300\n"
 "PO-Revision-Date: 2009-09-25 20:28+0100\n"
 "Last-Translator: Eivind Ødegård <meinmycell-lists@yahoo.no>\n"
 "Language-Team: Norwegian Nynorsk <i18n-nn@lister.ping.uio.no>\n"
-"Language: nn\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -30,151 +29,124 @@ msgid "Show buzztard core options"
 msgstr "Vis val for Buzztard-kjerna"
 
 #. track commands in sequencer
-#: ../src/lib/core/pattern.c:371
+#: ../src/lib/core/pattern.c:341
 msgid "normal"
 msgstr "normal"
 
-#: ../src/lib/core/pattern.c:371
+#: ../src/lib/core/pattern.c:341
 msgid "break"
 msgstr "pause"
 
-#: ../src/lib/core/pattern.c:371
+#: ../src/lib/core/pattern.c:341
 msgid "mute"
 msgstr "demp"
 
-#: ../src/lib/core/pattern.c:371
+#: ../src/lib/core/pattern.c:341
 msgid "solo"
 msgstr "solo"
 
-#: ../src/lib/core/pattern.c:371
+#: ../src/lib/core/pattern.c:341
 msgid "bypass"
 msgstr "forbikopla"
 
-#: ../src/lib/core/song-io-native-bzt.c:243
-#: ../src/lib/core/song-io-native-xml.c:54
+#: ../src/lib/core/song-io-native-bzt.c:237
+#: ../src/lib/core/song-io-native-xml.c:53
 #, c-format
 msgid "Loading file '%s'"
 msgstr "Lastar fila '%s'"
 
-#: ../src/lib/core/song-io-native-bzt.c:366
-#: ../src/lib/core/song-io-native-xml.c:122
+#: ../src/lib/core/song-io-native-bzt.c:344
+#: ../src/lib/core/song-io-native-xml.c:109
 #, c-format
 msgid "Saving file '%s'"
 msgstr "Lagrar fila '%s'"
 
 #. default name for new songs
-#: ../src/lib/core/song-info.c:99
+#: ../src/lib/core/song-info.c:101
 msgid "untitled song"
 msgstr "song utan namn"
 
-#: ../src/lib/ic/ic.c:115
+#: ../src/lib/ic/ic.c:119
 msgid "Print the buzztard interaction controller version"
 msgstr "Vis versjonsnummeret for buzztard-samhandlingskontrollen"
 
-#: ../src/lib/ic/ic.c:119
+#: ../src/lib/ic/ic.c:123
 msgid "Buzztard interaction controller options"
 msgstr "Val for buzztard-samhandlingskontrollen"
 
-#: ../src/lib/ic/ic.c:119
+#: ../src/lib/ic/ic.c:123
 msgid "Show buzztard interaction controller options"
 msgstr "Vis val for buzztard-samhandlingskontrollen"
 
-#: ../src/ui/cmd/bt-cmd.c:72 ../src/ui/edit/bt-edit.c:82
+#: ../src/ui/cmd/bt-cmd.c:65 ../src/ui/edit/bt-edit.c:75
 msgid "Print application version"
 msgstr "Vis versjonen til dette programmet"
 
-#: ../src/ui/cmd/bt-cmd.c:73
+#: ../src/ui/cmd/bt-cmd.c:66
 msgid "Be quiet"
 msgstr "Ver stille"
 
-#: ../src/ui/cmd/bt-cmd.c:74 ../src/ui/edit/bt-edit.c:83
+#: ../src/ui/cmd/bt-cmd.c:67 ../src/ui/edit/bt-edit.c:76
 msgid "Command name"
 msgstr "Kommandonamn"
 
-#: ../src/ui/cmd/bt-cmd.c:75 ../src/ui/edit/bt-edit.c:84
+#: ../src/ui/cmd/bt-cmd.c:68 ../src/ui/edit/bt-edit.c:77
 msgid "Input file name"
 msgstr "Inngangsfilnamn"
 
-#: ../src/ui/cmd/bt-cmd.c:75 ../src/ui/cmd/bt-cmd.c:76
-#: ../src/ui/edit/bt-edit.c:84
+#: ../src/ui/cmd/bt-cmd.c:68 ../src/ui/cmd/bt-cmd.c:69
+#: ../src/ui/edit/bt-edit.c:77
 msgid "<songfile>"
 msgstr "<songfil>"
 
-#: ../src/ui/cmd/bt-cmd.c:76
+#: ../src/ui/cmd/bt-cmd.c:69
 msgid "Output file name"
 msgstr "Utangsfilnamn"
 
-#. g_option_context_add_main_entries(ctx, options, GETTEXT_PACKAGE);
-#: ../src/ui/cmd/bt-cmd.c:94
+#. g_option_context_add_main_entries(ctx, options, PACKAGE_NAME);
+#: ../src/ui/cmd/bt-cmd.c:88
 msgid "buzztard-cmd options"
 msgstr "Val for Buzztard-kjerna"
 
-#: ../src/ui/cmd/bt-cmd.c:94
+#: ../src/ui/cmd/bt-cmd.c:88
 msgid "Show buzztard-cmd options"
 msgstr "Vis val for Buzztard-kjerna"
 
 #. Note to translators: put here your name and email so it will show up in
-#. * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net>
-#: ../src/ui/edit/about-dialog.c:73
+#. * the "about" box. Example: Stefan 'ensonic' Kost <ensonic@users.sf.net>
+#: ../src/ui/edit/about-dialog.c:84
 msgid "translator-credits"
 msgstr "Eivind Ødegård <meinmycell-lists@yahoo.no>"
 
-#: ../src/ui/edit/about-dialog.c:75 ../src/ui/edit/about-dialog.c:76
+#: ../src/ui/edit/about-dialog.c:86 ../src/ui/edit/about-dialog.c:87
 #, c-format
 msgid "Copyright © 2003-%d Buzztard developer team"
 msgstr "© 2003-%d Buzztard-utviklarlaget"
 
-#: ../src/ui/edit/about-dialog.c:92
+#: ../src/ui/edit/about-dialog.c:103
 msgid "Music production environment"
 msgstr "Miljø for musikkskaping"
 
-#: ../src/ui/edit/about-dialog.c:97
+#: ../src/ui/edit/about-dialog.c:108
 msgid ""
-"This package is free software; you can redistribute it and/or modify it "
-"under the terms of the GNU Library General Public License as published by "
-"the Free Software Foundation; either version 2 of the License, or (at your "
-"option) any later version.\n"
+"This package is free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n"
 "\n"
-"This package is distributed in the hope that it will be useful, but WITHOUT "
-"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
-"FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License "
-"for more details.\n"
+"This package is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.\n"
 "\n"
-"You should have received a copy of the GNU Library General Public License "
-"along with this package; if not, write to the Free Software Foundation, "
-"Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
+"You should have received a copy of the GNU Library General Public License along with this package; if not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
 msgstr ""
-"Dette er fri programvare. Du kan vidareformidla og/eller endra henne under "
-"vilkåra i GNU Library General Public-lisensen, utgjeven av Free Software "
-"Foundation, anten versjon 2 av lisensen, eller, om du vil, ei seinare "
-"utgåve. \n"
+"Dette er fri programvare. Du kan vidareformidla og/eller endra henne under vilkåra i GNU Library General Public-lisensen, utgjeven av Free Software Foundation, anten versjon 2 av lisensen, eller, om du vil, ei seinare utgåve. \n"
 "\n"
-"Dette programmet er formidla i von om at det kan vera brukande, men UTAN "
-"NOKON GARANTI; ikkje ein gong med tanke på om programmet er eigna for sal "
-"eller brukande til eitkvart føremål. Sjå GNU Library General Public-lisensen "
-"for fleire detaljar.\n"
+"Dette programmet er formidla i von om at det kan vera brukande, men UTAN NOKON GARANTI; ikkje ein gong med tanke på om programmet er eigna for sal eller brukande til eitkvart føremål. Sjå GNU Library General Public-lisensen for fleire detaljar.\n"
 "\n"
-"Det skal fylgja med ei utgåve av GNU Library General Public-lisensen saman "
-"med programmet. Viss ikkje, kan du kontakta Free Software Foundation Inc., "
-"59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
+"Det skal fylgja med ei utgåve av GNU Library General Public-lisensen saman med programmet. Viss ikkje, kan du kontakta Free Software Foundation Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
 
-#. "Development version (do not translate this)"
-#: ../src/ui/edit/about-dialog.c:130
-msgid ""
-"Main feature of this release is full undo/redo support. Related to it is the "
-"journaling of edit action and the crash recovery. This way chances of losing "
-"changes in the song are quite low. Other UI improvements are: tip of day, "
-"improved spectrum analyzer, clipboard support, more commands in context "
-"menus and many more). This release features a gstreamer decoder that enables "
-"playback of buzztard songs in any gstreamer based media player. We also kept "
-"the buzztard codebase clean and ported from deprecated APIs to the "
-"successors (gnomevfs->gio, hal->gudev). The libraries and the applications "
-"got performance improvements in many areas. Also the docs have been improved "
-"a lot with tutorials, keyboard shortcut tables, better coverage and man-"
-"pages. "
-msgstr ""
+#. _("Development version (do not translate this)"
+#: ../src/ui/edit/about-dialog.c:141
+msgid "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztard can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
+msgstr "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztard can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
 
-#. g_option_context_add_main_entries (ctx, options, GETTEXT_PACKAGE);
+#. g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
 #: ../src/ui/edit/bt-edit.c:103
 msgid "buzztard-edit options"
 msgstr "Val for buzztard-redigeringa"
@@ -183,126 +155,31 @@ msgstr "Val for buzztard-redigeringa"
 msgid "Show buzztard-edit options"
 msgstr "Vis val for buzztard-redigeringa"
 
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:1
-msgid "Buzztard Music Editor"
-msgstr "Buzztard musikkredigering"
-
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:2
-msgid "Edit buzztard song files"
-msgstr "Redigerer buzztard-songfiler"
-
-#: ../src/ui/edit/change-log.c:544
-#, fuzzy
-msgid "unsaved song"
-msgstr "Kan ikkje lagra song"
-
-#. the song recovery has been finished
-#: ../src/ui/edit/crash-recover-dialog.c:153
-msgid "Recovery finished"
-msgstr ""
-
-#: ../src/ui/edit/crash-recover-dialog.c:154
-msgid "The selected song has been recovered successful."
-msgstr ""
-
-#: ../src/ui/edit/crash-recover-dialog.c:155
-msgid "Please check the song and save it if everything is alright."
-msgstr ""
-
-#. FIXME: the log is still there
-#. * - this dialog should be a warning
-#. * - ev. we want to suggest to ask for support
-#.
-#: ../src/ui/edit/crash-recover-dialog.c:162
-msgid "Recovery failed"
-msgstr ""
-
-#: ../src/ui/edit/crash-recover-dialog.c:163
-msgid "Sorry, the selected song could not be fully recovered."
-msgstr ""
-
-#: ../src/ui/edit/crash-recover-dialog.c:164
-msgid "Please check the song and save it if still looks good."
-msgstr ""
-
-#: ../src/ui/edit/crash-recover-dialog.c:199
-msgid "Unsaved song recovery"
-msgstr ""
-
-#: ../src/ui/edit/crash-recover-dialog.c:217
-msgid "Unsaved songs found"
-msgstr ""
-
-#: ../src/ui/edit/crash-recover-dialog.c:217
-msgid "Select them one by one and choose 'recover' or 'delete'."
-msgstr ""
-
-#. column listing song file names to recover
-#: ../src/ui/edit/crash-recover-dialog.c:233
-#, fuzzy
-msgid "Song file"
-msgstr "<songfil>"
-
-#. column listing song file names to recover
-#: ../src/ui/edit/crash-recover-dialog.c:239
-#, fuzzy
-msgid "Last changed"
-msgstr "lagra"
-
-#. add "undelete" button to action area
-#. GTK_STOCK_REVERT_TO_SAVED
-#: ../src/ui/edit/crash-recover-dialog.c:269
-msgid "Recover"
-msgstr ""
-
-#: ../src/ui/edit/edit-application.c:146
+#: ../src/ui/edit/edit-application.c:110
 msgid "-> You will not see any level-meters."
 msgstr "-> Du kjem ikkje til å sjå nivåmælarar."
 
-#: ../src/ui/edit/edit-application.c:153
+#: ../src/ui/edit/edit-application.c:117
 msgid "-> You will not see the frequency spectrum in the analyzer window."
 msgstr "-> Du kjem ikkje til å sjå frekvensomfanget i analyseringsruta."
 
-#. set dialog title
-#: ../src/ui/edit/interaction-controller-learn-dialog.c:115
-#, fuzzy, c-format
-msgid "learn controller for %s"
-msgstr "Fest kontroll"
-
-#: ../src/ui/edit/interaction-controller-learn-dialog.c:142
-msgid "Move or press a controller to detect it."
-msgstr ""
-
-#: ../src/ui/edit/interaction-controller-learn-dialog.c:148
-msgid "detected control"
-msgstr ""
-
-#: ../src/ui/edit/interaction-controller-learn-dialog.c:152
-msgid "none"
-msgstr ""
-
-#: ../src/ui/edit/interaction-controller-learn-dialog.c:156
-msgid "register as"
-msgstr ""
-
-#: ../src/ui/edit/interaction-controller-menu.c:158
+#: ../src/ui/edit/interaction-controller-menu.c:141
 msgid "Learn..."
 msgstr "Lær..."
 
-#: ../src/ui/edit/interaction-controller-menu.c:257
+#: ../src/ui/edit/interaction-controller-menu.c:210
 msgid "Bind controller"
 msgstr "Fest kontroll"
 
-#: ../src/ui/edit/interaction-controller-menu.c:267
+#: ../src/ui/edit/interaction-controller-menu.c:222
 msgid "Unbind controller"
 msgstr "Løys kontroll"
 
-#: ../src/ui/edit/interaction-controller-menu.c:273
+#: ../src/ui/edit/interaction-controller-menu.c:228
 msgid "Unbind all controllers"
 msgstr "Løys alle kontrollar"
 
-#. format about message for machines
-#: ../src/ui/edit/machine-actions.c:63
+#: ../src/ui/edit/machine-actions.c:93
 #, c-format
 msgid ""
 "by %s\n"
@@ -313,43 +190,47 @@ msgstr ""
 "\n"
 "%s"
 
-#: ../src/ui/edit/machine-actions.c:66
+#: ../src/ui/edit/machine-actions.c:96
 msgid "About..."
 msgstr "Om..."
 
-#: ../src/ui/edit/machine-canvas-item.c:697
+#: ../src/ui/edit/machine-canvas-item.c:603
+#, c-format
+msgid "Delete machine '%s'"
+msgstr "Slett maskina '%s'"
+
+#: ../src/ui/edit/machine-canvas-item.c:611
+msgid "Delete machine..."
+msgstr "Slett maskin..."
+
+#: ../src/ui/edit/machine-canvas-item.c:611
+#: ../src/ui/edit/main-page-patterns.c:2145
+msgid "There is no undo for this."
+msgstr "Du kan ikkje angra dette."
+
+#: ../src/ui/edit/machine-canvas-item.c:683
 msgid "Mute"
 msgstr "Demp"
 
-#: ../src/ui/edit/machine-canvas-item.c:703
+#: ../src/ui/edit/machine-canvas-item.c:688
 msgid "Solo"
 msgstr "Solo"
 
-#: ../src/ui/edit/machine-canvas-item.c:710
+#: ../src/ui/edit/machine-canvas-item.c:694
 msgid "Bypass"
 msgstr "Forbikopla"
 
-#: ../src/ui/edit/machine-canvas-item.c:750
+#: ../src/ui/edit/machine-canvas-item.c:734
 msgid "Rename..."
 msgstr "Endra namn ..."
 
-#: ../src/ui/edit/machine-canvas-item.c:764
-#, fuzzy
-msgid "Connect machines"
-msgstr "maskiner"
-
-#: ../src/ui/edit/machine-canvas-item.c:769
-#: ../src/ui/edit/wire-canvas-item.c:800
-msgid "Signal Analysis..."
-msgstr "Signalanalyse..."
-
 #. generators
-#: ../src/ui/edit/machine-menu.c:280
+#: ../src/ui/edit/machine-menu.c:289
 msgid "Generators"
 msgstr "Generatorar"
 
 #. effects
-#: ../src/ui/edit/machine-menu.c:293
+#: ../src/ui/edit/machine-menu.c:302
 msgid "Effects"
 msgstr "Effektar"
 
@@ -360,218 +241,172 @@ msgstr "Effektar"
 #. g_object_unref(window_icon);
 #. }
 #.
-#. set dialog title
-#: ../src/ui/edit/machine-preset-properties-dialog.c:131
+#. set a title
+#: ../src/ui/edit/machine-preset-properties-dialog.c:130
 msgid "preset name and comment"
 msgstr "namn og merknader for ferdigoppsett"
 
+#. rows=
+#. columns=
+#. homogenous=
 #. GtkEntry : preset name
 #. GtkEntry : machine name
 #. GtkEntry : pattern name
-#: ../src/ui/edit/machine-preset-properties-dialog.c:158
-#: ../src/ui/edit/machine-rename-dialog.c:149
-#: ../src/ui/edit/main-page-info.c:334
-#: ../src/ui/edit/pattern-properties-dialog.c:166
+#: ../src/ui/edit/machine-preset-properties-dialog.c:149
+#: ../src/ui/edit/machine-rename-dialog.c:142
+#: ../src/ui/edit/main-page-info.c:360
+#: ../src/ui/edit/pattern-properties-dialog.c:165
 msgid "name"
 msgstr "namn"
 
 #. GtkEntry : preset comment
-#: ../src/ui/edit/machine-preset-properties-dialog.c:171
+#: ../src/ui/edit/machine-preset-properties-dialog.c:162
 msgid "comment"
 msgstr "merknad"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:214
+#: ../src/ui/edit/machine-preferences-dialog.c:261
 #, c-format
 msgid "%s preferences"
 msgstr "%s-innstillingar"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:462
+#: ../src/ui/edit/machine-preferences-dialog.c:520
 msgid "no settings"
 msgstr "ingen innstillingar"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:469
+#: ../src/ui/edit/machine-preferences-dialog.c:527
 msgid "machine has no preferences"
 msgstr "maskina har ingen innstillinar"
 
-#: ../src/ui/edit/machine-properties-dialog.c:741
-#, fuzzy
-msgid "Reset parameter"
-msgstr "Still tilbake til standardinnstillingane"
-
-#: ../src/ui/edit/machine-properties-dialog.c:746
-#, fuzzy
-msgid "Reset all parameters"
-msgstr "Still tilbake til standardinnstillingane"
-
-#. @todo: copy parameter/group/all?
-#: ../src/ui/edit/machine-properties-dialog.c:757
-#, fuzzy
-msgid "Copy parameter"
-msgstr "Kopier mønster..."
-
-#: ../src/ui/edit/machine-properties-dialog.c:764
-#: ../src/ui/edit/machine-properties-dialog.c:838
-msgid "Paste"
-msgstr "Lim inn"
-
-#. add copy/paste item
-#: ../src/ui/edit/machine-properties-dialog.c:831
-msgid "Copy group"
-msgstr ""
-
-#: ../src/ui/edit/machine-properties-dialog.c:1861
+#: ../src/ui/edit/machine-properties-dialog.c:1299
 msgid "global properties"
 msgstr "allmenne eigenskapar"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1912
+#: ../src/ui/edit/machine-properties-dialog.c:1423
 #, c-format
 msgid "voice %lu properties"
 msgstr "eigenskapar for stemma %lu"
 
-#. set group title
-#: ../src/ui/edit/machine-properties-dialog.c:1995
+#: ../src/ui/edit/machine-properties-dialog.c:1594
 #, fuzzy, c-format
 msgid "%s wire properties"
 msgstr "%s trådeigenskapar"
 
-#. set dialog title
-#: ../src/ui/edit/machine-properties-dialog.c:2099
-#: ../src/ui/edit/pattern-properties-dialog.c:136
+#: ../src/ui/edit/machine-properties-dialog.c:1731
+msgid "Add new preset"
+msgstr "Legg til nytt ferdigoppsett"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1736
+msgid "Remove preset"
+msgstr "Fjern ferdigoppsett"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1741
+msgid "Edit preset name and comment"
+msgstr "Rediger namn og merknad for ferdigoppsettet"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1774
+msgid "Preset"
+msgstr "Ferdigoppsett"
+
+#: ../src/ui/edit/machine-properties-dialog.c:1815
+msgid "machine properties"
+msgstr "maskineigenskapar"
+
+#. set a title
+#: ../src/ui/edit/machine-properties-dialog.c:1841
+#: ../src/ui/edit/pattern-properties-dialog.c:138
 #, c-format
 msgid "%s properties"
 msgstr "%s-eigenskapar"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2117
-msgid "Add new preset"
-msgstr "Legg til nytt ferdigoppsett"
-
-#: ../src/ui/edit/machine-properties-dialog.c:2122
-msgid "Remove preset"
-msgstr "Fjern ferdigoppsett"
-
-#: ../src/ui/edit/machine-properties-dialog.c:2127
-msgid "Edit preset name and comment"
-msgstr "Rediger namn og merknad for ferdigoppsettet"
-
-#: ../src/ui/edit/machine-properties-dialog.c:2153
-msgid "Preset"
-msgstr "Ferdigoppsett"
-
-#: ../src/ui/edit/machine-properties-dialog.c:2190
-msgid "machine properties"
-msgstr "maskineigenskapar"
-
-#: ../src/ui/edit/machine-properties-dialog.c:2237
+#: ../src/ui/edit/machine-properties-dialog.c:1867
 msgid "Info about this machine"
 msgstr "Info om denne maskina"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2242
+#: ../src/ui/edit/machine-properties-dialog.c:1872
 msgid "Help for this machine"
 msgstr "Hjelp for denne maskina"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2252
+#: ../src/ui/edit/machine-properties-dialog.c:1882
 msgid "Randomize parameters"
 msgstr "Tilfeldige val"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2257
+#: ../src/ui/edit/machine-properties-dialog.c:1887
 msgid "Reset parameters to defaults"
 msgstr "Still tilbake til standardinnstillingane"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2264
+#: ../src/ui/edit/machine-properties-dialog.c:1894
 msgid "Show/Hide preset pane"
 msgstr "Vis/gøym ferdigoppsett-fana"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2265
+#: ../src/ui/edit/machine-properties-dialog.c:1895
 msgid "Presets"
 msgstr "Ferdigoppsett"
 
-#. set dialog title
-#: ../src/ui/edit/machine-rename-dialog.c:119
+#. set a title
+#: ../src/ui/edit/machine-rename-dialog.c:115
 #, c-format
 msgid "%s name"
 msgstr "%s-namn"
 
-#: ../src/ui/edit/main-menu.c:95 ../src/ui/edit/main-window.c:524
-#, fuzzy
-msgid "Load new song?"
-msgstr "Opna ein ny song"
-
-#: ../src/ui/edit/main-menu.c:104 ../src/ui/edit/main-window.c:228
-#: ../src/ui/edit/main-window.c:609
+#: ../src/ui/edit/main-menu.c:102 ../src/ui/edit/main-window.c:563
 #, c-format
 msgid "An error occurred while loading the song from file '%s'"
 msgstr "Ein feil oppstod ved lasting av songfila '%s',"
 
-#: ../src/ui/edit/main-menu.c:106 ../src/ui/edit/main-window.c:229
-#: ../src/ui/edit/main-window.c:610
+#: ../src/ui/edit/main-menu.c:105 ../src/ui/edit/main-window.c:251
+#: ../src/ui/edit/main-window.c:564
 msgid "Can't load song"
 msgstr "Kan ikkje lasta song."
 
-#: ../src/ui/edit/main-menu.c:132
-#, fuzzy
-msgid "Recover a song?"
-msgstr "Lagre eom spmg"
-
 #. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
 #. -- file menu
-#: ../src/ui/edit/main-menu.c:712
+#: ../src/ui/edit/main-menu.c:655
 msgid "_File"
 msgstr "_Fil"
 
-#: ../src/ui/edit/main-menu.c:726
+#: ../src/ui/edit/main-menu.c:670
 msgid "_Recently used"
 msgstr "N_yleg brukt"
 
-#. subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDELETE,accel_group);
-#: ../src/ui/edit/main-menu.c:769
-msgid "Recover unsaved songs"
-msgstr ""
-
 #. edit menu
-#: ../src/ui/edit/main-menu.c:788
+#: ../src/ui/edit/main-menu.c:732
 msgid "_Edit"
 msgstr "R_ediger"
 
 #. view menu
-#: ../src/ui/edit/main-menu.c:837
+#: ../src/ui/edit/main-menu.c:763
 msgid "_View"
 msgstr "_Vis"
 
-#: ../src/ui/edit/main-menu.c:845
+#: ../src/ui/edit/main-menu.c:771
 msgid "Toolbar"
 msgstr "Verktøylinje"
 
-#: ../src/ui/edit/main-menu.c:851
+#: ../src/ui/edit/main-menu.c:777
 msgid "Statusbar"
 msgstr "Statuslinje"
 
-#: ../src/ui/edit/main-menu.c:857
+#: ../src/ui/edit/main-menu.c:783
 msgid "Tabs"
 msgstr "Faner"
 
-#. @todo 'Machine properties' show/hide toggle
-#. @todo 'Analyzer windows' show/hide toggle
-#: ../src/ui/edit/main-menu.c:866
-msgid "Fullscreen"
-msgstr ""
-
-#: ../src/ui/edit/main-menu.c:874
+#: ../src/ui/edit/main-menu.c:804
 msgid "Go to machine view"
 msgstr "Gå til maskinvisinga"
 
-#: ../src/ui/edit/main-menu.c:881
+#: ../src/ui/edit/main-menu.c:811
 msgid "Go to pattern view"
 msgstr "Gå til mønstervisinga"
 
-#: ../src/ui/edit/main-menu.c:888
+#: ../src/ui/edit/main-menu.c:818
 msgid "Go to sequence view"
 msgstr "Gå til sekvensvisinga"
 
-#: ../src/ui/edit/main-menu.c:895
+#: ../src/ui/edit/main-menu.c:825
 msgid "Go to wave table view"
 msgstr "Gå til bylgjetabell-visinga"
 
-#: ../src/ui/edit/main-menu.c:902
+#: ../src/ui/edit/main-menu.c:832
 msgid "Go to song information"
 msgstr "Gå til songinformasjonen"
 
@@ -580,26 +415,28 @@ msgstr "Gå til songinformasjonen"
 #. *  sequence vide: zoom-in/zoom-out
 #. *
 #.
-#. gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
+#. subitem=gtk_separator_menu_item_new();
+#. gtk_container_add(GTK_CONTAINER(menu),subitem);
+#. gtk_widget_set_sensitive(subitem,FALSE);
 #.
 #. subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_FIT,accel_group);
 #. gtk_container_add(GTK_CONTAINER(menu),subitem);
-#. g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_fit_activate),(gpointer)self);
+#. g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_fit_activate),(gpointer)self);
 #.
 #. subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_IN,accel_group);
 #. gtk_container_add(GTK_CONTAINER(menu),subitem);
-#. g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_in_activate),(gpointer)self);
+#. g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_in_activate),(gpointer)self);
 #.
 #. subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_OUT,accel_group);
 #. gtk_container_add(GTK_CONTAINER(menu),subitem);
-#. g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
+#. g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
 #.
 #. playback menu
-#: ../src/ui/edit/main-menu.c:930
+#: ../src/ui/edit/main-menu.c:862
 msgid "_Playback"
 msgstr "Avs_peling"
 
-#: ../src/ui/edit/main-menu.c:944
+#: ../src/ui/edit/main-menu.c:876
 msgid "Play from cursor"
 msgstr "Spel frå markøren"
 
@@ -615,477 +452,411 @@ msgstr "Spel frå markøren"
 #. * - remove unsused patterns, unconnected machines with no empty/tracks
 #.
 #. help menu
-#: ../src/ui/edit/main-menu.c:970
+#: ../src/ui/edit/main-menu.c:902
 msgid "_Help"
 msgstr "_Hjelp"
 
-#: ../src/ui/edit/main-menu.c:983 ../src/ui/edit/tip-dialog.c:166
-#: ../src/ui/edit/tip-dialog.c:182
-msgid "Tip of the day"
-msgstr ""
-
-#. join web-chat
-#: ../src/ui/edit/main-menu.c:989
-msgid "Join IRC discussion"
-msgstr ""
-
-#. @todo 'translate application' -> link to translator project
-#. * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-translate.png
-#.
-#. 'report a problem' -> link to bug tracker
-#. * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-bug.png
-#. * /usr/share/app-install/icons/bug-buddy.png
-#.
-#: ../src/ui/edit/main-menu.c:1001
-msgid "Report a problem"
-msgstr ""
-
-#: ../src/ui/edit/main-page-info.c:312 ../src/ui/edit/main-page-info.c:314
+#: ../src/ui/edit/main-page-info.c:338 ../src/ui/edit/main-page-info.c:340
 msgid "song meta data"
 msgstr "informasjon om songen"
 
-#: ../src/ui/edit/main-page-info.c:341
+#: ../src/ui/edit/main-page-info.c:367
 msgid "genre"
 msgstr "sjanger"
 
-#: ../src/ui/edit/main-page-info.c:348
+#: ../src/ui/edit/main-page-info.c:374
 msgid "author"
 msgstr "forfattar"
 
-#: ../src/ui/edit/main-page-info.c:355
+#: ../src/ui/edit/main-page-info.c:381
 msgid "created"
 msgstr "oppretta"
 
-#: ../src/ui/edit/main-page-info.c:367
+#: ../src/ui/edit/main-page-info.c:393
 msgid "beats per minute"
 msgstr "slag per minutt"
 
-#: ../src/ui/edit/main-page-info.c:376
+#: ../src/ui/edit/main-page-info.c:401
 msgid "beats"
 msgstr "slag"
 
-#: ../src/ui/edit/main-page-info.c:390
+#: ../src/ui/edit/main-page-info.c:409
 msgid "ticks per beat"
 msgstr "tikk per taktslag"
 
-#: ../src/ui/edit/main-page-info.c:398
+#: ../src/ui/edit/main-page-info.c:417
 msgid "last saved"
 msgstr "lagra"
 
-#: ../src/ui/edit/main-page-info.c:416 ../src/ui/edit/main-page-info.c:418
+#: ../src/ui/edit/main-page-info.c:435 ../src/ui/edit/main-page-info.c:437
 msgid "free text info"
 msgstr "fritekstinfo"
 
 #. menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
-#: ../src/ui/edit/main-page-machines.c:1136
+#: ../src/ui/edit/main-page-machines.c:947
 msgid "Add machine"
 msgstr "Legg til maskin"
 
-#: ../src/ui/edit/main-page-machines.c:1149
+#: ../src/ui/edit/main-page-machines.c:961
 msgid "Unmute all machines"
 msgstr "Fjern demping på alle maskiner"
 
-#. background grid density
-#: ../src/ui/edit/main-page-machines.c:1162
+#: ../src/ui/edit/main-page-machines.c:973
 msgid "Off"
 msgstr "Av"
 
-#: ../src/ui/edit/main-page-machines.c:1169
+#: ../src/ui/edit/main-page-machines.c:980
 msgid "Low"
 msgstr "Låg"
 
-#: ../src/ui/edit/main-page-machines.c:1176
+#: ../src/ui/edit/main-page-machines.c:987
 msgid "Medium"
 msgstr "Middels"
 
-#: ../src/ui/edit/main-page-machines.c:1183
+#: ../src/ui/edit/main-page-machines.c:994
 msgid "High"
 msgstr "Høg"
 
-#: ../src/ui/edit/main-page-machines.c:1221
+#: ../src/ui/edit/main-page-machines.c:1035
 msgid "Zoom in/out so that everything is visible"
 msgstr "Zoom inn/ut slik at alt visest"
 
-#: ../src/ui/edit/main-page-machines.c:1228
+#: ../src/ui/edit/main-page-machines.c:1042
 msgid "Zoom in for more details"
 msgstr "Zoom inn for fleire detaljar"
 
-#: ../src/ui/edit/main-page-machines.c:1235
+#: ../src/ui/edit/main-page-machines.c:1049
 msgid "Zoom out for better overview"
 msgstr "Zoom ut for betre oversikt"
 
-#: ../src/ui/edit/main-page-machines.c:1246
-#: ../src/ui/edit/main-page-machines.c:1254
+#: ../src/ui/edit/main-page-machines.c:1057
 msgid "Grid"
 msgstr "Rutenett"
 
-#: ../src/ui/edit/main-page-machines.c:1248
-#: ../src/ui/edit/main-page-machines.c:1249
-#: ../src/ui/edit/main-page-machines.c:1255
+#: ../src/ui/edit/main-page-machines.c:1059
 msgid "Show background grid"
 msgstr "Vis rutenett i bakgrunnen"
 
-#: ../src/ui/edit/main-page-machines.c:1266
-#, fuzzy
-msgid "Machine view menu"
-msgstr "Maskinvising"
-
-#: ../src/ui/edit/main-page-machines.c:1267
-#, fuzzy
-msgid "Menu actions for machine view below"
-msgstr "Gå til maskinvisinga"
-
-#. it would be nice if we could just do:
-#. * bt_child_proxy_set(self->priv->app,"main-window::statusbar::status",_(".."),NULL);
-#.
-#: ../src/ui/edit/main-page-machines.c:1941
-msgid ""
-"Add new machines from right click context menu. Connect machines with shift"
-"+drag from source to target."
-msgstr ""
-
-#: ../src/ui/edit/main-page-patterns.c:329
-msgid "Add new patterns from right click context menu."
-msgstr ""
+#: ../src/ui/edit/main-page-machines.c:1060 ../src/ui/edit/main-toolbar.c:739
+msgid "Stop playback of this song"
+msgstr "Stopp avspelinga"
 
 #. label for first global parameter column in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1963
+#: ../src/ui/edit/main-page-patterns.c:1561
 msgid "Globals"
 msgstr "Allmenne innstillingar"
 
 #. label for parameters of first voice column in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1982
+#: ../src/ui/edit/main-page-patterns.c:1577
 msgid "Voice 1"
 msgstr "Stemme 1"
 
 #. label for parameters of voice columns in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1997
+#: ../src/ui/edit/main-page-patterns.c:1590
 #, c-format
 msgid "Voice %u"
 msgstr "Stemme %u"
+
+#: ../src/ui/edit/main-page-patterns.c:2137
+#, c-format
+msgid "Delete pattern '%s'"
+msgstr "Slett mønsteret '%s'"
+
+#: ../src/ui/edit/main-page-patterns.c:2145
+msgid "Delete pattern..."
+msgstr "Slett mønster..."
 
 #. this won't work, as we can't pass anything to the event handler
 #. * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
 #. * so, we need to subclass the combobox and add two signals: select-next, select-prev
 #.
-#: ../src/ui/edit/main-page-patterns.c:2998
+#: ../src/ui/edit/main-page-patterns.c:2263
 msgid "Machine"
 msgstr "Maskin"
 
-#: ../src/ui/edit/main-page-patterns.c:3026
+#: ../src/ui/edit/main-page-patterns.c:2291
 msgid "Pattern"
 msgstr "Mønster"
 
-#: ../src/ui/edit/main-page-patterns.c:3055
-#: ../src/ui/edit/main-page-waves.c:1197
+#: ../src/ui/edit/main-page-patterns.c:2320
+#: ../src/ui/edit/main-page-waves.c:1096
 msgid "Wave"
 msgstr "Bylgje"
 
-#: ../src/ui/edit/main-page-patterns.c:3078
+#: ../src/ui/edit/main-page-patterns.c:2343
 msgid "Octave"
 msgstr "Oktav"
 
-#: ../src/ui/edit/main-page-patterns.c:3094
+#: ../src/ui/edit/main-page-patterns.c:2359
 msgid "Play live"
 msgstr "Spel live"
 
-#: ../src/ui/edit/main-page-patterns.c:3096
+#: ../src/ui/edit/main-page-patterns.c:2361
 msgid "Play notes and triggers while editing the pattern"
 msgstr "Spel notar og utløysarar medan du redigerer mønsteret"
 
-#: ../src/ui/edit/main-page-patterns.c:3106
-#, fuzzy
-msgid "Pattern view menu"
-msgstr "Mønstervising"
-
-#: ../src/ui/edit/main-page-patterns.c:3107
-#, fuzzy
-msgid "Menu actions for pattern view below"
-msgstr "Gå til mønstervisinga"
-
-#: ../src/ui/edit/main-page-patterns.c:3144
+#: ../src/ui/edit/main-page-patterns.c:2398
 msgid "New track"
 msgstr "Nytt spor"
 
-#: ../src/ui/edit/main-page-patterns.c:3153
+#: ../src/ui/edit/main-page-patterns.c:2407
 msgid "Remove last track"
 msgstr "Slett siste spor"
 
-#: ../src/ui/edit/main-page-patterns.c:3166
+#: ../src/ui/edit/main-page-patterns.c:2421
 msgid "New pattern ..."
 msgstr "Nytt mønster..."
 
-#: ../src/ui/edit/main-page-patterns.c:3175
+#: ../src/ui/edit/main-page-patterns.c:2430
 msgid "Pattern properties..."
 msgstr "Eigenskapar for mønster..."
 
-#: ../src/ui/edit/main-page-patterns.c:3184
+#: ../src/ui/edit/main-page-patterns.c:2439
 msgid "Remove pattern..."
 msgstr "Fjern eit mønster..."
 
-#: ../src/ui/edit/main-page-patterns.c:3193
+#: ../src/ui/edit/main-page-patterns.c:2448
 msgid "Copy pattern..."
 msgstr "Kopier mønster..."
 
-#: ../src/ui/edit/main-page-patterns.c:3206
-#: ../src/ui/edit/main-page-sequence.c:3119
-#, fuzzy
-msgid "Machine properties"
-msgstr "maskineigenskapar"
-
-#: ../src/ui/edit/main-page-patterns.c:3213
-#: ../src/ui/edit/main-page-sequence.c:3126
-#, fuzzy
-msgid "Machine preferences"
-msgstr "maskininnstillingar"
-
 #. time line position
-#: ../src/ui/edit/main-page-sequence.c:1085
+#: ../src/ui/edit/main-page-sequence.c:965
 msgid "Pos."
 msgstr "Pos."
 
-#: ../src/ui/edit/main-page-sequence.c:1091
+#: ../src/ui/edit/main-page-sequence.c:970
 msgid "Ticks"
 msgstr "Tikk"
 
-#: ../src/ui/edit/main-page-sequence.c:1092
+#: ../src/ui/edit/main-page-sequence.c:971
 msgid "Time"
 msgstr "Tid"
 
-#: ../src/ui/edit/main-page-sequence.c:1093
-#, fuzzy
-msgid "Beats"
-msgstr "slag"
-
-#: ../src/ui/edit/main-page-sequence.c:1237
-#: ../src/ui/edit/main-page-sequence.c:1268
+#: ../src/ui/edit/main-page-sequence.c:1081
+#: ../src/ui/edit/main-page-sequence.c:1113
 msgid "Labels"
 msgstr "Merkelappar"
 
-#: ../src/ui/edit/main-page-sequence.c:3046
+#. use spaces to avoid clashes with normal patterns?
+#: ../src/ui/edit/main-page-sequence.c:1460
+msgid "  clear"
+msgstr "  tøm"
+
+#: ../src/ui/edit/main-page-sequence.c:1462
+msgid "  mute"
+msgstr "  demp"
+
+#: ../src/ui/edit/main-page-sequence.c:1464
+msgid "  break"
+msgstr "  pause"
+
+#: ../src/ui/edit/main-page-sequence.c:1467
+msgid "  bypass"
+msgstr "  forbikopla"
+
+#: ../src/ui/edit/main-page-sequence.c:1473
+msgid "  solo"
+msgstr "  solo"
+
+#: ../src/ui/edit/main-page-sequence.c:2821
 msgid "Show every n-th line"
 msgstr "Vis kvar n-te linje"
 
-#: ../src/ui/edit/main-page-sequence.c:3053
+#: ../src/ui/edit/main-page-sequence.c:2828
 msgid "Steps"
 msgstr "Steg"
 
-#: ../src/ui/edit/main-page-sequence.c:3067
-#, fuzzy
-msgid "Sequence view menu"
-msgstr "Sekvensvising"
-
-#: ../src/ui/edit/main-page-sequence.c:3068
-#, fuzzy
-msgid "Menu actions for sequence view below"
-msgstr "Gå til sekvensvisinga"
-
-#: ../src/ui/edit/main-page-sequence.c:3078
+#: ../src/ui/edit/main-page-sequence.c:2853
 msgid "Add track"
 msgstr "Legg til spor"
 
-#: ../src/ui/edit/main-page-sequence.c:3084
+#: ../src/ui/edit/main-page-sequence.c:2859
 msgid "Remove track"
 msgstr "Fjern spor"
 
-#: ../src/ui/edit/main-page-sequence.c:3097
+#: ../src/ui/edit/main-page-sequence.c:2873
 msgid "Move track left"
 msgstr "Flytt sporet til venstre"
 
-#: ../src/ui/edit/main-page-sequence.c:3106
+#: ../src/ui/edit/main-page-sequence.c:2882
 msgid "Move track right"
 msgstr "Flytt sporet til høgre"
 
-#: ../src/ui/edit/main-page-sequence.c:3177
+#: ../src/ui/edit/main-page-sequence.c:2933
 msgid "Browse to labels in the sequence"
 msgstr "Gå til merkelappar i sekvensen"
 
-#: ../src/ui/edit/main-page-sequence.c:3274
+#: ../src/ui/edit/main-page-sequence.c:3022
 msgid "Key"
 msgstr "Nøkkel"
 
-#: ../src/ui/edit/main-page-sequence.c:3287
+#: ../src/ui/edit/main-page-sequence.c:3035
 msgid "Patterns"
 msgstr "Mønster"
 
-#. use status bar
-#: ../src/ui/edit/main-page-sequence.c:3881
-msgid "Add new tracks from right click context menu."
-msgstr ""
-
-#: ../src/ui/edit/main-page-waves.c:1153
+#: ../src/ui/edit/main-page-waves.c:1053
 msgid "Play current wave table entry as C-4"
 msgstr "Spel denne bylgjetabelloppføringa som C-4"
 
-#: ../src/ui/edit/main-page-waves.c:1160
+#: ../src/ui/edit/main-page-waves.c:1060
 msgid "Stop playback of current wave table entry"
 msgstr "Slutt å spela av denne bylgjetabelloppføringa"
 
-#: ../src/ui/edit/main-page-waves.c:1167
+#: ../src/ui/edit/main-page-waves.c:1067
 msgid "Clear current wave table entry"
 msgstr "Tøm denne bylgjetabelloppføringa"
 
 #. Ix: index in wavetable
-#: ../src/ui/edit/main-page-waves.c:1191
+#: ../src/ui/edit/main-page-waves.c:1090
 msgid "Ix"
 msgstr "Ix"
 
-#: ../src/ui/edit/main-page-waves.c:1203
+#: ../src/ui/edit/main-page-waves.c:1102
 msgid "Volume"
 msgstr "Volum"
 
-#: ../src/ui/edit/main-page-waves.c:1208 ../src/ui/edit/main-toolbar.c:850
+#: ../src/ui/edit/main-page-waves.c:1107 ../src/ui/edit/main-toolbar.c:747
 msgid "Loop"
 msgstr "Spel i lykkje"
 
-#: ../src/ui/edit/main-page-waves.c:1233
+#: ../src/ui/edit/main-page-waves.c:1132
 msgid "Play current sample"
 msgstr "Spel denne lydbiten"
 
-#: ../src/ui/edit/main-page-waves.c:1239
+#: ../src/ui/edit/main-page-waves.c:1138
 msgid "Stop playback of current sample"
 msgstr "Slutt å spela av denne lydbiten"
 
-#: ../src/ui/edit/main-page-waves.c:1246
+#: ../src/ui/edit/main-page-waves.c:1145
 msgid "Load current sample into selected wave table entry"
 msgstr "Last denne lydbiten til den valde bylgjetabellen"
 
-#: ../src/ui/edit/main-page-waves.c:1289
+#: ../src/ui/edit/main-page-waves.c:1188
 msgid "Root"
 msgstr "Rot"
 
-#: ../src/ui/edit/main-page-waves.c:1294
+#: ../src/ui/edit/main-page-waves.c:1193
 msgid "Length"
 msgstr "Lengd"
 
-#: ../src/ui/edit/main-page-waves.c:1299
+#: ../src/ui/edit/main-page-waves.c:1198
 msgid "Rate"
 msgstr "Rate"
 
-#: ../src/ui/edit/main-page-waves.c:1305
+#: ../src/ui/edit/main-page-waves.c:1204
 msgid "Loop start"
 msgstr "Lykkjestart"
 
-#: ../src/ui/edit/main-page-waves.c:1311
+#: ../src/ui/edit/main-page-waves.c:1210
 msgid "Loop end"
 msgstr "Lykkjeslutt"
 
-#: ../src/ui/edit/main-pages.c:171
+#: ../src/ui/edit/main-pages.c:169
 msgid "machines"
 msgstr "maskiner"
 
-#: ../src/ui/edit/main-pages.c:171
+#: ../src/ui/edit/main-pages.c:169
 msgid "machines used in the song and their wires"
 msgstr "maskiner i bruk i denne songen, og koplingane deira"
 
-#: ../src/ui/edit/main-pages.c:176
+#: ../src/ui/edit/main-pages.c:174
 msgid "patterns"
 msgstr "mønster"
 
-#: ../src/ui/edit/main-pages.c:176
+#: ../src/ui/edit/main-pages.c:174
 msgid "event pattern editor"
 msgstr "hendingsmønsterredigering"
 
-#: ../src/ui/edit/main-pages.c:181
+#: ../src/ui/edit/main-pages.c:179
 msgid "sequence"
 msgstr "sekvens"
 
-#: ../src/ui/edit/main-pages.c:181
+#: ../src/ui/edit/main-pages.c:179
 msgid "song sequence editor"
 msgstr "songsekvensredigering"
 
-#: ../src/ui/edit/main-pages.c:186
+#: ../src/ui/edit/main-pages.c:184
 msgid "wave table"
 msgstr "bylgjetabell"
 
-#: ../src/ui/edit/main-pages.c:186
+#: ../src/ui/edit/main-pages.c:184
 msgid "sample wave table editor"
 msgstr "lydbit-bylgjetabellredigering"
 
-#: ../src/ui/edit/main-pages.c:191
+#: ../src/ui/edit/main-pages.c:189
 msgid "information"
 msgstr "informasjon"
 
-#: ../src/ui/edit/main-pages.c:191
+#: ../src/ui/edit/main-pages.c:189
 msgid "song meta data editor"
 msgstr "rediger song-informasjon"
 
-#: ../src/ui/edit/main-statusbar.c:288 ../src/ui/edit/main-statusbar.c:380
+#: ../src/ui/edit/main-statusbar.c:263 ../src/ui/edit/main-statusbar.c:283
+#: ../src/ui/edit/main-statusbar.c:295 ../src/ui/edit/main-statusbar.c:307
+msgid "default"
+msgstr "standard"
+
+#: ../src/ui/edit/main-statusbar.c:265 ../src/ui/edit/main-statusbar.c:391
 msgid "Ready to rock!"
 msgstr "Klar til å råkka hardt!"
 
 #. @idea: this could be used to avoid resizing when the label changes
 #. gtk_progress_bar_set_ellipsize(self->priv->cpu_load,PANGO_ELLIPSIZE_END);
-#. gtk_label_set_single_line_mode(self->priv->cpu_load,TRUE);
-#: ../src/ui/edit/main-statusbar.c:299
+#: ../src/ui/edit/main-statusbar.c:273
 msgid "CPU load"
 msgstr "Prosessorlast"
 
-#: ../src/ui/edit/main-statusbar.c:310
+#: ../src/ui/edit/main-statusbar.c:281
 msgid "Playback time"
 msgstr "Avspelingstid"
 
-#: ../src/ui/edit/main-statusbar.c:322
+#: ../src/ui/edit/main-statusbar.c:293
 msgid "Playback position"
 msgstr "Spel-posisjon"
 
-#: ../src/ui/edit/main-statusbar.c:334
+#: ../src/ui/edit/main-statusbar.c:305
 msgid "Playback length"
 msgstr "Avspelingslengd"
 
-#: ../src/ui/edit/main-toolbar.c:386
+#: ../src/ui/edit/main-toolbar.c:282
 msgid "Error"
 msgstr "Feil"
 
-#: ../src/ui/edit/main-toolbar.c:386
+#: ../src/ui/edit/main-toolbar.c:282
 msgid "An error occurred"
 msgstr "Ein feil oppstod"
 
 #. bt_song_stop(song);
-#: ../src/ui/edit/main-toolbar.c:418
+#: ../src/ui/edit/main-toolbar.c:314
 msgid "Warning"
 msgstr "Åtvaring"
 
-#: ../src/ui/edit/main-toolbar.c:418
+#: ../src/ui/edit/main-toolbar.c:314
 msgid "A problem occurred"
 msgstr "Det oppstod eit problem"
 
-#: ../src/ui/edit/main-toolbar.c:795
+#: ../src/ui/edit/main-toolbar.c:707
 msgid "Prepare a new empty song"
 msgstr "Lag ny tom song"
 
-#: ../src/ui/edit/main-toolbar.c:801
+#: ../src/ui/edit/main-toolbar.c:713
 msgid "Load a new song"
 msgstr "Opna ein ny song"
 
-#: ../src/ui/edit/main-toolbar.c:808
+#: ../src/ui/edit/main-toolbar.c:720
 msgid "Save this song"
 msgstr "Lagre denne songen"
 
-#: ../src/ui/edit/main-toolbar.c:818
-#, fuzzy
-msgid "Rewind playback position of this song"
-msgstr "Stopp avspelinga"
-
-#: ../src/ui/edit/main-toolbar.c:827
+#: ../src/ui/edit/main-toolbar.c:731
 msgid "Play this song"
 msgstr "Spel denne songen"
 
-#: ../src/ui/edit/main-toolbar.c:833
-#, fuzzy
-msgid "Forward playback position of this song"
-msgstr "Stopp avspelinga"
-
-#: ../src/ui/edit/main-toolbar.c:842
-msgid "Stop playback of this song"
-msgstr "Stopp avspelinga"
-
-#: ../src/ui/edit/main-toolbar.c:852
+#: ../src/ui/edit/main-toolbar.c:749
 msgid "Toggle looping of playback"
 msgstr "Skru av/på speling i lykkje"
 
 #. @idea have distinct tooltips with channel names
-#: ../src/ui/edit/main-toolbar.c:872
+#: ../src/ui/edit/main-toolbar.c:769
 msgid "playback volume"
 msgstr "avspelingsvolum"
 
@@ -1093,111 +864,75 @@ msgstr "avspelingsvolum"
 #. min=
 #. max=
 #. step=
-#: ../src/ui/edit/main-toolbar.c:890
+#: ../src/ui/edit/main-toolbar.c:787
 msgid "Change playback volume"
 msgstr "Endre avspelingsvolum"
 
 #. we don't use PACKAGE_NAME = 'buzztard' for the window title
-#: ../src/ui/edit/main-window.c:202
+#: ../src/ui/edit/main-window.c:206
 msgid "unsaved"
 msgstr "ulagra"
 
-#: ../src/ui/edit/main-window.c:202
+#: ../src/ui/edit/main-window.c:206
 msgid "saved"
 msgstr "lagra"
 
-#: ../src/ui/edit/main-window.c:285 ../src/ui/edit/main-window.c:287
+#: ../src/ui/edit/main-window.c:250
 #, c-format
-msgid "%d %s and %d %s"
-msgstr ""
+msgid "An error occurred while trying to load the song from file '%s'"
+msgstr "Det vart ein feil då eg prøvde å lasta songen frå fila '%s'."
 
-#: ../src/ui/edit/main-window.c:285
-msgid "hour"
-msgstr ""
-
-#: ../src/ui/edit/main-window.c:285
-msgid "hours"
-msgstr ""
-
-#: ../src/ui/edit/main-window.c:285 ../src/ui/edit/main-window.c:287
-msgid "minute"
-msgstr ""
-
-#: ../src/ui/edit/main-window.c:285 ../src/ui/edit/main-window.c:287
-msgid "minutes"
-msgstr ""
-
-#: ../src/ui/edit/main-window.c:287 ../src/ui/edit/main-window.c:289
-msgid "second"
-msgstr ""
-
-#: ../src/ui/edit/main-window.c:287 ../src/ui/edit/main-window.c:289
-msgid "seconds"
-msgstr ""
-
-#: ../src/ui/edit/main-window.c:289
-#, c-format
-msgid "%d %s"
-msgstr ""
-
-#: ../src/ui/edit/main-window.c:294
-#, fuzzy, c-format
-msgid ""
-"All unsaved changes since %s will be lost. This song was last saved on: %s"
-msgstr "Dersom du ikkje lagrar, vil endringane dine gå tapt for godt."
-
-#: ../src/ui/edit/main-window.c:296
-#, fuzzy, c-format
-msgid "All unsaved changes since %s will be lost. This song was created on: %s"
-msgstr "Dersom du ikkje lagrar, vil endringane dine gå tapt for godt."
-
-#: ../src/ui/edit/main-window.c:489
+#: ../src/ui/edit/main-window.c:445
 msgid "Really quit?"
 msgstr "Er du sikker på at du vil avslutta?"
 
-#: ../src/ui/edit/main-window.c:499
+#: ../src/ui/edit/main-window.c:445 ../src/ui/edit/main-window.c:469
+msgid "All unsaved changes will be lost then."
+msgstr "Dersom du ikkje lagrar, vil endringane dine gå tapt for godt."
+
+#. @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
+#: ../src/ui/edit/main-window.c:469
 msgid "New song?"
 msgstr "Ny song?"
 
-#: ../src/ui/edit/main-window.c:527
+#: ../src/ui/edit/main-window.c:488
 msgid "Open a song"
 msgstr "Opna ein song"
 
-#: ../src/ui/edit/main-window.c:647
+#: ../src/ui/edit/main-window.c:603
 #, c-format
 msgid "An error occurred while saving the song to file '%s'."
 msgstr "Det vart ein feil då eg prøvde å lagra songen til fila '%s'."
 
-#: ../src/ui/edit/main-window.c:648 ../src/ui/edit/main-window.c:898
-#: ../src/ui/edit/main-window.c:910
+#: ../src/ui/edit/main-window.c:604 ../src/ui/edit/main-window.c:802
+#: ../src/ui/edit/main-window.c:814
 msgid "Can't save song"
 msgstr "Kan ikkje lagra song"
 
-#. gchar *glob;
-#: ../src/ui/edit/main-window.c:684
+#: ../src/ui/edit/main-window.c:632
 msgid "Save a song"
 msgstr "Lagre eom spmg"
 
-#: ../src/ui/edit/main-window.c:843 ../src/ui/edit/render-dialog.c:287
+#: ../src/ui/edit/main-window.c:752 ../src/ui/edit/render-dialog.c:273
 msgid "Format"
 msgstr "Format"
 
-#: ../src/ui/edit/main-window.c:884 ../src/ui/edit/main-window.c:885
+#: ../src/ui/edit/main-window.c:788 ../src/ui/edit/main-window.c:789
 msgid "File already exists"
 msgstr "Fila finst allereie"
 
-#: ../src/ui/edit/main-window.c:886
+#: ../src/ui/edit/main-window.c:790
 msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
 msgstr "Vel 'OK' for å skriva over, eller 'Avbryt' for å avbryta lagringa."
 
-#: ../src/ui/edit/main-window.c:897
-#, fuzzy, c-format
-msgid "An error occurred while writing the file '%s': %s"
-msgstr "Det vart ein feil då eg prøvde å lagra songen til fila '%s'."
+#: ../src/ui/edit/main-window.c:801
+#, c-format
+msgid "An error occurred while trying to open the file '%s' for writing: %s"
+msgstr "Det vart ein feil då eg prøvde å opna fila '%s' for skriving: %s"
 
-#: ../src/ui/edit/main-window.c:909
-#, fuzzy, c-format
-msgid "An error occurred saving the song to file '%s'."
+#: ../src/ui/edit/main-window.c:813
+#, c-format
+msgid "An error occurred while trying to save the song to file '%s'."
 msgstr "Det vart ein feil då eg prøvde å lagra songen til fila '%s'."
 
 #. create and set window icon
@@ -1207,25 +942,21 @@ msgstr "Det vart ein feil då eg prøvde å lagra songen til fila '%s'."
 #. g_object_unref(window_icon);
 #. }
 #.
-#. set dialog title
-#: ../src/ui/edit/missing-framework-elements-dialog.c:130
-#: ../src/ui/edit/missing-framework-elements-dialog.c:147
+#. set a title
+#: ../src/ui/edit/missing-framework-elements-dialog.c:128
+#: ../src/ui/edit/missing-framework-elements-dialog.c:145
 msgid "Missing GStreamer elements"
 msgstr "Manglar GStreamer-element"
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:154
-msgid ""
-"The elements listed below are missing from your installation, but are "
-"required."
+#: ../src/ui/edit/missing-framework-elements-dialog.c:152
+msgid "The elements listed below are missing from your installation, but are required."
 msgstr "Elementa under krevst, men er ikkje med i installasjonen din."
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:194
-msgid ""
-"The elements listed below are missing from your installation, but are "
-"recommended for full functionality."
+#: ../src/ui/edit/missing-framework-elements-dialog.c:192
+msgid "The elements listed below are missing from your installation, but are recommended for full functionality."
 msgstr "Elementa under er tilrådde, men er ikkje med i installasjonen din."
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:196
+#: ../src/ui/edit/missing-framework-elements-dialog.c:194
 msgid "don't warn again"
 msgstr "ikkje åtvar meg att"
 
@@ -1236,356 +967,178 @@ msgstr "ikkje åtvar meg att"
 #. g_object_unref(window_icon);
 #. }
 #.
-#. set dialog title
-#: ../src/ui/edit/missing-song-elements-dialog.c:116
-#: ../src/ui/edit/missing-song-elements-dialog.c:133
+#. set a title
+#: ../src/ui/edit/missing-song-elements-dialog.c:115
+#: ../src/ui/edit/missing-song-elements-dialog.c:132
 msgid "Missing elements in song"
 msgstr "Manglar element i songen"
 
-#: ../src/ui/edit/missing-song-elements-dialog.c:140
+#: ../src/ui/edit/missing-song-elements-dialog.c:139
 msgid "The machines listed below are missing or failed to load."
 msgstr "Maskinene under manglar eller kunne ikkje lastast."
 
-#: ../src/ui/edit/missing-song-elements-dialog.c:144
+#: ../src/ui/edit/missing-song-elements-dialog.c:143
 msgid "The waves listed below are missing or failed to load."
 msgstr "Bylgjene under manglar eller kunne ikkje lastast."
 
 #. GtkComboBox : pattern length
-#: ../src/ui/edit/pattern-properties-dialog.c:176
+#: ../src/ui/edit/pattern-properties-dialog.c:175
 msgid "length"
 msgstr "lengd"
 
 #. GtkSpinButton : number of voices
-#: ../src/ui/edit/pattern-properties-dialog.c:187
+#: ../src/ui/edit/pattern-properties-dialog.c:185
 msgid "voices"
 msgstr "stemmer"
 
-#: ../src/ui/edit/render-dialog.c:224
+#: ../src/ui/edit/render-dialog.c:220
 msgid "song rendering"
 msgstr "songteikning"
 
-#: ../src/ui/edit/render-dialog.c:243
+#: ../src/ui/edit/render-dialog.c:237
 msgid "Folder"
 msgstr "Mappe"
 
-#: ../src/ui/edit/render-dialog.c:247
-#: ../src/ui/edit/settings-page-directories.c:99
-#: ../src/ui/edit/settings-page-directories.c:109
-#: ../src/ui/edit/settings-page-directories.c:119
+#: ../src/ui/edit/render-dialog.c:241
+#: ../src/ui/edit/settings-page-directories.c:103
+#: ../src/ui/edit/settings-page-directories.c:113
+#: ../src/ui/edit/settings-page-directories.c:123
 msgid "Select a folder"
 msgstr "Vel ei mappe"
 
-#: ../src/ui/edit/render-dialog.c:253
+#: ../src/ui/edit/render-dialog.c:247
 msgid "Filename"
 msgstr "Filnamn"
 
-#: ../src/ui/edit/render-dialog.c:304
+#: ../src/ui/edit/render-dialog.c:290
 msgid "Mode"
 msgstr "Modus"
 
-#: ../src/ui/edit/render-progress.c:118
+#: ../src/ui/edit/render-progress.c:104
 #, c-format
 msgid "Recording to: %s"
 msgstr "Tek opp til: %s"
 
-#: ../src/ui/edit/render-progress.c:149
+#: ../src/ui/edit/render-progress.c:126
 msgid "song render progress"
 msgstr "framgang for songteikning"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
-#: ../src/ui/edit/settings-dialog.c:145
+#: ../src/ui/edit/settings-dialog.c:144
 msgid "buzztard settings"
 msgstr "innstillingar for buzztard"
 
-#: ../src/ui/edit/settings-dialog.c:181 ../src/ui/edit/settings-dialog.c:236
+#: ../src/ui/edit/settings-dialog.c:178 ../src/ui/edit/settings-dialog.c:233
 msgid "Audio Devices"
 msgstr "Lydeiningar"
 
-#: ../src/ui/edit/settings-dialog.c:188 ../src/ui/edit/settings-dialog.c:243
-#: ../src/ui/edit/settings-page-interaction-controller.c:127
+#: ../src/ui/edit/settings-dialog.c:185 ../src/ui/edit/settings-dialog.c:240
+#: ../src/ui/edit/settings-page-interaction-controller.c:114
 msgid "Interaction Controller"
 msgstr "Samhandlingskontroll"
 
-#: ../src/ui/edit/settings-dialog.c:195 ../src/ui/edit/settings-dialog.c:250
-#: ../src/ui/edit/settings-page-playback-controller.c:107
+#: ../src/ui/edit/settings-dialog.c:192 ../src/ui/edit/settings-dialog.c:247
+#: ../src/ui/edit/settings-page-playback-controller.c:105
 msgid "Playback Controller"
 msgstr "Avspelingskontroll"
 
-#: ../src/ui/edit/settings-dialog.c:202 ../src/ui/edit/settings-dialog.c:260
+#: ../src/ui/edit/settings-dialog.c:199 ../src/ui/edit/settings-dialog.c:256
 msgid "Colors"
 msgstr "Farger"
 
-#: ../src/ui/edit/settings-dialog.c:209 ../src/ui/edit/settings-dialog.c:267
-#: ../src/ui/edit/settings-page-shortcuts.c:75
+#: ../src/ui/edit/settings-dialog.c:206 ../src/ui/edit/settings-dialog.c:265
 msgid "Shortcuts"
 msgstr "Snøggtastar"
 
-#: ../src/ui/edit/settings-dialog.c:216 ../src/ui/edit/settings-dialog.c:274
-#: ../src/ui/edit/settings-page-directories.c:88
+#: ../src/ui/edit/settings-dialog.c:213 ../src/ui/edit/settings-dialog.c:272
+#: ../src/ui/edit/settings-page-directories.c:92
 msgid "Directories"
 msgstr "Mapper"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:147
+#: ../src/ui/edit/settings-page-audiodevices.c:135
 msgid "Audio Device"
 msgstr "Lydeining"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:154
+#: ../src/ui/edit/settings-page-audiodevices.c:142
 msgid "Sink"
 msgstr "Sluk"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:163
+#: ../src/ui/edit/settings-page-audiodevices.c:151
 #, c-format
 msgid "system default: %s (%s)"
 msgstr "systemstandard: %s (%s)"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:170
+#: ../src/ui/edit/settings-page-audiodevices.c:158
 msgid "system default: -"
 msgstr "systemstandard: -"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:295
+#: ../src/ui/edit/settings-page-audiodevices.c:211
 msgid "Sampling rate"
 msgstr "Punktprøvefrekvens"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:323
+#: ../src/ui/edit/settings-page-audiodevices.c:239
 msgid "Channels"
 msgstr "Kanalar"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:328
+#: ../src/ui/edit/settings-page-audiodevices.c:244
 msgid "mono"
 msgstr "mono"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:329
+#: ../src/ui/edit/settings-page-audiodevices.c:245
 msgid "stereo"
 msgstr "stereo"
 
-#: ../src/ui/edit/settings-page-directories.c:95
+#: ../src/ui/edit/settings-page-directories.c:99
 msgid "Songs"
 msgstr "Songar"
 
-#: ../src/ui/edit/settings-page-directories.c:105
+#: ../src/ui/edit/settings-page-directories.c:109
 msgid "Recordings"
 msgstr "Opptak"
 
-#: ../src/ui/edit/settings-page-directories.c:115
+#: ../src/ui/edit/settings-page-directories.c:119
 msgid "Waveforms"
 msgstr "Lydbylgjer"
 
-#: ../src/ui/edit/settings-page-interaction-controller.c:134
+#: ../src/ui/edit/settings-page-interaction-controller.c:121
 msgid "Device"
 msgstr "Eining"
 
-#: ../src/ui/edit/settings-page-interaction-controller.c:171
-#, fuzzy
-msgid "Controller"
-msgstr "Fest kontroll"
-
 #. local network port number for socket communication
-#: ../src/ui/edit/settings-page-playback-controller.c:123
+#: ../src/ui/edit/settings-page-playback-controller.c:121
 msgid "Port number"
 msgstr "Portnummer"
-
-#. set dialog title : machine -> machine analysis
-#: ../src/ui/edit/signal-analysis-dialog.c:706
-#, c-format
-msgid "%s -> %s analysis"
-msgstr "%s -> %s-analyse"
-
-#: ../src/ui/edit/signal-analysis-dialog.c:711
-#, fuzzy
-msgid "master analysis"
-msgstr "koplingsanalyse"
-
-#: ../src/ui/edit/signal-analysis-dialog.c:770
-msgid "lin."
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:771
-msgid "log."
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:774
-msgid "frequency mapping"
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:778
-msgid "single"
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:779
-msgid "double"
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:780
-msgid "triple"
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:783
-msgid "spectrum precision"
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:48
-msgid "New machines are added in machine view from the context menu."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:49
-msgid ""
-"Connect machines by holding the shift key and dragging a connection for the "
-"source to the target machine."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:50
-msgid "Songs can be recorded as single waves per track to give it to remixers."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:51
-msgid ""
-"Fill the details on the info page. When recording songs, the metadata is "
-"added to the recording as tags."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:52
-msgid ""
-"Use jackaudio sink in audio device settings to get lower latencies for live "
-"machine control."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:53
-msgid ""
-"You can use input devices such as joysticks, beside midi devices to live "
-"control machine parameters."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:54
-msgid ""
-"You can use a upnp media client (e.g. media streamer on nokia tablets) to "
-"remote control buzztard."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:55
-msgid ""
-"To enter notes, imagine your pc keyboard as a music keyboard in two rows. "
-"Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:56
-msgid ""
-"You can get more help from the community on irc://irc.freenode.net/#buzztard."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:57
-msgid ""
-"Pattern layouts are individual for each machine. Look at the statusbar at "
-"the bottom for information about the cursor-column."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:58
-msgid ""
-"Click the speaker icon in the pattern-view to hear notes as you enter them."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:59
-msgid ""
-"Each wire has volume and possible panorama/balance controls. These can also "
-"be adjusted in the machine-window of the machine that has the wire as an "
-"input."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:60
-msgid ""
-"The wire volume control pops up upon a click on the arrow box on the wire."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:61
-msgid ""
-"The wire panorama/balance control pops up upon a shift+click on the arrow "
-"box on the wire if available."
-msgstr ""
-
-#: ../src/ui/edit/tip-dialog.c:199
-msgid "Show tips on startup"
-msgstr ""
 
 #: ../src/ui/edit/tools.c:79 ../src/ui/edit/tools.c:106
 #, c-format
 msgid "Couldn't find pixmap file: %s"
 msgstr "Fann ikkje biletefila: %s"
 
-#: ../src/ui/edit/wire-canvas-item.c:791
+#. machine -> machine connection analyzer
+#: ../src/ui/edit/wire-analysis-dialog.c:453
+#, c-format
+msgid "%s -> %s analysis"
+msgstr "%s -> %s-analyse"
+
+#: ../src/ui/edit/wire-canvas-item.c:797
 msgid "Disconnect"
 msgstr "Kopla frå"
 
-#~ msgid ""
-#~ "Rewrote internal pipeline management. One can now play partially "
-#~ "connected songs, and add/remove plugins while playing. Buzztard can play "
-#~ "notes while editing. More robust saving of songs. Lots of bugfixes and UI "
-#~ "improvemnts. Better user-guide including three small tutorials. Initial "
-#~ "support for python and javascript via gobject introspection."
-#~ msgstr ""
-#~ "Rewrote internal pipeline management. One can now play partially "
-#~ "connected songs, and add/remove plugins while playing. Buzztard can play "
-#~ "notes while editing. More robust saving of songs. Lots of bugfixes and UI "
-#~ "improvemnts. Better user-guide including three small tutorials. Initial "
-#~ "support for python and javascript via gobject introspection."
-
-#~ msgid "Delete machine '%s'"
-#~ msgstr "Slett maskina '%s'"
-
-#~ msgid "Delete machine..."
-#~ msgstr "Slett maskin..."
-
-#~ msgid "There is no undo for this."
-#~ msgstr "Du kan ikkje angra dette."
-
-#~ msgid "Delete pattern '%s'"
-#~ msgstr "Slett mønsteret '%s'"
-
-#~ msgid "Delete pattern..."
-#~ msgstr "Slett mønster..."
-
-#~ msgid "  clear"
-#~ msgstr "  tøm"
-
-#~ msgid "  mute"
-#~ msgstr "  demp"
-
-#~ msgid "  break"
-#~ msgstr "  pause"
-
-#~ msgid "  bypass"
-#~ msgstr "  forbikopla"
-
-#~ msgid "  solo"
-#~ msgstr "  solo"
-
-#~ msgid "default"
-#~ msgstr "standard"
-
-#~ msgid "An error occurred while trying to load the song from file '%s'"
-#~ msgstr "Det vart ein feil då eg prøvde å lasta songen frå fila '%s'."
-
-#~ msgid "An error occurred while trying to open the file '%s' for writing: %s"
-#~ msgstr "Det vart ein feil då eg prøvde å opna fila '%s' for skriving: %s"
-
-#~ msgid "An error occurred while trying to save the song to file '%s'."
-#~ msgstr "Det vart ein feil då eg prøvde å lagra songen til fila '%s'."
+#: ../src/ui/edit/wire-canvas-item.c:807
+msgid "Signal Analysis..."
+msgstr "Signalanalyse..."
 
 #~ msgid "Show version"
 #~ msgstr "Vis versjonsnummer"
 
-#~ msgid ""
-#~ "As planned, main focus for this release was the wavetable support. Its "
-#~ "done - buzztard can load what gstreamer can decode.The wavetable view has "
-#~ "a nice waveform widget. Related to that buzztard has a new song-format "
-#~ "that bundles the XML together with external files in a zip archive. Also "
-#~ "the UI has seen a lot of improvements. The machine view looks nicer - "
-#~ "Marc drew spiffy machine icons. In addition they now show real volume "
-#~ "meters when playing. All meters are now properly synced."
-#~ msgstr ""
-#~ "Kommentarar frå utviklarane om endringar sidan sist utgåve: Buzztard kan "
-#~ "no opna alt gstreamer kan handtere. Me har eit nytt lagringsformat for "
-#~ "songfiler: XML blir pakka saman med eksterne filer i ei zip-fil. "
-#~ "Brukarflata har vorte utbetra, mellom anna med nye ikon og betre "
-#~ "nivåmælarar."
+#~ msgid "As planned, main focus for this release was the wavetable support. Its done - buzztard can load what gstreamer can decode.The wavetable view has a nice waveform widget. Related to that buzztard has a new song-format that bundles the XML together with external files in a zip archive. Also the UI has seen a lot of improvements. The machine view looks nicer - Marc drew spiffy machine icons. In addition they now show real volume meters when playing. All meters are now properly synced."
+#~ msgstr "Kommentarar frå utviklarane om endringar sidan sist utgåve: Buzztard kan no opna alt gstreamer kan handtere. Me har eit nytt lagringsformat for songfiler: XML blir pakka saman med eksterne filer i ei zip-fil. Brukarflata har vorte utbetra, mellom anna med nye ikon og betre nivåmælarar."
+
+#~ msgid "Buzztard Music Editor"
+#~ msgstr "Buzztard musikkredigering"
+
+#~ msgid "Edit buzztard song files"
+#~ msgstr "Redigerer buzztard-songfiler"
 
 #~ msgid "interaction controller menu"
 #~ msgstr "meny for samhandlingskontroll"
@@ -1601,6 +1154,9 @@ msgstr "Kopla frå"
 
 #~ msgid "effects menu"
 #~ msgstr "effektmeny"
+
+#~ msgid "machine preferences"
+#~ msgstr "maskininnstillingar"
 
 #~ msgid "rename machine"
 #~ msgstr "gje maskina nytt namn"
@@ -1641,6 +1197,9 @@ msgstr "Kopla frå"
 #~ msgid "Copy"
 #~ msgstr "Kopier"
 
+#~ msgid "Paste"
+#~ msgstr "Lim inn"
+
 #~ msgid "Delete"
 #~ msgstr "Slett"
 
@@ -1649,6 +1208,15 @@ msgstr "Kopla frå"
 
 #~ msgid "view menu"
 #~ msgstr "visingsmeny"
+
+#~ msgid "Machine view"
+#~ msgstr "Maskinvising"
+
+#~ msgid "Pattern view"
+#~ msgstr "Mønstervising"
+
+#~ msgid "Sequence view"
+#~ msgstr "Sekvensvising"
 
 #~ msgid "Wave table view"
 #~ msgstr "Bylgjetabellvising"
@@ -1778,3 +1346,6 @@ msgstr "Kopla frå"
 
 #~ msgid "Coherence UPnP"
 #~ msgstr "Samanheng UPnP"
+
+#~ msgid "wire analysis"
+#~ msgstr "koplingsanalyse"
