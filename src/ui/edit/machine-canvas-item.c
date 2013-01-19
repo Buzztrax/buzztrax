@@ -147,7 +147,7 @@ struct _BtMachineCanvasItemPrivate
   gboolean is_playing;
 
   /* lock for multithreaded access */
-  GMutex *lock;
+  GMutex lock;
 };
 
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -359,16 +359,16 @@ typedef struct
   data->self=self; \
   data->meter=meter; \
   data->peak=peak; \
-  g_mutex_lock(self->priv->lock); \
+  g_mutex_lock(&self->priv->lock); \
   g_object_add_weak_pointer((GObject *)self,(gpointer *)(&data->self)); \
-  g_mutex_unlock(self->priv->lock); \
+  g_mutex_unlock(&self->priv->lock); \
 } G_STMT_END
 
 #define FREE_UPDATE_IDLE_DATA(data) G_STMT_START { \
   if(data->self) { \
-    g_mutex_lock(data->self->priv->lock); \
+    g_mutex_lock(&data->self->priv->lock); \
     g_object_remove_weak_pointer((gpointer)data->self,(gpointer *)(&data->self)); \
-    g_mutex_unlock(data->self->priv->lock); \
+    g_mutex_unlock(&data->self->priv->lock); \
   } \
   g_slice_free(BtUpdateIdleData,data); \
 } G_STMT_END
@@ -1314,7 +1314,7 @@ bt_machine_canvas_item_finalize (GObject * object)
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (object);
 
   GST_DEBUG ("!!!! self=%p", self);
-  g_mutex_free (self->priv->lock);
+  g_mutex_clear (&self->priv->lock);
 
   G_OBJECT_CLASS (bt_machine_canvas_item_parent_class)->finalize (object);
   GST_DEBUG ("  done");
@@ -1582,7 +1582,7 @@ bt_machine_canvas_item_init (BtMachineCanvasItem * self)
 
   self->priv->zoom = 1.0;
 
-  self->priv->lock = g_mutex_new ();
+  g_mutex_init (&self->priv->lock);
 }
 
 static void

@@ -75,7 +75,7 @@ struct _BtMainToolbarPrivate
   gdouble playback_rate;
 
   /* lock for multithreaded access */
-  GMutex *lock;
+  GMutex lock;
 };
 
 static GQuark bus_msg_level_quark = 0;
@@ -488,9 +488,9 @@ on_delayed_idle_song_level_change (gpointer user_data)
     gdouble cur, peak;
     guint i, size;
 
-    g_mutex_lock (self->priv->lock);
+    g_mutex_lock (&self->priv->lock);
     g_object_remove_weak_pointer ((gpointer) self, (gpointer *) & params[0]);
-    g_mutex_unlock (self->priv->lock);
+    g_mutex_unlock (&self->priv->lock);
 
     if (!self->priv->is_playing)
       goto done;
@@ -556,9 +556,9 @@ on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
 
         data[0] = (gpointer) self;
         data[1] = (gpointer) gst_message_ref (message);
-        g_mutex_lock (self->priv->lock);
+        g_mutex_lock (&self->priv->lock);
         g_object_add_weak_pointer ((gpointer) self, (gpointer *) & data[0]);
-        g_mutex_unlock (self->priv->lock);
+        g_mutex_unlock (&self->priv->lock);
         clock_id =
             gst_clock_new_single_shot_id (self->priv->clock,
             waittime + gst_element_get_base_time (level));
@@ -1135,7 +1135,7 @@ bt_main_toolbar_finalize (GObject * object)
   BtMainToolbar *self = BT_MAIN_TOOLBAR (object);
 
   GST_DEBUG ("!!!! self=%p", self);
-  g_mutex_free (self->priv->lock);
+  g_mutex_clear (&self->priv->lock);
 
   G_OBJECT_CLASS (bt_main_toolbar_parent_class)->finalize (object);
 }
@@ -1148,7 +1148,7 @@ bt_main_toolbar_init (BtMainToolbar * self)
       BtMainToolbarPrivate);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
-  self->priv->lock = g_mutex_new ();
+  g_mutex_init (&self->priv->lock);
   self->priv->playback_rate = 1.0;
   self->priv->num_channels = 2;
 }

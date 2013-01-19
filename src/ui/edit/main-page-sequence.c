@@ -177,7 +177,7 @@ struct _BtMainPageSequencePrivate
   gboolean is_playing;
 
   /* lock for multithreaded access */
-  GMutex *lock;
+  GMutex lock;
 
   /* cached sequence properties */
   GHashTable *properties;
@@ -1031,18 +1031,18 @@ typedef struct
   data->vumeter=vumeter; \
   data->peak=(gint)(peak+0.5); \
   data->decay=(gint)(decay+0.5); \
-  g_mutex_lock(self->priv->lock); \
+  g_mutex_lock(&self->priv->lock); \
   g_object_add_weak_pointer((GObject *)self,(gpointer *)(&data->self)); \
   g_object_add_weak_pointer((GObject *)vumeter,(gpointer *)(&data->vumeter)); \
-  g_mutex_unlock(self->priv->lock); \
+  g_mutex_unlock(&self->priv->lock); \
 } G_STMT_END
 
 #define FREE_UPDATE_IDLE_DATA(data) G_STMT_START { \
   if(data->self) { \
-    g_mutex_lock(data->self->priv->lock); \
+    g_mutex_lock(&data->self->priv->lock); \
     g_object_remove_weak_pointer((gpointer)data->self,(gpointer *)(&data->self)); \
     if(data->vumeter) g_object_remove_weak_pointer((gpointer)data->vumeter,(gpointer *)(&data->vumeter)); \
-    g_mutex_unlock(data->self->priv->lock); \
+    g_mutex_unlock(&data->self->priv->lock); \
   } \
   g_slice_free(BtUpdateIdleData,data); \
 } G_STMT_END
@@ -4671,7 +4671,7 @@ bt_main_page_sequence_finalize (GObject * object)
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (object);
 
   GST_DEBUG ("!!!! self=%p", self);
-  g_mutex_free (self->priv->lock);
+  g_mutex_clear (&self->priv->lock);
   g_hash_table_destroy (self->priv->level_to_vumeter);
 
   G_OBJECT_CLASS (bt_main_page_sequence_parent_class)->finalize (object);
@@ -4697,7 +4697,7 @@ bt_main_page_sequence_init (BtMainPageSequence * self)
 
   self->priv->follow_playback = TRUE;
 
-  self->priv->lock = g_mutex_new ();
+  g_mutex_init (&self->priv->lock);
 
   // the undo/redo changelogger
   self->priv->change_log = bt_change_log_new ();

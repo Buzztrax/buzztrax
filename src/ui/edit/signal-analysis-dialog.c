@@ -109,7 +109,7 @@ struct _BtSignalAnalysisDialogPrivate
   /* the analyzer results (max stereo) */
   gdouble rms[2], peak[2];
   gfloat *spect[2];
-  GMutex *lock;
+  GMutex lock;
 
   guint spect_channels;
   guint spect_height;
@@ -166,7 +166,7 @@ update_spectrum_analyzer (BtSignalAnalysisDialog * self)
 {
   guint spect_bands;
 
-  g_mutex_lock (self->priv->lock);
+  g_mutex_lock (&self->priv->lock);
 
   spect_bands = self->priv->spect_bands * self->priv->frq_precision;
 
@@ -184,7 +184,7 @@ update_spectrum_analyzer (BtSignalAnalysisDialog * self)
         "bands", spect_bands, NULL);
   }
 
-  g_mutex_unlock (self->priv->lock);
+  g_mutex_unlock (&self->priv->lock);
 }
 
 //-- event handler
@@ -339,7 +339,7 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
   }
   cairo_stroke (cr);
   // draw frequencies
-  g_mutex_lock (self->priv->lock);
+  g_mutex_lock (&self->priv->lock);
   for (c = 0; c < self->priv->spect_channels; c++) {
     if (self->priv->spect[c]) {
       gfloat *spect = self->priv->spect[c];
@@ -382,7 +382,7 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
       cairo_fill (cr);
     }
   }
-  g_mutex_unlock (self->priv->lock);
+  g_mutex_unlock (&self->priv->lock);
 
   // draw cross-hair for mouse
   gtk_widget_get_pointer (widget, &mx, &my);
@@ -683,7 +683,7 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
     gfloat height_scale = self->priv->height_scale;
     gfloat *spect;
 
-    g_mutex_lock (self->priv->lock);
+    g_mutex_lock (&self->priv->lock);
     spect_bands = self->priv->spect_bands * self->priv->frq_precision;
     //GST_INFO("get spectrum data");
     if ((data = gst_structure_get_value (structure, "magnitude"))) {
@@ -729,7 +729,7 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
         gtk_widget_queue_draw (self->priv->spectrum_drawingarea);
       }
     }
-    g_mutex_unlock (self->priv->lock);
+    g_mutex_unlock (&self->priv->lock);
   }
 
 done:
@@ -1264,7 +1264,7 @@ bt_signal_analysis_dialog_finalize (GObject * object)
   g_free (self->priv->spect[1]);
   g_free (self->priv->graph_log10);
   g_list_free (self->priv->analyzers_list);
-  g_mutex_free (self->priv->lock);
+  g_mutex_clear (&self->priv->lock);
 
   GST_DEBUG ("!!!! done");
 
@@ -1284,7 +1284,7 @@ bt_signal_analysis_dialog_init (BtSignalAnalysisDialog * self)
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
 
-  self->priv->lock = g_mutex_new ();
+  g_mutex_init (&self->priv->lock);
 
   self->priv->spect_height = 64;
   self->priv->spect_bands = 256;

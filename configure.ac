@@ -17,7 +17,7 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 
 dnl dependencies
-REQ_GLIB=2.24.0
+REQ_GLIB=2.32.0
 REQ_GTK=2.20.0
 REQ_GST=0.10.28
 
