@@ -16,35 +16,101 @@
  */
 /**
  * SECTION:btsettings
- * @short_description: base class for buzztard settings handling
+ * @short_description: class for buzztard settings handling
  *
- * Under the gnome platform GConf is a locical choice for settings managment.
- * Unfortunately there currently is no port of GConf for other platforms.
- * This class wraps the settings management. Depending on what settings managment
- * capabillities the <code>configure</code> script find on the system one of the
- * subclasses (#BtGConfSettings,#BtPlainfileSettings) will be used.
- *
- * In any case it is always sufficient to talk to this class instance. Single
- * settings are accessed via normat g_object_get() and g_object_set() calls. If
- * the backends supports it changes in the settings will be notified to the
- * application by the GObject::notify signal.
+ * Wraps the settings a #GObject. Single settings are accessed via normal
+ * g_object_get() and g_object_set() calls. Changes in the settings will be notified
+ * to the application by the GObject::notify signal.
  */
-/* TODO(ensonic): how can we decouple application specific settings for core settings?
- * We'd need to register schemas and create the GObject properties as needed.
+/* TODO(ensonic): how can we split application settings and core settings?
+ * - we should create empty settings by default
+ * - then each components (core, app) would attach the schemas
+ *   - one can either attach a full schema, a named key from a schema or maybe a
+ *     group of keys matching a prefix from a schema
+ * - the settings object would register the gobject properties and map them to the
+ *   schema keys
+ *   - this could be modelled a bit after GOption, libs provide a conext, apps
+ *     gathers a list of context objects and create the settings
+ * - the schema files seem to end up at $prefix/share/glib-2.0/schemas/
+ * - we would alway listen for settings changes to turn that into notifies
+ */
+/* TODO(ensonic): use child groups more often
+ * - we can group e.g. the settings for each settings page
+ * - this makes it nicer to browse in dconf-editor and leads to shorter names
+ * - but we also have to use the code below when editing them
+ *   child_settings = g_settings_get_child(settings, "child")
+ * - we could probably drop the whole set/get code for our own settings and use
+ *   g_settings_bind
  */
 #define BT_CORE
 #define BT_SETTINGS_C
 
 #include "core_private.h"
-#include "settings-private.h"
+#include <gio/gsettingsbackend.h>
 #include <gst/audio/multichannel.h>
 
-static BtSettingsFactory bt_settings_factory = NULL;
 static BtSettings *singleton = NULL;
+/* the settings backend, this is only set for the tests */
+static GSettingsBackend *settings_backend = NULL;
 
 //-- the class
 
-G_DEFINE_ABSTRACT_TYPE (BtSettings, bt_settings, G_TYPE_OBJECT);
+/* don't forget to add entries to tests/bt-test-settings.c */
+enum
+{
+  /* ui */
+  BT_SETTINGS_NEWS_SEEN = 1,
+  BT_SETTINGS_MISSING_MACHINES,
+  BT_SETTINGS_PRESENTED_TIPS,
+  BT_SETTINGS_SHOW_TIPS,
+  BT_SETTINGS_MENU_TOOLBAR_HIDE,
+  BT_SETTINGS_MENU_STATUSBAR_HIDE,
+  BT_SETTINGS_MENU_TABS_HIDE,
+  BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY,
+  BT_SETTINGS_WINDOW_XPOS,
+  BT_SETTINGS_WINDOW_YPOS,
+  BT_SETTINGS_WINDOW_WIDTH,
+  BT_SETTINGS_WINDOW_HEIGHT,
+  /* preferences */
+  BT_SETTINGS_AUDIOSINK,
+  BT_SETTINGS_AUDIOSINK_DEVICE,
+  BT_SETTINGS_SAMPLE_RATE,
+  BT_SETTINGS_CHANNELS,
+  BT_SETTINGS_LATENCY,
+  BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE,
+  BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT,
+  BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER,
+  BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE,
+  BT_SETTINGS_FOLDER_SONG,
+  BT_SETTINGS_FOLDER_RECORD,
+  BT_SETTINGS_FOLDER_SAMPLE,
+  /* system settings */
+  BT_SETTINGS_SYSTEM_AUDIOSINK,
+  BT_SETTINGS_SYSTEM_TOOLBAR_STYLE,
+  /* IDEA(ensonic): additional system settings
+     BT_SETTINGS_SYSTEM_TOOLBAR_DETACHABLE <gboolean> org.gnome.desktop.interface/toolbar_detachable
+     BT_SETTINGS_SYSTEM_TOOLBAR_ICON_SIZE  <gint>     org.gnome.desktop.interface/toolbar_icon_size
+     BT_SETTINGS_SYSTEM_MENUBAR_DETACHABLE <gboolean> org.gnome.desktop.interface/menubar_detachable
+     BT_SETTINGS_SYSTEM_MENU_HAVE_ICONS    <gboolean> org.gnome.desktop.interface/menus_have_icons
+     BT_SETTINGS_SYSTEM_MENU_HAVE_TEAROFF  <gboolean> org.gnome.desktop.interface/menus_have_tearoff
+     BT_SETTINGS_SYSTEM_KEYBOARD_LAYOUT    <gchar*>   org.gnome.desktop.peripherals/keyboard/{kbd,xkb}/layouts
+   */
+};
+
+struct _BtSettingsPrivate
+{
+  /* used to validate if dispose has run */
+  gboolean dispose_has_run;
+
+  GSettings *org_buzztard_all;
+  GSettings *org_buzztard_all_window;
+  GSettings *org_buzztard_all_playback_controller;
+  GSettings *org_gnome_desktop_interface;
+  GSettings *org_freedesktop_gstreamer_defaults;
+};
+
+
+G_DEFINE_TYPE (BtSettings, bt_settings, G_TYPE_OBJECT);
 
 //-- helper
 
@@ -114,6 +180,153 @@ parse_and_check_audio_sink (gchar * plugin_name)
   return (plugin_name);
 }
 
+static void
+read_boolean (GSettings * settings, const gchar * path, GValue * const value)
+{
+  gboolean prop = g_settings_get_boolean (settings, path);
+  GST_DEBUG ("application reads '%s' : '%d'", path, prop);
+  g_value_set_boolean (value, prop);
+}
+
+#if 0
+static void
+read_int (GSettings * settings, const gchar * path, GValue * const value)
+{
+  gint prop = g_settings_get_int (settings, path);
+  GST_DEBUG ("application reads '%s' : '%i'", path, prop);
+  g_value_set_int (value, prop);
+}
+#endif
+
+static void
+read_int_def (GSettings * settings, const gchar * path, GValue * const value,
+    GParamSpecInt * const pspec)
+{
+  gint prop = g_settings_get_int (settings, path);
+  if (prop) {
+    GST_DEBUG ("application reads '%s' : '%i'", path, prop);
+    g_value_set_int (value, prop);
+  } else {
+    GST_DEBUG ("application reads [def] '%s' : '%i'", path,
+        pspec->default_value);
+    g_value_set_int (value, pspec->default_value);
+  }
+}
+
+static void
+read_uint (GSettings * settings, const gchar * path, GValue * const value)
+{
+  guint prop = g_settings_get_uint (settings, path);
+  GST_DEBUG ("application reads '%s' : '%u'", path, prop);
+  g_value_set_uint (value, prop);
+}
+
+static void
+read_uint_def (GSettings * settings, const gchar * path, GValue * const value,
+    GParamSpecUInt * const pspec)
+{
+  guint prop = g_settings_get_uint (settings, path);
+  if (prop) {
+    GST_DEBUG ("application reads '%s' : '%u'", path, prop);
+    g_value_set_uint (value, prop);
+  } else {
+    GST_DEBUG ("application reads [def] '%s' : '%u'", path,
+        pspec->default_value);
+    g_value_set_uint (value, pspec->default_value);
+  }
+}
+
+static void
+read_string (GSettings * settings, const gchar * path, GValue * const value)
+{
+  gchar *const prop = g_settings_get_string (settings, path);
+  GST_DEBUG ("application reads '%s' : '%s'", path, prop);
+  g_value_take_string (value, prop);
+}
+
+static void
+read_string_def (GSettings * settings, const gchar * path, GValue * const value,
+    GParamSpecString * const pspec)
+{
+  gchar *const prop = g_settings_get_string (settings, path);
+  if (prop) {
+    GST_DEBUG ("application reads '%s' : '%s'", path, prop);
+    g_value_take_string (value, prop);
+    //g_value_set_string(value,prop);
+    //g_free(prop);
+  } else {
+    GST_DEBUG ("application reads [def] '%s' : '%s'", path,
+        pspec->default_value);
+    g_value_set_static_string (value, pspec->default_value);
+  }
+}
+
+
+static void
+write_boolean (GSettings * settings, const gchar * path,
+    const GValue * const value)
+{
+  gboolean prop = g_value_get_boolean (value);
+#ifndef GST_DISABLE_GST_DEBUG
+  gboolean res =
+#endif
+      g_settings_set_boolean (settings, path, prop);
+  GST_DEBUG ("application wrote '%s' : '%d' (%s)", path, prop,
+      (res ? "okay" : "fail"));
+}
+
+static void
+write_int (GSettings * settings, const gchar * path, const GValue * const value)
+{
+  gint prop = g_value_get_int (value);
+#ifndef GST_DISABLE_GST_DEBUG
+  gboolean res =
+#endif
+      g_settings_set_int (settings, path, prop);
+  GST_DEBUG ("application wrote '%s' : '%i' (%s)", path, prop,
+      (res ? "okay" : "fail"));
+}
+
+static void
+write_uint (GSettings * settings, const gchar * path,
+    const GValue * const value)
+{
+  guint prop = g_value_get_uint (value);
+#ifndef GST_DISABLE_GST_DEBUG
+  gboolean res =
+#endif
+      g_settings_set_uint (settings, path, prop);
+  GST_DEBUG ("application wrote '%s' : '%u' (%s)", path, prop,
+      (res ? "okay" : "fail"));
+}
+
+static void
+write_string (GSettings * settings, const gchar * path,
+    const GValue * const value)
+{
+  const gchar *prop = g_value_get_string (value);
+#ifndef GST_DISABLE_GST_DEBUG
+  gboolean res =
+#endif
+      g_settings_set_string (settings, path, prop);
+  GST_DEBUG ("application wrote '%s' : '%s' (%s)", path, prop,
+      (res ? "okay" : "fail"));
+}
+
+//-- signals
+
+static void
+on_settings_changed (GSettings * settings, gchar * key, gpointer user_data)
+{
+  const BtSettings *const self = BT_SETTINGS (user_data);
+
+  if (!strcmp (key, "toolbar-style")) {
+    g_object_notify ((GObject *) self, "toolbar-style");
+  } else if (!strcmp (key, "music-audiosink")) {
+    g_object_notify ((GObject *) self, "audiosink");
+  }
+}
+
 //-- constructor methods
 
 /**
@@ -130,20 +343,34 @@ parse_and_check_audio_sink (gchar * plugin_name)
 BtSettings *
 bt_settings_make (void)
 {
-
   if (G_UNLIKELY (!singleton)) {
     GST_INFO ("create a new settings object");
-    if (G_LIKELY (!bt_settings_factory)) {
-#ifdef USE_GCONF
-      singleton = (BtSettings *) bt_gconf_settings_new ();
-#else
-      singleton = (BtSettings *) bt_plainfile_settings_new ();
-#endif
-      GST_INFO ("settings created %p", singleton);
-    } else {
-      singleton = bt_settings_factory ();
-      GST_INFO ("created new settings object from factory %p", singleton);
-    }
+    singleton = (BtSettings *) g_object_new (BT_TYPE_SETTINGS, NULL);
+    BtSettingsPrivate *p = singleton->priv;
+
+    // add schemas
+    GSettingsBackend *backend = G_LIKELY (!settings_backend) ?
+        g_settings_backend_get_default () : settings_backend;
+    p->org_buzztard_all =
+        g_settings_new_with_backend ("org.buzztard.all", backend);
+    p->org_gnome_desktop_interface =
+        g_settings_new_with_backend ("org.gnome.desktop.interface", backend);
+    p->org_freedesktop_gstreamer_defaults =
+        g_settings_new_with_backend
+        ("org.freedesktop.gstreamer-0.10.default-elements", backend);
+
+    // get child settings
+    p->org_buzztard_all_window =
+        g_settings_get_child (p->org_buzztard_all, "window");
+    p->org_buzztard_all_playback_controller =
+        g_settings_get_child (p->org_buzztard_all, "playback-controller");
+
+    // add bindings
+    g_signal_connect (p->org_gnome_desktop_interface, "changed",
+        G_CALLBACK (on_settings_changed), (gpointer) singleton);
+    g_signal_connect (p->org_freedesktop_gstreamer_defaults, "changed",
+        G_CALLBACK (on_settings_changed), (gpointer) singleton);
+
     g_object_add_weak_pointer ((GObject *) singleton,
         (gpointer *) (gpointer) & singleton);
   } else {
@@ -157,20 +384,22 @@ bt_settings_make (void)
 //-- methods
 
 /**
- * bt_settings_set_factory:
- * @factory: factory method
+ * bt_settings_set_backend:
+ * @backend: settings backend (GSettingsBackend *)
  *
- * Set a factory method that creates a new settings instance. This is currently
- * only used by the unit tests to exercise the applications under various
- * conditions. Normal applications should NOT use it.
+ * Set a backend to use for the settings. This is useful for tests to exercise the
+ * applications under various conditions without affecting the user settings.
+ * Normal applications should NOT use it.
  */
 void
-bt_settings_set_factory (BtSettingsFactory factory)
+bt_settings_set_backend (gpointer backend)
 {
+  g_return_if_fail (G_IS_SETTINGS_BACKEND (backend));
+
   if (!singleton) {
-    bt_settings_factory = factory;
+    settings_backend = backend;
   } else {
-    GST_WARNING ("can't change factory while having %d instances in use",
+    GST_WARNING ("can't change backend while having %d instances in use",
         G_OBJECT_REF_COUNT (singleton));
   }
 }
@@ -280,20 +509,230 @@ static void
 bt_settings_get_property (GObject * const object, const guint property_id,
     GValue * const value, GParamSpec * const pspec)
 {
-  const GObjectClass *const gobject_class = G_OBJECT_GET_CLASS (object);
+  const BtSettings *const self = BT_SETTINGS (object);
+  return_if_disposed ();
 
-  // call implementation
-  gobject_class->get_property (object, property_id, value, pspec);
+  switch (property_id) {
+      /* ui */
+    case BT_SETTINGS_NEWS_SEEN:
+      read_uint (self->priv->org_buzztard_all, "news-seen", value);
+      break;
+    case BT_SETTINGS_MISSING_MACHINES:
+      read_string (self->priv->org_buzztard_all, "missing-machines", value);
+      break;
+    case BT_SETTINGS_PRESENTED_TIPS:
+      read_string (self->priv->org_buzztard_all, "presented-tips", value);
+      break;
+    case BT_SETTINGS_SHOW_TIPS:
+      read_boolean (self->priv->org_buzztard_all, "show-tips", value);
+      break;
+    case BT_SETTINGS_MENU_TOOLBAR_HIDE:
+      read_boolean (self->priv->org_buzztard_all, "toolbar-hide", value);
+      break;
+    case BT_SETTINGS_MENU_STATUSBAR_HIDE:
+      read_boolean (self->priv->org_buzztard_all, "statusbar-hide", value);
+      break;
+    case BT_SETTINGS_MENU_TABS_HIDE:
+      read_boolean (self->priv->org_buzztard_all, "tabs-hide", value);
+      break;
+    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
+      read_string_def (self->priv->org_buzztard_all, "grid-density", value,
+          (GParamSpecString *) pspec);
+      break;
+    case BT_SETTINGS_WINDOW_XPOS:
+      read_int_def (self->priv->org_buzztard_all_window, "x-pos", value,
+          (GParamSpecInt *) pspec);
+      break;
+    case BT_SETTINGS_WINDOW_YPOS:
+      read_int_def (self->priv->org_buzztard_all_window, "y-pos", value,
+          (GParamSpecInt *) pspec);
+      break;
+    case BT_SETTINGS_WINDOW_WIDTH:
+      read_int_def (self->priv->org_buzztard_all_window, "width", value,
+          (GParamSpecInt *) pspec);
+      break;
+    case BT_SETTINGS_WINDOW_HEIGHT:
+      read_int_def (self->priv->org_buzztard_all_window, "height", value,
+          (GParamSpecInt *) pspec);
+      break;
+      /* audio settings */
+    case BT_SETTINGS_AUDIOSINK:
+      read_string_def (self->priv->org_buzztard_all, "audiosink", value,
+          (GParamSpecString *) pspec);
+      break;
+    case BT_SETTINGS_AUDIOSINK_DEVICE:
+      read_string_def (self->priv->org_buzztard_all, "audiosink-device", value,
+          (GParamSpecString *) pspec);
+      break;
+    case BT_SETTINGS_SAMPLE_RATE:
+      read_uint_def (self->priv->org_buzztard_all, "sample-rate", value,
+          (GParamSpecUInt *) pspec);
+      break;
+    case BT_SETTINGS_CHANNELS:
+      read_uint_def (self->priv->org_buzztard_all, "channels", value,
+          (GParamSpecUInt *) pspec);
+      break;
+    case BT_SETTINGS_LATENCY:
+      read_uint_def (self->priv->org_buzztard_all, "latency", value,
+          (GParamSpecUInt *) pspec);
+      break;
+      /* playback controller */
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:
+      read_boolean (self->priv->org_buzztard_all_playback_controller,
+          "coherence-upnp-active", value);
+      break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
+      read_uint (self->priv->org_buzztard_all_playback_controller,
+          "coherence-upnp-port", value);
+      break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER:
+      read_boolean (self->priv->org_buzztard_all_playback_controller,
+          "jack-transport-master", value);
+      break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:
+      read_boolean (self->priv->org_buzztard_all_playback_controller,
+          "jack-transport-slave", value);
+      break;
+      /* directory settings */
+    case BT_SETTINGS_FOLDER_SONG:
+      read_string_def (self->priv->org_buzztard_all, "song-folder", value,
+          (GParamSpecString *) pspec);
+      break;
+    case BT_SETTINGS_FOLDER_RECORD:
+      read_string_def (self->priv->org_buzztard_all, "record-folder", value,
+          (GParamSpecString *) pspec);
+      break;
+    case BT_SETTINGS_FOLDER_SAMPLE:
+      read_string_def (self->priv->org_buzztard_all, "sample-folder", value,
+          (GParamSpecString *) pspec);
+      break;
+      /* system settings */
+    case BT_SETTINGS_SYSTEM_AUDIOSINK:
+      // org.freedesktop.gstreamer-0.10.default-elements : music-audiosink
+      read_string (self->priv->org_freedesktop_gstreamer_defaults,
+          "music-audiosink", value);
+      break;
+    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:
+      // org.gnome.desktop.interface
+      read_string (self->priv->org_gnome_desktop_interface, "toolbar-style",
+          value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
 }
 
 static void
 bt_settings_set_property (GObject * const object, const guint property_id,
     const GValue * const value, GParamSpec * const pspec)
 {
-  GObjectClass *const gobject_class = G_OBJECT_GET_CLASS (object);
+  const BtSettings *const self = BT_SETTINGS (object);
+  return_if_disposed ();
 
-  // call implementation
-  gobject_class->set_property (object, property_id, value, pspec);
+  switch (property_id) {
+      /* ui */
+    case BT_SETTINGS_NEWS_SEEN:
+      write_uint (self->priv->org_buzztard_all, "news-seen", value);
+      break;
+    case BT_SETTINGS_MISSING_MACHINES:
+      write_string (self->priv->org_buzztard_all, "missing-machines", value);
+      break;
+    case BT_SETTINGS_PRESENTED_TIPS:
+      write_string (self->priv->org_buzztard_all, "presented-tips", value);
+      break;
+    case BT_SETTINGS_SHOW_TIPS:
+      write_boolean (self->priv->org_buzztard_all, "show-tips", value);
+      break;
+    case BT_SETTINGS_MENU_TOOLBAR_HIDE:
+      write_boolean (self->priv->org_buzztard_all, "toolbar-hide", value);
+      break;
+    case BT_SETTINGS_MENU_STATUSBAR_HIDE:
+      write_boolean (self->priv->org_buzztard_all, "statusbar-hide", value);
+      break;
+    case BT_SETTINGS_MENU_TABS_HIDE:
+      write_boolean (self->priv->org_buzztard_all, "tabs-hide", value);
+      break;
+    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
+      write_string (self->priv->org_buzztard_all, "grid-density", value);
+      break;
+    case BT_SETTINGS_WINDOW_XPOS:
+      write_int (self->priv->org_buzztard_all_window, "x-pos", value);
+      break;
+    case BT_SETTINGS_WINDOW_YPOS:
+      write_int (self->priv->org_buzztard_all_window, "y-pos", value);
+      break;
+    case BT_SETTINGS_WINDOW_WIDTH:
+      write_int (self->priv->org_buzztard_all_window, "width", value);
+      break;
+    case BT_SETTINGS_WINDOW_HEIGHT:
+      write_int (self->priv->org_buzztard_all_window, "height", value);
+      break;
+      /* audio settings */
+    case BT_SETTINGS_AUDIOSINK:
+      write_string (self->priv->org_buzztard_all, "audiosink", value);
+      break;
+    case BT_SETTINGS_AUDIOSINK_DEVICE:
+      write_string (self->priv->org_buzztard_all, "audiosink-device", value);
+      break;
+    case BT_SETTINGS_SAMPLE_RATE:
+      write_uint (self->priv->org_buzztard_all, "sample-rate", value);
+      break;
+    case BT_SETTINGS_CHANNELS:
+      write_uint (self->priv->org_buzztard_all, "channels", value);
+      break;
+    case BT_SETTINGS_LATENCY:
+      write_uint (self->priv->org_buzztard_all, "latency", value);
+      break;
+      /* playback controller */
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:
+      write_boolean (self->priv->org_buzztard_all_playback_controller,
+          "coherence-upnp-active", value);
+      break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
+      write_uint (self->priv->org_buzztard_all_playback_controller,
+          "coherence-upnp-port", value);
+      break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER:
+      write_boolean (self->priv->org_buzztard_all_playback_controller,
+          "jack-transport-master", value);
+      break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:
+      write_boolean (self->priv->org_buzztard_all_playback_controller,
+          "jack-transport-slave", value);
+      break;
+      /* directory settings */
+    case BT_SETTINGS_FOLDER_SONG:
+      write_string (self->priv->org_buzztard_all, "song-folder", value);
+      break;
+    case BT_SETTINGS_FOLDER_RECORD:
+      write_string (self->priv->org_buzztard_all, "record-folder", value);
+      break;
+    case BT_SETTINGS_FOLDER_SAMPLE:
+      write_string (self->priv->org_buzztard_all, "sample-folder", value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
+static void
+bt_settings_dispose (GObject * const object)
+{
+  const BtSettings *const self = BT_SETTINGS (object);
+
+  return_if_disposed ();
+  self->priv->dispose_has_run = TRUE;
+
+  g_object_unref (self->priv->org_buzztard_all);
+  g_object_unref (self->priv->org_buzztard_all_window);
+  g_object_unref (self->priv->org_buzztard_all_playback_controller);
+  g_object_unref (self->priv->org_gnome_desktop_interface);
+  g_object_unref (self->priv->org_freedesktop_gstreamer_defaults);
+
+  G_OBJECT_CLASS (bt_settings_parent_class)->dispose (object);
+  GST_DEBUG ("  done");
 }
 
 //-- class internals
@@ -301,6 +740,9 @@ bt_settings_set_property (GObject * const object, const guint property_id,
 static void
 bt_settings_init (BtSettings * self)
 {
+  GST_DEBUG ("!!!! self=%p", self);
+  self->priv =
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SETTINGS, BtSettingsPrivate);
 }
 
 static void
@@ -308,8 +750,11 @@ bt_settings_class_init (BtSettingsClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
 
+  g_type_class_add_private (klass, sizeof (BtSettingsPrivate));
+
   gobject_class->set_property = bt_settings_set_property;
   gobject_class->get_property = bt_settings_get_property;
+  gobject_class->dispose = bt_settings_dispose;
 
   // ui
   g_object_class_install_property (gobject_class, BT_SETTINGS_NEWS_SEEN,
@@ -444,6 +889,7 @@ bt_settings_class_init (BtSettingsClass * const klass)
       g_param_spec_string ("sample-folder", "sample-folder prop",
           "default directory for sample-waveforms", g_get_home_dir (),
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
 
   // system settings
   g_object_class_install_property (gobject_class, BT_SETTINGS_SYSTEM_AUDIOSINK,

@@ -34,7 +34,6 @@
 #include "core.h"
 #include "bt-test-application.h"
 #include "bt-test-plugin.h"
-#include "bt-test-settings.h"
 #include "btic-test-device.h"
 
 extern gint test_argc;

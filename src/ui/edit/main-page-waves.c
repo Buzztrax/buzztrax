@@ -1550,7 +1550,6 @@ bt_main_page_waves_new (const BtMainPages * pages)
   BtMainPageWaves *self;
 
   self = BT_MAIN_PAGE_WAVES (g_object_new (BT_TYPE_MAIN_PAGE_WAVES, NULL));
-  self->priv->settings = bt_settings_make ();
   bt_main_page_waves_init_ui (self, pages);
 
   // create playbin
@@ -1631,6 +1630,7 @@ bt_main_page_waves_init (BtMainPageWaves * self)
       BtMainPageWavesPrivate);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
+  self->priv->settings = bt_settings_make ();
   self->priv->n2f =
       gstbt_tone_conversion_new (GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT);
 }

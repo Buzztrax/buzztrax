@@ -64,7 +64,27 @@ test_bt_settings_singleton (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-;
+static void
+test_bt_settings_get_audiosink1 (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSettings *settings = bt_settings_make ();
+  gchar *saved_audiosink_name =
+      check_gobject_get_str_property (settings, "audiosink");
+
+  /* act */
+  g_object_set (settings, "audiosink", "fakesink", NULL);
+
+  /* assert */
+  ck_assert_gobject_str_eq (settings, "audiosink", "fakesink");
+
+  /* cleanup */
+  g_object_set (settings, "audiosink", saved_audiosink_name, NULL);
+  g_free (saved_audiosink_name);
+  g_object_unref (settings);
+  BT_TEST_END;
+}
 
 
 TCase *
@@ -73,6 +93,7 @@ bt_settings_example_case (void)
   TCase *tc = tcase_create ("BtSettingsExamples");
 
   tcase_add_test (tc, test_bt_settings_singleton);
+  tcase_add_test (tc, test_bt_settings_get_audiosink1);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

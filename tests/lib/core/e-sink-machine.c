@@ -209,10 +209,14 @@ test_bt_sink_machine_fallback (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  gchar *settings_str = NULL;
+  /* we have no test settings anymore, but we could write to the system
+   * settings directy, as we're using the memory backend, we need the GSettings
+   * instance though (which is private to BtSettings
+   gchar *settings_str = NULL;
+   bt_test_settings_set (BT_TEST_SETTINGS (settings), "system-audiosink",
+   &settings_str);
+   */
   g_object_set (settings, "audiosink", NULL, NULL);
-  bt_test_settings_set (BT_TEST_SETTINGS (settings), "system-audiosink",
-      &settings_str);
 
   /* act */
   GError *err = NULL;

@@ -26,6 +26,7 @@
 #include <unistd.h>
 //-- glib
 #include <glib/gstdio.h>
+#include <gio/gsettingsbackend.h>
 
 #include "bt-check.h"
 
@@ -59,7 +60,7 @@ bt_check_init (void)
   // no ansi color codes in logfiles please
   gst_debug_set_colored (FALSE);
   // use our dummy settings
-  bt_settings_set_factory ((BtSettingsFactory) bt_test_settings_new);
+  bt_settings_set_backend (g_memory_settings_backend_new ());
 
 #ifdef HAVE_SETRLIMIT
   // only fork mode limit cpu/mem usage

@@ -3,9 +3,8 @@ Please turn you browser to http://www.buzztard.org to learn what this project
 is about. Buzztard is free software and distributed under the LGPL.
 
 = intro =
-Buzztard is a music composer similar to tracker applications.
-It is roughly modeled after the windows only, closed source and now discontinued
-application called Buzz.
+Buzztard is a music composer similar to tracker applications. It is roughly
+modelled after the windows only, closed source application called Buzz.
 
 = requirements =
 libxml2
@@ -17,21 +16,19 @@ gst-plugins-good
 gst-plugins-bad
 gnome-canvas
 gst-buzztard (from buzztard git, use same version as this module)
-gudev
 gsf
 
 Regarding gstreamer - the newer the better.
 
 = supported packages =
 check (http://check.sf.net - for unit tests)
-gconf (for persistent settings)
-udev (for interaction controller)
+gudev (for interaction controller)
 
 = building from git =
 To build use autogen.sh instead of configure. This accept the same options like
 configure. Later one can use autoregen.sh to rerun the bootstrapping.
-To build from git one needs gconf2-dev (see #1530372), gtk-doc and cvs (for
-autopoint from gettext) installed.
+To build from git one needs to have gtk-doc and cvs (for autopoint from gettext)
+installed.
 
 = directories =
 design : little test sources, not needed for releases, not built during make
@@ -44,9 +41,9 @@ src : the project sources
   lib
     core : logic, e.g. connections framework, file i/o, ...
     ic : interaction controller
-  tests : unit tests (same directory structure as src)
+tests : unit tests (same directory structure as src)
 
-= installing localy =
+= installing locally =
 Use following options for ./autogen.sh or ./configure
   --prefix=$HOME/buzztard
   --with-gconf-source=xml::/home/ensonic/.gconf/

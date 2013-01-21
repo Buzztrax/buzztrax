@@ -15,9 +15,6 @@ TESTS = \
 # prevent endless loops, this requires bash, see idea in bt-check.c
 #   ulimit -St20;
 #
-# adding this can help debug gconfd
-#    GCONF_DEBUG_TRACE_CLIENT=1
-#
 # http://www.cynapses.org/tmp/gcc/malloc_perturb
 #    MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
 #
@@ -58,7 +55,6 @@ libbt_check_la_SOURCES = \
 	tests/bt-check.c tests/bt-check.h \
 	tests/bt-test-application.c tests/bt-test-application.h \
 	tests/bt-test-plugin.c tests/bt-test-plugin.h \
-	tests/bt-test-settings.c tests/bt-test-settings.h \
 	tests/btic-test-device.c tests/btic-test-device.h
 libbt_check_la_DEPENDENCIES = /tmp/test.wav
 
@@ -117,7 +113,6 @@ libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
 	tests/lib/core/s-audio-session.c tests/lib/core/e-audio-session.c \
 	tests/lib/core/s-cmd-pattern.c tests/lib/core/e-cmd-pattern.c tests/lib/core/t-cmd-pattern.c \
 	tests/lib/core/s-core.c tests/lib/core/e-core.c tests/lib/core/t-core.c \
-	tests/lib/core/s-gconf-settings.c tests/lib/core/e-gconf-settings.c \
 	tests/lib/core/s-machine.c tests/lib/core/e-machine.c tests/lib/core/t-machine.c \
 	tests/lib/core/s-parameter-group.c tests/lib/core/e-parameter-group.c tests/lib/core/t-parameter-group.c \
 	tests/lib/core/s-pattern.c tests/lib/core/e-pattern.c tests/lib/core/t-pattern.c \

@@ -21,13 +21,14 @@ AM_CPPFLAGS = \
 	-DDATADIR=\"$(datadir)\" \
 	-DTESTSONGDIR=\"$(abs_top_srcdir)/tests/songs\" \
 	-DG_LOG_DOMAIN=\"buzztard\" \
+	-DG_SETTINGS_ENABLE_BACKEND \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
 AM_LDFLAGS = $(BT_LDFLAGS)
 
 EXTRA_DIST = \
-	$(schemas_DATA) \
+	org.buzztard.all.gschema.xml \
 	intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in \
@@ -56,36 +57,13 @@ include $(top_srcdir)/Makefile.pixmaps.am
 include $(top_srcdir)/Makefile.src.am
 include $(top_srcdir)/Makefile.tests.am
 
-# -- gconf
+# -- settings
 
-schemasdir = $(GCONF_SCHEMA_FILE_DIR)
-schemas_in_files = buzztard.schemas.in
-schemas_DATA = $(schemas_in_files:.schemas.in=.schemas)
+# gsettings_SCHEMAS is a list of all the schemas you want to install
+gsettings_SCHEMAS = org.buzztard.all.gschema.xml
 
-@INTLTOOL_SCHEMAS_RULE@
-
-if GCONF_SCHEMAS_INSTALL
-install-gconf:
-	@if test -z "$(DESTDIR)" ; then \
-		for p in $(schemas_DATA) ; do \
-			GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) \
-			$(GCONFTOOL) --makefile-install-rule $(top_srcdir)/$$p ; \
-		done \
-	fi
-
-uninstall-gconf:
-	@if test -z "$(DESTDIR)" ; then \
-		for p in $(schemas_DATA) ; do \
-			GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) \
-			$(GCONFTOOL) --makefile-uninstall-rule $(top_srcdir)/$$p ; \
-		done \
-	fi
-else
-install-gconf:
-
-uninstall-gconf:
-
-endif
+# include the appropriate makefile rules for schema handling
+@GSETTINGS_RULES@
 
 #-- fake subdir rules
 

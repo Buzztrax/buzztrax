@@ -19,6 +19,7 @@
  * @short_description: base class for a buzztard based application
  *
  * Every application using the libbtcore library should inherit from this class.
+ * Implementations should implement the singleton pattern.
  *
  * The base class automatically creates a #GstBin element as a container for the
  * song. This can be retrieved via the #BtApplication:bin property.

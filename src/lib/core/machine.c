@@ -1149,13 +1149,12 @@ bt_machine_init_interfaces (const BtMachine * const self)
   // initialize tempo iface properties
   if (GSTBT_IS_TEMPO (machine)) {
     BtSongInfo *song_info;
-    BtSettings *settings;
+    BtSettings *settings = bt_settings_make ();
     gulong bpm, tpb;
     guint latency;
 
     g_object_get ((gpointer) (self->priv->song), "song-info", &song_info, NULL);
     g_object_get (song_info, "bpm", &bpm, "tpb", &tpb, NULL);
-    settings = bt_settings_make ();
     g_object_get (settings, "latency", &latency, NULL);
     gstbt_tempo_change_tempo (GSTBT_TEMPO (machine),
         (glong) bpm, (glong) tpb, update_subticks (bpm, tpb, latency));
@@ -3325,7 +3324,7 @@ static void
 bt_machine_dispose (GObject * const object)
 {
   const BtMachine *const self = BT_MACHINE (object);
-  BtSettings *settings;
+  BtSettings *settings = bt_settings_make ();
   const gulong voices = self->priv->voices;
   gulong i;
 
@@ -3362,7 +3361,6 @@ bt_machine_dispose (GObject * const object)
       g_object_unref (song_info);
     }
   }
-  settings = bt_settings_make ();
   g_signal_handlers_disconnect_matched (settings,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       bt_machine_on_latency_changed, (gpointer) self);

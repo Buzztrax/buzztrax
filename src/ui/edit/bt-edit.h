@@ -59,6 +59,7 @@
 #include <libgstbuzztard/musicenums.h>
 #include <libgstbuzztard/toneconversion.h>
 //-- glib
+#include <glib.h>
 #include <glib/gstdio.h>
 //-- gtk+
 #include <gtk/gtk.h>

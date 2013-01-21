@@ -246,22 +246,6 @@ PKG_CHECK_MODULES(GUI_DEPS, \
   libgnomecanvas-2.0 \
 )
 
-PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
-    AM_CONDITIONAL(USE_GCONF, true)
-    AC_DEFINE(USE_GCONF, [1], [Define to 1 if we can use GConf])
-    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GCONF_DEPS_CFLAGS"
-    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GCONF_DEPS_LIBS"
-    AC_PATH_PROG(GCONFTOOL, gconftool-2, [#])
-    m4_ifdef([AM_GCONF_SOURCE_2], [AM_GCONF_SOURCE_2])
-    GCONF_DOC_TYPES=
-  ],[
-    AM_CONDITIONAL(USE_GCONF, false)
-    AM_CONDITIONAL(GCONF_SCHEMAS_INSTALL, false)
-    GCONF_DOC_TYPES="%"
-  ]
-)
-AC_SUBST(GCONF_DOC_TYPES)
-
 PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.8.0, [
     AC_DEFINE(USE_GSTBT, [1], [Define to 1 if we can use gst-buzztard])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTBT_DEPS_CFLAGS"
@@ -309,6 +293,8 @@ PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
     use_gsf=no
   ]
 )
+
+GLIB_GSETTINGS
 
 # GObject Introspection
 AC_ARG_ENABLE([introspection],

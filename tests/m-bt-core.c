@@ -29,7 +29,6 @@ extern Suite *bt_application_suite (void);
 extern Suite *bt_audio_session_suite (void);
 extern Suite *bt_cmd_pattern_suite (void);
 extern Suite *bt_core_suite (void);
-extern Suite *bt_gconf_settings_suite (void);
 extern Suite *bt_machine_suite (void);
 extern Suite *bt_param_group_suite (void);
 extern Suite *bt_pattern_suite (void);
@@ -87,7 +86,6 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_audio_session_suite ());
   srunner_add_suite (sr, bt_cmd_pattern_suite ());
   srunner_add_suite (sr, bt_core_suite ());
-  srunner_add_suite (sr, bt_gconf_settings_suite ());
   srunner_add_suite (sr, bt_machine_suite ());
   srunner_add_suite (sr, bt_param_group_suite ());
   srunner_add_suite (sr, bt_pattern_suite ());

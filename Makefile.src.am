@@ -1,11 +1,3 @@
-if USE_GCONF
-GCONF_SETTINGS_C_FILES = src/lib/core/gconf-settings.c
-GCONF_SETTINGS_H_FILES = src/lib/core/gconf-settings.h
-else
-GCONF_SETTINGS_C_FILES =
-GCONF_SETTINGS_H_FILES =
-endif
-
 if USE_GUDEV
 GUDEV_C_FILES=src/lib/ic/gudev-discoverer.c
 GUDEV_H_FILES=src/lib/ic/gudev-discoverer.h
@@ -92,7 +84,6 @@ libbuzztard_core_la_SOURCES = \
 	src/lib/core/audio-session.c \
 	src/lib/core/childproxy.c \
 	src/lib/core/cmd-pattern.c \
-	$(GCONF_SETTINGS_C_FILES) \
 	src/lib/core/machine.c \
 	src/lib/core/parameter-group.c \
 	src/lib/core/pattern.c \
@@ -117,10 +108,6 @@ libbuzztard_core_la_SOURCES = \
 	src/lib/core/wavelevel.c \
 	src/lib/core/wire.c
 
-# yet unused sources
-#	plainfile-settings.c libbuzztard-core/plainfile-settings.h \
-#
-
 libbuzztard_coredir = $(includedir)/libbuzztard-core
 libbuzztard_core_HEADERS = \
 	src/lib/core/core.h \
@@ -130,13 +117,11 @@ libbuzztard_core_HEADERS = \
 	src/lib/core/audio-session.h \
 	src/lib/core/childproxy.h \
 	src/lib/core/cmd-pattern.h \
-	$(GCONF_SETTINGS_H_FILES) \
 	src/lib/core/machine.h \
 	src/lib/core/parameter-group.h \
 	src/lib/core/pattern.h \
   	src/lib/core/pattern-control-source.h \
 	src/lib/core/persistence.h \
-	src/lib/core/plainfile-settings.h \
 	src/lib/core/processor-machine.h \
 	src/lib/core/sequence.h \
 	src/lib/core/settings.h \
@@ -155,10 +140,6 @@ libbuzztard_core_HEADERS = \
 	src/lib/core/wave.h \
 	src/lib/core/wavelevel.h \
 	src/lib/core/wire.h
-
-# yet unused sources
-#	plainfile-settings.h \
-#
 
 # -- songio plugins
 songiodir = ${exec_prefix}/lib/buzztard-songio
@@ -180,7 +161,6 @@ libbtbsl_la_SOURCES = \
 
 noinst_HEADERS = \
   src/lib/core/core_private.h \
-  src/lib/core/settings-private.h \
   src/lib/ic/ic_private.h
 
 # -- apps ----------------------------------------------------------------------

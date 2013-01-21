@@ -1,0 +1,130 @@
+<schemalist gettext-domain="FIXME">
+  <schema id="org.buzztard.all" path="/org/buzztard/">
+    <key name="news-seen" type="u">
+      <default l10n="messages" context="news-seen">0</default>
+      <summary>Version number for that the user has seen the news</summary>
+      <description>Tracks for which application version the user has seen the news already.</description>
+    </key>
+    <key name="missing-machines" type="s">
+      <default l10n="messages" context="missing-machines">''</default>
+      <summary>List of missing machines to ignore</summary>
+      <description>Comma separated list of machine names, that we will not warn about on startup, if they are missing.</description>
+    </key>
+    <key name="presented-tips" type="s">
+      <default l10n="messages" context="presented-tips">''</default>
+      <summary>List of tip-numbers that were shown already</summary>
+      <description>Comma separated list of tip-of-the-day numbers, that the user has seen.</description>
+    </key>
+    <key name="show-tips" type="b">
+      <default l10n="messages" context="show-tips">true</default>
+      <summary>Show tips on startup</summary>
+      <description>Should the tip-of-the-day dialog be shown everytime the application starts.</description>
+    </key>
+    <key name="toolbar-hide" type="b">
+      <default l10n="messages" context="toolbar-hide">false</default>
+      <summary>Hide main toolbar</summary>
+      <description>Should the main application toolbar be hidden.</description>
+    </key>
+    <key name="statusbar-hide" type="b">
+      <default l10n="messages" context="statusbar-hide">false</default>
+      <summary>Hide bottom statusbar</summary>
+      <description>Should the main application statusbar be hidden.</description>
+    </key>
+    <key name="tabs-hide" type="b">
+      <default l10n="messages" context="tabs-hide">false</default>
+      <summary>Hide main page tabs</summary>
+      <description>Should the main application notebook pages tabs be hidden.</description>
+    </key>
+    <key name="grid-density" type="s">
+      <default l10n="messages" context="grid-density">'low'</default>
+      <summary>Machine view grid detail level</summary>
+      <description>How dense the app should draw the grid lines shown in machine view: (off,low,medium,high)</description>
+    </key>
+    <key name="audiosink" type="s">
+      <default l10n="messages" context="audiosink">''</default>
+      <summary>Which audiosink to use</summary>
+      <description>Which gstreamer audiosink element should buzztard applications use.</description>
+    </key>
+    <key name="audiosink-device" type="s">
+      <default l10n="messages" context="audiosink-device">''</default>
+      <summary>Which audiosink device to use</summary>
+      <description>Which audio output device should buzztard applications use.</description>
+    </key>
+    <key name="sample-rate" type="u">
+      <default l10n="messages" context="sample-rate">44100</default>
+      <summary>Which sample-rate to use</summary>
+      <description>Which sample rate should be used for the generated audio.</description>
+    </key>
+    <key name="channels" type="u">
+      <default l10n="messages" context="channels">2</default>
+      <summary>How many audio channels to use</summary>
+      <description>How many audio channels should be used for the generated audio.</description>
+    </key>
+    <key name="latency" type="u">
+      <default l10n="messages" context="latency">30</default>
+      <summary>Target audio latency in ms</summary>
+      <description>What audio latency should the audio engine be configured for.</description>
+    </key>
+    <key name="song-folder" type="s">
+      <default l10n="messages" context="song-folder">''</default>
+      <summary>Default directory for songs</summary>
+      <description>Default directory for filechoosers, when loading existing or saving new songs.</description>
+    </key>
+    <key name="record-folder" type="s">
+      <default l10n="messages" context="record-folder">''</default>
+      <summary>Default directory for recordings</summary>
+      <description>Default directory song recordings.</description>
+    </key>
+    <key name="sample-folder" type="s">
+      <default l10n="messages" context="sample-folder">''</default>
+      <summary>Default directory for digital waveforms</summary>
+      <description>Default directory for the sample browser in the wavetable view.</description>
+    </key>
+    <child name="window" schema="org.buzztard.all.window"/>
+    <child name="playback-controller" schema="org.buzztard.all.playback-controller"/>
+  </schema>
+  <schema id="org.buzztard.all.window" path="/org/buzztard/window/">
+    <key name="x-pos" type="i">
+      <default l10n="messages" context="x-pos">-1</default>
+      <summary>window-xpos</summary>
+      <description>Last application window x-position.</description>
+    </key>
+    <key name="y-pos" type="i">
+      <default l10n="messages" context="y-pos">-1</default>
+      <summary>window-ypos</summary>
+      <description>Last application window y-position.</description>
+    </key>
+    <key name="width" type="i">
+      <default l10n="messages" context="width">-1</default>
+      <summary>window-width</summary>
+      <description>Last application window width.</description>
+    </key>
+    <key name="height" type="i">
+      <default l10n="messages" context="height">-1</default>
+      <summary>window-height</summary>
+      <description>Last application window height.</description>
+    </key>
+  </schema>
+  <schema id="org.buzztard.all.playback-controller" path="/org/buzztard/playback-controller/">
+    <key name="coherence-upnp-active" type="b">
+      <default l10n="messages" context="coherence-upnp-active">false</default>
+      <summary>Activate Coherence UPnP based playback controller</summary>
+      <description>Allows to remote control buzztard via upnp together by using the coherence backend.</description>
+    </key>
+    <key name="coherence-upnp-port" type="u">
+      <default l10n="messages" context="coherence-upnp-port">7654</default>
+      <summary>Socket port for the Coherence UPnP based playback controller</summary>
+      <description>The port number for the communication with the coherence backend.</description>
+    </key>
+    <key name="jack-transport-master" type="b">
+      <default l10n="messages" context="jack-transport-master">false</default>
+      <summary>Sync other jack clients to buzztard playback state</summary>
+      <description>Allows to remote control jack applications from buzztard.</description>
+    </key>
+    <key name="jack-transport-slave" type="b">
+      <default l10n="messages" context="jack-transport-slave">false</default>
+      <summary>Sync buzztard to the playback state other jack clients</summary>
+      <description>Allows to remote control buzztard via jack transport.</description>
+    </key>
+  </schema>
+</schemalist>

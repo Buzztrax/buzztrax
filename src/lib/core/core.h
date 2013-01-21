@@ -49,7 +49,6 @@
 #include "application.h"
 #include "audio-session.h"
 #include "cmd-pattern.h"
-#include "gconf-settings.h"
 #include "machine.h"
 #include "parameter-group.h"
 #include "pattern.h"
