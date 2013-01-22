@@ -28,7 +28,8 @@ AM_CPPFLAGS = \
 AM_LDFLAGS = $(BT_LDFLAGS)
 
 EXTRA_DIST = \
-	org.buzztard.all.gschema.xml \
+	org.buzztard.gschema.xml \
+	buzztard.convert \
 	intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in \
@@ -60,10 +61,14 @@ include $(top_srcdir)/Makefile.tests.am
 # -- settings
 
 # gsettings_SCHEMAS is a list of all the schemas you want to install
-gsettings_SCHEMAS = org.buzztard.all.gschema.xml
+gsettings_SCHEMAS = org.buzztard.gschema.xml
 
 # include the appropriate makefile rules for schema handling
 @GSETTINGS_RULES@
+
+# convert the gconf data to gsettings
+gconfconvertdir = $(datadir)/GConf/gsettings
+gconfconvert_DATA = buzztard.convert 
 
 #-- fake subdir rules
 
@@ -98,10 +103,10 @@ clean-local: test-clean-local
 	  fi; \
 	done	
 
-install-data-local: install-gconf
+install-data-local:
 	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir install-data; done
 
-uninstall-local: uninstall-gconf
+uninstall-local:
 	@for dir in $(FAKE_SUBDIRS); do $(MAKE) -C $$dir uninstall; done
 
 # silly hack to fix make distcheck on a clean package

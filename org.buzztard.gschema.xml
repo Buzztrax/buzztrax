@@ -1,5 +1,5 @@
-<schemalist gettext-domain="FIXME">
-  <schema id="org.buzztard.all" path="/org/buzztard/">
+<schemalist gettext-domain="buzztard">
+  <schema id="org.buzztard" path="/org/buzztard/">
     <key name="news-seen" type="u">
       <default l10n="messages" context="news-seen">0</default>
       <summary>Version number for that the user has seen the news</summary>
@@ -40,6 +40,34 @@
       <summary>Machine view grid detail level</summary>
       <description>How dense the app should draw the grid lines shown in machine view: (off,low,medium,high)</description>
     </key>
+    <child name="window" schema="org.buzztard.window"/>
+    <child name="audio" schema="org.buzztard.audio"/>
+    <child name="playback-controller" schema="org.buzztard.playback-controller"/>
+    <child name="directories" schema="org.buzztard.directories"/>
+  </schema>
+  <schema id="org.buzztard.window" path="/org/buzztard/window/">
+    <key name="x-pos" type="i">
+      <default l10n="messages" context="x-pos">-1</default>
+      <summary>window-xpos</summary>
+      <description>Last application window x-position.</description>
+    </key>
+    <key name="y-pos" type="i">
+      <default l10n="messages" context="y-pos">-1</default>
+      <summary>window-ypos</summary>
+      <description>Last application window y-position.</description>
+    </key>
+    <key name="width" type="i">
+      <default l10n="messages" context="width">-1</default>
+      <summary>window-width</summary>
+      <description>Last application window width.</description>
+    </key>
+    <key name="height" type="i">
+      <default l10n="messages" context="height">-1</default>
+      <summary>window-height</summary>
+      <description>Last application window height.</description>
+    </key>
+  </schema>
+  <schema id="org.buzztard.audio" path="/org/buzztard/audio/">
     <key name="audiosink" type="s">
       <default l10n="messages" context="audiosink">''</default>
       <summary>Which audiosink to use</summary>
@@ -65,47 +93,8 @@
       <summary>Target audio latency in ms</summary>
       <description>What audio latency should the audio engine be configured for.</description>
     </key>
-    <key name="song-folder" type="s">
-      <default l10n="messages" context="song-folder">''</default>
-      <summary>Default directory for songs</summary>
-      <description>Default directory for filechoosers, when loading existing or saving new songs.</description>
-    </key>
-    <key name="record-folder" type="s">
-      <default l10n="messages" context="record-folder">''</default>
-      <summary>Default directory for recordings</summary>
-      <description>Default directory song recordings.</description>
-    </key>
-    <key name="sample-folder" type="s">
-      <default l10n="messages" context="sample-folder">''</default>
-      <summary>Default directory for digital waveforms</summary>
-      <description>Default directory for the sample browser in the wavetable view.</description>
-    </key>
-    <child name="window" schema="org.buzztard.all.window"/>
-    <child name="playback-controller" schema="org.buzztard.all.playback-controller"/>
   </schema>
-  <schema id="org.buzztard.all.window" path="/org/buzztard/window/">
-    <key name="x-pos" type="i">
-      <default l10n="messages" context="x-pos">-1</default>
-      <summary>window-xpos</summary>
-      <description>Last application window x-position.</description>
-    </key>
-    <key name="y-pos" type="i">
-      <default l10n="messages" context="y-pos">-1</default>
-      <summary>window-ypos</summary>
-      <description>Last application window y-position.</description>
-    </key>
-    <key name="width" type="i">
-      <default l10n="messages" context="width">-1</default>
-      <summary>window-width</summary>
-      <description>Last application window width.</description>
-    </key>
-    <key name="height" type="i">
-      <default l10n="messages" context="height">-1</default>
-      <summary>window-height</summary>
-      <description>Last application window height.</description>
-    </key>
-  </schema>
-  <schema id="org.buzztard.all.playback-controller" path="/org/buzztard/playback-controller/">
+  <schema id="org.buzztard.playback-controller" path="/org/buzztard/playback-controller/">
     <key name="coherence-upnp-active" type="b">
       <default l10n="messages" context="coherence-upnp-active">false</default>
       <summary>Activate Coherence UPnP based playback controller</summary>
@@ -125,6 +114,23 @@
       <default l10n="messages" context="jack-transport-slave">false</default>
       <summary>Sync buzztard to the playback state other jack clients</summary>
       <description>Allows to remote control buzztard via jack transport.</description>
+    </key>
+  </schema>
+  <schema id="org.buzztard.directories" path="/org/buzztard/directories/">
+    <key name="song-folder" type="s">
+      <default l10n="messages" context="song-folder">''</default>
+      <summary>Default directory for songs</summary>
+      <description>Default directory for filechoosers, when loading existing or saving new songs.</description>
+    </key>
+    <key name="record-folder" type="s">
+      <default l10n="messages" context="record-folder">''</default>
+      <summary>Default directory for recordings</summary>
+      <description>Default directory song recordings.</description>
+    </key>
+    <key name="sample-folder" type="s">
+      <default l10n="messages" context="sample-folder">''</default>
+      <summary>Default directory for digital waveforms</summary>
+      <description>Default directory for the sample browser in the wavetable view.</description>
     </key>
   </schema>
 </schemalist>

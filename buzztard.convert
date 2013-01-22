@@ -1,0 +1,33 @@
+[org.buzztard]
+news-seen = /apps/buzztard/news-seen
+missing-machines = /apps/buzztard/missing-machines
+presented-tips = /apps/buzztard/presented-tips
+show-tips = /apps/buzztard/show-tips
+toolbar-hide = /apps/buzztard/toolbar-hide
+statusbar-hide = /apps/buzztard/statusbar-hide
+tabs-hide = /apps/buzztard/tabs-hide
+grid-density = /apps/buzztard/grid-density
+
+[org.buzztard.window]
+x-pos = /apps/buzztard/window/x-pos
+y-pos = /apps/buzztard/window/y-pos
+width = /apps/buzztard/window/width
+height = /apps/buzztard/window/height
+
+[org.buzztard.audio]
+audiosink = /apps/buzztard/audiosink
+audiosink-device = /apps/buzztard/audiosink-device
+sample-rate = /apps/buzztard/sample-rate
+channels  = /apps/buzztard/channels
+latency = /apps/buzztard/latency
+
+[org.buzztard.playback-controller]
+coherence-upnp-active = /apps/buzztard/playback-controller/coherence-upnp-active
+coherence-upnp-port = /apps/buzztard/playback-controller/coherence-upnp-port
+jack-transport-master = /apps/buzztard/playback-controller/jack-transport-master
+jack-transport-slave = /apps/buzztard/playback-controller/jack-transport-slave
+
+[org.buzztard.directories]
+song-folder = /apps/buzztard/song-folder
+record-folder = /apps/buzztard/record-folder
+sample-folder = /apps/buzztard/sample-folder
