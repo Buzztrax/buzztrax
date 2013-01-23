@@ -14,6 +14,7 @@
     * this could help to check 'what changed'
     * we'd need to also do xml output from check to runt the log compare for failed
       tests
+  * use https://github.com/martinpitt/umockdev for btic tests
 
 
 * review tests
@@ -385,20 +386,6 @@
     time and ticks
 
 
-* gsettings migrations
-  * we should consider dropping the whole settings abstraction, as gsettings is
-    part of glib anyway
-  * for the unit tests we use g_memory_settings_backend_new ()
-  * we'll need a small shim to use
-    GSettings *g_settings_new (const gchar *schema_id);
-    in application code and
-    GSettings *g_settings_new_with_backend (const gchar *schema_id, GSettingsBackend *backend);
-    in the tests
-  * we need to consider splitting the settings into core and app schemas
-  * should we start to use g_settings_bin for the sysem settings (toolbar style)
-    and remove them from the normal settings?
-
-
 * better handling of analyzer data
   * level and spectrum should use
     gst_event_new_sink_message(GstMessage *)
@@ -410,8 +397,4 @@
     do the delaying as we do now.
   * in 0.10 we could just send the sink-message-event when we receive the normal
     message 
-
-
-* release 0.7, remaining bugs to look at
-  * undo/redo is still flaky
 
