@@ -550,6 +550,8 @@ read_float (const BtSongIOBuzz * self)
 static gchar *
 read_string (const BtSongIOBuzz * self, guint32 len)
 {
+  GST_INFO ("reading string of len=%u", (guint) len);
+
   if (!len) {
     return (NULL);
   } else {
@@ -571,17 +573,24 @@ static gchar *
 read_null_string (const BtSongIOBuzz * self, guint32 len)
 {
   gchar *buffer = g_new (gchar, len + 1);
-  gchar *ptr = buffer, *res;
+  gchar *ptr = buffer, *res = NULL;
   gint8 c;
+  guint32 ct = 0;
+
+  GST_INFO ("reading string of len=%u", (guint) len);
 
   do {
     c = read_byte (self);
     if (!self->priv->io_error) {
       *ptr++ = (gchar) c;
+      ct++;
     }
-  } while (!self->priv->io_error && c);
+  } while (!self->priv->io_error && c && ct < len);
   *ptr = '\0';
-  res = g_convert (buffer, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
+  if (ct) {
+    GST_INFO ("read len=%u", (guint) len);
+    res = g_convert (buffer, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
+  }
   g_free (buffer);
   return (res);
 }
@@ -1462,8 +1471,13 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
         g_object_try_unref (src_machine);
       }
       // global params
-      pg = bt_machine_get_global_param_group (machine);
-      vg = bt_pattern_get_global_group (pattern);
+      if (machine) {
+        pg = bt_machine_get_global_param_group (machine);
+        vg = bt_pattern_get_global_group (pattern);
+      } else {
+        pg = NULL;
+        vg = NULL;
+      }
       for (k = 0; ((k < number_of_ticks) && !self->priv->io_error); k++) {
         //str1=g_strdup_printf("      tick: %2d  global:",k);
         for (p = 0; p < para->number_of_global_params; p++) {
@@ -1490,7 +1504,7 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
               // this should be no-val
               valuestr = "";
               // now try to map to real value
-              if ((pspec = bt_parameter_group_get_param_spec (pg, p))) {
+              if (pg && (pspec = bt_parameter_group_get_param_spec (pg, p))) {
                 GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (pspec);
                 GEnumClass *enum_class = enum_property->enum_class;
                 GEnumValue *enum_value;
@@ -1510,7 +1524,7 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
             GST_WARNING ("unknown parameter type %d for global param %d",
                 param->type, p);
           }
-          if (machine && pattern && p < number_of_global_params) {
+          if (vg && p < number_of_global_params) {
             if (mach->type) {
               if (!valuestr) {
                 sprintf (value, "%d", par);
@@ -1542,8 +1556,13 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
       // track params
       for (l = 0; ((l < number_of_tracks) && !self->priv->io_error); l++) {
         //str2=g_strdup_printf("%s  ",str1);g_free(str1);str1=str2;
-        pg = bt_machine_get_voice_param_group (machine, l);
-        vg = bt_pattern_get_voice_group (pattern, l);
+        if (machine) {
+          pg = bt_machine_get_voice_param_group (machine, l);
+          vg = bt_pattern_get_voice_group (pattern, l);
+        } else {
+          pg = NULL;
+          vg = NULL;
+        }
         for (k = 0; ((k < number_of_ticks) && !self->priv->io_error); k++) {
           //str1=g_strdup_printf("      tick: %2d  track:",k);
           for (p = 0; p < para->number_of_track_params; p++) {
@@ -1570,7 +1589,7 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
                 // this should be no-val
                 valuestr = "";
                 // now try to map to real value
-                if ((pspec = bt_parameter_group_get_param_spec (pg, p))) {
+                if (pg && (pspec = bt_parameter_group_get_param_spec (pg, p))) {
                   GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (pspec);
                   GEnumClass *enum_class = enum_property->enum_class;
                   GEnumValue *enum_value;
@@ -1590,7 +1609,7 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
               GST_WARNING ("unknown parameter type %d for voice %d param %d",
                   param->type, l, p);
             }
-            if (machine && pattern && p < number_of_track_params) {
+            if (vg && p < number_of_track_params) {
               if (!valuestr) {
                 sprintf (value, "%d", par);
                 valuestr = value;
@@ -2142,19 +2161,17 @@ read_pdlg_section (const BtSongIOBuzz * self, const BtSong * song)
   gboolean result = TRUE;
   BmxSectionEntry *entry = get_section_entry (self, "PDLG");
   guint8 flags;
-  glong coords[4];
   gchar *name;
-#if 0
   typedef struct _WINDOWPLACEMENT
   {
     unsigned int length;
     unsigned int flags;
     unsigned int showCmd;
-    POINT ptMinPosition;        // long x,y
-    POINT ptMaxPosition;        // long x,y
-    RECT rcNormalPosition;      // long left,top,bottom,rigth
+    int min_x, min_y;
+    int max_x, max_y;
+    int pos[4];                 // long left,top,bottom,rigth
   } WINDOWPLACEMENT;
-#endif
+  WINDOWPLACEMENT win;
 
   // this section is optional
   if (!entry)
@@ -2176,15 +2193,11 @@ read_pdlg_section (const BtSongIOBuzz * self, const BtSong * song)
   name = read_null_string (self, entry->size);
   while (name && *name) {
     // read windowplacement
-    mem_seek (self, sizeof (unsigned int) * 3 + sizeof (long) * 4, SEEK_CUR);
-    gint r = mem_read (self, coords, sizeof (long), 4);
-    if (r != 4) {
-      GST_WARNING ("can't read from file : %d : %s", errno, strerror (errno));
-      self->priv->io_error = TRUE;
-      break;
-    }
-    GST_DEBUG ("  window pos '%s': %ld,%ld %ld,%ld", name, coords[0], coords[1],
-        coords[2], coords[3]);
+    mem_read (self, &win, sizeof (win), 1);
+    //GST_MEMDUMP ("window pos: ", (guint8 *)&win, sizeof (win));
+    GST_DEBUG ("  window pos '%s': %d,%d-%d,%d", name,
+        GUINT_FROM_LE (win.pos[0]), GUINT_FROM_LE (win.pos[1]),
+        GUINT_FROM_LE (win.pos[2]), GUINT_FROM_LE (win.pos[3]));
     name = read_null_string (self, entry->size);
   }
 
