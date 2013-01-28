@@ -132,6 +132,9 @@ static gchar *sink_pn[] = {
   "sink"                        /* pan */
 };
 
+static GstElementFactory *factories[PART_COUNT];
+
+
 //-- the class
 
 static void bt_wire_persistence_interface_init (gpointer const g_iface,
@@ -197,25 +200,35 @@ bt_wire_make_internal_element (const BtWire * const self, const BtWirePart part,
     const gchar * const factory_name, const gchar * const element_name)
 {
   gboolean res = FALSE;
+  GstElement *m;
+  GstElementFactory *f;
   const gchar *const parent_name = GST_OBJECT_NAME (self);
   gchar *const name =
       g_alloca (strlen (parent_name) + 2 + strlen (element_name));
 
   g_return_val_if_fail ((self->priv->machines[part] == NULL), TRUE);
 
+  if (!factories[part]) {
+    /* we never unref them, instead we keep them until the end */
+    if (!(factories[part] = gst_element_factory_find (factory_name))) {
+      GST_WARNING_OBJECT (self, "failed to lookup factory %s", factory_name);
+      goto Error;
+    }
+  }
+  f = factories[part];
+
   // create internal element
   //strcat(name,parent_name);strcat(name,":");strcat(name,element_name);
   g_sprintf (name, "%s:%s", parent_name, element_name);
-  if (!(self->priv->machines[part] =
-          gst_element_factory_make (factory_name, name))) {
+  if (!(self->priv->machines[part] = gst_element_factory_create (f, name))) {
     GST_WARNING_OBJECT (self, "failed to create %s from factory %s",
         element_name, factory_name);
     goto Error;
   }
+  m = self->priv->machines[part];
   // disable deep notify
   {
-    GObjectClass *gobject_class =
-        G_OBJECT_GET_CLASS (self->priv->machines[part]);
+    GObjectClass *gobject_class = G_OBJECT_GET_CLASS (m);
     GObjectClass *parent_class = g_type_class_peek_static (G_TYPE_OBJECT);
     gobject_class->dispatch_properties_changed =
         parent_class->dispatch_properties_changed;
@@ -224,20 +237,19 @@ bt_wire_make_internal_element (const BtWire * const self, const BtWirePart part,
   // get the pads
   if (src_pn[part]) {
     if (src_pn[part][0] != '\0') {
-      self->priv->src_pads[part] =
-          gst_element_get_static_pad (self->priv->machines[part], src_pn[part]);
+      self->priv->src_pads[part] = gst_element_get_static_pad (m, src_pn[part]);
     } else {
-      self->priv->src_pads[part] =
-          gst_element_get_request_pad (self->priv->machines[part],
-          &src_pn[part][1]);
+      self->priv->src_pads[part] = gst_element_request_pad (m,
+          bt_gst_element_factory_get_pad_template (f, &src_pn[part][1]), NULL,
+          NULL);
     }
   }
-  if (sink_pn[part])
-    self->priv->sink_pads[part] =
-        gst_element_get_static_pad (self->priv->machines[part], sink_pn[part]);
+  if (sink_pn[part]) {
+    self->priv->sink_pads[part] = gst_element_get_static_pad (m, sink_pn[part]);
+  }
 
-  gst_bin_add (GST_BIN (self), self->priv->machines[part]);
-  gst_element_sync_state_with_parent (self->priv->machines[part]);
+  gst_bin_add (GST_BIN (self), m);
+  gst_element_sync_state_with_parent (m);
   res = TRUE;
 Error:
   return (res);
@@ -1151,8 +1163,8 @@ bt_wire_persistence_load (const GType type,
                       if (!strncmp ((char *) child_node3->name, "wiredata\0",
                               9)) {
                         param =
-                            bt_parameter_group_get_param_index (self->
-                            priv->param_group, (gchar *) name);
+                            bt_parameter_group_get_param_index (self->priv->
+                            param_group, (gchar *) name);
                         if (param != -1) {
                           bt_value_group_set_event (vg, tick, param,
                               (gchar *) value);

@@ -114,6 +114,33 @@ bt_gst_registry_get_element_names_matching_all_categories (const gchar *
 }
 
 /**
+ * bt_gst_element_factory_get_pad_template:
+ * @factory: element factory
+ * @name: name of the pad-template, e.g. "src" or "sink%d"
+ *
+ * Lookup a pad template by name.
+ *
+ * Returns: the pad template or %NULL if not found
+ */
+GstPadTemplate *
+bt_gst_element_factory_get_pad_template (GstElementFactory * factory,
+    const gchar * name)
+{
+  /* get pad templates */
+  const GList *list = gst_element_factory_get_static_pad_templates (factory);
+  for (; list; list = g_list_next (list)) {
+    GstStaticPadTemplate *t = (GstStaticPadTemplate *) list->data;
+
+    GST_INFO_OBJECT (factory, "Checking pad-template '%s'", t->name_template);
+    if (g_strcmp0 (t->name_template, name) == 0) {
+      return gst_static_pad_template_get (t);
+    }
+  }
+  GST_WARNING_OBJECT (factory, "No pad-template '%s'", name);
+  return NULL;
+}
+
+/**
  * bt_gst_element_factory_can_sink_media_type:
  * @factory: element factory to check
  * @name: caps type name
@@ -327,6 +354,7 @@ bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
   gboolean res = TRUE;
   const GList *node;
   GstElement *prev = NULL, *next;
+  GstElementClass *tee_class = GST_ELEMENT_GET_CLASS (tee);
   GstPad *tee_src, *analyzer_sink;
 
   g_return_val_if_fail (GST_IS_BIN (bin), FALSE);
@@ -353,7 +381,8 @@ bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
     prev = next;
   }
   GST_INFO_OBJECT (bin, "blocking tee.src");
-  tee_src = gst_element_get_request_pad (tee, "src%d");
+  tee_src = gst_element_request_pad (tee,
+      gst_element_class_get_pad_template (tee_class, "src%d"), NULL, NULL);
   analyzer_sink =
       gst_element_get_static_pad (GST_ELEMENT (analyzers->data), "sink");
   if (is_playing)

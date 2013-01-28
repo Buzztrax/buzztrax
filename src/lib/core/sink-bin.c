@@ -545,8 +545,8 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->priv->
-          record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->
+          priv->record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
@@ -772,7 +772,13 @@ bt_sink_bin_update (const BtSinkBin * const self)
       break;
     }
     case BT_SINK_BIN_MODE_PASS_THRU:{
-      GstPad *target_pad = gst_element_get_request_pad (tee, "src%d");
+      GstPadTemplate *tmpl =
+          gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (tee),
+          "src%d");
+      GstPad *target_pad = gst_element_request_pad (tee, tmpl, NULL, NULL);
+      if (!target_pad) {
+        GST_WARNING_OBJECT (tee, "failed to get request 'src' request-pad");
+      }
 
       self->priv->src = gst_ghost_pad_new ("src", target_pad);
       gst_pad_set_active (self->priv->src, TRUE);
@@ -789,16 +795,19 @@ bt_sink_bin_update (const BtSinkBin * const self)
         gst_element_get_static_pad (self->priv->caps_filter, "sink");
     GstPad *req_sink_pad = NULL;
 
-    GST_INFO ("updating ghostpad: %p", self->priv->sink);
+    GST_INFO_OBJECT (self->priv->sink, "updating ghostpad: %p",
+        self->priv->sink);
 
     if (!sink_pad) {
-      GST_INFO ("failed to get static 'sink' pad for element '%s'",
-          GST_OBJECT_NAME (self->priv->caps_filter));
+      GST_INFO_OBJECT (self->priv->caps_filter,
+          "failed to get static 'sink' pad");
+      GstElementClass *klass = GST_ELEMENT_GET_CLASS (self->priv->caps_filter);
       sink_pad = req_sink_pad =
-          gst_element_get_request_pad (self->priv->caps_filter, "sink_%d");
+          gst_element_request_pad (self->priv->caps_filter,
+          gst_element_class_get_pad_template (klass, "sink_%d"), NULL, NULL);
       if (!sink_pad) {
-        GST_INFO ("failed to get request 'sink' request-pad for element '%s'",
-            GST_OBJECT_NAME (self->priv->caps_filter));
+        GST_WARNING_OBJECT (self->priv->caps_filter,
+            "failed to get request 'sink' request-pad");
       }
     }
     GST_INFO_OBJECT (self->priv->caps_filter,

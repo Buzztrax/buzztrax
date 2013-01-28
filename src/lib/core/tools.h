@@ -24,6 +24,8 @@
 
 GList *bt_gst_registry_get_element_factories_matching_all_categories(const gchar *class_filter);
 GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *class_filter);
+
+GstPadTemplate * bt_gst_element_factory_get_pad_template(GstElementFactory *factory, const gchar *name);
 gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,const gchar *name);
 
 GList *bt_gst_check_elements(GList *list);

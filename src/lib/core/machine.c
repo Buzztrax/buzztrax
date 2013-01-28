@@ -267,6 +267,11 @@ static gchar *sink_pn[] = {
   "sink"                        /* tee */
 };
 
+static GstElementFactory *factories[PART_COUNT];
+// for tee and adder
+static GstPadTemplate *src_pt;
+static GstPadTemplate *sink_pt;
+
 
 //-- the class
 
@@ -672,8 +677,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->dst_wires->
-                        data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -701,8 +706,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->src_wires->
-                        data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -831,6 +836,7 @@ bt_machine_make_internal_element (const BtMachine * const self,
 {
   gboolean res = FALSE;
   GstElement *m;
+  GstElementFactory *f;
   const gchar *const parent_name = GST_OBJECT_NAME (self);
   gchar *const name =
       g_alloca (strlen (parent_name) + 2 + strlen (element_name));
@@ -838,15 +844,32 @@ bt_machine_make_internal_element (const BtMachine * const self,
 
   g_return_val_if_fail ((self->priv->machines[part] == NULL), TRUE);
 
+  // for the core machine we don't cache the factory
+  if (part == PART_MACHINE) {
+    if (!(f = gst_element_factory_find (factory_name))) {
+      GST_WARNING_OBJECT (self, "failed to lookup factory %s", factory_name);
+      goto Error;
+    }
+  } else {
+    if (!factories[part]) {
+      // we never unref them, instead we keep them until the end
+      if (!(factories[part] = gst_element_factory_find (factory_name))) {
+        GST_WARNING_OBJECT (self, "failed to lookup factory %s", factory_name);
+        goto Error;
+      }
+    }
+    f = factories[part];
+  }
+
   // create internal element
   //strcat(name,parent_name);strcat(name,":");strcat(name,element_name);
   g_sprintf (name, "%s:%s", parent_name, element_name);
-  if (!(self->priv->machines[part] = m =
-          gst_element_factory_make (factory_name, name))) {
+  if (!(self->priv->machines[part] = gst_element_factory_create (f, name))) {
     GST_WARNING_OBJECT (self, "failed to create %s from factory %s",
         element_name, factory_name);
     goto Error;
   }
+  m = self->priv->machines[part];
   // disable deep notify
   {
     GObjectClass *gobject_class = G_OBJECT_GET_CLASS (m);
@@ -909,8 +932,11 @@ bt_machine_make_internal_element (const BtMachine * const self,
     }
   }
 
-  gst_bin_add (GST_BIN (self), self->priv->machines[part]);
-  gst_element_sync_state_with_parent (self->priv->machines[part]);
+  gst_bin_add (GST_BIN (self), m);
+  gst_element_sync_state_with_parent (m);
+  if (part == PART_MACHINE) {
+    gst_object_unref (f);
+  }
   res = TRUE;
 Error:
   return (res);
@@ -1332,8 +1358,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1395,8 +1421,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                    machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -3049,15 +3075,31 @@ bt_machine_request_new_pad (GstElement * element, GstPadTemplate * templ,
 
   // check direction
   if (GST_PAD_TEMPLATE_DIRECTION (templ) == GST_PAD_SRC) {
-    target =
-        gst_element_get_request_pad (self->priv->machines[PART_SPREADER],
-        "src%d");
+    if (!src_pt) {
+      src_pt =
+          bt_gst_element_factory_get_pad_template (factories[PART_SPREADER],
+          "src%d");
+    }
+
+    if (!(target = gst_element_request_pad (self->priv->machines[PART_SPREADER],
+                src_pt, NULL, NULL))) {
+      GST_WARNING_OBJECT (element, "failed to request pad 'src%d'");
+      return NULL;
+    }
     name = g_strdup_printf ("src%d", self->priv->src_pad_counter++);
     GST_INFO_OBJECT (element, "request src pad: %s", name);
   } else {
-    target =
-        gst_element_get_request_pad (self->priv->machines[PART_ADDER],
-        "sink%d");
+    if (!sink_pt) {
+      sink_pt =
+          bt_gst_element_factory_get_pad_template (factories[PART_ADDER],
+          "sink%d");
+    }
+
+    if (!(target = gst_element_request_pad (self->priv->machines[PART_ADDER],
+                sink_pt, NULL, NULL))) {
+      GST_WARNING_OBJECT (element, "failed to request pad 'sink%d'");
+      return NULL;
+    }
     name = g_strdup_printf ("sink%d", self->priv->sink_pad_counter++);
     GST_INFO_OBJECT (element, "request sink pad: %s", name);
   }

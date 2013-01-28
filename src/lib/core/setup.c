@@ -512,6 +512,7 @@ link_wire (const BtSetup * const self, GstElement * wire)
 {
   GstPadLinkReturn link_res;
   GstElement *src, *dst;
+  GstPadTemplate *tmpl;
   GstPad *src_pad, *dst_pad, *peer;
   gboolean res = TRUE;
 
@@ -521,29 +522,38 @@ link_wire (const BtSetup * const self, GstElement * wire)
   dst_pad = gst_element_get_static_pad (GST_ELEMENT (wire), "sink");
   GST_INFO_OBJECT (dst_pad, "linking start of wire");
   if (!(peer = gst_pad_get_peer (dst_pad))) {
-    if ((src_pad = gst_element_get_request_pad (GST_ELEMENT (src), "src%d"))) {
+    if ((tmpl =
+            gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (src),
+                "src%d"))) {
+      if ((src_pad =
+              gst_element_request_pad (GST_ELEMENT (src), tmpl, NULL, NULL))) {
 #if USE_PAD_BLOCK
-      if (                      /*(BT_IS_SOURCE_MACHINE(src) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) || */
-          (GST_STATE (src) == GST_STATE_PLAYING)) {
-        if (gst_pad_is_active (src_pad)) {
-          if (gst_pad_set_blocked (src_pad, TRUE)) {
-            self->priv->blocked_pads =
-                g_slist_prepend (self->priv->blocked_pads,
-                gst_object_ref (src_pad));
+        if (                    /*(BT_IS_SOURCE_MACHINE(src) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) || */
+            (GST_STATE (src) == GST_STATE_PLAYING)) {
+          if (gst_pad_is_active (src_pad)) {
+            if (gst_pad_set_blocked (src_pad, TRUE)) {
+              self->priv->blocked_pads =
+                  g_slist_prepend (self->priv->blocked_pads,
+                  gst_object_ref (src_pad));
+            }
           }
         }
-      }
 #endif
-      if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (src_pad, dst_pad))) {
-        GST_WARNING ("Can't link start of wire : %s",
-            bt_gst_debug_pad_link_return (link_res, src_pad, dst_pad));
+        if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (src_pad, dst_pad))) {
+          GST_WARNING ("Can't link start of wire : %s",
+              bt_gst_debug_pad_link_return (link_res, src_pad, dst_pad));
+          res = FALSE;
+          gst_element_release_request_pad (src, src_pad);
+          // TODO(ensonic): unblock the pad
+        }
+      } else {
+        GST_WARNING_OBJECT (src,
+            "Can't get request pad for src-peer of start of wire");
         res = FALSE;
-        gst_element_release_request_pad (src, src_pad);
-        // TODO(ensonic): unblock the pad
       }
     } else {
       GST_WARNING_OBJECT (src,
-          "Can't get request pad for src-peer of start of wire");
+          "Can't lookup pad-template 'src%d' for src-peer of start of wire");
       res = FALSE;
     }
   } else {
@@ -558,16 +568,25 @@ link_wire (const BtSetup * const self, GstElement * wire)
   src_pad = gst_element_get_static_pad (GST_ELEMENT (wire), "src");
   GST_INFO_OBJECT (src_pad, "linking end of wire");
   if (!(peer = gst_pad_get_peer (src_pad))) {
-    if ((dst_pad = gst_element_get_request_pad (GST_ELEMENT (dst), "sink%d"))) {
-      if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (src_pad, dst_pad))) {
-        GST_WARNING ("Can't link end of wire : %s",
-            bt_gst_debug_pad_link_return (link_res, src_pad, dst_pad));
+    if ((tmpl =
+            gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (dst),
+                "sink%d"))) {
+      if ((dst_pad =
+              gst_element_request_pad (GST_ELEMENT (dst), tmpl, NULL, NULL))) {
+        if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (src_pad, dst_pad))) {
+          GST_WARNING ("Can't link end of wire : %s",
+              bt_gst_debug_pad_link_return (link_res, src_pad, dst_pad));
+          res = FALSE;
+          gst_element_release_request_pad (dst, dst_pad);
+        }
+      } else {
+        GST_WARNING_OBJECT (dst,
+            "Can't get request pad for sink-peer of end of wire");
         res = FALSE;
-        gst_element_release_request_pad (dst, dst_pad);
       }
     } else {
       GST_WARNING_OBJECT (dst,
-          "Can't get request pad for sink-peer of end of wire");
+          "Can't lookup pad-template 'sink%d' for sink-peer of end of wire");
       res = FALSE;
     }
   } else {
