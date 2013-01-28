@@ -147,13 +147,7 @@ bt_machine_list_model_rem (BtMachineListModel * model, BtMachine * machine)
       on_machine_id_changed, (gpointer) model);
 
   // remove entry
-#if GLIB_CHECK_VERSION(2,28,0)
   iter = g_sequence_lookup (seq, machine, model_item_cmp, NULL);
-#else
-  iter =
-      g_sequence_iter_prev (g_sequence_search (seq, machine, model_item_cmp,
-          NULL));
-#endif
   position = g_sequence_iter_get_position (iter);
   g_sequence_remove (iter);
 

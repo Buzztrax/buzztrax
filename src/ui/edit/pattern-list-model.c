@@ -166,13 +166,7 @@ bt_pattern_list_model_rem (BtPatternListModel * model, BtPattern * pattern)
       on_pattern_name_changed, (gpointer) model);
 
   // remove entry
-#if GLIB_CHECK_VERSION(2,28,0)
   iter = g_sequence_lookup (seq, pattern, model_item_cmp, NULL);
-#else
-  iter =
-      g_sequence_iter_prev (g_sequence_search (seq, pattern, model_item_cmp,
-          NULL));
-#endif
   position = g_sequence_iter_get_position (iter);
   g_sequence_remove (iter);
 
@@ -265,13 +259,7 @@ on_sequence_pattern_usage_changed (BtSequence * sequence, BtPattern * pattern,
 
       // find the item by pattern
       iter.stamp = model->priv->stamp;
-#if GLIB_CHECK_VERSION(2,28,0)
       iter.user_data = g_sequence_lookup (seq, pattern, model_item_cmp, NULL);
-#else
-      iter.user_data =
-          g_sequence_iter_prev (g_sequence_search (seq, pattern, model_item_cmp,
-              NULL));
-#endif
       path = gtk_tree_path_new ();
       gtk_tree_path_append_index (path,
           g_sequence_iter_get_position (iter.user_data));
@@ -377,11 +365,7 @@ bt_pattern_list_model_get_iter (BtPatternListModel *model, GtkTreeIter *iter,
   GSequence *seq=model->priv->seq;
 
   iter->stamp=model->priv->stamp;
-#if GLIB_CHECK_VERSION(2,28,0)
   iter->user_data=g_sequence_lookup(seq,pattern,model_item_cmp,NULL);
-#else
-  iter->user_data=g_sequence_iter_prev(g_sequence_search(seq,pattern,model_item_cmp,NULL));
-#endif
   return(g_sequence_get(iter->user_data)==pattern);
 }
 */

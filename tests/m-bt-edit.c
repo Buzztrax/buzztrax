@@ -164,13 +164,6 @@ main (gint argc, gchar ** argv)
   gint nf;
   SRunner *sr;
 
-#if !GLIB_CHECK_VERSION (2, 31, 0)
-  // initialize as soon as possible
-  if (!g_thread_supported ()) {
-    g_thread_init (NULL);
-  }
-#endif
-
   g_type_init ();
   g_set_application_name ("Buzztard");
   setup_log_base (argc, argv);

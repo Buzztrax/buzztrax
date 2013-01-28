@@ -99,13 +99,6 @@ main (gint argc, gchar ** argv)
     {NULL}
   };
 
-#if !GLIB_CHECK_VERSION (2, 31, 0)
-  // initialize as soon as possible
-  if (!g_thread_supported ()) {
-    g_thread_init (NULL);
-  }
-#endif
-
   // load our custom gtk-theming
 #ifndef USE_COMPACT_UI
   gtk_rc_parse (DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
