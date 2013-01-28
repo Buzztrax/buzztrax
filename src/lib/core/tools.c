@@ -203,9 +203,7 @@ bt_gst_check_elements (GList * list)
   GstRegistry *registry;
   GstPluginFeature *feature;
 
-#if GST_CHECK_VERSION(0,10,31)
   g_return_val_if_fail (gst_is_initialized (), NULL);
-#endif
 
   if ((registry = gst_registry_get_default ())) {
     for (node = list; node; node = g_list_next (node)) {

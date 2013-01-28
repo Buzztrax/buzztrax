@@ -125,8 +125,6 @@ typedef enum
 {
   /* utillity element to allow multiple inputs */
   PART_ADDER = 0,
-  /* helper to enforce common format for adder inputs */
-  PART_CAPS_FILTER,
   /* helper to make adder link to next element */
   PART_ADDER_CONVERT,
   /* the elements to control and analyse the current input signal */
@@ -241,7 +239,6 @@ static guint signals[LAST_SIGNAL] = { 0, };
 
 static gchar *src_pn[] = {
   "src",                        /* adder */
-  "src",                        /* caps filter */
   "src",                        /* audioconvert */
   "src",                        /* input pre level */
   "src",                        /* input gain */
@@ -255,7 +252,6 @@ static gchar *src_pn[] = {
 
 static gchar *sink_pn[] = {
   NULL,                         /* adder */
-  "sink",                       /* caps filter */
   "sink",                       /* audioconvert */
   "sink",                       /* input pre level */
   "sink",                       /* input gain */
@@ -677,8 +673,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->
-                        dst_wires->data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->dst_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -706,8 +702,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->
-                        src_wires->data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->src_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1358,8 +1354,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                      priv->machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                      machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1421,8 +1417,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                    priv->machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                    machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -1602,17 +1598,7 @@ bt_machine_activate_adder (BtMachine * const self)
       goto Error;
     /* live adder mixes by timestamps and does a timeout if an input is late */
     //if(!(bt_machine_make_internal_element(self,PART_ADDER,"liveadder","adder"))) goto Error;
-
-    // try without capsfilter (>= 0.10.24)
-    if (!g_object_class_find_property (G_OBJECT_CLASS (BT_MACHINE_GET_CLASS
-                (machines[PART_ADDER])), "caps")) {
-      if (!(bt_machine_make_internal_element (self, PART_CAPS_FILTER,
-                  "capsfilter", "capsfilter")))
-        goto Error;
-      g_object_set (machines[PART_CAPS_FILTER], "caps", bt_default_caps, NULL);
-    } else {
-      g_object_set (machines[PART_ADDER], "caps", bt_default_caps, NULL);
-    }
+    g_object_set (machines[PART_ADDER], "caps", bt_default_caps, NULL);
 
     if (!BT_IS_SINK_MACHINE (self)) {
       // try without converters in effects
@@ -1622,27 +1608,10 @@ bt_machine_activate_adder (BtMachine * const self)
     }
     if (skip_convert) {
       GST_DEBUG_OBJECT (self, "  about to link adder -> dst_elem");
-      if (!machines[PART_CAPS_FILTER]) {
-        if (!bt_machine_link_elements (self, src_pads[PART_ADDER],
-                sink_pads[tix])) {
-          GST_ERROR_OBJECT (self,
-              "failed to link the internal adder of machine");
-          goto Error;
-        }
-      } else {
-        res =
-            bt_machine_link_elements (self, src_pads[PART_ADDER],
-            sink_pads[PART_CAPS_FILTER]);
-        res &=
-            bt_machine_link_elements (self, src_pads[PART_CAPS_FILTER],
-            sink_pads[tix]);
-        if (!res) {
-          gst_pad_unlink (src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
-          gst_pad_unlink (src_pads[PART_CAPS_FILTER], sink_pads[tix]);
-          GST_ERROR_OBJECT (self,
-              "failed to link the internal adder of machine");
-          goto Error;
-        }
+      if (!bt_machine_link_elements (self, src_pads[PART_ADDER],
+              sink_pads[tix])) {
+        GST_ERROR_OBJECT (self, "failed to link the internal adder of machine");
+        goto Error;
       }
     } else {
       GST_INFO_OBJECT (self, "adding converter");
@@ -1655,39 +1624,17 @@ bt_machine_activate_adder (BtMachine * const self)
             "noise-shaping", 0, NULL);
       }
       GST_DEBUG_OBJECT (self, "  about to link adder -> convert -> dst_elem");
-      if (!machines[PART_CAPS_FILTER]) {
-        res =
-            bt_machine_link_elements (self, src_pads[PART_ADDER],
-            sink_pads[PART_ADDER_CONVERT]);
-        res &=
-            bt_machine_link_elements (self, src_pads[PART_ADDER_CONVERT],
-            sink_pads[tix]);
-        if (!res) {
-          gst_pad_unlink (src_pads[PART_ADDER], sink_pads[PART_ADDER_CONVERT]);
-          gst_pad_unlink (src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
-          GST_ERROR_OBJECT (self,
-              "failed to link the internal adder of machine");
-          goto Error;
-        }
-      } else {
-        res =
-            bt_machine_link_elements (self, src_pads[PART_ADDER],
-            sink_pads[PART_CAPS_FILTER]);
-        res &=
-            bt_machine_link_elements (self, src_pads[PART_CAPS_FILTER],
-            sink_pads[PART_ADDER_CONVERT]);
-        res &=
-            bt_machine_link_elements (self, src_pads[PART_ADDER_CONVERT],
-            sink_pads[tix]);
-        if (!res) {
-          gst_pad_unlink (src_pads[PART_ADDER], sink_pads[PART_CAPS_FILTER]);
-          gst_pad_unlink (src_pads[PART_CAPS_FILTER],
-              sink_pads[PART_ADDER_CONVERT]);
-          gst_pad_unlink (src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
-          GST_ERROR_OBJECT (self,
-              "failed to link the internal adder of machine");
-          goto Error;
-        }
+      res =
+          bt_machine_link_elements (self, src_pads[PART_ADDER],
+          sink_pads[PART_ADDER_CONVERT]);
+      res &=
+          bt_machine_link_elements (self, src_pads[PART_ADDER_CONVERT],
+          sink_pads[tix]);
+      if (!res) {
+        gst_pad_unlink (src_pads[PART_ADDER], sink_pads[PART_ADDER_CONVERT]);
+        gst_pad_unlink (src_pads[PART_ADDER_CONVERT], sink_pads[tix]);
+        GST_ERROR_OBJECT (self, "failed to link the internal adder of machine");
+        goto Error;
       }
     }
     GST_DEBUG_OBJECT (self, "  adder activated");

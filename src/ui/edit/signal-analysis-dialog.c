@@ -1082,19 +1082,10 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
     res = FALSE;
     goto Error;
   }
-  // added in gst-plugin-good 0.10.29
-  if (g_object_class_find_property (G_OBJECT_GET_CLASS (self->
-              priv->analyzers[ANALYZER_SPECTRUM]), "multi-channel")) {
-    g_object_set (self->priv->analyzers[ANALYZER_SPECTRUM], "interval",
-        UPDATE_INTERVAL, "message", TRUE, "bands",
-        self->priv->spect_bands * self->priv->frq_precision, "threshold",
-        SPECTRUM_FLOOR, "multi-channel", TRUE, NULL);
-  } else {
-    g_object_set (self->priv->analyzers[ANALYZER_SPECTRUM],
-        "interval", UPDATE_INTERVAL, "message", TRUE,
-        "bands", self->priv->spect_bands * self->priv->frq_precision,
-        "threshold", SPECTRUM_FLOOR, NULL);
-  }
+  g_object_set (self->priv->analyzers[ANALYZER_SPECTRUM], "interval",
+      UPDATE_INTERVAL, "message", TRUE, "bands",
+      self->priv->spect_bands * self->priv->frq_precision, "threshold",
+      SPECTRUM_FLOOR, "multi-channel", TRUE, NULL);
   if ((pad =
           gst_element_get_static_pad (self->priv->analyzers[ANALYZER_SPECTRUM],
               "sink"))) {

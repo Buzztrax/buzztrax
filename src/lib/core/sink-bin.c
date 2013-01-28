@@ -556,10 +556,7 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
     GST_DEBUG ("no profile, do raw recording");
     // encodebin starts with a queue already
     element = gst_element_factory_make ("queue", "record-queue");
-    // TODO(ensonic): if we have/require gstreamer-0.10.31 ret rid of the check
-    if (g_object_class_find_property (G_OBJECT_GET_CLASS (element), "silent")) {
-      g_object_set (element, "silent", TRUE, NULL);
-    }
+    g_object_set (element, "silent", TRUE, NULL);
     list = g_list_append (list, element);
   }
   // create filesink, set location property
@@ -745,11 +742,7 @@ bt_sink_bin_update (const BtSinkBin * const self)
 
         // start with a queue
         element = gst_element_factory_make ("queue", "play-queue");
-        // TODO(ensonic): if we have/require gstreamer-0.10.31 ret rid of the check
-        if (g_object_class_find_property (G_OBJECT_GET_CLASS (element),
-                "silent")) {
-          g_object_set (element, "silent", TRUE, NULL);
-        }
+        g_object_set (element, "silent", TRUE, NULL);
         list1 = g_list_prepend (list1, element);
 
         bt_sink_bin_add_many (self, list1);
