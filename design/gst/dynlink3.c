@@ -1,7 +1,7 @@
 /* test dynamic linking
  *
  * gcc -Wall -g dynlink3.c -o dynlink3-0.10 `pkg-config gstreamer-0.10 --cflags --libs`
- * gcc -Wall -g -DGST_USE_UNSTABLE_API dynlink3.c -o dynlink3-0.11 `pkg-config gstreamer-0.11 --cflags --libs`
+ * gcc -Wall -g dynlink3.c -o dynlink3-1.0 `pkg-config gstreamer-1.0 --cflags --libs`
  * GST_DEBUG="*:2" ./dynlink3
  * GST_DEBUG_DUMP_DOT_DIR=$PWD ./dynlink3
  * for file in dyn*.dot; do echo $file; dot -Tpng $file -o${file/dot/png}; done
@@ -233,7 +233,7 @@ make_sink (Graph * g, const gchar * m_name)
   return (m);
 }
 
-#if GST_CHECK_VERSION(0,11,0)
+#if GST_CHECK_VERSION(1,0,0)
 static GstPadProbeReturn
 post_link_add (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
 #else
@@ -256,7 +256,7 @@ post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
   g_assert (plr == GST_PAD_LINK_OK);
 
   if (pad) {
-#if GST_CHECK_VERSION(0,11,0)
+#if GST_CHECK_VERSION(1,0,0)
     if (w->as && M_IS_SRC (ms)) {
       scr = gst_element_set_state ((GstElement *) ms->bin, GST_STATE_PLAYING);
       g_assert (scr != GST_STATE_CHANGE_FAILURE);
@@ -300,7 +300,7 @@ post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
     if (GST_STATE (g->bin) == GST_STATE_PLAYING)        /* because of initial link */
       g_timeout_add_seconds (1, (GSourceFunc) do_test_step, g);
 
-#if GST_CHECK_VERSION(0,11,0)
+#if GST_CHECK_VERSION(1,0,0)
   return GST_PAD_PROBE_REMOVE;
 #endif
 }
@@ -342,7 +342,7 @@ link_add (Graph * g, gint s, gint d)
 
   /* request machine pads */
   w->peer_src = gst_element_get_request_pad (ms->tee,
-#if GST_CHECK_VERSION(0,11,0)
+#if GST_CHECK_VERSION(1,0,0)
       "src_%u"
 #else
       "src%d"
@@ -363,7 +363,7 @@ link_add (Graph * g, gint s, gint d)
   ms->pads++;
 
   w->peer_dst = gst_element_get_request_pad (md->mix,
-#if GST_CHECK_VERSION(0,11,0)
+#if GST_CHECK_VERSION(1,0,0)
       "sink_%u"
 #else
       "sink%d"
@@ -416,7 +416,7 @@ link_add (Graph * g, gint s, gint d)
 
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
-#if GST_CHECK_VERSION(0,11,0)
+#if GST_CHECK_VERSION(1,0,0)
     blocked =
         (gst_pad_add_probe (w->peer_dst, GST_PAD_PROBE_TYPE_BLOCK,
             post_link_add, w, NULL) != 0);
@@ -446,7 +446,7 @@ link_add (Graph * g, gint s, gint d)
   if (!blocked) {
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
-#if GST_CHECK_VERSION(0,11,0)
+#if GST_CHECK_VERSION(1,0,0)
     post_link_add (NULL, NULL, w);
 #else
     post_link_add (NULL, TRUE, w);
@@ -454,7 +454,7 @@ link_add (Graph * g, gint s, gint d)
   }
 }
 
-#if GST_CHECK_VERSION(0,11,0)
+#if GST_CHECK_VERSION(1,0,0)
 static GstPadProbeReturn
 post_link_rem (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
 #else
@@ -524,7 +524,7 @@ post_link_rem (GstPad * pad, gboolean blocked, gpointer user_data)
   if (g->pending_changes == 0)
     g_timeout_add_seconds (1, (GSourceFunc) do_test_step, g);
 
-#if GST_CHECK_VERSION(0,11,0)
+#if GST_CHECK_VERSION(1,0,0)
   return GST_PAD_PROBE_REMOVE;
 #endif
 }
@@ -547,7 +547,7 @@ link_rem (Graph * g, gint s, gint d)
   if (GST_STATE (g->bin) == GST_STATE_PLAYING) {
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
-#if GST_CHECK_VERSION(0,11,0)
+#if GST_CHECK_VERSION(1,0,0)
     blocked =
         (gst_pad_add_probe (w->peer_dst, GST_PAD_PROBE_TYPE_BLOCK,
             post_link_rem, w, NULL) != 0);
@@ -559,7 +559,7 @@ link_rem (Graph * g, gint s, gint d)
   if (!blocked) {
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
-#if GST_CHECK_VERSION(0,11,0)
+#if GST_CHECK_VERSION(1,0,0)
     post_link_rem (NULL, NULL, w);
 #else
     post_link_rem (NULL, TRUE, w);
