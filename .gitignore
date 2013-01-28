@@ -61,4 +61,4 @@ buzztard.schemas
 .anjuta
 cscope.out
 *.anjuta
-
+*.gschema.valid
