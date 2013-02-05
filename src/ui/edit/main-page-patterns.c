@@ -712,15 +712,9 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         gtk_get_current_event_time ());
     res = TRUE;
   } else if (event->keyval == ',') {
-    GObject *parent;
-    const gchar *prop_name;
     BtPatternEditorColumnGroup *group;
     BtParameterGroup *pg;
-    BtPatternEditorColumnConverters *pcc;
-    GValue value = { 0, };
-    gchar *str;
     guint param;
-    gulong number_of_ticks;
 
     // copy the current value from the machine to the pattern
     g_object_get (self->priv->pattern_table, "cursor-row",
@@ -729,28 +723,38 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     group = &self->priv->param_groups[self->priv->cursor_group];
     param = self->priv->cursor_param;
     g_object_get (group->vg, "parameter-group", &pg, NULL);
-    pcc = (BtPatternEditorColumnConverters *)
-        group->columns[param].user_data;
 
-    parent = bt_parameter_group_get_param_parent (pg, param);
-    prop_name = bt_parameter_group_get_param_name (pg, param);
-    g_value_init (&value, bt_parameter_group_get_param_type (pg, param));
-    g_object_get_property (parent, prop_name, &value);
-    str = bt_persistence_get_value (&value);
-    GST_DEBUG ("get property %s: %s", prop_name, str);
+    // don't do this for trigger params !!!!! (not readable) =======================
+    if (!bt_parameter_group_is_param_trigger (pg, param)) {
+      GObject *parent;
+      const gchar *prop_name;
+      GValue value = { 0, };
+      gchar *str;
+      gulong number_of_ticks;
+      BtPatternEditorColumnConverters *pcc = (BtPatternEditorColumnConverters *)
+          group->columns[param].user_data;
 
-    pattern_edit_set_data_at (self, pcc, self->priv->cursor_row,
-        self->priv->cursor_group, param, 0, pcc->val_to_float (str, pcc));
+      parent = bt_parameter_group_get_param_parent (pg, param);
+      prop_name = bt_parameter_group_get_param_name (pg, param);
+      g_value_init (&value, bt_parameter_group_get_param_type (pg, param));
+      g_object_get_property (parent, prop_name, &value);
+      str = bt_persistence_get_value (&value);
+      GST_DEBUG ("get property %s: %s", prop_name, str);
 
-    g_object_get (self->priv->pattern, "length", &number_of_ticks, NULL);
-    if (self->priv->cursor_row + 1 < number_of_ticks) {
-      g_object_set (self->priv->pattern_table, "cursor-row",
-          self->priv->cursor_row + 1, NULL);
+      pattern_edit_set_data_at (self, pcc, self->priv->cursor_row,
+          self->priv->cursor_group, param, 0, pcc->val_to_float (str, pcc));
+
+      g_object_get (self->priv->pattern, "length", &number_of_ticks, NULL);
+      if (self->priv->cursor_row + 1 < number_of_ticks) {
+        g_object_set (self->priv->pattern_table, "cursor-row",
+            self->priv->cursor_row + 1, NULL);
+      }
+      gtk_widget_queue_draw (GTK_WIDGET (self->priv->pattern_table));
+
+      g_free (str);
+      g_value_unset (&value);
     }
-    gtk_widget_queue_draw (GTK_WIDGET (self->priv->pattern_table));
-
-    g_free (str);
-    g_value_unset (&value);
+    g_object_unref (pg);
   } else if (event->keyval == GDK_Insert) {
     GString *old_data = g_string_new (NULL), *new_data = g_string_new (NULL);
     gulong number_of_ticks;
