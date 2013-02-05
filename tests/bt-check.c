@@ -59,8 +59,6 @@ bt_check_init (void)
   gst_debug_remove_log_function (gst_debug_log_default);
   // no ansi color codes in logfiles please
   gst_debug_set_colored (FALSE);
-  // use our dummy settings
-  bt_settings_set_backend (g_memory_settings_backend_new ());
 
 #ifdef HAVE_SETRLIMIT
   // only fork mode limit cpu/mem usage

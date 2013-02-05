@@ -50,8 +50,6 @@
 #include <gst/audio/multichannel.h>
 
 static BtSettings *singleton = NULL;
-/* the settings backend, this is only set for the tests */
-static GSettingsBackend *settings_backend = NULL;
 
 //-- the class
 
@@ -349,10 +347,9 @@ bt_settings_make (void)
     GST_INFO ("create a new settings object");
     singleton = (BtSettings *) g_object_new (BT_TYPE_SETTINGS, NULL);
     BtSettingsPrivate *p = singleton->priv;
+    GSettingsBackend *backend = g_settings_backend_get_default ();
 
     // add schemas
-    GSettingsBackend *backend = G_LIKELY (!settings_backend) ?
-        g_settings_backend_get_default () : settings_backend;
     p->org_buzztard = g_settings_new_with_backend ("org.buzztard", backend);
     p->org_gnome_desktop_interface =
         g_settings_new_with_backend ("org.gnome.desktop.interface", backend);
@@ -385,27 +382,6 @@ bt_settings_make (void)
 }
 
 //-- methods
-
-/**
- * bt_settings_set_backend:
- * @backend: settings backend (GSettingsBackend *)
- *
- * Set a backend to use for the settings. This is useful for tests to exercise the
- * applications under various conditions without affecting the user settings.
- * Normal applications should NOT use it.
- */
-void
-bt_settings_set_backend (gpointer backend)
-{
-  g_return_if_fail (G_IS_SETTINGS_BACKEND (backend));
-
-  if (!singleton) {
-    settings_backend = backend;
-  } else {
-    GST_WARNING ("can't change backend while having %d instances in use",
-        G_OBJECT_REF_COUNT (singleton));
-  }
-}
 
 /**
  * bt_settings_determine_audiosink_name:

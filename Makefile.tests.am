@@ -29,6 +29,7 @@ TESTS_ENVIRONMENT = \
 	CK_DEFAULT_TIMEOUT=20 \
 	LANG=C \
 	XDG_CACHE_HOME=$(abs_builddir) \
+	GSETTINGS_BACKEND=memory \
 	$(LIBTOOL) --mode=execute
 
 if BUILD_CHECK_TESTS

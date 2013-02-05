@@ -13,8 +13,6 @@
 <FILE>btapplication</FILE>
 <TITLE>BtApplication</TITLE>
 BtApplication
-<SUBSECTION Private>
-bt_application_set_settings_backend
 <SUBSECTION Standard>
 BT_APPLICATION
 BT_APPLICATION_CLASS
