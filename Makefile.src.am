@@ -188,8 +188,7 @@ buzztard_edit_LDADD = \
 	libbuzztard-core.la \
 	libbuzztard-ic.la \
 	libbtedit.la \
-	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
-	-lgstinterfaces-@GST_MAJORMINOR@
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS)
 buzztard_edit_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
 buzztard_edit_SOURCES= \
 	src/ui/edit/bt-edit.c src/ui/edit/bt-edit.h
@@ -199,8 +198,7 @@ nodist_libbtedit_la_SOURCES = src/ui/edit/marshal.c src/ui/edit/marshal.h
 libbtedit_la_LIBADD = \
 	libbuzztard-core.la \
 	libbuzztard-ic.la \
-	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
-	-lgstinterfaces-@GST_MAJORMINOR@
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbtedit_la_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
 libbtedit_la_SOURCES = \
 	src/ui/edit/about-dialog.c src/ui/edit/about-dialog.h \

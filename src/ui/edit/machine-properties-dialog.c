@@ -634,9 +634,9 @@ bt_machine_update_default_param_value (BtMachine * self,
     GstObject * param_parent, const gchar * property_name,
     BtParameterGroup * pg)
 {
-  GstController *ctrl;
+  GstControlBinding *cb;
 
-  if ((ctrl = gst_object_get_controller (G_OBJECT (param_parent)))) {
+  if ((cb = gst_object_get_control_binding (param_parent, property_name))) {
     bt_parameter_group_set_param_default (pg,
         bt_parameter_group_get_param_index (pg, property_name));
     /* TODO(ensonic): it should actualy postpone the disable to the next timestamp
@@ -646,7 +646,8 @@ bt_machine_update_default_param_value (BtMachine * self,
      * - when enabling, it would need to delay the enabled to the next control-point
      * - it would need to peek at the control-point list :/
      */
-    gst_controller_set_property_disabled (ctrl, (gchar *) property_name, FALSE);
+    gst_control_binding_set_disabled (cb, FALSE);
+    gst_object_unref (cb);
   } else {
     GST_DEBUG ("object not controlled, type=%s, instance=%s",
         G_OBJECT_TYPE_NAME (param_parent),
@@ -749,11 +750,8 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
           gtk_get_current_event_time ());
       res = TRUE;
     } else if (event->button == 1) {
-      GstController *ctrl;
-      if ((ctrl = gst_object_get_controller (G_OBJECT (param_parent)))) {
-        gst_controller_set_property_disabled (ctrl, (gchar *) property_name,
-            TRUE);
-      }
+      gst_object_set_control_binding_disabled (param_parent, property_name,
+          TRUE);
     }
   }
   return (res);
@@ -2353,8 +2351,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->
-            priv->param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->priv->
+            param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
@@ -2855,8 +2853,8 @@ bt_machine_properties_dialog_set_property (GObject * object, guint property_id,
             &self->priv->properties, "machine", &element, NULL);
 
         self->priv->help_uri =
-            gst_element_factory_get_documentation_uri (gst_element_get_factory
-            (element));
+            gst_element_factory_get_metadata (gst_element_get_factory (element),
+            GST_ELEMENT_METADATA_DOC_URI);
         gst_object_unref (element);
       }
       break;
@@ -2874,7 +2872,7 @@ bt_machine_properties_dialog_dispose (GObject * object)
   BtSetup *setup;
   gulong j;
   GstElement *machine;
-  GstObject *machine_voice;
+  GObject *machine_voice;
   GList *wires;
 
   return_if_disposed ();

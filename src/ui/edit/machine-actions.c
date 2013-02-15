@@ -36,19 +36,20 @@
 void
 bt_machine_action_about (BtMachine * machine, BtMainWindow * main_window)
 {
-  GstElementFactory *element_factory;
+  GstElementFactory *factory;
   GstElement *element;
 
   GST_INFO ("context_menu about event occurred");
   // show info about machine
   g_object_get (machine, "machine", &element, NULL);
-  if ((element_factory = gst_element_get_factory (element))) {
-    const gchar *element_longname =
-        gst_element_factory_get_longname (element_factory);
+  if ((factory = gst_element_get_factory (element))) {
+    const gchar *element_longname = gst_element_factory_get_metadata (factory,
+        GST_ELEMENT_METADATA_LONGNAME);
     const gchar *element_author =
-        gst_element_factory_get_author (element_factory);
+        gst_element_factory_get_metadata (factory, GST_ELEMENT_METADATA_AUTHOR);
     const gchar *element_description =
-        gst_element_factory_get_description (element_factory);
+        gst_element_factory_get_metadata (factory,
+        GST_ELEMENT_METADATA_DESCRIPTION);
     gchar *str, *str_author, *str_desc;
 
     str_desc =

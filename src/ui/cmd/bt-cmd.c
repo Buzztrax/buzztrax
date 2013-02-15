@@ -38,6 +38,7 @@
 #define BT_CMD_C
 
 #include "bt-cmd.h"
+#include <string.h>
 
 #ifdef ENABLE_NLS
 #ifdef HAVE_X11_XLOCALE_H

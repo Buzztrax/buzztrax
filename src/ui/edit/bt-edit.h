@@ -24,6 +24,7 @@
 
 //-- ansi c
 #include <stdlib.h>
+#include <string.h>
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS

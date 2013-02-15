@@ -30,6 +30,7 @@
 #define BTIC_LEARN_C
 
 #include "ic_private.h"
+#include <sys/stat.h>
 
 //-- the iface
 

@@ -64,9 +64,7 @@ struct _BtPatternControlSourcePrivate
   BtMachine *machine;
   BtParameterGroup *param_group;
   /* type of the handled property */
-  GType type;
-  /* base-type of the handled property */
-  GType base;
+  GType type, base;
 
   glong param_index;
   GValue last_value, def_value;
@@ -75,22 +73,256 @@ struct _BtPatternControlSourcePrivate
   GstClockTime tick_duration;
 };
 
-//-- prototypes
-static gboolean bt_pattern_control_source_bind (GstControlSource * self,
-    GParamSpec * pspec);
-
-static gboolean bt_pattern_control_source_get_value (BtPatternControlSource *
-    self, GstClockTime timestamp, GValue * value);
-
-static gboolean
-bt_pattern_control_source_get_value_array (BtPatternControlSource * self,
-    GstClockTime timestamp, GstValueArray * value_array);
-
 //-- the class
 G_DEFINE_TYPE (BtPatternControlSource, bt_pattern_control_source,
-    GST_TYPE_CONTROL_SOURCE);
+    GST_TYPE_CONTROL_BINDING);
+
+/**
+ * bt_pattern_control_source_new:
+ * @object: the object of the property
+ * @property_name: the property-name to attach the control source
+ * @sequence: the songs sequence
+ * @song_info: the song info
+ * @machine: the machine
+ * @param_group: the parameter group
+ *
+ * Create a pattern control source for the given @machine and @param_group. Use
+ * gst_control_source_bind() to attach it to one specific parameter of the
+ * @param_group.
+ *
+ * Returns: the new pattern control source
+ */
+BtPatternControlSource *
+bt_pattern_control_source_new (GstObject * object, const gchar * property_name,
+    BtSequence * sequence, const BtSongInfo * song_info,
+    const BtMachine * machine, BtParameterGroup * param_group)
+{
+  return g_object_new (BT_TYPE_PATTERN_CONTROL_SOURCE,
+      "object", object, "name", property_name, "sequence", sequence,
+      "song-info", song_info, "machine", machine, "parameter-group",
+      param_group, NULL);
+}
+
+/* bt_pattern_control_source_get_value:
+ *
+ * Determine the property value for the given timestamp.
+ *
+ * Returns: the value for the given timestamp or %NULL
+ */
+static GValue *
+bt_pattern_control_source_get_value (GstControlBinding * self_,
+    GstClockTime timestamp)
+{
+  BtPatternControlSource *self = (BtPatternControlSource *) self_;
+  BtSequence *sequence = self->priv->sequence;
+  BtSongInfo *song_info = self->priv->song_info;
+  BtMachine *machine = self->priv->machine;
+  BtParameterGroup *pg = self->priv->param_group;
+  glong param_index = self->priv->param_index;
+  GValue *res = NULL;
+  GstClockTime tick = bt_song_info_time_to_tick (song_info, timestamp);
+  GstClockTime ts = bt_song_info_tick_to_time (song_info, tick);
+
+  GST_LOG_OBJECT (machine, "get control_value for param %d at tick%4d,"
+      " %1d: %llu == %llu",
+      param_index, tick, (ts == timestamp), timestamp, ts);
+
+  // Don't check patterns on a subtick
+  if (ts == timestamp) {
+    glong i = -1, l, length;
+    BtCmdPattern *pattern;
+    BtValueGroup *vg;
+    GValue *cur;
+
+    g_object_get (sequence, "length", &length, NULL);
+    if (tick >= length) {
+      // no need to search for positions > length
+      // when we do idle-play, do we want to have the settings from the:
+      // - end of the song
+      // - start of the song  (now, as it is faster)
+      // - last stop position (not available right now)
+      //tick = (length > 0) ? (length - 1) : 0;
+      tick = 0;
+      GST_DEBUG_OBJECT (machine, "idle mode detected, using defaults");
+    }
+    // look up track machines that match this controlsource machine
+    while ((i = bt_sequence_get_track_by_machine (sequence, machine, i + 1))
+        != -1) {
+      // check what pattern plays at tick or upwards
+      for (l = tick, pattern = NULL; l >= 0; l--) {
+        if ((pattern = bt_sequence_get_pattern (sequence, l, i)))
+          break;
+      }
+      // check if valid pattern
+      if (BT_IS_PATTERN (pattern)) {
+        gulong len, pos = (glong) tick - l;
+        // get length of pattern
+        g_object_get (pattern, "length", &len, NULL);
+        if (pos < len) {
+          // store pattern and position
+          vg = bt_pattern_get_group_by_parameter_group (
+              (BtPattern *) pattern, pg);
+          // get value at tick if set
+          if ((cur = bt_value_group_get_event_data (vg, pos, param_index))
+              && BT_IS_GVALUE (cur)) {
+            res = cur;
+          }
+        }
+      }
+    }
+  } else {
+    GST_LOG_OBJECT (self->priv->machine, "skipping subtick");
+  }
+  // if we found a value, set it
+  if (res) {
+    GST_LOG_OBJECT (self->priv->machine,
+        "tick %lld: Set value for %s", tick,
+        bt_parameter_group_get_param_name (pg, param_index));
+
+    g_value_copy (res, &self->priv->last_value);
+    return res;
+  } else {
+    if (self->priv->is_trigger || !timestamp) {
+      // set defaults value for triggers (no value) or the default at ts=0
+      GST_LOG_OBJECT (self->priv->machine,
+          "tick %lld: Set default for %s", tick,
+          bt_parameter_group_get_param_name (pg, param_index));
+
+      g_value_copy (&self->priv->def_value, &self->priv->last_value);
+      return &self->priv->def_value;
+    }
+  }
+  return NULL;
+}
+
+// we need to fill an array as the volume element is applying sample based changes
+static gboolean
+bt_pattern_control_source_get_value_array (GstControlBinding * self_,
+    GstClockTime timestamp, GstClockTime interval, guint n_values,
+    gpointer values_)
+{
+  BtPatternControlSource *self = (BtPatternControlSource *) self_;
+  gint i;
+  GValue *value;
+
+  if (!(value = bt_pattern_control_source_get_value (self_, timestamp))) {
+    value = &self->priv->last_value;
+  }
+  switch (self->priv->base) {
+    case G_TYPE_BOOLEAN:{
+      gboolean val = g_value_get_boolean (value);
+      gboolean *values = (gboolean *) values_;
+      for (i = 0; i < n_values; i++)
+        *values++ = val;
+      break;
+    }
+    case G_TYPE_FLOAT:{
+      gfloat val = g_value_get_float (value);
+      gfloat *values = (gfloat *) values_;
+      for (i = 0; i < n_values; i++)
+        *values++ = val;
+      break;
+    }
+    case G_TYPE_DOUBLE:{
+      gdouble val = g_value_get_double (value);
+      gdouble *values = (gdouble *) values_;
+      for (i = 0; i < n_values; i++)
+        *values++ = val;
+      break;
+    }
+    default:
+      GST_WARNING ("implement me for type %s", g_type_name (self->priv->base));
+      break;
+  }
+  return TRUE;
+}
+
+// we need to fill an array as the volume element is applying sample based changes
+static gboolean
+bt_pattern_control_source_get_g_value_array (GstControlBinding * self_,
+    GstClockTime timestamp, GstClockTime interval, guint n_values,
+    GValue * values)
+{
+  BtPatternControlSource *self = (BtPatternControlSource *) self_;
+  gint i;
+  GValue *value;
+
+  if (!(value = bt_pattern_control_source_get_value (self_, timestamp))) {
+    value = &self->priv->last_value;
+  }
+  for (i = 0; i < n_values; i++) {
+    g_value_init (&values[i], self->priv->type);
+    g_value_copy (value, &values[i]);
+  }
+  return TRUE;
+}
+
+static gboolean
+gst_pattern_control_source_sync_values (GstControlBinding * self_,
+    GstObject * object, GstClockTime timestamp, GstClockTime last_sync)
+{
+  GValue *value;
+
+  if ((value = bt_pattern_control_source_get_value (self_, timestamp))) {
+    g_object_set_property ((GObject *) object, self_->name, value);
+    return TRUE;
+  } else {
+    GST_DEBUG_OBJECT (object, "no control value for param %s", self_->name);
+    return FALSE;
+  }
+}
 
 // -- g_object overrides
+
+static GObject *
+bt_pattern_control_source_constructor (GType type, guint n_construct_params,
+    GObjectConstructParam * construct_params)
+{
+  BtPatternControlSource *self;
+  GParamSpec *pspec;
+
+  self =
+      BT_PATTERN_CONTROL_SOURCE (G_OBJECT_CLASS
+      (bt_pattern_control_source_parent_class)->constructor (type,
+          n_construct_params, construct_params));
+
+  pspec = GST_CONTROL_BINDING_PSPEC (self);
+  if (pspec) {
+    BtParameterGroup *pg = self->priv->param_group;
+    GType type, base;
+
+    /* get the fundamental base type */
+    self->priv->type = base = type = G_PARAM_SPEC_VALUE_TYPE (pspec);
+    while ((type = g_type_parent (type)))
+      base = type;
+    self->priv->base = base;
+    type = self->priv->type;
+
+    GST_DEBUG_OBJECT (self->priv->machine, "%s: type %s, base %s", pspec->name,
+        g_type_name (type), g_type_name (base));
+
+    /* assign param index from pspec */
+    self->priv->param_index =
+        bt_parameter_group_get_param_index (pg, pspec->name);
+    self->priv->is_trigger =
+        bt_parameter_group_is_param_trigger (pg, self->priv->param_index);
+
+    if (!G_IS_VALUE (&self->priv->def_value)) {
+      g_value_init (&self->priv->def_value, type);
+      if (self->priv->is_trigger) {
+        g_value_copy (bt_parameter_group_get_param_no_value (pg,
+                self->priv->param_index), &self->priv->def_value);
+      } else {
+        g_param_value_set_default (pspec, &self->priv->def_value);
+      }
+    }
+    g_value_init (&self->priv->last_value, type);
+    g_value_copy (&self->priv->def_value, &self->priv->last_value);
+
+  }
+  return (GObject *) self;
+}
+
 static void
 bt_pattern_control_source_get_property (GObject * const object,
     const guint property_id, GValue * const value, GParamSpec * const pspec)
@@ -152,9 +384,10 @@ bt_pattern_control_source_set_property (GObject * const object,
       break;
     case PATTERN_CONTROL_SOURCE_DEFAULT_VALUE:{
       GValue *new_value = g_value_get_pointer (value);
-      if (!G_IS_VALUE (&self->priv->def_value)) {
-        g_value_init (&self->priv->def_value, G_VALUE_TYPE (new_value));
-      }
+      GST_INFO ("%s -> %s", G_VALUE_TYPE_NAME (new_value),
+          G_VALUE_TYPE_NAME (&self->priv->def_value));
+      GST_INFO ("%s -> %s", g_strdup_value_contents (new_value),
+          g_strdup_value_contents (&self->priv->def_value));
       g_value_copy (new_value, &self->priv->def_value);
       GST_DEBUG ("set the def_value for the controlsource: %p",
           self->priv->def_value);
@@ -199,30 +432,8 @@ bt_pattern_control_source_finalize (GObject * const object)
   G_OBJECT_CLASS (bt_pattern_control_source_parent_class)->finalize (object);
 }
 
-/**
- * bt_pattern_control_source_new:
- * @sequence: the songs sequence
- * @song_info: the song info
- * @machine: the machine
- * @param_group: the parameter group
- *
- * Create a pattern control source for the given @machine and @param_group. Use
- * gst_control_source_bind() to attach it to one specific parameter of the
- * @param_group.
- *
- * Returns: the new pattern control source
- */
-BtPatternControlSource *
-bt_pattern_control_source_new (BtSequence * sequence,
-    const BtSongInfo * song_info, const BtMachine * machine,
-    BtParameterGroup * param_group)
-{
-  return g_object_new (BT_TYPE_PATTERN_CONTROL_SOURCE, "sequence", sequence,
-      "song-info", song_info, "machine", machine, "parameter-group",
-      param_group, NULL);
-}
-
 // -- class internals
+
 static void
 bt_pattern_control_source_init (BtPatternControlSource * self)
 {
@@ -235,12 +446,19 @@ static void
 bt_pattern_control_source_class_init (BtPatternControlSourceClass * const klass)
 {
   GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
-  GstControlSourceClass *control_source_class = (GstControlSourceClass *) klass;
+  GstControlBindingClass *control_binding_class =
+      (GstControlBindingClass *) klass;
 
   g_type_class_add_private (klass, sizeof (BtPatternControlSourcePrivate));
 
-  control_source_class->bind = bt_pattern_control_source_bind;
+  control_binding_class->sync_values = gst_pattern_control_source_sync_values;
+  control_binding_class->get_value = bt_pattern_control_source_get_value;
+  control_binding_class->get_value_array =
+      bt_pattern_control_source_get_value_array;
+  control_binding_class->get_g_value_array =
+      bt_pattern_control_source_get_g_value_array;
 
+  gobject_class->constructor = bt_pattern_control_source_constructor;
   gobject_class->get_property = bt_pattern_control_source_get_property;
   gobject_class->set_property = bt_pattern_control_source_set_property;
   gobject_class->dispose = bt_pattern_control_source_dispose;
@@ -278,183 +496,4 @@ bt_pattern_control_source_class_init (BtPatternControlSourceClass * const klass)
       g_param_spec_pointer ("default-value", "default value prop",
           "pointer to value to use if no other found",
           G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
-}
-
-static gboolean
-bt_pattern_control_source_bind (GstControlSource * source, GParamSpec * pspec)
-{
-  GType type, base;
-  BtPatternControlSource *self = BT_PATTERN_CONTROL_SOURCE (source);
-  BtParameterGroup *pg = self->priv->param_group;
-
-  /* get the fundamental base type */
-  self->priv->type = base = type = G_PARAM_SPEC_VALUE_TYPE (pspec);
-  while ((type = g_type_parent (type)))
-    base = type;
-  self->priv->base = base;
-
-  GST_DEBUG_OBJECT (self->priv->machine, "%s: type %s, base %s", pspec->name,
-      g_type_name (self->priv->type), g_type_name (self->priv->base));
-
-  source->get_value =
-      (GstControlSourceGetValue) bt_pattern_control_source_get_value;
-  source->get_value_array =
-      (GstControlSourceGetValueArray) bt_pattern_control_source_get_value_array;
-
-  /* assign param index from pspec */
-  self->priv->param_index =
-      bt_parameter_group_get_param_index (pg, pspec->name);
-  self->priv->is_trigger =
-      bt_parameter_group_is_param_trigger (pg, self->priv->param_index);
-
-  if (!G_IS_VALUE (&self->priv->def_value)) {
-    g_value_init (&self->priv->def_value, self->priv->type);
-    if (self->priv->is_trigger) {
-      g_value_copy (bt_parameter_group_get_param_no_value (pg,
-              self->priv->param_index), &self->priv->def_value);
-    } else {
-      g_param_value_set_default (pspec, &self->priv->def_value);
-    }
-  }
-  g_value_init (&self->priv->last_value, self->priv->type);
-  g_value_copy (&self->priv->def_value, &self->priv->last_value);
-
-  return TRUE;
-}
-
-/* bt_pattern_control_source_get_value:
- *
- * Determine the property value for the given timestamp.
- *
- * Returns: %TRUE if the value was successfully calculated
- */
-static gboolean
-bt_pattern_control_source_get_value (BtPatternControlSource * self,
-    GstClockTime timestamp, GValue * value)
-{
-  BtSequence *sequence = self->priv->sequence;
-  BtSongInfo *song_info = self->priv->song_info;
-  BtMachine *machine = self->priv->machine;
-  BtParameterGroup *pg = self->priv->param_group;
-  glong param_index = self->priv->param_index;
-  gboolean ret = FALSE;
-  GValue *res = NULL;
-  GstClockTime tick = bt_song_info_time_to_tick (song_info, timestamp);
-  GstClockTime ts = bt_song_info_tick_to_time (song_info, tick);
-
-  GST_LOG_OBJECT (machine, "get control_value for param %d at tick%4d,"
-      " %1d: %llu == %llu",
-      param_index, tick, (ts == timestamp), timestamp, ts);
-
-  // Don't check patterns on a subtick
-  if (ts == timestamp) {
-    glong i = -1, l, length;
-    BtCmdPattern *pattern;
-    BtValueGroup *vg;
-    GValue *cur;
-
-    g_object_get (sequence, "length", &length, NULL);
-    if (tick >= length) {
-      // no need to search for positions > length
-      // when we do idle-play, do we want to have the settings from the:
-      // - end of the song
-      // - start of the song  (now, as it is faster)
-      // - last stop position (not available right now)
-      //tick = (length > 0) ? (length - 1) : 0;
-      tick = 0;
-      GST_DEBUG_OBJECT (machine, "idle mode detected, using defaults");
-    }
-    // look up track machines that match this controlsource machine
-    while ((i = bt_sequence_get_track_by_machine (sequence, machine, i + 1))
-        != -1) {
-      // check what pattern plays at tick or upwards
-      for (l = tick, pattern = NULL; l >= 0; l--) {
-        if ((pattern = bt_sequence_get_pattern (sequence, l, i)))
-          break;
-      }
-      // check if valid pattern
-      if (BT_IS_PATTERN (pattern)) {
-        gulong len, pos = (glong) tick - l;
-        // get length of pattern
-        g_object_get (pattern, "length", &len, NULL);
-        if (pos < len) {
-          // store pattern and position
-          vg = bt_pattern_get_group_by_parameter_group (
-              (BtPattern *) pattern, pg);
-          // get value at tick if set
-          if ((cur = bt_value_group_get_event_data (vg, pos, param_index))
-              && BT_IS_GVALUE (cur)) {
-            res = cur;
-          }
-        }
-      }
-    }
-  } else {
-    GST_LOG_OBJECT (self->priv->machine, "skipping subtick");
-  }
-  // if we found a value, set it
-  if (res) {
-    GST_LOG_OBJECT (self->priv->machine,
-        "tick %lld: Set value for %s", tick,
-        bt_parameter_group_get_param_name (pg, param_index));
-
-    g_value_copy (res, value);
-    g_value_copy (value, &self->priv->last_value);
-    ret = TRUE;
-  } else {
-    if (self->priv->is_trigger || !timestamp) {
-      // set defaults value for triggers (no value) or the default at ts=0
-      GST_LOG_OBJECT (self->priv->machine,
-          "tick %lld: Set default for %s", tick,
-          bt_parameter_group_get_param_name (pg, param_index));
-
-      g_value_copy (&self->priv->def_value, value);
-      g_value_copy (value, &self->priv->last_value);
-      ret = TRUE;
-    }
-  }
-  return ret;
-}
-
-static gboolean
-bt_pattern_control_source_get_value_array (BtPatternControlSource * self,
-    GstClockTime timestamp, GstValueArray * value_array)
-{
-  // we need to fill an array as the volume element is applying sample based
-  // volume changes
-  gint i;
-  GValue value = { 0, };
-
-  g_value_init (&value, self->priv->type);
-  if (!bt_pattern_control_source_get_value (self, timestamp, &value)) {
-    g_value_copy (&self->priv->last_value, &value);
-  }
-  switch (self->priv->base) {
-    case G_TYPE_BOOLEAN:{
-      gboolean val = g_value_get_boolean (&value);
-      gboolean *values = (gboolean *) value_array->values;
-      for (i = 0; i < value_array->nbsamples; i++)
-        *values++ = val;
-      break;
-    }
-    case G_TYPE_FLOAT:{
-      gfloat val = g_value_get_float (&value);
-      gfloat *values = (gfloat *) value_array->values;
-      for (i = 0; i < value_array->nbsamples; i++)
-        *values++ = val;
-      break;
-    }
-    case G_TYPE_DOUBLE:{
-      gdouble val = g_value_get_double (&value);
-      gdouble *values = (gdouble *) value_array->values;
-      for (i = 0; i < value_array->nbsamples; i++)
-        *values++ = val;
-      break;
-    }
-    default:
-      GST_WARNING ("implement me for type %s", g_type_name (self->priv->base));
-      break;
-  }
-  g_value_unset (&value);
-  return TRUE;
 }

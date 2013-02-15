@@ -35,7 +35,8 @@ bt_gst_registry_class_filter (GstPluginFeature * const feature,
 
   if (GST_IS_ELEMENT_FACTORY (feature)) {
     const gchar *klass =
-        gst_element_factory_get_klass (GST_ELEMENT_FACTORY (feature));
+        gst_element_factory_get_metadata (GST_ELEMENT_FACTORY (feature),
+        GST_ELEMENT_METADATA_KLASS);
     res = TRUE;
     while (res && *categories) {
       GST_LOG ("  %s", *categories);
@@ -68,9 +69,8 @@ bt_gst_registry_get_element_factories_matching_all_categories (const gchar *
   GST_DEBUG ("run filter for categories: %s", class_filter);
 
   gchar **categories = g_strsplit (class_filter, "/", 0);
-  GList *list =
-      gst_default_registry_feature_filter (bt_gst_registry_class_filter, FALSE,
-      (gpointer) categories);
+  GList *list = gst_registry_feature_filter (gst_registry_get (),
+      bt_gst_registry_class_filter, FALSE, (gpointer) categories);
 
   GST_DEBUG ("filtering done");
   g_strfreev (categories);
@@ -116,7 +116,7 @@ bt_gst_registry_get_element_names_matching_all_categories (const gchar *
 /**
  * bt_gst_element_factory_get_pad_template:
  * @factory: element factory
- * @name: name of the pad-template, e.g. "src" or "sink%d"
+ * @name: name of the pad-template, e.g. "src" or "sink_%u"
  *
  * Lookup a pad template by name.
  *
@@ -146,7 +146,7 @@ bt_gst_element_factory_get_pad_template (GstElementFactory * factory,
  * @name: caps type name
  *
  * Check if the sink pads of the given @factory are compatible with the given
- * @name. The @name can e.g. be "audio/x-raw-int".
+ * @name. The @name can e.g. be "audio/x-raw".
  *
  * Returns: %TRUE if the pads are compatible.
  */
@@ -205,7 +205,7 @@ bt_gst_check_elements (GList * list)
 
   g_return_val_if_fail (gst_is_initialized (), NULL);
 
-  if ((registry = gst_registry_get_default ())) {
+  if ((registry = gst_registry_get ())) {
     for (node = list; node; node = g_list_next (node)) {
       if ((feature =
               gst_registry_lookup_feature (registry,
@@ -277,16 +277,15 @@ static GstPad *
 bt_gst_get_peer_pad (GstIterator * it)
 {
   gboolean done = FALSE;
-  gpointer item;
+  GValue item = { 0, };
   GstPad *pad, *peer_pad = NULL;
 
   while (!done) {
     switch (gst_iterator_next (it, &item)) {
       case GST_ITERATOR_OK:
-        pad = GST_PAD (item);
+        pad = GST_PAD (g_value_get_object (&item));
         peer_pad = gst_pad_get_peer (pad);
         done = TRUE;
-        gst_object_unref (pad);
         break;
       case GST_ITERATOR_RESYNC:
         gst_iterator_resync (it);
@@ -299,6 +298,7 @@ bt_gst_get_peer_pad (GstIterator * it)
         break;
     }
   }
+  g_value_unset (&item);
   gst_iterator_free (it);
   return (peer_pad);
 }
@@ -333,6 +333,36 @@ bt_gst_element_get_sink_peer_pad (GstElement * const elem)
   return (bt_gst_get_peer_pad (gst_element_iterate_sink_pads (elem)));
 }
 
+static GstPadProbeReturn
+async_add (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
+{
+  GList *analyzers = (GList *) user_data;
+  GstPad *analyzer_sink =
+      gst_element_get_static_pad (GST_ELEMENT (analyzers->data), "sink");
+  const GList *node;
+  GstElement *next;
+  GstPadLinkReturn plr;
+
+  GST_INFO_OBJECT (tee_src, "sync state");
+  for (node = analyzers; node; node = g_list_next (node)) {
+    next = GST_ELEMENT (node->data);
+    if (!(gst_element_sync_state_with_parent (next))) {
+      GST_INFO_OBJECT (tee_src, "cannot sync state for elements \"%s\"",
+          GST_OBJECT_NAME (next));
+    }
+  }
+  GST_INFO_OBJECT (tee_src, "linking to tee");
+  if (GST_PAD_LINK_FAILED (plr = gst_pad_link (tee_src, analyzer_sink))) {
+    GST_INFO_OBJECT (tee_src, "cannot link analyzers to tee");
+    GST_WARNING_OBJECT (tee_src, "%s", bt_gst_debug_pad_link_return (plr,
+            tee_src, analyzer_sink));
+  }
+  gst_object_unref (analyzer_sink);
+  GST_INFO_OBJECT (tee_src, "add analyzers done");
+
+  return GST_PAD_PROBE_REMOVE;
+}
+
 /**
  * bt_bin_activate_tee_chain:
  * @bin: the bin
@@ -350,10 +380,10 @@ bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
     gboolean is_playing)
 {
   gboolean res = TRUE;
+  GstElementClass *tee_class = GST_ELEMENT_GET_CLASS (tee);
+  GstPad *tee_src;
   const GList *node;
   GstElement *prev = NULL, *next;
-  GstElementClass *tee_class = GST_ELEMENT_GET_CLASS (tee);
-  GstPad *tee_src, *analyzer_sink;
 
   g_return_val_if_fail (GST_IS_BIN (bin), FALSE);
   g_return_val_if_fail (GST_IS_ELEMENT (tee), FALSE);
@@ -369,64 +399,67 @@ bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
     if (!(res = gst_bin_add (bin, next))) {
       GST_INFO_OBJECT (bin, "cannot add element \"%s\" to bin",
           GST_OBJECT_NAME (next));
+      return FALSE;
     }
     if (prev) {
       if (!(res = gst_element_link (prev, next))) {
         GST_INFO_OBJECT (bin, "cannot link elements \"%s\" -> \"%s\"",
             GST_OBJECT_NAME (prev), GST_OBJECT_NAME (next));
+        return FALSE;
       }
     }
     prev = next;
   }
   GST_INFO_OBJECT (bin, "blocking tee.src");
   tee_src = gst_element_request_pad (tee,
-      gst_element_class_get_pad_template (tee_class, "src%d"), NULL, NULL);
-  analyzer_sink =
-      gst_element_get_static_pad (GST_ELEMENT (analyzers->data), "sink");
-  if (is_playing)
-    gst_pad_set_blocked (tee_src, TRUE);
-  GST_INFO_OBJECT (bin, "sync state");
+      gst_element_class_get_pad_template (tee_class, "src_%u"), NULL, NULL);
+  if (is_playing) {
+    gst_pad_add_probe (tee_src, GST_PAD_PROBE_TYPE_BLOCK, async_add, analyzers,
+        NULL);
+  } else {
+    async_add (tee_src, NULL, analyzers);
+  }
+  return (res);
+}
+
+static GstPadProbeReturn
+async_remove (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
+{
+  GList *analyzers = (GList *) user_data;
+  GstElement *tee = (GstElement *) gst_pad_get_parent (tee_src);
+  GstBin *bin = (GstBin *) gst_element_get_parent (tee);
+  const GList *node;
+  GstElement *prev, *next;
+  GstStateChangeReturn state_ret;
+
+  prev = tee;
   for (node = analyzers; node; node = g_list_next (node)) {
     next = GST_ELEMENT (node->data);
-    if (!(gst_element_sync_state_with_parent (next))) {
-      GST_INFO_OBJECT (bin, "cannot sync state for elements \"%s\"",
-          GST_OBJECT_NAME (next));
+
+    if ((state_ret =
+            gst_element_set_state (next,
+                GST_STATE_NULL)) != GST_STATE_CHANGE_SUCCESS) {
+      GST_INFO ("cannot set state to NULL for element '%s', ret='%s'",
+          GST_OBJECT_NAME (next),
+          gst_element_state_change_return_get_name (state_ret));
+    }
+    gst_element_unlink (prev, next);
+    prev = next;
+  }
+  for (node = analyzers; node; node = g_list_next (node)) {
+    next = GST_ELEMENT (node->data);
+    if (!gst_bin_remove (bin, next)) {
+      GST_INFO ("cannot remove element '%s' from bin", GST_OBJECT_NAME (next));
     }
   }
-  GST_INFO_OBJECT (bin, "linking to tee");
-  if (GST_PAD_LINK_FAILED (gst_pad_link (tee_src, analyzer_sink))) {
-    GST_INFO_OBJECT (bin, "cannot link analyzers to tee");
-  }
-  if (is_playing) {
-    // in setup.c::activate_element() we have disabled this as it caused more
-    // trouble, than it helped
-#if 0
-    GstQuery *qs = gst_query_new_segment (GST_FORMAT_TIME);
-    GstQuery *qp = gst_query_new_position (GST_FORMAT_TIME);
 
-    GST_INFO_OBJECT (bin, "kick-starting the analyzer chain");
+  GST_INFO ("releasing request pad for tee");
+  gst_element_release_request_pad (tee, tee_src);
+  gst_object_unref (tee_src);
+  gst_object_unref (tee);
+  gst_object_unref (bin);
 
-    if (gst_element_query (tee, qs) && gst_element_query (tee, qp)) {
-      gdouble rate;
-      GstFormat fmt;
-      gint64 start, stop, pos;
-
-      gst_query_parse_segment (qs, &rate, &fmt, &start, &stop);
-      gst_query_parse_position (qp, &fmt, &pos);
-      if (!gst_pad_send_event (analyzer_sink, gst_event_new_new_segment (FALSE,
-                  rate, GST_FORMAT_TIME, start, stop, pos))) {
-        GST_WARNING_OBJECT (bin, "newsegment event failed");
-      }
-    } else {
-      GST_WARNING_OBJECT (bin, "segment or position query failed");
-    }
-#endif
-    gst_pad_set_blocked (tee_src, FALSE);
-  }
-  gst_object_unref (analyzer_sink);
-  GST_INFO ("add analyzers done");
-
-  return (res);
+  return GST_PAD_PROBE_REMOVE;
 }
 
 /**
@@ -445,11 +478,8 @@ gboolean
 bt_bin_deactivate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
     gboolean is_playing)
 {
-  gboolean res = TRUE;
-  const GList *node;
-  GstElement *prev, *next;
-  GstPad *src_pad = NULL;
-  GstStateChangeReturn state_ret;
+  gboolean res = FALSE;
+  GstPad *tee_src;
 
   g_return_val_if_fail (GST_IS_BIN (bin), FALSE);
   g_return_val_if_fail (GST_IS_ELEMENT (tee), FALSE);
@@ -457,42 +487,18 @@ bt_bin_deactivate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
 
   GST_INFO ("remove analyzers (%d elements)", g_list_length (analyzers));
 
-  if ((src_pad =
+  if ((tee_src =
           bt_gst_element_get_sink_peer_pad (GST_ELEMENT (analyzers->data)))) {
     // block src_pad (of tee)
-    if (is_playing)
-      gst_pad_set_blocked (src_pad, TRUE);
-  }
-
-  prev = tee;
-  for (node = analyzers; (node && res); node = g_list_next (node)) {
-    next = GST_ELEMENT (node->data);
-
-    if ((state_ret =
-            gst_element_set_state (next,
-                GST_STATE_NULL)) != GST_STATE_CHANGE_SUCCESS) {
-      GST_INFO ("cannot set state to NULL for element '%s', ret='%s'",
-          GST_OBJECT_NAME (next),
-          gst_element_state_change_return_get_name (state_ret));
+    if (is_playing) {
+      gst_pad_add_probe (tee_src, GST_PAD_PROBE_TYPE_BLOCK, async_remove,
+          analyzers, NULL);
+    } else {
+      async_remove (tee_src, NULL, analyzers);
     }
-    gst_element_unlink (prev, next);
-    prev = next;
+    res = TRUE;
   }
-  for (node = analyzers; (node && res); node = g_list_next (node)) {
-    next = GST_ELEMENT (node->data);
-    if (!(res = gst_bin_remove (bin, next))) {
-      GST_INFO ("cannot remove element '%s' from bin", GST_OBJECT_NAME (next));
-    }
-  }
-  if (src_pad) {
-    if (is_playing)
-      gst_pad_set_blocked (src_pad, FALSE);
-    // remove request-pad
-    GST_INFO ("releasing request pad for tee");
-    gst_element_release_request_pad (tee, src_pad);
-    gst_object_unref (src_pad);
-  }
-  return (res);
+  return res;
 }
 
 //-- gst debugging
@@ -554,8 +560,8 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
         break;
       }
       case GST_PAD_LINK_NOFORMAT:{
-        GstCaps *srcc = gst_pad_get_caps_reffed (src_pad);
-        GstCaps *sinkc = gst_pad_get_caps_reffed (sink_pad);
+        GstCaps *srcc = gst_pad_query_caps (src_pad, NULL);
+        GstCaps *sinkc = gst_pad_query_caps (sink_pad, NULL);
         gchar *src_caps = gst_caps_to_string (srcc);
         gchar *sink_caps = gst_caps_to_string (sinkc);
         sprintf (msg2, " : caps(src) = %s, caps(sink) = %s", src_caps,
@@ -598,20 +604,22 @@ gdouble
 bt_gst_level_message_get_aggregated_field (const GstStructure * structure,
     const gchar * field_name, gdouble default_value)
 {
-  const GValue *list;
+  const GValue *values;
   guint i, size;
-  gdouble value = 0.0;
+  gdouble sum = 0.0;
+  GValueArray *arr;
 
-  list = gst_structure_get_value (structure, field_name);
-  size = gst_value_list_get_size (list);
+  values = gst_structure_get_value (structure, field_name);
+  arr = (GValueArray *) g_value_get_boxed (values);
+  size = arr->n_values;
   for (i = 0; i < size; i++) {
-    value += g_value_get_double (gst_value_list_get_value (list, i));
+    sum += g_value_get_double (g_value_array_get_nth (arr, i));
   }
-  if (G_UNLIKELY (isinf (value) || isnan (value))) {
-    //GST_WARNING("levela %s was INF or NAN, %lf",field_name,value);
+  if (G_UNLIKELY (isinf (sum) || isnan (sum))) {
+    //GST_WARNING("level.%s was INF or NAN, %lf",field_name,sum);
     return default_value;
   }
-  return (value / size);
+  return (sum / size);
 }
 
 /**

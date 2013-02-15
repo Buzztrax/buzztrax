@@ -56,6 +56,8 @@
 #define BT_CORE
 #define BT_WAVE_C
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "core_private.h"
@@ -155,8 +157,7 @@ wave_io_free (const BtWave * self)
 }
 
 static void
-on_wave_loader_new_pad (GstElement * bin, GstPad * pad, gboolean islast,
-    gpointer user_data)
+on_wave_loader_new_pad (GstElement * bin, GstPad * pad, gpointer user_data)
 {
   // TODO(ensonic): if we pass the pad in user_data we can use gst_pad_link()
   if (!gst_element_link (bin, GST_ELEMENT (user_data))) {
@@ -192,20 +193,18 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
 
   // create loader pipeline
   pipeline = gst_pipeline_new ("wave-loader");
-  src = gst_element_make_from_uri (GST_URI_SRC, uri, NULL);
-  //dec=gst_element_factory_make("decodebin2",NULL);
+  src = gst_element_make_from_uri (GST_URI_SRC, uri, NULL, NULL);
   dec = gst_element_factory_make ("decodebin", NULL);
   conv = gst_element_factory_make ("audioconvert", NULL);
   fmt = gst_element_factory_make ("capsfilter", NULL);
   sink = gst_element_factory_make ("fdsink", NULL);
 
   // configure elements
-  caps = gst_caps_new_simple ("audio/x-raw-int",
+  caps = gst_caps_new_simple ("audio/x-raw",
+      "format", G_TYPE_STRING, GST_AUDIO_NE (S16),
+      "layout", G_TYPE_STRING, "interleaved",
       "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
-      "channels", GST_TYPE_INT_RANGE, 1, 2,
-      "width", G_TYPE_INT, 16,
-      "endianness", G_TYPE_INT, G_BYTE_ORDER,
-      "signed", G_TYPE_BOOLEAN, TRUE, NULL);
+      "channels", GST_TYPE_INT_RANGE, 1, 2, NULL);
   g_object_set (fmt, "caps", caps, NULL);
   gst_caps_unref (caps);
 
@@ -229,7 +228,7 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
     GST_WARNING ("Can't link wave loader pipeline (conf ! fmt ! sink).");
     goto Error;
   }
-  g_signal_connect (dec, "new-decoded-pad", G_CALLBACK (on_wave_loader_new_pad),
+  g_signal_connect (dec, "pad-added", G_CALLBACK (on_wave_loader_new_pad),
       (gpointer) conv);
 
   /* TODO(ensonic): during loading wave-data (into wavelevels)
@@ -288,7 +287,6 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
     gint64 duration;
     guint64 length = 0;
     gint channels = 1, rate = GST_AUDIO_DEF_RATE;
-    GstFormat format = GST_FORMAT_TIME;
     gpointer data = NULL;
     struct stat buf = { 0, };
 
@@ -296,12 +294,12 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
     GST_INFO ("sample loaded");
 
     // query length and convert to samples
-    if (!gst_element_query_duration (pipeline, &format, &duration)) {
+    if (!gst_element_query_duration (pipeline, GST_FORMAT_TIME, &duration)) {
       GST_WARNING ("getting sample duration failed");
     }
     // get caps for sample rate and channels
     if ((pad = gst_element_get_static_pad (fmt, "src"))) {
-      GstCaps *caps = GST_PAD_CAPS (pad);
+      GstCaps *caps = gst_pad_get_current_caps (pad);
       if (caps && GST_CAPS_IS_SIMPLE (caps)) {
         GstStructure *structure = gst_caps_get_structure (caps, 0);
 
@@ -311,6 +309,8 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
       } else {
         GST_WARNING ("No caps or format has not been fixed.");
       }
+      if (caps)
+        gst_caps_unref (caps);
       gst_object_unref (pad);
     }
 
@@ -416,12 +416,11 @@ bt_wave_save_to_fd (const BtWave * const self)
   GST_DEBUG ("%p ! %p ! %p ! %p", src, fmt, enc, sink);
 
   // configure elements
-  caps = gst_caps_new_simple ("audio/x-raw-int",
+  caps = gst_caps_new_simple ("audio/x-raw",
+      "format", G_TYPE_STRING, GST_AUDIO_NE (S16),
+      "layout", G_TYPE_STRING, "interleaved",
       "rate", G_TYPE_INT, srate,
-      "channels", G_TYPE_INT, self->priv->channels,
-      "width", G_TYPE_INT, 16,
-      "endianness", G_TYPE_INT, G_BYTE_ORDER,
-      "signed", G_TYPE_BOOLEAN, TRUE, NULL);
+      "channels", G_TYPE_INT, self->priv->channels, NULL);
   g_object_set (fmt, "caps", caps, NULL);
   gst_caps_unref (caps);
 

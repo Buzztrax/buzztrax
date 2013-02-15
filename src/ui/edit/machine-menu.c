@@ -180,7 +180,8 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
       continue;
     }
 
-    klass_name = gst_element_factory_get_klass (factory);
+    klass_name =
+        gst_element_factory_get_metadata (factory, GST_ELEMENT_METADATA_KLASS);
     GST_LOG ("adding element : '%s' with classification: '%s'", factory_name,
         klass_name);
 
@@ -276,8 +277,10 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
     // so, how can we detect wrapper plugins? -> we only filter, if plugin_name
     // is also in klass_name (for now we just check if klass_name is !empty)
     // @bug: see http://bugzilla.gnome.org/show_bug.cgi?id=571832
-    if (BT_IS_STRING (klass_name)
-        && (plugin_name = GST_PLUGIN_FEATURE (factory)->plugin_name)) {
+    if (BT_IS_STRING (klass_name) &&
+        (plugin_name =
+            gst_plugin_feature_get_plugin_name (GST_PLUGIN_FEATURE (factory))))
+    {
       gint len = strlen (plugin_name);
 
       GST_LOG ("%s:%s, %c", plugin_name, menu_name, menu_name[len]);

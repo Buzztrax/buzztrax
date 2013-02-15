@@ -27,6 +27,8 @@
 #define BT_CORE
 #define BT_SONG_IO_NATIVE_BZT_C
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "core_private.h"

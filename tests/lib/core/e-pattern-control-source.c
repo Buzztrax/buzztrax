@@ -70,10 +70,11 @@ test_bt_pattern_control_source_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
+  GstObject *m = g_object_new (BT_TYPE_TEST_MONO_SOURCE, NULL);
 
   /* act */
-  BtPatternControlSource *pcs = bt_pattern_control_source_new (sequence,
-      song_info, machine, pg);
+  BtPatternControlSource *pcs = bt_pattern_control_source_new (m, "g-ulong",
+      sequence, song_info, machine, pg);
 
   /* assert */
   fail_unless (pcs != NULL, NULL);
@@ -97,7 +98,7 @@ test_bt_pattern_control_source_normal_default_value (BT_TEST_ARGS)
   bt_parameter_group_set_param_default (pg, 0);
 
   /* act */
-  gst_object_sync_values (G_OBJECT (element), G_GUINT64_CONSTANT (0));
+  gst_object_sync_values (GST_OBJECT (element), G_GUINT64_CONSTANT (0));
 
   /* assert */
   ck_assert_gobject_gulong_eq (element, "g-ulong", 10);
@@ -118,7 +119,7 @@ test_bt_pattern_control_source_trigger_default_value (BT_TEST_ARGS)
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
 
   /* act */
-  gst_object_sync_values (G_OBJECT (element), G_GUINT64_CONSTANT (0));
+  gst_object_sync_values (GST_OBJECT (element), G_GUINT64_CONSTANT (0));
 
   /* assert */
   ck_assert_int_eq (((BtTestMonoSource *) element)->note_val, GSTBT_NOTE_NONE);
@@ -144,7 +145,7 @@ test_bt_pattern_control_source_override_default_value (BT_TEST_ARGS)
   bt_pattern_set_global_event (pattern, 0, 0, "100");
 
   /* act */
-  gst_object_sync_values (G_OBJECT (element), G_GUINT64_CONSTANT (0));
+  gst_object_sync_values (GST_OBJECT (element), G_GUINT64_CONSTANT (0));
 
   /* assert */
   ck_assert_gobject_gulong_eq (element, "g-ulong", 100);
@@ -171,7 +172,7 @@ test_bt_pattern_control_source_restore_default_value (BT_TEST_ARGS)
   bt_pattern_set_global_event (pattern, 0, 0, NULL);
 
   /* act */
-  gst_object_sync_values (G_OBJECT (element), G_GUINT64_CONSTANT (0));
+  gst_object_sync_values (GST_OBJECT (element), G_GUINT64_CONSTANT (0));
 
   /* assert */
   ck_assert_gobject_gulong_eq (element, "g-ulong", 10);
@@ -193,7 +194,7 @@ test_bt_pattern_control_source_change_pattern (BT_TEST_ARGS)
   bt_pattern_set_global_event (pattern, 0, 0, "100");
 
   /* act */
-  gst_object_sync_values (G_OBJECT (element), G_GUINT64_CONSTANT (0));
+  gst_object_sync_values (GST_OBJECT (element), G_GUINT64_CONSTANT (0));
 
   /* assert */
   ck_assert_gobject_gulong_eq (element, "g-ulong", 100);
@@ -214,11 +215,11 @@ test_bt_pattern_control_source_hold_normal (BT_TEST_ARGS)
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
   bt_pattern_set_global_event (pattern, 0, 0, "50");
   bt_pattern_set_global_event (pattern, 4, 0, "100");
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
 
   /* act */
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (1) * tick_time);
 
   /* assert */
@@ -240,11 +241,11 @@ test_bt_pattern_control_source_release_trigger (BT_TEST_ARGS)
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
   bt_pattern_set_global_event (pattern, 0, 3, "c-4");
   bt_pattern_set_global_event (pattern, 4, 3, "c-5");
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
 
   /* act */
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (1) * tick_time);
 
   /* assert */
@@ -271,9 +272,9 @@ test_bt_pattern_control_source_combine_pattern_shadows (BT_TEST_ARGS)
   bt_pattern_set_global_event (pattern2, 0, 0, "200");  /* value shadows above */
 
   /* act */
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (4) * tick_time);
 
   /* assert */
@@ -299,16 +300,16 @@ test_bt_pattern_control_source_combine_pattern_unshadows (BT_TEST_ARGS)
   bt_pattern_set_global_event (pattern1, 0, 0, "50");
   bt_pattern_set_global_event (pattern1, 4, 0, "100");
   bt_pattern_set_global_event (pattern2, 0, 0, "200");  /* value shadows above */
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (4) * tick_time);
 
   /* act */
   bt_sequence_set_pattern (sequence, 4, 0, NULL);
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (4) * tick_time);
 
   /* assert */
@@ -334,16 +335,16 @@ test_bt_pattern_control_source_combine_value_unshadows (BT_TEST_ARGS)
   bt_pattern_set_global_event (pattern1, 0, 0, "50");
   bt_pattern_set_global_event (pattern1, 4, 0, "100");
   bt_pattern_set_global_event (pattern2, 0, 0, "200");  /* value shadows above */
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (4) * tick_time);
 
   /* act */
   bt_pattern_set_global_event (pattern2, 0, 0, NULL);
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (4) * tick_time);
 
   /* assert */
@@ -368,14 +369,14 @@ test_bt_pattern_control_source_combine_two_tracks (BT_TEST_ARGS)
   bt_sequence_set_pattern (sequence, 1, 1, (BtCmdPattern *) pattern);
   bt_pattern_set_global_event (pattern, 0, 0, "50");
   bt_pattern_set_global_event (pattern, 1, 0, "100");
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (1) * tick_time);
 
   /* act */
   bt_sequence_set_pattern (sequence, 1, 1, NULL);
-  gst_object_sync_values (G_OBJECT (element),
+  gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (1) * tick_time);
 
   /* assert */

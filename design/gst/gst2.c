@@ -106,7 +106,7 @@ main (int argc, char **argv)
       GST_CLOCK_FLAGS (clock));
   clockId = gst_clock_new_periodic_id (clock, GST_SECOND * 2, GST_SECOND * 1);
   g_print ("entry result: %d (error=0,timeout,early,error,unsupported)\n",
-      gst_clock_id_wait_async (clockId, &clockFunc, NULL));
+      gst_clock_id_wait_async (clockId, &clockFunc, NULL, NULL));
   g_print ("entry::status: %d (ok=0,early,restart)\n",
       GST_CLOCK_ENTRY_STATUS ((GstClockEntry *) clockId));
 

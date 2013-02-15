@@ -19,7 +19,7 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 dnl dependencies
 REQ_GLIB=2.32.0
 REQ_GTK=2.24.0
-REQ_GST=0.10.32
+REQ_GST=1.1.0
 
 
 dnl
@@ -31,19 +31,18 @@ dnl 1: when releasing a changed version : MICRO++
 dnl 2: when the interface has changed (adding functions) : MINOR++, MICRO=0
 dnl 3: when the interface has changed (removing functions) : MAJOR++, MINOR=0, MICRO=0
 dnl
-BT_MAJOR_VERSION=0
-BT_MINOR_VERSION=8
+BT_MAJOR_VERSION=1
+BT_MINOR_VERSION=0
 BT_MICRO_VERSION=0
 BT_VERSION=$BT_MAJOR_VERSION.$BT_MINOR_VERSION.$BT_MICRO_VERSION
 BT_VERSION_INFO=`expr $BT_MAJOR_VERSION + $BT_MINOR_VERSION`:$BT_MICRO_VERSION:$BT_MINOR_VERSION
-BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + $BT_MICRO_VERSION`
 
-BT_MAJORMINOR=0.8
+BT_MAJORMINOR=1.0
 AC_DEFINE_UNQUOTED(BT_MAJORMINOR, "$BT_MAJORMINOR", [buzztard series])
 AC_SUBST(BT_MAJORMINOR)
 
 dnl that is needed to figure the directory name, where the plugin goes to
-GST_MAJORMINOR=0.10
+GST_MAJORMINOR=1.0
 AC_DEFINE_UNQUOTED(GST_MAJORMINOR, "$GST_MAJORMINOR", [gstreamer series])
 AC_SUBST(GST_MAJORMINOR)
 
@@ -56,13 +55,11 @@ AC_SUBST(BT_MINOR_VERSION)
 AC_SUBST(BT_MICRO_VERSION)
 AC_SUBST(BT_VERSION)
 AC_SUBST(BT_VERSION_INFO)
-AC_SUBST(BT_VERSION_NUMBER)
 AC_SUBST(BT_RELEASE_YEAR)
 AC_SUBST(BT_RELEASE_DATE)
 
-AC_DEFINE_UNQUOTED(PACKAGE_VERSION_NUMBER, ${BT_VERSION_NUMBER}, [version as a number])
-
-VERSION=${BT_VERSION}
+AC_DEFINE_UNQUOTED(BT_VERSION, "$BT_VERSION", [library version as string])
+AC_DEFINE_UNQUOTED(PACKAGE_VERSION_NUMBER, 800, [version as a number])
 
 
 dnl Checks for programs.
@@ -236,9 +233,9 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= $REQ_GLIB gobject-2.0  >= $REQ_GLIB gthread-2.0 >= $REQ_GLIB \
   gmodule-2.0 >= $REQ_GLIB gio-2.0 >= $REQ_GLIB \
   libxml-2.0 >= 2.6.0 \
-  gstreamer-0.10 >= $REQ_GST gstreamer-controller-0.10 >= $REQ_GST \
-  gstreamer-base-0.10 >= $REQ_GST \
-  gstreamer-plugins-base-0.10 >= $REQ_GST \
+  gstreamer-1.0 >= $REQ_GST gstreamer-controller-1.0 >= $REQ_GST \
+  gstreamer-base-1.0 >= $REQ_GST \
+  gstreamer-plugins-base-1.0 >= $REQ_GST \
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \
@@ -332,7 +329,7 @@ esac
 
 GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
 GTK_PREFIX="`$PKG_CONFIG --variable=prefix gtk+-2.0`"
-GST_PREFIX="`$PKG_CONFIG --variable=prefix gstreamer-0.10`"
+GST_PREFIX="`$PKG_CONFIG --variable=prefix gstreamer-1.0`"
 GCANVAS_PREFIX="`pkg-config --variable=prefix libgnomecanvas-2.0`"
 AC_SUBST(GLIB_PREFIX)
 AC_SUBST(GTK_PREFIX)
@@ -393,7 +390,7 @@ AM_CONDITIONAL([ENABLE_GTK_DOC], false)
 ])
 
 AC_ARG_ENABLE(man,
-              [AC_HELP_STRING([--enable-man],
+              [AS_HELP_STRING([--enable-man],
                               [regenerate man pages from Docbook [default=no]])],enable_man=yes,
               enable_man=no)
 
@@ -469,7 +466,7 @@ AC_CHECK_FUNCS( setrlimit)
 dnl Check for -Bsymbolic-functions linker flag used to avoid
 dnl intra-library PLT jumps, if available.
 AC_ARG_ENABLE(Bsymbolic,
-              [AC_HELP_STRING([--disable-Bsymbolic],
+              [AS_HELP_STRING([--disable-Bsymbolic],
                               [avoid linking with -Bsymbolic])],,
               [SAVED_LDFLAGS="${LDFLAGS}"
                AC_MSG_CHECKING([for -Bsymbolic-functions linker flag])
@@ -541,7 +538,7 @@ fi
 
 echo "
 Configuration
-	Version                         : ${VERSION}
+	Version                         : ${PACKAGE_VERSION}
 	Source code location            : ${srcdir}
 	Prefix                          : ${prefix}
 	Compiler                        : ${CC}
@@ -581,7 +578,7 @@ export LD_LIBRARY_PATH=$prefix/lib:\$LD_LIBRARY_PATH
 export MANPATH=\$MANPATH:$prefix/share/man
 export DEVHELP_SEARCH_PATH="\$DEVHELP_SEARCH_PATH:$prefix/share/gtk-doc/html"
 export PKG_CONFIG_PATH="\$PKG_CONFIG_PATH:$prefix/lib/pkgconfig"
-export GST_PLUGIN_PATH="\$GST_PLUGIN_PATH:$prefix/lib/gstreamer-0.10"
+export GST_PLUGIN_PATH_1_0="\$GST_PLUGIN_PATH:$prefix/lib/gstreamer-1.0"
 export XDG_DATA_DIRS="\$XDG_DATA_DIRS:$prefix/share"
 export GI_TYPELIB_PATH="\$GI_TYPELIB_PATH:$prefix/lib/girepository"
 "

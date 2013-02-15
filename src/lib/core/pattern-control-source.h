@@ -20,7 +20,6 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <gst/controller/gstcontrolsource.h>
 
 #include "sequence.h"
 #include "song-info.h"
@@ -44,18 +43,18 @@ typedef struct _BtPatternControlSourcePrivate BtPatternControlSourcePrivate;
  * A pattern based control source
  */
 struct _BtPatternControlSource {
-  const GstControlSource parent;
+  const GstControlBinding parent;
 
   /*< private > */
   BtPatternControlSourcePrivate *priv;
 };
 
 struct _BtPatternControlSourceClass {
-  const GstControlSourceClass parent;
+  const GstControlBindingClass parent;
 };
 
 GType bt_pattern_control_source_get_type (void) G_GNUC_CONST;
 
-BtPatternControlSource *bt_pattern_control_source_new (BtSequence * sequence, const BtSongInfo *song_info, const BtMachine * machine, BtParameterGroup * param_group);
+BtPatternControlSource *bt_pattern_control_source_new (GstObject * object, const gchar * property_name, BtSequence * sequence, const BtSongInfo *song_info, const BtMachine * machine, BtParameterGroup * param_group);
 
 #endif // BT_PATTERN_CONTROL_SOURCE_H

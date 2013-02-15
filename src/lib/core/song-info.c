@@ -659,6 +659,7 @@ bt_song_info_dispose (GObject * const object)
 
   GST_DEBUG ("!!!! self=%p", self);
   g_object_try_weak_unref (self->priv->song);
+  gst_tag_list_unref (self->priv->taglist);
 
   G_OBJECT_CLASS (bt_song_info_parent_class)->dispose (object);
 }
@@ -671,7 +672,6 @@ bt_song_info_finalize (GObject * const object)
   GST_DEBUG ("!!!! self=%p", self);
 
   g_date_free (self->priv->tag_date);
-  gst_tag_list_free (self->priv->taglist);
 
   g_free (self->priv->file_name);
   g_free (self->priv->info);
@@ -693,7 +693,7 @@ bt_song_info_init (BtSongInfo * self)
 
   self->priv =
       G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
-  self->priv->taglist = gst_tag_list_new ();
+  self->priv->taglist = gst_tag_list_new_empty ();
 
   self->priv->name = g_strdup (DEFAULT_SONG_NAME);
   self->priv->author = g_strdup (g_get_real_name ());

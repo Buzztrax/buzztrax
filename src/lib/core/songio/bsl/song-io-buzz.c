@@ -32,6 +32,7 @@
 #include "bsl.h"
 #include "song-io-buzz-private.h"
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 //-- gstbuzztard
 #include <libgstbuzztard/toneconversion.h>
@@ -1209,7 +1210,7 @@ read_mach_section (const BtSongIOBuzz * self, const BtSong * song)
     GST_DEBUG ("    number of tracks : %d", mach->number_of_tracks);
     // read track params
     if (mach->number_of_tracks) {
-      GstObject *track;
+      GObject *track;
 
       mach->track_parameter_state = g_new0 (guint16 *, mach->number_of_tracks);
       for (j = 0; ((j < mach->number_of_tracks) && !self->priv->io_error); j++) {

@@ -22,6 +22,8 @@
 #  include "config.h"
 #endif
 
+//-- ansi c
+#include <string.h>
 //-- libxml2
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>

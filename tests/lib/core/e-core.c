@@ -87,7 +87,7 @@ test_bt_core_init2 (BT_TEST_ARGS)
   /* assert */
   ck_assert_int_eq (test_argc, 1);
   fail_unless (check_file_contains_str (stdout, NULL,
-          "libbuzztard-core-" PACKAGE_VERSION " from " PACKAGE_STRING), NULL);
+          "libbuzztard-core-" BT_VERSION " from " PACKAGE_STRING), NULL);
   BT_TEST_END;
 }
 

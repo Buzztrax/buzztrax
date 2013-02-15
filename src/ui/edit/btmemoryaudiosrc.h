@@ -57,7 +57,6 @@ struct _BtMemoryAudioSrc {
   /* audio parameters */
   gint samplerate;
   gint channels;
-  gint width;
   
   /*< private >*/
   GstClockTime running_time;            /* total running time */

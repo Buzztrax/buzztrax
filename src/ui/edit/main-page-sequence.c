@@ -1122,7 +1122,7 @@ on_track_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
           if ((clk_ret =
                   gst_clock_id_wait_async (clock_id,
                       on_delayed_track_level_change,
-                      (gpointer) data)) != GST_CLOCK_OK) {
+                      (gpointer) data, NULL)) != GST_CLOCK_OK) {
             GST_WARNING_OBJECT (vumeter, "clock wait failed: %d", clk_ret);
             FREE_UPDATE_IDLE_DATA (data);
           }

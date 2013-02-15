@@ -33,6 +33,9 @@ loop_end =  7  n_samples_stop=7          =15-3=12
 /* TODO(ensonic): we could also use giostreamsrc + a GMemoryInputStream.
  * See this example here:
  * http://cgit.freedesktop.org/gstreamer/gst-plugins-base/tree/tests/check/pipelines/gio.c#n60
+ *
+ * - or port to baseaudiosrc (see to focus on hardware sources)
+ * - or audiosynth
  */
 
 #ifdef HAVE_CONFIG_H
@@ -62,11 +65,14 @@ static GstStaticPadTemplate bt_memory_audio_src_src_template =
 GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS_ANY);
+    GST_STATIC_CAPS ("audio/x-raw, "
+        "format = (string) " GST_AUDIO_NE (S16) ", "
+        "layout = (string) interleaved, "
+        "rate = (int) [ 1, MAX ], " "channels = (int) [1, 2]")
+    );
 
 
-GST_BOILERPLATE (BtMemoryAudioSrc, bt_memory_audio_src, GstBaseSrc,
-    GST_TYPE_BASE_SRC);
+G_DEFINE_TYPE (BtMemoryAudioSrc, bt_memory_audio_src, GST_TYPE_BASE_SRC);
 
 
 static void bt_memory_audio_src_set_property (GObject * object,
@@ -76,7 +82,8 @@ static void bt_memory_audio_src_get_property (GObject * object,
 static void bt_memory_audio_src_dispose (GObject * object);
 
 
-static GstCaps *bt_memory_audio_src_get_caps (GstBaseSrc * basesrc);
+static GstCaps *bt_memory_audio_src_get_caps (GstBaseSrc * basesrc,
+    GstCaps * filter);
 static gboolean bt_memory_audio_src_is_seekable (GstBaseSrc * basesrc);
 static gboolean bt_memory_audio_src_do_seek (GstBaseSrc * basesrc,
     GstSegment * segment);
@@ -86,25 +93,12 @@ static gboolean bt_memory_audio_src_query (GstBaseSrc * basesrc,
 static GstFlowReturn bt_memory_audio_src_create (GstBaseSrc * basesrc,
     guint64 offset, guint length, GstBuffer ** buffer);
 
-
-static void
-bt_memory_audio_src_base_init (gpointer g_class)
-{
-  GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
-
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&bt_memory_audio_src_src_template));
-  gst_element_class_set_details_simple (element_class,
-      "Memory audio source",
-      "Source/Audio",
-      "Plays audio from memory", "Stefan Kost <ensonic@users.sf.net>");
-}
-
 static void
 bt_memory_audio_src_class_init (BtMemoryAudioSrcClass * klass)
 {
-  GObjectClass *gobject_class;
-  GstBaseSrcClass *gstbasesrc_class;
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+  GstElementClass *element_class = (GstElementClass *) klass;
+  GstBaseSrcClass *gstbasesrc_class = (GstBaseSrcClass *) klass;
 
   gobject_class = (GObjectClass *) klass;
   gstbasesrc_class = (GstBaseSrcClass *) klass;
@@ -132,16 +126,21 @@ bt_memory_audio_src_class_init (BtMemoryAudioSrcClass * klass)
   gstbasesrc_class->do_seek = GST_DEBUG_FUNCPTR (bt_memory_audio_src_do_seek);
   gstbasesrc_class->query = GST_DEBUG_FUNCPTR (bt_memory_audio_src_query);
   gstbasesrc_class->create = GST_DEBUG_FUNCPTR (bt_memory_audio_src_create);
+
+  gst_element_class_add_pad_template (element_class,
+      gst_static_pad_template_get (&bt_memory_audio_src_src_template));
+  gst_element_class_set_static_metadata (element_class,
+      "Memory audio source",
+      "Source/Audio",
+      "Plays audio from memory", "Stefan Kost <ensonic@users.sf.net>");
 }
 
 static void
-bt_memory_audio_src_init (BtMemoryAudioSrc * src,
-    BtMemoryAudioSrcClass * g_class)
+bt_memory_audio_src_init (BtMemoryAudioSrc * src)
 {
   /* some defaults */
   src->samplerate = GST_AUDIO_DEF_RATE;
   src->channels = 1;
-  src->width = 16;
 
   /* we operate in time */
   gst_base_src_set_format (GST_BASE_SRC (src), GST_FORMAT_TIME);
@@ -154,11 +153,21 @@ bt_memory_audio_src_init (BtMemoryAudioSrc * src,
 }
 
 static GstCaps *
-bt_memory_audio_src_get_caps (GstBaseSrc * basesrc)
+bt_memory_audio_src_get_caps (GstBaseSrc * basesrc, GstCaps * filter)
 {
   BtMemoryAudioSrc *src = BT_MEMORY_AUDIO_SRC (basesrc);
+  GstCaps *res = gst_caps_copy (src->caps);
 
-  return gst_caps_ref (src->caps);
+  if (filter) {
+    GstCaps *tmp =
+        gst_caps_intersect_full (filter, res, GST_CAPS_INTERSECT_FIRST);
+    gst_caps_unref (res);
+    res = tmp;
+  }
+
+  GST_INFO_OBJECT (src, "caps: %" GST_PTR_FORMAT, res);
+
+  return res;
 }
 
 static gboolean
@@ -213,7 +222,9 @@ bt_memory_audio_src_query (GstBaseSrc * basesrc, GstQuery * query)
       break;
     }
     default:
-      res = GST_BASE_SRC_CLASS (parent_class)->query (basesrc, query);
+      res =
+          GST_BASE_SRC_CLASS (bt_memory_audio_src_parent_class)->query (basesrc,
+          query);
       break;
   }
 
@@ -235,10 +246,10 @@ bt_memory_audio_src_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
 
   src->rate = segment->rate;
 
-  GST_LOG_OBJECT (src, "rates : %lf %lf %lf -------------------------------",
-      segment->rate, segment->abs_rate, segment->applied_rate);
+  GST_LOG_OBJECT (src, "rates : %lf %lf -------------------------------",
+      segment->rate, segment->applied_rate);
 
-  time = segment->last_stop;
+  time = segment->position;
   /* now move to the time indicated */
   src->n_samples =
       gst_util_uint64_scale_int (time, src->samplerate, GST_SECOND);
@@ -293,12 +304,14 @@ bt_memory_audio_src_create (GstBaseSrc * basesrc, guint64 offset,
 {
   BtMemoryAudioSrc *src = BT_MEMORY_AUDIO_SRC (basesrc);
   GstBuffer *buf;
+  gpointer data;
   GstClockTime next_time;
   gint64 n_samples;
+  gsize size;
 
   if (src->eos_reached) {
     GST_WARNING ("have eos");
-    return GST_FLOW_UNEXPECTED;
+    return GST_FLOW_EOS;
   }
 
   /* check for eos */
@@ -318,43 +331,34 @@ bt_memory_audio_src_create (GstBaseSrc * basesrc, guint64 offset,
   next_time = gst_util_uint64_scale (n_samples, GST_SECOND,
       (guint64) src->samplerate);
 
-  buf = gst_buffer_new ();
+  if (src->rate > 0.0) {
+    data = (gpointer) & src->data[src->n_samples * src->channels];
+  } else {
+    data =
+        (gpointer) & src->data[(src->length - src->n_samples) * src->channels];
+  }
+  size = src->generate_samples_per_buffer * sizeof (gint16);
+  buf =
+      gst_buffer_new_wrapped_full (GST_MEMORY_FLAG_READONLY, data, size, 0,
+      size, NULL, NULL);
 
   if (src->rate > 0.0) {
-    GST_BUFFER_DATA (buf) =
-        (gpointer) & src->data[src->n_samples * src->channels];
     GST_BUFFER_TIMESTAMP (buf) = src->running_time;
     GST_BUFFER_OFFSET (buf) = src->n_samples;
     GST_BUFFER_OFFSET_END (buf) = n_samples;
   } else {
     GstClockTime end_time = gst_util_uint64_scale (src->length, GST_SECOND,
         (guint64) src->samplerate);
-
-    GST_BUFFER_DATA (buf) =
-        (gpointer) & src->data[(src->length - src->n_samples) * src->channels];
     GST_BUFFER_TIMESTAMP (buf) = end_time - src->running_time;
     GST_BUFFER_OFFSET (buf) = src->length - src->n_samples;
     GST_BUFFER_OFFSET_END (buf) = src->length - n_samples;
   }
   GST_BUFFER_DURATION (buf) = next_time - src->running_time;
-  GST_BUFFER_SIZE (buf) = src->generate_samples_per_buffer * (src->width / 8);
-  GST_BUFFER_FLAGS (buf) = GST_BUFFER_FLAG_READONLY;
-
-/*
-  GST_BUFFER_DATA(buf) = (gpointer)&src->data[src->n_samples * src->channels];
-  GST_BUFFER_SIZE (buf) =  src->generate_samples_per_buffer * (src->width/8);
-  GST_BUFFER_TIMESTAMP (buf) = src->running_time;
-  GST_BUFFER_OFFSET (buf) = src->n_samples;
-  GST_BUFFER_OFFSET_END (buf) = n_samples;
-  GST_BUFFER_DURATION (buf) = next_time - src->running_time;
-  GST_BUFFER_FLAGS (buf) = GST_BUFFER_FLAG_READONLY;
-*/
 
   GST_LOG_OBJECT (src, "play from ts %" GST_TIME_FORMAT
       " with duration %" GST_TIME_FORMAT ", size %u, and data %p",
       GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (buf)),
-      GST_TIME_ARGS (GST_BUFFER_DURATION (buf)),
-      GST_BUFFER_SIZE (buf), GST_BUFFER_DATA (buf));
+      GST_TIME_ARGS (GST_BUFFER_DURATION (buf)), size, data);
 
   src->running_time = next_time;
   src->n_samples = n_samples;
@@ -385,15 +389,6 @@ bt_memory_audio_src_set_property (GObject * object, guint prop_id,
         structure = gst_caps_get_structure (new_caps, 0);
         gst_structure_get_int (structure, "rate", &src->samplerate);
         gst_structure_get_int (structure, "channels", &src->channels);
-        gst_structure_get_int (structure, "width", &src->width);
-        /*
-           const gchar *name;
-           name = gst_structure_get_name (structure);
-           if (strcmp (name, "audio/x-raw-int") == 0) {
-           }
-           else {
-           }
-         */
       }
 
       src->caps = new_caps;
@@ -441,7 +436,7 @@ bt_memory_audio_src_dispose (GObject * object)
 
   gst_caps_replace (&src->caps, NULL);
 
-  G_OBJECT_CLASS (parent_class)->dispose (object);
+  G_OBJECT_CLASS (bt_memory_audio_src_parent_class)->dispose (object);
 }
 
 //-- plugin handling

@@ -113,7 +113,7 @@ static const BtSinkBinRecordFormatInfo formats[] = {
   {"MP3 record format", "MP3 Audio",
       "application/x-id3", "audio/mpeg, mpegversion=1, layer=3"},
   {"WAV record format", "WAV Audio", "audio/x-wav",
-      "audio/x-raw-int, width=16, depth=16"},
+      "audio/x-raw, format=(string)S16LE"},
   {"Ogg Flac record format", "Ogg Flac", "application/ogg", "audio/x-flac"},
   {"Raw format", "Raw", NULL, NULL},
   {"M4A record format", "M4A Audio", "video/quicktime",
@@ -364,7 +364,7 @@ static void
 bt_sink_bin_configure_latency (const BtSinkBin * const self)
 {
   GstElement *sink = self->priv->audio_sink;
-  if (GST_IS_BASE_AUDIO_SINK (sink)) {
+  if (GST_IS_AUDIO_BASE_SINK (sink)) {
     if (self->priv->beats_per_minute && self->priv->ticks_per_beat
         && self->priv->subticks_per_tick) {
       // we configure stpb in machine.c
@@ -545,8 +545,8 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->
-          priv->record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->priv->
+          record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
@@ -595,35 +595,21 @@ sink_probe (GstPad * pad, GstMiniObject * mini_obj, gpointer user_data)
 static gboolean
 bt_sink_bin_format_update (const BtSinkBin * const self)
 {
-  GstStructure *sink_format_structures[2];
+  GstStructure *s;
   GstCaps *sink_format_caps;
 
   if (!self->priv->caps_filter)
     return (FALSE);
 
   // always add caps-filter as a first element and enforce sample rate and channels
-  sink_format_structures[0] = gst_structure_from_string ("audio/x-raw-int, "
-      "channels = (int) 2, "
-      "rate = (int) 44100, "
-      "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }, "
-      "width = (int) { 8, 16, 24, 32 }, "
-      "depth = (int) [ 1, 32 ], " "signed = (boolean) { true, false };", NULL);
-  sink_format_structures[1] = gst_structure_from_string ("audio/x-raw-float, "
-      "channels = (int) 2, "
-      "rate = (int) 44100, "
-      "endianness = (int) { LITTLE_ENDIAN, BIG_ENDIAN }, "
-      "width = (int) { 32, 64 }", NULL);
-  gst_structure_set (sink_format_structures[0],
+  s = gst_structure_from_string ("audio/x-raw, "
+      "format = (string) " GST_AUDIO_FORMATS_ALL ", "
+      "layout = (string) interleaved, "
+      "rate = (int) 44100, " "channels = (int) 2", NULL);
+  gst_structure_set (s,
       "rate", G_TYPE_INT, self->priv->sample_rate,
-      "channels", G_TYPE_INT, self->priv->channels,
-      "endianness", G_TYPE_INT, G_BYTE_ORDER, NULL);
-  gst_structure_set (sink_format_structures[1],
-      "rate", G_TYPE_INT, self->priv->sample_rate,
-      "channels", G_TYPE_INT, self->priv->channels,
-      "endianness", G_TYPE_INT, G_BYTE_ORDER, NULL);
-  sink_format_caps =
-      gst_caps_new_full (sink_format_structures[0], sink_format_structures[1],
-      NULL);
+      "channels", G_TYPE_INT, self->priv->channels, NULL);
+  sink_format_caps = gst_caps_new_full (s, NULL);
 
   GST_INFO ("sink is using: sample-rate=%u, channels=%u",
       self->priv->sample_rate, self->priv->channels);
@@ -767,7 +753,7 @@ bt_sink_bin_update (const BtSinkBin * const self)
     case BT_SINK_BIN_MODE_PASS_THRU:{
       GstPadTemplate *tmpl =
           gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (tee),
-          "src%d");
+          "src_%u");
       GstPad *target_pad = gst_element_request_pad (tee, tmpl, NULL, NULL);
       if (!target_pad) {
         GST_WARNING_OBJECT (tee, "failed to get request 'src' request-pad");
@@ -925,14 +911,13 @@ on_channels_changed (const BtSettings * const settings, GParamSpec * const arg,
   // affect wire patterns - how do we want to handle it
 }
 
-static gboolean
-master_volume_sync_handler (GstPad * pad, GstBuffer * buffer,
+static GstPadProbeReturn
+master_volume_sync_handler (GstPad * pad, GstPadProbeInfo * info,
     gpointer user_data)
 {
-  BtSinkBin *self = BT_SINK_BIN (user_data);
-
-  gst_object_sync_values (G_OBJECT (self), GST_BUFFER_TIMESTAMP (buffer));
-  return (TRUE);
+  gst_object_sync_values (GST_OBJECT (user_data),
+      GST_BUFFER_TIMESTAMP ((GstBuffer *) info->data));
+  return GST_PAD_PROBE_OK;
 }
 
 //-- methods
@@ -1071,8 +1056,8 @@ bt_sink_bin_set_property (GObject * const object, const guint property_id,
       g_object_set (self->priv->gain, "volume", self->priv->volume, NULL);
       sink_pad = gst_element_get_static_pad (self->priv->gain, "sink");
       self->priv->mv_handler_id =
-          gst_pad_add_buffer_probe (sink_pad,
-          G_CALLBACK (master_volume_sync_handler), (gpointer) self);
+          gst_pad_add_probe (sink_pad, GST_PAD_PROBE_TYPE_BUFFER,
+          master_volume_sync_handler, (gpointer) self, NULL);
       gst_object_unref (sink_pad);
       break;
     }
@@ -1127,7 +1112,7 @@ bt_sink_bin_dispose (GObject * const object)
     GstPad *sink_pad = gst_element_get_static_pad (self->priv->gain, "sink");
 
     if (sink_pad) {
-      gst_pad_remove_buffer_probe (sink_pad, self->priv->mv_handler_id);
+      gst_pad_remove_probe (sink_pad, self->priv->mv_handler_id);
       gst_object_unref (sink_pad);
     }
   }
@@ -1245,7 +1230,7 @@ bt_sink_bin_class_init (BtSinkBinClass * klass)
           "list of master analyzers",
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_metadata (element_class,
       "Master AudioSink",
       "Audio/Bin", "Play/Record audio", "Stefan Kost <ensonic@users.sf.net>");
 }

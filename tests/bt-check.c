@@ -474,7 +474,7 @@ setup_log_capture (void)
   (void) g_set_printerr_handler (check_print_handler);
 
 #ifndef GST_DISABLE_GST_DEBUG
-  gst_debug_add_log_function (check_gst_log_handler, NULL);
+  gst_debug_add_log_function (check_gst_log_handler, NULL, NULL);
 #endif
 }
 

@@ -118,7 +118,7 @@ static GQuark error_domain = 0;
 
 static gchar *src_pn[] = {
   "src",                        /* queue */
-  "\0src%d",                    /* tee */
+  "\0src_%u",                   /* tee */
   "src",                        /* gain */
   "src",                        /* convert */
   "src"                         /* pan */
@@ -177,9 +177,11 @@ bt_wire_link_elements (const BtWire * const self, GstPad * src, GstPad * sink)
 {
   GstPadLinkReturn plr;
 
-  if ((plr = gst_pad_link (src, sink)) != GST_PAD_LINK_OK) {
+  if (GST_PAD_LINK_FAILED (plr = gst_pad_link (src, sink))) {
     GST_WARNING_OBJECT (self, "can't link %s:%s with %s:%s: %d",
         GST_DEBUG_PAD_NAME (src), GST_DEBUG_PAD_NAME (sink), plr);
+    GST_WARNING_OBJECT (self, "%s", bt_gst_debug_pad_link_return (plr, src,
+            sink));
     return (FALSE);
   }
   return (TRUE);
@@ -478,20 +480,32 @@ bt_wire_link_machines (const BtWire * const self)
       }
       gst_caps_unref (caps);
     } else {
-      GST_INFO ("empty caps :(");
+      GST_INFO_OBJECT (dst_machine, "empty caps :(");
     }
     dst_caps = gst_pad_get_pad_template_caps (pad);
+    GST_INFO_OBJECT (self, "template caps on sink pad %" GST_PTR_FORMAT,
+        dst_caps);
     gst_object_unref (pad);
   }
   gst_object_unref (dst_machine);
 
+  // caps nego in 1.0 is different, it seems we're skipping the converter in places
+  // where we shouldn't
   g_object_get (src, "machine", &src_machine, NULL);
   if ((pad = gst_element_get_static_pad (src_machine, "src"))) {
     const GstCaps *src_caps = gst_pad_get_pad_template_caps (pad);
-    skip_convert = gst_caps_can_intersect (bt_default_caps, src_caps);
-    if (skip_convert) {
-      skip_convert &= gst_caps_can_intersect (dst_caps, src_caps);
+    if (!gst_caps_is_any (src_caps)) {
+      skip_convert = gst_caps_can_intersect (bt_default_caps, src_caps);
     }
+    if (skip_convert) {
+      if (!gst_caps_is_any (dst_caps)) {
+        skip_convert &= gst_caps_can_intersect (dst_caps, src_caps);
+      } else {
+        skip_convert = FALSE;
+      }
+    }
+    GST_INFO_OBJECT (self, "skipping converter: %d? src_caps=%" GST_PTR_FORMAT
+        ", dst_caps=%" GST_PTR_FORMAT, skip_convert, src_caps, dst_caps);
     gst_object_unref (pad);
   }
   gst_object_unref (src_machine);
@@ -1155,8 +1169,8 @@ bt_wire_persistence_load (const GType type,
                       if (!strncmp ((char *) child_node3->name, "wiredata\0",
                               9)) {
                         param =
-                            bt_parameter_group_get_param_index (self->priv->
-                            param_group, (gchar *) name);
+                            bt_parameter_group_get_param_index (self->
+                            priv->param_group, (gchar *) name);
                         if (param != -1) {
                           bt_value_group_set_event (vg, tick, param,
                               (gchar *) value);

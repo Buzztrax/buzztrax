@@ -40,13 +40,13 @@ G_DEFINE_TYPE_WITH_CODE (BtProcessorMachine, bt_processor_machine,
 
 //-- pad templates
 static GstStaticPadTemplate machine_src_template =
-GST_STATIC_PAD_TEMPLATE ("src%d",
+GST_STATIC_PAD_TEMPLATE ("src_%u",
     GST_PAD_SRC,
     GST_PAD_REQUEST,
     GST_STATIC_CAPS_ANY);
 
 static GstStaticPadTemplate machine_sink_template =
-GST_STATIC_PAD_TEMPLATE ("sink%d",
+GST_STATIC_PAD_TEMPLATE ("sink_%u",
     GST_PAD_SINK,
     GST_PAD_REQUEST,
     GST_STATIC_CAPS_ANY);

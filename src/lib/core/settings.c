@@ -47,7 +47,6 @@
 
 #include "core_private.h"
 #include <gio/gsettingsbackend.h>
-#include <gst/audio/multichannel.h>
 
 static BtSettings *singleton = NULL;
 
@@ -148,18 +147,10 @@ parse_and_check_audio_sink (gchar * plugin_name)
     GstPluginFeature *f;
     gboolean invalid = FALSE;
 
-    if ((f = gst_registry_lookup_feature (gst_registry_get_default (),
-                plugin_name))) {
+    if ((f = gst_registry_lookup_feature (gst_registry_get (), plugin_name))) {
       if (GST_IS_ELEMENT_FACTORY (f)) {
-        gboolean can_int_caps, can_float_caps;
-
-        can_int_caps =
-            bt_gst_element_factory_can_sink_media_type ((GstElementFactory *) f,
-            "audio/x-raw-int");
-        can_float_caps =
-            bt_gst_element_factory_can_sink_media_type ((GstElementFactory *) f,
-            "audio/x-raw-float");
-        if (!(can_int_caps || can_float_caps)) {
+        if (!bt_gst_element_factory_can_sink_media_type ((GstElementFactory *)
+                f, "audio/x-raw")) {
           GST_INFO ("audiosink '%s' has no compatible caps", plugin_name);
           invalid = TRUE;
         }
@@ -432,7 +423,6 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
         bt_gst_registry_get_element_factories_matching_all_categories
         ("Sink/Audio");
     guint max_rank = 0, cur_rank;
-    gboolean can_int_caps, can_float_caps;
 
     GST_INFO ("get audiosink from gst registry by rank");
     /* @bug: https://bugzilla.gnome.org/show_bug.cgi?id=601775 */
@@ -446,13 +436,7 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
       GST_INFO ("  probing audio sink: \"%s\"", feature_name);
 
       // can the sink accept raw audio?
-      can_int_caps =
-          bt_gst_element_factory_can_sink_media_type (factory,
-          "audio/x-raw-int");
-      can_float_caps =
-          bt_gst_element_factory_can_sink_media_type (factory,
-          "audio/x-raw-float");
-      if (can_int_caps || can_float_caps) {
+      if (bt_gst_element_factory_can_sink_media_type (factory, "audio/x-raw")) {
         // get element max(rank)
         cur_rank = gst_plugin_feature_get_rank (GST_PLUGIN_FEATURE (factory));
         GST_INFO ("  trying audio sink: \"%s\" with rank: %d", feature_name,

@@ -45,8 +45,6 @@
 
 #include "bt-edit.h"
 
-#include <gst/interfaces/propertyprobe.h>
-
 struct _BtSettingsPageAudiodevicesPrivate
 {
   /* used to validate if dispose has run */
@@ -91,6 +89,7 @@ update_device_menu (const BtSettingsPageAudiodevices * self,
     GstStateChangeReturn ret = gst_element_set_state (sink, GST_STATE_READY);
 
     if (ret != GST_STATE_CHANGE_FAILURE) {
+#if 0
       if (GST_IS_PROPERTY_PROBE (sink)) {
         GstPropertyProbe *probe = GST_PROPERTY_PROBE (sink);
         const GParamSpec *devspec;
@@ -141,6 +140,7 @@ update_device_menu (const BtSettingsPageAudiodevices * self,
           }
         }
       }
+#endif
     }
     gst_element_set_state (sink, GST_STATE_NULL);
     gst_object_unref (sink);
@@ -256,7 +256,6 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
   gchar *audiosink_name, *system_audiosink_name, *str;
   GList *node, *audiosink_factories;
   gboolean use_system_audiosink = TRUE;
-  gboolean can_int_caps, can_float_caps;
   guint sample_rate, channels, latency;
   glong audiosink_index = 0, sampling_rate_index, ct;
 
@@ -296,9 +295,11 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
   if (system_audiosink_name) {
     GstElementFactory *const factory =
         gst_element_factory_find (system_audiosink_name);
+    const gchar *desc = factory ? gst_element_factory_get_metadata (factory,
+        GST_ELEMENT_METADATA_DESCRIPTION) : "-";
     str =
         g_strdup_printf (_("system default: %s (%s)"), system_audiosink_name,
-        (factory ? gst_element_factory_get_description (factory) : "-"));
+        desc);
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
             priv->audiosink_menu), str);
     g_free (str);
@@ -342,7 +343,8 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
       continue;
     }
     // filter some known plugins
-    if (!strcmp (GST_PLUGIN_FEATURE (factory)->plugin_name, "lv2")) {
+    if (!strcmp (gst_plugin_feature_get_plugin_name (GST_PLUGIN_FEATURE
+                (factory)), "lv2")) {
       GST_INFO ("  skipping audio sink: \"%s\" - its a lv2 element", name);
       continue;
     }
@@ -356,19 +358,14 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
     factory = (GstElementFactory *) loaded_feature;
     type = gst_element_factory_get_element_type (factory);
     // check class hierarchy
-    if (!g_type_is_a (type, GST_TYPE_BASE_AUDIO_SINK)) {
+    if (!g_type_is_a (type, GST_TYPE_AUDIO_BASE_SINK)) {
       GST_INFO
           ("  skipping audio sink: \"%s\" - not inherited from baseaudiosink",
           name);
       continue;
     }
     // can the sink accept raw audio?
-    can_int_caps =
-        bt_gst_element_factory_can_sink_media_type (factory, "audio/x-raw-int");
-    can_float_caps =
-        bt_gst_element_factory_can_sink_media_type (factory,
-        "audio/x-raw-float");
-    if (can_int_caps || can_float_caps) {
+    if (bt_gst_element_factory_can_sink_media_type (factory, "audio/x-raw")) {
       GstElement *sink;
       gboolean works = FALSE;
 
@@ -398,7 +395,8 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
         }
         str =
             g_strdup_printf ("%s (%s)", name,
-            gst_element_factory_get_description (factory));
+            gst_element_factory_get_metadata (factory,
+                GST_ELEMENT_METADATA_DESCRIPTION));
         gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
                 priv->audiosink_menu), str);
         g_free (str);
@@ -410,8 +408,7 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
       }
     } else {
       GST_INFO
-          ("  skipping audio sink: \"%s\" because of incompatible caps (%d,%d)",
-          name, can_int_caps, can_float_caps);
+          ("  skipping audio sink: \"%s\" because of incompatible caps", name);
     }
   }
   GST_INFO ("current sink (is_system? %d): %lu", use_system_audiosink,

@@ -639,24 +639,25 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
   g_object_remove_weak_pointer ((gpointer) self, (gpointer *) & params[0]);
 
   if (name_id == bus_msg_level_quark) {
-    const GValue *l_cur, *l_peak;
+    const GValue *values;
+    GValueArray *cur_arr, *peak_arr;
     guint i;
     gdouble val;
 
     //GST_INFO("get level data");
-    //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
-    l_cur = (GValue *) gst_structure_get_value (structure, "peak");
-    //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-    l_peak = (GValue *) gst_structure_get_value (structure, "decay");
+    values = (GValue *) gst_structure_get_value (structure, "peak");
+    cur_arr = (GValueArray *) g_value_get_boxed (values);
+    values = (GValue *) gst_structure_get_value (structure, "decay");
+    peak_arr = (GValueArray *) g_value_get_boxed (values);
     // size of list is number of channels
-    switch (gst_value_list_get_size (l_cur)) {
+    switch (cur_arr->n_values) {
       case 1:                  // mono
-        val = g_value_get_double (gst_value_list_get_value (l_cur, 0));
+        val = g_value_get_double (g_value_array_get_nth (cur_arr, 0));
         if (isinf (val) || isnan (val))
           val = LOW_VUMETER_VAL;
         self->priv->rms[0] = -(LOW_VUMETER_VAL - val);
         self->priv->rms[1] = self->priv->rms[0];
-        val = g_value_get_double (gst_value_list_get_value (l_peak, 0));
+        val = g_value_get_double (g_value_array_get_nth (peak_arr, 0));
         if (isinf (val) || isnan (val))
           val = LOW_VUMETER_VAL;
         self->priv->peak[0] = -(LOW_VUMETER_VAL - val);
@@ -664,11 +665,11 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
         break;
       case 2:                  // stereo
         for (i = 0; i < 2; i++) {
-          val = g_value_get_double (gst_value_list_get_value (l_cur, i));
+          val = g_value_get_double (g_value_array_get_nth (cur_arr, i));
           if (isinf (val) || isnan (val))
             val = LOW_VUMETER_VAL;
           self->priv->rms[i] = -(LOW_VUMETER_VAL - val);
-          val = g_value_get_double (gst_value_list_get_value (l_peak, i));
+          val = g_value_get_double (g_value_array_get_nth (peak_arr, i));
           if (isinf (val) || isnan (val))
             val = LOW_VUMETER_VAL;
           self->priv->peak[i] = -(LOW_VUMETER_VAL - val);
@@ -778,15 +779,14 @@ on_signal_analyser_change (GstBus * bus, GstMessage * message,
         GstClockReturn clk_ret;
         GstClockTime basetime = gst_element_get_base_time (meter);
 
-        /* debug */
-        GstClockTime playtime;
-        GstFormat fmt = GST_FORMAT_TIME;
-        gst_element_query_position (meter, &fmt, (gint64 *) & playtime);
-        GST_LOG_OBJECT (meter, "update for wait + basetime %" GST_TIME_FORMAT
-            " + %" GST_TIME_FORMAT " at %" GST_TIME_FORMAT,
-            GST_TIME_ARGS (waittime), GST_TIME_ARGS (basetime),
-            GST_TIME_ARGS (playtime));
-        /* debug */
+        /* debug
+           gint64 playtime;
+           gst_element_query_position (meter, GST_FORMAT_TIME, &playtime);
+           GST_LOG_OBJECT (meter, "update for wait + basetime %" GST_TIME_FORMAT
+           " + %" GST_TIME_FORMAT " at %" GST_TIME_FORMAT,
+           GST_TIME_ARGS (waittime), GST_TIME_ARGS (basetime),
+           GST_TIME_ARGS (playtime));
+           debug */
 
         data[0] = (gpointer) self;
         data[1] = (gpointer) gst_message_ref (message);
@@ -797,7 +797,7 @@ on_signal_analyser_change (GstBus * bus, GstMessage * message,
             waittime + basetime);
         if ((clk_ret = gst_clock_id_wait_async (clock_id,
                     on_delayed_signal_analyser_change,
-                    (gpointer) data)) != GST_CLOCK_OK) {
+                    (gpointer) data, NULL)) != GST_CLOCK_OK) {
           GST_WARNING_OBJECT (meter, "clock wait failed: %d", clk_ret);
           gst_message_unref (message);
           g_slice_free1 (2 * sizeof (gconstpointer), data);
@@ -845,7 +845,7 @@ on_caps_negotiated (GstPad * pad, GParamSpec * arg, gpointer user_data)
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
   GstCaps *caps;
 
-  if ((caps = (GstCaps *) gst_pad_get_negotiated_caps (pad))) {
+  if ((caps = (GstCaps *) gst_pad_get_current_caps (pad))) {
     if (GST_CAPS_IS_SIMPLE (caps)) {
       gint old_srate = self->priv->srate;
       gst_structure_get_int (gst_caps_get_structure (caps, 0), "rate",

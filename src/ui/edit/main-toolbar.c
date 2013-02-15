@@ -121,8 +121,8 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     // disable stop button
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->stop_button), FALSE);
     // switch off play button
-    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-            play_button), FALSE);
+    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+            priv->play_button), FALSE);
     // enable play button
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->play_button), TRUE);
     // reset level meters
@@ -142,13 +142,13 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     bt_song_update_playback_position (song);
 
     // if we started playback remotely activate playbutton
-    if (!gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-                play_button))) {
+    if (!gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (self->
+                priv->play_button))) {
       g_signal_handlers_block_matched (self->priv->play_button,
           G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
           on_toolbar_play_clicked, (gpointer) self);
-      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-              play_button), TRUE);
+      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+              priv->play_button), TRUE);
       g_signal_handlers_unblock_matched (self->priv->play_button,
           G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
           on_toolbar_play_clicked, (gpointer) self);
@@ -484,7 +484,8 @@ on_delayed_idle_song_level_change (gpointer user_data)
 
   if (self) {
     const GstStructure *structure = gst_message_get_structure (message);
-    const GValue *l_cur, *l_peak;
+    const GValue *values;
+    GValueArray *cur_arr, *peak_arr;
     gdouble cur, peak;
     guint i, size;
 
@@ -495,12 +496,14 @@ on_delayed_idle_song_level_change (gpointer user_data)
     if (!self->priv->is_playing)
       goto done;
 
-    l_cur = (GValue *) gst_structure_get_value (structure, "decay");
-    l_peak = (GValue *) gst_structure_get_value (structure, "peak");
-    size = gst_value_list_get_size (l_cur);
+    values = (GValue *) gst_structure_get_value (structure, "decay");
+    cur_arr = (GValueArray *) g_value_get_boxed (values);
+    values = (GValue *) gst_structure_get_value (structure, "peak");
+    peak_arr = (GValueArray *) g_value_get_boxed (values);
+    size = cur_arr->n_values;
     for (i = 0; i < size; i++) {
-      cur = g_value_get_double (gst_value_list_get_value (l_cur, i));
-      peak = g_value_get_double (gst_value_list_get_value (l_peak, i));
+      cur = g_value_get_double (g_value_array_get_nth (cur_arr, i));
+      peak = g_value_get_double (g_value_array_get_nth (peak_arr, i));
       if (isinf (cur) || isnan (cur))
         cur = LOW_VUMETER_VAL;
       if (isinf (peak) || isnan (peak))
@@ -564,7 +567,7 @@ on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
             waittime + gst_element_get_base_time (level));
         if ((clk_ret =
                 gst_clock_id_wait_async (clock_id, on_delayed_song_level_change,
-                    (gpointer) data)) != GST_CLOCK_OK) {
+                    (gpointer) data, NULL)) != GST_CLOCK_OK) {
           GST_WARNING_OBJECT (level, "clock wait failed: %d", clk_ret);
           gst_message_unref (message);
           g_slice_free1 (2 * sizeof (gconstpointer), data);
@@ -642,13 +645,10 @@ on_song_volume_slider_press_event (GtkWidget * widget, GdkEventButton * event,
   if (event->type == GDK_BUTTON_PRESS) {
     if (event->button == 1) {
       BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
-      GstElement *machine;
-      GstController *ctrl;
+      GstObject *machine;
 
       g_object_get (self->priv->master, "machine", &machine, NULL);
-      if ((ctrl = gst_object_get_controller (G_OBJECT (machine)))) {
-        gst_controller_set_property_disabled (ctrl, "master-volume", TRUE);
-      }
+      gst_object_set_control_binding_disabled (machine, "master-volume", TRUE);
       g_object_unref (machine);
     }
   }
@@ -661,11 +661,11 @@ on_song_volume_slider_release_event (GtkWidget * widget, GdkEventButton * event,
 {
   if (event->button == 1 && event->type == GDK_BUTTON_RELEASE) {
     BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
-    GstElement *machine;
-    GstController *ctrl;
+    GstObject *machine;
+    GstControlBinding *cb;
 
     g_object_get (self->priv->master, "machine", &machine, NULL);
-    if ((ctrl = gst_object_get_controller (G_OBJECT (self->priv->master)))) {
+    if ((cb = gst_object_get_control_binding (machine, "master-volume"))) {
       BtParameterGroup *pg =
           bt_machine_get_global_param_group (self->priv->master);
       // update the default value at ts=0
@@ -679,7 +679,8 @@ on_song_volume_slider_release_event (GtkWidget * widget, GdkEventButton * event,
        * - when enabling, it would need to delay the enabled to the next control-point
        * - it would need to peek at the control-point list :/
        */
-      gst_controller_set_property_disabled (ctrl, "master-volume", FALSE);
+      gst_control_binding_set_disabled (cb, FALSE);
+      gst_object_unref (cb);
     }
     g_object_unref (machine);
   }
@@ -721,7 +722,7 @@ on_channels_negotiated (GstPad * pad, GParamSpec * arg, gpointer user_data)
 {
   GstCaps *caps;
 
-  if ((caps = (GstCaps *) gst_pad_get_negotiated_caps (pad))) {
+  if ((caps = (GstCaps *) gst_pad_get_current_caps (pad))) {
     BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
 
     if (GST_CAPS_IS_SIMPLE (caps)) {
@@ -762,8 +763,8 @@ on_sequence_loop_notify (const BtSequence * sequence, GParamSpec * arg,
   g_signal_handlers_block_matched (self->priv->loop_button,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_toolbar_loop_toggled, (gpointer) self);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-          loop_button), loop);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+          priv->loop_button), loop);
   g_signal_handlers_unblock_matched (self->priv->loop_button,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_toolbar_loop_toggled, (gpointer) self);

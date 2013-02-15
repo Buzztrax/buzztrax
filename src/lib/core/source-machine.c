@@ -39,7 +39,7 @@ G_DEFINE_TYPE_WITH_CODE (BtSourceMachine, bt_source_machine, BT_TYPE_MACHINE,
 
 //-- pad templates
 static GstStaticPadTemplate machine_src_template =
-GST_STATIC_PAD_TEMPLATE ("src%d",
+GST_STATIC_PAD_TEMPLATE ("src_%u",
     GST_PAD_SRC,
     GST_PAD_REQUEST,
     GST_STATIC_CAPS_ANY);
@@ -209,7 +209,7 @@ bt_source_machine_constructed (GObject * object)
         // if they are live, they are, no matter what we want
         //  we get "can't record audio fast enough"
         if (gst_base_src_is_live ((GstBaseSrc *) element)) {
-          if (GST_IS_BASE_AUDIO_SRC (element)) {
+          if (GST_IS_AUDIO_BASE_SRC (element)) {
             g_object_set (element, "buffer-time", 150 * GST_MSECOND, NULL);
           }
         }

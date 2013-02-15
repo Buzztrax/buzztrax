@@ -110,7 +110,7 @@ bt_test_tempo_interface_init (gpointer g_iface, gpointer iface_data)
 
 //-- child proxy interface implementation
 
-static GstObject *
+static GObject *
 bt_test_child_proxy_get_child_by_index (GstChildProxy * child_proxy,
     guint index)
 {
@@ -119,7 +119,7 @@ bt_test_child_proxy_get_child_by_index (GstChildProxy * child_proxy,
   g_return_val_if_fail (index < BT_TEST_POLY_SOURCE (child_proxy)->num_voices,
       NULL);
 
-  return (gst_object_ref (g_list_nth_data (BT_TEST_POLY_SOURCE
+  return (g_object_ref (g_list_nth_data (BT_TEST_POLY_SOURCE
               (child_proxy)->voices, index)));
 }
 
@@ -162,7 +162,7 @@ bt_test_no_arg_mono_source_base_init (BtTestMonoSourceClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&src_pad_template));
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_static_metadata (element_class,
       "Monophonic source for unit tests with 0 properties",
       "Source/Audio/MonoSource",
       "Use in unit tests", "Stefan Sauer <ensonic@users.sf.net>");
@@ -318,7 +318,7 @@ bt_test_mono_source_base_init (BtTestMonoSourceClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&src_pad_template));
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_static_metadata (element_class,
       "Monophonic source for unit tests",
       "Source/Audio/MonoSource",
       "Use in unit tests", "Stefan Kost <ensonic@users.sf.net>");
@@ -530,7 +530,7 @@ bt_test_poly_source_base_init (BtTestPolySourceClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&src_pad_template));
 
-  gst_element_class_set_details_simple (element_class,
+  gst_element_class_set_static_metadata (element_class,
       "Polyphonic source for unit tests",
       "Source/Audio/PolySource",
       "Use in unit tests", "Stefan Kost <ensonic@users.sf.net>");

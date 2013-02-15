@@ -524,7 +524,7 @@ link_wire (const BtSetup * const self, GstElement * wire)
   if (!(peer = gst_pad_get_peer (dst_pad))) {
     if ((tmpl =
             gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (src),
-                "src%d"))) {
+                "src_%u"))) {
       if ((src_pad =
               gst_element_request_pad (GST_ELEMENT (src), tmpl, NULL, NULL))) {
 #if USE_PAD_BLOCK
@@ -570,7 +570,7 @@ link_wire (const BtSetup * const self, GstElement * wire)
   if (!(peer = gst_pad_get_peer (src_pad))) {
     if ((tmpl =
             gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (dst),
-                "sink%d"))) {
+                "sink_%u"))) {
       if ((dst_pad =
               gst_element_request_pad (GST_ELEMENT (dst), tmpl, NULL, NULL))) {
         if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (src_pad, dst_pad))) {
@@ -691,6 +691,9 @@ add_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
     if (gst_bin_add (self->priv->bin, GST_ELEMENT (bin))) {
       GST_INFO_OBJECT (bin, "addded object: %" G_OBJECT_REF_COUNT_FMT,
           G_OBJECT_LOG_REF_COUNT (bin));
+      // notify::GstObject.parent does not work
+      // see https://bugzilla.gnome.org/show_bug.cgi?id=693281
+      g_object_notify ((GObject *) bin, "parent");
     } else {
       GST_WARNING_OBJECT (bin, "error adding object: %" G_OBJECT_REF_COUNT_FMT,
           G_OBJECT_LOG_REF_COUNT (bin));

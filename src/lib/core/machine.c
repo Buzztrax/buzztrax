@@ -86,6 +86,9 @@
 // do sanity check for pattern lifecycle
 //#define CHECK_PATTERN_OWNERSHIP 1
 
+// workaround for tee in not handling events, see design/gst/looplock.c
+//#define TEE_MERGE_EVENT_HACK 1
+
 //-- signal ids
 
 enum
@@ -233,7 +236,9 @@ typedef struct
 static GQuark error_domain = 0;
 GQuark bt_machine_machine = 0;
 GQuark bt_machine_property_name = 0;
+#if TEE_MERGE_EVENT_HACK
 static GQuark tee_last_seq_num = 0;
+#endif
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -594,9 +599,11 @@ bt_machine_link_elements (const BtMachine * const self, GstPad * src,
 {
   GstPadLinkReturn plr;
 
-  if ((plr = gst_pad_link (src, sink)) != GST_PAD_LINK_OK) {
+  if (GST_PAD_LINK_FAILED (plr = gst_pad_link (src, sink))) {
     GST_WARNING_OBJECT (self, "can't link %s:%s with %s:%s: %d",
         GST_DEBUG_PAD_NAME (src), GST_DEBUG_PAD_NAME (sink), plr);
+    GST_WARNING_OBJECT (self, "%s", bt_gst_debug_pad_link_return (plr, src,
+            sink));
     return (FALSE);
   }
   return (TRUE);
@@ -673,8 +680,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->dst_wires->
-                        data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -702,8 +709,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->src_wires->
-                        data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -777,7 +784,7 @@ bt_machine_resize_voices (const BtMachine * const self, const gulong old_voices)
       (BtParameterGroup **) g_renew (gpointer, self->priv->voice_param_groups,
       new_voices);
   if (old_voices < new_voices) {
-    GstObject *voice_child;
+    GObject *voice_child;
     gulong v;
 
     for (v = old_voices; v < new_voices; v++) {
@@ -836,7 +843,7 @@ bt_machine_make_internal_element (const BtMachine * const self,
   const gchar *const parent_name = GST_OBJECT_NAME (self);
   gchar *const name =
       g_alloca (strlen (parent_name) + 2 + strlen (element_name));
-  gpointer item;
+  GValue item = { 0, };
 
   g_return_val_if_fail ((self->priv->machines[part] == NULL), TRUE);
 
@@ -887,7 +894,7 @@ bt_machine_make_internal_element (const BtMachine * const self,
             gst_iterator_resync (it);
             break;
           case GST_ITERATOR_OK:
-            self->priv->src_pads[part] = GST_PAD (item);
+            self->priv->src_pads[part] = GST_PAD (g_value_dup_object (&item));
             /* fall through */
           case GST_ITERATOR_ERROR:
           case GST_ITERATOR_DONE:
@@ -895,6 +902,7 @@ bt_machine_make_internal_element (const BtMachine * const self,
             break;
         }
       }
+      g_value_unset (&item);
       gst_iterator_free (it);
       if (!self->priv->src_pads[part]) {
         GST_DEBUG_OBJECT (m, "element has no src pads");
@@ -913,7 +921,7 @@ bt_machine_make_internal_element (const BtMachine * const self,
             gst_iterator_resync (it);
             break;
           case GST_ITERATOR_OK:
-            self->priv->sink_pads[part] = GST_PAD (item);
+            self->priv->sink_pads[part] = GST_PAD (g_value_dup_object (&item));
             /* fall through */
           case GST_ITERATOR_ERROR:
           case GST_ITERATOR_DONE:
@@ -921,6 +929,7 @@ bt_machine_make_internal_element (const BtMachine * const self,
             break;
         }
       }
+      g_value_unset (&item);
       gst_iterator_free (it);
       if (!self->priv->sink_pads[part]) {
         GST_DEBUG_OBJECT (m, "element has no sink pads");
@@ -959,16 +968,15 @@ bt_machine_add_input_element (BtMachine * const self, const BtMachinePart part)
   for (i = part + 1; i <= PART_MACHINE; i++) {
     if (machines[i]) {
       tix = i;
-      GST_DEBUG ("src side target at %d: %s:%s", i,
-          GST_DEBUG_PAD_NAME (sink_pads[tix]));
+      GST_DEBUG_OBJECT (sink_pads[tix], "src side target at %d", i);
       break;
     }
   }
 
   // is the machine connected towards the input side (its sink)?
   if (!(peer = gst_pad_get_peer (sink_pads[tix]))) {
-    GST_DEBUG ("target '%s:%s' is not yet connected on the input side",
-        GST_DEBUG_PAD_NAME (sink_pads[tix]));
+    GST_DEBUG_OBJECT (sink_pads[tix],
+        "target is not yet connected on the input side");
     if (!bt_machine_link_elements (self, src_pads[part], sink_pads[tix])) {
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
           GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
@@ -1021,16 +1029,15 @@ bt_machine_add_output_element (BtMachine * const self, const BtMachinePart part)
   for (i = part - 1; i >= PART_MACHINE; i--) {
     if (machines[i]) {
       tix = i;
-      GST_DEBUG_OBJECT (self, "sink side target at %d: %s:%s", i,
-          GST_DEBUG_PAD_NAME (src_pads[tix]));
+      GST_DEBUG_OBJECT (src_pads[tix], "sink side target at %d", i);
       break;
     }
   }
 
   // is the machine unconnected towards the output side (its source)?
   if (!(peer = gst_pad_get_peer (src_pads[tix]))) {
-    GST_DEBUG ("target '%s:%s' is not yet connected on the output side",
-        GST_DEBUG_PAD_NAME (src_pads[tix]));
+    GST_DEBUG_OBJECT (src_pads[tix],
+        "target is not yet connected on the output side");
     if (!bt_machine_link_elements (self, src_pads[tix], sink_pads[part])) {
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
           GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
@@ -1219,6 +1226,7 @@ bt_machine_check_type (const BtMachine * const self)
 {
   BtMachineClass *klass = BT_MACHINE_GET_CLASS (self);
   GstIterator *it;
+  GValue item = { 0, };
   GstPad *pad;
   gulong pad_src_ct = 0, pad_sink_ct = 0;
   gboolean done;
@@ -1231,8 +1239,9 @@ bt_machine_check_type (const BtMachine * const self)
   it = gst_element_iterate_pads (self->priv->machines[PART_MACHINE]);
   done = FALSE;
   while (!done) {
-    switch (gst_iterator_next (it, (gpointer) & pad)) {
+    switch (gst_iterator_next (it, &item)) {
       case GST_ITERATOR_OK:
+        pad = GST_PAD (g_value_get_object (&item));
         switch (gst_pad_get_direction (pad)) {
           case GST_PAD_SRC:
             pad_src_ct++;
@@ -1244,7 +1253,7 @@ bt_machine_check_type (const BtMachine * const self)
             GST_INFO ("unhandled pad type discovered");
             break;
         }
-        gst_object_unref (pad);
+        g_value_reset (&item);
         break;
       case GST_ITERATOR_RESYNC:
         gst_iterator_resync (it);
@@ -1255,6 +1264,7 @@ bt_machine_check_type (const BtMachine * const self)
         break;
     }
   }
+  g_value_unset (&item);
   gst_iterator_free (it);
 
   // test pad counts and element type
@@ -1349,13 +1359,13 @@ bt_machine_init_global_params (const BtMachine * const self)
 
     // check if the elemnt implements the GstBtChildBin interface (implies GstChildProxy)
     if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
-      GstObject *voice_child;
+      GObject *voice_child;
 
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1412,13 +1422,13 @@ bt_machine_init_voice_params (const BtMachine * const self)
 {
   // check if the elemnt implements the GstChildProxy interface
   if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
-    GstObject *voice_child;
+    GObject *voice_child;
 
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                    machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -1586,8 +1596,7 @@ bt_machine_activate_adder (BtMachine * const self)
     for (i = PART_INPUT_PRE_LEVEL; i <= PART_MACHINE; i++) {
       if (machines[i]) {
         tix = i;
-        GST_DEBUG_OBJECT (self, "src side target at %d: %s:%s", i,
-            GST_DEBUG_PAD_NAME (sink_pads[tix]));
+        GST_DEBUG_OBJECT (sink_pads[tix], "src side target at %d", i);
         break;
       }
     }
@@ -1601,10 +1610,13 @@ bt_machine_activate_adder (BtMachine * const self)
     g_object_set (machines[PART_ADDER], "caps", bt_default_caps, NULL);
 
     if (!BT_IS_SINK_MACHINE (self)) {
+      const GstCaps *dst_caps =
+          gst_pad_get_pad_template_caps (sink_pads[PART_MACHINE]);
       // try without converters in effects
-      skip_convert =
-          gst_caps_can_intersect (bt_default_caps,
-          gst_pad_get_pad_template_caps (sink_pads[PART_MACHINE]));
+      skip_convert = gst_caps_can_intersect (bt_default_caps, dst_caps);
+      GST_INFO_OBJECT (self,
+          "skipping converter: %d? dst_caps=%" GST_PTR_FORMAT, skip_convert,
+          dst_caps);
     }
     if (skip_convert) {
       GST_DEBUG_OBJECT (self, "  about to link adder -> dst_elem");
@@ -1663,42 +1675,40 @@ bt_machine_has_active_adder (const BtMachine * const self)
   return (self->priv->machines[PART_ADDER] != NULL);
 }
 
-// workaround for tee in not handling events, see design/gst/looplock.c
+#if TEE_MERGE_EVENT_HACK
 static gboolean
-gst_tee_src_event (GstPad * pad, GstEvent * event)
+gst_tee_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
 {
   gboolean res = TRUE;
 
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_SEEK:{
-      GstElement *tee = (GstElement *) gst_pad_get_parent (pad);
       guint last_seq_num =
-          GPOINTER_TO_UINT (g_object_get_qdata ((GObject *) tee,
+          GPOINTER_TO_UINT (g_object_get_qdata ((GObject *) parent,
               tee_last_seq_num));
       guint32 seq_num = gst_event_get_seqnum (event);
       if (seq_num != last_seq_num) {
         last_seq_num = seq_num;
-        g_object_set_qdata ((GObject *) tee, tee_last_seq_num,
+        g_object_set_qdata ((GObject *) parent, tee_last_seq_num,
             GUINT_TO_POINTER (last_seq_num));
         GST_LOG_OBJECT (pad, "new seek: %u", seq_num);
-        res = gst_pad_event_default (pad, event);
+        res = gst_pad_event_default (pad, parent, event);
       } else {
         GstSeekFlags flags;
         gst_event_parse_seek (event, NULL, NULL, &flags, NULL, NULL, NULL,
             NULL);
         if (flags & GST_SEEK_FLAG_FLUSH) {
           GST_LOG_OBJECT (pad, "forwarding dup seek: %u", seq_num);
-          res = gst_pad_event_default (pad, event);
+          res = gst_pad_event_default (pad, parent, event);
         } else {
           /* drop duplicated event */
           GST_LOG_OBJECT (pad, "dropping dup seek: %u", seq_num);
         }
       }
-      gst_object_unref (tee);
       break;
     }
     default:
-      res = gst_pad_event_default (pad, event);
+      res = gst_pad_event_default (pad, parent, event);
       break;
   }
   return res;
@@ -1709,6 +1719,7 @@ tee_on_pad_added (GstElement * gstelement, GstPad * new_pad, gpointer user_data)
 {
   gst_pad_set_event_function (new_pad, gst_tee_src_event);
 }
+#endif
 
 /**
  * bt_machine_activate_spreader:
@@ -1738,8 +1749,7 @@ bt_machine_activate_spreader (BtMachine * const self)
     for (i = PART_OUTPUT_POST_LEVEL; i >= PART_MACHINE; i--) {
       if (machines[i]) {
         tix = i;
-        GST_DEBUG_OBJECT (self, "sink side target at %d: %s:%s", i,
-            GST_DEBUG_PAD_NAME (src_pads[tix]));
+        GST_DEBUG_OBJECT (src_pads[tix], "sink side target at %d", i);
         break;
       }
     }
@@ -1747,9 +1757,10 @@ bt_machine_activate_spreader (BtMachine * const self)
     // create the spreader (tee)
     if (!(bt_machine_make_internal_element (self, PART_SPREADER, "tee", "tee")))
       goto Error;
-    // workaround for tee in not handling events, see design/gst/looplock.c
+#if TEE_MERGE_EVENT_HACK
     g_signal_connect (machines[PART_SPREADER], "pad-added",
         (GCallback) tee_on_pad_added, NULL);
+#endif
 
     if (!bt_machine_link_elements (self, src_pads[tix],
             sink_pads[PART_SPREADER])) {
@@ -2323,7 +2334,7 @@ on_boolean_poly_control_notify (const BtIcControl * control, GParamSpec * arg,
   BtControlData *data = (BtControlData *) (user_data);
   BtPolyControlData *pdata = (BtPolyControlData *) (user_data);
   GstElement *machine;
-  GstObject *object;
+  GObject *object;
   gboolean value;
 
   g_object_get ((gpointer) (data->control), "value", &value, NULL);
@@ -2341,7 +2352,7 @@ static void on_## t ##_poly_control_notify(const BtIcControl *control,GParamSpec
   BtControlData *data = (BtControlData *) (user_data);                                                 \
   BtPolyControlData *pdata=(BtPolyControlData *)(user_data);                                           \
   GstElement *machine;                                                                                 \
-  GstObject *object;                                                                                   \
+  GObject *object;                                                                                     \
   GParamSpec ## T *p=(GParamSpec ## T *)data->pspec;                                                   \
   glong svalue,min,max;                                                                                \
   g ## t dvalue;                                                                                       \
@@ -2370,7 +2381,7 @@ on_enum_poly_control_notify (const BtIcControl * control, GParamSpec * arg,
   BtControlData *data = (BtControlData *) (user_data);
   BtPolyControlData *pdata = (BtPolyControlData *) (user_data);
   GstElement *machine;
-  GstObject *object;
+  GObject *object;
   GParamSpecEnum *p = (GParamSpecEnum *) data->pspec;
   GEnumClass *e = p->enum_class;
   glong svalue, min, max;
@@ -2408,7 +2419,7 @@ bt_machine_bind_poly_parameter_control (const BtMachine * const self,
 {
   BtControlData *data;
   GstElement *machine;
-  GstObject *object;
+  GObject *object;
   GParamSpec *pspec;
   BtIcDevice *device;
   gboolean new_data = FALSE;
@@ -2665,7 +2676,8 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
     const xmlNodePtr const parent_node)
 {
   const BtMachine *const self = BT_MACHINE (persistence);
-  GstObject *machine, *machine_voice;
+  GstObject *machine;
+  GObject *machine_voice;
   xmlNodePtr node = NULL;
   xmlNodePtr child_node;
   gulong i, j;
@@ -3014,7 +3026,7 @@ bt_machine_persistence_interface_init (gpointer const g_iface,
 
 static GstPad *
 bt_machine_request_new_pad (GstElement * element, GstPadTemplate * templ,
-    const gchar * _name)
+    const gchar * _name, const GstCaps * caps)
 {
   BtMachine *const self = BT_MACHINE (element);
   gchar *name;
@@ -3025,40 +3037,40 @@ bt_machine_request_new_pad (GstElement * element, GstPadTemplate * templ,
     if (!src_pt) {
       src_pt =
           bt_gst_element_factory_get_pad_template (factories[PART_SPREADER],
-          "src%d");
+          "src_%u");
     }
 
     if (!(target = gst_element_request_pad (self->priv->machines[PART_SPREADER],
                 src_pt, NULL, NULL))) {
-      GST_WARNING_OBJECT (element, "failed to request pad 'src%d'");
+      GST_WARNING_OBJECT (element, "failed to request pad 'src_%u'");
       return NULL;
     }
-    name = g_strdup_printf ("src%d", self->priv->src_pad_counter++);
+    name = g_strdup_printf ("src_%u", self->priv->src_pad_counter++);
     GST_INFO_OBJECT (element, "request src pad: %s", name);
   } else {
     if (!sink_pt) {
       sink_pt =
           bt_gst_element_factory_get_pad_template (factories[PART_ADDER],
-          "sink%d");
+          "sink_%u");
     }
 
     if (!(target = gst_element_request_pad (self->priv->machines[PART_ADDER],
                 sink_pt, NULL, NULL))) {
-      GST_WARNING_OBJECT (element, "failed to request pad 'sink%d'");
+      GST_WARNING_OBJECT (element, "failed to request pad 'sink_%u'");
       return NULL;
     }
-    name = g_strdup_printf ("sink%d", self->priv->sink_pad_counter++);
+    name = g_strdup_printf ("sink_%u", self->priv->sink_pad_counter++);
     GST_INFO_OBJECT (element, "request sink pad: %s", name);
   }
   if ((pad = gst_ghost_pad_new (name, target))) {
-    GST_INFO ("%s:%s: %s%s%s", GST_DEBUG_PAD_NAME (target),
-        GST_OBJECT (target)->flags & GST_PAD_BLOCKED ? "blocked, " : "",
-        GST_OBJECT (target)->flags & GST_PAD_FLUSHING ? "flushing, " : "",
-        GST_OBJECT (target)->flags & GST_PAD_BLOCKING ? "blocking, " : "");
-    GST_INFO ("%s:%s: %s%s%s", GST_DEBUG_PAD_NAME (pad),
-        GST_OBJECT (pad)->flags & GST_PAD_BLOCKED ? "blocked, " : "",
-        GST_OBJECT (pad)->flags & GST_PAD_FLUSHING ? "flushing, " : "",
-        GST_OBJECT (pad)->flags & GST_PAD_BLOCKING ? "blocking, " : "");
+    GST_INFO_OBJECT (target, "%s%s%s",
+        GST_OBJECT (target)->flags & GST_PAD_FLAG_BLOCKED ? "blocked, " : "",
+        GST_OBJECT (target)->flags & GST_PAD_FLAG_FLUSHING ? "flushing, " : "",
+        GST_OBJECT (target)->flags & GST_PAD_FLAG_BLOCKING ? "blocking, " : "");
+    GST_INFO_OBJECT (pad, "%s%s%s",
+        GST_OBJECT (pad)->flags & GST_PAD_FLAG_BLOCKED ? "blocked, " : "",
+        GST_OBJECT (pad)->flags & GST_PAD_FLAG_FLUSHING ? "flushing, " : "",
+        GST_OBJECT (pad)->flags & GST_PAD_FLAG_BLOCKING ? "blocking, " : "");
 
     if (GST_STATE (element) != GST_STATE_NULL) {
       GST_DEBUG_OBJECT (element, "activating pad");
@@ -3459,7 +3471,9 @@ bt_machine_class_init (BtMachineClass * const klass)
   bt_machine_machine = g_quark_from_static_string ("BtMachine::machine");
   bt_machine_property_name =
       g_quark_from_static_string ("BtMachine::property-name");
+#if TEE_MERGE_EVENT_HACK
   tee_last_seq_num = g_quark_from_static_string ("GstTee::last_seq_num");
+#endif
 
   gobject_class->constructed = bt_machine_constructed;
   gobject_class->set_property = bt_machine_set_property;

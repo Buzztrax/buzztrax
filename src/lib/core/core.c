@@ -81,8 +81,6 @@ bt_init_pre (void)
 static gboolean
 bt_init_post (void)
 {
-  //-- initialize dynamic parameter control module
-  gst_controller_init (NULL, NULL);
   gst_pb_utils_init ();
 
   if (arg_version) {
@@ -101,11 +99,11 @@ bt_init_post (void)
       bt_sink_bin_plugin_init,
       VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
 
-  bt_default_caps = gst_caps_new_simple ("audio/x-raw-float",
-      "width", G_TYPE_INT, 32,
-      "channels", GST_TYPE_INT_RANGE, 1, 2,
+  bt_default_caps = gst_caps_new_simple ("audio/x-raw",
+      "format", G_TYPE_STRING, GST_AUDIO_NE (F32),
+      "layout", G_TYPE_STRING, "interleaved",
       "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
-      "endianness", G_TYPE_INT, G_BYTE_ORDER, NULL);
+      "channels", GST_TYPE_INT_RANGE, 1, 2, NULL);
 
   GST_DEBUG ("init xml");
   //-- initialize libxml

@@ -122,10 +122,10 @@ get_sink_element (GstBin * bin)
   GST_INFO_OBJECT (bin, "looking for audio_sink");
   for (node = GST_BIN_CHILDREN (bin); node; node = g_list_next (node)) {
     e = (GstElement *) node->data;
-    if (GST_IS_BIN (e) && GST_OBJECT_FLAG_IS_SET (e, GST_ELEMENT_IS_SINK)) {
+    if (GST_IS_BIN (e) && GST_OBJECT_FLAG_IS_SET (e, GST_ELEMENT_FLAG_SINK)) {
       return get_sink_element ((GstBin *) e);
     }
-    if (GST_OBJECT_FLAG_IS_SET (e, GST_ELEMENT_IS_SINK)) {
+    if (GST_OBJECT_FLAG_IS_SET (e, GST_ELEMENT_FLAG_SINK)) {
       return e;
     }
   }
@@ -146,17 +146,25 @@ static void
 handoff_buffer_cb (GstElement * fakesink, GstBuffer * buffer, GstPad * pad,
     gpointer user_data)
 {
-  gfloat *data = (gfloat *) GST_BUFFER_DATA (buffer);
-  gint i, num_samples = GST_BUFFER_SIZE (buffer) / sizeof (gfloat);
+  GstMapInfo info;
 
-  GST_DEBUG_OBJECT (fakesink, "got buffer %p, length=%d, caps=%" GST_PTR_FORMAT,
-      buffer, num_samples, GST_BUFFER_CAPS (buffer));
+  if (!gst_buffer_map (buffer, &info, GST_MAP_READ)) {
+    GST_WARNING_OBJECT (fakesink, "unable to map buffer for write");
+    return;
+  }
+
+  gfloat *data = (gfloat *) info.data;
+  gint i, num_samples = info.size / sizeof (gfloat);
+
+  GST_DEBUG_OBJECT (fakesink, "got buffer %p, length=%d", buffer, num_samples);
   for (i = 0; i < num_samples; i++) {
     if (data[i] < minv)
       minv = data[i];
     else if (data[i] > maxv)
       maxv = data[i];
   }
+
+  gst_buffer_unmap (buffer, &info);
 }
 
 static gchar *typefind_media_type = NULL;

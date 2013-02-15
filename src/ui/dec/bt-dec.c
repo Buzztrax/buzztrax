@@ -45,6 +45,8 @@
 #include "config.h"
 #endif
 
+#include <string.h>
+
 #include "bt-dec.h"
 #include <gio/gio.h>
 
@@ -62,10 +64,10 @@ static GstStaticPadTemplate bt_dec_src_template =
 GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_SOMETIMES,
-    GST_STATIC_CAPS ("audio/x-raw-float, "
-        "width = (int) 32, "
-        "rate = (int) [ 1, MAX ], "
-        "channels = (int) [1, 2], " "endianness = (int) BYTE_ORDER")
+    GST_STATIC_CAPS ("audio/x-raw, "
+        "format = (string) " GST_AUDIO_NE (F32) ", "
+        "layout = (string) interleaved, "
+        "rate = (int) [ 1, MAX ], " "channels = (int) [1, 2] ")
     );
 
 //-- local application subclass
@@ -96,13 +98,13 @@ bt_dec_application_class_init (BtDecApplicationClass * klass)
 
 //-- the element class
 
-GST_BOILERPLATE (BtDec, bt_dec, GstElement, GST_TYPE_ELEMENT);
+G_DEFINE_TYPE (BtDec, bt_dec, GST_TYPE_ELEMENT);
 
 static gboolean
-bt_dec_src_query (GstPad * pad, GstQuery * query)
+bt_dec_src_query (GstPad * pad, GstObject * parent, GstQuery * query)
 {
   gboolean res = TRUE;
-  BtDec *self = BT_DEC (gst_pad_get_parent (pad));
+  BtDec *self = BT_DEC (parent);
 
   if (!self->song) {
     gst_object_unref (self);
@@ -116,11 +118,9 @@ bt_dec_src_query (GstPad * pad, GstQuery * query)
       break;
     }
     default:
-      res = gst_element_query (GST_ELEMENT (self->bin), query);
+      res = gst_pad_query_default (pad, parent, query);
       break;
   }
-
-  g_object_unref (self);
   return res;
 }
 
@@ -170,7 +170,7 @@ bt_dec_do_seek (BtDec * self, GstEvent * event)
 
     if (flush) {
       GST_DEBUG_OBJECT (self, "flush stop");
-      tevent = gst_event_new_flush_stop ();
+      tevent = gst_event_new_flush_stop (TRUE);
       gst_event_set_seqnum (tevent, seqnum);
       gst_pad_push_event (self->srcpad, tevent);
     }
@@ -181,7 +181,7 @@ bt_dec_do_seek (BtDec * self, GstEvent * event)
     GST_OBJECT_UNLOCK (self);
 
     /* prepare newsegment event */
-    gst_segment_set_seek (&seeksegment, rate, src_format, flags, start_type,
+    gst_segment_do_seek (&seeksegment, rate, src_format, flags, start_type,
         start, stop_type, stop, &update);
 
     /* for deriving a stop position for the playback segment from the seek
@@ -191,15 +191,7 @@ bt_dec_do_seek (BtDec * self, GstEvent * event)
 
     if (self->newsegment_event)
       gst_event_unref (self->newsegment_event);
-    if (seeksegment.rate >= 0.0) {
-      self->newsegment_event = gst_event_new_new_segment_full (FALSE,
-          seeksegment.rate, seeksegment.applied_rate, seeksegment.format,
-          seeksegment.last_stop, stop, seeksegment.time);
-    } else {
-      self->newsegment_event = gst_event_new_new_segment_full (FALSE,
-          seeksegment.rate, seeksegment.applied_rate, seeksegment.format,
-          seeksegment.start, seeksegment.last_stop, seeksegment.time);
-    }
+    self->newsegment_event = gst_event_new_segment (&seeksegment);
     gst_event_set_seqnum (self->newsegment_event, seqnum);
     GST_INFO_OBJECT (self, "newsegment event prepared %" GST_PTR_FORMAT,
         self->newsegment_event);
@@ -213,10 +205,10 @@ bt_dec_do_seek (BtDec * self, GstEvent * event)
 }
 
 static gboolean
-bt_dec_src_event (GstPad * pad, GstEvent * event)
+bt_dec_src_event (GstPad * pad, GstObject * parent, GstEvent * event)
 {
   gboolean res = FALSE;
-  BtDec *self = BT_DEC (gst_pad_get_parent (pad));
+  BtDec *self = BT_DEC (parent);
 
   GST_INFO_OBJECT (pad, "event received %" GST_PTR_FORMAT, event);
 
@@ -225,11 +217,10 @@ bt_dec_src_event (GstPad * pad, GstEvent * event)
       res = bt_dec_do_seek (self, event);
       break;
     default:
-      res = gst_pad_push_event (self->sinkpad, event);
+      res = gst_pad_event_default (pad, parent, event);
       break;
   }
 
-  g_object_unref (self);
   return res;
 }
 
@@ -248,11 +239,11 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
   }
 }
 
-static gboolean
-bt_dec_move_buffer (GstPad * pad, GstMiniObject * mini_obj, gpointer user_data)
+static GstPadProbeReturn
+bt_dec_move_buffer (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
 {
   BtDec *self = BT_DEC (user_data);
-  GstBuffer *buf = (GstBuffer *) mini_obj;
+  GstBuffer *buf = (GstBuffer *) info->data;
   GstClockTime start, duration;
   gint64 position;
 
@@ -268,7 +259,7 @@ bt_dec_move_buffer (GstPad * pad, GstMiniObject * mini_obj, gpointer user_data)
   if (GST_CLOCK_TIME_IS_VALID (start))
     position = start;
   else
-    position = self->segment.last_stop;
+    position = self->segment.position;
 
   if (GST_CLOCK_TIME_IS_VALID (duration)) {
     if (self->segment.rate >= 0.0)
@@ -281,7 +272,7 @@ bt_dec_move_buffer (GstPad * pad, GstMiniObject * mini_obj, gpointer user_data)
 
   if (G_LIKELY (position < self->segment.duration)) {
     GST_OBJECT_LOCK (self);
-    gst_segment_set_last_stop (&self->segment, self->segment.format, position);
+    self->segment.position = position;
     GST_OBJECT_UNLOCK (self);
 
     gst_pad_push (self->srcpad, gst_buffer_ref (buf));
@@ -290,16 +281,16 @@ bt_dec_move_buffer (GstPad * pad, GstMiniObject * mini_obj, gpointer user_data)
   }
 
   /* don't push further */
-  return FALSE;
+  return GST_PAD_PROBE_DROP;
 }
 
-static gboolean
-bt_dec_move_event (GstPad * pad, GstMiniObject * mini_obj, gpointer user_data)
+static GstPadProbeReturn
+bt_dec_move_event (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
 {
   BtDec *self = BT_DEC (user_data);
-  GstEvent *event = (GstEvent *) mini_obj;
+  GstEvent *event = (GstEvent *) info->data;
 
-  GST_INFO_OBJECT (pad, "forwarding event %" GST_PTR_FORMAT, mini_obj);
+  GST_INFO_OBJECT (pad, "forwarding event %" GST_PTR_FORMAT, event);
 
   if (GST_EVENT_IS_DOWNSTREAM (event)) {
     switch (GST_EVENT_TYPE (event)) {
@@ -314,7 +305,7 @@ bt_dec_move_event (GstPad * pad, GstMiniObject * mini_obj, gpointer user_data)
         break;
     }
   }
-  return TRUE;
+  return GST_PAD_PROBE_OK;
 }
 
 static gboolean
@@ -328,7 +319,7 @@ bt_dec_load_song (BtDec * self)
   guint len;
   gpointer data;
 
-  caps = GST_PAD_CAPS (self->sinkpad);
+  caps = gst_pad_get_current_caps (self->sinkpad);
   GST_INFO_OBJECT (self, "input caps %" GST_PTR_FORMAT, caps);
   if (caps) {
     if (!GST_CAPS_IS_SIMPLE (caps))
@@ -336,6 +327,7 @@ bt_dec_load_song (BtDec * self)
 
     s = gst_caps_get_structure (caps, 0);
     media_type = gst_structure_get_string (s, "format");
+    gst_caps_unref (caps);
   }
   GST_INFO_OBJECT (self, "about to load buzztard song in %s format",
       media_type);
@@ -353,12 +345,11 @@ bt_dec_load_song (BtDec * self)
 
       g_object_get (self->song, "setup", &setup, "sequence", &sequence,
           "song-info", &song_info, NULL);
-      /* turn off lopps in any case */
+      /* turn off loops in any case */
       g_object_set (sequence, "loop", FALSE, NULL);
       GST_OBJECT_LOCK (self);
-      gst_segment_set_duration (&self->segment, GST_FORMAT_TIME,
-          bt_song_info_tick_to_time (song_info,
-              bt_sequence_get_loop_length (sequence)));
+      self->segment.duration = bt_song_info_tick_to_time (song_info,
+          bt_sequence_get_loop_length (sequence));
       GST_OBJECT_UNLOCK (self);
 
       if ((machine =
@@ -368,6 +359,7 @@ bt_dec_load_song (BtDec * self)
         GstPad *probe_pad;
         GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
         GstElement *fakesink;
+        GstPadLinkReturn plr;
 
         g_object_get (machine, "machine", &sink_bin, NULL);
         g_object_set (sink_bin, "mode", BT_SINK_BIN_MODE_PASS_THRU, NULL);
@@ -382,11 +374,15 @@ bt_dec_load_song (BtDec * self)
             NULL);
         gst_bin_add (GST_BIN (machine), fakesink);
         probe_pad = gst_element_get_static_pad (fakesink, "sink");
-        gst_pad_link (target_pad, probe_pad);
-        gst_pad_add_buffer_probe (probe_pad, (GCallback) bt_dec_move_buffer,
-            (gpointer) self);
-        gst_pad_add_event_probe (probe_pad, (GCallback) bt_dec_move_event,
-            (gpointer) self);
+        if (GST_PAD_LINK_FAILED (plr = gst_pad_link (target_pad, probe_pad))) {
+          GST_WARNING_OBJECT (self, "can't link %s:%s with %s:%s: %d",
+              GST_DEBUG_PAD_NAME (target_pad), GST_DEBUG_PAD_NAME (probe_pad),
+              plr);
+        }
+        gst_pad_add_probe (probe_pad, GST_PAD_PROBE_TYPE_BUFFER,
+            bt_dec_move_buffer, (gpointer) self, NULL);
+        gst_pad_add_probe (probe_pad, GST_PAD_PROBE_TYPE_EVENT_BOTH,
+            bt_dec_move_event, (gpointer) self, NULL);
         gst_object_unref (probe_pad);
         gst_object_unref (target_pad);
 
@@ -402,10 +398,7 @@ bt_dec_load_song (BtDec * self)
 
         GST_INFO_OBJECT (self, "ghost pad connected");
 
-        self->newsegment_event = gst_event_new_new_segment_full (FALSE,
-            self->segment.rate, self->segment.applied_rate,
-            self->segment.format, G_GUINT64_CONSTANT (0),
-            self->segment.duration, G_GUINT64_CONSTANT (0));
+        self->newsegment_event = gst_event_new_segment (&self->segment);
 
         GST_INFO_OBJECT (self, "prepared initial new segment");
 
@@ -429,10 +422,10 @@ Error:
 }
 
 static gboolean
-bt_dec_sink_event (GstPad * pad, GstEvent * event)
+bt_dec_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
 {
   gboolean res = FALSE;
-  BtDec *self = BT_DEC (gst_pad_get_parent (pad));
+  BtDec *self = BT_DEC (parent);
 
   GST_INFO_OBJECT (pad, "event received %" GST_PTR_FORMAT, event);
 
@@ -453,12 +446,11 @@ bt_dec_sink_event (GstPad * pad, GstEvent * event)
       break;
   }
 
-  gst_object_unref (pad);
   return res;
 }
 
 static GstFlowReturn
-bt_dec_chain (GstPad * sinkpad, GstBuffer * buffer)
+bt_dec_chain (GstPad * sinkpad, GstObject * parent, GstBuffer * buffer)
 {
   BtDec *self = BT_DEC (GST_PAD_PARENT (sinkpad));
 
@@ -481,7 +473,7 @@ bt_dec_loop (GstPad * sinkpad)
   GST_DEBUG_OBJECT (self, "loading song ...");
 
   ret = gst_pad_pull_range (self->sinkpad, self->offset, -1, &buffer);
-  if (ret == GST_FLOW_UNEXPECTED) {
+  if (ret == GST_FLOW_EOS) {
     GST_DEBUG_OBJECT (self, "song loaded");
     /* parse the song */
     if (bt_dec_load_song (self)) {
@@ -496,7 +488,7 @@ bt_dec_loop (GstPad * sinkpad)
   } else {
     GST_DEBUG_OBJECT (self, "pushing buffer");
     gst_adapter_push (self->adapter, buffer);
-    self->offset += GST_BUFFER_SIZE (buffer);
+    self->offset += gst_buffer_get_size (buffer);
   }
 
   return;
@@ -510,7 +502,7 @@ pause:
     gst_pad_pause_task (sinkpad);
 #if 0
     /* this is never executed, see above */
-    if (ret == GST_FLOW_UNEXPECTED) {
+    if (ret == GST_FLOW_EOS) {
       if (self->segment.flags & GST_SEEK_FLAG_SEGMENT) {
         gint64 stop;
         GstMessage *message;
@@ -532,7 +524,7 @@ pause:
       }
     } else
 #endif
-    if (ret == GST_FLOW_NOT_LINKED || ret < GST_FLOW_UNEXPECTED) {
+    if (ret == GST_FLOW_NOT_LINKED || ret < GST_FLOW_EOS) {
       event = gst_event_new_eos ();
       /* for fatal errors we post an error message, post the error
        * first so the app knows about the error first. */
@@ -545,28 +537,38 @@ pause:
 }
 
 static gboolean
-bt_dec_activate (GstPad * sinkpad)
+bt_dec_activate (GstPad * sinkpad, GstObject * parent)
 {
-  gboolean res;
+  GstSchedulingFlags sched_flags;
+  GstQuery *query;
+  gboolean pull_mode;
 
-  if (gst_pad_check_pull_range (sinkpad)) {
-    res = gst_pad_activate_pull (sinkpad, TRUE);
-    GST_INFO_OBJECT (sinkpad, "activating in pull mode: %d", res);
-  } else {
-    res = gst_pad_activate_push (sinkpad, TRUE);
-    GST_INFO_OBJECT (sinkpad, "activating in push mode: %d", res);
+  query = gst_query_new_scheduling ();
+  if (!gst_pad_peer_query (sinkpad, query)) {
+    gst_query_unref (query);
+    goto push;
   }
-  return res;
-}
 
-static gboolean
-bt_dec_activatepull (GstPad * pad, gboolean active)
-{
-  if (active) {
-    return gst_pad_start_task (pad, (GstTaskFunction) bt_dec_loop, pad);
-  } else {
-    return gst_pad_stop_task (pad);
-  }
+  gst_query_parse_scheduling (query, &sched_flags, NULL, NULL, NULL);
+
+  pull_mode = gst_query_has_scheduling_mode (query, GST_PAD_MODE_PULL)
+      && ((sched_flags & GST_SCHEDULING_FLAG_SEEKABLE) != 0);
+
+  gst_query_unref (query);
+
+  if (!pull_mode)
+    goto push;
+
+  GST_INFO_OBJECT (sinkpad, "activating in pull mode");
+  if (!gst_pad_activate_mode (sinkpad, GST_PAD_MODE_PULL, TRUE))
+    goto push;
+
+  return gst_pad_start_task (sinkpad, (GstTaskFunction) bt_dec_loop, sinkpad,
+      NULL);
+
+push:
+  GST_INFO_OBJECT (sinkpad, "activating in push mode");
+  return gst_pad_activate_mode (sinkpad, GST_PAD_MODE_PUSH, TRUE);
 }
 
 static void
@@ -609,7 +611,9 @@ bt_dec_change_state (GstElement * element, GstStateChange transition)
       break;
   }
 
-  ret = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
+  ret =
+      GST_ELEMENT_CLASS (bt_dec_parent_class)->change_state (element,
+      transition);
 
   switch (transition) {
     case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
@@ -651,22 +655,7 @@ bt_dec_dispose (GObject * object)
   g_object_unref (self->app);
   g_object_unref (self->adapter);
 
-  G_OBJECT_CLASS (parent_class)->dispose (object);
-}
-
-static void
-bt_dec_base_init (gpointer g_class)
-{
-  GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
-
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&bt_dec_sink_template));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&bt_dec_src_template));
-  gst_element_class_set_details_simple (element_class,
-      "BtDec",
-      "Codec/Decoder/Audio",
-      "Buzztard song player", "Stefan Kost <ensonic@users.sf.net>");
+  G_OBJECT_CLASS (bt_dec_parent_class)->dispose (object);
 }
 
 static void
@@ -678,10 +667,19 @@ bt_dec_class_init (BtDecClass * klass)
   gobject_class->dispose = bt_dec_dispose;
 
   gstelement_class->change_state = bt_dec_change_state;
+
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&bt_dec_sink_template));
+  gst_element_class_add_pad_template (gstelement_class,
+      gst_static_pad_template_get (&bt_dec_src_template));
+  gst_element_class_set_static_metadata (gstelement_class,
+      "BtDec",
+      "Codec/Decoder/Audio",
+      "Buzztard song player", "Stefan Kost <ensonic@users.sf.net>");
 }
 
 static void
-bt_dec_init (BtDec * self, BtDecClass * g_class)
+bt_dec_init (BtDec * self)
 {
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
 
@@ -697,7 +695,6 @@ bt_dec_init (BtDec * self, BtDecClass * g_class)
   self->sinkpad =
       gst_pad_new_from_template (gst_element_class_get_pad_template (klass,
           "sink"), "sink");
-  gst_pad_set_activatepull_function (self->sinkpad, bt_dec_activatepull);
   gst_pad_set_activate_function (self->sinkpad, bt_dec_activate);
   gst_pad_set_event_function (self->sinkpad, bt_dec_sink_event);
   gst_pad_set_chain_function (self->sinkpad, bt_dec_chain);
@@ -712,7 +709,7 @@ bt_dec_type_find (GstTypeFind * tf, gpointer ignore)
 {
   gsize length = 16384;
   guint64 tf_length;
-  guint8 *data;
+  const guint8 *data;
   gchar *tmp, *mimetype;
   const GList *plugins, *node;
   BtSongIOModuleInfo *info;
@@ -768,8 +765,8 @@ plugin_init (GstPlugin * plugin)
 {
   const GList *plugins;
   BtSongIOModuleInfo *info;
-  gchar **exts = NULL;
-  guint i = 0, j, l = 20;
+  gchar *exts = NULL;
+  guint j;
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-dec",
       GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "buzztard song renderer");
@@ -784,24 +781,25 @@ plugin_init (GstPlugin * plugin)
   }
 
   plugins = bt_song_io_get_module_info_list ();
-  exts = (gchar **) g_new (gpointer, l);
   for (; plugins; plugins = g_list_next (plugins)) {
     info = (BtSongIOModuleInfo *) plugins->data;
     j = 0;
     while (info->formats[j].name) {
-      exts[i++] = (gchar *) info->formats[j].extension;
-      j++;
-      if (i >= l) {
-        l *= 2;
-        exts = (gchar **) g_renew (gpointer, (gpointer) exts, l);
+      if (info->formats[j].extension) {
+        if (exts) {
+          gchar *t = g_strconcat (exts, ",", info->formats[j].extension, NULL);
+          g_free (exts);
+          exts = t;
+        } else {
+          exts = g_strdup (info->formats[j].extension);
+        }
       }
+      j++;
     }
   }
-  exts[i] = NULL;
 
   gst_type_find_register (plugin, "audio/x-buzztard", GST_RANK_SECONDARY,
       bt_dec_type_find, exts, GST_CAPS_ANY, NULL, NULL);
-
   g_free (exts);
 
   return gst_element_register (plugin, "buzztard-dec", GST_RANK_MARGINAL,
@@ -810,6 +808,6 @@ plugin_init (GstPlugin * plugin)
 
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
-    "buzztard-dec",
+    buzztard - dec,
     "Buzztard song renderer",
     plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org");

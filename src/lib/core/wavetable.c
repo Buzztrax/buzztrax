@@ -446,43 +446,44 @@ bt_wavetable_class_init (BtWavetableClass * const klass)
 
 //-- wavetable callback hack
 
-static GstBuffer *
+static GstStructure *
 get_wave_buffer (BtWavetable * self, guint wave_ix, guint wave_level_ix)
 {
   BtWave *wave;
   BtWavelevel *wavelevel;
-  GstBuffer *buffer = NULL;
+  GstStructure *s = NULL;
 
   if ((wave = bt_wavetable_get_wave_by_index (self, wave_ix))) {
     if ((wavelevel = bt_wave_get_level_by_index (wave, wave_level_ix))) {
-      GstCaps *caps;
+      GstBuffer *buffer = NULL;
       gpointer *data;
       gulong length;
       guint channels;
       GstBtNote root_note;
+      gsize size;
 
       g_object_get (wave, "channels", &channels, NULL);
       g_object_get (wavelevel, "data", &data, "length", &length, "root-note",
           &root_note, NULL);
 
-      caps = gst_caps_new_simple ("audio/x-raw-int",
-          "rate", G_TYPE_INT, 44100,
-          "channels", G_TYPE_INT, channels,
-          "width", G_TYPE_INT, 16,
-          "endianness", G_TYPE_INT, G_BYTE_ORDER,
-          "signed", G_TYPE_BOOLEAN, TRUE,
-          "root-note", GSTBT_TYPE_NOTE, (guint) root_note, NULL);
+      size = channels * length * sizeof (gint16);
+      buffer =
+          gst_buffer_new_wrapped_full (GST_MEMORY_FLAG_READONLY, data, size, 0,
+          size, NULL, NULL);
 
-      buffer = gst_buffer_new ();
-      GST_BUFFER_DATA (buffer) = (guint8 *) data;
-      GST_BUFFER_SIZE (buffer) = channels * length * sizeof (gint16);
-      GST_BUFFER_CAPS (buffer) = caps;
+      s = gst_structure_new ("audio/x-raw",     // unused
+          "format", G_TYPE_STRING, GST_AUDIO_NE (S16),  // unused
+          "layout", G_TYPE_STRING, "interleaved",       // unused
+          "rate", G_TYPE_INT, 44100,    // unused
+          "channels", G_TYPE_INT, channels,
+          "root-note", GSTBT_TYPE_NOTE, (guint) root_note,
+          "buffer", GST_TYPE_BUFFER, buffer, NULL);
 
       g_object_unref (wavelevel);
     }
     g_object_unref (wave);
   }
-  return buffer;
+  return s;
 }
 
 static gpointer callbacks[] = {

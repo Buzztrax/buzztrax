@@ -41,7 +41,7 @@ G_DEFINE_TYPE_WITH_CODE (BtSinkMachine, bt_sink_machine, BT_TYPE_MACHINE,
 
 //-- pad templates
 static GstStaticPadTemplate machine_sink_template =
-GST_STATIC_PAD_TEMPLATE ("sink%d",
+GST_STATIC_PAD_TEMPLATE ("sink_%u",
     GST_PAD_SINK,
     GST_PAD_REQUEST,
     GST_STATIC_CAPS_ANY);

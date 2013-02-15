@@ -172,7 +172,7 @@ bt_edit_application_check_missing (const BtEditApplication * self)
     missing = TRUE;
   }
   g_list_free (edit_elements);
-  edit_elements = g_list_prepend (NULL, "playbin2");
+  edit_elements = g_list_prepend (NULL, "playbin");
   if ((missing_elements = bt_gst_check_elements (edit_elements))) {
     missing_edit_elements =
         g_list_concat (missing_edit_elements, g_list_copy (missing_elements));
