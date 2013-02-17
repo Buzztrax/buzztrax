@@ -1,9 +1,33 @@
 svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
-git diff --stat @{2012-01-01} @{2012-01-31}
+git diff --shortstat @{2012-01-01} @{2012-01-31}
+
+2013/03 ========================================================================
+
+- porting to gst-1.0
 
 2013/02 ========================================================================
 
--
+We started the year with a release in the beginning of January. So far only a few
+issues were reported. Patches for these are on the 0.7.1 branch. One last minute
+change in 0.7 was the departure from trying to link/unlink elements in gstreamer
+while playing. I sadly have to conclude that in 0.10 this only works for some cases.
+It was working sort of okayish for buzztard, but the were still deadlocks or internal
+dataflow errors from time to time. One such scenario is that when you happen to
+reconnect elements while the song loops. These things are not easy to sync from the
+application level. Lets hope this is easier in 1.0. The sticky events should help
+with setting up the context from new elements. 
+
+On the mainline I bumped the required library version and removed the ifdefs for the
+backwards compatibility. As a first bigger change, I ported the settings from gconf
+to dconf. We had a settings abstraction to other gconf or play keyfiles, which we
+now removed. Altogether I kept to use an intermediate object that exposes settings
+as a gobject with properties for the keys. This allows to use notify to bind to
+property changes instead of using a custom api.
+
+Then I started with porting gst-buzztard & buzztard to gstreamer-1.0. I made good
+progress. I will report the details in the next update.
+
+77 files changed, 5892 insertions(+), 8131 deletions(-)
 
 2013/01 ========================================================================
 
