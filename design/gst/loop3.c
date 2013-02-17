@@ -4,12 +4,16 @@
  * issue. This emulates the whole stucture in buzztard, loop2.c has a cut-down
  * version that shows the problem.
  *
- * gcc -g loop3.c -o loop3 `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs`
+ * gcc -g loop3.c -o loop3 `pkg-config gstreamer-1.0 gstreamer-controller-1.0 libgstbuzztard --cflags --libs`
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+
 #include <gst/gst.h>
-#include <gst/controller/gstcontroller.h>
+#include <gst/controller/gsttriggercontrolsource.h>
+#include <gst/controller/gstdirectcontrolbinding.h>
+#include <libgstbuzztard/musicenums.h>
 
 /* configuration */
 static gchar *src_names[] = {
@@ -126,8 +130,9 @@ make_src (void)
   GstElement *b, *e[G_N_ELEMENTS (src_names)];
   GstPad *tp, *gp;
   guint i;
-  GstController *ctrl;
-  GValue val = { 0, };
+  GstControlSource *cs;
+  GstTimedValueControlSource *tvcs;
+  gdouble scl = GSTBT_NOTE_OFF;
 
   /* create and link elements */
   b = gst_element_factory_make ("bin", NULL);
@@ -142,32 +147,32 @@ make_src (void)
   g_object_set (e[0], "wave", 2, NULL);
 
   /* setup controller */
-  g_value_init (&val, G_TYPE_STRING);
-  if (!(ctrl = gst_controller_new (G_OBJECT (e[0]), "note", NULL))) {
-    fprintf (stderr, "can't control source element");
-    exit (-1);
-  }
-  gst_controller_set_interpolation_mode (ctrl, "note", GST_INTERPOLATE_NONE);
+  cs = gst_trigger_control_source_new ();
+  gst_object_add_control_binding (GST_OBJECT_CAST (e[0]),
+      gst_direct_control_binding_new (GST_OBJECT_CAST (e[0]), "note", cs));
+
+  tvcs = (GstTimedValueControlSource *) cs;
+
   /* set control values */
-  g_value_set_string (&val, "c-2");
-  gst_controller_set (ctrl, "note", 0 * GST_MSECOND, &val);
-  g_value_set_string (&val, "c-3");
-  gst_controller_set (ctrl, "note", 250 * GST_MSECOND, &val);
-  g_value_set_string (&val, "c-2");
-  gst_controller_set (ctrl, "note", 500 * GST_MSECOND, &val);
-  g_value_set_string (&val, "d-3");
-  gst_controller_set (ctrl, "note", 750 * GST_MSECOND, &val);
-  g_value_set_string (&val, "c-2");
-  gst_controller_set (ctrl, "note", 1000 * GST_MSECOND, &val);
-  g_value_set_string (&val, "d#3");
-  gst_controller_set (ctrl, "note", 1250 * GST_MSECOND, &val);
-  g_value_set_string (&val, "c-2");
-  gst_controller_set (ctrl, "note", 1500 * GST_MSECOND, &val);
-  g_value_set_string (&val, "g-3");
-  gst_controller_set (ctrl, "note", 1750 * GST_MSECOND, &val);
+  gst_timed_value_control_source_set (tvcs, 0 * GST_MSECOND,
+      GSTBT_NOTE_C_2 / scl);
+  gst_timed_value_control_source_set (tvcs, 250 * GST_MSECOND,
+      GSTBT_NOTE_C_3 / scl);
+  gst_timed_value_control_source_set (tvcs, 500 * GST_MSECOND,
+      GSTBT_NOTE_C_2 / scl);
+  gst_timed_value_control_source_set (tvcs, 750 * GST_MSECOND,
+      GSTBT_NOTE_D_3 / scl);
+  gst_timed_value_control_source_set (tvcs, 1000 * GST_MSECOND,
+      GSTBT_NOTE_C_2 / scl);
+  gst_timed_value_control_source_set (tvcs, 1250 * GST_MSECOND,
+      GSTBT_NOTE_DIS_3 / scl);
+  gst_timed_value_control_source_set (tvcs, 1500 * GST_MSECOND,
+      GSTBT_NOTE_C_2 / scl);
+  gst_timed_value_control_source_set (tvcs, 1750 * GST_MSECOND,
+      GSTBT_NOTE_G_3 / scl);
 
   /* pads */
-  if (!(tp = gst_element_get_request_pad (e[i - 1], "src%d"))) {
+  if (!(tp = gst_element_get_request_pad (e[i - 1], "src_%u"))) {
     tp = gst_element_get_static_pad (e[i - 1], "src");
   }
   gp = gst_ghost_pad_new ("src", tp);
@@ -235,7 +240,7 @@ make_sink (void)
       NULL);
 
   /* pads */
-  if (!(tp = gst_element_get_request_pad (e[0], "sink%d"))) {
+  if (!(tp = gst_element_get_request_pad (e[0], "sink_%u"))) {
     tp = gst_element_get_static_pad (e[0], "sink");
   }
   gp = gst_ghost_pad_new ("sink", tp);
