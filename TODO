@@ -95,6 +95,7 @@
   * when using android/control, we can push custom surfaces via osc
     http://charlie-roberts.com/Control/?page_id=32
 
+
 * undo/redo/journaling
   - links
     http://www.buzztard.org/index.php/Undo,_redo
@@ -282,6 +283,12 @@
   - subclass the control-machines from GstElement
     - no pads (and therefore no _loop() or _chain() function
     - we see them in the registry
+
+
+* change presets via controller
+  * for midi we can expose program change message
+    * a rel-range control? (prev/next)
+  * we need a way in the ui to attach such a controller to the preset pane
 
 
 * play machines via midi (interaction controller)
