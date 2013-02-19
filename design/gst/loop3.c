@@ -53,6 +53,7 @@ static GMainLoop *main_loop = NULL;
 static GstEvent *play_seek_event = NULL;
 static GstEvent *loop_seek_event = NULL;
 static gint num_loops = 10;
+static gboolean flushing_loops = FALSE;
 
 static void
 message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
@@ -89,7 +90,7 @@ state_changed (const GstBus * const bus, GstMessage * message, GstElement * bin)
         // seek to start time
         GST_INFO
             ("initial seek ===========================================================");
-        if (!(gst_element_send_event (bin, play_seek_event))) {
+        if (!(gst_element_send_event (bin, gst_event_copy (play_seek_event)))) {
           fprintf (stderr, "element failed to handle seek event");
           g_main_loop_quit (main_loop);
         }
@@ -119,10 +120,14 @@ segment_done (const GstBus * const bus, const GstMessage * const message,
     GstElement * bin)
 {
   static gint loop = 0;
+  GstEvent *event =
+      gst_event_copy (flushing_loops ? play_seek_event : loop_seek_event);
+
   GST_INFO
       ("loop playback (%2d) =====================================================",
       loop);
-  if (!(gst_element_send_event (bin, gst_event_ref (loop_seek_event)))) {
+  gst_event_set_seqnum (event, gst_util_seqnum_next ());
+  if (!(gst_element_send_event (bin, event))) {
     fprintf (stderr, "element failed to handle continuing play seek event\n");
     g_main_loop_quit (main_loop);
   } else {
@@ -270,6 +275,9 @@ main (int argc, char **argv)
 
   if (argc > 1) {
     num_loops = atoi (argv[1]);
+    if (argc > 2) {
+      flushing_loops = (atoi (argv[2]) != 0);
+    }
   }
 
   /* create a new bin to hold the elements */
@@ -316,12 +324,12 @@ main (int argc, char **argv)
   play_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
       GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
       GST_SEEK_TYPE_SET, (GstClockTime) 0,
-      GST_SEEK_TYPE_SET, (GstClockTime) (1 * GST_SECOND));
+      GST_SEEK_TYPE_SET, (GstClockTime) GST_SECOND);
   /* loop seek event (without flush) */
   loop_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
       GST_SEEK_FLAG_SEGMENT,
       GST_SEEK_TYPE_SET, (GstClockTime) 0,
-      GST_SEEK_TYPE_SET, (GstClockTime) (1 * GST_SECOND));
+      GST_SEEK_TYPE_SET, (GstClockTime) GST_SECOND);
 
   /* prepare playing */
   GST_INFO
@@ -340,6 +348,8 @@ main (int argc, char **argv)
       ("exiting ================================================================");
   gst_element_set_state (bin, GST_STATE_NULL);
 
+  gst_event_unref (play_seek_event);
+  gst_event_unref (loop_seek_event);
   gst_object_unref (bin);
   g_main_loop_unref (main_loop);
   exit (0);
