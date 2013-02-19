@@ -1,17 +1,25 @@
 /* test handling looping in gstreamer
  *
- * gcc -g loop1.c -o loop1 `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs`
+ * gcc -g loop1.c -o loop1 `pkg-config gstreamer-1.0 gstreamer-controller-1.0 --cflags --libs`
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+
 #include <gst/gst.h>
-#include <gst/controller/gstcontroller.h>
+#include <gst/controller/gstinterpolationcontrolsource.h>
+#include <gst/controller/gstdirectcontrolbinding.h>
 
 #define SINK_NAME "alsasink"
 #define SRC_NAME "audiotestsrc"
 
+#define GST_CAT_DEFAULT gst_test_debug
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+
 static GMainLoop *main_loop = NULL;
 static GstEvent *play_seek_event = NULL;
+static GstEvent *loop_seek_event = NULL;
+static gint num_loops = 10;
 
 static void
 message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
@@ -46,23 +54,26 @@ state_changed (const GstBus * const bus, GstMessage * message, GstElement * bin)
     switch (GST_STATE_TRANSITION (oldstate, newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
         // seek to start time
-        puts ("initial seek ===========================================================\n");
+        GST_INFO
+            ("initial seek ===========================================================");
         if (!(gst_element_send_event (bin, gst_event_ref (play_seek_event)))) {
           fprintf (stderr, "element failed to handle seek event");
           g_main_loop_quit (main_loop);
         }
         // start playback
-        puts ("start playing ==========================================================\n");
+        GST_INFO
+            ("start playing ==========================================================");
         res = gst_element_set_state (bin, GST_STATE_PLAYING);
         if (res == GST_STATE_CHANGE_FAILURE) {
           fprintf (stderr, "can't go to playing state\n");
           g_main_loop_quit (main_loop);
         } else if (res == GST_STATE_CHANGE_ASYNC) {
-          puts ("->PLAYING needs async wait");
+          GST_INFO ("->PLAYING needs async wait");
         }
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-        puts ("playback started =======================================================\n");
+        GST_INFO
+            ("playback started =======================================================");
         break;
       default:
         break;
@@ -74,11 +85,27 @@ static void
 segment_done (const GstBus * const bus, const GstMessage * const message,
     GstElement * bin)
 {
-  puts ("loop playback ==========================================================\n");
+  static gint loop = 0;
+
+  GST_INFO
+      ("loop playback (%2d) =====================================================",
+      loop);
   if (!(gst_element_send_event (bin, gst_event_ref (play_seek_event)))) {
     fprintf (stderr, "element failed to handle continuing play seek event\n");
     g_main_loop_quit (main_loop);
+  } else {
+    if (loop == num_loops) {
+      g_main_loop_quit (main_loop);
+    }
+    loop++;
   }
+}
+
+static void
+double_ctrl_value_set (GstControlSource * cs, GstClockTime t, gdouble v)
+{
+  gst_timed_value_control_source_set ((GstTimedValueControlSource *) cs,
+      t * GST_MSECOND, v);
 }
 
 
@@ -88,14 +115,18 @@ main (int argc, char **argv)
   GstElement *bin;
   /* elements used in pipeline */
   GstElement *src1, *src2, *mix, *sink;
-  GstController *ctrl1, *ctrl2;
+  GstControlSource *cs;
   GstBus *bus;
   GstStateChangeReturn res;
-  GValue val = { 0, };
 
   /* init gstreamer */
   gst_init (&argc, &argv);
   g_log_set_always_fatal (G_LOG_LEVEL_WARNING);
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "loop", 0, "loop test");
+
+  if (argc > 1) {
+    num_loops = atoi (argv[1]);
+  }
 
   /* create a new bin to hold the elements */
   bin = gst_pipeline_new ("song");
@@ -114,16 +145,17 @@ main (int argc, char **argv)
 
   main_loop = g_main_loop_new (NULL, FALSE);
 
-  /* make elements */
+  /* make elements and add them to the bin */
   if (!(src1 = gst_element_factory_make (SRC_NAME, "src1"))) {
     fprintf (stderr, "Can't create element \"" SRC_NAME "\"\n");
     exit (-1);
   }
-  g_object_set (src1, "wave", 2, NULL);
+  g_object_set (src1, "wave", 2, "freq", 110.0, NULL);
   if (!(src2 = gst_element_factory_make (SRC_NAME, "src2"))) {
     fprintf (stderr, "Can't create element \"" SRC_NAME "\"\n");
     exit (-1);
   }
+  g_object_set (src2, "wave", 3, "freq", 440.0, NULL);
   if (!(mix = gst_element_factory_make ("adder", "mix"))) {
     fprintf (stderr, "Can't create element \"adder\"\n");
     exit (-1);
@@ -132,8 +164,6 @@ main (int argc, char **argv)
     fprintf (stderr, "Can't create element \"" SINK_NAME "\"\n");
     exit (-1);
   }
-
-  /* add objects to the main bin */
   gst_bin_add_many (GST_BIN (bin), src1, src2, mix, sink, NULL);
 
   /* link elements */
@@ -146,69 +176,53 @@ main (int argc, char **argv)
     exit (-1);
   }
 
-  /* prepare controller queues */
-  g_value_init (&val, G_TYPE_DOUBLE);
+  /* setup controller */
+  cs = gst_interpolation_control_source_new ();
+  g_object_set (cs, "mode", GST_INTERPOLATION_MODE_LINEAR, NULL);
+  gst_object_add_control_binding (GST_OBJECT_CAST (src1),
+      gst_direct_control_binding_new (GST_OBJECT_CAST (src1), "volume", cs));
+  /* set control values */
+  double_ctrl_value_set (cs, 0, 1.0);
+  double_ctrl_value_set (cs, 1000, 0.0);
 
   /* add a controller to the source */
-  if (!(ctrl1 = gst_controller_new (G_OBJECT (src1), "freq", "volume", NULL))) {
-    fprintf (stderr, "can't control source element");
-    exit (-1);
-  }
-  /* set interpolation */
-  gst_controller_set_interpolation_mode (ctrl1, "volume",
-      GST_INTERPOLATE_LINEAR);
-  gst_controller_set_interpolation_mode (ctrl1, "freq", GST_INTERPOLATE_LINEAR);
+  cs = gst_interpolation_control_source_new ();
+  g_object_set (cs, "mode", GST_INTERPOLATION_MODE_LINEAR, NULL);
+  gst_object_add_control_binding (GST_OBJECT_CAST (src2),
+      gst_direct_control_binding_new (GST_OBJECT_CAST (src2), "volume", cs));
   /* set control values */
-  g_value_set_double (&val, 1.0);
-  gst_controller_set (ctrl1, "volume", 0 * GST_MSECOND, &val);
-  g_value_set_double (&val, 0.0);
-  gst_controller_set (ctrl1, "volume", 500 * GST_MSECOND, &val);
-  g_value_set_double (&val, 110.0);
-  gst_controller_set (ctrl1, "freq", 0 * GST_MSECOND, &val);
-
-  /* add a controller to the source */
-  if (!(ctrl2 = gst_controller_new (G_OBJECT (src2), "freq", "volume", NULL))) {
-    fprintf (stderr, "can't control source element");
-    exit (-1);
-  }
-  /* set interpolation */
-  gst_controller_set_interpolation_mode (ctrl2, "volume",
-      GST_INTERPOLATE_LINEAR);
-  gst_controller_set_interpolation_mode (ctrl2, "freq", GST_INTERPOLATE_LINEAR);
-  /* set control values */
-  g_value_set_double (&val, 0.0);
-  gst_controller_set (ctrl2, "volume", 0 * GST_MSECOND, &val);
-  g_value_set_double (&val, 1.0);
-  gst_controller_set (ctrl2, "volume", 500 * GST_MSECOND, &val);
-  g_value_set_double (&val, 0.0);
-  gst_controller_set (ctrl2, "volume", 1000 * GST_MSECOND, &val);
-  g_value_set_double (&val, 880.0);
-  gst_controller_set (ctrl2, "freq", 0 * GST_MSECOND, &val);
+  double_ctrl_value_set (cs, 0, 0.0);
+  double_ctrl_value_set (cs, 1000, 1.0);
 
   /* initial seek event (without flush) */
   play_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
       GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
       GST_SEEK_TYPE_SET, (GstClockTime) 0,
       GST_SEEK_TYPE_SET, (GstClockTime) GST_SECOND);
+  /* loop seek event (without flush) */
+  loop_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
+      GST_SEEK_FLAG_SEGMENT,
+      GST_SEEK_TYPE_SET, (GstClockTime) 0,
+      GST_SEEK_TYPE_SET, (GstClockTime) GST_SECOND);
 
   /* prepare playing */
-  puts ("prepare playing ========================================================\n");
+  GST_INFO
+      ("prepare playing ========================================================");
   res = gst_element_set_state (bin, GST_STATE_PAUSED);
   if (res == GST_STATE_CHANGE_FAILURE) {
     fprintf (stderr, "Can't go to paused\n");
     exit (-1);
   } else if (res == GST_STATE_CHANGE_ASYNC) {
-    puts ("->PAUSED needs async wait");
+    GST_INFO ("->PAUSED needs async wait");
   }
   g_main_loop_run (main_loop);
 
   /* stop the pipeline */
-  puts ("exiting ================================================================\n");
+  GST_INFO
+      ("exiting ================================================================");
   gst_element_set_state (bin, GST_STATE_NULL);
 
-  /* we don't need a reference to these objects anymore */
   gst_object_unref (GST_OBJECT (bin));
   g_main_loop_unref (main_loop);
-
   exit (0);
 }

@@ -5,6 +5,7 @@
  * version that shows the problem.
  *
  * gcc -g loop3.c -o loop3 `pkg-config gstreamer-1.0 gstreamer-controller-1.0 libgstbuzztard --cflags --libs`
+ * GST_DEBUG_NO_COLOR=1 GST_DEBUG="*loop*:4,*audiosynth*:5,*sim*:6" ./loop3 2 2>debug.log
  */
 
 #include <stdio.h>
@@ -51,6 +52,7 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 static GMainLoop *main_loop = NULL;
 static GstEvent *play_seek_event = NULL;
 static GstEvent *loop_seek_event = NULL;
+static gint num_loops = 10;
 
 static void
 message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
@@ -116,12 +118,26 @@ static void
 segment_done (const GstBus * const bus, const GstMessage * const message,
     GstElement * bin)
 {
+  static gint loop = 0;
   GST_INFO
-      ("loop playback ==========================================================");
+      ("loop playback (%2d) =====================================================",
+      loop);
   if (!(gst_element_send_event (bin, gst_event_ref (loop_seek_event)))) {
     fprintf (stderr, "element failed to handle continuing play seek event\n");
     g_main_loop_quit (main_loop);
+  } else {
+    if (loop == num_loops) {
+      g_main_loop_quit (main_loop);
+    }
+    loop++;
   }
+}
+
+static void
+note_ctrl_value_set (GstControlSource * cs, GstClockTime t, GstBtNote v)
+{
+  gst_timed_value_control_source_set ((GstTimedValueControlSource *) cs,
+      t * GST_MSECOND, (gdouble) v / (gdouble) GSTBT_NOTE_OFF);
 }
 
 static GstElement *
@@ -131,8 +147,6 @@ make_src (void)
   GstPad *tp, *gp;
   guint i;
   GstControlSource *cs;
-  GstTimedValueControlSource *tvcs;
-  gdouble scl = GSTBT_NOTE_OFF;
 
   /* create and link elements */
   b = gst_element_factory_make ("bin", NULL);
@@ -151,25 +165,15 @@ make_src (void)
   gst_object_add_control_binding (GST_OBJECT_CAST (e[0]),
       gst_direct_control_binding_new (GST_OBJECT_CAST (e[0]), "note", cs));
 
-  tvcs = (GstTimedValueControlSource *) cs;
-
   /* set control values */
-  gst_timed_value_control_source_set (tvcs, 0 * GST_MSECOND,
-      GSTBT_NOTE_C_2 / scl);
-  gst_timed_value_control_source_set (tvcs, 250 * GST_MSECOND,
-      GSTBT_NOTE_C_3 / scl);
-  gst_timed_value_control_source_set (tvcs, 500 * GST_MSECOND,
-      GSTBT_NOTE_C_2 / scl);
-  gst_timed_value_control_source_set (tvcs, 750 * GST_MSECOND,
-      GSTBT_NOTE_D_3 / scl);
-  gst_timed_value_control_source_set (tvcs, 1000 * GST_MSECOND,
-      GSTBT_NOTE_C_2 / scl);
-  gst_timed_value_control_source_set (tvcs, 1250 * GST_MSECOND,
-      GSTBT_NOTE_DIS_3 / scl);
-  gst_timed_value_control_source_set (tvcs, 1500 * GST_MSECOND,
-      GSTBT_NOTE_C_2 / scl);
-  gst_timed_value_control_source_set (tvcs, 1750 * GST_MSECOND,
-      GSTBT_NOTE_G_3 / scl);
+  note_ctrl_value_set (cs, 0, GSTBT_NOTE_C_2);
+  note_ctrl_value_set (cs, 125, GSTBT_NOTE_C_3);
+  note_ctrl_value_set (cs, 250, GSTBT_NOTE_C_2);
+  note_ctrl_value_set (cs, 375, GSTBT_NOTE_D_3);
+  note_ctrl_value_set (cs, 500, GSTBT_NOTE_C_2);
+  note_ctrl_value_set (cs, 625, GSTBT_NOTE_DIS_3);
+  note_ctrl_value_set (cs, 750, GSTBT_NOTE_C_2);
+  note_ctrl_value_set (cs, 875, GSTBT_NOTE_G_3);
 
   /* pads */
   if (!(tp = gst_element_get_request_pad (e[i - 1], "src_%u"))) {
@@ -264,6 +268,10 @@ main (int argc, char **argv)
   g_log_set_always_fatal (G_LOG_LEVEL_WARNING);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "loop", 0, "loop test");
 
+  if (argc > 1) {
+    num_loops = atoi (argv[1]);
+  }
+
   /* create a new bin to hold the elements */
   bin = gst_pipeline_new ("song");
   /* see if we get errors */
@@ -308,12 +316,12 @@ main (int argc, char **argv)
   play_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
       GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
       GST_SEEK_TYPE_SET, (GstClockTime) 0,
-      GST_SEEK_TYPE_SET, (GstClockTime) (2 * GST_SECOND));
+      GST_SEEK_TYPE_SET, (GstClockTime) (1 * GST_SECOND));
   /* loop seek event (without flush) */
   loop_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
       GST_SEEK_FLAG_SEGMENT,
       GST_SEEK_TYPE_SET, (GstClockTime) 0,
-      GST_SEEK_TYPE_SET, (GstClockTime) (2 * GST_SECOND));
+      GST_SEEK_TYPE_SET, (GstClockTime) (1 * GST_SECOND));
 
   /* prepare playing */
   GST_INFO
@@ -332,9 +340,7 @@ main (int argc, char **argv)
       ("exiting ================================================================");
   gst_element_set_state (bin, GST_STATE_NULL);
 
-  /* we don't need a reference to these objects anymore */
   gst_object_unref (bin);
   g_main_loop_unref (main_loop);
-
   exit (0);
 }
