@@ -14,10 +14,6 @@
 #define GST_CAT_DEFAULT bt_seekinit
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
-static GstDebugGraphDetails graph_details =
-    GST_DEBUG_GRAPH_SHOW_ALL & ~GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS;
-    //GST_DEBUG_GRAPH_SHOW_ALL;
-
 static void
 send_seek (GstElement * bin)
 {
@@ -54,19 +50,14 @@ event_loop (GstElement * bin)
           GST_INFO_OBJECT (bin, "state change on the bin: %s -> %s",
               gst_element_state_get_name (oldstate),
               gst_element_state_get_name (newstate));
+          GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS ((GstBin *) bin,
+              GST_DEBUG_GRAPH_SHOW_ALL, "seekinit");
           switch (GST_STATE_TRANSITION (oldstate, newstate)) {
             case GST_STATE_CHANGE_NULL_TO_READY:
               send_seek (bin);
               /* play and wait */
               gst_element_set_state (bin, GST_STATE_PLAYING);
               break;
-            case GST_STATE_CHANGE_READY_TO_PAUSED:
-              GST_DEBUG_BIN_TO_DOT_FILE ((GstBin *) bin, graph_details,
-                  "ready_to_paused");
-              break;
-            case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-              GST_DEBUG_BIN_TO_DOT_FILE ((GstBin *) bin, graph_details,
-                  "paused_to_playing");
             default:
               break;
           }

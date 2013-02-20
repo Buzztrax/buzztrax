@@ -17,6 +17,8 @@
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 static GMainLoop *main_loop = NULL;
+static GstElement *seek_target[3] = { NULL, };
+
 static GstEvent *play_seek_event = NULL;
 static GstEvent *loop_seek_event = NULL;
 // command line options
@@ -50,12 +52,16 @@ static void
 send_initial_seek (GstElement * bin)
 {
   GstStateChangeReturn res;
+  gint i;
 
   GST_INFO
       ("initial seek ===========================================================");
-  if (!(gst_element_send_event (bin, gst_event_copy (play_seek_event)))) {
-    fprintf (stderr, "element failed to handle seek event\n");
-    g_main_loop_quit (main_loop);
+  for (i = 0; seek_target[i]; i++) {
+    if (!(gst_element_send_event (seek_target[i],
+                gst_event_copy (play_seek_event)))) {
+      fprintf (stderr, "element failed to handle seek event\n");
+      g_main_loop_quit (main_loop);
+    }
   }
   // start playback
   GST_INFO
@@ -77,6 +83,8 @@ state_changed (const GstBus * const bus, GstMessage * message, GstElement * bin)
     GstState oldstate, newstate, pending;
 
     gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
+    GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS ((GstBin *) bin, GST_DEBUG_GRAPH_SHOW_ALL,
+        "loop1");
     switch (GST_STATE_TRANSITION (oldstate, newstate)) {
       case GST_STATE_CHANGE_NULL_TO_READY:
         GST_INFO
@@ -131,12 +139,10 @@ double_ctrl_value_set (GstControlSource * cs, GstClockTime t, gdouble v)
 }
 
 
-int
-main (int argc, char **argv)
+gint
+main (gint argc, gchar ** argv)
 {
-  GstElement *bin;
-  /* elements used in pipeline */
-  GstElement *src1, *src2, *mix, *sink;
+  GstElement *bin, *src[2], *mix, *sink;
   GstControlSource *cs;
   GstBus *bus;
   GstStateChangeReturn res;
@@ -181,16 +187,16 @@ main (int argc, char **argv)
   main_loop = g_main_loop_new (NULL, FALSE);
 
   /* make elements and add them to the bin */
-  if (!(src1 = gst_element_factory_make (SRC_NAME, "src1"))) {
+  if (!(src[0] = gst_element_factory_make (SRC_NAME, "src1"))) {
     fprintf (stderr, "Can't create element \"" SRC_NAME "\"\n");
     exit (-1);
   }
-  g_object_set (src1, "wave", 2, "freq", 110.0, NULL);
-  if (!(src2 = gst_element_factory_make (SRC_NAME, "src2"))) {
+  g_object_set (src[0], "wave", 2, "freq", 110.0, NULL);
+  if (!(src[1] = gst_element_factory_make (SRC_NAME, "src2"))) {
     fprintf (stderr, "Can't create element \"" SRC_NAME "\"\n");
     exit (-1);
   }
-  g_object_set (src2, "wave", 3, "freq", 440.0, NULL);
+  g_object_set (src[1], "wave", 3, "freq", 440.0, NULL);
   if (!(mix = gst_element_factory_make ("adder", "mix"))) {
     fprintf (stderr, "Can't create element \"adder\"\n");
     exit (-1);
@@ -199,14 +205,14 @@ main (int argc, char **argv)
     fprintf (stderr, "Can't create element \"" SINK_NAME "\"\n");
     exit (-1);
   }
-  gst_bin_add_many (GST_BIN (bin), src1, src2, mix, sink, NULL);
+  gst_bin_add_many (GST_BIN (bin), src[0], src[1], mix, sink, NULL);
 
   /* link elements */
-  if (!gst_element_link_many (src1, mix, sink, NULL)) {
+  if (!gst_element_link_many (src[0], mix, sink, NULL)) {
     fprintf (stderr, "Can't link part1\n");
     exit (-1);
   }
-  if (!gst_element_link_many (src2, mix, NULL)) {
+  if (!gst_element_link_many (src[1], mix, NULL)) {
     fprintf (stderr, "Can't link part2\n");
     exit (-1);
   }
@@ -214,8 +220,8 @@ main (int argc, char **argv)
   /* setup controller */
   cs = gst_interpolation_control_source_new ();
   g_object_set (cs, "mode", GST_INTERPOLATION_MODE_LINEAR, NULL);
-  gst_object_add_control_binding (GST_OBJECT_CAST (src1),
-      gst_direct_control_binding_new (GST_OBJECT_CAST (src1), "volume", cs));
+  gst_object_add_control_binding (GST_OBJECT_CAST (src[0]),
+      gst_direct_control_binding_new (GST_OBJECT_CAST (src[0]), "volume", cs));
   /* set control values */
   double_ctrl_value_set (cs, 0, 1.0);
   double_ctrl_value_set (cs, 1000, 0.0);
@@ -223,8 +229,8 @@ main (int argc, char **argv)
   /* add a controller to the source */
   cs = gst_interpolation_control_source_new ();
   g_object_set (cs, "mode", GST_INTERPOLATION_MODE_LINEAR, NULL);
-  gst_object_add_control_binding (GST_OBJECT_CAST (src2),
-      gst_direct_control_binding_new (GST_OBJECT_CAST (src2), "volume", cs));
+  gst_object_add_control_binding (GST_OBJECT_CAST (src[1]),
+      gst_direct_control_binding_new (GST_OBJECT_CAST (src[1]), "volume", cs));
   /* set control values */
   double_ctrl_value_set (cs, 0, 0.0);
   double_ctrl_value_set (cs, 1000, 1.0);
@@ -243,6 +249,11 @@ main (int argc, char **argv)
   /* prepare playing */
   GST_INFO
       ("prepare playing ========================================================");
+  /*seek_target[0] = src[0];
+     seek_target[1] = src[1];
+     seek_target[2] = NULL; */
+  seek_target[0] = bin;
+  seek_target[1] = NULL;
   res = gst_element_set_state (bin, seek_state);
   if (res == GST_STATE_CHANGE_FAILURE) {
     fprintf (stderr, "Can't go to paused\n");

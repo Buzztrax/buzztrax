@@ -279,8 +279,7 @@ make_sink (void)
 int
 main (int argc, char **argv)
 {
-  GstElement *bin;
-  GstElement *src, *wire, *sink;
+  GstElement *bin, *src, *wire, *sink;
   GstBus *bus;
   GstStateChangeReturn res;
 

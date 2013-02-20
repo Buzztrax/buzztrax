@@ -247,10 +247,7 @@ make_sink (void)
 int
 main (int argc, char **argv)
 {
-  GstElement *bin;
-  /* elements used in pipeline */
-  GstElement *src, *fx1, *fx2, *sink;
-  GstBus *bus;
+  GstElement *bin, *src, *fx1, *fx2, *sink GstBus * bus;
   GstStateChangeReturn res;
 
   /* init gstreamer */
