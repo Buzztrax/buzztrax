@@ -240,6 +240,7 @@ bt_source_machine_constructed (GObject * object)
 static void
 bt_source_machine_init (BtSourceMachine * self)
 {
+  GST_OBJECT_FLAG_SET (self, GST_ELEMENT_FLAG_SOURCE);
 }
 
 static void

@@ -226,6 +226,7 @@ bt_sink_machine_constructed (GObject * object)
 static void
 bt_sink_machine_init (BtSinkMachine * self)
 {
+  GST_OBJECT_FLAG_SET (self, GST_ELEMENT_FLAG_SINK);
 }
 
 static void

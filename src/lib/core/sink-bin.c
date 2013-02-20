@@ -545,8 +545,8 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->priv->
-          record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->
+          priv->record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
@@ -1171,6 +1171,8 @@ bt_sink_bin_init (BtSinkBin * self)
   self->priv->sink = gst_ghost_pad_new_no_target ("sink", GST_PAD_SINK);
   gst_element_add_pad (GST_ELEMENT (self), self->priv->sink);
   bt_sink_bin_update (self);
+
+  GST_OBJECT_FLAG_SET (self, GST_ELEMENT_FLAG_SINK);
 
   GST_INFO ("done");
 }
