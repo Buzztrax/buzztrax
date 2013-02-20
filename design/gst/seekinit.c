@@ -1,11 +1,11 @@
-/* initial seek to set the duration example
+/* example for using an initial seek to set the playback duration
  *
  * gcc -Wall -g seekinit.c -o seekinit `pkg-config --cflags --libs gstreamer-1.0`
  *
  * GST_DEBUG="*:2,seekinit:4" ./seekinit
  * GST_DEBUG_DUMP_DOT_DIR=$PWD GST_DEBUG="*:2,seekinit:4" ./seekinit
  *
- * try with adder, queue, tee
+ * TODO: try with tee, queue, adder
  */
 
 #include <glib.h>
@@ -21,11 +21,11 @@ static GstDebugGraphDetails graph_details =
 static void
 send_seek (GstElement * bin)
 {
-  /* we want to play for 2 sec. */
+  /* we want to play for 5 sec. */
   if (!gst_element_send_event (bin, gst_event_new_seek (1.0, GST_FORMAT_TIME,
               GST_SEEK_FLAG_FLUSH,
-              GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE,
-              GST_SEEK_TYPE_SET, 2 * GST_SECOND))) {
+              GST_SEEK_TYPE_SET, 0 * GST_SECOND,
+              GST_SEEK_TYPE_SET, 5 * GST_SECOND))) {
     GST_WARNING_OBJECT (bin, "seek failed");
   } else {
     GST_INFO_OBJECT (bin, "seek done");
