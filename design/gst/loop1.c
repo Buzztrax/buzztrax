@@ -19,8 +19,10 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 static GMainLoop *main_loop = NULL;
 static GstEvent *play_seek_event = NULL;
 static GstEvent *loop_seek_event = NULL;
+// command line options
 static gint num_loops = 10;
 static gboolean flushing_loops = FALSE;
+static GstState seek_state = GST_STATE_READY;
 
 static void
 message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
@@ -45,6 +47,29 @@ message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
 }
 
 static void
+send_initial_seek (GstElement * bin)
+{
+  GstStateChangeReturn res;
+
+  GST_INFO
+      ("initial seek ===========================================================");
+  if (!(gst_element_send_event (bin, gst_event_copy (play_seek_event)))) {
+    fprintf (stderr, "element failed to handle seek event\n");
+    g_main_loop_quit (main_loop);
+  }
+  // start playback
+  GST_INFO
+      ("start playing ==========================================================");
+  res = gst_element_set_state (bin, GST_STATE_PLAYING);
+  if (res == GST_STATE_CHANGE_FAILURE) {
+    fprintf (stderr, "can't go to playing state\n");
+    g_main_loop_quit (main_loop);
+  } else if (res == GST_STATE_CHANGE_ASYNC) {
+    GST_INFO ("->PLAYING needs async wait");
+  }
+}
+
+static void
 state_changed (const GstBus * const bus, GstMessage * message, GstElement * bin)
 {
   if (GST_MESSAGE_SRC (message) == GST_OBJECT (bin)) {
@@ -53,28 +78,21 @@ state_changed (const GstBus * const bus, GstMessage * message, GstElement * bin)
 
     gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
     switch (GST_STATE_TRANSITION (oldstate, newstate)) {
+      case GST_STATE_CHANGE_NULL_TO_READY:
+        GST_INFO
+            ("ready ==================================================================");
+        if (seek_state == GST_STATE_READY)
+          send_initial_seek (bin);
+        break;
       case GST_STATE_CHANGE_READY_TO_PAUSED:
-        // seek to start time
         GST_INFO
-            ("initial seek ===========================================================");
-        if (!(gst_element_send_event (bin, gst_event_copy (play_seek_event)))) {
-          fprintf (stderr, "element failed to handle seek event");
-          g_main_loop_quit (main_loop);
-        }
-        // start playback
-        GST_INFO
-            ("start playing ==========================================================");
-        res = gst_element_set_state (bin, GST_STATE_PLAYING);
-        if (res == GST_STATE_CHANGE_FAILURE) {
-          fprintf (stderr, "can't go to playing state\n");
-          g_main_loop_quit (main_loop);
-        } else if (res == GST_STATE_CHANGE_ASYNC) {
-          GST_INFO ("->PLAYING needs async wait");
-        }
+            ("paused =================================================================");
+        if (seek_state == GST_STATE_PAUSED)
+          send_initial_seek (bin);
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
         GST_INFO
-            ("playback started =======================================================");
+            ("playing ================================================================");
         break;
       default:
         break;
@@ -132,6 +150,16 @@ main (int argc, char **argv)
     num_loops = atoi (argv[1]);
     if (argc > 2) {
       flushing_loops = (atoi (argv[2]) != 0);
+      if (argc > 3) {
+        switch (argv[3][0]) {
+          case 'r':
+            seek_state = GST_STATE_READY;
+            break;
+          case 'p':
+            seek_state = GST_STATE_PAUSED;
+            break;
+        }
+      }
     }
   }
 
@@ -215,7 +243,7 @@ main (int argc, char **argv)
   /* prepare playing */
   GST_INFO
       ("prepare playing ========================================================");
-  res = gst_element_set_state (bin, GST_STATE_PAUSED);
+  res = gst_element_set_state (bin, seek_state);
   if (res == GST_STATE_CHANGE_FAILURE) {
     fprintf (stderr, "Can't go to paused\n");
     exit (-1);

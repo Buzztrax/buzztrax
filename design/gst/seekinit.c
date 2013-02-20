@@ -21,7 +21,8 @@ static GstDebugGraphDetails graph_details =
 static void
 send_seek (GstElement * bin)
 {
-  /* we want to play for 5 sec. */
+  /* we want to play for 5 sec., if we don't set the startpos, this blocks
+   */
   if (!gst_element_send_event (bin, gst_event_new_seek (1.0, GST_FORMAT_TIME,
               GST_SEEK_FLAG_FLUSH,
               GST_SEEK_TYPE_SET, 0 * GST_SECOND,
@@ -54,18 +55,18 @@ event_loop (GstElement * bin)
               gst_element_state_get_name (oldstate),
               gst_element_state_get_name (newstate));
           switch (GST_STATE_TRANSITION (oldstate, newstate)) {
-            case GST_STATE_CHANGE_READY_TO_PAUSED:{
-              GST_DEBUG_BIN_TO_DOT_FILE ((GstBin *) bin, graph_details,
-                  "ready_to_paused");
+            case GST_STATE_CHANGE_NULL_TO_READY:
               send_seek (bin);
               /* play and wait */
               gst_element_set_state (bin, GST_STATE_PLAYING);
               break;
-            }
-            case GST_STATE_CHANGE_PAUSED_TO_PLAYING:{
+            case GST_STATE_CHANGE_READY_TO_PAUSED:
+              GST_DEBUG_BIN_TO_DOT_FILE ((GstBin *) bin, graph_details,
+                  "ready_to_paused");
+              break;
+            case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
               GST_DEBUG_BIN_TO_DOT_FILE ((GstBin *) bin, graph_details,
                   "paused_to_playing");
-            }
             default:
               break;
           }
@@ -118,7 +119,7 @@ main (gint argc, gchar ** argv)
   GST_INFO ("prepared");
 
   /* prepare playback */
-  gst_element_set_state (bin, GST_STATE_PAUSED);
+  gst_element_set_state (bin, GST_STATE_READY);
 
   event_loop (bin);
   GST_INFO ("done");
