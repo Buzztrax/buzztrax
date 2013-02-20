@@ -102,8 +102,8 @@ state_changed (const GstBus * const bus, GstMessage * message, GstElement * bin)
     gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
     switch (GST_STATE_TRANSITION (oldstate, newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
-        GST_DEBUG_BIN_TO_DOT_FILE (GST_BIN (bin), GST_DEBUG_GRAPH_SHOW_ALL,
-            "loop2");
+        GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (bin),
+            GST_DEBUG_GRAPH_SHOW_ALL, "loop2");
         // seek to start time
         GST_INFO
             ("initial seek ===========================================================");
@@ -123,6 +123,8 @@ state_changed (const GstBus * const bus, GstMessage * message, GstElement * bin)
         }
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+        GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (bin),
+            GST_DEBUG_GRAPH_SHOW_ALL, "loop2");
         GST_INFO
             ("playback started =======================================================");
         break;
@@ -130,6 +132,14 @@ state_changed (const GstBus * const bus, GstMessage * message, GstElement * bin)
         break;
     }
   }
+}
+
+static void
+async_done (const GstBus * const bus, const GstMessage * const message,
+    GstElement * bin)
+{
+  GST_INFO
+      ("async done ============================================================");
 }
 
 static void
@@ -252,6 +262,7 @@ main (int argc, char **argv)
   g_signal_connect (bus, "message::eos", G_CALLBACK (message_received), bin);
   g_signal_connect (bus, "message::segment-done", G_CALLBACK (segment_done),
       bin);
+  g_signal_connect (bus, "message::async-done", G_CALLBACK (async_done), bin);
   g_signal_connect (bus, "message::state-changed", G_CALLBACK (state_changed),
       bin);
   gst_object_unref (G_OBJECT (bus));

@@ -1,5 +1,4 @@
-/* Build a pipeline with audiotestsource->alsasink
- * and sweep frequency and volume
+/* Build a pipeline with audiotestsrc->alsasink and sweep frequency and volume,
  * Use seeks to play partially or as a loop
  *
  * gcc -Wall -g seek1.c -o seek1 `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs`
@@ -222,7 +221,7 @@ main (gint argc, gchar ** argv)
     }
     // start playback for 7 second
     if ((state_res =
-            gst_element_set_ Â ´state (GST_ELEMENT (bin),
+            gst_element_set_state (GST_ELEMENT (bin),
                 GST_STATE_PLAYING)) == GST_STATE_CHANGE_FAILURE) {
       GST_WARNING ("can't go to playing state");
       goto Error;

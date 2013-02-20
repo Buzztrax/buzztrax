@@ -1,6 +1,5 @@
-/* Build a pipeline with testaudiosource->alsasink and sweep frequency and
- * volume. Use seeks to play partially or as a loop and adds a tee + analyzers.
- * 
+/* Build a pipeline with audiotestsrc->alsasink and a tee + analyzers. Sweep
+ * frequency and volume. Use seeks to play partially or as a loop.
  *
  * gcc -Wall -g seek2.c -o seek2 `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs`
  */
@@ -184,7 +183,6 @@ main (gint argc, gchar ** argv)
   clock_id =
       gst_clock_new_single_shot_id (clock,
       gst_clock_get_time (clock) + (7 * GST_SECOND));
-
 
   // connect to bus
   bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
