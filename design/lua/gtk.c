@@ -1,4 +1,4 @@
-/* open a window, let a lua script add a button
+/* open a window, let a lua script add some labels
  *
  * gcc -g gtk.c -o gtk `pkg-config gtk+-3.0 lua5.1-lgi --cflags --libs`
  */
@@ -8,15 +8,12 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
-#include <gdk/gdk.h>
 #include <glib.h>
 
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
 
-/* the Lua interpreter */
-static lua_State *L;
 static GtkWidget *window = NULL;
 
 static gint
@@ -33,9 +30,11 @@ destroy (GtkWidget * widget, gpointer data)
   gtk_main_quit ();
 }
 
-int
-main (int argc, char **argv)
+gint
+main (gint argc, gchar ** argv)
 {
+  lua_State *L;
+
   /* initialize Lua and load base libraries */
   L = lua_open ();
   luaL_openlibs (L);
@@ -58,6 +57,5 @@ main (int argc, char **argv)
 
   /* clean up */
   lua_close (L);
-
   return (0);
 }

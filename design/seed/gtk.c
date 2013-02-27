@@ -8,7 +8,6 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
-#include <gdk/gdk.h>
 #include <glib.h>
 
 #include <seed.h>
@@ -16,7 +15,6 @@
 
 static GtkWidget *window = NULL;
 
-/* Our function, with the signature of SeedFunctionCallback(); say hello! */
 static SeedValue
 bt_get_window (SeedContext ctx, SeedObject function, SeedObject this_object,
     gsize argument_count, const SeedValue arguments[],

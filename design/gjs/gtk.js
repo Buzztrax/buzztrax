@@ -7,5 +7,5 @@ let window = bt_get_window();
 
 let box = new Gtk.VBox({spacing: 12, border_width: 24});
 box.add(new Gtk.Label({label: '---- Hello ----'}))
-box.add(new Gtk.Label({label:'<big><b>Seed</b></big>', use_markup: true }))
+box.add(new Gtk.Label({label:'<big><b>Gjs</b></big>', use_markup: true }))
 window.add(box);
