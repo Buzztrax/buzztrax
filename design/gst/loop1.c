@@ -10,7 +10,8 @@
 #include <gst/controller/gstinterpolationcontrolsource.h>
 #include <gst/controller/gstdirectcontrolbinding.h>
 
-#define SINK_NAME "alsasink"
+//#define SINK_NAME "alsasink"
+#define SINK_NAME "pulsesink"
 #define SRC_NAME "audiotestsrc"
 
 #define GST_CAT_DEFAULT gst_test_debug
