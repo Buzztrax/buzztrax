@@ -351,7 +351,7 @@ bt_song_send_tags (const BtSong * const self)
     switch (gst_iterator_next (it, &item)) {
       case GST_ITERATOR_OK:
         tag_setter = GST_TAG_SETTER (g_value_get_object (&item));
-        GST_INFO ("sending tags to '%s' element", GST_OBJECT_NAME (tag_setter));
+        GST_INFO_OBJECT (tag_setter, "sending tags");
         gst_tag_setter_merge_tags (tag_setter, taglist, GST_TAG_MERGE_REPLACE);
         g_value_reset (&item);
         break;
@@ -409,44 +409,63 @@ bt_song_send_tags (const BtSong * const self)
 }
 
 static gboolean
-bt_song_async_play (const BtSong * const self)
+bt_song_send_initial_seek (const BtSong * const self, GstBin * bin)
 {
-  GstStateChangeReturn res;
+  GstIterator *it;
+  GstElement *e;
+  gboolean done = FALSE, res = TRUE;
+  GValue item = { 0, };
+  GstEvent *ev = self->priv->play_seek_event;
 
-  GST_DEBUG_OBJECT (self->priv->master_bin, "seek event: %" GST_PTR_FORMAT,
-      self->priv->play_seek_event);
-  if (!(gst_element_send_event (GST_ELEMENT (self->priv->master_bin),
-              gst_event_ref (self->priv->play_seek_event)))) {
-    bt_song_write_to_lowlevel_dot_file (self);
-    GST_WARNING_OBJECT (self->priv->master_bin,
-        "bin failed to handle seek event");
+  it = gst_bin_iterate_sources (bin);
+  while (!done) {
+    switch (gst_iterator_next (it, &item)) {
+      case GST_ITERATOR_OK:
+        e = GST_ELEMENT (g_value_get_object (&item));
+        if (GST_IS_BIN (e)) {
+          res &= bt_song_send_initial_seek (self, (GstBin *) e);
+        } else {
+          GST_INFO_OBJECT (e, "sending initial seek");
+          if (!(gst_element_send_event (e, gst_event_ref (ev)))) {
+            bt_song_write_to_lowlevel_dot_file (self);
+            GST_WARNING_OBJECT (e, "bin failed to handle seek event");
+            res = FALSE;
+          }
+        }
+        g_value_reset (&item);
+        break;
+      case GST_ITERATOR_RESYNC:
+        gst_iterator_resync (it);
+        break;
+      case GST_ITERATOR_ERROR:
+        GST_WARNING ("wrong parameter for iterator");
+        done = TRUE;
+        break;
+      case GST_ITERATOR_DONE:
+        done = TRUE;
+        break;
+    }
   }
-  // send tags
-  bt_song_send_tags (self);
-
-  res =
-      gst_element_set_state (GST_ELEMENT (self->priv->bin), GST_STATE_PLAYING);
-  GST_DEBUG ("->PLAYING state change returned '%s'",
-      gst_element_state_change_return_get_name (res));
-  switch (res) {
-    case GST_STATE_CHANGE_SUCCESS:
-      GST_INFO ("playback started");
-      break;
-    case GST_STATE_CHANGE_FAILURE:
-      GST_WARNING ("can't go to playing state");
-      bt_song_write_to_lowlevel_dot_file (self);
-      return FALSE;
-      break;
-    default:
-      GST_WARNING ("unexpected state-change-return %d:%s", res,
-          gst_element_state_change_return_get_name (res));
-      bt_song_write_to_lowlevel_dot_file (self);
-      break;
-  }
-  return TRUE;
+  g_value_unset (&item);
+  gst_iterator_free (it);
+  return res;
 }
 
 //-- handler
+
+static gboolean
+on_song_paused_timeout (gpointer user_data)
+{
+  const BtSong *const self = BT_SONG (user_data);
+
+  if (self->priv->is_preparing) {
+    GST_WARNING ("->PAUSED timeout occurred");
+    bt_song_write_to_lowlevel_dot_file (self);
+    bt_song_stop (self);
+  }
+  self->priv->paused_timeout_id = 0;
+  return (FALSE);
+}
 
 static void
 on_song_segment_done (const GstBus * const bus,
@@ -522,20 +541,6 @@ on_song_eos (const GstBus * const bus, const GstMessage * const message,
   }
 }
 
-static gboolean
-on_song_paused_timeout (gpointer user_data)
-{
-  const BtSong *const self = BT_SONG (user_data);
-
-  if (self->priv->is_preparing) {
-    GST_WARNING ("->PAUSED timeout occurred");
-    bt_song_write_to_lowlevel_dot_file (self);
-    bt_song_stop (self);
-  }
-  self->priv->paused_timeout_id = 0;
-  return (FALSE);
-}
-
 static void
 on_song_state_changed (const GstBus * const bus, GstMessage * message,
     gconstpointer user_data)
@@ -599,7 +604,6 @@ on_song_async_done (const GstBus * const bus, GstMessage * message,
     if (self->priv->paused_timeout_id) {
       g_source_remove (self->priv->paused_timeout_id);
       self->priv->paused_timeout_id = 0;
-      bt_song_async_play (self);
     }
   }
 }
@@ -879,25 +883,24 @@ bt_song_play (const BtSong * const self)
 
   // this should be sequence->play_start
   self->priv->play_pos = 0;
-  // go to paused first to unflush the pads, then in async_play continue with seek,
-  // tags and playing
-  if ((res =
-          gst_element_set_state (GST_ELEMENT (self->priv->bin),
-              GST_STATE_PAUSED)) == GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING ("can't go to paused state");
-    self->priv->is_preparing = FALSE;
-    return FALSE;
-  }
-  GST_DEBUG ("->PAUSED state change returned '%s'",
+  GST_DEBUG_OBJECT (self->priv->master_bin, "seek event: %" GST_PTR_FORMAT,
+      self->priv->play_seek_event);
+
+  // send seek
+  bt_song_send_initial_seek (self, self->priv->bin);
+  // send tags
+  bt_song_send_tags (self);
+
+  res =
+      gst_element_set_state (GST_ELEMENT (self->priv->bin), GST_STATE_PLAYING);
+  GST_DEBUG ("->PLAYING state change returned '%s'",
       gst_element_state_change_return_get_name (res));
   switch (res) {
     case GST_STATE_CHANGE_SUCCESS:
-      if (!bt_song_async_play (self)) {
-        return FALSE;
-      }
+      GST_INFO ("playback started");
       break;
     case GST_STATE_CHANGE_FAILURE:
-      GST_WARNING ("can't go to paused state");
+      GST_WARNING ("can't go to playing state");
       bt_song_write_to_lowlevel_dot_file (self);
       return FALSE;
       break;
@@ -911,6 +914,7 @@ bt_song_play (const BtSong * const self)
     default:
       GST_WARNING ("unexpected state-change-return %d:%s", res,
           gst_element_state_change_return_get_name (res));
+      bt_song_write_to_lowlevel_dot_file (self);
       break;
   }
   return TRUE;
