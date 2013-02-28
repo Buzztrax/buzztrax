@@ -1096,7 +1096,7 @@ bt_machine_enable_part (BtMachine * const self, const BtMachinePart part,
     case PART_OUTPUT_PRE_LEVEL:
     case PART_OUTPUT_POST_LEVEL:
       g_object_set (self->priv->machines[part],
-          "interval", (GstClockTime) (0.1 * GST_SECOND), "message", TRUE,
+          "interval", (GstClockTime) (0.1 * GST_SECOND), "post-messages", TRUE,
           "peak-ttl", (GstClockTime) (0.2 * GST_SECOND), "peak-falloff", 50.0,
           NULL);
       break;

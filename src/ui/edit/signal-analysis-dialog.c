@@ -1083,7 +1083,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
     goto Error;
   }
   g_object_set (self->priv->analyzers[ANALYZER_SPECTRUM], "interval",
-      UPDATE_INTERVAL, "message", TRUE, "bands",
+      UPDATE_INTERVAL, "post-messages", TRUE, "bands",
       self->priv->spect_bands * self->priv->frq_precision, "threshold",
       SPECTRUM_FLOOR, "multi-channel", TRUE, NULL);
   if ((pad =
@@ -1099,7 +1099,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
     goto Error;
   }
   g_object_set (self->priv->analyzers[ANALYZER_LEVEL],
-      "interval", UPDATE_INTERVAL, "message", TRUE,
+      "interval", UPDATE_INTERVAL, "post-messages", TRUE,
       "peak-ttl", UPDATE_INTERVAL * 3, "peak-falloff", 80.0, NULL);
   // create queue
   if (!bt_signal_analysis_dialog_make_element (self, ANALYZER_QUEUE, "queue")) {
