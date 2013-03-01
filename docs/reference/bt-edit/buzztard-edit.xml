@@ -42,7 +42,7 @@ Alternatively it takes a mandatory argument that specifies the command and extra
 options depending on the command.
 </para>
 
-<refsect2><title>Options</title>
+<refsect2 id="buzztard-edit.options"><title>Options</title>
 <variablelist>
 
 <varlistentry>

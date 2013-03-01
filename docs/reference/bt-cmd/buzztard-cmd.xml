@@ -42,7 +42,7 @@ buzztard songs from the commandline.
 the command and extra options depending on the command.
 </para>
 
-<refsect2><title>Options</title>
+<refsect2 id="buzztard-cmd.options"><title>Options</title>
 <variablelist>
 
 <varlistentry>
