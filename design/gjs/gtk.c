@@ -33,11 +33,22 @@ static GtkWidget *window = NULL;
 static JSBool
 bt_get_window (JSContext * context, guint argc, jsval * vp)
 {
-  jsval *argv = JS_ARGV (context, vp);
+  //jsval *argv = JS_ARGV (context, vp);
 
   puts ("get window");
   JSObject *obj = gjs_object_from_g_object (context, (GObject *) window);
   jsval retval = OBJECT_TO_JSVAL (obj);
+  JS_SET_RVAL (context, vp, retval);
+  return JS_TRUE;
+}
+
+static JSBool
+bt_get_five (JSContext * context, guint argc, jsval * vp)
+{
+  //jsval *argv = JS_ARGV (context, vp);
+
+  puts ("get five");
+  jsval retval = INT_TO_JSVAL (5);
   JS_SET_RVAL (context, vp, retval);
   return JS_TRUE;
 }
@@ -61,19 +72,10 @@ main (gint argc, gchar ** argv)
   gjs_context = gjs_context_new ();
   context = (JSContext *) gjs_context_get_native_context (gjs_context);
   global = gjs_get_import_global (context);
-  JS_BeginRequest (context);
-  /*
-     if (!JS_NewFunction (context, (JSNative) bt_get_window, 0, 0, global, 
-     "bt_get_window")) {
-     puts ("failed to register func.");
-     } */
-  if (!JS_DefineFunction (context, global, "bt_get_window",
-          (JSNative) bt_get_window, 0, GJS_MODULE_PROP_FLAGS))
-  {
-    puts ("failed to register func.");
-  }
-
-  JS_EndRequest (context);
+  JS_DefineFunction (context, global, "bt_get_window",
+      (JSNative) bt_get_window, 0, GJS_MODULE_PROP_FLAGS);
+  JS_DefineFunction (context, global, "bt_get_five",
+      (JSNative) bt_get_five, 0, GJS_MODULE_PROP_FLAGS);
 
   /* init gtk */
   gtk_init (&argc, &argv);
