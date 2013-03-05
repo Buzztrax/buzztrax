@@ -20,12 +20,14 @@ fmtnego
 latency
 latencies_*/
 link?
-loop?
+loop*
+looplock
 net?
 oggmux
 ref
 registry?
 seek?
+seekinit
 session
 states?
 states??
