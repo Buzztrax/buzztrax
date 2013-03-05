@@ -151,7 +151,7 @@ struct _BtMachinePrivate
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
   /* used to signal failed instance creation */
-  GError **constrution_error;
+  GError **construction_error;
 
   /* (ui) properties accociated with this machine */
   GHashTable *properties;
@@ -680,8 +680,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->
-                        dst_wires->data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->dst_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -709,8 +709,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->
-                        src_wires->data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->src_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1364,8 +1364,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                      priv->machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                      machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1427,8 +1427,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                    priv->machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                    machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -3177,8 +3177,8 @@ bt_machine_constructed (GObject * object)
 Error:
   GST_WARNING_OBJECT (self, "failed to create machine: %s",
       self->priv->plugin_name);
-  if (self->priv->constrution_error) {
-    g_set_error (self->priv->constrution_error, error_domain,   /* errorcode= */
+  if (self->priv->construction_error) {
+    g_set_error (self->priv->construction_error, error_domain,  /* errorcode= */
         0, "failed to setup the machine.");
   }
 }
@@ -3192,7 +3192,7 @@ bt_machine_get_property (GObject * const object, const guint property_id,
   return_if_disposed ();
   switch (property_id) {
     case MACHINE_CONSTRUCTION_ERROR:
-      g_value_set_pointer (value, self->priv->constrution_error);
+      g_value_set_pointer (value, self->priv->construction_error);
       break;
     case MACHINE_PROPERTIES:
       g_value_set_pointer (value, self->priv->properties);
@@ -3269,7 +3269,7 @@ bt_machine_set_property (GObject * const object, const guint property_id,
   return_if_disposed ();
   switch (property_id) {
     case MACHINE_CONSTRUCTION_ERROR:
-      self->priv->constrution_error = (GError **) g_value_get_pointer (value);
+      self->priv->construction_error = (GError **) g_value_get_pointer (value);
       break;
     case MACHINE_SONG:
       self->priv->song = BT_SONG (g_value_get_object (value));
