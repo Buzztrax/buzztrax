@@ -67,7 +67,7 @@ struct _BtPatternControlSourcePrivate
   GType type, base;
 
   glong param_index;
-  GValue last_value, def_value;
+  GValue def_value;
   gboolean is_trigger;
 
   GstClockTime tick_duration;
@@ -179,7 +179,6 @@ bt_pattern_control_source_get_value (GstControlBinding * self_,
         "tick %lld: Set value for %s", tick,
         bt_parameter_group_get_param_name (pg, param_index));
 
-    g_value_copy (res, &self->priv->last_value);
     return res;
   } else {
     if (self->priv->is_trigger || !timestamp) {
@@ -188,7 +187,6 @@ bt_pattern_control_source_get_value (GstControlBinding * self_,
           "tick %lld: Set default for %s", tick,
           bt_parameter_group_get_param_name (pg, param_index));
 
-      g_value_copy (&self->priv->def_value, &self->priv->last_value);
       return &self->priv->def_value;
     }
   }
@@ -319,9 +317,6 @@ bt_pattern_control_source_constructor (GType type, guint n_construct_params,
         g_param_value_set_default (pspec, &self->priv->def_value);
       }
     }
-    g_value_init (&self->priv->last_value, type);
-    g_value_copy (&self->priv->def_value, &self->priv->last_value);
-
   }
   return (GObject *) self;
 }
@@ -425,9 +420,6 @@ bt_pattern_control_source_finalize (GObject * const object)
 {
   BtPatternControlSource *self = BT_PATTERN_CONTROL_SOURCE (object);
 
-  if (G_IS_VALUE (&self->priv->last_value)) {
-    g_value_unset (&self->priv->last_value);
-  }
   if (G_IS_VALUE (&self->priv->def_value)) {
     g_value_unset (&self->priv->def_value);
   }
