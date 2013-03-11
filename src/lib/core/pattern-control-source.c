@@ -206,12 +206,13 @@ bt_pattern_control_source_get_value_array (GstControlBinding * self_,
   GValue *value;
 
   if (!(value = bt_pattern_control_source_get_value (self_, timestamp))) {
-    value = &self->priv->last_value;
+    return FALSE;
   }
   switch (self->priv->base) {
     case G_TYPE_BOOLEAN:{
       gboolean val = g_value_get_boolean (value);
       gboolean *values = (gboolean *) values_;
+      GST_INFO ("filling array with boolean: %d", val);
       for (i = 0; i < n_values; i++)
         *values++ = val;
       break;
@@ -219,6 +220,7 @@ bt_pattern_control_source_get_value_array (GstControlBinding * self_,
     case G_TYPE_FLOAT:{
       gfloat val = g_value_get_float (value);
       gfloat *values = (gfloat *) values_;
+      GST_INFO ("filling array with floats: %f", val);
       for (i = 0; i < n_values; i++)
         *values++ = val;
       break;
@@ -226,6 +228,7 @@ bt_pattern_control_source_get_value_array (GstControlBinding * self_,
     case G_TYPE_DOUBLE:{
       gdouble val = g_value_get_double (value);
       gdouble *values = (gdouble *) values_;
+      GST_INFO ("filling array with doubles: %lf", val);
       for (i = 0; i < n_values; i++)
         *values++ = val;
       break;
@@ -248,7 +251,7 @@ bt_pattern_control_source_get_g_value_array (GstControlBinding * self_,
   GValue *value;
 
   if (!(value = bt_pattern_control_source_get_value (self_, timestamp))) {
-    value = &self->priv->last_value;
+    return FALSE;
   }
   for (i = 0; i < n_values; i++) {
     g_value_init (&values[i], self->priv->type);
