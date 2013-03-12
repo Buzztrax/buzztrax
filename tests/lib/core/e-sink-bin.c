@@ -84,11 +84,19 @@ make_new_song (gint wave)
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
   GstElement *element =
       (GstElement *) check_gobject_get_object_property (gen, "machine");
+  gint samples_per_buffer;
+  // TODO(ensonic): get these from song-info instead
+  // bpm * tpb * stpt
+  const gdouble ticks = 120 * 4 * 4;
+
+  // figure a good block size for the current tempo
+  samples_per_buffer = 44100.0 * 60.0 / ticks;
 
   g_object_set (sequence, "length", 8L, "loop", FALSE, NULL);
   bt_sequence_add_track (sequence, gen, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
-  g_object_set (element, "wave", wave, "volume", 1.0, NULL);
+  g_object_set (element, "wave", wave, "volume", 1.0, "samplesperbuffer",
+      samples_per_buffer, NULL);
   bt_parameter_group_set_param_default (pg,
       bt_parameter_group_get_param_index (pg, "wave"));
   bt_parameter_group_set_param_default (pg,
@@ -442,6 +450,8 @@ test_bt_sink_bin_master_volume (BT_TEST_ARGS)
   gst_element_set_state (sink_bin, GST_STATE_READY);
   GstElement *fakesink = get_sink_element ((GstBin *) sink_bin);
   g_object_set (fakesink, "signal-handoffs", TRUE, NULL);
+  g_signal_connect (fakesink, "preroll-handoff", (GCallback) handoff_buffer_cb,
+      NULL);
   g_signal_connect (fakesink, "handoff", (GCallback) handoff_buffer_cb, NULL);
 
   /* act */
@@ -476,13 +486,21 @@ test_bt_sink_bin_analyzers (BT_TEST_ARGS)
   GstElement *queue = gst_element_factory_make ("queue", NULL);
   GList *analyzers_list =
       g_list_prepend (g_list_prepend (NULL, fakesink), queue);
-  g_object_set (sink_bin, "analyzers", analyzers_list, NULL);
-  g_object_set (fakesink, "signal-handoffs", TRUE, NULL);
+
+  g_object_set (fakesink, "signal-handoffs", TRUE,
+      "sync", FALSE, "qos", FALSE, "silent", TRUE, "async", FALSE, NULL);
+  g_signal_connect (fakesink, "preroll-handoff", (GCallback) handoff_buffer_cb,
+      NULL);
   g_signal_connect (fakesink, "handoff", (GCallback) handoff_buffer_cb, NULL);
+  g_object_set (queue, "max-size-buffers", 10, "max-size-bytes", 0,
+      "max-size-time", G_GUINT64_CONSTANT (0), "leaky", 2, "silent", TRUE,
+      NULL);
+  g_object_set (sink_bin, "analyzers", analyzers_list, NULL);
 
   /* act */
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
+  // this seems to take a little longer
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 2);
   bt_song_write_to_lowlevel_dot_file (song);
 
   /* assert */
