@@ -1109,7 +1109,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   // leave "max-size-buffer >> 1, if 1 every buffer gets marked as discont!
   g_object_set (self->priv->analyzers[ANALYZER_QUEUE],
       "max-size-buffers", 10, "max-size-bytes", 0, "max-size-time",
-      G_GUINT64_CONSTANT (0), "leaky", 2, NULL);
+      G_GUINT64_CONSTANT (0), "leaky", 2, "silent", TRUE, NULL);
 
   if (BT_IS_WIRE (self->priv->element)) {
     g_object_set (self->priv->element, "analyzers", self->priv->analyzers_list,
