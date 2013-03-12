@@ -144,10 +144,12 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
   const gchar *blacklist[] = {
     "audiorate",
     "dtmfsrc",
+    "interaudiosrc",
     "memoryaudiosrc",
     "rglimiter",
     "rgvolume",
-    "sfsrc"
+    "sfsrc",
+    "spanplc"                   // comfort noise generator ?
   };
 
   // scan registered sources
