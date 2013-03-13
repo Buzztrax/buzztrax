@@ -283,6 +283,10 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
   if (!gtk_widget_get_realized (GTK_WIDGET (self)))
     return (TRUE);
 
+  // DEBUG
+  GstClockTime __ts = gst_util_get_timestamp ();
+  // DEBUG
+
   guint i, c;
   gdouble x, y, v, f;
   gdouble inc, end, srat2;
@@ -294,6 +298,7 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
   gdouble *grid_log10 = self->priv->grid_log10;
   gdouble *graph_log10 = self->priv->graph_log10;
   gdouble grid_dash_pattern[] = { 1.0 };
+  gdouble prec = self->priv->frq_precision;
   cairo_t *cr;
 
   gdk_window_begin_paint_rect (window, &rect);
@@ -310,12 +315,12 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
       self->priv->grid_color->blue / 65535.0);
   cairo_set_line_width (cr, 1.0);
   cairo_set_dash (cr, grid_dash_pattern, 1, 0.0);
-  y = 0.5 + spect_height / 2.0;
+  y = 0.5 + round (spect_height / 2.0);
   cairo_move_to (cr, 0, y);
   cairo_line_to (cr, spect_bands, y);
   if (self->priv->frq_map == MAP_LIN) {
     for (f = 0.05; f < 1.0; f += 0.05) {
-      x = 0.5 + spect_bands * f;
+      x = 0.5 + round (spect_bands * f);
       cairo_move_to (cr, x, 0);
       cairo_line_to (cr, x, spect_height);
     }
@@ -327,7 +332,7 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
     inc = 1.0;
     end = 10.0;
     while (f < srat2) {
-      x = 0.5 + v * grid_log10[i++];
+      x = 0.5 + round (v * grid_log10[i++]);
       cairo_move_to (cr, x, 0);
       cairo_line_to (cr, x, spect_height);
       f += inc;
@@ -343,7 +348,6 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
   for (c = 0; c < self->priv->spect_channels; c++) {
     if (self->priv->spect[c]) {
       gfloat *spect = self->priv->spect[c];
-      gdouble prec = self->priv->frq_precision;
 
       // set different color for different channels
       // maybe we also want a different gradient
@@ -356,7 +360,7 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
           cairo_set_source_rgba (cr, 0.6, 0.6, 1.0, 0.7);
         }
       }
-      cairo_set_line_width (cr, 2.0);
+      cairo_set_line_width (cr, 1.0);
       cairo_set_dash (cr, NULL, 0, 0.0);
       cairo_move_to (cr, 0, spect_height);
       if (self->priv->frq_map == MAP_LIN) {
@@ -373,8 +377,10 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
           cairo_line_to (cr, x, spect_height - spect[i]);
         }
       }
-      cairo_line_to (cr, spect_bands - 1, spect_height);
-      cairo_line_to (cr, 0, spect_height);
+      // close the path
+      cairo_line_to (cr, (gdouble) spect_bands - 0.5,
+          (gdouble) spect_height - 0.5);
+      cairo_line_to (cr, 0.5, (gdouble) spect_height - 0.5);
       cairo_stroke_preserve (cr);
       // in case the gradient is too slow:
       //cairo_set_source_rgb(cr,0.7,0.7,0.7);
@@ -398,6 +404,13 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
 
   cairo_destroy (cr);
   gdk_window_end_paint (window);
+
+  // DEBUG
+  // these values range from 0.0012 to 0.8348
+  GstClockTimeDiff __tsd = GST_CLOCK_DIFF (__ts, gst_util_get_timestamp ());
+  GST_INFO ("spectrum paint took: %" GST_TIME_FORMAT, GST_TIME_ARGS (__tsd));
+  // DEBUG
+
   return (TRUE);
 }
 
