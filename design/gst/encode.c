@@ -1,6 +1,6 @@
 /* Record n seconds of beep to a file
  *
- * gcc -Wall -g encode.c -o encode `pkg-config gstreamer-0.10 gstreamer-base-0.10 --cflags --libs`
+ * gcc -Wall -g encode.c -o encode `pkg-config gstreamer-1.0 gstreamer-base-1.0 --cflags --libs`
  *
  * for fmt in `seq 0 6`; do ./encode $fmt; done
  *
@@ -51,11 +51,10 @@ event_loop (GstElement * bin)
 gint
 main (gint argc, gchar ** argv)
 {
-  GstElement *bin;
+  GstElement *bin, *src;
   gchar *pipeline = NULL;
   gint format = 0;
   gint method = 0;
-  GstFormat query_fmt = GST_FORMAT_TIME;
   gint64 duration;
 
   gst_init (&argc, &argv);
@@ -83,7 +82,7 @@ main (gint argc, gchar ** argv)
       break;
     case 3:
       pipeline =
-          "audiotestsrc name=s ! flacenc ! oggmux ! filesink location=encode.flac.ogg";
+          "audiotestsrc name=s ! flacenc ! flacparse ! flactag ! oggmux ! filesink location=encode.flac.ogg";
       puts ("encoding ogg flac");
       break;
     case 4:
@@ -93,7 +92,7 @@ main (gint argc, gchar ** argv)
       break;
     case 5:
       pipeline =
-          "audiotestsrc name=s ! flacenc ! filesink location=encode.flac";
+          "audiotestsrc name=s ! flacenc ! flacparse ! flactag ! filesink location=encode.flac";
       puts ("encoding ogg flac");
       break;
     case 6:
@@ -105,29 +104,28 @@ main (gint argc, gchar ** argv)
       return -1;
   }
   bin = gst_parse_launch (pipeline, NULL);
+  src = gst_bin_get_by_name (GST_BIN (bin), "s");
+
+  gst_element_set_state (GST_ELEMENT (bin), GST_STATE_READY);
 
   if (method == 1) {
-    GstElement *src = gst_bin_get_by_name (GST_BIN (bin), "s");
-
     GST_BASE_SRC (src)->segment.duration = GST_SECOND;
-    gst_object_unref (src);
   }
-
-  gst_element_set_state (GST_ELEMENT (bin), GST_STATE_PAUSED);
   if (method == 0) {
-    if (!gst_element_seek (bin, 1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
+    if (!gst_element_seek (src, 1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
             GST_SEEK_TYPE_SET, GST_SECOND * 0,
             GST_SEEK_TYPE_SET, GST_SECOND * 1))
-      puts ("seek failed");
+      puts ("seek on src in ready failed");
   }
+  gst_object_unref (src);
 
   gst_element_set_state (GST_ELEMENT (bin), GST_STATE_PLAYING);
 
-  if (!gst_element_query_duration (GST_ELEMENT (bin), &query_fmt, &duration)) {
+  if (!gst_element_query_duration (GST_ELEMENT (bin), GST_FORMAT_TIME,
+          &duration)) {
     puts ("duration query failed");
   } else {
-    printf ("duration: %s :%" GST_TIME_FORMAT "\n",
-        gst_format_get_name (query_fmt), GST_TIME_ARGS (duration));
+    printf ("duration: time :%" GST_TIME_FORMAT "\n", GST_TIME_ARGS (duration));
   }
   event_loop (bin);
   gst_element_set_state (bin, GST_STATE_NULL);
