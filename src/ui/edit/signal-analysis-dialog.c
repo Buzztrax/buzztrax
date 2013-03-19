@@ -283,9 +283,12 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
   if (!gtk_widget_get_realized (GTK_WIDGET (self)))
     return (TRUE);
 
+#ifndef GST_DISABLE_DEBUG
   // DEBUG
+  GST_INFO ("before spectrum update");
   GstClockTime __ts = gst_util_get_timestamp ();
   // DEBUG
+#endif
 
   guint i, c;
   gdouble x, y, v, f;
@@ -405,11 +408,13 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
   cairo_destroy (cr);
   gdk_window_end_paint (window);
 
+#ifndef GST_DISABLE_DEBUG
   // DEBUG
   // these values range from 0.0012 to 0.8348
   GstClockTimeDiff __tsd = GST_CLOCK_DIFF (__ts, gst_util_get_timestamp ());
-  GST_INFO ("spectrum paint took: %" GST_TIME_FORMAT, GST_TIME_ARGS (__tsd));
+  GST_INFO ("spectrum update took: %" GST_TIME_FORMAT, GST_TIME_ARGS (__tsd));
   // DEBUG
+#endif
 
   return (TRUE);
 }
@@ -701,17 +706,7 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
     spect_bands = self->priv->spect_bands * self->priv->frq_precision;
     //GST_INFO("get spectrum data");
     if ((data = gst_structure_get_value (structure, "magnitude"))) {
-      if (GST_VALUE_HOLDS_LIST (data)) {
-        size = gst_value_list_get_size (data);
-        if (size == spect_bands) {
-          spect = self->priv->spect[0];
-          for (i = 0; i < spect_bands; i++) {
-            value = gst_value_list_get_value (data, i);
-            spect[i] = spect_height - height_scale * g_value_get_float (value);
-          }
-          gtk_widget_queue_draw (self->priv->spectrum_drawingarea);
-        }
-      } else if (GST_VALUE_HOLDS_ARRAY (data)) {
+      if (GST_VALUE_HOLDS_ARRAY (data)) {
         const GValue *cdata;
         guint c = gst_value_array_get_size (data);
 
@@ -729,18 +724,20 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
         }
         if (c == self->priv->spect_channels) {
           gtk_widget_queue_draw (self->priv->spectrum_drawingarea);
+          GST_INFO ("trigger spectrum update");
         }
-      }
-    } else if ((data = gst_structure_get_value (structure, "spectrum"))) {
-      size = gst_value_list_get_size (data);
-      if (size == spect_bands) {
-        spect = self->priv->spect[0];
-        for (i = 0; i < spect_bands; i++) {
-          value = gst_value_list_get_value (data, i);
-          spect[i] =
-              spect_height - height_scale * (gfloat) g_value_get_uchar (value);
+      } else if (GST_VALUE_HOLDS_LIST (data)) {
+        // only in the multi-channel=FALSE case
+        size = gst_value_list_get_size (data);
+        if (size == spect_bands) {
+          spect = self->priv->spect[0];
+          for (i = 0; i < spect_bands; i++) {
+            value = gst_value_list_get_value (data, i);
+            spect[i] = spect_height - height_scale * g_value_get_float (value);
+          }
+          gtk_widget_queue_draw (self->priv->spectrum_drawingarea);
+          GST_INFO ("trigger spectrum update");
         }
-        gtk_widget_queue_draw (self->priv->spectrum_drawingarea);
       }
     }
     g_mutex_unlock (&self->priv->lock);
