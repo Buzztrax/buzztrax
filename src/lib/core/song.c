@@ -537,6 +537,7 @@ on_song_eos (const GstBus * const bus, const GstMessage * const message,
   if (GST_MESSAGE_SRC (message) == GST_OBJECT (self->priv->bin)) {
     self->priv->play_pos = self->priv->play_end;
     g_object_notify (G_OBJECT (self), "play-pos");
+    GST_INFO ("stopping");
     bt_song_stop (self);
   }
 }

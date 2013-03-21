@@ -398,6 +398,7 @@ bt_machine_on_duration_changed (BtSequence * const sequence,
     const GParamSpec * const arg, gconstpointer const user_data)
 {
   const BtMachine *const self = BT_MACHINE (user_data);
+  const GstElement *elem = self->priv->machines[PART_MACHINE];
   GstClockTime duration, tick_duration;
   glong length;
 
@@ -407,9 +408,9 @@ bt_machine_on_duration_changed (BtSequence * const sequence,
   bt_child_proxy_get (self->priv->song, "song-info::tick-duration",
       &tick_duration, NULL);
   duration = tick_duration * length;
-  GST_BASE_SRC (self->priv->machines[PART_MACHINE])->segment.duration =
-      duration;
-  GST_INFO ("  duration: %" GST_TIME_FORMAT, GST_TIME_ARGS (duration));
+  GST_BASE_SRC (elem)->segment.duration = duration;
+  GST_INFO_OBJECT (self, "duration: %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (duration));
 }
 
 //-- helper methods
@@ -680,8 +681,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->dst_wires->
-                        data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -709,8 +710,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->src_wires->
-                        data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1364,8 +1365,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1427,8 +1428,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                    machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
