@@ -284,6 +284,7 @@ bt_render_dialog_record_next (const BtRenderDialog * self)
     g_object_get (self->priv->song, "song-info", &song_info, NULL);
     g_object_set (song_info, "name", track_name, NULL);
     g_object_unref (song_info);
+    GST_INFO ("recording to '%s'", track_name);
     g_free (track_name);
     g_free (id);
   }
@@ -419,9 +420,6 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
   progress = (gdouble) pos / (gdouble) length;
   if (progress >= 1.0) {
     progress = 1.0;
-    bt_song_stop (song);
-    // trigger next file / done
-    bt_render_dialog_record_next (self);
   }
   GST_INFO ("progress %ld/%ld=%lf", pos, length, progress);
 
@@ -451,6 +449,16 @@ on_song_error (const GstBus * const bus, GstMessage * message,
   bt_render_dialog_record_next (self);
 }
 
+static void
+on_song_eos (const GstBus * const bus, const GstMessage * const message,
+    gconstpointer user_data)
+{
+  BtRenderDialog *self = BT_RENDER_DIALOG (user_data);
+
+  bt_song_stop (song);
+  // trigger next file / done
+  bt_render_dialog_record_next (self);
+}
 
 //-- helper methods
 
@@ -614,6 +622,8 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   bus = gst_element_get_bus (GST_ELEMENT (bin));
   g_signal_connect (bus, "message::error", G_CALLBACK (on_song_error),
       (gpointer) self);
+  g_signal_connect (bus, "message::eos", G_CALLBACK (on_song_eos),
+      (gpointer) self);
 
   gst_object_unref (bus);
   gst_object_unref (bin);
@@ -668,8 +678,12 @@ bt_render_dialog_dispose (GObject * object)
     g_object_get (self->priv->song, "bin", &bin, NULL);
     if (bin) {
       GstBus *bus = gst_element_get_bus (GST_ELEMENT (bin));
-      g_signal_handlers_disconnect_matched (bus, G_SIGNAL_MATCH_FUNC, 0, 0,
-          NULL, on_song_error, NULL);
+      g_signal_handlers_disconnect_matched (bus,
+          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_song_error,
+          (gpointer) self);
+      g_signal_handlers_disconnect_matched (bus,
+          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_song_eos,
+          (gpointer) self);
       gst_object_unref (bus);
     }
     g_signal_handlers_disconnect_matched (self->priv->song, G_SIGNAL_MATCH_FUNC,
