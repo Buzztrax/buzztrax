@@ -31,7 +31,10 @@
  *
  * Property names are written as "child-name::property-name". The whole naming
  * scheme is recursive. Thus "child1::child2::property" is valid too, if
- * "child1" and "child2" implement the interface.
+ * "child1" and "child2" are objects that implement the interface or are properties
+ * that return a GObject. The later is a convenient way to set or get properties
+ * a few hops down the hierarchy in one go (without being able to forget the unrefs
+ * of the intermediate objects).
  */
 /* IDEA(ensonic): allow implementors to provide a lookup cache if they have
  *   static name -> object mappings
@@ -142,13 +145,23 @@ bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,
     GObject *next;
 
     if (!BT_IS_CHILD_PROXY (object)) {
-      GST_INFO
-          ("object %p is not a parent, so you cannot request a child by name %s",
-          object, current[0]);
-      break;
+      // what if we just do a find by object class property?
+      GParamSpec *spec =
+          g_object_class_find_property (G_OBJECT_GET_CLASS (object),
+          current[0]);
+      if (G_IS_PARAM_SPEC_OBJECT (spec)) {
+        g_object_get (object, current[0], &next, NULL);
+      } else {
+        GST_INFO
+            ("object %p:%s is not a parent and neither has a child named %s that is an object",
+            object, G_OBJECT_TYPE_NAME (object), current[0]);
+        break;
+      }
+    } else {
+      next =
+          bt_child_proxy_get_child_by_name (BT_CHILD_PROXY (object),
+          current[0]);
     }
-    next =
-        bt_child_proxy_get_child_by_name (BT_CHILD_PROXY (object), current[0]);
     if (!next) {
       GST_INFO ("no such object %s", current[0]);
       break;
@@ -349,7 +362,8 @@ bt_child_proxy_set_valist (GObject * object, const gchar * first_property_name,
   return;
 
 not_found:
-  g_warning ("no property %s in object", name);
+  g_warning ("no property %s in object of type %s", name,
+      G_OBJECT_TYPE_NAME (object));
   return;
 cant_copy:
   g_warning ("error copying value %s in object: %s", pspec->name, error);
