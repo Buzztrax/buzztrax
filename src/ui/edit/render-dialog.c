@@ -455,7 +455,7 @@ on_song_eos (const GstBus * const bus, const GstMessage * const message,
 {
   BtRenderDialog *self = BT_RENDER_DIALOG (user_data);
 
-  bt_song_stop (song);
+  bt_song_stop (self->priv->song);
   // trigger next file / done
   bt_render_dialog_record_next (self);
 }
