@@ -27,8 +27,6 @@
  *
  * TODO(ensonic): more options
  * - have dithering and noise shaping options here
- *
- * TODO(ensonic): include the progressbar here and remove render-progress.{c,h}
  */
 
 #define BT_EDIT
@@ -67,6 +65,7 @@ struct _BtRenderDialogPrivate
   gchar *song_name, *file_name;
   gboolean unsaved, has_error;
   gboolean saved_loop;
+  gboolean saved_follow_playback;
 };
 
 static void on_format_menu_changed (GtkComboBox * menu, gpointer user_data);
@@ -157,15 +156,23 @@ bt_render_dialog_record (const BtRenderDialog * self)
 static void
 bt_render_dialog_record_init (const BtRenderDialog * self)
 {
+  BtMainPageSequence *sequence_page;
   BtSetup *setup;
   BtSequence *sequence;
   BtMachine *machine;
 
-  g_object_get (self->priv->app, "unsaved", &self->priv->unsaved, NULL);
+  // get current settings and override
+  bt_child_proxy_get (self->priv->app, "unsaved", &self->priv->unsaved,
+      "main-window::pages::sequence-page", &sequence_page, NULL);
   g_object_get (self->priv->song, "setup", &setup, "sequence", &sequence, NULL);
   g_object_get (sequence, "loop", &self->priv->saved_loop, NULL);
   g_object_set (sequence, "loop", FALSE, NULL);
   g_object_unref (sequence);
+  g_object_get (sequence_page, "follow-playback",
+      &self->priv->saved_follow_playback, NULL);
+  g_object_set (sequence_page, "follow-playback", FALSE, NULL);
+  g_object_unref (sequence_page);
+
   // lookup the audio-sink machine and change mode
   if ((machine = bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE))) {
     g_object_get (machine, "machine", &self->priv->sink_bin, "adder-convert",
@@ -223,9 +230,12 @@ bt_render_dialog_record_done (const BtRenderDialog * self)
     gst_object_replace ((GstObject **) & self->priv->convert, NULL);
   }
 
-  /* reset loop */
+  /* reset loop and follow-playback */
   bt_child_proxy_set (self->priv->song, "sequence::loop",
       self->priv->saved_loop, NULL);
+  bt_child_proxy_set (self->priv->app,
+      "main-window::pages::sequence-page::follow-playback",
+      self->priv->saved_follow_playback, NULL);
 
   g_object_set (self->priv->app, "unsaved", self->priv->unsaved, NULL);
 
