@@ -134,6 +134,7 @@ bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,
 {
   gboolean res = FALSE;
   gchar **names, **current;
+  GParamSpec *spec;
 
   g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
   g_return_val_if_fail (name != NULL, FALSE);
@@ -144,48 +145,67 @@ bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,
   while (current[1]) {
     GObject *next;
 
+    GST_LOG ("trying object %p:%s for %s", object, G_OBJECT_TYPE_NAME (object),
+        current[0]);
+
     if (!BT_IS_CHILD_PROXY (object)) {
       // what if we just do a find by object class property?
-      GParamSpec *spec =
+      spec =
           g_object_class_find_property (G_OBJECT_GET_CLASS (object),
           current[0]);
-      if (G_IS_PARAM_SPEC_OBJECT (spec)) {
+      if (spec && G_IS_PARAM_SPEC_OBJECT (spec)) {
         g_object_get (object, current[0], &next, NULL);
+        spec = NULL;
       } else {
         GST_INFO
-            ("object %p:%s is not a parent and neither has a child named %s that is an object",
-            object, G_OBJECT_TYPE_NAME (object), current[0]);
+            ("object %p:%s is not a parent and neither has a child named %s "
+            "that is an object", object, G_OBJECT_TYPE_NAME (object),
+            current[0]);
         break;
       }
     } else {
       next =
           bt_child_proxy_get_child_by_name (BT_CHILD_PROXY (object),
           current[0]);
-    }
-    if (!next) {
-      GST_INFO ("no such object %s", current[0]);
-      break;
+      if (!next) {
+        GST_INFO ("object %p:%s has no child named %s", object,
+            G_OBJECT_TYPE_NAME (object), current[0]);
+        break;
+      }
     }
     g_object_unref (object);
     object = next;
+    if (!next) {
+      GST_INFO ("%s is NULL", current[0]);
+      // we found next, but it is NULL
+      if (pspec)
+        *pspec = NULL;
+      if (target)
+        *target = NULL;
+      break;
+    }
     current++;
   }
-  if (current[1] == NULL) {
-    GParamSpec *spec =
-        g_object_class_find_property (G_OBJECT_GET_CLASS (object), current[0]);
-    if (spec == NULL) {
-      GST_INFO ("no param spec named %s", current[0]);
-    } else {
-      if (pspec)
-        *pspec = spec;
-      if (target) {
-        g_object_ref (object);
-        *target = object;
+  GST_LOG ("name loop done, object %p, name %s", object, current[0]);
+  if (object) {
+    if (current[1] == NULL) {
+      GST_LOG ("checking pspec for %s", current[0]);
+      if (!spec) {
+        spec = g_object_class_find_property (G_OBJECT_GET_CLASS (object),
+            current[0]);
       }
-      res = TRUE;
+      if (G_UNLIKELY (!spec)) {
+        GST_INFO ("no param spec named %s", current[0]);
+      } else {
+        if (pspec)
+          *pspec = spec;
+        if (target)
+          *target = g_object_ref (object);
+        res = TRUE;
+      }
     }
+    g_object_unref (object);
   }
-  g_object_unref (object);
   g_strfreev (names);
   return (res);
 }
@@ -348,8 +368,8 @@ bt_child_proxy_set_valist (GObject * object, const gchar * first_property_name,
     if (!bt_child_proxy_lookup (object, name, &target, &pspec))
       goto not_found;
 
-    g_value_init (&value, G_PARAM_SPEC_VALUE_TYPE (pspec));
-    G_VALUE_COLLECT (&value, var_args, G_VALUE_NOCOPY_CONTENTS, &error);
+    G_VALUE_COLLECT_INIT (&value, G_PARAM_SPEC_VALUE_TYPE (pspec), var_args,
+        G_VALUE_NOCOPY_CONTENTS, &error);
     if (error)
       goto cant_copy;
 
