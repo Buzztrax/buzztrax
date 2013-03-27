@@ -180,6 +180,33 @@ on_format_chooser_changed (GtkComboBox * menu, gpointer user_data)
   g_free (new_file_name);
 }
 
+static void
+on_window_mapped (GtkWidget * widget, gpointer user_data)
+{
+  BtMainWindow *self = BT_MAIN_WINDOW (user_data);
+  BtSettings *settings;
+  gboolean toolbar_hide, statusbar_hide, tabs_hide;
+
+  GST_INFO ("main_window mapped");
+
+  // eventualy hide some ui elements
+  g_object_get (self->priv->app, "settings", &settings, NULL);
+  g_object_get (settings,
+      "toolbar-hide", &toolbar_hide,
+      "statusbar-hide", &statusbar_hide, "tabs-hide", &tabs_hide, NULL);
+  g_object_unref (settings);
+
+  if (toolbar_hide) {
+    gtk_widget_hide (GTK_WIDGET (self->priv->toolbar));
+  }
+  if (statusbar_hide) {
+    gtk_widget_hide (GTK_WIDGET (self->priv->statusbar));
+  }
+  if (tabs_hide) {
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (self->priv->pages), FALSE);
+  }
+}
+
 static gboolean
 on_window_delete_event (GtkWidget * widget, GdkEvent * event,
     gpointer user_data)
@@ -422,7 +449,6 @@ bt_main_window_new (void)
 {
   BtMainWindow *self;
   BtSettings *settings;
-  gboolean toolbar_hide, statusbar_hide, tabs_hide;
   gint x, y, w, h;
 
   GST_INFO ("creating a new window");
@@ -434,22 +460,12 @@ bt_main_window_new (void)
   bt_main_window_init_ui (self);
   GST_INFO ("new main_window layouted");
 
-  // eventualy hide the toolbar
+  // restore last position
   g_object_get (self->priv->app, "settings", &settings, NULL);
   g_object_get (settings,
-      "toolbar-hide", &toolbar_hide,
-      "statusbar-hide", &statusbar_hide,
-      "tabs-hide", &tabs_hide,
       "window-xpos", &x, "window-ypos", &y, "window-width", &w, "window-height",
       &h, NULL);
   g_object_unref (settings);
-
-  // this enforces a minimum size
-  //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
-  // this causes a problem with resizing the sequence-view
-  //gtk_window_set_default_size(GTK_WINDOW(self),800,600);
-  // this is deprecated
-  //gtk_widget_set_usize(GTK_WIDGET(self), 800,600);
 
   // use position from settings
   if (w >= 0 && h >= 0) {
@@ -464,18 +480,10 @@ bt_main_window_new (void)
     gtk_window_resize (GTK_WINDOW (self), 800, 600);
   }
 
-  gtk_widget_show_all (GTK_WIDGET (self));
-  if (toolbar_hide) {
-    gtk_widget_hide (GTK_WIDGET (self->priv->toolbar));
-  }
-  if (statusbar_hide) {
-    gtk_widget_hide (GTK_WIDGET (self->priv->statusbar));
-  }
-  if (tabs_hide) {
-    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (self->priv->pages), FALSE);
-  }
+  g_signal_connect ((gpointer) self, "map",
+      G_CALLBACK (on_window_mapped), (gpointer) self);
 
-  GST_INFO ("new main_window shown");
+  GST_INFO ("new main_window created");
   return (self);
 }
 

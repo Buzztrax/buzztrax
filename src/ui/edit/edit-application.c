@@ -908,6 +908,8 @@ bt_edit_application_constructor (GType type, guint n_construct_params,
     GST_INFO ("new edit app created, app: %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (singleton));
     singleton->priv->main_window = bt_main_window_new ();
+    gtk_widget_show_all (GTK_WIDGET (singleton->priv->main_window));
+    GST_INFO ("new main_window shown");
 
     // warning: dereferencing type-punned pointer will break strict-aliasing rules
     g_object_add_weak_pointer (G_OBJECT (singleton->priv->main_window),
