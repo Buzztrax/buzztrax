@@ -864,12 +864,10 @@ on_machine_id_renamed (GtkEntry * entry, gpointer user_data)
 
   // ensure uniqueness of the entered data
   if (*name) {
-    BtSong *song;
     BtSetup *setup;
     BtMachine *machine;
 
-    g_object_get (self->priv->app, "song", &song, NULL);
-    g_object_get (song, "setup", &setup, NULL);
+    bt_child_proxy_get (self->priv->app, "song::setup", &setup, NULL);
 
     if ((machine = bt_setup_get_machine_by_id (setup, name))) {
       if (machine == cur_machine) {
@@ -880,7 +878,6 @@ on_machine_id_renamed (GtkEntry * entry, gpointer user_data)
       unique = TRUE;
     }
     g_object_unref (setup);
-    g_object_unref (song);
   }
   GST_INFO ("%s" "unique '%s'", (unique ? "" : "not "), name);
   if (unique) {
@@ -2165,13 +2162,11 @@ on_track_add_activated (GtkMenuItem * menu_item, gpointer user_data)
   label = g_list_nth_data (widgets, 0);
   if (GTK_IS_LABEL (label)) {
     const gchar *id;
-    BtSong *song;
     BtSetup *setup;
     BtMachine *machine;
 
     // get song from app and then setup from song
-    g_object_get (self->priv->app, "song", &song, NULL);
-    g_object_get (song, "setup", &setup, NULL);
+    bt_child_proxy_get (self->priv->app, "song::setup", &setup, NULL);
 
     id = gtk_label_get_text (GTK_LABEL (label));
     GST_INFO ("adding track for machine \"%s\"", id);
@@ -2196,7 +2191,6 @@ on_track_add_activated (GtkMenuItem * menu_item, gpointer user_data)
       g_object_unref (machine);
     }
     g_object_unref (setup);
-    g_object_unref (song);
   }
   g_list_free (widgets);
 }
@@ -2631,7 +2625,6 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
 
   // determine timeline and timelinetrack from cursor pos
   if (sequence_view_get_current_pos (self, &row, &track)) {
-    BtSong *song;
     gulong length, tracks;
     gboolean change = FALSE;
     gulong modifier =
@@ -2643,8 +2636,6 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     GST_DEBUG ("cursor pos : %lu/%lu, %lu/%lu", row, length, track, tracks);
     if (track > tracks)
       return (FALSE);
-
-    g_object_get (self->priv->app, "song", &song, NULL);
 
     // look up pattern for key
     if (event->keyval == GDK_space || event->keyval == GDK_period) {
@@ -3014,10 +3005,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         GST_WARNING ("  can't evaluate cursor pos");
       }
     }
-    //else if(!select) GST_INFO("  nothing assgned to this key");
-
-    // release the references
-    g_object_unref (song);
+    //else if(!select) GST_INFO("  nothing assigned to this key");
   }
   return (res);
 }
@@ -4456,7 +4444,6 @@ bt_main_page_sequence_change_logger_change (const BtChangeLogger * owner,
     case METHOD_ADD_TRACK:{
       gchar *mid;
       gulong ix;
-      BtSong *song;
       BtSetup *setup;
       BtMachine *machine;
 
@@ -4469,8 +4456,7 @@ bt_main_page_sequence_change_logger_change (const BtChangeLogger * owner,
       GST_DEBUG ("-> [%s|%lu]", mid, ix);
 
       // get song from app and then setup from song
-      g_object_get (self->priv->app, "song", &song, NULL);
-      g_object_get (song, "setup", &setup, NULL);
+      bt_child_proxy_get (self->priv->app, "song::setup", &setup, NULL);
 
       if ((machine = bt_setup_get_machine_by_id (setup, mid))) {
         sequence_add_track (self, machine, ix);
@@ -4480,7 +4466,6 @@ bt_main_page_sequence_change_logger_change (const BtChangeLogger * owner,
         res = TRUE;
       }
       g_object_unref (setup);
-      g_object_unref (song);
       g_free (mid);
       break;
     }

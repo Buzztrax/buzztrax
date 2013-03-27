@@ -223,13 +223,11 @@ static void
 machine_item_moved (const BtMainPageMachines * self,
     BtMachineCanvasItem * machine_item)
 {
-  BtMachine *machine;
   gchar *undo_str, *redo_str;
   gchar *mid;
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
 
-  g_object_get (machine_item, "machine", &machine, NULL);
-  g_object_get (machine, "id", &mid, NULL);
+  bt_child_proxy_get (machine_item, "machine::id", &mid, NULL);
 
   bt_change_log_start_group (self->priv->change_log);
 
@@ -253,7 +251,6 @@ machine_item_moved (const BtMainPageMachines * self,
   bt_change_log_end_group (self->priv->change_log);
 
   g_free (mid);
-  g_object_unref (machine);
 }
 
 // TODO(ensonic): this method probably should go to BtMachine, but on the other hand it is GUI related
@@ -900,17 +897,12 @@ on_toolbar_grid_density_off_activated (GtkMenuItem * menuitem,
     gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  BtSettings *settings;
 
   if (!gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem)))
     return;
 
   self->priv->grid_density = 0;
-
-  g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_set (settings, "grid-density", "off", NULL);
-  g_object_unref (settings);
-
+  bt_child_proxy_get (self->priv->app, "settings::grid-density", "off", NULL);
   bt_main_page_machines_draw_grid (self);
 }
 
@@ -919,17 +911,12 @@ on_toolbar_grid_density_low_activated (GtkMenuItem * menuitem,
     gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  BtSettings *settings;
 
   if (!gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem)))
     return;
 
   self->priv->grid_density = 1;
-
-  g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_set (settings, "grid-density", "low", NULL);
-  g_object_unref (settings);
-
+  bt_child_proxy_get (self->priv->app, "settings::grid-density", "low", NULL);
   bt_main_page_machines_draw_grid (self);
 }
 
@@ -938,17 +925,13 @@ on_toolbar_grid_density_mid_activated (GtkMenuItem * menuitem,
     gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  BtSettings *settings;
 
   if (!gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem)))
     return;
 
   self->priv->grid_density = 2;
-
-  g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_set (settings, "grid-density", "medium", NULL);
-  g_object_unref (settings);
-
+  bt_child_proxy_get (self->priv->app, "settings::grid-density", "medium",
+      NULL);
   bt_main_page_machines_draw_grid (self);
 }
 
@@ -957,17 +940,12 @@ on_toolbar_grid_density_high_activated (GtkMenuItem * menuitem,
     gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  BtSettings *settings;
 
   if (!gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem)))
     return;
 
   self->priv->grid_density = 3;
-
-  g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_set (settings, "grid-density", "high", NULL);
-  g_object_unref (settings);
-
+  bt_child_proxy_get (self->priv->app, "settings::grid-density", "high", NULL);
   bt_main_page_machines_draw_grid (self);
 }
 
@@ -1085,14 +1063,9 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
   } else {
     // only do this if the page was BT_MAIN_PAGES_MACHINES_PAGE
     if (prev_page_num == BT_MAIN_PAGES_MACHINES_PAGE) {
-      BtMainWindow *main_window;
       GST_DEBUG ("leave machine page");
-
-      g_object_get (self->priv->app, "main-window", &main_window, NULL);
-      if (main_window) {
-        bt_child_proxy_set (main_window, "statusbar::status", NULL, NULL);
-        g_object_unref (main_window);
-      }
+      bt_child_proxy_set (self->priv->app,
+          "main-window::statusbar::status", NULL, NULL);
     }
   }
   prev_page_num = page_num;
@@ -1596,8 +1569,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->vol_popup_adj =
       gtk_adjustment_new (100.0, 0.0, 400.0, 1.0, 10.0, 1.0);
   self->priv->vol_popup =
-      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->
-              priv->vol_popup_adj)));
+      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->priv->
+              vol_popup_adj)));
   g_signal_connect (self->priv->vol_popup_adj, "value-changed",
       G_CALLBACK (on_volume_popup_changed), (gpointer) self);
 
@@ -1605,8 +1578,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->pan_popup_adj =
       gtk_adjustment_new (0.0, -100.0, 100.0, 1.0, 10.0, 1.0);
   self->priv->pan_popup =
-      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->
-              priv->pan_popup_adj)));
+      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->priv->
+              pan_popup_adj)));
   g_signal_connect (self->priv->pan_popup_adj, "value-changed",
       G_CALLBACK (on_panorama_popup_changed), (gpointer) self);
 
@@ -1832,7 +1805,6 @@ void
 bt_main_page_machines_delete_machine (const BtMainPageMachines * self,
     BtMachine * machine)
 {
-  BtMainWindow *main_window;
   BtMainPageSequence *sequence_page;
   GHashTable *properties;
   gchar *undo_str, *redo_str;
@@ -1940,16 +1912,14 @@ bt_main_page_machines_delete_machine (const BtMainPageMachines * self,
   // in theory we we don't need to block it, as we are removing the machine anyway and thus disconnecting
   // but if we disconnect here, disconnecting them on the sequence page would fail
   pattern_removed_id = g_signal_lookup ("pattern-removed", BT_TYPE_MACHINE);
-  g_object_get (self->priv->app, "main-window", &main_window, NULL);
-  bt_child_proxy_get (main_window, "pages::sequence-page", &sequence_page,
-      NULL);
+  bt_child_proxy_get (self->priv->app, "main-window::pages::sequence-page",
+      &sequence_page, NULL);
   g_signal_handlers_block_matched (machine,
       G_SIGNAL_MATCH_ID | G_SIGNAL_MATCH_DATA, pattern_removed_id, 0, NULL,
       NULL, (gpointer) sequence_page);
   bt_setup_remove_machine (self->priv->setup, machine);
 
   g_object_unref (sequence_page);
-  g_object_unref (main_window);
 
   bt_change_log_end_group (self->priv->change_log);
 
@@ -2318,23 +2288,18 @@ static gboolean
 bt_main_page_machines_focus (GtkWidget * widget, GtkDirectionType direction)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (widget);
-  BtMainWindow *main_window;
 
   GST_DEBUG ("focusing default widget");
   gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->canvas));
 
-  /* use status bar */
-  g_object_get (self->priv->app, "main-window", &main_window, NULL);
-  if (main_window) {
-    /* it would be nice if we could just do:
-     * bt_child_proxy_set(self->priv->app,"main-window::statusbar::status",_(".."),NULL);
-     */
-    bt_child_proxy_set (main_window, "statusbar::status",
-        _
-        ("Add new machines from right click context menu. Connect machines with shift+drag from source to target."),
-        NULL);
-    g_object_unref (main_window);
-  }
+  /* update status bar */
+
+  // FIXME: window might be NULL
+  // in this case we can't continue the lookup and take the property off the
+  // va_arg stack
+  bt_child_proxy_set (self->priv->app, "main-window::statusbar::status",
+      _("Add new machines from right click context menu. "
+          "Connect machines with shift+drag from source to target."), NULL);
   return FALSE;
 }
 

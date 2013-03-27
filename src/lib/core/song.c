@@ -140,14 +140,11 @@ struct _BtSongPrivate
 
 static void bt_song_persistence_interface_init (gpointer const g_iface,
     gpointer const iface_data);
-static void bt_song_child_proxy_init (gpointer const g_iface,
-    gpointer iface_data);
 
 
 G_DEFINE_TYPE_WITH_CODE (BtSong, bt_song, G_TYPE_OBJECT,
     G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
-        bt_song_persistence_interface_init)
-    G_IMPLEMENT_INTERFACE (BT_TYPE_CHILD_PROXY, bt_song_child_proxy_init));
+        bt_song_persistence_interface_init));
 
 
 //-- helper
@@ -1230,73 +1227,6 @@ bt_song_write_to_lowlevel_dot_file (const BtSong * const self)
   GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (self->priv->bin, GST_DEBUG_GRAPH_SHOW_ALL,
       /*GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS|GST_DEBUG_GRAPH_SHOW_STATES, */
       PACKAGE_NAME);
-}
-
-//-- child proxy interface
-
-static GObject *
-bt_song_child_proxy_get_child_by_name (BtChildProxy * child_proxy,
-    const gchar * name)
-{
-  const BtSong *const self = BT_SONG (child_proxy);
-  GObject *res = NULL;
-
-  if (!name)
-    return NULL;
-
-  if (!strcmp (name, "song-info"))
-    res = (GObject *) self->priv->song_info;
-  else if (!strcmp (name, "sequence"))
-    res = (GObject *) self->priv->sequence;
-  else if (!strcmp (name, "setup"))
-    res = (GObject *) self->priv->setup;
-  else if (!strcmp (name, "wavtable"))
-    res = (GObject *) self->priv->wavetable;
-
-  if (res)
-    g_object_ref (res);
-  return res;
-}
-
-static GObject *
-bt_song_child_proxy_get_child_by_index (BtChildProxy * child_proxy, guint index)
-{
-  const BtSong *const self = BT_SONG (child_proxy);
-  GObject *res = NULL;
-
-  switch (index) {
-    case 0:
-      res = (GObject *) self->priv->song_info;
-      break;
-    case 1:
-      res = (GObject *) self->priv->sequence;
-      break;
-    case 2:
-      res = (GObject *) self->priv->setup;
-      break;
-    case 3:
-      res = (GObject *) self->priv->wavetable;
-      break;
-  }
-  if (res)
-    g_object_ref (res);
-  return res;
-}
-
-guint
-bt_song_child_proxy_get_children_count (BtChildProxy * child_proxy)
-{
-  return 4;
-}
-
-static void
-bt_song_child_proxy_init (gpointer const g_iface, gpointer iface_data)
-{
-  BtChildProxyInterface *iface = g_iface;
-
-  iface->get_child_by_name = bt_song_child_proxy_get_child_by_name;
-  iface->get_child_by_index = bt_song_child_proxy_get_child_by_index;
-  iface->get_children_count = bt_song_child_proxy_get_children_count;
 }
 
 //-- io interface

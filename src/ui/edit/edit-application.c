@@ -97,15 +97,12 @@ on_songio_status_changed (BtSongIO * songio, GParamSpec * arg,
     gpointer user_data)
 {
   BtEditApplication *self = BT_EDIT_APPLICATION (user_data);
-  BtMainStatusbar *statusbar;
   gchar *str;
 
   /* IDEA(ensonic): bind properties */
-  g_object_get (self->priv->main_window, "statusbar", &statusbar, NULL);
   g_object_get (songio, "status", &str, NULL);
   GST_INFO ("songio_status has changed : \"%s\"", safe_string (str));
-  g_object_set (statusbar, "status", str, NULL);
-  g_object_unref (statusbar);
+  bt_child_proxy_set (self->priv->main_window, "statusbar::status", str, NULL);
   g_free (str);
 }
 
@@ -116,14 +113,10 @@ on_changelog_can_undo_changed (BtChangeLog * change_log, GParamSpec * arg,
   BtEditApplication *self = BT_EDIT_APPLICATION (user_data);
 
   if (self->priv->need_dts_reset) {
-    BtSongInfo *song_info;
-
     self->priv->need_dts_reset = FALSE;
-    g_object_get (self->priv->song, "song-info", &song_info, NULL);
-    // this updates the time-stamp (we need that to show the since when we have
-    // unsaved changes, if some one closes the song)
-    g_object_set (song_info, "change-dts", NULL, NULL);
-    g_object_unref (song_info);
+    // this updates the time-stamp (we need that, to show the since when we have
+    // unsaved changes, if someone closes the song)
+    bt_child_proxy_set (self->priv->song, "song-info::change-dts", NULL, NULL);
   }
 }
 
@@ -291,8 +284,6 @@ bt_edit_application_new_song (const BtEditApplication * self)
   gboolean res = FALSE;
   BtSong *song;
   BtSetup *setup;
-  BtSequence *sequence;
-  BtSongInfo *song_info;
   BtMachine *machine;
   gchar *id;
   gulong bars;
@@ -303,11 +294,9 @@ bt_edit_application_new_song (const BtEditApplication * self)
   // create new song
   song = bt_song_new (BT_APPLICATION (self));
 
-  g_object_get (song, "setup", &setup, "sequence", &sequence, "song-info",
-      &song_info, NULL);
+  bt_child_proxy_get (song, "setup", &setup, "song-info::bars", &bars, NULL);
   // make initial song length 4 timelines
-  g_object_get (song_info, "bars", &bars, NULL);
-  g_object_set (sequence, "length", bars * 4, NULL);
+  bt_child_proxy_set (song, "sequence::length", bars * 4, NULL);
   // add audiosink
   id = bt_setup_get_unique_machine_id (setup, "master");
   machine = BT_MACHINE (bt_sink_machine_new (song, id, &err));
@@ -346,9 +335,7 @@ bt_edit_application_new_song (const BtEditApplication * self)
   g_object_notify (G_OBJECT (self), "unsaved");
 
   // release references
-  g_object_unref (song_info);
   g_object_unref (setup);
-  g_object_unref (sequence);
   g_object_unref (song);
   return (res);
 }
@@ -376,7 +363,6 @@ bt_edit_application_load_song (const BtEditApplication * self,
 
   if ((loader = bt_song_io_from_file (file_name))) {
     BtSetup *setup;
-    BtWavetable *wavetable;
     GList *missing_machines, *missing_waves;
 
     bt_edit_application_ui_lock (self);
@@ -442,9 +428,8 @@ bt_edit_application_load_song (const BtEditApplication * self,
     bt_edit_application_ui_unlock (self);
 
     // get missing element info
-    g_object_get (song, "setup", &setup, "wavetable", &wavetable, NULL);
-    g_object_get (setup, "missing-machines", &missing_machines, NULL);
-    g_object_get (wavetable, "missing-waves", &missing_waves, NULL);
+    bt_child_proxy_get (song, "setup::missing-machines", &missing_machines,
+        "wavetable::missing-waves", &missing_waves, NULL);
     // tell about missing machines and/or missing waves
     if (missing_machines || missing_waves) {
       GtkWidget *dialog;
@@ -459,8 +444,6 @@ bt_edit_application_load_song (const BtEditApplication * self,
         gtk_widget_destroy (dialog);
       }
     }
-    g_object_unref (setup);
-    g_object_unref (wavetable);
     g_object_unref (song);
     g_object_unref (loader);
   } else {
@@ -490,16 +473,14 @@ bt_edit_application_save_song (const BtEditApplication * self,
   GST_INFO ("song name = %s", file_name);
 
   if ((saver = bt_song_io_from_file (file_name))) {
-    BtSongInfo *song_info;
     gchar *old_file_name = NULL, *bak_file_name = NULL;
 
     bt_edit_application_ui_lock (self);
     g_signal_connect (saver, "notify::status",
         G_CALLBACK (on_songio_status_changed), (gpointer) self);
 
-    g_object_get (self->priv->song, "song-info", &song_info, NULL);
-    g_object_get (song_info, "file-name", &old_file_name, NULL);
-    g_object_unref (song_info);
+    bt_child_proxy_get (self->priv->song, "song-info::file-name",
+        &old_file_name, NULL);
 
     /* save file saving (bak files)
      * save
@@ -750,8 +731,8 @@ bt_edit_application_ui_lock (const BtEditApplication * self)
 {
   GdkCursor *cursor = gdk_cursor_new (GDK_WATCH);
 
-  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
-              main_window)), cursor);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
+              priv->main_window)), cursor);
   gdk_cursor_unref (cursor);
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), FALSE);
 
@@ -769,8 +750,8 @@ void
 bt_edit_application_ui_unlock (const BtEditApplication * self)
 {
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), TRUE);
-  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
-              main_window)), NULL);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
+              priv->main_window)), NULL);
 }
 
 /**

@@ -345,7 +345,6 @@ bt_sequence_grid_model_new (BtSequence * sequence, BtSongInfo * song_info,
     gulong bars)
 {
   BtSequenceGridModel *self;
-  BtSong *song;
 
   self = g_object_new (BT_TYPE_SEQUENCE_GRID_MODEL, NULL);
 
@@ -367,13 +366,9 @@ bt_sequence_grid_model_new (BtSequence * sequence, BtSongInfo * song_info,
   on_sequence_tracks_changed (sequence, NULL, (gpointer) self);
   on_sequence_length_changed (sequence, NULL, (gpointer) self);
 
-  g_object_get (sequence, "song", &song, NULL);
-  g_object_get (song, "song-info", &song_info, NULL);
   g_object_get (song_info, "tpb", &self->priv->ticks_per_beat, NULL);
   g_signal_connect (song_info, "notify::tpb",
       G_CALLBACK (on_song_info_tpb_changed), (gpointer) self);
-  g_object_unref (song_info);
-  g_object_unref (song);
 
   // follow sequence grid size changes
   g_signal_connect (sequence, "notify::length",

@@ -121,8 +121,8 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     // disable stop button
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->stop_button), FALSE);
     // switch off play button
-    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-            play_button), FALSE);
+    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+            priv->play_button), FALSE);
     // enable play button
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->play_button), TRUE);
     // reset level meters
@@ -142,13 +142,13 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     bt_song_update_playback_position (song);
 
     // if we started playback remotely activate playbutton
-    if (!gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-                play_button))) {
+    if (!gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (self->
+                priv->play_button))) {
       g_signal_handlers_block_matched (self->priv->play_button,
           G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
           on_toolbar_play_clicked, (gpointer) self);
-      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-              play_button), TRUE);
+      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+              priv->play_button), TRUE);
       g_signal_handlers_unblock_matched (self->priv->play_button,
           G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
           on_toolbar_play_clicked, (gpointer) self);
@@ -239,31 +239,20 @@ static void
 on_toolbar_loop_toggled (GtkButton * button, gpointer user_data)
 {
   BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
-  BtSong *song;
-  BtSequence *sequence;
-  gboolean loop;
+  gboolean loop =
+      gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (button));
 
-  loop = gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (button));
   GST_INFO ("toolbar loop toggle event occurred, new-state=%d", loop);
-  // get song from app
-  g_object_get (self->priv->app, "song", &song, NULL);
-  g_object_get (song, "sequence", &sequence, NULL);
-  g_object_set (sequence, "loop", loop, NULL);
+  bt_child_proxy_set (self->priv->app, "song::sequence::loop", loop, NULL);
   bt_edit_application_set_song_unsaved (self->priv->app);
-  // release the references
-  g_object_unref (sequence);
-  g_object_unref (song);
 }
 
 static void
 set_new_playback_rate (BtMainToolbar * self, gdouble playback_rate)
 {
-  BtSong *song;
-
   self->priv->playback_rate = playback_rate;
-  g_object_get (self->priv->app, "song", &song, NULL);
-  g_object_set (song, "play-rate", self->priv->playback_rate, NULL);
-  g_object_unref (song);
+  bt_child_proxy_set (self->priv->app, "song::play-rate",
+      self->priv->playback_rate, NULL);
 }
 
 static void
@@ -457,18 +446,10 @@ on_song_warning (const GstBus * const bus, GstMessage * message,
       err->message, desc, (dbg ? dbg : "no debug"));
 
   if (!self->priv->has_error) {
-    BtSong *song;
     BtMainWindow *main_window;
 
-    // get song from app
-    g_object_get (self->priv->app, "song", &song, "main-window", &main_window,
-        NULL);
-    //bt_song_stop(song);
-
+    g_object_get (self->priv->app, "main-window", &main_window, NULL);
     bt_dialog_message (main_window, _("Warning"), err->message, desc);
-
-    // release the reference
-    g_object_unref (song);
     g_object_unref (main_window);
   }
   g_error_free (err);
@@ -764,8 +745,8 @@ on_sequence_loop_notify (const BtSequence * sequence, GParamSpec * arg,
   g_signal_handlers_block_matched (self->priv->loop_button,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_toolbar_loop_toggled, (gpointer) self);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-          loop_button), loop);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+          priv->loop_button), loop);
   g_signal_handlers_unblock_matched (self->priv->loop_button,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_toolbar_loop_toggled, (gpointer) self);

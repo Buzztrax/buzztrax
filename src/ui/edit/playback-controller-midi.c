@@ -105,14 +105,14 @@ static void
 on_registry_devices_changed (BtIcRegistry * const registry,
     const GParamSpec * const arg, gconstpointer const user_data)
 {
-  BtPlaybackControllerMidi *self = BT_PLAYBACK_CONTROLLER_MIDI (user_data);
-  GList *list;
+  //BtPlaybackControllerMidi *self = BT_PLAYBACK_CONTROLLER_MIDI (user_data);
+  //GList *list;
 
   GST_INFO ("devices changed");
 
-  g_object_get (registry, "devices", &list, NULL);
-  // update list in self, start/stop devices if we're active
-  g_list_free (list);
+  //g_object_get (registry, "devices", &list, NULL);
+  // TODO(ensonic) update list in self, start/stop devices if we're active
+  //g_list_free (list);
 }
 
 static void

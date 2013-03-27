@@ -371,15 +371,11 @@ bt_cmd_application_play (const BtCmdApplication * self,
   GST_INFO ("objects initialized");
 
   if (bt_song_io_load (loader, song)) {
-    BtSetup *setup;
-    BtWavetable *wavetable;
     GList *node, *missing_machines, *missing_waves;
 
-    g_object_get ((gpointer) song, "setup", &setup, "wavetable", &wavetable,
-        NULL);
     // get missing element info
-    g_object_get (setup, "missing-machines", &missing_machines, NULL);
-    g_object_get (wavetable, "missing-waves", &missing_waves, NULL);
+    bt_child_proxy_get ((gpointer) song, "setup::missing-machines",
+        &missing_machines, "wavetable::missing-waves", &missing_waves, NULL);
 
     if (missing_machines || missing_waves) {
       printf ("could not load all of song\"%s\"\n", input_file_name);
@@ -396,8 +392,6 @@ bt_cmd_application_play (const BtCmdApplication * self,
         printf ("  %s\n", (gchar *) (node->data));
       }
     }
-    g_object_unref (setup);
-    g_object_unref (wavetable);
 
     GST_INFO ("start playback");
     if (bt_cmd_application_play_song (self, song)) {

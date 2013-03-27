@@ -396,60 +396,38 @@ static void
 on_menu_view_toolbar_toggled (GtkMenuItem * menuitem, gpointer user_data)
 {
   BtMainMenu *self = BT_MAIN_MENU (user_data);
-  BtMainToolbar *toolbar;
-  BtSettings *settings;
-  gboolean shown;
+  gboolean shown =
+      gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem));
 
   GST_INFO ("menu 'view toolbar' event occurred");
-  g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_get (self->priv->main_window, "toolbar", &toolbar, NULL);
-
-  shown = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem));
-  g_object_set (toolbar, "visible", shown, NULL);
-  g_object_set (settings, "toolbar-hide", !shown, NULL);
-
-  g_object_unref (toolbar);
-  g_object_unref (settings);
+  bt_child_proxy_set (self->priv->app, "settings::toolbar-hide", !shown, NULL);
+  bt_child_proxy_set (self->priv->main_window, "toolbar::visible", shown, NULL);
 }
 
 static void
 on_menu_view_statusbar_toggled (GtkMenuItem * menuitem, gpointer user_data)
 {
   BtMainMenu *self = BT_MAIN_MENU (user_data);
-  BtMainStatusbar *statusbar;
-  BtSettings *settings;
-  gboolean shown;
+  gboolean shown =
+      gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem));
 
-  GST_INFO ("menu 'view toolbar' event occurred");
-  g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_get (self->priv->main_window, "statusbar", &statusbar, NULL);
-
-  shown = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem));
-  g_object_set (statusbar, "visible", shown, NULL);
-  g_object_set (settings, "statusbar-hide", !shown, NULL);
-
-  g_object_unref (statusbar);
-  g_object_unref (settings);
+  GST_INFO ("menu 'view statusbar' event occurred");
+  bt_child_proxy_set (self->priv->app, "settings::statusbar-hide", !shown,
+      NULL);
+  bt_child_proxy_set (self->priv->main_window, "statusbar::visible", shown,
+      NULL);
 }
 
 static void
 on_menu_view_tabs_toggled (GtkMenuItem * menuitem, gpointer user_data)
 {
   BtMainMenu *self = BT_MAIN_MENU (user_data);
-  BtMainPages *pages;
-  BtSettings *settings;
-  gboolean shown;
+  gboolean shown =
+      gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem));
 
   GST_INFO ("menu 'view tabs' event occurred");
-  g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_get (self->priv->main_window, "pages", &pages, NULL);
-
-  shown = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (menuitem));
-  g_object_set (pages, "show-tabs", shown, NULL);
-  g_object_set (settings, "tabs-hide", !shown, NULL);
-
-  g_object_unref (pages);
-  g_object_unref (settings);
+  bt_child_proxy_set (self->priv->app, "settings::tabs-hide", !shown, NULL);
+  bt_child_proxy_set (self->priv->main_window, "pages::show-tabs", shown, NULL);
 }
 
 static void
@@ -552,18 +530,13 @@ on_menu_play_from_cursor_activate (GtkMenuItem * menuitem, gpointer user_data)
 {
   BtMainMenu *self = BT_MAIN_MENU (user_data);
   BtSong *song;
-  BtMainPages *pages;
-  BtMainPageSequence *sequence_page;
-  glong pos = 0;
+  glong pos;
 
   // get song from app and seek to cursor
   g_object_get (self->priv->app, "song", &song, NULL);
-  g_object_get (self->priv->main_window, "pages", &pages, NULL);
-  g_object_get (pages, "sequence-page", &sequence_page, NULL);
-  g_object_get (sequence_page, "cursor-row", &pos, NULL);
+  bt_child_proxy_get (self->priv->main_window,
+      "pages::sequence-page::cursor-row", &pos, NULL);
   g_object_set (song, "play-pos", pos, NULL);
-  g_object_unref (sequence_page);
-  g_object_unref (pages);
   // play
   if (!bt_song_play (song)) {
     GST_WARNING ("failed to play");
@@ -712,13 +685,11 @@ on_menu_debug_dump_pipeline_graph_and_show (GtkMenuItem * menuitem,
   const gchar *path;
 
   if ((path = g_getenv ("GST_DEBUG_DUMP_DOT_DIR"))) {
-    BtSong *song;
     GstBin *bin;
     gchar *cmd;
     GError *error = NULL;
 
-    g_object_get (self->priv->app, "song", &song, NULL);
-    g_object_get (song, "bin", &bin, NULL);
+    bt_child_proxy_get (self->priv->app, "song::bin", &bin, NULL);
 
     GST_INFO_OBJECT (bin, "dump dot graph as %s with 0x%x details",
         self->priv->debug_graph_format, self->priv->debug_graph_details);
@@ -728,7 +699,6 @@ on_menu_debug_dump_pipeline_graph_and_show (GtkMenuItem * menuitem,
 
     // release the reference
     gst_object_unref (bin);
-    g_object_unref (song);
 
     // convert file
     cmd =

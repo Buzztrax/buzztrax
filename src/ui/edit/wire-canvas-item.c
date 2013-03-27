@@ -423,7 +423,6 @@ bt_wire_canvas_item_new (const BtMainPageMachines * main_page_machines,
 {
   BtWireCanvasItem *self;
   GnomeCanvas *canvas;
-  BtSong *song;
   BtSetup *setup;
   gdouble w, h;
 
@@ -443,15 +442,13 @@ bt_wire_canvas_item_new (const BtMainPageMachines * main_page_machines,
           "h", h, "src", src_machine_item, "dst", dst_machine_item, NULL));
   gnome_canvas_item_lower_to_bottom (GNOME_CANVAS_ITEM (self));
 
-  g_object_get (self->priv->app, "song", &song, NULL);
-  g_object_get (song, "setup", &setup, NULL);
+  bt_child_proxy_get (self->priv->app, "song::setup", &setup, NULL);
   g_signal_connect (setup, "machine-removed", G_CALLBACK (on_machine_removed),
       (gpointer) self);
 
   //GST_INFO("wire canvas item added");
 
   g_object_unref (setup);
-  g_object_unref (song);
   g_object_unref (canvas);
   return (self);
 }

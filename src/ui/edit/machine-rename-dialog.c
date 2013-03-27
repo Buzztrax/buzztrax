@@ -97,7 +97,6 @@ bt_machine_rename_dialog_init_ui (const BtMachineRenameDialog * self)
   GtkWidget *box, *label, *widget, *table;
   gchar *title;
   //GdkPixbuf *window_icon=NULL;
-  BtSong *song;
 
   gtk_widget_set_name (GTK_WIDGET (self), "rename machine");
 
@@ -110,10 +109,8 @@ bt_machine_rename_dialog_init_ui (const BtMachineRenameDialog * self)
    */
 
   // get dialog data
-  g_object_get (self->priv->machine, "id", &self->priv->name, "song", &song,
-      NULL);
-  g_object_get (song, "setup", &self->priv->setup, NULL);
-  g_object_unref (song);
+  bt_child_proxy_get (self->priv->machine, "id", &self->priv->name,
+      "song::setup", &self->priv->setup, NULL);
 
   // set dialog title
   title = g_strdup_printf (_("%s name"), self->priv->name);

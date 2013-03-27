@@ -167,16 +167,14 @@ bt_missing_framework_elements_dialog_init_ui (const
         ("The elements listed below are missing from your installation, but are required."));
   }
   if (self->priv->edit_elements) {
-    BtSettings *settings;
     gchar *machine_ignore_list;
     GList *edit_elements = NULL;
 
     GST_DEBUG ("%d missing edit elements",
         g_list_length (self->priv->edit_elements));
 
-    g_object_get (self->priv->app, "settings", &settings, NULL);
-    g_object_get (settings, "missing-machines", &machine_ignore_list, NULL);
-    g_object_unref (settings);
+    bt_child_proxy_get (self->priv->app, "settings::missing-machines",
+        &machine_ignore_list, NULL);
 
     if (machine_ignore_list) {
       GList *node;

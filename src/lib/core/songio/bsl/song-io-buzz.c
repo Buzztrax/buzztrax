@@ -2308,7 +2308,6 @@ bt_song_io_buzz_load (gconstpointer const _self, const BtSong * const song)
           read_pdlg_section (self, song) && read_midi_section (self, song)
           ) {
         if (file_name) {
-          BtSongInfo *song_info;
           gchar *str, *name;
 
           // file_name is last part from file_path
@@ -2322,9 +2321,8 @@ bt_song_io_buzz_load (gconstpointer const _self, const BtSong * const song)
           if (str)
             *str = '\0';
 
-          g_object_get (G_OBJECT (song), "song-info", &song_info, NULL);
-          g_object_set (G_OBJECT (song_info), "name", name, NULL);
-          g_object_try_unref (song_info);
+          bt_child_proxy_set ((GObject *) (song), "song-info::name", name,
+              NULL);
         }
         result = TRUE;
       }

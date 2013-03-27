@@ -243,7 +243,6 @@ bt_song_io_update_filename (const BtSongIO * const self,
     const BtSong * const song)
 {
   if (self->priv->file_name) {
-    BtSongInfo *song_info;
     gchar *file_path = self->priv->file_name;
     gboolean need_free = FALSE;
 
@@ -254,9 +253,8 @@ bt_song_io_update_filename (const BtSongIO * const self,
       need_free = TRUE;
     }
     GST_INFO ("file path is : %s", file_path);
-    g_object_get ((gpointer) song, "song-info", &song_info, NULL);
-    g_object_set (song_info, "file-name", file_path, NULL);
-    g_object_unref (song_info);
+    bt_child_proxy_set ((gpointer) song, "song-info::file-name", file_path,
+        NULL);
     if (need_free) {
       g_free (file_path);
     }
@@ -423,7 +421,6 @@ gboolean
 bt_song_io_save (BtSongIO const *self, const BtSong * const song)
 {
   gboolean result;
-  BtSongInfo *const song_info;
   bt_song_io_virtual_save save;
 
   g_return_val_if_fail (BT_IS_SONG_IO (self), FALSE);
@@ -439,10 +436,8 @@ bt_song_io_save (BtSongIO const *self, const BtSong * const song)
         self, song);
     return (FALSE);
   }
-  // this updates the time-stamp
-  g_object_get ((gpointer) song, "song-info", &song_info, NULL);
-  g_object_set (song_info, "change-dts", NULL, NULL);
-  g_object_unref (song_info);
+  // update the time-stamp
+  bt_child_proxy_set ((gpointer) song, "song-info::change-dts", NULL, NULL);
 
   g_object_set ((gpointer) song, "song-io", self, NULL);
   if ((result = BT_SONG_IO_GET_CLASS (self)->save (self, song))) {

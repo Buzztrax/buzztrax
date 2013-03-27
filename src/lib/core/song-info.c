@@ -327,11 +327,10 @@ bt_song_info_persistence_save (const BtPersistence * const persistence,
 
   if ((node = xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("meta"), NULL))) {
     if (!strcmp (self->priv->name, DEFAULT_SONG_NAME)) {
-      BtSongIONative *song_io;
       gchar *file_path, *file_name, *ext;
 
-      g_object_get (self->priv->song, "song-io", &song_io, NULL);
-      g_object_get (song_io, "file-name", &file_path, NULL);
+      bt_child_proxy_get (self->priv->song, "song-io::file-name", &file_path,
+          NULL);
       file_name = g_path_get_basename (file_path);
       if ((ext = strrchr (file_name, '.'))) {
         *ext = '\0';
@@ -340,7 +339,6 @@ bt_song_info_persistence_save (const BtPersistence * const persistence,
       g_object_set ((gpointer) self, "name", file_name, NULL);
       g_free (file_name);
       g_free (file_path);
-      g_object_unref (song_io);
     }
 
     if (self->priv->info) {
@@ -368,11 +366,11 @@ bt_song_info_persistence_save (const BtPersistence * const persistence,
           XML_CHAR_PTR (self->priv->change_dts));
     }
     xmlNewChild (node, NULL, XML_CHAR_PTR ("bpm"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->
-                beats_per_minute)));
+        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->
+                priv->beats_per_minute)));
     xmlNewChild (node, NULL, XML_CHAR_PTR ("tpb"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->
-                ticks_per_beat)));
+        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->
+                priv->ticks_per_beat)));
     xmlNewChild (node, NULL, XML_CHAR_PTR ("bars"),
         XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->bars)));
   }

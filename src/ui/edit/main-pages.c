@@ -72,7 +72,6 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 {
   BtMainPages *self = BT_MAIN_PAGES (user_data);
   BtSong *song;
-  BtSetup *setup;
   GHashTable *properties;
   gchar *prop;
 
@@ -83,8 +82,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
     return;
   }
   // restore page
-  g_object_get (song, "setup", &setup, NULL);
-  g_object_get (setup, "properties", &properties, NULL);
+  bt_child_proxy_get (song, "setup::properties", &properties, NULL);
   if ((prop = (gchar *) g_hash_table_lookup (properties, "active-page"))) {
     guint page = atoi (prop);
 
@@ -92,7 +90,6 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
     GST_INFO ("reactivate page %d", page);
   }
   // release the reference
-  g_object_unref (setup);
   g_object_unref (song);
   GST_INFO ("song has changed done");
 }
@@ -102,7 +99,6 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
 {
   BtMainPages *self = BT_MAIN_PAGES (user_data);
   BtSong *song;
-  BtSetup *setup;
   GHashTable *properties;
   GtkWidget *page;
   gchar *prop;
@@ -122,13 +118,11 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
   GTK_WIDGET_GET_CLASS (page)->focus (page, GTK_DIR_TAB_FORWARD);
 
   // remember page
-  g_object_get (song, "setup", &setup, NULL);
-  g_object_get (setup, "properties", &properties, NULL);
+  bt_child_proxy_get (song, "setup::properties", &properties, NULL);
   prop = g_strdup_printf ("%u", page_num);
   g_hash_table_insert (properties, g_strdup ("active-page"), prop);
 
   // release the reference
-  g_object_unref (setup);
   g_object_unref (song);
   GST_INFO ("page-switched done");
 }

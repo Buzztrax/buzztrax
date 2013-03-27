@@ -1074,7 +1074,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   gtk_container_add (GTK_CONTAINER (self), vbox);
 
   /* TODO(ensonic): better error handling
-   * - don't fail if we miss only spectrum or level
+   * - don't fail if we miss only spectrum or bt_child_proxy_set (self->priv->app, "level
    * - also don't return false, but instead add a label with the error message
    */
 
@@ -1240,10 +1240,7 @@ bt_signal_analysis_dialog_dispose (GObject * object)
   if (BT_IS_WIRE (self->priv->element)) {
     g_object_set (self->priv->element, "analyzers", NULL, NULL);
   } else {
-    GstElement *machine;
-    g_object_get (self->priv->element, "machine", &machine, NULL);
-    g_object_set (machine, "analyzers", NULL, NULL);
-    g_object_unref (machine);
+    bt_child_proxy_set (self->priv->element, "machine::analyzers", NULL, NULL);
   }
 
   g_object_unref (self->priv->element);

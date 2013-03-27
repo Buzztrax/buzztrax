@@ -71,12 +71,7 @@ static gint n_drop_types = sizeof (drop_types) / sizeof (GtkTargetEntry);
 
 //-- the class
 
-static void bt_main_window_child_proxy_init (gpointer const g_iface,
-    gconstpointer const iface_data);
-
-G_DEFINE_TYPE_WITH_CODE (BtMainWindow, bt_main_window, GTK_TYPE_WINDOW,
-    G_IMPLEMENT_INTERFACE (BT_TYPE_CHILD_PROXY,
-        bt_main_window_child_proxy_init));
+G_DEFINE_TYPE (BtMainWindow, bt_main_window, GTK_TYPE_WINDOW);
 
 
 //-- helper methods
@@ -235,7 +230,6 @@ on_song_unsaved_changed (const GObject * object, GParamSpec * arg,
   BtMainWindow *self = BT_MAIN_WINDOW (user_data);
   gboolean unsaved = bt_edit_application_is_song_unsaved (self->priv->app);
   BtSong *song;
-  BtSongInfo *song_info;
   gchar *title, *name;
 
   // compose title
@@ -243,8 +237,7 @@ on_song_unsaved_changed (const GObject * object, GParamSpec * arg,
   if (!song)
     return;
 
-  g_object_get (song, "song-info", &song_info, NULL);
-  g_object_get (song_info, "name", &name, NULL);
+  bt_child_proxy_get (song, "song-info::name", &name, NULL);
   // we don't use PACKAGE_NAME = 'buzztard' for the window title
   title =
       g_strdup_printf ("%s (%s) - Buzztard", name,
@@ -253,11 +246,7 @@ on_song_unsaved_changed (const GObject * object, GParamSpec * arg,
   gtk_window_set_title (GTK_WINDOW (self), title);
   g_free (title);
   //-- release the references
-  g_object_unref (song_info);
   g_object_unref (song);
-
-  GST_INFO ("song.unsaved has changed : song=%p, menu=%p, unsaved=%d", song,
-      user_data, unsaved);
 }
 
 static void
@@ -573,7 +562,6 @@ bt_main_window_new_song (const BtMainWindow * self)
 void
 bt_main_window_open_song (const BtMainWindow * self)
 {
-  BtSettings *settings;
   gint result;
   gchar *folder_name, *file_name = NULL;
   GtkFileFilter *filter, *filter_all;
@@ -620,8 +608,8 @@ bt_main_window_open_song (const BtMainWindow * self)
 
   // set a default songs folder
   //gtk_file_chooser_set_current_folder(self->priv->file_chooser,DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
-  g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_get (settings, "song-folder", &folder_name, NULL);
+  bt_child_proxy_get (self->priv->app, "settings::song-folder", &folder_name,
+      NULL);
   // reuse last folder (store in self, if we loaded something
   gtk_file_chooser_set_current_folder (self->priv->file_chooser,
       self->priv->last_folder ? self->priv->last_folder : folder_name);
@@ -630,7 +618,6 @@ bt_main_window_open_song (const BtMainWindow * self)
   // TODO(ensonic): if folder != default it would be nice to show the default as well, unfortunately we can't name the shortcuts
   // - maybe we should only install real demo songs
   g_free (folder_name);
-  g_object_unref (settings);
 
   gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
   g_object_notify ((gpointer) self, "dialog");
@@ -689,14 +676,11 @@ bt_main_window_open_song (const BtMainWindow * self)
 void
 bt_main_window_save_song (const BtMainWindow * self)
 {
-  BtSong *song;
-  BtSongInfo *song_info;
   gchar *file_name = NULL;
 
   // get songs file-name
-  g_object_get (self->priv->app, "song", &song, NULL);
-  g_object_get (song, "song-info", &song_info, NULL);
-  g_object_get (song_info, "file-name", &file_name, NULL);
+  bt_child_proxy_get (self->priv->app, "song::song-info::file-name", &file_name,
+      NULL);
 
   // check the file_name of the song
   if (file_name) {
@@ -712,8 +696,6 @@ bt_main_window_save_song (const BtMainWindow * self)
     bt_main_window_save_song_as (self);
   }
   g_free (file_name);
-  g_object_unref (song_info);
-  g_object_unref (song);
 }
 
 /**
@@ -726,8 +708,6 @@ bt_main_window_save_song (const BtMainWindow * self)
 void
 bt_main_window_save_song_as (const BtMainWindow * self)
 {
-  BtSettings *settings;
-  BtSong *song;
   BtSongInfo *song_info;
   gchar *name, *folder_name, *file_name = NULL;
   gchar *old_file_name = NULL;
@@ -793,10 +773,11 @@ bt_main_window_save_song_as (const BtMainWindow * self)
   //gtk_file_chooser_set_filter(self->priv->file_chooser,filter_all);
 
   // get songs file-name
-  g_object_get (self->priv->app, "song", &song, "settings", &settings, NULL);
-  g_object_get (song, "song-info", &song_info, NULL);
+  bt_child_proxy_get (self->priv->app,
+      "song::song-info", &song_info, "settings::song-folder", &folder_name,
+      NULL);
   g_object_get (song_info, "name", &name, "file-name", &file_name, NULL);
-  g_object_get (settings, "song-folder", &folder_name, NULL);
+  g_object_unref (song_info);
   gtk_file_chooser_add_shortcut_folder (self->priv->file_chooser, folder_name,
       NULL);
   if (!file_name) {
@@ -855,8 +836,8 @@ bt_main_window_save_song_as (const BtMainWindow * self)
           while (info->formats[ix].name && !found) {
             // we ref the class above
             songio_class =
-                (BtSongIOClass *) g_type_class_peek_static (info->
-                formats[ix].type);
+                (BtSongIOClass *) g_type_class_peek_static (info->formats[ix].
+                type);
             if (!songio_class->save) {
               GST_DEBUG ("songio module %s supports no saving",
                   info->formats[ix].name);
@@ -888,18 +869,14 @@ bt_main_window_save_song_as (const BtMainWindow * self)
   g_free (folder_name);
   g_free (name);
 
-  g_object_unref (settings);
-  g_object_unref (song_info);
-  g_object_unref (song);
-
   // add format selection to dialog
   box = gtk_hbox_new (FALSE, 12);
   gtk_container_set_border_width (GTK_CONTAINER (box), 6);
   gtk_box_pack_start (GTK_BOX (box), gtk_label_new (_("Format")), FALSE, FALSE,
       0);
   gtk_box_pack_start (GTK_BOX (box), format_chooser, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (self->
-              priv->dialog)), box, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (self->priv->
+              dialog)), box, FALSE, FALSE, 0);
   g_signal_connect (format_chooser, "changed",
       G_CALLBACK (on_format_chooser_changed), (gpointer) self);
 
@@ -1042,8 +1019,8 @@ bt_dialog_message (const BtMainWindow * self, const gchar * title,
       "use-markup", TRUE, "selectable", TRUE, "wrap", TRUE, "label", str, NULL);
   g_free (str);
   gtk_container_add (GTK_CONTAINER (box), label);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->
-              priv->dialog)), box);
+  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->priv->
+              dialog)), box);
   gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
   g_object_notify ((gpointer) self, "dialog");
 
@@ -1097,8 +1074,8 @@ bt_dialog_question (const BtMainWindow * self, const gchar * title,
       "use-markup", TRUE, "selectable", TRUE, "wrap", TRUE, "label", str, NULL);
   g_free (str);
   gtk_container_add (GTK_CONTAINER (box), label);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->
-              priv->dialog)), box);
+  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->priv->
+              dialog)), box);
   gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
   g_object_notify ((gpointer) self, "dialog");
 
@@ -1119,73 +1096,6 @@ bt_dialog_question (const BtMainWindow * self, const gchar * title,
 
   GST_INFO ("bt_dialog_question(\"%s\") = %d", title, result);
   return (result);
-}
-
-//-- child proxy interface
-
-static GObject *
-bt_main_window_child_proxy_get_child_by_name (BtChildProxy * child_proxy,
-    const gchar * name)
-{
-  BtMainWindow *self = BT_MAIN_WINDOW (child_proxy);
-  GObject *res = NULL;
-
-  if (!strcmp ("toolbar", name)) {
-    res = (GObject *) self->priv->toolbar;
-  } else if (!strcmp ("pages", name)) {
-    res = (GObject *) self->priv->pages;
-  } else if (!strcmp ("statusbar", name)) {
-    res = (GObject *) self->priv->statusbar;
-  } else {
-    GST_WARNING ("no child %s in main_window", name);
-  }
-
-  if (res)
-    g_object_ref (res);
-  return res;
-}
-
-static GObject *
-bt_main_window_child_proxy_get_child_by_index (BtChildProxy * child_proxy,
-    guint index)
-{
-  BtMainWindow *self = BT_MAIN_WINDOW (child_proxy);
-  GObject *res = NULL;
-
-  switch (index) {
-    case 0:
-      res = (GObject *) self->priv->toolbar;
-      break;
-    case 1:
-      res = (GObject *) self->priv->pages;
-      break;
-    case 2:
-      res = (GObject *) self->priv->statusbar;
-      break;
-    default:
-      GST_WARNING ("no child %d in main_window", index);
-      break;
-  }
-  if (res)
-    g_object_ref (res);
-  return res;
-}
-
-static guint
-bt_main_window_child_proxy_get_children_count (BtChildProxy * child_proxy)
-{
-  return 3;
-}
-
-static void
-bt_main_window_child_proxy_init (gpointer const g_iface,
-    gconstpointer const iface_data)
-{
-  BtChildProxyInterface *iface = g_iface;
-
-  iface->get_child_by_name = bt_main_window_child_proxy_get_child_by_name;
-  iface->get_child_by_index = bt_main_window_child_proxy_get_child_by_index;
-  iface->get_children_count = bt_main_window_child_proxy_get_children_count;
 }
 
 //-- wrapper

@@ -198,17 +198,13 @@ bt_render_dialog_record_init (const BtRenderDialog * self)
     self->priv->track = -1;
     self->priv->tracks = 0;
   } else {
-    BtSongInfo *song_info;
-
-    g_object_get (self->priv->song, "song-info", &song_info, NULL);
-
     self->priv->list =
         bt_setup_get_machines_by_type (setup, BT_TYPE_SOURCE_MACHINE);
     self->priv->track = 0;
     self->priv->tracks = g_list_length (self->priv->list);
 
-    g_object_get (song_info, "name", &self->priv->song_name, NULL);
-    g_object_unref (song_info);
+    bt_child_proxy_get (self->priv->song, "song-info::name",
+        &self->priv->song_name, NULL);
   }
   g_object_unref (setup);
 }
@@ -244,11 +240,8 @@ bt_render_dialog_record_done (const BtRenderDialog * self)
     self->priv->list = NULL;
   }
   if (self->priv->song_name) {
-    BtSongInfo *song_info;
-
-    g_object_get (self->priv->song, "song-info", &song_info, NULL);
-    g_object_set (song_info, "name", self->priv->song_name, NULL);
-    g_object_unref (song_info);
+    bt_child_proxy_set (self->priv->song, "song-info::name",
+        self->priv->song_name, NULL);
     g_free (self->priv->song_name);
   }
   // close the dialog
@@ -282,7 +275,6 @@ bt_render_dialog_record_next (const BtRenderDialog * self)
       bt_render_dialog_make_file_name (self, self->priv->track);
 
   if (self->priv->mode == BT_RENDER_MODE_SINGLE_TRACKS) {
-    BtSongInfo *song_info;
     gchar *track_name, *id;
 
     machine =
@@ -291,9 +283,7 @@ bt_render_dialog_record_next (const BtRenderDialog * self)
 
     g_object_get (machine, "id", &id, NULL);
     track_name = g_strdup_printf ("%s : %s", self->priv->song_name, id);
-    g_object_get (self->priv->song, "song-info", &song_info, NULL);
-    g_object_set (song_info, "name", track_name, NULL);
-    g_object_unref (song_info);
+    bt_child_proxy_set (self->priv->song, "song-info::name", track_name, NULL);
     GST_INFO ("recording to '%s'", track_name);
     g_free (track_name);
     g_free (id);
@@ -475,22 +465,20 @@ on_song_eos (const GstBus * const bus, const GstMessage * const message,
 static void
 bt_render_dialog_init_ui (const BtRenderDialog * self)
 {
-  BtSettings *settings;
   GtkWidget *box, *label, *widget, *table;
   GEnumClass *enum_class;
   GEnumValue *enum_value;
   guint i;
-  BtSongInfo *song_info;
   GstBin *bin;
   GstBus *bus;
   gchar *full_file_name = NULL;
 
   GST_DEBUG ("read settings");
 
-  g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_get (settings, "record-folder", &self->priv->folder, NULL);
-  g_object_unref (settings);
-  g_object_get (self->priv->song, "song-info", &song_info, "bin", &bin, NULL);
+  bt_child_proxy_get (self->priv->app, "settings::record-folder",
+      &self->priv->folder, NULL);
+  bt_child_proxy_get (self->priv->song, "song-info::file-name", &full_file_name,
+      "bin", &bin, NULL);
 
   GST_DEBUG ("prepare render dialog");
 
@@ -542,7 +530,6 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       2, 1);
 
   // set deault name
-  g_object_get (song_info, "file-name", &full_file_name, NULL);
   if (full_file_name) {
     gchar *file_name, *ext;
 
@@ -637,7 +624,6 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
 
   gst_object_unref (bus);
   gst_object_unref (bin);
-  g_object_unref (song_info);
   GST_DEBUG ("done");
 }
 
