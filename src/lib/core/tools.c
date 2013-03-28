@@ -351,6 +351,7 @@ async_add (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
           GST_OBJECT_NAME (next));
     }
   }
+
   GST_INFO_OBJECT (tee_src, "linking to tee");
   if (GST_PAD_LINK_FAILED (plr = gst_pad_link (tee_src, analyzer_sink))) {
     GST_INFO_OBJECT (tee_src, "cannot link analyzers to tee");
@@ -358,6 +359,8 @@ async_add (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
             tee_src, analyzer_sink));
   }
   gst_object_unref (analyzer_sink);
+  g_list_free (analyzers);
+
   GST_INFO_OBJECT (tee_src, "add analyzers done");
 
   return GST_PAD_PROBE_REMOVE;
@@ -413,9 +416,10 @@ bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
   GST_INFO_OBJECT (bin, "blocking tee.src");
   tee_src = gst_element_request_pad (tee,
       gst_element_class_get_pad_template (tee_class, "src_%u"), NULL, NULL);
+  analyzers = g_list_copy (analyzers);
   if (is_playing) {
-    gst_pad_add_probe (tee_src, GST_PAD_PROBE_TYPE_BLOCK, async_add, analyzers,
-        NULL);
+    gst_pad_add_probe (tee_src, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM, async_add,
+        analyzers, NULL);
   } else {
     async_add (tee_src, NULL, analyzers);
   }
@@ -458,6 +462,7 @@ async_remove (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
   gst_object_unref (tee_src);
   gst_object_unref (tee);
   gst_object_unref (bin);
+  g_list_free (analyzers);
 
   return GST_PAD_PROBE_REMOVE;
 }
@@ -489,10 +494,11 @@ bt_bin_deactivate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
 
   if ((tee_src =
           bt_gst_element_get_sink_peer_pad (GST_ELEMENT (analyzers->data)))) {
+    analyzers = g_list_copy (analyzers);
     // block src_pad (of tee)
     if (is_playing) {
-      gst_pad_add_probe (tee_src, GST_PAD_PROBE_TYPE_BLOCK, async_remove,
-          analyzers, NULL);
+      gst_pad_add_probe (tee_src, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
+          async_remove, analyzers, NULL);
     } else {
       async_remove (tee_src, NULL, analyzers);
     }
