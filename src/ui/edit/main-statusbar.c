@@ -88,8 +88,7 @@ G_DEFINE_TYPE (BtMainStatusbar, bt_main_statusbar, GTK_TYPE_HBOX);
 
 static void
 bt_main_statusbar_update_length (const BtMainStatusbar * self,
-    const BtSong * song, const BtSequence * sequence,
-    const BtSongInfo * song_info)
+    const BtSequence * sequence, const BtSongInfo * song_info)
 {
   gchar str[2 + 2 + 3 + 3];
   gulong msec, sec, min;
@@ -188,7 +187,7 @@ on_song_info_rhythm_notify (const BtSongInfo * song_info, GParamSpec * arg,
   g_return_if_fail (song);
   g_object_get (song, "sequence", &sequence, NULL);
 
-  bt_main_statusbar_update_length (self, song, sequence, song_info);
+  bt_main_statusbar_update_length (self, sequence, song_info);
 
   // release the references
   g_object_unref (sequence);
@@ -208,7 +207,7 @@ on_sequence_loop_time_notify (const BtSequence * sequence, GParamSpec * arg,
   g_return_if_fail (song);
   g_object_get (song, "song-info", &song_info, NULL);
 
-  bt_main_statusbar_update_length (self, song, sequence, song_info);
+  bt_main_statusbar_update_length (self, sequence, song_info);
 
   // release the references
   g_object_unref (song_info);
@@ -231,7 +230,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
     return;
 
   g_object_get (song, "sequence", &sequence, "song-info", &song_info, NULL);
-  bt_main_statusbar_update_length (self, song, sequence, song_info);
+  bt_main_statusbar_update_length (self, sequence, song_info);
   // subscribe to property changes in song
   g_signal_connect (song, "notify::play-pos",
       G_CALLBACK (on_song_play_pos_notify), (gpointer) self);
