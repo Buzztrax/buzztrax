@@ -405,3 +405,17 @@
   * in 0.10 we could just send the sink-message-event when we receive the normal
     message 
 
+* embedded lua (see design/lua)
+  * tools menu
+  * pattern editor
+    * register scripts that provide commands to manipulate the patterns
+    * the app does undo/redo, but comparing the before after state
+    * script will needs to provide a name
+    * if we have a keybinding editor, we can associate the function with the key
+      there
+    * we could also have an eval entry in the editor, that would fill a selection
+      with result of cell(tick) = map(f(tick)). tick could either be the absolute
+      tick or 0.0 ... 1,0 and map will project the function return from 0.0 ... 1.0
+      to the value vange of the selected property
+  * interaction controller ?
+  * do we need to store some of them with the song?

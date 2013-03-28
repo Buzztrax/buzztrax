@@ -1,9 +1,59 @@
-svn diff -r "{2011-01-01}:{2011-01-31}" | diffstat
-git diff --shortstat @{2012-01-01} @{2012-01-31}
+svn diff -r "{2013-01-01}:{2013-01-31}" | diffstat
+git diff --shortstat @{2013-01-01} @{2013-01-31}
+
+2013/04 ========================================================================
+
+Fix a few bug in the 1.0 port.
+- multitrack encoding works again
+- dynamically adding/removing analyzers works
 
 2013/03 ========================================================================
 
-- porting to gst-1.0
+As I already mentioned in last months issue, I ported buzztard and gst-buzztard
+to use gstreamer-1.0. It will require 1.1.X for some fixes in gstreamer itself.
+So how id it went. The basic porting to make it compile against 1.0 took about
+20 hours spread over a couple of days. It is quite straight forward. I updated
+the porting guide [1] where things were not mentioned.
+
+The more tricky part where the soft api changes. At this port I was running the
+apps with G_DEBUG=fatal_warnings. The property name changes here and there we
+easy to fix. Also request pad name changes (%d -> _%u) took not too long to
+handle. Other things like caps negotiation kept me busy for a few evenings. For
+once I was e.g. writing GST_AUDIO_NE ("S16") instead of GST_AUDIO_NE (S16) which
+leads to caps negotiation failing. Another recommendation is to avoid setting
+channel-mask=3 for stereo caps. It is purely optional, most elements drop it
+anyway and by leaving it out, you can merge the mono and stereo caps.
+
+I ported freeverb in plugins-bad and made fixed to audiopanorama and adder.
+Adder and collectpads have a few more new tests upstream. Another things that
+took a while was getting seek-in-ready to work again. Buzztard needs to
+configure the playback segment from the application, as the sources happy beep
+for all eternity. In 0.10 I could send a seek to my bin in ready, in 1.0 it gets
+dropped (pads are flushing). Now I recursively iterate over sources and seek on
+all of them. This is only needed to get to playing. To get these things fixed I
+ported a few of my stand alone examples, but the majority of this is still left
+unported.
+
+Now the basics seem to work. I am confident that I can fix the remaining issues
+in march and look forward to attend the hackfest in Milano over easter [2]. 
+
+The porting for buzztard:
+69 files changed, 1909 insertions(+), 1473 deletions(-)
+The porting for gst-buzztard:
+34 files changed, 1254 insertions(+), 1414 deletions(-)
+
+The other thing I was doing this month was to experiment with embeddable
+scripting engines. I wrote a toy gtk app that opens a window, sets up the
+scripting engine, registers a function to get the window handle and start a
+script that calls the function to get the window and adds a vbox with two
+labels. I did that for lua, seed and gjs. For lua it took 30 min, for seek it
+took 30min, for gjs it took 2 hours and is still not working fully (the custom
+function returning a gobject).
+
+[1] http://cgit.freedesktop.org/gstreamer/gstreamer/tree/docs/random/porting-to-1.0.txt
+[2] http://gstreamer.freedesktop.org/wiki/GStreamerHackfest2013
+
+69 files changed, 1907 insertions(+), 1507 deletions(-)
 
 2013/02 ========================================================================
 
