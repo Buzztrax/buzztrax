@@ -108,13 +108,13 @@ typedef struct
 } BtSinkBinRecordFormatInfo;
 
 static const BtSinkBinRecordFormatInfo formats[] = {
-  {"Ogg Vorbis record format", "Ogg Vorbis", "application/ogg",
+  {"Ogg Vorbis record format", "Ogg Vorbis", "audio/ogg",
       "audio/x-vorbis"},
   {"MP3 record format", "MP3 Audio",
       "application/x-id3", "audio/mpeg, mpegversion=1, layer=3"},
   {"WAV record format", "WAV Audio", "audio/x-wav",
       "audio/x-raw, format=(string)S16LE"},
-  {"Ogg Flac record format", "Ogg Flac", "application/ogg", "audio/x-flac"},
+  {"Ogg Flac record format", "Ogg Flac", "audio/ogg", "audio/x-flac"},
   {"Raw format", "Raw", NULL, NULL},
   {"M4A record format", "M4A Audio", "video/quicktime",
       "audio/mpeg, mpegversion=(int)4"}
@@ -275,37 +275,52 @@ bt_sink_bin_record_format_get_type (void)
 static GstEncodingProfile *
 bt_sink_bin_create_recording_profile (const BtSinkBinRecordFormatInfo * info)
 {
-  GstEncodingContainerProfile *profile;
+  GstEncodingContainerProfile *c_profile = NULL;
+  GstEncodingAudioProfile *a_profile = NULL;
   GstCaps *caps;
 
   GST_INFO ("create profile for \"%s\", \"%s\", \"%s\"", info->name,
       info->container_caps, info->audio_caps);
 
-  if ((!info->container_caps) || (!info->audio_caps)) {
+  if ((!info->container_caps) && (!info->audio_caps)) {
     GST_INFO ("no container nor audio-caps \"%s\"", info->name);
     return NULL;
   }
-
-  if (!(caps = gst_caps_from_string (info->container_caps))) {
-    GST_WARNING ("can't parse caps \"%s\" for \"%s\"", info->container_caps,
-        info->name);
-    return NULL;
+  // generate a container profile if requested
+  if (info->container_caps) {
+    if (!(caps = gst_caps_from_string (info->container_caps))) {
+      GST_WARNING ("can't parse caps \"%s\" for \"%s\"", info->container_caps,
+          info->name);
+      return NULL;
+    }
+    if (!(c_profile =
+            gst_encoding_container_profile_new (info->name, info->desc, caps,
+                NULL))) {
+      GST_WARNING ("can't create container profile for caps \"%s\" for \"%s\"",
+          info->container_caps, info->name);
+    }
+    gst_caps_unref (caps);
   }
-  profile =
-      gst_encoding_container_profile_new (info->name, info->desc, caps, NULL);
-  gst_caps_unref (caps);
-
+  // generate an audio profile
   if (!(caps = gst_caps_from_string (info->audio_caps))) {
     GST_WARNING ("can't parse caps \"%s\" for \"%s\"", info->audio_caps,
         info->name);
     return NULL;
   }
-  gst_encoding_container_profile_add_profile (profile,
-      (GstEncodingProfile *) gst_encoding_audio_profile_new (caps, NULL, NULL,
-          1));
+  if (!(a_profile = gst_encoding_audio_profile_new (caps, NULL, NULL, 1))) {
+    GST_WARNING ("can't create audio profile for caps \"%s\" for \"%s\"",
+        info->audio_caps, info->name);
+  }
   gst_caps_unref (caps);
 
-  return (GstEncodingProfile *) profile;
+  if (c_profile) {
+    gst_encoding_container_profile_add_profile (c_profile,
+        (GstEncodingProfile *)
+        a_profile);
+    return (GstEncodingProfile *) c_profile;
+  } else {
+    return (GstEncodingProfile *) a_profile;
+  }
 }
 
 //-- helper methods
@@ -545,8 +560,8 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->
-          priv->record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->priv->
+          record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
