@@ -572,6 +572,58 @@ check_run_main_loop_for_usec (gulong usec)
   g_main_loop_run (loop);
 }
 
+static void
+_check_message_received (GstBus * bus, GstMessage * message, gpointer user_data)
+{
+  if (GST_MESSAGE_TYPE (message) == GST_MESSAGE_ERROR) {
+    GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "error: %" GST_PTR_FORMAT,
+        message);
+    g_main_loop_quit (user_data);
+  } else {
+    GST_DEBUG_OBJECT (GST_MESSAGE_SRC (message),
+        "state-changed: %" GST_PTR_FORMAT, message);
+    if (GST_IS_PIPELINE (GST_MESSAGE_SRC (message))) {
+      GstState oldstate, newstate, pending;
+
+      gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
+      switch (GST_STATE_TRANSITION (oldstate, newstate)) {
+        case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+          g_main_loop_quit (user_data);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+}
+
+void
+check_run_main_loop_until_playing_or_error (BtSong * song)
+{
+  GstStateChangeReturn sret;
+  GstState state, pending;
+
+  GMainLoop *main_loop = g_main_loop_new (NULL, FALSE);
+  GstElement *bin =
+      (GstElement *) check_gobject_get_object_property (song, "bin");
+  GstBus *bus = gst_element_get_bus (bin);
+  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+  g_signal_connect (bus, "message::error", G_CALLBACK (_check_message_received),
+      (gpointer) main_loop);
+  g_signal_connect (bus, "message::state-changed",
+      G_CALLBACK (_check_message_received), (gpointer) main_loop);
+  gst_object_unref (bus);
+
+  sret = gst_element_get_state (bin, &state, &pending, G_GUINT64_CONSTANT (0));
+  gst_object_unref (bin);
+
+  GST_INFO_OBJECT (song, "running main_loop");
+  if (sret != GST_STATE_CHANGE_SUCCESS) {
+    g_main_loop_run (main_loop);
+  }
+  GST_INFO_OBJECT (song, "finished main_loop");
+}
+
 // test file access
 
 const gchar *

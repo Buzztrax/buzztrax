@@ -459,7 +459,7 @@ test_bt_sink_bin_master_volume (BT_TEST_ARGS)
   bt_parameter_group_set_param_default (pg,
       bt_parameter_group_get_param_index (pg, "master-volume"));
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
+  run_main_loop_until_eos ();
 
   /* assert */
   GST_INFO ("minv=%7.4lf, maxv=%7.4lf", minv, maxv);
@@ -499,9 +499,7 @@ test_bt_sink_bin_analyzers (BT_TEST_ARGS)
 
   /* act */
   bt_song_play (song);
-  // this seems to take a little longer
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 2);
-  bt_song_write_to_lowlevel_dot_file (song);
+  run_main_loop_until_eos ();
 
   /* assert */
   GST_INFO ("minv=%7.4lf, maxv=%7.4lf", minv, maxv);

@@ -438,6 +438,7 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
 
   /* act */
   bt_song_play (song);
+  check_run_main_loop_until_playing_or_error (song);
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 4);    // length=0:00:00.120000000
   bt_song_stop (song);
 
@@ -570,7 +571,6 @@ test_bt_sequence_shortening_length_disables_loop (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-
 static void
 test_bt_sequence_duration (BT_TEST_ARGS)
 {
@@ -586,6 +586,7 @@ test_bt_sequence_duration (BT_TEST_ARGS)
   bt_wire_new (song, gen, sink, NULL);
   GstElement *sink_bin =
       GST_ELEMENT (check_gobject_get_object_property (sink, "machine"));
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
 
   /* act */
   gint64 duration;
@@ -594,7 +595,7 @@ test_bt_sequence_duration (BT_TEST_ARGS)
 
   /* assert */
   fail_unless (res, NULL);
-  ck_assert_int64_ne (duration, -1);
+  ck_assert_int64_ne (duration, G_GINT64_CONSTANT (-1));
   ck_assert_uint64_eq (duration, 16L * tick_time);
 
   /* cleanup */

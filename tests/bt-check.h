@@ -135,6 +135,7 @@ void setup_log_test(const gchar * func_name, gint i);
 void setup_log_capture(void);
 
 void check_run_main_loop_for_usec(gulong usec);
+void check_run_main_loop_until_playing_or_error(BtSong * song);
 
 const gchar *check_get_test_song_path(const gchar *name);
 
