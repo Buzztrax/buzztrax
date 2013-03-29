@@ -86,6 +86,51 @@ make_new_song (void)
   return song;
 }
 
+static void
+message_received (GstBus * bus, GstMessage * message, gpointer user_data)
+{
+  if (GST_MESSAGE_TYPE (message) == GST_MESSAGE_ERROR) {
+    GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "error: %" GST_PTR_FORMAT,
+        message);
+    g_main_loop_quit (user_data);
+  } else {
+    GST_DEBUG_OBJECT (GST_MESSAGE_SRC (message),
+        "state-changed: %" GST_PTR_FORMAT, message);
+    if (GST_IS_PIPELINE (GST_MESSAGE_SRC (message))) {
+      GstState oldstate, newstate, pending;
+
+      gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
+      switch (GST_STATE_TRANSITION (oldstate, newstate)) {
+        case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+          g_main_loop_quit (user_data);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+}
+
+static void
+run_main_loop_until_playing_or_error (BtSong * song)
+{
+  GstElement *bin =
+      (GstElement *) check_gobject_get_object_property (song, "bin");
+  GMainLoop *main_loop = g_main_loop_new (NULL, FALSE);
+  GstBus *bus = gst_element_get_bus (bin);
+  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+  g_signal_connect (bus, "message::error", G_CALLBACK (message_received),
+      (gpointer) main_loop);
+  g_signal_connect (bus, "message::state-changed",
+      G_CALLBACK (message_received), (gpointer) main_loop);
+  gst_object_unref (bus);
+  gst_object_unref (bin);
+
+  GST_INFO_OBJECT (song, "running main_loop");
+  g_main_loop_run (main_loop);
+  GST_INFO_OBJECT (song, "finished main_loop");
+}
+
 // helper method to test the play signal
 static void
 on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
@@ -94,7 +139,6 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
   play_signal_invoked = TRUE;
   GST_INFO ("got signal");
 }
-
 
 //-- tests
 
@@ -178,12 +222,12 @@ test_bt_song_play_single (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSong *song = make_new_song ();
-  g_signal_connect (G_OBJECT (song), "notify::is-playing",
+  g_signal_connect (song, "notify::is-playing",
       G_CALLBACK (on_song_is_playing_notify), NULL);
 
   /* act */
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
+  run_main_loop_until_playing_or_error (song);
 
   /* assert */
   fail_unless (play_signal_invoked, NULL);
@@ -208,17 +252,18 @@ test_bt_song_play_twice (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSong *song = make_new_song ();
-  g_signal_connect (G_OBJECT (song), "notify::is-playing",
+  g_signal_connect (song, "notify::is-playing",
       G_CALLBACK (on_song_is_playing_notify), NULL);
+
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
+  run_main_loop_until_playing_or_error (song);
   bt_song_stop (song);
   play_signal_invoked = FALSE;
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
 
   /* act && assert */
   fail_unless (bt_song_play (song), NULL);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
+  run_main_loop_until_playing_or_error (song);
   fail_unless (play_signal_invoked, NULL);
 
   /* cleanup */
@@ -304,7 +349,7 @@ test_bt_song_idle2 (BT_TEST_ARGS)
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
   // start regular playback, this should stop the idle loop
   bt_song_play (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
+  run_main_loop_until_playing_or_error (song);
   GST_INFO ("playing");
 
   /* assert */
