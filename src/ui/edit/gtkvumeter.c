@@ -20,8 +20,13 @@
  *   - vertical : gboolean, readonly
  *   - min,max,rms,peak : gint, read/write
  *   - scale_type : enum, read/write
- * TODO(ensonic): revisit cairo usage
+ */
+/* TODO(ensonic): revisit cairo usage
  *   - http://www.cairographics.org/FAQ/#sharp_lines
+ */
+/* TODO(ensonic): one needs to swap the levels in gtk_vumeter_set_levels()
+ *   to actually see the two shaded parts. Otherwise the decay is alway less then
+ *   peak and thus now shown.
  */
 /**
  * SECTION:gtkvumeter
@@ -116,6 +121,9 @@ gtk_vumeter_finalize (GObject * object)
 static void
 gtk_vumeter_allocate_colors (GtkVUMeter * vumeter)
 {
+  cairo_pattern_t *gradient;
+  gint width, height;
+
   /* free old gradients */
   if (vumeter->gradient_rms)
     cairo_pattern_destroy (vumeter->gradient_rms);
@@ -125,51 +133,31 @@ gtk_vumeter_allocate_colors (GtkVUMeter * vumeter)
     cairo_pattern_destroy (vumeter->gradient_bg);
 
   if (vumeter->vertical) {      /* veritcal */
-    gint height = ((GtkWidget *) vumeter)->allocation.height - 1;
-
-    /* setup gradients */
-    vumeter->gradient_rms = cairo_pattern_create_linear (1, 1, 1, height);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_rms, 0, 0.0, 1.0, 0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_rms, 0.7, 1.0, 1.0,
-        0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_rms, 1.0, 1.0, 0.0,
-        0.0);
-
-    vumeter->gradient_peak = cairo_pattern_create_linear (1, 1, 1, height);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_peak, 0, 0.0, 0.6, 0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_peak, 0.7, 0.6, 0.6,
-        0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_peak, 1.0, 0.6, 0.0,
-        0.0);
-
-    vumeter->gradient_bg = cairo_pattern_create_linear (1, 1, 1, height);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_bg, 0, 0.0, 0.3, 0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_bg, 0.7, 0.3, 0.3, 0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_bg, 1.0, 0.3, 0.0, 0.0);
-
+    height = ((GtkWidget *) vumeter)->allocation.height - 1;
+    width = 1;
   } else {                      /* horizontal */
-    gint width = ((GtkWidget *) vumeter)->allocation.width - 1;
-
-    /* setup gradients */
-    vumeter->gradient_rms = cairo_pattern_create_linear (1, 1, width, 1);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_rms, 0, 0.0, 1.0, 0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_rms, 0.7, 1.0, 1.0,
-        0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_rms, 1.0, 1.0, 0.0,
-        0.0);
-
-    vumeter->gradient_peak = cairo_pattern_create_linear (1, 1, width, 1);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_peak, 0, 0.0, 0.6, 0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_peak, 0.7, 0.6, 0.6,
-        0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_peak, 1.0, 0.6, 0.0,
-        0.0);
-
-    vumeter->gradient_bg = cairo_pattern_create_linear (1, 1, width, 1);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_bg, 0, 0.0, 0.3, 0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_bg, 0.7, 0.3, 0.3, 0.0);
-    cairo_pattern_add_color_stop_rgb (vumeter->gradient_bg, 1.0, 0.3, 0.0, 0.0);
+    height = 1;
+    width = ((GtkWidget *) vumeter)->allocation.width - 1;
   }
+
+  /* setup gradients */
+  gradient = cairo_pattern_create_linear (1, 1, width, height);
+  cairo_pattern_add_color_stop_rgb (gradient, 0.0, 0.0, 1.0, 0.0);
+  cairo_pattern_add_color_stop_rgb (gradient, 0.7, 1.0, 1.0, 0.0);
+  cairo_pattern_add_color_stop_rgb (gradient, 1.0, 1.0, 0.0, 0.0);
+  vumeter->gradient_rms = gradient;
+
+  gradient = cairo_pattern_create_linear (1, 1, width, height);
+  cairo_pattern_add_color_stop_rgb (gradient, 0.0, 0.0, 0.6, 0.0);
+  cairo_pattern_add_color_stop_rgb (gradient, 0.7, 0.6, 0.6, 0.0);
+  cairo_pattern_add_color_stop_rgb (gradient, 1.0, 0.6, 0.0, 0.0);
+  vumeter->gradient_peak = gradient;
+
+  gradient = cairo_pattern_create_linear (1, 1, width, height);
+  cairo_pattern_add_color_stop_rgb (gradient, 0.0, 0.0, 0.3, 0.0);
+  cairo_pattern_add_color_stop_rgb (gradient, 0.7, 0.3, 0.3, 0.0);
+  cairo_pattern_add_color_stop_rgb (gradient, 1.0, 0.3, 0.0, 0.0);
+  vumeter->gradient_bg = gradient;
 }
 
 static void
@@ -429,7 +417,8 @@ gtk_vumeter_set_min_max (GtkVUMeter * vumeter, gint min, gint max)
  * @rms: the new rms level shown
  * @peak: the new peak level shown
  *
- * Sets new level values for the level display.
+ * Sets new level values for the level display. The @peak level is the current max
+ * level. The @rmx level is the decaying level part.
  * They are clamped to the min max range.
  */
 void
