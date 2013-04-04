@@ -73,7 +73,7 @@ struct _BtUIResourcesClass {
  * @BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2: sink machine even lighter variant
  * @BT_UI_RES_COLOR_SINK_MACHINE_DARK1: sink machine darker variant
  * @BT_UI_RES_COLOR_SINK_MACHINE_DARK2: sink machine even darker variant
- * @BT_UI_RES_COLOR_ANALYZER_PEAK: analyzer peak lines
+ * @BT_UI_RES_COLOR_ANALYZER_DECAY: analyzer peak lines
  * @BT_UI_RES_COLOR_GRID_LINES: grid lines
  * @BT_UI_RES_COLOR_COUNT: symbolic color count
  *
@@ -101,7 +101,7 @@ typedef enum {
   BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,      /* list view even */
   BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        /* --- */
   BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        /* --- */
-  BT_UI_RES_COLOR_ANALYZER_PEAK,             /* analyzer window peak marks */
+  BT_UI_RES_COLOR_ANALYZER_DECAY,            /* analyzer window decay marks */
   BT_UI_RES_COLOR_GRID_LINES,                /* grid lines */
   BT_UI_RES_COLOR_COUNT
 } BtUIResourcesColors;

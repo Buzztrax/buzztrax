@@ -213,7 +213,7 @@ bt_ui_resources_init_colors (BtUIResources * self)
   }
 
   // analyzer window
-  MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_ANALYZER_PEAK, 1.00, 0.75, 0.00);
+  MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_ANALYZER_DECAY, 1.00, 0.75, 0.00);
   MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_GRID_LINES, 0.5, 0.5, 0.5);
 
   g_free (icon_theme_name);
@@ -430,8 +430,8 @@ bt_ui_resources_get_icon_image_by_machine (const BtMachine * machine)
   if (BT_IS_SOURCE_MACHINE (machine)) {
     return (gtk_image_new_from_pixbuf (singleton->priv->source_machine_pixbuf));
   } else if (BT_IS_PROCESSOR_MACHINE (machine)) {
-    return (gtk_image_new_from_pixbuf (singleton->priv->
-            processor_machine_pixbuf));
+    return (gtk_image_new_from_pixbuf (singleton->
+            priv->processor_machine_pixbuf));
   } else if (BT_IS_SINK_MACHINE (machine)) {
     return (gtk_image_new_from_pixbuf (singleton->priv->sink_machine_pixbuf));
   }
@@ -452,8 +452,8 @@ bt_ui_resources_get_icon_image_by_machine_type (GType machine_type)
   if (machine_type == BT_TYPE_SOURCE_MACHINE) {
     return (gtk_image_new_from_pixbuf (singleton->priv->source_machine_pixbuf));
   } else if (machine_type == BT_TYPE_PROCESSOR_MACHINE) {
-    return (gtk_image_new_from_pixbuf (singleton->priv->
-            processor_machine_pixbuf));
+    return (gtk_image_new_from_pixbuf (singleton->
+            priv->processor_machine_pixbuf));
   } else if (machine_type == BT_TYPE_SINK_MACHINE) {
     return (gtk_image_new_from_pixbuf (singleton->priv->sink_machine_pixbuf));
   }

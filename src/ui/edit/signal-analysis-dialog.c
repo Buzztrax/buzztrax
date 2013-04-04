@@ -195,8 +195,8 @@ on_dialog_realize (GtkWidget * widget, gpointer user_data)
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
 
   GST_DEBUG ("dialog realize");
-  self->priv->peak_color =
-      bt_ui_resources_get_gdk_color (BT_UI_RES_COLOR_ANALYZER_PEAK);
+  self->priv->decay_color =
+      bt_ui_resources_get_gdk_color (BT_UI_RES_COLOR_ANALYZER_DECAY);
   self->priv->grid_color =
       bt_ui_resources_get_gdk_color (BT_UI_RES_COLOR_GRID_LINES);
 }
