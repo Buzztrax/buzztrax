@@ -649,8 +649,10 @@ bt_gst_analyzer_get_waittime (GstElement * analyzer,
 
   if (gst_structure_get_clock_time (structure, "running-time", &timestamp)
       && gst_structure_get_clock_time (structure, "duration", &duration)) {
-    /* wait for middle of buffer */
-    waittime = timestamp + (duration / 2);
+    /* wait for start of buffer (middle of buffer), this helps a bit as we also
+     * have a little extra delay from thread switching
+     */
+    waittime = timestamp /*+ (duration / 2) */ ;
   } else if (gst_structure_get_clock_time (structure, "endtime", &timestamp)) {
     /* level send endtime as stream_time and not as running_time */
     if (endtime_is_running_time) {
