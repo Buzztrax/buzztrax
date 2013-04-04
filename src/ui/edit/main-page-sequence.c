@@ -316,8 +316,8 @@ label_cell_data_function (GtkTreeViewColumn * col, GtkCellRenderer * renderer,
       ) {
     bg_col =
         ((row /
-            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->priv->
-        selection_bg1;
+            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->
+        priv->selection_bg1;
   }
   if (bg_col) {
     g_object_set (renderer,
@@ -510,8 +510,8 @@ sequence_model_get_store (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))) {
     store = gtk_tree_model_filter_get_model (filtered_store);
   }
   return (store);
@@ -559,8 +559,8 @@ sequence_update_model_length (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))) {
     BtSequenceGridModel *store =
         BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
         (filtered_store));
@@ -1022,6 +1022,9 @@ typedef struct
   BtMainPageSequence *self;
   GtkVUMeter *vumeter;
   gint peak, decay;
+  // DEBUG
+  //GstClockTime t0,t1,t2,t3;
+  // DEBUG
 } BtUpdateIdleData;
 
 #define MAKE_UPDATE_IDLE_DATA(data,self,vumeter,peak,decay) G_STMT_START { \
@@ -1054,6 +1057,10 @@ on_delayed_idle_track_level_change (gpointer user_data)
   BtMainPageSequence *self = data->self;
 
   if (self && self->priv->is_playing && data->vumeter) {
+    //data->t3 = gst_util_get_timestamp ();
+    //GST_WARNING ("wait.2 for %"GST_TIME_FORMAT", d %"GST_TIME_FORMAT", d %"GST_TIME_FORMAT,
+    //  GST_TIME_ARGS (data->t0), GST_TIME_ARGS (data->t3 - data->t1), GST_TIME_ARGS (data->t3 - data->t2));
+    //gtk_vumeter_set_levels (data->vumeter, data->decay, data->peak);
     gtk_vumeter_set_levels (data->vumeter, data->peak, data->decay);
   }
   FREE_UPDATE_IDLE_DATA (data);
@@ -1065,9 +1072,14 @@ on_delayed_track_level_change (GstClock * clock, GstClockTime time,
     GstClockID id, gpointer user_data)
 {
   // the callback is called from a clock thread
-  if (GST_CLOCK_TIME_IS_VALID (time))
-    g_idle_add (on_delayed_idle_track_level_change, user_data);
-  else {
+  if (GST_CLOCK_TIME_IS_VALID (time)) {
+    //BtUpdateIdleData *data = (BtUpdateIdleData *) user_data;
+    //data->t2 = gst_util_get_timestamp ();
+    //GST_WARNING ("wait.1 for %"GST_TIME_FORMAT", d %"GST_TIME_FORMAT,
+    //  GST_TIME_ARGS (time), GST_TIME_ARGS (data->t2 - data->t1));
+    g_idle_add_full (G_PRIORITY_HIGH, on_delayed_idle_track_level_change,
+        user_data, NULL);
+  } else {
     BtUpdateIdleData *data = (BtUpdateIdleData *) user_data;
     FREE_UPDATE_IDLE_DATA (data);
   }
@@ -1090,7 +1102,7 @@ on_track_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
       GstClockTime waittime = bt_gst_analyzer_get_waittime (level, s, TRUE);
       if (GST_CLOCK_TIME_IS_VALID (waittime)) {
         gdouble decay, peak;
-        gint new_skip = FALSE, old_skip = FALSE;
+        gint new_skip = 0, old_skip = 0;
 
         peak =
             bt_gst_level_message_get_aggregated_field (s, "peak",
@@ -1099,10 +1111,11 @@ on_track_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
             bt_gst_level_message_get_aggregated_field (s, "decay",
             LOW_VUMETER_VAL);
         // check if we are silent or very loud
-        if (decay <= LOW_VUMETER_VAL && peak <= LOW_VUMETER_VAL)
+        if (decay <= LOW_VUMETER_VAL && peak <= LOW_VUMETER_VAL) {
           new_skip = 1;         // below min level
-        else if (decay >= 0.0 && peak >= 0.0)
+        } else if (decay >= 0.0 && peak >= 0.0) {
           new_skip = 2;         // beyond max level
+        }
         // skip *updates* if we are still below LOW_VUMETER_VAL or beyond 0.0
         old_skip =
             GPOINTER_TO_INT (g_object_get_qdata ((GObject *) vumeter,
@@ -1114,12 +1127,13 @@ on_track_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
           GstClockID clock_id;
           GstClockReturn clk_ret;
 
+          waittime += gst_element_get_base_time (level);
+          clock_id = gst_clock_new_single_shot_id (self->priv->clock, waittime);
           MAKE_UPDATE_IDLE_DATA (data, self, vumeter, peak, decay);
-          clock_id =
-              gst_clock_new_single_shot_id (self->priv->clock,
-              waittime + gst_element_get_base_time (level));
-          if ((clk_ret =
-                  gst_clock_id_wait_async (clock_id,
+          //data->t0 = waittime;
+          //data->t1 = gst_util_get_timestamp ();
+          //GST_WARNING ("wait.0 for %"GST_TIME_FORMAT, GST_TIME_ARGS (waittime));
+          if ((clk_ret = gst_clock_id_wait_async (clock_id,
                       on_delayed_track_level_change,
                       (gpointer) data, NULL)) != GST_CLOCK_OK) {
             GST_WARNING_OBJECT (vumeter, "clock wait failed: %d", clk_ret);
@@ -1147,8 +1161,8 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
   GST_INFO ("label edited: '%s': '%s'", path_string, new_text);
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))
       && (store = gtk_tree_model_filter_get_model (filtered_store))
       ) {
     GtkTreeIter iter, filter_iter;
@@ -1276,8 +1290,8 @@ sequence_pos_table_init (const BtMainPageSequence * self)
 
   gtk_box_pack_start (GTK_BOX (self->priv->sequence_pos_table_header),
       self->priv->pos_header, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (GTK_WIDGET (self->priv->
-          sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
+  gtk_widget_set_size_request (GTK_WIDGET (self->
+          priv->sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
 
   // add static column
   renderer = gtk_cell_renderer_text_new ();
@@ -2378,8 +2392,8 @@ on_bars_menu_changed (GtkComboBox * combo_box, gpointer user_data)
       sequence_calculate_visible_lines (self);
       //GST_INFO("  bars = %d",self->priv->bars);
       if ((filtered_store =
-              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                      sequence_table)))) {
+              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                      priv->sequence_table)))) {
         BtSequenceGridModel *store =
             BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
             (filtered_store));
@@ -3067,8 +3081,8 @@ on_sequence_table_button_press_event (GtkWidget * widget,
             // set cell focus
             gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
                 FALSE);
-            gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
-                    sequence_table));
+            gtk_widget_grab_focus_savely (GTK_WIDGET (self->
+                    priv->sequence_table));
             // reset selection
             self->priv->selection_start_column =
                 self->priv->selection_start_row =
@@ -3139,8 +3153,8 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
           }
           gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
               FALSE);
-          gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
-                  sequence_table));
+          gtk_widget_grab_focus_savely (GTK_WIDGET (self->
+                  priv->sequence_table));
           // cursor updates are not yet processed
           on_sequence_table_cursor_changed_idle (self);
           GST_DEBUG ("cursor new/old: %3ld,%3ld -> %3ld,%3ld", cursor_column,
@@ -3506,8 +3520,11 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   g_object_set (self->priv->sequence_pos_table, "play-position", 0.0, NULL);
   // vumeters
   bus = gst_element_get_bus (GST_ELEMENT (bin));
-  g_signal_connect (bus, "message::element", G_CALLBACK (on_track_level_change),
-      (gpointer) self);
+  if (!g_signal_handler_find (bus, G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0,
+          0, NULL, on_track_level_change, (gpointer) self)) {
+    g_signal_connect (bus, "message::element",
+        G_CALLBACK (on_track_level_change), (gpointer) self);
+  }
   gst_object_unref (bus);
   if (self->priv->clock)
     gst_object_unref (self->priv->clock);
@@ -3641,8 +3658,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   self->priv->context_menu_add =
       GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (_("Add track")));
   image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->priv->
-          context_menu_add), image);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->
+          priv->context_menu_add), image);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
       GTK_WIDGET (self->priv->context_menu_add));
   gtk_widget_show (GTK_WIDGET (self->priv->context_menu_add));

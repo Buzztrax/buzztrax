@@ -121,8 +121,8 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     // disable stop button
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->stop_button), FALSE);
     // switch off play button
-    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-            priv->play_button), FALSE);
+    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+            play_button), FALSE);
     // enable play button
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->play_button), TRUE);
     // reset level meters
@@ -142,13 +142,13 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     bt_song_update_playback_position (song);
 
     // if we started playback remotely activate playbutton
-    if (!gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (self->
-                priv->play_button))) {
+    if (!gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+                play_button))) {
       g_signal_handlers_block_matched (self->priv->play_button,
           G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
           on_toolbar_play_clicked, (gpointer) self);
-      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-              priv->play_button), TRUE);
+      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+              play_button), TRUE);
       g_signal_handlers_unblock_matched (self->priv->play_button,
           G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
           on_toolbar_play_clicked, (gpointer) self);
@@ -467,8 +467,8 @@ on_delayed_idle_song_level_change (gpointer user_data)
   if (self) {
     const GstStructure *structure = gst_message_get_structure (message);
     const GValue *values;
-    GValueArray *cur_arr, *peak_arr;
-    gdouble cur, peak;
+    GValueArray *decay_arr, *peak_arr;
+    gdouble decay, peak;
     guint i, size;
 
     g_mutex_lock (&self->priv->lock);
@@ -478,21 +478,22 @@ on_delayed_idle_song_level_change (gpointer user_data)
     if (!self->priv->is_playing)
       goto done;
 
-    values = (GValue *) gst_structure_get_value (structure, "decay");
-    cur_arr = (GValueArray *) g_value_get_boxed (values);
     values = (GValue *) gst_structure_get_value (structure, "peak");
     peak_arr = (GValueArray *) g_value_get_boxed (values);
-    size = cur_arr->n_values;
+    values = (GValue *) gst_structure_get_value (structure, "decay");
+    decay_arr = (GValueArray *) g_value_get_boxed (values);
+    size = decay_arr->n_values;
     for (i = 0; i < size; i++) {
-      cur = g_value_get_double (g_value_array_get_nth (cur_arr, i));
+      decay = g_value_get_double (g_value_array_get_nth (decay_arr, i));
       peak = g_value_get_double (g_value_array_get_nth (peak_arr, i));
-      if (isinf (cur) || isnan (cur))
-        cur = LOW_VUMETER_VAL;
+      if (isinf (decay) || isnan (decay))
+        decay = LOW_VUMETER_VAL;
       if (isinf (peak) || isnan (peak))
         peak = LOW_VUMETER_VAL;
-      //GST_INFO("level.%d  %.3f %.3f", i, peak, cur);
-      //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)cur, (gint)peak);
-      gtk_vumeter_set_levels (self->priv->vumeter[i], (gint) peak, (gint) cur);
+      //GST_INFO("level.%d  %.3f %.3f", i, peak, decay);
+      //gtk_vumeter_set_levels (self->priv->vumeter[i], (gint)decay, (gint)peak);
+      gtk_vumeter_set_levels (self->priv->vumeter[i], (gint) peak,
+          (gint) decay);
     }
   }
 done:
@@ -507,7 +508,8 @@ on_delayed_song_level_change (GstClock * clock, GstClockTime time,
 {
   // the callback is called from a clock thread
   if (GST_CLOCK_TIME_IS_VALID (time))
-    g_idle_add (on_delayed_idle_song_level_change, user_data);
+    g_idle_add_full (G_PRIORITY_HIGH, on_delayed_idle_song_level_change,
+        user_data, NULL);
   else {
     gconstpointer *const params = (gconstpointer *) user_data;
     GstMessage *message = (GstMessage *) params[1];
@@ -544,9 +546,8 @@ on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
         g_mutex_lock (&self->priv->lock);
         g_object_add_weak_pointer ((gpointer) self, (gpointer *) & data[0]);
         g_mutex_unlock (&self->priv->lock);
-        clock_id =
-            gst_clock_new_single_shot_id (self->priv->clock,
-            waittime + gst_element_get_base_time (level));
+        waittime += gst_element_get_base_time (level);
+        clock_id = gst_clock_new_single_shot_id (self->priv->clock, waittime);
         if ((clk_ret =
                 gst_clock_id_wait_async (clock_id, on_delayed_song_level_change,
                     (gpointer) data, NULL)) != GST_CLOCK_OK) {
@@ -745,8 +746,8 @@ on_sequence_loop_notify (const BtSequence * sequence, GParamSpec * arg,
   g_signal_handlers_block_matched (self->priv->loop_button,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_toolbar_loop_toggled, (gpointer) self);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-          priv->loop_button), loop);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+          loop_button), loop);
   g_signal_handlers_unblock_matched (self->priv->loop_button,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_toolbar_loop_toggled, (gpointer) self);
@@ -792,12 +793,21 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 
     // connect bus signals
     bus = gst_element_get_bus (GST_ELEMENT (bin));
-    g_signal_connect (bus, "message::error", G_CALLBACK (on_song_error),
-        (gpointer) self);
-    g_signal_connect (bus, "message::warning", G_CALLBACK (on_song_warning),
-        (gpointer) self);
-    g_signal_connect (bus, "message::element",
-        G_CALLBACK (on_song_level_change), (gpointer) self);
+    if (!g_signal_handler_find (bus, G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA,
+            0, 0, NULL, on_song_error, (gpointer) self)) {
+      g_signal_connect (bus, "message::error", G_CALLBACK (on_song_error),
+          (gpointer) self);
+    }
+    if (!g_signal_handler_find (bus, G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA,
+            0, 0, NULL, on_song_warning, (gpointer) self)) {
+      g_signal_connect (bus, "message::warning", G_CALLBACK (on_song_warning),
+          (gpointer) self);
+    }
+    if (!g_signal_handler_find (bus, G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA,
+            0, 0, NULL, on_song_level_change, (gpointer) self)) {
+      g_signal_connect (bus, "message::element",
+          G_CALLBACK (on_song_level_change), (gpointer) self);
+    }
     gst_object_unref (bus);
 
     if (self->priv->clock)
@@ -970,7 +980,7 @@ bt_main_toolbar_init_ui (const BtMainToolbar * self)
   //-- volume level and control
 
   box = gtk_vbox_new (FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (box), 2);
+  gtk_container_set_border_width (GTK_CONTAINER (box), 0);
 #ifndef USE_COMPACT_UI
   gtk_widget_set_size_request (GTK_WIDGET (box), 250, -1);
 #else

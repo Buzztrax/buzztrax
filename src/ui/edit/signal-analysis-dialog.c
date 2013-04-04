@@ -99,7 +99,7 @@ struct _BtSignalAnalysisDialogPrivate
   /* the analyzer-graphs */
   GtkWidget *spectrum_drawingarea, *level_drawingarea;
   GtkWidget *spectrum_ruler;
-  GdkColor *peak_color, *grid_color;
+  GdkColor *decay_color, *grid_color;
   cairo_pattern_t *spect_grad;
 
   /* the gstreamer elements that is used */
@@ -107,7 +107,7 @@ struct _BtSignalAnalysisDialogPrivate
   GList *analyzers_list;
 
   /* the analyzer results (max stereo) */
-  gdouble rms[2], peak[2];
+  gdouble peak[2], decay[2];
   gfloat *spect[2];
   GMutex lock;
 
@@ -218,7 +218,7 @@ on_level_expose (GtkWidget * widget, GdkEventExpose * event, gpointer user_data)
   GdkWindow *window = gtk_widget_get_window (widget);
   gint middle = self->priv->spect_bands >> 1;
   gdouble scl = middle / (-LOW_VUMETER_VAL);
-  gdouble rms0, rms1, peak0, peak1;
+  gdouble peak0, peak1, decay0, decay1;
   cairo_t *cr;
 
   gdk_window_begin_paint_rect (window, &rect);
@@ -227,39 +227,20 @@ on_level_expose (GtkWidget * widget, GdkEventExpose * event, gpointer user_data)
   cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
   cairo_rectangle (cr, 0, 0, self->priv->spect_bands, LEVEL_HEIGHT);
   cairo_fill (cr);
-  /* DEBUG
-     if((self->priv->rms[0]<self->priv->min_rms) && !isinf(self->priv->rms[0])) {
-     GST_DEBUG("levels: rms=%7.4lf",self->priv->rms[0]);
-     self->priv->min_rms=self->priv->rms[0];
-     }
-     if((self->priv->rms[0]>self->priv->max_rms) && !isinf(self->priv->rms[0])) {
-     GST_DEBUG("levels: rms=%7.4lf",self->priv->rms[0]);
-     self->priv->max_rms=self->priv->rms[0];
-     }
-     if((self->priv->peak[0]<self->priv->min_peak) && !isinf(self->priv->peak[0])) {
-     GST_DEBUG("levels: peak=%7.4lf",self->priv->peak[0]);
-     self->priv->min_peak=self->priv->peak[0];
-     }
-     if((self->priv->peak[0]>self->priv->max_peak) && !isinf(self->priv->peak[0])) {
-     GST_DEBUG("levels: peak=%7.4lf",self->priv->peak[0]);
-     self->priv->max_peak=self->priv->peak[0];
-     }
-     // DEBUG */
 
-  // use RMS or peak or both?
-  rms0 = self->priv->rms[0] * scl;
-  rms1 = self->priv->rms[1] * scl;
   peak0 = self->priv->peak[0] * scl;
   peak1 = self->priv->peak[1] * scl;
+  decay0 = self->priv->decay[0] * scl;
+  decay1 = self->priv->decay[1] * scl;
   cairo_set_source_rgb (cr, 1.0, 1.0, 1.0);
-  cairo_rectangle (cr, middle - rms0, 0, rms0 + rms1, LEVEL_HEIGHT);
+  cairo_rectangle (cr, middle - peak0, 0, peak0 + peak1, LEVEL_HEIGHT);
   cairo_fill (cr);
-  cairo_set_source_rgb (cr, self->priv->peak_color->red / 65535.0,
-      self->priv->peak_color->green / 65535.0,
-      self->priv->peak_color->blue / 65535.0);
-  cairo_rectangle (cr, middle - peak0, 0, 2, LEVEL_HEIGHT);
+  cairo_set_source_rgb (cr, self->priv->decay_color->red / 65535.0,
+      self->priv->decay_color->green / 65535.0,
+      self->priv->decay_color->blue / 65535.0);
+  cairo_rectangle (cr, middle - decay0, 0, 2, LEVEL_HEIGHT);
   cairo_fill (cr);
-  cairo_rectangle (cr, (middle - 1) + peak1, 0, 2, LEVEL_HEIGHT);
+  cairo_rectangle (cr, (middle - 1) + decay1, 0, 2, LEVEL_HEIGHT);
   cairo_fill (cr);
 
   /* TODO(ensonic): if stereo draw pan-meter (L-R, R-L) */
@@ -397,9 +378,9 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
   gtk_widget_get_pointer (widget, &mx, &my);
   if ((mx >= 0) && (mx < widget->allocation.width)
       && (my >= 0) && (my < widget->allocation.height)) {
-    cairo_set_source_rgba (cr, self->priv->peak_color->red / 65535.0,
-        self->priv->peak_color->green / 65535.0,
-        self->priv->peak_color->blue / 65535.0, 0.7);
+    cairo_set_source_rgba (cr, self->priv->decay_color->red / 65535.0,
+        self->priv->decay_color->green / 65535.0,
+        self->priv->decay_color->blue / 65535.0, 0.7);
     cairo_rectangle (cr, mx - 1.0, 0.0, 2.0, spect_height);
     cairo_rectangle (cr, 0.0, my - 1.0, spect_bands, 2.0);
     cairo_fill (cr);
@@ -658,39 +639,39 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
 
   if (name_id == bus_msg_level_quark) {
     const GValue *values;
-    GValueArray *cur_arr, *peak_arr;
+    GValueArray *peak_arr, *decay_arr;
     guint i;
     gdouble val;
 
     //GST_INFO("get level data");
     values = (GValue *) gst_structure_get_value (structure, "peak");
-    cur_arr = (GValueArray *) g_value_get_boxed (values);
-    values = (GValue *) gst_structure_get_value (structure, "decay");
     peak_arr = (GValueArray *) g_value_get_boxed (values);
+    values = (GValue *) gst_structure_get_value (structure, "decay");
+    decay_arr = (GValueArray *) g_value_get_boxed (values);
     // size of list is number of channels
-    switch (cur_arr->n_values) {
+    switch (decay_arr->n_values) {
       case 1:                  // mono
-        val = g_value_get_double (g_value_array_get_nth (cur_arr, 0));
-        if (isinf (val) || isnan (val))
-          val = LOW_VUMETER_VAL;
-        self->priv->rms[0] = -(LOW_VUMETER_VAL - val);
-        self->priv->rms[1] = self->priv->rms[0];
         val = g_value_get_double (g_value_array_get_nth (peak_arr, 0));
         if (isinf (val) || isnan (val))
           val = LOW_VUMETER_VAL;
         self->priv->peak[0] = -(LOW_VUMETER_VAL - val);
         self->priv->peak[1] = self->priv->peak[0];
+        val = g_value_get_double (g_value_array_get_nth (decay_arr, 0));
+        if (isinf (val) || isnan (val))
+          val = LOW_VUMETER_VAL;
+        self->priv->decay[0] = -(LOW_VUMETER_VAL - val);
+        self->priv->decay[1] = self->priv->decay[0];
         break;
       case 2:                  // stereo
         for (i = 0; i < 2; i++) {
-          val = g_value_get_double (g_value_array_get_nth (cur_arr, i));
-          if (isinf (val) || isnan (val))
-            val = LOW_VUMETER_VAL;
-          self->priv->rms[i] = -(LOW_VUMETER_VAL - val);
           val = g_value_get_double (g_value_array_get_nth (peak_arr, i));
           if (isinf (val) || isnan (val))
             val = LOW_VUMETER_VAL;
           self->priv->peak[i] = -(LOW_VUMETER_VAL - val);
+          val = g_value_get_double (g_value_array_get_nth (decay_arr, i));
+          if (isinf (val) || isnan (val))
+            val = LOW_VUMETER_VAL;
+          self->priv->decay[i] = -(LOW_VUMETER_VAL - val);
         }
         break;
     }
