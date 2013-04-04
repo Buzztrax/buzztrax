@@ -82,7 +82,7 @@ typedef enum
 
 #define SPECTRUM_FLOOR -70
 
-#define UPDATE_INTERVAL ((GstClockTime)(0.1*GST_SECOND))
+#define UPDATE_INTERVAL ((GstClockTime)(0.05*GST_SECOND))
 
 struct _BtSignalAnalysisDialogPrivate
 {
@@ -1110,7 +1110,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   }
   g_object_set (self->priv->analyzers[ANALYZER_LEVEL],
       "interval", UPDATE_INTERVAL, "post-messages", TRUE,
-      "peak-ttl", UPDATE_INTERVAL * 3, "peak-falloff", 80.0, NULL);
+      "peak-ttl", UPDATE_INTERVAL * 2, "peak-falloff", 80.0, NULL);
   // create queue
   if (!bt_signal_analysis_dialog_make_element (self, ANALYZER_QUEUE, "queue")) {
     res = FALSE;

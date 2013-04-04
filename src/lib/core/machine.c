@@ -681,8 +681,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->dst_wires->
-                        data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -710,8 +710,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->src_wires->
-                        data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1097,8 +1097,8 @@ bt_machine_enable_part (BtMachine * const self, const BtMachinePart part,
     case PART_OUTPUT_PRE_LEVEL:
     case PART_OUTPUT_POST_LEVEL:
       g_object_set (self->priv->machines[part],
-          "interval", (GstClockTime) (0.1 * GST_SECOND), "post-messages", TRUE,
-          "peak-ttl", (GstClockTime) (0.2 * GST_SECOND), "peak-falloff", 50.0,
+          "interval", (GstClockTime) (0.05 * GST_SECOND), "post-messages", TRUE,
+          "peak-ttl", (GstClockTime) (0.10 * GST_SECOND), "peak-falloff", 80.0,
           NULL);
       break;
     default:
@@ -1365,8 +1365,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1428,8 +1428,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                    machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
