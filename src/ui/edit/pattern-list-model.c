@@ -161,9 +161,8 @@ bt_pattern_list_model_rem (BtPatternListModel * model, BtPattern * pattern)
 
   GST_INFO ("removing pattern from model");
 
-  g_signal_handlers_disconnect_matched (pattern,
-      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-      on_pattern_name_changed, (gpointer) model);
+  g_signal_handlers_disconnect_by_func (pattern, on_pattern_name_changed,
+      model);
 
   // remove entry
   iter = g_sequence_lookup (seq, pattern, model_item_cmp, NULL);
@@ -608,19 +607,13 @@ bt_pattern_list_model_finalize (GObject * object)
     BtCmdPattern *pattern;
     GList *list, *node;
 
-    g_signal_handlers_disconnect_matched (machine,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_pattern_added,
-        (gpointer) self);
-    g_signal_handlers_disconnect_matched (machine,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_pattern_removed, (gpointer) self);
+    g_signal_handlers_disconnect_by_data (machine, self);
 
     g_object_get ((gpointer) machine, "patterns", &list, NULL);
     for (node = list; node; node = g_list_next (node)) {
       pattern = BT_CMD_PATTERN (node->data);
-      g_signal_handlers_disconnect_matched (pattern,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-          on_pattern_name_changed, (gpointer) self);
+      g_signal_handlers_disconnect_by_func (pattern, on_pattern_name_changed,
+          self);
       g_object_unref (pattern);
     }
     g_list_free (list);
@@ -628,9 +621,8 @@ bt_pattern_list_model_finalize (GObject * object)
         (gpointer *) & self->priv->machine);
   }
   if (self->priv->sequence) {
-    g_signal_handlers_disconnect_matched (self->priv->sequence,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_sequence_pattern_usage_changed, (gpointer) self);
+    g_signal_handlers_disconnect_by_func (self->priv->sequence,
+        on_sequence_pattern_usage_changed, self);
     g_object_remove_weak_pointer ((GObject *) self->priv->sequence,
         (gpointer *) & self->priv->sequence);
   }

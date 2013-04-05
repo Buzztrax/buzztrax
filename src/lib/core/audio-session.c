@@ -297,8 +297,7 @@ bt_audio_session_dispose (GObject * const object)
   self->priv->dispose_has_run = TRUE;
   GST_INFO ("!!!! self=%p", self);
 
-  g_signal_handlers_disconnect_matched (self->priv->settings,
-      G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, (gpointer) self);
+  g_signal_handlers_disconnect_by_data (self->priv->settings, (gpointer) self);
   g_object_unref (self->priv->settings);
 
   bt_audio_session_cleanup ();

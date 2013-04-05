@@ -674,17 +674,12 @@ bt_render_dialog_dispose (GObject * object)
     g_object_get (self->priv->song, "bin", &bin, NULL);
     if (bin) {
       GstBus *bus = gst_element_get_bus (GST_ELEMENT (bin));
-      g_signal_handlers_disconnect_matched (bus,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_song_error,
-          (gpointer) self);
-      g_signal_handlers_disconnect_matched (bus,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_song_eos,
-          (gpointer) self);
+      g_signal_handlers_disconnect_by_data (bus, self);
       gst_object_unref (bus);
+      gst_object_unref (bin);
     }
-    g_signal_handlers_disconnect_matched (self->priv->song, G_SIGNAL_MATCH_FUNC,
-        0, 0, NULL, on_song_play_pos_notify, NULL);
-    gst_object_unref (bin);
+    g_signal_handlers_disconnect_by_func (self->priv->song,
+        on_song_play_pos_notify, self);
     g_object_unref (self->priv->song);
   }
   g_object_unref (self->priv->app);

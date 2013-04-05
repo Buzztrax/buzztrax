@@ -532,21 +532,18 @@ bt_interaction_controller_menu_dispose (GObject * object)
   g_object_get (ic_registry, "devices", &devices, NULL);
   for (dnode = devices; dnode; dnode = g_list_next (dnode)) {
     device = BTIC_DEVICE (dnode->data);
-    g_signal_handlers_disconnect_matched (device,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+    g_signal_handlers_disconnect_by_func (device,
         on_controls_changed, (gpointer) self);
     g_object_get (device, "controls", &controls, NULL);
     for (cnode = controls; cnode; cnode = g_list_next (cnode)) {
       control = BTIC_CONTROL (cnode->data);
-      g_signal_handlers_disconnect_matched (control,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      g_signal_handlers_disconnect_by_func (control,
           on_control_notify_bound, (gpointer) self);
     }
     g_list_free (controls);
   }
   g_list_free (devices);
-  g_signal_handlers_disconnect_matched (ic_registry,
-      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_devices_changed,
+  g_signal_handlers_disconnect_by_func (ic_registry, on_devices_changed,
       (gpointer) self);
   g_object_unref (ic_registry);
 

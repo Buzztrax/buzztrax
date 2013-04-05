@@ -2351,8 +2351,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->priv->
-            param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->
+            priv->param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
@@ -2466,9 +2466,8 @@ on_wire_removed (const BtSetup * setup, BtWire * wire, gpointer user_data)
 
     // disconnect signal handlers
     g_object_get (wire, "src", &src, NULL);
-    g_signal_handlers_disconnect_matched (src,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_wire_machine_id_changed, expander);
+    g_signal_handlers_disconnect_by_func (src, on_wire_machine_id_changed,
+        expander);
     g_object_unref (src);
 
     gtk_container_remove (GTK_CONTAINER (self->priv->param_group_box),
@@ -2887,20 +2886,9 @@ bt_machine_properties_dialog_dispose (GObject * object)
     setup = NULL;
   }
   // disconnect handlers
-  g_signal_handlers_disconnect_matched (self->priv->machine,
-      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-      on_machine_voices_notify, self);
-  g_signal_handlers_disconnect_matched (self->priv->machine,
-      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-      on_machine_id_changed, self);
-  // disconnect wire handlers
+  g_signal_handlers_disconnect_by_data (self->priv->machine, self);
   if (setup) {
-    g_signal_handlers_disconnect_matched (setup,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_wire_added,
-        self);
-    g_signal_handlers_disconnect_matched (setup,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_wire_removed,
-        self);
+    g_signal_handlers_disconnect_by_data (setup, self);
   }
   // disconnect all handlers that are connected to params
   g_object_get (self->priv->machine, "machine", &machine, NULL);
@@ -2959,9 +2947,7 @@ bt_machine_properties_dialog_dispose (GObject * object)
             NULL, on_double_range_property_notify, NULL);
         gst_object_unref (pan);
       }
-      g_signal_handlers_disconnect_matched (src,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-          on_wire_machine_id_changed,
+      g_signal_handlers_disconnect_by_func (src, on_wire_machine_id_changed,
           g_hash_table_lookup (self->priv->group_to_object, wire));
       g_object_unref (src);
     }

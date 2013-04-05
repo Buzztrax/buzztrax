@@ -315,9 +315,8 @@ on_sequence_pattern_removed (BtSequence * sequence, BtPattern * pattern,
 {
   BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (user_data);
 
-  g_signal_handlers_disconnect_matched (pattern,
-      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-      on_pattern_name_changed, (gpointer) model);
+  g_signal_handlers_disconnect_by_func (pattern, on_pattern_name_changed,
+      model);
 }
 
 //-- constructor methods
@@ -682,22 +681,7 @@ bt_sequence_grid_model_finalize (GObject * object)
   if (self->priv->sequence) {
     BtSequence *sequence = self->priv->sequence;
 
-    g_signal_handlers_disconnect_matched (sequence,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_sequence_length_changed, (gpointer) self);
-    g_signal_handlers_disconnect_matched (sequence,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_sequence_tracks_changed, (gpointer) self);
-    g_signal_handlers_disconnect_matched (sequence,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_sequence_rows_changed, (gpointer) self);
-    g_signal_handlers_disconnect_matched (sequence,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_sequence_pattern_added, (gpointer) self);
-    g_signal_handlers_disconnect_matched (sequence,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_sequence_pattern_removed, (gpointer) self);
-
+    g_signal_handlers_disconnect_by_data (sequence, self);
     g_object_remove_weak_pointer ((GObject *) sequence,
         (gpointer *) & self->priv->sequence);
   }

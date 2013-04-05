@@ -1212,8 +1212,7 @@ bt_signal_analysis_dialog_dispose (GObject * object)
   GST_DEBUG ("!!!! removing signal handler");
 
   if (self->priv->bus) {
-    g_signal_handlers_disconnect_matched (self->priv->bus,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+    g_signal_handlers_disconnect_by_func (self->priv->bus,
         on_signal_analyser_change, self);
     gst_object_unref (self->priv->bus);
   }

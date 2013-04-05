@@ -544,9 +544,8 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
       break;
     case WIRE_CANVAS_ITEM_SRC:
       if (self->priv->src) {
-        g_signal_handlers_disconnect_matched (self->priv->src,
-            G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-            on_wire_src_position_changed, (gpointer) self);
+        g_signal_handlers_disconnect_by_func (self->priv->src,
+            on_wire_src_position_changed, self);
         g_object_unref (self->priv->src);
       }
       self->priv->src = BT_MACHINE_CANVAS_ITEM (g_value_dup_object (value));
@@ -558,9 +557,8 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
       break;
     case WIRE_CANVAS_ITEM_DST:
       if (self->priv->dst) {
-        g_signal_handlers_disconnect_matched (self->priv->dst,
-            G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-            on_wire_dst_position_changed, (gpointer) self);
+        g_signal_handlers_disconnect_by_func (self->priv->dst,
+            on_wire_dst_position_changed, self);
         g_object_unref (self->priv->dst);
       }
       self->priv->dst = BT_MACHINE_CANVAS_ITEM (g_value_dup_object (value));
@@ -587,42 +585,35 @@ bt_wire_canvas_item_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
   if (self->priv->src) {
-    g_signal_handlers_disconnect_matched (self->priv->src,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_wire_src_position_changed, (gpointer) self);
+    g_signal_handlers_disconnect_by_func (self->priv->src,
+        on_wire_src_position_changed, self);
   }
   if (self->priv->dst) {
-    g_signal_handlers_disconnect_matched (self->priv->dst,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_wire_dst_position_changed, (gpointer) self);
+    g_signal_handlers_disconnect_by_func (self->priv->dst,
+        on_wire_dst_position_changed, self);
   }
   g_object_get (self->priv->app, "song", &song, NULL);
   if (song) {
     BtSetup *setup;
 
     g_object_get (song, "setup", &setup, NULL);
-    g_signal_handlers_disconnect_matched (setup,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_machine_removed, (gpointer) self);
+    g_signal_handlers_disconnect_by_func (setup, on_machine_removed, self);
     g_object_unref (setup);
     g_object_unref (song);
   }
   if (self->priv->wire_gain) {
-    g_signal_handlers_disconnect_matched (self->priv->wire_gain,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_gain_changed,
-        (gpointer) self);
+    g_signal_handlers_disconnect_by_func (self->priv->wire_gain,
+        on_gain_changed, self);
     g_object_unref (self->priv->wire_gain);
   }
   if (self->priv->wire_pan) {
-    g_signal_handlers_disconnect_matched (self->priv->wire_pan,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_pan_changed,
-        (gpointer) self);
+    g_signal_handlers_disconnect_by_func (self->priv->wire_pan, on_pan_changed,
+        self);
     g_object_unref (self->priv->wire_pan);
   }
-  g_signal_handlers_disconnect_matched (self->priv->wire,
-      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-      on_wire_pan_changed, (gpointer) self);
-  GST_DEBUG ("  signal disconected");
+  g_signal_handlers_disconnect_by_func (self->priv->wire, on_wire_pan_changed,
+      self);
+  GST_DEBUG ("  signals disconected");
 
   GST_INFO ("releasing the wire %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self->priv->wire));
@@ -777,8 +768,8 @@ bt_wire_canvas_item_realize (GnomeCanvasItem * citem)
       (gchar *) g_hash_table_lookup (self->priv->properties, "analyzer-shown");
   if (prop && prop[0] == '1' && prop[1] == '\0') {
     if ((self->priv->analysis_dialog =
-            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->priv->
-                        wire))))) {
+            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->
+                        priv->wire))))) {
       bt_edit_application_attach_child_window (self->priv->app,
           GTK_WINDOW (self->priv->analysis_dialog));
       g_signal_connect (self->priv->analysis_dialog, "destroy",
@@ -804,13 +795,13 @@ bt_wire_canvas_item_event (GnomeCanvasItem * citem, GdkEvent * event)
             event->button.x, event->button.y,
             event->button.x_root, event->button.y_root);
         if (!(event->button.state & GDK_SHIFT_MASK)) {
-          bt_main_page_machines_wire_volume_popup (self->priv->
-              main_page_machines, self->priv->wire, (gint) event->button.x_root,
-              (gint) event->button.y_root);
+          bt_main_page_machines_wire_volume_popup (self->
+              priv->main_page_machines, self->priv->wire,
+              (gint) event->button.x_root, (gint) event->button.y_root);
         } else {
-          bt_main_page_machines_wire_panorama_popup (self->priv->
-              main_page_machines, self->priv->wire, (gint) event->button.x_root,
-              (gint) event->button.y_root);
+          bt_main_page_machines_wire_panorama_popup (self->
+              priv->main_page_machines, self->priv->wire,
+              (gint) event->button.x_root, (gint) event->button.y_root);
         }
         res = TRUE;
       } else if (event->button.button == 3) {

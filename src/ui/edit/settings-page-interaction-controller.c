@@ -95,8 +95,8 @@ notify_device_controlchange (const BtIcLearn * learn,
     gint pos;
     // add the new control to the list
     BtObjectListModel *store =
-        BT_OBJECT_LIST_MODEL (gtk_tree_view_get_model (self->
-            priv->controller_list));
+        BT_OBJECT_LIST_MODEL (gtk_tree_view_get_model (self->priv->
+            controller_list));
 
     // find the position
     g_object_get (self->priv->device, "controls", &list, NULL);
@@ -125,8 +125,8 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
 
   if (self->priv->device) {
     btic_learn_stop (self->priv->device);
-    g_signal_handlers_disconnect_matched (self->priv->device,
-        G_SIGNAL_MATCH_FUNC, 0, 0, NULL, notify_device_controlchange, NULL);
+    g_signal_handlers_disconnect_by_func (self->priv->device,
+        notify_device_controlchange, self);
     g_object_unref (self->priv->device);
     self->priv->device = NULL;
   }
@@ -303,8 +303,8 @@ bt_settings_page_interaction_controller_init_ui (const
       (gpointer) self);
   gtk_tree_view_insert_column_with_attributes (self->priv->controller_list, -1,
       _("Controller"), renderer, "text", CONTROLLER_LIST_LABEL, NULL);
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
-          controller_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
+          priv->controller_list), GTK_SELECTION_BROWSE);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->controller_list));
   gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (scrolled_window), 1, 3, 2, 3,
@@ -365,15 +365,14 @@ bt_settings_page_interaction_controller_dispose (GObject * object)
 
   if (self->priv->device) {
     btic_learn_stop (self->priv->device);
-    g_signal_handlers_disconnect_matched (self->priv->device,
-        G_SIGNAL_MATCH_FUNC, 0, 0, NULL, notify_device_controlchange, NULL);
+    g_signal_handlers_disconnect_by_func (self->priv->device,
+        notify_device_controlchange, self);
     g_object_unref (self->priv->device);
   }
 
   g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);
-  g_signal_handlers_disconnect_matched (ic_registry,
-      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-      G_CALLBACK (on_ic_registry_devices_changed), (gpointer) self);
+  g_signal_handlers_disconnect_by_func (ic_registry,
+      on_ic_registry_devices_changed, self);
   g_object_unref (ic_registry);
 
   g_object_unref (self->priv->app);

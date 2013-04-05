@@ -576,8 +576,7 @@ bt_machine_preferences_dialog_dispose (GObject * object)
   GST_DEBUG ("!!!! self=%p", self);
 
   // disconnect handlers
-  g_signal_handlers_disconnect_matched (self->priv->machine,
-      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+  g_signal_handlers_disconnect_by_func (self->priv->machine,
       on_machine_id_changed, self);
   // disconnect handlers connected to machine properties
   g_object_get (self->priv->machine, "machine", &machine, NULL);

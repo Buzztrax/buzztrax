@@ -249,8 +249,8 @@ bt_interaction_controller_learn_dialog_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_signal_handlers_disconnect_matched (self->priv->device, G_SIGNAL_MATCH_FUNC,
-      0, 0, NULL, notify_device_controlchange, NULL);
+  g_signal_handlers_disconnect_by_func (self->priv->device,
+      notify_device_controlchange, self);
 
   g_object_try_weak_unref (self->priv->device);
   g_object_try_weak_unref (self->priv->menu);

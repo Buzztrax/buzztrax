@@ -398,9 +398,8 @@ bt_wavelevel_list_model_finalize (GObject * object)
     g_object_get ((gpointer) wave, "wavelevels", &list, NULL);
     for (node = list; node; node = g_list_next (node)) {
       wavelevel = BT_WAVELEVEL (node->data);
-      g_signal_handlers_disconnect_matched (wavelevel,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-          on_wavelevel_property_changed, (gpointer) self);
+      g_signal_handlers_disconnect_by_func (wavelevel,
+          on_wavelevel_property_changed, self);
     }
     g_list_free (list);
     g_object_remove_weak_pointer ((GObject *) wave,

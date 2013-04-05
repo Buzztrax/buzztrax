@@ -469,14 +469,9 @@ bt_main_statusbar_dispose (GObject * object)
     GST_DEBUG ("disconnect handlers from song=%p", song);
     g_object_get (song, "sequence", &sequence, "song-info", &song_info, NULL);
 
-    g_signal_handlers_disconnect_matched (song, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-        on_song_is_playing_notify, NULL);
-    g_signal_handlers_disconnect_matched (song, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-        on_song_play_pos_notify, NULL);
-    g_signal_handlers_disconnect_matched (song_info, G_SIGNAL_MATCH_FUNC, 0, 0,
-        NULL, on_song_info_rhythm_notify, NULL);
-    g_signal_handlers_disconnect_matched (sequence, G_SIGNAL_MATCH_FUNC, 0, 0,
-        NULL, on_sequence_loop_time_notify, NULL);
+    g_signal_handlers_disconnect_by_data (song, self);
+    g_signal_handlers_disconnect_by_data (song_info, self);
+    g_signal_handlers_disconnect_by_data (sequence, self);
     g_object_unref (song_info);
     g_object_unref (sequence);
     g_object_unref (song);

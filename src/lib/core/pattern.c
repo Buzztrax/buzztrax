@@ -1305,20 +1305,14 @@ bt_pattern_dispose (GObject * const object)
   g_hash_table_destroy (self->priv->param_to_value_groups);
 
   if (self->priv->machine) {
-    g_signal_handlers_disconnect_matched (self->priv->machine,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+    g_signal_handlers_disconnect_by_func (self->priv->machine,
         bt_pattern_on_voices_changed, (gpointer) self);
   }
   if (self->priv->song) {
     BtSetup *setup;
     g_object_get (self->priv->song, "setup", &setup, NULL);
     if (setup) {
-      g_signal_handlers_disconnect_matched (setup,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-          bt_pattern_on_setup_wire_added, (gpointer) self);
-      g_signal_handlers_disconnect_matched (setup,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-          bt_pattern_on_setup_wire_removed, (gpointer) self);
+      g_signal_handlers_disconnect_by_data (setup, (gpointer) self);
       g_object_unref (setup);
     }
   }

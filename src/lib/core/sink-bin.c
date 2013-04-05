@@ -1119,8 +1119,7 @@ bt_sink_bin_dispose (GObject * const object)
   GST_DEBUG ("->NULL state change returned '%s'",
       gst_element_state_change_return_get_name (res));
 
-  g_signal_handlers_disconnect_matched (self->priv->settings,
-      G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, (gpointer) self);
+  g_signal_handlers_disconnect_by_data (self->priv->settings, (gpointer) self);
   g_object_unref (self->priv->settings);
 
   if (self->priv->mv_handler_id && self->priv->gain) {

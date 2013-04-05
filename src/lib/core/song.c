@@ -1520,53 +1520,17 @@ bt_song_dispose (GObject * const object)
       bt_song_idle_stop (self);
 
     GstBus *const bus = gst_element_get_bus (GST_ELEMENT (self->priv->bin));
-    g_signal_handlers_disconnect_matched (bus,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_song_state_changed, (gpointer) self);
-    g_signal_handlers_disconnect_matched (bus,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_song_segment_done, (gpointer) self);
-    g_signal_handlers_disconnect_matched (bus,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_song_eos,
-        (gpointer) self);
-    g_signal_handlers_disconnect_matched (bus,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_song_async_done, (gpointer) self);
-    g_signal_handlers_disconnect_matched (bus,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_song_clock_lost, (gpointer) self);
-    g_signal_handlers_disconnect_matched (bus,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_song_latency,
-        (gpointer) self);
-    g_signal_handlers_disconnect_matched (bus,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_song_request_state, (gpointer) self);
-#ifdef DETAILED_CPU_LOAD
-    g_signal_handlers_disconnect_matched (bus,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_song_stream_status, (gpointer) self);
-#endif
+    g_signal_handlers_disconnect_by_data (bus, (gpointer) self);
     gst_bus_remove_signal_watch (bus);
     gst_object_unref (bus);
   }
 
   if (self->priv->sequence) {
-    g_signal_handlers_disconnect_matched (self->priv->sequence,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        bt_song_on_loop_changed, (gpointer) self);
-    g_signal_handlers_disconnect_matched (self->priv->sequence,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        bt_song_on_loop_start_changed, (gpointer) self);
-    g_signal_handlers_disconnect_matched (self->priv->sequence,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        bt_song_on_loop_end_changed, (gpointer) self);
-    g_signal_handlers_disconnect_matched (self->priv->sequence,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        bt_song_on_length_changed, (gpointer) self);
+    g_signal_handlers_disconnect_by_data (self->priv->sequence,
+        (gpointer) self);
   }
   if (self->priv->song_info) {
-    g_signal_handlers_disconnect_matched (self->priv->song_info,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+    g_signal_handlers_disconnect_by_func (self->priv->song_info,
         bt_song_on_tempo_changed, (gpointer) self);
   }
 

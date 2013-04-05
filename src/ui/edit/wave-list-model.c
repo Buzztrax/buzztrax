@@ -398,13 +398,7 @@ bt_wave_list_model_finalize (GObject * object)
   if (self->priv->wavetable) {
     BtWavetable *wavetable = self->priv->wavetable;
 
-    g_signal_handlers_disconnect_matched (wavetable,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_wave_added,
-        (gpointer) self);
-    g_signal_handlers_disconnect_matched (wavetable,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_wave_removed, (gpointer) self);
-
+    g_signal_handlers_disconnect_by_data (wavetable, self);
     g_object_remove_weak_pointer ((GObject *) wavetable,
         (gpointer *) & self->priv->wavetable);
   }

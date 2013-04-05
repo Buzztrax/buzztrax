@@ -1026,8 +1026,7 @@ bt_change_log_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_signal_handlers_disconnect_matched (self->priv->app, G_SIGNAL_MATCH_FUNC, 0,
-      0, NULL, on_song_changed, NULL);
+  g_signal_handlers_disconnect_by_func (self->priv->app, on_song_changed, self);
 
   close_and_free_log (self);
   g_object_try_weak_unref (self->priv->app);

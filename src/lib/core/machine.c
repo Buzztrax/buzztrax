@@ -3344,24 +3344,17 @@ bt_machine_dispose (GObject * const object)
         "song-info", &song_info, NULL);
     if (sequence) {
       GST_DEBUG ("  disconnecting sequence handlers");
-      g_signal_handlers_disconnect_matched (sequence,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      g_signal_handlers_disconnect_by_func (sequence,
           bt_machine_on_duration_changed, (gpointer) self);
       g_object_unref (sequence);
     }
     if (song_info) {
       GST_DEBUG ("  disconnecting song-info handlers");
-      g_signal_handlers_disconnect_matched (song_info,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-          bt_machine_on_bpm_changed, (gpointer) self);
-      g_signal_handlers_disconnect_matched (song_info,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-          bt_machine_on_tpb_changed, (gpointer) self);
+      g_signal_handlers_disconnect_by_data (song_info, (gpointer) self);
       g_object_unref (song_info);
     }
   }
-  g_signal_handlers_disconnect_matched (settings,
-      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+  g_signal_handlers_disconnect_by_func (settings,
       bt_machine_on_latency_changed, (gpointer) self);
   g_object_unref (settings);
 

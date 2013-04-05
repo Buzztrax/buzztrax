@@ -646,8 +646,8 @@ bt_dec_dispose (GObject * object)
   bt_dec_reset (self);
 
   if (self->song) {
-    g_signal_handlers_disconnect_matched (self->song, G_SIGNAL_MATCH_FUNC, 0, 0,
-        NULL, on_song_is_playing_notify, NULL);
+    g_signal_handlers_disconnect_by_func (self->song, on_song_is_playing_notify,
+        self);
     g_object_unref (self->song);
     self->song = NULL;
   }

@@ -142,8 +142,7 @@ bt_machine_list_model_rem (BtMachineListModel * model, BtMachine * machine)
 
   GST_INFO_OBJECT (machine, "removing machine from model");
 
-  g_signal_handlers_disconnect_matched (machine,
-      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+  g_signal_handlers_disconnect_by_func (machine,
       on_machine_id_changed, (gpointer) model);
 
   // remove entry
@@ -486,19 +485,13 @@ bt_machine_list_model_finalize (GObject * object)
     BtMachine *machine;
     GList *list, *node;
 
-    g_signal_handlers_disconnect_matched (setup,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_machine_added,
-        (gpointer) self);
-    g_signal_handlers_disconnect_matched (setup,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_machine_removed, (gpointer) self);
+    g_signal_handlers_disconnect_by_data (setup, self);
 
     g_object_get ((gpointer) setup, "machines", &list, NULL);
     for (node = list; node; node = g_list_next (node)) {
       machine = BT_MACHINE (node->data);
-      g_signal_handlers_disconnect_matched (machine,
-          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-          on_machine_id_changed, (gpointer) self);
+      g_signal_handlers_disconnect_by_func (machine, on_machine_id_changed,
+          self);
     }
     g_list_free (list);
     g_object_remove_weak_pointer ((GObject *) setup,

@@ -1605,13 +1605,10 @@ bt_main_page_waves_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_signal_handlers_disconnect_matched (self->priv->settings,
-      G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, (gpointer) self);
+  g_signal_handlers_disconnect_by_data (self->priv->settings, self);
+  g_signal_handlers_disconnect_by_func (self->priv->app, on_song_changed, self);
+
   g_object_unref (self->priv->settings);
-
-  g_signal_handlers_disconnect_matched (self->priv->app, G_SIGNAL_MATCH_FUNC, 0,
-      0, NULL, on_song_changed, NULL);
-
   g_object_unref (self->priv->n2f);
   g_object_try_unref (self->priv->wavetable);
   g_object_unref (self->priv->app);
@@ -1627,8 +1624,7 @@ bt_main_page_waves_dispose (GObject * object)
     preview_stop (self);
     gst_element_set_state (self->priv->preview, GST_STATE_NULL);
     bus = gst_element_get_bus (GST_ELEMENT (self->priv->preview));
-    g_signal_handlers_disconnect_matched (bus, G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        NULL, (gpointer) self);
+    g_signal_handlers_disconnect_by_data (bus, self);
     gst_bus_remove_signal_watch (bus);
     gst_object_unref (bus);
     gst_object_unref (self->priv->preview);
