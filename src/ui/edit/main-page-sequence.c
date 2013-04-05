@@ -3520,7 +3520,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   g_object_set (self->priv->sequence_pos_table, "play-position", 0.0, NULL);
   // vumeters
   bus = gst_element_get_bus (GST_ELEMENT (bin));
-  bt_g_signal_connect (bus, "message::element",
+  bt_g_signal_connect (bus, "sync-message::element",
       G_CALLBACK (on_track_level_change), (gpointer) self);
   gst_object_unref (bus);
   if (self->priv->clock)

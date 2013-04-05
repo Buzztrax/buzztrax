@@ -1115,7 +1115,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
 
   g_object_get (song, "bin", &bin, NULL);
   self->priv->bus = gst_element_get_bus (GST_ELEMENT (bin));
-  g_signal_connect (self->priv->bus, "message::element",
+  g_signal_connect (self->priv->bus, "sync-message::element",
       G_CALLBACK (on_signal_analyser_change), (gpointer) self);
   self->priv->clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
   gst_object_unref (bin);

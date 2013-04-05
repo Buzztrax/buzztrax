@@ -1157,10 +1157,7 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
       g_object_try_unref (self->priv->machine);
       self->priv->machine = BT_MACHINE (g_value_dup_object (value));
       if (self->priv->machine) {
-        BtSong *song;
         GstElement *element;
-        GstBin *bin;
-        GstBus *bus;
 
         GST_INFO ("set the machine %" G_OBJECT_REF_COUNT_FMT,
             G_OBJECT_LOG_REF_COUNT (self->priv->machine));
@@ -1182,18 +1179,6 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
             G_CALLBACK (on_machine_id_changed), (gpointer) self);
         g_signal_connect (self->priv->machine, "notify::parent",
             G_CALLBACK (on_machine_parent_changed), (gpointer) self);
-
-        g_object_get (self->priv->app, "song", &song, NULL);
-        g_signal_connect (song, "notify::is-playing",
-            G_CALLBACK (on_song_is_playing_notify), (gpointer) self);
-        g_object_get (song, "bin", &bin, NULL);
-        bus = gst_element_get_bus (GST_ELEMENT (bin));
-        g_signal_connect (bus, "message::element",
-            G_CALLBACK (on_machine_level_change), (gpointer) self);
-        gst_object_unref (bus);
-        self->priv->clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
-        gst_object_unref (bin);
-        g_object_unref (song);
 
         if (!BT_IS_SINK_MACHINE (self->priv->machine)) {
           if (bt_machine_enable_output_post_level (self->priv->machine)) {
@@ -1559,11 +1544,27 @@ bt_machine_canvas_item_event (GnomeCanvasItem * citem, GdkEvent * event)
 static void
 bt_machine_canvas_item_init (BtMachineCanvasItem * self)
 {
+  BtSong *song;
+  GstBin *bin;
+  GstBus *bus;
+
   self->priv =
       G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_MACHINE_CANVAS_ITEM,
       BtMachineCanvasItemPrivate);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
+
+  g_object_get (self->priv->app, "song", &song, "bin", &bin, NULL);
+  g_signal_connect (song, "notify::is-playing",
+      G_CALLBACK (on_song_is_playing_notify), (gpointer) self);
+  bus = gst_element_get_bus (GST_ELEMENT (bin));
+  gst_bus_enable_sync_message_emission (bus);
+  g_signal_connect (bus, "sync-message::element",
+      G_CALLBACK (on_machine_level_change), (gpointer) self);
+  gst_object_unref (bus);
+  self->priv->clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
+  gst_object_unref (bin);
+  g_object_unref (song);
 
   // generate the context menu
   self->priv->context_menu = GTK_MENU (g_object_ref_sink (gtk_menu_new ()));

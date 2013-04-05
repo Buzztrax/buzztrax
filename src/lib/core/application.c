@@ -112,6 +112,7 @@ bt_application_dispose (GObject * const object)
 
   if (self->priv->bin) {
     GstStateChangeReturn res;
+    GstBus *bus;
 
     if ((res =
             gst_element_set_state (GST_ELEMENT (self->priv->bin),
@@ -120,6 +121,10 @@ bt_application_dispose (GObject * const object)
     }
     GST_DEBUG ("->NULL state change returned '%s'",
         gst_element_state_change_return_get_name (res));
+
+    bus = gst_element_get_bus (self->priv->bin);
+    gst_bus_disable_sync_message_emission (bus);
+    gst_object_unref (bus);
     gst_object_unref (self->priv->bin);
   }
   g_object_try_unref (self->priv->settings);
@@ -133,6 +138,8 @@ bt_application_dispose (GObject * const object)
 static void
 bt_application_init (BtApplication * self)
 {
+  GstBus *bus;
+
   GST_DEBUG ("!!!! self=%p", self);
   self->priv =
       G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_APPLICATION,
@@ -141,6 +148,10 @@ bt_application_init (BtApplication * self)
   g_assert (GST_IS_ELEMENT (self->priv->bin));
   GST_DEBUG ("bin: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self->priv->bin));
+
+  bus = gst_element_get_bus (self->priv->bin);
+  gst_bus_enable_sync_message_emission (bus);
+  gst_object_unref (bus);
 
   // tried this when debuging a case where we don't get bus messages
   //gst_pipeline_set_auto_flush_bus(GST_PIPELINE(self->priv->bin),FALSE);

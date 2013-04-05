@@ -797,7 +797,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
         (gpointer) self);
     bt_g_signal_connect (bus, "message::warning", G_CALLBACK (on_song_warning),
         (gpointer) self);
-    bt_g_signal_connect (bus, "message::element",
+    bt_g_signal_connect (bus, "sync-message::element",
         G_CALLBACK (on_song_level_change), (gpointer) self);
     gst_object_unref (bus);
 
