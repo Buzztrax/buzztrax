@@ -736,7 +736,8 @@ on_delayed_signal_analyser_change (GstClock * clock, GstClockTime time,
 {
   // the callback is called from a clock thread
   if (GST_CLOCK_TIME_IS_VALID (time))
-    g_idle_add (on_delayed_idle_signal_analyser_change, user_data);
+    g_idle_add_full (G_PRIORITY_HIGH, on_delayed_idle_signal_analyser_change,
+        user_data, NULL);
   else {
     gconstpointer *const params = (gconstpointer *) user_data;
     GstMessage *message = (GstMessage *) params[1];
