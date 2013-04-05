@@ -713,6 +713,7 @@ G_OBJECT_REF_COUNT
 G_OBJECT_REF_COUNT_FMT
 G_OBJECT_LOG_REF_COUNT
 bt_g_type_get_base_type
+bt_g_signal_connect
 g_object_try_ref
 g_object_try_unref
 g_object_try_weak_ref

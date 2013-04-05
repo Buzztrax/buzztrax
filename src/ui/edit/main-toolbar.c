@@ -793,21 +793,12 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 
     // connect bus signals
     bus = gst_element_get_bus (GST_ELEMENT (bin));
-    if (!g_signal_handler_find (bus, G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA,
-            0, 0, NULL, on_song_error, (gpointer) self)) {
-      g_signal_connect (bus, "message::error", G_CALLBACK (on_song_error),
-          (gpointer) self);
-    }
-    if (!g_signal_handler_find (bus, G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA,
-            0, 0, NULL, on_song_warning, (gpointer) self)) {
-      g_signal_connect (bus, "message::warning", G_CALLBACK (on_song_warning),
-          (gpointer) self);
-    }
-    if (!g_signal_handler_find (bus, G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA,
-            0, 0, NULL, on_song_level_change, (gpointer) self)) {
-      g_signal_connect (bus, "message::element",
-          G_CALLBACK (on_song_level_change), (gpointer) self);
-    }
+    bt_g_signal_connect (bus, "message::error", G_CALLBACK (on_song_error),
+        (gpointer) self);
+    bt_g_signal_connect (bus, "message::warning", G_CALLBACK (on_song_warning),
+        (gpointer) self);
+    bt_g_signal_connect (bus, "message::element",
+        G_CALLBACK (on_song_level_change), (gpointer) self);
     gst_object_unref (bus);
 
     if (self->priv->clock)

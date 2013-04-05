@@ -685,9 +685,31 @@ bt_g_type_get_base_type (GType type)
 
   while ((base = g_type_parent (type)))
     type = base;
-  return (type);
+  return type;
 }
 
+/**
+ * bt_g_signal_connect:
+ * @instance: the instance to connect to.
+ * @detailed_signal: a string of the form "signal-name::detail".
+ * @c_handler: the GCallback to connect.
+ * @data: data to pass to c_handler calls.
+ *
+ * Like g_signal_connect(), but checks first if the handler is already connected.
+ *
+ * Returns: the handler id
+ */
+gulong
+bt_g_signal_connect (gpointer instance, const gchar * detailed_signal,
+    GCallback c_handler, gpointer data)
+{
+  gulong id = g_signal_handler_find (instance,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, c_handler, data);
+  if (!id) {
+    id = g_signal_connect (instance, detailed_signal, c_handler, data);
+  }
+  return id;
+}
 
 //-- cpu load monitoring
 

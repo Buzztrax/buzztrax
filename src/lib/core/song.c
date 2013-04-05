@@ -1336,22 +1336,22 @@ bt_song_constructed (GObject * object)
   if (bus) {
     GST_DEBUG ("listen to bus messages (%p)", bus);
     gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-    g_signal_connect (bus, "message::segment-done",
+    bt_g_signal_connect (bus, "message::segment-done",
         G_CALLBACK (on_song_segment_done), (gpointer) self);
-    g_signal_connect (bus, "message::eos", G_CALLBACK (on_song_eos),
+    bt_g_signal_connect (bus, "message::eos", G_CALLBACK (on_song_eos),
         (gpointer) self);
-    g_signal_connect (bus, "message::state-changed",
+    bt_g_signal_connect (bus, "message::state-changed",
         G_CALLBACK (on_song_state_changed), (gpointer) self);
-    g_signal_connect (bus, "message::async-done",
+    bt_g_signal_connect (bus, "message::async-done",
         G_CALLBACK (on_song_async_done), (gpointer) self);
-    g_signal_connect (bus, "message::clock-lost",
+    bt_g_signal_connect (bus, "message::clock-lost",
         G_CALLBACK (on_song_clock_lost), (gpointer) self);
-    g_signal_connect (bus, "message::latency", G_CALLBACK (on_song_latency),
+    bt_g_signal_connect (bus, "message::latency", G_CALLBACK (on_song_latency),
         (gpointer) self);
-    g_signal_connect (bus, "message::request-state",
+    bt_g_signal_connect (bus, "message::request-state",
         G_CALLBACK (on_song_request_state), (gpointer) self);
 #ifdef DETAILED_CPU_LOAD
-    g_signal_connect (bus, "message::stream-status",
+    bt_g_signal_connect (bus, "message::stream-status",
         G_CALLBACK (on_song_stream_status), (gpointer) self);
 #endif
 

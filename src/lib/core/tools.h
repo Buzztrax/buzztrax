@@ -51,6 +51,8 @@ GstClockTime bt_gst_analyzer_get_waittime(GstElement *analyzer, const GstStructu
 
 GType bt_g_type_get_base_type(const GType type);
 
+gulong bt_g_signal_connect(gpointer instance, const gchar *detailed_signal, GCallback c_handler, gpointer data);
+
 //-- cpu load monitoring
 
 guint bt_cpu_load_get_current(void);
