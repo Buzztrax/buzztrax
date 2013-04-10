@@ -1558,7 +1558,6 @@ bt_machine_canvas_item_init (BtMachineCanvasItem * self)
   g_signal_connect (song, "notify::is-playing",
       G_CALLBACK (on_song_is_playing_notify), (gpointer) self);
   bus = gst_element_get_bus (GST_ELEMENT (bin));
-  gst_bus_enable_sync_message_emission (bus);
   g_signal_connect (bus, "sync-message::element",
       G_CALLBACK (on_machine_level_change), (gpointer) self);
   gst_object_unref (bus);
