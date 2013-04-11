@@ -22,6 +22,8 @@
  * #BtMachine instances on the track axis. It tracks first and last use of
  * patterns and provides two signals for notification -
  * #BtSequence::pattern-added and #BtSequence::pattern-removed.
+ * The labels are exported as a #GstToc, readable through the #BtSequence:toc
+ * property.
  *
  * It supports looping a section of the sequence (see #BtSequence:loop,
  * #BtSequence:loop-start, #BtSequence:loop-end).
@@ -77,7 +79,8 @@ enum
   SEQUENCE_LOOP,
   SEQUENCE_LOOP_START,
   SEQUENCE_LOOP_END,
-  SEQUENCE_PROPERTIES
+  SEQUENCE_PROPERTIES,
+  SEQUENCE_TOC
 };
 
 struct _BtSequencePrivate
@@ -122,6 +125,9 @@ struct _BtSequencePrivate
 
   /* (ui) properties */
   GHashTable *properties;
+
+  /* toc containing the labels */
+  GstToc *toc;
 };
 
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -137,6 +143,76 @@ G_DEFINE_TYPE_WITH_CODE (BtSequence, bt_sequence, G_TYPE_OBJECT,
 
 
 //-- helper methods
+
+/*
+ * bt_sequence_get_toc:
+ * @self: the sequence
+ *
+ * Get the toc containing a cue sheet of the labels. The toc is build as needed.
+ *
+ * Returns: the toc, unref when done.
+ */
+static GstToc *
+bt_sequence_get_toc (const BtSequence * const self)
+{
+  if (!self->priv->toc) {
+    GstTocEntry *entry, *subentry, *prev_entry = NULL;
+    GstTagList *tags;
+    GstClockTime duration, tick_duration, start = 0, stop;
+    gchar *id;
+    gulong i;
+
+    self->priv->toc = gst_toc_new (GST_TOC_SCOPE_GLOBAL);
+
+    bt_child_proxy_get (self->priv->song, "song-info::tick-duration",
+        &tick_duration, NULL);
+    duration = tick_duration * self->priv->length;
+
+    entry = gst_toc_entry_new (GST_TOC_ENTRY_TYPE_EDITION, "cue");
+    gst_toc_entry_set_start_stop_times (entry, 0, duration);
+    gst_toc_append_entry (self->priv->toc, entry);
+
+    for (i = 0; i < self->priv->length; i++) {
+      const gchar *const label = self->priv->labels[i];
+      if (label) {
+        id = g_strdup_printf ("%08lx", i);
+        subentry = gst_toc_entry_new (GST_TOC_ENTRY_TYPE_TRACK, id);
+        g_free (id);
+        tags = gst_tag_list_new_empty ();
+        gst_tag_list_add (tags, GST_TAG_MERGE_APPEND, GST_TAG_TITLE, label,
+            NULL);
+        gst_toc_entry_set_tags (entry, tags);
+        gst_toc_entry_append_sub_entry (entry, subentry);
+
+        stop = tick_duration * i;
+        if (prev_entry) {
+          gst_toc_entry_set_start_stop_times (subentry, start, stop);
+        }
+        prev_entry = subentry;
+        start = stop;
+      }
+    }
+    if (prev_entry) {
+      gst_toc_entry_set_start_stop_times (subentry, start, duration);
+    }
+  }
+  return gst_toc_ref (self->priv->toc);
+}
+
+/*
+ * bt_sequence_release_toc:
+ * @self: the sequence
+ *
+ * Release the cached toc. Use this when the sequence labels change.
+ */
+static void
+bt_sequence_release_toc (const BtSequence * const self)
+{
+  if (self->priv->toc) {
+    gst_toc_unref (self->priv->toc);
+    self->priv->toc = NULL;
+  }
+}
 
 /*
  * bt_sequence_get_number_of_pattern_uses:
@@ -310,6 +386,7 @@ bt_sequence_resize_data_length (const BtSequence * const self,
       }
       g_free (labels);
     }
+    bt_sequence_release_toc (self);
   } else {
     GST_INFO ("extending sequence labels from %lu to %lu failed", old_length,
         new_length);
@@ -787,6 +864,7 @@ bt_sequence_set_label (const BtSequence * const self, const gulong time,
 
   g_free (self->priv->labels[time]);
   self->priv->labels[time] = g_strdup (label);
+  bt_sequence_release_toc (self);
 
   g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
       time);
@@ -1039,6 +1117,7 @@ bt_sequence_insert_rows (const BtSequence * const self, const gulong time,
     for (j = 0; j < rows; j++) {
       labels[time + j] = NULL;
     }
+    bt_sequence_release_toc (self);
   }
   g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
       length);
@@ -1079,6 +1158,7 @@ bt_sequence_insert_full_rows (const BtSequence * const self, const gulong time,
   for (j = 0; j < tracks; j++) {
     insert_rows (self, time, j, rows);
   }
+  bt_sequence_release_toc (self);
   g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
       length + rows);
 }
@@ -1178,6 +1258,7 @@ bt_sequence_delete_rows (const BtSequence * const self, const gulong time,
     for (j = length - rows; j < length; j++) {
       labels[j] = NULL;
     }
+    bt_sequence_release_toc (self);
   }
   g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
       rows);
@@ -1222,6 +1303,7 @@ bt_sequence_delete_full_rows (const BtSequence * const self, const gulong time,
   // don't make it shorter because of loop-end ?
   g_object_set ((gpointer) self, "length", length - rows, NULL);
 
+  bt_sequence_release_toc (self);
   g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
       length - rows);
 }
@@ -1495,6 +1577,9 @@ bt_sequence_get_property (GObject * const object, const guint property_id,
     case SEQUENCE_PROPERTIES:
       g_value_set_pointer (value, self->priv->properties);
       break;
+    case SEQUENCE_TOC:
+      g_value_set_pointer (value, bt_sequence_get_toc (self));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -1659,6 +1744,8 @@ bt_sequence_dispose (GObject * const object)
     }
   }
 
+  bt_sequence_release_toc (self);
+
   GST_DEBUG ("  chaining up");
   G_OBJECT_CLASS (bt_sequence_parent_class)->dispose (object);
   GST_DEBUG ("  done");
@@ -1682,7 +1769,7 @@ bt_sequence_finalize (GObject * const object)
   GST_DEBUG ("  done");
 }
 
-//-- class internals
+//-- class internalsbt_sequence_get_toc
 
 static void
 bt_sequence_init (BtSequence * self)
@@ -1822,5 +1909,10 @@ bt_sequence_class_init (BtSequenceClass * const klass)
       g_param_spec_pointer ("properties",
           "properties prop",
           "hashtable of sequence properties",
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, SEQUENCE_TOC,
+      g_param_spec_pointer ("toc", "toc prop",
+          "TOC containing the labels",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }

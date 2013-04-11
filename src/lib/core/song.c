@@ -333,13 +333,10 @@ bt_song_send_tags (const BtSong * const self)
 {
   GstTagList *const taglist;
   GstTagSetter *tag_setter;
-  GstElement *e;
   GstIterator *it;
-  GstEvent *tag_event;
   gboolean done;
   GValue item = { 0, };
 
-  // send tags
   g_object_get (self->priv->song_info, "taglist", &taglist, NULL);
   GST_DEBUG ("about to send metadata to tagsetters, taglist=%p", taglist);
   it = gst_bin_iterate_all_by_interface (self->priv->bin, GST_TYPE_TAG_SETTER);
@@ -348,7 +345,7 @@ bt_song_send_tags (const BtSong * const self)
     switch (gst_iterator_next (it, &item)) {
       case GST_ITERATOR_OK:
         tag_setter = GST_TAG_SETTER (g_value_get_object (&item));
-        GST_INFO_OBJECT (tag_setter, "sending tags");
+        GST_DEBUG_OBJECT (tag_setter, "sending tags");
         gst_tag_setter_merge_tags (tag_setter, taglist, GST_TAG_MERGE_REPLACE);
         g_value_reset (&item);
         break;
@@ -367,24 +364,29 @@ bt_song_send_tags (const BtSong * const self)
   g_value_unset (&item);
   gst_iterator_free (it);
 
-  tag_event = gst_event_new_tag (gst_tag_list_copy (taglist));
-#if 1
+  gst_element_send_event (GST_ELEMENT (self->priv->bin),
+      gst_event_new_tag (taglist));
+}
+
+static void
+bt_song_send_toc (const BtSong * const self)
+{
+  GstToc *const toc;
+  GstTocSetter *toc_setter;
+  GstIterator *it;
+  gboolean done;
+  GValue item = { 0, };
+
+  g_object_get (self->priv->sequence, "toc", &toc, NULL);
+  GST_DEBUG ("about to send metadata to tocsetters, toc=%p", toc);
+  it = gst_bin_iterate_all_by_interface (self->priv->bin, GST_TYPE_TOC_SETTER);
   done = FALSE;
-  // should be fixed by:
-  // http://freedesktop.org/cgi-bin/viewcvs.cgi/gstreamer/gstreamer/libs/gst/base/gstbasesrc.c.diff?r1=1.139&r2=1.140
-  // but is not :/
-  //GST_DEBUG("about to send metadata to all sources");
-  //it=gst_bin_iterate_sources(self->priv->bin);
-  GST_DEBUG ("about to send metadata to all elements");
-  it = gst_bin_iterate_elements (self->priv->bin);
   while (!done) {
     switch (gst_iterator_next (it, &item)) {
       case GST_ITERATOR_OK:
-        e = GST_ELEMENT (g_value_get_object (&item));
-        GST_DEBUG_OBJECT (e, "sending tags");
-        if (!(gst_element_send_event (e, gst_event_ref (tag_event)))) {
-          //GST_WARNING("element '%s' failed to handle tag event",GST_OBJECT_NAME(GST_ELEMENT(item)));
-        }
+        toc_setter = GST_TOC_SETTER (g_value_get_object (&item));
+        GST_DEBUG_OBJECT (toc_setter, "sending toc");
+        gst_toc_setter_set_toc (toc_setter, toc);
         g_value_reset (&item);
         break;
       case GST_ITERATOR_RESYNC:
@@ -401,8 +403,9 @@ bt_song_send_tags (const BtSong * const self)
   }
   g_value_unset (&item);
   gst_iterator_free (it);
-#endif
-  gst_element_send_event (GST_ELEMENT (self->priv->bin), tag_event);
+
+  gst_element_send_event (GST_ELEMENT (self->priv->bin),
+      gst_event_new_toc (toc, FALSE));
 }
 
 static gboolean
@@ -886,8 +889,9 @@ bt_song_play (const BtSong * const self)
 
   // send seek
   bt_song_send_initial_seek (self, self->priv->bin);
-  // send tags
+  // send tags && toc
   bt_song_send_tags (self);
+  bt_song_send_toc (self);
 
   res =
       gst_element_set_state (GST_ELEMENT (self->priv->bin), GST_STATE_PLAYING);
