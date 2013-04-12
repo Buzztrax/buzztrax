@@ -474,6 +474,11 @@ bt_sink_bin_add_many (const BtSinkBin * const self, GList * const list)
     if (!gst_bin_add (GST_BIN (self), elem)) {
       GST_WARNING_OBJECT (self, "can't add element: elem=%s, parent=%s",
           GST_OBJECT_NAME (elem), GST_OBJECT_NAME (GST_OBJECT_PARENT (elem)));
+    } else {
+      if (!gst_element_sync_state_with_parent (elem)) {
+        GST_WARNING_OBJECT (self, "can't sync element to parent state: elem=%s",
+            GST_OBJECT_NAME (elem));
+      }
     }
   }
   return (TRUE);
@@ -560,8 +565,8 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->priv->
-          record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->
+          priv->record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
