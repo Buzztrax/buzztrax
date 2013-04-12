@@ -158,7 +158,7 @@ bt_sequence_get_toc (const BtSequence * const self)
   if (!self->priv->toc) {
     GstTocEntry *entry, *subentry, *prev_entry = NULL;
     GstTagList *tags;
-    GstClockTime duration, tick_duration, start = 0, stop;
+    GstClockTime duration, tick_duration, start = G_GUINT64_CONSTANT (0), stop;
     gchar *id;
     gulong i;
 
@@ -181,19 +181,19 @@ bt_sequence_get_toc (const BtSequence * const self)
         tags = gst_tag_list_new_empty ();
         gst_tag_list_add (tags, GST_TAG_MERGE_APPEND, GST_TAG_TITLE, label,
             NULL);
-        gst_toc_entry_set_tags (entry, tags);
+        gst_toc_entry_set_tags (subentry, tags);
         gst_toc_entry_append_sub_entry (entry, subentry);
 
         stop = tick_duration * i;
         if (prev_entry) {
-          gst_toc_entry_set_start_stop_times (subentry, start, stop);
+          gst_toc_entry_set_start_stop_times (prev_entry, start, stop);
         }
         prev_entry = subentry;
         start = stop;
       }
     }
     if (prev_entry) {
-      gst_toc_entry_set_start_stop_times (subentry, start, duration);
+      gst_toc_entry_set_start_stop_times (prev_entry, start, duration);
     }
   }
   return gst_toc_ref (self->priv->toc);
