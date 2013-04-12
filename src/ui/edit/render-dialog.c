@@ -24,9 +24,12 @@
  * - use chooserbutton to choose name too
  *   (arg, the chooser button cannot do save_as)
  * - use song-name based file-name by default
- *
- * TODO(ensonic): more options
+ */
+/* TODO(ensonic): more options
  * - have dithering and noise shaping options here
+ */
+/* TODO(ensonic): project file export
+ * - consider MXF as one option
  */
 
 #define BT_EDIT
