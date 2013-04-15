@@ -27,12 +27,13 @@ static gfloat minv, maxv;
 
 // keep these in sync with BtSinkBinRecordFormatInfo
 static gchar *media_types[] = {
-  "audio/ogg",                  /* vorbis */
+  "audio/ogg",                  /* vorbis.ogg */
   "application/x-id3",
   "audio/x-wav",
-  "audio/ogg",                  /* flac */
+  "audio/ogg",                  /* flac.ogg */
   NULL,                         /* raw */
-  "video/quicktime"
+  "video/quicktime",
+  "audio/x-flac",               /* flac */
 };
 
 //-- fixtures

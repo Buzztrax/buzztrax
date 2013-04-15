@@ -117,7 +117,8 @@ static const BtSinkBinRecordFormatInfo formats[] = {
   {"Ogg Flac record format", "Ogg Flac", "audio/ogg", "audio/x-flac"},
   {"Raw format", "Raw", NULL, NULL},
   {"M4A record format", "M4A Audio", "video/quicktime",
-      "audio/mpeg, mpegversion=(int)4"}
+      "audio/mpeg, mpegversion=(int)4"},
+  {"Flac record format", "Flac", NULL, "audio/x-flac"}
 };
 
 struct _BtSinkBinPrivate
@@ -257,12 +258,13 @@ bt_sink_bin_record_format_get_type (void)
   static GType type = 0;
   if (G_UNLIKELY (type == 0)) {
     static const GEnumValue values[] = {
-      {BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, ".ogg", "ogg-vorbis"},
+      {BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, ".vorbis.ogg", "ogg-vorbis"},
       {BT_SINK_BIN_RECORD_FORMAT_MP3, ".mp3", "mp3"},
       {BT_SINK_BIN_RECORD_FORMAT_WAV, ".wav", "wav"},
-      {BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC, ".flac", "ogg-flac"},
+      {BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC, ".flac.ogg", "ogg-flac"},
       {BT_SINK_BIN_RECORD_FORMAT_RAW, ".raw", "raw"},
       {BT_SINK_BIN_RECORD_FORMAT_MP4_AAC, ".m4a", "mp4-aac"},
+      {BT_SINK_BIN_RECORD_FORMAT_FLAC, ".flac", "flac"},
       {0, NULL, NULL},
     };
     type = g_enum_register_static ("BtSinkBinRecordFormat", values);
