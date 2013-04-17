@@ -258,7 +258,12 @@ test_bt_song_play_fallback_sink (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSettings *settings = bt_settings_make ();
-  g_object_set (settings, "audiosink", NULL, "system-audiosink", NULL, NULL);
+  g_object_set (settings, "audiosink", NULL,
+      /* TODO(ensonic): this is not writable!
+       * - subclass settings and override the prop?
+       "system-audiosink", NULL,
+       */
+      NULL);
   BtSong *song = make_new_song ();
 
   /* act */
