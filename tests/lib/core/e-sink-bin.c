@@ -369,14 +369,7 @@ test_bt_sink_bin_record (BT_TEST_ARGS)
   /* assert */
   GST_INFO ("assert: == %s ==", filename);
   fail_unless (g_file_test (filename, G_FILE_TEST_IS_REGULAR));
-
-  if (_i != 3) {
-    /* the test for ogg/flac does not seem to actually write the flac data into
-     * the ogg file. it works from the application though. When the encoder drains
-     * th remaining data, the ogg-pad seems to be already EOS.
-     */
-    ck_assert_str_eq_and_free (get_media_type (filename), media_types[_i]);
-  }
+  ck_assert_str_eq_and_free (get_media_type (filename), media_types[_i]);
 
   /* cleanup */
   g_free (filename);
@@ -389,20 +382,6 @@ static void
 test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
 {
   BT_TEST_START;
-
-  if (_i == 3) {
-    /* the test for ogg/flac does not terminate, the EOS seems to get queued in the
-     * gen->master wire:
-     *   egrep -i "(audiotestsrc|eos)" test_bt_sink_bin_record_and_play.3.log
-     *   egrep -i "(audiotestsrc|eos|gen_master:queue)" test_bt_sink_bin_record_and_play.3.log
-     * - we're missing a log line like "pushed EOS event %p, return UNEXPECTED"
-     * - after about 1:30 everything is done
-     * - running gst-tracelib on it:
-     *   BT_CHECKS="test_bt_sink_bin_record_and_play" GSTTL_HIDE="topo" gsttl .libs/bt_core
-     *   rm -rf /tmp/gsttl;gsttl_splitlog.py;gsttl_plot.sh | gnuplot
-     */
-    return;
-  }
 
   /* arrange */
   g_object_set (settings, "audiosink", "fakesink", NULL);
