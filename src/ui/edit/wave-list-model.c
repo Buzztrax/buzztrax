@@ -78,7 +78,7 @@ bt_wave_list_model_add (BtWaveListModel * model, BtWave * wave)
   gtk_tree_path_append_index (path, pos);
   gtk_tree_model_row_changed (GTK_TREE_MODEL (model), path, &iter);
   gtk_tree_path_free (path);
-  GST_DEBUG ("%p: notified wave %p at position %d", model, wave, pos);
+  GST_DEBUG ("%p: notified wave %p at position %lu", model, wave, pos);
 }
 
 static void
@@ -102,7 +102,7 @@ bt_wave_list_model_rem (BtWaveListModel * model, BtWave * wave)
   gtk_tree_path_append_index (path, pos);
   gtk_tree_model_row_changed (GTK_TREE_MODEL (model), path, &iter);
   gtk_tree_path_free (path);
-  GST_DEBUG ("%p: deleted wave %p at position %d", model, wave, pos);
+  GST_DEBUG ("%p: deleted wave %p at position %lu", model, wave, pos);
 }
 
 //-- signal handlers

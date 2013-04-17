@@ -308,7 +308,7 @@ bt_main_window_make_unsaved_changes_message (const BtSong * song)
   g_object_get (song_info, "file-name", &file_name, NULL);
 
   td = bt_song_info_get_seconds_since_last_saved (song_info);
-  GST_LOG ("time passed since saved/created: td=%lf", td);
+  GST_LOG ("time passed since saved/created: td=%d", td);
   // pretty print how much time passed since saved/created and now
   tdh = td / (60 * 60);
   td -= tdh * (60 * 60);
@@ -373,7 +373,7 @@ bt_main_window_init_ui (const BtMainWindow * self)
   box = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (self), box);
 
-  GST_INFO ("before creating content, app: " G_OBJECT_REF_COUNT_FMT,
+  GST_INFO ("before creating content, app: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self->priv->app));
 
   // add the menu-bar
@@ -402,7 +402,7 @@ bt_main_window_init_ui (const BtMainWindow * self)
   g_signal_connect ((gpointer) self, "drag-data-received",
       G_CALLBACK (on_window_dnd_drop), (gpointer) self);
 
-  GST_INFO ("content created, app: " G_OBJECT_REF_COUNT_FMT,
+  GST_INFO ("content created, app: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self->priv->app));
 
   g_signal_connect ((gpointer) self, "delete-event",
@@ -420,7 +420,7 @@ bt_main_window_init_ui (const BtMainWindow * self)
       G_CALLBACK (on_song_unsaved_changed), (gpointer) self);
   g_object_unref (change_log);
 
-  GST_INFO ("signal connected, app: " G_OBJECT_REF_COUNT_FMT,
+  GST_INFO ("signal connected, app: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self->priv->app));
 }
 

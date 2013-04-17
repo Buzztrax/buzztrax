@@ -842,12 +842,12 @@ bt_edit_application_set_property (GObject * object, guint property_id,
 #endif
       g_object_try_unref (self->priv->song);
       self->priv->song = BT_SONG (g_value_dup_object (value));
-      GST_DEBUG ("new song: %: %" G_OBJECT_REF_COUNT_FMT,
+      GST_DEBUG ("new song: %" G_OBJECT_REF_COUNT_FMT,
           G_OBJECT_LOG_REF_COUNT (self->priv->song));
       break;
     case EDIT_APPLICATION_UNSAVED:
       self->priv->unsaved = g_value_get_boolean (value);
-      GST_INFO ("set the unsaved flag for the song", self->priv->unsaved);
+      GST_INFO ("set the unsaved flag to %d for the song", self->priv->unsaved);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);

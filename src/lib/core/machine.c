@@ -3040,7 +3040,7 @@ bt_machine_request_new_pad (GstElement * element, GstPadTemplate * templ,
 
     if (!(target = gst_element_request_pad (self->priv->machines[PART_SPREADER],
                 src_pt, NULL, NULL))) {
-      GST_WARNING_OBJECT (element, "failed to request pad 'src_%u'");
+      GST_WARNING_OBJECT (element, "failed to request pad 'src_%%u'");
       return NULL;
     }
     name = g_strdup_printf ("src_%u", self->priv->src_pad_counter++);
@@ -3054,7 +3054,7 @@ bt_machine_request_new_pad (GstElement * element, GstPadTemplate * templ,
 
     if (!(target = gst_element_request_pad (self->priv->machines[PART_ADDER],
                 sink_pt, NULL, NULL))) {
-      GST_WARNING_OBJECT (element, "failed to request pad 'sink_%u'");
+      GST_WARNING_OBJECT (element, "failed to request pad 'sink_%%u'");
       return NULL;
     }
     name = g_strdup_printf ("sink_%u", self->priv->sink_pad_counter++);

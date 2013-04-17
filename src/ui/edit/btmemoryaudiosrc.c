@@ -356,8 +356,8 @@ bt_memory_audio_src_create (GstBaseSrc * basesrc, guint64 offset,
   GST_BUFFER_DURATION (buf) = next_time - src->running_time;
 
   GST_LOG_OBJECT (src, "play from ts %" GST_TIME_FORMAT
-      " with duration %" GST_TIME_FORMAT ", size %u, and data %p",
-      GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (buf)),
+      " with duration %" GST_TIME_FORMAT ", size %" G_GSIZE_FORMAT
+      ", and data %p", GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (buf)),
       GST_TIME_ARGS (GST_BUFFER_DURATION (buf)), size, data);
 
   src->running_time = next_time;

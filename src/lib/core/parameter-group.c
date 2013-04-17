@@ -702,7 +702,7 @@ bt_parameter_group_constructed (GObject * object)
 
     g_object_add_weak_pointer (parents[i], (gpointer *) & parents[i]);
 
-    GST_DEBUG ("adding param [%u/%lu] \"%s\"", i, num_params, param->name);
+    GST_DEBUG ("adding param [%lu/%lu] \"%s\"", i, num_params, param->name);
 
     // treat not readable params as triggers
     if (param->flags & G_PARAM_READABLE) {
@@ -721,7 +721,7 @@ bt_parameter_group_constructed (GObject * object)
                     priv->no_val[i], param,
                     gstbt_property_meta_quark_no_val))) {
           GST_WARNING
-              ("can't get no-val property-meta for param [%u/%lu] \"%s\"", i,
+              ("can't get no-val property-meta for param [%lu/%lu] \"%s\"", i,
               num_params, param->name);
         }
       }
@@ -733,7 +733,7 @@ bt_parameter_group_constructed (GObject * object)
       g_param_value_set_default (param, &self->priv->no_val[i]);
     }
     // bind param to machines controller (possibly returns ref to existing)
-    GST_DEBUG ("added param [%u/%lu] \"%s\"", i, num_params, param->name);
+    GST_DEBUG ("added param [%lu/%lu] \"%s\"", i, num_params, param->name);
 
     // create new control bindings
     if (param->flags & GST_PARAM_CONTROLLABLE) {

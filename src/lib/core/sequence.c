@@ -1469,7 +1469,7 @@ bt_sequence_persistence_load (const GType type,
                 bt_setup_get_machine_by_id (setup, (gchar *) machine_id);
 
             if (machine) {
-              GST_INFO ("add track for machine " G_OBJECT_REF_COUNT_FMT
+              GST_INFO ("add track for machine %" G_OBJECT_REF_COUNT_FMT
                   " at position %lu", G_OBJECT_LOG_REF_COUNT (machine), index);
               if (index < tracks) {
                 self->priv->machines[index] = machine;

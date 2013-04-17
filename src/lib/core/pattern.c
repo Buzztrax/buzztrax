@@ -283,7 +283,7 @@ del_value_group (const BtPattern * const self, BtValueGroup * vg)
 {
   BtParameterGroup *pg;
 
-  GST_DEBUG ("del vg " G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (vg));
+  GST_DEBUG ("del vg %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (vg));
 
   g_object_get (vg, "parameter-group", &pg, NULL);
   g_hash_table_remove (self->priv->param_to_value_groups, pg);

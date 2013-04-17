@@ -404,7 +404,7 @@ bt_wave_save_to_fd (const BtWave * const self)
   g_object_get (wavelevel,
       "data", &data, "length", &length, "rate", &srate, NULL);
   size = length * self->priv->channels * sizeof (gint16);
-  GST_INFO ("about to format data as wav to fd=%d, %d bytes to write",
+  GST_INFO ("about to format data as wav to fd=%d, %lu bytes to write",
       self->priv->ext_fd, size);
 
   // create saver pipeline
@@ -441,7 +441,7 @@ bt_wave_save_to_fd (const BtWave * const self)
 
   written = write (fd, data, size);
   size -= written;
-  GST_INFO ("wrote %d, todo %d", written, size);
+  GST_INFO ("wrote %lu, todo %lu", written, size);
   lseek (fd, 0, SEEK_SET);
 
   // play and wait for EOS

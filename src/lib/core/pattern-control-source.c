@@ -120,11 +120,11 @@ bt_pattern_control_source_get_value (GstControlBinding * self_,
   BtParameterGroup *pg = self->priv->param_group;
   glong param_index = self->priv->param_index;
   GValue *res = NULL;
-  GstClockTime tick = bt_song_info_time_to_tick (song_info, timestamp);
+  gulong tick = bt_song_info_time_to_tick (song_info, timestamp);
   GstClockTime ts = bt_song_info_tick_to_time (song_info, tick);
 
-  GST_LOG_OBJECT (machine, "get control_value for param %d at tick%4d,"
-      " %1d: %llu == %llu",
+  GST_LOG_OBJECT (machine, "get control_value for param %ld at tick%4lu,"
+      " %1d: %" G_GUINT64_FORMAT " == %" G_GUINT64_FORMAT,
       param_index, tick, (ts == timestamp), timestamp, ts);
 
   // Don't check patterns on a subtick
@@ -176,7 +176,7 @@ bt_pattern_control_source_get_value (GstControlBinding * self_,
   // if we found a value, set it
   if (res) {
     GST_LOG_OBJECT (self->priv->machine,
-        "tick %lld: Set value for %s", tick,
+        "tick %lu: Set value for %s", tick,
         bt_parameter_group_get_param_name (pg, param_index));
 
     return res;
@@ -184,7 +184,7 @@ bt_pattern_control_source_get_value (GstControlBinding * self_,
     if (self->priv->is_trigger || !timestamp) {
       // set defaults value for triggers (no value) or the default at ts=0
       GST_LOG_OBJECT (self->priv->machine,
-          "tick %lld: Set default for %s", tick,
+          "tick %lu: Set default for %s", tick,
           bt_parameter_group_get_param_name (pg, param_index));
 
       return &self->priv->def_value;
@@ -387,8 +387,7 @@ bt_pattern_control_source_set_property (GObject * const object,
       GST_INFO ("%s -> %s", g_strdup_value_contents (new_value),
           g_strdup_value_contents (&self->priv->def_value));
       g_value_copy (new_value, &self->priv->def_value);
-      GST_DEBUG ("set the def_value for the controlsource: %p",
-          self->priv->def_value);
+      GST_DEBUG ("set the def_value for the controlsource");
       break;
     }
     default:

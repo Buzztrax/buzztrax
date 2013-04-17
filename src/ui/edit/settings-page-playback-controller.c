@@ -111,7 +111,7 @@ on_controller_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
     guint id;
 
     gtk_tree_model_get (model, &iter, CONTROLLER_LIST_ID, &id, -1);
-    GST_INFO ("selected entry id %lu", id);
+    GST_INFO ("selected entry id %u", id);
     gtk_notebook_set_current_page (self->priv->controller_pages, id);
     self->priv->page = id;
   }

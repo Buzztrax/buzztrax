@@ -931,9 +931,9 @@ bt_wire_dbg_print_parts (const BtWire * const self)
     g_object_get (self->priv->dst, "id", &did, NULL);
 
   /* [Q T G C P] */
-  GST_INFO ("%s->%s [%s %s %s %s %s %s %s]",
+  GST_INFO ("%s->%s [%s %s %s %s %s]",
       safe_string (sid), safe_string (did),
-      self->priv->machines[PART_TEE] ? "Q" : "q",
+      self->priv->machines[PART_QUEUE] ? "Q" : "q",
       self->priv->machines[PART_TEE] ? "T" : "t",
       self->priv->machines[PART_GAIN] ? "G" : "g",
       self->priv->machines[PART_CONVERT] ? "C" : "c",
@@ -1176,7 +1176,7 @@ bt_wire_persistence_load (const GType type,
                               (gchar *) value);
                         } else {
                           GST_WARNING
-                              ("error while loading wire pattern data at tick %lu, param %lu: %s",
+                              ("error while loading wire pattern data at tick %lu, param %lu",
                               tick, param);
                         }
                       }

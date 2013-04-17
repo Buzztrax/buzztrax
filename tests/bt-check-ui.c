@@ -467,14 +467,14 @@ find_child (GtkWidget * w, BtCheckWidgetScreenshotRegions * r)
   GtkWidget *f = NULL;
   gboolean match = TRUE;
 
-  GST_INFO ("  trying widget: '%s', '%s', '%s',%d",
+  GST_INFO ("  trying widget: '%s', '%s', '%s',%" G_GSIZE_FORMAT,
       gtk_widget_get_name (w),
       (GTK_IS_LABEL (w) ? gtk_label_get_text ((GtkLabel *) w) : NULL),
       G_OBJECT_TYPE_NAME (w), G_OBJECT_TYPE (w));
 
   if (r->match & BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_TYPE) {
     if (!g_type_is_a (G_OBJECT_TYPE (w), r->type)) {
-      GST_DEBUG ("    wrong type: %d,%s", G_OBJECT_TYPE (w),
+      GST_DEBUG ("    wrong type: %" G_GSIZE_FORMAT ",%s", G_OBJECT_TYPE (w),
           G_OBJECT_TYPE_NAME (w));
       match = FALSE;
     }
@@ -589,8 +589,8 @@ check_make_widget_screenshot_with_highlight (GtkWidget * widget,
   // locate widgets and highlight the areas
   r = regions;
   while (r->match != BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE) {
-    GST_INFO ("searching widget: '%s', '%s', '%s',%d", r->name, r->label,
-        g_type_name (r->type), r->type);
+    GST_INFO ("searching widget: '%s', '%s', '%s',%" G_GSIZE_FORMAT, r->name,
+        r->label, g_type_name (r->type), r->type);
     if ((child = find_child (widget, r))) {
       // for label matches we look for a sensible parent
       if (r->match & BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_LABEL) {
@@ -678,7 +678,7 @@ check_make_widget_screenshot_with_highlight (GtkWidget * widget,
       cairo_move_to (cr, cx - (extent.width / 2.0), cy + (extent.height / 2.0));
       cairo_show_text (cr, num_str);
     } else {
-      GST_WARNING ("widget not found: '%s',%d", r->name, r->type);
+      GST_WARNING ("widget not found: '%s',%" G_GSIZE_FORMAT, r->name, r->type);
     }
     r++;
     num++;

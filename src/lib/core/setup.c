@@ -553,7 +553,7 @@ link_wire (const BtSetup * const self, GstElement * wire)
       }
     } else {
       GST_WARNING_OBJECT (src,
-          "Can't lookup pad-template 'src%d' for src-peer of start of wire");
+          "Can't lookup pad-template 'src_%%u' for src-peer of start of wire");
       res = FALSE;
     }
   } else {
@@ -586,7 +586,7 @@ link_wire (const BtSetup * const self, GstElement * wire)
       }
     } else {
       GST_WARNING_OBJECT (dst,
-          "Can't lookup pad-template 'sink%d' for sink-peer of end of wire");
+          "Can't lookup pad-template 'sink_%%u' for sink-peer of end of wire");
       res = FALSE;
     }
   } else {

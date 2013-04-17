@@ -285,8 +285,8 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
   GST_INFO_OBJECT (sink,
       "bpm=%3lu=%3lu, tpb=%" G_GUINT64_FORMAT "=%" G_GUINT64_FORMAT
       ", stpb=%2lu, target-latency=%2u , latency-time=%6" G_GINT64_FORMAT "=%6"
-      G_GINT64_FORMAT ", delta=%+4d ", bpm, c_bpm, tpb, c_tpb, st, latency,
-      latency_time, c_latency_time,
+      G_GINT64_FORMAT ", delta=%+4" G_GINT64_FORMAT, bpm, c_bpm, tpb, c_tpb, st,
+      latency, latency_time, c_latency_time,
       (latency_time - ((gint) latency * 1000)) / 1000);
 
   ck_assert_ulong_eq (c_bpm, bpm);

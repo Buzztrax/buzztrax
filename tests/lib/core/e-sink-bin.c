@@ -195,10 +195,10 @@ typefind_message_received (GstBus * bus, GstMessage * message,
 {
   if (GST_MESSAGE_TYPE (message) == GST_MESSAGE_ERROR) {
     GST_WARNING_OBJECT (GST_MESSAGE_SRC (message),
-        "error for '%s': %" GST_PTR_FORMAT, user_data, message);
+        "error for '%s': %" GST_PTR_FORMAT, (gchar *) user_data, message);
   } else {
     GST_DEBUG_OBJECT (GST_MESSAGE_SRC (message),
-        "eos for '%s': %" GST_PTR_FORMAT, user_data, message);
+        "eos for '%s': %" GST_PTR_FORMAT, (gchar *) user_data, message);
   }
   g_main_loop_quit (typefind_main_loop);
 }
@@ -273,7 +273,7 @@ on_song_is_playing_notify (BtSong * song, GParamSpec * arg, gpointer user_data)
   gboolean playing;
 
   g_object_get ((gpointer) song, "playing", &playing, NULL);
-  GST_DEBUG_OBJECT (song, "%ld < %ld", old_playing, playing);
+  GST_DEBUG_OBJECT (song, "%d < %d", old_playing, playing);
 
   if (!playing && old_playing) {
     GST_INFO ("we stopped");

@@ -210,7 +210,7 @@ bt_song_io_native_bzt_copy_from_uri (const BtSongIONativeBZT * const self,
     }
 
     if (have_data) {
-      GST_INFO ("write %d bytes to sample file", size);
+      GST_INFO ("write %" G_GSIZE_FORMAT " bytes to sample file", size);
       if (gsf_output_write (data, (size_t) size, (guint8 const *) bytes)) {
         res = TRUE;
       } else {
