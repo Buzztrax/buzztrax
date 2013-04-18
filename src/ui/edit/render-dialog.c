@@ -483,6 +483,24 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   bt_child_proxy_get (self->priv->song, "song-info::file-name", &full_file_name,
       "bin", &bin, NULL);
 
+  // set default base name
+  if (full_file_name) {
+    gchar *file_name, *ext;
+
+    // cut off extension from file_name
+    if ((ext = strrchr (full_file_name, '.')))
+      *ext = '\0';
+    if ((file_name = strrchr (full_file_name, G_DIR_SEPARATOR))) {
+      self->priv->filename = g_strdup (&file_name[1]);
+      g_free (full_file_name);
+    } else {
+      self->priv->filename = full_file_name;
+    }
+  } else {
+    self->priv->filename = g_strdup ("");
+  }
+  GST_INFO ("initial base filename: '%s'", self->priv->filename);
+
   GST_DEBUG ("prepare render dialog");
 
   gtk_widget_set_name (GTK_WIDGET (self), "song rendering");
@@ -532,23 +550,6 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   gtk_table_attach (GTK_TABLE (table), label, 0, 1, 1, 2, GTK_FILL, GTK_SHRINK,
       2, 1);
 
-  // set deault name
-  if (full_file_name) {
-    gchar *file_name, *ext;
-
-    // cut off extension from file_name
-    if ((ext = strrchr (full_file_name, '.')))
-      *ext = '\0';
-    if ((file_name = strrchr (full_file_name, G_DIR_SEPARATOR)))
-      file_name = &file_name[1];
-    else
-      file_name = full_file_name;
-    self->priv->filename = g_strdup_printf ("%s.ogg", file_name);
-    g_free (full_file_name);
-  } else {
-    self->priv->filename = g_strdup_printf (".ogg");
-  }
-
   self->priv->file_name_entry = widget = gtk_entry_new ();
   gtk_entry_set_text (GTK_ENTRY (widget), self->priv->filename);
   gtk_entry_set_activates_default (GTK_ENTRY (self->priv->file_name_entry),
@@ -580,6 +581,8 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       (gpointer) self);
   gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 2, 3,
       GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  // set initial filename:
+  on_format_menu_changed (GTK_COMBO_BOX (widget), (gpointer) self);
 
 
   label = gtk_label_new (_("Mode"));
