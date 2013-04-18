@@ -299,7 +299,7 @@ write_string (GSettings * settings, const gchar * path,
 #ifndef GST_DISABLE_GST_DEBUG
   gboolean res =
 #endif
-      g_settings_set_string (settings, path, prop);
+      g_settings_set_string (settings, path, (prop ? prop : ""));
   GST_DEBUG ("application wrote '%s' : '%s' (%s)", path, prop,
       (res ? "okay" : "fail"));
 }
