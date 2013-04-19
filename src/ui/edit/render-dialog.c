@@ -96,6 +96,41 @@ bt_render_mode_get_type (void)
   return type;
 }
 
+//-- helper
+
+static void
+bt_render_dialog_enable_level_meters (BtSetup * setup, gboolean enable)
+{
+  GList *machines, *node;
+  BtMachine *machine;
+  GstElement *in_pre_level, *in_post_level, *out_pre_level, *out_post_level;
+
+  g_object_get (setup, "machines", &machines, NULL);
+  for (node = machines; node; node = g_list_next (node)) {
+    machine = BT_MACHINE (node->data);
+    g_object_get (machine, "input-pre-level", &in_pre_level, "input-post-level",
+        &in_post_level, "output-pre-level", &out_pre_level, "output-post-level",
+        &out_post_level, NULL);
+    if (in_pre_level) {
+      g_object_set (in_pre_level, "post-messages", enable, NULL);
+      gst_object_unref (in_pre_level);
+    }
+    if (in_post_level) {
+      g_object_set (in_post_level, "post-messages", enable, NULL);
+      gst_object_unref (in_post_level);
+    }
+    if (out_pre_level) {
+      g_object_set (out_pre_level, "post-messages", enable, NULL);
+      gst_object_unref (out_pre_level);
+    }
+    if (out_post_level) {
+      g_object_set (out_post_level, "post-messages", enable, NULL);
+      gst_object_unref (out_post_level);
+    }
+  }
+  g_list_free (machines);
+}
+
 //-- event handler helper
 
 static gchar *
@@ -176,6 +211,9 @@ bt_render_dialog_record_init (const BtRenderDialog * self)
   g_object_set (sequence_page, "follow-playback", FALSE, NULL);
   g_object_unref (sequence_page);
 
+  // disable all level-meters
+  bt_render_dialog_enable_level_meters (setup, FALSE);
+
   // lookup the audio-sink machine and change mode
   if ((machine = bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE))) {
     g_object_get (machine, "machine", &self->priv->sink_bin, "adder-convert",
@@ -216,6 +254,8 @@ bt_render_dialog_record_init (const BtRenderDialog * self)
 static void
 bt_render_dialog_record_done (const BtRenderDialog * self)
 {
+  BtSetup *setup;
+
   /* reset play mode */
   if (self->priv->sink_bin) {
     g_object_set (self->priv->sink_bin, "mode", BT_SINK_BIN_MODE_PLAY, NULL);
@@ -237,6 +277,11 @@ bt_render_dialog_record_done (const BtRenderDialog * self)
       self->priv->saved_follow_playback, NULL);
 
   g_object_set (self->priv->app, "unsaved", self->priv->unsaved, NULL);
+
+  // re-enable all level-meters
+  g_object_get (self->priv->song, "setup", &setup, NULL);
+  bt_render_dialog_enable_level_meters (setup, TRUE);
+  g_object_unref (setup);
 
   if (self->priv->list) {
     g_list_free (self->priv->list);

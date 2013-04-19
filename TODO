@@ -246,22 +246,13 @@
       - a hackish way would be to run a pad_probe before the machine and
         send a message to the bus with the thread-id<->machine association
       - a better way would be to use gst_message_parse_stream_status
-        see src/lib/core/song.c::on_song_request_state()
+        see src/lib/core/song.c::on_song_stream_status()
   - ideally we show it on the machine view
     - extra gnome-canvas-item-rect layered under machine name?
     - extra dialog from tools menu?
     - enable/disable from the view menu
   - buzztard-cmd could have a profile option (for play/encode) and print a summary
     at the end
-
-
-* Allow disabling level-meters
-  - we could iterator over machine, check which levels are activated and
-    set the 'message' property true/false
-  - this could be api on song/setup
-  - the recorder would use it for extra speed
-  - on slow platforms we could offer that in the UI (where)
-    - the view menu?
 
 
 * eventually merge machine-rename dialog with machine properties
