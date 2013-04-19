@@ -384,18 +384,6 @@
     time and ticks
 
 
-* better handling of analyzer data
-  * level and spectrum should use
-    gst_event_new_sink_message(GstMessage *)
-    instead of posting the message    
-  * this way we can just update the UI, when we get the message
-  * this way we will also skip such messages when seeking automatically
-  * we should send a different message to be able to distinguish (or have a flag
-    property on the element, that we want a sink-message). Then we can conditionally
-    do the delaying as we do now.
-  * in 0.10 we could just send the sink-message-event when we receive the normal
-    message 
-
 * embedded lua (see design/lua)
   * tools menu
   * pattern editor

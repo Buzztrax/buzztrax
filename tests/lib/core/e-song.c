@@ -261,6 +261,7 @@ test_bt_song_play_fallback_sink (BT_TEST_ARGS)
   g_object_set (settings, "audiosink", NULL,
       /* TODO(ensonic): this is not writable!
        * - subclass settings and override the prop?
+       * - test app will probably also need to override to be able to return this
        "system-audiosink", NULL,
        */
       NULL);

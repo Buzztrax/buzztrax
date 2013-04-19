@@ -31,6 +31,7 @@
  *   schema keys
  *   - this could be modelled a bit after GOption, libs provide a conext, apps
  *     gathers a list of context objects and create the settings
+ *   - we can make a new GObject for each schema and use the child_proxy_{set,get}
  * - the schema files seem to end up at $prefix/share/glib-2.0/schemas/
  * - we would alway listen for settings changes to turn that into notifies
  */

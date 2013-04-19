@@ -682,10 +682,12 @@ on_song_stream_status (const GstBus * const bus, GstMessage * message,
   /* we could use this to determine CPU usage per thread
    * - for that we need to periodically call getrusage(RUSAGE_THREAD,&ru);
    *   from each thread
-   * - this could be done from a dataprobe on the pad that starts the thread
+   * - this could be done from a dataprobe on the pad that starts the thread or even
+   *   all pads in that thread
    * - the dataprobe would
    *   - need a previous ClockTime, elapsed wallclock time and a pointer to the
-   *     BtMachine
+   *     BtMachine, we could have a global hastable that maps thread-id to a 
+   *     BtPerfData struct
    *   - set the cpu-load value on the BtMachine (no notify!)
    * - the application can poll the value from a machine property
    *   and show load-meters in the UI
@@ -693,10 +695,10 @@ on_song_stream_status (const GstBus * const bus, GstMessage * message,
 
   switch (type) {
     case GST_STREAM_STATUS_TYPE_CREATE:
-      // TODO(ensonic): add to thread-id->machine map
+      // TODO(ensonic): add to thread-id -> perf-data map
       break;
     case GST_STREAM_STATUS_TYPE_DESTROY:
-      // TODO(ensonic): remove from thread-id->machine map
+      // TODO(ensonic): remove from thread-id -> perf data map
       break;
     default:
       break;
