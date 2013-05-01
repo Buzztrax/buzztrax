@@ -34,7 +34,7 @@ if [ ! -d ./po ]; then
   exit 1
 fi
 
-PACKAGE="buzztard"
+PACKAGE="buzztrax"
 
 DOMAINS_TO_ADD=""
 DOMAINS_UPDATED=""

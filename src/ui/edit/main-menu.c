@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -566,8 +566,8 @@ on_menu_help_activate (GtkMenuItem * menuitem, gpointer user_data)
   //BtMainMenu *self=BT_MAIN_MENU(user_data);
   GST_INFO ("menu help event occurred");
 
-  // use "ghelp:buzztard-edit?topic" for context specific help
-  gtk_show_uri_simple (GTK_WIDGET (menuitem), "ghelp:buzztard-edit");
+  // use "ghelp:buzztrax-edit?topic" for context specific help
+  gtk_show_uri_simple (GTK_WIDGET (menuitem), "ghelp:buzztrax-edit");
 }
 
 static void
@@ -578,9 +578,9 @@ on_menu_join_irc (GtkMenuItem * menuitem, gpointer user_data)
 
   GST_INFO ("menu join-irc event occurred");
 
-  //gtk_show_uri_simple(GTK_WIDGET(menuitem),"irc://irc.freenode.net/#buzztard");
+  //gtk_show_uri_simple(GTK_WIDGET(menuitem),"irc://irc.freenode.net/#buzztrax");
   uri =
-      g_strdup_printf ("http://webchat.freenode.net?nick=%s&channels=#buzztard",
+      g_strdup_printf ("http://webchat.freenode.net?nick=%s&channels=#buzztrax",
       g_get_user_name ());
   gtk_show_uri_simple (GTK_WIDGET (menuitem), uri);
   g_free (uri);
@@ -592,7 +592,7 @@ on_menu_report_problem (GtkMenuItem * menuitem, gpointer user_data)
   //BtMainMenu *self=BT_MAIN_MENU(user_data);
   GST_INFO ("menu submit_bug event occurred");
 
-  gtk_show_uri_simple (GTK_WIDGET (menuitem), "http://buzztard.org/bugs/?");
+  gtk_show_uri_simple (GTK_WIDGET (menuitem), "http://buzztrax.org/bugs/?");
 }
 
 static void
@@ -785,7 +785,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
       "toolbar-hide", &toolbar_hide,
       "statusbar-hide", &statusbar_hide, "tabs-hide", &tabs_hide, NULL);
   g_object_unref (settings);
-  //gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
+  //gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 
   //-- file menu
   item = gtk_menu_item_new_with_mnemonic (_("_File"));
@@ -814,7 +814,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   g_signal_connect (item, "item-activated",
       G_CALLBACK (on_menu_open_recent_activate), (gpointer) self);
 
-  //gtk_recent_filter_add_application (filter, "buzztard-edit");
+  //gtk_recent_filter_add_application (filter, "buzztrax-edit");
   // set filters
   plugins = bt_song_io_get_module_info_list ();
   for (node = plugins; node; node = g_list_next (node)) {
@@ -874,12 +874,12 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), menu);
   gtk_menu_set_accel_group (GTK_MENU (menu), accel_group);
-  gtk_menu_set_accel_path (GTK_MENU (menu), "<Buzztard-Main>/MainMenu/Edit");
+  gtk_menu_set_accel_path (GTK_MENU (menu), "<Buzztrax-Main>/MainMenu/Edit");
 
   subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_UNDO, accel_group);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
-      "<Buzztard-Main>/MainMenu/Edit/Undo");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/Edit/Undo", GDK_z,
+      "<Buzztrax-Main>/MainMenu/Edit/Undo");
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/Edit/Undo", GDK_z,
       GDK_CONTROL_MASK);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_undo_activate),
@@ -890,8 +890,8 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_REDO, accel_group);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
-      "<Buzztard-Main>/MainMenu/Edit/Redo");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/Edit/Redo", GDK_z,
+      "<Buzztrax-Main>/MainMenu/Edit/Redo");
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/Edit/Redo", GDK_z,
       GDK_CONTROL_MASK | GDK_SHIFT_MASK);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_redo_activate),
@@ -937,7 +937,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), menu);
   gtk_menu_set_accel_group (GTK_MENU (menu), accel_group);
-  gtk_menu_set_accel_path (GTK_MENU (menu), "<Buzztard-Main>/MainMenu/View");
+  gtk_menu_set_accel_path (GTK_MENU (menu), "<Buzztrax-Main>/MainMenu/View");
 
   subitem = gtk_check_menu_item_new_with_mnemonic (_("Toolbar"));
   // from here we can't hide the toolbar as it is not yet created and shown
@@ -966,8 +966,8 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   subitem = gtk_check_menu_item_new_with_mnemonic (_("Fullscreen"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
-      "<Buzztard-Main>/MainMenu/View/FullScreen");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/FullScreen", GDK_F11,
+      "<Buzztrax-Main>/MainMenu/View/FullScreen");
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/View/FullScreen", GDK_F11,
       0);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "toggled", G_CALLBACK (on_menu_fullscreen_toggled),
@@ -977,11 +977,11 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   subitem = gtk_image_menu_item_new_with_label (_("Go to machine view"));
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_icon_name ("buzztard_tab_machines",
+      gtk_image_new_from_icon_name ("buzztrax_tab_machines",
           GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
-      "<Buzztard-Main>/MainMenu/View/MachineView");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/MachineView", GDK_F3,
+      "<Buzztrax-Main>/MainMenu/View/MachineView");
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/View/MachineView", GDK_F3,
       0);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate",
@@ -989,11 +989,11 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   subitem = gtk_image_menu_item_new_with_label (_("Go to pattern view"));
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_icon_name ("buzztard_tab_patterns",
+      gtk_image_new_from_icon_name ("buzztrax_tab_patterns",
           GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
-      "<Buzztard-Main>/MainMenu/View/PatternView");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/PatternView", GDK_F2,
+      "<Buzztrax-Main>/MainMenu/View/PatternView");
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/View/PatternView", GDK_F2,
       0);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate",
@@ -1001,11 +1001,11 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   subitem = gtk_image_menu_item_new_with_label (_("Go to sequence view"));
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_icon_name ("buzztard_tab_sequence",
+      gtk_image_new_from_icon_name ("buzztrax_tab_sequence",
           GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
-      "<Buzztard-Main>/MainMenu/View/SequenceView");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/SequenceView", GDK_F4,
+      "<Buzztrax-Main>/MainMenu/View/SequenceView");
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/View/SequenceView", GDK_F4,
       0);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate",
@@ -1013,10 +1013,10 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   subitem = gtk_image_menu_item_new_with_label (_("Go to wave table view"));
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_icon_name ("buzztard_tab_waves", GTK_ICON_SIZE_MENU));
+      gtk_image_new_from_icon_name ("buzztrax_tab_waves", GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
-      "<Buzztard-Main>/MainMenu/View/WaveteableView");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/WaveteableView",
+      "<Buzztrax-Main>/MainMenu/View/WaveteableView");
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/View/WaveteableView",
       GDK_F9, 0);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate",
@@ -1024,10 +1024,10 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   subitem = gtk_image_menu_item_new_with_label (_("Go to song information"));
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_icon_name ("buzztard_tab_info", GTK_ICON_SIZE_MENU));
+      gtk_image_new_from_icon_name ("buzztrax_tab_info", GTK_ICON_SIZE_MENU));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
-      "<Buzztard-Main>/MainMenu/View/InfoView");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/InfoView", GDK_F10,
+      "<Buzztrax-Main>/MainMenu/View/InfoView");
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/View/InfoView", GDK_F10,
       0);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate",
@@ -1061,21 +1061,21 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), menu);
   gtk_menu_set_accel_group (GTK_MENU (menu), accel_group);
   gtk_menu_set_accel_path (GTK_MENU (menu),
-      "<Buzztard-Main>/MainMenu/Playback");
+      "<Buzztrax-Main>/MainMenu/Playback");
 
   subitem =
       gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_PLAY, accel_group);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
-      "<Buzztard-Main>/MainMenu/Playback/Play");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/Playback/Play", GDK_F5, 0);
+      "<Buzztrax-Main>/MainMenu/Playback/Play");
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/Playback/Play", GDK_F5, 0);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_play_activate),
       (gpointer) self);
 
   subitem = gtk_image_menu_item_new_with_label (_("Play from cursor"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
-      "<Buzztard-Main>/MainMenu/Playback/PlayFromCursor");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/Playback/PlayFromCursor",
+      "<Buzztrax-Main>/MainMenu/Playback/PlayFromCursor");
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/Playback/PlayFromCursor",
       GDK_F6, 0);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate",
@@ -1084,8 +1084,8 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   subitem =
       gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_STOP, accel_group);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
-      "<Buzztard-Main>/MainMenu/Playback/Stop");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/Playback/Stop", GDK_F8, 0);
+      "<Buzztrax-Main>/MainMenu/Playback/Stop");
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/Playback/Stop", GDK_F8, 0);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_stop_activate),
       (gpointer) self);

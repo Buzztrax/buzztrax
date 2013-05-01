@@ -25,7 +25,7 @@
 
 * general
   ** machine-index.xml
-    - we will deliver a machine-index.xml with the buzztard distribution
+    - we will deliver a machine-index.xml with the buzztrax distribution
       - it will list only useful elements
       - it will hide tool elements (e.g. float2int)
     - support online-updates (machines via machine-index.xml)
@@ -160,7 +160,7 @@
 * recording
   ** we record via gstreamer
   ** own jack-driver wav-record (deprecated)
-    when telling buzztard to record wav-out instead of playing it, we attach a new
+    when telling buzztrax to record wav-out instead of playing it, we attach a new
     wav-record driver to jack and supplying filename and jack-driver name. Then we
     diconnect our wave-out from the current playback driver and connect it to the
     newly created wav-record driver and start playback. The driver will then start

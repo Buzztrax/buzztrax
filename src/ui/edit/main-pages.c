@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -18,7 +18,7 @@
  * SECTION:btmainpages
  * @short_description: class for the editor main pages
  *
- * The user interface of the buzztard editor is divided into several pages.
+ * The user interface of the buzztrax editor is divided into several pages.
  * This class implements the notebook widgets to manage the sub-pages:
  * #BtMainPageMachines, #BtMainPagePatterns, #BtMainPageSequence,
  * #BtMainPageWaves and #BtMainPageInfo.
@@ -175,32 +175,32 @@ bt_main_pages_init_ui (const BtMainPages * self)
     // add wigets for machine view
     self->priv->machines_page = bt_main_page_machines_new (self);
     bt_main_pages_add_tab (self, GTK_WIDGET (self->priv->machines_page),
-        _("machines"), "buzztard_tab_machines",
+        _("machines"), "buzztrax_tab_machines",
         _("machines used in the song and their wires"));
   }
   if (!BT_EDIT_UI_CONFIG ("no-patterns-page")) {
     // add wigets for pattern view
     self->priv->patterns_page = bt_main_page_patterns_new (self);
     bt_main_pages_add_tab (self, GTK_WIDGET (self->priv->patterns_page),
-        _("patterns"), "buzztard_tab_patterns", _("event pattern editor"));
+        _("patterns"), "buzztrax_tab_patterns", _("event pattern editor"));
   }
   if (!BT_EDIT_UI_CONFIG ("no-sequence-page")) {
     // add wigets for sequence view
     self->priv->sequence_page = bt_main_page_sequence_new (self);
     bt_main_pages_add_tab (self, GTK_WIDGET (self->priv->sequence_page),
-        _("sequence"), "buzztard_tab_sequence", _("song sequence editor"));
+        _("sequence"), "buzztrax_tab_sequence", _("song sequence editor"));
   }
   if (!BT_EDIT_UI_CONFIG ("no-wavetable-page")) {
     // add wigets for waves view
     self->priv->waves_page = bt_main_page_waves_new (self);
     bt_main_pages_add_tab (self, GTK_WIDGET (self->priv->waves_page),
-        _("wave table"), "buzztard_tab_waves", _("sample wave table editor"));
+        _("wave table"), "buzztrax_tab_waves", _("sample wave table editor"));
   }
   if (!BT_EDIT_UI_CONFIG ("no-info-page")) {
     // add widgets for song info view
     self->priv->info_page = bt_main_page_info_new (self);
     bt_main_pages_add_tab (self, GTK_WIDGET (self->priv->info_page),
-        _("information"), "buzztard_tab_info", _("song meta data editor"));
+        _("information"), "buzztrax_tab_info", _("song meta data editor"));
   }
   // @idea add widgets for machine help view
   // GTK_STOCK_HELP icon

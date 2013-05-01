@@ -1,12 +1,12 @@
-# Czech translation for Buzztard.
+# Czech translation for Buzztrax.
 # Copyright (C) 2009 Pavel Fric
-# This file is distributed under the same license as the buzztard package.
+# This file is distributed under the same license as the buzztrax package.
 # :encoding=UTF-8:
 # Pavel Fric <pavelfric@seznam.cz>, 2009, 2012.
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztard 0.6.0\n"
-"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"Project-Id-Version: buzztrax 0.6.0\n"
+"Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2011-10-07 21:35+0200\n"
 "PO-Revision-Date: 2012-05-28 13:44+0200\n"
 "Last-Translator: Pavel Fric <pavelfric@seznam.cz>\n"
@@ -19,16 +19,16 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: ../src/lib/core/core.c:196
-msgid "Print the buzztard core version"
-msgstr "Vyvolat základní verzi Buzztardu"
+msgid "Print the buzztrax core version"
+msgstr "Vyvolat základní verzi Buzztraxu"
 
 #: ../src/lib/core/core.c:200
-msgid "Buzztard core options"
-msgstr "Základní volby pro Buzztard"
+msgid "Buzztrax core options"
+msgstr "Základní volby pro Buzztrax"
 
 #: ../src/lib/core/core.c:200
-msgid "Show buzztard core options"
-msgstr "Ukázat základní volby pro Buzztard"
+msgid "Show buzztrax core options"
+msgstr "Ukázat základní volby pro Buzztrax"
 
 #. track commands in sequencer
 #: ../src/lib/core/pattern.c:371
@@ -69,16 +69,16 @@ msgid "untitled song"
 msgstr "Nepojmenovaná skladba"
 
 #: ../src/lib/ic/ic.c:115
-msgid "Print the buzztard interaction controller version"
-msgstr "Vytisknout verzi ovladače výměny informací Buzztardu"
+msgid "Print the buzztrax interaction controller version"
+msgstr "Vytisknout verzi ovladače výměny informací Buzztraxu"
 
 #: ../src/lib/ic/ic.c:119
-msgid "Buzztard interaction controller options"
-msgstr "Volby pro ovladač výměny informací Buzztardu"
+msgid "Buzztrax interaction controller options"
+msgstr "Volby pro ovladač výměny informací Buzztraxu"
 
 #: ../src/lib/ic/ic.c:119
-msgid "Show buzztard interaction controller options"
-msgstr "Ukázat volby pro ovladač výměny informací Buzztardu"
+msgid "Show buzztrax interaction controller options"
+msgstr "Ukázat volby pro ovladač výměny informací Buzztraxu"
 
 #: ../src/ui/cmd/bt-cmd.c:72 ../src/ui/edit/bt-edit.c:82
 msgid "Print application version"
@@ -107,12 +107,12 @@ msgstr "Název výstupního souboru"
 
 #. g_option_context_add_main_entries(ctx, options, GETTEXT_PACKAGE);
 #: ../src/ui/cmd/bt-cmd.c:94
-msgid "buzztard-cmd options"
-msgstr "Cmd volby pro Buzztard"
+msgid "buzztrax-cmd options"
+msgstr "Cmd volby pro Buzztrax"
 
 #: ../src/ui/cmd/bt-cmd.c:94
-msgid "Show buzztard-cmd options"
-msgstr "Ukázat cmd volby pro Buzztard"
+msgid "Show buzztrax-cmd options"
+msgstr "Ukázat cmd volby pro Buzztrax"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net>
@@ -122,8 +122,8 @@ msgstr "www.fripohled.blogspot.com"
 
 #: ../src/ui/edit/about-dialog.c:75 ../src/ui/edit/about-dialog.c:76
 #, c-format
-msgid "Copyright © 2003-%d Buzztard developer team"
-msgstr "Copyright © 2003-%d Buzztardův vývojářský tým"
+msgid "Copyright © 2003-%d Buzztrax developer team"
+msgstr "Copyright © 2003-%d Buzztraxův vývojářský tým"
 
 #: ../src/ui/edit/about-dialog.c:92
 msgid "Music production environment"
@@ -145,17 +145,17 @@ msgstr ""
 
 #. "Development version (do not translate this)"
 #: ../src/ui/edit/about-dialog.c:130
-msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztard songs in any gstreamer based media player. We also kept the buzztard codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
-msgstr "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztard songs in any gstreamer based media player. We also kept the buzztard codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
+msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztrax songs in any gstreamer based media player. We also kept the buzztrax codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
+msgstr "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztrax songs in any gstreamer based media player. We also kept the buzztrax codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
 
 #. g_option_context_add_main_entries (ctx, options, GETTEXT_PACKAGE);
 #: ../src/ui/edit/bt-edit.c:103
-msgid "buzztard-edit options"
-msgstr "Volby pro úpravy buzztardu"
+msgid "buzztrax-edit options"
+msgstr "Volby pro úpravy buzztraxu"
 
 #: ../src/ui/edit/bt-edit.c:103
-msgid "Show buzztard-edit options"
-msgstr "Ukázat volby pro úpravy buzztardu"
+msgid "Show buzztrax-edit options"
+msgstr "Ukázat volby pro úpravy buzztraxu"
 
 #: ../src/ui/edit/change-log.c:544
 msgid "unsaved song"
@@ -469,7 +469,7 @@ msgstr "Skladbu nelze nahrát"
 msgid "Recover a song?"
 msgstr "Obnovit skladbu?"
 
-#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
+#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
 #: ../src/ui/edit/main-menu.c:712
 msgid "_File"
@@ -1041,7 +1041,7 @@ msgstr "Hlasitost přehrávání"
 msgid "Change playback volume"
 msgstr "Změnit hlasitost přehrávání"
 
-#. we don't use PACKAGE_NAME = 'buzztard' for the window title
+#. we don't use PACKAGE_NAME = 'buzztrax' for the window title
 #: ../src/ui/edit/main-window.c:202
 msgid "unsaved"
 msgstr "Neuloženo"
@@ -1233,8 +1233,8 @@ msgstr "Postup vytvoření skladby"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:145
-msgid "buzztard settings"
-msgstr "Nastavení Buzztardu"
+msgid "buzztrax settings"
+msgstr "Nastavení Buzztraxu"
 
 #: ../src/ui/edit/settings-dialog.c:181 ../src/ui/edit/settings-dialog.c:236
 msgid "Audio Devices"
@@ -1385,16 +1385,16 @@ msgid "You can use input devices such as joysticks, beside midi devices to live 
 msgstr "Můžete použít vstupní zařízení, jako jsou pákové ovladače, vedle zařízení MIDI pro živé ovládání parametrů nástroje."
 
 #: ../src/ui/edit/tip-dialog.c:54
-msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztard."
-msgstr "Můžete použít upnp media klienta (např. media streamer u tabletů nokia) pro dálkové ovládání programu buzztard."
+msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztrax."
+msgstr "Můžete použít upnp media klienta (např. media streamer u tabletů nokia) pro dálkové ovládání programu buzztrax."
 
 #: ../src/ui/edit/tip-dialog.c:55
 msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
 msgstr "Pro zadávání not si představte klávesnici svého počítače jako hudební klávesnici ve dvou řadách. Dolní levá klávesa y/z představuje 'c', s představuje 'c#', x představuje 'd' atd."
 
 #: ../src/ui/edit/tip-dialog.c:56
-msgid "You can get more help from the community on irc://irc.freenode.net/#buzztard."
-msgstr "Více pomoci se vám může dostat od komunity na irc://irc.freenode.net/#buzztard."
+msgid "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
+msgstr "Více pomoci se vám může dostat od komunity na irc://irc.freenode.net/#buzztrax."
 
 #: ../src/ui/edit/tip-dialog.c:57
 msgid "Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."

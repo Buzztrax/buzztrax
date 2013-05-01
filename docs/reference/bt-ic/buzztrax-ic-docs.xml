@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
+<!ENTITY % version-entities SYSTEM "../../version.entities">
+%version-entities;
+<!ELEMENT xi:include (xi:fallback?) >
+<!ATTLIST xi:include
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude"
+    href       CDATA       #IMPLIED
+    parse      (xml|text)  "xml"
+    xpointer   CDATA       #IMPLIED
+    encoding   CDATA       #IMPLIED
+    accept     CDATA       #IMPLIED
+    accept-language CDATA  #IMPLIED >
+
+<!ELEMENT xi:fallback ANY>
+<!ATTLIST xi:fallback
+    xmlns:xi   CDATA   #FIXED   "http://www.w3.org/2003/XInclude" >
+
+<!ATTLIST book
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude" >
+
+<!ENTITY % local.refentry.class "| xi:include">
+]>
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
+  <bookinfo>
+    <title>Buzztrax Bt-Ic Reference Manual</title>
+    <releaseinfo>
+      for Buzztrax &BT_VERSION;.
+      The latest version of this documentation can be found on-line at
+      <ulink role="online-location" url="http://www.buzztrax.org/files/apidocs/bt-ic/">http://www.buzztrax.org/files/apidocs/bt-ic/</ulink>.
+    </releaseinfo>
+  </bookinfo>
+
+  <preface>
+    <title>Introduction</title>
+    <para>
+      Buzztrax aims to be a successor of the freeware music tracker called Buzz
+      with a focus on Linux. The development of Buzz for windows had been
+      discontinued as the author lost all his source-codes. Buzztrax is only
+      related to Buzz in the concepts, Buzztraxs source code is written from
+      scratch.
+    </para>
+    <para>
+      The homepage of the buzztrax project can be found at
+      <ulink url="http://www.buzztrax.org">www.buzztrax.org</ulink>.
+      It is a social site containing forums, a wiki and bug tracker and many
+      other resoures.
+    </para>
+  </preface>
+
+  <part label="I">
+    <title>Overview</title>
+  </part>
+
+  <reference label="II" id="libbtic">
+    <title>Interaction Controller Reference</title>
+    <partintro>
+      <abstract>
+        <para>
+          The interaction controler library provides unifies access to (hardware)
+          controlers that are suitable for interaction with parameters in sound
+          generatros and effects.
+        </para>
+      </abstract>
+    </partintro>
+    <xi:include href="xml/libbtic.xml" />
+    <xi:include href="xml/bticregistry.xml" />
+    <xi:include href="xml/bticgudevdiscoverer.xml"><xi:fallback /></xi:include>
+    <xi:include href="xml/bticdevice.xml" />
+    <xi:include href="xml/bticinputdevice.xml"><xi:fallback /></xi:include>
+    <xi:include href="xml/bticmididevice.xml" />
+    <xi:include href="xml/bticcontrol.xml" />
+    <xi:include href="xml/bticabsrangecontrol.xml" />
+    <xi:include href="xml/btictriggercontrol.xml" />
+    <xi:include href="xml/bticlearn.xml" />
+  </reference>
+
+  <part label="III">
+    <title>Appendix</title>
+
+    <chapter id="objecttree">
+      <title>Object Hierarchy</title>
+      <xi:include href="xml/tree_index.sgml" />
+    </chapter>
+
+    <index id="api-index">
+      <title>API Index</title>
+      <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+    </index>
+    <index id="api-index-deprecated" role="deprecated">
+      <title>Index of deprecated API</title>
+      <xi:include href="xml/api-index-deprecated.xml"><xi:fallback /></xi:include>
+    </index>
+    <index id="api-index-0-6" role="0.6">
+      <title>Index of new API in 0.6</title>
+      <xi:include href="xml/api-index-0.6.xml"><xi:fallback /></xi:include>
+    </index>
+  </part>
+</book>

@@ -1,5 +1,5 @@
 = dynlinkmatrix =
-- have a buzztardlike pipeline with
+- have a buzztraxlike pipeline with
   src1, src2, fx1, fx2, sink
   - use low saw, high sqr for the wave and picth
   - use a controller pattern on src.volume

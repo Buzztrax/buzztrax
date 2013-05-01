@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2007 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,7 +16,7 @@
  */
 /**
  * SECTION:bticmididevice
- * @short_description: buzztards interaction controller midi device
+ * @short_description: buzztraxs interaction controller midi device
  *
  * Event handling for midi devices.
  */

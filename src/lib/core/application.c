@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,7 +16,7 @@
  */
 /**
  * SECTION:btapplication
- * @short_description: base class for a buzztard based application
+ * @short_description: base class for a buzztrax based application
  *
  * Every application using the libbtcore library should inherit from this class.
  * Implementations should implement the singleton pattern.
@@ -55,7 +55,7 @@ struct _BtApplicationPrivate
 
   /* the main gstreamer container element */
   GstElement *bin;
-  /* a reference to the buzztard settings object */
+  /* a reference to the buzztrax settings object */
   BtSettings *settings;
 };
 

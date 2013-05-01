@@ -72,7 +72,7 @@
 2008-11-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/Makefile.am:
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	* docs/help/bt-edit/C/figures/machine-preferences.png:
 	* docs/help/bt-edit/C/figures/machine-properties.png:
 	* docs/help/bt-edit/C/figures/main-window.png:
@@ -252,15 +252,15 @@
 
 2008-11-02  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/ic/libbuzztard-ic/abs-range-control.h:
-	* src/lib/ic/libbuzztard-ic/midi-device.h:
-	* src/lib/ic/libbuzztard-ic/trigger-control.h:
+	* src/lib/ic/libbuzztrax-ic/abs-range-control.h:
+	* src/lib/ic/libbuzztrax-ic/midi-device.h:
+	* src/lib/ic/libbuzztrax-ic/trigger-control.h:
 	  Add missing includes, helps the gir-scanner.
 
 2008-11-02  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/machine-methods.h:
 	* src/lib/core/machine.c:
 	* src/lib/core/sequence.c:
 	* src/ui/edit/machine-properties-dialog.c:
@@ -304,7 +304,7 @@
 
 2008-10-20  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/buzztard.xsd:
+	* docs/buzztrax.xsd:
 	  More docs.
 
 	* src/lib/core/sequence.c:
@@ -348,12 +348,12 @@
 	* src/lib/core/core.c:
 	  Try annotations.
 
-	* src/lib/core/libbuzztard-core/core.h:
+	* src/lib/core/libbuzztrax-core/core.h:
 	  Include always.
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
 	* src/lib/core/application.c:
-	* src/lib/core/libbuzztard-core/application-private.h:
+	* src/lib/core/libbuzztrax-core/application-private.h:
 	* src/ui/cmd/cmd-application.c:
 	* src/ui/edit/edit-application.c:
 	* tests/lib/core/m-bt-core.h:
@@ -379,7 +379,7 @@
 	* tests/lib/core/e-song-io-native.c:
 	  Overload constructors for proper post init.
 
-	* src/lib/core/libbuzztard-core/song-io-methods.h:
+	* src/lib/core/libbuzztrax-core/song-io-methods.h:
 	* src/lib/core/song-io.c:
 	  Fix method signatures.
 
@@ -424,10 +424,10 @@
 	* src/lib/ic/Makefile.am:
 	  Check for gir tools and build typelib. Example for python bindings.
 
-	* src/lib/ic/libbuzztard-ic/Makefile.am:
+	* src/lib/ic/libbuzztrax-ic/Makefile.am:
 	  Move distclean target.
 
-	* src/lib/ic/libbuzztard-ic/ic.h:
+	* src/lib/ic/libbuzztrax-ic/ic.h:
 	  Don't include config.h here.
 
 	* src/ui/cmd/bt-cmd.h:
@@ -439,8 +439,8 @@
 	* NEWSLETTER:
 	  sent news.
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/machine-methods.h:
 	* src/lib/core/machine.c:
 	  Cleanup API. Use current values as defaults in controller timelines.
 
@@ -458,7 +458,7 @@
 
 2008-10-02  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/buzztard.xsd:
+	* docs/buzztrax.xsd:
 	  Docuemnt schema.
 
 2008-09-30  Stefan Kost  <ensonic@users.sf.net>
@@ -512,7 +512,7 @@
 2008-09-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gst/timing.c:
-	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* src/lib/core/libbuzztrax-core/sequence-methods.h:
 	* src/lib/core/sequence.c:
 	* src/lib/core/song.c:
 	* src/ui/cmd/cmd-application.c:
@@ -547,7 +547,7 @@
 
 2008-09-24  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  More docs.
 
 2008-09-24  Stefan Kost  <ensonic@users.sf.net>
@@ -626,7 +626,7 @@
 	* src/ui/edit/main-menu.c:
 	* src/ui/edit/main-window.c:
 	* src/ui/edit/playback-controller-socket.c:
-	  Some more bt-edit -> buzztard-edit replacement. Also harmonize option
+	  Some more bt-edit -> buzztrax-edit replacement. Also harmonize option
 	  strings.
 
 2008-09-10  Stefan Kost  <ensonic@users.sf.net>
@@ -640,7 +640,7 @@
 	  libbml is optional.
 
 	* src/lib/core/Makefile.am:
-	* src/lib/core/libbuzztard-core/Makefile.am:
+	* src/lib/core/libbuzztrax-core/Makefile.am:
 	  Move DISTCLEAN to where the file is.
 
 2008-09-10  Stefan Kost  <ensonic@users.sf.net>
@@ -667,7 +667,7 @@
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/main-page-waves.c:
 	* tests/bt-test-plugin.c:
-	  Adjust to gst-buzztard api break.
+	  Adjust to gst-buzztrax api break.
 
 2008-09-08  Stefan Kost  <ensonic@users.sf.net>
 
@@ -694,12 +694,12 @@
 	  Write news.
 
 	* configure.ac:
-	* docs/reference/bt-cmd/buzztard-cmd.types:
+	* docs/reference/bt-cmd/buzztrax-cmd.types:
 	* docs/reference/bt-core/Makefile.am:
-	* docs/reference/bt-core/buzztard-core.types:
-	* docs/reference/bt-edit/buzztard-edit.types:
+	* docs/reference/bt-core/buzztrax-core.types:
+	* docs/reference/bt-edit/buzztrax-edit.types:
 	* docs/reference/bt-ic/Makefile.am:
-	* docs/reference/bt-ic/buzztard-ic.types:
+	* docs/reference/bt-ic/buzztrax-ic.types:
 	* src/ui/cmd/bt-cmd.h:
 	* src/ui/cmd/cmd-application.c:
 	* src/ui/edit/bt-edit.h:
@@ -719,9 +719,9 @@
 	* docs/reference/bt-edit/Makefile.am:
 	* docs/reference/bt-ic/Makefile.am:
 	* src/lib/core/Makefile.am:
-	* src/lib/core/libbuzztard-core.pc.in:
+	* src/lib/core/libbuzztrax-core.pc.in:
 	* src/lib/ic/Makefile.am:
-	* src/lib/ic/libbuzztard-ic.pc.in:
+	* src/lib/ic/libbuzztrax-ic.pc.in:
 	* src/ui/cmd/Makefile.am:
 	* src/ui/edit/Makefile.am:
 	* tests/Makefile.am:
@@ -752,7 +752,7 @@
 
 	* src/ui/cmd/Makefile.am:
 	* src/ui/edit/Makefile.am:
-	* src/ui/edit/buzztard-edit.desktop.in.in:
+	* src/ui/edit/buzztrax-edit.desktop.in.in:
 	* tests/bt-cfg.sh.in:
 	* tests/bt-cmd-cli.sh:
 	* tests/bt-cmd-convert.sh:
@@ -827,11 +827,11 @@
 	* pixmaps/gnome/16x16/menu_processor_machine.png:
 	* pixmaps/gnome/16x16/menu_sink_machine.png:
 	* pixmaps/gnome/16x16/menu_source_machine.png:
-	* pixmaps/gnome/22x22/buzztard.png:
-	* pixmaps/gnome/24x24/buzztard.png:
-	* pixmaps/gnome/32x32/buzztard.png:
-	* pixmaps/gnome/48x48/buzztard.png:
-	* pixmaps/gnome/scalable/buzztard.svg:
+	* pixmaps/gnome/22x22/buzztrax.png:
+	* pixmaps/gnome/24x24/buzztrax.png:
+	* pixmaps/gnome/32x32/buzztrax.png:
+	* pixmaps/gnome/48x48/buzztrax.png:
+	* pixmaps/gnome/scalable/buzztrax.svg:
 	* pixmaps/gnome/scalable/effect-bypass.svg:
 	* pixmaps/gnome/scalable/effect-mute.svg:
 	* pixmaps/gnome/scalable/effect.svg:
@@ -1224,7 +1224,7 @@
 
 2008-07-31  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/buzztard.xml.in:
+	* src/lib/buzztrax.xml.in:
 	* src/ui/edit/main-menu.c:
 	* src/ui/edit/main-window.c:
 	  Fix share mime recognition file. Work around
@@ -1320,7 +1320,7 @@
 	* po/de.po:
 	  Small translation update.
 
-	* src/lib/buzztard.xml.in:
+	* src/lib/buzztrax.xml.in:
 	  Don't override regular zip files.
 
 2008-07-12  Stefan Kost  <ensonic@users.sf.net>
@@ -1435,7 +1435,7 @@
 	  Planning for missing features.
 
 	* src/ui/edit/main-page-patterns.c:
-	  Use buzz note conversion from gst-buzztard.
+	  Use buzz note conversion from gst-buzztrax.
 
 
 2008-07-08  Stefan Kost  <ensonic@users.sf.net>
@@ -1528,7 +1528,7 @@
 
 2008-06-27  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/buzztard.xml.in:
+	* src/lib/buzztrax.xml.in:
 	  Better format detection.
 
 	* src/ui/edit/main-window.c:
@@ -1752,7 +1752,7 @@
 	* configure.ac:
 	* pixmaps/Makefile.am:
 	* pixmaps/gnome/Makefile.am:
-	* pixmaps/tango/16x16/buzztard.png:
+	* pixmaps/tango/16x16/buzztrax.png:
 	* pixmaps/tango/16x16/menu_processor_machine.png:
 	* pixmaps/tango/16x16/menu_sink_machine.png:
 	* pixmaps/tango/16x16/menu_source_machine.png:
@@ -1760,16 +1760,16 @@
 	* pixmaps/tango/16x16/tab_patterns.png:
 	* pixmaps/tango/16x16/tab_sequence.png:
 	* pixmaps/tango/16x16/tab_waves.png:
-	* pixmaps/tango/22x22/buzztard.png:
-	* pixmaps/tango/24x24/buzztard.png:
+	* pixmaps/tango/22x22/buzztrax.png:
+	* pixmaps/tango/24x24/buzztrax.png:
 	* pixmaps/tango/24x24/menu_grid.png:
 	* pixmaps/tango/24x24/menu_processor_machine.png:
 	* pixmaps/tango/24x24/menu_sink_machine.png:
 	* pixmaps/tango/24x24/menu_source_machine.png:
-	* pixmaps/tango/32x32/buzztard.png:
-	* pixmaps/tango/48x48/buzztard.png:
+	* pixmaps/tango/32x32/buzztrax.png:
+	* pixmaps/tango/48x48/buzztrax.png:
 	* pixmaps/tango/Makefile.am:
-	* pixmaps/tango/scalable/buzztard.svg:
+	* pixmaps/tango/scalable/buzztrax.svg:
 	* pixmaps/tango/scalable/effect-bypass.svg:
 	* pixmaps/tango/scalable/effect-mute.svg:
 	* pixmaps/tango/scalable/effect.svg:
@@ -1782,12 +1782,12 @@
 
 2008-06-05  Stefan Kost  <ensonic@users.sf.net>
 
-	* pixmaps/tango/16x16/buzztard.png:
+	* pixmaps/tango/16x16/buzztrax.png:
 	* pixmaps/tango/16x16/tab_machines.png:
-	* pixmaps/tango/22x22/buzztard.png:
-	* pixmaps/tango/24x24/buzztard.png:
-	* pixmaps/tango/32x32/buzztard.png:
-	* pixmaps/tango/scalable/buzztard.svg:
+	* pixmaps/tango/22x22/buzztrax.png:
+	* pixmaps/tango/24x24/buzztrax.png:
+	* pixmaps/tango/32x32/buzztrax.png:
+	* pixmaps/tango/scalable/buzztrax.svg:
 	  Update icons.
 
 2008-06-04  Stefan Kost  <ensonic@users.sf.net>
@@ -1834,8 +1834,8 @@
 	* pixmaps/tab_patterns.png:
 	* pixmaps/tab_sequence.png:
 	* pixmaps/tab_waves.png:
-	* pixmaps/tango/22x22/buzztard.png:
-	* pixmaps/tango/scalable/buzztard.svg:
+	* pixmaps/tango/22x22/buzztrax.png:
+	* pixmaps/tango/scalable/buzztrax.svg:
 	* pixmaps/tango/scalable/effect-bypass.svg:
 	* pixmaps/tango/scalable/effect-mute.svg:
 	* pixmaps/tango/scalable/effect.svg:
@@ -2005,10 +2005,10 @@
 
 2008-04-25  Stefan Kost  <ensonic@users.sf.net>
 
-	* pixmaps/48x48/buzztard.png:
+	* pixmaps/48x48/buzztrax.png:
 	* pixmaps/Makefile.am:
-	* pixmaps/buzztard.png:
-	* pixmaps/buzztard.svg:
+	* pixmaps/buzztrax.png:
+	* pixmaps/buzztrax.svg:
 	  Reorder files for better theme support.
 
 	* src/lib/core/wave.c:
@@ -2059,7 +2059,7 @@
 	* src/lib/core/libbtcore/core.h:
 	* src/lib/core/machine.c:
 	* src/ui/edit/bt-edit.h:
-	  Update to gst-buzztard changes.
+	  Update to gst-buzztrax changes.
 
 2008-04-21  Stefan Kost  <ensonic@users.sf.net>
 

@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,7 +16,7 @@
  */
 /**
  * SECTION:libbtcore
- * @short_description: core library of the buzztard application framework
+ * @short_description: core library of the buzztrax application framework
  *
  * The library offers base objects such as #BtApplication and #BtSong.
  */
@@ -39,19 +39,19 @@
 /**
  * bt_major_version:
  *
- * buzztard version stamp, major part
+ * buzztrax version stamp, major part
  */
 const guint bt_major_version = BT_MAJOR_VERSION;
 /**
  * bt_minor_version:
  *
- * buzztard version stamp, minor part
+ * buzztrax version stamp, minor part
  */
 const guint bt_minor_version = BT_MINOR_VERSION;
 /**
  * bt_micro_version:
  *
- * buzztard version stamp, micro part
+ * buzztrax version stamp, micro part
  */
 const guint bt_micro_version = BT_MICRO_VERSION;
 
@@ -84,7 +84,7 @@ bt_init_post (void)
   gst_pb_utils_init ();
 
   if (arg_version) {
-    g_printf ("libbuzztard-core-%d.%d.%d from " PACKAGE_STRING "\n",
+    g_printf ("libbuzztrax-core-%d.%d.%d from " PACKAGE_STRING "\n",
         BT_MAJOR_VERSION, BT_MINOR_VERSION, BT_MICRO_VERSION);
   }
 
@@ -95,9 +95,9 @@ bt_init_post (void)
   gst_plugin_register_static (GST_VERSION_MAJOR,
       GST_VERSION_MINOR,
       "bt-sink-bin",
-      "buzztard sink bin - encapsulates play and record functionality",
+      "buzztrax sink bin - encapsulates play and record functionality",
       bt_sink_bin_plugin_init,
-      VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
+      VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztrax.org");
 
   bt_default_caps = gst_caps_new_simple ("audio/x-raw",
       "format", G_TYPE_STRING, GST_AUDIO_NE (F32),
@@ -175,14 +175,14 @@ bt_init_get_option_group (void)
   GOptionGroup *group;
   static GOptionEntry options[] = {
     {"bt-version", 0, 0, G_OPTION_ARG_NONE, NULL,
-        N_("Print the buzztard core version"), NULL},
+        N_("Print the buzztrax core version"), NULL},
     {NULL}
   };
   options[0].arg_data = &arg_version;
 
   group =
-      g_option_group_new ("bt-core", _("Buzztard core options"),
-      _("Show buzztard core options"), NULL, NULL);
+      g_option_group_new ("bt-core", _("Buzztrax core options"),
+      _("Show buzztrax core options"), NULL, NULL);
   g_option_group_set_parse_hooks (group, (GOptionParseFunc) bt_init_pre,
       (GOptionParseFunc) bt_init_post);
 
@@ -212,13 +212,13 @@ bt_init_add_option_groups (GOptionContext * const ctx)
  * @argv: (array length=argc) (inout): pointer to application's argv
  * @err: pointer to a #GError to which a message will be posted on error
  *
- * Initializes the Buzztard core library.
+ * Initializes the Buzztrax core library.
  *
- * This function will return %FALSE if Buzztard core could not be initialized
+ * This function will return %FALSE if Buzztrax core could not be initialized
  * for some reason.  If you want your program to fail fatally,
  * use bt_init() instead.
  *
- * Returns: %TRUE if Buzztard core could be initialized.
+ * Returns: %TRUE if Buzztrax core could be initialized.
  */
 gboolean
 bt_init_check (gint * argc, gchar ** argv[], GError ** err)
@@ -239,7 +239,7 @@ bt_init_check (gint * argc, gchar ** argv[], GError ** err)
  * @argc: (inout): pointer to application's argc
  * @argv: (array length=argc) (inout): pointer to application's argv
  *
- * Initializes the Buzztard Core library.
+ * Initializes the Buzztrax Core library.
  *
  * <note><para>
  * This function will terminate your program if it was unable to initialize
@@ -258,7 +258,7 @@ bt_init (gint * argc, gchar ** argv[])
   GError *err = NULL;
 
   if (!bt_init_check (argc, argv, &err)) {
-    g_print ("Could not initialized Buzztard core: %s\n",
+    g_print ("Could not initialized Buzztrax core: %s\n",
         err ? err->message : "unknown error occurred");
     if (err) {
       g_error_free (err);

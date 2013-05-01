@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2012 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2012 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,7 +16,7 @@
  */
 /**
  * SECTION:bticinputdevice
- * @short_description: buzztards interaction controller test device
+ * @short_description: buzztraxs interaction controller test device
  *
  * Dummy device for tests.
  */

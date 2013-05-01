@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * class for buzz song input and output
  *
@@ -34,9 +34,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-//-- gstbuzztard
-#include <libgstbuzztard/toneconversion.h>
-#include <libgstbuzztard/propertymeta.h>
+//-- gstbuzztrax
+#include <libgstbuzztrax/toneconversion.h>
+#include <libgstbuzztrax/propertymeta.h>
 
 struct _BtSongIOBuzzPrivate
 {
@@ -879,7 +879,7 @@ read_mach_section (const BtSongIOBuzz * self, const BtSong * song)
        *     bml_set_machine_data_input(data_size,data) ?
        * 2.) moving the code from _init to _constructed
        *
-       * see aöso: gst-buzztard/src/bml/util.c:gstbml_class_prepare_properties()
+       * see aöso: gst-buzztrax/src/bml/util.c:gstbml_class_prepare_properties()
        */
       GST_INFO ("    skipping machine data : %d (0x%x) bytes", data_size,
           data_size);

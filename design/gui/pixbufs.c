@@ -24,7 +24,7 @@ destroy (GtkWidget * widget, gpointer data)
 static void
 init ()
 {
-  const gchar img_name[] = "buzztard_master";
+  const gchar img_name[] = "buzztrax_master";
   const gchar img_path[] = "master.svg";
   const gint size = 100;
 

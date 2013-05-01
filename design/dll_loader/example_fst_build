@@ -1,5 +1,5 @@
-hoehmi@bigwaffel:~/projects/buzztard/fst-1.6> make
-make[1]: Entering directory `/home/hoehmi/projects/buzztard/fst-1.6/fst'
+hoehmi@bigwaffel:~/projects/buzztrax/fst-1.6> make
+make[1]: Entering directory `/home/hoehmi/projects/buzztrax/fst-1.6/fst'
 gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehmi/wine//include/wine/windows/../.. -I/home/hoehmi/wine//include/wine/windows -g -O2 -fPIC -I .. -I./vst  -DDLLPATH=\"/home/hoehmi/wine//lib/wine\" -DLIBPATH=\"/usr/local/lib\"  -D_REENTRANT -o pthread.o pthread.c
 gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehmi/wine//include/wine/windows/../.. -I/home/hoehmi/wine//include/wine/windows -g -O2 -fPIC -I .. -I./vst  -DDLLPATH=\"/home/hoehmi/wine//lib/wine\" -DLIBPATH=\"/usr/local/lib\"  -D_REENTRANT -o interlocked.o interlocked.c
 gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehmi/wine//include/wine/windows/../.. -I/home/hoehmi/wine//include/wine/windows -g -O2 -fPIC -I .. -I./vst  -DDLLPATH=\"/home/hoehmi/wine//lib/wine\" -DLIBPATH=\"/usr/local/lib\"  -D_REENTRANT -o gettid.o gettid.c
@@ -36,7 +36,7 @@ gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehm
 #
 # inhalt
 #
-hoehmi@bigwaffel:~/projects/buzztard/fst-1.6/fst> nm libfst.spec.o
+hoehmi@bigwaffel:~/projects/buzztrax/fst-1.6/fst> nm libfst.spec.o
 0000018e r .LC31
 00000068 D CloseWindow
 00000010 D CreateThread
@@ -100,7 +100,7 @@ gcc -shared -Wl,-Bsymbolic -o libfst.so pthread.o interlocked.o gettid.o libwine
 #
 # LDD
 #
-hoehmi@bigwaffel:~/projects/buzztard/fst-1.6/fst> ldd libfst.so
+hoehmi@bigwaffel:~/projects/buzztrax/fst-1.6/fst> ldd libfst.so
         libdl.so.2 => /lib/libdl.so.2 (0x40030000)
         libpthread.so.0 => /lib/libpthread.so.0 (0x40034000)
         libwine.so.1 => /home/hoehmi/wine/lib/libwine.so.1 (0x40084000)
@@ -110,7 +110,7 @@ hoehmi@bigwaffel:~/projects/buzztard/fst-1.6/fst> ldd libfst.so
         /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x80000000)
 
 # ...
-make[1]: Leaving directory `/home/hoehmi/projects/buzztard/fst-1.6/fst'
+make[1]: Leaving directory `/home/hoehmi/projects/buzztrax/fst-1.6/fst'
 
 #
 # WINEBUILD

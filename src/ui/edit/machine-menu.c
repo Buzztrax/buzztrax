@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -139,7 +139,7 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
   GType type;
   gboolean have_submenu;
 
-  /* list known gstreamer element that are not useful under buzztard,
+  /* list known gstreamer element that are not useful under buzztrax,
    * but we can't detect otherwise */
   const gchar *blacklist[] = {
     "audiorate",

@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -114,7 +114,7 @@ test_bt_sequence_tracks (BT_TEST_ARGS)
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
 
   /* act */
   bt_sequence_add_track (sequence, machine, -1);
@@ -136,7 +136,7 @@ test_bt_sequence_pattern (BT_TEST_ARGS)
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   BtCmdPattern *pattern =
       (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 8L, NULL);
@@ -255,7 +255,7 @@ test_bt_sequence_enlarge_track (BT_TEST_ARGS)
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen-m",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
 
   /* act */
   bt_sequence_add_track (sequence, machine, -1);
@@ -277,7 +277,7 @@ test_bt_sequence_enlarge_track_vals (BT_TEST_ARGS)
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   bt_sequence_add_track (sequence, machine, -1);
 
   /* act */
@@ -302,7 +302,7 @@ test_bt_sequence_shrink_track (BT_TEST_ARGS)
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   g_object_set (sequence, "length", 1L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_add_track (sequence, machine, -1);
@@ -326,7 +326,7 @@ test_bt_sequence_enlarge_both_vals (BT_TEST_ARGS)
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   BtCmdPattern *pattern =
       (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 8L, NULL);
@@ -365,7 +365,7 @@ test_bt_sequence_update (BT_TEST_ARGS)
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);

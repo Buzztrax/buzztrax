@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -144,7 +144,7 @@ bt_processor_machine_persistence_load (const GType type,
     }
     // TODO(ensonic): we also need the parameters the parent-class would parse
     // as a a quick hack copied the code from the parent class into the subclasses
-    // see : http://www.buzztard.org/index.php/Gobject_serialisation#Dealing_with_inheritance
+    // see : http://www.buzztrax.org/index.php/Gobject_serialisation#Dealing_with_inheritance
 
     self =
         bt_processor_machine_new (song, (gchar *) id, (gchar *) plugin_name,

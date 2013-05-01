@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2007 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -67,8 +67,8 @@ case_teardown (void)
 
 // show machine properties dialog
 static gchar *element_names[] = {
-  "buzztard-test-no-arg-mono-source", "buzztard-test-mono-source",
-  "buzztard-test-poly-source", "buzztard-test-poly-source"
+  "buzztrax-test-no-arg-mono-source", "buzztrax-test-mono-source",
+  "buzztrax-test-poly-source", "buzztrax-test-poly-source"
 };
 static gulong element_voices[] = { 0, 0, 0, 1 };
 

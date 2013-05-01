@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2012 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2012 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -90,7 +90,7 @@ test_bt_machine_list_model_get_machine (BT_TEST_ARGS)
   /* arrange */
   GtkTreeIter iter;
   BtMachine *machine1 = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   BtMachineListModel *model = bt_machine_list_model_new (setup);
   gtk_tree_model_get_iter_first ((GtkTreeModel *) model, &iter);
 

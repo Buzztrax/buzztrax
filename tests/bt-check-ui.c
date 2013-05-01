@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2012 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2012 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * ui testing helpers
  *

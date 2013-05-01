@@ -6,11 +6,11 @@
 #include <gsf/gsf-infile-zip.h>
 
 /*
- * try to read the given input file, open it an read the main buzztard song xml
+ * try to read the given input file, open it an read the main buzztrax song xml
  * file. Currently we searching hard for a file named "song.xml".
  */
 int
-readBuzztardXmlFile (gchar * file_name)
+readBuzztraxXmlFile (gchar * file_name)
 {
   GsfInput *input;
   GsfInfile *infile;
@@ -63,9 +63,9 @@ readBuzztardXmlFile (gchar * file_name)
 }
 
 /*
- * check if we can use libgsf to work with buzztard song files.
+ * check if we can use libgsf to work with buzztrax song files.
  *
- * The first example can be used to open a save file and to read the buzztard
+ * The first example can be used to open a save file and to read the buzztrax
  * xml file from.
  */
 
@@ -76,7 +76,7 @@ main (int argc, char **argv)
 
   if (argc > 1) {
     gsf_init ();
-    returnValue = readBuzztardXmlFile (argv[1]);
+    returnValue = readBuzztraxXmlFile (argv[1]);
     gsf_shutdown ();
   } else {
     printf ("Usage: %s <filename>\n", argv[0]);

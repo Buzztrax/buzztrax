@@ -16,15 +16,15 @@ endif
 
 # -- libs ----------------------------------------------------------------------
 
-lib_LTLIBRARIES = libbuzztard-ic.la libbuzztard-core.la
+lib_LTLIBRARIES = libbuzztrax-ic.la libbuzztrax-core.la
 
-libbuzztard_ic_la_LIBADD = \
+libbuzztrax_ic_la_LIBADD = \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
-libbuzztard_ic_la_LDFLAGS = \
+libbuzztrax_ic_la_LDFLAGS = \
 	-export-symbols-regex ^_?\(btic_\|BtIc\|BTIC_\).* \
 	-version-info @BT_VERSION_INFO@
-libbuzztard_ic_la_CFLAGS = -I$(top_builddir)/src/lib/ic
-libbuzztard_ic_la_SOURCES = \
+libbuzztrax_ic_la_CFLAGS = -I$(top_builddir)/src/lib/ic
+libbuzztrax_ic_la_SOURCES = \
 	src/lib/ic/ic.c \
 	src/lib/ic/registry.c\
 	$(GUDEV_C_FILES) \
@@ -36,8 +36,8 @@ libbuzztard_ic_la_SOURCES = \
 	src/lib/ic/abs-range-control.c \
 	src/lib/ic/trigger-control.c
 
-libbuzztard_icdir = $(includedir)/libbuzztard-ic
-libbuzztard_ic_HEADERS = \
+libbuzztrax_icdir = $(includedir)/libbuzztrax-ic
+libbuzztrax_ic_HEADERS = \
 	src/lib/ic/ic.h \
 	src/lib/ic/version.h \
 	src/lib/ic/registry.h \
@@ -52,8 +52,8 @@ libbuzztard_ic_HEADERS = \
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = \
-  src/lib/core/libbuzztard-core.pc \
-  src/lib/ic/libbuzztard-ic.pc
+  src/lib/core/libbuzztrax-core.pc \
+  src/lib/ic/libbuzztrax-ic.pc
 
 src/lib/core/marshal.h: src/lib/core/marshal.list
 	$(AM_V_at)$(MKDIR_P) src/lib/core
@@ -66,17 +66,17 @@ src/lib/core/marshal.c: src/lib/core/marshal.list
 BUILT_SOURCES += src/lib/core/marshal.c src/lib/core/marshal.h
 CLEANFILES += src/lib/core/marshal.c src/lib/core/marshal.h
 
-EXTRA_libbuzztard_core_la_SOURCES = src/lib/core/marshal.list
-nodist_libbuzztard_core_la_SOURCES = src/lib/core/marshal.c src/lib/core/marshal.h
-libbuzztard_core_la_LIBADD = \
-	libbuzztard-ic.la \
+EXTRA_libbuzztrax_core_la_SOURCES = src/lib/core/marshal.list
+nodist_libbuzztrax_core_la_SOURCES = src/lib/core/marshal.c src/lib/core/marshal.h
+libbuzztrax_core_la_LIBADD = \
+	libbuzztrax-ic.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
 	-lgstaudio-@GST_MAJORMINOR@ -lgstpbutils-@GST_MAJORMINOR@
-libbuzztard_core_la_LDFLAGS = \
+libbuzztrax_core_la_LDFLAGS = \
 	-export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
 	-version-info @BT_VERSION_INFO@
-libbuzztard_core_la_CFLAGS = -I$(top_builddir)/src/lib/core
-libbuzztard_core_la_SOURCES = \
+libbuzztrax_core_la_CFLAGS = -I$(top_builddir)/src/lib/core
+libbuzztrax_core_la_SOURCES = \
 	src/lib/core/core.c \
 	src/lib/core/tools.c \
 	src/lib/core/buzzcallbacks.c \
@@ -108,8 +108,8 @@ libbuzztard_core_la_SOURCES = \
 	src/lib/core/wavelevel.c \
 	src/lib/core/wire.c
 
-libbuzztard_coredir = $(includedir)/libbuzztard-core
-libbuzztard_core_HEADERS = \
+libbuzztrax_coredir = $(includedir)/libbuzztrax-core
+libbuzztrax_core_HEADERS = \
 	src/lib/core/core.h \
 	src/lib/core/tools.h \
 	src/lib/core/version.h \
@@ -142,10 +142,10 @@ libbuzztard_core_HEADERS = \
 	src/lib/core/wire.h
 
 # -- songio plugins
-songiodir = ${exec_prefix}/lib/buzztard-songio
+songiodir = ${exec_prefix}/lib/buzztrax-songio
 songio_LTLIBRARIES = libbtbsl.la
 libbtbsl_la_LIBADD = \
-	libbuzztard-core.la \
+	libbuzztrax-core.la \
   $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL)
 libbtbsl_la_LDFLAGS = \
 	$(BT_LDFLAGS) \
@@ -165,39 +165,39 @@ noinst_HEADERS = \
 
 # -- apps ----------------------------------------------------------------------
 
-bin_PROGRAMS = buzztard-cmd buzztard-edit
+bin_PROGRAMS = buzztrax-cmd buzztrax-edit
 noinst_LTLIBRARIES = libbtcmd.la libbtedit.la
-plugin_LTLIBRARIES = libbuzztarddec.la
+plugin_LTLIBRARIES = libbuzztraxdec.la
 
-buzztard_cmd_LDADD = \
-	libbuzztard-core.la \
-	libbuzztard-ic.la \
+buzztrax_cmd_LDADD = \
+	libbuzztrax-core.la \
+	libbuzztrax-ic.la \
 	libbtcmd.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS)
-buzztard_cmd_SOURCES= \
+buzztrax_cmd_SOURCES= \
 	src/ui/cmd/bt-cmd.c src/ui/cmd/bt-cmd.h
 
 libbtcmd_la_LIBDADD = \
-	libbuzztard-core.la \
-	libbuzztard-ic.la \
+	libbuzztrax-core.la \
+	libbuzztrax-ic.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbtcmd_la_SOURCES =	\
 	src/ui/cmd/cmd-application.c src/ui/cmd/cmd-application.h
 
-buzztard_edit_LDADD = \
-	libbuzztard-core.la \
-	libbuzztard-ic.la \
+buzztrax_edit_LDADD = \
+	libbuzztrax-core.la \
+	libbuzztrax-ic.la \
 	libbtedit.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS)
-buzztard_edit_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
-buzztard_edit_SOURCES= \
+buzztrax_edit_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
+buzztrax_edit_SOURCES= \
 	src/ui/edit/bt-edit.c src/ui/edit/bt-edit.h
 
 EXTRA_libbtedit_la_SOURCES = src/ui/edit/marshal.list
 nodist_libbtedit_la_SOURCES = src/ui/edit/marshal.c src/ui/edit/marshal.h
 libbtedit_la_LIBADD = \
-	libbuzztard-core.la \
-	libbuzztard-ic.la \
+	libbuzztrax-core.la \
+	libbuzztrax-ic.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbtedit_la_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
 libbtedit_la_SOURCES = \
@@ -272,21 +272,21 @@ CLEANFILES += src/ui/edit/marshal.c src/ui/edit/marshal.h
 gtkrcdir = $(datadir)/$(PACKAGE)
 gtkrc_DATA = src/ui/edit/bt-edit.gtkrc src/ui/edit/bt-edit.compact.gtkrc
 
-libbuzztarddec_la_CFLAGS = $(GST_PLUGIN_CFLAGS)
-libbuzztarddec_la_LIBADD = \
-	libbuzztard-core.la \
-	libbuzztard-ic.la \
+libbuzztraxdec_la_CFLAGS = $(GST_PLUGIN_CFLAGS)
+libbuzztraxdec_la_LIBADD = \
+	libbuzztrax-core.la \
+	libbuzztrax-ic.la \
 	$(BASE_DEPS_LIBS) $(LIBM)
-libbuzztarddec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libbuzztarddec_la_SOURCES = src/ui/dec/bt-dec.c src/ui/dec/bt-dec.h
-libbuzztarddec_la_LIBTOOLFLAGS = --tag=disable-static
+libbuzztraxdec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libbuzztraxdec_la_SOURCES = src/ui/dec/bt-dec.c src/ui/dec/bt-dec.h
+libbuzztraxdec_la_LIBTOOLFLAGS = --tag=disable-static
 
 # -- common --------------------------------------------------------------------
 
 desktopdir = ${with_desktop_dir}/applications
 desktop_in_files = \
-  src/lib/core/songio/bsl/buzztard-songio-buzz.desktop.in \
-  src/ui/edit/buzztard-edit.desktop.in
+  src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in \
+  src/ui/edit/buzztrax-edit.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
 
@@ -294,8 +294,8 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 sharedmimedir = $(datadir)/mime
 sharedmimepackagedir = $(sharedmimedir)/packages
 sharedmimepackage_in_files = \
-  src/lib/buzztard.xml.in \
-  src/lib/core/songio/bsl/buzztard-songio-buzz.xml.in
+  src/lib/buzztrax.xml.in \
+  src/lib/core/songio/bsl/buzztrax-songio-buzz.xml.in
 sharedmimepackage_DATA = $(sharedmimepackage_in_files:.xml.in=.xml)
 @INTLTOOL_XML_RULE@
 
@@ -306,11 +306,11 @@ update-mime-db:
 	test -z "$(UPDATE_MIME_DATABASE)" || $(UPDATE_MIME_DATABASE) "$(DESTDIR)$(sharedmimedir)";
 
 if USE_GIR
-libbtcore_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztard_core_la_SOURCES))
+libbtcore_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztrax_core_la_SOURCES))
 
-BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
+BuzztraxCore-0.0.gir: $(G_IR_SCANNER) libbuzztrax-core.la
 	-PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):$(top_srcdir)/src/lib/ic/" $(AM_V_GEN)$(G_IR_SCANNER) -v \
-	     --namespace=BuzztardCore \
+	     --namespace=BuzztraxCore \
 	     --nsversion 0.0 \
 	     -I$(builddir) \
 	     -I$(srcdir) \
@@ -323,24 +323,24 @@ BuzztardCore-0.0.gir: $(G_IR_SCANNER) libbuzztard-core.la
 	     --include=GObject-2.0 \
 	     --include=Gst-@GST_MAJORMINOR@ \
 	     --include=libxml2-2.0 \
-	     --include=BuzztardIc-0.0 \
-	     --library=libbuzztard-core.la \
+	     --include=BuzztraxIc-0.0 \
+	     --library=libbuzztrax-core.la \
 	     --libtool="$(top_builddir)/libtool" \
 	     --pkg glib-2.0 \
 	     --pkg gobject-2.0 \
-	     --pkg libgstbuzztard \
+	     --pkg libgstbuzztrax \
 	     --pkg libxml-2.0 \
 	     --pkg gstreamer-@GST_MAJORMINOR@ \
-	     --pkg-export libbuzztard-core \
+	     --pkg-export libbuzztrax-core \
 	     --add-init-section="bt_init(NULL,NULL);" \
 	     --output $@ \
 	     $(libbtcore_gir_sources) || touch $@
 
-libbtic_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztard_ic_la_SOURCES))
+libbtic_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztrax_ic_la_SOURCES))
 
-BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
+BuzztraxIc-0.0.gir: $(G_IR_SCANNER) libbuzztrax-ic.la
 	-$(AM_V_GEN)$(G_IR_SCANNER) -v \
-	     --namespace=BuzztardIc \
+	     --namespace=BuzztraxIc \
 	     --nsversion 0.0 \
 	     -I$(builddir) \
 	     -I$(srcdir) \
@@ -350,17 +350,17 @@ BuzztardIc-0.0.gir: $(G_IR_SCANNER) libbuzztard-ic.la
 	     --include=GLib-2.0 \
 	     --include=GObject-2.0 \
 	     --include=Gst-@GST_MAJORMINOR@ \
-	     --library=libbuzztard-ic.la \
+	     --library=libbuzztrax-ic.la \
 	     --libtool="$(top_builddir)/libtool" \
 	     --pkg glib-2.0 \
 	     --pkg gobject-2.0 \
 	     --pkg gstreamer-@GST_MAJORMINOR@ \
-	     --pkg-export libbuzztard-ic \
+	     --pkg-export libbuzztrax-ic \
 	     --add-init-section="btic_init(NULL,NULL);" \
 	     --output $@ \
 	     $(libbtic_gir_sources) || touch $@
 
-BUILT_GIRSOURCES = BuzztardCore-0.0.gir BuzztardIc-0.0.gir
+BUILT_GIRSOURCES = BuzztraxCore-0.0.gir BuzztraxIc-0.0.gir
 
 girdir = $(datadir)/gir
 dist_gir_DATA = $(BUILT_GIRSOURCES)
@@ -379,10 +379,10 @@ endif
 EXTRA_DIST += \
   $(desktop_in_files) $(sharedmimepackage_in_files) \
   $(gtkrc_DATA) \
-	src/lib/core/libbuzztard-core.pc.in \
+	src/lib/core/libbuzztrax-core.pc.in \
 	src/lib/core/marshal.list \
 	src/lib/core/version.h.in \
-	src/lib/ic/libbuzztard-ic.pc.in \
+	src/lib/ic/libbuzztrax-ic.pc.in \
 	src/lib/ic/version.h.in \
 	src/ui/edit/marshal.list
 

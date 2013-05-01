@@ -135,7 +135,7 @@ main (int argc, char **argv)
   // init gst
   gst_init (&argc, &argv);
   gst_control_init (&argc, &argv);
-  GST_DEBUG_CATEGORY_INIT (bt_core_debug, "buzztard", 0,
+  GST_DEBUG_CATEGORY_INIT (bt_core_debug, "buzztrax", 0,
       "music production environment");
 
   /* create a new thread to hold the elements */

@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2007 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,7 +16,7 @@
  */
 /**
  * SECTION:bticabsrangecontrol
- * @short_description: buzztards interaction controller single absolute range control
+ * @short_description: buzztraxs interaction controller single absolute range control
  *
  * Absolute range control. The state of the hardware control can be read from
  * BtIcAbsRangeControl:value.

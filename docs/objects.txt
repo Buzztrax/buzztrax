@@ -26,8 +26,8 @@ BtSong {
   // data
      gchar* name;
   BtSongInfo* song_info; //buztard/meta
-  BtSequence* sequence;  //buzztard/sequence
-   BtSetup* setup;     //buzztard/setup
+  BtSequence* sequence;  //buzztrax/sequence
+   BtSetup* setup;     //buzztrax/setup
 
   // public methods
   BtSongPtr bt_song_new(void)
@@ -99,7 +99,7 @@ BtSongIO { // base class (because of factory for import) and virtaul methods
   //
 }
 
-BtSongIONative extends BtSongIO { // loads and saves songs in buzztard xml/zip format
+BtSongIONative extends BtSongIO { // loads and saves songs in buzztrax xml/zip format
 }
 
 BtSongIO<XXXX> extends BtSongIO { // external import export plugins

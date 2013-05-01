@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2007 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -37,7 +37,7 @@ typedef struct _BtIcControlPrivate BtIcControlPrivate;
 /**
  * BtIcControl:
  *
- * buzztards interaction controller single control
+ * buzztraxs interaction controller single control
  */
 struct _BtIcControl {
   const GObject parent;

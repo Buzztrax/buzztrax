@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,7 +16,7 @@
  */
 /**
  * SECTION:btsettings
- * @short_description: class for buzztard settings handling
+ * @short_description: class for buzztrax settings handling
  *
  * Wraps the settings a #GObject. Single settings are accessed via normal
  * g_object_get() and g_object_set() calls. Changes in the settings will be notified
@@ -100,11 +100,11 @@ struct _BtSettingsPrivate
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
-  GSettings *org_buzztard;
-  GSettings *org_buzztard_window;
-  GSettings *org_buzztard_audio;
-  GSettings *org_buzztard_playback_controller;
-  GSettings *org_buzztard_directories;
+  GSettings *org_buzztrax;
+  GSettings *org_buzztrax_window;
+  GSettings *org_buzztrax_audio;
+  GSettings *org_buzztrax_playback_controller;
+  GSettings *org_buzztrax_directories;
   GSettings *org_gnome_desktop_interface;
   GSettings *org_freedesktop_gstreamer_defaults;
 };
@@ -342,7 +342,7 @@ bt_settings_make (void)
     GSettingsBackend *backend = g_settings_backend_get_default ();
 
     // add schemas
-    p->org_buzztard = g_settings_new_with_backend ("org.buzztard", backend);
+    p->org_buzztrax = g_settings_new_with_backend ("org.buzztrax", backend);
     p->org_gnome_desktop_interface =
         g_settings_new_with_backend ("org.gnome.desktop.interface", backend);
     p->org_freedesktop_gstreamer_defaults =
@@ -350,12 +350,12 @@ bt_settings_make (void)
         ("org.freedesktop.gstreamer-0.10.default-elements", backend);
 
     // get child settings
-    p->org_buzztard_window = g_settings_get_child (p->org_buzztard, "window");
-    p->org_buzztard_audio = g_settings_get_child (p->org_buzztard, "audio");
-    p->org_buzztard_playback_controller =
-        g_settings_get_child (p->org_buzztard, "playback-controller");
-    p->org_buzztard_directories =
-        g_settings_get_child (p->org_buzztard, "directories");
+    p->org_buzztrax_window = g_settings_get_child (p->org_buzztrax, "window");
+    p->org_buzztrax_audio = g_settings_get_child (p->org_buzztrax, "audio");
+    p->org_buzztrax_playback_controller =
+        g_settings_get_child (p->org_buzztrax, "playback-controller");
+    p->org_buzztrax_directories =
+        g_settings_get_child (p->org_buzztrax, "directories");
 
     // add bindings
     g_signal_connect (p->org_gnome_desktop_interface, "changed",
@@ -479,95 +479,95 @@ bt_settings_get_property (GObject * const object, const guint property_id,
   switch (property_id) {
       /* ui */
     case BT_SETTINGS_NEWS_SEEN:
-      read_uint (self->priv->org_buzztard, "news-seen", value);
+      read_uint (self->priv->org_buzztrax, "news-seen", value);
       break;
     case BT_SETTINGS_MISSING_MACHINES:
-      read_string (self->priv->org_buzztard, "missing-machines", value);
+      read_string (self->priv->org_buzztrax, "missing-machines", value);
       break;
     case BT_SETTINGS_PRESENTED_TIPS:
-      read_string (self->priv->org_buzztard, "presented-tips", value);
+      read_string (self->priv->org_buzztrax, "presented-tips", value);
       break;
     case BT_SETTINGS_SHOW_TIPS:
-      read_boolean (self->priv->org_buzztard, "show-tips", value);
+      read_boolean (self->priv->org_buzztrax, "show-tips", value);
       break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
-      read_boolean (self->priv->org_buzztard, "toolbar-hide", value);
+      read_boolean (self->priv->org_buzztrax, "toolbar-hide", value);
       break;
     case BT_SETTINGS_MENU_STATUSBAR_HIDE:
-      read_boolean (self->priv->org_buzztard, "statusbar-hide", value);
+      read_boolean (self->priv->org_buzztrax, "statusbar-hide", value);
       break;
     case BT_SETTINGS_MENU_TABS_HIDE:
-      read_boolean (self->priv->org_buzztard, "tabs-hide", value);
+      read_boolean (self->priv->org_buzztrax, "tabs-hide", value);
       break;
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
-      read_string_def (self->priv->org_buzztard, "grid-density", value,
+      read_string_def (self->priv->org_buzztrax, "grid-density", value,
           (GParamSpecString *) pspec);
       break;
     case BT_SETTINGS_WINDOW_XPOS:
-      read_int_def (self->priv->org_buzztard_window, "x-pos", value,
+      read_int_def (self->priv->org_buzztrax_window, "x-pos", value,
           (GParamSpecInt *) pspec);
       break;
     case BT_SETTINGS_WINDOW_YPOS:
-      read_int_def (self->priv->org_buzztard_window, "y-pos", value,
+      read_int_def (self->priv->org_buzztrax_window, "y-pos", value,
           (GParamSpecInt *) pspec);
       break;
     case BT_SETTINGS_WINDOW_WIDTH:
-      read_int_def (self->priv->org_buzztard_window, "width", value,
+      read_int_def (self->priv->org_buzztrax_window, "width", value,
           (GParamSpecInt *) pspec);
       break;
     case BT_SETTINGS_WINDOW_HEIGHT:
-      read_int_def (self->priv->org_buzztard_window, "height", value,
+      read_int_def (self->priv->org_buzztrax_window, "height", value,
           (GParamSpecInt *) pspec);
       break;
       /* audio settings */
     case BT_SETTINGS_AUDIOSINK:
-      read_string_def (self->priv->org_buzztard_audio, "audiosink", value,
+      read_string_def (self->priv->org_buzztrax_audio, "audiosink", value,
           (GParamSpecString *) pspec);
       break;
     case BT_SETTINGS_AUDIOSINK_DEVICE:
-      read_string_def (self->priv->org_buzztard_audio, "audiosink-device",
+      read_string_def (self->priv->org_buzztrax_audio, "audiosink-device",
           value, (GParamSpecString *) pspec);
       break;
     case BT_SETTINGS_SAMPLE_RATE:
-      read_uint_def (self->priv->org_buzztard_audio, "sample-rate", value,
+      read_uint_def (self->priv->org_buzztrax_audio, "sample-rate", value,
           (GParamSpecUInt *) pspec);
       break;
     case BT_SETTINGS_CHANNELS:
-      read_uint_def (self->priv->org_buzztard_audio, "channels", value,
+      read_uint_def (self->priv->org_buzztrax_audio, "channels", value,
           (GParamSpecUInt *) pspec);
       break;
     case BT_SETTINGS_LATENCY:
-      read_uint_def (self->priv->org_buzztard_audio, "latency", value,
+      read_uint_def (self->priv->org_buzztrax_audio, "latency", value,
           (GParamSpecUInt *) pspec);
       break;
       /* playback controller */
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:
-      read_boolean (self->priv->org_buzztard_playback_controller,
+      read_boolean (self->priv->org_buzztrax_playback_controller,
           "coherence-upnp-active", value);
       break;
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
-      read_uint (self->priv->org_buzztard_playback_controller,
+      read_uint (self->priv->org_buzztrax_playback_controller,
           "coherence-upnp-port", value);
       break;
     case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER:
-      read_boolean (self->priv->org_buzztard_playback_controller,
+      read_boolean (self->priv->org_buzztrax_playback_controller,
           "jack-transport-master", value);
       break;
     case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:
-      read_boolean (self->priv->org_buzztard_playback_controller,
+      read_boolean (self->priv->org_buzztrax_playback_controller,
           "jack-transport-slave", value);
       break;
       /* directory settings */
     case BT_SETTINGS_FOLDER_SONG:
-      read_string_def (self->priv->org_buzztard_directories, "song-folder",
+      read_string_def (self->priv->org_buzztrax_directories, "song-folder",
           value, (GParamSpecString *) pspec);
       break;
     case BT_SETTINGS_FOLDER_RECORD:
-      read_string_def (self->priv->org_buzztard_directories, "record-folder",
+      read_string_def (self->priv->org_buzztrax_directories, "record-folder",
           value, (GParamSpecString *) pspec);
       break;
     case BT_SETTINGS_FOLDER_SAMPLE:
-      read_string_def (self->priv->org_buzztard_directories, "sample-folder",
+      read_string_def (self->priv->org_buzztrax_directories, "sample-folder",
           value, (GParamSpecString *) pspec);
       break;
       /* system settings */
@@ -597,84 +597,84 @@ bt_settings_set_property (GObject * const object, const guint property_id,
   switch (property_id) {
       /* ui */
     case BT_SETTINGS_NEWS_SEEN:
-      write_uint (self->priv->org_buzztard, "news-seen", value);
+      write_uint (self->priv->org_buzztrax, "news-seen", value);
       break;
     case BT_SETTINGS_MISSING_MACHINES:
-      write_string (self->priv->org_buzztard, "missing-machines", value);
+      write_string (self->priv->org_buzztrax, "missing-machines", value);
       break;
     case BT_SETTINGS_PRESENTED_TIPS:
-      write_string (self->priv->org_buzztard, "presented-tips", value);
+      write_string (self->priv->org_buzztrax, "presented-tips", value);
       break;
     case BT_SETTINGS_SHOW_TIPS:
-      write_boolean (self->priv->org_buzztard, "show-tips", value);
+      write_boolean (self->priv->org_buzztrax, "show-tips", value);
       break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
-      write_boolean (self->priv->org_buzztard, "toolbar-hide", value);
+      write_boolean (self->priv->org_buzztrax, "toolbar-hide", value);
       break;
     case BT_SETTINGS_MENU_STATUSBAR_HIDE:
-      write_boolean (self->priv->org_buzztard, "statusbar-hide", value);
+      write_boolean (self->priv->org_buzztrax, "statusbar-hide", value);
       break;
     case BT_SETTINGS_MENU_TABS_HIDE:
-      write_boolean (self->priv->org_buzztard, "tabs-hide", value);
+      write_boolean (self->priv->org_buzztrax, "tabs-hide", value);
       break;
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
-      write_string (self->priv->org_buzztard, "grid-density", value);
+      write_string (self->priv->org_buzztrax, "grid-density", value);
       break;
     case BT_SETTINGS_WINDOW_XPOS:
-      write_int (self->priv->org_buzztard_window, "x-pos", value);
+      write_int (self->priv->org_buzztrax_window, "x-pos", value);
       break;
     case BT_SETTINGS_WINDOW_YPOS:
-      write_int (self->priv->org_buzztard_window, "y-pos", value);
+      write_int (self->priv->org_buzztrax_window, "y-pos", value);
       break;
     case BT_SETTINGS_WINDOW_WIDTH:
-      write_int (self->priv->org_buzztard_window, "width", value);
+      write_int (self->priv->org_buzztrax_window, "width", value);
       break;
     case BT_SETTINGS_WINDOW_HEIGHT:
-      write_int (self->priv->org_buzztard_window, "height", value);
+      write_int (self->priv->org_buzztrax_window, "height", value);
       break;
       /* audio settings */
     case BT_SETTINGS_AUDIOSINK:
-      write_string (self->priv->org_buzztard_audio, "audiosink", value);
+      write_string (self->priv->org_buzztrax_audio, "audiosink", value);
       break;
     case BT_SETTINGS_AUDIOSINK_DEVICE:
-      write_string (self->priv->org_buzztard_audio, "audiosink-device", value);
+      write_string (self->priv->org_buzztrax_audio, "audiosink-device", value);
       break;
     case BT_SETTINGS_SAMPLE_RATE:
-      write_uint (self->priv->org_buzztard_audio, "sample-rate", value);
+      write_uint (self->priv->org_buzztrax_audio, "sample-rate", value);
       break;
     case BT_SETTINGS_CHANNELS:
-      write_uint (self->priv->org_buzztard_audio, "channels", value);
+      write_uint (self->priv->org_buzztrax_audio, "channels", value);
       break;
     case BT_SETTINGS_LATENCY:
-      write_uint (self->priv->org_buzztard_audio, "latency", value);
+      write_uint (self->priv->org_buzztrax_audio, "latency", value);
       break;
       /* playback controller */
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:
-      write_boolean (self->priv->org_buzztard_playback_controller,
+      write_boolean (self->priv->org_buzztrax_playback_controller,
           "coherence-upnp-active", value);
       break;
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
-      write_uint (self->priv->org_buzztard_playback_controller,
+      write_uint (self->priv->org_buzztrax_playback_controller,
           "coherence-upnp-port", value);
       break;
     case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER:
-      write_boolean (self->priv->org_buzztard_playback_controller,
+      write_boolean (self->priv->org_buzztrax_playback_controller,
           "jack-transport-master", value);
       break;
     case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:
-      write_boolean (self->priv->org_buzztard_playback_controller,
+      write_boolean (self->priv->org_buzztrax_playback_controller,
           "jack-transport-slave", value);
       break;
       /* directory settings */
     case BT_SETTINGS_FOLDER_SONG:
-      write_string (self->priv->org_buzztard_directories, "song-folder", value);
+      write_string (self->priv->org_buzztrax_directories, "song-folder", value);
       break;
     case BT_SETTINGS_FOLDER_RECORD:
-      write_string (self->priv->org_buzztard_directories, "record-folder",
+      write_string (self->priv->org_buzztrax_directories, "record-folder",
           value);
       break;
     case BT_SETTINGS_FOLDER_SAMPLE:
-      write_string (self->priv->org_buzztard_directories, "sample-folder",
+      write_string (self->priv->org_buzztrax_directories, "sample-folder",
           value);
       break;
     default:
@@ -691,11 +691,11 @@ bt_settings_dispose (GObject * const object)
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
-  g_object_unref (self->priv->org_buzztard);
-  g_object_unref (self->priv->org_buzztard_window);
-  g_object_unref (self->priv->org_buzztard_audio);
-  g_object_unref (self->priv->org_buzztard_playback_controller);
-  g_object_unref (self->priv->org_buzztard_directories);
+  g_object_unref (self->priv->org_buzztrax);
+  g_object_unref (self->priv->org_buzztrax_window);
+  g_object_unref (self->priv->org_buzztrax_audio);
+  g_object_unref (self->priv->org_buzztrax_playback_controller);
+  g_object_unref (self->priv->org_buzztrax_directories);
   g_object_unref (self->priv->org_gnome_desktop_interface);
   g_object_unref (self->priv->org_freedesktop_gstreamer_defaults);
 
@@ -832,13 +832,13 @@ bt_settings_class_init (BtSettingsClass * const klass)
   g_object_class_install_property (gobject_class,
       BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER,
       g_param_spec_boolean ("jack-transport-master", "jack-transport-master",
-          "sync other jack clients to buzztard playback state", FALSE,
+          "sync other jack clients to buzztrax playback state", FALSE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class,
       BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE,
       g_param_spec_boolean ("jack-transport-slave", "jack-transport-slave",
-          "sync buzztard to the playback state other jack clients", FALSE,
+          "sync buzztrax to the playback state other jack clients", FALSE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 

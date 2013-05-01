@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="audio/x-bzt">
+    <sub-class-of type="application/zip"/>
+    <glob pattern="*.bzt"/>
+    <magic priority="100">
+      <match type="string" value="song.xml" offset="0:40"/>
+    </magic>
+    <comment>buzztrax song</comment>
+  </mime-type>
+  <mime-type type="audio/x-bzt-xml">
+    <sub-class-of type="application/xml"/>
+    <glob pattern="*.xml" weight="5"/>
+    <magic priority="100">
+      <match type="string" value="&lt;buzztrax" offset="0:100"/>
+      <match type="string" value="http://www.buzztrax.org/" offset="0:100"/>
+    </magic>
+    <comment>buzztrax song (xml)</comment>
+  </mime-type>
+</mime-info>

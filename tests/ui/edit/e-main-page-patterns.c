@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -82,7 +82,7 @@ test_bt_main_page_patterns_focus (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
@@ -107,7 +107,7 @@ test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
   GtkWidget *pattern_editor;
@@ -140,7 +140,7 @@ test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
   GtkWidget *pattern_editor;
@@ -170,7 +170,7 @@ test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
   GtkWidget *pattern_editor;
@@ -202,7 +202,7 @@ test_bt_main_page_patterns_enter_switch (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
   GtkWidget *pattern_editor;
@@ -231,7 +231,7 @@ test_bt_main_page_patterns_enter_sparse_enum (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
   GtkWidget *pattern_editor;
@@ -260,7 +260,7 @@ test_bt_main_page_patterns_enter_invalid_sparse_enum (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
   GtkWidget *pattern_editor;
@@ -289,7 +289,7 @@ test_bt_main_page_patterns_enter_sparse_enum_in_2_steps (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
   GtkWidget *pattern_editor;
@@ -320,7 +320,7 @@ test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 1L, NULL));
+          "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPagePatterns *pattern_page;
   GtkWidget *pattern_editor;

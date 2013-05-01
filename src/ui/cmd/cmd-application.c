@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,9 +16,9 @@
  */
 /**
  * SECTION:btcmdapplication
- * @short_description: class for a commandline based buzztard tool application
+ * @short_description: class for a commandline based buzztrax tool application
  *
- * This class implements the body of the buzztard commandline tool.
+ * This class implements the body of the buzztrax commandline tool.
  * It provides application level function like play, convert and encode songs.
  */
 /* TODO(ensonic): shouldn't we start a mainloop, then launch
@@ -580,7 +580,7 @@ Error:
  * @input_file_name: the file to read in
  * @output_file_name: the file to generate
  *
- * Load the file of the supplied name and convert it into a buzztard song file.
+ * Load the file of the supplied name and convert it into a buzztrax song file.
  * The type of the input file is automatically determined.
  *
  * Returns: %TRUE for success

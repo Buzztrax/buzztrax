@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -57,7 +57,7 @@ test_bt_machine_add_pattern (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   check_init_error_trapp ("", "BT_IS_CMD_PATTERN (pattern)");
 
   /* act */
@@ -77,9 +77,9 @@ test_bt_machine_names (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen2",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
 
   /* act */

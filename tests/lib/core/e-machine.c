@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -54,8 +54,8 @@ case_teardown (void)
 
 // show machine properties dialog
 static gchar *element_names[] = {
-  "buzztard-test-no-arg-mono-source", "buzztard-test-mono-source",
-  "buzztard-test-poly-source", "buzztard-test-poly-source"
+  "buzztrax-test-no-arg-mono-source", "buzztrax-test-mono-source",
+  "buzztrax-test-poly-source", "buzztrax-test-poly-source"
 };
 static gulong element_voices[] = { 0, 0, 0, 1 };
 
@@ -173,7 +173,7 @@ test_bt_machine_add_pattern (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 1L, NULL));
+          "buzztrax-test-poly-source", 1L, NULL));
 
   /* act */
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -192,7 +192,7 @@ test_bt_machine_rem_pattern (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 1L, NULL));
+          "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   /* act */
@@ -212,7 +212,7 @@ test_bt_machine_unique_pattern_name (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 1L, NULL));
+          "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   /* act */
@@ -234,7 +234,7 @@ test_bt_machine_next_pattern_name (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 1L, NULL));
+          "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "00", 8L, machine);
 
   /* act */
@@ -258,7 +258,7 @@ test_bt_machine_check_voices (BT_TEST_ARGS)
 
   /* act */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 2L, NULL));
+          "buzztrax-test-poly-source", 2L, NULL));
 
   /* assert */
   GstChildProxy *element =
@@ -280,7 +280,7 @@ test_bt_machine_change_voices (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 1L, NULL));
+          "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *p1 = bt_pattern_new (song, "pattern-name1", 8L, machine);
   BtPattern *p2 = bt_pattern_new (song, "pattern-name2", 8L, machine);
 

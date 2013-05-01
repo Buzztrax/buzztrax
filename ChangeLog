@@ -5,7 +5,7 @@
 
 2011-12-23  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-ic/buzztard-ic.types.in:
+	* docs/reference/bt-ic/buzztrax-ic.types.in:
 	  Fix leftover -methods.h file references.
 
 2011-12-22  Stefan Sauer  <ensonic@users.sf.net>
@@ -98,14 +98,14 @@
 
 2011-12-08  Stefan Sauer  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/childproxy.h:
+	* src/lib/core/libbuzztrax-core/childproxy.h:
 	  Whitespace.
 
 2011-12-08  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/ic/control.c:
 	* src/ui/edit/main-page-patterns.c:
-	  Use new enums from gst-buzztard.
+	  Use new enums from gst-buzztrax.
 
 2011-12-07  Stefan Sauer  <ensonic@users.sf.net>
 
@@ -120,9 +120,9 @@
 
 2011-12-07  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
-	* docs/reference/bt-edit/buzztard-edit.types:
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit.types:
 	  Add the ruler widget to the docs.
 
 	* src/ui/edit/Makefile.am:
@@ -321,17 +321,17 @@
 
 	* configure.ac:
 	* docs/reference/bt-ic/Makefile.am:
-	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
-	* docs/reference/bt-ic/buzztard-ic-sections.txt.in:
+	* docs/reference/bt-ic/buzztrax-ic-docs.sgml:
+	* docs/reference/bt-ic/buzztrax-ic-sections.txt.in:
 	* src/lib/ic/Makefile.am:
-	* docs/reference/bt-ic/buzztard-ic-sections.txt.in (added):
-	* docs/reference/bt-ic/buzztard-ic-sections.txt (deleted):
+	* docs/reference/bt-ic/buzztrax-ic-sections.txt.in (added):
+	* docs/reference/bt-ic/buzztrax-ic-sections.txt (deleted):
 	  Make doc sections fully conditional.
 
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	  Doc maintenance.
 
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
@@ -342,7 +342,7 @@
 
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	  Doc maintenance.
 
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
@@ -353,12 +353,12 @@
 
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/song.h:
+	* src/lib/core/libbuzztrax-core/song.h:
 	  Forgot to save the file. This belongs to last commit.
 
 2011-12-01  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
 	* src/lib/core/song.c:
 	  The xml pipeline stuff is deprecated upstream and removed in 0.11. Its
 	  also of limited use, so remove it too.
@@ -373,7 +373,7 @@
 
 2011-11-29  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	 Small doc update.
 
 2011-11-29  Stefan Sauer  <ensonic@users.sf.net>
@@ -592,9 +592,9 @@
 
 2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
 	* src/lib/core/core.c:
-	* src/lib/core/libbuzztard-core/core.h:
+	* src/lib/core/libbuzztrax-core/core.h:
 	* src/lib/core/tools.c:
 	* tests/m-bt-cmd.c:
 	* tests/m-bt-core.c:
@@ -604,7 +604,7 @@
 
 2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
 
-	* buzztard.supp:
+	* buzztrax.supp:
 	  Add a test function to the suppressions.
 
 2011-10-07  Stefan Sauer  <ensonic@users.sf.net>
@@ -649,7 +649,7 @@
 
 2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
 
-	* buzztard.supp:
+	* buzztrax.supp:
 	  Update the suppression file.
 
 2011-10-04  Stefan Sauer  <ensonic@users.sf.net>
@@ -737,7 +737,7 @@
 	* NEWSLETTER:
 	  Start writing down what we did this month.
 
-	* buzztard.supp:
+	* buzztrax.supp:
 	  Update suppression file.
 
 2011-09-21  Stefan Sauer  <ensonic@users.sf.net>
@@ -851,7 +851,7 @@
 
 	* src/lib/ic/abs-range-control.c:
 	* src/lib/ic/input-device.c:
-	* src/lib/ic/libbuzztard-ic/abs-range-control.h:
+	* src/lib/ic/libbuzztrax-ic/abs-range-control.h:
 	  Use long for the parameters. Makes valgrind happy on 64 bit too.
 
 2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
@@ -874,7 +874,7 @@
 2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/aspell.pws:
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Spell check docs.
 
 2011-09-15  Stefan Sauer  <ensonic@users.sf.net>
@@ -918,7 +918,7 @@
 
 2011-08-30  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/machine-canvas-item.h:
 	* src/ui/edit/wire-canvas-item.c:
@@ -941,7 +941,7 @@
 
 2011-08-30  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/main-page-machines.c:
 	* src/ui/edit/wire-canvas-item.c:
 	* src/ui/edit/wire-canvas-item.h:
@@ -992,7 +992,7 @@
 
 2011-08-27  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Improve user-docs on sequence editing (labels and patterns).
 
 	* src/ui/edit/main-page-sequence.c:
@@ -1001,13 +1001,13 @@
 2011-08-27  Stefan Sauer  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/Makefile.am:
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
-	* src/lib/core/libbuzztard-core/childproxy.h:
-	* src/lib/core/libbuzztard-core/core.h:
-	* src/lib/core/libbuzztard-core/machine.h:
-	* src/lib/core/libbuzztard-core/persistence.h:
-	* src/lib/core/libbuzztard-core/version.h.in:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
+	* src/lib/core/libbuzztrax-core/childproxy.h:
+	* src/lib/core/libbuzztrax-core/core.h:
+	* src/lib/core/libbuzztrax-core/machine.h:
+	* src/lib/core/libbuzztrax-core/persistence.h:
+	* src/lib/core/libbuzztrax-core/version.h.in:
 	* src/lib/core/machine.c:
 	* src/lib/core/pattern.c:
 	* src/lib/core/settings.c:
@@ -1122,29 +1122,29 @@
 
 2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
 	  Sort entries.
 
-	* docs/reference/bt-core/buzztard-core.types.in:
+	* docs/reference/bt-core/buzztrax-core.types.in:
 	  Add missing class.
 
 2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
 
-	* src/lib/ic/libbuzztard-ic/abs-range-control.h:
-	* src/lib/ic/libbuzztard-ic/control.h:
-	* src/lib/ic/libbuzztard-ic/device.h:
-	* src/lib/ic/libbuzztard-ic/gudev-discoverer.h:
-	* src/lib/ic/libbuzztard-ic/hal-discoverer.h:
-	* src/lib/ic/libbuzztard-ic/ic.h:
-	* src/lib/ic/libbuzztard-ic/input-device.h:
-	* src/lib/ic/libbuzztard-ic/midi-device.h:
-	* src/lib/ic/libbuzztard-ic/registry.h:
-	* src/lib/ic/libbuzztard-ic/trigger-control.h:
+	* src/lib/ic/libbuzztrax-ic/abs-range-control.h:
+	* src/lib/ic/libbuzztrax-ic/control.h:
+	* src/lib/ic/libbuzztrax-ic/device.h:
+	* src/lib/ic/libbuzztrax-ic/gudev-discoverer.h:
+	* src/lib/ic/libbuzztrax-ic/hal-discoverer.h:
+	* src/lib/ic/libbuzztrax-ic/ic.h:
+	* src/lib/ic/libbuzztrax-ic/input-device.h:
+	* src/lib/ic/libbuzztrax-ic/midi-device.h:
+	* src/lib/ic/libbuzztrax-ic/registry.h:
+	* src/lib/ic/libbuzztrax-ic/trigger-control.h:
 	  Remove some less helpful comments.
 
 2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/song-io-native.h:
+	* src/lib/core/libbuzztrax-core/song-io-native.h:
 	  Re-add extern in one place.
 
 	* src/ui/cmd/bt-cmd.h:
@@ -1165,90 +1165,90 @@
 2011-08-26  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/core/Makefile.am:
-	* src/lib/core/libbuzztard-core/Makefile.am:
-	* src/lib/core/libbuzztard-core/application.h:
-	* src/lib/core/libbuzztard-core/childproxy.h:
-	* src/lib/core/libbuzztard-core/core.h:
-	* src/lib/core/libbuzztard-core/gconf-settings.h:
-	* src/lib/core/libbuzztard-core/machine.h:
-	* src/lib/core/libbuzztard-core/pattern.h:
-	* src/lib/core/libbuzztard-core/persistence.h:
-	* src/lib/core/libbuzztard-core/plainfile-settings.h:
-	* src/lib/core/libbuzztard-core/processor-machine.h:
-	* src/lib/core/libbuzztard-core/sequence.h:
-	* src/lib/core/libbuzztard-core/settings.h:
-	* src/lib/core/libbuzztard-core/setup.h:
-	* src/lib/core/libbuzztard-core/sink-machine.h:
-	* src/lib/core/libbuzztard-core/song-info.h:
-	* src/lib/core/libbuzztard-core/song-io-native-bzt.h:
-	* src/lib/core/libbuzztard-core/song-io-native-xml.h:
-	* src/lib/core/libbuzztard-core/song-io-native.h:
-	* src/lib/core/libbuzztard-core/song-io.h:
-	* src/lib/core/libbuzztard-core/song.h:
-	* src/lib/core/libbuzztard-core/source-machine.h:
-	* src/lib/core/libbuzztard-core/wave.h:
-	* src/lib/core/libbuzztard-core/wavelevel.h:
-	* src/lib/core/libbuzztard-core/wavetable.h:
-	* src/lib/core/libbuzztard-core/wire-pattern.h:
-	* src/lib/core/libbuzztard-core/wire.h:
-	* src/lib/core/libbuzztard-core/gconf-settings-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/wavelevel-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/song-io-native-xml-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/song-io-native-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/settings-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/plainfile-settings-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/wave-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/application-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/song-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/wire-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/sink-machine-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/sequence-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/wavetable-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/song-io-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/pattern-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/song-io-native-bzt-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/song-info-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/setup-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/source-machine-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/machine-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/sink-bin-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/processor-machine-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/wire-pattern-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/persistence-methods.h (deleted):
-	* src/lib/core/libbuzztard-core/childproxy-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/Makefile.am:
+	* src/lib/core/libbuzztrax-core/application.h:
+	* src/lib/core/libbuzztrax-core/childproxy.h:
+	* src/lib/core/libbuzztrax-core/core.h:
+	* src/lib/core/libbuzztrax-core/gconf-settings.h:
+	* src/lib/core/libbuzztrax-core/machine.h:
+	* src/lib/core/libbuzztrax-core/pattern.h:
+	* src/lib/core/libbuzztrax-core/persistence.h:
+	* src/lib/core/libbuzztrax-core/plainfile-settings.h:
+	* src/lib/core/libbuzztrax-core/processor-machine.h:
+	* src/lib/core/libbuzztrax-core/sequence.h:
+	* src/lib/core/libbuzztrax-core/settings.h:
+	* src/lib/core/libbuzztrax-core/setup.h:
+	* src/lib/core/libbuzztrax-core/sink-machine.h:
+	* src/lib/core/libbuzztrax-core/song-info.h:
+	* src/lib/core/libbuzztrax-core/song-io-native-bzt.h:
+	* src/lib/core/libbuzztrax-core/song-io-native-xml.h:
+	* src/lib/core/libbuzztrax-core/song-io-native.h:
+	* src/lib/core/libbuzztrax-core/song-io.h:
+	* src/lib/core/libbuzztrax-core/song.h:
+	* src/lib/core/libbuzztrax-core/source-machine.h:
+	* src/lib/core/libbuzztrax-core/wave.h:
+	* src/lib/core/libbuzztrax-core/wavelevel.h:
+	* src/lib/core/libbuzztrax-core/wavetable.h:
+	* src/lib/core/libbuzztrax-core/wire-pattern.h:
+	* src/lib/core/libbuzztrax-core/wire.h:
+	* src/lib/core/libbuzztrax-core/gconf-settings-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/wavelevel-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/song-io-native-xml-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/song-io-native-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/settings-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/plainfile-settings-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/wave-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/application-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/song-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/wire-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/sink-machine-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/sequence-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/wavetable-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/song-io-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/pattern-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/song-io-native-bzt-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/song-info-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/setup-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/source-machine-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/machine-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/sink-bin-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/processor-machine-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/wire-pattern-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/persistence-methods.h (deleted):
+	* src/lib/core/libbuzztrax-core/childproxy-methods.h (deleted):
 	  Get rid of extra header files (part 2).
 
 2011-08-25  Stefan Sauer  <ensonic@users.sf.net>
 
 	* src/lib/ic/Makefile.am:
-	* src/lib/ic/libbuzztard-ic/Makefile.am:
-	* src/lib/ic/libbuzztard-ic/abs-range-control.h:
-	* src/lib/ic/libbuzztard-ic/device.h:
-	* src/lib/ic/libbuzztard-ic/gudev-discoverer.h:
-	* src/lib/ic/libbuzztard-ic/hal-discoverer.h:
-	* src/lib/ic/libbuzztard-ic/ic.h:
-	* src/lib/ic/libbuzztard-ic/input-device.h:
-	* src/lib/ic/libbuzztard-ic/learn.h:
-	* src/lib/ic/libbuzztard-ic/midi-device.h:
-	* src/lib/ic/libbuzztard-ic/registry.h:
-	* src/lib/ic/libbuzztard-ic/trigger-control.h:
-	* src/lib/ic/libbuzztard-ic/input-device-methods.h (deleted):
-	* src/lib/ic/libbuzztard-ic/device-methods.h (deleted):
-	* src/lib/ic/libbuzztard-ic/learn-methods.h (deleted):
-	* src/lib/ic/libbuzztard-ic/hal-discoverer-methods.h (deleted):
-	* src/lib/ic/libbuzztard-ic/registry-methods.h (deleted):
-	* src/lib/ic/libbuzztard-ic/abs-range-control-methods.h (deleted):
-	* src/lib/ic/libbuzztard-ic/gudev-discoverer-methods.h (deleted):
-	* src/lib/ic/libbuzztard-ic/midi-device-methods.h (deleted):
-	* src/lib/ic/libbuzztard-ic/control-methods.h (deleted):
-	* src/lib/ic/libbuzztard-ic/trigger-control-methods.h (deleted):
+	* src/lib/ic/libbuzztrax-ic/Makefile.am:
+	* src/lib/ic/libbuzztrax-ic/abs-range-control.h:
+	* src/lib/ic/libbuzztrax-ic/device.h:
+	* src/lib/ic/libbuzztrax-ic/gudev-discoverer.h:
+	* src/lib/ic/libbuzztrax-ic/hal-discoverer.h:
+	* src/lib/ic/libbuzztrax-ic/ic.h:
+	* src/lib/ic/libbuzztrax-ic/input-device.h:
+	* src/lib/ic/libbuzztrax-ic/learn.h:
+	* src/lib/ic/libbuzztrax-ic/midi-device.h:
+	* src/lib/ic/libbuzztrax-ic/registry.h:
+	* src/lib/ic/libbuzztrax-ic/trigger-control.h:
+	* src/lib/ic/libbuzztrax-ic/input-device-methods.h (deleted):
+	* src/lib/ic/libbuzztrax-ic/device-methods.h (deleted):
+	* src/lib/ic/libbuzztrax-ic/learn-methods.h (deleted):
+	* src/lib/ic/libbuzztrax-ic/hal-discoverer-methods.h (deleted):
+	* src/lib/ic/libbuzztrax-ic/registry-methods.h (deleted):
+	* src/lib/ic/libbuzztrax-ic/abs-range-control-methods.h (deleted):
+	* src/lib/ic/libbuzztrax-ic/gudev-discoverer-methods.h (deleted):
+	* src/lib/ic/libbuzztrax-ic/midi-device-methods.h (deleted):
+	* src/lib/ic/libbuzztrax-ic/control-methods.h (deleted):
+	* src/lib/ic/libbuzztrax-ic/trigger-control-methods.h (deleted):
 	  Get rid of extra header files (part 1).
 
 2011-08-25  Stefan Sauer  <ensonic@users.sf.net>
 
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-core/Makefile.am:
-	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
 	* docs/reference/bt-edit/Makefile.am:
 	* docs/reference/bt-ic/Makefile.am:
 	* src/ui/edit/edit-application.c:
@@ -1263,7 +1263,7 @@
 
 2011-08-25  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Explain extra sequence header combo boxes.
 
 2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
@@ -1285,7 +1285,7 @@
 
 2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Document the pos-format and label switcher header columns.
 
 2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
@@ -1307,7 +1307,7 @@
 
 2011-08-24  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Mention note-off key (1) in manual.
 
 2011-08-23  Stefan Sauer  <ensonic@users.sf.net>
@@ -1339,8 +1339,8 @@
 
 2011-08-21  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/song-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/song-methods.h:
 	* src/lib/core/song-io.c:
 	* src/lib/core/song.c:
 	* src/ui/edit/change-log.c:
@@ -1491,7 +1491,7 @@
 
 2011-08-20  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/machine-canvas-item.c:
 	* src/ui/edit/main-page-machines-methods.h:
 	* src/ui/edit/main-page-machines.c:
@@ -1500,7 +1500,7 @@
 
 2011-08-19  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/edit-application-methods.h:
 	* src/ui/edit/edit-application.c:
 	  A convenience method for marking the song as dirty. Avoids getting the
@@ -1533,11 +1533,11 @@
 
 2011-08-19  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
-	* docs/reference/bt-edit/buzztard-edit.types:
-	* docs/reference/bt-ic/buzztard-ic-sections.txt:
-	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit.types:
+	* docs/reference/bt-ic/buzztrax-ic-sections.txt:
+	* src/lib/core/libbuzztrax-core/sequence-methods.h:
 	* src/lib/core/sequence.c:
 	* src/lib/ic/learn.c:
 	* src/ui/edit/btmemoryaudiosrc.h:
@@ -1703,8 +1703,8 @@
 
 2011-08-09  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/tools.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	* src/lib/core/settings.c:
 	* src/lib/core/tools.c:
 	* src/ui/edit/machine-menu.c:
@@ -1848,16 +1848,16 @@
 
 2011-08-01  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-ic/buzztard-ic-sections.txt:
+	* docs/reference/bt-ic/buzztrax-ic-sections.txt:
 	* src/lib/ic/abs-range-control.c:
 	* src/lib/ic/control.c:
 	* src/lib/ic/device.c:
 	* src/lib/ic/input-device.c:
 	* src/lib/ic/learn.c:
-	* src/lib/ic/libbuzztard-ic/abs-range-control-methods.h:
-	* src/lib/ic/libbuzztard-ic/device-methods.h:
-	* src/lib/ic/libbuzztard-ic/learn-methods.h:
-	* src/lib/ic/libbuzztard-ic/trigger-control-methods.h:
+	* src/lib/ic/libbuzztrax-ic/abs-range-control-methods.h:
+	* src/lib/ic/libbuzztrax-ic/device-methods.h:
+	* src/lib/ic/libbuzztrax-ic/learn-methods.h:
+	* src/lib/ic/libbuzztrax-ic/trigger-control-methods.h:
 	* src/lib/ic/midi-device.c:
 	* src/lib/ic/trigger-control.c:
 	  Implement cache for learned controls. Refactor the code base to have
@@ -1924,10 +1924,10 @@
 
 2011-07-22  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-cmd/buzztard-cmd-docs.sgml:
-	* docs/reference/bt-core/buzztard-core-docs.sgml:
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
-	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
+	* docs/reference/bt-cmd/buzztrax-cmd-docs.sgml:
+	* docs/reference/bt-core/buzztrax-core-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
+	* docs/reference/bt-ic/buzztrax-ic-docs.sgml:
 	  Update the introduction.
 
 2011-07-21  Stefan Sauer  <ensonic@users.sf.net>
@@ -2036,7 +2036,7 @@
 
 2011-07-09  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Small doc update for machine section.
 
 2011-07-09  Stefan Sauer  <ensonic@users.sf.net>
@@ -2067,13 +2067,13 @@
 
 2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Fix xml validity warnings.
 
 2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/sequence-methods.h:
 	* src/lib/core/sequence.c:
 	  Add a new method for iterating patterns of a track.
 
@@ -2087,7 +2087,7 @@
 
 2011-07-08  Stefan Sauer  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* src/lib/core/libbuzztrax-core/sequence-methods.h:
 	* src/lib/core/sequence.c:
 	  Allow to iterate the tracks, by passing a start position.
 
@@ -2162,8 +2162,8 @@
 
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/machine-methods.h:
 	* src/lib/core/machine.c:
 	  Expose two methods to get parameter no-values. We'll need that for the
 	  pattern editor to use them for clearing cells.
@@ -2188,8 +2188,8 @@
 
 2011-07-06  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/sequence-methods.h:
 	* src/lib/core/sequence.c:
 	  Export a function to be able to loop over tracks.
 
@@ -2292,9 +2292,9 @@
 
 2011-06-28  Stefan Sauer  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
-	* docs/reference/bt-edit/buzztard-edit.types:
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit.types:
 	* src/ui/edit/crash-recover-dialog.c:
 	  Fix docblob and add dialog to the docs.
 
@@ -2339,7 +2339,7 @@
 
 2011-06-25  Stefan Sauer  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* src/lib/core/libbuzztrax-core/sequence-methods.h:
 	* src/lib/core/sequence.c:
 	  Change method to allow adding tracks at any index.
 
@@ -2360,7 +2360,7 @@
 
 2011-06-23  Stefan Sauer  <ensonic@users.sf.net>
 
-	* src/lib/buzztard.xml.in:
+	* src/lib/buzztrax.xml.in:
 	  Readd the glob, but with a low weight.
 
 	* src/ui/edit/main-menu.c:
@@ -2387,7 +2387,7 @@
 
 2011-06-21  Stefan Sauer  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/sequence-methods.h:
+	* src/lib/core/libbuzztrax-core/sequence-methods.h:
 	* src/lib/core/sequence.c:
 	* src/ui/edit/main-page-sequence.c:
 	  Fix copy and paste for columns. Fix a crasher in wrong printf format.
@@ -2410,9 +2410,9 @@
 
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/pattern-methods.h:
-	* src/lib/core/libbuzztard-core/wire-pattern-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/pattern-methods.h:
+	* src/lib/core/libbuzztrax-core/wire-pattern-methods.h:
 	* src/lib/core/pattern.c:
 	* src/lib/core/wire-pattern.c:
 	  Add flip operation.
@@ -2457,7 +2457,7 @@
 
 2011-06-20  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/pattern.h:
+	* src/lib/core/libbuzztrax-core/pattern.h:
 	* src/lib/core/pattern.c:
 	  Reorder enum.
 
@@ -2477,7 +2477,7 @@
 	* TODO:
 	  Planning.
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Add shortcut tables. Add a lot of explanations.
 
 2011-06-17  Stefan Kost  <ensonic@users.sf.net>
@@ -2497,7 +2497,7 @@
 
 2011-06-17  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Flesh out the pattern-view docs a bit. Tell abut keys for editing. Add
 	  links to the keyboard shortcuts on the wiki for pattern and sequence
 	  view.
@@ -2549,7 +2549,7 @@
 
 2011-06-12  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/edit-application.c:
 	* src/ui/edit/main-page-sequence.c:
 	* src/ui/edit/main-page-sequence.h:
@@ -2609,8 +2609,8 @@
 
 2011-05-14  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/machine-methods.h:
 	* src/lib/core/machine.c:
 	  Add method to get pattern per name.
 
@@ -2711,8 +2711,8 @@
 
 2011-05-12  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/ui/edit/buzztard-edit.desktop.in:
-	* src/ui/edit/buzztard-edit.desktop.in (added):
+	* src/ui/edit/buzztrax-edit.desktop.in:
+	* src/ui/edit/buzztrax-edit.desktop.in (added):
 	  Readd src for desktop file (again).
 
 2011-05-12  Stefan Kost  <ensonic@users.sf.net>
@@ -2929,7 +2929,7 @@
 
 	* Makefile.am:
 	  Hide more commands.
-	* src/lib/core/libbuzztard-core/sink-bin.h:
+	* src/lib/core/libbuzztrax-core/sink-bin.h:
 	  Whitespace.
 
 2011-04-14  Stefan Kost  <ensonic@users.sf.net>
@@ -2954,15 +2954,15 @@
 2011-04-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
-	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
-	* docs/reference/bt-ic/buzztard-ic-sections.txt:
-	* docs/reference/bt-ic/buzztard-ic.types.in:
+	* docs/reference/bt-ic/buzztrax-ic-docs.sgml:
+	* docs/reference/bt-ic/buzztrax-ic-sections.txt:
+	* docs/reference/bt-ic/buzztrax-ic.types.in:
 	* src/lib/ic/registry.c:
 	  Fix warnings in btic docs. Handle conditional Api.
 
 2011-04-13  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	* src/lib/core/tools.c:
 	  Remove unused test code, this has to work via refdbg or alike.
 
@@ -3082,7 +3082,7 @@
 2011-04-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/Makefile.am:
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	* docs/help/bt-edit/C/figures/about.png:
 	* docs/help/bt-edit/C/figures/crash-recovery.png:
 	* docs/help/bt-edit/C/figures/interaction-controller-learn.png:
@@ -3164,12 +3164,12 @@
 2011-04-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/Makefile.am:
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Add more images.
 
 2011-04-04  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Describe all remaining dialogs.
 
 2011-04-03  Stefan Kost  <ensonic@users.sf.net>
@@ -3177,7 +3177,7 @@
 	* NEWS:
 	  Update the NEWS.
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Review and extend help.
 
 2011-04-03  Stefan Kost  <ensonic@users.sf.net>
@@ -3411,8 +3411,8 @@
 
 2011-03-18  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/tools.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	* src/lib/core/tools.c:
 	* src/lib/core/wire.c:
 	  Move some code from wire to tool and make it more generic so that we
@@ -3454,7 +3454,7 @@
 
 2011-03-16  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit.types:
+	* docs/reference/bt-edit/buzztrax-edit.types:
 	  Also renename the wire-dialog to signal-dialog here.
 
 2011-03-16  Stefan Kost  <ensonic@users.sf.net>
@@ -3464,8 +3464,8 @@
 
 2011-03-16  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.h:
 	* src/ui/edit/signal-analysis-dialog-methods.h:
@@ -3579,7 +3579,7 @@
 
 2011-02-24  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/edit-application-methods.h:
 	* src/ui/edit/edit-application.c:
 	  Add one methods to set transitent window relation ship. Saves some
@@ -3745,7 +3745,7 @@
 
 2011-02-15  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	  Add new API to docs.
 
 2011-02-15  Stefan Kost  <ensonic@users.sf.net>
@@ -3878,7 +3878,7 @@
 2011-02-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/Makefile.am:
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Small doc fixes and better pdf creation.
 
 2011-02-06  Stefan Kost  <ensonic@users.sf.net>
@@ -3888,28 +3888,28 @@
 	* src/lib/ic/gudev-discoverer.c:
 	* src/lib/ic/hal-discoverer.c:
 	* src/lib/ic/ic_private.h:
-	* src/lib/ic/libbuzztard-ic/Makefile.am:
-	* src/lib/ic/libbuzztard-ic/gudev-discoverer-methods.h:
-	* src/lib/ic/libbuzztard-ic/gudev-discoverer.h:
-	* src/lib/ic/libbuzztard-ic/hal-discoverer-methods.h:
-	* src/lib/ic/libbuzztard-ic/hal-discoverer.h:
-	* src/lib/ic/libbuzztard-ic/ic.h:
-	* src/lib/ic/libbuzztard-ic/registry-methods.h:
+	* src/lib/ic/libbuzztrax-ic/Makefile.am:
+	* src/lib/ic/libbuzztrax-ic/gudev-discoverer-methods.h:
+	* src/lib/ic/libbuzztrax-ic/gudev-discoverer.h:
+	* src/lib/ic/libbuzztrax-ic/hal-discoverer-methods.h:
+	* src/lib/ic/libbuzztrax-ic/hal-discoverer.h:
+	* src/lib/ic/libbuzztrax-ic/ic.h:
+	* src/lib/ic/libbuzztrax-ic/registry-methods.h:
 	* src/lib/ic/registry.c:
-	* src/lib/ic/libbuzztard-ic/hal-discoverer.h (svn:keywords, svn:eol-
+	* src/lib/ic/libbuzztrax-ic/hal-discoverer.h (svn:keywords, svn:eol-
 	  style):
 	* src/lib/ic/gudev-discoverer.c (svn:keywords, svn:eol-style):
 	* src/lib/ic/hal-discoverer.c (svn:keywords, svn:eol-style):
-	* src/lib/ic/libbuzztard-ic/gudev-discoverer.h (svn:keywords, svn:eol-
+	* src/lib/ic/libbuzztrax-ic/gudev-discoverer.h (svn:keywords, svn:eol-
 	  style):
-	* src/lib/ic/libbuzztard-ic/hal-discoverer-methods.h (svn:keywords, svn
+	* src/lib/ic/libbuzztrax-ic/hal-discoverer-methods.h (svn:keywords, svn
 	  :eol-style):
-	* src/lib/ic/libbuzztard-ic/gudev-discoverer-methods.h (svn:keywords,
+	* src/lib/ic/libbuzztrax-ic/gudev-discoverer-methods.h (svn:keywords,
 	  svn:eol-style):
-	* src/lib/ic/libbuzztard-ic/hal-discoverer.h (added):
-	* src/lib/ic/libbuzztard-ic/hal-discoverer-methods.h (added):
-	* src/lib/ic/libbuzztard-ic/gudev-discoverer.h (added):
-	* src/lib/ic/libbuzztard-ic/gudev-discoverer-methods.h (added):
+	* src/lib/ic/libbuzztrax-ic/hal-discoverer.h (added):
+	* src/lib/ic/libbuzztrax-ic/hal-discoverer-methods.h (added):
+	* src/lib/ic/libbuzztrax-ic/gudev-discoverer.h (added):
+	* src/lib/ic/libbuzztrax-ic/gudev-discoverer-methods.h (added):
 	* src/lib/ic/hal-discoverer.c (added):
 	* src/lib/ic/gudev-discoverer.c (added):
 	  Refactor the device discovery. We now have separate discoverer
@@ -3918,9 +3918,9 @@
 
 2011-02-03  Stefan Kost  <ensonic@users.sf.net>
 
-	* pixmaps/hicolor/16x16/buzztard.png:
-	* pixmaps/hicolor/48x48/buzztard.png:
-	* pixmaps/hicolor/scalable/buzztard.svg:
+	* pixmaps/hicolor/16x16/buzztrax.png:
+	* pixmaps/hicolor/48x48/buzztrax.png:
+	* pixmaps/hicolor/scalable/buzztrax.svg:
 	  Get rid of the old logo.
 
 2011-02-03  Stefan Kost  <ensonic@users.sf.net>
@@ -3931,7 +3931,7 @@
 	* docs/help/bt-edit/C/Makefile.am:
 	  Use dblatex to make the pdf.
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Fix a typo.
 
 2011-02-03  Stefan Kost  <ensonic@users.sf.net>
@@ -4027,7 +4027,7 @@
 
 2011-01-26  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/buzztard.xml.in:
+	* src/lib/buzztrax.xml.in:
 	  Remove the glob, as with this we steal the xml extension. The issue is that most
 	  cases don't do proper matching. As a result calling help from some apps, would
 	  invoke us instead of the help browser.
@@ -4104,7 +4104,7 @@
 
 	* configure.ac:
 	* src/ui/edit/Makefile.am:
-	* src/ui/edit/buzztard-edit.desktop.in.in (deleted):
+	* src/ui/edit/buzztrax-edit.desktop.in.in (deleted):
 	  Fix desktop-file. The version field in there is the spec version. Also
 	  finally fix double .in resolving.
 
@@ -4183,7 +4183,7 @@
 
 2010-12-20  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/main-window-methods.h:
 	* src/ui/edit/main-window.c:
 	  Add a new methods to check if current song is unsaved and if so ask
@@ -4382,14 +4382,14 @@
 
 2010-11-29  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/change-log-methods.h:
 	* src/ui/edit/machine-menu.c:
 	  API docs update.
 
 2010-11-29  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/main-page-patterns-methods.h:
 	* src/ui/edit/main-page-patterns.c:
 	  Also refactor 2 internaly used methods into static functions and cache
@@ -4402,7 +4402,7 @@
 
 2010-11-29  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/main-page-sequence.c:
 	  We wwere using this function only one and that was even localy, so
 	  remove it.
@@ -4423,7 +4423,7 @@
 
 2010-11-28  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/change-log-methods.h:
 	* src/ui/edit/change-log.c:
 	  Add new api to check if the change log has an active context.
@@ -4463,7 +4463,7 @@
 
 2010-11-28  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	* src/lib/core/tools.c:
 	  Some attempt for tagging ref-counts to aid debugging. Unused as of
 	  side effects.
@@ -4638,7 +4638,7 @@
 
 2010-11-14  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/change-log-methods.h:
 	* src/ui/edit/change-log.c:
 	  Implement change grouping into signle undo/redo-able items.
@@ -4688,7 +4688,7 @@
 
 2010-11-11  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/main-page-machines-methods.h:
 	* src/ui/edit/main-page-machines.c:
 	* src/ui/edit/wire-canvas-item.c:
@@ -4702,7 +4702,7 @@
 
 2010-11-10  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Add small tracker tutorial and improve wavetable section.
 
 	* omf.make:
@@ -4710,7 +4710,7 @@
 
 2010-11-09  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Small doc clarification for using the wave-table.
 
 2010-11-08  Stefan Kost  <ensonic@users.sf.net>
@@ -4726,8 +4726,8 @@
 
 2010-11-07  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
-	* src/lib/core/libbuzztard-core/setup-methods.h:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
+	* src/lib/core/libbuzztrax-core/setup-methods.h:
 	* src/lib/core/setup.c:
 	* src/ui/edit/change-logger-methods.h:
 	* src/ui/edit/change-logger.c:
@@ -4777,7 +4777,7 @@
 
 2010-10-15  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/change-log.c:
 	* src/ui/edit/edit-application-methods.h:
 	* src/ui/edit/edit-application.c:
@@ -4871,7 +4871,7 @@
 
 2010-09-24  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/change-log-methods.h:
 	* src/ui/edit/change-log.c:
 	* src/ui/edit/crash-recover-dialog.c:
@@ -5096,20 +5096,20 @@
 2010-09-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-cmd/Makefile.am:
-	* docs/reference/bt-cmd/buzztard-cmd-docs.sgml:
-	* docs/reference/bt-cmd/buzztard-cmd-sections.txt:
+	* docs/reference/bt-cmd/buzztrax-cmd-docs.sgml:
+	* docs/reference/bt-cmd/buzztrax-cmd-sections.txt:
 	* docs/reference/bt-core/Makefile.am:
-	* docs/reference/bt-core/buzztard-core-docs.sgml:
-	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core-docs.sgml:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
 	* docs/reference/bt-edit/Makefile.am:
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* docs/reference/bt-ic/Makefile.am:
-	* docs/reference/bt-ic/buzztard-ic-docs.sgml:
-	* docs/reference/bt-ic/buzztard-ic-sections.txt:
-	* src/lib/core/libbuzztard-core/song-io.h:
-	* src/lib/core/libbuzztard-core/tools.h:
-	* src/lib/core/libbuzztard-core/wire.h:
+	* docs/reference/bt-ic/buzztrax-ic-docs.sgml:
+	* docs/reference/bt-ic/buzztrax-ic-sections.txt:
+	* src/lib/core/libbuzztrax-core/song-io.h:
+	* src/lib/core/libbuzztrax-core/tools.h:
+	* src/lib/core/libbuzztrax-core/wire.h:
 	* src/lib/core/tools.c:
 	* src/ui/edit/change-log.c:
 	  Documentation cleanup.
@@ -5122,9 +5122,9 @@
 2010-09-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWS:
-	* docs/reference/bt-ic/buzztard-ic-sections.txt:
+	* docs/reference/bt-ic/buzztrax-ic-sections.txt:
 	* src/lib/ic/device.c:
-	* src/lib/ic/libbuzztard-ic/device-methods.h:
+	* src/lib/ic/libbuzztrax-ic/device-methods.h:
 	* src/lib/ic/registry.c:
 	  Use "sound" as subsytem for "alsa/oss". Dump device properties. Hide
 	  devices with no controls.
@@ -5192,7 +5192,7 @@
 
 2010-09-06  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/dec/bt-dec.c:
 	* src/ui/edit/about-dialog.c:
 	* src/ui/edit/machine-actions.c:
@@ -5308,7 +5308,7 @@
 
 2010-08-31  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/settings-private.h:
+	* src/lib/core/libbuzztrax-core/settings-private.h:
 	* tests/bt-test-settings.c:
 	* tests/bt-test-settings.h:
 	  Add missing entries to test settings.
@@ -5363,7 +5363,7 @@
 2010-08-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/childproxy.c:
-	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	* src/lib/core/persistence.c:
 	  Use G_DEFINE_INTERFACE and conditioaly add glib defines for people
 	  with older glibs.
@@ -5382,13 +5382,13 @@
 	* src/lib/core/pattern.c:
 	* src/lib/core/plainfile-settings.c:
 	* src/lib/core/settings.c:
-	  More G_DEFINE_TYPE usage. libbuzztardcore is done.
+	  More G_DEFINE_TYPE usage. libbuzztraxcore is done.
 
 2010-08-29  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/processor-machine.h:
-	* src/lib/core/libbuzztard-core/sink-machine.h:
-	* src/lib/core/libbuzztard-core/source-machine.h:
+	* src/lib/core/libbuzztrax-core/processor-machine.h:
+	* src/lib/core/libbuzztrax-core/sink-machine.h:
+	* src/lib/core/libbuzztrax-core/source-machine.h:
 	* src/lib/core/processor-machine.c:
 	* src/lib/core/sink-machine.c:
 	* src/lib/core/song-io-native-xml.c:
@@ -5399,9 +5399,9 @@
 
 2010-08-29  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/settings.h:
-	* src/lib/core/libbuzztard-core/song-io-native-xml.h:
-	* src/lib/core/libbuzztard-core/song-io-native.h:
+	* src/lib/core/libbuzztrax-core/settings.h:
+	* src/lib/core/libbuzztrax-core/song-io-native-xml.h:
+	* src/lib/core/libbuzztrax-core/song-io-native.h:
 	* src/lib/core/processor-machine.c:
 	* src/lib/core/sequence.c:
 	* src/lib/core/settings.c:
@@ -5462,7 +5462,7 @@
 
 	* src/lib/core/Makefile.am:
 	* src/lib/core/core.c:
-	* src/lib/core/libbuzztard-core/core.h:
+	* src/lib/core/libbuzztrax-core/core.h:
 	* src/lib/core/sink-bin.c:
 	* src/ui/cmd/cmd-application.c:
 	  Initial code to post missing element errors and catch them in bt-cmd.
@@ -5578,8 +5578,8 @@
 
 2010-08-08  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/tools.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	  Add a new macro to check for empty gvalues. Fixes the checking that
 	  otherwise could be disabled with compiler flags. Also this variant is
 	  cheaper.
@@ -5742,7 +5742,7 @@
 
 2010-07-07  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/sink-bin.h:
+	* src/lib/core/libbuzztrax-core/sink-bin.h:
 	* src/lib/core/sink-bin.c:
 	  Add pass-thru mode needed for bt-bin.
 
@@ -5781,14 +5781,14 @@
 	* src/ui/bin/bt-bin.h (added):
 	* src/ui/bin/Makefile.am (added):
 	* src/ui/bin/bt-bin.c (added):
-	  Add initial version of bt-bin (buzztard song-player for gstreamer based
+	  Add initial version of bt-bin (buzztrax song-player for gstreamer based
 	  players). Not build by default yet.
 
 2010-06-22  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/song-io-methods.h:
-	* src/lib/core/libbuzztard-core/song-io.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/song-io-methods.h:
+	* src/lib/core/libbuzztrax-core/song-io.h:
 	* src/lib/core/song-io-native.c:
 	* src/lib/core/song-io.c:
 	* src/ui/cmd/cmd-application.c:
@@ -5831,27 +5831,27 @@
 
 2010-06-14  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-cmd/buzztard-cmd-docs.sgml:
+	* docs/reference/bt-cmd/buzztrax-cmd-docs.sgml:
 	* docs/reference/bt-edit/Makefile.am:
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
-	* docs/reference/bt-edit/buzztard-edit.xml:
-	* docs/reference/bt-edit/buzztard-edit.xml (added):
-	  Add man-page for buzztard-edit and move the man pages to separate
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit.xml:
+	* docs/reference/bt-edit/buzztrax-edit.xml (added):
+	  Add man-page for buzztrax-edit and move the man pages to separate
 	  section in the interface docs.
 
 2010-06-14  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-cmd/buzztard-cmd.xml:
+	* docs/reference/bt-cmd/buzztrax-cmd.xml:
 	  Update page to get rid of all warnings.
 
 2010-06-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
 	* docs/reference/bt-cmd/Makefile.am:
-	* docs/reference/bt-cmd/buzztard-cmd-docs.sgml:
-	* docs/reference/bt-cmd/buzztard-cmd.xml:
-	* docs/reference/bt-cmd/buzztard-cmd.xml (added):
-	  Add a man-page for buzztard-cmd.
+	* docs/reference/bt-cmd/buzztrax-cmd-docs.sgml:
+	* docs/reference/bt-cmd/buzztrax-cmd.xml:
+	* docs/reference/bt-cmd/buzztrax-cmd.xml (added):
+	  Add a man-page for buzztrax-cmd.
 
 2010-06-10  Stefan Kost  <ensonic@users.sf.net>
 
@@ -5953,7 +5953,7 @@
 
 2010-06-08  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/buzztard.xsd:
+	* docs/buzztrax.xsd:
 	* src/lib/core/machine.c:
 	* src/lib/core/sequence.c:
 	* src/lib/core/wire-pattern.c:
@@ -5996,8 +5996,8 @@
 
 2010-06-04  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/settings-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/settings-methods.h:
 	* src/lib/core/settings.c:
 	* src/lib/core/sink-bin.c:
 	* src/ui/edit/main-page-waves.c:
@@ -6188,14 +6188,14 @@
 
 2010-05-04  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
-	* docs/reference/bt-edit/buzztard-edit.types:
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit.types:
 	  Update docs for latest API additions and fix some typos.
 
 2010-05-04  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/machine-properties-dialog.c:
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/main-page-sequence.c:
@@ -6298,8 +6298,8 @@
 	* src/ui/edit/edit-application.c:
 	  Create and remove the journal file.
 
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/btmemoryaudiosrc.c:
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/pattern-editor.h:
@@ -6362,7 +6362,7 @@
 2010-04-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/Makefile.am:
-	  Remove buzztard-ic pkg config file for core gir generation to avoid cyclic
+	  Remove buzztrax-ic pkg config file for core gir generation to avoid cyclic
 	  dependency. Only external libs are needed here.
 
 2010-04-20  Stefan Kost  <ensonic@users.sf.net>
@@ -6448,16 +6448,16 @@
 2010-04-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* docs/reference/bt-ic/buzztard-ic-sections.txt:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* docs/reference/bt-ic/buzztrax-ic-sections.txt:
 	* src/lib/core/Makefile.am:
 	* src/lib/core/core_private.h:
-	* src/lib/core/libbuzztard-core/core.h:
-	* src/lib/core/libbuzztard-core/version.h.in:
+	* src/lib/core/libbuzztrax-core/core.h:
+	* src/lib/core/libbuzztrax-core/version.h.in:
 	* src/lib/ic/Makefile.am:
 	* src/lib/ic/ic_private.h:
-	* src/lib/ic/libbuzztard-ic/ic.h:
-	* src/lib/ic/libbuzztard-ic/version.h.in:
+	* src/lib/ic/libbuzztrax-ic/ic.h:
+	* src/lib/ic/libbuzztrax-ic/version.h.in:
 	  Improve out of sourcedir builds.
 
 2010-04-04  Stefan Kost  <ensonic@users.sf.net>
@@ -6588,7 +6588,7 @@
 	* src/lib/core/machine.c:
 	  No need to copy static strings.
 
-	* src/ui/edit/buzztard-edit.desktop.in.in:
+	* src/ui/edit/buzztrax-edit.desktop.in.in:
 	  According to this post
 	  http://lists.fedoraproject.org/pipermail/devel/2010-March/133523.html
 	  we should add this flag.
@@ -6694,7 +6694,7 @@
 	* NEWSLETTER:
 	  Add idea for news.
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/machine-actions.c:
 	* src/ui/edit/machine-canvas-item-methods.h:
 	* src/ui/edit/machine-canvas-item.c:
@@ -6765,7 +6765,7 @@
 	* src/lib/core/core.c:
 	  Small init tuning and whitespace fixes.
 
-	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	* src/lib/core/setup.c:
 	* src/lib/core/tools.c:
 	  Better logging of pad-link failure.
@@ -6787,9 +6787,9 @@
 
 2010-01-28  Stefan Kost  <ensonic@users.sf.net>
 
-	* buzztard.schemas.in:
+	* buzztrax.schemas.in:
 	* src/lib/core/gconf-settings.c:
-	* src/lib/core/libbuzztard-core/settings-private.h:
+	* src/lib/core/libbuzztrax-core/settings-private.h:
 	* src/lib/core/settings.c:
 	* src/ui/edit/edit-application.c:
 	* src/ui/edit/main-window.c:
@@ -6797,7 +6797,7 @@
 
 2010-01-27  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/edit-application-methods.h:
 	* src/ui/edit/edit-application.c:
 	* src/ui/edit/main-menu.c:
@@ -6814,8 +6814,8 @@
 
 2010-01-27  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/tools.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	  Add a return_val_if_disposed macro too.
 
 	* src/ui/edit/main-menu.c:
@@ -6858,28 +6858,28 @@
 
 2010-01-24  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-docs.sgml:
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* docs/reference/bt-core/buzztard-core.types.in:
+	* docs/reference/bt-core/buzztrax-core-docs.sgml:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core.types.in:
 	* src/lib/core/Makefile.am:
 	* src/lib/core/childproxy.c:
 	* src/lib/core/core_private.h:
-	* src/lib/core/libbuzztard-core/Makefile.am:
-	* src/lib/core/libbuzztard-core/childproxy-methods.h:
-	* src/lib/core/libbuzztard-core/childproxy.h:
-	* src/lib/core/libbuzztard-core/core.h:
+	* src/lib/core/libbuzztrax-core/Makefile.am:
+	* src/lib/core/libbuzztrax-core/childproxy-methods.h:
+	* src/lib/core/libbuzztrax-core/childproxy.h:
+	* src/lib/core/libbuzztrax-core/core.h:
 	* src/ui/edit/main-page-machines.c:
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/main-page-sequence.c:
 	* src/ui/edit/main-window.c:
-	* src/lib/core/libbuzztard-core/childproxy.h (svn:keywords, svn:eol-
+	* src/lib/core/libbuzztrax-core/childproxy.h (svn:keywords, svn:eol-
 	  style):
-	* src/lib/core/libbuzztard-core/childproxy-methods.h (svn:keywords, svn
+	* src/lib/core/libbuzztrax-core/childproxy-methods.h (svn:keywords, svn
 	  :eol-style):
 	* src/lib/core/childproxy.c (svn:keywords, svn:eol-style):
 	* src/lib/core/childproxy.c (added):
-	* src/lib/core/libbuzztard-core/childproxy.h (added):
-	* src/lib/core/libbuzztard-core/childproxy-methods.h (added):
+	* src/lib/core/libbuzztrax-core/childproxy.h (added):
+	* src/lib/core/libbuzztrax-core/childproxy-methods.h (added):
 	  Add BtChildProxy interface (a pure GObject based variant of GstChildProxy
 	  without signals). Make use of that for setting the statusbar::status.
 
@@ -7008,9 +7008,9 @@
 
 2010-01-23  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
 	* src/lib/core/application.c:
-	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	* src/lib/core/machine.c:
 	* src/lib/core/pattern.c:
 	* src/lib/core/sequence.c:
@@ -7556,7 +7556,7 @@
 
 2010-01-08  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit.types:
+	* docs/reference/bt-edit/buzztrax-edit.types:
 	  Add tip dialog type.
 
 	* src/ui/edit/interaction-controller-learn-dialog.c:
@@ -7591,13 +7591,13 @@
 2010-01-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
-	* docs/reference/bt-core/buzztard-core-docs.sgml:
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* docs/reference/bt-core/buzztard-core.types.in:
+	* docs/reference/bt-core/buzztrax-core-docs.sgml:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core.types.in:
 	* src/lib/core/Makefile.am:
-	* src/lib/core/libbuzztard-core/Makefile.am:
-	* src/lib/core/libbuzztard-core/persistence-methods.h:
-	* src/lib/core/libbuzztard-core/persistence.h:
+	* src/lib/core/libbuzztrax-core/Makefile.am:
+	* src/lib/core/libbuzztrax-core/persistence-methods.h:
+	* src/lib/core/libbuzztrax-core/persistence.h:
 	* src/lib/core/machine.c:
 	* src/lib/core/pattern.c:
 	* src/lib/core/persistence.c:
@@ -7617,8 +7617,8 @@
 	* src/lib/core/wire-pattern.c:
 	* src/lib/core/wire.c:
 	* src/lib/core/persistence-selection.c (deleted):
-	* src/lib/core/libbuzztard-core/persistence-location.h (deleted):
-	* src/lib/core/libbuzztard-core/persistence-selection.h (deleted):
+	* src/lib/core/libbuzztrax-core/persistence-location.h (deleted):
+	* src/lib/core/libbuzztrax-core/persistence-selection.h (deleted):
 	* src/lib/core/persistence-location.c (deleted):
 	  Remove persistens selection and location. We don't use this for copy/paste
 	  and we will also do the undo/redo differently.
@@ -7635,7 +7635,7 @@
 
 2010-01-08  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/edit-application-methods.h:
 	* src/ui/edit/edit-application.c:
 	* src/ui/edit/main-menu.c:
@@ -7645,7 +7645,7 @@
 
 2010-01-07  Stefan Kost  <ensonic@users.sf.net>
 
-	* buzztard.schemas.in:
+	* buzztrax.schemas.in:
 	  Fix description.
 
 	* src/lib/core/settings.c:
@@ -7653,8 +7653,8 @@
 
 2010-01-07  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.h:
 	* src/ui/edit/main-menu.c:
@@ -7698,19 +7698,19 @@
 
 2010-01-06  Stefan Kost  <ensonic@users.sf.net>
 
-	* buzztard.schemas.in:
+	* buzztrax.schemas.in:
 	* src/lib/core/gconf-settings.c:
-	* src/lib/core/libbuzztard-core/settings-private.h:
+	* src/lib/core/libbuzztrax-core/settings-private.h:
 	  Add new settings for tip-of-the-day.
 
 2010-01-02  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
 	* src/lib/core/core_private.h:
-	* src/lib/core/libbuzztard-core/machine.h:
-	* src/lib/core/libbuzztard-core/sink-bin.h:
-	* src/lib/core/libbuzztard-core/song-io.h:
-	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/libbuzztrax-core/machine.h:
+	* src/lib/core/libbuzztrax-core/sink-bin.h:
+	* src/lib/core/libbuzztrax-core/song-io.h:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	* src/lib/core/persistence.c:
 	* src/lib/core/wave.c:
 	* src/lib/core/wire.c:
@@ -7723,13 +7723,13 @@
 
 2009-12-24  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* docs/reference/bt-core/buzztard-core.types.in:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core.types.in:
 	  Doc fixes for BtPersistence.
 
 2009-12-16  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/Makefile.am:
+	* src/lib/core/libbuzztrax-core/Makefile.am:
 	  Also disable the file we skip here.
 
 	* src/lib/core/Makefile.am:
@@ -7757,7 +7757,7 @@
 
 2009-12-15  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/main-window-methods.h:
 	* src/ui/edit/main-window.c:
 	* src/ui/edit/tools.c:
@@ -7817,17 +7817,17 @@
 
 2009-12-08  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/sink-bin.h:
+	* src/lib/core/libbuzztrax-core/sink-bin.h:
 	* src/lib/core/sink-bin.c:
 	* tests/bt-cmd-encode.sh:
 	  Add the mp4 (acc) output.
 
 2009-12-06  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
 	* src/lib/core/core.c:
-	* src/lib/core/libbuzztard-core/machine-methods.h:
-	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/libbuzztrax-core/machine-methods.h:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	* src/lib/core/machine.c:
 	* src/lib/core/song.c:
 	* src/lib/core/tools.c:
@@ -7937,9 +7937,9 @@
 
 2009-11-28  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-docs.sgml:
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* docs/reference/bt-core/buzztard-core.types.in:
+	* docs/reference/bt-core/buzztrax-core-docs.sgml:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core.types.in:
 	  Also hide disabled class here.
 
 	* tests/lib/core/e-pattern.c:
@@ -7967,7 +7967,7 @@
 2009-11-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/Makefile.am:
-	* src/lib/core/libbuzztard-core/core.h:
+	* src/lib/core/libbuzztrax-core/core.h:
 	* tests/lib/core/t-settings.c:
 	  Don't build and test (unused) plainfile settings for now.
 
@@ -7993,9 +7993,9 @@
 
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-core/Makefile.am:
-	* docs/reference/bt-core/buzztard-core.types.in:
+	* docs/reference/bt-core/buzztrax-core.types.in:
 	* docs/reference/bt-edit/Makefile.am:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* docs/reference/bt-ic/Makefile.am:
 	  Doc fixes. Sinkbin did not appear as gobject.
 
@@ -8011,7 +8011,7 @@
 
 2009-11-26  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	  Fi copy'n'paste.
 
 	* src/ui/edit/pattern-editor.h:
@@ -8019,8 +8019,8 @@
 
 2009-11-26  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
-	* docs/reference/bt-edit/buzztard-edit.types:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit.types:
 	* src/ui/edit/main-page-patterns.c:
 	* src/ui/edit/main-pages.c:
 	* src/ui/edit/pattern-editor.c:
@@ -8049,8 +8049,8 @@
 2009-11-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/application.c:
-	* src/lib/core/libbuzztard-core/sequence.h:
-	* src/lib/core/libbuzztard-core/tools.h:
+	* src/lib/core/libbuzztrax-core/sequence.h:
+	* src/lib/core/libbuzztrax-core/tools.h:
 	* src/lib/core/persistence.c:
 	* src/lib/core/sequence.c:
 	* src/lib/core/setup.c:
@@ -8063,14 +8063,14 @@
 
 2009-11-19  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/machine.h:
-	* src/lib/core/libbuzztard-core/pattern.h:
-	* src/lib/core/libbuzztard-core/setup.h:
-	* src/lib/core/libbuzztard-core/tools.h:
-	* src/lib/core/libbuzztard-core/wave.h:
-	* src/lib/core/libbuzztard-core/wavetable.h:
-	* src/lib/core/libbuzztard-core/wire-pattern.h:
-	* src/lib/core/libbuzztard-core/wire.h:
+	* src/lib/core/libbuzztrax-core/machine.h:
+	* src/lib/core/libbuzztrax-core/pattern.h:
+	* src/lib/core/libbuzztrax-core/setup.h:
+	* src/lib/core/libbuzztrax-core/tools.h:
+	* src/lib/core/libbuzztrax-core/wave.h:
+	* src/lib/core/libbuzztrax-core/wavetable.h:
+	* src/lib/core/libbuzztrax-core/wire-pattern.h:
+	* src/lib/core/libbuzztrax-core/wire.h:
 	* src/lib/core/machine.c:
 	* src/lib/core/pattern.c:
 	* src/lib/core/setup.c:
@@ -8139,10 +8139,10 @@
 
 2009-11-05  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
 	* src/lib/core/core.c:
 	* src/lib/core/core_private.h:
-	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* src/lib/core/libbuzztrax-core/machine-methods.h:
 	* src/lib/core/machine.c:
 	* src/lib/core/setup.c:
 	* src/lib/core/wire.c:
@@ -8153,7 +8153,7 @@
 
 2009-11-05  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/ui/edit/buzztard-edit.desktop.in.in:
+	* src/ui/edit/buzztrax-edit.desktop.in.in:
 	  Check with desktop-file-validate from desktop-file-utils and fixup.
 
 2009-11-03  Stefan Kost  <ensonic@users.sf.net>
@@ -8217,7 +8217,7 @@
 
 2009-10-27  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
 	* src/ui/edit/edit-application-methods.h:
 	* src/ui/edit/edit-application.c:
 	  Factor out locking the UI.
@@ -8238,7 +8238,7 @@
 
 2009-10-21  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/help/bt-edit/C/buzztard-edit.xml:
+	* docs/help/bt-edit/C/buzztrax-edit.xml:
 	  Small docu update.
 
 	* src/ui/edit/wire-analysis-dialog.c:
@@ -8362,7 +8362,7 @@
 
 2009-10-13  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-edit/buzztard-edit-docs.sgml:
+	* docs/reference/bt-edit/buzztrax-edit-docs.sgml:
 	* src/ui/edit/btmemoryaudiosrc.c:
 	  Add missing docs.
 
@@ -8439,7 +8439,7 @@
 
 2009-10-04  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/wire-pattern-methods.h:
+	* src/lib/core/libbuzztrax-core/wire-pattern-methods.h:
 	* src/lib/core/wire-pattern.c:
 	* src/ui/edit/main-page-patterns.c:
 	  Implement copy'n'paste stuff for wire patterns too.
@@ -8458,8 +8458,8 @@
 
 2009-10-03  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/wire-pattern-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/wire-pattern-methods.h:
 	* src/lib/core/pattern.c:
 	* src/lib/core/wire-pattern.c:
 	  Also copy wire patterns when copying patterns.
@@ -8487,8 +8487,8 @@
 
 2009-09-20  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/pattern-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/pattern-methods.h:
 	* src/lib/core/pattern.c:
 	* src/ui/edit/main-page-patterns.c:
 	  Cut, copy and paste works for patterns now. Still needs handling of
@@ -8502,16 +8502,16 @@
 
 2009-09-19  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/pattern-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/pattern-methods.h:
 	* src/lib/core/pattern.c:
 	* src/ui/edit/main-page-patterns.c:
 	  Enable copy in patterns. Still WIP.
 
 2009-09-18  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* src/lib/core/libbuzztard-core/machine-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* src/lib/core/libbuzztrax-core/machine-methods.h:
 	* src/lib/core/machine.c:
 	* src/lib/core/setup.c:
 	* src/lib/core/wire.c:
@@ -8546,7 +8546,7 @@
 
 2009-09-15  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/libbuzztard-core/machine.h:
+	* src/lib/core/libbuzztrax-core/machine.h:
 	  Add doc comments for public members.
 
 	* src/lib/core/pattern.c:
@@ -8555,10 +8555,10 @@
 
 2009-09-14  Stefan Kost  <ensonic@users.sf.net>
 
-	* docs/reference/bt-core/buzztard-core-sections.txt:
-	* docs/reference/bt-edit/buzztard-edit-sections.txt:
-	* src/lib/core/libbuzztard-core/pattern-methods.h:
-	* src/lib/core/libbuzztard-core/wire-pattern-methods.h:
+	* docs/reference/bt-core/buzztrax-core-sections.txt:
+	* docs/reference/bt-edit/buzztrax-edit-sections.txt:
+	* src/lib/core/libbuzztrax-core/pattern-methods.h:
+	* src/lib/core/libbuzztrax-core/wire-pattern-methods.h:
 	* src/lib/core/pattern.c:
 	* src/lib/core/wire-pattern.c:
 	* src/ui/edit/main-menu.c:

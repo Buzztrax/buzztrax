@@ -125,7 +125,7 @@ main (int argc, char *argv[])
 
   /* Try an image */
   GdkPixbuf *pixbuf = gtk_icon_theme_load_icon (it,
-      "buzztard_generator", 64,
+      "buzztrax_generator", 64,
       GTK_ICON_LOOKUP_FORCE_SVG | GTK_ICON_LOOKUP_FORCE_SIZE, NULL);
   ClutterContent *image = clutter_image_new ();
   clutter_image_set_data (CLUTTER_IMAGE (image),

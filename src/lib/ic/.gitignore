@@ -8,7 +8,7 @@
 *.bbg
 Makefile
 Makefile.in
-libbuzztard-ic.pc
+libbuzztrax-ic.pc
 marshal.*
 version.h
 *.gir

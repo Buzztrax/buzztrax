@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" >
+<refentry id="buzztrax-cmd-ops">
+
+<refentryinfo>
+  <author>
+    <othername>the buzztrax project</othername>
+    <contrib>Development and documentation.</contrib>
+  </author>
+  <productname>buzztrax</productname>
+</refentryinfo>
+
+<refmeta>
+<refentrytitle>buzztrax-cmd</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">Buzztrax Manual Pages</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+<refname>buzztrax-cmd</refname>
+<refpurpose>work with buzztrax songs</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>buzztrax-cmd</command>
+<arg choice="opt" rep="repeat">options</arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsect1><title>Description</title>
+<para>
+<command>buzztrax-cmd</command> can be used to inspect, play and convert
+buzztrax songs from the commandline.
+</para>
+</refsect1>
+
+<refsect1><title>Invocation</title>
+<para>
+<command>buzztrax-cmd</command> takes a mandatory argument that specifies
+the command and extra options depending on the command.
+</para>
+
+<refsect2 id="buzztrax-cmd.options"><title>Options</title>
+<variablelist>
+
+<varlistentry>
+<term><option>-q</option>, <option>--quiet</option></term>
+<listitem><para>
+Be quiet (no verbose ouput when running)
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>-c</option>, <option>--command</option> <replaceable>command-name</replaceable></term>
+<listitem><para>
+The command to exeute, one of: info, play, convert, encode
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>-i</option>, <option>--input-file</option> <replaceable>song-filename</replaceable></term>
+<listitem><para>
+The input filename. This should be a song file buzztrax can handle.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>-o</option>, <option>--output-file</option> <replaceable>song-filename</replaceable></term>
+<listitem><para>
+The output filename. Depending on the command this is the result of the
+file-format conversion or the song-rendering.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>-h</option>, <option>--help</option></term>
+<listitem><para>
+Print brief help and exit.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term><option>--version</option></term>
+<listitem><para>
+Print version and exit.
+</para></listitem>
+</varlistentry>
+
+</variablelist>
+</refsect2>
+</refsect1>
+</refentry>
+
+

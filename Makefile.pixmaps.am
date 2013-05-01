@@ -9,97 +9,97 @@ pixmapdata_DATA = \
 
 hicolor_iconthemedir=$(datadir)/icons/hicolor
 hicolor_icon16dir = $(hicolor_iconthemedir)/16x16/apps
-hicolor_icon16_DATA = pixmaps/hicolor/16x16/buzztard.png \
-	pixmaps/hicolor/16x16/buzztard_menu_processor_machine.png \
-	pixmaps/hicolor/16x16/buzztard_menu_sink_machine.png \
-	pixmaps/hicolor/16x16/buzztard_menu_source_machine.png \
-	pixmaps/hicolor/16x16/buzztard_tab_machines.png \
-	pixmaps/hicolor/16x16/buzztard_tab_patterns.png \
-	pixmaps/hicolor/16x16/buzztard_tab_sequence.png \
-	pixmaps/hicolor/16x16/buzztard_tab_waves.png \
-	pixmaps/hicolor/16x16/buzztard_tab_info.png
+hicolor_icon16_DATA = pixmaps/hicolor/16x16/buzztrax.png \
+	pixmaps/hicolor/16x16/buzztrax_menu_processor_machine.png \
+	pixmaps/hicolor/16x16/buzztrax_menu_sink_machine.png \
+	pixmaps/hicolor/16x16/buzztrax_menu_source_machine.png \
+	pixmaps/hicolor/16x16/buzztrax_tab_machines.png \
+	pixmaps/hicolor/16x16/buzztrax_tab_patterns.png \
+	pixmaps/hicolor/16x16/buzztrax_tab_sequence.png \
+	pixmaps/hicolor/16x16/buzztrax_tab_waves.png \
+	pixmaps/hicolor/16x16/buzztrax_tab_info.png
 
 hicolor_icon24dir = $(hicolor_iconthemedir)/24x24/apps
 hicolor_icon24_DATA = \
-	pixmaps/hicolor/24x24/buzztard_menu_grid.png \
-	pixmaps/hicolor/24x24/buzztard_menu_processor_machine.png \
-	pixmaps/hicolor/24x24/buzztard_menu_sink_machine.png \
-	pixmaps/hicolor/24x24/buzztard_menu_source_machine.png
+	pixmaps/hicolor/24x24/buzztrax_menu_grid.png \
+	pixmaps/hicolor/24x24/buzztrax_menu_processor_machine.png \
+	pixmaps/hicolor/24x24/buzztrax_menu_sink_machine.png \
+	pixmaps/hicolor/24x24/buzztrax_menu_source_machine.png
 
 hicolor_icon48dir = $(hicolor_iconthemedir)/48x48/apps
-hicolor_icon48_DATA = pixmaps/hicolor/48x48/buzztard.png
+hicolor_icon48_DATA = pixmaps/hicolor/48x48/buzztrax.png
 
 hicolor_svgicondir = $(hicolor_iconthemedir)/scalable/apps
-hicolor_svgicon_DATA = pixmaps/hicolor/scalable/buzztard.svg
+hicolor_svgicon_DATA = pixmaps/hicolor/scalable/buzztrax.svg
 
 gnome_iconthemedir=$(datadir)/icons/gnome
 
 gnome_icon16dir = $(gnome_iconthemedir)/16x16/apps
-gnome_icon16_DATA = pixmaps/gnome/16x16/buzztard.png \
-	pixmaps/gnome/16x16/buzztard_menu_processor_machine.png \
-	pixmaps/gnome/16x16/buzztard_menu_sink_machine.png \
-	pixmaps/gnome/16x16/buzztard_menu_source_machine.png \
-	pixmaps/gnome/16x16/buzztard_tab_machines.png \
-	pixmaps/gnome/16x16/buzztard_tab_patterns.png \
-	pixmaps/gnome/16x16/buzztard_tab_sequence.png \
-	pixmaps/gnome/16x16/buzztard_tab_waves.png
-##	pixmaps/gnome/16x16/buzztard_tab_info.png
+gnome_icon16_DATA = pixmaps/gnome/16x16/buzztrax.png \
+	pixmaps/gnome/16x16/buzztrax_menu_processor_machine.png \
+	pixmaps/gnome/16x16/buzztrax_menu_sink_machine.png \
+	pixmaps/gnome/16x16/buzztrax_menu_source_machine.png \
+	pixmaps/gnome/16x16/buzztrax_tab_machines.png \
+	pixmaps/gnome/16x16/buzztrax_tab_patterns.png \
+	pixmaps/gnome/16x16/buzztrax_tab_sequence.png \
+	pixmaps/gnome/16x16/buzztrax_tab_waves.png
+##	pixmaps/gnome/16x16/buzztrax_tab_info.png
 
 gnome_icon22dir = $(gnome_iconthemedir)/22x22/apps
-gnome_icon22_DATA = pixmaps/gnome/22x22/buzztard.png
+gnome_icon22_DATA = pixmaps/gnome/22x22/buzztrax.png
 
 gnome_icon24dir = $(gnome_iconthemedir)/24x24/apps
-gnome_icon24_DATA = pixmaps/gnome/24x24/buzztard.png \
-	pixmaps/gnome/24x24/buzztard_menu_grid.png \
-	pixmaps/gnome/24x24/buzztard_menu_processor_machine.png \
-	pixmaps/gnome/24x24/buzztard_menu_sink_machine.png \
-	pixmaps/gnome/24x24/buzztard_menu_source_machine.png
+gnome_icon24_DATA = pixmaps/gnome/24x24/buzztrax.png \
+	pixmaps/gnome/24x24/buzztrax_menu_grid.png \
+	pixmaps/gnome/24x24/buzztrax_menu_processor_machine.png \
+	pixmaps/gnome/24x24/buzztrax_menu_sink_machine.png \
+	pixmaps/gnome/24x24/buzztrax_menu_source_machine.png
 
 gnome_icon32dir = $(gnome_iconthemedir)/32x32/apps
-gnome_icon32_DATA = pixmaps/gnome/32x32/buzztard.png \
-  pixmaps/gnome/32x32/buzztard_effect_bypass.png \
-  pixmaps/gnome/32x32/buzztard_effect_mute.png \
-  pixmaps/gnome/32x32/buzztard_effect.png \
-  pixmaps/gnome/32x32/buzztard_generator_mute.png \
-  pixmaps/gnome/32x32/buzztard_generator_solo.png \
-  pixmaps/gnome/32x32/buzztard_generator.png \
-  pixmaps/gnome/32x32/buzztard_master_mute.png \
-  pixmaps/gnome/32x32/buzztard_master.png
+gnome_icon32_DATA = pixmaps/gnome/32x32/buzztrax.png \
+  pixmaps/gnome/32x32/buzztrax_effect_bypass.png \
+  pixmaps/gnome/32x32/buzztrax_effect_mute.png \
+  pixmaps/gnome/32x32/buzztrax_effect.png \
+  pixmaps/gnome/32x32/buzztrax_generator_mute.png \
+  pixmaps/gnome/32x32/buzztrax_generator_solo.png \
+  pixmaps/gnome/32x32/buzztrax_generator.png \
+  pixmaps/gnome/32x32/buzztrax_master_mute.png \
+  pixmaps/gnome/32x32/buzztrax_master.png
 
 gnome_icon48dir = $(gnome_iconthemedir)/48x48/apps
-gnome_icon48_DATA = pixmaps/gnome/48x48/buzztard.png \
-  pixmaps/gnome/48x48/buzztard_effect_bypass.png \
-  pixmaps/gnome/48x48/buzztard_effect_mute.png \
-  pixmaps/gnome/48x48/buzztard_effect.png \
-  pixmaps/gnome/48x48/buzztard_generator_mute.png \
-  pixmaps/gnome/48x48/buzztard_generator_solo.png \
-  pixmaps/gnome/48x48/buzztard_generator.png \
-  pixmaps/gnome/48x48/buzztard_master_mute.png \
-  pixmaps/gnome/48x48/buzztard_master.png
+gnome_icon48_DATA = pixmaps/gnome/48x48/buzztrax.png \
+  pixmaps/gnome/48x48/buzztrax_effect_bypass.png \
+  pixmaps/gnome/48x48/buzztrax_effect_mute.png \
+  pixmaps/gnome/48x48/buzztrax_effect.png \
+  pixmaps/gnome/48x48/buzztrax_generator_mute.png \
+  pixmaps/gnome/48x48/buzztrax_generator_solo.png \
+  pixmaps/gnome/48x48/buzztrax_generator.png \
+  pixmaps/gnome/48x48/buzztrax_master_mute.png \
+  pixmaps/gnome/48x48/buzztrax_master.png
 
 gnome_icon64dir = $(gnome_iconthemedir)/64x64/apps
-gnome_icon64_DATA = pixmaps/gnome/64x64/buzztard.png \
-  pixmaps/gnome/64x64/buzztard_effect_bypass.png \
-  pixmaps/gnome/64x64/buzztard_effect_mute.png \
-  pixmaps/gnome/64x64/buzztard_effect.png \
-  pixmaps/gnome/64x64/buzztard_generator_mute.png \
-  pixmaps/gnome/64x64/buzztard_generator_solo.png \
-  pixmaps/gnome/64x64/buzztard_generator.png \
-  pixmaps/gnome/64x64/buzztard_master_mute.png \
-  pixmaps/gnome/64x64/buzztard_master.png
+gnome_icon64_DATA = pixmaps/gnome/64x64/buzztrax.png \
+  pixmaps/gnome/64x64/buzztrax_effect_bypass.png \
+  pixmaps/gnome/64x64/buzztrax_effect_mute.png \
+  pixmaps/gnome/64x64/buzztrax_effect.png \
+  pixmaps/gnome/64x64/buzztrax_generator_mute.png \
+  pixmaps/gnome/64x64/buzztrax_generator_solo.png \
+  pixmaps/gnome/64x64/buzztrax_generator.png \
+  pixmaps/gnome/64x64/buzztrax_master_mute.png \
+  pixmaps/gnome/64x64/buzztrax_master.png
 
 MACHINE_ICONS = \
-  pixmaps/gnome/scalable/buzztard_effect_bypass.svg \
-  pixmaps/gnome/scalable/buzztard_effect_mute.svg \
-  pixmaps/gnome/scalable/buzztard_effect.svg \
-  pixmaps/gnome/scalable/buzztard_generator_mute.svg \
-  pixmaps/gnome/scalable/buzztard_generator_solo.svg \
-  pixmaps/gnome/scalable/buzztard_generator.svg \
-  pixmaps/gnome/scalable/buzztard_master_mute.svg \
-  pixmaps/gnome/scalable/buzztard_master.svg
+  pixmaps/gnome/scalable/buzztrax_effect_bypass.svg \
+  pixmaps/gnome/scalable/buzztrax_effect_mute.svg \
+  pixmaps/gnome/scalable/buzztrax_effect.svg \
+  pixmaps/gnome/scalable/buzztrax_generator_mute.svg \
+  pixmaps/gnome/scalable/buzztrax_generator_solo.svg \
+  pixmaps/gnome/scalable/buzztrax_generator.svg \
+  pixmaps/gnome/scalable/buzztrax_master_mute.svg \
+  pixmaps/gnome/scalable/buzztrax_master.svg
 
 gnome_svgicondir = $(gnome_iconthemedir)/scalable/apps
-gnome_svgicon_DATA = pixmaps/gnome/scalable/buzztard.svg $(MACHINE_ICONS)
+gnome_svgicon_DATA = pixmaps/gnome/scalable/buzztrax.svg $(MACHINE_ICONS)
 
 prescale-svg:
 	for size in 32 48 64; do \

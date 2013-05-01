@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -3152,16 +3152,16 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_menu_set_accel_group (GTK_MENU (self->priv->context_menu),
       self->priv->accel_group);
   gtk_menu_set_accel_path (GTK_MENU (self->priv->context_menu),
-      "<Buzztard-Main>/PatternView/PatternContext");
+      "<Buzztrax-Main>/PatternView/PatternContext");
 
   self->priv->context_menu_track_add = menu_item =
       gtk_image_menu_item_new_with_label (_("New track"));
   image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
-      "<Buzztard-Main>/PatternView/PatternContext/AddTrack");
+      "<Buzztrax-Main>/PatternView/PatternContext/AddTrack");
   gtk_accel_map_add_entry
-      ("<Buzztard-Main>/PatternView/PatternContext/AddTrack", GDK_plus,
+      ("<Buzztrax-Main>/PatternView/PatternContext/AddTrack", GDK_plus,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -3173,9 +3173,9 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   image = gtk_image_new_from_stock (GTK_STOCK_REMOVE, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
-      "<Buzztard-Main>/PatternView/PatternContext/RemoveTrack");
+      "<Buzztrax-Main>/PatternView/PatternContext/RemoveTrack");
   gtk_accel_map_add_entry
-      ("<Buzztard-Main>/PatternView/PatternContext/RemoveTrack", GDK_minus,
+      ("<Buzztrax-Main>/PatternView/PatternContext/RemoveTrack", GDK_minus,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -3190,9 +3190,9 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   image = gtk_image_new_from_stock (GTK_STOCK_NEW, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
-      "<Buzztard-Main>/PatternView/PatternContext/NewPattern");
+      "<Buzztrax-Main>/PatternView/PatternContext/NewPattern");
   gtk_accel_map_add_entry
-      ("<Buzztard-Main>/PatternView/PatternContext/NewPattern", GDK_Return,
+      ("<Buzztrax-Main>/PatternView/PatternContext/NewPattern", GDK_Return,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -3204,9 +3204,9 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   image = gtk_image_new_from_stock (GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
-      "<Buzztard-Main>/PatternView/PatternContext/PatternProperties");
+      "<Buzztrax-Main>/PatternView/PatternContext/PatternProperties");
   gtk_accel_map_add_entry
-      ("<Buzztard-Main>/PatternView/PatternContext/PatternProperties",
+      ("<Buzztrax-Main>/PatternView/PatternContext/PatternProperties",
       GDK_BackSpace, GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -3219,9 +3219,9 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   image = gtk_image_new_from_stock (GTK_STOCK_DELETE, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
-      "<Buzztard-Main>/PatternView/PatternContext/RemovePattern");
+      "<Buzztrax-Main>/PatternView/PatternContext/RemovePattern");
   gtk_accel_map_add_entry
-      ("<Buzztard-Main>/PatternView/PatternContext/RemovePattern", GDK_Delete,
+      ("<Buzztrax-Main>/PatternView/PatternContext/RemovePattern", GDK_Delete,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -3233,9 +3233,9 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   image = gtk_image_new_from_stock (GTK_STOCK_COPY, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
-      "<Buzztard-Main>/PatternView/PatternContext/CopyPattern");
+      "<Buzztrax-Main>/PatternView/PatternContext/CopyPattern");
   gtk_accel_map_add_entry
-      ("<Buzztard-Main>/PatternView/PatternContext/CopyPattern", GDK_Return,
+      ("<Buzztrax-Main>/PatternView/PatternContext/CopyPattern", GDK_Return,
       GDK_CONTROL_MASK | GDK_SHIFT_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -3915,7 +3915,7 @@ bt_main_page_patterns_class_init (BtMainPagePatternsClass * klass)
   GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS (klass);
 
   pattern_atom =
-      gdk_atom_intern_static_string ("application/buzztard::pattern");
+      gdk_atom_intern_static_string ("application/buzztrax::pattern");
 
   g_type_class_add_private (klass, sizeof (BtMainPagePatternsPrivate));
 

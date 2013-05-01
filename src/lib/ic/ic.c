@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2007 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,7 +16,7 @@
  */
 /**
  * SECTION:libbtic
- * @short_description: interaction controller library of the buzztard
+ * @short_description: interaction controller library of the buzztrax
  *   application framework
  *
  * The library offers an abstraction of hardware controllers that can be bound
@@ -31,19 +31,19 @@
 /**
  * btic_major_version:
  *
- * buzztard version stamp, major part; determined from #BTIC_MAJOR_VERSION
+ * buzztrax version stamp, major part; determined from #BTIC_MAJOR_VERSION
  */
 const guint btic_major_version = BTIC_MAJOR_VERSION;
 /**
  * btic_minor_version:
  *
- * buzztard version stamp, minor part; determined from #BTIC_MINOR_VERSION
+ * buzztrax version stamp, minor part; determined from #BTIC_MINOR_VERSION
  */
 const guint btic_minor_version = BTIC_MINOR_VERSION;
 /**
  * btic_micro_version:
  *
- * buzztard version stamp, micro part; determined from #BTIC_MICRO_VERSION
+ * buzztrax version stamp, micro part; determined from #BTIC_MICRO_VERSION
  */
 const guint btic_micro_version = BTIC_MICRO_VERSION;
 
@@ -73,7 +73,7 @@ static gboolean
 btic_init_post (void)
 {
   if (arg_version) {
-    g_printf ("libbuzztard-ic-%d.%d.%d from " PACKAGE_STRING "\n",
+    g_printf ("libbuzztrax-ic-%d.%d.%d from " PACKAGE_STRING "\n",
         BTIC_MAJOR_VERSION, BTIC_MINOR_VERSION, BTIC_MICRO_VERSION);
   }
 
@@ -104,14 +104,14 @@ btic_init_get_option_group (void)
   GOptionGroup *group;
   static GOptionEntry options[] = {
     {"btic-version", 0, 0, G_OPTION_ARG_NONE, NULL,
-        N_("Print the buzztard interaction controller version"), NULL},
+        N_("Print the buzztrax interaction controller version"), NULL},
     {NULL}
   };
   options[0].arg_data = &arg_version;
 
   group =
-      g_option_group_new ("bt-ic", _("Buzztard interaction controller options"),
-      _("Show buzztard interaction controller options"), NULL, NULL);
+      g_option_group_new ("bt-ic", _("Buzztrax interaction controller options"),
+      _("Show buzztrax interaction controller options"), NULL, NULL);
   g_option_group_set_parse_hooks (group, (GOptionParseFunc) btic_init_pre,
       (GOptionParseFunc) btic_init_post);
 
@@ -127,13 +127,13 @@ btic_init_get_option_group (void)
  * @argv: pointer to application's argv
  * @err: pointer to a #GError to which a message will be posted on error
  *
- * Initializes the Buzztard interaction controller library.
+ * Initializes the Buzztrax interaction controller library.
  *
- * This function will return %FALSE if Buzztard interaction controller could not
+ * This function will return %FALSE if Buzztrax interaction controller could not
  * be initialized for some reason.  If you want your program to fail fatally,
  * use btic_init() instead.
  *
- * Returns: %TRUE if Buzztard interaction controller could be initialized.
+ * Returns: %TRUE if Buzztrax interaction controller could be initialized.
  */
 gboolean
 btic_init_check (gint * argc, gchar ** argv[], GError ** err)
@@ -155,7 +155,7 @@ btic_init_check (gint * argc, gchar ** argv[], GError ** err)
  * @argc: pointer to application's argc
  * @argv: pointer to application's argv
  *
- * Initializes the Buzztard Interaction Controller library.
+ * Initializes the Buzztrax Interaction Controller library.
  *
  * <note><para>
  * This function will terminate your program if it was unable to initialize
@@ -174,7 +174,7 @@ btic_init (gint * argc, gchar ** argv[])
   GError *err = NULL;
 
   if (!btic_init_check (argc, argv, &err)) {
-    g_print ("Could not initialized Buzztard interaction controller: %s\n",
+    g_print ("Could not initialized Buzztrax interaction controller: %s\n",
         err ? err->message : "unknown error occurred");
     if (err) {
       g_error_free (err);

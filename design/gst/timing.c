@@ -33,7 +33,7 @@ timing (const guint rate, const gdouble ticks_per_minute)
       "q-diff", "a-time", "a-diff", "aq-diff");
   for (i = 0; i < 15; i++) {
     ts = (GstClockTime) (wait_per_position * i);
-    // this happens in buzztard
+    // this happens in buzztrax
     // we quantize to sample resolution
     samples = gst_util_uint64_scale (ts, (guint64) rate, GST_SECOND);
     qtime = gst_util_uint64_scale (samples, GST_SECOND, (guint64) rate);

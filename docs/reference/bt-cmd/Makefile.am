@@ -4,7 +4,7 @@
 AUTOMAKE_OPTIONS = 1.6
 
 # The name of the module, e.g. 'glib'.
-DOC_MODULE=buzztard-cmd
+DOC_MODULE=buzztrax-cmd
 
 # The top-level SGML file. You can change this if you want to.
 DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.xml
@@ -63,8 +63,8 @@ GTKDOC_CFLAGS = \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = \
 	$(top_builddir)/libbtcmd.la \
-	$(top_builddir)/libbuzztard-core.la \
-	$(top_builddir)/libbuzztard-ic.la \
+	$(top_builddir)/libbuzztrax-core.la \
+	$(top_builddir)/libbuzztrax-ic.la \
 	$(BASE_DEPS_LIBS) \
 	$(BT_LIBS)
 #	-Wl,--no-as-needed
@@ -76,7 +76,7 @@ if ENABLE_GTK_DOC
 if ENABLE_MAN
 
 man_MANS = \
-	buzztard-cmd.1
+	buzztrax-cmd.1
 
 %.1 : %.xml
 	 @XSLTPROC@ -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
@@ -90,7 +90,7 @@ endif
 # e.g. EXTRA_DIST += version.xml.in
 EXTRA_DIST += \
 	$(DOC_MODULE).types \
-	buzztard-cmd.xml
+	buzztrax-cmd.xml
 
 # Comment this out if you want your docs-status tested during 'make check'
 if ENABLE_GTK_DOC

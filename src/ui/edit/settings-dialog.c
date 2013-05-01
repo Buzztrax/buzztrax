@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -155,10 +155,10 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
   GtkTreeIter tree_iter;
   GdkPixbuf *icon;
 
-  gtk_widget_set_name (GTK_WIDGET (self), "buzztard settings");
+  gtk_widget_set_name (GTK_WIDGET (self), "buzztrax settings");
 
   //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
-  gtk_window_set_title (GTK_WINDOW (self), _("buzztard settings"));
+  gtk_window_set_title (GTK_WINDOW (self), _("buzztrax settings"));
 
   // add dialog commision widgets (okay, cancel)
   gtk_dialog_add_buttons (GTK_DIALOG (self),

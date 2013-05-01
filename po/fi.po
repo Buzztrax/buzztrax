@@ -1,12 +1,12 @@
-# Finnish messages for buzztard.
+# Finnish messages for buzztrax.
 # Copyright © 2010, 2011 Free Software Foundation, Inc.
-# This file is distributed under the same license as the buzztard package.
+# This file is distributed under the same license as the buzztrax package.
 # Jorma Karvonen <karvonen.jorma@gmail.com>, 2010-2013.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztard 0.7.0\n"
-"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"Project-Id-Version: buzztrax 0.7.0\n"
+"Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2012-12-22 16:49+0100\n"
 "PO-Revision-Date: 2013-01-10 19:38+0200\n"
 "Last-Translator: Jorma Karvonen <karvonen.jorma@gmail.com>\n"
@@ -18,16 +18,16 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../src/lib/core/core.c:180
-msgid "Print the buzztard core version"
-msgstr "Tulosta buzztard-ydinversio"
+msgid "Print the buzztrax core version"
+msgstr "Tulosta buzztrax-ydinversio"
 
 #: ../src/lib/core/core.c:186
-msgid "Buzztard core options"
-msgstr "Buzztard-ydinvalitsimet"
+msgid "Buzztrax core options"
+msgstr "Buzztrax-ydinvalitsimet"
 
 #: ../src/lib/core/core.c:187
-msgid "Show buzztard core options"
-msgstr "Näytä buzztard-ydinvalitsimet"
+msgid "Show buzztrax core options"
+msgstr "Näytä buzztrax-ydinvalitsimet"
 
 #: ../src/lib/core/cmd-pattern.c:148
 msgid "normal"
@@ -67,22 +67,22 @@ msgstr "Tallennetaan tiedosto ’%s’"
 msgid "untitled song"
 msgstr "nimetön kappale"
 
-#: ../src/lib/core/songio/bsl/buzztard-songio-buzz.desktop.in.h:1
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:1
-msgid "Buzztard Music Editor"
-msgstr "Buzztard-musiikkieditori"
+#: ../src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in.h:1
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:1
+msgid "Buzztrax Music Editor"
+msgstr "Buzztrax-musiikkieditori"
 
 #: ../src/lib/ic/ic.c:107
-msgid "Print the buzztard interaction controller version"
-msgstr "Tulosta buzztard-keskusteluohjainversio"
+msgid "Print the buzztrax interaction controller version"
+msgstr "Tulosta buzztrax-keskusteluohjainversio"
 
 #: ../src/lib/ic/ic.c:113
-msgid "Buzztard interaction controller options"
-msgstr "Buzztard-keskusteluohjainvalitsimet"
+msgid "Buzztrax interaction controller options"
+msgstr "Buzztrax-keskusteluohjainvalitsimet"
 
 #: ../src/lib/ic/ic.c:114
-msgid "Show buzztard interaction controller options"
-msgstr "Näytä buzztard-keskusteluohjainvalitsimet"
+msgid "Show buzztrax interaction controller options"
+msgstr "Näytä buzztrax-keskusteluohjainvalitsimet"
 
 #: ../src/ui/cmd/bt-cmd.c:81 ../src/ui/edit/bt-edit.c:91
 msgid "Print application version"
@@ -110,12 +110,12 @@ msgid "Output file name"
 msgstr "Tulostetiedoston nimi"
 
 #: ../src/ui/cmd/bt-cmd.c:109
-msgid "buzztard-cmd options"
-msgstr "buzztard-cmd-valitsimet"
+msgid "buzztrax-cmd options"
+msgstr "buzztrax-cmd-valitsimet"
 
 #: ../src/ui/cmd/bt-cmd.c:110
-msgid "Show buzztard-cmd options"
-msgstr "Näytä buzztard-cmd-valitsimet"
+msgid "Show buzztrax-cmd options"
+msgstr "Näytä buzztrax-cmd-valitsimet"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net>
@@ -125,8 +125,8 @@ msgstr "Jorma Karvonen <karvonen.jorma@gmail.com>"
 
 #: ../src/ui/edit/about-dialog.c:71 ../src/ui/edit/about-dialog.c:73
 #, c-format
-msgid "Copyright © 2003-%d Buzztard developer team"
-msgstr "Copyright © 2003-%d Buzztard-kehitysryhmä"
+msgid "Copyright © 2003-%d Buzztrax developer team"
+msgstr "Copyright © 2003-%d Buzztrax-kehitysryhmä"
 
 #: ../src/ui/edit/about-dialog.c:90
 msgid "Music production environment"
@@ -149,24 +149,24 @@ msgstr ""
 #: ../src/ui/edit/about-dialog.c:120
 msgid ""
 "This release comes with a large number of smaller changes. Audio settings are more flexible and allow to choose a target latency. Jack users will be happy to see that we keep the session alive. We rewrote our test suite, fixed lots of bugs and refactored a large part of the code base. This summer we had a GSoC student, who implemented GStreamer EncodeBin support, which improves the song rendering code, wrote a audio-synth baseclass that greatly simplifies writing a new synth and wrote the pattern control source that allowed us to remove a lot of complicated code from the sequencer core.\n"
-"The gst-buzztard module got more modular. There are a few new plugins (sidsyn, wave-replay and wavetabsyn).\n"
-"We changed all modules to use non recursive make and we merged bsl into buzztard to make development easier."
+"The gst-buzztrax module got more modular. There are a few new plugins (sidsyn, wave-replay and wavetabsyn).\n"
+"We changed all modules to use non recursive make and we merged bsl into buzztrax to make development easier."
 msgstr ""
 "Tässä julkaisussa on suuri joukko pienempiä muutoksia. Ääniasetukset ovat joustavampia ja sallivat kohdeviipeen valinnan. Liitinkäyttäjät ovat onnellisia nähdessään, että pidämme istunnon elossa. Kirjoitimme uudelleen testausohjelmistomme, korjasimme paljon ohjelmointivirheitä ja muokkasimme uudelleen laajan osan koodiperustaa. Tänä kesänä meillä oli GSoC-opiskelija, joka toteutti GStream EncodeBin-tuen, joka parantaa kappaleen renderointikoodia, kirjoitti audio-synth-perusluokan, joka yksinkertaistaa paljon uutta synth-kirjoittamista ja kirjoitti mallinohjauskoodin, joka sallii meidän poistaa paljon mutkikasta koodia sequencer-ytimestä.\n"
-"Gst-buzztard-moduulista tuli modulaarisempi. Saimme muuutamia uusia lisäosia (sidsyn, wave-replay ja wavetabsyn).\n"
-"Vaihdoimme kaikki moduulit käyttämään ei-rekursiivista make-komentoa ja yhdistimme bsl:n buzztard:iin tehdäksemme kehitystyön helpommaksi."
+"Gst-buzztrax-moduulista tuli modulaarisempi. Saimme muuutamia uusia lisäosia (sidsyn, wave-replay ja wavetabsyn).\n"
+"Vaihdoimme kaikki moduulit käyttämään ei-rekursiivista make-komentoa ja yhdistimme bsl:n buzztrax:iin tehdäksemme kehitystyön helpommaksi."
 
 #: ../src/ui/edit/bt-edit.c:122
-msgid "buzztard-edit options"
-msgstr "buzztard-edit -valitsimet"
+msgid "buzztrax-edit options"
+msgstr "buzztrax-edit -valitsimet"
 
 #: ../src/ui/edit/bt-edit.c:123
-msgid "Show buzztard-edit options"
-msgstr "Näytä buzztard-edit -valitsimet"
+msgid "Show buzztrax-edit options"
+msgstr "Näytä buzztrax-edit -valitsimet"
 
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:2
-msgid "Edit buzztard song files"
-msgstr "Muokkaa buzztard-musiikkikappaletiedostoja"
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:2
+msgid "Edit buzztrax song files"
+msgstr "Muokkaa buzztrax-musiikkikappaletiedostoja"
 
 #: ../src/ui/edit/change-log.c:584
 msgid "unsaved song"
@@ -479,7 +479,7 @@ msgstr "Kappaleen lataus epäonnistui"
 msgid "Recover a song?"
 msgstr "Palauta kappale?"
 
-#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
+#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
 #: ../src/ui/edit/main-menu.c:821
 msgid "_File"
@@ -1215,8 +1215,8 @@ msgstr "Tila"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:161
-msgid "buzztard settings"
-msgstr "buzztard-asetukset"
+msgid "buzztrax settings"
+msgstr "buzztrax-asetukset"
 
 #: ../src/ui/edit/settings-dialog.c:210 ../src/ui/edit/settings-dialog.c:261
 msgid "Audio Devices"
@@ -1400,16 +1400,16 @@ msgid "You can use input devices such as joysticks, beside midi devices to live 
 msgstr "Voit käyttä syötelaitteita, kuten sauvaohjainta, midi-laitteiden rinnalla suoralähetteisiin koneparametreihin."
 
 #: ../src/ui/edit/tip-dialog.c:55
-msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztard."
-msgstr "Voit käyttää upnp-media-asiakasta (esim.: media-virtaa nokian sormitietokoneissa) buzztard-etäohjaimena."
+msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztrax."
+msgstr "Voit käyttää upnp-media-asiakasta (esim.: media-virtaa nokian sormitietokoneissa) buzztrax-etäohjaimena."
 
 #: ../src/ui/edit/tip-dialog.c:56
 msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
 msgstr "Nuottien kirjoittamiseksi kuvittele tietokonenäppäimistösi kaksiriviseksi musiikkinäppäimistöksi. Alhaalla vasemmalla z -painikkeesta tulee ’c’, s on ’c#’, x on ’d’ jne."
 
 #: ../src/ui/edit/tip-dialog.c:57
-msgid "You can get more help from the community on irc://irc.freenode.net/#buzztard."
-msgstr "Saat lisäohjausta yhteisöltä irc://irc.freenode.net/#buzztard."
+msgid "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
+msgstr "Saat lisäohjausta yhteisöltä irc://irc.freenode.net/#buzztrax."
 
 #: ../src/ui/edit/tip-dialog.c:58
 msgid "Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."
@@ -1460,8 +1460,8 @@ msgstr "Pixmap-tiedoston etsiminen epäonnistui: %s"
 msgid "Disconnect"
 msgstr "Katkaise yhteys"
 
-#~ msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztard songs in any gstreamer based media player. We also kept the buzztard codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
-#~ msgstr "Tämän julkaisun pääominaisuus on täysy peru/tee uudelleen -tuki. Siihen verrattava on muokkaa-toiminnon päivitettävyys ja kaatumistoipuminen. Tällä tavalla mahdollisuus muutosten menettämiseen on aika alhainen. Muut käyttöliittymärajapinnan parannukset ovat: päivän vihje, spektrianalyysin parannus, leikepöytätuki, lisää komentoja konteksivalikkoihin ja paljon muuta. Tämän julkaisun ominaisuuksia on gstreamer-dekooderi, joka sallii buzztard-kappaleiden toiston missä tahansa virtaperustaisessa mediasoittimessa. Pidämme myös buzztard-tietoperustan puhtaana ja siirsimme vanhentuneet sovellusrajapinta seuraajille (gnomevfs->gio, hal->gudev). Kirjastot ja sovellukset saivat suorituskykyparannukset monilla alueilla. Dokumentoinnit ovat myös parantuneet runsaasti oppikurssien, pikanäppäimistötaulukoiden, paremman peton ja man-sivujen ansiosta."
+#~ msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztrax songs in any gstreamer based media player. We also kept the buzztrax codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
+#~ msgstr "Tämän julkaisun pääominaisuus on täysy peru/tee uudelleen -tuki. Siihen verrattava on muokkaa-toiminnon päivitettävyys ja kaatumistoipuminen. Tällä tavalla mahdollisuus muutosten menettämiseen on aika alhainen. Muut käyttöliittymärajapinnan parannukset ovat: päivän vihje, spektrianalyysin parannus, leikepöytätuki, lisää komentoja konteksivalikkoihin ja paljon muuta. Tämän julkaisun ominaisuuksia on gstreamer-dekooderi, joka sallii buzztrax-kappaleiden toiston missä tahansa virtaperustaisessa mediasoittimessa. Pidämme myös buzztrax-tietoperustan puhtaana ja siirsimme vanhentuneet sovellusrajapinta seuraajille (gnomevfs->gio, hal->gudev). Kirjastot ja sovellukset saivat suorituskykyparannukset monilla alueilla. Dokumentoinnit ovat myös parantuneet runsaasti oppikurssien, pikanäppäimistötaulukoiden, paremman peton ja man-sivujen ansiosta."
 
 #~ msgid "no settings"
 #~ msgstr "ei asetuksia"
@@ -1484,8 +1484,8 @@ msgstr "Katkaise yhteys"
 #~ msgid "song render progress"
 #~ msgstr "kappaleen tulkintaprosessi"
 
-#~ msgid "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztard can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
-#~ msgstr "Uudelleenkirjoitti sisäisen putkilinjahallinnan. Nyt voidaan soittaa osittain yhdistetyt kappaleet, ja lisätä/poistaa lisäosat soittamisen aikana. Buzztard voi soittaa nuotteja niitä muokatessa. Aikaisempaa parempi kappaleiden tallennus. Paljon vikakorjauksia ja käyttöliittymäparannuksia. Parempi käyttöopaste sisältäen kolme pientä oppikurssia. Alustava tuki pythonille ja javascriptille gobject-keskustelun kautta."
+#~ msgid "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztrax can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
+#~ msgstr "Uudelleenkirjoitti sisäisen putkilinjahallinnan. Nyt voidaan soittaa osittain yhdistetyt kappaleet, ja lisätä/poistaa lisäosat soittamisen aikana. Buzztrax voi soittaa nuotteja niitä muokatessa. Aikaisempaa parempi kappaleiden tallennus. Paljon vikakorjauksia ja käyttöliittymäparannuksia. Parempi käyttöopaste sisältäen kolme pientä oppikurssia. Alustava tuki pythonille ja javascriptille gobject-keskustelun kautta."
 
 #~ msgid "Delete machine '%s'"
 #~ msgstr "Poista kone ’%s’"

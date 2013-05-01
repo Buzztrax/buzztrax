@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -72,7 +72,7 @@ test_bt_machine_rename_dialog_create (BT_TEST_ARGS)
   g_object_get (app, "song", &song, NULL);
   machine =
       BT_MACHINE (bt_source_machine_new (song, "synth",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
 
   /* act */
   dialog = GTK_WIDGET (bt_machine_rename_dialog_new (machine));

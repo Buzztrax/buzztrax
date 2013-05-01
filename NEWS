@@ -8,9 +8,9 @@ implemented GStreamer EncodeBin support, which improves the song rendering code,
 wrote a audio-synth baseclass that greatly simplifies writing a new synth and wrote
 the pattern control source that allowed us to remove a lot of complicated code from
 the sequencer core.
-The gst-buzztard module got more modular. There are a few new plugins (sidsyn, 
+The gst-buzztrax module got more modular. There are a few new plugins (sidsyn, 
 wave-replay and wavetabsyn).
-We changed all modules to use non recursive make and we merged bsl into buzztard to
+We changed all modules to use non recursive make and we merged bsl into buzztrax to
 make development easier.
 
 0.6.0 black beats blue (25.Dec.2011)
@@ -20,8 +20,8 @@ journaling of edit action and the crash recovery. This way chances of losing
 changes in the song are quite low. Other UI improvements are: tip of day,
 improved spectrum analyzer, clipboard support, more commands in context menus
 and many more). This release features a gstreamer decoder that enables playback
-of buzztard songs in any gstreamer based media player.
-We also kept the buzztard codebase clean and ported from deprecated APIs to the
+of buzztrax songs in any gstreamer based media player.
+We also kept the buzztrax codebase clean and ported from deprecated APIs to the
 successors (gnomevfs->gio, hal->gudev). The libraries and the applications got
 performance improvements in many areas.
 Also the docs have been improved a lot with tutorials, keyboard shortcut tables,
@@ -30,7 +30,7 @@ better coverage and man-pages.
 0.5.0 crown of thorns (06.Sep.2009)
 ================================================================================
 Rewrite of internal pipeline management. One can now play partially connected
-songs, and add/remove plugins while playing. Buzztard can play notes while
+songs, and add/remove plugins while playing. Buzztrax can play notes while
 editing. More robust saving of songs. Lots of bugfixes and UI improvements.
 Better user-guide including three small tutorials. Initial support for python
 and javascript via gobject introspection.
@@ -38,8 +38,8 @@ and javascript via gobject introspection.
 0.4.0 the light in your eyes (26.Nov.2008)
 ================================================================================
 As planned, main focus for this release was the wavetable support. Its done -
-buzztard can load what gstreamer can decode. The wavetable view has a nice
-waveform widget. Related to that buzztard has a new song-format that bundles the
+buzztrax can load what gstreamer can decode. The wavetable view has a nice
+waveform widget. Related to that buzztrax has a new song-format that bundles the
 XML together with external files in a zip archive. 
 Also the UI has seen a lot of improvements. The machine view looks nicer - Marc
 drew spiffy machine icons. In addition they now show real volume meters when
@@ -54,7 +54,7 @@ headers).
 0.3.0 a tale of ice and darkness (26.Mar.2008)
 ================================================================================
 Improvements in all areas. We now have native buzzmachine support and better
-compatibility. The buzztard editor got an own pattern editor widget. The ui got
+compatibility. The buzztrax editor got an own pattern editor widget. The ui got
 lots of keyboard commands. We have settings for default directories used. The ui
 has dialogs for recording mix-downs and also single tracks.
 

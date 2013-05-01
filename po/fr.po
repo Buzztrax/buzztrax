@@ -1,6 +1,6 @@
-# French translation of buzztard
+# French translation of buzztrax
 # Copyright (C) 2012 Free Software Foundation, Inc.
-# This file is distributed under the same license as the buzztard package.
+# This file is distributed under the same license as the buzztrax package.
 #
 # Frédéric Marchal <fmarchal@perso.be>, 2012.
 # I'm translating this package because nobody volunteered but I don't feel
@@ -8,8 +8,8 @@
 # translation to anyone with a more suitable background!
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztard-0.7.0\n"
-"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"Project-Id-Version: buzztrax-0.7.0\n"
+"Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2012-12-22 16:49+0100\n"
 "PO-Revision-Date: 2012-12-24 15:23+0100\n"
 "Last-Translator: Frédéric Marchal <fmarchal@perso.be>\n"
@@ -22,16 +22,16 @@ msgstr ""
 "X-Generator: Lokalize 1.0\n"
 
 #: ../src/lib/core/core.c:180
-msgid "Print the buzztard core version"
-msgstr "Afficher la version de base de buzztard"
+msgid "Print the buzztrax core version"
+msgstr "Afficher la version de base de buzztrax"
 
 #: ../src/lib/core/core.c:186
-msgid "Buzztard core options"
-msgstr "Options de base de Buzztard"
+msgid "Buzztrax core options"
+msgstr "Options de base de Buzztrax"
 
 #: ../src/lib/core/core.c:187
-msgid "Show buzztard core options"
-msgstr "Montrer les options de base de buzztard"
+msgid "Show buzztrax core options"
+msgstr "Montrer les options de base de buzztrax"
 
 #: ../src/lib/core/cmd-pattern.c:148
 msgid "normal"
@@ -71,22 +71,22 @@ msgstr "Sauvegarde du fichier « %s »"
 msgid "untitled song"
 msgstr "musique sans titre"
 
-#: ../src/lib/core/songio/bsl/buzztard-songio-buzz.desktop.in.h:1
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:1
-msgid "Buzztard Music Editor"
-msgstr "Éditeur de musiques Buzztard"
+#: ../src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in.h:1
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:1
+msgid "Buzztrax Music Editor"
+msgstr "Éditeur de musiques Buzztrax"
 
 #: ../src/lib/ic/ic.c:107
-msgid "Print the buzztard interaction controller version"
-msgstr "Afficher la version du contrôleur d'interaction de buzztard"
+msgid "Print the buzztrax interaction controller version"
+msgstr "Afficher la version du contrôleur d'interaction de buzztrax"
 
 #: ../src/lib/ic/ic.c:113
-msgid "Buzztard interaction controller options"
-msgstr "Options du contrôleur d'interaction de buzztard"
+msgid "Buzztrax interaction controller options"
+msgstr "Options du contrôleur d'interaction de buzztrax"
 
 #: ../src/lib/ic/ic.c:114
-msgid "Show buzztard interaction controller options"
-msgstr "Montrer les options du contrôleur d'interaction de buzztard"
+msgid "Show buzztrax interaction controller options"
+msgstr "Montrer les options du contrôleur d'interaction de buzztrax"
 
 #: ../src/ui/cmd/bt-cmd.c:81 ../src/ui/edit/bt-edit.c:91
 msgid "Print application version"
@@ -114,12 +114,12 @@ msgid "Output file name"
 msgstr "Nom du fichier cible"
 
 #: ../src/ui/cmd/bt-cmd.c:109
-msgid "buzztard-cmd options"
-msgstr "options de buzztard en ligne de commande"
+msgid "buzztrax-cmd options"
+msgstr "options de buzztrax en ligne de commande"
 
 #: ../src/ui/cmd/bt-cmd.c:110
-msgid "Show buzztard-cmd options"
-msgstr "Montrer les options de buzztard en ligne de commande"
+msgid "Show buzztrax-cmd options"
+msgstr "Montrer les options de buzztrax en ligne de commande"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net>
@@ -129,8 +129,8 @@ msgstr "Frédéric Marchal <fmarchal@perso.be>"
 
 #: ../src/ui/edit/about-dialog.c:71 ../src/ui/edit/about-dialog.c:73
 #, c-format
-msgid "Copyright © 2003-%d Buzztard developer team"
-msgstr "Copyright © 2003-%d Équipe de développeurs buzztard"
+msgid "Copyright © 2003-%d Buzztrax developer team"
+msgstr "Copyright © 2003-%d Équipe de développeurs buzztrax"
 
 #: ../src/ui/edit/about-dialog.c:90
 msgid "Music production environment"
@@ -153,24 +153,24 @@ msgstr ""
 #: ../src/ui/edit/about-dialog.c:120
 msgid ""
 "This release comes with a large number of smaller changes. Audio settings are more flexible and allow to choose a target latency. Jack users will be happy to see that we keep the session alive. We rewrote our test suite, fixed lots of bugs and refactored a large part of the code base. This summer we had a GSoC student, who implemented GStreamer EncodeBin support, which improves the song rendering code, wrote a audio-synth baseclass that greatly simplifies writing a new synth and wrote the pattern control source that allowed us to remove a lot of complicated code from the sequencer core.\n"
-"The gst-buzztard module got more modular. There are a few new plugins (sidsyn, wave-replay and wavetabsyn).\n"
-"We changed all modules to use non recursive make and we merged bsl into buzztard to make development easier."
+"The gst-buzztrax module got more modular. There are a few new plugins (sidsyn, wave-replay and wavetabsyn).\n"
+"We changed all modules to use non recursive make and we merged bsl into buzztrax to make development easier."
 msgstr ""
 "Cette version comporte de nombreuses petites modifications. Les réglages audio sont plus flexibles et permettent de choisir une latence pour la cible. Les utilisateurs de Jack seront heureux de voir que nous gardons la session vivante. Nous avons ré-écrit notre suite de tests, corrigés de nombreux bugs et refactorisé une grande partie du code. Cet été, un étudiant GSoC a ajouté le support pour EncoderBin de GStreamer. Cela améliore le code de rendu des musiques. Il a aussi écrit une classe de base pour la synthèse audio qui simplifie grandement l'écriture d'un nouveau synthé et a écrit la source de contrôle de motifs qui nous a permis de supprimer beaucoup de code compliqué du cœur du séquenceur.\n"
-"Le module gst-buzztard est devenu encore plus modulaire. Il y a aussi quelques nouveaux greffons (sidsyn, wave-replay et wavetabsyn).\n"
-"Nous avons modifié tous les modules pour utiliser un make non récursif et nous avons fusionné bls dans buzztard pour rendre le développement plus aisé."
+"Le module gst-buzztrax est devenu encore plus modulaire. Il y a aussi quelques nouveaux greffons (sidsyn, wave-replay et wavetabsyn).\n"
+"Nous avons modifié tous les modules pour utiliser un make non récursif et nous avons fusionné bls dans buzztrax pour rendre le développement plus aisé."
 
 #: ../src/ui/edit/bt-edit.c:122
-msgid "buzztard-edit options"
-msgstr "options d'édition buzztard"
+msgid "buzztrax-edit options"
+msgstr "options d'édition buzztrax"
 
 #: ../src/ui/edit/bt-edit.c:123
-msgid "Show buzztard-edit options"
-msgstr "Montrer les options d'édition de buzztard"
+msgid "Show buzztrax-edit options"
+msgstr "Montrer les options d'édition de buzztrax"
 
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:2
-msgid "Edit buzztard song files"
-msgstr "Éditer les fichiers musicaux buzztard"
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:2
+msgid "Edit buzztrax song files"
+msgstr "Éditer les fichiers musicaux buzztrax"
 
 #: ../src/ui/edit/change-log.c:584
 msgid "unsaved song"
@@ -483,7 +483,7 @@ msgstr "Ne peut charger le son"
 msgid "Recover a song?"
 msgstr "Récupérer une musique ?"
 
-#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
+#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
 #: ../src/ui/edit/main-menu.c:821
 msgid "_File"
@@ -1218,8 +1218,8 @@ msgstr "Mode"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:161
-msgid "buzztard settings"
-msgstr "paramètres buzztard"
+msgid "buzztrax settings"
+msgstr "paramètres buzztrax"
 
 #: ../src/ui/edit/settings-dialog.c:210 ../src/ui/edit/settings-dialog.c:261
 msgid "Audio Devices"
@@ -1403,16 +1403,16 @@ msgid "You can use input devices such as joysticks, beside midi devices to live 
 msgstr "Vous pouvez utiliser des périphériques d'entrée tels que des joysticks en plus des périphériques midi pour contrôler les paramètres de la machine en temps réel."
 
 #: ../src/ui/edit/tip-dialog.c:55
-msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztard."
-msgstr "Vous pouvez utiliser un client upnp (par exemple un flux média sur une tablette nokia) pour contrôler buzztard à distance."
+msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztrax."
+msgstr "Vous pouvez utiliser un client upnp (par exemple un flux média sur une tablette nokia) pour contrôler buzztrax à distance."
 
 #: ../src/ui/edit/tip-dialog.c:56
 msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
 msgstr "Pour entrer des notes, imaginez que le clavier de votre pc est un clavier musical sur deux lignes. La touche w devient un « la », s un « la dièse », x un « ré », etc..."
 
 #: ../src/ui/edit/tip-dialog.c:57
-msgid "You can get more help from the community on irc://irc.freenode.net/#buzztard."
-msgstr "Vous pouvez obtenir plus d'aide de la part de la communauté (en anglais) sur irc://irc.freenode.net/#buzztard."
+msgid "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
+msgstr "Vous pouvez obtenir plus d'aide de la part de la communauté (en anglais) sur irc://irc.freenode.net/#buzztrax."
 
 #: ../src/ui/edit/tip-dialog.c:58
 msgid "Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."
@@ -1463,8 +1463,8 @@ msgstr "N'a pu trouver le fichier pixmap : %s"
 msgid "Disconnect"
 msgstr "Déconnecter"
 
-#~ msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztard songs in any gstreamer based media player. We also kept the buzztard codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
-#~ msgstr "La fonctionnalité principale de cette version est le support complet pour annuler/refaire des changements. En liaison avec cela, nous disposons de la journalisation des actions d'édition et la récupération de plantage. De cette manière, les risques de perdre des changements dans une chanson sont très faibles. D'autres améliorations de l'interface sont: astuces du jour; analyseur de spectre amélioré; support du presse-papier; plus de commandes dans les menus contextuels et bien plus. Cette version intègre un décodeur gstreamer qui permet de jouer des musiques de buzztard dans n'importe quel player basé sur gstreamer. Nous avons également conservé le code de buzztard propre et porté des API dépréciées vers leurs successeurs (gnomevfs->gio, hal->gudev). Les librairies et les applications bénéficient de nombreuses améliorations de performances. Les documentations ont été notablement améliorées par l'ajout de tutoriels, de tables de raccourcis clavier, une meilleure couverture et des pages man. "
+#~ msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztrax songs in any gstreamer based media player. We also kept the buzztrax codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
+#~ msgstr "La fonctionnalité principale de cette version est le support complet pour annuler/refaire des changements. En liaison avec cela, nous disposons de la journalisation des actions d'édition et la récupération de plantage. De cette manière, les risques de perdre des changements dans une chanson sont très faibles. D'autres améliorations de l'interface sont: astuces du jour; analyseur de spectre amélioré; support du presse-papier; plus de commandes dans les menus contextuels et bien plus. Cette version intègre un décodeur gstreamer qui permet de jouer des musiques de buzztrax dans n'importe quel player basé sur gstreamer. Nous avons également conservé le code de buzztrax propre et porté des API dépréciées vers leurs successeurs (gnomevfs->gio, hal->gudev). Les librairies et les applications bénéficient de nombreuses améliorations de performances. Les documentations ont été notablement améliorées par l'ajout de tutoriels, de tables de raccourcis clavier, une meilleure couverture et des pages man. "
 
 #~ msgid "no settings"
 #~ msgstr "pas de réglage"

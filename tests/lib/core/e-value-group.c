@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2012 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2012 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -61,7 +61,7 @@ get_mono_value_group (void)
 {
   machine =
       BT_MACHINE (bt_source_machine_new (song, "id",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   pattern = bt_pattern_new (song, "pattern-name", 4L, machine);
   return bt_pattern_get_global_group (pattern);
 }

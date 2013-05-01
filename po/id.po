@@ -1,12 +1,12 @@
-# Terjemah pesan berbahasa Indonesia untuk buzztard.
+# Terjemah pesan berbahasa Indonesia untuk buzztrax.
 # Copyright (C) 2008 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the buzztard package.
+# This file is distributed under the same license as the buzztrax package.
 # Erwid M Jadied <jadied@gmail.com>, 2008.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztard-0.4.0\n"
-"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"Project-Id-Version: buzztrax-0.4.0\n"
+"Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2008-08-17 13:44+0300\n"
 "PO-Revision-Date: 2008-12-15 17:56+0700\n"
 "Last-Translator: Erwid M Jadied <jadied@gmail.com>\n"
@@ -18,16 +18,16 @@ msgstr ""
 "X-Poedit-Country: INDONESIA\n"
 
 #: ../src/lib/core/core.c:194
-msgid "Print the buzztard core version"
-msgstr "Cetak versi inti buzztard"
+msgid "Print the buzztrax core version"
+msgstr "Cetak versi inti buzztrax"
 
 #: ../src/lib/core/core.c:198
-msgid "Buzztard core options"
-msgstr "Pilihan inti buzztard"
+msgid "Buzztrax core options"
+msgstr "Pilihan inti buzztrax"
 
 #: ../src/lib/core/core.c:198
-msgid "Show buzztard core options"
-msgstr "Tunjukkan pilihan inti buzztard"
+msgid "Show buzztrax core options"
+msgstr "Tunjukkan pilihan inti buzztrax"
 
 #: ../src/lib/core/pattern.c:367
 msgid "normal"
@@ -66,16 +66,16 @@ msgid "untitled song"
 msgstr "Lagu tidak berjudul"
 
 #: ../src/lib/ic/ic.c:117
-msgid "Print the buzztard interaction controller version"
-msgstr "Cetak versi  pengendali interaksi  buzztard"
+msgid "Print the buzztrax interaction controller version"
+msgstr "Cetak versi  pengendali interaksi  buzztrax"
 
 #: ../src/lib/ic/ic.c:121
-msgid "Buzztard interaction controller options"
-msgstr "Pilihan pengendali interaksi buzztard"
+msgid "Buzztrax interaction controller options"
+msgstr "Pilihan pengendali interaksi buzztrax"
 
 #: ../src/lib/ic/ic.c:121
-msgid "Show buzztard interaction controller options"
-msgstr "Tunjukkan pilihan pengendali interaksi buzztard"
+msgid "Show buzztrax interaction controller options"
+msgstr "Tunjukkan pilihan pengendali interaksi buzztrax"
 
 #: ../src/ui/cmd/bt-cmd.c:66
 msgid "Show version"
@@ -104,8 +104,8 @@ msgstr "Keluaran nama berkas"
 
 #: ../src/ui/edit/about-dialog.c:74 ../src/ui/edit/about-dialog.c:75
 #, c-format
-msgid "Copyright © 2003-%d Buzztard developer team"
-msgstr "Copyright © 2003-%d Team Pengembang Buzztard "
+msgid "Copyright © 2003-%d Buzztrax developer team"
+msgstr "Copyright © 2003-%d Team Pengembang Buzztrax "
 
 #: ../src/ui/edit/about-dialog.c:91
 msgid "Music production environment"
@@ -124,8 +124,8 @@ msgstr ""
 "Paket ini didistribusikan dengan harapan akan memberi banyak manfaat, tetapi TANPA ADA JAMINAN APAPUN; termasuk jaminan untuk PERDAGANGAN atau KECOCOKAN UNTUK TUJUAN TERTENTU.Lihat GNU Libarary General Public License untuk informasi lebih detail."
 
 #: ../src/ui/edit/about-dialog.c:127
-msgid "As planned, main focus for this release was the wavetable support. Its done - buzztard can load what gstreamer can decode.The wavetable view has a nice waveform widget. Related to that buzztard has a new song-format that bundles the XML together with external files in a zip archive. Also the UI has seen a lot of improvements. The machine view looks nicer - Marc drew spiffy machine icons. In addition they now show real volume meters when playing. All meters are now properly synced."
-msgstr "Sesuai dengan rencana, fokus utama rilis ini adalah wavetable support. Dan berhasil-buzztard dapat memuat apa yang gstreamer decode. Tampilan wavetable mempunyai waveform widget yang cantik. Berhubungan dengan hal tersebut, buzztard mempunyai format lagu baru yang membundle XML dengan berkas eksternal dalam arsip zip. Juga meningkatan yang banyak pada UI. Tampilan mesin terlihat lebih bagus - Merc menggambar icon mesin spiffy. Sebagai tambahan, mereka juga membuat volume meter ketika memainkannya. Semau meter sekarang telah tersinkronisasi."
+msgid "As planned, main focus for this release was the wavetable support. Its done - buzztrax can load what gstreamer can decode.The wavetable view has a nice waveform widget. Related to that buzztrax has a new song-format that bundles the XML together with external files in a zip archive. Also the UI has seen a lot of improvements. The machine view looks nicer - Marc drew spiffy machine icons. In addition they now show real volume meters when playing. All meters are now properly synced."
+msgstr "Sesuai dengan rencana, fokus utama rilis ini adalah wavetable support. Dan berhasil-buzztrax dapat memuat apa yang gstreamer decode. Tampilan wavetable mempunyai waveform widget yang cantik. Berhubungan dengan hal tersebut, buzztrax mempunyai format lagu baru yang membundle XML dengan berkas eksternal dalam arsip zip. Juga meningkatan yang banyak pada UI. Tampilan mesin terlihat lebih bagus - Merc menggambar icon mesin spiffy. Sebagai tambahan, mereka juga membuat volume meter ketika memainkannya. Semau meter sekarang telah tersinkronisasi."
 
 #: ../src/ui/edit/bt-edit.c:77
 msgid "Print the application version"
@@ -141,12 +141,12 @@ msgid "Show bt-edit options"
 msgstr "Tunjukkan pilihan bt-edit"
 
 #: ../src/ui/edit/bt-edit.desktop.in.h:1
-msgid "Buzztard Music Editor"
-msgstr "Editor Musik Buzztard"
+msgid "Buzztrax Music Editor"
+msgstr "Editor Musik Buzztrax"
 
 #: ../src/ui/edit/bt-edit.desktop.in.h:2
-msgid "Edit buzztard song files"
-msgstr "Edit berkas lagu buzztard"
+msgid "Edit buzztrax song files"
+msgstr "Edit berkas lagu buzztrax"
 
 #: ../src/ui/edit/edit-application.c:111
 msgid "-> You will not see any level-meters."
@@ -376,7 +376,7 @@ msgstr "Tidak dapat memutar lagu"
 msgid "main menu"
 msgstr "menu utama"
 
-#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
+#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
 #: ../src/ui/edit/main-menu.c:524
 msgid "_File"
@@ -1055,7 +1055,7 @@ msgstr "volume pemutar"
 msgid "Change playback volume"
 msgstr "Ubah volume suara"
 
-#. we don't use PACKAGE_NAME = 'buzztard' for the window title
+#. we don't use PACKAGE_NAME = 'buzztrax' for the window title
 #: ../src/ui/edit/main-window.c:178
 msgid "unsaved"
 msgstr "tidak disimpan"
@@ -1224,8 +1224,8 @@ msgstr "rendering lagu sedang dalam progress"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:141 ../src/ui/edit/settings-dialog.c:144
-msgid "buzztard settings"
-msgstr "pengaturan buzztard"
+msgid "buzztrax settings"
+msgstr "pengaturan buzztrax"
 
 #: ../src/ui/edit/settings-dialog.c:177 ../src/ui/edit/settings-dialog.c:232
 msgid "Audio Devices"

@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -1483,7 +1483,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   // this is weird, we and up with a button and a menu, instead of a joint thing
   // so this is probably mean for e.g. undo, where the button undos and the menu allows to undo to stop step
   image =
-      gtk_image_new_from_icon_name ("buzztard_menu_grid", GTK_ICON_SIZE_MENU);
+      gtk_image_new_from_icon_name ("buzztrax_menu_grid", GTK_ICON_SIZE_MENU);
   tool_item = GTK_WIDGET (gtk_menu_tool_button_new (image, _("Grid")));
   gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (tool_item),
       GTK_WIDGET (self->priv->grid_density_menu));
@@ -1496,7 +1496,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   //g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
 #else
   image =
-      gtk_image_new_from_icon_name ("buzztard_menu_grid", GTK_ICON_SIZE_MENU);
+      gtk_image_new_from_icon_name ("buzztrax_menu_grid", GTK_ICON_SIZE_MENU);
   tool_item = GTK_WIDGET (gtk_tool_button_new (image, _("Grid")));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
       _("Show background grid"));

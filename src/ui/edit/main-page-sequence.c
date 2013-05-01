@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -3650,7 +3650,7 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_menu_set_accel_group (GTK_MENU (self->priv->context_menu),
       self->priv->accel_group);
   gtk_menu_set_accel_path (GTK_MENU (self->priv->context_menu),
-      "<Buzztard-Main>/SequenceView/SequenceContext");
+      "<Buzztrax-Main>/SequenceView/SequenceContext");
 
   self->priv->context_menu_add =
       GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (_("Add track")));
@@ -3665,9 +3665,9 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   image = gtk_image_new_from_stock (GTK_STOCK_REMOVE, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
-      "<Buzztard-Main>/SequenceView/SequenceContext/RemoveTrack");
+      "<Buzztrax-Main>/SequenceView/SequenceContext/RemoveTrack");
   gtk_accel_map_add_entry
-      ("<Buzztard-Main>/SequenceView/SequenceContext/RemoveTrack", GDK_Delete,
+      ("<Buzztrax-Main>/SequenceView/SequenceContext/RemoveTrack", GDK_Delete,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -3682,9 +3682,9 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   image = gtk_image_new_from_stock (GTK_STOCK_GO_BACK, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
-      "<Buzztard-Main>/SequenceView/SequenceContext/MoveTrackLeft");
+      "<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackLeft");
   gtk_accel_map_add_entry
-      ("<Buzztard-Main>/SequenceView/SequenceContext/MoveTrackLeft", GDK_Left,
+      ("<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackLeft", GDK_Left,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -3695,9 +3695,9 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   image = gtk_image_new_from_stock (GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
-      "<Buzztard-Main>/SequenceView/SequenceContext/MoveTrackRight");
+      "<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackRight");
   gtk_accel_map_add_entry
-      ("<Buzztard-Main>/SequenceView/SequenceContext/MoveTrackRight", GDK_Right,
+      ("<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackRight", GDK_Right,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -4732,7 +4732,7 @@ bt_main_page_sequence_class_init (BtMainPageSequenceClass * klass)
   GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS (klass);
 
   sequence_atom =
-      gdk_atom_intern_static_string ("application/buzztard::sequence");
+      gdk_atom_intern_static_string ("application/buzztrax::sequence");
 
   column_index_quark =
       g_quark_from_static_string ("BtMainPageSequence::column-index");

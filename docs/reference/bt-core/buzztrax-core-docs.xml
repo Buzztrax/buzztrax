@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
+<!ENTITY % version-entities SYSTEM "../../version.entities">
+%version-entities;
+<!ELEMENT xi:include (xi:fallback?) >
+<!ATTLIST xi:include
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude"
+    href       CDATA       #IMPLIED
+    parse      (xml|text)  "xml"
+    xpointer   CDATA       #IMPLIED
+    encoding   CDATA       #IMPLIED 
+    accept     CDATA       #IMPLIED
+    accept-language CDATA  #IMPLIED >
+
+<!ELEMENT xi:fallback ANY>
+<!ATTLIST xi:fallback
+    xmlns:xi   CDATA   #FIXED   "http://www.w3.org/2003/XInclude" >
+
+<!ATTLIST book
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude" >
+
+<!ENTITY % local.refentry.class "| xi:include">
+]>
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
+  <bookinfo>
+    <title>Buzztrax Bt-Core Reference Manual</title>
+    <releaseinfo>
+      for Buzztrax &BT_VERSION;.
+      The latest version of this documentation can be found on-line at
+      <ulink role="online-location" url="http://www.buzztrax.org/files/apidocs/bt-core/">http://www.buzztrax.org/files/apidocs/bt-core/</ulink>.
+    </releaseinfo>
+  </bookinfo>
+
+  <preface>
+    <title>Introduction</title>
+    <para>
+      Buzztrax aims to be a successor of the freeware music tracker called Buzz
+      with a focus on Linux. The development of Buzz for windows had been
+      discontinued as the author lost all his source-codes. Buzztrax is only
+      related to Buzz in the concepts, Buzztraxs source code is written from
+      scratch.
+    </para>
+    <para>
+      The homepage of the buzztrax project can be found at
+      <ulink url="http://www.buzztrax.org">www.buzztrax.org</ulink>.
+      It is a social site containing forums, a wiki and bug tracker and many
+      other resoures.
+    </para>
+  </preface>
+
+  <part label="I">
+    <title>Overview</title>
+    <chapter id="conventions">
+      <title>Conventions</title>
+      <para>
+        During the API docs some conventions are used to avoid duplication and
+        improve precision.
+        <orderedlist>
+          <listitem>
+            <para>
+              It is never valid to supply <symbol>NULL</symbol> for an object
+              reference, unless it is explicitly said so.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Methods do checking of preconditions using <function>g_return_if_fail()</function>
+              or <function>g_return_val_if_fail()</function>.
+              Therefore watch for the glib log messages indicating wrong API usage.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              All methods that return a pointer to an object, increase the reference counter.
+              Therefore you should do release this reference by calling <function>g_object_unref()</function>
+              when you are done with the object.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              When a return value is marked as <type>const</type> e.g. <type>const gchar *</type>
+              or <type>const BtObjectName *</type> then this is a static reference.
+              You must not call <function>g_free()</function> or <function>g_object_unref()</function>
+              on it.
+            </para>
+          </listitem>
+        </orderedlist>
+      </para>
+    </chapter>
+  </part>
+
+  <reference label="II" id="libbtcore">
+    <title>API Reference</title>
+    <partintro>
+      <abstract>
+        <para>
+          libbuzztrax-core is the main library for the buzztrax software system.
+          This library contains all classes needed for the components of a song
+          like machines, patterns, wires and so on.
+          It further defines bases classes for common operations such as
+          song input/output. The synthesis engine and the low-level parts of the
+          sequencer are built into <ulink url="http://gstreamer.freedesktop.org">GStreamer</ulink>.
+          Please make sure you have read section <link linkend="conventions">conventions</link>
+          before reading further.
+        </para>
+        <para>
+          All data structures are encapsulated in objects based on <link linkend="GObject">GObject</link>.
+          Central starting points are <link linkend="BtApplication">BtApplication</link> and <link linkend="BtSong">BtSong</link>.
+          All the objects that belong to a song have their song-instance as their member.
+          Likewise all objects that belong to the applications have their application instance as a member.
+        </para>
+      </abstract>
+    </partintro>
+
+    <chapter>
+      <title>Core Class Reference</title>
+      <xi:include href="xml/libbtcore.xml" />
+      <xi:include href="xml/btapplication.xml" />
+      <xi:include href="xml/btaudiosession.xml" />
+      <xi:include href="xml/btsettings.xml" />
+      <xi:include href="xml/btchildproxy.xml" />
+      <xi:include href="xml/btpersistence.xml" />
+    </chapter>
+    <chapter>
+      <title>Song Class Reference</title>
+      <xi:include href="xml/btcmdpattern.xml" />
+      <xi:include href="xml/btmachine.xml" />
+      <xi:include href="xml/btparametergroup.xml" />
+      <xi:include href="xml/btpattern.xml" />
+      <xi:include href="xml/btpatterncontrolsource.xml" />
+      <xi:include href="xml/btprocessormachine.xml" />
+      <xi:include href="xml/btsequence.xml" />
+      <xi:include href="xml/btsetup.xml" />
+      <xi:include href="xml/btsinkbin.xml" />
+      <xi:include href="xml/btsinkmachine.xml" />
+      <xi:include href="xml/btsong.xml" />
+      <xi:include href="xml/btsonginfo.xml" />
+      <xi:include href="xml/btsourcemachine.xml" />
+      <xi:include href="xml/btvaluegroup.xml" />
+      <xi:include href="xml/btwave.xml" />
+      <xi:include href="xml/btwavelevel.xml" />
+      <xi:include href="xml/btwavetable.xml" />
+      <xi:include href="xml/btwire.xml" />
+    </chapter>
+    <chapter>
+      <title>Song IO Reference</title>
+      <xi:include href="xml/btsongio.xml" />
+      <xi:include href="xml/btsongionative.xml" />
+      <xi:include href="xml/btsongionativebzt.xml" />
+      <xi:include href="xml/btsongionativexml.xml" />
+      <xi:include href="xml/btsongiobuzz.xml" />
+    </chapter>
+  </reference>
+
+  <part label="III">
+    <title>Appendix</title>
+
+    <chapter id="objecttree">
+      <title>Object Hierarchy</title>
+      <xi:include href="xml/tree_index.sgml" />
+    </chapter>
+
+    <index id="api-index">
+      <title>API Index</title>
+      <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+    </index>
+    <index id="api-index-deprecated" role="deprecated">
+      <title>Index of deprecated API</title>
+      <xi:include href="xml/api-index-deprecated.xml"><xi:fallback /></xi:include>
+    </index>
+    <index id="api-index-0-3" role="0.3">
+      <title>Index of new API in 0.3</title>
+      <xi:include href="xml/api-index-0.3.xml"><xi:fallback /></xi:include>
+    </index>
+    <index id="api-index-0-5" role="0.5">
+      <title>Index of new API in 0.5</title>
+      <xi:include href="xml/api-index-0.5.xml"><xi:fallback /></xi:include>
+    </index>
+    <index id="api-index-0-6" role="0.6">
+      <title>Index of new API in 0.6</title>
+      <xi:include href="xml/api-index-0.6.xml"><xi:fallback /></xi:include>
+    </index>
+    <index id="api-index-0-7" role="0.7">
+      <title>Index of new API in 0.7</title>
+      <xi:include href="xml/api-index-0.7.xml"><xi:fallback /></xi:include>
+    </index>
+
+    <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
+  </part>
+</book>

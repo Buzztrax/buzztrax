@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -112,7 +112,7 @@ test_bt_sequence_add_track2 (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   check_init_error_trapp ("", "BT_IS_SEQUENCE (self)");
 
   /* act */
@@ -155,7 +155,7 @@ test_bt_sequence_rem_track2 (BT_TEST_ARGS)
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
 
   /* act */
   bt_sequence_remove_track_by_machine (sequence, machine);
@@ -198,7 +198,7 @@ test_bt_sequence_pattern1 (BT_TEST_ARGS)
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   check_init_error_trapp ("bt_sequence_set_pattern",
@@ -223,9 +223,9 @@ test_bt_sequence_pattern2 (BT_TEST_ARGS)
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   BtMachine *machine1 = BT_MACHINE (bt_source_machine_new (song, "genm",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *machine2 = BT_MACHINE (bt_source_machine_new (song, "genp",
-          "buzztard-test-poly-source", 1L, NULL));
+          "buzztrax-test-poly-source", 1L, NULL));
   BtCmdPattern *pattern1 =
       (BtCmdPattern *) bt_pattern_new (song, "pattern-name", 8L, machine1);
   g_object_set (sequence, "length", 4L, NULL);

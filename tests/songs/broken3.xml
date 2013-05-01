@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<buzztard
-  xmlns="http://www.buzztard.org/"
+<buzztrax
+  xmlns="http://www.buzztrax.org/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
-  xsd:noNamespaceSchemaLocation="buzztard.xsd">
+  xsd:noNamespaceSchemaLocation="buzztrax.xsd">
 
   <meta>
     <info>this song misses external files</in

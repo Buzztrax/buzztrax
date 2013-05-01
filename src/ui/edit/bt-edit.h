@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -56,9 +56,9 @@
 //-- libbtcore & libbtic
 #include "core.h"
 #include "ic.h"
-//-- gstbuzztard
-#include <libgstbuzztard/musicenums.h>
-#include <libgstbuzztard/toneconversion.h>
+//-- gstbuzztrax
+#include <libgstbuzztrax/musicenums.h>
+#include <libgstbuzztrax/toneconversion.h>
 //-- glib
 #include <glib.h>
 #include <glib/gstdio.h>

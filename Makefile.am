@@ -20,7 +20,7 @@ AM_CPPFLAGS = \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)\" \
 	-DTESTSONGDIR=\"$(abs_top_srcdir)/tests/songs\" \
-	-DG_LOG_DOMAIN=\"buzztard\" \
+	-DG_LOG_DOMAIN=\"buzztrax\" \
 	-DG_SETTINGS_ENABLE_BACKEND \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
@@ -28,8 +28,8 @@ AM_CPPFLAGS = \
 AM_LDFLAGS = $(BT_LDFLAGS)
 
 EXTRA_DIST = \
-	org.buzztard.gschema.xml \
-	buzztard.convert \
+	org.buzztrax.gschema.xml \
+	buzztrax.convert \
 	intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in \
@@ -38,7 +38,7 @@ EXTRA_DIST = \
 	xmldocs.make \
 	TODO \
 	docs/version.entities.in \
-	docs/buzztard.xsd \
+	docs/buzztrax.xsd \
 	po/$(GETTEXT_PACKAGE).pot
 
 # BUILT_SOURCES is for generated source
@@ -61,14 +61,14 @@ include $(top_srcdir)/Makefile.tests.am
 # -- settings
 
 # gsettings_SCHEMAS is a list of all the schemas you want to install
-gsettings_SCHEMAS = org.buzztard.gschema.xml
+gsettings_SCHEMAS = org.buzztrax.gschema.xml
 
 # include the appropriate makefile rules for schema handling
 @GSETTINGS_RULES@
 
 # convert the gconf data to gsettings
 gconfconvertdir = $(datadir)/GConf/gsettings
-gconfconvert_DATA = buzztard.convert 
+gconfconvert_DATA = buzztrax.convert 
 
 #-- fake subdir rules
 
@@ -77,10 +77,10 @@ docs: docs-bt-core docs-bt-ic docs-bt-cmd docs-bt-edit
 docs/reference/version.entities:
 	@cp docs/version.entities docs/reference/
 
-docs-bt-core: libbuzztard-core.la docs/reference/version.entities
+docs-bt-core: libbuzztrax-core.la docs/reference/version.entities
 	@$(MAKE) -C docs/reference/bt-core
 
-docs-bt-ic: libbuzztard-ic.la docs/reference/version.entities
+docs-bt-ic: libbuzztrax-ic.la docs/reference/version.entities
 	@$(MAKE) -C docs/reference/bt-ic
 
 docs-bt-cmd: libbtcmd.la docs/reference/version.entities

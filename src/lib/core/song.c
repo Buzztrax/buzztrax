@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -1094,7 +1094,7 @@ bt_song_write_to_highlevel_dot_file (const BtSong * const self)
 
     // write header
     fprintf (out,
-        "digraph buzztard {\n"
+        "digraph buzztrax {\n"
         "  rankdir=LR;\n"
         "  fontname=\"sans\";\n"
         "  node [style=filled, shape=box, labelfontsize=\"8\", fontsize=\"8\", fontname=\"Arial\"];\n"
@@ -1246,13 +1246,13 @@ bt_song_persistence_save (const BtPersistence * const persistence,
 
   GST_DEBUG ("PERSISTENCE::song");
 
-  if ((node = xmlNewNode (NULL, XML_CHAR_PTR ("buzztard")))) {
+  if ((node = xmlNewNode (NULL, XML_CHAR_PTR ("buzztrax")))) {
     xmlNewProp (node, XML_CHAR_PTR ("xmlns"),
-        (const xmlChar *) "http://www.buzztard.org/");
+        (const xmlChar *) "http://www.buzztrax.org/");
     xmlNewProp (node, XML_CHAR_PTR ("xmlns:xsd"),
         XML_CHAR_PTR ("http://www.w3.org/2001/XMLSchema-instance"));
     xmlNewProp (node, XML_CHAR_PTR ("xsd:noNamespaceSchemaLocation"),
-        XML_CHAR_PTR ("buzztard.xsd"));
+        XML_CHAR_PTR ("buzztrax.xsd"));
 
     bt_persistence_save (BT_PERSISTENCE (self->priv->song_info), node);
     bt_persistence_save (BT_PERSISTENCE (self->priv->setup), node);

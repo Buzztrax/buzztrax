@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+_Name=Buzztrax Music Editor
+_Comment=Edit buzztrax song files
+TryExec=buzztrax-edit
+Exec=buzztrax-edit --command=load --input-file=%f
+Terminal=false
+Icon=buzztrax
+DocPath=buzztrax/buzztrax.xml
+StartupNotify=true
+Categories=GNOME;GTK;AudioVideo;Audio;Sequencer;
+MimeType=audio/x-bzt;audio/x-bzt-xml;

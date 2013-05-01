@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -58,7 +58,7 @@ test_bt_pattern_properties (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   /* act & assert */
@@ -94,7 +94,7 @@ test_bt_pattern_new_null_name (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   check_init_error_trapp ("bt_cmd_pattern_", "BT_IS_STRING (self->priv->name)");
 
   /* act */
@@ -115,7 +115,7 @@ test_bt_pattern_get_group_by_null_paramgroup (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
 
   /* act && assert */

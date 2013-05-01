@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -265,16 +265,16 @@ bt_ui_resources_init_icons (BtUIResources * self)
   gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &w, &h);
 
   /*
-     self->priv->source_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztard_menu_source_machine.png");
-     self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztard_menu_processor_machine.png");
-     self->priv->sink_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztard_menu_sink_machine.png");
+     self->priv->source_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztrax_menu_source_machine.png");
+     self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztrax_menu_processor_machine.png");
+     self->priv->sink_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztrax_menu_sink_machine.png");
    */
   self->priv->source_machine_pixbuf =
-      gdk_pixbuf_new_from_theme ("buzztard_menu_source_machine", w);
+      gdk_pixbuf_new_from_theme ("buzztrax_menu_source_machine", w);
   self->priv->processor_machine_pixbuf =
-      gdk_pixbuf_new_from_theme ("buzztard_menu_processor_machine", w);
+      gdk_pixbuf_new_from_theme ("buzztrax_menu_processor_machine", w);
   self->priv->sink_machine_pixbuf =
-      gdk_pixbuf_new_from_theme ("buzztard_menu_sink_machine", w);
+      gdk_pixbuf_new_from_theme ("buzztrax_menu_sink_machine", w);
 
   GST_INFO ("images created");
 }
@@ -318,23 +318,23 @@ bt_ui_resources_init_graphics (BtUIResources * self)
   //self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL] = bt_ui_resources_load_svg ("generator.svg");
 
   self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL] =
-      gdk_pixbuf_new_from_theme ("buzztard_generator", size);
+      gdk_pixbuf_new_from_theme ("buzztrax_generator", size);
   self->priv->source_machine_pixbufs[BT_MACHINE_STATE_MUTE] =
-      gdk_pixbuf_new_from_theme ("buzztard_generator_mute", size);
+      gdk_pixbuf_new_from_theme ("buzztrax_generator_mute", size);
   self->priv->source_machine_pixbufs[BT_MACHINE_STATE_SOLO] =
-      gdk_pixbuf_new_from_theme ("buzztard_generator_solo", size);
+      gdk_pixbuf_new_from_theme ("buzztrax_generator_solo", size);
 
   self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_NORMAL] =
-      gdk_pixbuf_new_from_theme ("buzztard_effect", size);
+      gdk_pixbuf_new_from_theme ("buzztrax_effect", size);
   self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_MUTE] =
-      gdk_pixbuf_new_from_theme ("buzztard_effect_mute", size);
+      gdk_pixbuf_new_from_theme ("buzztrax_effect_mute", size);
   self->priv->processor_machine_pixbufs[BT_MACHINE_STATE_BYPASS] =
-      gdk_pixbuf_new_from_theme ("buzztard_effect_bypass", size);
+      gdk_pixbuf_new_from_theme ("buzztrax_effect_bypass", size);
 
   self->priv->sink_machine_pixbufs[BT_MACHINE_STATE_NORMAL] =
-      gdk_pixbuf_new_from_theme ("buzztard_master", size);
+      gdk_pixbuf_new_from_theme ("buzztrax_master", size);
   self->priv->sink_machine_pixbufs[BT_MACHINE_STATE_MUTE] =
-      gdk_pixbuf_new_from_theme ("buzztard_master_mute", size);
+      gdk_pixbuf_new_from_theme ("buzztrax_master_mute", size);
 
   /* DEBUG
      gint w,h;

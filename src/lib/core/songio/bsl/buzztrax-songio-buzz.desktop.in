@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+_Name=Buzztrax Music Editor
+NoDisplay=true
+TryExec=bt-edit
+Exec=buzztrax-edit --command=load --input-file=%f
+Terminal=false
+MimeType=audio/x-bmw;audio/x-bmx;

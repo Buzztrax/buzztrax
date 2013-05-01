@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,14 +16,14 @@
  */
 /**
  * SECTION:btcmd
- * @short_description: buzztard commandline tool
+ * @short_description: buzztrax commandline tool
  * @see_also: #BtCmdApplication
  *
- * Implements the body of the buzztard commandline tool.
+ * Implements the body of the buzztrax commandline tool.
  *
  * You can try to run the uninstalled program via
  * <informalexample><programlisting>
- *  libtool --mode=execute buzztard-cmd --command=info --input-file=&lt;filename&gt;
+ *  libtool --mode=execute buzztrax-cmd --command=info --input-file=&lt;filename&gt;
  * </programlisting></informalexample>
  * to enable debug output add:
  * <informalexample><programlisting>
@@ -100,8 +100,8 @@ main (gint argc, gchar ** argv)
   ctx = g_option_context_new (NULL);
   //g_option_context_add_main_entries(ctx, options, GETTEXT_PACKAGE);
   group =
-      g_option_group_new ("main", _("buzztard-cmd options"),
-      _("Show buzztard-cmd options"), argv[0], NULL);
+      g_option_group_new ("main", _("buzztrax-cmd options"),
+      _("Show buzztrax-cmd options"), argv[0], NULL);
   g_option_group_add_entries (group, options);
   g_option_group_set_translation_domain (group, GETTEXT_PACKAGE);
   g_option_context_set_main_group (ctx, group);
@@ -132,8 +132,8 @@ main (gint argc, gchar ** argv)
       input_file_name, output_file_name);
 
   // give some global context info
-  g_set_application_name ("Buzztard");
-  g_setenv ("PULSE_PROP_application.icon_name", "buzztard", TRUE);
+  g_set_application_name ("Buzztrax");
+  g_setenv ("PULSE_PROP_application.icon_name", "buzztrax", TRUE);
   g_setenv ("PULSE_PROP_media.role", "production", TRUE);
 
   app = bt_cmd_application_new (arg_quiet);

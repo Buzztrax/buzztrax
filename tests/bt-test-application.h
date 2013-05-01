@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2010 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2010 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -36,7 +36,7 @@ typedef struct _BtTestApplicationClass BtTestApplicationClass;
 /**
  * BtTestApplication:
  *
- * gconf based implementation object for a buzztard based settings
+ * gconf based implementation object for a buzztrax based settings
  */
 struct _BtTestApplication {
   const BtApplication parent;

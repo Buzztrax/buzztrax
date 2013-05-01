@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,7 +16,7 @@
  */
 /**
  * SECTION:btmainwindow
- * @short_description: root buzztard editor window
+ * @short_description: root buzztrax editor window
  *
  * The main window class is a container for the #BtMainMenu, the #BtMainToolbar,
  * the #BtMainStatusbar and the #BtMainPages tabbed notebook.
@@ -238,9 +238,9 @@ on_song_unsaved_changed (const GObject * object, GParamSpec * arg,
     return;
 
   bt_child_proxy_get (song, "song-info::name", &name, NULL);
-  // we don't use PACKAGE_NAME = 'buzztard' for the window title
+  // we don't use PACKAGE_NAME = 'buzztrax' for the window title
   title =
-      g_strdup_printf ("%s (%s) - Buzztard", name,
+      g_strdup_printf ("%s (%s) - Buzztrax", name,
       (unsaved ? _("unsaved") : _("saved")));
   g_free (name);
   gtk_window_set_title (GTK_WINDOW (self), title);
@@ -362,10 +362,10 @@ bt_main_window_init_ui (const BtMainWindow * self)
   BtChangeLog *change_log;
 
   gtk_widget_set_name (GTK_WIDGET (self), "main window");
-  gtk_window_set_role (GTK_WINDOW (self), "buzztard-edit::main");
+  gtk_window_set_role (GTK_WINDOW (self), "buzztrax-edit::main");
 
   // create and set window icon
-  if ((window_icon = gdk_pixbuf_new_from_theme ("buzztard", 16))) {
+  if ((window_icon = gdk_pixbuf_new_from_theme ("buzztrax", 16))) {
     gtk_window_set_icon (GTK_WINDOW (self), window_icon);
     g_object_unref (window_icon);
   }

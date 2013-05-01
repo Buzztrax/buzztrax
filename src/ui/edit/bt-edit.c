@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,14 +16,14 @@
  */
 /**
  * SECTION:btedit
- * @short_description: buzztard graphical editor application
+ * @short_description: buzztrax graphical editor application
  * @see_also: #BtEditApplication
  *
- * Implements the body of the buzztard GUI editor.
+ * Implements the body of the buzztrax GUI editor.
  * 
  * You can try to run the uninstalled program via
  * <informalexample><programlisting>
- *   libtool --mode=execute buzztard-edit
+ *   libtool --mode=execute buzztrax-edit
  * </programlisting></informalexample>
  * to enable debug output add:
  * <informalexample><programlisting>
@@ -112,8 +112,8 @@ main (gint argc, gchar ** argv)
   ctx = g_option_context_new (NULL);
   //g_option_context_add_main_entries (ctx, options, GETTEXT_PACKAGE);
   group =
-      g_option_group_new ("main", _("buzztard-edit options"),
-      _("Show buzztard-edit options"), argv[0], NULL);
+      g_option_group_new ("main", _("buzztrax-edit options"),
+      _("Show buzztrax-edit options"), argv[0], NULL);
   g_option_group_add_entries (group, options);
   g_option_group_set_translation_domain (group, GETTEXT_PACKAGE);
   g_option_context_set_main_group (ctx, group);
@@ -141,8 +141,8 @@ main (gint argc, gchar ** argv)
       G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S);
 
   // give some global context info
-  g_set_application_name ("Buzztard");
-  gtk_window_set_default_icon_name ("buzztard");
+  g_set_application_name ("Buzztrax");
+  gtk_window_set_default_icon_name ("buzztrax");
   g_setenv ("PULSE_PROP_media.role", "production", TRUE);
 
   extern gboolean bt_memory_audio_src_plugin_init (GstPlugin * const plugin);
@@ -151,7 +151,7 @@ main (gint argc, gchar ** argv)
       "memoryaudiosrc",
       "Plays audio from memory",
       bt_memory_audio_src_plugin_init,
-      VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
+      VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztrax.org");
 
   GST_INFO ("starting: thread=%p", g_thread_self ());
 

@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2010 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2010 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,16 +16,16 @@
  */
 
 /*
- * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! bt-bin ! fakesink
- * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! buzztard-dec ! fakesink
- * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztard/share/buzztard/songs/303.bzt
- * GST_DEBUG="*:2,play*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztard/share/buzztard/songs/303.bzt
- * ~/projects/gstreamer/gst-plugins-base/tests/examples/seek/.libs/seek 16 file:///home/ensonic/buzztard/share/buzztard/songs/lac2010_01a.bzt
+ * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztrax/share/buzztrax/songs/303.bzt ! bt-bin ! fakesink
+ * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztrax/share/buzztrax/songs/303.bzt ! typefind ! buzztrax-dec ! fakesink
+ * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztrax/share/buzztrax/songs/303.bzt
+ * GST_DEBUG="*:2,play*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztrax/share/buzztrax/songs/303.bzt
+ * ~/projects/gstreamer/gst-plugins-base/tests/examples/seek/.libs/seek 16 file:///home/ensonic/buzztrax/share/buzztrax/songs/lac2010_01a.bzt
  *
- * GST_DEBUG="*:3,bt*:4,*type*:4" gst-launch-0.10 -v -m filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! fakesink
- * GST_DEBUG="*:2,bt*:4,*type*:5,default:5" gst-launch-0.10 filesrc location=$HOME/buzztard/share/buzztard/songs/303.bzt ! typefind ! fakesink
+ * GST_DEBUG="*:3,bt*:4,*type*:4" gst-launch-0.10 -v -m filesrc location=$HOME/buzztrax/share/buzztrax/songs/303.bzt ! typefind ! fakesink
+ * GST_DEBUG="*:2,bt*:4,*type*:5,default:5" gst-launch-0.10 filesrc location=$HOME/buzztrax/share/buzztrax/songs/303.bzt ! typefind ! fakesink
  *
- * gst-typefind $HOME/buzztard/share/buzztard/songs/303.bzt
+ * gst-typefind $HOME/buzztrax/share/buzztrax/songs/303.bzt
  */
 
 /* description:
@@ -57,7 +57,7 @@ static GstStaticPadTemplate bt_dec_sink_template =
 GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("audio/x-buzztard")
+    GST_STATIC_CAPS ("audio/x-buzztrax")
     );
 
 static GstStaticPadTemplate bt_dec_src_template =
@@ -315,7 +315,7 @@ bt_dec_load_song (BtDec * self)
   BtSongIO *loader = NULL;
   GstCaps *caps;
   GstStructure *s;
-  const gchar *media_type = "audio/x-buzztard";
+  const gchar *media_type = "audio/x-buzztrax";
   guint len;
   gpointer data;
 
@@ -329,7 +329,7 @@ bt_dec_load_song (BtDec * self)
     media_type = gst_structure_get_string (s, "format");
     gst_caps_unref (caps);
   }
-  GST_INFO_OBJECT (self, "about to load buzztard song in %s format",
+  GST_INFO_OBJECT (self, "about to load buzztrax song in %s format",
       media_type);
 
   /* create song-loader */
@@ -675,7 +675,7 @@ bt_dec_class_init (BtDecClass * klass)
   gst_element_class_set_static_metadata (gstelement_class,
       "BtDec",
       "Codec/Decoder/Audio",
-      "Buzztard song player", "Stefan Kost <ensonic@users.sf.net>");
+      "Buzztrax song player", "Stefan Kost <ensonic@users.sf.net>");
 }
 
 static void
@@ -752,7 +752,7 @@ bt_dec_type_find (GstTypeFind * tf, gpointer ignore)
     GST_INFO ("Found a match");
     // just suggest one static type, we can internally differentiate between the
     // different formats we do support
-    gst_type_find_suggest_simple (tf, GST_TYPE_FIND_LIKELY, "audio/x-buzztard",
+    gst_type_find_suggest_simple (tf, GST_TYPE_FIND_LIKELY, "audio/x-buzztrax",
         "format", G_TYPE_STRING, mimetype, NULL);
   } else {
     GST_INFO ("No match!");
@@ -769,14 +769,14 @@ plugin_init (GstPlugin * plugin)
   guint j;
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-dec",
-      GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "buzztard song renderer");
+      GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "buzztrax song renderer");
 
   if (!bt_init_check (NULL, NULL, NULL)) {
-    GST_WARNING ("failed to init buzztard library");
+    GST_WARNING ("failed to init buzztrax library");
     return FALSE;
   }
   if (!btic_init_check (NULL, NULL, NULL)) {
-    GST_WARNING ("failed to init buzztard interaction controller library");
+    GST_WARNING ("failed to init buzztrax interaction controller library");
     return FALSE;
   }
 
@@ -798,16 +798,16 @@ plugin_init (GstPlugin * plugin)
     }
   }
 
-  gst_type_find_register (plugin, "audio/x-buzztard", GST_RANK_SECONDARY,
+  gst_type_find_register (plugin, "audio/x-buzztrax", GST_RANK_SECONDARY,
       bt_dec_type_find, exts, GST_CAPS_ANY, NULL, NULL);
   g_free (exts);
 
-  return gst_element_register (plugin, "buzztard-dec", GST_RANK_MARGINAL,
+  return gst_element_register (plugin, "buzztrax-dec", GST_RANK_MARGINAL,
       BT_TYPE_DEC);
 }
 
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
-    buzztard - dec,
-    "Buzztard song renderer",
-    plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztard.org");
+    buzztrax - dec,
+    "Buzztrax song renderer",
+    plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztrax.org");

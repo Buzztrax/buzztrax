@@ -11,7 +11,7 @@ insert-header.sin
 *.gmo
 @GETTEXT_PACKAGE@.pot
 notexist
-buzztard.pot
+buzztrax.pot
 boldquot.sed
 Rules-quot
 POTFILES

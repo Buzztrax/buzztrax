@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2007 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -40,7 +40,7 @@ typedef struct _BtIcAbsRangeControlPrivate BtIcAbsRangeControlPrivate;
 /**
  * BtIcAbsRangeControl:
  *
- * buzztards interaction controller single trigger control
+ * buzztraxs interaction controller single trigger control
  */
 struct _BtIcAbsRangeControl {
   const BtIcControl parent;

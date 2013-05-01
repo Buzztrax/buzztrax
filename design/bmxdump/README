@@ -17,7 +17,7 @@ Also note that there is a perl script somewhere at sourceforge
 that reads bmxfiles as well. It is far more complete than my
 code, but it cannot handle compressed audio data either.
 
-I hand this code on to the buzztard project (http://buzztard.org)
+I hand this code on to the buzztrax project (http://buzztrax.org)
 in good will. I hope you guys manage to crack this fscking compression!
 
 This code is licensed under the GPL. See the file COPYING for details.

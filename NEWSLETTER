@@ -1,15 +1,56 @@
 svn diff -r "{2013-01-01}:{2013-01-31}" | diffstat
 git diff --shortstat @{2013-01-01} @{2013-01-31}
 
+2013/05 ========================================================================
+
+* no gsoc :/
+* cleanup signal handler usage, make use of g_signal_handlers_disconnect_by_*
+  macros
+* use sync-message for analyzers to avoid extra thread marshalling
+* gtk vu-meter code cleanups
+* toc support for rendering files (works with wav and flac for now)
+* flac.ogg fixed upstream, related tests enabled again
+
 2013/04 ========================================================================
 
-Fix a few bug in the 1.0 port.
-- multitrack encoding works again
-- dynamically adding/removing analyzers works
+This month I mostly cleaned up small bits and pieces from the gstreamer-1.0
+port. Most notably multitrack encoding works again. The handling of EOS and
+starting of the next track was racy. Speaking of the recording dialog - this one
+now has some basics for a silent mode implemented. For now it only disables the
+scrolling in the sequence view. Next thing would be to disable the level meters.
+
+I hacked a bit more on the child-proxy iface. This now turned into utility
+functions that allows to write:
+  bt_child_proxy_set(obj, "prop1::prop2::prop3", val, NULL);
+So what does this do?
+  GObject obj1, obj2;
+  g_object_get(obj, "prop1", &obj1, NULL);
+  g_object_get(obj1, "prop2", &obj2, NULL);
+  g_object_set(obj2, "prop3", val, NULL);
+  g_object_unref (obj2);
+  g_object_unref (obj1);
+This saved quite a few lines of C in buzztrax. I wonder if this is something we
+want to add to glib? If we do I would go for a single ':' as a separator and we
+might also want to consider starting the property with one:
+  g_object_set(obj, ":prop1:prop2:prop3", val, NULL);
+The leading ':' would help to quickly detect whether we need to split the
+property name and recurse into child objects. The whole scheme is backwards
+compatible as property names are not allowed to contain ':'.
+
+In the end of march I attended the GStreamer hackfest in Milano. First I looked
+into a few tests - both on GStreamer and buzztrax side. On the GStreamer side
+adder has some test fixes. On the buzztrax side I improved my encoding tests.
+Wim gave me the crucial tip that fixed the dynamic adding/removing of analyzers
+while playing. Maybe I can try that for machines again. I showed the parser for
+controller-setups to some people and did smaller changes on it. I also discussed
+what we could do with gst-tracelib for gst-1.0 and started a new design-draft
+for it.
+
+41 files changed, 871 insertions(+), 816 deletions(-)
 
 2013/03 ========================================================================
 
-As I already mentioned in last months issue, I ported buzztard and gst-buzztard
+As I already mentioned in last months issue, I ported buzztrax and gst-buzztrax
 to use gstreamer-1.0. It will require 1.1.X for some fixes in gstreamer itself.
 So how id it went. The basic porting to make it compile against 1.0 took about
 20 hours spread over a couple of days. It is quite straight forward. I updated
@@ -26,7 +67,7 @@ anyway and by leaving it out, you can merge the mono and stereo caps.
 
 I ported freeverb in plugins-bad and made fixed to audiopanorama and adder.
 Adder and collectpads have a few more new tests upstream. Another things that
-took a while was getting seek-in-ready to work again. Buzztard needs to
+took a while was getting seek-in-ready to work again. Buzztrax needs to
 configure the playback segment from the application, as the sources happy beep
 for all eternity. In 0.10 I could send a seek to my bin in ready, in 1.0 it gets
 dropped (pads are flushing). Now I recursively iterate over sources and seek on
@@ -37,9 +78,9 @@ unported.
 Now the basics seem to work. I am confident that I can fix the remaining issues
 in march and look forward to attend the hackfest in Milano over easter [2]. 
 
-The porting for buzztard:
+The porting for buzztrax:
 69 files changed, 1909 insertions(+), 1473 deletions(-)
-The porting for gst-buzztard:
+The porting for gst-buzztrax:
 34 files changed, 1254 insertions(+), 1414 deletions(-)
 
 The other thing I was doing this month was to experiment with embeddable
@@ -61,7 +102,7 @@ We started the year with a release in the beginning of January. So far only a fe
 issues were reported. Patches for these are on the 0.7.1 branch. One last minute
 change in 0.7 was the departure from trying to link/unlink elements in gstreamer
 while playing. I sadly have to conclude that in 0.10 this only works for some cases.
-It was working sort of okayish for buzztard, but the were still deadlocks or internal
+It was working sort of okayish for buzztrax, but the were still deadlocks or internal
 dataflow errors from time to time. One such scenario is that when you happen to
 reconnect elements while the song loops. These things are not easy to sync from the
 application level. Lets hope this is easier in 1.0. The sticky events should help
@@ -74,7 +115,7 @@ now removed. Altogether I kept to use an intermediate object that exposes settin
 as a gobject with properties for the keys. This allows to use notify to bind to
 property changes instead of using a custom api.
 
-Then I started with porting gst-buzztard & buzztard to gstreamer-1.0. I made good
+Then I started with porting gst-buzztrax & buzztrax to gstreamer-1.0. I made good
 progress. I will report the details in the next update.
 
 77 files changed, 5892 insertions(+), 8131 deletions(-)
@@ -121,7 +162,7 @@ mouse editing.
 I did a round of code cleanups. The ugly workaround for the type punning
 warnings is gone, as they don't occur anymore.
 
-I also added a new element to gst-buzztard called 'wavetabsyn'. It uses the
+I also added a new element to gst-buzztrax called 'wavetabsyn'. It uses the
 wavetable oscillator component to loop a tiny grain and one can use the offset
 parameter to set the position in the sample where the grain is taken from. The
 osc component can now do trivial resampling, so that one can play melodies. The
@@ -131,7 +172,7 @@ The rest of the month was preparations for the next release: autofoo
 modernisation, test cleanups, api-doc updates and so on. The tests now write
 individual logs for each test. That makes looking at the logs of a failing test
 much easier. I also silenced the remaining tests that where beeping during
-'make check'. Finally I spend more time actually using buzztard [1]. Found and
+'make check'. Finally I spend more time actually using buzztrax [1]. Found and
 fixed a few more bugs and usability quirks.
 
 [1] https://soundcloud.com/ensonic-1/devin
@@ -149,8 +190,8 @@ implement control discovery the dialog from the context menu will also bind the
 new controller. The settings are now finally useful, as there one can do
 mass-learning (tweak all knows and then go through the list and name them).
 
-Writing synth plugins for buzztard would be quite a bit of copy and paste. I
-chopped simsyn into pieces as reusable objects in libgst-buzztard. We have a few
+Writing synth plugins for buzztrax would be quite a bit of copy and paste. I
+chopped simsyn into pieces as reusable objects in libgst-buzztrax. We have a few
 oscillators, envelope objects and the svf-filter. The gst elements would proxy
 some properties of the synth component. Unfortunately that means copy'n'paste of
 the property setup. I've tried this code, but it shows no effect :/  
@@ -187,7 +228,7 @@ song-info. This was quite a big of code shuffling, but now all the timing info
 is in song-info (which already has bpm an stuff). This change helped with an
 optimization in the pattern control-sources.
 
-[1] http://buzztard.git.sourceforge.net/git/gitweb.cgi?p=buzztard/buzztard;a=blob;f=design/gobject/propertyproxy.c
+[1] http://buzztrax.git.sourceforge.net/git/gitweb.cgi?p=buzztrax/buzztrax;a=blob;f=design/gobject/propertyproxy.c
 
 132 files changed, 2417 insertions(+), 2138 deletions(-)
 
@@ -226,7 +267,7 @@ controls to the settings.
 
 I worked a bit on preset handling in gstreamer. Now machines with variable
 number of parameters with save their properties correctly. One example is the
-parametric equalizer. I needed this for sidsyn in buzztard too. I also updated
+parametric equalizer. I needed this for sidsyn in buzztrax too. I also updated
 the preset handling for buzzmachines. They now store presets in user-data-dir.
 This avoids that those get overwritten when the plugins get updated. The preset
 handling logic will read user-presets first and then merge in system wide
@@ -235,7 +276,7 @@ whether it comes from a preset file in user-data-dir (and thus is writable) or
 comes from a system dir (and thus is read-only). This would allow the UI to
 require that users pick a new uniqe name when changing a system preset.
 
-Songs in buzztard now also store their non-dynamic settings. This will fix
+Songs in buzztrax now also store their non-dynamic settings. This will fix
 fluidsynth forgetting the selected patch file and is also needed for e.g.
 setting the chip-type in sidsyn. I refactored the code a bit and now we don't
 show empty properties dialogs anymore and instead gray out the menu item that
@@ -296,20 +337,20 @@ effects. The normal timing resolution of a tracker song is not too high and thus
 one needs support from the element to provide things like arpeggio, portamento
 and vibrato.
 
-The sidsyn is the first more complex audio synth we have in buzztard. It is also
-the first one that uses more of the gst-buzztard API. This was a good
+The sidsyn is the first more complex audio synth we have in buzztrax. It is also
+the first one that uses more of the gst-buzztrax API. This was a good
 opportunity to review and cleanup the APIs a bit. With those cleanups I also
 killed the help interface, as new enough gstreamer has the required feature on
 the element metadata side and the feature is not crucial any way.
 
 This month I skip the git stats, as I took the indent git commit hook into use
-and reformatted the buzztard code base. Voilà: buzztard - now with whitespace!
+and reformatted the buzztrax code base. Voilà: buzztrax - now with whitespace!
 
 2012/07 ========================================================================
 
 I did more test cleanups and finally the libs are done. I am going to increase
 the coverage more, but it is quite good already. We're having more than 200 test
-for libbuzztard-core now. That helps making changes.
+for libbuzztrax-core now. That helps making changes.
 
 One aspect of writing tests is also to check the API for testability. While
 working on the wire tests I noticed that we had a disabled test to check for
@@ -330,12 +371,12 @@ test. From within the test you can access '_i' to fetch the parameter set. If
 the tests run via CK_FORK=yes (which is the default), each loop runs in a new
 process.
 
-I gave a talk at work about electronic music and used buzztard to demo a few
+I gave a talk at work about electronic music and used buzztrax to demo a few
 things. While preparing the demos, I naturally found quite a few bugs. This
 time I also wrote more tests for these things.
 
 The other big change in the repo is the migration to non-recursive make. I
-started on the buzztard module. The first step was to still recurse into docs,
+started on the buzztrax module. The first step was to still recurse into docs,
 po, src and tests. That gave some nice speedup already. Then I rebased also src
 and test to the project root and used includes to keep the Makefile
 maintainable. This unfortunately made things  little slower as I have to do:
@@ -369,7 +410,7 @@ Now it writing a audio synth is a lot less code.
 
 169 files changed, 7236 insertions(+), 6459 deletions(-)
 
-[1] http://buzztard.org/wp-content/uploads/buildbench.png
+[1] http://buzztrax.org/wp-content/uploads/buildbench.png
 [2] http://cgit.freedesktop.org/pulseaudio/pulseaudio/tree/src/Makefile.am
 
 2012/06 ========================================================================
@@ -384,14 +425,14 @@ In the same vein, I could also refactor main-page-patterns with quite a nice
 code removal mount (~400 lines).
 
 While reading "The Art of Unit Testing" [1] I decided to start cleaning up the
-test suite in buzztard. The changes so far result in tests that are more
+test suite in buzztrax. The changes so far result in tests that are more
 focused, less brittle and a lot smaller. I am writing down some of the tips on
 the wiki [2].
 
 36 files changed, 2085 insertions(+), 2517 deletions(-)
 
 [1] http://www.amazon.com/The-Art-Unit-Testing-Examples/dp/1933988274/ref=sr_1_1?s=books&ie=UTF8&qid=1338748288&sr=1-1
-[2] http://wiki.buzztard.org/index.php/Testing
+[2] http://wiki.buzztrax.org/index.php/Testing
 
 2012/05 ========================================================================
 
@@ -447,7 +488,7 @@ http://download.opensuse.org/distribution/12.1/repo/oss/suse/i586/
 Anyone know better tricks? Please share them!
 
 One more motivation for doing this is upcomming gsoc. If I am lucky to get a
-student who will port buzztard to gstreamer 1.0. We'll release a 0.7 of buzztard
+student who will port buzztrax to gstreamer 1.0. We'll release a 0.7 of buzztrax
 before we switch to the new gstreamer api.
 
 212 files changed, 7954 insertions(+), 7778 deletions(-)
@@ -468,13 +509,13 @@ effect-chain the larger becomes the delay. Don't misunderstand this, GStreamer
 is properly handling A/V sync. The buffers that get mixed in front of the sink
 have the same time stamps, the problem is that we have a lot more buffers
 traveling the the effect-branch. This is because of the queue elements. In
-buzztard one can freely link generators to effects, effects to effects and
+buzztrax one can freely link generators to effects, effects to effects and
 effects to sinks. This includes diamond shaped connections. Here we need queues
 to not stall processing on one branch. It is sufficient for the queues to keep
 only 1 buffer. Still even knowing the buffer duration, I could not tell a
 formula to explain the measured delays.
 This month I looked at the issue with a new idea. I wrote a small example [2]
-that build pipelines close to what I have in buzztard, but stripped of many
+that build pipelines close to what I have in buzztrax, but stripped of many
 details. In this code I add buffer probed to all pads. The probe is comparing
 the time-stamp on the buffer to the pipeline clock. This tells how early the
 buffer is. Ideally we want buffers to be generated and processed as much in
@@ -489,7 +530,7 @@ improve that a bit is to half the buffer sizes on the sources, then the 2nd
 buffer is calculated when the first one is needed. As the first one won't be
 sufficient to fill the gap, the calculation of the 2nd buffer is scheduled right
 away. The disadvantage of this scheme is that one gets quite jittery latencies.
-In the end I settled on finishing the subtick timing in buzztard. Each tick will
+In the end I settled on finishing the subtick timing in buzztrax. Each tick will
 have n subticks, where n is setup so that we get down to the desired latency.
 So far I get nice low latency on all my machines (inlcuding a atom based
 netbook).
@@ -502,9 +543,9 @@ In the UI I got rid of the GtkRuler copy again. The analyzer window now has own
 code to draw the rulers. I think they look nice, a lot less noisy then the older
 rulers [3].
 
-[1] http://files.buzztard.org/latencies/
-[2] http://buzztard.git.sourceforge.net/git/gitweb.cgi?p=buzztard/buzztard;a=blob;f=design/gst/latency.c;hb=HEAD
-[3] http://wiki.buzztard.org/images/e/e8/Bt-edit-0.7.0-01.png
+[1] http://files.buzztrax.org/latencies/
+[2] http://buzztrax.git.sourceforge.net/git/gitweb.cgi?p=buzztrax/buzztrax;a=blob;f=design/gst/latency.c;hb=HEAD
+[3] http://wiki.buzztrax.org/images/e/e8/Bt-edit-0.7.0-01.png
 
 62 files changed, 1957 insertions(+), 1844 deletions(-)
  
@@ -519,8 +560,8 @@ work. A few times gitk got confused and I had to remove my .git/gitk.cache, one
 symptom are missing tags. I updated the enlistments on ohloh and tweaked the git
 hooks to have the same functionality as before.
 
-A first code wise change was to move the bsl module into the buzztard one. It is
-a small module for the buzztard song-loader plugin and it is not needed if you
+A first code wise change was to move the bsl module into the buzztrax one. It is
+a small module for the buzztrax song-loader plugin and it is not needed if you
 don't want to load buzz songs. But it is small and has no further dependencies
 and thus it is easier to just include it. Especially as we plan to add other 
 loaders in the coming cycle(s).
@@ -544,7 +585,7 @@ The other bigger change is that we now have persistent audio sessions (right now
 only enabled for jack). We're basically keep the sink alive across songs and
 also keep it in a resource allocated state. This gives a little speedup on the
 playback startup, but the main motivation was to allow to configure linkage of
-buzztard with other jack client in qjackcontrol. This is also an enabler for
+buzztrax with other jack client in qjackcontrol. This is also an enabler for
 transport sync support. I have landed initial support for this in gstreamer-git.
 
 There were also a few smaller changes for user feedback on docs and new tips.
@@ -557,7 +598,7 @@ The design folder got more experiments.
 
 2012/01 ========================================================================
 
-Finally after a long time, I managed to release a 0.6 of buzztard. So far only
+Finally after a long time, I managed to release a 0.6 of buzztrax. So far only
 one regression was found and bml-0.6.1 was released to fix it.
 
 A few things happened before the release still. At first after updating my
@@ -589,7 +630,7 @@ tonematrix [1]. It is 497 lines of c, including comments, a GTK ui with an own
 widget and the whole GStreamer handling. The toy supports different sounds,
 different speeds and different scales.
 
-Buzztard allows live control of audio elements. Right now can use midi and hid
+Buzztrax allows live control of audio elements. Right now can use midi and hid
 devices. The software that exposes the wiimote as a hid device uses uinput. This
 is a kernel device with a simple api that allows user-space apps to create hid
 devices. I wrote a small toy (280 lines of c) that can use different GStreamer
@@ -605,14 +646,14 @@ obviously is to make grimaces and control sound with that. A very expressive
 performance :)
 
 I also spend a lot of time to track down issues with dynamic linking. A few more
-fixes are done on buzztard side and GStreamer side. I think on the buzztard side
+fixes are done on buzztrax side and GStreamer side. I think on the buzztrax side
 things are good for a release. Everything is reviewed (docs, demo-songs, ...)
 and make distcheck passes :)
 
 57 files changed, 4323 insertions(+), 374 deletions(-)
 
-[1] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/design/gst/tonematrix.c?revision=3655&view=markup
-[2] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/design/input/gstinput.c?revision=3655&view=markup
+[1] http://buzztrax.svn.sourceforge.net/viewvc/buzztrax/trunk/buzztrax/design/gst/tonematrix.c?revision=3655&view=markup
+[2] http://buzztrax.svn.sourceforge.net/viewvc/buzztrax/trunk/buzztrax/design/input/gstinput.c?revision=3655&view=markup
 
 2011/10 ========================================================================
 
@@ -649,15 +690,15 @@ systems. How to use them? Just download and run them - they don't install
 anything. The only downside I can see so far is, that the glick bundle would use
 the same settings as the properly installed one, which could be harmful if
 different versions are run. Also the path to the example songs in the bundle is
-somewhat cryptic - /proc/self/fd/1023/share/buzztard/songs :/. Having better
+somewhat cryptic - /proc/self/fd/1023/share/buzztrax/songs :/. Having better
 desktop integration of such bundles would be great too, but less see how glick
 evolves.
 
 50 files changed, 836 insertions(+), 373 deletions(-)
 
 [1] http://people.gnome.org/~alexl/glick/
-[2] http://www.hora-obscura.de/~ensonic/buzztard.x86_32.glick
-[3] http://www.hora-obscura.de/~ensonic/buzztard.x86_64.glick
+[2] http://www.hora-obscura.de/~ensonic/buzztrax.x86_32.glick
+[3] http://www.hora-obscura.de/~ensonic/buzztrax.x86_64.glick
 
 2011/09 ========================================================================
 
@@ -708,13 +749,13 @@ During my july trip to mountain view I brought two cheap midi controlers -
 korg nanokontrol [2] and nanokeys 2 [3]. The nanokeys2 is not so nice, but the
 nanokontrol seems to be okay. Unfortunately I didn't notice is is the old model,
 the nanokontrol 2 [4] has more keys. I have played quite a bit with the nanokontrol
-in buzztard. Found and fixed a few bugs. One thing I definitely needed to do is
+in buzztrax. Found and fixed a few bugs. One thing I definitely needed to do is
 to store the keys one has trained. Thanks to my long train journeys between
 munich and leipzig these days, that got implemented. For the nanokeys I need to
 still do a couple of things and those will have to wait for the next version.
 
 As I was blocked on the undo/redo I did more small mini-songs. As usual found a
-couple of bugs. Buzztard stores timestamps in the song (like when it was created
+couple of bugs. Buzztrax stores timestamps in the song (like when it was created
 and when it was saved the last time). When closing a song with changes it warns
 you about loosing the changes for the last n hours/minutes. Thas was completely
 off if one loads a song and makes some changes. I need to set the last-saved to
@@ -763,7 +804,7 @@ keyboard accelerators.
 
 OmniMancer on irc gave me some good first perspective usage experience. I added
 a blacklist filter to hide gstreamer elements from the menu that are known
-to be not useful for buzztard (e.g. dtmfsrc). Also some machines used GTypes not
+to be not useful for buzztrax (e.g. dtmfsrc). Also some machines used GTypes not
 yet supported by the UI - this is now fixed. With that came some fixes in
 pattern editing (blending parameters wasn't working in all cases). I also added
 a flip operation to the patterns. Also to make a few things easier for new users
@@ -837,13 +878,13 @@ nice logical sorting. One more model to implement and switch to.
 
 72 files changed, 6268 insertions(+), 1250 deletions(-)
 
-[1] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/src/ui/edit/object-list-model.c?revision=3350&view=markup
+[1] http://buzztrax.svn.sourceforge.net/viewvc/buzztrax/trunk/buzztrax/src/ui/edit/object-list-model.c?revision=3350&view=markup
 [2] http://pvanhoof.be/blog/index.php/2009/08/17/treemodel-zero-a-taste-of-life-as-it-should-be
 
 2011/04 ========================================================================
 
 I have been refactoring GStreamer's spectrum analyzer. It is now working faster
-and also allows to get per-channel results. For testing I updated buzztard to
+and also allows to get per-channel results. For testing I updated buzztrax to
 check if one has the new version and if so show per channel graphs. While
 hacking on the analyzer graphs I have also refactored the code, so that now it
 is possible to probe the final output as well.
@@ -856,7 +897,7 @@ track down. Eventually I found it and now all tests are green.
 
 2011/03 ========================================================================
 
-I was testing buzztard a lot on my MeeGo netbook this month. As screen space is
+I was testing buzztrax a lot on my MeeGo netbook this month. As screen space is
 more precious on netbooks I was running it often in fullscreen mode and noticed
 that some windows seem to not open. When leaving full screen the windows
 appeared. Somehow they opened behind the main window. I looked over all child
@@ -894,7 +935,7 @@ would be great. [1]
 
 65 files changed, 3160 insertions(+), 1085 deletions(-)
 
-[1] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/design/udev/udevls.c?revision=3231&view=markup
+[1] http://buzztrax.svn.sourceforge.net/viewvc/buzztrax/trunk/buzztrax/design/udev/udevls.c?revision=3231&view=markup
 
 2011/02 ========================================================================
 
@@ -976,7 +1017,7 @@ figured why it does not work and have started to fix it up [4]. Lets see how far
 I get next month.
 
 Naturally this used most of my hacking time. Still I managed to make some
-progress there as well. The buzztard irc channel was much more active this
+progress there as well. The buzztrax irc channel was much more active this
 month. People reported small things here and there and most of it got fixed
 right away. The manual got some more love too to help people to get started and
 improve the description of several concepts. Finally all the refcount-debugging
@@ -986,13 +1027,13 @@ refcount activity - fixes are in the repository.
 81 files changed, 2682 insertions(+), 817 deletions(-)
 
 [1] http://refdbg.sf.net
-[2] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/tests/refcount.gdb?revision=3080&view=markup#l1
-[3] http://buzztard.svn.sourceforge.net/viewvc/buzztard/trunk/buzztard/tests/refcountfilter.pl?revision=3080&view=markup#l1
+[2] http://buzztrax.svn.sourceforge.net/viewvc/buzztrax/trunk/buzztrax/tests/refcount.gdb?revision=3080&view=markup#l1
+[3] http://buzztrax.svn.sourceforge.net/viewvc/buzztrax/trunk/buzztrax/tests/refcountfilter.pl?revision=3080&view=markup#l1
 [4] http://www.gitorious.org/refdbg
 
 2010/11 ========================================================================
 
-In October I had not much time for buzztard. I went to the GStreamer conference
+In October I had not much time for buzztrax. I went to the GStreamer conference
 and the CELF Europe. There I gave a talk about the "MeeGo multimedia stack" [1].
 I also hacked on two GStreamer tool projects; gst-tracelib [2] and
 gst-mediainfo [3]. In tracelib I worked on a UI to monitor gstreamer pipelines
@@ -1008,7 +1049,7 @@ gst-mediainfo is the UI for the new discoverer API in GStreamer. I'll make a
 first release when the current gstreamer core and base is out as it depends on
 them.
 
-In buzztard I mostly worked a bit on the crash recovery and did some bug fixing.
+In buzztrax I mostly worked a bit on the crash recovery and did some bug fixing.
 Hopefully will have more time in November.
 
 14 files changed, 325 insertions(+), 166 deletions(-)
@@ -1042,7 +1083,7 @@ gconf bits from different threads too and it does not seem to like it. I have
 now done the mainloop stuff more properly and get no more crashers. While
 looking into this problem, I cleaned the settings classes and the gconf backend
 a bit. It now does more stuff only as needed, improving the startup time of
-buzztard app a little further.
+buzztrax app a little further.
 
 In GStreamer next core release will have extra metadata on element factories.
 This mechanism allows me to kill the one-property help interface. I rewrote all
@@ -1065,7 +1106,7 @@ to get to the root device and grab the names there.
 
 2010/09 ========================================================================
 
-After some more work bt-dec starts to works better. I can now play buzztard
+After some more work bt-dec starts to works better. I can now play buzztrax
 songs in totem, banshee and co. I still see some issues with seeking though.
 
 I have be going through my pending gtk bugs and patches. I can see a lot of
@@ -1120,11 +1161,11 @@ memset() :/
 78 files changed, 4300 insertions(+), 1832 deletions(-)
 
 [1] https://bugzilla.novell.com/show_bug.cgi?id=632602
-[2] http://www.buzztard.org/index.php/File:Bt-edit-0.6.0-01.png
+[2] http://www.buzztrax.org/index.php/File:Bt-edit-0.6.0-01.png
 
 2010/07 ========================================================================
 
-Lintian complained about missing man-pages for buzztard binaries. I also had a
+Lintian complained about missing man-pages for buzztrax binaries. I also had a
 pending bug for gtk-doc to clarify how one can do man-pages. Last month I wrong
 some docs about how to document binaries in docbook as well, so that the
 information is in the api-docs, but one can also generate man pages from the
@@ -1137,7 +1178,7 @@ edit-groups next and work more on the journal replay part. The testing work
 resulted in some local check improvements - the BT_CHECKS env-var supports
 globbing to select tests. Also patched that for gstreamers GST_CHECKS env-var.
 
-While showing buzztard to a colleague I noticed that the audio settings where
+While showing buzztrax to a colleague I noticed that the audio settings where
 not used for the sample players. Fixed in svn.
 
 In the early days I made some mistakes in the xml design of the song format.
@@ -1145,8 +1186,8 @@ Some tags had different attributes depending on their parent. This makes it
 impossible to do xsd schema validation. I have changed the song xml slightly
 (with backwards compatibility of old songs) and now xsd validation works.
 
-Finally I have started buzztard-bin. This is supposed to be a gstreamer plugin
-that plugs a whole buzztard song, so that one can play that in e.g. totem. The
+Finally I have started buzztrax-bin. This is supposed to be a gstreamer plugin
+that plugs a whole buzztrax song, so that one can play that in e.g. totem. The
 basics are there, should be working quite soon.
 
 83 files changed, 2452 insertions(+), 624 deletions(-)
@@ -1155,7 +1196,7 @@ basics are there, should be working quite soon.
 
 2010/06 ========================================================================
 
-The packaging continued - I found a Gentoo overlay that has buzztard packages,
+The packaging continued - I found a Gentoo overlay that has buzztrax packages,
 as well as packages for arch Linux. The later brought up some issues as Arch
 Linux uses --as-needed when linking. An article in the Gentoo documentation [1]
 suggests that its not a good idea to use this by default. To cut the long story
@@ -1182,11 +1223,11 @@ machine property window.
 
 2010/05 ========================================================================
 
-It is nice to  see that more and more distros have buzztard packages. Many
+It is nice to  see that more and more distros have buzztrax packages. Many
 thanks to Sebastian Dröge for submitting packages to Debian and Ubuntu.
 
 Latest GStreamer releases (gst-plugins-base-0.10.28) have my adder fixes. With
-those trick playback in buzztard works much better. Scrubbing is not locking up
+those trick playback in buzztrax works much better. Scrubbing is not locking up
 any more and we can play the score forward and backward at different speeds.
 There seems to be still an issue in more complex songs though. Every time the
 playback accelerates, the sink is waiting for something and thus there is a
@@ -1208,7 +1249,7 @@ Linux Audio Conference 2010 [1]. Naturally quite some time went for writing the
 article. Now that it has been accepted, I need to start working on the slides
 and demos.
 
-In buzztard I've tried to make the life of people that use jack or pulse a bit
+In buzztrax I've tried to make the life of people that use jack or pulse a bit
 easier. The problem here is that the player is only visible in jack/pulse when
 it is actually playing. I have now some code that keeps the sink alive (in
 GST_STATE_READY). This allows e.g. changing the volume in pulse or routing the
@@ -1216,7 +1257,7 @@ output in QJackCtrl even if the app is not playing. Unfortunately it only works
 after the sink was in playing once. I need to confirm my theory of what wrong
 still.
 
-I recently brought a netbook (MSI L1300) and thus wanted to try buzztard on this
+I recently brought a netbook (MSI L1300) and thus wanted to try buzztrax on this
 machine. I have installed moblin 2.1 on it to play with moblin. As usual,
 installing own software on a new linux distro/machine always brings up
 something. After a few rounds of configure maintenance and dependency trimming
@@ -1256,7 +1297,7 @@ accessor functions everywhere.
 2010/02 ========================================================================
 
 I couldn't really concentrate one a single task this months. Thus I ended up
-with lots of small changes here and there. First obvious change is that buzztard
+with lots of small changes here and there. First obvious change is that buzztrax
 got an over-engineered tip-of-the-day dialog. I takes extra care to present tips
 in random order, without repeating tips before you have seen them all.
 I also played a bit with parasite [1] - the cool gtk ui introspector and noticed
@@ -1282,7 +1323,7 @@ store the selection for multiple sinks.
 I worked most of the December time on gtk-doc [1]. After more that a year I
 released 1.12 and 1.13 on the same day:).
 
-On buzztard I also spent a little time, improving the docs and pushing the test
+On buzztrax I also spent a little time, improving the docs and pushing the test
 coverage further. I will attack the bullets on the 0.6 roadmap next. Happy new
 year and stay tuned.
 
@@ -1318,7 +1359,7 @@ its already fixed in gtk+-2.18. Next I looked at the mime matching issue that is
 already plaguing me for a while (#541236). I also have a patch for that and
 hope that I get green light for it or a review how it should be fixed instead.
 
-In buzztard I implemented copy and paste in sequence. I also found our what I
+In buzztrax I implemented copy and paste in sequence. I also found our what I
 did wrong in my clipboard handling code (see my previous post). Dunno what wrong
 with the old code, but this change made it work:
 //GtkClipboard *cb=gtk_clipboard_get_for_display(gdk_display_get_default(),GDK_SELECTION_CLIPBOARD);
@@ -1369,7 +1410,7 @@ the gstreamer side and they are now in the official tree (some already in
 
 Hollidays ahead - one whole month for me and family. This month I continued
 profiling a few usecases (song loading and playback start). I did quite many
-optimizations both for buzztard itself, but also for gstreamer. Altogether they
+optimizations both for buzztrax itself, but also for gstreamer. Altogether they
 cut the times down by 20%. I still like to get it faster, but some things need
 more work.
 
@@ -1388,7 +1429,7 @@ Many thanks go to Andrew Walton who is working on ubuntu packges [1].
 After all the thinking last month regarding the saves and handling external
 files, I finally found time at GUADEC to finish the implementation. I can do a
 quick copy from the old file to the new one on save and create wav files on the
-fly when e.g.. saving a buzz song in buzztards own format.
+fly when e.g.. saving a buzz song in buzztraxs own format.
 
 During the month I did a lot of real world testing. I recorded children songs as
 I had scores from my sons kindergarden :), but also just played around. I had
@@ -1397,7 +1438,7 @@ far with making music on the first evenings. A couple of days later we have a
 lot bugs less.
 
 My talk at GCDS about "multimedia in your pocket" went fine [1]. I showed short
-demos of running pitivi, jokosher and buzztard on a omap3 device using maemo 5.
+demos of running pitivi, jokosher and buzztrax on a omap3 device using maemo 5.
 I hope the slides will be available soon.
 For the demo I did some more performance tuning. Using GTK_DEBUG=updates was
 very helpful to improve the UI to do less redraws.
@@ -1411,7 +1452,7 @@ paragraphs left :)
 2009/06 ========================================================================
 
 May passed quickly. I was testing a lot and as usual this brings bugs to day-
-light. I noticed one particular problem, that I still have to solve. Buzztard
+light. I noticed one particular problem, that I still have to solve. Buzztrax
 songs are actually zip file containing the songs.XML file and references files
 like samples. When the song is save the externals are copied from its original
 location into the zip. First there is a chance that the file becomes unavailable
@@ -1509,14 +1550,14 @@ Last change of the month is some eye candy. The icons in the machine view don't
 become blurry when zooming anymore. I also added some simple effects to show the
 state (desaturizing them or making them half transparent).
 
-LJ has part two of the buzztard article online [1]. Its an interview and tells
+LJ has part two of the buzztrax article online [1]. Its an interview and tells
 you all you never wanted to know a bout me and the project.
 
-[1] http://www.linuxjournal.com/content/buzztard-project-part-2-interview-stefan-kost
+[1] http://www.linuxjournal.com/content/buzztrax-project-part-2-interview-stefan-kost
 
 2009/03 ========================================================================
 
-Yay. LJ has a nice online article about buzztard [1]. While helping the author
+Yay. LJ has a nice online article about buzztrax [1]. While helping the author
 to get the code up & running, I mad several improvments to the configure stuff
 to make things more obvious, especially when installing not to /usr. I also
 updated the instructions on the wiki [2] and waffel updated our jhbuild module-
@@ -1524,7 +1565,7 @@ set.
 
 The GStreamer buzzmachine plugin now supports an index.txt file in the search
 path. This is used in buzz to categorize machines. The wrapper plugin adds the
-categories to the GStreamer classification filed and buzztard-edit uses it to
+categories to the GStreamer classification filed and buzztrax-edit uses it to
 build a structured menu. This helps makes the menu a bit more useful again. Same
 stuff needed for ladspa (via rdf).
 
@@ -1541,8 +1582,8 @@ variants for selecting and disabling. This will hopefully be integrated in next
 month. Finally I replaced the VU meter code with the cairo variant from gbo
 #547490 [3] and made some fixes/improvements.
 
-[1] http://www.linuxjournal.com/content/buzztard-project-part-1
-[2] http://www.buzztard.org/index.php/Building
+[1] http://www.linuxjournal.com/content/buzztrax-project-part-1
+[2] http://www.buzztrax.org/index.php/Building
 [3] http://bugzilla.gnome.org/show_bug.cgi?id=547490
 
 2009/02 ========================================================================
@@ -1552,7 +1593,7 @@ introspection enabled if available. So far it has not been that useful due to
 some wrong use of the GObject in my code. That mostly fix now. Major thing was
 to change all _new() function to just call g_object_new and utilize the
 _constructed() and _constructor() vmethods in GObject. That wasn't so easy.
-Buzztard uses a persistence mechanism [1] to serialize and deserialize objects.
+Buzztrax uses a persistence mechanism [1] to serialize and deserialize objects.
 It is implemented as an interface. So also this was needing a lot of changes to
 allow construction from a data storage. Fortunately interfaces are tied to the
 class, so one can have an interface method that acts as a factory. Main
@@ -1563,12 +1604,12 @@ is painful.
 
 The second big rewrite that is now also merge to the trunk is the new GStreamer
 pipeline graph handling. In the past the graph was more or less shallow.
-Machines, the building blocks of a song in buzztard, are a chain of GStreamer
+Machines, the building blocks of a song in buzztrax, are a chain of GStreamer
 elements. There are volume controls, mixing elements, level meters, converters.
 They are all plugged as needed. But they were all plugged in the main pipeline.
 Now machines and wires are bins (containers). That makes it much easier to
 relink internals and also makes it possible to treat them with normal gstreamer
-API. As a first feature buzztard now rebuilds the pipeline before playing and
+API. As a first feature buzztrax now rebuilds the pipeline before playing and
 used a deep graph scan to only add fully connected parts. That means one can
 play songs that e.g. have a unconnected source. In the old code this was
 stalling the pipeline. The UI has now a debug menu in the debugs build. The one
@@ -1578,7 +1619,7 @@ Nice to check the constructed pipeline.
 There are also some smaller fixes and a few more tests. Its good to have the
 tests when doing such refactoring :)
 
-[1] http://www.buzztard.org/index.php/Gobject_serialisation
+[1] http://www.buzztrax.org/index.php/Gobject_serialisation
 
 2009/01 ========================================================================
 
@@ -1607,11 +1648,11 @@ dependencies, yay! I read this nice autotools tutorial [1] over xmas and fixed a
 couple of things in my setup. Definitely recommended reading.
 
 [1] http://www.lrde.epita.fr/~adl/autotools.html
-[2] http://www.buzztard.org/index.php/Roadmap#Version_0.5_.28crown_of_thorns.29_2009
+[2] http://www.buzztrax.org/index.php/Roadmap#Version_0.5_.28crown_of_thorns.29_2009
 
 2008/12 ========================================================================
 
-Finally I have cut a 0.4 release for all buzztard packages [1]. I spend most
+Finally I have cut a 0.4 release for all buzztrax packages [1]. I spend most
 time before with maintenance tasks, such as i18n updates (we now have dutch and
 dansk translations!).
 
@@ -1632,10 +1673,10 @@ looks like we get it working on BSD. I'll probably do another release soonish.
 
 Beginning of October I've been at the Boston Gnome summit and learning about the
 GObject Introspection project [1]. The project will help to add language bindings
-to libraries in a easy and consistent way. I added the stuff to buzztard libs and
+to libraries in a easy and consistent way. I added the stuff to buzztrax libs and
 it sort of works a bit already. Cool!
 
-I was showing buzztard to some people at the summit and noticed that samples are
+I was showing buzztrax to some people at the summit and noticed that samples are
 not always imported correctly from buzz songs. This is now fixed. I've tries all
 my songs (~50) and it handles them fine for all now. Along with that, I
 implemented some missing methods in the buzz emulation layer - sample playback
@@ -1669,7 +1710,7 @@ I began the month with the remainder of the namespace cleanups. Should be all
 fine now. The ktorrent guy was not giving in. Well that's their way of handling
 it then.
 
-I have registered buzztard with the translation project. All strings are frozen
+I have registered buzztrax with the translation project. All strings are frozen
 for 0.4. Now of course I look for translators who are willing to help.
 
 During testing, I discovered that for some bpm and tick resolutions, notes where
@@ -1677,12 +1718,12 @@ swallowed. This was due to different rounding behaviour in the sequencer and the
 plugins. This is now fixed. As a side effect, I can now render in any sampling
 rate. That will help my mameo version :)
 
-[1] http://translationproject.org/latest/buzztard/
+[1] http://translationproject.org/latest/buzztrax/
 
 2008/09 ========================================================================
 
 Out of some irc conversation, I gave implementing synced meters a go. Until so
-far level and spectrum meters in buzztard were ahead of time. The reason is that
+far level and spectrum meters in buzztrax were ahead of time. The reason is that
 gstreamer tells me about the values once they are computed, but that's not when
 the actual data segment gets played. Luckily the message has a timestamp. So all
 it needs is to sync drawing with the audio sink. MikeS gave me some good
@@ -1778,16 +1819,16 @@ is to start using the svg on the canvas.
 
 As can be seen on our roadmap [1] sample support is scheduled for 0.4. As this
 is the major feature, we started working on it. I have to say that building
-buzztard on top of GStreamer was definitely the right thing to do. We can now
+buzztrax on top of GStreamer was definitely the right thing to do. We can now
 load whatever GStreamer can handle. FSM did a nice cairo-based waveform widget.
 Right now I am working on the code that allows plugins to access the wavetable.
 It will hopefully be ready real soon.
 
-Besides that I've started to restructure the gst-buzztard package a bit further.
+Besides that I've started to restructure the gst-buzztrax package a bit further.
 I also plan to merge the buzz wrapper plugin into it. The aim is to reduce the
 number of packages that one needs to build.
 
-[1] http://www.buzztard.org/index.php/Roadmap
+[1] http://www.buzztrax.org/index.php/Roadmap
 
 2008/04 ========================================================================
 
@@ -1803,7 +1844,7 @@ and study whats left. Its not easy, but it works.
 Now why is this so important. If the refcount never reaches 0, the object is not
 disposed and occupies memory (until the application exits). Under valgrind it
 would appear under reachable memory usually. For most apps it has no immediately
-visible effect. For gstreamer app it has. In buzztard I do dynamic stuff with
+visible effect. For gstreamer app it has. In buzztrax I do dynamic stuff with
 pipelines, like adding and removing elements. If you get the ref-counting wrong.
 The element is unlinked but not disposed. If the pipeline is set to PLAYING one
 gets data flow errors. But then its not a gstreamer only problem. E.g. icon theme
@@ -1813,7 +1854,7 @@ applet has a ref-count issue. The sad thing is that the gnome libraries have
 quite some ref-count leaks. I've started to track and fix them as its hard to
 see something within all this noise [2][3].
 
-I've released buzztard-0.3.1 with the fixes. A few more developments to mention:
+I've released buzztrax-0.3.1 with the fixes. A few more developments to mention:
 Waffel started a demo for the zip loader based on libgsf, Deloun made great svg
 designs for the machine view canvas and the tabs and Herzi send me a patch to
 add native scrolling in the pattern editor. Now back to new features, yah!
@@ -1826,7 +1867,7 @@ add native scrolling in the pattern editor. Now back to new features, yah!
 
 The Linux Audio Conference 2008 was nice once again. Good talks, interesting
 know-how exchange and of course opportunities for testing and hacking on
-buzztard.
+buzztrax.
 
 I have improved the playback engine a bit. It now uses less additional latency.
 Still one get much lower latency by using jack, instead of pulse audio
@@ -1862,35 +1903,35 @@ tuned.
 
 We're heading for a release. There is a few more features that we'd like to
 finalize. Then its time for testing and this is were *you* can help.
-Featurewise buzztard improved nicely this month. I improved stereo support.
+Featurewise buzztrax improved nicely this month. I improved stereo support.
 We now have new look for the wires. They show animated volume levels and
 panorama positions. Both volume and panorama can be adjusted via popup-sliders.I
 like this a lot more that how it works in buzz. There it was a bit confusing in
 some cases (not clearly indicating which connections a panorama setting would
-affect). As an extra bonus, buzztard does stereo balance on stereo connections.
+affect). As an extra bonus, buzztrax does stereo balance on stereo connections.
 
 I also updated the buzz song importer to make use and correctly import panorama
-and volume. Now also the master-volume is mapped to the scale used in buzztard.
+and volume. Now also the master-volume is mapped to the scale used in buzztrax.
 
 FSM worked on the pattern widget. It supports variable cursor stepping (going
 down several lines at once) and selection. I added column/group/all insert and
 delete actions.
 
-Finally Waffel wrote a jhbuild module set for buzztard [1].
+Finally Waffel wrote a jhbuild module set for buzztrax [1].
 
-http://www.buzztard.org/index.php/Building#Building_with_Jhbuild
+http://www.buzztrax.org/index.php/Building#Building_with_Jhbuild
 
 2008/01 ========================================================================
 
 I guess tracker-style music editors have to live with the heritage of tabular
 pattern input. Some feature rely heavily on it. FSM started with such a widget
-and I integrated it into buzztard. One can still switch between the previous and
+and I integrated it into buzztrax. One can still switch between the previous and
 the new one by setting a define. The widget works quite nice already. The only
 missing feature is native scrolling support. To add that to an own widget
 requires an ugly hack. I can't figure why gtk does not use an interface for it.
 
 Patterns in buzz also carry volume and panorama events for the inputs of the
-machine. This was totally missing in buzztard. Now we have quite nice support
+machine. This was totally missing in buzztrax. Now we have quite nice support
 for it. The volume control works and panorama/balance support is next on the
 to-do list. While working on that I made master-machine patterns useful by
 allowing to control master-volume,
@@ -1930,7 +1971,7 @@ That's it for this month - happy x-mas month to everybody.
 
 2007/11 ========================================================================
 
-Very good news for buzz lovers. Recently FSM joined #buzztard irc channel. He
+Very good news for buzz lovers. Recently FSM joined #buzztrax irc channel. He
 gave us access to his buzzmachine sources and the okay to publish them under
 LGPL. One thing that I had on my list for too long was to extend my
 buzz-emulation layer to support natively built buzzmachines. Well now its in CVS,
@@ -2027,7 +2068,7 @@ increased test coverage. It of course uncovered bugs which we fixed.
 As a final step I started with song rendering ui. The ui is not perfect yet, but
 it starts to work. It looks like I can prepare a 0.3 quite soon. Yay!
 
-[1] http://www.buzztard.org/index.php/Ui_state_persistence
+[1] http://www.buzztrax.org/index.php/Ui_state_persistence
 
 2007/07 ========================================================================
 
@@ -2075,7 +2116,7 @@ It was a short month as I also was on holiday in Germany. I rearrange the
 release schedule [1] a bit and hope to release another version this summer. It
 will improve stability and have some more code cleanups.
 
-[1] http://www.buzztard.org/index.php/Roadmap
+[1] http://www.buzztrax.org/index.php/Roadmap
 
 2007/05 ========================================================================
 
@@ -2097,7 +2138,7 @@ the accelerometer in the harddisk, one can control e.g. filter-cut of and
 resonance by tilting the laptop - how useless. There is one flaw to mention -
 the bindings aren't yet persistent, close the window and there gone.
 
-Finally in gst-buzztard we have a first working version of a fluidsynth
+Finally in gst-buzztrax we have a first working version of a fluidsynth
 GStreamer source. Josh Green the author of swami [1] made the initial port.
 
 I will now start to prepare the release. Should be out in the coming weeks.
@@ -2106,7 +2147,7 @@ I will now start to prepare the release. Should be out in the coming weeks.
 
 2007/04 ========================================================================
 
-LAC 2007 was great. Was nice to meet all these people. The buzztard demo was
+LAC 2007 was great. Was nice to meet all these people. The buzztrax demo was
 well received. I will try to make a screencast of the upnp remote control
 feature. I could only demo it there at a second attempt as I didn't received the
 wifi router which was needed for the demo. I have put the slides online [1] (if
@@ -2142,8 +2183,8 @@ patterns in gray color (in the menu/list).
 
 Altogether a nice list of fixes and enhancements.
 
-[1] http://www.buzztard.org/files/lac2007_buzztard.pdf
-[2] http://www.buzztard.org/index.php/Architecture
+[1] http://www.buzztrax.org/files/lac2007_buzztrax.pdf
+[2] http://www.buzztrax.org/index.php/Architecture
 
 2007/03 ========================================================================
 
@@ -2161,7 +2202,7 @@ need to less often convert.
 
 2007/02 ========================================================================
 
-Last month I started to offer extensions from the buzztard project for gstreamer
+Last month I started to offer extensions from the buzztrax project for gstreamer
 inclusion [1][2][3][4]. I believe that the idea behind is generic enough to
 support them. The discussion and interest has been relative low so far :( I'll
 probably interpret this then as agreement and commit the changes. The preset
@@ -2173,7 +2214,7 @@ treeview headers and simulate my own. Now the header widgets work. As some extra
 sweetness the header have per track volume meters. While working on this I also
 made the label-browser function. It allows to jump to labels in the timeline.
 Wanna see how it looks?
-<a href="http://www.buzztard.org/index.php/Image:Bt-edit-0.1.0-01.png"><img src="http://www.buzztard.org/images/thumb/2/2a/180px-Bt-edit-0.1.0-01.png"></a>
+<a href="http://www.buzztrax.org/index.php/Image:Bt-edit-0.1.0-01.png"><img src="http://www.buzztrax.org/images/thumb/2/2a/180px-Bt-edit-0.1.0-01.png"></a>
 
 I also started to add some functionality to the wavetable page. Its now possible
 to browse the files and preview the selected entry.
@@ -2184,7 +2225,7 @@ unit test in core, that runs over all your buzz songs, imports them and dumps
 basic info into text files. Then it greps the text files to generate most wanted
 machine top 10 :).
 
-Last weekend I did a first rough port of buzztard for the N800. I have some of
+Last weekend I did a first rough port of buzztrax for the N800. I have some of
 the UI changes in place already. The GStreamer side was pleasant - no changes
 needed. Unfortunately the gstreamer on the device is not the most up to date and
 thus the app does not work too well.
@@ -2237,7 +2278,7 @@ ensonic (at) users (dot) sf (dot) net.
 
 This month we fleshed out the planning for 0.2. From now on we like to release
 often and regularly. We defined a lot of small gtk UI tasks. If you like to
-help, we welcome you with open arms on irc://irc.quakenet.org/#buzztard.
+help, we welcome you with open arms on irc://irc.quakenet.org/#buzztrax.
 
 First changes after the release are already in CVS. I worked on the buzzmachine
 emulation. I can now handle some more plugins. We need to update and re-run the
@@ -2254,7 +2295,7 @@ can't really know the maximum width beforehand easily, so I had to set a default
 width. Good enough for now.
 
 I also started two new interfaces for gstreamer elements. First one is about the
-help documentation of the element. Buzztard can show the docs of buzzmachines or
+help documentation of the element. Buzztrax can show the docs of buzzmachines or
 the gtk-doc of native element already. The second iface is about the preset
 handling. Implementing that for the buzzmachines is next on the todo list.
 
@@ -2283,7 +2324,7 @@ that usable yet, we're confident that new releases will follow quickly and bring
 the missing pieces. If you want it happen faster, join the project. We have lots
 of tasks, some with a fleshed out concept, some merely ideas, some suitable for
 not so experienced developers, so quite tricky. Give us a visit on
-irc://irc.quakenet.org/buzztard.
+irc://irc.quakenet.org/buzztrax.
 
 2006/10 ========================================================================
 

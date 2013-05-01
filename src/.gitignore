@@ -10,6 +10,6 @@ Makefile
 Makefile.in
 *.gir
 *.typelib
-buzztard-cmd
-buzztard-edit
+buzztrax-cmd
+buzztrax-edit
 

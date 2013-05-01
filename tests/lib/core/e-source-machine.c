@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -61,7 +61,7 @@ test_bt_source_machine_new (BT_TEST_ARGS)
   /* act */
   GError *err = NULL;
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztard-test-mono-source", 0, &err);
+      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, &err);
 
   /* assert */
   fail_unless (machine != NULL, NULL);
@@ -77,7 +77,7 @@ test_bt_source_machine_def_patterns (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztard-test-mono-source", 0, NULL);
+      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
 
   /* act */
   GList *list = (GList *) check_gobject_get_ptr_property (machine, "patterns");
@@ -98,7 +98,7 @@ test_bt_source_machine_pattern (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztard-test-mono-source", 0, NULL);
+      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
 
   /* act */
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L,
@@ -118,7 +118,7 @@ test_bt_source_machine_pattern_by_id (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztard-test-mono-source", 0, NULL);
+      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
 
   /* act */
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L,
@@ -139,7 +139,7 @@ test_bt_source_machine_pattern_by_list (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztard-test-mono-source", 0, NULL);
+      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L,
       BT_MACHINE (machine));
   GList *list = (GList *) check_gobject_get_ptr_property (machine, "patterns");
@@ -168,7 +168,7 @@ test_bt_source_machine_change_voices (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztard-test-poly-source", 1, NULL);
+      bt_source_machine_new (song, "gen", "buzztrax-test-poly-source", 1, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L,
       BT_MACHINE (machine));
 
@@ -189,7 +189,7 @@ test_bt_source_machine_ref (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSourceMachine *machine =
-      bt_source_machine_new (song, "gen", "buzztard-test-mono-source", 0, NULL);
+      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   gst_object_ref (machine);
 

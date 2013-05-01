@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -18,7 +18,7 @@
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
  *
- * Buzztard stores its songs in a own file-format. This internal io-module 
+ * Buzztrax stores its songs in a own file-format. This internal io-module 
  * implements loading and saving of this format.
  * The format is an archive, that contains an XML file and optionally binary
  * data, such as audio samples.
@@ -40,15 +40,15 @@ static gboolean bt_song_io_init (void);
 /**
  * bt_song_io_native_module_info:
  *
- * Buzztard native format song loader/saver metadata.
+ * Buzztrax native format song loader/saver metadata.
  */
 BtSongIOModuleInfo bt_song_io_native_module_info = {
   bt_song_io_init,
   {
 #ifdef USE_GSF
-        {0, "buzztard song with externals", "audio/x-bzt", "bzt"},
+        {0, "buzztrax song with externals", "audio/x-bzt", "bzt"},
 #endif
-        {0, "buzztard song without externals", "audio/x-bzt-xml", "xml"},
+        {0, "buzztrax song without externals", "audio/x-bzt-xml", "xml"},
         {0, NULL, NULL, NULL}
       }
 };

@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -100,7 +100,7 @@ typedef gboolean (*BtSongIOInit)(void);
  *
  * Ugly:
  * - still duplicated info with usr/share/mime database
- * - files are detected twice (e.g. nautilus, buzztard)
+ * - files are detected twice (e.g. nautilus, buzztrax)
  *   - pass the media-type as a comamndline option and map it right away
  */
 

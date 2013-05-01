@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<buzztard
-  xmlns="http://www.buzztard.org/"
+<buzztrax
+  xmlns="http://www.buzztrax.org/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
-  xsd:noNamespaceSchemaLocation="buzztard.xsd">
-<!-- xsd:schemaLocation="http://www.buzztard.org buzztard.xsd" -->
+  xsd:noNamespaceSchemaLocation="buzztrax.xsd">
+<!-- xsd:schemaLocation="http://www.buzztrax.org buzztrax.xsd" -->
 
   <meta>
     <info>what a lovely tune</info>
@@ -90,4 +90,4 @@
     <wave index="2" name="dreampad" uri="file://!/wavetable/dreampad.wav"/>
   </wavetable>
   
-</buzztard>
+</buzztrax>

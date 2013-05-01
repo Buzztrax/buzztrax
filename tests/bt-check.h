@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * testing helpers
  *
@@ -30,7 +30,7 @@
 #include <glib-object.h>
 //-- gstreamer
 #include <gst/gst.h>
-//-- buzztard
+//-- buzztrax
 #include "core.h"
 #include "bt-test-application.h"
 #include "bt-test-plugin.h"

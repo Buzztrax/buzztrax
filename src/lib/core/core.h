@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -35,11 +35,11 @@
 // needs 0.10.22
 //#include <gst/app/gstappsrc.h>
 //#include <gst/app/gstappbuffer.h>
-//-- gstbuzztard
-#include <libgstbuzztard/musicenums.h>
-#include <libgstbuzztard/childbin.h>
-#include <libgstbuzztard/propertymeta.h>
-#include <libgstbuzztard/tempo.h>
+//-- gstbuzztrax
+#include <libgstbuzztrax/musicenums.h>
+#include <libgstbuzztrax/childbin.h>
+#include <libgstbuzztrax/propertymeta.h>
+#include <libgstbuzztrax/tempo.h>
 
 //-- libbtcore
 #include "childproxy.h"

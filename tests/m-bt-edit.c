@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * graphical editor app unit tests
  *
@@ -78,22 +78,22 @@ static void
 cleanup_cache_dir (void)
 {
   /* clean up cache dir */
-  if (g_file_test ("buzztard", G_FILE_TEST_IS_DIR)) {
+  if (g_file_test ("buzztrax", G_FILE_TEST_IS_DIR)) {
     GDir *dir;
     const gchar *log_name;
     gchar log_path[FILENAME_MAX];
 
-    if ((dir = g_dir_open ("buzztard", 0, NULL))) {
+    if ((dir = g_dir_open ("buzztrax", 0, NULL))) {
       while ((log_name = g_dir_read_name (dir))) {
         if (!g_str_has_suffix (log_name, ".log")) {
           GST_WARNING ("unexpected file %s found in temp log dir", log_name);
           continue;
         }
-        g_sprintf (log_path, "buzztard" G_DIR_SEPARATOR_S "%s", log_name);
+        g_sprintf (log_path, "buzztrax" G_DIR_SEPARATOR_S "%s", log_name);
         g_remove (log_path);
       }
       g_dir_close (dir);
-      g_rmdir ("buzztard");
+      g_rmdir ("buzztrax");
     }
   }
 }
@@ -165,7 +165,7 @@ main (gint argc, gchar ** argv)
   SRunner *sr;
 
   g_type_init ();
-  g_set_application_name ("Buzztard");
+  g_set_application_name ("Buzztrax");
   setup_log_base (argc, argv);
   setup_log_capture ();
 

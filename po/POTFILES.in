@@ -1,5 +1,5 @@
 [encoding: UTF-8]
-src/lib/buzztard.xml.in
+src/lib/buzztrax.xml.in
 src/lib/core/application.c
 src/lib/core/core.c
 src/lib/core/cmd-pattern.c
@@ -7,14 +7,14 @@ src/lib/core/song-io-native.c
 src/lib/core/song-io-native-bzt.c
 src/lib/core/song-io-native-xml.c
 src/lib/core/song-info.c
-src/lib/core/songio/bsl/buzztard-songio-buzz.desktop.in
+src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in
 src/lib/core/songio/bsl/song-io-buzz.c
 src/lib/ic/ic.c
 src/ui/cmd/bt-cmd.c
 src/ui/cmd/cmd-application.c
 src/ui/edit/about-dialog.c
 src/ui/edit/bt-edit.c
-src/ui/edit/buzztard-edit.desktop.in
+src/ui/edit/buzztrax-edit.desktop.in
 src/ui/edit/change-log.c
 src/ui/edit/crash-recover-dialog.c
 src/ui/edit/edit-application.c
@@ -52,4 +52,4 @@ src/ui/edit/tip-dialog.c
 src/ui/edit/tools.c
 src/ui/edit/volume-popup.c
 src/ui/edit/wire-canvas-item.c
-buzztard.schemas
+buzztrax.schemas

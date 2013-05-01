@@ -27,7 +27,7 @@
       bt-freestyle : meta, setup, pattern, session
   ** single xml file song
     - xml based, along with sample data as a zip archive
-    - root: buzztard, bsf (buzztard song file), ...
+    - root: buzztrax, bsf (buzztrax song file), ...
     - sections:
       - meta (buzz blabla)
         - use infos for tagging bounce files (riff-wav, mp3)
@@ -35,7 +35,7 @@
         - do not store info about extra adapter element
           - we could use the ones from gst (e.g. float2int, audioconvert)
             this is hard to control
-          - we could bring an own one with buzztard
+          - we could bring an own one with buzztrax
             this is the way to go
         - wires have
           - gain="-100 db ... +20db"
@@ -50,7 +50,7 @@
       - sequence
       - wavetable
     - example
-      <buzztard>
+      <buzztrax>
         <meta>
           <!-- use dublin core tags here -->
           <dc:author>ensonic</dc:autor>
@@ -122,5 +122,5 @@
           <wave id="01" name="dreampad" url="file://!/wavetable/dreampad.wav"/>
           ...
         </wavetable>
-      </buzztard>
+      </buzztrax>
 *

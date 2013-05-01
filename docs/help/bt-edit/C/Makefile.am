@@ -1,7 +1,7 @@
 figdir = figures
-docname = buzztard-edit
+docname = buzztrax-edit
 lang = C
-omffile = buzztard-edit-C.omf
+omffile = buzztrax-edit-C.omf
 entities = legal.xml version.entities
 
 all-local:
@@ -18,28 +18,28 @@ dist-hook: app-dist-hook
 # make a pdf using dblatex
 # - it seems unneccesarily hard to get our logo onto the titlepage
 # - we tried all sort of customizations (	 -p dblatex_pdf.xsl )
-buzztard-edit.pdf: buzztard-edit.xml dblatex_pdf.xsl
+buzztrax-edit.pdf: buzztrax-edit.xml dblatex_pdf.xsl
 	dblatex \
-	  -o buzztard-edit.pdf \
+	  -o buzztrax-edit.pdf \
 	  -I figures \
-	  buzztard-edit.xml
+	  buzztrax-edit.xml
 
-buzztard-edit.txt: buzztard-edit.xml
-	xmlto txt buzztard-edit.xml
+buzztrax-edit.txt: buzztrax-edit.xml
+	xmlto txt buzztrax-edit.xml
 
-buzztard-edit2.pdf: buzztard-edit.xml
+buzztrax-edit2.pdf: buzztrax-edit.xml
 	xsltproc \
 	  --stringparam paper.type A4 \
 	  --stringparam fop.extentions 1 \
 	  --stringparam fop1.extentions 1 \
 	  --stringparam admon.graphics 1 \
 		http://docbook.sourceforge.net/release/xsl/current/fo/fo.xsl \
-		buzztard-edit.xml >buzztard-edit.fo; \
-	fop -fo buzztard-edit.fo -pdf buzztard-edit.pdf
+		buzztrax-edit.xml >buzztrax-edit.fo; \
+	fop -fo buzztrax-edit.fo -pdf buzztrax-edit.pdf
 
 # statistics for index building:
-# sed -e 's/[[:space:]]\+/\n/g' buzztard-edit.txt | sed 's/[,.\(\)"]//g' | egrep -v '^ *$' | sort -f | uniq -ic | sort -n
-# sed -e 's/[[:space:]]\+/\n/g' buzztard-edit.txt | sed 's/[,.\(\)"]//g' | egrep -v '^ *$' | egrep -v '^..?$' | sort -f | uniq -ic | sort -n
+# sed -e 's/[[:space:]]\+/\n/g' buzztrax-edit.txt | sed 's/[,.\(\)"]//g' | egrep -v '^ *$' | sort -f | uniq -ic | sort -n
+# sed -e 's/[[:space:]]\+/\n/g' buzztrax-edit.txt | sed 's/[,.\(\)"]//g' | egrep -v '^ *$' | egrep -v '^..?$' | sort -f | uniq -ic | sort -n
 
 
 # here we should
@@ -116,23 +116,23 @@ update_figures:
 	  pngtopnm "/tmp/check_buzzard_interaction controller learn.png" | ../../mk-shadow.sh | pnmtopng >figures/interaction-controller-learn.png; \
 	fi; \
 	\
-	if [ -e "/tmp/check_buzzard_buzztard settings_audio devices.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztard settings_audio devices.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-audio.png; \
+	if [ -e "/tmp/check_buzzard_buzztrax settings_audio devices.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_buzztrax settings_audio devices.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-audio.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_buzztard settings_colors.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztard settings_colors.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-colors.png; \
+	if [ -e "/tmp/check_buzzard_buzztrax settings_colors.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_buzztrax settings_colors.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-colors.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_buzztard settings_directories.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztard settings_directories.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-directories.png; \
+	if [ -e "/tmp/check_buzzard_buzztrax settings_directories.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_buzztrax settings_directories.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-directories.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_buzztard settings_interaction controller.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztard settings_interaction controller.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-ic.png; \
+	if [ -e "/tmp/check_buzzard_buzztrax settings_interaction controller.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_buzztrax settings_interaction controller.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-ic.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_buzztard settings_playback controller.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztard settings_playback controller.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-pc.png; \
+	if [ -e "/tmp/check_buzzard_buzztrax settings_playback controller.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_buzztrax settings_playback controller.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-pc.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_buzztard settings_shortcuts.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztard settings_shortcuts.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-shortcuts.png; \
+	if [ -e "/tmp/check_buzzard_buzztrax settings_shortcuts.png" ]; then \
+	  pngtopnm "/tmp/check_buzzard_buzztrax settings_shortcuts.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-shortcuts.png; \
 	fi;
 
 ## add shadows (now integrated above)

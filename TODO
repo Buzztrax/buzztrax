@@ -21,7 +21,7 @@
   * ensure we follow Arrange/Act/assert or Given/When/Then style
     http://en.wikipedia.org/wiki/Behavior_Driven_Development
   * check that all public api is used in tests
-    nm --defined-only .libs/libbuzztard-core.a | grep " T " | cut -d' ' -f3 | grep -v "marshal" | sort >/tmp/m1.txt;
+    nm --defined-only .libs/libbuzztrax-core.a | grep " T " | cut -d' ' -f3 | grep -v "marshal" | sort >/tmp/m1.txt;
     nm --undefined-only .libs/libbtcore-check.a | grep " U bt" | cut -c20- | sort | uniq >/tmp/m2.txt;
     comm -2 -3 /tmp/m{1,2}.txt
     
@@ -37,8 +37,8 @@
 
 
 * check translation markup
-  podebug --rewrite=xxx buzztard.pot aa.po
-  LC_ALL=aa ./buzztard-edit
+  podebug --rewrite=xxx buzztrax.pot aa.po
+  LC_ALL=aa ./buzztrax-edit
   - this creates a translation with all strings wrapped by 'xxx' (Help -> xxxHelpxxx)
   - it is easy to see what is not marked for translation  
 
@@ -98,8 +98,8 @@
 
 * undo/redo/journaling
   - links
-    http://www.buzztard.org/index.php/Undo,_redo
-    http://www.buzztard.org/index.php/Song_autosaving
+    http://www.buzztrax.org/index.php/Undo,_redo
+    http://www.buzztrax.org/index.php/Song_autosaving
   - we do that on the ui level (also the journalling and the replay of it)
   - singleton journal object
     - each undo/redo capabale object registeres with its name there
@@ -251,7 +251,7 @@
     - extra gnome-canvas-item-rect layered under machine name?
     - extra dialog from tools menu?
     - enable/disable from the view menu
-  - buzztard-cmd could have a profile option (for play/encode) and print a summary
+  - buzztrax-cmd could have a profile option (for play/encode) and print a summary
     at the end
 
 

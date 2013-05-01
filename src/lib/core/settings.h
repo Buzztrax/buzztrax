@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -39,7 +39,7 @@ typedef struct _BtSettingsPrivate BtSettingsPrivate;
 /**
  * BtSettings:
  *
- * base object for a buzztard based settings
+ * base object for a buzztrax based settings
  */
 struct _BtSettings {
   const GObject parent;

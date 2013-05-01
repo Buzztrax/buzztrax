@@ -14,14 +14,14 @@ xmllint $XML_OPTS $E_SONGS
 if [ $? -ne 0 ]; then exit 1; fi
 
 # check the schema itself
-xmllint $XML_OPTS $srcdir/docs/buzztard.xsd
+xmllint $XML_OPTS $srcdir/docs/buzztrax.xsd
 if [ $? -ne 0 ]; then exit 1; fi
 
 # do schema validation
-xmllint $XML_OPTS --schema $srcdir/docs/buzztard.xsd $E_SONGS
+xmllint $XML_OPTS --schema $srcdir/docs/buzztrax.xsd $E_SONGS
 if [ $? -ne 0 ]; then exit 1; fi
 
 # test the docs
-xmllint $XML_OPTS --xinclude --postvalid $srcdir/docs/help/bt-edit/C/buzztard-edit.xml
+xmllint $XML_OPTS --xinclude --postvalid $srcdir/docs/help/bt-edit/C/buzztrax-edit.xml
 if [ $? -ne 0 ]; then exit 1; fi
 

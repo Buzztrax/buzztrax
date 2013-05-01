@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -20,8 +20,8 @@
  *
  * Lists available playback controllers and allows to configure them. Each
  * controller type can support a master and a slave mode. Master mode means that
- * changes in the playback state in buzztard, will relect on the playback state
- * of clients to that protocol. Slave mode will cause buzztard to sync to the
+ * changes in the playback state in buzztrax, will relect on the playback state
+ * of clients to that protocol. Slave mode will cause buzztrax to sync to the
  * external playback state.
  */
 /* TODO(ensonic): add a list of playback controllers:

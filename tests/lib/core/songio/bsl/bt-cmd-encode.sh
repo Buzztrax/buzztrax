@@ -1,5 +1,5 @@
 #!/bin/sh
-# run buzztard-cmd --command=encode on all my buzz songs
+# run buzztrax-cmd --command=encode on all my buzz songs
 
 if [ -z "$BSL_SONG_PATH" ]; then
   echo "please tell me where you have the buzz songs I shall test"
@@ -28,7 +28,7 @@ trap "sig_int=1" INT
     echo >>/tmp/bt_cmd_encode_bsl.log "== $song =="
     sig_segv=0
     sig_int=0
-    res=`env 2>>/tmp/bt_cmd_encode_bsl.log GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" $BINDIR/buzztard-cmd -q --command=encode --input-file=$song --output-file=$audio; echo $?`
+    res=`env 2>>/tmp/bt_cmd_encode_bsl.log GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" $BINDIR/buzztrax-cmd -q --command=encode --input-file=$song --output-file=$audio; echo $?`
     if [ $sig_int -eq "1" ]; then res=1; fi
     if [ $res -eq "1" ]; then
       echo "$song failed"

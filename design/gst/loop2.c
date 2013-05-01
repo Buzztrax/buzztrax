@@ -1,6 +1,6 @@
 /* test seemles looping in gstreamer
  *
- * In buzztard the loops are not smooth. The code below tries to reproduce the
+ * In buzztrax the loops are not smooth. The code below tries to reproduce the
  * issue.
  *
  * Things we excluded:

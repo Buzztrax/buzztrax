@@ -1,17 +1,17 @@
 // http://live.gnome.org/GObjectIntrospection
-// GI_TYPELIB_PATH=/home/ensonic/buzztard/lib/girepository gjs-console ~/projects/buzztard/buzztard/design/bindings/play.js
-// GI_TYPELIB_PATH=/home/ensonic/buzztard/lib/girepository LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/lib/xulrunner-1.9.0.9" gjs-console ~/projects/buzztard/buzztard/design/bindings/play.js
+// GI_TYPELIB_PATH=/home/ensonic/buzztrax/lib/girepository gjs-console ~/projects/buzztrax/buzztrax/design/bindings/play.js
+// GI_TYPELIB_PATH=/home/ensonic/buzztrax/lib/girepository LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/lib/xulrunner-1.9.0.9" gjs-console ~/projects/buzztrax/buzztrax/design/bindings/play.js
 
 const GLib = imports.gi.GLib;
-const BuzztardCore = imports.gi.BuzztardCore;
+const BuzztraxCore = imports.gi.BuzztraxCore;
 const Mainloop = imports.mainloop;
 
 GLib.thread_init(null);
-BuzztardCore.init(0,null);
+BuzztraxCore.init(0,null);
 
-let app = new BuzztardCore.Application();
-let song = new BuzztardCore.Song({app:app});
-let songio = BuzztardCore.SongIO.make("/home/ensonic/buzztard/share/buzztard/songs/melo3.xml");
+let app = new BuzztraxCore.Application();
+let song = new BuzztraxCore.Song({app:app});
+let songio = BuzztraxCore.SongIO.make("/home/ensonic/buzztrax/share/buzztrax/songs/melo3.xml");
 songio.load(song);
 song.play();
 

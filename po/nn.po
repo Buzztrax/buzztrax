@@ -1,10 +1,10 @@
-# Norwegian Nynorsk translation for buzztard.
-# This file is distributed under the same license as the buzztard package.
+# Norwegian Nynorsk translation for buzztrax.
+# This file is distributed under the same license as the buzztrax package.
 # Eivind Ødegård <meinmycell-lists@yahoo.no>, 2009.
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztard 0.5.0-pre1\n"
-"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"Project-Id-Version: buzztrax 0.5.0-pre1\n"
+"Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2009-07-17 23:30+0300\n"
 "PO-Revision-Date: 2009-09-25 20:28+0100\n"
 "Last-Translator: Eivind Ødegård <meinmycell-lists@yahoo.no>\n"
@@ -14,19 +14,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Norwegian Nynorsk\n"
 "X-Poedit-Country: NORWAY\n"
-"X-Poedit-Basepath: /home/eivind/umseting/buzztard\n"
+"X-Poedit-Basepath: /home/eivind/umseting/buzztrax\n"
 
 #: ../src/lib/core/core.c:196
-msgid "Print the buzztard core version"
-msgstr "Vis versjonsnummeret for buzztard-kjerna"
+msgid "Print the buzztrax core version"
+msgstr "Vis versjonsnummeret for buzztrax-kjerna"
 
 #: ../src/lib/core/core.c:200
-msgid "Buzztard core options"
-msgstr "Val for Buzztard-kjerna"
+msgid "Buzztrax core options"
+msgstr "Val for Buzztrax-kjerna"
 
 #: ../src/lib/core/core.c:200
-msgid "Show buzztard core options"
-msgstr "Vis val for Buzztard-kjerna"
+msgid "Show buzztrax core options"
+msgstr "Vis val for Buzztrax-kjerna"
 
 #. track commands in sequencer
 #: ../src/lib/core/pattern.c:341
@@ -67,16 +67,16 @@ msgid "untitled song"
 msgstr "song utan namn"
 
 #: ../src/lib/ic/ic.c:119
-msgid "Print the buzztard interaction controller version"
-msgstr "Vis versjonsnummeret for buzztard-samhandlingskontrollen"
+msgid "Print the buzztrax interaction controller version"
+msgstr "Vis versjonsnummeret for buzztrax-samhandlingskontrollen"
 
 #: ../src/lib/ic/ic.c:123
-msgid "Buzztard interaction controller options"
-msgstr "Val for buzztard-samhandlingskontrollen"
+msgid "Buzztrax interaction controller options"
+msgstr "Val for buzztrax-samhandlingskontrollen"
 
 #: ../src/lib/ic/ic.c:123
-msgid "Show buzztard interaction controller options"
-msgstr "Vis val for buzztard-samhandlingskontrollen"
+msgid "Show buzztrax interaction controller options"
+msgstr "Vis val for buzztrax-samhandlingskontrollen"
 
 #: ../src/ui/cmd/bt-cmd.c:65 ../src/ui/edit/bt-edit.c:75
 msgid "Print application version"
@@ -105,12 +105,12 @@ msgstr "Utangsfilnamn"
 
 #. g_option_context_add_main_entries(ctx, options, PACKAGE_NAME);
 #: ../src/ui/cmd/bt-cmd.c:88
-msgid "buzztard-cmd options"
-msgstr "Val for Buzztard-kjerna"
+msgid "buzztrax-cmd options"
+msgstr "Val for Buzztrax-kjerna"
 
 #: ../src/ui/cmd/bt-cmd.c:88
-msgid "Show buzztard-cmd options"
-msgstr "Vis val for Buzztard-kjerna"
+msgid "Show buzztrax-cmd options"
+msgstr "Vis val for Buzztrax-kjerna"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Kost <ensonic@users.sf.net>
@@ -120,8 +120,8 @@ msgstr "Eivind Ødegård <meinmycell-lists@yahoo.no>"
 
 #: ../src/ui/edit/about-dialog.c:86 ../src/ui/edit/about-dialog.c:87
 #, c-format
-msgid "Copyright © 2003-%d Buzztard developer team"
-msgstr "© 2003-%d Buzztard-utviklarlaget"
+msgid "Copyright © 2003-%d Buzztrax developer team"
+msgstr "© 2003-%d Buzztrax-utviklarlaget"
 
 #: ../src/ui/edit/about-dialog.c:103
 msgid "Music production environment"
@@ -143,17 +143,17 @@ msgstr ""
 
 #. _("Development version (do not translate this)"
 #: ../src/ui/edit/about-dialog.c:141
-msgid "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztard can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
-msgstr "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztard can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
+msgid "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztrax can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
+msgstr "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztrax can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
 
 #. g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
 #: ../src/ui/edit/bt-edit.c:103
-msgid "buzztard-edit options"
-msgstr "Val for buzztard-redigeringa"
+msgid "buzztrax-edit options"
+msgstr "Val for buzztrax-redigeringa"
 
 #: ../src/ui/edit/bt-edit.c:103
-msgid "Show buzztard-edit options"
-msgstr "Vis val for buzztard-redigeringa"
+msgid "Show buzztrax-edit options"
+msgstr "Vis val for buzztrax-redigeringa"
 
 #: ../src/ui/edit/edit-application.c:110
 msgid "-> You will not see any level-meters."
@@ -358,7 +358,7 @@ msgstr "Ein feil oppstod ved lasting av songfila '%s',"
 msgid "Can't load song"
 msgstr "Kan ikkje lasta song."
 
-#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
+#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
 #: ../src/ui/edit/main-menu.c:655
 msgid "_File"
@@ -868,7 +868,7 @@ msgstr "avspelingsvolum"
 msgid "Change playback volume"
 msgstr "Endre avspelingsvolum"
 
-#. we don't use PACKAGE_NAME = 'buzztard' for the window title
+#. we don't use PACKAGE_NAME = 'buzztrax' for the window title
 #: ../src/ui/edit/main-window.c:206
 msgid "unsaved"
 msgstr "ulagra"
@@ -1025,8 +1025,8 @@ msgstr "framgang for songteikning"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:144
-msgid "buzztard settings"
-msgstr "innstillingar for buzztard"
+msgid "buzztrax settings"
+msgstr "innstillingar for buzztrax"
 
 #: ../src/ui/edit/settings-dialog.c:178 ../src/ui/edit/settings-dialog.c:233
 msgid "Audio Devices"
@@ -1131,14 +1131,14 @@ msgstr "Signalanalyse..."
 #~ msgid "Show version"
 #~ msgstr "Vis versjonsnummer"
 
-#~ msgid "As planned, main focus for this release was the wavetable support. Its done - buzztard can load what gstreamer can decode.The wavetable view has a nice waveform widget. Related to that buzztard has a new song-format that bundles the XML together with external files in a zip archive. Also the UI has seen a lot of improvements. The machine view looks nicer - Marc drew spiffy machine icons. In addition they now show real volume meters when playing. All meters are now properly synced."
-#~ msgstr "Kommentarar frå utviklarane om endringar sidan sist utgåve: Buzztard kan no opna alt gstreamer kan handtere. Me har eit nytt lagringsformat for songfiler: XML blir pakka saman med eksterne filer i ei zip-fil. Brukarflata har vorte utbetra, mellom anna med nye ikon og betre nivåmælarar."
+#~ msgid "As planned, main focus for this release was the wavetable support. Its done - buzztrax can load what gstreamer can decode.The wavetable view has a nice waveform widget. Related to that buzztrax has a new song-format that bundles the XML together with external files in a zip archive. Also the UI has seen a lot of improvements. The machine view looks nicer - Marc drew spiffy machine icons. In addition they now show real volume meters when playing. All meters are now properly synced."
+#~ msgstr "Kommentarar frå utviklarane om endringar sidan sist utgåve: Buzztrax kan no opna alt gstreamer kan handtere. Me har eit nytt lagringsformat for songfiler: XML blir pakka saman med eksterne filer i ei zip-fil. Brukarflata har vorte utbetra, mellom anna med nye ikon og betre nivåmælarar."
 
-#~ msgid "Buzztard Music Editor"
-#~ msgstr "Buzztard musikkredigering"
+#~ msgid "Buzztrax Music Editor"
+#~ msgstr "Buzztrax musikkredigering"
 
-#~ msgid "Edit buzztard song files"
-#~ msgstr "Redigerer buzztard-songfiler"
+#~ msgid "Edit buzztrax song files"
+#~ msgstr "Redigerer buzztrax-songfiler"
 
 #~ msgid "interaction controller menu"
 #~ msgstr "meny for samhandlingskontroll"

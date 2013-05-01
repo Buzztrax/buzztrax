@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2011 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2011 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * interaction controller library unit tests
  *

@@ -105,9 +105,9 @@ init ()
 #if 0
   // this leads to: gtk_widget_set_accel_path: assertion `GTK_WIDGET_GET_CLASS (widget)->activate_signal != 0' failed
   // fix localy in gtktoolbutton.c:261 : widget_class->activate_signal = toolbutton_signals[CLICKED];
-  gtk_widget_set_accel_path (ti, "<Buzztard-Main>/MainToolbar/Play",
+  gtk_widget_set_accel_path (ti, "<Buzztrax-Main>/MainToolbar/Play",
       accel_group);
-  gtk_accel_map_add_entry ("<Buzztard-Main>/MainToolbar/Play", GDK_F5, 0);
+  gtk_accel_map_add_entry ("<Buzztrax-Main>/MainToolbar/Play", GDK_F5, 0);
 #endif
 #if 1
   // this does not toggle the toggle button
@@ -122,7 +122,7 @@ init ()
   action =
       GTK_ACTION (gtk_toggle_action_new ("Play", "Play", "Play this song",
           GTK_STOCK_MEDIA_PLAY));
-  gtk_action_set_accel_path (action, "<Buzztard-Main>/MainToolbar/Play");
+  gtk_action_set_accel_path (action, "<Buzztrax-Main>/MainToolbar/Play");
   gtk_action_group_add_action_with_accel (action_group, action, "F5");
   gtk_action_connect_proxy (action, ti);
 #endif
@@ -132,8 +132,8 @@ init ()
   play_button = ti;
 
   ti = GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_MEDIA_STOP));
-  //gtk_widget_set_accel_path (ti, "<Buzztard-Main>/MainToolbar/Play",accel_group);
-  //gtk_accel_map_add_entry ("<Buzztard-Main>/MainToolbar/Play", GDK_F8, 0);
+  //gtk_widget_set_accel_path (ti, "<Buzztrax-Main>/MainToolbar/Play",accel_group);
+  //gtk_accel_map_add_entry ("<Buzztrax-Main>/MainToolbar/Play", GDK_F8, 0);
   gtk_widget_add_accelerator (ti, "clicked", accel_group, GDK_F8, 0, 0);
   gtk_toolbar_insert (GTK_TOOLBAR (tb), GTK_TOOL_ITEM (ti), -1);
   g_signal_connect (G_OBJECT (ti), "clicked", G_CALLBACK (on_stop_clicked),

@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2012 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2012 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -87,7 +87,7 @@ test_btic_init2 (BT_TEST_ARGS)
   /* assert */
   ck_assert_int_eq (test_argc, 1);
   fail_unless (check_file_contains_str (stdout, NULL,
-          "libbuzztard-ic-" BT_VERSION " from " PACKAGE_STRING), NULL);
+          "libbuzztrax-ic-" BT_VERSION " from " PACKAGE_STRING), NULL);
   BT_TEST_END;
 }
 

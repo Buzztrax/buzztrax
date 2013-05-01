@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2007 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -39,7 +39,7 @@ typedef struct _BtIcDevicePrivate BtIcDevicePrivate;
 /**
  * BtIcDevice:
  *
- * buzztards interaction controller device
+ * buzztraxs interaction controller device
  */
 struct _BtIcDevice {
   const GObject parent;
@@ -77,7 +77,7 @@ typedef gboolean (*btic_device_virtual_stop)(gconstpointer self);
  * @stop: virtual method for stopping a device
  * @learn: virtual method for a learn function
  *
- * buzztards interaction controller device class
+ * buzztraxs interaction controller device class
  */
 struct _BtIcDeviceClass {
   const GObjectClass parent;

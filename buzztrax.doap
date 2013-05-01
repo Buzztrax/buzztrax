@@ -1,0 +1,85 @@
+<Project
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns="http://usefulinc.com/ns/doap#"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:admin="http://webns.net/mvcb/">
+
+  <name>Buzztrax music production environment</name>
+  <shortname>buzztrax</shortname>
+  <homepage rdf:resource="http://www.buzztrax.org" />
+  <created>2002-06-06</created>
+  <shortdesc xml:lang="en">Buzztrax is a free music composer</shortdesc>
+  <description xml:lang="en">
+    The buzztrax project aims to provide a free replacement of the currently windows only and close source software Buzz. It is a music production environment, which is based on a very modular approach, to allow many people to get involved.
+  </description>
+  <category></category>
+  <bug-database rdf:resource="http://sourceforge.net/tracker/?group_id=55124&amp;atid=476037" />
+  <screenshots></screenshots>
+  <mailing-list rdf:resource="http://sourceforge.net/mailarchive/forum.php?forum_name=buzztrax-devel" />
+  <programming-language>C</programming-language>
+  <license rdf:resource="http://usefulinc.com/doap/licenses/lgpl" />
+  <download-page rdf:resource="http://sourceforge.net/project/showfiles.php?group_id=55124" />
+
+  <repository>
+    <GITRepository>
+      <anon-root>git://buzztrax.git.sourceforge.net/gitroot/buzztrax/buzztrax</anon-root>
+      <browse rdf:resource="http://buzztrax.git.sourceforge.net/git/gitweb-index.cgi" />
+    </GITRepository>
+  </repository>
+
+  <maintainer>
+    <foaf:Person>
+       <foaf:name>Stefan Sauer</foaf:name>
+       <foaf:mbox_sha1sum>76179624329fba7783720a352767b5ce953846dd</foaf:mbox_sha1sum>
+    </foaf:Person>
+  </maintainer>
+
+  <release>
+    <Version>
+     <revision>0.6</revision>
+     <branch>HEAD</branch>
+     <name>Black beats blue</name>
+     <created>2011-12-25</created>
+     <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.6.0.tar.gz" />
+    </Version>
+    <Version>
+     <revision>0.5</revision>
+     <branch>HEAD</branch>
+     <name>Crown of thorns</name>
+     <created>2009-12-06</created>
+     <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.5.0.tar.gz" />
+    </Version>
+    <Version>
+     <revision>0.4</revision>
+     <branch>HEAD</branch>
+     <name>The light in your eyes</name>
+     <created>2008-11-26</created>
+     <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.4.0.tar.gz" />
+    </Version>
+    <Version>
+     <revision>0.3</revision>
+     <branch>HEAD</branch>
+     <name>A tale of ice and darkness</name>
+     <created>2008-03-26</created>
+     <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.3.0.tar.gz" />
+    </Version>
+    <Version>
+     <revision>0.2</revision>
+     <branch>HEAD</branch>
+     <name>Sunrise</name>
+     <created>2007-05-03</created>
+     <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.2.0.tar.gz" />
+    </Version>
+  </release>
+  <release>
+    <Version>
+     <revision>0.1</revision>
+     <branch>HEAD</branch>
+     <name>Genesis</name>
+     <created>2006-10-30</created>
+     <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.1.0.tar.gz" />
+    </Version>
+  </release>
+
+</Project>

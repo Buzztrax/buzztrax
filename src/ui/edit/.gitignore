@@ -8,6 +8,6 @@
 *.bbg
 Makefile
 Makefile.in
-buzztard-edit.desktop.in
-buzztard-edit.desktop
+buzztrax-edit.desktop.in
+buzztrax-edit.desktop
 marshal.*

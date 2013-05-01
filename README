@@ -1,9 +1,9 @@
 = quick info =
-Please turn you browser to http://www.buzztard.org to learn what this project
-is about. Buzztard is free software and distributed under the LGPL.
+Please turn you browser to http://www.buzztrax.org to learn what this project
+is about. Buzztrax is free software and distributed under the LGPL.
 
 = intro =
-Buzztard is a music composer similar to tracker applications. It is roughly
+Buzztrax is a music composer similar to tracker applications. It is roughly
 modelled after the windows only, closed source application called Buzz.
 
 = requirements =
@@ -15,7 +15,7 @@ gst-plugins-base
 gst-plugins-good
 gst-plugins-bad
 gnome-canvas
-gst-buzztard (from buzztard git, use same version as this module)
+gst-buzztrax (from buzztrax git, use same version as this module)
 gsf
 
 Regarding gstreamer - the newer the better.
@@ -36,8 +36,8 @@ docs : design ideas and API reference
 po : gettext i18n catalogs
 src : the project sources
   ui
-    cmd : buzztard tool for the command line
-    edit : buzztard editor (gtk based ui)
+    cmd : buzztrax tool for the command line
+    edit : buzztrax editor (gtk based ui)
   lib
     core : logic, e.g. connections framework, file i/o, ...
     ic : interaction controller
@@ -45,25 +45,25 @@ tests : unit tests (same directory structure as src)
 
 = installing locally =
 Use following options for ./autogen.sh or ./configure
-  --prefix=$HOME/buzztard
+  --prefix=$HOME/buzztrax
   --with-gconf-source=xml::/home/ensonic/.gconf/
   --with-desktop-dir=/home/ensonic/.gnome2/vfolders/
-when installing the package to e.g. $HOME/buzztard remember to set these
+when installing the package to e.g. $HOME/buzztrax remember to set these
 environment variables:
 libraries:
-  export LD_LIBRARY_PATH=$HOME/buzztard/lib:$LD_LIBRARY_PATH
+  export LD_LIBRARY_PATH=$HOME/buzztrax/lib:$LD_LIBRARY_PATH
 online help: (as root)
-  export OMF_DIR="$OMF_DIR:$HOME/buzztard/share/omf"
+  export OMF_DIR="$OMF_DIR:$HOME/buzztrax/share/omf"
   scrollkeeper-update
 devhelp:
-  export DEVHELP_SEARCH_PATH="$DEVHELP_SEARCH_PATH:$HOME/buzztard/share/gtk-doc/html"
+  export DEVHELP_SEARCH_PATH="$DEVHELP_SEARCH_PATH:$HOME/buzztrax/share/gtk-doc/html"
 pkg-config:
-  export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztard/lib/pkgconfig"
+  export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztrax/lib/pkgconfig"
 gstreamer
-  export GST_PLUGIN_PATH="$HOME/buzztard/lib/gstreamer-0.10"
+  export GST_PLUGIN_PATH="$HOME/buzztrax/lib/gstreamer-0.10"
 mime-database & icon-themes:
-  export XDG_DATA_DIRS="$XDG_DATA_DIRS:$HOME/buzztard/share"
-  update-mime-database $HOME/buzztard/share/mime/
+  export XDG_DATA_DIRS="$XDG_DATA_DIRS:$HOME/buzztrax/share"
+  update-mime-database $HOME/buzztrax/share/mime/
 
 = installing in /usr/local =
 The default value for the --prefix configure option is /usr/local. Also in that
@@ -71,11 +71,11 @@ case the variables mentioned in the last example need to be exported.
 
 = running the apps =
 
-cd $HOME/buzztard/bin
-./buzztard-cmd --command=info --input-file=../share/buzztard/songs/melo1.xml
-./buzztard-cmd --command=play --input-file=../share/buzztard/songs/melo1.xml
-./buzztard-cmd --command=encode --input-file=../share/buzztard/songs/melo1.xml --output-file=./melo1.ogg
-./buzztard-edit --command=load --input-file=../share/buzztard/songs/melo1.xml
+cd $HOME/buzztrax/bin
+./buzztrax-cmd --command=info --input-file=../share/buzztrax/songs/melo1.xml
+./buzztrax-cmd --command=play --input-file=../share/buzztrax/songs/melo1.xml
+./buzztrax-cmd --command=encode --input-file=../share/buzztrax/songs/melo1.xml --output-file=./melo1.ogg
+./buzztrax-edit --command=load --input-file=../share/buzztrax/songs/melo1.xml
 
 = running unit tests =
 in one console enter

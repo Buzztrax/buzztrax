@@ -1,12 +1,12 @@
-# Chinese simplified translation for buzztard.
-# Copyright (C) buzztard's authors.
-# This file is distributed under the same license as the buzztard package.
+# Chinese simplified translation for buzztrax.
+# Copyright (C) buzztrax's authors.
+# This file is distributed under the same license as the buzztrax package.
 # Wylmer Wang <wantinghard@gmail.com>, 2011. 
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztard-0.6.0\n"
-"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"Project-Id-Version: buzztrax-0.6.0\n"
+"Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2011-10-07 21:35+0200\n"
 "PO-Revision-Date: 2011-12-20 10:13+0800\n"
 "Last-Translator: Wylmer Wang <wantinghard@gmail.com>\n"
@@ -17,16 +17,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../src/lib/core/core.c:196
-msgid "Print the buzztard core version"
-msgstr "打印 buzztard 核心版本"
+msgid "Print the buzztrax core version"
+msgstr "打印 buzztrax 核心版本"
 
 #: ../src/lib/core/core.c:200
-msgid "Buzztard core options"
-msgstr "Buzztard 核心选项"
+msgid "Buzztrax core options"
+msgstr "Buzztrax 核心选项"
 
 #: ../src/lib/core/core.c:200
-msgid "Show buzztard core options"
-msgstr "显示 buzztard 核心选项"
+msgid "Show buzztrax core options"
+msgstr "显示 buzztrax 核心选项"
 
 #. track commands in sequencer
 #: ../src/lib/core/pattern.c:371
@@ -67,16 +67,16 @@ msgid "untitled song"
 msgstr "无标题歌曲"
 
 #: ../src/lib/ic/ic.c:115
-msgid "Print the buzztard interaction controller version"
-msgstr "打印 buzztard 交互控制器版本"
+msgid "Print the buzztrax interaction controller version"
+msgstr "打印 buzztrax 交互控制器版本"
 
 #: ../src/lib/ic/ic.c:119
-msgid "Buzztard interaction controller options"
-msgstr "Buzztard 交互控制器选项"
+msgid "Buzztrax interaction controller options"
+msgstr "Buzztrax 交互控制器选项"
 
 #: ../src/lib/ic/ic.c:119
-msgid "Show buzztard interaction controller options"
-msgstr "显示 Buzztard 交互控制器选项"
+msgid "Show buzztrax interaction controller options"
+msgstr "显示 Buzztrax 交互控制器选项"
 
 #: ../src/ui/cmd/bt-cmd.c:72 ../src/ui/edit/bt-edit.c:82
 msgid "Print application version"
@@ -105,12 +105,12 @@ msgstr "输出文件名"
 
 #. g_option_context_add_main_entries(ctx, options, GETTEXT_PACKAGE);
 #: ../src/ui/cmd/bt-cmd.c:94
-msgid "buzztard-cmd options"
-msgstr "buzztard-cmd 选项"
+msgid "buzztrax-cmd options"
+msgstr "buzztrax-cmd 选项"
 
 #: ../src/ui/cmd/bt-cmd.c:94
-msgid "Show buzztard-cmd options"
-msgstr "显示 buzztard-cmd 选项"
+msgid "Show buzztrax-cmd options"
+msgstr "显示 buzztrax-cmd 选项"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net>
@@ -120,8 +120,8 @@ msgstr "Wylmer Wang <wantinghard@gmail.com>"
 
 #: ../src/ui/edit/about-dialog.c:75 ../src/ui/edit/about-dialog.c:76
 #, c-format
-msgid "Copyright © 2003-%d Buzztard developer team"
-msgstr "版权所有 © 2003-%d Buzztard 开发组"
+msgid "Copyright © 2003-%d Buzztrax developer team"
+msgstr "版权所有 © 2003-%d Buzztrax 开发组"
 
 #: ../src/ui/edit/about-dialog.c:92
 msgid "Music production environment"
@@ -138,17 +138,17 @@ msgstr ""
 
 #. "Development version (do not translate this)"
 #: ../src/ui/edit/about-dialog.c:130
-msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztard songs in any gstreamer based media player. We also kept the buzztard codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
-msgstr "这一发布版本的主要特性是完整的撤消/重做支持。程序具有相应的编辑操作日志和崩溃恢复功能。这样对歌曲的更改丢失的可能性将很小。其他用户界面上的改进包括：每日技巧提示、改进的频谱分析器、剪贴板支持、上下文菜单中的选项更多，等等。这一版本加入了一个 gstreamer 解码器，可能在任何基于 gstreamer 的媒体播放器中播放 buzztard 歌曲。我们也清理了 buzztard 的代码库，并由废弃的 API 迁移到了其继承者(gnomevfs->gio，hal->gudev)。库和应用程序性能在很多方面有所提高。文档也有所改进，加入了向导、键盘快捷键表，内容更全面，完善了 man-pages等。"
+msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztrax songs in any gstreamer based media player. We also kept the buzztrax codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
+msgstr "这一发布版本的主要特性是完整的撤消/重做支持。程序具有相应的编辑操作日志和崩溃恢复功能。这样对歌曲的更改丢失的可能性将很小。其他用户界面上的改进包括：每日技巧提示、改进的频谱分析器、剪贴板支持、上下文菜单中的选项更多，等等。这一版本加入了一个 gstreamer 解码器，可能在任何基于 gstreamer 的媒体播放器中播放 buzztrax 歌曲。我们也清理了 buzztrax 的代码库，并由废弃的 API 迁移到了其继承者(gnomevfs->gio，hal->gudev)。库和应用程序性能在很多方面有所提高。文档也有所改进，加入了向导、键盘快捷键表，内容更全面，完善了 man-pages等。"
 
 #. g_option_context_add_main_entries (ctx, options, GETTEXT_PACKAGE);
 #: ../src/ui/edit/bt-edit.c:103
-msgid "buzztard-edit options"
-msgstr "buzztard-edit 选项"
+msgid "buzztrax-edit options"
+msgstr "buzztrax-edit 选项"
 
 #: ../src/ui/edit/bt-edit.c:103
-msgid "Show buzztard-edit options"
-msgstr "显示 buzztard-edit 选项"
+msgid "Show buzztrax-edit options"
+msgstr "显示 buzztrax-edit 选项"
 
 #: ../src/ui/edit/change-log.c:544
 msgid "unsaved song"
@@ -459,7 +459,7 @@ msgstr "无法加载歌曲"
 msgid "Recover a song?"
 msgstr "恢复歌曲？"
 
-#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
+#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
 #: ../src/ui/edit/main-menu.c:712
 msgid "_File"
@@ -1031,7 +1031,7 @@ msgstr "播放音量"
 msgid "Change playback volume"
 msgstr "更改播放音量"
 
-#. we don't use PACKAGE_NAME = 'buzztard' for the window title
+#. we don't use PACKAGE_NAME = 'buzztrax' for the window title
 #: ../src/ui/edit/main-window.c:202
 msgid "unsaved"
 msgstr "未保存"
@@ -1223,8 +1223,8 @@ msgstr "歌曲渲染过程"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:145
-msgid "buzztard settings"
-msgstr "buzztard 设置"
+msgid "buzztrax settings"
+msgstr "buzztrax 设置"
 
 #: ../src/ui/edit/settings-dialog.c:181 ../src/ui/edit/settings-dialog.c:236
 msgid "Audio Devices"
@@ -1375,7 +1375,7 @@ msgid "You can use input devices such as joysticks, beside midi devices to live 
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:54
-msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztard."
+msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztrax."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:55
@@ -1383,7 +1383,7 @@ msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows.
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:56
-msgid "You can get more help from the community on irc://irc.freenode.net/#buzztard."
+msgid "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:57

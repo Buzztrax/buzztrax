@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2007 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -68,15 +68,15 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
   gchar *translators = _("translator-credits");
 
   gchar *copyright =
-      g_alloca (strlen (_("Copyright \xc2\xa9 2003-%d Buzztard developer team"))
+      g_alloca (strlen (_("Copyright \xc2\xa9 2003-%d Buzztrax developer team"))
       + 3);
-  sprintf (copyright, _("Copyright \xc2\xa9 2003-%d Buzztard developer team"),
+  sprintf (copyright, _("Copyright \xc2\xa9 2003-%d Buzztrax developer team"),
       2011);
 
   /* we can get logo via icon name, so this here is just for educational purpose
      GdkPixbuf *logo;
      GError *error = NULL;
-     logo=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),"buzztard",48,0,&error);
+     logo=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),"buzztrax",48,0,&error);
      //logo = gdk_pixbuf_new_from_file(DATADIR""G_DIR_SEPARATOR_S"icons"G_DIR_SEPARATOR_S"hicolor"G_DIR_SEPARATOR_S"48x48"G_DIR_SEPARATOR_S"apps"G_DIR_SEPARATOR_S""PACKAGE".png",&error);
      if(!logo) {
      GST_WARNING("Couldn't load icon: %s", error->message);
@@ -106,7 +106,7 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
           "Boston, MA  02110-1301  USA."), "logo-icon-name", PACKAGE_NAME,
       "translator-credits", (!strcmp (translators,
               "translator-credits")) ? translators : NULL, "version",
-      PACKAGE_VERSION, "website", "http://www.buzztard.org", "wrap-license",
+      PACKAGE_VERSION, "website", "http://www.buzztrax.org", "wrap-license",
       TRUE, NULL);
 
   // add the NEWS directly below copyright
@@ -126,10 +126,10 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
           "greatly simplifies writing a new synth and wrote the pattern control source "
           "that allowed us to remove a lot of complicated code from the sequencer "
           "core.\n"
-          "The gst-buzztard module got more modular. There are a few new plugins "
+          "The gst-buzztrax module got more modular. There are a few new plugins "
           "(sidsyn, wave-replay and wavetabsyn).\n"
           "We changed all modules to use non recursive make and we merged bsl into "
-          "buzztard to make development easier."), -1);
+          "buzztrax to make development easier."), -1);
 
   news_view = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (news_view),

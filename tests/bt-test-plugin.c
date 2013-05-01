@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * gstreamer test plugin for unit tests
  *
@@ -591,16 +591,16 @@ bt_test_plugin_init (GstPlugin * plugin)
 {
   //GST_INFO("registering unit test plugin");
 
-  gst_element_register (plugin, "buzztard-test-no-arg-mono-source",
+  gst_element_register (plugin, "buzztrax-test-no-arg-mono-source",
       GST_RANK_NONE, BT_TYPE_TEST_NO_ARG_MONO_SOURCE);
-  gst_element_register (plugin, "buzztard-test-mono-source", GST_RANK_NONE,
+  gst_element_register (plugin, "buzztrax-test-mono-source", GST_RANK_NONE,
       BT_TYPE_TEST_MONO_SOURCE);
-  gst_element_register (plugin, "buzztard-test-poly-source", GST_RANK_NONE,
+  gst_element_register (plugin, "buzztrax-test-poly-source", GST_RANK_NONE,
       BT_TYPE_TEST_POLY_SOURCE);
   /*
-     gst_element_register (plugin, "buzztard-test-mono-processor", GST_RANK_NONE,
+     gst_element_register (plugin, "buzztrax-test-mono-processor", GST_RANK_NONE,
      BT_TYPE_TEST_MONO_PROCESSOR);
-     gst_element_register (plugin, "buzztard-test-poly-processor", GST_RANK_NONE,
+     gst_element_register (plugin, "buzztrax-test-poly-processor", GST_RANK_NONE,
      BT_TYPE_TEST_POLY_PROCESSOR);
    */
   return TRUE;

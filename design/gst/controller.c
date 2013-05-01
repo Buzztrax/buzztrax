@@ -1,6 +1,6 @@
 /* more complex controller example
  *
- * gcc -Wall -g controller.c -o controller `pkg-config --cflags --libs gstreamer-0.10 gstreamer-controller-0.10 libgstbuzztard`
+ * gcc -Wall -g controller.c -o controller `pkg-config --cflags --libs gstreamer-0.10 gstreamer-controller-0.10 libgstbuzztrax`
  */
 
 #include <glib.h>
@@ -8,7 +8,7 @@
 #include <gst/controller/gstcontroller.h>
 #include <gst/controller/gstinterpolationcontrolsource.h>
 #include <gst/controller/gstlfocontrolsource.h>
-#include <libgstbuzztard/tempo.h>
+#include <libgstbuzztrax/tempo.h>
 
 gint
 main (gint argc, gchar ** argv)

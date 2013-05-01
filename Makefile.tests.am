@@ -47,8 +47,8 @@ check_LTLIBRARIES = \
   libbt-edit-check.la
 
 libbt_check_la_LIBADD = \
-	libbuzztard-ic.la \
-	libbuzztard-core.la \
+	libbuzztrax-ic.la \
+	libbuzztrax-core.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
 libbt_check_la_LDFLAGS = \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
@@ -69,7 +69,7 @@ libbt_check_ui_la_SOURCES = \
   
 bt_core_LDADD = \
 	libbtcore-check.la \
-	libbuzztard-core.la \
+	libbuzztrax-core.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_core_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
@@ -78,8 +78,8 @@ bt_core_SOURCES = \
 
 bt_ic_LDADD = \
 	libbtic-check.la \
-	libbuzztard-ic.la \
-	libbuzztard-core.la \
+	libbuzztrax-ic.la \
+	libbuzztrax-core.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_ic_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
@@ -88,7 +88,7 @@ bt_ic_SOURCES = \
 
 bt_cmd_LDADD = \
 	libbt-cmd-check.la \
-	libbuzztard-core.la \
+	libbuzztrax-core.la \
 	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_cmd_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
@@ -97,8 +97,8 @@ bt_cmd_SOURCES = \
 
 bt_edit_LDADD = \
 	libbt-edit-check.la \
-	libbuzztard-core.la \
-	libbuzztard-ic.la \
+	libbuzztrax-core.la \
+	libbuzztrax-ic.la \
 	libbt-check.la libbt-check-ui.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
 bt_edit_LDFLAGS =  \
@@ -252,11 +252,11 @@ test-clean-local:
 	@rm -f \
 	  $(top_builddir)/tests/songs/*.txt \
 	  $(top_builddir)/tests/songs/*.ogg \
-	  $(abs_builddir)/buzztard/*.log \
+	  $(abs_builddir)/buzztrax/*.log \
 	  $(top_builddir)/event-sound-cache.tdb.* \
 	  /tmp/test.wav
-	@if test -d $(abs_builddir)/buzztard; then \
-	  rmdir $(abs_builddir)/buzztard; \
+	@if test -d $(abs_builddir)/buzztrax; then \
+	  rmdir $(abs_builddir)/buzztrax; \
 	fi;
 
 # make check           -- run all checks
@@ -303,17 +303,17 @@ coverage::
 	genhtml -o ./coverage --num-spaces 2 ./coverage/$(PACKAGE).info
 endif
 if USE_BCOV
-## CK_FORK=no bcov -l../src/tests/lib/core/.libs/libbuzztard-core.so ./.libs/bt_cmd
-## CK_FORK=no bcov -l../src/tests/lib/core/.libs/libbuzztard-core.so -l../src/tests/lib/ic/.libs/libbuzztard-ic.so ./.libs/bt_core
-## CK_FORK=no libtool --mode=execute bcov -l../src/tests/lib/core/.libs/libbuzztard-core.so -l../src/tests/lib/ic/.libs/libbuzztard-ic.so ./bt_core
+## CK_FORK=no bcov -l../src/tests/lib/core/.libs/libbuzztrax-core.so ./.libs/bt_cmd
+## CK_FORK=no bcov -l../src/tests/lib/core/.libs/libbuzztrax-core.so -l../src/tests/lib/ic/.libs/libbuzztrax-ic.so ./.libs/bt_core
+## CK_FORK=no libtool --mode=execute bcov -l../src/tests/lib/core/.libs/libbuzztrax-core.so -l../src/tests/lib/ic/.libs/libbuzztrax-ic.so ./bt_core
 ## - we're missing the libs coverage, but it is not due to BSymbolic :/
 coverage:: $(TESTS_BIN)
 	echo "command make check" >.bcovdump.all; \
 	echo "date "`date` >>.bcovdump.all; \
 	for i in $^; do \
 	  CK_FORK="no" $(TESTS_ENVIRONMENT) bcov \
-	    -l$(top_builddir)/src/.libs/libbuzztard-core.so \
-	    -l$(top_builddir)/src/.libs/libbuzztard-ic.so \
+	    -l$(top_builddir)/src/.libs/libbuzztrax-core.so \
+	    -l$(top_builddir)/src/.libs/libbuzztrax-ic.so \
 	    ./$$i; \
 	  if test -f .bcovdump; then \
 	    tail -n +5 .bcovdump >>.bcovdump.all; \
@@ -347,7 +347,7 @@ VALPREFIX = \
 VALDEFAULT = @VALGRIND@/bin/valgrind
 VALSUPP = @VALGRIND@/lib/valgrind
 VALSUPPRESSIONDEF = --suppressions=$(VALSUPP)/default.supp
-VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztard.supp \
+VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztrax.supp \
 	--suppressions=$(top_builddir)/gst.supp \
 	--suppressions=$(top_builddir)/gtk.supp
 VALSUPPRESSION = $(VALSUPPRESSIONDEF) $(VALSUPPRESSIONOWN)

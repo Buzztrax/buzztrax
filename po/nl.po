@@ -1,10 +1,10 @@
-# translation of buzztard-0.4.po to Nederlands
-# This file is distributed under the same license as the buzztard package.
+# translation of buzztrax-0.4.po to Nederlands
+# This file is distributed under the same license as the buzztrax package.
 # Erwin Poeze <erwin.poeze@gmail.com>, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztard-0.5.0-pre1\n"
-"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"Project-Id-Version: buzztrax-0.5.0-pre1\n"
+"Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2009-07-17 23:30+0300\n"
 "PO-Revision-Date: 2009-07-22 18:33+0100\n"
 "Last-Translator: Erwin Poeze <erwin.poeze@gmail.com>\n"
@@ -19,16 +19,16 @@ msgstr ""
 "X-Poedit-Bookmarks: 142,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: ../src/lib/core/core.c:196
-msgid "Print the buzztard core version"
-msgstr "Versie buzztardkern tonen"
+msgid "Print the buzztrax core version"
+msgstr "Versie buzztraxkern tonen"
 
 #: ../src/lib/core/core.c:200
-msgid "Buzztard core options"
-msgstr "Opties buzztardkern"
+msgid "Buzztrax core options"
+msgstr "Opties buzztraxkern"
 
 #: ../src/lib/core/core.c:200
-msgid "Show buzztard core options"
-msgstr "Opties buzztardkern tonen"
+msgid "Show buzztrax core options"
+msgstr "Opties buzztraxkern tonen"
 
 #. track commands in sequencer
 #: ../src/lib/core/pattern.c:341
@@ -69,15 +69,15 @@ msgid "untitled song"
 msgstr "nummer zonder titel"
 
 #: ../src/lib/ic/ic.c:119
-msgid "Print the buzztard interaction controller version"
+msgid "Print the buzztrax interaction controller version"
 msgstr "Versie interactieregelaar tonen"
 
 #: ../src/lib/ic/ic.c:123
-msgid "Buzztard interaction controller options"
+msgid "Buzztrax interaction controller options"
 msgstr "Opties interactieregelaar"
 
 #: ../src/lib/ic/ic.c:123
-msgid "Show buzztard interaction controller options"
+msgid "Show buzztrax interaction controller options"
 msgstr "Opties interactieregelaar tonen"
 
 #: ../src/ui/cmd/bt-cmd.c:65 ../src/ui/edit/bt-edit.c:75
@@ -107,12 +107,12 @@ msgstr "Naam uitvoerbestand"
 
 #. g_option_context_add_main_entries(ctx, options, PACKAGE_NAME);
 #: ../src/ui/cmd/bt-cmd.c:88
-msgid "buzztard-cmd options"
-msgstr "Opties buzztard-cmd"
+msgid "buzztrax-cmd options"
+msgstr "Opties buzztrax-cmd"
 
 #: ../src/ui/cmd/bt-cmd.c:88
-msgid "Show buzztard-cmd options"
-msgstr "Opties buzztard-cmd tonen"
+msgid "Show buzztrax-cmd options"
+msgstr "Opties buzztrax-cmd tonen"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Kost <ensonic@users.sf.net>
@@ -122,8 +122,8 @@ msgstr "Erwin Poeze <erwin.poeze@gmail.com>"
 
 #: ../src/ui/edit/about-dialog.c:86 ../src/ui/edit/about-dialog.c:87
 #, c-format
-msgid "Copyright © 2003-%d Buzztard developer team"
-msgstr "Copyright © 2003-%d Buzztard-ontwikkelteam"
+msgid "Copyright © 2003-%d Buzztrax developer team"
+msgstr "Copyright © 2003-%d Buzztrax-ontwikkelteam"
 
 #: ../src/ui/edit/about-dialog.c:103
 msgid "Music production environment"
@@ -145,17 +145,17 @@ msgstr ""
 
 #. _("Development version (do not translate this)"
 #: ../src/ui/edit/about-dialog.c:141
-msgid "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztard can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
+msgid "Rewrote internal pipeline management. One can now play partially connected songs, and add/remove plugins while playing. Buzztrax can play notes while editing. More robust saving of songs. Lots of bugfixes and UI improvemnts. Better user-guide including three small tutorials. Initial support for python and javascript via gobject introspection."
 msgstr ""
 
 #. g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
 #: ../src/ui/edit/bt-edit.c:103
-msgid "buzztard-edit options"
-msgstr "Opties Buzztard-bewerken"
+msgid "buzztrax-edit options"
+msgstr "Opties Buzztrax-bewerken"
 
 #: ../src/ui/edit/bt-edit.c:103
-msgid "Show buzztard-edit options"
-msgstr "Opties Buzztard-bewerken tonen"
+msgid "Show buzztrax-edit options"
+msgstr "Opties Buzztrax-bewerken tonen"
 
 #: ../src/ui/edit/edit-application.c:110
 msgid "-> You will not see any level-meters."
@@ -360,7 +360,7 @@ msgstr "Laden van het nummer uit bestand '%s' is mislukt"
 msgid "Can't load song"
 msgstr "Nummer kan niet worden geladen"
 
-#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
+#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
 #: ../src/ui/edit/main-menu.c:655
 msgid "_File"
@@ -870,7 +870,7 @@ msgstr "geluidsterkte bij afspelen"
 msgid "Change playback volume"
 msgstr "geluidsterkte bij afspelen veranderen"
 
-#. we don't use PACKAGE_NAME = 'buzztard' for the window title
+#. we don't use PACKAGE_NAME = 'buzztrax' for the window title
 #: ../src/ui/edit/main-window.c:206
 msgid "unsaved"
 msgstr "Niet bewaard"
@@ -1027,8 +1027,8 @@ msgstr "voorgang nummervertolking"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:144
-msgid "buzztard settings"
-msgstr "Buzztard-instellingen"
+msgid "buzztrax settings"
+msgstr "Buzztrax-instellingen"
 
 #: ../src/ui/edit/settings-dialog.c:178 ../src/ui/edit/settings-dialog.c:233
 msgid "Audio Devices"
@@ -1133,14 +1133,14 @@ msgstr "Signaalanalyse..."
 #~ msgid "Show version"
 #~ msgstr "Versie tonen"
 
-#~ msgid "As planned, main focus for this release was the wavetable support. Its done - buzztard can load what gstreamer can decode.The wavetable view has a nice waveform widget. Related to that buzztard has a new song-format that bundles the XML together with external files in a zip archive. Also the UI has seen a lot of improvements. The machine view looks nicer - Marc drew spiffy machine icons. In addition they now show real volume meters when playing. All meters are now properly synced."
-#~ msgstr "De nadruk in deze uitgave ligt op de ondersteuning van de golftabel. Buzztard kan alles laden wat gstreamer kan decoderen. De golftabel heeft een mooie golfvormassistent. Daaraan gerelateerd heeft Buzztard een nieuwe nummerstructuur dat de XML samenbundelt met externe bestanden in een zip-achief. Ook heeft de grafische interface vele verbeteringen ondergaan. De machineweergave toont prettiger; Marc tekende strakke machinepictogrammen. Daarnaast tonen ze nu echte geluidsterktemeters tijdens het afspelen. Alle meters zijn nu correct gesynchroniseerd."
+#~ msgid "As planned, main focus for this release was the wavetable support. Its done - buzztrax can load what gstreamer can decode.The wavetable view has a nice waveform widget. Related to that buzztrax has a new song-format that bundles the XML together with external files in a zip archive. Also the UI has seen a lot of improvements. The machine view looks nicer - Marc drew spiffy machine icons. In addition they now show real volume meters when playing. All meters are now properly synced."
+#~ msgstr "De nadruk in deze uitgave ligt op de ondersteuning van de golftabel. Buzztrax kan alles laden wat gstreamer kan decoderen. De golftabel heeft een mooie golfvormassistent. Daaraan gerelateerd heeft Buzztrax een nieuwe nummerstructuur dat de XML samenbundelt met externe bestanden in een zip-achief. Ook heeft de grafische interface vele verbeteringen ondergaan. De machineweergave toont prettiger; Marc tekende strakke machinepictogrammen. Daarnaast tonen ze nu echte geluidsterktemeters tijdens het afspelen. Alle meters zijn nu correct gesynchroniseerd."
 
-#~ msgid "Buzztard Music Editor"
-#~ msgstr "Buzztardmuziekbewerker"
+#~ msgid "Buzztrax Music Editor"
+#~ msgstr "Buzztraxmuziekbewerker"
 
-#~ msgid "Edit buzztard song files"
-#~ msgstr "Buzztardnummerbestanden bewerken"
+#~ msgid "Edit buzztrax song files"
+#~ msgstr "Buzztraxnummerbestanden bewerken"
 
 #~ msgid "interaction controller menu"
 #~ msgstr "menu interactieregelaar"

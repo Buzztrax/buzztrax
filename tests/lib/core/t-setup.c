@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -91,7 +91,7 @@ test_bt_setup_add_machine_twice (BT_TEST_ARGS)
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
 
   /* act & assert */
   fail_if (bt_setup_add_machine (setup, machine), NULL);
@@ -110,7 +110,7 @@ test_bt_setup_add_wire_twice (BT_TEST_ARGS)
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
 
@@ -291,7 +291,7 @@ test_bt_setup_get_wires_by_src_machine1 (BT_TEST_ARGS)
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtSourceMachine *src_machine =
-      bt_source_machine_new (song, "src", "buzztard-test-mono-source", 0L,
+      bt_source_machine_new (song, "src", "buzztrax-test-mono-source", 0L,
       NULL);
   check_init_error_trapp ("bt_setup_get_wires_by_src_machine",
       "BT_IS_SETUP (self)");
@@ -336,7 +336,7 @@ test_bt_setup_get_wires_by_src_machine3 (BT_TEST_ARGS)
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   bt_setup_remove_machine (setup, machine);
 
   /* act & assert */
@@ -542,7 +542,7 @@ test_bt_setup_remove_machine_twice (BT_TEST_ARGS)
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   gst_object_ref (gen);
   bt_setup_remove_machine (setup, gen);
   check_init_error_trapp ("bt_setup_remove_machine", "machine is not in setup");
@@ -568,7 +568,7 @@ test_bt_setup_remove_wire_twice (BT_TEST_ARGS)
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "dst", NULL));
   BtWire *wire = bt_wire_new (song, gen, sink, NULL);
   gst_object_ref (wire);

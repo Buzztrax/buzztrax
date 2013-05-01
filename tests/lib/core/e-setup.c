@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -81,7 +81,7 @@ test_bt_setup_machine_add_id (BT_TEST_ARGS)
 
   /* act */
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
 
   /* assert */
   ck_assert_gobject_eq_and_unref (bt_setup_get_machine_by_id (setup, "src"),
@@ -99,7 +99,7 @@ test_bt_setup_machine_rem_id (BT_TEST_ARGS)
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
 
   /* act */
   bt_setup_remove_machine (setup, source);
@@ -120,7 +120,7 @@ test_bt_setup_machine_add_list (BT_TEST_ARGS)
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
 
   /* act */
   GList *list = (GList *) check_gobject_get_ptr_property (setup, "machines");
@@ -143,7 +143,7 @@ test_bt_setup_wire_add_machine_id (BT_TEST_ARGS)
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
 
   /* act */
@@ -165,7 +165,7 @@ test_bt_setup_wire_rem_machine_id (BT_TEST_ARGS)
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
 
@@ -188,7 +188,7 @@ test_bt_setup_wire_add_src_list (BT_TEST_ARGS)
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
 
@@ -213,7 +213,7 @@ test_bt_setup_wire_add_dst_list (BT_TEST_ARGS)
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
 
@@ -241,7 +241,7 @@ test_bt_setup_machine_type (BT_TEST_ARGS)
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
 
   /* act */
   BtMachine *machine =
@@ -265,7 +265,7 @@ test_bt_setup_unique_machine_id1 (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
-  bt_source_machine_new (song, "src", "buzztard-test-mono-source", 0, NULL);
+  bt_source_machine_new (song, "src", "buzztrax-test-mono-source", 0, NULL);
 
   /* act */
   gchar *id = bt_setup_get_unique_machine_id (setup, "src");

@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * testing helpers
  *
@@ -49,9 +49,9 @@ bt_check_init (void)
   gst_plugin_register_static (GST_VERSION_MAJOR,
       GST_VERSION_MINOR,
       "bt-test",
-      "buzztard test plugin - several unit test support elements",
+      "buzztrax test plugin - several unit test support elements",
       bt_test_plugin_init,
-      VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztard.org");
+      VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztrax.org");
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-check", 0,
       "music production environment / unit tests");
@@ -456,7 +456,7 @@ setup_log_capture (void)
   (void) g_log_set_handler (G_LOG_DOMAIN,
       G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION,
       check_log_handler, NULL);
-  (void) g_log_set_handler ("buzztard",
+  (void) g_log_set_handler ("buzztrax",
       G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION,
       check_log_handler, NULL);
   (void) g_log_set_handler ("GStreamer",

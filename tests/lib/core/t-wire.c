@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -58,7 +58,7 @@ test_bt_wire_properties (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *dst =
       BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0L, NULL));
   BtWire *wire = bt_wire_new (song, src, dst, NULL);
@@ -77,7 +77,7 @@ test_bt_wire_new_null_song (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *dst =
       BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0L, NULL));
 
@@ -99,7 +99,7 @@ test_bt_wire_new_null_machine (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
 
   /* act */
   BtWire *wire = bt_wire_new (NULL, src, NULL, NULL);

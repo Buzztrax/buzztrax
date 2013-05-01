@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2011 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2011 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -142,7 +142,7 @@ test_bt_main_page_sequence_enter_pattern (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern1 = bt_pattern_new (song, "pattern-name", 8L, machine);
   BtMainPageSequence *sequence_page;
   BtCmdPattern *pattern2;

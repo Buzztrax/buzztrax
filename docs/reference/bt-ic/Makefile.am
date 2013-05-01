@@ -4,7 +4,7 @@
 AUTOMAKE_OPTIONS = 1.6
 
 # The name of the module, e.g. 'glib'.
-DOC_MODULE=buzztard-ic
+DOC_MODULE=buzztrax-ic
 
 # The top-level SGML file. You can change this if you want to.
 DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.xml
@@ -75,7 +75,7 @@ GTKDOC_CFLAGS = \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = \
-	$(top_builddir)/libbuzztard-ic.la \
+	$(top_builddir)/libbuzztrax-ic.la \
 	$(BASE_DEPS_LIBS) \
 	$(BT_LIBS)
 

@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2010 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2010 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -140,7 +140,7 @@ test_bt_main_page_patterns_non_note_key_press (BT_TEST_ARGS)
 
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
@@ -169,7 +169,7 @@ test_bt_main_page_patterns_cursor_pos_on_non_note_key (BT_TEST_ARGS)
 
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);

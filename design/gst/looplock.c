@@ -20,7 +20,7 @@
  *     - these seem to be the ones that close the running segment
  *     - if we're getting one for each src the loop continues
  *     - ideally tee would handle this 
- * - we might need a copy of tee in buzztard that is seek aware, so that
+ * - we might need a copy of tee in buzztrax that is seek aware, so that
  *   1) flush_{start,stop} and new_segment events go back to the pad, from which it
  *      got the seek
  *   2) it could do something sensible with duplicated events (like not forwarding

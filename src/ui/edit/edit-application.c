@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,7 +16,7 @@
  */
 /**
  * SECTION:bteditapplication
- * @short_description: class for a gtk based buzztard editor application
+ * @short_description: class for a gtk based buzztrax editor application
  * @see_also: #BtMainWindow
  *
  * Opens the #BtMainWindow and provide application level function like load,

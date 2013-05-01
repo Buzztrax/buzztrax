@@ -1,5 +1,5 @@
 #!/bin/sh
-# run buzztard-cmd --command=convert on all example and test for crashes
+# run buzztrax-cmd --command=convert on all example and test for crashes
 #
 # this can also be invoked manually to test ones song-library:
 #   E_SONGS="/path/to/songs/*.bzt" T_SONGS=" " TESTRESULTDIR=/tmp ./bt-cmd-convert.sh
@@ -9,7 +9,7 @@ if [ -e tests/bt-cfg.sh ]; then
   . ./bt-cfg.sh
 else
   LIBTOOL=
-  BUZZTARD_CMD=buzztard-cmd
+  BUZZTRAX_CMD=buzztrax-cmd
 fi
 
 if [ -z "$E_SONGS" ]; then
@@ -61,7 +61,7 @@ for song in $E_SONGS; do
   tmpout="$TESTRESULTDIR/$output.out.xml"
   output="$TESTRESULTDIR/$output.out"
   echo >>/tmp/bt_cmd_convert.log "== $song =="
-  GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" $LIBTOOL $BUZZTARD_CMD 2>>/tmp/bt_cmd_convert.log -q --command=convert --input-file="$song" --output-file="$tmpout"
+  GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" $LIBTOOL $BUZZTRAX_CMD 2>>/tmp/bt_cmd_convert.log -q --command=convert --input-file="$song" --output-file="$tmpout"
   mv "$tmpout" "$output"
   if [ $? -ne 0 ]; then
     res=1

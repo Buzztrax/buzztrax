@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2007 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -18,14 +18,14 @@
  * SECTION:btplaybackcontrollersocket
  * @short_description: sockets based playback controller
  *
- * Allows the coherence upnp backend for buzztard to remote control and query
- * buzztard-edit.
+ * Allows the coherence upnp backend for buzztrax to remote control and query
+ * buzztrax-edit.
  *
  * Function can be tested doing "netcat -n 127.0.0.1 7654". The commands are
  * implemented in client_cmd_parse_and_process(). The protocol uses strings
  * that are delimited by '|' chars.
  *
- * playlist - buzztard sends a list of labels for the current song
+ * playlist - buzztrax sends a list of labels for the current song
  *   reply is: '|' delimmited label names
  * play - play a playlist entry (or from start)
  *   play|&lt;playlist-entry-number&gt;

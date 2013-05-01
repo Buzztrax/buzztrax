@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -137,7 +137,7 @@ make_song_without_externals (void)
 {
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
   BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   bt_wire_new (song, gen, sink, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
   g_object_unref (pattern);
@@ -149,7 +149,7 @@ make_song_with_externals (const gchar * ext_data_uri)
 {
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
   BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   bt_wire_new (song, gen, sink, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
   BtWave *wave =

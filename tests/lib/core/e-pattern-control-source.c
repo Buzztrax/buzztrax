@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -43,7 +43,7 @@ test_setup (void)
   bt_child_proxy_get ((gpointer) song, "sequence", &sequence, "song-info",
       &song_info, "song-info::tick-duration", &tick_time, NULL);
   machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   element = GST_OBJECT (check_gobject_get_object_property (machine, "machine"));
   pg = bt_machine_get_global_param_group (machine);
 }

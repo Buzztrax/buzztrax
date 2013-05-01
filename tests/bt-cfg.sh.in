@@ -2,8 +2,8 @@
 TESTSONGDIR="@top_srcdir@/tests/songs"
 TESTRESULTDIR="@top_builddir@/tests/songs"
 
-BUZZTARD_CMD=@top_builddir@/buzztard-cmd
-BUZZTARD_EDIT=@top_builddir@/buzztard-edit
+BUZZTRAX_CMD=@top_builddir@/buzztrax-cmd
+BUZZTRAX_EDIT=@top_builddir@/buzztrax-edit
 
 XFONT_PATH="@XFONT_PATH@"
 

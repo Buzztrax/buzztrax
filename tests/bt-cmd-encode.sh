@@ -1,5 +1,5 @@
 #!/bin/sh
-# run buzztard-cmd --command=encode on all example and test for crashes
+# run buzztrax-cmd --command=encode on all example and test for crashes
 #
 # this can also be invoked manually to test ones song-library:
 #   E_SONGS="/path/to/songs/*.bzt" T_SONGS=" " TESTRESULTDIR=/tmp FMT=ogg ./bt-cmd-encode.sh
@@ -10,7 +10,7 @@ if [ -e tests/bt-cfg.sh ]; then
   FMT=ogg
 else
   LIBTOOL=
-  BUZZTARD_CMD=buzztard-cmd
+  BUZZTRAX_CMD=buzztrax-cmd
 fi
 
 if [ -z "$E_SONGS" ]; then
@@ -53,7 +53,7 @@ for song in $E_SONGS; do
   fi
   audio="$TESTRESULTDIR/$audio.$FMT"
   echo >>/tmp/bt_cmd_encode.log "== $song.$FMT =="
-  GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" $LIBTOOL $BUZZTARD_CMD 2>>/tmp/bt_cmd_encode.log -q --command=encode --input-file="$song" --output-file="$audio"
+  GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" $LIBTOOL $BUZZTRAX_CMD 2>>/tmp/bt_cmd_encode.log -q --command=encode --input-file="$song" --output-file="$audio"
   if [ $? -ne 0 ]; then res=1; fi
 done
 
@@ -68,7 +68,7 @@ if [ -e "$song" ]; then
     fi
     audio="$TESTRESULTDIR/$audio.$format"
     echo >>/tmp/bt_cmd_encode.log "== $song.$format =="
-    GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" $LIBTOOL $BUZZTARD_CMD 2>>/tmp/bt_cmd_encode.log -q --command=encode --input-file="$song" --output-file="$audio"
+    GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" $LIBTOOL $BUZZTRAX_CMD 2>>/tmp/bt_cmd_encode.log -q --command=encode --input-file="$song" --output-file="$audio"
     if [ $? -ne 0 ]; then res=1; fi
   done
 fi

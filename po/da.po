@@ -1,6 +1,6 @@
-# Danish translation of buzztard.
-# Copyright (C) 2011 buzztard og Joe Hansen.
-# This file is distributed under the same license as the buzztard package.
+# Danish translation of buzztrax.
+# Copyright (C) 2011 buzztrax og Joe Hansen.
+# This file is distributed under the same license as the buzztrax package.
 # Joe Hansen <joedalton2@yahoo.dk>, 2008, 2009, 2011, 2012.
 #
 # konventioner
@@ -10,8 +10,8 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztard-0.7.0\n"
-"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"Project-Id-Version: buzztrax-0.7.0\n"
+"Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2012-12-22 16:49+0100\n"
 "PO-Revision-Date: 2012-12-26 00:00+0000\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
@@ -22,16 +22,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../src/lib/core/core.c:180
-msgid "Print the buzztard core version"
-msgstr "Vis buzztard kerneversionen"
+msgid "Print the buzztrax core version"
+msgstr "Vis buzztrax kerneversionen"
 
 #: ../src/lib/core/core.c:186
-msgid "Buzztard core options"
-msgstr "Buzztard kerneindstillinger"
+msgid "Buzztrax core options"
+msgstr "Buzztrax kerneindstillinger"
 
 #: ../src/lib/core/core.c:187
-msgid "Show buzztard core options"
-msgstr "Vis buzztard kerneindstillinger"
+msgid "Show buzztrax core options"
+msgstr "Vis buzztrax kerneindstillinger"
 
 #: ../src/lib/core/cmd-pattern.c:148
 msgid "normal"
@@ -71,22 +71,22 @@ msgstr "Gemmer fil »%s«"
 msgid "untitled song"
 msgstr "unavngivet sang"
 
-#: ../src/lib/core/songio/bsl/buzztard-songio-buzz.desktop.in.h:1
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:1
-msgid "Buzztard Music Editor"
-msgstr "Buzztard musikhåndtering"
+#: ../src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in.h:1
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:1
+msgid "Buzztrax Music Editor"
+msgstr "Buzztrax musikhåndtering"
 
 #: ../src/lib/ic/ic.c:107
-msgid "Print the buzztard interaction controller version"
-msgstr "Vis versionen på buzztard interaktionstyreenhed"
+msgid "Print the buzztrax interaction controller version"
+msgstr "Vis versionen på buzztrax interaktionstyreenhed"
 
 #: ../src/lib/ic/ic.c:113
-msgid "Buzztard interaction controller options"
-msgstr "Indstillinger for buzztard interaktionstyreenhed"
+msgid "Buzztrax interaction controller options"
+msgstr "Indstillinger for buzztrax interaktionstyreenhed"
 
 #: ../src/lib/ic/ic.c:114
-msgid "Show buzztard interaction controller options"
-msgstr "Vis indstillinger for buzztard interaktionstyreenhed"
+msgid "Show buzztrax interaction controller options"
+msgstr "Vis indstillinger for buzztrax interaktionstyreenhed"
 
 #: ../src/ui/cmd/bt-cmd.c:81 ../src/ui/edit/bt-edit.c:91
 msgid "Print application version"
@@ -114,12 +114,12 @@ msgid "Output file name"
 msgstr "Filnavn for uddata"
 
 #: ../src/ui/cmd/bt-cmd.c:109
-msgid "buzztard-cmd options"
-msgstr "Indstillinger for buzztard-cmd"
+msgid "buzztrax-cmd options"
+msgstr "Indstillinger for buzztrax-cmd"
 
 #: ../src/ui/cmd/bt-cmd.c:110
-msgid "Show buzztard-cmd options"
-msgstr "Vis indstillinger for buzztard-cmd"
+msgid "Show buzztrax-cmd options"
+msgstr "Vis indstillinger for buzztrax-cmd"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net>
@@ -133,8 +133,8 @@ msgstr ""
 
 #: ../src/ui/edit/about-dialog.c:71 ../src/ui/edit/about-dialog.c:73
 #, c-format
-msgid "Copyright © 2003-%d Buzztard developer team"
-msgstr "Ophavsret © 2003-%d Buzztard udviklingshold"
+msgid "Copyright © 2003-%d Buzztrax developer team"
+msgstr "Ophavsret © 2003-%d Buzztrax udviklingshold"
 
 #: ../src/ui/edit/about-dialog.c:90
 msgid "Music production environment"
@@ -157,24 +157,24 @@ msgstr ""
 #: ../src/ui/edit/about-dialog.c:120
 msgid ""
 "This release comes with a large number of smaller changes. Audio settings are more flexible and allow to choose a target latency. Jack users will be happy to see that we keep the session alive. We rewrote our test suite, fixed lots of bugs and refactored a large part of the code base. This summer we had a GSoC student, who implemented GStreamer EncodeBin support, which improves the song rendering code, wrote a audio-synth baseclass that greatly simplifies writing a new synth and wrote the pattern control source that allowed us to remove a lot of complicated code from the sequencer core.\n"
-"The gst-buzztard module got more modular. There are a few new plugins (sidsyn, wave-replay and wavetabsyn).\n"
-"We changed all modules to use non recursive make and we merged bsl into buzztard to make development easier."
+"The gst-buzztrax module got more modular. There are a few new plugins (sidsyn, wave-replay and wavetabsyn).\n"
+"We changed all modules to use non recursive make and we merged bsl into buzztrax to make development easier."
 msgstr ""
 "Denne udgivelse indeholder et stort antal mindre ændringer. Lydindstillinger er mere fleksible og lader dig vælge en mållatens. Jackbrugere vil være glade for at se, at vi holder sessionen i live. Vi skrev testpakken om, rettede masser af fejl og refaktorerede en stor del af kodebasen. Denne sommer havde vi en GSoC-student, som implementerede GStreamer EncodeBin-understøttelse, som forbedrer lydrenderingskoden, skrev en lydsynth-basisklasse som forenkler skrivning af en ny synth og som skrev mønsterkontrolkilden, som tillod os at fjerne en masse kompliceret kode fra sequencerkernen.\n"
-"Modulet gst-buzztard blev mere modulært. Der er færre nye udvidelsesmoduler (sidsyn, wave-replay og wavetabsyn).\n"
-"Vi ændrede alle moduler til at bruge ikkerekursiv make og vi sammenføjede bsl til buzztard for at gøre udviklingen nemmere."
+"Modulet gst-buzztrax blev mere modulært. Der er færre nye udvidelsesmoduler (sidsyn, wave-replay og wavetabsyn).\n"
+"Vi ændrede alle moduler til at bruge ikkerekursiv make og vi sammenføjede bsl til buzztrax for at gøre udviklingen nemmere."
 
 #: ../src/ui/edit/bt-edit.c:122
-msgid "buzztard-edit options"
-msgstr "indstillinger for buzztard-edit"
+msgid "buzztrax-edit options"
+msgstr "indstillinger for buzztrax-edit"
 
 #: ../src/ui/edit/bt-edit.c:123
-msgid "Show buzztard-edit options"
-msgstr "Vis indstillinger for buzztard-edit"
+msgid "Show buzztrax-edit options"
+msgstr "Vis indstillinger for buzztrax-edit"
 
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:2
-msgid "Edit buzztard song files"
-msgstr "Rediger buzztard sangfiler"
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:2
+msgid "Edit buzztrax song files"
+msgstr "Rediger buzztrax sangfiler"
 
 #: ../src/ui/edit/change-log.c:584
 msgid "unsaved song"
@@ -488,7 +488,7 @@ msgstr "Kan ikke indlæse sang"
 msgid "Recover a song?"
 msgstr "Gendan en sang?"
 
-#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
+#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
 #: ../src/ui/edit/main-menu.c:821
 msgid "_File"
@@ -1223,8 +1223,8 @@ msgstr "Tilstand"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:161
-msgid "buzztard settings"
-msgstr "buzztard indstillinger"
+msgid "buzztrax settings"
+msgstr "buzztrax indstillinger"
 
 #: ../src/ui/edit/settings-dialog.c:210 ../src/ui/edit/settings-dialog.c:261
 msgid "Audio Devices"
@@ -1410,16 +1410,16 @@ msgid "You can use input devices such as joysticks, beside midi devices to live 
 msgstr "Du kan bruge inddataenheder såsom joystick, udover midi-enheder til live parametre for kontrolmaskiner."
 
 #: ../src/ui/edit/tip-dialog.c:55
-msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztard."
-msgstr "Du kan bruge en upnp-medieklient (f.eks. media streamer på nokia-tabletter) til at kontrollere buzztard eksternt."
+msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztrax."
+msgstr "Du kan bruge en upnp-medieklient (f.eks. media streamer på nokia-tabletter) til at kontrollere buzztrax eksternt."
 
 #: ../src/ui/edit/tip-dialog.c:56
 msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
 msgstr "For at indtaste noder, så se dit pc-tastatur som et musiktastatur i to rækker. Nederste til venstre y og z-taster bliver et »c«, s et »C#«, x et »d« og så videre."
 
 #: ../src/ui/edit/tip-dialog.c:57
-msgid "You can get more help from the community on irc://irc.freenode.net/#buzztard."
-msgstr "Du kan få mere hjælp fra fællesskabet på irc://irc.freenode.net/#buzztard."
+msgid "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
+msgstr "Du kan få mere hjælp fra fællesskabet på irc://irc.freenode.net/#buzztrax."
 
 #: ../src/ui/edit/tip-dialog.c:58
 msgid "Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."

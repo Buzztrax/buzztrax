@@ -1,4 +1,4 @@
-rebuild buzztard.types via
+rebuild buzztrax.types via
   find $(top_srcdir)/src -name "*.h" -exec grep -oe "bt_.*_get_type" {} \; | sort | uniq
 
 find missing classes

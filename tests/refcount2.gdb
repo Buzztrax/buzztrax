@@ -1,6 +1,6 @@
 # dump backtraces for ref count changes
 # run as
-# gdb -x refcount2.gdb ~/buzztard/bin/buzztard-edit
+# gdb -x refcount2.gdb ~/buzztrax/bin/buzztrax-edit
 # result will be in refount.log
 
 # configure

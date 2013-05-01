@@ -1,0 +1,1645 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
+<!ENTITY legal SYSTEM "legal.xml">
+<!ENTITY % version-entities SYSTEM "./version.entities">
+%version-entities;
+<!ENTITY app "Buzztrax">
+<!ENTITY rrar "&#8594;">
+<!ENTITY nbsp "&#xA0;">
+]>
+<!--
+  (Do not remove this comment block.)
+  Maintained by Buzztrax Developer team <buzztrax-devel@lists.sourceforge.net>
+  Template version: 0.4
+  Template last modified: Sep 20, 2008
+-->
+<!-- ===========Document Header ======================== -->
+<article id="index" lang="en">
+<!--
+  please do not change the id: for translations, change lang to
+  appropriate code
+-->
+<articleinfo>
+  <title>&app; manual (&appversion;)</title>
+
+  <copyright>
+    <year>&rel_year;</year>
+    <holder>Stefan Kost</holder>
+  </copyright>
+
+  <!-- translators: uncomment this:
+  <copyright>
+    <year>2004</year>
+    <holder>ME-THE-TRANSLATOR (Latin translation)</holder>
+  </copyright>
+  -->
+
+  <publisher>
+    <publishername>Buzztrax Developer Team</publishername>
+  </publisher>
+
+  &legal;
+
+  <authorgroup>
+    <author>
+      <firstname>Stefan</firstname>
+      <surname>Kost</surname>
+      <affiliation>
+        <orgname>Buzztrax Developer team</orgname>
+        <address> <email>buzztrax-devel@lists.sourceforge.net</email></address>
+      </affiliation>
+    </author>
+  </authorgroup>
+
+  <revhistory>
+    <revision>
+      <revnumber>&app; manual (&appversion;)</revnumber>
+      <date>&rel_date;</date>
+      <revdescription>
+        <para role="author">
+          Buzztrax Developer team
+          <email>buzztrax-devel@lists.sourceforge.net</email>
+        </para>
+      </revdescription>
+    </revision>
+  </revhistory>
+
+  <releaseinfo>This manual describes version &appversion; of &app;.</releaseinfo>
+  <legalnotice>
+    <title>Feedback</title>
+    <para>
+      To report a bug or make a suggestion regarding the &app; application
+      or this manual, see the Buzztrax website at
+      <ulink url="http://www.buzztrax.org">http://www.buzztrax.org</ulink>.
+    </para>
+    <!-- Translators may also add feedback address for translations here -->
+  </legalnotice>
+</articleinfo>
+
+<indexterm><primary>&app;</primary></indexterm>
+<indexterm><primary>buzztrax</primary></indexterm>
+
+<sect1 id="bt-edit-introduction">
+  <title>Introduction</title>
+  <para>
+    <application>&app;</application> is a music composer for the GNOME desktop.
+    It partly follows the concepts of programs like SoundTracker, FastTracker
+    and the like, but is based on a modern media engine (<ulink url="http://gstreamer.freedesktop.org">gstreamer</ulink>).
+    This engine supports virtual sound generators and effects in the form of
+    numerous plugins.
+  </para>
+  <para>
+    During the next section we describe the concept of the <application>&app;</application>
+    and also compare it to similar applications. If you are familiar with some
+    of those, the respective sections should help to understand the way
+    <application>&app;</application> works.
+  </para>
+  <para>
+    The main chapter of the help system is separated into these sections:
+    <itemizedlist>
+      <listitem><para><link linkend="bt-edit-tutorial" endterm="bt-edit-tutorial.title"/></para></listitem>
+      <listitem><para><link linkend="bt-edit-main" endterm="bt-edit-main.title"/></para></listitem>
+      <listitem><para><link linkend="bt-edit-prefs" endterm="bt-edit-prefs.title"/></para></listitem>
+      <listitem><para><link linkend="bt-edit-reference" endterm="bt-edit-reference.title"/></para></listitem>
+    </itemizedlist>
+    The <link linkend="bt-edit-tutorial" endterm="bt-edit-tutorial.title"/>
+    chapter is introducing <application>&app;</application> in a tutorial
+    style. The later chapters have reference character, describing each view and
+    dialog.
+  </para>
+
+  <sect2 id="bt-edit-intro-concept">
+    <title id="bt-edit-intro-concept.title">The concept behind <application>&app;</application></title>
+    <para>
+      &app; follows the concept of tracker applications. This is quite different
+      when compared to other music composers.
+      The tracker concept is more focused on the event data. There is no piano roll (at least not now).
+      Instead song fragments (patterns) are shown in a tabular way containing events over time.
+      Both in the sequence view and in the pattern view, time flows from top to
+      bottom, where as in classic sequencers time flows from left to right.
+    </para>
+    <para>
+      The tabbed UI provides several linked views on a song:
+      <itemizedlist>
+        <listitem><para>A machine view: virtual devices and how they are connected</para></listitem>
+        <listitem><para>A pattern view: each virtual device has a list of fragments with events over time</para></listitem>
+        <listitem><para>A sequence view: a timeline where each track contains patterns that should be played at a given time for the machine of the track</para></listitem>
+        <listitem><para>A wavetable view: collection of sample clips to be used as sound sources for some machines (optional)</para></listitem>
+        <listitem><para>A metadata view: extra information about the song</para></listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      Important design criteria for <application>&app;</application> are:
+      <itemizedlist>
+        <listitem><para>fast and desktop compliant ui</para></listitem>
+        <listitem><para>keyboard shortcuts for everything</para></listitem>
+        <listitem><para>total recall</para></listitem>
+        <listitem><para>highly interactive</para></listitem>
+        <listitem><para>protect the creative process (open song format, journaling)</para></listitem>
+      </itemizedlist>
+    </para>
+  </sect2>
+
+  <sect2 id="bt-edit-intro-buzz">
+    <title id="bt-edit-intro-buzz.title">Comparison to <application>Buzz</application></title>
+    <para>
+      &app; is inspired of lot by Buzz. Some features are still missing and some
+      things already work better.
+      The UI in is not a 1-to-1 copy, for Buzz users the UI will still look familiar.
+    </para>
+    <para>
+      Highlights in &app;:
+      <itemizedlist>
+        <listitem><para>can render songs to wav/mp3,ogg-vorbis/... including song-meta-data (tags) and multi track exports</para></listitem>
+        <listitem><para>uses color-codes for machine-types through its ui</para></listitem>
+        <listitem><para>generates cleaner machine UIs (collapsing parts, more distinct widgets)</para></listitem>
+        <listitem><para>has a scaleable machine view</para></listitem>
+        <listitem><para>can use beats other that 4/4</para></listitem>
+        <listitem><para>shows volume and pan on wire</para></listitem>
+        <listitem><para>does balance on stereo wires</para></listitem>
+        <listitem><para>has analyzers and mixing controls in sequence view</para></listitem>
+        <listitem><para>can have multiple wire-analyzers open</para></listitem>
+        <listitem><para>can be remote controlled with UPnP A/V software</para></listitem>
+        <listitem><para>supports HID input devices for effect control (e.g. joysticks)</para></listitem>
+        <listitem><para>has unlimited undo/redo support</para></listitem>
+        <listitem><para>does journaling and crash recovery</para></listitem>
+        <listitem><para>ships with a plugin that enables GStreamer based media players to play buzztrax songs</para></listitem>
+      </itemizedlist>
+      current shortcomings in &app;:
+      <itemizedlist>
+        <listitem><para>has only marginal MIDI support</para></listitem>
+        <listitem><para>has no pattern recording yet</para></listitem>
+        <listitem><para>does not support machine templates</para></listitem>
+        <listitem><para>adding and removing machines while playing might still hang</para></listitem>
+      </itemizedlist>
+    </para>
+  </sect2>
+
+  <sect2 id="bt-edit-intro-tracker">
+    <title id="bt-edit-intro-tracker.title">Comparison to Tracker applications</title>
+    <para>
+      While &app; has much in common with tracker applications, there are some notable differences.
+    </para>
+    <para>
+      <itemizedlist>
+        <listitem><para>trackers are sample based, buzztrax also uses software synthesizers</para></listitem>
+        <listitem><para>trackers have a fixed track concept, buzztrax uses tracks per machine (source/effect/sink)</para></listitem>
+        <listitem><para>trackers do not have the virtual machine routing</para></listitem>
+      </itemizedlist>
+    </para>
+  </sect2>
+</sect1>
+
+<sect1 id="bt-edit-tutorial">
+  <title id="bt-edit-tutorial.title">Getting started</title>
+  <para>
+    The below tutorials will introduce <application>&app;</application> by going though a few
+    examples. Each example will introduce new features.
+  </para>
+
+  <sect2 id="bt-edit-tutorial-lifefx">
+    <title id="bt-edit-tutorial-lifefx.title">Live Effects</title>
+    <para>
+      This tutorial demonstrates how to use <application>&app;</application> as
+      a toy for live audio effects.
+    </para>
+    <para>
+      Start the graphical editor 'buzztrax-edit'. The first tab shows the
+      <link linkend="bt-edit-main-view-machines">machine view</link>.
+      Here you can create elements (sound generators and effects) and link them together.
+      To create an element, right click on the background and select an element
+      from the context menu. For the example choose alsasrc.
+    </para>
+    <note>
+      <para>
+        Please note, that not all the elements in the list will work perfectly in
+        a live situation right now. Also using livesrc and normal source does
+        not work reliable right now. This will be address in a future versions
+        of buzztrax and gstreamer.
+      </para>
+    </note>
+    <para>
+      In your sound card mixer you should enable recording from the microphone or
+      provide some music on line-in. Next add audiodelay and equalizer-10band elements.
+      Now wire them together by pointing on the source element (alsasrc) and
+      dragging a wire to the target (audiodelay), while holding the shift-key pressed.
+      The wire will become green when the mouse is over a valid target.
+      Releasing the mouse creates the link. Repeat the procedure for audiodelay &rrar; equalizer
+      and equalizer &rrar; master. The wires have a pointer shape in the middle,
+      showing the direction. A left click onto it allows to change the volume of the link,
+      a shift left-click the stereo panorama or balance and a right click shows a
+      context menu for disconnecting the elements and for showing an "analyzer dialog".
+      Open that one for the link between equalizer and master.
+      Finally double click the equalizer and the audiodelay to open their
+      <link linkend="bt-edit-dialog-machine-properties">real-time settings windows</link>.
+      Now you should see something like this:
+    </para>
+    <para>
+      (FIXME: need screen shot)
+    </para>
+    <para>
+      Now lets give it a try. Activate the loop in the <link linkend="bt-edit-main-toolbar">toolbar</link>
+      and press play.
+      Now you can tweak the settings of the effects while making some noise.
+      The parameter-changes will be effective right away. In the "analyzer window"
+      you can see the frequency spectrum of the sound and the volume level.
+    </para>
+  </sect2>
+
+  <sect2 id="bt-edit-tutorial-synth">
+    <title id="bt-edit-tutorial-synth.title">Synthesized Melody Sequence</title>
+    <para>
+      This tutorial will introduce the sequencer functionality and explain
+      patterns.
+    </para>
+    <para>
+      Start the graphical editor 'buzztrax-edit'. On the first tab - the
+      <link linkend="bt-edit-main-view-machines">machine view</link> - add one
+      simsyn. This is a very basic synthesizer. Also add an audiodelay
+      and link simsyn &rrar; audiodelay &rrar; master.
+      Now switch to the <link linkend="bt-edit-main-view-sequence">sequence view</link>.
+      Buzztrax has automatically added a track for the
+      simsyn. Also the song has a default length of 64 ticks (the time axis goes from top to bottom).
+      The track will take patterns. Patterns are the actual building blocks
+      of the score. Patterns are a block of control events, like triggering a note
+      or changing a machine parameter. The right side shows existing pattern for
+      the machine the cursor is in. Simsyn has one called '00'.
+      Press '0' four times to fill the sequence track with this pattern. Buzztrax
+      will repeat the events there 4 times and stop. If you press play now, you won't hear
+      anything yet, as we have not recorded any events into the pattern.
+      Lets switch to the <link linkend="bt-edit-main-view-patterns">pattern editor</link>.
+      This can be done, by just pressing "Enter" in addition to using the tabs.
+    </para>
+    <para>
+      The <link linkend="bt-edit-main-view-patterns">pattern editor</link> shows
+      a grid. Again the time goes from top to bottom.
+      From left to right the editor shows parameter groups. This simple synthesizer
+      has just one. More complex ones have a block with global parameters and one for each voice.
+      Each column shows some info in the status bar when the cursor is in there.
+      The first column is for entering notes.
+      It works like it always worked in trackers - by using the computer keyboard.
+      The two rows above the space key form one octave and the two rows above one octave above.
+      The lower row is for while keys and the upper row for black keys, y/z &rrar; c, s &rrar; c#,
+      x &rrar; d, d &rrar; d#, c &rrar; e, f unused, v &rrar; f and so on.
+      Press Ctrl-2 to set cursor stepping to go down 2 rows on each edit and enter "yqy3ywyr".
+      If you press play now, you should hear a simple melody.
+    </para>
+  </sect2>
+
+  <sect2 id="bt-edit-tutorial-tracker">
+    <title id="bt-edit-tutorial-tracker.title">Sampled Sounds</title>
+    <para>
+      This tutorial explains how to work with sampled sound.
+    </para>
+    <para>
+      The <link linkend="bt-edit-main-view-waves">wave-table view</link> contains
+      a list that one can load audio clips into. Pick some samples from the
+      file-chooser. If you don't have any sample collections, you can still find
+      some samples for testing on your computer. Linux systems usually have some
+      under <filename>/usr/share/sounds</filename>.
+    </para>
+    <para>
+      Now switch to the <link linkend="bt-edit-main-view-machines">machine view</link>.
+      In order to use samples we need to add a special generator that supports the
+      wavetable functionality. Lets use "Generators/BML/Matilde-Tracker". This
+      machine is part of the ported buzzmachine package. Link the machine to the
+      master as usual. Now switch to the <link linkend="bt-edit-main-view-patterns">pattern editor</link>.
+      There you can select the "default waveform" from the combo box in the toolbar.
+      This waveform will be used when entering new notes. You will see the waveform
+      number in the pattern as well, where you can edit it like all the other
+      fields.
+    </para>
+  </sect2>
+</sect1>
+
+<sect1 id="bt-edit-main">
+  <title id="bt-edit-main.title">The main window</title>
+  <para>
+    After starting the <application>&app; Music Editor</application>, you will see the main window.
+    If you start the application without specifying an initial file
+    (as a parameter on the command line or by double clicking a song in <application>Nautilus</application>),
+    the window will look like this.
+  </para>
+
+  <figure id="bt-edit-main-window-fig">
+    <title>&app; window</title>
+    <screenshot>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="figures/main-window.png" format="PNG" contentwidth="65%"/>
+        </imageobject>
+        <textobject>
+          <phrase>Shows &app; main window with menu bar, tool bars, editor views and status area.</phrase>
+        </textobject>
+      </mediaobject>
+    </screenshot>
+  </figure>
+
+  <para>
+    On the very top of the window is <link linkend="bt-edit-main-menu">the menu bar</link>.
+    Below one finds <link linkend="bt-edit-main-toolbar">the toolbar</link>.
+    And below again are tabs to switch between various <link linkend="bt-edit-main-views">views</link>.
+    Each view is for editing certain aspects of the song.
+    On the bottom is a <link linkend="bt-edit-main-statusbar">status bar</link>.
+  </para>
+
+  <para>
+    Many parts in the UI show tooltips with brief explanations. Hover the mouse
+    pointer over the region and wait a moment.
+  </para>
+
+  <para>
+    The UI uses context menus in several places. Press right mouse button to get
+    the menu. The menu offer crucial functionally not available elsewhere right
+    now.
+  </para>
+
+  <sect2 id="bt-edit-main-menu">
+    <title id="bt-edit-main-menu.title">The menu bar</title>
+    <indexterm><primary>main menu</primary></indexterm>
+    <para>
+      The menu bar gives you access to file operations, standard editing function,
+      settings and help.
+    </para>
+
+    <para>
+      The <menuchoice><guimenu>File</guimenu></menuchoice> menu allows to start a new song, load and save
+      songs, as well as end the program. Songs need other resources in order to
+      be played. These are the sound-generators and effects that are used and
+      eventually digital audio-samples. When loading a song &app; checks if all
+      needed resources are available and if not lists them
+      <link linkend="bt-edit-dialog-missing-song-elements">in one dialog</link>.
+      &app; loads and saves songs in an own format is either a single xml file
+      or a compressed zip file (.bzt) containing the xml file and external files
+      (samples). &app; supports plugins to load and save files in different
+      formats. As of now an importer for buzz-songs (.bmx and .bmw) exists.
+    </para>
+    <para>
+      The <menuchoice><guimenu>Edit</guimenu></menuchoice> menu contains
+      clipboard functions and invocation of
+      <link linkend="bt-edit-prefs" endterm="bt-edit-prefs.title"/>.
+    </para>
+    <para>
+      The <menuchoice><guimenu>View</guimenu></menuchoice> menu offers
+      customization for the shown UI elements. It also contains shortcuts to
+      the different song-views.
+    </para>
+  </sect2>
+
+  <sect2 id="bt-edit-main-toolbar">
+    <title id="bt-edit-main-toolbar.title">The tool bar</title>
+    <indexterm><primary>main toolbar</primary></indexterm>
+    <indexterm><primary>changing the volume</primary></indexterm>
+    <para>
+      In contrast to <link linkend="bt-edit-main">the menu bar</link> the tool
+      bar only shows common operations as shortcuts.
+      On the right end the toolbar shows a volume-meter for each audio-channel
+      and a volume control for the whole song.
+    </para>
+  </sect2>
+
+  <sect2 id="bt-edit-main-views">
+    <title id="bt-edit-main-views.title">The song views</title>
+    <para>
+      Each part of a song is represented by a specialized view which one can
+      switch to with the tabs.
+      Next we briefly introduce each tab, where in the next sub section they will
+      be described in detail.
+    </para>
+
+    <sect3 id="bt-edit-main-view-machines">
+      <title id="bt-edit-main-view-machines.title">The machine view of a song</title>
+      <indexterm><primary>creating machines</primary></indexterm>
+      <indexterm><primary>linking machines</primary></indexterm>
+      <para>
+        A song utilizes sound generators, effects and sinks - all called machines.
+        A new machine can be added from the context menu that appear on a right
+        click in the page area.
+        Machines can be moved around by grabbing them with the mouse and dragging
+        them around.
+        To connect machines, move the pointer over the source, press shift+left
+        mouse-button and drag the wire to the target machine. The wire turns
+        green, if the connection can be made. Sources can be connected to
+        Effects and the Master. Effects can be inked to other Effects and the
+        Master. It is not possible to create loops in the signal flow.
+        Fully connected machines are shown in bright color and disconnected ones
+        in a desaturated style. 
+        Alternatively you can select "connect machines" from the right-click
+        context menu of a machine. Again you need to move the mouse to the target
+        machine and click it.
+      </para>
+      <figure id="bt-edit-page-machine-view-fig">
+        <title>Machine view</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/page-machine-view.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>The songs machine view.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <!--para>
+        The machines have a state switch in the upper left corner. You can click
+        this to set it to working state. Additionally holding Ctrl, Win (Mod) or
+        Ctrl+Win keys sets the machine to mute, solo or bypass.
+        Not all machines support all these states.
+      </para-->
+      <indexterm><primary>changing the volume</primary></indexterm>
+      <indexterm><primary>changing the stereo panorama</primary></indexterm>
+      <para>
+        Wires have volume and panorama control support. A left-click on the
+        pointer-shape in the middle of the wire open a volume popup. A click
+        outside closes it again. Shift+left-click opens the panorama control.
+        Only stereo links have a panorama control. For mono-to-stereo links it
+        acts as a panorama for stereo-to-stereo link it acts as a
+        stereo-balance.
+      </para>
+      <para>
+        Machines and wires have context menus. The menu for the wire can be
+        accessed by right clicking over the pointer shape in the middle.
+      </para>
+      <para>
+        A double click on a machine brings up the <link linkend="bt-edit-dialog-machine-properties" endterm="bt-edit-dialog-machine-properties.title"/>.
+      </para>
+    </sect3>
+
+    <sect3 id="bt-edit-main-view-patterns">
+      <title id="bt-edit-main-view-patterns.title">The pattern view of a song</title>
+      <para>
+        Patterns are the building blocks of a song. They are short snippets of
+        events for one machine, that can be reused in the sequence. The vertical
+        axis shows ticks (time) and the horizontal axis has the parameters.
+        Parameters are organized in groups. There is a group for global settings
+        and groups for each voice if the machine is polyphonic. If the pattern
+        is for an effect or sink (master), then the pattern has a group for each
+        incoming wire. There one can change volume and panning/balance (if
+        applicable).
+      </para>
+      <figure id="bt-edit-page-pattern-view-fig">
+        <title>Pattern view</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/page-pattern-view.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>The songs pattern view.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <para>
+        In the page toolbar one can select the machine and the pattern for the machine.
+        Pattern names in gray color indicated that the pattern is not used in the
+        sequence (thus are save to be removed or changed). One can also select the
+        base octave for entering notes via keyboard and the sample that should
+        be used for wave-table based machines. Those combo boxes work when
+        entering new notes, for existing notes one can just edit the respective
+        columns in the pattern.
+      </para>
+      <para>
+        A context menu in the pattern area allows to create new patterns and
+        modify existing ones. Unused patterns can be removed immediately
+        (without any dialogs). If the machine is polyphonic, one can add or
+        remove voices by using the context menu.
+      </para>
+      <para>
+        When moving the cursor around one can see the parameter name and value
+        range in the <link linkend="bt-edit-main-statusbar">statusbar</link>.
+        To enter notes, imagine your pc keyboard as a music keyboard in two rows.
+        Bottom left <keycap>y/z</keycap> key becomes a 'c', <keycap>s</keycap> a 'c#',
+        <keycap>x</keycap> a 'd' and so on. The next octave starts on the upper
+        part of the keyboard with <keycap>q</keycap> being mapped to a 'c' again.
+        Below are tables listing all keyboard shortcuts.
+      </para>
+      <table frame="all" id="bt-edit-page-pattern-view-table-nav-keys">
+        <title>Pattern navigation keyboard shortcuts</title>
+        <indexterm><primary>pattern view shortcuts</primary></indexterm>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>move cursor</entry>
+              <entry><keycap>arrows</keycap></entry>
+              <entry>moves the cursor one position</entry>
+            </row>
+            <row>
+              <entry>next group</entry>
+              <entry><keycap>tab</keycap></entry>
+              <entry>moves the cursor to the next group (wire, global, voices)</entry>
+            </row>
+            <row>
+              <entry>prev group</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>tab</keycap></keycombo></entry>
+              <entry>moves the cursor to the previous group (wire, global, voices)</entry>
+            </row>
+            <row>
+              <entry>move page</entry>
+              <entry><keycap>page up/down</keycap></entry>
+              <entry>moves the cursor 16 rows up or down</entry>
+            </row>
+            <row>
+              <entry>jump cursor</entry>
+              <entry><keycap>home/end</keycap></entry>
+              <entry>moves the cursor to first/last field in group, then first/last group, then first/last row</entry>
+            </row>
+            <row>
+              <entry>select area</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>arrows</keycap></keycombo></entry>
+              <entry>set and enlarge/shrink the selection</entry>
+            </row>
+            <row>
+              <entry>begin selection</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>b</keycap></keycombo></entry>
+              <entry>sets the upper row of the selection and changes selection mode into one of column, group, full-pattern (press multiple times) relative to the cursor</entry>
+            </row>
+            <row>
+              <entry>end selection</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>e</keycap></keycombo></entry>
+              <entry>sets the lower row of the selection and changes selection mode into one of column, group, full-pattern (press multiple times) relative to the cursor</entry>
+            </row>
+            <row>
+              <entry>select column</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>l</keycap></keycombo></entry>
+              <entry>select the full column the cursor is in</entry>
+            </row>
+            <row>
+              <entry>select group</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>k</keycap></keycombo></entry>
+              <entry>select the full group the cursor is in</entry>
+            </row>
+            <row>
+              <entry>select all</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>a</keycap></keycombo></entry>
+              <entry>select the full pattern</entry>
+            </row>
+            <row>
+              <entry>unselect</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>u</keycap></keycombo></entry>
+              <entry>remove the selection (leaves the data intact)</entry>
+            </row>
+            <row>
+              <entry>stepping</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>1...9</keycap></keycombo></entry>
+              <entry>set how many lines the cursor goes down when editing</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <table frame="all" id="bt-edit-page-pattern-view-table-edit-keys">
+        <title>Pattern editing keyboard shortcuts</title>
+        <indexterm><primary>pattern view shortcuts</primary></indexterm>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>enter notes</entry>
+              <entry><screen><keycap>   s d   g h j
+y/z x c v b n m</keycap></screen></entry>
+              <entry>notes from the base octave</entry>
+            </row>
+            <row>
+              <entry>enter notes</entry>
+              <entry><screen><keycap> 2 3   5 6   7
+q w e r t z/y u</keycap></screen></entry>
+              <entry>notes from one octave above the base octave</entry>
+            </row>
+            <row>
+              <entry>enter notes</entry>
+              <entry><screen><keycap> 9 0
+i o p</keycap></screen></entry>
+              <entry>notes from two octaves above the base octave</entry>
+            </row>
+            <row>
+              <entry>note off</entry>
+              <entry><keycap>1</keycap></entry>
+              <entry>turns a playing note off</entry>
+            </row>
+            <row>
+              <entry>clear value</entry>
+              <entry><keycap>. (period)</keycap></entry>
+              <entry>clears the field under the cursor</entry>
+            </row>
+            <row>
+              <entry>live value</entry>
+              <entry><keycap>, (comma)</keycap></entry>
+              <entry>copy the current machine value into the field under the cursor</entry>
+            </row>
+            <row>
+              <entry>delete column</entry>
+              <entry><keycap>delete</keycap></entry>
+              <entry>deletes the row at the cursor for the current column (move entries below up)</entry>
+            </row>
+            <row>
+              <entry>insert column</entry>
+              <entry><keycap>insert</keycap></entry>
+              <entry>insert a black row at the cursor for the current column (move entries below down)</entry>
+            </row>
+            <row>
+              <entry>delete group</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>delete</keycap></keycombo></entry>
+              <entry>deletes the row at the cursor for the current group (move entries below up)</entry>
+            </row>
+            <row>
+              <entry>insert group</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>insert</keycap></keycombo></entry>
+              <entry>insert a black row at the cursor for the current group (move entries below down)</entry>
+            </row>
+            <row>
+              <entry>delete full row</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>shift</keycap><keycap>delete</keycap></keycombo></entry>
+              <entry>deletes the row at the cursor for the whole pattern (move entries below up)</entry>
+            </row>
+            <row>
+              <entry>insert full row</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>shift</keycap><keycap>insert</keycap></keycombo></entry>
+              <entry>insert a black row at the cursor for the whole pattern (move entries below down)</entry>
+            </row>
+            <row>
+              <entry>flip</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>f</keycap></keycombo></entry>
+              <entry>turns the values in the selected range upside down</entry>
+            </row>
+            <row>
+              <entry>interpolate</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>i</keycap></keycombo></entry>
+              <entry>enters values into the selected range that linearly blend from the start to the end value</entry>
+            </row>
+            <row>
+              <entry>randomize</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>r</keycap></keycombo></entry>
+              <entry>enters random values into the selected range</entry>
+            </row>
+            <row>
+              <entry>range-randomize</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>R</keycap></keycombo></entry>
+              <entry>enters random values into the selected range using the first and last value in the selection as a random number range</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <table frame="all" id="bt-edit-page-pattern-view-table-action-keys">
+        <title>Pattern action keyboard shortcuts</title>
+        <indexterm><primary>pattern view shortcuts</primary></indexterm>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>sequence editor</entry>
+              <entry><keycap>return</keycap></entry>
+              <entry>go to sequence editor</entry>
+            </row>
+            <row>
+              <entry>select machine</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>up,down (arrow)</keycap></keycombo></entry>
+              <entry>select current machine</entry>
+            </row>
+            <row>
+              <entry>select pattern</entry>
+              <entry><keycap>+,- (keypad)</keycap></entry>
+              <entry>select current pattern</entry>
+            </row>
+            <row>
+              <entry>select wave</entry>
+              <entry><keycap>&lt;,&gt;</keycap></entry>
+              <entry>select current wave</entry>
+            </row>
+            <row>
+              <entry>switch base octave</entry>
+              <entry><keycap>*,/ (keypad)</keycap></entry>
+              <entry>lower/raise the base octave</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <para>
+        A list of keyboard shortcuts can also be seen on the
+        <ulink url="http://wiki.buzztrax.org/index.php/Keyboard_shortcuts#Pattern_View">wiki</ulink>.
+      </para>
+    </sect3>
+
+    <sect3 id="bt-edit-main-view-sequence">
+      <title id="bt-edit-main-view-sequence.title">The sequence view of a song</title>
+      <para>
+        A song consists of several tracks (columns), where in each track patterns
+        are played. There can be several tracks for the same machine. 
+        The rows are time slots. The position column can show the time in
+        different formats such as ticks and time. The label column can be use to
+        annotate parts of the song, such as 'verse' and 'chorus' for easy
+        navigation.
+      </para>
+      <figure id="bt-edit-page-sequence-view-fig">
+        <title>Sequence view</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/page-sequence-view.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>The songs sequence view.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <para>
+        The sequence header for each track shows the name of the machine, mute,
+        solo. bypass buttons (depending whether it is a generator, effect or
+        sink) and a level-meter. The name field is editable and changing it will
+        rename the machine.
+      </para>
+      <para>
+        The sequence header for the label column offers shortcuts to jump to the
+        selected label. The header for the position column contains a selector
+        for the preferred position format.
+      </para>
+      <para>
+        The context menu allows to add or remove tracks, move tracks left or
+        right and open the machine <link linkend="bt-edit-dialog-machine-properties">properties</link>/
+        <link linkend="bt-edit-dialog-machine-preferences">preferences</link>
+        for the current track.
+        For new generators a track is added automatically.
+      </para>
+      <para>
+        One can navigate around using cursor keys. When changing tracks, the
+        list of patterns on the right is updated to show the patterns for the
+        current machine. Again gray pattern label color indicates that the
+        pattern is not in use.
+        Patterns can be entered into tracks by pressing the associated key
+        (shown left to the pattern name in the list). A new pattern always
+        interrupts a previous one, that is if there is a 32 tick long pattern
+        '00' at row 0 and and a pattern '01' at row 16, then only the first 16
+        ticks of pattern '00' will be played. In addition patterns further to
+        the right shadow patterns to the left (only the filled parameters are
+        overlayed). Why is that useful? One can have multiple tracks for the
+        same machine and then on-the-fly combine patterns.
+        To give an example, for a synthesizer one can have patterns with the
+        melodies and patterns with filter sweeps. Then one can use the filter
+        sweep patterns with the melody patterns.
+      </para>
+      <para>
+        The pattern list always contains a few special patterns. Depending on
+        the machine type, there are break, mute, solo, bypass.
+      </para>
+      <table frame="all" id="bt-edit-page-sequence-view-table-special-patterns">
+        <title>Special patterns</title>
+        <indexterm><primary>special patterns</primary></indexterm>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="p" />
+          <colspec colname="m" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>pattern</entry>
+              <entry>machine type</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>break</entry>
+              <entry>all</entry>
+              <entry>stop the pattern above, can be used to reuse a long pattern and cut it off at some point and to undo the special patterns below</entry>
+            </row>
+            <row>
+              <entry>mute</entry>
+              <entry>all</entry>
+              <entry>silence the output, this is similar to break, but would cut-off any sound immediately, use a break pattern to unmute</entry>
+            </row>
+            <row>
+              <entry>bypass</entry>
+              <entry>effects</entry>
+              <entry>stop applying the effect, use a break pattern to enable again</entry>
+            </row>
+            <row>
+              <entry>solo</entry>
+              <entry>generators</entry>
+              <entry>play only this generator, use a break pattern to enable the other generators again</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <para>
+        The cursor can move beyond the end of the pattern. The pattern gets
+        automatically expanded when entering a pattern beyond the current end of
+        the song. This works the same way for the label column on the left.
+        There descriptive labels for easier song-navigation can be entered as
+        text upon pressing enter.
+      </para>
+      <para>
+        To expand the sequence, scroll down with the cursor and press
+        <keycombo><keycap>Ctrl</keycap><keycap>e</keycap></keycombo> to
+        set the end-line. If the cursor is above the end-line, pressing
+        <keycombo><keycap>Ctrl</keycap><keycap>e</keycap></keycombo>
+        will set the loop-end marker. When the cursor is on the loop-end marker
+        <keycombo><keycap>Ctrl</keycap><keycap>e</keycap></keycombo> will
+        shorten the sequence. To set the loop-begin marker press
+        <keycombo><keycap>Ctrl</keycap><keycap>b</keycap></keycombo>.
+      </para>
+      <para>
+        To set play position click with left-mouse button in the first column at the
+        desired time location. To modify the loop start/end instead hold down
+        the <keycap>Ctrl</keycap> or <keycap>Ctrl+Shift</keycap> key while clicking.
+      </para>
+      <para>
+        It is also possible to insert and delete full rows or just entries in a
+        track. The shortcuts for this are
+        <keycombo><keycap>Ctrl</keycap><keycap>i</keycap></keycombo> to
+        insert a full row and
+        <keycombo><keycap>Ctrl</keycap><keycap>d</keycap></keycombo> to
+        remove a full row. To only insert or remove inside the current track
+        hold the <keycap>Shift</keycap> key in addition.
+      </para>
+      <table frame="all" id="bt-edit-page-sequence-view-table-nav-keys">
+        <title>Sequence navigation keyboard shortcuts</title>
+        <indexterm><primary>sequence view shortcuts</primary></indexterm>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>move cursor</entry>
+              <entry><keycap>arrows</keycap></entry>
+              <entry>moves the cursor one position</entry>
+            </row>
+            <row>
+              <entry>move page</entry>
+              <entry><keycap>page up/down</keycap></entry>
+              <entry>moves the cursor a screen-page up or down</entry>
+            </row>
+            <row>
+              <entry>jump cursor</entry>
+              <entry><keycap>home/end</keycap></entry>
+              <entry>moves the cursor to first/last row</entry>
+            </row>
+            <row>
+              <entry>set loop start</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>b</keycap></keycombo></entry>
+              <entry>sets the begin of the loop region</entry>
+            </row>
+            <row>
+              <entry>set loop/song end</entry>
+              <entry><keycombo><keycap>ctrl</keycap><keycap>e</keycap></keycombo></entry>
+              <entry>sets the end of the loop region or end of song (press again)</entry>
+            </row>
+            <row>
+              <entry>select area</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>arrows</keycap></keycombo></entry>
+              <entry>set and enlarge/shrink the selection</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <table frame="all" id="bt-edit-page-sequence-view-table-edit-keys">
+        <title>Sequence editing keyboard shortcuts</title>
+        <indexterm><primary>sequence view shortcuts</primary></indexterm>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>clear value</entry>
+              <entry><keycap>. (period)</keycap></entry>
+              <entry>clears the pattern under the cursor</entry>
+            </row>
+            <row>
+              <entry>delete track</entry>
+              <entry><keycap>delete</keycap></entry>
+              <entry>deletes the row at the cursor for the current track (move entries below up)</entry>
+            </row>
+            <row>
+              <entry>insert track</entry>
+              <entry><keycap>insert</keycap></entry>
+              <entry>insert a black row at the cursor for the current track (move entries below down)</entry>
+            </row>
+            <row>
+              <entry>delete full row</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>delete</keycap></keycombo></entry>
+              <entry>deletes the row at the cursor for the whole sequence (move entries below up)</entry>
+            </row>
+            <row>
+              <entry>insert full row</entry>
+              <entry><keycombo><keycap>shift</keycap><keycap>insert</keycap></keycombo></entry>
+              <entry>insert a black row at the cursor for the whole sequence (move entries below down)</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <table frame="all" id="bt-edit-page-sequence-view-table-action-keys">
+        <title>Sequence action keyboard shortcuts</title>
+        <indexterm><primary>sequence view shortcuts</primary></indexterm>
+        <tgroup cols="3" align="left" colsep="1" rowsep="1">
+          <colspec colname="c" />
+          <colspec colname="s" />
+          <colspec colname="d" />
+          <thead>
+            <row>
+              <entry>command</entry>
+              <entry>shortcut</entry>
+              <entry>description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>pattern editor</entry>
+              <entry><keycap>return</keycap></entry>
+              <entry>go to sequence editor</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      <para>
+        A full list of keyboard shortcuts can also be seen on the
+        <ulink url="http://wiki.buzztrax.org/index.php/Keyboard_shortcuts#Sequence_View">wiki</ulink>.
+      </para>
+    </sect3>
+
+    <sect3 id="bt-edit-main-view-waves">
+      <title id="bt-edit-main-view-waves.title">The wavetable view of a song</title>
+      <para>
+        The wavetable hold sampled audio snippet that can be used e.g. from
+        special sound generators (tracker sources). Those can be short
+        instrument samples, but also full length songs.
+      </para>
+      <figure id="bt-edit-page-wavetable-view-fig">
+        <title>Wave-table view</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/page-wavetable-view.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>The songs wave-table view.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <para>
+        The left column is the wavetable. Samples are loaded by double clicking
+        them in the right side file-browser. The play-toggle button on the
+        toolbar above the file-browser allows to pre-listen file as the
+        selection changes. Waves in the table can also be played, renamed and
+        removed.
+      </para>
+      <para>
+        Each wavetable entry can have multiple wave levels, which are shown below
+        the wavetable for the selected wave. Some of the details are editable.
+        Right to the wave level list is a waveform preview widget. It shows loop
+        markers and a playback position indicator.
+      </para>
+      <para>
+        Samples can be found on the internet, brought from companies offering
+        sample collections (as CD/DVD sets) or recorded yourself.
+      </para>
+    </sect3>
+
+    <sect3 id="bt-edit-main-view-info">
+      <title id="bt-edit-main-view-info.title">The information view of a song</title>
+      <para>
+        This page allows you to change song parameters, such as speed and
+        timing resolutions and to enter information about the song.
+        The meta data will be used for the tags when creating a final mix-down.
+        The tags show up in your desktop media player or portable media player.
+        While the fields are not mandatory, it is a good idea to fill them.
+      </para>
+      <figure id="bt-edit-page-info-view-fig">
+        <title>Info view</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/page-info-view.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>The songs info view.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <para>
+        The "beats per minute", "beats" and "ticks per beat" parameters control
+        the timing and measure of the song. "Beats per minute" is the classic
+        "bpm" speed of the song. "beats" determines the beats per measure and
+        "ticks per beat" the granularity. If you like to use quarter notes,
+        "ticks per beats" need to be 4. Thus a straight four to the floor has
+        beats=4 and ticks-per-beat=4. A waltz would use beats=3 and
+        ticks-per-beat=4.
+      </para>
+    </sect3>
+  </sect2>
+
+  <sect2 id="bt-edit-main-statusbar">
+    <title id="bt-edit-main-statusbar.title">The status bar</title>
+    <para>
+      The status bar that is located at the bottom of the window.
+      On the left side it shows the status of longer operations like saving and
+      loading with a text message. It also shows some extra detail in some song
+      <link linkend="bt-edit-main-views">views</link>.
+      On the right side, it displays the length of the song, the loop range, the
+      playback position and the current CPU usage.
+    </para>
+  </sect2>
+
+</sect1>
+
+<sect1 id="bt-edit-dialogs">
+  <title id="bt-edit-dialogs.title">Dialog windows</title>
+  <indexterm><primary>main menu</primary></indexterm>
+
+  <para>
+    There are various dialogs that are invoked from the main-menu or from
+    context menus.
+  </para>
+
+  <sect2 id="bt-edit-prefs">
+    <title id="bt-edit-prefs.title">The settings window</title>
+    <para>
+      This window contains all settings for the <application>&app;</application>
+      application. All settings are grouped into categories that can be chosen from
+      the list on the left side.
+    </para>
+
+    <figure id="bt-edit-settings-fig">
+      <title>Settings dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/settings-audio.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Settings dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+
+    <sect3 id="bt-edit-prefs-audio">
+      <title id="bt-edit-prefs-audio.title">Audio device settings</title>
+
+      <para>
+        Select the audiosink to use. It will be changed immediately, except when a
+        song is playing (will be switched after stopping).
+      </para>
+      <figure id="bt-edit-settings-audio-fig">
+        <title>Audio device settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-audio.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>Audio device settings.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <para>
+        All offered audio sinks should be fine for song-playback. One area where
+        they differ is latency. Low latency is important when playing machines
+        live - that is playing notes in the <link linkend="bt-edit-main-view-patterns">pattern editor</link>
+        or changing parameters in the <link linkend="bt-edit-dialog-machine-properties">machine window</link>.
+        The lower the latency, the more immediate the changes are. Jack is known
+        for being able to achieve a low latency, but also a well configured alsa
+        or pulseaudio can achieve a reasonable latency.
+      </para>
+      <para>
+        For some sinks one can chose the audio device that should be used. For
+        all sinks the sampling rate and audio channels can be configured. This
+        should be set matching the audio sink. If jack is configured to play at
+        44100 Hz choosing a lower rate might play at lower CPU consumption, but
+        ideally the setting are the same.
+      </para>
+      <para>
+        The last setting is the target latency. Buzztrax will configure the
+        audio rendering to get close to it. A lower latency is good for live
+        modifications on machines, but also causes a higher CPU load.
+      </para>
+    </sect3>
+
+    <sect3 id="bt-edit-prefs-interaction-controller">
+      <title id="bt-edit-prefs-interaction-controller.title">Interaction controller settings</title>
+
+      <para>
+        Machines can be operated using hardware controllers. Buzztrax can use
+        several types of controls, such as USB HID devices (mice, joystick) and
+        alsa midi devices. Right now this settings-page only shows the detected
+        devices. If you don't see anything, your application-package might have
+        been build without gudev support. This will be indicated by a warning
+        message in the settings page as well.
+      </para>
+      <figure id="bt-edit-settings-ic-fig">
+        <title>Interaction controller settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-ic.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>Interaction controller settings.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <para>
+        For some device types such as midi-devices, the available controls can
+        not be auto-detected. Although one can teach these in a simple
+        procedure. Every time such a device is selected, the lean mode will be
+        activated. In this mode one can press the hardware buttons or move
+        sliders and knobs. When this happens, controls not yet in the list will
+        be automatically added.
+      </para>
+    </sect3>
+
+    <sect3 id="bt-edit-prefs-playback-controller">
+      <title id="bt-edit-prefs-playback-controller.title">Playback controller settings</title>
+
+      <para>
+        Buzztrax implements a few protocols to synchronize playback with
+        external applications or devices. This window lists the controls and
+        allows to configure each of them. For each protocol buzztrax can be
+        time master and/or slave (if supported by the protocol or protocol
+        implementation). In master mode, buzztrax would also start the playback
+        of the external side, when the playback inside buzztrax starts. In slave
+        mode, buzztrax would listen to a command from the external side to also
+        start playback when the external side starts. Each of the protocols
+        might show some extra settings below the list when selected.
+      </para>
+      <para>
+        UPnP A/V remote control via Coherence.
+        (FIXME: explain)
+      </para>
+      <figure id="bt-edit-settings-pc-fig">
+        <title>Playback controller settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-pc.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>Playback controller settings.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
+
+    <sect3 id="bt-edit-prefs-colors">
+      <title id="bt-edit-prefs-colors.title">Color settings</title>
+
+      <para>
+        (FIXME: no theme settings yet)
+      </para>
+      <figure id="bt-edit-settings-colors-fig">
+        <title>Colors settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-colors.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>Colors settings.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
+
+    <sect3 id="bt-edit-prefs-shortcuts">
+      <title id="bt-edit-prefs-shortcuts.title">Shortcut settings</title>
+
+      <para>
+        (FIXME: no shortcut settings yet)
+      </para>
+      <figure id="bt-edit-settings-shortcuts-fig">
+        <title>Shortcut settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-shortcuts.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>Shortcut settings.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
+
+    <sect3 id="bt-edit-prefs-directories">
+      <title id="bt-edit-prefs-directories.title">Directory settings</title>
+
+      <para>
+        Configure default directories used for various file types.
+      </para>
+      <figure id="bt-edit-settings-directories-fig">
+        <title>Directory settings</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/settings-directories.png" format="PNG" contentwidth="65%"/>
+            </imageobject>
+            <textobject>
+              <phrase>Directory settings.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
+  </sect2>
+  <sect2 id="bt-edit-dialog-machine-properties">
+    <title id="bt-edit-dialog-machine-properties.title">Machine properties dialog</title>
+    <para>
+      Context menus on <link linkend="bt-edit-main-view-machines">machine</link>,
+      <link linkend="bt-edit-main-view-patterns">pattern</link> and
+      <link linkend="bt-edit-main-view-sequence">sequence</link> page allow to open this
+      property view for the current machine.
+    </para>
+    <para>
+      The main area of the dialog is covered by the parameters of the machine.
+      These parameter control the generated audio or the effects. If parameters
+      are controlled by <link linkend="bt-edit-main-view-patterns">patterns</link>,
+      the ui will reflect the changes as the music plays.
+    </para>
+    <para>
+      Parameters are grouped. There is one group for global parameters and one
+      for each voice (for polyphonic machines). Effects and the master also have
+      a group for each input, allowing to change volume and panorama. These are
+      the same parameters that can be changed on the wire in the
+      <link linkend="bt-edit-main-view-machines">machine view</link>. Each group
+      has a context menu, e.g. to copy the settings for the group.
+    </para>
+    <para>
+      Each parameter has a context menu. The menu allows to bind the parameter
+      to a hardware controller and unbind it. If a parameter is bound, the
+      changes on the hardware controller will effect the parameter. &app;
+      supports hid (e.g joysticks, wiimotes, harddisk accelerometers) and midi
+      devices. For some device types the sub-menu with the controls will start
+      with an entry "Learn ...". This will lead to the
+      <link linkend="bt-edit-dialog-interaction-controller-learn">lean dialog</link>,
+      where new controllers can be taught.
+    </para>
+    <para>
+      At the top of the dialog is a small toolbar. One button allows to show or
+      hide the right side preset pane. Most machines support presets. Presets
+      are a collection of parameter sets. Other buttons on the toolbar show
+      information about the machine, the help, reset or randomize parameters.
+    </para>
+    <figure id="bt-edit-dialog-machine-properties-fig">
+      <title>Machine properties dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/machine-properties.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Machine properties dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+    <para>
+      Several such dialogs can be opened and the status is saved with the song.
+    </para>
+  </sect2>
+  <sect2 id="bt-edit-dialog-machine-preferences">
+    <title id="bt-edit-dialog-machine-preferences.title">Machine preferences dialog</title>
+    <para>
+      Machine preferences are settings that are configured for the whole song.
+      These settings cannot be changed over time. Context menus on
+      <link linkend="bt-edit-main-view-machines">machine</link>,
+      <link linkend="bt-edit-main-view-patterns">pattern</link> and
+      <link linkend="bt-edit-main-view-sequence">sequence</link> page allow to
+      open this dialog.
+    </para>
+    <note><title>Warning</title>
+      <para>
+        Right now this might also contain some low-level settings, where changing
+        them could break playback.
+      </para>
+    </note>
+    <figure id="bt-edit-dialog-machine-preferences-fig">
+      <title>Machine preferences dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/machine-preferences.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Machine preferences dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+  <sect2 id="bt-edit-dialog-machine-rename">
+    <title id="bt-edit-dialog-machine-rename.title">Machine rename dialog</title>
+    <para>
+      Allows renaming a machine. The dialog ensures that the new name is unique
+      in the song.
+    </para>
+    <figure id="bt-edit-dialog-machine-rename-fig">
+      <title>Machine rename dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/machine-rename.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Machine rename dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+  <sect2 id="bt-edit-dialog-preset-properties">
+    <title id="bt-edit-dialog-preset-properties.title">Preset properties dialog</title>
+    <para>
+      Allows renaming a preset and adding comments for them. The dialog ensures
+      that the new name is unique among the presets of a machine.
+    </para>
+    <figure id="bt-edit-dialog-preset-properties-fig">
+      <title>Preset properties dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/preset-properties.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Preset properties dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+  <sect2 id="bt-edit-dialog-signal-analysis">
+    <title id="bt-edit-dialog-signal-analysis.title">Signal analysis dialog</title>
+    <para>
+      The context menu on wires and the master machine allow to attach live signal
+      analyzers to the song. This dialog shows the volume meters and a
+      spectrogram for the wire or the master. There are a few settings to change
+      the visualization of the spectrogram.
+    </para>
+    <para>
+      Several such dialogs can be opened and the status is saved with the song.
+    </para>
+    <figure id="bt-edit-dialog-signal-analysis-fig">
+      <title>Signal analysis dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/signal-analysis.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Signal analysis dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+  <sect2 id="bt-edit-dialog-pattern-properties">
+    <title id="bt-edit-dialog-pattern-properties.title">Pattern properties dialog</title>
+    <para>
+      Allows renaming a pattern as well as changing its length or the number of
+      voices (for polyphonic machines). The dialog ensures that the new name is
+      unique among the patterns of a machine.
+    </para>
+    <figure id="bt-edit-dialog-pattern-properties-fig">
+      <title>Pattern properties dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/pattern-properties.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Pattern properties dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+  <sect2 id="bt-edit-dialog-song-recording">
+    <title id="bt-edit-dialog-song-recording.title">Song recording dialog</title>
+    <para>
+      &app; can render a song as a mix-down or a series of files per generator.
+      The mix-down is ideal to share or publish the song. In both cases the
+      recordings can be encoded and muxed in several formats.
+    </para>
+    <figure id="bt-edit-dialog-song-recording-settings-fig">
+      <title>Song recording settings dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/recording-settings.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Song recording settings dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+    <figure id="bt-edit-dialog-song-recording-progress-fig">
+      <title>Song recording progress dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/recording-progress.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Song recording progress dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+  <sect2 id="bt-edit-dialog-about">
+    <title id="bt-edit-dialog-about.title">About dialog</title>
+    <para>
+      This dialog shows a short info about the application, the license it is
+      released under and gives credits to the contributors.
+    </para>
+    <figure id="bt-edit-dialog-about-fig">
+      <title>About dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/about.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>About dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+  <sect2 id="bt-edit-dialog-tip">
+    <title id="bt-edit-dialog-tip.title">Tip-of-the-day dialog</title>
+    <para>
+      If the tip-of-the-day feature is enabled in the
+      <link linkend="bt-edit-main-menu">help menu</link> this dialog is shown
+      each time after starting the application. It will highlight special
+      features that one might otherwise miss.
+    </para>
+    <figure id="bt-edit-dialog-tip-fig">
+      <title>Tip-of-the-day dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/tip.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Tip-of-the-day dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+  <sect2 id="bt-edit-dialog-missing-song-elements">
+    <title id="bt-edit-dialog-missing-song-elements.title">Missing song elements dialog</title>
+    <para>
+      Songs have external dependencies, such as the machines (generators and
+      effects) and sampled wave forms. In some song formats (e.g. .bzt) the
+      wave forms are part of the song file, in others (e.g. .xml) only the path
+      to the waveform file is stored. If loading a file detects that some
+      dependencies are missing, &app; will gather them and present them in one
+      dialog.
+    </para>
+    <para>
+      To solve the problem one needs to install the missing machines or put the
+      external wave forms back to the original place. It would be desirable to
+      have some repair feature in &app; to support fixing the song.
+    </para>
+    <figure id="bt-edit-dialog-missing-song-elements-fig">
+      <title>Missing song elements dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/missing-song-elements.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Missing song elements dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+  <sect2 id="bt-edit-dialog-crash-recovery">
+    <title id="bt-edit-dialog-crash-recovery.title">Crash recovery dialog</title>
+    <para>
+      When editing a song &app; is writing a detailed change log to disk. In the
+      case of a application, system or computer failure it is possible to replay
+      the changes on top of the last saved copy to get back to the state before
+      failure.  When starting &app; it will check for such logs and if some are
+      found present this dialog. Now one can choose to restore the changes or
+      delete them. The dialog is also available from the
+      <link linkend="bt-edit-main-menu">file menu</link>.
+    </para>
+    <figure id="bt-edit-dialog-crash-recovery-fig">
+      <title>Crash recovery dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/crash-recovery.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Crash recovery dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+  <sect2 id="bt-edit-dialog-interaction-controller-learn">
+    <title id="bt-edit-dialog-interaction-controller-learn.title">Interaction controller learn dialog</title>
+    <para>
+      When this dialog is open, &app; will listen to control changes. Not yet
+      known controls will show in the dialog with an auto-generated name. This
+      name can be changed. Pressing okay, will store the new control and assign
+      it to the machine parameter (from which the dialog was invoked).
+    </para>
+    <figure id="bt-edit-dialog-interaction-controller-learn-fig">
+      <title>Interaction controller learn dialog</title>
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="figures/interaction-controller-learn.png" format="PNG" contentwidth="65%"/>
+          </imageobject>
+          <textobject>
+            <phrase>Interaction controller learn dialog.</phrase>
+          </textobject>
+        </mediaobject>
+      </screenshot>
+    </figure>
+  </sect2>
+</sect1>
+
+<sect1 id="bt-edit-reference">
+  <title id="bt-edit-reference.title">Reference</title>
+  <para>
+    This chapter contains a few useful lists for reference.
+  </para>
+
+  <sect2 id="bt-edit-reference-shortcuts">
+    <title id="bt-edit-reference-shortcuts.title">Keyboard shortcuts</title>
+
+    <para>
+      A complete list of keyboard shortcuts is listed on
+      <ulink url="http://wiki.buzztrax.org/index.php/Keyboard_shortcuts">the buzztrax wiki</ulink>.
+      Each of <link linkend="bt-edit-main-views" endterm="bt-edit-main-views.title" /> 
+      has a table describing the local keyboard shortcuts.
+    </para>
+  </sect2>
+<!--
+@todo:
+  list of warnings/errors?
+  trouble shooting
+-->
+</sect1>
+
+<index id="bt-edit-keyword-index">
+  <title id="bt-edit-keyword-index.title">Index</title>
+</index>
+
+</article>

@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2008 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2008 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -76,7 +76,7 @@ bt_song_io_native_xml_load (gconstpointer const _self,
     }
     if (song_doc) {
       if (!ctxt->valid) {
-        GST_WARNING ("the supplied document is not a XML/Buzztard document");
+        GST_WARNING ("the supplied document is not a XML/Buzztrax document");
       } else if (!ctxt->wellFormed) {
         GST_WARNING ("the supplied document is not a wellformed XML document");
       } else {
@@ -84,7 +84,8 @@ bt_song_io_native_xml_load (gconstpointer const _self,
 
         if (root_node == NULL) {
           GST_WARNING ("xmlDoc is empty");
-        } else if (xmlStrcmp (root_node->name, (const xmlChar *) "buzztard")) {
+        } else if (xmlStrcmp (root_node->name, (const xmlChar *) "buzztrax") &&
+            xmlStrcmp (root_node->name, (const xmlChar *) "buzztard")) {
           GST_WARNING ("wrong document type root node in xmlDoc src");
         } else {
           GError *err = NULL;

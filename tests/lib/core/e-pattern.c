@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -58,7 +58,7 @@ test_bt_pattern_name (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
 
   /* act */
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -73,8 +73,8 @@ test_bt_pattern_name (BT_TEST_ARGS)
 
 
 static gchar *element_names[] = {
-  "buzztard-test-no-arg-mono-source", "buzztard-test-mono-source",
-  "buzztard-test-poly-source", "buzztard-test-poly-source"
+  "buzztrax-test-no-arg-mono-source", "buzztrax-test-mono-source",
+  "buzztrax-test-poly-source", "buzztrax-test-poly-source"
 };
 static gulong element_voices[] = { 0, 0, 0, 1 };
 
@@ -103,7 +103,7 @@ test_bt_pattern_obj_mono (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   /* act */
@@ -129,7 +129,7 @@ test_bt_pattern_obj_poly (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 2L, NULL));
+          "buzztrax-test-poly-source", 2L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   /* act */
@@ -155,7 +155,7 @@ test_bt_pattern_obj_wire1 (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *src_machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *sink_machine =
       BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, src_machine, sink_machine, NULL);
@@ -177,7 +177,7 @@ test_bt_pattern_obj_wire2 (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *src_machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *sink_machine =
       BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, src_machine, sink_machine, NULL);
@@ -201,7 +201,7 @@ test_bt_pattern_copy (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 2L, NULL));
+          "buzztrax-test-poly-source", 2L, NULL));
   BtPattern *pattern1 = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern1, 0, 0, "5");
   bt_pattern_set_voice_event (pattern1, 4, 0, 0, "10");
@@ -228,7 +228,7 @@ test_bt_pattern_has_data (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 1L, NULL));
+          "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
   /* act */
@@ -251,7 +251,7 @@ test_bt_pattern_enlarge_length (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_global_event (pattern, 4, 0, "10");
@@ -277,7 +277,7 @@ test_bt_pattern_shrink_length (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 16L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_global_event (pattern, 12, 0, "10");
@@ -300,7 +300,7 @@ test_bt_pattern_enlarge_voices (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 1L, NULL));
+          "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_voice_event (pattern, 4, 0, 0, "10");
@@ -327,7 +327,7 @@ test_bt_pattern_shrink_voices (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-poly-source", 2L, NULL));
+          "buzztrax-test-poly-source", 2L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_voice_event (pattern, 4, 0, 0, "10");
@@ -352,7 +352,7 @@ test_bt_pattern_insert_row (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_global_event (pattern, 4, 0, "10");
@@ -377,7 +377,7 @@ test_bt_pattern_delete_row (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
-          "buzztard-test-mono-source", 0L, NULL));
+          "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_global_event (pattern, 4, 0, "10");
@@ -401,7 +401,7 @@ test_bt_pattern_mono_get_global_vg (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
 
   /* act && assert */
@@ -418,7 +418,7 @@ test_bt_pattern_mono_get_voice_vg (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
-          "buzztard-test-mono-source", 0, NULL));
+          "buzztrax-test-mono-source", 0, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
 
   /* act && assert */

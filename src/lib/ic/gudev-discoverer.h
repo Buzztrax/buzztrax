@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2011 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2011 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -37,7 +37,7 @@ typedef struct _BtIcGudevDiscovererPrivate BtIcGudevDiscovererPrivate;
 /**
  * BtIcGudevDiscoverer:
  *
- * gudev based device discovery for buzztards interaction controller
+ * gudev based device discovery for buzztraxs interaction controller
  */
 struct _BtIcGudevDiscoverer {
   const GObject parent;

@@ -1,5 +1,5 @@
-/* Buzztard
- * Copyright (C) 2010 Buzztard team <buzztard-devel@lists.sf.net>
+/* Buzztrax
+ * Copyright (C) 2010 Buzztrax team <buzztrax-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,7 +16,7 @@
  */
 /**
  * SECTION:bttestapplication
- * @short_description: unit test buzztard application
+ * @short_description: unit test buzztrax application
  *
  * Dummy application subclass.
  */

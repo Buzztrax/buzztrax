@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
+<!ENTITY % version-entities SYSTEM "../../version.entities">
+%version-entities;
+<!ELEMENT xi:include (xi:fallback?) >
+<!ATTLIST xi:include
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude"
+    href       CDATA       #IMPLIED
+    parse      (xml|text)  "xml"
+    xpointer   CDATA       #IMPLIED
+    encoding   CDATA       #IMPLIED 
+    accept     CDATA       #IMPLIED
+    accept-language CDATA  #IMPLIED >
+
+<!ELEMENT xi:fallback ANY>
+<!ATTLIST xi:fallback
+    xmlns:xi   CDATA   #FIXED   "http://www.w3.org/2003/XInclude" >
+
+<!ATTLIST book
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude" >
+
+<!ENTITY % local.refentry.class "| xi:include">
+]>
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
+  <bookinfo>
+    <title>Buzztrax Bt-Cmd Reference Manual</title>
+    <releaseinfo>
+      for Buzztrax &BT_VERSION;.
+      The latest version of this documentation can be found on-line at
+      <ulink role="online-location" url="http://www.buzztrax.org/files/apidocs/bt-cmd/">http://www.buzztrax.org/files/apidocs/bt-cmd/</ulink>.
+    </releaseinfo>
+  </bookinfo>
+
+  <preface>
+    <title>Introduction</title>
+    <para>
+      Buzztrax aims to be a successor of the freeware music tracker called Buzz
+      with a focus on Linux. The development of Buzz for windows had been
+      discontinued as the author lost all his source-codes. Buzztrax is only
+      related to Buzz in the concepts, Buzztraxs source code is written from
+      scratch.
+    </para>
+    <para>
+      The homepage of the buzztrax project can be found at
+      <ulink url="http://www.buzztrax.org">www.buzztrax.org</ulink>.
+      It is a social site containing forums, a wiki and bug tracker and many
+      other resoures.
+    </para>
+  </preface>
+  
+  <part label="I">
+    <title>Overview</title>
+  </part>
+
+  <reference label="II" id="uibtcmd">
+    <title>User Application API Reference</title>
+    <partintro>
+      <abstract>
+        <para>
+          The classes described in this chapter are all part of end user application
+          code.
+          Please make sure you have read section <ulink url="../bt-core/conventions.html">conventions</ulink>
+          before reading further.
+        </para>
+      </abstract>
+    </partintro>
+    <xi:include href="xml/btcmd.xml"/>
+    <xi:include href="xml/btcmdapplication.xml"/>
+  </reference>
+
+  <reference label="III" id="uibtcmdopts">
+    <title>User Application Command Line Reference</title>
+    <xi:include href="buzztrax-cmd.xml"/>
+  </reference>
+
+  <part label="IV">
+    <title>Appendix</title>
+
+    <chapter id="objecttree">
+      <title>Object Hierarchy</title>
+      <xi:include href="xml/tree_index.sgml" />
+    </chapter>
+  
+    <index id="api-index">
+      <title>API Index</title>
+      <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+    </index>
+    <index id="api-index-deprecated" role="deprecated">
+      <title>Index of deprecated API</title>
+      <xi:include href="xml/api-index-deprecated.xml"><xi:fallback /></xi:include>
+    </index>
+  </part>
+</book>

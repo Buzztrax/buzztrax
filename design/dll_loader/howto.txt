@@ -55,7 +55,7 @@ ldd dll_loader.exe.so
 //
 // start
 //
-hoehmi@bigwaffel:~/projects/buzztard/dll_loader> wine dll_loader.exe.so ../whitenoise_chorus.dll
+hoehmi@bigwaffel:~/projects/buzztrax/dll_loader> wine dll_loader.exe.so ../whitenoise_chorus.dll
 START
 load Windows DLL ../whitenoise_chorus.dll successful
 handle: 268435456

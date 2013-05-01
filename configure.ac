@@ -1,6 +1,6 @@
 dnl Initialise autoconf/automake/libtool
 AC_PREREQ(2.61)
-AC_INIT([buzztard],[0.8.0],[buzztard-devel@lists.sourceforge.net])
+AC_INIT([buzztrax],[0.8.0],[buzztrax-devel@lists.sourceforge.net])
 # we can't do -Werror, because
 # - we use gnu make extensions
 # - we override uninstallcheck var
@@ -38,7 +38,7 @@ BT_VERSION=$BT_MAJOR_VERSION.$BT_MINOR_VERSION.$BT_MICRO_VERSION
 BT_VERSION_INFO=`expr $BT_MAJOR_VERSION + $BT_MINOR_VERSION`:$BT_MICRO_VERSION:$BT_MINOR_VERSION
 
 BT_MAJORMINOR=1.0
-AC_DEFINE_UNQUOTED(BT_MAJORMINOR, "$BT_MAJORMINOR", [buzztard series])
+AC_DEFINE_UNQUOTED(BT_MAJORMINOR, "$BT_MAJORMINOR", [buzztrax series])
 AC_SUBST(BT_MAJORMINOR)
 
 dnl that is needed to figure the directory name, where the plugin goes to
@@ -80,12 +80,12 @@ AM_GNU_GETTEXT_VERSION(0.12.1)
 AM_GNU_GETTEXT([external])
 localedir='${datadir}/locale'
 AC_SUBST(localedir)
-GETTEXT_PACKAGE="buzztard-$BT_MAJORMINOR"
+GETTEXT_PACKAGE="buzztrax-$BT_MAJORMINOR"
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Package Name for Gettext])
 
 
-dnl common switches for all buzztard modules
+dnl common switches for all buzztrax modules
 
 dnl enable runtime debugging code
 AC_MSG_CHECKING(whether to enable runtime debugging code)
@@ -243,8 +243,8 @@ PKG_CHECK_MODULES(GUI_DEPS, \
   libgnomecanvas-2.0 \
 )
 
-PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.8.0, [
-    AC_DEFINE(USE_GSTBT, [1], [Define to 1 if we can use gst-buzztard])
+PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztrax >= 0.8.0, [
+    AC_DEFINE(USE_GSTBT, [1], [Define to 1 if we can use gst-buzztrax])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTBT_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTBT_DEPS_LIBS"
   ]
@@ -513,19 +513,19 @@ AC_CONFIG_FILES(Makefile \
   docs/version.entities \
   docs/help/bt-edit/Makefile \
   docs/help/bt-edit/C/Makefile \
-  docs/help/bt-edit/C/buzztard-edit-C.omf \
+  docs/help/bt-edit/C/buzztrax-edit-C.omf \
   docs/reference/bt-cmd/Makefile \
   docs/reference/bt-core/Makefile \
-  docs/reference/bt-core/buzztard-core.types \
+  docs/reference/bt-core/buzztrax-core.types \
   docs/reference/bt-edit/Makefile \
   docs/reference/bt-ic/Makefile \
-  docs/reference/bt-ic/buzztard-ic.types \
-  docs/reference/bt-ic/buzztard-ic-sections.txt \
+  docs/reference/bt-ic/buzztrax-ic.types \
+  docs/reference/bt-ic/buzztrax-ic-sections.txt \
   po/Makefile.in \
-  src/lib/buzztard.xml \
-  src/lib/core/libbuzztard-core.pc \
+  src/lib/buzztrax.xml \
+  src/lib/core/libbuzztrax-core.pc \
   src/lib/core/version.h \
-  src/lib/ic/libbuzztard-ic.pc \
+  src/lib/ic/libbuzztrax-ic.pc \
   src/lib/ic/version.h \
   tests/bt-cfg.sh \
   tests/lib/core/songio/bsl/bt-cfg.sh \
@@ -571,8 +571,8 @@ fi
 
 if test ! `echo "$PKG_CONFIG_PATH:/usr" | tr \: \\n | grep $prefix` ; then
 echo "
-You are installing buzztard libraries into a location that is not yet known to
-system. In order for other buzztard modules to find them and the application to
+You are installing buzztrax libraries into a location that is not yet known to
+system. In order for other buzztrax modules to find them and the application to
 work with all features please register the location (see README for details):
 export LD_LIBRARY_PATH=$prefix/lib:\$LD_LIBRARY_PATH
 export MANPATH=\$MANPATH:$prefix/share/man
