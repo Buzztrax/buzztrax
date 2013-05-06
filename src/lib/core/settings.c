@@ -305,6 +305,28 @@ write_string (GSettings * settings, const gchar * path,
       (res ? "okay" : "fail"));
 }
 
+/*
+ * g_settings_is_schema_installed:
+ * schema: the schema to check
+ *
+ * g_settings_new() and co. fail with a fatal error if a schema is not found.
+ *
+ * Returns: TRUE if a schema is installed.
+ */
+static gboolean
+g_settings_is_schema_installed (const gchar * schema)
+{
+  const gchar *const *schemas = g_settings_list_schemas ();
+  gint i = 0;
+
+  while (schemas[i]) {
+    if (!strcmp (schemas[i], schema))
+      return TRUE;
+    i++;
+  }
+  return FALSE;
+}
+
 //-- signals
 
 static void
@@ -345,9 +367,16 @@ bt_settings_make (void)
     p->org_buzztrax = g_settings_new_with_backend ("org.buzztrax", backend);
     p->org_gnome_desktop_interface =
         g_settings_new_with_backend ("org.gnome.desktop.interface", backend);
-    p->org_freedesktop_gstreamer_defaults =
-        g_settings_new_with_backend
-        ("org.freedesktop.gstreamer-0.10.default-elements", backend);
+    if (g_settings_is_schema_installed
+        ("org.freedesktop.gstreamer.default-elements")) {
+      // FIXME: not yet ported
+      p->org_freedesktop_gstreamer_defaults =
+          g_settings_new_with_backend
+          ("org.freedesktop.gstreamer.default-elements", backend);
+    } else {
+      GST_WARNING
+          ("no gsettings schema for 'org.freedesktop.gstreamer.default-elements'");
+    }
 
     // get child settings
     p->org_buzztrax_window = g_settings_get_child (p->org_buzztrax, "window");
@@ -360,8 +389,10 @@ bt_settings_make (void)
     // add bindings
     g_signal_connect (p->org_gnome_desktop_interface, "changed",
         G_CALLBACK (on_settings_changed), (gpointer) singleton);
-    g_signal_connect (p->org_freedesktop_gstreamer_defaults, "changed",
-        G_CALLBACK (on_settings_changed), (gpointer) singleton);
+    if (p->org_freedesktop_gstreamer_defaults) {
+      g_signal_connect (p->org_freedesktop_gstreamer_defaults, "changed",
+          G_CALLBACK (on_settings_changed), (gpointer) singleton);
+    }
 
     g_object_add_weak_pointer ((GObject *) singleton,
         (gpointer *) (gpointer) & singleton);
@@ -572,9 +603,14 @@ bt_settings_get_property (GObject * const object, const guint property_id,
       break;
       /* system settings */
     case BT_SETTINGS_SYSTEM_AUDIOSINK:
-      // org.freedesktop.gstreamer-0.10.default-elements : music-audiosink
-      read_string (self->priv->org_freedesktop_gstreamer_defaults,
-          "music-audiosink", value);
+      // org.freedesktop.gstreamer.default-elements : music-audiosink
+      if (self->priv->org_freedesktop_gstreamer_defaults) {
+        read_string (self->priv->org_freedesktop_gstreamer_defaults,
+            "music-audiosink", value);
+      } else {
+        g_value_set_static_string (value,
+            ((GParamSpecString *) pspec)->default_value);
+      }
       break;
     case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:
       // org.gnome.desktop.interface
@@ -697,7 +733,7 @@ bt_settings_dispose (GObject * const object)
   g_object_unref (self->priv->org_buzztrax_playback_controller);
   g_object_unref (self->priv->org_buzztrax_directories);
   g_object_unref (self->priv->org_gnome_desktop_interface);
-  g_object_unref (self->priv->org_freedesktop_gstreamer_defaults);
+  g_object_try_unref (self->priv->org_freedesktop_gstreamer_defaults);
 
   G_OBJECT_CLASS (bt_settings_parent_class)->dispose (object);
   GST_DEBUG ("  done");
