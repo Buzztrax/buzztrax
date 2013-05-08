@@ -14,7 +14,7 @@
    height="744.09448"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.48.3.1 r9886"
    version="1.0"
    sodipodi:docname="buzztrax-arch.svg"
    inkscape:export-filename="/home/ensonic/projects/buzztrax/buzztrax/design/buzztrax-arch.png"
@@ -244,16 +244,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1167937"
-     inkscape:cx="450.20045"
-     inkscape:cy="460.35504"
+     inkscape:cx="451.99129"
+     inkscape:cy="368.46183"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="1052.3622px"
      height="744.09448px"
      showguides="true"
      inkscape:guide-bbox="false"
-     inkscape:window-width="1438"
-     inkscape:window-height="824"
+     inkscape:window-width="1720"
+     inkscape:window-height="1006"
      inkscape:window-x="0"
      inkscape:window-y="24"
      showgrid="true"
@@ -507,32 +507,35 @@
          style="font-size:18px;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan19272">command-line tool</tspan></text>
     <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
        d="M 239.32832,223.70283 560,344.09448"
        id="path11811"
        inkscape:connector-type="polyline"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100" />
+       inkscape:export-ydpi="100"
+       inkscape:connector-curvature="0" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
        d="m 660,222.91196 0,121.18252"
        id="path11815"
        inkscape:connector-type="polyline"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 660,424.09448 L 660,544.09448"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m 660,424.09448 0,120"
        id="path11819"
        inkscape:connector-type="polyline"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0" />
     <rect
        style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect12898"
@@ -565,14 +568,15 @@
          style="font-size:18;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan19198">gst extensions</tspan></text>
     <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 760,584.09448 L 810,584.09448"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m 760,584.09448 50,0"
        id="path12912"
        inkscape:connector-type="polyline"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100" />
+       inkscape:export-ydpi="100"
+       inkscape:connector-curvature="0" />
     <rect
        style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect13801"
@@ -681,14 +685,15 @@
          style="font-size:18;text-align:center;text-anchor:middle;font-family:sans"
          id="tspan19177">buzz machine loader</tspan></text>
     <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 910,444.09448 L 910,424.09448"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m 910,444.09448 0,-20"
        id="path17388"
        inkscape:connector-type="polyline"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
@@ -743,7 +748,8 @@
        sodipodi:nodetypes="cc"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100" />
+       inkscape:export-ydpi="100"
+       inkscape:connector-curvature="0" />
     <rect
        style="fill:#80beff;fill-opacity:1;stroke:#0073ec;stroke-width:3;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect1979"
@@ -783,7 +789,8 @@
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
        d="M 190.09102,221.99444 397.71714,544.17693"
@@ -792,7 +799,8 @@
        sodipodi:nodetypes="cc"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100" />
+       inkscape:export-ydpi="100"
+       inkscape:connector-curvature="0" />
     <rect
        style="opacity:0.6;fill:none;stroke:url(#linearGradient6496);stroke-width:3.00000072;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect4718"
@@ -957,32 +965,35 @@
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 760,544.09448 L 810,524.09448"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m 760,544.09448 50,-20"
        id="path13818"
        inkscape:connector-type="polyline"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100" />
+       inkscape:export-ydpi="100"
+       inkscape:connector-curvature="0" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 910,524.09448 L 910,544.09448"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m 910,524.09448 0,20"
        id="path18275"
        inkscape:connector-type="polyline"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100" />
+       inkscape:export-ydpi="100"
+       inkscape:connector-curvature="0" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 760,344.09448 L 810,324.09448"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m 760,344.09448 50,-20"
        id="path13820"
        inkscape:connector-type="polyline"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
-       inkscape:export-ydpi="100" />
+       inkscape:export-ydpi="100"
+       inkscape:connector-curvature="0" />
     <rect
        style="fill:#c4ff80;fill-opacity:1;stroke:#5baa00;stroke-width:3;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect11791-7"
@@ -1034,6 +1045,7 @@
        inkscape:export-filename="/home/ensonic/presentations/LAC2007/buzztrax-arch-notitle.png"
        inkscape:export-xdpi="100"
        inkscape:export-ydpi="100"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>
