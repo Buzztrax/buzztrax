@@ -366,11 +366,11 @@ bt_song_info_persistence_save (const BtPersistence * const persistence,
           XML_CHAR_PTR (self->priv->change_dts));
     }
     xmlNewChild (node, NULL, XML_CHAR_PTR ("bpm"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->
-                priv->beats_per_minute)));
+        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->
+                beats_per_minute)));
     xmlNewChild (node, NULL, XML_CHAR_PTR ("tpb"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->
-                priv->ticks_per_beat)));
+        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->
+                ticks_per_beat)));
     xmlNewChild (node, NULL, XML_CHAR_PTR ("bars"),
         XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->bars)));
   }
@@ -688,13 +688,19 @@ static void
 bt_song_info_init (BtSongInfo * self)
 {
   time_t now = time (NULL);
+  const gchar *user_name;
 
   self->priv =
       G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
   self->priv->taglist = gst_tag_list_new_empty ();
 
+  user_name = g_get_real_name ();
+  if (!user_name || !user_name[0]) {
+    user_name = g_get_user_name ();
+  }
+
   self->priv->name = g_strdup (DEFAULT_SONG_NAME);
-  self->priv->author = g_strdup (g_get_real_name ());
+  self->priv->author = g_strdup (user_name);
   // @idea alternate bpm's a little at new_song (user defined range?)
   self->priv->beats_per_minute = 125;   // 1..1000
   self->priv->ticks_per_beat = 4;       // 1..128
