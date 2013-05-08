@@ -263,30 +263,17 @@ gtk_vumeter_unmap (GtkWidget * widget)
   GTK_WIDGET_CLASS (gtk_vumeter_parent_class)->unmap (widget);
 }
 
-
-static void
-gtk_vumeter_size_request (GtkWidget * widget, GtkRequisition * requisition)
-{
-  GtkVUMeter *vumeter = GTK_VUMETER (widget);
-
-  if (vumeter->vertical) {
-    requisition->width = VERTICAL_VUMETER_WIDTH;
-    requisition->height = MIN_VERTICAL_VUMETER_HEIGHT;
-  } else {
-    requisition->width = MIN_HORIZONTAL_VUMETER_WIDTH;
-    requisition->height = HORIZONTAL_VUMETER_HEIGHT;
-  }
-}
-
 static void
 gtk_vumeter_get_preferred_width (GtkWidget * widget, gint * minimal_width,
     gint * natural_width)
 {
-  GtkRequisition requisition;
+  GtkVUMeter *vumeter = GTK_VUMETER (widget);
 
-  gtk_vumeter_size_request (widget, &requisition);
-  *minimal_width = *natural_width = requisition.width;
-
+  if (vumeter->vertical) {
+    *minimal_width = *natural_width = VERTICAL_VUMETER_WIDTH;
+  } else {
+    *minimal_width = *natural_width = MIN_HORIZONTAL_VUMETER_WIDTH;
+  }
   printf ("preferred_width: %d\n", *natural_width);
 }
 
@@ -294,11 +281,13 @@ static void
 gtk_vumeter_get_preferred_height (GtkWidget * widget, gint * minimal_height,
     gint * natural_height)
 {
-  GtkRequisition requisition;
+  GtkVUMeter *vumeter = GTK_VUMETER (widget);
 
-  gtk_vumeter_size_request (widget, &requisition);
-  *minimal_height = *natural_height = requisition.height;
-
+  if (vumeter->vertical) {
+    *minimal_height = *natural_height = MIN_VERTICAL_VUMETER_HEIGHT;
+  } else {
+    *minimal_height = *natural_height = HORIZONTAL_VUMETER_HEIGHT;
+  }
   printf ("preferred_height: %d\n", *natural_height);
 }
 
