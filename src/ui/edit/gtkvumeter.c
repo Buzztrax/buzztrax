@@ -28,6 +28,15 @@
  *   to actually see the two shaded parts. Otherwise the decay is alway less then
  *   peak and thus now shown.
  */
+/* TODO(ensonic): perfect sync for drawing
+ * - GdkFrameClock or gtk_widget_add_tick_callback()
+ *   needs Gnome-3.8 (gtk, clutter, mutter, cogl)
+ * - irc-chat:
+ *   - you typically have almost 32ms latency in the compositor case between the
+ *     point where you are told to render a frame and the point where it scans out
+ *   - gdk_frame_timings_get_predicted_presentation_time() gives you a time 
+ *     (relative to g_get-monotonic_time()) when a frame will display
+ */
 /**
  * SECTION:gtkvumeter
  * @short_description: vu meter widget
