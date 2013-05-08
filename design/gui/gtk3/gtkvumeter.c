@@ -94,6 +94,8 @@ gtk_vumeter_new (gboolean vertical)
 static void
 gtk_vumeter_init (GtkVUMeter * vumeter)
 {
+  GtkStyleContext *context;
+
   vumeter->rms_level = 0;
   vumeter->min = 0;
   vumeter->max = 32767;
@@ -101,6 +103,9 @@ gtk_vumeter_init (GtkVUMeter * vumeter)
   vumeter->delay_peak_level = 0;
 
   vumeter->scale = GTK_VUMETER_SCALE_LINEAR;
+
+  context = gtk_widget_get_style_context (GTK_WIDGET (vumeter));
+  gtk_style_context_add_class (context, GTK_STYLE_CLASS_FRAME);
 }
 
 static void
@@ -281,6 +286,8 @@ gtk_vumeter_get_preferred_width (GtkWidget * widget, gint * minimal_width,
 
   gtk_vumeter_size_request (widget, &requisition);
   *minimal_width = *natural_width = requisition.width;
+
+  printf ("preferred_width: %d\n", *natural_width);
 }
 
 static void
@@ -291,6 +298,8 @@ gtk_vumeter_get_preferred_height (GtkWidget * widget, gint * minimal_height,
 
   gtk_vumeter_size_request (widget, &requisition);
   *minimal_height = *natural_height = requisition.height;
+
+  printf ("preferred_height: %d\n", *natural_height);
 }
 
 
@@ -353,10 +362,6 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
   printf ("draw: w,h: %d,%d\n", width, height);
 
   /* draw border */
-  /* detail for part of progressbar would be called "trough"
-     gtk_paint_box (widget->style, widget->window, GTK_STATE_NORMAL, GTK_SHADOW_IN,
-     NULL, widget, NULL, 0, 0, width, height);
-   */
   gtk_render_background (context, cr, 0, 0, width, height);
   gtk_render_frame (context, cr, 0, 0, width, height);
 
