@@ -129,6 +129,30 @@ on_show_tips_toggled (GtkToggleButton * togglebutton, gpointer user_data)
       gtk_toggle_button_get_active (togglebutton), NULL);
 }
 
+static void
+on_tip_view_size_request (GtkWidget * widget, GtkRequisition * requisition,
+    gpointer user_data)
+{
+  GtkWidget *parent = gtk_widget_get_parent (gtk_widget_get_parent (widget));
+  gint height = requisition->height, width = -1;
+  gint max_height = gdk_screen_get_height (gdk_screen_get_default ());
+  gint available_heigth;
+
+  GST_DEBUG ("#### tip_view  size req %d x %d (max-height=%d)",
+      requisition->width, requisition->height, max_height);
+  // have a minimum width
+  if (requisition->width < 250) {
+    width = 250;
+  }
+  // constrain the height by screen height minus some space for panels and deco
+  available_heigth = max_height - SCREEN_BORDER_HEIGHT;
+  if (height > available_heigth) {
+    height = available_heigth;
+  }
+  // TODO(ensonic): is the '4' some border or padding
+  gtk_widget_set_size_request (parent, width, height + 4);
+}
+
 //-- helper methods
 
 static void
@@ -203,13 +227,15 @@ bt_tip_dialog_init_ui (const BtTipDialog * self)
   gtk_text_view_set_cursor_visible (self->priv->tip_view, FALSE);
   gtk_text_view_set_editable (self->priv->tip_view, FALSE);
   gtk_text_view_set_wrap_mode (self->priv->tip_view, GTK_WRAP_WORD);
+  g_signal_connect (self->priv->tip_view, "size-request",
+      G_CALLBACK (on_tip_view_size_request), (gpointer) self);
 
   tip_view = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (tip_view),
       GTK_SHADOW_IN);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (tip_view),
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_container_add (GTK_CONTAINER (tip_view),
+  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (tip_view),
       GTK_WIDGET (self->priv->tip_view));
 
   gtk_box_pack_start (GTK_BOX (vbox), tip_view, TRUE, TRUE, 0);
