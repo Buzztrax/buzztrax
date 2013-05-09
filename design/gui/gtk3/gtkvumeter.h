@@ -52,7 +52,6 @@ struct _GtkVUMeter {
 
     gint        scale;
     
-    GdkWindow  *window;
     cairo_pattern_t *gradient_rms, *gradient_peak, *gradient_bg;
 };
 

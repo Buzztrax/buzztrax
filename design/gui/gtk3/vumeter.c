@@ -46,9 +46,8 @@ init ()
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window), "Levelmeter");
-  //gtk_window_set_default_size (GTK_WINDOW (window), 160, 50);
   g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
-  gtk_container_set_border_width (GTK_CONTAINER (window), 0);
+  gtk_container_set_border_width (GTK_CONTAINER (window), 6);
 
   vumeter = gtk_vumeter_new (FALSE);
   gtk_vumeter_set_min_max (GTK_VUMETER (vumeter), 0, 100);

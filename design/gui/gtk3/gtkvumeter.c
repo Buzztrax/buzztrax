@@ -55,19 +55,13 @@
 #define MIN_VERTICAL_VUMETER_HEIGHT    400
 
 static void gtk_vumeter_finalize (GObject * object);
-
-static void gtk_vumeter_realize (GtkWidget * widget);
-static void gtk_vumeter_unrealize (GtkWidget * widget);
-static void gtk_vumeter_map (GtkWidget * widget);
-static void gtk_vumeter_unmap (GtkWidget * widget);
 static void gtk_vumeter_get_preferred_width (GtkWidget * widget,
     gint * minimal_width, gint * natural_width);
 static void gtk_vumeter_get_preferred_height (GtkWidget * widget,
     gint * minimal_height, gint * natural_height);
-
+static gboolean gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr);
 static void gtk_vumeter_size_allocate (GtkWidget * widget,
     GtkAllocation * allocation);
-static gboolean gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr);
 
 //-- the class
 
@@ -106,6 +100,8 @@ gtk_vumeter_init (GtkVUMeter * vumeter)
 
   context = gtk_widget_get_style_context (GTK_WIDGET (vumeter));
   gtk_style_context_add_class (context, GTK_STYLE_CLASS_FRAME);
+
+  gtk_widget_set_has_window (GTK_WIDGET (vumeter), FALSE);
 }
 
 static void
@@ -116,15 +112,10 @@ gtk_vumeter_class_init (GtkVUMeterClass * klass)
 
   gobject_class->finalize = gtk_vumeter_finalize;
 
-  widget_class->realize = gtk_vumeter_realize;
-  widget_class->unrealize = gtk_vumeter_unrealize;
-  widget_class->map = gtk_vumeter_map;
-  widget_class->unmap = gtk_vumeter_unmap;
   widget_class->draw = gtk_vumeter_draw;
-  widget_class->size_allocate = gtk_vumeter_size_allocate;
-
   widget_class->get_preferred_width = gtk_vumeter_get_preferred_width;
   widget_class->get_preferred_height = gtk_vumeter_get_preferred_height;
+  widget_class->size_allocate = gtk_vumeter_size_allocate;
 }
 
 
@@ -187,92 +178,25 @@ gtk_vumeter_allocate_colors (GtkVUMeter * vumeter)
 }
 
 static void
-gtk_vumeter_realize (GtkWidget * widget)
-{
-  GtkVUMeter *vumeter = GTK_VUMETER (widget);
-  GdkWindow *parent_window;
-  GdkWindowAttr attributes;
-  gint attributes_mask;
-  GtkAllocation allocation;
-
-  gtk_widget_set_realized (widget, TRUE);
-  parent_window = gtk_widget_get_parent_window (widget);
-  gtk_widget_set_window (widget, parent_window);
-  g_object_ref (parent_window);
-
-  gtk_widget_get_allocation (widget, &allocation);
-
-  attributes.window_type = GDK_WINDOW_CHILD;
-  attributes.wclass = GDK_INPUT_OUTPUT;
-  attributes.x = allocation.x;
-  attributes.y = allocation.y;
-  attributes.width = allocation.width;
-  attributes.height = allocation.height;
-  attributes.visual = gtk_widget_get_visual (widget);
-  attributes.event_mask = gtk_widget_get_events (widget) | GDK_EXPOSURE_MASK;
-  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
-
-  vumeter->window = gdk_window_new (parent_window, &attributes,
-      attributes_mask);
-  //gtk_widget_register_window (widget, vumeter->window);
-  gdk_window_set_user_data (vumeter->window, widget);
-
-  gtk_vumeter_allocate_colors (vumeter);
-
-  printf ("realized\n");
-}
-
-static void
-gtk_vumeter_unrealize (GtkWidget * widget)
-{
-  GtkVUMeter *vumeter = GTK_VUMETER (widget);
-
-  if (vumeter->window != NULL) {
-    //gtk_widget_unregister_window (widget, priv->event_window);
-    gdk_window_set_user_data (vumeter->window, NULL);
-    gdk_window_destroy (vumeter->window);
-    vumeter->window = NULL;
-  }
-
-  GTK_WIDGET_CLASS (gtk_vumeter_parent_class)->unrealize (widget);
-}
-
-static void
-gtk_vumeter_map (GtkWidget * widget)
-{
-  GtkVUMeter *vumeter = GTK_VUMETER (widget);
-
-  GTK_WIDGET_CLASS (gtk_vumeter_parent_class)->map (widget);
-
-  if (vumeter->window) {
-    gdk_window_show (vumeter->window);
-    printf ("shown\n");
-  }
-}
-
-static void
-gtk_vumeter_unmap (GtkWidget * widget)
-{
-  GtkVUMeter *vumeter = GTK_VUMETER (widget);
-
-  if (vumeter->window) {
-    gdk_window_hide (vumeter->window);
-    printf ("hidden\n");
-  }
-
-  GTK_WIDGET_CLASS (gtk_vumeter_parent_class)->unmap (widget);
-}
-
-static void
 gtk_vumeter_get_preferred_width (GtkWidget * widget, gint * minimal_width,
     gint * natural_width)
 {
   GtkVUMeter *vumeter = GTK_VUMETER (widget);
+  GtkStyleContext *context;
+  GtkStateFlags state;
+  GtkBorder border;
+  gint border_padding;
+
+  context = gtk_widget_get_style_context (widget);
+  state = gtk_widget_get_state_flags (widget);
+  gtk_style_context_get_padding (context, state, &border);
+  border_padding = border.left + border.right;
 
   if (vumeter->vertical) {
-    *minimal_width = *natural_width = VERTICAL_VUMETER_WIDTH;
+    *minimal_width = *natural_width = VERTICAL_VUMETER_WIDTH + border_padding;
   } else {
-    *minimal_width = *natural_width = MIN_HORIZONTAL_VUMETER_WIDTH;
+    *minimal_width = *natural_width =
+        MIN_HORIZONTAL_VUMETER_WIDTH + border_padding;
   }
   printf ("preferred_width: %d\n", *natural_width);
 }
@@ -282,30 +206,24 @@ gtk_vumeter_get_preferred_height (GtkWidget * widget, gint * minimal_height,
     gint * natural_height)
 {
   GtkVUMeter *vumeter = GTK_VUMETER (widget);
+  GtkStyleContext *context;
+  GtkStateFlags state;
+  GtkBorder border;
+  gint border_padding;
+
+  context = gtk_widget_get_style_context (widget);
+  state = gtk_widget_get_state_flags (widget);
+  gtk_style_context_get_padding (context, state, &border);
+  border_padding = border.top + border.bottom;
 
   if (vumeter->vertical) {
-    *minimal_height = *natural_height = MIN_VERTICAL_VUMETER_HEIGHT;
+    *minimal_height = *natural_height =
+        MIN_VERTICAL_VUMETER_HEIGHT + border_padding;
   } else {
-    *minimal_height = *natural_height = HORIZONTAL_VUMETER_HEIGHT;
+    *minimal_height = *natural_height =
+        HORIZONTAL_VUMETER_HEIGHT + border_padding;
   }
   printf ("preferred_height: %d\n", *natural_height);
-}
-
-
-static void
-gtk_vumeter_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
-{
-  GtkVUMeter *vumeter = GTK_VUMETER (widget);
-
-  gtk_widget_set_allocation (widget, allocation);
-  printf ("x,y: %d,%d, w,h: %d,%d\n", allocation->x, allocation->y,
-      allocation->width, allocation->height);
-
-  if (gtk_widget_get_realized (widget)) {
-    gdk_window_move_resize (vumeter->window, allocation->x, allocation->y,
-        allocation->width, allocation->height);
-  }
-  gtk_vumeter_allocate_colors (GTK_VUMETER (widget));
 }
 
 static gint
@@ -431,6 +349,16 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
   }
 
   return FALSE;
+}
+
+static void
+gtk_vumeter_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
+{
+  gtk_widget_set_allocation (widget, allocation);
+  printf ("x,y: %d,%d, w,h: %d,%d\n", allocation->x, allocation->y,
+      allocation->width, allocation->height);
+
+  gtk_vumeter_allocate_colors (GTK_VUMETER (widget));
 }
 
 /**
