@@ -26,8 +26,7 @@ change_level (gpointer data)
 {
   static gint level = 0, inc = 10;
   GtkVUMeter *vumeter = GTK_VUMETER (data);
-
-  gtk_vumeter_set_levels (vumeter, level, level);
+  gtk_style_context_get_padding gtk_vumeter_set_levels (vumeter, level, level);
   level += inc;
   if (level > 100) {
     level = 100;
@@ -49,7 +48,7 @@ init ()
   g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
   gtk_container_set_border_width (GTK_CONTAINER (window), 6);
 
-  vumeter = gtk_vumeter_new (FALSE);
+  vumeter = gtk_vumeter_new (GTK_ORIENTATION_HORIZONTAL);
   gtk_vumeter_set_min_max (GTK_VUMETER (vumeter), 0, 100);
   gtk_vumeter_set_scale (GTK_VUMETER (vumeter), GTK_VUMETER_SCALE_LINEAR);
   gtk_container_add (GTK_CONTAINER (window), vumeter);

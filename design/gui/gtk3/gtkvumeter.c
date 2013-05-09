@@ -17,7 +17,6 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 /* TODO(ensonic): add properties:
- *   - vertical : gboolean, readonly
  *   - min,max,rms,peak : gint, read/write
  *   - scale_type : enum, read/write
  */
@@ -49,12 +48,24 @@
 
 #include "gtkvumeter.h"
 
+enum
+{
+  PROP_0,
+  PROP_ORIENTATION
+};
+
+
 #define MIN_HORIZONTAL_VUMETER_WIDTH   150
 #define HORIZONTAL_VUMETER_HEIGHT  6
 #define VERTICAL_VUMETER_WIDTH     6
 #define MIN_VERTICAL_VUMETER_HEIGHT    400
 
+static void gtk_vumeter_set_property (GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec);
+static void gtk_vumeter_get_property (GObject * object, guint prop_id,
+    GValue * value, GParamSpec * pspec);
 static void gtk_vumeter_finalize (GObject * object);
+
 static void gtk_vumeter_get_preferred_width (GtkWidget * widget,
     gint * minimal_width, gint * natural_width);
 static void gtk_vumeter_get_preferred_height (GtkWidget * widget,
@@ -65,30 +76,28 @@ static void gtk_vumeter_size_allocate (GtkWidget * widget,
 
 //-- the class
 
-G_DEFINE_TYPE (GtkVUMeter, gtk_vumeter, GTK_TYPE_WIDGET);
-
+G_DEFINE_TYPE_WITH_CODE (GtkVUMeter, gtk_vumeter, GTK_TYPE_WIDGET,
+    G_IMPLEMENT_INTERFACE (GTK_TYPE_ORIENTABLE, NULL))
 
 /**
  * gtk_vumeter_new:
- * @vertical: %TRUE for a vertical VUMeter, %FALSE for horizontal VUMeter.
+ * @orientation: vertical/horizontal
  *
  * Creates a new VUMeter widget.
  *
  * Returns: the new #GtkWidget
  */
-GtkWidget *
-gtk_vumeter_new (gboolean vertical)
+     GtkWidget *gtk_vumeter_new (GtkOrientation orientation)
 {
-  GtkVUMeter *vumeter;
-  vumeter = GTK_VUMETER (g_object_new (GTK_TYPE_VUMETER, NULL));
-  vumeter->vertical = vertical;
-  return GTK_WIDGET (vumeter);
+  return g_object_new (GTK_TYPE_VUMETER, "orientation", orientation, NULL);
 }
 
 static void
 gtk_vumeter_init (GtkVUMeter * vumeter)
 {
   GtkStyleContext *context;
+
+  vumeter->orientation = GTK_ORIENTATION_HORIZONTAL;
 
   vumeter->rms_level = 0;
   vumeter->min = 0;
@@ -110,12 +119,49 @@ gtk_vumeter_class_init (GtkVUMeterClass * klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
   GtkWidgetClass *widget_class = (GtkWidgetClass *) klass;
 
+  gobject_class->set_property = gtk_vumeter_set_property;
+  gobject_class->get_property = gtk_vumeter_get_property;
   gobject_class->finalize = gtk_vumeter_finalize;
 
   widget_class->draw = gtk_vumeter_draw;
   widget_class->get_preferred_width = gtk_vumeter_get_preferred_width;
   widget_class->get_preferred_height = gtk_vumeter_get_preferred_height;
   widget_class->size_allocate = gtk_vumeter_size_allocate;
+
+  g_object_class_override_property (gobject_class, PROP_ORIENTATION,
+      "orientation");
+}
+
+static void
+gtk_vumeter_set_property (GObject * object, guint prop_id, const GValue * value,
+    GParamSpec * pspec)
+{
+  GtkVUMeter *vumeter = GTK_VUMETER (object);
+
+  switch (prop_id) {
+    case PROP_ORIENTATION:
+      vumeter->orientation = g_value_get_enum (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+static void
+gtk_vumeter_get_property (GObject * object, guint prop_id, GValue * value,
+    GParamSpec * pspec)
+{
+  GtkVUMeter *vumeter = GTK_VUMETER (object);
+
+  switch (prop_id) {
+    case PROP_ORIENTATION:
+      g_value_set_enum (value, vumeter->orientation);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
 }
 
 
@@ -149,10 +195,10 @@ gtk_vumeter_allocate_colors (GtkVUMeter * vumeter)
   if (vumeter->gradient_bg)
     cairo_pattern_destroy (vumeter->gradient_bg);
 
-  if (vumeter->vertical) {      /* veritcal */
+  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
     height = gtk_widget_get_allocated_height ((GtkWidget *) vumeter) - 1;
     width = 1;
-  } else {                      /* horizontal */
+  } else {
     height = 1;
     width = gtk_widget_get_allocated_width ((GtkWidget *) vumeter) - 1;
   }
@@ -192,13 +238,12 @@ gtk_vumeter_get_preferred_width (GtkWidget * widget, gint * minimal_width,
   gtk_style_context_get_padding (context, state, &border);
   border_padding = border.left + border.right;
 
-  if (vumeter->vertical) {
+  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
     *minimal_width = *natural_width = VERTICAL_VUMETER_WIDTH + border_padding;
   } else {
     *minimal_width = *natural_width =
         MIN_HORIZONTAL_VUMETER_WIDTH + border_padding;
   }
-  printf ("preferred_width: %d\n", *natural_width);
 }
 
 static void
@@ -216,14 +261,13 @@ gtk_vumeter_get_preferred_height (GtkWidget * widget, gint * minimal_height,
   gtk_style_context_get_padding (context, state, &border);
   border_padding = border.top + border.bottom;
 
-  if (vumeter->vertical) {
+  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
     *minimal_height = *natural_height =
         MIN_VERTICAL_VUMETER_HEIGHT + border_padding;
   } else {
     *minimal_height = *natural_height =
         HORIZONTAL_VUMETER_HEIGHT + border_padding;
   }
-  printf ("preferred_height: %d\n", *natural_height);
 }
 
 static gint
@@ -253,29 +297,26 @@ gtk_vumeter_sound_level_to_draw_level (GtkVUMeter * vumeter,
 static gboolean
 gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
 {
-  GtkVUMeter *vumeter;
+  GtkVUMeter *vumeter = GTK_VUMETER (widget);
   GtkStyleContext *context;
   gint rms_level, peak_level;
   gint width, height;
   guint i;
 
-  g_return_val_if_fail (GTK_IS_VUMETER (widget), FALSE);
-
-  vumeter = GTK_VUMETER (widget);
   width = gtk_widget_get_allocated_width (widget);
   height = gtk_widget_get_allocated_height (widget);
   context = gtk_widget_get_style_context (widget);
-
-  printf ("draw: w,h: %d,%d\n", width, height);
 
   /* draw border */
   gtk_render_background (context, cr, 0, 0, width, height);
   gtk_render_frame (context, cr, 0, 0, width, height);
 
-  if (vumeter->vertical) {
+  // FIXME(ensonic): use gtk_style_context_get_padding() instead of fixed values
+  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
     width -= 3;
     height -= 2;
 
+    // FIXME(ensonic): draw full led segments
     rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
         vumeter->rms_level, height - 1);
     peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
@@ -313,6 +354,7 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
     width -= 2;
     height -= 3;
 
+    // FIXME(ensonic): draw full led segments
     rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
         vumeter->rms_level, width - 1);
     peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
@@ -355,9 +397,6 @@ static void
 gtk_vumeter_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
 {
   gtk_widget_set_allocation (widget, allocation);
-  printf ("x,y: %d,%d, w,h: %d,%d\n", allocation->x, allocation->y,
-      allocation->width, allocation->height);
-
   gtk_vumeter_allocate_colors (GTK_VUMETER (widget));
 }
 

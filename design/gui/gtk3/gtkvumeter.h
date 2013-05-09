@@ -42,7 +42,8 @@ struct _GtkVUMeter {
     GtkWidget   widget;
 
     /* < private > */
-    gboolean    vertical;
+    /* properties */
+    GtkOrientation orientation;
     gint        rms_level;
     gint        min;
     gint        max;
@@ -66,7 +67,7 @@ enum {
 };
 
 GType    gtk_vumeter_get_type (void) G_GNUC_CONST;
-GtkWidget *gtk_vumeter_new (gboolean vertical);
+GtkWidget *gtk_vumeter_new (GtkOrientation orientation);
 void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint min, gint max);
 void gtk_vumeter_set_levels (GtkVUMeter *vumeter, gint rms, gint peak);
 void gtk_vumeter_set_peaks_falloff (GtkVUMeter *vumeter, gint peaks_falloff);
