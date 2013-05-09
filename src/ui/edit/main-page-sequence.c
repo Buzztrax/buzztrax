@@ -1643,7 +1643,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
           g_signal_connect (machine, "notify::state",
               G_CALLBACK (on_machine_state_changed_bypass), (gpointer) button);
         }
-        vumeter = GTK_VUMETER (gtk_vumeter_new (FALSE));
+        vumeter = GTK_VUMETER (gtk_vumeter_new (GTK_ORIENTATION_HORIZONTAL));
         gtk_vumeter_set_min_max (vumeter, LOW_VUMETER_VAL, 0);
         // no falloff in widget, we have falloff in GstLevel
         //gtk_vumeter_set_peaks_falloff(vumeter, GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);

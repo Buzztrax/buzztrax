@@ -48,7 +48,7 @@ init ()
   gtk_window_set_title (GTK_WINDOW (window), "Levelmeter");
   g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
-  vumeter = gtk_vumeter_new (FALSE);
+  vumeter = gtk_vumeter_new (GTK_ORIENTATION_HORIZONTAL);
   gtk_vumeter_set_min_max (GTK_VUMETER (vumeter), 0, 100);
   gtk_vumeter_set_scale (GTK_VUMETER (vumeter), GTK_VUMETER_SCALE_LINEAR);
 

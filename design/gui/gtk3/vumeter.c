@@ -26,7 +26,8 @@ change_level (gpointer data)
 {
   static gint level = 0, inc = 10;
   GtkVUMeter *vumeter = GTK_VUMETER (data);
-  gtk_style_context_get_padding gtk_vumeter_set_levels (vumeter, level, level);
+
+  gtk_vumeter_set_levels (vumeter, level, level);
   level += inc;
   if (level > 100) {
     level = 100;

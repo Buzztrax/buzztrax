@@ -54,7 +54,6 @@ enum
   PROP_ORIENTATION
 };
 
-
 #define MIN_HORIZONTAL_VUMETER_WIDTH   150
 #define HORIZONTAL_VUMETER_HEIGHT  6
 #define VERTICAL_VUMETER_WIDTH     6
@@ -77,7 +76,7 @@ static void gtk_vumeter_size_allocate (GtkWidget * widget,
 //-- the class
 
 G_DEFINE_TYPE_WITH_CODE (GtkVUMeter, gtk_vumeter, GTK_TYPE_WIDGET,
-    G_IMPLEMENT_INTERFACE (GTK_TYPE_ORIENTABLE, NULL))
+    G_IMPLEMENT_INTERFACE (GTK_TYPE_ORIENTABLE, NULL));
 
 /**
  * gtk_vumeter_new:
@@ -87,7 +86,8 @@ G_DEFINE_TYPE_WITH_CODE (GtkVUMeter, gtk_vumeter, GTK_TYPE_WIDGET,
  *
  * Returns: the new #GtkWidget
  */
-     GtkWidget *gtk_vumeter_new (GtkOrientation orientation)
+GtkWidget *
+gtk_vumeter_new (GtkOrientation orientation)
 {
   return g_object_new (GTK_TYPE_VUMETER, "orientation", orientation, NULL);
 }
@@ -163,7 +163,6 @@ gtk_vumeter_get_property (GObject * object, guint prop_id, GValue * value,
       break;
   }
 }
-
 
 static void
 gtk_vumeter_finalize (GObject * object)

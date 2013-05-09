@@ -49,12 +49,23 @@
 
 #include "gtkvumeter.h"
 
+enum
+{
+  PROP_0,
+  PROP_ORIENTATION
+};
+
 #define MIN_HORIZONTAL_VUMETER_WIDTH   150
 #define HORIZONTAL_VUMETER_HEIGHT  6
 #define VERTICAL_VUMETER_WIDTH     6
 #define MIN_VERTICAL_VUMETER_HEIGHT    400
 
+static void gtk_vumeter_set_property (GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec);
+static void gtk_vumeter_get_property (GObject * object, guint prop_id,
+    GValue * value, GParamSpec * pspec);
 static void gtk_vumeter_finalize (GObject * object);
+
 static void gtk_vumeter_realize (GtkWidget * widget);
 static void gtk_vumeter_size_request (GtkWidget * widget,
     GtkRequisition * requisition);
@@ -64,29 +75,28 @@ static gint gtk_vumeter_expose (GtkWidget * widget, GdkEventExpose * event);
 
 //-- the class
 
-G_DEFINE_TYPE (GtkVUMeter, gtk_vumeter, GTK_TYPE_WIDGET);
-
+G_DEFINE_TYPE_WITH_CODE (GtkVUMeter, gtk_vumeter, GTK_TYPE_WIDGET,
+    G_IMPLEMENT_INTERFACE (GTK_TYPE_ORIENTABLE, NULL));
 
 /**
  * gtk_vumeter_new:
- * @vertical: %TRUE for a vertical VUMeter, %FALSE for horizontal VUMeter.
+ * @orientation: vertical/horizontal
  *
  * Creates a new VUMeter widget.
  *
  * Returns: the new #GtkWidget
  */
 GtkWidget *
-gtk_vumeter_new (gboolean vertical)
+gtk_vumeter_new (GtkOrientation orientation)
 {
-  GtkVUMeter *vumeter;
-  vumeter = GTK_VUMETER (g_object_new (GTK_TYPE_VUMETER, NULL));
-  vumeter->vertical = vertical;
-  return GTK_WIDGET (vumeter);
+  return g_object_new (GTK_TYPE_VUMETER, "orientation", orientation, NULL);
 }
 
 static void
 gtk_vumeter_init (GtkVUMeter * vumeter)
 {
+  vumeter->orientation = GTK_ORIENTATION_HORIZONTAL;
+
   vumeter->rms_level = 0;
   vumeter->min = 0;
   vumeter->max = 32767;
@@ -102,14 +112,50 @@ gtk_vumeter_class_init (GtkVUMeterClass * klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
   GtkWidgetClass *widget_class = (GtkWidgetClass *) klass;
 
+  gobject_class->set_property = gtk_vumeter_set_property;
+  gobject_class->get_property = gtk_vumeter_get_property;
   gobject_class->finalize = gtk_vumeter_finalize;
 
   widget_class->realize = gtk_vumeter_realize;
   widget_class->expose_event = gtk_vumeter_expose;
   widget_class->size_request = gtk_vumeter_size_request;
   widget_class->size_allocate = gtk_vumeter_size_allocate;
+
+  g_object_class_override_property (gobject_class, PROP_ORIENTATION,
+      "orientation");
 }
 
+static void
+gtk_vumeter_set_property (GObject * object, guint prop_id, const GValue * value,
+    GParamSpec * pspec)
+{
+  GtkVUMeter *vumeter = GTK_VUMETER (object);
+
+  switch (prop_id) {
+    case PROP_ORIENTATION:
+      vumeter->orientation = g_value_get_enum (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+static void
+gtk_vumeter_get_property (GObject * object, guint prop_id, GValue * value,
+    GParamSpec * pspec)
+{
+  GtkVUMeter *vumeter = GTK_VUMETER (object);
+
+  switch (prop_id) {
+    case PROP_ORIENTATION:
+      g_value_set_enum (value, vumeter->orientation);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
 
 static void
 gtk_vumeter_finalize (GObject * object)
@@ -141,10 +187,10 @@ gtk_vumeter_allocate_colors (GtkVUMeter * vumeter)
   if (vumeter->gradient_bg)
     cairo_pattern_destroy (vumeter->gradient_bg);
 
-  if (vumeter->vertical) {      /* veritcal */
+  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
     height = ((GtkWidget *) vumeter)->allocation.height - 1;
     width = 1;
-  } else {                      /* horizontal */
+  } else {
     height = 1;
     width = ((GtkWidget *) vumeter)->allocation.width - 1;
   }
@@ -211,7 +257,7 @@ gtk_vumeter_size_request (GtkWidget * widget, GtkRequisition * requisition)
 
   vumeter = GTK_VUMETER (widget);
 
-  if (vumeter->vertical) {
+  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
     requisition->width = VERTICAL_VUMETER_WIDTH;
     requisition->height = MIN_VERTICAL_VUMETER_HEIGHT;
   } else {
@@ -306,7 +352,7 @@ gtk_vumeter_expose (GtkWidget * widget, GdkEventExpose * event)
       NULL, widget, NULL /*detail */ , 0, 0, widget->allocation.width,
       widget->allocation.height);
 
-  if (vumeter->vertical) {
+  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
     width = widget->allocation.width - 3;
     height = widget->allocation.height - 2;
 
