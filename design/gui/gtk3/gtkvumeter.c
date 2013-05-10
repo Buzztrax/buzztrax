@@ -58,6 +58,7 @@ enum
 #define HORIZONTAL_VUMETER_HEIGHT  6
 #define VERTICAL_VUMETER_WIDTH     6
 #define MIN_VERTICAL_VUMETER_HEIGHT    400
+#define LED_SIZE 5
 
 static void gtk_vumeter_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
@@ -301,11 +302,10 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
   height -= vumeter->border.top + vumeter->border.bottom;
 
   if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
-    // FIXME(ensonic): draw full led segments
-    rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-        vumeter->rms_level, height);
-    peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-        vumeter->peak_level, height);
+    rms_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (vumeter,
+            vumeter->rms_level, height) / LED_SIZE);
+    peak_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (vumeter,
+            vumeter->peak_level, height) / LED_SIZE);
 
     /* draw normal level */
     cairo_set_source (cr, vumeter->gradient_rms);
@@ -327,21 +327,20 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
       cairo_fill (cr);
     }
 
-    /* shade every 5th line */
+    /* shade every LED_SIZE-th line */
     cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
     cairo_set_line_width (cr, 1.0);
-    for (i = 0; i < height; i += 5) {
+    for (i = 0; i < height; i += LED_SIZE) {
       cairo_move_to (cr, left, top + 0.5 + i);
       cairo_line_to (cr, left + width, top + 0.5 + i);
     }
     cairo_stroke (cr);
 
   } else {                      /* Horizontal */
-    // FIXME(ensonic): draw full led segments
-    rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-        vumeter->rms_level, width);
-    peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-        vumeter->peak_level, width);
+    rms_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (vumeter,
+            vumeter->rms_level, width) / LED_SIZE);
+    peak_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (vumeter,
+            vumeter->peak_level, width) / LED_SIZE);
 
     /* draw normal level */
     cairo_set_source (cr, vumeter->gradient_rms);
@@ -363,10 +362,10 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
       cairo_fill (cr);
     }
 
-    /* shade every 5th line */
+    /* shade every LED_SIZE-th line */
     cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
     cairo_set_line_width (cr, 1.0);
-    for (i = 0; i < width; i += 5) {
+    for (i = 0; i < width; i += LED_SIZE) {
       cairo_move_to (cr, left + 0.5 + i, top);
       cairo_line_to (cr, left + 0.5 + i, top + height);
     }
