@@ -43,16 +43,17 @@ struct _GtkVUMeter {
 
     /* < private > */
     /* properties */
-    GtkOrientation orientation;
-    gint        rms_level;
-    gint        min;
-    gint        max;
+    GtkOrientation  orientation;
+    gint            rms_level;
+    gint            min;
+    gint            max;
 
-    gint        delay_peak_level;
-    gint        peak_level;
+    gint            delay_peak_level;
+    gint            peak_level;
 
-    gint        scale;
-    
+    /* internal state */
+    gint            scale;
+    GtkBorder       border;
     cairo_pattern_t *gradient_rms, *gradient_peak, *gradient_bg;
 };
 

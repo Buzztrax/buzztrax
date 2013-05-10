@@ -227,15 +227,7 @@ gtk_vumeter_get_preferred_width (GtkWidget * widget, gint * minimal_width,
     gint * natural_width)
 {
   GtkVUMeter *vumeter = GTK_VUMETER (widget);
-  GtkStyleContext *context;
-  GtkStateFlags state;
-  GtkBorder border;
-  gint border_padding;
-
-  context = gtk_widget_get_style_context (widget);
-  state = gtk_widget_get_state_flags (widget);
-  gtk_style_context_get_padding (context, state, &border);
-  border_padding = border.left + border.right;
+  gint border_padding = vumeter->border.left + vumeter->border.right;
 
   if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
     *minimal_width = *natural_width = VERTICAL_VUMETER_WIDTH + border_padding;
@@ -250,15 +242,7 @@ gtk_vumeter_get_preferred_height (GtkWidget * widget, gint * minimal_height,
     gint * natural_height)
 {
   GtkVUMeter *vumeter = GTK_VUMETER (widget);
-  GtkStyleContext *context;
-  GtkStateFlags state;
-  GtkBorder border;
-  gint border_padding;
-
-  context = gtk_widget_get_style_context (widget);
-  state = gtk_widget_get_state_flags (widget);
-  gtk_style_context_get_padding (context, state, &border);
-  border_padding = border.top + border.bottom;
+  gint border_padding = vumeter->border.top + vumeter->border.bottom;
 
   if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
     *minimal_height = *natural_height =
@@ -300,6 +284,7 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
   GtkStyleContext *context;
   gint rms_level, peak_level;
   gint width, height;
+  gdouble left, top;
   guint i;
 
   width = gtk_widget_get_allocated_width (widget);
@@ -310,64 +295,63 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
   gtk_render_background (context, cr, 0, 0, width, height);
   gtk_render_frame (context, cr, 0, 0, width, height);
 
-  // FIXME(ensonic): use gtk_style_context_get_padding() instead of fixed values
-  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
-    width -= 3;
-    height -= 2;
+  left = vumeter->border.left;
+  top = vumeter->border.top;
+  width -= vumeter->border.left + vumeter->border.right;
+  height -= vumeter->border.top + vumeter->border.bottom;
 
+  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
     // FIXME(ensonic): draw full led segments
     rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-        vumeter->rms_level, height - 1);
+        vumeter->rms_level, height);
     peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-        vumeter->peak_level, height - 1);
+        vumeter->peak_level, height);
 
     /* draw normal level */
     cairo_set_source (cr, vumeter->gradient_rms);
-    cairo_rectangle (cr, 1.5, 1.5, width, rms_level);
+    cairo_rectangle (cr, left, top, width, rms_level);
     cairo_fill (cr);
 
     /* draw peak */
     if (peak_level > rms_level) {
       cairo_set_source (cr, vumeter->gradient_peak);
-      cairo_rectangle (cr, 1.5, rms_level + 0.5, width, peak_level - rms_level);
+      cairo_rectangle (cr, left, top + rms_level, width,
+          peak_level - rms_level);
       cairo_fill (cr);
     }
 
     /* draw background for the rest */
     if (height > peak_level) {
       cairo_set_source (cr, vumeter->gradient_bg);
-      cairo_rectangle (cr, 1.5, peak_level + 0.5, width, height - peak_level);
+      cairo_rectangle (cr, left, top + peak_level, width, height - peak_level);
       cairo_fill (cr);
     }
 
-    /* shade every 4th line */
+    /* shade every 5th line */
     cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
     cairo_set_line_width (cr, 1.0);
-    for (i = 1; i < height; i += 5) {
-      cairo_move_to (cr, 1.5, i + 0.5);
-      cairo_line_to (cr, width + 0.5, i + 1.5);
+    for (i = 0; i < height; i += 5) {
+      cairo_move_to (cr, left, top + 0.5 + i);
+      cairo_line_to (cr, left + width, top + 0.5 + i);
     }
     cairo_stroke (cr);
 
   } else {                      /* Horizontal */
-    width -= 2;
-    height -= 3;
-
     // FIXME(ensonic): draw full led segments
     rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-        vumeter->rms_level, width - 1);
+        vumeter->rms_level, width);
     peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter,
-        vumeter->peak_level, width - 1);
+        vumeter->peak_level, width);
 
     /* draw normal level */
     cairo_set_source (cr, vumeter->gradient_rms);
-    cairo_rectangle (cr, 1.5, 1.5, rms_level, height);
+    cairo_rectangle (cr, left, top, rms_level, height);
     cairo_fill (cr);
 
     /* draw peak */
     if (peak_level > rms_level) {
       cairo_set_source (cr, vumeter->gradient_peak);
-      cairo_rectangle (cr, rms_level + 0.5, 1.5, peak_level - rms_level,
+      cairo_rectangle (cr, left + rms_level, top, peak_level - rms_level,
           height);
       cairo_fill (cr);
     }
@@ -375,16 +359,16 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
     /* draw background for the rest */
     if (width > peak_level) {
       cairo_set_source (cr, vumeter->gradient_bg);
-      cairo_rectangle (cr, peak_level + 0.5, 1.5, width - peak_level, height);
+      cairo_rectangle (cr, left + peak_level, top, width - peak_level, height);
       cairo_fill (cr);
     }
 
-    /* shade every 4th line */
+    /* shade every 5th line */
     cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
     cairo_set_line_width (cr, 1.0);
-    for (i = 1; i < width; i += 5) {
-      cairo_move_to (cr, i + 0.5, 1.5);
-      cairo_line_to (cr, i + 0.5, height + 1.5);
+    for (i = 0; i < width; i += 5) {
+      cairo_move_to (cr, left + 0.5 + i, top);
+      cairo_line_to (cr, left + 0.5 + i, top + height);
     }
     cairo_stroke (cr);
   }
@@ -395,8 +379,17 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
 static void
 gtk_vumeter_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
 {
+  GtkVUMeter *vumeter = GTK_VUMETER (widget);
+  GtkStyleContext *context;
+  GtkStateFlags state;
+
   gtk_widget_set_allocation (widget, allocation);
-  gtk_vumeter_allocate_colors (GTK_VUMETER (widget));
+
+  context = gtk_widget_get_style_context (widget);
+  state = gtk_widget_get_state_flags (widget);
+  gtk_style_context_get_padding (context, state, &vumeter->border);
+
+  gtk_vumeter_allocate_colors (vumeter);
 }
 
 /**
