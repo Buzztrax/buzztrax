@@ -380,12 +380,12 @@ gtk_vumeter_expose (GtkWidget * widget, GdkEventExpose * event)
       cairo_fill (cr);
     }
 
-    /* shade every 4th line */
+    /* shade every 5th line */
     cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
     cairo_set_line_width (cr, 1.0);
-    for (i = 1; i < height; i += 5) {
+    for (i = 0; i < height; i += 5) {
       cairo_move_to (cr, 1.5, i + 0.5);
-      cairo_line_to (cr, width + 0.5, i + 1.5);
+      cairo_line_to (cr, width + 1.5, i + 0.5);
     }
     cairo_stroke (cr);
 
@@ -418,10 +418,10 @@ gtk_vumeter_expose (GtkWidget * widget, GdkEventExpose * event)
       cairo_fill (cr);
     }
 
-    /* shade every 4th line */
+    /* shade every 5th line */
     cairo_set_source_rgba (cr, 0, 0, 0, 0.5);
     cairo_set_line_width (cr, 1.0);
-    for (i = 1; i < width; i += 5) {
+    for (i = 0; i < width; i += 5) {
       cairo_move_to (cr, i + 0.5, 1.5);
       cairo_line_to (cr, i + 0.5, height + 1.5);
     }
