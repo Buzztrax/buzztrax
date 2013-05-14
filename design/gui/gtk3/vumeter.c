@@ -3,23 +3,9 @@
  * gcc -Wall -g -I. vumeter.c gtkvumeter.c -o vumeter `pkg-config gtk+-3.0 --cflags --libs`
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <gtk/gtk.h>
 #include <glib.h>
 #include "gtkvumeter.h"
-
-
-static GtkWidget *window = NULL;
-
-
-static void
-destroy (GtkWidget * widget, gpointer data)
-{
-  gtk_main_quit ();
-}
 
 static gboolean
 change_level (gpointer data)
@@ -39,14 +25,17 @@ change_level (gpointer data)
   return TRUE;
 }
 
-static void
-init ()
+gint
+main (gint argc, gchar ** argv)
 {
-  GtkWidget *vumeter;
+  GtkWidget *window, *vumeter;
+
+  gtk_init (&argc, &argv);
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window), "Levelmeter");
-  g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
+  g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (gtk_main_quit),
+      NULL);
   gtk_container_set_border_width (GTK_CONTAINER (window), 6);
 
   vumeter = gtk_vumeter_new (GTK_ORIENTATION_HORIZONTAL);
@@ -56,15 +45,7 @@ init ()
 
   gtk_widget_show_all (window);
   g_timeout_add_seconds (1, change_level, vumeter);
-}
-
-int
-main (int argc, char **argv)
-{
-  gtk_init (&argc, &argv);
-
-  init ();
   gtk_main ();
 
-  return (0);
+  return 0;
 }

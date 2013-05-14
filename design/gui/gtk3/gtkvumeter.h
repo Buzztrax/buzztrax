@@ -69,10 +69,10 @@ enum {
 
 GType    gtk_vumeter_get_type (void) G_GNUC_CONST;
 GtkWidget *gtk_vumeter_new (GtkOrientation orientation);
-void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint min, gint max);
-void gtk_vumeter_set_levels (GtkVUMeter *vumeter, gint rms, gint peak);
-void gtk_vumeter_set_peaks_falloff (GtkVUMeter *vumeter, gint peaks_falloff);
-void gtk_vumeter_set_scale (GtkVUMeter *vumeter, gint scale);
+void gtk_vumeter_set_min_max (GtkVUMeter *self, gint min, gint max);
+void gtk_vumeter_set_levels (GtkVUMeter *self, gint rms, gint peak);
+void gtk_vumeter_set_peaks_falloff (GtkVUMeter *self, gint peaks_falloff);
+void gtk_vumeter_set_scale (GtkVUMeter *self, gint scale);
 
 G_END_DECLS
 

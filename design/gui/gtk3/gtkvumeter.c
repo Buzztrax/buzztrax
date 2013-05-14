@@ -19,6 +19,7 @@
 /* TODO(ensonic): add properties:
  *   - min,max,rms,peak : gint, read/write
  *   - scale_type : enum, read/write
+ *   - led-size : int, read/write, 1=no-leds, >1 led spacing, def=5
  */
 /* TODO(ensonic): revisit cairo usage
  *   - http://www.cairographics.org/FAQ/#sharp_lines
@@ -94,24 +95,24 @@ gtk_vumeter_new (GtkOrientation orientation)
 }
 
 static void
-gtk_vumeter_init (GtkVUMeter * vumeter)
+gtk_vumeter_init (GtkVUMeter * self)
 {
   GtkStyleContext *context;
 
-  vumeter->orientation = GTK_ORIENTATION_HORIZONTAL;
+  self->orientation = GTK_ORIENTATION_HORIZONTAL;
 
-  vumeter->rms_level = 0;
-  vumeter->min = 0;
-  vumeter->max = 32767;
-  vumeter->peak_level = 0;
-  vumeter->delay_peak_level = 0;
+  self->rms_level = 0;
+  self->min = 0;
+  self->max = 32767;
+  self->peak_level = 0;
+  self->delay_peak_level = 0;
 
-  vumeter->scale = GTK_VUMETER_SCALE_LINEAR;
+  self->scale = GTK_VUMETER_SCALE_LINEAR;
 
-  context = gtk_widget_get_style_context (GTK_WIDGET (vumeter));
+  context = gtk_widget_get_style_context (GTK_WIDGET (self));
   gtk_style_context_add_class (context, GTK_STYLE_CLASS_FRAME);
 
-  gtk_widget_set_has_window (GTK_WIDGET (vumeter), FALSE);
+  gtk_widget_set_has_window (GTK_WIDGET (self), FALSE);
 }
 
 static void
@@ -137,11 +138,11 @@ static void
 gtk_vumeter_set_property (GObject * object, guint prop_id, const GValue * value,
     GParamSpec * pspec)
 {
-  GtkVUMeter *vumeter = GTK_VUMETER (object);
+  GtkVUMeter *self = GTK_VUMETER (object);
 
   switch (prop_id) {
     case PROP_ORIENTATION:
-      vumeter->orientation = g_value_get_enum (value);
+      self->orientation = g_value_get_enum (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -153,11 +154,11 @@ static void
 gtk_vumeter_get_property (GObject * object, guint prop_id, GValue * value,
     GParamSpec * pspec)
 {
-  GtkVUMeter *vumeter = GTK_VUMETER (object);
+  GtkVUMeter *self = GTK_VUMETER (object);
 
   switch (prop_id) {
     case PROP_ORIENTATION:
-      g_value_set_enum (value, vumeter->orientation);
+      g_value_set_enum (value, self->orientation);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -168,39 +169,39 @@ gtk_vumeter_get_property (GObject * object, guint prop_id, GValue * value,
 static void
 gtk_vumeter_finalize (GObject * object)
 {
-  GtkVUMeter *vumeter = GTK_VUMETER (object);
+  GtkVUMeter *self = GTK_VUMETER (object);
 
   /* free old gradients */
-  if (vumeter->gradient_rms)
-    cairo_pattern_destroy (vumeter->gradient_rms);
-  if (vumeter->gradient_peak)
-    cairo_pattern_destroy (vumeter->gradient_peak);
-  if (vumeter->gradient_bg)
-    cairo_pattern_destroy (vumeter->gradient_bg);
+  if (self->gradient_rms)
+    cairo_pattern_destroy (self->gradient_rms);
+  if (self->gradient_peak)
+    cairo_pattern_destroy (self->gradient_peak);
+  if (self->gradient_bg)
+    cairo_pattern_destroy (self->gradient_bg);
 
   G_OBJECT_CLASS (gtk_vumeter_parent_class)->finalize (object);
 }
 
 static void
-gtk_vumeter_allocate_colors (GtkVUMeter * vumeter)
+gtk_vumeter_allocate_colors (GtkVUMeter * self)
 {
   cairo_pattern_t *gradient;
   gint width, height;
 
   /* free old gradients */
-  if (vumeter->gradient_rms)
-    cairo_pattern_destroy (vumeter->gradient_rms);
-  if (vumeter->gradient_peak)
-    cairo_pattern_destroy (vumeter->gradient_peak);
-  if (vumeter->gradient_bg)
-    cairo_pattern_destroy (vumeter->gradient_bg);
+  if (self->gradient_rms)
+    cairo_pattern_destroy (self->gradient_rms);
+  if (self->gradient_peak)
+    cairo_pattern_destroy (self->gradient_peak);
+  if (self->gradient_bg)
+    cairo_pattern_destroy (self->gradient_bg);
 
-  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
-    height = gtk_widget_get_allocated_height ((GtkWidget *) vumeter) - 1;
+  if (self->orientation == GTK_ORIENTATION_VERTICAL) {
+    height = gtk_widget_get_allocated_height ((GtkWidget *) self) - 1;
     width = 1;
   } else {
     height = 1;
-    width = gtk_widget_get_allocated_width ((GtkWidget *) vumeter) - 1;
+    width = gtk_widget_get_allocated_width ((GtkWidget *) self) - 1;
   }
 
   /* setup gradients */
@@ -208,29 +209,29 @@ gtk_vumeter_allocate_colors (GtkVUMeter * vumeter)
   cairo_pattern_add_color_stop_rgb (gradient, 0.0, 0.0, 1.0, 0.0);
   cairo_pattern_add_color_stop_rgb (gradient, 0.7, 1.0, 1.0, 0.0);
   cairo_pattern_add_color_stop_rgb (gradient, 1.0, 1.0, 0.0, 0.0);
-  vumeter->gradient_rms = gradient;
+  self->gradient_rms = gradient;
 
   gradient = cairo_pattern_create_linear (1, 1, width, height);
   cairo_pattern_add_color_stop_rgb (gradient, 0.0, 0.0, 0.6, 0.0);
   cairo_pattern_add_color_stop_rgb (gradient, 0.7, 0.6, 0.6, 0.0);
   cairo_pattern_add_color_stop_rgb (gradient, 1.0, 0.6, 0.0, 0.0);
-  vumeter->gradient_peak = gradient;
+  self->gradient_peak = gradient;
 
   gradient = cairo_pattern_create_linear (1, 1, width, height);
   cairo_pattern_add_color_stop_rgb (gradient, 0.0, 0.0, 0.3, 0.0);
   cairo_pattern_add_color_stop_rgb (gradient, 0.7, 0.3, 0.3, 0.0);
   cairo_pattern_add_color_stop_rgb (gradient, 1.0, 0.3, 0.0, 0.0);
-  vumeter->gradient_bg = gradient;
+  self->gradient_bg = gradient;
 }
 
 static void
 gtk_vumeter_get_preferred_width (GtkWidget * widget, gint * minimal_width,
     gint * natural_width)
 {
-  GtkVUMeter *vumeter = GTK_VUMETER (widget);
-  gint border_padding = vumeter->border.left + vumeter->border.right;
+  GtkVUMeter *self = GTK_VUMETER (widget);
+  gint border_padding = self->border.left + self->border.right;
 
-  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
+  if (self->orientation == GTK_ORIENTATION_VERTICAL) {
     *minimal_width = *natural_width = VERTICAL_VUMETER_WIDTH + border_padding;
   } else {
     *minimal_width = *natural_width =
@@ -242,10 +243,10 @@ static void
 gtk_vumeter_get_preferred_height (GtkWidget * widget, gint * minimal_height,
     gint * natural_height)
 {
-  GtkVUMeter *vumeter = GTK_VUMETER (widget);
-  gint border_padding = vumeter->border.top + vumeter->border.bottom;
+  GtkVUMeter *self = GTK_VUMETER (widget);
+  gint border_padding = self->border.top + self->border.bottom;
 
-  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
+  if (self->orientation == GTK_ORIENTATION_VERTICAL) {
     *minimal_height = *natural_height =
         MIN_VERTICAL_VUMETER_HEIGHT + border_padding;
   } else {
@@ -255,17 +256,17 @@ gtk_vumeter_get_preferred_height (GtkWidget * widget, gint * minimal_height,
 }
 
 static gint
-gtk_vumeter_sound_level_to_draw_level (GtkVUMeter * vumeter,
-    gint sound_level, gdouble length)
+gtk_vumeter_sound_level_to_draw_level (GtkVUMeter * self, gint sound_level,
+    gdouble length)
 {
   gdouble draw_level;
   gdouble level, min, max;
 
   level = (gdouble) sound_level;
-  min = (gdouble) vumeter->min;
-  max = (gdouble) vumeter->max;
+  min = (gdouble) self->min;
+  max = (gdouble) self->max;
 
-  if (vumeter->scale == GTK_VUMETER_SCALE_LINEAR) {
+  if (self->scale == GTK_VUMETER_SCALE_LINEAR) {
     draw_level = (level - min) / (max - min) * length;
   } else {
     gdouble log_level, log_max;
@@ -281,7 +282,7 @@ gtk_vumeter_sound_level_to_draw_level (GtkVUMeter * vumeter,
 static gboolean
 gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
 {
-  GtkVUMeter *vumeter = GTK_VUMETER (widget);
+  GtkVUMeter *self = GTK_VUMETER (widget);
   GtkStyleContext *context;
   gint rms_level, peak_level;
   gint width, height;
@@ -296,25 +297,25 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
   gtk_render_background (context, cr, 0, 0, width, height);
   gtk_render_frame (context, cr, 0, 0, width, height);
 
-  left = vumeter->border.left;
-  top = vumeter->border.top;
-  width -= vumeter->border.left + vumeter->border.right;
-  height -= vumeter->border.top + vumeter->border.bottom;
+  left = self->border.left;
+  top = self->border.top;
+  width -= self->border.left + self->border.right;
+  height -= self->border.top + self->border.bottom;
 
-  if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
-    rms_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (vumeter,
-            vumeter->rms_level, height) / LED_SIZE);
-    peak_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (vumeter,
-            vumeter->peak_level, height) / LED_SIZE);
+  if (self->orientation == GTK_ORIENTATION_VERTICAL) {
+    rms_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (self,
+            self->rms_level, height) / LED_SIZE);
+    peak_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (self,
+            self->peak_level, height) / LED_SIZE);
 
     /* draw normal level */
-    cairo_set_source (cr, vumeter->gradient_rms);
+    cairo_set_source (cr, self->gradient_rms);
     cairo_rectangle (cr, left, top, width, rms_level);
     cairo_fill (cr);
 
     /* draw peak */
     if (peak_level > rms_level) {
-      cairo_set_source (cr, vumeter->gradient_peak);
+      cairo_set_source (cr, self->gradient_peak);
       cairo_rectangle (cr, left, top + rms_level, width,
           peak_level - rms_level);
       cairo_fill (cr);
@@ -322,7 +323,7 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
 
     /* draw background for the rest */
     if (height > peak_level) {
-      cairo_set_source (cr, vumeter->gradient_bg);
+      cairo_set_source (cr, self->gradient_bg);
       cairo_rectangle (cr, left, top + peak_level, width, height - peak_level);
       cairo_fill (cr);
     }
@@ -337,19 +338,19 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
     cairo_stroke (cr);
 
   } else {                      /* Horizontal */
-    rms_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (vumeter,
-            vumeter->rms_level, width) / LED_SIZE);
-    peak_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (vumeter,
-            vumeter->peak_level, width) / LED_SIZE);
+    rms_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (self,
+            self->rms_level, width) / LED_SIZE);
+    peak_level = LED_SIZE * (gtk_vumeter_sound_level_to_draw_level (self,
+            self->peak_level, width) / LED_SIZE);
 
     /* draw normal level */
-    cairo_set_source (cr, vumeter->gradient_rms);
+    cairo_set_source (cr, self->gradient_rms);
     cairo_rectangle (cr, left, top, rms_level, height);
     cairo_fill (cr);
 
     /* draw peak */
     if (peak_level > rms_level) {
-      cairo_set_source (cr, vumeter->gradient_peak);
+      cairo_set_source (cr, self->gradient_peak);
       cairo_rectangle (cr, left + rms_level, top, peak_level - rms_level,
           height);
       cairo_fill (cr);
@@ -357,7 +358,7 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
 
     /* draw background for the rest */
     if (width > peak_level) {
-      cairo_set_source (cr, vumeter->gradient_bg);
+      cairo_set_source (cr, self->gradient_bg);
       cairo_rectangle (cr, left + peak_level, top, width - peak_level, height);
       cairo_fill (cr);
     }
@@ -378,7 +379,7 @@ gtk_vumeter_draw (GtkWidget * widget, cairo_t * cr)
 static void
 gtk_vumeter_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
 {
-  GtkVUMeter *vumeter = GTK_VUMETER (widget);
+  GtkVUMeter *self = GTK_VUMETER (widget);
   GtkStyleContext *context;
   GtkStateFlags state;
 
@@ -386,14 +387,14 @@ gtk_vumeter_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
 
   context = gtk_widget_get_style_context (widget);
   state = gtk_widget_get_state_flags (widget);
-  gtk_style_context_get_padding (context, state, &vumeter->border);
+  gtk_style_context_get_padding (context, state, &self->border);
 
-  gtk_vumeter_allocate_colors (vumeter);
+  gtk_vumeter_allocate_colors (self);
 }
 
 /**
  * gtk_vumeter_set_min_max:
- * @vumeter: the vumeter widget to change the level bounds
+ * @self: the vumeter widget to change the level bounds
  * @min: the new minimum level shown (level that is 0%)
  * @max: the new maximum level shown (level that is 100%)
  *
@@ -403,30 +404,30 @@ gtk_vumeter_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
  * And finally it will clamp the current level into the min,max range.
  */
 void
-gtk_vumeter_set_min_max (GtkVUMeter * vumeter, gint min, gint max)
+gtk_vumeter_set_min_max (GtkVUMeter * self, gint min, gint max)
 {
-  gint old_rms_level = vumeter->rms_level;
-  gint old_peak_level = vumeter->peak_level;
+  gint old_rms_level = self->rms_level;
+  gint old_peak_level = self->peak_level;
 
-  g_return_if_fail (GTK_IS_VUMETER (vumeter));
+  g_return_if_fail (GTK_IS_VUMETER (self));
 
-  vumeter->max = MAX (max, min);
-  vumeter->min = MIN (min, max);
-  if (vumeter->max == vumeter->min) {
-    vumeter->max++;
+  self->max = MAX (max, min);
+  self->min = MIN (min, max);
+  if (self->max == self->min) {
+    self->max++;
   }
-  vumeter->rms_level = CLAMP (vumeter->rms_level, vumeter->min, vumeter->max);
-  vumeter->peak_level = CLAMP (vumeter->peak_level, vumeter->min, vumeter->max);
+  self->rms_level = CLAMP (self->rms_level, self->min, self->max);
+  self->peak_level = CLAMP (self->peak_level, self->min, self->max);
 
-  if ((old_rms_level != vumeter->rms_level)
-      || (old_peak_level != vumeter->peak_level)) {
-    gtk_widget_queue_draw (GTK_WIDGET (vumeter));
+  if ((old_rms_level != self->rms_level)
+      || (old_peak_level != self->peak_level)) {
+    gtk_widget_queue_draw (GTK_WIDGET (self));
   }
 }
 
 /**
  * gtk_vumeter_set_levels:
- * @vumeter: the vumeter widget to change the current level
+ * @self: the vumeter widget to change the current level
  * @rms: the new rms level shown
  * @peak: the new peak level shown
  *
@@ -435,25 +436,25 @@ gtk_vumeter_set_min_max (GtkVUMeter * vumeter, gint min, gint max)
  * They are clamped to the min max range.
  */
 void
-gtk_vumeter_set_levels (GtkVUMeter * vumeter, gint rms, gint peak)
+gtk_vumeter_set_levels (GtkVUMeter * self, gint rms, gint peak)
 {
-  gint old_rms_level = vumeter->rms_level;
-  gint old_peak_level = vumeter->peak_level;
+  gint old_rms_level = self->rms_level;
+  gint old_peak_level = self->peak_level;
 
-  g_return_if_fail (GTK_IS_VUMETER (vumeter));
+  g_return_if_fail (GTK_IS_VUMETER (self));
 
-  vumeter->rms_level = CLAMP (rms, vumeter->min, vumeter->max);
-  vumeter->peak_level = CLAMP (peak, vumeter->min, vumeter->max);
+  self->rms_level = CLAMP (rms, self->min, self->max);
+  self->peak_level = CLAMP (peak, self->min, self->max);
 
-  if ((old_rms_level != vumeter->rms_level)
-      || (old_peak_level != vumeter->peak_level)) {
-    gtk_widget_queue_draw (GTK_WIDGET (vumeter));
+  if ((old_rms_level != self->rms_level)
+      || (old_peak_level != self->peak_level)) {
+    gtk_widget_queue_draw (GTK_WIDGET (self));
   }
 }
 
 /**
  * gtk_vumeter_set_scale:
- * @vumeter: the vumeter widget to change the scaling type
+ * @self: the vumeter widget to change the scaling type
  * @scale: the scale type, either GTK_VUMETER_SCALE_LINEAR or GTK_VUMETER_SCALE_LOG
  *
  * Sets the scale of the VU Meter.
@@ -463,15 +464,15 @@ gtk_vumeter_set_levels (GtkVUMeter * vumeter, gint rms, gint peak)
  * Whatever min turns into is dark green.
  */
 void
-gtk_vumeter_set_scale (GtkVUMeter * vumeter, gint scale)
+gtk_vumeter_set_scale (GtkVUMeter * self, gint scale)
 {
-  g_return_if_fail (GTK_IS_VUMETER (vumeter));
+  g_return_if_fail (GTK_IS_VUMETER (self));
 
-  if (scale != vumeter->scale) {
-    vumeter->scale =
+  if (scale != self->scale) {
+    self->scale =
         CLAMP (scale, GTK_VUMETER_SCALE_LINEAR, GTK_VUMETER_SCALE_LAST - 1);
-    if (gtk_widget_get_realized (GTK_WIDGET (vumeter))) {
-      gtk_widget_queue_draw (GTK_WIDGET (vumeter));
+    if (gtk_widget_get_realized (GTK_WIDGET (self))) {
+      gtk_widget_queue_draw (GTK_WIDGET (self));
     }
   }
 }
