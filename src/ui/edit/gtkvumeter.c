@@ -222,9 +222,6 @@ gtk_vumeter_realize (GtkWidget * widget)
   GdkWindowAttr attributes;
   gint attributes_mask;
 
-  g_return_if_fail (widget != NULL);
-  g_return_if_fail (GTK_IS_VUMETER (widget));
-
   gtk_widget_set_realized (widget, TRUE);
 
   attributes.x = widget->allocation.x;
@@ -251,12 +248,7 @@ gtk_vumeter_realize (GtkWidget * widget)
 static void
 gtk_vumeter_size_request (GtkWidget * widget, GtkRequisition * requisition)
 {
-  GtkVUMeter *vumeter;
-
-  g_return_if_fail (GTK_IS_VUMETER (widget));
-  g_return_if_fail (requisition != NULL);
-
-  vumeter = GTK_VUMETER (widget);
+  GtkVUMeter *vumeter = GTK_VUMETER (widget);
 
   if (vumeter->orientation == GTK_ORIENTATION_VERTICAL) {
     requisition->width = VERTICAL_VUMETER_WIDTH;
@@ -270,20 +262,13 @@ gtk_vumeter_size_request (GtkWidget * widget, GtkRequisition * requisition)
 static void
 gtk_vumeter_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
 {
-  GtkVUMeter *vumeter;
-  GtkAllocation *a;
-
-  g_return_if_fail (GTK_IS_VUMETER (widget));
-  g_return_if_fail (allocation != NULL);
+  GtkVUMeter *vumeter = GTK_VUMETER (widget);
+  GtkAllocation *a = &widget->allocation;
 
   GTK_WIDGET_CLASS (gtk_vumeter_parent_class)->size_allocate (widget,
       allocation);
 
-  vumeter = GTK_VUMETER (widget);
-
-  a = &widget->allocation;
   *a = *allocation;
-
   if (gtk_widget_get_realized (widget)) {
     gdk_window_move_resize (widget->window, a->x, a->y, a->width, a->height);
   }
@@ -317,20 +302,15 @@ gtk_vumeter_sound_level_to_draw_level (GtkVUMeter * vumeter,
 static gint
 gtk_vumeter_expose (GtkWidget * widget, GdkEventExpose * event)
 {
-  GtkVUMeter *vumeter;
+  GtkVUMeter *vumeter = GTK_VUMETER (widget);
   gint rms_level, peak_level;
   gint width, height;
   cairo_t *cr;
   guint i;
 
-  g_return_val_if_fail (widget != NULL, FALSE);
-  g_return_val_if_fail (GTK_IS_VUMETER (widget), FALSE);
-  g_return_val_if_fail (event != NULL, FALSE);
-
   if (event->count > 0)
     return FALSE;
 
-  vumeter = GTK_VUMETER (widget);
   cr = gdk_cairo_create (widget->window);
 
   /* draw border */
