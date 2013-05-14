@@ -16,15 +16,15 @@
   <category></category>
   <bug-database rdf:resource="http://sourceforge.net/tracker/?group_id=55124&amp;atid=476037" />
   <screenshots></screenshots>
-  <mailing-list rdf:resource="http://sourceforge.net/mailarchive/forum.php?forum_name=buzztrax-devel" />
+  <mailing-list rdf:resource="https://buzztrax.org/mailman/listinfo/buzztrax-devel" />
   <programming-language>C</programming-language>
   <license rdf:resource="http://usefulinc.com/doap/licenses/lgpl" />
   <download-page rdf:resource="http://sourceforge.net/project/showfiles.php?group_id=55124" />
 
   <repository>
     <GITRepository>
-      <anon-root>git://buzztrax.git.sourceforge.net/gitroot/buzztrax/buzztrax</anon-root>
-      <browse rdf:resource="http://buzztrax.git.sourceforge.net/git/gitweb-index.cgi" />
+      <anon-root>git@github.com:Buzztrax/buzztrax.git</anon-root>
+      <browse rdf:resource="https://github.com/Buzztrax/buzztrax" />
     </GITRepository>
   </repository>
 
@@ -37,12 +37,23 @@
 
   <release>
     <Version>
+     <revision>0.7</revision>
+     <branch>HEAD</branch>
+     <name>Victory, not venegance</name>
+     <created>2013-01-19</created>
+     <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.7.0.tar.gz" />
+    </Version>
+  </release>
+  <release>
+    <Version>
      <revision>0.6</revision>
      <branch>HEAD</branch>
      <name>Black beats blue</name>
      <created>2011-12-25</created>
      <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.6.0.tar.gz" />
     </Version>
+  </release>
+  <release>
     <Version>
      <revision>0.5</revision>
      <branch>HEAD</branch>
@@ -50,6 +61,8 @@
      <created>2009-12-06</created>
      <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.5.0.tar.gz" />
     </Version>
+  </release>
+  <release>
     <Version>
      <revision>0.4</revision>
      <branch>HEAD</branch>
@@ -57,6 +70,8 @@
      <created>2008-11-26</created>
      <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.4.0.tar.gz" />
     </Version>
+  </release>
+  <release>
     <Version>
      <revision>0.3</revision>
      <branch>HEAD</branch>
@@ -64,6 +79,8 @@
      <created>2008-03-26</created>
      <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.3.0.tar.gz" />
     </Version>
+  </release>
+  <release>
     <Version>
      <revision>0.2</revision>
      <branch>HEAD</branch>
