@@ -107,7 +107,7 @@ bt_waveform_viewer_expose (GtkWidget * widget, GdkEventExpose * event)
 
     for (ch = 0; ch < self->channels; ch++) {
       gint lsy = sy / self->channels;
-      gint loy = oy + sy * ch / self->channels;
+      gint loy = oy + ch * sy / self->channels;
       for (i = 0; i < 4 * sx; i++) {
         gint imirror = i < 2 * sx ? i : 4 * sx - 1 - i;
         gint item = imirror * self->peaks_size / (2 * sx);
@@ -409,6 +409,7 @@ bt_waveform_viewer_set_wave (BtWaveformViewer * self, gint16 * data,
     gint p1 = len * i / self->peaks_size;
     gint p2 = len * (i + 1) / self->peaks_size;
     for (c = 0; c < self->channels; c++) {
+      // get min max for peak slot
       gfloat vmin = data[p1 * cc + c], vmax = data[p1 * cc + c];
       for (p = p1 + 1; p < p2; p++) {
         gfloat d = data[p * cc + c];
@@ -417,6 +418,10 @@ bt_waveform_viewer_set_wave (BtWaveformViewer * self, gint16 * data,
         if (d > vmax)
           vmax = d;
       }
+      if (vmin > 0 && vmax > 0)
+        vmin = 0;
+      else if (vmin < 0 && vmax < 0)
+        vmax = 0;
       self->peaks[i * cc + c] = (vmax - vmin) / 32768.0;
     }
   }
