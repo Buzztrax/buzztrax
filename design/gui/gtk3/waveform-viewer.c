@@ -41,6 +41,8 @@ enum
 #define MIN_W 24
 #define MIN_H 16
 
+#define DEF_PEAK_SIZE 1000
+
 //-- the class
 
 G_DEFINE_TYPE (BtWaveformViewer, bt_waveform_viewer, GTK_TYPE_WIDGET);
@@ -80,10 +82,10 @@ bt_waveform_viewer_draw (GtkWidget * widget, cairo_t * cr)
 
   for (ch = 0; ch < self->channels; ch++) {
     gint lsy = height / self->channels;
-    gint loy = top + lsy * ch;
+    gint loy = top + ch * lsy;
     for (i = 0; i < 4 * width; i++) {
-      gint imirror = i < 2 * left ? i : 4 * width - 1 - i;
-      // peaks has all channels in one buffer
+      gint imirror = i < 2 * width ? i : 4 * width - 1 - i;
+      // peaks has all channel-data interleaved in one buffer
       gint ix =
           (imirror * self->peaks_size / (2 * width)) * self->channels + ch;
       gint sign = i < 2 * width ? +1 : -1;
@@ -361,7 +363,7 @@ bt_waveform_viewer_init (BtWaveformViewer * self)
   GtkStyleContext *context;
 
   self->channels = 2;
-  self->peaks_size = 1000;
+  self->peaks_size = DEF_PEAK_SIZE;
   self->peaks = g_malloc (sizeof (gfloat) * self->channels * self->peaks_size);
   self->wave_length = 0;
   self->loop_start = self->loop_end = self->playback_cursor = -1;
@@ -391,16 +393,22 @@ bt_waveform_viewer_set_wave (BtWaveformViewer * self, gint16 * data,
   self->channels = channels;
   self->wave_length = length;
 
+  g_free (self->peaks);
+  self->peaks = NULL;
+
   if (!data || !length) {
-    memset (self->peaks, 0, sizeof (gfloat) * self->peaks_size);
     gtk_widget_queue_draw (GTK_WIDGET (self));
     return;
   }
+  // calculate peak data
+  self->peaks_size = length < DEF_PEAK_SIZE ? length : DEF_PEAK_SIZE;
+  self->peaks = g_malloc (sizeof (gfloat) * channels * self->peaks_size);
 
   for (i = 0; i < self->peaks_size; i++) {
     gint p1 = len * i / self->peaks_size;
     gint p2 = len * (i + 1) / self->peaks_size;
     for (c = 0; c < self->channels; c++) {
+      // get min max for peak slot
       gfloat vmin = data[p1 * cc + c], vmax = data[p1 * cc + c];
       for (p = p1 + 1; p < p2; p++) {
         gfloat d = data[p * cc + c];
@@ -409,6 +417,10 @@ bt_waveform_viewer_set_wave (BtWaveformViewer * self, gint16 * data,
         if (d > vmax)
           vmax = d;
       }
+      if (vmin > 0 && vmax > 0)
+        vmin = 0;
+      else if (vmin < 0 && vmax < 0)
+        vmax = 0;
       self->peaks[i * cc + c] = (vmax - vmin) / 32768.0;
     }
   }

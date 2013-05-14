@@ -8,7 +8,7 @@
 #include <glib.h>
 #include "waveform-viewer.h"
 
-#define DATA_SIZE 1000
+#define DATA_SIZE 500
 
 gint
 main (gint argc, gchar ** argv)
@@ -16,14 +16,14 @@ main (gint argc, gchar ** argv)
   GtkWidget *window, *wave;
   gint16 data[DATA_SIZE];
   gint i;
-  gdouble f;
+  gdouble f, v;
 
   gtk_init (&argc, &argv);
 
   for (i = 0; i < DATA_SIZE; i++) {
-    f = i;
-    //data[i] = (gint16)(32767.0 * sin (f * f/10.0));
-    data[i] = (gint16) (f / DATA_SIZE * 32767.0);
+    f = (gdouble) i;
+    v = 32767.0 * (1.0 - (f / DATA_SIZE)) * sin (f / 50.0);
+    data[i] = (gint16) CLAMP (v, -32768.0, 32767.0);
   }
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
