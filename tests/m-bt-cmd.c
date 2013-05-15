@@ -1,5 +1,5 @@
 /* Buzztrax
- * Copyright (C) 2006 Buzztrax team <buzztrax-devel@lists.sf.net>
+ * Copyright (C) 2006 Buzztrax team <buzztrax-devel@buzztrax.org>
  *
  * command line app unit tests
  *

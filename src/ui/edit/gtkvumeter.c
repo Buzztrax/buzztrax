@@ -1,6 +1,6 @@
 /* GtkVumeter
  * Copyright (C) 2003 Todd Goyen <wettoad@knighthoodofbuh.org>
- *               2007-2009 Buzztrax team <buzztrax-devel@lists.sf.net>
+ *               2007-2009 Buzztrax team <buzztrax-devel@buzztrax.org>
  *               2008 Frederic Peters <fpeters@0d.be>
  *
  * This library is free software; you can redistribute it and/or

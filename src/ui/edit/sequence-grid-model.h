@@ -1,7 +1,7 @@
 /* $Id: sequence-grid-model.h 3349 2011-05-02 20:35:54Z ensonic $
  *
  * Buzztrax
- * Copyright (C) 2011 Buzztrax team <buzztrax-devel@lists.sf.net>
+ * Copyright (C) 2011 Buzztrax team <buzztrax-devel@buzztrax.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
