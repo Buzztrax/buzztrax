@@ -3,13 +3,29 @@ git diff --shortstat @{2013-01-01} @{2013-01-31}
 
 2013/05 ========================================================================
 
-* no gsoc :/
-* cleanup signal handler usage, make use of g_signal_handlers_disconnect_by_*
-  macros
-* use sync-message for analyzers to avoid extra thread marshalling
-* gtk vu-meter code cleanups
-* toc support for rendering files (works with wav and flac for now)
-* flac.ogg fixed upstream, related tests enabled again
+We applied as an organisation to take part in the Google Summer of Code program,
+but got rejected mainly due to the project name. As this was not the first time
+people where uncomfortable with the name, we renamed the project - buzztard is
+now called buzztrax. The homepage with the wiki and wordpress already got moved.
+The renamed codebase is online at github [1]. We still need to move the mailing
+lists that are currently at sf.net.
+
+Besides the renaming there are also some improvements on the code side. I am
+probably the last one to discover the g_signal_handlers_disconnect_by_* macros.
+Using these made the code a bit leaner. I also worked on the level-meter
+features. I did some cleanups on the widget. The syncing code is more efficient
+as we listen to sync-messages on the gstreamer side to avoid another thread
+round trip. Song rendering can disabled the level-meters for less noise on the
+screen and some performance savings.
+The song-rendering now uses the TOC support in gstreamer-1.0. That means that
+the labels of a song (intro, chorus, break, ...) will end up in wav and flac
+files right now. When other formats support toc, this will automatically work
+for those formats too. The flag in ogg muxing got fixed in upstream and now
+works for us again.
+
+[1] https://github.com/Buzztrax
+
+56 files changed, 715 insertions(+), 631 deletions(-)
 
 2013/04 ========================================================================
 
