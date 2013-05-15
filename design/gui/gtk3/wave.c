@@ -10,6 +10,18 @@
 
 #define DATA_SIZE 500
 
+static gboolean
+move_playback_cursor (gpointer data)
+{
+  static gint64 pos = 0;
+
+  g_object_set (data, "playback-cursor", pos, NULL);
+  pos += 10;
+  if (pos >= DATA_SIZE)
+    pos = 0;
+  return TRUE;
+}
+
 gint
 main (gint argc, gchar ** argv)
 {
@@ -34,9 +46,12 @@ main (gint argc, gchar ** argv)
 
   wave = bt_waveform_viewer_new ();
   bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (wave), data, 1, DATA_SIZE);
+  g_object_set (wave, "loop-start", G_GINT64_CONSTANT (0), "loop-end",
+      (gint64) DATA_SIZE, NULL);
   gtk_container_add (GTK_CONTAINER (window), wave);
 
   gtk_widget_show_all (window);
+  g_timeout_add_seconds (1, move_playback_cursor, wave);
   gtk_main ();
 
   return 0;

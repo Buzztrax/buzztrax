@@ -47,6 +47,83 @@ enum
 
 G_DEFINE_TYPE (BtWaveformViewer, bt_waveform_viewer, GTK_TYPE_WIDGET);
 
+
+static void
+bt_waveform_viewer_realize (GtkWidget * widget)
+{
+  BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
+  GdkWindow *window;
+  GtkAllocation allocation;
+  GdkWindowAttr attributes;
+  gint attributes_mask;
+
+  gtk_widget_set_realized (widget, TRUE);
+
+  window = gtk_widget_get_parent_window (widget);
+  gtk_widget_set_window (widget, window);
+  g_object_ref (window);
+
+  gtk_widget_get_allocation (widget, &allocation);
+
+  attributes.window_type = GDK_WINDOW_CHILD;
+  attributes.x = allocation.x;
+  attributes.y = allocation.y;
+  attributes.width = allocation.width;
+  attributes.height = allocation.height;
+  attributes.wclass = GDK_INPUT_ONLY;
+  attributes.event_mask = gtk_widget_get_events (widget);
+  attributes.event_mask |= (GDK_EXPOSURE_MASK |
+      GDK_BUTTON_PRESS_MASK |
+      GDK_BUTTON_RELEASE_MASK |
+      GDK_BUTTON_MOTION_MASK |
+      GDK_ENTER_NOTIFY_MASK |
+      GDK_LEAVE_NOTIFY_MASK |
+      GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK);
+  attributes_mask = GDK_WA_X | GDK_WA_Y;
+
+  self->window = gdk_window_new (window, &attributes, attributes_mask);
+#if GTK_CHECK_VERSION (3,8,0)
+  gtk_widget_register_window (widget, self->window);
+#else
+  gdk_window_set_user_data (self->window, widget);
+#endif
+}
+
+static void
+bt_waveform_viewer_unrealize (GtkWidget * widget)
+{
+  BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
+
+#if GTK_CHECK_VERSION (3,8,0)
+  gtk_widget_unregister_window (widget, self->window);
+#else
+  gdk_window_set_user_data (self->window, NULL);
+#endif
+  gdk_window_destroy (self->window);
+  self->window = NULL;
+  GTK_WIDGET_CLASS (bt_waveform_viewer_parent_class)->unrealize (widget);
+}
+
+static void
+bt_waveform_viewer_map (GtkWidget * widget)
+{
+  BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
+
+  gdk_window_show (self->window);
+
+  GTK_WIDGET_CLASS (bt_waveform_viewer_parent_class)->map (widget);
+}
+
+static void
+bt_waveform_viewer_unmap (GtkWidget * widget)
+{
+  BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
+
+  gdk_window_hide (self->window);
+
+  GTK_WIDGET_CLASS (bt_waveform_viewer_parent_class)->unmap (widget);
+}
+
 static gboolean
 bt_waveform_viewer_draw (GtkWidget * widget, cairo_t * cr)
 {
@@ -161,6 +238,10 @@ bt_waveform_viewer_size_allocate (GtkWidget * widget,
 
   gtk_widget_set_allocation (widget, allocation);
 
+  if (gtk_widget_get_realized (widget))
+    gdk_window_move_resize (self->window,
+        allocation->x, allocation->y, allocation->width, allocation->height);
+
   context = gtk_widget_get_style_context (widget);
   state = gtk_widget_get_state_flags (widget);
   gtk_style_context_get_padding (context, state, &self->border);
@@ -173,7 +254,8 @@ bt_waveform_viewer_get_preferred_width (GtkWidget * widget,
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
   gint border_padding = self->border.left + self->border.right;
 
-  *minimal_width = *natural_width = MIN_W + border_padding;
+  *minimal_width = MIN_W + border_padding;
+  *natural_width = (MIN_W * 6) + border_padding;
 }
 
 static void
@@ -183,7 +265,8 @@ bt_waveform_viewer_get_preferred_height (GtkWidget * widget,
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
   gint border_padding = self->border.top + self->border.bottom;
 
-  *minimal_height = *natural_height = MIN_H + border_padding;
+  *minimal_height = MIN_H + border_padding;
+  *natural_height = (MIN_H * 4) + border_padding;
 }
 
 static gboolean
@@ -219,6 +302,7 @@ static gboolean
 bt_waveform_viewer_button_release (GtkWidget * widget, GdkEventButton * event)
 {
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
+
   self->edit_loop_start = self->edit_loop_end = self->edit_selection = FALSE;
   return FALSE;
 }
@@ -326,6 +410,10 @@ bt_waveform_viewer_class_init (BtWaveformViewerClass * klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
+  widget_class->realize = bt_waveform_viewer_realize;
+  widget_class->unrealize = bt_waveform_viewer_unrealize;
+  widget_class->map = bt_waveform_viewer_map;
+  widget_class->unmap = bt_waveform_viewer_unmap;
   widget_class->draw = bt_waveform_viewer_draw;
   widget_class->get_preferred_width = bt_waveform_viewer_get_preferred_width;
   widget_class->get_preferred_height = bt_waveform_viewer_get_preferred_height;
