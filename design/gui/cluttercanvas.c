@@ -9,11 +9,11 @@
  *   - can be dragged around
  *   - becomes transparent while dragging
  * - zooming
+ *   - adjusts scrollbars on resize
  *
  * TODO:
  * - background grid
  * - zooming
- *   - needs to adjust scrollbars
  *   - pick better resolution for icon images
  *   - center canvas when scrollarea > canvas or make canvas infinite ?
  * - draw wires
@@ -62,6 +62,10 @@ on_zoom_in_clicked (GtkButton * button, gpointer user_data)
 {
   zoom *= 1.5;
   clutter_actor_set_scale (canvas, zoom, zoom);
+  gtk_adjustment_set_upper (h_adjustment, WIDTH * zoom);
+  gtk_adjustment_changed (h_adjustment);
+  gtk_adjustment_set_upper (v_adjustment, HEIGHT * zoom);
+  gtk_adjustment_changed (v_adjustment);
   return TRUE;
 }
 
@@ -70,6 +74,10 @@ on_zoom_out_clicked (GtkButton * button, gpointer user_data)
 {
   zoom /= 1.5;
   clutter_actor_set_scale (canvas, zoom, zoom);
+  gtk_adjustment_set_upper (h_adjustment, WIDTH * zoom);
+  gtk_adjustment_changed (h_adjustment);
+  gtk_adjustment_set_upper (v_adjustment, HEIGHT * zoom);
+  gtk_adjustment_changed (v_adjustment);
   return TRUE;
 }
 
@@ -79,13 +87,13 @@ static void
 on_view_size_changed (GtkWidget * widget, GdkRectangle * allocation,
     gpointer user_data)
 {
-  printf ("size changed: %d x %d\n", allocation->width, allocation->height);
-  /*
-     gtk_adjustment_set_page_size (h_adjustment,
-     (gdouble)allocation->width / WIDTH);
-     gtk_adjustment_set_page_size (v_adjustment,
-     (gdouble)allocation->height / HEIGHT);
-   */
+  //printf ("size changed: %d x %d\n", allocation->width, allocation->height);
+
+  // page size is how much of the scrollable part is visible
+  gtk_adjustment_set_page_size (h_adjustment, allocation->width);
+  gtk_adjustment_changed (h_adjustment);
+  gtk_adjustment_set_page_size (v_adjustment, allocation->height);
+  gtk_adjustment_changed (v_adjustment);
 }
 
 /* actor actions */
@@ -298,15 +306,14 @@ main (gint argc, gchar * argv[])
   /* Create scrollbars and connect them */
   GtkWidget *scrollbar;
 
-  v_adjustment =
-      gtk_adjustment_new (0.0, 0.0, HEIGHT, 1.0, 10.0, HEIGHT / 10.0);
+  v_adjustment = gtk_adjustment_new (0.0, 0.0, HEIGHT, 1.0, 10.0, 10.0);
   g_signal_connect (v_adjustment, "value-changed", G_CALLBACK (on_v_scroll),
       NULL);
   scrollbar = gtk_scrollbar_new (GTK_ORIENTATION_VERTICAL, v_adjustment);
   gtk_table_attach (GTK_TABLE (table), scrollbar,
       1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL, 0, 0);
 
-  h_adjustment = gtk_adjustment_new (0.0, 0.0, WIDTH, 1.0, 10.0, WIDTH / 10.0);
+  h_adjustment = gtk_adjustment_new (0.0, 0.0, WIDTH, 1.0, 10.0, 10.0);
   g_signal_connect (h_adjustment, "value-changed", G_CALLBACK (on_h_scroll),
       NULL);
   scrollbar = gtk_scrollbar_new (GTK_ORIENTATION_HORIZONTAL, h_adjustment);
