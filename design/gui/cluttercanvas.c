@@ -5,23 +5,31 @@
  *
  * DONE:
  * - scrollable canvas
+ *   - adjusts scrollbars on resize
+ *   - center canvas when scrollarea > canvas
+*      - or make canvas infinite? - otherwise zoom-out is less useful
+ * - background grid
+ *   - background color from theme
  * - machine icon
  *   - can be dragged around
  *   - becomes transparent while dragging
  * - zooming
- *   - adjusts scrollbars on resize
+ *   - adjusts scrollbars on zoom
+ * - panning by dragging the background
  *
  * TODO:
- * - background grid
  * - zooming
  *   - pick better resolution for icon images
- *   - center canvas when scrollarea > canvas or make canvas infinite ?
  * - draw wires
  *   - we could draw a straight wire and let clutter rotate it
  *     - we still need to redraw on machines moves as the length changes
  *   - we draw the correct wire from 0,0 to 1,1  
- * - panning by dragging the background
  * - context menu on items/stage
+ * - we can drag thing beyond their allowed positions
+ *  - we should go back to implement dragging our-self
+ *
+ * BUGS:
+ * - 702510 - ClutterDragAction does not work for nested objects
  */
 
 #include <gtk/gtk.h>
@@ -40,32 +48,37 @@ static ClutterActor *icon_s = NULL, *icon_m = NULL;
 #define HEIGHT 480.0
 
 /* toolbar actions */
-static gboolean
-on_change_bg_color_clicked (GtkButton * button, gpointer user_data)
-{
-  static gboolean already_changed = FALSE;
-  if (already_changed) {
-    ClutterColor stage_color = { 0x00, 0x00, 0x00, 0xff };      /* Black */
-    clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
-  } else {
-    ClutterColor stage_color = { 0xA0, 0x20, 0x20, 0xff };      /* Red */
-    clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
-  }
-  already_changed = !already_changed;
-  return TRUE;
-}
 
 static gdouble zoom = 1.0;
+static gfloat x_off = 0.0, y_off = 0.0;
+
+static void
+update_scrolled_window (void)
+{
+  gdouble rw = WIDTH * zoom, rh = HEIGHT * zoom;
+  gdouble w = gtk_adjustment_get_page_size (h_adjustment);
+  gdouble h = gtk_adjustment_get_page_size (v_adjustment);
+
+  // if visible area > canvas size, center canvas
+  clutter_actor_set_width (stage, MAX (w, rw));
+  clutter_actor_set_height (stage, MAX (h, rh));
+  x_off = w > rw ? (w - rw) / 2.0 : 0.0;
+  y_off = h > rh ? (h - rh) / 2.0 : 0.0;
+
+  gtk_adjustment_set_upper (h_adjustment, rw);
+  gtk_adjustment_changed (h_adjustment);
+  gtk_adjustment_value_changed (h_adjustment);
+  gtk_adjustment_set_upper (v_adjustment, rh);
+  gtk_adjustment_changed (v_adjustment);
+  gtk_adjustment_value_changed (v_adjustment);
+}
 
 static gboolean
 on_zoom_in_clicked (GtkButton * button, gpointer user_data)
 {
   zoom *= 1.5;
   clutter_actor_set_scale (canvas, zoom, zoom);
-  gtk_adjustment_set_upper (h_adjustment, WIDTH * zoom);
-  gtk_adjustment_changed (h_adjustment);
-  gtk_adjustment_set_upper (v_adjustment, HEIGHT * zoom);
-  gtk_adjustment_changed (v_adjustment);
+  update_scrolled_window ();
   return TRUE;
 }
 
@@ -74,10 +87,7 @@ on_zoom_out_clicked (GtkButton * button, gpointer user_data)
 {
   zoom /= 1.5;
   clutter_actor_set_scale (canvas, zoom, zoom);
-  gtk_adjustment_set_upper (h_adjustment, WIDTH * zoom);
-  gtk_adjustment_changed (h_adjustment);
-  gtk_adjustment_set_upper (v_adjustment, HEIGHT * zoom);
-  gtk_adjustment_changed (v_adjustment);
+  update_scrolled_window ();
   return TRUE;
 }
 
@@ -87,13 +97,10 @@ static void
 on_view_size_changed (GtkWidget * widget, GdkRectangle * allocation,
     gpointer user_data)
 {
-  //printf ("size changed: %d x %d\n", allocation->width, allocation->height);
-
   // page size is how much of the scrollable part is visible
   gtk_adjustment_set_page_size (h_adjustment, allocation->width);
-  gtk_adjustment_changed (h_adjustment);
   gtk_adjustment_set_page_size (v_adjustment, allocation->height);
-  gtk_adjustment_changed (v_adjustment);
+  update_scrolled_window ();
 }
 
 /* actor actions */
@@ -117,21 +124,22 @@ on_icon_drag_end (ClutterDragAction * action, ClutterActor * actor,
 static void
 on_v_scroll (GtkAdjustment * adjustment, gpointer user_data)
 {
-  clutter_actor_set_y (canvas, -gtk_adjustment_get_value (adjustment));
+  clutter_actor_set_y (canvas, y_off - gtk_adjustment_get_value (adjustment));
 }
 
 static void
 on_h_scroll (GtkAdjustment * adjustment, gpointer user_data)
 {
-  clutter_actor_set_x (canvas, -gtk_adjustment_get_value (adjustment));
+  clutter_actor_set_x (canvas, x_off - gtk_adjustment_get_value (adjustment));
 }
 
 static gboolean
 on_grid_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height)
 {
   gfloat i;
-  /* clear the contents of the canvas, to not paint over the previous frame */
+
 #if 0
+  /* clear the contents of the canvas, to not paint over the previous frame */
   cairo_save (cr);
   cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
   cairo_paint (cr);
@@ -183,7 +191,6 @@ make_machine (gchar * icon_name, gfloat x, gfloat y)
   }
 
   ClutterActor *icon = clutter_actor_new ();
-  //clutter_actor_add_constraint (icon, clutter_bind_constraint_new (stage, CLUTTER_BIND_SIZE, 0.0));
   clutter_actor_set_size (icon, 64.0, 64.0);
   clutter_actor_set_content_scaling_filters (icon,
       CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
@@ -245,11 +252,6 @@ main (gint argc, gchar * argv[])
   GtkWidget *hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
-  button = gtk_button_new_with_label ("Change BG Color");
-  gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
-  g_signal_connect (button, "clicked", G_CALLBACK (on_change_bg_color_clicked),
-      NULL);
-
   button = gtk_button_new_with_label ("Zoom In");
   gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
   g_signal_connect (button, "clicked", G_CALLBACK (on_zoom_in_clicked), NULL);
@@ -271,13 +273,13 @@ main (gint argc, gchar * argv[])
   g_signal_connect (clutter_widget, "size-allocate",
       G_CALLBACK (on_view_size_changed), NULL);
 
-  /* Get the stage and set its size and color: */
+  /* Get the stage and set its color: */
   stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter_widget));
-  ClutterColor stage_color = { 0x00, 0x00, 0x00, 0xff };        /* Black */
+  GtkStyle *style = gtk_widget_get_style (clutter_widget);
+  GdkColor *c = &style->bg[GTK_STATE_NORMAL];
+  ClutterColor stage_color = { c->red >> 8, c->green >> 8, c->blue >> 8, 0xff };
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
   clutter_actor_set_size (stage, WIDTH, HEIGHT);
-  clutter_actor_set_position (stage, 0.0, 0.0);
-  clutter_actor_set_content_gravity (stage, CLUTTER_CONTENT_GRAVITY_CENTER);
 
   /* Add canvas (root group) 
    * we're using this for scrolling
@@ -285,6 +287,8 @@ main (gint argc, gchar * argv[])
    */
   canvas = clutter_actor_new ();
   clutter_actor_set_reactive (canvas, TRUE);
+  clutter_actor_set_size (canvas, WIDTH, HEIGHT);
+  clutter_actor_set_position (canvas, 0.0, 0.0);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), canvas);
   // this also moves the canvas, when we drag an icon instead :/
   ClutterAction *drag_action = clutter_drag_action_new ();
