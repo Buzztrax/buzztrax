@@ -25,8 +25,6 @@
  *     - we still need to redraw on machines moves as the length changes
  *   - we draw the correct wire from 0,0 to 1,1  
  * - context menu on items/stage
- * - we can drag thing beyond their allowed positions
- *  - we should go back to implement dragging our-self
  *
  * BUGS:
  * - 702510 - ClutterDragAction does not work for nested objects
@@ -105,21 +103,115 @@ on_view_size_changed (GtkWidget * widget, GdkRectangle * allocation,
 
 /* actor actions */
 
-static void
-on_icon_drag_begin (ClutterDragAction * action, ClutterActor * actor,
-    gfloat event_x, gfloat event_y, ClutterModifierType modifiers,
+static gfloat ptr_x = 0.0, ptr_y = 0.0;
+static gfloat obj_x = 0.0, obj_y = 0.0;
+static gboolean icon_drag = FALSE;
+static ClutterActor *current_icon = NULL;
+
+static gboolean
+on_icon_button_press (ClutterActor * actor, ClutterEvent * event,
     gpointer user_data)
 {
+  clutter_actor_set_child_above_sibling (canvas, actor, NULL);
   clutter_actor_set_opacity (actor, 200);
+  icon_drag = TRUE;
+  clutter_event_get_coords (event, &ptr_x, &ptr_y);
+  clutter_actor_get_position (actor, &obj_x, &obj_y);
+  current_icon = actor;
+  return TRUE;
 }
 
-static void
-on_icon_drag_end (ClutterDragAction * action, ClutterActor * actor,
-    gfloat event_x, gfloat event_y, ClutterModifierType modifiers,
+static gboolean
+on_icon_button_release (ClutterActor * actor, ClutterEvent * event,
     gpointer user_data)
 {
   clutter_actor_set_opacity (actor, 255);
+  icon_drag = FALSE;
+  current_icon = NULL;
+  return TRUE;
 }
+
+static gboolean
+on_icon_motion (ClutterActor * actor, ClutterEvent * event, gpointer user_data)
+{
+  if (icon_drag) {
+    ClutterModifierType mod = ((ClutterMotionEvent *) event)->modifier_state;
+    if (!(mod & CLUTTER_BUTTON1_MASK)) {
+      return on_icon_button_release (actor, event, user_data);
+    }
+
+    gfloat x, y, pos_x, pos_y;
+    clutter_event_get_coords (event, &x, &y);
+    pos_x = obj_x + ((x - ptr_x) / zoom);
+    pos_y = obj_y + ((y - ptr_y) / zoom);
+    pos_x = CLAMP (pos_x, 0.0, WIDTH - 64.0);
+    pos_y = CLAMP (pos_y, 0.0, HEIGHT - 64.0);
+    clutter_actor_set_position (actor, pos_x, pos_y);
+  }
+  return TRUE;
+}
+
+static gboolean canvas_drag = FALSE;
+
+static gboolean
+on_canvas_button_press (ClutterActor * actor, ClutterEvent * event,
+    gpointer user_data)
+{
+  canvas_drag = TRUE;
+  clutter_event_get_coords (event, &ptr_x, &ptr_y);
+  clutter_actor_get_position (actor, &obj_x, &obj_y);
+  return TRUE;
+}
+
+static gboolean
+on_canvas_button_release (ClutterActor * actor, ClutterEvent * event,
+    gpointer user_data)
+{
+  canvas_drag = FALSE;
+  return TRUE;
+}
+
+static gboolean
+on_canvas_motion (ClutterActor * actor, ClutterEvent * event,
+    gpointer user_data)
+{
+  if (canvas_drag) {
+    ClutterModifierType mod = ((ClutterMotionEvent *) event)->modifier_state;
+    if (!(mod & CLUTTER_BUTTON1_MASK)) {
+      return on_canvas_button_release (actor, event, user_data);
+    }
+
+    gfloat x, y, pos_x, pos_y;
+    clutter_event_get_coords (event, &x, &y);
+    pos_x = obj_x + (x - ptr_x);
+    pos_y = obj_y + (y - ptr_y);
+    if (x_off > 0.0) {
+      pos_x = x_off;
+    } else {
+      gfloat m = (WIDTH * zoom) - gtk_adjustment_get_page_size (h_adjustment);
+
+      pos_x = CLAMP (pos_x, -m, 0.0);
+      gtk_adjustment_set_value (h_adjustment, -pos_x);
+      gtk_adjustment_value_changed (h_adjustment);
+    }
+    if (y_off > 0.0) {
+      pos_y = y_off;
+    } else {
+      gfloat m = (HEIGHT * zoom) - gtk_adjustment_get_page_size (v_adjustment);
+
+      pos_y = CLAMP (pos_y, -m, 0.0);
+      gtk_adjustment_set_value (v_adjustment, -pos_y);
+      gtk_adjustment_value_changed (v_adjustment);
+    }
+
+    clutter_actor_set_position (actor, pos_x, pos_y);
+  }
+  if (icon_drag) {
+    return on_icon_motion (current_icon, event, user_data);
+  }
+  return TRUE;
+}
+
 
 static void
 on_v_scroll (GtkAdjustment * adjustment, gpointer user_data)
@@ -199,12 +291,11 @@ make_machine (gchar * icon_name, gfloat x, gfloat y)
   clutter_actor_set_content (icon, image);
   g_object_unref (image);
 
-  ClutterAction *drag_action = clutter_drag_action_new ();
-  g_signal_connect (drag_action, "drag-begin", G_CALLBACK (on_icon_drag_begin),
-      NULL);
-  g_signal_connect (drag_action, "drag-end", G_CALLBACK (on_icon_drag_end),
-      NULL);
-  clutter_actor_add_action (icon, drag_action);
+  g_signal_connect (icon, "button-press-event",
+      G_CALLBACK (on_icon_button_press), NULL);
+  g_signal_connect (icon, "button-release-event",
+      G_CALLBACK (on_icon_button_release), NULL);
+  g_signal_connect (icon, "motion-event", G_CALLBACK (on_icon_motion), NULL);
 
   return icon;
 }
@@ -290,9 +381,12 @@ main (gint argc, gchar * argv[])
   clutter_actor_set_size (canvas, WIDTH, HEIGHT);
   clutter_actor_set_position (canvas, 0.0, 0.0);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), canvas);
-  // this also moves the canvas, when we drag an icon instead :/
-  ClutterAction *drag_action = clutter_drag_action_new ();
-  clutter_actor_add_action (canvas, drag_action);
+  g_signal_connect (canvas, "button-press-event",
+      G_CALLBACK (on_canvas_button_press), NULL);
+  g_signal_connect (canvas, "button-release-event",
+      G_CALLBACK (on_canvas_button_release), NULL);
+  g_signal_connect (canvas, "motion-event", G_CALLBACK (on_canvas_motion),
+      NULL);
 
   /* Add a background grid */
   grid = make_background_grid ();
