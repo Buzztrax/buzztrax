@@ -33,6 +33,7 @@
 #include <gtk/gtk.h>
 #include <clutter/clutter.h>
 #include <clutter-gtk/clutter-gtk.h>
+#include <math.h>
 #include <stdlib.h>
 
 static GtkIconTheme *it = NULL;
@@ -41,6 +42,7 @@ static ClutterActor *stage = NULL;
 static ClutterActor *canvas = NULL;
 static ClutterActor *grid = NULL;
 static ClutterActor *icon_s = NULL, *icon_m = NULL;
+static ClutterActor *wire = NULL;
 
 #define WIDTH 640.0
 #define HEIGHT 480.0
@@ -69,6 +71,24 @@ update_scrolled_window (void)
   gtk_adjustment_set_upper (v_adjustment, rh);
   gtk_adjustment_changed (v_adjustment);
   gtk_adjustment_value_changed (v_adjustment);
+}
+
+static void
+update_wire (ClutterActor * wire)
+{
+  gfloat ms_x, ms_y, mm_x, mm_y, w, h, x, y;
+  clutter_actor_get_position (icon_s, &ms_x, &ms_y);
+  clutter_actor_get_position (icon_m, &mm_x, &mm_y);
+  w = 1.0 + fabs (mm_x - ms_x);
+  h = 1.0 + fabs (mm_y - ms_y);
+  x = 32.0 + MIN (mm_x, ms_x);
+  y = 32.0 + MIN (mm_y, ms_y);
+
+  ClutterContent *canvas = clutter_actor_get_content (wire);
+  clutter_canvas_set_size (CLUTTER_CANVAS (canvas), w, h);
+
+  clutter_actor_set_size (wire, w, h);
+  clutter_actor_set_position (wire, x, y);
 }
 
 static gboolean
@@ -147,6 +167,7 @@ on_icon_motion (ClutterActor * actor, ClutterEvent * event, gpointer user_data)
     pos_x = CLAMP (pos_x, 0.0, WIDTH - 64.0);
     pos_y = CLAMP (pos_y, 0.0, HEIGHT - 64.0);
     clutter_actor_set_position (actor, pos_x, pos_y);
+    update_wire (wire);
   }
   return TRUE;
 }
@@ -225,20 +246,23 @@ on_h_scroll (GtkAdjustment * adjustment, gpointer user_data)
   clutter_actor_set_x (canvas, x_off - gtk_adjustment_get_value (adjustment));
 }
 
-static gboolean
-on_grid_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height)
+static void
+cairo_clear (cairo_t * cr)
 {
-  gfloat i;
-
-#if 0
   /* clear the contents of the canvas, to not paint over the previous frame */
   cairo_save (cr);
   cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
   cairo_paint (cr);
   cairo_restore (cr);
   cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
-#endif
+}
 
+static gboolean
+on_grid_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height)
+{
+  gfloat i;
+
+  cairo_clear (cr);
   /* scale the modelview to the size of the surface */
   cairo_scale (cr, width, height);
   cairo_translate (cr, 0.5, 0.5);
@@ -255,6 +279,43 @@ on_grid_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height)
     cairo_line_to (cr, i, 0.5);
     cairo_stroke (cr);
   }
+
+  return TRUE;
+}
+
+static gboolean
+on_wire_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height)
+{
+  gfloat ms_x, ms_y, mm_x, mm_y;
+  gfloat x1, x2, y1, y2;
+
+  clutter_actor_get_position (icon_s, &ms_x, &ms_y);
+  clutter_actor_get_position (icon_m, &mm_x, &mm_y);
+  if (ms_x < mm_x) {
+    x1 = 0.0;
+    x2 = width;
+  } else {
+    x1 = width;
+    x2 = 0.0;
+  }
+  if (ms_y < mm_y) {
+    y1 = 0.0;
+    y2 = height;
+  } else {
+    y1 = height;
+    y2 = 0.0;
+  }
+
+
+  cairo_clear (cr);
+
+  cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
+  cairo_set_line_width (cr, 1.0);
+  cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 1.0);
+
+  cairo_move_to (cr, x1, y1);
+  cairo_line_to (cr, x2, y2);
+  cairo_stroke (cr);
 
   return TRUE;
 }
@@ -317,6 +378,25 @@ make_background_grid (void)
   clutter_content_invalidate (canvas);
   return grid;
 }
+
+static ClutterActor *
+make_wire (void)
+{
+  ClutterContent *canvas = clutter_canvas_new ();
+
+  ClutterActor *wire = clutter_actor_new ();
+  clutter_actor_set_content (wire, canvas);
+  clutter_actor_set_content_scaling_filters (wire,
+      CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
+
+  update_wire (wire);
+
+  g_signal_connect (canvas, "draw", G_CALLBACK (on_wire_draw), NULL);
+  /* invalidate the canvas, so that we can draw before the main loop starts */
+  clutter_content_invalidate (canvas);
+  return wire;
+}
+
 
 /* main */
 
@@ -397,6 +477,11 @@ main (gint argc, gchar * argv[])
   clutter_container_add_actor (CLUTTER_CONTAINER (canvas), icon_s);
   icon_m = make_machine ("buzztrax_master", 100.0, 100.0);
   clutter_container_add_actor (CLUTTER_CONTAINER (canvas), icon_m);
+
+  /* Add the wire */
+  wire = make_wire ();
+  clutter_container_add_actor (CLUTTER_CONTAINER (canvas), wire);
+  clutter_actor_set_child_below_sibling (canvas, wire, NULL);
 
   /* Show all content */
   clutter_actor_show_all (stage);
