@@ -92,13 +92,13 @@ enum
 G_DEFINE_TYPE_WITH_CODE (BtPatternEditor, bt_pattern_editor, GTK_TYPE_WIDGET,
     G_IMPLEMENT_INTERFACE (GTK_TYPE_SCROLLABLE, NULL));
 
-struct ParamType
+typedef struct _ParamType
 {
   gint chars, columns;
   gchar *(*to_string_func) (gchar * dest, gfloat value, gint def);
   guint column_pos[4];
   gfloat scale;
-};
+} ParamType;
 
 //-- helper methods
 
@@ -169,7 +169,7 @@ to_string_float (gchar * buf, gfloat value, gint def)
   return (buf);
 }
 
-static struct ParamType param_types[] = {
+static ParamType param_types[] = {
   {3, 2, to_string_note, {0, 2}, 1.0},
   {1, 1, to_string_trigger, {0}, 1.0},
   {2, 2, to_string_byte, {0, 1}, 1.0},
@@ -190,7 +190,17 @@ bt_pattern_editor_draw_rownum (BtPatternEditor * self, cairo_t * cr,
   PangoLayout *pl = self->pl;
   gchar buf[16];
   gint ch = self->ch, cw = self->cw;
-  gint colw = bt_pattern_editor_rownum_width (self) - cw;
+  gint colw1 = bt_pattern_editor_rownum_width (self);
+  gint colw2 = self->rowhdr_width - self->ofs_x;
+  gint colwm = MAX (colw1, colw2);
+  gint colw = colw1 - cw;
+
+  if (colwm > colw) {
+    cairo_set_source_rgb (cr, self->bg_color[0], self->bg_color[1],
+        self->bg_color[2]);
+    cairo_rectangle (cr, x + colw, y, colwm - colw, self->num_rows * ch);
+    cairo_fill (cr);
+  }
 
   while (y < max_y && row < self->num_rows) {
     gdouble *bg_shade_color = self->bg_shade_color[row & 0x1];
@@ -245,11 +255,13 @@ bt_pattern_editor_draw_rowname (BtPatternEditor * self, cairo_t * cr,
 {
   PangoLayout *pl = self->pl;
   gint ch = self->ch;
-  gint colw = bt_pattern_editor_rownum_width (self);
+  gint colw1 = bt_pattern_editor_rownum_width (self);
+  gint colw2 = self->rowhdr_width - self->ofs_x;
+  gint colw = MAX (colw1, colw2);
 
   cairo_set_source_rgb (cr, self->bg_color[0], self->bg_color[1],
       self->bg_color[2]);
-  cairo_rectangle (cr, 0, 0, colw, ch);
+  cairo_rectangle (cr, x, y, colw, ch);
   cairo_fill (cr);
 
   if (self->num_groups) {
@@ -296,7 +308,7 @@ bt_pattern_editor_draw_column (BtPatternEditor * self, cairo_t * cr,
     guint group, guint param, guint row, gint max_y)
 {
   PangoLayout *pl = self->pl;
-  struct ParamType *pt = &param_types[col->type];
+  ParamType *pt = &param_types[col->type];
   gchar buf[16], *str;
   gint cw = self->cw, ch = self->ch;
   gint col_w = cw * (pt->chars + 1);
@@ -390,7 +402,7 @@ bt_pattern_editor_refresh_cell (BtPatternEditor * self)
   gint g, i, w;
   BtPatternEditorColumnGroup *cgrp;
   BtPatternEditorColumn *col;
-  struct ParamType *pt;
+  ParamType *pt;
 
   for (g = 0; g < self->group; g++) {
     cgrp = &self->groups[g];
@@ -418,7 +430,7 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor * self)
   gint g, i;
   BtPatternEditorColumnGroup *cgrp;
   BtPatternEditorColumn *col;
-  struct ParamType *pt;
+  ParamType *pt;
 
   if (!self->num_groups)
     return;
@@ -533,7 +545,7 @@ char_to_coords (gint charpos, BtPatternEditorColumn * columns, gint num_cols,
 {
   gint i, j;
   for (i = 0; i < num_cols; i++) {
-    struct ParamType *type = &param_types[columns[i].type];
+    ParamType *type = &param_types[columns[i].type];
     if (charpos < type->chars) {
       for (j = 0; j < type->columns; j++) {
         gint cps = type->column_pos[j], cpe = cps;
@@ -691,7 +703,11 @@ bt_pattern_editor_realize (GtkWidget * widget)
   pango_layout_set_font_description (self->pl, pfd);
   pango_font_description_free (pfd);
 
-  GST_WARNING ("char size: %d x %d", self->cw, self->ch);
+  /* static layout variables */
+  self->rowhdr_width = bt_pattern_editor_rownum_width (self) + self->cw;
+  self->colhdr_height = self->ch;
+
+  GST_INFO ("char size: %d x %d", self->cw, self->ch);
 }
 
 static void
@@ -757,7 +773,7 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
   GdkRectangle rect;
   gint y, x, i, row, g, max_y;
   gint grp_x;
-  gint rowhdr_x, ch;
+  gint ch;
 
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
 
@@ -786,7 +802,6 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
   row = (y - ch) / ch;
 
   /* leave space for headers */
-  rowhdr_x = x;
   x += self->rowhdr_width;
 
   GST_DEBUG ("Scroll: %d,%d, row=%d (of %d)", self->ofs_x, self->ofs_y, row,
@@ -798,7 +813,7 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
     grp_x = x;
     for (i = 0; i < cgrp->num_columns; i++) {
       BtPatternEditorColumn *col = &cgrp->columns[i];
-      struct ParamType *pt = &param_types[col->type];
+      ParamType *pt = &param_types[col->type];
       gint w = self->cw * (pt->chars + 1);
       gint xs = x - self->ofs_x, xe = xs + (w - 1);
 
@@ -821,13 +836,12 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
 
   /* draw left and top headers */
   if (rect.x < self->rowhdr_width) {
-    bt_pattern_editor_draw_rownum (self, cr, rowhdr_x, y - self->ofs_y, row,
-        max_y);
+    bt_pattern_editor_draw_rownum (self, cr, 0, y - self->ofs_y, row, max_y);
   }
   if (rect.y < self->ch) {
-    bt_pattern_editor_draw_colnames (self, cr,
-        (rowhdr_x + self->rowhdr_width) - self->ofs_x, 0, allocation.width);
-    bt_pattern_editor_draw_rowname (self, cr, rowhdr_x, 0);
+    bt_pattern_editor_draw_colnames (self, cr, self->rowhdr_width - self->ofs_x,
+        0, allocation.width);
+    bt_pattern_editor_draw_rowname (self, cr, 0, 0);
   }
 
   /* draw play-pos */
@@ -836,14 +850,15 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
         (gdouble) (bt_pattern_editor_get_col_height (self) -
         self->colhdr_height);
     y = self->colhdr_height + (gint) (self->play_pos * h) - self->ofs_y;
-    // TODO(ensonic): check rect.y, rect.height
-    cairo_set_source_rgb (cr, self->play_pos_color[0], self->play_pos_color[1],
-        self->play_pos_color[2]);
-    cairo_set_line_width (cr, 2.0);
-    cairo_move_to (cr, 0, y);
-    cairo_line_to (cr, allocation.width, y);
-    cairo_stroke (cr);
-    //GST_INFO("Draw playline: %d,%d -> %d,%d",0, y);
+    if (y > self->colhdr_height) {
+      cairo_set_source_rgb (cr, self->play_pos_color[0],
+          self->play_pos_color[1], self->play_pos_color[2]);
+      cairo_set_line_width (cr, 2.0);
+      cairo_move_to (cr, 0, y);
+      cairo_line_to (cr, allocation.width, y);
+      cairo_stroke (cr);
+      //GST_INFO("Draw playline: %d,%d -> %d,%d",0, y);
+    }
   }
 
   if (G_UNLIKELY (self->size_changed)) {
@@ -922,8 +937,6 @@ bt_pattern_editor_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
     gdk_window_move_resize (self->window,
         allocation->x, allocation->y, allocation->width, allocation->height);
 
-  self->rowhdr_width = bt_pattern_editor_rownum_width (self) + self->cw;
-  self->colhdr_height = self->ch;
   bt_pattern_editor_update_adjustments (self);
 }
 

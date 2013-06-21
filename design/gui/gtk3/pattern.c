@@ -9,6 +9,18 @@
 #include <gst/gst.h>
 #include "pattern-editor.h"
 
+static gboolean
+move_playback_cursor (gpointer data)
+{
+  static gdouble pos = 0.0;
+
+  g_object_set (data, "play-position", pos, NULL);
+  pos += 0.05;
+  if (pos >= 1.0)
+    pos = 0.0;
+  return TRUE;
+}
+
 static gfloat
 get_data_at (gpointer pattern_data, gpointer column_data, guint row,
     guint track, guint param)
@@ -53,10 +65,10 @@ main (gint argc, gchar ** argv)
   columns[3].max = 0xff;
   columns[3].def = 0;
 
-  groups[0].name = "global";
+  groups[0].name = "Global";
   groups[0].num_columns = 2;
   groups[0].columns = columns;
-  groups[1].name = "voice 1";
+  groups[1].name = "Voice 1";
   groups[1].num_columns = 4;
   groups[1].columns = columns;
 
@@ -80,6 +92,7 @@ main (gint argc, gchar ** argv)
   gtk_container_add (GTK_CONTAINER (scrolled_window), pattern);
 
   gtk_widget_show_all (window);
+  g_timeout_add_seconds (1, move_playback_cursor, pattern);
   gtk_main ();
 
   return 0;
