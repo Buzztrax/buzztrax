@@ -185,10 +185,11 @@ bt_pattern_editor_rownum_width (BtPatternEditor * self)
 
 static void
 bt_pattern_editor_draw_rownum (BtPatternEditor * self, cairo_t * cr,
-    gint x, gint y, gint row, gint max_y)
+    gint x, gint y, gint max_y)
 {
   PangoLayout *pl = self->pl;
   gchar buf[16];
+  gint row = 0;
   gint ch = self->ch, cw = self->cw;
   gint colw1 = bt_pattern_editor_rownum_width (self);
   gint colw2 = self->rowhdr_width - self->ofs_x;
@@ -299,17 +300,17 @@ in_selection_row (BtPatternEditor * self, guint row)
  * bt_pattern_editor_draw_column:
  * @x,@y: the top left corner for the column
  * @col,@group,@param: column data, group and param to draw
- * @row: the starting row
  * @max_y: max-y for clipping
  */
 static void
 bt_pattern_editor_draw_column (BtPatternEditor * self, cairo_t * cr,
     gint x, gint y, BtPatternEditorColumn * col,
-    guint group, guint param, guint row, gint max_y)
+    guint group, guint param, gint max_y)
 {
   PangoLayout *pl = self->pl;
   ParamType *pt = &param_types[col->type];
   gchar buf[16], *str;
+  gint row = 0;
   gint cw = self->cw, ch = self->ch;
   gint col_w = cw * (pt->chars + 1);
   gint col_w2 = col_w - (param == self->groups[group].num_columns - 1 ? cw : 0);
@@ -769,42 +770,27 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR (widget);
   GtkAllocation allocation;
-  //GdkRectangle rect = event->area;  // <--- we don't have this
-  GdkRectangle rect;
-  gint y, x, i, row, g, max_y;
+  gint y, x, i, g, max_y;
   gint grp_x;
   gint ch;
 
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
 
   gtk_widget_get_allocation (widget, &allocation);
-  // TODO(ensonic): avoid the rect
-  rect.x = rect.y = 0;
-  rect.width = allocation.width;
-  rect.height = allocation.height;
-
-  /* this is the dirty region */
-  GST_DEBUG ("Dirty: %d,%d -> %d,%d", rect.x, rect.y, rect.width, rect.height);
 
   if (self->hadj) {
     self->ofs_x = (gint) gtk_adjustment_get_value (self->hadj);
     self->ofs_y = (gint) gtk_adjustment_get_value (self->vadj);
   }
 
-  /* calculate the first a last row in the dirty region */
-  ch = self->ch;
-  x = 0;
-  y = ch + (gint) (ch * floor ((rect.y - ch) / ch));
-  if (y < ch)
-    y = ch;
-  max_y = rect.y + rect.height + ch;    // one extra line
-  max_y = ch + (gint) (ch * ceil ((max_y - ch) / ch));
-  row = (y - ch) / ch;
-
   /* leave space for headers */
-  x += self->rowhdr_width;
+  x = self->rowhdr_width;
+  y = ch = self->ch;
+  /* calculate the first a last row in the dirty region */
+  max_y = allocation.height + ch;       // one extra line
+  max_y = ch + (gint) (ch * ceil ((max_y - ch) / ch));
 
-  GST_DEBUG ("Scroll: %d,%d, row=%d (of %d)", self->ofs_x, self->ofs_y, row,
+  GST_DEBUG ("Scroll: %d,%d, rows: %d", self->ofs_x, self->ofs_y,
       self->num_rows);
 
   /* draw group parameter columns */
@@ -818,13 +804,12 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
       gint xs = x - self->ofs_x, xe = xs + (w - 1);
 
       // check intersection
-      if ((xs >= rect.x && xs <= rect.x + rect.width) || (xe >= rect.x
-              && xe <= rect.x + rect.width) || (xs <= rect.x
-              && xe >= rect.x + rect.width)) {
+      if ((xs <= allocation.width) || (xe <= allocation.width)
+          || (xe >= allocation.width)) {
         GST_DEBUG ("Draw Group/Column: %d,%d : x=%3d-%3d : y=%3d..%3d", g, i,
             xs, xe, y - self->ofs_y, max_y);
         bt_pattern_editor_draw_column (self, cr, x - self->ofs_x,
-            y - self->ofs_y, col, g, i, row, max_y);
+            y - self->ofs_y, col, g, i, max_y);
       } else {
         GST_DEBUG ("Skip Group/Column: %d,%d : x=%3d-%3d", g, i, xs, xe);
       }
@@ -835,14 +820,10 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
   }
 
   /* draw left and top headers */
-  if (rect.x < self->rowhdr_width) {
-    bt_pattern_editor_draw_rownum (self, cr, 0, y - self->ofs_y, row, max_y);
-  }
-  if (rect.y < self->ch) {
-    bt_pattern_editor_draw_colnames (self, cr, self->rowhdr_width - self->ofs_x,
-        0, allocation.width);
-    bt_pattern_editor_draw_rowname (self, cr, 0, 0);
-  }
+  bt_pattern_editor_draw_rownum (self, cr, 0, y - self->ofs_y, max_y);
+  bt_pattern_editor_draw_colnames (self, cr, self->rowhdr_width - self->ofs_x,
+      0, allocation.width);
+  bt_pattern_editor_draw_rowname (self, cr, 0, 0);
 
   /* draw play-pos */
   if (self->play_pos >= 0.0) {
