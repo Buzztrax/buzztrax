@@ -111,20 +111,22 @@ GtkWidget *
 bt_volume_popup_new (GtkAdjustment * adj)
 {
   GtkWidget *box, *scale, *frame, *label;
-  BtVolumePopup *self;
-
-  self = g_object_new (BT_TYPE_VOLUME_POPUP, "type", GTK_WINDOW_POPUP, NULL);
+  BtVolumePopup *self = g_object_new (BT_TYPE_VOLUME_POPUP,
+      "can-focus", TRUE,
+      "type", GTK_WINDOW_POPUP,
+      NULL);
 
   frame = gtk_frame_new (NULL);
   gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_OUT);
 
-  box = gtk_vbox_new (FALSE, 0);
+  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 
   label = gtk_label_new ("");
   gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (box), gtk_hseparator_new (), FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (box),
+      gtk_separator_new (GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
 
-  scale = gtk_vscale_new (adj);
+  scale = gtk_scale_new (GTK_ORIENTATION_VERTICAL, adj);
   self->scale = GTK_RANGE (scale);
   gtk_widget_set_size_request (scale, -1, 200);
   // FIXME(ensonic): workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
@@ -191,20 +193,19 @@ bt_volume_popup_new (GtkAdjustment * adj)
 void
 bt_volume_popup_show (BtVolumePopup * self)
 {
-  GdkWindow *window;
-
   gtk_widget_show_all (GTK_WIDGET (self));
-  //gtk_widget_realize(GTK_WIDGET(self)); // not needed (yet)
-  window = gtk_widget_get_window (GTK_WIDGET (self));
 
   /* grab focus */
   gtk_widget_grab_focus_savely (GTK_WIDGET (self));
   gtk_grab_add (GTK_WIDGET (self));
+#ifdef NEED_TO_PORT
+  GdkWindow *window = gtk_widget_get_window (GTK_WIDGET (self));
   gdk_pointer_grab (window, TRUE,
       GDK_BUTTON_PRESS_MASK |
       GDK_BUTTON_RELEASE_MASK |
       GDK_POINTER_MOTION_MASK, NULL, NULL, GDK_CURRENT_TIME);
   gdk_keyboard_grab (window, TRUE, GDK_CURRENT_TIME);
+#endif
 }
 
 /**
@@ -217,8 +218,10 @@ void
 bt_volume_popup_hide (BtVolumePopup * self)
 {
   /* ungrab focus */
+#ifdef NEED_TO_PORT
   gdk_keyboard_ungrab (GDK_CURRENT_TIME);
   gdk_pointer_ungrab (GDK_CURRENT_TIME);
+#endif
   gtk_grab_remove (GTK_WIDGET (self));
 
   gtk_widget_hide (GTK_WIDGET (self));

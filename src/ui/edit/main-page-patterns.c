@@ -107,10 +107,6 @@ struct _BtMainPagePatternsPrivate
   GtkWidget *context_menu_pattern_properties, *context_menu_pattern_remove,
       *context_menu_pattern_copy, *context_menu_machine_preferences;
 
-  /* colors */
-  GdkColor *cursor_bg;
-  GdkColor *selection_bg1, *selection_bg2;
-
   /* cursor */
   guint cursor_group, cursor_param;
   glong cursor_row;
@@ -690,7 +686,7 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
       ("pattern_table key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
       event->state, event->keyval, event->hardware_keycode,
       gdk_keyval_name (event->keyval));
-  if (event->keyval == GDK_Return) {    /* GDK_KP_Enter */
+  if (event->keyval == GDK_KEY_Return) {        /* GDK_KP_Enter */
     bt_child_proxy_set (self->priv->app, "main-window::pages::page",
         BT_MAIN_PAGES_SEQUENCE_PAGE, NULL);
     /* if we came from sequence page via Enter we could go back to where we came from
@@ -703,7 +699,7 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     //g_object_unref(sequence_page);
 
     res = TRUE;
-  } else if (event->keyval == GDK_Menu) {
+  } else if (event->keyval == GDK_KEY_Menu) {
     gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
         gtk_get_current_event_time ());
     res = TRUE;
@@ -751,7 +747,7 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
       g_value_unset (&value);
     }
     g_object_unref (pg);
-  } else if (event->keyval == GDK_Insert) {
+  } else if (event->keyval == GDK_KEY_Insert) {
     GString *old_data = g_string_new (NULL), *new_data = g_string_new (NULL);
     gulong number_of_ticks;
     gint beg, end, group, param;
@@ -809,7 +805,7 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     }
     g_string_free (old_data, TRUE);
     g_string_free (new_data, TRUE);
-  } else if (event->keyval == GDK_Delete) {
+  } else if (event->keyval == GDK_KEY_Delete) {
     GString *old_data = g_string_new (NULL), *new_data = g_string_new (NULL);
     gulong number_of_ticks;
     gint beg, end, group, param;
@@ -868,60 +864,60 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     }
     g_string_free (old_data, TRUE);
     g_string_free (new_data, TRUE);
-  } else if (event->keyval == GDK_f) {
+  } else if (event->keyval == GDK_KEY_f) {
     if (modifier & GDK_CONTROL_MASK) {
       res = pattern_selection_apply (self,
           bt_value_group_flip_column,
           bt_value_group_flip_columns, bt_pattern_flip_columns);
     }
-  } else if (event->keyval == GDK_i) {
+  } else if (event->keyval == GDK_KEY_i) {
     if (modifier & GDK_CONTROL_MASK) {
       res = pattern_selection_apply (self,
           bt_value_group_blend_column,
           bt_value_group_blend_columns, bt_pattern_blend_columns);
     }
-  } else if (event->keyval == GDK_r) {
+  } else if (event->keyval == GDK_KEY_r) {
     if (modifier & GDK_CONTROL_MASK) {
       res = pattern_selection_apply (self,
           bt_value_group_randomize_column,
           bt_value_group_randomize_columns, bt_pattern_randomize_columns);
     }
-  } else if (event->keyval == GDK_R) {
+  } else if (event->keyval == GDK_KEY_R) {
     if (modifier & GDK_CONTROL_MASK) {
       res = pattern_selection_apply (self,
           bt_value_group_range_randomize_column,
           bt_value_group_range_randomize_columns,
           bt_pattern_range_randomize_columns);
     }
-  } else if ((event->keyval == GDK_Up) && (modifier == GDK_CONTROL_MASK)) {
+  } else if ((event->keyval == GDK_KEY_Up) && (modifier == GDK_CONTROL_MASK)) {
     g_signal_emit_by_name (self->priv->machine_menu, "move-active",
         GTK_SCROLL_STEP_BACKWARD, NULL);
     res = TRUE;
-  } else if ((event->keyval == GDK_Down) && (modifier == GDK_CONTROL_MASK)) {
+  } else if ((event->keyval == GDK_KEY_Down) && (modifier == GDK_CONTROL_MASK)) {
     g_signal_emit_by_name (self->priv->machine_menu, "move-active",
         GTK_SCROLL_STEP_FORWARD, NULL);
     res = TRUE;
-  } else if (event->keyval == GDK_KP_Subtract) {
+  } else if (event->keyval == GDK_KEY_KP_Subtract) {
     g_signal_emit_by_name (self->priv->pattern_menu, "move-active",
         GTK_SCROLL_STEP_BACKWARD, NULL);
     res = TRUE;
-  } else if (event->keyval == GDK_KP_Add) {
+  } else if (event->keyval == GDK_KEY_KP_Add) {
     g_signal_emit_by_name (self->priv->pattern_menu, "move-active",
         GTK_SCROLL_STEP_FORWARD, NULL);
     res = TRUE;
-  } else if (event->keyval == GDK_KP_Divide) {
+  } else if (event->keyval == GDK_KEY_KP_Divide) {
     g_signal_emit_by_name (self->priv->base_octave_menu, "move-active",
         GTK_SCROLL_STEP_BACKWARD, NULL);
     res = TRUE;
-  } else if (event->keyval == GDK_KP_Multiply) {
+  } else if (event->keyval == GDK_KEY_KP_Multiply) {
     g_signal_emit_by_name (self->priv->base_octave_menu, "move-active",
         GTK_SCROLL_STEP_FORWARD, NULL);
     res = TRUE;
-  } else if (event->keyval == GDK_less) {
+  } else if (event->keyval == GDK_KEY_less) {
     g_signal_emit_by_name (self->priv->wavetable_menu, "move-active",
         GTK_SCROLL_STEP_BACKWARD, NULL);
     res = TRUE;
-  } else if (event->keyval == GDK_greater) {
+  } else if (event->keyval == GDK_KEY_greater) {
     g_signal_emit_by_name (self->priv->wavetable_menu, "move-active",
         GTK_SCROLL_STEP_FORWARD, NULL);
     res = TRUE;
@@ -1837,53 +1833,52 @@ context_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
           max_voices = pspec->maximum;
         }
 
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_add), (voices < max_voices));
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_remove), (voices > min_voices));
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_add), (voices < max_voices));
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_remove), (voices > min_voices));
         gst_object_unref (elem);
       } else {
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_add), FALSE);
-        gtk_widget_set_sensitive (GTK_WIDGET (self->
-                priv->context_menu_track_remove), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_add), FALSE);
+        gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+                context_menu_track_remove), FALSE);
       }
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_properties), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_remove), TRUE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_copy), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_properties), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_remove), TRUE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_copy), TRUE);
     } else {
       GST_INFO_OBJECT (machine, "machine has no patterns");
       gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
           FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_track_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_properties), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_remove), FALSE);
-      gtk_widget_set_sensitive (GTK_WIDGET (self->
-              priv->context_menu_pattern_copy), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_track_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_properties), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_remove), FALSE);
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+              context_menu_pattern_copy), FALSE);
     }
     g_object_get (machine, "prefs-params", &num_property_params, NULL);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_machine_preferences),
-        (num_property_params != 0));
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_machine_preferences), (num_property_params != 0));
   } else {
     GST_INFO ("no machine");
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
         FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_track_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_pattern_properties), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_pattern_remove), FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->
-            priv->context_menu_pattern_copy), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_track_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_pattern_properties), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_pattern_remove), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
+            context_menu_pattern_copy), FALSE);
   }
 }
 
@@ -2940,7 +2935,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
 
   // add toolbar widgets
   // machine select
-  box = gtk_hbox_new (FALSE, 2);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->machine_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
   gtk_combo_box_set_focus_on_click (self->priv->machine_menu, FALSE);
@@ -2980,7 +2975,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
 #endif
 
   // pattern select
-  box = gtk_hbox_new (FALSE, 2);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->pattern_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
   gtk_combo_box_set_focus_on_click (self->priv->pattern_menu, FALSE);
@@ -3013,7 +3008,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
 #endif
 
   // add wavetable entry select
-  box = gtk_hbox_new (FALSE, 2);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->wavetable_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
   gtk_combo_box_set_focus_on_click (self->priv->wavetable_menu, FALSE);
@@ -3051,15 +3046,15 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
 #endif
 
   // add base octave (0-8)
-  box = gtk_hbox_new (FALSE, 2);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->base_octave_menu = gtk_combo_box_text_new ();
-  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->
-          priv->base_octave_menu), FALSE);
+  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->priv->
+          base_octave_menu), FALSE);
   for (i = 0; i < 8; i++) {
     sprintf (oct_str, "%1d", i);
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-            priv->base_octave_menu), oct_str);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
+            base_octave_menu), oct_str);
   }
   gtk_combo_box_set_active (GTK_COMBO_BOX (self->priv->base_octave_menu),
       self->priv->base_octave);
@@ -3106,16 +3101,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_menu_clicked),
       (gpointer) self);
 
-
-  // get colors
-  self->priv->cursor_bg =
-      bt_ui_resources_get_gdk_color (BT_UI_RES_COLOR_CURSOR);
-  self->priv->selection_bg1 =
-      bt_ui_resources_get_gdk_color (BT_UI_RES_COLOR_SELECTION1);
-  self->priv->selection_bg2 =
-      bt_ui_resources_get_gdk_color (BT_UI_RES_COLOR_SELECTION2);
-
-  /* @idea what about adding one control for global params and one for each voice,
+  /* @idea we could use one widget for global params and one for each voice,
    * - then these controls can be folded (hidden)
    */
   // add pattern list-view
@@ -3139,7 +3125,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
       G_CALLBACK (on_pattern_table_cursor_param_changed), (gpointer) self);
   g_signal_connect (self->priv->pattern_table, "notify::cursor-row",
       G_CALLBACK (on_pattern_table_cursor_row_changed), (gpointer) self);
-  gtk_container_add (GTK_CONTAINER (self), GTK_WIDGET (scrolled_window));
+  gtk_box_pack_start (GTK_BOX (self), scrolled_window, TRUE, TRUE, 0);
 
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->pattern_table));
@@ -3161,7 +3147,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
       "<Buzztrax-Main>/PatternView/PatternContext/AddTrack");
   gtk_accel_map_add_entry
-      ("<Buzztrax-Main>/PatternView/PatternContext/AddTrack", GDK_plus,
+      ("<Buzztrax-Main>/PatternView/PatternContext/AddTrack", GDK_KEY_plus,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -3175,7 +3161,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
       "<Buzztrax-Main>/PatternView/PatternContext/RemoveTrack");
   gtk_accel_map_add_entry
-      ("<Buzztrax-Main>/PatternView/PatternContext/RemoveTrack", GDK_minus,
+      ("<Buzztrax-Main>/PatternView/PatternContext/RemoveTrack", GDK_KEY_minus,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -3192,7 +3178,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
       "<Buzztrax-Main>/PatternView/PatternContext/NewPattern");
   gtk_accel_map_add_entry
-      ("<Buzztrax-Main>/PatternView/PatternContext/NewPattern", GDK_Return,
+      ("<Buzztrax-Main>/PatternView/PatternContext/NewPattern", GDK_KEY_Return,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
@@ -3207,7 +3193,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
       "<Buzztrax-Main>/PatternView/PatternContext/PatternProperties");
   gtk_accel_map_add_entry
       ("<Buzztrax-Main>/PatternView/PatternContext/PatternProperties",
-      GDK_BackSpace, GDK_CONTROL_MASK);
+      GDK_KEY_BackSpace, GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",
@@ -3221,8 +3207,8 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
       "<Buzztrax-Main>/PatternView/PatternContext/RemovePattern");
   gtk_accel_map_add_entry
-      ("<Buzztrax-Main>/PatternView/PatternContext/RemovePattern", GDK_Delete,
-      GDK_CONTROL_MASK);
+      ("<Buzztrax-Main>/PatternView/PatternContext/RemovePattern",
+      GDK_KEY_Delete, GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",
@@ -3235,7 +3221,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
       "<Buzztrax-Main>/PatternView/PatternContext/CopyPattern");
   gtk_accel_map_add_entry
-      ("<Buzztrax-Main>/PatternView/PatternContext/CopyPattern", GDK_Return,
+      ("<Buzztrax-Main>/PatternView/PatternContext/CopyPattern", GDK_KEY_Return,
       GDK_CONTROL_MASK | GDK_SHIFT_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);

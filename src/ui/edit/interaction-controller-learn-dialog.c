@@ -138,7 +138,7 @@ bt_interaction_controller_learn_dialog_init_ui (const
   gtk_widget_set_sensitive (self->priv->okay_button, FALSE);
 
   // add widgets to the dialog content area
-  box = gtk_vbox_new (FALSE, 12);
+  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (box), 6);
   gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
               (self))), box);

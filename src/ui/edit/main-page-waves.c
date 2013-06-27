@@ -70,14 +70,14 @@ struct _BtMainPageWavesPrivate
   GtkWidget *waveform_viewer;
 
   /* the toolbar widgets */
-  GtkWidget *list_toolbar, *browser_toolbar, *editor_toolbar;
+  GtkWidget *list_toolbar, *browser_toolbar;
   GtkWidget *wavetable_stop;
   GtkWidget *browser_play, *wavetable_play, *wavetable_clear;
 
   /* the list of wavetable entries */
   GtkTreeView *waves_list;
   /* and their parameters */
-  GtkHScale *volume;
+  GtkScale *volume;
   GtkWidget *loop_mode;
 
   /* the list of wavelevels */
@@ -129,14 +129,13 @@ static void on_loop_mode_changed (GtkComboBox * menu, gpointer user_data);
 static BtWave *
 waves_list_get_current (const BtMainPageWaves * self)
 {
-  GtkTreeSelection *selection;
   GtkTreeModel *model;
   GtkTreeIter iter;
   BtWave *wave = NULL;
 
-  selection =
+  GtkTreeSelection *selection =
       gtk_tree_view_get_selection (GTK_TREE_VIEW (self->priv->waves_list));
-  if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+  if (selection && gtk_tree_selection_get_selected (selection, &model, &iter)) {
     wave = bt_wave_list_model_get_object ((BtWaveListModel *) model, &iter);
   }
   return (wave);
@@ -280,8 +279,8 @@ preview_stop (const BtMainPageWaves * self)
   self->priv->play_wavelevel = NULL;
 
   /* untoggle play button */
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-          wavetable_play), FALSE);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+          priv->wavetable_play), FALSE);
 }
 
 static void
@@ -413,8 +412,8 @@ update_audio_sink (const BtMainPageWaves * self)
     if (state > GST_STATE_READY) {
       preview_stop (self);
       gtk_widget_set_sensitive (self->priv->wavetable_stop, FALSE);
-      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-              wavetable_play), FALSE);
+      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+              priv->wavetable_play), FALSE);
     }
   }
   // determine sink element
@@ -528,8 +527,8 @@ on_preview_state_changed (GstBus * bus, GstMessage * message,
         break;
       case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
         gtk_widget_set_sensitive (self->priv->wavetable_stop, FALSE);
-        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-                wavetable_play), FALSE);
+        gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+                priv->wavetable_play), FALSE);
         gst_element_set_state (self->priv->preview, GST_STATE_NULL);
         break;
       default:
@@ -558,8 +557,8 @@ on_preview_segment_done (GstBus * bus, GstMessage * message, gpointer user_data)
     GST_INFO ("received segment_done on the bin, looping %d",
         self->priv->loop_seek_dir);
     if (!(gst_element_send_event (GST_ELEMENT (self->priv->preview),
-                gst_event_ref (self->priv->loop_seek_event[self->priv->
-                        loop_seek_dir])))) {
+                gst_event_ref (self->priv->loop_seek_event[self->
+                        priv->loop_seek_dir])))) {
       GST_WARNING ("element failed to handle continuing play seek event");
       /* if I set state directly to NULL, I don't get inbetween state-change messages */
       gst_element_set_state (self->priv->preview, GST_STATE_READY);
@@ -778,6 +777,8 @@ on_waves_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
   BtWave *wave;
 
+  return_if_disposed ();
+
   GST_INFO ("waves list cursor changed");
   wave = waves_list_get_current (self);
   refresh_after_wave_list_changes (self, wave);
@@ -790,6 +791,8 @@ on_wavelevels_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
   BtWave *wave;
   gboolean drawn = FALSE;
+
+  return_if_disposed ();
 
   GST_DEBUG ("wavelevels list cursor changed");
   if ((wave = waves_list_get_current (self))) {
@@ -813,8 +816,8 @@ on_wavelevels_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
         loop_end = le;
       }
 
-      bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->priv->
-              waveform_viewer), data, channels, length);
+      bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->
+              priv->waveform_viewer), data, channels, length);
       g_object_set (self->priv->waveform_viewer, "loop-start", loop_start,
           "loop-end", loop_end, NULL);
 
@@ -828,8 +831,8 @@ on_wavelevels_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
     GST_INFO ("no current wave");
   }
   if (!drawn) {
-    bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->priv->
-            waveform_viewer), NULL, 0, 0);
+    bt_waveform_viewer_set_wave (BT_WAVEFORM_VIEWER (self->
+            priv->waveform_viewer), NULL, 0, 0);
   }
 }
 
@@ -921,7 +924,6 @@ on_toolbar_style_changed (const BtSettings * settings, GParamSpec * arg,
   style = gtk_toolbar_get_style_from_string (toolbar_style);
   gtk_toolbar_set_style (GTK_TOOLBAR (self->priv->list_toolbar), style);
   gtk_toolbar_set_style (GTK_TOOLBAR (self->priv->browser_toolbar), style);
-  gtk_toolbar_set_style (GTK_TOOLBAR (self->priv->editor_toolbar), style);
   g_free (toolbar_style);
 }
 
@@ -933,8 +935,8 @@ on_default_sample_folder_changed (const BtSettings * settings, GParamSpec * arg,
   gchar *sample_folder;
 
   g_object_get ((gpointer) settings, "sample-folder", &sample_folder, NULL);
-  gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (self->priv->
-          file_chooser), sample_folder);
+  gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (self->
+          priv->file_chooser), sample_folder);
   g_free (sample_folder);
 }
 
@@ -974,12 +976,12 @@ on_browser_key_press_event (GtkWidget * widget, GdkEventKey * event,
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
   gboolean res = FALSE;
 
-  if (event->keyval == GDK_less) {
+  if (event->keyval == GDK_KEY_less) {
     GST_WARNING ("last wave");
     g_signal_emit_by_name (self->priv->waves_list, "move-cursor",
         GTK_SCROLL_STEP_BACKWARD, NULL);
     res = TRUE;
-  } else if (event->keyval == GDK_greater) {
+  } else if (event->keyval == GDK_KEY_greater) {
     GST_WARNING ("next wave");
     g_signal_emit_by_name (self->priv->waves_list, "move-cursor",
         GTK_SCROLL_STEP_FORWARD, NULL);
@@ -1215,8 +1217,8 @@ on_waves_list_row_activated (GtkTreeView * tree_view, GtkTreePath * path,
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
 
   //on_wavetable_toolbar_play_clicked(GTK_TOOL_BUTTON(self->priv->wavetable_play),user_data);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-          wavetable_play), TRUE);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+          priv->wavetable_play), TRUE);
 }
 
 static void
@@ -1226,8 +1228,8 @@ on_wavelevels_list_row_activated (GtkTreeView * tree_view, GtkTreePath * path,
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
 
   //on_wavetable_toolbar_play_clicked(GTK_TOOL_BUTTON(self->priv->wavetable_play),user_data);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
-          wavetable_play), TRUE);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
+          priv->wavetable_play), TRUE);
 }
 
 static void
@@ -1269,7 +1271,7 @@ static void
 bt_main_page_waves_init_ui (const BtMainPageWaves * self,
     const BtMainPages * pages)
 {
-  GtkWidget *vpaned, *hpaned, *box, *box2, *table;
+  GtkWidget *vpaned, *hpaned, *box, *table;
   GtkWidget *tool_item;
   GtkWidget *scrolled_window;
   GtkCellRenderer *renderer;
@@ -1282,15 +1284,15 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   gtk_widget_set_name (GTK_WIDGET (self), "wave table view");
 
   // vpane
-  vpaned = gtk_vpaned_new ();
+  vpaned = gtk_paned_new (GTK_ORIENTATION_VERTICAL);
   gtk_container_add (GTK_CONTAINER (self), vpaned);
 
   //   hpane
-  hpaned = gtk_hpaned_new ();
+  hpaned = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);
   gtk_paned_pack1 (GTK_PANED (vpaned), GTK_WIDGET (hpaned), TRUE, FALSE);
 
   //     vbox (loaded sample list)
-  box = gtk_vbox_new (FALSE, 0);
+  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_paned_pack1 (GTK_PANED (hpaned), GTK_WIDGET (box), FALSE, FALSE);
   //       toolbar
   self->priv->list_toolbar = gtk_toolbar_new ();
@@ -1340,8 +1342,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
       GTK_SHADOW_ETCHED_IN);
   self->priv->waves_list = GTK_TREE_VIEW (gtk_tree_view_new ());
   gtk_widget_set_name (GTK_WIDGET (self->priv->waves_list), "wave-list");
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
-          waves_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
+          priv->waves_list), GTK_SELECTION_BROWSE);
   g_object_set (self->priv->waves_list, "enable-search", FALSE, "rules-hint",
       TRUE, NULL);
   g_signal_connect (self->priv->waves_list, "cursor-changed",
@@ -1350,8 +1352,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
       G_CALLBACK (on_waves_list_row_activated), (gpointer) self);
 
   renderer = gtk_cell_renderer_text_new ();
-  // this seems to cause clipping on some theme+font combinations
-  //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
+  // TODO(ensonic): this might cause clipping on some theme+font combinations
+  gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
       (renderer), 1);
   g_object_set (renderer, "xalign", 1.0, "width-chars", 2, NULL);
@@ -1365,19 +1367,22 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   g_object_set (renderer, "mode", GTK_CELL_RENDERER_MODE_EDITABLE, NULL);
   g_signal_connect (renderer, "edited", G_CALLBACK (on_wave_name_edited),
       (gpointer) self);
+  /* Wave: name of the waveform */
   gtk_tree_view_insert_column_with_attributes (self->priv->waves_list, -1,
       _("Wave"), renderer, "text", BT_WAVE_LIST_MODEL_NAME, "editable",
       BT_WAVE_LIST_MODEL_HAS_WAVE, NULL);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->waves_list));
-  gtk_container_add (GTK_CONTAINER (box), scrolled_window);
+  gtk_box_pack_start (GTK_BOX (box), scrolled_window, TRUE, TRUE, 0);
 
   // loop-mode combo and volume slider
   table = gtk_table_new (2, 2, FALSE);
   gtk_table_attach (GTK_TABLE (table), gtk_label_new (_("Volume")), 0, 1, 0, 1,
       GTK_FILL, GTK_SHRINK, 2, 1);
-  self->priv->volume = GTK_HSCALE (gtk_hscale_new_with_range (0.0, 1.0, 0.01));
-  gtk_scale_set_value_pos (GTK_SCALE (self->priv->volume), GTK_POS_RIGHT);
+  self->priv->volume =
+      GTK_SCALE (gtk_scale_new_with_range (GTK_ORIENTATION_HORIZONTAL, 0.0, 1.0,
+          0.01));
+  gtk_scale_set_value_pos (self->priv->volume, GTK_POS_RIGHT);
   g_signal_connect (self->priv->volume, "value-changed",
       G_CALLBACK (on_volume_changed), (gpointer) self);
   gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->volume), 1, 2, 0,
@@ -1389,8 +1394,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   enum_class = g_type_class_ref (BT_TYPE_WAVE_LOOP_MODE);
   for (i = enum_class->minimum; i <= enum_class->maximum; i++) {
     if ((enum_value = g_enum_get_value (enum_class, i))) {
-      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-              loop_mode), enum_value->value_name);
+      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+              priv->loop_mode), enum_value->value_name);
     }
   }
   g_type_class_unref (enum_class);
@@ -1403,7 +1408,7 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   gtk_box_pack_start (GTK_BOX (box), table, FALSE, FALSE, 0);
 
   //     vbox (file browser)
-  box = gtk_vbox_new (FALSE, 0);
+  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_paned_pack2 (GTK_PANED (hpaned), GTK_WIDGET (box), TRUE, FALSE);
   //       toolbar
   self->priv->browser_toolbar = gtk_toolbar_new ();
@@ -1450,18 +1455,9 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
       BOX_BORDER);
 
   //   vbox (sample view)
-  box = gtk_vbox_new (FALSE, 0);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_paned_pack2 (GTK_PANED (vpaned), GTK_WIDGET (box), FALSE, FALSE);
-  //     toolbar
-  self->priv->editor_toolbar = gtk_toolbar_new ();
-  gtk_widget_set_name (self->priv->editor_toolbar, "sample edit toolbar");
 
-  gtk_box_pack_start (GTK_BOX (box), self->priv->editor_toolbar, FALSE, FALSE,
-      0);
-
-  //     hbox
-  box2 = gtk_hbox_new (FALSE, 0);
-  gtk_container_add (GTK_CONTAINER (box), box2);
   //       zone entries (multiple waves per sample (xm?)) -> (per entry: root key, length, rate, loope start, loop end
   scrolled_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
@@ -1471,8 +1467,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   self->priv->wavelevels_list = GTK_TREE_VIEW (gtk_tree_view_new ());
   gtk_widget_set_name (GTK_WIDGET (self->priv->wavelevels_list),
       "wave-level-list");
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
-          wavelevels_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
+          priv->wavelevels_list), GTK_SELECTION_BROWSE);
   g_object_set (self->priv->wavelevels_list, "enable-search", FALSE,
       "rules-hint", TRUE, NULL);
   g_signal_connect (self->priv->wavelevels_list, "cursor-changed",
@@ -1529,13 +1525,13 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
       G_CALLBACK (on_wavelevel_loop_end_edited), (gpointer) self);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->wavelevels_list));
-  gtk_box_pack_start (GTK_BOX (box2), scrolled_window, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (box), scrolled_window, FALSE, FALSE, 0);
 
   //       tabs for waveform/envelope? or envelope overlayed?
   //       sampleview
   self->priv->waveform_viewer = bt_waveform_viewer_new ();
   gtk_widget_set_size_request (self->priv->waveform_viewer, -1, 96);
-  gtk_box_pack_start (GTK_BOX (box2), self->priv->waveform_viewer, TRUE, TRUE,
+  gtk_box_pack_start (GTK_BOX (box), self->priv->waveform_viewer, TRUE, TRUE,
       0);
 
   // register event handlers

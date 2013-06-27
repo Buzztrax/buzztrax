@@ -128,16 +128,22 @@ remove_selected (BtCrashRecoverDialog * self)
 //-- event handler
 
 static void
-on_list_size_request (GtkWidget * widget, GtkRequisition * requisition,
-    gpointer user_data)
+on_list_realize (GtkWidget * widget, gpointer user_data)
 {
+  GtkWidget *parent = gtk_widget_get_parent (widget);
+  GtkRequisition requisition;
+  gint height;
   gint max_height = gdk_screen_get_height (gdk_screen_get_default ()) / 2;
-  gint height = 2 + MIN (requisition->height, max_height);
 
+  gtk_widget_get_preferred_size (widget, NULL, &requisition);
+
+  height = MIN (requisition.height, max_height);
   /* make sure the dialog resize without scrollbar until it would reach half
    * screen height */
   GST_DEBUG (" height=%d", height);
-  gtk_widget_set_size_request (gtk_widget_get_parent (widget), -1, height);
+  // TODO(ensonic): is the '2' some border or padding
+  gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
+      height + 2);
 }
 
 static void
@@ -224,13 +230,13 @@ bt_crash_recover_dialog_init_ui (const BtCrashRecoverDialog * self)
       GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE, NULL);
 
   // content area
-  hbox = gtk_hbox_new (FALSE, 12);
+  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
 
   icon = gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
   gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
 
-  vbox = gtk_vbox_new (FALSE, 6);
+  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   str =
       g_strdup_printf ("<big><b>%s</b></big>\n%s\n", _("Unsaved songs found"),
       _("Select them one by one and choose 'recover' or 'delete'."));
@@ -243,10 +249,11 @@ bt_crash_recover_dialog_init_ui (const BtCrashRecoverDialog * self)
       "enable-search", FALSE, "rules-hint", TRUE,
       /*"fixed-height-mode",TRUE, */// causes the first column to be not shown (or getting width=0)
       NULL);
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
-          entries_list), GTK_SELECTION_BROWSE);
-  g_signal_connect (self->priv->entries_list, "size-request",
-      G_CALLBACK (on_list_size_request), (gpointer) self);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
+          priv->entries_list), GTK_SELECTION_BROWSE);
+  g_signal_connect (self->priv->entries_list, "realize",
+      G_CALLBACK (on_list_realize), (gpointer) self);
+
   renderer = gtk_cell_renderer_text_new ();
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
       (renderer), 1);

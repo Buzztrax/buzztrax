@@ -133,8 +133,10 @@ GdkPixbuf *bt_ui_resources_get_machine_graphics_pixbuf_by_machine(const BtMachin
 GtkWidget *bt_ui_resources_get_icon_image_by_machine(const BtMachine *machine);
 GtkWidget *bt_ui_resources_get_icon_image_by_machine_type(GType machine_type);
 
+GdkPixbuf *bt_ui_resources_get_wire_graphics_pixbuf_by_wire(const BtWire *wire, gdouble zoom);
+
 GdkColor *bt_ui_resources_get_gdk_color(BtUIResourcesColors color_type);
-void bt_ui_resources_get_rgb_color(BtUIResourcesColors color_type, gdouble *r, gdouble *g, gdouble *b);
+void bt_ui_resources_get_rgb_color(BtUIResourcesColors color_type, GdkRGBA *color);
 guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine, BtUIResourcesMachineColors color_type);
 
 GtkAccelGroup *bt_ui_resources_get_accel_group(void);

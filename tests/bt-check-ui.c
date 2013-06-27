@@ -325,7 +325,7 @@ check_shutdown_test_server (void)
 static GdkPixbuf *
 make_screenshot (GtkWidget * widget)
 {
-  GdkWindow *window = widget->window;
+  GdkWindow *window = gtk_widget_get_window (widget);
   gint ww, wh;
 
   // make sure the window gets drawn
@@ -339,9 +339,8 @@ make_screenshot (GtkWidget * widget)
   gtk_widget_queue_draw (widget);
   flush_main_loop ();
 
-  gdk_window_get_geometry (window, NULL, NULL, &ww, &wh, NULL);
-  return (gdk_pixbuf_get_from_drawable (NULL, window, NULL, 0, 0, 0, 0, ww,
-          wh));
+  gdk_window_get_geometry (window, NULL, NULL, &ww, &wh);
+  return gdk_pixbuf_get_from_window (window, 0, 0, ww, wh);
 }
 
 static gchar *

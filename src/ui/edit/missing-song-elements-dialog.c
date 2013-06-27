@@ -128,14 +128,14 @@ bt_missing_song_elements_dialog_init_ui (const BtMissingSongElementsDialog *
 
   gtk_dialog_set_default_response (GTK_DIALOG (self), GTK_RESPONSE_ACCEPT);
 
-  hbox = gtk_hbox_new (FALSE, 12);
+  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
 
   icon =
       gtk_image_new_from_stock (GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_DIALOG);
   gtk_container_add (GTK_CONTAINER (hbox), icon);
 
-  vbox = gtk_vbox_new (FALSE, 6);
+  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   label = gtk_label_new (NULL);
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Missing elements in song"));
   gtk_label_set_markup (GTK_LABEL (label), str);

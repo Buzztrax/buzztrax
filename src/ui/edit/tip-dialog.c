@@ -130,27 +130,27 @@ on_show_tips_toggled (GtkToggleButton * togglebutton, gpointer user_data)
 }
 
 static void
-on_tip_view_size_request (GtkWidget * widget, GtkRequisition * requisition,
-    gpointer user_data)
+on_tip_view_realize (GtkWidget * widget, gpointer user_data)
 {
   GtkWidget *parent = gtk_widget_get_parent (gtk_widget_get_parent (widget));
-  gint height = requisition->height, width = -1;
+  GtkRequisition requisition;
+  gint height, available_heigth;
   gint max_height = gdk_screen_get_height (gdk_screen_get_default ());
-  gint available_heigth;
+
+  gtk_widget_get_preferred_size (widget, NULL, &requisition);
 
   GST_DEBUG ("#### tip_view  size req %d x %d (max-height=%d)",
-      requisition->width, requisition->height, max_height);
-  // have a minimum width
-  if (requisition->width < 250) {
-    width = 250;
-  }
+      requisition.width, requisition.height, max_height);
+
+  height = requisition.height;
   // constrain the height by screen height minus some space for panels and deco
   available_heigth = max_height - SCREEN_BORDER_HEIGHT;
   if (height > available_heigth) {
     height = available_heigth;
   }
   // TODO(ensonic): is the '4' some border or padding
-  gtk_widget_set_size_request (parent, width, height + 4);
+  gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
+      height + 4);
 }
 
 //-- helper methods
@@ -212,12 +212,12 @@ bt_tip_dialog_init_ui (const BtTipDialog * self)
   gtk_dialog_set_default_response (GTK_DIALOG (self), GTK_RESPONSE_ACCEPT);
 
   // content area
-  hbox = gtk_hbox_new (FALSE, 12);
+  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
   icon = gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
   gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
 
-  vbox = gtk_vbox_new (FALSE, 6);
+  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   str = g_strdup_printf ("<big><b>%s</b></big>\n", _("Tip of the day"));
   label = g_object_new (GTK_TYPE_LABEL, "use-markup", TRUE, "label", str, NULL);
   g_free (str);
@@ -227,8 +227,8 @@ bt_tip_dialog_init_ui (const BtTipDialog * self)
   gtk_text_view_set_cursor_visible (self->priv->tip_view, FALSE);
   gtk_text_view_set_editable (self->priv->tip_view, FALSE);
   gtk_text_view_set_wrap_mode (self->priv->tip_view, GTK_WRAP_WORD);
-  g_signal_connect (self->priv->tip_view, "size-request",
-      G_CALLBACK (on_tip_view_size_request), (gpointer) self);
+  g_signal_connect (self->priv->tip_view, "realize",
+      G_CALLBACK (on_tip_view_realize), (gpointer) self);
 
   tip_view = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (tip_view),

@@ -403,7 +403,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   gtk_widget_set_name (frame, "song meta data");
   gtk_box_pack_start (GTK_BOX (self), frame, FALSE, TRUE, 0);
 
-  box = gtk_hbox_new (FALSE, BOX_BORDER);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, BOX_BORDER);
   gtk_container_add (GTK_CONTAINER (frame), box);
 
   /* left side padding */
@@ -543,7 +543,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   gtk_container_set_border_width (GTK_CONTAINER (frame), BOX_BORDER);
   gtk_box_pack_start (GTK_BOX (self), frame, TRUE, TRUE, 0);
 
-  box = gtk_hbox_new (FALSE, BOX_BORDER);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, BOX_BORDER);
   gtk_container_add (GTK_CONTAINER (frame), box);
 
   /* left side padding */
@@ -552,7 +552,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow),
       GTK_SHADOW_IN);
-  gtk_container_add (GTK_CONTAINER (box), scrolledwindow);
+  gtk_box_pack_start (GTK_BOX (box), scrolledwindow, TRUE, TRUE, 0);
 
   self->priv->info = GTK_TEXT_VIEW (gtk_text_view_new ());
   gtk_widget_set_name (GTK_WIDGET (self->priv->info), "free text info");

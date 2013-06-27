@@ -115,21 +115,23 @@ GtkWidget *
 bt_panorama_popup_new (GtkAdjustment * adj)
 {
   GtkWidget *box, *scale, *frame, *label;
-  BtPanoramaPopup *self;
-
-  self = g_object_new (BT_TYPE_PANORAMA_POPUP, "type", GTK_WINDOW_POPUP, NULL);
+  BtPanoramaPopup *self = g_object_new (BT_TYPE_PANORAMA_POPUP,
+      "can-focus", TRUE,
+      "type", GTK_WINDOW_POPUP,
+      NULL);
 
   frame = gtk_frame_new (NULL);
   gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_OUT);
 
-  box = gtk_hbox_new (FALSE, 0);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 
   label = gtk_label_new ("");
   gtk_widget_set_size_request (label, 40, -1);
   gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (box), gtk_vseparator_new (), FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (box),
+      gtk_separator_new (GTK_ORIENTATION_VERTICAL), FALSE, FALSE, 0);
 
-  scale = gtk_hscale_new (adj);
+  scale = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL, adj);
   self->scale = GTK_RANGE (scale);
   gtk_widget_set_size_request (scale, 200, -1);
   gtk_scale_set_draw_value (GTK_SCALE (scale), FALSE);
@@ -174,19 +176,19 @@ bt_panorama_popup_new (GtkAdjustment * adj)
 void
 bt_panorama_popup_show (BtPanoramaPopup * self)
 {
-  GdkWindow *window;
-
   gtk_widget_show_all (GTK_WIDGET (self));
-  window = gtk_widget_get_window (GTK_WIDGET (self));
 
   /* grab focus */
   gtk_widget_grab_focus_savely (GTK_WIDGET (self));
   gtk_grab_add (GTK_WIDGET (self));
+#ifdef NEED_TO_PORT
+  GdkWindow *window = gtk_widget_get_window (GTK_WIDGET (self));
   gdk_pointer_grab (window, TRUE,
       GDK_BUTTON_PRESS_MASK |
       GDK_BUTTON_RELEASE_MASK |
       GDK_POINTER_MOTION_MASK, NULL, NULL, GDK_CURRENT_TIME);
   gdk_keyboard_grab (window, TRUE, GDK_CURRENT_TIME);
+#endif
 }
 
 /**
@@ -199,10 +201,11 @@ void
 bt_panorama_popup_hide (BtPanoramaPopup * self)
 {
   /* ungrab focus */
+#ifdef NEED_TO_PORT
   gdk_keyboard_ungrab (GDK_CURRENT_TIME);
   gdk_pointer_ungrab (GDK_CURRENT_TIME);
+#endif
   gtk_grab_remove (GTK_WIDGET (self));
-
   gtk_widget_hide (GTK_WIDGET (self));
 }
 

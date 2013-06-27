@@ -1046,7 +1046,6 @@ gdk_pixbuf_new_from_theme
 gtk_toolbar_get_style_from_string
 gtk_target_table_make
 gtk_show_uri_simple
-GNOME_CANVAS_BROKEN_PROPERTIES
 <SUBSECTION Private>
 BOX_BORDER
 SCREEN_BORDER_HEIGHT

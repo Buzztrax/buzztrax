@@ -40,20 +40,20 @@ typedef struct _BtWireCanvasItemPrivate BtWireCanvasItemPrivate;
  * the root window for the editor application
  */
 struct _BtWireCanvasItem {
-  GnomeCanvasGroup parent;
+  ClutterActor parent;
   
   /*< private >*/
   BtWireCanvasItemPrivate *priv;
 };
 
 struct _BtWireCanvasItemClass {
-  GnomeCanvasGroupClass parent;
+  ClutterActorClass parent;
   
 };
 
 GType bt_wire_canvas_item_get_type(void) G_GNUC_CONST;
 
-BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_machines,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,BtMachineCanvasItem *src_machine_item,BtMachineCanvasItem *dst_machine_item);
+BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_machines,BtWire *wire,BtMachineCanvasItem *src_machine_item,BtMachineCanvasItem *dst_machine_item);
 
 void bt_wire_show_analyzer_dialog(BtWire *wire);
 

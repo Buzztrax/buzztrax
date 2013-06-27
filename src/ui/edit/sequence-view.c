@@ -73,6 +73,7 @@ static void
 bt_sequence_view_invalidate (const BtSequenceView * self, gdouble old_pos,
     gdouble new_pos)
 {
+  GtkWidget *widget = (GtkWidget *) self;
   gdouble h = (gdouble) (self->priv->visible_rows * self->priv->row_height);
   GdkRectangle vr;
   gdouble y;
@@ -80,11 +81,11 @@ bt_sequence_view_invalidate (const BtSequenceView * self, gdouble old_pos,
   gtk_tree_view_get_visible_rect (GTK_TREE_VIEW (self), &vr);
 
   y = 0.5 + floor ((old_pos * h) - vr.y);
-  gtk_widget_queue_draw_area (GTK_WIDGET (self), 0, y - 1,
-      GTK_WIDGET (self)->allocation.width, 3);
+  gtk_widget_queue_draw_area (widget, 0, y - 1,
+      gtk_widget_get_allocated_width (widget), 3);
   y = 0.5 + floor ((new_pos * h) - vr.y);
-  gtk_widget_queue_draw_area (GTK_WIDGET (self), 0, y - 1,
-      GTK_WIDGET (self)->allocation.width, 3);
+  gtk_widget_queue_draw_area (widget, 0, y - 1,
+      gtk_widget_get_allocated_width (widget), 3);
 }
 
 //-- constructor methods
@@ -122,93 +123,79 @@ bt_sequence_view_realize (GtkWidget * widget)
 }
 
 static gboolean
-bt_sequence_view_expose_event (GtkWidget * widget, GdkEventExpose * event)
+bt_sequence_view_draw (GtkWidget * widget, cairo_t * c)
 {
   BtSequenceView *self = BT_SEQUENCE_VIEW (widget);
+  gdouble w, h, y;
+  GdkRectangle vr;
+  GdkRGBA color;
+  gdouble loop_pos_dash_list[] = { 4.0 };
 
-  //GST_INFO("!!!! self=%p",self);
+  // let the parent draw first
+  GTK_WIDGET_CLASS (bt_sequence_view_parent_class)->draw (widget, c);
 
-  // let the parent handle its expose
-  GTK_WIDGET_CLASS (bt_sequence_view_parent_class)->expose_event (widget,
-      event);
+  if (G_UNLIKELY (!self->priv->row_height)) {
+    GtkTreePath *path;
+    GdkRectangle br;
 
-  /* We need to check to make sure that the expose event is actually occuring on
-   * the window where the table data is being drawn.  If we don't do this check,
-   * row zero spanners can be drawn on top of the column headers.
-   */
-  if (self->priv->window == event->window) {
-    gdouble w, h, y;
-    GdkRectangle vr;
-    cairo_t *c = gdk_cairo_create (self->priv->window);
-    gdouble cr, cg, cb;
-    gdouble loop_pos_dash_list[] = { 4.0 };
-
-    if (G_UNLIKELY (!self->priv->row_height)) {
-      GtkTreePath *path;
-      GdkRectangle br;
-
-      // determine row height
-      path = gtk_tree_path_new_from_indices (0, -1);
-      gtk_tree_view_get_background_area (GTK_TREE_VIEW (widget), path, NULL,
-          &br);
-      self->priv->row_height = br.height;
-      gtk_tree_path_free (path);
-      GST_INFO ("view=%p, cell background rect: %d x %d, %d x %d", widget, br.x,
-          br.y, br.width, br.height);
-    }
-
-    gtk_tree_view_get_visible_rect (GTK_TREE_VIEW (widget), &vr);
-    GST_DEBUG ("view=%p, visible rect: %d x %d, %d x %d, alloc: %d x %d",
-        widget, vr.x, vr.y, vr.width, vr.height, widget->allocation.width,
-        widget->allocation.height);
-
-    //h=(gint)(self->priv->play_pos*(double)widget->allocation.height);
-    //w=vr.width;
-    //h=(gint)(self->priv->play_pos*(double)vr.height);
-
-    w = (gdouble) widget->allocation.width;
-    h = (gdouble) (self->priv->visible_rows * self->priv->row_height);
-
-    // draw play-pos
-    y = 0.5 + floor ((self->priv->play_pos * h) - vr.y);
-    if ((y >= 0) && (y < vr.height)) {
-      bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_PLAYLINE, &cr, &cg, &cb);
-      cairo_set_source_rgba (c, cr, cg, cb, 1.0);
-      cairo_set_line_width (c, 2.0);
-      cairo_move_to (c, vr.x + 0.0, y);
-      cairo_line_to (c, vr.x + w, y);
-      cairo_stroke (c);
-    }
-    // draw song-end
-    y = h - (1 + vr.y);
-    if ((y >= 0) && (y < vr.height)) {
-      bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_ENDLINE, &cr, &cg, &cb);
-      cairo_set_source_rgba (c, cr, cg, cb, 1.0);
-      cairo_set_line_width (c, 2.0);
-      cairo_move_to (c, vr.x + 0.0, y);
-      cairo_line_to (c, vr.x + w, y);
-      cairo_stroke (c);
-    }
-    // draw loop-start/-end
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_LOOPLINE, &cr, &cg, &cb);
-    cairo_set_source_rgba (c, cr, cg, cb, 1.0);
-    cairo_set_dash (c, loop_pos_dash_list, 1, 0.0);
-    // draw these always from 0 as they are dashed and we can't adjust the start of the dash pattern
-    y = (self->priv->loop_start * h) - vr.y;
-    if ((y >= 0) && (y < vr.height)) {
-      cairo_move_to (c, 0.0, y);
-      cairo_line_to (c, vr.x + w, y);
-      cairo_stroke (c);
-    }
-    y = (self->priv->loop_end * h) - (1 + vr.y);
-    if ((y >= 0) && (y < vr.height)) {
-      cairo_move_to (c, 0.0, y);
-      cairo_line_to (c, vr.x + w, y);
-      cairo_stroke (c);
-    }
-
-    cairo_destroy (c);
+    // determine row height
+    path = gtk_tree_path_new_from_indices (0, -1);
+    gtk_tree_view_get_background_area (GTK_TREE_VIEW (widget), path, NULL, &br);
+    self->priv->row_height = br.height;
+    gtk_tree_path_free (path);
+    GST_INFO ("view=%p, cell background rect: %d x %d, %d x %d", widget, br.x,
+        br.y, br.width, br.height);
   }
+
+  gtk_tree_view_get_visible_rect (GTK_TREE_VIEW (widget), &vr);
+  GST_DEBUG ("view=%p, visible rect: %d x %d, %d x %d",
+      widget, vr.x, vr.y, vr.width, vr.height);
+
+  //h=(gint)(self->priv->play_pos*(double)widget->allocation.height);
+  //w=vr.width;
+  //h=(gint)(self->priv->play_pos*(double)vr.height);
+
+  w = (gdouble) gtk_widget_get_allocated_width (widget);
+  h = (gdouble) (self->priv->visible_rows * self->priv->row_height);
+
+  // draw play-pos
+  y = 0.5 + floor ((self->priv->play_pos * h) - vr.y);
+  if ((y >= 0) && (y < vr.height)) {
+    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_PLAYLINE, &color);
+    gdk_cairo_set_source_rgba (c, &color);
+    cairo_set_line_width (c, 2.0);
+    cairo_move_to (c, vr.x + 0.0, y);
+    cairo_line_to (c, vr.x + w, y);
+    cairo_stroke (c);
+  }
+  // draw song-end
+  y = h - (1 + vr.y);
+  if ((y >= 0) && (y < vr.height)) {
+    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_ENDLINE, &color);
+    gdk_cairo_set_source_rgba (c, &color);
+    cairo_set_line_width (c, 2.0);
+    cairo_move_to (c, vr.x + 0.0, y);
+    cairo_line_to (c, vr.x + w, y);
+    cairo_stroke (c);
+  }
+  // draw loop-start/-end
+  bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_LOOPLINE, &color);
+  gdk_cairo_set_source_rgba (c, &color);
+  cairo_set_dash (c, loop_pos_dash_list, 1, 0.0);
+  // draw these always from 0 as they are dashed and we can't adjust the start of the dash pattern
+  y = (self->priv->loop_start * h) - vr.y;
+  if ((y >= 0) && (y < vr.height)) {
+    cairo_move_to (c, 0.0, y);
+    cairo_line_to (c, vr.x + w, y);
+    cairo_stroke (c);
+  }
+  y = (self->priv->loop_end * h) - (1 + vr.y);
+  if ((y >= 0) && (y < vr.height)) {
+    cairo_move_to (c, 0.0, y);
+    cairo_line_to (c, vr.x + w, y);
+    cairo_stroke (c);
+  }
+
   return (FALSE);
 }
 
@@ -295,7 +282,7 @@ bt_sequence_view_class_init (BtSequenceViewClass * klass)
   gobject_class->dispose = bt_sequence_view_dispose;
 
   gtkwidget_class->realize = bt_sequence_view_realize;
-  gtkwidget_class->expose_event = bt_sequence_view_expose_event;
+  gtkwidget_class->draw = bt_sequence_view_draw;
 
 
   g_object_class_install_property (gobject_class, SEQUENCE_VIEW_PLAY_POSITION,

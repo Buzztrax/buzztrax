@@ -1651,29 +1651,27 @@ on_toolbar_style_changed (const BtSettings * settings, GParamSpec * arg,
 }
 
 /*
- * on_box_size_request:
+ * on_box_realize:
  *
  * we adjust the scrollable-window size to contain the whole area
  */
 static void
-on_box_size_request (GtkWidget * widget, GtkRequisition * requisition,
-    gpointer user_data)
+on_box_realize (GtkWidget * widget, gpointer user_data)
 {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (user_data);
   GtkWidget *parent = gtk_widget_get_parent (gtk_widget_get_parent (widget));
-  gint height = requisition->height, width = -1;
-  gint max_height = gdk_screen_get_height (gdk_screen_get_default ());
-  gint available_heigth;
+  GtkRequisition requisition;
   GtkAllocation tb_alloc;
+  gint height, available_heigth;
+  gint max_height = gdk_screen_get_height (gdk_screen_get_default ());
 
+  gtk_widget_get_preferred_size (widget, NULL, &requisition);
   gtk_widget_get_allocation (GTK_WIDGET (self->priv->main_toolbar), &tb_alloc);
 
   GST_DEBUG ("#### box size req %d x %d (max-height=%d, toolbar-height=%d)",
-      requisition->width, requisition->height, max_height, tb_alloc.height);
-  // have a minimum width
-  if (requisition->width < 300) {
-    width = 300;
-  }
+      requisition.width, requisition.height, max_height, tb_alloc.height);
+
+  height = requisition.height;
   // constrain the height by screen height minus some space for panels, deco and
   // our toolbar
   available_heigth = max_height - SCREEN_BORDER_HEIGHT - tb_alloc.height;
@@ -1681,7 +1679,9 @@ on_box_size_request (GtkWidget * widget, GtkRequisition * requisition,
     height = available_heigth;
   }
   // TODO(ensonic): is the '2' some border or padding
-  gtk_widget_set_size_request (parent, width, height + 2);
+  gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
+      height + 2);
+  gtk_scrolled_window_set_min_content_width (GTK_SCROLLED_WINDOW (parent), 300);
 }
 
 static void
@@ -1705,9 +1705,8 @@ make_int_range_widget (const BtMachinePropertiesDialog * self,
 
   g_object_get (machine, property->name, &value, NULL);
   //step=(int_property->maximum-int_property->minimum)/1024.0;
-  widget =
-      gtk_hscale_new_with_range (g_value_get_int (range_min),
-      g_value_get_int (range_max), 1.0);
+  widget = gtk_scale_new_with_range (GTK_ORIENTATION_HORIZONTAL,
+      g_value_get_int (range_min), g_value_get_int (range_max), 1.0);
   gtk_scale_set_draw_value (GTK_SCALE (widget), /*TRUE*/ FALSE);
   gtk_range_set_value (GTK_RANGE (widget), value);
   // TODO(ensonic): add numerical entry as well ?
@@ -1745,9 +1744,8 @@ make_uint_range_widget (const BtMachinePropertiesDialog * self,
 
   g_object_get (machine, property->name, &value, NULL);
   //step=(int_property->maximum-int_property->minimum)/1024.0;
-  widget =
-      gtk_hscale_new_with_range (g_value_get_uint (range_min),
-      g_value_get_uint (range_max), 1.0);
+  widget = gtk_scale_new_with_range (GTK_ORIENTATION_HORIZONTAL,
+      g_value_get_uint (range_min), g_value_get_uint (range_max), 1.0);
   gtk_scale_set_draw_value (GTK_SCALE (widget), /*TRUE*/ FALSE);
   gtk_range_set_value (GTK_RANGE (widget), value);
   // TODO(ensonic): add numerical entry as well ?
@@ -1785,8 +1783,8 @@ make_uint64_range_widget (const BtMachinePropertiesDialog * self,
 
   g_object_get (machine, property->name, &value, NULL);
   //step=(int_property->maximum-int_property->minimum)/1024.0;
-  widget =
-      gtk_hscale_new_with_range ((gdouble) g_value_get_uint64 (range_min),
+  widget = gtk_scale_new_with_range (GTK_ORIENTATION_HORIZONTAL,
+      (gdouble) g_value_get_uint64 (range_min),
       (gdouble) g_value_get_uint64 (range_max), 1.0);
   gtk_scale_set_draw_value (GTK_SCALE (widget), /*TRUE*/ FALSE);
   gtk_range_set_value (GTK_RANGE (widget), (gdouble) value);
@@ -1830,7 +1828,8 @@ make_float_range_widget (const BtMachinePropertiesDialog * self,
   g_object_get (machine, property->name, &value, NULL);
   step = ((gdouble) value_max - (gdouble) value_min) / 1024.0;
 
-  widget = gtk_hscale_new_with_range (value_min, value_max, step);
+  widget = gtk_scale_new_with_range (GTK_ORIENTATION_HORIZONTAL, value_min,
+      value_max, step);
   gtk_scale_set_draw_value (GTK_SCALE (widget), /*TRUE*/ FALSE);
   gtk_range_set_value (GTK_RANGE (widget), value);
   // TODO(ensonic): add numerical entry as well ?
@@ -1871,7 +1870,8 @@ make_double_range_widget (const BtMachinePropertiesDialog * self,
   g_object_get (machine, property->name, &value, NULL);
   step = (value_max - value_min) / 1024.0;
 
-  widget = gtk_hscale_new_with_range (value_min, value_max, step);
+  widget = gtk_scale_new_with_range (GTK_ORIENTATION_HORIZONTAL,
+      value_min, value_max, step);
   gtk_scale_set_draw_value (GTK_SCALE (widget), /*TRUE*/ FALSE);
   gtk_range_set_value (GTK_RANGE (widget), value);
   // TODO(ensonic): add numerical entry as well ?
@@ -2351,8 +2351,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->
-            priv->param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->priv->
+            param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
@@ -2502,7 +2502,7 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
 
-  self->priv->preset_box = gtk_vbox_new (FALSE, 0);
+  self->priv->preset_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 
   // add preset controls toolbar
   self->priv->preset_toolbar = gtk_toolbar_new ();
@@ -2643,8 +2643,8 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
 
   // add widgets to the dialog content area
   // should we use a hpaned or hbox for the presets?
-  hbox = gtk_hbox_new (FALSE, 12);
-  param_box = gtk_vbox_new (FALSE, 0);
+  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
+  param_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   //gtk_container_set_border_width(GTK_CONTAINER(param_box),6);
   gtk_box_pack_start (GTK_BOX (hbox), param_box, TRUE, TRUE, 0);
 
@@ -2739,12 +2739,12 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window),
       GTK_SHADOW_NONE);
-  self->priv->param_group_box = gtk_vbox_new (FALSE, 0);
+  self->priv->param_group_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolled_window),
       self->priv->param_group_box);
   gtk_box_pack_start (GTK_BOX (param_box), scrolled_window, TRUE, TRUE, 0);
-  g_signal_connect (self->priv->param_group_box, "size-request",
-      G_CALLBACK (on_box_size_request), (gpointer) self);
+  g_signal_connect (self->priv->param_group_box, "realize",
+      G_CALLBACK (on_box_realize), (gpointer) self);
 
   /* show widgets for global parameters */
   if (global_params) {
