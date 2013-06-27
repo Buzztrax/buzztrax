@@ -902,7 +902,7 @@ on_toolbar_grid_density_off_activated (GtkMenuItem * menuitem,
     return;
 
   self->priv->grid_density = 0;
-  bt_child_proxy_get (self->priv->app, "settings::grid-density", "off", NULL);
+  bt_child_proxy_set (self->priv->app, "settings::grid-density", "off", NULL);
   bt_main_page_machines_draw_grid (self);
 }
 
@@ -916,7 +916,7 @@ on_toolbar_grid_density_low_activated (GtkMenuItem * menuitem,
     return;
 
   self->priv->grid_density = 1;
-  bt_child_proxy_get (self->priv->app, "settings::grid-density", "low", NULL);
+  bt_child_proxy_set (self->priv->app, "settings::grid-density", "low", NULL);
   bt_main_page_machines_draw_grid (self);
 }
 
@@ -930,7 +930,7 @@ on_toolbar_grid_density_mid_activated (GtkMenuItem * menuitem,
     return;
 
   self->priv->grid_density = 2;
-  bt_child_proxy_get (self->priv->app, "settings::grid-density", "medium",
+  bt_child_proxy_set (self->priv->app, "settings::grid-density", "medium",
       NULL);
   bt_main_page_machines_draw_grid (self);
 }
@@ -945,7 +945,7 @@ on_toolbar_grid_density_high_activated (GtkMenuItem * menuitem,
     return;
 
   self->priv->grid_density = 3;
-  bt_child_proxy_get (self->priv->app, "settings::grid-density", "high", NULL);
+  bt_child_proxy_set (self->priv->app, "settings::grid-density", "high", NULL);
   bt_main_page_machines_draw_grid (self);
 }
 
