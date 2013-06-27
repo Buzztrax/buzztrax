@@ -13,6 +13,8 @@
  * - machine icon
  *   - can be dragged around
  *   - becomes transparent while dragging
+ * - draw wires
+ *   - wire get updated with movement
  * - zooming
  *   - adjusts scrollbars on zoom
  * - panning by dragging the background
@@ -21,9 +23,7 @@
  * - zooming
  *   - pick better resolution for icon images
  * - draw wires
- *   - we could draw a straight wire and let clutter rotate it
- *     - we still need to redraw on machines moves as the length changes
- *   - we draw the correct wire from 0,0 to 1,1  
+ *   - need directional marker
  * - context menu on items/stage
  *
  * BUGS:
