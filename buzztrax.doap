@@ -39,7 +39,7 @@
     <Version>
      <revision>0.7</revision>
      <branch>HEAD</branch>
-     <name>Victory, not venegance</name>
+     <name>Victory, not vengeance</name>
      <created>2013-01-19</created>
      <file-release rdf:resource="http://downloads.sourceforge.net/buzztrax/buzztrax-0.7.0.tar.gz" />
     </Version>
