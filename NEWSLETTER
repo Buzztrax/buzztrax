@@ -1,14 +1,25 @@
 svn diff -r "{2013-01-01}:{2013-01-31}" | diffstat
 git diff --shortstat @{2013-01-01} @{2013-01-31}
 
+2013/06 ========================================================================
+
+-porting widgets to gtk3
+ - vumeter + waveform-viewer + pattern-editor
+ - clutter based gnome canvas replacement
+- application
+ - signals (expose-event, size-request)
+ - layout
+ - colors
+
 2013/05 ========================================================================
 
 We applied as an organisation to take part in the Google Summer of Code program,
 but got rejected mainly due to the project name. As this was not the first time
 people where uncomfortable with the name, we renamed the project - buzztard is
 now called buzztrax. The homepage with the wiki and wordpress already got moved.
-The renamed codebase is online at github [1]. We still need to move the mailing
-lists that are currently at sf.net.
+The renamed codebase is online at github [1]. The mailing lists have been
+migrated to buzztrax.org. A few things still need to be fixed (e.g. file
+releases). 
 
 Besides the renaming there are also some improvements on the code side. I am
 probably the last one to discover the g_signal_handlers_disconnect_by_* macros.
