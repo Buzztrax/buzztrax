@@ -358,19 +358,17 @@ static void
 bt_main_window_init_ui (const BtMainWindow * self)
 {
   GtkWidget *box;
-  GdkPixbuf *window_icon;
   BtChangeLog *change_log;
 
   gtk_widget_set_name (GTK_WIDGET (self), "main window");
   gtk_window_set_role (GTK_WINDOW (self), "buzztrax-edit::main");
+  gtk_window_set_has_resize_grip (GTK_WINDOW (self), FALSE);
 
   // create and set window icon
-  if ((window_icon = gdk_pixbuf_new_from_theme ("buzztrax", 16))) {
-    gtk_window_set_icon (GTK_WINDOW (self), window_icon);
-    g_object_unref (window_icon);
-  }
+  gtk_window_set_icon_name (GTK_WINDOW (self), "buzztrax");
+
   // create main layout container
-  box = gtk_vbox_new (FALSE, 0);
+  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_container_add (GTK_CONTAINER (self), box);
 
   GST_INFO ("before creating content, app: %" G_OBJECT_REF_COUNT_FMT,
@@ -870,7 +868,7 @@ bt_main_window_save_song_as (const BtMainWindow * self)
   g_free (name);
 
   // add format selection to dialog
-  box = gtk_hbox_new (FALSE, 12);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (box), 6);
   gtk_box_pack_start (GTK_BOX (box), gtk_label_new (_("Format")), FALSE, FALSE,
       0);
@@ -1006,7 +1004,7 @@ bt_dialog_message (const BtMainWindow * self, const gchar * title,
           GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL));
 
-  box = gtk_hbox_new (FALSE, 12);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (box), 6);
 
   // TODO(ensonic): when to use GTK_STOCK_DIALOG_WARNING ?
@@ -1060,7 +1058,7 @@ bt_dialog_question (const BtMainWindow * self, const gchar * title,
           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
           GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, NULL));
 
-  box = gtk_hbox_new (FALSE, 12);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (box), 6);
 
   icon =

@@ -106,6 +106,8 @@ on_settings_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
   GtkTreeModel *model;
   GtkTreeIter iter;
 
+  return_if_disposed ();
+
   GST_INFO ("settings list cursor changed");
   selection =
       gtk_tree_view_get_selection (GTK_TREE_VIEW (self->priv->settings_list));
@@ -120,28 +122,28 @@ on_settings_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
   }
 }
 
-/*
- * on_box_size_request:
- *
- * we adjust the scrollable-window size to contain the whole area
- */
+/* we adjust the scrollable-window size to contain the whole area */
 static void
-on_settings_list_size_request (GtkWidget * widget, GtkRequisition * requisition,
-    gpointer user_data)
+on_settings_list_realize (GtkWidget * widget, gpointer user_data)
 {
   GtkWidget *parent = GTK_WIDGET (user_data);
-  gint height = requisition->height;
+  GtkRequisition requisition;
+  gint height;
   gint max_height = gdk_screen_get_height (gdk_screen_get_default ());
 
-  GST_LOG ("#### list size req %d x %d (max-height=%d)", requisition->width,
-      requisition->height, max_height);
+  gtk_widget_get_preferred_size (widget, NULL, &requisition);
+
+  GST_LOG ("#### list size req %d x %d (max-height=%d)", requisition.width,
+      requisition.height, max_height);
+  height = requisition.height;
   // constrain the height by screen height
   if (height > max_height) {
     // lets hope that 32 gives enough space for window-decoration + panels
     height = max_height - 32;
   }
   // TODO(ensonic): is the '2' some border or padding
-  gtk_widget_set_size_request (parent, -1, height + 2);
+  gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
+      height + 4);
 }
 
 //-- helper methods
@@ -168,7 +170,7 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
   gtk_dialog_set_default_response (GTK_DIALOG (self), GTK_RESPONSE_ACCEPT);
 
   // add widgets to the dialog content area
-  box = gtk_hbox_new (FALSE, 12);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (box), 6);
 
   // add a list on the right and a notebook without tabs on the left
@@ -188,15 +190,15 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
       (renderer), 1);
   gtk_tree_view_insert_column_with_attributes (self->priv->settings_list, -1,
       NULL, renderer, "text", COL_LABEL, NULL);
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
-          settings_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
+          priv->settings_list), GTK_SELECTION_BROWSE);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->settings_list));
   gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (scrolled_window), FALSE, FALSE,
       0);
 
-  g_signal_connect (self->priv->settings_list, "size-request",
-      G_CALLBACK (on_settings_list_size_request), (gpointer) scrolled_window);
+  g_signal_connect (self->priv->settings_list, "realize",
+      G_CALLBACK (on_settings_list_realize), (gpointer) scrolled_window);
   g_signal_connect (self->priv->settings_list, "cursor-changed",
       G_CALLBACK (on_settings_list_cursor_changed), (gpointer) self);
 
@@ -282,7 +284,7 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
 
   // add notebook page #4
   // TODO(ensonic): maybe turn that into a theme page (theme-name + colors + icons?)
-  page = gtk_vbox_new (FALSE, 0);
+  page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_widget_set_name (GTK_WIDGET (page), "color settings");
   gtk_container_add (GTK_CONTAINER (page),
       gtk_label_new ("no color settings yet"));

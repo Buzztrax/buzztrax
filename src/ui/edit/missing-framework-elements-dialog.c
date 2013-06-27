@@ -142,7 +142,7 @@ bt_missing_framework_elements_dialog_init_ui (const
 
   gtk_dialog_set_default_response (GTK_DIALOG (self), GTK_RESPONSE_ACCEPT);
 
-  hbox = gtk_hbox_new (FALSE, 12);
+  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
 
   icon =
@@ -151,7 +151,7 @@ bt_missing_framework_elements_dialog_init_ui (const
       GTK_ICON_SIZE_DIALOG);
   gtk_container_add (GTK_CONTAINER (hbox), icon);
 
-  vbox = gtk_vbox_new (FALSE, 6);
+  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
   label = gtk_label_new (NULL);
   str =
       g_strdup_printf ("<big><b>%s</b></big>", _("Missing GStreamer elements"));

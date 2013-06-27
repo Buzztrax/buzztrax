@@ -18,7 +18,7 @@
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
  *
- * Buzztrax stores its songs in a own file-format. This internal io-module 
+ * Buzztrax stores songs in an own file-format. This internal io-module 
  * implements loading and saving of this format.
  * The format is an archive, that contains an XML file and optionally binary
  * data, such as audio samples.

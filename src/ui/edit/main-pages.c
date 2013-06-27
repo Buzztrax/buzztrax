@@ -144,7 +144,7 @@ bt_main_pages_add_tab (const BtMainPages * self, GtkWidget * content,
   image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image);
 
-  box = gtk_hbox_new (FALSE, BOX_BORDER);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, BOX_BORDER);
   gtk_widget_show (box);
   //gtk_box_pack_start(GTK_BOX(box),image,FALSE,FALSE,0);
   //gtk_box_pack_start(GTK_BOX(box),label,TRUE,FALSE,0);

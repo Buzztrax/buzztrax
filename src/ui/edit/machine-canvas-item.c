@@ -123,9 +123,10 @@ struct _BtMachineCanvasItemPrivate
   GtkWidget *analysis_dialog;
 
   /* the graphical components */
-  GnomeCanvasItem *label;
-  GnomeCanvasItem *box;
-  GnomeCanvasItem *output_meter, *input_meter;
+  ClutterContent *image;
+  ClutterEffect *desaturate_effect;
+  ClutterActor *label;
+  ClutterActor *output_meter, *input_meter;
   GstElement *output_level;
   GstElement *input_level;
   guint skip_input_level;
@@ -136,12 +137,13 @@ struct _BtMachineCanvasItemPrivate
   /* cursor for moving */
   GdkCursor *drag_cursor;
 
-  /* the zoomration in pixels/per unit */
+  /* the zoom-ratio in pixels/per unit */
   gdouble zoom;
 
   /* interaction state */
   gboolean dragging, moved /*,switching */ ;
-  gdouble offx, offy, dragx, dragy;
+  gfloat offx, offy, dragx, dragy;
+  gulong capture_id;
 
   /* playback state */
   gboolean is_playing;
@@ -158,8 +160,7 @@ static GQuark machine_canvas_item_quark = 0;
 
 //-- the class
 
-G_DEFINE_TYPE (BtMachineCanvasItem, bt_machine_canvas_item,
-    GNOME_TYPE_CANVAS_GROUP);
+G_DEFINE_TYPE (BtMachineCanvasItem, bt_machine_canvas_item, CLUTTER_TYPE_ACTOR);
 
 
 //-- prototypes
@@ -174,87 +175,22 @@ static void on_signal_analysis_dialog_destroy (GtkWidget * widget,
 //-- helper methods
 
 static void
-desaturate_pixbuf (GdkPixbuf * pixbuf)
-{
-  guint x, y, w, h, rowstride, gray;
-  guchar *p;
-
-  g_assert (gdk_pixbuf_get_colorspace (pixbuf) == GDK_COLORSPACE_RGB);
-  g_assert (gdk_pixbuf_get_bits_per_sample (pixbuf) == 8);
-  g_assert (gdk_pixbuf_get_has_alpha (pixbuf));
-  g_assert (gdk_pixbuf_get_n_channels (pixbuf) == 4);
-
-  w = gdk_pixbuf_get_width (pixbuf);
-  h = gdk_pixbuf_get_height (pixbuf);
-  rowstride = gdk_pixbuf_get_rowstride (pixbuf) - (w * 4);
-  p = gdk_pixbuf_get_pixels (pixbuf);
-
-  for (y = 0; y < h; y++) {
-    for (x = 0; x < w; x++) {
-      gray = ((guint) p[0] + (guint) p[1] + (guint) p[2]);
-      p[0] = (guchar) (((guint) p[0] + gray) >> 2);
-      p[1] = (guchar) (((guint) p[1] + gray) >> 2);
-      p[2] = (guchar) (((guint) p[2] + gray) >> 2);
-      p += 4;
-    }
-    p += rowstride;
-  }
-}
-
-static void
-alpha_pixbuf (GdkPixbuf * pixbuf)
-{
-  guint x, y, w, h, rowstride;
-  guchar *p;
-
-  g_assert (gdk_pixbuf_get_colorspace (pixbuf) == GDK_COLORSPACE_RGB);
-  g_assert (gdk_pixbuf_get_bits_per_sample (pixbuf) == 8);
-  g_assert (gdk_pixbuf_get_has_alpha (pixbuf));
-  g_assert (gdk_pixbuf_get_n_channels (pixbuf) == 4);
-
-  w = gdk_pixbuf_get_width (pixbuf);
-  h = gdk_pixbuf_get_height (pixbuf);
-  rowstride = gdk_pixbuf_get_rowstride (pixbuf) - (w * 4);
-  p = gdk_pixbuf_get_pixels (pixbuf);
-
-  for (y = 0; y < h; y++) {
-    for (x = 0; x < w; x++) {
-      p[3] >>= 1;
-      p += 4;
-    }
-    p += rowstride;
-  }
-}
-
-static void
 update_machine_graphics (BtMachineCanvasItem * self)
 {
-  GdkPixbuf *pixbuf;
-  gboolean has_parent;
-
-  pixbuf =
+  GdkPixbuf *pixbuf =
       bt_ui_resources_get_machine_graphics_pixbuf_by_machine (self->priv->
       machine, self->priv->zoom);
-  has_parent = (GST_OBJECT_PARENT (self->priv->machine) != NULL);
-  if (!has_parent || self->priv->dragging) {
-    GdkPixbuf *tmp = gdk_pixbuf_copy (pixbuf);
-    g_object_unref (pixbuf);
-    pixbuf = tmp;
-  }
-  if (!has_parent) {
-    desaturate_pixbuf (pixbuf);
-  }
-  if (self->priv->dragging) {
-    alpha_pixbuf (pixbuf);
-  }
-  gnome_canvas_item_set (self->priv->box,
-      "width", (gdouble) gdk_pixbuf_get_width (pixbuf),
-      "height", (gdouble) gdk_pixbuf_get_height (pixbuf),
-      /* this would make the icons blurred
-         "width-set",TRUE,
-         "height-set",TRUE,
-       */
-      "pixbuf", pixbuf, NULL);
+
+  clutter_image_set_data (CLUTTER_IMAGE (self->priv->image),
+      gdk_pixbuf_get_pixels (pixbuf), gdk_pixbuf_get_has_alpha (pixbuf)
+      ? COGL_PIXEL_FORMAT_RGBA_8888
+      : COGL_PIXEL_FORMAT_RGB_888,
+      gdk_pixbuf_get_width (pixbuf),
+      gdk_pixbuf_get_height (pixbuf), gdk_pixbuf_get_rowstride (pixbuf), NULL);
+
+  GST_INFO ("pixbuf: %dx%d", gdk_pixbuf_get_width (pixbuf),
+      gdk_pixbuf_get_height (pixbuf));
+
   g_object_unref (pixbuf);
 }
 
@@ -337,20 +273,19 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
 
   g_object_get ((gpointer) song, "is-playing", &self->priv->is_playing, NULL);
   if (!self->priv->is_playing) {
-    const gdouble h = MACHINE_VIEW_MACHINE_SIZE_Y;
-
     self->priv->skip_output_level = FALSE;
-    gnome_canvas_item_set (self->priv->output_meter, "y1", h * 0.6, NULL);
+    g_object_set (self->priv->output_meter, "y", MACHINE_METER_BASE,
+        "height", 0.0, NULL);
     self->priv->skip_input_level = FALSE;
-    gnome_canvas_item_set (self->priv->input_meter, "y1", h * 0.6, NULL);
-
+    g_object_set (self->priv->input_meter, "y", MACHINE_METER_BASE,
+        "height", 0.0, NULL);
   }
 }
 
 typedef struct
 {
   BtMachineCanvasItem *self;
-  GnomeCanvasItem *meter;
+  ClutterActor *meter;
   gdouble peak;
 } BtUpdateIdleData;
 
@@ -380,10 +315,9 @@ on_delayed_idle_machine_level_change (gpointer user_data)
   BtMachineCanvasItem *self = data->self;
 
   if (self && self->priv->is_playing) {
-    const gdouble h = MACHINE_VIEW_MACHINE_SIZE_Y;
+    const gdouble h = (MACHINE_METER_HEIGHT * data->peak);
 
-    gnome_canvas_item_set (data->meter,
-        "y1", h * 0.05 + (0.55 * h * data->peak), NULL);
+    g_object_set (data->meter, "y", MACHINE_METER_BASE - h, "height", h, NULL);
   }
   FREE_UPDATE_IDLE_DATA (data);
   return (FALSE);
@@ -419,7 +353,7 @@ on_machine_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
         (level == self->priv->input_level)) {
       GstClockTime waittime = bt_gst_analyzer_get_waittime (level, s, TRUE);
       if (GST_CLOCK_TIME_IS_VALID (waittime)) {
-        GnomeCanvasItem *meter = NULL;
+        ClutterActor *meter = NULL;
         gdouble peak;
         gint new_skip = 0, old_skip = 0;
 
@@ -481,7 +415,7 @@ on_machine_id_changed (BtMachine * machine, GParamSpec * arg,
     gchar *id;
 
     g_object_get (self->priv->machine, "id", &id, NULL);
-    gnome_canvas_item_set (self->priv->label, "text", id, NULL);
+    g_object_set (self->priv->label, "text", id, NULL);
     g_free (id);
   }
 }
@@ -490,7 +424,17 @@ static void
 on_machine_parent_changed (GstObject * object, GParamSpec * arg,
     gpointer user_data)
 {
-  update_machine_graphics (BT_MACHINE_CANVAS_ITEM (user_data));
+  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
+  gboolean has_parent = (GST_OBJECT_PARENT (self->priv->machine) != NULL);
+
+  if (has_parent) {
+    GST_WARNING ("desaturation off");
+    clutter_actor_clear_effects ((ClutterActor *) self);
+  } else {
+    GST_WARNING ("desaturation on");
+    ClutterEffect *desaturate_effect = clutter_desaturate_effect_new (0.8);
+    clutter_actor_add_effect ((ClutterActor *) self, desaturate_effect);
+  }
 }
 
 static void
@@ -791,7 +735,7 @@ bt_machine_canvas_item_is_over_state_switch (const BtMachineCanvasItem * self,
     GdkEvent * event)
 {
   GnomeCanvas *canvas;
-  GnomeCanvasItem *ci, *pci;
+  ClutterActor *ci, *pci;
   gboolean res = FALSE;
 
   g_object_get (self->priv->main_page_machines, "canvas", &canvas, NULL);
@@ -1030,14 +974,15 @@ bt_machine_canvas_item_new (const BtMainPageMachines * main_page_machines,
     BtMachine * machine, gdouble xpos, gdouble ypos, gdouble zoom)
 {
   BtMachineCanvasItem *self;
-  GnomeCanvas *canvas;
+  ClutterActor *canvas;
 
   g_object_get ((gpointer) main_page_machines, "canvas", &canvas, NULL);
 
-  self =
-      BT_MACHINE_CANVAS_ITEM (gnome_canvas_item_new (gnome_canvas_root (canvas),
-          BT_TYPE_MACHINE_CANVAS_ITEM, "machines-page", main_page_machines,
-          "machine", machine, "x", xpos, "y", ypos, "zoom", zoom, NULL));
+  self = BT_MACHINE_CANVAS_ITEM (g_object_new (BT_TYPE_MACHINE_CANVAS_ITEM,
+          "machines-page", main_page_machines, "machine", machine, "x", xpos,
+          "y", ypos, "zoom", zoom, "reactive", TRUE, NULL));
+
+  clutter_actor_add_child (canvas, (ClutterActor *) self);
 
   GST_DEBUG ("machine canvas item added, %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self));
@@ -1105,6 +1050,84 @@ bt_machine_show_analyzer_dialog (BtMachine * machine)
 //-- wrapper
 
 //-- class internals
+
+static void
+bt_machine_canvas_item_constructed (GObject * object)
+{
+  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (object);
+  gchar *id, *prop;
+
+  if (G_OBJECT_CLASS (bt_machine_canvas_item_parent_class)->constructed)
+    G_OBJECT_CLASS (bt_machine_canvas_item_parent_class)->constructed (object);
+
+  g_object_get (self->priv->machine, "id", &id, NULL);
+
+  // add machine components
+  // the body
+  self->priv->image = clutter_image_new ();
+  update_machine_graphics (self);
+  clutter_actor_set_content_scaling_filters ((ClutterActor *) self,
+      CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
+  clutter_actor_set_size ((ClutterActor *) self, MACHINE_SIZE_X,
+      MACHINE_SIZE_Y);
+  clutter_actor_set_anchor_point ((ClutterActor *) self,
+      MACHINE_SIZE_X / 2.0, MACHINE_SIZE_Y / 2.0);
+  clutter_actor_set_content ((ClutterActor *) self, self->priv->image);
+
+  // the name label
+  // TODO(ensonic): use MACHINE_LABEL_HEIGHT (7)
+  self->priv->label = clutter_text_new_with_text ("Sans 8px", id);
+  clutter_actor_set_anchor_point_from_gravity (self->priv->label,
+      CLUTTER_GRAVITY_CENTER);
+  clutter_actor_add_child ((ClutterActor *) self, self->priv->label);
+  clutter_actor_set_position (self->priv->label, MACHINE_SIZE_X / 2.0,
+      MACHINE_LABEL_BASE - (MACHINE_LABEL_HEIGHT / 2.0));
+
+  // the input volume level meter
+  //if(!BT_IS_SOURCE_MACHINE(self->priv->machine)) {
+  self->priv->input_meter = g_object_new (CLUTTER_TYPE_ACTOR,
+      "background-color", clutter_color_new (0x5f, 0x5f, 0x5f, 0xff),
+      "x", MACHINE_METER_LEFT, "y", MACHINE_METER_BASE,
+      "width", MACHINE_METER_WIDTH, "height", 0.0, NULL);
+  clutter_actor_add_child ((ClutterActor *) self, self->priv->input_meter);
+  //}
+  // the output volume level meter
+  //if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
+  self->priv->output_meter = g_object_new (CLUTTER_TYPE_ACTOR,
+      "background-color", clutter_color_new (0x5f, 0x5f, 0x5f, 0xff),
+      "x", MACHINE_METER_RIGHT, "y", MACHINE_METER_BASE,
+      "width", MACHINE_METER_WIDTH, "height", 0.0, NULL);
+  clutter_actor_add_child ((ClutterActor *) self, self->priv->output_meter);
+  //}
+
+  g_free (id);
+  on_machine_parent_changed (NULL, NULL, self);
+  clutter_actor_show_all ((ClutterActor *) self);
+
+  prop =
+      (gchar *) g_hash_table_lookup (self->priv->properties,
+      "properties-shown");
+  if (prop && prop[0] == '1' && prop[1] == '\0') {
+    self->priv->properties_dialog =
+        GTK_WIDGET (bt_machine_properties_dialog_new (self->priv->machine));
+    bt_edit_application_attach_child_window (self->priv->app,
+        GTK_WINDOW (self->priv->properties_dialog));
+    g_signal_connect (self->priv->properties_dialog, "destroy",
+        G_CALLBACK (on_machine_properties_dialog_destroy), (gpointer) self);
+  }
+  prop =
+      (gchar *) g_hash_table_lookup (self->priv->properties, "analyzer-shown");
+  if (prop && prop[0] == '1' && prop[1] == '\0') {
+    if ((self->priv->analysis_dialog =
+            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->priv->
+                        machine))))) {
+      bt_edit_application_attach_child_window (self->priv->app,
+          GTK_WINDOW (self->priv->analysis_dialog));
+      g_signal_connect (self->priv->analysis_dialog, "destroy",
+          G_CALLBACK (on_signal_analysis_dialog_destroy), (gpointer) self);
+    }
+  }
+}
 
 static void
 bt_machine_canvas_item_get_property (GObject * object, guint property_id,
@@ -1205,12 +1228,8 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
     case MACHINE_CANVAS_ITEM_ZOOM:
       self->priv->zoom = g_value_get_double (value);
       GST_DEBUG ("set the zoom for machine_canvas_item: %f", self->priv->zoom);
-      if (self->priv->label) {
-        gnome_canvas_item_set (self->priv->label, "size-points",
-            MACHINE_VIEW_FONT_SIZE * self->priv->zoom, NULL);
-      }
       /* reload the svg icons, we do this to keep them sharp */
-      if (self->priv->box) {
+      if (self->priv->image) {
         update_machine_graphics (self);
       }
       break;
@@ -1275,7 +1294,7 @@ bt_machine_canvas_item_dispose (GObject * object)
   }
   GST_DEBUG ("  destroying dialogs done");
 
-  gdk_cursor_unref (self->priv->drag_cursor);
+  g_object_unref (self->priv->drag_cursor);
 
   gtk_widget_destroy (GTK_WIDGET (self->priv->context_menu));
   g_object_try_unref (self->priv->context_menu);
@@ -1297,225 +1316,154 @@ bt_machine_canvas_item_finalize (GObject * object)
   GST_DEBUG ("  done");
 }
 
-/*
- * bt_machine_canvas_item_realize:
- *
- * draw something that looks a bit like a buzz-machine
- */
-static void
-bt_machine_canvas_item_realize (GnomeCanvasItem * citem)
-{
-  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (citem);
-  gdouble w = MACHINE_VIEW_MACHINE_SIZE_X, h = MACHINE_VIEW_MACHINE_SIZE_Y;
-  gdouble fh = MACHINE_VIEW_FONT_SIZE;
-  gchar *id, *prop;
-
-  GNOME_CANVAS_ITEM_CLASS (bt_machine_canvas_item_parent_class)->realize
-      (citem);
-
-  //GST_DEBUG("realize for machine occurred, machine=%p",self->priv->machine);
-
-  g_object_get (self->priv->machine, "id", &id, NULL);
-
-  // add machine components
-  // the body
-  self->priv->box = gnome_canvas_item_new (GNOME_CANVAS_GROUP (citem),
-      GNOME_TYPE_CANVAS_PIXBUF,
-      "anchor", GTK_ANCHOR_CENTER,
-      "x", 0.0,
-      "y", -(w - h), "width-in-pixels", TRUE, "height-in-pixels", TRUE, NULL);
-  update_machine_graphics (self);
-
-  // the name label
-  self->priv->label = gnome_canvas_item_new (GNOME_CANVAS_GROUP (citem),
-      GNOME_TYPE_CANVAS_TEXT,
-      /* can we use the x-anchor to position left ? */
-      /*"x-offset",-(w*0.1), */
-      "x", 0.0, "y", -(h * 0.65) + fh, "justification", GTK_JUSTIFY_LEFT,
-      /* test if this ensures equal sizes among systems,
-       * maybe we should leave it blank */
-      "font", "sans",           /* "helvetica" */
-      "size-points", fh * self->priv->zoom,
-      "size-set", TRUE,
-      "text", id,
-      "fill-color", "black",
-      "clip", TRUE, "clip-width", (w + w) * 0.70, "clip-height", h + h, NULL);
-
-  // the input volume level meter
-  guint32 border_color = 0x6666667F;
-  //if(!BT_IS_SOURCE_MACHINE(self->priv->machine)) {
-  self->priv->input_meter = gnome_canvas_item_new (GNOME_CANVAS_GROUP (citem),
-      GNOME_TYPE_CANVAS_RECT, "x1", -w * 0.65,
-      //"y1", +h*0.05,
-      "y1", +h * 0.6,
-      "x2", -w * 0.55,
-      "y2", +h * 0.6,
-      "fill-color", "gray40",
-      "outline_color-rgba", border_color, "width-pixels", 2, NULL);
-  //}
-  // the output volume level meter
-  //if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
-  self->priv->output_meter = gnome_canvas_item_new (GNOME_CANVAS_GROUP (citem),
-      GNOME_TYPE_CANVAS_RECT, "x1", w * 0.6,
-      //"y1", +h*0.05,
-      "y1", +h * 0.6,
-      "x2", w * 0.7,
-      "y2", +h * 0.6,
-      "fill-color", "gray40",
-      "outline_color-rgba", border_color, "width-pixels", 2, NULL);
-  //}
-  g_free (id);
-
-  prop =
-      (gchar *) g_hash_table_lookup (self->priv->properties,
-      "properties-shown");
-  if (prop && prop[0] == '1' && prop[1] == '\0') {
-    self->priv->properties_dialog =
-        GTK_WIDGET (bt_machine_properties_dialog_new (self->priv->machine));
-    bt_edit_application_attach_child_window (self->priv->app,
-        GTK_WINDOW (self->priv->properties_dialog));
-    g_signal_connect (self->priv->properties_dialog, "destroy",
-        G_CALLBACK (on_machine_properties_dialog_destroy), (gpointer) self);
-  }
-  prop =
-      (gchar *) g_hash_table_lookup (self->priv->properties, "analyzer-shown");
-  if (prop && prop[0] == '1' && prop[1] == '\0') {
-    if ((self->priv->analysis_dialog =
-            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->priv->
-                        machine))))) {
-      bt_edit_application_attach_child_window (self->priv->app,
-          GTK_WINDOW (self->priv->analysis_dialog));
-      g_signal_connect (self->priv->analysis_dialog, "destroy",
-          G_CALLBACK (on_signal_analysis_dialog_destroy), (gpointer) self);
-    }
-  }
-  //item->realized = TRUE;
-}
+static gboolean on_captured_event (ClutterActor * citem, ClutterEvent * event,
+    gpointer user_data);
 
 static gboolean
-bt_machine_canvas_item_event (GnomeCanvasItem * citem, GdkEvent * event)
+bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
 {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (citem);
   gboolean res = FALSE;
-  gdouble dx, dy, px, py;
+  gfloat dx, dy;
+  gdouble px, py;
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
 
   //GST_INFO("event for machine occurred");
 
-  switch (event->type) {
-    case GDK_2BUTTON_PRESS:
-      GST_DEBUG ("GDK_2BUTTON_RELEASE: %d, 0x%x", event->button.button,
-          event->button.state);
-      show_machine_properties_dialog (self);
-      res = TRUE;
-      break;
-    case GDK_BUTTON_PRESS:
-      GST_DEBUG ("GDK_BUTTON_PRESS: %d, 0x%x", event->button.button,
-          event->button.state);
-      if ((event->button.button == 1)
-          && !(event->button.state & GDK_SHIFT_MASK)) {
-#if 0
-        if (!bt_machine_canvas_item_is_over_state_switch (self, event)) {
-#endif
-          // dragx/y coords are world coords of button press
-          self->priv->dragx = event->button.x;
-          self->priv->dragy = event->button.y;
-          // set some flags
-          self->priv->dragging = TRUE;
-          self->priv->moved = FALSE;
-#if 0
-        } else {
-          self->priv->switching = TRUE;
-        }
-#endif
-        res = TRUE;
-      } else if (event->button.button == 3) {
-        // show context menu
-        gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
-            gtk_get_current_event_time ());
-        res = TRUE;
+  switch (clutter_event_type (event)) {
+    case CLUTTER_BUTTON_PRESS:{
+      ClutterButtonEvent *button_event = (ClutterButtonEvent *) event;
+      GST_DEBUG ("CLUTTER_BUTTON_PRESS: button=%d, clicks=%d, mod=0x%x",
+          button_event->button, button_event->click_count,
+          button_event->modifier_state);
+      switch (button_event->button) {
+        case 1:
+          switch (button_event->click_count) {
+            case 1:
+              if (!(button_event->modifier_state & CLUTTER_SHIFT_MASK)) {
+                // dragx/y coords are world coords of button press
+                self->priv->dragx = button_event->x;
+                self->priv->dragy = button_event->y;
+                // set some flags
+                self->priv->dragging = TRUE;
+                self->priv->moved = FALSE;
+                self->priv->capture_id =
+                    g_signal_connect_after (clutter_actor_get_stage (citem),
+                    "captured-event", G_CALLBACK (on_captured_event), self);
+                res = TRUE;
+              }
+              break;
+            case 2:
+              show_machine_properties_dialog (self);
+              res = TRUE;
+              break;
+            default:
+              break;
+          }
+          break;
+        case 3:
+          // show context menu
+          gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
+              clutter_event_get_time (event));
+          res = TRUE;
+          break;
+        default:
+          break;
       }
       break;
-    case GDK_MOTION_NOTIFY:
-      //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f",event->button.x,event->button.y);
+    }
+    case CLUTTER_MOTION:
+      //GST_DEBUG("CLUTTER_MOTION: %f,%f",event->button.x,event->button.y);
       if (self->priv->dragging) {
+        ClutterMotionEvent *motion_event = (ClutterMotionEvent *) event;
         if (!self->priv->moved) {
-          update_machine_graphics (self);
-          gnome_canvas_item_raise_to_top (citem);
-          gnome_canvas_item_grab (citem, GDK_POINTER_MOTION_MASK |
-              /* GDK_ENTER_NOTIFY_MASK | */
-              /* GDK_LEAVE_NOTIFY_MASK | */
-              GDK_BUTTON_RELEASE_MASK, self->priv->drag_cursor,
-              event->button.time);
+          ClutterActor *canvas;
+
+          g_object_get (self->priv->main_page_machines, "canvas", &canvas,
+              NULL);
+
+          clutter_actor_set_opacity (citem, 160);
+          clutter_actor_set_child_above_sibling (canvas, citem, NULL);
+          g_object_unref (canvas);
+
+          g_signal_emit (citem, signals[POSITION_CHANGED], 0,
+              CLUTTER_BUTTON_PRESS);
         }
-        dx = event->button.x - self->priv->dragx;
-        dy = event->button.y - self->priv->dragy;
-        gnome_canvas_item_move (citem, dx, dy);
-        g_signal_emit (citem, signals[POSITION_CHANGED], 0);
-        self->priv->dragx = event->button.x;
-        self->priv->dragy = event->button.y;
+        dx = (motion_event->x - self->priv->dragx) / self->priv->zoom;
+        dy = (motion_event->y - self->priv->dragy) / self->priv->zoom;
+        clutter_actor_move_by (citem, dx, dy);
+        g_signal_emit (citem, signals[POSITION_CHANGED], 0, CLUTTER_MOTION);
+        self->priv->dragx = motion_event->x;
+        self->priv->dragy = motion_event->y;
         self->priv->moved = TRUE;
         res = TRUE;
       }
       break;
-    case GDK_BUTTON_RELEASE:
-      GST_DEBUG ("GDK_BUTTON_RELEASE: %d", event->button.button);
+    case CLUTTER_BUTTON_RELEASE:
+      GST_DEBUG ("CLUTTER_BUTTON_RELEASE: %d", event->button.button);
       if (self->priv->dragging) {
         self->priv->dragging = FALSE;
+        if (self->priv->capture_id) {
+          g_signal_handler_disconnect (clutter_actor_get_stage (citem),
+              self->priv->capture_id);
+          self->priv->capture_id = 0;
+        }
         if (self->priv->moved) {
           // change position properties of the machines
           g_object_get (citem, "x", &px, "y", &py, NULL);
-          px /= MACHINE_VIEW_ZOOM_X;
-          py /= MACHINE_VIEW_ZOOM_Y;
+          px /= MACHINE_VIEW_SIZE_X;
+          py /= MACHINE_VIEW_SIZE_Y;
           g_hash_table_insert (self->priv->properties, g_strdup ("xpos"),
               g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, px)));
           g_hash_table_insert (self->priv->properties, g_strdup ("ypos"),
               g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, py)));
-          g_signal_emit (citem, signals[POSITION_CHANGED], 0);
-          gnome_canvas_item_ungrab (citem, event->button.time);
-          update_machine_graphics (self);
+          g_signal_emit (citem, signals[POSITION_CHANGED], 0,
+              CLUTTER_BUTTON_RELEASE);
+          clutter_actor_set_opacity (citem, 255);
         }
         res = TRUE;
-      } else
+      } else {
 #if 0
-      if (self->priv->switching) {
-        self->priv->switching = FALSE;
-        // still over mode switch
-        if (bt_machine_canvas_item_is_over_state_switch (self, event)) {
-          guint modifier =
-              (gulong) event->button.
-              state & gtk_accelerator_get_default_mod_mask ();
-          //gulong modifier=(gulong)event->button.state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
-          GST_DEBUG
-              ("  mode quad state switch, key_modifier is: 0x%x + mask: 0x%x -> 0x%x",
-              event->button.state, (GDK_CONTROL_MASK | GDK_MOD4_MASK),
-              modifier);
-          switch (modifier) {
-            case 0:
-              g_object_set (self->priv->machine, "state",
-                  BT_MACHINE_STATE_NORMAL, NULL);
-              break;
-            case GDK_CONTROL_MASK:
-              g_object_set (self->priv->machine, "state", BT_MACHINE_STATE_MUTE,
-                  NULL);
-              break;
-            case GDK_MOD4_MASK:
-              g_object_set (self->priv->machine, "state", BT_MACHINE_STATE_SOLO,
-                  NULL);
-              break;
-            case GDK_CONTROL_MASK | GDK_MOD4_MASK:
-              g_object_set (self->priv->machine, "state",
-                  BT_MACHINE_STATE_BYPASS, NULL);
-              break;
+        if (self->priv->switching) {
+          self->priv->switching = FALSE;
+          // still over mode switch
+          if (bt_machine_canvas_item_is_over_state_switch (self, event)) {
+            guint modifier =
+                (gulong) event->button.
+                state & gtk_accelerator_get_default_mod_mask ();
+            //gulong modifier=(gulong)event->button.state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
+            GST_DEBUG
+                ("  mode quad state switch, key_modifier is: 0x%x + mask: 0x%x -> 0x%x",
+                event->button.state, (GDK_CONTROL_MASK | GDK_MOD4_MASK),
+                modifier);
+            switch (modifier) {
+              case 0:
+                g_object_set (self->priv->machine, "state",
+                    BT_MACHINE_STATE_NORMAL, NULL);
+                break;
+              case GDK_CONTROL_MASK:
+                g_object_set (self->priv->machine, "state",
+                    BT_MACHINE_STATE_MUTE, NULL);
+                break;
+              case GDK_MOD4_MASK:
+                g_object_set (self->priv->machine, "state",
+                    BT_MACHINE_STATE_SOLO, NULL);
+                break;
+              case GDK_CONTROL_MASK | GDK_MOD4_MASK:
+                g_object_set (self->priv->machine, "state",
+                    BT_MACHINE_STATE_BYPASS, NULL);
+                break;
+            }
           }
         }
-      }
 #endif
+      }
       break;
-    case GDK_KEY_RELEASE:
-      GST_DEBUG ("GDK_KEY_RELEASE: %d", event->key.keyval);
-      switch (event->key.keyval) {
-        case GDK_Menu:
+    case CLUTTER_KEY_RELEASE:{
+      ClutterKeyEvent *key_event = (ClutterKeyEvent *) event;
+      GST_DEBUG ("CLUTTER_KEY_RELEASE: %d", key_event->keyval);
+      switch (key_event->keyval) {
+        case GDK_KEY_Menu:
           // show context menu
           gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
               gtk_get_current_event_time ());
@@ -1525,21 +1473,28 @@ bt_machine_canvas_item_event (GnomeCanvasItem * citem, GdkEvent * event)
           break;
       }
       break;
+    }
     default:
       break;
   }
   /* we don't want the click falling through to the parent canvas item, if we have handled it */
-  //if(res) g_signal_stop_emission_by_name(citem->canvas,"event-after");
   if (!res) {
-    if (GNOME_CANVAS_ITEM_CLASS (bt_machine_canvas_item_parent_class)->event) {
-      res =
-          GNOME_CANVAS_ITEM_CLASS (bt_machine_canvas_item_parent_class)->event
+    if (CLUTTER_ACTOR_CLASS (bt_machine_canvas_item_parent_class)->event) {
+      res = CLUTTER_ACTOR_CLASS (bt_machine_canvas_item_parent_class)->event
           (citem, event);
     }
   }
   //GST_INFO("event for machine occurred : %d",res);
   return res;
 }
+
+static gboolean
+on_captured_event (ClutterActor * citem, ClutterEvent * event,
+    gpointer user_data)
+{
+  return bt_machine_canvas_item_event ((ClutterActor *) user_data, event);
+}
+
 
 static void
 bt_machine_canvas_item_init (BtMachineCanvasItem * self)
@@ -1581,7 +1536,7 @@ static void
 bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GnomeCanvasItemClass *citem_class = GNOME_CANVAS_ITEM_CLASS (klass);
+  ClutterActorClass *citem_class = CLUTTER_ACTOR_CLASS (klass);
 
   bus_msg_level_quark = g_quark_from_static_string ("level");
   machine_canvas_item_quark =
@@ -1589,12 +1544,12 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
 
   g_type_class_add_private (klass, sizeof (BtMachineCanvasItemPrivate));
 
+  gobject_class->constructed = bt_machine_canvas_item_constructed;
   gobject_class->set_property = bt_machine_canvas_item_set_property;
   gobject_class->get_property = bt_machine_canvas_item_get_property;
   gobject_class->dispose = bt_machine_canvas_item_dispose;
   gobject_class->finalize = bt_machine_canvas_item_finalize;
 
-  citem_class->realize = bt_machine_canvas_item_realize;
   citem_class->event = bt_machine_canvas_item_event;
 
   /**
@@ -1604,21 +1559,17 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
    * Signals that item has been moved around. The new position can be read from
    * the canvas item.
    */
-  signals[POSITION_CHANGED] = g_signal_new ("position-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,        // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__VOID, G_TYPE_NONE,       // return type
-      0                         // n_params
-      );
+  signals[POSITION_CHANGED] = g_signal_new ("position-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL, NULL, g_cclosure_marshal_VOID__ENUM, G_TYPE_NONE,      /* return type */
+      1,                        /* n_params */
+      CLUTTER_TYPE_EVENT_TYPE);
   /**
    * BtMachineCanvasItem::start-connect
    * @self: the machine-canvas-item object that emitted the signal
    *
    * Signals that a connect should be made starting from this machine.
    */
-  signals[START_CONNECT] = g_signal_new ("start-connect", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,      // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__VOID, G_TYPE_NONE,       // return type
-      0                         // n_params
+  signals[START_CONNECT] = g_signal_new ("start-connect", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE,    /* return type */
+      0                         /* n_params */
       );
 
   g_object_class_install_property (gobject_class,
@@ -1626,18 +1577,12 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
           "machines-page contruct prop",
           "Set application object, the window belongs to",
           BT_TYPE_MAIN_PAGE_MACHINES,
-#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
-          G_PARAM_CONSTRUCT_ONLY |
-#endif
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, MACHINE_CANVAS_ITEM_MACHINE,
       g_param_spec_object ("machine", "machine contruct prop",
           "Set machine object, the item belongs to", BT_TYPE_MACHINE,
-#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
-          G_PARAM_CONSTRUCT_ONLY |
-#endif
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, MACHINE_CANVAS_ITEM_ZOOM,
       g_param_spec_double ("zoom",

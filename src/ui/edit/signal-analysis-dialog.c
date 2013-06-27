@@ -202,27 +202,21 @@ on_dialog_realize (GtkWidget * widget, gpointer user_data)
 }
 
 /*
- * on_level_expose:
+ * on_level_draw:
  *
  * Draw volume levels.
  */
 static gboolean
-on_level_expose (GtkWidget * widget, GdkEventExpose * event, gpointer user_data)
+on_level_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
 {
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
 
-  if (!gtk_widget_get_realized (GTK_WIDGET (self)))
-    return (TRUE);
+  if (!gtk_widget_get_realized (widget))
+    return TRUE;
 
-  GdkRectangle rect = { 0, 0, self->priv->spect_bands, LEVEL_HEIGHT };
-  GdkWindow *window = gtk_widget_get_window (widget);
   gint middle = self->priv->spect_bands >> 1;
   gdouble scl = middle / (-LOW_VUMETER_VAL);
   gdouble peak0, peak1, decay0, decay1;
-  cairo_t *cr;
-
-  gdk_window_begin_paint_rect (window, &rect);
-  cr = gdk_cairo_create (window);
 
   cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
   cairo_rectangle (cr, 0, 0, self->priv->spect_bands, LEVEL_HEIGHT);
@@ -244,10 +238,7 @@ on_level_expose (GtkWidget * widget, GdkEventExpose * event, gpointer user_data)
   cairo_fill (cr);
 
   /* TODO(ensonic): if stereo draw pan-meter (L-R, R-L) */
-
-  cairo_destroy (cr);
-  gdk_window_end_paint (window);
-  return (TRUE);
+  return TRUE;
 }
 
 /*
@@ -256,13 +247,12 @@ on_level_expose (GtkWidget * widget, GdkEventExpose * event, gpointer user_data)
  * Draw frequency spectrum.
  */
 static gboolean
-on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
-    gpointer user_data)
+on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
 {
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
 
-  if (!gtk_widget_get_realized (GTK_WIDGET (self)))
-    return (TRUE);
+  if (!gtk_widget_get_realized (widget))
+    return TRUE;
 
 #ifndef GST_DISABLE_DEBUG
   // DEBUG
@@ -277,16 +267,11 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
   gint mx, my;
   guint spect_bands = self->priv->spect_bands;
   guint spect_height = self->priv->spect_height;
-  GdkRectangle rect = { 0, 0, spect_bands, self->priv->spect_height };
-  GdkWindow *window = gtk_widget_get_window (widget);
   gdouble *grid_log10 = self->priv->grid_log10;
   gdouble *graph_log10 = self->priv->graph_log10;
   gdouble grid_dash_pattern[] = { 1.0 };
   gdouble prec = self->priv->frq_precision;
-  cairo_t *cr;
-
-  gdk_window_begin_paint_rect (window, &rect);
-  cr = gdk_cairo_create (window);
+  GdkWindow *window = gtk_widget_get_window (widget);
 
   cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
   cairo_rectangle (cr, 0, 0, spect_bands, spect_height);
@@ -375,9 +360,12 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
   g_mutex_unlock (&self->priv->lock);
 
   // draw cross-hair for mouse
-  gtk_widget_get_pointer (widget, &mx, &my);
-  if ((mx >= 0) && (mx < widget->allocation.width)
-      && (my >= 0) && (my < widget->allocation.height)) {
+  // TODO(ensonic): cache GdkDevice* 
+  gdk_window_get_device_position (window,
+      gdk_device_manager_get_client_pointer (gdk_display_get_device_manager
+          (gtk_widget_get_display (widget))), &mx, &my, NULL);
+  if ((mx >= 0) && (mx < gtk_widget_get_allocated_width (widget))
+      && (my >= 0) && (my < gtk_widget_get_allocated_height (widget))) {
     cairo_set_source_rgba (cr, self->priv->decay_color->red / 65535.0,
         self->priv->decay_color->green / 65535.0,
         self->priv->decay_color->blue / 65535.0, 0.7);
@@ -385,10 +373,6 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
     cairo_rectangle (cr, 0.0, my - 1.0, spect_bands, 2.0);
     cairo_fill (cr);
   }
-
-  cairo_destroy (cr);
-  gdk_window_end_paint (window);
-
 #ifndef GST_DISABLE_DEBUG
   // DEBUG
   // these values range from 0.0012 to 0.8348
@@ -397,19 +381,17 @@ on_spectrum_expose (GtkWidget * widget, GdkEventExpose * event,
   // DEBUG
 #endif
 
-  return (TRUE);
+  return TRUE;
 }
 
 static void
-draw_hlabel (GtkWidget * w, GdkWindow * win, GtkStyle * s, PangoLayout * l,
+draw_hlabel (GtkStyleContext * sc, cairo_t * cr, PangoLayout * l,
     gint lx, gint ly, gint tx, gint ty1, gint ty2)
 {
   if (l) {
-    gtk_paint_layout (s, win, GTK_STATE_NORMAL, FALSE, NULL, w, "scale-mark",
-        lx, ly, l);
+    gtk_render_layout (sc, cr, lx, ly, l);
   }
-  gtk_paint_vline (s, win, GTK_STATE_NORMAL, NULL, w, "scale-mark", ty1, ty2,
-      tx);
+  gtk_render_line (sc, cr, tx, ty1, tx, ty2);
 }
 
 typedef struct
@@ -418,7 +400,7 @@ typedef struct
 } BtAxisData;
 
 static void
-layout_label (GtkWidget * w, GdkWindow * win, GtkStyle * s, PangoLayout * l,
+layout_label (GtkStyleContext * sc, cairo_t * cr, PangoLayout * l,
     BtAxisData * ad, gint d, gint v1, gint v3, gint x1, gint x3, gint w1,
     gint y1, gint y2, gint y3)
 {
@@ -449,23 +431,23 @@ layout_label (GtkWidget * w, GdkWindow * win, GtkStyle * s, PangoLayout * l,
     pango_layout_get_pixel_extents (l, NULL, &lr);
     w2 = lr.width / 2;
     if ((d < 4) && labels) {    // long tick with label
-      draw_hlabel (w, win, s, l, x2 - w2, y1, x2, y2, y3);
+      draw_hlabel (sc, cr, l, x2 - w2, y1, x2, y2, y3);
     } else {                    // short tick without label
-      draw_hlabel (w, win, s, NULL, x2 - w2, y1, x2, y4, y3);
+      draw_hlabel (sc, cr, NULL, x2 - w2, y1, x2, y4, y3);
     }
     if ((d < 5) && recurse) {
-      layout_label (w, win, s, l, ad, d + 1, vo, v2, xo, x2, w1, y1, y2, y3);
+      layout_label (sc, cr, l, ad, d + 1, vo, v2, xo, x2, w1, y1, y2, y3);
     }
     vo = v2;
     xo = x2;
   }
   if ((d < 5) && recurse) {
-    layout_label (w, win, s, l, ad, d + 1, v2, v3, x2, x3, w1, y1, y2, y3);
+    layout_label (sc, cr, l, ad, d + 1, v2, v3, x2, x3, w1, y1, y2, y3);
   }
 }
 
 static gboolean
-on_spectrum_freq_axis_expose (GtkWidget * widget, GdkEventExpose * event,
+on_spectrum_freq_axis_draw (GtkWidget * widget, cairo_t * cr,
     gpointer user_data)
 {
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
@@ -475,7 +457,7 @@ on_spectrum_freq_axis_expose (GtkWidget * widget, GdkEventExpose * event,
 
   GdkRectangle rect = { 0, 0, self->priv->spect_bands, AXIS_THICKNESS };
   GdkWindow *window = gtk_widget_get_window (widget);
-  GtkStyle *style = gtk_widget_get_style (widget);
+  GtkStyleContext *sc = gtk_widget_get_style_context (widget);
   PangoLayout *layout = gtk_widget_create_pango_layout (widget, NULL);
   PangoRectangle lr;
   gint x1, x2, x3, y1, y2, y3, w1;
@@ -505,9 +487,13 @@ on_spectrum_freq_axis_expose (GtkWidget * widget, GdkEventExpose * event,
 
   gdk_window_begin_paint_rect (window, &rect);
 
+  gtk_style_context_save (sc);
+  gtk_style_context_add_class (sc, GTK_STYLE_CLASS_SEPARATOR);
+  gtk_style_context_add_class (sc, GTK_STYLE_CLASS_MARK);
+
   // draw beg,end
   x1 = 0;
-  x3 = widget->allocation.width;
+  x3 = gtk_widget_get_allocated_width (widget);
   y1 = 0;
   y2 = (AXIS_THICKNESS - 1) / 2;
   y3 = AXIS_THICKNESS - 1;
@@ -517,18 +503,17 @@ on_spectrum_freq_axis_expose (GtkWidget * widget, GdkEventExpose * event,
   sprintf (str, "<small>0</small>");
   pango_layout_set_markup (layout, str, -1);
   pango_layout_get_pixel_extents (layout, NULL, &lr);
-  draw_hlabel (widget, window, style, layout, x1, y1, x1, y2, y3);
+  draw_hlabel (sc, cr, layout, x1, y1, x1, y2, y3);
 
   sprintf (str, "<small>%d</small>", m);
   pango_layout_set_markup (layout, str, -1);
   pango_layout_get_pixel_extents (layout, NULL, &lr);
   w1 = lr.width;
-  draw_hlabel (widget, window, style, layout, x3 - w1, y1, x3 - 1, y2, y3);
+  draw_hlabel (sc, cr, layout, x3 - w1, y1, x3 - 1, y2, y3);
 
   if (self->priv->frq_map == MAP_LIN) {
     // recurse
-    layout_label (widget, window, style, layout, ad, 1, 0, m, x1, x3, w1, y1,
-        y2, y3);
+    layout_label (sc, cr, layout, ad, 1, 0, m, x1, x3, w1, y1, y2, y3);
   } else {
     gdouble v = self->priv->spect_bands / log10 (m);
     gdouble f = 0.0, inc = 1.0, end = 10.0;
@@ -544,26 +529,26 @@ on_spectrum_freq_axis_expose (GtkWidget * widget, GdkEventExpose * event,
         pango_layout_get_pixel_extents (layout, NULL, &lr);
         w2 = lr.width / 2;
         if ((x2 + w2) < (x3 - w1)) {
-          draw_hlabel (widget, window, style, layout, x2 - w2, y1, x2, y2, y3);
+          draw_hlabel (sc, cr, layout, x2 - w2, y1, x2, y2, y3);
         } else {
-          draw_hlabel (widget, window, style, NULL, x2, y1, x2, y2, y3);
+          draw_hlabel (sc, cr, NULL, x2, y1, x2, y2, y3);
         }
         f = inc = end;
         end *= 10.0;
       } else {
-        draw_hlabel (widget, window, style, NULL, x2, y1, x2, y2, y3);
+        draw_hlabel (sc, cr, NULL, x2, y1, x2, y2, y3);
       }
     }
   }
 
   gdk_window_end_paint (window);
+  gtk_style_context_restore (sc);
   g_object_unref (layout);
   return (TRUE);
 }
 
 static gboolean
-on_level_axis_expose (GtkWidget * widget, GdkEventExpose * event,
-    gpointer user_data)
+on_level_axis_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
 {
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
 
@@ -572,7 +557,7 @@ on_level_axis_expose (GtkWidget * widget, GdkEventExpose * event,
 
   GdkRectangle rect = { 0, 0, self->priv->spect_bands, AXIS_THICKNESS };
   GdkWindow *window = gtk_widget_get_window (widget);
-  GtkStyle *style = gtk_widget_get_style (widget);
+  GtkStyleContext *sc = gtk_widget_get_style_context (widget);
   PangoLayout *layout = gtk_widget_create_pango_layout (widget, NULL);
   PangoRectangle lr;
   gint x1, x3, y1, y2, y3, w1;
@@ -595,8 +580,12 @@ on_level_axis_expose (GtkWidget * widget, GdkEventExpose * event,
 
   gdk_window_begin_paint_rect (window, &rect);
 
+  gtk_style_context_save (sc);
+  gtk_style_context_add_class (sc, GTK_STYLE_CLASS_SEPARATOR);
+  gtk_style_context_add_class (sc, GTK_STYLE_CLASS_MARK);
+
   x1 = 0;
-  x3 = widget->allocation.width;
+  x3 = gtk_widget_get_allocated_width (widget);
   y1 = 0;
   y2 = (AXIS_THICKNESS - 1) / 2;
   y3 = AXIS_THICKNESS - 1;
@@ -608,17 +597,17 @@ on_level_axis_expose (GtkWidget * widget, GdkEventExpose * event,
   pango_layout_get_pixel_extents (layout, NULL, &lr);
   w1 = lr.width;
 
-  draw_hlabel (widget, window, style, layout, x1, y1, x1, y2, y3);
-  draw_hlabel (widget, window, style, layout, x3 - w1, y1, x3 - 1, y2, y3);
+  draw_hlabel (sc, cr, layout, x1, y1, x1, y2, y3);
+  draw_hlabel (sc, cr, layout, x3 - w1, y1, x3 - 1, y2, y3);
 
   // draw mid and recurse, d : 0  ,1  , 2, 3,4,5
   // we'd like to subdiv by  : 200,100,50,10,5,1
   // for labels we stop at d=3 or not enough space
   // for ticks  we stop at d=5 or not enough space
-  layout_label (widget, window, style, layout, ad, 1, -100, 100, x1, x3, w1, y1,
-      y2, y3);
+  layout_label (sc, cr, layout, ad, 1, -100, 100, x1, x3, w1, y1, y2, y3);
 
   gdk_window_end_paint (window);
+  gtk_style_context_restore (sc);
   g_object_unref (layout);
   return (TRUE);
 }
@@ -977,13 +966,13 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
     g_free (title);
   }
 
-  vbox = gtk_vbox_new (FALSE, 0);
+  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 
   /* add scales for spectrum analyzer drawable */
   /* TODO(ensonic): we need to use a gtk_table() and also add a vruler with levels */
   ruler = gtk_drawing_area_new ();
-  g_signal_connect (ruler, "expose-event",
-      G_CALLBACK (on_spectrum_freq_axis_expose), (gpointer) self);
+  g_signal_connect (ruler, "draw",
+      G_CALLBACK (on_spectrum_freq_axis_draw), (gpointer) self);
   gtk_widget_set_size_request (ruler, -1, AXIS_THICKNESS);
   gtk_box_pack_start (GTK_BOX (vbox), ruler, FALSE, FALSE, 0);
   self->priv->spectrum_ruler = ruler;
@@ -1009,7 +998,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   /* add scales for level meter */
   ruler = gtk_drawing_area_new ();
   gtk_widget_set_size_request (ruler, -1, AXIS_THICKNESS);
-  g_signal_connect (ruler, "expose-event", G_CALLBACK (on_level_axis_expose),
+  g_signal_connect (ruler, "draw", G_CALLBACK (on_level_axis_draw),
       (gpointer) self);
   gtk_box_pack_start (GTK_BOX (vbox), ruler, FALSE, FALSE, 0);
 
@@ -1124,10 +1113,10 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   g_signal_connect ((gpointer) self, "realize", G_CALLBACK (on_dialog_realize),
       (gpointer) self);
   // redraw when needed
-  g_signal_connect (self->priv->level_drawingarea, "expose-event",
-      G_CALLBACK (on_level_expose), (gpointer) self);
-  g_signal_connect (self->priv->spectrum_drawingarea, "expose-event",
-      G_CALLBACK (on_spectrum_expose), (gpointer) self);
+  g_signal_connect (self->priv->level_drawingarea, "draw",
+      G_CALLBACK (on_level_draw), (gpointer) self);
+  g_signal_connect (self->priv->spectrum_drawingarea, "draw",
+      G_CALLBACK (on_spectrum_draw), (gpointer) self);
 
 Error:
   g_object_unref (song);

@@ -268,9 +268,9 @@ src/ui/edit/marshal.c: src/ui/edit/marshal.list
 BUILT_SOURCES += src/ui/edit/marshal.c src/ui/edit/marshal.h
 CLEANFILES += src/ui/edit/marshal.c src/ui/edit/marshal.h
 
-# FIXME: don't install bt-edit.compact.gtkrc if not selected
-gtkrcdir = $(datadir)/$(PACKAGE)
-gtkrc_DATA = src/ui/edit/bt-edit.gtkrc src/ui/edit/bt-edit.compact.gtkrc
+# FIXME: don't install bt-edit.compact.css if not selected
+cssdir = $(datadir)/$(PACKAGE)
+css_DATA = src/ui/edit/bt-edit.css src/ui/edit/bt-edit.compact.css
 
 libbuzztraxdec_la_CFLAGS = $(GST_PLUGIN_CFLAGS)
 libbuzztraxdec_la_LIBADD = \

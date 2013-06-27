@@ -18,7 +18,7 @@
 #ifndef BT_WAVEFORM_VIEWER_H
 #define BT_WAVEFORM_VIEWER_H
 
-#include <glib.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
@@ -48,6 +48,8 @@ struct _BtWaveformViewer {
   gint64 playback_cursor;
   
   /* state */
+  GdkWindow *window;
+  GtkBorder border;
   gboolean edit_loop_start, edit_loop_end, edit_selection;
 };
 

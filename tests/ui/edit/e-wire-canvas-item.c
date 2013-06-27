@@ -89,17 +89,16 @@ test_bt_wire_canvas_item_create (BT_TEST_ARGS)
 
   /* act */
   BtWireCanvasItem *item =
-      bt_wire_canvas_item_new (machines_page, wire, 100.0, 100.0, 150.0, 150.0,
-      item1, item2);
+      bt_wire_canvas_item_new (machines_page, wire, item1, item2);
 
   /* assert */
   fail_unless (item != NULL, NULL);
 
   /* cleanup */
   flush_main_loop ();
-  gtk_object_destroy ((GtkObject *) item);
-  gtk_object_destroy ((GtkObject *) item1);
-  gtk_object_destroy ((GtkObject *) item2);
+  g_object_unref (item);
+  g_object_unref (item1);
+  g_object_unref (item2);
   gst_object_unref (machine1);
   gst_object_unref (machine2);
   g_object_unref (machines_page);
@@ -124,8 +123,7 @@ test_bt_wire_canvas_item_show_analyzer (BT_TEST_ARGS)
       bt_machine_canvas_item_new (machines_page, machine2, 150.0, 150.0, 1.0);
   BtWire *wire = bt_wire_new (song, machine1, machine2, NULL);
   BtWireCanvasItem *item =
-      bt_wire_canvas_item_new (machines_page, wire, 100.0, 100.0, 150.0, 150.0,
-      item1, item2);
+      bt_wire_canvas_item_new (machines_page, wire, item1, item2);
 
   /* act */
   bt_wire_show_analyzer_dialog (wire);
@@ -137,9 +135,9 @@ test_bt_wire_canvas_item_show_analyzer (BT_TEST_ARGS)
   /* cleanup */
   flush_main_loop ();
   gtk_widget_destroy (dialog);
-  gtk_object_destroy ((GtkObject *) item);
-  gtk_object_destroy ((GtkObject *) item1);
-  gtk_object_destroy ((GtkObject *) item2);
+  g_object_unref (item);
+  g_object_unref (item1);
+  g_object_unref (item2);
   gst_object_unref (machine1);
   gst_object_unref (machine2);
   g_object_unref (machines_page);

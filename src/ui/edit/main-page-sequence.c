@@ -123,9 +123,9 @@ struct _BtMainPageSequencePrivate
   BtSequenceGridModelPosFormat pos_format;
 
   /* the sequence table */
-  GtkHBox *sequence_pos_table_header;
+  GtkBox *sequence_pos_table_header;
   GtkTreeView *sequence_pos_table;
-  GtkHBox *sequence_table_header;
+  GtkBox *sequence_table_header;
   GtkTreeView *sequence_table;
   /* the pattern list */
   GtkTreeView *pattern_list;
@@ -212,6 +212,10 @@ G_DEFINE_TYPE_WITH_CODE (BtMainPageSequence, bt_main_page_sequence,
 #define SEQUENCE_CELL_YPAD 0
 #define POSITION_CELL_WIDTH 65
 #define HEADER_SPACING 0
+
+#define PATTERN_IX_CELL_WIDTH 30
+#define PATTERN_NAME_CELL_WIDTH 70
+#define PATTERN_LIST_WIDTH (13 + PATTERN_IX_CELL_WIDTH + PATTERN_NAME_CELL_WIDTH)
 
 #define LOW_VUMETER_VAL -60.0
 
@@ -596,52 +600,21 @@ sequence_sync_to_play_pos (const BtMainPageSequence * self, gulong pos)
 
 //-- gtk helpers
 
-static void
-widget_shade_bg_color (GtkWidget * widget, GtkStateType state, gfloat rf,
-    gfloat gf, gfloat bf)
-{
-  GtkStyle *style = gtk_widget_get_style (widget);
-  GdkColor color = style->bg[state];
-  gfloat c;
-
-  c = ((gfloat) color.red * rf);
-  color.red = (guint16) MIN (c, 65535.0);
-  c = ((gfloat) color.green * gf);
-  color.green = (guint16) MIN (c, 65535.0);
-  c = ((gfloat) color.blue * bf);
-  color.blue = (guint16) MIN (c, 65535.0);
-  gtk_widget_modify_bg (widget, state, &color);
-
-}
-
 static GtkWidget *
-make_mini_button (const gchar * txt, gfloat rf, gfloat gf, gfloat bf,
-    gboolean toggled)
+make_mini_button (const gchar * txt, const gchar * style, gboolean toggled)
 {
   GtkWidget *button;
+  GtkStyleContext *context;
 
-// the font get smaller, but the buttons don't :/
-#define USE_MARKUP 0
-#if USE_MARKUP
-  GtkWidget *label;
-  button = gtk_toggle_button_new_with_label ("");
-  label = gtk_bin_get_child (GTK_BIN (button));
-  if (GTK_IS_LABEL (label)) {
-    gchar *str = g_strconcat ("<small>", txt, "</small>", NULL);
-    gtk_label_set_markup (GTK_LABEL (label), str);
-    g_free (str);
-  } else {
-    GST_WARNING ("expecting a GtkLabel as a first child");
-  }
-#else
   button = gtk_toggle_button_new_with_label (txt);
-#endif
-  gtk_widget_set_name (button, "mini-button");
-  widget_shade_bg_color (button, GTK_STATE_ACTIVE, rf, gf, bf);
-  widget_shade_bg_color (button, GTK_STATE_PRELIGHT, rf, gf, bf);
   gtk_container_set_border_width (GTK_CONTAINER (button), 0);
+  gtk_widget_set_can_focus (button, FALSE);
   if (toggled)
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), toggled);
+
+  context = gtk_widget_get_style_context (button);
+  gtk_style_context_add_class (context, "mini");
+  gtk_style_context_add_class (context, style);
 
   return (button);
 }
@@ -890,37 +863,6 @@ on_machine_id_renamed (GtkEntry * entry, gpointer user_data)
   }
   gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->sequence_table));
 }
-
-/*
- * on_header_size_allocate:
- *
- * Adjusts the height of the header widget of the first treeview (pos) to the
- * height of the second treeview.
- */
-static void
-on_header_size_allocate (GtkWidget * widget, GtkAllocation * allocation,
-    gpointer user_data)
-{
-  BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
-
-  GST_DEBUG ("#### header label size %d x %d", allocation->width,
-      allocation->height);
-
-  gtk_widget_set_size_request (self->priv->pos_header, -1, allocation->height);
-}
-
-/* DEBUG
-static void on_sequence_header_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
-  GtkRequisition requisition;
-
-  gtk_widget_size_request(widget,&requisition);
-  GST_WARNING("#### header %s alloc:  %d x %d, req: %d x %d",
-    (gchar *)user_data,
-    allocation->width,allocation->height,
-    requisition.width,requisition.height
-    );
-}
-// DEBUG */
 
 static void
 on_machine_state_toggled (GtkToggleButton * togglebutton, gpointer user_data)
@@ -1264,13 +1206,15 @@ sequence_pos_table_init (const BtMainPageSequence * self)
       (GtkCallback) gtk_widget_destroy, NULL);
 
   // create header widget
-  self->priv->pos_header = gtk_vbox_new (FALSE, HEADER_SPACING);
+  self->priv->pos_header =
+      gtk_box_new (GTK_ORIENTATION_VERTICAL, HEADER_SPACING);
   // time line position
   label = gtk_label_new (_("Pos."));
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
-  gtk_box_pack_start (GTK_BOX (self->priv->pos_header), label, TRUE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  gtk_box_pack_start (GTK_BOX (self->priv->pos_header), label, TRUE, TRUE, 0);
 
   self->priv->pos_menu = gtk_combo_box_text_new ();
+  gtk_widget_set_can_focus (self->priv->pos_menu, FALSE);
   gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->priv->pos_menu),
       FALSE);
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->pos_menu),
@@ -1447,13 +1391,14 @@ sequence_table_init (const BtMainPageSequence * self)
       GTK_CONTAINER (self->priv->sequence_table_header));
 
   // create header widget
-  header = gtk_hbox_new (FALSE, HEADER_SPACING);
-  vbox = gtk_vbox_new (FALSE, 0);
+  header = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, HEADER_SPACING);
+  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_box_pack_start (GTK_BOX (header), vbox, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (header), gtk_vseparator_new (), FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (header),
+      gtk_separator_new (GTK_ORIENTATION_VERTICAL), FALSE, FALSE, 0);
 
   label = gtk_label_new (_("Labels"));
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.0);
+  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
   gtk_box_pack_start (GTK_BOX (vbox), label, TRUE, TRUE, 0);
 
   gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET (self->priv->label_menu), TRUE,
@@ -1463,11 +1408,10 @@ sequence_table_init (const BtMainPageSequence * self)
    * in reality it result in distorted overlapping widgets :(
    */
   gtk_widget_set_size_request (header, SEQUENCE_CELL_WIDTH, -1);
+  gtk_widget_set_hexpand (header, FALSE);
   gtk_widget_show_all (header);
   gtk_box_pack_start (GTK_BOX (self->priv->sequence_table_header), header,
       FALSE, FALSE, 0);
-  g_signal_connect (header, "size-allocate",
-      G_CALLBACK (on_header_size_allocate), (gpointer) self);
 
   // re-add static columns
   renderer = gtk_cell_renderer_text_new ();
@@ -1565,20 +1509,21 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
 
       // TODO(ensonic): add context menu like that in the machine_view to the header
 
-      // create header widget
-      header = gtk_hbox_new (FALSE, HEADER_SPACING);
-      vbox = gtk_vbox_new (FALSE, 0);
+      // create header widget (hbox with vbox and separator)
+      header = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, HEADER_SPACING);
+      vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
       gtk_box_pack_start (GTK_BOX (header), vbox, TRUE, TRUE, 0);
-      gtk_box_pack_start (GTK_BOX (header), gtk_vseparator_new (), FALSE, FALSE,
-          0);
+      gtk_box_pack_start (GTK_BOX (header),
+          gtk_separator_new (GTK_ORIENTATION_VERTICAL), FALSE, FALSE, 0);
 
+      // we need to set width-chars so that the natural size is calculated
+      // instead of using the hard-coded 150 pixels
       label = gtk_entry_new ();
       g_object_set (label, "has-frame", FALSE, "inner-border", 0, "text", str,
-          NULL);
+          "width-chars", 12, NULL);
       g_free (str);
       g_object_set_qdata ((GObject *) label, machine_for_track, machine);
       gtk_box_pack_start (GTK_BOX (vbox), label, TRUE, TRUE, 0);
-
       g_signal_connect (label, "activate", G_CALLBACK (on_machine_id_renamed),
           (gpointer) self);
 
@@ -1598,8 +1543,8 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
          }
        */
 
-      box = gtk_hbox_new (FALSE, 0);
-      gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET (box), TRUE, TRUE, 0);
+      box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+      gtk_box_pack_start (GTK_BOX (vbox), box, TRUE, TRUE, 0);
 
       /* only do this for first track of a machine
        * - multiple level-meter views for same machine don't work
@@ -1612,8 +1557,8 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
 
         g_hash_table_insert (machine_usage, machine, machine);
         // add M/S/B butons and connect signal handlers
-        // TODO(ensonic): use colors from ui-resources
-        button = make_mini_button ("M", 1.2, 1.0 / 1.25, 1.0 / 1.25, (state == BT_MACHINE_STATE_MUTE)); // red
+        button =
+            make_mini_button ("M", "mute", (state == BT_MACHINE_STATE_MUTE));
         gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
         g_signal_connect (button, "toggled", G_CALLBACK (on_mute_toggled),
             (gpointer) machine);
@@ -1623,7 +1568,8 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
             G_CALLBACK (on_machine_state_changed_mute), (gpointer) button);
 
         if (BT_IS_SOURCE_MACHINE (machine)) {
-          button = make_mini_button ("S", 1.0 / 1.2, 1.0 / 1.2, 1.1, (state == BT_MACHINE_STATE_SOLO)); // blue
+          button =
+              make_mini_button ("S", "solo", (state == BT_MACHINE_STATE_SOLO));
           gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
           g_signal_connect (button, "toggled", G_CALLBACK (on_solo_toggled),
               (gpointer) machine);
@@ -1634,7 +1580,9 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
         }
 
         if (BT_IS_PROCESSOR_MACHINE (machine)) {
-          button = make_mini_button ("B", 1.2, 1.0 / 1.1, 1.0 / 1.4, (state == BT_MACHINE_STATE_BYPASS));       // orange
+          button =
+              make_mini_button ("B", "bypass",
+              (state == BT_MACHINE_STATE_BYPASS));
           gtk_box_pack_start (GTK_BOX (box), button, FALSE, FALSE, 0);
           g_signal_connect (button, "toggled", G_CALLBACK (on_bypass_toggled),
               (gpointer) machine);
@@ -1665,6 +1613,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       GST_WARNING ("can't get machine for column %lu", j);
     }
     gtk_widget_set_size_request (header, SEQUENCE_CELL_WIDTH, -1);
+    gtk_widget_set_hexpand (header, FALSE);
     gtk_widget_show_all (header);
     gtk_box_pack_start (GTK_BOX (self->priv->sequence_table_header), header,
         FALSE, FALSE, 0);
@@ -2466,24 +2415,27 @@ on_scroll_event (GtkWidget * widget, GdkEventScroll * event, gpointer user_data)
   GdkScrollDirection direction = event->direction;
 
   if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_DOWN)
-    range = GTK_SCROLLED_WINDOW (widget)->vscrollbar;
+    range = gtk_scrolled_window_get_vscrollbar (GTK_SCROLLED_WINDOW (widget));
   else
-    range = GTK_SCROLLED_WINDOW (widget)->hscrollbar;
+    range = gtk_scrolled_window_get_hscrollbar (GTK_SCROLLED_WINDOW (widget));
 
   GST_WARNING ("scrolling");
 
   if (range) {
-    GtkAdjustment *adj = GTK_RANGE (range)->adjustment;
+    GtkAdjustment *adj = gtk_range_get_adjustment (GTK_RANGE (range));
     gdouble delta, new_value;
+    gdouble value, lower, upper, page_size;
 
-    delta = pow (adj->page_size, 2.0 / 3.0);
+    g_object_get (adj, "value", &value, "upper", &upper, "lower", &lower,
+        "page-size", &page_size, NULL);
+
+    delta = pow (page_size, 2.0 / 3.0);
     if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_LEFT)
       delta = -delta;
-    if (((GtkRange *) range)->inverted)
+    if (gtk_range_get_inverted ((GtkRange *) range))
       delta = -delta;
 
-    new_value =
-        CLAMP (adj->value + delta, adj->lower, adj->upper - adj->page_size);
+    new_value = CLAMP (value + delta, lower, upper - page_size);
 
     gtk_adjustment_set_value (adj, new_value);
     return TRUE;
@@ -2652,7 +2604,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
       return (FALSE);
 
     // look up pattern for key
-    if (event->keyval == GDK_space || event->keyval == GDK_period) {
+    if (event->keyval == GDK_KEY_space || event->keyval == GDK_KEY_period) {
       // first column is label
       if ((track > 0) && (row < length)) {
         if ((res = change_pattern (self, NULL, row, track - 1))) {
@@ -2660,7 +2612,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
           res = TRUE;
         }
       }
-    } else if (event->keyval == GDK_Return) {   /* GDK_KP_Enter */
+    } else if (event->keyval == GDK_KEY_Return) {       /* GDK_KEY_KP_Enter */
       // first column is label
       if (track > 0) {
         BtMainPagePatterns *patterns_page;
@@ -2689,11 +2641,11 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
 
         res = TRUE;
       }
-    } else if (event->keyval == GDK_Menu) {
+    } else if (event->keyval == GDK_KEY_Menu) {
       gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
           gtk_get_current_event_time ());
-    } else if (event->keyval == GDK_Up || event->keyval == GDK_Down
-        || event->keyval == GDK_Left || event->keyval == GDK_Right) {
+    } else if (event->keyval == GDK_KEY_Up || event->keyval == GDK_KEY_Down
+        || event->keyval == GDK_KEY_Left || event->keyval == GDK_KEY_Right) {
       if (modifier == GDK_SHIFT_MASK) {
         gboolean select = FALSE;
 
@@ -2701,7 +2653,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
 
         // handle selection
         switch (event->keyval) {
-          case GDK_Up:
+          case GDK_KEY_Up:
             if ((self->priv->cursor_row >= 0)) {
               self->priv->cursor_row -= self->priv->bars;
               sequence_view_set_cursor_pos (self);
@@ -2727,7 +2679,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
               select = TRUE;
             }
             break;
-          case GDK_Down:
+          case GDK_KEY_Down:
             /* no check, we expand length */
             self->priv->cursor_row += self->priv->bars;
             sequence_view_set_cursor_pos (self);
@@ -2752,7 +2704,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
             LOG_SELECTION ("down ");
             select = TRUE;
             break;
-          case GDK_Left:
+          case GDK_KEY_Left:
             if (self->priv->cursor_column >= 0) {
               self->priv->cursor_column--;
               sequence_view_set_cursor_pos (self);
@@ -2778,7 +2730,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
               select = TRUE;
             }
             break;
-          case GDK_Right:
+          case GDK_KEY_Right:
             if (self->priv->cursor_column < tracks) {
               self->priv->cursor_column++;
               sequence_view_set_cursor_pos (self);
@@ -2818,19 +2770,19 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
           gtk_widget_queue_draw (GTK_WIDGET (self->priv->sequence_table));
         }
       }
-    } else if (event->keyval == GDK_b) {
+    } else if (event->keyval == GDK_KEY_b) {
       if (modifier == GDK_CONTROL_MASK) {
         GST_INFO ("ctrl-b pressed, row %lu", row);
         sequence_set_loop_start (self, (glong) row);
         res = TRUE;
       }
-    } else if (event->keyval == GDK_e) {
+    } else if (event->keyval == GDK_KEY_e) {
       if (modifier == GDK_CONTROL_MASK) {
         GST_INFO ("ctrl-e pressed, row %lu", row);
         sequence_set_loop_end (self, (glong) row);
         res = TRUE;
       }
-    } else if (event->keyval == GDK_Insert) {
+    } else if (event->keyval == GDK_KEY_Insert) {
       if (modifier == 0) {
         GString *old_data = g_string_new (NULL), *new_data =
             g_string_new (NULL);
@@ -2889,7 +2841,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         sequence_update_model_length (self);
         res = TRUE;
       }
-    } else if (event->keyval == GDK_Delete) {
+    } else if (event->keyval == GDK_KEY_Delete) {
       if (modifier == 0) {
         GString *old_data = g_string_new (NULL), *new_data =
             g_string_new (NULL);
@@ -3031,7 +2983,7 @@ on_sequence_header_button_press_event (GtkWidget * widget,
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
   gboolean res = FALSE;
 
-  GST_INFO ("sequence_header button_press : button 0x%x, type 0x%d",
+  GST_WARNING ("sequence_header button_press : button 0x%x, type 0x%d",
       event->button, event->type);
   if (event->button == 3) {
     gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
@@ -3203,7 +3155,7 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
 static void
 bt_sequence_table_update_colors (const BtMainPageSequence * self)
 {
-  GtkStyle *s = GTK_WIDGET (self->priv->sequence_table)->style;
+  GtkStyle *s = gtk_widget_get_style (GTK_WIDGET (self->priv->sequence_table));
   guint fg, bg;
 
   fg = (s->text->red >> 8) + (s->text->green >> 8) + (s->text->blue >> 8);
@@ -3566,7 +3518,7 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
     const BtMainPages * pages)
 {
   GtkWidget *toolbar;
-  GtkWidget *split_box, *box, *vbox, *tool_item;
+  GtkWidget *split_box, *box, *table, *tool_item;
   GtkWidget *scrolled_window, *scrolled_vsync_window, *scrolled_hsync_window;
   GtkWidget *hsync_viewport;
   GtkWidget *menu_item, *image, *check_button;
@@ -3587,14 +3539,13 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH);
   // add toolbar widgets
   // steps
-  box = gtk_hbox_new (FALSE, 2);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   // build the menu
   self->priv->bars_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
   gtk_widget_set_tooltip_text (GTK_WIDGET (self->priv->bars_menu),
       _("Show every n-th line"));
   renderer = gtk_cell_renderer_text_new ();
-  //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
       (renderer), 1);
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (self->priv->bars_menu), renderer,
@@ -3667,8 +3618,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
       "<Buzztrax-Main>/SequenceView/SequenceContext/RemoveTrack");
   gtk_accel_map_add_entry
-      ("<Buzztrax-Main>/SequenceView/SequenceContext/RemoveTrack", GDK_Delete,
-      GDK_CONTROL_MASK);
+      ("<Buzztrax-Main>/SequenceView/SequenceContext/RemoveTrack",
+      GDK_KEY_Delete, GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",
@@ -3684,8 +3635,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
       "<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackLeft");
   gtk_accel_map_add_entry
-      ("<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackLeft", GDK_Left,
-      GDK_CONTROL_MASK);
+      ("<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackLeft",
+      GDK_KEY_Left, GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",
@@ -3697,8 +3648,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
       "<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackRight");
   gtk_accel_map_add_entry
-      ("<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackRight", GDK_Right,
-      GDK_CONTROL_MASK);
+      ("<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackRight",
+      GDK_KEY_Right, GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",
@@ -3731,19 +3682,19 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
 
 
   // add a hpaned
-  split_box = gtk_hpaned_new ();
+  split_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 1);
   gtk_container_add (GTK_CONTAINER (self), split_box);
 
-  // add hbox for sequence view
-  box = gtk_hbox_new (FALSE, 0);
-  gtk_paned_pack1 (GTK_PANED (split_box), box, TRUE, TRUE);
+  // add a 2x2 table for sequence view
+  table = gtk_table_new (2, 2, FALSE);
+  gtk_box_pack_start (GTK_BOX (split_box), table, TRUE, TRUE, 0);
 
   // add sequence-pos list-view
-  vbox = gtk_vbox_new (FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (box), vbox, FALSE, FALSE, 0);
-  self->priv->sequence_pos_table_header = GTK_HBOX (gtk_hbox_new (FALSE, 0));
-  gtk_box_pack_start (GTK_BOX (vbox),
-      GTK_WIDGET (self->priv->sequence_pos_table_header), FALSE, FALSE, 0);
+  self->priv->sequence_pos_table_header =
+      GTK_BOX (gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0));
+  gtk_table_attach (GTK_TABLE (table),
+      GTK_WIDGET (self->priv->sequence_pos_table_header),
+      0, 1, 0, 1, 0, GTK_FILL, 0, 0);
 
   scrolled_vsync_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_vsync_window),
@@ -3765,22 +3716,24 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   sequence_pos_table_init (self);
   gtk_container_add (GTK_CONTAINER (scrolled_vsync_window),
       GTK_WIDGET (self->priv->sequence_pos_table));
-  gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET (scrolled_vsync_window), TRUE,
-      TRUE, 0);
+  gtk_table_attach (GTK_TABLE (table), scrolled_vsync_window,
+      0, 1, 1, 2, 0, GTK_EXPAND | GTK_FILL, 0, 0);
   g_signal_connect (self->priv->sequence_pos_table, "button-press-event",
       G_CALLBACK (on_sequence_table_button_press_event), (gpointer) self);
   g_signal_connect (self->priv->sequence_pos_table, "motion-notify-event",
       G_CALLBACK (on_sequence_table_motion_notify_event), (gpointer) self);
 
   // add vertical separator
-  gtk_box_pack_start (GTK_BOX (box), gtk_vseparator_new (), FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (box),
+      gtk_separator_new (GTK_ORIENTATION_VERTICAL), FALSE, FALSE, 0);
 
   // build label menu
   self->priv->label_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
+  gtk_widget_set_can_focus (GTK_WIDGET (self->priv->label_menu), FALSE);
+  gtk_combo_box_set_focus_on_click (self->priv->label_menu, FALSE);
   gtk_widget_set_tooltip_text (GTK_WIDGET (self->priv->label_menu),
       _("Browse to labels in the sequence"));
   renderer = gtk_cell_renderer_text_new ();
-  gtk_cell_renderer_set_fixed_size (renderer, -1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
       (renderer), 1);
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (self->priv->label_menu),
@@ -3788,7 +3741,6 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (self->priv->label_menu),
       renderer, "text", BT_SEQUENCE_GRID_MODEL_POSSTR, NULL);
   renderer = gtk_cell_renderer_text_new ();
-  gtk_cell_renderer_set_fixed_size (renderer, -1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
       (renderer), 1);
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (self->priv->label_menu),
@@ -3798,31 +3750,26 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   g_signal_connect (self->priv->label_menu, "changed",
       G_CALLBACK (on_label_menu_changed), (gpointer) self);
 
-  vbox = gtk_vbox_new (FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (box), vbox, TRUE, TRUE, 0);
-
   // add sequence header list-view
   scrolled_hsync_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_hsync_window),
       GTK_POLICY_NEVER, GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW
       (scrolled_hsync_window), GTK_SHADOW_NONE);
-  self->priv->sequence_table_header = GTK_HBOX (gtk_hbox_new (FALSE, 0));
+  self->priv->sequence_table_header =
+      GTK_BOX (gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0));
   gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW
       (scrolled_hsync_window), GTK_WIDGET (self->priv->sequence_table_header));
   hsync_viewport = gtk_bin_get_child (GTK_BIN (scrolled_hsync_window));
   gtk_viewport_set_shadow_type (GTK_VIEWPORT (hsync_viewport), GTK_SHADOW_NONE);
   // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
-  gtk_widget_set_size_request (GTK_WIDGET (hsync_viewport), SEQUENCE_CELL_WIDTH,
-      -1);
-  /* DEBUG
-     g_signal_connect(self->priv->sequence_table_header,"size-allocate",G_CALLBACK(on_sequence_header_size_allocate),(gpointer)"box");
-     g_signal_connect(self->priv->sequence_table_header,"size-allocate",G_CALLBACK(on_sequence_header_size_allocate),(gpointer)"vport");
-     // DEBUG */
+  gtk_widget_set_size_request (hsync_viewport, SEQUENCE_CELL_WIDTH, -1);
+  gtk_widget_set_hexpand (hsync_viewport, TRUE);
+  gtk_widget_add_events (hsync_viewport, GDK_BUTTON_PRESS_MASK);
 
-  gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET (scrolled_hsync_window), FALSE,
-      FALSE, 0);
-  g_signal_connect (scrolled_hsync_window, "button-press-event",
+  gtk_table_attach (GTK_TABLE (table), scrolled_hsync_window,
+      1, 2, 0, 1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+  g_signal_connect (hsync_viewport, "button-press-event",
       G_CALLBACK (on_sequence_header_button_press_event), (gpointer) self);
 
   // add sequence list-view
@@ -3844,8 +3791,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   sequence_table_init (self);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->sequence_table));
-  gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET (scrolled_window), TRUE, TRUE,
-      0);
+  gtk_table_attach (GTK_TABLE (table), scrolled_window,
+      1, 2, 1, 2, GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 0, 0);
   g_signal_connect_after (self->priv->sequence_table, "cursor-changed",
       G_CALLBACK (on_sequence_table_cursor_changed), (gpointer) self);
   g_signal_connect (self->priv->sequence_table, "key-press-event",
@@ -3879,15 +3826,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
       G_CALLBACK (on_scroll_event), NULL);
   //GST_DEBUG("pos_view=%p, data_view=%p", self->priv->sequence_pos_table,self->priv->sequence_table);
 
-  // add vertical separator
-  gtk_box_pack_start (GTK_BOX (box), gtk_vseparator_new (), FALSE, FALSE, 0);
-
-  // add hbox for pattern list
-  box = gtk_hbox_new (FALSE, 0);
-  gtk_paned_pack2 (GTK_PANED (split_box), box, FALSE, FALSE);
-
-  // add vertical separator
-  gtk_box_pack_start (GTK_BOX (box), gtk_vseparator_new (), FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (split_box),
+      gtk_separator_new (GTK_ORIENTATION_VERTICAL), FALSE, FALSE, 0);
 
   // add pattern list-view
   scrolled_window = gtk_scrolled_window_new (NULL, NULL);
@@ -3913,7 +3853,7 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
               BT_PATTERN_LIST_MODEL_IS_USED, NULL))
       ) {
     g_object_set (tree_col, "sizing", GTK_TREE_VIEW_COLUMN_FIXED, "fixed-width",
-        30, NULL);
+        PATTERN_IX_CELL_WIDTH, NULL);
     gtk_tree_view_insert_column (self->priv->pattern_list, tree_col, -1);
   } else
     GST_WARNING ("can't create treeview column");
@@ -3928,16 +3868,16 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
               BT_PATTERN_LIST_MODEL_IS_USED, NULL))
       ) {
     g_object_set (tree_col, "sizing", GTK_TREE_VIEW_COLUMN_FIXED, "fixed-width",
-        70, NULL);
+        PATTERN_NAME_CELL_WIDTH, NULL);
     gtk_tree_view_insert_column (self->priv->pattern_list, tree_col, -1);
   } else
     GST_WARNING ("can't create treeview column");
 
+  gtk_widget_set_size_request (scrolled_window, PATTERN_LIST_WIDTH, -1);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->pattern_list));
-  gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (scrolled_window), TRUE, TRUE,
-      0);
-  //gtk_paned_pack2(GTK_PANED(split_box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
+  gtk_box_pack_start (GTK_BOX (split_box), scrolled_window, FALSE, FALSE, 0);
+
   pattern_list_refresh (self);  // this is needed for the initial model creation
 
   // register event handlers
@@ -3991,7 +3931,7 @@ sequence_clipboard_get_func (GtkClipboard * clipboard,
   GST_INFO ("get clipboard data, info=%d, data=%p", info, data);
   GST_INFO ("sending : [%s]", (gchar *) data);
   // FIXME(ensonic): do we need to format differently depending on info?
-  if (selection_data->target == sequence_atom) {
+  if (gtk_selection_data_get_target (selection_data) == sequence_atom) {
     gtk_selection_data_set (selection_data, sequence_atom, 8, (guchar *) data,
         strlen (data));
   } else {

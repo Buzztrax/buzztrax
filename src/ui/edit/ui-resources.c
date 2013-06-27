@@ -51,6 +51,7 @@ struct _BtUIResourcesPrivate
   GdkPixbuf *source_machine_pixbufs[BT_MACHINE_STATE_COUNT];
   GdkPixbuf *processor_machine_pixbufs[BT_MACHINE_STATE_COUNT];
   GdkPixbuf *sink_machine_pixbufs[BT_MACHINE_STATE_COUNT];
+  GdkPixbuf *wire_pixbuf[2];
 };
 
 static BtUIResources *singleton = NULL;
@@ -81,10 +82,7 @@ G_DEFINE_TYPE (BtUIResources, bt_ui_resources, G_TYPE_OBJECT);
 static void
 bt_ui_resources_init_colors (BtUIResources * self)
 {
-  GdkColormap *colormap;
   GtkSettings *settings;
-  gboolean color_res[BT_UI_RES_COLOR_COUNT];
-  gint res;
   gchar *icon_theme_name;
   gboolean use_tango_colors = FALSE;
 
@@ -217,23 +215,6 @@ bt_ui_resources_init_colors (BtUIResources * self)
   MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_GRID_LINES, 0.5, 0.5, 0.5);
 
   g_free (icon_theme_name);
-
-  // now allocate colors
-  colormap = gdk_colormap_get_system ();
-  if ((res =
-          gdk_colormap_alloc_colors (colormap, self->priv->colors,
-              BT_UI_RES_COLOR_COUNT, FALSE, TRUE, color_res))) {
-    guint i;
-    GST_WARNING ("failed to allocate %d colors, %d allocated",
-        BT_UI_RES_COLOR_COUNT, res);
-    for (i = 0; i < BT_UI_RES_COLOR_COUNT; i++) {
-      if (!color_res[i]) {
-        GST_WARNING ("failed to allocate color %2u : %04x,%04x,%04x", i,
-            self->priv->colors[i].red, self->priv->colors[i].green,
-            self->priv->colors[i].blue);
-      }
-    }
-  }
   GST_INFO ("colors created");
 }
 
@@ -303,6 +284,8 @@ bt_ui_resources_free_graphics (BtUIResources * self)
     g_object_try_unref (self->priv->processor_machine_pixbufs[state]);
     g_object_try_unref (self->priv->sink_machine_pixbufs[state]);
   }
+  g_object_try_unref (self->priv->wire_pixbuf[0]);
+  g_object_try_unref (self->priv->wire_pixbuf[1]);
 }
 
 static void
@@ -335,6 +318,11 @@ bt_ui_resources_init_graphics (BtUIResources * self)
       gdk_pixbuf_new_from_theme ("buzztrax_master", size);
   self->priv->sink_machine_pixbufs[BT_MACHINE_STATE_MUTE] =
       gdk_pixbuf_new_from_theme ("buzztrax_master_mute", size);
+
+  self->priv->wire_pixbuf[0] =
+      gdk_pixbuf_new_from_theme ("buzztrax_wire", size * 2.0);
+  self->priv->wire_pixbuf[1] =
+      gdk_pixbuf_new_from_theme ("buzztrax_wire_nopan", size * 2.0);
 
   /* DEBUG
      gint w,h;
@@ -461,6 +449,42 @@ bt_ui_resources_get_icon_image_by_machine_type (GType machine_type)
 }
 
 /**
+ * bt_ui_resources_get_wire_graphics_pixbuf_by_wire:
+ * @wire: the wire to get the image for
+ * @zoom: scaling factor for the icons
+ *
+ * Gets a #GdkPixbuf image for use on the canvas.
+ *
+ * Returns: a #GdkPixbuf image
+ */
+GdkPixbuf *
+bt_ui_resources_get_wire_graphics_pixbuf_by_wire (const BtWire * wire,
+    gdouble zoom)
+{
+  GstElement *wire_pan;
+  guint state = 0;
+
+  g_object_get ((GObject *) wire, "pan", &wire_pan, NULL);
+  if (wire_pan) {
+    g_object_unref (wire_pan);
+  } else {
+    state = 1;
+  }
+
+  /*
+     if (zoom != singleton->priv->zoom) {
+     GST_DEBUG ("change zoom %f -> %f", singleton->priv->zoom, zoom);
+     bt_ui_resources_free_graphics (singleton);
+     singleton->priv->zoom = zoom;
+     bt_ui_resources_init_graphics (singleton);
+     }
+   */
+
+  return g_object_ref (singleton->priv->wire_pixbuf[state]);
+}
+
+
+/**
  * bt_ui_resources_get_gdk_color:
  * @color_type: the color id
  *
@@ -477,22 +501,19 @@ bt_ui_resources_get_gdk_color (BtUIResourcesColors color_type)
 /**
  * bt_ui_resources_get_rgb_color:
  * @color_type: the color id
- * @r: target for red color part
- * @g: target for green color part
- * @b: target for blue color part
+ * @color: target for color values
  *
- * Gets a prealocated color by id. Sets the given parts to values from 0.0 to
- * 1.0.
+ * Gets a prealocated color by id.
  */
 void
-bt_ui_resources_get_rgb_color (BtUIResourcesColors color_type, gdouble * r,
-    gdouble * g, gdouble * b)
+bt_ui_resources_get_rgb_color (BtUIResourcesColors color_type, GdkRGBA * color)
 {
   GdkColor *c = &singleton->priv->colors[color_type];
 
-  *r = c->red / 65535.0;
-  *g = c->green / 65535.0;
-  *b = c->blue / 65535.0;
+  color->red = c->red / 65535.0;
+  color->green = c->green / 65535.0;
+  color->blue = c->blue / 65535.0;
+  color->alpha = 1.0;
 }
 
 /**

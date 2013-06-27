@@ -156,7 +156,7 @@ bt_pattern_properties_dialog_init_ui (const BtPatternPropertiesDialog * self)
       GTK_RESPONSE_ACCEPT);
 
   // add widgets to the dialog content area
-  box = gtk_vbox_new (FALSE, 12);
+  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (box), 6);
   gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
               (self))), box);

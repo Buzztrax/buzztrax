@@ -43,15 +43,11 @@ enum
 {
   WIRE_CANVAS_ITEM_MACHINES_PAGE = 1,
   WIRE_CANVAS_ITEM_WIRE,
-  WIRE_CANVAS_ITEM_W,
-  WIRE_CANVAS_ITEM_H,
   WIRE_CANVAS_ITEM_SRC,
   WIRE_CANVAS_ITEM_DST,
+  WIRE_CANVAS_ITEM_ZOOM,
   WIRE_CANVAS_ITEM_ANALYSIS_DIALOG
 };
-
-// TODO(ensonic): what do we set here? canvas dimensions?
-#define BT_WIRE_MAX_EXTEND 100000.0
 
 struct _BtWireCanvasItemPrivate
 {
@@ -71,22 +67,23 @@ struct _BtWireCanvasItemPrivate
   /* gain and pan elements for monitoring */
   GstElement *wire_gain, *wire_pan;
 
-  /* end-points of the wire, relative to the group x,y pos */
-  gdouble w, h;
-
   /* source and dst machine canvas item */
   BtMachineCanvasItem *src, *dst;
 
   /* the graphcal components */
-  GnomeCanvasItem *line, *triangle;
-  GnomeCanvasItem *vol_item, *pan_item;
-  GnomeCanvasItem *vol_level_item, *pan_pos_item;
+  ClutterContent *canvas;
+  ClutterActor *pad;
+  ClutterContent *pad_image;
+  ClutterActor *vol_level, *pan_pos;
 
   /* wire context_menu */
   GtkMenu *context_menu;
 
   /* the analysis dialog */
   GtkWidget *analysis_dialog;
+
+  /* the zoom-ratio in pixels/per unit */
+  gdouble zoom;
 
   /* interaction state */
   gboolean dragging, moved;
@@ -95,9 +92,11 @@ struct _BtWireCanvasItemPrivate
 
 static GQuark wire_canvas_item_quark = 0;
 
+#define WIRE_UPSAMPLING 2.0
+
 //-- the class
 
-G_DEFINE_TYPE (BtWireCanvasItem, bt_wire_canvas_item, GNOME_TYPE_CANVAS_GROUP);
+G_DEFINE_TYPE (BtWireCanvasItem, bt_wire_canvas_item, CLUTTER_TYPE_ACTOR);
 
 //-- prototypes
 
@@ -107,127 +106,23 @@ static void on_signal_analysis_dialog_destroy (GtkWidget * widget,
 //-- helper
 
 static void
-wire_set_line_points (BtWireCanvasItem * self)
+update_wire_graphics (BtWireCanvasItem * self)
 {
-  GnomeCanvasPoints *points;
+  GdkPixbuf *pixbuf =
+      bt_ui_resources_get_wire_graphics_pixbuf_by_wire (self->priv->wire,
+      self->priv->zoom);
 
-  points = gnome_canvas_points_new (2);
-  points->coords[0] = 0.0;
-  points->coords[1] = 0.0;
-  points->coords[2] = self->priv->w;
-  points->coords[3] = self->priv->h;
-  gnome_canvas_item_set (GNOME_CANVAS_ITEM (self->priv->line), "points", points,
-      NULL);
-  gnome_canvas_points_free (points);
-}
+  clutter_image_set_data (CLUTTER_IMAGE (self->priv->pad_image),
+      gdk_pixbuf_get_pixels (pixbuf), gdk_pixbuf_get_has_alpha (pixbuf)
+      ? COGL_PIXEL_FORMAT_RGBA_8888
+      : COGL_PIXEL_FORMAT_RGB_888,
+      gdk_pixbuf_get_width (pixbuf),
+      gdk_pixbuf_get_height (pixbuf), gdk_pixbuf_get_rowstride (pixbuf), NULL);
 
-/*
- * add a triangle pointing from src to dest at the middle of the wire
- */
-static void
-wire_set_triangle_points (BtWireCanvasItem * self)
-{
-  GnomeCanvasPoints *points;
-  gdouble w = self->priv->w, h = self->priv->h;
-  gdouble mid_x, mid_y;
-  gdouble part_x, part_y;
-  gdouble tip1_x, tip1_y;
-  gdouble base_x, base_y;
-  gdouble base11_x, base11_y;
-  gdouble base12_x, base12_y;
-  gdouble base21_x, base21_y;
-  gdouble base22_x, base22_y;
-  gdouble df, dx, dy, s = MACHINE_VIEW_WIRE_PAD_SIZE, s2 = s + s, sa, sb;
+  GST_INFO ("pixbuf: %dx%d", gdk_pixbuf_get_width (pixbuf),
+      gdk_pixbuf_get_height (pixbuf));
 
-  // middle of wire
-  mid_x = w / 2.0;
-  mid_y = h / 2.0;
-  // normalized ascent (gradient, slope) of the wire
-  if ((fabs (w) > G_MINDOUBLE) && (fabs (h) > G_MINDOUBLE)) {
-    df = sqrt (w * w + h * h);
-    dx = w / df;
-    dy = h / df;
-  } else if (fabs (w) > G_MINDOUBLE) {
-    dx = 1.0;
-    dy = 0.0;
-    //df=w;
-  } else if (fabs (h) > G_MINDOUBLE) {
-    dx = 0.0;
-    dy = 1.0;
-    //df=h;
-  } else {
-    dx = dy = 0.0;
-    //df=0.0;
-  }
-
-  // first triangle
-  part_x = mid_x + (s2 * dx);
-  part_y = mid_y + (s2 * dy);
-  // tip of triangle
-  tip1_x = part_x + (s2 * dx);
-  tip1_y = part_y + (s2 * dy);
-  // intersection point of triangle base
-  base_x = part_x - (s * dx);
-  base_y = part_y - (s * dy);
-  sa = 3.0 * s;
-  sb = sa / sqrt (3.0);
-  // point under the line
-  base11_x = base_x - (sb * dy);
-  base11_y = base_y + (sb * dx);
-  // point over the line
-  base12_x = base_x + (sb * dy);
-  base12_y = base_y - (sb * dx);
-
-  // second triangle
-  part_x = mid_x - (s2 * dx);
-  part_y = mid_y - (s2 * dy);
-  // intersection point of triangle base
-  base_x = part_x - (s * dx);
-  base_y = part_y - (s * dy);
-  sa = 3.0 * s;
-  sb = sa / sqrt (3.0);
-  // point under the line
-  base21_x = base_x - (sb * dy);
-  base21_y = base_y + (sb * dx);
-  // point over the line
-  base22_x = base_x + (sb * dy);
-  base22_y = base_y - (sb * dx);
-
-  /* // debug
-     GST_DEBUG(" delta=%f,%f, s=%f, sa=%f sb=%f",dx,dy,s,sa,sb);
-     GST_DEBUG(" w/h=%f,%f",w,h);
-     GST_DEBUG(" mid=%f,%f",mid_x,mid_y);
-     GST_DEBUG(" tip1=%f,%f",tip1_x,tip_y);
-     GST_DEBUG(" base=%f,%f",base_x,base_y);
-     GST_DEBUG(" base1=%f,%f",base11_x,base11_y);
-     GST_DEBUG(" base2=%f,%f",base12_x,base12_y);
-   */
-  points = gnome_canvas_points_new (5);
-  points->coords[0] = base11_x;
-  points->coords[1] = base11_y;
-  points->coords[2] = tip1_x;
-  points->coords[3] = tip1_y;
-  points->coords[4] = base12_x;
-  points->coords[5] = base12_y;
-
-  points->coords[6] = base22_x;
-  points->coords[7] = base22_y;
-  points->coords[8] = base21_x;
-  points->coords[9] = base21_y;
-  gnome_canvas_item_set (GNOME_CANVAS_ITEM (self->priv->triangle), "points",
-      points, NULL);
-  gnome_canvas_points_free (points);
-
-  gdouble ang = -M_PI_2 + atan2 (dx, dy);
-  gdouble affine[] = { cos (ang), -sin (ang), sin (ang), cos (ang), 0.0, 0.0 };
-  gnome_canvas_item_affine_absolute (GNOME_CANVAS_ITEM (self->priv->vol_item),
-      affine);
-  gnome_canvas_item_set (GNOME_CANVAS_ITEM (self->priv->vol_item), "x", mid_x,
-      "y", mid_y, NULL);
-  gnome_canvas_item_affine_absolute (GNOME_CANVAS_ITEM (self->priv->pan_item),
-      affine);
-  gnome_canvas_item_set (GNOME_CANVAS_ITEM (self->priv->pan_item), "x", mid_x,
-      "y", mid_y, NULL);
+  g_object_unref (pixbuf);
 }
 
 static void
@@ -250,6 +145,46 @@ show_wire_analyzer_dialog (BtWireCanvasItem * self)
 }
 
 //-- event handler
+
+static void
+on_wire_size_changed (const BtWireCanvasItem * self, GParamSpec * arg,
+    gpointer user_data)
+{
+  gfloat w, h;
+
+  clutter_actor_get_size ((ClutterActor *) self, &w, &h);
+  if (w > 0.0 && h > 0.0) {
+    clutter_canvas_set_size (CLUTTER_CANVAS (self->priv->canvas),
+        (gint) (w * WIRE_UPSAMPLING), (gint) (h * WIRE_UPSAMPLING));
+  }
+}
+
+/* draw the connecting wire */
+static gboolean
+on_wire_draw (ClutterCanvas * canvas, cairo_t * cr, gint width,
+    gint height, gpointer user_data)
+{
+  //BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
+  //const gfloat xm = (gfloat) width / 2.0;
+  const gfloat ym = (gfloat) height / 2.0;
+
+  /* clear the contents of the canvas, to not paint over the previous frame */
+  cairo_save (cr);
+  cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
+  cairo_paint (cr);
+  cairo_restore (cr);
+  cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
+
+  cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
+  cairo_set_line_width (cr, 2.0);
+  cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 1.0);
+
+  cairo_move_to (cr, 0.0, ym);
+  cairo_line_to (cr, width, ym);
+  cairo_stroke (cr);
+
+  return TRUE;
+}
 
 static void
 on_signal_analysis_dialog_destroy (GtkWidget * widget, gpointer user_data)
@@ -300,40 +235,49 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
 }
 
 static void
-on_wire_src_position_changed (BtMachineCanvasItem * machine_item,
-    gpointer user_data)
+update_geometry (BtMachineCanvasItem * src, BtMachineCanvasItem * dst,
+    gfloat * x, gfloat * y, gfloat * w, gfloat * h, gfloat * a)
 {
-  BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
-  gdouble px, py;
-  gdouble wx, wy, ww, wh;
-  gdouble dx, dy;
+  gfloat xs, ys, xe, ye, xd, yd;
 
-  g_object_get (machine_item, "x", &px, "y", &py, NULL);
-  g_object_get (self, "x", &wx, "y", &wy, "w", &ww, "h", &wh, NULL);
-  dx = wx - px;
-  dy = wy - py;
-  g_object_set (self, "x", px, "y", py, "w", ww + dx, "h", wh + dy, NULL);
+  g_object_get (src, "x", &xs, "y", &ys, NULL);
+  g_object_get (dst, "x", &xe, "y", &ye, NULL);
+  xd = xe - xs;
+  yd = ye - ys;
 
-  // we need to reset all the coords for our wire items now
-  wire_set_line_points (self);
-  wire_set_triangle_points (self);
+  *w = sqrt (xd * xd + yd * yd);
+  *h = WIRE_PAD_SIZE_Y;
+  *x = xs + (xd / 2.0);
+  *y = ys + (yd / 2.0);
+  *a = atan2 (yd, xd) * 180.0 / M_PI;
+  GST_DEBUG ("src: %f, %f, dst: %f, %f, size: %f, %f, angle: %f",
+      xs, ys, xe, ye, *w, *h, *a);
 }
 
 static void
-on_wire_dst_position_changed (BtMachineCanvasItem * machine_item,
-    gpointer user_data)
+on_wire_src_position_changed (BtMachineCanvasItem * src,
+    ClutterEventType ev_type, gpointer user_data)
 {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
-  gdouble px, py;
-  gdouble wx, wy;
+  gfloat x, y, w, h, a;
 
-  g_object_get (machine_item, "x", &px, "y", &py, NULL);
-  g_object_get (self, "x", &wx, "y", &wy, NULL);
-  g_object_set (self, "x", wx, "y", wy, "w", px - wx, "h", py - wy, NULL);
+  update_geometry (src, self->priv->dst, &x, &y, &w, &h, &a);
+  g_object_set (self, "x", x, "y", y, "width", w, "height", h,
+      "rotation-angle-z", a, NULL);
+  clutter_actor_set_position (self->priv->pad, w / 2.0, h / 2.0);
+}
 
-  // we need to reset all the coords for our wire items now
-  wire_set_line_points (self);
-  wire_set_triangle_points (self);
+static void
+on_wire_dst_position_changed (BtMachineCanvasItem * dst,
+    ClutterEventType ev_type, gpointer user_data)
+{
+  BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
+  gfloat x, y, w, h, a;
+
+  update_geometry (self->priv->src, dst, &x, &y, &w, &h, &a);
+  g_object_set (self, "x", x, "y", y, "width", w, "height", h,
+      "rotation-angle-z", a, NULL);
+  clutter_actor_set_position (self->priv->pad, w / 2.0, h / 2.0);
 }
 
 static void
@@ -357,31 +301,33 @@ static void
 on_gain_changed (GstElement * element, GParamSpec * arg, gpointer user_data)
 {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
-  gdouble s = MACHINE_VIEW_WIRE_PAD_SIZE, ox = 2.5 * s, px = -ox + (1.3 * s);
   gdouble gain;
 
   g_object_get (self->priv->wire_gain, "volume", &gain, NULL);
   // do some sensible clamping
-  if (gain > 4.0)
-    gain = 4.0;
-  gnome_canvas_item_set (GNOME_CANVAS_ITEM (self->priv->vol_level_item), "x2",
-      px + (gain * 0.55 * s), NULL);
+  if (gain > 4.0) {
+    g_object_set (self->priv->vol_level, "width", WIRE_PAD_METER_WIDTH, NULL);
+  } else {
+    g_object_set (self->priv->vol_level, "width",
+        (gain / 4.0) * WIRE_PAD_METER_WIDTH, NULL);
+  }
 }
 
 static void
 on_pan_changed (GstElement * element, GParamSpec * arg, gpointer user_data)
 {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
-  gdouble s = MACHINE_VIEW_WIRE_PAD_SIZE, ox = 2.5 * s, px = -ox + (1.3 * s);
+  const gfloat w2 = (WIRE_PAD_METER_WIDTH / 2.0);
   gfloat pan;
 
   g_object_get (self->priv->wire_pan, "panorama", &pan, NULL);
   if (pan < 0.0) {
-    gnome_canvas_item_set (GNOME_CANVAS_ITEM (self->priv->pan_pos_item),
-        "x1", px + ((1.0 + pan) * 1.1 * s), "x2", px + (1.1 * s), NULL);
+    g_object_set (self->priv->pan_pos,
+        "x", WIRE_PAD_METER_BASE + ((1.0 + pan) * w2),
+        "width", (-pan * w2), NULL);
   } else {
-    gnome_canvas_item_set (GNOME_CANVAS_ITEM (self->priv->pan_pos_item),
-        "x1", px + (1.1 * s), "x2", px + (1.1 * s) + (pan * 1.1 * s), NULL);
+    g_object_set (self->priv->pan_pos,
+        "x", WIRE_PAD_METER_BASE + w2, "width", (pan * w2), NULL);
   }
 }
 
@@ -396,6 +342,62 @@ on_wire_pan_changed (GstElement * element, GParamSpec * arg, gpointer user_data)
   // TODO(ensonic): need to change colors of the pan-icon
 }
 
+static gboolean
+on_wire_pad_button_press (ClutterActor * citem, ClutterEvent * event,
+    gpointer user_data)
+{
+  BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
+  ClutterButtonEvent *button_event = (ClutterButtonEvent *) event;
+  gboolean res = FALSE;
+
+  GST_DEBUG ("CLUTTER_BUTTON_PRESS: %d", button_event->button);
+  switch (button_event->button) {
+    case 1:
+      GST_WARNING ("showing popup at %f,%f", button_event->x, button_event->y);
+      if (!(button_event->modifier_state & CLUTTER_SHIFT_MASK)) {
+        bt_main_page_machines_wire_volume_popup (self->priv->main_page_machines,
+            self->priv->wire, (gint) button_event->x, (gint) button_event->y);
+      } else {
+        bt_main_page_machines_wire_panorama_popup (self->
+            priv->main_page_machines, self->priv->wire, (gint) button_event->x,
+            (gint) button_event->y);
+      }
+      res = TRUE;
+      break;
+    case 3:
+      // show context menu
+      gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
+          clutter_event_get_time (event));
+      res = TRUE;
+      break;
+    default:
+      break;
+  }
+  return res;
+}
+
+static gboolean
+on_wire_pad_key_release (ClutterActor * citem, ClutterEvent * event,
+    gpointer user_data)
+{
+  BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
+  ClutterKeyEvent *key_event = (ClutterKeyEvent *) event;
+  gboolean res = FALSE;
+
+  GST_DEBUG ("CLUTTER_KEY_RELEASE: %d", key_event->keyval);
+  switch (key_event->keyval) {
+    case GDK_KEY_Menu:
+      // show context menu
+      gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
+          gtk_get_current_event_time ());
+      res = TRUE;
+      break;
+    default:
+      break;
+  }
+  return res;
+}
+
 //-- helper methods
 
 //-- constructor methods
@@ -404,43 +406,41 @@ on_wire_pan_changed (GstElement * element, GParamSpec * arg, gpointer user_data)
  * bt_wire_canvas_item_new:
  * @main_page_machines: the machine page the new item belongs to
  * @wire: the wire for which a canvas item should be created
- * @pos_xs: the horizontal start location
- * @pos_ys: the vertical start location
- * @pos_xe: the horizontal end location
- * @pos_ye: the vertical end location
  * @src_machine_item: the machine item at start
  * @dst_machine_item: the machine item at end
  *
  * Create a new instance
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: the new instance or %NULL in c#if 0
+ase of an error
  */
 BtWireCanvasItem *
 bt_wire_canvas_item_new (const BtMainPageMachines * main_page_machines,
-    BtWire * wire, gdouble pos_xs, gdouble pos_ys, gdouble pos_xe,
-    gdouble pos_ye, BtMachineCanvasItem * src_machine_item,
+    BtWire * wire, BtMachineCanvasItem * src_machine_item,
     BtMachineCanvasItem * dst_machine_item)
 {
   BtWireCanvasItem *self;
-  GnomeCanvas *canvas;
+  ClutterActor *canvas;
   BtSetup *setup;
-  gdouble w, h;
+  gfloat x, y, w, h, a;
 
   g_object_get ((gpointer) main_page_machines, "canvas", &canvas, NULL);
 
-  w = (pos_xe - pos_xs);
-  h = (pos_ye - pos_ys);
-  /* TODO(ensonic): if we clip agains BT_WIRE_MAX_EXTEND here, the wire will look bad */
+  update_geometry (src_machine_item, dst_machine_item, &x, &y, &w, &h, &a);
 
-  self = BT_WIRE_CANVAS_ITEM (gnome_canvas_item_new (gnome_canvas_root (canvas),
-          BT_TYPE_WIRE_CANVAS_ITEM,
-          "machines-page", main_page_machines,
-          "wire", wire,
-          "x", pos_xs,
-          "y", pos_ys,
-          "w", w,
-          "h", h, "src", src_machine_item, "dst", dst_machine_item, NULL));
-  gnome_canvas_item_lower_to_bottom (GNOME_CANVAS_ITEM (self));
+  self = BT_WIRE_CANVAS_ITEM (g_object_new (BT_TYPE_WIRE_CANVAS_ITEM,
+          "machines-page", main_page_machines, "wire", wire,
+          "x", x, "y", y, "width", w, "height", h,
+          "anchor-gravity", CLUTTER_GRAVITY_CENTER,
+          "rotation-angle-z", a,
+          "src", src_machine_item, "dst", dst_machine_item,
+          "reactive", FALSE, NULL));
+
+  clutter_actor_set_position (self->priv->pad, w / 2.0, h / 2.0);
+
+  clutter_actor_add_child (canvas, (ClutterActor *) self);
+  clutter_actor_set_child_below_sibling ((ClutterActor *) canvas,
+      (ClutterActor *) self, NULL);
 
   bt_child_proxy_get (self->priv->app, "song::setup", &setup, NULL);
   g_signal_connect (setup, "machine-removed", G_CALLBACK (on_machine_removed),
@@ -478,6 +478,99 @@ bt_wire_show_analyzer_dialog (BtWire * wire)
 //-- class internals
 
 static void
+bt_wire_canvas_item_constructed (GObject * object)
+{
+  BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (object);
+  gchar *prop;
+
+  if (G_OBJECT_CLASS (bt_wire_canvas_item_parent_class)->constructed)
+    G_OBJECT_CLASS (bt_wire_canvas_item_parent_class)->constructed (object);
+
+  // volume and panorama handling
+  g_object_get (self->priv->wire, "gain", &self->priv->wire_gain, "pan",
+      &self->priv->wire_pan, NULL);
+  g_signal_connect (self->priv->wire_gain, "notify::volume",
+      G_CALLBACK (on_gain_changed), (gpointer) self);
+  if (self->priv->wire_pan) {
+    g_signal_connect (self->priv->wire_pan, "notify::panorama",
+        G_CALLBACK (on_pan_changed), (gpointer) self);
+  } else {
+    g_signal_connect (self->priv->wire, "notify::pan",
+        G_CALLBACK (on_wire_pan_changed), (gpointer) self);
+  }
+
+
+  GST_INFO ("add sub actors");
+
+  // the wire pad
+  self->priv->pad = clutter_actor_new ();
+  self->priv->pad_image = clutter_image_new ();
+  update_wire_graphics (self);
+  clutter_actor_set_content_scaling_filters (self->priv->pad,
+      CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
+  clutter_actor_set_size (self->priv->pad, WIRE_PAD_SIZE_X, WIRE_PAD_SIZE_Y);
+  clutter_actor_set_anchor_point_from_gravity (self->priv->pad,
+      CLUTTER_GRAVITY_CENTER);
+  clutter_actor_set_reactive (self->priv->pad, TRUE);
+  clutter_actor_set_content (self->priv->pad, self->priv->pad_image);
+  clutter_actor_add_child ((ClutterActor *) self, self->priv->pad);
+  clutter_actor_set_child_above_sibling ((ClutterActor *) self, self->priv->pad,
+      NULL);
+  g_signal_connect (self->priv->pad, "button-press-event",
+      G_CALLBACK (on_wire_pad_button_press), (gpointer) self);
+  g_signal_connect (self->priv->pad, "key-release-event",
+      G_CALLBACK (on_wire_pad_key_release), (gpointer) self);
+
+
+  // the meters
+  self->priv->vol_level = g_object_new (CLUTTER_TYPE_ACTOR,
+      "background-color", clutter_color_new (0x5f, 0x5f, 0x5f, 0xff),
+      "x", WIRE_PAD_METER_BASE, "y", WIRE_PAD_METER_VOL,
+      "width", 0.0, "height", WIRE_PAD_METER_HEIGHT, NULL);
+  clutter_actor_add_child (self->priv->pad, self->priv->vol_level);
+  on_gain_changed (self->priv->wire_gain, NULL, (gpointer) self);
+
+  if (self->priv->wire_pan) {
+    self->priv->pan_pos = g_object_new (CLUTTER_TYPE_ACTOR,
+        "background-color", clutter_color_new (0x5f, 0x5f, 0x5f, 0xff),
+        "x", WIRE_PAD_METER_BASE, "y", WIRE_PAD_METER_PAN,
+        "width", 0.0, "height", WIRE_PAD_METER_HEIGHT, NULL);
+    clutter_actor_add_child (self->priv->pad, self->priv->pan_pos);
+    on_pan_changed (self->priv->wire_pan, NULL, (gpointer) self);
+  }
+  // the wire line
+  self->priv->canvas = clutter_canvas_new ();
+  clutter_actor_set_content ((ClutterActor *) self, self->priv->canvas);
+  clutter_actor_set_content_scaling_filters ((ClutterActor *) self,
+      CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
+  g_signal_connect (self->priv->canvas, "draw", G_CALLBACK (on_wire_draw),
+      self);
+  g_signal_connect (self, "notify::width", G_CALLBACK (on_wire_size_changed),
+      self);
+  g_signal_connect (self, "notify::height", G_CALLBACK (on_wire_size_changed),
+      self);
+  on_wire_size_changed (self, NULL, self);
+  clutter_content_invalidate (self->priv->canvas);
+
+  clutter_actor_show_all ((ClutterActor *) self);
+
+  GST_INFO ("done and all shown");
+
+  prop =
+      (gchar *) g_hash_table_lookup (self->priv->properties, "analyzer-shown");
+  if (prop && prop[0] == '1' && prop[1] == '\0') {
+    if ((self->priv->analysis_dialog =
+            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->
+                        priv->wire))))) {
+      bt_edit_application_attach_child_window (self->priv->app,
+          GTK_WINDOW (self->priv->analysis_dialog));
+      g_signal_connect (self->priv->analysis_dialog, "destroy",
+          G_CALLBACK (on_signal_analysis_dialog_destroy), (gpointer) self);
+    }
+  }
+}
+
+static void
 bt_wire_canvas_item_get_property (GObject * object, guint property_id,
     GValue * value, GParamSpec * pspec)
 {
@@ -490,17 +583,14 @@ bt_wire_canvas_item_get_property (GObject * object, guint property_id,
     case WIRE_CANVAS_ITEM_WIRE:
       g_value_set_object (value, self->priv->wire);
       break;
-    case WIRE_CANVAS_ITEM_W:
-      g_value_set_double (value, self->priv->w);
-      break;
-    case WIRE_CANVAS_ITEM_H:
-      g_value_set_double (value, self->priv->h);
-      break;
     case WIRE_CANVAS_ITEM_SRC:
       g_value_set_object (value, self->priv->src);
       break;
     case WIRE_CANVAS_ITEM_DST:
       g_value_set_object (value, self->priv->dst);
+      break;
+    case WIRE_CANVAS_ITEM_ZOOM:
+      g_value_set_double (value, self->priv->zoom);
       break;
     case WIRE_CANVAS_ITEM_ANALYSIS_DIALOG:
       g_value_set_object (value, self->priv->analysis_dialog);
@@ -536,12 +626,6 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
             NULL);
       }
       break;
-    case WIRE_CANVAS_ITEM_W:
-      self->priv->w = g_value_get_double (value);
-      break;
-    case WIRE_CANVAS_ITEM_H:
-      self->priv->h = g_value_get_double (value);
-      break;
     case WIRE_CANVAS_ITEM_SRC:
       if (self->priv->src) {
         g_signal_handlers_disconnect_by_func (self->priv->src,
@@ -566,6 +650,14 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
         g_signal_connect (self->priv->dst, "position-changed",
             G_CALLBACK (on_wire_dst_position_changed), (gpointer) self);
         GST_DEBUG ("set the dst for wire_canvas_item: %p", self->priv->dst);
+      }
+      break;
+    case WIRE_CANVAS_ITEM_ZOOM:
+      self->priv->zoom = g_value_get_double (value);
+      GST_DEBUG ("set the zoom for wire_canvas_item: %f", self->priv->zoom);
+      /* reload the svg icons, we do this to keep them sharp */
+      if (self->priv->pad_image) {
+        update_wire_graphics (self);
       }
       break;
     default:
@@ -637,212 +729,6 @@ bt_wire_canvas_item_dispose (GObject * object)
   GST_DEBUG ("  done");
 }
 
-/*
- * bt_wire_canvas_item_realize:
- *
- * draw something that looks a bit like a buzz-wire
- */
-static void
-bt_wire_canvas_item_realize (GnomeCanvasItem * citem)
-{
-  BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (citem);
-  gchar *prop, *color1, *color2;
-  GnomeCanvasPoints *points;
-  gdouble s = MACHINE_VIEW_WIRE_PAD_SIZE, oy = 0.25 * s, ox = 2.5 * s, px;
-
-  GNOME_CANVAS_ITEM_CLASS (bt_wire_canvas_item_parent_class)->realize (citem);
-
-  GST_DEBUG_OBJECT (self->priv->wire, "realize for wire occurred, wire=%"
-      G_OBJECT_REF_COUNT_FMT " : w=%f,h=%f",
-      G_OBJECT_LOG_REF_COUNT (self->priv->wire), self->priv->w, self->priv->h);
-
-  g_object_get (self->priv->wire, "gain", &self->priv->wire_gain, "pan",
-      &self->priv->wire_pan, NULL);
-  g_signal_connect (self->priv->wire_gain, "notify::volume",
-      G_CALLBACK (on_gain_changed), (gpointer) self);
-  if (self->priv->wire_pan) {
-    g_signal_connect (self->priv->wire_pan, "notify::panorama",
-        G_CALLBACK (on_pan_changed), (gpointer) self);
-  } else {
-    g_signal_connect (self->priv->wire, "notify::pan",
-        G_CALLBACK (on_wire_pan_changed), (gpointer) self);
-  }
-
-
-  self->priv->line = gnome_canvas_item_new (GNOME_CANVAS_GROUP (citem),
-      GNOME_TYPE_CANVAS_LINE, "fill-color", "black", "width-pixels", 1, NULL);
-  wire_set_line_points (self);
-
-  self->priv->triangle = gnome_canvas_item_new (GNOME_CANVAS_GROUP (citem),
-      GNOME_TYPE_CANVAS_POLYGON,
-      "outline-color", "black", "fill-color", "gray", "width-pixels", 1, NULL);
-
-  // for the colors - grep "gray" /usr/share/X11/rgb.txt
-  self->priv->vol_item = gnome_canvas_item_new (GNOME_CANVAS_GROUP (citem),
-      GNOME_TYPE_CANVAS_GROUP, NULL);
-  points = gnome_canvas_points_new (6);
-  points->coords[0] = -ox + 0.0;
-  points->coords[1] = -oy - 0.25 * s;
-  points->coords[2] = -ox + 0.6 * s;
-  points->coords[3] = -oy - 0.25 * s;
-  points->coords[4] = -ox + 1.0 * s;
-  points->coords[5] = -oy - 0.0;
-  points->coords[6] = -ox + 1.0 * s;
-  points->coords[7] = -oy - 1.0 * s;
-  points->coords[8] = -ox + 0.6 * s;
-  points->coords[9] = -oy - 0.75 * s;
-  points->coords[10] = -ox + 0.0;
-  points->coords[11] = -oy - 0.75 * s;
-  gnome_canvas_item_new (GNOME_CANVAS_GROUP (self->priv->vol_item),
-      GNOME_TYPE_CANVAS_POLYGON,
-      "points", points,
-      "outline-color", "gray16",
-      "fill-color", "gray32", "width-pixels", 1, NULL);
-  gnome_canvas_points_free (points);
-
-  px = -ox + (1.3 * s);
-  gnome_canvas_item_new (GNOME_CANVAS_GROUP (self->priv->vol_item),
-      GNOME_TYPE_CANVAS_RECT,
-      "x1", px,
-      "y1", -oy - 0.2 * s,
-      "x2", px + (2.2 * s),
-      "y2", -oy - 0.8 * s, "fill-color", "gray48", "width-pixels", 0, NULL);
-  self->priv->vol_level_item =
-      gnome_canvas_item_new (GNOME_CANVAS_GROUP (self->priv->vol_item),
-      GNOME_TYPE_CANVAS_RECT, "x1", px, "y1", -oy - 0.2 * s, "x2", px, "y2",
-      -oy - 0.8 * s, "fill-color", "gray16", "width-pixels", 0, NULL);
-  on_gain_changed (self->priv->wire_gain, NULL, (gpointer) self);
-
-  // check if wire has PAN and set color accordingly
-  if (self->priv->wire_pan) {
-    color1 = "gray16";
-    color2 = "gray32";
-  } else {
-    color1 = "gray48";
-    color2 = "gray64";
-  }
-  self->priv->pan_item = gnome_canvas_item_new (GNOME_CANVAS_GROUP (citem),
-      GNOME_TYPE_CANVAS_GROUP, NULL);
-  points = gnome_canvas_points_new (3);
-  points->coords[0] = -ox + 0.3 * s;
-  points->coords[1] = oy + 0.0;
-  points->coords[2] = -ox + 0.3 * s;
-  points->coords[3] = oy + 1.0 * s;
-  points->coords[4] = -ox + 0.0;
-  points->coords[5] = oy + 0.5 * s;
-  gnome_canvas_item_new (GNOME_CANVAS_GROUP (self->priv->pan_item),
-      GNOME_TYPE_CANVAS_POLYGON,
-      "points", points,
-      "outline-color", color1, "fill-color", color2, "width-pixels", 1, NULL);
-  points->coords[0] = -ox + 0.7 * s;
-  points->coords[1] = oy + 0.0;
-  points->coords[2] = -ox + 0.7 * s;
-  points->coords[3] = oy + 1.0 * s;
-  points->coords[4] = -ox + 1.0 * s;
-  points->coords[5] = oy + 0.5 * s;
-  gnome_canvas_item_new (GNOME_CANVAS_GROUP (self->priv->pan_item),
-      GNOME_TYPE_CANVAS_POLYGON,
-      "points", points,
-      "outline-color", color1, "fill-color", color2, "width-pixels", 1, NULL);
-  gnome_canvas_points_free (points);
-
-  px = -ox + (1.3 * s);
-  gnome_canvas_item_new (GNOME_CANVAS_GROUP (self->priv->pan_item),
-      GNOME_TYPE_CANVAS_RECT,
-      "x1", px,
-      "y1", oy + 0.2 * s,
-      "x2", px + (2.2 * s),
-      "y2", oy + 0.8 * s, "fill-color", "gray48", "width-pixels", 0, NULL);
-  if (self->priv->wire_pan) {
-    self->priv->pan_pos_item =
-        gnome_canvas_item_new (GNOME_CANVAS_GROUP (self->priv->pan_item),
-        GNOME_TYPE_CANVAS_RECT, "x1", px + (1.1 * s), "y1", oy + 0.2 * s, "x2",
-        px + (1.1 * s), "y2", oy + 0.8 * s, "fill-color", "gray16",
-        "width-pixels", 0, NULL);
-    on_pan_changed (self->priv->wire_pan, NULL, (gpointer) self);
-  }
-
-  wire_set_triangle_points (self);
-
-  prop =
-      (gchar *) g_hash_table_lookup (self->priv->properties, "analyzer-shown");
-  if (prop && prop[0] == '1' && prop[1] == '\0') {
-    if ((self->priv->analysis_dialog =
-            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->
-                        priv->wire))))) {
-      bt_edit_application_attach_child_window (self->priv->app,
-          GTK_WINDOW (self->priv->analysis_dialog));
-      g_signal_connect (self->priv->analysis_dialog, "destroy",
-          G_CALLBACK (on_signal_analysis_dialog_destroy), (gpointer) self);
-    }
-  }
-  //item->realized = TRUE;
-}
-
-static gboolean
-bt_wire_canvas_item_event (GnomeCanvasItem * citem, GdkEvent * event)
-{
-  BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (citem);
-  gboolean res = FALSE;
-
-  //GST_DEBUG("event for wire occurred");
-
-  switch (event->type) {
-    case GDK_BUTTON_PRESS:
-      GST_DEBUG ("GDK_BUTTON_PRESS: %d", event->button.button);
-      if (event->button.button == 1) {
-        GST_INFO ("showing volume-popup at %lf,%lf  %lf,%lf",
-            event->button.x, event->button.y,
-            event->button.x_root, event->button.y_root);
-        if (!(event->button.state & GDK_SHIFT_MASK)) {
-          bt_main_page_machines_wire_volume_popup (self->
-              priv->main_page_machines, self->priv->wire,
-              (gint) event->button.x_root, (gint) event->button.y_root);
-        } else {
-          bt_main_page_machines_wire_panorama_popup (self->
-              priv->main_page_machines, self->priv->wire,
-              (gint) event->button.x_root, (gint) event->button.y_root);
-        }
-        res = TRUE;
-      } else if (event->button.button == 3) {
-        // show context menu
-        gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
-            gtk_get_current_event_time ());
-        res = TRUE;
-      }
-      break;
-    case GDK_MOTION_NOTIFY:
-      //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f",event->button.x,event->button.y);
-      break;
-    case GDK_BUTTON_RELEASE:
-      GST_DEBUG ("GDK_BUTTON_RELEASE: %d", event->button.button);
-      break;
-    case GDK_KEY_RELEASE:
-      GST_DEBUG ("GDK_KEY_RELEASE: %d", event->key.keyval);
-      switch (event->key.keyval) {
-        case GDK_Menu:
-          // show context menu
-          gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
-              gtk_get_current_event_time ());
-          res = TRUE;
-          break;
-        default:
-          break;
-      }
-      break;
-    default:
-      break;
-  }
-  /* we don't want the click falling through to the parent canvas item, if we have handled it */
-  if (!res) {
-    if (GNOME_CANVAS_ITEM_CLASS (bt_wire_canvas_item_parent_class)->event) {
-      res = (GNOME_CANVAS_ITEM_CLASS (bt_wire_canvas_item_parent_class)->event)
-          (citem, event);
-    }
-  }
-  return res;
-}
-
 static void
 bt_wire_canvas_item_init (BtWireCanvasItem * self)
 {
@@ -873,72 +759,50 @@ bt_wire_canvas_item_init (BtWireCanvasItem * self)
   g_signal_connect (menu_item, "activate",
       G_CALLBACK (on_context_menu_analysis_activate), (gpointer) self);
 
+  self->priv->zoom = 1.0;
 }
 
 static void
 bt_wire_canvas_item_class_init (BtWireCanvasItemClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GnomeCanvasItemClass *citem_class = GNOME_CANVAS_ITEM_CLASS (klass);
 
   wire_canvas_item_quark = g_quark_from_static_string ("wire-canvas-item");
 
   g_type_class_add_private (klass, sizeof (BtWireCanvasItemPrivate));
 
+  gobject_class->constructed = bt_wire_canvas_item_constructed;
   gobject_class->set_property = bt_wire_canvas_item_set_property;
   gobject_class->get_property = bt_wire_canvas_item_get_property;
   gobject_class->dispose = bt_wire_canvas_item_dispose;
-
-  citem_class->realize = bt_wire_canvas_item_realize;
-  citem_class->event = bt_wire_canvas_item_event;
 
   g_object_class_install_property (gobject_class,
       WIRE_CANVAS_ITEM_MACHINES_PAGE, g_param_spec_object ("machines-page",
           "machines-page contruct prop",
           "Set application object, the window belongs to",
           BT_TYPE_MAIN_PAGE_MACHINES,
-#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
-          G_PARAM_CONSTRUCT_ONLY |
-#endif
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_WIRE,
       g_param_spec_object ("wire", "wire contruct prop",
           "Set wire object, the item belongs to", BT_TYPE_WIRE,
-#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
-          G_PARAM_CONSTRUCT_ONLY |
-#endif
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_W,
-      g_param_spec_double ("w",
-          "width prop",
-          "width of the wire",
-          -BT_WIRE_MAX_EXTEND,
-          BT_WIRE_MAX_EXTEND, 1.0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_H,
-      g_param_spec_double ("h",
-          "height prop",
-          "height of the wire",
-          -BT_WIRE_MAX_EXTEND,
-          BT_WIRE_MAX_EXTEND, 1.0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_SRC,
       g_param_spec_object ("src", "src contruct prop",
           "Set wire src machine canvas item", BT_TYPE_MACHINE_CANVAS_ITEM,
-#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
-          G_PARAM_CONSTRUCT_ONLY |
-#endif
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_DST,
       g_param_spec_object ("dst", "dst contruct prop",
           "Set wire dst machine canvas item", BT_TYPE_MACHINE_CANVAS_ITEM,
-#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
-          G_PARAM_CONSTRUCT_ONLY |
-#endif
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, WIRE_CANVAS_ITEM_ZOOM,
+      g_param_spec_double ("zoom",
+          "zoom prop",
+          "Set zoom ratio for the wire item",
+          0.0, 100.0, 1.0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class,
       WIRE_CANVAS_ITEM_ANALYSIS_DIALOG, g_param_spec_object ("analysis-dialog",
