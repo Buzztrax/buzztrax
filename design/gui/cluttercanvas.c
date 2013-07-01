@@ -397,7 +397,6 @@ make_wire (void)
   return wire;
 }
 
-
 /* main */
 
 gint

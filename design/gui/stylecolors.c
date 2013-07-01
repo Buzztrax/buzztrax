@@ -14,12 +14,6 @@
 #include <gdk/gdk.h>
 #include <glib.h>
 
-static void
-destroy (GtkWidget * widget, gpointer data)
-{
-  gtk_main_quit ();
-}
-
 static gboolean
 set_colors (gpointer data)
 {
@@ -58,7 +52,8 @@ main (gint argc, gchar ** argv)
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window), "Style colors");
-  g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
+  g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (gtk_main_quit),
+      NULL);
 
   // add a table
   table =
