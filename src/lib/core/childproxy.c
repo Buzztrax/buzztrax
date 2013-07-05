@@ -134,7 +134,7 @@ bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,
 {
   gboolean res = FALSE;
   gchar **names, **current;
-  GParamSpec *spec;
+  GParamSpec *spec = NULL;
 
   g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
   g_return_val_if_fail (name != NULL, FALSE);

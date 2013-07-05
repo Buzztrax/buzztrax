@@ -665,7 +665,7 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       // relink previous connection
       bt_machine_link_elements (self, src_pads[pre], sink_pads[post]);
     }
-  } else if (pre == -1) {
+  } else if ((pre == -1) && (post != -1)) {
     // unlink old connection
     gst_pad_unlink (peer, sink_pads[post]);
     // link new connection
@@ -695,7 +695,7 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
             GST_OBJECT_NAME (machines[pos]), GST_OBJECT_NAME (machines[post]));
       }
     }
-  } else if (post == -1) {
+  } else if ((post == -1) && (pre != -1)) {
     // unlink old connection
     gst_pad_unlink (src_pads[pre], peer);
     // link new connection
