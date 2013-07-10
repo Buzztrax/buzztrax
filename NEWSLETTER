@@ -1,15 +1,38 @@
 svn diff -r "{2013-01-01}:{2013-01-31}" | diffstat
 git diff --shortstat @{2013-01-01} @{2013-01-31}
 
-2013/06 ========================================================================
+2013/08 ========================================================================
 
--porting widgets to gtk3
- - vumeter + waveform-viewer + pattern-editor
- - clutter based gnome canvas replacement
-- application
- - signals (expose-event, size-request)
- - layout
- - colors
+- collecting gtk3 work-arounds
+
+2013/07 ========================================================================
+
+The last two month I mostly worked on porting the UI from gtk+2 and gnome-canvas
+to gtk+3 and clutter. First I ported our own widgets (vumeter, waveform-viewer
+and pattern-editor). This was relative straight forward. One issue were the
+colors. I was using GtkStyle->bg[state] to draw the background, but the color
+there is simply wrong. Will have to see if things look better if I use 
+GtkStyleContext.
+
+I also wrote a prototype for a gnome-canvas replacement using clutter. This
+looks nice now and I am quite excited about the potential for adding nice stuff
+in the future. Clutter is a lot more powerful than gnome-canvas.
+
+Right now I am in the middle of porting buzztrax-edit to gtk3. The application
+already compiles and starts. Getting it back to compile was about two evenings.
+Biggest work was to replace the v/h widgets with the orientable variants. After
+that came a lot of soft-breaks, e.g. "expose-event" signal -> "draw" signal.
+Some of the things are documented, but e.g. what to do as an application if you
+where using the "size-request" to provide a sane natural size to scrolled
+windows is left as an exercise to the reader :/ Next came attacking all the
+layout changes. I've figured solutions/hacks for many of them, but I guess this
+will keep me busy for a while.
+
+On the machine view, I'll also need to do a lot more work. The basics work, but
+there is quite a few things commented out still. Many thanks to the folks in the
+clutter irc channel for their help so far.
+
+700 files changed, 21979 insertions(+), 17892 deletions(-)
 
 2013/05 ========================================================================
 
