@@ -492,15 +492,13 @@ main (gint argc, gchar * argv[])
   g_signal_connect (v_adjustment, "value-changed", G_CALLBACK (on_v_scroll),
       NULL);
   scrollbar = gtk_scrollbar_new (GTK_ORIENTATION_VERTICAL, v_adjustment);
-  gtk_table_attach (GTK_TABLE (table), scrollbar,
-      1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL, 0, 0);
+  gtk_table_attach (GTK_TABLE (table), scrollbar, 1, 2, 0, 1, 0, 0, 0, 0);
 
   h_adjustment = gtk_adjustment_new (0.0, 0.0, WIDTH, 1.0, 10.0, 10.0);
   g_signal_connect (h_adjustment, "value-changed", G_CALLBACK (on_h_scroll),
       NULL);
   scrollbar = gtk_scrollbar_new (GTK_ORIENTATION_HORIZONTAL, h_adjustment);
-  gtk_table_attach (GTK_TABLE (table), scrollbar,
-      0, 1, 1, 2, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+  gtk_table_attach (GTK_TABLE (table), scrollbar, 0, 1, 1, 2, 0L, 0, 0, 0);
 
   /* Show the window and start the main-loop */
   gtk_widget_show_all (GTK_WIDGET (window));
