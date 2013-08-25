@@ -1,5 +1,5 @@
 /* determine cpuload
- * gcc -Wall -g cpuload.c -o cpuload
+ * gcc -Wall -g cpuload.c -o cpuload `pkg-config gstreamer-1.0 --cflags --libs`
  */
 
 #include <stdio.h>
@@ -7,6 +7,8 @@
 #include <sys/time.h>
 #include <sys/times.h>
 #include <sys/resource.h>
+
+#include <gst/gst.h>
 
 int
 main (int argc, char **argv)
@@ -17,12 +19,11 @@ main (int argc, char **argv)
   struct tms tms;
   GstClockTime tuser, tsys, tbeg, tend, treal;
   struct timeval beg, end;
-  long clk;
+  long clk = sysconf (_SC_CLK_TCK);
   int cpuload;
 
   gettimeofday (&beg, NULL);
   tbeg = GST_TIMEVAL_TO_TIME (beg);
-  clk = sysconf (_SC_CLK_TCK);
 
   for (l = 0; l < 100; l++) {
     y = -16;
