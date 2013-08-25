@@ -229,33 +229,34 @@ on_combobox_property_changed (GtkComboBox * combobox, gpointer user_data)
 }
 
 /*
- * on_table_size_request:
+ * on_table_realize:
  *
  * we adjust the scrollable-window size to contain the whole area
  */
 static void
-on_table_size_request (GtkWidget * widget, GtkRequisition * requisition,
-    gpointer user_data)
+on_table_realize (GtkWidget * widget, gpointer user_data)
 {
   //BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(user_data);
   GtkWidget *parent = gtk_widget_get_parent (gtk_widget_get_parent (widget));
-  gint height = requisition->height, width = -1;
+  GtkRequisition requisition;
+  gint height, available_heigth;
   gint max_height = gdk_screen_get_height (gdk_screen_get_default ());
-  gint available_heigth;
 
-  GST_DEBUG ("#### table  size req %d x %d (max-height=%d)", requisition->width,
-      requisition->height, max_height);
-  // have a minimum width
-  if (requisition->width < 250) {
-    width = 250;
-  }
+  gtk_widget_get_preferred_size (widget, NULL, &requisition);
+
+  GST_DEBUG ("#### table  size req %d x %d (max-height=%d)", requisition.width,
+      requisition.height, max_height);
+
+  height = requisition.height;
   // constrain the height by screen height minus some space for panels and deco
   available_heigth = max_height - SCREEN_BORDER_HEIGHT;
   if (height > available_heigth) {
     height = available_heigth;
   }
   // TODO(ensonic): is the '2' some border or padding
-  gtk_widget_set_size_request (parent, width, height + 2);
+  gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
+      height + 2);
+  gtk_scrolled_window_set_min_content_width (GTK_SCROLLED_WINDOW (parent), 250);
 }
 
 static void
@@ -344,8 +345,8 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
   table = gtk_table_new ( /*rows= */ number_of_properties,
       /*columns= */ 3, /*homogenous= */ FALSE);
   gtk_container_set_border_width (GTK_CONTAINER (table), 6);
-  g_signal_connect (table, "size-request",
-      G_CALLBACK (on_table_size_request), (gpointer) self);
+  g_signal_connect (table, "realize",
+      G_CALLBACK (on_table_realize), (gpointer) self);
 
   for (i = 0; i < number_of_properties; i++) {
     property = properties[i];
@@ -413,7 +414,8 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
         // get max(max,-min), count digits -> to determine needed length of field
         str_value = g_strdup_printf ("%7.2lf", value);
         step = (p->maximum - p->minimum) / 1024.0;
-        widget1 = gtk_hscale_new_with_range (p->minimum, p->maximum, step);
+        widget1 = gtk_scale_new_with_range (GTK_ORIENTATION_HORIZONTAL,
+            p->minimum, p->maximum, step);
         gtk_widget_set_name (GTK_WIDGET (widget1), property->name);
         g_object_set_qdata (G_OBJECT (widget1), widget_parent_quark,
             (gpointer) self);

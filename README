@@ -7,16 +7,17 @@ Buzztrax is a music composer similar to tracker applications. It is roughly
 modelled after the windows only, closed source application called Buzz.
 
 = requirements =
-libxml2
+clutter
+clutter-gtk
 glib2
-gtk+2
+gtk+3
 gstreamer
 gst-plugins-base
 gst-plugins-good
 gst-plugins-bad
-gnome-canvas
 gst-buzztrax (from buzztrax git, use same version as this module)
 gsf
+libxml2
 
 Regarding gstreamer - the newer the better.
 

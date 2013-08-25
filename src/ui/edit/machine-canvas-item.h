@@ -40,14 +40,14 @@ typedef struct _BtMachineCanvasItemPrivate BtMachineCanvasItemPrivate;
  * the root window for the editor application
  */
 struct _BtMachineCanvasItem {
-  GnomeCanvasGroup parent;
+  ClutterActor parent;
   
   /*< private >*/
   BtMachineCanvasItemPrivate *priv;
 };
 
 struct _BtMachineCanvasItemClass {
-  GnomeCanvasGroupClass parent;
+  ClutterActorClass parent;
 };
 
 GType bt_machine_canvas_item_get_type(void) G_GNUC_CONST;

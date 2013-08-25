@@ -78,6 +78,7 @@ main (gint argc, gchar ** argv)
   GOptionContext *ctx = NULL;
   GOptionGroup *group;
   GError *err = NULL;
+  GtkStyleProvider *provider;
 
 #ifdef ENABLE_NLS
   setlocale (LC_ALL, "");
@@ -99,15 +100,6 @@ main (gint argc, gchar ** argv)
     {NULL}
   };
 
-  // load our custom gtk-theming
-#ifndef USE_COMPACT_UI
-  gtk_rc_parse (DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
-      "bt-edit.gtkrc");
-#else
-  gtk_rc_parse (DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
-      "bt-edit.compact.gtkrc");
-#endif
-
   // init libraries
   ctx = g_option_context_new (NULL);
   //g_option_context_add_main_entries (ctx, options, GETTEXT_PACKAGE);
@@ -121,10 +113,14 @@ main (gint argc, gchar ** argv)
   bt_init_add_option_groups (ctx);
   g_option_context_add_group (ctx, btic_init_get_option_group ());
   g_option_context_add_group (ctx, gtk_get_option_group (TRUE));
+  g_option_context_add_group (ctx, cogl_get_option_group ());
+  g_option_context_add_group (ctx, clutter_get_option_group_without_init ());
+  g_option_context_add_group (ctx, gtk_clutter_get_option_group ());
 
   if (!g_option_context_parse (ctx, &argc, &argv, &err)) {
     g_print ("Error initializing: %s\n", safe_string (err->message));
     g_option_context_free (ctx);
+    g_error_free (err);
     exit (1);
   }
   // if we use this, all other libs are initialized and their options are processed
@@ -136,6 +132,24 @@ main (gint argc, gchar ** argv)
   //}
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-edit", 0,
       "music production environment / editor ui");
+
+  // load our custom gtk-theming
+  provider = (GtkStyleProvider *) gtk_css_provider_new ();
+  if (!gtk_css_provider_load_from_path (GTK_CSS_PROVIDER (provider), DATADIR
+          "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
+#ifndef USE_COMPACT_UI
+          "bt-edit.css",
+#else
+          "bt-edit.compact.css"
+#endif
+          & err)) {
+    g_print ("Error loading css: %s\n", safe_string (err->message));
+    g_error_free (err);
+    err = NULL;
+  } else {
+    gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
+        provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  }
 
   add_pixmap_directory (DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE ""
       G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S);

@@ -65,21 +65,9 @@
 //-- gtk+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
-//-- libgnomecanvas
-/* glib macro wrapper aliases - they have been deprecated
- * this is fixed in gnomecanvas 2.26
- */
-#ifndef GTK_CHECK_CAST
-#define GTK_CHECK_CAST		G_TYPE_CHECK_INSTANCE_CAST
-#define GTK_CHECK_CLASS_CAST	G_TYPE_CHECK_CLASS_CAST
-#define GTK_CHECK_GET_CLASS	G_TYPE_INSTANCE_GET_CLASS
-#define GTK_CHECK_TYPE		G_TYPE_CHECK_INSTANCE_TYPE
-#define GTK_CHECK_CLASS_TYPE	G_TYPE_CHECK_CLASS_TYPE
-#endif
-#include <libgnomecanvas/libgnomecanvas.h>
-
-//-- librsvg
-//#include <librsvg/rsvg.h>
+//-- clutter
+#include <clutter/clutter.h>
+#include <clutter-gtk/clutter-gtk.h>
 
 #include "about-dialog.h"
 #include "change-log.h"
@@ -140,14 +128,6 @@
 #if defined(BT_EDIT) && !defined(BT_EDIT_APPLICATION_C)
   GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif
-
-/**
- * GNOME_CANVAS_BROKEN_PROPERTIES:
- *
- * gnome canvas has a broken design,
- * it does not allow derived classes to have G_PARAM_CONSTRUCT_ONLY properties
- */
-#define GNOME_CANVAS_BROKEN_PROPERTIES 1
 
 /*
  * lets hope that 64 gives enough space for window-decoration + panels

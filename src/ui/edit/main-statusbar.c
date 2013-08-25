@@ -49,19 +49,11 @@ struct _BtMainStatusbarPrivate
   gint status_context_id;
 
   /* time-elapsed (total) status bar */
-  GtkStatusbar *elapsed;
-  /* identifier of the elapsed message group */
-  gint elapsed_context_id;
-
+  GtkLabel *elapsed;
   /* time-current (current play pos) status bar */
-  GtkStatusbar *current;
-  /* identifier of the current message group */
-  gint current_context_id;
-
+  GtkLabel *current;
   /* time-loop status bar */
-  GtkStatusbar *loop;
-  /* identifier of the loop message group */
-  gint loop_context_id;
+  GtkLabel *loop;
 
   /* cpu load */
   GtkProgressBar *cpu_load;
@@ -98,8 +90,7 @@ bt_main_statusbar_update_length (const BtMainStatusbar * self,
       bt_sequence_get_loop_length (sequence), &min, &sec, &msec);
   g_sprintf (str, "%02lu:%02lu.%03lu", min, sec, msec);
   // update statusbar fields
-  gtk_statusbar_pop (self->priv->loop, self->priv->loop_context_id);
-  gtk_statusbar_push (self->priv->loop, self->priv->loop_context_id, str);
+  gtk_label_set_text (self->priv->loop, str);
 }
 
 //-- event handler
@@ -128,8 +119,7 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
   // format
   g_sprintf (str, "%02lu:%02lu.%03lu", min, sec, msec);
   // update statusbar fields
-  gtk_statusbar_pop (self->priv->current, self->priv->current_context_id);
-  gtk_statusbar_push (self->priv->current, self->priv->current_context_id, str);
+  gtk_label_set_text (self->priv->current, str);
 
   // update elapsed statusbar
   if (pos < self->priv->last_pos) {
@@ -142,8 +132,7 @@ on_song_play_pos_notify (const BtSong * song, GParamSpec * arg,
   // format
   g_sprintf (str, "%02lu:%02lu.%03lu", min, sec, msec);
   // update statusbar fields
-  gtk_statusbar_pop (self->priv->elapsed, self->priv->elapsed_context_id);
-  gtk_statusbar_push (self->priv->elapsed, self->priv->elapsed_context_id, str);
+  gtk_label_set_text (self->priv->elapsed, str);
 
   self->priv->last_pos = pos;
 Error:
@@ -319,7 +308,7 @@ bt_main_statusbar_init_ui (const BtMainStatusbar * self)
   self->priv->status_context_id =
       gtk_statusbar_get_context_id (GTK_STATUSBAR (self->priv->status),
       "default");
-  gtk_statusbar_set_has_resize_grip (self->priv->status, FALSE);
+
   gtk_statusbar_push (GTK_STATUSBAR (self->priv->status),
       self->priv->status_context_id, BT_MAIN_STATUSBAR_DEFAULT);
   gtk_box_pack_start (GTK_BOX (self), GTK_WIDGET (self->priv->status), TRUE,
@@ -348,47 +337,27 @@ bt_main_statusbar_init_ui (const BtMainStatusbar * self)
   ev_box = gtk_event_box_new ();
   g_object_set (ev_box, "visible-window", FALSE, NULL);
   gtk_widget_set_tooltip_text (ev_box, _("Playback time"));
-  self->priv->elapsed = GTK_STATUSBAR (gtk_statusbar_new ());
-  self->priv->elapsed_context_id =
-      gtk_statusbar_get_context_id (GTK_STATUSBAR (self->priv->elapsed),
-      "default");
-  gtk_statusbar_set_has_resize_grip (self->priv->elapsed, FALSE);
-  gtk_misc_set_alignment (GTK_MISC (GTK_STATUSBAR (self->priv->elapsed)->label),
-      1.0, 0.5);
+  self->priv->elapsed = GTK_LABEL (gtk_label_new (str));
+  gtk_misc_set_alignment (GTK_MISC (self->priv->elapsed), 1.0, 0.5);
   gtk_widget_set_size_request (GTK_WIDGET (self->priv->elapsed), 100, -1);
-  gtk_statusbar_push (GTK_STATUSBAR (self->priv->elapsed),
-      self->priv->elapsed_context_id, str);
   gtk_container_add (GTK_CONTAINER (ev_box), GTK_WIDGET (self->priv->elapsed));
   gtk_box_pack_start (GTK_BOX (self), ev_box, FALSE, FALSE, 1);
 
   ev_box = gtk_event_box_new ();
   g_object_set (ev_box, "visible-window", FALSE, NULL);
   gtk_widget_set_tooltip_text (ev_box, _("Playback position"));
-  self->priv->current = GTK_STATUSBAR (gtk_statusbar_new ());
-  self->priv->current_context_id =
-      gtk_statusbar_get_context_id (GTK_STATUSBAR (self->priv->current),
-      "default");
-  gtk_statusbar_set_has_resize_grip (self->priv->current, FALSE);
-  gtk_misc_set_alignment (GTK_MISC (GTK_STATUSBAR (self->priv->current)->label),
-      1.0, 0.5);
+  self->priv->current = GTK_LABEL (gtk_label_new (str));
+  gtk_misc_set_alignment (GTK_MISC (self->priv->current), 1.0, 0.5);
   gtk_widget_set_size_request (GTK_WIDGET (self->priv->current), 100, -1);
-  gtk_statusbar_push (GTK_STATUSBAR (self->priv->current),
-      self->priv->current_context_id, str);
   gtk_container_add (GTK_CONTAINER (ev_box), GTK_WIDGET (self->priv->current));
   gtk_box_pack_start (GTK_BOX (self), ev_box, FALSE, FALSE, 1);
 
   ev_box = gtk_event_box_new ();
   g_object_set (ev_box, "visible-window", FALSE, NULL);
   gtk_widget_set_tooltip_text (ev_box, _("Playback length"));
-  self->priv->loop = GTK_STATUSBAR (gtk_statusbar_new ());
-  self->priv->loop_context_id =
-      gtk_statusbar_get_context_id (GTK_STATUSBAR (self->priv->loop),
-      "default");
+  self->priv->loop = GTK_LABEL (gtk_label_new (str));
+  gtk_misc_set_alignment (GTK_MISC (self->priv->loop), 1.0, 0.5);
   gtk_widget_set_size_request (GTK_WIDGET (self->priv->loop), 100, -1);
-  gtk_misc_set_alignment (GTK_MISC (GTK_STATUSBAR (self->priv->loop)->label),
-      1.0, 0.5);
-  gtk_statusbar_push (GTK_STATUSBAR (self->priv->loop),
-      self->priv->loop_context_id, str);
   gtk_container_add (GTK_CONTAINER (ev_box), GTK_WIDGET (self->priv->loop));
   gtk_box_pack_start (GTK_BOX (self), ev_box, FALSE, FALSE, 1);
 

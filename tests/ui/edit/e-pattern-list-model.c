@@ -94,7 +94,7 @@ test_bt_pattern_list_model_get_pattern (BT_TEST_ARGS)
   BT_TEST_START;
   /* arrange */
   GtkTreeIter iter;
-  BtMachine *machine = machine = bt_setup_get_machine_by_id (setup, "master");
+  BtMachine *machine = bt_setup_get_machine_by_id (setup, "master");
   BtPattern *pattern1 = bt_pattern_new (song, "test", /*length= */ 16, machine);
   BtPatternListModel *model = bt_pattern_list_model_new (machine, sequence,
       TRUE);

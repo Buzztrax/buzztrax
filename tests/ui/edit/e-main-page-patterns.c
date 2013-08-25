@@ -180,7 +180,7 @@ test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
   move_cursor_to (pattern_editor, 0, 3, 0, 0);
   check_send_key (pattern_editor, 0, 'q', 0x18);
-  check_send_key (pattern_editor, 0, GDK_Page_Up, 0);
+  check_send_key (pattern_editor, 0, GDK_KEY_Page_Up, 0);
 
   /* act */
   // send a '.' key-press
@@ -338,8 +338,8 @@ test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
   /* assert */
   fail_unless (voices == 2, NULL);
   // send two tab keys to ensure the new voice is visible
-  check_send_key (pattern_editor, 0, GDK_Tab, 0);
-  check_send_key (pattern_editor, 0, GDK_Tab, 0);
+  check_send_key (pattern_editor, 0, GDK_KEY_Tab, 0);
+  check_send_key (pattern_editor, 0, GDK_KEY_Tab, 0);
   mark_point ();
 
   /* cleanup */

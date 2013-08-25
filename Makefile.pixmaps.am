@@ -64,7 +64,9 @@ gnome_icon32_DATA = pixmaps/gnome/32x32/buzztrax.png \
   pixmaps/gnome/32x32/buzztrax_generator_solo.png \
   pixmaps/gnome/32x32/buzztrax_generator.png \
   pixmaps/gnome/32x32/buzztrax_master_mute.png \
-  pixmaps/gnome/32x32/buzztrax_master.png
+  pixmaps/gnome/32x32/buzztrax_master.png \
+  pixmaps/gnome/32x32/buzztrax_wire.png \
+  pixmaps/gnome/32x32/buzztrax_wire_nopan.png
 
 gnome_icon48dir = $(gnome_iconthemedir)/48x48/apps
 gnome_icon48_DATA = pixmaps/gnome/48x48/buzztrax.png \
@@ -75,7 +77,9 @@ gnome_icon48_DATA = pixmaps/gnome/48x48/buzztrax.png \
   pixmaps/gnome/48x48/buzztrax_generator_solo.png \
   pixmaps/gnome/48x48/buzztrax_generator.png \
   pixmaps/gnome/48x48/buzztrax_master_mute.png \
-  pixmaps/gnome/48x48/buzztrax_master.png
+  pixmaps/gnome/48x48/buzztrax_master.png \
+  pixmaps/gnome/48x48/buzztrax_wire.png \
+  pixmaps/gnome/48x48/buzztrax_wire_nopan.png
 
 gnome_icon64dir = $(gnome_iconthemedir)/64x64/apps
 gnome_icon64_DATA = pixmaps/gnome/64x64/buzztrax.png \
@@ -86,7 +90,9 @@ gnome_icon64_DATA = pixmaps/gnome/64x64/buzztrax.png \
   pixmaps/gnome/64x64/buzztrax_generator_solo.png \
   pixmaps/gnome/64x64/buzztrax_generator.png \
   pixmaps/gnome/64x64/buzztrax_master_mute.png \
-  pixmaps/gnome/64x64/buzztrax_master.png
+  pixmaps/gnome/64x64/buzztrax_master.png \
+  pixmaps/gnome/64x64/buzztrax_wire.png \
+  pixmaps/gnome/64x64/buzztrax_wire_nopan.png
 
 MACHINE_ICONS = \
   pixmaps/gnome/scalable/buzztrax_effect_bypass.svg \
@@ -96,7 +102,9 @@ MACHINE_ICONS = \
   pixmaps/gnome/scalable/buzztrax_generator_solo.svg \
   pixmaps/gnome/scalable/buzztrax_generator.svg \
   pixmaps/gnome/scalable/buzztrax_master_mute.svg \
-  pixmaps/gnome/scalable/buzztrax_master.svg
+  pixmaps/gnome/scalable/buzztrax_master.svg \
+  pixmaps/gnome/scalable/buzztrax_wire.svg \
+  pixmaps/gnome/scalable/buzztrax_wire_nopan.svg
 
 gnome_svgicondir = $(gnome_iconthemedir)/scalable/apps
 gnome_svgicon_DATA = pixmaps/gnome/scalable/buzztrax.svg $(MACHINE_ICONS)

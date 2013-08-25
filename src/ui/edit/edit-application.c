@@ -733,7 +733,7 @@ bt_edit_application_ui_lock (const BtEditApplication * self)
 
   gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
               priv->main_window)), cursor);
-  gdk_cursor_unref (cursor);
+  g_object_unref (cursor);
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), FALSE);
 
   while (gtk_events_pending ())

@@ -18,7 +18,7 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl dependencies
 REQ_GLIB=2.32.0
-REQ_GTK=2.24.0
+REQ_GTK=3.4
 REQ_GST=1.1.0
 
 
@@ -239,8 +239,7 @@ PKG_CHECK_MODULES(BASE_DEPS, \
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \
-  gtk+-2.0 >= $REQ_GTK \
-  libgnomecanvas-2.0 \
+  clutter-1.0 clutter-gtk-1.0 gtk+-3.0 >= $REQ_GTK \
 )
 
 PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztrax >= 0.8.0, [
