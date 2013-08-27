@@ -592,6 +592,26 @@ update_scrolled_window (const BtMainPageMachines * self)
 #endif
 }
 
+static void
+update_scrolled_window_zoom (const BtMainPageMachines * self)
+{
+  BtMainPageMachinesPrivate *p = self->priv;
+
+  // need to make stage+grid large enough to show grid when scrolling
+  gfloat cw = 2.0 * (p->view_w / p->zoom);
+  gfloat ch = 2.0 * (p->view_h / p->zoom);
+  p->canvas_w = cw;
+  p->canvas_h = ch;
+  clutter_actor_set_size (p->stage, cw, ch);
+  clutter_actor_set_size (p->canvas, cw, ch);
+  // size of grid 
+  clutter_actor_set_size (p->grid, cw, ch);
+  clutter_actor_set_position (p->grid, cw / 2.0, ch / 2.0);
+  clutter_canvas_set_size (CLUTTER_CANVAS (p->grid_canvas), cw, ch);
+
+  update_scrolled_window (self);
+}
+
 static gboolean
 machine_view_remove_item (gpointer key, gpointer value, gpointer user_data)
 {
@@ -1120,13 +1140,13 @@ on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
   if (self->priv->zoom > old_zoom) {
     clutter_actor_set_scale (self->priv->canvas, self->priv->zoom,
         self->priv->zoom);
-    update_scrolled_window (self);
+    update_scrolled_window_zoom (self);
     update_machines_zoom (self);
   } else {
     update_machines_zoom (self);
     clutter_actor_set_scale (self->priv->canvas, self->priv->zoom,
         self->priv->zoom);
-    update_scrolled_window (self);
+    update_scrolled_window_zoom (self);
   }
 
   gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->canvas_widget));
@@ -1143,7 +1163,7 @@ on_toolbar_zoom_in_clicked (GtkButton * button, gpointer user_data)
 
   clutter_actor_set_scale (self->priv->canvas, self->priv->zoom,
       self->priv->zoom);
-  update_scrolled_window (self);
+  update_scrolled_window_zoom (self);
   update_machines_zoom (self);
 
   gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->canvas_widget));
@@ -1160,7 +1180,7 @@ on_toolbar_zoom_out_clicked (GtkButton * button, gpointer user_data)
   update_machines_zoom (self);
   clutter_actor_set_scale (self->priv->canvas, self->priv->zoom,
       self->priv->zoom);
-  update_scrolled_window (self);
+  update_scrolled_window_zoom (self);
 
   gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->canvas_widget));
 }
@@ -1273,7 +1293,7 @@ on_canvas_size_changed (GtkWidget * widget, GdkRectangle * allocation,
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
   BtMainPageMachinesPrivate *p = self->priv;
-  gfloat vw = allocation->width, vh = allocation->height, cw, ch;
+  gfloat vw = allocation->width, vh = allocation->height;
   gfloat delta[2] = { (vw - p->view_w), (vh - p->view_h) };
 
   // keep machines centered
@@ -1283,19 +1303,7 @@ on_canvas_size_changed (GtkWidget * widget, GdkRectangle * allocation,
   p->view_w = vw;
   p->view_h = vh;
 
-  // need to make stage+grid large enough to show grid when scrolling
-  cw = 2.0 * (vw / p->zoom);
-  ch = 2.0 * (vh / p->zoom);
-  p->canvas_w = cw;
-  p->canvas_h = ch;
-  clutter_actor_set_size (p->stage, cw, ch);
-  clutter_actor_set_size (p->canvas, cw, ch);
-  // size of grid 
-  clutter_actor_set_size (p->grid, cw, ch);
-  clutter_actor_set_position (p->grid, cw / 2.0, ch / 2.0);
-  clutter_canvas_set_size (CLUTTER_CANVAS (p->grid_canvas), cw, ch);
-
-  update_scrolled_window (self);
+  update_scrolled_window_zoom (self);
 }
 
 static void
