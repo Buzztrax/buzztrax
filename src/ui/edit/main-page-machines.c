@@ -1301,7 +1301,7 @@ on_canvas_size_changed (GtkWidget * widget, GdkRectangle * allocation,
 static void
 store_scroll_pos (BtMainPageMachines * self, gchar * name, gdouble val)
 {
-  GST_WARNING ("%s: %lf", name, val);
+  GST_LOG ("%s: %lf", name, val);
   if (self->priv->properties) {
     gchar str[G_ASCII_DTOSTR_BUF_SIZE];
     gchar *prop;
@@ -1454,27 +1454,30 @@ on_canvas_motion (ClutterActor * actor, ClutterEvent * event,
     gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
+  BtMainPageMachinesPrivate *p = self->priv;
   gboolean res = FALSE;
 
   //GST_DEBUG("motion: %f,%f",event->button.x,event->button.y);
-  if (self->priv->connecting) {
+  if (p->connecting) {
     // update the connection line
     clutter_event_get_cursor_pos (self, event);
-    g_object_try_unref (self->priv->new_wire_dst);
-    self->priv->new_wire_dst = get_machine_canvas_item_under_cursor (self);
+    g_object_try_unref (p->new_wire_dst);
+    p->new_wire_dst = get_machine_canvas_item_under_cursor (self);
     update_connect (self);
     res = TRUE;
   } else if (self->priv->dragging) {
-    gfloat x = self->priv->mouse_x, y = self->priv->mouse_y;
+    gfloat x = p->mouse_x, y = p->mouse_y;
+    gdouble ox = gtk_adjustment_get_value (p->hadjustment);
+    gdouble oy = gtk_adjustment_get_value (p->vadjustment);
     // snapshot current mousepos and calculate delta
     clutter_event_get_cursor_pos (self, event);
+    gfloat dx = x - p->mouse_x;
+    gfloat dy = y - p->mouse_y;
     // scroll canvas
-    gtk_adjustment_set_value (self->priv->hadjustment,
-        gtk_adjustment_get_value (self->priv->hadjustment)
-        + (x - self->priv->mouse_x));
-    gtk_adjustment_set_value (self->priv->vadjustment,
-        gtk_adjustment_get_value (self->priv->vadjustment)
-        + (y - self->priv->mouse_y));
+    gtk_adjustment_set_value (p->hadjustment, ox + dx);
+    gtk_adjustment_set_value (p->vadjustment, oy + dy);
+    p->mouse_x += dx;
+    p->mouse_y += dy;
     res = TRUE;
   }
   return res;
