@@ -593,13 +593,27 @@ update_scrolled_window (const BtMainPageMachines * self)
 }
 
 static void
+machine_actor_move (gpointer key, gpointer value, gpointer user_data)
+{
+  gfloat *delta = (gfloat *) user_data;
+
+  clutter_actor_move_by ((ClutterActor *) value, delta[0], delta[1]);
+  g_signal_emit_by_name (value, "position-changed", 0, CLUTTER_MOTION);
+}
+
+static void
 update_scrolled_window_zoom (const BtMainPageMachines * self)
 {
   BtMainPageMachinesPrivate *p = self->priv;
-
   // need to make stage+grid large enough to show grid when scrolling
   gfloat cw = 2.0 * (p->view_w / p->zoom);
   gfloat ch = 2.0 * (p->view_h / p->zoom);
+  gfloat delta[2] = { (cw - p->canvas_w) / 2.0, (ch - p->canvas_h) / 2.0 };
+
+  GST_DEBUG ("canvas: %4.1f,%4.1f -> %4.1f,%4.1f", p->canvas_w, p->canvas_h, cw,
+      ch);
+  GST_DEBUG ("delta: %4.1f,%4.1f", delta[0], delta[1]);
+
   p->canvas_w = cw;
   p->canvas_h = ch;
   clutter_actor_set_size (p->stage, cw, ch);
@@ -608,6 +622,9 @@ update_scrolled_window_zoom (const BtMainPageMachines * self)
   clutter_actor_set_size (p->grid, cw, ch);
   clutter_actor_set_position (p->grid, cw / 2.0, ch / 2.0);
   clutter_canvas_set_size (CLUTTER_CANVAS (p->grid_canvas), cw, ch);
+
+  // keep machines centered
+  g_hash_table_foreach (p->machines, machine_actor_move, delta);
 
   update_scrolled_window (self);
 }
@@ -1158,7 +1175,7 @@ on_toolbar_zoom_in_clicked (GtkButton * button, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
 
-  self->priv->zoom *= 1.5;
+  self->priv->zoom *= 1.2;
   GST_INFO ("toolbar zoom_in event occurred : %lf", self->priv->zoom);
 
   clutter_actor_set_scale (self->priv->canvas, self->priv->zoom,
@@ -1174,7 +1191,7 @@ on_toolbar_zoom_out_clicked (GtkButton * button, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
 
-  self->priv->zoom /= 1.5;
+  self->priv->zoom /= 1.2;
   GST_INFO ("toolbar zoom_out event occurred : %lf", self->priv->zoom);
 
   update_machines_zoom (self);
@@ -1279,25 +1296,17 @@ on_context_menu_unmute_all (GtkMenuItem * menuitem, gpointer user_data)
 }
 
 static void
-machine_actor_move (gpointer key, gpointer value, gpointer user_data)
-{
-  gfloat *delta = (gfloat *) user_data;
-
-  clutter_actor_move_by ((ClutterActor *) value, delta[0], delta[1]);
-  g_signal_emit_by_name (value, "position-changed", 0, CLUTTER_MOTION);
-}
-
-static void
 on_canvas_size_changed (GtkWidget * widget, GdkRectangle * allocation,
     gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
   BtMainPageMachinesPrivate *p = self->priv;
   gfloat vw = allocation->width, vh = allocation->height;
-  gfloat delta[2] = { (vw - p->view_w), (vh - p->view_h) };
 
-  // keep machines centered
-  g_hash_table_foreach (p->machines, machine_actor_move, delta);
+  if ((vw == p->view_w) && (vh == p->view_h))
+    return;
+
+  GST_DEBUG ("view: %4.1f,%4.1f -> %4.1f,%4.1f", p->view_w, p->view_h, vw, vh);
 
   // size of the canvas (view)
   p->view_w = vw;
@@ -1759,8 +1768,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
       G_CALLBACK (on_canvas_size_changed), (gpointer) self);
   self->priv->stage =
-      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->priv->
-          canvas_widget));
+      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
+          priv->canvas_widget));
   GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
   GdkColor *c = &style->bg[GTK_STATE_NORMAL];
   ClutterColor stage_color = {
@@ -1808,8 +1817,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->vol_popup_adj =
       gtk_adjustment_new (100.0, 0.0, 400.0, 1.0, 10.0, 1.0);
   self->priv->vol_popup =
-      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->
-              priv->vol_popup_adj)));
+      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->priv->
+              vol_popup_adj)));
   g_signal_connect (self->priv->vol_popup_adj, "value-changed",
       G_CALLBACK (on_volume_popup_changed), (gpointer) self);
 
@@ -1817,8 +1826,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->pan_popup_adj =
       gtk_adjustment_new (0.0, -100.0, 100.0, 1.0, 10.0, 1.0);
   self->priv->pan_popup =
-      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->
-              priv->pan_popup_adj)));
+      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->priv->
+              pan_popup_adj)));
   g_signal_connect (self->priv->pan_popup_adj, "value-changed",
       G_CALLBACK (on_panorama_popup_changed), (gpointer) self);
 
