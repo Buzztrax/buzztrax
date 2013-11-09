@@ -52,4 +52,4 @@ src/ui/edit/tip-dialog.c
 src/ui/edit/tools.c
 src/ui/edit/volume-popup.c
 src/ui/edit/wire-canvas-item.c
-buzztrax.schemas
+
