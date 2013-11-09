@@ -65,7 +65,7 @@ extern Suite *bt_wave_list_model_suite (void);
 extern Suite *bt_wavelevel_list_model_suite (void);
 extern Suite *bt_wire_canvas_item_suite (void);
 
-gchar *test_argv[] = { "check_buzzard", "--sync" };
+gchar *test_argv[] = { "check_buzzard" };
 
 gchar **test_argvptr = test_argv;
 gint test_argc = G_N_ELEMENTS (test_argv);
