@@ -107,6 +107,8 @@ bt_edit_setup (void)
   GST_INFO
       ("................................................................................");
   gtk_init (&test_argc, &test_argvptr);
+  if (clutter_init (&test_argc, &test_argvptr) != CLUTTER_INIT_SUCCESS)
+    exit (1);
   bt_init (&test_argc, &test_argvptr);
   btic_init (&test_argc, &test_argvptr);
   add_pixmap_directory ("." G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S);
