@@ -1,0 +1,62 @@
+<?xml version="1.0" standalone="no"?> <!--*- mode: nxml -*-->
+
+<!DOCTYPE moduleset SYSTEM "moduleset.dtd">
+<?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
+<moduleset>
+  <repository type="git" name="github" href="https://github.com/"/>
+  <repository type="git" name="gstreamer.freedesktop.org" href="git://anongit.freedesktop.org/gstreamer/"/>
+
+  <autotools id="gstreamer-1.0"
+             autogenargs="--disable-tests --disable-fatal-warnings"
+             supports-non-srcdir-builds="no">
+    <branch repo="gstreamer.freedesktop.org"
+            module="gstreamer"
+            revision="1.1.90"
+            checkoutdir="gstreamer-1.0"/>
+  </autotools>
+
+  <autotools id="gst-plugins-base-1.0"
+             autogenargs="--disable-tests --disable-fatal-warnings"
+             supports-non-srcdir-builds="no">
+    <dependencies>
+      <dep package="gstreamer-1.0"/>
+    </dependencies>
+    <branch repo="gstreamer.freedesktop.org"
+            module="gst-plugins-base"
+            revision="1.1.90"
+            checkoutdir="gst-plugins-base-1.0"/>
+  </autotools>
+
+  <autotools id="bml">
+    <branch repo="github" module="Buzztrax/bml.git" checkoutdir="bml"/>
+  </autotools>
+
+  <autotools id="gst-buzztrax">
+    <dependencies>
+      <dep package="gstreamer-1.0"/>
+      <dep package="gst-plugins-base-1.0"/>
+      <dep package="bml"/>
+    </dependencies>
+    <branch repo="github" module="Buzztrax/gst-buzztrax.git" checkoutdir="gst-buzztrax"/>
+  </autotools>
+
+  <autotools id="buzztrax">
+    <dependencies>
+      <dep package="gst-buzztrax"/>
+    </dependencies>
+    <branch repo="github" module="Buzztrax/buzztrax.git" checkoutdir="buzztrax"/>
+  </autotools>
+
+  <autotools id="buzzmachines">
+    <branch repo="github" module="Buzztrax/buzzmachines.git" checkoutdir="buzzmachines"/>
+  </autotools>
+
+
+  <metamodule id="buzztrax-all">
+    <dependencies>
+      <dep package="buzztrax"/>
+      <dep package="buzzmachines"/>
+    </dependencies>
+  </metamodule>
+
+</moduleset>

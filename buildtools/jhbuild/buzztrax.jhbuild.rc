@@ -1,0 +1,11 @@
+moduleset = os.path.expanduser('~/buzztrax/jhbuild/buzztrax.modules')
+modules = [ 'buzztrax-all' ]
+checkoutroot = os.path.expanduser('~/buzztrax/jhbuild/build')
+prefix = os.path.expanduser('~/buzztrax/jhbuild/install')
+
+autogenargs = ''
+
+os.environ['ACLOCAL'] = 'aclocal -I ' + prefix + '/share/aclocal/'
+os.environ['GST_PLUGIN_PATH'] = prefix + '/lib/gstreamer-0.10/'
+#os.environ['XDG_DATA_DIRS'] = os.environ['XDG_DATA_DIRS'] + ":" + prefix + '/share/'
+addpath('PKG_CONFIG_PATH', os.path.expanduser('~/buzztrax/jhbuild/install/lib/pkgconfig'))
