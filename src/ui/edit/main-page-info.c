@@ -73,7 +73,7 @@ struct _BtMainPageInfoPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMainPageInfo, bt_main_page_info, GTK_TYPE_VBOX);
+G_DEFINE_TYPE (BtMainPageInfo, bt_main_page_info, GTK_TYPE_BOX);
 
 
 //-- event handler
@@ -639,6 +639,9 @@ bt_main_page_info_init (BtMainPageInfo * self)
       BtMainPageInfoPrivate);
   GST_DEBUG ("!!!! self=%p", self);
   self->priv->app = bt_edit_application_new ();
+
+  gtk_orientable_set_orientation (GTK_ORIENTABLE (self),
+      GTK_ORIENTATION_VERTICAL);
 }
 
 static void

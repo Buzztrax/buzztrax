@@ -40,14 +40,14 @@ typedef struct _BtMainPagePatternsPrivate BtMainPagePatternsPrivate;
  * the pattern page for the editor application
  */
 struct _BtMainPagePatterns {
-  GtkVBox parent;
+  GtkBox parent;
   
   /*< private >*/
   BtMainPagePatternsPrivate *priv;
 };
 
 struct _BtMainPagePatternsClass {
-  GtkVBoxClass parent;
+  GtkBoxClass parent;
   
 };
 

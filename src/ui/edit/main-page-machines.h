@@ -40,14 +40,14 @@ typedef struct _BtMainPageMachinesPrivate BtMainPageMachinesPrivate;
  * the machines page for the editor application
  */
 struct _BtMainPageMachines {
-  GtkVBox parent;
+  GtkBox parent;
   
   /*< private >*/
   BtMainPageMachinesPrivate *priv;
 };
 
 struct _BtMainPageMachinesClass {
-  GtkVBoxClass parent;
+  GtkBoxClass parent;
   
 };
 

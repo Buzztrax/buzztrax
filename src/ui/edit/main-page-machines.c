@@ -157,7 +157,7 @@ static void bt_main_page_machines_change_logger_interface_init (gpointer const
     g_iface, gconstpointer const iface_data);
 
 G_DEFINE_TYPE_WITH_CODE (BtMainPageMachines, bt_main_page_machines,
-    GTK_TYPE_VBOX, G_IMPLEMENT_INTERFACE (BT_TYPE_CHANGE_LOGGER,
+    GTK_TYPE_BOX, G_IMPLEMENT_INTERFACE (BT_TYPE_CHANGE_LOGGER,
         bt_main_page_machines_change_logger_interface_init));
 
 enum
@@ -2574,6 +2574,9 @@ bt_main_page_machines_init (BtMainPageMachines * self)
   // the undo/redo changelogger
   self->priv->change_log = bt_change_log_new ();
   bt_change_log_register (self->priv->change_log, BT_CHANGE_LOGGER (self));
+
+  gtk_orientable_set_orientation (GTK_ORIENTABLE (self),
+      GTK_ORIENTATION_VERTICAL);
 }
 
 static void

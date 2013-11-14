@@ -40,14 +40,14 @@ typedef struct _BtMainPageInfoPrivate BtMainPageInfoPrivate;
  * the info page for the editor application
  */
 struct _BtMainPageInfo {
-  GtkVBox parent;
+  GtkBox parent;
   
   /*< private >*/
   BtMainPageInfoPrivate *priv;
 };
 
 struct _BtMainPageInfoClass {
-  GtkVBoxClass parent;
+  GtkBoxClass parent;
   
 };
 

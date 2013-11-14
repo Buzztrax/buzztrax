@@ -40,14 +40,14 @@ typedef struct _BtMainPageWavesPrivate BtMainPageWavesPrivate;
  * the pattern page for the editor application
  */
 struct _BtMainPageWaves {
-  GtkVBox parent;
+  GtkBox parent;
   
   /*< private >*/
   BtMainPageWavesPrivate *priv;
 };
 
 struct _BtMainPageWavesClass {
-  GtkVBoxClass parent;
+  GtkBoxClass parent;
   
 };
 

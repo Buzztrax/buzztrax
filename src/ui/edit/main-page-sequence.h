@@ -40,14 +40,14 @@ typedef struct _BtMainPageSequencePrivate BtMainPageSequencePrivate;
  * the sequence page for the editor application
  */
 struct _BtMainPageSequence {
-  GtkVBox parent;
+  GtkBox parent;
   
   /*< private >*/
   BtMainPageSequencePrivate *priv;
 };
 
 struct _BtMainPageSequenceClass {
-  GtkVBoxClass parent;
+  GtkBoxClass parent;
   
 };
 
