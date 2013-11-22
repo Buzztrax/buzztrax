@@ -39,12 +39,12 @@
  * Using gst_debug_log would require use to set debug categories for each GLib
  * log domain.
  */
-static GstClockTime _priv_gst_info_start_time;
+static GstClockTime _priv_bt_info_start_time;
 
 void
 bt_check_init (void)
 {
-  _priv_gst_info_start_time = gst_util_get_timestamp ();
+  _priv_bt_info_start_time = gst_util_get_timestamp ();
   extern gboolean bt_test_plugin_init (GstPlugin * plugin);
   gst_plugin_register_static (GST_VERSION_MAJOR,
       GST_VERSION_MINOR,
@@ -262,7 +262,7 @@ check_log_handler (const gchar * const log_domain,
   }
 
   elapsed =
-      GST_CLOCK_DIFF (_priv_gst_info_start_time, gst_util_get_timestamp ());
+      GST_CLOCK_DIFF (_priv_bt_info_start_time, gst_util_get_timestamp ());
 
   msg = g_alloca (85 + strlen (log_domain) + strlen (level) + strlen (message));
   g_sprintf (msg,
@@ -303,7 +303,7 @@ check_gst_log_handler (GstDebugCategory * category,
     __check_error_trapped = TRUE;
 
   elapsed =
-      GST_CLOCK_DIFF (_priv_gst_info_start_time, gst_util_get_timestamp ());
+      GST_CLOCK_DIFF (_priv_bt_info_start_time, gst_util_get_timestamp ());
   level_str = gst_debug_level_get_name (level);
   cat_str = gst_debug_category_get_name (category);
   if (object) {
