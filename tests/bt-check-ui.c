@@ -776,8 +776,10 @@ check_send_click (GtkWidget * widget, guint button, gdouble x, gdouble y)
 void
 flush_main_loop (void)
 {
+  GMainContext *ctx = g_main_context_default ();
+
   GST_INFO ("flushing pending events ...");
-  while (gtk_events_pending ())
-    gtk_main_iteration ();
+  while (g_main_context_pending (ctx))
+    g_main_context_iteration (ctx, FALSE);
   GST_INFO ("... done");
 }
