@@ -688,6 +688,37 @@ bt_g_type_get_base_type (GType type)
   return type;
 }
 
+/*
+ * on_object_weak_unref:
+ * @user_data: the #GSource id
+ * @obj: the old #GObject
+ *
+ * Use this with g_idle_add to detach handlers when the object is disposed.
+ */
+static void
+on_object_weak_unref (gpointer user_data, GObject * obj)
+{
+  g_source_remove (GPOINTER_TO_UINT (user_data));
+}
+
+/**
+ * bt_g_object_idle_add:
+ * @user_data: the #GSource id
+ * @obj: the old #GObject
+ * @func: the callback
+ *
+ * A g_idle_add_full() variant, that passes @obj as user_data and detaches the
+ * handler when @obj gets destroyed.
+ */
+guint
+bt_g_object_idle_add (GObject * obj, gint pri, GSourceFunc func)
+{
+  guint id = g_idle_add_full (pri, func, obj, NULL);
+
+  g_object_weak_ref (obj, on_object_weak_unref, GUINT_TO_POINTER (id));
+  return id;
+}
+
 /**
  * bt_g_signal_connect:
  * @instance: the instance to connect to.
