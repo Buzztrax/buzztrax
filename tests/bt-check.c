@@ -19,6 +19,9 @@
 /**
  * SECTION::btcheck:
  * @short_description: testing helpers
+ *
+ * Contains plumbing for selective test execution. One can set BT_CHECKS to a
+ * glob expression matching one or more tests to run.
  */
 
 #include <sys/types.h>
