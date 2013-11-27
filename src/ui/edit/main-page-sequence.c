@@ -320,8 +320,8 @@ label_cell_data_function (GtkTreeViewColumn * col, GtkCellRenderer * renderer,
       ) {
     bg_col =
         ((row /
-            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->
-        priv->selection_bg1;
+            self->priv->bars) & 1) ? self->priv->selection_bg2 : self->priv->
+        selection_bg1;
   }
   if (bg_col) {
     g_object_set (renderer,
@@ -514,8 +514,8 @@ sequence_model_get_store (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))) {
     store = gtk_tree_model_filter_get_model (filtered_store);
   }
   return (store);
@@ -563,8 +563,8 @@ sequence_update_model_length (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))) {
     BtSequenceGridModel *store =
         BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
         (filtered_store));
@@ -1103,8 +1103,8 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
   GST_INFO ("label edited: '%s': '%s'", path_string, new_text);
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))
       && (store = gtk_tree_model_filter_get_model (filtered_store))
       ) {
     GtkTreeIter iter, filter_iter;
@@ -1234,8 +1234,8 @@ sequence_pos_table_init (const BtMainPageSequence * self)
 
   gtk_box_pack_start (GTK_BOX (self->priv->sequence_pos_table_header),
       self->priv->pos_header, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (GTK_WIDGET (self->
-          priv->sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
+  gtk_widget_set_size_request (GTK_WIDGET (self->priv->
+          sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
 
   // add static column
   renderer = gtk_cell_renderer_text_new ();
@@ -1465,8 +1465,6 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
   g_object_get (self->priv->sequence, "tracks", &track_ct, NULL);
 
   // TODO(ensonic): we'd like to update this instead of re-creating things
-  // reset columns
-  sequence_table_clear (self);
   // add initial columns
   sequence_table_init (self);
 
@@ -1980,6 +1978,13 @@ sequence_set_loop_end (const BtMainPageSequence * self, glong row)
   g_object_set (self->priv->sequence_pos_table, "loop-start", pos, NULL);
 }
 
+static void
+reset_selection (const BtMainPageSequence * self)
+{
+  self->priv->selection_start_column = self->priv->selection_start_row =
+      self->priv->selection_end_column = self->priv->selection_end_row = -1;
+}
+
 /*
  * sequence_add_track:
  * @pos: the track position (-1 at the end)
@@ -1995,18 +2000,19 @@ sequence_add_track (const BtMainPageSequence * self, BtMachine * machine,
 
   g_object_get (self->priv->app, "song", &song, NULL);
 
-  bt_sequence_add_track (self->priv->sequence, machine, pos);
+  {
+    // reset columns
+    sequence_table_clear (self);
 
-  GST_INFO ("track added for machine %" G_OBJECT_REF_COUNT_FMT,
-      G_OBJECT_LOG_REF_COUNT (machine));
+    bt_sequence_add_track (self->priv->sequence, machine, pos);
+    GST_INFO ("track added for machine %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (machine));
 
-  // reset selection
-  self->priv->selection_start_column = self->priv->selection_start_row =
-      self->priv->selection_end_column = self->priv->selection_end_row = -1;
+    reset_selection (self);
 
-  // reinit the view
-  sequence_table_refresh_columns (self, song);
-
+    // reinit the view
+    sequence_table_refresh_columns (self, song);
+  }
   GST_INFO ("track update for machine %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
@@ -2167,19 +2173,20 @@ on_track_remove_activated (GtkMenuItem * menuitem, gpointer user_data)
   // change number of tracks
   g_object_get (self->priv->sequence, "tracks", &number_of_tracks, NULL);
   if (number_of_tracks > 0) {
-    BtSong *song;
+    {
+      BtSong *song;
+      // reset columns
+      sequence_table_clear (self);
 
-    sequence_remove_track (self, self->priv->cursor_column - 1);
+      sequence_remove_track (self, self->priv->cursor_column - 1);
 
-    // reset selection
-    self->priv->selection_start_column = self->priv->selection_start_row =
-        self->priv->selection_end_column = self->priv->selection_end_row = -1;
+      reset_selection (self);
 
-    // get song from app
-    g_object_get (self->priv->app, "song", &song, NULL);
-
-    // reinit the view
-    sequence_table_refresh_columns (self, song);
+      // reinit the view
+      g_object_get (self->priv->app, "song", &song, NULL);
+      sequence_table_refresh_columns (self, song);
+      g_object_unref (song);
+    }
 
     if (self->priv->cursor_column >= number_of_tracks) {
       // update cursor_column and focus cell
@@ -2189,8 +2196,6 @@ on_track_remove_activated (GtkMenuItem * menuitem, gpointer user_data)
     }
 
     update_after_track_changed (self);
-
-    g_object_unref (song);
   }
 }
 
@@ -2212,6 +2217,7 @@ on_track_move_left_activated (GtkMenuItem * menuitem, gpointer user_data)
 
       self->priv->cursor_column--;
       // reinit the view
+      sequence_table_clear (self);
       sequence_table_refresh_columns (self, song);
       sequence_view_set_cursor_pos (self);
 
@@ -2246,6 +2252,7 @@ on_track_move_right_activated (GtkMenuItem * menuitem, gpointer user_data)
 
       self->priv->cursor_column++;
       // reinit the view
+      sequence_table_clear (self);
       sequence_table_refresh_columns (self, song);
       sequence_view_set_cursor_pos (self);
 
@@ -2341,8 +2348,8 @@ on_bars_menu_changed (GtkComboBox * combo_box, gpointer user_data)
       sequence_calculate_visible_lines (self);
       //GST_INFO("  bars = %d",self->priv->bars);
       if ((filtered_store =
-              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                      priv->sequence_table)))) {
+              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                      sequence_table)))) {
         BtSequenceGridModel *store =
             BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
             (filtered_store));
@@ -3036,8 +3043,8 @@ on_sequence_table_button_press_event (GtkWidget * widget,
             // set cell focus
             gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
                 FALSE);
-            gtk_widget_grab_focus_savely (GTK_WIDGET (self->
-                    priv->sequence_table));
+            gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
+                    sequence_table));
             // reset selection
             self->priv->selection_start_column =
                 self->priv->selection_start_row =
@@ -3110,8 +3117,8 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
           }
           gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
               FALSE);
-          gtk_widget_grab_focus_savely (GTK_WIDGET (self->
-                  priv->sequence_table));
+          gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
+                  sequence_table));
           // cursor updates are not yet processed
           on_sequence_table_cursor_changed_idle (self);
           GST_DEBUG ("cursor new/old: %3ld,%3ld -> %3ld,%3ld", cursor_column,
@@ -3258,7 +3265,6 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
 {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
   gulong number_of_tracks;
-  BtSong *song;
 
   g_return_if_fail (BT_IS_MACHINE (machine));
 
@@ -3268,18 +3274,22 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
   // reinit the menu
   machine_menu_refresh (self, setup);
 
-  // remove all tracks
-  bt_sequence_remove_track_by_machine (self->priv->sequence, machine);
+  {
+    BtSong *song;
 
-  // reset selection
-  // TODO(ensonic): only if it intersects with selection
-  self->priv->selection_start_column = self->priv->selection_start_row =
-      self->priv->selection_end_column = self->priv->selection_end_row = -1;
+    // reset columns
+    sequence_table_clear (self);
+    // remove all tracks
+    bt_sequence_remove_track_by_machine (self->priv->sequence, machine);
 
-  // reinit the view
-  g_object_get (self->priv->app, "song", &song, NULL);
-  sequence_table_refresh_columns (self, song);
-  g_object_unref (song);
+    // TODO(ensonic): only if it intersects with selection
+    reset_selection (self);
+
+    // reinit the view
+    g_object_get (self->priv->app, "song", &song, NULL);
+    sequence_table_refresh_columns (self, song);
+    g_object_unref (song);
+  }
 
   g_object_get (self->priv->sequence, "tracks", &number_of_tracks, NULL);
   if (self->priv->cursor_column >= number_of_tracks) {
@@ -3456,6 +3466,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   // update page
   // update sequence and pattern list
   sequence_table_refresh_model (self, song);
+  sequence_table_clear (self);
   sequence_table_refresh_columns (self, song);
   update_after_track_changed (self);
   machine_menu_refresh (self, setup);
@@ -3611,8 +3622,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   self->priv->context_menu_add =
       GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (_("Add track")));
   image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->
-          priv->context_menu_add), image);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->priv->
+          context_menu_add), image);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
       GTK_WIDGET (self->priv->context_menu_add));
   gtk_widget_show (GTK_WIDGET (self->priv->context_menu_add));
@@ -4474,6 +4485,7 @@ bt_main_page_sequence_change_logger_change (const BtChangeLogger * owner,
 
         g_object_get (self->priv->app, "song", &song, NULL);
         // reinit the view
+        sequence_table_clear (self);
         sequence_table_refresh_columns (self, song);
         sequence_view_set_cursor_pos (self);
         g_object_unref (song);
