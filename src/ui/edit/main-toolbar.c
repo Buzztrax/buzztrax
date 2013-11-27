@@ -562,8 +562,9 @@ on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
 }
 
 static gboolean
-update_level_meters (BtMainToolbar * self)
+update_level_meters (gpointer user_data)
 {
+  BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
   gint i;
 
   for (i = 0; i < self->priv->num_channels; i++) {
@@ -716,7 +717,8 @@ on_channels_negotiated (GstPad * pad, GParamSpec * arg, gpointer user_data)
         GST_INFO ("input level src has %d output channels",
             self->priv->num_channels);
         // need to call this via g_idle_add as it triggers the redraw
-        g_idle_add ((GSourceFunc) update_level_meters, self);
+        bt_g_object_idle_add ((GObject *) self, G_PRIORITY_DEFAULT_IDLE,
+            update_level_meters);
       }
     } else {
       GST_WARNING_OBJECT (pad, "expecting simple caps");

@@ -143,8 +143,9 @@ G_DEFINE_TYPE (BtSignalAnalysisDialog, bt_signal_analysis_dialog,
 //-- event handler helper
 
 static gboolean
-update_spectrum_ruler (const BtSignalAnalysisDialog * self)
+update_spectrum_ruler (gpointer user_data)
 {
+  BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
   gtk_widget_queue_draw (self->priv->spectrum_ruler);
   return FALSE;
 }
@@ -834,7 +835,8 @@ on_caps_negotiated (GstPad * pad, GParamSpec * arg, gpointer user_data)
       if (self->priv->srate != old_srate) {
         update_spectrum_graph_log10 (self);
         // need to call this via g_idle_add as it triggers the redraw
-        g_idle_add ((GSourceFunc) update_spectrum_ruler, self);
+        bt_g_object_idle_add ((GObject *) self, G_PRIORITY_DEFAULT_IDLE,
+            update_spectrum_ruler);
       }
     } else {
       GST_WARNING_OBJECT (pad, "expecting simple caps");
@@ -976,7 +978,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   gtk_widget_set_size_request (ruler, -1, AXIS_THICKNESS);
   gtk_box_pack_start (GTK_BOX (vbox), ruler, FALSE, FALSE, 0);
   self->priv->spectrum_ruler = ruler;
-  update_spectrum_ruler (self);
+  update_spectrum_ruler ((gpointer) self);
 
   /* add spectrum canvas */
   self->priv->spectrum_drawingarea = gtk_drawing_area_new ();
