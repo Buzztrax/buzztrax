@@ -18,6 +18,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+enum
+{
+  FMT_OGG_VORBIS = 0,
+  FMT_MP3,
+  FMT_XING_MP3,
+  FMT_WAV,
+  FMT_OGG_FLAC,
+  FMT_MP4_AAC,
+  FMT_FLAC,
+  FMT_RAW,
+  FMT_CT
+};
+
 static void
 event_loop (GstElement * bin)
 {
@@ -54,9 +67,10 @@ event_loop (GstElement * bin)
 
 static GstEncodingProfile *
 create_profile (gchar * name, gchar * desc, gchar * container_caps,
-    gchar * audio_caps)
+    gchar * container_caps2, gchar * audio_caps)
 {
   GstEncodingContainerProfile *c_profile = NULL;
+  GstEncodingContainerProfile *c_profile2 = NULL;
   GstEncodingAudioProfile *a_profile = NULL;
   GstCaps *caps;
 
@@ -81,6 +95,19 @@ create_profile (gchar * name, gchar * desc, gchar * container_caps,
     gst_caps_unref (caps);
   }
 
+  if (container_caps2) {
+    if (!(caps = gst_caps_from_string (container_caps2))) {
+      GST_WARNING ("can't parse caps \"%s\" for \"%s\"", container_caps2, name);
+      return NULL;
+    }
+    if (!(c_profile2 =
+            gst_encoding_container_profile_new (name, desc, caps, NULL))) {
+      GST_WARNING ("can't create container profile for caps \"%s\" for \"%s\"",
+          container_caps2, name);
+    }
+    gst_caps_unref (caps);
+  }
+
   if (!(caps = gst_caps_from_string (audio_caps))) {
     GST_WARNING ("can't parse caps \"%s\" for \"%s\"", audio_caps, name);
     return NULL;
@@ -92,9 +119,19 @@ create_profile (gchar * name, gchar * desc, gchar * container_caps,
   gst_caps_unref (caps);
 
   if (c_profile) {
-    gst_encoding_container_profile_add_profile (c_profile,
-        (GstEncodingProfile *)
-        a_profile);
+    if (c_profile2) {
+      // FIXME(ensonic): this is not supported
+      gst_encoding_container_profile_add_profile (c_profile,
+          (GstEncodingProfile *)
+          c_profile2);
+      gst_encoding_container_profile_add_profile (c_profile2,
+          (GstEncodingProfile *)
+          a_profile);
+    } else {
+      gst_encoding_container_profile_add_profile (c_profile,
+          (GstEncodingProfile *)
+          a_profile);
+    }
     return (GstEncodingProfile *) c_profile;
   } else {
     return (GstEncodingProfile *) a_profile;
@@ -132,45 +169,52 @@ main (gint argc, gchar ** argv)
     enc = gst_element_factory_make ("encodebin", NULL);
     sink = gst_element_factory_make ("filesink", NULL);
     switch (format) {
-      case 0:
+      case FMT_OGG_VORBIS:
         g_object_set (sink, "location", "encode.encodebin.vorbis.ogg", NULL);
         profile = create_profile ("Ogg Vorbis record format", "Ogg Vorbis",
-            "audio/ogg", "audio/x-vorbis");
+            "audio/ogg", NULL, "audio/x-vorbis");
         puts ("encoding ogg vorbis");
         break;
-      case 1:
+      case FMT_MP3:
         g_object_set (sink, "location", "encode.encodebin.mp3", NULL);
         profile = create_profile ("MP3 record format", "MP3 Audio",
-            "application/x-id3", "audio/mpeg, mpegversion=1, layer=3");
+            "application/x-id3", NULL, "audio/mpeg, mpegversion=1, layer=3");
         puts ("encoding mp3");
         break;
-      case 2:
+      case FMT_XING_MP3:
+        g_object_set (sink, "location", "encode.encodebin.xing.mp3", NULL);
+        profile = create_profile ("MP3 record format", "MP3 Audio",
+            "application/x-id3", "audio/mpeg, mpegversion=1, layer=3",
+            "audio/mpeg, mpegversion=1, layer=3");
+        puts ("encoding xing-mp3");
+        break;
+      case FMT_WAV:
         g_object_set (sink, "location", "encode.encodebin.wav", NULL);
         profile =
             create_profile ("WAV record format", "WAV Audio", "audio/x-wav",
-            "audio/x-raw, format=(string)S16LE");
+            NULL, "audio/x-raw, format=(string)S16LE");
         puts ("encoding wav");
         break;
-      case 3:
+      case FMT_OGG_FLAC:
         g_object_set (sink, "location", "encode.encodebin.flac.ogg", NULL);
         profile =
             create_profile ("Ogg Flac record format", "Ogg Flac", "audio/ogg",
-            "audio/x-flac");
+            NULL, "audio/x-flac");
         puts ("encoding ogg flac");
         break;
-      case 4:
+      case FMT_MP4_AAC:
         g_object_set (sink, "location", "encode.encodebin.m4a", NULL);
         profile = create_profile ("M4A record format", "M4A Audio",
-            "video/quicktime", "audio/mpeg, mpegversion=(int)4");
+            NULL, "video/quicktime", "audio/mpeg, mpegversion=(int)4");
         puts ("encoding m4a");
         break;
-      case 5:
+      case FMT_FLAC:
         g_object_set (sink, "location", "encode.encodebin.flac", NULL);
         profile = create_profile ("Flac record format", "Flac",
-            NULL, "audio/x-flac");
+            NULL, NULL, "audio/x-flac");
         puts ("encoding flac");
         break;
-      case 6:
+      case FMT_RAW:
         g_object_set (sink, "location", "encode.encodebin.raw", NULL);
         puts ("encoding raw");
         break;
@@ -190,42 +234,47 @@ main (gint argc, gchar ** argv)
     src = gst_object_ref (src);
   } else {
     switch (format) {
-      case 0:
+      case FMT_OGG_VORBIS:
         pipeline =
             "audiotestsrc name=s ! vorbisenc ! oggmux ! filesink location=encode.direct.vorbis.ogg";
         puts ("encoding ogg vorbis");
         break;
-      case 1:
+      case FMT_MP3:
         pipeline =
-            "audiotestsrc name=s ! lamemp3enc ! filesink location=encode.direct.mp3";
+            "audiotestsrc name=s ! lamemp3enc ! id3mux ! filesink location=encode.direct.mp3";
         puts ("encoding mp3");
         break;
-      case 2:
+      case FMT_XING_MP3:
+        pipeline =
+            "audiotestsrc name=s ! lamemp3enc ! xingmux ! id3mux ! filesink location=encode.direct.xing.mp3";
+        puts ("encoding xing-mp3");
+        break;
+      case FMT_WAV:
         pipeline =
             "audiotestsrc name=s ! wavenc ! filesink location=encode.direct.wav";
         puts ("encoding wav");
         break;
-      case 3:
+      case FMT_OGG_FLAC:
         pipeline =
             "audiotestsrc name=s ! flacenc ! flacparse ! flactag ! oggmux ! filesink location=encode.direct.flac.ogg";
         puts ("encoding ogg flac");
         break;
-      case 4:
+      case FMT_MP4_AAC:
         pipeline =
-            "audiotestsrc name=s ! faac ! mp4mux ! filesink location=encode.direct.m4a";
+            "audiotestsrc name=s ! voaacenc ! mp4mux ! filesink location=encode.direct.m4a";
         puts ("encoding m4a");
         break;
-      case 5:
+      case FMT_FLAC:
         pipeline =
             "audiotestsrc name=s ! flacenc ! flacparse ! flactag ! filesink location=encode.direct.flac";
         puts ("encoding flac");
         break;
-      case 6:
+      case FMT_RAW:
         pipeline = "audiotestsrc name=s ! filesink location=encode.direct.raw";
         puts ("encoding raw");
         break;
       default:
-        puts ("format must be 0-6");
+        printf ("format must be 0-%d", FMT_CT);
         return -1;
     }
     bin = gst_parse_launch (pipeline, NULL);
