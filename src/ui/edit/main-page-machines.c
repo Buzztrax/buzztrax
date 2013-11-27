@@ -1067,6 +1067,7 @@ static void
 on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
+  BtMainPageMachinesPrivate *p = self->priv;
   BtMachine *machine;
   GHashTable *properties;
   GList *node, *list;
@@ -1082,13 +1083,13 @@ on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
   gdouble old_zoom = self->priv->zoom;
 
   //calculate bounds
-  g_object_get (self->priv->setup, "machines", &list, NULL);
+  g_object_get (p->setup, "machines", &list, NULL);
   for (node = list; node; node = g_list_next (node)) {
     machine = BT_MACHINE (node->data);
     // get position
     g_object_get (machine, "properties", &properties, NULL);
-    ma_x = self->priv->canvas_w / 2.0;
-    ma_y = self->priv->canvas_h / 2.0;
+    ma_x = p->canvas_w / 2.0;
+    ma_y = p->canvas_h / 2.0;
     machine_view_get_machine_position (properties, &ma_x, &ma_y);
     if (ma_x < ma_xs)
       ma_xs = ma_x;
@@ -1098,23 +1099,36 @@ on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
       ma_ys = ma_y;
     if (ma_y > ma_ye)
       ma_ye = ma_y;
-    GST_DEBUG
-        ("machines: x:%+6.4lf y:%+6.4lf -> ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",
-        ma_x, ma_y, ma_xs, ma_xe, ma_ys, ma_ye);
   }
   g_list_free (list);
-  /* need to add machine extends + some space */
-  GST_INFO ("machines ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",
+  GST_WARNING
+      ("machines ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",
       ma_xs, ma_xe, ma_ys, ma_ye);
+  GST_WARNING
+      ("bb       ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",
+      p->mi_x, p->ma_x, p->mi_y, p->ma_y);
+
+  /* need to add machine extends + some space */
   ms = MACHINE_SIZE_X;
+#if 0
   ma_xs -= ms;
   ma_xe += ms;
+#else
+  ma_xs = p->mi_x - ms;
+  ma_xe = p->ma_x + ms;
+#endif
   ma_xd = (ma_xe - ma_xs);
   ms = MACHINE_SIZE_Y;
+#if 0
   ma_ys -= ms;
   ma_ye += ms;
+#else
+  ma_ys = p->mi_y - ms;
+  ma_ye = p->ma_y + ms;
+#endif
   ma_yd = (ma_ye - ma_ys);
 
+#if 0
   g_object_get (self->priv->hadjustment,
       /*"lower",&pg_xs,"value",&pg_x,"upper",&pg_xe, */ "page-size", &pg_xl,
       NULL);
@@ -1127,46 +1141,45 @@ on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
      GST_INFO("page: pos x/y:%+6.4lf %+6.4lf size x/y: %+6.4lf %+6.4lf -> ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",
      pg_x,pg_y,pg_xl,pg_yl, pg_xs,pg_xe,pg_ys,pg_ye);
    */
+#else
+  pg_xl = p->view_w;
+  pg_yl = p->view_h;
+#endif
 
   // zoom
   fc_x = pg_xl / ma_xd;
   fc_y = pg_yl / ma_yd;
-  GST_INFO
+  GST_WARNING
       ("zoom old=%6.4lf, x:%+6.4lf / %+6.4lf = %+6.4lf and y:%+6.4lf / %+6.4lf = %+6.4lf",
       self->priv->zoom, pg_xl, ma_xd, fc_x, pg_yl, ma_yd, fc_y);
   self->priv->zoom = MIN (fc_x, fc_y);
 
   // center region
   /* pos can be between: lower ... upper-page_size) */
-  GST_INFO ("x: (%+6.4lf-%+6.4lf)/2=%+6.4lf", pg_xl, (ma_xd * self->priv->zoom),
-      ((pg_xl - (ma_xd * self->priv->zoom)) / 2.0));
-  GST_INFO ("y: (%+6.4lf-%+6.4lf)/2=%+6.4lf", pg_yl, (ma_yd * self->priv->zoom),
-      ((pg_yl - (ma_yd * self->priv->zoom)) / 2.0));
-  c_x =
-      (MACHINE_VIEW_SIZE_X + ma_xs) * self->priv->zoom - ((pg_xl -
-          (ma_xd * self->priv->zoom)) / 2.0);
-  c_y =
-      (MACHINE_VIEW_SIZE_Y + ma_ys) * self->priv->zoom - ((pg_yl -
-          (ma_yd * self->priv->zoom)) / 2.0);
-  gtk_adjustment_set_value (self->priv->hadjustment, c_x);
-  gtk_adjustment_set_value (self->priv->vadjustment, c_y);
-  GST_INFO
-      ("toolbar zoom_fit event occurred: zoom = %lf, center x/y = %+6.4lf,%+6.4lf",
-      self->priv->zoom, c_x, c_y);
+  GST_INFO ("x: (%+6.4lf-%+6.4lf)/2=%+6.4lf", pg_xl, (ma_xd * p->zoom),
+      ((pg_xl - (ma_xd * p->zoom)) / 2.0));
+  GST_INFO ("y: (%+6.4lf-%+6.4lf)/2=%+6.4lf", pg_yl, (ma_yd * p->zoom),
+      ((pg_yl - (ma_yd * p->zoom)) / 2.0));
+  c_x = (MACHINE_VIEW_SIZE_X + ma_xs) * p->zoom -
+      ((pg_xl - (ma_xd * p->zoom)) / 2.0);
+  c_y = (MACHINE_VIEW_SIZE_Y + ma_ys) * p->zoom -
+      ((pg_yl - (ma_yd * p->zoom)) / 2.0);
+  gtk_adjustment_set_value (p->hadjustment, c_x);
+  gtk_adjustment_set_value (p->vadjustment, c_y);
+  GST_WARNING ("toolbar zoom_fit: zoom = %lf, center x/y = %+6.4lf,%+6.4lf",
+      p->zoom, c_x, c_y);
 
-  if (self->priv->zoom > old_zoom) {
-    clutter_actor_set_scale (self->priv->canvas, self->priv->zoom,
-        self->priv->zoom);
+  if (p->zoom > old_zoom) {
+    clutter_actor_set_scale (p->canvas, p->zoom, p->zoom);
     update_scrolled_window_zoom (self);
     update_machines_zoom (self);
   } else {
     update_machines_zoom (self);
-    clutter_actor_set_scale (self->priv->canvas, self->priv->zoom,
-        self->priv->zoom);
+    clutter_actor_set_scale (p->canvas, p->zoom, p->zoom);
     update_scrolled_window_zoom (self);
   }
 
-  gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->canvas_widget));
+  gtk_widget_grab_focus_savely (GTK_WIDGET (p->canvas_widget));
 
 }
 
@@ -1768,8 +1781,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
       G_CALLBACK (on_canvas_size_changed), (gpointer) self);
   self->priv->stage =
-      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
-          priv->canvas_widget));
+      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->priv->
+          canvas_widget));
   GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
   GdkColor *c = &style->bg[GTK_STATE_NORMAL];
   ClutterColor stage_color = {
@@ -1817,8 +1830,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->vol_popup_adj =
       gtk_adjustment_new (100.0, 0.0, 400.0, 1.0, 10.0, 1.0);
   self->priv->vol_popup =
-      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->priv->
-              vol_popup_adj)));
+      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->
+              priv->vol_popup_adj)));
   g_signal_connect (self->priv->vol_popup_adj, "value-changed",
       G_CALLBACK (on_volume_popup_changed), (gpointer) self);
 
@@ -1826,8 +1839,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->pan_popup_adj =
       gtk_adjustment_new (0.0, -100.0, 100.0, 1.0, 10.0, 1.0);
   self->priv->pan_popup =
-      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->priv->
-              pan_popup_adj)));
+      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->
+              priv->pan_popup_adj)));
   g_signal_connect (self->priv->pan_popup_adj, "value-changed",
       G_CALLBACK (on_panorama_popup_changed), (gpointer) self);
 
