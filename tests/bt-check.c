@@ -22,6 +22,13 @@
  *
  * Contains plumbing for selective test execution. One can set BT_CHECKS to a
  * glob expression matching one or more tests to run.
+ *
+ * The test setup installs special glib log handlers that output glib messages
+ * to the gstreamer log stream. It also installs gstreamer log handlers that
+ * separate log messer per test-suite and test. The logs are written by default
+ * to $TMPDIR/&lt;test-cmd&gt;/&lt;suite&gt;.log and
+ * $TMPDIR/&lt;test-cmd&gt;/&lt;suite&gt;/&lt;test&gt;.&lt;run&gt;log. The 'run'
+ * field is the index for loop-tests and 0 for non-loop tests.
  */
 
 #include <sys/types.h>
