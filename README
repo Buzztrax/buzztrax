@@ -85,3 +85,6 @@ where XXX is one of 'core', 'cmd' and 'edit'
 and in another
   make check
 
+select tests to run
+BT_CHECKS="test_bt_edit_app*" make bt_edit.check
+
