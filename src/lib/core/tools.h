@@ -152,15 +152,17 @@ sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
  *
  * Printf format string for #G_OBJECT_LOG_REF_COUNT.
  */
-#define G_OBJECT_REF_COUNT_FMT "p,ref_ct=%d"
+#define G_OBJECT_REF_COUNT_FMT "p,ref_ct=%d,floating=%d"
 
 /**
  * G_OBJECT_LOG_REF_COUNT:
  * @o: the object (may be %NULL)
  *
- * Logs an object together with its refcounts. Use with #G_OBJECT_REF_COUNT_FMT.
+ * Logs an object pointer together with its refcount value and the floating
+ * flag. Use with #G_OBJECT_REF_COUNT_FMT.
  */
-#define G_OBJECT_LOG_REF_COUNT(o) (o), G_OBJECT_REF_COUNT ((o))
+#define G_OBJECT_LOG_REF_COUNT(o) \
+  (o), G_OBJECT_REF_COUNT ((o)), (o ? g_object_is_floating((gpointer)o) : 0)
 
 /**
  * g_object_try_ref:
