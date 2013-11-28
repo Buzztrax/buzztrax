@@ -947,7 +947,7 @@ static void
 on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  BtMachineCanvasItem *item;
+  ClutterActor *item;
 
   if (!machine)
     return;
@@ -956,9 +956,10 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
       G_OBJECT_LOG_REF_COUNT (machine));
 
   if ((item = g_hash_table_lookup (self->priv->machines, machine))) {
-    GST_INFO ("now removing machine-item : %p", item);
+    GST_INFO ("now removing machine-item : %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (item));
     g_hash_table_remove (self->priv->machines, machine);
-    g_object_unref (item);
+    clutter_actor_destroy (item);
   }
 
   GST_INFO_OBJECT (machine, "... machine removed: %" G_OBJECT_REF_COUNT_FMT,
@@ -969,7 +970,7 @@ static void
 on_wire_removed (BtSetup * setup, BtWire * wire, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  BtWireCanvasItem *item;
+  ClutterActor *item;
 
   if (!wire) {
     return;
@@ -1018,9 +1019,10 @@ on_wire_removed (BtSetup * setup, BtWire * wire, gpointer user_data)
   }
 
   if ((item = g_hash_table_lookup (self->priv->wires, wire))) {
-    GST_INFO ("now removing wire-item : %p", item);
+    GST_INFO ("now removing wire-item : %" G_OBJECT_REF_COUNT_FMT,
+        G_OBJECT_LOG_REF_COUNT (item));
     g_hash_table_remove (self->priv->wires, wire);
-    g_object_unref (item);
+    clutter_actor_destroy (item);
   }
 
   GST_INFO_OBJECT (wire, "... wire removed: %" G_OBJECT_REF_COUNT_FMT,
@@ -1470,7 +1472,7 @@ on_canvas_button_release (ClutterActor * actor, ClutterEvent * event,
     }
     g_object_unref (self->priv->new_wire_src);
     self->priv->new_wire_src = NULL;
-    clutter_actor_remove_child (self->priv->canvas, self->priv->new_wire);
+    clutter_actor_destroy (self->priv->new_wire);
     self->priv->new_wire = NULL;
     self->priv->connecting = FALSE;
   } else if (self->priv->dragging) {
@@ -1781,8 +1783,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
       G_CALLBACK (on_canvas_size_changed), (gpointer) self);
   self->priv->stage =
-      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->priv->
-          canvas_widget));
+      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
+          priv->canvas_widget));
   GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
   GdkColor *c = &style->bg[GTK_STATE_NORMAL];
   ClutterColor stage_color = {
@@ -1830,8 +1832,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->vol_popup_adj =
       gtk_adjustment_new (100.0, 0.0, 400.0, 1.0, 10.0, 1.0);
   self->priv->vol_popup =
-      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->
-              priv->vol_popup_adj)));
+      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->priv->
+              vol_popup_adj)));
   g_signal_connect (self->priv->vol_popup_adj, "value-changed",
       G_CALLBACK (on_volume_popup_changed), (gpointer) self);
 
@@ -1839,8 +1841,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->pan_popup_adj =
       gtk_adjustment_new (0.0, -100.0, 100.0, 1.0, 10.0, 1.0);
   self->priv->pan_popup =
-      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->
-              priv->pan_popup_adj)));
+      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->priv->
+              pan_popup_adj)));
   g_signal_connect (self->priv->pan_popup_adj, "value-changed",
       G_CALLBACK (on_panorama_popup_changed), (gpointer) self);
 

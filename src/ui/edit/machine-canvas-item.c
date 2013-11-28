@@ -982,6 +982,9 @@ bt_machine_canvas_item_new (const BtMainPageMachines * main_page_machines,
           "machines-page", main_page_machines, "machine", machine, "x", xpos,
           "y", ypos, "zoom", zoom, "reactive", TRUE, NULL));
 
+  GST_DEBUG ("machine canvas item created, %" G_OBJECT_REF_COUNT_FMT,
+      G_OBJECT_LOG_REF_COUNT (self));
+
   clutter_actor_add_child (canvas, (ClutterActor *) self);
 
   GST_DEBUG ("machine canvas item added, %" G_OBJECT_REF_COUNT_FMT,
