@@ -96,9 +96,6 @@ test_bt_wire_canvas_item_create (BT_TEST_ARGS)
 
   /* cleanup */
   flush_main_loop ();
-  g_object_unref (item);
-  g_object_unref (item1);
-  g_object_unref (item2);
   gst_object_unref (machine1);
   gst_object_unref (machine2);
   g_object_unref (machines_page);
@@ -135,9 +132,6 @@ test_bt_wire_canvas_item_show_analyzer (BT_TEST_ARGS)
   /* cleanup */
   flush_main_loop ();
   gtk_widget_destroy (dialog);
-  g_object_unref (item);
-  g_object_unref (item1);
-  g_object_unref (item2);
   gst_object_unref (machine1);
   gst_object_unref (machine2);
   g_object_unref (machines_page);

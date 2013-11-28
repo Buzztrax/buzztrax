@@ -90,7 +90,6 @@ test_bt_machine_canvas_item_create (BT_TEST_ARGS)
 
   /* cleanup */
   flush_main_loop ();
-  g_object_unref (item);
   gst_object_unref (machine);
   g_object_unref (machines_page);
   BT_TEST_END;
@@ -120,7 +119,6 @@ test_bt_machine_canvas_item_show_analyzer (BT_TEST_ARGS)
   /* cleanup */
   flush_main_loop ();
   gtk_widget_destroy (dialog);
-  g_object_unref (item);
   gst_object_unref (machine);
   g_object_unref (machines_page);
   BT_TEST_END;
@@ -150,7 +148,6 @@ test_bt_machine_canvas_item_show_preferences (BT_TEST_ARGS)
   /* cleanup */
   flush_main_loop ();
   gtk_widget_destroy (dialog);
-  g_object_unref (item);
   gst_object_unref (machine);
   g_object_unref (machines_page);
   BT_TEST_END;
@@ -180,7 +177,6 @@ test_bt_machine_canvas_item_show_properties (BT_TEST_ARGS)
   /* cleanup */
   flush_main_loop ();
   gtk_widget_destroy (dialog);
-  g_object_unref (item);
   gst_object_unref (machine);
   g_object_unref (machines_page);
   BT_TEST_END;
