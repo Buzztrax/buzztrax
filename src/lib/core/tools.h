@@ -33,8 +33,8 @@ GList *bt_gst_check_core_elements(void);
 
 //-- gst safe linking
 
-gboolean bt_bin_activate_tee_chain(GstBin *bin, GstElement *tee, GList* analyzers, gboolean is_playing);
-gboolean bt_bin_deactivate_tee_chain(GstBin *bin, GstElement *tee, GList* analyzers, gboolean is_playing);
+gboolean bt_bin_activate_tee_chain(GstBin *bin, GstElement *tee, GList* elements, gboolean is_playing);
+gboolean bt_bin_deactivate_tee_chain(GstBin *bin, GstElement *tee, GList* elements, gboolean is_playing);
 
 //-- gst debugging
 

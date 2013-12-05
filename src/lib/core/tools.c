@@ -336,15 +336,15 @@ bt_gst_element_get_sink_peer_pad (GstElement * const elem)
 static GstPadProbeReturn
 async_add (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
 {
-  GList *analyzers = (GList *) user_data;
-  GstPad *analyzer_sink =
-      gst_element_get_static_pad (GST_ELEMENT (analyzers->data), "sink");
+  GList *elements = (GList *) user_data;
+  GstPad *sink_pad =
+      gst_element_get_static_pad (GST_ELEMENT (elements->data), "sink");
   const GList *node;
   GstElement *next;
   GstPadLinkReturn plr;
 
   GST_INFO_OBJECT (tee_src, "sync state");
-  for (node = analyzers; node; node = g_list_next (node)) {
+  for (node = elements; node; node = g_list_next (node)) {
     next = GST_ELEMENT (node->data);
     if (!(gst_element_sync_state_with_parent (next))) {
       GST_INFO_OBJECT (tee_src, "cannot sync state for elements \"%s\"",
@@ -353,13 +353,13 @@ async_add (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
   }
 
   GST_INFO_OBJECT (tee_src, "linking to tee");
-  if (GST_PAD_LINK_FAILED (plr = gst_pad_link (tee_src, analyzer_sink))) {
+  if (GST_PAD_LINK_FAILED (plr = gst_pad_link (tee_src, sink_pad))) {
     GST_INFO_OBJECT (tee_src, "cannot link analyzers to tee");
     GST_WARNING_OBJECT (tee_src, "%s", bt_gst_debug_pad_link_return (plr,
-            tee_src, analyzer_sink));
+            tee_src, sink_pad));
   }
-  gst_object_unref (analyzer_sink);
-  g_list_free (analyzers);
+  gst_object_unref (sink_pad);
+  g_list_free (elements);
 
   GST_INFO_OBJECT (tee_src, "add analyzers done");
 
@@ -370,16 +370,16 @@ async_add (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
  * bt_bin_activate_tee_chain:
  * @bin: the bin
  * @tee: the tee to connect the chain to
- * @analyzers: the list of analyzers
+ * @elements: the list of elements to activate
  * @is_playing: whether the pipeline is streaming data
  *
- * Add the elements from @analyzers to the @bin and link them. Handle pad
- * blocking in playing mode.
+ * Add the @elements to the @bin and link them. Handle pad blocking in playing
+ * mode.
  *
  * Return: %TRUE for success
  */
 gboolean
-bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
+bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * elements,
     gboolean is_playing)
 {
   gboolean res = TRUE;
@@ -390,13 +390,13 @@ bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
 
   g_return_val_if_fail (GST_IS_BIN (bin), FALSE);
   g_return_val_if_fail (GST_IS_ELEMENT (tee), FALSE);
-  g_return_val_if_fail (analyzers, FALSE);
+  g_return_val_if_fail (elements, FALSE);
 
   GST_INFO_OBJECT (bin, "add analyzers (%d elements)",
-      g_list_length (analyzers));
+      g_list_length (elements));
 
   // do final link afterwards
-  for (node = analyzers; (node && res); node = g_list_next (node)) {
+  for (node = elements; (node && res); node = g_list_next (node)) {
     next = GST_ELEMENT (node->data);
 
     if (!(res = gst_bin_add (bin, next))) {
@@ -416,12 +416,12 @@ bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
   GST_INFO_OBJECT (bin, "blocking tee.src");
   tee_src = gst_element_request_pad (tee,
       gst_element_class_get_pad_template (tee_class, "src_%u"), NULL, NULL);
-  analyzers = g_list_copy (analyzers);
+  elements = g_list_copy (elements);
   if (is_playing) {
     gst_pad_add_probe (tee_src, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM, async_add,
-        analyzers, NULL);
+        elements, NULL);
   } else {
-    async_add (tee_src, NULL, analyzers);
+    async_add (tee_src, NULL, elements);
   }
   return (res);
 }
@@ -429,7 +429,7 @@ bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
 static GstPadProbeReturn
 async_remove (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
 {
-  GList *analyzers = (GList *) user_data;
+  GList *elements = (GList *) user_data;
   GstElement *tee = (GstElement *) gst_pad_get_parent (tee_src);
   GstBin *bin = (GstBin *) gst_element_get_parent (tee);
   const GList *node;
@@ -437,7 +437,7 @@ async_remove (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
   GstStateChangeReturn state_ret;
 
   prev = tee;
-  for (node = analyzers; node; node = g_list_next (node)) {
+  for (node = elements; node; node = g_list_next (node)) {
     next = GST_ELEMENT (node->data);
 
     if ((state_ret =
@@ -450,7 +450,7 @@ async_remove (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
     gst_element_unlink (prev, next);
     prev = next;
   }
-  for (node = analyzers; node; node = g_list_next (node)) {
+  for (node = elements; node; node = g_list_next (node)) {
     next = GST_ELEMENT (node->data);
     if (!gst_bin_remove (bin, next)) {
       GST_INFO ("cannot remove element '%s' from bin", GST_OBJECT_NAME (next));
@@ -462,7 +462,7 @@ async_remove (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
   gst_object_unref (tee_src);
   gst_object_unref (tee);
   gst_object_unref (bin);
-  g_list_free (analyzers);
+  g_list_free (elements);
 
   return GST_PAD_PROBE_REMOVE;
 }
@@ -471,16 +471,16 @@ async_remove (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
  * bt_bin_deactivate_tee_chain:
  * @bin: the bin
  * @tee: the tee to connect the chain to
- * @analyzers: the list of analyzers
+ * @elements: the list of elements to deactivate
  * @is_playing: wheter the pipeline is streaming data
  *
- * Add the elements from @analyzers to the @bin and link them. Handle pad
- * blocking in playing mode.
+ * Add the @elements to the @bin and link them. Handle pad blocking in playing
+ * mode.
  *
  * Return: %TRUE for success
  */
 gboolean
-bt_bin_deactivate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
+bt_bin_deactivate_tee_chain (GstBin * bin, GstElement * tee, GList * elements,
     gboolean is_playing)
 {
   gboolean res = FALSE;
@@ -488,19 +488,19 @@ bt_bin_deactivate_tee_chain (GstBin * bin, GstElement * tee, GList * analyzers,
 
   g_return_val_if_fail (GST_IS_BIN (bin), FALSE);
   g_return_val_if_fail (GST_IS_ELEMENT (tee), FALSE);
-  g_return_val_if_fail (analyzers, FALSE);
+  g_return_val_if_fail (elements, FALSE);
 
-  GST_INFO ("remove analyzers (%d elements)", g_list_length (analyzers));
+  GST_INFO ("remove analyzers (%d elements)", g_list_length (elements));
 
   if ((tee_src =
-          bt_gst_element_get_sink_peer_pad (GST_ELEMENT (analyzers->data)))) {
-    analyzers = g_list_copy (analyzers);
+          bt_gst_element_get_sink_peer_pad (GST_ELEMENT (elements->data)))) {
+    elements = g_list_copy (elements);
     // block src_pad (of tee)
     if (is_playing) {
       gst_pad_add_probe (tee_src, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
-          async_remove, analyzers, NULL);
+          async_remove, elements, NULL);
     } else {
-      async_remove (tee_src, NULL, analyzers);
+      async_remove (tee_src, NULL, elements);
     }
     res = TRUE;
   }

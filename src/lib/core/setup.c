@@ -253,7 +253,7 @@
  *   unlink)
  * - tools has two helpers for savely liking/unlinking:
  *   bt_bin_activate_tee_chain/bt_bin_deactivate_tee_chain
- *   - instead of GList *analyzers we have GList *elements_to_{play,stop}
+ *   - for GList *elements we pass GList *elements_to_{play,stop}
  * - we can do something along the lines, when (unlinking) wires, we need
  *   to detect the special case where the new wire would activate a subgraph
  *   or where the exising wire would deactivate a subgraph
