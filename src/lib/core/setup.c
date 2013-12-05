@@ -253,6 +253,7 @@
  *   unlink)
  * - tools has two helpers for savely liking/unlinking:
  *   bt_bin_activate_tee_chain/bt_bin_deactivate_tee_chain
+ *   - instead of GList *analyzers we have GList *elements_to_{play,stop}
  * - we can do something along the lines, when (unlinking) wires, we need
  *   to detect the special case where the new wire would activate a subgraph
  *   or where the exising wire would deactivate a subgraph
@@ -265,10 +266,6 @@
  * - each time we/add remove a wire, we update the whole graph. Would be nice
  *   to avoid this when loading songs.
  */
-
-// uncomment to use pad-blocking, might do more harm than help
-// see gst-plugins-base/tests/examples/dynamic/sprinkl3.c
-//#define USE_PAD_BLOCK
 
 // play safe when updating the song pipeline
 #define STOP_PLAYBACK_FOR_UPDATES
@@ -349,13 +346,11 @@ struct _BtSetupPrivate
 
   /* state of elements (wires and machines) as BtSetupConnectionState */
   GHashTable *connection_state;
-  GList *machines_to_add, *wires_to_add, *machines_to_del, *wires_to_del;
   /* depth in the graph, master=0, wires odd, machines even numbers */
   GHashTable *graph_depth;
-  /* list of blocked pads, to unlock after updates */
-#ifdef USE_PAD_BLOCK
-  GSList *blocked_pads;
-#endif
+  /* list of elements to add or remove, in topological order */
+  GList *machines_to_add, *wires_to_add, *machines_to_del, *wires_to_del;
+  /* list of elements that change state, in topological order */
   GList *elements_to_play, *elements_to_stop;
 
   /* see/newsegment event for dynamically added elements */
@@ -534,18 +529,6 @@ link_wire (const BtSetup * const self, GstElement * wire)
                 "src_%u"))) {
       if ((src_pad =
               gst_element_request_pad (GST_ELEMENT (src), tmpl, NULL, NULL))) {
-#if USE_PAD_BLOCK
-        if (                    /*(BT_IS_SOURCE_MACHINE(src) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) || */
-            (GST_STATE (src) == GST_STATE_PLAYING)) {
-          if (gst_pad_is_active (src_pad)) {
-            if (gst_pad_set_blocked (src_pad, TRUE)) {
-              self->priv->blocked_pads =
-                  g_slist_prepend (self->priv->blocked_pads,
-                  gst_object_ref (src_pad));
-            }
-          }
-        }
-#endif
         if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (src_pad, dst_pad))) {
           GST_WARNING ("Can't link start of wire : %s",
               bt_gst_debug_pad_link_return (link_res, src_pad, dst_pad));
@@ -634,26 +617,6 @@ unlink_wire (const BtSetup * const self, GstElement * wire)
   dst_pad = gst_element_get_static_pad (wire, "sink");
   GST_INFO_OBJECT (dst_pad, "unlinking start of wire");
   if ((src_pad = gst_pad_get_peer (dst_pad))) {
-#ifdef USE_PAD_BLOCK
-    if (                        /*(BT_IS_SOURCE_MACHINE(src) && (GST_STATE(self->priv->bin)==GST_STATE_PLAYING)) || */
-        (GST_STATE (src) == GST_STATE_PLAYING)) {
-      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (self->priv->bin,
-          GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME);
-      // this causes trouble if the pads are flushing and/or GST_PAD_ACTIVATE_MODE(pad)==GST_ACTIVATE_NONE
-      // check using gst_pad_is_active
-      //if(!GST_OBJECT_FLAG_IS_SET (dst_pad, GST_PAD_FLUSHING) && !GST_OBJECT_FLAG_IS_SET (src_pad, GST_PAD_FLUSHING)) {
-      if (gst_pad_is_active (src_pad)) {
-        // if we remove the element the pads go flushing and that unblocks
-        // we ref the pad anyway to be able to unblock it later too
-        // otherwise we'd need week refs to zero/remove the element in the list
-        if (gst_pad_set_blocked (src_pad, TRUE)) {
-          self->priv->blocked_pads =
-              g_slist_prepend (self->priv->blocked_pads,
-              gst_object_ref (src_pad));
-        }
-      }
-    }
-#endif
     gst_pad_unlink (src_pad, dst_pad);
     gst_element_release_request_pad (src, src_pad);
     // unref twice: one for gst_pad_get_peer() and once for the request_pad
@@ -1181,20 +1144,6 @@ update_pipeline (const BtSetup * const self)
   g_list_free (self->priv->wires_to_del);
   self->priv->wires_to_del = NULL;
 
-#ifdef USE_PAD_BLOCK
-  // unblock src pads
-  // TODO(ensonic): can this actually ever be >1? we update the pipeline on wire
-  // changes, we can only add or remove one wire at a time
-  // only the src-pad that is (dis)connected to/from the active part needs to be blocked
-  GST_INFO ("unblocking %d pads", g_slist_length (self->priv->blocked_pads));
-  GSList *node;
-  for (node = self->priv->blocked_pads; node; node = g_slist_next (node)) {
-    gst_pad_set_blocked (GST_PAD (node->data), FALSE);
-    gst_object_unref (GST_OBJECT (node->data));
-  }
-  g_slist_free (self->priv->blocked_pads);
-  self->priv->blocked_pads = NULL;
-#endif
   GST_INFO ("update connection states");
   g_hash_table_foreach (self->priv->connection_state, update_connection_states,
       (gpointer) self);
