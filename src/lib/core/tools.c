@@ -703,8 +703,8 @@ on_object_weak_unref (gpointer user_data, GObject * obj)
 
 /**
  * bt_g_object_idle_add:
- * @user_data: the #GSource id
  * @obj: the old #GObject
+ * @pri: the priority of the idle source. 
  * @func: the callback
  *
  * A g_idle_add_full() variant, that passes @obj as user_data and detaches the
