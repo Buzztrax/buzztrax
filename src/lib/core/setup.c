@@ -247,17 +247,24 @@
  *      (but in the future we will always play)
  *     - we can run it before playing
  */
+/* support dynamic (un)linking (while playing) - new attempt
+ * - we don't care about adding removing machines
+ * - we care about (un)linking wires (when removing machines we automatically
+ *   unlink)
+ * - tools has two helpers for savely liking/unlinking:
+ *   bt_bin_activate_tee_chain/bt_bin_deactivate_tee_chain
+ * - we can do something along the lines, when (unlinking) wires, we need
+ *   to detect the special case where the new wire would activate a subgraph
+ *   or where the exising wire would deactivate a subgraph
+ * - this is the case when elements_to_{play,stop} is not empty
+ * - these lists are topologically sorted, in the play (=add) case the first
+ *   element is closest to the sink, in the stop (=del) case the last one
+ *   is closest to the sink
+ */
 /* TODO(ensonic):
  * - each time we/add remove a wire, we update the whole graph. Would be nice
  *   to avoid this when loading songs.
  */
-
-/* dynamic changes:
-- we need to block the srcpad into adder
-- then when blocked, set all elements to NULL (going upstream)
-- unlink
-- then release the adder sinkpad to continue
-*/
 
 // uncomment to use pad-blocking, might do more harm than help
 // see gst-plugins-base/tests/examples/dynamic/sprinkl3.c
@@ -1098,18 +1105,21 @@ update_pipeline (const BtSetup * const self)
   // do *one* g_hash_table_foreach and topologically sort machines and wires into 4 lists
   g_hash_table_foreach (self->priv->connection_state, prepare_add_del,
       (gpointer) self);
-  GST_INFO ("adding m=%d, w=%d and removing m=%d, w=%d",
+  gboolean need_add = self->priv->machines_to_add || self->priv->wires_to_add;
+  gboolean need_del = self->priv->machines_to_del || self->priv->wires_to_del;
+  GST_INFO ("adding m=%d, w=%d and deleting m=%d, w=%d",
       g_list_length (self->priv->machines_to_add),
       g_list_length (self->priv->wires_to_add),
       g_list_length (self->priv->machines_to_del),
       g_list_length (self->priv->wires_to_del));
-
+  if (need_add && need_del) {
+    GST_WARNING ("unexpected adding and deleting at the same time");
+  }
 #ifndef STOP_PLAYBACK_FOR_UPDATES
   // query segment and position
   update_play_seek_event (self);
 #endif
 
-  // if we have blocked pads, we would need to ensure here, that the blocking is done
   // builds elements_to_{play|stop} lists
   GST_INFO ("determine state change lists");
   g_hash_table_foreach (self->priv->connection_state,
@@ -1211,7 +1221,8 @@ bt_setup_update_pipeline (const BtSetup * const self)
     BtWire *wire;
     BtMachine *machine;
 
-    // make a copy of lists and remove all visited items
+    // make a copy of lists and check what is connected from master and
+    // remove all visited items
     not_visited_machines = g_list_copy (self->priv->machines);
     not_visited_wires = g_list_copy (self->priv->wires);
     GST_INFO ("checking connections for %d machines and %d wires",
