@@ -261,6 +261,15 @@
  * - these lists are topologically sorted, in the play (=add) case the first
  *   element is closest to the sink, in the stop (=del) case the last one
  *   is closest to the sink
+ * - as we operate push based, we use GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM
+ *
+ * - add:
+ *   - add machines and wires
+ *   - link all, but the last one in the list
+ *   - call link_wire() with a flag to use pad_blocking in the
+ *     "link start of wire" path
+ *
+ * - rem:
  */
 /* TODO(ensonic):
  * - each time we/add remove a wire, we update the whole graph. Would be nice
@@ -510,81 +519,73 @@ bt_setup_get_wires_by_machine_type (const BtSetup * const self,
 }
 
 static gboolean
-link_wire (const BtSetup * const self, GstElement * wire)
+link_wire_end (const BtSetup * const self, GstElement * wire,
+    GstElement * elem, GstPadDirection dir)
 {
   GstPadLinkReturn link_res;
-  GstElement *src, *dst;
+  GstPad *pad, *peer;
   GstPadTemplate *tmpl;
-  GstPad *src_pad, *dst_pad, *peer;
   gboolean res = TRUE;
+  gchar *side = (dir == GST_PAD_SRC) ? "end" : "start";
+  gchar *pad_tmpl = (dir == GST_PAD_SRC) ? "sink_%u" : "src_%u";
+  gchar *pad_name = (dir == GST_PAD_SRC) ? "src" : "sink";
+
+  pad = gst_element_get_static_pad (wire, pad_name);
+  GST_INFO_OBJECT (pad, "linking %s of wire", side);
+  if ((peer = gst_pad_get_peer (pad))) {
+    GST_INFO ("%s of wire is already linked", side);
+    gst_object_unref (peer);
+    goto Error;
+  }
+
+  if (!(tmpl = gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (elem),
+              pad_tmpl))) {
+    GST_WARNING_OBJECT (elem,
+        "Can't lookup pad-template '%s' for %s-peer of %s of wire", pad_tmpl,
+        pad_name, side);
+    res = FALSE;
+    goto Error;
+  }
+  if (!(peer = gst_element_request_pad (elem, tmpl, NULL, NULL))) {
+    GST_WARNING_OBJECT (elem,
+        "Can't get request pad for %s-peer of %s of wire", pad_name, side);
+    res = FALSE;
+    goto Error;
+  }
+
+  if (dir == GST_PAD_SRC) {
+    if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (pad, peer))) {
+      GST_WARNING_OBJECT (wire, "Can't link %s of wire : %s", side,
+          bt_gst_debug_pad_link_return (link_res, pad, peer));
+      res = FALSE;
+    }
+  } else {
+    if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (peer, pad))) {
+      GST_WARNING_OBJECT (wire, "Can't link %s of wire : %s", side,
+          bt_gst_debug_pad_link_return (link_res, peer, pad));
+      res = FALSE;
+    }
+  }
+  if (!res) {
+    gst_element_release_request_pad (elem, peer);
+  }
+
+Error:
+  gst_object_unref (pad);
+  return res;
+}
+
+static gboolean
+link_wire (const BtSetup * const self, GstElement * wire)
+{
+  GstElement *src, *dst;
+  gboolean res;
 
   g_object_get (wire, "src", &src, "dst", &dst, NULL);
 
-  // link start of wire
-  dst_pad = gst_element_get_static_pad (GST_ELEMENT (wire), "sink");
-  GST_INFO_OBJECT (dst_pad, "linking start of wire");
-  if (!(peer = gst_pad_get_peer (dst_pad))) {
-    if ((tmpl =
-            gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (src),
-                "src_%u"))) {
-      if ((src_pad =
-              gst_element_request_pad (GST_ELEMENT (src), tmpl, NULL, NULL))) {
-        if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (src_pad, dst_pad))) {
-          GST_WARNING ("Can't link start of wire : %s",
-              bt_gst_debug_pad_link_return (link_res, src_pad, dst_pad));
-          res = FALSE;
-          gst_element_release_request_pad (src, src_pad);
-          // TODO(ensonic): unblock the pad
-        }
-      } else {
-        GST_WARNING_OBJECT (src,
-            "Can't get request pad for src-peer of start of wire");
-        res = FALSE;
-      }
-    } else {
-      GST_WARNING_OBJECT (src,
-          "Can't lookup pad-template 'src_%%u' for src-peer of start of wire");
-      res = FALSE;
-    }
-  } else {
-    GST_INFO ("start of wire is already linked");
-    gst_object_unref (peer);
-  }
-  gst_object_unref (dst_pad);
-  if (!res)
-    goto Error;
+  res = link_wire_end (self, wire, dst, GST_PAD_SRC)
+      && link_wire_end (self, wire, src, GST_PAD_SINK);
 
-  // link end of wire
-  src_pad = gst_element_get_static_pad (GST_ELEMENT (wire), "src");
-  GST_INFO_OBJECT (src_pad, "linking end of wire");
-  if (!(peer = gst_pad_get_peer (src_pad))) {
-    if ((tmpl =
-            gst_element_class_get_pad_template (GST_ELEMENT_GET_CLASS (dst),
-                "sink_%u"))) {
-      if ((dst_pad =
-              gst_element_request_pad (GST_ELEMENT (dst), tmpl, NULL, NULL))) {
-        if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (src_pad, dst_pad))) {
-          GST_WARNING ("Can't link end of wire : %s",
-              bt_gst_debug_pad_link_return (link_res, src_pad, dst_pad));
-          res = FALSE;
-          gst_element_release_request_pad (dst, dst_pad);
-        }
-      } else {
-        GST_WARNING_OBJECT (dst,
-            "Can't get request pad for sink-peer of end of wire");
-        res = FALSE;
-      }
-    } else {
-      GST_WARNING_OBJECT (dst,
-          "Can't lookup pad-template 'sink_%%u' for sink-peer of end of wire");
-      res = FALSE;
-    }
-  } else {
-    GST_INFO ("end of wire is already linked");
-    gst_object_unref (peer);
-  }
-  gst_object_unref (src_pad);
-Error:
   g_object_unref (src);
   g_object_unref (dst);
   return res;
