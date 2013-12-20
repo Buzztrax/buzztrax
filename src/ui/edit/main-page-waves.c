@@ -1285,7 +1285,7 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
 
   // vpane
   vpaned = gtk_paned_new (GTK_ORIENTATION_VERTICAL);
-  gtk_container_add (GTK_CONTAINER (self), vpaned);
+  gtk_box_pack_start (GTK_BOX (self), vpaned, TRUE, TRUE, 0);
 
   //   hpane
   hpaned = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);
