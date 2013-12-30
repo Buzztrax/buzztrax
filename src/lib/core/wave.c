@@ -177,12 +177,13 @@ on_wave_loader_new_pad (GstElement * bin, GstPad * pad, gpointer user_data)
 static gboolean
 bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
 {
-  gboolean res = TRUE;
+  gboolean res = TRUE, done = FALSE;
   GstElement *pipeline;
   GstElement *src, *dec, *conv, *fmt, *sink;
   GstBus *bus = NULL;
   GstCaps *caps;
   GstMessage *msg;
+  GstBtNote root_note = BT_WAVELEVEL_DEFAULT_ROOT_NOTE;
 
   GST_INFO ("about to load sample %s / %s", self->priv->uri, uri);
   // this leaks!
@@ -220,12 +221,14 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
   gst_bin_add_many (GST_BIN (pipeline), src, dec, conv, fmt, sink, NULL);
   res = gst_element_link (src, dec);
   if (!res) {
-    GST_WARNING ("Can't link wave loader pipeline (src ! dec).");
+    GST_WARNING_OBJECT (pipeline,
+        "Can't link wave loader pipeline (src ! dec ! conv ! fmt ! sink).");
     goto Error;
   }
   res = gst_element_link_many (conv, fmt, sink, NULL);
   if (!res) {
-    GST_WARNING ("Can't link wave loader pipeline (conf ! fmt ! sink).");
+    GST_WARNING_OBJECT (pipeline,
+        "Can't link wave loader pipeline (conf ! fmt ! sink).");
     goto Error;
   }
   g_signal_connect (dec, "pad-added", G_CALLBACK (on_wave_loader_new_pad),
@@ -244,23 +247,28 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
   // play and wait for EOS
   if (gst_element_set_state (pipeline,
           GST_STATE_PLAYING) == GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING ("Can't set wave loader pipeline for %s / %s to playing",
+    GST_WARNING_OBJECT (pipeline,
+        "Can't set wave loader pipeline for %s / %s to playing",
         self->priv->uri, uri);
     gst_element_set_state (pipeline, GST_STATE_NULL);
     res = FALSE;
     goto Error;
   } else {
-    GST_INFO ("loading sample ...");
+    GST_INFO_OBJECT (pipeline, "loading sample ...");
   }
 
   /* load wave in sync mode, loading them async causes troubles in the 
    * persistence code and makes testing complicated */
-  if ((msg =
-          gst_bus_poll (bus, GST_MESSAGE_EOS | GST_MESSAGE_ERROR,
-              GST_CLOCK_TIME_NONE))) {
+  while (!done) {
+    msg = gst_bus_poll (bus,
+        GST_MESSAGE_EOS | GST_MESSAGE_ERROR | GST_MESSAGE_TAG,
+        GST_CLOCK_TIME_NONE);
+    if (!msg)
+      break;
+
     switch (msg->type) {
       case GST_MESSAGE_EOS:
-        res = TRUE;
+        res = done = TRUE;
         break;
       case GST_MESSAGE_ERROR:{
         GError *err;
@@ -274,6 +282,27 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
         g_free (dbg);
         g_free (desc);
         res = FALSE;
+        done = TRUE;
+        break;
+      }
+      case GST_MESSAGE_TAG:{
+        GstTagList *tags;
+        guint base_note;
+
+        gst_message_parse_tag (msg, &tags);
+#if GST_CHECK_VERSION(1,3,0)
+        if (gst_tag_list_get_uint (tags, GST_TAG_MIDI_BASE_NOTE, &base_note)) {
+          // map midi note -> BtNote
+          gint octave = base_note / 12;
+          gint tone = base_note - (octave * 12);
+
+          root_note = GSTBT_NOTE_C_0 + (octave * 16) + tone;
+          GST_INFO_OBJECT (GST_MESSAGE_SRC (msg),
+              "root_note: %d (base_note: %u = oct: %d + tone: %d", root_note,
+              base_note, octave, tone);
+        }
+#endif
+        gst_tag_list_unref (tags);
         break;
       }
       default:
@@ -329,9 +358,8 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
           self->priv->channels = channels;
           g_object_notify (G_OBJECT (self), "channels");
 
-          wavelevel = bt_wavelevel_new (self->priv->song, self,
-              BT_WAVELEVEL_DEFAULT_ROOT_NOTE, (gulong) length, 0, length, rate,
-              (gconstpointer) data);
+          wavelevel = bt_wavelevel_new (self->priv->song, self, root_note,
+              (gulong) length, 0, length, rate, (gconstpointer) data);
           g_object_unref (wavelevel);
           GST_INFO ("sample loaded (%" G_GSSIZE_FORMAT "/%ld bytes)", bytes,
               buf.st_size);
@@ -340,7 +368,8 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
           GST_WARNING ("can't seek to start of sample data");
         }
       } else {
-        GST_WARNING ("sample is too long (%ld bytes), not trying to load",
+        GST_WARNING
+            ("sample is too long or empty (%ld bytes), not trying to load",
             buf.st_size);
       }
     } else {
