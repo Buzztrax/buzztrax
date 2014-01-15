@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # run buzztrax-cmd commandline options
 
 cd tests

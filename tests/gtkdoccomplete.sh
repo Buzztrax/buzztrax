@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 res=0
 fails=0
 checks=0

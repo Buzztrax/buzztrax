@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # run buzztrax-cmd --command=convert on all example and test for crashes
 #
 # this can also be invoked manually to test ones song-library:
