@@ -39,6 +39,16 @@ noinst_PROGRAMS=$(TESTS_BIN)
 /tmp/test.wav:
 	$(AM_V_GEN) gst-launch-@GST_MAJORMINOR@ -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=$@
 
+gschemas.compiled:
+	$(AM_V_GEN) $(GLIB_COMPILE_SCHEMAS) .
+
+tests/bt-cmd-info.sh:
+	gschemas.compiled
+tests/bt-cmd-cli.sh:
+	gschemas.compiled
+tests/bt-edit-cli.sh:
+	gschemas.compiled
+
 check_LTLIBRARIES = \
   libbt-check.la \
   libbt-check-ui.la \
@@ -58,7 +68,7 @@ libbt_check_la_SOURCES = \
 	tests/bt-test-application.c tests/bt-test-application.h \
 	tests/bt-test-plugin.c tests/bt-test-plugin.h \
 	tests/btic-test-device.c tests/btic-test-device.h
-libbt_check_la_DEPENDENCIES = /tmp/test.wav
+libbt_check_la_DEPENDENCIES = /tmp/test.wav gschemas.compiled
 
 libbt_check_ui_la_LIBADD = \
   $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS)
