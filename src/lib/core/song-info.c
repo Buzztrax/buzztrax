@@ -46,6 +46,11 @@
  *      - we can use 'b' instead of '#' in the pattern editor
  *      - we can show out of scale notes
  *      - we can suggest chords?
+ *      - if we have a keyboard widget in the bottom
+ *        - show the notes belonging to the key there
+ *        - suggest chords when the cursor is over a note
+ *        - record notes (if enabled) and play current machine otherwise
+ *    - this can be emitted as a tag: GST_TAG_MUSICAL_KEY
  *  - need defaults for e.g. url, license, copyright
  */
 
