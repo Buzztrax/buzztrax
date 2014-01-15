@@ -42,7 +42,7 @@ crashed()
 
 # test working examples
 for song in $E_SONGS; do
-  if [ "$BT_CHECKS" != "" ]; then
+  if [ "x$BT_CHECKS" != "x" ]; then
     ls -1 $BT_CHECKS | grep >/dev/null "$song"
     if [ $? -eq 1 ]; then
       continue
@@ -52,7 +52,7 @@ for song in $E_SONGS; do
   echo "testing $song"
   base=`basename "$song"`
   info=`basename "$song" .xml`
-  if [ "$info" == "$base" ]; then
+  if [ "x$info" == "x$base" ]; then
     info=`basename "$song" .bzt`
   fi
   info="$TESTRESULTDIR/$info.txt"
@@ -66,7 +66,7 @@ done
 
 # test failure cases
 for song in $T_SONGS; do
-  if [ "$BT_CHECKS" != "" ]; then
+  if [ "x$BT_CHECKS" != "x" ]; then
     ls -1 $BT_CHECKS | grep >/dev/null "$song"
     if [ $? -eq 1 ]; then
       continue
@@ -74,9 +74,9 @@ for song in $T_SONGS; do
   fi
 
   echo "testing $song"
-  base=`basename "$song"`
-  info=`basename $song .xml`
-  if [ "$info" == "$base" ]; then
+  base=`basename '$song'`
+  info=`basename '$song' .xml`
+  if [ "x$info" == "x$base" ]; then
     info=`basename "$song" .bzt`
   fi
   info="$TESTRESULTDIR/$info.txt"
