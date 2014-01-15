@@ -30,6 +30,7 @@ TESTS_ENVIRONMENT = \
 	LANG=C \
 	XDG_CACHE_HOME=$(abs_builddir) \
 	GSETTINGS_BACKEND=memory \
+	GSETTINGS_SCHEMA_DIR=$(abs_top_builddir) \
 	$(LIBTOOL) --mode=execute
 
 if BUILD_CHECK_TESTS
