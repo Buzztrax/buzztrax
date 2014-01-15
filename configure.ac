@@ -440,7 +440,7 @@ AM_CONDITIONAL(USE_LINUX_INPUT, test x$have_linux_input_h = xyes)
 dnl check for SSE intrisics
 ARCH_CFLAGS=""
 ARCH_CPPFLAGS=""
-case "x${host_cpu}" in
+case "x${target_cpu}" in
   xi?86|k?|xx86_64|xamd64)
     ARCH_CFLAGS="-march=native"
     ARCH_CPPFLAGS="-D__SSE__ -D__MMX__"
