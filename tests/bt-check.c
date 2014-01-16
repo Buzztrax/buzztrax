@@ -51,6 +51,9 @@
  */
 static GstClockTime _priv_bt_info_start_time;
 
+/* initialized from BT_CHECKS */
+static gchar **funcs = NULL;
+
 void
 bt_check_init (void)
 {
@@ -73,6 +76,12 @@ bt_check_init (void)
   // TODO(ensonic): setting env-var GST_DEBUG will output to stderr
   if (gst_debug_get_default_threshold () < GST_LEVEL_INFO) {
     gst_debug_set_default_threshold (GST_LEVEL_INFO);
+  }
+
+  const gchar *checks = g_getenv ("BT_CHECKS");
+  if (BT_IS_STRING (checks)) {
+    // we're leaking this
+    funcs = g_strsplit (checks, ",", -1);
   }
 #ifdef HAVE_SETRLIMIT
   // only fork mode limit cpu/mem usage
@@ -545,25 +554,19 @@ check_file_contains_str (FILE * input_file, gchar * input_file_name,
 gboolean
 _bt_check_run_test_func (const gchar * func_name)
 {
-  gboolean res = FALSE;
-  gchar **funcs, **f;
-
-  const gchar *checks = g_getenv ("BT_CHECKS");
+  gchar **f;
 
   /* no filter specified => run all checks */
-  if (checks == NULL || *checks == '\0')
+  if (!funcs)
     return TRUE;
 
   /* only run specified functions, regexps would be nice */
-  funcs = g_strsplit (checks, ",", -1);
   for (f = funcs; f != NULL && *f != NULL; ++f) {
     if (g_pattern_match_simple (*f, func_name)) {
-      res = TRUE;
-      break;
+      return TRUE;
     }
   }
-  g_strfreev (funcs);
-  return res;
+  return FALSE;
 }
 
 // main loop
