@@ -71,10 +71,6 @@ main (gint argc, gchar ** argv)
   bt_check_init ();
   bt_init (&test_argc, &test_argvptr);
 
-  // set this to e.g. LOG to see more from gst in the log
-  gst_debug_set_default_threshold (GST_LEVEL_DEBUG);
-  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
-
   sr = srunner_create (bt_application_suite ());
   srunner_add_suite (sr, bt_audio_session_suite ());
   srunner_add_suite (sr, bt_cmd_pattern_suite ());

@@ -49,11 +49,6 @@ main (gint argc, gchar ** argv)
 
   GST_DEBUG_CATEGORY_INIT (bt_cmd_debug, "bt-cmd", 0,
       "music production environment / command ui");
-  // set this to e.g. LOG to see more from gst in the log
-  gst_debug_set_default_threshold (GST_LEVEL_DEBUG);
-  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
-  g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) |
-      G_LOG_LEVEL_CRITICAL);
 
   sr = srunner_create (bt_cmd_application_suite ());
   srunner_run_all (sr, CK_NORMAL);

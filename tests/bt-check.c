@@ -70,6 +70,10 @@ bt_check_init (void)
   // no ansi color codes in logfiles please
   gst_debug_set_colored (FALSE);
 
+  // TODO(ensonic): setting env-var GST_DEBUG will output to stderr
+  if (gst_debug_get_default_threshold () < GST_LEVEL_INFO) {
+    gst_debug_set_default_threshold (GST_LEVEL_INFO);
+  }
 #ifdef HAVE_SETRLIMIT
   // only fork mode limit cpu/mem usage
   const gchar *mode = g_getenv ("CK_FORK");
@@ -541,11 +545,10 @@ check_file_contains_str (FILE * input_file, gchar * input_file_name,
 gboolean
 _bt_check_run_test_func (const gchar * func_name)
 {
-  const gchar *checks;
   gboolean res = FALSE;
   gchar **funcs, **f;
 
-  checks = g_getenv ("BT_CHECKS");
+  const gchar *checks = g_getenv ("BT_CHECKS");
 
   /* no filter specified => run all checks */
   if (checks == NULL || *checks == '\0')

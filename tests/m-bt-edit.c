@@ -122,9 +122,6 @@ bt_edit_setup (void)
 
   GST_DEBUG_CATEGORY_INIT (bt_edit_debug, "bt-edit", 0,
       "music production environment / editor ui");
-  // set this to e.g. LOG to see more from gst in the log
-  gst_debug_set_default_threshold (GST_LEVEL_DEBUG);
-  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);  
 
   /* cleanup cache dir before (first) test run */
   cleanup_cache_dir ();
