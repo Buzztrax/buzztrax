@@ -46,7 +46,7 @@
 #endif
 
 /* this is needed for a hack to make glib log lines gst-debug log alike
- * Using gst_debug_log would require use to set debug categories for each GLib
+ * Using gst_debug_log would require us to set debug categories for each GLib
  * log domain.
  */
 static GstClockTime _priv_bt_info_start_time;
@@ -73,7 +73,7 @@ bt_check_init (void)
   // no ansi color codes in logfiles please
   gst_debug_set_colored (FALSE);
 
-  // TODO(ensonic): setting env-var GST_DEBUG will output to stderr
+  // set e.g. GST_DEBUG="bt-core:DEBUG" if more details are needed
   if (gst_debug_get_default_threshold () < GST_LEVEL_INFO) {
     gst_debug_set_default_threshold (GST_LEVEL_INFO);
   }
@@ -324,6 +324,9 @@ check_gst_log_handler (GstDebugCategory * category,
   else if (__check_test && (strstr (message, __check_test) != NULL)
       && !__check_method)
     __check_error_trapped = TRUE;
+
+  if (level > gst_debug_category_get_threshold (category))
+    return;
 
   elapsed =
       GST_CLOCK_DIFF (_priv_bt_info_start_time, gst_util_get_timestamp ());
