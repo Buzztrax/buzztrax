@@ -85,15 +85,15 @@ make_new_song (gint wave)
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
   GstElement *element =
       (GstElement *) check_gobject_get_object_property (gen, "machine");
-  gint samples_per_buffer;
-  // TODO(ensonic): get these from song-info instead
-  // bpm * tpb * stpt
-  const gdouble ticks = 120 * 4 * 4;
+  BtSongInfo *song_info =
+      (BtSongInfo *) check_gobject_get_object_property (song, "song-info");
+  gulong bpm = check_gobject_get_ulong_property (song_info, "bpm");
+  gulong tpb = check_gobject_get_ulong_property (song_info, "tpb");
 
   // figure a good block size for the current tempo
-  samples_per_buffer = 44100.0 * 60.0 / ticks;
+  gint samples_per_buffer = (44100.0 * 60.0) / (bpm * tpb);
 
-  g_object_set (sequence, "length", 8L, "loop", FALSE, NULL);
+  g_object_set (sequence, "length", 4L, "loop", FALSE, NULL);
   bt_sequence_add_track (sequence, gen, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
   g_object_set (element, "wave", wave, "volume", 1.0, "samplesperbuffer",
@@ -104,6 +104,7 @@ make_new_song (gint wave)
       bt_parameter_group_get_param_index (pg, "volume"));
 
   gst_object_unref (element);
+  g_object_unref (song_info);
   g_object_unref (pattern);
   g_object_unref (sequence);
   GST_INFO ("  song created");
