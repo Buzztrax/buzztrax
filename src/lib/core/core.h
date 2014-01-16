@@ -32,9 +32,6 @@
 #include <gst/base/gstbasetransform.h>
 #include <gst/pbutils/pbutils.h>
 #include <gst/pbutils/missing-plugins.h>
-// needs 0.10.22
-//#include <gst/app/gstappsrc.h>
-//#include <gst/app/gstappbuffer.h>
 //-- gstbuzztrax
 #include <libgstbuzztrax/musicenums.h>
 #include <libgstbuzztrax/childbin.h>
