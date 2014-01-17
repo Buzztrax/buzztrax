@@ -63,10 +63,13 @@ get_sink_element (GstBin * bin)
   GST_INFO_OBJECT (bin, "looking for audio_sink");
   for (node = GST_BIN_CHILDREN (bin); node; node = g_list_next (node)) {
     e = (GstElement *) node->data;
+    GST_INFO_OBJECT (bin, "trying '%s'", GST_OBJECT_NAME (e));
     if (GST_IS_BIN (e) && GST_OBJECT_FLAG_IS_SET (e, GST_ELEMENT_FLAG_SINK)) {
       return get_sink_element ((GstBin *) e);
     }
-    if (GST_IS_AUDIO_BASE_SINK (e)) {
+    // while audiosink should subclass GstAudioBaseSink, they don't have to ...
+    // we're relying on the bin implementation to ensure the sink takes audio
+    if (GST_IS_BASE_SINK (e)) {
       return e;
     }
   }
