@@ -584,11 +584,12 @@ _check_end_main_loop (gpointer user_data)
 void
 check_run_main_loop_for_usec (gulong usec)
 {
-  GMainLoop *loop = g_main_loop_new (g_main_context_default (), FALSE);
+  GMainLoop *loop = g_main_loop_new (NULL, FALSE);
 
   g_timeout_add_full (G_PRIORITY_HIGH, usec / 1000, _check_end_main_loop, loop,
       NULL);
   g_main_loop_run (loop);
+  g_main_loop_unref (loop);
 }
 
 static void
@@ -640,6 +641,7 @@ check_run_main_loop_until_playing_or_error (BtSong * song)
   if (sret != GST_STATE_CHANGE_SUCCESS) {
     g_main_loop_run (main_loop);
   }
+  g_main_loop_unref (main_loop);
   GST_INFO_OBJECT (song, "finished main_loop");
 }
 
