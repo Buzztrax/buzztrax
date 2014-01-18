@@ -141,6 +141,26 @@ test_bt_song_info_seconds_since_last_saved (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_song_info_tick_to_time (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSongInfo *song_info =
+      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
+  g_object_set (song_info, "bpm", 250L, "tpb", 16L, NULL);
+
+  /* act */
+  GstClockTime ts = bt_song_info_tick_to_time (song_info, 8);
+
+  /* assert */
+  ck_assert_int_eq (ts, 120 * GST_MSECOND);
+
+  /* cleanup */
+  g_object_unref (song_info);
+  BT_TEST_END;
+}
+
 TCase *
 bt_song_info_example_case (void)
 {
@@ -150,6 +170,7 @@ bt_song_info_example_case (void)
   tcase_add_test (tc, test_bt_song_info_update_bpm);
   tcase_add_test (tc, test_bt_song_info_update_tpb);
   tcase_add_test (tc, test_bt_song_info_seconds_since_last_saved);
+  tcase_add_test (tc, test_bt_song_info_tick_to_time);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
