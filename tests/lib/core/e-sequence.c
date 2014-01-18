@@ -396,7 +396,12 @@ on_btsequence_ticks_notify (GstObject * machine, GParamSpec * arg,
     gpointer user_data)
 {
   BtSequenceTicksTestData *data = (BtSequenceTicksTestData *) user_data;
+  static GstClockTime last = G_GUINT64_CONSTANT (0);
+  GstClockTime cur = gst_util_get_timestamp ();
+  GstClockTime diff = GST_CLOCK_DIFF (last, cur);
+  last = cur;
 
+  GST_INFO ("notify %d (%" GST_TIME_FORMAT ")", data->ct, GST_TIME_ARGS (diff));
   if (data->ct < 9) {
     g_object_get (machine, "wave", &data->values[data->ct], NULL);
   }
@@ -423,6 +428,7 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
   GstObject *element =
       GST_OBJECT (check_gobject_get_object_property (src, "machine"));
   g_object_set (sequence, "length", 8L, NULL);
+  GstClockTime play_time = bt_song_info_tick_to_time (song_info, 8L);
   bt_sequence_add_track (sequence, src, -1);
   bt_pattern_set_global_event (pattern, 0, 1, "0");
   bt_pattern_set_global_event (pattern, 1, 1, "1");
@@ -437,9 +443,16 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
       G_CALLBACK (on_btsequence_ticks_notify), &data);
 
   /* act */
+  GST_INFO ("play for %" GST_TIME_FORMAT, GST_TIME_ARGS (play_time));
   bt_song_play (song);
   check_run_main_loop_until_playing_or_error (song);
-  check_run_main_loop_for_usec (G_USEC_PER_SEC / 4);    // length=0:00:00.120000000
+  GST_INFO ("playing ...");
+  // TODO(ensonic): this should not need to '*6' but there seems to be a lag in
+  // the notify emmissions that we can handle
+  // GST_DEBUG="audiosynth:5" BT_CHECKS="test_bt_sequence_*" make bt_core.check
+  // egrep "(bt-check|audiosynth)" /tmp/bt_core/e-sequence/test_bt_sequence_ticks.0.log
+  check_run_main_loop_for_usec (GST_TIME_AS_USECONDS (play_time * 6));
+  GST_INFO ("stop");
   bt_song_stop (song);
 
   /* assert */
