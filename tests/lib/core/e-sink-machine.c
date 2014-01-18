@@ -58,10 +58,12 @@ static GstElement *
 get_sink_element (GstBin * bin)
 {
   GstElement *e;
+  GList *list = GST_BIN_CHILDREN (bin);
   GList *node;
 
-  GST_INFO_OBJECT (bin, "looking for audio_sink");
-  for (node = GST_BIN_CHILDREN (bin); node; node = g_list_next (node)) {
+  GST_INFO_OBJECT (bin, "looking for audio_sink in %d children",
+      g_list_length (list));
+  for (node = list; node; node = g_list_next (node)) {
     e = (GstElement *) node->data;
     GST_INFO_OBJECT (bin, "trying '%s'", GST_OBJECT_NAME (e));
     if (GST_IS_BIN (e) && GST_OBJECT_FLAG_IS_SET (e, GST_ELEMENT_FLAG_SINK)) {
