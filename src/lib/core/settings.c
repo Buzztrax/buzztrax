@@ -48,6 +48,7 @@
 
 #include "core_private.h"
 #include <gio/gsettingsbackend.h>
+#include <gst/audio/audio.h>
 
 static BtSettings *singleton = NULL;
 

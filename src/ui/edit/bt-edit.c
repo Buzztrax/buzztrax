@@ -38,6 +38,8 @@
 #define BT_EDIT_C
 
 #include "bt-edit.h"
+#include <clutter-gtk/clutter-gtk.h>
+#include <glib/gprintf.h>
 
 #ifdef ENABLE_NLS
 #ifdef HAVE_X11_XLOCALE_H

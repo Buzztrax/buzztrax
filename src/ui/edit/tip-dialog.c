@@ -44,6 +44,7 @@ Algorithm:
 #define BT_TIP_DIALOG_C
 
 #include "bt-edit.h"
+#include <glib/gprintf.h>
 
 static gchar *tips[] = {
   N_("New machines are added in machine view from the context menu."),

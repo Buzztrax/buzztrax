@@ -34,6 +34,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+//-- glib/gobject
+#include <glib/gprintf.h>
 //-- gstbuzztrax
 #include <libgstbuzztrax/toneconversion.h>
 #include <libgstbuzztrax/propertymeta.h>

@@ -23,6 +23,7 @@
 #include <sys/resource.h>
 
 #include "core_private.h"
+#include <gst/base/gstbasetransform.h>
 
 //-- gst registry
 

@@ -26,6 +26,7 @@
 
 #include "core_private.h"
 #include "source-machine.h"
+#include <gst/audio/gstaudiobasesrc.h>
 
 //-- the class
 
@@ -207,7 +208,7 @@ bt_source_machine_constructed (GObject * object)
       if (GST_IS_BASE_SRC (element)) {
         // don't ever again get the idea to turn of is_live for basesrc elements
         // if they are live, they are, no matter what we want
-        //  we get "can't record audio fast enough"
+        // we get "can't record audio fast enough"
         if (gst_base_src_is_live ((GstBaseSrc *) element)) {
           if (GST_IS_AUDIO_BASE_SRC (element)) {
             g_object_set (element, "buffer-time", 150 * GST_MSECOND, NULL);

@@ -283,6 +283,7 @@
 #define BT_SETUP_C
 
 #include "core_private.h"
+#include <glib/gprintf.h>
 
 //-- signal ids
 

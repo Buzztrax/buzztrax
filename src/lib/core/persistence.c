@@ -43,11 +43,11 @@
 #define BT_PERSISTENCE_C
 
 #include "core_private.h"
+#include <glib/gprintf.h>
 
 //-- the iface
 
 G_DEFINE_INTERFACE (BtPersistence, bt_persistence, 0);
-
 
 //-- string formatting helper
 

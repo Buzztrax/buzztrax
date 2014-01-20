@@ -49,6 +49,7 @@
 #define BT_SEQUENCE_GRID_MODEL_C
 
 #include "bt-edit.h"
+#include <glib/gprintf.h>
 
 //-- defines
 #define N_COLUMNS __BT_SEQUENCE_GRID_MODEL_N_COLUMNS

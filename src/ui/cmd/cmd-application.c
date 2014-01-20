@@ -30,6 +30,7 @@
 #define BT_CMD_APPLICATION_C
 
 #include "bt-cmd.h"
+#include <glib/gprintf.h>
 
 // this needs to be here because of gtk-doc and unit-tests
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);

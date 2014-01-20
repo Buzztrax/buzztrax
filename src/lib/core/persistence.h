@@ -20,9 +20,6 @@
 
 #include <glib.h>
 #include <glib-object.h>
-
-#include <libxml/parser.h>
-#include <libxml/parserInternals.h>
 #include <libxml/tree.h>
 
 #define BT_TYPE_PERSISTENCE               (bt_persistence_get_type())

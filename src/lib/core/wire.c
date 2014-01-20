@@ -27,20 +27,21 @@
  * wire groups of the #BtPattern objects on the target machine (that means
  * that source-machines don't have the controls).
  */
-/* controlable wire parameters
+/* controllable wire parameters
  * - only for processor machine and sink machine patterns
  * - volume: is input-volume for the wire
  *   - one volume per input
  * - panning: is panorama on the wire, if we connect e.g. mono -> stereo
  *   - panning parameters can change, if the connection changes
  *   - mono-to-stereo (1->2): 1 parameter
- *   - mono-to-suround (1->4): 2 parameters
+ *   - mono-to-surround (1->4): 2 parameters
  *   - stereo-to-surround (2->4): 1 parameter
  */
 #define BT_CORE
 #define BT_WIRE_C
 
 #include "core_private.h"
+#include <glib/gprintf.h>
 
 //-- property ids
 

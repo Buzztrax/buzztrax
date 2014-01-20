@@ -20,6 +20,8 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include <libgstbuzztrax/musicenums.h>
+
 
 #define BT_TYPE_WAVELEVEL             (bt_wavelevel_get_type ())
 #define BT_WAVELEVEL(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_WAVELEVEL, BtWavelevel))

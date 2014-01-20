@@ -55,19 +55,12 @@
 #endif
 //-- libbtcore & libbtic
 #include "core.h"
-#include "ic.h"
-//-- gstbuzztrax
-#include <libgstbuzztrax/musicenums.h>
-#include <libgstbuzztrax/toneconversion.h>
 //-- glib
 #include <glib.h>
-#include <glib/gstdio.h>
 //-- gtk+
 #include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
 //-- clutter
 #include <clutter/clutter.h>
-#include <clutter-gtk/clutter-gtk.h>
 
 #include "about-dialog.h"
 #include "change-log.h"

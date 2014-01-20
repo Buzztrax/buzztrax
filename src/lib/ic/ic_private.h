@@ -28,10 +28,11 @@
 //#define _XOPEN_SOURCE /* glibc2 needs this */
 #define __USE_XOPEN
 #include <unistd.h>
-//-- gudev / hal/dbus
-#if USE_GUDEV
-#include <gudev/gudev.h>
-#endif
+//-- glib/gobject
+#include <glib-object.h>
+//-- gstreamer
+#include <gst/gstinfo.h>
+
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS

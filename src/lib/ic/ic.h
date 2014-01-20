@@ -20,10 +20,6 @@
 
 //-- glib/gobject
 #include <glib.h>
-#include <glib-object.h>
-#include <glib/gprintf.h>
-//-- gstreamer
-#include <gst/gst.h>
 
 //-- libbtic
 #include "control.h"

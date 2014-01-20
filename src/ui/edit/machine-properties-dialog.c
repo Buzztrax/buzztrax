@@ -50,6 +50,7 @@
 #define BT_MACHINE_PROPERTIES_DIALOG_C
 
 #include "bt-edit.h"
+#include <glib/gprintf.h>
 
 #define DEFAULT_LABEL_WIDTH 70
 

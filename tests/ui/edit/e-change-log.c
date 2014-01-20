@@ -16,6 +16,7 @@
  */
 
 #include "m-bt-edit.h"
+#include <glib/gstdio.h>
 
 //-- test class
 

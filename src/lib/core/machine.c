@@ -82,6 +82,12 @@
 
 #include "core_private.h"
 #include "ic.h"
+#include <glib/gprintf.h>
+#include <gst/base/gstbasesrc.h>
+#include <gst/base/gstbasesink.h>
+#include <gst/base/gstbasetransform.h>
+#include <libgstbuzztrax/childbin.h>
+#include <libgstbuzztrax/tempo.h>
 
 // do sanity check for pattern lifecycle
 //#define CHECK_PATTERN_OWNERSHIP 1

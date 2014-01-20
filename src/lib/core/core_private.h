@@ -24,9 +24,6 @@
 
 //-- ansi c
 #include <string.h>
-//-- libxml2
-#include <libxml/parser.h>
-#include <libxml/xmlmemory.h>
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS

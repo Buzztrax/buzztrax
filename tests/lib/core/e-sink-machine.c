@@ -16,6 +16,7 @@
  */
 
 #include "m-bt-core.h"
+#include <gst/base/gstbasesink.h>
 
 //-- globals
 

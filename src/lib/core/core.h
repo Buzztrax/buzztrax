@@ -21,22 +21,8 @@
 //-- glib/gobject
 #include <glib.h>
 #include <glib-object.h>
-#include <glib/gprintf.h>
 //-- gstreamer
 #include <gst/gst.h>
-#include <gst/audio/audio.h>
-#include <gst/audio/gstaudiobasesink.h>
-#include <gst/audio/gstaudiobasesrc.h>
-#include <gst/base/gstbasesrc.h>
-#include <gst/base/gstbasesink.h>
-#include <gst/base/gstbasetransform.h>
-#include <gst/pbutils/pbutils.h>
-#include <gst/pbutils/missing-plugins.h>
-//-- gstbuzztrax
-#include <libgstbuzztrax/musicenums.h>
-#include <libgstbuzztrax/childbin.h>
-#include <libgstbuzztrax/propertymeta.h>
-#include <libgstbuzztrax/tempo.h>
 
 //-- libbtcore
 #include "childproxy.h"

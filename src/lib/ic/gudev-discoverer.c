@@ -25,6 +25,9 @@
 #define BTIC_GUDEV_DISCOVERER_C
 
 #include "ic_private.h"
+#if USE_GUDEV
+#include <gudev/gudev.h>
+#endif
 
 struct _BtIcGudevDiscovererPrivate
 {

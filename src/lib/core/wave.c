@@ -61,6 +61,7 @@
 #include <unistd.h>
 
 #include "core_private.h"
+#include <gst/audio/audio.h>
 
 //-- property ids
 

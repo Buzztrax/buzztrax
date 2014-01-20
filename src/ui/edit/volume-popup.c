@@ -25,6 +25,7 @@
 #define VOLUME_POPUP_C
 
 #include "bt-edit.h"
+#include <glib/gprintf.h>
 
 //-- the class
 

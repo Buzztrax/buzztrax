@@ -31,6 +31,7 @@
 #define BT_WAVETABLE_C
 
 #include "core_private.h"
+#include <gst/audio/audio.h>
 
 //-- signal ids
 

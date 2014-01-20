@@ -26,6 +26,7 @@
 #define BT_MAIN_STATUSBAR_C
 
 #include "bt-edit.h"
+#include <glib/gprintf.h>
 
 enum
 {

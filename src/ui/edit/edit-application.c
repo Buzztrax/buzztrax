@@ -40,6 +40,7 @@
 #define BT_EDIT_APPLICATION_C
 
 #include "bt-edit.h"
+#include <glib/gstdio.h>
 
 //-- signal ids
 

@@ -45,6 +45,8 @@
 #include <math.h>
 
 #include "bt-edit.h"
+#include <glib/gprintf.h>
+#include <gst/audio/audio.h>
 
 //-- property ids
 

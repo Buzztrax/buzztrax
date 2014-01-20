@@ -49,6 +49,7 @@
 #define BT_CRASH_RECOVER_DIALOG_C
 
 #include "bt-edit.h"
+#include <glib/gstdio.h>
 
 //-- property ids
 

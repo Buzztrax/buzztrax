@@ -27,6 +27,7 @@
 
 #include "core_private.h"
 #include "machine.h"
+#include <gst/base/gstbasetransform.h>
 
 //-- the class
 

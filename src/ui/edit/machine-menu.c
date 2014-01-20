@@ -26,6 +26,8 @@
 
 #include "bt-edit.h"
 
+#include <gst/base/gstpushsrc.h>
+
 //-- property ids
 
 enum

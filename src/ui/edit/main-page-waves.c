@@ -55,6 +55,8 @@
 #define BT_MAIN_PAGE_WAVES_C
 
 #include "bt-edit.h"
+#include <gst/audio/audio.h>
+#include <libgstbuzztrax/toneconversion.h>
 
 struct _BtMainPageWavesPrivate
 {

@@ -159,7 +159,7 @@
 #define BT_CHANGE_LOG_C
 
 #include "bt-edit.h"
-
+#include <glib/gstdio.h>
 #include <dirent.h>
 
 //-- property ids

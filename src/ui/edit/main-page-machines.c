@@ -63,8 +63,8 @@
 #define BT_MAIN_PAGE_MACHINES_C
 
 #include "bt-edit.h"
-
 #include <math.h>
+#include <clutter-gtk/clutter-gtk.h>
 
 enum
 {

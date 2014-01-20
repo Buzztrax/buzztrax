@@ -32,6 +32,8 @@
  */
 
 #include "bt-check.h"
+#include <libgstbuzztrax/childbin.h>
+#include <libgstbuzztrax/tempo.h>
 
 //-- enums
 

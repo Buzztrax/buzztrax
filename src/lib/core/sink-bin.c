@@ -76,7 +76,10 @@
 
 #include "core_private.h"
 #include "sink-bin.h"
+#include <gst/audio/audio.h>
+#include <gst/base/gstbasesink.h>
 #include <gst/pbutils/encoding-profile.h>
+#include <libgstbuzztrax/tempo.h>
 
 /* define this to get diagnostics of the sink data flow */
 //#define BT_MONITOR_SINK_DATA_FLOW

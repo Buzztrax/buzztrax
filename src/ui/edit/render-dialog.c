@@ -36,6 +36,8 @@
 #define BT_RENDER_DIALOG_C
 
 #include "bt-edit.h"
+#include <glib/gprintf.h>
+#include <glib/gstdio.h>
 
 struct _BtRenderDialogPrivate
 {

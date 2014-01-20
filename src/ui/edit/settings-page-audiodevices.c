@@ -44,6 +44,8 @@
 #define BT_SETTINGS_PAGE_AUDIODEVICES_C
 
 #include "bt-edit.h"
+//-- gstreamer
+#include <gst/audio/gstaudiobasesink.h>
 
 struct _BtSettingsPageAudiodevicesPrivate
 {

@@ -27,6 +27,7 @@
 #define BTIC_CORE_C
 
 #include "ic_private.h"
+#include <glib/gprintf.h>
 
 /**
  * btic_major_version:

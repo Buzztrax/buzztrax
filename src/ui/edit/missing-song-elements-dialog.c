@@ -27,6 +27,7 @@
 #define BT_MISSING_SONG_ELEMENTS_DIALOG_C
 
 #include "bt-edit.h"
+#include <glib/gprintf.h>
 
 //-- property ids
 

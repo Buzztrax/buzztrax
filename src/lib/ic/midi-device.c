@@ -38,6 +38,7 @@
 #define BTIC_MIDI_DEVICE_C
 
 #include "ic_private.h"
+#include <glib/gprintf.h>
 
 enum
 {

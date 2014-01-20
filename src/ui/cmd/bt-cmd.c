@@ -39,6 +39,7 @@
 
 #include "bt-cmd.h"
 #include <string.h>
+#include <glib/gprintf.h>
 
 #ifdef ENABLE_NLS
 #ifdef HAVE_X11_XLOCALE_H

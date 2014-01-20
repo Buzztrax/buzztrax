@@ -16,7 +16,6 @@
  */
 
 #include <check.h>
-#include <signal.h>
 #include "ic.h"
 #include "../../bt-check.h"
 
