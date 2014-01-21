@@ -62,3 +62,4 @@ buzztrax.schemas
 cscope.out
 *.anjuta
 *.gschema.valid
+gschemas.compiled
