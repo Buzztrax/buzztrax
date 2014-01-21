@@ -1343,6 +1343,7 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
         case 1:
           switch (button_event->click_count) {
             case 1:
+              // we're connecting when shift is pressed
               if (!(button_event->modifier_state & CLUTTER_SHIFT_MASK)) {
                 // dragx/y coords are world coords of button press
                 self->priv->dragx = button_event->x;
@@ -1384,7 +1385,6 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
 
           g_object_get (self->priv->main_page_machines, "canvas", &canvas,
               NULL);
-
           clutter_actor_set_opacity (citem, 160);
           clutter_actor_set_child_above_sibling (canvas, citem, NULL);
           g_object_unref (canvas);
@@ -1423,8 +1423,10 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
           g_signal_emit (citem, signals[POSITION_CHANGED], 0,
               CLUTTER_BUTTON_RELEASE);
           clutter_actor_set_opacity (citem, 255);
+          res = TRUE;
         }
-        res = TRUE;
+        // if not moved, let event fall through to make
+        // [context menu > connect] work
       } else {
 #if 0
         if (self->priv->switching) {
