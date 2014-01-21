@@ -84,6 +84,7 @@
 #define BT_MAIN_PAGE_SEQUENCE_C
 
 #include "bt-edit.h"
+#include "persistence.h"
 #include <math.h>
 #include "gtkvumeter.h"
 

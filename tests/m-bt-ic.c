@@ -21,6 +21,7 @@
 
 #include "bt-check.h"
 #include "../src/lib/ic/ic.h"
+#include <stdlib.h>
 
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN (btic_debug);

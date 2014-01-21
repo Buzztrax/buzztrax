@@ -16,6 +16,7 @@
  */
 
 #include "m-bt-core.h"
+#include "persistence.h"
 
 //-- globals
 

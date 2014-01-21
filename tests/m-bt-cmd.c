@@ -21,6 +21,7 @@
 
 #include "bt-check.h"
 #include "../src/ui/cmd/bt-cmd.h"
+#include <stdlib.h>
 
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN (bt_core_debug);

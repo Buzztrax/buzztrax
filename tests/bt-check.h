@@ -24,6 +24,7 @@
 #  include "config.h"
 #endif
 
+#include <stdio.h>
 #include <check.h>
 //-- glib/gobject
 #include <glib.h>

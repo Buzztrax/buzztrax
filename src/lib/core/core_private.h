@@ -55,6 +55,7 @@
 
 #include "core.h"
 #include "version.h"
+#include "persistence.h"
 
 #include "marshal.h"
 

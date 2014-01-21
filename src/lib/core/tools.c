@@ -23,6 +23,7 @@
 #include <sys/resource.h>
 
 #include "core_private.h"
+#include <glib/gprintf.h>
 #include <gst/base/gstbasetransform.h>
 
 //-- gst registry
@@ -545,7 +546,7 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
       case GST_PAD_LINK_WRONG_HIERARCHY:{
         GstObject *src_parent = GST_OBJECT_PARENT (src_pad);
         GstObject *sink_parent = GST_OBJECT_PARENT (sink_pad);
-        sprintf (msg2, " : parent(src) = %s, parent(sink) = %s",
+        g_sprintf (msg2, " : parent(src) = %s, parent(sink) = %s",
             (src_parent ? GST_OBJECT_NAME (src_parent) : "(NULL)"),
             (sink_parent ? GST_OBJECT_NAME (sink_parent) : "(NULL)"));
         break;
@@ -553,13 +554,13 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
       case GST_PAD_LINK_WAS_LINKED:{
         GstPad *src_peer = src_pad->peer;
         GstPad *sink_peer = sink_pad->peer;
-        sprintf (msg2, " : peer(src) = %s:%s, peer(sink) = %s:%s",
+        g_sprintf (msg2, " : peer(src) = %s:%s, peer(sink) = %s:%s",
             GST_DEBUG_PAD_NAME (src_peer), GST_DEBUG_PAD_NAME (sink_peer));
         break;
       }
       case GST_PAD_LINK_WRONG_DIRECTION:{
         static gchar *dir_name[] = { "unknown", "src", "sink" };
-        sprintf (msg2, " : direction(src) = %s, direction(sink) = %s",
+        g_sprintf (msg2, " : direction(src) = %s, direction(sink) = %s",
             ((src_pad->direction <
                     3) ? dir_name[src_pad->direction] : "invalid"),
             ((sink_pad->direction <
@@ -571,7 +572,7 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
         GstCaps *sinkc = gst_pad_query_caps (sink_pad, NULL);
         gchar *src_caps = gst_caps_to_string (srcc);
         gchar *sink_caps = gst_caps_to_string (sinkc);
-        sprintf (msg2, " : caps(src) = %s, caps(sink) = %s", src_caps,
+        g_sprintf (msg2, " : caps(src) = %s, caps(sink) = %s", src_caps,
             sink_caps);
         g_free (src_caps);
         g_free (sink_caps);
@@ -588,7 +589,7 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
     }
   }
 
-  sprintf (msg1, "%s:%s -> %s:%s : %s%s",
+  g_sprintf (msg1, "%s:%s -> %s:%s : %s%s",
       GST_DEBUG_PAD_NAME (src_pad), GST_DEBUG_PAD_NAME (sink_pad),
       link_res_desc[-link_res], msg2);
 

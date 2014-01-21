@@ -74,6 +74,7 @@
 #define BT_MAIN_PAGE_PATTERNS_C
 
 #include "bt-edit.h"
+#include "persistence.h"
 #include <libgstbuzztrax/toneconversion.h>
 
 #define MAX_WAVETABLE_ITEMS 200

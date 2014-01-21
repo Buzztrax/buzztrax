@@ -25,6 +25,7 @@
 #include "bt-check.h"
 #include "bt-check-ui.h"
 #include "../src/ui/edit/bt-edit.h"
+#include <stdlib.h>
 #include <glib/gstdio.h>
 
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);

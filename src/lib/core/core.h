@@ -26,7 +26,6 @@
 
 //-- libbtcore
 #include "childproxy.h"
-#include "persistence.h"
 
 #include "application.h"
 #include "audio-session.h"

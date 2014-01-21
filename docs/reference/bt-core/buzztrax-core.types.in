@@ -1,4 +1,5 @@
 #include "core.h"
+#include "persistence.h"
 #include "songio/bsl/song-io-buzz.h"
 
 bt_application_get_type
