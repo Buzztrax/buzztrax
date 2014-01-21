@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <glib-object.h>
 //-- gstreamer
-#include <gst/gst.h>
+#include <gst/gstinfo.h>
 //-- buzztrax
 #include "core.h"
 #include "bt-test-application.h"
