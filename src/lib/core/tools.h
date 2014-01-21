@@ -184,4 +184,18 @@ sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
  */
 #define g_object_try_unref(obj) if(obj) g_object_unref(obj)
 
+// string formatting helper
+const gchar *bt_str_format_uchar(const guchar val);
+const gchar *bt_str_format_long(const glong val);
+const gchar *bt_str_format_ulong(const gulong val);
+const gchar *bt_str_format_double(const gdouble val);
+const gchar *bt_str_format_enum(GType enum_type,gint value);
+
+// string parsing helper
+gint bt_str_parse_enum(GType enum_type,const gchar *str);
+
+// gvalue helper
+gboolean bt_str_parse_gvalue(GValue* const gvalue, const gchar * const svalue);
+gchar *bt_str_format_gvalue(GValue * const gvalue);
+
 #endif // !BT_TOOLS_H

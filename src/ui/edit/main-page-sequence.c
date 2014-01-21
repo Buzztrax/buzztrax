@@ -84,7 +84,6 @@
 #define BT_MAIN_PAGE_SEQUENCE_C
 
 #include "bt-edit.h"
-#include "persistence.h"
 #include <math.h>
 #include "gtkvumeter.h"
 
@@ -1182,7 +1181,7 @@ on_pos_menu_changed (GtkComboBox * combo_box, gpointer user_data)
   self->priv->pos_format = gtk_combo_box_get_active (combo_box);
   g_object_set (store, "pos-format", self->priv->pos_format, NULL);
   g_hash_table_insert (self->priv->properties, g_strdup ("pos-format"),
-      g_strdup (bt_persistence_strfmt_ulong (self->priv->pos_format)));
+      g_strdup (bt_str_format_ulong (self->priv->pos_format)));
   bt_edit_application_set_song_unsaved (self->priv->app);
 }
 
@@ -2358,7 +2357,7 @@ on_bars_menu_changed (GtkComboBox * combo_box, gpointer user_data)
         gtk_tree_model_filter_refilter (filtered_store);
       }
       g_hash_table_insert (self->priv->properties, g_strdup ("bars"),
-          g_strdup (bt_persistence_strfmt_ulong (self->priv->bars)));
+          g_strdup (bt_str_format_ulong (self->priv->bars)));
       bt_edit_application_set_song_unsaved (self->priv->app);
     }
     gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->sequence_table));

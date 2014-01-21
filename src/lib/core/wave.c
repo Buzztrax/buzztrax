@@ -661,13 +661,13 @@ bt_wave_persistence_save (const BtPersistence * const persistence,
       self->priv->uri = g_strdup (self->priv->name);
 
     xmlNewProp (node, XML_CHAR_PTR ("index"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->index)));
+        XML_CHAR_PTR (bt_str_format_ulong (self->priv->index)));
     xmlNewProp (node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (self->priv->name));
     xmlNewProp (node, XML_CHAR_PTR ("uri"), XML_CHAR_PTR (self->priv->uri));
     xmlNewProp (node, XML_CHAR_PTR ("volume"),
-        XML_CHAR_PTR (bt_persistence_strfmt_double (self->priv->volume)));
+        XML_CHAR_PTR (bt_str_format_double (self->priv->volume)));
     xmlNewProp (node, XML_CHAR_PTR ("loop-mode"),
-        XML_CHAR_PTR (bt_persistence_strfmt_enum (BT_TYPE_WAVE_LOOP_MODE,
+        XML_CHAR_PTR (bt_str_format_enum (BT_TYPE_WAVE_LOOP_MODE,
                 self->priv->loop_mode)));
 
     // check if we need to save external data
@@ -716,7 +716,7 @@ bt_wave_persistence_load (const GType type,
   const gdouble volume =
       volume_str ? g_ascii_strtod ((char *) volume_str, NULL) : 0.0;
   xmlChar *const loop_mode_str = xmlGetProp (node, XML_CHAR_PTR ("loop-mode"));
-  gint loop_mode = bt_persistence_parse_enum (BT_TYPE_WAVE_LOOP_MODE,
+  gint loop_mode = bt_str_parse_enum (BT_TYPE_WAVE_LOOP_MODE,
       (char *) loop_mode_str);
   if (loop_mode == -1)
     loop_mode = BT_WAVE_LOOP_MODE_OFF;

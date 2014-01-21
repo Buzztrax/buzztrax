@@ -321,7 +321,7 @@ on_parameters_copy_single (GtkMenuItem * menuitem, gpointer user_data)
   g_string_append (data, g_type_name (pspec->value_type));
   g_value_init (&value, pspec->value_type);
   g_object_get_property (object, property_name, &value);
-  if ((val_str = bt_persistence_get_value (&value))) {
+  if ((val_str = bt_str_format_gvalue (&value))) {
     g_string_append_c (data, ',');
     g_string_append (data, val_str);
     g_free (val_str);
@@ -378,7 +378,7 @@ on_parameters_copy_group (GtkMenuItem * menuitem, gpointer user_data)
       if (property[i]->flags & G_PARAM_READABLE) {
         g_value_init (&value, property[i]->value_type);
         g_object_get_property (parent[i], property[i]->name, &value);
-        if ((val_str = bt_persistence_get_value (&value))) {
+        if ((val_str = bt_str_format_gvalue (&value))) {
           g_string_append_c (data, ',');
           g_string_append (data, val_str);
           g_free (val_str);
@@ -482,7 +482,7 @@ pattern_clipboard_received_func (GtkClipboard * clipboard,
         stype = g_type_from_name (fields[0]);
         if (stype == property[p]->value_type) {
           g_value_init (&value, property[p]->value_type);
-          if (bt_persistence_set_value (&value, fields[1])) {
+          if (bt_str_parse_gvalue (&value, fields[1])) {
             g_object_set_property (parent[p], property[p]->name, &value);
           }
           g_value_unset (&value);

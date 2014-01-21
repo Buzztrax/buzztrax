@@ -1018,7 +1018,7 @@ bt_pattern_persistence_save (const BtPersistence * const persistence,
 
     xmlNewProp (node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (name));
     xmlNewProp (node, XML_CHAR_PTR ("length"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (length)));
+        XML_CHAR_PTR (bt_str_format_ulong (length)));
     g_free (name);
 
     // save pattern data
@@ -1027,7 +1027,7 @@ bt_pattern_persistence_save (const BtPersistence * const persistence,
       if (bt_pattern_test_tick (self, i)) {
         child_node = xmlNewChild (node, NULL, XML_CHAR_PTR ("tick"), NULL);
         xmlNewProp (child_node, XML_CHAR_PTR ("time"),
-            XML_CHAR_PTR (bt_persistence_strfmt_ulong (i)));
+            XML_CHAR_PTR (bt_str_format_ulong (i)));
         // save tick data
         pg = bt_machine_get_global_param_group (self->priv->machine);
         for (k = 0; k < global_params; k++) {
@@ -1043,7 +1043,7 @@ bt_pattern_persistence_save (const BtPersistence * const persistence,
           }
         }
         for (j = 0; j < voices; j++) {
-          const gchar *const voice_str = bt_persistence_strfmt_ulong (j);
+          const gchar *const voice_str = bt_str_format_ulong (j);
           pg = bt_machine_get_voice_param_group (self->priv->machine, j);
           for (k = 0; k < voice_params; k++) {
             if ((value = bt_pattern_get_voice_event (self, i, j, k))) {

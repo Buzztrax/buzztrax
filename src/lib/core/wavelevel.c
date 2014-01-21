@@ -122,13 +122,13 @@ bt_wavelevel_persistence_save (const BtPersistence * const persistence,
           xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("wavelevel"), NULL))) {
     // only serialize customizable properties
     xmlNewProp (node, XML_CHAR_PTR ("root-note"),
-        XML_CHAR_PTR (bt_persistence_strfmt_uchar (self->priv->root_note)));
+        XML_CHAR_PTR (bt_str_format_uchar (self->priv->root_note)));
     xmlNewProp (node, XML_CHAR_PTR ("rate"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->rate)));
+        XML_CHAR_PTR (bt_str_format_ulong (self->priv->rate)));
     xmlNewProp (node, XML_CHAR_PTR ("loop-start"),
-        XML_CHAR_PTR (bt_persistence_strfmt_long (self->priv->loop_start)));
+        XML_CHAR_PTR (bt_str_format_long (self->priv->loop_start)));
     xmlNewProp (node, XML_CHAR_PTR ("loop-end"),
-        XML_CHAR_PTR (bt_persistence_strfmt_long (self->priv->loop_end)));
+        XML_CHAR_PTR (bt_str_format_long (self->priv->loop_end)));
   }
   return (node);
 }

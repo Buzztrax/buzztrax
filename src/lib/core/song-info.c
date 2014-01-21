@@ -371,13 +371,11 @@ bt_song_info_persistence_save (const BtPersistence * const persistence,
           XML_CHAR_PTR (self->priv->change_dts));
     }
     xmlNewChild (node, NULL, XML_CHAR_PTR ("bpm"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->
-                beats_per_minute)));
+        XML_CHAR_PTR (bt_str_format_ulong (self->priv->beats_per_minute)));
     xmlNewChild (node, NULL, XML_CHAR_PTR ("tpb"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->
-                ticks_per_beat)));
+        XML_CHAR_PTR (bt_str_format_ulong (self->priv->ticks_per_beat)));
     xmlNewChild (node, NULL, XML_CHAR_PTR ("bars"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->bars)));
+        XML_CHAR_PTR (bt_str_format_ulong (self->priv->bars)));
   }
   return (node);
 }

@@ -687,8 +687,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->
-                        dst_wires->data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->dst_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -716,8 +716,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->
-                        src_wires->data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->src_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1371,8 +1371,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                      priv->machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                      machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1434,8 +1434,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                    priv->machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                    machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -2705,7 +2705,7 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
 
     xmlNewProp (node, XML_CHAR_PTR ("id"), XML_CHAR_PTR (self->priv->id));
     xmlNewProp (node, XML_CHAR_PTR ("state"),
-        XML_CHAR_PTR (bt_persistence_strfmt_enum (BT_TYPE_MACHINE_STATE,
+        XML_CHAR_PTR (bt_str_format_enum (BT_TYPE_MACHINE_STATE,
                 self->priv->state)));
 
     machine = GST_OBJECT (self->priv->machines[PART_MACHINE]);
@@ -2716,7 +2716,7 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
         g_value_init (&value,
             bt_parameter_group_get_param_type (prefs_param_group, i));
         g_object_get_property (G_OBJECT (machine), pname, &value);
-        gchar *const str = bt_persistence_get_value (&value);
+        gchar *const str = bt_str_format_gvalue (&value);
         xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
         xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
         g_free (str);
@@ -2733,7 +2733,7 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
         g_value_init (&value,
             bt_parameter_group_get_param_type (global_param_group, i));
         g_object_get_property (G_OBJECT (machine), pname, &value);
-        gchar *const str = bt_persistence_get_value (&value);
+        gchar *const str = bt_str_format_gvalue (&value);
         xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
         xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
         g_free (str);
@@ -2755,9 +2755,9 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
           g_value_init (&value,
               bt_parameter_group_get_param_type (voice_param_group, i));
           g_object_get_property (G_OBJECT (machine_voice), pname, &value);
-          gchar *const str = bt_persistence_get_value (&value);
+          gchar *const str = bt_str_format_gvalue (&value);
           xmlNewProp (child_node, XML_CHAR_PTR ("voice"),
-              XML_CHAR_PTR (bt_persistence_strfmt_ulong (j)));
+              XML_CHAR_PTR (bt_str_format_ulong (j)));
           xmlNewProp (child_node, XML_CHAR_PTR ("name"), XML_CHAR_PTR (pname));
           xmlNewProp (child_node, XML_CHAR_PTR ("value"), XML_CHAR_PTR (str));
           g_free (str);
@@ -2849,8 +2849,7 @@ bt_machine_persistence_load (const GType type,
   if ((machine = GST_OBJECT (self->priv->machines[PART_MACHINE]))) {
     if ((value_str = xmlGetProp (node, XML_CHAR_PTR ("state")))) {
       self->priv->state =
-          bt_persistence_parse_enum (BT_TYPE_MACHINE_STATE,
-          (gchar *) value_str);
+          bt_str_parse_enum (BT_TYPE_MACHINE_STATE, (gchar *) value_str);
       xmlFree (value_str);
     }
 
@@ -2864,7 +2863,7 @@ bt_machine_persistence_load (const GType type,
           if ((param != -1) && value_str) {
             g_value_init (&value, bt_parameter_group_get_param_type (pg,
                     param));
-            bt_persistence_set_value (&value, (gchar *) value_str);
+            bt_str_parse_gvalue (&value, (gchar *) value_str);
             g_object_set_property (bt_parameter_group_get_param_parent (pg,
                     param), (gchar *) name, &value);
             g_value_unset (&value);
@@ -2879,7 +2878,7 @@ bt_machine_persistence_load (const GType type,
           if ((param != -1) && value_str) {
             g_value_init (&value, bt_parameter_group_get_param_type (pg,
                     param));
-            bt_persistence_set_value (&value, (gchar *) value_str);
+            bt_str_parse_gvalue (&value, (gchar *) value_str);
             g_object_set_property (bt_parameter_group_get_param_parent (pg,
                     param), (gchar *) name, &value);
             g_value_unset (&value);
@@ -2897,7 +2896,7 @@ bt_machine_persistence_load (const GType type,
           if ((param != -1) && value_str) {
             g_value_init (&value, bt_parameter_group_get_param_type (pg,
                     param));
-            bt_persistence_set_value (&value, (gchar *) value_str);
+            bt_str_parse_gvalue (&value, (gchar *) value_str);
             g_object_set_property (bt_parameter_group_get_param_parent (pg,
                     param), (gchar *) name, &value);
             g_value_unset (&value);

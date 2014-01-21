@@ -239,19 +239,11 @@ bt_pattern_control_source_get_type
 BtPersistence
 BtPersistenceInterface
 bt_persistence_collect_hashtable_entries
-bt_persistence_get_value
 bt_persistence_load
 bt_persistence_load_hashtable
-bt_persistence_parse_enum
 bt_persistence_save
 bt_persistence_save_hashtable
 bt_persistence_save_list
-bt_persistence_set_value
-bt_persistence_strfmt_double
-bt_persistence_strfmt_enum
-bt_persistence_strfmt_long
-bt_persistence_strfmt_uchar
-bt_persistence_strfmt_ulong
 <SUBSECTION Standard>
 BT_IS_PERSISTENCE
 BT_PERSISTENCE
@@ -731,6 +723,14 @@ bt_gst_element_factory_can_sink_media_type
 bt_gst_registry_get_element_factories_matching_all_categories
 bt_gst_registry_get_element_names_matching_all_categories
 bt_gst_level_message_get_aggregated_field
+bt_str_format_double
+bt_str_format_enum
+bt_str_format_long
+bt_str_format_uchar
+bt_str_format_ulong
+bt_str_parse_enum
+bt_str_format_gvalue
+bt_str_parse_gvalue
 <SUBSECTION Standard>
 # glib extras
 G_OPTION_FLAG_NO_ARG

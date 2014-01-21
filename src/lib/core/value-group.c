@@ -264,7 +264,7 @@ bt_value_group_set_event (const BtValueGroup * const self, const gulong tick,
       if (!BT_IS_GVALUE (event)) {
         g_value_init (event, G_TYPE_INT);
       }
-      bt_persistence_set_value (event, value);
+      bt_str_parse_gvalue (event, value);
       GST_DEBUG ("Set shadow value at: %lu,%lu: '%s'", tick, param, value);
     } else {
       // unset value
@@ -280,7 +280,7 @@ bt_value_group_set_event (const BtValueGroup * const self, const gulong tick,
     if (!BT_IS_GVALUE (event)) {
       g_value_init (event, type);
     }
-    if (bt_persistence_set_value (event, value)) {
+    if (bt_str_parse_gvalue (event, value)) {
       if (bt_parameter_group_is_param_no_value (self->priv->param_group, param,
               event)) {
         g_value_unset (event);
@@ -334,14 +334,14 @@ bt_value_group_get_event (const BtValueGroup * const self, const gulong tick,
   // validated value
   event = bt_value_group_get_event_data_unchecked (self, tick, param);
   if (BT_IS_GVALUE (event)) {
-    value = bt_persistence_get_value (event);
+    value = bt_str_format_gvalue (event);
     GST_DEBUG ("return valid value at: %lu,%lu: '%s'", tick, param, value);
   } else {
     // plain value
     event = bt_value_group_get_event_data_unchecked (self, tick,
         self->priv->params + param);
     if (BT_IS_GVALUE (event)) {
-      value = bt_persistence_get_value (event);
+      value = bt_str_format_gvalue (event);
       GST_DEBUG ("return plain value at: %lu,%lu: '%s'", tick, param, value);
     }
   }
@@ -1164,7 +1164,7 @@ _serialize_column (const BtValueGroup * const self, const gulong start_tick,
       g_type_name (bt_value_group_get_param_type (self, param)));
   for (i = 0; i < ticks; i++) {
     if (BT_IS_GVALUE (beg)) {
-      if ((val = bt_persistence_get_value (beg))) {
+      if ((val = bt_str_format_gvalue (beg))) {
         g_string_append_c (data, ',');
         g_string_append (data, val);
         g_free (val);
@@ -1276,7 +1276,7 @@ bt_value_group_deserialize_column (const BtValueGroup * const self,
         if (!BT_IS_GVALUE (beg)) {
           g_value_init (beg, dtype);
         }
-        bt_persistence_set_value (beg, fields[i]);
+        bt_str_parse_gvalue (beg, fields[i]);
       } else {
         if (BT_IS_GVALUE (beg)) {
           g_value_unset (beg);

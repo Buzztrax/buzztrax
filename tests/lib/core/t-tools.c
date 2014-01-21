@@ -54,12 +54,65 @@ test_bt_tools_element_check (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_str_parse_enum_wrong_type (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* act */
+  gint v = bt_str_parse_enum (G_TYPE_INVALID, "hello");
+
+  /*assert */
+  ck_assert_int_eq (v, -1);
+  BT_TEST_END;
+}
+
+static void
+test_bt_str_parse_enum_null_str (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* act */
+  gint v = bt_str_parse_enum (BT_TYPE_MACHINE_STATE, NULL);
+
+  /*assert */
+  ck_assert_int_eq (v, -1);
+  BT_TEST_END;
+}
+
+static void
+test_bt_str_format_enum_wrong_type (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* act */
+  const gchar *v = bt_str_format_enum (G_TYPE_INVALID, 1);
+
+  /*assert */
+  fail_unless (v == NULL, NULL);
+  BT_TEST_END;
+}
+
+static void
+test_bt_str_format_enum_wrong_value (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* act */
+  const gchar *v = bt_str_format_enum (BT_TYPE_MACHINE_STATE,
+      BT_MACHINE_STATE_COUNT);
+
+  /*assert */
+  fail_unless (v == NULL, NULL);
+  BT_TEST_END;
+}
+
 TCase *
 bt_tools_test_case (void)
 {
   TCase *tc = tcase_create ("BtToolsTests");
 
   tcase_add_test (tc, test_bt_tools_element_check);
+  tcase_add_test (tc, test_bt_str_parse_enum_wrong_type);
+  tcase_add_test (tc, test_bt_str_parse_enum_null_str);
+  tcase_add_test (tc, test_bt_str_format_enum_wrong_type);
+  tcase_add_test (tc, test_bt_str_format_enum_wrong_value);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

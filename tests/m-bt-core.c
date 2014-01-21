@@ -34,7 +34,6 @@ extern Suite *bt_machine_suite (void);
 extern Suite *bt_param_group_suite (void);
 extern Suite *bt_pattern_suite (void);
 extern Suite *bt_pattern_control_source_suite (void);
-extern Suite *bt_persistence_suite (void);
 extern Suite *bt_processor_machine_suite (void);
 extern Suite *bt_sequence_suite (void);
 extern Suite *bt_settings_suite (void);
@@ -80,7 +79,6 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_param_group_suite ());
   srunner_add_suite (sr, bt_pattern_suite ());
   srunner_add_suite (sr, bt_pattern_control_source_suite ());
-  srunner_add_suite (sr, bt_persistence_suite ());
   srunner_add_suite (sr, bt_processor_machine_suite ());
   srunner_add_suite (sr, bt_sequence_suite ());
   srunner_add_suite (sr, bt_settings_suite ());

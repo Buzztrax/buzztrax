@@ -74,7 +74,6 @@
 #define BT_MAIN_PAGE_PATTERNS_C
 
 #include "bt-edit.h"
-#include "persistence.h"
 #include <libgstbuzztrax/toneconversion.h>
 
 #define MAX_WAVETABLE_ITEMS 200
@@ -732,7 +731,7 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
       prop_name = bt_parameter_group_get_param_name (pg, param);
       g_value_init (&value, bt_parameter_group_get_param_type (pg, param));
       g_object_get_property (parent, prop_name, &value);
-      str = bt_persistence_get_value (&value);
+      str = bt_str_format_gvalue (&value);
       GST_DEBUG ("get property %s: %s", prop_name, str);
 
       pattern_edit_set_data_at (self, pcc, self->priv->cursor_row,
@@ -1264,7 +1263,7 @@ pattern_edit_set_data_at (gpointer pattern_data, gpointer column_data,
       str = ((BtPatternEditorColumnConverters *)
           column_data)->float_to_str (value, column_data);
     else
-      str = bt_persistence_strfmt_double (value);
+      str = bt_str_format_double (value);
   }
 
   g_object_get (group->vg, "parameter-group", &pg, NULL);
@@ -1336,7 +1335,7 @@ pattern_edit_set_data_at (gpointer pattern_data, gpointer column_data,
 
             gtk_tree_model_get (model, &iter, BT_WAVE_LIST_MODEL_INDEX,
                 &wave_ix, -1);
-            wave_str = bt_persistence_strfmt_ulong (wave_ix);
+            wave_str = bt_str_format_ulong (wave_ix);
             // FIXME(ensonic): e.g. Matilde Tracker expects to get a wave, even if
             // wave table is empty
             GST_DEBUG ("wave index: %lu, %s", wave_ix, wave_str);
@@ -1449,7 +1448,7 @@ int_val_to_float (gchar * in, gpointer user_data)
 static const gchar *
 any_float_to_str (gfloat in, gpointer user_data)
 {
-  return (bt_persistence_strfmt_double (in));
+  return (bt_str_format_double (in));
 }
 
 static const gchar *
@@ -1467,9 +1466,9 @@ float_float_to_str (gfloat in, gpointer user_data)
   gdouble factor = 65535.0 / (pcc->max - pcc->min);
   gdouble val = pcc->min + (in / factor);
 
-  //GST_DEBUG("< val %lf, factor %lf, result %lf(%s)",in,factor,val,bt_persistence_strfmt_double(val));
+  //GST_DEBUG("< val %lf, factor %lf, result %lf(%s)",in,factor,val,bt_str_format_double(val));
 
-  return bt_persistence_strfmt_double (val);
+  return bt_str_format_double (val);
 }
 
 

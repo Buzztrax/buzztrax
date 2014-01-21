@@ -971,11 +971,11 @@ bt_wire_persistence_save (const BtPersistence * const persistence,
     // serialize gain and panorama
     g_object_get (self->priv->machines[PART_GAIN], "volume", &gain, NULL);
     xmlNewProp (node, XML_CHAR_PTR ("gain"),
-        XML_CHAR_PTR (bt_persistence_strfmt_double (gain)));
+        XML_CHAR_PTR (bt_str_format_double (gain)));
     if (self->priv->machines[PART_PAN]) {
       g_object_get (self->priv->machines[PART_PAN], "panorama", &pan, NULL);
       xmlNewProp (node, XML_CHAR_PTR ("panorama"),
-          XML_CHAR_PTR (bt_persistence_strfmt_double ((gdouble) pan)));
+          XML_CHAR_PTR (bt_str_format_double ((gdouble) pan)));
     }
 
     if (g_hash_table_size (self->priv->properties)) {
@@ -1017,7 +1017,7 @@ bt_wire_persistence_save (const BtPersistence * const persistence,
                     xmlNewChild (child_node2, NULL, XML_CHAR_PTR ("tick"),
                     NULL);
                 xmlNewProp (child_node3, XML_CHAR_PTR ("time"),
-                    XML_CHAR_PTR (bt_persistence_strfmt_ulong (i)));
+                    XML_CHAR_PTR (bt_str_format_ulong (i)));
                 // save tick data
                 for (k = 0; k < num_params; k++) {
                   if ((value = bt_value_group_get_event (vg, i, k))) {

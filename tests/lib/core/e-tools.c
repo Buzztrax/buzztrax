@@ -79,6 +79,39 @@ test_bt_tools_element_check1 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_str_parse_enum (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+
+  /* act */
+  gint v = bt_str_parse_enum (BT_TYPE_MACHINE_STATE, "normal");
+
+  /* assert */
+  ck_assert_int_eq (v, BT_MACHINE_STATE_NORMAL);
+
+  /* cleanup */
+  BT_TEST_END;
+}
+
+static void
+test_bt_str_format_enum (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+
+  /* act */
+  const gchar *v = bt_str_format_enum (BT_TYPE_MACHINE_STATE,
+      BT_MACHINE_STATE_NORMAL);
+
+  /* assert */
+  ck_assert_str_eq (v, "normal");
+
+  /* cleanup */
+  BT_TEST_END;
+}
+
 TCase *
 bt_tools_example_case (void)
 {
@@ -86,6 +119,8 @@ bt_tools_example_case (void)
 
   tcase_add_test (tc, test_bt_tools_element_check0);
   tcase_add_test (tc, test_bt_tools_element_check1);
+  tcase_add_test (tc, test_bt_str_parse_enum);
+  tcase_add_test (tc, test_bt_str_format_enum);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

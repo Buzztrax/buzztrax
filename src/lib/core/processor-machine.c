@@ -102,7 +102,7 @@ bt_processor_machine_persistence_save (const BtPersistence * const persistence,
         &voices, NULL);
     xmlNewProp (node, XML_CHAR_PTR ("plugin-name"), XML_CHAR_PTR (plugin_name));
     xmlNewProp (node, XML_CHAR_PTR ("voices"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (voices)));
+        XML_CHAR_PTR (bt_str_format_ulong (voices)));
     g_free (plugin_name);
   }
   return (node);

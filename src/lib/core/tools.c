@@ -818,3 +818,302 @@ bt_cpu_load_get_current (void)
 
   return (cpuload);
 }
+
+//-- string formatting helper
+
+/**
+ * bt_str_format_uchar:
+ * @val: a value
+ *
+ * Convenience methods, that formats a value to be serialized as a string.
+ *
+ * Returns: a reference to static memory containing the formatted value.
+ */
+const gchar *
+bt_str_format_uchar (const guchar val)
+{
+  static gchar str[20];
+
+  g_sprintf (str, "%u", val);
+  return (str);
+}
+
+/**
+ * bt_str_format_long:
+ * @val: a value
+ *
+ * Convenience methods, that formats a value to be serialized as a string.
+ *
+ * Returns: a reference to static memory containing the formatted value.
+ */
+const gchar *
+bt_str_format_long (const glong val)
+{
+  static gchar str[20];
+
+  g_sprintf (str, "%ld", val);
+  return (str);
+}
+
+/**
+ * bt_str_format_ulong:
+ * @val: a value
+ *
+ * Convenience methods, that formats a value to be serialized as a string.
+ *
+ * Returns: a reference to static memory containing the formatted value.
+ */
+const gchar *
+bt_str_format_ulong (const gulong val)
+{
+  static gchar str[20];
+
+  g_sprintf (str, "%lu", val);
+  return (str);
+}
+
+/**
+ * bt_str_format_double:
+ * @val: a value
+ *
+ * Convenience methods, that formats a value to be serialized as a string.
+ *
+ * Returns: a reference to static memory containing the formatted value.
+ */
+const gchar *
+bt_str_format_double (const gdouble val)
+{
+  static gchar str[G_ASCII_DTOSTR_BUF_SIZE + 1];
+
+  g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, val);
+  return (str);
+}
+
+/**
+ * bt_str_format_enum:
+ * @enum_type: the #GType for the enum
+ * @value: the integer value for the enum
+ *
+ * Convenience methods, that formats a value to be serialized as a string.
+ *
+ * Returns: a reference to static memory containing the formatted value.
+ */
+const gchar *
+bt_str_format_enum (GType enum_type, gint value)
+{
+  g_return_val_if_fail (G_TYPE_IS_ENUM (enum_type), NULL);
+
+  GEnumClass *enum_class = g_type_class_ref (enum_type);
+  GEnumValue *enum_value = g_enum_get_value (enum_class, value);
+  g_type_class_unref (enum_class);
+  return (enum_value ? enum_value->value_nick : NULL);
+}
+
+// string parsing helper
+
+/**
+ * bt_str_parse_enum:
+ * @enum_type: the #GType for the enum
+ * @str: the enum value name
+ *
+ * Convenience methods, that parses a enum value nick and to get the
+ * corresponding integer value.
+ *
+ * Returns: the integer value for the enum, or -1 for invalid strings.
+ */
+gint
+bt_str_parse_enum (GType enum_type, const gchar * str)
+{
+  g_return_val_if_fail (G_TYPE_IS_ENUM (enum_type), -1);
+
+  if (!str)
+    return (-1);
+
+  GEnumClass *enum_class = g_type_class_ref (enum_type);
+  GEnumValue *enum_value = g_enum_get_value_by_nick (enum_class, str);
+  g_type_class_unref (enum_class);
+  return (enum_value ? enum_value->value : -1);
+}
+
+//-- gvalue helper
+
+/**
+ * bt_str_parse_gvalue:
+ * @gvalue: a #GValue
+ * @svalue: the string representation of the value to store
+ *
+ * Stores the supplied value into the given @gvalue.
+ *
+ * Returns: %TRUE for success
+ */
+gboolean
+bt_str_parse_gvalue (GValue * const gvalue, const gchar * svalue)
+{
+  gboolean res = TRUE;
+  GType value_type, base_type;
+
+  g_return_val_if_fail (G_IS_VALUE (gvalue), FALSE);
+
+  value_type = G_VALUE_TYPE (gvalue);
+  base_type = bt_g_type_get_base_type (value_type);
+  // depending on the type, set the GValue
+  switch (base_type) {
+    case G_TYPE_DOUBLE:{
+      //gdouble val=atof(svalue); // this is dependend on the locale
+      const gdouble val = svalue ? g_ascii_strtod (svalue, NULL) : 0.0;
+      g_value_set_double (gvalue, val);
+    } break;
+    case G_TYPE_FLOAT:{
+      const gfloat val = svalue ? (gfloat) g_ascii_strtod (svalue, NULL) : 0.0;
+      g_value_set_float (gvalue, val);
+    } break;
+    case G_TYPE_BOOLEAN:{
+      const gboolean val = svalue ? atoi (svalue) : FALSE;
+      g_value_set_boolean (gvalue, val);
+    } break;
+    case G_TYPE_STRING:{
+      g_value_set_string (gvalue, svalue);
+    }
+      break;
+    case G_TYPE_ENUM:{
+      if (value_type == GSTBT_TYPE_NOTE) {
+        GEnumClass *enum_class = g_type_class_peek_static (GSTBT_TYPE_NOTE);
+        GEnumValue *enum_value;
+
+        if ((enum_value = g_enum_get_value_by_nick (enum_class, svalue))) {
+          //GST_INFO("mapping '%s' -> %d", svalue, enum_value->value);
+          g_value_set_enum (gvalue, enum_value->value);
+        } else {
+          GST_INFO ("-> %s out of range", svalue);
+          res = FALSE;
+        }
+      } else {
+        const gint val = svalue ? atoi (svalue) : 0;
+        GEnumClass *enum_class = g_type_class_peek_static (value_type);
+        GEnumValue *enum_value = g_enum_get_value (enum_class, val);
+
+        if (enum_value) {
+          //GST_INFO("-> %d",val);
+          g_value_set_enum (gvalue, val);
+        } else {
+          GST_INFO ("-> %d out of range", val);
+          res = FALSE;
+        }
+      }
+    }
+      break;
+    case G_TYPE_INT:{
+      const gint val = svalue ? atoi (svalue) : 0;
+      g_value_set_int (gvalue, val);
+    } break;
+    case G_TYPE_UINT:{
+      const guint val = svalue ? atoi (svalue) : 0;
+      g_value_set_uint (gvalue, val);
+    } break;
+    case G_TYPE_INT64:{
+      const gint64 val = svalue ? g_ascii_strtoll (svalue, NULL, 10) : 0;
+      g_value_set_int64 (gvalue, val);
+    } break;
+    case G_TYPE_UINT64:{
+      const guint64 val = svalue ? g_ascii_strtoull (svalue, NULL, 10) : 0;
+      g_value_set_uint64 (gvalue, val);
+    } break;
+    case G_TYPE_LONG:{
+      const glong val = svalue ? atol (svalue) : 0;
+      g_value_set_long (gvalue, val);
+    } break;
+    case G_TYPE_ULONG:{
+      const gulong val = svalue ? atol (svalue) : 0;
+      g_value_set_ulong (gvalue, val);
+    } break;
+    default:
+      GST_ERROR ("unsupported GType=%lu:'%s' for value=\"%s\"",
+          (gulong) G_VALUE_TYPE (gvalue), G_VALUE_TYPE_NAME (gvalue), svalue);
+      return (FALSE);
+  }
+  return (res);
+}
+
+/**
+ * bt_str_format_gvalue:
+ * @gvalue: the event cell
+ *
+ * Returns the string representation of the given @gvalue. Free it when done.
+ *
+ * Returns: a newly allocated string with the data or %NULL on error
+ */
+gchar *
+bt_str_format_gvalue (GValue * const gvalue)
+{
+  GType base_type;
+  gchar *res = NULL;
+
+  g_return_val_if_fail (G_IS_VALUE (gvalue), NULL);
+
+  base_type = bt_g_type_get_base_type (G_VALUE_TYPE (gvalue));
+  // depending on the type, set the result
+  switch (base_type) {
+    case G_TYPE_DOUBLE:{
+      gchar str[G_ASCII_DTOSTR_BUF_SIZE + 1];
+      // this is dependend on the locale
+      //res=g_strdup_printf("%lf",g_value_get_double(gvalue));
+      res =
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE,
+              g_value_get_double (gvalue)));
+    }
+      break;
+    case G_TYPE_FLOAT:{
+      gchar str[G_ASCII_DTOSTR_BUF_SIZE + 1];
+      // this is dependend on the locale
+      //res=g_strdup_printf("%f",g_value_get_float(gvalue));
+      res =
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE,
+              g_value_get_float (gvalue)));
+    }
+      break;
+    case G_TYPE_BOOLEAN:
+      res = g_strdup_printf ("%d", g_value_get_boolean (gvalue));
+      break;
+    case G_TYPE_STRING:
+      res = g_value_dup_string (gvalue);
+      break;
+    case G_TYPE_ENUM:
+      if (G_VALUE_TYPE (gvalue) == GSTBT_TYPE_NOTE) {
+        GEnumClass *enum_class = g_type_class_peek_static (GSTBT_TYPE_NOTE);
+        GEnumValue *enum_value;
+        gint val = g_value_get_enum (gvalue);
+
+        if ((enum_value = g_enum_get_value (enum_class, val))) {
+          res = g_strdup (enum_value->value_nick);
+        } else {
+          res = g_strdup ("");
+        }
+      } else {
+        res = g_strdup_printf ("%d", g_value_get_enum (gvalue));
+      }
+      break;
+    case G_TYPE_INT:
+      res = g_strdup_printf ("%d", g_value_get_int (gvalue));
+      break;
+    case G_TYPE_UINT:
+      res = g_strdup_printf ("%u", g_value_get_uint (gvalue));
+      break;
+    case G_TYPE_INT64:
+      res = g_strdup_printf ("%" G_GINT64_FORMAT, g_value_get_int64 (gvalue));
+      break;
+    case G_TYPE_UINT64:
+      res = g_strdup_printf ("%" G_GUINT64_FORMAT, g_value_get_uint64 (gvalue));
+      break;
+    case G_TYPE_LONG:
+      res = g_strdup_printf ("%ld", g_value_get_long (gvalue));
+      break;
+    case G_TYPE_ULONG:
+      res = g_strdup_printf ("%lu", g_value_get_ulong (gvalue));
+      break;
+    default:
+      GST_ERROR ("unsupported GType=%lu:'%s'", (gulong) G_VALUE_TYPE (gvalue),
+          G_VALUE_TYPE_NAME (gvalue));
+      return (NULL);
+  }
+  return (res);
+}

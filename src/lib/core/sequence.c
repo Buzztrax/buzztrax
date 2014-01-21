@@ -1328,15 +1328,15 @@ bt_sequence_persistence_save (const BtPersistence * const persistence,
 
   if ((node = xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("sequence"), NULL))) {
     xmlNewProp (node, XML_CHAR_PTR ("length"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->length)));
+        XML_CHAR_PTR (bt_str_format_ulong (self->priv->length)));
     xmlNewProp (node, XML_CHAR_PTR ("tracks"),
-        XML_CHAR_PTR (bt_persistence_strfmt_ulong (self->priv->tracks)));
+        XML_CHAR_PTR (bt_str_format_ulong (self->priv->tracks)));
     if (self->priv->loop) {
       xmlNewProp (node, XML_CHAR_PTR ("loop"), XML_CHAR_PTR ("on"));
       xmlNewProp (node, XML_CHAR_PTR ("loop-start"),
-          XML_CHAR_PTR (bt_persistence_strfmt_long (self->priv->loop_start)));
+          XML_CHAR_PTR (bt_str_format_long (self->priv->loop_start)));
       xmlNewProp (node, XML_CHAR_PTR ("loop-end"),
-          XML_CHAR_PTR (bt_persistence_strfmt_long (self->priv->loop_end)));
+          XML_CHAR_PTR (bt_str_format_long (self->priv->loop_end)));
     }
     if ((child_node = xmlNewChild (node, NULL, XML_CHAR_PTR ("labels"), NULL))) {
       // iterate over timelines
@@ -1347,7 +1347,7 @@ bt_sequence_persistence_save (const BtPersistence * const persistence,
               xmlNewChild (child_node, NULL, XML_CHAR_PTR ("label"), NULL);
           xmlNewProp (child_node2, XML_CHAR_PTR ("name"), XML_CHAR_PTR (label));
           xmlNewProp (child_node2, XML_CHAR_PTR ("time"),
-              XML_CHAR_PTR (bt_persistence_strfmt_ulong (i)));
+              XML_CHAR_PTR (bt_str_format_ulong (i)));
         }
       }
     } else
@@ -1364,7 +1364,7 @@ bt_sequence_persistence_save (const BtPersistence * const persistence,
         machine = machines[j];
         g_object_get (machine, "id", &machine_id, NULL);
         xmlNewProp (child_node2, XML_CHAR_PTR ("index"),
-            XML_CHAR_PTR (bt_persistence_strfmt_ulong (j)));
+            XML_CHAR_PTR (bt_str_format_ulong (j)));
         xmlNewProp (child_node2, XML_CHAR_PTR ("machine"),
             XML_CHAR_PTR (machine_id));
         g_free (machine_id);
@@ -1378,7 +1378,7 @@ bt_sequence_persistence_save (const BtPersistence * const persistence,
                 xmlNewChild (child_node2, NULL, XML_CHAR_PTR ("position"),
                 NULL);
             xmlNewProp (child_node3, XML_CHAR_PTR ("time"),
-                XML_CHAR_PTR (bt_persistence_strfmt_ulong (i)));
+                XML_CHAR_PTR (bt_str_format_ulong (i)));
             xmlNewProp (child_node3, XML_CHAR_PTR ("pattern"),
                 XML_CHAR_PTR (pattern_name));
             g_free (pattern_name);

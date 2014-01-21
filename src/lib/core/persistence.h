@@ -56,30 +56,16 @@ struct _BtPersistenceInterface {
 
 GType bt_persistence_get_type(void) G_GNUC_CONST;
 
-// string formatting helper
-extern const gchar *bt_persistence_strfmt_uchar(const guchar val);
-extern const gchar *bt_persistence_strfmt_long(const glong val);
-extern const gchar *bt_persistence_strfmt_ulong(const gulong val);
-extern const gchar *bt_persistence_strfmt_double(const gdouble val);
-extern const gchar *bt_persistence_strfmt_enum(GType enum_type,gint value);
-
-// string parsing helper
-extern gint bt_persistence_parse_enum(GType enum_type,const gchar *str);
-
 // list helper
-extern gboolean bt_persistence_save_list(const GList *list, xmlNodePtr const node);
+gboolean bt_persistence_save_list(const GList *list, xmlNodePtr const node);
 
 // hashtable helper
-extern void bt_persistence_collect_hashtable_entries(gpointer const key, gpointer const value, gpointer const user_data);
-extern gboolean bt_persistence_save_hashtable(GHashTable *hashtable, xmlNodePtr const node);
-extern gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node);
-
-// gvalue helper
-extern gboolean bt_persistence_set_value(GValue* const gvalue, const gchar * const svalue);
-extern gchar *bt_persistence_get_value(GValue * const gvalue);
+void bt_persistence_collect_hashtable_entries(gpointer const key, gpointer const value, gpointer const user_data);
+gboolean bt_persistence_save_hashtable(GHashTable *hashtable, xmlNodePtr const node);
+gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node);
 
 // wrapper
-extern xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr const parent_node);
-extern BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const self, xmlNodePtr node, GError **err, ...);
+xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr const parent_node);
+BtPersistence *bt_persistence_load(const GType type, const BtPersistence * const self, xmlNodePtr node, GError **err, ...);
 
 #endif // BT_PERSISTENCE_H
