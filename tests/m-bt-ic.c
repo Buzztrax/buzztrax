@@ -26,15 +26,15 @@
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN (btic_debug);
 
-extern Suite *bt_device_suite (void);
-extern Suite *bt_ic_suite (void);
-extern Suite *bt_learn_suite (void);
-extern Suite *bt_registry_suite (void);
-
 gchar *test_argv[] = { "check_buzzard" };
 
 gchar **test_argvptr = test_argv;
 gint test_argc = G_N_ELEMENTS (test_argv);
+
+BT_TEST_SUITE_E ("BticDevice", bt_device);
+BT_TEST_SUITE_T_E ("Btic", bt_ic);
+BT_TEST_SUITE_E ("BticLearn", bt_learn);
+BT_TEST_SUITE_E ("BticRegistry", bt_registry);
 
 /* start the test run */
 gint

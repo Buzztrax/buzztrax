@@ -27,12 +27,12 @@ GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN (bt_core_debug);
 GST_DEBUG_CATEGORY_EXTERN (bt_cmd_debug);
 
-extern Suite *bt_cmd_application_suite (void);
-
 gchar *test_argv[] = { "check_buzzard" };
 
 gchar **test_argvptr = test_argv;
 gint test_argc = G_N_ELEMENTS (test_argv);
+
+BT_TEST_SUITE_T_E ("BtCmdApplication", bt_cmd_application);
 
 /* start the test run */
 gint

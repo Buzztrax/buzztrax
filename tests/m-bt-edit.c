@@ -33,44 +33,48 @@ GST_DEBUG_CATEGORY_EXTERN (bt_core_debug);
 GST_DEBUG_CATEGORY_EXTERN (btic_debug);
 GST_DEBUG_CATEGORY_EXTERN (bt_edit_debug);
 
-extern Suite *bt_about_dialog_suite (void);
-extern Suite *bt_change_log_suite (void);
-extern Suite *bt_crash_recover_dialog_suite (void);
-extern Suite *bt_edit_application_suite (void);
-extern Suite *bt_interaction_controller_learn_dialog_suite (void);
-extern Suite *bt_interaction_controller_menu_suite (void);
-extern Suite *bt_machine_actions_suite (void);
-extern Suite *bt_machine_canvas_item_suite (void);
-extern Suite *bt_machine_list_model_suite (void);
-extern Suite *bt_machine_preset_properties_dialog_suite (void);
-extern Suite *bt_machine_preferences_dialog_suite (void);
-extern Suite *bt_machine_properties_dialog_suite (void);
-extern Suite *bt_machine_rename_dialog_suite (void);
-extern Suite *bt_main_page_info_suite (void);
-extern Suite *bt_main_page_machines_suite (void);
-extern Suite *bt_main_page_patterns_suite (void);
-extern Suite *bt_main_page_sequence_suite (void);
-extern Suite *bt_main_pages_suite (void);
-extern Suite *bt_main_window_suite (void);
-extern Suite *bt_missing_framework_elements_dialog_suite (void);
-extern Suite *bt_missing_song_elements_dialog_suite (void);
-extern Suite *bt_object_list_model_suite (void);
-extern Suite *bt_pattern_list_model_suite (void);
-extern Suite *bt_pattern_properties_dialog_suite (void);
-extern Suite *bt_render_dialog_suite (void);
-extern Suite *bt_sequence_grid_model_suite (void);
-extern Suite *bt_settings_dialog_suite (void);
-extern Suite *bt_signal_analysis_dialog_suite (void);
-extern Suite *bt_tip_dialog_suite (void);
-extern Suite *bt_ui_resources_suite (void);
-extern Suite *bt_wave_list_model_suite (void);
-extern Suite *bt_wavelevel_list_model_suite (void);
-extern Suite *bt_wire_canvas_item_suite (void);
-
 gchar *test_argv[] = { "check_buzzard" };
 
 gchar **test_argvptr = test_argv;
 gint test_argc = G_N_ELEMENTS (test_argv);
+
+BT_TEST_SUITE_E ("BtAboutDialog", bt_about_dialog);
+BT_TEST_SUITE_T_E ("BtChangeLog", bt_change_log);
+BT_TEST_SUITE_E ("BtCrashRecoverDialog", bt_crash_recover_dialog);
+BT_TEST_SUITE_E ("BtEditApplication", bt_edit_application);
+BT_TEST_SUITE_E ("BtInteractionControllerLearnDialog",
+    bt_interaction_controller_learn_dialog);
+BT_TEST_SUITE_E ("BtInteractionControllerMenu", bt_interaction_controller_menu);
+BT_TEST_SUITE_E ("BtMachineActions", bt_machine_actions);
+BT_TEST_SUITE_E ("BtMachineCanvasItem", bt_machine_canvas_item);
+BT_TEST_SUITE_E ("BtMachineListModel", bt_machine_list_model);
+BT_TEST_SUITE_E ("BtMachinePreferencesDialog", bt_machine_preferences_dialog);
+BT_TEST_SUITE_E ("BtMachinePresetPropertiesDialog",
+    bt_machine_preset_properties_dialog);
+BT_TEST_SUITE_E ("BtMachinePropertiesDialog", bt_machine_properties_dialog);
+BT_TEST_SUITE_E ("BtMachineRenameDialog", bt_machine_rename_dialog);
+BT_TEST_SUITE_E ("BtMainPageInfo", bt_main_page_info);
+BT_TEST_SUITE_E ("BtMainPageMachines", bt_main_page_machines);
+BT_TEST_SUITE_T_E ("BtMainPagePatterns", bt_main_page_patterns);
+BT_TEST_SUITE_E ("BtMainPageSequence", bt_main_page_sequence);
+BT_TEST_SUITE_E ("BtMainPages", bt_main_pages);
+BT_TEST_SUITE_E ("BtMainWindow", bt_main_window);
+BT_TEST_SUITE_E ("BtMissingFrameworkElementsDialog",
+    bt_missing_framework_elements_dialog);
+BT_TEST_SUITE_E ("BtMissingSongElementsDialog",
+    bt_missing_song_elements_dialog);
+BT_TEST_SUITE_T_E ("BtObjectListModel", bt_object_list_model);
+BT_TEST_SUITE_E ("BtPatternListModel", bt_pattern_list_model);
+BT_TEST_SUITE_E ("BtPatternPropertiesDialog", bt_pattern_properties_dialog);
+BT_TEST_SUITE_E ("BtRenderDialog", bt_render_dialog);
+BT_TEST_SUITE_E ("BtSequenceGridModel", bt_sequence_grid_model);
+BT_TEST_SUITE_E ("BtSettingsDialog", bt_settings_dialog);
+BT_TEST_SUITE_E ("BtSignalAnalysisDialog", bt_signal_analysis_dialog);
+BT_TEST_SUITE_E ("BtTipDialog", bt_tip_dialog);
+BT_TEST_SUITE_E ("BtUIResources", bt_ui_resources);
+BT_TEST_SUITE_E ("BtWaveListModel", bt_wave_list_model);
+BT_TEST_SUITE_E ("BtWavelevelListModel", bt_wavelevel_list_model);
+BT_TEST_SUITE_E ("BtWireCanvasItem", bt_wire_canvas_item);
 
 static BtSettings *settings;
 
@@ -181,8 +185,8 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_machine_actions_suite ());
   srunner_add_suite (sr, bt_machine_list_model_suite ());
   srunner_add_suite (sr, bt_machine_canvas_item_suite ());
-  srunner_add_suite (sr, bt_machine_preset_properties_dialog_suite ());
   srunner_add_suite (sr, bt_machine_preferences_dialog_suite ());
+  srunner_add_suite (sr, bt_machine_preset_properties_dialog_suite ());
   srunner_add_suite (sr, bt_machine_properties_dialog_suite ());
   srunner_add_suite (sr, bt_machine_rename_dialog_suite ());
   srunner_add_suite (sr, bt_main_page_info_suite ());

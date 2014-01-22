@@ -121,84 +121,84 @@ bt_edit_SOURCES = \
 libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtcore_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
 libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
-	tests/lib/core/s-application.c tests/lib/core/e-application.c \
-	tests/lib/core/s-audio-session.c tests/lib/core/e-audio-session.c \
-	tests/lib/core/s-cmd-pattern.c tests/lib/core/e-cmd-pattern.c tests/lib/core/t-cmd-pattern.c \
-	tests/lib/core/s-core.c tests/lib/core/e-core.c tests/lib/core/t-core.c \
-	tests/lib/core/s-machine.c tests/lib/core/e-machine.c tests/lib/core/t-machine.c \
-	tests/lib/core/s-parameter-group.c tests/lib/core/e-parameter-group.c tests/lib/core/t-parameter-group.c \
-	tests/lib/core/s-pattern.c tests/lib/core/e-pattern.c tests/lib/core/t-pattern.c \
-	tests/lib/core/s-pattern-control-source.c tests/lib/core/e-pattern-control-source.c tests/lib/core/t-pattern-control-source.c \
-	tests/lib/core/s-processor-machine.c tests/lib/core/e-processor-machine.c tests/lib/core/t-processor-machine.c \
-	tests/lib/core/s-sequence.c tests/lib/core/e-sequence.c tests/lib/core/t-sequence.c \
-	tests/lib/core/s-settings.c tests/lib/core/e-settings.c \
-	tests/lib/core/s-setup.c tests/lib/core/e-setup.c tests/lib/core/t-setup.c \
-	tests/lib/core/s-sink-bin.c tests/lib/core/e-sink-bin.c tests/lib/core/t-sink-bin.c \
-	tests/lib/core/s-sink-machine.c tests/lib/core/e-sink-machine.c tests/lib/core/t-sink-machine.c \
-	tests/lib/core/s-song.c tests/lib/core/e-song.c tests/lib/core/t-song.c \
-	tests/lib/core/s-song-io.c tests/lib/core/e-song-io.c tests/lib/core/t-song-io.c \
-	tests/lib/core/s-song-io-native.c tests/lib/core/e-song-io-native.c tests/lib/core/t-song-io-native.c \
-	tests/lib/core/s-song-info.c tests/lib/core/e-song-info.c tests/lib/core/t-song-info.c \
-	tests/lib/core/s-source-machine.c tests/lib/core/e-source-machine.c tests/lib/core/t-source-machine.c \
-	tests/lib/core/s-tools.c tests/lib/core/e-tools.c tests/lib/core/t-tools.c \
-	tests/lib/core/s-value-group.c tests/lib/core/e-value-group.c tests/lib/core/t-value-group.c \
-	tests/lib/core/s-wave.c tests/lib/core/e-wave.c tests/lib/core/t-wave.c \
-	tests/lib/core/s-wave-table.c tests/lib/core/e-wave-table.c tests/lib/core/t-wave-table.c \
-	tests/lib/core/s-wire.c tests/lib/core/e-wire.c tests/lib/core/t-wire.c
+	tests/lib/core/e-application.c \
+	tests/lib/core/e-audio-session.c \
+	tests/lib/core/e-cmd-pattern.c tests/lib/core/t-cmd-pattern.c \
+	tests/lib/core/e-core.c tests/lib/core/t-core.c \
+	tests/lib/core/e-machine.c tests/lib/core/t-machine.c \
+	tests/lib/core/e-parameter-group.c tests/lib/core/t-parameter-group.c \
+	tests/lib/core/e-pattern.c tests/lib/core/t-pattern.c \
+	tests/lib/core/e-pattern-control-source.c tests/lib/core/t-pattern-control-source.c \
+	tests/lib/core/e-processor-machine.c tests/lib/core/t-processor-machine.c \
+	tests/lib/core/e-sequence.c tests/lib/core/t-sequence.c \
+	tests/lib/core/e-settings.c \
+	tests/lib/core/e-setup.c tests/lib/core/t-setup.c \
+	tests/lib/core/e-sink-bin.c tests/lib/core/t-sink-bin.c \
+	tests/lib/core/e-sink-machine.c tests/lib/core/t-sink-machine.c \
+	tests/lib/core/e-song.c tests/lib/core/t-song.c \
+	tests/lib/core/e-song-io.c tests/lib/core/t-song-io.c \
+	tests/lib/core/e-song-io-native.c tests/lib/core/t-song-io-native.c \
+	tests/lib/core/e-song-info.c tests/lib/core/t-song-info.c \
+	tests/lib/core/e-source-machine.c tests/lib/core/t-source-machine.c \
+	tests/lib/core/e-tools.c tests/lib/core/t-tools.c \
+	tests/lib/core/e-value-group.c tests/lib/core/t-value-group.c \
+	tests/lib/core/e-wave.c tests/lib/core/t-wave.c \
+	tests/lib/core/e-wave-table.c tests/lib/core/t-wave-table.c \
+	tests/lib/core/e-wire.c tests/lib/core/t-wire.c
 
 libbtic_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtic_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
 libbtic_check_la_SOURCES = tests/lib/ic/m-bt-ic.h \
-	tests/lib/ic/s-device.c tests/lib/ic/e-device.c \
-	tests/lib/ic/s-ic.c tests/lib/ic/e-ic.c tests/lib/ic/t-ic.c \
-	tests/lib/ic/s-learn.c tests/lib/ic/e-learn.c \
-	tests/lib/ic/s-registry.c tests/lib/ic/e-registry.c
+	tests/lib/ic/e-device.c \
+	tests/lib/ic/e-ic.c tests/lib/ic/t-ic.c \
+	tests/lib/ic/e-learn.c \
+	tests/lib/ic/e-registry.c
 
 libbt_cmd_check_la_LIBADD = \
 	libbtcmd.la \
 	$(BASE_DEPS_LIBS)
 libbt_cmd_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)	
 libbt_cmd_check_la_SOURCES = tests/ui/cmd/m-bt-cmd.h \
-	tests/ui/cmd/s-cmd-application.c tests/ui/cmd/e-cmd-application.c tests/ui/cmd/t-cmd-application.c
+	tests/ui/cmd/e-cmd-application.c tests/ui/cmd/t-cmd-application.c
 
 libbt_edit_check_la_LIBADD = \
 	libbtedit.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS)
 libbt_edit_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
 libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
-	tests/ui/edit/s-about-dialog.c tests/ui/edit/e-about-dialog.c \
-	tests/ui/edit/s-change-log.c tests/ui/edit/e-change-log.c tests/ui/edit/t-change-log.c \
-	tests/ui/edit/s-crash-recover-dialog.c tests/ui/edit/e-crash-recover-dialog.c \
-	tests/ui/edit/s-edit-application.c tests/ui/edit/e-edit-application.c \
-	tests/ui/edit/s-interaction-controller-learn-dialog.c tests/ui/edit/e-interaction-controller-learn-dialog.c \
-	tests/ui/edit/s-interaction-controller-menu.c tests/ui/edit/e-interaction-controller-menu.c \
-	tests/ui/edit/s-machine-actions.c tests/ui/edit/e-machine-actions.c \
-	tests/ui/edit/s-machine-canvas-item.c tests/ui/edit/e-machine-canvas-item.c \
-	tests/ui/edit/s-machine-list-model.c tests/ui/edit/e-machine-list-model.c \
-	tests/ui/edit/s-machine-preset-properties-dialog.c tests/ui/edit/e-machine-preset-properties-dialog.c \
-	tests/ui/edit/s-machine-preferences-dialog.c tests/ui/edit/e-machine-preferences-dialog.c \
-	tests/ui/edit/s-machine-properties-dialog.c tests/ui/edit/e-machine-properties-dialog.c \
-	tests/ui/edit/s-machine-rename-dialog.c tests/ui/edit/e-machine-rename-dialog.c \
-	tests/ui/edit/s-main-page-info.c tests/ui/edit/e-main-page-info.c \
-	tests/ui/edit/s-main-page-machines.c tests/ui/edit/e-main-page-machines.c \
-	tests/ui/edit/s-main-page-patterns.c tests/ui/edit/e-main-page-patterns.c tests/ui/edit/t-main-page-patterns.c \
-	tests/ui/edit/s-main-page-sequence.c tests/ui/edit/e-main-page-sequence.c \
-	tests/ui/edit/s-main-pages.c tests/ui/edit/e-main-pages.c \
-	tests/ui/edit/s-main-window.c tests/ui/edit/e-main-window.c \
-	tests/ui/edit/s-missing-framework-elements-dialog.c tests/ui/edit/e-missing-framework-elements-dialog.c \
-	tests/ui/edit/s-missing-song-elements-dialog.c tests/ui/edit/e-missing-song-elements-dialog.c \
-	tests/ui/edit/s-object-list-model.c tests/ui/edit/e-object-list-model.c tests/ui/edit/t-object-list-model.c \
-	tests/ui/edit/s-pattern-list-model.c tests/ui/edit/e-pattern-list-model.c \
-	tests/ui/edit/s-pattern-properties-dialog.c tests/ui/edit/e-pattern-properties-dialog.c \
-	tests/ui/edit/s-render-dialog.c tests/ui/edit/e-render-dialog.c \
-	tests/ui/edit/s-sequence-grid-model.c tests/ui/edit/e-sequence-grid-model.c \
-	tests/ui/edit/s-settings-dialog.c tests/ui/edit/e-settings-dialog.c \
-	tests/ui/edit/s-signal-analysis-dialog.c tests/ui/edit/e-signal-analysis-dialog.c \
-	tests/ui/edit/s-tip-dialog.c tests/ui/edit/e-tip-dialog.c \
-	tests/ui/edit/s-ui-resources.c tests/ui/edit/e-ui-resources.c \
-	tests/ui/edit/s-wave-list-model.c tests/ui/edit/e-wave-list-model.c \
-	tests/ui/edit/s-wavelevel-list-model.c tests/ui/edit/e-wavelevel-list-model.c \
-	tests/ui/edit/s-wire-canvas-item.c tests/ui/edit/e-wire-canvas-item.c
+	tests/ui/edit/e-about-dialog.c \
+	tests/ui/edit/e-change-log.c tests/ui/edit/t-change-log.c \
+	tests/ui/edit/e-crash-recover-dialog.c \
+	tests/ui/edit/e-edit-application.c \
+	tests/ui/edit/e-interaction-controller-learn-dialog.c \
+	tests/ui/edit/e-interaction-controller-menu.c \
+	tests/ui/edit/e-machine-actions.c \
+	tests/ui/edit/e-machine-canvas-item.c \
+	tests/ui/edit/e-machine-list-model.c \
+	tests/ui/edit/e-machine-preset-properties-dialog.c \
+	tests/ui/edit/e-machine-preferences-dialog.c \
+	tests/ui/edit/e-machine-properties-dialog.c \
+	tests/ui/edit/e-machine-rename-dialog.c \
+	tests/ui/edit/e-main-page-info.c \
+	tests/ui/edit/e-main-page-machines.c \
+	tests/ui/edit/e-main-page-patterns.c tests/ui/edit/t-main-page-patterns.c \
+	tests/ui/edit/e-main-page-sequence.c \
+	tests/ui/edit/e-main-pages.c \
+	tests/ui/edit/e-main-window.c \
+	tests/ui/edit/e-missing-framework-elements-dialog.c \
+	tests/ui/edit/e-missing-song-elements-dialog.c \
+	tests/ui/edit/e-object-list-model.c tests/ui/edit/t-object-list-model.c \
+	tests/ui/edit/e-pattern-list-model.c \
+	tests/ui/edit/e-pattern-properties-dialog.c \
+	tests/ui/edit/e-render-dialog.c \
+	tests/ui/edit/e-sequence-grid-model.c \
+	tests/ui/edit/e-settings-dialog.c \
+	tests/ui/edit/e-signal-analysis-dialog.c \
+	tests/ui/edit/e-tip-dialog.c \
+	tests/ui/edit/e-ui-resources.c \
+	tests/ui/edit/e-wave-list-model.c \
+	tests/ui/edit/e-wavelevel-list-model.c \
+	tests/ui/edit/e-wire-canvas-item.c
 
 endif
 

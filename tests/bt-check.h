@@ -68,6 +68,37 @@ extern gchar **test_argvptr;
   setup_log_test (NULL, 0); \
   }
 
+#define BT_TEST_SUITE_T_E(N, n) \
+extern TCase *n##_test_case (void); \
+extern TCase *n##_example_case (void); \
+static inline Suite * \
+n##_suite (void) \
+{ \
+  Suite *s = suite_create (N); \
+  suite_add_tcase (s, n##_test_case ()); \
+  suite_add_tcase (s, n##_example_case ()); \
+  return s; \
+}
+
+#define BT_TEST_SUITE_T(N, n) \
+extern TCase *n##_test_case (void); \
+static inline Suite * \
+n##_suite (void) \
+{ \
+  Suite *s = suite_create (N); \
+  suite_add_tcase (s, n##_test_case ()); \
+  return s; \
+}
+
+#define BT_TEST_SUITE_E(N, n) \
+extern TCase *n##_example_case (void); \
+static inline Suite * \
+n##_suite (void) \
+{ \
+  Suite *s = suite_create (N); \
+  suite_add_tcase (s, n##_example_case ()); \
+  return s; \
+}
 
 /* Hack to allow run-time selection of unit tests to run via the
  * BT_CHECKS environment variable (test function names, comma-separated)

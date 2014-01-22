@@ -26,35 +26,35 @@
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN (bt_core_debug);
 
-extern Suite *bt_application_suite (void);
-extern Suite *bt_audio_session_suite (void);
-extern Suite *bt_cmd_pattern_suite (void);
-extern Suite *bt_core_suite (void);
-extern Suite *bt_machine_suite (void);
-extern Suite *bt_param_group_suite (void);
-extern Suite *bt_pattern_suite (void);
-extern Suite *bt_pattern_control_source_suite (void);
-extern Suite *bt_processor_machine_suite (void);
-extern Suite *bt_sequence_suite (void);
-extern Suite *bt_settings_suite (void);
-extern Suite *bt_setup_suite (void);
-extern Suite *bt_sink_bin_suite (void);
-extern Suite *bt_sink_machine_suite (void);
-extern Suite *bt_song_suite (void);
-extern Suite *bt_song_io_suite (void);
-extern Suite *bt_song_io_native_suite (void);
-extern Suite *bt_song_info_suite (void);
-extern Suite *bt_source_machine_suite (void);
-extern Suite *bt_tools_suite (void);
-extern Suite *bt_value_group_suite (void);
-extern Suite *bt_wave_suite (void);
-extern Suite *bt_wave_table_suite (void);
-extern Suite *bt_wire_suite (void);
-
 gchar *test_argv[] = { "check_buzzard" };
 
 gchar **test_argvptr = test_argv;
 gint test_argc = G_N_ELEMENTS (test_argv);
+
+BT_TEST_SUITE_E ("BtApplication", bt_application);
+BT_TEST_SUITE_E ("BtAudioSession", bt_audio_session);
+BT_TEST_SUITE_T_E ("BtCmdPattern", bt_cmd_pattern);
+BT_TEST_SUITE_T_E ("BtCore", bt_core);
+BT_TEST_SUITE_T_E ("BtMachine", bt_machine);
+BT_TEST_SUITE_T_E ("BtParamGroup", bt_param_group);
+BT_TEST_SUITE_T_E ("BtPattern", bt_pattern);
+BT_TEST_SUITE_T_E ("BtPatternControlSource", bt_pattern_control_source);
+BT_TEST_SUITE_T_E ("BtProcessorMachine", bt_processor_machine);
+BT_TEST_SUITE_T_E ("BtSequence", bt_sequence);
+BT_TEST_SUITE_E ("BtSettings", bt_settings);
+BT_TEST_SUITE_T_E ("BtSetup", bt_setup);
+BT_TEST_SUITE_T_E ("BtSinkBin", bt_sink_bin);
+BT_TEST_SUITE_T_E ("BtSinkMachine", bt_sink_machine);
+BT_TEST_SUITE_T_E ("BtSongInfo", bt_song_info);
+BT_TEST_SUITE_T_E ("BtSongIONative", bt_song_io_native);
+BT_TEST_SUITE_T_E ("BtSongIO", bt_song_io);
+BT_TEST_SUITE_T_E ("BtSong", bt_song);
+BT_TEST_SUITE_T_E ("BtSourceMachine", bt_source_machine);
+BT_TEST_SUITE_T_E ("BtTools", bt_tools);
+BT_TEST_SUITE_T_E ("BtValueGroup", bt_value_group);
+BT_TEST_SUITE_T_E ("BtWaveTable", bt_wave_table);
+BT_TEST_SUITE_T_E ("BtWave", bt_wave);
+BT_TEST_SUITE_T_E ("BtWire", bt_wire);
 
 /* start the test run */
 gint
