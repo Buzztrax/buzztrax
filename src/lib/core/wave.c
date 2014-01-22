@@ -288,7 +288,9 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
       }
       case GST_MESSAGE_TAG:{
         GstTagList *tags;
+#if GST_CHECK_VERSION(1,3,0)
         guint base_note;
+#endif
 
         gst_message_parse_tag (msg, &tags);
 #if GST_CHECK_VERSION(1,3,0)
