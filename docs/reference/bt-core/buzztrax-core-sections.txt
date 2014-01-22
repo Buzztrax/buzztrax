@@ -321,6 +321,7 @@ BT_SETTINGS_CLASS
 BT_SETTINGS_GET_CLASS
 BT_TYPE_SETTINGS
 BtSettingsClass
+BtSettingsPrivate
 bt_settings_get_type
 </SECTION>
 
