@@ -592,14 +592,17 @@ bt_pattern_editor_realize (GtkWidget * widget)
   attributes.y = allocation.y;
   attributes.width = allocation.width;
   attributes.height = allocation.height;
-  attributes.wclass = GDK_INPUT_OUTPUT;
+  attributes.wclass = GDK_INPUT_ONLY;
   attributes.window_type = GDK_WINDOW_CHILD;
   attributes.event_mask = gtk_widget_get_events (widget) |
       GDK_EXPOSURE_MASK | GDK_SCROLL_MASK | GDK_KEY_PRESS_MASK |
       GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
       /*| GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK */ ;
-  attributes.visual = gtk_widget_get_visual (widget);
-  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
+  attributes_mask = GDK_WA_X | GDK_WA_Y;
+  
+  window = gtk_widget_get_parent_window (widget);
+  gtk_widget_set_window (widget, window);
+  g_object_ref (window);
 
   self->window = gdk_window_new (window, &attributes, attributes_mask);
 #if GTK_CHECK_VERSION (3,8,0)
@@ -607,8 +610,6 @@ bt_pattern_editor_realize (GtkWidget * widget)
 #else
   gdk_window_set_user_data (self->window, widget);
 #endif
-
-  gtk_widget_set_can_focus (widget, TRUE);
 
   style = gtk_widget_get_style_context (widget);
 
@@ -733,13 +734,15 @@ bt_pattern_editor_unrealize (GtkWidget * widget)
     g_object_unref (self->vadj);
     self->vadj = NULL;
   }
+  if (self->window) {
 #if GTK_CHECK_VERSION (3,8,0)
-  gtk_widget_unregister_window (widget, self->window);
+    gtk_widget_unregister_window (widget, self->window);
 #else
-  gdk_window_set_user_data (self->window, NULL);
+    gdk_window_set_user_data (self->window, NULL);
 #endif
-  gdk_window_destroy (self->window);
-  self->window = NULL;
+    gdk_window_destroy (self->window);
+    self->window = NULL;
+  }
 
   GTK_WIDGET_CLASS (bt_pattern_editor_parent_class)->unrealize (widget);
 }
@@ -749,9 +752,11 @@ bt_pattern_editor_map (GtkWidget * widget)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR (widget);
 
-  gdk_window_show (self->window);
-
   GTK_WIDGET_CLASS (bt_pattern_editor_parent_class)->map (widget);
+  
+  if (self->window)
+    gdk_window_show (self->window);
+
 }
 
 static void
@@ -759,7 +764,8 @@ bt_pattern_editor_unmap (GtkWidget * widget)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR (widget);
 
-  gdk_window_hide (self->window);
+  if (self->window)
+    gdk_window_hide (self->window);
 
   GTK_WIDGET_CLASS (bt_pattern_editor_parent_class)->unmap (widget);
 }
@@ -867,25 +873,27 @@ bt_pattern_editor_update_adjustments (BtPatternEditor * self)
 
   if (self->hadj) {
     gdouble lower = gtk_adjustment_get_lower (self->hadj);
-    gdouble upper = bt_pattern_editor_get_row_width (self);
-    gdouble page_increment = allocation.width;
+    gdouble upper = MAX(allocation.width, bt_pattern_editor_get_row_width (self));
+    gdouble step_increment = allocation.width * 0.1;
+    gdouble page_increment = allocation.width * 0.9;
     gdouble page_size = allocation.width;
-    gdouble step_increment = allocation.width / 20.0;
     gdouble value = gtk_adjustment_get_value (self->hadj);
 
-    value = MIN (value, upper - page_size);
+    value = CLAMP (value, 0, upper - page_size);
+    GST_INFO("h: v=%lf, %lf..%lf / %lf", value, lower, upper, page_size);
     gtk_adjustment_configure (self->hadj, value, lower, upper, step_increment,
         page_increment, page_size);
   }
   if (self->vadj) {
     gdouble lower = gtk_adjustment_get_lower (self->vadj);
-    gdouble upper = bt_pattern_editor_get_col_height (self);
-    gdouble page_increment = allocation.height;
+    gdouble upper = MAX(allocation.height, bt_pattern_editor_get_col_height (self));
+    gdouble step_increment = allocation.height * 0.1;
+    gdouble page_increment = allocation.height * 0.9;
     gdouble page_size = allocation.height;
-    gdouble step_increment = allocation.height / 20.0;
     gdouble value = gtk_adjustment_get_value (self->vadj);
 
-    value = MIN (value, upper - page_size);
+    value = CLAMP (value, 0, upper - page_size);
+    GST_INFO("v: v=%lf, %lf..%lf / %lf", value, lower, upper, page_size);
     gtk_adjustment_configure (self->vadj, value, lower, upper, step_increment,
         page_increment, page_size);
   }
@@ -915,13 +923,15 @@ static void
 bt_pattern_editor_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR (widget);
+
   gtk_widget_set_allocation (widget, allocation);
   GST_INFO ("size_allocate: %d,%d %d,%d", allocation->x, allocation->y,
       allocation->width, allocation->height);
 
-  if (gtk_widget_get_realized (widget))
+  if (gtk_widget_get_realized (widget)) {
     gdk_window_move_resize (self->window,
         allocation->x, allocation->y, allocation->width, allocation->height);
+  }
 
   bt_pattern_editor_update_adjustments (self);
 }
@@ -1653,6 +1663,9 @@ bt_pattern_editor_init (BtPatternEditor * self)
   self->selection_end = 0;
   self->selection_group = 0;
   self->selection_param = 0;
+  
+  gtk_widget_set_can_focus (GTK_WIDGET (self), TRUE);
+  gtk_widget_set_has_window (GTK_WIDGET (self), FALSE);
 }
 
 /**
