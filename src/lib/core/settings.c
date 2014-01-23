@@ -448,8 +448,9 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
     system_audiosink_name = NULL;
   }
   if (!element_name) {
-    // TODO(ensonic): try autoaudiosink (if it exists)
-    // iterate over gstreamer-audiosink list and choose element with highest rank
+    // iterate over gstreamer-audiosink list and choose element with highest
+    // rank, there is not much point in using autoaudiosink, as this will do
+    // the same ...
     const GList *node;
     GList *const audiosink_factories =
         bt_gst_registry_get_element_factories_matching_all_categories
@@ -485,6 +486,13 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
       }
     }
     gst_plugin_feature_list_free (audiosink_factories);
+  }
+  if (!element_name) {
+    // support running unit tests on virtual machines
+    if (strcmp (g_getenv ("GSETTINGS_BACKEND"), "memory")) {
+      GST_INFO ("no real audiosink found, falling back to fakesink");
+      element_name = "fakesink";
+    }
   }
   GST_INFO ("using audio sink : \"%s\"", element_name);
 
@@ -829,7 +837,7 @@ bt_settings_class_init (BtSettingsClass * const klass)
   // audio settings
   g_object_class_install_property (gobject_class, BT_SETTINGS_AUDIOSINK,
       g_param_spec_string ("audiosink", "audiosink prop",
-          "audio output gstreamer element", "autoaudiosink",
+          "audio output gstreamer element", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, BT_SETTINGS_AUDIOSINK_DEVICE,
@@ -898,7 +906,7 @@ bt_settings_class_init (BtSettingsClass * const klass)
   // system settings
   g_object_class_install_property (gobject_class, BT_SETTINGS_SYSTEM_AUDIOSINK,
       g_param_spec_string ("system-audiosink", "system-audiosink prop",
-          "system audio output gstreamer element", "autoaudiosink",
+          "system audio output gstreamer element", NULL,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class,
