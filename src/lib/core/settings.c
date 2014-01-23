@@ -120,9 +120,7 @@ parse_and_check_audio_sink (gchar * plugin_name)
 {
   gchar *sink_name, *eon;
 
-  if (!plugin_name)
-    return (NULL);
-
+  g_assert (plugin_name);
   GST_DEBUG ("plugin name is: '%s'", plugin_name);
 
   // this can be a whole pipeline like "audioconvert ! osssink sync=false"
@@ -170,6 +168,7 @@ parse_and_check_audio_sink (gchar * plugin_name)
       plugin_name = NULL;
     }
   }
+  GST_INFO ("parsed and checked element name: '%s'", plugin_name);
   return (plugin_name);
 }
 
@@ -436,7 +435,7 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
       "system-audiosink", &system_audiosink_name, NULL);
 
   if (BT_IS_STRING (audiosink_name)) {
-    GST_INFO ("get audiosink from config");
+    GST_INFO ("get audiosink from config: %s", audiosink_name);
     element_name = parse_and_check_audio_sink (audiosink_name);
     audiosink_name = NULL;
     if (element_name && _device_name) {
@@ -444,7 +443,7 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
     }
   }
   if (!element_name && BT_IS_STRING (system_audiosink_name)) {
-    GST_INFO ("get audiosink from system config");
+    GST_INFO ("get audiosink from system config: %s", system_audiosink_name);
     element_name = parse_and_check_audio_sink (system_audiosink_name);
     system_audiosink_name = NULL;
   }
