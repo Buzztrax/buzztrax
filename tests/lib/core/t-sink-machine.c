@@ -201,7 +201,7 @@ test_bt_sink_machine_play_fakesink (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-// test if the song play routine handles sink with wrong parameters
+// the sink machine should fallback on the default device
 static void
 test_bt_sink_machine_play_wrong_parameters (BT_TEST_ARGS)
 {
@@ -219,7 +219,7 @@ test_bt_sink_machine_play_wrong_parameters (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-// test if the song play routine handles sink with wrong parameters
+// the sink machine should fallback to another sink
 static void
 test_bt_sink_machine_play_inexistent_type (BT_TEST_ARGS)
 {
