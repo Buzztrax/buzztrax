@@ -31,6 +31,8 @@ gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,c
 GList *bt_gst_check_elements(GList *list);
 GList *bt_gst_check_core_elements(void);
 
+gboolean bt_gst_try_element(GstElementFactory *factory, const gchar *format);
+
 //-- gst safe linking
 
 gboolean bt_bin_activate_tee_chain(GstBin *bin, GstElement *tee, GList* elements, gboolean is_playing);

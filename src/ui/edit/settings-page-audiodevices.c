@@ -78,8 +78,8 @@ update_device_menu (const BtSettingsPageAudiodevices * self,
   gboolean has_devices = FALSE;
   GtkComboBoxText *combo_box = GTK_COMBO_BOX_TEXT (self->priv->device_menu);
   gint i, ct =
-      gtk_tree_model_iter_n_children (gtk_combo_box_get_model (self->
-          priv->device_menu), NULL);
+      gtk_tree_model_iter_n_children (gtk_combo_box_get_model (self->priv->
+          device_menu), NULL);
   gint index = -1;
 
   for (i = 0; i < ct; i++) {
@@ -202,8 +202,8 @@ on_samplerate_menu_changed (GtkComboBox * combo_box, gpointer user_data)
 
   index = gtk_combo_box_get_active (self->priv->samplerate_menu);
   rate =
-      atoi (gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (self->priv->
-              samplerate_menu)));
+      atoi (gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (self->
+              priv->samplerate_menu)));
   GST_INFO ("sample-rate changed : index=%lu, rate=%lu", index, rate);
 
   bt_child_proxy_set (self->priv->app, "settings::sample-rate", rate, NULL);
@@ -290,12 +290,12 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
     str =
         g_strdup_printf (_("system default: %s (%s)"), system_audiosink_name,
         desc);
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-            audiosink_menu), str);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+            priv->audiosink_menu), str);
     g_free (str);
   } else {
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-            audiosink_menu), _("system default: -"));
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+            priv->audiosink_menu), _("system default: -"));
   }
 
   audiosink_factories =
@@ -303,12 +303,7 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
       ("Sink/Audio");
   // TODO(ensonic): sort list alphabetically/ by rank ?
 
-  /* TODO(ensonic): use GST_IS_BIN(gst_element_factory_get_element_type(factory)) to skip bins
-   * add autoaudiosink as the first and make it default
-   *   but then again bins seem to be filtered out already, by below
-   *
-   * we could also filter by baseclass, GST_IS_BASE_AUDIO_SINK(...) now that we have instances
-   *
+  /* TODO(ensonic): unify with BtSettings::parse_and_check_audio_sink()
    * we should factor out the code below to a function and add a rescan button
    * -> useful if e.g. someone started jack in the meantime
    */
@@ -354,51 +349,27 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
           name);
       continue;
     }
-    // can the sink accept raw audio?
-    if (bt_gst_element_factory_can_sink_media_type (factory, "audio/x-raw")) {
-      GstElement *sink;
-      gboolean works = FALSE;
 
-      // try to open the element and skip those that we can't open
-      if ((sink = gst_element_factory_make (name, NULL))) {
-        GstStateChangeReturn ret =
-            gst_element_set_state (sink, GST_STATE_READY);
-        if (ret != GST_STATE_CHANGE_FAILURE) {
-          works = TRUE;
-        } else {
-          GST_INFO
-              ("  skipping audio sink: \"%s\" as it could not go to READY",
-              name);
-        }
-        gst_element_set_state (sink, GST_STATE_NULL);
-        gst_object_unref (sink);
-      } else {
-        GST_INFO ("  skipping audio sink: \"%s\" as it could be instantiated",
-            name);
+    if (bt_gst_try_element (factory, "audio/x-raw")) {
+      // compare with audiosink_name and set audiosink_index if equal
+      if (!use_system_audiosink) {
+        if (!strcmp (audiosink_name, name))
+          audiosink_index = ct;
       }
-
-      if (works) {
-        // compare with audiosink_name and set audiosink_index if equal
-        if (!use_system_audiosink) {
-          if (!strcmp (audiosink_name, name))
-            audiosink_index = ct;
-        }
-        str =
-            g_strdup_printf ("%s (%s)", name,
-            gst_element_factory_get_metadata (factory,
-                GST_ELEMENT_METADATA_DESCRIPTION));
-        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-                audiosink_menu), str);
-        g_free (str);
-        // add this to instance list
-        self->priv->audiosink_names =
-            g_list_append (self->priv->audiosink_names, (gpointer) name);
-        GST_INFO ("  adding audio sink: \"%s\"", name);
-        ct++;
-      }
+      str =
+          g_strdup_printf ("%s (%s)", name,
+          gst_element_factory_get_metadata (factory,
+              GST_ELEMENT_METADATA_DESCRIPTION));
+      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+              priv->audiosink_menu), str);
+      g_free (str);
+      // add this to instance list
+      self->priv->audiosink_names =
+          g_list_append (self->priv->audiosink_names, (gpointer) name);
+      GST_INFO ("  adding audio sink: \"%s\"", name);
+      ct++;
     } else {
-      GST_INFO
-          ("  skipping audio sink: \"%s\" because of incompatible caps", name);
+      GST_INFO ("  skipping audio sink: \"%s\"", name);
     }
   }
   GST_INFO ("current sink (is_system? %d): %lu", use_system_audiosink,
@@ -428,22 +399,22 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
       2, 1);
 
   self->priv->samplerate_menu = GTK_COMBO_BOX (gtk_combo_box_text_new ());
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "8000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "11025");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "16000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "22050");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "32000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "44100");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "48000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          samplerate_menu), "96000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "8000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "11025");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "16000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "22050");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "32000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "44100");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "48000");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->samplerate_menu), "96000");
   switch (sample_rate) {
     case 8000:
       sampling_rate_index = 0;
@@ -484,10 +455,10 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
       2, 1);
 
   self->priv->channels_menu = GTK_COMBO_BOX (gtk_combo_box_text_new ());
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          channels_menu), _("mono"));
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-          channels_menu), _("stereo"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->channels_menu), _("mono"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
+          priv->channels_menu), _("stereo"));
   gtk_combo_box_set_active (self->priv->channels_menu, (channels - 1));
   gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->channels_menu), 2,
       3, 4, 5, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);

@@ -305,6 +305,43 @@ bt_gst_get_peer_pad (GstIterator * it)
   return (peer_pad);
 }
 
+/**
+ * bt_gst_try_element:
+ * @factory: plugin feature to try
+ * @format: required media format
+ *
+ * Create an instance of the element and try to set it to %GST_STATE_READY.
+ *
+ * Returns: %TRUE, if the element is usable
+ */
+gboolean
+bt_gst_try_element (GstElementFactory * factory, const gchar * format)
+{
+  GstElement *e;
+  GstStateChangeReturn ret;
+  gboolean valid = FALSE;
+
+  if (!bt_gst_element_factory_can_sink_media_type (factory, format)) {
+    GST_INFO_OBJECT (factory, "has no compatible caps");
+    return FALSE;
+  }
+  if (!(e = gst_element_factory_create (factory, NULL))) {
+    GST_INFO_OBJECT (factory, "cannot create instance");
+    return FALSE;
+  }
+
+  ret = gst_element_set_state (e, GST_STATE_READY);
+  if (ret == GST_STATE_CHANGE_SUCCESS) {
+    GST_DEBUG_OBJECT (e, "this worked!");
+    valid = TRUE;
+  } else {
+    GST_INFO_OBJECT (e, "fails to go to ready");
+  }
+  gst_element_set_state (e, GST_STATE_NULL);
+  gst_object_unref (e);
+  return valid;
+}
+
 #if 0
 /*
  * bt_gst_element_get_src_peer_pad:

@@ -145,25 +145,19 @@ parse_and_check_audio_sink (gchar * plugin_name)
   }
   if (BT_IS_STRING (plugin_name)) {
     GstPluginFeature *f;
-    gboolean invalid = FALSE;
+    gboolean valid = FALSE;
 
     if ((f = gst_registry_lookup_feature (gst_registry_get (), plugin_name))) {
       if (GST_IS_ELEMENT_FACTORY (f)) {
-        if (!bt_gst_element_factory_can_sink_media_type ((GstElementFactory *)
-                f, "audio/x-raw")) {
-          GST_INFO ("audiosink '%s' has no compatible caps", plugin_name);
-          invalid = TRUE;
-        }
+        valid = bt_gst_try_element ((GstElementFactory *) f, "audio/x-raw");
       } else {
-        GST_INFO ("audiosink '%s' not an element factory", plugin_name);
-        invalid = TRUE;
+        GST_INFO_OBJECT (f, "not an element factory");
       }
       gst_object_unref (f);
     } else {
       GST_INFO ("audiosink '%s' not in registry", plugin_name);
-      invalid = TRUE;
     }
-    if (invalid) {
+    if (!valid) {
       g_free (plugin_name);
       plugin_name = NULL;
     }
