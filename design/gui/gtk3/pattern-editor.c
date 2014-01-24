@@ -68,7 +68,7 @@
 //#include "bt-edit.h"
 #include <string.h>
 #include <glib.h>
-#include <gst/gst.h>
+#include <gst/gstinfo.h>
 #include "pattern-editor.h"
 
 enum
@@ -197,21 +197,17 @@ bt_pattern_editor_draw_rownum (BtPatternEditor * self, cairo_t * cr,
   gint colw = colw1 - cw;
 
   if (colwm > colw) {
-    cairo_set_source_rgb (cr, self->bg_color[0], self->bg_color[1],
-        self->bg_color[2]);
+    gdk_cairo_set_source_rgba (cr, &self->bg_color);
     cairo_rectangle (cr, x + colw, y, colwm - colw, self->num_rows * ch);
     cairo_fill (cr);
   }
 
   while (y < max_y && row < self->num_rows) {
-    gdouble *bg_shade_color = self->bg_shade_color[row & 0x1];
-    cairo_set_source_rgb (cr, bg_shade_color[0], bg_shade_color[1],
-        bg_shade_color[2]);
+    gdk_cairo_set_source_rgba (cr, &self->bg_shade_color[row & 0x1]);
     cairo_rectangle (cr, x, y, colw, ch);
     cairo_fill (cr);
 
-    cairo_set_source_rgb (cr, self->text_color[0], self->text_color[1],
-        self->text_color[2]);
+    gdk_cairo_set_source_rgba (cr, &self->text_color);
     sprintf (buf, "%04X", row);
     cairo_move_to (cr, x, y);
     pango_layout_set_text (pl, buf, 4);
@@ -230,12 +226,10 @@ bt_pattern_editor_draw_colnames (BtPatternEditor * self, cairo_t * cr,
   gint g;
   gint ch = self->ch, cw = self->cw;
 
-  cairo_set_source_rgb (cr, self->bg_color[0], self->bg_color[1],
-      self->bg_color[2]);
+  gdk_cairo_set_source_rgba (cr, &self->bg_color);
   cairo_rectangle (cr, x, 0, w - x, ch);
   cairo_fill (cr);
-  cairo_set_source_rgb (cr, self->text_color[0], self->text_color[1],
-      self->text_color[2]);
+  gdk_cairo_set_source_rgba (cr, &self->text_color);
 
   for (g = 0; g < self->num_groups; g++) {
     BtPatternEditorColumnGroup *cgrp = &self->groups[g];
@@ -260,14 +254,12 @@ bt_pattern_editor_draw_rowname (BtPatternEditor * self, cairo_t * cr,
   gint colw2 = self->rowhdr_width - self->ofs_x;
   gint colw = MAX (colw1, colw2);
 
-  cairo_set_source_rgb (cr, self->bg_color[0], self->bg_color[1],
-      self->bg_color[2]);
+  gdk_cairo_set_source_rgba (cr, &self->bg_color);
   cairo_rectangle (cr, x, y, colw, ch);
   cairo_fill (cr);
 
   if (self->num_groups) {
-    cairo_set_source_rgb (cr, self->text_color[0], self->text_color[1],
-        self->text_color[2]);
+    gdk_cairo_set_source_rgba (cr, &self->text_color);
     cairo_move_to (cr, x, y);
     pango_layout_set_text (pl, "Tick", 4);
     pango_cairo_show_layout (cr, pl);
@@ -330,9 +322,7 @@ bt_pattern_editor_draw_column (BtPatternEditor * self, cairo_t * cr,
     str = pt->to_string_func (buf, pval, col->def);
 
     /* draw background */
-    gdouble *bg_shade_color = self->bg_shade_color[row & 0x1];
-    cairo_set_source_rgb (cr, bg_shade_color[0], bg_shade_color[1],
-        bg_shade_color[2]);
+    gdk_cairo_set_source_rgba (cr, &self->bg_shade_color[row & 0x1]);
     if (sel) {
       /* the last space should be selected if it's a within-group "glue"
          in multiple column selection, row colour otherwise */
@@ -347,16 +337,14 @@ bt_pattern_editor_draw_column (BtPatternEditor * self, cairo_t * cr,
       }
       /* draw selected column+continuation (unless last column, then don't draw
          continuation) */
-      cairo_set_source_rgb (cr, self->sel_color[0], self->sel_color[1],
-          self->sel_color[2]);
+      gdk_cairo_set_source_rgba (cr, &self->sel_color);
     }
     cairo_rectangle (cr, x, y, col_w3, ch);
     cairo_fill (cr);
 
     // draw value bar
     if (!sel && (str[0] != '.')) {
-      gdouble *value_color = self->value_color[row & 0x1];
-      cairo_set_source_rgb (cr, value_color[0], value_color[1], value_color[2]);
+      gdk_cairo_set_source_rgba (cr, &self->value_color[row & 0x1]);
       cairo_rectangle (cr, x, y, (col_w - cw) * (pval / (col->max * pt->scale)),
           ch);
       cairo_fill (cr);
@@ -364,13 +352,11 @@ bt_pattern_editor_draw_column (BtPatternEditor * self, cairo_t * cr,
     // draw cursor
     if (row == self->row && is_cursor_column) {
       gint cp = pt->column_pos[self->digit];
-      cairo_set_source_rgb (cr, self->cursor_color[0], self->cursor_color[1],
-          self->cursor_color[2]);
+      gdk_cairo_set_source_rgba (cr, &self->cursor_color);
       cairo_rectangle (cr, x + cw * cp, y, cw, ch);
       cairo_fill (cr);
     }
-    cairo_set_source_rgb (cr, self->text_color[0], self->text_color[1],
-        self->text_color[2]);
+    gdk_cairo_set_source_rgba (cr, &self->text_color);
     cairo_move_to (cr, x, y);
     pango_layout_set_text (pl, str, pt->chars);
     pango_cairo_show_layout (cr, pl);
@@ -590,12 +576,12 @@ bt_pattern_editor_realize (GtkWidget * widget)
   GdkWindow *window;
   GtkAllocation allocation;
   GdkWindowAttr attributes;
-  GtkStyle *style;
+  GtkStyleContext *style;
   gint attributes_mask;
-  PangoContext *pc;
+  const PangoFontDescription *style_pfd;
   PangoFontDescription *pfd;
+  PangoContext *pc;
   PangoFontMetrics *pfm;
-  GdkColor *c;
 
   g_return_if_fail (BT_IS_PATTERN_EDITOR (widget));
 
@@ -620,6 +606,10 @@ bt_pattern_editor_realize (GtkWidget * widget)
   attributes.visual = gtk_widget_get_visual (widget);
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
 
+  window = gtk_widget_get_parent_window (widget);
+  gtk_widget_set_window (widget, window);
+  g_object_ref (window);
+
   self->window = gdk_window_new (window, &attributes, attributes_mask);
 #if GTK_CHECK_VERSION (3,8,0)
   gtk_widget_register_window (widget, self->window);
@@ -627,54 +617,81 @@ bt_pattern_editor_realize (GtkWidget * widget)
   gdk_window_set_user_data (self->window, widget);
 #endif
 
-  gtk_widget_set_can_focus (widget, TRUE);
+  style = gtk_widget_get_style_context (widget);
 
   // setup graphic styles
   // FIXME(ensonic): undo before copying back
   /* bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_PLAYLINE,
-     &self->play_pos_color[0], &self->play_pos_color[1],
-     &self->play_pos_color[2]);
+     &self->play_pos_color);
+   */
+  gtk_style_context_get_background_color (style, GTK_STATE_FLAG_SELECTED,
+      &self->play_pos_color);
+
+  gtk_style_context_get_color (style, GTK_STATE_FLAG_SELECTED,
+      &self->bg_shade_color[0]);
+  self->bg_shade_color[1].red = self->bg_shade_color[0].red * 0.9;
+  self->bg_shade_color[1].green = self->bg_shade_color[0].green * 0.9;
+  self->bg_shade_color[1].blue = self->bg_shade_color[0].blue * 0.9;
+  self->bg_shade_color[1].alpha = self->bg_shade_color[0].alpha;
+  /*
+     c = &style->light[GTK_STATE_NORMAL];
+     self->bg_shade_color[0][0] = ((gdouble) c->red * 0.9) / 65535.0;
+     self->bg_shade_color[0][1] = ((gdouble) c->green * 0.9) / 65535.0;
+     self->bg_shade_color[0][2] = ((gdouble) c->blue * 0.9) / 65535.0;
+     self->bg_shade_color[1][0] = (gdouble) c->red / 65535.0;
+     self->bg_shade_color[1][1] = (gdouble) c->green / 65535.0;
+     self->bg_shade_color[1][2] = (gdouble) c->blue / 65535.0;
    */
 
-  style = gtk_widget_get_style (widget);
-  // does not work (?), see bt-edit.gtkrc
-  // gtk_style_lookup_color(style,"alternative-row",&alt_row_color);
-  c = &style->light[GTK_STATE_NORMAL];
-  self->bg_shade_color[0][0] = ((gdouble) c->red * 0.9) / 65535.0;
-  self->bg_shade_color[0][1] = ((gdouble) c->green * 0.9) / 65535.0;
-  self->bg_shade_color[0][2] = ((gdouble) c->blue * 0.9) / 65535.0;
-  self->bg_shade_color[1][0] = (gdouble) c->red / 65535.0;
-  self->bg_shade_color[1][1] = (gdouble) c->green / 65535.0;
-  self->bg_shade_color[1][2] = (gdouble) c->blue / 65535.0;
-  c = &style->text[GTK_STATE_NORMAL];
-  self->text_color[0] = (gdouble) c->red / 65535.0;
-  self->text_color[1] = (gdouble) c->green / 65535.0;
-  self->text_color[2] = (gdouble) c->blue / 65535.0;
-  c = &style->bg[GTK_STATE_NORMAL];
-  self->bg_color[0] = (gdouble) c->red / 65535.0;
-  self->bg_color[1] = (gdouble) c->green / 65535.0;
-  self->bg_color[2] = (gdouble) c->blue / 65535.0;
-  c = &style->base[GTK_STATE_SELECTED];
-  self->sel_color[0] = (gdouble) c->red / 65535.0;
-  self->sel_color[1] = (gdouble) c->green / 65535.0;
-  self->sel_color[2] = (gdouble) c->blue / 65535.0;
-  c = &style->text_aa[GTK_STATE_ACTIVE];
-  self->cursor_color[0] = (gdouble) c->red / 65535.0;
-  self->cursor_color[1] = (gdouble) c->green / 65535.0;
-  self->cursor_color[2] = (gdouble) c->blue / 65535.0;
-  c = &style->mid[GTK_STATE_NORMAL];
-  self->value_color[0][0] = ((gdouble) c->red * 0.9) / 65535.0;
-  self->value_color[0][1] = ((gdouble) c->green * 0.9) / 65535.0;
-  self->value_color[0][2] = ((gdouble) c->blue * 0.9) / 65535.0;
-  self->value_color[1][0] = (gdouble) c->red / 65535.0;
-  self->value_color[1][1] = (gdouble) c->green / 65535.0;
-  self->value_color[1][2] = (gdouble) c->blue / 65535.0;
+  gtk_style_context_get_color (style, GTK_STATE_FLAG_NORMAL, &self->text_color);
+  /*c = &style->text[GTK_STATE_NORMAL];
+     self->text_color[0] = (gdouble) c->red / 65535.0;
+     self->text_color[1] = (gdouble) c->green / 65535.0;
+     self->text_color[2] = (gdouble) c->blue / 65535.0; */
+  gtk_style_context_get_background_color (style, GTK_STATE_FLAG_ACTIVE, // _NORMAL?
+      &self->bg_color);
+  /*c = &style->bg[GTK_STATE_NORMAL];
+     self->bg_color[0] = (gdouble) c->red / 65535.0;
+     self->bg_color[1] = (gdouble) c->green / 65535.0;
+     self->bg_color[2] = (gdouble) c->blue / 65535.0; */
+
+  gtk_style_context_get_background_color (style, GTK_STATE_FLAG_SELECTED,
+      &self->sel_color);
+  self->cursor_color.red = self->sel_color.red * 1.2;
+  self->cursor_color.green = self->sel_color.green * 1.2;
+  self->cursor_color.blue = self->sel_color.blue * 1.2;
+  self->cursor_color.alpha = self->sel_color.alpha;
+  /*
+     c = &style->base[GTK_STATE_SELECTED];
+     self->sel_color[0] = (gdouble) c->red / 65535.0;
+     self->sel_color[1] = (gdouble) c->green / 65535.0;
+     self->sel_color[2] = (gdouble) c->blue / 65535.0;
+     c = &style->text_aa[GTK_STATE_ACTIVE];
+     self->cursor_color[0] = (gdouble) c->red / 65535.0;
+     self->cursor_color[1] = (gdouble) c->green / 65535.0;
+     self->cursor_color[2] = (gdouble) c->blue / 65535.0; */
+
+  gtk_style_context_get_background_color (style, GTK_STATE_FLAG_ACTIVE,
+      &self->value_color[0]);
+  self->value_color[1].red = self->value_color[0].red * 0.8;
+  self->value_color[1].green = self->value_color[0].green * 0.8;
+  self->value_color[1].blue = self->value_color[0].blue * 0.8;
+  self->value_color[1].alpha = self->value_color[0].alpha;
+  /*
+     c = &style->mid[GTK_STATE_NORMAL];
+     self->value_color[0][0] = ((gdouble) c->red * 0.9) / 65535.0;
+     self->value_color[0][1] = ((gdouble) c->green * 0.9) / 65535.0;
+     self->value_color[0][2] = ((gdouble) c->blue * 0.9) / 65535.0;
+     self->value_color[1][0] = (gdouble) c->red / 65535.0;
+     self->value_color[1][1] = (gdouble) c->green / 65535.0;
+     self->value_color[1][2] = (gdouble) c->blue / 65535.0; */
+
+  style_pfd = gtk_style_context_get_font (style, GTK_STATE_FLAG_NORMAL);
 
   /* copy size from default font and use default monospace font */
-  GST_WARNING (" default font %p, size %d (is_absolute %d?), scl=%lf",
-      style->font_desc,
-      pango_font_description_get_size (style->font_desc),
-      pango_font_description_get_size_is_absolute (style->font_desc),
+  GST_WARNING (" default font: size %d (is_absolute %d?), scl=%lf",
+      pango_font_description_get_size (style_pfd),
+      pango_font_description_get_size_is_absolute (style_pfd),
       (gdouble) PANGO_SCALE);
 
   /* calculate font-metrics */
@@ -684,12 +701,12 @@ bt_pattern_editor_realize (GtkWidget * widget)
   //pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono,");
   //pango_font_description_set_absolute_size (pfd, 12 * PANGO_SCALE);
   pango_font_description_set_family_static (pfd, "monospace,");
-  if (pango_font_description_get_size_is_absolute (style->font_desc)) {
+  if (pango_font_description_get_size_is_absolute (style_pfd)) {
     pango_font_description_set_absolute_size (pfd,
-        pango_font_description_get_size (style->font_desc));
+        pango_font_description_get_size (style_pfd));
   } else {
     pango_font_description_set_size (pfd,
-        pango_font_description_get_size (style->font_desc));
+        pango_font_description_get_size (style_pfd));
   }
   pango_context_load_font (pc, pfd);
 
@@ -743,9 +760,9 @@ bt_pattern_editor_map (GtkWidget * widget)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR (widget);
 
-  gdk_window_show (self->window);
-
   GTK_WIDGET_CLASS (bt_pattern_editor_parent_class)->map (widget);
+
+  gdk_window_show (self->window);
 }
 
 static void
@@ -832,8 +849,7 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
         self->colhdr_height);
     y = self->colhdr_height + (gint) (self->play_pos * h) - self->ofs_y;
     if (y > self->colhdr_height) {
-      cairo_set_source_rgb (cr, self->play_pos_color[0],
-          self->play_pos_color[1], self->play_pos_color[2]);
+      gdk_cairo_set_source_rgba (cr, &self->play_pos_color);
       cairo_set_line_width (cr, 2.0);
       cairo_move_to (cr, 0, y);
       cairo_line_to (cr, allocation.width, y);
@@ -862,25 +878,29 @@ bt_pattern_editor_update_adjustments (BtPatternEditor * self)
 
   if (self->hadj) {
     gdouble lower = gtk_adjustment_get_lower (self->hadj);
-    gdouble upper = bt_pattern_editor_get_row_width (self);
-    gdouble page_increment = allocation.width;
+    gdouble upper =
+        MAX (allocation.width, bt_pattern_editor_get_row_width (self));
+    gdouble step_increment = allocation.width * 0.1;
+    gdouble page_increment = allocation.width * 0.9;
     gdouble page_size = allocation.width;
-    gdouble step_increment = allocation.width / 20.0;
     gdouble value = gtk_adjustment_get_value (self->hadj);
 
-    value = MIN (value, upper - page_size);
+    value = CLAMP (value, 0, upper - page_size);
+    GST_INFO ("h: v=%lf, %lf..%lf / %lf", value, lower, upper, page_size);
     gtk_adjustment_configure (self->hadj, value, lower, upper, step_increment,
         page_increment, page_size);
   }
   if (self->vadj) {
     gdouble lower = gtk_adjustment_get_lower (self->vadj);
-    gdouble upper = bt_pattern_editor_get_col_height (self);
-    gdouble page_increment = allocation.height;
+    gdouble upper =
+        MAX (allocation.height, bt_pattern_editor_get_col_height (self));
+    gdouble step_increment = allocation.height * 0.1;
+    gdouble page_increment = allocation.height * 0.9;
     gdouble page_size = allocation.height;
-    gdouble step_increment = allocation.height / 20.0;
     gdouble value = gtk_adjustment_get_value (self->vadj);
 
-    value = MIN (value, upper - page_size);
+    value = CLAMP (value, 0, upper - page_size);
+    GST_INFO ("v: v=%lf, %lf..%lf / %lf", value, lower, upper, page_size);
     gtk_adjustment_configure (self->vadj, value, lower, upper, step_increment,
         page_increment, page_size);
   }
@@ -910,6 +930,7 @@ static void
 bt_pattern_editor_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR (widget);
+
   gtk_widget_set_allocation (widget, allocation);
   GST_INFO ("size_allocate: %d,%d %d,%d", allocation->x, allocation->y,
       allocation->width, allocation->height);
@@ -1649,6 +1670,9 @@ bt_pattern_editor_init (BtPatternEditor * self)
   self->selection_end = 0;
   self->selection_group = 0;
   self->selection_param = 0;
+
+  gtk_widget_set_can_focus (GTK_WIDGET (self), TRUE);
+  gtk_widget_set_has_window (GTK_WIDGET (self), FALSE);
 }
 
 /**

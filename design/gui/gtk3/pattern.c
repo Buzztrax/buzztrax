@@ -38,9 +38,9 @@ gint
 main (gint argc, gchar ** argv)
 {
   GtkWidget *window, *scrolled_window, *pattern;
-  gint num_rows = 16;
-  gint num_groups = 2;
-  BtPatternEditorColumnGroup groups[2] = { {0,}, };
+  const gint num_rows = 16;
+  const gint num_groups = 3;
+  BtPatternEditorColumnGroup groups[3] = { {0,}, };
   BtPatternEditorColumn columns[4] = { {0,}, };
   static BtPatternEditorCallbacks callbacks = { get_data_at, set_data_at };
 
@@ -71,6 +71,9 @@ main (gint argc, gchar ** argv)
   groups[1].name = "Voice 1";
   groups[1].num_columns = 4;
   groups[1].columns = columns;
+  groups[2].name = "Voice 2";
+  groups[2].num_columns = 4;
+  groups[2].columns = columns;
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window), "Pattern-Editor");
