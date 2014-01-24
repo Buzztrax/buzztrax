@@ -598,7 +598,8 @@ _check_message_received (GstBus * bus, GstMessage * message, gpointer user_data)
   if (GST_MESSAGE_TYPE (message) == GST_MESSAGE_ERROR) {
     GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "error: %" GST_PTR_FORMAT,
         message);
-    g_main_loop_quit (user_data);
+    if (g_main_loop_is_running (user_data))
+      g_main_loop_quit (user_data);
   } else {
     GST_DEBUG_OBJECT (GST_MESSAGE_SRC (message),
         "state-changed: %" GST_PTR_FORMAT, message);
@@ -608,7 +609,8 @@ _check_message_received (GstBus * bus, GstMessage * message, gpointer user_data)
       gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
       switch (GST_STATE_TRANSITION (oldstate, newstate)) {
         case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-          g_main_loop_quit (user_data);
+          if (g_main_loop_is_running (user_data))
+            g_main_loop_quit (user_data);
           break;
         default:
           break;
@@ -632,7 +634,6 @@ check_run_main_loop_until_playing_or_error (BtSong * song)
       (gpointer) main_loop);
   g_signal_connect (bus, "message::state-changed",
       G_CALLBACK (_check_message_received), (gpointer) main_loop);
-  gst_object_unref (bus);
 
   sret = gst_element_get_state (bin, &state, &pending, G_GUINT64_CONSTANT (0));
   gst_object_unref (bin);
@@ -641,6 +642,10 @@ check_run_main_loop_until_playing_or_error (BtSong * song)
   if (sret != GST_STATE_CHANGE_SUCCESS) {
     g_main_loop_run (main_loop);
   }
+  gst_bus_remove_signal_watch (bus);
+  g_signal_handlers_disconnect_matched (bus, G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      NULL, (gpointer) main_loop);
+  gst_object_unref (bus);
   g_main_loop_unref (main_loop);
   GST_INFO_OBJECT (song, "finished main_loop");
 }
