@@ -461,9 +461,7 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
           gst_plugin_feature_get_name ((GstPluginFeature *) factory);
 
       GST_INFO ("  probing audio sink: \"%s\"", feature_name);
-
-      // can the sink accept raw audio?
-      if (bt_gst_element_factory_can_sink_media_type (factory, "audio/x-raw")) {
+      if (bt_gst_try_element (factory, "audio/x-raw")) {
         // get element max(rank)
         cur_rank = gst_plugin_feature_get_rank (GST_PLUGIN_FEATURE (factory));
         GST_INFO ("  trying audio sink: \"%s\" with rank: %d", feature_name,
@@ -475,8 +473,7 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
           GST_INFO ("  audio sink \"%s\" is current best sink", element_name);
         }
       } else {
-        GST_INFO ("  skipping audio sink: \"%s\" because of incompatible caps",
-            feature_name);
+        GST_INFO ("  skipping audio sink: \"%s\"", feature_name);
       }
     }
     gst_plugin_feature_list_free (audiosink_factories);
