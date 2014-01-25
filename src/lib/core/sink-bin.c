@@ -79,6 +79,7 @@
 #include <gst/audio/audio.h>
 #include <gst/base/gstbasesink.h>
 #include <gst/pbutils/encoding-profile.h>
+#include <gst/pbutils/missing-plugins.h>
 #include <libgstbuzztrax/tempo.h>
 
 /* define this to get diagnostics of the sink data flow */
@@ -570,17 +571,42 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->priv->
-          record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->
+          priv->record_format]);
   if (profile) {
-    element = gst_element_factory_make ("encodebin", "sink-encodebin");
-    GST_DEBUG_OBJECT (element, "set profile");
+    GstBus *bus = gst_bus_new ();
+    GstMessage *message;
+    gboolean has_error = FALSE;
 
+    element = gst_element_factory_make ("encodebin", "sink-encodebin");
+    gst_element_set_bus (element, bus);
+
+    GST_DEBUG_OBJECT (element, "set profile");
     // TODO(ensonic): this will post missing element mesages if the profile
     // cannot be satisfied, we need a way to ideally skip such profiles
     // and report to the app (so that we can skip the test)
     g_object_set (element, "profile", profile, NULL);
-    list = g_list_append (list, element);
+    while ((message = gst_bus_pop_filtered (bus,
+                GST_MESSAGE_ERROR | GST_MESSAGE_ELEMENT))) {
+      GST_DEBUG_OBJECT (element, "error message %" GST_PTR_FORMAT, message);
+      if (gst_is_missing_plugin_message (message)) {
+        GstObject *src = GST_MESSAGE_SRC (message);
+        gchar *detail = gst_missing_plugin_message_get_description (message);
+
+        GST_WARNING_OBJECT (src, "%s", detail);
+        // TODO(ensonic): tell the app (forward the message?)
+        has_error = TRUE;
+      }
+    }
+
+    gst_element_set_bus (element, NULL);
+    gst_object_unref (bus);
+
+    if (has_error) {
+      gst_object_unref (element);
+    } else {
+      list = g_list_append (list, element);
+    }
   } else {
     GST_DEBUG ("no profile, do raw recording");
     // encodebin starts with a queue already

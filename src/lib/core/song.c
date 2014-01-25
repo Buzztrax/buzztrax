@@ -668,22 +668,6 @@ on_song_request_state (const GstBus * const bus, GstMessage * message,
   //}
 }
 
-static void
-on_song_element_msg (const GstBus * const bus, GstMessage * message,
-    gconstpointer user_data)
-{
-  const BtSong *const self = BT_SONG (user_data);
-
-  if (gst_is_missing_plugin_message (message)) {
-    GstObject *src = GST_MESSAGE_SRC (message);
-    gchar *detail = gst_missing_plugin_message_get_description (message);
-
-    GST_WARNING_OBJECT (src, "%s", detail);
-    // TODO(ensonic): tell the app
-    bt_song_stop (self);
-  }
-}
-
 #ifdef DETAILED_CPU_LOAD
 static void
 on_song_stream_status (const GstBus * const bus, GstMessage * message,
@@ -1374,8 +1358,6 @@ bt_song_constructed (GObject * object)
         (gpointer) self);
     bt_g_signal_connect (bus, "message::request-state",
         G_CALLBACK (on_song_request_state), (gpointer) self);
-    bt_g_signal_connect (bus, "message::element",
-        G_CALLBACK (on_song_element_msg), (gpointer) self);
 #ifdef DETAILED_CPU_LOAD
     bt_g_signal_connect (bus, "message::stream-status",
         G_CALLBACK (on_song_stream_status), (gpointer) self);
