@@ -17,6 +17,7 @@
 
 #include "m-bt-core.h"
 #include <gst/base/gstbasesink.h>
+#include <gst/audio/gstaudiobasesink.h>
 
 //-- globals
 
@@ -270,12 +271,11 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
       GST_ELEMENT (check_gobject_get_object_property (machine, "machine"));
   gst_element_set_state (sink_bin, GST_STATE_READY);
   GstElement *sink = get_sink_element ((GstBin *) sink_bin);
-  if (!sink)
+  if (!sink || !GST_IS_AUDIO_BASE_SINK (sink))
     goto Cleanup;
   guint latency = 20 + 20 * (_i & 0x3);
   gulong bpm = 80 + 20 * ((_i >> 2) & 0x3);
   gulong tpb = 4 + 2 * ((_i >> 4) & 0x3);
-
 
   /* act */
   // set various bpm, tpb on song_info, set various latency on settings

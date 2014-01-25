@@ -72,7 +72,6 @@
 #define BT_SONG_C
 
 #include "core_private.h"
-#include <gst/pbutils/missing-plugins.h>
 #include <glib/gprintf.h>
 
 // if a state change not happens within this time, cancel playback
