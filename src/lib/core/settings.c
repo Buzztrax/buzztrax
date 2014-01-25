@@ -480,7 +480,7 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
   }
   if (!element_name) {
     // support running unit tests on virtual machines
-    if (strcmp (g_getenv ("GSETTINGS_BACKEND"), "memory")) {
+    if (!strcmp (g_getenv ("GSETTINGS_BACKEND"), "memory")) {
       GST_INFO ("no real audiosink found, falling back to fakesink");
       element_name = "fakesink";
     }
