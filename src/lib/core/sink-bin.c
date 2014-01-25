@@ -570,11 +570,15 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->
-          priv->record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->priv->
+          record_format]);
   if (profile) {
     element = gst_element_factory_make ("encodebin", "sink-encodebin");
     GST_DEBUG_OBJECT (element, "set profile");
+
+    // TODO(ensonic): this will post missing element mesages if the profile
+    // cannot be satisfied, we need a way to ideally skip such profiles
+    // and report to the app (so that we can skip the test)
     g_object_set (element, "profile", profile, NULL);
     list = g_list_append (list, element);
   } else {
