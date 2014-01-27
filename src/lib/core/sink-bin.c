@@ -32,10 +32,9 @@
  *   - we could have separate properties and forward the changes
  * - key
  *   - this would need to propagate to all sources that support tuning  
- *
- * TODO(ensonic): for upnp it would be nice to stream on-demand
- *
- * TODO(ensonic): add a metronome
+ */
+/* TODO(ensonic): for upnp it would be nice to stream on-demand */
+/* TODO(ensonic): add a metronome
  * - a clock properties to sink-bin:
  *   - two guint properties "beat", "tick"
  *   - a float/double property: "beat.tick":
@@ -53,8 +52,8 @@
  * - sink-bin could use the keyboard leds to indicate them (with #ifdef LINUX)
  *   - need root permissions :/
  * - we can also use this to implement control-out machines
- *
- * TODO(ensonic): work around some gstreamer limitations here
+ */
+/* TODO(ensonic): work around some gstreamer limitations here
  * - our pipeline has no natural duration
  * - there is no api to set the duration on sources
  * - we 'set' the duration by seeking with a stop position, we also sync
@@ -69,6 +68,14 @@
  *   - we could answer duration queries on the bin
  * - use a silent (GAP) source connected to the master
  *   - unfortunately we need to make all sources report the duration
+ */
+/* TODO(ensonic): improve encoding profiles
+ * - we'd like to extend profiles
+ *   - ideally gstreamer encoding profiles are stored somewhere and we just read
+ *     them from an ini file or so
+ *   - we could move the profiles to a BtAudioEncodingProfiles class
+ *     - this could have the API do add, remove and probe profiles
+ *     - test could easily e.g. add fake profiles then
  */
 
 #define BT_CORE
@@ -103,6 +110,13 @@ enum
   SINK_BIN_TEMPO_STPT,
 };
 
+typedef enum
+{
+  RECORD_FORMAT_STATE_MISSES_ELEMENTS = -1,
+  RECORD_FORMAT_STATE_NOT_CHECKED = 0,
+  RECORD_FORMAT_STATE_WORKING = 1,
+} BtSinkBinRecordFormatState;
+
 typedef struct
 {
   gchar *name;
@@ -112,10 +126,9 @@ typedef struct
 } BtSinkBinRecordFormatInfo;
 
 static const BtSinkBinRecordFormatInfo formats[] = {
-  {"Ogg Vorbis record format", "Ogg Vorbis", "audio/ogg",
-      "audio/x-vorbis"},
-  {"MP3 record format", "MP3 Audio",
-      "application/x-id3", "audio/mpeg, mpegversion=1, layer=3"},
+  {"Ogg Vorbis record format", "Ogg Vorbis", "audio/ogg", "audio/x-vorbis"},
+  {"MP3 record format", "MP3 Audio", "application/x-id3",
+      "audio/mpeg, mpegversion=1, layer=3"},
   {"WAV record format", "WAV Audio", "audio/x-wav",
       "audio/x-raw, format=(string)S16LE"},
   {"Ogg Flac record format", "Ogg Flac", "audio/ogg", "audio/x-flac"},
@@ -123,6 +136,16 @@ static const BtSinkBinRecordFormatInfo formats[] = {
   {"M4A record format", "M4A Audio", "video/quicktime",
       "audio/mpeg, mpegversion=(int)4"},
   {"Flac record format", "Flac", NULL, "audio/x-flac"}
+};
+
+BtSinkBinRecordFormatState format_states[] = {
+  RECORD_FORMAT_STATE_NOT_CHECKED,
+  RECORD_FORMAT_STATE_NOT_CHECKED,
+  RECORD_FORMAT_STATE_NOT_CHECKED,
+  RECORD_FORMAT_STATE_NOT_CHECKED,
+  RECORD_FORMAT_STATE_WORKING,
+  RECORD_FORMAT_STATE_NOT_CHECKED,
+  RECORD_FORMAT_STATE_NOT_CHECKED
 };
 
 struct _BtSinkBinPrivate
@@ -558,6 +581,46 @@ Error:
   return (list);
 }
 
+GstElement *
+bt_sink_bin_make_and_configure_encodebin (GstEncodingProfile * profile)
+{
+  GstBus *bus = gst_bus_new ();
+  GstElement *element;
+  GstMessage *message;
+  gboolean has_error = FALSE;
+
+  element = gst_element_factory_make ("encodebin", "sink-encodebin");
+  gst_element_set_bus (element, bus);
+
+  GST_DEBUG_OBJECT (element, "set profile");
+  // TODO(ensonic): this will post missing element mesages if the profile
+  // cannot be satisfied, we catch them here right now, as the elements is not
+  // yet in the pipeline. See https://bugzilla.gnome.org/show_bug.cgi?id=722980
+  g_object_set (element, "profile", profile, NULL);
+  while ((message = gst_bus_pop_filtered (bus,
+              GST_MESSAGE_ERROR | GST_MESSAGE_ELEMENT))) {
+    GST_DEBUG_OBJECT (element, "error message %" GST_PTR_FORMAT, message);
+    if (gst_is_missing_plugin_message (message)) {
+      GstObject *src = GST_MESSAGE_SRC (message);
+      gchar *detail = gst_missing_plugin_message_get_description (message);
+
+      GST_WARNING_OBJECT (src, "%s", detail);
+      // TODO(ensonic): tell the app (forward the message?)
+      has_error = TRUE;
+    }
+  }
+
+  gst_element_set_bus (element, NULL);
+  gst_object_unref (bus);
+
+  if (has_error) {
+    gst_object_unref (element);
+    element = NULL;
+  }
+
+  return element;
+}
+
 static GList *
 bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 {
@@ -571,40 +634,10 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
 
   // generate recorder profile and set encodebin accordingly
   profile =
-      bt_sink_bin_create_recording_profile (&formats[self->
-          priv->record_format]);
+      bt_sink_bin_create_recording_profile (&formats[self->priv->
+          record_format]);
   if (profile) {
-    GstBus *bus = gst_bus_new ();
-    GstMessage *message;
-    gboolean has_error = FALSE;
-
-    element = gst_element_factory_make ("encodebin", "sink-encodebin");
-    gst_element_set_bus (element, bus);
-
-    GST_DEBUG_OBJECT (element, "set profile");
-    // TODO(ensonic): this will post missing element mesages if the profile
-    // cannot be satisfied, we need a way to ideally skip such profiles
-    // and report to the app (so that we can skip the test)
-    g_object_set (element, "profile", profile, NULL);
-    while ((message = gst_bus_pop_filtered (bus,
-                GST_MESSAGE_ERROR | GST_MESSAGE_ELEMENT))) {
-      GST_DEBUG_OBJECT (element, "error message %" GST_PTR_FORMAT, message);
-      if (gst_is_missing_plugin_message (message)) {
-        GstObject *src = GST_MESSAGE_SRC (message);
-        gchar *detail = gst_missing_plugin_message_get_description (message);
-
-        GST_WARNING_OBJECT (src, "%s", detail);
-        // TODO(ensonic): tell the app (forward the message?)
-        has_error = TRUE;
-      }
-    }
-
-    gst_element_set_bus (element, NULL);
-    gst_object_unref (bus);
-
-    if (has_error) {
-      gst_object_unref (element);
-    } else {
+    if ((element = bt_sink_bin_make_and_configure_encodebin (profile))) {
       list = g_list_append (list, element);
     }
   } else {
@@ -977,6 +1010,35 @@ master_volume_sync_handler (GstPad * pad, GstPadProbeInfo * info,
 
 //-- methods
 
+/**
+ * bt_sink_bin_is_record_format_supported:
+ * @format: the format to check
+ * 
+ * Each record format might need a couple of GStreamer element to work. This
+ * function verifies that all needed element are available.
+ *
+ * Returns: %TRUE if a fomat is useable
+ */
+gboolean
+bt_sink_bin_is_record_format_supported (BtSinkBinRecordFormat format)
+{
+  if (format_states[format] == RECORD_FORMAT_STATE_NOT_CHECKED) {
+    GstElement *element;
+    GstEncodingProfile *profile =
+        bt_sink_bin_create_recording_profile (&formats[format]);
+
+    // TODO(ensonic): if we run the plugin installer, we need to re-evel the
+    // profiles
+    if ((element = bt_sink_bin_make_and_configure_encodebin (profile))) {
+      format_states[format] = RECORD_FORMAT_STATE_WORKING;
+    } else {
+      format_states[format] = RECORD_FORMAT_STATE_MISSES_ELEMENTS;
+    }
+    gst_object_unref (element);
+  }
+  return format_states[format] > RECORD_FORMAT_STATE_NOT_CHECKED;
+}
+
 //-- wrapper
 
 //-- class internals
@@ -1258,10 +1320,14 @@ bt_sink_bin_class_init (BtSinkBinClass * klass)
   g_object_class_override_property (gobject_class, SINK_BIN_TEMPO_STPT,
       "subticks-per-tick");
 
-  g_object_class_install_property (gobject_class, SINK_BIN_MODE, g_param_spec_enum ("mode", "mode prop", "mode of operation", BT_TYPE_SINK_BIN_MODE,    /* enum type */
-          BT_SINK_BIN_MODE_PLAY, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, SINK_BIN_MODE,
+      g_param_spec_enum ("mode", "mode prop", "mode of operation",
+          BT_TYPE_SINK_BIN_MODE, BT_SINK_BIN_MODE_PLAY,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, SINK_BIN_RECORD_FORMAT, g_param_spec_enum ("record-format", "record-format prop", "format to use when in record mode", BT_TYPE_SINK_BIN_RECORD_FORMAT,        /* enum type */
+  g_object_class_install_property (gobject_class, SINK_BIN_RECORD_FORMAT,
+      g_param_spec_enum ("record-format", "record-format prop",
+          "format to use when in record mode", BT_TYPE_SINK_BIN_RECORD_FORMAT,
           BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 

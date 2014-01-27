@@ -362,6 +362,7 @@ bt_setup_get_type
 BtSinkBin
 BtSinkBinMode
 BtSinkBinRecordFormat
+bt_sink_bin_is_record_format_supported
 <SUBSECTION Standard>
 BT_IS_SINK_BIN
 BT_IS_SINK_BIN_CLASS

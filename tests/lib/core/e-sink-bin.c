@@ -25,7 +25,7 @@ static BtSetup *setup;
 static BtSettings *settings;
 static gfloat minv, maxv;
 
-// keep these in sync with BtSinkBinRecordFormatInfo
+// keep these in sync with BtSinkBinRecordFormatInfo.container_caps
 static gchar *media_types[] = {
   "audio/ogg",                  /* vorbis.ogg */
   "application/x-id3",
@@ -350,6 +350,8 @@ test_bt_sink_bin_record (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
+  if (!bt_sink_bin_is_record_format_supported (_i))
+    return;
   make_new_song ( /*silence */ 4);
   GstElement *sink_bin = get_sink_bin ();
   GEnumClass *enum_class =
@@ -383,8 +385,9 @@ static void
 test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
 {
   BT_TEST_START;
-
   /* arrange */
+  if (!bt_sink_bin_is_record_format_supported (_i))
+    return;
   g_object_set (settings, "audiosink", "fakesink", NULL);
   make_new_song ( /*silence */ 4);
   GstElement *sink_bin = get_sink_bin ();

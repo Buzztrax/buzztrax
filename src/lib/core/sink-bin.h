@@ -96,6 +96,7 @@ typedef enum {
   BT_SINK_BIN_RECORD_FORMAT_COUNT
 } BtSinkBinRecordFormat;
 
+gboolean bt_sink_bin_is_record_format_supported(BtSinkBinRecordFormat format);
 
 GType bt_sink_bin_get_type(void) G_GNUC_CONST;
 GType bt_sink_bin_mode_get_type(void) G_GNUC_CONST;
