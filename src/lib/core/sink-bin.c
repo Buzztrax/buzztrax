@@ -1031,10 +1031,10 @@ bt_sink_bin_is_record_format_supported (BtSinkBinRecordFormat format)
     // profiles
     if ((element = bt_sink_bin_make_and_configure_encodebin (profile))) {
       format_states[format] = RECORD_FORMAT_STATE_WORKING;
+      gst_object_unref (element);
     } else {
       format_states[format] = RECORD_FORMAT_STATE_MISSES_ELEMENTS;
     }
-    gst_object_unref (element);
   }
   return format_states[format] > RECORD_FORMAT_STATE_NOT_CHECKED;
 }
