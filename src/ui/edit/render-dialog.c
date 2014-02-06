@@ -31,6 +31,9 @@
 /* TODO(ensonic): project file export
  * - consider MXF as one option
  */
+/* TODO(ensonic): kick the plugin installer when one selectes a format where we
+ * miss some plugins
+ */
 
 #define BT_EDIT
 #define BT_RENDER_DIALOG_C
@@ -518,6 +521,9 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   GtkWidget *box, *label, *widget, *table;
   GEnumClass *enum_class;
   GEnumValue *enum_value;
+  GtkCellRenderer *renderer;
+  GtkListStore *store;
+  GtkTreeIter iter;
   guint i;
   GstBin *bin;
   GstBus *bus;
@@ -613,15 +619,23 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       2, 1);
 
   // query supported formats from sinkbin
-  self->priv->format_menu = widget = gtk_combo_box_text_new ();
+  self->priv->format_menu = widget = gtk_combo_box_new ();
+  renderer = gtk_cell_renderer_text_new ();
+  g_object_set (renderer, "foreground", "gray", NULL);
+  gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (widget), renderer, TRUE);
+  gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (widget), renderer, "text", 0,
+      "foreground-set", 1, NULL);
+  store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_BOOLEAN);
   enum_class = g_type_class_ref (BT_TYPE_SINK_BIN_RECORD_FORMAT);
   for (i = enum_class->minimum; i <= enum_class->maximum; i++) {
     if ((enum_value = g_enum_get_value (enum_class, i))) {
-      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget),
-          enum_value->value_nick);
+      gtk_list_store_append (store, &iter);
+      gtk_list_store_set (store, &iter, 0, enum_value->value_nick, 1,
+          !bt_sink_bin_is_record_format_supported (i), -1);
     }
   }
   g_type_class_unref (enum_class);
+  gtk_combo_box_set_model (GTK_COMBO_BOX (widget), GTK_TREE_MODEL (store));
   gtk_combo_box_set_active (GTK_COMBO_BOX (widget),
       BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS);
   g_signal_connect (widget, "changed", G_CALLBACK (on_format_menu_changed),
@@ -637,7 +651,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   gtk_table_attach (GTK_TABLE (table), label, 0, 1, 3, 4, GTK_FILL, GTK_SHRINK,
       2, 1);
 
-  // query supported formats from sinkbin
+  // query supported modes from sinkbin
   self->priv->mode_menu = widget = gtk_combo_box_text_new ();
   enum_class = g_type_class_ref (BT_TYPE_RENDER_MODE);
   for (i = enum_class->minimum; i <= enum_class->maximum; i++) {
