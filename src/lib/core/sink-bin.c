@@ -135,7 +135,8 @@ static const BtSinkBinRecordFormatInfo formats[] = {
   {"Raw format", "Raw", NULL, NULL},
   {"M4A record format", "M4A Audio", "video/quicktime",
       "audio/mpeg, mpegversion=(int)4"},
-  {"Flac record format", "Flac", NULL, "audio/x-flac"}
+  {"Flac record format", "Flac", NULL, "audio/x-flac"},
+  {"Ogg Opus record format", "Ogg Opus", "audio/ogg", "audio/x-opus"}
 };
 
 BtSinkBinRecordFormatState format_states[] = {
@@ -144,6 +145,7 @@ BtSinkBinRecordFormatState format_states[] = {
   RECORD_FORMAT_STATE_NOT_CHECKED,
   RECORD_FORMAT_STATE_NOT_CHECKED,
   RECORD_FORMAT_STATE_WORKING,
+  RECORD_FORMAT_STATE_NOT_CHECKED,
   RECORD_FORMAT_STATE_NOT_CHECKED,
   RECORD_FORMAT_STATE_NOT_CHECKED
 };
@@ -292,6 +294,7 @@ bt_sink_bin_record_format_get_type (void)
       {BT_SINK_BIN_RECORD_FORMAT_RAW, ".raw", "raw"},
       {BT_SINK_BIN_RECORD_FORMAT_MP4_AAC, ".m4a", "mp4-aac"},
       {BT_SINK_BIN_RECORD_FORMAT_FLAC, ".flac", "flac"},
+      {BT_SINK_BIN_RECORD_FORMAT_OGG_OPUS, ".opus.ogg", "ogg-opus"},
       {0, NULL, NULL},
     };
     type = g_enum_register_static ("BtSinkBinRecordFormat", values);
@@ -1027,7 +1030,7 @@ bt_sink_bin_is_record_format_supported (BtSinkBinRecordFormat format)
     GstEncodingProfile *profile =
         bt_sink_bin_create_recording_profile (&formats[format]);
 
-    // TODO(ensonic): if we run the plugin installer, we need to re-evel the
+    // TODO(ensonic): if we run the plugin installer, we need to re-eval the
     // profiles
     if ((element = bt_sink_bin_make_and_configure_encodebin (profile))) {
       format_states[format] = RECORD_FORMAT_STATE_WORKING;

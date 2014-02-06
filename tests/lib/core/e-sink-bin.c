@@ -34,6 +34,7 @@ static gchar *media_types[] = {
   NULL,                         /* raw */
   "video/quicktime",
   "audio/x-flac",               /* flac */
+  "audio/ogg",                  /* opus.ogg */
 };
 
 //-- fixtures
