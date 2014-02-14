@@ -21,22 +21,22 @@
 #include <gtk/gtk.h>
 
 /* pixmap/buf helpers */
-extern void add_pixmap_directory(const gchar *directory);
-extern GtkWidget *gtk_image_new_from_filename(const gchar *filename);
-extern GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename);
-extern GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size);
+void add_pixmap_directory(const gchar *directory);
+GtkWidget *gtk_image_new_from_filename(const gchar *filename);
+GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename);
+GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size);
 
 /* gtk toolbar helper */
-extern GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name);
+GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name);
 
 /* save focus grab */
-extern void gtk_widget_grab_focus_savely(GtkWidget *widget);
+void gtk_widget_grab_focus_savely(GtkWidget *widget);
 
 /* gtk clipboard helper */
-extern GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets);
+GtkTargetEntry *gtk_target_table_make(GdkAtom format_atom,gint *n_targets);
 
 /* gtk help helper */
-extern void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri);
+void gtk_show_uri_simple(GtkWidget *widget, const gchar *uri);
 
 /* debug helper */
 

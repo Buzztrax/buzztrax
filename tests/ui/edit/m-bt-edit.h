@@ -27,5 +27,5 @@ GST_DEBUG_CATEGORY_EXTERN(bt_edit_debug);
 
 //-- prototypes
 
-extern void bt_edit_setup(void);
-extern void bt_edit_teardown(void);
+void bt_edit_setup(void);
+void bt_edit_teardown(void);
