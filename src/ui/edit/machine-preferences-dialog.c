@@ -27,8 +27,17 @@
  * - do we do this for entry fields with multiple controls (slider + entry box)?
  */
 /* TODO(ensonic): save the chosen settings somewhere
- * - gconf would need some sort of schema
- * - see TODO comment in machine.c to save them with the song
+ * - right now we save them as 'prefsdata' with the song
+ *   - this is not ideal, as we want to configure elements once and reuse this
+ *     for songs (especially if the setting sapply to search-path or quality
+ *     settings)
+ *   - on the other hand, some of the settings (e.g. the fluidsynth soundfont)
+ *     are part of the song and we want different values per instance)
+ * - the gsettings-api has support for plugins, but we'd still need schema files
+ *   - we could technically generate the schema-xml from the properties
+ *     on-the-fly, but in that case also compile them
+ *   - maybe we can reuse the song-io mechanism and serialize them to small
+ *     xml-files?
  */
 
 #define BT_EDIT

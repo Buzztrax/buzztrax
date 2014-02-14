@@ -8,12 +8,11 @@
 * test infrastructure
   * add a stub song-io saver
   * add a stub processor machine
-  * add a test application to be able to make the application abstract 
   * have log marker macros for arrange, act, assert, cleanup
   * have a means to make a copy of log-files for passing tests
     * this could help to check 'what changed'
-    * we'd need to also do xml output from check to runt the log compare for failed
-      tests
+    * we'd need to also do xml output from check to run the log compare for
+      failed tests
   * use https://github.com/martinpitt/umockdev for btic tests
 
 
