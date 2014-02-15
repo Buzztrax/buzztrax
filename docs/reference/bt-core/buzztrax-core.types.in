@@ -16,6 +16,8 @@ bt_sequence_get_type
 bt_settings_get_type
 bt_setup_get_type
 bt_sink_bin_get_type
+bt_sink_bin_mode_get_type
+bt_sink_bin_record_format_get_type
 bt_sink_machine_get_type
 bt_song_get_type
 bt_song_info_get_type
