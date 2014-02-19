@@ -222,13 +222,15 @@ main (gint argc, gchar ** argv)
         puts ("format must be 0-6");
         return -1;
     }
+    gst_bin_add_many (GST_BIN (bin), src, sink, NULL);
     if (profile) {
+      gst_bin_add (GST_BIN (bin), enc);
       g_object_set (enc, "profile", profile, NULL);
-      gst_bin_add_many (GST_BIN (bin), src, enc, sink, NULL);
+      gst_element_set_state (bin, GST_STATE_READY);
       gst_element_link_many (src, enc, sink, NULL);
     } else {
       puts ("profile is NULL");
-      gst_bin_add_many (GST_BIN (bin), src, sink, NULL);
+      gst_element_set_state (bin, GST_STATE_READY);
       gst_element_link (src, sink);
     }
     src = gst_object_ref (src);
@@ -279,11 +281,10 @@ main (gint argc, gchar ** argv)
     }
     bin = gst_parse_launch (pipeline, NULL);
     src = gst_bin_get_by_name (GST_BIN (bin), "s");
+    gst_element_set_state (bin, GST_STATE_READY);
   }
 
   GST_INFO ("pipeline prepared, going to ready");
-
-  gst_element_set_state (bin, GST_STATE_READY);
 
   if (method == 1) {
     GST_BASE_SRC (src)->segment.duration = GST_SECOND;
