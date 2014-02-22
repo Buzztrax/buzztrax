@@ -61,6 +61,8 @@
 #include <unistd.h>
 
 #include "core_private.h"
+#include "song-io-native-bzt.h"
+#include "song-io-native.h"
 #include <gst/audio/audio.h>
 
 //-- property ids

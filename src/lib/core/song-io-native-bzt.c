@@ -32,6 +32,7 @@
 #include <unistd.h>
 
 #include "core_private.h"
+#include "song-io-native-bzt.h"
 #include <glib/gprintf.h>
 
 #ifdef USE_GSF

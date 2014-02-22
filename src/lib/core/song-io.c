@@ -39,6 +39,7 @@
 #define BT_SONG_IO_C
 
 #include "core_private.h"
+#include "song-io-native.h"
 #include <glib/gprintf.h>
 
 //-- property ids

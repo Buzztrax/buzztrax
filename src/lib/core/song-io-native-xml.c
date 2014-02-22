@@ -26,6 +26,7 @@
 #define BT_SONG_IO_NATIVE_XML_C
 
 #include "core_private.h"
+#include "song-io-native-xml.h"
 #include <glib/gprintf.h>
 
 static GQuark error_domain = 0;
