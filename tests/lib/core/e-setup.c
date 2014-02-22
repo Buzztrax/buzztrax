@@ -114,7 +114,7 @@ test_bt_setup_machine_rem_id (BT_TEST_ARGS)
 }
 
 static void
-test_bt_setup_machine_add_list (BT_TEST_ARGS)
+test_bt_setup_machine_add_updates_list (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -289,7 +289,7 @@ bt_setup_example_case (void)
   tcase_add_test (tc, test_bt_setup_new);
   tcase_add_test (tc, test_bt_setup_machine_add_id);
   tcase_add_test (tc, test_bt_setup_machine_rem_id);
-  tcase_add_test (tc, test_bt_setup_machine_add_list);
+  tcase_add_test (tc, test_bt_setup_machine_add_updates_list);
   tcase_add_test (tc, test_bt_setup_wire_add_machine_id);
   tcase_add_test (tc, test_bt_setup_wire_rem_machine_id);
   tcase_add_test (tc, test_bt_setup_wire_add_src_list);
