@@ -861,6 +861,12 @@ prepare_add_del (gpointer key, gpointer value, gpointer user_data)
           g_list_insert_sorted_with_data (self->priv->wires_to_add, key,
           sort_by_graph_depth_asc, (gpointer) self);
     }
+    // list starts with elements close to the sink
+    GST_DEBUG_OBJECT (GST_OBJECT (key), "added to play list with depth=%d",
+        GET_GRAPH_DEPTH (self, key));
+    self->priv->elements_to_play =
+        g_list_insert_sorted_with_data (self->priv->elements_to_play, key,
+        sort_by_graph_depth_asc, (gpointer) self);
   } else if (GPOINTER_TO_INT (value) == CS_DISCONNECTING) {
     if (BT_IS_MACHINE (key)) {
       self->priv->machines_to_del =
@@ -871,6 +877,12 @@ prepare_add_del (gpointer key, gpointer value, gpointer user_data)
           g_list_insert_sorted_with_data (self->priv->wires_to_del, key,
           sort_by_graph_depth_desc, (gpointer) self);
     }
+    // list starts with elements away from the sink
+    GST_DEBUG_OBJECT (GST_OBJECT (key), "added to stop list with depth=%d",
+        GET_GRAPH_DEPTH (self, key));
+    self->priv->elements_to_stop =
+        g_list_insert_sorted_with_data (self->priv->elements_to_stop, key,
+        sort_by_graph_depth_desc, (gpointer) self);
   }
 }
 
@@ -912,28 +924,6 @@ del_machine_in_pipeline (gpointer key, gpointer user_data)
 
   GST_INFO_OBJECT (key, "remove machine");
   rem_bin_in_pipeline (self, GST_BIN (key));
-}
-
-static void
-determine_state_change_lists (gpointer key, gpointer value, gpointer user_data)
-{
-  const BtSetup *const self = BT_SETUP (user_data);
-
-  if (GPOINTER_TO_INT (value) == CS_CONNECTING) {
-    // list starts with elements close to the sink
-    GST_DEBUG_OBJECT (GST_OBJECT (key), "added to play list with depth=%d",
-        GET_GRAPH_DEPTH (self, key));
-    self->priv->elements_to_play =
-        g_list_insert_sorted_with_data (self->priv->elements_to_play, key,
-        sort_by_graph_depth_asc, (gpointer) self);
-  } else if (GPOINTER_TO_INT (value) == CS_DISCONNECTING) {
-    // list starts with elements away from the sink
-    GST_DEBUG_OBJECT (GST_OBJECT (key), "added to stop list with depth=%d",
-        GET_GRAPH_DEPTH (self, key));
-    self->priv->elements_to_stop =
-        g_list_insert_sorted_with_data (self->priv->elements_to_stop, key,
-        sort_by_graph_depth_desc, (gpointer) self);
-  }
 }
 
 static void
@@ -1067,30 +1057,16 @@ update_pipeline (const BtSetup * const self)
 {
   GST_INFO ("updating pipeline ----------------------------------------");
 
-  // do *one* g_hash_table_foreach and topologically sort machines and wires into 4 lists
+  // do *one* g_hash_table_foreach:
+  // - topologically sort machines and wires into 4 lists
+  // - builds elements_to_{play|stop} lists
+  GST_INFO ("determine state change lists and add/del lists");
   g_hash_table_foreach (self->priv->connection_state, prepare_add_del,
       (gpointer) self);
-  gboolean need_add = self->priv->machines_to_add || self->priv->wires_to_add;
-  gboolean need_del = self->priv->machines_to_del || self->priv->wires_to_del;
-  GST_INFO ("adding m=%d, w=%d and deleting m=%d, w=%d",
-      g_list_length (self->priv->machines_to_add),
-      g_list_length (self->priv->wires_to_add),
-      g_list_length (self->priv->machines_to_del),
-      g_list_length (self->priv->wires_to_del));
-  if (need_add && need_del) {
-    GST_WARNING ("unexpected adding and deleting at the same time");
-  }
 #ifndef STOP_PLAYBACK_FOR_UPDATES
   // query segment and position
   update_play_seek_event (self);
-#endif
-
-  // builds elements_to_{play|stop} lists
-  GST_INFO ("determine state change lists");
-  g_hash_table_foreach (self->priv->connection_state,
-      determine_state_change_lists, (gpointer) self);
-
-#ifdef STOP_PLAYBACK_FOR_UPDATES
+#else
   gboolean cont = FALSE;
   if (self->priv->wires_to_add || self->priv->wires_to_del) {
     if ((cont = bt_song_update_playback_position (self->priv->song))) {
@@ -1164,45 +1140,53 @@ static gboolean
 bt_setup_update_pipeline (const BtSetup * const self)
 {
   gboolean res = FALSE;
-  BtMachine *master;
+  GList *not_visited_machines, *not_visited_wires, *node;
+  gboolean need_add, need_del;
+  BtWire *wire;
+  BtMachine *machine;
+  BtMachine *master = bt_setup_get_machine_by_type (self, BT_TYPE_SINK_MACHINE);
 
-  // get master
-  if ((master = bt_setup_get_machine_by_type (self, BT_TYPE_SINK_MACHINE))) {
-    GList *not_visited_machines, *not_visited_wires, *node;
-    BtWire *wire;
-    BtMachine *machine;
+  g_return_val_if_fail (master != NULL, FALSE);
 
-    // make a copy of lists and check what is connected from master and
-    // remove all visited items
-    not_visited_machines = g_list_copy (self->priv->machines);
-    not_visited_wires = g_list_copy (self->priv->wires);
-    GST_INFO ("checking connections for %d machines and %d wires",
-        g_list_length (not_visited_machines),
-        g_list_length (not_visited_wires));
-    // ... and start checking connections (recursively)
-    res =
-        check_connected (self, master, &not_visited_machines,
-        &not_visited_wires, 0);
+  // make a copy of lists and check what is connected from master and
+  // remove all visited items
+  not_visited_machines = g_list_copy (self->priv->machines);
+  not_visited_wires = g_list_copy (self->priv->wires);
+  GST_INFO ("checking connections for %d machines and %d wires",
+      g_list_length (not_visited_machines), g_list_length (not_visited_wires));
+  // ... and start checking connections (recursively)
+  res = check_connected (self, master, &not_visited_machines,
+      &not_visited_wires, 0);
+  g_object_unref (master);
 
-    // remove all items that we have not visited and set them to disconnected
-    GST_INFO ("remove %d unconnected wires", g_list_length (not_visited_wires));
-    for (node = not_visited_wires; node; node = g_list_next (node)) {
-      wire = BT_WIRE (node->data);
-      set_disconnecting (self, GST_BIN (wire));
-    }
-    g_list_free (not_visited_wires);
-    GST_INFO ("remove %d unconnected machines",
-        g_list_length (not_visited_machines));
-    for (node = not_visited_machines; node; node = g_list_next (node)) {
-      machine = BT_MACHINE (node->data);
-      set_disconnecting (self, GST_BIN (machine));
-    }
-    g_list_free (not_visited_machines);
-
-    update_pipeline (self);
-
-    g_object_unref (master);
+  // remove all items that we have not visited and set them to disconnected
+  GST_INFO ("remove %d unconnected wires", g_list_length (not_visited_wires));
+  for (node = not_visited_wires; node; node = g_list_next (node)) {
+    wire = BT_WIRE (node->data);
+    set_disconnecting (self, GST_BIN (wire));
   }
+  g_list_free (not_visited_wires);
+  GST_INFO ("remove %d unconnected machines",
+      g_list_length (not_visited_machines));
+  for (node = not_visited_machines; node; node = g_list_next (node)) {
+    machine = BT_MACHINE (node->data);
+    set_disconnecting (self, GST_BIN (machine));
+  }
+  g_list_free (not_visited_machines);
+
+  need_add = self->priv->machines_to_add || self->priv->wires_to_add;
+  need_del = self->priv->machines_to_del || self->priv->wires_to_del;
+  GST_INFO ("adding m=%d, w=%d and deleting m=%d, w=%d",
+      g_list_length (self->priv->machines_to_add),
+      g_list_length (self->priv->wires_to_add),
+      g_list_length (self->priv->machines_to_del),
+      g_list_length (self->priv->wires_to_del));
+  if (need_add && need_del) {
+    GST_ERROR ("unexpected adding and deleting at the same time");
+  }
+
+  update_pipeline (self);
+
   GST_INFO ("result of graph update = %d", res);
   return (res);
 }
