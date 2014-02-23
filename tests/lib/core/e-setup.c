@@ -499,6 +499,20 @@ test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+/*
+// We can't implement these below, as songs without atleast 1 src..sink chain
+// wont play. Also when we disconnect the last, the song stops.
+// Maybe we should consider to have a permanent silent-src -> master (inside
+// sink-bin).
+
+// initially only master
+test_bt_setup_dynamic_add_only_src
+test_bt_setup_dynamic_rem_only_src
+// initialy only master
+test_bt_setup_dynamic_add_src_and_proc
+test_bt_setup_dynamic_rem_src_and_proc
+*/
+
 TCase *
 bt_setup_example_case (void)
 {
