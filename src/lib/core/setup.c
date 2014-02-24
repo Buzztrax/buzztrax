@@ -358,10 +358,10 @@ struct _BtSetupPrivate
   GHashTable *connection_state;
   /* depth in the graph, master=0, wires odd, machines even numbers */
   GHashTable *graph_depth;
-  /* list of elements to add or remove, in topological order */
-  GList *machines_to_add, *wires_to_add, *machines_to_del, *wires_to_del;
-  /* list of elements that change state, in topological order */
+  /* list of elements to add+play or stop+remove, in topological order */
   GList *elements_to_play, *elements_to_stop;
+  /* the update adds or removes one or more wires */
+  gboolean changed_wire;
 
   /* see/newsegment event for dynamically added elements */
   GstEvent *play_seek_event;
@@ -854,36 +854,22 @@ prepare_add_del (gpointer key, gpointer value, gpointer user_data)
 
   if (GPOINTER_TO_INT (value) == CS_CONNECTING) {
     // list starts with elements close to the sink
-    if (BT_IS_MACHINE (key)) {
-      p->machines_to_add =
-          g_list_insert_sorted_with_data (p->machines_to_add, key,
-          sort_by_graph_depth_asc, (gpointer) self);
-    } else {
-      p->wires_to_add =
-          g_list_insert_sorted_with_data (p->wires_to_add, key,
-          sort_by_graph_depth_asc, (gpointer) self);
-    }
     GST_DEBUG_OBJECT (GST_OBJECT (key), "added to play list with depth=%d",
         GET_GRAPH_DEPTH (self, key));
     p->elements_to_play =
         g_list_insert_sorted_with_data (p->elements_to_play, key,
         sort_by_graph_depth_asc, (gpointer) self);
+    if (BT_IS_WIRE (key))
+      p->changed_wire = TRUE;
   } else if (GPOINTER_TO_INT (value) == CS_DISCONNECTING) {
     // list starts with elements away from the sink
-    if (BT_IS_MACHINE (key)) {
-      p->machines_to_del =
-          g_list_insert_sorted_with_data (p->machines_to_del, key,
-          sort_by_graph_depth_desc, (gpointer) self);
-    } else {
-      p->wires_to_del =
-          g_list_insert_sorted_with_data (p->wires_to_del, key,
-          sort_by_graph_depth_desc, (gpointer) self);
-    }
     GST_DEBUG_OBJECT (GST_OBJECT (key), "added to stop list with depth=%d",
         GET_GRAPH_DEPTH (self, key));
     p->elements_to_stop =
         g_list_insert_sorted_with_data (p->elements_to_stop, key,
         sort_by_graph_depth_desc, (gpointer) self);
+    if (BT_IS_WIRE (key))
+      p->changed_wire = TRUE;
   }
 }
 
@@ -892,8 +878,10 @@ add_machine_in_pipeline (gpointer key, gpointer user_data)
 {
   const BtSetup *const self = BT_SETUP (user_data);
 
-  GST_INFO_OBJECT (key, "add machine");
-  add_bin_in_pipeline (self, GST_BIN (key));
+  if (BT_IS_MACHINE (key)) {
+    GST_INFO_OBJECT (key, "add machine");
+    add_bin_in_pipeline (self, GST_BIN (key));
+  }
 }
 
 static void
@@ -901,11 +889,14 @@ add_wire_in_pipeline (gpointer key, gpointer user_data)
 {
   const BtSetup *const self = BT_SETUP (user_data);
 
-  GST_INFO_OBJECT (key, "add & link wire");
-  add_bin_in_pipeline (self, GST_BIN (key));
-  link_wire (self, GST_ELEMENT (key));
-  // TODO(ensonic): what to do if it fails? We should always be able to link in theory
-  // maybe dump extensive diagnostics to add debugging
+  if (BT_IS_WIRE (key)) {
+    GST_INFO_OBJECT (key, "add & link wire");
+    add_bin_in_pipeline (self, GST_BIN (key));
+    link_wire (self, GST_ELEMENT (key));
+    // TODO(ensonic): what to do if it fails? 
+    // We should always be able to link in theory ...
+    // Maybe dump extensive diagnostics to add debugging
+  }
 }
 
 static void
@@ -913,9 +904,11 @@ del_wire_in_pipeline (gpointer key, gpointer user_data)
 {
   const BtSetup *const self = BT_SETUP (user_data);
 
-  GST_INFO_OBJECT (key, "remove & unlink wire");
-  unlink_wire (self, GST_ELEMENT (key));
-  rem_bin_in_pipeline (self, GST_BIN (key));
+  if (BT_IS_WIRE (key)) {
+    GST_INFO_OBJECT (key, "remove & unlink wire");
+    unlink_wire (self, GST_ELEMENT (key));
+    rem_bin_in_pipeline (self, GST_BIN (key));
+  }
 }
 
 static void
@@ -923,8 +916,10 @@ del_machine_in_pipeline (gpointer key, gpointer user_data)
 {
   const BtSetup *const self = BT_SETUP (user_data);
 
-  GST_INFO_OBJECT (key, "remove machine");
-  rem_bin_in_pipeline (self, GST_BIN (key));
+  if (BT_IS_MACHINE (key)) {
+    GST_INFO_OBJECT (key, "remove machine");
+    rem_bin_in_pipeline (self, GST_BIN (key));
+  }
 }
 
 static void
@@ -1015,8 +1010,6 @@ sync_states_for_play (const BtSetup * const self)
   for (node = self->priv->elements_to_play; node; node = g_list_next (node)) {
     activate_element (self, node->data);
   }
-  g_list_free (self->priv->elements_to_play);
-  self->priv->elements_to_play = NULL;
 }
 
 static void
@@ -1040,8 +1033,6 @@ sync_states_for_stop (const BtSetup * const self)
   for (node = self->priv->elements_to_stop; node; node = g_list_next (node)) {
     deactivate_element (self, node->data);
   }
-  g_list_free (self->priv->elements_to_stop);
-  self->priv->elements_to_stop = NULL;
 }
 
 static void
@@ -1086,7 +1077,7 @@ add_to_pipeline (const BtSetup * const self)
   update_play_seek_event (self);
 #else
   gboolean cont = FALSE;
-  if (self->priv->wires_to_add) {
+  if (self->priv->changed_wire) {
     if ((cont = bt_song_update_playback_position (self->priv->song))) {
       bt_song_stop (self->priv->song);
     }
@@ -1094,10 +1085,10 @@ add_to_pipeline (const BtSetup * const self)
 #endif
 
   GST_INFO ("add machines");
-  g_list_foreach (self->priv->machines_to_add, add_machine_in_pipeline,
+  g_list_foreach (self->priv->elements_to_play, add_machine_in_pipeline,
       (gpointer) self);
   GST_INFO ("add and link wires");
-  g_list_foreach (self->priv->wires_to_add, add_wire_in_pipeline,
+  g_list_foreach (self->priv->elements_to_play, add_wire_in_pipeline,
       (gpointer) self);
   // apply state changes for the above lists
   GST_INFO ("sync states");
@@ -1113,10 +1104,8 @@ add_to_pipeline (const BtSetup * const self)
 #endif
 
   // free the lists  
-  g_list_free (self->priv->machines_to_add);
-  self->priv->machines_to_add = NULL;
-  g_list_free (self->priv->wires_to_add);
-  self->priv->wires_to_add = NULL;
+  g_list_free (self->priv->elements_to_play);
+  self->priv->elements_to_play = NULL;
 
   GST_INFO ("pipeline updated for add --------------------------------");
 }
@@ -1132,7 +1121,7 @@ remove_from_pipeline (const BtSetup * const self)
   update_play_seek_event (self);
 #else
   gboolean cont = FALSE;
-  if (self->priv->wires_to_del) {
+  if (self->priv->changed_wire) {
     if ((cont = bt_song_update_playback_position (self->priv->song))) {
       bt_song_stop (self->priv->song);
     }
@@ -1143,10 +1132,10 @@ remove_from_pipeline (const BtSetup * const self)
   GST_INFO ("sync states");
   sync_states_for_stop (self);
   GST_INFO ("unlink and remove wires");
-  g_list_foreach (self->priv->wires_to_del, del_wire_in_pipeline,
+  g_list_foreach (self->priv->elements_to_stop, del_wire_in_pipeline,
       (gpointer) self);
   GST_INFO ("remove machines");
-  g_list_foreach (self->priv->machines_to_del, del_machine_in_pipeline,
+  g_list_foreach (self->priv->elements_to_stop, del_machine_in_pipeline,
       (gpointer) self);
 
 #ifndef STOP_PLAYBACK_FOR_UPDATES
@@ -1159,10 +1148,8 @@ remove_from_pipeline (const BtSetup * const self)
 #endif
 
   // free the lists  
-  g_list_free (self->priv->machines_to_del);
-  self->priv->machines_to_del = NULL;
-  g_list_free (self->priv->wires_to_del);
-  self->priv->wires_to_del = NULL;
+  g_list_free (self->priv->elements_to_stop);
+  self->priv->elements_to_stop = NULL;
 }
 
 /*
@@ -1213,16 +1200,15 @@ bt_setup_update_pipeline (const BtSetup * const self)
   // - topologically sort machines and wires into 2 lists
   // - builds elements_to_stop list
   GST_INFO ("determine state change lists and add/del lists");
+  self->priv->changed_wire = FALSE;
   g_hash_table_foreach (self->priv->connection_state, prepare_add_del,
       (gpointer) self);
 
-  need_add = self->priv->machines_to_add || self->priv->wires_to_add;
-  need_del = self->priv->machines_to_del || self->priv->wires_to_del;
-  GST_INFO ("adding m=%d, w=%d and deleting m=%d, w=%d",
-      g_list_length (self->priv->machines_to_add),
-      g_list_length (self->priv->wires_to_add),
-      g_list_length (self->priv->machines_to_del),
-      g_list_length (self->priv->wires_to_del));
+  need_add = self->priv->elements_to_play != NULL;
+  need_del = self->priv->elements_to_stop != NULL;
+  GST_INFO ("adding m+w=%d and deleting m+w=%d",
+      g_list_length (self->priv->elements_to_play),
+      g_list_length (self->priv->elements_to_stop));
   if (need_add && !need_del) {
     add_to_pipeline (self);
   } else if (!need_add && need_del) {
