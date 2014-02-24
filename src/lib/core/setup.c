@@ -850,38 +850,39 @@ static void
 prepare_add_del (gpointer key, gpointer value, gpointer user_data)
 {
   const BtSetup *const self = BT_SETUP (user_data);
+  BtSetupPrivate *const p = self->priv;
 
   if (GPOINTER_TO_INT (value) == CS_CONNECTING) {
+    // list starts with elements close to the sink
     if (BT_IS_MACHINE (key)) {
-      self->priv->machines_to_add =
-          g_list_insert_sorted_with_data (self->priv->machines_to_add, key,
+      p->machines_to_add =
+          g_list_insert_sorted_with_data (p->machines_to_add, key,
           sort_by_graph_depth_asc, (gpointer) self);
     } else {
-      self->priv->wires_to_add =
-          g_list_insert_sorted_with_data (self->priv->wires_to_add, key,
+      p->wires_to_add =
+          g_list_insert_sorted_with_data (p->wires_to_add, key,
           sort_by_graph_depth_asc, (gpointer) self);
     }
-    // list starts with elements close to the sink
     GST_DEBUG_OBJECT (GST_OBJECT (key), "added to play list with depth=%d",
         GET_GRAPH_DEPTH (self, key));
-    self->priv->elements_to_play =
-        g_list_insert_sorted_with_data (self->priv->elements_to_play, key,
+    p->elements_to_play =
+        g_list_insert_sorted_with_data (p->elements_to_play, key,
         sort_by_graph_depth_asc, (gpointer) self);
   } else if (GPOINTER_TO_INT (value) == CS_DISCONNECTING) {
+    // list starts with elements away from the sink
     if (BT_IS_MACHINE (key)) {
-      self->priv->machines_to_del =
-          g_list_insert_sorted_with_data (self->priv->machines_to_del, key,
+      p->machines_to_del =
+          g_list_insert_sorted_with_data (p->machines_to_del, key,
           sort_by_graph_depth_desc, (gpointer) self);
     } else {
-      self->priv->wires_to_del =
-          g_list_insert_sorted_with_data (self->priv->wires_to_del, key,
+      p->wires_to_del =
+          g_list_insert_sorted_with_data (p->wires_to_del, key,
           sort_by_graph_depth_desc, (gpointer) self);
     }
-    // list starts with elements away from the sink
     GST_DEBUG_OBJECT (GST_OBJECT (key), "added to stop list with depth=%d",
         GET_GRAPH_DEPTH (self, key));
-    self->priv->elements_to_stop =
-        g_list_insert_sorted_with_data (self->priv->elements_to_stop, key,
+    p->elements_to_stop =
+        g_list_insert_sorted_with_data (p->elements_to_stop, key,
         sort_by_graph_depth_desc, (gpointer) self);
   }
 }
@@ -993,45 +994,54 @@ deactivate_element (const BtSetup * const self, gpointer key)
 }
 
 static void
-sync_states (const BtSetup * const self)
+sync_states_for_play (const BtSetup * const self)
 {
   GList *node;
 
-  if (self->priv->elements_to_play) {
-    GST_INFO ("starting elements");
+  if (!self->priv->elements_to_play)
+    return;
+
+  GST_INFO ("starting elements");
 
 #ifndef GST_DISABLE_DEBUG
-    for (node = self->priv->elements_to_play; node; node = g_list_next (node)) {
-      GST_INFO_OBJECT (GST_OBJECT (node->data),
-          "will be set from %s to %s, depth=%d",
-          gst_element_state_get_name (GST_STATE (node->data)),
-          gst_element_state_get_name (GST_STATE (GST_OBJECT_PARENT (GST_OBJECT
-                      (node->data)))), GET_GRAPH_DEPTH (self, node->data));
-    }
-#endif
-    for (node = self->priv->elements_to_play; node; node = g_list_next (node)) {
-      activate_element (self, node->data);
-    }
-    g_list_free (self->priv->elements_to_play);
-    self->priv->elements_to_play = NULL;
+  for (node = self->priv->elements_to_play; node; node = g_list_next (node)) {
+    GST_INFO_OBJECT (GST_OBJECT (node->data),
+        "will be set from %s to %s, depth=%d",
+        gst_element_state_get_name (GST_STATE (node->data)),
+        gst_element_state_get_name (GST_STATE (GST_OBJECT_PARENT (GST_OBJECT
+                    (node->data)))), GET_GRAPH_DEPTH (self, node->data));
   }
-  if (self->priv->elements_to_stop) {
-    GST_INFO ("stopping elements");
+#endif
+  for (node = self->priv->elements_to_play; node; node = g_list_next (node)) {
+    activate_element (self, node->data);
+  }
+  g_list_free (self->priv->elements_to_play);
+  self->priv->elements_to_play = NULL;
+}
+
+static void
+sync_states_for_stop (const BtSetup * const self)
+{
+  GList *node;
+
+  if (!self->priv->elements_to_stop)
+    return;
+
+  GST_INFO ("stopping elements");
 #ifndef GST_DISABLE_DEBUG
-    for (node = self->priv->elements_to_stop; node; node = g_list_next (node)) {
-      GST_INFO_OBJECT (GST_OBJECT (node->data),
-          "will be set from %s to %s, depth=%d",
-          gst_element_state_get_name (GST_STATE (node->data)),
-          gst_element_state_get_name (GST_STATE_PAUSED), GET_GRAPH_DEPTH (self,
-              node->data));
-    }
-#endif
-    for (node = self->priv->elements_to_stop; node; node = g_list_next (node)) {
-      deactivate_element (self, node->data);
-    }
-    g_list_free (self->priv->elements_to_stop);
-    self->priv->elements_to_stop = NULL;
+  for (node = self->priv->elements_to_stop; node; node = g_list_next (node)) {
+    GST_INFO_OBJECT (GST_OBJECT (node->data),
+        "will be set from %s to %s, depth=%d",
+        gst_element_state_get_name (GST_STATE (node->data)),
+        gst_element_state_get_name (GST_STATE_PAUSED), GET_GRAPH_DEPTH (self,
+            node->data));
   }
+#endif
+  for (node = self->priv->elements_to_stop; node; node = g_list_next (node)) {
+    deactivate_element (self, node->data);
+  }
+  g_list_free (self->priv->elements_to_stop);
+  self->priv->elements_to_stop = NULL;
 }
 
 static void
@@ -1067,22 +1077,16 @@ update_connection_states (gpointer key, gpointer value, gpointer user_data)
  * handle the async pad blocking
  */
 static void
-update_pipeline (const BtSetup * const self)
+add_to_pipeline (const BtSetup * const self)
 {
-  GST_INFO ("updating pipeline ----------------------------------------");
+  GST_INFO ("updating pipeline for add --------------------------------");
 
-  // do *one* g_hash_table_foreach:
-  // - topologically sort machines and wires into 4 lists
-  // - builds elements_to_{play|stop} lists
-  GST_INFO ("determine state change lists and add/del lists");
-  g_hash_table_foreach (self->priv->connection_state, prepare_add_del,
-      (gpointer) self);
 #ifndef STOP_PLAYBACK_FOR_UPDATES
   // query segment and position
   update_play_seek_event (self);
 #else
   gboolean cont = FALSE;
-  if (self->priv->wires_to_add || self->priv->wires_to_del) {
+  if (self->priv->wires_to_add) {
     if ((cont = bt_song_update_playback_position (self->priv->song))) {
       bt_song_stop (self->priv->song);
     }
@@ -1095,10 +1099,49 @@ update_pipeline (const BtSetup * const self)
   GST_INFO ("add and link wires");
   g_list_foreach (self->priv->wires_to_add, add_wire_in_pipeline,
       (gpointer) self);
+  // apply state changes for the above lists
+  GST_INFO ("sync states");
+  sync_states_for_play (self);
+
+#ifndef STOP_PLAYBACK_FOR_UPDATES
+  gst_event_replace (&self->priv->play_seek_event, NULL);
+  gst_event_replace (&self->priv->play_newsegment_event, NULL);
+#else
+  if (cont) {
+    bt_song_play (self->priv->song);
+  }
+#endif
+
+  // free the lists  
+  g_list_free (self->priv->machines_to_add);
+  self->priv->machines_to_add = NULL;
+  g_list_free (self->priv->wires_to_add);
+  self->priv->wires_to_add = NULL;
+
+  GST_INFO ("pipeline updated for add --------------------------------");
+}
+
+
+static void
+remove_from_pipeline (const BtSetup * const self)
+{
+  GST_INFO ("updating pipeline for del --------------------------------");
+
+#ifndef STOP_PLAYBACK_FOR_UPDATES
+  // query segment and position
+  update_play_seek_event (self);
+#else
+  gboolean cont = FALSE;
+  if (self->priv->wires_to_del) {
+    if ((cont = bt_song_update_playback_position (self->priv->song))) {
+      bt_song_stop (self->priv->song);
+    }
+  }
+#endif
 
   // apply state changes for the above lists
   GST_INFO ("sync states");
-  sync_states (self);
+  sync_states_for_stop (self);
   GST_INFO ("unlink and remove wires");
   g_list_foreach (self->priv->wires_to_del, del_wire_in_pipeline,
       (gpointer) self);
@@ -1116,19 +1159,10 @@ update_pipeline (const BtSetup * const self)
 #endif
 
   // free the lists  
-  g_list_free (self->priv->machines_to_add);
-  self->priv->machines_to_add = NULL;
-  g_list_free (self->priv->wires_to_add);
-  self->priv->wires_to_add = NULL;
   g_list_free (self->priv->machines_to_del);
   self->priv->machines_to_del = NULL;
   g_list_free (self->priv->wires_to_del);
   self->priv->wires_to_del = NULL;
-
-  GST_INFO ("update connection states");
-  g_hash_table_foreach (self->priv->connection_state, update_connection_states,
-      (gpointer) self);
-  GST_INFO ("pipeline updated ----------------------------------------");
 }
 
 /*
@@ -1175,6 +1209,13 @@ bt_setup_update_pipeline (const BtSetup * const self)
   }
   g_list_free (not_visited_machines);
 
+  // do *one* g_hash_table_foreach:
+  // - topologically sort machines and wires into 2 lists
+  // - builds elements_to_stop list
+  GST_INFO ("determine state change lists and add/del lists");
+  g_hash_table_foreach (self->priv->connection_state, prepare_add_del,
+      (gpointer) self);
+
   need_add = self->priv->machines_to_add || self->priv->wires_to_add;
   need_del = self->priv->machines_to_del || self->priv->wires_to_del;
   GST_INFO ("adding m=%d, w=%d and deleting m=%d, w=%d",
@@ -1183,12 +1224,18 @@ bt_setup_update_pipeline (const BtSetup * const self)
       g_list_length (self->priv->machines_to_del),
       g_list_length (self->priv->wires_to_del));
   if (need_add && !need_del) {
-    update_pipeline (self);
+    add_to_pipeline (self);
   } else if (!need_add && need_del) {
-    update_pipeline (self);
+    remove_from_pipeline (self);
   } else if (need_add && need_del) {
     GST_ERROR ("unexpected adding and deleting at the same time");
+  } else if (!need_add && !need_del) {
+    GST_WARNING ("update() called, but nothing to do");
   }
+
+  GST_INFO ("update connection states");
+  g_hash_table_foreach (self->priv->connection_state, update_connection_states,
+      (gpointer) self);
 
   GST_INFO ("result of graph update = %d", res);
   return (res);
