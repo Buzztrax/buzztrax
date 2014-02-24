@@ -1052,6 +1052,20 @@ update_connection_states (gpointer key, gpointer value, gpointer user_data)
   }
 }
 
+/* {add|del}_wire_in_pipeline can add pads to the self->priv->blocked_pads list
+ * from {link|unlink}_wire. this is more complicated that it needs to be.
+ *
+ * 1.) when (un)linking a sink pad on an active element hat operates in
+ *     push mode, we only need to block the most downstream src-pad
+ *     (either g_list_first(wires_to_add):src or g_list_last(wires_to_del):src)
+ * 2.) when (un)linking a src pad on an active element hat operates in push
+ *     mode, we only need to block the pad itself
+ *
+ * 3.) we either add or remove stuff on exactly on pad at a time in practice
+ *
+ * this should make it easier to split the update into two parts to correctly
+ * handle the async pad blocking
+ */
 static void
 update_pipeline (const BtSetup * const self)
 {
@@ -1075,20 +1089,6 @@ update_pipeline (const BtSetup * const self)
   }
 #endif
 
-  /* {add|del}_wire_in_pipeline can add pads to the self->priv->blocked_pads list
-   * from {link|unlink}_wire. this is more complicated that it needs to be.
-   *
-   * 1.) when (un)linking a sink pad on an active element hat operates in
-   *     push mode, we only need to block the most downstream src-pad
-   *     (either g_list_first(wires_to_add):src or g_list_last(wires_to_del):src)
-   * 2.) when (un)linking a src pad on an active element hat operates in push
-   *     mode, we only need to block the pad itself
-   *
-   * 3.) we either add or remove stuff on exactly on pad at a time in practice
-   *
-   * this should make it easier to split the update into two parts to correctly
-   * handle the async pad blocking
-   */
   GST_INFO ("add machines");
   g_list_foreach (self->priv->machines_to_add, add_machine_in_pipeline,
       (gpointer) self);
@@ -1106,7 +1106,10 @@ update_pipeline (const BtSetup * const self)
   g_list_foreach (self->priv->machines_to_del, del_machine_in_pipeline,
       (gpointer) self);
 
-#ifdef STOP_PLAYBACK_FOR_UPDATES
+#ifndef STOP_PLAYBACK_FOR_UPDATES
+  gst_event_replace (&self->priv->play_seek_event, NULL);
+  gst_event_replace (&self->priv->play_newsegment_event, NULL);
+#else
   if (cont) {
     bt_song_play (self->priv->song);
   }
@@ -1126,8 +1129,6 @@ update_pipeline (const BtSetup * const self)
   g_hash_table_foreach (self->priv->connection_state, update_connection_states,
       (gpointer) self);
   GST_INFO ("pipeline updated ----------------------------------------");
-  gst_event_replace (&self->priv->play_seek_event, NULL);
-  gst_event_replace (&self->priv->play_newsegment_event, NULL);
 }
 
 /*
@@ -1181,11 +1182,13 @@ bt_setup_update_pipeline (const BtSetup * const self)
       g_list_length (self->priv->wires_to_add),
       g_list_length (self->priv->machines_to_del),
       g_list_length (self->priv->wires_to_del));
-  if (need_add && need_del) {
+  if (need_add && !need_del) {
+    update_pipeline (self);
+  } else if (!need_add && need_del) {
+    update_pipeline (self);
+  } else if (need_add && need_del) {
     GST_ERROR ("unexpected adding and deleting at the same time");
   }
-
-  update_pipeline (self);
 
   GST_INFO ("result of graph update = %d", res);
   return (res);
