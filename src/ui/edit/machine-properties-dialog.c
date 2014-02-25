@@ -97,7 +97,7 @@ struct _BtMachinePropertiesDialogPrivate
   GtkWidget *first_widget;
 };
 
-static GQuark wdget_peer_quark = 0;
+static GQuark widget_peer_quark = 0;
 static GQuark widget_parent_quark = 0;
 static GQuark widget_child_quark = 0;
 
@@ -878,7 +878,7 @@ on_double_range_property_notify_idle (gpointer _data)
     GParamSpec *property = data->property;
     GtkWidget *widget = GTK_WIDGET (data->user_data);
     GtkLabel *label =
-        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), wdget_peer_quark));
+        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
     gdouble value;
 
     GST_INFO ("property value notify received : %s ", property->name);
@@ -914,7 +914,7 @@ on_double_range_property_changed (GtkRange * range, gpointer user_data)
   GstObject *param_parent = GST_OBJECT (user_data);
   const gchar *name = gtk_widget_get_name (GTK_WIDGET (range));
   GtkLabel *label =
-      GTK_LABEL (g_object_get_qdata (G_OBJECT (range), wdget_peer_quark));
+      GTK_LABEL (g_object_get_qdata (G_OBJECT (range), widget_peer_quark));
   const BtMachinePropertiesDialog *self =
       BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (range),
           widget_parent_quark));
@@ -953,7 +953,7 @@ on_float_range_property_notify_idle (gpointer _data)
     GParamSpec *property = data->property;
     GtkWidget *widget = GTK_WIDGET (data->user_data);
     GtkLabel *label =
-        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), wdget_peer_quark));
+        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
     gfloat value;
 
     //GST_INFO("property value notify received : %s ",property->name);
@@ -988,7 +988,7 @@ on_float_range_property_changed (GtkRange * range, gpointer user_data)
   GstObject *param_parent = GST_OBJECT (user_data);
   const gchar *name = gtk_widget_get_name (GTK_WIDGET (range));
   GtkLabel *label =
-      GTK_LABEL (g_object_get_qdata (G_OBJECT (range), wdget_peer_quark));
+      GTK_LABEL (g_object_get_qdata (G_OBJECT (range), widget_peer_quark));
   const BtMachinePropertiesDialog *self =
       BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (range),
           widget_parent_quark));
@@ -1027,7 +1027,7 @@ on_int_range_property_notify_idle (gpointer _data)
     GParamSpec *property = data->property;
     GtkWidget *widget = GTK_WIDGET (data->user_data);
     GtkLabel *label =
-        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), wdget_peer_quark));
+        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
     BtMachinePropertiesDialog *self =
         BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (widget),
             widget_parent_quark));
@@ -1066,7 +1066,7 @@ on_int_range_property_changed (GtkRange * range, gpointer user_data)
   GObject *param_parent = G_OBJECT (user_data);
   const gchar *name = gtk_widget_get_name (GTK_WIDGET (range));
   GtkLabel *label =
-      GTK_LABEL (g_object_get_qdata (G_OBJECT (range), wdget_peer_quark));
+      GTK_LABEL (g_object_get_qdata (G_OBJECT (range), widget_peer_quark));
   const BtMachinePropertiesDialog *self =
       BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (range),
           widget_parent_quark));
@@ -1105,7 +1105,7 @@ on_uint_range_property_notify_idle (gpointer _data)
     GParamSpec *property = data->property;
     GtkWidget *widget = GTK_WIDGET (data->user_data);
     GtkLabel *label =
-        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), wdget_peer_quark));
+        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
     BtMachinePropertiesDialog *self =
         BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (widget),
             widget_parent_quark));
@@ -1144,7 +1144,7 @@ on_uint_range_property_changed (GtkRange * range, gpointer user_data)
   GObject *param_parent = G_OBJECT (user_data);
   const gchar *name = gtk_widget_get_name (GTK_WIDGET (range));
   GtkLabel *label =
-      GTK_LABEL (g_object_get_qdata (G_OBJECT (range), wdget_peer_quark));
+      GTK_LABEL (g_object_get_qdata (G_OBJECT (range), widget_peer_quark));
   const BtMachinePropertiesDialog *self =
       BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (range),
           widget_parent_quark));
@@ -1183,7 +1183,7 @@ on_uint64_range_property_notify_idle (gpointer _data)
     GParamSpec *property = data->property;
     GtkWidget *widget = GTK_WIDGET (data->user_data);
     GtkEntry *entry =
-        GTK_ENTRY (g_object_get_qdata (G_OBJECT (widget), wdget_peer_quark));
+        GTK_ENTRY (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
     BtMachinePropertiesDialog *self =
         BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (widget),
             widget_parent_quark));
@@ -1228,7 +1228,7 @@ on_uint64_range_property_changed (GtkRange * range, gpointer user_data)
   GObject *param_parent = G_OBJECT (user_data);
   const gchar *name = gtk_widget_get_name (GTK_WIDGET (range));
   GtkEntry *entry =
-      GTK_ENTRY (g_object_get_qdata (G_OBJECT (range), wdget_peer_quark));
+      GTK_ENTRY (g_object_get_qdata (G_OBJECT (range), widget_peer_quark));
   const BtMachinePropertiesDialog *self =
       BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (range),
           widget_parent_quark));
@@ -1259,7 +1259,7 @@ on_uint64_entry_property_changed (GtkEditable * editable, gpointer user_data)
   GObject *param_parent = G_OBJECT (user_data);
   const gchar *name = gtk_widget_get_name (GTK_WIDGET (editable));
   GtkRange *range =
-      GTK_RANGE (g_object_get_qdata (G_OBJECT (editable), wdget_peer_quark));
+      GTK_RANGE (g_object_get_qdata (G_OBJECT (editable), widget_peer_quark));
   const BtMachinePropertiesDialog *self =
       BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (editable),
           widget_parent_quark));
@@ -2108,7 +2108,8 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
       (gpointer) pg);
   g_object_set_qdata (G_OBJECT (widget1), widget_param_num_quark,
       GINT_TO_POINTER (row));
-  g_object_set_qdata (G_OBJECT (widget1), wdget_peer_quark, (gpointer) widget2);
+  g_object_set_qdata (G_OBJECT (widget1), widget_peer_quark,
+      (gpointer) widget2);
   // update formatted text on labels
   switch (base_type) {
     case G_TYPE_INT:{
@@ -2190,7 +2191,7 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
     }
     gtk_widget_set_name (GTK_WIDGET (evb), property->name);
     g_object_set_qdata (G_OBJECT (evb), widget_parent_quark, (gpointer) self);
-    g_object_set_qdata (G_OBJECT (evb), wdget_peer_quark, (gpointer) widget1);
+    g_object_set_qdata (G_OBJECT (evb), widget_peer_quark, (gpointer) widget1);
     g_object_set_qdata (G_OBJECT (evb), widget_param_group_quark,
         (gpointer) pg);
     g_signal_connect (evb, "button-press-event",
@@ -2348,8 +2349,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->priv->
-            param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->
+            priv->param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
@@ -3002,7 +3003,7 @@ bt_machine_properties_dialog_class_init (BtMachinePropertiesDialogClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  wdget_peer_quark =
+  widget_peer_quark =
       g_quark_from_static_string ("BtMachinePropertiesDialog::widget-peer");
   widget_parent_quark =
       g_quark_from_static_string ("BtMachinePropertiesDialog::widget-parent");
