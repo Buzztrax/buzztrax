@@ -770,6 +770,16 @@ on_button_release_event (GtkWidget * widget, GdkEventButton * event,
 }
 
 static gboolean
+on_key_release_event (GtkWidget * widget, GdkEventKey * event,
+    gpointer user_data)
+{
+  if (event->type == GDK_KEY_RELEASE) {
+    update_param_after_interaction (widget, user_data);
+  }
+  return (FALSE);
+}
+
+static gboolean
 on_trigger_button_press_event (GtkWidget * widget, GdkEventButton * event,
     gpointer user_data)
 {
@@ -1723,6 +1733,8 @@ make_int_range_widget (const BtMachinePropertiesDialog * self,
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
   g_signal_connect (widget, "button-release-event",
       G_CALLBACK (on_button_release_event), (gpointer) machine);
+  g_signal_connect (widget, "key-release-event",
+      G_CALLBACK (on_key_release_event), (gpointer) machine);
   g_signal_connect (vlabel, "button-press-event",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
   g_signal_connect (vlabel, "button-release-event",
@@ -1762,6 +1774,8 @@ make_uint_range_widget (const BtMachinePropertiesDialog * self,
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
   g_signal_connect (widget, "button-release-event",
       G_CALLBACK (on_button_release_event), (gpointer) machine);
+  g_signal_connect (widget, "key-release-event",
+      G_CALLBACK (on_key_release_event), (gpointer) machine);
   g_signal_connect (vlabel, "button-press-event",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
   g_signal_connect (vlabel, "button-release-event",
@@ -1802,6 +1816,8 @@ make_uint64_range_widget (const BtMachinePropertiesDialog * self,
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
   g_signal_connect (widget, "button-release-event",
       G_CALLBACK (on_button_release_event), (gpointer) machine);
+  g_signal_connect (widget, "key-release-event",
+      G_CALLBACK (on_key_release_event), (gpointer) machine);
   g_signal_connect (entry, "button-press-event",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
   g_signal_connect (entry, "button-release-event",
@@ -1846,6 +1862,8 @@ make_float_range_widget (const BtMachinePropertiesDialog * self,
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
   g_signal_connect (widget, "button-release-event",
       G_CALLBACK (on_button_release_event), (gpointer) machine);
+  g_signal_connect (widget, "key-release-event",
+      G_CALLBACK (on_key_release_event), (gpointer) machine);
   g_signal_connect (vlabel, "button-press-event",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
   g_signal_connect (vlabel, "button-release-event",
@@ -1888,6 +1906,8 @@ make_double_range_widget (const BtMachinePropertiesDialog * self,
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
   g_signal_connect (widget, "button-release-event",
       G_CALLBACK (on_button_release_event), (gpointer) machine);
+  g_signal_connect (widget, "key-release-event",
+      G_CALLBACK (on_key_release_event), (gpointer) machine);
   g_signal_connect (vlabel, "button-press-event",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
   g_signal_connect (vlabel, "button-release-event",
@@ -1983,6 +2003,8 @@ make_combobox_widget (const BtMachinePropertiesDialog * self, GObject * machine,
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
   g_signal_connect (child, "button-release-event",
       G_CALLBACK (on_button_release_event), (gpointer) machine);
+  g_signal_connect (widget, "key-release-event",
+      G_CALLBACK (on_key_release_event), (gpointer) machine);
 
   g_signal_connect (label, "button-press-event",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
@@ -2015,6 +2037,8 @@ make_checkbox_widget (const BtMachinePropertiesDialog * self, GObject * machine,
       G_CALLBACK (on_trigger_button_press_event), (gpointer) machine);
   g_signal_connect (widget, "button-release-event",
       G_CALLBACK (on_button_release_event), (gpointer) machine);
+  g_signal_connect (widget, "key-release-event",
+      G_CALLBACK (on_key_release_event), (gpointer) machine);
   g_signal_connect (label, "button-press-event",
       G_CALLBACK (on_trigger_button_press_event), (gpointer) machine);
   g_signal_connect (label, "button-release-event",
