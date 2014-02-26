@@ -351,6 +351,33 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_main_page_machines_convert_coordinates (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtMainPageMachines *machines_page;
+  gdouble xr = 0.5, yr = -0.5;
+  gdouble xc, yc, xr2, yr2;
+
+  g_object_get (pages, "machines-page", &machines_page, NULL);
+  flush_main_loop ();
+
+  /* act */
+  bt_main_page_machines_relative_coords_to_canvas (machines_page, xr, yr, &xc,
+      &yc);
+  bt_main_page_machines_canvas_coords_to_relative (machines_page, xc, yc, &xr2,
+      &yr2);
+
+  /* assert */
+  ck_assert_float_eq (xr, xr2);
+  ck_assert_float_eq (yr, yr2);
+
+  /* cleanup */
+  g_object_unref (machines_page);
+  BT_TEST_END;
+}
+
 TCase *
 bt_main_page_machines_example_case (void)
 {
@@ -363,6 +390,7 @@ bt_main_page_machines_example_case (void)
   tcase_add_test (tc, test_bt_main_page_machines_remove_processor_machine);
   tcase_add_test (tc, test_bt_main_page_machines_remove_wire);
   tcase_add_test (tc, test_bt_main_page_machines_edit);
+  tcase_add_test (tc, test_bt_main_page_machines_convert_coordinates);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

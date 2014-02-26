@@ -429,17 +429,15 @@ machine_view_get_machine_position (GHashTable * properties, gdouble * pos_x,
   if (properties) {
     prop = (gchar *) g_hash_table_lookup (properties, "xpos");
     if (prop) {
-      *pos_x += MACHINE_VIEW_SIZE_X * g_ascii_strtod (prop, NULL);
+      *pos_x = g_ascii_strtod (prop, NULL);
       // do not g_free(prop);
-      //GST_DEBUG("  xpos: %+5.1f  %p=\"%s\"",*pos_x,prop,prop);
       res = TRUE;
     } else
       GST_WARNING ("no xpos property found");
     prop = (gchar *) g_hash_table_lookup (properties, "ypos");
     if (prop) {
-      *pos_y += MACHINE_VIEW_SIZE_Y * g_ascii_strtod (prop, NULL);
+      *pos_y = g_ascii_strtod (prop, NULL);
       // do not g_free(prop);
-      //GST_DEBUG("  ypos: %+5.1f  %p=\"%s\"",*pos_y,prop,prop);
       res &= TRUE;
     } else
       GST_WARNING ("no ypos property found");
@@ -656,7 +654,7 @@ machine_view_refresh (const BtMainPageMachines * self)
   BtMachineCanvasItem *src_machine_item, *dst_machine_item;
   BtMachine *machine, *src_machine, *dst_machine;
   BtWire *wire;
-  gdouble pos_x, pos_y;
+  gdouble xr, yr, xc, yc;
   GList *node, *list;
   gchar *prop;
 
@@ -701,11 +699,10 @@ machine_view_refresh (const BtMainPageMachines * self)
     machine = BT_MACHINE (node->data);
     // get position
     g_object_get (machine, "properties", &properties, NULL);
-    pos_x = self->priv->canvas_w / 2.0;
-    pos_y = self->priv->canvas_h / 2.0;
-    machine_view_get_machine_position (properties, &pos_x, &pos_y);
+    machine_view_get_machine_position (properties, &xr, &yr);
+    bt_main_page_machines_relative_coords_to_canvas (self, xr, yr, &xc, &yc);
     // draw machine
-    machine_item_new (self, machine, pos_x, pos_y);
+    machine_item_new (self, machine, xc, yc);
   }
   g_list_free (list);
 
@@ -855,15 +852,12 @@ machine_actor_update_bb (gpointer key, gpointer value, gpointer user_data)
 
 static void
 machine_actor_update_pos_and_bb (BtMainPageMachines * self, ClutterActor * ci,
-    gfloat cw, gfloat ch, gdouble * x, gdouble * y)
+    gdouble * x, gdouble * y)
 {
   gfloat px, py;
 
   clutter_actor_get_position (ci, &px, &py);
-  if (x && y) {
-    *x = (px - (cw / 2.0)) / cw;
-    *y = (py - (ch / 2.0)) / ch;
-  }
+  bt_main_page_machines_canvas_coords_to_relative (self, px, py, x, y);
 
   self->priv->mi_x = self->priv->ma_x = px;
   self->priv->mi_y = self->priv->ma_y = py;
@@ -882,16 +876,14 @@ on_machine_item_position_changed (BtMachineCanvasItem * machine_item,
   switch (ev_type) {
     case CLUTTER_BUTTON_PRESS:
       machine_actor_update_pos_and_bb (self, (ClutterActor *) machine_item,
-          self->priv->view_w, self->priv->view_h,
           &self->priv->machine_xo, &self->priv->machine_yo);
       break;
     case CLUTTER_MOTION:
       machine_actor_update_pos_and_bb (self, (ClutterActor *) machine_item,
-          0.0, 0.0, NULL, NULL);
+          NULL, NULL);
       break;
     case CLUTTER_BUTTON_RELEASE:
       machine_actor_update_pos_and_bb (self, (ClutterActor *) machine_item,
-          self->priv->view_w, self->priv->view_h,
           &self->priv->machine_xn, &self->priv->machine_yn);
       machine_item_moved (self, machine_item);
       break;
@@ -905,39 +897,39 @@ on_machine_added (BtSetup * setup, BtMachine * machine, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
   GHashTable *properties;
-  gdouble pos_x, pos_y;
+  gdouble xr, yr, xc, yc;
 
   GST_INFO_OBJECT (machine, "new machine added: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
   g_object_get (machine, "properties", &properties, NULL);
   if (properties) {
-    pos_x = self->priv->canvas_w / 2.0;
-    pos_y = self->priv->canvas_h / 2.0;
-    if (!machine_view_get_machine_position (properties, &pos_x, &pos_y)) {
+    if (!machine_view_get_machine_position (properties, &xr, &yr)) {
       gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-      pos_x = self->priv->mouse_x;
-      pos_y = self->priv->mouse_y;
+      xc = self->priv->mouse_x;
+      yc = self->priv->mouse_y;
+      bt_main_page_machines_canvas_coords_to_relative (self, xc, yc, &xr, &yr);
       g_hash_table_insert (properties, g_strdup ("xpos"),
-          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE,
-                  (pos_x / MACHINE_VIEW_SIZE_X))));
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, xr)));
       g_hash_table_insert (properties, g_strdup ("ypos"),
-          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE,
-                  (pos_y / MACHINE_VIEW_SIZE_Y))));
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, yr)));
+    } else {
+      bt_main_page_machines_relative_coords_to_canvas (self, xr, yr, &xc, &yc);
     }
   } else {
-    pos_x = self->priv->mouse_x;
-    pos_y = self->priv->mouse_y;
+    xc = self->priv->mouse_x;
+    yc = self->priv->mouse_y;
   }
-  self->priv->machine_xn = pos_x / MACHINE_VIEW_SIZE_X;
-  self->priv->machine_yn = pos_y / MACHINE_VIEW_SIZE_Y;
+  bt_main_page_machines_canvas_coords_to_relative (self, xc, yc, &xr, &yr);
+  self->priv->machine_xn = xc;
+  self->priv->machine_yn = yc;
 
   GST_DEBUG_OBJECT (machine,
-      "adding machine at %lf x %lf, mouse is at %lf x %lf", pos_x, pos_y,
+      "adding machine at %lf x %lf, mouse is at %lf x %lf", xc, yc,
       self->priv->mouse_x, self->priv->mouse_y);
 
   // draw machine
-  machine_item_new (self, machine, pos_x, pos_y);
+  machine_item_new (self, machine, xc, yc);
 
   GST_INFO_OBJECT (machine, "... machine added: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
@@ -1093,6 +1085,8 @@ on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
     ma_x = p->canvas_w / 2.0;
     ma_y = p->canvas_h / 2.0;
     machine_view_get_machine_position (properties, &ma_x, &ma_y);
+    bt_main_page_machines_relative_coords_to_canvas (self, ma_x, ma_y,
+        &ma_x, &ma_y);
     if (ma_x < ma_xs)
       ma_xs = ma_x;
     if (ma_x > ma_xe)
@@ -2203,7 +2197,7 @@ bt_main_page_machines_delete_wire (const BtMainPageMachines * self,
 /**
  * bt_main_page_machines_rename_machine:
  * @self: the machines page
- * @machine: the machine to renam
+ * @machine: the machine to rename
  *
  * Run the machine #BtMachineRenameDialog.
  */
@@ -2238,6 +2232,56 @@ bt_main_page_machines_rename_machine (const BtMainPageMachines * self,
     g_free (new_name);
   }
   gtk_widget_destroy (dialog);
+}
+
+/**
+ * bt_main_page_machines_canvas_coords_to_relative:
+ * @self: the machines page
+ * @xc: the x pixel position
+ * @yc: the y pixel position
+ * @xr: pointer to store the relative x position into
+ * @yr: pointer to store the relative y position into
+ *
+ * Convert the given canvas pixel coordinates into relative coordinates (with a
+ * range of -1.0 .. 1.0).
+ */
+void
+bt_main_page_machines_canvas_coords_to_relative (const BtMainPageMachines *
+    self, const gdouble xc, const gdouble yc, gdouble * xr, gdouble * yr)
+{
+  if (xr) {
+    gdouble cw = self->priv->canvas_w / 2.0;
+    *xr = (xc - cw) / MACHINE_VIEW_SIZE_X;
+  }
+  if (yr) {
+    gdouble ch = self->priv->canvas_h / 2.0;
+    *yr = (yc - ch) / MACHINE_VIEW_SIZE_Y;
+  }
+}
+
+/**
+ * bt_main_page_machines_relative_coords_to_canvas:
+ * @self: the machines page
+ * @xr: the relative x position
+ * @yr: the relative y position
+ * @xc: pointer to store the canvas x position into
+ * @yc: pointer to store the canvas y position into
+ *
+ * Convert the given relative coordinates (with a range of from -1.0 .. 1.0)
+ * into canvas pixel coordinates.
+ */
+void
+bt_main_page_machines_relative_coords_to_canvas (const BtMainPageMachines *
+    self, const gdouble xr, const gdouble yr, gdouble * xc, gdouble * yc)
+{
+  if (xc) {
+    gdouble cw = self->priv->canvas_w / 2.0;
+    *xc = cw + MACHINE_VIEW_SIZE_X * xr;
+  }
+  if (yc) {
+    gdouble ch = self->priv->canvas_h / 2.0;
+    *yc = ch + MACHINE_VIEW_SIZE_Y * yr;
+  }
 }
 
 //-- change logger interface
@@ -2322,25 +2366,26 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
       GST_DEBUG ("-> [%s|%s|%s]", mid, key, val);
       if ((machine = bt_setup_get_machine_by_id (self->priv->setup, mid))) {
         BtMachineCanvasItem *item;
-        gfloat pos;
         gboolean is_prop = FALSE;
         g_object_get (machine, "properties", &properties, NULL);
         res = TRUE;
         if (!strcmp (key, "xpos")) {
           if ((item = g_hash_table_lookup (self->priv->machines, machine))) {
-            pos = (MACHINE_VIEW_SIZE_X / 2.0) +
-                (MACHINE_VIEW_SIZE_X * g_ascii_strtod (val, NULL));
+            gdouble pos = g_ascii_strtod (val, NULL);
+            bt_main_page_machines_relative_coords_to_canvas (self, pos, 0.0,
+                &pos, NULL);
             GST_DEBUG ("xpos : %s -> %f", val, pos);
-            g_object_set (item, "x", pos, NULL);
+            g_object_set (item, "x", (gfloat) pos, NULL);
             g_signal_emit_by_name (item, "position-changed", 0, CLUTTER_MOTION);
           }
           is_prop = TRUE;
         } else if (!strcmp (key, "ypos")) {
           if ((item = g_hash_table_lookup (self->priv->machines, machine))) {
-            pos = (MACHINE_VIEW_SIZE_Y / 2.0) +
-                (MACHINE_VIEW_SIZE_Y * g_ascii_strtod (val, NULL));
+            gdouble pos = g_ascii_strtod (val, NULL);
+            bt_main_page_machines_relative_coords_to_canvas (self, 0.0, pos,
+                NULL, &pos);
             GST_DEBUG ("ypos : %s -> %f", val, pos);
-            g_object_set (item, "y", pos, NULL);
+            g_object_set (item, "y", (gfloat) pos, NULL);
             g_signal_emit_by_name (item, "position-changed", 0, CLUTTER_MOTION);
           }
           is_prop = TRUE;

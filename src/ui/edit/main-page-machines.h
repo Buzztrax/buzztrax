@@ -95,4 +95,7 @@ void bt_main_page_machines_delete_machine(const BtMainPageMachines *self, BtMach
 void bt_main_page_machines_delete_wire(const BtMainPageMachines *self, BtWire *wire);
 void bt_main_page_machines_rename_machine(const BtMainPageMachines *self, BtMachine *machine);
 
+void bt_main_page_machines_canvas_coords_to_relative(const BtMainPageMachines * self, const gdouble xc, const gdouble yc, gdouble *xr, gdouble *yr);
+void bt_main_page_machines_relative_coords_to_canvas(const BtMainPageMachines * self, const gdouble xr, const gdouble yr, gdouble *xc, gdouble *yc);
+
 #endif // BT_MAIN_PAGE_MACHINES_H
