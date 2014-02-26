@@ -1717,7 +1717,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   // so this is probably meant for e.g. undo, where the button undos and the
   // menu allows to undo up to a certain step
   image =
-      gtk_image_new_from_icon_name ("buzztrax_menu_grid", GTK_ICON_SIZE_MENU);
+      gtk_image_new_from_icon_name ("view-grid-symbolic", GTK_ICON_SIZE_MENU);
   tool_item = gtk_menu_tool_button_new (image, _("Grid"));
   gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (tool_item),
       GTK_WIDGET (self->priv->grid_density_menu));
@@ -1728,7 +1728,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   //g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
 #else
   image =
-      gtk_image_new_from_icon_name ("buzztrax_menu_grid", GTK_ICON_SIZE_MENU);
+      gtk_image_new_from_icon_name ("view-grid-symbolic", GTK_ICON_SIZE_MENU);
   tool_item = gtk_tool_button_new (image, _("Grid"));
   gtk_tool_item_set_tooltip_text (tool_item, _("Show background grid"));
   gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar), tool_item, -1);
@@ -1742,7 +1742,9 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
 #endif
 
   // popup menu button
-  image = gtk_image_new_from_filename ("popup-menu.png");
+  image =
+      gtk_image_new_from_icon_name ("emblem-system-symbolic",
+      GTK_ICON_SIZE_MENU);
   tool_item = gtk_tool_button_new (image, _("Machine view menu"));
   gtk_tool_item_set_tooltip_text (tool_item,
       _("Menu actions for machine view below"));
@@ -1777,8 +1779,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
       G_CALLBACK (on_canvas_size_changed), (gpointer) self);
   self->priv->stage =
-      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
-          priv->canvas_widget));
+      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->priv->
+          canvas_widget));
   GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
   GdkColor *c = &style->bg[GTK_STATE_NORMAL];
   ClutterColor stage_color = {
@@ -1826,8 +1828,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->vol_popup_adj =
       gtk_adjustment_new (100.0, 0.0, 400.0, 1.0, 10.0, 1.0);
   self->priv->vol_popup =
-      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->priv->
-              vol_popup_adj)));
+      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->
+              priv->vol_popup_adj)));
   g_signal_connect (self->priv->vol_popup_adj, "value-changed",
       G_CALLBACK (on_volume_popup_changed), (gpointer) self);
 
@@ -1835,8 +1837,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->pan_popup_adj =
       gtk_adjustment_new (0.0, -100.0, 100.0, 1.0, 10.0, 1.0);
   self->priv->pan_popup =
-      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->priv->
-              pan_popup_adj)));
+      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->
+              priv->pan_popup_adj)));
   g_signal_connect (self->priv->pan_popup_adj, "value-changed",
       G_CALLBACK (on_panorama_popup_changed), (gpointer) self);
 

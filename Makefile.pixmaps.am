@@ -3,7 +3,6 @@
 ## FIXME: move those to theme icons
 pixmapdatadir = $(datadir)/$(PACKAGE)/pixmaps
 pixmapdata_DATA = \
-	pixmaps/popup-menu.png \
 	pixmaps/prefs-audio-card.png pixmaps/prefs-input-gaming.png pixmaps/prefs-input-keyboard.png \
 	pixmaps/stock_repeat.png pixmaps/stock_volume.png
 
@@ -21,7 +20,6 @@ hicolor_icon16_DATA = pixmaps/hicolor/16x16/buzztrax.png \
 
 hicolor_icon24dir = $(hicolor_iconthemedir)/24x24/apps
 hicolor_icon24_DATA = \
-	pixmaps/hicolor/24x24/buzztrax_menu_grid.png \
 	pixmaps/hicolor/24x24/buzztrax_menu_processor_machine.png \
 	pixmaps/hicolor/24x24/buzztrax_menu_sink_machine.png \
 	pixmaps/hicolor/24x24/buzztrax_menu_source_machine.png
@@ -50,7 +48,6 @@ gnome_icon22_DATA = pixmaps/gnome/22x22/buzztrax.png
 
 gnome_icon24dir = $(gnome_iconthemedir)/24x24/apps
 gnome_icon24_DATA = pixmaps/gnome/24x24/buzztrax.png \
-	pixmaps/gnome/24x24/buzztrax_menu_grid.png \
 	pixmaps/gnome/24x24/buzztrax_menu_processor_machine.png \
 	pixmaps/gnome/24x24/buzztrax_menu_sink_machine.png \
 	pixmaps/gnome/24x24/buzztrax_menu_source_machine.png
