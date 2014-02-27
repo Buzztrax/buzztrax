@@ -442,7 +442,8 @@ test_bt_setup_dynamic_add_proc (BT_TEST_ARGS)
 }
 
 /*
- * check if we can disconnect a processor machine to a src and sink while playing
+ * check if we can disconnect a processor machine from a src and sink while
+ * playing
  */
 static void
 test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
@@ -460,7 +461,7 @@ test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
           NULL));
   BtMachine *proc =
       BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0, NULL));
-  bt_wire_new (song, gen1, proc, NULL);
+  bt_wire_new (song, gen1, sink, NULL);
   BtWire *wire2 = bt_wire_new (song, gen1, proc, NULL);
   BtWire *wire3 = bt_wire_new (song, proc, sink, NULL);
   GstElement *element1 =
@@ -502,8 +503,11 @@ test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
 /*
 // We can't implement these below, as songs without atleast 1 src..sink chain
 // wont play. Also when we disconnect the last, the song stops.
-// Maybe we should consider to have a permanent silent-src -> master (inside
-// sink-bin).
+// Maybe we should consider to have a permanent silent-src -> master:
+// - We can't du it in sink-bin as this has a static sink-pad
+// - We could do it in bt_sink_machine_constructed. After the internal elements
+//   including adder are activated, we can request a pad on adder and link
+//   a "audiotestsrc wave=silence "to it.
 
 // initially only master
 test_bt_setup_dynamic_add_only_src
