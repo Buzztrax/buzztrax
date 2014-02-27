@@ -214,13 +214,6 @@
  *
  * --
  *
- * We could have an alternative data-structure in setup:
- * struct Connection[num_src][num_dst]
- * but its not giving much benefit actually
- * We could print the song-graph as a matrix for debugging purposes
- *
- * --
- *
  * We could have a GHashMap for wires and machines in setup to track if they are
  * added or not. Then check_connected() can be made two pass.
  * - GEnum BtSetupConnectionState={DISCONNECTED,DISCONNECTING,CONNECTING,CONNECTED}
@@ -262,14 +255,6 @@
  *   element is closest to the sink, in the stop (=del) case the last one
  *   is closest to the sink
  * - as we operate push based, we use GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM
- *
- * - add:
- *   - add machines and wires
- *   - link all, but the last one in the list
- *   - call link_wire() with a flag to use pad_blocking in the
- *     "link start of wire" path
- *
- * - rem:
  */
 /* TODO(ensonic):
  * - each time we/add remove a wire, we update the whole graph. Would be nice
@@ -323,6 +308,20 @@ typedef enum
   CS_CONNECTING,
   CS_CONNECTED
 } BtSetupConnectionState;
+
+#ifndef GST_DISABLE_DEBUG
+static gchar *_connection_state_names[] = {
+  "null",
+  "disconnected",
+  "disconnecting",
+  "connecting",
+  "connected"
+};
+
+#define CONNECTION_STATE_NAME(x) _connection_state_names[(x)]
+#else
+#define CONNECTION_STATE_NAME(x) ""
+#endif
 
 #define GET_CONNECTION_STATE(self,bin) \
   GPOINTER_TO_INT(g_hash_table_lookup(self->priv->connection_state,(gpointer)bin))
@@ -555,12 +554,16 @@ link_wire_end (const BtSetup * const self, GstElement * wire,
   }
 
   if (dir == GST_PAD_SRC) {
+    GST_INFO_OBJECT (wire, "src peer: connection-state=%s",
+        CONNECTION_STATE_NAME (GET_CONNECTION_STATE (self, elem)));
     if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (pad, peer))) {
       GST_WARNING_OBJECT (wire, "Can't link %s of wire : %s", side,
           bt_gst_debug_pad_link_return (link_res, pad, peer));
       res = FALSE;
     }
   } else {
+    GST_INFO_OBJECT (wire, "sink peer: connection-state=%s",
+        CONNECTION_STATE_NAME (GET_CONNECTION_STATE (self, elem)));
     if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (peer, pad))) {
       GST_WARNING_OBJECT (wire, "Can't link %s of wire : %s", side,
           bt_gst_debug_pad_link_return (link_res, peer, pad));
@@ -604,6 +607,8 @@ unlink_wire (const BtSetup * const self, GstElement * wire)
   src_pad = gst_element_get_static_pad (wire, "src");
   GST_INFO_OBJECT (src_pad, "unlinking end of wire");
   if ((dst_pad = gst_pad_get_peer (src_pad))) {
+    GST_INFO_OBJECT (wire, "src peer: connection-state=%s",
+        CONNECTION_STATE_NAME (GET_CONNECTION_STATE (self, dst)));
     gst_pad_unlink (src_pad, dst_pad);
     gst_element_release_request_pad (dst, dst_pad);
     // unref twice: one for gst_pad_get_peer() and once for the request_pad
@@ -619,6 +624,8 @@ unlink_wire (const BtSetup * const self, GstElement * wire)
   dst_pad = gst_element_get_static_pad (wire, "sink");
   GST_INFO_OBJECT (dst_pad, "unlinking start of wire");
   if ((src_pad = gst_pad_get_peer (dst_pad))) {
+    GST_INFO_OBJECT (wire, "sink peer: connection-state=%s",
+        CONNECTION_STATE_NAME (GET_CONNECTION_STATE (self, src)));
     gst_pad_unlink (src_pad, dst_pad);
     gst_element_release_request_pad (src, src_pad);
     // unref twice: one for gst_pad_get_peer() and once for the request_pad
@@ -1040,11 +1047,8 @@ update_connection_states (gpointer key, gpointer value, gpointer user_data)
 {
   const BtSetup *const self = BT_SETUP (user_data);
 
-#ifndef GST_DISABLE_GST_DEBUG
-  gchar *states[] =
-      { "-", "disconnected", "disconnecting", "connecting", "connected" };
-  GST_INFO_OBJECT (key, "%s", states[GPOINTER_TO_INT (value)]);
-#endif
+  GST_INFO_OBJECT (key, "connection-state: %s",
+      CONNECTION_STATE_NAME (GPOINTER_TO_INT (value)));
 
   if (GPOINTER_TO_INT (value) == CS_CONNECTING) {
     set_connected (self, GST_BIN (key));
@@ -1056,16 +1060,20 @@ update_connection_states (gpointer key, gpointer value, gpointer user_data)
 /* {add|del}_wire_in_pipeline can add pads to the self->priv->blocked_pads list
  * from {link|unlink}_wire. this is more complicated that it needs to be.
  *
- * 1.) when (un)linking a sink pad on an active element hat operates in
- *     push mode, we only need to block the most downstream src-pad
- *     (either g_list_first(wires_to_add):src or g_list_last(wires_to_del):src)
- * 2.) when (un)linking a src pad on an active element hat operates in push
- *     mode, we only need to block the pad itself
+ * 1.) We operate in push mode. We want priv->changed_wire the change wire that
+ *     is the farest away from the master (largest depth) and not just a boolean
+ *     flag.
  *
- * 3.) we either add or remove stuff on exactly on pad at a time in practice
+ * 2.) When linking wires (in add_wire_in_pipeline() -> link_wire_end()), we
+ *     need to block the  src-request-pad on already active elements
+ *     (GET_CONNECTION_STATE (self, elem) == CS_CONNECTED) and link from the
+ *     block callback. Also all the remaning code from add_to_pipeline() needs
+ *     to go to the callback.
  *
- * this should make it easier to split the update into two parts to correctly
- * handle the async pad blocking
+ * 3.) When unlinking wires (in del_wire_in_pipeline() -> unlink_wire()), we
+ *     need to block the src-pad of the already active peer, and unlink from the
+ *     block callback. Also all the remaning code from remove_from_pipeline()
+ *     needs to go to the callback.  
  */
 static void
 add_to_pipeline (const BtSetup * const self)
