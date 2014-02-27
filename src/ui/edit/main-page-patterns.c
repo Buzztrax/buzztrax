@@ -2916,9 +2916,10 @@ static void
 bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
     const BtMainPages * pages)
 {
-  GtkWidget *toolbar, *tool_item, *box;
+  GtkWidget *toolbar, *box;
   GtkWidget *scrolled_window;
   GtkWidget *menu_item, *image;
+  GtkToolItem *tool_item;
   GtkCellRenderer *renderer;
   BtSettings *settings;
   gint i;
@@ -2965,10 +2966,10 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->machine_menu),
       TRUE, TRUE, 2);
 
-  tool_item = GTK_WIDGET (gtk_tool_item_new ());
-  gtk_widget_set_name (tool_item, "Machine");
+  tool_item = gtk_tool_item_new ();
+  gtk_widget_set_name (GTK_WIDGET (tool_item), "Machine");
   gtk_container_add (GTK_CONTAINER (tool_item), box);
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
 
 #ifndef USE_COMPACT_UI
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
@@ -2998,10 +2999,10 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
       g_signal_connect (self->priv->pattern_menu, "changed",
       G_CALLBACK (on_pattern_menu_changed), (gpointer) self);
 
-  tool_item = GTK_WIDGET (gtk_tool_item_new ());
-  gtk_widget_set_name (tool_item, "Pattern");
+  tool_item = gtk_tool_item_new ();
+  gtk_widget_set_name (GTK_WIDGET (tool_item), "Pattern");
   gtk_container_add (GTK_CONTAINER (tool_item), box);
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
 
 #ifndef USE_COMPACT_UI
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
@@ -3036,10 +3037,10 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
       TRUE, TRUE, 2);
   //g_signal_connect(self->priv->wavetable_menu, "changed", G_CALLBACK(on_wavetable_menu_changed), (gpointer)self);
 
-  tool_item = GTK_WIDGET (gtk_tool_item_new ());
-  gtk_widget_set_name (tool_item, "Wave");
+  tool_item = gtk_tool_item_new ();
+  gtk_widget_set_name (GTK_WIDGET (tool_item), "Wave");
   gtk_container_add (GTK_CONTAINER (tool_item), box);
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
 
 #ifndef USE_COMPACT_UI
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
@@ -3066,10 +3067,10 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   g_signal_connect (self->priv->base_octave_menu, "changed",
       G_CALLBACK (on_base_octave_menu_changed), (gpointer) self);
 
-  tool_item = GTK_WIDGET (gtk_tool_item_new ());
-  gtk_widget_set_name (tool_item, "Octave");
+  tool_item = gtk_tool_item_new ();
+  gtk_widget_set_name (GTK_WIDGET (tool_item), "Octave");
   gtk_container_add (GTK_CONTAINER (tool_item), box);
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
 
 #ifndef USE_COMPACT_UI
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
@@ -3077,29 +3078,31 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
 #endif
 
   // add play live toggle tool button
-  tool_item = GTK_WIDGET (gtk_toggle_tool_button_new ());
+  tool_item = gtk_toggle_tool_button_new ();
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (tool_item),
       gtk_image_new_from_filename ("stock_volume.png"));
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (tool_item), _("Play live"));
-  gtk_widget_set_name (tool_item, "Play live");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
+  gtk_widget_set_name (GTK_WIDGET (tool_item), "Play live");
+  gtk_tool_item_set_tooltip_text (tool_item,
       _("Play notes and triggers while editing the pattern"));
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_signal_connect (tool_item, "toggled", G_CALLBACK (on_play_live_toggled),
       (gpointer) self);
 
-#ifndef USE_COMPACT_UI
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
-      -1);
-#endif
+  // all that follow is right aligned
+  tool_item = gtk_separator_tool_item_new ();
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
+  g_object_set (tool_item, "draw", FALSE, NULL);
+  gtk_container_child_set (GTK_CONTAINER (toolbar), GTK_WIDGET (tool_item),
+      "expand", TRUE, NULL);
 
   // popup menu button
   image = gtk_image_new_from_icon_name ("emblem-system-symbolic",
       GTK_ICON_SIZE_MENU);
-  tool_item = GTK_WIDGET (gtk_tool_button_new (image, _("Pattern view menu")));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
+  tool_item = gtk_tool_button_new (image, _("Pattern view menu"));
+  gtk_tool_item_set_tooltip_text (tool_item,
       _("Menu actions for pattern view below"));
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_menu_clicked),
       (gpointer) self);
 

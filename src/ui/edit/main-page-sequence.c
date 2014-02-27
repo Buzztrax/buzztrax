@@ -3534,10 +3534,11 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
     const BtMainPages * pages)
 {
   GtkWidget *toolbar;
-  GtkWidget *split_box, *box, *table, *tool_item;
+  GtkWidget *split_box, *box, *table;
   GtkWidget *scrolled_window, *scrolled_vsync_window, *scrolled_hsync_window;
   GtkWidget *hsync_viewport;
   GtkWidget *menu_item, *image, *check_button;
+  GtkToolItem *tool_item;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
   GtkTreeSelection *tree_sel;
@@ -3575,10 +3576,10 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->bars_menu), TRUE,
       TRUE, 2);
 
-  tool_item = GTK_WIDGET (gtk_tool_item_new ());
-  gtk_widget_set_name (tool_item, "Steps");
+  tool_item = gtk_tool_item_new ();
+  gtk_widget_set_name (GTK_WIDGET (tool_item), "Steps");
   gtk_container_add (GTK_CONTAINER (tool_item), box);
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
 
 #ifndef USE_COMPACT_UI
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
@@ -3592,23 +3593,24 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
       G_CALLBACK (on_follow_playback_toggled), (gpointer) self);
   self->priv->follow_playback_button = (GtkToggleButton *) check_button;
 
-  tool_item = GTK_WIDGET (gtk_tool_item_new ());
+  tool_item = gtk_tool_item_new ();
   gtk_container_add (GTK_CONTAINER (tool_item), check_button);
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
 
-
-#ifndef USE_COMPACT_UI
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
-      -1);
-#endif
+  // all that follow is right aligned
+  tool_item = gtk_separator_tool_item_new ();
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
+  g_object_set (tool_item, "draw", FALSE, NULL);
+  gtk_container_child_set (GTK_CONTAINER (toolbar), GTK_WIDGET (tool_item),
+      "expand", TRUE, NULL);
 
   // popup menu button
   image = gtk_image_new_from_icon_name ("emblem-system-symbolic",
       GTK_ICON_SIZE_MENU);
-  tool_item = GTK_WIDGET (gtk_tool_button_new (image, _("Sequence view menu")));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
+  tool_item = gtk_tool_button_new (image, _("Sequence view menu"));
+  gtk_tool_item_set_tooltip_text (tool_item,
       _("Menu actions for sequence view below"));
-  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_menu_clicked),
       (gpointer) self);
 

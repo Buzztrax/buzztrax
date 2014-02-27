@@ -1713,7 +1713,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
 
   // grid density toolbar icon
 #ifdef GRID_USES_MENU_TOOL_ITEM
-  // this is weird, we and up with a button and a menu, instead of a joint thing
+  // this is weird, we end up with a button and a menu, instead of a joint thing
   // so this is probably meant for e.g. undo, where the button undos and the
   // menu allows to undo up to a certain step
   image =
@@ -1736,14 +1736,15 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
       (gpointer) self);
 #endif
 
-#ifndef USE_COMPACT_UI
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar),
-      gtk_separator_tool_item_new (), -1);
-#endif
+  // all that follow is right aligned
+  tool_item = gtk_separator_tool_item_new ();
+  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar), tool_item, -1);
+  g_object_set (tool_item, "draw", FALSE, NULL);
+  gtk_container_child_set (GTK_CONTAINER (self->priv->toolbar),
+      GTK_WIDGET (tool_item), "expand", TRUE, NULL);
 
   // popup menu button
-  image =
-      gtk_image_new_from_icon_name ("emblem-system-symbolic",
+  image = gtk_image_new_from_icon_name ("emblem-system-symbolic",
       GTK_ICON_SIZE_MENU);
   tool_item = gtk_tool_button_new (image, _("Machine view menu"));
   gtk_tool_item_set_tooltip_text (tool_item,
@@ -1779,8 +1780,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
       G_CALLBACK (on_canvas_size_changed), (gpointer) self);
   self->priv->stage =
-      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->priv->
-          canvas_widget));
+      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
+          priv->canvas_widget));
   GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
   GdkColor *c = &style->bg[GTK_STATE_NORMAL];
   ClutterColor stage_color = {
@@ -1828,8 +1829,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->vol_popup_adj =
       gtk_adjustment_new (100.0, 0.0, 400.0, 1.0, 10.0, 1.0);
   self->priv->vol_popup =
-      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->
-              priv->vol_popup_adj)));
+      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->priv->
+              vol_popup_adj)));
   g_signal_connect (self->priv->vol_popup_adj, "value-changed",
       G_CALLBACK (on_volume_popup_changed), (gpointer) self);
 
@@ -1837,8 +1838,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->pan_popup_adj =
       gtk_adjustment_new (0.0, -100.0, 100.0, 1.0, 10.0, 1.0);
   self->priv->pan_popup =
-      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->
-              priv->pan_popup_adj)));
+      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->priv->
+              pan_popup_adj)));
   g_signal_connect (self->priv->pan_popup_adj, "value-changed",
       G_CALLBACK (on_panorama_popup_changed), (gpointer) self);
 
