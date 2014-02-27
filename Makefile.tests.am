@@ -276,6 +276,20 @@ test-clean-local:
 	@$(TESTS_ENVIRONMENT)	\
 	./$*
 
+LOOPS ?= 10
+# make (test).loop     -- run the given check 10 times
+# make (test).loop LOOPS=20 -- run the given check 20 times
+%.loop: %
+	@for i in `seq 1 $(LOOPS)`; do \
+	$(TESTS_ENVIRONMENT) \
+	./$*; done
+
+# make (test).forever  -- run the given check indefinitely
+%.forever: %
+	@while true; do	\
+	$(TESTS_ENVIRONMENT) \
+	./$* || break; done
+
 # make (test).gdb      -- start up gdb for the given test
 %.gdb: %
 	@CK_FORK=no		\
