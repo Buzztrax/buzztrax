@@ -553,17 +553,15 @@ link_wire_end (const BtSetup * const self, GstElement * wire,
     goto Error;
   }
 
+  GST_INFO_OBJECT (wire, "%s peer: connection-state=%s", side,
+      CONNECTION_STATE_NAME (GET_CONNECTION_STATE (self, elem)));
   if (dir == GST_PAD_SRC) {
-    GST_INFO_OBJECT (wire, "src peer: connection-state=%s",
-        CONNECTION_STATE_NAME (GET_CONNECTION_STATE (self, elem)));
     if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (pad, peer))) {
       GST_WARNING_OBJECT (wire, "Can't link %s of wire : %s", side,
           bt_gst_debug_pad_link_return (link_res, pad, peer));
       res = FALSE;
     }
   } else {
-    GST_INFO_OBJECT (wire, "sink peer: connection-state=%s",
-        CONNECTION_STATE_NAME (GET_CONNECTION_STATE (self, elem)));
     if (GST_PAD_LINK_FAILED (link_res = gst_pad_link (peer, pad))) {
       GST_WARNING_OBJECT (wire, "Can't link %s of wire : %s", side,
           bt_gst_debug_pad_link_return (link_res, peer, pad));
@@ -587,8 +585,8 @@ link_wire (const BtSetup * const self, GstElement * wire)
 
   g_object_get (wire, "src", &src, "dst", &dst, NULL);
 
-  res = link_wire_end (self, wire, dst, GST_PAD_SRC)
-      && link_wire_end (self, wire, src, GST_PAD_SINK);
+  res = link_wire_end (self, wire, dst, GST_PAD_SRC);
+  res &= link_wire_end (self, wire, src, GST_PAD_SINK);
 
   g_object_unref (src);
   g_object_unref (dst);
@@ -596,46 +594,44 @@ link_wire (const BtSetup * const self, GstElement * wire)
 }
 
 static void
+unlink_wire_end (const BtSetup * const self, GstElement * wire,
+    GstElement * elem, GstPadDirection dir)
+{
+  GstPad *pad, *peer;
+  gchar *side = (dir == GST_PAD_SRC) ? "end" : "start";
+  gchar *pad_name = (dir == GST_PAD_SRC) ? "src" : "sink";
+
+  pad = gst_element_get_static_pad (wire, pad_name);
+  GST_INFO_OBJECT (pad, "unlinking %s of wire", side);
+  if ((peer = gst_pad_get_peer (pad))) {
+    GST_INFO_OBJECT (wire, "%s peer: connection-state=%s", side,
+        CONNECTION_STATE_NAME (GET_CONNECTION_STATE (self, elem)));
+
+    if (dir == GST_PAD_SRC) {
+      gst_pad_unlink (pad, peer);
+    } else {
+      gst_pad_unlink (peer, pad);
+    }
+    gst_element_release_request_pad (elem, peer);
+    // unref twice: one for gst_pad_get_peer() and once for the request_pad
+    gst_object_unref (peer);
+    gst_object_unref (peer);
+  } else {
+    GST_WARNING_OBJECT (pad, "wire %s is not linked to %s", side,
+        GST_OBJECT_NAME (elem));
+  }
+  gst_object_unref (pad);
+}
+
+static void
 unlink_wire (const BtSetup * const self, GstElement * wire)
 {
   GstElement *src, *dst;
-  GstPad *src_pad, *dst_pad;
 
   g_object_get (wire, "src", &src, "dst", &dst, NULL);
 
-  // unlink end of wire
-  src_pad = gst_element_get_static_pad (wire, "src");
-  GST_INFO_OBJECT (src_pad, "unlinking end of wire");
-  if ((dst_pad = gst_pad_get_peer (src_pad))) {
-    GST_INFO_OBJECT (wire, "src peer: connection-state=%s",
-        CONNECTION_STATE_NAME (GET_CONNECTION_STATE (self, dst)));
-    gst_pad_unlink (src_pad, dst_pad);
-    gst_element_release_request_pad (dst, dst_pad);
-    // unref twice: one for gst_pad_get_peer() and once for the request_pad
-    gst_object_unref (dst_pad);
-    gst_object_unref (dst_pad);
-  } else {
-    GST_WARNING_OBJECT (src_pad, "wire is not linked to dst %s",
-        GST_OBJECT_NAME (dst));
-  }
-  gst_object_unref (src_pad);
-
-  // unlink start of wire
-  dst_pad = gst_element_get_static_pad (wire, "sink");
-  GST_INFO_OBJECT (dst_pad, "unlinking start of wire");
-  if ((src_pad = gst_pad_get_peer (dst_pad))) {
-    GST_INFO_OBJECT (wire, "sink peer: connection-state=%s",
-        CONNECTION_STATE_NAME (GET_CONNECTION_STATE (self, src)));
-    gst_pad_unlink (src_pad, dst_pad);
-    gst_element_release_request_pad (src, src_pad);
-    // unref twice: one for gst_pad_get_peer() and once for the request_pad
-    gst_object_unref (src_pad);
-    gst_object_unref (src_pad);
-  } else {
-    GST_WARNING_OBJECT (dst_pad, "wire is not linked to src %s",
-        GST_OBJECT_NAME (src));
-  }
-  gst_object_unref (dst_pad);
+  unlink_wire_end (self, wire, dst, GST_PAD_SRC);
+  unlink_wire_end (self, wire, src, GST_PAD_SINK);
 
   g_object_unref (src);
   g_object_unref (dst);
