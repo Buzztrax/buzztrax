@@ -360,7 +360,7 @@ struct _BtSetupPrivate
   /* list of elements to add+play or stop+remove, in topological order */
   GList *elements_to_play, *elements_to_stop;
   /* the update adds or removes one or more wires */
-  gboolean changed_wire;
+  BtWire *wire_to_block;
 
   /* see/newsegment event for dynamically added elements */
   GstEvent *play_seek_event;
@@ -854,6 +854,18 @@ sort_by_graph_depth_desc (gconstpointer e1, gconstpointer e2,
 }
 
 static void
+track_most_upstream_wire (const BtSetup * const self, gpointer key)
+{
+  BtSetupPrivate *const p = self->priv;
+
+  if (BT_IS_WIRE (key)) {
+    if (GET_GRAPH_DEPTH (self, key) > GET_GRAPH_DEPTH (self, p->wire_to_block)) {
+      p->wire_to_block = key;
+    }
+  }
+}
+
+static void
 prepare_add_del (gpointer key, gpointer value, gpointer user_data)
 {
   const BtSetup *const self = BT_SETUP (user_data);
@@ -866,8 +878,7 @@ prepare_add_del (gpointer key, gpointer value, gpointer user_data)
     p->elements_to_play =
         g_list_insert_sorted_with_data (p->elements_to_play, key,
         sort_by_graph_depth_asc, (gpointer) self);
-    if (BT_IS_WIRE (key))
-      p->changed_wire = TRUE;
+    track_most_upstream_wire (self, key);
   } else if (GPOINTER_TO_INT (value) == CS_DISCONNECTING) {
     // list starts with elements away from the sink
     GST_DEBUG_OBJECT (GST_OBJECT (key), "added to stop list with depth=%d",
@@ -875,8 +886,7 @@ prepare_add_del (gpointer key, gpointer value, gpointer user_data)
     p->elements_to_stop =
         g_list_insert_sorted_with_data (p->elements_to_stop, key,
         sort_by_graph_depth_desc, (gpointer) self);
-    if (BT_IS_WIRE (key))
-      p->changed_wire = TRUE;
+    track_most_upstream_wire (self, key);
   }
 }
 
@@ -1057,20 +1067,20 @@ update_connection_states (gpointer key, gpointer value, gpointer user_data)
   }
 }
 
-/* {add|del}_wire_in_pipeline can add pads to the self->priv->blocked_pads list
- * from {link|unlink}_wire. this is more complicated that it needs to be.
+/* support dynamic (un)linking (while playing):
  *
- * 1.) We operate in push mode. We want priv->changed_wire the change wire that
- *     is the farest away from the master (largest depth) and not just a boolean
- *     flag.
+ * Some facts:
+ * 1.) We operate in push mode.
+ * 2.) We don't care about adding removing machines
  *
- * 2.) When linking wires (in add_wire_in_pipeline() -> link_wire_end()), we
+ * HowTo:
+ * 1.) When linking wires (in add_wire_in_pipeline() -> link_wire_end()), we
  *     need to block the  src-request-pad on already active elements
  *     (GET_CONNECTION_STATE (self, elem) == CS_CONNECTED) and link from the
  *     block callback. Also all the remaning code from add_to_pipeline() needs
  *     to go to the callback.
  *
- * 3.) When unlinking wires (in del_wire_in_pipeline() -> unlink_wire()), we
+ * 2.) When unlinking wires (in del_wire_in_pipeline() -> unlink_wire()), we
  *     need to block the src-pad of the already active peer, and unlink from the
  *     block callback. Also all the remaning code from remove_from_pipeline()
  *     needs to go to the callback.  
@@ -1085,7 +1095,8 @@ add_to_pipeline (const BtSetup * const self)
   update_play_seek_event (self);
 #else
   gboolean cont = FALSE;
-  if (self->priv->changed_wire) {
+  if (self->priv->wire_to_block) {
+    GST_INFO_OBJECT (self->priv->wire_to_block, "have first wire");
     if ((cont = bt_song_update_playback_position (self->priv->song))) {
       bt_song_stop (self->priv->song);
     }
@@ -1129,7 +1140,8 @@ remove_from_pipeline (const BtSetup * const self)
   update_play_seek_event (self);
 #else
   gboolean cont = FALSE;
-  if (self->priv->changed_wire) {
+  if (self->priv->wire_to_block) {
+    GST_INFO_OBJECT (self->priv->wire_to_block, "have first wire");
     if ((cont = bt_song_update_playback_position (self->priv->song))) {
       bt_song_stop (self->priv->song);
     }
@@ -1204,11 +1216,9 @@ bt_setup_update_pipeline (const BtSetup * const self)
   }
   g_list_free (not_visited_machines);
 
-  // do *one* g_hash_table_foreach:
-  // - topologically sort machines and wires into 2 lists
-  // - builds elements_to_stop list
+  // builds elements_to_{stop,play} lists
   GST_INFO ("determine state change lists and add/del lists");
-  self->priv->changed_wire = FALSE;
+  self->priv->wire_to_block = NULL;
   g_hash_table_foreach (self->priv->connection_state, prepare_add_del,
       (gpointer) self);
 
