@@ -1,5 +1,17 @@
 /* custom styles for buzztrax-edit */
 
+/* row shading for treeview */
+
+@define-color row_even #FFFFFF;
+@define-color row_odd #E0E0E0;
+
+BtSequenceView row:nth-child(even) { 
+    background-color: @row_even; 
+} 
+BtSequenceView row:nth-child(odd) {
+    background-color: @row_odd;
+}
+
 /* less spacious treeview */
 
 BtSequenceView, #sequence-pattern-list, #wave-level-list, #wave-list {
