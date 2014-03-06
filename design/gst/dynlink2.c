@@ -1,6 +1,5 @@
 /* test dynamic linking
  *
- * gcc -Wall -g dynlink2.c -o dynlink2 `pkg-config gstreamer-0.10 --cflags --libs`
  * gcc -Wall -g dynlink2.c -o dynlink2 `pkg-config gstreamer-1.0 --cflags --libs`
  * GST_DEBUG="*:2" ./dynlink2
  * GST_DEBUG_DUMP_DOT_DIR=$PWD ./dynlink2
@@ -51,10 +50,10 @@ typedef struct
   GstBin *bin;
   GstElement *q;
   Machine *ms, *md;
-  // element pads and ghost pad for bin
+  // wire pads and ghost pad for bin
   GstPad *s, *sg;
   GstPad *d, *dg;
-  // peer tee/mix request pad and ghost pad for bin
+  // machine peer tee/mix request pad and ghost pad for bin
   GstPad *ps, *psg;
   GstPad *pd, *pdg;
   // activate/deactivate when linking/unlinking
@@ -158,13 +157,8 @@ make_sink (Graph * g, const gchar * m_name)
   return (m);
 }
 
-#if GST_CHECK_VERSION(1,0,0)
 static GstPadProbeReturn
 post_link_add (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
-#else
-static void
-post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
-#endif
 {
   Wire *w = (Wire *) user_data;
   Machine *ms = w->ms, *md = w->md;
@@ -196,18 +190,11 @@ post_link_add (GstPad * pad, gboolean blocked, gpointer user_data)
     scr = gst_element_set_state ((GstElement *) md->bin, GST_STATE_PLAYING);
     g_assert (scr != GST_STATE_CHANGE_FAILURE);
   }
-  // unblock w->psg
-#if !GST_CHECK_VERSION(1,0,0)
-  if (pad)
-    gst_pad_set_blocked (pad, FALSE);
-#endif
 
   GST_WARNING ("+ link %s -> %s done", GST_OBJECT_NAME (ms->bin),
       GST_OBJECT_NAME (md->bin));
 
-#if GST_CHECK_VERSION(1,0,0)
   return GST_PAD_PROBE_REMOVE;
-#endif
 }
 
 static void
@@ -278,28 +265,15 @@ link_add (Graph * g, gint s, gint d)
   // - before adding?, no, elements are in locked state
   // - before linking!
   if (!w->as && GST_STATE (g->bin) == GST_STATE_PLAYING) {
-#if GST_CHECK_VERSION(1,0,0)
     gst_pad_add_probe (w->psg, GST_PAD_PROBE_TYPE_BLOCK,
         post_link_add, w, NULL);
-#else
-    gst_pad_set_blocked_async (w->psg, TRUE, post_link_add, w);
-#endif
   } else {
-#if GST_CHECK_VERSION(1,0,0)
     post_link_add (NULL, NULL, w);
-#else
-    post_link_add (NULL, TRUE, w);
-#endif
   }
 }
 
-#if GST_CHECK_VERSION(1,0,0)
 static GstPadProbeReturn
 post_link_rem (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
-#else
-static void
-post_link_rem (GstPad * pad, gboolean blocked, gpointer user_data)
-#endif
 {
   Wire *w = (Wire *) user_data;
   Machine *ms = w->ms, *md = w->md;
@@ -348,15 +322,9 @@ post_link_rem (GstPad * pad, gboolean blocked, gpointer user_data)
   gst_object_unref (w->bin);
   g_free (w);
 
-  // unblock w->psg, the pad gets removed above
-  // if (pad)
-  //   gst_pad_set_blocked (pad, FALSE);
-
   GST_WARNING ("- link %s -> %s done", GST_OBJECT_NAME (ms->bin),
       GST_OBJECT_NAME (md->bin));
-#if GST_CHECK_VERSION(1,0,0)
   return GST_PAD_PROBE_REMOVE;
-#endif
 }
 
 static void
@@ -374,18 +342,10 @@ link_rem (Graph * g, gint s, gint d)
 
   // block w->psg
   if (GST_STATE (g->bin) == GST_STATE_PLAYING) {
-#if GST_CHECK_VERSION(1,0,0)
     gst_pad_add_probe (w->psg, GST_PAD_PROBE_TYPE_BLOCK,
         post_link_rem, w, NULL);
-#else
-    gst_pad_set_blocked_async (w->psg, TRUE, post_link_rem, w);
-#endif
   } else {
-#if GST_CHECK_VERSION(1,0,0)
     post_link_rem (NULL, NULL, w);
-#else
-    post_link_rem (NULL, TRUE, w);
-#endif
   }
 }
 
@@ -459,8 +419,8 @@ static void state_changed_message_received (GstBus * bus, GstMessage * message, 
 
 /* test application */
 
-int
-main (int argc, char **argv)
+gint
+main (gint argc, gchar ** argv)
 {
   Graph *g;
   GstBus *bus;

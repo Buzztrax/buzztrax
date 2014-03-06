@@ -1,6 +1,6 @@
 #!/bin/bash
 
-gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink2.c -o dynlink2
+gcc -Wall -g dynlink2.c -o dynlink2 `pkg-config gstreamer-1.0 --cflags --libs`
 if test $? -ne 0; then
   exit 1
 fi
