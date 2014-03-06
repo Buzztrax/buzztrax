@@ -262,7 +262,7 @@ post_link_add (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
 
   /* link ghostpads (downstream) */
   plr = gst_pad_link (w->src_ghost, w->peer_dst_ghost);
-  g_assert (plr == GST_PAD_LINK_OK);
+  g_assert_cmpint (plr, ==, GST_PAD_LINK_OK);
 
   if (pad) {
     if (w->as && M_IS_SRC (ms)) {
@@ -395,7 +395,7 @@ link_add (Graph * g, gint s, gint d)
   }
 
   plr = gst_pad_link (w->peer_src_ghost, w->dst_ghost);
-  g_assert (plr == GST_PAD_LINK_OK);
+  g_assert_cmpint (plr, ==, GST_PAD_LINK_OK);
 
   /* block w->peer_dst (before linking) */
   if ((GST_STATE (g->bin) == GST_STATE_PLAYING) && w->as && M_IS_SRC (ms)) {
