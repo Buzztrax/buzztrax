@@ -354,7 +354,7 @@ change_links (Graph * g, gint o, gint n)
 {
   gchar t[20];
 
-  GST_WARNING ("== change %02d -> %02d ==", o, n);
+  GST_WARNING ("==== change %02d -> %02d ====", o, n);
   sprintf (t, "dyn%02d_%02d_%02d", dfix, o, n);
   GST_DEBUG_BIN_TO_DOT_FILE (g->bin, graph_details, t);
   dfix++;

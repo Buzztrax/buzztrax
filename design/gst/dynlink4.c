@@ -550,7 +550,7 @@ change_links (Graph * g, gint o, gint n)
   if (c & 8)
     g->pending_changes++;
 
-  GST_WARNING ("== change %02d -> %02d (%d link changes) ==", o, n,
+  GST_WARNING ("==== change %02d -> %02d (%d link changes) ====", o, n,
       g->pending_changes);
   for (i = 0; i < M_; i++) {
     for (j = 0; j < M_; j++) {
