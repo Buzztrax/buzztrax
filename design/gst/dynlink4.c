@@ -14,7 +14,7 @@
  *   
  *   src1 <---------------> sink
  *
- * possible links:
+ * possible links ('src1 ! fx' remains all the time):
  *   src1 ! fx  : 1
  *   src2 ! fx  : 2
  *   src2 ! sink: 4
@@ -310,7 +310,6 @@ link_add (Graph * g, gint s, gint d)
   gchar w_name[50];
   GstPadLinkReturn plr;
   GstStateChangeReturn scr;
-  gboolean blocked = FALSE;
 
   GST_WARNING ("link %s -> %s", GST_OBJECT_NAME (ms->bin),
       GST_OBJECT_NAME (md->bin));
@@ -404,13 +403,16 @@ link_add (Graph * g, gint s, gint d)
 
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
-    blocked =
-        (gst_pad_add_probe (w->peer_dst, GST_PAD_PROBE_TYPE_BLOCK,
-            post_link_add, w, NULL) != 0);
+    gst_pad_add_probe (w->peer_dst, GST_PAD_PROBE_TYPE_BLOCK, post_link_add, w,
+        NULL);
 
     // FIXME(ensonic): need to kick start the playback here
 
     dump_pipeline (g, "wire_add_blocking");
+  } else {
+    GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
+        GST_OBJECT_NAME (md->bin));
+    post_link_add (NULL, NULL, w);
   }
 
   /* change state (upstream) and unlock */
@@ -427,12 +429,6 @@ link_add (Graph * g, gint s, gint d)
     gst_element_set_locked_state ((GstElement *) ms->bin, FALSE);
     scr = gst_element_set_state ((GstElement *) ms->bin, GST_STATE_PLAYING);
     g_assert (scr != GST_STATE_CHANGE_FAILURE);
-  }
-
-  if (!blocked) {
-    GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
-        GST_OBJECT_NAME (md->bin));
-    post_link_add (NULL, NULL, w);
   }
 }
 
@@ -489,11 +485,6 @@ post_link_rem (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
   gst_object_unref (w->bin);
   g_free (w);
 
-  /* unblock w->peer_src_ghost, the pad gets removed above
-   * if (pad)
-   *   gst_pad_set_blocked (pad, FALSE);
-   */
-
   g->pending_changes--;
   GST_WARNING ("link %s -> %s done (%d pending changes)",
       GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin), g->pending_changes);
@@ -509,7 +500,6 @@ link_rem (Graph * g, gint s, gint d)
 {
   Wire *w = g->w[s][d];
   Machine *ms = g->m[s], *md = g->m[d];
-  gboolean blocked = FALSE;
 
   GST_WARNING ("link %s -> %s", GST_OBJECT_NAME (ms->bin),
       GST_OBJECT_NAME (md->bin));
@@ -522,12 +512,10 @@ link_rem (Graph * g, gint s, gint d)
   if (GST_STATE (g->bin) == GST_STATE_PLAYING) {
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
-    blocked =
-        (gst_pad_add_probe (w->peer_dst, GST_PAD_PROBE_TYPE_BLOCK,
-            post_link_rem, w, NULL) != 0);
+    gst_pad_add_probe (w->peer_dst, GST_PAD_PROBE_TYPE_BLOCK, post_link_rem, w,
+        NULL);
     dump_pipeline (g, "wire_rem_blocking");
-  }
-  if (!blocked) {
+  } else {
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
     post_link_rem (NULL, NULL, w);

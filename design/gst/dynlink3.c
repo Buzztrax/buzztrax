@@ -14,7 +14,7 @@
  *   
  *   src1 <---------------> sink
  *
- * possible links:
+ * possible links ('src1 ! fx' remains all the time):
  *   src1 ! fx  : 1
  *   src2 ! fx  : 2
  *   src2 ! sink: 4
@@ -316,12 +316,6 @@ link_add (Graph * g, gint s, gint d)
   Machine *ms = g->m[s], *md = g->m[d];
   gchar w_name[50];
   GstPadLinkReturn plr;
-  gboolean blocked = FALSE;
-
-  GST_WARNING ("link %s -> %s", GST_OBJECT_NAME (ms->bin),
-      GST_OBJECT_NAME (md->bin));
-  sprintf (w_name, "%s - %s", GST_OBJECT_NAME (ms->bin),
-      GST_OBJECT_NAME (md->bin));
 
   g->w[s][d] = w = g_new0 (Wire, 1);
   w->g = g;
@@ -329,6 +323,12 @@ link_add (Graph * g, gint s, gint d)
   w->md = md;
   w->as = (ms->pads == 0);      // activate if we don't yet have pads
   w->ad = (md->pads == 0);
+
+  GST_WARNING ("link %s -> %s (as=%d,ad=%d)", GST_OBJECT_NAME (ms->bin),
+      GST_OBJECT_NAME (md->bin), w->as, w->ad);
+  sprintf (w_name, "%s - %s", GST_OBJECT_NAME (ms->bin),
+      GST_OBJECT_NAME (md->bin));
+
 
   if (!(w->bin = (GstBin *) gst_bin_new (w_name))) {
     GST_ERROR ("Can't create bin");
@@ -403,17 +403,11 @@ link_add (Graph * g, gint s, gint d)
 
   /* block w->peer_src (before linking) */
   if ((GST_STATE (g->bin) == GST_STATE_PLAYING) && !w->as && M_IS_SRC (ms)) {
-    GST_WARNING ("activate %s", GST_OBJECT_NAME (ms->bin));
-
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
     dump_pipeline (g, "wire_add_blocking");
-    blocked =
-        (gst_pad_add_probe (w->peer_src, PROBE_TYPE,
-            post_link_add, w, NULL) != 0);
-  }
-
-  if (!blocked) {
+    gst_pad_add_probe (w->peer_src, PROBE_TYPE, post_link_add, w, NULL);
+  } else {
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
     post_link_add (NULL, NULL, w);
@@ -496,25 +490,21 @@ link_rem (Graph * g, gint s, gint d)
 {
   Wire *w = g->w[s][d];
   Machine *ms = g->m[s], *md = g->m[d];
-  gboolean blocked = FALSE;
-
-  GST_WARNING ("link %s -> %s", GST_OBJECT_NAME (ms->bin),
-      GST_OBJECT_NAME (md->bin));
 
   w->as = (ms->pads == 1);      // deactivate if this is the last pad
   w->ad = (md->pads == 1);
   g->w[s][d] = NULL;
+
+  GST_WARNING ("link %s -> %s (as=%d,ad=%d)", GST_OBJECT_NAME (ms->bin),
+      GST_OBJECT_NAME (md->bin), w->as, w->ad);
 
   /* block w->peer_dst */
   if (GST_STATE (g->bin) == GST_STATE_PLAYING) {
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
     dump_pipeline (g, "wire_rem_blocking");
-    blocked =
-        (gst_pad_add_probe (w->peer_dst, PROBE_TYPE,
-            post_link_rem, w, NULL) != 0);
-  }
-  if (!blocked) {
+    gst_pad_add_probe (w->peer_dst, PROBE_TYPE, post_link_rem, w, NULL);
+  } else {
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
     post_link_rem (NULL, NULL, w);
