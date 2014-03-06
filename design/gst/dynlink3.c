@@ -59,6 +59,9 @@ typedef struct Graph_ Graph;
 #define M_IS_SRC(m) (!m->mix)
 #define M_IS_SINK(m) (!m->tee)
 
+//#define PROBE_TYPE GST_PAD_PROBE_TYPE_BLOCK
+#define PROBE_TYPE GST_PAD_PROBE_TYPE_IDLE
+
 struct Machine_
 {
   Graph *g;
@@ -249,7 +252,25 @@ post_link_add (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
   plr = gst_pad_link (w->src_ghost, w->peer_dst_ghost);
   g_assert (plr == GST_PAD_LINK_OK);
 
+  dump_pipeline (g, "wire_add_blocking_linked");
+
   if (pad) {
+    /* change state of machines */
+    if (w->ad) {
+      GST_WARNING ("activate %s", GST_OBJECT_NAME (md->bin));
+      gst_element_set_locked_state ((GstElement *) md->bin, FALSE);
+      scr = gst_element_set_state ((GstElement *) md->bin, GST_STATE_PLAYING);
+      g_assert (scr != GST_STATE_CHANGE_FAILURE);
+    }
+    scr = gst_element_set_state ((GstElement *) w->bin, GST_STATE_PLAYING);
+    g_assert (scr != GST_STATE_CHANGE_FAILURE);
+    if (w->as) {
+      GST_WARNING ("activate %s", GST_OBJECT_NAME (ms->bin));
+      gst_element_set_locked_state ((GstElement *) ms->bin, FALSE);
+      scr = gst_element_set_state ((GstElement *) ms->bin, GST_STATE_PLAYING);
+      g_assert (scr != GST_STATE_CHANGE_FAILURE);
+    }
+
     if (w->as && M_IS_SRC (ms)) {
       gint64 pos;
 
@@ -274,6 +295,7 @@ post_link_add (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
       scr = gst_element_set_state ((GstElement *) ms->bin, GST_STATE_PLAYING);
       g_assert (scr != GST_STATE_CHANGE_FAILURE);
     }
+    dump_pipeline (g, "wire_add_blocking_synced");
   }
 
   g->pending_changes--;
@@ -294,7 +316,6 @@ link_add (Graph * g, gint s, gint d)
   Machine *ms = g->m[s], *md = g->m[d];
   gchar w_name[50];
   GstPadLinkReturn plr;
-  GstStateChangeReturn scr;
   gboolean blocked = FALSE;
 
   GST_WARNING ("link %s -> %s", GST_OBJECT_NAME (ms->bin),
@@ -306,7 +327,7 @@ link_add (Graph * g, gint s, gint d)
   w->g = g;
   w->ms = ms;
   w->md = md;
-  w->as = (ms->pads == 0);
+  w->as = (ms->pads == 0);      // activate if we don't yet have pads
   w->ad = (md->pads == 0);
 
   if (!(w->bin = (GstBin *) gst_bin_new (w_name))) {
@@ -380,32 +401,16 @@ link_add (Graph * g, gint s, gint d)
   plr = gst_pad_link (w->peer_src_ghost, w->dst_ghost);
   g_assert (plr == GST_PAD_LINK_OK);
 
-  /* block w->peer_dst (before linking) */
-  if ((GST_STATE (g->bin) == GST_STATE_PLAYING) && w->as && M_IS_SRC (ms)) {
+  /* block w->peer_src (before linking) */
+  if ((GST_STATE (g->bin) == GST_STATE_PLAYING) && !w->as && M_IS_SRC (ms)) {
     GST_WARNING ("activate %s", GST_OBJECT_NAME (ms->bin));
 
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
-    blocked =
-        (gst_pad_add_probe (w->peer_dst, GST_PAD_PROBE_TYPE_BLOCK,
-            post_link_add, w, NULL) != 0);
     dump_pipeline (g, "wire_add_blocking");
-  }
-
-  /* change state (upstream) and unlock */
-  if (w->ad) {
-    GST_WARNING ("activate %s", GST_OBJECT_NAME (md->bin));
-    gst_element_set_locked_state ((GstElement *) md->bin, FALSE);
-    scr = gst_element_set_state ((GstElement *) md->bin, GST_STATE_PLAYING);
-    g_assert (scr != GST_STATE_CHANGE_FAILURE);
-  }
-  scr = gst_element_set_state ((GstElement *) w->bin, GST_STATE_PLAYING);
-  g_assert (scr != GST_STATE_CHANGE_FAILURE);
-  if (w->as) {
-    GST_WARNING ("activate %s", GST_OBJECT_NAME (ms->bin));
-    gst_element_set_locked_state ((GstElement *) ms->bin, FALSE);
-    scr = gst_element_set_state ((GstElement *) ms->bin, GST_STATE_PLAYING);
-    g_assert (scr != GST_STATE_CHANGE_FAILURE);
+    blocked =
+        (gst_pad_add_probe (w->peer_src, PROBE_TYPE,
+            post_link_add, w, NULL) != 0);
   }
 
   if (!blocked) {
@@ -443,11 +448,14 @@ post_link_rem (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
     g_assert (scr != GST_STATE_CHANGE_FAILURE);
     gst_element_set_locked_state ((GstElement *) ms->bin, TRUE);
   }
+  dump_pipeline (g, "wire_rem_blocking_synced");
+
   /* unlink ghostpads (upstream) */
   plr = gst_pad_unlink (w->src_ghost, w->peer_dst_ghost);
   g_assert (plr == TRUE);
   plr = gst_pad_unlink (w->peer_src_ghost, w->dst_ghost);
   g_assert (plr == TRUE);
+  dump_pipeline (g, "wire_rem_blocking_unlinked");
 
   /* remove from pipeline */
   gst_object_ref (w->bin);
@@ -493,18 +501,18 @@ link_rem (Graph * g, gint s, gint d)
   GST_WARNING ("link %s -> %s", GST_OBJECT_NAME (ms->bin),
       GST_OBJECT_NAME (md->bin));
 
-  w->as = (ms->pads == 1);
+  w->as = (ms->pads == 1);      // deactivate if this is the last pad
   w->ad = (md->pads == 1);
   g->w[s][d] = NULL;
 
-  /* block w->peer_src_ghost */
+  /* block w->peer_dst */
   if (GST_STATE (g->bin) == GST_STATE_PLAYING) {
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
-    blocked =
-        (gst_pad_add_probe (w->peer_dst, GST_PAD_PROBE_TYPE_BLOCK,
-            post_link_rem, w, NULL) != 0);
     dump_pipeline (g, "wire_rem_blocking");
+    blocked =
+        (gst_pad_add_probe (w->peer_dst, PROBE_TYPE,
+            post_link_rem, w, NULL) != 0);
   }
   if (!blocked) {
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
