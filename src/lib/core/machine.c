@@ -1608,12 +1608,12 @@ bt_machine_activate_adder (BtMachine * const self)
       }
     }
 
-    // create the adder
+    // create the adder (we can try "audiomixer"/"liveadder" too)
+    // - audiomixer: does synchronized mixing
+    // - liveadder: also syncs timestamps and skips pads after timeout
     if (!(bt_machine_make_internal_element (self, PART_ADDER, "adder",
                 "adder")))
       goto Error;
-    /* live adder mixes by timestamps and does a timeout if an input is late */
-    //if(!(bt_machine_make_internal_element(self,PART_ADDER,"liveadder","adder"))) goto Error;
     g_object_set (machines[PART_ADDER], "caps", bt_default_caps, NULL);
 
     if (!BT_IS_SINK_MACHINE (self)) {
