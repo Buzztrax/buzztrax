@@ -58,28 +58,11 @@ link_add (Graph * g, gint s, gint d)
 {
   Wire *w;
   Machine *ms = g->m[s], *md = g->m[d];
-  gchar w_name[50];
 
   GST_WARNING ("+ link %s -> %s", GST_OBJECT_NAME (ms->bin),
       GST_OBJECT_NAME (md->bin));
-  sprintf (w_name, "%s - %s", GST_OBJECT_NAME (ms->bin),
-      GST_OBJECT_NAME (md->bin));
 
-  g->w[s][d] = w = g_new0 (Wire, 1);
-  w->ms = ms;
-  w->md = md;
-  w->as = (ms->pads == 0);
-  w->ad = (md->pads == 0);
-
-  if (!(w->bin = (GstBin *) gst_bin_new (w_name))) {
-    GST_ERROR ("Can't create bin");
-    exit (-1);
-  }
-  if (!(w->queue = gst_element_factory_make ("queue", NULL))) {
-    GST_ERROR ("Can't create element queue");
-    exit (-1);
-  }
-  gst_bin_add (w->bin, w->queue);
+  g->w[s][d] = w = make_wire (g, ms, md);
 
   // request machine pads
   w->peer_src = gst_element_get_request_pad (ms->tee, "src%d");
@@ -252,23 +235,13 @@ message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
       GST_STR_NULL (GST_ELEMENT_NAME (GST_MESSAGE_SRC (message))),
       gst_message_type_get_name (GST_MESSAGE_TYPE (message)));
   if (s) {
-    gchar *sstr;
-
-    sstr = gst_structure_to_string (s);
+    gchar *sstr = gst_structure_to_string (s);
     GST_WARNING ("%s", sstr);
     g_free (sstr);
   } else {
     GST_WARNING ("no message details");
   }
 }
-
-/*
-static void state_changed_message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
-  GstState oldstate,newstate,pending;
-
-  gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
-}
-*/
 
 /* test application */
 
@@ -287,28 +260,15 @@ main (gint argc, gchar ** argv)
 
   GST_WARNING ("setup");
 
-  g = g_new0 (Graph, 1);
+  g = make_graph ();
 
-  /* create a new top-level pipeline to hold the elements */
-  g->bin = (GstBin *) gst_pipeline_new ("song");
-  /* and connect to the bus */
+  /* connect to the bus */
   bus = gst_pipeline_get_bus (GST_PIPELINE (g->bin));
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
   g_signal_connect (bus, "message::error", G_CALLBACK (message_received),
       g->bin);
   g_signal_connect (bus, "message::warning", G_CALLBACK (message_received),
       g->bin);
-  //g_signal_connect (bus, "message::state-changed", G_CALLBACK(state_changed_message_received), g->bin);
-
-  /* make machines */
-  g->m[M_SRC1] = make_src (g, "src1");
-  g->m[M_SRC2] = make_src (g, "src2");
-  g->m[M_FX] = make_fx (g, "fx");
-  g->m[M_SINK] = make_sink (g, "sink");
-
-  /* configure the sources */
-  g_object_set (g->m[M_SRC1]->elem, "freq", (gdouble) 440.0, "wave", 2, NULL);
-  g_object_set (g->m[M_SRC2]->elem, "freq", (gdouble) 110.0, "wave", 1, NULL);
 
   /* do the initial link and play */
   link_add (g, M_SRC1, M_SINK);
@@ -349,16 +309,7 @@ main (gint argc, gchar ** argv)
   gst_element_set_state ((GstElement *) g->bin, GST_STATE_NULL);
   gst_bus_remove_signal_watch (bus);
   gst_object_unref (GST_OBJECT (bus));
-  gst_object_unref (GST_OBJECT (g->bin));
-  for (i = 0; i < M_; i++) {
-    g_free (g->m[i]);
-    g->m[i] = NULL;
-    for (j = 0; j < M_; j++) {
-      g_free (g->w[i][j]);
-      g->w[i][j] = NULL;
-    }
-  }
-  g_free (g);
+  free_graph (g);
 
   GST_WARNING ("done");
   exit (0);

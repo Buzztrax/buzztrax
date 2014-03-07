@@ -123,9 +123,7 @@ dump_pipeline (Graph * g, gint ix, gchar * suffix)
 static Machine *
 make_machine (Graph * g, const gchar * elem_name, const gchar * bin_name)
 {
-  Machine *m;
-
-  m = g_new0 (Machine, 1);
+  Machine *m = g_new0 (Machine, 1);
   m->g = g;
 
   if (!(m->bin = (GstBin *) gst_bin_new (bin_name))) {
@@ -144,7 +142,7 @@ make_machine (Graph * g, const gchar * elem_name, const gchar * bin_name)
     exit (-1);
   }
 
-  return (m);
+  return m;
 }
 
 static void
@@ -184,31 +182,96 @@ add_mix (Machine * m)
 static Machine *
 make_src (Graph * g, const gchar * m_name)
 {
-  Machine *m;
-
-  m = make_machine (g, SRC_NAME, m_name);
+  Machine *m = make_machine (g, SRC_NAME, m_name);
   add_tee (m);
-  return (m);
+  return m;
 }
 
 static Machine *
 make_fx (Graph * g, const gchar * m_name)
 {
-  Machine *m;
-
-  m = make_machine (g, FX_NAME, m_name);
+  Machine *m = make_machine (g, FX_NAME, m_name);
   add_tee (m);
   add_mix (m);
-  return (m);
+  return m;
 }
 
 static Machine *
 make_sink (Graph * g, const gchar * m_name)
 {
-  Machine *m;
-
-  m = make_machine (g, SINK_NAME, m_name);
+  Machine *m = make_machine (g, SINK_NAME, m_name);
   add_mix (m);
-  return (m);
+  return m;
 }
 
+static Wire *
+make_wire (Graph * g, Machine *ms, Machine *md)
+{
+  Wire *w = g_new0 (Wire, 1);
+  gchar w_name[50];
+  
+  w->g = g;
+  w->ms = ms;
+  w->md = md;
+  w->as = (ms->pads == 0);      // activate if we don't yet have pads
+  w->ad = (md->pads == 0);
+  
+  sprintf (w_name, "%s - %s", GST_OBJECT_NAME (ms->bin),
+      GST_OBJECT_NAME (md->bin));
+  
+  if (!(w->bin = (GstBin *) gst_bin_new (w_name))) {
+    GST_ERROR ("Can't create bin");
+    exit (-1);
+  }
+  if (!(w->queue = gst_element_factory_make ("queue", NULL))) {
+    GST_ERROR ("Can't create element queue");
+    exit (-1);
+  }
+  if (!gst_bin_add (w->bin, w->queue)) {
+    GST_ERROR ("Can't add element queue to bin");
+    exit (-1);
+  }
+  
+  return w;
+}
+
+static Graph *
+make_graph (void)
+{
+  Graph *g = g_new0 (Graph, 1);
+  
+  /* create a new top-level pipeline to hold the elements */
+  g->bin = (GstBin *) gst_pipeline_new ("song");
+  
+  /* make machines */
+  g->m[M_SRC1] = make_src (g, "src1");
+  g->m[M_SRC2] = make_src (g, "src2");
+  g->m[M_FX] = make_fx (g, "fx");
+  g->m[M_SINK] = make_sink (g, "sink");
+
+  /* configure the sources, select different sounds,
+   * also use a bigger block size to have less dataflow logging noise */
+  g_object_set (g->m[M_SRC1]->elem,
+      "freq", (gdouble) 440.0, "wave", 2, "blocksize", 22050, NULL);
+  g_object_set (g->m[M_SRC2]->elem,
+      "freq", (gdouble) 110.0, "wave", 1, "blocksize", 22050, NULL);
+  
+  return g;
+}
+
+static void
+free_graph (Graph *g)
+{
+  gint i, j;
+
+  gst_object_unref (GST_OBJECT (g->bin));
+  for (i = 0; i < M_; i++) {
+    g_free (g->m[i]);
+    g->m[i] = NULL;
+    for (j = 0; j < M_; j++) {
+      g_free (g->w[i][j]);
+      g->w[i][j] = NULL;
+    }
+  }
+  g_free (g);
+}

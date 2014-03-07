@@ -115,34 +115,12 @@ link_add (Graph * g, gint s, gint d)
 {
   Wire *w;
   Machine *ms = g->m[s], *md = g->m[d];
-  gchar w_name[50];
   GstPadLinkReturn plr;
 
-  g->w[s][d] = w = g_new0 (Wire, 1);
-  w->g = g;
-  w->ms = ms;
-  w->md = md;
-  w->as = (ms->pads == 0);      // activate if we don't yet have pads
-  w->ad = (md->pads == 0);
+  g->w[s][d] = w = make_wire (g, ms, md);
 
   GST_WARNING ("link %s -> %s (as=%d,ad=%d)", GST_OBJECT_NAME (ms->bin),
       GST_OBJECT_NAME (md->bin), w->as, w->ad);
-  sprintf (w_name, "%s - %s", GST_OBJECT_NAME (ms->bin),
-      GST_OBJECT_NAME (md->bin));
-
-
-  if (!(w->bin = (GstBin *) gst_bin_new (w_name))) {
-    GST_ERROR ("Can't create bin");
-    exit (-1);
-  }
-  if (!(w->queue = gst_element_factory_make ("queue", NULL))) {
-    GST_ERROR ("Can't create element queue");
-    exit (-1);
-  }
-  if (!gst_bin_add (w->bin, w->queue)) {
-    GST_ERROR ("Can't add element queue to bin");
-    exit (-1);
-  }
 
   /* request machine pads */
   w->peer_src = gst_element_get_request_pad (ms->tee, "src_%u");
@@ -272,11 +250,6 @@ post_link_rem (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
   gst_object_unref (w->bin);
   g_free (w);
 
-  /* unblock w->peer_src_ghost, the pad gets removed above
-   * if (pad)
-   *   gst_pad_set_blocked (pad, FALSE);
-   */
-
   g->pending_changes--;
   GST_WARNING ("link %s -> %s done (%d pending changes)",
       GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin), g->pending_changes);
@@ -389,9 +362,7 @@ message_received (GstBus * bus, GstMessage * message, Graph * g)
 
   s = gst_message_get_structure (message);
   if (s) {
-    gchar *sstr;
-
-    sstr = gst_structure_to_string (s);
+    gchar *sstr = gst_structure_to_string (s);
     GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "%s", sstr);
     g_free (sstr);
     dump_pipeline (g, step, "error");
@@ -427,7 +398,6 @@ main (gint argc, gchar ** argv)
 {
   Graph *g;
   GstBus *bus;
-  gint i, j;
 
   /* init gstreamer */
   gst_init (&argc, &argv);
@@ -437,30 +407,15 @@ main (gint argc, gchar ** argv)
 
   GST_WARNING ("setup");
 
-  g = g_new0 (Graph, 1);
+  g = make_graph ();
 
-  /* create a new top-level pipeline to hold the elements */
-  g->bin = (GstBin *) gst_pipeline_new ("song");
-  /* and connect to the bus */
+  /* connect to the bus */
   bus = gst_pipeline_get_bus (GST_PIPELINE (g->bin));
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
   g_signal_connect (bus, "message::error", G_CALLBACK (message_received), g);
   g_signal_connect (bus, "message::warning", G_CALLBACK (message_received), g);
   g_signal_connect (bus, "message::state-changed",
       G_CALLBACK (state_changed_message_received), g);
-
-  /* make machines */
-  g->m[M_SRC1] = make_src (g, "src1");
-  g->m[M_SRC2] = make_src (g, "src2");
-  g->m[M_FX] = make_fx (g, "fx");
-  g->m[M_SINK] = make_sink (g, "sink");
-
-  /* configure the sources, select different sounds,
-   * also use a bigger block size to have less dataflow logging noise */
-  g_object_set (g->m[M_SRC1]->elem,
-      "freq", (gdouble) 440.0, "wave", 2, "blocksize", 22050, NULL);
-  g_object_set (g->m[M_SRC2]->elem,
-      "freq", (gdouble) 110.0, "wave", 1, "blocksize", 22050, NULL);
 
   /* create a main-loop */
   g->loop = g_main_loop_new (NULL, FALSE);
@@ -485,16 +440,7 @@ main (gint argc, gchar ** argv)
   gst_element_set_state ((GstElement *) g->bin, GST_STATE_NULL);
   gst_bus_remove_signal_watch (bus);
   gst_object_unref (GST_OBJECT (bus));
-  gst_object_unref (GST_OBJECT (g->bin));
-  for (i = 0; i < M_; i++) {
-    g_free (g->m[i]);
-    g->m[i] = NULL;
-    for (j = 0; j < M_; j++) {
-      g_free (g->w[i][j]);
-      g->w[i][j] = NULL;
-    }
-  }
-  g_free (g);
+  free_graph (g);
 
   GST_WARNING ("done");
   exit (0);
