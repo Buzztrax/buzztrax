@@ -6,156 +6,12 @@
  * for file in dyn*.dot; do echo $file; dot -Tpng $file -o${file/dot/png}; done
  */
 
-/* high level default scenario:
- *   src2                   fx
- *   
- *   src1 <---------------> sink
- *
- * possible links:
- *   src1 ! fx  : 1
- *   src2 ! fx  : 2
- *   src2 ! sink: 4
- *   fx ! sink  : 8
- *             => 16 different combinations
- * but skip: 1, 2, 3, 5, 7, 8
- */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <gst/gst.h>
-
-#define SINK_NAME "pulsesink"
-#define FX_NAME "volume"
-#define SRC_NAME "audiotestsrc"
-
-#define GST_CAT_DEFAULT bt_dynlink
-GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
-
-static GstDebugGraphDetails graph_details =
-//  GST_DEBUG_GRAPH_SHOW_ALL & ~GST_DEBUG_GRAPH_SHOW_CAPS_DETAILS;
-    GST_DEBUG_GRAPH_SHOW_ALL;
-
-typedef struct
-{
-  GstBin *bin;
-  // elements
-  GstElement *mix;
-  GstElement *elem;
-  GstElement *tee;
-  gint pads;
-} Machine;
-
-typedef struct
-{
-  GstBin *bin;
-  GstElement *q;
-  Machine *ms, *md;
-  // wire pads and ghost pad for bin
-  GstPad *s, *sg;
-  GstPad *d, *dg;
-  // machine peer tee/mix request pad and ghost pad for bin
-  GstPad *ps, *psg;
-  GstPad *pd, *pdg;
-  // activate/deactivate when linking/unlinking
-  gboolean as, ad;
-} Wire;
-
-enum
-{
-  M_SRC1 = 0,
-  M_SRC2,
-  M_FX,
-  M_SINK,
-  M_
-};
-
-typedef struct
-{
-  GstBin *bin;
-  Machine *m[M_];
-  Wire *w[M_][M_];
-} Graph;
+#include "dynlink.h"
 
 /* dot file index */
 static gint dfix = 0;
 
-/* setup helper */
-
-static Machine *
-make_machine (Graph * g, const gchar * elem_name, const gchar * bin_name)
-{
-  Machine *m;
-
-  m = g_new0 (Machine, 1);
-
-  if (!(m->bin = (GstBin *) gst_bin_new (bin_name))) {
-    GST_ERROR ("Can't create bin");
-    exit (-1);
-  }
-  gst_bin_add (g->bin, (GstElement *) m->bin);
-  gst_element_set_locked_state ((GstElement *) m->bin, TRUE);
-
-  if (!(m->elem = gst_element_factory_make (elem_name, NULL))) {
-    GST_ERROR ("Can't create element %s", elem_name);
-    exit (-1);
-  }
-  gst_bin_add (m->bin, m->elem);
-
-  return (m);
-}
-
-static void
-add_tee (Machine * m)
-{
-  if (!(m->tee = gst_element_factory_make ("tee", NULL))) {
-    GST_ERROR ("Can't create element tee");
-    exit (-1);
-  }
-  gst_bin_add (m->bin, m->tee);
-  gst_element_link (m->elem, m->tee);
-}
-
-static void
-add_mix (Machine * m)
-{
-  if (!(m->mix = gst_element_factory_make ("adder", NULL))) {
-    GST_ERROR ("Can't create element adder");
-    exit (-1);
-  }
-  gst_bin_add (m->bin, m->mix);
-  gst_element_link (m->mix, m->elem);
-}
-
-static Machine *
-make_src (Graph * g, const gchar * m_name)
-{
-  Machine *m;
-
-  m = make_machine (g, SRC_NAME, m_name);
-  add_tee (m);
-  return (m);
-}
-
-static Machine *
-make_fx (Graph * g, const gchar * m_name)
-{
-  Machine *m;
-
-  m = make_machine (g, FX_NAME, m_name);
-  add_tee (m);
-  add_mix (m);
-  return (m);
-}
-
-static Machine *
-make_sink (Graph * g, const gchar * m_name)
-{
-  Machine *m;
-
-  m = make_machine (g, SINK_NAME, m_name);
-  add_mix (m);
-  return (m);
-}
+/* dynamic linking */
 
 static GstPadProbeReturn
 post_link_add (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
@@ -170,9 +26,9 @@ post_link_add (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
         GST_OBJECT_NAME (md->bin));
 
   // link ghostpads (downstream)
-  plr = gst_pad_link (w->psg, w->dg);
+  plr = gst_pad_link (w->peer_src_ghost, w->dst_ghost);
   g_assert (plr == GST_PAD_LINK_OK);
-  plr = gst_pad_link (w->sg, w->pdg);
+  plr = gst_pad_link (w->src_ghost, w->peer_dst_ghost);
   g_assert (plr == GST_PAD_LINK_OK);
 
   // change state (downstream) and unlock
@@ -219,53 +75,53 @@ link_add (Graph * g, gint s, gint d)
     GST_ERROR ("Can't create bin");
     exit (-1);
   }
-  if (!(w->q = gst_element_factory_make ("queue", NULL))) {
+  if (!(w->queue = gst_element_factory_make ("queue", NULL))) {
     GST_ERROR ("Can't create element queue");
     exit (-1);
   }
-  gst_bin_add (w->bin, w->q);
+  gst_bin_add (w->bin, w->queue);
 
   // request machine pads
-  w->ps = gst_element_get_request_pad (ms->tee, "src%d");
-  g_assert (w->ps);
-  w->psg = gst_ghost_pad_new (NULL, w->ps);
-  g_assert (w->psg);
+  w->peer_src = gst_element_get_request_pad (ms->tee, "src%d");
+  g_assert (w->peer_src);
+  w->peer_src_ghost = gst_ghost_pad_new (NULL, w->peer_src);
+  g_assert (w->peer_src_ghost);
   if (!w->as) {
-    gst_pad_set_active (w->psg, TRUE);
+    gst_pad_set_active (w->peer_src_ghost, TRUE);
   }
-  gst_element_add_pad ((GstElement *) ms->bin, w->psg);
+  gst_element_add_pad ((GstElement *) ms->bin, w->peer_src_ghost);
   ms->pads++;
 
-  w->pd = gst_element_get_request_pad (md->mix, "sink%d");
-  g_assert (w->pd);
-  w->pdg = gst_ghost_pad_new (NULL, w->pd);
-  g_assert (w->pdg);
+  w->peer_dst = gst_element_get_request_pad (md->mix, "sink%d");
+  g_assert (w->peer_dst);
+  w->peer_dst_ghost = gst_ghost_pad_new (NULL, w->peer_dst);
+  g_assert (w->peer_dst_ghost);
   if (!w->ad) {
-    gst_pad_set_active (w->pdg, TRUE);
+    gst_pad_set_active (w->peer_dst_ghost, TRUE);
   }
-  gst_element_add_pad ((GstElement *) md->bin, w->pdg);
+  gst_element_add_pad ((GstElement *) md->bin, w->peer_dst_ghost);
   md->pads++;
 
   // create wire pads
-  w->s = gst_element_get_static_pad (w->q, "src");
-  g_assert (w->s);
-  w->sg = gst_ghost_pad_new (NULL, w->s);
-  g_assert (w->sg);
-  gst_element_add_pad ((GstElement *) w->bin, w->sg);
-  w->d = gst_element_get_static_pad (w->q, "sink");
-  g_assert (w->d);
-  w->dg = gst_ghost_pad_new (NULL, w->d);
-  g_assert (w->dg);
-  gst_element_add_pad ((GstElement *) w->bin, w->dg);
+  w->src = gst_element_get_static_pad (w->queue, "src");
+  g_assert (w->src);
+  w->src_ghost = gst_ghost_pad_new (NULL, w->src);
+  g_assert (w->src_ghost);
+  gst_element_add_pad ((GstElement *) w->bin, w->src_ghost);
+  w->dst = gst_element_get_static_pad (w->queue, "sink");
+  g_assert (w->dst);
+  w->dst_ghost = gst_ghost_pad_new (NULL, w->dst);
+  g_assert (w->dst_ghost);
+  gst_element_add_pad ((GstElement *) w->bin, w->dst_ghost);
 
   // add wire to pipeline
   gst_bin_add (g->bin, (GstElement *) w->bin);
 
-  // block w->psg
+  // block w->peer_src_ghost
   // - before adding?, no, elements are in locked state
   // - before linking!
   if (!w->as && GST_STATE (g->bin) == GST_STATE_PLAYING) {
-    gst_pad_add_probe (w->psg, GST_PAD_PROBE_TYPE_BLOCK,
+    gst_pad_add_probe (w->peer_src_ghost, GST_PAD_PROBE_TYPE_BLOCK,
         post_link_add, w, NULL);
   } else {
     post_link_add (NULL, NULL, w);
@@ -300,9 +156,9 @@ post_link_rem (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
     gst_element_set_locked_state ((GstElement *) ms->bin, TRUE);
   }
   // unlink ghostpads (upstream)
-  plr = gst_pad_unlink (w->sg, w->pdg);
+  plr = gst_pad_unlink (w->src_ghost, w->peer_dst_ghost);
   g_assert (plr == TRUE);
-  plr = gst_pad_unlink (w->psg, w->dg);
+  plr = gst_pad_unlink (w->peer_src_ghost, w->dst_ghost);
   g_assert (plr == TRUE);
 
   // remove from pipeline
@@ -310,15 +166,15 @@ post_link_rem (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
   gst_bin_remove ((GstBin *) GST_OBJECT_PARENT (w->bin), (GstElement *) w->bin);
 
   // release request pads
-  gst_element_remove_pad ((GstElement *) ms->bin, w->psg);
-  gst_element_release_request_pad (ms->tee, w->ps);
+  gst_element_remove_pad ((GstElement *) ms->bin, w->peer_src_ghost);
+  gst_element_release_request_pad (ms->tee, w->peer_src);
   ms->pads--;
-  gst_element_remove_pad ((GstElement *) md->bin, w->pdg);
-  gst_element_release_request_pad (md->mix, w->pd);
+  gst_element_remove_pad ((GstElement *) md->bin, w->peer_dst_ghost);
+  gst_element_release_request_pad (md->mix, w->peer_dst);
   md->pads--;
 
-  gst_object_unref (w->s);
-  gst_object_unref (w->d);
+  gst_object_unref (w->src);
+  gst_object_unref (w->dst);
   gst_object_unref (w->bin);
   g_free (w);
 
@@ -340,9 +196,9 @@ link_rem (Graph * g, gint s, gint d)
   w->ad = (md->pads == 1);
   g->w[s][d] = NULL;
 
-  // block w->psg
+  // block w->peer_src_ghost
   if (GST_STATE (g->bin) == GST_STATE_PLAYING) {
-    gst_pad_add_probe (w->psg, GST_PAD_PROBE_TYPE_BLOCK,
+    gst_pad_add_probe (w->peer_src_ghost, GST_PAD_PROBE_TYPE_BLOCK,
         post_link_rem, w, NULL);
   } else {
     post_link_rem (NULL, NULL, w);
@@ -352,11 +208,8 @@ link_rem (Graph * g, gint s, gint d)
 static void
 change_links (Graph * g, gint o, gint n)
 {
-  gchar t[20];
-
   GST_WARNING ("==== change %02d -> %02d ====", o, n);
-  sprintf (t, "dyn%02d_%02d_%02d", dfix, o, n);
-  GST_DEBUG_BIN_TO_DOT_FILE (g->bin, graph_details, t);
+  dump_pipeline (g, dfix, NULL);
   dfix++;
 
   // bit 1
@@ -425,7 +278,6 @@ main (gint argc, gchar ** argv)
   Graph *g;
   GstBus *bus;
   gint i, j, c;
-  gchar t[20];
 
   /* init gstreamer */
   gst_init (&argc, &argv);
@@ -469,8 +321,7 @@ main (gint argc, gchar ** argv)
   g_usleep (G_USEC_PER_SEC);
 
   GST_WARNING ("testing");
-  sprintf (t, "dyn%02d_before", dfix);
-  GST_DEBUG_BIN_TO_DOT_FILE (g->bin, graph_details, t);
+  dump_pipeline (g, dfix, "before");
   dfix++;
 
   /* run the dynlink variants */
@@ -490,8 +341,7 @@ main (gint argc, gchar ** argv)
     j = i;
   }
 
-  sprintf (t, "dyn%02d_after", dfix);
-  GST_DEBUG_BIN_TO_DOT_FILE (g->bin, graph_details, t);
+  dump_pipeline (g, dfix, "after");
   dfix++;
   GST_WARNING ("cleanup");
 
