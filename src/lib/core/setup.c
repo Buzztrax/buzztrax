@@ -25,6 +25,7 @@
  * The setup manages the actual GStreamer #GstPipeline content. Freshly created
  * machines are not yet added to the pipeline. Only once a subgraph from a
  * source is fully connected to the sink, that subgraph is added o the pipeline.
+ * Changing the machines and wires also works while the song is playing.
  *
  * Applications can watch the GstObject:parent property to see whether a machine
  * is physically inserted into the processing pipeline.
