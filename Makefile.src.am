@@ -378,7 +378,7 @@ endif
 
 EXTRA_DIST += \
   $(desktop_in_files) $(sharedmimepackage_in_files) \
-  $(gtkrc_DATA) \
+  $(css_DATA) \
 	src/lib/core/libbuzztrax-core.pc.in \
 	src/lib/core/marshal.list \
 	src/lib/core/version.h.in \
