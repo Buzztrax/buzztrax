@@ -2,6 +2,9 @@
  * show all colors in a GtkStyleContext
  *
  * gcc -Wall -g stylecolors3.c -o stylecolors3 `pkg-config gtk+-3.0 --cflags --libs`
+ *
+ * ./stylecolors3 {Adwaita|Ambiance,...}
+ * ll /usr/share/themes/*?/gtk-3.0/gtk.css
  */
 
 #include <stdio.h>
@@ -58,6 +61,19 @@ main (gint argc, gchar ** argv)
   GtkTable *table;
 
   gtk_init (&argc, &argv);
+
+  if (argc > 0) {
+    //printf ("Using custom theme: %s\n", argv[1]);
+    GtkCssProvider *provider = gtk_css_provider_get_named (argv[1], NULL);
+    if (provider) {
+      gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
+          (GtkStyleProvider *) provider,
+          GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    } else {
+      printf ("Unknown theme: %s\n", argv[1]);
+    }
+  }
+
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window), "StyleContext colors");
