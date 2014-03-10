@@ -270,7 +270,10 @@ CLEANFILES += src/ui/edit/marshal.c src/ui/edit/marshal.h
 
 # FIXME: don't install bt-edit.compact.css if not selected
 cssdir = $(datadir)/$(PACKAGE)
-css_DATA = src/ui/edit/bt-edit.css src/ui/edit/bt-edit.compact.css
+css_DATA = src/ui/edit/bt-edit.css \
+  src/ui/edit/bt-edit.compact.css \
+  src/ui/edit/bt-edit.dark.css \
+  src/ui/edit/bt-edit.light.css
 
 libbuzztraxdec_la_CFLAGS = $(GST_PLUGIN_CFLAGS)
 libbuzztraxdec_la_LIBADD = \

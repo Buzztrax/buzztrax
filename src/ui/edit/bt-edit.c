@@ -136,11 +136,20 @@ main (gint argc, gchar ** argv)
       "music production environment / editor ui");
 
   // load our custom gtk-theming
+//#define USE_DARK_THEME
+#ifdef USE_DARK_THEME
+  g_object_set (gtk_settings_get_default (),
+      "gtk-application-prefer-dark-theme", TRUE, NULL);
+#endif
   provider = (GtkStyleProvider *) gtk_css_provider_new ();
   if (!gtk_css_provider_load_from_path (GTK_CSS_PROVIDER (provider), DATADIR
           "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
 #ifndef USE_COMPACT_UI
-          "bt-edit.css",
+#ifdef USE_DARK_THEME
+          "bt-edit.dark.css",
+#else
+          "bt-edit.light.css",
+#endif
 #else
           "bt-edit.compact.css"
 #endif

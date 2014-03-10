@@ -2,14 +2,11 @@
 
 /* row shading for treeview */
 
-@define-color row_even #FFFFFF;
-@define-color row_odd #E0E0E0;
-
 BtSequenceView row:nth-child(even) { 
-    background-color: @row_even; 
+    background-color: @row_even_color; 
 } 
 BtSequenceView row:nth-child(odd) {
-    background-color: @row_odd;
+    background-color: @row_odd_color;
 }
 
 /* less spacious treeview */

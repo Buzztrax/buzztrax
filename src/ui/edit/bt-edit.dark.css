@@ -1,0 +1,7 @@
+/* custom styles for buzztrax-edit */
+
+/* row shading for treeview */
+@define-color row_even_color #333333;
+@define-color row_odd_color shade (@row_even_color, 0.9);
+
+@import url("bt-edit.css");
