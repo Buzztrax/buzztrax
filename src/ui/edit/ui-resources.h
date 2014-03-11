@@ -141,4 +141,6 @@ guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine, BtUIResou
 
 GtkAccelGroup *bt_ui_resources_get_accel_group(void);
 
+void bt_ui_resources_init_theme(void);
+
 #endif // BT_UI_RESOURCES_H

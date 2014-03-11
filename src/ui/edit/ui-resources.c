@@ -418,8 +418,8 @@ bt_ui_resources_get_icon_image_by_machine (const BtMachine * machine)
   if (BT_IS_SOURCE_MACHINE (machine)) {
     return (gtk_image_new_from_pixbuf (singleton->priv->source_machine_pixbuf));
   } else if (BT_IS_PROCESSOR_MACHINE (machine)) {
-    return (gtk_image_new_from_pixbuf (singleton->
-            priv->processor_machine_pixbuf));
+    return (gtk_image_new_from_pixbuf (singleton->priv->
+            processor_machine_pixbuf));
   } else if (BT_IS_SINK_MACHINE (machine)) {
     return (gtk_image_new_from_pixbuf (singleton->priv->sink_machine_pixbuf));
   }
@@ -440,8 +440,8 @@ bt_ui_resources_get_icon_image_by_machine_type (GType machine_type)
   if (machine_type == BT_TYPE_SOURCE_MACHINE) {
     return (gtk_image_new_from_pixbuf (singleton->priv->source_machine_pixbuf));
   } else if (machine_type == BT_TYPE_PROCESSOR_MACHINE) {
-    return (gtk_image_new_from_pixbuf (singleton->
-            priv->processor_machine_pixbuf));
+    return (gtk_image_new_from_pixbuf (singleton->priv->
+            processor_machine_pixbuf));
   } else if (machine_type == BT_TYPE_SINK_MACHINE) {
     return (gtk_image_new_from_pixbuf (singleton->priv->sink_machine_pixbuf));
   }
@@ -560,6 +560,44 @@ GtkAccelGroup *
 bt_ui_resources_get_accel_group (void)
 {
   return (singleton->priv->accel_group);
+}
+
+void
+bt_ui_resources_init_theme (void)
+{
+  GtkStyleProvider *provider;
+  GError *err = NULL;
+
+//#define USE_DARK_THEME
+#ifdef USE_DARK_THEME
+  g_object_set (gtk_settings_get_default (),
+      "gtk-application-prefer-dark-theme", TRUE, NULL);
+#endif
+
+  provider = (GtkStyleProvider *) gtk_css_provider_new ();
+  if (!gtk_css_provider_load_from_path (GTK_CSS_PROVIDER (provider), DATADIR
+          "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
+#ifndef USE_COMPACT_UI
+#ifdef USE_DARK_THEME
+          "bt-edit.dark.css",
+#else
+          "bt-edit.light.css",
+#endif
+#else
+          "bt-edit.compact.css"
+#endif
+          & err)) {
+    g_print ("Error loading css: %s\n", safe_string (err->message));
+    g_error_free (err);
+    err = NULL;
+  } else {
+    gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
+        provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  }
+
+  add_pixmap_directory (DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE ""
+      G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S);
+
 }
 
 //-- wrapper

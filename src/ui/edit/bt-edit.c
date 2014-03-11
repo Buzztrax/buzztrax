@@ -74,13 +74,11 @@ gint
 main (gint argc, gchar ** argv)
 {
   gboolean res = FALSE;
-  //gboolean arg_version=FALSE;
   gchar *command = NULL, *input_file_name = NULL;
   BtEditApplication *app;
   GOptionContext *ctx = NULL;
   GOptionGroup *group;
   GError *err = NULL;
-  GtkStyleProvider *provider;
 
 #ifdef ENABLE_NLS
   setlocale (LC_ALL, "");
@@ -121,49 +119,15 @@ main (gint argc, gchar ** argv)
 
   if (!g_option_context_parse (ctx, &argc, &argv, &err)) {
     g_print ("Error initializing: %s\n", safe_string (err->message));
-    g_option_context_free (ctx);
     g_error_free (err);
-    exit (1);
+    goto Done;
   }
-  // if we use this, all other libs are initialized and their options are processed
-  // this causes #1777461 (fail if we don't have X)
-  //if(arg_version) {
-  //  g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
-  //  res=TRUE;
-  //  goto DONE;
-  //}
+
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-edit", 0,
       "music production environment / editor ui");
 
   // load our custom gtk-theming
-//#define USE_DARK_THEME
-#ifdef USE_DARK_THEME
-  g_object_set (gtk_settings_get_default (),
-      "gtk-application-prefer-dark-theme", TRUE, NULL);
-#endif
-  provider = (GtkStyleProvider *) gtk_css_provider_new ();
-  if (!gtk_css_provider_load_from_path (GTK_CSS_PROVIDER (provider), DATADIR
-          "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
-#ifndef USE_COMPACT_UI
-#ifdef USE_DARK_THEME
-          "bt-edit.dark.css",
-#else
-          "bt-edit.light.css",
-#endif
-#else
-          "bt-edit.compact.css"
-#endif
-          & err)) {
-    g_print ("Error loading css: %s\n", safe_string (err->message));
-    g_error_free (err);
-    err = NULL;
-  } else {
-    gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
-        provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-  }
-
-  add_pixmap_directory (DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE ""
-      G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S);
+  bt_ui_resources_init_theme ();
 
   // give some global context info
   g_set_application_name ("Buzztrax");
@@ -179,25 +143,6 @@ main (gint argc, gchar ** argv)
       VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztrax.org");
 
   GST_INFO ("starting: thread=%p", g_thread_self ());
-
-#if 0
-  /* check if LIBDIR"/gstreamer-0.10" is in $GST_PLUGIN_PATH
-   * gst_default_registry_get_path_list() is useless right now,
-   * see https://bugzilla.gnome.org/show_bug.cgi?id=608841
-   */
-  {
-    const gchar plugin_path[] = LIBDIR G_DIR_SEPARATOR_S "gstreamer-0.10";
-    GList *node, *paths = gst_default_registry_get_path_list ();
-    // irks, that list is NULL, gst, checks GST_PLUGIN_PATH, GST_PLUGIN_STSTEM_PATH
-    // and if !GST_PLUGIN_STSTEM_PATH PLUGINDIR
-
-    GST_INFO ("check that %s is scanned by gst registry", plugin_path);
-    for (node = paths; node; node = g_list_next (node)) {
-      GST_INFO ("  checking %s", (gchar *) node->data);
-    }
-    g_list_free (paths);
-  }
-#endif
 
   app = bt_edit_application_new ();
 
@@ -224,6 +169,7 @@ main (gint argc, gchar ** argv)
   GST_INFO ("app %" G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (app));
   g_object_unref (app);
 
+Done:
   g_free (command);
   g_free (input_file_name);
   g_option_context_free (ctx);
