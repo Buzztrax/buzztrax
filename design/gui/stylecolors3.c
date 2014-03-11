@@ -4,7 +4,7 @@
  * gcc -Wall -g stylecolors3.c -o stylecolors3 `pkg-config gtk+-3.0 --cflags --libs`
  *
  * ./stylecolors3 {Adwaita|Ambiance,...}
- * ll /usr/share/themes/*?/gtk-3.0/gtk.css
+ * find /usr/share/themes -name gtk.css
  */
 
 #include <stdio.h>
@@ -62,7 +62,7 @@ main (gint argc, gchar ** argv)
 
   gtk_init (&argc, &argv);
 
-  if (argc > 0) {
+  if (argc > 1) {
     //printf ("Using custom theme: %s\n", argv[1]);
     GtkCssProvider *provider = gtk_css_provider_get_named (argv[1], NULL);
     if (provider) {
