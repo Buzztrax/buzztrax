@@ -199,24 +199,14 @@ bt_edit_application_check_missing (const BtEditApplication * self)
   return (res);
 }
 
-/*
- * bt_edit_application_run_ui:
- * @self: the edit application
- *
- * Run the user interface. This checks if the users runs a new version for the
- * first time. In this case it show the about dialog. It also runs the gstreamer
- * element checks.
- *
- * Returns: %TRUE for success
- */
 static gboolean
-bt_edit_application_run_ui (const BtEditApplication * self)
+bt_edit_application_run_ui_idle (gpointer user_data)
 {
+  BtEditApplication *self = BT_EDIT_APPLICATION (user_data);
   BtSettings *settings;
   guint version;
   gboolean res, show_tips;
 
-  g_assert (self);
   g_assert (self->priv->main_window);
 
   GST_INFO ("application.run_ui launched");
@@ -238,19 +228,34 @@ bt_edit_application_run_ui (const BtEditApplication * self)
 
   // check for missing elements
   if (!(res = bt_edit_application_check_missing (self)))
-    goto Error;
+    gtk_main_quit ();
 
   // check for recoverable songs
   bt_edit_application_crash_log_recover (self);
 
+  return FALSE;
+}
+
+/*
+ * bt_edit_application_run_ui:
+ * @self: the edit application
+ *
+ * Run the user interface. This checks if the users runs a new version for the
+ * first time. In this case it show the about dialog. It also runs the gstreamer
+ * element checks.
+ *
+ * Returns: %TRUE for success
+ */
+static gboolean
+bt_edit_application_run_ui (const BtEditApplication * self)
+{
+  g_idle_add (bt_edit_application_run_ui_idle, (gpointer) self);
+
   GST_INFO ("before running the UI");
   gtk_main ();
   GST_INFO ("after running the UI");
-  res = TRUE;
 
-Error:
-  GST_INFO ("application.run_ui finished : %d", res);
-  return (res);
+  return TRUE;
 }
 
 //-- constructor methods
@@ -732,8 +737,8 @@ bt_edit_application_ui_lock (const BtEditApplication * self)
 {
   GdkCursor *cursor = gdk_cursor_new (GDK_WATCH);
 
-  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
-              priv->main_window)), cursor);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
+              main_window)), cursor);
   g_object_unref (cursor);
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), FALSE);
 
@@ -751,8 +756,8 @@ void
 bt_edit_application_ui_unlock (const BtEditApplication * self)
 {
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), TRUE);
-  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
-              priv->main_window)), NULL);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
+              main_window)), NULL);
 }
 
 /**
