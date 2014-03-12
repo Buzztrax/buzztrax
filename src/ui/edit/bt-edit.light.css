@@ -4,4 +4,8 @@
 @define-color row_even_color #FFFFFF;
 @define-color row_odd_color shade (@row_even_color, 0.9);
 
+@define-color playline_color  #0000FF;
+@define-color loopline_color #FFBF00;
+@define-color endline_color #FF4C33;
+
 @import url("bt-edit.css");

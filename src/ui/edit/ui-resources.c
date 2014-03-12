@@ -22,7 +22,15 @@
  * It is implemented as a singleton.
  */
 
-/* TODO(ensonic): manage GdkColor entries and guint colors (via gdk_color.pixel)
+/* TODO(ensonic): replace custome colors with style colors
+ * GtkSymbolicColor * gtk_style_properties_lookup_color (GtkStyleProperties *props,
+ *                                                       const gchar *name);
+ * gboolean gtk_symbolic_color_resolve (GtkSymbolicColor *color,
+ *                                      GtkStyleProperties *props,
+ *                                      GdkRGBA *resolved_color);
+ *
+ * GtkStyleContext * gtk_widget_get_style_context (GtkWidget *widget);
+ * gboolean gtk_style_context_lookup_color (context, "focus_color", &color2);
  */
 
 #define BT_EDIT
@@ -111,11 +119,6 @@ bt_ui_resources_init_colors (BtUIResources * self)
   // selection background
   MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SELECTION1, 1.00, 1.00, 0.60);
   MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SELECTION2, 0.95, 0.95, 0.55);
-
-  // tree view lines
-  MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_PLAYLINE, 0.00, 0.00, 1.00);
-  MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_LOOPLINE, 1.00, 0.75, 0.00);
-  MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_ENDLINE, 1.00, 0.30, 0.20);
 
   // source machine
   if (use_tango_colors) {

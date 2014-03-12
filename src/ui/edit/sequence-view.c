@@ -126,6 +126,7 @@ static gboolean
 bt_sequence_view_draw (GtkWidget * widget, cairo_t * c)
 {
   BtSequenceView *self = BT_SEQUENCE_VIEW (widget);
+  GtkStyleContext *style;
   gdouble w, h, y;
   GdkRectangle vr;
   GdkRGBA color;
@@ -133,6 +134,8 @@ bt_sequence_view_draw (GtkWidget * widget, cairo_t * c)
 
   // let the parent draw first
   GTK_WIDGET_CLASS (bt_sequence_view_parent_class)->draw (widget, c);
+
+  style = gtk_widget_get_style_context (widget);
 
   if (G_UNLIKELY (!self->priv->row_height)) {
     GtkTreePath *path;
@@ -161,7 +164,9 @@ bt_sequence_view_draw (GtkWidget * widget, cairo_t * c)
   // draw play-pos
   y = 0.5 + floor ((self->priv->play_pos * h) - vr.y);
   if ((y >= 0) && (y < vr.height)) {
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_PLAYLINE, &color);
+    if (!gtk_style_context_lookup_color (style, "playline_color", &color)) {
+      GST_WARNING ("Can't find 'playline_color' in css.");
+    }
     gdk_cairo_set_source_rgba (c, &color);
     cairo_set_line_width (c, 2.0);
     cairo_move_to (c, vr.x + 0.0, y);
@@ -171,7 +176,9 @@ bt_sequence_view_draw (GtkWidget * widget, cairo_t * c)
   // draw song-end
   y = h - (1 + vr.y);
   if ((y >= 0) && (y < vr.height)) {
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_ENDLINE, &color);
+    if (!gtk_style_context_lookup_color (style, "endline_color", &color)) {
+      GST_WARNING ("Can't find 'endline_color' in css.");
+    }
     gdk_cairo_set_source_rgba (c, &color);
     cairo_set_line_width (c, 2.0);
     cairo_move_to (c, vr.x + 0.0, y);
@@ -179,7 +186,9 @@ bt_sequence_view_draw (GtkWidget * widget, cairo_t * c)
     cairo_stroke (c);
   }
   // draw loop-start/-end
-  bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_LOOPLINE, &color);
+  if (!gtk_style_context_lookup_color (style, "loopline_color", &color)) {
+    GST_WARNING ("Can't find 'loopline_color' in css.");
+  }
   gdk_cairo_set_source_rgba (c, &color);
   cairo_set_dash (c, loop_pos_dash_list, 1, 0.0);
   // draw these always from 0 as they are dashed and we can't adjust the start of the dash pattern

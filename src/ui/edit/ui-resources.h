@@ -55,9 +55,6 @@ struct _BtUIResourcesClass {
  * @BT_UI_RES_COLOR_CURSOR: cursor color
  * @BT_UI_RES_COLOR_SELECTION1: selection color
  * @BT_UI_RES_COLOR_SELECTION2: shaded selection color
- * @BT_UI_RES_COLOR_PLAYLINE: playback line
- * @BT_UI_RES_COLOR_LOOPLINE: loop line
- * @BT_UI_RES_COLOR_ENDLINE: song end line
  * @BT_UI_RES_COLOR_SOURCE_MACHINE_BASE: source machine base color
  * @BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1: source machine lighter variant
  * @BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2: source machine even lighter variant
@@ -83,9 +80,6 @@ typedef enum {
   BT_UI_RES_COLOR_CURSOR=0,
   BT_UI_RES_COLOR_SELECTION1,
   BT_UI_RES_COLOR_SELECTION2,
-  BT_UI_RES_COLOR_PLAYLINE,
-  BT_UI_RES_COLOR_LOOPLINE,
-  BT_UI_RES_COLOR_ENDLINE,
   BT_UI_RES_COLOR_SOURCE_MACHINE_BASE,       /* machine view normal */
   BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,    /* list view odd */
   BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,    /* list view even */

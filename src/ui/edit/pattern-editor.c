@@ -615,7 +615,7 @@ bt_pattern_editor_realize (GtkWidget * widget)
   style = gtk_widget_get_style_context (widget);
 
   // setup graphic styles
-  bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_PLAYLINE,
+  gtk_style_context_lookup_color (style, "playline_color",
       &self->play_pos_color);
 
   gtk_style_context_get_color (style, GTK_STATE_FLAG_SELECTED,
