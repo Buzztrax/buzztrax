@@ -12,4 +12,7 @@
 @define-color selection1_color #FFFF99;
 @define-color selection2_color shade (@selection1_color, 0.9);
 
+@define-color analyzer_decay_color #FFBF00;
+@define-color grid_lines_color #7F7F7F;
+
 @import url("bt-edit.css");

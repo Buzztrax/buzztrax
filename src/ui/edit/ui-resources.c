@@ -206,10 +206,6 @@ bt_ui_resources_init_colors (BtUIResources * self)
         0.50);
   }
 
-  // analyzer window
-  MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_ANALYZER_DECAY, 1.00, 0.75, 0.00);
-  MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_GRID_LINES, 0.5, 0.5, 0.5);
-
   g_free (icon_theme_name);
   GST_INFO ("colors created");
 }

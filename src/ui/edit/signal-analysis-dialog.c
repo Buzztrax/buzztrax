@@ -101,7 +101,7 @@ struct _BtSignalAnalysisDialogPrivate
   /* the analyzer-graphs */
   GtkWidget *spectrum_drawingarea, *level_drawingarea;
   GtkWidget *spectrum_ruler;
-  GdkColor *decay_color, *grid_color;
+  GdkRGBA decay_color, grid_color;
   cairo_pattern_t *spect_grad;
 
   /* the gstreamer elements that is used */
@@ -196,12 +196,17 @@ static void
 on_dialog_realize (GtkWidget * widget, gpointer user_data)
 {
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
+  GtkStyleContext *style = gtk_widget_get_style_context (widget);
 
   GST_DEBUG ("dialog realize");
-  self->priv->decay_color =
-      bt_ui_resources_get_gdk_color (BT_UI_RES_COLOR_ANALYZER_DECAY);
-  self->priv->grid_color =
-      bt_ui_resources_get_gdk_color (BT_UI_RES_COLOR_GRID_LINES);
+  if (!gtk_style_context_lookup_color (style, "analyzer_decay_color",
+          &self->priv->decay_color)) {
+    GST_WARNING ("Can't find 'analyzer_decay_color' in css.");
+  }
+  if (!gtk_style_context_lookup_color (style, "grid_lines_color",
+          &self->priv->grid_color)) {
+    GST_WARNING ("Can't find 'grid_lines_color' in css.");
+  }
 }
 
 /*
@@ -232,9 +237,7 @@ on_level_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   cairo_set_source_rgb (cr, 1.0, 1.0, 1.0);
   cairo_rectangle (cr, middle - peak0, 0, peak0 + peak1, LEVEL_HEIGHT);
   cairo_fill (cr);
-  cairo_set_source_rgb (cr, self->priv->decay_color->red / 65535.0,
-      self->priv->decay_color->green / 65535.0,
-      self->priv->decay_color->blue / 65535.0);
+  gdk_cairo_set_source_rgba (cr, &self->priv->decay_color);
   cairo_rectangle (cr, middle - decay0, 0, 2, LEVEL_HEIGHT);
   cairo_fill (cr);
   cairo_rectangle (cr, (middle - 1) + decay1, 0, 2, LEVEL_HEIGHT);
@@ -282,9 +285,7 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   /* draw grid lines
    * the bin center frequencies are f(i)=i*srat/spect_bands
    */
-  cairo_set_source_rgb (cr, self->priv->grid_color->red / 65535.0,
-      self->priv->grid_color->green / 65535.0,
-      self->priv->grid_color->blue / 65535.0);
+  gdk_cairo_set_source_rgba (cr, &self->priv->grid_color);
   cairo_set_line_width (cr, 1.0);
   cairo_set_dash (cr, grid_dash_pattern, 1, 0.0);
   y = 0.5 + round (spect_height / 2.0);
@@ -369,9 +370,7 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
           (gtk_widget_get_display (widget))), &mx, &my, NULL);
   if ((mx >= 0) && (mx < gtk_widget_get_allocated_width (widget))
       && (my >= 0) && (my < gtk_widget_get_allocated_height (widget))) {
-    cairo_set_source_rgba (cr, self->priv->decay_color->red / 65535.0,
-        self->priv->decay_color->green / 65535.0,
-        self->priv->decay_color->blue / 65535.0, 0.7);
+    gdk_cairo_set_source_rgba (cr, &self->priv->decay_color);
     cairo_rectangle (cr, mx - 1.0, 0.0, 2.0, spect_height);
     cairo_rectangle (cr, 0.0, my - 1.0, spect_bands, 2.0);
     cairo_fill (cr);
