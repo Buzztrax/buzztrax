@@ -113,13 +113,6 @@ bt_ui_resources_init_colors (BtUIResources * self)
       || !strcasecmp (icon_theme_name, "gnome"))
     use_tango_colors = TRUE;
 
-  // cursor
-  MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_CURSOR, 0.85, 0.85, 0.20);
-
-  // selection background
-  MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SELECTION1, 1.00, 1.00, 0.60);
-  MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SELECTION2, 0.95, 0.95, 0.55);
-
   // source machine
   if (use_tango_colors) {
     /* (#ffd699) #fcaf3e / #f57900 / #ce5c00

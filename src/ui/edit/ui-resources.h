@@ -52,9 +52,6 @@ struct _BtUIResourcesClass {
 
 /**
  * BtUIResourcesColors:
- * @BT_UI_RES_COLOR_CURSOR: cursor color
- * @BT_UI_RES_COLOR_SELECTION1: selection color
- * @BT_UI_RES_COLOR_SELECTION2: shaded selection color
  * @BT_UI_RES_COLOR_SOURCE_MACHINE_BASE: source machine base color
  * @BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1: source machine lighter variant
  * @BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2: source machine even lighter variant
@@ -77,10 +74,7 @@ struct _BtUIResourcesClass {
  * Symbolic color names for the UI.
  */
 typedef enum {
-  BT_UI_RES_COLOR_CURSOR=0,
-  BT_UI_RES_COLOR_SELECTION1,
-  BT_UI_RES_COLOR_SELECTION2,
-  BT_UI_RES_COLOR_SOURCE_MACHINE_BASE,       /* machine view normal */
+  BT_UI_RES_COLOR_SOURCE_MACHINE_BASE=0,     /* machine view normal */
   BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,    /* list view odd */
   BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,    /* list view even */
   BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1,      /* machine title */

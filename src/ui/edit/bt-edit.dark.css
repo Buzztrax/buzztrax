@@ -8,4 +8,8 @@
 @define-color loopline_color #FFBF00;
 @define-color endline_color #FF4C33;
 
+@define-color cursor_color #C4C433;
+@define-color selection1_color #FFFF99;
+@define-color selection2_color shade (@selection1_color, 0.9);
+
 @import url("bt-edit.css");
