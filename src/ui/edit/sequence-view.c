@@ -58,6 +58,7 @@ struct _BtSequenceViewPrivate
 
   /* cache some ressources */
   GdkWindow *window;
+  GdkRGBA play_line_color, end_line_color, loop_line_color;
 };
 
 //-- the class
@@ -116,26 +117,38 @@ static void
 bt_sequence_view_realize (GtkWidget * widget)
 {
   BtSequenceView *self = BT_SEQUENCE_VIEW (widget);
+  GtkStyleContext *style;
 
   // first let the parent realize itslf
   GTK_WIDGET_CLASS (bt_sequence_view_parent_class)->realize (widget);
   self->priv->window = gtk_tree_view_get_bin_window (GTK_TREE_VIEW (self));
+
+  // cache theme colors
+  style = gtk_widget_get_style_context (widget);
+  if (!gtk_style_context_lookup_color (style, "playline_color",
+          &self->priv->play_line_color)) {
+    GST_WARNING ("Can't find 'playline_color' in css.");
+  }
+  if (!gtk_style_context_lookup_color (style, "endline_color",
+          &self->priv->end_line_color)) {
+    GST_WARNING ("Can't find 'endline_color' in css.");
+  }
+  if (!gtk_style_context_lookup_color (style, "loopline_color",
+          &self->priv->loop_line_color)) {
+    GST_WARNING ("Can't find 'loopline_color' in css.");
+  }
 }
 
 static gboolean
 bt_sequence_view_draw (GtkWidget * widget, cairo_t * c)
 {
   BtSequenceView *self = BT_SEQUENCE_VIEW (widget);
-  GtkStyleContext *style;
   gdouble w, h, y;
   GdkRectangle vr;
-  GdkRGBA color;
   gdouble loop_pos_dash_list[] = { 4.0 };
 
   // let the parent draw first
   GTK_WIDGET_CLASS (bt_sequence_view_parent_class)->draw (widget, c);
-
-  style = gtk_widget_get_style_context (widget);
 
   if (G_UNLIKELY (!self->priv->row_height)) {
     GtkTreePath *path;
@@ -164,10 +177,7 @@ bt_sequence_view_draw (GtkWidget * widget, cairo_t * c)
   // draw play-pos
   y = 0.5 + floor ((self->priv->play_pos * h) - vr.y);
   if ((y >= 0) && (y < vr.height)) {
-    if (!gtk_style_context_lookup_color (style, "playline_color", &color)) {
-      GST_WARNING ("Can't find 'playline_color' in css.");
-    }
-    gdk_cairo_set_source_rgba (c, &color);
+    gdk_cairo_set_source_rgba (c, &self->priv->play_line_color);
     cairo_set_line_width (c, 2.0);
     cairo_move_to (c, vr.x + 0.0, y);
     cairo_line_to (c, vr.x + w, y);
@@ -176,20 +186,14 @@ bt_sequence_view_draw (GtkWidget * widget, cairo_t * c)
   // draw song-end
   y = h - (1 + vr.y);
   if ((y >= 0) && (y < vr.height)) {
-    if (!gtk_style_context_lookup_color (style, "endline_color", &color)) {
-      GST_WARNING ("Can't find 'endline_color' in css.");
-    }
-    gdk_cairo_set_source_rgba (c, &color);
+    gdk_cairo_set_source_rgba (c, &self->priv->end_line_color);
     cairo_set_line_width (c, 2.0);
     cairo_move_to (c, vr.x + 0.0, y);
     cairo_line_to (c, vr.x + w, y);
     cairo_stroke (c);
   }
   // draw loop-start/-end
-  if (!gtk_style_context_lookup_color (style, "loopline_color", &color)) {
-    GST_WARNING ("Can't find 'loopline_color' in css.");
-  }
-  gdk_cairo_set_source_rgba (c, &color);
+  gdk_cairo_set_source_rgba (c, &self->priv->loop_line_color);
   cairo_set_dash (c, loop_pos_dash_list, 1, 0.0);
   // draw these always from 0 as they are dashed and we can't adjust the start of the dash pattern
   y = (self->priv->loop_start * h) - vr.y;
