@@ -613,32 +613,20 @@ bt_pattern_editor_realize (GtkWidget * widget)
 #endif
 
   style = gtk_widget_get_style_context (widget);
+  gtk_style_context_add_class (style, GTK_STYLE_CLASS_BACKGROUND);
+  gtk_style_context_add_class (style, GTK_STYLE_CLASS_VIEW);
 
   // setup graphic styles
   gtk_style_context_lookup_color (style, "playline_color",
       &self->play_pos_color);
 
-  gtk_style_context_get_color (style, GTK_STATE_FLAG_SELECTED,
+  gtk_style_context_lookup_color (style, "row_even_color",
       &self->bg_shade_color[0]);
-  self->bg_shade_color[1].red = self->bg_shade_color[0].red * 0.9;
-  self->bg_shade_color[1].green = self->bg_shade_color[0].green * 0.9;
-  self->bg_shade_color[1].blue = self->bg_shade_color[0].blue * 0.9;
-  self->bg_shade_color[1].alpha = self->bg_shade_color[0].alpha;
-  /*
-     c = &style->light[GTK_STATE_NORMAL];
-     self->bg_shade_color[0][0] = ((gdouble) c->red * 0.9) / 65535.0;
-     self->bg_shade_color[0][1] = ((gdouble) c->green * 0.9) / 65535.0;
-     self->bg_shade_color[0][2] = ((gdouble) c->blue * 0.9) / 65535.0;
-     self->bg_shade_color[1][0] = (gdouble) c->red / 65535.0;
-     self->bg_shade_color[1][1] = (gdouble) c->green / 65535.0;
-     self->bg_shade_color[1][2] = (gdouble) c->blue / 65535.0;
-   */
+  gtk_style_context_lookup_color (style, "row_odd_color",
+      &self->bg_shade_color[1]);
 
   gtk_style_context_get_color (style, GTK_STATE_FLAG_NORMAL, &self->text_color);
-  /*c = &style->text[GTK_STATE_NORMAL];
-     self->text_color[0] = (gdouble) c->red / 65535.0;
-     self->text_color[1] = (gdouble) c->green / 65535.0;
-     self->text_color[2] = (gdouble) c->blue / 65535.0; */
+
   gtk_style_context_get_background_color (style, GTK_STATE_FLAG_ACTIVE, // _NORMAL?
       &self->bg_color);
   /*c = &style->bg[GTK_STATE_NORMAL];
@@ -777,6 +765,7 @@ static gboolean
 bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR (widget);
+  GtkStyleContext *style;
   GtkAllocation allocation;
   gint y, x, i, g, max_y;
   gint grp_x;
@@ -785,6 +774,9 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
 
   gtk_widget_get_allocation (widget, &allocation);
+
+  style = gtk_widget_get_style_context (widget);
+  gtk_render_background (style, cr, 0, 0, allocation.width, allocation.height);
 
   if (self->hadj) {
     self->ofs_x = (gint) gtk_adjustment_get_value (self->hadj);
