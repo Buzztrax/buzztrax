@@ -475,21 +475,6 @@ bt_ui_resources_get_wire_graphics_pixbuf_by_wire (const BtWire * wire,
   return g_object_ref (singleton->priv->wire_pixbuf[state]);
 }
 
-
-/**
- * bt_ui_resources_get_gdk_color:
- * @color_type: the color id
- *
- * Gets a prealocated color by id.
- *
- * Returns: the requested #GdkColor.
- */
-GdkColor *
-bt_ui_resources_get_gdk_color (BtUIResourcesColors color_type)
-{
-  return (&singleton->priv->colors[color_type]);
-}
-
 /**
  * bt_ui_resources_get_rgb_color:
  * @color_type: the color id

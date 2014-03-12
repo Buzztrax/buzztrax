@@ -119,7 +119,6 @@ GtkWidget *bt_ui_resources_get_icon_image_by_machine_type(GType machine_type);
 
 GdkPixbuf *bt_ui_resources_get_wire_graphics_pixbuf_by_wire(const BtWire *wire, gdouble zoom);
 
-GdkColor *bt_ui_resources_get_gdk_color(BtUIResourcesColors color_type);
 void bt_ui_resources_get_rgb_color(BtUIResourcesColors color_type, GdkRGBA *color);
 guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine, BtUIResourcesMachineColors color_type);
 
