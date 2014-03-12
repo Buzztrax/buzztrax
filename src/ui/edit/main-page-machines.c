@@ -256,7 +256,7 @@ on_wire_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height,
 
   cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
   cairo_set_line_width (cr, 1.0);
-  // IDEA(ensonic): the green is a bit bright, use ui_resources?
+  // IDEA(ensonic): the green is a bit bright, use css
   if (self->priv->new_wire_dst && bt_main_page_machines_check_wire (self)) {
     cairo_set_source_rgba (cr, 0.0, 1.0, 0.0, 1.0);
   } else {
@@ -1783,7 +1783,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
       gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
           priv->canvas_widget));
   GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
-  GdkColor *c = &style->bg[GTK_STATE_NORMAL];
+  GdkColor *c = &style->base[GTK_STATE_NORMAL];
   ClutterColor stage_color = {
     c->red >> 8, c->green >> 8, c->blue >> 8, 0xff
   };
