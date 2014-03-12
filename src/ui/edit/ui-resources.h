@@ -51,46 +51,6 @@ struct _BtUIResourcesClass {
 };
 
 /**
- * BtUIResourcesColors:
- * @BT_UI_RES_COLOR_SOURCE_MACHINE_BASE: source machine base color
- * @BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1: source machine lighter variant
- * @BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2: source machine even lighter variant
- * @BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1: source machine darker variant
- * @BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2: source machine even darker variant
- * @BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE: processor machine base color
- * @BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1: processor machine lighter variant
- * @BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2: processor machine even lighter variant
- * @BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1: processor machine darker variant
- * @BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2: processor machine even darker variant
- * @BT_UI_RES_COLOR_SINK_MACHINE_BASE: sink machine base color
- * @BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1: sink machine lighter variant
- * @BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2: sink machine even lighter variant
- * @BT_UI_RES_COLOR_SINK_MACHINE_DARK1: sink machine darker variant
- * @BT_UI_RES_COLOR_SINK_MACHINE_DARK2: sink machine even darker variant
- * @BT_UI_RES_COLOR_COUNT: symbolic color count
- *
- * Symbolic color names for the UI.
- */
-typedef enum {
-  BT_UI_RES_COLOR_SOURCE_MACHINE_BASE=0,     /* machine view normal */
-  BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,    /* list view odd */
-  BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,    /* list view even */
-  BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1,      /* machine title */
-  BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2,      /* --- */
-  BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE,    /* machine view normal */
-  BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1, /* list view odd */
-  BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2, /* list view even */
-  BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1,   /* machine title */
-  BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2,   /* --- */
-  BT_UI_RES_COLOR_SINK_MACHINE_BASE,         /* machine view normal */
-  BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1,      /* list view odd */
-  BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,      /* list view even */
-  BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        /* --- */
-  BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        /* --- */
-  BT_UI_RES_COLOR_COUNT
-} BtUIResourcesColors;
-
-/**
  * BtUIResourcesMachineColors:
  * @BT_UI_RES_COLOR_MACHINE_BASE: base color
  * @BT_UI_RES_COLOR_MACHINE_BRIGHT1: lighter variant
@@ -118,9 +78,6 @@ GtkWidget *bt_ui_resources_get_icon_image_by_machine(const BtMachine *machine);
 GtkWidget *bt_ui_resources_get_icon_image_by_machine_type(GType machine_type);
 
 GdkPixbuf *bt_ui_resources_get_wire_graphics_pixbuf_by_wire(const BtWire *wire, gdouble zoom);
-
-void bt_ui_resources_get_rgb_color(BtUIResourcesColors color_type, GdkRGBA *color);
-guint32 bt_ui_resources_get_color_by_machine(const BtMachine *machine, BtUIResourcesMachineColors color_type);
 
 GtkAccelGroup *bt_ui_resources_get_accel_group(void);
 

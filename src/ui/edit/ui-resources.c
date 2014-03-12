@@ -22,17 +22,6 @@
  * It is implemented as a singleton.
  */
 
-/* TODO(ensonic): replace custome colors with style colors
- * GtkSymbolicColor * gtk_style_properties_lookup_color (GtkStyleProperties *props,
- *                                                       const gchar *name);
- * gboolean gtk_symbolic_color_resolve (GtkSymbolicColor *color,
- *                                      GtkStyleProperties *props,
- *                                      GdkRGBA *resolved_color);
- *
- * GtkStyleContext * gtk_widget_get_style_context (GtkWidget *widget);
- * gboolean gtk_style_context_lookup_color (context, "focus_color", &color2);
- */
-
 #define BT_EDIT
 #define BT_UI_RESOURCES_C
 
@@ -47,9 +36,6 @@ struct _BtUIResourcesPrivate
   GdkPixbuf *source_machine_pixbuf;
   GdkPixbuf *processor_machine_pixbuf;
   GdkPixbuf *sink_machine_pixbuf;
-
-  /* colors */
-  GdkColor colors[BT_UI_RES_COLOR_COUNT];
 
   /* the keyboard shortcut table for the window */
   GtkAccelGroup *accel_group;
@@ -71,145 +57,6 @@ G_DEFINE_TYPE (BtUIResources, bt_ui_resources, G_TYPE_OBJECT);
 //-- event handler
 
 //-- helper methods
-
-#define MAKE_COLOR_FROM_FLOATS(ix,r,g,b) \
-  self->priv->colors[ix].red=  (guint16)(r*65535); \
-  self->priv->colors[ix].green=(guint16)(g*65535); \
-  self->priv->colors[ix].blue= (guint16)(b*65535)
-
-#define MAKE_COLOR_FROM_HEX(ix,r,g,b) \
-  self->priv->colors[ix].red=  (guint16)((r*256)); \
-  self->priv->colors[ix].green=(guint16)((g*256)); \
-  self->priv->colors[ix].blue= (guint16)((b*256))
-
-#define MAKE_COLOR_FROM_HEX_MIX(ix,r1,g1,b1,r2,g2,b2) \
-  self->priv->colors[ix].red=  (guint16)((r2+((r1-r2)>>1))*256); \
-  self->priv->colors[ix].green=(guint16)((g2+((g1-g2)>>1))*256); \
-  self->priv->colors[ix].blue= (guint16)((b2+((b1-b2)>>1))*256)
-
-static void
-bt_ui_resources_init_colors (BtUIResources * self)
-{
-  GtkSettings *settings;
-  gchar *icon_theme_name;
-  gboolean use_tango_colors = FALSE;
-
-  settings = gtk_settings_get_default ();
-  /* get the theme name - we need different machine colors for tango
-   * http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
-   * http://tango.freedesktop.org/static/cvs/tango-art-tools/palettes/Tango-Palette.gpl
-   */
-  g_object_get (settings, "gtk-icon-theme-name", &icon_theme_name, NULL);
-  GST_INFO ("Icon Theme: %s", icon_theme_name);
-
-  /* TODO(ensonic): can we get some colors from the theme ?
-   * gtk_widget_style_get(widget,
-   *   "cursor-color",&self->priv->colors[ix],
-   *   "secondary-cursor-color",&self->priv->colors[ix],
-   *   NULL);
-   */
-
-  if (!strcasecmp (icon_theme_name, "tango")
-      || !strcasecmp (icon_theme_name, "gnome"))
-    use_tango_colors = TRUE;
-
-  // source machine
-  if (use_tango_colors) {
-    /* (#ffd699) #fcaf3e / #f57900 / #ce5c00
-     * 252 175  62      Orange 1
-     * 245 121   0      Orange 2
-     * 206  92   0      Orange 3
-     */
-    MAKE_COLOR_FROM_HEX (BT_UI_RES_COLOR_SOURCE_MACHINE_BASE, 0xf5, 0x79, 0x00);
-    //MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,       0xfc,0xaf,0x3e);
-    //MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,   0xfc,0xaf,0x3e,0xf5,0x79,0x00);
-    MAKE_COLOR_FROM_HEX (BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1, 0xff, 0xd6,
-        0x99);
-    MAKE_COLOR_FROM_HEX_MIX (BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2, 0xff, 0xd6,
-        0x99, 0xf5, 0x79, 0x00);
-    MAKE_COLOR_FROM_HEX_MIX (BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1, 0xce, 0x5c,
-        0x00, 0xf5, 0x79, 0x00);
-    MAKE_COLOR_FROM_HEX (BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2, 0xce, 0x5c,
-        0x00);
-  } else {
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SOURCE_MACHINE_BASE, 1.00, 0.60,
-        0.60);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1, 1.00, 0.90,
-        0.90);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2, 1.00, 0.80,
-        0.80);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1, 0.60, 0.40,
-        0.40);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2, 0.50, 0.20,
-        0.20);
-  }
-
-  // processor machine
-  if (use_tango_colors) {
-    /* (#cbff99) #8ae234 / #73d216 / #4e9a06
-     * 138 226  52      Chameleon 1
-     * 115 210  22      Chameleon 2
-     *  78 154   6      Chameleon 3
-     */
-    MAKE_COLOR_FROM_HEX (BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE, 0x73, 0xd2,
-        0x16);
-    //MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1,    0x8a,0xe2,0x34);
-    //MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2,0x8a,0xe2,0x34,0x73,0xd2,0x16);
-    MAKE_COLOR_FROM_HEX (BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1, 0xcb, 0xff,
-        0x99);
-    MAKE_COLOR_FROM_HEX_MIX (BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2, 0xcb,
-        0xff, 0x99, 0x73, 0xd2, 0x16);
-    MAKE_COLOR_FROM_HEX_MIX (BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1, 0x4e,
-        0x9a, 0x06, 0x73, 0xd2, 0x16);
-    MAKE_COLOR_FROM_HEX (BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2, 0x4e, 0x9a,
-        0x06);
-  } else {
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE, 0.60, 1.00,
-        0.60);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1, 0.90,
-        1.00, 0.90);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2, 0.80,
-        1.00, 0.80);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1, 0.40, 0.60,
-        0.40);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2, 0.20, 0.50,
-        0.20);
-  }
-
-  // sink machine
-  if (use_tango_colors) {
-    /* (#99caff) #729fcf / #3465a4 / #204a87
-     * 114 159 207      Sky Blue 1 [62 58 43]
-     *  52 101 164      Sky Blue 2
-     *  32  74 135      Sky Blue 3 [20 27 29]
-     */
-    MAKE_COLOR_FROM_HEX (BT_UI_RES_COLOR_SINK_MACHINE_BASE, 0x34, 0x65, 0xa4);
-    //MAKE_COLOR_FROM_HEX(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1,         0x72,0x9f,0xcf);
-    //MAKE_COLOR_FROM_HEX_MIX(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,     0x72,0x9f,0xcf,0x34,0x65,0xa4);
-    MAKE_COLOR_FROM_HEX (BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1, 0x99, 0xca,
-        0xff);
-    MAKE_COLOR_FROM_HEX_MIX (BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2, 0x99, 0xca,
-        0xff, 0x34, 0x65, 0xa4);
-    MAKE_COLOR_FROM_HEX_MIX (BT_UI_RES_COLOR_SINK_MACHINE_DARK1, 0x20, 0x4a,
-        0x87, 0x34, 0x65, 0xa4);
-    MAKE_COLOR_FROM_HEX (BT_UI_RES_COLOR_SINK_MACHINE_DARK2, 0x20, 0x4a, 0x87);
-  } else {
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SINK_MACHINE_BASE, 0.60, 0.60,
-        1.00);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1, 0.90, 0.90,
-        1.00);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2, 0.80, 0.80,
-        1.00);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SINK_MACHINE_DARK1, 0.40, 0.40,
-        0.60);
-    MAKE_COLOR_FROM_FLOATS (BT_UI_RES_COLOR_SINK_MACHINE_DARK2, 0.20, 0.20,
-        0.50);
-  }
-
-  g_free (icon_theme_name);
-  GST_INFO ("colors created");
-}
-
 
 static void
 bt_ui_resources_init_icons (BtUIResources * self)
@@ -476,57 +323,6 @@ bt_ui_resources_get_wire_graphics_pixbuf_by_wire (const BtWire * wire,
 }
 
 /**
- * bt_ui_resources_get_rgb_color:
- * @color_type: the color id
- * @color: target for color values
- *
- * Gets a prealocated color by id.
- */
-void
-bt_ui_resources_get_rgb_color (BtUIResourcesColors color_type, GdkRGBA * color)
-{
-  GdkColor *c = &singleton->priv->colors[color_type];
-
-  color->red = c->red / 65535.0;
-  color->green = c->green / 65535.0;
-  color->blue = c->blue / 65535.0;
-  color->alpha = 1.0;
-}
-
-/**
- * bt_ui_resources_get_color_by_machine:
- * @machine: the machine to get the color for
- * @color_type: a color shade
- *
- * Gets a colors shade depending on machine type in rgba format.
- *
- * Returns: a color depending on machine class and color_type
- */
-guint32
-bt_ui_resources_get_color_by_machine (const BtMachine * machine,
-    BtUIResourcesMachineColors color_type)
-{
-  gulong ix = 0;
-  guint32 color = 0;
-  GdkColor *c;
-
-  if (BT_IS_SOURCE_MACHINE (machine)) {
-    ix = BT_UI_RES_COLOR_SOURCE_MACHINE_BASE + color_type;
-  } else if (BT_IS_PROCESSOR_MACHINE (machine)) {
-    ix = BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE + color_type;
-  } else if (BT_IS_SINK_MACHINE (machine)) {
-    ix = BT_UI_RES_COLOR_SINK_MACHINE_BASE + color_type;
-  }
-  c = &singleton->priv->colors[ix];
-  color = (((guint32) (c->red & 0xFF00)) << 16) |
-      (((guint32) (c->green & 0xFF00)) << 8) |
-      ((guint32) (c->blue & 0xFF00)) | 0x000000FF;
-  //GST_INFO("color[%2d/%1d] : 0x%08lx : %04x,%04x,%04x",ix,color_type,color,
-  //  ui_resources->priv->colors[ix].red,ui_resources->priv->colors[ix].green,ui_resources->priv->colors[ix].blue);
-  return (color);
-}
-
-/**
  * bt_ui_resources_get_accel_group:
  *
  * All windows share one accelerator map.
@@ -620,7 +416,6 @@ bt_ui_resources_constructor (GType type, guint n_construct_params,
     g_object_add_weak_pointer (object, (gpointer *) (gpointer) & singleton);
 
     // initialise ressources
-    bt_ui_resources_init_colors (singleton);
     bt_ui_resources_init_icons (singleton);
     singleton->priv->accel_group = gtk_accel_group_new ();
   } else {

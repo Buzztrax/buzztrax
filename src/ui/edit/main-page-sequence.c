@@ -512,8 +512,8 @@ sequence_model_get_store (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))) {
     store = gtk_tree_model_filter_get_model (filtered_store);
   }
   return (store);
@@ -561,8 +561,8 @@ sequence_update_model_length (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))) {
     BtSequenceGridModel *store =
         BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
         (filtered_store));
@@ -1101,8 +1101,8 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
   GST_INFO ("label edited: '%s': '%s'", path_string, new_text);
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))
       && (store = gtk_tree_model_filter_get_model (filtered_store))
       ) {
     GtkTreeIter iter, filter_iter;
@@ -1232,8 +1232,8 @@ sequence_pos_table_init (const BtMainPageSequence * self)
 
   gtk_box_pack_start (GTK_BOX (self->priv->sequence_pos_table_header),
       self->priv->pos_header, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (GTK_WIDGET (self->priv->
-          sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
+  gtk_widget_set_size_request (GTK_WIDGET (self->
+          priv->sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
 
   // add static column
   renderer = gtk_cell_renderer_text_new ();
@@ -2346,8 +2346,8 @@ on_bars_menu_changed (GtkComboBox * combo_box, gpointer user_data)
       sequence_calculate_visible_lines (self);
       //GST_INFO("  bars = %d",self->priv->bars);
       if ((filtered_store =
-              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                      sequence_table)))) {
+              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                      priv->sequence_table)))) {
         BtSequenceGridModel *store =
             BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
             (filtered_store));
@@ -3041,8 +3041,8 @@ on_sequence_table_button_press_event (GtkWidget * widget,
             // set cell focus
             gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
                 FALSE);
-            gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
-                    sequence_table));
+            gtk_widget_grab_focus_savely (GTK_WIDGET (self->
+                    priv->sequence_table));
             // reset selection
             self->priv->selection_start_column =
                 self->priv->selection_start_row =
@@ -3115,8 +3115,8 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
           }
           gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
               FALSE);
-          gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
-                  sequence_table));
+          gtk_widget_grab_focus_savely (GTK_WIDGET (self->
+                  priv->sequence_table));
           // cursor updates are not yet processed
           on_sequence_table_cursor_changed_idle (self);
           GST_DEBUG ("cursor new/old: %3ld,%3ld -> %3ld,%3ld", cursor_column,
@@ -3165,53 +3165,48 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
 static void
 bt_sequence_table_update_colors (const BtMainPageSequence * self)
 {
-  GtkStyle *s = gtk_widget_get_style (GTK_WIDGET (self->priv->sequence_table));
+  BtMainPageSequencePrivate *p = self->priv;
   GtkStyleContext *style =
-      gtk_widget_get_style_context (GTK_WIDGET (self->priv->sequence_table));
-  guint fg, bg;
+      gtk_widget_get_style_context (GTK_WIDGET (p->sequence_table));
 
   // get colors
-  if (!gtk_style_context_lookup_color (style, "cursor_color",
-          &self->priv->cursor_bg)) {
+  if (!gtk_style_context_lookup_color (style, "cursor_color", &p->cursor_bg)) {
     GST_WARNING ("Can't find 'cursor_color' in css.");
   }
   if (!gtk_style_context_lookup_color (style, "selection1_color",
-          &self->priv->selection_bg1)) {
+          &p->selection_bg1)) {
     GST_WARNING ("Can't find 'selection1_color' in css.");
   }
   if (!gtk_style_context_lookup_color (style, "selection2_color",
-          &self->priv->selection_bg2)) {
+          &p->selection_bg2)) {
     GST_WARNING ("Can't find 'selection2_color' in css.");
   }
-  // TODO(ensonic): handle this in dark vs. light theme
-  fg = (s->text->red >> 8) + (s->text->green >> 8) + (s->text->blue >> 8);
-  bg = (s->base->red >> 8) + (s->base->green >> 8) + (s->base->blue >> 8);
-  if (bg > fg) {
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,
-        &self->priv->source_bg1);
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,
-        &self->priv->source_bg2);
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1,
-        &self->priv->processor_bg1);
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2,
-        &self->priv->processor_bg2);
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1,
-        &self->priv->sink_bg1);
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,
-        &self->priv->sink_bg2);
-  } else {
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1,
-        &self->priv->source_bg1);
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2,
-        &self->priv->source_bg2);
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1,
-        &self->priv->processor_bg1);
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2,
-        &self->priv->processor_bg2);
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_SINK_MACHINE_DARK1,
-        &self->priv->sink_bg1);
-    bt_ui_resources_get_rgb_color (BT_UI_RES_COLOR_SINK_MACHINE_DARK2,
-        &self->priv->sink_bg2);
+
+  if (!gtk_style_context_lookup_color (style, "source_machine_shade1",
+          &p->source_bg1)) {
+    GST_WARNING ("Can't find 'source_machine_shade1' in css.");
+  }
+  if (!gtk_style_context_lookup_color (style, "source_machine_shade2",
+          &p->source_bg2)) {
+    GST_WARNING ("Can't find 'source_machine_shade2' in css.");
+  }
+
+  if (!gtk_style_context_lookup_color (style, "processor_machine_shade1",
+          &p->processor_bg1)) {
+    GST_WARNING ("Can't find 'processor_machine_shade1' in css.");
+  }
+  if (!gtk_style_context_lookup_color (style, "processor_machine_shade2",
+          &p->processor_bg2)) {
+    GST_WARNING ("Can't find 'processor_machine_shade2' in css.");
+  }
+
+  if (!gtk_style_context_lookup_color (style, "sink_machine_shade1",
+          &p->sink_bg1)) {
+    GST_WARNING ("Can't find 'sink_machine_shade1' in css.");
+  }
+  if (!gtk_style_context_lookup_color (style, "sink_machine_shade2",
+          &p->sink_bg2)) {
+    GST_WARNING ("Can't find 'sink_machine_shade2' in css.");
   }
 }
 
@@ -3617,8 +3612,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   self->priv->context_menu_add =
       GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (_("Add track")));
   image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->priv->
-          context_menu_add), image);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->
+          priv->context_menu_add), image);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
       GTK_WIDGET (self->priv->context_menu_add));
   gtk_widget_show (GTK_WIDGET (self->priv->context_menu_add));

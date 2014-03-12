@@ -15,4 +15,16 @@
 @define-color analyzer_decay_color #FFBF00;
 @define-color grid_lines_color #7F7F7F;
 
+@define-color source_machine_base #F57900;
+@define-color source_machine_shade2 #CE5C00;
+@define-color source_machine_shade1 mix (@source_machine_base, @source_machine_shade2, 0.5);
+
+@define-color processor_machine_base #73D216;
+@define-color processor_machine_shade2 #4E9A06;
+@define-color processor_machine_shade1 mix (@processor_machine_base, @processor_machine_shade2, 0.5);
+
+@define-color sink_machine_base #3465A4;
+@define-color sink_machine_shade2 #204A87;
+@define-color sink_machine_shade1 mix (@sink_machine_base, @sink_machine_shade2, 0.5);
+
 @import url("bt-edit.css");
