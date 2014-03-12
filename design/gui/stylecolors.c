@@ -2,6 +2,7 @@
  * show all colors in a GtkStyle
  *
  * gcc -Wall -g stylecolors.c -o stylecolors `pkg-config gtk+-2.0 --cflags --libs`
+ * gcc -Wall -g stylecolors.c -o stylecolors `pkg-config gtk+-3.0 --cflags --libs`
  *
  * GTK2_RC_FILES=$HOME/.themes/Clearlooks-DarkOrange/gtk-2.0/gtkrc ./stylecolors
  */
@@ -19,16 +20,17 @@ set_colors (gpointer data)
 {
   GtkTable *table = GTK_TABLE (data);
   GtkWidget *widget = GTK_WIDGET (table);
+  GtkStyle *style = gtk_widget_get_style (widget);
   guint i, j;
   GdkColor *colors[] = {
-    widget->style->fg,
-    widget->style->bg,
-    widget->style->light,
-    widget->style->mid,
-    widget->style->dark,
-    widget->style->text,
-    widget->style->text_aa,
-    widget->style->base,
+    style->fg,
+    style->bg,
+    style->light,
+    style->mid,
+    style->dark,
+    style->text,
+    style->text_aa,
+    style->base,
   };
 
   for (j = 0; j < 5; j++) {

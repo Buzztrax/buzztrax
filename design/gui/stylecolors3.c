@@ -96,7 +96,7 @@ main (gint argc, gchar ** argv)
   gtk_table_attach_defaults (table, gtk_label_new ("prelight"), 3, 4, 0, 1);
   gtk_table_attach_defaults (table, gtk_label_new ("selected"), 4, 5, 0, 1);
   gtk_table_attach_defaults (table, gtk_label_new ("insensitive"), 5, 6, 0, 1);
-  gtk_table_attach_defaults (table, gtk_label_new ("inconsitent"), 6, 7, 0, 1);
+  gtk_table_attach_defaults (table, gtk_label_new ("inconsistent"), 6, 7, 0, 1);
   gtk_table_attach_defaults (table, gtk_label_new ("focused"), 7, 8, 0, 1);
   gtk_table_attach_defaults (table, gtk_label_new ("backdrop"), 8, 9, 0, 1);
 
