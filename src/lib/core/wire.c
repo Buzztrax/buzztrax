@@ -383,6 +383,7 @@ bt_wire_link_machines (const BtWire * const self)
       return (FALSE);
     // configure the queue
     // IDEA(ensonic): if machine on source side is a live-source, should be keep the queue larger?
+    // can max-size-buffers=1 cause stalling when dynamically relinking ?
     g_object_set (G_OBJECT (machines[PART_QUEUE]), "max-size-buffers", 1,
         "max-size-bytes", 0, "max-size-time", G_GUINT64_CONSTANT (0),
         "silent", TRUE, NULL);

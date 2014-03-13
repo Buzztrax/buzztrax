@@ -262,7 +262,8 @@
  *   to avoid this when loading songs.
  */
 
-// play safe when updating the song pipeline
+// play safe when updating the song pipeline, if disabled we use pad-probes
+// and update the pipeline while playing
 #define STOP_PLAYBACK_FOR_UPDATES
 
 #define BT_CORE
@@ -363,7 +364,7 @@ struct _BtSetupPrivate
   /* the update adds or removes one or more wires */
   BtWire *wire_to_block;
 
-  /* see/newsegment event for dynamically added elements */
+  /* seek event for dynamically added elements */
   GstEvent *play_seek_event;
   GstEvent *play_newsegment_event;
 };
@@ -950,15 +951,6 @@ activate_element (const BtSetup * const self, gpointer key)
         gst_element_state_get_name (GST_STATE_PLAYING));
 
     if (BT_IS_SOURCE_MACHINE (key)) {
-      // TODO(ensonic): this is causing the lockups in the tests under valgrind
-      // - it is not the flush-flag of the seek
-      // - collect-pads needs a newsegment to define the segment on the pad for
-      //   the clipfunc
-      // - seek in ready will ensure it, but is somewhat non-standard and
-      //   as a downside, we run into trouble at segment done
-      // - we're trying to address that with the newsegment below, 
-      //   but that only needs to be send to the active part we're linking to
-      // - see gst-plugins-base/adder: 0cce8ab97d614ef53970292bd403e7f4460d79f9
       ret = gst_element_set_state (elem, GST_STATE_READY);
       // going to ready should not by async
       GST_INFO_OBJECT (key, "state-change to READY: %s",
@@ -968,15 +960,6 @@ activate_element (const BtSetup * const self, gpointer key)
         GST_WARNING_OBJECT (key, "failed to handle seek event");
       }
       GST_INFO_OBJECT (key, "sent seek event");
-#if 0
-    } else {
-      // this seems to be a bad idea and causing the lockups
-      if (!(gst_element_send_event (elem,
-                  gst_event_ref (self->priv->play_newsegment_event)))) {
-        GST_WARNING_OBJECT (key, "failed to handle newsegment event");
-      }
-      GST_INFO_OBJECT (key, "sent newsegment event");
-#endif
     }
     ret = gst_element_set_state (elem, GST_STATE_PLAYING);
     GST_INFO_OBJECT (key, "state-change to PLAYING: %s",
