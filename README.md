@@ -53,23 +53,26 @@ installed.
 
 ## installing locally
 Use following options for ./autogen.sh or ./configure
+
     --prefix=$HOME/buzztrax
     --with-gconf-source=xml::/home/ensonic/.gconf/
     --with-desktop-dir=/home/ensonic/.gnome2/vfolders/
+
 when installing the package to e.g. $HOME/buzztrax remember to set these
 environment variables:
-libraries:
+
+    # libraries:
     export LD_LIBRARY_PATH=$HOME/buzztrax/lib:$LD_LIBRARY_PATH
-online help: (as root)
+    # online help: (as root)
     export OMF_DIR="$OMF_DIR:$HOME/buzztrax/share/omf"
     scrollkeeper-update
-devhelp:
+    # devhelp:
     export DEVHELP_SEARCH_PATH="$DEVHELP_SEARCH_PATH:$HOME/buzztrax/share/gtk-doc/html"
-pkg-config:
+    # pkg-config:
     export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztrax/lib/pkgconfig"
-gstreamer
-    export GST_PLUGIN_PATH="$HOME/buzztrax/lib/gstreamer-0.10"
-mime-database & icon-themes:
+    # gstreamer
+    export GST_PLUGIN_PATH_1.0="$HOME/buzztrax/lib/gstreamer-1.0"
+    # mime-database & icon-themes:
     export XDG_DATA_DIRS="$XDG_DATA_DIRS:$HOME/buzztrax/share"
     update-mime-database $HOME/buzztrax/share/mime/
 
@@ -78,6 +81,7 @@ The default value for the --prefix configure option is /usr/local. Also in that
 case the variables mentioned in the last example need to be exported.
 
 ## running the apps
+
     cd $HOME/buzztrax/bin
     ./buzztrax-cmd --command=info --input-file=../share/buzztrax/songs/melo1.xml
     ./buzztrax-cmd --command=play --input-file=../share/buzztrax/songs/melo1.xml
@@ -86,7 +90,11 @@ case the variables mentioned in the last example need to be exported.
 
 ## running unit tests
 run all the tests:
+
     make check
+
 select tests to run:
+
     BT_CHECKS="test_bt_edit_app*" make bt_edit.check
+
 
