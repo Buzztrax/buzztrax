@@ -36,7 +36,7 @@ EXTRA_DIST = \
 	COPYING-DOCS \
 	omf.make \
 	xmldocs.make \
-	TODO \
+	README.md TODO \
 	docs/version.entities.in \
 	docs/buzztrax.xsd \
 	po/$(GETTEXT_PACKAGE).pot
