@@ -571,7 +571,9 @@ bt_pattern_editor_realize (GtkWidget * widget)
   GdkWindow *window;
   GtkAllocation allocation;
   GdkWindowAttr attributes;
-  GtkStyleContext *style;
+  GtkStyle *style;
+  GtkStyleContext *style_ctx;
+  GdkColor *c;
   gint attributes_mask;
   const PangoFontDescription *style_pfd;
   PangoFontDescription *pfd;
@@ -612,60 +614,57 @@ bt_pattern_editor_realize (GtkWidget * widget)
   gdk_window_set_user_data (self->window, widget);
 #endif
 
-  style = gtk_widget_get_style_context (widget);
-  gtk_style_context_add_class (style, GTK_STYLE_CLASS_BACKGROUND);
-  gtk_style_context_add_class (style, GTK_STYLE_CLASS_VIEW);
+  style = gtk_widget_get_style (widget);
+  style_ctx = gtk_widget_get_style_context (widget);
+  gtk_style_context_add_class (style_ctx, GTK_STYLE_CLASS_VIEW);
 
   // setup graphic styles
-  gtk_style_context_lookup_color (style, "playline_color",
+  gtk_style_context_lookup_color (style_ctx, "playline_color",
       &self->play_pos_color);
 
-  gtk_style_context_lookup_color (style, "row_even_color",
+  gtk_style_context_lookup_color (style_ctx, "row_even_color",
       &self->bg_shade_color[0]);
-  gtk_style_context_lookup_color (style, "row_odd_color",
+  gtk_style_context_lookup_color (style_ctx, "row_odd_color",
       &self->bg_shade_color[1]);
 
-  gtk_style_context_get_color (style, GTK_STATE_FLAG_NORMAL, &self->text_color);
+  gtk_style_context_get_color (style_ctx, GTK_STATE_FLAG_NORMAL,
+      &self->text_color);
 
-  gtk_style_context_get_background_color (style, GTK_STATE_FLAG_ACTIVE, // _NORMAL?
-      &self->bg_color);
-  /*c = &style->bg[GTK_STATE_NORMAL];
-     self->bg_color[0] = (gdouble) c->red / 65535.0;
-     self->bg_color[1] = (gdouble) c->green / 65535.0;
-     self->bg_color[2] = (gdouble) c->blue / 65535.0; */
+  /* this is not set in many themes
+     gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_ACTIVE, // _NORMAL?
+     &self->bg_color);
+   */
+  c = &style->base[GTK_STATE_NORMAL];
+  self->bg_color.red = (gdouble) c->red / 65535.0;
+  self->bg_color.green = (gdouble) c->green / 65535.0;
+  self->bg_color.blue = (gdouble) c->blue / 65535.0;
+  self->bg_color.alpha = 1.0;
 
-  gtk_style_context_get_background_color (style, GTK_STATE_FLAG_SELECTED,
+  gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_SELECTED,
       &self->sel_color);
   self->cursor_color.red = self->sel_color.red * 1.2;
   self->cursor_color.green = self->sel_color.green * 1.2;
   self->cursor_color.blue = self->sel_color.blue * 1.2;
   self->cursor_color.alpha = self->sel_color.alpha;
-  /*
-     c = &style->base[GTK_STATE_SELECTED];
-     self->sel_color[0] = (gdouble) c->red / 65535.0;
-     self->sel_color[1] = (gdouble) c->green / 65535.0;
-     self->sel_color[2] = (gdouble) c->blue / 65535.0;
-     c = &style->text_aa[GTK_STATE_ACTIVE];
-     self->cursor_color[0] = (gdouble) c->red / 65535.0;
-     self->cursor_color[1] = (gdouble) c->green / 65535.0;
-     self->cursor_color[2] = (gdouble) c->blue / 65535.0; */
 
-  gtk_style_context_get_background_color (style, GTK_STATE_FLAG_ACTIVE,
-      &self->value_color[0]);
-  self->value_color[1].red = self->value_color[0].red * 0.8;
-  self->value_color[1].green = self->value_color[0].green * 0.8;
-  self->value_color[1].blue = self->value_color[0].blue * 0.8;
-  self->value_color[1].alpha = self->value_color[0].alpha;
   /*
-     c = &style->mid[GTK_STATE_NORMAL];
-     self->value_color[0][0] = ((gdouble) c->red * 0.9) / 65535.0;
-     self->value_color[0][1] = ((gdouble) c->green * 0.9) / 65535.0;
-     self->value_color[0][2] = ((gdouble) c->blue * 0.9) / 65535.0;
-     self->value_color[1][0] = (gdouble) c->red / 65535.0;
-     self->value_color[1][1] = (gdouble) c->green / 65535.0;
-     self->value_color[1][2] = (gdouble) c->blue / 65535.0; */
+     gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_ACTIVE,
+     &self->value_color[0]);
+     self->value_color[1].red = self->value_color[0].red * 0.8;
+     self->value_color[1].green = self->value_color[0].green * 0.8;
+     self->value_color[1].blue = self->value_color[0].blue * 0.8;
+     self->value_color[1].alpha = self->value_color[0].alpha;
+   */
+  self->value_color[0].red = self->bg_shade_color[0].red * 0.8;
+  self->value_color[0].green = self->bg_shade_color[0].green * 0.8;
+  self->value_color[0].blue = self->bg_shade_color[0].blue * 0.8;
+  self->value_color[0].alpha = self->bg_shade_color[0].alpha;
+  self->value_color[1].red = self->bg_shade_color[1].red * 0.8;
+  self->value_color[1].green = self->bg_shade_color[1].green * 0.8;
+  self->value_color[1].blue = self->bg_shade_color[1].blue * 0.8;
+  self->value_color[1].alpha = self->bg_shade_color[1].alpha;
 
-  style_pfd = gtk_style_context_get_font (style, GTK_STATE_FLAG_NORMAL);
+  style_pfd = gtk_style_context_get_font (style_ctx, GTK_STATE_FLAG_NORMAL);
 
   /* copy size from default font and use default monospace font */
   GST_WARNING (" default font: size %d (is_absolute %d?), scl=%lf",
