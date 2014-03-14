@@ -100,41 +100,6 @@ gtk_image_new_from_filename (const gchar * filename)
 }
 
 /**
- * gdk_pixbuf_new_from_filename:
- * @filename: the filename of the image file
- *
- * Creates a new pixbuf image for the image file.
- *
- * Returns: a new pixbuf, g_object_unref() when done.
- */
-GdkPixbuf *
-gdk_pixbuf_new_from_filename (const gchar * filename)
-{
-  gchar *pathname = NULL;
-  GdkPixbuf *pixbuf;
-  GError *error = NULL;
-
-  if (!filename || !filename[0])
-    return NULL;
-
-  pathname = find_pixmap_file (filename);
-
-  if (!pathname) {
-    g_warning (_("Couldn't find pixmap file: %s"), filename);
-    return NULL;
-  }
-
-  pixbuf = gdk_pixbuf_new_from_file (pathname, &error);
-  if (!pixbuf) {
-    fprintf (stderr, "Failed to load pixbuf file: %s: %s\n", pathname,
-        error->message);
-    g_error_free (error);
-  }
-  g_free (pathname);
-  return pixbuf;
-}
-
-/**
  * gdk_pixbuf_new_from_theme:
  * @name: the icon name
  * @size: the pixel size

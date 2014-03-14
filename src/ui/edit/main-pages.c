@@ -140,7 +140,6 @@ bt_main_pages_add_tab (const BtMainPages * self, GtkWidget * content,
   gtk_widget_set_name (label, str);
   gtk_widget_show (label);
 
-  //image=gtk_image_new_from_filename(icon);
   image = gtk_image_new_from_icon_name (icon, GTK_ICON_SIZE_MENU);
   gtk_widget_show (image);
 

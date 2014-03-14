@@ -1040,7 +1040,6 @@ gtk_vumeter_get_type
 # gtk extras
 add_pixmap_directory
 gtk_image_new_from_filename
-gdk_pixbuf_new_from_filename
 gdk_pixbuf_new_from_theme
 gtk_toolbar_get_style_from_string
 gtk_target_table_make

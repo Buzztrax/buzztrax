@@ -23,7 +23,6 @@
 /* pixmap/buf helpers */
 void add_pixmap_directory(const gchar *directory);
 GtkWidget *gtk_image_new_from_filename(const gchar *filename);
-GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename);
 GdkPixbuf *gdk_pixbuf_new_from_theme(const gchar *name, gint size);
 
 /* gtk toolbar helper */

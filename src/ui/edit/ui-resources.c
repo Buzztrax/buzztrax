@@ -84,11 +84,6 @@ bt_ui_resources_init_icons (BtUIResources * self)
 
   gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &w, &h);
 
-  /*
-     self->priv->source_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztrax_menu_source_machine.png");
-     self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztrax_menu_processor_machine.png");
-     self->priv->sink_machine_pixbuf=gdk_pixbuf_new_from_filename("buzztrax_menu_sink_machine.png");
-   */
   self->priv->source_machine_pixbuf =
       gdk_pixbuf_new_from_theme ("buzztrax_menu_source_machine", w);
   self->priv->processor_machine_pixbuf =
@@ -98,20 +93,6 @@ bt_ui_resources_init_icons (BtUIResources * self)
 
   GST_INFO ("images created");
 }
-
-/*
-static GdkPixbuf *bt_ui_resources_load_svg(const gchar *file_name) {
-  GError *error = NULL;
-  GdkPixbuf *pixbuf;
-
-  pixbuf = rsvg_pixbuf_from_file_at_size (file_name, 96, 96, &error);
-  if(error) {
-    GST_WARNING ("loading svg %s failed : %s", file_name, error->message);
-    g_error_free(error);
-  }
-  return(pixbuf);
-}
-*/
 
 static void
 bt_ui_resources_free_graphics (BtUIResources * self)
@@ -136,8 +117,6 @@ bt_ui_resources_init_graphics (BtUIResources * self)
   //const gint size=(gint)(self->priv->zoom*(gdouble)(6*14));
 
   GST_INFO ("regenerating machine graphics at %d pixels", size);
-
-  //self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL] = bt_ui_resources_load_svg ("generator.svg");
 
   self->priv->source_machine_pixbufs[BT_MACHINE_STATE_NORMAL] =
       gdk_pixbuf_new_from_theme ("buzztrax_generator", size);
