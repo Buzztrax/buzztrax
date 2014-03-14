@@ -346,10 +346,6 @@ bt_ui_resources_init_theme (void)
     gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
         provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
   }
-
-  add_pixmap_directory (DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE ""
-      G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S);
-
 }
 
 //-- wrapper
