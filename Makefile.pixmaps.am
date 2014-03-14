@@ -1,10 +1,5 @@
 # -- icons
 
-## FIXME: move those to theme icons
-pixmapdatadir = $(datadir)/$(PACKAGE)/pixmaps
-pixmapdata_DATA = \
-	pixmaps/stock_repeat.png pixmaps/stock_volume.png
-
 hicolor_iconthemedir=$(datadir)/icons/hicolor
 hicolor_icon16dir = $(hicolor_iconthemedir)/16x16/apps
 hicolor_icon16_DATA = pixmaps/hicolor/16x16/buzztrax.png \
@@ -115,8 +110,7 @@ prescale-svg:
 EXTRA_DIST += \
 	$(gnome_icon16_DATA) $(gnome_icon22_DATA) $(gnome_icon24_DATA) \
 	$(gnome_icon32_DATA) $(gnome_icon48_DATA) $(gnome_icon64_DATA) $(gnome_svgicon_DATA) \
-  $(hicolor_icon16_DATA) $(hicolor_icon24_DATA) $(hicolor_icon48_DATA) $(hicolor_svgicon_DATA) \
-  $(pixmapdata_DATA)
+  $(hicolor_icon16_DATA) $(hicolor_icon24_DATA) $(hicolor_icon48_DATA) $(hicolor_svgicon_DATA)
 
 update-icon-cache:
 	@-if test -z "$(DESTDIR)"; then \

@@ -121,8 +121,8 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     // disable stop button
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->stop_button), FALSE);
     // switch off play button
-    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-            priv->play_button), FALSE);
+    gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+            play_button), FALSE);
     // enable play button
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->play_button), TRUE);
     // reset level meters
@@ -142,13 +142,13 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
     bt_song_update_playback_position (song);
 
     // if we started playback remotely activate playbutton
-    if (!gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (self->
-                priv->play_button))) {
+    if (!gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+                play_button))) {
       g_signal_handlers_block_matched (self->priv->play_button,
           G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
           on_toolbar_play_clicked, (gpointer) self);
-      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-              priv->play_button), TRUE);
+      gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+              play_button), TRUE);
       g_signal_handlers_unblock_matched (self->priv->play_button,
           G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
           on_toolbar_play_clicked, (gpointer) self);
@@ -748,8 +748,8 @@ on_sequence_loop_notify (const BtSequence * sequence, GParamSpec * arg,
   g_signal_handlers_block_matched (self->priv->loop_button,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_toolbar_loop_toggled, (gpointer) self);
-  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->
-          priv->loop_button), loop);
+  gtk_toggle_tool_button_set_active (GTK_TOGGLE_TOOL_BUTTON (self->priv->
+          loop_button), loop);
   g_signal_handlers_unblock_matched (self->priv->loop_button,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_toolbar_loop_toggled, (gpointer) self);
@@ -958,7 +958,8 @@ bt_main_toolbar_init_ui (const BtMainToolbar * self)
 
   tool_item = GTK_WIDGET (gtk_toggle_tool_button_new ());
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (tool_item),
-      gtk_image_new_from_filename ("stock_repeat.png"));
+      gtk_image_new_from_icon_name ("view-refresh",
+          GTK_ICON_SIZE_SMALL_TOOLBAR));
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (tool_item), _("Loop"));
   gtk_widget_set_name (tool_item, "Loop");
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
