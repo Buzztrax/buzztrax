@@ -36,8 +36,7 @@ enum
 {
   COL_LABEL = 0,
   COL_ID,
-  COL_ICON_PIXBUF,
-  COL_ICON_STOCK_ID
+  COL_ICON_NAME
 };
 
 struct _BtSettingsDialogPrivate
@@ -85,7 +84,6 @@ bt_settings_page_get_type (void)
           "interaction controller"},
       {BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER,
           "BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER", "playback controller"},
-      {BT_SETTINGS_PAGE_COLORS, "BT_SETTINGS_PAGE_COLORS", "colors"},
       {BT_SETTINGS_PAGE_SHORTCUTS, "BT_SETTINGS_PAGE_SHORTCUTS", "shortcuts"},
       {BT_SETTINGS_PAGE_DIRECTORIES, "BT_SETTINGS_PAGE_DIRECTORIES",
           "directories"},
@@ -151,11 +149,10 @@ on_settings_list_realize (GtkWidget * widget, gpointer user_data)
 static void
 bt_settings_dialog_init_ui (const BtSettingsDialog * self)
 {
-  GtkWidget *box, *scrolled_window, *page;
+  GtkWidget *box, *scrolled_window;
   GtkCellRenderer *renderer;
   GtkListStore *store;
   GtkTreeIter tree_iter;
-  GdkPixbuf *icon;
 
   gtk_widget_set_name (GTK_WIDGET (self), "buzztrax settings");
 
@@ -183,15 +180,14 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
   gtk_tree_view_set_headers_visible (self->priv->settings_list, FALSE);
   renderer = gtk_cell_renderer_pixbuf_new ();
   gtk_tree_view_insert_column_with_attributes (self->priv->settings_list, -1,
-      NULL, renderer, "pixbuf", COL_ICON_PIXBUF, "stock-id", COL_ICON_STOCK_ID,
-      NULL);
+      NULL, renderer, "icon-name", COL_ICON_NAME, NULL);
   renderer = gtk_cell_renderer_text_new ();
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
       (renderer), 1);
   gtk_tree_view_insert_column_with_attributes (self->priv->settings_list, -1,
       NULL, renderer, "text", COL_LABEL, NULL);
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
-          priv->settings_list), GTK_SELECTION_BROWSE);
+  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->priv->
+          settings_list), GTK_SELECTION_BROWSE);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->settings_list));
   gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (scrolled_window), FALSE, FALSE,
@@ -207,41 +203,27 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
       G_TYPE_STRING);
   //-- append entries for settings pages
   gtk_list_store_append (store, &tree_iter);
-  icon = gdk_pixbuf_new_from_filename ("prefs-audio-card.png");
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Audio Devices"),
-      COL_ID, BT_SETTINGS_PAGE_AUDIO_DEVICES,
-      COL_ICON_PIXBUF, icon, COL_ICON_STOCK_ID, NULL, -1);
-  g_object_unref (icon);
+      COL_ID, BT_SETTINGS_PAGE_AUDIO_DEVICES, COL_ICON_NAME, "audio-card", -1);
   gtk_list_store_append (store, &tree_iter);
-  icon = gdk_pixbuf_new_from_filename ("prefs-input-gaming.png");
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Interaction Controller"),
       COL_ID, BT_SETTINGS_PAGE_INTERACTION_CONTROLLER,
-      COL_ICON_PIXBUF, icon, COL_ICON_STOCK_ID, NULL, -1);
-  g_object_unref (icon);
+      COL_ICON_NAME, "input-gaming", -1);
   gtk_list_store_append (store, &tree_iter);
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Playback Controller"),
       COL_ID, BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER,
-      COL_ICON_PIXBUF, NULL, COL_ICON_STOCK_ID, GTK_STOCK_MEDIA_PLAY, -1);
+      COL_ICON_NAME, "media-play", -1);
   gtk_list_store_append (store, &tree_iter);
-  gtk_list_store_set (store, &tree_iter,
-      COL_LABEL, _("Colors"),
-      COL_ID, BT_SETTINGS_PAGE_COLORS,
-      COL_ICON_PIXBUF, NULL, COL_ICON_STOCK_ID, GTK_STOCK_SELECT_COLOR, -1);
-  gtk_list_store_append (store, &tree_iter);
-  icon = gdk_pixbuf_new_from_filename ("prefs-input-keyboard.png");
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Shortcuts"),
-      COL_ID, BT_SETTINGS_PAGE_SHORTCUTS,
-      COL_ICON_PIXBUF, icon, COL_ICON_STOCK_ID, NULL, -1);
-  g_object_unref (icon);
+      COL_ID, BT_SETTINGS_PAGE_SHORTCUTS, COL_ICON_NAME, "input-keyboard", -1);
   gtk_list_store_append (store, &tree_iter);
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Directories"),
-      COL_ID, BT_SETTINGS_PAGE_DIRECTORIES,
-      COL_ICON_PIXBUF, NULL, COL_ICON_STOCK_ID, GTK_STOCK_DIRECTORY, -1);
+      COL_ID, BT_SETTINGS_PAGE_DIRECTORIES, COL_ICON_NAME, "folder", -1);
   gtk_tree_view_set_model (self->priv->settings_list, GTK_TREE_MODEL (store));
   g_object_unref (store);       // drop with treeview
 
@@ -282,18 +264,7 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
           BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER),
       gtk_label_new (_("Playback Controller")));
 
-  // add notebook page #4
-  // TODO(ensonic): maybe turn that into a theme page (theme-name + colors + icons?)
-  page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-  gtk_widget_set_name (GTK_WIDGET (page), "color settings");
-  gtk_container_add (GTK_CONTAINER (page),
-      gtk_label_new ("no color settings yet"));
-  gtk_container_add (GTK_CONTAINER (self->priv->settings_pages), page);
-  gtk_notebook_set_tab_label (GTK_NOTEBOOK (self->priv->settings_pages),
-      gtk_notebook_get_nth_page (GTK_NOTEBOOK (self->priv->settings_pages),
-          BT_SETTINGS_PAGE_COLORS), gtk_label_new (_("Colors")));
-
-  // add notebook page #5
+  // add shortcuts pags
   self->priv->shortcuts_page = bt_settings_page_shortcuts_new ();
   gtk_container_add (GTK_CONTAINER (self->priv->settings_pages),
       GTK_WIDGET (self->priv->shortcuts_page));
@@ -301,7 +272,7 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
       gtk_notebook_get_nth_page (GTK_NOTEBOOK (self->priv->settings_pages),
           BT_SETTINGS_PAGE_SHORTCUTS), gtk_label_new (_("Shortcuts")));
 
-  // add notebook page #6
+  // add directories page
   self->priv->directories_page = bt_settings_page_directories_new ();
   gtk_container_add (GTK_CONTAINER (self->priv->settings_pages),
       GTK_WIDGET (self->priv->directories_page));
@@ -310,7 +281,9 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
           BT_SETTINGS_PAGE_DIRECTORIES), gtk_label_new (_("Directories")));
 
   /* TODO(ensonic): more settings
-   * - fonts
+   * - appearance:
+   *   - ui theme + icon theme
+   * - fonts (add to css theme)
    *   - font + size for machine view canvas
    *   - font sizes for table-headings (as pango markup sizes)
    * - misc

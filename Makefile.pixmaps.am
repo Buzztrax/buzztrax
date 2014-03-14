@@ -3,7 +3,6 @@
 ## FIXME: move those to theme icons
 pixmapdatadir = $(datadir)/$(PACKAGE)/pixmaps
 pixmapdata_DATA = \
-	pixmaps/prefs-audio-card.png pixmaps/prefs-input-gaming.png pixmaps/prefs-input-keyboard.png \
 	pixmaps/stock_repeat.png pixmaps/stock_volume.png
 
 hicolor_iconthemedir=$(datadir)/icons/hicolor
