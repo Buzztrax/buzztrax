@@ -65,25 +65,10 @@ link_add (Graph * g, gint s, gint d)
   g->w[s][d] = w = make_wire (g, ms, md);
 
   // request machine pads
-  w->peer_src = gst_element_get_request_pad (ms->tee, "src%d");
-  g_assert (w->peer_src);
-  w->peer_src_ghost = gst_ghost_pad_new (NULL, w->peer_src);
-  g_assert (w->peer_src_ghost);
-  if (!w->as) {
-    gst_pad_set_active (w->peer_src_ghost, TRUE);
-  }
-  gst_element_add_pad ((GstElement *) ms->bin, w->peer_src_ghost);
-  ms->pads++;
-
-  w->peer_dst = gst_element_get_request_pad (md->mix, "sink%d");
-  g_assert (w->peer_dst);
-  w->peer_dst_ghost = gst_ghost_pad_new (NULL, w->peer_dst);
-  g_assert (w->peer_dst_ghost);
-  if (!w->ad) {
-    gst_pad_set_active (w->peer_dst_ghost, TRUE);
-  }
-  gst_element_add_pad ((GstElement *) md->bin, w->peer_dst_ghost);
-  md->pads++;
+  add_request_pad (ms, ms->tee, &w->peer_src, &w->peer_src_ghost, "src_%u",
+      w->as);
+  add_request_pad (md, md->mix, &w->peer_dst, &w->peer_dst_ghost, "sink_%u",
+      w->ad);
 
   // create wire pads
   w->src = gst_element_get_static_pad (w->queue, "src");

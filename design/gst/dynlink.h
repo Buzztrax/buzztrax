@@ -227,12 +227,35 @@ make_wire (Graph * g, Machine *ms, Machine *md)
     GST_ERROR ("Can't create element queue");
     exit (-1);
   }
+  g_object_set (w->queue, "max-size-buffers", 1,
+      "max-size-bytes", 0, "max-size-time", G_GUINT64_CONSTANT (0),
+      "silent", TRUE, NULL);
   if (!gst_bin_add (w->bin, w->queue)) {
     GST_ERROR ("Can't add element queue to bin");
     exit (-1);
   }
   
   return w;
+}
+
+static void
+add_request_pad (Machine *m, GstElement *e, GstPad **pad, GstPad **ghost,
+    const gchar *tmpl, gboolean active)
+{
+  *pad = gst_element_get_request_pad (e, tmpl);
+  g_assert (*pad);
+  *ghost = gst_ghost_pad_new (NULL, *pad);
+  g_assert (*ghost);
+  if (!active) {
+    if (!gst_pad_set_active (*ghost, TRUE)) {
+      GST_WARNING_OBJECT (*ghost, "could not activate");
+    }
+  }
+  if (!gst_element_add_pad ((GstElement *) m->bin, *ghost)) {
+    GST_ERROR_OBJECT (m->bin, "Failed to add ghost pad to element bin");
+    exit (-1);
+  }
+  m->pads++;
 }
 
 static Graph *
