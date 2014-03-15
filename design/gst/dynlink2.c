@@ -221,10 +221,10 @@ message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
       gst_message_type_get_name (GST_MESSAGE_TYPE (message)));
   if (s) {
     gchar *sstr = gst_structure_to_string (s);
-    GST_WARNING ("%s", sstr);
+    GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "%s", sstr);
     g_free (sstr);
   } else {
-    GST_WARNING ("no message details");
+    GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "no message details");
   }
 }
 

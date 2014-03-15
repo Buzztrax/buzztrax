@@ -23,7 +23,7 @@ post_link_add (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
   GstStateChangeReturn scr;
 
   if (pad) {
-    if (!g_atomic_int_compare_and_exchange (&in_idle_probe, FALSE, TRUE))
+    if (!g_atomic_int_compare_and_exchange (&in_idle_probe, TRUE, FALSE))
       return GST_PAD_PROBE_OK;
 
     GST_WARNING ("link %s -> %s blocked", GST_OBJECT_NAME (ms->bin),
@@ -138,7 +138,7 @@ link_add (Graph * g, gint s, gint d)
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
     in_idle_probe = TRUE;
-    gst_pad_add_probe (w->peer_src_ghost, PROBE_TYPE, post_link_add, w, NULL);
+    gst_pad_add_probe (w->peer_src, PROBE_TYPE, post_link_add, w, NULL);
     dump_pipeline (g, step, "wire_add_blocking");
   } else {
     GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
@@ -152,6 +152,7 @@ do_test_step (Graph * g)
 {
   if (g->pending_changes == 0) {
     if (step == 2) {
+      dump_pipeline (g, step, NULL);
       g_main_loop_quit (g->loop);
     } else {
       g->pending_changes = 1;
@@ -162,7 +163,7 @@ do_test_step (Graph * g)
     GST_WARNING ("wait (%d link changes)", g->pending_changes);
     dump_pipeline (g, step, NULL);
   }
-  return FALSE;
+  return TRUE;
 }
 
 /* bus helper */
@@ -192,7 +193,7 @@ state_changed_message_received (GstBus * bus, GstMessage * message, Graph * g)
     gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
     switch (GST_STATE_TRANSITION (oldstate, newstate)) {
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-        GST_WARNING ("reached playing");
+        GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "reached playing");
         dump_pipeline (g, 0, NULL);
         g_timeout_add_seconds (1, (GSourceFunc) do_test_step, g);
         break;

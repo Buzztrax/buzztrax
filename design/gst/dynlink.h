@@ -227,9 +227,11 @@ make_wire (Graph * g, Machine *ms, Machine *md)
     GST_ERROR ("Can't create element queue");
     exit (-1);
   }
+  /*
   g_object_set (w->queue, "max-size-buffers", 1,
       "max-size-bytes", 0, "max-size-time", G_GUINT64_CONSTANT (0),
       "silent", TRUE, NULL);
+      */
   if (!gst_bin_add (w->bin, w->queue)) {
     GST_ERROR ("Can't add element queue to bin");
     exit (-1);

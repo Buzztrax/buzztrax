@@ -325,7 +325,7 @@ do_test_step (Graph * g)
     GST_WARNING ("wait (%d link changes)", g->pending_changes);
     dump_pipeline (g, step, NULL);
   }
-  return (FALSE);
+  return TRUE;
 }
 
 /* bus helper */
@@ -355,7 +355,7 @@ state_changed_message_received (GstBus * bus, GstMessage * message, Graph * g)
     gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
     switch (GST_STATE_TRANSITION (oldstate, newstate)) {
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-        GST_WARNING ("reached playing");
+        GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "reached playing");
         dump_pipeline (g, step, NULL);
         step = 1;
         g_timeout_add_seconds (1, (GSourceFunc) do_test_step, g);
