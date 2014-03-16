@@ -23,12 +23,20 @@ post_link_add (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
   GstStateChangeReturn scr;
 
   if (pad) {
-    if (!g_atomic_int_compare_and_exchange (&in_idle_probe, TRUE, FALSE))
-      return GST_PAD_PROBE_OK;
+    //if (!g_atomic_int_compare_and_exchange (&in_idle_probe, TRUE, FALSE))
+    //  return GST_PAD_PROBE_OK;
 
     GST_WARNING ("link %s -> %s blocked", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
   }
+
+  /* request machine pads */
+  add_request_pad (md, md->mix, &w->peer_dst, &w->peer_dst_ghost, "sink_%u",
+      w->ad);
+
+  /* w->queue ! md->mix */
+  plr = gst_pad_link (w->src_ghost, w->peer_dst_ghost);
+  g_assert_cmpint (plr, ==, GST_PAD_LINK_OK);
 
   /* ms->tee ! w->queue */
   plr = gst_pad_link (w->peer_src_ghost, w->dst_ghost);
@@ -92,7 +100,6 @@ link_add (Graph * g, gint s, gint d)
 {
   Wire *w;
   Machine *ms = g->m[s], *md = g->m[d];
-  GstPadLinkReturn plr;
 
   g->w[s][d] = w = make_wire (g, ms, md);
 
@@ -102,8 +109,6 @@ link_add (Graph * g, gint s, gint d)
   /* request machine pads */
   add_request_pad (ms, ms->tee, &w->peer_src, &w->peer_src_ghost, "src_%u",
       w->as);
-  add_request_pad (md, md->mix, &w->peer_dst, &w->peer_dst_ghost, "sink_%u",
-      w->ad);
 
   /* create wire pads */
   w->src = gst_element_get_static_pad (w->queue, "src");
@@ -129,10 +134,6 @@ link_add (Graph * g, gint s, gint d)
     exit (-1);
   }
 
-  /* w->queue ! md->mix */
-  plr = gst_pad_link (w->src_ghost, w->peer_dst_ghost);
-  g_assert_cmpint (plr, ==, GST_PAD_LINK_OK);
-
   /* block w->peer_src (before linking) */
   if ((GST_STATE (g->bin) == GST_STATE_PLAYING) && !w->as && M_IS_SRC (ms)) {
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
@@ -147,17 +148,122 @@ link_add (Graph * g, gint s, gint d)
   }
 }
 
+static GstPadProbeReturn
+post_link_rem (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
+{
+  Wire *w = (Wire *) user_data;
+  Graph *g = w->g;
+  Machine *ms = w->ms, *md = w->md;
+  gboolean plr;
+  GstStateChangeReturn scr;
+
+  if (pad) {
+    if (!g_atomic_int_compare_and_exchange (&in_idle_probe, TRUE, FALSE))
+      return GST_PAD_PROBE_OK;
+
+    GST_WARNING ("link %s -> %s blocked", GST_OBJECT_NAME (ms->bin),
+        GST_OBJECT_NAME (md->bin));
+  }
+
+  /* change state (upstream) and lock */
+  if (w->ad) {
+    GST_WARNING ("deactivate %s", GST_OBJECT_NAME (md->bin));
+    scr = gst_element_set_state ((GstElement *) md->bin, GST_STATE_NULL);
+    g_assert (scr != GST_STATE_CHANGE_FAILURE);
+    gst_element_set_locked_state ((GstElement *) md->bin, TRUE);
+  }
+  scr = gst_element_set_state ((GstElement *) w->bin, GST_STATE_NULL);
+  g_assert (scr != GST_STATE_CHANGE_FAILURE);
+  if (w->as) {
+    GST_WARNING ("deactivate %s", GST_OBJECT_NAME (ms->bin));
+    scr = gst_element_set_state ((GstElement *) ms->bin, GST_STATE_NULL);
+    g_assert (scr != GST_STATE_CHANGE_FAILURE);
+    gst_element_set_locked_state ((GstElement *) ms->bin, TRUE);
+  }
+  dump_pipeline (g, step, "wire_rem_blocking_synced");
+
+  /* unlink ghostpads (upstream) */
+  plr = gst_pad_unlink (w->src_ghost, w->peer_dst_ghost);
+  g_assert (plr == TRUE);
+  plr = gst_pad_unlink (w->peer_src_ghost, w->dst_ghost);
+  g_assert (plr == TRUE);
+  dump_pipeline (g, step, "wire_rem_blocking_unlinked");
+
+  /* remove from pipeline */
+  gst_object_ref (w->bin);
+  if (!gst_bin_remove (w->g->bin, (GstElement *) w->bin)) {
+    GST_WARNING_OBJECT (w->bin, "cannot remove wire bin from pipeline");
+  }
+
+  /* release request pads */
+  gst_element_remove_pad ((GstElement *) ms->bin, w->peer_src_ghost);
+  gst_element_release_request_pad (ms->tee, w->peer_src);
+  ms->pads--;
+  gst_element_remove_pad ((GstElement *) md->bin, w->peer_dst_ghost);
+  gst_element_release_request_pad (md->mix, w->peer_dst);
+  md->pads--;
+
+  gst_object_unref (w->src);
+  gst_object_unref (w->dst);
+  gst_object_unref (w->bin);
+  g_free (w);
+
+  g->pending_changes--;
+  GST_WARNING ("link %s -> %s done (%d pending changes)",
+      GST_OBJECT_NAME (ms->bin), GST_OBJECT_NAME (md->bin), g->pending_changes);
+
+  return GST_PAD_PROBE_REMOVE;
+}
+
+static void
+link_rem (Graph * g, gint s, gint d)
+{
+  Wire *w = g->w[s][d];
+  Machine *ms = g->m[s], *md = g->m[d];
+
+  w->as = (ms->pads == 1);      // deactivate if this is the last pad
+  w->ad = (md->pads == 1);
+  g->w[s][d] = NULL;
+
+  GST_WARNING ("link %s -> %s (as=%d,ad=%d)", GST_OBJECT_NAME (ms->bin),
+      GST_OBJECT_NAME (md->bin), w->as, w->ad);
+
+  /* block w->peer_dst */
+  if (GST_STATE (g->bin) == GST_STATE_PLAYING) {
+    GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
+        GST_OBJECT_NAME (md->bin));
+    in_idle_probe = TRUE;
+    gst_pad_add_probe (w->peer_dst, PROBE_TYPE, post_link_rem, w, NULL);
+    dump_pipeline (g, step, "wire_rem_blocking");
+  } else {
+    GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
+        GST_OBJECT_NAME (md->bin));
+    post_link_rem (NULL, NULL, w);
+  }
+}
+
 static gboolean
 do_test_step (Graph * g)
 {
   if (g->pending_changes == 0) {
-    if (step == 2) {
-      dump_pipeline (g, step, NULL);
-      g_main_loop_quit (g->loop);
-    } else {
-      g->pending_changes = 1;
-      link_add (g, M_SRC1, M_SINK);
-      step++;
+    GST_WARNING ("step %d", step);
+    switch (step) {
+      case 0:                  // step is one before we get here
+        break;
+      case 1:
+        g->pending_changes = 1;
+        link_add (g, M_SRC1, M_SINK);
+        step++;
+        break;
+      case 2:
+        g->pending_changes = 1;
+        link_rem (g, M_SRC1, M_SINK);
+        step++;
+        break;
+      default:
+        dump_pipeline (g, step, NULL);
+        g_main_loop_quit (g->loop);
+        break;
     }
   } else {
     GST_WARNING ("wait (%d link changes)", g->pending_changes);
@@ -195,7 +301,7 @@ state_changed_message_received (GstBus * bus, GstMessage * message, Graph * g)
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
         GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "reached playing");
         dump_pipeline (g, 0, NULL);
-        g_timeout_add_seconds (1, (GSourceFunc) do_test_step, g);
+        g_timeout_add_seconds (2, (GSourceFunc) do_test_step, g);
         break;
       default:
         break;

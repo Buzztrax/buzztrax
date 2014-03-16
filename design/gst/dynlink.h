@@ -53,8 +53,8 @@ typedef struct Graph_ Graph;
 #define M_IS_SRC(m) (!m->mix)
 #define M_IS_SINK(m) (!m->tee)
 
-//#define PROBE_TYPE GST_PAD_PROBE_TYPE_BLOCK
-#define PROBE_TYPE GST_PAD_PROBE_TYPE_IDLE
+#define PROBE_TYPE (GST_PAD_PROBE_TYPE_BUFFER | GST_PAD_PROBE_TYPE_BUFFER_LIST)
+//#define PROBE_TYPE GST_PAD_PROBE_TYPE_IDLE
 
 struct Machine_
 {
@@ -279,7 +279,7 @@ make_graph (void)
   g_object_set (g->m[M_SRC1]->elem,
       "freq", (gdouble) 440.0, "wave", 2, "blocksize", 22050, NULL);
   g_object_set (g->m[M_SRC2]->elem,
-      "freq", (gdouble) 110.0, "wave", 1, "blocksize", 22050, NULL);
+      "freq", (gdouble) 137.0, "wave", 1, "blocksize", 22050, NULL);
   
   return g;
 }
