@@ -11,8 +11,6 @@ static gint step = 0;
 
 /* dynamic linking */
 
-static gint in_idle_probe = FALSE;
-
 static GstPadProbeReturn
 post_link_add (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
 {
@@ -23,9 +21,6 @@ post_link_add (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
   GstStateChangeReturn scr;
 
   if (pad) {
-    //if (!g_atomic_int_compare_and_exchange (&in_idle_probe, TRUE, FALSE))
-    //  return GST_PAD_PROBE_OK;
-
     GST_WARNING ("link %s -> %s blocked", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
   }
@@ -138,7 +133,6 @@ link_add (Graph * g, gint s, gint d)
   if ((GST_STATE (g->bin) == GST_STATE_PLAYING) && !w->as && M_IS_SRC (ms)) {
     GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
-    in_idle_probe = TRUE;
     gst_pad_add_probe (w->peer_src, PROBE_TYPE, post_link_add, w, NULL);
     dump_pipeline (g, step, "wire_add_blocking");
   } else {
@@ -158,9 +152,6 @@ post_link_rem (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
   GstStateChangeReturn scr;
 
   if (pad) {
-    if (!g_atomic_int_compare_and_exchange (&in_idle_probe, TRUE, FALSE))
-      return GST_PAD_PROBE_OK;
-
     GST_WARNING ("link %s -> %s blocked", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
   }
@@ -225,18 +216,17 @@ link_rem (Graph * g, gint s, gint d)
   w->ad = (md->pads == 1);
   g->w[s][d] = NULL;
 
-  GST_WARNING ("link %s -> %s (as=%d,ad=%d)", GST_OBJECT_NAME (ms->bin),
+  GST_WARNING ("unlink %s -> %s (as=%d,ad=%d)", GST_OBJECT_NAME (ms->bin),
       GST_OBJECT_NAME (md->bin), w->as, w->ad);
 
-  /* block w->peer_dst */
+  /* block w->peer_src */
   if (GST_STATE (g->bin) == GST_STATE_PLAYING) {
-    GST_WARNING ("link %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
+    GST_WARNING ("unlink %s -> %s blocking", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
-    in_idle_probe = TRUE;
-    gst_pad_add_probe (w->peer_dst, PROBE_TYPE, post_link_rem, w, NULL);
+    gst_pad_add_probe (w->peer_src, PROBE_TYPE, post_link_rem, w, NULL);
     dump_pipeline (g, step, "wire_rem_blocking");
   } else {
-    GST_WARNING ("link %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
+    GST_WARNING ("unlink %s -> %s continuing", GST_OBJECT_NAME (ms->bin),
         GST_OBJECT_NAME (md->bin));
     post_link_rem (NULL, NULL, w);
   }

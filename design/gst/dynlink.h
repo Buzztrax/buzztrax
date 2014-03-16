@@ -53,7 +53,8 @@ typedef struct Graph_ Graph;
 #define M_IS_SRC(m) (!m->mix)
 #define M_IS_SINK(m) (!m->tee)
 
-#define PROBE_TYPE (GST_PAD_PROBE_TYPE_BUFFER | GST_PAD_PROBE_TYPE_BUFFER_LIST)
+#define PROBE_TYPE (GST_PAD_PROBE_TYPE_BLOCK | \
+    GST_PAD_PROBE_TYPE_BUFFER | GST_PAD_PROBE_TYPE_BUFFER_LIST)
 //#define PROBE_TYPE GST_PAD_PROBE_TYPE_IDLE
 
 struct Machine_
