@@ -2,12 +2,14 @@
  * device
  *
  * gcc -Wall -g gstinput.c -o gstinput `pkg-config gstreamer-0.10 --cflags --libs`
+ * gcc -Wall -g gstinput.c -o gstinput `pkg-config gstreamer-1.0 --cflags --libs`
  */
 
 #include <errno.h>
 #include <fcntl.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -231,10 +233,19 @@ main (gint argc, gchar ** argv)
     case MODE_VIDEO:
       elems[ne++] = gst_element_factory_make ("autovideosrc", NULL);
       elems[ne++] = e = gst_element_factory_make ("capsfilter", NULL);
+#if GST_CHECK_VERSION(1,0,0)
+      caps =
+          gst_caps_from_string ("video/x-raw,fomat=yuv,width=320,height=240");
+#else
       caps = gst_caps_from_string ("video/x-raw-yuv,width=320,height=240");
+#endif
       g_object_set (e, "caps", caps, NULL);
       gst_caps_unref (caps);
+#if GST_CHECK_VERSION(1,0,0)
+      elems[ne++] = gst_element_factory_make ("videoconvert", NULL);
+#else
       elems[ne++] = gst_element_factory_make ("colorspace", NULL);
+#endif
       break;
   }
   switch (mode) {
@@ -242,6 +253,7 @@ main (gint argc, gchar ** argv)
       elems[ne++] = gst_element_factory_make ("level", NULL);
       break;
     case MODE_VIDEO_BRIGHTNESS:
+      // missing in 1.0
       elems[ne++] = gst_element_factory_make ("videoanalyse", NULL);
       break;
     case MODE_VIDEO_FACEDETECT:
