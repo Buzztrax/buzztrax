@@ -370,6 +370,8 @@ struct _BtSetupPrivate
 #else
   gboolean cont;
 #endif
+  /* lock to sync the parallel pipeline update */
+  GMutex update_mutex;
 };
 
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -1110,6 +1112,7 @@ async_add_to_pipeline (GstPad * peer, GstPadProbeInfo * info,
       (gpointer) self);
 
   GST_INFO ("pipeline updated for add --------------------------------");
+  g_mutex_unlock (&self->priv->update_mutex);
 
   return GST_PAD_PROBE_REMOVE;
 }
@@ -1176,6 +1179,7 @@ add_to_pipeline (const BtSetup * const self)
     gst_object_unref (elem);
     GST_INFO_OBJECT (peer, "adding probe");
 
+    g_mutex_lock (&self->priv->update_mutex);
     gst_pad_add_probe (peer,
         (GST_PAD_PROBE_TYPE_BLOCK | GST_PAD_PROBE_TYPE_BUFFER |
             GST_PAD_PROBE_TYPE_BUFFER_LIST), async_add_to_pipeline,
@@ -1228,6 +1232,7 @@ async_remove_from_pipeline (GstPad * peer, GstPadProbeInfo * info,
       (gpointer) self);
 
   GST_INFO ("pipeline updated for del --------------------------------");
+  g_mutex_unlock (&self->priv->update_mutex);
 
   return GST_PAD_PROBE_REMOVE;
 }
@@ -1285,6 +1290,7 @@ remove_from_pipeline (const BtSetup * const self)
     gst_object_unref (pad);
     GST_INFO_OBJECT (peer, "adding probe");
 
+    g_mutex_lock (&self->priv->update_mutex);
     gst_pad_add_probe (peer,
         (GST_PAD_PROBE_TYPE_BLOCK | GST_PAD_PROBE_TYPE_BUFFER |
             GST_PAD_PROBE_TYPE_BUFFER_LIST), async_remove_from_pipeline,
@@ -1447,6 +1453,10 @@ bt_setup_add_wire (const BtSetup * const self, const BtWire * const wire)
     set_disconnected (self, GST_BIN (wire));
     bt_setup_update_pipeline (self);
 
+    // here we have to *wait* for async_add_to_pipeline() to be done.
+    g_mutex_lock (&self->priv->update_mutex);
+    g_mutex_unlock (&self->priv->update_mutex);
+
     g_signal_emit ((gpointer) self, signals[WIRE_ADDED_EVENT], 0, wire);
     GST_DEBUG_OBJECT (wire, "added wire: %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (wire));
@@ -1547,9 +1557,9 @@ bt_setup_remove_wire (const BtSetup * const self, const BtWire * const wire)
     set_disconnecting (self, GST_BIN (wire));
     bt_setup_update_pipeline (self);
 
-    // TODO(ensonic): here we have to *wait* for async_remove_from_pipeline() to
-    // be done.
-    g_usleep (G_USEC_PER_SEC / 10);
+    // here we have to *wait* for async_remove_from_pipeline() to be done.
+    g_mutex_lock (&self->priv->update_mutex);
+    g_mutex_unlock (&self->priv->update_mutex);
 
     self->priv->wires = g_list_delete_link (self->priv->wires, node);
 
@@ -2212,6 +2222,8 @@ bt_setup_finalize (GObject * const object)
   g_hash_table_destroy (self->priv->connection_state);
   g_hash_table_destroy (self->priv->graph_depth);
 
+  g_mutex_clear (&self->priv->update_mutex);
+
   GST_DEBUG ("  chaining up");
   G_OBJECT_CLASS (bt_setup_parent_class)->finalize (object);
 }
@@ -2228,6 +2240,8 @@ bt_setup_init (BtSetup * self)
       g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   self->priv->connection_state = g_hash_table_new (NULL, NULL);
   self->priv->graph_depth = g_hash_table_new (NULL, NULL);
+
+  g_mutex_init (&self->priv->update_mutex);
 }
 
 static void
