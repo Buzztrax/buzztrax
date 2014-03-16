@@ -548,6 +548,23 @@ bt_bin_deactivate_tee_chain (GstBin * bin, GstElement * tee, GList * elements,
 
 //-- gst debugging
 
+#if !GST_CHECK_VERSION(1,3,1)
+static const gchar *
+gst_pad_link_get_name (GstPadLinkReturn ret)
+{
+  static gchar *link_res_desc[] = {
+    "link succeeded",
+    "pads have no common grandparent",
+    "pad was already linked",
+    "pads have wrong direction",
+    "pads do not have common format",
+    "pads cannot cooperate in scheduling",
+    "refused for some reason"
+  };
+  return link_res_desc[-ret];
+}
+#endif
+
 /**
  * bt_gst_debug_pad_link_return:
  * @link_res: pad link result
@@ -565,15 +582,6 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
 {
   static gchar msg1[5000];
   gchar msg2[4000];
-  static gchar *link_res_desc[] = {
-    "link succeeded",
-    "pads have no common grandparent",
-    "pad was already linked",
-    "pads have wrong direction",
-    "pads do not have common format",
-    "pads cannot cooperate in scheduling",
-    "refused for some reason"
-  };
 
   if (!src_pad || !sink_pad) {
     /* one of the pads is NULL */
@@ -628,7 +636,7 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
 
   g_sprintf (msg1, "%s:%s -> %s:%s : %s%s",
       GST_DEBUG_PAD_NAME (src_pad), GST_DEBUG_PAD_NAME (sink_pad),
-      link_res_desc[-link_res], msg2);
+      gst_pad_link_get_name (link_res), msg2);
 
   return msg1;
 }
