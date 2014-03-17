@@ -365,9 +365,7 @@ struct _BtSetupPrivate
   BtWire *first_wire, *last_wire;
 
   /* seek event for dynamically added elements */
-#ifndef STOP_PLAYBACK_FOR_UPDATES
-  GstEvent *play_seek_event;
-#else
+#ifdef STOP_PLAYBACK_FOR_UPDATES
   gboolean cont;
 #endif
   /* lock to sync the parallel pipeline update */
@@ -819,34 +817,39 @@ check_connected (const BtSetup * const self, BtMachine * dst_machine,
 }
 
 #ifndef STOP_PLAYBACK_FOR_UPDATES
-static void
-update_play_seek_event (const BtSetup * self)
+static GstEvent *
+get_play_seek_event (const BtSetup * self)
 {
   BtSequence *sequence;
   gboolean loop;
   glong loop_end, length;
   gulong play_pos;
+  GstSeekFlags flags;
   GstClockTime tick_duration;
   GstClockTime start, stop;
+  GstEvent *ev;
 
   bt_song_update_playback_position (self->priv->song);
   bt_child_proxy_get (self->priv->song, "sequence", &sequence, "play-pos",
       &play_pos, "song-info::tick-duration", &tick_duration, NULL);
   g_object_get (sequence, "loop", &loop, "loop-end", &loop_end, "length",
       &length, NULL);
-  start = play_pos * tick_duration;
-  // configure self->priv->play_seek_event (sent to newly activated elements)
+  // configure a seek_event (sent to newly activated elements)
+  // TODO(ensonic): the pos is from the sink, the seek would request this again
+  // which is not perfect, atleast the next pos would be better
+  start = (1 + play_pos) * tick_duration;
   if (loop) {
     stop = (loop_end + 0) * tick_duration;
-    self->priv->play_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, start, GST_SEEK_TYPE_SET, stop);
+    flags = GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT;
   } else {
     stop = (length + 1) * tick_duration;
-    self->priv->play_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH, GST_SEEK_TYPE_SET, start, GST_SEEK_TYPE_SET, stop);
+    flags = GST_SEEK_FLAG_FLUSH;
   }
+  ev = gst_event_new_seek (1.0, GST_FORMAT_TIME, flags,
+      GST_SEEK_TYPE_SET, start, GST_SEEK_TYPE_SET, stop);
   g_object_unref (sequence);
+
+  return ev;
 }
 #endif
 
@@ -980,12 +983,13 @@ activate_element (const BtSetup * const self, gpointer key)
         gst_element_state_get_name (GST_STATE_PLAYING));
 
     if (BT_IS_SOURCE_MACHINE (key)) {
+      GstEvent *ev = get_play_seek_event (self);
+
       ret = gst_element_set_state (elem, GST_STATE_READY);
       // going to ready should not by async
       GST_INFO_OBJECT (key, "state-change to READY: %s",
           gst_element_state_change_return_get_name (ret));
-      if (!(gst_element_send_event (elem,
-                  gst_event_ref (self->priv->play_seek_event)))) {
+      if (!(gst_element_send_event (elem, ev))) {
         GST_WARNING_OBJECT (key, "failed to handle seek event");
       }
       GST_INFO_OBJECT (key, "sent seek event");
@@ -1095,9 +1099,7 @@ async_add_to_pipeline (GstPad * peer, GstPadProbeInfo * info,
   GST_INFO ("sync states");
   sync_states_for_play (self);
 
-#ifndef STOP_PLAYBACK_FOR_UPDATES
-  gst_event_replace (&self->priv->play_seek_event, NULL);
-#else
+#ifdef STOP_PLAYBACK_FOR_UPDATES
   if (p->cont) {
     bt_song_play (p->song);
   }
@@ -1136,10 +1138,7 @@ add_to_pipeline (const BtSetup * const self)
     p->first_wire = p->last_wire = NULL;
     GST_INFO ("no pad blocking as we don't play");
   }
-#ifndef STOP_PLAYBACK_FOR_UPDATES
-  // query segment and position
-  update_play_seek_event (self);
-#else
+#ifdef STOP_PLAYBACK_FOR_UPDATES
   if (p->first_wire) {
     p->cont = FALSE;
     if ((p->cont = bt_song_update_playback_position (p->song))) {
@@ -1215,9 +1214,7 @@ async_remove_from_pipeline (GstPad * peer, GstPadProbeInfo * info,
   g_list_foreach (p->elements_to_stop, del_machine_in_pipeline,
       (gpointer) self);
 
-#ifndef STOP_PLAYBACK_FOR_UPDATES
-  gst_event_replace (&self->priv->play_seek_event, NULL);
-#else
+#ifdef STOP_PLAYBACK_FOR_UPDATES
   if (p->cont) {
     bt_song_play (p->song);
   }
@@ -1255,10 +1252,7 @@ remove_from_pipeline (const BtSetup * const self)
     p->first_wire = p->last_wire = NULL;
     GST_INFO ("no pad blocking as we don't play");
   }
-#ifndef STOP_PLAYBACK_FOR_UPDATES
-  // query segment and position
-  update_play_seek_event (self);
-#else
+#ifdef STOP_PLAYBACK_FOR_UPDATES
   if (p->first_wire) {
     p->cont = FALSE;
     if ((p->cont = bt_song_update_playback_position (p->song))) {
