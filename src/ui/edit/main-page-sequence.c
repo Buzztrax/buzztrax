@@ -1395,8 +1395,6 @@ sequence_table_init (const BtMainPageSequence * self)
   header = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, HEADER_SPACING);
   vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_box_pack_start (GTK_BOX (header), vbox, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (header),
-      gtk_separator_new (GTK_ORIENTATION_VERTICAL), FALSE, FALSE, 0);
 
   label = gtk_label_new (_("Labels"));
   gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
@@ -1512,8 +1510,6 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       header = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, HEADER_SPACING);
       vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
       gtk_box_pack_start (GTK_BOX (header), vbox, TRUE, TRUE, 0);
-      gtk_box_pack_start (GTK_BOX (header),
-          gtk_separator_new (GTK_ORIENTATION_VERTICAL), FALSE, FALSE, 0);
 
       // we need to set width-chars so that the natural size is calculated
       // instead of using the hard-coded 150 pixels
@@ -1533,14 +1529,6 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       }
       g_signal_connect (machine, "notify::id",
           G_CALLBACK (on_machine_id_changed_seq), (gpointer) label);
-      // we need to remove the signal handler when updating the labels
-      //g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);
-      /* we have the label column already
-         if(j==0) {
-         // connect to the size-allocate signal to adjust the height of the other treeview header
-         g_signal_connect(header,"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
-         }
-       */
 
       box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
       gtk_box_pack_start (GTK_BOX (vbox), box, TRUE, TRUE, 0);
