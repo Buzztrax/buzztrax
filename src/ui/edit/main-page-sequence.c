@@ -3683,21 +3683,23 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_container_add (GTK_CONTAINER (self), split_box);
 
   // add a 2x2 table for sequence view
-  table = gtk_table_new (2, 2, FALSE);
+  table = gtk_grid_new ();
   gtk_box_pack_start (GTK_BOX (split_box), table, TRUE, TRUE, 0);
 
   // add sequence-pos list-view
-  self->priv->sequence_pos_table_header =
-      GTK_BOX (gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0));
-  gtk_table_attach (GTK_TABLE (table),
-      GTK_WIDGET (self->priv->sequence_pos_table_header),
-      0, 1, 0, 1, 0, GTK_FILL, 0, 0);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+  self->priv->sequence_pos_table_header = GTK_BOX (box);
+  gtk_widget_set_hexpand (box, FALSE);
+  gtk_widget_set_vexpand (box, FALSE);
+  gtk_grid_attach (GTK_GRID (table), box, 0, 0, 1, 1);
 
   scrolled_vsync_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_vsync_window),
       GTK_POLICY_NEVER, GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW
       (scrolled_vsync_window), GTK_SHADOW_NONE);
+  gtk_widget_set_hexpand (scrolled_vsync_window, FALSE);
+  gtk_widget_set_vexpand (scrolled_vsync_window, TRUE);
   self->priv->sequence_pos_table = GTK_TREE_VIEW (bt_sequence_view_new ());
   g_object_set (self->priv->sequence_pos_table,
       "enable-search", FALSE,
@@ -3708,13 +3710,13 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
   gtk_widget_set_size_request (GTK_WIDGET (self->priv->sequence_pos_table),
       POSITION_CELL_WIDTH, 40);
+  gtk_widget_set_vexpand (GTK_WIDGET (self->priv->sequence_pos_table), TRUE);
   tree_sel = gtk_tree_view_get_selection (self->priv->sequence_pos_table);
   gtk_tree_selection_set_mode (tree_sel, GTK_SELECTION_NONE);
   sequence_pos_table_init (self);
   gtk_container_add (GTK_CONTAINER (scrolled_vsync_window),
       GTK_WIDGET (self->priv->sequence_pos_table));
-  gtk_table_attach (GTK_TABLE (table), scrolled_vsync_window,
-      0, 1, 1, 2, 0, GTK_EXPAND | GTK_FILL, 0, 0);
+  gtk_grid_attach (GTK_GRID (table), scrolled_vsync_window, 0, 1, 1, 1);
   g_signal_connect (self->priv->sequence_pos_table, "button-press-event",
       G_CALLBACK (on_sequence_table_button_press_event), (gpointer) self);
   g_signal_connect (self->priv->sequence_pos_table, "motion-notify-event",
@@ -3753,6 +3755,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
       GTK_POLICY_NEVER, GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW
       (scrolled_hsync_window), GTK_SHADOW_NONE);
+  gtk_widget_set_hexpand (scrolled_hsync_window, TRUE);
+  gtk_widget_set_vexpand (scrolled_hsync_window, FALSE);
   self->priv->sequence_table_header =
       GTK_BOX (gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0));
   gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW
@@ -3764,8 +3768,7 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_widget_set_hexpand (hsync_viewport, TRUE);
   gtk_widget_add_events (hsync_viewport, GDK_BUTTON_PRESS_MASK);
 
-  gtk_table_attach (GTK_TABLE (table), scrolled_hsync_window,
-      1, 2, 0, 1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+  gtk_grid_attach (GTK_GRID (table), scrolled_hsync_window, 1, 0, 1, 1);
   g_signal_connect (hsync_viewport, "button-press-event",
       G_CALLBACK (on_sequence_header_button_press_event), (gpointer) self);
 
@@ -3775,6 +3778,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window),
       GTK_SHADOW_NONE);
+  gtk_widget_set_hexpand (scrolled_window, TRUE);
+  gtk_widget_set_vexpand (scrolled_window, TRUE);
   self->priv->sequence_table = GTK_TREE_VIEW (bt_sequence_view_new ());
   g_object_set (self->priv->sequence_table,
       "enable-search", FALSE,
@@ -3788,8 +3793,7 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   sequence_table_init (self);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->sequence_table));
-  gtk_table_attach (GTK_TABLE (table), scrolled_window,
-      1, 2, 1, 2, GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 0, 0);
+  gtk_grid_attach (GTK_GRID (table), scrolled_window, 1, 1, 1, 1);
   g_signal_connect_after (self->priv->sequence_table, "cursor-changed",
       G_CALLBACK (on_sequence_table_cursor_changed), (gpointer) self);
   g_signal_connect (self->priv->sequence_table, "key-press-event",
