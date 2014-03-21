@@ -3695,7 +3695,9 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
 
   scrolled_vsync_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_vsync_window),
-      GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+      // BUG(726795): this is broken in gtk3
+      //GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+      GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW
       (scrolled_vsync_window), GTK_SHADOW_NONE);
   gtk_widget_set_hexpand (scrolled_vsync_window, FALSE);
@@ -3753,7 +3755,9 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   // add sequence header list-view
   scrolled_hsync_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_hsync_window),
-      GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+      // BUG(726795): this is broken in gtk3
+      //GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+      GTK_POLICY_AUTOMATIC, GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW
       (scrolled_hsync_window), GTK_SHADOW_NONE);
   gtk_widget_set_hexpand (scrolled_hsync_window, TRUE);
@@ -3776,8 +3780,6 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
 
   // add sequence list-view
   scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
-      GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window),
       GTK_SHADOW_NONE);
   gtk_widget_set_hexpand (scrolled_window, TRUE);
