@@ -608,6 +608,7 @@ update_scrolled_window_zoom (const BtMainPageMachines * self)
   gfloat ch = 2.0 * (p->view_h / p->zoom);
   gfloat delta[2] = { (cw - p->canvas_w) / 2.0, (ch - p->canvas_h) / 2.0 };
 
+  GST_DEBUG ("view: %4.1f,%4.1f, zoom: %4.1f", p->view_w, p->view_h, p->zoom);
   GST_DEBUG ("canvas: %4.1f,%4.1f -> %4.1f,%4.1f", p->canvas_w, p->canvas_h, cw,
       ch);
   GST_DEBUG ("delta: %4.1f,%4.1f", delta[0], delta[1]);
