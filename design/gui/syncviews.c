@@ -1,6 +1,6 @@
 /* test synchonized scrolling of two treeviews
  *
- * gcc -Wall -g syncviews.c -o syncviews `pkg-config gtk+-2.0 --cflags --libs`
+ * gcc -Wall -g syncviews.c -o syncviews `pkg-config gtk+-3.0 --cflags --libs`
  */
 
 #include <math.h>
@@ -33,22 +33,25 @@ on_scroll_event (GtkWidget * widget, GdkEventScroll * event, gpointer user_data)
   GdkScrollDirection direction = event->direction;
 
   if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_DOWN)
-    range = GTK_SCROLLED_WINDOW (widget)->vscrollbar;
+    range = gtk_scrolled_window_get_vscrollbar (GTK_SCROLLED_WINDOW (widget));
   else
-    range = GTK_SCROLLED_WINDOW (widget)->hscrollbar;
+    range = gtk_scrolled_window_get_hscrollbar (GTK_SCROLLED_WINDOW (widget));
 
   if (range) {
-    GtkAdjustment *adj = GTK_RANGE (range)->adjustment;
+    GtkAdjustment *adj = gtk_range_get_adjustment (GTK_RANGE (range));
     gdouble delta, new_value;
+    gdouble value, lower, upper, page_size;
 
-    delta = pow (adj->page_size, 2.0 / 3.0);
+    g_object_get (adj, "value", &value, "upper", &upper, "lower", &lower,
+        "page-size", &page_size, NULL);
+
+    delta = pow (page_size, 2.0 / 3.0);
     if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_LEFT)
       delta = -delta;
-    if (((GtkRange *) range)->inverted)
+    if (gtk_range_get_inverted ((GtkRange *) range))
       delta = -delta;
 
-    new_value =
-        CLAMP (adj->value + delta, adj->lower, adj->upper - adj->page_size);
+    new_value = CLAMP (value + delta, lower, upper - page_size);
 
     gtk_adjustment_set_value (adj, new_value);
     return TRUE;
@@ -75,13 +78,19 @@ init ()
   gtk_window_resize (GTK_WINDOW (window), 300, 200);
   g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
-  box = gtk_hbox_new (FALSE, 0);
+  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_container_add (GTK_CONTAINER (window), box);
 
   // first view
   scrolled_window1 = gtk_scrolled_window_new (NULL, NULL);
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window1),
-      GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+  // TODO(ensonic): bug726795: setting the policy should not affect size
+  if (g_getenv ("POLICY_AUTO")) {
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window1),
+        GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  } else {
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window1),
+        GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+  }
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window1),
       GTK_SHADOW_NONE);
   tree_view1 = gtk_tree_view_new ();
@@ -102,7 +111,8 @@ init ()
       FALSE, 0);
 
   // add vertical separator
-  gtk_box_pack_start (GTK_BOX (box), gtk_vseparator_new (), FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (box),
+      gtk_separator_new (GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
 
   // second view
   scrolled_window2 = gtk_scrolled_window_new (NULL, NULL);
