@@ -113,7 +113,6 @@ main (gint argc, gchar ** argv)
   bt_init_add_option_groups (ctx);
   g_option_context_add_group (ctx, btic_init_get_option_group ());
   g_option_context_add_group (ctx, gtk_get_option_group (TRUE));
-  g_option_context_add_group (ctx, cogl_get_option_group ());
   g_option_context_add_group (ctx, clutter_get_option_group_without_init ());
   g_option_context_add_group (ctx, gtk_clutter_get_option_group ());
 
