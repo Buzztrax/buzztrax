@@ -105,8 +105,11 @@ on_controller_list_cursor_changed (GtkTreeView * treeview, gpointer user_data)
   GtkTreeModel *model;
   GtkTreeIter iter;
 
-  GST_INFO ("settings list cursor changed");
   selection = gtk_tree_view_get_selection (self->priv->controller_list);
+  if (!selection)
+    return;
+
+  GST_INFO ("settings list cursor changed");
   if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
     guint id;
 
