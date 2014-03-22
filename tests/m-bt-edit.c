@@ -123,6 +123,10 @@ bt_edit_setup (void)
    theme=gtk_icon_theme_get_default()
    gtk_icon_theme_append_search_path(theme,....);
    */
+  /* TODO(ensonic); we need to ensure css files are found
+   * they are loaded from DATADIR/PACKAGE/, uninstalled they would be in
+   * src/ui/edit/
+   */
   bt_check_init ();
 
   GST_DEBUG_CATEGORY_INIT (bt_edit_debug, "bt-edit", 0,
