@@ -165,6 +165,7 @@ void setup_log_base(gint argc, gchar **argv);
 void setup_log_case(const gchar * file_name);
 void setup_log_test(const gchar * func_name, gint i);
 void setup_log_capture(void);
+void collect_logs(gboolean no_failures);
 
 void check_run_main_loop_for_usec(gulong usec);
 void check_run_main_loop_until_playing_or_error(BtSong * song);

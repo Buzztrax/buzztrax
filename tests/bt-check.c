@@ -504,6 +504,21 @@ setup_log_capture (void)
 #endif
 }
 
+void
+collect_logs (gboolean no_failures)
+{
+  gchar *cmd;
+
+  if (no_failures) {
+    cmd = g_strdup_printf ("touch ./%s.tar.bz2", __log_base);
+  } else {
+    cmd = g_strdup_printf ("tar cpjf ./%s.tar.bz2 %s/%s", __log_base,
+        __log_root, __log_base);
+  }
+  g_spawn_command_line_sync (cmd, NULL, NULL, NULL, NULL);
+  g_free (cmd);
+}
+
 
 /*
  * file output tests:

@@ -100,6 +100,8 @@ main (gint argc, gchar ** argv)
   srunner_free (sr);
 
   bt_deinit ();
+  collect_logs (nf == 0);
+
   //g_mem_profile();
 
   return (nf == 0) ? EXIT_SUCCESS : EXIT_FAILURE;

@@ -58,6 +58,7 @@ main (gint argc, gchar ** argv)
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);
   srunner_free (sr);
+  collect_logs (nf == 0);
 
   //g_mem_profile();
 

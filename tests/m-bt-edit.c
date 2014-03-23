@@ -219,6 +219,7 @@ main (gint argc, gchar ** argv)
 
   check_shutdown_test_server ();
   bt_deinit ();
+  collect_logs (nf == 0);
 
   return (nf == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
