@@ -45,8 +45,9 @@ main (gint argc, gchar ** argv)
   setup_log_base (argc, argv);
   setup_log_capture ();
 
-  bt_init (&test_argc, &test_argvptr);
+  gst_init (NULL, NULL);
   bt_check_init ();
+  bt_init (&test_argc, &test_argvptr);
 
   GST_DEBUG_CATEGORY_INIT (bt_cmd_debug, "bt-cmd", 0,
       "music production environment / command ui");

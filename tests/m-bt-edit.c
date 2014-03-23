@@ -127,7 +127,6 @@ bt_edit_setup (void)
    * they are loaded from DATADIR/PACKAGE/, uninstalled they would be in
    * src/ui/edit/
    */
-  bt_check_init ();
 
   GST_DEBUG_CATEGORY_INIT (bt_edit_debug, "bt-edit", 0,
       "music production environment / editor ui");
@@ -177,6 +176,8 @@ main (gint argc, gchar ** argv)
   setup_log_base (argc, argv);
   setup_log_capture ();
 
+  gst_init (NULL, NULL);
+  bt_check_init ();
   check_setup_test_server ();
 
   sr = srunner_create (bt_about_dialog_suite ());
