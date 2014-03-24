@@ -201,6 +201,7 @@ if test "x$xvfb_path" != "xno" ; then
 else
   have_xvfb="no"
 fi
+AC_SUBST(xvfb_path)
 AC_SUBST(XFONT_PATH)
 
 

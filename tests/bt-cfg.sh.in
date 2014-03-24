@@ -1,11 +1,13 @@
 #!/bin/sh
-TESTSONGDIR="@top_srcdir@/tests/songs"
-TESTRESULTDIR="@top_builddir@/tests/songs"
+TESTSONGDIR="@abs_top_srcdir@/tests/songs"
+TESTRESULTDIR="@abs_top_builddir@/tests/songs"
 
-BUZZTRAX_CMD=@top_builddir@/buzztrax-cmd
-BUZZTRAX_EDIT=@top_builddir@/buzztrax-edit
+BUZZTRAX_CMD=@abs_top_builddir@/buzztrax-cmd
+BUZZTRAX_EDIT=@abs_top_builddir@/buzztrax-edit
 
+XVFB_PATH="@xvfb_path@"
 XFONT_PATH="@XFONT_PATH@"
 
-LIBTOOL="@top_builddir@/libtool --mode=execute"
+LIBTOOL="@abs_top_builddir@/libtool --mode=execute"
+
 

@@ -5,8 +5,7 @@
 #   E_SONGS="/path/to/songs/*.bzt" T_SONGS=" " TESTRESULTDIR=/tmp FMT=ogg ./bt-cmd-encode.sh
 
 if [ -e tests/bt-cfg.sh ]; then
-  cd tests
-  . ./bt-cfg.sh
+  . ./tests/bt-cfg.sh
   FMT=ogg
 else
   LIBTOOL=

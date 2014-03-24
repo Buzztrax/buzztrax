@@ -5,8 +5,7 @@
 #   E_SONGS="/path/to/songs/*.bzt" T_SONGS=" " TESTRESULTDIR=/tmp ./bt-cmd-convert.sh
 
 if [ -e tests/bt-cfg.sh ]; then
-  cd tests
-  . ./bt-cfg.sh
+  . ./tests/bt-cfg.sh
 else
   LIBTOOL=
   BUZZTRAX_CMD=buzztrax-cmd
