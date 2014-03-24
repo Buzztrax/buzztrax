@@ -38,32 +38,31 @@ testPlayCommand()
 
 testPlayCommandWithQuietOption()
 {
-  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=play -q --input-file=$TESTSONGDIR/simple1.xml
-  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=play -q --input-file=$TESTSONGDIR/simple6.xml
+  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=play -q --input-file=$TESTSONGDIR/simple2.xml
 }
 
 testConvertCommand() {
-  tmpfile=$SHUNIT_TMPDIR/simple1.out.xml
-  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=convert -q --input-file=$TESTSONGDIR/simple1.xml --output-file=$tmpfile
+  tmpfile=$SHUNIT_TMPDIR/simple2.out.xml
+  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=convert -q --input-file=$TESTSONGDIR/simple2.xml --output-file=$tmpfile
   if [ ! -r $tmpfile ]; then
-    fail "output $tmpfile file missing, have: $(ls -al $SHUNIT_TMPDIR/simple1*)"
+    fail "output $tmpfile file missing, have: $(ls -al $SHUNIT_TMPDIR/simple2*)"
   fi
   rm -f $tmpfile
 }
 
 testEncodeCommand() {
-  tmpfile=$SHUNIT_TMPDIR/simple1.ogg
-  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=encode -q --input-file=$TESTSONGDIR/simple1.xml --output-file=$tmpfile
+  tmpfile=$SHUNIT_TMPDIR/simple2.wav
+  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=encode -q --input-file=$TESTSONGDIR/simple2.xml --output-file=$tmpfile
   if [ ! -r $tmpfile ]; then
-    fail "output $tmpfile file missing, have: $(ls -al $SHUNIT_TMPDIR/simple1*)"
+    fail "output $tmpfile file missing, have: $(ls -al $SHUNIT_TMPDIR/simple2*)"
   fi
   rm -f $tmpfile
 }
 testEncodeCommandGuessFormat() {
-  tmpfile=$SHUNIT_TMPDIR/simple1.ogg
-  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=encode -q --input-file=$TESTSONGDIR/simple1.xml --output-file=$SHUNIT_TMPDIR/simple1
+  tmpfile=$SHUNIT_TMPDIR/simple2.vorbis.ogg
+  $LIBTOOL $BUZZTRAX_CMD >/dev/null 2>&1 --command=encode -q --input-file=$TESTSONGDIR/simple2.xml --output-file=$SHUNIT_TMPDIR/simple2
   if [ ! -r $tmpfile ]; then
-    fail "output $tmpfile file missing, have: $(ls -al $SHUNIT_TMPDIR/simple1*)"
+    fail "output $tmpfile file missing, have: $(ls -al $SHUNIT_TMPDIR/simple2*)"
   fi
   rm -f $tmpfile
 }

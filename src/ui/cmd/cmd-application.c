@@ -288,7 +288,9 @@ bt_cmd_application_prepare_encoding (const BtCmdApplication * self,
   if (!matched) {
     GST_WARNING ("unknown file-format extension, using ogg vorbis");
     format = BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS;
-    file_name = g_strdup_printf ("%s.ogg", output_file_name);
+    enum_value = g_enum_get_value (enum_class, format);
+    file_name = g_strdup_printf ("%s%s", output_file_name,
+        enum_value->value_name);
   }
   g_free (lc_file_name);
 
