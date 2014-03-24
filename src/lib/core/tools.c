@@ -548,9 +548,10 @@ bt_bin_deactivate_tee_chain (GstBin * bin, GstElement * tee, GList * elements,
 
 //-- gst debugging
 
-#if !GST_CHECK_VERSION(1,3,0)
+//#if !GST_CHECK_VERSION(1,3,0)
+// TODO(ensonic): wait for a new release of gst
 static const gchar *
-gst_pad_link_get_name (GstPadLinkReturn ret)
+gstbt_pad_link_get_name (GstPadLinkReturn ret)
 {
   static gchar *link_res_desc[] = {
     "link succeeded",
@@ -563,7 +564,8 @@ gst_pad_link_get_name (GstPadLinkReturn ret)
   };
   return link_res_desc[-ret];
 }
-#endif
+
+//#endif
 
 /**
  * bt_gst_debug_pad_link_return:
@@ -636,7 +638,7 @@ bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
 
   g_sprintf (msg1, "%s:%s -> %s:%s : %s%s",
       GST_DEBUG_PAD_NAME (src_pad), GST_DEBUG_PAD_NAME (sink_pad),
-      gst_pad_link_get_name (link_res), msg2);
+      gstbt_pad_link_get_name (link_res), msg2);
 
   return msg1;
 }
