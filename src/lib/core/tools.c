@@ -548,7 +548,7 @@ bt_bin_deactivate_tee_chain (GstBin * bin, GstElement * tee, GList * elements,
 
 //-- gst debugging
 
-#if !GST_CHECK_VERSION(1,3,1)
+#if !GST_CHECK_VERSION(1,3,0)
 static const gchar *
 gst_pad_link_get_name (GstPadLinkReturn ret)
 {
