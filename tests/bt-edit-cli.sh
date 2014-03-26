@@ -41,7 +41,7 @@ oneTimeSetUp()
 {
   # TODO(ensonic): use an existing Xvfb if possible, configure flag?
   if [ "$XVFB_PATH" != "" ]; then
-    $XVFB_PATH :9 -ac -nolisten tcp -fp $XFONT_PATH -noreset -screen 0 1024x786x24 -render &
+    $XVFB_PATH :9 -ac -nolisten tcp -fp $XFONT_PATH -noreset -screen 0 1024x786x24 -render -nolock &
     xvfb_pid=$!
     export DISPLAY=:9
   fi
