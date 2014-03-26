@@ -292,8 +292,7 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
   latency_time = GST_TIME_AS_USECONDS ((GST_SECOND * 60) / (bpm * tpb * st));
 
   GST_INFO_OBJECT (sink,
-      "bpm=%3lu=%3lu, tpb=%" G_GUINT64_FORMAT "=%" G_GUINT64_FORMAT
-      ", stpb=%2lu, target-latency=%2u , latency-time=%6" G_GINT64_FORMAT "=%6"
+      "bpm=%3lu=%3lu, tpb=%lu=%lu, stpb=%2lu, target-latency=%2u , latency-time=%6" G_GINT64_FORMAT "=%6"
       G_GINT64_FORMAT ", delta=%+4" G_GINT64_FORMAT, bpm, c_bpm, tpb, c_tpb, st,
       latency, latency_time, c_latency_time,
       (latency_time - ((gint) latency * 1000)) / 1000);
