@@ -213,7 +213,7 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Playback Controller"),
       COL_ID, BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER,
-      COL_ICON_NAME, "media-play", -1);
+      COL_ICON_NAME, "media-playback-start", -1);
   gtk_list_store_append (store, &tree_iter);
   gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Shortcuts"),
@@ -289,8 +289,8 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
    *   - cpu monitor (view menu?)
    */
 
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
-              (self))), box);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
+      box, TRUE, TRUE, 0);
 }
 
 //-- constructor methods
