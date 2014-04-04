@@ -68,15 +68,27 @@
  *   latencies of one machine, by disabling most of the wires on its way. That
  *   will not help though, when we play several machines live (using keyboards)
  */
+/* TODO(ensonic): handle async-done when seeking
+ * - whenever we send flushing seeks, we need to wait for GST_MESSAGE_ASYNC_DONE
+ *   to ensure that the previous flushing seek is done (see design/gst/event.c)
+ *   and on_song_async_done(). If we don't do this, the previous seeks can get
+ *   canceled
+ * - we could add a pending_seek event. In async_done, we swap the pending seek
+ *   event with NULL and send the pending one. Instead of seeking directly we
+ *   use a seek_update helper to update the pending event. If the pending event
+ *   is NULL we start a new pending seek. If async_done is called and pending is
+ *   NULL, we set a flag, so that the next seek_update will send the seek
+ *   directly.
+ * - this needs changes whenever we call gst_element_send_event() with a seek
+ */
 #define BT_CORE
 #define BT_SONG_C
 
 #include "core_private.h"
 #include <glib/gprintf.h>
 
-// if a state change not happens within this time, cancel playback
-// this includes prerolling
-// 30 seconds for now
+/* if a state change does not happen within this time, cancel playback
+ * this time includes prerolling, set to 30 seconds for now */
 #define STATE_CHANGE_TIMEOUT 30
 
 //-- property ids
@@ -150,19 +162,30 @@ G_DEFINE_TYPE_WITH_CODE (BtSong, bt_song, G_TYPE_OBJECT,
 
 //-- helper
 
+#define MAKE_SEEK_EVENT_FL(r,s,e) \
+  gst_event_new_seek ((r), GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH | \
+      GST_SEEK_FLAG_SEGMENT, GST_SEEK_TYPE_SET, (s), GST_SEEK_TYPE_SET, (e))
+
+#define MAKE_SEEK_EVENT_L(r,s,e) \
+  gst_event_new_seek ((r), GST_FORMAT_TIME, GST_SEEK_FLAG_SEGMENT, \
+      GST_SEEK_TYPE_SET, (s), GST_SEEK_TYPE_SET, (e))
+
+#define MAKE_SEEK_EVENT_F(r,s,e) \
+  gst_event_new_seek ((r), GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH, \
+      GST_SEEK_TYPE_SET, (s), GST_SEEK_TYPE_SET, (e))
+
 static void
 bt_song_update_play_seek_event (const BtSong * const self)
 {
+  BtSongPrivate *p = self->priv;
   gboolean loop;
   glong loop_start, loop_end, length;
-  gulong play_pos = self->priv->play_pos;
+  gulong play_pos = p->play_pos;
   GstClockTime tick_duration;
 
-  g_object_get (self->priv->sequence, "loop", &loop, "loop-start", &loop_start,
+  g_object_get (p->sequence, "loop", &loop, "loop-start", &loop_start,
       "loop-end", &loop_end, "length", &length, NULL);
-  g_object_get (self->priv->song_info, "tick-duration", &tick_duration, NULL);
-
-  //GST_INFO("rate %lf, loop %d? %ld ... %ld, length %ld, pos %lu",self->priv->play_rate,loop,loop_start,loop_end,length,play_pos);
+  g_object_get (p->song_info, "tick-duration", &tick_duration, NULL);
 
   if (loop_start == -1)
     loop_start = 0;
@@ -172,16 +195,16 @@ bt_song_update_play_seek_event (const BtSong * const self)
     play_pos = loop_start;
 
   // remember end for eos
-  self->priv->play_end = loop_end;
+  p->play_end = loop_end;
 
   GST_INFO ("loop %d? %ld ... %ld, length %ld, pos %lu, tick_duration %"
       GST_TIME_FORMAT, loop, loop_start, loop_end, length, play_pos,
       GST_TIME_ARGS (tick_duration));
 
-  if (self->priv->play_seek_event)
-    gst_event_unref (self->priv->play_seek_event);
-  if (self->priv->loop_seek_event)
-    gst_event_unref (self->priv->loop_seek_event);
+  if (p->play_seek_event)
+    gst_event_unref (p->play_seek_event);
+  if (p->loop_seek_event)
+    gst_event_unref (p->loop_seek_event);
 
   /* we need to use FLUSH for play (due to prerolling), otherwise:
      0:00:00.866899000 15884 0x81cee70 DEBUG             basesink gstbasesink.c:1644:gst_base_sink_do_sync:<player> prerolling object 0x818ce90
@@ -189,20 +212,14 @@ bt_song_update_play_seek_event (const BtSong * const self)
      but not for loop
    */
   if (loop) {
-    self->priv->play_seek_event =
-        gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT, GST_SEEK_TYPE_SET,
-        play_pos * tick_duration, GST_SEEK_TYPE_SET, loop_end * tick_duration);
-    self->priv->loop_seek_event =
-        gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_SEGMENT, GST_SEEK_TYPE_SET, loop_start * tick_duration,
-        GST_SEEK_TYPE_SET, loop_end * tick_duration);
+    p->play_seek_event = MAKE_SEEK_EVENT_FL (p->play_rate,
+        play_pos * tick_duration, loop_end * tick_duration);
+    p->loop_seek_event = MAKE_SEEK_EVENT_L (p->play_rate,
+        loop_start * tick_duration, loop_end * tick_duration);
   } else {
-    self->priv->play_seek_event =
-        gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH, GST_SEEK_TYPE_SET, play_pos * tick_duration,
-        GST_SEEK_TYPE_SET, loop_end * tick_duration);
-    self->priv->loop_seek_event = NULL;
+    p->play_seek_event = MAKE_SEEK_EVENT_F (p->play_rate,
+        play_pos * tick_duration, loop_end * tick_duration);
+    p->loop_seek_event = NULL;
   }
 }
 
@@ -216,36 +233,31 @@ bt_song_update_play_seek_event (const BtSong * const self)
 static void
 bt_song_seek_to_play_pos (const BtSong * const self)
 {
+  BtSongPrivate *p = self->priv;
   GstEvent *event;
   gboolean loop;
   glong loop_end, length;
   GstClockTime tick_duration;
 
-  if (!self->priv->is_playing)
+  if (!p->is_playing)
     return;
 
-  g_object_get (self->priv->sequence, "loop", &loop, "loop-end", &loop_end,
+  g_object_get (p->sequence, "loop", &loop, "loop-end", &loop_end,
       "length", &length, NULL);
-  g_object_get (self->priv->song_info, "tick-duration", &tick_duration, NULL);
+  g_object_get (p->song_info, "tick-duration", &tick_duration, NULL);
 
   GST_INFO ("loop %d? %ld, length %ld, tick_duration %" GST_TIME_FORMAT, loop,
       loop_end, length, GST_TIME_ARGS (tick_duration));
 
   // we need to flush, otherwise mixing goes out of sync
   if (loop) {
-    event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration,
-        GST_SEEK_TYPE_SET, (loop_end + 0) * tick_duration);
+    event = MAKE_SEEK_EVENT_FL (1.0, p->play_pos * tick_duration,
+        loop_end * tick_duration);
   } else {
-    event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH,
-        GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration,
-        GST_SEEK_TYPE_SET, (length + 1) * tick_duration);
+    event = MAKE_SEEK_EVENT_L (1.0, p->play_pos * tick_duration,
+        (length + 1) * tick_duration);
   }
-  /* TODO(ensonic): we should wait for an async done to ensure that the previous
-   * flushing seek is done (see design/gst/event.c)
-   */
+  /* TODO(ensonic): handle async-done when seeking, see top-level comment */
   if (!(gst_element_send_event (GST_ELEMENT (self->priv->master_bin), event))) {
     GST_WARNING ("element failed to seek to play_pos event");
   }
@@ -254,22 +266,23 @@ bt_song_seek_to_play_pos (const BtSong * const self)
 static void
 bt_song_change_play_rate (const BtSong * const self)
 {
+  BtSongPrivate *p = self->priv;
   GstEvent *event;
   gboolean loop;
   glong loop_start, loop_end, length;
   GstClockTime tick_duration;
 
-  if (!self->priv->is_playing)
+  if (!p->is_playing)
     return;
 
-  g_object_get (self->priv->sequence, "loop", &loop, "loop-start", &loop_start,
+  g_object_get (p->sequence, "loop", &loop, "loop-start", &loop_start,
       "loop-end", &loop_end, "length", &length, NULL);
-  g_object_get (self->priv->song_info, "tick-duration", &tick_duration, NULL);
+  g_object_get (p->song_info, "tick-duration", &tick_duration, NULL);
 
   GST_INFO ("rate %lf, loop %d?", self->priv->play_rate, loop);
   bt_song_update_play_seek_event (self);
 
-  /* in 0.10.24 we do have step events (gst_event_new_step), they require an
+  /* since 0.10.24 we do have step events (gst_event_new_step), they require an
    * initial seek if the direction has changed */
 
   // changing the playback rate should mostly affect sinks
@@ -277,36 +290,22 @@ bt_song_change_play_rate (const BtSong * const self)
   // and we need to give the position to workaround basesrc starting from 0
   if (loop) {
     if (self->priv->play_rate > 0.0) {
-      event = gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-          //GST_SEEK_FLAG_SEGMENT,
-          GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration,
-          GST_SEEK_TYPE_SET, loop_end * tick_duration);
+      event = MAKE_SEEK_EVENT_FL (p->play_rate, p->play_pos * tick_duration,
+          loop_end * tick_duration);
     } else {
-      event = gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-          //GST_SEEK_FLAG_SEGMENT,
-          GST_SEEK_TYPE_SET, loop_start * tick_duration,
-          GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration);
+      event = MAKE_SEEK_EVENT_FL (p->play_rate, loop_start * tick_duration,
+          p->play_pos * tick_duration);
     }
   } else {
     if (self->priv->play_rate > 0.0) {
-      event = gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH,
-          //GST_SEEK_FLAG_NONE,
-          GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration,
-          GST_SEEK_TYPE_SET, (length + 1) * tick_duration);
+      event = MAKE_SEEK_EVENT_F (p->play_rate, p->play_pos * tick_duration,
+          (length + 1) * tick_duration);
     } else {
-      event = gst_event_new_seek (self->priv->play_rate, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH,
-          //GST_SEEK_FLAG_NONE,
-          GST_SEEK_TYPE_SET, G_GINT64_CONSTANT (0),
-          GST_SEEK_TYPE_SET, self->priv->play_pos * tick_duration);
+      event = MAKE_SEEK_EVENT_F (p->play_rate, G_GINT64_CONSTANT (0),
+          p->play_pos * tick_duration);
     }
   }
-  /* TODO(ensonic): we should wait for an async done to ensure that the previous
-   * flushing seek is done (see design/gst/event.c)
-   */
+  /* TODO(ensonic): handle async-done when seeking, see top-level comment */
   if (!(gst_element_send_event (GST_ELEMENT (self->priv->master_bin), event))) {
     GST_WARNING ("element failed to change playback rate");
   }
@@ -506,6 +505,7 @@ on_song_segment_done (const GstBus * const bus,
     } else {
       event = gst_event_copy (self->priv->idle_loop_seek_event);
     }
+    g_assert (event);
 #ifndef GST_DISABLE_GST_DEBUG
     seek_seqnum = gst_util_seqnum_next ();
     gst_event_set_seqnum (event, seek_seqnum);
@@ -602,7 +602,7 @@ on_song_async_done (const GstBus * const bus, GstMessage * message,
   const BtSong *const self = BT_SONG (user_data);
 
   if (GST_MESSAGE_SRC (message) == GST_OBJECT (self->priv->bin)) {
-    GST_INFO ("async state-change done");
+    GST_INFO ("async operation done");
     if (self->priv->paused_timeout_id) {
       g_source_remove (self->priv->paused_timeout_id);
       self->priv->paused_timeout_id = 0;
@@ -1468,14 +1468,17 @@ bt_song_set_property (GObject * const object, const guint property_id,
       GST_DEBUG_OBJECT (self->priv->master, "set the master for the song: %"
           G_OBJECT_REF_COUNT_FMT, G_OBJECT_LOG_REF_COUNT (self->priv->master));
       break;
-    case SONG_PLAY_POS:
-      self->priv->play_pos =
-          bt_sequence_limit_play_pos (self->priv->sequence,
+    case SONG_PLAY_POS:{
+      gulong play_pos = bt_sequence_limit_play_pos (self->priv->sequence,
           g_value_get_ulong (value));
-      GST_DEBUG ("set the play-pos for sequence: %lu", self->priv->play_pos);
-      // seek on playpos changes (if playing)
-      bt_song_seek_to_play_pos (self);
+      if (play_pos != self->priv->play_pos) {
+        GST_DEBUG ("set the play-pos for sequence: %lu", play_pos);
+        self->priv->play_pos = play_pos;
+        // seek on playpos changes (if playing)
+        bt_song_seek_to_play_pos (self);
+      }
       break;
+    }
     case SONG_PLAY_RATE:
       self->priv->play_rate = g_value_get_double (value);
       GST_DEBUG ("set the play-rate: %lf", self->priv->play_rate);
@@ -1609,29 +1612,17 @@ bt_song_finalize (GObject * const object)
 static void
 bt_song_init (BtSong * self)
 {
+  GstClockTime s, e;
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SONG, BtSongPrivate);
 
   self->priv->position_query = gst_query_new_position (GST_FORMAT_TIME);
   self->priv->play_rate = 1.0;
 
-  self->priv->idle_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
-      GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-      /* this is ~ 3 hours
-         GST_SEEK_TYPE_SET, (GstClockTime)(10000*GST_SECOND),
-         GST_SEEK_TYPE_SET, (GstClockTime)(10005*GST_SECOND)
-       */
-      GST_SEEK_TYPE_SET, (GstClockTime) (G_MAXINT64 - (2 * GST_SECOND)),
-      GST_SEEK_TYPE_SET, (GstClockTime) (G_MAXINT64 - 1)
-      );
-  self->priv->idle_loop_seek_event = gst_event_new_seek (1.0, GST_FORMAT_TIME,
-      GST_SEEK_FLAG_SEGMENT,
-      /*
-         GST_SEEK_TYPE_SET, (GstClockTime)(10000*GST_SECOND),
-         GST_SEEK_TYPE_SET, (GstClockTime)(10005*GST_SECOND)
-       */
-      GST_SEEK_TYPE_SET, (GstClockTime) (G_MAXINT64 - (2 * GST_SECOND)),
-      GST_SEEK_TYPE_SET, (GstClockTime) (G_MAXINT64 - 1)
-      );
+  s = (GstClockTime) (G_MAXINT64 - (2 * GST_SECOND));
+  e = (GstClockTime) (G_MAXINT64 - 1);
+  self->priv->idle_seek_event = MAKE_SEEK_EVENT_FL (1.0, s, e);
+  self->priv->idle_loop_seek_event = MAKE_SEEK_EVENT_L (1.0, s, e);
   GST_DEBUG ("  done");
 }
 
