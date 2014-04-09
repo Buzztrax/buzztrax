@@ -900,11 +900,12 @@ BtTipDialogPrivate
 <FILE>btuiresources</FILE>
 <TITLE>BtUIResources</TITLE>
 BtUIResources
-BtUIResourcesColors
 BtUIResourcesMachineColors
 bt_ui_resources_new
+bt_ui_resources_init_theme
 bt_ui_resources_get_icon_pixbuf_by_machine
 bt_ui_resources_get_machine_graphics_pixbuf_by_machine
+bt_ui_resources_get_wire_graphics_pixbuf_by_wire
 bt_ui_resources_get_icon_image_by_machine
 bt_ui_resources_get_icon_image_by_machine_type
 bt_ui_resources_get_accel_group
