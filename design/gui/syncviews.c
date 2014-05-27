@@ -24,18 +24,25 @@ destroy (GtkWidget * widget, gpointer data)
   gtk_main_quit ();
 }
 
-// this is a copy from gtk_scrolled_window_scroll_event() with a small modification
-// to also handle scroll events if the scrollbar is hidden
+// this is a copy from gtk-2.X::gtk_scrolled_window_scroll_event() with a small
+// modification to also handle scroll events if the scrollbar is hidden (we're
+// not checking gtk_widget_get_visible()
 static gboolean
 on_scroll_event (GtkWidget * widget, GdkEventScroll * event, gpointer user_data)
 {
-  GtkWidget *range;
+  GtkWidget *range = NULL;
   GdkScrollDirection direction = event->direction;
+  gchar *dbg;
 
-  if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_DOWN)
+  if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_DOWN) {
     range = gtk_scrolled_window_get_vscrollbar (GTK_SCROLLED_WINDOW (widget));
-  else
+    dbg = "vadj";
+  } else if (direction == GDK_SCROLL_LEFT || direction == GDK_SCROLL_RIGHT) {
     range = gtk_scrolled_window_get_hscrollbar (GTK_SCROLLED_WINDOW (widget));
+    dbg = "hadj";
+  } else {
+    printf ("unknown direction: %d\n", direction);      // GTK_SROLL_SMOOTH
+  }
 
   if (range) {
     GtkAdjustment *adj = gtk_range_get_adjustment (GTK_RANGE (range));
@@ -45,6 +52,7 @@ on_scroll_event (GtkWidget * widget, GdkEventScroll * event, gpointer user_data)
     g_object_get (adj, "value", &value, "upper", &upper, "lower", &lower,
         "page-size", &page_size, NULL);
 
+    // from _gtk_range_get_wheel_delta()
     delta = pow (page_size, 2.0 / 3.0);
     if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_LEFT)
       delta = -delta;
@@ -53,10 +61,50 @@ on_scroll_event (GtkWidget * widget, GdkEventScroll * event, gpointer user_data)
 
     new_value = CLAMP (value + delta, lower, upper - page_size);
 
+    printf ("scrolling: %s=%p, lower=%lf < value=%lf + delta=%lf < upper=%lf\n",
+        dbg, adj, lower, value, delta, (upper - page_size));
+
     gtk_adjustment_set_value (adj, new_value);
     return TRUE;
   }
   return FALSE;
+}
+
+static void
+on_scrollbar_visibility_changed (GObject * sb, GParamSpec * property,
+    gpointer user_data)
+{
+  gboolean visible;
+
+  g_object_get (sb, "visible", &visible, NULL);
+  if (visible) {
+    printf ("hiding scrollbar again\n");
+    g_object_set (sb, "visible", FALSE, NULL);
+  }
+}
+
+static void
+on_scrolled_window_realize (GtkWidget * widget, gpointer user_data)
+{
+  GtkWidget *sb;
+
+  printf ("realized\n");
+  sb = gtk_scrolled_window_get_vscrollbar (GTK_SCROLLED_WINDOW (widget));
+  if (sb) {
+    printf ("hiding scrollbar\n");
+    g_object_set (sb, "visible", FALSE, "no-show-all", TRUE, NULL);
+    g_signal_connect (sb, "notify::visible",
+        G_CALLBACK (on_scrollbar_visibility_changed), NULL);
+  } else {
+    printf ("no v-scrollbar found\n");
+  }
+}
+
+static void
+on_scrolled_window_size_changed (GtkWidget * widget, GdkRectangle * allocation,
+    gpointer user_data)
+{
+  printf ("size-changed\n");
 }
 
 static void
@@ -68,6 +116,15 @@ init ()
   GtkListStore *store;
   GtkTreeIter tree_iter;
   GtkAdjustment *vadjust;
+
+  // TODO(ensonic): bug726795: setting the policy should not affect size
+  GtkPolicyType policy = GTK_POLICY_NEVER;
+  if (g_getenv ("POLICY_AUTO")) {
+    policy = GTK_POLICY_AUTOMATIC;
+  }
+  if (g_getenv ("POLICY_ALWAYS")) {
+    policy = GTK_POLICY_ALWAYS;
+  }
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window), "Syncronized views");
@@ -81,22 +138,33 @@ init ()
   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_container_add (GTK_CONTAINER (window), box);
 
-  // first view
+  // first view (slave)
   scrolled_window1 = gtk_scrolled_window_new (NULL, NULL);
-  // TODO(ensonic): bug726795: setting the policy should not affect size
-  if (g_getenv ("POLICY_AUTO")) {
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window1),
-        GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  } else {
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window1),
-        GTK_POLICY_NEVER, GTK_POLICY_NEVER);
-  }
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window1),
+      GTK_POLICY_NEVER, policy);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window1),
       GTK_SHADOW_NONE);
+  switch (policy) {
+    case GTK_POLICY_NEVER:
+      g_signal_connect (scrolled_window1, "scroll-event",
+          G_CALLBACK (on_scroll_event), NULL);
+      break;
+    case GTK_POLICY_ALWAYS:
+      // this hack shows no effect here :/
+      g_signal_connect (scrolled_window1, "scroll-event",
+          G_CALLBACK (on_scroll_event), NULL);
+      g_signal_connect (scrolled_window1, "realize",
+          G_CALLBACK (on_scrolled_window_realize), NULL);
+      g_signal_connect (scrolled_window1, "size-allocate",
+          G_CALLBACK (on_scrolled_window_size_changed), NULL);
+      break;
+    default:
+      break;
+  }
   tree_view1 = gtk_tree_view_new ();
   g_object_set (GTK_TREE_VIEW (tree_view1), "enable-search", FALSE,
       "rules-hint", TRUE, NULL);
-  gtk_widget_set_size_request (GTK_WIDGET (tree_view1), 100, 40);
+  gtk_widget_set_size_request (tree_view1, 100, 40);
   gtk_tree_selection_set_mode (gtk_tree_view_get_selection (GTK_TREE_VIEW
           (tree_view1)), GTK_SELECTION_BROWSE);
   renderer = gtk_cell_renderer_text_new ();
@@ -107,14 +175,13 @@ init ()
   gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (tree_view1), -1,
       "Col 1.2", renderer, "text", 1, NULL);
   gtk_container_add (GTK_CONTAINER (scrolled_window1), tree_view1);
-  gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (scrolled_window1), FALSE,
-      FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (box), scrolled_window1, FALSE, FALSE, 0);
 
   // add vertical separator
   gtk_box_pack_start (GTK_BOX (box),
       gtk_separator_new (GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
 
-  // second view
+  // second view (master)
   scrolled_window2 = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window2),
       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
@@ -133,8 +200,7 @@ init ()
   gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (tree_view2), -1,
       "Col 2.2", renderer, "text", 1, NULL);
   gtk_container_add (GTK_CONTAINER (scrolled_window2), tree_view2);
-  gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (scrolled_window2), TRUE, TRUE,
-      0);
+  gtk_box_pack_start (GTK_BOX (box), scrolled_window2, TRUE, TRUE, 0);
 
   // shared list store
   store = gtk_list_store_new (2, G_TYPE_INT, G_TYPE_INT);
@@ -154,9 +220,7 @@ init ()
       (scrolled_window2));
   gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW (scrolled_window1),
       vadjust);
-
-  g_signal_connect (scrolled_window1, "scroll-event",
-      G_CALLBACK (on_scroll_event), NULL);
+  printf ("shared adjustment=%p\n", vadjust);
 
   gtk_widget_show_all (window);
 }
