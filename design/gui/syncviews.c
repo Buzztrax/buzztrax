@@ -1,6 +1,6 @@
 /* test synchonized scrolling of two treeviews
  *
- * gcc -Wall -g syncviews.c -o syncviews `pkg-config gtk+-3.0 --cflags --libs`
+ * gcc -Wall -g syncviews.c -o syncviews `pkg-config gtk+-3.0 --cflags --libs` -lm
  */
 
 #include <math.h>
@@ -150,9 +150,6 @@ init ()
           G_CALLBACK (on_scroll_event), NULL);
       break;
     case GTK_POLICY_ALWAYS:
-      // this hack shows no effect here :/
-      g_signal_connect (scrolled_window1, "scroll-event",
-          G_CALLBACK (on_scroll_event), NULL);
       g_signal_connect (scrolled_window1, "realize",
           G_CALLBACK (on_scrolled_window_realize), NULL);
       g_signal_connect (scrolled_window1, "size-allocate",
