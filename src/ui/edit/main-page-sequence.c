@@ -2402,41 +2402,99 @@ on_label_menu_changed (GtkComboBox * combo_box, gpointer user_data)
   }
 }
 
-// this is a copy from gtk_scrolled_window_scroll_event() with a small modification
-// to also handle scroll events if the scrollbar is hidden
-static gboolean
-on_scroll_event (GtkWidget * widget, GdkEventScroll * event, gpointer user_data)
+// BUG(730730): this is a copy from gtk_scrolled_window_scroll_event() with a
+// small modification to also handle scroll events if the scrollbar is hidden
+static void
+updated_adjustment (GtkWidget *range, GdkScrollDirection direction,
+    gdouble delta)
 {
-  GtkWidget *range;
-  GdkScrollDirection direction = event->direction;
+  GtkAdjustment *adj = gtk_range_get_adjustment (GTK_RANGE (range));
+  gdouble new_value, value, lower, upper, page_size;
 
-  if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_DOWN)
-    range = gtk_scrolled_window_get_vscrollbar (GTK_SCROLLED_WINDOW (widget));
-  else
-    range = gtk_scrolled_window_get_hscrollbar (GTK_SCROLLED_WINDOW (widget));
+  g_object_get (adj, "value", &value, "upper", &upper, "lower", &lower,
+      "page-size", &page_size, NULL);
 
-  GST_WARNING ("scrolling");
-
-  if (range) {
-    GtkAdjustment *adj = gtk_range_get_adjustment (GTK_RANGE (range));
-    gdouble delta, new_value;
-    gdouble value, lower, upper, page_size;
-
-    g_object_get (adj, "value", &value, "upper", &upper, "lower", &lower,
-        "page-size", &page_size, NULL);
-
+  if (delta == 0.0) {
     delta = pow (page_size, 2.0 / 3.0);
     if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_LEFT)
       delta = -delta;
     if (gtk_range_get_inverted ((GtkRange *) range))
       delta = -delta;
-
-    new_value = CLAMP (value + delta, lower, upper - page_size);
-
-    gtk_adjustment_set_value (adj, new_value);
-    return TRUE;
   }
-  return FALSE;
+
+  new_value = CLAMP (value + delta, lower, upper - page_size);
+  gtk_adjustment_set_value (adj, new_value);
+}
+
+static gboolean
+on_scroll_event (GtkWidget * widget, GdkEventScroll * event, gpointer user_data)
+{
+  GtkScrolledWindow *sw = GTK_SCROLLED_WINDOW (widget);
+  GtkWidget *range;
+  GdkScrollDirection direction = event->direction;
+  gboolean handled = FALSE;
+
+  if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_DOWN) {
+    if ((range = gtk_scrolled_window_get_vscrollbar (sw))) {
+      updated_adjustment (range, direction, 0.0);
+      handled = TRUE;
+    }
+  } else if (direction == GDK_SCROLL_LEFT || direction == GDK_SCROLL_RIGHT) {
+    if ((range = gtk_scrolled_window_get_hscrollbar (sw))) {
+      updated_adjustment (range, direction, 0.0);
+      handled = TRUE;
+    }
+  } else {
+    gdouble dx, dy;
+
+    if (gdk_event_get_scroll_deltas ((GdkEvent *) event, &dx, &dy)) {
+      if (dx != 0.0) {
+        if ((range = gtk_scrolled_window_get_hscrollbar (sw))) {
+          updated_adjustment (range, direction, dx);
+          handled = TRUE;
+        }
+      }
+      if (dy != 0.0) {
+        if ((range = gtk_scrolled_window_get_vscrollbar (sw))) {
+          updated_adjustment (range, direction, dy);
+          handled = TRUE;
+        }
+      }
+    }
+  }
+  return handled;
+}
+
+// BUG(726795): the next two signal handlers are a hack to hide scrollbars
+// on sync window
+static void
+on_scrollbar_visibility_changed (GObject * sb, GParamSpec * property,
+    gpointer user_data)
+{
+  gboolean visible;
+
+  g_object_get (sb, "visible", &visible, NULL);
+  if (visible) {
+    g_object_set (sb, "visible", FALSE, NULL);
+  }
+}
+
+static void
+on_scrolled_sync_window_realize (GtkWidget * widget, gpointer user_data)
+{
+  GtkWidget *sb;
+  GtkOrientation orientation = GPOINTER_TO_INT (user_data);
+
+  if (orientation == GTK_ORIENTATION_VERTICAL) {
+    sb = gtk_scrolled_window_get_vscrollbar (GTK_SCROLLED_WINDOW (widget));
+  } else {
+    sb = gtk_scrolled_window_get_hscrollbar (GTK_SCROLLED_WINDOW (widget));
+  }
+  if (sb) {
+    g_object_set (sb, "visible", FALSE, "no-show-all", TRUE, NULL);
+    g_signal_connect (sb, "notify::visible",
+        G_CALLBACK (on_scrollbar_visibility_changed), NULL);
+  }
 }
 
 static gboolean
@@ -3818,16 +3876,26 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
       (scrolled_window));
   gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW
       (scrolled_vsync_window), vadjust);
+  // BUG(730730): this is broken in gtk3
   g_signal_connect (scrolled_vsync_window, "scroll-event",
       G_CALLBACK (on_scroll_event), NULL);
+  // BUG(726795): this is broken in gtk3
+  g_signal_connect (scrolled_vsync_window, "realize",
+      G_CALLBACK (on_scrolled_sync_window_realize),
+      GINT_TO_POINTER (GTK_ORIENTATION_VERTICAL));
   // make header scrolled-window also use the horizontal-scrollbar of the sequence scrolled-window
   hadjust =
       gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW
       (scrolled_window));
   gtk_scrolled_window_set_hadjustment (GTK_SCROLLED_WINDOW
       (scrolled_hsync_window), hadjust);
+  // BUG(730730): this is broken in gtk3
   g_signal_connect (scrolled_hsync_window, "scroll-event",
       G_CALLBACK (on_scroll_event), NULL);
+  // BUG(726795): this is broken in gtk3
+  g_signal_connect (scrolled_hsync_window, "realize",
+      G_CALLBACK (on_scrolled_sync_window_realize),
+      GINT_TO_POINTER (GTK_ORIENTATION_HORIZONTAL));
   //GST_DEBUG("pos_view=%p, data_view=%p", self->priv->sequence_pos_table,self->priv->sequence_table);
 
   gtk_box_pack_start (GTK_BOX (split_box),

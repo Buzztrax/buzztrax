@@ -41,7 +41,7 @@ on_scroll_event (GtkWidget * widget, GdkEventScroll * event, gpointer user_data)
     range = gtk_scrolled_window_get_hscrollbar (GTK_SCROLLED_WINDOW (widget));
     dbg = "hadj";
   } else {
-    printf ("unknown direction: %d\n", direction);      // GTK_SROLL_SMOOTH
+    printf ("unknown direction: %d\n", direction);      // GTK_SCROLL_SMOOTH
   }
 
   if (range) {
@@ -210,7 +210,7 @@ init ()
   gtk_tree_view_set_model (GTK_TREE_VIEW (tree_view2), GTK_TREE_MODEL (store));
   g_object_unref (store);       // drop with treeview
 
-  // make first scrolled-window also use the horiz-scrollbar of the second 
+  // make first scrolled-window also use the horiz-scrollbar of the second
   // scrolled-window
   vadjust =
       gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW
