@@ -1679,16 +1679,8 @@ gtk_scrolled_sync_window_add (GtkContainer * container, GtkWidget * child)
   if (gtk_widget_get_realized (GTK_WIDGET (bin)))
     gtk_widget_set_parent_window (scrollable_child, priv->overshoot_window);
 
-  // meh, private internal gtk-api
-  //_gtk_bin_set_child (bin, scrollable_child);
-  {
-    struct _GtkBinPrivate
-    {
-      GtkWidget *child;
-    } *bin_priv = (struct _GtkBinPrivate *) bin->priv;
-    bin_priv->child = scrollable_child;
-  }
-  gtk_widget_set_parent (scrollable_child, GTK_WIDGET (bin));
+  GTK_CONTAINER_CLASS (gtk_scrolled_sync_window_parent_class)->add (container,
+      scrollable_child);
 
   g_object_set (scrollable_child, "hadjustment", priv->hadjustment,
       "vadjustment", priv->vadjustment, NULL);
