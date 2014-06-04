@@ -85,6 +85,7 @@
 
 #include "bt-edit.h"
 #include <math.h>
+#include "gtkscrolledsyncwindow.h"
 #include "gtkvumeter.h"
 
 enum
@@ -219,8 +220,9 @@ G_DEFINE_TYPE_WITH_CODE (BtMainPageSequence, bt_main_page_sequence,
 
 #define LOW_VUMETER_VAL -60.0
 
-// when setting the HEIGHT for one column, then the focus rect is visible for
-// the other (smaller) columns
+// BUG(726795) and BUG(730730), unlikely to be fixed quickly, thus we try to
+// fork the widget as GtkScrolledSyncWindow
+#define USE_SCROLLED_SYNC_WINDOW 1
 
 enum
 {
@@ -515,8 +517,8 @@ sequence_model_get_store (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))) {
     store = gtk_tree_model_filter_get_model (filtered_store);
   }
   return (store);
@@ -564,8 +566,8 @@ sequence_update_model_length (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))) {
     BtSequenceGridModel *store =
         BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
         (filtered_store));
@@ -1104,8 +1106,8 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
   GST_INFO ("label edited: '%s': '%s'", path_string, new_text);
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                  priv->sequence_table)))
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                  sequence_table)))
       && (store = gtk_tree_model_filter_get_model (filtered_store))
       ) {
     GtkTreeIter iter, filter_iter;
@@ -1235,8 +1237,8 @@ sequence_pos_table_init (const BtMainPageSequence * self)
 
   gtk_box_pack_start (GTK_BOX (self->priv->sequence_pos_table_header),
       self->priv->pos_header, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (GTK_WIDGET (self->
-          priv->sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
+  gtk_widget_set_size_request (GTK_WIDGET (self->priv->
+          sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
 
   // add static column
   renderer = gtk_cell_renderer_text_new ();
@@ -2337,8 +2339,8 @@ on_bars_menu_changed (GtkComboBox * combo_box, gpointer user_data)
       sequence_calculate_visible_lines (self);
       //GST_INFO("  bars = %d",self->priv->bars);
       if ((filtered_store =
-              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
-                      priv->sequence_table)))) {
+              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
+                      sequence_table)))) {
         BtSequenceGridModel *store =
             BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
             (filtered_store));
@@ -2402,6 +2404,7 @@ on_label_menu_changed (GtkComboBox * combo_box, gpointer user_data)
   }
 }
 
+#ifndef USE_SCROLLED_SYNC_WINDOW
 // BUG(730730): this is a copy from gtk_scrolled_window_scroll_event() with a
 // small modification to also handle scroll events if the scrollbar is hidden
 static void
@@ -2498,6 +2501,7 @@ on_scrolled_sync_window_realize (GtkWidget * widget, gpointer user_data)
         G_CALLBACK (on_scrollbar_visibility_changed), NULL);
   }
 }
+#endif
 
 static gboolean
 on_sequence_table_cursor_changed_idle (gpointer user_data)
@@ -3092,8 +3096,8 @@ on_sequence_table_button_press_event (GtkWidget * widget,
             // set cell focus
             gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
                 FALSE);
-            gtk_widget_grab_focus_savely (GTK_WIDGET (self->
-                    priv->sequence_table));
+            gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
+                    sequence_table));
             // reset selection
             self->priv->selection_start_column =
                 self->priv->selection_start_row =
@@ -3166,8 +3170,8 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
           }
           gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
               FALSE);
-          gtk_widget_grab_focus_savely (GTK_WIDGET (self->
-                  priv->sequence_table));
+          gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
+                  sequence_table));
           // cursor updates are not yet processed
           on_sequence_table_cursor_changed_idle (self);
           GST_DEBUG ("cursor new/old: %3ld,%3ld -> %3ld,%3ld", cursor_column,
@@ -3663,8 +3667,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   self->priv->context_menu_add =
       GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (_("Add track")));
   image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->
-          priv->context_menu_add), image);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->priv->
+          context_menu_add), image);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
       GTK_WIDGET (self->priv->context_menu_add));
   gtk_widget_show (GTK_WIDGET (self->priv->context_menu_add));
@@ -3753,6 +3757,9 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_widget_set_vexpand (box, FALSE);
   gtk_grid_attach (GTK_GRID (table), box, 0, 0, 1, 1);
 
+#ifdef USE_SCROLLED_SYNC_WINDOW
+  scrolled_vsync_window = gtk_scrolled_sync_window_new (NULL, NULL);
+#else
   scrolled_vsync_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_vsync_window),
       // BUG(726795): this is broken in gtk3
@@ -3760,6 +3767,7 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW
       (scrolled_vsync_window), GTK_SHADOW_NONE);
+#endif
   gtk_widget_set_hexpand (scrolled_vsync_window, FALSE);
   gtk_widget_set_vexpand (scrolled_vsync_window, TRUE);
   self->priv->sequence_pos_table = GTK_TREE_VIEW (bt_sequence_view_new ());
@@ -3813,6 +3821,9 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
       G_CALLBACK (on_label_menu_changed), (gpointer) self);
 
   // add sequence header list-view
+#ifdef USE_SCROLLED_SYNC_WINDOW
+  scrolled_hsync_window = gtk_scrolled_sync_window_new (NULL, NULL);
+#else
   scrolled_hsync_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_hsync_window),
       // BUG(726795): this is broken in gtk3
@@ -3820,23 +3831,33 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
       GTK_POLICY_AUTOMATIC, GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW
       (scrolled_hsync_window), GTK_SHADOW_NONE);
+#endif
   gtk_widget_set_hexpand (scrolled_hsync_window, TRUE);
   gtk_widget_set_vexpand (scrolled_hsync_window, FALSE);
   self->priv->sequence_table_header =
       GTK_BOX (gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0));
+#ifdef USE_SCROLLED_SYNC_WINDOW
+  gtk_scrolled_sync_window_add_with_viewport (GTK_SCROLLED_SYNC_WINDOW
+      (scrolled_hsync_window), GTK_WIDGET (self->priv->sequence_table_header));
+#else
   gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW
       (scrolled_hsync_window), GTK_WIDGET (self->priv->sequence_table_header));
-  hsync_viewport = gtk_bin_get_child (GTK_BIN (scrolled_hsync_window));
-  gtk_viewport_set_shadow_type (GTK_VIEWPORT (hsync_viewport), GTK_SHADOW_NONE);
-  // set a minimum size, otherwise the window can't be shrinked
-  // (we need this because of GTK_POLICY_NEVER)
-  gtk_widget_set_size_request (hsync_viewport, SEQUENCE_CELL_WIDTH, -1);
-  gtk_widget_set_hexpand (hsync_viewport, TRUE);
-  gtk_widget_add_events (hsync_viewport, GDK_BUTTON_PRESS_MASK);
+#endif
+  if ((hsync_viewport = gtk_bin_get_child (GTK_BIN (scrolled_hsync_window)))) {
+    gtk_viewport_set_shadow_type (GTK_VIEWPORT (hsync_viewport),
+        GTK_SHADOW_NONE);
+    // set a minimum size, otherwise the window can't be shrinked
+    // (we need this because of GTK_POLICY_NEVER)
+    gtk_widget_set_size_request (hsync_viewport, SEQUENCE_CELL_WIDTH, -1);
+    gtk_widget_set_hexpand (hsync_viewport, TRUE);
+    gtk_widget_add_events (hsync_viewport, GDK_BUTTON_PRESS_MASK);
 
+    g_signal_connect (hsync_viewport, "button-press-event",
+        G_CALLBACK (on_sequence_header_button_press_event), (gpointer) self);
+  } else {
+    GST_WARNING ("scrolled_hsync_window has no viewport child?");
+  }
   gtk_grid_attach (GTK_GRID (table), scrolled_hsync_window, 1, 0, 1, 1);
-  g_signal_connect (hsync_viewport, "button-press-event",
-      G_CALLBACK (on_sequence_header_button_press_event), (gpointer) self);
 
   // add sequence list-view
   scrolled_window = gtk_scrolled_window_new (NULL, NULL);
@@ -3876,6 +3897,10 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   vadjust =
       gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW
       (scrolled_window));
+#ifdef USE_SCROLLED_SYNC_WINDOW
+  gtk_scrolled_sync_window_set_vadjustment (GTK_SCROLLED_SYNC_WINDOW
+      (scrolled_vsync_window), vadjust);
+#else
   gtk_scrolled_window_set_vadjustment (GTK_SCROLLED_WINDOW
       (scrolled_vsync_window), vadjust);
   // BUG(730730): this is broken in gtk3
@@ -3885,10 +3910,15 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   g_signal_connect (scrolled_vsync_window, "realize",
       G_CALLBACK (on_scrolled_sync_window_realize),
       GINT_TO_POINTER (GTK_ORIENTATION_VERTICAL));
+#endif
   // make header scrolled-window also use the horizontal-scrollbar of the sequence scrolled-window
   hadjust =
       gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW
       (scrolled_window));
+#ifdef USE_SCROLLED_SYNC_WINDOW
+  gtk_scrolled_sync_window_set_hadjustment (GTK_SCROLLED_SYNC_WINDOW
+      (scrolled_hsync_window), hadjust);
+#else
   gtk_scrolled_window_set_hadjustment (GTK_SCROLLED_WINDOW
       (scrolled_hsync_window), hadjust);
   // BUG(730730): this is broken in gtk3
@@ -3898,6 +3928,7 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   g_signal_connect (scrolled_hsync_window, "realize",
       G_CALLBACK (on_scrolled_sync_window_realize),
       GINT_TO_POINTER (GTK_ORIENTATION_HORIZONTAL));
+#endif
   //GST_DEBUG("pos_view=%p, data_view=%p", self->priv->sequence_pos_table,self->priv->sequence_table);
 
   gtk_box_pack_start (GTK_BOX (split_box),

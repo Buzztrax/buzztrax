@@ -253,6 +253,7 @@ libbtedit_la_SOURCES = \
 	src/ui/edit/wire-canvas-item.c src/ui/edit/wire-canvas-item.h \
 	\
 	src/ui/edit/pattern-editor.c src/ui/edit/pattern-editor.h \
+	src/ui/edit/gtkscrolledsyncwindow.c src/ui/edit/gtkscrolledsyncwindow.h \
 	src/ui/edit/gtkvumeter.c src/ui/edit/gtkvumeter.h \
 	\
 	src/ui/edit/btmemoryaudiosrc.c src/ui/edit/btmemoryaudiosrc.h
