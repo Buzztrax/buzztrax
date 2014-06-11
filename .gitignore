@@ -63,3 +63,5 @@ cscope.out
 *.anjuta
 *.gschema.valid
 gschemas.compiled
+buzztrax.appdata.xml
+*.test
