@@ -1,4 +1,5 @@
 [encoding: UTF-8]
+buzztrax.appdata.xml.in
 src/lib/buzztrax.xml.in
 src/lib/core/application.c
 src/lib/core/core.c

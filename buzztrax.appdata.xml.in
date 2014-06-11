@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2014 Buzztrax team <buzztrax-devel@buzztrax.org> -->
+<application>
+  <id type="desktop">buzztrax-edit.desktop</id>
+  <metadata_license>CC0</metadata_license>
+  <project_license>LGPL-2.0+</project_license>
+  <_summary>Fully integrated music composer.</_summary>
+  <description>
+    <_p>
+      Buzztrax is a music composer similar to tracker applications. It is roughly
+      modelled after the windows only, closed source application called Buzz.
+    </_p>
+  </description>
+  <screenshots>
+    <screenshot type="default" width="1127" height="720">http://buzztrax.org/wp-content/gallery/featured-screenshots/bt-edit-0-6-0-01.png</screenshot>
+  </screenshots>
+  <url type="homepage">http://buzztrax.org/</url>
+  <updatecontact>buzztrax-devel@buzztrax.org</updatecontact>
+</application>
