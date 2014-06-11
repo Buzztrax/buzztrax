@@ -18,9 +18,10 @@ BtSequenceView, #sequence-pattern-list, #wave-level-list, #wave-list {
   -GtkWidget-focus-padding: 0;
 }
 
-/* FIXME(ensonic): does not have any effect */
-BtSequenceViewTree GtkEntry,  BtSequenceViewTree .entry {
-  background-color: transparent;
+#BtSequenceHeaderLabel.entry {
+  background-image: none;
+  /*background-color: transparent;*/
+  box-shadow: none;
 }
 
 /* less spacious buttons (for sequence headers) */

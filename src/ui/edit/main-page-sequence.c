@@ -1513,9 +1513,11 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
       gtk_box_pack_start (GTK_BOX (header), vbox, TRUE, TRUE, 0);
 
-      // we need to set width-chars so that the natural size is calculated
-      // instead of using the hard-coded 150 pixels
       label = gtk_entry_new ();
+      gtk_widget_set_name (label, "BtSequenceHeaderLabel");
+      // we need to set width-chars so that the natural size is calculated
+      // instead of using the hard-coded 150 pixels, that still is not good
+      // with gtk > 3.10
       g_object_set (label, "has-frame", FALSE, "inner-border", 0, "text", str,
           "width-chars", 12, NULL);
       g_free (str);
