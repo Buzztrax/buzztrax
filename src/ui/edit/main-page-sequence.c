@@ -1485,7 +1485,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
 
     // setup column header
     if (machine) {
-      GtkWidget *label, *button, *vbox, *box;
+      GtkWidget *label, *button, *box;
       GtkVUMeter *vumeter;
       GstElement *level;
       gchar *level_name = "output-post-level";
@@ -1508,21 +1508,35 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
 
       // TODO(ensonic): add context menu like that in the machine_view to the header
 
-      // create header widget (hbox with vbox and separator)
-      header = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, HEADER_SPACING);
-      vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-      gtk_box_pack_start (GTK_BOX (header), vbox, TRUE, TRUE, 0);
+      // create header widget
+      header = gtk_box_new (GTK_ORIENTATION_VERTICAL, HEADER_SPACING);
 
       label = gtk_entry_new ();
       gtk_widget_set_name (label, "BtSequenceHeaderLabel");
       // we need to set width-chars so that the natural size is calculated
       // instead of using the hard-coded 150 pixels, that still is not good
-      // with gtk > 3.10
+      // with gtk > 3.12 we also need to set "max-width-chars"
+      PangoContext *context = gtk_widget_get_pango_context (label);
+      PangoFontMetrics *metrics = pango_context_get_metrics (context,
+          pango_context_get_font_description (context),
+          pango_context_get_language (context));
+
+      gint char_width = pango_font_metrics_get_approximate_char_width (metrics);
+      gint digit_width =
+          pango_font_metrics_get_approximate_digit_width (metrics);
+      gint char_pixels = ceil ((MAX (char_width,
+                  digit_width) + PANGO_SCALE - 1) / PANGO_SCALE);
+      gint num_chars = SEQUENCE_CELL_WIDTH / (char_pixels + 1);
+      GST_DEBUG ("setting width to %d chars", num_chars);
       g_object_set (label, "has-frame", FALSE, "inner-border", 0, "text", str,
-          "width-chars", 12, NULL);
+          "width-chars", num_chars, NULL);
       g_free (str);
+      if (g_object_class_find_property (G_OBJECT_GET_CLASS (label),
+              "max-width-chars")) {
+        g_object_set (label, "max-width-chars", num_chars, NULL);
+      }
       g_object_set_qdata ((GObject *) label, machine_for_track, machine);
-      gtk_box_pack_start (GTK_BOX (vbox), label, TRUE, TRUE, 0);
+      gtk_box_pack_start (GTK_BOX (header), label, TRUE, TRUE, 0);
       g_signal_connect (label, "activate", G_CALLBACK (on_machine_id_renamed),
           (gpointer) self);
 
@@ -1535,7 +1549,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
           G_CALLBACK (on_machine_id_changed_seq), (gpointer) label);
 
       box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-      gtk_box_pack_start (GTK_BOX (vbox), box, TRUE, TRUE, 0);
+      gtk_box_pack_start (GTK_BOX (header), box, TRUE, TRUE, 0);
 
       /* only do this for first track of a machine
        * - multiple level-meter views for same machine don't work
@@ -1643,11 +1657,10 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
       (renderer), 1);
 
-  header = gtk_label_new (" ");
-  // sad, but true, this matters, otherwise we get leftover artifacts when scrolling <->
-  gtk_label_set_width_chars (GTK_LABEL (header), 5);
+  header = gtk_label_new ("");
   gtk_label_set_single_line_mode (GTK_LABEL (header), TRUE);
   gtk_label_set_line_wrap (GTK_LABEL (header), FALSE);
+  gtk_widget_set_hexpand (header, TRUE);
 
   gtk_widget_show (header);
   gtk_box_pack_start (GTK_BOX (self->priv->sequence_table_header), header, TRUE,
