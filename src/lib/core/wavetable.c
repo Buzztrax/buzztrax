@@ -406,12 +406,10 @@ bt_wavetable_class_init (BtWavetableClass * const klass)
    *
    * A new wave item has been added to the wavetable
    */
-  signals[WAVE_ADDED_EVENT] = g_signal_new ("wave-added", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,      // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
-      1,                        // n_params
-      BT_TYPE_WAVE              // param data
-      );
+  signals[WAVE_ADDED_EVENT] =
+      g_signal_new ("wave-added", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_WAVE);
 
   /**
    * BtWavetable::wave-removed:
@@ -420,12 +418,10 @@ bt_wavetable_class_init (BtWavetableClass * const klass)
    *
    * A wave item has been removed from the wavetable
    */
-  signals[WAVE_REMOVED_EVENT] = g_signal_new ("wave-removed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,  // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
-      1,                        // n_params
-      BT_TYPE_WAVE              // param data
-      );
+  signals[WAVE_REMOVED_EVENT] =
+      g_signal_new ("wave-removed", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_WAVE);
 
   g_object_class_install_property (gobject_class, WAVETABLE_SONG,
       g_param_spec_object ("song", "song contruct prop",

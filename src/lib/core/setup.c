@@ -2257,12 +2257,10 @@ bt_setup_class_init (BtSetupClass * const klass)
    *
    * A new machine item has been added to the setup.
    */
-  signals[MACHINE_ADDED_EVENT] = g_signal_new ("machine-added", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,        // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
-      1,                        // n_params
-      BT_TYPE_MACHINE           // param data
-      );
+  signals[MACHINE_ADDED_EVENT] =
+      g_signal_new ("machine-added", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_MACHINE);
 
   /**
    * BtSetup::wire-added:
@@ -2271,12 +2269,10 @@ bt_setup_class_init (BtSetupClass * const klass)
    *
    * A new wire item has been added to the setup.
    */
-  signals[WIRE_ADDED_EVENT] = g_signal_new ("wire-added", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,      // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
-      1,                        // n_params
-      BT_TYPE_WIRE              // param data
-      );
+  signals[WIRE_ADDED_EVENT] =
+      g_signal_new ("wire-added", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_WIRE);
 
   /**
    * BtSetup::machine-removed:
@@ -2285,12 +2281,10 @@ bt_setup_class_init (BtSetupClass * const klass)
    *
    * A machine item has been removed from the setup.
    */
-  signals[MACHINE_REMOVED_EVENT] = g_signal_new ("machine-removed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,    // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
-      1,                        // n_params
-      BT_TYPE_MACHINE           // param data
-      );
+  signals[MACHINE_REMOVED_EVENT] =
+      g_signal_new ("machine-removed", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_MACHINE);
 
   /**
    * BtSetup::wire-removed:
@@ -2299,12 +2293,10 @@ bt_setup_class_init (BtSetupClass * const klass)
    *
    * A wire item has been removed from the setup.
    */
-  signals[WIRE_REMOVED_EVENT] = g_signal_new ("wire-removed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,  // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
-      1,                        // n_params
-      BT_TYPE_WIRE              // param data
-      );
+  signals[WIRE_REMOVED_EVENT] =
+      g_signal_new ("wire-removed", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_WIRE);
 
   g_object_class_install_property (gobject_class, SETUP_PROPERTIES,
       g_param_spec_pointer ("properties",

@@ -1802,12 +1802,10 @@ bt_sequence_class_init (BtSequenceClass * const klass)
    *
    * A pattern has been used in the sequence for the first time.
    */
-  signals[PATTERN_ADDED_EVENT] = g_signal_new ("pattern-added", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,        // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
-      1,                        // n_params
-      BT_TYPE_PATTERN           // param data
-      );
+  signals[PATTERN_ADDED_EVENT] =
+      g_signal_new ("pattern-added", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_PATTERN);
 
   /**
    * BtSequence::pattern-removed:
@@ -1816,12 +1814,10 @@ bt_sequence_class_init (BtSequenceClass * const klass)
    *
    * The last occurance of pattern has been removed from the sequence.
    */
-  signals[PATTERN_REMOVED_EVENT] = g_signal_new ("pattern-removed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,    // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
-      1,                        // n_params
-      BT_TYPE_PATTERN           // param data
-      );
+  signals[PATTERN_REMOVED_EVENT] =
+      g_signal_new ("pattern-removed", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_PATTERN);
 
   /**
    * BtSequence::rows-changed:
@@ -1833,11 +1829,11 @@ bt_sequence_class_init (BtSequenceClass * const klass)
    *
    * Since: 0.6
    */
-  signals[SEQUENCE_ROWS_CHANGED_EVENT] = g_signal_new ("rows-changed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL, // accumulator
-      NULL,                     // acc data
-      bt_marshal_VOID__ULONG_ULONG, G_TYPE_NONE,        // return type
-      2,                        // n_params
-      G_TYPE_ULONG, G_TYPE_ULONG);
+  signals[SEQUENCE_ROWS_CHANGED_EVENT] =
+      g_signal_new ("rows-changed", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, bt_marshal_VOID__ULONG_ULONG, G_TYPE_NONE, 2, G_TYPE_ULONG,
+      G_TYPE_ULONG);
 
   /**
    * BtSequence::track-added:
@@ -1849,11 +1845,11 @@ bt_sequence_class_init (BtSequenceClass * const klass)
    *
    * Since: 0.6
    */
-  signals[TRACK_ADDED_EVENT] = g_signal_new ("track-added", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,    // accumulator
-      NULL,                     // acc data
-      bt_marshal_VOID__OBJECT_ULONG, G_TYPE_NONE,       // return type
-      2,                        // n_params
-      BT_TYPE_MACHINE, G_TYPE_ULONG);
+  signals[TRACK_ADDED_EVENT] =
+      g_signal_new ("track-added", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, bt_marshal_VOID__OBJECT_ULONG, G_TYPE_NONE, 2, BT_TYPE_MACHINE,
+      G_TYPE_ULONG);
 
   /**
    * BtSequence::track-removed:
@@ -1866,9 +1862,8 @@ bt_sequence_class_init (BtSequenceClass * const klass)
    * Since: 0.6
    */
   signals[TRACK_REMOVED_EVENT] = g_signal_new ("track-removed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL, NULL,  // acc data
-      bt_marshal_VOID__OBJECT_ULONG, G_TYPE_NONE,       // return type
-      2,                        // n_params
-      BT_TYPE_MACHINE, G_TYPE_ULONG);
+      bt_marshal_VOID__OBJECT_ULONG, G_TYPE_NONE,
+      2, BT_TYPE_MACHINE, G_TYPE_ULONG);
 
   g_object_class_install_property (gobject_class, SEQUENCE_SONG,
       g_param_spec_object ("song", "song contruct prop",

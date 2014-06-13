@@ -3494,12 +3494,10 @@ bt_machine_class_init (BtMachineClass * const klass)
    *
    * A new pattern item has been added to the machine
    */
-  signals[PATTERN_ADDED_EVENT] = g_signal_new ("pattern-added", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,        // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
-      1,                        // n_params
-      BT_TYPE_PATTERN           // param data
-      );
+  signals[PATTERN_ADDED_EVENT] =
+      g_signal_new ("pattern-added", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_PATTERN);
 
   /**
    * BtMachine::pattern-removed:
@@ -3508,12 +3506,10 @@ bt_machine_class_init (BtMachineClass * const klass)
    *
    * A pattern item has been removed from the machine
    */
-  signals[PATTERN_REMOVED_EVENT] = g_signal_new ("pattern-removed", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,    // accumulator
-      NULL,                     // acc data
-      g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE,     // return type
-      1,                        // n_params
-      BT_TYPE_PATTERN           // param data
-      );
+  signals[PATTERN_REMOVED_EVENT] =
+      g_signal_new ("pattern-removed", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS, 0, NULL,
+      NULL, g_cclosure_marshal_VOID__OBJECT, G_TYPE_NONE, 1, BT_TYPE_PATTERN);
 
   g_object_class_install_property (gobject_class, MACHINE_CONSTRUCTION_ERROR,
       g_param_spec_pointer ("construction-error",
