@@ -31,6 +31,7 @@
  * #BtCrashRecoverDialog to offer a list of recoverable songs to the user.
  */
 /* TODO(ensonic): we should also check for pending logs when opening a file!
+ * - this happens if the user previously skipped recovery
  * - need to keep the change-log entries as a hash-table and offer api to check
  *   for it and if wanted replay
  * - bt_change_log_recover calls bt_edit_application_load_song
