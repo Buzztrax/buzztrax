@@ -31,13 +31,20 @@
  *   and boolean-trigger controller to machines trigger properties
  *   - right now we don't show widgets for these
  */
+/* TODO(ensonic): play demo-song
+ * - add a play demo-song button to tool-bar
+ * - we play that using playbin on the same sink as the wave-preview
+ * - the songs are under: $(datadir)/buzztrax/songs/Gear/
+ * - maybe we need a meta-data key, like we use for the docs
+ *   gst_element_class_add_metadata(klass, "bt::demo-song", ...)
+ */
 /* TODO(ensonic): mute/solo/bypass
  * - have a row with mute/solo/bypass check-boxes in the UI
  *   - then we can assign controller buttons
  *   - alternatively allow assigning the buttons in the sequence view
  *   - another option would be to allow this in the keyboard shortcut editor     
  */
-/* TODO(ensonic): more details in tile
+/* TODO(ensonic): more details in title
  * - a machine has:
  *   - a cannonical name <Author>-<Machine>,
  *   - an 'id' - the short name used in the song and unique for it
