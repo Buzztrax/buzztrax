@@ -213,4 +213,36 @@
     *** n>m
       m=1 : mix all src channels down to one dst channel
       m>1 :
-*
+* change-log (undo/redo)
+  - we're doing undo/redo from the ui layer (to undo/redo user actions)
+  - this is problematic as, there are no hooks on G_OBJECT::dispose run
+    We could (mis-)use g_object_set_qdata_full() as that has a GDestroyNotify,
+    although I am not sure in which state the object is at that point
+  - the ui can create an undo/redo context
+    It would create one when the user triggered an undoable action. And it would
+    finish it, when all the related transitive cheanges are done. 
+  - data model:
+    Setup
+      Set<Machines> machines;
+      ::on_machine_added(Machine m)
+      ::on_machine_removed(Machine m)
+      add_machine(Machine m)
+      remove_machine(Machine m)
+    Machine
+      Set<Pattern> patterns;
+      ::on_pattern_added(Pattern p)
+      ::on_pattern_removed(Pattern p)
+      add_pattern(Pattern p)
+      remove_pattern(Pattern p)
+    Sequence
+      List<Machines> tracks;
+      Grid<Machine,Pattern> sequence;
+  - when removing a machine, the code in BtMainPageMachines.c calls
+    setup.remove_machine(m); and this triggers the removal of all
+    pattern of the machine and the sequence-tracks related to the machine.
+    Now the code in BtMainPagePattern and BtMainPageSequence will get signals of
+    machine and pattern removals. Based on that it will update the UI, but not
+    start a new undo/redo-context (it would do that in the signal handler when
+    explicitly deleting a pattern or a track).
+
+

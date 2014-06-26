@@ -2082,10 +2082,10 @@ bt_main_page_machines_delete_machine (const BtMainPageMachines * self,
   GST_INFO ("before removing machine : %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
   bt_change_log_start_group (self->priv->change_log);
-  /* by doing undo/redo from setup:machine-removed it happens completely
-   * unconstrained, we need to enforce a certain order. Right now the log will
-   * reverse the actions. Thus we need to write out the object we remove and
-   * then, within, the things that get removed by that.
+  /* TODO(ensonic): by doing undo/redo from setup:machine-removed it happens
+   * completely unconstrained, we need to enforce a certain order. Right now the
+   * log will reverse the actions. Thus we need to write out the object we
+   * remove and then, within, the things that get removed by that.
    * Thus when removing X -
    * 1) we need to log it directly and not in on_x_removed
    * 2) trigger on_x_removed
@@ -2165,9 +2165,10 @@ bt_main_page_machines_delete_machine (const BtMainPageMachines * self,
   // remove patterns for machine, trigger setup::machine-removed
   GST_INFO ("removing the machine : %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
-  // block machine:pattern-removed signal emission for sequence page to not clobber the sequence
-  // in theory we we don't need to block it, as we are removing the machine anyway and thus disconnecting
-  // but if we disconnect here, disconnecting them on the sequence page would fail
+  // TODO(ensonic): block machine:pattern-removed signal emission for sequence
+  // page to not clobber the sequence. In theory we we don't need to block it,
+  // as we are removing the machine anyway and thus disconnecting, but if we
+  // disconnect here, disconnecting them on the sequence page would fail
   pattern_removed_id = g_signal_lookup ("pattern-removed", BT_TYPE_MACHINE);
   bt_child_proxy_get (self->priv->app, "main-window::pages::sequence-page",
       &sequence_page, NULL);
