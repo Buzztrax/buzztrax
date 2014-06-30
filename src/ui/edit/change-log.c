@@ -22,13 +22,17 @@
  * Tracks edits actions since last save. Provides undo/redo. Supports grouping
  * of edits into single undo/redo items (see bt_change_log_start_group()).
  *
- * Edit actions are logged to disk for crash recovery. Groups are logged
- * atomically, when they are closed (to have a recoverable log).
+ * Edit actions are logged to disk under the users-cache directory for crash
+ * recovery. Groups are logged atomically, when they are closed (to have a
+ * recoverable log).
  *
  * Logs are reset when saving a song. The log is removed when a song is closed.
  *
  * #BtEditApplication checks for left-over logs at startup and uses
  * #BtCrashRecoverDialog to offer a list of recoverable songs to the user.
+ *
+ * When running the application with BT_DEBUG_CHANGE_LOG=1 and if debugging is
+ * enabled, one will get extra comments in the edit journal.
  */
 /* TODO(ensonic): we should also check for pending logs when opening a file!
  * - this happens if the user previously skipped recovery
@@ -209,7 +213,7 @@ struct _BtChangeLogPrivate
   /* the application */
   BtEditApplication *app;
 
-  /* logging is inactive during song-construction/desctruction and when
+  /* logging is inactive during song-construction/destruction and when
    * replaying and undo/redo action */
   gboolean is_active;
 
@@ -231,6 +235,11 @@ struct _BtChangeLogPrivate
 
   /* crash log entries */
   GList *crash_logs;
+
+#ifdef USE_DEBUG
+  /* write extra comments into the log, env: BT_DEBUG_CHANGE_LOG=1 */
+  gboolean debug_mode;
+#endif
 };
 
 static BtChangeLog *singleton = NULL;
@@ -285,7 +294,13 @@ log_change_log_entry (BtChangeLog * self, BtChangeLogEntry * cle)
       // owners are the editor objects where the change was made
       fprintf (self->priv->log_file, "%s::%s\n",
           G_OBJECT_TYPE_NAME (cles->owner), cles->redo_data);
-      // IDEA(ensonic): should we fdatasync(fileno(self->priv->log_file)); from time to time
+#ifdef USE_DEBUG
+      if (self->priv->debug_mode) {
+        fprintf (self->priv->log_file, "# undo: %s\n", cles->undo_data);
+      }
+#endif
+      // IDEA(ensonic): should we fdatasync(fileno(self->priv->log_file)); from
+      // time to time
       break;
     }
     case CHANGE_LOG_ENTRY_GROUP:{
@@ -293,10 +308,20 @@ log_change_log_entry (BtChangeLog * self, BtChangeLogEntry * cle)
       gint i;
 
       GST_DEBUG ("logging group %p", cle);
+#ifdef USE_DEBUG
+      if (self->priv->debug_mode) {
+        fprintf (self->priv->log_file, "# {\n");
+      }
+#endif
       // recurse, apply from end to start of group
       for (i = cleg->changes->len - 1; i >= 0; i--) {
         log_change_log_entry (self, g_ptr_array_index (cleg->changes, i));
       }
+#ifdef USE_DEBUG
+      if (self->priv->debug_mode) {
+        fprintf (self->priv->log_file, "# }\n");
+      }
+#endif
       break;
     }
     default:
@@ -786,6 +811,10 @@ bt_change_log_recover (BtChangeLog * self, const gchar * log_name)
           fputs (linebuf, self->priv->log_file);
         }
         g_strchomp (linebuf);
+        if (linebuf[0] == '#') {
+          GST_LOG ("changelog-comment: '%s'", &linebuf[1]);
+          continue;
+        }
         lines++;
         GST_DEBUG ("changelog-event: '%s'", linebuf);
         // log event: BtMainPagePatterns::set_global_event "simsyn","simsyn 00",8,0,c-4
@@ -1106,6 +1135,12 @@ bt_change_log_init (BtChangeLog * self)
   self->priv->app = bt_edit_application_new ();
   g_object_try_weak_ref (self->priv->app);
   g_object_unref (self->priv->app);
+
+#ifdef USE_DEBUG
+  if (g_getenv ("BT_DEBUG_CHANGE_LOG")) {
+    self->priv->debug_mode = TRUE;
+  }
+#endif
 
   self->priv->cache_dir =
       g_build_filename (g_get_user_cache_dir (), PACKAGE, NULL);
