@@ -373,10 +373,16 @@ undo_change_log_entry (BtChangeLog * self, BtChangeLogEntry * cle)
   switch (cle->type) {
     case CHANGE_LOG_ENTRY_SINGLE:{
       BtChangeLogEntrySingle *cles = (BtChangeLogEntrySingle *) cle;
+
       bt_change_logger_change (cles->owner, cles->undo_data);
       if (self->priv->log_file) {
         fprintf (self->priv->log_file, "%s::%s\n",
             G_OBJECT_TYPE_NAME (cles->owner), cles->undo_data);
+#ifdef USE_DEBUG
+        if (self->priv->debug_mode) {
+          fprintf (self->priv->log_file, "# undo: %s\n", cles->redo_data);
+        }
+#endif
       }
       break;
     }
@@ -384,10 +390,21 @@ undo_change_log_entry (BtChangeLog * self, BtChangeLogEntry * cle)
       BtChangeLogEntryGroup *cleg = (BtChangeLogEntryGroup *) cle;
       gint i;
 
+      GST_DEBUG ("undo group %p", cle);
+#ifdef USE_DEBUG
+      if (self->priv->debug_mode) {
+        fprintf (self->priv->log_file, "# {\n");
+      }
+#endif
       // recurse, apply from start to end of group
       for (i = 0; i < cleg->changes->len; i++) {
         undo_change_log_entry (self, g_ptr_array_index (cleg->changes, i));
       }
+#ifdef USE_DEBUG
+      if (self->priv->debug_mode) {
+        fprintf (self->priv->log_file, "# }\n");
+      }
+#endif
       break;
     }
     default:
@@ -405,6 +422,11 @@ redo_change_log_entry (BtChangeLog * self, BtChangeLogEntry * cle)
       if (self->priv->log_file) {
         fprintf (self->priv->log_file, "%s::%s\n",
             G_OBJECT_TYPE_NAME (cles->owner), cles->redo_data);
+#ifdef USE_DEBUG
+        if (self->priv->debug_mode) {
+          fprintf (self->priv->log_file, "# undo: %s\n", cles->undo_data);
+        }
+#endif
       }
       break;
     }
@@ -412,10 +434,21 @@ redo_change_log_entry (BtChangeLog * self, BtChangeLogEntry * cle)
       BtChangeLogEntryGroup *cleg = (BtChangeLogEntryGroup *) cle;
       gint i;
 
+      GST_DEBUG ("redo group %p", cle);
+#ifdef USE_DEBUG
+      if (self->priv->debug_mode) {
+        fprintf (self->priv->log_file, "# {\n");
+      }
+#endif
       // recurse, apply from end to start of group
       for (i = cleg->changes->len - 1; i >= 0; i--) {
         redo_change_log_entry (self, g_ptr_array_index (cleg->changes, i));
       }
+#ifdef USE_DEBUG
+      if (self->priv->debug_mode) {
+        fprintf (self->priv->log_file, "# }\n");
+      }
+#endif
       break;
     }
     default:
