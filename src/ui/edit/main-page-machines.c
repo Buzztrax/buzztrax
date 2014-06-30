@@ -130,7 +130,7 @@ struct _BtMainPageMachinesPrivate
 
   /* mouse coodinates on context menu invokation (used for placing new machines) */
   gfloat mouse_x, mouse_y;
-  /* machine coordinates before/after draging (needed for undo) */
+  /* relative machine coordinates before/after draging (needed for undo) */
   gdouble machine_xo, machine_yo;
   gdouble machine_xn, machine_yn;
 
@@ -384,37 +384,32 @@ clutter_event_get_cursor_pos (BtMainPageMachines * self, ClutterEvent * event)
 }
 
 static void
-machine_item_moved (const BtMainPageMachines * self,
-    BtMachineCanvasItem * machine_item)
+machine_item_moved (const BtMainPageMachines * self, const gchar * mid)
 {
+  BtMainPageMachinesPrivate *p = self->priv;
   gchar *undo_str, *redo_str;
-  gchar *mid;
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
 
-  bt_child_proxy_get (machine_item, "machine::id", &mid, NULL);
-
-  bt_change_log_start_group (self->priv->change_log);
+  bt_change_log_start_group (p->change_log);
 
   undo_str =
       g_strdup_printf ("set_machine_property \"%s\",\"xpos\",\"%s\"", mid,
-      g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, self->priv->machine_xo));
+      g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, p->machine_xo));
   redo_str =
       g_strdup_printf ("set_machine_property \"%s\",\"xpos\",\"%s\"", mid,
-      g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, self->priv->machine_xn));
+      g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, p->machine_xn));
   bt_change_log_add (self->priv->change_log, BT_CHANGE_LOGGER (self), undo_str,
       redo_str);
   undo_str =
       g_strdup_printf ("set_machine_property \"%s\",\"ypos\",\"%s\"", mid,
-      g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, self->priv->machine_yo));
+      g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, p->machine_yo));
   redo_str =
       g_strdup_printf ("set_machine_property \"%s\",\"ypos\",\"%s\"", mid,
-      g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, self->priv->machine_yn));
+      g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, p->machine_yn));
   bt_change_log_add (self->priv->change_log, BT_CHANGE_LOGGER (self), undo_str,
       redo_str);
 
-  bt_change_log_end_group (self->priv->change_log);
-
-  g_free (mid);
+  bt_change_log_end_group (p->change_log);
 }
 
 // TODO(ensonic): this method probably should go to BtMachine, but on the other
@@ -873,6 +868,7 @@ on_machine_item_position_changed (BtMachineCanvasItem * machine_item,
     ClutterEventType ev_type, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
+  gchar *mid;
 
   switch (ev_type) {
     case CLUTTER_BUTTON_PRESS:
@@ -886,7 +882,9 @@ on_machine_item_position_changed (BtMachineCanvasItem * machine_item,
     case CLUTTER_BUTTON_RELEASE:
       machine_actor_update_pos_and_bb (self, (ClutterActor *) machine_item,
           &self->priv->machine_xn, &self->priv->machine_yn);
-      machine_item_moved (self, machine_item);
+      bt_child_proxy_get (machine_item, "machine::id", &mid, NULL);
+      machine_item_moved (self, mid);
+      g_free (mid);
       break;
     default:
       break;
@@ -904,24 +902,12 @@ on_machine_added (BtSetup * setup, BtMachine * machine, gpointer user_data)
       G_OBJECT_LOG_REF_COUNT (machine));
 
   g_object_get (machine, "properties", &properties, NULL);
-  if (properties) {
-    if (!machine_view_get_machine_position (properties, &xr, &yr)) {
-      gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-      xc = self->priv->mouse_x;
-      yc = self->priv->mouse_y;
-      bt_main_page_machines_canvas_coords_to_relative (self, xc, yc, &xr, &yr);
-      g_hash_table_insert (properties, g_strdup ("xpos"),
-          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, xr)));
-      g_hash_table_insert (properties, g_strdup ("ypos"),
-          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, yr)));
-    } else {
-      bt_main_page_machines_relative_coords_to_canvas (self, xr, yr, &xc, &yc);
-    }
+  if (properties && machine_view_get_machine_position (properties, &xr, &yr)) {
+    bt_main_page_machines_relative_coords_to_canvas (self, xr, yr, &xc, &yc);
   } else {
     xc = self->priv->mouse_x;
     yc = self->priv->mouse_y;
   }
-  bt_main_page_machines_canvas_coords_to_relative (self, xc, yc, &xr, &yr);
   self->priv->machine_xn = xc;
   self->priv->machine_yn = yc;
 
@@ -1781,8 +1767,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
       G_CALLBACK (on_canvas_size_changed), (gpointer) self);
   self->priv->stage =
-      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
-          priv->canvas_widget));
+      gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->priv->
+          canvas_widget));
   GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
   GdkColor *c = &style->base[GTK_STATE_NORMAL];
   ClutterColor stage_color = {
@@ -1830,8 +1816,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->vol_popup_adj =
       gtk_adjustment_new (100.0, 0.0, 400.0, 1.0, 10.0, 1.0);
   self->priv->vol_popup =
-      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->priv->
-              vol_popup_adj)));
+      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->
+              priv->vol_popup_adj)));
   g_signal_connect (self->priv->vol_popup_adj, "value-changed",
       G_CALLBACK (on_volume_popup_changed), (gpointer) self);
 
@@ -1839,8 +1825,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->pan_popup_adj =
       gtk_adjustment_new (0.0, -100.0, 100.0, 1.0, 10.0, 1.0);
   self->priv->pan_popup =
-      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->priv->
-              pan_popup_adj)));
+      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->
+              priv->pan_popup_adj)));
   g_signal_connect (self->priv->pan_popup_adj, "value-changed",
       G_CALLBACK (on_panorama_popup_changed), (gpointer) self);
 
@@ -2004,14 +1990,29 @@ bt_main_page_machines_add_machine (const BtMainPageMachines * self,
       break;
   }
   if (err == NULL) {
-    BtMachineCanvasItem *mi;
     gchar *undo_str, *redo_str;
+    gdouble xr, yr, xc, yc;
+    GHashTable *properties;
+
     GST_INFO_OBJECT (machine, "created machine %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (machine));
     bt_change_log_start_group (self->priv->change_log);
-    if ((mi = g_hash_table_lookup (self->priv->machines, machine))) {
-      machine_item_moved (self, mi);
+
+    xc = self->priv->mouse_x;
+    yc = self->priv->mouse_y;
+    bt_main_page_machines_canvas_coords_to_relative (self, xc, yc, &xr, &yr);
+
+    g_object_get (machine, "properties", &properties, NULL);
+    if (properties) {
+      gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+      g_hash_table_insert (properties, g_strdup ("xpos"),
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, xr)));
+      g_hash_table_insert (properties, g_strdup ("ypos"),
+          g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, yr)));
     }
+    self->priv->machine_xo = self->priv->machine_xn = xr;
+    self->priv->machine_yo = self->priv->machine_yn = yr;
+    machine_item_moved (self, uid);
 
     undo_str = g_strdup_printf ("rem_machine \"%s\"", uid);
     redo_str =
@@ -2368,7 +2369,7 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
       key = g_match_info_fetch (match_info, 2);
       val = g_match_info_fetch (match_info, 3);
       g_match_info_free (match_info);
-      GST_DEBUG ("-> [%s|%s|%s]", mid, key, val);
+      GST_WARNING ("-> [%s|%s|%s]", mid, key, val);
       if ((machine = bt_setup_get_machine_by_id (self->priv->setup, mid))) {
         BtMachineCanvasItem *item;
         gboolean is_prop = FALSE;
@@ -2379,9 +2380,11 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
             gdouble pos = g_ascii_strtod (val, NULL);
             bt_main_page_machines_relative_coords_to_canvas (self, pos, 0.0,
                 &pos, NULL);
-            GST_DEBUG ("xpos : %s -> %f", val, pos);
+            GST_WARNING ("xpos : %s -> %f", val, pos);
             g_object_set (item, "x", (gfloat) pos, NULL);
             g_signal_emit_by_name (item, "position-changed", 0, CLUTTER_MOTION);
+          } else {
+            GST_WARNING ("machine '%s' not found", mid);
           }
           is_prop = TRUE;
         } else if (!strcmp (key, "ypos")) {
@@ -2392,6 +2395,8 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
             GST_DEBUG ("ypos : %s -> %f", val, pos);
             g_object_set (item, "y", (gfloat) pos, NULL);
             g_signal_emit_by_name (item, "position-changed", 0, CLUTTER_MOTION);
+          } else {
+            GST_WARNING ("machine '%s' not found", mid);
           }
           is_prop = TRUE;
         } else if (!strcmp (key, "properties-shown")) {
