@@ -24,8 +24,6 @@ typedef struct
 {
   const GObject parent;
 
-  BtChangeLog *change_log;
-
   gint val;
 
   gint *data;
@@ -92,19 +90,16 @@ bt_test_change_logger_interface_init (gpointer const g_iface,
 }
 
 static void
-bt_test_change_logger_dispose (GObject * object)
+bt_test_change_logger_finalize (GObject * object)
 {
   BtTestChangeLogger *self = (BtTestChangeLogger *) object;
 
-  g_object_unref (self->change_log);
   g_free (self->data);
-  self->data = NULL;
 }
 
 static void
 bt_test_change_logger_init (BtTestChangeLogger * self)
 {
-  self->change_log = bt_change_log_new ();
 }
 
 static void
@@ -112,7 +107,7 @@ bt_test_change_logger_class_init (BtTestChangeLoggerClass * const klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  gobject_class->dispose = bt_test_change_logger_dispose;
+  gobject_class->finalize = bt_test_change_logger_finalize;
 }
 
 G_DEFINE_TYPE_WITH_CODE (BtTestChangeLogger, bt_test_change_logger,
@@ -124,6 +119,15 @@ bt_test_change_logger_new (void)
 {
   return ((BtTestChangeLogger *)
       g_object_new (bt_test_change_logger_get_type (), NULL));
+}
+
+static void
+make_change (BtChangeLog * cl, BtTestChangeLogger * tcl,
+    gchar * change, gchar * undo)
+{
+  bt_test_change_logger_change ((const BtChangeLogger *) tcl, change);
+  bt_change_log_add (cl, (BtChangeLogger *) tcl, g_strdup (undo),
+      g_strdup (change));
 }
 
 //-- globals
@@ -215,8 +219,7 @@ test_bt_change_log_undo_redo_state_after_single_change (BT_TEST_ARGS)
   gboolean can_undo, can_redo;
 
   /* act */
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  make_change (cl, tcl, "set_val 5", "set_val 0");
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
   /* assert */
@@ -239,8 +242,7 @@ test_bt_change_log_undo_redo_state_single_change_after_undo (BT_TEST_ARGS)
   gboolean can_undo, can_redo;
 
   /* act */
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  make_change (cl, tcl, "set_val 5", "set_val 0");
   bt_change_log_undo (cl);
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
@@ -264,8 +266,7 @@ test_bt_change_log_undo_redo_state_single_change_after_redo (BT_TEST_ARGS)
   gboolean can_undo, can_redo;
 
   /* act */
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  make_change (cl, tcl, "set_val 5", "set_val 0");
   bt_change_log_undo (cl);
   bt_change_log_redo (cl);
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
@@ -290,10 +291,8 @@ test_bt_change_log_undo_redo_state_double_change_after_undo (BT_TEST_ARGS)
   gboolean can_undo, can_redo;
 
   /* act */
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 5"), g_strdup ("set_val 10"));
+  make_change (cl, tcl, "set_val 5", "set_val 0");
+  make_change (cl, tcl, "set_val 10", "set_val 0");
   bt_change_log_undo (cl);
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
@@ -319,11 +318,9 @@ test_bt_change_log_undo_redo_state_stack_trunc (BT_TEST_ARGS)
   gboolean can_undo, can_redo;
 
   /* act */
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  make_change (cl, tcl, "set_val 5", "set_val 0");
   bt_change_log_undo (cl);
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 10"));
+  make_change (cl, tcl, "set_val 10", "set_val 0");
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
   /* assert */
@@ -346,14 +343,11 @@ test_bt_change_log_single_change_after_undo (BT_TEST_ARGS)
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
   /* act */
-  tcl->val = 5;
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  make_change (cl, tcl, "set_val 5", "set_val 0");
   bt_change_log_undo (cl);
 
   /* assert */
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 0, NULL);
+  ck_assert_int_eq (tcl->val, 0);
 
   /* cleanup */
   g_object_unref (tcl);
@@ -371,15 +365,12 @@ test_bt_change_log_single_change_after_redo (BT_TEST_ARGS)
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
   /* act */
-  tcl->val = 5;
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
+  make_change (cl, tcl, "set_val 5", "set_val 0");
   bt_change_log_undo (cl);
   bt_change_log_redo (cl);
 
   /* assert */
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 5, NULL);
+  ck_assert_int_eq (tcl->val, 5);
 
   /* cleanup */
   g_object_unref (tcl);
@@ -397,31 +388,22 @@ test_bt_change_log_two_changes (BT_TEST_ARGS)
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
   /* act (make 2 changes) */
-  tcl->val = 5;
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 5"));
-
-  tcl->val = 10;
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 5"), g_strdup ("set_val 10"));
+  make_change (cl, tcl, "set_val 5", "set_val 0");
+  make_change (cl, tcl, "set_val 10", "set_val 5");
 
   // undo & verify
   bt_change_log_undo (cl);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 5, NULL);
+  ck_assert_int_eq (tcl->val, 5);
 
   bt_change_log_undo (cl);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 0, NULL);
+  ck_assert_int_eq (tcl->val, 0);
 
   // redo & verify
   bt_change_log_redo (cl);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 5, NULL);
+  ck_assert_int_eq (tcl->val, 5);
 
   bt_change_log_redo (cl);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 10, NULL);
+  ck_assert_int_eq (tcl->val, 10);
 
   /* cleanup */
   g_object_unref (tcl);
@@ -439,46 +421,33 @@ test_bt_change_log_single_then_double_change (BT_TEST_ARGS)
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
   // make 1 change
-  tcl->val = 2;
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 0"), g_strdup ("set_val 2"));
+  make_change (cl, tcl, "set_val 2", "set_val 0");
 
   // undo & verify
   bt_change_log_undo (cl);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 0, NULL);
+  ck_assert_int_eq (tcl->val, 0);
 
   // redo & verify
   bt_change_log_redo (cl);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 2, NULL);
+  ck_assert_int_eq (tcl->val, 2);
 
   // make 2 changes
-  tcl->val = 5;
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 2"), g_strdup ("set_val 5"));
-
-  tcl->val = 10;
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("set_val 5"), g_strdup ("set_val 10"));
+  make_change (cl, tcl, "set_val 5", "set_val 2");
+  make_change (cl, tcl, "set_val 10", "set_val 5");
 
   // undo & verify
   bt_change_log_undo (cl);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 5, NULL);
+  ck_assert_int_eq (tcl->val, 5);
 
   bt_change_log_undo (cl);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 2, NULL);
+  ck_assert_int_eq (tcl->val, 2);
 
   // redo & verify
   bt_change_log_redo (cl);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 5, NULL);
+  ck_assert_int_eq (tcl->val, 5);
 
   bt_change_log_redo (cl);
-  GST_DEBUG ("val=%d", tcl->val);
-  fail_unless (tcl->val == 10, NULL);
+  ck_assert_int_eq (tcl->val, 10);
 
   /* cleanup */
   g_object_unref (tcl);
@@ -496,26 +465,20 @@ test_bt_change_log_group (BT_TEST_ARGS)
 
   // make 1 change group
   bt_change_log_start_group (cl);
-  bt_test_change_logger_change ((const BtChangeLogger *) tcl, "new_data 2");
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("new_data 0"), g_strdup ("new_data 2"));
-  bt_test_change_logger_change ((const BtChangeLogger *) tcl, "inc_data 0");
-  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
-      g_strdup ("dec_data 0"), g_strdup ("inc_data 0"));
+  make_change (cl, tcl, "new_data 2", "new_data 0");
+  make_change (cl, tcl, "inc_data 0", "dec_data 0");
   bt_change_log_end_group (cl);
 
   // undo & verify
   bt_change_log_undo (cl);
-  GST_DEBUG ("data_size=%d", tcl->data_size);
   fail_unless (tcl->data == NULL, NULL);
-  fail_unless (tcl->data_size == 0, NULL);
+  ck_assert_int_eq (tcl->data_size, 0);
 
   // redo & verify
   bt_change_log_redo (cl);
-  GST_DEBUG ("data_size=%d", tcl->data_size);
   fail_unless (tcl->data != NULL, NULL);
   fail_unless (tcl->data[0] == 1, NULL);
-  fail_unless (tcl->data_size == 2, NULL);
+  ck_assert_int_eq (tcl->data_size, 2);
 
   /* cleanup */
   g_object_unref (tcl);
