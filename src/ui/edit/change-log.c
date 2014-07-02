@@ -396,8 +396,8 @@ undo_change_log_entry (BtChangeLog * self, BtChangeLogEntry * cle)
         fprintf (self->priv->log_file, "# {\n");
       }
 #endif
-      // recurse, apply from start to end of group
-      for (i = 0; i < cleg->changes->len; i++) {
+      // recurse, apply from end to start of group
+      for (i = cleg->changes->len - 1; i >= 0; i--) {
         undo_change_log_entry (self, g_ptr_array_index (cleg->changes, i));
       }
 #ifdef USE_DEBUG
@@ -440,8 +440,8 @@ redo_change_log_entry (BtChangeLog * self, BtChangeLogEntry * cle)
         fprintf (self->priv->log_file, "# {\n");
       }
 #endif
-      // recurse, apply from end to start of group
-      for (i = cleg->changes->len - 1; i >= 0; i--) {
+      // recurse, apply from start to end of group
+      for (i = 0; i < cleg->changes->len; i++) {
         redo_change_log_entry (self, g_ptr_array_index (cleg->changes, i));
       }
 #ifdef USE_DEBUG
@@ -961,7 +961,7 @@ bt_change_log_add (BtChangeLog * self, BtChangeLogger * owner,
  * bt_change_log_redo() call.
  *
  * One would start and finish such a group in the first signal handler that
- * triggered the change.  
+ * triggered the change.
  */
 void
 bt_change_log_start_group (BtChangeLog * self)
@@ -984,7 +984,7 @@ bt_change_log_start_group (BtChangeLog * self)
  * bt_change_log_end_group:
  * @self: the change log
  *
- * Closed the last group opened with bt_change_log_start_group(). Usually one
+ * Closed the last group opened with bt_change_log_start_group(). Usually
  * a group would be closed in the same local scope where it was opened.
  */
 void

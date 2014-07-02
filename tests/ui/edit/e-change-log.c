@@ -27,6 +27,10 @@ typedef struct
   BtChangeLog *change_log;
 
   gint val;
+
+  gint *data;
+  gint data_size;
+
 } BtTestChangeLogger;
 
 typedef struct
@@ -41,9 +45,38 @@ bt_test_change_logger_change (const BtChangeLogger * owner, const gchar * data)
   BtTestChangeLogger *self = (BtTestChangeLogger *) owner;
   gboolean res = FALSE;
 
+  GST_INFO ("executing: '%s'", data);
+
   if (!strncmp (data, "set_val ", 8)) {
     self->val = atoi (&data[8]);
     GST_DEBUG ("val=%d", self->val);
+    res = TRUE;
+  } else if (!strncmp (data, "new_data ", 9)) {
+    g_free (self->data);
+    self->data = NULL;
+    self->data_size = atoi (&data[9]);
+    if (self->data_size) {
+      self->data = g_new0 (gint, self->data_size);
+    }
+    GST_DEBUG ("data_size=%d", self->data_size);
+    res = TRUE;
+  } else if (!strncmp (data, "inc_data ", 9)) {
+    gint ix = atoi (&data[9]);
+    if (ix < self->data_size) {
+      self->data[ix]++;
+      GST_DEBUG ("data[%d]=%d", ix, self->data[ix]);
+    } else {
+      GST_WARNING ("ix(%d) >= data_size(%d)", ix, self->data_size);
+    }
+    res = TRUE;
+  } else if (!strncmp (data, "dec_data ", 9)) {
+    gint ix = atoi (&data[9]);
+    if (ix < self->data_size) {
+      self->data[ix]--;
+      GST_DEBUG ("data[%d]=%d", ix, self->data[ix]);
+    } else {
+      GST_WARNING ("ix(%d) >= data_size(%d)", ix, self->data_size);
+    }
     res = TRUE;
   }
   return res;
@@ -64,6 +97,8 @@ bt_test_change_logger_dispose (GObject * object)
   BtTestChangeLogger *self = (BtTestChangeLogger *) object;
 
   g_object_unref (self->change_log);
+  g_free (self->data);
+  self->data = NULL;
 }
 
 static void
@@ -180,7 +215,7 @@ test_bt_change_log_undo_redo_state_after_single_change (BT_TEST_ARGS)
   gboolean can_undo, can_redo;
 
   /* act */
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 5"));
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
@@ -204,9 +239,9 @@ test_bt_change_log_undo_redo_state_single_change_after_undo (BT_TEST_ARGS)
   gboolean can_undo, can_redo;
 
   /* act */
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 5"));
-  bt_change_log_undo (tcl->change_log);
+  bt_change_log_undo (cl);
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
   /* assert */
@@ -229,10 +264,10 @@ test_bt_change_log_undo_redo_state_single_change_after_redo (BT_TEST_ARGS)
   gboolean can_undo, can_redo;
 
   /* act */
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 5"));
-  bt_change_log_undo (tcl->change_log);
-  bt_change_log_redo (tcl->change_log);
+  bt_change_log_undo (cl);
+  bt_change_log_redo (cl);
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
   /* assert */
@@ -255,11 +290,11 @@ test_bt_change_log_undo_redo_state_double_change_after_undo (BT_TEST_ARGS)
   gboolean can_undo, can_redo;
 
   /* act */
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 5"));
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 5"), g_strdup ("set_val 10"));
-  bt_change_log_undo (tcl->change_log);
+  bt_change_log_undo (cl);
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
   /* assert */
@@ -284,10 +319,10 @@ test_bt_change_log_undo_redo_state_stack_trunc (BT_TEST_ARGS)
   gboolean can_undo, can_redo;
 
   /* act */
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 5"));
-  bt_change_log_undo (tcl->change_log);
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_undo (cl);
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 10"));
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
@@ -312,9 +347,9 @@ test_bt_change_log_single_change_after_undo (BT_TEST_ARGS)
 
   /* act */
   tcl->val = 5;
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 5"));
-  bt_change_log_undo (tcl->change_log);
+  bt_change_log_undo (cl);
 
   /* assert */
   GST_DEBUG ("val=%d", tcl->val);
@@ -337,10 +372,10 @@ test_bt_change_log_single_change_after_redo (BT_TEST_ARGS)
 
   /* act */
   tcl->val = 5;
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 5"));
-  bt_change_log_undo (tcl->change_log);
-  bt_change_log_redo (tcl->change_log);
+  bt_change_log_undo (cl);
+  bt_change_log_redo (cl);
 
   /* assert */
   GST_DEBUG ("val=%d", tcl->val);
@@ -363,28 +398,28 @@ test_bt_change_log_two_changes (BT_TEST_ARGS)
 
   /* act (make 2 changes) */
   tcl->val = 5;
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 5"));
 
   tcl->val = 10;
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 5"), g_strdup ("set_val 10"));
 
   // undo & verify
-  bt_change_log_undo (tcl->change_log);
+  bt_change_log_undo (cl);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 5, NULL);
 
-  bt_change_log_undo (tcl->change_log);
+  bt_change_log_undo (cl);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 0, NULL);
 
   // redo & verify
-  bt_change_log_redo (tcl->change_log);
+  bt_change_log_redo (cl);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 5, NULL);
 
-  bt_change_log_redo (tcl->change_log);
+  bt_change_log_redo (cl);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 10, NULL);
 
@@ -405,45 +440,82 @@ test_bt_change_log_single_then_double_change (BT_TEST_ARGS)
 
   // make 1 change
   tcl->val = 2;
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 0"), g_strdup ("set_val 2"));
 
   // undo & verify
-  bt_change_log_undo (tcl->change_log);
+  bt_change_log_undo (cl);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 0, NULL);
 
   // redo & verify
-  bt_change_log_redo (tcl->change_log);
+  bt_change_log_redo (cl);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 2, NULL);
 
   // make 2 changes
   tcl->val = 5;
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 2"), g_strdup ("set_val 5"));
 
   tcl->val = 10;
-  bt_change_log_add (tcl->change_log, BT_CHANGE_LOGGER (tcl),
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
       g_strdup ("set_val 5"), g_strdup ("set_val 10"));
 
   // undo & verify
-  bt_change_log_undo (tcl->change_log);
+  bt_change_log_undo (cl);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 5, NULL);
 
-  bt_change_log_undo (tcl->change_log);
+  bt_change_log_undo (cl);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 2, NULL);
 
   // redo & verify
-  bt_change_log_redo (tcl->change_log);
+  bt_change_log_redo (cl);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 5, NULL);
 
-  bt_change_log_redo (tcl->change_log);
+  bt_change_log_redo (cl);
   GST_DEBUG ("val=%d", tcl->val);
   fail_unless (tcl->val == 10, NULL);
+
+  /* cleanup */
+  g_object_unref (tcl);
+  g_object_unref (cl);
+  BT_TEST_END;
+}
+
+static void
+test_bt_change_log_group (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  BtTestChangeLogger *tcl = bt_test_change_logger_new ();
+
+  // make 1 change group
+  bt_change_log_start_group (cl);
+  bt_test_change_logger_change ((const BtChangeLogger *) tcl, "new_data 2");
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
+      g_strdup ("new_data 0"), g_strdup ("new_data 2"));
+  bt_test_change_logger_change ((const BtChangeLogger *) tcl, "inc_data 0");
+  bt_change_log_add (cl, BT_CHANGE_LOGGER (tcl),
+      g_strdup ("dec_data 0"), g_strdup ("inc_data 0"));
+  bt_change_log_end_group (cl);
+
+  // undo & verify
+  bt_change_log_undo (cl);
+  GST_DEBUG ("data_size=%d", tcl->data_size);
+  fail_unless (tcl->data == NULL, NULL);
+  fail_unless (tcl->data_size == 0, NULL);
+
+  // redo & verify
+  bt_change_log_redo (cl);
+  GST_DEBUG ("data_size=%d", tcl->data_size);
+  fail_unless (tcl->data != NULL, NULL);
+  fail_unless (tcl->data[0] == 1, NULL);
+  fail_unless (tcl->data_size == 2, NULL);
 
   /* cleanup */
   g_object_unref (tcl);
@@ -499,6 +571,7 @@ bt_change_log_example_case (void)
   tcase_add_test (tc, test_bt_change_log_single_change_after_redo);
   tcase_add_test (tc, test_bt_change_log_two_changes);
   tcase_add_test (tc, test_bt_change_log_single_then_double_change);
+  tcase_add_test (tc, test_bt_change_log_group);
   tcase_add_test (tc, test_bt_change_log_recover);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
