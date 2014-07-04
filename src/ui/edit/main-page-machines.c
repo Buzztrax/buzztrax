@@ -428,14 +428,14 @@ machine_view_get_machine_position (GHashTable * properties, gdouble * pos_x,
       // do not g_free(prop);
       res = TRUE;
     } else
-      GST_WARNING ("no xpos property found");
+      GST_INFO ("no xpos property found");
     prop = (gchar *) g_hash_table_lookup (properties, "ypos");
     if (prop) {
       *pos_y = g_ascii_strtod (prop, NULL);
       // do not g_free(prop);
       res &= TRUE;
     } else
-      GST_WARNING ("no ypos property found");
+      GST_INFO ("no ypos property found");
   } else
     GST_WARNING ("no properties supplied");
   return (res);
@@ -2369,7 +2369,7 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
       key = g_match_info_fetch (match_info, 2);
       val = g_match_info_fetch (match_info, 3);
       g_match_info_free (match_info);
-      GST_WARNING ("-> [%s|%s|%s]", mid, key, val);
+      GST_DEBUG ("-> [%s|%s|%s]", mid, key, val);
       if ((machine = bt_setup_get_machine_by_id (self->priv->setup, mid))) {
         BtMachineCanvasItem *item;
         gboolean is_prop = FALSE;
