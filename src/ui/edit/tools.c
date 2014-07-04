@@ -116,7 +116,7 @@ gtk_widget_grab_focus_savely (GtkWidget * widget)
   if (realized && mapped) {
     gtk_widget_grab_focus (widget);
   } else {
-    GST_WARNING ("not grabbing widget '%s', realized: %d, mapped %d",
+    GST_INFO ("not grabbing widget '%s', realized: %d, mapped %d",
         gtk_widget_get_name (widget), realized, mapped);
   }
 }
