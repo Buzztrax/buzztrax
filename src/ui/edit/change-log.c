@@ -930,7 +930,11 @@ void
 bt_change_log_add (BtChangeLog * self, BtChangeLogger * owner,
     gchar * undo_data, gchar * redo_data)
 {
-  if (self->priv->changes) {
+  if (!self->priv->changes) {
+    GST_WARNING ("change log not initialized?");
+    return;
+  }
+  if (self->priv->is_active) {
     BtChangeLogEntrySingle *cle;
 
     // make new BtChangeLogEntry from the parameters
@@ -946,6 +950,8 @@ bt_change_log_add (BtChangeLog * self, BtChangeLogger * owner,
       // log ungrouped changes immediately
       log_change_log_entry (self, (BtChangeLogEntry *) cle);
     }
+  } else {
+    GST_INFO ("change log not active");
   }
 }
 
@@ -966,7 +972,11 @@ bt_change_log_add (BtChangeLog * self, BtChangeLogger * owner,
 void
 bt_change_log_start_group (BtChangeLog * self)
 {
-  if (self->priv->changes) {
+  if (!self->priv->changes) {
+    GST_WARNING ("change log not initialized?");
+    return;
+  }
+  if (self->priv->is_active) {
     BtChangeLogEntryGroup *cle;
 
     cle = g_slice_new (BtChangeLogEntryGroup);
@@ -977,6 +987,8 @@ bt_change_log_start_group (BtChangeLog * self)
 
     // make this the current group;
     self->priv->cur_group = cle;
+  } else {
+    GST_INFO ("change log not active");
   }
 }
 
@@ -990,10 +1002,17 @@ bt_change_log_start_group (BtChangeLog * self)
 void
 bt_change_log_end_group (BtChangeLog * self)
 {
-  if (self->priv->changes) {
+  if (!self->priv->changes) {
+    GST_WARNING ("change log not initialized?");
+    return;
+  }
+  if (self->priv->is_active) {
     BtChangeLogEntryGroup *cle = self->priv->cur_group;
 
     if (cle) {
+      if (!cle->changes->len) {
+        GST_INFO ("closing empty changelog group");
+      }
       // when we finished a top-level group, log the content to the journal
       if (cle->old_group == NULL) {
         GST_DEBUG ("closing a top-level group %p, logging changes", cle);
@@ -1001,6 +1020,8 @@ bt_change_log_end_group (BtChangeLog * self)
       }
       self->priv->cur_group = cle->old_group;
     }
+  } else {
+    GST_INFO ("change log not active");
   }
 }
 
