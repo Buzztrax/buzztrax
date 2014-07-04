@@ -477,8 +477,44 @@ test_bt_change_log_group (BT_TEST_ARGS)
   // redo & verify
   bt_change_log_redo (cl);
   fail_unless (tcl->data != NULL, NULL);
-  fail_unless (tcl->data[0] == 1, NULL);
   ck_assert_int_eq (tcl->data_size, 2);
+  ck_assert_int_eq (tcl->data[0], 1);
+
+  /* cleanup */
+  g_object_unref (tcl);
+  g_object_unref (cl);
+  BT_TEST_END;
+}
+
+
+static void
+test_bt_change_log_nested_groups (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtChangeLog *cl = bt_change_log_new ();
+  BtTestChangeLogger *tcl = bt_test_change_logger_new ();
+
+  // make 1 change group
+  bt_change_log_start_group (cl);
+  make_change (cl, tcl, "new_data 2", "new_data 0");
+  make_change (cl, tcl, "inc_data 0", "dec_data 0");
+  bt_change_log_start_group (cl);
+  make_change (cl, tcl, "inc_data 1", "dec_data 1");
+  bt_change_log_end_group (cl);
+  bt_change_log_end_group (cl);
+
+  // undo & verify
+  bt_change_log_undo (cl);
+  fail_unless (tcl->data == NULL, NULL);
+  ck_assert_int_eq (tcl->data_size, 0);
+
+  // redo & verify
+  bt_change_log_redo (cl);
+  fail_unless (tcl->data != NULL, NULL);
+  ck_assert_int_eq (tcl->data_size, 2);
+  ck_assert_int_eq (tcl->data[0], 1);
+  ck_assert_int_eq (tcl->data[1], 1);
 
   /* cleanup */
   g_object_unref (tcl);
@@ -535,6 +571,7 @@ bt_change_log_example_case (void)
   tcase_add_test (tc, test_bt_change_log_two_changes);
   tcase_add_test (tc, test_bt_change_log_single_then_double_change);
   tcase_add_test (tc, test_bt_change_log_group);
+  tcase_add_test (tc, test_bt_change_log_nested_groups);
   tcase_add_test (tc, test_bt_change_log_recover);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
