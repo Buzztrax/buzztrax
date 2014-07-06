@@ -667,6 +667,7 @@ machine_view_refresh (const BtMainPageMachines * self)
   if ((prop = (gchar *) g_hash_table_lookup (self->priv->properties, "xpos"))) {
     gtk_adjustment_set_value (self->priv->hadjustment, g_ascii_strtod (prop,
             NULL));
+    GST_INFO ("set xpos to %s", prop);
   } else {
     gdouble xs, xe, xp;
     // center
@@ -678,6 +679,7 @@ machine_view_refresh (const BtMainPageMachines * self)
   if ((prop = (gchar *) g_hash_table_lookup (self->priv->properties, "ypos"))) {
     gtk_adjustment_set_value (self->priv->vadjustment, g_ascii_strtod (prop,
             NULL));
+    GST_INFO ("set ypos to %s", prop);
   } else {
     gdouble ys, ye, yp;
     // center
@@ -1326,7 +1328,7 @@ store_scroll_pos (BtMainPageMachines * self, gchar * name, gdouble val)
       have_val = TRUE;
     }
     if ((!have_val) || (oval != val)) {
-      g_hash_table_insert (self->priv->properties, g_strdup ("ypos"),
+      g_hash_table_insert (self->priv->properties, g_strdup (name),
           g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, val)));
       if (have_val)
         bt_edit_application_set_song_unsaved (self->priv->app);
