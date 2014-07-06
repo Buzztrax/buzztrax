@@ -254,7 +254,7 @@ bt_song_seek_to_play_pos (const BtSong * const self)
     event = MAKE_SEEK_EVENT_FL (1.0, p->play_pos * tick_duration,
         loop_end * tick_duration);
   } else {
-    event = MAKE_SEEK_EVENT_L (1.0, p->play_pos * tick_duration,
+    event = MAKE_SEEK_EVENT_F (1.0, p->play_pos * tick_duration,
         (length + 1) * tick_duration);
   }
   /* TODO(ensonic): handle async-done when seeking, see top-level comment */
