@@ -99,7 +99,7 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
 
 // test if the default constructor works as expected
 static void
-test_bt_song_obj1 (BT_TEST_ARGS)
+test_bt_song_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -116,10 +116,10 @@ test_bt_song_obj1 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-// test, if a newly created song contains empty setup, sequence, song-info and
-// wavetable
+// test, if a newly created song contains setup, sequence, song-info and
+// wavetable and they point back to the song
 static void
-test_bt_song_obj2 (BT_TEST_ARGS)
+test_bt_song_members (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
@@ -506,14 +506,53 @@ test_bt_song_play_change_replay (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_song_play_pos (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = make_new_song ();
+
+  /* act */
+  bt_song_play (song);
+  check_run_main_loop_until_playing_or_error (song);
+  g_usleep (G_USEC_PER_SEC / 5);
+  bt_song_update_playback_position (song);
+
+  /* assert */
+  ck_assert_gobject_gulong_gt (song, "play-pos", 0L);
+
+  /* cleanup */
+  BT_TEST_END;
+}
+
+static void
+test_bt_song_play_pos_on_eos (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = make_new_song ();
+
+  /* act */
+  bt_song_play (song);
+  check_run_main_loop_until_eos_or_error (song);
+  bt_song_update_playback_position (song);
+
+  /* assert */
+  ck_assert_gobject_gulong_ge (song, "play-pos", 64L);
+
+  /* cleanup */
+  BT_TEST_END;
+}
+
 /* should we have variants, where we remove the machines instead of the wires? */
 TCase *
 bt_song_example_case (void)
 {
   TCase *tc = tcase_create ("BtSongExamples");
 
-  tcase_add_test (tc, test_bt_song_obj1);
-  tcase_add_test (tc, test_bt_song_obj2);
+  tcase_add_test (tc, test_bt_song_new);
+  tcase_add_test (tc, test_bt_song_members);
   tcase_add_test (tc, test_bt_song_master);
   tcase_add_test (tc, test_bt_song_play_single);
   tcase_add_test (tc, test_bt_song_play_twice);
@@ -524,6 +563,8 @@ bt_song_example_case (void)
   tcase_add_test (tc, test_bt_song_play_two_sources);
   tcase_add_test (tc, test_bt_song_play_two_sources_and_one_fx);
   tcase_add_test (tc, test_bt_song_play_change_replay);
+  tcase_add_test (tc, test_bt_song_play_pos);
+  tcase_add_test (tc, test_bt_song_play_pos_on_eos);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
