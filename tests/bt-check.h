@@ -169,6 +169,7 @@ void collect_logs(gboolean no_failures);
 
 void check_run_main_loop_for_usec(gulong usec);
 void check_run_main_loop_until_playing_or_error(BtSong * song);
+void check_run_main_loop_until_eos_or_error(BtSong * song);
 
 const gchar *check_get_test_song_path(const gchar *name);
 
