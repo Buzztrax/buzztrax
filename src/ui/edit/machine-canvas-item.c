@@ -1612,7 +1612,7 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
   citem_class->event = bt_machine_canvas_item_event;
 
   /**
-   * BtMachineCanvasItem::position-changed
+   * BtMachineCanvasItem::position-changed:
    * @self: the machine-canvas-item object that emitted the signal
    *
    * Signals that item has been moved around. The new position can be read from
@@ -1624,7 +1624,7 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
       NULL, g_cclosure_marshal_VOID__ENUM, G_TYPE_NONE, 1,
       CLUTTER_TYPE_EVENT_TYPE);
   /**
-   * BtMachineCanvasItem::start-connect
+   * BtMachineCanvasItem::start-connect:
    * @self: the machine-canvas-item object that emitted the signal
    *
    * Signals that a connect should be made starting from this machine.

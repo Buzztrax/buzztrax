@@ -314,6 +314,12 @@ bt_ui_resources_get_accel_group (void)
   return (singleton->priv->accel_group);
 }
 
+/**
+ * bt_ui_resources_init_theme:
+ *
+ * Initialize the themeing. Loads theme definitions to complement the active
+ * theme.
+ */
 void
 bt_ui_resources_init_theme (void)
 {
