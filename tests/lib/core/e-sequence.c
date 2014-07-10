@@ -385,10 +385,12 @@ test_bt_sequence_update (BT_TEST_ARGS)
 }
 #endif
 
+#define TICK_CT 8L
+
 typedef struct
 {
   gint ct;
-  gint values[8];
+  gint values[TICK_CT];
 } BtSequenceTicksTestData;
 
 static void
@@ -402,10 +404,11 @@ on_btsequence_ticks_notify (GstObject * machine, GParamSpec * arg,
   last = cur;
 
   GST_INFO ("notify %d (%" GST_TIME_FORMAT ")", data->ct, GST_TIME_ARGS (diff));
-  if (data->ct < 9) {
+  if (data->ct <= TICK_CT) {
     g_object_get (machine, "wave", &data->values[data->ct], NULL);
+    GST_INFO ("notify %d = %d", data->ct, data->values[data->ct]);
+    data->ct++;
   }
-  data->ct++;
 }
 
 static void
@@ -424,11 +427,10 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
       BT_MACHINE (bt_source_machine_new (song, "gen", "simsyn", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   bt_wire_new (song, src, sink, NULL);
-  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, src);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", TICK_CT, src);
   GstObject *element =
       GST_OBJECT (check_gobject_get_object_property (src, "machine"));
   g_object_set (sequence, "length", 8L, NULL);
-  GstClockTime play_time = bt_song_info_tick_to_time (song_info, 8L);
   bt_sequence_add_track (sequence, src, -1);
   bt_pattern_set_global_event (pattern, 0, 1, "0");
   bt_pattern_set_global_event (pattern, 1, 1, "1");
@@ -443,17 +445,12 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
       G_CALLBACK (on_btsequence_ticks_notify), &data);
 
   /* act */
-  GST_INFO ("play for %" GST_TIME_FORMAT, GST_TIME_ARGS (play_time));
   bt_song_play (song);
   check_run_main_loop_until_playing_or_error (song);
   GST_INFO ("playing ...");
-  // TODO(ensonic): this should not need to '*6' but there seems to be a lag in
-  // the notify emmissions that we can handle
-  // GST_DEBUG="audiosynth:5" BT_CHECKS="test_bt_sequence_*" make bt_core.check
-  // egrep "(bt-check|audiosynth)" /tmp/bt_core/e-sequence/test_bt_sequence_ticks.0.log
-  check_run_main_loop_for_usec (GST_TIME_AS_USECONDS (play_time * 6));
-  GST_INFO ("stop");
-  bt_song_stop (song);
+  check_run_main_loop_until_eos_or_error (song);
+  check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
+  GST_INFO ("stopped");
 
   /* assert */
   ck_assert_int_ge (data.ct, 8);
@@ -473,6 +470,8 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
   g_object_unref (song_info);
   BT_TEST_END;
 }
+
+#undef TICK_CT
 
 static void
 test_bt_sequence_default_loop (BT_TEST_ARGS)
