@@ -121,7 +121,7 @@ struct _BtSongPrivate
   BtWavetable *wavetable;
 
   /* the playback position of the song */
-  gulong play_pos, play_end;
+  gulong play_pos, play_beg, play_end;
   gdouble play_rate;
 
   /* flag to signal playing and idle states */
@@ -180,7 +180,7 @@ bt_song_update_play_seek_event (const BtSong * const self)
   BtSongPrivate *p = self->priv;
   gboolean loop;
   glong loop_start, loop_end, length;
-  gulong play_pos = p->play_pos;
+  gulong play_pos;
   GstClockTime tick_duration;
 
   g_object_get (p->sequence, "loop", &loop, "loop-start", &loop_start,
@@ -191,10 +191,10 @@ bt_song_update_play_seek_event (const BtSong * const self)
     loop_start = 0;
   if (loop_end == -1)
     loop_end = length + 1;
-  if (play_pos >= loop_end)
-    play_pos = loop_start;
+  play_pos = bt_sequence_limit_play_pos (p->sequence, p->play_pos);
 
-  // remember end for eos
+  // remember end for play and eos
+  p->play_beg = play_pos;
   p->play_end = loop_end;
 
   GST_INFO ("loop %d? %ld ... %ld, length %ld, pos %lu, tick_duration %"
@@ -408,6 +408,7 @@ bt_song_send_toc (const BtSong * const self)
       gst_event_new_toc (toc, FALSE));
 }
 
+#ifdef GST_BUG_733031
 static gboolean
 bt_song_send_initial_seek (const BtSong * const self, GstBin * bin)
 {
@@ -450,6 +451,7 @@ bt_song_send_initial_seek (const BtSong * const self, GstBin * bin)
   gst_iterator_free (it);
   return res;
 }
+#endif
 
 //-- handler
 
@@ -567,6 +569,9 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
       case GST_STATE_CHANGE_READY_TO_PAUSED:
         // we're prepared to play
         self->priv->is_preparing = FALSE;
+        // GST_BUG_733031: meh, this way we pre-roll twice :/
+        gst_element_send_event (GST_ELEMENT (self->priv->master_bin),
+            gst_event_ref (self->priv->play_seek_event));
         // ensure that sources set their durations
         g_object_notify (G_OBJECT (self->priv->sequence), "length");
         break;
@@ -886,12 +891,15 @@ bt_song_play (const BtSong * const self)
   self->priv->is_preparing = TRUE;
 
   // this should be sequence->play_start
-  self->priv->play_pos = 0;
+  self->priv->play_pos = self->priv->play_beg;
+  g_object_notify (G_OBJECT (self), "play-pos");
   GST_DEBUG_OBJECT (self->priv->master_bin, "seek event: %" GST_PTR_FORMAT,
       self->priv->play_seek_event);
 
+#ifdef GST_BUG_733031
   // send seek
   bt_song_send_initial_seek (self, self->priv->bin);
+#endif
   // send tags && toc
   bt_song_send_tags (self);
   bt_song_send_toc (self);
@@ -1030,9 +1038,10 @@ bt_song_update_playback_position (const BtSong * const self)
   g_assert (GST_IS_QUERY (self->priv->position_query));
   //GST_INFO("query playback-pos");
 
-  if (G_UNLIKELY (!self->priv->is_playing))
+  if (G_UNLIKELY (!self->priv->is_playing)) {
+    GST_WARNING ("not playing");
     return (FALSE);
-
+  }
   // query playback position and update self->priv->play-pos;
   if (gst_element_query (GST_ELEMENT (self->priv->master_bin),
           self->priv->position_query)) {
@@ -1043,9 +1052,9 @@ bt_song_update_playback_position (const BtSong * const self)
       const gulong play_pos = bt_song_info_time_to_tick (self->priv->song_info,
           pos_cur);
       if (play_pos != self->priv->play_pos) {
+        GST_INFO ("query playback-pos: cur=%" G_GINT64_FORMAT ", tick=%lu",
+            pos_cur, play_pos);
         self->priv->play_pos = play_pos;
-        GST_DEBUG ("query playback-pos: cur=%" G_GINT64_FORMAT ", tick=%lu",
-            pos_cur, self->priv->play_pos);
         g_object_notify (G_OBJECT (self), "play-pos");
       }
     } else {
