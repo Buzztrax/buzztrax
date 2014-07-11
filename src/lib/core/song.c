@@ -91,6 +91,13 @@
  * this time includes prerolling, set to 30 seconds for now */
 #define STATE_CHANGE_TIMEOUT 30
 
+/* Something changed in gstreamer to break seek in READY again. The pipeline
+ * plays from the right pos, but reports position starting from 0 instead of
+ * seek-pos.
+ * Now we waste some CPU for preroll and then flushing with the actual seek :/
+ */
+#define GST_BUG_733031
+
 //-- property ids
 
 enum
@@ -408,7 +415,7 @@ bt_song_send_toc (const BtSong * const self)
       gst_event_new_toc (toc, FALSE));
 }
 
-#ifdef GST_BUG_733031
+#ifndef GST_BUG_733031
 static gboolean
 bt_song_send_initial_seek (const BtSong * const self, GstBin * bin)
 {
@@ -569,9 +576,11 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
       case GST_STATE_CHANGE_READY_TO_PAUSED:
         // we're prepared to play
         self->priv->is_preparing = FALSE;
-        // GST_BUG_733031: meh, this way we pre-roll twice :/
+#ifdef GST_BUG_733031
+        // meh, we preroll twice now
         gst_element_send_event (GST_ELEMENT (self->priv->master_bin),
             gst_event_ref (self->priv->play_seek_event));
+#endif
         // ensure that sources set their durations
         g_object_notify (G_OBJECT (self->priv->sequence), "length");
         break;
@@ -896,7 +905,7 @@ bt_song_play (const BtSong * const self)
   GST_DEBUG_OBJECT (self->priv->master_bin, "seek event: %" GST_PTR_FORMAT,
       self->priv->play_seek_event);
 
-#ifdef GST_BUG_733031
+#ifndef GST_BUG_733031
   // send seek
   bt_song_send_initial_seek (self, self->priv->bin);
 #endif
