@@ -122,27 +122,22 @@ state_changed (const GstBus * const bus, GstMessage * message, GstElement * bin)
   }
 }
 
-static void
-on_wave_notify (GstObject * src, GParamSpec * arg, gpointer user_data)
-{
-  gint val;
-
-  g_object_get (src, "wave", &val, NULL);
-  // we never want to see '0' here
-  GST_INFO ("notify::wave: %d", val);
-}
-
 gint
 main (gint argc, gchar ** argv)
 {
-  GstElement *bin, *src, *sink;
+  GstElement *bin, *src, *mix, *sink;
   GstBus *bus;
   GstControlSource *cs;
   GstStateChangeReturn res;
+  gboolean use_adder = FALSE;
 
   /* init gstreamer */
   gst_init (&argc, &argv);
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "seekinready", 0, "seek test");
+
+  if (argc > 1) {
+    use_adder = (atoi (argv[1]) != 0);
+  }
 
   /* create a new bin to hold the elements */
   bin = gst_pipeline_new ("song");
@@ -165,18 +160,27 @@ main (gint argc, gchar ** argv)
   gst_timed_value_control_source_set ((GstTimedValueControlSource *) cs, 0 * GST_SECOND, 0.0);  // sine
   gst_timed_value_control_source_set ((GstTimedValueControlSource *) cs, 1 * GST_SECOND, 1.0 / 12.0);   // square
   gst_timed_value_control_source_set ((GstTimedValueControlSource *) cs, 2 * GST_SECOND, 2.0 / 12.0);   // saw
-
-  g_signal_connect (GST_OBJECT_CAST (src), "notify::wave",
-      G_CALLBACK (on_wave_notify), NULL);
   gst_bin_add (GST_BIN (bin), src);
+
+  if (use_adder) {
+    mix = gst_element_factory_make ("adder", NULL);
+    gst_bin_add (GST_BIN (bin), mix);
+  }
 
   sink = gst_element_factory_make ("autoaudiosink", NULL);
   gst_bin_add (GST_BIN (bin), sink);
 
   /* link elements */
-  if (!gst_element_link (src, sink)) {
-    fprintf (stderr, "Can't link elements\n");
-    exit (-1);
+  if (use_adder) {
+    if (!gst_element_link_many (src, mix, sink, NULL)) {
+      fprintf (stderr, "Can't link elements\n");
+      exit (-1);
+    }
+  } else {
+    if (!gst_element_link_many (src, sink, NULL)) {
+      fprintf (stderr, "Can't link elements\n");
+      exit (-1);
+    }
   }
 
   /* initial seek event */
