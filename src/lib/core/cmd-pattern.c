@@ -143,7 +143,12 @@ bt_cmd_pattern_constructed (GObject * object)
   // (if not subclassed, irks)
   if (self->priv->cmd != BT_PATTERN_CMD_NORMAL) {
     gchar *name;
-    // track commands in sequencer
+    /* track commands in sequencer:
+     * break : interrupt the pattern
+     * mute: silence the machine
+     * solo: only play this machine
+     * bypass: deactivate this effect
+     */
     const gchar *const cmd_names[] =
         { N_("normal"), N_("break"), N_("mute"), N_("solo"), N_("bypass") };
 

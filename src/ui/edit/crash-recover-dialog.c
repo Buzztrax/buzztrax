@@ -180,6 +180,7 @@ on_recover_clicked (GtkButton * button, gpointer user_data)
      * - this dialog should be a warning
      * - ev. we want to suggest to ask for support
      */
+    /* one or more steps in the recovery did not apply */
     bt_dialog_message (main_window, _("Recovery failed"),
         _("Sorry, the selected song could not be fully recovered."),
         _("Please check the song and save it if still looks good.")
