@@ -60,7 +60,7 @@ check_LTLIBRARIES = \
 libbt_check_la_LIBADD = \
 	libbuzztrax-ic.la \
 	libbuzztrax-core.la \
-	$(BASE_DEPS_LIBS) $(BT_LIBS) -lcheck
+	$(BASE_DEPS_LIBS) $(BT_LIBS) $(CHECK_LIBS)
 libbt_check_la_LDFLAGS = \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
 libbt_check_la_SOURCES = \
@@ -74,14 +74,14 @@ libbt_check_ui_la_LIBADD = \
   $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS)
 libbt_check_ui_la_LDFLAGS = \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
-libbt_check_ui_la_CFLAGS = $(GUI_DEPS_CFLAGS)
+libbt_check_ui_la_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbt_check_ui_la_SOURCES = \
 	tests/bt-check-ui.c tests/bt-check-ui.h
   
 bt_core_LDADD = \
 	libbtcore-check.la \
 	libbuzztrax-core.la \
-	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
+	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) $(CHECK_LIBS)
 bt_core_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
 bt_core_SOURCES = \
@@ -91,7 +91,7 @@ bt_ic_LDADD = \
 	libbtic-check.la \
 	libbuzztrax-ic.la \
 	libbuzztrax-core.la \
-	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
+	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) $(CHECK_LIBS)
 bt_ic_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
 bt_ic_SOURCES = \
@@ -100,7 +100,7 @@ bt_ic_SOURCES = \
 bt_cmd_LDADD = \
 	libbt-cmd-check.la \
 	libbuzztrax-core.la \
-	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
+	libbt-check.la $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) $(CHECK_LIBS)
 bt_cmd_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
 bt_cmd_SOURCES = \
@@ -111,15 +111,15 @@ bt_edit_LDADD = \
 	libbuzztrax-core.la \
 	libbuzztrax-ic.la \
 	libbt-check.la libbt-check-ui.la \
-	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) -lcheck
+	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM) $(CHECK_LIBS)
 bt_edit_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
-bt_edit_CFLAGS = $(GUI_DEPS_CFLAGS)
+bt_edit_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
 bt_edit_SOURCES = \
 	tests/m-bt-edit.c
 
 libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
-libbtcore_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
+libbtcore_check_la_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
 	tests/lib/core/e-application.c \
 	tests/lib/core/e-audio-session.c \
@@ -147,7 +147,7 @@ libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
 	tests/lib/core/e-wire.c tests/lib/core/t-wire.c
 
 libbtic_check_la_LIBADD = $(BASE_DEPS_LIBS)
-libbtic_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
+libbtic_check_la_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbtic_check_la_SOURCES = tests/lib/ic/m-bt-ic.h \
 	tests/lib/ic/e-device.c \
 	tests/lib/ic/e-ic.c tests/lib/ic/t-ic.c \
@@ -157,14 +157,14 @@ libbtic_check_la_SOURCES = tests/lib/ic/m-bt-ic.h \
 libbt_cmd_check_la_LIBADD = \
 	libbtcmd.la \
 	$(BASE_DEPS_LIBS)
-libbt_cmd_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)	
+libbt_cmd_check_la_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbt_cmd_check_la_SOURCES = tests/ui/cmd/m-bt-cmd.h \
 	tests/ui/cmd/e-cmd-application.c tests/ui/cmd/t-cmd-application.c
 
 libbt_edit_check_la_LIBADD = \
 	libbtedit.la \
 	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS)
-libbt_edit_check_la_CFLAGS = $(GUI_DEPS_CFLAGS)
+libbt_edit_check_la_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/e-about-dialog.c \
 	tests/ui/edit/e-change-log.c tests/ui/edit/t-change-log.c \
