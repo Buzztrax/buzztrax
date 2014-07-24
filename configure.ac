@@ -4,7 +4,7 @@ AC_INIT([buzztrax],[0.8.0],[buzztrax-devel@lists.sourceforge.net])
 # we can't do -Werror, because
 # - we use gnu make extensions
 # - we override uninstallcheck var
-AM_INIT_AUTOMAKE([-Wall check-news std-options foreign])
+AM_INIT_AUTOMAKE([-Wall check-news std-options foreign subdir-objects])
 AC_CONFIG_SRCDIR([README.md])
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR(m4)
