@@ -187,7 +187,7 @@ bt_song_update_play_seek_event (const BtSong * const self)
   BtSongPrivate *p = self->priv;
   gboolean loop;
   glong loop_start, loop_end, length;
-  gulong play_pos;
+  gulong play_pos = p->play_pos;
   GstClockTime tick_duration;
 
   g_object_get (p->sequence, "loop", &loop, "loop-start", &loop_start,
@@ -198,7 +198,10 @@ bt_song_update_play_seek_event (const BtSong * const self)
     loop_start = 0;
   if (loop_end == -1)
     loop_end = length + 1;
-  play_pos = bt_sequence_limit_play_pos (p->sequence, p->play_pos);
+  // can't use bt_sequence_limit_play_pos here as that only clamps and we need
+  // to wrap around instead
+  if (play_pos >= loop_end)
+    play_pos = loop_start;
 
   // remember end for play and eos
   p->play_beg = play_pos;
