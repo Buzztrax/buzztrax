@@ -425,6 +425,7 @@ bt_song_send_initial_seek (const BtSong * const self, GstBin * bin)
   GValue item = { 0, };
   GstEvent *ev = self->priv->play_seek_event;
 
+  // gst_bin_iterate_elements (bin) does not fix seek-in-ready
   it = gst_bin_iterate_sources (bin);
   while (!done) {
     switch (gst_iterator_next (it, &item)) {
@@ -436,7 +437,7 @@ bt_song_send_initial_seek (const BtSong * const self, GstBin * bin)
           GST_INFO_OBJECT (e, "sending initial seek");
           if (!(gst_element_send_event (e, gst_event_ref (ev)))) {
             bt_song_write_to_lowlevel_dot_file (self);
-            GST_WARNING_OBJECT (e, "bin failed to handle seek event");
+            GST_WARNING_OBJECT (e, "failed to handle seek event");
             res = FALSE;
           }
         }
