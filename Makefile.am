@@ -82,16 +82,16 @@ docs: docs-bt-core docs-bt-ic docs-bt-cmd docs-bt-edit
 docs/reference/version.entities:
 	@cp docs/version.entities docs/reference/
 
-docs-bt-core: libbuzztrax-core.la docs/reference/version.entities
+docs-bt-core: libbuzztrax-core.la libbtbsl.la libbuzztrax-ic.la docs/reference/version.entities
 	@$(MAKE) -C docs/reference/bt-core
 
 docs-bt-ic: libbuzztrax-ic.la docs/reference/version.entities
 	@$(MAKE) -C docs/reference/bt-ic
 
-docs-bt-cmd: libbtcmd.la docs/reference/version.entities
+docs-bt-cmd: libbtcmd.la libbuzztrax-ic.la libbuzztrax-core.la docs/reference/version.entities
 	@$(MAKE) -C docs/reference/bt-cmd
 
-docs-bt-edit: libbtedit.la docs/reference/version.entities
+docs-bt-edit: libbtedit.la libbuzztrax-ic.la libbuzztrax-core.la docs/reference/version.entities
 	@$(MAKE) -C docs/reference/bt-edit
 
 all-local: docs
