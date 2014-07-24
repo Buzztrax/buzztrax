@@ -15,7 +15,7 @@ DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.xml
 DOC_SOURCE_DIR=$(top_srcdir)/src/lib/ic
 
 # Extra options to pass to gtkdoc-scangobj. Not normally needed.
-SCANGOBJ_OPTIONS=--type-init-func="g_thread_init(NULL);g_type_init()"
+#SCANGOBJ_OPTIONS=""
 
 # Extra options to supply to gtkdoc-scan.
 SCAN_OPTIONS=--deprecated-guards="BT_DISABLE_DEPRECATED"

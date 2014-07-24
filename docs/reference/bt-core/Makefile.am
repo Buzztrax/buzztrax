@@ -15,9 +15,7 @@ DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.xml
 DOC_SOURCE_DIR=$(top_srcdir)/src/lib/core
 
 # Extra options to pass to gtkdoc-scangobj. Not normally needed.
-#SCANGOBJ_OPTIONS=--type-init-func="do { void gst_init(int *argc,char **argv[]);g_type_init();gst_init(&argc,&argv); } while (0)"
-#SCANGOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv)"
-SCANGOBJ_OPTIONS=--type-init-func="g_thread_init(NULL);g_type_init();gst_init(&argc,&argv)"
+SCANGOBJ_OPTIONS=--type-init-func="gst_init(&argc,&argv)"
 
 # Extra options to supply to gtkdoc-scan.
 # --rebuild-types requires gtk-doc 1.8
