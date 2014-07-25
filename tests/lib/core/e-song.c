@@ -523,6 +523,8 @@ test_bt_song_play_pos (BT_TEST_ARGS)
   ck_assert_gobject_gulong_gt (song, "play-pos", 0L);
 
   /* cleanup */
+  bt_song_stop (song);
+  g_object_checked_unref (song);
   BT_TEST_END;
 }
 
@@ -542,6 +544,8 @@ test_bt_song_play_pos_on_eos (BT_TEST_ARGS)
   ck_assert_gobject_gulong_ge (song, "play-pos", 64L);
 
   /* cleanup */
+  bt_song_stop (song);
+  g_object_checked_unref (song);
   BT_TEST_END;
 }
 
@@ -557,14 +561,40 @@ test_bt_song_play_pos_after_initial_seek (BT_TEST_ARGS)
   bt_song_play (song);
   check_run_main_loop_until_playing_or_error (song);
   bt_song_update_playback_position (song);
-  GST_INFO ("check play-pos");
 
   /* assert */
   ck_assert_gobject_gulong_ge (song, "play-pos", 16L);
 
   /* cleanup */
+  bt_song_stop (song);
+  g_object_checked_unref (song);
   BT_TEST_END;
 }
+
+static void
+test_bt_song_play_again_should_restart (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  /* arrange */
+  BtSong *song = make_new_song ();
+
+  /* act */
+  g_object_set (song, "play-pos", 48L, NULL);
+  bt_song_play (song);
+  check_run_main_loop_until_eos_or_error (song);
+  bt_song_play (song);
+  check_run_main_loop_until_playing_or_error (song);
+  bt_song_update_playback_position (song);
+
+  /* assert */
+  ck_assert_gobject_gulong_lt (song, "play-pos", 63L);
+
+  /* cleanup */
+  bt_song_stop (song);
+  g_object_checked_unref (song);
+  BT_TEST_END;
+}
+
 
 /* should we have variants, where we remove the machines instead of the wires? */
 TCase *
@@ -587,6 +617,7 @@ bt_song_example_case (void)
   tcase_add_test (tc, test_bt_song_play_pos);
   tcase_add_test (tc, test_bt_song_play_pos_on_eos);
   tcase_add_test (tc, test_bt_song_play_pos_after_initial_seek);
+  tcase_add_test (tc, test_bt_song_play_again_should_restart);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
