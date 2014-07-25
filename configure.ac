@@ -330,11 +330,9 @@ esac
 GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
 GTK_PREFIX="`$PKG_CONFIG --variable=prefix gtk+-2.0`"
 GST_PREFIX="`$PKG_CONFIG --variable=prefix gstreamer-1.0`"
-GCANVAS_PREFIX="`pkg-config --variable=prefix libgnomecanvas-2.0`"
 AC_SUBST(GLIB_PREFIX)
 AC_SUBST(GTK_PREFIX)
 AC_SUBST(GST_PREFIX)
-AC_SUBST(GCANVAS_PREFIX)
 
 dnl check for pending gtk+ addditions
 dnl ac_libs_save="$LIBS"

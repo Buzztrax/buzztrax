@@ -30,7 +30,6 @@ MKTMPL_OPTIONS=
 # Extra options to supply to gtkdoc-fixref. Not normally needed.
 FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/ \
 	--extra-dir=$(GTK_PREFIX)/share/gtk-doc/html/ \
-	--extra-dir=$(GCANVAS_PREFIX)/share/gtk-doc/html/ \
 	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html \
 	--extra-dir=..
 
