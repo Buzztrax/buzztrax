@@ -410,59 +410,56 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   gtk_box_pack_start (GTK_BOX (box), gtk_label_new ("    "), FALSE, TRUE, 0);
 
   // first column
-  table =
-      gtk_table_new ( /*rows= */ 4, /*columns= */ 2, /*homogenous= */ FALSE);
+  table = gtk_grid_new ();
   gtk_box_pack_start (GTK_BOX (box), table, TRUE, TRUE, 0);
 
   label = gtk_label_new (_("name"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 0, 1, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
   self->priv->name = GTK_ENTRY (gtk_entry_new ());
-  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->name), 1, 2, 0,
-      1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (self->priv->name, "hexpand", TRUE, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->name), 1, 0, 1, 1);
   g_signal_connect (self->priv->name, "changed", G_CALLBACK (on_name_changed),
       (gpointer) self);
 
   label = gtk_label_new (_("genre"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 1, 2, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
   self->priv->genre = GTK_ENTRY (gtk_entry_new ());
-  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->genre), 1, 2, 1,
-      2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (self->priv->genre, "hexpand", TRUE, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->genre), 1, 1, 1,
+      1);
   g_signal_connect (self->priv->genre, "changed", G_CALLBACK (on_genre_changed),
       (gpointer) self);
 
   label = gtk_label_new (_("author"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 2, 3, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
   self->priv->author = GTK_ENTRY (gtk_entry_new ());
-  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->author), 1, 2, 2,
-      3, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (self->priv->author, "hexpand", TRUE, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->author), 1, 2, 1,
+      1);
   g_signal_connect (self->priv->author, "changed",
       G_CALLBACK (on_author_changed), (gpointer) self);
 
   label = gtk_label_new (_("created"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 3, 4, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 3, 1, 1);
   self->priv->date_created = GTK_ENTRY (gtk_entry_new ());
   gtk_editable_set_editable (GTK_EDITABLE (self->priv->date_created), FALSE);
   gtk_widget_set_can_focus (GTK_WIDGET (self->priv->date_created), FALSE);
-  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->date_created), 1,
-      2, 3, 4, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (self->priv->date_created, "hexpand", TRUE, "margin-left", 2,
+      NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->date_created), 1,
+      3, 1, 1);
 
   // second column
-  table =
-      gtk_table_new ( /*rows= */ 4, /*columns= */ 2, /*homogenous= */ FALSE);
+  table = gtk_grid_new ();
   gtk_box_pack_start (GTK_BOX (box), table, TRUE, TRUE, 0);
 
   label = gtk_label_new (_("beats per minute"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 0, 1, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
   pspec =
       (GParamSpecULong *) g_object_class_find_property (song_info_class, "bpm");
   spin_adjustment =
@@ -470,15 +467,14 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
           pspec->maximum, 1.0, 5.0, 0.0));
   self->priv->bpm =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
-  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->bpm), 1, 2, 0, 1,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (self->priv->bpm, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->bpm), 1, 0, 1, 1);
   g_signal_connect (self->priv->bpm, "value-changed",
       G_CALLBACK (on_bpm_changed), (gpointer) self);
 
   label = gtk_label_new (_("beats"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 1, 2, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
   pspec =
       (GParamSpecULong *) g_object_class_find_property (song_info_class, "tpb");
   pspec2 =
@@ -493,39 +489,37 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
       GTK_ADJUSTMENT (gtk_adjustment_new (def, min, max, 1.0, 4.0, 0.0));
   self->priv->beats =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
-  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->beats), 1, 2, 1,
-      2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (self->priv->beats, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->beats), 1, 1, 1,
+      1);
   g_signal_connect (self->priv->beats, "value-changed",
       G_CALLBACK (on_beats_changed), (gpointer) self);
 
   label = gtk_label_new (_("ticks per beat"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 2, 3, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
   spin_adjustment =
       GTK_ADJUSTMENT (gtk_adjustment_new (pspec->default_value, pspec->minimum,
           pspec->maximum, 1.0, 4.0, 0.0));
   self->priv->tpb =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
-  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->tpb), 1, 2, 2, 3,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (self->priv->tpb, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->tpb), 1, 2, 1, 1);
   g_signal_connect (self->priv->tpb, "value-changed",
       G_CALLBACK (on_tpb_changed), (gpointer) self);
 
   label = gtk_label_new (_("last saved"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 3, 4, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 3, 1, 1);
   self->priv->date_changed = GTK_ENTRY (gtk_entry_new ());
   gtk_editable_set_editable (GTK_EDITABLE (self->priv->date_changed), FALSE);
   gtk_widget_set_can_focus (GTK_WIDGET (self->priv->date_changed), FALSE);
-  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->date_changed), 1,
-      2, 3, 4, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (self->priv->date_changed, "hexpand", TRUE, "margin-left", 2,
+      NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->date_changed), 1,
+      3, 1, 1);
 
   // @idea show tick and subtick interval as time (s:ms)
-
-  // spacer ?
-  //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, 4, 5, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
   // second row of hbox
   frame = gtk_frame_new (NULL);
