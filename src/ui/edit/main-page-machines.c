@@ -1745,22 +1745,20 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   gtk_box_pack_start (GTK_BOX (self), self->priv->toolbar, FALSE, FALSE, 0);
 
   // add canvas
-  table = gtk_table_new (2, 2, FALSE);
+  table = gtk_grid_new ();
   // adjustments are not configured, need window-size for it
   self->priv->vadjustment = gtk_adjustment_new (5.0, 0.0, 10.0, 1.0, 1.0, 0.0);
   g_signal_connect (self->priv->vadjustment, "value-changed",
       G_CALLBACK (on_vadjustment_changed), (gpointer) self);
   scrollbar = gtk_scrollbar_new (GTK_ORIENTATION_VERTICAL,
       self->priv->vadjustment);
-  gtk_table_attach (GTK_TABLE (table), scrollbar,
-      1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL, 0, 0);
+  gtk_grid_attach (GTK_GRID (table), scrollbar, 1, 0, 1, 1);
   self->priv->hadjustment = gtk_adjustment_new (5.0, 0.0, 10.0, 1.0, 1.0, 0.0);
   g_signal_connect (self->priv->hadjustment, "value-changed",
       G_CALLBACK (on_hadjustment_changed), (gpointer) self);
   scrollbar = gtk_scrollbar_new (GTK_ORIENTATION_HORIZONTAL,
       self->priv->hadjustment);
-  gtk_table_attach (GTK_TABLE (table), scrollbar,
-      0, 1, 1, 2, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+  gtk_grid_attach (GTK_GRID (table), scrollbar, 0, 1, 1, 1);
 
   self->priv->canvas_widget = gtk_clutter_embed_new ();
   gtk_widget_set_name (GTK_WIDGET (self->priv->canvas_widget),
@@ -1810,8 +1808,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   /* invalidate the canvas, so that we can draw before the main loop starts */
   clutter_content_invalidate (self->priv->grid_canvas);
 
-  gtk_table_attach (GTK_TABLE (table), self->priv->canvas_widget,
-      0, 1, 0, 1, GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 0, 0);
+  gtk_grid_attach (GTK_GRID (table), self->priv->canvas_widget, 0, 0, 1, 1);
   gtk_box_pack_start (GTK_BOX (self), table, TRUE, TRUE, 0);
 
   // create volume popup
