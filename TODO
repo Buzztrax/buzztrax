@@ -91,8 +91,14 @@
       - we could have a "new osc device" menu item in the control menu
         and put the learn item under the new device
 
-  * when using android/control, we can push custom surfaces via osc
-    http://charlie-roberts.com/Control/?page_id=32
+  * nice client for android: control
+    http://charlie-roberts.com/Control/?page_id=19
+    * we can push custom surfaces via osc
+      http://charlie-roberts.com/Control/?page_id=32
+    * can be discovered via avahi:
+      > avahi-browse -a
+      +  wlan0 IPv4 Control_75846                                 _osc._udp            local
+      +  wlan0 IPv4 Control_66257                                 _osc._udp            local
 
 
 * undo/redo/journaling
