@@ -8,6 +8,7 @@ AM_INIT_AUTOMAKE([-Wall check-news std-options foreign subdir-objects])
 AC_CONFIG_SRCDIR([README.md])
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR(m4)
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 LT_PREREQ([2.2])
 LT_INIT
 
@@ -61,7 +62,6 @@ AC_SUBST(BT_RELEASE_DATE)
 AC_DEFINE_UNQUOTED(BT_VERSION, "$BT_VERSION", [library version as string])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION_NUMBER, 800, [version as a number])
 
-
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CPP
@@ -72,8 +72,6 @@ AC_PROG_SED
 AM_PROG_CC_C_O
 IT_PROG_INTLTOOL
 PKG_PROG_PKG_CONFIG
-
-m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 dnl Initialise gettext
 AM_GNU_GETTEXT_VERSION(0.12.1)
