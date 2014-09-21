@@ -829,7 +829,8 @@ bt_cpu_load_init (void)
 /**
  * bt_cpu_load_get_current:
  *
- * Determines the current CPU load.
+ * Determines the current CPU load. Run this from a timeout handler (with e.g. a
+ * 1 second interval).
  *
  * Returns: CPU usage as integer ranging from 0% to 100%
  */
