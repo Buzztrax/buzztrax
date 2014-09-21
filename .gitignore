@@ -59,6 +59,7 @@ buzztrax.schemas
 *.tar.gz
 .anjuta_sym_db.db
 .anjuta
+.dirstamp
 cscope.out
 *.anjuta
 *.gschema.valid
