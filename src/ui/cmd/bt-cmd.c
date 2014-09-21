@@ -140,7 +140,12 @@ main (gint argc, gchar ** argv)
 
   app = bt_cmd_application_new (arg_quiet);
 
-  // depending on the popt options call the correct method
+
+  // set a default command, if a file is given
+  if (!command && BT_IS_STRING (input_file_name)) {
+    command = g_strdup ("p");
+  }
+  // depending on the options call the correct method
   if (!strcmp (command, "p") || !strcmp (command, "play")) {
     if (!BT_IS_STRING (input_file_name))
       usage (argc, argv, ctx);

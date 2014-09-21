@@ -145,10 +145,15 @@ main (gint argc, gchar ** argv)
 
   app = bt_edit_application_new ();
 
+  // set a default command, if a file is given
+  if (!command && BT_IS_STRING (input_file_name)) {
+    command = g_strdup ("l");
+  }
+
   if (command) {
-    // depending on the popt options call the correct method
+    // depending on the options call the correct method
     if (!strcmp (command, "l") || !strcmp (command, "load")) {
-      if (!input_file_name) {
+      if (!BT_IS_STRING (input_file_name)) {
         usage (argc, argv, ctx);
         // if commandline options where wrong, just start
         res = bt_edit_application_run (app);
