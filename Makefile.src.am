@@ -120,7 +120,7 @@ libbuzztrax_core_HEADERS = \
 	src/lib/core/machine.h \
 	src/lib/core/parameter-group.h \
 	src/lib/core/pattern.h \
-  	src/lib/core/pattern-control-source.h \
+	src/lib/core/pattern-control-source.h \
 	src/lib/core/persistence.h \
 	src/lib/core/processor-machine.h \
 	src/lib/core/sequence.h \
