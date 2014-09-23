@@ -21,6 +21,7 @@ dconf
 event-sound-cache.tdb.*
 stamp-h1
 stamp-h.in
+test-driver
 missing
 ltmain.sh
 libtool
@@ -60,6 +61,7 @@ buzztrax.schemas
 .anjuta_sym_db.db
 .anjuta
 .dirstamp
+*.trs
 cscope.out
 *.anjuta
 *.gschema.valid
