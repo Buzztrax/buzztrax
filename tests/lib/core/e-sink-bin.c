@@ -262,7 +262,7 @@ on_song_play_pos_notify (BtSong * song, GParamSpec * arg, gpointer user_data)
 
   bt_child_proxy_get ((gpointer) song, "sequence::length", &length,
       "play-pos", &pos, NULL);
-  GST_DEBUG_OBJECT (song, "%ld < %lu < %lu", old_pos, pos, length);
+  GST_DEBUG ("%ld < %lu < %lu", old_pos, pos, length);
   if ((pos >= length) || (pos < old_pos)) {
     GST_INFO ("we reached the end");
   }
@@ -275,7 +275,7 @@ on_song_is_playing_notify (BtSong * song, GParamSpec * arg, gpointer user_data)
   gboolean playing;
 
   g_object_get ((gpointer) song, "playing", &playing, NULL);
-  GST_DEBUG_OBJECT (song, "%d < %d", old_playing, playing);
+  GST_DEBUG ("%d < %d", old_playing, playing);
 
   if (!playing && old_playing) {
     GST_INFO ("we stopped");
@@ -287,7 +287,7 @@ static gboolean
 on_song_playback_update (gpointer user_data)
 {
   gboolean res = bt_song_update_playback_position (song);
-  GST_DEBUG_OBJECT (song, "update: %d, playing: %d, play_pos: %ld", res,
+  GST_DEBUG ("update: %d, playing: %d, play_pos: %ld", res,
       old_playing, old_pos);
   return TRUE;
 }
@@ -320,9 +320,9 @@ run_main_loop_until_eos (void)
       NULL, NULL);
 
   bt_song_update_playback_position (song);
-  GST_INFO_OBJECT (song, "running main_loop");
+  GST_INFO ("running main_loop");
   g_main_loop_run (main_loop);
-  GST_INFO_OBJECT (song, "finished main_loop");
+  GST_INFO ("finished main_loop");
   g_source_remove (update_id);
 }
 
