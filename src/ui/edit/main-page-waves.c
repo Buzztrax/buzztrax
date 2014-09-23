@@ -586,7 +586,7 @@ on_preview_error (const GstBus * const bus, GstMessage * message,
   g_free (desc);
 
   GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self->priv->preview),
-      GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME);
+      GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-waves");
 
   preview_stop (self);
 }

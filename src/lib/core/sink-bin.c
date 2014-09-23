@@ -1072,8 +1072,8 @@ bt_sink_bin_change_state (GstElement * element, GstStateChange transition)
       g_object_set (audio_session, "audio-locked", FALSE, NULL);
       break;
     case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-      GST_DEBUG_BIN_TO_DOT_FILE (GST_BIN (self), GST_DEBUG_GRAPH_SHOW_ALL,
-          "encodebin");
+      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
+          GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-encodebin");
       break;
     default:
       break;

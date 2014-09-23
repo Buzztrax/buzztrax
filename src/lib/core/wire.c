@@ -606,6 +606,8 @@ bt_wire_link_machines (const BtWire * const self)
     }
     /* we link the wire to the machine in setup as needed */
   } else {
+    GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
+        GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-wire");
     GST_INFO ("failed to link the machines: six: %d, dix: %d", six, dix);
     gst_pad_unlink (src_pads[PART_QUEUE], sink_pads[PART_TEE]);
     gst_pad_unlink (src_pads[PART_TEE], sink_pads[PART_GAIN]);

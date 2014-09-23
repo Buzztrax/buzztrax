@@ -641,7 +641,7 @@ unlink_wire_end (const BtSetup * const self, GstElement * wire,
     gst_object_unref (peer);
   } else {
     GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (self->priv->bin,
-        GST_DEBUG_GRAPH_SHOW_ALL, "buzztrax-error");
+        GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-setup");
     GST_WARNING_OBJECT (pad, "wire %s is not linked to %s", side,
         GST_OBJECT_NAME (elem));
   }
