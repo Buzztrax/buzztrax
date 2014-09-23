@@ -171,8 +171,6 @@ struct _BtSinkBinPrivate
   /* we need to hold the reference to not kill the notifies */
   BtSettings *settings;
 
-  gulong bus_handler_id;
-
   /* player sink or NULL */
   GstElement *audio_sink;
 
