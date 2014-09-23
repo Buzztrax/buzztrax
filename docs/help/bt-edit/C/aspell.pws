@@ -1,4 +1,4 @@
-personal_ws-1.1 en 59 
+personal_ws-1.1 en 60 
 wiki
 ywyr
 journaling
@@ -34,11 +34,13 @@ Kost
 gudev
 livesrc
 xml
+buzztrax
 unmute
 audiodelay
 accelerometers
 bzt
 popup
+Matilde
 UIs
 alsa
 pre
@@ -52,7 +54,6 @@ wav
 alsasrc
 simsyn
 internet
-buzztrax
 scaleable
 ogg
 plugin
