@@ -581,7 +581,8 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
         // we're prepared to play
         self->priv->is_preparing = FALSE;
 #ifdef GST_BUG_733031
-        // meh, we preroll twice now
+        // meh, we preroll twice now, this also breaks recording as we send the
+        // preroll part twice :/
         gst_element_send_event (GST_ELEMENT (self->priv->master_bin),
             gst_event_ref (self->priv->play_seek_event));
 #endif
@@ -729,6 +730,7 @@ static void
 bt_song_on_loop_changed (BtSequence * const sequence, GParamSpec * const arg,
     gconstpointer user_data)
 {
+  GST_DEBUG ("loop mode changed");
   bt_song_update_play_seek_event_and_play_pos (BT_SONG (user_data));
 }
 
@@ -736,6 +738,7 @@ static void
 bt_song_on_loop_start_changed (BtSequence * const sequence,
     GParamSpec * const arg, gconstpointer user_data)
 {
+  GST_DEBUG ("loop start changed");
   bt_song_update_play_seek_event_and_play_pos (BT_SONG (user_data));
 }
 
@@ -743,6 +746,7 @@ static void
 bt_song_on_loop_end_changed (BtSequence * const sequence,
     GParamSpec * const arg, gconstpointer user_data)
 {
+  GST_DEBUG ("loop end changed");
   bt_song_update_play_seek_event_and_play_pos (BT_SONG (user_data));
 }
 
@@ -750,6 +754,7 @@ static void
 bt_song_on_length_changed (BtSequence * const sequence, GParamSpec * const arg,
     gconstpointer user_data)
 {
+  GST_DEBUG ("song length changed");
   bt_song_update_play_seek_event_and_play_pos (BT_SONG (user_data));
 }
 
@@ -757,6 +762,7 @@ static void
 bt_song_on_tempo_changed (BtSongInfo * const song_info, GParamSpec * const arg,
     gconstpointer user_data)
 {
+  GST_DEBUG ("tempo changed");
   bt_song_update_play_seek_event_and_play_pos (BT_SONG (user_data));
 }
 
