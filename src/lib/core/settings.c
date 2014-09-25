@@ -460,20 +460,22 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
       const gchar *feature_name =
           gst_plugin_feature_get_name ((GstPluginFeature *) factory);
 
-      GST_INFO ("  probing audio sink: \"%s\"", feature_name);
-      if (bt_gst_try_element (factory, "audio/x-raw")) {
-        // get element max(rank)
-        cur_rank = gst_plugin_feature_get_rank (GST_PLUGIN_FEATURE (factory));
+      cur_rank = gst_plugin_feature_get_rank (GST_PLUGIN_FEATURE (factory));
+      if (cur_rank > GST_RANK_NONE) {
         GST_INFO ("  trying audio sink: \"%s\" with rank: %d", feature_name,
             cur_rank);
-        if ((cur_rank >= max_rank) || (!element_name)) {
-          g_free (element_name);
-          element_name = g_strdup (feature_name);
-          max_rank = cur_rank;
-          GST_INFO ("  audio sink \"%s\" is current best sink", element_name);
+        if (bt_gst_try_element (factory, "audio/x-raw")) {
+          if ((cur_rank >= max_rank) || (!element_name)) {
+            g_free (element_name);
+            element_name = g_strdup (feature_name);
+            max_rank = cur_rank;
+            GST_INFO ("  audio sink \"%s\" is current best sink", element_name);
+          }
+        } else {
+          GST_INFO ("  skipping audio sink: \"%s\"", feature_name);
         }
       } else {
-        GST_INFO ("  skipping audio sink: \"%s\"", feature_name);
+        GST_INFO ("  skipping audio sink: \"%s\" due to rank=0", feature_name);
       }
     }
     gst_plugin_feature_list_free (audiosink_factories);
