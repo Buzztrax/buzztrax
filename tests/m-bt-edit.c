@@ -172,11 +172,12 @@ main (gint argc, gchar ** argv)
   SRunner *sr;
 
   g_type_init ();
-  g_set_application_name ("Buzztrax");
+  g_set_application_name (PACKAGE_NAME);
   setup_log_base (argc, argv);
   setup_log_capture ();
-
   gst_init (NULL, NULL);
+  gst_debug_remove_log_function (gst_debug_log_default);
+
   bt_check_init ();
   check_setup_test_server ();
 

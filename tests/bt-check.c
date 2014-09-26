@@ -500,6 +500,17 @@ setup_log_capture (void)
   (void) g_set_printerr_handler (check_print_handler);
 
 #ifndef GST_DISABLE_GST_DEBUG
+  // gst_init() will add the log handler unconditionally:
+  // - if we do this before gst_init() we don't actually remove the def log
+  //   handler
+  // - if we do this after gst_init() we get debug output from gst_init() itself
+  //   on the default handler
+  // - we want a flag to tell gst to not register the default handler
+  //   gst_debug_set_active() is not the same
+  // A workaround for now is to set GST_DEBUG_FILE=/dev/null which our handler
+  // is not using and doing the
+  //   gst_debug_remove_log_function (gst_debug_log_default);
+  // after gst_init().
   gst_debug_add_log_function (check_gst_log_handler, NULL, NULL);
 #endif
 }
