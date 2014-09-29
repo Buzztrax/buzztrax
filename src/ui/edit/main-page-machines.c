@@ -71,6 +71,9 @@ enum
   MAIN_PAGE_MACHINES_CANVAS = 1
 };
 
+#define ZOOM_MIN 0.45
+#define ZOOM_MAX 2.5
+
 struct _BtMainPageMachinesPrivate
 {
   /* used to validate if dispose has run */
@@ -465,8 +468,9 @@ update_machines_zoom (const BtMainPageMachines * self)
   g_hash_table_foreach (self->priv->machines, update_zoom, &self->priv->zoom);
   g_hash_table_foreach (self->priv->wires, update_zoom, &self->priv->zoom);
 
-  gtk_widget_set_sensitive (self->priv->zoom_out, (self->priv->zoom > 0.4));
-  gtk_widget_set_sensitive (self->priv->zoom_in, (self->priv->zoom < 3.0));
+  gtk_widget_set_sensitive (self->priv->zoom_out,
+      (self->priv->zoom > ZOOM_MIN));
+  gtk_widget_set_sensitive (self->priv->zoom_in, (self->priv->zoom < ZOOM_MAX));
 }
 
 static void
@@ -1680,7 +1684,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->zoom_in =
       GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_ZOOM_IN));
   gtk_widget_set_name (self->priv->zoom_in, "Zoom In");
-  gtk_widget_set_sensitive (self->priv->zoom_in, (self->priv->zoom < 3.0));
+  gtk_widget_set_sensitive (self->priv->zoom_in, (self->priv->zoom < ZOOM_MAX));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (self->priv->zoom_in),
       _("Zoom in for more details"));
   gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar),
@@ -1690,7 +1694,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->zoom_out =
       GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_ZOOM_OUT));
   gtk_widget_set_name (self->priv->zoom_out, "Zoom Out");
-  gtk_widget_set_sensitive (self->priv->zoom_out, (self->priv->zoom > 0.4));
+  gtk_widget_set_sensitive (self->priv->zoom_out,
+      (self->priv->zoom > ZOOM_MIN));
   gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (self->priv->zoom_out),
       _("Zoom out for better overview"));
   gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar),
