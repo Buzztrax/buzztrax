@@ -71,6 +71,11 @@ enum
   MAIN_PAGE_MACHINES_CANVAS = 1
 };
 
+// machine view area (4:3 aspect ratio)
+// TODO(ensonic): should we check screens aspect ratio?
+#define MACHINE_VIEW_W (400.0*2.0)
+#define MACHINE_VIEW_H (300.0*2.0)
+// zoom range
 #define ZOOM_MIN 0.45
 #define ZOOM_MAX 2.5
 
@@ -95,7 +100,6 @@ struct _BtMainPageMachinesPrivate
   ClutterActor *canvas;
   GtkAdjustment *hadjustment, *vadjustment;
   /* canvas background grid, child of canvas */
-  ClutterActor *grid;
   ClutterContent *grid_canvas;
 
   /* the zoomration in pixels/per unit */
@@ -278,13 +282,14 @@ on_grid_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height,
     gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  gdouble i, step, c, rx, ry;
+  BtMainPageMachinesPrivate *p = self->priv;
+  gdouble i, step, c, r1, r2, rx, ry;
   gfloat gray[4] = { 0.5, 0.85, 0.7, 0.85 };
 
-  GST_INFO ("redrawing grid : density=%lu  canvas=%p, %4d,%4d",
-      self->priv->grid_density, self->priv->canvas, width, height);
+  GST_INFO ("redrawing grid: density=%lu  canvas: %4d,%4d",
+      p->grid_density, width, height);
 
-  if (!self->priv->grid_density)
+  if (!p->grid_density)
     return TRUE;
 
   /* clear the contents of the canvas, to not paint over the previous frame */
@@ -294,18 +299,39 @@ on_grid_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height,
   cairo_restore (cr);
   cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 
-  /* scale the modelview to the size of the surface */
-  rx = (width / (MACHINE_VIEW_SIZE_X * 2.0));
-  ry = (height / (MACHINE_VIEW_SIZE_Y * 2.0));
-  cairo_scale (cr, MACHINE_VIEW_SIZE_X, MACHINE_VIEW_SIZE_Y);
+  /* center the grid */
+  rx = width / 2.0;
+  ry = height / 2.0;
+  GST_DEBUG ("size: %d,%d, center: %4.1f,%4.1f", width, height, rx, ry);
   cairo_translate (cr, rx, ry);
 
   cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
-  cairo_set_line_width (cr, 0.001 / self->priv->zoom);  // make relative to zoom
+  cairo_set_line_width (cr, 1.0 / p->zoom);     // make relative to zoom
 
-  step = 1.0 / (gdouble) (1 << self->priv->grid_density);
-  for (i = 0.0; i <= MAX (rx, ry); i += step) {
-    c = gray[((gint) fabs (i * 8.0)) & 0x3];
+#if 0
+  {                             // DEBUG
+    cairo_set_source_rgba (cr, 1.0, 0.0, 0.0, 1.0);
+    cairo_move_to (cr, -rx, -ry);
+    cairo_line_to (cr, rx, -ry);
+    cairo_line_to (cr, rx, ry);
+    cairo_line_to (cr, -rx, ry);
+    cairo_line_to (cr, -rx, -ry);
+    cairo_stroke (cr);
+
+    cairo_move_to (cr, -rx, -ry);
+    cairo_line_to (cr, rx, ry);
+    cairo_stroke (cr);
+    cairo_move_to (cr, -rx, ry);
+    cairo_line_to (cr, rx, -ry);
+    cairo_stroke (cr);
+  }                             // DEBUG
+#endif
+
+  r1 = MAX (rx, ry);
+  r2 = MAX (MACHINE_VIEW_W, MACHINE_VIEW_H);
+  step = r2 / (gdouble) (1 << p->grid_density);
+  for (i = 0.0; i <= r1; i += step) {
+    c = gray[((gint) fabs ((i / r2) * 8.0)) & 0x3];
     cairo_set_source_rgba (cr, c, c, c, 1.0);
 
     cairo_move_to (cr, -rx, i);
@@ -369,8 +395,6 @@ start_connect (BtMainPageMachines * self)
 
   clutter_actor_set_child_below_sibling (self->priv->canvas,
       self->priv->new_wire, NULL);
-  clutter_actor_set_child_below_sibling (self->priv->canvas,
-      self->priv->grid, NULL);
   self->priv->connecting = TRUE;
   self->priv->moved = FALSE;
 }
@@ -502,19 +526,12 @@ wire_item_new (const BtMainPageMachines * self, BtWire * wire,
 }
 
 /* TODO(ensonic):
- * - we start with a canvas size of MACHINE_VIEW_SIZE_X, MACHINE_VIEW_SIZE_Y
- *   - unit size for a [-1,-1] .. [+1,+1] rect
- * - self->priv->view_{w,h} is the visible rect
- * - self->priv->canvas_{w,h} is the larger canvas
-     - it is large enough to scroll the left content to the right border and
-       still see the grid 
  * - we need a bounding box (bb) for all the machines
  *   - from that we can set page-size, upper, lower and pos of the scrollbars
  *   - upper and lower are the min/max of the bounding box
  *   - page-size = MAX (canvas-size, bb-size) / zoom
  * - we need scrollbars when the bb is partially outside the view
  *   - due to zoom or panning
- *   - zoom is limited (0.4 ... 3.0)
  *   - panning needs to be limitted to not allow to move more that 50 off view
  *     bb.size * zoom * 2 would be the scrollbar.size
  * - when adding/removing machines and re-calc the bb, we need to adjust the
@@ -544,34 +561,38 @@ wire_item_new (const BtMainPageMachines * self, BtWire * wire,
  *    20 ... 120 ... 220 : bb.cx = 90 + 60/2
  *     
  */
-
 static void
-update_adjustment (GtkAdjustment * adj, gdouble bbmi, gdouble bbma, gdouble vw)
+update_adjustment (GtkAdjustment * adj, gdouble bbmi, gdouble bbma,
+    gdouble page)
 {
   gdouble bbd = bbma - bbmi;
-  gdouble bbc = bbmi + (bbd / 2.0);
-  gdouble adjva, adjmi, adjma, adjd;
-  gdouble m, vw2 = vw / 2.0;
+  gdouble m, adjva, adjmi, adjma, adjd, adjps;
 
-  g_object_get (adj, "value", &adjva, "lower", &adjmi, "upper", &adjma, NULL);
+  g_object_get (adj, "value", &adjva, "lower", &adjmi, "upper", &adjma,
+      "page-size", &adjps, NULL);
   adjd = adjma - adjmi;
 
-  GST_DEBUG ("adj: %3d .. %3d .. %3d = %3d", (gint) adjmi, (gint) adjva,
-      (gint) adjma, (gint) adjd);
-  GST_DEBUG ("bb : %3d .. %3d .. %3d = %3d", (gint) bbmi, (gint) bbc,
-      (gint) bbma, (gint) bbd);
+  GST_DEBUG ("adj: %4d .. %4d .. %4d (%4d) = %4d", (gint) adjmi, (gint) adjva,
+      (gint) adjma, (gint) adjps, (gint) adjd);
+  GST_DEBUG ("bb : %4d .. %4d (%4d) = %4d", (gint) bbmi, (gint) bbma,
+      (gint) page, (gint) bbd);
 
-  // relative scrollpos
-  //m = (adjd >= bbd) ? ((adjva - adjmi) / adjd) : 0.5;
-  m = (adjva - adjmi) / adjd;
-  adjmi = bbc - vw2;
-  adjma = bbc + vw2;
-  adjva = adjmi + (vw * m);
-
-  GST_DEBUG ("adj: %3d .. %3d (%4.2lf) .. %3d = %3d", (gint) adjmi,
-      (gint) adjva, m, (gint) adjma, (gint) vw);
-
-  gtk_adjustment_configure (adj, adjva, adjmi, adjma, 1.0, 1.0, 0.0);
+  // cur value -> relative scrollpos -> new value
+  if (adjd > adjps) {
+    m = ((adjva + (adjps / 2.0)) - adjmi) / adjd;
+    GST_DEBUG ("old-middle: %4.2lf", m);
+  } else {
+    m = 0.5;
+    GST_DEBUG ("old-middle: static=0.5");
+  }
+  if (bbd > page) {
+    adjva = (bbmi + (bbd * m)) - (page / 2.0);
+    GST_DEBUG ("new-middle: %4.2lf => %4d", m, (gint) adjva);
+    gtk_adjustment_configure (adj, adjva, bbmi, bbma, page / 10.0, page, page);
+  } else {
+    GST_DEBUG ("new-middle: 0.5 => 0");
+    gtk_adjustment_configure (adj, 0.0, bbmi, bbma, bbd / 10.0, bbd, bbd);
+  }
 }
 
 static void
@@ -581,11 +602,15 @@ update_scrolled_window (const BtMainPageMachines * self)
 
 #if 0
   // dynamic sizing :/
+  GST_DEBUG ("adj.x");
   update_adjustment (p->hadjustment, p->mi_x, p->ma_x, p->view_w);
+  GST_DEBUG ("adj.y");
   update_adjustment (p->vadjustment, p->mi_y, p->ma_y, p->view_h);
 #else
-  update_adjustment (p->hadjustment, 0.0, p->view_w, p->view_w);
-  update_adjustment (p->vadjustment, 0.0, p->view_h, p->view_h);
+  GST_DEBUG ("adj.x");
+  update_adjustment (p->hadjustment, 0.0, p->canvas_w * p->zoom, p->view_w);
+  GST_DEBUG ("adj.y");
+  update_adjustment (p->vadjustment, 0.0, p->canvas_h * p->zoom, p->view_h);
 #endif
 }
 
@@ -602,23 +627,32 @@ static void
 update_scrolled_window_zoom (const BtMainPageMachines * self)
 {
   BtMainPageMachinesPrivate *p = self->priv;
-  // need to make stage+grid large enough to show grid when scrolling
-  gfloat cw = 2.0 * (p->view_w / p->zoom);
-  gfloat ch = 2.0 * (p->view_h / p->zoom);
-  gfloat delta[2] = { (cw - p->canvas_w) / 2.0, (ch - p->canvas_h) / 2.0 };
+  gfloat cw, ch, delta[2];
 
-  GST_DEBUG ("view: %4.1f,%4.1f, zoom: %4.1f", p->view_w, p->view_h, p->zoom);
-  GST_DEBUG ("canvas: %4.1f,%4.1f -> %4.1f,%4.1f", p->canvas_w, p->canvas_h, cw,
-      ch);
+  // need to make stage+canvas large enough to show grid when scrolling
+  cw = MACHINE_VIEW_W;
+  if ((cw * p->zoom) < p->view_w) {
+    GST_DEBUG ("canvas: enlarge x to fit view");
+    cw = p->view_w / p->zoom;
+  }
+  ch = MACHINE_VIEW_H;
+  if ((ch * p->zoom) < p->view_h) {
+    GST_DEBUG ("canvas: enlarge y to fit view");
+    ch = p->view_h / p->zoom;
+  }
+  delta[0] = (cw - p->canvas_w) / 2.0;
+  delta[1] = (ch - p->canvas_h) / 2.0;
+
+  GST_DEBUG ("zoom: %4.1f", p->zoom);
+  GST_DEBUG ("canvas: %4.1f,%4.1f -> %4.1f,%4.1f", p->canvas_w, p->canvas_h,
+      cw, ch);
   GST_DEBUG ("delta: %4.1f,%4.1f", delta[0], delta[1]);
 
   p->canvas_w = cw;
   p->canvas_h = ch;
-  clutter_actor_set_size (p->stage, cw, ch);
+  // apply zoom here as we don't scale the stage
+  clutter_actor_set_size (p->stage, cw * p->zoom, ch * p->zoom);
   clutter_actor_set_size (p->canvas, cw, ch);
-  // size of grid 
-  clutter_actor_set_size (p->grid, cw, ch);
-  clutter_actor_set_position (p->grid, cw / 2.0, ch / 2.0);
   clutter_canvas_set_size (CLUTTER_CANVAS (p->grid_canvas), cw, ch);
 
   // keep machines centered
@@ -724,8 +758,6 @@ machine_view_refresh (const BtMainPageMachines * self)
     // get xpos, ypos and open window
   }
   g_list_free (list);
-  clutter_actor_set_child_below_sibling (self->priv->canvas, self->priv->grid,
-      NULL);
   GST_DEBUG ("drawing done");
 }
 
@@ -753,8 +785,6 @@ bt_main_page_machines_add_wire (const BtMainPageMachines * self)
     // draw wire
     wire_item_new (self, wire, self->priv->new_wire_src,
         self->priv->new_wire_dst);
-    clutter_actor_set_child_below_sibling (self->priv->canvas,
-        self->priv->grid, NULL);
 
     g_object_get (src_machine, "id", &smid, NULL);
     g_object_get (dst_machine, "id", &dmid, NULL);
@@ -1060,10 +1090,8 @@ on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
   GList *node, *list;
   gdouble fc_x, fc_y, c_x, c_y, ms;
   // machine area
-  gdouble ma_xs = MACHINE_VIEW_SIZE_X, ma_x, ma_xe =
-      -MACHINE_VIEW_SIZE_X, ma_xd;
-  gdouble ma_ys = MACHINE_VIEW_SIZE_Y, ma_y, ma_ye =
-      -MACHINE_VIEW_SIZE_Y, ma_yd;
+  gdouble ma_xs = MACHINE_VIEW_W, ma_x, ma_xe = -MACHINE_VIEW_W, ma_xd;
+  gdouble ma_ys = MACHINE_VIEW_H, ma_y, ma_ye = -MACHINE_VIEW_H, ma_yd;
   // page area
   gdouble /*pg_xs,pg_x,pg_xe,pg_xd, */ pg_xl;
   gdouble /*pg_ys,pg_y,pg_ye,pg_yd, */ pg_yl;
@@ -1098,7 +1126,7 @@ on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
       p->mi_x, p->ma_x, p->mi_y, p->ma_y);
 
   /* need to add machine extends + some space */
-  ms = MACHINE_SIZE_X;
+  ms = MACHINE_W;
 #if 0
   ma_xs -= ms;
   ma_xe += ms;
@@ -1107,7 +1135,7 @@ on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
   ma_xe = p->ma_x + ms;
 #endif
   ma_xd = (ma_xe - ma_xs);
-  ms = MACHINE_SIZE_Y;
+  ms = MACHINE_H;
 #if 0
   ma_ys -= ms;
   ma_ye += ms;
@@ -1125,8 +1153,8 @@ on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
       /*"lower",&pg_ys,"value",&pg_y,"upper",&pg_ye, */ "page-size", &pg_yl,
       NULL);
   /*
-     pg_xd=(pg_xe-pg_xs)/MACHINE_VIEW_SIZE_X;
-     pg_yd=(pg_ye-pg_ys)/MACHINE_VIEW_SIZE_Y;
+     pg_xd=(pg_xe-pg_xs)/MACHINE_VIEW_W;
+     pg_yd=(pg_ye-pg_ys)/MACHINE_VIEW_H;
      GST_INFO("page: pos x/y:%+6.4lf %+6.4lf size x/y: %+6.4lf %+6.4lf -> ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",
      pg_x,pg_y,pg_xl,pg_yl, pg_xs,pg_xe,pg_ys,pg_ye);
    */
@@ -1149,9 +1177,9 @@ on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
       ((pg_xl - (ma_xd * p->zoom)) / 2.0));
   GST_INFO ("y: (%+6.4lf-%+6.4lf)/2=%+6.4lf", pg_yl, (ma_yd * p->zoom),
       ((pg_yl - (ma_yd * p->zoom)) / 2.0));
-  c_x = (MACHINE_VIEW_SIZE_X + ma_xs) * p->zoom -
+  c_x = (MACHINE_VIEW_W + ma_xs) * p->zoom -
       ((pg_xl - (ma_xd * p->zoom)) / 2.0);
-  c_y = (MACHINE_VIEW_SIZE_Y + ma_ys) * p->zoom -
+  c_y = (MACHINE_VIEW_H + ma_ys) * p->zoom -
       ((pg_yl - (ma_yd * p->zoom)) / 2.0);
   gtk_adjustment_set_value (p->hadjustment, c_x);
   gtk_adjustment_set_value (p->vadjustment, c_y);
@@ -1176,32 +1204,32 @@ static void
 on_toolbar_zoom_in_clicked (GtkButton * button, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
+  BtMainPageMachinesPrivate *p = self->priv;
 
-  self->priv->zoom *= 1.2;
-  GST_INFO ("toolbar zoom_in event occurred : %lf", self->priv->zoom);
+  p->zoom *= 1.2;
+  GST_INFO ("toolbar zoom_in event occurred : %lf", p->zoom);
 
-  clutter_actor_set_scale (self->priv->canvas, self->priv->zoom,
-      self->priv->zoom);
+  clutter_actor_set_scale (p->canvas, p->zoom, p->zoom);
   update_scrolled_window_zoom (self);
   update_machines_zoom (self);
 
-  gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->canvas_widget));
+  gtk_widget_grab_focus_savely (GTK_WIDGET (p->canvas_widget));
 }
 
 static void
 on_toolbar_zoom_out_clicked (GtkButton * button, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
+  BtMainPageMachinesPrivate *p = self->priv;
 
-  self->priv->zoom /= 1.2;
-  GST_INFO ("toolbar zoom_out event occurred : %lf", self->priv->zoom);
+  p->zoom /= 1.2;
+  GST_INFO ("toolbar zoom_out event occurred : %lf", p->zoom);
 
   update_machines_zoom (self);
-  clutter_actor_set_scale (self->priv->canvas, self->priv->zoom,
-      self->priv->zoom);
+  clutter_actor_set_scale (p->canvas, p->zoom, p->zoom);
   update_scrolled_window_zoom (self);
 
-  gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->canvas_widget));
+  gtk_widget_grab_focus_savely (GTK_WIDGET (p->canvas_widget));
 }
 
 #ifndef GRID_USES_MENU_TOOL_ITEM
@@ -1310,7 +1338,7 @@ on_canvas_size_changed (GtkWidget * widget, GdkRectangle * allocation,
 
   GST_DEBUG ("view: %4.1f,%4.1f -> %4.1f,%4.1f", p->view_w, p->view_h, vw, vh);
 
-  // size of the canvas (view)
+  // size of the view
   p->view_w = vw;
   p->view_h = vh;
 
@@ -1341,20 +1369,20 @@ store_scroll_pos (BtMainPageMachines * self, gchar * name, gdouble val)
 }
 
 static void
-on_vadjustment_changed (GtkAdjustment * adjustment, gpointer user_data)
+on_vadjustment_changed (GtkAdjustment * adj, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  gdouble val = gtk_adjustment_get_value (adjustment);
+  gdouble val = gtk_adjustment_get_value (adj);
 
   clutter_actor_set_y (self->priv->canvas, -val);
   store_scroll_pos (self, "ypos", val);
 }
 
 static void
-on_hadjustment_changed (GtkAdjustment * adjustment, gpointer user_data)
+on_hadjustment_changed (GtkAdjustment * adj, gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  gdouble val = gtk_adjustment_get_value (adjustment);
+  gdouble val = gtk_adjustment_get_value (adj);
 
   clutter_actor_set_x (self->priv->canvas, -val);
   store_scroll_pos (self, "xpos", val);
@@ -1780,32 +1808,22 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
     c->red >> 8, c->green >> 8, c->blue >> 8, 0xff
   };
   clutter_stage_set_color (CLUTTER_STAGE (self->priv->stage), &stage_color);
-  clutter_actor_set_size (self->priv->stage, MACHINE_VIEW_SIZE_X,
-      MACHINE_VIEW_SIZE_Y);
+  clutter_actor_set_size (self->priv->stage, MACHINE_VIEW_W, MACHINE_VIEW_H);
+  // while (0.5, 0.5) sounds cool, it causes weird effects
+  clutter_actor_set_pivot_point (self->priv->stage, 0.0, 0.0);
 
   self->priv->canvas = clutter_actor_new ();
   clutter_actor_set_reactive (self->priv->canvas, TRUE);
-  clutter_actor_set_size (self->priv->canvas, MACHINE_VIEW_SIZE_X,
-      MACHINE_VIEW_SIZE_Y);
+  clutter_actor_set_size (self->priv->canvas, MACHINE_VIEW_W, MACHINE_VIEW_H);
+  // while (0.5, 0.5) sounds cool, it causes weird effects
+  clutter_actor_set_pivot_point (self->priv->canvas, 0.0, 0.0);
   clutter_actor_add_child (self->priv->stage, self->priv->canvas);
-
-  // generate a grid one (pushing it to bottom)
-  self->priv->grid = clutter_actor_new ();
-  clutter_actor_set_size (self->priv->grid, MACHINE_VIEW_SIZE_X,
-      MACHINE_VIEW_SIZE_Y);
-  clutter_actor_set_anchor_point_from_gravity (self->priv->grid,
-      CLUTTER_GRAVITY_CENTER);
-  clutter_actor_set_position (self->priv->grid, MACHINE_VIEW_SIZE_X / 2.0,
-      MACHINE_VIEW_SIZE_Y / 2.0);
-  clutter_actor_add_child (self->priv->canvas, self->priv->grid);
-  clutter_actor_set_child_below_sibling (self->priv->canvas, self->priv->grid,
-      NULL);
 
   self->priv->grid_canvas = clutter_canvas_new ();
   clutter_canvas_set_size (CLUTTER_CANVAS (self->priv->grid_canvas),
-      MACHINE_VIEW_SIZE_X, MACHINE_VIEW_SIZE_Y);
-  clutter_actor_set_content (self->priv->grid, self->priv->grid_canvas);
-  clutter_actor_set_content_scaling_filters (self->priv->grid,
+      MACHINE_VIEW_W, MACHINE_VIEW_H);
+  clutter_actor_set_content (self->priv->canvas, self->priv->grid_canvas);
+  clutter_actor_set_content_scaling_filters (self->priv->canvas,
       CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
 
   g_signal_connect (self->priv->grid_canvas, "draw", G_CALLBACK (on_grid_draw),
@@ -2261,11 +2279,11 @@ bt_main_page_machines_canvas_coords_to_relative (const BtMainPageMachines *
 {
   if (xr) {
     gdouble cw = self->priv->canvas_w / 2.0;
-    *xr = (xc - cw) / MACHINE_VIEW_SIZE_X;
+    *xr = (xc - cw) / (MACHINE_VIEW_W / 2.0);
   }
   if (yr) {
     gdouble ch = self->priv->canvas_h / 2.0;
-    *yr = (yc - ch) / MACHINE_VIEW_SIZE_Y;
+    *yr = (yc - ch) / (MACHINE_VIEW_H / 2.0);
   }
 }
 
@@ -2286,11 +2304,11 @@ bt_main_page_machines_relative_coords_to_canvas (const BtMainPageMachines *
 {
   if (xc) {
     gdouble cw = self->priv->canvas_w / 2.0;
-    *xc = cw + MACHINE_VIEW_SIZE_X * xr;
+    *xc = cw + (MACHINE_VIEW_W / 2.0) * xr;
   }
   if (yc) {
     gdouble ch = self->priv->canvas_h / 2.0;
-    *yc = ch + MACHINE_VIEW_SIZE_Y * yr;
+    *yc = ch + (MACHINE_VIEW_H / 2.0) * yr;
   }
 }
 
@@ -2451,8 +2469,6 @@ bt_main_page_machines_change_logger_change (const BtChangeLogger * owner,
         src_machine_item = g_hash_table_lookup (self->priv->machines, smachine);
         dst_machine_item = g_hash_table_lookup (self->priv->machines, dmachine);
         wire_item_new (self, wire, src_machine_item, dst_machine_item);
-        clutter_actor_set_child_below_sibling (self->priv->canvas,
-            self->priv->grid, NULL);
         res = TRUE;
       }
       g_object_try_unref (smachine);
@@ -2643,8 +2659,8 @@ bt_main_page_machines_init (BtMainPageMachines * self)
   // the cursor for dragging
   self->priv->drag_cursor = gdk_cursor_new (GDK_FLEUR);
   // initial size
-  self->priv->view_w = MACHINE_VIEW_SIZE_X;
-  self->priv->view_h = MACHINE_VIEW_SIZE_Y;
+  self->priv->view_w = MACHINE_VIEW_W;
+  self->priv->view_h = MACHINE_VIEW_H;
   // the undo/redo changelogger
   self->priv->change_log = bt_change_log_new ();
   bt_change_log_register (self->priv->change_log, BT_CHANGE_LOGGER (self));
