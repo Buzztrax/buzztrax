@@ -1809,14 +1809,10 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   };
   clutter_stage_set_color (CLUTTER_STAGE (self->priv->stage), &stage_color);
   clutter_actor_set_size (self->priv->stage, MACHINE_VIEW_W, MACHINE_VIEW_H);
-  // while (0.5, 0.5) sounds cool, it causes weird effects
-  clutter_actor_set_pivot_point (self->priv->stage, 0.0, 0.0);
 
   self->priv->canvas = clutter_actor_new ();
   clutter_actor_set_reactive (self->priv->canvas, TRUE);
   clutter_actor_set_size (self->priv->canvas, MACHINE_VIEW_W, MACHINE_VIEW_H);
-  // while (0.5, 0.5) sounds cool, it causes weird effects
-  clutter_actor_set_pivot_point (self->priv->canvas, 0.0, 0.0);
   clutter_actor_add_child (self->priv->stage, self->priv->canvas);
 
   self->priv->grid_canvas = clutter_canvas_new ();
