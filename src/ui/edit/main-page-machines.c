@@ -71,10 +71,10 @@ enum
   MAIN_PAGE_MACHINES_CANVAS = 1
 };
 
-// machine view area (4:3 aspect ratio)
-// TODO(ensonic): should we check screens aspect ratio?
-#define MACHINE_VIEW_W (400.0*2.0)
-#define MACHINE_VIEW_H (300.0*2.0)
+// machine view area
+// TODO(ensonic): should we check screen dpi?
+#define MACHINE_VIEW_W 1000.0
+#define MACHINE_VIEW_H 750.0
 // zoom range
 #define ZOOM_MIN 0.45
 #define ZOOM_MAX 2.5
