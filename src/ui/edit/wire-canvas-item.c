@@ -246,7 +246,7 @@ update_geometry (BtMachineCanvasItem * src, BtMachineCanvasItem * dst,
   yd = ye - ys;
 
   *w = sqrt (xd * xd + yd * yd);
-  *h = WIRE_PAD_SIZE_Y;
+  *h = WIRE_PAD_H;
   *x = xs + (xd / 2.0);
   *y = ys + (yd / 2.0);
   *a = atan2 (yd, xd) * 180.0 / M_PI;
@@ -508,7 +508,7 @@ bt_wire_canvas_item_constructed (GObject * object)
   update_wire_graphics (self);
   clutter_actor_set_content_scaling_filters (self->priv->pad,
       CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
-  clutter_actor_set_size (self->priv->pad, WIRE_PAD_SIZE_X, WIRE_PAD_SIZE_Y);
+  clutter_actor_set_size (self->priv->pad, WIRE_PAD_W, WIRE_PAD_H);
   clutter_actor_set_anchor_point_from_gravity (self->priv->pad,
       CLUTTER_GRAVITY_CENTER);
   clutter_actor_set_reactive (self->priv->pad, TRUE);
