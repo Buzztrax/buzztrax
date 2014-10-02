@@ -309,6 +309,7 @@ run_main_loop_until_eos (void)
   // workaround for some muxers not accepting the seek and thus not going to eos
   // poll playback position 10 times a second
   // TODO(ensonic): fixed in 1.0?
+  // basesrc elements do post EOS
   old_pos = -1;
   old_playing = FALSE;
   g_signal_connect (song, "notify::play-pos",

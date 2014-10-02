@@ -600,7 +600,7 @@ bt_sink_bin_make_and_configure_encodebin (GstEncodingProfile * profile)
   g_object_set (element, "profile", profile, NULL);
   while ((message = gst_bus_pop_filtered (bus,
               GST_MESSAGE_ERROR | GST_MESSAGE_ELEMENT))) {
-    GST_DEBUG_OBJECT (element, "error message %" GST_PTR_FORMAT, message);
+    GST_INFO_OBJECT (element, "error message %" GST_PTR_FORMAT, message);
     if (gst_is_missing_plugin_message (message)) {
       GstObject *src = GST_MESSAGE_SRC (message);
       gchar *detail = gst_missing_plugin_message_get_description (message);
@@ -1070,6 +1070,8 @@ bt_sink_bin_change_state (GstElement * element, GstStateChange transition)
       break;
     case GST_STATE_CHANGE_READY_TO_PAUSED:
       g_object_set (audio_session, "audio-locked", FALSE, NULL);
+      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
+          GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-encodebin");
       break;
     case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
       GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
