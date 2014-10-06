@@ -67,7 +67,6 @@ main (gint argc, gchar ** argv)
   setup_log_base (argc, argv);
   setup_log_capture ();
   gst_init (NULL, NULL);
-  gst_debug_remove_log_function (gst_debug_log_default);
 
   bt_check_init ();
   bt_init (&test_argc, &test_argvptr);

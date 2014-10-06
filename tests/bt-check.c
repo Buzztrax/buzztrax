@@ -54,10 +54,19 @@ static GstClockTime _priv_bt_info_start_time;
 /* initialized from BT_CHECKS */
 static gchar **funcs = NULL;
 
+// must be called after gst_init(), see comment in setup_log_capture()
 void
 bt_check_init (void)
 {
   _priv_bt_info_start_time = gst_util_get_timestamp ();
+
+  // disable logging from gstreamer itself
+  gst_debug_remove_log_function (gst_debug_log_default);
+  // set e.g. GST_DEBUG="bt-core:DEBUG" if more details are needed
+  if (gst_debug_get_default_threshold () < GST_LEVEL_INFO) {
+    gst_debug_set_default_threshold (GST_LEVEL_INFO);
+  }
+  // register our plugins
   extern gboolean bt_test_plugin_init (GstPlugin * plugin);
   gst_plugin_register_static (GST_VERSION_MAJOR,
       GST_VERSION_MINOR,
@@ -68,15 +77,6 @@ bt_check_init (void)
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-check", 0,
       "music production environment / unit tests");
-  // disable logging from gstreamer itself
-  gst_debug_remove_log_function (gst_debug_log_default);
-  // no ansi color codes in logfiles please
-  gst_debug_set_colored (FALSE);
-
-  // set e.g. GST_DEBUG="bt-core:DEBUG" if more details are needed
-  if (gst_debug_get_default_threshold () < GST_LEVEL_INFO) {
-    gst_debug_set_default_threshold (GST_LEVEL_INFO);
-  }
 
   const gchar *checks = g_getenv ("BT_CHECKS");
   if (BT_IS_STRING (checks)) {
@@ -510,7 +510,7 @@ setup_log_capture (void)
   // A workaround for now is to set GST_DEBUG_FILE=/dev/null which our handler
   // is not using and doing the
   //   gst_debug_remove_log_function (gst_debug_log_default);
-  // after gst_init().
+  // after gst_init() from bt_check_init().
   gst_debug_add_log_function (check_gst_log_handler, NULL, NULL);
 #endif
 }

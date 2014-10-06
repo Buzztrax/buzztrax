@@ -47,10 +47,9 @@ main (gint argc, gchar ** argv)
   setup_log_base (argc, argv);
   setup_log_capture ();
   gst_init (NULL, NULL);
-  gst_debug_remove_log_function (gst_debug_log_default);
 
-  btic_init (&test_argc, &test_argvptr);
   bt_check_init ();
+  btic_init (&test_argc, &test_argvptr);
 
   sr = srunner_create (bt_ic_suite ());
   srunner_add_suite (sr, bt_device_suite ());
