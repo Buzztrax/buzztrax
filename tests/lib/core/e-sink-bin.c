@@ -354,6 +354,10 @@ test_bt_sink_bin_record (BT_TEST_ARGS)
   /* arrange */
   if (!bt_sink_bin_is_record_format_supported (_i))
     return;
+  // see GST_BUG_733031
+  if (_i == 3 || _i == 6)
+    return;
+
   make_new_song ( /*silence */ 4);
   GstElement *sink_bin = get_sink_bin ();
   GEnumClass *enum_class =
@@ -390,6 +394,10 @@ test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
   /* arrange */
   if (!bt_sink_bin_is_record_format_supported (_i))
     return;
+  // see GST_BUG_733031
+  if (_i == 3 || _i == 6)
+    return;
+
   g_object_set (settings, "audiosink", "fakesink", NULL);
   make_new_song ( /*silence */ 4);
   GstElement *sink_bin = get_sink_bin ();
