@@ -57,7 +57,7 @@ test_bt_core_init0 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  gchar *test_argv[] = { "check_buzzard", "--bt-version=5" };
+  gchar *test_argv[] = { "check_buzztrax", "--bt-version=5" };
   gchar **test_argvptr = test_argv;
   gint test_argc = G_N_ELEMENTS (test_argv);
 
@@ -75,7 +75,7 @@ test_bt_core_init1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  gchar *test_argv[] = { "check_buzzard", "--bt-non-sense" };
+  gchar *test_argv[] = { "check_buzztrax", "--bt-non-sense" };
   gchar **test_argvptr = test_argv;
   gint test_argc = G_N_ELEMENTS (test_argv);
 

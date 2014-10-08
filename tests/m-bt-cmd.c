@@ -27,7 +27,7 @@ GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN (bt_core_debug);
 GST_DEBUG_CATEGORY_EXTERN (bt_cmd_debug);
 
-gchar *test_argv[] = { "check_buzzard" };
+gchar *test_argv[] = { "check_buzztrax" };
 
 gchar **test_argvptr = test_argv;
 gint test_argc = G_N_ELEMENTS (test_argv);

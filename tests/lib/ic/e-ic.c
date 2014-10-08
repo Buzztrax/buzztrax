@@ -77,7 +77,7 @@ test_btic_init2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
   /* arrange */
-  gchar *test_argv[] = { "check_buzzard", "--btic-version" };
+  gchar *test_argv[] = { "check_buzztrax", "--btic-version" };
   gchar **test_argvptr = test_argv;
   gint test_argc = G_N_ELEMENTS (test_argv);
 
