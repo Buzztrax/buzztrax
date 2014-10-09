@@ -1114,7 +1114,9 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   gtk_menu_set_accel_group (GTK_MENU (menu), accel_group);
 
   subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_HELP, accel_group);
-  gtk_widget_remove_accelerator (subitem, accel_group, 'h', GDK_CONTROL_MASK);
+  if (gtk_accel_group_query (accel_group, 'h', GDK_CONTROL_MASK, NULL)) {
+    gtk_widget_remove_accelerator (subitem, accel_group, 'h', GDK_CONTROL_MASK);
+  }
   gtk_widget_add_accelerator (subitem, "activate", accel_group, GDK_KEY_F1, 0,
       GTK_ACCEL_VISIBLE);
   gtk_container_add (GTK_CONTAINER (menu), subitem);
