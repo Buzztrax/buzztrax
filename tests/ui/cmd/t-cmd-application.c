@@ -49,19 +49,19 @@ static void
 test_bt_cmd_application_play_null_as_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtCmdApplication *app = bt_cmd_application_new (TRUE);
   check_init_error_trapp ("bt_cmd_application_play",
       "BT_IS_STRING (input_file_name)");
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean ret = bt_cmd_application_play (app, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
   fail_unless (ret == FALSE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (app);
   BT_TEST_END;
 }
@@ -71,19 +71,19 @@ static void
 test_bt_cmd_application_play_non_existing_file (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtCmdApplication *app = bt_cmd_application_new (TRUE);
   check_init_error_trapp ("bt_cmd_application_play",
       "BT_IS_STRING (input_file_name)");
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean ret = bt_cmd_application_play (app, "");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
   fail_unless (ret == FALSE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (app);
   BT_TEST_END;
 }
@@ -93,19 +93,19 @@ static void
 test_bt_cmd_application_info_null_as_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtCmdApplication *app = bt_cmd_application_new (TRUE);
   check_init_error_trapp ("bt_cmd_application_info",
       "BT_IS_STRING (input_file_name)");
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean ret = bt_cmd_application_info (app, NULL, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
   fail_unless (ret == FALSE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (app);
   BT_TEST_END;
 }
@@ -115,19 +115,19 @@ static void
 test_bt_cmd_application_info_non_existing_file (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtCmdApplication *app = bt_cmd_application_new (TRUE);
   check_init_error_trapp ("bt_cmd_application_info",
       "BT_IS_STRING (input_file_name)");
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean ret = bt_cmd_application_info (app, "", NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
   fail_unless (ret == FALSE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (app);
   BT_TEST_END;
 }

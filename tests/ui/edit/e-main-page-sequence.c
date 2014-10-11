@@ -77,15 +77,15 @@ test_bt_main_page_sequence_focus (BT_TEST_ARGS)
 {
   BT_TEST_START;
 
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *widget = gtk_window_get_focus ((GtkWindow *) main_window);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq ("sequence editor", gtk_widget_get_name (widget));
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -94,7 +94,7 @@ static void
 test_bt_main_page_sequence_active_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   // We need to add the fx first as we can't trigger a refresh of the view
   // (main-page-sequence is not listening for "track-added" signal).
   // When adding a src, a track is added automatically and this updates the
@@ -130,7 +130,7 @@ test_bt_main_page_sequence_active_machine (BT_TEST_ARGS)
   // make screenshot, focus on track=labels
   check_make_widget_screenshot ((GtkWidget *) sequence_page, "2");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (sequence_page);
   BT_TEST_END;
 }
@@ -140,7 +140,7 @@ static void
 test_bt_main_page_sequence_enter_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern1 = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -149,15 +149,15 @@ test_bt_main_page_sequence_enter_pattern (BT_TEST_ARGS)
 
   g_object_get (G_OBJECT (pages), "sequence-page", &sequence_page, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   // send a '1' key to insert the pattern we created (not the default)
   check_send_key ((GtkWidget *) sequence_page, 0, '1', 0);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   pattern2 = bt_sequence_get_pattern (sequence, 0, 0);
   fail_unless ((BtCmdPattern *) pattern1 == pattern2);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (sequence_page);
   g_object_unref (pattern2);
   g_object_unref (pattern1);

@@ -49,16 +49,16 @@ static void
 test_bt_settings_singleton (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSettings *settings1 = bt_settings_make ();
 
-  /* act */
+  GST_INFO ("-- act --");
   BtSettings *settings2 = bt_settings_make ();
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (settings1 == settings2, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (settings2);
   g_object_checked_unref (settings1);
   BT_TEST_END;
@@ -68,18 +68,18 @@ static void
 test_bt_settings_get_audiosink1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSettings *settings = bt_settings_make ();
   gchar *saved_audiosink_name =
       check_gobject_get_str_property (settings, "audiosink");
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (settings, "audiosink", "fakesink", NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_str_eq (settings, "audiosink", "fakesink");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_set (settings, "audiosink", saved_audiosink_name, NULL);
   g_free (saved_audiosink_name);
   g_object_unref (settings);

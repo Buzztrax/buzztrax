@@ -176,15 +176,15 @@ static void
 test_bt_change_log_create_and_destroy (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtChangeLog *cl = bt_change_log_new ();
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (cl != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (cl);
   BT_TEST_END;
 }
@@ -193,18 +193,18 @@ static void
 test_bt_change_log_initial_undo_redo_state (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   gboolean can_undo, can_redo;
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (!can_undo, NULL);
   fail_unless (!can_redo, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (cl);
   BT_TEST_END;
 }
@@ -213,20 +213,20 @@ static void
 test_bt_change_log_undo_redo_state_after_single_change (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
   gboolean can_undo, can_redo;
 
-  /* act */
+  GST_INFO ("-- act --");
   make_change (cl, tcl, "set_val 5", "set_val 0");
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (can_undo, NULL);
   fail_unless (!can_redo, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
@@ -236,21 +236,21 @@ static void
 test_bt_change_log_undo_redo_state_single_change_after_undo (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
   gboolean can_undo, can_redo;
 
-  /* act */
+  GST_INFO ("-- act --");
   make_change (cl, tcl, "set_val 5", "set_val 0");
   bt_change_log_undo (cl);
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (!can_undo, NULL);
   fail_unless (can_redo, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
@@ -260,22 +260,22 @@ static void
 test_bt_change_log_undo_redo_state_single_change_after_redo (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
   gboolean can_undo, can_redo;
 
-  /* act */
+  GST_INFO ("-- act --");
   make_change (cl, tcl, "set_val 5", "set_val 0");
   bt_change_log_undo (cl);
   bt_change_log_redo (cl);
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (can_undo, NULL);
   fail_unless (!can_redo, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
@@ -285,22 +285,22 @@ static void
 test_bt_change_log_undo_redo_state_double_change_after_undo (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
   gboolean can_undo, can_redo;
 
-  /* act */
+  GST_INFO ("-- act --");
   make_change (cl, tcl, "set_val 5", "set_val 0");
   make_change (cl, tcl, "set_val 10", "set_val 0");
   bt_change_log_undo (cl);
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (can_undo, NULL);
   fail_unless (can_redo, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
@@ -312,22 +312,22 @@ static void
 test_bt_change_log_undo_redo_state_stack_trunc (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
   gboolean can_undo, can_redo;
 
-  /* act */
+  GST_INFO ("-- act --");
   make_change (cl, tcl, "set_val 5", "set_val 0");
   bt_change_log_undo (cl);
   make_change (cl, tcl, "set_val 10", "set_val 0");
   g_object_get (cl, "can-undo", &can_undo, "can-redo", &can_redo, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (can_undo, NULL);
   fail_unless (!can_redo, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
@@ -338,18 +338,18 @@ static void
 test_bt_change_log_single_change_after_undo (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
-  /* act */
+  GST_INFO ("-- act --");
   make_change (cl, tcl, "set_val 5", "set_val 0");
   bt_change_log_undo (cl);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_int_eq (tcl->val, 0);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
@@ -360,19 +360,19 @@ static void
 test_bt_change_log_single_change_after_redo (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
-  /* act */
+  GST_INFO ("-- act --");
   make_change (cl, tcl, "set_val 5", "set_val 0");
   bt_change_log_undo (cl);
   bt_change_log_redo (cl);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_int_eq (tcl->val, 5);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
@@ -383,7 +383,7 @@ static void
 test_bt_change_log_two_changes (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
@@ -405,7 +405,7 @@ test_bt_change_log_two_changes (BT_TEST_ARGS)
   bt_change_log_redo (cl);
   ck_assert_int_eq (tcl->val, 10);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
@@ -416,7 +416,7 @@ static void
 test_bt_change_log_single_then_double_change (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
@@ -449,7 +449,7 @@ test_bt_change_log_single_then_double_change (BT_TEST_ARGS)
   bt_change_log_redo (cl);
   ck_assert_int_eq (tcl->val, 10);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
@@ -459,7 +459,7 @@ static void
 test_bt_change_log_group (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
@@ -480,7 +480,7 @@ test_bt_change_log_group (BT_TEST_ARGS)
   ck_assert_int_eq (tcl->data_size, 2);
   ck_assert_int_eq (tcl->data[0], 1);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
@@ -491,7 +491,7 @@ static void
 test_bt_change_log_nested_groups (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   BtTestChangeLogger *tcl = bt_test_change_logger_new ();
 
@@ -516,7 +516,7 @@ test_bt_change_log_nested_groups (BT_TEST_ARGS)
   ck_assert_int_eq (tcl->data[0], 1);
   ck_assert_int_eq (tcl->data[1], 1);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (tcl);
   g_object_unref (cl);
   BT_TEST_END;
@@ -526,7 +526,7 @@ static void
 test_bt_change_log_recover (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   gchar *log_name = g_build_filename (g_get_tmp_dir (), "bt-crash.log", NULL);
   gchar content[] =
@@ -537,13 +537,13 @@ test_bt_change_log_recover (BT_TEST_ARGS)
       "BtMainPageMachines::set_machine_property \"synth\",\"xpos\",\"-0.4\"\n";
   g_file_set_contents (log_name, content, strlen (content), NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean res = bt_change_log_recover (cl, log_name);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (res, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   flush_main_loop ();
   g_unlink (log_name);
   g_free (log_name);

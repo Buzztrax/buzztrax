@@ -49,15 +49,15 @@ static void
 test_btic_registry_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtIcRegistry *registry = btic_registry_new ();
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (registry != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (registry);
   BT_TEST_END;
 }
@@ -66,19 +66,19 @@ static void
 test_btic_registry_not_empty (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtIcRegistry *registry = btic_registry_new ();
   btic_registry_add_device ((BtIcDevice *) btic_test_device_new ("test"));
 
-  /* act */
+  GST_INFO ("-- act --");
   GList *devices =
       (GList *) check_gobject_get_ptr_property (registry, "devices");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (devices != NULL, NULL);
   ck_assert_int_gt (g_list_length (devices), 0);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (registry);
   BT_TEST_END;
 }

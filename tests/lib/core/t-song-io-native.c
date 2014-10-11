@@ -56,14 +56,14 @@ static void
 test_bt_song_io_native_broken_file (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("broken1.xml"));
 
   /* act & assert */
   fail_if (bt_song_io_load (song_io, song), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song_io);
   BT_TEST_END;
 }
@@ -73,7 +73,7 @@ static void
 test_bt_song_io_native_load_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("test-simple1.xml"));
   bt_song_io_load (song_io, song);
@@ -84,7 +84,7 @@ test_bt_song_io_native_load_twice (BT_TEST_ARGS)
   /* act & assert */
   fail_unless (bt_song_io_load (song_io, song), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song_io);
   BT_TEST_END;
 }

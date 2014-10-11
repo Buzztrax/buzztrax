@@ -55,13 +55,13 @@ static void
 test_bt_sink_bin_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GstElement *bin = gst_element_factory_make ("bt-sink-bin", NULL);
 
   /* act & assert */
   fail_unless (check_gobject_properties ((GObject *) bin), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   mark_point ();
   BT_TEST_END;
 }

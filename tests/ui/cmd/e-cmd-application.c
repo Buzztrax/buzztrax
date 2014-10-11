@@ -50,16 +50,16 @@ static void
 test_bt_cmd_application_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtCmdApplication *app = bt_cmd_application_new (TRUE);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (app != NULL, NULL);
   ck_assert_int_eq (G_OBJECT_REF_COUNT (app), 1);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (app);
   BT_TEST_END;
 }
@@ -68,17 +68,17 @@ static void
 test_bt_cmd_application_play (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtCmdApplication *app = bt_cmd_application_new (TRUE);
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean ret = bt_cmd_application_play (app,
       check_get_test_song_path ("test-simple1.xml"));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (ret == TRUE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (app);
   BT_TEST_END;
 }
@@ -87,18 +87,18 @@ static void
 test_bt_cmd_application_play_two_files (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtCmdApplication *app = bt_cmd_application_new (TRUE);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_cmd_application_play (app, check_get_test_song_path ("test-simple1.xml"));
   gboolean ret = bt_cmd_application_play (app,
       check_get_test_song_path ("test-simple2.xml"));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (ret == TRUE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (app);
   BT_TEST_END;
 }
@@ -107,21 +107,21 @@ static void
 test_bt_cmd_application_info (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtCmdApplication *app = bt_cmd_application_new (TRUE);
   gchar *tmp_file_name =
       g_build_filename (g_get_tmp_dir (), "test-simple1.xml.txt", NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean ret = bt_cmd_application_info (app,
       check_get_test_song_path ("test-simple1.xml"), tmp_file_name);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (ret == TRUE, NULL);
   fail_unless (check_file_contains_str (NULL, tmp_file_name,
           "song.song_info.name: \"test simple 1\""), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_unlink (tmp_file_name);
   g_free (tmp_file_name);
   g_object_checked_unref (app);

@@ -76,7 +76,7 @@ static void
 test_bt_machine_properties_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
   BtMachine *machine;
   GtkWidget *dialog;
@@ -86,15 +86,15 @@ test_bt_machine_properties_dialog_create (BT_TEST_ARGS)
   machine = BT_MACHINE (bt_source_machine_new (song, "gen", element_names[_i],
           element_voices[_i], NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   dialog = GTK_WIDGET (bt_machine_properties_dialog_new (machine));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   g_object_unref (song);
   BT_TEST_END;
@@ -108,7 +108,7 @@ static void
 test_bt_machine_properties_dialog_update (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
   BtSetup *setup;
   BtMachine *machine;
@@ -121,17 +121,17 @@ test_bt_machine_properties_dialog_update (BT_TEST_ARGS)
   dialog = GTK_WIDGET (bt_machine_properties_dialog_new (machine));
   gtk_widget_show_all (dialog);
 
-  /* act */
+  GST_INFO ("-- act --");
   // play for a while to trigger dialog updates
   bt_song_play (song);
   bt_song_update_playback_position (song);
   flush_main_loop ();
   bt_song_stop (song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   g_object_unref (machine);
   g_object_unref (setup);

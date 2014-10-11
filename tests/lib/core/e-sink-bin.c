@@ -333,15 +333,15 @@ static void
 test_bt_sink_bin_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   GstElement *bin = gst_element_factory_make ("bt-sink-bin", NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (bin != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (bin);
   BT_TEST_END;
 }
@@ -351,7 +351,7 @@ static void
 test_bt_sink_bin_record (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   if (!bt_sink_bin_is_record_format_supported (_i))
     return;
   // see GST_BUG_733031
@@ -368,19 +368,19 @@ test_bt_sink_bin_record (BT_TEST_ARGS)
       "mode", BT_SINK_BIN_MODE_RECORD,
       "record-format", _i, "record-file-name", filename, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   GST_INFO ("act: == %s ==", filename);
   bt_song_play (song);
   run_main_loop_until_eos ();
   bt_song_stop (song);
   g_object_set (sink_bin, "mode", BT_SINK_BIN_MODE_PLAY, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   GST_INFO ("assert: == %s ==", filename);
   fail_unless (g_file_test (filename, G_FILE_TEST_IS_REGULAR));
   ck_assert_str_eq_and_free (get_media_type (filename), media_types[_i]);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_free (filename);
   gst_object_unref (sink_bin);
   BT_TEST_END;
@@ -391,7 +391,7 @@ static void
 test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   if (!bt_sink_bin_is_record_format_supported (_i))
     return;
   // see GST_BUG_733031
@@ -409,19 +409,19 @@ test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
       "mode", BT_SINK_BIN_MODE_PLAY_AND_RECORD,
       "record-format", _i, "record-file-name", filename, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   GST_INFO ("act: == %s ==", filename);
   bt_song_play (song);
   run_main_loop_until_eos ();
   bt_song_stop (song);
   g_object_set (sink_bin, "mode", BT_SINK_BIN_MODE_PLAY, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   GST_INFO ("assert: == %s ==", filename);
   fail_unless (g_file_test (filename, G_FILE_TEST_IS_REGULAR));
   ck_assert_str_eq_and_free (get_media_type (filename), media_types[_i]);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_free (filename);
   gst_object_unref (sink_bin);
   BT_TEST_END;
@@ -432,7 +432,7 @@ static void
 test_bt_sink_bin_master_volume (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   gdouble volume = 1.0 / (gdouble) _i;
   g_object_set (settings, "audiosink", "fakesink", NULL);
   make_new_song ( /*square */ 1);
@@ -448,19 +448,19 @@ test_bt_sink_bin_master_volume (BT_TEST_ARGS)
       NULL);
   g_signal_connect (fakesink, "handoff", (GCallback) handoff_buffer_cb, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (sink_bin, "master-volume", volume, NULL);
   bt_parameter_group_set_param_default (pg,
       bt_parameter_group_get_param_index (pg, "master-volume"));
   bt_song_play (song);
   run_main_loop_until_eos ();
 
-  /* assert */
+  GST_INFO ("-- assert --");
   GST_INFO ("minv=%7.4lf, maxv=%7.4lf", minv, maxv);
   ck_assert_float_eq (maxv, +volume);
   ck_assert_float_eq (minv, -volume);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   gst_object_unref (sink_bin);
   g_object_try_unref (machine);
@@ -472,7 +472,7 @@ static void
 test_bt_sink_bin_analyzers (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "fakesink", NULL);
   make_new_song ( /*square */ 1);
   GstElement *sink_bin = get_sink_bin ();
@@ -491,16 +491,16 @@ test_bt_sink_bin_analyzers (BT_TEST_ARGS)
       NULL);
   g_object_set (sink_bin, "analyzers", analyzers_list, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_play (song);
   run_main_loop_until_eos ();
 
-  /* assert */
+  GST_INFO ("-- assert --");
   GST_INFO ("minv=%7.4lf, maxv=%7.4lf", minv, maxv);
   ck_assert_float_eq (maxv, +1.0);
   ck_assert_float_eq (minv, -1.0);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   gst_object_unref (sink_bin);
   BT_TEST_END;

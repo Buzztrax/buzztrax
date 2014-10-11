@@ -73,15 +73,15 @@ static void
 test_bt_main_page_machines_focus (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *widget = gtk_window_get_focus ((GtkWindow *) main_window);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq ("machine-and-wire-editor", gtk_widget_get_name (widget));
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -89,22 +89,22 @@ static void
 test_bt_main_page_machines_machine_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMainPageMachines *machines_page;
   BtSetup *setup;
 
   g_object_get (song, "setup", &setup, NULL);
   g_object_get (pages, "machines-page", &machines_page, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep1");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machine != NULL, NULL);
   flush_main_loop ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (machine);
   g_object_unref (machines_page);
   g_object_unref (setup);
@@ -115,7 +115,7 @@ static void
 test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMainPageMachines *machines_page;
   BtSetup *setup;
   BtMachine *src_machine;
@@ -133,17 +133,17 @@ test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
   GST_INFO_OBJECT (src_machine, "machine[beep1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (src_machine));
 
-  /* act */
+  GST_INFO ("-- act --");
   // remove the machine and check that it is disposed below
   bt_main_page_machines_delete_machine (machines_page, src_machine);
   flush_main_loop ();
   GST_INFO_OBJECT (src_machine, "machine[beep1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (src_machine));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   g_object_checked_unref (src_machine);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (machines_page);
   g_object_unref (setup);
   BT_TEST_END;
@@ -157,7 +157,7 @@ static void
 test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
   BtSetup *setup;
   BtMainPageMachines *machines_page;
@@ -174,7 +174,7 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_main_page_machines_delete_machine (machines_page, machine);
   flush_main_loop ();
   GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
@@ -193,10 +193,10 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   // grep "0xc0cc30" /tmp/bt_edit/e-main-page-machines/test_bt_main_page_machines_remove_source_machine.log | grep "wire.c
   // wire-canvas-item is getting disposed, but something still has a ref on the wire
 
-  /* assert */
+  GST_INFO ("-- assert --");
   g_object_checked_unref (machine);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (machines_page);
   g_object_unref (setup);
   g_object_unref (song);
@@ -208,7 +208,7 @@ static void
 test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
   BtSetup *setup;
   BtMainPageMachines *machines_page;
@@ -223,17 +223,17 @@ test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
   GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_main_page_machines_delete_machine (machines_page, machine);
   flush_main_loop ();
   GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
   flush_main_loop ();
 
-  /* assert */
+  GST_INFO ("-- assert --");
   g_object_checked_unref (machine);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (machines_page);
   g_object_unref (setup);
   g_object_unref (song);
@@ -244,7 +244,7 @@ static void
 test_bt_main_page_machines_remove_wire (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
   BtSetup *setup;
 
@@ -262,16 +262,16 @@ test_bt_main_page_machines_remove_wire (BT_TEST_ARGS)
   GST_INFO ("wire[sine1->amp1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (wire));
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_remove_wire (setup, wire);
   flush_main_loop ();
   GST_INFO ("wire[sine1->amp1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (wire));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   g_object_checked_unref (wire);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (machine1);
   gst_object_unref (machine2);
   g_object_unref (setup);
@@ -345,7 +345,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   // ref count should be 1 now
   g_object_checked_unref (machine2);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   g_object_unref (song);
   BT_TEST_END;
@@ -355,7 +355,7 @@ static void
 test_bt_main_page_machines_convert_coordinates (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMainPageMachines *machines_page;
   gdouble xr = 0.5, yr = -0.5;
   gdouble xc, yc, xr2, yr2;
@@ -363,17 +363,17 @@ test_bt_main_page_machines_convert_coordinates (BT_TEST_ARGS)
   g_object_get (pages, "machines-page", &machines_page, NULL);
   flush_main_loop ();
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_main_page_machines_relative_coords_to_canvas (machines_page, xr, yr, &xc,
       &yc);
   bt_main_page_machines_canvas_coords_to_relative (machines_page, xc, yc, &xr2,
       &yr2);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_float_eq (xr, xr2);
   ck_assert_float_eq (yr, yr2);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (machines_page);
   BT_TEST_END;
 }

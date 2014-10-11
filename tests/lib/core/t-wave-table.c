@@ -56,13 +56,13 @@ static void
 test_bt_wave_table_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GObject *wave_table = check_gobject_get_object_property (song, "wavetable");
 
   /* act & assert */
   fail_unless (check_gobject_properties (wave_table), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (wave_table);
   BT_TEST_END;
 }
@@ -71,14 +71,14 @@ static void
 test_bt_wave_table_get_beyond_size (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtWavetable *wave_table =
       (BtWavetable *) check_gobject_get_object_property (song, "wavetable");
 
   /* act & assert */
   fail_unless (bt_wavetable_get_wave_by_index (wave_table, 1) == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (wave_table);
   BT_TEST_END;
 }

@@ -61,20 +61,20 @@ static void
 test_bt_settings_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GEnumClass *enum_class = g_type_class_ref (BT_TYPE_SETTINGS_PAGE);
   GEnumValue *enum_value = g_enum_get_value (enum_class, _i);
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *dialog = GTK_WIDGET (bt_settings_dialog_new ());
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   g_object_set (G_OBJECT (dialog), "page", _i, NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (dialog, enum_value->value_nick);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   g_type_class_unref (enum_class);
   BT_TEST_END;

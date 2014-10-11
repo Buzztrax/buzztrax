@@ -74,21 +74,21 @@ static void
 test_bt_machine_canvas_item_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMainPageMachines *machines_page;
 
   g_object_get (pages, "machines-page", &machines_page, NULL);
   bt_main_page_machines_add_source_machine (machines_page, "beep1", "simsyn");
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep1");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtMachineCanvasItem *item =
       bt_machine_canvas_item_new (machines_page, machine, 100.0, 100.0, 1.0);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (item != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   flush_main_loop ();
   gst_object_unref (machine);
   g_object_unref (machines_page);
@@ -99,7 +99,7 @@ static void
 test_bt_machine_canvas_item_show_analyzer (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMainPageMachines *machines_page;
   GtkWidget *dialog;
 
@@ -109,14 +109,14 @@ test_bt_machine_canvas_item_show_analyzer (BT_TEST_ARGS)
   BtMachineCanvasItem *item =
       bt_machine_canvas_item_new (machines_page, machine, 100.0, 100.0, 1.0);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_machine_show_analyzer_dialog (machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   g_object_get (item, "analysis-dialog", &dialog, NULL);
   fail_unless (dialog != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   flush_main_loop ();
   gtk_widget_destroy (dialog);
   gst_object_unref (machine);
@@ -128,7 +128,7 @@ static void
 test_bt_machine_canvas_item_show_preferences (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMainPageMachines *machines_page;
   GtkWidget *dialog;
 
@@ -138,14 +138,14 @@ test_bt_machine_canvas_item_show_preferences (BT_TEST_ARGS)
   BtMachineCanvasItem *item =
       bt_machine_canvas_item_new (machines_page, machine, 100.0, 100.0, 1.0);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_machine_show_preferences_dialog (machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   g_object_get (item, "preferences-dialog", &dialog, NULL);
   fail_unless (dialog != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   flush_main_loop ();
   gtk_widget_destroy (dialog);
   gst_object_unref (machine);
@@ -157,7 +157,7 @@ static void
 test_bt_machine_canvas_item_show_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMainPageMachines *machines_page;
   GtkWidget *dialog;
 
@@ -167,14 +167,14 @@ test_bt_machine_canvas_item_show_properties (BT_TEST_ARGS)
   BtMachineCanvasItem *item =
       bt_machine_canvas_item_new (machines_page, machine, 100.0, 100.0, 1.0);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_machine_show_properties_dialog (machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   g_object_get (item, "properties-dialog", &dialog, NULL);
   fail_unless (dialog != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   flush_main_loop ();
   gtk_widget_destroy (dialog);
   gst_object_unref (machine);

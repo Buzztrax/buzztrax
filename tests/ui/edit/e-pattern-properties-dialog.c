@@ -61,7 +61,7 @@ static void
 test_bt_pattern_properties_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
 
   // create a new song
@@ -71,15 +71,15 @@ test_bt_pattern_properties_dialog_create (BT_TEST_ARGS)
           "buzztrax-test-mono-source", 0, NULL));
   BtPattern *pattern = bt_pattern_new (song, "test", /*length= */ 16, machine);
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *dialog = GTK_WIDGET (bt_pattern_properties_dialog_new (pattern));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   g_object_unref (pattern);
   g_object_unref (song);

@@ -76,15 +76,15 @@ test_bt_main_page_info_focus (BT_TEST_ARGS)
 {
   BT_TEST_START;
 
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *widget = gtk_window_get_focus ((GtkWindow *) main_window);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq ("free text info", gtk_widget_get_name (widget));
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

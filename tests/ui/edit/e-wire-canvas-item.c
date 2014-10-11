@@ -74,7 +74,7 @@ static void
 test_bt_wire_canvas_item_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMainPageMachines *machines_page;
 
   g_object_get (pages, "machines-page", &machines_page, NULL);
@@ -87,14 +87,14 @@ test_bt_wire_canvas_item_create (BT_TEST_ARGS)
       bt_machine_canvas_item_new (machines_page, machine2, 150.0, 150.0, 1.0);
   BtWire *wire = bt_wire_new (song, machine1, machine2, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   BtWireCanvasItem *item =
       bt_wire_canvas_item_new (machines_page, wire, item1, item2);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (item != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   flush_main_loop ();
   gst_object_unref (machine1);
   gst_object_unref (machine2);
@@ -106,7 +106,7 @@ static void
 test_bt_wire_canvas_item_show_analyzer (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMainPageMachines *machines_page;
   GtkWidget *dialog;
 
@@ -122,14 +122,14 @@ test_bt_wire_canvas_item_show_analyzer (BT_TEST_ARGS)
   BtWireCanvasItem *item =
       bt_wire_canvas_item_new (machines_page, wire, item1, item2);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_wire_show_analyzer_dialog (wire);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   g_object_get (item, "analysis-dialog", &dialog, NULL);
   fail_unless (dialog != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   flush_main_loop ();
   gtk_widget_destroy (dialog);
   gst_object_unref (machine1);

@@ -62,17 +62,17 @@ static void
 test_bt_missing_framework_elements_dialog_create_empty (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *dialog =
       GTK_WIDGET (bt_missing_framework_elements_dialog_new (NULL, NULL));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   gtk_widget_show_all (dialog);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   BT_TEST_END;
 }
@@ -81,7 +81,7 @@ static void
 test_bt_missing_framework_elements_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GList *missing_elements = NULL;
 
   // add a space here, so that it cannot be filtered
@@ -89,17 +89,17 @@ test_bt_missing_framework_elements_dialog_create (BT_TEST_ARGS)
   missing_elements =
       g_list_append (missing_elements, "-> You will not see any level-meters");
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *dialog =
       GTK_WIDGET (bt_missing_framework_elements_dialog_new (NULL,
           missing_elements));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   BT_TEST_END;
 }

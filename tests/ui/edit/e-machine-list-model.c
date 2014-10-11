@@ -70,15 +70,15 @@ static void
 test_bt_machine_list_model_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtMachineListModel *model = bt_machine_list_model_new (setup);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (model != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (model);
   BT_TEST_END;
 }
@@ -87,20 +87,20 @@ static void
 test_bt_machine_list_model_get_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GtkTreeIter iter;
   BtMachine *machine1 = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0, NULL));
   BtMachineListModel *model = bt_machine_list_model_new (setup);
   gtk_tree_model_get_iter_first ((GtkTreeModel *) model, &iter);
 
-  /* act */
+  GST_INFO ("-- act --");
   BtMachine *machine2 = bt_machine_list_model_get_object (model, &iter);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machine1 == machine2, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (model);
   BT_TEST_END;
 }

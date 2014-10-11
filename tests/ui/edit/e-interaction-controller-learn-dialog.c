@@ -66,7 +66,7 @@ static void
 test_bt_interaction_controller_learn_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtIcRegistry *ic_registry;
   BtIcDevice *device = NULL;
   GList *node, *list;
@@ -83,16 +83,16 @@ test_bt_interaction_controller_learn_dialog_create (BT_TEST_ARGS)
   g_object_unref (ic_registry);
 
   if (device && BTIC_IS_LEARN (device)) {
-    /* act */
+    GST_INFO ("-- act --");
     GtkWidget *dialog =
         GTK_WIDGET (bt_interaction_controller_learn_dialog_new (device, menu));
 
-    /* assert */
+    GST_INFO ("-- assert --");
     fail_unless (dialog != NULL, NULL);
     gtk_widget_show_all (dialog);
     check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
-    /* cleanup */
+    GST_INFO ("-- cleanup --");
     gtk_widget_destroy (dialog);
   }
   BT_TEST_END;

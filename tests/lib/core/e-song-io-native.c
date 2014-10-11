@@ -168,16 +168,16 @@ static void
 test_bt_song_io_native_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("simple2.xml"));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (song_io != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song_io);
   BT_TEST_END;
 }
@@ -186,17 +186,17 @@ static void
 test_bt_song_io_native_formats (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
   gchar *song_path = make_tmp_song_path ("bt-test0-song.", fi->extension);
 
-  /* act */
+  GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file (song_path);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (song_io != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song_io);
   g_free (song_path);
   BT_TEST_END;
@@ -206,16 +206,16 @@ static void
 test_bt_song_io_native_load (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("simple2.xml"));
 
-  /* act */
+  GST_INFO ("-- act --");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (bt_song_io_load (song_io, song) == TRUE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song_io);
   BT_TEST_END;
 }
@@ -224,18 +224,18 @@ static void
 test_bt_song_io_native_core_refcounts (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("simple2.xml"));
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_io_load (song_io, song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_int_eq (G_OBJECT_REF_COUNT (song), 1);
   assert_song_part_refcounts (song);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song_io);
   BT_TEST_END;
 }
@@ -244,20 +244,20 @@ static void
 test_bt_song_io_native_setup_refcounts_0 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup;
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("test-simple0.xml"));
   g_object_get (song, "setup", &setup, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_io_load (song_io, song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   // 1 x setup
   ck_assert_int_eq (get_machine_refcount (setup, "audio_sink"), 1);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   g_object_checked_unref (song_io);
   BT_TEST_END;
@@ -267,16 +267,16 @@ static void
 test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup;
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("test-simple1.xml"));
   g_object_get (song, "setup", &setup, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_io_load (song_io, song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   // 1 x pipeline, 1 x setup, 1 x wire
   ck_assert_int_eq (get_machine_refcount (setup, "audio_sink"), 3);
   // 1 x pipeline, 1 x setup, 1 x wire, 1 x sequence
@@ -291,7 +291,7 @@ test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
    * grep "ref_ct" /tmp/bt_core.log
    */
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   g_object_checked_unref (song_io);
   BT_TEST_END;
@@ -301,16 +301,16 @@ static void
 test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup;
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("test-simple2.xml"));
   g_object_get (song, "setup", &setup, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_io_load (song_io, song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   // 1 x pipeline, 1 x setup, 1 x wire
   ck_assert_int_eq (get_machine_refcount (setup, "audio_sink"), 3);
   // 1 x pipeline, 1 x setup, 2 x wire
@@ -329,7 +329,7 @@ test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
    * grep "ref_ct" /tmp/bt_core.log
    */
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   g_object_checked_unref (song_io);
   BT_TEST_END;
@@ -339,11 +339,11 @@ static void
 test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GstElement *bin =
       (GstElement *) check_gobject_get_object_property (app, "bin");
 
-  /* act */
+  GST_INFO ("-- act --");
   const gchar *song_name = song_names[_i];
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path (song_name));
@@ -360,7 +360,7 @@ test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
 
   ck_assert_int_eq (GST_BIN_NUMCHILDREN (bin), 0);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (bin);
   BT_TEST_END;
 }
@@ -369,7 +369,7 @@ static void
 test_bt_song_io_write_empty_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
   gchar *song_path = make_tmp_song_path ("bt-test1-song.", fi->extension);
 
@@ -391,7 +391,7 @@ test_bt_song_io_write_empty_song (BT_TEST_ARGS)
   g_object_checked_unref (song);
   song = bt_song_new (app);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_free (song_path);
   BT_TEST_END;
 }
@@ -400,7 +400,7 @@ static void
 test_bt_song_io_write_song_without_externals (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
   gchar *song_path = make_tmp_song_path ("bt-test2-song.", fi->extension);
 
@@ -432,7 +432,7 @@ static void
 test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
   gchar *ext_data_path = g_build_filename (g_get_tmp_dir (), "test.wav", NULL);
   gchar *ext_data_uri = g_strconcat ("file://", ext_data_path, NULL);
@@ -464,7 +464,7 @@ test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
 
   g_free (song_path);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_free (ext_data_uri);
   g_free (ext_data_path);
   BT_TEST_END;
@@ -474,23 +474,23 @@ static void
 test_bt_song_io_native_load_legacy_0_7 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup;
   BtSequence *sequence;
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("legacy1.xml"));
   g_object_get (song, "sequence", &sequence, "setup", &setup, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_io_load (song_io, song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "beep");
   BtCmdPattern *pattern1 = bt_machine_get_pattern_by_name (machine, "beeps");
   BtCmdPattern *pattern2 = bt_sequence_get_pattern (sequence, 0, 0);
   fail_unless (pattern1 == pattern2, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern1);
   g_object_unref (pattern2);
   g_object_unref (machine);

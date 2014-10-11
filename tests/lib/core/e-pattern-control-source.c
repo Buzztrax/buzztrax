@@ -69,17 +69,17 @@ static void
 test_bt_pattern_control_source_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GstObject *m = g_object_new (BT_TYPE_TEST_MONO_SOURCE, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   BtPatternControlSource *pcs = bt_pattern_control_source_new (m, "g-ulong",
       sequence, song_info, machine, pg);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (pcs != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pcs);
   BT_TEST_END;
 }
@@ -88,7 +88,7 @@ static void
 test_bt_pattern_control_source_normal_default_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
@@ -97,13 +97,13 @@ test_bt_pattern_control_source_normal_default_value (BT_TEST_ARGS)
   g_object_set (element, "g-ulong", 10, NULL);
   bt_parameter_group_set_param_default (pg, 0);
 
-  /* act */
+  GST_INFO ("-- act --");
   gst_object_sync_values (GST_OBJECT (element), G_GUINT64_CONSTANT (0));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (element, "g-ulong", 10);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -112,19 +112,19 @@ static void
 test_bt_pattern_control_source_trigger_default_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
 
-  /* act */
+  GST_INFO ("-- act --");
   gst_object_sync_values (GST_OBJECT (element), G_GUINT64_CONSTANT (0));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_int_eq (((BtTestMonoSource *) element)->note_val, GSTBT_NOTE_NONE);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -133,7 +133,7 @@ static void
 test_bt_pattern_control_source_override_default_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
@@ -144,13 +144,13 @@ test_bt_pattern_control_source_override_default_value (BT_TEST_ARGS)
 
   bt_pattern_set_global_event (pattern, 0, 0, "100");
 
-  /* act */
+  GST_INFO ("-- act --");
   gst_object_sync_values (GST_OBJECT (element), G_GUINT64_CONSTANT (0));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (element, "g-ulong", 100);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -159,7 +159,7 @@ static void
 test_bt_pattern_control_source_restore_default_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
@@ -171,13 +171,13 @@ test_bt_pattern_control_source_restore_default_value (BT_TEST_ARGS)
   bt_pattern_set_global_event (pattern, 0, 0, "100");
   bt_pattern_set_global_event (pattern, 0, 0, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   gst_object_sync_values (GST_OBJECT (element), G_GUINT64_CONSTANT (0));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (element, "g-ulong", 10);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -186,20 +186,20 @@ static void
 test_bt_pattern_control_source_change_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
   bt_pattern_set_global_event (pattern, 0, 0, "100");
 
-  /* act */
+  GST_INFO ("-- act --");
   gst_object_sync_values (GST_OBJECT (element), G_GUINT64_CONSTANT (0));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (element, "g-ulong", 100);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -208,7 +208,7 @@ static void
 test_bt_pattern_control_source_hold_normal (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
@@ -218,14 +218,14 @@ test_bt_pattern_control_source_hold_normal (BT_TEST_ARGS)
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
 
-  /* act */
+  GST_INFO ("-- act --");
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (1) * tick_time);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (element, "g-ulong", 50);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -234,7 +234,7 @@ static void
 test_bt_pattern_control_source_release_trigger (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
@@ -244,14 +244,14 @@ test_bt_pattern_control_source_release_trigger (BT_TEST_ARGS)
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
 
-  /* act */
+  GST_INFO ("-- act --");
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (1) * tick_time);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_int_eq (((BtTestMonoSource *) element)->note_val, GSTBT_NOTE_NONE);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -260,7 +260,7 @@ static void
 test_bt_pattern_control_source_combine_pattern_shadows (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtPattern *pattern1 = bt_pattern_new (song, "pattern1", 8L, machine);
   BtPattern *pattern2 = bt_pattern_new (song, "pattern2", 8L, machine);
   g_object_set (sequence, "length", 16L, NULL);
@@ -271,16 +271,16 @@ test_bt_pattern_control_source_combine_pattern_shadows (BT_TEST_ARGS)
   bt_pattern_set_global_event (pattern1, 4, 0, "100");
   bt_pattern_set_global_event (pattern2, 0, 0, "200");  /* value shadows above */
 
-  /* act */
+  GST_INFO ("-- act --");
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (4) * tick_time);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (element, "g-ulong", 200);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern1);
   g_object_unref (pattern2);
   BT_TEST_END;
@@ -290,7 +290,7 @@ static void
 test_bt_pattern_control_source_combine_pattern_unshadows (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtPattern *pattern1 = bt_pattern_new (song, "pattern1", 8L, machine);
   BtPattern *pattern2 = bt_pattern_new (song, "pattern2", 8L, machine);
   g_object_set (sequence, "length", 16L, NULL);
@@ -305,17 +305,17 @@ test_bt_pattern_control_source_combine_pattern_unshadows (BT_TEST_ARGS)
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (4) * tick_time);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_sequence_set_pattern (sequence, 4, 0, NULL);
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (4) * tick_time);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (element, "g-ulong", 100);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern1);
   g_object_unref (pattern2);
   BT_TEST_END;
@@ -325,7 +325,7 @@ static void
 test_bt_pattern_control_source_combine_value_unshadows (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtPattern *pattern1 = bt_pattern_new (song, "pattern1", 8L, machine);
   BtPattern *pattern2 = bt_pattern_new (song, "pattern2", 8L, machine);
   g_object_set (sequence, "length", 16L, NULL);
@@ -340,17 +340,17 @@ test_bt_pattern_control_source_combine_value_unshadows (BT_TEST_ARGS)
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (4) * tick_time);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_pattern_set_global_event (pattern2, 0, 0, NULL);
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (0) * tick_time);
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (4) * tick_time);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (element, "g-ulong", 50);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern1);
   g_object_unref (pattern2);
   BT_TEST_END;
@@ -360,7 +360,7 @@ static void
 test_bt_pattern_control_source_combine_two_tracks (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   g_object_set (sequence, "length", 4L, NULL);
   bt_sequence_add_track (sequence, machine, -1);
@@ -374,15 +374,15 @@ test_bt_pattern_control_source_combine_two_tracks (BT_TEST_ARGS)
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (1) * tick_time);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_sequence_set_pattern (sequence, 1, 1, NULL);
   gst_object_sync_values (GST_OBJECT (element),
       G_GUINT64_CONSTANT (1) * tick_time);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (element, "g-ulong", 100);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }

@@ -69,13 +69,13 @@ static void
 test_bt_parameter_group_param (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtParameterGroup *pg = get_mono_parameter_group ();
 
   /* act && assert */
   ck_assert_int_eq (bt_parameter_group_get_param_index (pg, "g-double"), 1);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -83,13 +83,13 @@ static void
 test_bt_parameter_group_size (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtParameterGroup *pg = get_mono_parameter_group ();
 
   /* act && assert */
   ck_assert_gobject_glong_eq (pg, "num-params", 5);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -98,19 +98,19 @@ static void
 test_bt_parameter_group_describe (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtParameterGroup *pg = get_mono_parameter_group ();
   GValue val = { 0, };
   g_value_init (&val, G_TYPE_ULONG);
   g_value_set_ulong (&val, 1L);
 
-  /* act */
+  GST_INFO ("-- act --");
   gchar *str = bt_parameter_group_describe_param_value (pg, 0, &val);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (str == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_value_unset (&val);
   BT_TEST_END;
 }

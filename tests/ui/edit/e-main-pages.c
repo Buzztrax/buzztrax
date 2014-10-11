@@ -117,7 +117,7 @@ test_bt_main_pages_view_all_tabs (BT_TEST_ARGS)
   }
   g_list_free (children);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -145,10 +145,10 @@ test_bt_main_pages_view_all_tabs_playing (BT_TEST_ARGS)
   }
   bt_song_stop (song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

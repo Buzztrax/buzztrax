@@ -63,17 +63,17 @@ static void
 test_bt_interaction_controller_menu_create_range_menu (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *menu = (GtkWidget *)
       bt_interaction_controller_menu_new (BT_INTERACTION_CONTROLLER_RANGE_MENU,
       NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (menu != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (menu);
   BT_TEST_END;
 }
@@ -82,17 +82,17 @@ static void
 test_bt_interaction_controller_menu_create_trigger_menu (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *menu = (GtkWidget *)
       bt_interaction_controller_menu_new
       (BT_INTERACTION_CONTROLLER_TRIGGER_MENU, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (menu != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (menu);
   BT_TEST_END;
 }

@@ -84,7 +84,7 @@ static void
 test_bt_machine_actions_about_dialog (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
   BtSetup *setup;
   BtMachine *machine;
@@ -98,13 +98,13 @@ test_bt_machine_actions_about_dialog (BT_TEST_ARGS)
   dialog_data.response = GTK_RESPONSE_ACCEPT;
   g_idle_add (leave_dialog, (gpointer) main_window);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_machine_action_about (machine, main_window);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog_data.dialog != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (machine);
   g_object_unref (setup);
   g_object_unref (song);

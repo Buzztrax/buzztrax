@@ -56,18 +56,18 @@ static void
 test_bt_song_info_date_stamps (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
 
-  /* act */
+  GST_INFO ("-- act --");
   gchar *create_dts = check_gobject_get_str_property (song_info, "create-dts");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (create_dts != NULL, NULL);
   ck_assert_gobject_str_eq (song_info, "change-dts", create_dts);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_free (create_dts);
   g_object_unref (song_info);
   BT_TEST_END;
@@ -78,21 +78,21 @@ static void
 test_bt_song_info_update_bpm (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GstClockTime t1, t2;
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
   g_object_set (song_info, "bpm", 120, NULL);
   g_object_get (song_info, "tick-duration", &t1, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (song_info, "bpm", 60, NULL);
   g_object_get (song_info, "tick-duration", &t2, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_uint64_eq (t2, t1 + t1);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (song_info);
   BT_TEST_END;
 }
@@ -101,21 +101,21 @@ static void
 test_bt_song_info_update_tpb (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GstClockTime t1, t2;
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
   g_object_set (song_info, "tpb", 8, NULL);
   g_object_get (song_info, "tick-duration", &t1, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (song_info, "tpb", 4, NULL);
   g_object_get (song_info, "tick-duration", &t2, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_uint64_eq (t2, t1 + t1);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (song_info);
   BT_TEST_END;
 }
@@ -125,18 +125,18 @@ static void
 test_bt_song_info_seconds_since_last_saved (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
 
-  /* act */
+  GST_INFO ("-- act --");
   g_usleep (G_USEC_PER_SEC);
   gint ts = bt_song_info_get_seconds_since_last_saved (song_info);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_int_gt (ts, 0);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (song_info);
   BT_TEST_END;
 }
@@ -145,18 +145,18 @@ static void
 test_bt_song_info_tick_to_time (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
   g_object_set (song_info, "bpm", 250L, "tpb", 16L, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   GstClockTime ts = bt_song_info_tick_to_time (song_info, 8);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_int_eq (ts, 120 * GST_MSECOND);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (song_info);
   BT_TEST_END;
 }

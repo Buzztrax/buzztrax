@@ -62,7 +62,7 @@ static void
 test_bt_crash_recover_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GList *crash_logs = NULL;
   time_t t = time (NULL);
   gchar dts[100];
@@ -75,15 +75,15 @@ test_bt_crash_recover_dialog_create (BT_TEST_ARGS)
   strftime (dts, 99, "%c", localtime (&t));
   crash_logs = g_list_prepend (crash_logs, &crash_log);
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *dialog = GTK_WIDGET (bt_crash_recover_dialog_new (crash_logs));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   g_list_free (crash_logs);
   BT_TEST_END;

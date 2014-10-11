@@ -63,19 +63,19 @@ static void
 test_bt_machine_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   GError *err = NULL;
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           element_names[_i], element_voices[_i], &err));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machine != NULL, NULL);
   fail_unless (err == NULL, NULL);
   fail_unless (!bt_machine_has_patterns (machine), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -86,17 +86,17 @@ static void
 test_bt_machine_enable_input_level1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine =
       BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean res = bt_machine_enable_input_pre_level (machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (res == TRUE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -107,20 +107,20 @@ static void
 test_bt_machine_enable_input_level2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine1 =
       BT_MACHINE (bt_processor_machine_new (song, "vol1", "volume", 0, NULL));
   BtMachine *machine2 =
       BT_MACHINE (bt_processor_machine_new (song, "vol2", "volume", 0, NULL));
   bt_wire_new (song, machine1, machine2, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean res = bt_machine_enable_input_pre_level (machine2);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (res == TRUE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -131,17 +131,17 @@ static void
 test_bt_machine_enable_input_gain1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine =
       BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean res = bt_machine_enable_input_gain (machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (res == TRUE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -152,17 +152,17 @@ static void
 test_bt_machine_enable_output_gain1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine =
       BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean res = bt_machine_enable_output_gain (machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (res == TRUE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -171,17 +171,17 @@ static void
 test_bt_machine_add_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 1L, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (bt_machine_has_patterns (machine), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -190,18 +190,18 @@ static void
 test_bt_machine_rem_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_machine_remove_pattern (machine, (BtCmdPattern *) pattern);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_if (bt_machine_has_patterns (machine), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -210,18 +210,18 @@ static void
 test_bt_machine_unique_pattern_name (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
-  /* act */
+  GST_INFO ("-- act --");
   gchar *pattern_name = bt_machine_get_unique_pattern_name (machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_ne (pattern_name, "pattern-name");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_free (pattern_name);
   g_object_unref (pattern);
 
@@ -232,18 +232,18 @@ static void
 test_bt_machine_next_pattern_name (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "00", 8L, machine);
 
-  /* act */
+  GST_INFO ("-- act --");
   gchar *pattern_name = bt_machine_get_unique_pattern_name (machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq (pattern_name, "01");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_free (pattern_name);
   g_object_unref (pattern);
 
@@ -254,19 +254,19 @@ static void
 test_bt_machine_check_voices (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 2L, NULL));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   GstChildProxy *element =
       (GstChildProxy *) check_gobject_get_object_property (machine, "machine");
   ck_assert_int_eq (gst_child_proxy_get_children_count (element), 2);
   //ck_assert_gobject_gulong_eq(machine,"voices",2);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (element);
   BT_TEST_END;
 }
@@ -278,20 +278,20 @@ static void
 test_bt_machine_change_voices (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *p1 = bt_pattern_new (song, "pattern-name1", 8L, machine);
   BtPattern *p2 = bt_pattern_new (song, "pattern-name2", 8L, machine);
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (machine, "voices", 2, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (p1, "voices", 2);
   ck_assert_gobject_gulong_eq (p2, "voices", 2);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (p1);
   g_object_unref (p2);
   BT_TEST_END;
@@ -301,7 +301,7 @@ static void
 test_bt_machine_state_mute_no_sideeffects (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *src =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
@@ -311,15 +311,15 @@ test_bt_machine_state_mute_no_sideeffects (BT_TEST_ARGS)
   bt_wire_new (song, src, proc, NULL);
   bt_wire_new (song, proc, sink, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (src, "state", BT_MACHINE_STATE_MUTE, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_guint_eq (src, "state", BT_MACHINE_STATE_MUTE);
   ck_assert_gobject_guint_eq (proc, "state", BT_MACHINE_STATE_NORMAL);
   ck_assert_gobject_guint_eq (sink, "state", BT_MACHINE_STATE_NORMAL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -327,7 +327,7 @@ static void
 test_bt_machine_state_solo_unmutes_others (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *src1 =
       BT_MACHINE (bt_source_machine_new (song, "gen1", "audiotestsrc", 0L,
           NULL));
@@ -338,15 +338,15 @@ test_bt_machine_state_solo_unmutes_others (BT_TEST_ARGS)
   bt_wire_new (song, src1, sink, NULL);
   bt_wire_new (song, src2, sink, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (src1, "state", BT_MACHINE_STATE_SOLO, NULL);
   g_object_set (src2, "state", BT_MACHINE_STATE_SOLO, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_guint_eq (src1, "state", BT_MACHINE_STATE_NORMAL);
   ck_assert_gobject_guint_eq (src2, "state", BT_MACHINE_STATE_SOLO);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

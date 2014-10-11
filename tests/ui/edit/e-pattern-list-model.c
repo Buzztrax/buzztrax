@@ -72,18 +72,18 @@ static void
 test_bt_pattern_list_model_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   BtPatternListModel *model = bt_pattern_list_model_new (machine, sequence,
       TRUE);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (model != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (model);
   BT_TEST_END;
 }
@@ -92,7 +92,7 @@ static void
 test_bt_pattern_list_model_get_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GtkTreeIter iter;
   BtMachine *machine = bt_setup_get_machine_by_id (setup, "master");
   BtPattern *pattern1 = bt_pattern_new (song, "test", /*length= */ 16, machine);
@@ -100,13 +100,13 @@ test_bt_pattern_list_model_get_pattern (BT_TEST_ARGS)
       TRUE);
   gtk_tree_model_get_iter_first ((GtkTreeModel *) model, &iter);
 
-  /* act */
+  GST_INFO ("-- act --");
   BtPattern *pattern2 = bt_pattern_list_model_get_object (model, &iter);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (pattern1 == pattern2, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (model);
   g_object_unref (pattern1);
   g_object_unref (machine);

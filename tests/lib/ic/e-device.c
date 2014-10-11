@@ -53,17 +53,17 @@ static void
 test_btic_device_lookup (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   GList *devices =
       (GList *) check_gobject_get_ptr_property (registry, "devices");
   BtIcDevice *device = (BtIcDevice *) devices->data;
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (device != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

@@ -61,16 +61,16 @@ static void
 test_bt_object_list_model_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtObjectListModel *model = bt_object_list_model_new (1, GTK_TYPE_LABEL,
       "label");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (model != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (model);
   BT_TEST_END;
 }
@@ -79,21 +79,21 @@ static void
 test_bt_object_list_model_add_entry (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GtkWidget *l1 = gtk_label_new ("test");
   BtObjectListModel *model = bt_object_list_model_new (1, GTK_TYPE_LABEL,
       "label");
   GtkTreeIter iter;
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_object_list_model_append (model, (GObject *) l1);
   gtk_tree_model_get_iter_first ((GtkTreeModel *) model, &iter);
   GtkWidget *l2 = (GtkWidget *) bt_object_list_model_get_object (model, &iter);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (l1 == l2, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (l1);
   g_object_unref (model);
   BT_TEST_END;

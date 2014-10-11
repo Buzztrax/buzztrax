@@ -70,11 +70,11 @@ static void
 test_bt_edit_application_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (app != NULL, NULL);
   check_make_widget_screenshot (GTK_WIDGET (main_window), NULL);
   {
@@ -94,7 +94,7 @@ test_bt_edit_application_create (BT_TEST_ARGS)
         "highlight", regions);
   }
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -111,20 +111,20 @@ static void
 test_bt_edit_application_run (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSettings *settings = bt_settings_make ();
   // avoid the about dialog
   g_object_set (settings, "news-seen", PACKAGE_VERSION_NUMBER, NULL);
   g_object_unref (settings);
 
-  /* act */
+  GST_INFO ("-- act --");
   g_idle_add (finish_main_loops, NULL);
   bt_edit_application_run (app);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -133,15 +133,15 @@ static void
 test_bt_edit_application_new_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_edit_application_new_song (app);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_object_ne (app, "song", NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -149,16 +149,16 @@ static void
 test_bt_edit_application_new_song_is_saved (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_edit_application_new_song (app);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_boolean_eq (app, "unsaved", FALSE);
   check_make_widget_screenshot (GTK_WIDGET (main_window), "song");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -167,15 +167,15 @@ static void
 test_bt_edit_application_load_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_object_ne (app, "song", NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -183,15 +183,15 @@ static void
 test_bt_edit_application_load_song_is_saved (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_boolean_eq (app, "unsaved", FALSE);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -200,21 +200,21 @@ static void
 test_bt_edit_application_load_songs (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song1, *song2;
   bt_edit_application_load_song (app, check_get_test_song_path ("melo1.xml"));
   g_object_get (app, "song", &song1, NULL);
   g_object_unref (song1);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   g_object_get (app, "song", &song2, NULL);
   fail_unless (song2 != NULL, NULL);
   fail_unless (song2 != song1, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (song2);
   BT_TEST_END;
 }
@@ -224,13 +224,13 @@ static void
 test_bt_edit_application_num_children (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   guint num;
   GstElement *bin;
   g_object_get (app, "bin", &bin, NULL);
   GST_INFO ("song.elements=%d", GST_BIN_NUMCHILDREN (bin));
 
-  /* act */
+  GST_INFO ("-- act --");
   // load for first time
   bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
   num = GST_BIN_NUMCHILDREN (bin);
@@ -239,10 +239,10 @@ test_bt_edit_application_num_children (BT_TEST_ARGS)
   bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
   GST_INFO ("song.elements=%d", GST_BIN_NUMCHILDREN (bin));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (num == GST_BIN_NUMCHILDREN (bin), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (bin);
   BT_TEST_END;
 }
@@ -252,20 +252,20 @@ static void
 test_bt_edit_application_load_song_with_view_disabled (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMainPages *pages;
   g_object_get (G_OBJECT (main_window), "pages", &pages, NULL);
   gtk_notebook_remove_page (GTK_NOTEBOOK (pages), _i);
   g_object_unref (pages);
   GST_INFO ("removed page number %d", _i);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -274,19 +274,19 @@ static void
 test_bt_edit_application_load_and_play (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
 
   bt_edit_application_load_song (app, check_get_test_song_path ("melo1.xml"));
   g_object_get (app, "song", &song, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean playing = bt_song_play (song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (playing == TRUE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   flush_main_loop ();
   bt_song_stop (song);
   g_object_unref (song);
@@ -298,7 +298,7 @@ static void
 test_bt_edit_application_load_while_playing (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
 
   bt_edit_application_load_song (app, check_get_test_song_path ("melo1.xml"));
@@ -306,13 +306,13 @@ test_bt_edit_application_load_while_playing (BT_TEST_ARGS)
   bt_song_play (song);
   g_object_unref (song);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_edit_application_load_song (app, check_get_test_song_path ("melo2.xml"));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

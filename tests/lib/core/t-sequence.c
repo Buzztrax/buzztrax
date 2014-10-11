@@ -57,13 +57,13 @@ static void
 test_bt_sequence_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GObject *sequence = check_gobject_get_object_property (song, "sequence");
 
   /* act & assert */
   fail_unless (check_gobject_properties (sequence), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
   BT_TEST_END;
 }
@@ -73,13 +73,13 @@ static void
 test_bt_sequence_new_null_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   BtSequence *sequence = bt_sequence_new (NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (sequence != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
   BT_TEST_END;
 }
@@ -89,18 +89,18 @@ static void
 test_bt_sequence_add_track1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   check_init_error_trapp ("", "BT_IS_MACHINE (machine)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_sequence_add_track (sequence, NULL, -1);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
@@ -110,18 +110,18 @@ static void
 test_bt_sequence_add_track2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   check_init_error_trapp ("", "BT_IS_SEQUENCE (self)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_sequence_add_track (NULL, machine, -1);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -130,18 +130,18 @@ static void
 test_bt_sequence_rem_track1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   check_init_error_trapp ("", "BT_IS_MACHINE (machine)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_sequence_remove_track_by_machine (sequence, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_try_unref (sequence);
   BT_TEST_END;
 }
@@ -151,19 +151,19 @@ static void
 test_bt_sequence_rem_track2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_sequence_remove_track_by_machine (sequence, machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
   BT_TEST_END;
 }
@@ -173,19 +173,19 @@ static void
 test_bt_sequence_length1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   g_object_set (sequence, "length", 4L, NULL);
   check_init_error_trapp ("bt_sequence_set_label", "time < self->priv->length");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_sequence_set_label (sequence, 5, "test");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
   BT_TEST_END;
 }
@@ -194,7 +194,7 @@ static void
 test_bt_sequence_pattern1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -204,13 +204,13 @@ test_bt_sequence_pattern1 (BT_TEST_ARGS)
   check_init_error_trapp ("bt_sequence_set_pattern",
       "track < self->priv->tracks");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   g_object_unref (sequence);
   BT_TEST_END;
@@ -234,13 +234,13 @@ test_bt_sequence_pattern2 (BT_TEST_ARGS)
   check_init_error_trapp ("bt_sequence_set_pattern",
       "adding a pattern to a track with different machine!");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_sequence_set_pattern (sequence, 0, 1, pattern1);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern1);
   g_object_unref (sequence);
   BT_TEST_END;

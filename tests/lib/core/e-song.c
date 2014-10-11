@@ -102,16 +102,16 @@ static void
 test_bt_song_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtSong *song = bt_song_new (app);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (song != NULL, NULL);
   ck_assert_gobject_object_eq (song, "master", NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song);
   BT_TEST_END;
 }
@@ -122,10 +122,10 @@ static void
 test_bt_song_members (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
 
-  /* act */
+  GST_INFO ("-- act --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtSequence *sequence =
@@ -135,7 +135,7 @@ test_bt_song_members (BT_TEST_ARGS)
   BtWavetable *wavetable =
       (BtWavetable *) check_gobject_get_object_property (song, "wavetable");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_object_eq (song, "app", app);
   fail_unless (setup != NULL, NULL);
   ck_assert_gobject_object_eq (setup, "song", song);
@@ -146,7 +146,7 @@ test_bt_song_members (BT_TEST_ARGS)
   fail_unless (wavetable != NULL, NULL);
   ck_assert_gobject_object_eq (wavetable, "song", song);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   g_object_unref (sequence);
   g_object_unref (songinfo);
@@ -159,13 +159,13 @@ static void
 test_bt_song_master (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = make_new_song ();
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_object_ne (song, "master", NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song);
   BT_TEST_END;
 }
@@ -175,27 +175,27 @@ static void
 test_bt_song_play_single (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = make_new_song ();
   g_signal_connect (song, "notify::is-playing",
       G_CALLBACK (on_song_is_playing_notify), NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_play (song);
   check_run_main_loop_until_playing_or_error (song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (play_signal_invoked, NULL);
   ck_assert_gobject_boolean_eq (song, "is-playing", TRUE);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_stop (song);
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_boolean_eq (song, "is-playing", FALSE);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song);
   BT_TEST_END;
 }
@@ -205,7 +205,7 @@ static void
 test_bt_song_play_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = make_new_song ();
   g_signal_connect (song, "notify::is-playing",
       G_CALLBACK (on_song_is_playing_notify), NULL);
@@ -221,7 +221,7 @@ test_bt_song_play_twice (BT_TEST_ARGS)
   check_run_main_loop_until_playing_or_error (song);
   fail_unless (play_signal_invoked, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -232,20 +232,20 @@ static void
 test_bt_song_play_and_change_sink (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSettings *settings = bt_settings_make ();
   BtSong *song = make_new_song ();
 
   bt_song_play (song);
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (settings, "audiosink", "fakesink", NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -256,7 +256,7 @@ static void
 test_bt_song_play_fallback_sink (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSettings *settings = bt_settings_make ();
   g_object_set (settings, "audiosink", NULL,
       /* TODO(ensonic): this is not writable!
@@ -267,10 +267,10 @@ test_bt_song_play_fallback_sink (BT_TEST_ARGS)
       NULL);
   BtSong *song = make_new_song ();
 
-  /* act */
+  GST_INFO ("-- act --");
   fail_unless (bt_song_play (song), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -281,18 +281,18 @@ static void
 test_bt_song_idle1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = make_new_song ();
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (G_OBJECT (song), "is-idle", TRUE, NULL);
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
   g_object_set (G_OBJECT (song), "is-idle", FALSE, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song);
   BT_TEST_END;
 }
@@ -302,10 +302,10 @@ static void
 test_bt_song_idle2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = make_new_song ();
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (G_OBJECT (song), "is-idle", TRUE, NULL);
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
   // start regular playback, this should stop the idle loop
@@ -313,20 +313,20 @@ test_bt_song_idle2 (BT_TEST_ARGS)
   check_run_main_loop_until_playing_or_error (song);
   GST_INFO ("playing");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_boolean_eq (song, "is-playing", TRUE);
   ck_assert_gobject_boolean_eq (song, "is-idle", TRUE);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_stop (song);
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
   GST_INFO ("stopped");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_boolean_eq (song, "is-playing", FALSE);
   ck_assert_gobject_boolean_eq (song, "is-idle", TRUE);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_set (G_OBJECT (song), "is-idle", FALSE, NULL);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -340,7 +340,7 @@ static void
 test_bt_song_play_two_sources (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
@@ -375,7 +375,7 @@ test_bt_song_play_two_sources (BT_TEST_ARGS)
     fail ("playing song failed");
   }
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (element1);
   gst_object_unref (element2);
   g_object_unref (sequence);
@@ -391,7 +391,7 @@ static void
 test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
@@ -444,7 +444,7 @@ static void
 test_bt_song_play_change_replay (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
@@ -497,7 +497,7 @@ test_bt_song_play_change_replay (BT_TEST_ARGS)
     fail ("playing song failed again");
   }
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (element1);
   gst_object_unref (element2);
   g_object_unref (setup);
@@ -510,19 +510,19 @@ static void
 test_bt_song_play_pos (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = make_new_song ();
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_play (song);
   check_run_main_loop_until_playing_or_error (song);
   g_usleep (G_USEC_PER_SEC / 5);
   bt_song_update_playback_position (song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_gt (song, "play-pos", 0L);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -532,18 +532,18 @@ static void
 test_bt_song_play_pos_on_eos (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = make_new_song ();
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_play (song);
   check_run_main_loop_until_eos_or_error (song);
   bt_song_update_playback_position (song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_ge (song, "play-pos", 64L);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -553,19 +553,19 @@ static void
 test_bt_song_play_pos_after_initial_seek (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = make_new_song ();
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (song, "play-pos", 16L, NULL);
   bt_song_play (song);
   check_run_main_loop_until_playing_or_error (song);
   bt_song_update_playback_position (song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_ge (song, "play-pos", 16L);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -575,10 +575,10 @@ static void
 test_bt_song_play_again_should_restart (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = make_new_song ();
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (song, "play-pos", 48L, NULL);
   bt_song_play (song);
   check_run_main_loop_until_eos_or_error (song);
@@ -586,10 +586,10 @@ test_bt_song_play_again_should_restart (BT_TEST_ARGS)
   check_run_main_loop_until_playing_or_error (song);
   bt_song_update_playback_position (song);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_lt (song, "play-pos", 63L);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   g_object_checked_unref (song);
   BT_TEST_END;

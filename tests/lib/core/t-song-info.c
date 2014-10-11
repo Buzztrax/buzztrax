@@ -56,13 +56,13 @@ static void
 test_bt_song_info_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GObject *song_info = check_gobject_get_object_property (song, "song-info");
 
   /* act & assert */
   fail_unless (check_gobject_properties (song_info), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -71,13 +71,13 @@ static void
 test_bt_song_info_null_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   BtSongInfo *song_info = bt_song_info_new (NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (song_info != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (song_info);
   BT_TEST_END;
 }

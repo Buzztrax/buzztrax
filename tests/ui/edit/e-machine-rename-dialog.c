@@ -62,7 +62,7 @@ static void
 test_bt_machine_rename_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
   BtMachine *machine;
   GtkWidget *dialog;
@@ -74,15 +74,15 @@ test_bt_machine_rename_dialog_create (BT_TEST_ARGS)
       BT_MACHINE (bt_source_machine_new (song, "synth",
           "buzztrax-test-mono-source", 0, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   dialog = GTK_WIDGET (bt_machine_rename_dialog_new (machine));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   g_object_unref (song);
   BT_TEST_END;

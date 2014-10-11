@@ -63,7 +63,7 @@ static void
 test_bt_change_log_recover_while_missing_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtChangeLog *cl = bt_change_log_new ();
   gchar *log_name = g_build_filename (g_get_tmp_dir (), "bt-crash.log", NULL);
   gchar content[] =
@@ -74,13 +74,13 @@ test_bt_change_log_recover_while_missing_machine (BT_TEST_ARGS)
       "BtMainPageMachines::set_machine_property \"synth\",\"xpos\",\"-0.4\"\n";
   g_file_set_contents (log_name, content, strlen (content), NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean res = bt_change_log_recover (cl, log_name);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_if (res, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   flush_main_loop ();
   g_unlink (log_name);
   g_object_unref (cl);

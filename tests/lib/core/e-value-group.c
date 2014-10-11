@@ -73,13 +73,13 @@ static void
 test_bt_value_group_default_empty (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtValueGroup *vg = get_mono_value_group ();
 
   /* act && assert */
   fail_unless (!G_IS_VALUE (bt_value_group_get_event_data (vg, 0, 0)), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -87,16 +87,16 @@ static void
 test_bt_value_group_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtValueGroup *vg = get_mono_value_group ();
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_value_group_set_event (vg, 0, 0, "10");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 0), "10");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -104,20 +104,20 @@ static void
 test_bt_value_group_insert_row (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtValueGroup *vg = get_mono_value_group ();
   bt_value_group_set_event (vg, 0, 0, "10");
   bt_value_group_set_event (vg, 1, 0, "20");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_value_group_insert_full_row (vg, 1);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 0), "10");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 1, 0), NULL);
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 2, 0), "20");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -125,19 +125,19 @@ static void
 test_bt_value_group_delete_row (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtValueGroup *vg = get_mono_value_group ();
   bt_value_group_set_event (vg, 0, 0, "10");
   bt_value_group_set_event (vg, 1, 0, "20");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_value_group_delete_full_row (vg, 0);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 0), "20");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 1, 0), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -145,19 +145,19 @@ static void
 test_bt_value_group_clear_column (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtValueGroup *vg = get_mono_value_group ();
   bt_value_group_set_event (vg, 0, 0, "10");
   bt_value_group_set_event (vg, 1, 0, "20");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_value_group_clear_column (vg, 0, 3, 0);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 0), NULL);
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 1, 0), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -165,21 +165,21 @@ static void
 test_bt_value_group_blend_column (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtValueGroup *vg = get_mono_value_group ();
   bt_value_group_set_event (vg, 0, 0, "10");
   bt_value_group_set_event (vg, 3, 0, "40");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_value_group_blend_column (vg, 0, 3, 0);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 0), "10");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 1, 0), "20");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 2, 0), "30");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 3, 0), "40");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -187,21 +187,21 @@ static void
 test_bt_value_group_flip_column (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtValueGroup *vg = get_mono_value_group ();
   bt_value_group_set_event (vg, 0, 0, "10");
   bt_value_group_set_event (vg, 3, 0, "40");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_value_group_flip_column (vg, 0, 3, 0);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 0), "40");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 1, 0), NULL);
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 2, 0), NULL);
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 3, 0), "10");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -209,19 +209,19 @@ static void
 test_bt_value_group_randomize_column (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtValueGroup *vg = get_mono_value_group ();
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_value_group_randomize_column (vg, 0, 3, 0);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (G_IS_VALUE (bt_value_group_get_event_data (vg, 0, 0)), NULL);
   fail_unless (G_IS_VALUE (bt_value_group_get_event_data (vg, 1, 0)), NULL);
   fail_unless (G_IS_VALUE (bt_value_group_get_event_data (vg, 2, 0)), NULL);
   fail_unless (G_IS_VALUE (bt_value_group_get_event_data (vg, 3, 0)), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -229,17 +229,17 @@ static void
 test_bt_value_group_copy (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtValueGroup *vg1 = get_mono_value_group ();
   bt_value_group_set_event (vg1, 0, 0, "10");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtValueGroup *vg2 = bt_value_group_copy (vg1);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg2, 0, 0), "10");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (vg2);
   BT_TEST_END;
 }

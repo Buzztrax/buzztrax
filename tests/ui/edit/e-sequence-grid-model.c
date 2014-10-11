@@ -72,16 +72,16 @@ static void
 test_bt_sequence_grid_model_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtSequenceGridModel *model = bt_sequence_grid_model_new (sequence, song_info,
       16);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (model != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (model);
   BT_TEST_END;
 }

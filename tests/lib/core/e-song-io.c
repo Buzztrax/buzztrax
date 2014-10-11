@@ -50,15 +50,15 @@ static void
 test_bt_song_io_module_info (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   const GList *mi = bt_song_io_get_module_info_list ();
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (mi != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -66,17 +66,17 @@ static void
 test_bt_song_io_file (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path ("simple2.xml"));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (song_io != NULL, NULL);
   fail_unless (BT_IS_SONG_IO_NATIVE (song_io), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song_io);
   BT_TEST_END;
 }
@@ -85,16 +85,16 @@ static void
 test_bt_song_io_data (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_data (NULL, 0, "audio/x-bzt-xml");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (song_io != NULL, NULL);
   fail_unless (BT_IS_SONG_IO_NATIVE (song_io), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song_io);
   BT_TEST_END;
 }

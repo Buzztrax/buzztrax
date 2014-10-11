@@ -62,17 +62,17 @@ static void
 test_bt_missing_song_elements_dialog_create_empty (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *dialog =
       GTK_WIDGET (bt_missing_song_elements_dialog_new (NULL, NULL));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   gtk_widget_show_all (dialog);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   BT_TEST_END;
 }
@@ -81,24 +81,24 @@ static void
 test_bt_missing_song_elements_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GList *missing_machines = NULL, *missing_waves = NULL;
 
   missing_machines = g_list_append (missing_machines, "TestGenerator");
   missing_waves = g_list_append (missing_waves, "/home/user/sounds/ploink.wav");
   missing_waves = g_list_append (missing_waves, "/home/user/sounds/meep.wav");
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *dialog =
       GTK_WIDGET (bt_missing_song_elements_dialog_new (missing_machines,
           missing_waves));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   BT_TEST_END;
 }

@@ -80,7 +80,7 @@ static void
 test_bt_main_page_patterns_focus (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -88,13 +88,13 @@ test_bt_main_page_patterns_focus (BT_TEST_ARGS)
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
 
-  /* act */
+  GST_INFO ("-- act --");
   GtkWidget *widget = gtk_window_get_focus ((GtkWindow *) main_window);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq ("pattern editor", gtk_widget_get_name (widget));
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   g_object_unref (pattern);
   BT_TEST_END;
@@ -105,7 +105,7 @@ static void
 test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -118,17 +118,17 @@ test_bt_main_page_patterns_enter_note (BT_TEST_ARGS)
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
   move_cursor_to (pattern_editor, 0, 3, 0, 0);
 
-  /* act */
+  GST_INFO ("-- act --");
   // send a 'q' key-press and check that it results in a 'c-' of any octave
   check_send_key (pattern_editor, 0, 'q', 0x18);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   str = bt_pattern_get_global_event (pattern, 0, 3);
   fail_unless (str != NULL, NULL);
   str[2] = '0';
   ck_assert_str_eq_and_free (str, "c-0");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   g_object_unref (pattern);
   BT_TEST_END;
@@ -138,7 +138,7 @@ static void
 test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -150,14 +150,14 @@ test_bt_main_page_patterns_enter_note_off (BT_TEST_ARGS)
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
   move_cursor_to (pattern_editor, 0, 3, 0, 0);
 
-  /* act */
+  GST_INFO ("-- act --");
   check_send_key (pattern_editor, 0, '1', 0x0a);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3),
       "off");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   g_object_unref (pattern);
   BT_TEST_END;
@@ -168,7 +168,7 @@ static void
 test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -182,14 +182,14 @@ test_bt_main_page_patterns_clear_note (BT_TEST_ARGS)
   check_send_key (pattern_editor, 0, 'q', 0x18);
   check_send_key (pattern_editor, 0, GDK_KEY_Page_Up, 0);
 
-  /* act */
+  GST_INFO ("-- act --");
   // send a '.' key-press
   check_send_key (pattern_editor, 0, '.', 0x3c);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   g_object_unref (pattern);
   BT_TEST_END;
@@ -200,7 +200,7 @@ static void
 test_bt_main_page_patterns_enter_switch (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -212,13 +212,13 @@ test_bt_main_page_patterns_enter_switch (BT_TEST_ARGS)
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
   move_cursor_to (pattern_editor, 0, 2, 0, 0);
 
-  /* act */
+  GST_INFO ("-- act --");
   check_send_key (pattern_editor, 0, '1', 0x0a);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 2), "1");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   g_object_unref (pattern);
   BT_TEST_END;
@@ -229,7 +229,7 @@ static void
 test_bt_main_page_patterns_enter_sparse_enum (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -241,13 +241,13 @@ test_bt_main_page_patterns_enter_sparse_enum (BT_TEST_ARGS)
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
   move_cursor_to (pattern_editor, 0, 4, 1, 0);
 
-  /* act */
+  GST_INFO ("-- act --");
   check_send_key (pattern_editor, 0, '1', 0x0a);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 4), "1");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   g_object_unref (pattern);
   BT_TEST_END;
@@ -258,7 +258,7 @@ static void
 test_bt_main_page_patterns_enter_invalid_sparse_enum (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -270,13 +270,13 @@ test_bt_main_page_patterns_enter_invalid_sparse_enum (BT_TEST_ARGS)
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
   move_cursor_to (pattern_editor, 0, 4, 0, 0);
 
-  /* act */
+  GST_INFO ("-- act --");
   check_send_key (pattern_editor, 0, '1', 0x0a);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_if (bt_pattern_test_global_event (pattern, 0, 4));
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   g_object_unref (pattern);
   BT_TEST_END;
@@ -287,7 +287,7 @@ static void
 test_bt_main_page_patterns_enter_sparse_enum_in_2_steps (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -299,15 +299,15 @@ test_bt_main_page_patterns_enter_sparse_enum_in_2_steps (BT_TEST_ARGS)
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
   move_cursor_to (pattern_editor, 0, 4, 0, 0);
 
-  /* act */
+  GST_INFO ("-- act --");
   check_send_key (pattern_editor, 0, '1', 0x0a);
   move_cursor_to (pattern_editor, 0, 4, 1, 0);
   check_send_key (pattern_editor, 0, '4', 0x0d);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 4), "20");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   g_object_unref (pattern);
   BT_TEST_END;
@@ -318,7 +318,7 @@ static void
 test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -330,19 +330,19 @@ test_bt_main_page_patterns_pattern_voices (BT_TEST_ARGS)
   bt_main_page_patterns_show_pattern (pattern_page, pattern);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
 
-  /* act */
+  GST_INFO ("-- act --");
   // change voices
   g_object_set (machine, "voices", 2L, NULL);
   g_object_get (pattern, "voices", &voices, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (voices == 2, NULL);
   // send two tab keys to ensure the new voice is visible
   check_send_key (pattern_editor, 0, GDK_KEY_Tab, 0);
   check_send_key (pattern_editor, 0, GDK_KEY_Tab, 0);
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   g_object_unref (pattern);
   BT_TEST_END;

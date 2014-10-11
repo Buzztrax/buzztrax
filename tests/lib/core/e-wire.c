@@ -56,7 +56,7 @@ static void
 test_bt_wire_can_link (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *gen =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
@@ -65,7 +65,7 @@ test_bt_wire_can_link (BT_TEST_ARGS)
   /* act & assert */
   fail_unless (bt_wire_can_link (gen, sink));
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -73,21 +73,21 @@ static void
 test_bt_wire_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *gen =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
           NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   GError *err = NULL;
   BtWire *wire = bt_wire_new (song, gen, sink, &err);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (wire != NULL, NULL);
   fail_unless (err == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

@@ -62,13 +62,13 @@ static void
 test_bt_song_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GObject *song = (GObject *) bt_song_new (app);
 
   /* act & assert */
   fail_unless (check_gobject_properties (song));
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_checked_unref (song);
   BT_TEST_END;
 }
@@ -78,17 +78,17 @@ static void
 test_bt_song_new_null_app (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   check_init_error_trapp ("bt_song_", "BT_IS_APPLICATION (self->priv->app)");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtSong *song = bt_song_new (NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
   fail_unless (song != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (song);
   BT_TEST_END;
 }
@@ -98,13 +98,13 @@ static void
 test_bt_song_play_empty (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
 
   /* act & assert */
   fail_unless (bt_song_play (song), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -115,17 +115,17 @@ static void
 test_bt_song_play_null (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   check_init_error_trapp ("bt_song_play", "BT_IS_SONG (self)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_song_play (NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -136,7 +136,7 @@ static void
 test_bt_song_play_and_load_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSongIO *loader =
       bt_song_io_from_file (check_get_test_song_path ("test-simple1.xml"));
@@ -145,13 +145,13 @@ test_bt_song_play_and_load_new (BT_TEST_ARGS)
   bt_song_play (song);
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
 
-  /* act */
+  GST_INFO ("-- act --");
   loader = bt_song_io_from_file (check_get_test_song_path ("test-simple2.xml"));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (bt_song_io_load (loader, song), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   bt_song_stop (song);
   g_object_checked_unref (loader);
   g_object_checked_unref (song);

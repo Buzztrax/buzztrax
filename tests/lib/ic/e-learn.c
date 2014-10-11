@@ -53,7 +53,7 @@ static void
 test_btic_learn_register_control (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GList *list = (GList *) check_gobject_get_ptr_property (registry, "devices");
   BtIcDevice *device = NULL;
   for (; list; list = g_list_next (list)) {
@@ -62,14 +62,14 @@ test_btic_learn_register_control (BT_TEST_ARGS)
     }
   }
 
-  /* act */
+  GST_INFO ("-- act --");
   BtIcControl *control =
       btic_learn_register_learned_control (BTIC_LEARN (device), "learn1");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (control != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

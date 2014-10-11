@@ -63,15 +63,15 @@ static void
 test_bt_ui_resources_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtUIResources *res = bt_ui_resources_new ();
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (res != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (res);
   BT_TEST_END;
 }
@@ -80,16 +80,16 @@ static void
 test_bt_ui_resources_singleton (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtUIResources *res1 = bt_ui_resources_new ();
 
-  /* act */
+  GST_INFO ("-- act --");
   BtUIResources *res2 = bt_ui_resources_new ();
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (res1 == res2, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (res2);
   g_object_unref (res1);
   BT_TEST_END;

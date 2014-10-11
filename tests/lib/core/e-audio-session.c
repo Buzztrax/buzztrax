@@ -49,16 +49,16 @@ static void
 test_bt_audio_session_singleton (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtAudioSession *session1 = bt_audio_session_new ();
 
-  /* act */
+  GST_INFO ("-- act --");
   BtAudioSession *session2 = bt_audio_session_new ();
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (session1 == session2, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (session2);
   g_object_checked_unref (session1);
   BT_TEST_END;

@@ -56,18 +56,18 @@ static void
 test_bt_cmd_pattern_obj_mono1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   BtCmdPattern *pattern =
       bt_cmd_pattern_new (song, machine, BT_PATTERN_CMD_MUTE);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_guint_eq (pattern, "command", BT_PATTERN_CMD_MUTE);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -76,18 +76,18 @@ static void
 test_bt_cmd_pattern_obj_poly1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 2L, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   BtCmdPattern *pattern =
       bt_cmd_pattern_new (song, machine, BT_PATTERN_CMD_MUTE);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_guint_eq (pattern, "command", BT_PATTERN_CMD_MUTE);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }

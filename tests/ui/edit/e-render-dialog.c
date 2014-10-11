@@ -61,20 +61,20 @@ static void
 test_bt_render_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GtkWidget *dialog;
 
   bt_edit_application_new_song (app);
 
-  /* act */
+  GST_INFO ("-- act --");
   dialog = GTK_WIDGET (bt_render_dialog_new ());
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   BT_TEST_END;
 }

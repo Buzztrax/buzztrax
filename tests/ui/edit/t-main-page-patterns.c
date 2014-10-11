@@ -85,21 +85,21 @@ test_bt_main_page_patterns_key_press_in_empty_pattern (BT_TEST_ARGS)
   BtMachine *machine;
   GtkWidget *pattern_editor;
 
-  /* arrange */
+  GST_INFO ("-- arrange --");
   machine =
       BT_MACHINE (bt_source_machine_new (song, "gen", "fakesrc", 0, NULL));
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_machine (pattern_page, machine);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
 
-  /* act */
+  GST_INFO ("-- act --");
   check_send_key (pattern_editor, 0, '.', 0x3c);
   check_send_key (pattern_editor, 0, '0', 0x13);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   BT_TEST_END;
 }
@@ -113,20 +113,20 @@ test_bt_main_page_patterns_mouse_click_in_empty_pattern (BT_TEST_ARGS)
   BtMachine *machine;
   GtkWidget *pattern_editor;
 
-  /* arrange */
+  GST_INFO ("-- arrange --");
   machine =
       BT_MACHINE (bt_source_machine_new (song, "gen", "fakesrc", 0, NULL));
   g_object_get (G_OBJECT (pages), "patterns-page", &pattern_page, NULL);
   bt_main_page_patterns_show_machine (pattern_page, machine);
   pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
 
-  /* act */
+  GST_INFO ("-- act --");
   check_send_click (pattern_editor, 1, 10.0, 100.0);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   BT_TEST_END;
 }
@@ -138,7 +138,7 @@ test_bt_main_page_patterns_non_note_key_press (BT_TEST_ARGS)
   BT_TEST_START;
   BtMainPagePatterns *pattern_page;
 
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -147,14 +147,14 @@ test_bt_main_page_patterns_non_note_key_press (BT_TEST_ARGS)
   GtkWidget *pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
   move_cursor_to (pattern_editor, 0, 3, 0, 0);
 
-  /* act */
+  GST_INFO ("-- act --");
   // send a '4' key-press
   check_send_key (pattern_editor, 0, '4', 0x0d);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   g_object_unref (pattern);
   BT_TEST_END;
@@ -167,7 +167,7 @@ test_bt_main_page_patterns_cursor_pos_on_non_note_key (BT_TEST_ARGS)
   BT_TEST_START;
   BtMainPagePatterns *pattern_page;
 
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
@@ -176,16 +176,16 @@ test_bt_main_page_patterns_cursor_pos_on_non_note_key (BT_TEST_ARGS)
   GtkWidget *pattern_editor = gtk_window_get_focus ((GtkWindow *) main_window);
   move_cursor_to (pattern_editor, 0, 3, 0, 0);
 
-  /* act */
+  GST_INFO ("-- act --");
   // send a '4' key-press
   check_send_key (pattern_editor, 0, '4', 0x0d);
   check_send_key (pattern_editor, 0, '1', 0x0a);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 3),
       "off");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern_page);
   g_object_unref (pattern);
   BT_TEST_END;

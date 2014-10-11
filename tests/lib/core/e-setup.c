@@ -56,18 +56,18 @@ static void
 test_bt_setup_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
 
-  /* act */
+  GST_INFO ("-- act --");
   GList *machines, *wires;
   g_object_get (G_OBJECT (setup), "machines", &machines, "wires", &wires, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machines == NULL, NULL);
   fail_unless (wires == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -76,18 +76,18 @@ static void
 test_bt_setup_machine_add_id (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
 
-  /* act */
+  GST_INFO ("-- act --");
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztrax-test-mono-source", 0, NULL));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_eq_and_unref (bt_setup_get_machine_by_id (setup, "src"),
       source);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -96,19 +96,19 @@ static void
 test_bt_setup_machine_rem_id (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztrax-test-mono-source", 0, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_remove_machine (setup, source);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_eq_and_unref (bt_setup_get_machine_by_id (setup, "src"),
       NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -117,20 +117,20 @@ static void
 test_bt_setup_machine_add_updates_list (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztrax-test-mono-source", 0, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   GList *list = (GList *) check_gobject_get_ptr_property (setup, "machines");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (list != NULL, NULL);
   ck_assert_int_eq (g_list_length (list), 1);
   fail_unless ((BtMachine *) list->data == source, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_list_free (list);
   g_object_unref (setup);
   BT_TEST_END;
@@ -140,20 +140,20 @@ static void
 test_bt_setup_wire_add_machine_id (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztrax-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_eq_and_unref (bt_setup_get_wire_by_src_machine (setup,
           source), wire);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -162,21 +162,21 @@ static void
 test_bt_setup_wire_rem_machine_id (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztrax-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_remove_wire (setup, wire);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_eq_and_unref (bt_setup_get_wire_by_src_machine (setup,
           source), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -185,22 +185,22 @@ static void
 test_bt_setup_wire_add_src_list (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztrax-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   GList *list = bt_setup_get_wires_by_src_machine (setup, source);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (list != NULL, NULL);
   ck_assert_int_eq (g_list_length (list), 1);
   ck_assert_gobject_eq_and_unref (BT_WIRE (g_list_first (list)->data), wire);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_list_free (list);
   g_object_unref (setup);
   BT_TEST_END;
@@ -210,22 +210,22 @@ static void
 test_bt_setup_wire_add_dst_list (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztrax-test-mono-source", 0, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, source, sink, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   GList *list = bt_setup_get_wires_by_dst_machine (setup, sink);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (list != NULL, NULL);
   ck_assert_int_eq (g_list_length (list), 1);
   ck_assert_gobject_eq_and_unref (BT_WIRE (g_list_first (list)->data), wire);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_list_free (list);
   g_object_unref (setup);
   BT_TEST_END;
@@ -238,19 +238,19 @@ static void
 test_bt_setup_machine_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "src",
           "buzztrax-test-mono-source", 0, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   BtMachine *machine =
       bt_setup_get_machine_by_type (setup, BT_TYPE_SOURCE_MACHINE);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machine == source, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (machine);
   g_object_unref (setup);
   BT_TEST_END;
@@ -263,19 +263,19 @@ static void
 test_bt_setup_unique_machine_id1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup = BT_SETUP (check_gobject_get_object_property (song, "setup"));
   bt_source_machine_new (song, "src", "buzztrax-test-mono-source", 0, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   gchar *id = bt_setup_get_unique_machine_id (setup, "src");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (id != NULL, NULL);
   ck_assert_gobject_eq_and_unref (bt_setup_get_machine_by_id (setup, id), NULL);
   ck_assert_str_ne (id, "src");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_free (id);
   g_object_unref (setup);
   BT_TEST_END;
@@ -288,7 +288,7 @@ static void
 test_bt_setup_dynamic_add_src (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
@@ -327,7 +327,7 @@ test_bt_setup_dynamic_add_src (BT_TEST_ARGS)
     fail ("playing of song failed");
   }
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -340,7 +340,7 @@ static void
 test_bt_setup_dynamic_rem_src (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
@@ -385,7 +385,7 @@ test_bt_setup_dynamic_rem_src (BT_TEST_ARGS)
     fail ("playing of song failed");
   }
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   g_object_unref (sequence);
   g_object_checked_unref (song);
@@ -399,7 +399,7 @@ static void
 test_bt_setup_dynamic_add_proc (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
@@ -435,7 +435,7 @@ test_bt_setup_dynamic_add_proc (BT_TEST_ARGS)
     fail ("playing song failed");
   }
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
   g_object_checked_unref (song);
   BT_TEST_END;
@@ -449,7 +449,7 @@ static void
 test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
@@ -493,7 +493,7 @@ test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
     fail ("playing song failed");
   }
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   g_object_unref (sequence);
   g_object_checked_unref (song);

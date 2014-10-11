@@ -64,7 +64,7 @@ static void
 test_bt_signal_analysis_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
   BtSetup *setup;
   BtMachine *machine;
@@ -77,15 +77,15 @@ test_bt_signal_analysis_dialog_create (BT_TEST_ARGS)
   machine = bt_setup_get_machine_by_id (setup, "beep1");
   wire = bt_setup_get_wire_by_src_machine (setup, machine);
 
-  /* act */
+  GST_INFO ("-- act --");
   if ((dialog = GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (wire))))) {
-    /* assert */
+    GST_INFO ("-- assert --");
     // if we miss gst-plugins like level or spectrum, we don't get the dialog
     mark_point ();
     gtk_widget_show_all (dialog);
     check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
-    /* cleanup */
+    GST_INFO ("-- cleanup --");
     gtk_widget_destroy (dialog);
   }
   g_object_unref (wire);

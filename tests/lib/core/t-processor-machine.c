@@ -57,18 +57,18 @@ static void
 test_bt_processor_machine_wrong_name (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   GError *err = NULL;
   BtProcessorMachine *machine =
       bt_processor_machine_new (song, "id", "nonsense", 1, &err);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machine != NULL, NULL);
   fail_unless (err != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_error_free (err);
   BT_TEST_END;
 }
@@ -78,18 +78,18 @@ static void
 test_bt_processor_machine_wrong_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
   /*act */
   GError *err = NULL;
   BtProcessorMachine *machine =
       bt_processor_machine_new (song, "id", "autoaudiosink", 1, &err);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machine != NULL, NULL);
   fail_unless (err != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_error_free (err);
   BT_TEST_END;
 }

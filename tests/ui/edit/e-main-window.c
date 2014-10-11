@@ -87,18 +87,18 @@ static void
 test_bt_main_window_message (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   dialog_data.dialog = NULL;
   dialog_data.response = GTK_RESPONSE_ACCEPT;
   g_idle_add (leave_dialog, (gpointer) main_window);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_dialog_message (main_window, "title", "headline", "message");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog_data.dialog != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -107,20 +107,20 @@ static void
 test_bt_main_window_question (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   dialog_data.dialog = NULL;
   dialog_data.response = GTK_RESPONSE_ACCEPT;
   g_idle_add (leave_dialog, (gpointer) main_window);
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean res =
       bt_dialog_question (main_window, "title", "headline", "message");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (res == TRUE, NULL);
   fail_unless (dialog_data.dialog != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -129,18 +129,18 @@ static void
 test_bt_main_window_open_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   dialog_data.dialog = NULL;
   dialog_data.response = GTK_RESPONSE_CANCEL;
   g_idle_add (leave_dialog, (gpointer) main_window);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_main_window_open_song (main_window);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog_data.dialog != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -149,19 +149,19 @@ static void
 test_bt_main_window_save_song_as (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   bt_edit_application_new_song (app);
   dialog_data.dialog = NULL;
   dialog_data.response = GTK_RESPONSE_CANCEL;
   g_idle_add (leave_dialog, (gpointer) main_window);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_main_window_save_song_as (main_window);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog_data.dialog != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -169,17 +169,17 @@ static void
 test_bt_main_window_check_unsaved (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   bt_edit_application_new_song (app);
   GST_INFO ("before act");
 
-  /* act */
+  GST_INFO ("-- act --");
   gboolean res = bt_main_window_check_unsaved_song (main_window, "X", "X");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (res == TRUE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

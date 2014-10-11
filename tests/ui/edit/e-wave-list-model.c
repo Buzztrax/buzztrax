@@ -61,7 +61,7 @@ static void
 test_bt_wave_list_model_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
   BtWavetable *wavetable;
 
@@ -69,13 +69,13 @@ test_bt_wave_list_model_create (BT_TEST_ARGS)
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "wavetable", &wavetable, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   BtWaveListModel *model = bt_wave_list_model_new (wavetable);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (model != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (model);
   g_object_unref (wavetable);
   g_object_unref (song);
@@ -86,7 +86,7 @@ static void
 test_bt_wave_list_model_get_null_wave (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
   BtWavetable *wavetable;
   GtkTreeIter iter;
@@ -97,13 +97,13 @@ test_bt_wave_list_model_get_null_wave (BT_TEST_ARGS)
   BtWaveListModel *model = bt_wave_list_model_new (wavetable);
   gtk_tree_model_get_iter_first ((GtkTreeModel *) model, &iter);
 
-  /* act */
+  GST_INFO ("-- act --");
   BtWave *wave = bt_wave_list_model_get_object (model, &iter);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (wave == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (model);
   g_object_unref (wavetable);
   g_object_unref (song);

@@ -48,13 +48,13 @@ static void
 test_bt_tools_element_check0 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GList *to_check = g_list_prepend (NULL, "__ploink__");
 
-  /* act */
+  GST_INFO ("-- act --");
   GList *missing = bt_gst_check_elements (to_check);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (missing != NULL, NULL);
   ck_assert_str_eq (missing->data, "__ploink__");
   fail_unless (g_list_next (missing) == NULL, NULL);
@@ -65,14 +65,14 @@ static void
 test_bt_tools_element_check1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GList *to_check = g_list_prepend (NULL, "__ploink__");
   to_check = g_list_prepend (to_check, "__bang__");
 
-  /* act */
+  GST_INFO ("-- act --");
   GList *missing = bt_gst_check_elements (to_check);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (missing != NULL, NULL);
   fail_unless (g_list_next (missing) != NULL, NULL);
   fail_unless (g_list_next (g_list_next (missing)) == NULL, NULL);
@@ -83,15 +83,15 @@ static void
 test_bt_str_parse_enum (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   gint v = bt_str_parse_enum (BT_TYPE_MACHINE_STATE, "normal");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_int_eq (v, BT_MACHINE_STATE_NORMAL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -99,16 +99,16 @@ static void
 test_bt_str_format_enum (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
 
-  /* act */
+  GST_INFO ("-- act --");
   const gchar *v = bt_str_format_enum (BT_TYPE_MACHINE_STATE,
       BT_MACHINE_STATE_NORMAL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq (v, "normal");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

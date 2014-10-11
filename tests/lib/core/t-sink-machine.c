@@ -78,19 +78,19 @@ test_bt_sink_machine_settings_name_with_parameter (BT_TEST_ARGS)
 {
   BT_TEST_START;
 
-  /* arrange */
+  GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "osssink sync=false", NULL);
   mark_point ();
 
-  /* act */
+  GST_INFO ("-- act --");
   GError *err = NULL;
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machine != NULL, NULL);
   fail_unless (err == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -103,19 +103,19 @@ static void
 test_bt_sink_machine_settings_name_is_launch_snippet (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "audioconvert ! osssink sync=false",
       NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   GError *err = NULL;
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machine != NULL, NULL);
   fail_unless (err == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -125,18 +125,18 @@ static void
 test_bt_sink_machine_settings_wrong_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "xvimagsink", NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   GError *err = NULL;
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machine != NULL, NULL);
   fail_unless (err == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -146,18 +146,18 @@ static void
 test_bt_sink_machine_settings_wrong_parameters (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "alsasink device=invalid:666", NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   GError *err = NULL;
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machine != NULL, NULL);
   fail_unless (err == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -167,18 +167,18 @@ static void
 test_bt_sink_machine_settings_inexistent_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "doesnotexistssink", NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   GError *err = NULL;
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", &err);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (machine != NULL, NULL);
   fail_unless (err == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -188,7 +188,7 @@ static void
 test_bt_sink_machine_play_fakesink (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "fakesink", NULL);
   make_test_song ();
 
@@ -197,7 +197,7 @@ test_bt_sink_machine_play_fakesink (BT_TEST_ARGS)
   g_usleep (G_USEC_PER_SEC / 10);
   bt_song_stop (song);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -206,7 +206,7 @@ static void
 test_bt_sink_machine_play_wrong_parameters (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "alsasink device=invalid:666", NULL);
   make_test_song ();
 
@@ -215,7 +215,7 @@ test_bt_sink_machine_play_wrong_parameters (BT_TEST_ARGS)
   g_usleep (G_USEC_PER_SEC / 10);
   bt_song_stop (song);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -224,7 +224,7 @@ static void
 test_bt_sink_machine_play_inexistent_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   g_object_set (settings, "audiosink", "doesnotexistssink", NULL);
 
   make_test_song ();
@@ -234,7 +234,7 @@ test_bt_sink_machine_play_inexistent_type (BT_TEST_ARGS)
   g_usleep (G_USEC_PER_SEC / 10);
   bt_song_stop (song);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

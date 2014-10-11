@@ -56,7 +56,7 @@ static void
 test_bt_wire_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *dst =
@@ -66,7 +66,7 @@ test_bt_wire_properties (BT_TEST_ARGS)
   /* act & assert */
   fail_unless (check_gobject_properties ((GObject *) wire), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -75,19 +75,19 @@ static void
 test_bt_wire_new_null_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *dst =
       BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0L, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   BtWire *wire = bt_wire_new (NULL, src, dst, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (wire != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (wire);        // there is no setup to take ownership :/
   BT_TEST_END;
 }
@@ -97,17 +97,17 @@ static void
 test_bt_wire_new_null_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   BtWire *wire = bt_wire_new (NULL, src, NULL, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (wire != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -116,17 +116,17 @@ static void
 test_bt_wire_same_src_and_dst (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine =
       BT_MACHINE (bt_processor_machine_new (song, "id", "volume", 0, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   GError *err = NULL;
   BtWire *wire = bt_wire_new (song, machine, machine, &err);
   fail_unless (wire != NULL, NULL);
   fail_unless (err != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

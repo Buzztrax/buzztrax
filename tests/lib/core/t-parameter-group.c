@@ -56,7 +56,7 @@ static void
 test_bt_param_group_invalid_param (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
           "buzztrax-test-mono-source", 0, NULL));
   BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
@@ -64,7 +64,7 @@ test_bt_param_group_invalid_param (BT_TEST_ARGS)
   /* act && assert */
   ck_assert_int_eq (bt_parameter_group_get_param_index (pg, "nonsense"), -1);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

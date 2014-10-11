@@ -61,18 +61,18 @@ static void
 test_bt_wave_default_levels (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtWave *wave = bt_wave_new (song, "sample1", ext_data_uri, 1, 1.0,
       BT_WAVE_LOOP_MODE_OFF, 0);
 
-  /* act */
+  GST_INFO ("-- act --");
   GList *list = (GList *) check_gobject_get_ptr_property (wave, "wavelevels");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (list != NULL, NULL);
   ck_assert_int_eq (g_list_length (list), 1);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (wave);
   BT_TEST_END;
 }

@@ -56,13 +56,13 @@ static void
 test_bt_setup_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GObject *setup = check_gobject_get_object_property (song, "setup");
 
   /* act & assert */
   fail_unless (check_gobject_properties (setup), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -71,13 +71,13 @@ static void
 test_bt_setup_new_null_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   BtSetup *setup = bt_setup_new (NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (setup != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -87,7 +87,7 @@ static void
 test_bt_setup_add_machine_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -96,7 +96,7 @@ test_bt_setup_add_machine_twice (BT_TEST_ARGS)
   /* act & assert */
   fail_if (bt_setup_add_machine (setup, machine), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -106,7 +106,7 @@ static void
 test_bt_setup_add_wire_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *source = BT_MACHINE (bt_source_machine_new (song, "gen",
@@ -117,7 +117,7 @@ test_bt_setup_add_wire_twice (BT_TEST_ARGS)
   /* act & assert */
   fail_if (bt_setup_add_wire (setup, wire), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -127,16 +127,16 @@ static void
 test_bt_setup_obj4 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   check_init_error_trapp ("bt_setup_add_machine", "BT_IS_SETUP (self)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_add_machine (NULL, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -145,18 +145,18 @@ static void
 test_bt_setup_obj5 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   check_init_error_trapp ("bt_setup_add_machine", "BT_IS_MACHINE (machine)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_add_machine (setup, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -166,16 +166,16 @@ static void
 test_bt_setup_obj6 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   check_init_error_trapp ("bt_setup_add_wire", "BT_IS_SETUP (self)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_add_wire (NULL, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -184,18 +184,18 @@ static void
 test_bt_setup_obj7 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   check_init_error_trapp ("bt_setup_add_wire", "BT_IS_WIRE (wire)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_add_wire (setup, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -205,16 +205,16 @@ static void
 test_bt_setup_obj8 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   check_init_error_trapp ("bt_setup_get_machine_by_id", "BT_IS_SETUP (self)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_get_machine_by_id (NULL, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -223,18 +223,18 @@ static void
 test_bt_setup_obj9 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   check_init_error_trapp ("bt_setup_get_machine_by_id", NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_get_machine_by_id (setup, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -246,17 +246,17 @@ static void
 test_bt_setup_get_wire_by_src_machine1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   check_init_error_trapp ("bt_setup_get_wire_by_src_machine",
       "BT_IS_SETUP (self)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_get_wire_by_src_machine (NULL, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -265,19 +265,19 @@ static void
 test_bt_setup_get_wire_by_src_machine2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   check_init_error_trapp ("bt_setup_get_wire_by_src_machine",
       "BT_IS_MACHINE (src)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_get_wire_by_src_machine (setup, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -287,7 +287,7 @@ static void
 test_bt_setup_get_wires_by_src_machine1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtSourceMachine *src_machine =
@@ -296,13 +296,13 @@ test_bt_setup_get_wires_by_src_machine1 (BT_TEST_ARGS)
   check_init_error_trapp ("bt_setup_get_wires_by_src_machine",
       "BT_IS_SETUP (self)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_get_wires_by_src_machine (NULL, BT_MACHINE (src_machine));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -312,17 +312,17 @@ static void
 test_bt_setup_get_wires_by_src_machine2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   check_init_error_trapp ("bt_setup_get_wires_by_src_machine",
       "BT_IS_MACHINE (src)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_get_wires_by_src_machine (setup, NULL);
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -332,7 +332,7 @@ static void
 test_bt_setup_get_wires_by_src_machine3 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "src",
@@ -342,7 +342,7 @@ test_bt_setup_get_wires_by_src_machine3 (BT_TEST_ARGS)
   /* act & assert */
   fail_if (bt_setup_get_wires_by_src_machine (setup, machine), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -352,19 +352,19 @@ static void
 test_bt_setup_get_wire_by_dst_machine1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   check_init_error_trapp ("bt_setup_get_wire_by_dst_machine",
       "BT_IS_SETUP (self)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_get_wire_by_dst_machine (NULL, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -374,19 +374,19 @@ static void
 test_bt_setup_get_wire_by_dst_machine2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   check_init_error_trapp ("bt_setup_get_wire_by_dst_machine",
       "BT_IS_MACHINE (dst)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_get_wire_by_dst_machine (setup, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -396,20 +396,20 @@ static void
 test_bt_setup_get_wires_by_dst_machine1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *machine = BT_MACHINE (bt_sink_machine_new (song, "dst", NULL));
   check_init_error_trapp ("bt_setup_get_wires_by_dst_machine",
       "BT_IS_SETUP (self)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_get_wires_by_dst_machine (NULL, machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -419,19 +419,19 @@ static void
 test_bt_setup_get_wires_by_dst_machine2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   check_init_error_trapp ("bt_setup_get_wires_by_dst_machine",
       "BT_IS_MACHINE (dst)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_get_wires_by_dst_machine (setup, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -441,7 +441,7 @@ static void
 test_bt_setup_get_wires_by_dst_machine3 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *machine = BT_MACHINE (bt_sink_machine_new (song, "dst", NULL));
@@ -450,7 +450,7 @@ test_bt_setup_get_wires_by_dst_machine3 (BT_TEST_ARGS)
   /* act & assert */
   fail_if (bt_setup_get_wires_by_dst_machine (setup, machine), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -460,16 +460,16 @@ static void
 test_bt_setup_remove_machine_null_setup (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   check_init_error_trapp ("bt_setup_remove_machine", NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_remove_machine (NULL, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -478,16 +478,16 @@ static void
 test_bt_setup_remove_wire_null_setup (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   check_init_error_trapp ("bt_setup_remove_wire", NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_remove_wire (NULL, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -496,18 +496,18 @@ static void
 test_bt_setup_remove_null_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   check_init_error_trapp ("bt_setup_remove_machine", NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_remove_machine (setup, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -517,18 +517,18 @@ static void
 test_bt_setup_remove_null_wire (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   check_init_error_trapp ("bt_setup_remove_wire", NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_remove_wire (setup, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -538,7 +538,7 @@ static void
 test_bt_setup_remove_machine_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "src",
@@ -547,13 +547,13 @@ test_bt_setup_remove_machine_twice (BT_TEST_ARGS)
   bt_setup_remove_machine (setup, gen);
   check_init_error_trapp ("bt_setup_remove_machine", "machine is not in setup");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_remove_machine (setup, gen);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (gen);
   g_object_unref (setup);
   BT_TEST_END;
@@ -564,7 +564,7 @@ static void
 test_bt_setup_remove_wire_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "src",
@@ -575,13 +575,13 @@ test_bt_setup_remove_wire_twice (BT_TEST_ARGS)
   bt_setup_remove_wire (setup, wire);
   check_init_error_trapp ("bt_setup_remove_wire", "wire is not in setup");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_setup_remove_wire (setup, wire);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (wire);
   g_object_unref (setup);
   BT_TEST_END;
@@ -592,7 +592,7 @@ static void
 test_bt_setup_wire_cycle1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *src =
@@ -601,15 +601,15 @@ test_bt_setup_wire_cycle1 (BT_TEST_ARGS)
       BT_MACHINE (bt_processor_machine_new (song, "src", "volume", 0L, NULL));
   bt_wire_new (song, src, dst, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   GError *err = NULL;
   BtWire *wire2 = bt_wire_new (song, dst, src, &err);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (wire2 != NULL, NULL);
   fail_unless (err != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }
@@ -619,7 +619,7 @@ static void
 test_bt_setup_wire_cycle2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtMachine *elem1 =
@@ -633,15 +633,15 @@ test_bt_setup_wire_cycle2 (BT_TEST_ARGS)
   bt_wire_new (song, elem1, elem2, NULL);
   bt_wire_new (song, elem2, elem3, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   GError *err = NULL;
   BtWire *wire3 = bt_wire_new (song, elem3, elem1, &err);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (wire3 != NULL, NULL);
   fail_unless (err != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   BT_TEST_END;
 }

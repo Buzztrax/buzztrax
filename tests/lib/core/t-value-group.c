@@ -56,7 +56,7 @@ static void
 test_bt_value_group_get_beyond_size (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
           "buzztrax-test-mono-source", 0, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
@@ -65,7 +65,7 @@ test_bt_value_group_get_beyond_size (BT_TEST_ARGS)
   /* act && assert */
   fail_unless (bt_value_group_get_event_data (vg, 100, 100) == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }

@@ -56,15 +56,15 @@ static void
 test_bt_core_init0 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   gchar *test_argv[] = { "check_buzztrax", "--bt-version=5" };
   gchar **test_argvptr = test_argv;
   gint test_argc = G_N_ELEMENTS (test_argv);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_init (&test_argc, &test_argvptr);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
   BT_TEST_END;
 }
@@ -74,12 +74,12 @@ static void
 test_bt_core_init1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   gchar *test_argv[] = { "check_buzztrax", "--bt-non-sense" };
   gchar **test_argvptr = test_argv;
   gint test_argc = G_N_ELEMENTS (test_argv);
 
-  /* arrange */
+  GST_INFO ("-- arrange --");
   GOptionContext *ctx = g_option_context_new (NULL);
   g_option_context_add_group (ctx, bt_init_get_option_group ());
   g_option_context_set_ignore_unknown_options (ctx, TRUE);
@@ -88,7 +88,7 @@ test_bt_core_init1 (BT_TEST_ARGS)
   fail_unless (g_option_context_parse (ctx, &test_argc, &test_argvptr, NULL));
   ck_assert_int_eq (test_argc, 2);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_option_context_free (ctx);
   BT_TEST_END;
 }

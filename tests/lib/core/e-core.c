@@ -56,7 +56,7 @@ static void
 test_bt_core_init0 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   bt_init (&test_argc, &test_argvptr);
   BT_TEST_END;
 }
@@ -66,7 +66,7 @@ static void
 test_bt_core_init1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   bt_init (NULL, NULL);
   BT_TEST_END;
 }
@@ -76,15 +76,15 @@ static void
 test_bt_core_init2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   gchar *test_argv[] = { "check_buzztrax", "--bt-version" };
   gchar **test_argvptr = test_argv;
   gint test_argc = G_N_ELEMENTS (test_argv);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_init (&test_argc, &test_argvptr);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_int_eq (test_argc, 1);
   fail_unless (check_file_contains_str (stdout, NULL,
           "libbuzztrax-core-" BT_VERSION " from " PACKAGE_STRING), NULL);

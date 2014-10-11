@@ -64,7 +64,7 @@ static void
 test_bt_machine_preferences_dialog_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtSong *song;
   BtSetup *setup;
   BtMachine *machine;
@@ -75,15 +75,15 @@ test_bt_machine_preferences_dialog_create (BT_TEST_ARGS)
   g_object_get (song, "setup", &setup, NULL);
   machine = bt_setup_get_machine_by_id (setup, "beep1");
 
-  /* act */
+  GST_INFO ("-- act --");
   dialog = GTK_WIDGET (bt_machine_preferences_dialog_new (machine));
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   gtk_widget_show_all (dialog);
   check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
   g_object_unref (machine);
   g_object_unref (setup);

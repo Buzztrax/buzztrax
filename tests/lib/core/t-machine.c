@@ -55,18 +55,18 @@ static void
 test_bt_machine_add_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   check_init_error_trapp ("", "BT_IS_CMD_PATTERN (pattern)");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_machine_add_pattern (gen1, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 
@@ -75,23 +75,23 @@ static void
 test_bt_machine_names (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen2",
           "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (gen1, "id", "beep1", NULL);
   g_object_set (gen2, "id", "beep2", NULL);
   bt_wire_new (song, gen1, sink, NULL);
   bt_wire_new (song, gen2, sink, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   mark_point ();
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   BT_TEST_END;
 }
 

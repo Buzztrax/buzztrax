@@ -56,7 +56,7 @@ static void
 test_bt_cmd_pattern_properties (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtCmdPattern *pattern =
@@ -65,7 +65,7 @@ test_bt_cmd_pattern_properties (BT_TEST_ARGS)
   /* act & assert */
   fail_unless (check_gobject_properties ((GObject *) pattern), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -74,18 +74,18 @@ static void
 test_bt_cmd_pattern_new_null_machine (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   check_init_error_trapp ("bt_cmd_pattern_",
       "BT_IS_MACHINE (self->priv->machine)");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtCmdPattern *pattern = bt_cmd_pattern_new (song, NULL, BT_PATTERN_CMD_MUTE);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (check_has_error_trapped (), NULL);
   fail_unless (pattern != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }

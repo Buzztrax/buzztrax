@@ -49,17 +49,17 @@ static void
 test_bt_application_new (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtApplication *app = bt_test_application_new ();
 
-  /* act */
+  GST_INFO ("-- act --");
   GstElement *bin;
   g_object_get (app, "bin", &bin, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_int_eq (GST_BIN_NUMCHILDREN (bin), 0);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   gst_object_unref (bin);
   g_object_checked_unref (app);
   BT_TEST_END;

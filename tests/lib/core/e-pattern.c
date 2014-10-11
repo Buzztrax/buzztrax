@@ -56,17 +56,17 @@ static void
 test_bt_pattern_name (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_str_eq (pattern, "name", "pattern-name");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -82,17 +82,17 @@ static void
 test_bt_pattern_obj_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           element_names[_i], element_voices[_i], NULL));
 
-  /* act */
+  GST_INFO ("-- act --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (pattern, "voices", element_voices[_i]);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -101,24 +101,24 @@ static void
 test_bt_pattern_obj_mono (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_global_event (pattern, 0, 1, "2.5");
   bt_pattern_set_global_event (pattern, 0, 2, "1");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 1),
       "2.5");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 2), "1");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 6, 0), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -127,18 +127,18 @@ static void
 test_bt_pattern_obj_poly (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 2L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_global_event (pattern, 4, 0, "10");
   bt_pattern_set_voice_event (pattern, 0, 0, 0, "5");
   bt_pattern_set_voice_event (pattern, 4, 0, 0, "10");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
   ck_assert_str_eq_and_free (bt_pattern_get_voice_event (pattern, 4, 0, 0),
       "10");
@@ -153,20 +153,20 @@ static void
 test_bt_pattern_obj_wire1 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *src_machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *sink_machine =
       BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
   BtWire *wire = bt_wire_new (song, src_machine, sink_machine, NULL);
 
-  /* act */
+  GST_INFO ("-- act --");
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, sink_machine);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (bt_pattern_get_wire_group (pattern, wire) != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -175,7 +175,7 @@ static void
 test_bt_pattern_obj_wire2 (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *src_machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *sink_machine =
@@ -183,14 +183,14 @@ test_bt_pattern_obj_wire2 (BT_TEST_ARGS)
   BtWire *wire = bt_wire_new (song, src_machine, sink_machine, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, sink_machine);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_pattern_set_wire_event (pattern, 0, wire, 0, "100");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_wire_event (pattern, 0, wire, 0),
       "100");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -199,24 +199,24 @@ static void
 test_bt_pattern_copy (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 2L, NULL));
   BtPattern *pattern1 = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern1, 0, 0, "5");
   bt_pattern_set_voice_event (pattern1, 4, 0, 0, "10");
 
-  /* act */
+  GST_INFO ("-- act --");
   BtPattern *pattern2 = bt_pattern_copy (pattern1);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (pattern2 != NULL, NULL);
   fail_unless (pattern2 != pattern1, NULL);
   ck_assert_gobject_gulong_eq (pattern2, "voices", 2);
   ck_assert_gobject_gulong_eq (pattern2, "length", 8);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern2, 0, 0), "5");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern1);
   g_object_unref (pattern2);
   BT_TEST_END;
@@ -226,21 +226,21 @@ static void
 test_bt_pattern_has_data (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_global_event (pattern, 4, 0, "10");
 
-  /* assert */
+  GST_INFO ("-- assert --");
   fail_unless (bt_pattern_test_tick (pattern, 0) == TRUE, NULL);
   fail_unless (bt_pattern_test_tick (pattern, 4) == TRUE, NULL);
   fail_unless (bt_pattern_test_tick (pattern, 1) == FALSE, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -249,24 +249,24 @@ static void
 test_bt_pattern_enlarge_length (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_global_event (pattern, 4, 0, "10");
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (pattern, "length", 16L, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (pattern, "length", 16);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 4, 0), "10");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 10, 0),
       NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -275,21 +275,21 @@ static void
 test_bt_pattern_shrink_length (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 16L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_global_event (pattern, 12, 0, "10");
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (pattern, "length", 8L, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (pattern, "length", 8);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -298,17 +298,17 @@ static void
 test_bt_pattern_enlarge_voices (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 1L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_voice_event (pattern, 4, 0, 0, "10");
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (machine, "voices", 2L, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (pattern, "voices", 2);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
   ck_assert_str_eq_and_free (bt_pattern_get_voice_event (pattern, 4, 0, 0),
@@ -316,7 +316,7 @@ test_bt_pattern_enlarge_voices (BT_TEST_ARGS)
   ck_assert_str_eq_and_free (bt_pattern_get_voice_event (pattern, 0, 1, 0),
       NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -325,23 +325,23 @@ static void
 test_bt_pattern_shrink_voices (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-poly-source", 2L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_voice_event (pattern, 4, 0, 0, "10");
 
-  /* act */
+  GST_INFO ("-- act --");
   g_object_set (machine, "voices", 1L, NULL);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (pattern, "voices", 1);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), "5");
   ck_assert_str_eq_and_free (bt_pattern_get_voice_event (pattern, 4, 0, 0),
       "10");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -350,23 +350,23 @@ static void
 test_bt_pattern_insert_row (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_global_event (pattern, 4, 0, "10");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_value_group_insert_row (bt_pattern_get_global_group (pattern), 0, 0);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), NULL);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 1, 0), "5");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 4, 0), NULL);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 5, 0), "10");
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -375,22 +375,22 @@ static void
 test_bt_pattern_delete_row (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, machine);
   bt_pattern_set_global_event (pattern, 0, 0, "5");
   bt_pattern_set_global_event (pattern, 4, 0, "10");
 
-  /* act */
+  GST_INFO ("-- act --");
   bt_value_group_delete_row (bt_pattern_get_global_group (pattern), 0, 0);
 
-  /* assert */
+  GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 0, 0), NULL);
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 3, 0), "10");
   ck_assert_str_eq_and_free (bt_pattern_get_global_event (pattern, 4, 0), NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -399,7 +399,7 @@ static void
 test_bt_pattern_mono_get_global_vg (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
           "buzztrax-test-mono-source", 0, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
@@ -407,7 +407,7 @@ test_bt_pattern_mono_get_global_vg (BT_TEST_ARGS)
   /* act && assert */
   fail_unless (bt_pattern_get_global_group (pattern) != NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }
@@ -416,7 +416,7 @@ static void
 test_bt_pattern_mono_get_voice_vg (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* arrange */
+  GST_INFO ("-- arrange --");
   BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
           "buzztrax-test-mono-source", 0, NULL));
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
@@ -424,7 +424,7 @@ test_bt_pattern_mono_get_voice_vg (BT_TEST_ARGS)
   /* act && assert */
   fail_unless (bt_pattern_get_voice_group (pattern, 1) == NULL, NULL);
 
-  /* cleanup */
+  GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
   BT_TEST_END;
 }

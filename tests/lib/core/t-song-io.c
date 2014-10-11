@@ -50,7 +50,7 @@ static void
 test_bt_song_io_new_null (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file (NULL);
 
   /*assert */
@@ -63,7 +63,7 @@ static void
 test_bt_song_io_new_empty_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file ("");
 
   /*assert */
@@ -76,7 +76,7 @@ static void
 test_bt_song_io_new_wrong_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file ("test");
 
   /*assert */
@@ -89,7 +89,7 @@ static void
 test_bt_song_io_new_inexisting_filename (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file ("test.unk");
 
   /*assert */

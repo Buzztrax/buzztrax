@@ -58,7 +58,7 @@ static void
 test_bt_str_parse_enum_wrong_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   gint v = bt_str_parse_enum (G_TYPE_INVALID, "hello");
 
   /*assert */
@@ -70,7 +70,7 @@ static void
 test_bt_str_parse_enum_null_str (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   gint v = bt_str_parse_enum (BT_TYPE_MACHINE_STATE, NULL);
 
   /*assert */
@@ -82,7 +82,7 @@ static void
 test_bt_str_format_enum_wrong_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   const gchar *v = bt_str_format_enum (G_TYPE_INVALID, 1);
 
   /*assert */
@@ -94,7 +94,7 @@ static void
 test_bt_str_format_enum_wrong_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  /* act */
+  GST_INFO ("-- act --");
   const gchar *v = bt_str_format_enum (BT_TYPE_MACHINE_STATE,
       BT_MACHINE_STATE_COUNT);
 
