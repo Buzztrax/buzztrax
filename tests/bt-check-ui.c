@@ -19,6 +19,12 @@
 /**
  * SECTION::btcheckui:
  * @short_description: ui testing helpers
+ *
+ * This module contains utilities for bringing up the default display on Xvfb 
+ * (if available). One can use the environment variable BT_CHECK_NO_XVFB=1 for
+ * bypassing Xvfb.
+ *
+ * The module also contains tools to make screenshots and inject events.
  */
 
 #include <math.h>
@@ -47,7 +53,7 @@ static GdkDisplayManager *display_manager = NULL;
 static GdkDisplay *default_display = NULL, *test_display = NULL;
 static volatile gboolean wait_for_server;
 static gchar display_name[3];
-static gint display_number;
+static gint display_number = -1;
 
 static void
 __test_server_watch (GPid pid, gint status, gpointer data)
@@ -92,6 +98,10 @@ check_setup_test_server (void)
     NULL
   };
   gboolean found = FALSE, launched = FALSE, trying = TRUE;
+
+  // allow running the test without Xvfb even though we have it.
+  if (g_getenv ("BT_CHECK_NO_XVFB"))
+    return;
 
   server_pid = 0;
   display_number = 0;
