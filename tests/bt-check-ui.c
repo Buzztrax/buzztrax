@@ -99,13 +99,13 @@ check_setup_test_server (void)
   };
   gboolean found = FALSE, launched = FALSE, trying = TRUE;
 
+  server_pid = 0;
+
   // allow running the test without Xvfb even though we have it.
   if (g_getenv ("BT_CHECK_NO_XVFB"))
     return;
 
-  server_pid = 0;
   display_number = 0;
-
   // try display ids starting with '0'
   while (trying) {
     wait_for_server = TRUE;
@@ -322,7 +322,8 @@ check_shutdown_test_server (void)
       g_usleep (G_USEC_PER_SEC);
       wait_count--;
     }
-    GST_INFO ("test server has been shut down");
+    server_pid = 0;
+    GST_INFO ("test server has been shut down (wait_count=%d", wait_count);
   } else {
     GST_WARNING ("no test server");
   }
