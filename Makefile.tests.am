@@ -256,7 +256,7 @@ noinst_songdata = \
 
 EXTRA_DIST += \
 	$(songdata_DATA) $(noinst_songdata) \
-	tests/gtkdoccomplete.sh tests/povalid.sh tests/xmlvalid.sh \
+	tests/povalid.sh tests/xmlvalid.sh tests/shunit2 \
 	tests/bt-cfg.sh.in tests/bt-cmd-info.sh tests/bt-cmd-encode.sh \
 	tests/bt-cmd-cli.sh tests/bt-edit-cli.sh
 

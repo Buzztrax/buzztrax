@@ -29,6 +29,7 @@ AM_LDFLAGS = $(BT_LDFLAGS)
 
 EXTRA_DIST = \
 	org.buzztrax.gschema.xml \
+	$(appdata_in_files) \
 	buzztrax.convert \
 	intltool-extract.in \
 	intltool-merge.in \
