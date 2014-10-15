@@ -1,5 +1,4 @@
 *~
-*~
 .libs
 .deps
 *.o
@@ -68,3 +67,4 @@ cscope.out
 gschemas.compiled
 buzztrax.appdata.xml
 *.test
+bt_*.tar.bz2
