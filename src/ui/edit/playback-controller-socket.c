@@ -21,12 +21,12 @@
  * Allows the coherence upnp backend for buzztrax to remote control and query
  * buzztrax-edit.
  *
- * Function can be tested doing "netcat -n 127.0.0.1 7654". The commands are
- * implemented in client_cmd_parse_and_process(). The protocol uses strings
+ * Functionality can be tested doing "netcat -n 127.0.0.1 7654". The commands
+ * are implemented in client_cmd_parse_and_process(). The protocol uses strings
  * that are delimited by '|' chars.
  *
  * playlist - buzztrax sends a list of labels for the current song
- *   reply is: '|' delimmited label names
+ *   reply is: '|' delimited label names
  * play - play a playlist entry (or from start)
  *   play|&lt;playlist-entry-number&gt;
  * stop - stop playback
