@@ -42,7 +42,7 @@ oneTimeSetUp()
   # create log dir
   mkdir -p $log_dir
   # TODO(ensonic): use an existing Xvfb if possible, configure flag?
-  if [ "$XVFB_PATH" != "" ]; then
+  if [[ "$XVFB_PATH" != "" && "$BT_CHECK_NO_XVFB" == "" ]]; then
     $XVFB_PATH >$log_dir/xvfb.log 2>&1 :9 -ac -nolisten tcp -fp $XFONT_PATH -noreset -screen 0 1024x786x24 -render &
     xvfb_pid=$!
     export DISPLAY=:9
