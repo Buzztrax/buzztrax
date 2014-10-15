@@ -61,4 +61,4 @@ log_dir=/tmp/bt_edit_cli
 # load configuration
 . ./tests/bt-cfg.sh
 # load shunit2
-. ./tests/shunit2
+. $TESTSRCDIR/shunit2

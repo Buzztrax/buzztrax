@@ -1,4 +1,6 @@
 #!/bin/sh
+TESTSRCDIR="@abs_top_srcdir@/tests"
+
 TESTSONGDIR="@abs_top_srcdir@/tests/songs"
 TESTRESULTDIR="@abs_top_builddir@/tests/songs"
 

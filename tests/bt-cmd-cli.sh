@@ -74,4 +74,4 @@ testEncodeCommandGuessFormat() {
 # load configuration
 . ./tests/bt-cfg.sh
 # load shunit2
-. ./tests/shunit2
+. $TESTSRCDIR/shunit2
