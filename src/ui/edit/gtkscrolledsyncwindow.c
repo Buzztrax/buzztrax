@@ -254,8 +254,6 @@ gtk_scrolled_sync_window_class_init (GtkScrolledSyncWindowClass * klass)
    *
    * The kinetic scrolling behavior flags. Kinetic scrolling
    * only applies to devices with source %GDK_SOURCE_TOUCHSCREEN
-   *
-   * Since: 3.4
    */
   g_object_class_install_property (gobject_class,
       PROP_KINETIC_SCROLLING,
@@ -511,8 +509,6 @@ gtk_scrolled_sync_window_get_vadjustment (GtkScrolledSyncWindow * self)
  * Turns kinetic scrolling on or off.
  * Kinetic scrolling only applies to devices with source
  * %GDK_SOURCE_TOUCHSCREEN.
- *
- * Since: 3.4
  **/
 void
 gtk_scrolled_sync_window_set_kinetic_scrolling (GtkScrolledSyncWindow * self,
@@ -551,8 +547,6 @@ gtk_scrolled_sync_window_set_kinetic_scrolling (GtkScrolledSyncWindow * self,
  * Returns the specified kinetic scrolling behavior.
  *
  * Return value: the scrolling behavior flags.
- *
- * Since: 3.4
  */
 gboolean
 gtk_scrolled_sync_window_get_kinetic_scrolling (GtkScrolledSyncWindow * self)
@@ -578,8 +572,6 @@ gtk_scrolled_sync_window_get_kinetic_scrolling (GtkScrolledSyncWindow * self)
  * to set @capture_button_press to %FALSE.
  *
  * This setting only has an effect if kinetic scrolling is enabled.
- *
- * Since: 3.4
  */
 void
 gtk_scrolled_sync_window_set_capture_button_press (GtkScrolledSyncWindow * self,
@@ -598,8 +590,6 @@ gtk_scrolled_sync_window_set_capture_button_press (GtkScrolledSyncWindow * self,
  * scrolling. See gtk_scrolled_sync_window_set_capture_button_press().
  *
  * Returns: %TRUE if button presses are captured during kinetic scrolling
- *
- * Since: 3.4
  */
 gboolean
 gtk_scrolled_sync_window_get_capture_button_press (GtkScrolledSyncWindow * self)
