@@ -31,6 +31,7 @@ TESTS_ENVIRONMENT = \
 	XDG_CACHE_HOME=$(abs_builddir) \
 	GSETTINGS_BACKEND=memory \
 	GSETTINGS_SCHEMA_DIR=$(abs_top_builddir) \
+	NO_AT_BRIDGE=1 \
 	GST_DEBUG_FILE=/dev/null \
 	$(LIBTOOL) --mode=execute
 
