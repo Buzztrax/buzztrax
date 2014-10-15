@@ -23,10 +23,6 @@ SCAN_OPTIONS=--deprecated-guards="BT_DISABLE_DEPRECATED"
 # Extra options to supply to gtkdoc-mkdb.
 MKDB_OPTIONS=--sgml-mode
 
-# Extra options to supply to gtkdoc-mktmpl
-# e.g. MKTMPL_OPTIONS=--only-section-tmpl
-MKTMPL_OPTIONS=
-
 # Extra options to supply to gtkdoc-fixref. Not normally needed.
 FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/ \
 	--extra-dir=$(GTK_PREFIX)/share/gtk-doc/html/ \
