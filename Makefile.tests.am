@@ -266,6 +266,7 @@ test-clean-local:
 	  $(top_builddir)/tests/songs/*.ogg \
 	  $(abs_builddir)/buzztrax/*.log \
 	  $(top_builddir)/event-sound-cache.tdb.* \
+	  $(top_builddir)/bt_*.tar.bz2 \
 	  /tmp/test.wav;
 	@rm -rf gstreamer-1.0;
 	@if test -d $(abs_builddir)/buzztrax; then \

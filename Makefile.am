@@ -135,6 +135,8 @@ distuninstallcheck_listfiles += | grep -v '/var/scrollkeeper'
 distuninstallcheck_listfiles += | grep -v '/share/mime'
 ## Workaround for installing icon theme in own prefix
 distuninstallcheck_listfiles += | grep -v 'icon-theme.cache'
+## Workaround for installing icon theme in own prefix
+distuninstallcheck_listfiles += | grep -v 'mimeinfo.cache'
 
 # the mkdir is needed because of an INTLTOOL bug
 # https://bugs.launchpad.net/intltool/+bug/605826
