@@ -112,6 +112,15 @@ bt_edit_setup (void)
 {
   GST_INFO
       ("................................................................................");
+  /* BUG(???): gdk_init() crashes when running under Xvfb.
+   * it calls gdk_x11_window_foreign_new_for_display() with a window_xid=0
+   * seems to be related to the xsettings manager
+   *
+   * Workaround: BT_CHECK_NO_XVFB=1 make bt_edit.check
+   */
+  gdk_init (&test_argc, &test_argvptr);
+  check_setup_test_display ();
+
   gtk_init (&test_argc, &test_argvptr);
   if (clutter_init (&test_argc, &test_argvptr) != CLUTTER_INIT_SUCCESS)
     exit (1);
@@ -128,14 +137,8 @@ bt_edit_setup (void)
    * src/ui/edit/
    */
 
-  GST_DEBUG_CATEGORY_INIT (bt_edit_debug, "bt-edit", 0,
-      "music production environment / editor ui");
-
   /* cleanup cache dir before (first) test run */
   cleanup_cache_dir ();
-  GST_INFO
-      ("................................................................................");
-  check_setup_test_display ();
   GST_INFO
       ("................................................................................");
 
@@ -178,6 +181,10 @@ main (gint argc, gchar ** argv)
   gst_init (NULL, NULL);
 
   bt_check_init ();
+
+  GST_DEBUG_CATEGORY_INIT (bt_edit_debug, "bt-edit", 0,
+      "music production environment / editor ui");
+
   check_setup_test_server ();
 
   sr = srunner_create (bt_about_dialog_suite ());
