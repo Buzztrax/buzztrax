@@ -1338,6 +1338,8 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
     // only do this if the page really has changed
     if (prev_page_num != BT_MAIN_PAGES_MACHINES_PAGE) {
       GST_DEBUG ("enter machine page");
+      // BUG(???): issue in clutter?
+      clutter_content_invalidate (self->priv->grid_canvas);
     }
   } else {
     // only do this if the page was BT_MAIN_PAGES_MACHINES_PAGE
