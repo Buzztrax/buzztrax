@@ -71,7 +71,7 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
       g_alloca (strlen (_("Copyright \xc2\xa9 2003-%d Buzztrax developer team"))
       + 3);
   sprintf (copyright, _("Copyright \xc2\xa9 2003-%d Buzztrax developer team"),
-      2011);
+      2014);
 
   /* we can get logo via icon name, so this here is just for educational purpose
      GdkPixbuf *logo;
@@ -117,19 +117,11 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (news)),
       //"Development version (do not translate this)"
       _
-      ("This release comes with a large number of smaller changes. Audio settings "
-          "are more flexible and allow to choose a target latency. Jack users will be "
-          "happy to see that we keep the session alive. We rewrote our test suite, "
-          "fixed lots of bugs and refactored a large part of the code base. This "
-          "summer we had a GSoC student, who implemented GStreamer EncodeBin support, "
-          "which improves the song rendering code, wrote a audio-synth baseclass that "
-          "greatly simplifies writing a new synth and wrote the pattern control source "
-          "that allowed us to remove a lot of complicated code from the sequencer "
-          "core.\n"
-          "The gst-buzztrax module got more modular. There are a few new plugins "
-          "(sidsyn, wave-replay and wavetabsyn).\n"
-          "We changed all modules to use non recursive make and we merged bsl into "
-          "buzztrax to make development easier."), -1);
+      ("This release port the code base to the recent version of the libraries "
+          "we're using. We switched from gstreamer-0.10 to 1.2, from gtk+-2.x to "
+          "gtk+3.x, from gconf to gsettings and replaced gnomecanvas by clutter. "
+          "We've stared to make use of the new features in some places (e.g. "
+          "exporting labels in rendered songs)."), -1);
 
   news_view = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (news_view),
