@@ -1186,6 +1186,7 @@ add_to_pipeline (const BtSetup * const self)
     GST_INFO_OBJECT (peer,
         "updating pipeline for add via probe ----------------------");
   } else {
+    g_mutex_lock (&self->priv->update_mutex);
     async_add_to_pipeline (NULL, NULL, (gpointer) self);
   }
 }
@@ -1293,6 +1294,7 @@ remove_from_pipeline (const BtSetup * const self)
         "updating pipeline for del via probe ----------------------");
     gst_object_unref (peer);
   } else {
+    g_mutex_lock (&self->priv->update_mutex);
     async_remove_from_pipeline (NULL, NULL, (gpointer) self);
   }
 }
