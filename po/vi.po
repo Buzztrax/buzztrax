@@ -1,15 +1,16 @@
-# Vietnamese translation for Buzztrax.
-# Copyright © 2012 Free Software Foundation, Inc.
+# Vietnamese translation for buzztrax.
+# Bản dịch tiếng Việt dành cho buzztrax.
+# Copyright © 2014 Free Software Foundation, Inc.
 # This file is distributed under the same license as the buzztrax package.
 # Clytie Siddall <clytie@riverland.net.au>, 2010.
-# Trần Ngọc Quân <vnwildman@gmail.com>, 2012.
+# Trần Ngọc Quân <vnwildman@gmail.com>, 2012-2014.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztrax-0.7.0\n"
+"Project-Id-Version: buzztrax 0.8.0\n"
 "Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2012-12-22 16:49+0100\n"
-"PO-Revision-Date: 2012-12-25 09:29+0700\n"
+"POT-Creation-Date: 2014-10-15 17:11+0200\n"
+"PO-Revision-Date: 2014-10-18 07:51+0700\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: Vietnamese <translation-team-vi@lists.sourceforge.net>\n"
 "Language: vi\n"
@@ -18,106 +19,114 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Team-Website: <http://translationproject.org/team/vi.html>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: LocFactoryEditor 1.8\n"
+"X-Generator: Poedit 1.5.5\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: ../src/lib/core/core.c:180
+#: ../buzztrax.appdata.xml.in.h:1
+msgid "Fully integrated music composer."
+msgstr "Bộ soạn nhạc tích hợp đầy đủ."
+
+#: ../buzztrax.appdata.xml.in.h:2
+msgid "Buzztrax is a music composer similar to tracker applications. It is roughly modelled after the windows only, closed source application called Buzz."
+msgstr "Buzztrax là bộ soạn nhạc tương tự như các ứng dụng theo dõi. Nó đại thể được mô hình chỉ sau cửa sổ, ứng dụng nguồn đóng có tên là Buzz."
+
+#: ../src/lib/core/core.c:183
 msgid "Print the buzztrax core version"
 msgstr "Hiển thị phiên bản lõi buzztrax"
 
-#: ../src/lib/core/core.c:186
+#: ../src/lib/core/core.c:189
 msgid "Buzztrax core options"
 msgstr "Tùy chọn lõi buzztrax"
 
-#: ../src/lib/core/core.c:187
+#: ../src/lib/core/core.c:190
 msgid "Show buzztrax core options"
 msgstr "Hiển thị các tuỳ chọn lõi của buzztrax"
 
-#: ../src/lib/core/cmd-pattern.c:148
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "normal"
 msgstr "bình thường"
 
-#: ../src/lib/core/cmd-pattern.c:148
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "break"
 msgstr "ngắt"
 
-#: ../src/lib/core/cmd-pattern.c:148
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "mute"
 msgstr "câm"
 
-#: ../src/lib/core/cmd-pattern.c:148
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "solo"
 msgstr "đơn"
 
-#: ../src/lib/core/cmd-pattern.c:148
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "bypass"
 msgstr "đi vòng"
 
-#: ../src/lib/core/song-io-native-bzt.c:246
-#: ../src/lib/core/song-io-native-xml.c:56
-#: ../src/lib/core/songio/bsl/song-io-buzz.c:2256
+#: ../src/lib/core/song-io-native-bzt.c:250
+#: ../src/lib/core/song-io-native-xml.c:58
+#: ../src/lib/core/songio/bsl/song-io-buzz.c:2272
 #, c-format
 msgid "Loading file '%s'"
 msgstr "Đang nạp tập tin “%s”"
 
-#: ../src/lib/core/song-io-native-bzt.c:371
-#: ../src/lib/core/song-io-native-xml.c:124
+#: ../src/lib/core/song-io-native-bzt.c:376
+#: ../src/lib/core/song-io-native-xml.c:127
 #, c-format
 msgid "Saving file '%s'"
 msgstr "Đang lưu tập tin “%s”"
 
 #. default name for new songs
-#: ../src/lib/core/song-info.c:117
+#: ../src/lib/core/song-info.c:122
 msgid "untitled song"
-msgstr "bài hát không tên"
+msgstr "bài hát chưa đặt tên"
 
 #: ../src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in.h:1
 #: ../src/ui/edit/buzztrax-edit.desktop.in.h:1
 msgid "Buzztrax Music Editor"
 msgstr "Trình soạn thảo Âm thanh Buzztrax"
 
-#: ../src/lib/ic/ic.c:107
+#: ../src/lib/ic/ic.c:108
 msgid "Print the buzztrax interaction controller version"
 msgstr "Hiển thị phiên bản của trình điều khiển chức năng tương tác buzztrax"
 
-#: ../src/lib/ic/ic.c:113
+#: ../src/lib/ic/ic.c:114
 msgid "Buzztrax interaction controller options"
 msgstr "Tuỳ chọn điều khiển buzztrax tương tác"
 
-#: ../src/lib/ic/ic.c:114
+#: ../src/lib/ic/ic.c:115
 msgid "Show buzztrax interaction controller options"
 msgstr "Hiển thị các tuỳ chọn về trình điều khiển chức năng tương tác buzztrax"
 
-#: ../src/ui/cmd/bt-cmd.c:81 ../src/ui/edit/bt-edit.c:91
+#: ../src/ui/cmd/bt-cmd.c:84 ../src/ui/edit/bt-edit.c:92
 msgid "Print application version"
 msgstr "Hiển thị phiên bản của ứng dụng"
 
-#: ../src/ui/cmd/bt-cmd.c:82
+#: ../src/ui/cmd/bt-cmd.c:85
 msgid "Be quiet"
 msgstr "Chạy im"
 
-#: ../src/ui/cmd/bt-cmd.c:83 ../src/ui/edit/bt-edit.c:93
+#: ../src/ui/cmd/bt-cmd.c:86 ../src/ui/edit/bt-edit.c:94
 msgid "Command name"
 msgstr "Tên lệnh"
 
-#: ../src/ui/cmd/bt-cmd.c:85 ../src/ui/edit/bt-edit.c:97
+#: ../src/ui/cmd/bt-cmd.c:88 ../src/ui/edit/bt-edit.c:98
 msgid "Input file name"
 msgstr "Tên tập tin nhập"
 
-#: ../src/ui/cmd/bt-cmd.c:86 ../src/ui/cmd/bt-cmd.c:88
-#: ../src/ui/edit/bt-edit.c:97
+#: ../src/ui/cmd/bt-cmd.c:89 ../src/ui/cmd/bt-cmd.c:91
+#: ../src/ui/edit/bt-edit.c:98
 msgid "<songfile>"
 msgstr "<tệp_hát>"
 
-#: ../src/ui/cmd/bt-cmd.c:87
+#: ../src/ui/cmd/bt-cmd.c:90
 msgid "Output file name"
 msgstr "Tên tập tin kết xuất"
 
-#: ../src/ui/cmd/bt-cmd.c:109
+#: ../src/ui/cmd/bt-cmd.c:105
 msgid "buzztrax-cmd options"
 msgstr "Tuỳ chọn buzztrax-cmd"
 
-#: ../src/ui/cmd/bt-cmd.c:110
+#: ../src/ui/cmd/bt-cmd.c:106
 msgid "Show buzztrax-cmd options"
 msgstr "Hiển thị các tuỳ chọn về buzztrax-cmd"
 
@@ -125,7 +134,7 @@ msgstr "Hiển thị các tuỳ chọn về buzztrax-cmd"
 #. * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net>
 #: ../src/ui/edit/about-dialog.c:68
 msgid "translator-credits"
-msgstr "Clytie Siddall <clytie@riverland.net.au>; Trần Ngọc Quân <vnwildman@gmail.com>, 2012."
+msgstr "Clytie Siddall <clytie@riverland.net.au>; Trần Ngọc Quân <vnwildman@gmail.com>."
 
 #: ../src/ui/edit/about-dialog.c:71 ../src/ui/edit/about-dialog.c:73
 #, c-format
@@ -144,16 +153,15 @@ msgid ""
 "\n"
 "You should have received a copy of the GNU Library General Public License along with this package; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA."
 msgstr ""
-"Chương trình này là phần mềm dùng tự do; bạn có thể phân phối lại và/hay sửa đổí nó với điều kiện của Giấy Phép Công Cộng GNU (GPL) được xuất bản do Tổ Chức Quỹ Phần Mềm Tự Do; hoặc phiên bản 2, hoặc (tùy chọn) bất cứ phiên bản sau nào.\n"
+"Chương trình này là phần mềm dùng tự do; bạn có thể phân phối lại và/hay sửa đổí nó với điều kiện của Giấy Phép Công Cộng GNU (GPL) được xuất bản do Tổ Chức Quỹ Phần Mềm Tự Do; hoặc phiên bản 2, hoặc (tùy chọn) bất cứ phiên bản nào mới hơn.\n"
 "\n"
 "Gói phần mềm này được phân phối với mong muốn nó hữu ích, nhưng không bảo đảm gì cả, không bảo đảm một cách ngụ ý\n"
 "khả năng bán hay khả năng làm việc dứt khoát.\n"
 "Xem Giấy Phép Công Cộng GNU để tìm thấy chi tiết thêm.\n"
 "\n"
-"Bạn nên lấy một bản Giấy Phép Công Cộng GNU cùng với chương trình này; nếu không thì hãy viết thư cho\n"
-"Free Software Foundation, Inc.,\n"
-"59 Temple Place - Suite 330, Boston,\n"
-"MA 02111-1307, USA (Mỹ)."
+"Bạn nên lấy một bản Giấy Phép Công Cộng GNU cùng với chương trình này;\n"
+"nếu không thì hãy viết thư cho Tổ chức Phần mềm Tự do theo địa chỉ:\n"
+"51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA (Mỹ)."
 
 #: ../src/ui/edit/about-dialog.c:120
 msgid ""
@@ -165,11 +173,11 @@ msgstr ""
 "Mô-đun gst-buzztrax có nhiều mô-đun hơn. Có một số phần mở rộng mới (sidsyn, wave-replay và wavetabsyn).\n"
 "Chúng tôi thay đổi tất cả các mô-đun làm cho chúng không đệ quy nhau và chúng tôi cũng hòa trộng bsl vào trong buzztrax để việc phát triển phần mềm trở nên dễ dàng hơn."
 
-#: ../src/ui/edit/bt-edit.c:122
+#: ../src/ui/edit/bt-edit.c:107
 msgid "buzztrax-edit options"
 msgstr "Tuỳ chọn buzztrax-edit"
 
-#: ../src/ui/edit/bt-edit.c:123
+#: ../src/ui/edit/bt-edit.c:108
 msgid "Show buzztrax-edit options"
 msgstr "Hiển thị các tùy chọn về chức năng chỉnh sửa buzztrax-edit"
 
@@ -177,20 +185,20 @@ msgstr "Hiển thị các tùy chọn về chức năng chỉnh sửa buzztrax-e
 msgid "Edit buzztrax song files"
 msgstr "Sửa các tập tin âm thanh buzztrax"
 
-#: ../src/ui/edit/change-log.c:584
+#: ../src/ui/edit/change-log.c:643
 msgid "unsaved song"
 msgstr "bài hát chưa được ghi lại"
 
 #. the song recovery has been finished
-#: ../src/ui/edit/crash-recover-dialog.c:167
+#: ../src/ui/edit/crash-recover-dialog.c:174
 msgid "Recovery finished"
 msgstr "Phục hồi đã hoàn thành"
 
-#: ../src/ui/edit/crash-recover-dialog.c:168
+#: ../src/ui/edit/crash-recover-dialog.c:175
 msgid "The selected song has been recovered successful."
 msgstr "Bài hát đã chọn được phục hồi hoàn toàn."
 
-#: ../src/ui/edit/crash-recover-dialog.c:169
+#: ../src/ui/edit/crash-recover-dialog.c:176
 msgid "Please check the song and save it if everything is alright."
 msgstr "Hãy chọn bài hát và ghi nó lại nếu mọi thứ đúng như yêu cầu."
 
@@ -198,53 +206,54 @@ msgstr "Hãy chọn bài hát và ghi nó lại nếu mọi thứ đúng như y�
 #. * - this dialog should be a warning
 #. * - ev. we want to suggest to ask for support
 #.
-#: ../src/ui/edit/crash-recover-dialog.c:176
+#. one or more steps in the recovery did not apply
+#: ../src/ui/edit/crash-recover-dialog.c:184
 msgid "Recovery failed"
 msgstr "Phục hồi lại gặp lỗi"
 
-#: ../src/ui/edit/crash-recover-dialog.c:177
+#: ../src/ui/edit/crash-recover-dialog.c:185
 msgid "Sorry, the selected song could not be fully recovered."
 msgstr "Rất tiếc, bài hát đã chọn không thể phục hồi hoàn toàn được."
 
-#: ../src/ui/edit/crash-recover-dialog.c:178
+#: ../src/ui/edit/crash-recover-dialog.c:186
 msgid "Please check the song and save it if still looks good."
 msgstr "Hãy chọn bài hát và ghi nó lại nếu mọi thứ đúng có vẻ vẫn tốt."
 
-#: ../src/ui/edit/crash-recover-dialog.c:217
+#: ../src/ui/edit/crash-recover-dialog.c:225
 msgid "Unsaved song recovery"
 msgstr "Phục hồi bài hát chưa được ghi lại"
 
-#: ../src/ui/edit/crash-recover-dialog.c:235
+#: ../src/ui/edit/crash-recover-dialog.c:243
 msgid "Unsaved songs found"
 msgstr "Những bài hát chưa được ghi lại đã tìm được"
 
-#: ../src/ui/edit/crash-recover-dialog.c:236
+#: ../src/ui/edit/crash-recover-dialog.c:244
 msgid "Select them one by one and choose 'recover' or 'delete'."
-msgstr "Chọn chúng từng cái một và chọn 'phục hồi' hay 'xóa bỏ'."
+msgstr "Chọn chúng từng cái một và chọn “phục hồi” hay “xóa bỏ”."
 
-#: ../src/ui/edit/crash-recover-dialog.c:255
+#: ../src/ui/edit/crash-recover-dialog.c:264
 msgid "Song file"
 msgstr "Tập tin bài hát"
 
-#: ../src/ui/edit/crash-recover-dialog.c:261
+#: ../src/ui/edit/crash-recover-dialog.c:270
 msgid "Last changed"
 msgstr "Lần sửa cuối"
 
 #. add "undelete" button to action area
 #. GTK_STOCK_REVERT_TO_SAVED
-#: ../src/ui/edit/crash-recover-dialog.c:292
+#: ../src/ui/edit/crash-recover-dialog.c:301
 msgid "Recover"
 msgstr "Phục hồi"
 
-#: ../src/ui/edit/edit-application.c:160
+#: ../src/ui/edit/edit-application.c:154
 msgid "-> You will not see any level-meters."
 msgstr "-> Bạn sẽ không thấy cái đo mức nào."
 
-#: ../src/ui/edit/edit-application.c:171
+#: ../src/ui/edit/edit-application.c:165
 msgid "-> You will not see the frequency spectrum in the analyzer window."
 msgstr "-> Bạn sẽ không thấy quang phổ tần số trong cửa sổ phân tích."
 
-#: ../src/ui/edit/edit-application.c:182
+#: ../src/ui/edit/edit-application.c:176
 msgid "-> Sample playback previews from the wavetable page will not work."
 msgstr "-> Xem thử mẫu từ trang bảng hiện sóng sẽ không làm việc."
 
@@ -270,24 +279,24 @@ msgstr "không"
 msgid "register as"
 msgstr "đăng ký như là"
 
-#: ../src/ui/edit/interaction-controller-menu.c:253
+#: ../src/ui/edit/interaction-controller-menu.c:270
 msgid "Learn…"
 msgstr "Học..."
 
-#: ../src/ui/edit/interaction-controller-menu.c:365
+#: ../src/ui/edit/interaction-controller-menu.c:395
 msgid "Bind controller"
 msgstr "Kết hợp bộ điều khiển"
 
-#: ../src/ui/edit/interaction-controller-menu.c:376
+#: ../src/ui/edit/interaction-controller-menu.c:406
 msgid "Unbind controller"
 msgstr "Bỏ kết hợp bộ điều khiển"
 
-#: ../src/ui/edit/interaction-controller-menu.c:385
+#: ../src/ui/edit/interaction-controller-menu.c:415
 msgid "Unbind all controllers"
 msgstr "Bỏ kết hợp tất cả các bộ điều khiển"
 
 #. format about message for machines
-#: ../src/ui/edit/machine-actions.c:67
+#: ../src/ui/edit/machine-actions.c:68
 #, c-format
 msgid ""
 "by %s\n"
@@ -298,46 +307,46 @@ msgstr ""
 "\n"
 "%s"
 
-#: ../src/ui/edit/machine-actions.c:68
+#: ../src/ui/edit/machine-actions.c:69
 msgid "About…"
 msgstr "Giới thiệu..."
 
-#: ../src/ui/edit/machine-canvas-item.c:829
+#: ../src/ui/edit/machine-canvas-item.c:799
 msgid "Mute"
 msgstr "Câm"
 
-#: ../src/ui/edit/machine-canvas-item.c:839
+#: ../src/ui/edit/machine-canvas-item.c:809
 msgid "Solo"
 msgstr "Đơn"
 
-#: ../src/ui/edit/machine-canvas-item.c:851
+#: ../src/ui/edit/machine-canvas-item.c:821
 msgid "Bypass"
 msgstr "Đi vòng"
 
-#: ../src/ui/edit/machine-canvas-item.c:900
+#: ../src/ui/edit/machine-canvas-item.c:870
 msgid "Rename…"
 msgstr "Đổi tên..."
 
-#: ../src/ui/edit/machine-canvas-item.c:918
+#: ../src/ui/edit/machine-canvas-item.c:888
 msgid "Connect machines"
 msgstr "Kết nối các máy"
 
-#: ../src/ui/edit/machine-canvas-item.c:926
-#: ../src/ui/edit/wire-canvas-item.c:882
+#: ../src/ui/edit/machine-canvas-item.c:896
+#: ../src/ui/edit/wire-canvas-item.c:756
 msgid "Signal Analysis…"
 msgstr "Phân tích tín hiệu..."
 
-#: ../src/ui/edit/machine-canvas-item.c:977
+#: ../src/ui/edit/machine-canvas-item.c:947
 msgid "Play with"
 msgstr "Nghe bằng"
 
 #. generators
-#: ../src/ui/edit/machine-menu.c:309
+#: ../src/ui/edit/machine-menu.c:321
 msgid "Generators"
 msgstr "Bộ phát sinh"
 
 #. effects
-#: ../src/ui/edit/machine-menu.c:324
+#: ../src/ui/edit/machine-menu.c:336
 msgid "Effects"
 msgstr "Hiệu ứng"
 
@@ -357,8 +366,8 @@ msgstr "tên và ghi chú định sẵn"
 #. GtkEntry : machine name
 #. GtkEntry : pattern name
 #: ../src/ui/edit/machine-preset-properties-dialog.c:164
-#: ../src/ui/edit/machine-rename-dialog.c:146
-#: ../src/ui/edit/main-page-info.c:417
+#: ../src/ui/edit/machine-rename-dialog.c:143
+#: ../src/ui/edit/main-page-info.c:416
 #: ../src/ui/edit/pattern-properties-dialog.c:169
 msgid "name"
 msgstr "tên"
@@ -368,119 +377,119 @@ msgstr "tên"
 msgid "comment"
 msgstr "ghi chú"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:269
+#: ../src/ui/edit/machine-preferences-dialog.c:279
 #, c-format
 msgid "%s preferences"
 msgstr "Tuỳ thích %s"
 
-#: ../src/ui/edit/machine-properties-dialog.c:705
+#: ../src/ui/edit/machine-properties-dialog.c:715
 msgid "Reset parameter"
 msgstr "Đặt lại tham số"
 
-#: ../src/ui/edit/machine-properties-dialog.c:712
+#: ../src/ui/edit/machine-properties-dialog.c:722
 msgid "Reset all parameters"
 msgstr "Đặt lại mọi tham số"
 
 #. TODO(ensonic): copy parameter/group/all?
-#: ../src/ui/edit/machine-properties-dialog.c:724
+#: ../src/ui/edit/machine-properties-dialog.c:734
 msgid "Copy parameter"
 msgstr "Tham số sao chép"
 
-#: ../src/ui/edit/machine-properties-dialog.c:732
-#: ../src/ui/edit/machine-properties-dialog.c:818
+#: ../src/ui/edit/machine-properties-dialog.c:742
+#: ../src/ui/edit/machine-properties-dialog.c:846
 msgid "Paste"
 msgstr "Dán"
 
 #. add copy/paste item
-#: ../src/ui/edit/machine-properties-dialog.c:810
+#: ../src/ui/edit/machine-properties-dialog.c:838
 msgid "Copy group"
 msgstr "Nhóm sao chép"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2234
+#: ../src/ui/edit/machine-properties-dialog.c:2238
 msgid "global properties"
 msgstr "thuộc tính toàn cục"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2289
+#: ../src/ui/edit/machine-properties-dialog.c:2293
 #, c-format
 msgid "voice %lu properties"
 msgstr "thuộc tính %lu giọng nói"
 
 #. set group title
-#: ../src/ui/edit/machine-properties-dialog.c:2382
+#: ../src/ui/edit/machine-properties-dialog.c:2386
 #, c-format
 msgid "%s wire properties"
 msgstr "thuộc tính dây %s"
 
 #. set dialog title
-#: ../src/ui/edit/machine-properties-dialog.c:2491
+#: ../src/ui/edit/machine-properties-dialog.c:2494
 #: ../src/ui/edit/pattern-properties-dialog.c:142
 #, c-format
 msgid "%s properties"
 msgstr "thuộc tính %s"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2514
+#: ../src/ui/edit/machine-properties-dialog.c:2517
 msgid "Add new preset"
 msgstr "Thêm định sẵn mới"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2523
+#: ../src/ui/edit/machine-properties-dialog.c:2526
 msgid "Remove preset"
 msgstr "Bỏ định sẵn"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2532
+#: ../src/ui/edit/machine-properties-dialog.c:2535
 msgid "Edit preset name and comment"
 msgstr "Sửa tên và ghi chú định sẵn"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2573
+#: ../src/ui/edit/machine-properties-dialog.c:2576
 msgid "Preset"
 msgstr "Định sẵn"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2616
+#: ../src/ui/edit/machine-properties-dialog.c:2619
 msgid "machine properties"
 msgstr "thuộc tính máy"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2665
+#: ../src/ui/edit/machine-properties-dialog.c:2668
 msgid "Info about this machine"
 msgstr "thông tin về máy này"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2673
+#: ../src/ui/edit/machine-properties-dialog.c:2676
 msgid "Help for this machine"
 msgstr "Trợ giúp cho máy này"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2685
+#: ../src/ui/edit/machine-properties-dialog.c:2688
 msgid "Randomize parameters"
 msgstr "Tham số ngẫu nhiên"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2693
+#: ../src/ui/edit/machine-properties-dialog.c:2696
 msgid "Reset parameters to defaults"
 msgstr "Đặt mọi tham số về mặc định"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2704
+#: ../src/ui/edit/machine-properties-dialog.c:2707
 msgid "Show/Hide preset pane"
 msgstr "Hiện/Ẩn ô định sẵn"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2705
+#: ../src/ui/edit/machine-properties-dialog.c:2708
 msgid "Presets"
 msgstr "Định sẵn"
 
 #. set dialog title
-#: ../src/ui/edit/machine-rename-dialog.c:119
+#: ../src/ui/edit/machine-rename-dialog.c:116
 #, c-format
 msgid "%s name"
 msgstr "tên %s"
 
-#: ../src/ui/edit/main-menu.c:95 ../src/ui/edit/main-window.c:576
-#: ../src/ui/edit/main-window.c:577
+#: ../src/ui/edit/main-menu.c:95 ../src/ui/edit/main-window.c:570
+#: ../src/ui/edit/main-window.c:571
 msgid "Load new song?"
 msgstr "Nạp một bài hát mới?"
 
-#: ../src/ui/edit/main-menu.c:106 ../src/ui/edit/main-window.c:259
-#: ../src/ui/edit/main-window.c:656
+#: ../src/ui/edit/main-menu.c:106 ../src/ui/edit/main-window.c:275
+#: ../src/ui/edit/main-window.c:649
 #, c-format
 msgid "An error occurred while loading the song from file '%s'"
 msgstr "Gặp lỗi khi nạp bài hát từ tập tin “%s”"
 
 #: ../src/ui/edit/main-menu.c:108 ../src/ui/edit/main-menu.c:109
-#: ../src/ui/edit/main-window.c:261 ../src/ui/edit/main-window.c:658
+#: ../src/ui/edit/main-window.c:277 ../src/ui/edit/main-window.c:651
 msgid "Can't load song"
 msgstr "Không thể nạp bài hát"
 
@@ -490,64 +499,64 @@ msgstr "Phục hồi một bài hát?"
 
 #. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
-#: ../src/ui/edit/main-menu.c:821
+#: ../src/ui/edit/main-menu.c:791
 msgid "_File"
 msgstr "_Tập tin"
 
-#: ../src/ui/edit/main-menu.c:837
+#: ../src/ui/edit/main-menu.c:807
 msgid "_Recently used"
 msgstr "_Vừa dùng"
 
 #. subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDELETE,accel_group);
-#: ../src/ui/edit/main-menu.c:877
+#: ../src/ui/edit/main-menu.c:847
 msgid "Recover unsaved songs"
 msgstr "Phục hồi các bài hát chưa được ghi lại"
 
 #. edit menu
-#: ../src/ui/edit/main-menu.c:901
+#: ../src/ui/edit/main-menu.c:871
 msgid "_Edit"
 msgstr "_Sửa"
 
 #. view menu
-#: ../src/ui/edit/main-menu.c:964
+#: ../src/ui/edit/main-menu.c:934
 msgid "_View"
 msgstr "_Xem"
 
-#: ../src/ui/edit/main-menu.c:972
+#: ../src/ui/edit/main-menu.c:942
 msgid "Toolbar"
 msgstr "Thanh công cụ"
 
-#: ../src/ui/edit/main-menu.c:979
+#: ../src/ui/edit/main-menu.c:949
 msgid "Statusbar"
 msgstr "Thanh trạng thái"
 
-#: ../src/ui/edit/main-menu.c:987
+#: ../src/ui/edit/main-menu.c:957
 msgid "Tabs"
 msgstr "Thẻ"
 
 #. TODO(ensonic): 'Machine properties' show/hide toggle
 #. TODO(ensonic): 'Analyzer windows' show/hide toggle
-#: ../src/ui/edit/main-menu.c:997
+#: ../src/ui/edit/main-menu.c:967
 msgid "Fullscreen"
 msgstr "Chế độ toàn màn hình"
 
-#: ../src/ui/edit/main-menu.c:1008
+#: ../src/ui/edit/main-menu.c:978
 msgid "Go to machine view"
 msgstr "Tới ô xem máy"
 
-#: ../src/ui/edit/main-menu.c:1020
+#: ../src/ui/edit/main-menu.c:990
 msgid "Go to pattern view"
 msgstr "Tới ô xem mẫu"
 
-#: ../src/ui/edit/main-menu.c:1032
+#: ../src/ui/edit/main-menu.c:1002
 msgid "Go to sequence view"
 msgstr "Tới ô xem dãy"
 
-#: ../src/ui/edit/main-menu.c:1044
+#: ../src/ui/edit/main-menu.c:1014
 msgid "Go to wave table view"
 msgstr "Tới ô xem bảng sóng"
 
-#: ../src/ui/edit/main-menu.c:1055
+#: ../src/ui/edit/main-menu.c:1025
 msgid "Go to song information"
 msgstr "Tới thông tin bài hát"
 
@@ -571,11 +580,11 @@ msgstr "Tới thông tin bài hát"
 #. g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
 #.
 #. playback menu
-#: ../src/ui/edit/main-menu.c:1087
+#: ../src/ui/edit/main-menu.c:1057
 msgid "_Playback"
 msgstr "_Phát lại"
 
-#: ../src/ui/edit/main-menu.c:1105
+#: ../src/ui/edit/main-menu.c:1076
 msgid "Play from cursor"
 msgstr "Phát từ con chạy"
 
@@ -591,17 +600,17 @@ msgstr "Phát từ con chạy"
 #. * - remove unsused patterns, unconnected machines with no empty/tracks
 #.
 #. help menu
-#: ../src/ui/edit/main-menu.c:1137
+#: ../src/ui/edit/main-menu.c:1109
 msgid "_Help"
 msgstr "Trợ g_iúp"
 
-#: ../src/ui/edit/main-menu.c:1152 ../src/ui/edit/tip-dialog.c:182
-#: ../src/ui/edit/tip-dialog.c:197
+#: ../src/ui/edit/main-menu.c:1126 ../src/ui/edit/tip-dialog.c:207
+#: ../src/ui/edit/tip-dialog.c:222
 msgid "Tip of the day"
 msgstr "Mẹo nhỏ"
 
 #. join web-chat
-#: ../src/ui/edit/main-menu.c:1160
+#: ../src/ui/edit/main-menu.c:1134
 msgid "Join IRC discussion"
 msgstr "Tham gia thảo luận bằng IRC"
 
@@ -612,7 +621,7 @@ msgstr "Tham gia thảo luận bằng IRC"
 #. * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-bug.png
 #. * /usr/share/app-install/icons/bug-buddy.png
 #.
-#: ../src/ui/edit/main-menu.c:1173
+#: ../src/ui/edit/main-menu.c:1147
 msgid "Report a problem"
 msgstr "Báo cáo một lỗi"
 
@@ -620,519 +629,518 @@ msgstr "Báo cáo một lỗi"
 msgid "song meta data"
 msgstr "siêu dữ liệu bài hát"
 
-#: ../src/ui/edit/main-page-info.c:427
+#: ../src/ui/edit/main-page-info.c:425
 msgid "genre"
 msgstr "thể loại"
 
-#: ../src/ui/edit/main-page-info.c:437
+#: ../src/ui/edit/main-page-info.c:435
 msgid "author"
 msgstr "tác giả"
 
-#: ../src/ui/edit/main-page-info.c:447
+#: ../src/ui/edit/main-page-info.c:445
 msgid "created"
 msgstr "đã tạo"
 
-#: ../src/ui/edit/main-page-info.c:462
+#: ../src/ui/edit/main-page-info.c:460
 msgid "beats per minute"
 msgstr "nhịp mỗi phút"
 
-#: ../src/ui/edit/main-page-info.c:478
+#: ../src/ui/edit/main-page-info.c:475
 msgid "beats"
 msgstr "nhịp"
 
-#: ../src/ui/edit/main-page-info.c:501
+#: ../src/ui/edit/main-page-info.c:498
 msgid "ticks per beat"
 msgstr "nhịp phụ mỗi nhịp"
 
-#: ../src/ui/edit/main-page-info.c:515
+#: ../src/ui/edit/main-page-info.c:511
 msgid "last saved"
 msgstr "lưu cuối cùng"
 
-#: ../src/ui/edit/main-page-info.c:534 ../src/ui/edit/main-page-info.c:536
+#: ../src/ui/edit/main-page-info.c:528 ../src/ui/edit/main-page-info.c:530
 msgid "free text info"
 msgstr "thông tin đoạn văn tự do"
 
 #. menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
-#: ../src/ui/edit/main-page-machines.c:1356
+#: ../src/ui/edit/main-page-machines.c:1528
 msgid "Add machine"
 msgstr "Thêm máy"
 
-#: ../src/ui/edit/main-page-machines.c:1369
+#: ../src/ui/edit/main-page-machines.c:1539
 msgid "Unmute all machines"
 msgstr "Bỏ câm mọi máy"
 
-#: ../src/ui/edit/main-page-machines.c:1388
+#: ../src/ui/edit/main-page-machines.c:1556
 msgid "Off"
 msgstr "Tắt"
 
-#: ../src/ui/edit/main-page-machines.c:1401
+#: ../src/ui/edit/main-page-machines.c:1568
 msgid "Low"
 msgstr "Thấp"
 
-#: ../src/ui/edit/main-page-machines.c:1414
+#: ../src/ui/edit/main-page-machines.c:1580
 msgid "Medium"
 msgstr "Trung bình"
 
-#: ../src/ui/edit/main-page-machines.c:1427
+#: ../src/ui/edit/main-page-machines.c:1592
 msgid "High"
 msgstr "Cao"
 
-#: ../src/ui/edit/main-page-machines.c:1477
+#: ../src/ui/edit/main-page-machines.c:1639
 msgid "Zoom in/out so that everything is visible"
 msgstr "Thu phóng để mọi đồ đều hiện rõ"
 
-#: ../src/ui/edit/main-page-machines.c:1488
+#: ../src/ui/edit/main-page-machines.c:1648
 msgid "Zoom in for more details"
 msgstr "Phóng to để xem chi tiết"
 
-#: ../src/ui/edit/main-page-machines.c:1499
+#: ../src/ui/edit/main-page-machines.c:1659
 msgid "Zoom out for better overview"
 msgstr "Thu nhỏ để xem toàn cảnh"
 
-#: ../src/ui/edit/main-page-machines.c:1514
-#: ../src/ui/edit/main-page-machines.c:1527
+#: ../src/ui/edit/main-page-machines.c:1674
+#: ../src/ui/edit/main-page-machines.c:1685
 msgid "Grid"
 msgstr "Lưới"
 
-#: ../src/ui/edit/main-page-machines.c:1518
-#: ../src/ui/edit/main-page-machines.c:1520
-#: ../src/ui/edit/main-page-machines.c:1529
+#: ../src/ui/edit/main-page-machines.c:1678
+#: ../src/ui/edit/main-page-machines.c:1679
+#: ../src/ui/edit/main-page-machines.c:1686
 msgid "Show background grid"
 msgstr "Hiển thị lưới nền"
 
-#: ../src/ui/edit/main-page-machines.c:1543
+#: ../src/ui/edit/main-page-machines.c:1702
 msgid "Machine view menu"
 msgstr "Trình đơn trình bày máy"
 
-#: ../src/ui/edit/main-page-machines.c:1545
+#: ../src/ui/edit/main-page-machines.c:1704
 msgid "Menu actions for machine view below"
 msgstr "Các hành vi trình đơn cho các máy trình bày phía dưới"
 
-#: ../src/ui/edit/main-page-machines.c:2334
+#: ../src/ui/edit/main-page-machines.c:2513
 msgid "Add new machines from right click context menu. Connect machines with shift+drag from source to target."
 msgstr "Thêm các máy mới từ trình đơn ngữ cảnh chuột phải. Kết nối đến máy bằng cách giữ phím shift rồi kéo thả từ nguồn đến đích."
 
-#: ../src/ui/edit/main-page-patterns.c:354
+#: ../src/ui/edit/main-page-patterns.c:351
 msgid "Add new patterns from right click context menu."
 msgstr "Thêm các mẫu mới từ trình đơn ngữ cảnh chuột phải."
 
 #. create mapping for global params
 #. label for first global parameter column in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1733
+#: ../src/ui/edit/main-page-patterns.c:1730
 msgid "Globals"
 msgstr "Toàn cục"
 
 #. create mapping for voice params
 #. label for parameters of first voice column in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1755
+#: ../src/ui/edit/main-page-patterns.c:1752
 msgid "Voice 1"
-msgstr "Giọng nối 1"
+msgstr "Giọng nói 1"
 
 #. label for parameters of voice columns in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1775
+#: ../src/ui/edit/main-page-patterns.c:1772
 #, c-format
 msgid "Voice %u"
-msgstr "Giọng nối %u"
+msgstr "Giọng nói %u"
 
 #. this won't work, as we can't pass anything to the event handler
 #. * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
 #. * so, we need to subclass the combobox and add two signals: select-next, select-prev
 #.
-#: ../src/ui/edit/main-page-patterns.c:2973
+#: ../src/ui/edit/main-page-patterns.c:2967
 msgid "Machine"
 msgstr "Máy"
 
-#: ../src/ui/edit/main-page-patterns.c:3003
+#: ../src/ui/edit/main-page-patterns.c:2997
 msgid "Pattern"
 msgstr "Mẫu"
 
-#: ../src/ui/edit/main-page-patterns.c:3043
-#: ../src/ui/edit/main-page-waves.c:1291
+#: ../src/ui/edit/main-page-patterns.c:3037
+#: ../src/ui/edit/main-page-waves.c:1374
 msgid "Wave"
 msgstr "Sóng"
 
-#: ../src/ui/edit/main-page-patterns.c:3072
+#: ../src/ui/edit/main-page-patterns.c:3066
 msgid "Octave"
 msgstr "Quãng tám"
 
-#: ../src/ui/edit/main-page-patterns.c:3093
+#: ../src/ui/edit/main-page-patterns.c:3088
 msgid "Play live"
-msgstr "Phát động"
+msgstr "Phát sống"
 
-#: ../src/ui/edit/main-page-patterns.c:3096
+#: ../src/ui/edit/main-page-patterns.c:3091
 msgid "Play notes and triggers while editing the pattern"
 msgstr "Phát các nốt và bộ gây nên trong khi chỉnh sửa mẫu đó"
 
-#: ../src/ui/edit/main-page-patterns.c:3108
+#: ../src/ui/edit/main-page-patterns.c:3106
 msgid "Pattern view menu"
 msgstr "Trình đơn trình bày mẫu"
 
-#: ../src/ui/edit/main-page-patterns.c:3110
+#: ../src/ui/edit/main-page-patterns.c:3108
 msgid "Menu actions for pattern view below"
 msgstr "Các hành vi trình đơn cho mẫu trình bày phía dưới"
 
-#: ../src/ui/edit/main-page-patterns.c:3164
+#: ../src/ui/edit/main-page-patterns.c:3153
 msgid "New track"
 msgstr "Rãnh mới"
 
-#: ../src/ui/edit/main-page-patterns.c:3178
+#: ../src/ui/edit/main-page-patterns.c:3167
 msgid "Remove last track"
 msgstr "Bỏ rãnh cuối"
 
-#: ../src/ui/edit/main-page-patterns.c:3195
+#: ../src/ui/edit/main-page-patterns.c:3184
 msgid "New pattern …"
 msgstr "Mẫu mới..."
 
-#: ../src/ui/edit/main-page-patterns.c:3209
+#: ../src/ui/edit/main-page-patterns.c:3198
 msgid "Pattern properties…"
 msgstr "Thuộc tính của mẫu..."
 
-#: ../src/ui/edit/main-page-patterns.c:3224
+#: ../src/ui/edit/main-page-patterns.c:3213
 msgid "Remove pattern…"
 msgstr "Gỡ bỏ mẫu..."
 
-#: ../src/ui/edit/main-page-patterns.c:3238
+#: ../src/ui/edit/main-page-patterns.c:3227
 msgid "Copy pattern…"
 msgstr "Sao chép mẫu..."
 
 #. dynamic part
-#: ../src/ui/edit/main-page-patterns.c:3256
-#: ../src/ui/edit/main-page-sequence.c:3694
+#: ../src/ui/edit/main-page-patterns.c:3245
+#: ../src/ui/edit/main-page-sequence.c:3738
 msgid "Machine properties"
 msgstr "Các thuộc tính của máy"
 
-#: ../src/ui/edit/main-page-patterns.c:3267
-#: ../src/ui/edit/main-page-sequence.c:3703
+#: ../src/ui/edit/main-page-patterns.c:3256
+#: ../src/ui/edit/main-page-sequence.c:3747
 msgid "Machine preferences"
 msgstr "Cá nhân hóa bộ máy"
 
 #. time line position
-#: ../src/ui/edit/main-page-sequence.c:1251
+#: ../src/ui/edit/main-page-sequence.c:1215
 msgid "Pos."
-msgstr "Vị trí"
+msgstr "Vtrí."
 
-#: ../src/ui/edit/main-page-sequence.c:1259
+#: ../src/ui/edit/main-page-sequence.c:1224
 msgid "Ticks"
 msgstr "Nhịp phụ"
 
-#: ../src/ui/edit/main-page-sequence.c:1261
+#: ../src/ui/edit/main-page-sequence.c:1226
 msgid "Time"
 msgstr "Loại nhịp"
 
-#: ../src/ui/edit/main-page-sequence.c:1263
+#: ../src/ui/edit/main-page-sequence.c:1228
 msgid "Beats"
 msgstr "Nhịp"
 
-#: ../src/ui/edit/main-page-sequence.c:1437
-#: ../src/ui/edit/main-page-sequence.c:1465
+#: ../src/ui/edit/main-page-sequence.c:1401
+#: ../src/ui/edit/main-page-sequence.c:1428
 msgid "Labels"
 msgstr "Nhãn"
 
-#: ../src/ui/edit/main-page-sequence.c:3579
+#: ../src/ui/edit/main-page-sequence.c:3621
 msgid "Show every n-th line"
 msgstr "Hiện mỗi dòng thứ n"
 
-#: ../src/ui/edit/main-page-sequence.c:3590
+#: ../src/ui/edit/main-page-sequence.c:3631
 msgid "Steps"
 msgstr "Bước"
 
-#: ../src/ui/edit/main-page-sequence.c:3605
+#: ../src/ui/edit/main-page-sequence.c:3646
 msgid "Follow playback"
 msgstr "Bộ phát sau đây"
 
-#: ../src/ui/edit/main-page-sequence.c:3623
+#: ../src/ui/edit/main-page-sequence.c:3667
 msgid "Sequence view menu"
 msgstr "Trình đơn trình bày tần số"
 
-#: ../src/ui/edit/main-page-sequence.c:3625
+#: ../src/ui/edit/main-page-sequence.c:3669
 msgid "Menu actions for sequence view below"
 msgstr "Các hành vi trình đơn cho tần số trình bày phía dưới"
 
-#: ../src/ui/edit/main-page-sequence.c:3639
+#: ../src/ui/edit/main-page-sequence.c:3683
 msgid "Add track"
 msgstr "Thêm rãnh"
 
-#: ../src/ui/edit/main-page-sequence.c:3647
+#: ../src/ui/edit/main-page-sequence.c:3691
 msgid "Remove track"
 msgstr "Bỏ rãnh"
 
-#: ../src/ui/edit/main-page-sequence.c:3664
+#: ../src/ui/edit/main-page-sequence.c:3708
 msgid "Move track left"
 msgstr "Dời rãnh phía trái"
 
-#: ../src/ui/edit/main-page-sequence.c:3677
+#: ../src/ui/edit/main-page-sequence.c:3721
 msgid "Move track right"
 msgstr "Dời rãnh phía phải"
 
-#: ../src/ui/edit/main-page-sequence.c:3764
+#: ../src/ui/edit/main-page-sequence.c:3820
 msgid "Browse to labels in the sequence"
 msgstr "Duyệt qua các nhãn trong dãy"
 
-#: ../src/ui/edit/main-page-sequence.c:3894
+#: ../src/ui/edit/main-page-sequence.c:3971
 msgid "Key"
 msgstr "Khoá"
 
-#: ../src/ui/edit/main-page-sequence.c:3909
+#: ../src/ui/edit/main-page-sequence.c:3986
 msgid "Patterns"
 msgstr "Mẫu"
 
-#: ../src/ui/edit/main-page-sequence.c:4558
+#: ../src/ui/edit/main-page-sequence.c:4634
 msgid "Add new tracks from right click context menu."
 msgstr "Thêm các rãnh mới từ trình đơn ngữ cảnh chuột phải."
 
-#: ../src/ui/edit/main-page-waves.c:1226
+#: ../src/ui/edit/main-page-waves.c:1308
 msgid "Play current wave table entry as C-4"
 msgstr "Phát mục nhập bảng sóng hiện thời như là C-4"
 
-#: ../src/ui/edit/main-page-waves.c:1237
+#: ../src/ui/edit/main-page-waves.c:1319
 msgid "Stop playback of current wave table entry"
 msgstr "Dừng phát mục nhập bảng sóng hiện thời"
 
-#: ../src/ui/edit/main-page-waves.c:1248
+#: ../src/ui/edit/main-page-waves.c:1330
 msgid "Clear current wave table entry"
 msgstr "Xoá sạch mục nhập bảng sóng hiện thời"
 
-#: ../src/ui/edit/main-page-waves.c:1282
+#: ../src/ui/edit/main-page-waves.c:1364
 msgid "Ix"
 msgstr "Ix"
 
-#: ../src/ui/edit/main-page-waves.c:1299
+#: ../src/ui/edit/main-page-waves.c:1382
 msgid "Volume"
 msgstr "Âm lượng"
 
-#: ../src/ui/edit/main-page-waves.c:1307 ../src/ui/edit/main-toolbar.c:973
+#: ../src/ui/edit/main-page-waves.c:1390 ../src/ui/edit/main-toolbar.c:963
 msgid "Loop"
 msgstr "Vòng lặp"
 
-#: ../src/ui/edit/main-page-waves.c:1339
+#: ../src/ui/edit/main-page-waves.c:1420
 msgid "Play current sample"
 msgstr "Phát mẫu hiện có"
 
-#: ../src/ui/edit/main-page-waves.c:1348
+#: ../src/ui/edit/main-page-waves.c:1429
 msgid "Load current sample into selected wave table entry"
 msgstr "Nạp mẫu hiện thời vào mục nhập bảng sóng được chọn"
 
-#: ../src/ui/edit/main-page-waves.c:1412
+#: ../src/ui/edit/main-page-waves.c:1484
 msgid "Root"
 msgstr "Gốc"
 
-#: ../src/ui/edit/main-page-waves.c:1420
+#: ../src/ui/edit/main-page-waves.c:1492
 msgid "Length"
 msgstr "Chiều dài"
 
-#: ../src/ui/edit/main-page-waves.c:1428
+#: ../src/ui/edit/main-page-waves.c:1500
 msgid "Rate"
 msgstr "Tỷ lệ"
 
-#: ../src/ui/edit/main-page-waves.c:1438
+#: ../src/ui/edit/main-page-waves.c:1510
 msgid "Loop start"
 msgstr "Đầu vòng lặp"
 
-#: ../src/ui/edit/main-page-waves.c:1449
+#: ../src/ui/edit/main-page-waves.c:1521
 msgid "Loop end"
 msgstr "Cuối vòng lặp"
 
-#: ../src/ui/edit/main-pages.c:184
+#: ../src/ui/edit/main-pages.c:177
 msgid "machines"
 msgstr "máy"
 
-#: ../src/ui/edit/main-pages.c:185
+#: ../src/ui/edit/main-pages.c:178
 msgid "machines used in the song and their wires"
 msgstr "máy được dùng trong bài hát và các dãy tương ứng"
 
-#: ../src/ui/edit/main-pages.c:191
+#: ../src/ui/edit/main-pages.c:184
 msgid "patterns"
 msgstr "mẫu"
 
-#: ../src/ui/edit/main-pages.c:191
+#: ../src/ui/edit/main-pages.c:184
 msgid "event pattern editor"
 msgstr "bộ chỉnh sửa mẫu sự kiện"
 
-#: ../src/ui/edit/main-pages.c:197
+#: ../src/ui/edit/main-pages.c:190
 msgid "sequence"
 msgstr "dãy"
 
-#: ../src/ui/edit/main-pages.c:197
+#: ../src/ui/edit/main-pages.c:190
 msgid "song sequence editor"
 msgstr "bộ chỉnh sửa dãy bài hát"
 
-#: ../src/ui/edit/main-pages.c:203
+#: ../src/ui/edit/main-pages.c:196
 msgid "wave table"
 msgstr "bảng sóng"
 
-#: ../src/ui/edit/main-pages.c:203
+#: ../src/ui/edit/main-pages.c:196
 msgid "sample wave table editor"
 msgstr "bộ chỉnh sửa bảng sóng lấy mẫu"
 
-#: ../src/ui/edit/main-pages.c:209
+#: ../src/ui/edit/main-pages.c:202
 msgid "information"
 msgstr "thông tin"
 
-#: ../src/ui/edit/main-pages.c:209
+#: ../src/ui/edit/main-pages.c:202
 msgid "song meta data editor"
 msgstr "bộ chỉnh sửa siêu dữ liệu bài hát"
 
-#: ../src/ui/edit/main-statusbar.c:336
+#: ../src/ui/edit/main-statusbar.c:325
 msgid "CPU load"
 msgstr "Mức tải CPU"
 
-#: ../src/ui/edit/main-statusbar.c:351
+#: ../src/ui/edit/main-statusbar.c:340
 msgid "Playback time"
 msgstr "Thời gian phát lại"
 
-#: ../src/ui/edit/main-statusbar.c:367
+#: ../src/ui/edit/main-statusbar.c:349
 msgid "Playback position"
 msgstr "Vị trí phát lại"
 
-#: ../src/ui/edit/main-statusbar.c:383
+#: ../src/ui/edit/main-statusbar.c:358
 msgid "Playback length"
 msgstr "Chiều dài phát lại"
 
-#: ../src/ui/edit/main-toolbar.c:428
+#: ../src/ui/edit/main-toolbar.c:418
 msgid "Error"
 msgstr "Lỗi"
 
-#. bt_song_stop(song);
-#: ../src/ui/edit/main-toolbar.c:467
+#: ../src/ui/edit/main-toolbar.c:452
 msgid "Warning"
 msgstr "Cảnh báo"
 
-#: ../src/ui/edit/main-toolbar.c:896
+#: ../src/ui/edit/main-toolbar.c:885
 msgid "Prepare a new empty song"
 msgstr "Chuẩn bị một bài hát trắng mới"
 
-#: ../src/ui/edit/main-toolbar.c:904
+#: ../src/ui/edit/main-toolbar.c:893
 msgid "Load a new song"
 msgstr "Nạp một bài hát mới"
 
-#: ../src/ui/edit/main-toolbar.c:913
+#: ../src/ui/edit/main-toolbar.c:902
 msgid "Save this song"
 msgstr "Lưu bài hát này"
 
-#: ../src/ui/edit/main-toolbar.c:926
+#: ../src/ui/edit/main-toolbar.c:915
 msgid "Rewind playback position of this song"
 msgstr "Lùi lại vị trí phát lại bài hát này"
 
-#: ../src/ui/edit/main-toolbar.c:940
+#: ../src/ui/edit/main-toolbar.c:929
 msgid "Play this song"
 msgstr "Phát bài hát này"
 
-#: ../src/ui/edit/main-toolbar.c:949
+#: ../src/ui/edit/main-toolbar.c:938
 msgid "Forward playback position of this song"
 msgstr "Chỉnh lên vị trí phát lại bài hát này"
 
-#: ../src/ui/edit/main-toolbar.c:963
+#: ../src/ui/edit/main-toolbar.c:952
 msgid "Stop playback of this song"
 msgstr "Dừng phát lại bài hát này"
 
-#: ../src/ui/edit/main-toolbar.c:976
+#: ../src/ui/edit/main-toolbar.c:966
 msgid "Toggle looping of playback"
 msgstr "Bật tắt vòng lặp phát lại"
 
-#: ../src/ui/edit/main-toolbar.c:998
+#: ../src/ui/edit/main-toolbar.c:989
 msgid "playback volume"
 msgstr "âm lượng phát lại"
 
-#: ../src/ui/edit/main-toolbar.c:1020
+#: ../src/ui/edit/main-toolbar.c:1011
 msgid "Change playback volume"
 msgstr "Đổi âm lượng phát lại"
 
-#: ../src/ui/edit/main-window.c:224
+#: ../src/ui/edit/main-window.c:244
 msgid "unsaved"
 msgstr "chưa lưu"
 
-#: ../src/ui/edit/main-window.c:224
+#: ../src/ui/edit/main-window.c:244
 msgid "saved"
 msgstr "đã lưu"
 
-#: ../src/ui/edit/main-window.c:305 ../src/ui/edit/main-window.c:310
+#: ../src/ui/edit/main-window.c:321 ../src/ui/edit/main-window.c:326
 #, c-format
 msgid "%d %s and %d %s"
 msgstr "%d %s và %d %s"
 
-#: ../src/ui/edit/main-window.c:306
+#: ../src/ui/edit/main-window.c:322
 msgid "hour"
 msgstr "giờ"
 
-#: ../src/ui/edit/main-window.c:306
+#: ../src/ui/edit/main-window.c:322
 msgid "hours"
 msgstr "giờ"
 
-#: ../src/ui/edit/main-window.c:307 ../src/ui/edit/main-window.c:311
+#: ../src/ui/edit/main-window.c:323 ../src/ui/edit/main-window.c:327
 msgid "minute"
 msgstr "phút"
 
-#: ../src/ui/edit/main-window.c:307 ../src/ui/edit/main-window.c:311
+#: ../src/ui/edit/main-window.c:323 ../src/ui/edit/main-window.c:327
 msgid "minutes"
 msgstr "phút"
 
-#: ../src/ui/edit/main-window.c:312 ../src/ui/edit/main-window.c:316
+#: ../src/ui/edit/main-window.c:328 ../src/ui/edit/main-window.c:332
 msgid "second"
 msgstr "giây"
 
-#: ../src/ui/edit/main-window.c:312 ../src/ui/edit/main-window.c:316
+#: ../src/ui/edit/main-window.c:328 ../src/ui/edit/main-window.c:332
 msgid "seconds"
 msgstr "giây"
 
-#: ../src/ui/edit/main-window.c:315
+#: ../src/ui/edit/main-window.c:331
 #, c-format
 msgid "%d %s"
 msgstr "%d %s"
 
-#: ../src/ui/edit/main-window.c:324
+#: ../src/ui/edit/main-window.c:340
 #, c-format
 msgid "All unsaved changes since %s will be lost. This song was last saved on: %s"
 msgstr "Mọi thay đổi chưa được ghi lại kể từ %s đều thì bị mất. Bài hát này lần cuối được ghi lại vào lúc: %s"
 
-#: ../src/ui/edit/main-window.c:329
+#: ../src/ui/edit/main-window.c:345
 #, c-format
 msgid "All unsaved changes since %s will be lost. This song was created on: %s"
 msgstr "Mọi thay đổi chưa ghi lại kể từ %s đều thì bị mất. Bài hát này được tạo lúc: %s"
 
-#: ../src/ui/edit/main-window.c:536 ../src/ui/edit/main-window.c:537
+#: ../src/ui/edit/main-window.c:531 ../src/ui/edit/main-window.c:532
 msgid "Really quit?"
-msgstr "Thực sự thoát ?"
+msgstr "Thực sự thoát?"
 
-#: ../src/ui/edit/main-window.c:549
+#: ../src/ui/edit/main-window.c:544
 msgid "New song?"
-msgstr "Bài hát mới ?"
+msgstr "Bài hát mới?"
 
-#: ../src/ui/edit/main-window.c:581
+#: ../src/ui/edit/main-window.c:575
 msgid "Open a song"
 msgstr "Mở một bài hát"
 
-#: ../src/ui/edit/main-window.c:698
+#: ../src/ui/edit/main-window.c:688
 #, c-format
 msgid "An error occurred while saving the song to file '%s'."
 msgstr "Gặp lỗi trong khi lưu bài hát vào tập tin “%s”."
 
-#: ../src/ui/edit/main-window.c:699 ../src/ui/edit/main-window.c:954
-#: ../src/ui/edit/main-window.c:969
+#: ../src/ui/edit/main-window.c:689 ../src/ui/edit/main-window.c:937
+#: ../src/ui/edit/main-window.c:952
 msgid "Can't save song"
 msgstr "Không thể lưu bài hát"
 
-#: ../src/ui/edit/main-window.c:737
+#: ../src/ui/edit/main-window.c:723
 msgid "Save a song"
 msgstr "Lưu bài hát"
 
-#: ../src/ui/edit/main-window.c:890 ../src/ui/edit/render-dialog.c:554
+#: ../src/ui/edit/main-window.c:873 ../src/ui/edit/render-dialog.c:616
 msgid "Format"
 msgstr "Định dạng"
 
-#: ../src/ui/edit/main-window.c:936 ../src/ui/edit/main-window.c:937
+#: ../src/ui/edit/main-window.c:919 ../src/ui/edit/main-window.c:920
 msgid "File already exists"
 msgstr "Tập tin đã có"
 
-#: ../src/ui/edit/main-window.c:939
+#: ../src/ui/edit/main-window.c:922
 msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
-msgstr "Chọn “OK” để ghi đè hoặc “Hủy bỏ” để hủy bỏ việc lưu bài hát này."
+msgstr "Chọn “OK” để ghi đè hoặc “Thôi” để hủy bỏ việc lưu bài hát này."
 
-#: ../src/ui/edit/main-window.c:952
+#: ../src/ui/edit/main-window.c:935
 #, c-format
 msgid "An error occurred while writing the file '%s': %s"
 msgstr "Gặp lỗi khi ghi tập tin “%s”: %s"
 
-#: ../src/ui/edit/main-window.c:968
+#: ../src/ui/edit/main-window.c:951
 #, c-format
 msgid "An error occurred saving the song to file '%s'."
 msgstr "Gặp lỗi trong khi lưu bài hát vào tập tin “%s”."
@@ -1145,20 +1153,20 @@ msgstr "Gặp lỗi trong khi lưu bài hát vào tập tin “%s”."
 #. }
 #.
 #. set dialog title
-#: ../src/ui/edit/missing-framework-elements-dialog.c:137
-#: ../src/ui/edit/missing-framework-elements-dialog.c:157
+#: ../src/ui/edit/missing-framework-elements-dialog.c:138
+#: ../src/ui/edit/missing-framework-elements-dialog.c:158
 msgid "Missing GStreamer elements"
 msgstr "Thiếu phần tử GStreamer"
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:167
+#: ../src/ui/edit/missing-framework-elements-dialog.c:168
 msgid "The elements listed below are missing from your installation, but are required."
 msgstr "Theo đây có một số phần tử còn thiếu trong bản cài đặt này, mà cần thiết."
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:209
+#: ../src/ui/edit/missing-framework-elements-dialog.c:208
 msgid "The elements listed below are missing from your installation, but are recommended for full functionality."
 msgstr "Theo đây có một số phần tử còn thiếu trong bản cài đặt này, mà khuyến khích để chức năng đầy đủ."
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:212
+#: ../src/ui/edit/missing-framework-elements-dialog.c:211
 msgid "don't warn again"
 msgstr "đừng cảnh báo lần nữa"
 
@@ -1170,16 +1178,16 @@ msgstr "đừng cảnh báo lần nữa"
 #. }
 #.
 #. set dialog title
-#: ../src/ui/edit/missing-song-elements-dialog.c:123
-#: ../src/ui/edit/missing-song-elements-dialog.c:140
+#: ../src/ui/edit/missing-song-elements-dialog.c:124
+#: ../src/ui/edit/missing-song-elements-dialog.c:141
 msgid "Missing elements in song"
 msgstr "Thiếu phần tử trong bài hát"
 
-#: ../src/ui/edit/missing-song-elements-dialog.c:148
+#: ../src/ui/edit/missing-song-elements-dialog.c:149
 msgid "The machines listed below are missing or failed to load."
 msgstr "Theo đây có một số máy còn thiếu hay không nạp được."
 
-#: ../src/ui/edit/missing-song-elements-dialog.c:153
+#: ../src/ui/edit/missing-song-elements-dialog.c:154
 msgid "The waves listed below are missing or failed to load."
 msgstr "Theo đây có một số sóng còn thiếu hay không nạp được."
 
@@ -1193,63 +1201,59 @@ msgstr "độ dài"
 msgid "voices"
 msgstr "giọng"
 
-#: ../src/ui/edit/render-dialog.c:148
+#: ../src/ui/edit/render-dialog.c:190
 #, c-format
 msgid "Recording to: %s"
 msgstr "Đang thu vào: %s"
 
-#: ../src/ui/edit/render-dialog.c:481
+#: ../src/ui/edit/render-dialog.c:561
 msgid "song rendering"
 msgstr "diễn tấu bài hát"
 
-#: ../src/ui/edit/render-dialog.c:505
+#: ../src/ui/edit/render-dialog.c:585
 msgid "Folder"
 msgstr "Thư mục"
 
-#: ../src/ui/edit/render-dialog.c:511
+#: ../src/ui/edit/render-dialog.c:591
 #: ../src/ui/edit/settings-page-directories.c:106
 #: ../src/ui/edit/settings-page-directories.c:121
 #: ../src/ui/edit/settings-page-directories.c:137
 msgid "Select a folder"
 msgstr "Chọn thư mục"
 
-#: ../src/ui/edit/render-dialog.c:521
+#: ../src/ui/edit/render-dialog.c:601
 msgid "Filename"
 msgstr "Tên tập tin"
 
-#: ../src/ui/edit/render-dialog.c:577
+#: ../src/ui/edit/render-dialog.c:649
 msgid "Mode"
 msgstr "Chế độ"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
-#: ../src/ui/edit/settings-dialog.c:161
+#: ../src/ui/edit/settings-dialog.c:160
 msgid "buzztrax settings"
-msgstr "Cài đặt buzztrax"
+msgstr "cài đặt buzztrax"
 
-#: ../src/ui/edit/settings-dialog.c:210 ../src/ui/edit/settings-dialog.c:261
+#: ../src/ui/edit/settings-dialog.c:205 ../src/ui/edit/settings-dialog.c:243
 msgid "Audio Devices"
 msgstr "Thiết bị âm thanh"
 
-#: ../src/ui/edit/settings-dialog.c:217 ../src/ui/edit/settings-dialog.c:271
+#: ../src/ui/edit/settings-dialog.c:209 ../src/ui/edit/settings-dialog.c:253
 #: ../src/ui/edit/settings-page-interaction-controller.c:246
 msgid "Interaction Controller"
 msgstr "Điều khiển sự tương tác"
 
-#: ../src/ui/edit/settings-dialog.c:223 ../src/ui/edit/settings-dialog.c:281
-#: ../src/ui/edit/settings-page-playback-controller.c:241
+#: ../src/ui/edit/settings-dialog.c:214 ../src/ui/edit/settings-dialog.c:263
+#: ../src/ui/edit/settings-page-playback-controller.c:244
 msgid "Playback Controller"
 msgstr "Điều khiển sự phát lại"
 
-#: ../src/ui/edit/settings-dialog.c:228 ../src/ui/edit/settings-dialog.c:292
-msgid "Colors"
-msgstr "Màu sắc"
-
-#: ../src/ui/edit/settings-dialog.c:234 ../src/ui/edit/settings-dialog.c:300
+#: ../src/ui/edit/settings-dialog.c:219 ../src/ui/edit/settings-dialog.c:271
 #: ../src/ui/edit/settings-page-shortcuts.c:85
 msgid "Shortcuts"
 msgstr "Phím tắt"
 
-#: ../src/ui/edit/settings-dialog.c:240 ../src/ui/edit/settings-dialog.c:308
+#: ../src/ui/edit/settings-dialog.c:223 ../src/ui/edit/settings-dialog.c:279
 #: ../src/ui/edit/settings-page-directories.c:91
 msgid "Directories"
 msgstr "Thư mục"
@@ -1258,44 +1262,44 @@ msgstr "Thư mục"
 msgid "Auto"
 msgstr "Tự động"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:275
+#: ../src/ui/edit/settings-page-audiodevices.c:268
 msgid "Audio Device"
 msgstr "Thiết bị âm thanh"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:284
+#: ../src/ui/edit/settings-page-audiodevices.c:277
 msgid "Sink"
 msgstr "Ổ chìm"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:296
+#: ../src/ui/edit/settings-page-audiodevices.c:291
 #, c-format
 msgid "system default: %s (%s)"
 msgstr "mặc định của hệ thống: %s (%s)"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:303
+#: ../src/ui/edit/settings-page-audiodevices.c:298
 msgid "system default: -"
 msgstr "mặc định hệ thống: -"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:421
+#: ../src/ui/edit/settings-page-audiodevices.c:383
 msgid "Audio device"
 msgstr "Thiết bị âm thanh"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:434
+#: ../src/ui/edit/settings-page-audiodevices.c:396
 msgid "Sampling rate"
 msgstr "Tần số lấy mẫu"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:490
+#: ../src/ui/edit/settings-page-audiodevices.c:452
 msgid "Channels"
 msgstr "Kênh"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:497
+#: ../src/ui/edit/settings-page-audiodevices.c:459
 msgid "mono"
-msgstr "nguồn đơn"
+msgstr "đơn"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:499
+#: ../src/ui/edit/settings-page-audiodevices.c:461
 msgid "stereo"
-msgstr "âm lập thể"
+msgstr "lập thể"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:506
+#: ../src/ui/edit/settings-page-audiodevices.c:468
 msgid "Latency"
 msgstr "Thời gian trễ"
 
@@ -1324,7 +1328,7 @@ msgid "Device"
 msgstr "Thiết bị"
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:305
-#: ../src/ui/edit/settings-page-playback-controller.c:264
+#: ../src/ui/edit/settings-page-playback-controller.c:267
 msgid "Controller"
 msgstr "Bộ điều khiển"
 
@@ -1332,141 +1336,142 @@ msgstr "Bộ điều khiển"
 msgid "This package has been built without GUdev support and thus supports no interaction controllers."
 msgstr "Gói này được xây dựng mà không có thư viện GUdev và do đó không hỗ trợ các điều khiển tương tác."
 
-#: ../src/ui/edit/settings-page-playback-controller.c:267
+#: ../src/ui/edit/settings-page-playback-controller.c:270
 msgid "Master"
 msgstr "Chủ"
 
-#: ../src/ui/edit/settings-page-playback-controller.c:273
+#: ../src/ui/edit/settings-page-playback-controller.c:276
 msgid "Slave"
 msgstr "Tớ"
 
 #. local network port number for socket communication
-#: ../src/ui/edit/settings-page-playback-controller.c:324
+#: ../src/ui/edit/settings-page-playback-controller.c:327
 msgid "Port number"
 msgstr "Số thứ tự cổng"
 
 #. set dialog title : machine -> machine analysis
-#: ../src/ui/edit/signal-analysis-dialog.c:960
+#: ../src/ui/edit/signal-analysis-dialog.c:956
 #, c-format
 msgid "%s -> %s analysis"
 msgstr "Phân tích %s -> %s"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:966
+#: ../src/ui/edit/signal-analysis-dialog.c:962
 msgid "master analysis"
 msgstr "phân tích chủ đạo"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1027
+#: ../src/ui/edit/signal-analysis-dialog.c:1023
 msgid "lin."
 msgstr "lin."
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1028
+#: ../src/ui/edit/signal-analysis-dialog.c:1024
 msgid "log."
 msgstr "log."
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1032
+#: ../src/ui/edit/signal-analysis-dialog.c:1028
 msgid "frequency mapping"
 msgstr "Ánh xạ tần số"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1038
+#: ../src/ui/edit/signal-analysis-dialog.c:1034
 msgid "single"
 msgstr "đơn"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1039
+#: ../src/ui/edit/signal-analysis-dialog.c:1035
 msgid "double"
 msgstr "đôi"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1040
+#: ../src/ui/edit/signal-analysis-dialog.c:1036
 msgid "triple"
 msgstr "ba"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1044
+#: ../src/ui/edit/signal-analysis-dialog.c:1040
 msgid "spectrum precision"
 msgstr "độ chính xác âm phổ"
 
-#: ../src/ui/edit/tip-dialog.c:49
+#: ../src/ui/edit/tip-dialog.c:50
 msgid "New machines are added in machine view from the context menu."
 msgstr "Các máy mới đã được thêm vào trong trình diễn máy từ trình đơn ngữ cảnh."
 
-#: ../src/ui/edit/tip-dialog.c:50
+#: ../src/ui/edit/tip-dialog.c:51
 msgid "Connect machines by holding the shift key and dragging a connection for the source to the target machine."
 msgstr "Kết nối đến các máy bằng cách giữ phím shift và kéo thả một kết nối từ nguồn tới máy đích."
 
-#: ../src/ui/edit/tip-dialog.c:51
+#: ../src/ui/edit/tip-dialog.c:52
 msgid "Songs can be recorded as single waves per track to give it to remixers."
 msgstr "Các bài hát có thể được ghi lại như một sóng đơn trên mỗi rãnh để chúng được trộn."
 
-#: ../src/ui/edit/tip-dialog.c:52
+#: ../src/ui/edit/tip-dialog.c:53
 msgid "Fill the details on the info page. When recording songs, the metadata is added to the recording as tags."
 msgstr "Điền các thông tin chi tiết trên trang thông tin. Khi ghi các bài hát, dữ liệu metadata được thêm vào bản ghi như là những thẻ."
 
-#: ../src/ui/edit/tip-dialog.c:53
+#: ../src/ui/edit/tip-dialog.c:54
 msgid "Use jackaudio sink in audio device settings to get lower latencies for live machine control."
 msgstr "Sử dụng jack cắm âm thanh cắm vào thiết bị âm thanh để có thể giảm thời gian trễ khi điều khiển máy."
 
-#: ../src/ui/edit/tip-dialog.c:54
+#: ../src/ui/edit/tip-dialog.c:55
 msgid "You can use input devices such as joysticks, beside midi devices to live control machine parameters."
 msgstr "Bạn có thể sử dụng thiết bị đầu vào như là cần điều khiển, bên cạnh thiết bị midi để điều khiển các tham số của máy."
 
-#: ../src/ui/edit/tip-dialog.c:55
+#: ../src/ui/edit/tip-dialog.c:56
 msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztrax."
 msgstr "Bạn có thể sử dụng máy khác đa phương tiện upnp (v.d từ dòng dữ liệu đa phương tiện hay máy tính bảng nokia) để điều khiển buzztrax từ xa."
 
-#: ../src/ui/edit/tip-dialog.c:56
-msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
-msgstr "Để nhập ghi chú, hãy tưởng tượng bàn phím máy tính của bạn như là bàn phím của đàn với hai dòng. Phím trái cuối trở thành a 'c', s a 'c#', x a 'd' và cứ như thế "
-
 #: ../src/ui/edit/tip-dialog.c:57
+msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
+msgstr "Để nhập ghi chú, hãy tưởng tượng bàn phím máy tính của bạn như là bàn phím của đàn với hai dòng. Phím trái cuối trở thành a “c”, s a “c#”, x a “d” và cứ như thế "
+
+#: ../src/ui/edit/tip-dialog.c:58
 msgid "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
 msgstr "Bạn có thể có thêm trợ giúp từ cộng đồng bằng cách chát trên irc://irc.freenode.net/#buzztrax."
 
-#: ../src/ui/edit/tip-dialog.c:58
+#: ../src/ui/edit/tip-dialog.c:59
 msgid "Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."
 msgstr "Bố cục mẫu là riêng biệt cho từng máy. Hãy nhìn vào thanh trạng thái ở đáy để có thêm chi tiết về cột-con-trỏ."
 
-#: ../src/ui/edit/tip-dialog.c:59
+#: ../src/ui/edit/tip-dialog.c:60
 msgid "Click the speaker icon in the pattern-view to hear notes as you enter them."
 msgstr "Bấm chuột vào biểu tượng cái loa trên khung trình bày mẫu để nghe những ghi chú mà bạn đã nhập vào."
 
-#: ../src/ui/edit/tip-dialog.c:60
+#: ../src/ui/edit/tip-dialog.c:61
 msgid "Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input."
 msgstr "Mỗi dây có các điều khiển âm lượng và có lẽ cả panorama/balance. Cái này cũng còn có thể được chỉnh sửa trong cửa-sổ-máy của máy mà dây của nó được dùng làm đường nhập dữ liệu vào."
 
-#: ../src/ui/edit/tip-dialog.c:61
+#: ../src/ui/edit/tip-dialog.c:62
 msgid "The wire volume control pops up upon a click on the arrow box on the wire."
 msgstr "Dây điều khiển âm lượng được nổi lên khi bấm chuột trên hộp mũi tên trên dây."
 
-#: ../src/ui/edit/tip-dialog.c:62
+#: ../src/ui/edit/tip-dialog.c:63
 msgid "The wire panorama/balance control pops up upon a shift+click on the arrow box on the wire if available."
 msgstr "Dây điều khiển panorama/balance nổi lên ở hộp mũi tên khi giữ shift và bấm chuột trên dây nếu có."
 
-#: ../src/ui/edit/tip-dialog.c:63
+#: ../src/ui/edit/tip-dialog.c:64
 msgid "One can copy settings from the machine window (from the context menu of a group) and paste them to patterns and the other way around."
 msgstr "Có thể sao chép các cài đặt từ cửa sổ máy (từ trình đơn ngữ cảnh của nhóm) và dán chúng vào các mẫu và các cách khác"
 
-#: ../src/ui/edit/tip-dialog.c:64
+#: ../src/ui/edit/tip-dialog.c:65
 msgid "Install extra machines from http://buzzmachines.sf.net."
 msgstr "Cài đặt các máy mở rộng từ http://buzzmachines.sf.net."
 
-#: ../src/ui/edit/tip-dialog.c:65
+#: ../src/ui/edit/tip-dialog.c:66
 msgid "Machines can also be renamed in the headers of the sequence view."
 msgstr "Các máy cũng đồng thời được đổi tên trong phần đầu của bộ trình bày nối tiếp nhau."
 
-#: ../src/ui/edit/tip-dialog.c:66
+#: ../src/ui/edit/tip-dialog.c:67
 msgid "Press the ',' (comma) key in the pattern editor to insert the current value for this parameter."
-msgstr "Nhấn phím ',' (dấu phẩy) trong trình biên soạn mẫu để chèn giá trị hiện hành cho tham số này."
+msgstr "Nhấn phím “,” (dấu phẩy) trong trình biên soạn mẫu để chèn giá trị hiện hành cho tham số này."
 
-#: ../src/ui/edit/tip-dialog.c:217
+#: ../src/ui/edit/tip-dialog.c:244
 msgid "Show tips on startup"
 msgstr "Hiện mẹo nhỏ lúc mới mở chương trình"
 
-#: ../src/ui/edit/tools.c:84 ../src/ui/edit/tools.c:114
-#, c-format
-msgid "Couldn't find pixmap file: %s"
-msgstr "Không tìm thấy tập tin sơ đồ điểm ảnh: %s"
-
-#: ../src/ui/edit/wire-canvas-item.c:872
+#: ../src/ui/edit/wire-canvas-item.c:746
 msgid "Disconnect"
 msgstr "Ngắt kết nối"
+
+#~ msgid "Colors"
+#~ msgstr "Màu sắc"
+
+#~ msgid "Couldn't find pixmap file: %s"
+#~ msgstr "Không tìm thấy tập tin sơ đồ điểm ảnh: %s"
 
 #~ msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztrax songs in any gstreamer based media player. We also kept the buzztrax codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
 #~ msgstr "Đặc tính kỹ thuật chính của lần phát hành này là khả năng hỗ trợ đầy đủ undo/redo. Nó liên quan đến việc theo dõi các hành vi chỉnh sửa và sự phục hồi các mảnh. Việc này giúp làm cho sự mất mát các thay đổi khi sửa chữa các bài hát ít đi. Giao diện đồ họa người dùng được tăng thêm là: mẹo nhỏ, tăng cường khả năng phân tích âm phổ, hỗ trợ clipboad, nhiều lệnh trên trình đơn ngữ cảnh hơn và nhiều thứ khác nữa. Lần phát hành này đề cao bộ giải mã đặc gstreamer cái mà cho phép chơi nhạc từ bài hát buzztrax trong bất kỳ chương trình chơi nhạc nào mà nó có cơ sở từ gstreamer. Chúng tôi cũng giữ mã nguồn trong sáng và đã chuyển đổi từ API cũ sang kiểu thành công hơn (gnomevfs->gio, hal->gudev). Các thư viện và ứng dụng nhận được hiệu năng cao trong nhiều mặt khác nhau. Cũng thế, các tài liệu cũng được nâng cao với các hướng dẫn, bảng phím tắt, bao quát hơn và các trang trợ giúp dạng man."

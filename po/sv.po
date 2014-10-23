@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: buzztrax-0.7.0\n"
-"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2012-12-22 16:49+0100\n"
 "PO-Revision-Date: 2014-07-05 15:13+0100\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
@@ -18,16 +18,16 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../src/lib/core/core.c:180
-msgid "Print the buzztard core version"
-msgstr "Skriv ut buzztard kärnversion"
+msgid "Print the buzztrax core version"
+msgstr "Skriv ut buzztrax kärnversion"
 
 #: ../src/lib/core/core.c:186
-msgid "Buzztard core options"
-msgstr "Buzztard kärnalternativ"
+msgid "Buzztrax core options"
+msgstr "Buzztrax kärnalternativ"
 
 #: ../src/lib/core/core.c:187
-msgid "Show buzztard core options"
-msgstr "Visa buzztard kärnalternativ"
+msgid "Show buzztrax core options"
+msgstr "Visa buzztrax kärnalternativ"
 
 #: ../src/lib/core/cmd-pattern.c:148
 msgid "normal"
@@ -67,22 +67,22 @@ msgstr "Sparar fil '%s'"
 msgid "untitled song"
 msgstr "namnlös sång"
 
-#: ../src/lib/core/songio/bsl/buzztard-songio-buzz.desktop.in.h:1
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:1
-msgid "Buzztard Music Editor"
-msgstr "Buzztard musikredigerare"
+#: ../src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in.h:1
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:1
+msgid "Buzztrax Music Editor"
+msgstr "Buzztrax musikredigerare"
 
 #: ../src/lib/ic/ic.c:107
-msgid "Print the buzztard interaction controller version"
-msgstr "Skriv ut version av buzztard interaktionskontroller"
+msgid "Print the buzztrax interaction controller version"
+msgstr "Skriv ut version av buzztrax interaktionskontroller"
 
 #: ../src/lib/ic/ic.c:113
-msgid "Buzztard interaction controller options"
-msgstr "Alternativ för Buzztard interaktionskontroller"
+msgid "Buzztrax interaction controller options"
+msgstr "Alternativ för Buzztrax interaktionskontroller"
 
 #: ../src/lib/ic/ic.c:114
-msgid "Show buzztard interaction controller options"
-msgstr "Visa alternativ för buzztard interaktionskontroller"
+msgid "Show buzztrax interaction controller options"
+msgstr "Visa alternativ för buzztrax interaktionskontroller"
 
 #: ../src/ui/cmd/bt-cmd.c:81 ../src/ui/edit/bt-edit.c:91
 msgid "Print application version"
@@ -110,12 +110,12 @@ msgid "Output file name"
 msgstr "Utmatningsfilnamn"
 
 #: ../src/ui/cmd/bt-cmd.c:109
-msgid "buzztard-cmd options"
-msgstr "alternadiv för buzztard-cmd"
+msgid "buzztrax-cmd options"
+msgstr "alternadiv för buzztrax-cmd"
 
 #: ../src/ui/cmd/bt-cmd.c:110
-msgid "Show buzztard-cmd options"
-msgstr "Visa alternativ för buzztard-cmd"
+msgid "Show buzztrax-cmd options"
+msgstr "Visa alternativ för buzztrax-cmd"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net>
@@ -129,8 +129,8 @@ msgstr ""
 
 #: ../src/ui/edit/about-dialog.c:71 ../src/ui/edit/about-dialog.c:73
 #, c-format
-msgid "Copyright © 2003-%d Buzztard developer team"
-msgstr "Copyright © 2003-%d Buzztard utvecklargrupp"
+msgid "Copyright © 2003-%d Buzztrax developer team"
+msgstr "Copyright © 2003-%d Buzztrax utvecklargrupp"
 
 #: ../src/ui/edit/about-dialog.c:90
 msgid "Music production environment"
@@ -153,24 +153,24 @@ msgstr ""
 #: ../src/ui/edit/about-dialog.c:120
 msgid ""
 "This release comes with a large number of smaller changes. Audio settings are more flexible and allow to choose a target latency. Jack users will be happy to see that we keep the session alive. We rewrote our test suite, fixed lots of bugs and refactored a large part of the code base. This summer we had a GSoC student, who implemented GStreamer EncodeBin support, which improves the song rendering code, wrote a audio-synth baseclass that greatly simplifies writing a new synth and wrote the pattern control source that allowed us to remove a lot of complicated code from the sequencer core.\n"
-"The gst-buzztard module got more modular. There are a few new plugins (sidsyn, wave-replay and wavetabsyn).\n"
-"We changed all modules to use non recursive make and we merged bsl into buzztard to make development easier."
+"The gst-buzztrax module got more modular. There are a few new plugins (sidsyn, wave-replay and wavetabsyn).\n"
+"We changed all modules to use non recursive make and we merged bsl into buzztrax to make development easier."
 msgstr ""
 "Denna utgåva kommer med en stor mängd mindre ändringar. Ljudinställningarna är mer flexibla och tillåter val av mållatens. Jack-användare kommer att glädjas att se att vi behåller sessionen vid liv. Vi skrev om vår testsvit, fixade många buggar och skrev om en stor del av kodbasen. Denna sommar hade vi en GSoC-student, som implementerade stöd för GStreamer EncodeBin, vilket förbättrar koden för sångåtergivelse, skrev om basklassen för audio-synth:en vilket signifikant förenklar skrivning av en ny synth samt skrev mönsterkontrolkällan som tillät oss att ta bort en stor del komplicerad kod från sequencer-kärnan.\n"
-"gst-buzztard-modulen blev mer modulär. Det finns några nya insticksmoduler (sidsyn, wave-replay och wavetabsyn).\n"
-"Vi ändrade alla moduler till att använda icke-rekursiv make och vi fogade in bsl i buzztard för att förenkla utvecklingen."
+"gst-buzztrax-modulen blev mer modulär. Det finns några nya insticksmoduler (sidsyn, wave-replay och wavetabsyn).\n"
+"Vi ändrade alla moduler till att använda icke-rekursiv make och vi fogade in bsl i buzztrax för att förenkla utvecklingen."
 
 #: ../src/ui/edit/bt-edit.c:122
-msgid "buzztard-edit options"
-msgstr "alternativ för buzztard-edit"
+msgid "buzztrax-edit options"
+msgstr "alternativ för buzztrax-edit"
 
 #: ../src/ui/edit/bt-edit.c:123
-msgid "Show buzztard-edit options"
-msgstr "Visa alternativ för buzztard-edit"
+msgid "Show buzztrax-edit options"
+msgstr "Visa alternativ för buzztrax-edit"
 
-#: ../src/ui/edit/buzztard-edit.desktop.in.h:2
-msgid "Edit buzztard song files"
-msgstr "Redigera buzztard sångfiler"
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:2
+msgid "Edit buzztrax song files"
+msgstr "Redigera buzztrax sångfiler"
 
 #: ../src/ui/edit/change-log.c:584
 msgid "unsaved song"
@@ -483,7 +483,7 @@ msgstr "Kan ej läsa in sång"
 msgid "Recover a song?"
 msgstr "Återskapa en sång?"
 
-#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
+#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
 #: ../src/ui/edit/main-menu.c:821
 msgid "_File"
@@ -1218,8 +1218,8 @@ msgstr "Läge"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:161
-msgid "buzztard settings"
-msgstr "buzztard inställningar"
+msgid "buzztrax settings"
+msgstr "buzztrax inställningar"
 
 #: ../src/ui/edit/settings-dialog.c:210 ../src/ui/edit/settings-dialog.c:261
 msgid "Audio Devices"
@@ -1403,16 +1403,16 @@ msgid "You can use input devices such as joysticks, beside midi devices to live 
 msgstr "Du kan använda ingångsenheter så som styrspak, förutom midi-enheter för att kontrollera maskin-parametrar live."
 
 #: ../src/ui/edit/tip-dialog.c:55
-msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztard."
-msgstr "Du kan använda en upnp media-klient (t.ex. en mediaströmmare på en nokia-platta) för att fjärrstyra buzztard."
+msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztrax."
+msgstr "Du kan använda en upnp media-klient (t.ex. en mediaströmmare på en nokia-platta) för att fjärrstyra buzztrax."
 
 #: ../src/ui/edit/tip-dialog.c:56
 msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
 msgstr "För att skriva in noter, tänk dig ditt PC-tangentbord som en två-raders klaviatur. Längst ner till vänster y/z blir ett 'c', s ett 'c#', x ett 'd' och så vidare."
 
 #: ../src/ui/edit/tip-dialog.c:57
-msgid "You can get more help from the community on irc://irc.freenode.net/#buzztard."
-msgstr "Du kan få mer hjälp från intressegruppen på irc://irc.freenode.net/#buzztard."
+msgid "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
+msgstr "Du kan få mer hjälp från intressegruppen på irc://irc.freenode.net/#buzztrax."
 
 #: ../src/ui/edit/tip-dialog.c:58
 msgid "Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."

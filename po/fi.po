@@ -1,14 +1,14 @@
 # Finnish messages for buzztrax.
-# Copyright © 2010, 2011 Free Software Foundation, Inc.
+# Copyright © 2010, 2011, 2012, 2013, 2014 Free Software Foundation, Inc.
 # This file is distributed under the same license as the buzztrax package.
-# Jorma Karvonen <karvonen.jorma@gmail.com>, 2010-2013.
+# Jorma Karvonen <karvonen.jorma@gmail.com>, 2010-2014.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztrax 0.7.0\n"
+"Project-Id-Version: buzztrax 0.8.0\n"
 "Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2012-12-22 16:49+0100\n"
-"PO-Revision-Date: 2013-01-10 19:38+0200\n"
+"POT-Creation-Date: 2014-10-15 17:11+0200\n"
+"PO-Revision-Date: 2014-10-19 19:58+0300\n"
 "Last-Translator: Jorma Karvonen <karvonen.jorma@gmail.com>\n"
 "Language-Team: Finnish <translation-team-fi@lists.sourceforge.net>\n"
 "Language: fi\n"
@@ -17,53 +17,61 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../src/lib/core/core.c:180
+#: ../buzztrax.appdata.xml.in.h:1
+msgid "Fully integrated music composer."
+msgstr "Täysin integroitu musiikkisäveltäjä."
+
+#: ../buzztrax.appdata.xml.in.h:2
+msgid "Buzztrax is a music composer similar to tracker applications. It is roughly modelled after the windows only, closed source application called Buzz."
+msgstr "Buzztrax on musiikkisäveltäjä samanlainen seuraajasovelluksille. Se on karkeasti mallinnettu vain windowsissa toimivan suljetun lähdekoodin sovelluksen Buzz mukaisesti."
+
+#: ../src/lib/core/core.c:183
 msgid "Print the buzztrax core version"
 msgstr "Tulosta buzztrax-ydinversio"
 
-#: ../src/lib/core/core.c:186
+#: ../src/lib/core/core.c:189
 msgid "Buzztrax core options"
 msgstr "Buzztrax-ydinvalitsimet"
 
-#: ../src/lib/core/core.c:187
+#: ../src/lib/core/core.c:190
 msgid "Show buzztrax core options"
 msgstr "Näytä buzztrax-ydinvalitsimet"
 
-#: ../src/lib/core/cmd-pattern.c:148
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "normal"
 msgstr "normaali"
 
-#: ../src/lib/core/cmd-pattern.c:148
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "break"
 msgstr "katkaise"
 
-#: ../src/lib/core/cmd-pattern.c:148
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "mute"
 msgstr "mykistä"
 
-#: ../src/lib/core/cmd-pattern.c:148
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "solo"
 msgstr "soolo"
 
-#: ../src/lib/core/cmd-pattern.c:148
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "bypass"
 msgstr "ohita"
 
-#: ../src/lib/core/song-io-native-bzt.c:246
-#: ../src/lib/core/song-io-native-xml.c:56
-#: ../src/lib/core/songio/bsl/song-io-buzz.c:2256
+#: ../src/lib/core/song-io-native-bzt.c:250
+#: ../src/lib/core/song-io-native-xml.c:58
+#: ../src/lib/core/songio/bsl/song-io-buzz.c:2272
 #, c-format
 msgid "Loading file '%s'"
 msgstr "Ladataan tiedosto ’%s’"
 
-#: ../src/lib/core/song-io-native-bzt.c:371
-#: ../src/lib/core/song-io-native-xml.c:124
+#: ../src/lib/core/song-io-native-bzt.c:376
+#: ../src/lib/core/song-io-native-xml.c:127
 #, c-format
 msgid "Saving file '%s'"
 msgstr "Tallennetaan tiedosto ’%s’"
 
 #. default name for new songs
-#: ../src/lib/core/song-info.c:117
+#: ../src/lib/core/song-info.c:122
 msgid "untitled song"
 msgstr "nimetön kappale"
 
@@ -72,48 +80,48 @@ msgstr "nimetön kappale"
 msgid "Buzztrax Music Editor"
 msgstr "Buzztrax-musiikkieditori"
 
-#: ../src/lib/ic/ic.c:107
+#: ../src/lib/ic/ic.c:108
 msgid "Print the buzztrax interaction controller version"
 msgstr "Tulosta buzztrax-keskusteluohjainversio"
 
-#: ../src/lib/ic/ic.c:113
+#: ../src/lib/ic/ic.c:114
 msgid "Buzztrax interaction controller options"
 msgstr "Buzztrax-keskusteluohjainvalitsimet"
 
-#: ../src/lib/ic/ic.c:114
+#: ../src/lib/ic/ic.c:115
 msgid "Show buzztrax interaction controller options"
 msgstr "Näytä buzztrax-keskusteluohjainvalitsimet"
 
-#: ../src/ui/cmd/bt-cmd.c:81 ../src/ui/edit/bt-edit.c:91
+#: ../src/ui/cmd/bt-cmd.c:84 ../src/ui/edit/bt-edit.c:92
 msgid "Print application version"
 msgstr "Tulosta sovellusversio"
 
-#: ../src/ui/cmd/bt-cmd.c:82
+#: ../src/ui/cmd/bt-cmd.c:85
 msgid "Be quiet"
 msgstr "Ole hiljaa"
 
-#: ../src/ui/cmd/bt-cmd.c:83 ../src/ui/edit/bt-edit.c:93
+#: ../src/ui/cmd/bt-cmd.c:86 ../src/ui/edit/bt-edit.c:94
 msgid "Command name"
 msgstr "Komennon nimi"
 
-#: ../src/ui/cmd/bt-cmd.c:85 ../src/ui/edit/bt-edit.c:97
+#: ../src/ui/cmd/bt-cmd.c:88 ../src/ui/edit/bt-edit.c:98
 msgid "Input file name"
 msgstr "Syötetiedoston nimi"
 
-#: ../src/ui/cmd/bt-cmd.c:86 ../src/ui/cmd/bt-cmd.c:88
-#: ../src/ui/edit/bt-edit.c:97
+#: ../src/ui/cmd/bt-cmd.c:89 ../src/ui/cmd/bt-cmd.c:91
+#: ../src/ui/edit/bt-edit.c:98
 msgid "<songfile>"
 msgstr "<kappaletiedosto>"
 
-#: ../src/ui/cmd/bt-cmd.c:87
+#: ../src/ui/cmd/bt-cmd.c:90
 msgid "Output file name"
 msgstr "Tulostetiedoston nimi"
 
-#: ../src/ui/cmd/bt-cmd.c:109
+#: ../src/ui/cmd/bt-cmd.c:105
 msgid "buzztrax-cmd options"
 msgstr "buzztrax-cmd-valitsimet"
 
-#: ../src/ui/cmd/bt-cmd.c:110
+#: ../src/ui/cmd/bt-cmd.c:106
 msgid "Show buzztrax-cmd options"
 msgstr "Näytä buzztrax-cmd-valitsimet"
 
@@ -156,11 +164,11 @@ msgstr ""
 "Gst-buzztrax-moduulista tuli modulaarisempi. Saimme muuutamia uusia lisäosia (sidsyn, wave-replay ja wavetabsyn).\n"
 "Vaihdoimme kaikki moduulit käyttämään ei-rekursiivista make-komentoa ja yhdistimme bsl:n buzztrax:iin tehdäksemme kehitystyön helpommaksi."
 
-#: ../src/ui/edit/bt-edit.c:122
+#: ../src/ui/edit/bt-edit.c:107
 msgid "buzztrax-edit options"
 msgstr "buzztrax-edit -valitsimet"
 
-#: ../src/ui/edit/bt-edit.c:123
+#: ../src/ui/edit/bt-edit.c:108
 msgid "Show buzztrax-edit options"
 msgstr "Näytä buzztrax-edit -valitsimet"
 
@@ -168,20 +176,20 @@ msgstr "Näytä buzztrax-edit -valitsimet"
 msgid "Edit buzztrax song files"
 msgstr "Muokkaa buzztrax-musiikkikappaletiedostoja"
 
-#: ../src/ui/edit/change-log.c:584
+#: ../src/ui/edit/change-log.c:643
 msgid "unsaved song"
 msgstr "tallentamaton kappale"
 
 #. the song recovery has been finished
-#: ../src/ui/edit/crash-recover-dialog.c:167
+#: ../src/ui/edit/crash-recover-dialog.c:174
 msgid "Recovery finished"
 msgstr "Palautus on valmis"
 
-#: ../src/ui/edit/crash-recover-dialog.c:168
+#: ../src/ui/edit/crash-recover-dialog.c:175
 msgid "The selected song has been recovered successful."
 msgstr "Valittu kappale on palautettu onnistuneesti."
 
-#: ../src/ui/edit/crash-recover-dialog.c:169
+#: ../src/ui/edit/crash-recover-dialog.c:176
 msgid "Please check the song and save it if everything is alright."
 msgstr "Tarkista kappale ja tallenna se, jos kaikki on kunnossa."
 
@@ -189,53 +197,54 @@ msgstr "Tarkista kappale ja tallenna se, jos kaikki on kunnossa."
 #. * - this dialog should be a warning
 #. * - ev. we want to suggest to ask for support
 #.
-#: ../src/ui/edit/crash-recover-dialog.c:176
+#. one or more steps in the recovery did not apply
+#: ../src/ui/edit/crash-recover-dialog.c:184
 msgid "Recovery failed"
 msgstr "Palautus epäonnistui"
 
-#: ../src/ui/edit/crash-recover-dialog.c:177
+#: ../src/ui/edit/crash-recover-dialog.c:185
 msgid "Sorry, the selected song could not be fully recovered."
 msgstr "Valittuja kappaleita ei kyettä palauttamaan täydellisesti."
 
-#: ../src/ui/edit/crash-recover-dialog.c:178
+#: ../src/ui/edit/crash-recover-dialog.c:186
 msgid "Please check the song and save it if still looks good."
 msgstr "Tarkista kappale ja tallenna se, jos se näyttää yhä hyvältä."
 
-#: ../src/ui/edit/crash-recover-dialog.c:217
+#: ../src/ui/edit/crash-recover-dialog.c:225
 msgid "Unsaved song recovery"
 msgstr "Tallentamattoman kappaleen palautus"
 
-#: ../src/ui/edit/crash-recover-dialog.c:235
+#: ../src/ui/edit/crash-recover-dialog.c:243
 msgid "Unsaved songs found"
 msgstr "Löytyi tallentamaton kappale"
 
-#: ../src/ui/edit/crash-recover-dialog.c:236
+#: ../src/ui/edit/crash-recover-dialog.c:244
 msgid "Select them one by one and choose 'recover' or 'delete'."
 msgstr "Valitse ne yksi kerrallaan ja valitse ’palauta’ tai ’poista’."
 
-#: ../src/ui/edit/crash-recover-dialog.c:255
+#: ../src/ui/edit/crash-recover-dialog.c:264
 msgid "Song file"
 msgstr "Kappaletiedosto"
 
-#: ../src/ui/edit/crash-recover-dialog.c:261
+#: ../src/ui/edit/crash-recover-dialog.c:270
 msgid "Last changed"
 msgstr "Viimeksi muutettu"
 
 #. add "undelete" button to action area
 #. GTK_STOCK_REVERT_TO_SAVED
-#: ../src/ui/edit/crash-recover-dialog.c:292
+#: ../src/ui/edit/crash-recover-dialog.c:301
 msgid "Recover"
 msgstr "Palauta"
 
-#: ../src/ui/edit/edit-application.c:160
+#: ../src/ui/edit/edit-application.c:154
 msgid "-> You will not see any level-meters."
 msgstr "-> Et näe yhtään tasomittaria."
 
-#: ../src/ui/edit/edit-application.c:171
+#: ../src/ui/edit/edit-application.c:165
 msgid "-> You will not see the frequency spectrum in the analyzer window."
 msgstr "-> Et näe taajuuspektriä analysoijaikkunassa."
 
-#: ../src/ui/edit/edit-application.c:182
+#: ../src/ui/edit/edit-application.c:176
 msgid "-> Sample playback previews from the wavetable page will not work."
 msgstr "-> Näytetoistoesikatselut sivulta eivät toimi."
 
@@ -261,24 +270,24 @@ msgstr "ei mitään"
 msgid "register as"
 msgstr "rekisteröidään nimellä"
 
-#: ../src/ui/edit/interaction-controller-menu.c:253
+#: ../src/ui/edit/interaction-controller-menu.c:270
 msgid "Learn…"
 msgstr "Opi…"
 
-#: ../src/ui/edit/interaction-controller-menu.c:365
+#: ../src/ui/edit/interaction-controller-menu.c:395
 msgid "Bind controller"
 msgstr "Yhdistä ohjain"
 
-#: ../src/ui/edit/interaction-controller-menu.c:376
+#: ../src/ui/edit/interaction-controller-menu.c:406
 msgid "Unbind controller"
 msgstr "Poista ohjaimen yhdistäminen"
 
-#: ../src/ui/edit/interaction-controller-menu.c:385
+#: ../src/ui/edit/interaction-controller-menu.c:415
 msgid "Unbind all controllers"
 msgstr "Poista kaikkien ohjainten yhdistämiset"
 
 #. format about message for machines
-#: ../src/ui/edit/machine-actions.c:67
+#: ../src/ui/edit/machine-actions.c:68
 #, c-format
 msgid ""
 "by %s\n"
@@ -289,46 +298,46 @@ msgstr ""
 "\n"
 "%s"
 
-#: ../src/ui/edit/machine-actions.c:68
+#: ../src/ui/edit/machine-actions.c:69
 msgid "About…"
 msgstr "Ohjelmasta…"
 
-#: ../src/ui/edit/machine-canvas-item.c:829
+#: ../src/ui/edit/machine-canvas-item.c:799
 msgid "Mute"
 msgstr "Mykistä"
 
-#: ../src/ui/edit/machine-canvas-item.c:839
+#: ../src/ui/edit/machine-canvas-item.c:809
 msgid "Solo"
 msgstr "Soolo"
 
-#: ../src/ui/edit/machine-canvas-item.c:851
+#: ../src/ui/edit/machine-canvas-item.c:821
 msgid "Bypass"
 msgstr "Ohita"
 
-#: ../src/ui/edit/machine-canvas-item.c:900
+#: ../src/ui/edit/machine-canvas-item.c:870
 msgid "Rename…"
 msgstr "Nimeä uudelleen…"
 
-#: ../src/ui/edit/machine-canvas-item.c:918
+#: ../src/ui/edit/machine-canvas-item.c:888
 msgid "Connect machines"
 msgstr "Yhdistä koneisiin"
 
-#: ../src/ui/edit/machine-canvas-item.c:926
-#: ../src/ui/edit/wire-canvas-item.c:882
+#: ../src/ui/edit/machine-canvas-item.c:896
+#: ../src/ui/edit/wire-canvas-item.c:756
 msgid "Signal Analysis…"
 msgstr "Signaalianalyysi…"
 
-#: ../src/ui/edit/machine-canvas-item.c:977
+#: ../src/ui/edit/machine-canvas-item.c:947
 msgid "Play with"
 msgstr "Soita suoratoistona"
 
 #. generators
-#: ../src/ui/edit/machine-menu.c:309
+#: ../src/ui/edit/machine-menu.c:321
 msgid "Generators"
 msgstr "Generaattorit"
 
 #. effects
-#: ../src/ui/edit/machine-menu.c:324
+#: ../src/ui/edit/machine-menu.c:336
 msgid "Effects"
 msgstr "Tehoste"
 
@@ -348,8 +357,8 @@ msgstr "esiasetusnimi ja -kommentti"
 #. GtkEntry : machine name
 #. GtkEntry : pattern name
 #: ../src/ui/edit/machine-preset-properties-dialog.c:164
-#: ../src/ui/edit/machine-rename-dialog.c:146
-#: ../src/ui/edit/main-page-info.c:417
+#: ../src/ui/edit/machine-rename-dialog.c:143
+#: ../src/ui/edit/main-page-info.c:416
 #: ../src/ui/edit/pattern-properties-dialog.c:169
 msgid "name"
 msgstr "nimi"
@@ -359,119 +368,119 @@ msgstr "nimi"
 msgid "comment"
 msgstr "kommentti"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:269
+#: ../src/ui/edit/machine-preferences-dialog.c:279
 #, c-format
 msgid "%s preferences"
 msgstr "%s-asetukset"
 
-#: ../src/ui/edit/machine-properties-dialog.c:705
+#: ../src/ui/edit/machine-properties-dialog.c:715
 msgid "Reset parameter"
 msgstr "Nollaa parametri"
 
-#: ../src/ui/edit/machine-properties-dialog.c:712
+#: ../src/ui/edit/machine-properties-dialog.c:722
 msgid "Reset all parameters"
 msgstr "Nollaa kaikki parametrit"
 
 #. TODO(ensonic): copy parameter/group/all?
-#: ../src/ui/edit/machine-properties-dialog.c:724
+#: ../src/ui/edit/machine-properties-dialog.c:734
 msgid "Copy parameter"
 msgstr "Kopioi parametri"
 
-#: ../src/ui/edit/machine-properties-dialog.c:732
-#: ../src/ui/edit/machine-properties-dialog.c:818
+#: ../src/ui/edit/machine-properties-dialog.c:742
+#: ../src/ui/edit/machine-properties-dialog.c:846
 msgid "Paste"
 msgstr "Liitä"
 
 #. add copy/paste item
-#: ../src/ui/edit/machine-properties-dialog.c:810
+#: ../src/ui/edit/machine-properties-dialog.c:838
 msgid "Copy group"
 msgstr "Kopioi ryhmä"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2234
+#: ../src/ui/edit/machine-properties-dialog.c:2238
 msgid "global properties"
 msgstr "yleisominaisuudet"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2289
+#: ../src/ui/edit/machine-properties-dialog.c:2293
 #, c-format
 msgid "voice %lu properties"
 msgstr "ääni %lu -ominaisuudet"
 
 #. set group title
-#: ../src/ui/edit/machine-properties-dialog.c:2382
+#: ../src/ui/edit/machine-properties-dialog.c:2386
 #, c-format
 msgid "%s wire properties"
 msgstr "%s-lankaominaisuudet"
 
 #. set dialog title
-#: ../src/ui/edit/machine-properties-dialog.c:2491
+#: ../src/ui/edit/machine-properties-dialog.c:2494
 #: ../src/ui/edit/pattern-properties-dialog.c:142
 #, c-format
 msgid "%s properties"
 msgstr "%s-ominaisuudet"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2514
+#: ../src/ui/edit/machine-properties-dialog.c:2517
 msgid "Add new preset"
 msgstr "Lisää uusi esiasettelu"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2523
+#: ../src/ui/edit/machine-properties-dialog.c:2526
 msgid "Remove preset"
 msgstr "Poista esiasetus"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2532
+#: ../src/ui/edit/machine-properties-dialog.c:2535
 msgid "Edit preset name and comment"
 msgstr "Muokkaa esiasetusnimeä ja -kommenttia"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2573
+#: ../src/ui/edit/machine-properties-dialog.c:2576
 msgid "Preset"
 msgstr "Esiaseta"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2616
+#: ../src/ui/edit/machine-properties-dialog.c:2619
 msgid "machine properties"
 msgstr "koneen ominaisuudet"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2665
+#: ../src/ui/edit/machine-properties-dialog.c:2668
 msgid "Info about this machine"
 msgstr "Tiedot tästä koneesta"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2673
+#: ../src/ui/edit/machine-properties-dialog.c:2676
 msgid "Help for this machine"
 msgstr "Opaste tälle koneelle"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2685
+#: ../src/ui/edit/machine-properties-dialog.c:2688
 msgid "Randomize parameters"
 msgstr "Satunnaista parametrit"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2693
+#: ../src/ui/edit/machine-properties-dialog.c:2696
 msgid "Reset parameters to defaults"
 msgstr "Palauta parametrit oletusasetuksiin"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2704
+#: ../src/ui/edit/machine-properties-dialog.c:2707
 msgid "Show/Hide preset pane"
 msgstr "Näytä/Piilota esiasetuspaneeli"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2705
+#: ../src/ui/edit/machine-properties-dialog.c:2708
 msgid "Presets"
 msgstr "Esiasetukset"
 
 #. set dialog title
-#: ../src/ui/edit/machine-rename-dialog.c:119
+#: ../src/ui/edit/machine-rename-dialog.c:116
 #, c-format
 msgid "%s name"
 msgstr "%s nimi"
 
-#: ../src/ui/edit/main-menu.c:95 ../src/ui/edit/main-window.c:576
-#: ../src/ui/edit/main-window.c:577
+#: ../src/ui/edit/main-menu.c:95 ../src/ui/edit/main-window.c:570
+#: ../src/ui/edit/main-window.c:571
 msgid "Load new song?"
 msgstr "Lataa uusi kappale?"
 
-#: ../src/ui/edit/main-menu.c:106 ../src/ui/edit/main-window.c:259
-#: ../src/ui/edit/main-window.c:656
+#: ../src/ui/edit/main-menu.c:106 ../src/ui/edit/main-window.c:275
+#: ../src/ui/edit/main-window.c:649
 #, c-format
 msgid "An error occurred while loading the song from file '%s'"
 msgstr "Tapahtui virhe ladattaessa kappaletta tiedostosta ’%s’"
 
 #: ../src/ui/edit/main-menu.c:108 ../src/ui/edit/main-menu.c:109
-#: ../src/ui/edit/main-window.c:261 ../src/ui/edit/main-window.c:658
+#: ../src/ui/edit/main-window.c:277 ../src/ui/edit/main-window.c:651
 msgid "Can't load song"
 msgstr "Kappaleen lataus epäonnistui"
 
@@ -481,64 +490,64 @@ msgstr "Palauta kappale?"
 
 #. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
-#: ../src/ui/edit/main-menu.c:821
+#: ../src/ui/edit/main-menu.c:791
 msgid "_File"
 msgstr "_Tiedosto"
 
-#: ../src/ui/edit/main-menu.c:837
+#: ../src/ui/edit/main-menu.c:807
 msgid "_Recently used"
 msgstr "Äs_kettäin käytetyt"
 
 #. subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDELETE,accel_group);
-#: ../src/ui/edit/main-menu.c:877
+#: ../src/ui/edit/main-menu.c:847
 msgid "Recover unsaved songs"
 msgstr "Palauta tallentamattomat kappaleet"
 
 #. edit menu
-#: ../src/ui/edit/main-menu.c:901
+#: ../src/ui/edit/main-menu.c:871
 msgid "_Edit"
 msgstr "_Muokkaa"
 
 #. view menu
-#: ../src/ui/edit/main-menu.c:964
+#: ../src/ui/edit/main-menu.c:934
 msgid "_View"
 msgstr "_Näkymä"
 
-#: ../src/ui/edit/main-menu.c:972
+#: ../src/ui/edit/main-menu.c:942
 msgid "Toolbar"
 msgstr "Työkalupalkki"
 
-#: ../src/ui/edit/main-menu.c:979
+#: ../src/ui/edit/main-menu.c:949
 msgid "Statusbar"
 msgstr "Tilapalkki"
 
-#: ../src/ui/edit/main-menu.c:987
+#: ../src/ui/edit/main-menu.c:957
 msgid "Tabs"
 msgstr "Välilehdet"
 
 #. TODO(ensonic): 'Machine properties' show/hide toggle
 #. TODO(ensonic): 'Analyzer windows' show/hide toggle
-#: ../src/ui/edit/main-menu.c:997
+#: ../src/ui/edit/main-menu.c:967
 msgid "Fullscreen"
 msgstr "Kokoruutunäyttö"
 
-#: ../src/ui/edit/main-menu.c:1008
+#: ../src/ui/edit/main-menu.c:978
 msgid "Go to machine view"
 msgstr "Siirry konenäkymään"
 
-#: ../src/ui/edit/main-menu.c:1020
+#: ../src/ui/edit/main-menu.c:990
 msgid "Go to pattern view"
 msgstr "Siirry mallinäkymään"
 
-#: ../src/ui/edit/main-menu.c:1032
+#: ../src/ui/edit/main-menu.c:1002
 msgid "Go to sequence view"
 msgstr "Siirry sekvenssinäkymään"
 
-#: ../src/ui/edit/main-menu.c:1044
+#: ../src/ui/edit/main-menu.c:1014
 msgid "Go to wave table view"
 msgstr "Siirry aaltotaulunäkymään"
 
-#: ../src/ui/edit/main-menu.c:1055
+#: ../src/ui/edit/main-menu.c:1025
 msgid "Go to song information"
 msgstr "Siirry kappaletietoihin"
 
@@ -562,11 +571,11 @@ msgstr "Siirry kappaletietoihin"
 #. g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
 #.
 #. playback menu
-#: ../src/ui/edit/main-menu.c:1087
+#: ../src/ui/edit/main-menu.c:1057
 msgid "_Playback"
 msgstr "Toi_sto"
 
-#: ../src/ui/edit/main-menu.c:1105
+#: ../src/ui/edit/main-menu.c:1076
 msgid "Play from cursor"
 msgstr "Soita kohdistimesta"
 
@@ -582,17 +591,17 @@ msgstr "Soita kohdistimesta"
 #. * - remove unsused patterns, unconnected machines with no empty/tracks
 #.
 #. help menu
-#: ../src/ui/edit/main-menu.c:1137
+#: ../src/ui/edit/main-menu.c:1109
 msgid "_Help"
 msgstr "_Opaste"
 
-#: ../src/ui/edit/main-menu.c:1152 ../src/ui/edit/tip-dialog.c:182
-#: ../src/ui/edit/tip-dialog.c:197
+#: ../src/ui/edit/main-menu.c:1126 ../src/ui/edit/tip-dialog.c:207
+#: ../src/ui/edit/tip-dialog.c:222
 msgid "Tip of the day"
 msgstr "Päivän vihje"
 
 #. join web-chat
-#: ../src/ui/edit/main-menu.c:1160
+#: ../src/ui/edit/main-menu.c:1134
 msgid "Join IRC discussion"
 msgstr "Liity IRC-keskusteluun"
 
@@ -603,7 +612,7 @@ msgstr "Liity IRC-keskusteluun"
 #. * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-bug.png
 #. * /usr/share/app-install/icons/bug-buddy.png
 #.
-#: ../src/ui/edit/main-menu.c:1173
+#: ../src/ui/edit/main-menu.c:1147
 msgid "Report a problem"
 msgstr "Ilmoita pulmasta"
 
@@ -611,116 +620,116 @@ msgstr "Ilmoita pulmasta"
 msgid "song meta data"
 msgstr "kappaleen metatiedot"
 
-#: ../src/ui/edit/main-page-info.c:427
+#: ../src/ui/edit/main-page-info.c:425
 msgid "genre"
 msgstr "tyylilaji"
 
-#: ../src/ui/edit/main-page-info.c:437
+#: ../src/ui/edit/main-page-info.c:435
 msgid "author"
 msgstr "tekijä"
 
-#: ../src/ui/edit/main-page-info.c:447
+#: ../src/ui/edit/main-page-info.c:445
 msgid "created"
 msgstr "luotu"
 
-#: ../src/ui/edit/main-page-info.c:462
+#: ../src/ui/edit/main-page-info.c:460
 msgid "beats per minute"
 msgstr "tahtia per minuutti"
 
-#: ../src/ui/edit/main-page-info.c:478
+#: ../src/ui/edit/main-page-info.c:475
 msgid "beats"
 msgstr "tahdit"
 
-#: ../src/ui/edit/main-page-info.c:501
+#: ../src/ui/edit/main-page-info.c:498
 msgid "ticks per beat"
 msgstr "lyönnit/tahti"
 
-#: ../src/ui/edit/main-page-info.c:515
+#: ../src/ui/edit/main-page-info.c:511
 msgid "last saved"
 msgstr "viimeksi tallennettu"
 
-#: ../src/ui/edit/main-page-info.c:534 ../src/ui/edit/main-page-info.c:536
+#: ../src/ui/edit/main-page-info.c:528 ../src/ui/edit/main-page-info.c:530
 msgid "free text info"
 msgstr "vapaa tekstitieto"
 
 #. menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
-#: ../src/ui/edit/main-page-machines.c:1356
+#: ../src/ui/edit/main-page-machines.c:1528
 msgid "Add machine"
 msgstr "Lisää kone"
 
-#: ../src/ui/edit/main-page-machines.c:1369
+#: ../src/ui/edit/main-page-machines.c:1539
 msgid "Unmute all machines"
 msgstr "Poista kaikkien koneiden mykistys"
 
-#: ../src/ui/edit/main-page-machines.c:1388
+#: ../src/ui/edit/main-page-machines.c:1556
 msgid "Off"
 msgstr "Sulje"
 
-#: ../src/ui/edit/main-page-machines.c:1401
+#: ../src/ui/edit/main-page-machines.c:1568
 msgid "Low"
 msgstr "Alhainen"
 
-#: ../src/ui/edit/main-page-machines.c:1414
+#: ../src/ui/edit/main-page-machines.c:1580
 msgid "Medium"
 msgstr "Keskitaso"
 
-#: ../src/ui/edit/main-page-machines.c:1427
+#: ../src/ui/edit/main-page-machines.c:1592
 msgid "High"
 msgstr "Korkea"
 
-#: ../src/ui/edit/main-page-machines.c:1477
+#: ../src/ui/edit/main-page-machines.c:1639
 msgid "Zoom in/out so that everything is visible"
 msgstr "Lähennä/loitonna niin että kaikki on näkyvää"
 
-#: ../src/ui/edit/main-page-machines.c:1488
+#: ../src/ui/edit/main-page-machines.c:1648
 msgid "Zoom in for more details"
 msgstr "Lähennä lisätietoihin"
 
-#: ../src/ui/edit/main-page-machines.c:1499
+#: ../src/ui/edit/main-page-machines.c:1659
 msgid "Zoom out for better overview"
 msgstr "Loitonna paremman yleisnäkymän saamiseksi"
 
-#: ../src/ui/edit/main-page-machines.c:1514
-#: ../src/ui/edit/main-page-machines.c:1527
+#: ../src/ui/edit/main-page-machines.c:1674
+#: ../src/ui/edit/main-page-machines.c:1685
 msgid "Grid"
 msgstr "Rasteri"
 
-#: ../src/ui/edit/main-page-machines.c:1518
-#: ../src/ui/edit/main-page-machines.c:1520
-#: ../src/ui/edit/main-page-machines.c:1529
+#: ../src/ui/edit/main-page-machines.c:1678
+#: ../src/ui/edit/main-page-machines.c:1679
+#: ../src/ui/edit/main-page-machines.c:1686
 msgid "Show background grid"
 msgstr "Näytä taustarasteri"
 
-#: ../src/ui/edit/main-page-machines.c:1543
+#: ../src/ui/edit/main-page-machines.c:1702
 msgid "Machine view menu"
 msgstr "Konenäkymävalikko"
 
-#: ../src/ui/edit/main-page-machines.c:1545
+#: ../src/ui/edit/main-page-machines.c:1704
 msgid "Menu actions for machine view below"
 msgstr "Valikkotoiminnot konenäkymälle alla"
 
-#: ../src/ui/edit/main-page-machines.c:2334
+#: ../src/ui/edit/main-page-machines.c:2513
 msgid "Add new machines from right click context menu. Connect machines with shift+drag from source to target."
 msgstr "Lisää uusia koneita hiiren oikean painikkeen konteksivalikosta. Yhdistä koneet vaihtopainikkeella ja raahaamisella lähteestä kohteeseen."
 
-#: ../src/ui/edit/main-page-patterns.c:354
+#: ../src/ui/edit/main-page-patterns.c:351
 msgid "Add new patterns from right click context menu."
 msgstr "Lisää uudet mallit hiiren oikean painikkeen konteksivalikkoon."
 
 #. create mapping for global params
 #. label for first global parameter column in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1733
+#: ../src/ui/edit/main-page-patterns.c:1730
 msgid "Globals"
 msgstr "Yleisasetukset"
 
 #. create mapping for voice params
 #. label for parameters of first voice column in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1755
+#: ../src/ui/edit/main-page-patterns.c:1752
 msgid "Voice 1"
 msgstr "Ääni 1"
 
 #. label for parameters of voice columns in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1775
+#: ../src/ui/edit/main-page-patterns.c:1772
 #, c-format
 msgid "Voice %u"
 msgstr "Ääni %u"
@@ -729,402 +738,401 @@ msgstr "Ääni %u"
 #. * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
 #. * so, we need to subclass the combobox and add two signals: select-next, select-prev
 #.
-#: ../src/ui/edit/main-page-patterns.c:2973
+#: ../src/ui/edit/main-page-patterns.c:2967
 msgid "Machine"
 msgstr "Kone"
 
-#: ../src/ui/edit/main-page-patterns.c:3003
+#: ../src/ui/edit/main-page-patterns.c:2997
 msgid "Pattern"
 msgstr "Malli"
 
-#: ../src/ui/edit/main-page-patterns.c:3043
-#: ../src/ui/edit/main-page-waves.c:1291
+#: ../src/ui/edit/main-page-patterns.c:3037
+#: ../src/ui/edit/main-page-waves.c:1374
 msgid "Wave"
 msgstr "Aalto"
 
-#: ../src/ui/edit/main-page-patterns.c:3072
+#: ../src/ui/edit/main-page-patterns.c:3066
 msgid "Octave"
 msgstr "Oktaavi"
 
-#: ../src/ui/edit/main-page-patterns.c:3093
+#: ../src/ui/edit/main-page-patterns.c:3088
 msgid "Play live"
 msgstr "Soita suoratoistona"
 
-#: ../src/ui/edit/main-page-patterns.c:3096
+#: ../src/ui/edit/main-page-patterns.c:3091
 msgid "Play notes and triggers while editing the pattern"
 msgstr "Soita nuotit ja käynnistimet mallia muokattaessa"
 
-#: ../src/ui/edit/main-page-patterns.c:3108
+#: ../src/ui/edit/main-page-patterns.c:3106
 msgid "Pattern view menu"
 msgstr "Mallinäkymävalikko"
 
-#: ../src/ui/edit/main-page-patterns.c:3110
+#: ../src/ui/edit/main-page-patterns.c:3108
 msgid "Menu actions for pattern view below"
 msgstr "Valikkotoiminnot mallinäkymälle alla"
 
-#: ../src/ui/edit/main-page-patterns.c:3164
+#: ../src/ui/edit/main-page-patterns.c:3153
 msgid "New track"
 msgstr "Uusi ääniraita"
 
-#: ../src/ui/edit/main-page-patterns.c:3178
+#: ../src/ui/edit/main-page-patterns.c:3167
 msgid "Remove last track"
 msgstr "Poista viimeinen ääniraita"
 
-#: ../src/ui/edit/main-page-patterns.c:3195
+#: ../src/ui/edit/main-page-patterns.c:3184
 msgid "New pattern …"
 msgstr "Uusi malli …"
 
-#: ../src/ui/edit/main-page-patterns.c:3209
+#: ../src/ui/edit/main-page-patterns.c:3198
 msgid "Pattern properties…"
 msgstr "Malliominaisuudet…"
 
-#: ../src/ui/edit/main-page-patterns.c:3224
+#: ../src/ui/edit/main-page-patterns.c:3213
 msgid "Remove pattern…"
 msgstr "Poista malli…"
 
-#: ../src/ui/edit/main-page-patterns.c:3238
+#: ../src/ui/edit/main-page-patterns.c:3227
 msgid "Copy pattern…"
 msgstr "Kopioi malli…"
 
 #. dynamic part
-#: ../src/ui/edit/main-page-patterns.c:3256
-#: ../src/ui/edit/main-page-sequence.c:3694
+#: ../src/ui/edit/main-page-patterns.c:3245
+#: ../src/ui/edit/main-page-sequence.c:3738
 msgid "Machine properties"
 msgstr "Koneen ominaisuudet"
 
-#: ../src/ui/edit/main-page-patterns.c:3267
-#: ../src/ui/edit/main-page-sequence.c:3703
+#: ../src/ui/edit/main-page-patterns.c:3256
+#: ../src/ui/edit/main-page-sequence.c:3747
 msgid "Machine preferences"
 msgstr "Koneasetukset"
 
 #. time line position
-#: ../src/ui/edit/main-page-sequence.c:1251
+#: ../src/ui/edit/main-page-sequence.c:1215
 msgid "Pos."
 msgstr "Sijainti"
 
-#: ../src/ui/edit/main-page-sequence.c:1259
+#: ../src/ui/edit/main-page-sequence.c:1224
 msgid "Ticks"
 msgstr "Lyönnit"
 
-#: ../src/ui/edit/main-page-sequence.c:1261
+#: ../src/ui/edit/main-page-sequence.c:1226
 msgid "Time"
 msgstr "Aika"
 
-#: ../src/ui/edit/main-page-sequence.c:1263
+#: ../src/ui/edit/main-page-sequence.c:1228
 msgid "Beats"
 msgstr "Tahdit"
 
-#: ../src/ui/edit/main-page-sequence.c:1437
-#: ../src/ui/edit/main-page-sequence.c:1465
+#: ../src/ui/edit/main-page-sequence.c:1401
+#: ../src/ui/edit/main-page-sequence.c:1428
 msgid "Labels"
 msgstr "Nimiöt"
 
-#: ../src/ui/edit/main-page-sequence.c:3579
+#: ../src/ui/edit/main-page-sequence.c:3621
 msgid "Show every n-th line"
 msgstr "Näytä joka n. rivi"
 
-#: ../src/ui/edit/main-page-sequence.c:3590
+#: ../src/ui/edit/main-page-sequence.c:3631
 msgid "Steps"
 msgstr "Vaiheet"
 
-#: ../src/ui/edit/main-page-sequence.c:3605
+#: ../src/ui/edit/main-page-sequence.c:3646
 msgid "Follow playback"
 msgstr "Seuraa toistoa"
 
-#: ../src/ui/edit/main-page-sequence.c:3623
+#: ../src/ui/edit/main-page-sequence.c:3667
 msgid "Sequence view menu"
 msgstr "Sekvenssinäkymävalikko"
 
-#: ../src/ui/edit/main-page-sequence.c:3625
+#: ../src/ui/edit/main-page-sequence.c:3669
 msgid "Menu actions for sequence view below"
 msgstr "Valikkotoiminnot sekvenssinäkymälle alla"
 
-#: ../src/ui/edit/main-page-sequence.c:3639
+#: ../src/ui/edit/main-page-sequence.c:3683
 msgid "Add track"
 msgstr "Lisää ääniraita"
 
-#: ../src/ui/edit/main-page-sequence.c:3647
+#: ../src/ui/edit/main-page-sequence.c:3691
 msgid "Remove track"
 msgstr "Poista ääniraita"
 
-#: ../src/ui/edit/main-page-sequence.c:3664
+#: ../src/ui/edit/main-page-sequence.c:3708
 msgid "Move track left"
 msgstr "Siirrä ääniraita vasemmalle"
 
-#: ../src/ui/edit/main-page-sequence.c:3677
+#: ../src/ui/edit/main-page-sequence.c:3721
 msgid "Move track right"
 msgstr "Siirrä ääniraita oikealle"
 
-#: ../src/ui/edit/main-page-sequence.c:3764
+#: ../src/ui/edit/main-page-sequence.c:3820
 msgid "Browse to labels in the sequence"
 msgstr "Selaa nimiöitä järjestyksessä"
 
-#: ../src/ui/edit/main-page-sequence.c:3894
+#: ../src/ui/edit/main-page-sequence.c:3971
 msgid "Key"
 msgstr "Painike"
 
-#: ../src/ui/edit/main-page-sequence.c:3909
+#: ../src/ui/edit/main-page-sequence.c:3986
 msgid "Patterns"
 msgstr "Mallit"
 
-#: ../src/ui/edit/main-page-sequence.c:4558
+#: ../src/ui/edit/main-page-sequence.c:4634
 msgid "Add new tracks from right click context menu."
 msgstr "Lisää uudet ääniraidat hiiren oikean painikkeen konteksivalikosta."
 
-#: ../src/ui/edit/main-page-waves.c:1226
+#: ../src/ui/edit/main-page-waves.c:1308
 msgid "Play current wave table entry as C-4"
 msgstr "Soita nykyinen aaltotaulurivi C-4:nä"
 
-#: ../src/ui/edit/main-page-waves.c:1237
+#: ../src/ui/edit/main-page-waves.c:1319
 msgid "Stop playback of current wave table entry"
 msgstr "Pysäytä nykyisen aaltotaulurivin toisto"
 
-#: ../src/ui/edit/main-page-waves.c:1248
+#: ../src/ui/edit/main-page-waves.c:1330
 msgid "Clear current wave table entry"
 msgstr "Tyhjennä nykyinen aaltotaulurivi"
 
-#: ../src/ui/edit/main-page-waves.c:1282
+#: ../src/ui/edit/main-page-waves.c:1364
 msgid "Ix"
 msgstr "Ix"
 
-#: ../src/ui/edit/main-page-waves.c:1299
+#: ../src/ui/edit/main-page-waves.c:1382
 msgid "Volume"
 msgstr "Äänenvoimakkuus"
 
-#: ../src/ui/edit/main-page-waves.c:1307 ../src/ui/edit/main-toolbar.c:973
+#: ../src/ui/edit/main-page-waves.c:1390 ../src/ui/edit/main-toolbar.c:963
 msgid "Loop"
 msgstr "Silmukka"
 
-#: ../src/ui/edit/main-page-waves.c:1339
+#: ../src/ui/edit/main-page-waves.c:1420
 msgid "Play current sample"
 msgstr "Soita nykyinen näyte"
 
-#: ../src/ui/edit/main-page-waves.c:1348
+#: ../src/ui/edit/main-page-waves.c:1429
 msgid "Load current sample into selected wave table entry"
 msgstr "Lataa nykyinen näyte valitulle aaltotauluriville"
 
-#: ../src/ui/edit/main-page-waves.c:1412
+#: ../src/ui/edit/main-page-waves.c:1484
 msgid "Root"
 msgstr "Juuri"
 
-#: ../src/ui/edit/main-page-waves.c:1420
+#: ../src/ui/edit/main-page-waves.c:1492
 msgid "Length"
 msgstr "Pituus"
 
-#: ../src/ui/edit/main-page-waves.c:1428
+#: ../src/ui/edit/main-page-waves.c:1500
 msgid "Rate"
 msgstr "Taajuus"
 
-#: ../src/ui/edit/main-page-waves.c:1438
+#: ../src/ui/edit/main-page-waves.c:1510
 msgid "Loop start"
 msgstr "Silmukan alku"
 
-#: ../src/ui/edit/main-page-waves.c:1449
+#: ../src/ui/edit/main-page-waves.c:1521
 msgid "Loop end"
 msgstr "Silmukan loppu"
 
-#: ../src/ui/edit/main-pages.c:184
+#: ../src/ui/edit/main-pages.c:177
 msgid "machines"
 msgstr "koneet"
 
 #  wires-sanan merkitys tässä on epäselvä
-#: ../src/ui/edit/main-pages.c:185
+#: ../src/ui/edit/main-pages.c:178
 msgid "machines used in the song and their wires"
 msgstr "koneita käytetään kappaleissa ja niiden johdoissa"
 
-#: ../src/ui/edit/main-pages.c:191
+#: ../src/ui/edit/main-pages.c:184
 msgid "patterns"
 msgstr "mallit"
 
-#: ../src/ui/edit/main-pages.c:191
+#: ../src/ui/edit/main-pages.c:184
 msgid "event pattern editor"
 msgstr "tapahtumamallimuokkain"
 
-#: ../src/ui/edit/main-pages.c:197
+#: ../src/ui/edit/main-pages.c:190
 msgid "sequence"
 msgstr "sekvenssi"
 
-#: ../src/ui/edit/main-pages.c:197
+#: ../src/ui/edit/main-pages.c:190
 msgid "song sequence editor"
 msgstr "kappalesekvenssimuokkain"
 
-#: ../src/ui/edit/main-pages.c:203
+#: ../src/ui/edit/main-pages.c:196
 msgid "wave table"
 msgstr "aaltotaulu"
 
-#: ../src/ui/edit/main-pages.c:203
+#: ../src/ui/edit/main-pages.c:196
 msgid "sample wave table editor"
 msgstr "näyteaaltotaulumuokkain"
 
-#: ../src/ui/edit/main-pages.c:209
+#: ../src/ui/edit/main-pages.c:202
 msgid "information"
 msgstr "tiedot"
 
-#: ../src/ui/edit/main-pages.c:209
+#: ../src/ui/edit/main-pages.c:202
 msgid "song meta data editor"
 msgstr "kappaleen metatietojen muokkain"
 
-#: ../src/ui/edit/main-statusbar.c:336
+#: ../src/ui/edit/main-statusbar.c:325
 msgid "CPU load"
 msgstr "Prosessorikuorma"
 
-#: ../src/ui/edit/main-statusbar.c:351
+#: ../src/ui/edit/main-statusbar.c:340
 msgid "Playback time"
 msgstr "Toistoaika"
 
-#: ../src/ui/edit/main-statusbar.c:367
+#: ../src/ui/edit/main-statusbar.c:349
 msgid "Playback position"
 msgstr "Toistosijainti"
 
-#: ../src/ui/edit/main-statusbar.c:383
+#: ../src/ui/edit/main-statusbar.c:358
 msgid "Playback length"
 msgstr "Toistopituus"
 
-#: ../src/ui/edit/main-toolbar.c:428
+#: ../src/ui/edit/main-toolbar.c:418
 msgid "Error"
 msgstr "Virhe"
 
-#. bt_song_stop(song);
-#: ../src/ui/edit/main-toolbar.c:467
+#: ../src/ui/edit/main-toolbar.c:452
 msgid "Warning"
 msgstr "Varoitus"
 
-#: ../src/ui/edit/main-toolbar.c:896
+#: ../src/ui/edit/main-toolbar.c:885
 msgid "Prepare a new empty song"
 msgstr "Valmistele uusi tyhjä kappale"
 
-#: ../src/ui/edit/main-toolbar.c:904
+#: ../src/ui/edit/main-toolbar.c:893
 msgid "Load a new song"
 msgstr "Lataa uusi kappale"
 
-#: ../src/ui/edit/main-toolbar.c:913
+#: ../src/ui/edit/main-toolbar.c:902
 msgid "Save this song"
 msgstr "Tallenna tämä kappale"
 
-#: ../src/ui/edit/main-toolbar.c:926
+#: ../src/ui/edit/main-toolbar.c:915
 msgid "Rewind playback position of this song"
 msgstr "Siirry takaisinpäin tämän kappaleen toistosijainnissa"
 
-#: ../src/ui/edit/main-toolbar.c:940
+#: ../src/ui/edit/main-toolbar.c:929
 msgid "Play this song"
 msgstr "Soita tämä kappale"
 
-#: ../src/ui/edit/main-toolbar.c:949
+#: ../src/ui/edit/main-toolbar.c:938
 msgid "Forward playback position of this song"
 msgstr "Siirry eteenpäin tämän kappaleen toistosijainnissa"
 
-#: ../src/ui/edit/main-toolbar.c:963
+#: ../src/ui/edit/main-toolbar.c:952
 msgid "Stop playback of this song"
 msgstr "Pysäytä tämän kappaleen toisto"
 
-#: ../src/ui/edit/main-toolbar.c:976
+#: ../src/ui/edit/main-toolbar.c:966
 msgid "Toggle looping of playback"
 msgstr "Vuorottele toiston silmukointia"
 
-#: ../src/ui/edit/main-toolbar.c:998
+#: ../src/ui/edit/main-toolbar.c:989
 msgid "playback volume"
 msgstr "toiston voimakkuus"
 
-#: ../src/ui/edit/main-toolbar.c:1020
+#: ../src/ui/edit/main-toolbar.c:1011
 msgid "Change playback volume"
 msgstr "Muuta toiston voimakkuutta"
 
-#: ../src/ui/edit/main-window.c:224
+#: ../src/ui/edit/main-window.c:244
 msgid "unsaved"
 msgstr "tallentamaton"
 
-#: ../src/ui/edit/main-window.c:224
+#: ../src/ui/edit/main-window.c:244
 msgid "saved"
 msgstr "tallennettu"
 
-#: ../src/ui/edit/main-window.c:305 ../src/ui/edit/main-window.c:310
+#: ../src/ui/edit/main-window.c:321 ../src/ui/edit/main-window.c:326
 #, c-format
 msgid "%d %s and %d %s"
 msgstr "%d %s ja %d %s"
 
-#: ../src/ui/edit/main-window.c:306
+#: ../src/ui/edit/main-window.c:322
 msgid "hour"
 msgstr "tunti"
 
-#: ../src/ui/edit/main-window.c:306
+#: ../src/ui/edit/main-window.c:322
 msgid "hours"
 msgstr "tuntia"
 
-#: ../src/ui/edit/main-window.c:307 ../src/ui/edit/main-window.c:311
+#: ../src/ui/edit/main-window.c:323 ../src/ui/edit/main-window.c:327
 msgid "minute"
 msgstr "minuutti"
 
-#: ../src/ui/edit/main-window.c:307 ../src/ui/edit/main-window.c:311
+#: ../src/ui/edit/main-window.c:323 ../src/ui/edit/main-window.c:327
 msgid "minutes"
 msgstr "minuuttia"
 
-#: ../src/ui/edit/main-window.c:312 ../src/ui/edit/main-window.c:316
+#: ../src/ui/edit/main-window.c:328 ../src/ui/edit/main-window.c:332
 msgid "second"
 msgstr "sekunti"
 
-#: ../src/ui/edit/main-window.c:312 ../src/ui/edit/main-window.c:316
+#: ../src/ui/edit/main-window.c:328 ../src/ui/edit/main-window.c:332
 msgid "seconds"
 msgstr "sekuntia"
 
-#: ../src/ui/edit/main-window.c:315
+#: ../src/ui/edit/main-window.c:331
 #, c-format
 msgid "%d %s"
 msgstr "%d %s"
 
-#: ../src/ui/edit/main-window.c:324
+#: ../src/ui/edit/main-window.c:340
 #, c-format
 msgid "All unsaved changes since %s will be lost. This song was last saved on: %s"
 msgstr "Kaikki tallentamattomat muutokset sitten %s menetetään. Tämä kappale tallennettiin viimeksi: %s"
 
-#: ../src/ui/edit/main-window.c:329
+#: ../src/ui/edit/main-window.c:345
 #, c-format
 msgid "All unsaved changes since %s will be lost. This song was created on: %s"
 msgstr "Kaikki tallentamattomat muutokset sitten %s menetetään. Tämä kappale luotiin: %s"
 
-#: ../src/ui/edit/main-window.c:536 ../src/ui/edit/main-window.c:537
+#: ../src/ui/edit/main-window.c:531 ../src/ui/edit/main-window.c:532
 msgid "Really quit?"
 msgstr "Poistutaanko todella?"
 
-#: ../src/ui/edit/main-window.c:549
+#: ../src/ui/edit/main-window.c:544
 msgid "New song?"
 msgstr "Uusi kappale?"
 
-#: ../src/ui/edit/main-window.c:581
+#: ../src/ui/edit/main-window.c:575
 msgid "Open a song"
 msgstr "Avaa kappale"
 
-#: ../src/ui/edit/main-window.c:698
+#: ../src/ui/edit/main-window.c:688
 #, c-format
 msgid "An error occurred while saving the song to file '%s'."
 msgstr "Tapahtui virhe tallennettaessa kappaletta tiedostoon ’%s’."
 
-#: ../src/ui/edit/main-window.c:699 ../src/ui/edit/main-window.c:954
-#: ../src/ui/edit/main-window.c:969
+#: ../src/ui/edit/main-window.c:689 ../src/ui/edit/main-window.c:937
+#: ../src/ui/edit/main-window.c:952
 msgid "Can't save song"
 msgstr "Kappaleen tallennus epäonnistui"
 
-#: ../src/ui/edit/main-window.c:737
+#: ../src/ui/edit/main-window.c:723
 msgid "Save a song"
 msgstr "Tallenna kappale"
 
-#: ../src/ui/edit/main-window.c:890 ../src/ui/edit/render-dialog.c:554
+#: ../src/ui/edit/main-window.c:873 ../src/ui/edit/render-dialog.c:616
 msgid "Format"
 msgstr "Muoto"
 
-#: ../src/ui/edit/main-window.c:936 ../src/ui/edit/main-window.c:937
+#: ../src/ui/edit/main-window.c:919 ../src/ui/edit/main-window.c:920
 msgid "File already exists"
 msgstr "Tiedosto on jo olemassa"
 
-#: ../src/ui/edit/main-window.c:939
+#: ../src/ui/edit/main-window.c:922
 msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
 msgstr "Valitse ’Kyllä’, jos haluat korvata kappaleen tai ’Peru’, jos haluat keskeyttää kappaleen tallennuksen."
 
-#: ../src/ui/edit/main-window.c:952
+#: ../src/ui/edit/main-window.c:935
 #, c-format
 msgid "An error occurred while writing the file '%s': %s"
 msgstr "Tapahtui virhe kirjoitettaessa tiedostoa ’%s’: %s"
 
-#: ../src/ui/edit/main-window.c:968
+#: ../src/ui/edit/main-window.c:951
 #, c-format
 msgid "An error occurred saving the song to file '%s'."
 msgstr "Tapahtui virhe tallennettaessa kappaletta tiedostoon ’%s’."
@@ -1137,20 +1145,20 @@ msgstr "Tapahtui virhe tallennettaessa kappaletta tiedostoon ’%s’."
 #. }
 #.
 #. set dialog title
-#: ../src/ui/edit/missing-framework-elements-dialog.c:137
-#: ../src/ui/edit/missing-framework-elements-dialog.c:157
+#: ../src/ui/edit/missing-framework-elements-dialog.c:138
+#: ../src/ui/edit/missing-framework-elements-dialog.c:158
 msgid "Missing GStreamer elements"
 msgstr "Puuttuvat GStreamer-elementit"
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:167
+#: ../src/ui/edit/missing-framework-elements-dialog.c:168
 msgid "The elements listed below are missing from your installation, but are required."
 msgstr "Alla luetellut elementit puuttuavat asennuksestasi, mutta niitä tarvitaan."
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:209
+#: ../src/ui/edit/missing-framework-elements-dialog.c:208
 msgid "The elements listed below are missing from your installation, but are recommended for full functionality."
 msgstr "Alla luetellut elementit puuttuvat asennuksestasi, mutta ne ovat suositeltavia täyteen toiminnallisuuteen."
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:212
+#: ../src/ui/edit/missing-framework-elements-dialog.c:211
 msgid "don't warn again"
 msgstr "älä varoita uudelleen"
 
@@ -1162,16 +1170,16 @@ msgstr "älä varoita uudelleen"
 #. }
 #.
 #. set dialog title
-#: ../src/ui/edit/missing-song-elements-dialog.c:123
-#: ../src/ui/edit/missing-song-elements-dialog.c:140
+#: ../src/ui/edit/missing-song-elements-dialog.c:124
+#: ../src/ui/edit/missing-song-elements-dialog.c:141
 msgid "Missing elements in song"
 msgstr "Puuttuvat elementit kappaleessa"
 
-#: ../src/ui/edit/missing-song-elements-dialog.c:148
+#: ../src/ui/edit/missing-song-elements-dialog.c:149
 msgid "The machines listed below are missing or failed to load."
 msgstr "Alla luetellut koneet puuttuvat tai niiden lataus epäonnistui."
 
-#: ../src/ui/edit/missing-song-elements-dialog.c:153
+#: ../src/ui/edit/missing-song-elements-dialog.c:154
 msgid "The waves listed below are missing or failed to load."
 msgstr "Alla luetellut aallot puuttuvat tai niiden lataaminen epäonnistui."
 
@@ -1185,63 +1193,59 @@ msgstr "pituus"
 msgid "voices"
 msgstr "äänet"
 
-#: ../src/ui/edit/render-dialog.c:148
+#: ../src/ui/edit/render-dialog.c:190
 #, c-format
 msgid "Recording to: %s"
 msgstr "Äänitetään kohteeseen: %s"
 
-#: ../src/ui/edit/render-dialog.c:481
+#: ../src/ui/edit/render-dialog.c:561
 msgid "song rendering"
 msgstr "kappaleen tulkinta"
 
-#: ../src/ui/edit/render-dialog.c:505
+#: ../src/ui/edit/render-dialog.c:585
 msgid "Folder"
 msgstr "Kansio"
 
-#: ../src/ui/edit/render-dialog.c:511
+#: ../src/ui/edit/render-dialog.c:591
 #: ../src/ui/edit/settings-page-directories.c:106
 #: ../src/ui/edit/settings-page-directories.c:121
 #: ../src/ui/edit/settings-page-directories.c:137
 msgid "Select a folder"
 msgstr "Valitse kansio"
 
-#: ../src/ui/edit/render-dialog.c:521
+#: ../src/ui/edit/render-dialog.c:601
 msgid "Filename"
 msgstr "Tiedostonimi"
 
-#: ../src/ui/edit/render-dialog.c:577
+#: ../src/ui/edit/render-dialog.c:649
 msgid "Mode"
 msgstr "Tila"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
-#: ../src/ui/edit/settings-dialog.c:161
+#: ../src/ui/edit/settings-dialog.c:160
 msgid "buzztrax settings"
 msgstr "buzztrax-asetukset"
 
-#: ../src/ui/edit/settings-dialog.c:210 ../src/ui/edit/settings-dialog.c:261
+#: ../src/ui/edit/settings-dialog.c:205 ../src/ui/edit/settings-dialog.c:243
 msgid "Audio Devices"
 msgstr "Äänilaitteet"
 
-#: ../src/ui/edit/settings-dialog.c:217 ../src/ui/edit/settings-dialog.c:271
+#: ../src/ui/edit/settings-dialog.c:209 ../src/ui/edit/settings-dialog.c:253
 #: ../src/ui/edit/settings-page-interaction-controller.c:246
 msgid "Interaction Controller"
 msgstr "Keskusteluohjain"
 
-#: ../src/ui/edit/settings-dialog.c:223 ../src/ui/edit/settings-dialog.c:281
-#: ../src/ui/edit/settings-page-playback-controller.c:241
+#: ../src/ui/edit/settings-dialog.c:214 ../src/ui/edit/settings-dialog.c:263
+#: ../src/ui/edit/settings-page-playback-controller.c:244
 msgid "Playback Controller"
 msgstr "Toisto-ohjain"
 
-#: ../src/ui/edit/settings-dialog.c:228 ../src/ui/edit/settings-dialog.c:292
-msgid "Colors"
-msgstr "Värit"
-
-#: ../src/ui/edit/settings-dialog.c:234 ../src/ui/edit/settings-dialog.c:300
+#: ../src/ui/edit/settings-dialog.c:219 ../src/ui/edit/settings-dialog.c:271
 #: ../src/ui/edit/settings-page-shortcuts.c:85
 msgid "Shortcuts"
 msgstr "Pikavalitsimet"
 
-#: ../src/ui/edit/settings-dialog.c:240 ../src/ui/edit/settings-dialog.c:308
+#: ../src/ui/edit/settings-dialog.c:223 ../src/ui/edit/settings-dialog.c:279
 #: ../src/ui/edit/settings-page-directories.c:91
 msgid "Directories"
 msgstr "Hakemistot"
@@ -1250,44 +1254,44 @@ msgstr "Hakemistot"
 msgid "Auto"
 msgstr "Automaattinen"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:275
+#: ../src/ui/edit/settings-page-audiodevices.c:268
 msgid "Audio Device"
 msgstr "Äänilaite"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:284
+#: ../src/ui/edit/settings-page-audiodevices.c:277
 msgid "Sink"
 msgstr "Upotus"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:296
+#: ../src/ui/edit/settings-page-audiodevices.c:291
 #, c-format
 msgid "system default: %s (%s)"
 msgstr "järjestelmäoletus: %s (%s)"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:303
+#: ../src/ui/edit/settings-page-audiodevices.c:298
 msgid "system default: -"
 msgstr "järjestelmäoletus: -"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:421
+#: ../src/ui/edit/settings-page-audiodevices.c:383
 msgid "Audio device"
 msgstr "Äänilaite"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:434
+#: ../src/ui/edit/settings-page-audiodevices.c:396
 msgid "Sampling rate"
 msgstr "Näytetaajuus"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:490
+#: ../src/ui/edit/settings-page-audiodevices.c:452
 msgid "Channels"
 msgstr "Kanavat"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:497
+#: ../src/ui/edit/settings-page-audiodevices.c:459
 msgid "mono"
 msgstr "mono"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:499
+#: ../src/ui/edit/settings-page-audiodevices.c:461
 msgid "stereo"
 msgstr "stereo"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:506
+#: ../src/ui/edit/settings-page-audiodevices.c:468
 msgid "Latency"
 msgstr "Viive"
 
@@ -1316,7 +1320,7 @@ msgid "Device"
 msgstr "Laite"
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:305
-#: ../src/ui/edit/settings-page-playback-controller.c:264
+#: ../src/ui/edit/settings-page-playback-controller.c:267
 msgid "Controller"
 msgstr "Ohjain"
 
@@ -1324,141 +1328,142 @@ msgstr "Ohjain"
 msgid "This package has been built without GUdev support and thus supports no interaction controllers."
 msgstr "Tämä pakkaus on rakennettu ilman GUdev-tukea ja se ei siten tue vuorovaikutusta ohjaimiin."
 
-#: ../src/ui/edit/settings-page-playback-controller.c:267
+#: ../src/ui/edit/settings-page-playback-controller.c:270
 msgid "Master"
 msgstr "Isäntä"
 
-#: ../src/ui/edit/settings-page-playback-controller.c:273
+#: ../src/ui/edit/settings-page-playback-controller.c:276
 msgid "Slave"
 msgstr "Orja"
 
 #. local network port number for socket communication
-#: ../src/ui/edit/settings-page-playback-controller.c:324
+#: ../src/ui/edit/settings-page-playback-controller.c:327
 msgid "Port number"
 msgstr "Porttinumero"
 
 #. set dialog title : machine -> machine analysis
-#: ../src/ui/edit/signal-analysis-dialog.c:960
+#: ../src/ui/edit/signal-analysis-dialog.c:956
 #, c-format
 msgid "%s -> %s analysis"
 msgstr "%s -> %s analyysi"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:966
+#: ../src/ui/edit/signal-analysis-dialog.c:962
 msgid "master analysis"
 msgstr "isäntäanalyysi"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1027
+#: ../src/ui/edit/signal-analysis-dialog.c:1023
 msgid "lin."
 msgstr "lin."
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1028
+#: ../src/ui/edit/signal-analysis-dialog.c:1024
 msgid "log."
 msgstr "log."
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1032
+#: ../src/ui/edit/signal-analysis-dialog.c:1028
 msgid "frequency mapping"
 msgstr "taajuuskuvaus"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1038
+#: ../src/ui/edit/signal-analysis-dialog.c:1034
 msgid "single"
 msgstr "yksittäinen"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1039
+#: ../src/ui/edit/signal-analysis-dialog.c:1035
 msgid "double"
 msgstr "kaksinkertainen"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1040
+#: ../src/ui/edit/signal-analysis-dialog.c:1036
 msgid "triple"
 msgstr "kolminkertainen"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:1044
+#: ../src/ui/edit/signal-analysis-dialog.c:1040
 msgid "spectrum precision"
 msgstr "spektritarkkuus"
 
-#: ../src/ui/edit/tip-dialog.c:49
+#: ../src/ui/edit/tip-dialog.c:50
 msgid "New machines are added in machine view from the context menu."
 msgstr "Uusia koneita lisättiin konenäkymään kontekstivalikosta."
 
-#: ../src/ui/edit/tip-dialog.c:50
+#: ../src/ui/edit/tip-dialog.c:51
 msgid "Connect machines by holding the shift key and dragging a connection for the source to the target machine."
 msgstr "Yhdistä koneet pitämällä vaihtopainikkeen alhaalla ja raahaamalla yhteyden lähteestä kohdekoneeseen."
 
-#: ../src/ui/edit/tip-dialog.c:51
+#: ../src/ui/edit/tip-dialog.c:52
 msgid "Songs can be recorded as single waves per track to give it to remixers."
 msgstr "Kappaleet voidaan äänittää yksittäisaaltoisena per ääniraita antamalle se uudelleensekoittimille."
 
-#: ../src/ui/edit/tip-dialog.c:52
+#: ../src/ui/edit/tip-dialog.c:53
 msgid "Fill the details on the info page. When recording songs, the metadata is added to the recording as tags."
 msgstr "Täytä yksityiskohdat tiedot-sivulla. Kun kappaleita äänitetään, metatieto lisätään äänityksen tunnisteina."
 
-#: ../src/ui/edit/tip-dialog.c:53
+#: ../src/ui/edit/tip-dialog.c:54
 msgid "Use jackaudio sink in audio device settings to get lower latencies for live machine control."
 msgstr "Käytä jakkiääninielua äänilaiteasetuksisa alhaisemman viiveen saamiseksi suoralähetteisessä koneohjaimessa."
 
-#: ../src/ui/edit/tip-dialog.c:54
+#: ../src/ui/edit/tip-dialog.c:55
 msgid "You can use input devices such as joysticks, beside midi devices to live control machine parameters."
 msgstr "Voit käyttä syötelaitteita, kuten sauvaohjainta, midi-laitteiden rinnalla suoralähetteisiin koneparametreihin."
 
-#: ../src/ui/edit/tip-dialog.c:55
+#: ../src/ui/edit/tip-dialog.c:56
 msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztrax."
 msgstr "Voit käyttää upnp-media-asiakasta (esim.: media-virtaa nokian sormitietokoneissa) buzztrax-etäohjaimena."
 
-#: ../src/ui/edit/tip-dialog.c:56
+#: ../src/ui/edit/tip-dialog.c:57
 msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
 msgstr "Nuottien kirjoittamiseksi kuvittele tietokonenäppäimistösi kaksiriviseksi musiikkinäppäimistöksi. Alhaalla vasemmalla z -painikkeesta tulee ’c’, s on ’c#’, x on ’d’ jne."
 
-#: ../src/ui/edit/tip-dialog.c:57
+#: ../src/ui/edit/tip-dialog.c:58
 msgid "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
 msgstr "Saat lisäohjausta yhteisöltä irc://irc.freenode.net/#buzztrax."
 
-#: ../src/ui/edit/tip-dialog.c:58
+#: ../src/ui/edit/tip-dialog.c:59
 msgid "Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."
 msgstr "Malliasettelut ovat yksilöllisiä jokaiselle koneelle. Katso alalaidan tilapalkkia tietojen saamiseksi kohdistinsarakkeesta."
 
-#: ../src/ui/edit/tip-dialog.c:59
+#: ../src/ui/edit/tip-dialog.c:60
 msgid "Click the speaker icon in the pattern-view to hear notes as you enter them."
 msgstr "Napsauta kaiutinkuvaketta mallinäkymässä nuottien kuulemiseksi samalla kun kirjoitat niitä."
 
-#: ../src/ui/edit/tip-dialog.c:60
+#: ../src/ui/edit/tip-dialog.c:61
 msgid "Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input."
 msgstr "Jokaisella johdolla on voimmakkuusohjain ja mahdollisest yleisnäkymä/balanssiohjain. Niitä voidaan myös säätää koneen koneikkunasssa, jossa johto on syötteenä."
 
-#: ../src/ui/edit/tip-dialog.c:61
+#: ../src/ui/edit/tip-dialog.c:62
 msgid "The wire volume control pops up upon a click on the arrow box on the wire."
 msgstr "Johdon voimakkuusohjain ponnahtaa näkyviin napsauttamalla nuolilaatikkoa johdon kohdalla."
 
-#: ../src/ui/edit/tip-dialog.c:62
+#: ../src/ui/edit/tip-dialog.c:63
 msgid "The wire panorama/balance control pops up upon a shift+click on the arrow box on the wire if available."
 msgstr "Johtoyleisnäkymä/balanssiohjain ponnahtaa näkyviin vaihtopainikkeella ja napsauttamalla nuolilaatikkoa, jos johto on saatavilla."
 
-#: ../src/ui/edit/tip-dialog.c:63
+#: ../src/ui/edit/tip-dialog.c:64
 msgid "One can copy settings from the machine window (from the context menu of a group) and paste them to patterns and the other way around."
 msgstr "Asetukset voidaan kopioida koneikkunasta (ryhmän asiayhteysvalikosta) ja liittää ne malleihin ja päinvastoin."
 
-#: ../src/ui/edit/tip-dialog.c:64
+#: ../src/ui/edit/tip-dialog.c:65
 msgid "Install extra machines from http://buzzmachines.sf.net."
 msgstr "Asenna lisäkoneita osoitteesta http://buzzmachines.sf.net."
 
-#: ../src/ui/edit/tip-dialog.c:65
+#: ../src/ui/edit/tip-dialog.c:66
 msgid "Machines can also be renamed in the headers of the sequence view."
 msgstr "Koneet voidaan myös nimetä uudelleen sekvenssinäkymän otsakkeissa."
 
-#: ../src/ui/edit/tip-dialog.c:66
+#: ../src/ui/edit/tip-dialog.c:67
 msgid "Press the ',' (comma) key in the pattern editor to insert the current value for this parameter."
 msgstr "Paina näppäintä ’,’ (pilkku) mallieditorissa nykyisen arvon lisäämiseksi tähän parametriin."
 
-#: ../src/ui/edit/tip-dialog.c:217
+#: ../src/ui/edit/tip-dialog.c:244
 msgid "Show tips on startup"
 msgstr "Näytä vihjeet käynnistettäessä"
 
-#: ../src/ui/edit/tools.c:84 ../src/ui/edit/tools.c:114
-#, c-format
-msgid "Couldn't find pixmap file: %s"
-msgstr "Pixmap-tiedoston etsiminen epäonnistui: %s"
-
-#: ../src/ui/edit/wire-canvas-item.c:872
+#: ../src/ui/edit/wire-canvas-item.c:746
 msgid "Disconnect"
 msgstr "Katkaise yhteys"
+
+#~ msgid "Colors"
+#~ msgstr "Värit"
+
+#~ msgid "Couldn't find pixmap file: %s"
+#~ msgstr "Pixmap-tiedoston etsiminen epäonnistui: %s"
 
 #~ msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztrax songs in any gstreamer based media player. We also kept the buzztrax codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
 #~ msgstr "Tämän julkaisun pääominaisuus on täysy peru/tee uudelleen -tuki. Siihen verrattava on muokkaa-toiminnon päivitettävyys ja kaatumistoipuminen. Tällä tavalla mahdollisuus muutosten menettämiseen on aika alhainen. Muut käyttöliittymärajapinnan parannukset ovat: päivän vihje, spektrianalyysin parannus, leikepöytätuki, lisää komentoja konteksivalikkoihin ja paljon muuta. Tämän julkaisun ominaisuuksia on gstreamer-dekooderi, joka sallii buzztrax-kappaleiden toiston missä tahansa virtaperustaisessa mediasoittimessa. Pidämme myös buzztrax-tietoperustan puhtaana ja siirsimme vanhentuneet sovellusrajapinta seuraajille (gnomevfs->gio, hal->gudev). Kirjastot ja sovellukset saivat suorituskykyparannukset monilla alueilla. Dokumentoinnit ovat myös parantuneet runsaasti oppikurssien, pikanäppäimistötaulukoiden, paremman peton ja man-sivujen ansiosta."
