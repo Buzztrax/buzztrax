@@ -1,4 +1,11 @@
-0.7.0 victory, not venegance (19.Jan.2013)
+0.8.0 bladerunner (24.Oct.2014)
+================================================================================
+This release port the code base to the recent version of the libraries we're
+using. We switched from gstreamer-0.10 to 1.2, from gtk+-2.x to gtk+3.x, from
+gconf to gsettings and replaced gnomecanvas by clutter. We've stared to make use
+of the new features in some places (e.g. exporting labels in rendered songs).
+
+0.7.0 victory, not vengeance (19.Jan.2013)
 ================================================================================
 This release comes with a large number of smaller changes. Audio settings are more
 flexible and allow to choose a target latency. Jack users will be happy to see that
