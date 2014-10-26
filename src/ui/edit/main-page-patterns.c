@@ -54,11 +54,11 @@
  * - support midi keyboard for entering notes and triggers
  * - have poly-input mode
  *   - if there is a keydown, enter the note
- *   - if there is another keydown before a keyup, go to next track and
+ *   - if there is another keydown before a keyup, go to next voice and
  *     enter the note there.
  *   - on keyup, return 'cursor' to that column
  * - what keys to use for trigger columns?
- * - should we use shift+note for secondary note in same track (e.g. slide)
+ * - should we use shift+note for secondary note in same voice (e.g. slide)
  */
 /* TODO(ensonic): add the same context menu entries as the machines have in
  * machine view for current machine
@@ -104,7 +104,7 @@ struct _BtMainPagePatternsPrivate
 
   /* pattern context_menu */
   GtkMenu *context_menu;
-  GtkWidget *context_menu_track_add, *context_menu_track_remove;
+  GtkWidget *context_menu_voice_add, *context_menu_voice_remove;
   GtkWidget *context_menu_pattern_properties, *context_menu_pattern_remove,
       *context_menu_pattern_copy, *context_menu_machine_preferences;
 
@@ -1835,15 +1835,15 @@ context_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
         }
 
         gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_add), (voices < max_voices));
+                context_menu_voice_add), (voices < max_voices));
         gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_remove), (voices > min_voices));
+                context_menu_voice_remove), (voices > min_voices));
         gst_object_unref (elem);
       } else {
         gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_add), FALSE);
+                context_menu_voice_add), FALSE);
         gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-                context_menu_track_remove), FALSE);
+                context_menu_voice_remove), FALSE);
       }
       gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
               context_menu_pattern_properties), TRUE);
@@ -1853,10 +1853,10 @@ context_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
               context_menu_pattern_copy), TRUE);
     } else {
       GST_INFO_OBJECT (machine, "machine has no patterns");
-      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
+      gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_voice_add),
           FALSE);
       gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-              context_menu_track_remove), FALSE);
+              context_menu_voice_remove), FALSE);
       gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
               context_menu_pattern_properties), FALSE);
       gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
@@ -1870,10 +1870,10 @@ context_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
   } else {
     GST_INFO ("no machine");
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
-    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_track_add),
+    gtk_widget_set_sensitive (GTK_WIDGET (self->priv->context_menu_voice_add),
         FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
-            context_menu_track_remove), FALSE);
+            context_menu_voice_remove), FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
             context_menu_pattern_properties), FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET (self->priv->
@@ -2557,7 +2557,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 }
 
 static void
-on_context_menu_track_add_activate (GtkMenuItem * menuitem, gpointer user_data)
+on_context_menu_voice_add_activate (GtkMenuItem * menuitem, gpointer user_data)
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
   gulong voices;
@@ -2575,12 +2575,12 @@ on_context_menu_track_add_activate (GtkMenuItem * menuitem, gpointer user_data)
   voices++;
   g_object_set (self->priv->machine, "voices", voices, NULL);
 
-  // we adjust sensitivity of add/rem track menu items
+  // we adjust sensitivity of add/rem voice menu items
   context_menu_refresh (self, self->priv->machine);
 }
 
 static void
-on_context_menu_track_remove_activate (GtkMenuItem * menuitem,
+on_context_menu_voice_remove_activate (GtkMenuItem * menuitem,
     gpointer user_data)
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
@@ -2633,7 +2633,7 @@ on_context_menu_track_remove_activate (GtkMenuItem * menuitem,
   voices--;
   g_object_set (self->priv->machine, "voices", voices, NULL);
 
-  // we adjust sensitivity of add/rem track menu items
+  // we adjust sensitivity of add/rem voice menu items
   context_menu_refresh (self, self->priv->machine);
 }
 
@@ -3149,33 +3149,33 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_menu_set_accel_path (GTK_MENU (self->priv->context_menu),
       "<Buzztrax-Main>/PatternView/PatternContext");
 
-  self->priv->context_menu_track_add = menu_item =
-      gtk_image_menu_item_new_with_label (_("New track"));
+  self->priv->context_menu_voice_add = menu_item =
+      gtk_image_menu_item_new_with_label (_("New voice"));
   image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
-      "<Buzztrax-Main>/PatternView/PatternContext/AddTrack");
+      "<Buzztrax-Main>/PatternView/PatternContext/AddVoice");
   gtk_accel_map_add_entry
-      ("<Buzztrax-Main>/PatternView/PatternContext/AddTrack", GDK_KEY_plus,
+      ("<Buzztrax-Main>/PatternView/PatternContext/AddVoice", GDK_KEY_plus,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",
-      G_CALLBACK (on_context_menu_track_add_activate), (gpointer) self);
+      G_CALLBACK (on_context_menu_voice_add_activate), (gpointer) self);
 
-  self->priv->context_menu_track_remove = menu_item =
-      gtk_image_menu_item_new_with_label (_("Remove last track"));
+  self->priv->context_menu_voice_remove = menu_item =
+      gtk_image_menu_item_new_with_label (_("Remove last voice"));
   image = gtk_image_new_from_stock (GTK_STOCK_REMOVE, GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
-      "<Buzztrax-Main>/PatternView/PatternContext/RemoveTrack");
+      "<Buzztrax-Main>/PatternView/PatternContext/RemoveVoice");
   gtk_accel_map_add_entry
-      ("<Buzztrax-Main>/PatternView/PatternContext/RemoveTrack", GDK_KEY_minus,
+      ("<Buzztrax-Main>/PatternView/PatternContext/RemoveVoice", GDK_KEY_minus,
       GDK_CONTROL_MASK);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",
-      G_CALLBACK (on_context_menu_track_remove_activate), (gpointer) self);
+      G_CALLBACK (on_context_menu_voice_remove_activate), (gpointer) self);
 
   menu_item = gtk_separator_menu_item_new ();
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
