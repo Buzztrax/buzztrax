@@ -305,9 +305,25 @@ sharedmimepackage_DATA = $(sharedmimepackage_in_files:.xml.in=.xml)
 
 # update desktop/mime database
 update-desktop-db:
-	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";
+if WITH_UPDATE_DESKTOP
+	@-if test -z "$(DESTDIR)"; then \
+	  echo "Updating Desktop database."; \
+	  test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)"; \
+	else \
+		echo "*** Desktop database not updated.  After (un)install, run this:"; \
+		echo "***   $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";"; \
+	fi
+endif
 update-mime-db:
-	test -z "$(UPDATE_MIME_DATABASE)" || $(UPDATE_MIME_DATABASE) "$(DESTDIR)$(sharedmimedir)";
+if WITH_UPDATE_MIME
+	@-if test -z "$(DESTDIR)"; then \
+		echo "Updating MIME database."; \
+	  test -z "$(UPDATE_MIME_DATABASE)" || $(UPDATE_MIME_DATABASE) "$(DESTDIR)$(sharedmimedir)"; \
+	else \
+		echo "*** MIME database not updated.  After (un)install, run this:"; \
+		echo "***   $(UPDATE_MIME_DATABASE) "$(DESTDIR)$(sharedmimedir)";"; \
+	fi
+endif
 
 if USE_GIR
 libbtcore_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztrax_core_la_SOURCES))

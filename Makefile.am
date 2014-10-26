@@ -9,7 +9,13 @@ FAKE_SUBDIRS = \
 DIST_SUBDIRS = $(SUBDIRS) $(FAKE_SUBDIRS)
 
 ACLOCAL_AMFLAGS = -I m4
-DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc --enable-debug --disable-scrollkeeper
+DISTCHECK_CONFIGURE_FLAGS = \
+  --enable-gtk-doc \
+  --enable-debug \
+	--disable-update-desktop \
+	--disable-update-mime \
+	--disable-update-icon-cache \
+  --disable-scrollkeeper
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib/core \

@@ -488,9 +488,25 @@ fi
 
 
 dnl check for desktop and mimetype utilities
+
+AC_ARG_ENABLE(update-mime,
+	AC_HELP_STRING([--disable-update-mime],
+	[don't run update-mime-database utility (useful for packages) ]))
+AM_CONDITIONAL(WITH_UPDATE_MIME, test "$enable_update_mime" != "no")
+
+AC_ARG_ENABLE(update-desktop,
+	AC_HELP_STRING([--disable-update-desktop],
+	[don't run update-desktop-database utility (useful for packages) ]))
+AM_CONDITIONAL(WITH_UPDATE_DESKTOP, test "$enable_update_desktop" != "no")
+
+AC_ARG_ENABLE(update-icon-cache,
+	AC_HELP_STRING([--disable-update-icon-cache],
+	[don't run gtk-update-icon-cache utility (useful for packages) ]))
+AM_CONDITIONAL(WITH_UPDATE_ICON_CACHE, test "$enable_update_icon_cache" != "no")
+
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)
 AC_PATH_PROG(UPDATE_DESKTOP_DATABASE, update-desktop-database)
-
+AC_PATH_PROG(UPDATE_ICON_CACHE, gtk-update-icon-cache-3.0)
 
 dnl Substitutes
 
