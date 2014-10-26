@@ -1,6 +1,6 @@
 dnl Initialise autoconf/automake/libtool
 AC_PREREQ(2.61)
-AC_INIT([buzztrax],[0.8.0],[buzztrax-devel@buzztrax.org])
+AC_INIT([buzztrax],[0.9.0],[buzztrax-devel@buzztrax.org])
 # we can't do -Werror, because
 # - we use gnu make extensions
 # - we override uninstallcheck var

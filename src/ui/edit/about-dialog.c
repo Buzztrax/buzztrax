@@ -115,13 +115,14 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
   gtk_text_view_set_editable (GTK_TEXT_VIEW (news), FALSE);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (news)),
-      //"Development version (do not translate this)"
-      _
+      "Development version (do not translate this)"
+      /*_
       ("This release port the code base to the recent version of the libraries "
           "we're using. We switched from gstreamer-0.10 to 1.2, from gtk+-2.x to "
           "gtk+3.x, from gconf to gsettings and replaced gnomecanvas by clutter. "
           "We've stared to make use of the new features in some places (e.g. "
-          "exporting labels in rendered songs)."), -1);
+          "exporting labels in rendered songs).")
+      */ , -1);
 
   news_view = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (news_view),
