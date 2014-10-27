@@ -517,8 +517,8 @@ sequence_model_get_store (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))) {
     store = gtk_tree_model_filter_get_model (filtered_store);
   }
   return (store);
@@ -566,8 +566,8 @@ sequence_update_model_length (const BtMainPageSequence * self)
   GtkTreeModelFilter *filtered_store;
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))) {
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))) {
     BtSequenceGridModel *store =
         BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
         (filtered_store));
@@ -1106,8 +1106,8 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
   GST_INFO ("label edited: '%s': '%s'", path_string, new_text);
 
   if ((filtered_store =
-          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                  sequence_table)))
+          GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                  priv->sequence_table)))
       && (store = gtk_tree_model_filter_get_model (filtered_store))
       ) {
     GtkTreeIter iter, filter_iter;
@@ -1237,8 +1237,8 @@ sequence_pos_table_init (const BtMainPageSequence * self)
 
   gtk_box_pack_start (GTK_BOX (self->priv->sequence_pos_table_header),
       self->priv->pos_header, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (GTK_WIDGET (self->priv->
-          sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
+  gtk_widget_set_size_request (GTK_WIDGET (self->
+          priv->sequence_pos_table_header), POSITION_CELL_WIDTH, -1);
 
   // add static column
   renderer = gtk_cell_renderer_text_new ();
@@ -2122,6 +2122,33 @@ update_bars_menu (const BtMainPageSequence * self, gulong bars)
   return (TRUE);
 }
 
+static void
+switch_to_pattern_editor (BtMainPageSequence * self, gulong row, gulong track)
+{
+  BtMainPagePatterns *patterns_page;
+  BtCmdPattern *pattern;
+  gulong length;
+
+  bt_child_proxy_get (self->priv->main_window, "pages::patterns-page",
+      &patterns_page, NULL);
+  bt_child_proxy_set (self->priv->main_window, "pages::page",
+      BT_MAIN_PAGES_PATTERNS_PAGE, NULL);
+
+  g_object_get (self->priv->sequence, "length", &length, NULL);
+  if ((row < length) &&
+      (pattern = bt_sequence_get_pattern (self->priv->sequence, row, track))) {
+    if (BT_IS_PATTERN (pattern)) {
+      GST_INFO ("show pattern");
+      bt_main_page_patterns_show_pattern (patterns_page, (BtPattern *) pattern);
+    }
+    g_object_unref (pattern);
+  } else {
+    GST_INFO ("show machine");
+    bt_main_page_patterns_show_machine (patterns_page, self->priv->machine);
+  }
+  g_object_unref (patterns_page);
+}
+
 //-- event handler
 
 static void
@@ -2354,8 +2381,8 @@ on_bars_menu_changed (GtkComboBox * combo_box, gpointer user_data)
       sequence_calculate_visible_lines (self);
       //GST_INFO("  bars = %d",self->priv->bars);
       if ((filtered_store =
-              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->priv->
-                      sequence_table)))) {
+              GTK_TREE_MODEL_FILTER (gtk_tree_view_get_model (self->
+                      priv->sequence_table)))) {
         BtSequenceGridModel *store =
             BT_SEQUENCE_GRID_MODEL (gtk_tree_model_filter_get_model
             (filtered_store));
@@ -2693,30 +2720,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     } else if (event->keyval == GDK_KEY_Return) {       /* GDK_KEY_KP_Enter */
       // first column is label
       if (track > 0) {
-        BtMainPagePatterns *patterns_page;
-        BtCmdPattern *pattern;
-
-        bt_child_proxy_get (self->priv->main_window, "pages::patterns-page",
-            &patterns_page, NULL);
-        bt_child_proxy_set (self->priv->main_window, "pages::page",
-            BT_MAIN_PAGES_PATTERNS_PAGE, NULL);
-        if ((row < length)
-            && (pattern =
-                bt_sequence_get_pattern (self->priv->sequence, row,
-                    track - 1))) {
-          GST_INFO ("show pattern");
-          if (BT_IS_PATTERN (pattern)) {
-            bt_main_page_patterns_show_pattern (patterns_page,
-                (BtPattern *) pattern);
-          }
-          g_object_unref (pattern);
-        } else {
-          GST_INFO ("show machine");
-          bt_main_page_patterns_show_machine (patterns_page,
-              self->priv->machine);
-        }
-        g_object_unref (patterns_page);
-
+        switch_to_pattern_editor (self, row, track - 1);
         res = TRUE;
       }
     } else if (event->keyval == GDK_KEY_Menu) {
@@ -3111,13 +3115,16 @@ on_sequence_table_button_press_event (GtkWidget * widget,
             // set cell focus
             gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
                 FALSE);
-            gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
-                    sequence_table));
+            gtk_widget_grab_focus_savely (GTK_WIDGET (self->
+                    priv->sequence_table));
             // reset selection
             self->priv->selection_start_column =
                 self->priv->selection_start_row =
                 self->priv->selection_end_column =
                 self->priv->selection_end_row = -1;
+            if (event->type == GDK_2BUTTON_PRESS) {
+              switch_to_pattern_editor (self, row, track - 1);
+            }
           }
           res = TRUE;
         }
@@ -3185,8 +3192,8 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
           }
           gtk_tree_view_set_cursor (self->priv->sequence_table, path, column,
               FALSE);
-          gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->
-                  sequence_table));
+          gtk_widget_grab_focus_savely (GTK_WIDGET (self->
+                  priv->sequence_table));
           // cursor updates are not yet processed
           on_sequence_table_cursor_changed_idle (self);
           GST_DEBUG ("cursor new/old: %3ld,%3ld -> %3ld,%3ld", cursor_column,
@@ -3682,8 +3689,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   self->priv->context_menu_add =
       GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (_("Add track")));
   image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->priv->
-          context_menu_add), image);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->
+          priv->context_menu_add), image);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
       GTK_WIDGET (self->priv->context_menu_add));
   gtk_widget_show (GTK_WIDGET (self->priv->context_menu_add));
