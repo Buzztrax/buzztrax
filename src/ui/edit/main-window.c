@@ -907,12 +907,11 @@ bt_main_window_save_song_as (const BtMainWindow * self)
 
   // save after destoying the dialog, otherwise it stays open all time
   if (file_name) {
-    FILE *file;
     gboolean cont = TRUE;
 
     GST_WARNING ("song name = '%s'", file_name);
 
-    if ((file = fopen (file_name, "rb"))) {
+    if (g_file_test (file_name, G_FILE_TEST_EXISTS)) {
       GST_INFO ("file already exists");
       // it already exists, ask the user what to do (do not save, choose new name, overwrite song)
       cont = bt_dialog_question (self,
@@ -920,7 +919,6 @@ bt_main_window_save_song_as (const BtMainWindow * self)
           _("File already exists"),
           _
           ("Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."));
-      fclose (file);
     } else {
       const gchar *reason = (const gchar *) g_strerror (errno);
       gchar *msg;
