@@ -8,7 +8,6 @@
 * test infrastructure
   * add a stub song-io saver
   * add a stub processor machine
-  * have log marker macros for arrange, act, assert, cleanup
   * have a means to make a copy of log-files for passing tests
     * this could help to check 'what changed'
     * we'd need to also do xml output from check to run the log compare for
@@ -253,7 +252,6 @@
       - a better way would be to use gst_message_parse_stream_status
         see src/lib/core/song.c::on_song_stream_status()
   - ideally we show it on the machine view
-    - extra gnome-canvas-item-rect layered under machine name?
     - extra dialog from tools menu?
     - enable/disable from the view menu
   - buzztrax-cmd could have a profile option (for play/encode) and print a summary
@@ -283,6 +281,7 @@
 
 * change presets via controller
   * for midi we can expose program change message
+    * although our presents don't have stable ordering
     * a rel-range control? (prev/next)
   * we need a way in the ui to attach such a controller to the preset pane
 
@@ -389,7 +388,7 @@
     time and ticks
 
 
-* embedded lua (see design/lua)
+* embedded lua (see design/lua) or js (see design/{gjs,seed})
   * tools menu
   * pattern editor
     * register scripts that provide commands to manipulate the patterns
@@ -403,3 +402,4 @@
       to the value vange of the selected property
   * interaction controller ?
   * do we need to store some of them with the song?
+
