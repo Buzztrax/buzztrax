@@ -620,15 +620,12 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
               (self))), overlay);
 
-  table =
-      gtk_table_new ( /*rows= */ 8, /*columns= */ 2, /*homogenous= */ FALSE);
+  table = gtk_grid_new ();
   gtk_container_add (GTK_CONTAINER (overlay), table);
-
 
   label = gtk_label_new (_("Folder"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 0, 1, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
 
   self->priv->dir_chooser = widget =
       gtk_file_chooser_button_new (_("Select a folder"),
@@ -637,14 +634,13 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       self->priv->folder);
   g_signal_connect (widget, "selection-changed", G_CALLBACK (on_folder_changed),
       (gpointer) self);
-  gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 0, 1,
-      GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (widget), 1, 0, 1, 1);
 
 
   label = gtk_label_new (_("Filename"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 1, 2, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
 
   self->priv->file_name_entry = widget = gtk_entry_new ();
   gtk_entry_set_text (GTK_ENTRY (widget), self->priv->base_file_name);
@@ -652,14 +648,13 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       TRUE);
   g_signal_connect (widget, "changed", G_CALLBACK (on_base_file_name_changed),
       (gpointer) self);
-  gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 1, 2,
-      GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (widget), 1, 1, 1, 1);
 
 
   label = gtk_label_new (_("Format"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 2, 3, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
 
   // query supported formats from sinkbin
   self->priv->format_menu = widget = gtk_combo_box_new ();
@@ -683,16 +678,13 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS);
   g_signal_connect (widget, "changed", G_CALLBACK (on_format_menu_changed),
       (gpointer) self);
-  gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 2, 3,
-      GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
-  // set initial filename:
-  on_format_menu_changed (GTK_COMBO_BOX (widget), (gpointer) self);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (widget), 1, 2, 1, 1);
 
 
   label = gtk_label_new (_("Mode"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 3, 4, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 3, 1, 1);
 
   // query supported modes from sinkbin
   self->priv->mode_menu = widget = gtk_combo_box_text_new ();
@@ -707,25 +699,27 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   gtk_combo_box_set_active (GTK_COMBO_BOX (widget), BT_RENDER_MODE_MIXDOWN);
   g_signal_connect (widget, "changed", G_CALLBACK (on_mode_menu_changed),
       (gpointer) self);
-  gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 3, 4,
-      GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (widget), 1, 3, 1, 1);
 
   /* TODO(ensonic): add more widgets
      o write project file
      o none, jokosher, ardour, ...
    */
 
-  self->priv->info = GTK_LABEL (gtk_label_new (""));
-  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->info), 0, 2, 4,
-      5, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+  label = gtk_label_new ("");
+  self->priv->info = GTK_LABEL (label);
+  g_object_set (label, "hexpand", TRUE, NULL);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 4, 2, 1);
 
   self->priv->track_progress = GTK_PROGRESS_BAR (gtk_progress_bar_new ());
-  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->track_progress),
-      0, 2, 5, 6, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+  g_object_set (self->priv->track_progress, "hexpand", TRUE, NULL);
+  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->track_progress),
+      0, 5, 2, 1);
 
-  self->priv->info = GTK_LABEL (gtk_label_new (""));
-  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->info), 0, 2, 6,
-      7, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  label = gtk_label_new ("");
+  g_object_set (label, "hexpand", TRUE, "vexpand", TRUE, NULL);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 6, 2, 1);
 
   // info_bar for messages
   self->priv->info_bar = gtk_info_bar_new ();
@@ -743,7 +737,8 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       G_CALLBACK (on_info_bar_realize), (gpointer) self);
   gtk_overlay_add_overlay (GTK_OVERLAY (overlay), self->priv->info_bar);
 
-  bt_render_check_existing_output_files (self);
+  // set initial filename:
+  on_format_menu_changed (GTK_COMBO_BOX (widget), (gpointer) self);
 
   // connect signal handlers    
   g_signal_connect (self->priv->song, "notify::play-pos",
