@@ -31,7 +31,7 @@
 /* TODO(ensonic): project file export
  * - consider MXF as one option
  */
-/* TODO(ensonic): kick the plugin installer when one selectes a format where we
+/* TODO(ensonic): kick the plugin installer when one selects a format where we
  * miss some plugins
  */
 
@@ -58,9 +58,11 @@ struct _BtRenderDialogPrivate
   GtkWidget *mode_menu;
   GtkProgressBar *track_progress;
   GtkLabel *info;
+  GtkWidget *info_bar;
+  GtkWidget *info_bar_label;
 
   /* dialog data */
-  gchar *folder, *filename;
+  gchar *folder, *base_file_name;
   BtSinkBinRecordFormat format;
   BtRenderMode mode;
 
@@ -142,7 +144,7 @@ static gchar *
 bt_render_dialog_make_file_name (const BtRenderDialog * self, gint track)
 {
   gchar *file_name =
-      g_build_filename (self->priv->folder, self->priv->filename, NULL);
+      g_build_filename (self->priv->folder, self->priv->base_file_name, NULL);
   gchar track_str[4];
   GEnumClass *enum_class;
   GEnumValue *enum_value;
@@ -345,6 +347,27 @@ bt_render_dialog_record_next (const BtRenderDialog * self)
   self->priv->track++;
 }
 
+static void
+bt_render_check_existing_output_files (const BtRenderDialog * self)
+{
+  // we're not fully constructed yet
+  if (!self->priv->info_bar) {
+    return;
+  }
+
+  gchar *file_name = bt_render_dialog_make_file_name (self, 0);
+  if (g_file_test (file_name, G_FILE_TEST_EXISTS)) {
+    gtk_label_set_text (GTK_LABEL (self->priv->info_bar_label),
+        _("File already exists!\nIt will be overwritten if you continue."));
+    gtk_info_bar_set_message_type (GTK_INFO_BAR (self->priv->info_bar),
+        GTK_MESSAGE_WARNING);
+    gtk_widget_show (self->priv->info_bar);
+  } else {
+    gtk_widget_hide (self->priv->info_bar);
+  }
+  g_free (file_name);
+}
+
 //-- event handler
 
 static void
@@ -359,15 +382,16 @@ on_folder_changed (GtkFileChooser * chooser, gpointer user_data)
 }
 
 static void
-on_filename_changed (GtkEditable * editable, gpointer user_data)
+on_base_file_name_changed (GtkEditable * editable, gpointer user_data)
 {
   BtRenderDialog *self = BT_RENDER_DIALOG (user_data);
 
-  g_free (self->priv->filename);
-  self->priv->filename = g_strdup (gtk_entry_get_text (GTK_ENTRY (editable)));
+  g_free (self->priv->base_file_name);
+  self->priv->base_file_name =
+      g_strdup (gtk_entry_get_text (GTK_ENTRY (editable)));
 
   // update format
-  if (self->priv->filename) {
+  if (self->priv->base_file_name) {
     GEnumClass *enum_class;
     GEnumValue *enum_value;
     guint i;
@@ -375,7 +399,8 @@ on_filename_changed (GtkEditable * editable, gpointer user_data)
     enum_class = g_type_class_peek_static (BT_TYPE_SINK_BIN_RECORD_FORMAT);
     for (i = enum_class->minimum; i <= enum_class->maximum; i++) {
       if ((enum_value = g_enum_get_value (enum_class, i))) {
-        if (g_str_has_suffix (self->priv->filename, enum_value->value_name)) {
+        if (g_str_has_suffix (self->priv->base_file_name,
+                enum_value->value_name)) {
           g_signal_handlers_block_matched (self->priv->format_menu,
               G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
               on_format_menu_changed, (gpointer) user_data);
@@ -388,6 +413,7 @@ on_filename_changed (GtkEditable * editable, gpointer user_data)
       }
     }
   }
+  bt_render_check_existing_output_files (self);
 }
 
 static void
@@ -397,12 +423,12 @@ on_format_menu_changed (GtkComboBox * menu, gpointer user_data)
 
   self->priv->format = gtk_combo_box_get_active (menu);
 
-  // update filename
-  if (self->priv->filename) {
+  // update base_file_name
+  if (self->priv->base_file_name) {
     GEnumClass *enum_class;
     GEnumValue *enum_value;
     guint i;
-    gchar *fn = self->priv->filename;
+    gchar *fn = self->priv->base_file_name;
 
     enum_class = g_type_class_peek_static (BT_TYPE_SINK_BIN_RECORD_FORMAT);
     for (i = enum_class->minimum; i <= enum_class->maximum; i++) {
@@ -417,18 +443,20 @@ on_format_menu_changed (GtkComboBox * menu, gpointer user_data)
       }
     }
     enum_value = g_enum_get_value (enum_class, self->priv->format);
-    self->priv->filename = g_strdup_printf ("%s%s", fn, enum_value->value_name);
-    GST_INFO ("set new fn to: %s", self->priv->filename);
+    self->priv->base_file_name =
+        g_strdup_printf ("%s%s", fn, enum_value->value_name);
+    GST_INFO ("set new fn to: %s", self->priv->base_file_name);
     g_free (fn);
     g_signal_handlers_block_matched (self->priv->file_name_entry,
         G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_filename_changed, (gpointer) user_data);
+        on_base_file_name_changed, (gpointer) user_data);
     gtk_entry_set_text (GTK_ENTRY (self->priv->file_name_entry),
-        self->priv->filename);
+        self->priv->base_file_name);
     g_signal_handlers_unblock_matched (self->priv->file_name_entry,
         G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_filename_changed, (gpointer) user_data);
+        on_base_file_name_changed, (gpointer) user_data);
   }
+  bt_render_check_existing_output_files (self);
 }
 
 static void
@@ -450,6 +478,8 @@ on_okay_clicked (GtkButton * button, gpointer user_data)
   gtk_widget_set_sensitive (self->priv->file_name_entry, FALSE);
   gtk_widget_set_sensitive (self->priv->format_menu, FALSE);
   gtk_widget_set_sensitive (self->priv->mode_menu, FALSE);
+  // hide info_bar
+  gtk_widget_hide (self->priv->info_bar);
   // start the rendering
   bt_render_dialog_record_init (self);
   bt_render_dialog_record_next (self);
@@ -513,12 +543,25 @@ on_song_eos (const GstBus * const bus, const GstMessage * const message,
   bt_render_dialog_record_next (self);
 }
 
+static void
+on_info_bar_realize (GtkWidget * widget, gpointer user_data)
+{
+  BtRenderDialog *self = BT_RENDER_DIALOG (user_data);
+  GtkRequisition requisition;
+
+  gtk_widget_get_preferred_size (widget, NULL, &requisition);
+  GST_DEBUG ("#### info_bar size req %d x %d",
+      requisition.width, requisition.height);
+
+  gtk_widget_set_size_request (GTK_WIDGET (self), requisition.width + 24, -1);
+}
+
 //-- helper methods
 
 static void
 bt_render_dialog_init_ui (const BtRenderDialog * self)
 {
-  GtkWidget *box, *label, *widget, *table;
+  GtkWidget *overlay, *label, *widget, *table;
   GEnumClass *enum_class;
   GEnumValue *enum_value;
   GtkCellRenderer *renderer;
@@ -544,15 +587,15 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
     if ((ext = strrchr (full_file_name, '.')))
       *ext = '\0';
     if ((file_name = strrchr (full_file_name, G_DIR_SEPARATOR))) {
-      self->priv->filename = g_strdup (&file_name[1]);
+      self->priv->base_file_name = g_strdup (&file_name[1]);
       g_free (full_file_name);
     } else {
-      self->priv->filename = full_file_name;
+      self->priv->base_file_name = full_file_name;
     }
   } else {
-    self->priv->filename = g_strdup ("");
+    self->priv->base_file_name = g_strdup ("");
   }
-  GST_INFO ("initial base filename: '%s'", self->priv->filename);
+  GST_INFO ("initial base filename: '%s'", self->priv->base_file_name);
 
   GST_DEBUG ("prepare render dialog");
 
@@ -572,14 +615,14 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       G_CALLBACK (on_okay_clicked), (gpointer) self);
 
   // add widgets to the dialog content area
-  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-  gtk_container_set_border_width (GTK_CONTAINER (box), 6);
+  overlay = gtk_overlay_new ();
+  gtk_container_set_border_width (GTK_CONTAINER (overlay), 6);
   gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
-              (self))), box);
+              (self))), overlay);
 
   table =
-      gtk_table_new ( /*rows= */ 7, /*columns= */ 2, /*homogenous= */ FALSE);
-  gtk_container_add (GTK_CONTAINER (box), table);
+      gtk_table_new ( /*rows= */ 8, /*columns= */ 2, /*homogenous= */ FALSE);
+  gtk_container_add (GTK_CONTAINER (overlay), table);
 
 
   label = gtk_label_new (_("Folder"));
@@ -595,7 +638,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   g_signal_connect (widget, "selection-changed", G_CALLBACK (on_folder_changed),
       (gpointer) self);
   gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 0, 1,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+      GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
 
 
   label = gtk_label_new (_("Filename"));
@@ -604,13 +647,13 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       2, 1);
 
   self->priv->file_name_entry = widget = gtk_entry_new ();
-  gtk_entry_set_text (GTK_ENTRY (widget), self->priv->filename);
+  gtk_entry_set_text (GTK_ENTRY (widget), self->priv->base_file_name);
   gtk_entry_set_activates_default (GTK_ENTRY (self->priv->file_name_entry),
       TRUE);
-  g_signal_connect (widget, "changed", G_CALLBACK (on_filename_changed),
+  g_signal_connect (widget, "changed", G_CALLBACK (on_base_file_name_changed),
       (gpointer) self);
   gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 1, 2,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+      GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
 
 
   label = gtk_label_new (_("Format"));
@@ -641,7 +684,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   g_signal_connect (widget, "changed", G_CALLBACK (on_format_menu_changed),
       (gpointer) self);
   gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 2, 3,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+      GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
   // set initial filename:
   on_format_menu_changed (GTK_COMBO_BOX (widget), (gpointer) self);
 
@@ -665,7 +708,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   g_signal_connect (widget, "changed", G_CALLBACK (on_mode_menu_changed),
       (gpointer) self);
   gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 3, 4,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+      GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
 
   /* TODO(ensonic): add more widgets
      o write project file
@@ -674,11 +717,33 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
 
   self->priv->info = GTK_LABEL (gtk_label_new (""));
   gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->info), 0, 2, 4,
-      5, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+      5, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
 
   self->priv->track_progress = GTK_PROGRESS_BAR (gtk_progress_bar_new ());
   gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->track_progress),
-      0, 2, 5, 6, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+      0, 2, 5, 6, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+
+  self->priv->info = GTK_LABEL (gtk_label_new (""));
+  gtk_table_attach (GTK_TABLE (table), GTK_WIDGET (self->priv->info), 0, 2, 6,
+      7, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+
+  // info_bar for messages
+  self->priv->info_bar = gtk_info_bar_new ();
+  gtk_widget_set_no_show_all (self->priv->info_bar, TRUE);
+  gtk_widget_set_valign (self->priv->info_bar, GTK_ALIGN_END);
+  gtk_info_bar_set_show_close_button (GTK_INFO_BAR (self->priv->info_bar),
+      TRUE);
+  self->priv->info_bar_label = gtk_label_new ("");
+  gtk_widget_show (self->priv->info_bar_label);
+  gtk_container_add (GTK_CONTAINER (gtk_info_bar_get_content_area (GTK_INFO_BAR
+              (self->priv->info_bar))), self->priv->info_bar_label);
+  g_signal_connect (self->priv->info_bar, "response",
+      G_CALLBACK (gtk_widget_hide), NULL);
+  g_signal_connect (self->priv->info_bar, "realize",
+      G_CALLBACK (on_info_bar_realize), (gpointer) self);
+  gtk_overlay_add_overlay (GTK_OVERLAY (overlay), self->priv->info_bar);
+
+  bt_render_check_existing_output_files (self);
 
   // connect signal handlers    
   g_signal_connect (self->priv->song, "notify::play-pos",
@@ -733,6 +798,7 @@ bt_render_dialog_dispose (GObject * object)
     GST_INFO ("canceled recording, removing partial file");
     g_unlink (self->priv->file_name);
     g_free (self->priv->file_name);
+    self->priv->file_name = NULL;
   }
 
   if (self->priv->song) {
@@ -761,7 +827,7 @@ bt_render_dialog_finalize (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
   g_free (self->priv->folder);
-  g_free (self->priv->filename);
+  g_free (self->priv->base_file_name);
 
   G_OBJECT_CLASS (bt_render_dialog_parent_class)->finalize (object);
 }
