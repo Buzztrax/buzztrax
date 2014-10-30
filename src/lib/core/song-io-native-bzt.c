@@ -232,7 +232,7 @@ bt_song_io_native_bzt_copy_from_uri (const BtSongIONativeBZT * const self,
 
 static gboolean
 bt_song_io_native_bzt_load (gconstpointer const _self,
-    const BtSong * const song)
+    const BtSong * const song, GError ** err)
 {
   gboolean result = FALSE;
 #ifdef USE_GSF
@@ -363,7 +363,7 @@ bt_song_io_native_bzt_load (gconstpointer const _self,
 
 static gboolean
 bt_song_io_native_bzt_save (gconstpointer const _self,
-    const BtSong * const song)
+    const BtSong * const song, GError ** err)
 {
   gboolean result = FALSE;
 #ifdef USE_GSF

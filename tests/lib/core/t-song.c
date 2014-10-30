@@ -139,17 +139,20 @@ test_bt_song_play_and_load_new (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
   BtSongIO *loader =
-      bt_song_io_from_file (check_get_test_song_path ("test-simple1.xml"));
-  bt_song_io_load (loader, song);
+      bt_song_io_from_file (check_get_test_song_path ("test-simple1.xml"),
+      NULL);
+  bt_song_io_load (loader, song, NULL);
   g_object_checked_unref (loader);
   bt_song_play (song);
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
 
   GST_INFO ("-- act --");
-  loader = bt_song_io_from_file (check_get_test_song_path ("test-simple2.xml"));
+  loader =
+      bt_song_io_from_file (check_get_test_song_path ("test-simple2.xml"),
+      NULL);
 
   GST_INFO ("-- assert --");
-  fail_unless (bt_song_io_load (loader, song), NULL);
+  fail_unless (bt_song_io_load (loader, song, NULL), NULL);
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);

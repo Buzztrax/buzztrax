@@ -367,7 +367,7 @@ bt_edit_application_load_song (const BtEditApplication * self,
 
   GST_INFO ("song name = %s", file_name);
 
-  if ((loader = bt_song_io_from_file (file_name))) {
+  if ((loader = bt_song_io_from_file (file_name, NULL))) {
     BtSetup *setup;
     GList *missing_machines, *missing_waves;
 
@@ -401,7 +401,7 @@ bt_edit_application_load_song (const BtEditApplication * self,
     }
 #endif
 
-    if (bt_song_io_load (loader, song)) {
+    if (bt_song_io_load (loader, song, NULL)) {
       BtMachine *machine;
 
       // get sink-machine
@@ -478,7 +478,7 @@ bt_edit_application_save_song (const BtEditApplication * self,
 
   GST_INFO ("song name = %s", file_name);
 
-  if ((saver = bt_song_io_from_file (file_name))) {
+  if ((saver = bt_song_io_from_file (file_name, NULL))) {
     gchar *old_file_name = NULL, *bak_file_name = NULL;
 
     bt_edit_application_ui_lock (self);
@@ -523,7 +523,7 @@ bt_edit_application_save_song (const BtEditApplication * self,
       bak_file_name = g_strconcat (file_name, ".bak", NULL);
       g_rename (file_name, bak_file_name);
     }
-    if (bt_song_io_save (saver, self->priv->song)) {
+    if (bt_song_io_save (saver, self->priv->song, NULL)) {
       res = TRUE;
       if (!old_file_name || strcmp (old_file_name, file_name)) {
         // saving worked, we remove the bak file as

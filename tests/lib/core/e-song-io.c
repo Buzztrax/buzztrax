@@ -70,7 +70,7 @@ test_bt_song_io_file (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   BtSongIO *song_io =
-      bt_song_io_from_file (check_get_test_song_path ("simple2.xml"));
+      bt_song_io_from_file (check_get_test_song_path ("simple2.xml"), NULL);
 
   GST_INFO ("-- assert --");
   fail_unless (song_io != NULL, NULL);
@@ -88,7 +88,7 @@ test_bt_song_io_data (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
-  BtSongIO *song_io = bt_song_io_from_data (NULL, 0, "audio/x-bzt-xml");
+  BtSongIO *song_io = bt_song_io_from_data (NULL, 0, "audio/x-bzt-xml", NULL);
 
   GST_INFO ("-- assert --");
   fail_unless (song_io != NULL, NULL);

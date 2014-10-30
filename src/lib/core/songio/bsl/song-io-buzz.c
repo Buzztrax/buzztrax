@@ -2256,7 +2256,8 @@ read_midi_section (const BtSongIOBuzz * self, const BtSong * song)
 //-- methods
 
 static gboolean
-bt_song_io_buzz_load (gconstpointer const _self, const BtSong * const song)
+bt_song_io_buzz_load (gconstpointer const _self, const BtSong * const song,
+    GError ** err)
 {
   const BtSongIOBuzz *self = BT_SONG_IO_BUZZ (_self);
   gboolean result = FALSE;

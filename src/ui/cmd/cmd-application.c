@@ -367,13 +367,13 @@ bt_cmd_application_play (const BtCmdApplication * self,
 
   // prepare song and song-io
   song = bt_cmd_application_song_init (self);
-  if (!(loader = bt_song_io_from_file (input_file_name))) {
+  if (!(loader = bt_song_io_from_file (input_file_name, NULL))) {
     goto Error;
   }
 
   GST_INFO ("objects initialized");
 
-  if (bt_song_io_load (loader, song)) {
+  if (bt_song_io_load (loader, song, NULL)) {
     GList *node, *missing_machines, *missing_waves;
 
     // get missing element info
@@ -449,13 +449,13 @@ bt_cmd_application_info (const BtCmdApplication * self,
   }
   // prepare song and song-io
   song = bt_cmd_application_song_init (self);
-  if (!(loader = bt_song_io_from_file (input_file_name))) {
+  if (!(loader = bt_song_io_from_file (input_file_name, NULL))) {
     goto Error;
   }
 
   GST_INFO ("objects initialized");
 
-  if (bt_song_io_load (loader, song)) {
+  if (bt_song_io_load (loader, song, NULL)) {
     BtSongInfo *song_info;
     BtSequence *sequence;
     BtSetup *setup;
@@ -602,17 +602,17 @@ bt_cmd_application_convert (const BtCmdApplication * self,
 
   // prepare song and song-io
   song = bt_cmd_application_song_init (self);
-  if (!(loader = bt_song_io_from_file (input_file_name))) {
+  if (!(loader = bt_song_io_from_file (input_file_name, NULL))) {
     goto Error;
   }
-  if (!(saver = bt_song_io_from_file (output_file_name))) {
+  if (!(saver = bt_song_io_from_file (output_file_name, NULL))) {
     goto Error;
   }
 
   GST_INFO ("objects initialized");
 
-  if (bt_song_io_load (loader, song)) {
-    if (bt_song_io_save (saver, song)) {
+  if (bt_song_io_load (loader, song, NULL)) {
+    if (bt_song_io_save (saver, song, NULL)) {
       res = TRUE;
     } else {
       GST_ERROR ("could not save song \"%s\"", output_file_name);
@@ -655,13 +655,13 @@ bt_cmd_application_encode (const BtCmdApplication * self,
 
   // prepare song and song-io
   song = bt_cmd_application_song_init (self);
-  if (!(loader = bt_song_io_from_file (input_file_name))) {
+  if (!(loader = bt_song_io_from_file (input_file_name, NULL))) {
     goto Error;
   }
 
   GST_INFO ("objects initialized");
 
-  if (bt_song_io_load (loader, song)) {
+  if (bt_song_io_load (loader, song, NULL)) {
     if (bt_cmd_application_prepare_encoding (self, song, output_file_name)) {
       GST_INFO ("start encoding");
       if (bt_cmd_application_play_song (self, song)) {

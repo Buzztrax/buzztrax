@@ -336,8 +336,8 @@ bt_dec_load_song (BtDec * self)
   len = gst_adapter_available (self->adapter);
   data = (gpointer) gst_adapter_take (self->adapter, len);
 
-  if ((loader = bt_song_io_from_data (data, len, media_type))) {
-    if (bt_song_io_load (loader, self->song)) {
+  if ((loader = bt_song_io_from_data (data, len, media_type, NULL))) {
+    if (bt_song_io_load (loader, self->song, NULL)) {
       BtSetup *setup;
       BtSequence *sequence;
       BtSongInfo *song_info;

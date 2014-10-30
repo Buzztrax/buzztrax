@@ -71,10 +71,19 @@ struct _BtSongIOPrivate
  */
 static GList *plugins = NULL;
 
+static GQuark error_quark = 0;
+
 //-- the class
 
 G_DEFINE_ABSTRACT_TYPE (BtSongIO, bt_song_io, G_TYPE_OBJECT);
 
+//-- error codes
+
+GQuark
+bt_song_io_error_quark (void)
+{
+  return error_quark;
+}
 
 //-- helper methods
 
@@ -268,6 +277,7 @@ bt_song_io_update_filename (const BtSongIO * const self,
 /**
  * bt_song_io_from_file:
  * @file_name: the file name of the song
+ * @err: where to store the error message in case of an error, or %NULL
  *
  * Create a new instance from the given @file_name. Each installed plugin will
  * test if it can handle the file type.
@@ -275,7 +285,7 @@ bt_song_io_update_filename (const BtSongIO * const self,
  * Returns: the new instance or %NULL in case of an error
  */
 BtSongIO *
-bt_song_io_from_file (const gchar * const file_name)
+bt_song_io_from_file (const gchar * const file_name, GError ** err)
 {
   BtSongIO *self = NULL;
   GType type = 0;
@@ -300,6 +310,7 @@ bt_song_io_from_file (const gchar * const file_name)
  * @data: in memory data of the song
  * @len: the siye of the @data block
  * @media_type: the media-type of the song, if available
+ * @err: where to store the error message in case of an error, or %NULL
  *
  * Create a new instance from the given parameters. Each installed plugin will
  * test if it can handle the file type.
@@ -307,7 +318,8 @@ bt_song_io_from_file (const gchar * const file_name)
  * Returns: the new instance or %NULL in case of an error
  */
 BtSongIO *
-bt_song_io_from_data (gpointer * data, guint len, const gchar * media_type)
+bt_song_io_from_data (gpointer * data, guint len, const gchar * media_type,
+    GError ** err)
 {
   BtSongIO *self = NULL;
   GType type = 0;
@@ -352,13 +364,14 @@ bt_song_io_get_module_info_list (void)
  * bt_song_io_load:
  * @self: the #BtSongIO instance to use
  * @song: the #BtSong instance that should initialized
+ * @err: where to store the error message in case of an error, or %NULL
  *
  * load the song from a file.  The file is set in the constructor
  *
  * Returns: %TRUE for success
  */
 gboolean
-bt_song_io_load (BtSongIO const *self, const BtSong * const song)
+bt_song_io_load (BtSongIO const *self, const BtSong * const song, GError ** err)
 {
   gboolean result;
   bt_song_io_virtual_load load;
@@ -379,7 +392,7 @@ bt_song_io_load (BtSongIO const *self, const BtSong * const song)
   }
 
   g_object_set ((gpointer) song, "song-io", self, NULL);
-  if ((result = BT_SONG_IO_GET_CLASS (self)->load (self, song))) {
+  if ((result = BT_SONG_IO_GET_CLASS (self)->load (self, song, err))) {
     bt_song_io_update_filename (BT_SONG_IO (self), song);
     GST_INFO ("loading done");
     //DEBUG
@@ -414,13 +427,14 @@ bt_song_io_load (BtSongIO const *self, const BtSong * const song)
  * bt_song_io_save:
  * @self: the #BtSongIO instance to use
  * @song: the #BtSong instance that should stored
+ * @err: where to store the error message in case of an error, or %NULL
  *
  * save the song to a file.  The file is set in the constructor
  *
  * Returns: %TRUE for success
  */
 gboolean
-bt_song_io_save (BtSongIO const *self, const BtSong * const song)
+bt_song_io_save (BtSongIO const *self, const BtSong * const song, GError ** err)
 {
   gboolean result;
   bt_song_io_virtual_save save;
@@ -442,7 +456,7 @@ bt_song_io_save (BtSongIO const *self, const BtSong * const song)
   bt_child_proxy_set ((gpointer) song, "song-info::change-dts", NULL, NULL);
 
   g_object_set ((gpointer) song, "song-io", self, NULL);
-  if ((result = BT_SONG_IO_GET_CLASS (self)->save (self, song))) {
+  if ((result = BT_SONG_IO_GET_CLASS (self)->save (self, song, err))) {
     bt_song_io_update_filename (BT_SONG_IO (self), song);
   }
   g_object_set ((gpointer) song, "song-io", NULL, NULL);
@@ -526,6 +540,8 @@ bt_song_io_init (BtSongIO * self)
 {
   self->priv =
       G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SONG_IO, BtSongIOPrivate);
+
+  error_quark = g_quark_from_static_string ("bt-song-io-error-quark");
 }
 
 static void

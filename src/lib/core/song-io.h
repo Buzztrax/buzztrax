@@ -23,6 +23,36 @@
 
 #include "song.h"
 
+/* error codes */
+
+/**
+ * BtSongIOError:
+ * @BT_SONG_IO_ERROR_UNKNOWN_FORMAT: file is not in one of the supported formats
+ * @BT_SONG_IO_ERROR_UNSUPPORTED_METHOD: operation is not supported for this
+ *                                       file type
+ * @BT_SONG_IO_ERROR_INVALID_FORMAT: file has structural errors
+ *
+ * Error codes returned by the song-io subsystem in additions to #GIOErrorEnum.
+ */
+typedef enum
+{
+  BT_SONG_IO_ERROR_UNKNOWN_FORMAT = 1,
+  BT_SONG_IO_ERROR_UNSUPPORTED_METHOD,
+  BT_SONG_IO_ERROR_INVALID_FORMAT
+} BtSongIOError;
+
+/**
+ * BT_SONG_IO_ERROR:
+ *
+ * Error domain for the song-io subsystem. Errors in this domain will
+ * be from the #BtSongIOError enumeration.
+ * See #GError for information on error domains.
+ */
+#define BT_SONG_IO_ERROR      bt_song_io_error_quark ()
+GQuark bt_song_io_error_quark (void);
+
+/* base class */
+
 #define BT_TYPE_SONG_IO             (bt_song_io_get_type ())
 #define BT_SONG_IO(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_IO, BtSongIO))
 #define BT_SONG_IO_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_IO, BtSongIOClass))
@@ -52,22 +82,24 @@ struct _BtSongIO {
  * bt_song_io_virtual_load:
  * @self: song-io instance
  * @song: song object to load
+ * @err: where to store the error message in case of an error, or %NULL
  *
  * Subclasses will override this methods with the loader function.
  *
  * Returns: %TRUE for success
  */
-typedef gboolean (*bt_song_io_virtual_load)(gconstpointer self, const BtSong * const song);
+typedef gboolean (*bt_song_io_virtual_load)(gconstpointer self, const BtSong * const song, GError **err);
 /**
  * bt_song_io_virtual_save:
  * @self: song-io instance
  * @song: song object to save
+ * @err: where to store the error message in case of an error, or %NULL
  *
  * Subclasses will override this methods with the saver function.
  *
  * Returns: %TRUE for success
  */
-typedef gboolean (*bt_song_io_virtual_save)(gconstpointer const self, const BtSong * const song);
+typedef gboolean (*bt_song_io_virtual_save)(gconstpointer const self, const BtSong * const song, GError **err);
 
 /**
  * BtSongIOClass:
@@ -95,13 +127,13 @@ struct _BtSongIOClass {
 typedef gboolean (*BtSongIOInit)(void);
 
 /* TODO(ensonic): additional fields:
- * - wheter it support load/save? (we have vmethods
+ * - whether it support load/save? (we have vmethods)
  * - some flags?
  *
  * Ugly:
  * - still duplicated info with usr/share/mime database
  * - files are detected twice (e.g. nautilus, buzztrax)
- *   - pass the media-type as a comamndline option and map it right away
+ *   - pass the media-type as a command-line option and map it right away
  */
 
 /**
@@ -141,12 +173,12 @@ typedef struct {
 
 GType bt_song_io_get_type(void) G_GNUC_CONST;
 
-BtSongIO *bt_song_io_from_file(const gchar * const file_name);
-BtSongIO *bt_song_io_from_data(gpointer *data, guint len, const gchar *media_type);
+BtSongIO *bt_song_io_from_file(const gchar * const file_name, GError **err);
+BtSongIO *bt_song_io_from_data(gpointer *data, guint len, const gchar *media_type, GError **err);
 
 const GList *bt_song_io_get_module_info_list(void);
 
-gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song);
-gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song);
+gboolean bt_song_io_load(BtSongIO const *self, const BtSong * const song, GError **err);
+gboolean bt_song_io_save(BtSongIO const *self, const BtSong * const song, GError **err);
 
 #endif // BT_SONG_IO_H

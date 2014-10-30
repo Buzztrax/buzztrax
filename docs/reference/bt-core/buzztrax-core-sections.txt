@@ -446,9 +446,11 @@ bt_song_info_get_type
 <SECTION>
 <FILE>btsongio</FILE>
 <TITLE>BtSongIO</TITLE>
+BT_SONG_IO_ERROR
 BT_SONG_IO_MODULE_INFO_MAX_FORMATS
 BtSongIO
 BtSongIOClass
+BtSongIOError
 BtSongIOFormatInfo
 BtSongIOInit
 BtSongIOModuleInfo
@@ -468,6 +470,7 @@ BT_SONG_IO_GET_CLASS
 BT_TYPE_SONG_IO
 BtSongIOPrivate
 bt_song_io_get_type
+bt_song_io_error_quark
 </SECTION>
 
 <SECTION>

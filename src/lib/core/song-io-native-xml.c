@@ -41,7 +41,7 @@ G_DEFINE_TYPE (BtSongIONativeXML, bt_song_io_native_xml,
 
 static gboolean
 bt_song_io_native_xml_load (gconstpointer const _self,
-    const BtSong * const song)
+    const BtSong * const song, GError ** err)
 {
   const BtSongIONativeXML *const self = BT_SONG_IO_NATIVE_XML (_self);
   gboolean result = FALSE;
@@ -115,7 +115,7 @@ bt_song_io_native_xml_load (gconstpointer const _self,
 
 static gboolean
 bt_song_io_native_xml_save (gconstpointer const _self,
-    const BtSong * const song)
+    const BtSong * const song, GError ** err)
 {
   const BtSongIONativeXML *const self = BT_SONG_IO_NATIVE_XML (_self);
   gboolean result = FALSE;
