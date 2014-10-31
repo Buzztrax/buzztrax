@@ -1,4 +1,4 @@
-personal_ws-1.1 en 60 
+personal_ws-1.1 en 61 
 wiki
 ywyr
 journaling
@@ -28,6 +28,7 @@ UPnP
 ctrl
 unselect
 vorbis
+Sauer
 statusbar
 desaturated
 Kost
@@ -35,9 +36,9 @@ gudev
 livesrc
 xml
 buzztrax
-unmute
-audiodelay
 accelerometers
+audiodelay
+unmute
 bzt
 popup
 Matilde
