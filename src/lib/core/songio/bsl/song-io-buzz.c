@@ -2281,11 +2281,19 @@ bt_song_io_buzz_load (gconstpointer const _self, const BtSong * const song,
   g_object_set (G_OBJECT (self), "status", status, NULL);
 
   if (file_name) {
-    g_file_get_contents (file_name, &self->priv->data, &self->priv->data_length,
-        NULL);
+    GError *e = NULL;
+    if (!g_file_get_contents (file_name, &self->priv->data,
+            &self->priv->data_length, &e)) {
+      GST_WARNING ("failed to read song file \"%s\" : %s", file_name,
+          e->message);
+      g_propagate_error (err, e);
+    }
   } else {
     self->priv->data = data;
     self->priv->data_length = len;
+    if (!data && !len) {
+      g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED, "Empty data block.");
+    }
   }
   self->priv->data_pos = 0;
   if (self->priv->data && self->priv->data_length) {
@@ -2328,13 +2336,17 @@ bt_song_io_buzz_load (gconstpointer const _self, const BtSong * const song,
               NULL);
         }
         result = TRUE;
+      } else {
+        GST_WARNING ("Error reading a buzz file section.");
+        g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+            _("Error reading a buzz file section."));
       }
     } else {
-      GST_INFO ("file is not a buzz file : \"%c%c%c%c\"!=\"Buzz\"", tmp[0],
+      GST_WARNING ("is not a buzz file: \"%c%c%c%c\"!=\"Buzz\"", tmp[0],
           tmp[1], tmp[2], tmp[3]);
+      g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+          _("Is not a buzz file."));
     }
-  } else {
-    GST_WARNING ("file can not be opened : %d : %s", errno, strerror (errno));
   }
   if (file_name) {
     g_free (self->priv->data);

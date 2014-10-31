@@ -4,6 +4,7 @@ src/lib/buzztrax.xml.in
 src/lib/core/application.c
 src/lib/core/core.c
 src/lib/core/cmd-pattern.c
+src/lib/core/song-io.c
 src/lib/core/song-io-native.c
 src/lib/core/song-io-native-bzt.c
 src/lib/core/song-io-native-xml.c

@@ -78,39 +78,54 @@ bt_song_io_native_xml_load (gconstpointer const _self,
     }
     if (song_doc) {
       if (!ctxt->valid) {
-        GST_WARNING ("the supplied document is not a XML/Buzztrax document");
+        GST_WARNING ("is not a XML/Buzztrax document");
+        g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+            _("Is not a XML/Buzztrax document."));
       } else if (!ctxt->wellFormed) {
-        GST_WARNING ("the supplied document is not a wellformed XML document");
+        GST_WARNING ("is not a wellformed XML document");
+        g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+            _("Is not a wellformed XML document."));
       } else {
         xmlNodePtr const root_node = xmlDocGetRootElement (song_doc);
 
         if (root_node == NULL) {
-          GST_WARNING ("xmlDoc is empty");
+          GST_WARNING ("XML document is empty");
+          g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+              _("XML document is empty."));
         } else if (xmlStrcmp (root_node->name, (const xmlChar *) "buzztrax") &&
             xmlStrcmp (root_node->name, (const xmlChar *) "buzztard")) {
-          GST_WARNING ("wrong document type root node in xmlDoc src");
+          GST_WARNING ("wrong XML document root");
+          g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+              _("Wrong XML document root."));
         } else {
-          GError *err = NULL;
-
+          GError *e = NULL;
           bt_persistence_load (BT_TYPE_SONG, BT_PERSISTENCE (song), root_node,
-              &err, NULL);
-          if (err != NULL) {
-            g_error_free (err);
-          } else
+              &e, NULL);
+          if (e != NULL) {
+            GST_WARNING ("deserialisation failed: %s", e->message);
+            g_propagate_error (err, e);
+          } else {
             result = TRUE;
+          }
         }
       }
       if (song_doc)
         xmlFreeDoc (song_doc);
-    } else
-      GST_ERROR ("failed to read song file '%s'", file_name);
-  } else
-    GST_ERROR ("failed to create file-parser context");
+    } else {
+      GST_WARNING ("failed to read song file '%s'", file_name);
+      g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
+          g_strerror (errno));
+    }
+  } else {
+    GST_WARNING ("failed to create parser context");
+    g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
+        "Failed to create parser context.");
+  }
   if (ctxt)
     xmlFreeParserCtxt (ctxt);
   g_free (file_name);
   g_object_set ((gpointer) self, "status", NULL, NULL);
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -140,15 +155,24 @@ bt_song_io_native_xml_save (gconstpointer const _self,
       if (xmlSaveFile (file_name, song_doc) != -1) {
         result = TRUE;
         GST_INFO ("xml saved okay");
-      } else
-        GST_ERROR ("failed to write song file \"%s\"", file_name);
+      } else {
+        GST_WARNING ("failed to write song file \"%s\"", file_name);
+        g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
+            g_strerror (errno));
+      }
+    } else {
+      g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
+          "Failed to serialize XML doc.");
     }
+  } else {
+    g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
+        "Failed to create XML doc.");
   }
 
   g_free (file_name);
 
   g_object_set ((gpointer) self, "status", NULL, NULL);
-  return (result);
+  return result;
 }
 
 //-- wrapper

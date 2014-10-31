@@ -145,7 +145,7 @@ bt_song_io_native_bzt_copy_to_fd (const BtSongIONativeBZT * const self,
     GST_WARNING ("error opening \"%s\"", file_name);
   }
 #endif
-  return (res);
+  return res;
 }
 
 /**
@@ -260,19 +260,18 @@ bt_song_io_native_bzt_load (gconstpointer const _self,
   xmlParserCtxtPtr const ctxt = xmlNewParserCtxt ();
   if (ctxt) {
     xmlDocPtr song_doc = NULL;
-
-    GError *err = NULL;
+    GError *e = NULL;
 
     if (data && len) {
       // parse the file from the memory block
       self->priv->input = gsf_input_memory_new (data, len, FALSE);
     } else {
       // open the file from the file_name argument
-      self->priv->input = gsf_input_stdio_new (file_name, &err);
+      self->priv->input = gsf_input_stdio_new (file_name, &e);
     }
     if (self->priv->input) {
       // create an gsf input file
-      if ((self->priv->infile = gsf_infile_zip_new (self->priv->input, &err))) {
+      if ((self->priv->infile = gsf_infile_zip_new (self->priv->input, &e))) {
         GsfInput *data;
 
         GST_INFO ("'%s' size: %" GSF_OFF_T_FORMAT ", files: %d",
@@ -298,50 +297,63 @@ bt_song_io_native_bzt_load (gconstpointer const _self,
           g_object_unref (data);
         }
       } else {
-        GST_ERROR ("'%s' is not a zip file: %s",
-            (file_name ? file_name : "data"), err->message);
-        g_error_free (err);
+        GST_WARNING ("'%s' is not a zip file: %s",
+            (file_name ? file_name : "data"), e->message);
+        g_propagate_error (err, e);
       }
     } else {
-      if (err) {
-        GST_ERROR ("'%s' error: %s", (file_name ? file_name : "data"),
-            err->message);
-        g_error_free (err);
+      if (e) {
+        GST_WARNING ("'%s' error: %s", (file_name ? file_name : "data"),
+            e->message);
+        g_propagate_error (err, e);
       } else {
-        GST_ERROR ("'%s' error", (file_name ? file_name : "data"));
+        GST_WARNING ("'%s' error", (file_name ? file_name : "data"));
+        g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
+            _("Failed to create memory input."));
       }
     }
 
     if (song_doc) {
       if (!ctxt->valid) {
-        GST_WARNING ("the supplied document is not a XML/Buzztrax document");
+        GST_WARNING ("is not a XML/Buzztrax document");
+        g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+            _("Is not a XML/Buzztrax document."));
       } else if (!ctxt->wellFormed) {
-        GST_WARNING ("the supplied document is not a wellformed XML document");
+        GST_WARNING ("is not a wellformed XML document");
+        g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+            _("Is not a wellformed XML document."));
       } else {
         xmlNodePtr const root_node = xmlDocGetRootElement (song_doc);
 
         if (root_node == NULL) {
-          GST_WARNING ("xmlDoc is empty");
+          GST_WARNING ("XML document is empty");
+          g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+              _("XML document is empty."));
         } else if (xmlStrcmp (root_node->name, (const xmlChar *) "buzztrax") &&
             xmlStrcmp (root_node->name, (const xmlChar *) "buzztard")) {
-          GST_WARNING ("wrong document type root node in xmlDoc src");
+          GST_WARNING ("wrong XML document root");
+          g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+              _("Wrong XML document root."));
         } else {
-          GError *err = NULL;
-
+          GError *e = NULL;
           bt_persistence_load (BT_TYPE_SONG, BT_PERSISTENCE (song), root_node,
-              &err, NULL);
-          if (err != NULL) {
-            g_error_free (err);
-          } else
+              &e, NULL);
+          if (e != NULL) {
+            GST_WARNING ("deserialisation failed: %s", e->message);
+            g_propagate_error (err, e);
+          } else {
             result = TRUE;
+          }
         }
       }
       if (song_doc)
         xmlFreeDoc (song_doc);
-    } else
-      GST_ERROR ("failed to read song file '%s'",
+    } else {
+      GST_WARNING ("failed to read song file '%s'",
           (file_name ? file_name : "data"));
-
+      g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
+          g_strerror (errno));
+    }
     if (self->priv->infile) {
       g_object_unref (self->priv->infile);
       self->priv->infile = NULL;
@@ -351,14 +363,17 @@ bt_song_io_native_bzt_load (gconstpointer const _self,
       self->priv->input = NULL;
     }
 
-  } else
-    GST_ERROR ("failed to create file-parser context");
+  } else {
+    GST_WARNING ("failed to create parser context");
+    g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
+        "Failed to create parser context.");
+  }
   if (ctxt)
     xmlFreeParserCtxt (ctxt);
   g_free (file_name);
   g_object_set ((gpointer) self, "status", NULL, NULL);
 #endif
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -382,56 +397,63 @@ bt_song_io_native_bzt_save (gconstpointer const _self,
 
   xmlDocPtr const song_doc = xmlNewDoc (XML_CHAR_PTR ("1.0"));
   if (song_doc) {
-    gboolean cont = TRUE;
-    GError *err = NULL;
+    GError *e = NULL;
 
     // open the file from the file_name argument
-    if ((self->priv->output = gsf_output_stdio_new (file_name, &err))) {
+    if ((self->priv->output = gsf_output_stdio_new (file_name, &e))) {
       // create an gsf output file
-      if (!(self->priv->outfile =
-              gsf_outfile_zip_new (self->priv->output, &err))) {
-        GST_ERROR ("failed to create zip song file \"%s\" : %s", file_name,
-            err->message);
-        g_error_free (err);
-        cont = FALSE;
+      if (!(self->priv->outfile = gsf_outfile_zip_new (self->priv->output, &e))) {
+        GST_WARNING ("failed to create zip song file \"%s\" : %s", file_name,
+            e->message);
+        g_propagate_error (err, e);
+        goto Error;
       }
     } else {
-      GST_ERROR ("failed to write song file \"%s\" : %s", file_name,
-          err->message);
-      g_error_free (err);
-      cont = FALSE;
+      GST_WARNING ("failed to write song file \"%s\" : %s", file_name,
+          e->message);
+      g_propagate_error (err, e);
+      goto Error;
     }
 
-    if (cont) {
-      xmlNodePtr const root_node =
-          bt_persistence_save (BT_PERSISTENCE (song), NULL);
-      if (root_node) {
-        xmlDocSetRootElement (song_doc, root_node);
-        if (self->priv->output && self->priv->outfile) {
-          GsfOutput *data;
+    xmlNodePtr const root_node =
+        bt_persistence_save (BT_PERSISTENCE (song), NULL);
+    if (root_node) {
+      GsfOutput *data;
 
-          // create file in zip
-          if ((data =
-                  gsf_outfile_new_child (self->priv->outfile, "song.xml",
-                      FALSE))) {
-            xmlChar *bytes;
-            gint size;
+      xmlDocSetRootElement (song_doc, root_node);
 
-            xmlDocDumpMemory (song_doc, &bytes, &size);
-            if (gsf_output_write (data, (size_t) size, (guint8 const *) bytes)) {
-              result = TRUE;
-              GST_INFO ("bzt saved okay");
-            } else
-              GST_ERROR ("failed to write song file \"%s\"", file_name);
-            xmlFree (bytes);
-            gsf_output_close (data);
-            g_object_unref (data);
-          }
+      // create file in zip
+      if ((data =
+              gsf_outfile_new_child (self->priv->outfile, "song.xml", FALSE))) {
+        xmlChar *bytes;
+        gint size;
+
+        xmlDocDumpMemory (song_doc, &bytes, &size);
+        if (gsf_output_write (data, (size_t) size, (guint8 const *) bytes)) {
+          result = TRUE;
+          GST_INFO ("bzt saved okay");
+        } else {
+          GST_WARNING ("failed to write song file \"%s\"", file_name);
+          g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
+              g_strerror (errno));
         }
+        xmlFree (bytes);
+        gsf_output_close (data);
+        g_object_unref (data);
+      } else {
+        g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
+            "Failed to create child object in output file.");
       }
+    } else {
+      g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
+          "Failed to serialize XML doc.");
     }
+  } else {
+    g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
+        "Failed to create XML doc.");
   }
 
+Error:
   if (self->priv->output) {
     gsf_output_close (GSF_OUTPUT (self->priv->outfile));
     g_object_unref (self->priv->outfile);
@@ -447,7 +469,7 @@ bt_song_io_native_bzt_save (gconstpointer const _self,
 
   g_object_set ((gpointer) self, "status", NULL, NULL);
 #endif
-  return (result);
+  return result;
 }
 
 //-- wrapper

@@ -71,8 +71,6 @@ struct _BtSongIOPrivate
  */
 static GList *plugins = NULL;
 
-static GQuark error_quark = 0;
-
 //-- the class
 
 G_DEFINE_ABSTRACT_TYPE (BtSongIO, bt_song_io, G_TYPE_OBJECT);
@@ -82,6 +80,10 @@ G_DEFINE_ABSTRACT_TYPE (BtSongIO, bt_song_io, G_TYPE_OBJECT);
 GQuark
 bt_song_io_error_quark (void)
 {
+  static GQuark error_quark = 0;
+  if (!error_quark) {
+    error_quark = g_quark_from_static_string ("bt-song-io-error-quark");
+  }
   return error_quark;
 }
 
@@ -292,7 +294,9 @@ bt_song_io_from_file (const gchar * const file_name, GError ** err)
 
 
   if (!BT_IS_STRING (file_name)) {
-    GST_WARNING ("filename should not be empty");
+    GST_WARNING ("filename must not be empty");
+    g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_UNKNOWN_FORMAT,
+        _("Filename must not be empty."));
     return NULL;
   }
   type = bt_song_io_detect (file_name, NULL);
@@ -300,9 +304,11 @@ bt_song_io_from_file (const gchar * const file_name, GError ** err)
     self = BT_SONG_IO (g_object_new (type, NULL));
     self->priv->file_name = g_strdup (file_name);
   } else {
-    GST_WARNING ("failed to detect type for filename %s", file_name);
+    GST_WARNING ("no io-module for filename '%s'", file_name);
+    g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_UNKNOWN_FORMAT,
+        _("No io-module for filename '%s'."), file_name);
   }
-  return (self);
+  return self;
 }
 
 /**
@@ -325,7 +331,9 @@ bt_song_io_from_data (gpointer * data, guint len, const gchar * media_type,
   GType type = 0;
 
   if (!BT_IS_STRING (media_type)) {
-    GST_WARNING ("media-type should not be empty");
+    GST_WARNING ("media-type must not be empty");
+    g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_UNKNOWN_FORMAT,
+        _("Media-type must not be empty."));
     return NULL;
   }
   type = bt_song_io_detect (NULL, media_type);
@@ -334,9 +342,11 @@ bt_song_io_from_data (gpointer * data, guint len, const gchar * media_type,
     self->priv->data = data;
     self->priv->len = len;
   } else {
-    GST_WARNING ("failed to detect type for media-type %s", media_type);
+    GST_WARNING ("no io-module for media-type '%s'", media_type);
+    g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_UNKNOWN_FORMAT,
+        _("No io-module for media-type '%s'."), media_type);
   }
-  return (self);
+  return self;
 }
 
 //-- methods
@@ -540,8 +550,6 @@ bt_song_io_init (BtSongIO * self)
 {
   self->priv =
       G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_SONG_IO, BtSongIOPrivate);
-
-  error_quark = g_quark_from_static_string ("bt-song-io-error-quark");
 }
 
 static void
