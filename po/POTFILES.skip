@@ -2,6 +2,7 @@ design/dll_loader/interlocked.c
 design/dll_loader/libwinelib.c
 design/dll_loader/pthreademu.c
 design/gui/buzztrax.glade
+design/gui/render_dialog.glade
 design/gui/sequence.glade
 src/ui/edit/buzztrax-edit.desktop.in.in
 src/ui/edit/buzztrax-edit.desktop.in
