@@ -349,7 +349,8 @@ bt_edit_application_new_song (const BtEditApplication * self)
 /**
  * bt_edit_application_load_song:
  * @self: the application instance to load a new song in
-  *@file_name: the song filename to load
+ * @file_name: the song filename to load
+ * @err: where to store the error message in case of an error, or %NULL
  *
  * Loads a new song. If there is a previous song instance it will be freed.
  *
@@ -357,7 +358,7 @@ bt_edit_application_new_song (const BtEditApplication * self)
  */
 gboolean
 bt_edit_application_load_song (const BtEditApplication * self,
-    const char *file_name)
+    const char *file_name, GError ** err)
 {
   gboolean res = FALSE;
   BtSongIO *loader;
@@ -367,7 +368,7 @@ bt_edit_application_load_song (const BtEditApplication * self,
 
   GST_INFO ("song name = %s", file_name);
 
-  if ((loader = bt_song_io_from_file (file_name, NULL))) {
+  if ((loader = bt_song_io_from_file (file_name, err))) {
     BtSetup *setup;
     GList *missing_machines, *missing_waves;
 
@@ -401,7 +402,7 @@ bt_edit_application_load_song (const BtEditApplication * self,
     }
 #endif
 
-    if (bt_song_io_load (loader, song, NULL)) {
+    if (bt_song_io_load (loader, song, err)) {
       BtMachine *machine;
 
       // get sink-machine
@@ -461,7 +462,8 @@ bt_edit_application_load_song (const BtEditApplication * self,
 /**
  * bt_edit_application_save_song:
  * @self: the application instance to save a song from
-  *@file_name: the song filename to save
+ * @file_name: the song filename to save
+ * @err: where to store the error message in case of an error, or %NULL
  *
  * Saves a song.
  *
@@ -469,7 +471,7 @@ bt_edit_application_load_song (const BtEditApplication * self,
  */
 gboolean
 bt_edit_application_save_song (const BtEditApplication * self,
-    const char *file_name)
+    const char *file_name, GError ** err)
 {
   gboolean res = FALSE;
   BtSongIO *saver;
@@ -478,7 +480,7 @@ bt_edit_application_save_song (const BtEditApplication * self,
 
   GST_INFO ("song name = %s", file_name);
 
-  if ((saver = bt_song_io_from_file (file_name, NULL))) {
+  if ((saver = bt_song_io_from_file (file_name, err))) {
     gchar *old_file_name = NULL, *bak_file_name = NULL;
 
     bt_edit_application_ui_lock (self);
@@ -523,7 +525,7 @@ bt_edit_application_save_song (const BtEditApplication * self,
       bak_file_name = g_strconcat (file_name, ".bak", NULL);
       g_rename (file_name, bak_file_name);
     }
-    if (bt_song_io_save (saver, self->priv->song, NULL)) {
+    if (bt_song_io_save (saver, self->priv->song, err)) {
       res = TRUE;
       if (!old_file_name || strcmp (old_file_name, file_name)) {
         // saving worked, we remove the bak file as
@@ -597,13 +599,13 @@ bt_edit_application_load_and_run (const BtEditApplication * self,
 
   GST_INFO ("application.load_and_run launched");
 
-  if (bt_edit_application_load_song (self, input_file_name)) {
+  if (bt_edit_application_load_song (self, input_file_name, NULL)) {
     res = bt_edit_application_run_ui (self);
   } else {
-    GST_WARNING ("loading song failed");
+    GST_WARNING ("loading song '%s' failed", input_file_name);
+    // TODO(ensonic): show error message, maybe load in idle handler
     // start normaly
     bt_edit_application_run (self);
-    // TODO(ensonic): show error message
   }
   GST_INFO ("application.load_and_run finished");
   return (res);
@@ -737,8 +739,8 @@ bt_edit_application_ui_lock (const BtEditApplication * self)
 {
   GdkCursor *cursor = gdk_cursor_new (GDK_WATCH);
 
-  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
-              main_window)), cursor);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
+              priv->main_window)), cursor);
   g_object_unref (cursor);
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), FALSE);
 
@@ -756,8 +758,8 @@ void
 bt_edit_application_ui_unlock (const BtEditApplication * self)
 {
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->main_window), TRUE);
-  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->priv->
-              main_window)), NULL);
+  gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
+              priv->main_window)), NULL);
 }
 
 /**

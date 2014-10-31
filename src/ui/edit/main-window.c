@@ -147,6 +147,30 @@ update_filename_ext (const BtMainWindow * self, gchar * file_name,
   return (NULL);
 }
 
+static gboolean
+load_song (const BtMainWindow * self, gchar * file_name)
+{
+  GError *err = NULL;
+
+  if (!bt_edit_application_load_song (self->priv->app, file_name, &err)) {
+    gchar *msg = g_strdup_printf (_("Can't load song '%s'."), file_name);
+    bt_dialog_message (self, _("Can't load song"), msg, err->message);
+    g_free (msg);
+    g_error_free (err);
+    return FALSE;
+  } else {
+    // store recent file
+    GtkRecentManager *manager = gtk_recent_manager_get_default ();
+    gchar *uri = g_filename_to_uri (file_name, NULL, NULL);
+
+    if (!gtk_recent_manager_add_item (manager, uri)) {
+      GST_WARNING ("Can't store recent file");
+    }
+    g_free (uri);
+  }
+  return TRUE;
+}
+
 //-- event handler
 
 static void
@@ -267,18 +291,7 @@ on_window_dnd_drop (GtkWidget * widget, GdkDragContext * dc, gint x, gint y,
   }
   if (i) {
     gchar *file_name = g_strndup (data, i);
-    gboolean res = TRUE;
-
-    if (!bt_edit_application_load_song (self->priv->app, file_name)) {
-      gchar *msg =
-          g_strdup_printf (_
-          ("An error occurred while loading the song from file '%s'"),
-          file_name);
-      bt_dialog_message (self, _("Can't load song"), _("Can't load song"), msg);
-      g_free (msg);
-      res = FALSE;
-    }
-    gtk_drag_finish (dc, res, FALSE, t);
+    gtk_drag_finish (dc, load_song (self, file_name), FALSE, t);
     g_free (file_name);
   }
 }
@@ -643,23 +656,7 @@ bt_main_window_open_song (const BtMainWindow * self)
 
   // load after destoying the dialog, otherwise it stays open all time
   if (file_name) {
-    if (!bt_edit_application_load_song (self->priv->app, file_name)) {
-      gchar *msg =
-          g_strdup_printf (_
-          ("An error occurred while loading the song from file '%s'"),
-          file_name);
-      bt_dialog_message (self, _("Can't load song"), _("Can't load song"), msg);
-      g_free (msg);
-    } else {
-      // store recent file
-      GtkRecentManager *manager = gtk_recent_manager_get_default ();
-      gchar *uri = g_filename_to_uri (file_name, NULL, NULL);
-
-      if (!gtk_recent_manager_add_item (manager, uri)) {
-        GST_WARNING ("Can't store recent file");
-      }
-      g_free (uri);
-    }
+    load_song (self, file_name);
     g_free (file_name);
   }
 }
@@ -682,12 +679,12 @@ bt_main_window_save_song (const BtMainWindow * self)
 
   // check the file_name of the song
   if (file_name) {
-    if (!bt_edit_application_save_song (self->priv->app, file_name)) {
-      gchar *msg =
-          g_strdup_printf (_
-          ("An error occurred while saving the song to file '%s'."), file_name);
-      bt_dialog_message (self, _("Can't save song"), _("Can't save song"), msg);
+    GError *err = NULL;
+    if (!bt_edit_application_save_song (self->priv->app, file_name, &err)) {
+      gchar *msg = g_strdup_printf (_("Can't save song '%s'."), file_name);
+      bt_dialog_message (self, _("Can't save song"), msg, err->message);
       g_free (msg);
+      g_error_free (err);
     }
   } else {
     // it is a new song
@@ -834,8 +831,8 @@ bt_main_window_save_song_as (const BtMainWindow * self)
           while (info->formats[ix].name && !found) {
             // we ref the class above
             songio_class =
-                (BtSongIOClass *) g_type_class_peek_static (info->formats[ix].
-                type);
+                (BtSongIOClass *) g_type_class_peek_static (info->
+                formats[ix].type);
             if (!songio_class->save) {
               GST_DEBUG ("songio module %s supports no saving",
                   info->formats[ix].name);
@@ -873,8 +870,8 @@ bt_main_window_save_song_as (const BtMainWindow * self)
   gtk_box_pack_start (GTK_BOX (box), gtk_label_new (_("Format")), FALSE, FALSE,
       0);
   gtk_box_pack_start (GTK_BOX (box), format_chooser, TRUE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (self->priv->
-              dialog)), box, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (self->
+              priv->dialog)), box, FALSE, FALSE, 0);
   g_signal_connect (format_chooser, "changed",
       G_CALLBACK (on_format_chooser_changed), (gpointer) self);
 
@@ -943,13 +940,12 @@ bt_main_window_save_song_as (const BtMainWindow * self)
       }
     }
     if (cont) {
-      if (!bt_edit_application_save_song (self->priv->app, file_name)) {
-        gchar *msg =
-            g_strdup_printf (_
-            ("An error occurred saving the song to file '%s'."), file_name);
-        bt_dialog_message (self, _("Can't save song"), _("Can't save song"),
-            msg);
+      GError *err = NULL;
+      if (!bt_edit_application_save_song (self->priv->app, file_name, &err)) {
+        gchar *msg = g_strdup_printf (_("Can't save song '%s'."), file_name);
+        bt_dialog_message (self, _("Can't save song"), msg, err->message);
         g_free (msg);
+        g_error_free (err);
       } else {
         // store recent file
         GtkRecentManager *manager = gtk_recent_manager_get_default ();
@@ -1015,8 +1011,8 @@ bt_dialog_message (const BtMainWindow * self, const gchar * title,
       "use-markup", TRUE, "selectable", TRUE, "wrap", TRUE, "label", str, NULL);
   g_free (str);
   gtk_container_add (GTK_CONTAINER (box), label);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->priv->
-              dialog)), box);
+  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->
+              priv->dialog)), box);
   gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
   g_object_notify ((gpointer) self, "dialog");
 
@@ -1070,8 +1066,8 @@ bt_dialog_question (const BtMainWindow * self, const gchar * title,
       "use-markup", TRUE, "selectable", TRUE, "wrap", TRUE, "label", str, NULL);
   g_free (str);
   gtk_container_add (GTK_CONTAINER (box), label);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->priv->
-              dialog)), box);
+  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->
+              priv->dialog)), box);
   gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
   g_object_notify ((gpointer) self, "dialog");
 

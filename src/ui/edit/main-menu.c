@@ -84,6 +84,7 @@ on_menu_open_recent_activate (GtkRecentChooser * chooser, gpointer user_data)
   BtMainMenu *self = BT_MAIN_MENU (user_data);
   GtkRecentInfo *info = NULL;
   gchar *file_name = NULL;
+  GError *err = NULL;
   const gchar *uri;
 
   if (!(info = gtk_recent_chooser_get_current_item (chooser))) {
@@ -100,14 +101,12 @@ on_menu_open_recent_activate (GtkRecentChooser * chooser, gpointer user_data)
 
   GST_INFO ("menu open recent event occurred : %s", file_name);
 
-  if (!bt_edit_application_load_song (self->priv->app, file_name)) {
-    gchar *msg =
-        g_strdup_printf (_
-        ("An error occurred while loading the song from file '%s'"), file_name);
-
-    bt_dialog_message (self->priv->main_window, _("Can't load song"),
-        _("Can't load song"), msg);
+  if (!bt_edit_application_load_song (self->priv->app, file_name, &err)) {
+    gchar *msg = g_strdup_printf (_("Can't load song '%s'."), file_name);
+    bt_dialog_message (self->priv->main_window, _("Can't load song"), msg,
+        err->message);
     g_free (msg);
+    g_error_free (err);
   }
   g_free (file_name);
 done:

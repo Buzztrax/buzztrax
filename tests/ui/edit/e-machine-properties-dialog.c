@@ -114,7 +114,8 @@ test_bt_machine_properties_dialog_update (BT_TEST_ARGS)
   BtMachine *machine;
   GtkWidget *dialog;
 
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"),
+      NULL);
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
   machine = bt_setup_get_machine_by_id (setup, machine_ids[_i]);

@@ -163,7 +163,7 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   BtMainPageMachines *machines_page;
 
   bt_edit_application_load_song (app,
-      check_get_test_song_path ("test-simple1.xml"));
+      check_get_test_song_path ("test-simple1.xml"), NULL);
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
   g_object_get (pages, "machines-page", &machines_page, NULL);
@@ -214,7 +214,7 @@ test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
   BtMainPageMachines *machines_page;
 
   bt_edit_application_load_song (app,
-      check_get_test_song_path ("test-simple2.xml"));
+      check_get_test_song_path ("test-simple2.xml"), NULL);
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
   g_object_get (pages, "machines-page", &machines_page, NULL);
@@ -249,7 +249,7 @@ test_bt_main_page_machines_remove_wire (BT_TEST_ARGS)
   BtSetup *setup;
 
   bt_edit_application_load_song (app,
-      check_get_test_song_path ("test-simple2.xml"));
+      check_get_test_song_path ("test-simple2.xml"), NULL);
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
   BtMachine *machine1 = bt_setup_get_machine_by_id (setup, "sine1");
@@ -293,7 +293,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   //bt_edit_application_load_song(app, check_get_test_song_path("test-simple3.xml"));
   // sine1 ! amp1 ! master
   bt_edit_application_load_song (app,
-      check_get_test_song_path ("test-simple2.xml"));
+      check_get_test_song_path ("test-simple2.xml"), NULL);
   g_object_get (app, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
 

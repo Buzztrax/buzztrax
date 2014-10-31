@@ -826,10 +826,13 @@ bt_change_log_recover (BtChangeLog * self, const gchar * log_name)
        - no filename = never saved -> new file
      */
     if (*linebuf) {
+      GError *err = NULL;
       /* this creates a new song object and thus triggers
        * on_song_changed() where we setup a new logfile */
-      if (!bt_edit_application_load_song (self->priv->app, linebuf)) {
-        GST_INFO ("    song '%s' failed to load", linebuf);
+      if (!bt_edit_application_load_song (self->priv->app, linebuf, &err)) {
+        GST_WARNING ("    song '%s' failed to load: %s", linebuf, err->message);
+        // TODO(ensonic): propagate GError?
+        g_error_free (err);
         goto done;
       }
     } else {

@@ -48,7 +48,8 @@ test_setup (void)
   g_object_unref (settings);
 
   // FIXME(ensonic): have a test song with that sample
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"),
+      NULL);
   g_object_get (app, "song", &song, "main-window", &main_window, NULL);
   g_object_get (main_window, "pages", &pages, NULL);
   g_object_get (song, "setup", &setup, NULL);

@@ -170,7 +170,8 @@ test_bt_edit_application_load_song (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"),
+      NULL);
 
   GST_INFO ("-- assert --");
   ck_assert_gobject_object_ne (app, "song", NULL);
@@ -186,7 +187,8 @@ test_bt_edit_application_load_song_is_saved (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"),
+      NULL);
 
   GST_INFO ("-- assert --");
   ck_assert_gobject_boolean_eq (app, "unsaved", FALSE);
@@ -202,12 +204,14 @@ test_bt_edit_application_load_songs (BT_TEST_ARGS)
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSong *song1, *song2;
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo1.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo1.xml"),
+      NULL);
   g_object_get (app, "song", &song1, NULL);
   g_object_unref (song1);
 
   GST_INFO ("-- act --");
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"),
+      NULL);
 
   GST_INFO ("-- assert --");
   g_object_get (app, "song", &song2, NULL);
@@ -232,11 +236,13 @@ test_bt_edit_application_num_children (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   // load for first time
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"),
+      NULL);
   num = GST_BIN_NUMCHILDREN (bin);
   GST_INFO ("song.elements=%d", num);
   // load song for second time
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"),
+      NULL);
   GST_INFO ("song.elements=%d", GST_BIN_NUMCHILDREN (bin));
 
   GST_INFO ("-- assert --");
@@ -260,7 +266,8 @@ test_bt_edit_application_load_song_with_view_disabled (BT_TEST_ARGS)
   GST_INFO ("removed page number %d", _i);
 
   GST_INFO ("-- act --");
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo3.xml"),
+      NULL);
 
   GST_INFO ("-- assert --");
   mark_point ();
@@ -277,7 +284,8 @@ test_bt_edit_application_load_and_play (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
   BtSong *song;
 
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo1.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo1.xml"),
+      NULL);
   g_object_get (app, "song", &song, NULL);
 
   GST_INFO ("-- act --");
@@ -301,13 +309,15 @@ test_bt_edit_application_load_while_playing (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
   BtSong *song;
 
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo1.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo1.xml"),
+      NULL);
   g_object_get (app, "song", &song, NULL);
   bt_song_play (song);
   g_object_unref (song);
 
   GST_INFO ("-- act --");
-  bt_edit_application_load_song (app, check_get_test_song_path ("melo2.xml"));
+  bt_edit_application_load_song (app, check_get_test_song_path ("melo2.xml"),
+      NULL);
 
   GST_INFO ("-- assert --");
   mark_point ();

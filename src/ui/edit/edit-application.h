@@ -57,8 +57,8 @@ GType bt_edit_application_get_type(void) G_GNUC_CONST;
 BtEditApplication *bt_edit_application_new(void);
 
 gboolean bt_edit_application_new_song(const BtEditApplication *self);
-gboolean bt_edit_application_load_song(const BtEditApplication *self,const char *file_name);
-gboolean bt_edit_application_save_song(const BtEditApplication *self,const char *file_name);
+gboolean bt_edit_application_load_song(const BtEditApplication *self,const char *file_name, GError **err);
+gboolean bt_edit_application_save_song(const BtEditApplication *self,const char *file_name, GError **err);
 
 gboolean bt_edit_application_run(const BtEditApplication *self);
 gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const gchar *input_file_name);
