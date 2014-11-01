@@ -1016,7 +1016,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   gtk_box_pack_start (GTK_BOX (vbox), gtk_label_new (" "), FALSE, FALSE, 0);
 
   /* settings */
-  table = gtk_table_new (2, 2, FALSE);
+  table = gtk_grid_new ();
 
   /* scale: linear and logarithmic */
   combo = gtk_combo_box_text_new ();
@@ -1025,10 +1025,10 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   gtk_combo_box_set_active (GTK_COMBO_BOX (combo), 0);
   g_signal_connect (combo, "changed",
       G_CALLBACK (on_spectrum_frequency_mapping_changed), (gpointer) self);
-  gtk_table_attach (GTK_TABLE (table), gtk_label_new (_("frequency mapping")),
-      0, 1, 0, 1, 0, 0, 3, 3);
-  gtk_table_attach (GTK_TABLE (table), combo, 1, 2, 0, 1, GTK_EXPAND | GTK_FILL,
-      0, 3, 3);
+  gtk_grid_attach (GTK_GRID (table), gtk_label_new (_("frequency mapping")),
+      0, 0, 1, 1);
+  g_object_set (combo, "hexpand", TRUE, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), combo, 1, 0, 1, 1);
 
   combo = gtk_combo_box_text_new ();
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("single"));
@@ -1037,10 +1037,10 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   gtk_combo_box_set_active (GTK_COMBO_BOX (combo), 0);
   g_signal_connect (combo, "changed",
       G_CALLBACK (on_spectrum_frequency_precision_changed), (gpointer) self);
-  gtk_table_attach (GTK_TABLE (table), gtk_label_new (_("spectrum precision")),
-      0, 1, 1, 2, 0, 0, 3, 3);
-  gtk_table_attach (GTK_TABLE (table), combo, 1, 2, 1, 2, GTK_EXPAND | GTK_FILL,
-      0, 3, 3);
+  gtk_grid_attach (GTK_GRID (table), gtk_label_new (_("spectrum precision")),
+      0, 1, 1, 1);
+  g_object_set (combo, "hexpand", TRUE, "margin-left", 2, NULL);
+  gtk_grid_attach (GTK_GRID (table), combo, 1, 1, 1, 1);
 
   gtk_box_pack_start (GTK_BOX (vbox), table, FALSE, FALSE, 0);
 
