@@ -320,14 +320,13 @@ bt_settings_page_playback_controller_init_ui (const
 
 
   // coherence upnp tab
-  table = gtk_table_new (2, 2, FALSE);
+  table = gtk_grid_new ();
   gtk_container_add (GTK_CONTAINER (self->priv->controller_pages), table);
 
   // local network port number for socket communication
   label = gtk_label_new (_("Port number"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 0, 1, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
 
   spin_adjustment =
       GTK_ADJUSTMENT (gtk_adjustment_new ((gdouble) coherence_upnp_port, 1024.0,
@@ -335,26 +334,28 @@ bt_settings_page_playback_controller_init_ui (const
   self->priv->port_entry = gtk_spin_button_new (spin_adjustment, 1.0, 0);
   g_signal_connect (self->priv->port_entry, "value-changed",
       G_CALLBACK (on_port_changed), (gpointer) self);
-  gtk_table_attach (GTK_TABLE (table), self->priv->port_entry, 1, 2, 0, 1,
-      GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+  g_object_set (self->priv->port_entry, "hexpand", TRUE, "margin-left", 2,
+      NULL);
+  gtk_grid_attach (GTK_GRID (table), self->priv->port_entry, 1, 0, 1, 1);
 
   // add coherence URL
   label =
       gtk_label_new
-      ("Requires Coherence UPnP framework which can be found at: https://coherence.beebits.net.");
+      (_
+      ("Requires Coherence UPnP framework which can be found at: https://coherence.beebits.net."));
   gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
   gtk_label_set_selectable (GTK_LABEL (label), TRUE);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 2, 1, 2, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  g_object_set (label, "hexpand", TRUE, NULL);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 2, 2, 1);
 
 
   // jack transport tab
   bt_settings_determine_audiosink_name (self->priv->settings, &element_name,
       NULL);
   str = g_strdup_printf
-      ("Jack transport requires that the jackaudiosink is active."
-      "Your current audiosink is '%s'.",
-      (element_name ? element_name : "none"));
+      (_("Jack transport requires that the jackaudiosink is active."
+          "Your current audiosink is '%s'."),
+      (element_name ? element_name : _("none")));
   label = gtk_label_new (str);
   gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
   gtk_label_set_selectable (GTK_LABEL (label), TRUE);
