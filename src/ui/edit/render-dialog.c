@@ -635,7 +635,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   g_signal_connect (widget, "selection-changed", G_CALLBACK (on_folder_changed),
       (gpointer) self);
   g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
-  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (widget), 1, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, 0, 1, 1);
 
 
   label = gtk_label_new (_("Filename"));
@@ -649,7 +649,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   g_signal_connect (widget, "changed", G_CALLBACK (on_base_file_name_changed),
       (gpointer) self);
   g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
-  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (widget), 1, 1, 1, 1);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, 1, 1, 1);
 
 
   label = gtk_label_new (_("Format"));
@@ -679,7 +679,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   g_signal_connect (widget, "changed", G_CALLBACK (on_format_menu_changed),
       (gpointer) self);
   g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
-  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (widget), 1, 2, 1, 1);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, 2, 1, 1);
 
 
   label = gtk_label_new (_("Mode"));
@@ -700,7 +700,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   g_signal_connect (widget, "changed", G_CALLBACK (on_mode_menu_changed),
       (gpointer) self);
   g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
-  gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (widget), 1, 3, 1, 1);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, 3, 1, 1);
 
   /* TODO(ensonic): add more widgets
      o write project file
