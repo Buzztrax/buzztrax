@@ -315,6 +315,7 @@ bt_dec_load_song (BtDec * self)
   BtSongIO *loader = NULL;
   GstCaps *caps;
   GstStructure *s;
+  GError *err = NULL;
   const gchar *media_type = "audio/x-buzztrax";
   guint len;
   gpointer data;
@@ -336,8 +337,8 @@ bt_dec_load_song (BtDec * self)
   len = gst_adapter_available (self->adapter);
   data = (gpointer) gst_adapter_take (self->adapter, len);
 
-  if ((loader = bt_song_io_from_data (data, len, media_type, NULL))) {
-    if (bt_song_io_load (loader, self->song, NULL)) {
+  if ((loader = bt_song_io_from_data (data, len, media_type, &err))) {
+    if (bt_song_io_load (loader, self->song, &err)) {
       BtSetup *setup;
       BtSequence *sequence;
       BtSongInfo *song_info;
@@ -410,7 +411,13 @@ bt_dec_load_song (BtDec * self)
       g_object_unref (song_info);
       g_object_unref (sequence);
       g_object_unref (setup);
+    } else {
+      GST_WARNING_OBJECT (self, "could not load song: %s", err->message);
+      g_error_free (err);
     }
+  } else {
+    GST_WARNING_OBJECT (self, "could not create song-io: %s", err->message);
+    g_error_free (err);
   }
   g_free (data);
 
