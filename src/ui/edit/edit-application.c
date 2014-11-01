@@ -427,7 +427,7 @@ bt_edit_application_load_song (const BtEditApplication * self,
       }
       g_object_unref (setup);
     } else {
-      GST_ERROR ("could not load song \"%s\"", file_name);
+      GST_WARNING ("could not load song \"%s\"", file_name);
     }
     self->priv->unsaved = FALSE;
     g_object_notify (G_OBJECT (self), "unsaved");
@@ -534,7 +534,7 @@ bt_edit_application_save_song (const BtEditApplication * self,
         g_unlink (bak_file_name);
       }
     } else {
-      GST_ERROR ("could not save song \"%s\"", file_name);
+      GST_WARNING ("could not save song \"%s\"", file_name);
       if (bak_file_name) {
         // saving failed, so move a file we renamed to .bak back
         g_rename (bak_file_name, file_name);
