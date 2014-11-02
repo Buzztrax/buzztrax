@@ -146,29 +146,28 @@ bt_interaction_controller_learn_dialog_init_ui (const
   label = gtk_label_new (_("Move or press a controller to detect it."));
   gtk_container_add (GTK_CONTAINER (box), label);
 
-  table =
-      gtk_table_new ( /*rows= */ 2, /*columns= */ 2, /*homogenous= */ FALSE);
+  table = gtk_grid_new ();
   gtk_container_add (GTK_CONTAINER (box), table);
 
-  label = gtk_label_new (_("detected control"));
+  label = gtk_label_new (_("detected control:"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 0, 1, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
 
   self->priv->label_output = gtk_label_new (_("none"));
   gtk_misc_set_alignment (GTK_MISC (self->priv->label_output), 0.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), self->priv->label_output, 1, 2, 0, 1,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (self->priv->label_output, "hexpand", TRUE, "margin-left", 2,
+      NULL);
+  gtk_grid_attach (GTK_GRID (table), self->priv->label_output, 1, 0, 1, 1);
 
   label = gtk_label_new (_("register as"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 1, 2, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
 
   self->priv->entry_name = gtk_entry_new ();
   gtk_entry_set_activates_default (GTK_ENTRY (self->priv->entry_name), TRUE);
-  gtk_table_attach (GTK_TABLE (table), self->priv->entry_name, 1, 2, 1, 2,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (self->priv->entry_name, "hexpand", TRUE, "margin-left", 2,
+      NULL);
+  gtk_grid_attach (GTK_GRID (table), self->priv->entry_name, 1, 1, 1, 1);
 
 
   g_signal_connect (self->priv->device, "notify::device-controlchange",
