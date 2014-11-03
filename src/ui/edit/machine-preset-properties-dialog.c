@@ -123,7 +123,7 @@ static void
 bt_machine_preset_properties_dialog_init_ui (const
     BtMachinePresetPropertiesDialog * self)
 {
-  GtkWidget *label, *widget, *box, *table;
+  GtkWidget *label, *widget, *table;
   //GdkPixbuf *window_icon=NULL;
 
   gtk_widget_set_name (GTK_WIDGET (self), "preset name and comment");
@@ -151,42 +151,39 @@ bt_machine_preset_properties_dialog_init_ui (const
       gtk_dialog_get_widget_for_response (GTK_DIALOG (self),
       GTK_RESPONSE_ACCEPT);
 
-  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-  gtk_container_set_border_width (GTK_CONTAINER (box), 6);
+  // add widgets to the dialog content area
+  table = gtk_grid_new ();
+  gtk_container_set_border_width (GTK_CONTAINER (table), 6);
   gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
-              (self))), box);
-
-  table =
-      gtk_table_new ( /*rows= */ 2, /*columns= */ 2, /*homogenous= */ FALSE);
-  gtk_container_add (GTK_CONTAINER (box), table);
+              (self))), table);
 
   // GtkEntry : preset name
   label = gtk_label_new (_("name"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 0, 1, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
+
   widget = gtk_entry_new ();
   if (self->priv->name)
     gtk_entry_set_text (GTK_ENTRY (widget), self->priv->name);
   else
     gtk_widget_set_sensitive (self->priv->okay_button, FALSE);
   gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-  gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 0, 1,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, 0, 1, 1);
   g_signal_connect (widget, "changed", G_CALLBACK (on_name_changed),
       (gpointer) self);
 
   // GtkEntry : preset comment
   label = gtk_label_new (_("comment"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 1, 2, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
+
   widget = gtk_entry_new ();
   if (self->priv->comment)
     gtk_entry_set_text (GTK_ENTRY (widget), self->priv->comment);
   gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-  gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 1, 2,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, 1, 1, 1);
   g_signal_connect (widget, "changed", G_CALLBACK (on_comment_changed),
       (gpointer) self);
 }
@@ -277,9 +274,8 @@ bt_machine_preset_properties_dialog_set_property (GObject * object,
       self->priv->machine = g_value_dup_object (value);
       GST_DEBUG ("set the machine for preset_dialog: %p", self->priv->machine);
       self->priv->presets =
-          self->priv->
-          machine ? gst_preset_get_preset_names (GST_PRESET (self->priv->
-              machine)) : NULL;
+          self->priv->machine ? gst_preset_get_preset_names (GST_PRESET (self->
+              priv->machine)) : NULL;
       break;
     case MACHINE_PRESET_PROPERTIES_DIALOG_NAME:
       self->priv->name_ptr = g_value_get_pointer (value);
