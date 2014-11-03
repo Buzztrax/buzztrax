@@ -917,7 +917,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   GstPad *pad;
   gchar *title = NULL;
   //GdkPixbuf *window_icon=NULL;
-  GtkWidget *table, *widget;
+  GtkWidget *label, *table, *widget;
   gboolean res = TRUE;
 
   gtk_widget_set_name (GTK_WIDGET (self), "wire analysis");
@@ -1009,16 +1009,23 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   gtk_grid_attach (GTK_GRID (table), widget, 0, 3, 2, 1);
 
   /* scale: linear and logarithmic */
+  label = gtk_label_new (_("frequency mapping"));
+  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 4, 1, 1);
+
   widget = gtk_combo_box_text_new ();
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("lin."));
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("log."));
   gtk_combo_box_set_active (GTK_COMBO_BOX (widget), 0);
   g_signal_connect (widget, "changed",
       G_CALLBACK (on_spectrum_frequency_mapping_changed), (gpointer) self);
-  gtk_grid_attach (GTK_GRID (table), gtk_label_new (_("frequency mapping")),
-      0, 4, 1, 1);
   g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), widget, 1, 4, 1, 1);
+
+  /* precission */
+  label = gtk_label_new (_("spectrum precision"));
+  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 5, 1, 1);
 
   widget = gtk_combo_box_text_new ();
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("single"));
@@ -1027,8 +1034,6 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   gtk_combo_box_set_active (GTK_COMBO_BOX (widget), 0);
   g_signal_connect (widget, "changed",
       G_CALLBACK (on_spectrum_frequency_precision_changed), (gpointer) self);
-  gtk_grid_attach (GTK_GRID (table), gtk_label_new (_("spectrum precision")),
-      0, 5, 1, 1);
   g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), widget, 1, 5, 1, 1);
 
