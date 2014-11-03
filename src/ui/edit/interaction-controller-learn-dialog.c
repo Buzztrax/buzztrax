@@ -155,8 +155,8 @@ bt_interaction_controller_learn_dialog_init_ui (const
 
   self->priv->label_output = gtk_label_new (_("none"));
   gtk_misc_set_alignment (GTK_MISC (self->priv->label_output), 0.0, 0.5);
-  g_object_set (self->priv->label_output, "hexpand", TRUE, "margin-left", 2,
-      NULL);
+  g_object_set (self->priv->label_output, "hexpand", TRUE, "margin-left",
+      LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), self->priv->label_output, 1, 0, 1, 1);
 
   label = gtk_label_new (_("register as"));
@@ -165,8 +165,8 @@ bt_interaction_controller_learn_dialog_init_ui (const
 
   self->priv->entry_name = gtk_entry_new ();
   gtk_entry_set_activates_default (GTK_ENTRY (self->priv->entry_name), TRUE);
-  g_object_set (self->priv->entry_name, "hexpand", TRUE, "margin-left", 2,
-      NULL);
+  g_object_set (self->priv->entry_name, "hexpand", TRUE, "margin-left",
+      LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), self->priv->entry_name, 1, 1, 1, 1);
 
 

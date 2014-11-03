@@ -634,7 +634,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       self->priv->folder);
   g_signal_connect (widget, "selection-changed", G_CALLBACK (on_folder_changed),
       (gpointer) self);
-  g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), widget, 1, 0, 1, 1);
 
 
@@ -648,7 +648,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       TRUE);
   g_signal_connect (widget, "changed", G_CALLBACK (on_base_file_name_changed),
       (gpointer) self);
-  g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), widget, 1, 1, 1, 1);
 
 
@@ -678,7 +678,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
       BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS);
   g_signal_connect (widget, "changed", G_CALLBACK (on_format_menu_changed),
       (gpointer) self);
-  g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), widget, 1, 2, 1, 1);
 
 
@@ -699,7 +699,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   gtk_combo_box_set_active (GTK_COMBO_BOX (widget), BT_RENDER_MODE_MIXDOWN);
   g_signal_connect (widget, "changed", G_CALLBACK (on_mode_menu_changed),
       (gpointer) self);
-  g_object_set (widget, "hexpand", TRUE, "margin-left", 2, NULL);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), widget, 1, 3, 1, 1);
 
   /* TODO(ensonic): add more widgets

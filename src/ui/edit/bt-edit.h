@@ -136,4 +136,7 @@
 #define BOX_BORDER 3
 #endif
 
+/* space between a label and a widget in a grid layout */
+#define LABEL_PADDING 3
+
 #endif // BT_EDIT_H

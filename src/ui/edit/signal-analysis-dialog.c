@@ -972,7 +972,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 
   /* add scales for spectrum analyzer drawable */
-  /* TODO(ensonic): we need to use a gtk_table() and also add a vruler with levels */
+  /* TODO(ensonic): we need to use a gtk_grid() and also add a vruler with levels */
   ruler = gtk_drawing_area_new ();
   g_signal_connect (ruler, "draw",
       G_CALLBACK (on_spectrum_freq_axis_draw), (gpointer) self);
@@ -1027,7 +1027,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
       G_CALLBACK (on_spectrum_frequency_mapping_changed), (gpointer) self);
   gtk_grid_attach (GTK_GRID (table), gtk_label_new (_("frequency mapping")),
       0, 0, 1, 1);
-  g_object_set (combo, "hexpand", TRUE, "margin-left", 2, NULL);
+  g_object_set (combo, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), combo, 1, 0, 1, 1);
 
   combo = gtk_combo_box_text_new ();
@@ -1039,7 +1039,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
       G_CALLBACK (on_spectrum_frequency_precision_changed), (gpointer) self);
   gtk_grid_attach (GTK_GRID (table), gtk_label_new (_("spectrum precision")),
       0, 1, 1, 1);
-  g_object_set (combo, "hexpand", TRUE, "margin-left", 2, NULL);
+  g_object_set (combo, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), combo, 1, 1, 1, 1);
 
   gtk_box_pack_start (GTK_BOX (vbox), table, FALSE, FALSE, 0);

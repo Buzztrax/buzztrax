@@ -417,7 +417,8 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
   gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
   self->priv->name = GTK_ENTRY (gtk_entry_new ());
-  g_object_set (self->priv->name, "hexpand", TRUE, "margin-left", 2, NULL);
+  g_object_set (self->priv->name, "hexpand", TRUE, "margin-left", LABEL_PADDING,
+      NULL);
   gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->name), 1, 0, 1, 1);
   g_signal_connect (self->priv->name, "changed", G_CALLBACK (on_name_changed),
       (gpointer) self);
@@ -426,7 +427,8 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
   gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
   self->priv->genre = GTK_ENTRY (gtk_entry_new ());
-  g_object_set (self->priv->genre, "hexpand", TRUE, "margin-left", 2, NULL);
+  g_object_set (self->priv->genre, "hexpand", TRUE, "margin-left",
+      LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->genre), 1, 1, 1,
       1);
   g_signal_connect (self->priv->genre, "changed", G_CALLBACK (on_genre_changed),
@@ -436,7 +438,8 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
   gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
   self->priv->author = GTK_ENTRY (gtk_entry_new ());
-  g_object_set (self->priv->author, "hexpand", TRUE, "margin-left", 2, NULL);
+  g_object_set (self->priv->author, "hexpand", TRUE, "margin-left",
+      LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->author), 1, 2, 1,
       1);
   g_signal_connect (self->priv->author, "changed",
@@ -448,8 +451,8 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   self->priv->date_created = GTK_ENTRY (gtk_entry_new ());
   gtk_editable_set_editable (GTK_EDITABLE (self->priv->date_created), FALSE);
   gtk_widget_set_can_focus (GTK_WIDGET (self->priv->date_created), FALSE);
-  g_object_set (self->priv->date_created, "hexpand", TRUE, "margin-left", 2,
-      NULL);
+  g_object_set (self->priv->date_created, "hexpand", TRUE, "margin-left",
+      LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->date_created), 1,
       3, 1, 1);
 
@@ -467,7 +470,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
           pspec->maximum, 1.0, 5.0, 0.0));
   self->priv->bpm =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
-  g_object_set (self->priv->bpm, "margin-left", 2, NULL);
+  g_object_set (self->priv->bpm, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->bpm), 1, 0, 1, 1);
   g_signal_connect (self->priv->bpm, "value-changed",
       G_CALLBACK (on_bpm_changed), (gpointer) self);
@@ -489,7 +492,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
       GTK_ADJUSTMENT (gtk_adjustment_new (def, min, max, 1.0, 4.0, 0.0));
   self->priv->beats =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
-  g_object_set (self->priv->beats, "margin-left", 2, NULL);
+  g_object_set (self->priv->beats, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->beats), 1, 1, 1,
       1);
   g_signal_connect (self->priv->beats, "value-changed",
@@ -503,7 +506,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
           pspec->maximum, 1.0, 4.0, 0.0));
   self->priv->tpb =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
-  g_object_set (self->priv->tpb, "margin-left", 2, NULL);
+  g_object_set (self->priv->tpb, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->tpb), 1, 2, 1, 1);
   g_signal_connect (self->priv->tpb, "value-changed",
       G_CALLBACK (on_tpb_changed), (gpointer) self);
@@ -514,8 +517,8 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   self->priv->date_changed = GTK_ENTRY (gtk_entry_new ());
   gtk_editable_set_editable (GTK_EDITABLE (self->priv->date_changed), FALSE);
   gtk_widget_set_can_focus (GTK_WIDGET (self->priv->date_changed), FALSE);
-  g_object_set (self->priv->date_changed, "hexpand", TRUE, "margin-left", 2,
-      NULL);
+  g_object_set (self->priv->date_changed, "hexpand", TRUE, "margin-left",
+      LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (table), GTK_WIDGET (self->priv->date_changed), 1,
       3, 1, 1);
 
