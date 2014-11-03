@@ -117,7 +117,7 @@ on_voices_changed (GtkSpinButton * spinbutton, gpointer user_data)
 static void
 bt_pattern_properties_dialog_init_ui (const BtPatternPropertiesDialog * self)
 {
-  GtkWidget *box, *label, *widget, *table;
+  GtkWidget *label, *widget, *table;
   GtkAdjustment *spin_adjustment;
   gchar *title, *length_str;
   //GdkPixbuf *window_icon=NULL;
@@ -156,13 +156,10 @@ bt_pattern_properties_dialog_init_ui (const BtPatternPropertiesDialog * self)
       GTK_RESPONSE_ACCEPT);
 
   // add widgets to the dialog content area
-  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-  gtk_container_set_border_width (GTK_CONTAINER (box), 6);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
-              (self))), box);
-
   table = gtk_grid_new ();
-  gtk_container_add (GTK_CONTAINER (box), table);
+  gtk_container_set_border_width (GTK_CONTAINER (table), 6);
+  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
+              (self))), table);
 
   // GtkEntry : pattern name
   label = gtk_label_new (_("name"));

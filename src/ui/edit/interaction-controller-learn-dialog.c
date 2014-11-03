@@ -112,7 +112,7 @@ static void
 bt_interaction_controller_learn_dialog_init_ui (const
     BtInteractionControllerLearnDialog * self)
 {
-  GtkWidget *label, *box, *table;
+  GtkWidget *label, *table;
   gchar *name, *title;
 
   gtk_widget_set_name (GTK_WIDGET (self), "interaction controller learn");
@@ -138,37 +138,33 @@ bt_interaction_controller_learn_dialog_init_ui (const
   gtk_widget_set_sensitive (self->priv->okay_button, FALSE);
 
   // add widgets to the dialog content area
-  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-  gtk_container_set_border_width (GTK_CONTAINER (box), 6);
+  table = gtk_grid_new ();
+  gtk_container_set_border_width (GTK_CONTAINER (table), 6);
   gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
-              (self))), box);
+              (self))), table);
 
   label = gtk_label_new (_("Move or press a controller to detect it."));
-  gtk_container_add (GTK_CONTAINER (box), label);
-
-  table = gtk_grid_new ();
-  gtk_container_add (GTK_CONTAINER (box), table);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 0, 2, 1);
 
   label = gtk_label_new (_("detected control:"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
 
   self->priv->label_output = gtk_label_new (_("none"));
   gtk_misc_set_alignment (GTK_MISC (self->priv->label_output), 0.0, 0.5);
   g_object_set (self->priv->label_output, "hexpand", TRUE, "margin-left",
       LABEL_PADDING, NULL);
-  gtk_grid_attach (GTK_GRID (table), self->priv->label_output, 1, 0, 1, 1);
+  gtk_grid_attach (GTK_GRID (table), self->priv->label_output, 1, 1, 1, 1);
 
   label = gtk_label_new (_("register as"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
 
   self->priv->entry_name = gtk_entry_new ();
   gtk_entry_set_activates_default (GTK_ENTRY (self->priv->entry_name), TRUE);
   g_object_set (self->priv->entry_name, "hexpand", TRUE, "margin-left",
       LABEL_PADDING, NULL);
-  gtk_grid_attach (GTK_GRID (table), self->priv->entry_name, 1, 1, 1, 1);
-
+  gtk_grid_attach (GTK_GRID (table), self->priv->entry_name, 1, 2, 1, 1);
 
   g_signal_connect (self->priv->device, "notify::device-controlchange",
       G_CALLBACK (notify_device_controlchange), (gpointer) self);
