@@ -917,8 +917,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   GstPad *pad;
   gchar *title = NULL;
   //GdkPixbuf *window_icon=NULL;
-  GtkWidget *vbox, *table;
-  GtkWidget *ruler, *combo;
+  GtkWidget *table, *widget;
   gboolean res = TRUE;
 
   gtk_widget_set_name (GTK_WIDGET (self), "wire analysis");
@@ -969,83 +968,72 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
     g_free (title);
   }
 
-  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+  table = gtk_grid_new ();
 
   /* add scales for spectrum analyzer drawable */
   /* TODO(ensonic): we need to use a gtk_grid() and also add a vruler with levels */
-  ruler = gtk_drawing_area_new ();
-  g_signal_connect (ruler, "draw",
+  self->priv->spectrum_ruler = widget = gtk_drawing_area_new ();
+  g_signal_connect (widget, "draw",
       G_CALLBACK (on_spectrum_freq_axis_draw), (gpointer) self);
-  gtk_widget_set_size_request (ruler, -1, AXIS_THICKNESS);
-  gtk_box_pack_start (GTK_BOX (vbox), ruler, FALSE, FALSE, 0);
-  self->priv->spectrum_ruler = ruler;
+  gtk_widget_set_size_request (widget, -1, AXIS_THICKNESS);
+  g_object_set (widget, "hexpand", TRUE, NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 0, 0, 2, 1);
   update_spectrum_ruler ((gpointer) self);
 
   /* add spectrum canvas */
-  self->priv->spectrum_drawingarea = gtk_drawing_area_new ();
-  gtk_widget_set_size_request (self->priv->spectrum_drawingarea,
+  self->priv->spectrum_drawingarea = widget = gtk_drawing_area_new ();
+  gtk_widget_set_size_request (widget,
       self->priv->spect_bands, self->priv->spect_height);
-  gtk_widget_add_events (GTK_WIDGET (self->priv->spectrum_drawingarea),
-      GDK_POINTER_MOTION_MASK);
-  g_signal_connect (G_OBJECT (self->priv->spectrum_drawingarea),
-      "size-allocate", G_CALLBACK (on_size_allocate), (gpointer) self);
-  g_signal_connect (self->priv->spectrum_drawingarea, "motion-notify-event",
+  gtk_widget_add_events (widget, GDK_POINTER_MOTION_MASK);
+  g_signal_connect (widget, "size-allocate", G_CALLBACK (on_size_allocate),
+      (gpointer) self);
+  g_signal_connect (widget, "motion-notify-event",
       G_CALLBACK (on_spectrum_drawingarea_motion_notify_event),
       (gpointer) self);
-  gtk_box_pack_start (GTK_BOX (vbox), self->priv->spectrum_drawingarea, TRUE,
-      TRUE, 0);
-
-  /* spacer */
-  gtk_box_pack_start (GTK_BOX (vbox), gtk_label_new (" "), FALSE, FALSE, 0);
+  g_object_set (widget, "hexpand", TRUE, "vexpand", TRUE, "margin-bottom", 3,
+      NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 0, 1, 2, 1);
 
   /* add scales for level meter */
-  ruler = gtk_drawing_area_new ();
-  gtk_widget_set_size_request (ruler, -1, AXIS_THICKNESS);
-  g_signal_connect (ruler, "draw", G_CALLBACK (on_level_axis_draw),
+  widget = gtk_drawing_area_new ();
+  gtk_widget_set_size_request (widget, -1, AXIS_THICKNESS);
+  g_signal_connect (widget, "draw", G_CALLBACK (on_level_axis_draw),
       (gpointer) self);
-  gtk_box_pack_start (GTK_BOX (vbox), ruler, FALSE, FALSE, 0);
+  g_object_set (widget, "hexpand", TRUE, NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 0, 2, 2, 1);
 
   /* add level-meter canvas */
-  self->priv->level_drawingarea = gtk_drawing_area_new ();
-  gtk_widget_set_size_request (self->priv->level_drawingarea,
-      self->priv->spect_bands, LEVEL_HEIGHT);
-  gtk_box_pack_start (GTK_BOX (vbox), self->priv->level_drawingarea, FALSE,
-      FALSE, 0);
-
-  /* spacer */
-  gtk_box_pack_start (GTK_BOX (vbox), gtk_label_new (" "), FALSE, FALSE, 0);
-
-  /* settings */
-  table = gtk_grid_new ();
+  self->priv->level_drawingarea = widget = gtk_drawing_area_new ();
+  gtk_widget_set_size_request (widget, self->priv->spect_bands, LEVEL_HEIGHT);
+  g_object_set (widget, "hexpand", TRUE, "margin-bottom", 3, NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 0, 3, 2, 1);
 
   /* scale: linear and logarithmic */
-  combo = gtk_combo_box_text_new ();
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("lin."));
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("log."));
-  gtk_combo_box_set_active (GTK_COMBO_BOX (combo), 0);
-  g_signal_connect (combo, "changed",
+  widget = gtk_combo_box_text_new ();
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("lin."));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("log."));
+  gtk_combo_box_set_active (GTK_COMBO_BOX (widget), 0);
+  g_signal_connect (widget, "changed",
       G_CALLBACK (on_spectrum_frequency_mapping_changed), (gpointer) self);
   gtk_grid_attach (GTK_GRID (table), gtk_label_new (_("frequency mapping")),
-      0, 0, 1, 1);
-  g_object_set (combo, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
-  gtk_grid_attach (GTK_GRID (table), combo, 1, 0, 1, 1);
+      0, 4, 1, 1);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, 4, 1, 1);
 
-  combo = gtk_combo_box_text_new ();
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("single"));
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("double"));
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("triple"));
-  gtk_combo_box_set_active (GTK_COMBO_BOX (combo), 0);
-  g_signal_connect (combo, "changed",
+  widget = gtk_combo_box_text_new ();
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("single"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("double"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("triple"));
+  gtk_combo_box_set_active (GTK_COMBO_BOX (widget), 0);
+  g_signal_connect (widget, "changed",
       G_CALLBACK (on_spectrum_frequency_precision_changed), (gpointer) self);
   gtk_grid_attach (GTK_GRID (table), gtk_label_new (_("spectrum precision")),
-      0, 1, 1, 1);
-  g_object_set (combo, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
-  gtk_grid_attach (GTK_GRID (table), combo, 1, 1, 1, 1);
-
-  gtk_box_pack_start (GTK_BOX (vbox), table, FALSE, FALSE, 0);
+      0, 5, 1, 1);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, 5, 1, 1);
 
   gtk_container_set_border_width (GTK_CONTAINER (self), 6);
-  gtk_container_add (GTK_CONTAINER (self), vbox);
+  gtk_container_add (GTK_CONTAINER (self), table);
 
   /* TODO(ensonic): better error handling
    * - don't fail if we miss only spectrum or bt_child_proxy_set (self->priv->app, "level
