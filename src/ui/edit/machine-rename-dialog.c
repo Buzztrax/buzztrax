@@ -94,7 +94,7 @@ on_name_changed (GtkEditable * editable, gpointer user_data)
 static void
 bt_machine_rename_dialog_init_ui (const BtMachineRenameDialog * self)
 {
-  GtkWidget *box, *label, *widget, *table;
+  GtkWidget *label, *widget, *table;
   gchar *title;
   //GdkPixbuf *window_icon=NULL;
 
@@ -130,25 +130,21 @@ bt_machine_rename_dialog_init_ui (const BtMachineRenameDialog * self)
       GTK_RESPONSE_ACCEPT);
 
   // add widgets to the dialog content area
-  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
-  gtk_container_set_border_width (GTK_CONTAINER (box), 6);
+  table = gtk_grid_new ();
+  gtk_container_set_border_width (GTK_CONTAINER (table), 6);
   gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
-              (self))), box);
-
-  table =
-      gtk_table_new ( /*rows= */ 1, /*columns= */ 2, /*homogenous= */ FALSE);
-  gtk_container_add (GTK_CONTAINER (box), table);
+              (self))), table);
 
   // GtkEntry : machine name
   label = gtk_label_new (_("name"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (table), label, 0, 1, 0, 1, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
+
   widget = gtk_entry_new ();
   gtk_entry_set_text (GTK_ENTRY (widget), self->priv->name);
   gtk_entry_set_activates_default (GTK_ENTRY (widget), TRUE);
-  gtk_table_attach (GTK_TABLE (table), widget, 1, 2, 0, 1,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, 0, 1, 1);
   g_signal_connect (widget, "changed", G_CALLBACK (on_name_changed),
       (gpointer) self);
 }
