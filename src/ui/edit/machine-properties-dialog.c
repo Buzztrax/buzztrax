@@ -46,12 +46,12 @@
  */
 /* TODO(ensonic): more details in title
  * - a machine has:
- *   - a cannonical name <Author>-<Machine>,
+ *   - a canonical name <Author>-<Machine>,
  *   - an 'id' - the short name used in the song and unique for it
- *   - a selected preet - if any
+ *   - a selected preset - if any
  * - it would be nice to show more info in the title or in a line right below
  *   the title?
- * - we might also offer the machien-rename from the properties window
+ * - we might also offer the machine-rename from the properties window
  */
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C
@@ -1611,7 +1611,7 @@ on_preset_list_row_activated (GtkTreeView * tree_view, GtkTreePath * path,
 
     gtk_tree_model_get (model, &iter, PRESET_LIST_LABEL, &name, -1);
 
-    // remmeber preset
+    // remember preset
     g_hash_table_insert (self->priv->properties, g_strdup ("preset"),
         g_strdup (name));
 
@@ -2267,7 +2267,7 @@ make_global_param_box (const BtMachinePropertiesDialog * self,
       make_param_control (self, param_parent, pname, property, range_min,
           range_max, table, k++, pg);
     }
-    // eat remaning space
+    // eat remaining space
     //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
     gtk_container_add (GTK_CONTAINER (expander), table);
   }
@@ -2321,7 +2321,7 @@ make_voice_param_box (const BtMachinePropertiesDialog * self,
       make_param_control (self, param_parent, pname, property, range_min,
           range_max, table, k++, pg);
     }
-    // eat remaning space
+    // eat remaining space
     //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
     gtk_container_add (GTK_CONTAINER (expander), table);
   }
@@ -2360,8 +2360,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->
-            priv->param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->priv->
+            param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
@@ -2435,7 +2435,7 @@ make_wire_param_box (const BtMachinePropertiesDialog * self, BtWire * wire)
       make_param_control (self, param_parent, pname, property, range_min,
           range_max, table, i, pg);
     }
-    // eat remaning space
+    // eat remaining space
     //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
     gtk_container_add (GTK_CONTAINER (expander), table);
   }
@@ -2633,11 +2633,6 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
     gtk_window_set_icon (GTK_WINDOW (self), window_icon);
     g_object_unref (window_icon);
   }
-  // leave the choice of width to gtk
-  //gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
-  ////gtk_widget_set_size_request(GTK_WIDGET(self),300,200);
-  //gtk_window_set_default_size(GTK_WINDOW(self),300,-1);
-
   // get machine data
   g_object_get (self->priv->machine,
       "global-params", &global_params,
@@ -2651,10 +2646,8 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
       global_params, voice_params, self->priv->voices);
 
   // add widgets to the dialog content area
-  // should we use a hpaned or hbox for the presets?
   hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   param_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-  //gtk_container_set_border_width(GTK_CONTAINER(param_box),6);
   gtk_box_pack_start (GTK_BOX (hbox), param_box, TRUE, TRUE, 0);
 
   // create preset pane
