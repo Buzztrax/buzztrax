@@ -351,8 +351,7 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
       (scrolled_window), GTK_SHADOW_NONE);
 
   // add machine preferences into the table
-  table = gtk_table_new ( /*rows= */ number_of_properties,
-      /*columns= */ 3, /*homogenous= */ FALSE);
+  table = gtk_grid_new ();
   gtk_container_set_border_width (GTK_CONTAINER (table), 6);
   g_signal_connect (table, "realize",
       G_CALLBACK (on_table_realize), (gpointer) self);
@@ -367,8 +366,7 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
     label = gtk_label_new (property->name);
     gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
     gtk_widget_set_tooltip_text (label, tool_tip_text);
-    gtk_table_attach (GTK_TABLE (table), label, 0, 1, i, i + 1, GTK_FILL,
-        GTK_SHRINK, 2, 1);
+    gtk_grid_attach (GTK_GRID (table), label, 0, i, 1, 1);
 
     param_type = property->value_type;
     while ((base_type = g_type_parent (param_type)))
@@ -505,15 +503,13 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
       }
     }
     gtk_widget_set_tooltip_text (widget1, tool_tip_text);
+    g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
     if (!widget2) {
-      gtk_table_attach (GTK_TABLE (table), widget1, 1, 3, i, i + 1,
-          GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+      gtk_grid_attach (GTK_GRID (table), widget1, 1, i, 2, 1);
     } else {
       gtk_widget_set_tooltip_text (widget2, tool_tip_text);
-      gtk_table_attach (GTK_TABLE (table), widget1, 1, 2, i, i + 1,
-          GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
-      gtk_table_attach (GTK_TABLE (table), widget2, 2, 3, i, i + 1,
-          GTK_FILL, GTK_SHRINK, 2, 1);
+      gtk_grid_attach (GTK_GRID (table), widget1, 1, i, 1, 1);
+      gtk_grid_attach (GTK_GRID (table), widget2, 2, i, 1, 1);
     }
   }
   // eat remaning space
