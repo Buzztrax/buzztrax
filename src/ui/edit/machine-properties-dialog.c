@@ -26,11 +26,6 @@
  * also remembers the last loaded preset if any.
  */
 
-/* TODO(ensonic): play machines
- * - we want to assign a note-controller to a machines note-trigger property
- *   and boolean-trigger controller to machines trigger properties
- *   - right now we don't show widgets for these
- */
 /* TODO(ensonic): play demo-song
  * - add a play demo-song button to tool-bar
  * - we play that using playbin on the same sink as the wave-preview
@@ -38,11 +33,23 @@
  * - maybe we need a meta-data key, like we use for the docs
  *   gst_element_class_add_metadata(klass, "bt::demo-song", ...)
  */
+/* TODO(ensonic): play machines
+ * - we want to assign a note-controller to a machines note-trigger property
+ *   and boolean-trigger controller to machines trigger properties
+ * - right now we don't show widgets for these, showing a bunch of extra labels
+ *   just to have a widget for the interaction controller menu is weird
+ * - the expander sections already have a context menu - maybe we can list the
+ *   parameters there (see on_group_button_press_event) and have a submenu with
+ *   'bind controller'/'unbind controller'
+ */
 /* TODO(ensonic): mute/solo/bypass
  * - have a row with mute/solo/bypass check-boxes in the UI
  *   - then we can assign controller buttons
  *   - alternatively allow assigning the buttons in the sequence view
- *   - another option would be to allow this in the keyboard shortcut editor     
+ *   - another option would be to allow this in the keyboard shortcut editor
+ *   - in any case we'll need code in bt-machine to deal with flags
+ *     and in interaction-controller-menu to attach on BtMachine properties
+ *     instead of the GstElement properties
  */
 /* TODO(ensonic): more details in title
  * - a machine has:
@@ -52,6 +59,20 @@
  * - it would be nice to show more info in the title or in a line right below
  *   the title?
  * - we might also offer the machine-rename from the properties window
+ */
+/* TODO(ensonic): sync the preset selection with the parameters
+ * - we store the selected preset with the song
+ * - once we change the parameters, it would be nice to add e.g. a '*' to
+ *   show that it is not the original preset
+ * - we'd also need a method like:
+ *     gfloat gst_preset_distance(GST_PRESET (machine), name))
+ *   that would return: 0.0 for machine settings are equal to the preset and
+ *   1.0 for machine settings are completely different from preset
+ *   - a simple implementation would just count the params that differ and return
+ *     params_changed / params_total
+ * - this method would allow us to:
+ *   - select the preset in older songs (where we did not store it)
+ *   - dynamically add/remove the preset changed marker
  */
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C
@@ -732,7 +753,6 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
         gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
 
-        // TODO(ensonic): copy parameter/group/all?
         menu_item = gtk_image_menu_item_new_with_label (_("Copy parameter"));
         image = gtk_image_new_from_stock (GTK_STOCK_COPY, GTK_ICON_SIZE_MENU);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
@@ -831,7 +851,6 @@ on_group_button_press_event (GtkWidget * widget, GdkEventButton * event,
           g_hash_table_lookup (self->priv->param_groups, widget);
 
       // create context menu
-      // TODO(ensonic): do we leak that menu here? - gtk_widget_destroy() afterwards?
       if (!self->priv->group_menu) {
         self->priv->group_menu = menu =
             GTK_MENU (g_object_ref_sink (gtk_menu_new ()));
@@ -2585,11 +2604,13 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
     GST_WARNING ("can't create treeview column");
 
   // add list data
-  /* TODO(ensonic): need a presets-changed signal to refresh the list
-   * - then we can also remove the preset_list_refresh() calls in the callback
-   *   that change the presets
-   * TODO(ensonic): need a presets-changed signal on the class level
-   * - if we have two instances running, the other wants to reload the list
+  /* TODO(ensonic): need a presets-changed signal
+   * - to refresh the list - then we can also remove the preset_list_refresh()
+   *   calls in the callback that add/remove/rename presets
+   * - we need the signal on the class level
+   *   - if we have two instances running, the other wants to reload the list
+   *   - ideally this would be done in GstPreset - without a filesystem watcher
+   *     this would only update the list within the process though
    */
   preset_list_refresh (self);
 

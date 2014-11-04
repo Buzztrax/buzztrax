@@ -49,7 +49,7 @@
  * linking the machines with "shift" pressed comes from buzz and is hard to
  * discover. We now have a "connect machines" item in the connect menu, but
  * what about these:
- * 1.) on the toolbar I could have a button that toggles between "move" and
+ * 1.) on the toolbar we could have a button that toggles between "move" and
  *     "link". In "move" mode one can move machines with the mouse and in "link"
  *     mode one can link. Would need to have a keyboard shortcut for toggling.
  * 2.) click-zones on the machine-icons. Link the machine when click+drag the
@@ -57,6 +57,14 @@
  *     title and led. Eventualy change the mouse-cursor when hovering over the
  *     zones.
  * Option '2' looks nice and would also help on touch-screens.
+ */
+/* TODO(ensonic): add a machine list to the right side
+ * - this would be like the menu, but as a tree view and therefore more 
+ *   discoverable
+ * - one can drag machines out of the list
+ * - we could even show presets as children of machines
+ *   - dragging the preset would create the machine with the preset selected
+ * - we could also allow to preview machines and/or presets
  */
 
 #define BT_EDIT
