@@ -60,6 +60,7 @@
 #include "persistence.h"
 #include <glib/gprintf.h>
 
+#define DEFAULT_PARAM_WIDTH 70
 #define DEFAULT_LABEL_WIDTH 70
 #define PRESET_BOX_WIDTH 135
 
@@ -2031,8 +2032,7 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
   gtk_widget_set_tooltip_text (label, tool_tip_text);
   gtk_container_add (GTK_CONTAINER (evb), label);
-  gtk_table_attach (GTK_TABLE (table), evb, 0, 1, row, row + 1, GTK_FILL,
-      GTK_SHRINK, 2, 1);
+  gtk_grid_attach (GTK_GRID (table), evb, 0, row, 1, 1);
 
   base_type = bt_g_type_get_base_type (property->value_type);
   GST_INFO ("... base type is : %s", g_type_name (base_type));
@@ -2178,16 +2178,18 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
       G_CALLBACK (on_button_release_event), (gpointer) object);
 
   gtk_widget_set_tooltip_text (widget1, tool_tip_text);
+  gtk_widget_set_size_request (widget1, DEFAULT_PARAM_WIDTH, -1);
   if (!widget2) {
-    gtk_table_attach (GTK_TABLE (table), widget1, 1, 3, row, row + 1,
-        GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+    g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+    gtk_grid_attach (GTK_GRID (table), widget1, 1, row, 2, 1);
   } else {
     gtk_widget_set_tooltip_text (widget2, tool_tip_text);
-    gtk_table_attach (GTK_TABLE (table), widget1, 1, 2, row, row + 1,
-        GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+    g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING,
+        "margin-right", LABEL_PADDING, NULL);
+    gtk_grid_attach (GTK_GRID (table), widget1, 1, row, 1, 1);
     /* TODO(ensonic): how can we avoid the wobble here?
-     * hack would be to set some 'good' default size
-     * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
+     * We'd need to set some 'good' default size
+     * if we use hexpand=TRUE than it uses too much space (same as widget1)
      */
     gtk_widget_set_size_request (widget2, DEFAULT_LABEL_WIDTH, -1);
     if (GTK_IS_LABEL (widget2)) {
@@ -2212,8 +2214,7 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
         G_CALLBACK (on_range_button_press_event), (gpointer) object);
     g_signal_connect (evb, "button-release-event",
         G_CALLBACK (on_button_release_event), (gpointer) object);
-    gtk_table_attach (GTK_TABLE (table), evb, 2, 3, row, row + 1, GTK_FILL,
-        GTK_SHRINK, 2, 1);
+    gtk_grid_attach (GTK_GRID (table), evb, 2, row, 1, 1);
   }
   if (!self->priv->first_widget) {
     self->priv->first_widget = widget1;
@@ -2252,9 +2253,7 @@ make_global_param_box (const BtMachinePropertiesDialog * self,
         G_CALLBACK (on_group_button_press_event), (gpointer) self);
 
     // add global machine controls into the table
-    table = gtk_table_new ( /*rows= */ params + 1, /*columns= */ 3,     /*homogenous= */
-        FALSE);
-
+    table = gtk_grid_new ();
     for (i = 0, k = 0; i < global_params; i++) {
       if (bt_parameter_group_is_param_trigger (pg, i))
         continue;
@@ -2308,9 +2307,7 @@ make_voice_param_box (const BtMachinePropertiesDialog * self,
         G_CALLBACK (on_group_button_press_event), (gpointer) self);
 
     // add voice machine controls into the table
-    table = gtk_table_new ( /*rows= */ params + 1, /*columns= */ 2,     /*homogenous= */
-        FALSE);
-
+    table = gtk_grid_new ();
     for (i = 0, k = 0; i < voice_params; i++) {
       if (bt_parameter_group_is_param_trigger (pg, i))
         continue;
@@ -2363,8 +2360,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->priv->
-            param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->
+            priv->param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
@@ -2427,9 +2424,7 @@ make_wire_param_box (const BtMachinePropertiesDialog * self, BtWire * wire)
         G_CALLBACK (on_group_button_press_event), (gpointer) self);
 
     // add wire controls into the table
-    table = gtk_table_new ( /*rows= */ params + 1, /*columns= */ 2,     /*homogenous= */
-        FALSE);
-
+    table = gtk_grid_new ();
     for (i = 0; i < params; i++) {
       pname = bt_parameter_group_get_param_name (pg, i);
       bt_parameter_group_get_param_details (pg, i, &property, &range_min,
