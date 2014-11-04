@@ -61,6 +61,7 @@
 #include <glib/gprintf.h>
 
 #define DEFAULT_LABEL_WIDTH 70
+#define PRESET_BOX_WIDTH 135
 
 //-- property ids
 
@@ -1481,21 +1482,24 @@ static void
 on_toolbar_show_hide_clicked (GtkButton * button, gpointer user_data)
 {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (user_data);
-  GtkAllocation win_alloc, pb_alloc;
+  GtkAllocation win_alloc;
+  GtkRequisition pb_req;
   GHashTable *properties;
+  gint width;
 
+  gtk_widget_get_preferred_size (self->priv->preset_list, NULL, &pb_req);
   gtk_widget_get_allocation (GTK_WIDGET (self), &win_alloc);
-  gtk_widget_get_allocation (GTK_WIDGET (self->priv->preset_box), &pb_alloc);
 
   GST_DEBUG ("win: %d,%d, box: %d,%d",
-      win_alloc.width, win_alloc.height, pb_alloc.width, pb_alloc.height);
+      win_alloc.width, win_alloc.height, pb_req.width, pb_req.height);
 
   g_object_get (self->priv->machine, "properties", &properties, NULL);
 
+  width = (pb_req.width == 0) ? PRESET_BOX_WIDTH : pb_req.width;
   if (gtk_toggle_tool_button_get_active (GTK_TOGGLE_TOOL_BUTTON (button))) {
     // expand window
     gtk_window_resize (GTK_WINDOW (self),
-        win_alloc.width + (pb_alloc.width + 12), win_alloc.height);
+        win_alloc.width + (width + 12), win_alloc.height);
 
     g_hash_table_insert (properties, g_strdup ("presets-shown"),
         g_strdup ("1"));
@@ -1506,7 +1510,7 @@ on_toolbar_show_hide_clicked (GtkButton * button, gpointer user_data)
         g_strdup ("0"));
     // shrink window
     gtk_window_resize (GTK_WINDOW (self),
-        win_alloc.width - (pb_alloc.width + 12), win_alloc.height);
+        win_alloc.width - (width + 12), win_alloc.height);
   }
 }
 
@@ -2359,8 +2363,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->
-            priv->param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->priv->
+            param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
@@ -2571,7 +2575,7 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
 
   // add cell renderers
   renderer = gtk_cell_renderer_text_new ();
-  gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
+  gtk_cell_renderer_set_fixed_size (renderer, PRESET_BOX_WIDTH, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
       (renderer), 1);
   g_object_set (renderer, "xalign", 0.0, NULL);
@@ -2579,14 +2583,14 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
           gtk_tree_view_column_new_with_attributes (_("Preset"), renderer,
               "text", 0, NULL))) {
     g_object_set (tree_col, "sizing", GTK_TREE_VIEW_COLUMN_FIXED, "fixed-width",
-        135, NULL);
+        PRESET_BOX_WIDTH, NULL);
     gtk_tree_view_insert_column (GTK_TREE_VIEW (self->priv->preset_list),
         tree_col, -1);
   } else
     GST_WARNING ("can't create treeview column");
 
   // add list data
-  /* TODO(ensonic): need a presets-changed signal refresh the list
+  /* TODO(ensonic): need a presets-changed signal to refresh the list
    * - then we can also remove the preset_list_refresh() calls in the callback
    *   that change the presets
    * TODO(ensonic): need a presets-changed signal on the class level
@@ -2594,6 +2598,8 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
    */
   preset_list_refresh (self);
 
+  gtk_scrolled_window_set_min_content_width (GTK_SCROLLED_WINDOW
+      (scrolled_window), PRESET_BOX_WIDTH);
   gtk_container_add (GTK_CONTAINER (scrolled_window), self->priv->preset_list);
   gtk_box_pack_start (GTK_BOX (self->priv->preset_box),
       GTK_WIDGET (scrolled_window), TRUE, TRUE, 0);
