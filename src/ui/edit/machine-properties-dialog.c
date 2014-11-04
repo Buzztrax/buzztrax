@@ -1691,26 +1691,29 @@ on_box_realize (GtkWidget * widget, gpointer user_data)
   GtkWidget *parent = gtk_widget_get_parent (gtk_widget_get_parent (widget));
   GtkRequisition requisition;
   GtkAllocation tb_alloc;
-  gint height, available_heigth;
-  gint max_height = gdk_screen_get_height (gdk_screen_get_default ());
+  GdkScreen *screen = gdk_screen_get_default ();
+  gint height, available_heigth, width, available_width;
 
   gtk_widget_get_preferred_size (widget, NULL, &requisition);
   gtk_widget_get_allocation (GTK_WIDGET (self->priv->main_toolbar), &tb_alloc);
 
-  GST_DEBUG ("#### box size req %d x %d (max-height=%d, toolbar-height=%d)",
-      requisition.width, requisition.height, max_height, tb_alloc.height);
+  GST_DEBUG ("#### box size req %d x %d (toolbar-height=%d)",
+      requisition.width, requisition.height, tb_alloc.height);
 
-  height = requisition.height;
   // constrain the height by screen height minus some space for panels, deco and
   // our toolbar
-  available_heigth = max_height - SCREEN_BORDER_HEIGHT - tb_alloc.height;
-  if (height > available_heigth) {
-    height = available_heigth;
-  }
+  available_heigth = gdk_screen_get_height (screen) - SCREEN_BORDER_HEIGHT -
+      tb_alloc.height;
+  height = MIN (requisition.height, available_heigth);
+  // constrain the width by screen width minus some space for deco
+  available_width = gdk_screen_get_width (screen) - 16;
+  width = MIN (requisition.width, available_width);
+
   // TODO(ensonic): is the '2' some border or padding
   gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
       height + 2);
-  gtk_scrolled_window_set_min_content_width (GTK_SCROLLED_WINDOW (parent), 300);
+  gtk_scrolled_window_set_min_content_width (GTK_SCROLLED_WINDOW (parent),
+      width);
 }
 
 static void

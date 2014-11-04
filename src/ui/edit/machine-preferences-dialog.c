@@ -248,24 +248,26 @@ on_table_realize (GtkWidget * widget, gpointer user_data)
   //BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(user_data);
   GtkWidget *parent = gtk_widget_get_parent (gtk_widget_get_parent (widget));
   GtkRequisition requisition;
-  gint height, available_heigth;
-  gint max_height = gdk_screen_get_height (gdk_screen_get_default ());
+  GdkScreen *screen = gdk_screen_get_default ();
+  gint height, available_heigth, width, available_width;
 
   gtk_widget_get_preferred_size (widget, NULL, &requisition);
 
-  GST_DEBUG ("#### table  size req %d x %d (max-height=%d)", requisition.width,
-      requisition.height, max_height);
+  GST_DEBUG ("#### table  size req %d x %d", requisition.width,
+      requisition.height);
 
-  height = requisition.height;
   // constrain the height by screen height minus some space for panels and deco
-  available_heigth = max_height - SCREEN_BORDER_HEIGHT;
-  if (height > available_heigth) {
-    height = available_heigth;
-  }
+  available_heigth = gdk_screen_get_height (screen) - SCREEN_BORDER_HEIGHT;
+  height = MIN (requisition.height, available_heigth);
+  // constrain the width by screen width minus some space for deco
+  available_width = gdk_screen_get_width (screen) - 16;
+  width = MIN (requisition.width, available_width);
+
   // TODO(ensonic): is the '2' some border or padding
   gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
       height + 2);
-  gtk_scrolled_window_set_min_content_width (GTK_SCROLLED_WINDOW (parent), 250);
+  gtk_scrolled_window_set_min_content_width (GTK_SCROLLED_WINDOW (parent),
+      width);
 }
 
 static void
