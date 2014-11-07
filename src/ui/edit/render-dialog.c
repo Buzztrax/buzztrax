@@ -725,8 +725,10 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   self->priv->info_bar = gtk_info_bar_new ();
   gtk_widget_set_no_show_all (self->priv->info_bar, TRUE);
   gtk_widget_set_valign (self->priv->info_bar, GTK_ALIGN_END);
+#if GTK_CHECK_VERSION (3,10,0)
   gtk_info_bar_set_show_close_button (GTK_INFO_BAR (self->priv->info_bar),
       TRUE);
+#endif
   self->priv->info_bar_label = gtk_label_new ("");
   gtk_widget_show (self->priv->info_bar_label);
   gtk_container_add (GTK_CONTAINER (gtk_info_bar_get_content_area (GTK_INFO_BAR
