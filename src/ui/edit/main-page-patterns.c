@@ -2948,7 +2948,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (self->priv->machine_menu),
       renderer, FALSE);
   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (self->priv->machine_menu),
-      renderer, "pixbuf", BT_MACHINE_MODEL_ICON, NULL);
+      renderer, "pixbuf", BT_MACHINE_LIST_MODEL_ICON, NULL);
   renderer = gtk_cell_renderer_text_new ();
   //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
@@ -2956,7 +2956,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (self->priv->machine_menu),
       renderer, TRUE);
   gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (self->priv->machine_menu),
-      renderer, "text", BT_MACHINE_MODEL_LABEL, NULL);
+      renderer, "text", BT_MACHINE_LIST_MODEL_LABEL, NULL);
   g_signal_connect (self->priv->machine_menu, "changed",
       G_CALLBACK (on_machine_menu_changed), (gpointer) self);
   /* this won't work, as we can't pass anything to the event handler
