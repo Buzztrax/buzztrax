@@ -109,6 +109,7 @@ struct _BtMachinePropertiesDialogPrivate
   GtkWidget *main_toolbar, *preset_toolbar;
   GtkWidget *preset_box;
   GtkWidget *preset_list;
+  BtPresetListModel *preset_model;
 
   GtkWidget *param_group_box;
   /* need this to remove right expander when wire is removed */
@@ -133,12 +134,6 @@ static GQuark widget_child_quark = 0;
 
 static GQuark widget_param_group_quark = 0;     /* points to ParamGroup */
 static GQuark widget_param_num_quark = 0;       /* which parameter inside the group */
-
-enum
-{
-  PRESET_LIST_LABEL = 0,
-  PRESET_LIST_COMMENT
-};
 
 //-- the class
 
@@ -194,56 +189,6 @@ preset_list_edit_preset_meta (const BtMachinePropertiesDialog * self,
 
   gtk_widget_destroy (dialog);
   return (result);
-}
-
-static void
-preset_list_refresh (const BtMachinePropertiesDialog * self)
-{
-  GstElement *machine;
-  GtkListStore *store;
-  GtkTreeIter tree_iter, *selected_iter = NULL;
-  gchar **presets, **preset;
-  gchar *comment, *selected_preset;
-
-  GST_INFO ("rebuilding preset list");
-
-  g_object_get (self->priv->machine, "machine", &machine, NULL);
-  presets = gst_preset_get_preset_names (GST_PRESET (machine));
-
-  selected_preset =
-      (gchar *) g_hash_table_lookup (self->priv->properties, "preset");
-
-  // we store the string twice, as we use the pointer as the key in the hashmap
-  // and the string gets copied
-  store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
-  if (presets) {
-    for (preset = presets; *preset; preset++) {
-      gst_preset_get_meta (GST_PRESET (machine), *preset, "comment", &comment);
-      GST_INFO (" adding item : '%s', '%s'", *preset, safe_string (comment));
-
-      gtk_list_store_append (store, &tree_iter);
-      gtk_list_store_set (store, &tree_iter, PRESET_LIST_LABEL, *preset,
-          PRESET_LIST_COMMENT, comment, -1);
-      g_free (comment);
-
-      if (selected_preset && !strcmp (selected_preset, *preset)) {
-        selected_iter = gtk_tree_iter_copy (&tree_iter);
-      }
-    }
-  }
-  gtk_tree_view_set_model (GTK_TREE_VIEW (self->priv->preset_list),
-      GTK_TREE_MODEL (store));
-  g_object_unref (store);       // drop with treeview
-  if (selected_iter) {
-    // no need to block signal handlers, as loading is triggerd on double-click
-    GtkTreeSelection *tree_sel =
-        gtk_tree_view_get_selection (GTK_TREE_VIEW (self->priv->preset_list));
-    gtk_tree_selection_select_iter (tree_sel, selected_iter);
-    gtk_tree_iter_free (selected_iter);
-  }
-  gst_object_unref (machine);
-  g_strfreev (presets);
-  GST_INFO ("rebuilt preset list");
 }
 
 static BtParameterGroup *
@@ -1549,7 +1494,7 @@ on_toolbar_preset_add_clicked (GtkButton * button, gpointer user_data)
 
     gst_preset_save_preset (GST_PRESET (machine), name);
     gst_preset_set_meta (GST_PRESET (machine), name, "comment", comment);
-    preset_list_refresh (self);
+    bt_preset_list_model_add (self->priv->preset_model, name);
   }
   gst_object_unref (machine);
 }
@@ -1569,12 +1514,12 @@ on_toolbar_preset_remove_clicked (GtkButton * button, gpointer user_data)
     gchar *name;
     GstElement *machine;
 
-    gtk_tree_model_get (model, &iter, PRESET_LIST_LABEL, &name, -1);
+    gtk_tree_model_get (model, &iter, BT_PRESET_LIST_MODEL_LABEL, &name, -1);
     g_object_get (self->priv->machine, "machine", &machine, NULL);
 
     GST_INFO ("about to delete preset : '%s'", name);
     gst_preset_delete_preset (GST_PRESET (machine), name);
-    preset_list_refresh (self);
+    bt_preset_list_model_remove (self->priv->preset_model, name);
     gst_object_unref (machine);
   }
 }
@@ -1595,7 +1540,8 @@ on_toolbar_preset_edit_clicked (GtkButton * button, gpointer user_data)
     gchar *old_name, *new_name, *comment;
     GstElement *machine;
 
-    gtk_tree_model_get (model, &iter, PRESET_LIST_LABEL, &old_name, -1);
+    gtk_tree_model_get (model, &iter, BT_PRESET_LIST_MODEL_LABEL, &old_name,
+        -1);
     g_object_get (self->priv->machine, "machine", &machine, NULL);
 
     GST_INFO ("about to edit preset : '%s'", old_name);
@@ -1605,7 +1551,8 @@ on_toolbar_preset_edit_clicked (GtkButton * button, gpointer user_data)
     if (preset_list_edit_preset_meta (self, machine, &new_name, &comment)) {
       gst_preset_rename_preset (GST_PRESET (machine), old_name, new_name);
       gst_preset_set_meta (GST_PRESET (machine), new_name, "comment", comment);
-      preset_list_refresh (self);
+      bt_preset_list_model_rename (self->priv->preset_model, old_name,
+          new_name);
     }
     g_free (old_name);
     g_free (comment);
@@ -1628,7 +1575,7 @@ on_preset_list_row_activated (GtkTreeView * tree_view, GtkTreePath * path,
     gchar *name;
     GstElement *machine;
 
-    gtk_tree_model_get (model, &iter, PRESET_LIST_LABEL, &name, -1);
+    gtk_tree_model_get (model, &iter, BT_PRESET_LIST_MODEL_LABEL, &name, -1);
 
     // remember preset
     g_hash_table_insert (self->priv->properties, g_strdup ("preset"),
@@ -1662,7 +1609,8 @@ on_preset_list_query_tooltip (GtkWidget * widget, gint x, gint y,
     if (gtk_tree_model_get_iter (model, &iter, path)) {
       gchar *comment;
 
-      gtk_tree_model_get (model, &iter, PRESET_LIST_COMMENT, &comment, -1);
+      gtk_tree_model_get (model, &iter, BT_PRESET_LIST_MODEL_COMMENT, &comment,
+          -1);
       if (comment) {
         GST_LOG ("tip is '%s'", comment);
         gtk_tooltip_set_text (tooltip, comment);
@@ -2379,8 +2327,8 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
     GList *children, *node;
 
     children =
-        gtk_container_get_children (GTK_CONTAINER (self->priv->
-            param_group_box));
+        gtk_container_get_children (GTK_CONTAINER (self->
+            priv->param_group_box));
     node = g_list_last (children);
     // skip wire param boxes
     for (i = 0; i < self->priv->num_wires; i++)
@@ -2527,6 +2475,8 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
   GtkTreeSelection *tree_sel;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
+  GtkTreeIter selected_iter;
+  gchar *selected_preset;
 
   self->priv->preset_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 
@@ -2595,33 +2545,34 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
   g_object_set (renderer, "xalign", 0.0, NULL);
   if ((tree_col =
           gtk_tree_view_column_new_with_attributes (_("Preset"), renderer,
-              "text", 0, NULL))) {
+              "text", BT_PRESET_LIST_MODEL_LABEL, NULL))) {
     g_object_set (tree_col, "sizing", GTK_TREE_VIEW_COLUMN_FIXED, "fixed-width",
         PRESET_BOX_WIDTH, NULL);
     gtk_tree_view_insert_column (GTK_TREE_VIEW (self->priv->preset_list),
         tree_col, -1);
   } else
     GST_WARNING ("can't create treeview column");
-
-  // add list data
-  /* TODO(ensonic): need a presets-changed signal
-   * - to refresh the list - then we can also remove the preset_list_refresh()
-   *   calls in the callback that add/remove/rename presets
-   * - we need the signal on the class level
-   *   - if we have two instances running, the other wants to reload the list
-   *   - ideally this would be done in GstPreset - without a filesystem watcher
-   *     this would only update the list within the process though
-   */
-  preset_list_refresh (self);
+  self->priv->preset_model = bt_preset_list_model_new (self->priv->machine);
+  gtk_tree_view_set_model (GTK_TREE_VIEW (self->priv->preset_list),
+      GTK_TREE_MODEL (self->priv->preset_model));
+  // activate selected
+  selected_preset =
+      (gchar *) g_hash_table_lookup (self->priv->properties, "preset");
+  if (selected_preset) {
+    if (bt_preset_list_model_find_iter (self->priv->preset_model,
+            selected_preset, &selected_iter)) {
+      GtkTreeSelection *tree_sel =
+          gtk_tree_view_get_selection (GTK_TREE_VIEW (self->priv->preset_list));
+      gtk_tree_selection_select_iter (tree_sel, &selected_iter);
+    }
+  }
+  g_object_unref (self->priv->preset_model);    // drop with treeview
 
   gtk_scrolled_window_set_min_content_width (GTK_SCROLLED_WINDOW
       (scrolled_window), PRESET_BOX_WIDTH);
   gtk_container_add (GTK_CONTAINER (scrolled_window), self->priv->preset_list);
   gtk_box_pack_start (GTK_BOX (self->priv->preset_box),
       GTK_WIDGET (scrolled_window), TRUE, TRUE, 0);
-
-  // the list is static, don't free
-  //g_list_free(presets);
   return (TRUE);
 }
 

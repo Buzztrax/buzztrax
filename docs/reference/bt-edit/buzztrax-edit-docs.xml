@@ -99,6 +99,7 @@
       <xi:include href="xml/btpanoramapopup.xml" />
       <xi:include href="xml/btpatternlistmodel.xml" />
       <xi:include href="xml/btpatternpropertiesdialog.xml" />
+      <xi:include href="xml/btpresetlistmodel.xml" />
       <xi:include href="xml/btrenderdialog.xml" />
       <xi:include href="xml/btsequencegridmodel.xml" />
       <xi:include href="xml/btsequenceview.xml" />
