@@ -1108,8 +1108,9 @@ bt_machine_canvas_item_constructed (GObject * object)
   pango_attrs = pango_attr_list_new ();
   //pango_attr_list_insert (pango_attrs, 
   //    pango_attr_weight_new (PANGO_WEIGHT_LIGHT));
+  // PANGO_STRETCH_{,EXTRA,ULTRA}_CONDENSED
   pango_attr_list_insert (pango_attrs,
-      pango_attr_stretch_new (PANGO_STRETCH_CONDENSED));
+      pango_attr_stretch_new (PANGO_STRETCH_EXTRA_CONDENSED));
   g_object_set (self->priv->label,
       "activatable", FALSE,
       "attributes", pango_attrs,
