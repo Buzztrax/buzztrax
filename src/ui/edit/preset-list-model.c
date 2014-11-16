@@ -130,7 +130,8 @@ bt_preset_list_model_new (BtMachine * machine)
       }
       g_strfreev (presets);
     }
-    g_type_set_qdata (type, singleton_quark, self);
+    // add an extra ref, this way we leak the reference though
+    g_type_set_qdata (type, singleton_quark, g_object_ref (self));
   }
   return self;
 }
