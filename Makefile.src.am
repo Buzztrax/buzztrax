@@ -1,3 +1,11 @@
+if USE_ALSA
+ALSA_C_FILES=src/lib/ic/aseq-discoverer.c src/lib/ic/aseq-device.c
+ALSA_H_FILES=src/lib/ic/aseq-discoverer.h src/lib/ic/aseq-device.h
+else
+ALSA_C_FILES=
+ALSA_H_FILES=
+endif
+
 if USE_GUDEV
 GUDEV_C_FILES=src/lib/ic/gudev-discoverer.c
 GUDEV_H_FILES=src/lib/ic/gudev-discoverer.h
@@ -27,6 +35,7 @@ libbuzztrax_ic_la_CFLAGS = -I$(top_builddir)/src/lib/ic
 libbuzztrax_ic_la_SOURCES = \
 	src/lib/ic/ic.c \
 	src/lib/ic/registry.c\
+	$(ALSA_C_FILES) \
 	$(GUDEV_C_FILES) \
 	src/lib/ic/device.c \
 	src/lib/ic/learn.c \
@@ -41,6 +50,7 @@ libbuzztrax_ic_HEADERS = \
 	src/lib/ic/ic.h \
 	src/lib/ic/version.h \
 	src/lib/ic/registry.h \
+	$(ALSA_H_FILES) \
 	$(GUDEV_H_FILES) \
 	src/lib/ic/device.h \
 	src/lib/ic/learn.h \

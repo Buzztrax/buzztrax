@@ -38,6 +38,12 @@ else
 LINUX_INPUT_FILES=input-device.h
 endif
 
+if USE_ALSA
+ALSA_FILES=
+else
+ALSA_FILES=aseq-discoverer.h aseq-device.h
+endif
+
 if USE_GUDEV
 GUDEV_FILES=
 else
@@ -46,6 +52,7 @@ endif
 
 # Header files to ignore when scanning.
 IGNORE_HFILES=ic_private.h \
+  $(ALSA_FILES) \
   $(GUDEV_FILES) \
   $(LINUX_INPUT_FILES)
 

@@ -259,6 +259,24 @@ PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.8.0, [
   ]
 )
 
+PKG_CHECK_MODULES(ALSA_DEPS, alsa, [
+  AC_DEFINE(USE_ALSA, [1], [Define to 1 if we can use alsa libraries])
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $ALSA_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $ALSA_DEPS_LIBS"
+    AM_CONDITIONAL(USE_ALSA, true)
+    use_alsa=yes
+    ALSA_DOC_TYPES=
+    ALSA_DOC_SECTIONS=
+  ],[
+    AM_CONDITIONAL(USE_ALSA, false)
+    use_alsa=no
+    ALSA_DOC_TYPES=%
+    ALSA_DOC_SECTIONS=#
+  ]
+)
+AC_SUBST(ALSA_DOC_TYPES)
+AC_SUBST(ALSA_DOC_SECTIONS)
+
 PKG_CHECK_MODULES(GUDEV_DEPS, gudev-1.0, [
   AC_DEFINE(USE_GUDEV, [1], [Define to 1 if we can use gudev libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GUDEV_DEPS_CFLAGS"
@@ -559,6 +577,7 @@ Configuration
 	Documentation (Man)             : ${enable_man}
 	Documentation (User)            : ${have_scrollkeeper}
 	Bindings Metadata (GIR)         : ${enable_gir}
+	Alsa seq. for interaction ctrl. : ${use_alsa}
 	GUdev for interaction ctrl.     : ${use_gudev}
 	Linux HID for interaction ctrl. : ${have_linux_input_h}
 	Buzzmachine Host support        : ${use_bml}

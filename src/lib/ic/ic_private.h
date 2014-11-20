@@ -65,6 +65,10 @@
 #include "tools.h"
 
 #include "ic.h"
+#if USE_ALSA
+#include "aseq-discoverer.h"
+#include "aseq-device.h"
+#endif
 #if USE_GUDEV
 #include "gudev-discoverer.h"
 #endif

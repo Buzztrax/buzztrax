@@ -39,6 +39,9 @@ struct _BtIcRegistryPrivate
   /* list of BtIcDevice objects */
   GList *devices;
 
+#if USE_ALSA
+  BtIcASeqDiscoverer *aseq_discoverer;
+#endif
 #if USE_GUDEV
   BtIcGudevDiscoverer *gudev_discoverer;
 #endif
@@ -157,6 +160,9 @@ btic_registry_dispose (GObject * const object)
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
+#if USE_ALSA
+  g_object_try_unref (self->priv->aseq_discoverer);
+#endif
 #if USE_GUDEV
   g_object_try_unref (self->priv->gudev_discoverer);
 #endif
@@ -205,10 +211,11 @@ btic_registry_constructor (GType type, guint n_construct_params,
     g_object_add_weak_pointer (object, (gpointer *) (gpointer) & singleton);
 
     GST_INFO ("new device registry created");
+#if USE_ALSA
+    singleton->priv->aseq_discoverer = btic_aseq_discoverer_new ();
+#endif
 #if USE_GUDEV
     singleton->priv->gudev_discoverer = btic_gudev_discoverer_new ();
-#else
-    GST_INFO ("no GUDev support, empty device registry");
 #endif
   } else {
     object = g_object_ref (singleton);

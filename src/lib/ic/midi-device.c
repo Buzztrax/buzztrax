@@ -177,6 +177,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
               g_object_set (control, "value", (glong) 255 /* GSTBT_NOTE_OFF */ ,
                   NULL);
             }
+            // also handle note-off velocity
 #endif
             prev_cmd = midi_event[0];
           }
