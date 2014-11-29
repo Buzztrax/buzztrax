@@ -45,6 +45,10 @@
   make CC=cgcc
 
 
+* build with clang
+  export CC=/usr/bin/clang; export CXX=/usr/bin/clang++; ./autoregen.sh
+
+
 * generate a dependency matrix
   * 'make ctags' creates tags files per directory containing symbol locations
   * 'ctags -x --recurse src tests >xref' creates a single xref table containing
