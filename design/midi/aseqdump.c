@@ -1,6 +1,8 @@
 /*
  * aseqdump.c - show the events received at an ALSA sequencer port
  *
+ * gcc aseqdump.c -o aseqdump -lasound -lm -ldl -lpthread
+ *
  * Copyright (c) 2005 Clemens Ladisch <clemens@ladisch.de>
  *
  *
@@ -27,8 +29,7 @@
 #include <getopt.h>
 #include <sys/poll.h>
 #include <alsa/asoundlib.h>
-#include "aconfig.h"
-#include "version.h"
+//#include "aconfig.h"
 
 static snd_seq_t *seq;
 static int port_count;
@@ -335,15 +336,8 @@ help (const char *argv0)
   printf ("Usage: %s [options]\n"
       "\nAvailable options:\n"
       "  -h,--help                  this help\n"
-      "  -V,--version               show version\n"
       "  -l,--list                  list input ports\n"
       "  -p,--port=client:port,...  source port(s)\n", argv0);
-}
-
-static void
-version (void)
-{
-  puts ("aseqdump version " SND_UTIL_VERSION_STR);
 }
 
 static void
@@ -376,9 +370,6 @@ main (int argc, char *argv[])
     switch (c) {
       case 'h':
         help (argv[0]);
-        return 0;
-      case 'V':
-        version ();
         return 0;
       case 'l':
         do_list = 1;
