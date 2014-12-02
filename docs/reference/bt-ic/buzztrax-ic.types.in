@@ -1,3 +1,4 @@
+#include "config.h"
 #include "ic.h"
 @ALSA_DOC_TYPES@#include "aseq-device.h"
 @ALSA_DOC_TYPES@#include "aseq-discoverer.h"
