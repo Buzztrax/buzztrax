@@ -35,6 +35,7 @@ ref
 registry?
 seek?
 seekinit
+seekinready
 session
 states?
 states??
