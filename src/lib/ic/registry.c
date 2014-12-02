@@ -55,6 +55,27 @@ G_DEFINE_TYPE (BtIcRegistry, btic_registry, G_TYPE_OBJECT);
 
 //-- helper
 
+static GList *
+find_device_node_by_property (const gchar * prop, const gchar * value)
+{
+  BtIcRegistry *self = singleton;
+  GList *node;
+  BtIcDevice *device = NULL;
+  gchar *device_value;
+
+  GST_INFO ("searching for prop='%s' with value='%s'", prop, value);
+
+  for (node = self->priv->devices; (node && !device); node = g_list_next (node)) {
+    device = BTIC_DEVICE (node->data);
+    g_object_get (device, prop, &device_value, NULL);
+    GST_INFO (".. value='%s'", device_value);
+    if (strcmp (value, device_value))
+      device = NULL;
+    g_free (device_value);
+  }
+  return device ? node : NULL;
+}
+
 //-- constructor methods
 
 /**
@@ -73,6 +94,21 @@ btic_registry_new (void)
 //-- methods
 
 /**
+ * btic_registry_find_device_by_name:
+ * @name: device name
+ *
+ * Find the device identified by the given @name in the registry.
+ *
+ * Returns: a ref to the device or %NULL.
+ */
+BtIcDevice *
+btic_registry_find_device_by_name (const gchar * name)
+{
+  GList *node = find_device_node_by_property ("name", name);
+  return node ? g_object_ref (node->data) : NULL;
+}
+
+/**
  * btic_registry_remove_device_by_udi:
  * @udi: device id
  *
@@ -84,24 +120,12 @@ void
 btic_registry_remove_device_by_udi (const gchar * udi)
 {
   BtIcRegistry *self = singleton;
-  GList *node;
-  BtIcDevice *device;
-  gchar *device_udi;
+  GList *node = find_device_node_by_property ("udi", udi);
 
-  g_return_if_fail (self);
-
-  // search for device by udi
-  for (node = self->priv->devices; node; node = g_list_next (node)) {
-    device = BTIC_DEVICE (node->data);
-    g_object_get (device, "udi", &device_udi, NULL);
-    if (!strcmp (udi, device_udi)) {
-      // remove devices from our list and trigger notify
-      self->priv->devices = g_list_delete_link (self->priv->devices, node);
-      g_object_unref (device);
-      g_object_notify (G_OBJECT (self), "devices");
-      break;
-    }
-    g_free (device_udi);
+  if (node) {
+    g_object_unref (node->data);
+    self->priv->devices = g_list_delete_link (self->priv->devices, node);
+    g_object_notify (G_OBJECT (self), "devices");
   }
 }
 
