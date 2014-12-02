@@ -36,6 +36,8 @@
 /* TODO(ensonic): play machines
  * - we want to assign a note-controller to a machines note-trigger property
  *   and boolean-trigger controller to machines trigger properties
+ * - right now we register note-controllers as abs_range controls, we need a way
+ *   to filter for them
  * - right now we don't show widgets for these, showing a bunch of extra labels
  *   just to have a widget for the interaction controller menu is weird
  * - the expander sections already have a context menu - maybe we can list the

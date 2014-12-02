@@ -4,6 +4,12 @@ else
   TESTS_BIN =
 endif
 
+if USE_ALSA
+ALSA_C_TEST_FILES=tests/lib/ic/e-aseq-discoverer.c
+else
+ALSA_C_TEST_FILES=
+endif
+
 TESTS = \
   $(TESTS_BIN) \
   tests/bt-cmd-info.sh \
@@ -154,7 +160,8 @@ libbtic_check_la_SOURCES = tests/lib/ic/m-bt-ic.h \
 	tests/lib/ic/e-device.c \
 	tests/lib/ic/e-ic.c tests/lib/ic/t-ic.c \
 	tests/lib/ic/e-learn.c \
-	tests/lib/ic/e-registry.c
+	tests/lib/ic/e-registry.c \
+	$(ALSA_C_TEST_FILES)
 
 libbt_cmd_check_la_LIBADD = \
 	libbtcmd.la \

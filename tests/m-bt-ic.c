@@ -35,6 +35,9 @@ BT_TEST_SUITE_E ("BticDevice", bt_device);
 BT_TEST_SUITE_T_E ("Btic", bt_ic);
 BT_TEST_SUITE_E ("BticLearn", bt_learn);
 BT_TEST_SUITE_E ("BticRegistry", bt_registry);
+#if USE_ALSA
+BT_TEST_SUITE_E ("BticAseqDiscoverer", bt_aseq_discoverer);
+#endif
 
 /* start the test run */
 gint
@@ -55,6 +58,9 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_device_suite ());
   srunner_add_suite (sr, bt_learn_suite ());
   srunner_add_suite (sr, bt_registry_suite ());
+#if USE_ALSA
+  srunner_add_suite (sr, bt_aseq_discoverer_suite ());
+#endif
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);
   srunner_free (sr);
