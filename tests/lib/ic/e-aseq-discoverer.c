@@ -64,18 +64,16 @@ test_btic_device_discovered (BT_TEST_ARGS)
   fail_unless (snd_seq_create_simple_port (seq, "test",
           SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
           SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION) >= 0);
-  // TODO(ensonic): we don't receive the event in the discoverer :/
-  /*check_run_main_loop_for_usec (1000);
+  check_run_main_loop_for_usec (1000);
 
-     BtIcDevice *device = btic_registry_find_device_by_name (
-     "alsa sequencer: test");
+  BtIcDevice *device =
+      btic_registry_find_device_by_name ("alsa sequencer: test");
 
-     GST_INFO ("-- assert --");
-     fail_unless (device != NULL, NULL);
+  GST_INFO ("-- assert --");
+  fail_unless (device != NULL, NULL);
 
-     GST_INFO ("-- cleanup --");
-     g_object_unref (device);
-   */
+  GST_INFO ("-- cleanup --");
+  g_object_unref (device);
   snd_seq_close (seq);
   BT_TEST_END;
 }
