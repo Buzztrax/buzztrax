@@ -67,23 +67,31 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
         case SND_SEQ_EVENT_PORT_CHANGE:{
           snd_seq_client_info_t *cinfo;
           snd_seq_port_info_t *pinfo;
+          guint pcaps = 0;
 
           addr = &ev->data.addr;
 
           // meh: we don't get names on exit
           snd_seq_client_info_alloca (&cinfo);
-          snd_seq_get_any_client_info (p->seq, addr->client, cinfo);
-          cname = snd_seq_client_info_get_name (cinfo);
+          if ((err = snd_seq_get_any_client_info (p->seq, addr->client, cinfo))
+              >= 0) {
+            cname = snd_seq_client_info_get_name (cinfo);
+          } else {
+            GST_INFO ("failed to get client info: %s", snd_strerror (err));
+          }
 
           snd_seq_port_info_alloca (&pinfo);
-          snd_seq_get_any_port_info (p->seq, addr->client, addr->port, pinfo);
-          pname = snd_seq_port_info_get_name (pinfo);
-
-          if ((snd_seq_port_info_get_capability (pinfo)
-                  & (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ))
-              != (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ)) {
-            GST_INFO ("skipping port event due to caps");
-            addr = NULL;
+          if ((err = snd_seq_get_any_port_info (p->seq, addr->client,
+                      addr->port, pinfo)) >= 0) {
+            pname = snd_seq_port_info_get_name (pinfo);
+            pcaps = snd_seq_port_info_get_capability (pinfo);
+            if ((pcaps & (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ))
+                != (SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ)) {
+              GST_INFO ("skipping port event due to caps: 0x%08x", pcaps);
+              addr = NULL;
+            }
+          } else {
+            GST_INFO ("failed to get port info: %s", snd_strerror (err));
           }
           break;
         }
@@ -113,29 +121,30 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
           break;
       }
       if (addr) {
-        gchar *cat_full_name;
+        gchar *device_name;
         gchar *udi;
 
         udi = g_strdup_printf ("/aseq/%d:%d", addr->client, addr->port);
         switch (ev->type) {
           case SND_SEQ_EVENT_PORT_START:
-            GST_INFO ("Port start: %d:%d - %s:%s",
-                addr->client, addr->port, cname, pname);
-            cat_full_name = g_strconcat ("alsa sequencer: ", pname, NULL);
+            GST_INFO ("Port start: %d:%d - %s:%s - %s",
+                addr->client, addr->port, cname, pname, udi);
+            device_name = g_strconcat ("alsa sequencer: ", pname, NULL);
             btic_registry_add_device (BTIC_DEVICE (btic_aseq_device_new (udi,
-                        cat_full_name, addr->client, addr->port)));
-            g_free (cat_full_name);
+                        device_name, addr->client, addr->port)));
+            g_free (device_name);
             break;
           case SND_SEQ_EVENT_PORT_EXIT:
-            GST_INFO ("Port exit: %d:%d - %s:%s",
-                addr->client, addr->port, cname, pname);
+            GST_INFO ("Port exit: %d:%d - %s:%s - %s",
+                addr->client, addr->port, cname, pname, udi);
             btic_registry_remove_device_by_udi (udi);
             break;
           case SND_SEQ_EVENT_PORT_CHANGE:
-            GST_INFO ("Port changed: %d:%d - %s:%s",
-                addr->client, addr->port, cname, pname);
+            GST_INFO ("Port changed: %d:%d - %s:%s - %s",
+                addr->client, addr->port, cname, pname, udi);
             // TODO: we need to change the udi, but we can't look up the old
             // udi if we don't know the old port number
+            // device = btic_registry_find_device_by_udi (udi);
             break;
           default:
             break;

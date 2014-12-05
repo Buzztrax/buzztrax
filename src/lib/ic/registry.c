@@ -59,21 +59,21 @@ static GList *
 find_device_node_by_property (const gchar * prop, const gchar * value)
 {
   BtIcRegistry *self = singleton;
-  GList *node;
+  GList *node, *res = NULL;
   BtIcDevice *device = NULL;
   gchar *device_value;
 
   GST_INFO ("searching for prop='%s' with value='%s'", prop, value);
 
-  for (node = self->priv->devices; (node && !device); node = g_list_next (node)) {
+  for (node = self->priv->devices; (node && !res); node = g_list_next (node)) {
     device = BTIC_DEVICE (node->data);
     g_object_get (device, prop, &device_value, NULL);
     GST_INFO (".. value='%s'", device_value);
-    if (strcmp (value, device_value))
-      device = NULL;
+    if (!strcmp (value, device_value))
+      res = node;
     g_free (device_value);
   }
-  return device ? node : NULL;
+  return res;
 }
 
 //-- constructor methods
@@ -126,6 +126,9 @@ btic_registry_remove_device_by_udi (const gchar * udi)
     g_object_unref (node->data);
     self->priv->devices = g_list_delete_link (self->priv->devices, node);
     g_object_notify (G_OBJECT (self), "devices");
+    GST_INFO ("registry has %u devices", g_list_length (self->priv->devices));
+  } else {
+    GST_WARNING ("no device with udi=%s", udi);
   }
 }
 
@@ -149,6 +152,7 @@ btic_registry_add_device (BtIcDevice * device)
     self->priv->devices =
         g_list_prepend (self->priv->devices, (gpointer) device);
     g_object_notify (G_OBJECT (self), "devices");
+    GST_INFO ("registry has %u devices", g_list_length (self->priv->devices));
   } else {
     GST_DEBUG ("device has no controls, not adding");
     g_object_unref (device);
