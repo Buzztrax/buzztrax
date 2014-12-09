@@ -133,7 +133,7 @@ on_show_tips_toggled (GtkToggleButton * togglebutton, gpointer user_data)
 static void
 on_tip_view_realize (GtkWidget * widget, gpointer user_data)
 {
-  GtkWidget *parent = gtk_widget_get_parent (gtk_widget_get_parent (widget));
+  GtkWidget *parent = gtk_widget_get_parent (widget);
   GtkRequisition requisition;
   gint height, available_heigth;
   gint max_height = gdk_screen_get_height (gdk_screen_get_default ());
@@ -236,7 +236,7 @@ bt_tip_dialog_init_ui (const BtTipDialog * self)
       GTK_SHADOW_IN);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (tip_view),
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (tip_view),
+  gtk_container_add (GTK_CONTAINER (tip_view),
       GTK_WIDGET (self->priv->tip_view));
 
   gtk_box_pack_start (GTK_BOX (vbox), tip_view, TRUE, TRUE, 0);
