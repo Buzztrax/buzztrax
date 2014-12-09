@@ -1010,9 +1010,9 @@ bt_dialog_message (const BtMainWindow * self, const gchar * title,
   label = g_object_new (GTK_TYPE_LABEL,
       "use-markup", TRUE, "selectable", TRUE, "wrap", TRUE, "label", str, NULL);
   g_free (str);
-  gtk_container_add (GTK_CONTAINER (box), label);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->
-              priv->dialog)), box);
+  gtk_box_pack_start (GTK_BOX (box), label, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG
+              (self->priv->dialog))), box, TRUE, TRUE, 0);
   gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
   g_object_notify ((gpointer) self, "dialog");
 
@@ -1065,9 +1065,9 @@ bt_dialog_question (const BtMainWindow * self, const gchar * title,
   label = g_object_new (GTK_TYPE_LABEL,
       "use-markup", TRUE, "selectable", TRUE, "wrap", TRUE, "label", str, NULL);
   g_free (str);
-  gtk_container_add (GTK_CONTAINER (box), label);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (self->
-              priv->dialog)), box);
+  gtk_box_pack_start (GTK_BOX (box), label, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG
+              (self->priv->dialog))), box, TRUE, TRUE, 0);
   gtk_widget_show_all (GTK_WIDGET (self->priv->dialog));
   g_object_notify ((gpointer) self, "dialog");
 

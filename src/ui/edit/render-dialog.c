@@ -617,8 +617,8 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   // add widgets to the dialog content area
   overlay = gtk_overlay_new ();
   gtk_container_set_border_width (GTK_CONTAINER (overlay), 6);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
-              (self))), overlay);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
+      overlay, TRUE, TRUE, 0);
 
   table = gtk_grid_new ();
   gtk_container_add (GTK_CONTAINER (overlay), table);

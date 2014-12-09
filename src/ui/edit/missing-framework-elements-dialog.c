@@ -223,9 +223,9 @@ bt_missing_framework_elements_dialog_init_ui (const
       }
     }
   }
-  gtk_container_add (GTK_CONTAINER (hbox), vbox);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
-              (self))), hbox);
+  gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
+      hbox, TRUE, TRUE, 0);
 
   return (res);
 }

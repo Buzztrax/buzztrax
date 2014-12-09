@@ -98,6 +98,7 @@ make_listview (GtkWidget * vbox, GList * missing_elements, const gchar * msg)
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (missing_list_view),
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_container_add (GTK_CONTAINER (missing_list_view), missing_list);
+
   gtk_widget_show (missing_list_view);
   gtk_box_pack_start (GTK_BOX (vbox), missing_list_view, TRUE, TRUE, 0);
 }
@@ -153,9 +154,9 @@ bt_missing_song_elements_dialog_init_ui (const BtMissingSongElementsDialog *
     make_listview (vbox, self->priv->waves,
         _("The waves listed below are missing or failed to load."));
   }
-  gtk_container_add (GTK_CONTAINER (hbox), vbox);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
-              (self))), hbox);
+  gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
+      hbox, TRUE, TRUE, 0);
 }
 
 //-- constructor methods

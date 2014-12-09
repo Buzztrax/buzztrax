@@ -154,8 +154,8 @@ bt_machine_preset_properties_dialog_init_ui (const
   // add widgets to the dialog content area
   table = gtk_grid_new ();
   gtk_container_set_border_width (GTK_CONTAINER (table), 6);
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area (GTK_DIALOG
-              (self))), table);
+  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
+      table, TRUE, TRUE, 0);
 
   // GtkEntry : preset name
   label = gtk_label_new (_("name"));
