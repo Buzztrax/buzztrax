@@ -67,7 +67,7 @@ test_btic_initial_aseq_device_discovered (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   BtIcDevice *device =
-      btic_registry_find_device_by_name ("alsa sequencer: test-static");
+      btic_registry_get_device_by_name ("alsa sequencer: test-static");
 
   GST_INFO ("-- assert --");
   fail_unless (device != NULL, NULL);
@@ -90,7 +90,7 @@ test_btic_new_aseq_device_discovered (BT_TEST_ARGS)
   check_run_main_loop_for_usec (1000);
 
   BtIcDevice *device =
-      btic_registry_find_device_by_name ("alsa sequencer: test-dynamic1");
+      btic_registry_get_device_by_name ("alsa sequencer: test-dynamic1");
 
   GST_INFO ("-- assert --");
   fail_unless (device != NULL, NULL);
@@ -115,7 +115,7 @@ test_btic_removed_aseq_device_discovered (BT_TEST_ARGS)
   snd_seq_delete_port (seq, port);
   check_run_main_loop_for_usec (1000);
   BtIcDevice *device =
-      btic_registry_find_device_by_name ("alsa sequencer: test-dynamic2");
+      btic_registry_get_device_by_name ("alsa sequencer: test-dynamic2");
 
   GST_INFO ("-- assert --");
   fail_unless (device == NULL, NULL);

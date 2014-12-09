@@ -2945,7 +2945,7 @@ bt_machine_persistence_load (const GType type,
 
               if ((device_str =
                       xmlGetProp (child_node, XML_CHAR_PTR ("device")))) {
-                if ((device = btic_registry_find_device_by_name (
+                if ((device = btic_registry_get_device_by_name (
                             (gchar *) device_str))) {
                   if ((control_str =
                           xmlGetProp (child_node, XML_CHAR_PTR ("control")))) {

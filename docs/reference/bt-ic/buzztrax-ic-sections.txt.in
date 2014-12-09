@@ -178,7 +178,7 @@ btic_midi_device_get_type
 BtIcRegistry
 btic_registry_new
 btic_registry_add_device
-btic_registry_find_device_by_name
+btic_registry_get_device_by_name
 btic_registry_remove_device_by_udi
 <SUBSECTION Standard>
 BtIcRegistryClass

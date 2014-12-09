@@ -57,7 +57,7 @@ GType btic_registry_get_type(void) G_GNUC_CONST;
 
 BtIcRegistry *btic_registry_new(void);
 
-BtIcDevice *btic_registry_find_device_by_name(const gchar * name);
+BtIcDevice *btic_registry_get_device_by_name(const gchar * name);
 
 void btic_registry_remove_device_by_udi(const gchar *udi);
 void btic_registry_add_device(BtIcDevice *device);

@@ -94,7 +94,7 @@ btic_registry_new (void)
 //-- methods
 
 /**
- * btic_registry_find_device_by_name:
+ * btic_registry_get_device_by_name:
  * @name: device name
  *
  * Find the device identified by the given @name in the registry.
@@ -102,7 +102,7 @@ btic_registry_new (void)
  * Returns: a ref to the device or %NULL.
  */
 BtIcDevice *
-btic_registry_find_device_by_name (const gchar * name)
+btic_registry_get_device_by_name (const gchar * name)
 {
   GList *node = find_device_node_by_property ("name", name);
   return node ? g_object_ref (node->data) : NULL;

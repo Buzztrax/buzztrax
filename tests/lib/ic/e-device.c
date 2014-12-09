@@ -56,7 +56,7 @@ test_btic_device_lookup (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
-  BtIcDevice *device = btic_registry_find_device_by_name ("test");
+  BtIcDevice *device = btic_registry_get_device_by_name ("test");
 
   GST_INFO ("-- assert --");
   fail_unless (device != NULL, NULL);
