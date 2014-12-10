@@ -687,8 +687,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->
-                        dst_wires->data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->dst_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -716,8 +716,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->
-                        src_wires->data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->src_wires->
+                        data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1371,8 +1371,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                      priv->machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                      machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1434,8 +1434,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
-                    priv->machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
+                    machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -2931,10 +2931,7 @@ bt_machine_persistence_load (const GType type,
                 24)) {
           BtIcDevice *device;
           BtIcControl *control;
-          GList *lnode, *controls;
-          gchar *name;
           xmlChar *device_str, *control_str, *property_name;
-          gboolean found;
 
           for (child_node = node->children; child_node;
               child_node = child_node->next) {
@@ -2949,19 +2946,8 @@ bt_machine_persistence_load (const GType type,
                             (gchar *) device_str))) {
                   if ((control_str =
                           xmlGetProp (child_node, XML_CHAR_PTR ("control")))) {
-                    found = FALSE;
-                    g_object_get (device, "controls", &controls, NULL);
-                    for (lnode = controls; lnode; lnode = g_list_next (lnode)) {
-                      control = BTIC_CONTROL (lnode->data);
-                      g_object_get (control, "name", &name, NULL);
-                      if (!strcmp (name, (gchar *) control_str))
-                        found = TRUE;
-                      g_free (name);
-                      if (found)
-                        break;
-                    }
-                    g_list_free (controls);
-                    if (found) {
+                    if ((control = btic_device_get_control_by_name (device,
+                                (gchar *) control_str))) {
                       if ((property_name =
                               xmlGetProp (child_node,
                                   XML_CHAR_PTR ("parameter")))) {

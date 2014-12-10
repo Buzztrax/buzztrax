@@ -86,6 +86,25 @@ sort_by_name (const gpointer obj1, const gpointer obj2)
   return (res);
 }
 
+static GList *
+find_control_node_by_property (const BtIcDevice * self, const gchar * prop,
+    const gchar * value)
+{
+  GList *node, *res = NULL;
+  gchar *control_value;
+
+  GST_INFO ("searching for prop='%s' with value='%s'", prop, value);
+
+  for (node = self->priv->controls; (node && !res); node = g_list_next (node)) {
+    g_object_get (node->data, prop, &control_value, NULL);
+    GST_INFO (".. value='%s'", control_value);
+    if (!strcmp (value, control_value))
+      res = node;
+    g_free (control_value);
+  }
+  return res;
+}
+
 //-- handler
 
 static void
@@ -136,7 +155,7 @@ btic_device_add_control (const BtIcDevice * self, const BtIcControl * control)
 /**
  * btic_device_get_control_by_id:
  * @self: the device
- * @id: he control id
+ * @id: the control id
  *
  * Look up a control by @id.
  *
@@ -151,6 +170,24 @@ btic_device_get_control_by_id (const BtIcDevice * self, guint id)
       g_hash_table_lookup (self->priv->controls_by_id, GUINT_TO_POINTER (id));
 
   return (control);
+}
+
+/**
+ * btic_device_get_control_by_name:
+ * @self: the device
+ * @name: the control name
+ *
+ * Look up a control by @name.
+ *
+ * Returns: the found instance or %NULL.
+ *
+ * Since: 0.9
+ */
+BtIcControl *
+btic_device_get_control_by_name (const BtIcDevice * self, const gchar * name)
+{
+  GList *node = find_control_node_by_property (self, "name", name);
+  return node ? g_object_ref (node->data) : NULL;
 }
 
 /**

@@ -60,14 +60,12 @@ find_device_node_by_property (const gchar * prop, const gchar * value)
 {
   BtIcRegistry *self = singleton;
   GList *node, *res = NULL;
-  BtIcDevice *device = NULL;
   gchar *device_value;
 
   GST_INFO ("searching for prop='%s' with value='%s'", prop, value);
 
   for (node = self->priv->devices; (node && !res); node = g_list_next (node)) {
-    device = BTIC_DEVICE (node->data);
-    g_object_get (device, prop, &device_value, NULL);
+    g_object_get (node->data, prop, &device_value, NULL);
     GST_INFO (".. value='%s'", device_value);
     if (!strcmp (value, device_value))
       res = node;
@@ -100,6 +98,8 @@ btic_registry_new (void)
  * Find the device identified by the given @name in the registry.
  *
  * Returns: a ref to the device or %NULL.
+ *
+ * Since: 0.9
  */
 BtIcDevice *
 btic_registry_get_device_by_name (const gchar * name)
