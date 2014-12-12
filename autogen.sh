@@ -313,7 +313,7 @@ version_check "gtkdocize" "" \
 fi
 version_check "intltoolize" "" \
               "ftp://ftp.gnome.org/pub/gnome/sources/intltool/" 0 1 5 || DIE=1
-version_check "libtoolize" "libtoolize" \
+version_check "libtoolize" "libtoolize glibtoolize" \
               "ftp://ftp.gnu.org/pub/gnu/libtool/" 2 2 0 || DIE=1
 version_check "pkg-config" "" \
               "ftp://ftp.gnome.org/pub/gnome/sources/pkgconfig/" 0 8 0 || DIE=1
