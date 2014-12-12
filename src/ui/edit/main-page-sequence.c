@@ -1516,6 +1516,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       // we need to set width-chars so that the natural size is calculated
       // instead of using the hard-coded 150 pixels, that still is not good
       // with gtk > 3.12 we also need to set "max-width-chars"
+      // Despite the docs, even using "elipsize" does not affect the min alloc
       PangoContext *context = gtk_widget_get_pango_context (label);
       PangoFontMetrics *metrics = pango_context_get_metrics (context,
           pango_context_get_font_description (context),
@@ -1529,7 +1530,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       gint num_chars = SEQUENCE_CELL_WIDTH / (char_pixels + 1);
       GST_DEBUG ("setting width to %d chars", num_chars);
       g_object_set (label, "has-frame", FALSE, "inner-border", 0, "text", str,
-          "width-chars", num_chars, NULL);
+          "width-chars", num_chars, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
       g_free (str);
       if (g_object_class_find_property (G_OBJECT_GET_CLASS (label),
               "max-width-chars")) {
