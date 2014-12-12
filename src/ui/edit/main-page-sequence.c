@@ -3883,6 +3883,9 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
 
   // add sequence list-view
   scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+  // BUG(?): if we use AUTOMATIC (the default), the hscrollbar never shows
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+      GTK_POLICY_ALWAYS, GTK_POLICY_ALWAYS);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window),
       GTK_SHADOW_NONE);
   gtk_widget_set_hexpand (scrolled_window, TRUE);
