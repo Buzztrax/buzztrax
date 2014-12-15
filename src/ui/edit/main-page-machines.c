@@ -1136,7 +1136,7 @@ on_toolbar_zoom_fit_clicked (GtkButton * button, gpointer user_data)
   gtk_adjustment_set_value (p->hadjustment, c_x);
   gtk_adjustment_set_value (p->vadjustment, c_y);
 
-  gtk_widget_grab_focus_savely (GTK_WIDGET (p->canvas_widget));
+  gtk_widget_grab_focus_savely (p->canvas_widget);
 }
 
 static void
@@ -1152,7 +1152,7 @@ on_toolbar_zoom_in_clicked (GtkButton * button, gpointer user_data)
   update_scrolled_window_zoom (self);
   update_machines_zoom (self);
 
-  gtk_widget_grab_focus_savely (GTK_WIDGET (p->canvas_widget));
+  gtk_widget_grab_focus_savely (p->canvas_widget);
 }
 
 static void
@@ -1168,7 +1168,7 @@ on_toolbar_zoom_out_clicked (GtkButton * button, gpointer user_data)
   clutter_actor_set_scale (p->canvas, p->zoom, p->zoom);
   update_scrolled_window_zoom (self);
 
-  gtk_widget_grab_focus_savely (GTK_WIDGET (p->canvas_widget));
+  gtk_widget_grab_focus_savely (p->canvas_widget);
 }
 
 #ifndef GRID_USES_MENU_TOOL_ITEM
@@ -1735,8 +1735,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   gtk_grid_attach (GTK_GRID (table), scrollbar, 0, 1, 1, 1);
 
   self->priv->canvas_widget = gtk_clutter_embed_new ();
-  gtk_widget_set_name (GTK_WIDGET (self->priv->canvas_widget),
-      "machine-and-wire-editor");
+  gtk_widget_set_name (self->priv->canvas_widget, "machine-and-wire-editor");
   gtk_widget_set_can_focus (GTK_WIDGET (self->priv->canvas_widget), TRUE);
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
       G_CALLBACK (on_canvas_size_changed), (gpointer) self);
@@ -2514,7 +2513,7 @@ bt_main_page_machines_focus (GtkWidget * widget, GtkDirectionType direction)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (widget);
   GST_DEBUG ("focusing default widget");
-  gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->canvas_widget));
+  gtk_widget_grab_focus_savely (self->priv->canvas_widget);
   /* update status bar */
   // FIXME: window might be NULL
   // in this case we can't continue the lookup and take the property off the
