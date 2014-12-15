@@ -1264,6 +1264,25 @@ on_context_menu_unmute_all (GtkMenuItem * menuitem, gpointer user_data)
   g_list_free (list);
 }
 
+static gboolean
+on_canvas_query_tooltip (GtkWidget * widget, gint x, gint y,
+    gboolean keyboard_mode, GtkTooltip * tooltip, gpointer user_data)
+{
+  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
+  BtMachineCanvasItem *ci;
+  gchar *name;
+
+  widget_to_canvas_pos (self, x, y, &self->priv->mouse_x, &self->priv->mouse_y);
+  if (!(ci = get_machine_canvas_item_under_cursor (self)))
+    return FALSE;
+
+  bt_child_proxy_get (ci, "machine::id", &name, NULL);
+  gtk_tooltip_set_text (tooltip, name);
+  g_free (name);
+  g_object_unref (ci);
+  return TRUE;
+}
+
 static void
 on_canvas_size_changed (GtkWidget * widget, GdkRectangle * allocation,
     gpointer user_data)
@@ -1736,7 +1755,10 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
 
   self->priv->canvas_widget = gtk_clutter_embed_new ();
   gtk_widget_set_name (self->priv->canvas_widget, "machine-and-wire-editor");
-  gtk_widget_set_can_focus (GTK_WIDGET (self->priv->canvas_widget), TRUE);
+  g_object_set (self->priv->canvas_widget, "can-focus", TRUE, "has-tooltip",
+      TRUE, NULL);
+  g_signal_connect (self->priv->canvas_widget, "query-tooltip",
+      G_CALLBACK (on_canvas_query_tooltip), (gpointer) self);
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
       G_CALLBACK (on_canvas_size_changed), (gpointer) self);
   self->priv->stage =
