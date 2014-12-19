@@ -812,7 +812,7 @@ on_machine_id_changed_seq (BtMachine * machine, GParamSpec * arg,
 
   g_object_get (machine, "id", &str, NULL);
   GST_INFO ("update seq headers for machine id changed to \"%s\"", str);
-  gtk_entry_set_text (label, str);
+  g_object_set (label, "text", str, "tooltip-text", str, NULL);
   g_free (str);
 }
 
