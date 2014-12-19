@@ -1504,8 +1504,6 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       }
       g_object_get (machine, "id", &str, level_name, &level, NULL);
 
-      first_track_for_machine = !g_hash_table_lookup (machine_usage, machine);
-
       // TODO(ensonic): add context menu like that in the machine_view to the header
 
       // create header widget
@@ -1542,6 +1540,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       g_signal_connect (label, "activate", G_CALLBACK (on_machine_id_renamed),
           (gpointer) self);
 
+      first_track_for_machine = !g_hash_table_lookup (machine_usage, machine);
       if (first_track_for_machine) {
         // disconnecting old handler here would be better, but then we need to differentiate (see below)
         g_signal_handlers_disconnect_by_func (machine,
