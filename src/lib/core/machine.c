@@ -3502,13 +3502,13 @@ bt_machine_class_init (BtMachineClass * const klass)
           G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, MACHINE_ID,
-      g_param_spec_string ("id", "id contruct prop", "machine identifier",
+      g_param_spec_string ("id", "id construct prop", "machine identifier",
           "unamed machine",
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, MACHINE_PLUGIN_NAME,
       g_param_spec_string ("plugin-name", "plugin-name construct prop",
-          "the name of the gst plugin for the machine", "unamed machine",
+          "the name of the gst plugin for the machine", "unamed plugin",
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, MACHINE_VOICES,
