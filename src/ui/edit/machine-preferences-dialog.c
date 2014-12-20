@@ -331,10 +331,6 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
     gtk_window_set_icon (GTK_WINDOW (self), window_icon);
     g_object_unref (window_icon);
   }
-  // leave the choice of width to gtk
-  //gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
-  ////gtk_widget_set_size_request(GTK_WIDGET(self),300,200);
-  //gtk_window_set_default_size(GTK_WINDOW(self),300,-1);
 
   g_object_get (self->priv->machine, "machine", &machine, NULL);
   // set dialog title
