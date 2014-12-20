@@ -808,12 +808,13 @@ on_machine_id_changed_seq (BtMachine * machine, GParamSpec * arg,
     gpointer user_data)
 {
   GtkEntry *label = GTK_ENTRY (user_data);
-  gchar *str;
+  gchar *id, *pretty_name;
 
-  g_object_get (machine, "id", &str, NULL);
-  GST_INFO ("update seq headers for machine id changed to \"%s\"", str);
-  g_object_set (label, "text", str, "tooltip-text", str, NULL);
-  g_free (str);
+  g_object_get (machine, "id", &id, "pretty-name", &pretty_name, NULL);
+  GST_INFO ("update seq headers for machine id changed to \"%s\"", id);
+  g_object_set (label, "text", id, "tooltip-text", pretty_name, NULL);
+  g_free (id);
+  g_free (pretty_name);
 }
 
 static void
@@ -1454,7 +1455,6 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
   gulong j, track_ct;
   BtMachine *machine;
   GtkWidget *header;
-  gchar *str;
   gint col_index;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
@@ -1488,6 +1488,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       GtkWidget *label, *button, *box;
       GtkVUMeter *vumeter;
       GstElement *level;
+      gchar *id, *pretty_name;
       gchar *level_name = "output-post-level";
       gboolean first_track_for_machine;
 
@@ -1502,7 +1503,8 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
         // its the sink, which already has it enabled
         level_name = "input-post-level";
       }
-      g_object_get (machine, "id", &str, level_name, &level, NULL);
+      g_object_get (machine, "id", &id, "pretty-name", &pretty_name, level_name,
+          &level, NULL);
 
       // TODO(ensonic): add context menu like that in the machine_view to the header
 
@@ -1527,10 +1529,11 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
                   digit_width) + PANGO_SCALE - 1) / PANGO_SCALE);
       gint num_chars = SEQUENCE_CELL_WIDTH / (char_pixels + 1);
       GST_DEBUG ("setting width to %d chars", num_chars);
-      g_object_set (label, "has-frame", FALSE, "inner-border", 0, "text", str,
-          "tooltip-text", str, "width-chars", num_chars, "ellipsize",
+      g_object_set (label, "has-frame", FALSE, "inner-border", 0, "text", id,
+          "tooltip-text", pretty_name, "width-chars", num_chars, "ellipsize",
           PANGO_ELLIPSIZE_END, NULL);
-      g_free (str);
+      g_free (id);
+      g_free (pretty_name);
       if (g_object_class_find_property (G_OBJECT_GET_CLASS (label),
               "max-width-chars")) {
         g_object_set (label, "max-width-chars", num_chars, NULL);

@@ -141,7 +141,7 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
   GType type;
   gboolean have_submenu;
 
-  /* list known gstreamer element that are not useful under buzztrax,
+  /* list of known gstreamer elements that are not useful under buzztrax,
    * but we can't detect otherwise */
   const gchar *blacklist[] = {
     "audiorate",

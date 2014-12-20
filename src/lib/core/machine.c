@@ -126,7 +126,8 @@ enum
   MACHINE_OUTPUT_GAIN,
   MACHINE_OUTPUT_POST_LEVEL,
   MACHINE_PATTERNS,
-  MACHINE_STATE
+  MACHINE_STATE,
+  MACHINE_PRETTY_NAME
 };
 
 // adder, capsfiter, level, volume are gap-aware
@@ -687,8 +688,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
               bt_machine_link_elements (self, src_pads[pos],
                   sink_pads[post]))) {
         if ((wire =
-                (self->dst_wires ? (BtWire *) (self->dst_wires->
-                        data) : NULL))) {
+                (self->dst_wires ? (BtWire *) (self->
+                        dst_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' before '%s'",
@@ -716,8 +717,8 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
       if ((res =
               bt_machine_link_elements (self, src_pads[pre], sink_pads[pos]))) {
         if ((wire =
-                (self->src_wires ? (BtWire *) (self->src_wires->
-                        data) : NULL))) {
+                (self->src_wires ? (BtWire *) (self->
+                        src_wires->data) : NULL))) {
           if (!(res = bt_wire_reconnect (wire))) {
             GST_WARNING_OBJECT (self,
                 "failed to reconnect wire after linking '%s' after '%s'",
@@ -1371,8 +1372,8 @@ bt_machine_init_global_params (const BtMachine * const self)
       //g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if ((voice_child =
-              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                      machines[PART_MACHINE]), 0))) {
+              gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                      priv->machines[PART_MACHINE]), 0))) {
         child_properties =
             g_object_class_list_properties (G_OBJECT_CLASS (GST_OBJECT_GET_CLASS
                 (voice_child)), &number_of_child_properties);
@@ -1434,8 +1435,8 @@ bt_machine_init_voice_params (const BtMachine * const self)
     // register voice params
     // get child for voice 0
     if ((voice_child =
-            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->priv->
-                    machines[PART_MACHINE]), 0))) {
+            gst_child_proxy_get_child_by_index (GST_CHILD_PROXY (self->
+                    priv->machines[PART_MACHINE]), 0))) {
       GParamSpec **properties;
       guint number_of_properties;
 
@@ -3230,6 +3231,30 @@ bt_machine_get_property (GObject * const object, const guint property_id,
     case MACHINE_STATE:
       g_value_set_enum (value, self->priv->state);
       break;
+    case MACHINE_PRETTY_NAME:{
+      GstPluginFeature *feature =
+          (GstPluginFeature *) gst_element_get_factory (self->priv->
+          machines[PART_MACHINE]);
+      // same as self->priv->plugin_name
+      const gchar *factory_name = gst_plugin_feature_get_name (feature);
+      const gchar *plugin_name = gst_plugin_feature_get_plugin_name (feature);
+      gint len = strlen (plugin_name);
+
+      // TODO(ensonic): see ui/edit/machine-menu.c:bt_machine_menu_init_submenu
+      // remove prefix "<plugin-name>-"
+      if (!strncasecmp (factory_name, plugin_name, len) &&
+          factory_name[len] == '-') {
+        factory_name = &factory_name[len + 1];
+      }
+      GST_INFO_OBJECT ("%s|%s", self->priv->id, factory_name);
+      if (!g_str_has_prefix (self->priv->id, factory_name)) {
+        g_value_take_string (value, g_strdup_printf ("%s (%s)",
+                self->priv->id, factory_name));
+      } else {
+        g_value_set_string (value, self->priv->id);
+      }
+      break;
+    }
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -3583,6 +3608,13 @@ bt_machine_class_init (BtMachineClass * const klass)
           "a copy of the list of patterns",
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, MACHINE_STATE, g_param_spec_enum ("state", "state prop", "the current state of this machine", BT_TYPE_MACHINE_STATE,  /* enum type */
+  g_object_class_install_property (gobject_class, MACHINE_STATE,
+      g_param_spec_enum ("state", "state prop",
+          "the current state of this machine", BT_TYPE_MACHINE_STATE,
           BT_MACHINE_STATE_NORMAL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, MACHINE_PRETTY_NAME,
+      g_param_spec_string ("pretty-name", "pretty-name prop",
+          "pretty-printed name for display purposes", NULL,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }

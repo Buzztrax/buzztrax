@@ -2459,12 +2459,12 @@ on_machine_id_changed (const BtMachine * machine, GParamSpec * arg,
     gpointer user_data)
 {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (user_data);
-  gchar *id, *title;
+  gchar *name, *title;
 
-  g_object_get ((GObject *) machine, "id", &id, NULL);
-  title = g_strdup_printf (_("%s properties"), id);
+  g_object_get ((GObject *) machine, "pretty-name", &name, NULL);
+  title = g_strdup_printf (_("%s properties"), name);
   gtk_window_set_title (GTK_WINDOW (self), title);
-  g_free (id);
+  g_free (name);
   g_free (title);
 }
 

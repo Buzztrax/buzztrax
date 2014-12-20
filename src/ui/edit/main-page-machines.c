@@ -1276,7 +1276,7 @@ on_canvas_query_tooltip (GtkWidget * widget, gint x, gint y,
   if (!(ci = get_machine_canvas_item_under_cursor (self)))
     return FALSE;
 
-  bt_child_proxy_get (ci, "machine::id", &name, NULL);
+  bt_child_proxy_get (ci, "machine::pretty_name", &name, NULL);
   gtk_tooltip_set_text (tooltip, name);
   g_free (name);
   g_object_unref (ci);
