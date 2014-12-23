@@ -149,6 +149,22 @@ distuninstallcheck_listfiles += | grep -v 'mimeinfo.cache'
 builddirs:
 	$(AM_V_at)$(MKDIR_P) src/lib/core/songio/bsl/ src/ui/edit
 
+AUTHORS::
+	$(AM_V_GEN)if test -d "$(srcdir)/.git"; \
+	then \
+		( cd "$(top_srcdir)" && \
+		  git log --no-merges --pretty=format:"%an <%ae>" . | \
+		  sed -e 's/sourceforge.net/sf.net/' \
+		      -e 's/Stefan Sauer <ensonic@hora-obscura.de>/Stefan Sauer <ensonic@users.sf.net>/' \
+		      -e 's/\(Tom Mast <thomasomast@gmail.com>\|tom__m <thomasomast@gmail.com>\)/Tom Mast <amishmansteve@users.sf.net>/' \
+		      -e 's/\(Thomas Wabner <waffel@hora-obscura.de>\|Waffel <waffel@hora-obscura.de>\|waffel <waffel@users.sf.net>\)/Thomas Wabner <waffel@users.sf.net>/' | \
+		  sort | uniq -c | sed -e 's/^\ *//' | sort -rn | cut -d' ' -f2- \
+		  ) > $@.tmp \
+		&& mv -f $@.tmp $@ \
+		|| ( rm -f $@.tmp ; \
+		     echo Failed to generate $@ >&2 ); \
+	fi
+
 
 .PHONY: \
   builddirs \
