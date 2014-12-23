@@ -204,7 +204,8 @@ buzztrax_edit_SOURCES= \
 	src/ui/edit/bt-edit.c src/ui/edit/bt-edit.h
 
 EXTRA_libbtedit_la_SOURCES = src/ui/edit/marshal.list
-nodist_libbtedit_la_SOURCES = src/ui/edit/marshal.c src/ui/edit/marshal.h
+nodist_libbtedit_la_SOURCES = src/ui/edit/marshal.c src/ui/edit/marshal.h \
+  src/ui/edit/authors.h
 libbtedit_la_LIBADD = \
 	libbuzztrax-core.la \
 	libbuzztrax-ic.la \
@@ -277,8 +278,11 @@ src/ui/edit/marshal.c: src/ui/edit/marshal.list
 	$(AM_V_at)$(MKDIR_P) src/ui/edit
 	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $(srcdir)/$< >$@
 
-BUILT_SOURCES += src/ui/edit/marshal.c src/ui/edit/marshal.h
-CLEANFILES += src/ui/edit/marshal.c src/ui/edit/marshal.h
+src/ui/edit/authors.h: AUTHORS
+	$(AM_V_GEN)sed -e 's/^/"/' -e 's/$$/",/' AUTHORS >$@
+
+BUILT_SOURCES += $(nodist_libbtedit_la_SOURCES)
+CLEANFILES += $(nodist_libbtedit_la_SOURCES)
 
 # FIXME: don't install bt-edit.compact.css if not selected
 cssdir = $(datadir)/$(PACKAGE)

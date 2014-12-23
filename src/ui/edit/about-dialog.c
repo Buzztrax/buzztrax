@@ -48,14 +48,11 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
 {
   GtkWidget *news, *news_view;
   const gchar *authors[] = {
-    "Stefan 'ensonic' Sauer <ensonic@users.sf.net>",
-    "Krzysztof Foltman <wdev@foltman.com>",
-    "Thomas 'waffel' Wabner <waffel@users.sf.net>",
-    "Patric Schmitz  <berzerka@users.sf.net>",
+#include "authors.h"
     NULL
   };
   const gchar *documenters[] = {
-    "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
+    "Stefan Sauer <ensonic@users.sf.net>",
     NULL
   };
   const gchar *artists[] = {
