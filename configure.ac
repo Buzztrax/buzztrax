@@ -96,16 +96,14 @@ if test "x$enable_debug" = "xyes"; then
   AC_DEFINE(USE_DEBUG, [1], [enable runtime debugging code])
   DEBUG_CFLAGS="-O0 -Wall -Werror -g"
   DEBUG_LDFLAGS="-Wl,--warn-common"
-  AM_CONDITIONAL(USE_DEBUG, true)
 else
   AC_DEFINE(G_DISABLE_ASSERT, [1], [if no runtime debugging, do not enable g_asserts])
   AC_DEFINE(G_DISABLE_CHECKS, [1], [if no runtime debugging, do not enable g_return_if_fail variants])
   AC_DEFINE(G_DISABLE_CAST_CHECKS, [1], [if no runtime debugging, do not enable dynamic type checks])
   DEBUG_CFLAGS=""
   DEBUG_LDFLAGS=""
-  AM_CONDITIONAL(USE_DEBUG, false)
 fi
-
+AM_CONDITIONAL(USE_DEBUG, test "x$enable_debug" = "xyes")
 
 dnl compile with disable-deprecated switches
 AC_MSG_CHECKING([whether to disable deprecated glib/gtk+/gst/etc. features])
@@ -260,52 +258,49 @@ PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.8.0, [
 )
 
 PKG_CHECK_MODULES(ALSA_DEPS, alsa, [
-  AC_DEFINE(USE_ALSA, [1], [Define to 1 if we can use alsa libraries])
+    AC_DEFINE(USE_ALSA, [1], [Define to 1 if we can use alsa libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $ALSA_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $ALSA_DEPS_LIBS"
-    AM_CONDITIONAL(USE_ALSA, true)
     use_alsa=yes
     ALSA_DOC_TYPES=
     ALSA_DOC_SECTIONS=
   ],[
-    AM_CONDITIONAL(USE_ALSA, false)
     use_alsa=no
     ALSA_DOC_TYPES=%
     ALSA_DOC_SECTIONS=#
   ]
 )
+AM_CONDITIONAL(USE_ALSA, test "x$use_alsa" == "xyes")
 AC_SUBST(ALSA_DOC_TYPES)
 AC_SUBST(ALSA_DOC_SECTIONS)
 
 PKG_CHECK_MODULES(GUDEV_DEPS, gudev-1.0, [
-  AC_DEFINE(USE_GUDEV, [1], [Define to 1 if we can use gudev libraries])
+    AC_DEFINE(USE_GUDEV, [1], [Define to 1 if we can use gudev libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GUDEV_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GUDEV_DEPS_LIBS"
-    AM_CONDITIONAL(USE_GUDEV, true)
     use_gudev=yes
     GUDEV_DOC_TYPES=
     GUDEV_DOC_SECTIONS=
   ],[
-    AM_CONDITIONAL(USE_GUDEV, false)
     use_gudev=no
     GUDEV_DOC_TYPES=%
     GUDEV_DOC_SECTIONS=#
   ]
 )
+AM_CONDITIONAL(USE_GUDEV, test "x$use_gudev" == "xyes")
 AC_SUBST(GUDEV_DOC_TYPES)
 AC_SUBST(GUDEV_DOC_SECTIONS)
 
 PKG_CHECK_MODULES(GSF_DEPS, libgsf-1, [
-  AM_CONDITIONAL(USE_GSF, true)
-  AC_DEFINE(USE_GSF, [1], [Define to 1 if we can use gsf libraries])
+    AC_DEFINE(USE_GSF, [1], [Define to 1 if we can use gsf libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSF_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSF_DEPS_LIBS"
     use_gsf=yes
   ],[
-    AM_CONDITIONAL(USE_GSF, false)
     use_gsf=no
   ]
 )
+AM_CONDITIONAL(USE_GSF, test "x$use_gsf" == "xyes")
 
 GLIB_GSETTINGS
 
@@ -319,7 +314,6 @@ AC_ARG_ENABLE([introspection],
 case "x${enable_introspection}" in
   xyes|xauto)
     PKG_CHECK_MODULES(GOBJECT_INTROSPECTION, [gobject-introspection-1.0],[
-        AM_CONDITIONAL(USE_GIR, true)
         G_IR_SCANNER=`$PKG_CONFIG --variable=g_ir_scanner gobject-introspection-1.0`
         AC_SUBST(G_IR_SCANNER)
         G_IR_COMPILER=`$PKG_CONFIG --variable=g_ir_compiler gobject-introspection-1.0`
@@ -332,16 +326,15 @@ case "x${enable_introspection}" in
         AC_SUBST(TYPELIBDIR)
         enable_gir="yes"
       ],[
-        AM_CONDITIONAL(USE_GIR, false)
         enable_gir="no"
       ]
     )
     ;;
   *)
-    AM_CONDITIONAL(USE_GIR, false)
     enable_gir="no"
     ;;
 esac
+AM_CONDITIONAL(USE_GIR, test "x$enable_gir" == "xyes")
 
 GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
 GTK_PREFIX="`$PKG_CONFIG --variable=prefix gtk+-2.0`"
@@ -379,13 +372,11 @@ dnl @todo: if we configure without --enable-debug most tests wont work
 PKG_CHECK_MODULES(CHECK, check >= 0.9.2,
   [
     have_check=yes
-    AM_CONDITIONAL(BUILD_CHECK_TESTS, true)
   ],[
     have_check=no
-    AM_CONDITIONAL(BUILD_CHECK_TESTS, false)
   ]
 )
-
+AM_CONDITIONAL(BUILD_CHECK_TESTS, test "x$have_check" == "xyes")
 
 dnl GStreamer plugin build
 plugindir="\$(libdir)/gstreamer-$GST_MAJORMINOR"
@@ -422,7 +413,7 @@ dnl  fi
 else
   have_scrollkeeper=yes
 fi
-AM_CONDITIONAL(ENABLE_SCROLLKEEPER, test ! x$scrollkeeper_config = xno)
+AM_CONDITIONAL(ENABLE_SCROLLKEEPER, test x$scrollkeeper_config != xno)
 SCROLLKEEPER_BUILD_REQUIRED=0.3.5
 AC_SUBST(SCROLLKEEPER_BUILD_REQUIRED)
 
@@ -449,7 +440,7 @@ AC_CHECK_HEADERS([linux/input.h],
 )
 AC_SUBST(LINUX_INPUT_DOC_TYPES)
 AC_SUBST(LINUX_INPUT_DOC_SECTIONS)
-AM_CONDITIONAL(USE_LINUX_INPUT, test x$have_linux_input_h = xyes)
+AM_CONDITIONAL(USE_LINUX_INPUT, test x$have_linux_input_h == xyes)
 
 
 dnl check for SSE intrisics
