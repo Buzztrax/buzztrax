@@ -389,7 +389,7 @@ AC_SUBST(GST_PLUGIN_LDFLAGS)
 
 dnl Check for gtk-doc.
 m4_ifdef([GTK_DOC_CHECK], [
-GTK_DOC_CHECK([1.10],[--flavour no-tmpl])
+GTK_DOC_CHECK([1.14],[--flavour no-tmpl])
 ],[
 AM_CONDITIONAL([ENABLE_GTK_DOC], false)
 ])
