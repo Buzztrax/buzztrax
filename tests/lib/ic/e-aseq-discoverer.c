@@ -36,11 +36,14 @@ case_setup (void)
 static void
 test_setup (void)
 {
-  snd_seq_open (&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
-  snd_seq_set_client_name (seq, PACKAGE "-tests");
-  snd_seq_create_simple_port (seq, "test-static",
-      SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
-      SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION);
+  int err;
+
+  if ((err = snd_seq_open (&seq, "default", SND_SEQ_OPEN_DUPLEX, 0)) == 0) {
+    snd_seq_set_client_name (seq, PACKAGE "-tests");
+    snd_seq_create_simple_port (seq, "test-static",
+        SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ,
+        SND_SEQ_PORT_TYPE_MIDI_GENERIC | SND_SEQ_PORT_TYPE_APPLICATION);
+  }
 
   registry = btic_registry_new ();
 }
@@ -49,7 +52,9 @@ static void
 test_teardown (void)
 {
   g_object_checked_unref (registry);
-  snd_seq_close (seq);
+  if (seq) {
+    snd_seq_close (seq);
+  }
 }
 
 static void
@@ -63,6 +68,8 @@ static void
 test_btic_initial_aseq_device_discovered (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  if (!seq)
+    return;
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
@@ -81,6 +88,8 @@ static void
 test_btic_new_aseq_device_discovered (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  if (!seq)
+    return;
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
@@ -105,6 +114,8 @@ static void
 test_btic_removed_aseq_device_discovered (BT_TEST_ARGS)
 {
   BT_TEST_START;
+  if (!seq)
+    return;
   GST_INFO ("-- arrange --");
 
   GST_INFO ("-- act --");
