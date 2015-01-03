@@ -1,5 +1,28 @@
 svn diff -r "{2013-01-01}:{2013-01-31}" | diffstat
 git diff --shortstat @{2013-01-01} @{2013-01-31}
+git diff --shortstat RELEASE_0_8
+
+2014/12 ========================================================================
+
+Now that two month passed since the release, I have a little update on whats
+going on. First we moved all the bugs over to githib too, I love the way you can
+link things together over there. We also did a bug scrub and filed more ideas as
+tickets.
+
+On the code base I ported all GtkTables to GtkGrid as the former is deprecated.
+A few of the dialogs got simplified in the process. We've fixed a few of the new
+tickets to improved the UI. As one of the first new features, we now have Alsa
+sequencer support. That means you can e.g. use vkeydb to control machine para-
+meters in buzztrax.
+
+Joe started to run builds on MacOS and filed lots of tickets for portability
+issues. Two modules should be good by now - buzzmachines and bml. We proceed
+with the others next.
+
+In the core I improved error handling for song-io. All API now has GError
+details of what went wrong.
+
+87 files changed, 3440 insertions(+), 999 deletions(-)
 
 2013/08 ========================================================================
 
