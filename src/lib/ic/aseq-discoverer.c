@@ -209,6 +209,24 @@ scan_clients (BtIcASeqDiscoverer * self)
   }
 }
 
+static void
+alsa_error_handler (const char *file, int line, const char *function,
+    int err, const char *fmt, ...)
+{
+#ifndef GST_DISABLE_GST_DEBUG
+  va_list args;
+  gchar *str;
+
+  va_start (args, fmt);
+  str = g_strdup_vprintf (fmt, args);
+  va_end (args);
+  gst_debug_log (GST_CAT_DEFAULT, GST_LEVEL_WARNING, file, function, line, NULL,
+      "alsalib error: %s%s%s", str, err ? ": " : "",
+      err ? snd_strerror (err) : "");
+  g_free (str);
+#endif
+}
+
 //-- constructor methods
 
 /**
@@ -263,6 +281,10 @@ btic_aseq_discoverer_constructor (GType type, guint n_construct_params,
       (btic_aseq_discoverer_parent_class)->constructor (type,
           n_construct_params, construct_params));
   p = self->priv;
+
+  if ((err = snd_lib_error_set_handler (alsa_error_handler)) < 0) {
+    GST_WARNING ("failed to set alsa error handler");
+  }
 
   if ((err = snd_seq_open (&p->seq, "default", SND_SEQ_OPEN_DUPLEX, 0)) < 0) {
     GST_WARNING ("open sequencer failed: %s", snd_strerror (err));
