@@ -178,8 +178,8 @@ static void
 update_machine_graphics (BtMachineCanvasItem * self)
 {
   GdkPixbuf *pixbuf =
-      bt_ui_resources_get_machine_graphics_pixbuf_by_machine (self->priv->
-      machine, self->priv->zoom);
+      bt_ui_resources_get_machine_graphics_pixbuf_by_machine (self->
+      priv->machine, self->priv->zoom);
 
   clutter_image_set_data (CLUTTER_IMAGE (self->priv->image),
       gdk_pixbuf_get_pixels (pixbuf), gdk_pixbuf_get_has_alpha (pixbuf)
@@ -234,8 +234,8 @@ show_machine_analyzer_dialog (BtMachineCanvasItem * self)
 {
   if (!self->priv->analysis_dialog) {
     self->priv->analysis_dialog =
-        GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->priv->
-                machine)));
+        GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->
+                priv->machine)));
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (self->priv->analysis_dialog));
     GST_INFO ("analyzer dialog opened");
@@ -406,22 +406,6 @@ on_machine_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
 }
 
 static void
-on_machine_id_changed (BtMachine * machine, GParamSpec * arg,
-    gpointer user_data)
-{
-  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
-
-  if (self->priv->label) {
-    gchar *id;
-
-    g_object_get (self->priv->machine, "id", &id, NULL);
-    g_object_set (self->priv->label, "text", id, NULL);
-    g_free (id);
-  }
-}
-
-
-static void
 on_machine_parent_set (GstBin * bin, GstElement * element, gpointer user_data)
 {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
@@ -476,128 +460,128 @@ on_machine_state_changed (BtMachine * machine, GParamSpec * arg,
   switch (state) {
     case BT_MACHINE_STATE_NORMAL:
       if (self->priv->menu_item_mute
-          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_mute))) {
+          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_mute))) {
         g_signal_handler_block (self->priv->menu_item_mute,
             self->priv->id_mute);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_mute), FALSE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_mute), FALSE);
         g_signal_handler_unblock (self->priv->menu_item_mute,
             self->priv->id_mute);
       }
       if (self->priv->menu_item_solo
-          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_solo))) {
+          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_solo))) {
         g_signal_handler_block (self->priv->menu_item_solo,
             self->priv->id_solo);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_solo), FALSE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_solo), FALSE);
         g_signal_handler_unblock (self->priv->menu_item_solo,
             self->priv->id_solo);
       }
       if (self->priv->menu_item_bypass
-          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_bypass))) {
+          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_bypass))) {
         g_signal_handler_block (self->priv->menu_item_bypass,
             self->priv->id_bypass);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_bypass), FALSE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_bypass), FALSE);
         g_signal_handler_unblock (self->priv->menu_item_bypass,
             self->priv->id_bypass);
       }
       break;
     case BT_MACHINE_STATE_MUTE:
       if (self->priv->menu_item_mute
-          && !gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_mute))) {
+          && !gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_mute))) {
         g_signal_handler_block (self->priv->menu_item_mute,
             self->priv->id_mute);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_mute), TRUE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_mute), TRUE);
         g_signal_handler_unblock (self->priv->menu_item_mute,
             self->priv->id_mute);
       }
       if (self->priv->menu_item_solo
-          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_solo))) {
+          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_solo))) {
         g_signal_handler_block (self->priv->menu_item_solo,
             self->priv->id_solo);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_solo), FALSE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_solo), FALSE);
         g_signal_handler_unblock (self->priv->menu_item_solo,
             self->priv->id_solo);
       }
       if (self->priv->menu_item_bypass
-          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_bypass))) {
+          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_bypass))) {
         g_signal_handler_block (self->priv->menu_item_bypass,
             self->priv->id_bypass);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_bypass), FALSE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_bypass), FALSE);
         g_signal_handler_unblock (self->priv->menu_item_bypass,
             self->priv->id_bypass);
       }
       break;
     case BT_MACHINE_STATE_SOLO:
       if (self->priv->menu_item_mute
-          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_mute))) {
+          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_mute))) {
         g_signal_handler_block (self->priv->menu_item_mute,
             self->priv->id_mute);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_mute), FALSE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_mute), FALSE);
         g_signal_handler_unblock (self->priv->menu_item_mute,
             self->priv->id_mute);
       }
       if (self->priv->menu_item_solo
-          && !gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_solo))) {
+          && !gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_solo))) {
         g_signal_handler_block (self->priv->menu_item_solo,
             self->priv->id_solo);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_solo), TRUE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_solo), TRUE);
         g_signal_handler_unblock (self->priv->menu_item_solo,
             self->priv->id_solo);
       }
       if (self->priv->menu_item_bypass
-          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_bypass))) {
+          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_bypass))) {
         g_signal_handler_block (self->priv->menu_item_bypass,
             self->priv->id_bypass);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_bypass), FALSE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_bypass), FALSE);
         g_signal_handler_unblock (self->priv->menu_item_bypass,
             self->priv->id_bypass);
       }
       break;
     case BT_MACHINE_STATE_BYPASS:
       if (self->priv->menu_item_mute
-          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_mute))) {
+          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_mute))) {
         g_signal_handler_block (self->priv->menu_item_mute,
             self->priv->id_mute);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_mute), FALSE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_mute), FALSE);
         g_signal_handler_unblock (self->priv->menu_item_mute,
             self->priv->id_mute);
       }
       if (self->priv->menu_item_solo
-          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_solo))) {
+          && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_solo))) {
         g_signal_handler_block (self->priv->menu_item_solo,
             self->priv->id_solo);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_solo), FALSE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_solo), FALSE);
         g_signal_handler_unblock (self->priv->menu_item_solo,
             self->priv->id_solo);
       }
       if (self->priv->menu_item_bypass
-          && !gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->priv->
-                  menu_item_bypass))) {
+          && !gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (self->
+                  priv->menu_item_bypass))) {
         g_signal_handler_block (self->priv->menu_item_bypass,
             self->priv->id_bypass);
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->priv->
-                menu_item_bypass), TRUE);
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (self->
+                priv->menu_item_bypass), TRUE);
         g_signal_handler_unblock (self->priv->menu_item_bypass,
             self->priv->id_bypass);
       }
@@ -1106,8 +1090,6 @@ bt_machine_canvas_item_constructed (GObject * object)
   // TODO(ensonic): when zooming, the font gets blurry :/
   self->priv->label = clutter_text_new_with_text ("Sans 8px", id);
   pango_attrs = pango_attr_list_new ();
-  //pango_attr_list_insert (pango_attrs, 
-  //    pango_attr_weight_new (PANGO_WEIGHT_LIGHT));
   // PANGO_STRETCH_{,EXTRA,ULTRA}_CONDENSED
   pango_attr_list_insert (pango_attrs,
       pango_attr_stretch_new (PANGO_STRETCH_EXTRA_CONDENSED));
@@ -1117,6 +1099,11 @@ bt_machine_canvas_item_constructed (GObject * object)
       "ellipsize", PANGO_ELLIPSIZE_END,
       "line-alignment", PANGO_ALIGN_CENTER, "selectable", FALSE, NULL);
   pango_attr_list_unref (pango_attrs);
+  // machine is set via CONSTRUCT_ONLY prop
+  g_assert (self->priv->machine);
+  g_object_bind_property (self->priv->machine, "id", self->priv->label,
+      "text", G_BINDING_SYNC_CREATE);
+
   // we want that as a max-width for clipping :/
   clutter_actor_set_width (self->priv->label, MACHINE_LABEL_WIDTH);
   clutter_actor_set_anchor_point_from_gravity (self->priv->label,
@@ -1163,8 +1150,8 @@ bt_machine_canvas_item_constructed (GObject * object)
       (gchar *) g_hash_table_lookup (self->priv->properties, "analyzer-shown");
   if (prop && prop[0] == '1' && prop[1] == '\0') {
     if ((self->priv->analysis_dialog =
-            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->priv->
-                        machine))))) {
+            GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->
+                        priv->machine))))) {
       bt_edit_application_attach_child_window (self->priv->app,
           GTK_WINDOW (self->priv->analysis_dialog));
       g_signal_connect (self->priv->analysis_dialog, "destroy",
@@ -1218,7 +1205,6 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
       self->priv->main_page_machines =
           BT_MAIN_PAGE_MACHINES (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->main_page_machines);
-      //GST_DEBUG("set the main_page_machines for machine_canvas_item: %p",self->priv->main_page_machines);
       break;
     case MACHINE_CANVAS_ITEM_MACHINE:
       g_object_try_unref (self->priv->machine);
@@ -1239,16 +1225,12 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
             GST_ELEMENT_METADATA_DOC_URI);
         gst_object_unref (element);
 
-        //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu (self);
         g_signal_connect (self->priv->machine, "notify::state",
             G_CALLBACK (on_machine_state_changed), (gpointer) self);
-        g_signal_connect (self->priv->machine, "notify::id",
-            G_CALLBACK (on_machine_id_changed), (gpointer) self);
-        /* FIXME(ensonic): this does not work anymore, we can listen to 
-         * element-{added,removed} on the app->bin
-         g_signal_connect (self->priv->machine, "notify::parent",
-         G_CALLBACK (on_machine_parent_changed), (gpointer) self);
+        /* FIXME(ensonic): this does not work anymore in gst-1.0
+         * g_signal_connect (self->priv->machine, "notify::parent",
+         *     G_CALLBACK (on_machine_parent_changed), (gpointer) self);
          */
         g_object_get (self->priv->app, "bin", &bin, NULL);
         g_signal_connect (bin, "element-added",
@@ -1468,8 +1450,8 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
 
           // change position properties of the machines
           g_object_get (citem, "x", &xc, "y", &yc, NULL);
-          bt_main_page_machines_canvas_coords_to_relative (self->
-              priv->main_page_machines, xc, yc, &xr, &yr);
+          bt_main_page_machines_canvas_coords_to_relative (self->priv->
+              main_page_machines, xc, yc, &xr, &yr);
           g_hash_table_insert (self->priv->properties, g_strdup ("xpos"),
               g_strdup (g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, xr)));
           g_hash_table_insert (self->priv->properties, g_strdup ("ypos"),
@@ -1488,8 +1470,8 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
           // still over mode switch
           if (bt_machine_canvas_item_is_over_state_switch (self, event)) {
             guint modifier =
-                (gulong) event->button.
-                state & gtk_accelerator_get_default_mod_mask ();
+                (gulong) event->
+                button.state & gtk_accelerator_get_default_mod_mask ();
             //gulong modifier=(gulong)event->button.state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
             GST_DEBUG
                 ("  mode quad state switch, key_modifier is: 0x%x + mask: 0x%x -> 0x%x",
