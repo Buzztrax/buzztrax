@@ -3289,6 +3289,7 @@ bt_machine_set_property (GObject * const object, const guint property_id,
           gst_object_unref (parent);
         }
       }
+      g_object_notify (object, "pretty-name");
       break;
     case MACHINE_PLUGIN_NAME:
       g_free (self->priv->plugin_name);
