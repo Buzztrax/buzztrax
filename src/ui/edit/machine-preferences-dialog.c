@@ -270,18 +270,13 @@ on_table_realize (GtkWidget * widget, gpointer user_data)
       width);
 }
 
-static void
-on_machine_id_changed (const BtMachine * machine, GParamSpec * arg,
-    gpointer user_data)
+static gboolean
+on_machine_id_changed (GBinding * binding, const GValue * from_value,
+    GValue * to_value, gpointer user_data)
 {
-  BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG (user_data);
-  gchar *name, *title;
-
-  g_object_get ((GObject *) machine, "pretty-name", &name, NULL);
-  title = g_strdup_printf (_("%s preferences"), name);
-  gtk_window_set_title (GTK_WINDOW (self), title);
-  g_free (name);
-  g_free (title);
+  g_value_take_string (to_value, g_strdup_printf (_("%s preferences"),
+          g_value_get_string (from_value)));
+  return TRUE;
 }
 
 //-- helper methods
@@ -333,8 +328,6 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
   }
 
   g_object_get (self->priv->machine, "machine", &machine, NULL);
-  // set dialog title
-  on_machine_id_changed (self->priv->machine, NULL, (gpointer) self);
 
   // get machine properties
   pg = bt_machine_get_prefs_param_group (self->priv->machine);
@@ -516,8 +509,9 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
   gtk_container_add (GTK_CONTAINER (self), scrolled_window);
 
   // track machine name (keep window title up-to-date)
-  g_signal_connect (self->priv->machine, "notify::id",
-      G_CALLBACK (on_machine_id_changed), (gpointer) self);
+  g_object_bind_property_full (self->priv->machine, "pretty-name",
+      (GObject *) self, "title", G_BINDING_SYNC_CREATE, on_machine_id_changed,
+      NULL, NULL, NULL);
 
   g_object_unref (machine);
   g_object_unref (main_window);
@@ -580,9 +574,6 @@ bt_machine_preferences_dialog_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  // disconnect handlers
-  g_signal_handlers_disconnect_by_func (self->priv->machine,
-      on_machine_id_changed, self);
   // disconnect handlers connected to machine properties
   g_object_get (self->priv->machine, "machine", &machine, NULL);
   g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
