@@ -804,19 +804,6 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
 }
 
 static void
-on_machine_id_changed_menu (BtMachine * machine, GParamSpec * arg,
-    gpointer user_data)
-{
-  GtkLabel *label = GTK_LABEL (user_data);
-  gchar *str;
-
-  g_object_get (machine, "id", &str, NULL);
-  GST_INFO ("update context menu for machine id changed to \"%s\"", str);
-  gtk_label_set_text (label, str);
-  g_free (str);
-}
-
-static void
 on_machine_id_renamed (GtkEntry * entry, gpointer user_data)
 {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (user_data);
@@ -1750,7 +1737,6 @@ machine_menu_refresh (const BtMainPageSequence * self, const BtSetup * setup)
   BtMachine *machine;
   GList *node, *list, *widgets;
   GtkWidget *menu_item, *submenu, *image, *label;
-  gchar *str;
 
   GST_INFO ("refreshing track menu");
 
@@ -1763,9 +1749,8 @@ machine_menu_refresh (const BtMainPageSequence * self, const BtSetup * setup)
   g_object_get ((gpointer) setup, "machines", &list, NULL);
   for (node = list; node; node = g_list_next (node)) {
     machine = BT_MACHINE (node->data);
-    g_object_get (machine, "id", &str, NULL);
 
-    menu_item = gtk_image_menu_item_new_with_label (str);
+    menu_item = gtk_image_menu_item_new_with_label ("");
     gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menu_item);
     image = bt_ui_resources_get_icon_image_by_machine (machine);
     gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
@@ -1775,17 +1760,12 @@ machine_menu_refresh (const BtMainPageSequence * self, const BtSetup * setup)
     if (GTK_IS_LABEL (label)) {
       GST_DEBUG ("menu item for machine %" G_OBJECT_REF_COUNT_FMT,
           G_OBJECT_LOG_REF_COUNT (machine));
-      g_signal_handlers_disconnect_by_func (machine, on_machine_id_changed_menu,
-          label);
-      g_signal_connect (machine, "notify::id",
-          G_CALLBACK (on_machine_id_changed_menu), (gpointer) label);
-      // we need to remove the signal handler when updating the labels
-      //g_object_weak_ref(G_OBJECT(label),on_sequence_header_label_destroy,machine);
+      g_object_bind_property (machine, "id", label, "label",
+          G_BINDING_SYNC_CREATE);
     }
     g_signal_connect (menu_item, "activate",
         G_CALLBACK (on_track_add_activated), (gpointer) self);
     g_list_free (widgets);
-    g_free (str);
   }
   g_list_free (list);
 }
