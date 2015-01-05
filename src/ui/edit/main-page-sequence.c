@@ -804,20 +804,6 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
 }
 
 static void
-on_machine_id_changed_seq (BtMachine * machine, GParamSpec * arg,
-    gpointer user_data)
-{
-  GtkEntry *label = GTK_ENTRY (user_data);
-  gchar *id, *pretty_name;
-
-  g_object_get (machine, "id", &id, "pretty-name", &pretty_name, NULL);
-  GST_INFO ("update seq headers for machine id changed to \"%s\"", id);
-  g_object_set (label, "text", id, "tooltip-text", pretty_name, NULL);
-  g_free (id);
-  g_free (pretty_name);
-}
-
-static void
 on_machine_id_changed_menu (BtMachine * machine, GParamSpec * arg,
     gpointer user_data)
 {
@@ -1488,9 +1474,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       GtkWidget *label, *button, *box;
       GtkVUMeter *vumeter;
       GstElement *level;
-      gchar *id, *pretty_name;
       gchar *level_name = "output-post-level";
-      gboolean first_track_for_machine;
 
       GST_DEBUG ("  %3lu build column header", j);
 
@@ -1503,8 +1487,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
         // its the sink, which already has it enabled
         level_name = "input-post-level";
       }
-      g_object_get (machine, "id", &id, "pretty-name", &pretty_name, level_name,
-          &level, NULL);
+      g_object_get (machine, level_name, &level, NULL);
 
       // TODO(ensonic): add context menu like that in the machine_view to the header
 
@@ -1529,11 +1512,8 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
                   digit_width) + PANGO_SCALE - 1) / PANGO_SCALE);
       gint num_chars = SEQUENCE_CELL_WIDTH / (char_pixels + 1);
       GST_DEBUG ("setting width to %d chars", num_chars);
-      g_object_set (label, "has-frame", FALSE, "inner-border", 0, "text", id,
-          "tooltip-text", pretty_name, "width-chars", num_chars, "ellipsize",
-          PANGO_ELLIPSIZE_END, NULL);
-      g_free (id);
-      g_free (pretty_name);
+      g_object_set (label, "has-frame", FALSE, "inner-border", 0, "width-chars",
+          num_chars, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
       if (g_object_class_find_property (G_OBJECT_GET_CLASS (label),
               "max-width-chars")) {
         g_object_set (label, "max-width-chars", num_chars, NULL);
@@ -1543,14 +1523,10 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       g_signal_connect (label, "activate", G_CALLBACK (on_machine_id_renamed),
           (gpointer) self);
 
-      first_track_for_machine = !g_hash_table_lookup (machine_usage, machine);
-      if (first_track_for_machine) {
-        // disconnecting old handler here would be better, but then we need to differentiate (see below)
-        g_signal_handlers_disconnect_by_func (machine,
-            on_machine_id_changed_seq, label);
-      }
-      g_signal_connect (machine, "notify::id",
-          G_CALLBACK (on_machine_id_changed_seq), (gpointer) label);
+      g_object_bind_property (machine, "id", label, "text",
+          G_BINDING_SYNC_CREATE);
+      g_object_bind_property (machine, "pretty-name", label, "tooltip-text",
+          G_BINDING_SYNC_CREATE);
 
       box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
       gtk_box_pack_start (GTK_BOX (header), box, TRUE, TRUE, 0);
@@ -1559,7 +1535,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
        * - multiple level-meter views for same machine don't work
        * - MSB buttons would need to be synced
        */
-      if (first_track_for_machine) {
+      if (!g_hash_table_lookup (machine_usage, machine)) {
         BtMachineState state;
 
         g_object_get (machine, "state", &state, NULL);
