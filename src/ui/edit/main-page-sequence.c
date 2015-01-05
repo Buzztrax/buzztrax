@@ -1500,7 +1500,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       gint num_chars = SEQUENCE_CELL_WIDTH / (char_pixels + 1);
       GST_DEBUG ("setting width to %d chars", num_chars);
       g_object_set (label, "has-frame", FALSE, "inner-border", 0, "width-chars",
-          num_chars, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
+          num_chars, NULL);
       if (g_object_class_find_property (G_OBJECT_GET_CLASS (label),
               "max-width-chars")) {
         g_object_set (label, "max-width-chars", num_chars, NULL);
