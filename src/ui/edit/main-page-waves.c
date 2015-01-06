@@ -911,25 +911,6 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 }
 
 static void
-on_toolbar_style_changed (const BtSettings * settings, GParamSpec * arg,
-    gpointer user_data)
-{
-  BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
-  GtkToolbarStyle style;
-  gchar *toolbar_style;
-
-  g_object_get ((gpointer) settings, "toolbar-style", &toolbar_style, NULL);
-  if (!BT_IS_STRING (toolbar_style))
-    return;
-
-  GST_INFO ("!!!  toolbar style has changed '%s'", toolbar_style);
-  style = gtk_toolbar_get_style_from_string (toolbar_style);
-  gtk_toolbar_set_style (GTK_TOOLBAR (self->priv->list_toolbar), style);
-  gtk_toolbar_set_style (GTK_TOOLBAR (self->priv->browser_toolbar), style);
-  g_free (toolbar_style);
-}
-
-static void
 on_default_sample_folder_changed (const BtSettings * settings, GParamSpec * arg,
     gpointer user_data)
 {
@@ -1541,13 +1522,16 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
       G_CALLBACK (on_waveform_viewer_loop_end_changed), (gpointer) self);
 
   // let settings control toolbar style and listen to other settings changes
-  on_toolbar_style_changed (self->priv->settings, NULL, (gpointer) self);
   on_default_sample_folder_changed (self->priv->settings, NULL,
       (gpointer) self);
-  g_signal_connect (self->priv->settings, "notify::toolbar-style",
-      G_CALLBACK (on_toolbar_style_changed), (gpointer) self);
   g_signal_connect (self->priv->settings, "notify::sample-folder",
       G_CALLBACK (on_default_sample_folder_changed), (gpointer) self);
+  g_object_bind_property_full (self->priv->settings, "toolbar-style",
+      self->priv->list_toolbar, "toolbar-style", G_BINDING_SYNC_CREATE,
+      bt_toolbar_style_changed, NULL, NULL, NULL);
+  g_object_bind_property_full (self->priv->settings, "toolbar-style",
+      self->priv->browser_toolbar, "toolbar-style", G_BINDING_SYNC_CREATE,
+      bt_toolbar_style_changed, NULL, NULL, NULL);
 
   GST_DEBUG ("  done");
 }

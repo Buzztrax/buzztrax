@@ -44,4 +44,7 @@ gboolean bt_edit_ui_config(const gchar *str);
 #define BT_EDIT_UI_CONFIG(str) FALSE
 #endif
 
+/* gobject property binding transform functions */
+gboolean bt_toolbar_style_changed(GBinding * binding, const GValue * from_value, GValue * to_value, gpointer user_data);
+
 #endif // BT_EDIT_TOOLS_H

@@ -183,6 +183,8 @@ gtk_show_uri_simple (GtkWidget * widget, const gchar * uri)
   }
 }
 
+/* debug helper */
+
 /*
  * bt_edit_ui_config:
  * @str: token to check
@@ -202,3 +204,28 @@ bt_edit_ui_config (const gchar * str)
   return (FALSE);
 }
 #endif
+
+/* gobject property binding transform functions */
+
+/**
+ * bt_toolbar_style_changed:
+ * @binding: the binding
+ * @from_value: the source value
+ * @to_value: the target value
+ * @user_data: unused
+ *
+ * Transform function to be used with g_object_bind_property_full()
+ *
+ * Returns: %TRUE for successful sync of the properties
+ */
+gboolean
+bt_toolbar_style_changed (GBinding * binding, const GValue * from_value,
+    GValue * to_value, gpointer user_data)
+{
+  const gchar *style = g_value_get_string (from_value);
+  if (!BT_IS_STRING (style))
+    return FALSE;
+
+  g_value_set_enum (to_value, gtk_toolbar_get_style_from_string (style));
+  return TRUE;
+}

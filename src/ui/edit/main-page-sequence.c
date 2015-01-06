@@ -3534,23 +3534,6 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   GST_INFO ("song has changed done");
 }
 
-static void
-on_toolbar_style_changed (const BtSettings * settings, GParamSpec * arg,
-    gpointer user_data)
-{
-  GtkToolbar *toolbar = GTK_TOOLBAR (user_data);
-  gchar *toolbar_style;
-
-  g_object_get ((gpointer) settings, "toolbar-style", &toolbar_style, NULL);
-  if (!BT_IS_STRING (toolbar_style))
-    return;
-
-  GST_INFO ("!!!  toolbar style has changed '%s'", toolbar_style);
-  gtk_toolbar_set_style (toolbar,
-      gtk_toolbar_get_style_from_string (toolbar_style));
-  g_free (toolbar_style);
-}
-
 //-- helper methods
 
 static void
@@ -3981,9 +3964,9 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
 
   // let settings control toolbar style
   g_object_get (self->priv->app, "settings", &settings, NULL);
-  on_toolbar_style_changed (settings, NULL, (gpointer) toolbar);
-  g_signal_connect (settings, "notify::toolbar-style",
-      G_CALLBACK (on_toolbar_style_changed), (gpointer) toolbar);
+  g_object_bind_property_full (settings, "toolbar-style", toolbar,
+      "toolbar-style", G_BINDING_SYNC_CREATE, bt_toolbar_style_changed, NULL,
+      NULL, NULL);
   g_object_unref (settings);
 
   GST_DEBUG ("  done");

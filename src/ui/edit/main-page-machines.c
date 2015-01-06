@@ -1513,22 +1513,6 @@ on_canvas_key_release (ClutterActor * actor, ClutterEvent * event,
   return res;
 }
 
-
-static void
-on_toolbar_style_changed (const BtSettings * settings, GParamSpec * arg,
-    gpointer user_data)
-{
-  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  gchar *toolbar_style;
-  g_object_get ((gpointer) settings, "toolbar-style", &toolbar_style, NULL);
-  if (!BT_IS_STRING (toolbar_style))
-    return;
-  GST_INFO ("!!!  toolbar style has changed '%s'", toolbar_style);
-  gtk_toolbar_set_style (GTK_TOOLBAR (self->priv->toolbar),
-      gtk_toolbar_get_style_from_string (toolbar_style));
-  g_free (toolbar_style);
-}
-
 static void
 on_volume_popup_changed (GtkAdjustment * adj, gpointer user_data)
 {
@@ -1829,9 +1813,10 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
       G_CALLBACK (on_page_mapped), (gpointer) self);
 
   // let settings control toolbar style
-  on_toolbar_style_changed (settings, NULL, (gpointer) self);
-  g_signal_connect (settings, "notify::toolbar-style",
-      G_CALLBACK (on_toolbar_style_changed), (gpointer) self);
+  g_object_bind_property_full (settings, "toolbar-style", self->priv->toolbar,
+      "toolbar-style", G_BINDING_SYNC_CREATE, bt_toolbar_style_changed, NULL,
+      NULL, NULL);
+
   g_object_unref (settings);
   GST_DEBUG ("  done");
 }
