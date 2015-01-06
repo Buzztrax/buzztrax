@@ -228,7 +228,6 @@ on_toolbar_stop_clicked (GtkButton * button, gpointer user_data)
   // get song from app
   g_object_get (self->priv->app, "song", &song, NULL);
   bt_song_stop (song);
-  reset_playback_rate (self);
 
   GST_INFO ("  song stopped");
   // release the reference
