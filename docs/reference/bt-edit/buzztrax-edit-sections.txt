@@ -704,7 +704,6 @@ BtPlaybackControllerSocketPrivate
 <FILE>btpresetlistmodel</FILE>
 <TITLE>BtPresetListModel</TITLE>
 BtPresetListModel
-bt_preset_list_model_get_object
 bt_preset_list_model_new
 bt_preset_list_model_add
 bt_preset_list_model_remove
