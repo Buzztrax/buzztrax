@@ -24,6 +24,8 @@
  * The interface comes with an implementation for caching the learned controls.
  * The implementor needs to call btic_learn_load_controller_map() after 
  * construction and btic_learn_store_controller_map() when a control got added.
+ * The cache files are stored under user-data-dir/buzztrax/controller-maps, e.g.
+ * ~/.local/share/buzztrax/controller-maps/.
  */
 
 #define BTIC_CORE
