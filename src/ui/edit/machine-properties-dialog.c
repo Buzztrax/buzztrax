@@ -661,7 +661,7 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
   GST_INFO ("button_press : button 0x%x, type 0x%d", event->button,
       event->type);
   if (event->type == GDK_BUTTON_PRESS) {
-    if (event->button == 3) {
+    if (event->button == GDK_BUTTON_SECONDARY) {
       GObject *m;
       BtParameterGroup *pg = g_object_get_qdata (w, widget_param_group_quark);
       gint pi =
@@ -724,22 +724,23 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
           "selected-parameter-group", pg, "selected-property-name",
           property_name, NULL);
 
-      gtk_menu_popup (GTK_MENU (m), NULL, NULL, NULL, NULL, 3,
-          gtk_get_current_event_time ());
+      gtk_menu_popup (GTK_MENU (m), NULL, NULL, NULL, NULL,
+          GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
       res = TRUE;
-    } else if (event->button == 1) {
+    } else if (event->button == GDK_BUTTON_PRIMARY) {
       gst_object_set_control_binding_disabled (param_parent, property_name,
           TRUE);
+      res = TRUE;
     }
   }
-  return (res);
+  return res;
 }
 
 static gboolean
 on_button_release_event (GtkWidget * widget, GdkEventButton * event,
     gpointer user_data)
 {
-  if (event->button == 1 && event->type == GDK_BUTTON_RELEASE) {
+  if (event->button == GDK_BUTTON_PRIMARY && event->type == GDK_BUTTON_RELEASE) {
     update_param_after_interaction (widget, user_data);
   }
   return FALSE;
@@ -775,7 +776,7 @@ static gboolean
 on_label_button_press_event (GtkWidget * widget, GdkEventButton * event,
     gpointer user_data)
 {
-  if (event->button == 1) {
+  if (event->button == GDK_BUTTON_PRIMARY) {
     gtk_widget_grab_focus ((GtkWidget *) user_data);
   }
   return FALSE;
@@ -791,7 +792,7 @@ on_group_button_press_event (GtkWidget * widget, GdkEventButton * event,
   GST_INFO ("button_press : button 0x%x, type 0x%d", event->button,
       event->type);
   if (event->type == GDK_BUTTON_PRESS) {
-    if (event->button == 3) {
+    if (event->button == GDK_BUTTON_SECONDARY) {
       GtkMenu *menu;
       GtkWidget *menu_item, *image;
       BtParameterGroup *pg =
@@ -825,7 +826,7 @@ on_group_button_press_event (GtkWidget * widget, GdkEventButton * event,
           (gpointer) pg);
       g_object_set_qdata (G_OBJECT (menu), widget_param_num_quark,
           GINT_TO_POINTER (-1));
-      gtk_menu_popup (menu, NULL, NULL, NULL, NULL, 3,
+      gtk_menu_popup (menu, NULL, NULL, NULL, NULL, GDK_BUTTON_SECONDARY,
           gtk_get_current_event_time ());
       res = TRUE;
     }

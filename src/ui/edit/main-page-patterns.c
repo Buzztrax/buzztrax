@@ -701,8 +701,8 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
 
     res = TRUE;
   } else if (event->keyval == GDK_KEY_Menu) {
-    gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
-        gtk_get_current_event_time ());
+    gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
+        GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
     res = TRUE;
   } else if (event->keyval == ',') {
     BtPatternEditorColumnGroup *group;
@@ -935,9 +935,9 @@ on_pattern_table_button_press_event (GtkWidget * widget, GdkEventButton * event,
 
   GST_INFO ("pattern_table button_press : button 0x%x, type 0x%d",
       event->button, event->type);
-  if (event->button == 3) {
-    gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
-        gtk_get_current_event_time ());
+  if (event->button == GDK_BUTTON_SECONDARY) {
+    gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
+        GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
     res = TRUE;
   }
   return (res);
@@ -2221,8 +2221,8 @@ on_toolbar_menu_clicked (GtkButton * button, gpointer user_data)
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
 
-  gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 1,
-      gtk_get_current_event_time ());
+  gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
+      GDK_BUTTON_PRIMARY, gtk_get_current_event_time ());
 }
 
 static void

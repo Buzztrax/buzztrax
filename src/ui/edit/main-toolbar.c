@@ -298,7 +298,7 @@ on_toolbar_rewind_pressed (GtkWidget * widget, GdkEventButton * event,
 {
   BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
 
-  if (event->button != 1)
+  if (event->button != GDK_BUTTON_PRIMARY)
     return (FALSE);
 
   GST_DEBUG (" << pressed");
@@ -319,7 +319,7 @@ on_toolbar_rewind_released (GtkWidget * widget, GdkEventButton * event,
 {
   BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
 
-  if (event->button != 1)
+  if (event->button != GDK_BUTTON_PRIMARY)
     return (FALSE);
 
   GST_DEBUG (" << released");
@@ -356,7 +356,7 @@ on_toolbar_forward_pressed (GtkWidget * widget, GdkEventButton * event,
 {
   BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
 
-  if (event->button != 1)
+  if (event->button != GDK_BUTTON_PRIMARY)
     return (FALSE);
 
   GST_DEBUG (" >> pressed");
@@ -377,7 +377,7 @@ on_toolbar_forward_released (GtkWidget * widget, GdkEventButton * event,
 {
   BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
 
-  if (event->button != 1)
+  if (event->button != GDK_BUTTON_PRIMARY)
     return (FALSE);
 
   GST_DEBUG (" >> released");
@@ -627,7 +627,7 @@ on_song_volume_slider_press_event (GtkWidget * widget, GdkEventButton * event,
     gpointer user_data)
 {
   if (event->type == GDK_BUTTON_PRESS) {
-    if (event->button == 1) {
+    if (event->button == GDK_BUTTON_PRIMARY) {
       BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
       GstObject *machine;
 
@@ -643,7 +643,7 @@ static gboolean
 on_song_volume_slider_release_event (GtkWidget * widget, GdkEventButton * event,
     gpointer user_data)
 {
-  if (event->button == 1 && event->type == GDK_BUTTON_RELEASE) {
+  if (event->button == GDK_BUTTON_PRIMARY && event->type == GDK_BUTTON_RELEASE) {
     BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
     GstObject *machine;
     GstControlBinding *cb;

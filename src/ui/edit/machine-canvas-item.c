@@ -1398,8 +1398,8 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
           break;
         case 3:
           // show context menu
-          gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
-              clutter_event_get_time (event));
+          gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
+              GDK_BUTTON_SECONDARY, clutter_event_get_time (event));
           res = TRUE;
           break;
         default:
@@ -1506,8 +1506,8 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
       switch (key_event->keyval) {
         case GDK_KEY_Menu:
           // show context menu
-          gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL, 3,
-              gtk_get_current_event_time ());
+          gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
+              GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
           res = TRUE;
           break;
         default:
