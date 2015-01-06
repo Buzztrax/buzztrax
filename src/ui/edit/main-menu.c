@@ -197,33 +197,11 @@ on_menu_undo_activate (GtkMenuItem * menuitem, gpointer user_data)
 }
 
 static void
-on_menu_can_undo_changed (const BtChangeLog * change_log, GParamSpec * arg,
-    gpointer user_data)
-{
-  GtkWidget *menuitem = GTK_WIDGET (user_data);
-  gboolean enabled;
-
-  g_object_get ((GObject *) change_log, "can-undo", &enabled, NULL);
-  gtk_widget_set_sensitive (menuitem, enabled);
-}
-
-static void
 on_menu_redo_activate (GtkMenuItem * menuitem, gpointer user_data)
 {
   BtMainMenu *self = BT_MAIN_MENU (user_data);
 
   bt_change_log_redo (self->priv->change_log);
-}
-
-static void
-on_menu_can_redo_changed (const BtChangeLog * change_log, GParamSpec * arg,
-    gpointer user_data)
-{
-  GtkWidget *menuitem = GTK_WIDGET (user_data);
-  gboolean enabled;
-
-  g_object_get ((GObject *) change_log, "can-redo", &enabled, NULL);
-  gtk_widget_set_sensitive (menuitem, enabled);
 }
 
 // TODO(ensonic): call bt_main_pages_cut() and make that dispatch
@@ -883,9 +861,8 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_undo_activate),
       (gpointer) self);
-  on_menu_can_undo_changed (self->priv->change_log, NULL, subitem);
-  g_signal_connect (self->priv->change_log, "notify::can-undo",
-      G_CALLBACK (on_menu_can_undo_changed), (gpointer) subitem);
+  g_object_bind_property (self->priv->change_log, "can-undo", subitem,
+      "sensitive", G_BINDING_SYNC_CREATE);
 
   subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_REDO, accel_group);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
@@ -895,9 +872,8 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_redo_activate),
       (gpointer) self);
-  on_menu_can_redo_changed (self->priv->change_log, NULL, subitem);
-  g_signal_connect (self->priv->change_log, "notify::can-redo",
-      G_CALLBACK (on_menu_can_redo_changed), (gpointer) subitem);
+  g_object_bind_property (self->priv->change_log, "can-redo", subitem,
+      "sensitive", G_BINDING_SYNC_CREATE);
 
   gtk_container_add (GTK_CONTAINER (menu), gtk_separator_menu_item_new ());
 
