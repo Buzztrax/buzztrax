@@ -730,7 +730,7 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
     } else if (event->button == GDK_BUTTON_PRIMARY) {
       gst_object_set_control_binding_disabled (param_parent, property_name,
           TRUE);
-      res = TRUE;
+      // keep res = FALSE to let the original handler run
     }
   }
   return res;
