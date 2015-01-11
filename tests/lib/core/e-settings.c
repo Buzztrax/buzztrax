@@ -86,6 +86,26 @@ test_bt_settings_get_audiosink1 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_settings_ic_playback_spec (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  const gchar *s1 = "!device\tfoo\nplay\tplay\n";
+
+  GST_INFO ("-- act --");
+  GHashTable *ht = bt_settings_parse_ic_playback_spec (s1);
+  gchar *s2 = bt_settings_format_ic_playback_spec (ht);
+
+  GST_INFO ("-- assert --");
+  ck_assert_str_eq (s1, s2);
+
+  GST_INFO ("-- cleanup --");
+  g_hash_table_destroy (ht);
+  g_free (s2);
+  BT_TEST_END;
+}
+
 
 TCase *
 bt_settings_example_case (void)
@@ -94,6 +114,7 @@ bt_settings_example_case (void)
 
   tcase_add_test (tc, test_bt_settings_singleton);
   tcase_add_test (tc, test_bt_settings_get_audiosink1);
+  tcase_add_test (tc, test_bt_settings_ic_playback_spec);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

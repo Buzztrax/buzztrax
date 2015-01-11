@@ -54,7 +54,6 @@ static BtSettings *singleton = NULL;
 
 //-- the class
 
-/* don't forget to add entries to tests/bt-test-settings.c */
 enum
 {
   /* ui */
@@ -80,6 +79,8 @@ enum
   BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT,
   BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_MASTER,
   BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE,
+  BT_SETTINGS_PLAYBACK_CONTROLLER_IC_PLAYBACK_ACTIVE,
+  BT_SETTINGS_PLAYBACK_CONTROLLER_IC_PLAYBACK_SPEC,
   BT_SETTINGS_FOLDER_SONG,
   BT_SETTINGS_FOLDER_RECORD,
   BT_SETTINGS_FOLDER_SAMPLE,
@@ -109,7 +110,6 @@ struct _BtSettingsPrivate
   GSettings *org_gnome_desktop_interface;
   GSettings *org_freedesktop_gstreamer_defaults;
 };
-
 
 G_DEFINE_TYPE (BtSettings, bt_settings, G_TYPE_OBJECT);
 
@@ -321,6 +321,12 @@ g_settings_is_schema_installed (const gchar * schema)
   return FALSE;
 }
 
+static gint
+compare_strings (gchar ** a, gchar ** b, gpointer user_data)
+{
+  return g_strcmp0 (*a, *b);
+}
+
 //-- signals
 
 static void
@@ -497,6 +503,75 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
   return (element_name != NULL);
 }
 
+/**
+ * bt_settings_parse_ic_playback_spec:
+ * @spec: the spec string from the settings
+ *
+ * Parses the string.
+ *
+ * Returns: a hashtable with strings as keys and values
+ */
+GHashTable *
+bt_settings_parse_ic_playback_spec (const gchar * spec)
+{
+  GHashTable *ht;
+  gchar **part, **parts;
+  gchar *key, *value;
+
+  if (!BT_IS_STRING (spec))
+    return NULL;
+
+  ht = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  parts = g_strsplit (spec, "\n", 0);
+  for (part = parts; BT_IS_STRING (*part); part++) {
+    key = *part;
+    value = strchr (key, '\t');
+    if (value) {
+      *value = '\0';
+      value++;
+      g_strchomp (value);
+      g_hash_table_insert (ht, g_strdup (key), g_strdup (value));
+    } else {
+      GST_WARNING ("missing '\t' in entry '%s'", key);
+    }
+  }
+  g_strfreev (parts);
+  return ht;
+}
+
+/**
+ * bt_settings_format_ic_playback_spec:
+ * @ht: the ht settings
+ *
+ * Format the settings as a string.
+ *
+ * Returns: a string for storage.
+ */
+gchar *
+bt_settings_format_ic_playback_spec (GHashTable * ht)
+{
+  GString *spec;
+  gpointer *keys;
+  guint num_keys, i;
+
+  if (!ht || !g_hash_table_size (ht))
+    return NULL;
+
+  spec = g_string_new ("");
+  keys = g_hash_table_get_keys_as_array (ht, &num_keys);
+  g_qsort_with_data (keys, num_keys, sizeof (gchar *),
+      (GCompareDataFunc) compare_strings, NULL);
+  GST_WARNING ("sorted %d keys", num_keys);
+
+  for (i = 0; i < num_keys; i++) {
+    GST_WARNING ("formatting '%s'", (gchar *) keys[i]);
+    g_string_append_printf (spec, "%s\t%s\n", (gchar *) keys[i],
+        (gchar *) g_hash_table_lookup (ht, keys[i]));
+  }
+  g_free (keys);
+  return g_string_free (spec, FALSE);
+}
+
 //-- wrapper
 
 //-- g_object overrides
@@ -588,6 +663,14 @@ bt_settings_get_property (GObject * const object, const guint property_id,
     case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:
       read_boolean (self->priv->org_buzztrax_playback_controller,
           "jack-transport-slave", value);
+      break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_IC_PLAYBACK_ACTIVE:
+      read_boolean (self->priv->org_buzztrax_playback_controller,
+          "ic-playback-active", value);
+      break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_IC_PLAYBACK_SPEC:
+      read_string_def (self->priv->org_buzztrax_playback_controller,
+          "ic-playback-spec", value, (GParamSpecString *) pspec);
       break;
       /* directory settings */
     case BT_SETTINGS_FOLDER_SONG:
@@ -701,6 +784,14 @@ bt_settings_set_property (GObject * const object, const guint property_id,
     case BT_SETTINGS_PLAYBACK_CONTROLLER_JACK_TRANSPORT_SLAVE:
       write_boolean (self->priv->org_buzztrax_playback_controller,
           "jack-transport-slave", value);
+      break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_IC_PLAYBACK_ACTIVE:
+      write_boolean (self->priv->org_buzztrax_playback_controller,
+          "ic-playback-active", value);
+      break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_IC_PLAYBACK_SPEC:
+      write_string (self->priv->org_buzztrax_playback_controller,
+          "ic-playback-spec", value);
       break;
       /* directory settings */
     case BT_SETTINGS_FOLDER_SONG:
@@ -878,6 +969,17 @@ bt_settings_class_init (BtSettingsClass * const klass)
           "sync buzztrax to the playback state other jack clients", FALSE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class,
+      BT_SETTINGS_PLAYBACK_CONTROLLER_IC_PLAYBACK_ACTIVE,
+      g_param_spec_boolean ("ic-playback-active", "ic-playback-active",
+          "activate interaction controller library based playback controller",
+          FALSE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class,
+      BT_SETTINGS_PLAYBACK_CONTROLLER_IC_PLAYBACK_SPEC,
+      g_param_spec_string ("ic-playback-spec", "ic-playback-spec",
+          "list of device and control names", NULL,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   // directory settings
   g_object_class_install_property (gobject_class, BT_SETTINGS_FOLDER_SONG,

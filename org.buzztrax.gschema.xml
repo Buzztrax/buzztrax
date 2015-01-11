@@ -115,6 +115,16 @@
       <summary>Sync buzztrax to the playback state other jack clients</summary>
       <description>Allows to remote control buzztrax via jack transport.</description>
     </key>
+    <key name="ic-playback-active" type="b">
+      <default l10n="messages" context="ic-playback-active">false</default>
+      <summary>Activate interaction controller library based playback controller</summary>
+      <description>Allows to remote control buzztrax via interaction controls.</description>
+    </key>
+    <key name="ic-playback-spec" type="s">
+      <default l10n="messages" context="ic-playback-spec">''</default>
+      <summary>List of device and control names</summary>
+      <description>Which device to use and the mapping of control to command.</description>
+    </key>
   </schema>
   <schema id="org.buzztrax.directories" path="/org/buzztrax/directories/">
     <key name="song-folder" type="s">

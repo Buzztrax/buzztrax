@@ -59,4 +59,7 @@ BtSettings *bt_settings_make(void);
 gboolean bt_settings_determine_audiosink_name(const BtSettings * const self,
     gchar **element_name, gchar **device_name);
 
+GHashTable *bt_settings_parse_ic_playback_spec(const gchar *spec);
+gchar *bt_settings_format_ic_playback_spec(GHashTable *ht);
+
 #endif // BT_SETTINGS_H
