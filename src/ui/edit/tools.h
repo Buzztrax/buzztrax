@@ -46,5 +46,6 @@ gboolean bt_edit_ui_config(const gchar *str);
 
 /* gobject property binding transform functions */
 gboolean bt_toolbar_style_changed(GBinding * binding, const GValue * from_value, GValue * to_value, gpointer user_data);
+gboolean bt_label_value_changed(GBinding * binding, const GValue * from_value, GValue * to_value, gpointer user_data);
 
 #endif // BT_EDIT_TOOLS_H

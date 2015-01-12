@@ -270,15 +270,6 @@ on_table_realize (GtkWidget * widget, gpointer user_data)
       width);
 }
 
-static gboolean
-on_machine_id_changed (GBinding * binding, const GValue * from_value,
-    GValue * to_value, gpointer user_data)
-{
-  g_value_take_string (to_value, g_strdup_printf (_("%s preferences"),
-          g_value_get_string (from_value)));
-  return TRUE;
-}
-
 //-- helper methods
 
 #define _MAKE_SPIN_BUTTON(t,T,p)                                               \
@@ -510,8 +501,8 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
 
   // track machine name (keep window title up-to-date)
   g_object_bind_property_full (self->priv->machine, "pretty-name",
-      (GObject *) self, "title", G_BINDING_SYNC_CREATE, on_machine_id_changed,
-      NULL, NULL, NULL);
+      (GObject *) self, "title", G_BINDING_SYNC_CREATE, bt_label_value_changed,
+      NULL, _("%s preferences"), NULL);
 
   g_object_unref (machine);
   g_object_unref (main_window);

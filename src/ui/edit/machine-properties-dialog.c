@@ -2328,15 +2328,6 @@ on_machine_voices_notify (const BtMachine * machine, GParamSpec * arg,
   self->priv->voices = new_voices;
 }
 
-static gboolean
-on_wire_machine_id_changed (GBinding * binding, const GValue * from_value,
-    GValue * to_value, gpointer user_data)
-{
-  g_value_take_string (to_value, g_strdup_printf (_("%s wire properties"),
-          g_value_get_string (from_value)));
-  return TRUE;
-}
-
 static GtkWidget *
 make_wire_param_box (const BtMachinePropertiesDialog * self, BtWire * wire)
 {
@@ -2356,7 +2347,8 @@ make_wire_param_box (const BtMachinePropertiesDialog * self, BtWire * wire)
     expander = gtk_expander_new (NULL);
     gtk_expander_set_expanded (GTK_EXPANDER (expander), TRUE);
     g_object_bind_property_full (src, "id", expander, "label",
-        G_BINDING_SYNC_CREATE, on_wire_machine_id_changed, NULL, NULL, NULL);
+        G_BINDING_SYNC_CREATE, bt_label_value_changed, NULL,
+        _("%s wire properties"), NULL);
 
     g_hash_table_insert (self->priv->param_groups, expander, pg);
     g_hash_table_insert (self->priv->group_to_object, wire, expander);
@@ -2417,15 +2409,6 @@ on_wire_removed (const BtSetup * setup, BtWire * wire, gpointer user_data)
     g_hash_table_remove (self->priv->param_groups, expander);
     self->priv->num_wires--;
   }
-}
-
-static gboolean
-on_machine_id_changed (GBinding * binding, const GValue * from_value,
-    GValue * to_value, gpointer user_data)
-{
-  g_value_take_string (to_value, g_strdup_printf (_("%s properties"),
-          g_value_get_string (from_value)));
-  return TRUE;
 }
 
 static gboolean
@@ -2741,8 +2724,8 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
 
   // track machine name (keep window title up-to-date)
   g_object_bind_property_full (self->priv->machine, "pretty-name",
-      (GObject *) self, "title", G_BINDING_SYNC_CREATE, on_machine_id_changed,
-      NULL, NULL, NULL);
+      (GObject *) self, "title", G_BINDING_SYNC_CREATE, bt_label_value_changed,
+      NULL, _("%s properties"), NULL);
 
   g_object_unref (machine);
   g_object_unref (setup);

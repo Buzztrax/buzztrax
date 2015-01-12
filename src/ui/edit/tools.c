@@ -229,3 +229,23 @@ bt_toolbar_style_changed (GBinding * binding, const GValue * from_value,
   g_value_set_enum (to_value, gtk_toolbar_get_style_from_string (style));
   return TRUE;
 }
+
+/**
+ * bt_label_value_changed:
+ * @binding: the binding
+ * @from_value: the source value
+ * @to_value: the target value
+ * @user_data: the label formatstring
+ *
+ * Transform function to be used with g_object_bind_property_full()
+ *
+ * Returns: %TRUE for successful sync of the properties
+ */
+gboolean
+bt_label_value_changed (GBinding * binding, const GValue * from_value,
+    GValue * to_value, gpointer user_data)
+{
+  g_value_take_string (to_value, g_strdup_printf (user_data,
+          g_value_get_string (from_value)));
+  return TRUE;
+}

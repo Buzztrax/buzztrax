@@ -1076,6 +1076,7 @@ gtk_toolbar_get_style_from_string
 gtk_target_table_make
 gtk_show_uri_simple
 bt_toolbar_style_changed
+bt_label_value_changed
 <SUBSECTION Private>
 BOX_BORDER
 SCREEN_BORDER_HEIGHT
