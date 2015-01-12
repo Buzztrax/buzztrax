@@ -1332,6 +1332,9 @@ i o p</keycap></screen></entry>
       hide the right side preset pane. Most machines support presets. Presets
       are a collection of parameter sets. Other buttons on the toolbar show
       information about the machine, the help, reset or randomize parameters.
+      The preset pane in turn has a toolbar. One can add, remove and edit preset
+      entries. Rarely machines have built-in presets that are not editable. In
+      such a case the toolbar is disabled.
     </para>
     <figure id="bt-edit-dialog-machine-properties-fig">
       <title>Machine properties dialog</title>

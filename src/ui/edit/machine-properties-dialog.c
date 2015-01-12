@@ -2430,7 +2430,7 @@ on_machine_id_changed (GBinding * binding, const GValue * from_value,
 
 static gboolean
 bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
-    self)
+    self, GstElement * machine)
 {
   GtkWidget *scrolled_window;
   GtkWidget *tool_item, *remove_tool_button, *edit_tool_button;
@@ -2473,6 +2473,13 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
 
   gtk_box_pack_start (GTK_BOX (self->priv->preset_box),
       self->priv->preset_toolbar, FALSE, FALSE, 0);
+
+#if GST_CHECK_VERSION(1,5,0)
+  // presets are read-only
+  if (!gst_preset_is_editable ((GstPreset *) machine)) {
+    gtk_widget_set_sensitive (self->priv->preset_toolbar, FALSE);
+  }
+#endif
 
   // add preset list
   scrolled_window = gtk_scrolled_window_new (NULL, NULL);
@@ -2584,7 +2591,7 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
 
   // create preset pane
   if (GST_IS_PRESET (machine)) {
-    if (bt_machine_properties_dialog_init_preset_box (self)) {
+    if (bt_machine_properties_dialog_init_preset_box (self, machine)) {
       gtk_box_pack_end (GTK_BOX (hbox), self->priv->preset_box, FALSE, FALSE,
           0);
     }
