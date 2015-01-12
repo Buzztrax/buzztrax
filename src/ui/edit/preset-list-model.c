@@ -92,7 +92,7 @@ list_model_add (BtPresetListModel * model, gchar * preset)
 
 /**
  * bt_preset_list_model_new:
- * @machine: the machine
+ * @machine: the gstreamer element of the machine
  *
  * Creates a list model of presets for the @machine. The model is automatically
  * updated when presets are added, removed or renamed.
@@ -100,19 +100,16 @@ list_model_add (BtPresetListModel * model, gchar * preset)
  * Returns: the preset model.
  */
 BtPresetListModel *
-bt_preset_list_model_new (BtMachine * machine)
+bt_preset_list_model_new (GstElement * machine)
 {
   BtPresetListModel *self;
-  GstElement *element;
   GType type;
 
-  g_object_get (machine, "machine", &element, NULL);
-  type = G_OBJECT_TYPE (element);
+  type = G_OBJECT_TYPE (machine);
 
   // Make this a singleton per machine, this way we can keep the lists in sync
   // in the app. A file-system watcher would be even nicer though.
   if ((self = g_type_get_qdata (type, singleton_quark))) {
-    gst_object_unref (element);
     self = g_object_ref (self);
   } else {
     gchar **presets, **preset;
@@ -122,8 +119,8 @@ bt_preset_list_model_new (BtMachine * machine)
     self->priv->param_types[BT_PRESET_LIST_MODEL_LABEL] = G_TYPE_STRING;
     self->priv->param_types[BT_PRESET_LIST_MODEL_COMMENT] = G_TYPE_STRING;
 
-    self->priv->machine = element;
-    presets = gst_preset_get_preset_names (GST_PRESET (element));
+    self->priv->machine = g_object_ref (machine);
+    presets = gst_preset_get_preset_names (GST_PRESET (machine));
     if (presets) {
       for (preset = presets; *preset; preset++) {
         list_model_add (self, g_strdup (*preset));

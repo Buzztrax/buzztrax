@@ -2521,7 +2521,7 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
         tree_col, -1);
   } else
     GST_WARNING ("can't create treeview column");
-  self->priv->preset_model = bt_preset_list_model_new (self->priv->machine);
+  self->priv->preset_model = bt_preset_list_model_new (machine);
   gtk_tree_view_set_model (GTK_TREE_VIEW (self->priv->preset_list),
       GTK_TREE_MODEL (self->priv->preset_model));
   // activate selected

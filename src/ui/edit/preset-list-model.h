@@ -58,7 +58,7 @@ enum {
 
 GType bt_preset_list_model_get_type(void) G_GNUC_CONST;
 
-BtPresetListModel *bt_preset_list_model_new(BtMachine *machine);
+BtPresetListModel *bt_preset_list_model_new(GstElement * machine);
 void bt_preset_list_model_add(BtPresetListModel * model, gchar *preset);
 void bt_preset_list_model_remove(BtPresetListModel * model, gchar *preset);
 void bt_preset_list_model_rename(BtPresetListModel * model, gchar *o_preset, gchar *n_preset);
