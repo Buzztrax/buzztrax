@@ -55,7 +55,8 @@ enum
   WIRE_GAIN,
   WIRE_PAN,
   WIRE_NUM_PARAMS,
-  WIRE_ANALYZERS
+  WIRE_ANALYZERS,
+  WIRE_PRETTY_NAME
 };
 
 // capsfiter, convert, pan, volume are gap-aware
@@ -826,6 +827,14 @@ bt_wire_connect (const BtWire * const self)
   return TRUE;
 }
 
+//-- signal handlers
+
+static void
+on_wire_name_changed (GObject * obj, GParamSpec * arg, gpointer user_data)
+{
+  g_object_notify (user_data, "pretty-name");
+}
+
 //-- constructor methods
 
 /**
@@ -1332,6 +1341,15 @@ bt_wire_get_property (GObject * const object, const guint property_id,
     case WIRE_ANALYZERS:
       g_value_set_pointer (value, self->priv->analyzers);
       break;
+    case WIRE_PRETTY_NAME:{
+      gchar *src_id, *dst_id;
+      g_object_get (self->priv->src, "pretty-name", &src_id, NULL);
+      g_object_get (self->priv->dst, "pretty-name", &dst_id, NULL);
+      g_value_take_string (value, g_strdup_printf ("%s -> %s", src_id, dst_id));
+      g_free (src_id);
+      g_free (dst_id);
+      break;
+    }
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -1358,12 +1376,16 @@ bt_wire_set_property (GObject * const object, const guint property_id,
       GST_DEBUG ("set the src for the wire: %s, %" G_OBJECT_REF_COUNT_FMT,
           (self->priv->src ? GST_OBJECT_NAME (self->priv->src) : ""),
           G_OBJECT_LOG_REF_COUNT (self->priv->src));
+      g_signal_connect (self->priv->src, "notify::pretty-name",
+          G_CALLBACK (on_wire_name_changed), (gpointer) self);
       break;
     case WIRE_DST:
       self->priv->dst = BT_MACHINE (g_value_dup_object (value));
       GST_DEBUG ("set the dst for the wire: %s, %" G_OBJECT_REF_COUNT_FMT,
           (self->priv->dst ? GST_OBJECT_NAME (self->priv->dst) : ""),
           G_OBJECT_LOG_REF_COUNT (self->priv->dst));
+      g_signal_connect (self->priv->src, "notify::pretty-name",
+          G_CALLBACK (on_wire_name_changed), (gpointer) self);
       break;
     case WIRE_NUM_PARAMS:
       self->priv->num_params = g_value_get_ulong (value);
@@ -1413,6 +1435,11 @@ bt_wire_dispose (GObject * const object)
   // remove ghost pads
   gst_element_remove_pad (GST_ELEMENT (self), self->priv->src_pad);
   gst_element_remove_pad (GST_ELEMENT (self), self->priv->sink_pad);
+
+  g_signal_handlers_disconnect_by_func (self->priv->src, on_wire_name_changed,
+      (gpointer) self);
+  g_signal_handlers_disconnect_by_func (self->priv->dst, on_wire_name_changed,
+      (gpointer) self);
 
   g_object_try_weak_unref (self->priv->song);
   //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
@@ -1534,13 +1561,17 @@ bt_wire_class_init (BtWireClass * const klass)
       g_param_spec_ulong ("num-params",
           "num-params prop",
           "number of params for the wire",
-          0,
-          BT_WIRE_MAX_NUM_PARAMS,
-          0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          0, BT_WIRE_MAX_NUM_PARAMS, 0,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WIRE_ANALYZERS,
       g_param_spec_pointer ("analyzers",
           "analyzers prop",
           "list of wire analyzers",
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, WIRE_PRETTY_NAME,
+      g_param_spec_string ("pretty-name", "pretty-name prop",
+          "pretty-printed name for display purposes", NULL,
+          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
