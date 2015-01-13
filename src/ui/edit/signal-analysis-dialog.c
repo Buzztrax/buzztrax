@@ -915,7 +915,6 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   BtSong *song;
   GstBin *bin;
   GstPad *pad;
-  gchar *title = NULL;
   //GdkPixbuf *window_icon=NULL;
   GtkWidget *label, *table, *widget;
   gboolean res = TRUE;
@@ -942,30 +941,15 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   // leave the choice of width to gtk
   gtk_window_set_default_size (GTK_WINDOW (self), -1, 200);
 
-  // TODO(ensonic): different names for wire or sink machine
-  if (BT_IS_WIRE (self->priv->element)) {
-    BtMachine *src_machine, *dst_machine;
-    gchar *src_id, *dst_id;
-
-    g_object_get (self->priv->element, "src", &src_machine, "dst",
-        &dst_machine, NULL);
-    g_object_get (src_machine, "id", &src_id, NULL);
-    g_object_get (dst_machine, "id", &dst_id, NULL);
-    // set dialog title : machine -> machine analysis
-    title = g_strdup_printf (_("%s -> %s analysis"), src_id, dst_id);
-    g_object_unref (src_machine);
-    g_object_unref (dst_machine);
-    g_free (src_id);
-    g_free (dst_id);
-  } else if (BT_IS_SINK_MACHINE (self->priv->element)) {
-    title = g_strdup (_("master analysis"));
+  // sync title with element name
+  if (BT_IS_WIRE (self->priv->element)
+      || BT_IS_SINK_MACHINE (self->priv->element)) {
+    g_object_bind_property_full (self->priv->element, "pretty-name",
+        (GObject *) self, "title", G_BINDING_SYNC_CREATE,
+        bt_label_value_changed, NULL, _("%s analysis"), NULL);
   } else {
     GST_WARNING ("unsupported object for signal analyser: %s,%p",
         G_OBJECT_TYPE_NAME (self->priv->element), self->priv->element);
-  }
-  if (title) {
-    gtk_window_set_title (GTK_WINDOW (self), title);
-    g_free (title);
   }
 
   table = gtk_grid_new ();
