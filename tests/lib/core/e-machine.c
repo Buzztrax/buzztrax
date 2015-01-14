@@ -350,6 +350,42 @@ test_bt_machine_state_solo_unmutes_others (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_machine_pretty_name (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *src =
+      BT_MACHINE (bt_source_machine_new (song, "audiotestsrc", "audiotestsrc",
+          0L, NULL));
+
+  GST_INFO ("-- act --");
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_str_eq (src, "pretty-name", "audiotestsrc");
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
+static void
+test_bt_machine_pretty_name_with_detail (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *src =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+          NULL));
+
+  GST_INFO ("-- act --");
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_str_eq (src, "pretty-name", "gen (audiotestsrc)");
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
 TCase *
 bt_machine_example_case (void)
 {
@@ -369,6 +405,8 @@ bt_machine_example_case (void)
   tcase_add_test (tc, test_bt_machine_change_voices);
   tcase_add_test (tc, test_bt_machine_state_mute_no_sideeffects);
   tcase_add_test (tc, test_bt_machine_state_solo_unmutes_others);
+  tcase_add_test (tc, test_bt_machine_pretty_name);
+  tcase_add_test (tc, test_bt_machine_pretty_name_with_detail);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
