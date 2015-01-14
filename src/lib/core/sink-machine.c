@@ -29,6 +29,13 @@
 #include "core_private.h"
 #include "sink-machine.h"
 
+//-- property ids
+
+enum
+{
+  MACHINE_PRETTY_NAME = 1
+};
+
 //-- the class
 
 static void bt_sink_machine_persistence_interface_init (gpointer const g_iface,
@@ -221,6 +228,20 @@ bt_sink_machine_constructed (GObject * object)
   }
 }
 
+static void
+bt_sink_machine_get_property (GObject * const object, const guint property_id,
+    GValue * const value, GParamSpec * const pspec)
+{
+  switch (property_id) {
+    case MACHINE_PRETTY_NAME:
+      g_object_get_property (object, "id", value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+  }
+}
+
 //-- class internals
 
 static void
@@ -237,9 +258,14 @@ bt_sink_machine_class_init (BtSinkMachineClass * klass)
   BtMachineClass *const machine_class = BT_MACHINE_CLASS (klass);
 
   gobject_class->constructed = bt_sink_machine_constructed;
+  gobject_class->get_property = bt_sink_machine_get_property;
 
   machine_class->check_type = bt_sink_machine_check_type;
 
   gst_element_class_add_pad_template (gstelement_klass,
       gst_static_pad_template_get (&machine_sink_template));
+
+  // we don't want to expose the factory name here
+  g_object_class_override_property (gobject_class, MACHINE_PRETTY_NAME,
+      "pretty-name");
 }

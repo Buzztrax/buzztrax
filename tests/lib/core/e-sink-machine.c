@@ -292,9 +292,9 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
   latency_time = GST_TIME_AS_USECONDS ((GST_SECOND * 60) / (bpm * tpb * st));
 
   GST_INFO_OBJECT (sink,
-      "bpm=%3lu=%3lu, tpb=%lu=%lu, stpb=%2lu, target-latency=%2u , latency-time=%6" G_GINT64_FORMAT "=%6"
-      G_GINT64_FORMAT ", delta=%+4" G_GINT64_FORMAT, bpm, c_bpm, tpb, c_tpb, st,
-      latency, latency_time, c_latency_time,
+      "bpm=%3lu=%3lu, tpb=%lu=%lu, stpb=%2lu, target-latency=%2u , latency-time=%6"
+      G_GINT64_FORMAT "=%6" G_GINT64_FORMAT ", delta=%+4" G_GINT64_FORMAT, bpm,
+      c_bpm, tpb, c_tpb, st, latency, latency_time, c_latency_time,
       (latency_time - ((gint) latency * 1000)) / 1000);
 
   ck_assert_ulong_eq (c_bpm, bpm);
@@ -307,6 +307,23 @@ Cleanup:
   g_object_unref (song_info);
   BT_TEST_END;
 }
+
+static void
+test_bt_sink_machine_pretty_name (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
+
+  GST_INFO ("-- act --");
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_str_eq (machine, "pretty-name", "master");
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
 
 TCase *
 bt_sink_machine_example_case (void)
@@ -322,6 +339,7 @@ bt_sink_machine_example_case (void)
   tcase_add_test (tc, test_bt_sink_machine_fallback);
   tcase_add_test (tc, test_bt_sink_machine_actual_sink);
   tcase_add_loop_test (tc, test_bt_sink_machine_latency, 0, 64);
+  tcase_add_test (tc, test_bt_sink_machine_pretty_name);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
