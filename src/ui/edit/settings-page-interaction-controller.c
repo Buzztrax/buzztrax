@@ -120,7 +120,6 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
   BtSettingsPageInteractionController *self =
       BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (user_data);
   GObject *device = NULL;
-  BtIcControl *control;
   BtObjectListModel *store;
   GtkTreeModel *model;
   GtkTreeIter iter;
@@ -145,8 +144,7 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
   if (device) {
     g_object_get (device, "controls", &list, NULL);
     for (node = list; node; node = g_list_next (node)) {
-      control = BTIC_CONTROL (node->data);
-      bt_object_list_model_append (store, (GObject *) control);
+      bt_object_list_model_append (store, (GObject *) node->data);
     }
     g_list_free (list);
 
@@ -178,7 +176,6 @@ on_ic_registry_devices_changed (BtIcRegistry * ic_registry, GParamSpec * arg,
 {
   BtSettingsPageInteractionController *self =
       BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (user_data);
-  BtIcDevice *device = NULL;
   GList *node, *list;
   BtObjectListModel *store;
 
@@ -187,19 +184,17 @@ on_ic_registry_devices_changed (BtIcRegistry * ic_registry, GParamSpec * arg,
   store = bt_object_list_model_new (1, BTIC_TYPE_DEVICE, "name");
   g_object_get (ic_registry, "devices", &list, NULL);
   for (node = list; node; node = g_list_next (node)) {
-    device = BTIC_DEVICE (node->data);
-    bt_object_list_model_append (store, (GObject *) device);
+    bt_object_list_model_append (store, (GObject *) node->data);
   }
-  g_list_free (list);
 
   GST_INFO ("device menu refreshed");
-  gtk_label_set_text (self->priv->message, (device == NULL) ? NULL :
+  gtk_label_set_text (self->priv->message, (list == NULL) ? NULL :
       _("Plug a USB input device or midi controller"));
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->device_menu),
-      (device != NULL));
+      (list != NULL));
   gtk_combo_box_set_model (self->priv->device_menu, GTK_TREE_MODEL (store));
-  gtk_combo_box_set_active (self->priv->device_menu,
-      ((device != NULL) ? 0 : -1));
+  gtk_combo_box_set_active (self->priv->device_menu, ((list != NULL) ? 0 : -1));
+  g_list_free (list);
   g_object_unref (store);       // drop with comboxbox
 }
 
