@@ -33,8 +33,11 @@
  * - allow to rename devices (and controls)?
  * - allow to hide devices
  * - allow to limit the value range (e.g. for the accelerometer)
- * - auto-run learn mode to applicable devices
+ * - auto-run learn mode to applicable devices (allows mass learning)
  *   - make the control-name editable
+ *   - if that works, can we kill learn-dialog and redirect the "learn.."
+ *     to this settings page with the right device selected
+ *     g_object_set(dialog, "page", BT_SETTINGS_PAGE_INTERACTION_CONTROLLER, NULL);
  */
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_INTERACTION_CONTROLLER_C
@@ -257,11 +260,6 @@ bt_settings_page_interaction_controller_init_ui (const
   gtk_table_attach (GTK_TABLE (self), label, 1, 2, 1, 2, GTK_FILL, GTK_SHRINK,
       2, 1);
   self->priv->device_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
-  /* TODO(ensonic): add icon: midi, joystick
-   * /usr/share/icons/gnome/24x24/stock/media/stock_midi.png
-   * /usr/share/gtk-doc/html/libgimpwidgets/stock-controller-midi-16.png
-   * /usr/share/icons/Tango/22x22/devices/joystick.png
-   */
   renderer = gtk_cell_renderer_text_new ();
   gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
