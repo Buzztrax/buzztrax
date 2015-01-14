@@ -275,8 +275,6 @@ bt_settings_page_interaction_controller_init_ui (const
       G_CALLBACK (on_ic_registry_devices_changed), (gpointer) self);
   on_ic_registry_devices_changed (ic_registry, NULL, (gpointer) self);
   g_object_unref (ic_registry);
-
-  gtk_combo_box_set_active (self->priv->device_menu, 0);
   gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->device_menu), 2,
       3, 1, 2, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
   g_signal_connect (self->priv->device_menu, "changed",
