@@ -35,9 +35,9 @@ typedef struct _BtPlaybackControllerSocketClass BtPlaybackControllerSocketClass;
 typedef struct _BtPlaybackControllerSocketPrivate BtPlaybackControllerSocketPrivate;
 
 /**
- *BtPlaybackControllerSocket:
+ * BtPlaybackControllerSocket:
  *
- * the root window for the editor application
+ * Opaque playback controller handle.
  */
 struct _BtPlaybackControllerSocket {
   GObject parent;
