@@ -3246,7 +3246,7 @@ bt_machine_get_property (GObject * const object, const guint property_id,
           factory_name[len] == '-') {
         factory_name = &factory_name[len + 1];
       }
-      GST_INFO_OBJECT ("%s|%s", self->priv->id, factory_name);
+      GST_DEBUG_OBJECT (self, "%s|%s", self->priv->id, factory_name);
       if (!g_str_has_prefix (self->priv->id, factory_name)) {
         g_value_take_string (value, g_strdup_printf ("%s (%s)",
                 self->priv->id, factory_name));
