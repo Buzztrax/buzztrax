@@ -515,27 +515,27 @@ GHashTable *
 bt_settings_parse_ic_playback_spec (const gchar * spec)
 {
   GHashTable *ht;
-  gchar **part, **parts;
-  gchar *key, *value;
-
-  if (!BT_IS_STRING (spec))
-    return NULL;
 
   ht = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  parts = g_strsplit (spec, "\n", 0);
-  for (part = parts; BT_IS_STRING (*part); part++) {
-    key = *part;
-    value = strchr (key, '\t');
-    if (value) {
-      *value = '\0';
-      value++;
-      g_strchomp (value);
-      g_hash_table_insert (ht, g_strdup (key), g_strdup (value));
-    } else {
-      GST_WARNING ("missing '\t' in entry '%s'", key);
+  if (BT_IS_STRING (spec)) {
+    gchar **part, **parts;
+    gchar *key, *value;
+
+    parts = g_strsplit (spec, "\n", 0);
+    for (part = parts; BT_IS_STRING (*part); part++) {
+      key = *part;
+      value = strchr (key, '\t');
+      if (value) {
+        *value = '\0';
+        value++;
+        g_strchomp (value);
+        g_hash_table_insert (ht, g_strdup (key), g_strdup (value));
+      } else {
+        GST_WARNING ("missing '\t' in entry '%s'", key);
+      }
     }
+    g_strfreev (parts);
   }
-  g_strfreev (parts);
   return ht;
 }
 
