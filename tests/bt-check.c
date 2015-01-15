@@ -36,7 +36,6 @@
 #include <unistd.h>
 //-- glib
 #include <glib/gstdio.h>
-#include <gio/gsettingsbackend.h>
 
 #include "bt-check.h"
 
