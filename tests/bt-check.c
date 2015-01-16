@@ -698,6 +698,22 @@ check_run_main_loop_until_eos_or_error (BtSong * song)
   check_run_main_loop_until_msg_or_error (song, "message::eos");
 }
 
+// gstreamer registry
+
+void
+check_remove_gst_feature (gchar * feature_name)
+{
+  GstRegistry *registry = gst_registry_get ();
+  GstPluginFeature *feature;
+
+  if ((feature = gst_registry_lookup_feature (registry, feature_name))) {
+    gst_registry_remove_feature (registry, feature);
+    gst_object_unref (feature);
+  } else {
+    GST_WARNING ("feature not found");
+  }
+}
+
 // test file access
 
 const gchar *

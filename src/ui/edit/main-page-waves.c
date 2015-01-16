@@ -402,7 +402,8 @@ update_audio_sink (const BtMainPageWaves * self)
   GstElement *sink;
 
   // check current state
-  if (gst_element_get_state (GST_ELEMENT (self->priv->playbin), &state, NULL,
+  if (self->priv->playbin
+      && gst_element_get_state (GST_ELEMENT (self->priv->playbin), &state, NULL,
           0) == GST_STATE_CHANGE_SUCCESS) {
     if (state > GST_STATE_READY) {
       gst_element_set_state (self->priv->playbin, GST_STATE_READY);
@@ -420,8 +421,9 @@ update_audio_sink (const BtMainPageWaves * self)
   }
   // determine sink element
   if ((sink = make_audio_sink (self))) {
-    g_object_set (self->priv->playbin, "audio-sink", sink, NULL);
-
+    if (self->priv->playbin) {
+      g_object_set (self->priv->playbin, "audio-sink", sink, NULL);
+    }
     if (self->priv->preview) {
       GstPad *pad, *peer_pad;
       GstPadLinkReturn plr;
@@ -927,6 +929,9 @@ static void
 on_browser_preview_sample (GtkFileChooser * chooser, gpointer user_data)
 {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
+
+  if (!self->priv->playbin)
+    return;
 
   // get current entry and play
   if (self->priv->preview_in_chooser) {
@@ -1554,9 +1559,6 @@ bt_main_page_waves_new (const BtMainPages * pages)
   self = BT_MAIN_PAGE_WAVES (g_object_new (BT_TYPE_MAIN_PAGE_WAVES, NULL));
   bt_main_page_waves_init_ui (self, pages);
 
-  // create playbin
-  self->priv->playbin = gst_element_factory_make ("playbin", NULL);
-
   // watch settings changes
   g_signal_connect (self->priv->settings, "notify::audiosink",
       G_CALLBACK (on_audio_sink_changed), (gpointer) self);
@@ -1592,9 +1594,10 @@ bt_main_page_waves_dispose (GObject * object)
   g_object_unref (self->priv->app);
 
   // shut down loader-preview playbin
-  gst_element_set_state (self->priv->playbin, GST_STATE_NULL);
-  gst_object_unref (self->priv->playbin);
-
+  if (self->priv->playbin) {
+    gst_element_set_state (self->priv->playbin, GST_STATE_NULL);
+    gst_object_unref (self->priv->playbin);
+  }
   // shut down wavetable-preview playbin
   if (self->priv->preview) {
     GstBus *bus;
@@ -1631,6 +1634,8 @@ bt_main_page_waves_init (BtMainPageWaves * self)
   self->priv->settings = bt_settings_make ();
   self->priv->n2f =
       gstbt_tone_conversion_new (GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT);
+
+  self->priv->playbin = gst_element_factory_make ("playbin", NULL);
 
   gtk_orientable_set_orientation (GTK_ORIENTABLE (self),
       GTK_ORIENTATION_VERTICAL);

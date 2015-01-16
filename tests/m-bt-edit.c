@@ -57,6 +57,7 @@ BT_TEST_SUITE_E ("BtMainPageInfo", bt_main_page_info);
 BT_TEST_SUITE_E ("BtMainPageMachines", bt_main_page_machines);
 BT_TEST_SUITE_T_E ("BtMainPagePatterns", bt_main_page_patterns);
 BT_TEST_SUITE_E ("BtMainPageSequence", bt_main_page_sequence);
+BT_TEST_SUITE_T ("BtMainPageWaves", bt_main_page_waves);
 BT_TEST_SUITE_E ("BtMainPages", bt_main_pages);
 BT_TEST_SUITE_E ("BtMainWindow", bt_main_window);
 BT_TEST_SUITE_E ("BtMissingFrameworkElementsDialog",
@@ -204,6 +205,7 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_main_page_machines_suite ());
   srunner_add_suite (sr, bt_main_page_patterns_suite ());
   srunner_add_suite (sr, bt_main_page_sequence_suite ());
+  srunner_add_suite (sr, bt_main_page_waves_suite ());
   srunner_add_suite (sr, bt_main_pages_suite ());
   srunner_add_suite (sr, bt_main_window_suite ());
   srunner_add_suite (sr, bt_missing_framework_elements_dialog_suite ());

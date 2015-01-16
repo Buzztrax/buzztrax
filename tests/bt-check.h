@@ -171,6 +171,8 @@ void check_run_main_loop_for_usec(gulong usec);
 void check_run_main_loop_until_playing_or_error(BtSong * song);
 void check_run_main_loop_until_eos_or_error(BtSong * song);
 
+void check_remove_gst_feature(gchar *feature_name);
+
 const gchar *check_get_test_song_path(const gchar *name);
 
 gboolean check_file_contains_str(FILE *input_file, gchar *input_file_name, gchar *string);
