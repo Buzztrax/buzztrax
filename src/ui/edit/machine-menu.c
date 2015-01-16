@@ -144,6 +144,14 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
   /* list of known gstreamer elements that are not useful under buzztrax,
    * but we can't detect otherwise */
   const gchar *blacklist[] = {
+    /* - 'delay' and 'max-delay' are guint64 which is hard to handle in the UI
+     * - 'max-delay' is not controlable and therefore hard to discover in the UI
+     */
+    "audioecho",
+    /* - 'amplification' is gdouble range, even a tick of a slider turn every
+     *   signal into noise
+     */
+    "audioamplify",
     "audiorate",
     "dtmfsrc",
     "interaudiosrc",
