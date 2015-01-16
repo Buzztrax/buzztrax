@@ -34,8 +34,7 @@ HFILE_GLOB=$(top_srcdir)/src/lib/core/*.h $(top_srcdir)/src/lib/core/songio/*/*.
 CFILE_GLOB=$(top_srcdir)/src/lib/core/*.c $(top_srcdir)/src/lib/core/songio/*/*.c
 
 # Header files to ignore when scanning.
-IGNORE_HFILES=core_private.h settings-private.h marshal.h version.h \
-  plainfile-settings.h \
+IGNORE_HFILES=core_private.h marshal.h version.h \
   bsl.h song-io-buzz-private.h
 
 # Images to copy into HTML directory.
