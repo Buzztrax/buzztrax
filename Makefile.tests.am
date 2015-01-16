@@ -47,7 +47,7 @@ noinst_PROGRAMS=$(TESTS_BIN)
 /tmp/test.wav:
 	$(AM_V_GEN) gst-launch-@GST_MAJORMINOR@ -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=$@
 
-gschemas.compiled:
+gschemas.compiled: org.buzztrax.gschema.xml
 	$(AM_V_GEN) $(GLIB_COMPILE_SCHEMAS) .
 
 tests/bt-cmd-info.sh:
