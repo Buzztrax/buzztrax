@@ -1242,6 +1242,8 @@ on_uint64_entry_property_changed (GtkEditable * editable, gpointer user_data)
   guint64 clamped_value, value =
       g_ascii_strtoull (gtk_entry_get_text (GTK_ENTRY (editable)), NULL, 10);
 
+  GST_INFO ("property value change received");
+
   g_signal_handlers_block_matched (range,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_uint64_range_property_changed, (gpointer) user_data);
@@ -1250,6 +1252,7 @@ on_uint64_entry_property_changed (GtkEditable * editable, gpointer user_data)
   g_signal_handlers_unblock_matched (range,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_uint64_range_property_changed, (gpointer) user_data);
+
   g_signal_handlers_block_matched (param_parent,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_uint64_range_property_notify, (gpointer) range);
@@ -2095,8 +2098,14 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
       guint64 value;
 
       g_object_get (object, property->name, &value, NULL);
+      g_signal_handlers_block_matched (widget2,
+          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+          on_uint64_entry_property_changed, (gpointer) object);
       update_uint64_range_entry (self, GTK_RANGE (widget1), object,
           GTK_ENTRY (widget2), (gdouble) value);
+      g_signal_handlers_unblock_matched (widget2,
+          G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+          on_uint64_entry_property_changed, (gpointer) object);
       break;
     }
     case G_TYPE_FLOAT:{
