@@ -307,12 +307,18 @@ LOOPS ?= 10
 	$(TESTS_ENVIRONMENT)	\
 	gdb ./$*
 
-# make (test).refdbg   -- start up refdbg for the given test
+# make (test).refdbg   -- run test under refdbg
 %.refdbg: %
 	@CK_FORK=no		\
 	$(TESTS_ENVIRONMENT)	\
 	refdbg -c "btnum=20 ; logobjs=0 ; $(REFDBG_RULE)" \
 	./$*
+
+# make (test).strace  -- run test under strace
+%.strace: %
+	@CK_FORK=no		\
+	$(TESTS_ENVIRONMENT)	\
+	strace -e file -o /tmp/strace.log ./$*
 
 ## todo: check if code has been compiled using --enable-debug
 ##
