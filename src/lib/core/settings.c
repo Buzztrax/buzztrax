@@ -554,17 +554,17 @@ bt_settings_format_ic_playback_spec (GHashTable * ht)
   gpointer *keys;
   guint num_keys, i;
 
-  if (!ht || !g_hash_table_size (ht))
+  if (!ht || !g_hash_table_size (ht)) {
+    GST_WARNING ("ht is %s", (ht ? "empty" : "NULL"));
     return NULL;
+  }
 
   spec = g_string_new ("");
   keys = g_hash_table_get_keys_as_array (ht, &num_keys);
   g_qsort_with_data (keys, num_keys, sizeof (gchar *),
       (GCompareDataFunc) compare_strings, NULL);
-  GST_WARNING ("sorted %d keys", num_keys);
 
   for (i = 0; i < num_keys; i++) {
-    GST_WARNING ("formatting '%s'", (gchar *) keys[i]);
     g_string_append_printf (spec, "%s\t%s\n", (gchar *) keys[i],
         (gchar *) g_hash_table_lookup (ht, keys[i]));
   }
