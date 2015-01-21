@@ -65,11 +65,12 @@ on_wavelevel_property_changed (BtWavelevel * wavelevel, GParamSpec * arg,
   GSequence *seq = model->priv->seq;
   GtkTreePath *path;
   GtkTreeIter iter;
-  gint pos;
+  gint pos, len;
 
   // find the item by pattern (cannot use model_item_cmp, as id has changed)
   iter.stamp = model->priv->stamp;
-  for (pos = 0; pos < g_sequence_get_length (seq); pos++) {
+  len = g_sequence_get_length (seq);
+  for (pos = 0; pos < len; pos++) {
     iter.user_data = g_sequence_get_iter_at_pos (seq, pos);
     if (g_sequence_get (iter.user_data) == wavelevel) {
       break;

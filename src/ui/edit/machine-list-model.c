@@ -169,11 +169,12 @@ on_machine_id_changed (BtMachine * machine, GParamSpec * arg,
   GSequence *seq = model->priv->seq;
   GtkTreePath *path;
   GtkTreeIter iter;
-  gint pos1, pos2 = -1;
+  gint pos1, pos2 = -1, len;
 
   // find the item by machine (cannot use model_item_cmp, as id has changed)
   iter.stamp = model->priv->stamp;
-  for (pos1 = 0; pos1 < g_sequence_get_length (seq); pos1++) {
+  len = g_sequence_get_length (seq);
+  for (pos1 = 0; pos1 < len; pos1++) {
     iter.user_data = g_sequence_get_iter_at_pos (seq, pos1);
     if (g_sequence_get (iter.user_data) == machine) {
       g_sequence_sort_changed (iter.user_data, model_item_cmp, NULL);
