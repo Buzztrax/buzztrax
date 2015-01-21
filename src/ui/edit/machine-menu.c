@@ -145,7 +145,9 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
    * but we can't detect otherwise */
   const gchar *blacklist[] = {
     /* - 'delay' and 'max-delay' are guint64 which is hard to handle in the UI
+     *   also having it as ns instead of ms or sec (double) is impractical
      * - 'max-delay' is not controlable and therefore hard to discover in the UI
+     * => we can make max-delay controlable to make this usable again
      */
     "audioecho",
     /* - 'amplification' is gdouble range, even a tick of a slider turn every
