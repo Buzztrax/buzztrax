@@ -115,7 +115,7 @@ _object_list_model_insert (BtObjectListModel * model, GObject * object,
     return;
 
   iter.stamp = model->priv->stamp;
-  iter.user_data = g_sequence_insert_before (seq_iter, object);
+  iter.user_data = g_sequence_insert_before (seq_iter, g_object_ref (object));
 
   path = gtk_tree_path_new ();
   gtk_tree_path_append_index (path, position);
@@ -383,6 +383,18 @@ bt_object_list_model_tree_model_init (gpointer const g_iface,
 //-- class internals
 
 static void
+bt_object_list_model_dispose (GObject * object)
+{
+  BtObjectListModel *self = BT_OBJECT_LIST_MODEL (object);
+
+  GST_DEBUG ("!!!! self=%p", self);
+
+  g_sequence_foreach (self->priv->seq, (GFunc) g_object_unref, NULL);
+
+  G_OBJECT_CLASS (bt_object_list_model_parent_class)->dispose (object);
+}
+
+static void
 bt_object_list_model_finalize (GObject * object)
 {
   BtObjectListModel *self = BT_OBJECT_LIST_MODEL (object);
@@ -414,5 +426,6 @@ bt_object_list_model_class_init (BtObjectListModelClass * klass)
 
   g_type_class_add_private (klass, sizeof (BtObjectListModelPrivate));
 
+  gobject_class->dispose = bt_object_list_model_dispose;
   gobject_class->finalize = bt_object_list_model_finalize;
 }
