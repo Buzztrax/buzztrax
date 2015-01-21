@@ -164,7 +164,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
                   btic_device_get_control_by_id (BTIC_DEVICE (self), key))) {
             g_object_set (control, "value", (gint32) (ctrl->value), NULL);
           } else if (G_UNLIKELY (self->priv->learn_mode)) {
-            static gchar name[20];
+            static gchar name[30];
 
             sprintf (name, "control-change-7bit %u", key);
             update_learn_info (self, name, key, 7);
@@ -178,7 +178,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
                   btic_device_get_control_by_id (BTIC_DEVICE (self), key))) {
             g_object_set (control, "value", (gint32) (ctrl->value), NULL);
           } else if (G_UNLIKELY (self->priv->learn_mode)) {
-            static gchar name[20];
+            static gchar name[30];
 
             sprintf (name, "control-change-14bit %u", key);
             update_learn_info (self, name, key, 14);
