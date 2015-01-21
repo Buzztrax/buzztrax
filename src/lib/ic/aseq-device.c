@@ -289,6 +289,7 @@ btic_aseq_device_stop (gconstpointer _self)
   // stop the io-loop
   if (p->io) {
     g_hash_table_destroy (p->io);
+    p->io = NULL;
   }
   if (p->src_port >= 0) {
     snd_seq_delete_simple_port (klass->seq, p->src_port);
