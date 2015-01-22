@@ -78,6 +78,22 @@ G_DEFINE_TYPE (BtSettingsPageInteractionController,
 
 //-- helper
 
+static gint
+get_control_pos (BtIcLearn * device, BtIcControl * control)
+{
+  GList *node, *list;
+  gint pos;
+
+  g_object_get (device, "controls", &list, NULL);
+  for (pos = 0, node = list; node; node = g_list_next (node), pos++) {
+    if (node->data == control) {
+      GST_DEBUG ("found control at pos %d", pos);
+      return pos;
+    }
+  }
+  GST_WARNING ("expected control in list");
+  return 0;
+}
 
 //-- event handler
 
@@ -94,23 +110,18 @@ notify_device_controlchange (const BtIcLearn * learn,
   control = btic_learn_register_learned_control (self->priv->device, id);
   g_free (id);
   if (control) {
-    GList *node, *list;
-    gint pos;
+    gint pos = get_control_pos (self->priv->device, control);
+    GtkTreePath *path = gtk_tree_path_new_from_indices (pos, -1);
+
     // add the new control to the list
-    BtObjectListModel *store =
-        BT_OBJECT_LIST_MODEL (gtk_tree_view_get_model (self->priv->
-            controller_list));
-
-    // find the position
-    g_object_get (self->priv->device, "controls", &list, NULL);
-    for (pos = 0, node = list; node; node = g_list_next (node), pos++) {
-      if (node->data == control) {
-        GST_DEBUG ("found control at pos %d", pos);
-        break;
-      }
-    }
-
-    bt_object_list_model_insert (store, (GObject *) control, pos);
+    bt_object_list_model_insert (BT_OBJECT_LIST_MODEL (gtk_tree_view_get_model
+            (self->priv->controller_list)), (GObject *) control, pos);
+    // select the control
+    gtk_tree_view_set_cursor (self->priv->controller_list, path,
+        gtk_tree_view_get_column (self->priv->controller_list,
+            CONTROLLER_LIST_LABEL), TRUE);
+    gtk_tree_path_free (path);
+    gtk_widget_grab_focus (GTK_WIDGET (self->priv->controller_list));
   }
 }
 
