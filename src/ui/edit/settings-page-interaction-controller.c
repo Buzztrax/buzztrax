@@ -30,14 +30,13 @@
  *       vmethod in subclasses
  */
 /* TODO(ensonic): configure things:
- * - allow to rename devices (and controls)?
  * - allow to hide devices
  * - allow to limit the value range (e.g. for the accelerometer)
- * - auto-run learn mode to applicable devices (allows mass learning)
- *   - make the control-name editable
- *   - if that works, can we kill learn-dialog and redirect the "learn.."
- *     to this settings page with the right device selected
- *     g_object_set(dialog, "page", BT_SETTINGS_PAGE_INTERACTION_CONTROLLER, NULL);
+ */
+/* TODO(ensonic): we could kill learn-dialog and redirect the "learn.."
+ * to this settings page with the right device selected
+ *   g_object_set(dialog, "page", BT_SETTINGS_PAGE_INTERACTION_CONTROLLER, NULL);
+ * - need a way to select the device
  */
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_INTERACTION_CONTROLLER_C
@@ -67,8 +66,8 @@ struct _BtSettingsPageInteractionControllerPrivate
   GtkLabel *message;
   GtkCellRenderer *id_renderer;
 
-  /* the active lear-device or NULL */
-  BtIcLearn *device;
+  /* the active device or NULL */
+  BtIcDevice *device;
 };
 
 //-- the class
@@ -78,8 +77,10 @@ G_DEFINE_TYPE (BtSettingsPageInteractionController,
 
 //-- helper
 
+static void release_device (BtSettingsPageInteractionController * self);
+
 static gint
-get_control_pos (BtIcLearn * device, BtIcControl * control)
+get_control_pos (BtIcDevice * device, BtIcControl * control)
 {
   GList *node, *list;
   gint pos;
@@ -98,16 +99,33 @@ get_control_pos (BtIcLearn * device, BtIcControl * control)
 //-- event handler
 
 static void
-notify_device_controlchange (const BtIcLearn * learn,
-    GParamSpec * arg, const BtInteractionControllerLearnDialog * user_data)
+notify_controlchange (BtIcControl * control, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtSettingsPageInteractionController *self =
+      BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (user_data);
+  gint pos = get_control_pos (self->priv->device, control);
+  GtkTreePath *path = gtk_tree_path_new_from_indices (pos, -1);
+
+  // select the control
+  gtk_widget_grab_focus (GTK_WIDGET (self->priv->controller_list));
+  gtk_tree_view_set_cursor (self->priv->controller_list, path,
+      gtk_tree_view_get_column (self->priv->controller_list,
+          CONTROLLER_LIST_LABEL), TRUE);
+  gtk_tree_path_free (path);
+}
+
+static void
+notify_device_controlchange (BtIcLearn * learn, GParamSpec * arg,
+    gpointer user_data)
 {
   BtSettingsPageInteractionController *self =
       BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (user_data);
   gchar *id;
   BtIcControl *control;
 
-  g_object_get (self->priv->device, "device-controlchange", &id, NULL);
-  control = btic_learn_register_learned_control (self->priv->device, id);
+  g_object_get (learn, "device-controlchange", &id, NULL);
+  control = btic_learn_register_learned_control (learn, id);
   g_free (id);
   if (control) {
     gint pos = get_control_pos (self->priv->device, control);
@@ -117,11 +135,14 @@ notify_device_controlchange (const BtIcLearn * learn,
     bt_object_list_model_insert (BT_OBJECT_LIST_MODEL (gtk_tree_view_get_model
             (self->priv->controller_list)), (GObject *) control, pos);
     // select the control
+    gtk_widget_grab_focus (GTK_WIDGET (self->priv->controller_list));
     gtk_tree_view_set_cursor (self->priv->controller_list, path,
         gtk_tree_view_get_column (self->priv->controller_list,
             CONTROLLER_LIST_LABEL), TRUE);
     gtk_tree_path_free (path);
-    gtk_widget_grab_focus (GTK_WIDGET (self->priv->controller_list));
+
+    g_signal_connect (control, "notify::value",
+        G_CALLBACK (notify_controlchange), (gpointer) self);
   }
 }
 
@@ -137,11 +158,7 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
   GList *node, *list;
 
   if (self->priv->device) {
-    btic_learn_stop (self->priv->device);
-    g_signal_handlers_disconnect_by_func (self->priv->device,
-        notify_device_controlchange, self);
-    g_object_unref (self->priv->device);
-    self->priv->device = NULL;
+    release_device (self);
   }
 
   GST_INFO ("interaction controller device changed");
@@ -156,19 +173,22 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
     g_object_get (device, "controls", &list, NULL);
     for (node = list; node; node = g_list_next (node)) {
       bt_object_list_model_append (store, (GObject *) node->data);
+      g_signal_connect (node->data, "notify::value",
+          G_CALLBACK (notify_controlchange), (gpointer) self);
     }
     g_list_free (list);
 
+    self->priv->device = g_object_ref (device);
     if (BTIC_IS_LEARN (device)) {
-      self->priv->device = BTIC_LEARN (g_object_ref (device));
       g_signal_connect (self->priv->device, "notify::device-controlchange",
           G_CALLBACK (notify_device_controlchange), (gpointer) self);
-      btic_learn_start (self->priv->device);
+      btic_learn_start (BTIC_LEARN (self->priv->device));
       gtk_label_set_text (self->priv->message,
           _("Use the device's controls to train them."));
       g_object_set (self->priv->id_renderer,
           "mode", GTK_CELL_RENDERER_MODE_EDITABLE, "editable", TRUE, NULL);
     } else {
+      btic_device_start (self->priv->device);
       gtk_label_set_text (self->priv->message, NULL);
       g_object_set (self->priv->id_renderer,
           "mode", GTK_CELL_RENDERER_MODE_INERT, "editable", FALSE, NULL);
@@ -234,6 +254,27 @@ on_control_name_edited (GtkCellRendererText * cellrenderertext,
 }
 
 //-- helper methods
+
+static void
+release_device (BtSettingsPageInteractionController * self)
+{
+  if (BTIC_IS_LEARN (self->priv->device)) {
+    btic_learn_stop (BTIC_LEARN (self->priv->device));
+    g_signal_handlers_disconnect_by_func (self->priv->device,
+        notify_device_controlchange, self);
+  } else {
+    GList *node, *list;
+    btic_device_stop (self->priv->device);
+    g_object_get (self->priv->device, "controls", &list, NULL);
+    for (node = list; node; node = g_list_next (node)) {;
+      g_signal_handlers_disconnect_by_func (node->data,
+          notify_controlchange, (gpointer) self);
+    }
+    g_list_free (list);
+  }
+  g_object_unref (self->priv->device);
+  self->priv->device = NULL;
+}
 
 static void
 bt_settings_page_interaction_controller_init_ui (const
@@ -321,6 +362,7 @@ bt_settings_page_interaction_controller_init_ui (const
   gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->message), 0, 3,
       3, 4, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
 
+  // TODO(ensonic): start/stop depending on visibility of the page
   on_device_menu_changed (self->priv->device_menu, (gpointer) self);
 }
 
@@ -366,10 +408,7 @@ bt_settings_page_interaction_controller_dispose (GObject * object)
   GST_DEBUG ("!!!! self=%p", self);
 
   if (self->priv->device) {
-    btic_learn_stop (self->priv->device);
-    g_signal_handlers_disconnect_by_func (self->priv->device,
-        notify_device_controlchange, self);
-    g_object_unref (self->priv->device);
+    release_device (self);
   }
 
   g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);
