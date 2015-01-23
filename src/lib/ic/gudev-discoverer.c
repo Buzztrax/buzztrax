@@ -175,6 +175,7 @@ on_uevent (GUdevClient * client, gchar * action, GUdevDevice * udevice,
       device =
           BTIC_DEVICE (btic_input_device_new (udi, cat_full_name, devnode));
       g_free (cat_full_name);
+#ifndef USE_ALSA
     } else if (!strcmp (subsystem, "sound")) {
       /* http://cgit.freedesktop.org/hal/tree/hald/linux/device.c#n3509 */
       if (!strncmp (name, "midiC", 5)) {
@@ -190,6 +191,7 @@ on_uevent (GUdevClient * client, gchar * action, GUdevDevice * udevice,
             BTIC_DEVICE (btic_midi_device_new (udi, cat_full_name, devnode));
         g_free (cat_full_name);
       }
+#endif
     }
 
     if (free_full_name) {
