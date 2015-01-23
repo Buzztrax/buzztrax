@@ -15,44 +15,44 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BT_PLAYBACK_CONTROLLER_MIDI_H
-#define BT_PLAYBACK_CONTROLLER_MIDI_H
+#ifndef BT_PLAYBACK_CONTROLLER_IC_H
+#define BT_PLAYBACK_CONTROLLER_IC_H
 
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_PLAYBACK_CONTROLLER_MIDI            (bt_playback_controller_midi_get_type ())
-#define BT_PLAYBACK_CONTROLLER_MIDI(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PLAYBACK_CONTROLLER_MIDI, BtPlaybackControllerMidi))
-#define BT_PLAYBACK_CONTROLLER_MIDI_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_PLAYBACK_CONTROLLER_MIDI, BtPlaybackControllerMidiClass))
-#define BT_IS_PLAYBACK_CONTROLLER_MIDI(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_PLAYBACK_CONTROLLER_MIDI))
-#define BT_IS_PLAYBACK_CONTROLLER_MIDI_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_PLAYBACK_CONTROLLER_MIDI))
-#define BT_PLAYBACK_CONTROLLER_MIDI_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_PLAYBACK_CONTROLLER_MIDI, BtPlaybackControllerMidiClass))
+#define BT_TYPE_PLAYBACK_CONTROLLER_IC            (bt_playback_controller_ic_get_type ())
+#define BT_PLAYBACK_CONTROLLER_IC(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PLAYBACK_CONTROLLER_IC, BtPlaybackControllerIc))
+#define BT_PLAYBACK_CONTROLLER_IC_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_PLAYBACK_CONTROLLER_IC, BtPlaybackControllerIcClass))
+#define BT_IS_PLAYBACK_CONTROLLER_IC(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_PLAYBACK_CONTROLLER_IC))
+#define BT_IS_PLAYBACK_CONTROLLER_IC_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_PLAYBACK_CONTROLLER_IC))
+#define BT_PLAYBACK_CONTROLLER_IC_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_PLAYBACK_CONTROLLER_IC, BtPlaybackControllerIcClass))
 
 /* type macros */
 
-typedef struct _BtPlaybackControllerMidi BtPlaybackControllerMidi;
-typedef struct _BtPlaybackControllerMidiClass BtPlaybackControllerMidiClass;
-typedef struct _BtPlaybackControllerMidiPrivate BtPlaybackControllerMidiPrivate;
+typedef struct _BtPlaybackControllerIc BtPlaybackControllerIc;
+typedef struct _BtPlaybackControllerIcClass BtPlaybackControllerIcClass;
+typedef struct _BtPlaybackControllerIcPrivate BtPlaybackControllerIcPrivate;
 
 /**
- *BtPlaybackControllerMidi:
+ * BtPlaybackControllerIc:
  *
- * the root window for the editor application
+ * Opaque playback controller handle.
  */
-struct _BtPlaybackControllerMidi {
+struct _BtPlaybackControllerIc {
   GObject parent;
   
   /*< private >*/
-  BtPlaybackControllerMidiPrivate *priv;
+  BtPlaybackControllerIcPrivate *priv;
 };
 
-struct _BtPlaybackControllerMidiClass {
+struct _BtPlaybackControllerIcClass {
   GObjectClass parent;
   
 };
 
-GType bt_playback_controller_midi_get_type(void) G_GNUC_CONST;
+GType bt_playback_controller_ic_get_type(void) G_GNUC_CONST;
 
-BtPlaybackControllerMidi *bt_playback_controller_midi_new(void);
+BtPlaybackControllerIc *bt_playback_controller_ic_new(void);
 
-#endif // BT_PLAYBACK_CONTROLLER_MIDI_H
+#endif // BT_PLAYBACK_CONTROLLER_IC_H

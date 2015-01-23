@@ -15,19 +15,18 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * SECTION:btplaybackcontrollermidi
- * @short_description: sockets based playback controller
+ * SECTION:btplaybackcontrolleric
+ * @short_description: interaction controller based playback controller
  *
- * Activates midi devices and listens to playback controls.
+ * Uses ic-devices and listens to configurable playback controls.
  */
-/* TODO(ensonic): baseclass + manager (see playback-controller-socket) */
 
 #define BT_EDIT
-#define BT_PLAYBACK_CONTROLLER_MIDI_C
+#define BT_PLAYBACK_CONTROLLER_IC_C
 
 #include "bt-edit.h"
 
-struct _BtPlaybackControllerMidiPrivate
+struct _BtPlaybackControllerIcPrivate
 {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
@@ -35,113 +34,230 @@ struct _BtPlaybackControllerMidiPrivate
   /* the application */
   BtEditApplication *app;
 
-  BtRegistry *registry;
+  BtIcDevice *device;
+  GHashTable *commands;
 };
 
 //-- the class
 
-G_DEFINE_TYPE (BtPlaybackControllerMidi, bt_playback_controller_midi,
+G_DEFINE_TYPE (BtPlaybackControllerIc, bt_playback_controller_ic,
     G_TYPE_OBJECT);
+
+//-- signal handlers
+
+static gboolean
+get_key_state (const BtIcControl * control, GParamSpec * arg)
+{
+  gboolean key_pressed = FALSE;
+
+  switch (arg->value_type) {
+    case G_TYPE_BOOLEAN:
+      g_object_get ((gpointer) control, arg->name, &key_pressed, NULL);
+      break;
+    case G_TYPE_LONG:{
+      glong v;
+      g_object_get ((gpointer) control, arg->name, &v, NULL);
+      key_pressed = (v > 0);
+      break;
+    }
+    default:
+      GST_WARNING ("unhandled type \"%s\"", G_PARAM_SPEC_TYPE_NAME (arg));
+      break;
+  }
+  return key_pressed;
+}
+
+static void
+on_control_notify (const BtIcControl * control, GParamSpec * arg,
+    gpointer user_data)
+{
+  BtPlaybackControllerIc *self = BT_PLAYBACK_CONTROLLER_IC (user_data);
+  if (get_key_state (control, arg)) {
+    BtSong *song;
+    gchar *cmd;
+
+    g_object_get (self->priv->app, "song", &song, NULL);
+    if (!song)
+      return;
+
+    cmd = g_hash_table_lookup (self->priv->commands, control);
+    if (cmd) {
+      if (!strcmp (cmd, "play")) {
+        bt_song_play (song);
+      } else if (!strcmp (cmd, "stop")) {
+        bt_song_stop (song);
+      } else if (!strcmp (cmd, "rewind")) {
+        // TODO(ensonic): implement, whats better?
+        // - skip ticks, like when we're scrubbing on the sequence
+        //   - needs a lot of code from main-toolbar.c, maybe this code should
+        //     be moved to song.c anyway?
+        // - adjust the rate on press down and go back to 1.0 on release
+        //
+        // - needs a timeout handler for initial timeout and for repeat while
+        //   pressed 
+        //   - nothing we can use from GtkSettings
+        //   - dconf: org.gnome.settings-daemon.peripherals.keyboard has
+        //     delay=500 ms, repeat=on/off, repeat-interval=30ms 
+      } else if (!strcmp (cmd, "forward")) {
+        // TODO(ensonic): implement, see above
+      } else {
+        GST_WARNING ("unknown command: '%s'", cmd);
+      }
+    } else {
+      GST_WARNING ("no command linked to control");
+    }
+    g_object_unref (song);
+  }
+}
 
 //-- helper methods
 
+static void
+bt_playback_controller_ic_stop (BtPlaybackControllerIc * self)
+{
+  GHashTableIter iter;
+  gpointer key, value;
+
+  if (!self->priv->device)
+    return;
+
+  // unbind controllers + stop device
+  btic_device_stop (self->priv->device);
+  g_hash_table_iter_init (&iter, self->priv->commands);
+  while (g_hash_table_iter_next (&iter, &key, &value)) {
+    g_signal_handlers_disconnect_by_func (key, on_control_notify,
+        (gpointer) self);
+  }
+
+  g_object_unref (self->priv->device);
+  self->priv->device = NULL;
+
+  g_hash_table_destroy (self->priv->commands);
+  self->priv->commands = NULL;
+}
+
+static void
+bt_playback_controller_ic_start (BtPlaybackControllerIc * self)
+{
+  BtSettings *settings;
+  GHashTable *ht;
+  gchar *spec;
+  const gchar *cfg_name;
+
+  g_object_get (self->priv->app, "settings", &settings, NULL);
+  g_object_get (settings, "ic-playback-spec", &spec, NULL);
+  ht = bt_settings_parse_ic_playback_spec (spec);
+
+  cfg_name = g_hash_table_lookup (ht, "!device");
+  if (cfg_name && (self->priv->device =
+          btic_registry_get_device_by_name (cfg_name))) {
+    BtIcControl *control;
+    GHashTableIter iter;
+    gpointer key, value;
+
+    self->priv->commands = g_hash_table_new_full (NULL, NULL, NULL, g_free);
+
+    // start device + bind controllers
+    btic_device_start (self->priv->device);
+    g_hash_table_iter_init (&iter, ht);
+    while (g_hash_table_iter_next (&iter, &key, &value)) {
+      if (((gchar *) key)[0] == '!')
+        continue;
+      if ((control = btic_device_get_control_by_name (self->priv->device,
+                  (gchar *) value))) {
+        g_signal_connect (control, "notify::value",
+            G_CALLBACK (on_control_notify), (gpointer) self);
+        g_hash_table_insert (self->priv->commands, control, g_strdup (key));
+      }
+    }
+  }
+  g_hash_table_destroy (ht);
+  g_free (spec);
+  g_object_unref (settings);
+}
 
 //-- event handler
 
-//-- helper
-
 static void
-on_settings_master_notify (BtSettings * const settings, GParamSpec * const arg,
+on_settings_active_notify (BtSettings * const settings, GParamSpec * const arg,
     gconstpointer user_data)
 {
-  BtPlaybackControllerMidi *self = BT_PLAYBACK_CONTROLLER_MIDI (user_data);
+  BtPlaybackControllerIc *self = BT_PLAYBACK_CONTROLLER_IC (user_data);
   gboolean active;
 
-  g_object_get (settings, "raw-midi-master", &active, NULL);
+  g_object_get (settings, "ic-playback-active", &active, NULL);
+  if (active) {
+    bt_playback_controller_ic_start (self);
+  } else {
+    bt_playback_controller_ic_stop (self);
+  }
 }
 
 static void
-on_settings_slave_notify (BtSettings * const settings, GParamSpec * const arg,
+on_settings_spec_notify (BtSettings * const settings, GParamSpec * const arg,
     gconstpointer user_data)
 {
-  BtPlaybackControllerMidi *self = BT_PLAYBACK_CONTROLLER_MIDI (user_data);
+  BtPlaybackControllerIc *self = BT_PLAYBACK_CONTROLLER_IC (user_data);
   gboolean active;
 
-  g_object_get (settings, "raw-midi-slave", &active, NULL);
+  g_object_get (settings, "ic-playback-active", &active, NULL);
+  if (active) {
+    bt_playback_controller_ic_stop (self);
+    bt_playback_controller_ic_start (self);
+  }
 }
-
-/* we'll do that later, see settings-page-controller
-static void on_settings_devices_notify(BtSettings * const settings, GParamSpec * const arg, gconstpointer user_data) {
-  BtPlaybackControllerMidi *self=BT_PLAYBACK_CONTROLLER_MIDI(user_data);
-  gchar *str;
-
-  g_object_get(settings,"raw-midi-devices",&str,NULL);
-  // split into a g_strv or GList
-  // store list in self
-
-  g_free(str);
-}
-*/
 
 static void
-settings_listen (BtPlaybackControllerMidi * self)
+on_ic_registry_devices_changed (BtIcRegistry * const registry,
+    GParamSpec * const arg, gconstpointer user_data)
 {
+  BtPlaybackControllerIc *self = BT_PLAYBACK_CONTROLLER_IC (user_data);
   BtSettings *settings;
+  gboolean active;
 
   g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_signal_connect (settings, "notify::raw-midi-master",
-      G_CALLBACK (on_settings_master_notify), (gpointer) self);
-  g_signal_connect (settings, "notify::raw-midi-slave",
-      G_CALLBACK (on_settings_slave_notify), (gpointer) self);
-  //g_signal_connect(settings, "notify::raw-midi-devices", G_CALLBACK(on_settings_devices_notify), (gpointer)self);
-  //on_settings_devices_notify(settings,NULL,(gpointer)self);
-  on_settings_master_notify (settings, NULL, (gpointer) self);
-  on_settings_slave_notify (settings, NULL, (gpointer) self);
+  g_object_get (settings, "ic-playback-active", &active, NULL);
   g_object_unref (settings);
-
+  if (active) {
+    bt_playback_controller_ic_stop (self);
+    bt_playback_controller_ic_start (self);
+  }
 }
 
 static void
-on_registry_devices_changed (BtIcRegistry * const registry,
-    const GParamSpec * const arg, gconstpointer const user_data)
+settings_listen (BtPlaybackControllerIc * self)
 {
-  //BtPlaybackControllerMidi *self = BT_PLAYBACK_CONTROLLER_MIDI (user_data);
-  //GList *list;
+  BtSettings *settings;
+  BtIcRegistry *ic_registry;
 
-  GST_INFO ("devices changed");
-
-  //g_object_get (registry, "devices", &list, NULL);
-  // TODO(ensonic) update list in self, start/stop devices if we're active
-  //g_list_free (list);
-}
-
-static void
-devices_listen (BtPlaybackControllerMidi * self)
-{
-  BtIcRegistry *registry;
-
-  g_object_get (self->priv->app, "ic-registry", &registry, NULL);
-  g_signal_connect (registry, "notify::devices",
-      G_CALLBACK (on_registry_devices_changed), (gpointer) self);
-  on_registry_devices_changed (registry, NULL, (gpointer) self);
-  g_object_unref (registry);
+  g_object_get (self->priv->app, "settings", &settings, "ic-registry",
+      &ic_registry, NULL);
+  g_signal_connect (settings, "notify::ic-playback-active",
+      G_CALLBACK (on_settings_active_notify), (gpointer) self);
+  g_signal_connect (settings, "notify::ic-playback-spec",
+      G_CALLBACK (on_settings_spec_notify), (gpointer) self);
+  g_signal_connect (ic_registry, "notify::devices",
+      G_CALLBACK (on_ic_registry_devices_changed), (gpointer) self);
+  on_settings_active_notify (settings, NULL, (gpointer) self);
+  g_object_unref (settings);
+  g_object_unref (ic_registry);
 }
 
 //-- constructor methods
 
 /**
- * bt_playback_controller_midi_new:
+ * bt_playback_controller_ic_new:
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
-BtPlaybackControllerMidi *
-bt_playback_controller_midi_new (void)
+BtPlaybackControllerIc *
+bt_playback_controller_ic_new (void)
 {
   return
-      BT_PLAYBACK_CONTROLLER_MIDI (g_object_new
-      (BT_TYPE_PLAYBACK_CONTROLLER_MIDI, NULL));
+      BT_PLAYBACK_CONTROLLER_IC (g_object_new
+      (BT_TYPE_PLAYBACK_CONTROLLER_IC, NULL));
 }
 
 //-- methods
@@ -151,35 +267,36 @@ bt_playback_controller_midi_new (void)
 //-- class internals
 
 static void
-bt_playback_controller_midi_dispose (GObject * object)
+bt_playback_controller_ic_dispose (GObject * object)
 {
-  BtPlaybackControllerMidi *self = BT_PLAYBACK_CONTROLLER_MIDI (object);
+  BtPlaybackControllerIc *self = BT_PLAYBACK_CONTROLLER_IC (object);
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
+  bt_playback_controller_ic_stop (self);
   g_object_try_weak_unref (self->priv->app);
 
-  G_OBJECT_CLASS (bt_playback_controller_midi_parent_class)->dispose (object);
+  G_OBJECT_CLASS (bt_playback_controller_ic_parent_class)->dispose (object);
 }
 
 static void
-bt_playback_controller_midi_finalize (GObject * object)
+bt_playback_controller_ic_finalize (GObject * object)
 {
-  BtPlaybackControllerMidi *self = BT_PLAYBACK_CONTROLLER_MIDI (object);
+  BtPlaybackControllerIc *self = BT_PLAYBACK_CONTROLLER_IC (object);
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  G_OBJECT_CLASS (bt_playback_controller_midi_parent_class)->finalize (object);
+  G_OBJECT_CLASS (bt_playback_controller_ic_parent_class)->finalize (object);
 }
 
 static void
-bt_playback_controller_midi_init (BtPlaybackControllerMidi * self)
+bt_playback_controller_ic_init (BtPlaybackControllerIc * self)
 {
   self->priv =
-      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_PLAYBACK_CONTROLLER_MIDI,
-      BtPlaybackControllerMidiPrivate);
+      G_TYPE_INSTANCE_GET_PRIVATE (self, BT_TYPE_PLAYBACK_CONTROLLER_IC,
+      BtPlaybackControllerIcPrivate);
   GST_DEBUG ("!!!! self=%p", self);
   /* this is created from the app, we need to avoid a ref-cycle */
   self->priv->app = bt_edit_application_new ();
@@ -187,17 +304,16 @@ bt_playback_controller_midi_init (BtPlaybackControllerMidi * self)
   g_object_unref (self->priv->app);
 
   // check settings
-  devices_listen (self);
   settings_listen (self);
 }
 
 static void
-bt_playback_controller_midi_class_init (BtPlaybackControllerMidiClass * klass)
+bt_playback_controller_ic_class_init (BtPlaybackControllerIcClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (klass, sizeof (BtPlaybackControllerMidiPrivate));
+  g_type_class_add_private (klass, sizeof (BtPlaybackControllerIcPrivate));
 
-  gobject_class->dispose = bt_playback_controller_midi_dispose;
-  gobject_class->finalize = bt_playback_controller_midi_finalize;
+  gobject_class->dispose = bt_playback_controller_ic_dispose;
+  gobject_class->finalize = bt_playback_controller_ic_finalize;
 }

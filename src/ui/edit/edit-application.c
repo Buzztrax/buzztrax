@@ -75,8 +75,9 @@ struct _BtEditApplicationPrivate
   gboolean unsaved;
   gboolean need_dts_reset;
 
-  /* remote playback controller */
-  BtPlaybackControllerSocket *pb_controller;
+  /* remote playback controllers */
+  BtPlaybackControllerSocket *pbc_socket;
+  BtPlaybackControllerIc *pbc_ic;
 
   /* interaction controller registry */
   BtIcRegistry *ic_registry;
@@ -880,12 +881,15 @@ bt_edit_application_constructor (GType type, guint n_construct_params,
     GST_INFO ("new edit app instantiated");
     // create or ref the shared ui resources
     singleton->priv->ui_resources = bt_ui_resources_new ();
-    // create the playback controllers (we need to create them all as they watch
-    // the settings them self)
-    singleton->priv->pb_controller = bt_playback_controller_socket_new ();
 
     // create the interaction controller registry
     singleton->priv->ic_registry = btic_registry_new ();
+
+    // create the playback controllers (we need to create them all as they watch
+    // the settings them self)
+    singleton->priv->pbc_socket = bt_playback_controller_socket_new ();
+    singleton->priv->pbc_ic = bt_playback_controller_ic_new ();
+
     // create the editor change log
     singleton->priv->change_log = bt_change_log_new ();
     g_signal_connect (singleton->priv->change_log, "notify::can-undo",
@@ -945,7 +949,8 @@ bt_edit_application_dispose (GObject * object)
 
   GST_DEBUG ("  more unrefs");
   g_object_try_unref (self->priv->ui_resources);
-  g_object_try_unref (self->priv->pb_controller);
+  g_object_try_unref (self->priv->pbc_socket);
+  g_object_try_unref (self->priv->pbc_ic);
   g_object_try_unref (self->priv->ic_registry);
   g_object_try_unref (self->priv->change_log);
   g_object_try_unref (self->priv->audio_session);
