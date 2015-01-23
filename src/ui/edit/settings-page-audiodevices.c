@@ -67,7 +67,7 @@ struct _BtSettingsPageAudiodevicesPrivate
 //-- the class
 
 G_DEFINE_TYPE (BtSettingsPageAudiodevices, bt_settings_page_audiodevices,
-    GTK_TYPE_TABLE);
+    GTK_TYPE_GRID);
 
 //-- helper
 
@@ -241,7 +241,8 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
 {
   BtSettings *settings;
   BtSettingsClass *settings_class;
-  GtkWidget *label, *spacer;
+  GtkWidget *label, *widget;
+  GtkComboBoxText *cbt;
   GtkAdjustment *spin_adjustment;
   GParamSpecUInt *pspec;
   gchar *audiosink_name, *system_audiosink_name, *str;
@@ -264,22 +265,21 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
   settings_class = BT_SETTINGS_GET_CLASS (settings);
 
   // add setting widgets
-  spacer = gtk_label_new ("    ");
   label = gtk_label_new (NULL);
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Audio Device"));
   gtk_label_set_markup (GTK_LABEL (label), str);
   g_free (str);
+  g_object_set (label, "hexpand", TRUE, NULL);
   gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 0, 3, 0, 1, GTK_FILL | GTK_EXPAND,
-      GTK_SHRINK, 2, 1);
-  gtk_table_attach (GTK_TABLE (self), spacer, 0, 1, 1, 6, GTK_SHRINK,
-      GTK_SHRINK, 2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 0, 0, 3, 1);
+  gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 5);
 
   label = gtk_label_new (_("Sink"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 1, 2, 1, 2, GTK_FILL, GTK_SHRINK,
-      2, 1);
-  self->priv->audiosink_menu = GTK_COMBO_BOX (gtk_combo_box_text_new ());
+  gtk_grid_attach (GTK_GRID (self), label, 1, 1, 1, 1);
+
+  widget = gtk_combo_box_text_new ();
+  self->priv->audiosink_menu = GTK_COMBO_BOX (widget);
 
   /* IDEA(ensonic): we could use a real combo and use markup in the cells, to
    * have the description in small font below the sink name */
@@ -291,19 +291,17 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
     str =
         g_strdup_printf (_("system default: %s (%s)"), system_audiosink_name,
         desc);
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-            priv->audiosink_menu), str);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), str);
     g_free (str);
   } else {
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-            priv->audiosink_menu), _("system default: -"));
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget),
+        _("system default: -"));
   }
 
   audiosink_factories =
       bt_gst_registry_get_element_factories_matching_all_categories
       ("Sink/Audio");
   // TODO(ensonic): sort list alphabetically/ by rank ?
-
   /* TODO(ensonic): unify with BtSettings::parse_and_check_audio_sink()
    * we should factor out the code below to a function and add a rescan button
    * -> useful if e.g. someone started jack in the meantime
@@ -376,46 +374,39 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
   GST_INFO ("current sink (is_system? %d): %lu", use_system_audiosink,
       audiosink_index);
   gtk_combo_box_set_active (self->priv->audiosink_menu, audiosink_index);
-  gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->audiosink_menu),
-      2, 3, 1, 2, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
-  g_signal_connect (self->priv->audiosink_menu, "changed",
-      G_CALLBACK (on_audiosink_menu_changed), (gpointer) self);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), widget, 2, 1, 1, 1);
+  g_signal_connect (widget, "changed", G_CALLBACK (on_audiosink_menu_changed),
+      (gpointer) self);
 
   label = gtk_label_new (_("Audio device"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 1, 2, 2, 3, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 1, 2, 1, 1);
 
-  self->priv->device_menu = GTK_COMBO_BOX (gtk_combo_box_text_new ());
+  widget = gtk_combo_box_text_new ();
+  self->priv->device_menu = GTK_COMBO_BOX (widget);
   update_device_menu (self, g_list_nth_data (self->priv->audiosink_names,
           audiosink_index - 1));
-  gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->device_menu),
-      2, 3, 2, 3, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
-  g_signal_connect (self->priv->device_menu, "changed",
-      G_CALLBACK (on_device_menu_changed), (gpointer) self);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), widget, 2, 2, 1, 1);
+  g_signal_connect (widget, "changed", G_CALLBACK (on_device_menu_changed),
+      (gpointer) self);
 
   label = gtk_label_new (_("Sampling rate"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 1, 2, 3, 4, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 1, 3, 1, 1);
 
-  self->priv->samplerate_menu = GTK_COMBO_BOX (gtk_combo_box_text_new ());
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-          priv->samplerate_menu), "8000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-          priv->samplerate_menu), "11025");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-          priv->samplerate_menu), "16000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-          priv->samplerate_menu), "22050");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-          priv->samplerate_menu), "32000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-          priv->samplerate_menu), "44100");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-          priv->samplerate_menu), "48000");
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-          priv->samplerate_menu), "96000");
+  widget = gtk_combo_box_text_new ();
+  cbt = GTK_COMBO_BOX_TEXT (widget);
+  self->priv->samplerate_menu = GTK_COMBO_BOX (widget);
+  gtk_combo_box_text_append_text (cbt, "8000");
+  gtk_combo_box_text_append_text (cbt, "11025");
+  gtk_combo_box_text_append_text (cbt, "16000");
+  gtk_combo_box_text_append_text (cbt, "22050");
+  gtk_combo_box_text_append_text (cbt, "32000");
+  gtk_combo_box_text_append_text (cbt, "44100");
+  gtk_combo_box_text_append_text (cbt, "48000");
+  gtk_combo_box_text_append_text (cbt, "96000");
   switch (sample_rate) {
     case 8000:
       sampling_rate_index = 0;
@@ -445,31 +436,29 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
       sampling_rate_index = 5;  // 44100
   }
   gtk_combo_box_set_active (self->priv->samplerate_menu, sampling_rate_index);
-  gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->samplerate_menu),
-      2, 3, 3, 4, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
-  g_signal_connect (self->priv->samplerate_menu, "changed",
-      G_CALLBACK (on_samplerate_menu_changed), (gpointer) self);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), widget, 2, 3, 1, 1);
+  g_signal_connect (widget, "changed", G_CALLBACK (on_samplerate_menu_changed),
+      (gpointer) self);
 
   label = gtk_label_new (_("Channels"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 1, 2, 4, 5, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 1, 4, 1, 1);
 
-  self->priv->channels_menu = GTK_COMBO_BOX (gtk_combo_box_text_new ());
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-          priv->channels_menu), _("mono"));
-  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->
-          priv->channels_menu), _("stereo"));
+  widget = gtk_combo_box_text_new ();
+  cbt = GTK_COMBO_BOX_TEXT (widget);
+  self->priv->channels_menu = GTK_COMBO_BOX (widget);
+  gtk_combo_box_text_append_text (cbt, _("mono"));
+  gtk_combo_box_text_append_text (cbt, _("stereo"));
   gtk_combo_box_set_active (self->priv->channels_menu, (channels - 1));
-  gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->channels_menu), 2,
-      3, 4, 5, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
-  g_signal_connect (self->priv->channels_menu, "changed",
-      G_CALLBACK (on_channels_menu_changed), (gpointer) self);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), widget, 2, 4, 1, 1);
+  g_signal_connect (widget, "changed", G_CALLBACK (on_channels_menu_changed),
+      (gpointer) self);
 
   label = gtk_label_new (_("Latency"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 1, 2, 5, 6, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 1, 5, 1, 1);
 
   pspec = (GParamSpecUInt *) g_object_class_find_property ((GObjectClass *)
       settings_class, "latency");
@@ -478,8 +467,10 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
           pspec->maximum, 5.0, 10.0, 0.0));
   self->priv->latency_entry =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
-  gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->latency_entry), 2,
-      3, 5, 6, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+  g_object_set (self->priv->latency_entry, "hexpand", TRUE, "margin-left",
+      LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), GTK_WIDGET (self->priv->latency_entry), 2,
+      5, 1, 1);
   g_signal_connect (self->priv->latency_entry, "value-changed",
       G_CALLBACK (on_latency_entry_changed), (gpointer) self);
 
@@ -517,8 +508,7 @@ bt_settings_page_audiodevices_new (GtkWidget * pages)
 
   self =
       BT_SETTINGS_PAGE_AUDIODEVICES (g_object_new
-      (BT_TYPE_SETTINGS_PAGE_AUDIODEVICES, "n-rows", 7, "n-columns", 3,
-          "homogeneous", FALSE, NULL));
+      (BT_TYPE_SETTINGS_PAGE_AUDIODEVICES, NULL));
   bt_settings_page_audiodevices_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
   return (self);

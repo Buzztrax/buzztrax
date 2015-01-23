@@ -40,14 +40,14 @@ typedef struct _BtSettingsPageAudiodevicesPrivate BtSettingsPageAudiodevicesPriv
  * the root window for the editor application
  */
 struct _BtSettingsPageAudiodevices {
-  GtkTable parent;
+  GtkGrid parent;
   
   /*< private >*/
   BtSettingsPageAudiodevicesPrivate *priv;
 };
 
 struct _BtSettingsPageAudiodevicesClass {
-  GtkTableClass parent;
+  GtkGridClass parent;
   
 };
 
