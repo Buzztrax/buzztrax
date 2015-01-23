@@ -40,14 +40,14 @@ typedef struct _BtSettingsPageDirectoriesPrivate BtSettingsPageDirectoriesPrivat
  * the root window for the editor application
  */
 struct _BtSettingsPageDirectories {
-  GtkTable parent;
+  GtkGrid parent;
   
   /*< private >*/
   BtSettingsPageDirectoriesPrivate *priv;
 };
 
 struct _BtSettingsPageDirectoriesClass {
-  GtkTableClass parent;
+  GtkGridClass parent;
   
 };
 

@@ -38,8 +38,7 @@ struct _BtSettingsPageDirectoriesPrivate
 //-- the class
 
 G_DEFINE_TYPE (BtSettingsPageDirectories, bt_settings_page_directories,
-    GTK_TYPE_TABLE);
-
+    GTK_TYPE_GRID);
 
 
 //-- event handler
@@ -75,7 +74,7 @@ bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self,
     GtkWidget * pages)
 {
   BtSettings *settings;
-  GtkWidget *label, *spacer, *widget;
+  GtkWidget *label, *widget;
   gchar *str;
   gchar *song_folder, *record_folder, *sample_folder;
 
@@ -87,21 +86,17 @@ bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self,
       &record_folder, "sample-folder", &sample_folder, NULL);
 
   // add setting widgets
-  spacer = gtk_label_new ("    ");
   label = gtk_label_new (NULL);
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Directories"));
   gtk_label_set_markup (GTK_LABEL (label), str);
   g_free (str);
   gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 0, 3, 0, 1, GTK_FILL | GTK_EXPAND,
-      GTK_SHRINK, 2, 1);
-  gtk_table_attach (GTK_TABLE (self), spacer, 0, 1, 1, 4, GTK_SHRINK,
-      GTK_SHRINK, 2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 0, 0, 3, 1);
+  gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 3);
 
   label = gtk_label_new (_("Songs"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 1, 2, 1, 2, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 1, 1, 1, 1);
 
   widget =
       gtk_file_chooser_button_new (_("Select a folder"),
@@ -110,13 +105,12 @@ bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self,
   gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (widget), song_folder);
   g_signal_connect (widget, "selection-changed", G_CALLBACK (on_folder_changed),
       (gpointer) self);
-  gtk_table_attach (GTK_TABLE (self), widget, 2, 3, 1, 2, GTK_FILL | GTK_EXPAND,
-      GTK_SHRINK, 2, 1);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), widget, 2, 1, 1, 1);
 
   label = gtk_label_new (_("Recordings"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 1, 2, 2, 3, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 1, 2, 1, 1);
 
   widget =
       gtk_file_chooser_button_new (_("Select a folder"),
@@ -126,13 +120,12 @@ bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self,
       record_folder);
   g_signal_connect (widget, "selection-changed", G_CALLBACK (on_folder_changed),
       (gpointer) self);
-  gtk_table_attach (GTK_TABLE (self), widget, 2, 3, 2, 3, GTK_FILL | GTK_EXPAND,
-      GTK_SHRINK, 2, 1);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), widget, 2, 2, 1, 1);
 
   label = gtk_label_new (_("Waveforms"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 1, 2, 3, 4, GTK_FILL, GTK_SHRINK,
-      2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 1, 3, 1, 1);
 
   widget =
       gtk_file_chooser_button_new (_("Select a folder"),
@@ -142,8 +135,8 @@ bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self,
       sample_folder);
   g_signal_connect (widget, "selection-changed", G_CALLBACK (on_folder_changed),
       (gpointer) self);
-  gtk_table_attach (GTK_TABLE (self), widget, 2, 3, 3, 4, GTK_FILL | GTK_EXPAND,
-      GTK_SHRINK, 2, 1);
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), widget, 2, 3, 1, 1);
 
   g_free (song_folder);
   g_free (record_folder);
@@ -168,8 +161,7 @@ bt_settings_page_directories_new (GtkWidget * pages)
 
   self =
       BT_SETTINGS_PAGE_DIRECTORIES (g_object_new
-      (BT_TYPE_SETTINGS_PAGE_DIRECTORIES, "n-rows", 4, "n-columns", 3,
-          "homogeneous", FALSE, NULL));
+      (BT_TYPE_SETTINGS_PAGE_DIRECTORIES, NULL));
   bt_settings_page_directories_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
   return (self);
