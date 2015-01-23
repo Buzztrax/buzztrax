@@ -58,7 +58,7 @@ struct _BtSettingsPageShortcutsPrivate
 //-- the class
 
 G_DEFINE_TYPE (BtSettingsPageShortcuts, bt_settings_page_shortcuts,
-    GTK_TYPE_TABLE);
+    GTK_TYPE_GRID);
 
 
 
@@ -71,7 +71,7 @@ bt_settings_page_shortcuts_init_ui (const BtSettingsPageShortcuts * self,
     GtkWidget * pages)
 {
   BtSettings *settings;
-  GtkWidget *label, *spacer;
+  GtkWidget *label;
   gchar *str;
 
   gtk_widget_set_name (GTK_WIDGET (self), "keyboard shortcut settings");
@@ -81,22 +81,19 @@ bt_settings_page_shortcuts_init_ui (const BtSettingsPageShortcuts * self,
   //g_object_get(settings,NULL);
 
   // add setting widgets
-  spacer = gtk_label_new ("    ");
   label = gtk_label_new (NULL);
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Shortcuts"));
   gtk_label_set_markup (GTK_LABEL (label), str);
   g_free (str);
   gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 0, 3, 0, 1, GTK_FILL | GTK_EXPAND,
-      GTK_SHRINK, 2, 1);
-  gtk_table_attach (GTK_TABLE (self), spacer, 0, 1, 1, 4, GTK_SHRINK,
-      GTK_SHRINK, 2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 0, 0, 3, 1);
+  gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 2);
 
   /* FIXME(ensonic): add the UI */
   label = gtk_label_new ("no keyboard settings yet");
   gtk_misc_set_alignment (GTK_MISC (label), 0.5, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 1, 3, 1, 4, GTK_FILL, GTK_FILL, 2,
-      1);
+  g_object_set (label, "hexpand", TRUE, NULL);
+  gtk_grid_attach (GTK_GRID (self), label, 1, 1, 2, 1);
 
   g_object_unref (settings);
 }
@@ -118,7 +115,7 @@ bt_settings_page_shortcuts_new (GtkWidget * pages)
 
   self =
       BT_SETTINGS_PAGE_SHORTCUTS (g_object_new (BT_TYPE_SETTINGS_PAGE_SHORTCUTS,
-          "n-rows", 4, "n-columns", 3, "homogeneous", FALSE, NULL));
+          NULL));
   bt_settings_page_shortcuts_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
   return (self);

@@ -40,14 +40,14 @@ typedef struct _BtSettingsPageShortcutsPrivate BtSettingsPageShortcutsPrivate;
  * the root window for the editor application
  */
 struct _BtSettingsPageShortcuts {
-  GtkTable parent;
+  GtkGrid parent;
   
   /*< private >*/
   BtSettingsPageShortcutsPrivate *priv;
 };
 
 struct _BtSettingsPageShortcutsClass {
-  GtkTableClass parent;
+  GtkGridClass parent;
   
 };
 
