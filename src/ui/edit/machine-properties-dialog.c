@@ -1209,13 +1209,21 @@ on_uint64_range_property_changed (GtkRange * range, gpointer user_data)
       BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (range),
           widget_parent_quark));
   gdouble value = gtk_range_get_value (range);
+  guint64 value_u64 = (guint64) value;
 
-  GST_INFO ("property value change received");
+  GST_INFO ("property '%s' value change received, value = %lf -> %"
+      G_GUINT64_FORMAT, name, value, value_u64);
+
+  // because of the gdouble <->uint64 conv. this can overflow
+  if (((gdouble) value_u64) < (value - 1.0)) {
+    GST_WARNING ("overflow on double -> guint64 conversion");
+    return;
+  }
 
   g_signal_handlers_block_matched (param_parent,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_uint64_range_property_notify, (gpointer) range);
-  g_object_set (param_parent, name, (guint64) value, NULL);
+  g_object_set (param_parent, name, value_u64, NULL);
   g_signal_handlers_unblock_matched (param_parent,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       on_uint64_range_property_notify, (gpointer) range);
