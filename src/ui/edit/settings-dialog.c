@@ -149,7 +149,7 @@ on_settings_list_realize (GtkWidget * widget, gpointer user_data)
 static void
 bt_settings_dialog_init_ui (const BtSettingsDialog * self)
 {
-  GtkWidget *box, *scrolled_window;
+  GtkWidget *box, *scrolled_window, *pages;
   GtkCellRenderer *renderer;
   GtkListStore *store;
   GtkTreeIter tree_iter;
@@ -226,16 +226,15 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
   g_object_unref (store);       // drop with treeview
 
   // add notebook
-  self->priv->settings_pages = GTK_NOTEBOOK (gtk_notebook_new ());
-  gtk_widget_set_name (GTK_WIDGET (self->priv->settings_pages),
-      "settings pages");
+  pages = gtk_notebook_new ();
+  self->priv->settings_pages = GTK_NOTEBOOK (pages);
+  gtk_widget_set_name (pages, "settings pages");
   gtk_notebook_set_show_tabs (self->priv->settings_pages, FALSE);
   gtk_notebook_set_show_border (self->priv->settings_pages, FALSE);
-  gtk_container_add (GTK_CONTAINER (box),
-      GTK_WIDGET (self->priv->settings_pages));
+  gtk_container_add (GTK_CONTAINER (box), pages);
 
   // add audio device page
-  self->priv->audiodevices_page = bt_settings_page_audiodevices_new ();
+  self->priv->audiodevices_page = bt_settings_page_audiodevices_new (pages);
   gtk_container_add (GTK_CONTAINER (self->priv->settings_pages),
       GTK_WIDGET (self->priv->audiodevices_page));
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (self->priv->settings_pages),
@@ -244,7 +243,7 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
 
   // add interaction controller page
   self->priv->interaction_controller_page =
-      bt_settings_page_interaction_controller_new ();
+      bt_settings_page_interaction_controller_new (pages);
   gtk_container_add (GTK_CONTAINER (self->priv->settings_pages),
       GTK_WIDGET (self->priv->interaction_controller_page));
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (self->priv->settings_pages),
@@ -254,7 +253,7 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
 
   // add playback controller page
   self->priv->playback_controller_page =
-      bt_settings_page_playback_controller_new ();
+      bt_settings_page_playback_controller_new (pages);
   gtk_container_add (GTK_CONTAINER (self->priv->settings_pages),
       GTK_WIDGET (self->priv->playback_controller_page));
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (self->priv->settings_pages),
@@ -263,7 +262,7 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
       gtk_label_new (_("Playback Controller")));
 
   // add shortcuts pags
-  self->priv->shortcuts_page = bt_settings_page_shortcuts_new ();
+  self->priv->shortcuts_page = bt_settings_page_shortcuts_new (pages);
   gtk_container_add (GTK_CONTAINER (self->priv->settings_pages),
       GTK_WIDGET (self->priv->shortcuts_page));
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (self->priv->settings_pages),
@@ -271,7 +270,7 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
           BT_SETTINGS_PAGE_SHORTCUTS), gtk_label_new (_("Shortcuts")));
 
   // add directories page
-  self->priv->directories_page = bt_settings_page_directories_new ();
+  self->priv->directories_page = bt_settings_page_directories_new (pages);
   gtk_container_add (GTK_CONTAINER (self->priv->settings_pages),
       GTK_WIDGET (self->priv->directories_page));
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (self->priv->settings_pages),

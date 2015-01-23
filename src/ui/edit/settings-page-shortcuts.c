@@ -67,7 +67,8 @@ G_DEFINE_TYPE (BtSettingsPageShortcuts, bt_settings_page_shortcuts,
 //-- helper methods
 
 static void
-bt_settings_page_shortcuts_init_ui (const BtSettingsPageShortcuts * self)
+bt_settings_page_shortcuts_init_ui (const BtSettingsPageShortcuts * self,
+    GtkWidget * pages)
 {
   BtSettings *settings;
   GtkWidget *label, *spacer;
@@ -104,20 +105,21 @@ bt_settings_page_shortcuts_init_ui (const BtSettingsPageShortcuts * self)
 
 /**
  * bt_settings_page_shortcuts_new:
+ * @pages: the page collection
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
 BtSettingsPageShortcuts *
-bt_settings_page_shortcuts_new (void)
+bt_settings_page_shortcuts_new (GtkWidget * pages)
 {
   BtSettingsPageShortcuts *self;
 
   self =
       BT_SETTINGS_PAGE_SHORTCUTS (g_object_new (BT_TYPE_SETTINGS_PAGE_SHORTCUTS,
           "n-rows", 4, "n-columns", 3, "homogeneous", FALSE, NULL));
-  bt_settings_page_shortcuts_init_ui (self);
+  bt_settings_page_shortcuts_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
   return (self);
 }

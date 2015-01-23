@@ -53,6 +53,6 @@ struct _BtSettingsPagePlaybackControllerClass {
 
 GType bt_settings_page_playback_controller_get_type(void) G_GNUC_CONST;
 
-BtSettingsPagePlaybackController *bt_settings_page_playback_controller_new(void);
+BtSettingsPagePlaybackController *bt_settings_page_playback_controller_new(GtkWidget *pages);
 
 #endif // BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER_H

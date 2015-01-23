@@ -53,6 +53,6 @@ struct _BtSettingsPageShortcutsClass {
 
 GType bt_settings_page_shortcuts_get_type(void) G_GNUC_CONST;
 
-BtSettingsPageShortcuts *bt_settings_page_shortcuts_new(void);
+BtSettingsPageShortcuts *bt_settings_page_shortcuts_new(GtkWidget *pages);
 
 #endif // BT_SETTINGS_PAGE_SHORTCUTS_H

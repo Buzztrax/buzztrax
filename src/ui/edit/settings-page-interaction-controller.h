@@ -53,6 +53,6 @@ struct _BtSettingsPageInteractionControllerClass {
 
 GType bt_settings_page_interaction_controller_get_type(void) G_GNUC_CONST;
 
-BtSettingsPageInteractionController *bt_settings_page_interaction_controller_new(void);
+BtSettingsPageInteractionController *bt_settings_page_interaction_controller_new(GtkWidget *pages);
 
 #endif // BT_SETTINGS_PAGE_INTERACTION_CONTROLLER_H

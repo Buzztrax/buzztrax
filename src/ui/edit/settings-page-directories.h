@@ -53,6 +53,6 @@ struct _BtSettingsPageDirectoriesClass {
 
 GType bt_settings_page_directories_get_type(void) G_GNUC_CONST;
 
-BtSettingsPageDirectories *bt_settings_page_directories_new(void);
+BtSettingsPageDirectories *bt_settings_page_directories_new(GtkWidget *pages);
 
 #endif // BT_SETTINGS_PAGE_DIRECTORIES_H

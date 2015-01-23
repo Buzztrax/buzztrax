@@ -77,7 +77,8 @@ G_DEFINE_TYPE (BtSettingsPageInteractionController,
 
 //-- helper
 
-static void release_device (BtSettingsPageInteractionController * self);
+static void start_device (BtSettingsPageInteractionController * self);
+static void stop_device (BtSettingsPageInteractionController * self);
 
 static gint
 get_control_pos (BtIcDevice * device, BtIcControl * control)
@@ -158,7 +159,7 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
   GList *node, *list;
 
   if (self->priv->device) {
-    release_device (self);
+    stop_device (self);
   }
 
   GST_INFO ("interaction controller device changed");
@@ -179,20 +180,7 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
     g_list_free (list);
 
     self->priv->device = g_object_ref (device);
-    if (BTIC_IS_LEARN (device)) {
-      g_signal_connect (self->priv->device, "notify::device-controlchange",
-          G_CALLBACK (notify_device_controlchange), (gpointer) self);
-      btic_learn_start (BTIC_LEARN (self->priv->device));
-      gtk_label_set_text (self->priv->message,
-          _("Use the device's controls to train them."));
-      g_object_set (self->priv->id_renderer,
-          "mode", GTK_CELL_RENDERER_MODE_EDITABLE, "editable", TRUE, NULL);
-    } else {
-      btic_device_start (self->priv->device);
-      gtk_label_set_text (self->priv->message, NULL);
-      g_object_set (self->priv->id_renderer,
-          "mode", GTK_CELL_RENDERER_MODE_INERT, "editable", FALSE, NULL);
-    }
+    start_device (self);
   }
   GST_INFO ("control list refreshed");
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->controller_list),
@@ -247,16 +235,64 @@ on_control_name_edited (GtkCellRendererText * cellrenderertext,
               bt_object_list_model_get_object ((BtObjectListModel *) store,
                   &iter))) {
         g_object_set (control, "name", new_text, NULL);
-        on_device_menu_changed (self->priv->device_menu, self);
+        // TODO(ensonic): why?
+        //on_device_menu_changed (self->priv->device_menu, self);
       }
     }
   }
 }
 
+static void
+on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
+{
+  BtSettingsPageInteractionController *self =
+      BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (user_data);
+  guint page_num;
+  static gint prev_page_num = -1;
+
+  g_object_get (notebook, "page", &page_num, NULL);
+
+  if (page_num == BT_SETTINGS_PAGE_INTERACTION_CONTROLLER) {
+    // only do this if the page really has changed
+    if (prev_page_num != BT_SETTINGS_PAGE_INTERACTION_CONTROLLER) {
+      GST_DEBUG ("enter page");
+      on_device_menu_changed (self->priv->device_menu, (gpointer) self);
+    }
+  } else {
+    // only do this if the page was BT_SETTINGS_PAGE_INTERACTION_CONTROLLER
+    if (prev_page_num == BT_SETTINGS_PAGE_INTERACTION_CONTROLLER) {
+      GST_DEBUG ("leave page");
+      if (self->priv->device) {
+        stop_device (self);
+      }
+    }
+  }
+  prev_page_num = page_num;
+}
+
 //-- helper methods
 
 static void
-release_device (BtSettingsPageInteractionController * self)
+start_device (BtSettingsPageInteractionController * self)
+{
+  if (BTIC_IS_LEARN (self->priv->device)) {
+    g_signal_connect (self->priv->device, "notify::device-controlchange",
+        G_CALLBACK (notify_device_controlchange), (gpointer) self);
+    btic_learn_start (BTIC_LEARN (self->priv->device));
+    gtk_label_set_text (self->priv->message,
+        _("Use the device's controls to train them."));
+    g_object_set (self->priv->id_renderer,
+        "mode", GTK_CELL_RENDERER_MODE_EDITABLE, "editable", TRUE, NULL);
+  } else {
+    btic_device_start (self->priv->device);
+    gtk_label_set_text (self->priv->message, NULL);
+    g_object_set (self->priv->id_renderer,
+        "mode", GTK_CELL_RENDERER_MODE_INERT, "editable", FALSE, NULL);
+  }
+}
+
+static void
+stop_device (BtSettingsPageInteractionController * self)
 {
   if (BTIC_IS_LEARN (self->priv->device)) {
     btic_learn_stop (BTIC_LEARN (self->priv->device));
@@ -278,7 +314,7 @@ release_device (BtSettingsPageInteractionController * self)
 
 static void
 bt_settings_page_interaction_controller_init_ui (const
-    BtSettingsPageInteractionController * self)
+    BtSettingsPageInteractionController * self, GtkWidget * pages)
 {
   GtkWidget *label, *spacer, *scrolled_window;
   GtkCellRenderer *renderer;
@@ -362,21 +398,24 @@ bt_settings_page_interaction_controller_init_ui (const
   gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->message), 0, 3,
       3, 4, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
 
-  // TODO(ensonic): start/stop depending on visibility of the page
-  on_device_menu_changed (self->priv->device_menu, (gpointer) self);
+  // listen to page changes
+  g_signal_connect ((gpointer) pages, "notify::page",
+      G_CALLBACK (on_page_switched), (gpointer) self);
+
 }
 
 //-- constructor methods
 
 /**
  * bt_settings_page_interaction_controller_new:
+ * @pages: the page collection
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
 BtSettingsPageInteractionController *
-bt_settings_page_interaction_controller_new (void)
+bt_settings_page_interaction_controller_new (GtkWidget * pages)
 {
   BtSettingsPageInteractionController *self;
 
@@ -384,7 +423,7 @@ bt_settings_page_interaction_controller_new (void)
       BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (g_object_new
       (BT_TYPE_SETTINGS_PAGE_INTERACTION_CONTROLLER, "n-rows", 4, "n-columns",
           3, "homogeneous", FALSE, NULL));
-  bt_settings_page_interaction_controller_init_ui (self);
+  bt_settings_page_interaction_controller_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
   return (self);
 }
@@ -408,7 +447,7 @@ bt_settings_page_interaction_controller_dispose (GObject * object)
   GST_DEBUG ("!!!! self=%p", self);
 
   if (self->priv->device) {
-    release_device (self);
+    stop_device (self);
   }
 
   g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);

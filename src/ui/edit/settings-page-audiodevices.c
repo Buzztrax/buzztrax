@@ -236,7 +236,8 @@ on_latency_entry_changed (GtkSpinButton * spinbutton, gpointer user_data)
 //-- helper methods
 
 static void
-bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
+bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
+    GtkWidget * pages)
 {
   BtSettings *settings;
   BtSettingsClass *settings_class;
@@ -503,13 +504,14 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self)
 
 /**
  * bt_settings_page_audiodevices_new:
+ * @pages: the page collection
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
 BtSettingsPageAudiodevices *
-bt_settings_page_audiodevices_new (void)
+bt_settings_page_audiodevices_new (GtkWidget * pages)
 {
   BtSettingsPageAudiodevices *self;
 
@@ -517,7 +519,7 @@ bt_settings_page_audiodevices_new (void)
       BT_SETTINGS_PAGE_AUDIODEVICES (g_object_new
       (BT_TYPE_SETTINGS_PAGE_AUDIODEVICES, "n-rows", 7, "n-columns", 3,
           "homogeneous", FALSE, NULL));
-  bt_settings_page_audiodevices_init_ui (self);
+  bt_settings_page_audiodevices_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
   return (self);
 }

@@ -216,7 +216,7 @@ on_port_changed (GtkSpinButton * spinbutton, gpointer user_data)
 
 static void
 bt_settings_page_playback_controller_init_ui (const
-    BtSettingsPagePlaybackController * self)
+    BtSettingsPagePlaybackController * self, GtkWidget * pages)
 {
   GtkWidget *label, *spacer, *table, *scrolled_window;
   GtkCellRenderer *renderer;
@@ -369,13 +369,14 @@ bt_settings_page_playback_controller_init_ui (const
 
 /**
  * bt_settings_page_playback_controller_new:
+ * @pages: the page collection
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
 BtSettingsPagePlaybackController *
-bt_settings_page_playback_controller_new (void)
+bt_settings_page_playback_controller_new (GtkWidget * pages)
 {
   BtSettingsPagePlaybackController *self;
 
@@ -383,7 +384,7 @@ bt_settings_page_playback_controller_new (void)
       BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER (g_object_new
       (BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER, "n-rows", 4, "n-columns", 3,
           "homogeneous", FALSE, NULL));
-  bt_settings_page_playback_controller_init_ui (self);
+  bt_settings_page_playback_controller_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
   return (self);
 }

@@ -53,6 +53,6 @@ struct _BtSettingsPageAudiodevicesClass {
 
 GType bt_settings_page_audiodevices_get_type(void) G_GNUC_CONST;
 
-BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new(void);
+BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new(GtkWidget *pages);
 
 #endif // BT_SETTINGS_PAGE_AUDIODEVICES_H

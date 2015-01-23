@@ -71,7 +71,8 @@ on_folder_changed (GtkFileChooser * chooser, gpointer user_data)
 //-- helper methods
 
 static void
-bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self)
+bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self,
+    GtkWidget * pages)
 {
   BtSettings *settings;
   GtkWidget *label, *spacer, *widget;
@@ -154,13 +155,14 @@ bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self)
 
 /**
  * bt_settings_page_directories_new:
+ * @pages: the page collection
  *
  * Create a new instance
  *
  * Returns: the new instance
  */
 BtSettingsPageDirectories *
-bt_settings_page_directories_new (void)
+bt_settings_page_directories_new (GtkWidget * pages)
 {
   BtSettingsPageDirectories *self;
 
@@ -168,7 +170,7 @@ bt_settings_page_directories_new (void)
       BT_SETTINGS_PAGE_DIRECTORIES (g_object_new
       (BT_TYPE_SETTINGS_PAGE_DIRECTORIES, "n-rows", 4, "n-columns", 3,
           "homogeneous", FALSE, NULL));
-  bt_settings_page_directories_init_ui (self);
+  bt_settings_page_directories_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
   return (self);
 }
