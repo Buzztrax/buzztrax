@@ -38,11 +38,15 @@
  *   and boolean-trigger controller to machines trigger properties
  * - right now we register note-controllers as abs_range controls, we need a way
  *   to filter for them
- * - right now we don't show widgets for these, showing a bunch of extra labels
- *   just to have a widget for the interaction controller menu is weird
- * - the expander sections already have a context menu - maybe we can list the
- *   parameters there (see on_group_button_press_event) and have a submenu with
- *   'bind controller'/'unbind controller'
+ * - we should also create widgets (or just drawables) for triggers:
+ *   - note: small keyboard
+ *   - triggers: a button where the x-pos is mapped to value
+ *   - booleans: plain button
+ *   - the non-note ones maybe with a drum icon
+ *   - then we can play then with the mouse (or keyboard when focused) and
+ *     assign controllers
+ *   - these should probably be all in one expander that is sticky at the bottom
+ *     - it needs to combine voice triggers into a poly trigger
  */
 /* TODO(ensonic): mute/solo/bypass
  * - have a row with mute/solo/bypass check-boxes in the UI
@@ -75,6 +79,7 @@
  * - this method would allow us to:
  *   - select the preset in older songs (where we did not store it)
  *   - dynamically add/remove the preset changed marker
+ * 
  */
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C
