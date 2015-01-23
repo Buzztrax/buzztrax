@@ -2239,8 +2239,6 @@ make_global_param_box (const BtMachinePropertiesDialog * self,
       make_param_control (self, param_parent, pname, property, range_min,
           range_max, table, k++, pg);
     }
-    // eat remaining space
-    //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
     gtk_container_add (GTK_CONTAINER (expander), table);
   }
   return (expander);
@@ -2293,8 +2291,6 @@ make_voice_param_box (const BtMachinePropertiesDialog * self,
       make_param_control (self, param_parent, pname, property, range_min,
           range_max, table, k++, pg);
     }
-    // eat remaining space
-    //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
     gtk_container_add (GTK_CONTAINER (expander), table);
   }
   return (expander);
@@ -2392,8 +2388,6 @@ make_wire_param_box (const BtMachinePropertiesDialog * self, BtWire * wire)
       make_param_control (self, param_parent, pname, property, range_min,
           range_max, table, i, pg);
     }
-    // eat remaining space
-    //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
     gtk_container_add (GTK_CONTAINER (expander), table);
   }
   g_object_unref (src);
