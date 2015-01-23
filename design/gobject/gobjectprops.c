@@ -152,7 +152,6 @@ main (int argc, char **argv)
   gint range = G_MAXINT >> 10;
   gint notify_monitor;
 
-  g_type_init ();
   obj = g_object_new (GST_TYPE_PRESET_TEST, NULL);
   j = 0;
   printf ("doing %d loops\n", range << 1);
