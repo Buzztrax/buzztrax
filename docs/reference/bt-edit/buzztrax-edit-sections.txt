@@ -683,6 +683,24 @@ BtPatternPropertiesDialogPrivate
 
 
 <SECTION>
+<FILE>btplaybackcontrolleric</FILE>
+<TITLE>BtPlaybackControllerIc</TITLE>
+BtPlaybackControllerIc
+bt_playback_controller_ic_new
+<SUBSECTION Standard>
+BtPlaybackControllerIcClass
+BT_PLAYBACK_CONTROLLER_IC
+BT_IS_PLAYBACK_CONTROLLER_IC
+BT_PLAYBACK_CONTROLLER_IC_CLASS
+BT_IS_PLAYBACK_CONTROLLER_IC_CLASS
+BT_PLAYBACK_CONTROLLER_IC_GET_CLASS
+BT_TYPE_PLAYBACK_CONTROLLER_IC
+bt_playback_controller_ic_get_type
+BtPlaybackControllerIcPrivate
+</SECTION>
+
+
+<SECTION>
 <FILE>btplaybackcontrollersocket</FILE>
 <TITLE>BtPlaybackControllerSocket</TITLE>
 BtPlaybackControllerSocket

@@ -119,6 +119,7 @@
     </chapter>
     <chapter>
       <title>Tool Class Reference</title>
+      <xi:include href="xml/btplaybackcontrolleric.xml" />
       <xi:include href="xml/btplaybackcontrollersocket.xml" />
     </chapter>
     <chapter>
