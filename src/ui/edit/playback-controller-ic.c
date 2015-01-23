@@ -88,11 +88,11 @@ on_control_notify (const BtIcControl * control, GParamSpec * arg,
         bt_song_stop (song);
       } else if (!strcmp (cmd, "rewind")) {
         // TODO(ensonic): implement, whats better?
-        // - skip ticks, like when we're scrubbing on the sequence
-        //   - needs a lot of code from main-toolbar.c, maybe this code should
-        //     be moved to song.c anyway?
-        // - adjust the rate on press down and go back to 1.0 on release
-        //
+        // - song::play-pos - skip ticks
+        //   like when we're scrubbing on the sequence
+        // - song::play-rate - trick mode  
+        //   adjust the rate on press down and go back to 1.0 on release
+        // 
         // - needs a timeout handler for initial timeout and for repeat while
         //   pressed 
         //   - nothing we can use from GtkSettings

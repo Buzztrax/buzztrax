@@ -47,6 +47,7 @@
  *     assign controllers
  *   - these should probably be all in one expander that is sticky at the bottom
  *     - it needs to combine voice triggers into a poly trigger
+ *   - this needs to have live-playback running
  */
 /* TODO(ensonic): mute/solo/bypass
  * - have a row with mute/solo/bypass check-boxes in the UI
