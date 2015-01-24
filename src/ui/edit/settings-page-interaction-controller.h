@@ -40,14 +40,14 @@ typedef struct _BtSettingsPageInteractionControllerPrivate BtSettingsPageInterac
  * the root window for the editor application
  */
 struct _BtSettingsPageInteractionController {
-  GtkTable parent;
+  GtkGrid parent;
 
   /*< private >*/
   BtSettingsPageInteractionControllerPrivate *priv;
 };
 
 struct _BtSettingsPageInteractionControllerClass {
-  GtkTableClass parent;
+  GtkGridClass parent;
 
 };
 

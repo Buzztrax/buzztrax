@@ -73,7 +73,7 @@ struct _BtSettingsPageInteractionControllerPrivate
 //-- the class
 
 G_DEFINE_TYPE (BtSettingsPageInteractionController,
-    bt_settings_page_interaction_controller, GTK_TYPE_TABLE);
+    bt_settings_page_interaction_controller, GTK_TYPE_GRID);
 
 //-- helper
 
@@ -316,7 +316,7 @@ static void
 bt_settings_page_interaction_controller_init_ui (const
     BtSettingsPageInteractionController * self, GtkWidget * pages)
 {
-  GtkWidget *label, *spacer, *scrolled_window;
+  GtkWidget *label, *widget, *scrolled_window;
   GtkCellRenderer *renderer;
   BtIcRegistry *ic_registry;
   gchar *str;
@@ -325,24 +325,23 @@ bt_settings_page_interaction_controller_init_ui (const
 
   // create the widget already so that we can set the initial text
   self->priv->message = GTK_LABEL (gtk_label_new (NULL));
+  g_object_set (GTK_WIDGET (self->priv->message), "hexpand", TRUE, NULL);
 
   // add setting widgets
-  spacer = gtk_label_new ("    ");
   label = gtk_label_new (NULL);
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Interaction Controller"));
   gtk_label_set_markup (GTK_LABEL (label), str);
   g_free (str);
   gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 0, 3, 0, 1, GTK_FILL | GTK_EXPAND,
-      GTK_SHRINK, 2, 1);
-  gtk_table_attach (GTK_TABLE (self), spacer, 0, 1, 1, 4, GTK_SHRINK,
-      GTK_SHRINK, 2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 0, 0, 3, 1);
+  gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 3);
 
   label = gtk_label_new (_("Device"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 1, 2, 1, 2, GTK_FILL, GTK_SHRINK,
-      2, 1);
-  self->priv->device_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
+  gtk_grid_attach (GTK_GRID (self), label, 1, 1, 1, 1);
+
+  widget = gtk_combo_box_new ();
+  self->priv->device_menu = GTK_COMBO_BOX (widget);
   renderer = gtk_cell_renderer_text_new ();
   gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
@@ -358,9 +357,9 @@ bt_settings_page_interaction_controller_init_ui (const
       G_CALLBACK (on_ic_registry_devices_changed), (gpointer) self);
   on_ic_registry_devices_changed (ic_registry, NULL, (gpointer) self);
   g_object_unref (ic_registry);
-  gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->device_menu), 2,
-      3, 1, 2, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
-  g_signal_connect (self->priv->device_menu, "changed",
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), widget, 2, 1, 1, 1);
+  g_signal_connect (widget, "changed",
       G_CALLBACK (on_device_menu_changed), (gpointer) self);
 
   // add list of controllers (updated when selecting a device)
@@ -386,17 +385,18 @@ bt_settings_page_interaction_controller_init_ui (const
           priv->controller_list), GTK_SELECTION_BROWSE);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->controller_list));
-  gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (scrolled_window), 1, 3, 2, 3,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (GTK_WIDGET (scrolled_window), "hexpand", TRUE, "vexpand", TRUE,
+      "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), GTK_WIDGET (scrolled_window), 1, 2, 2, 1);
 
   // add a message pane
-#ifndef USE_GUDEV
+#if ! defined(USE_GUDEV) && ! defined(USE_ALSA)
   gtk_label_set_text (self->priv->message,
-      _("This package has been built without GUdev support and thus "
+      _("This package has been built without GUdev and Alsa support and thus "
           "supports no interaction controllers."));
 #endif
-  gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->message), 0, 3,
-      3, 4, GTK_FILL | GTK_EXPAND, GTK_SHRINK, 2, 1);
+  gtk_grid_attach (GTK_GRID (self), GTK_WIDGET (self->priv->message), 0, 3, 3,
+      1);
 
   // listen to page changes
   g_signal_connect ((gpointer) pages, "notify::page",
@@ -421,8 +421,7 @@ bt_settings_page_interaction_controller_new (GtkWidget * pages)
 
   self =
       BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (g_object_new
-      (BT_TYPE_SETTINGS_PAGE_INTERACTION_CONTROLLER, "n-rows", 4, "n-columns",
-          3, "homogeneous", FALSE, NULL));
+      (BT_TYPE_SETTINGS_PAGE_INTERACTION_CONTROLLER, NULL));
   bt_settings_page_interaction_controller_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
   return (self);
