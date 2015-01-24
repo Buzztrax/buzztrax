@@ -40,14 +40,14 @@ typedef struct _BtSettingsPagePlaybackControllerPrivate BtSettingsPagePlaybackCo
  * the root window for the editor application
  */
 struct _BtSettingsPagePlaybackController {
-  GtkTable parent;
+  GtkGrid parent;
 
   /*< private >*/
   BtSettingsPagePlaybackControllerPrivate *priv;
 };
 
 struct _BtSettingsPagePlaybackControllerClass {
-  GtkTableClass parent;
+  GtkGridClass parent;
 
 };
 

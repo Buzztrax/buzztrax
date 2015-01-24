@@ -107,7 +107,7 @@ struct _BtSettingsPagePlaybackControllerPrivate
 //-- the class
 
 G_DEFINE_TYPE (BtSettingsPagePlaybackController,
-    bt_settings_page_playback_controller, GTK_TYPE_TABLE);
+    bt_settings_page_playback_controller, GTK_TYPE_GRID);
 
 
 //-- helper
@@ -424,7 +424,7 @@ static void
 bt_settings_page_playback_controller_init_ui (const
     BtSettingsPagePlaybackController * self, GtkWidget * pages)
 {
-  GtkWidget *label, *spacer, *scrolled_window, *widget;
+  GtkWidget *label, *scrolled_window, *widget;
   GtkGrid *table;
   GtkCellRenderer *renderer;
   GtkListStore *store;
@@ -454,16 +454,13 @@ bt_settings_page_playback_controller_init_ui (const
   g_free (ic_playback_spec);
 
   // add setting widgets
-  spacer = gtk_label_new ("    ");
   label = gtk_label_new (NULL);
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Playback Controller"));
   gtk_label_set_markup (GTK_LABEL (label), str);
   g_free (str);
   gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
-  gtk_table_attach (GTK_TABLE (self), label, 0, 3, 0, 1, GTK_FILL | GTK_EXPAND,
-      GTK_SHRINK, 2, 1);
-  gtk_table_attach (GTK_TABLE (self), spacer, 0, 1, 1, 4, GTK_SHRINK,
-      GTK_SHRINK, 2, 1);
+  gtk_grid_attach (GTK_GRID (self), label, 0, 0, 3, 1);
+  gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 3);
 
   // add a list of playback controllers
   scrolled_window = gtk_scrolled_window_new (NULL, NULL);
@@ -497,8 +494,9 @@ bt_settings_page_playback_controller_init_ui (const
   gtk_tree_selection_set_mode (selection, GTK_SELECTION_SINGLE);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->controller_list));
-  gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (scrolled_window), 1, 3, 1, 2,
-      GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 2, 1);
+  g_object_set (GTK_WIDGET (scrolled_window), "hexpand", TRUE, "vexpand", TRUE,
+      "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), GTK_WIDGET (scrolled_window), 1, 1, 2, 1);
 
   // add data model
   store =
@@ -538,8 +536,10 @@ bt_settings_page_playback_controller_init_ui (const
   self->priv->controller_pages = GTK_NOTEBOOK (gtk_notebook_new ());
   gtk_notebook_set_show_tabs (self->priv->controller_pages, FALSE);
   gtk_notebook_set_show_border (self->priv->controller_pages, FALSE);
-  gtk_table_attach (GTK_TABLE (self), GTK_WIDGET (self->priv->controller_pages),
-      1, 3, 2, 3, GTK_FILL, GTK_FILL, 2, 1);
+  g_object_set (GTK_WIDGET (self->priv->controller_pages), "hexpand", TRUE,
+      "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), GTK_WIDGET (self->priv->controller_pages),
+      1, 2, 2, 1);
 
 
   // coherence upnp tab
@@ -646,8 +646,7 @@ bt_settings_page_playback_controller_new (GtkWidget * pages)
 
   self =
       BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER (g_object_new
-      (BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER, "n-rows", 4, "n-columns", 3,
-          "homogeneous", FALSE, NULL));
+      (BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER, NULL));
   bt_settings_page_playback_controller_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
   return (self);
