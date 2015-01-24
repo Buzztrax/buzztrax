@@ -87,19 +87,29 @@ on_control_notify (const BtIcControl * control, GParamSpec * arg,
       } else if (!strcmp (cmd, "stop")) {
         bt_song_stop (song);
       } else if (!strcmp (cmd, "rewind")) {
-        // TODO(ensonic): implement, whats better?
-        // - song::play-pos - skip ticks
-        //   like when we're scrubbing on the sequence
-        // - song::play-rate - trick mode  
-        //   adjust the rate on press down and go back to 1.0 on release
-        // 
-        // - needs a timeout handler for initial timeout and for repeat while
-        //   pressed 
-        //   - nothing we can use from GtkSettings
-        //   - dconf: org.gnome.settings-daemon.peripherals.keyboard has
-        //     delay=500 ms, repeat=on/off, repeat-interval=30ms 
+        glong play_pos;
+        /* TODO(ensonic): implement, whats better?
+         * - song::play-pos - skip ticks
+         *   like when we're scrubbing on the sequence
+         * - song::play-rate - trick mode  
+         *   adjust the rate on press down and go back to 1.0 on release
+         * 
+         * - needs a timeout handler for initial timeout and for repeat while
+         *   pressed 
+         *   - nothing we can use from GtkSettings
+         *   - dconf: org.gnome.settings-daemon.peripherals.keyboard has
+         *     delay=500 ms, repeat=on/off, repeat-interval=30ms
+         */
+        // TODO(ensonic): expose 'bars' as a readable property on sequence page
+        g_object_get (song, "play-pos", &play_pos, NULL);
+        play_pos = (play_pos > 16) ? (play_pos - 16) : 0;
+        g_object_set (song, "play-pos", play_pos, NULL);
       } else if (!strcmp (cmd, "forward")) {
+        glong play_pos;
         // TODO(ensonic): implement, see above
+        g_object_get (song, "play-pos", &play_pos, NULL);
+        play_pos = (play_pos < LONG_MAX - 16) ? (play_pos + 16) : LONG_MAX;
+        g_object_set (song, "play-pos", play_pos, NULL);
       } else {
         GST_WARNING ("unknown command: '%s'", cmd);
       }
