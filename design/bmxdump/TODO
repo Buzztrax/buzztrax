@@ -1,9 +1,0 @@
-Read the following sections:
-
-    PATT
-    WAVE
-    PDLG (will probably be ignored forever)
-    MIDI
-
-Fix the strange memleak in ~BmxWavtSection()
-
