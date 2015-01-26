@@ -100,13 +100,14 @@ on_control_notify (const BtIcControl * control, GParamSpec * arg,
          *   - dconf: org.gnome.settings-daemon.peripherals.keyboard has
          *     delay=500 ms, repeat=on/off, repeat-interval=30ms
          */
-        // TODO(ensonic): expose 'bars' as a readable property on sequence page
+        /* TODO(ensonic): expose 'bars' as a readable property on sequence page
+         * app->main-window->pages
+         */
         g_object_get (song, "play-pos", &play_pos, NULL);
         play_pos = (play_pos > 16) ? (play_pos - 16) : 0;
         g_object_set (song, "play-pos", play_pos, NULL);
       } else if (!strcmp (cmd, "forward")) {
         glong play_pos;
-        // TODO(ensonic): implement, see above
         g_object_get (song, "play-pos", &play_pos, NULL);
         play_pos = (play_pos < LONG_MAX - 16) ? (play_pos + 16) : LONG_MAX;
         g_object_set (song, "play-pos", play_pos, NULL);
