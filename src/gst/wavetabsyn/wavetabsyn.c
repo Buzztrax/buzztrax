@@ -405,4 +405,4 @@ GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
     wavetabsyn,
     "Wavetable synthesizer",
-    plugin_init, VERSION, "LGPL", GST_PACKAGE_NAME, GST_PACKAGE_ORIGIN);
+    plugin_init, VERSION, "LGPL", PACKAGE_NAME, PACKAGE_ORIGIN);

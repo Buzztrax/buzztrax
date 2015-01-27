@@ -418,10 +418,8 @@ AM_CONDITIONAL(FLUIDSYNTH_SUPPORT, test "x$have_fluidsynth" = "xyes")
 
 
 dnl set license and copyright notice
-AC_DEFINE(GST_PACKAGE_ORIGIN, "http://www.buzztrax.org", [Plugin package origin])
-AC_SUBST(GST_PACKAGE_ORIGIN)
-AC_DEFINE(GST_PACKAGE_NAME, "gst-buzztrax", [Plugin package name])
-AC_SUBST(GST_PACKAGE_NAME)
+AC_DEFINE(PACKAGE_ORIGIN, "http://www.buzztrax.org", [Plugin package origin])
+AC_SUBST(PACKAGE_ORIGIN)
 
 
 dnl Check for gtk-doc.
@@ -499,10 +497,10 @@ AC_SUBST(LIBM)
 
 dnl Checks for library functions.
 dnl libc functions
-AC_CHECK_FUNCS( sched_setscheduler)
-AC_CHECK_FUNCS( mlockall)
-AC_CHECK_FUNCS( getrusage)
-AC_CHECK_FUNCS( setrlimit)
+AC_CHECK_FUNCS(sched_setscheduler)
+AC_CHECK_FUNCS(mlockall)
+AC_CHECK_FUNCS(getrusage)
+AC_CHECK_FUNCS(setrlimit)
 
 
 dnl Check for -Bsymbolic-functions linker flag used to avoid
