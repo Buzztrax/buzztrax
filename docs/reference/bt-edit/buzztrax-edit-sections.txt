@@ -736,7 +736,7 @@ BT_IS_PRESET_LIST_MODEL_CLASS
 BT_PRESET_LIST_MODEL_GET_CLASS
 BT_TYPE_PRESET_LIST_MODEL
 bt_preset_list_model_get_type
-BtMachineListModelPrivate
+BtPresetListModelPrivate
 </SECTION>
 
 
@@ -1097,6 +1097,7 @@ bt_toolbar_style_changed
 bt_label_value_changed
 <SUBSECTION Private>
 BOX_BORDER
+LABEL_PADDING
 SCREEN_BORDER_HEIGHT
 <SUBSECTION Standard>
 # testing
