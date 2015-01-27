@@ -1,10 +1,10 @@
 #include "config.h"
-#include "ic.h"
-@ALSA_DOC_TYPES@#include "aseq-device.h"
-@ALSA_DOC_TYPES@#include "aseq-discoverer.h"
-@GUDEV_DOC_TYPES@#include "gudev-discoverer.h"
-@LINUX_INPUT_DOC_TYPES@#include "input-device.h"
-#include "midi-device.h"
+#include "ic/ic.h"
+@ALSA_DOC_TYPES@#include "ic/aseq-device.h"
+@ALSA_DOC_TYPES@#include "ic/aseq-discoverer.h"
+@GUDEV_DOC_TYPES@#include "ic/gudev-discoverer.h"
+@LINUX_INPUT_DOC_TYPES@#include "ic/input-device.h"
+#include "ic/midi-device.h"
 
 btic_control_get_type
 btic_device_get_type

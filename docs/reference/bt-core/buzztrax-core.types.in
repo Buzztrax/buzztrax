@@ -1,9 +1,9 @@
-#include "core.h"
-#include "persistence.h"
-#include "song-io-native-bzt.h"
-#include "song-io-native-xml.h"
-#include "song-io-native.h"
-#include "songio/bsl/song-io-buzz.h"
+#include "core/core.h"
+#include "core/persistence.h"
+#include "core/song-io-native-bzt.h"
+#include "core/song-io-native-xml.h"
+#include "core/song-io-native.h"
+#include "core/songio/bsl/song-io-buzz.h"
 
 bt_application_get_type
 bt_audio_session_get_type

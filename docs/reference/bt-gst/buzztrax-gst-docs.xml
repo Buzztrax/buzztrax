@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
+<!ELEMENT xi:include (xi:fallback?) >
+<!ATTLIST xi:include
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude"
+    href       CDATA       #IMPLIED
+    parse      (xml|text)  "xml"
+    xpointer   CDATA       #IMPLIED
+    encoding   CDATA       #IMPLIED 
+    accept     CDATA       #IMPLIED
+    accept-language CDATA  #IMPLIED >
+
+<!ELEMENT xi:fallback ANY>
+<!ATTLIST xi:fallback
+    xmlns:xi   CDATA   #FIXED   "http://www.w3.org/2003/XInclude" >
+
+<!ATTLIST book
+    xmlns:xi   CDATA       #FIXED    "http://www.w3.org/2003/XInclude" >
+
+<!ENTITY % local.refentry.class "| xi:include">
+]>
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
+  <bookinfo>
+    <title>GStreamer Buzztrax Reference Manual</title>
+  </bookinfo>
+
+  <preface>
+    <title>Introduction</title>
+    <para>
+      This module contains experimental code that extends gstreamer.
+      The extensions are required to build a git version of buzztrax.
+    </para>
+  </preface>
+
+  <chapter>
+    <title>GStreamer Buzztrax classes</title>
+    <xi:include href="xml/audiosynth.xml"/>
+    <xi:include href="xml/delay.xml"/>
+    <xi:include href="xml/envelope.xml"/>
+    <xi:include href="xml/envelope-adsr.xml"/>
+    <xi:include href="xml/envelope-d.xml"/>
+    <xi:include href="xml/filter-svf.xml"/>
+    <xi:include href="xml/musicenums.xml"/>
+    <xi:include href="xml/osc-synth.xml"/>
+    <xi:include href="xml/osc-wave.xml"/>
+    <xi:include href="xml/toneconversion.xml"/>
+  </chapter>
+
+  <chapter>
+    <title>GStreamer Buzztrax interfaces</title>
+    <xi:include href="xml/childbin.xml"/>
+    <xi:include href="xml/propertymeta.xml"/>
+    <xi:include href="xml/tempo.xml"/>
+  </chapter>
+
+  <chapter id="hierarchy">
+    <title>Object Hierarchy</title>
+    <xi:include href="xml/tree_index.sgml"/>
+  </chapter>
+
+  <index id="api-index">
+    <title>Index</title>
+    <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+  </index>
+  <index id="deprecated-api-index" role="deprecated">
+    <title>Index of deprecated API</title>
+    <xi:include href="xml/api-index-deprecated.xml"><xi:fallback /></xi:include>
+  </index>
+
+</book>

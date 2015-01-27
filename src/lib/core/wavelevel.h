@@ -20,7 +20,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <libgstbuzztrax/musicenums.h>
+#include "gst/musicenums.h"
 
 
 #define BT_TYPE_WAVELEVEL             (bt_wavelevel_get_type ())

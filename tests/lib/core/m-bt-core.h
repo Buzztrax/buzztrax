@@ -15,7 +15,7 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core.h"
+#include "core/core.h"
 #include "../../bt-check.h"
 
 //-- globals

@@ -16,7 +16,7 @@
  */
 
 #include "m-bt-core.h"
-#include "song-io-native.h"
+#include "core/song-io-native.h"
 
 //-- globals
 

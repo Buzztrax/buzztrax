@@ -87,7 +87,7 @@
 #include <gst/base/gstbasesink.h>
 #include <gst/pbutils/encoding-profile.h>
 #include <gst/pbutils/missing-plugins.h>
-#include <libgstbuzztrax/tempo.h>
+#include "gst/tempo.h"
 
 /* define this to get diagnostics of the sink data flow */
 //#define BT_MONITOR_SINK_DATA_FLOW

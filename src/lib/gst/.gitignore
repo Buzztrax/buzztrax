@@ -1,0 +1,10 @@
+*~
+Makefile.in
+Makefile
+*.o
+*.lo
+*.la
+*.loT
+.libs
+.deps
+libbuzztrax-gst.pc

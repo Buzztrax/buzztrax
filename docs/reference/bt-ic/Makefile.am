@@ -72,8 +72,7 @@ expand_content_files=
 # Only needed if you are using gtkdoc-scangobj to dynamically query widget
 # signals and properties.
 GTKDOC_CFLAGS = \
-	-I$(top_srcdir)/src/lib/core \
-	-I$(top_srcdir)/src/lib/ic \
+	-I$(top_srcdir)/src/lib \
 	-I$(top_builddir) \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)

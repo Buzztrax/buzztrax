@@ -34,7 +34,7 @@
 #define BT_PARAMETER_GROUP_C
 
 #include "core_private.h"
-#include <libgstbuzztrax/propertymeta.h>
+#include "gst/propertymeta.h"
 
 //-- property ids
 

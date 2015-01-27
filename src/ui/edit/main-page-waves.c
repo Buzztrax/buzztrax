@@ -56,7 +56,7 @@
 
 #include "bt-edit.h"
 #include <gst/audio/audio.h>
-#include <libgstbuzztrax/toneconversion.h>
+#include "gst/toneconversion.h"
 
 struct _BtMainPageWavesPrivate
 {

@@ -20,7 +20,7 @@
 #define BT_CHECK
 
 #include "bt-check.h"
-#include "core.h"
+#include "core/core.h"
 #include <stdlib.h>
 
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);

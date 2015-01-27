@@ -54,7 +54,7 @@
 #endif
 #endif
 //-- libbtcore & libbtic
-#include "core.h"
+#include "core/core.h"
 //-- glib
 #include <glib.h>
 //-- gtk+

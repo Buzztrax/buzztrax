@@ -5,7 +5,8 @@ SUBDIRS = po docs/help/bt-edit
 # see fake subdir rules
 FAKE_SUBDIRS = \
   docs/reference/bt-core docs/reference/bt-ic \
-  docs/reference/bt-cmd docs/reference/bt-edit
+  docs/reference/bt-cmd docs/reference/bt-edit \
+  docs/reference/bt-gst
 DIST_SUBDIRS = $(SUBDIRS) $(FAKE_SUBDIRS)
 
 ACLOCAL_AMFLAGS = -I m4
@@ -18,8 +19,8 @@ DISTCHECK_CONFIGURE_FLAGS = \
   --disable-scrollkeeper
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir)/src/lib/core \
-	-I$(top_srcdir)/src/lib/ic \
+	-I$(top_srcdir)/src/lib \
+	-I$(top_builddir)/src/lib \
 	-DPREFIX=\"$(prefix)\" \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-DLOCALEDIR=\"$(localedir)\" \
@@ -84,7 +85,7 @@ appdata_in_files = buzztrax.appdata.xml.in
 
 #-- fake subdir rules
 
-docs: docs-bt-core docs-bt-ic docs-bt-cmd docs-bt-edit 
+docs: docs-bt-core docs-bt-ic docs-bt-cmd docs-bt-edit docs-bt-gst
 
 docs/reference/version.entities:
 	@cp docs/version.entities docs/reference/
@@ -100,6 +101,9 @@ docs-bt-cmd: libbtcmd.la libbuzztrax-ic.la libbuzztrax-core.la docs/reference/ve
 
 docs-bt-edit: libbtedit.la libbuzztrax-ic.la libbuzztrax-core.la docs/reference/version.entities
 	@$(MAKE) -C docs/reference/bt-edit
+
+docs-bt-gst: libbuzztrax-gst.la
+	@$(MAKE) -C docs/reference/bt-gst
 
 all-local: docs
 
@@ -156,6 +160,7 @@ AUTHORS: .git/index
 		  git log --no-merges --pretty=format:"%an <%ae>" . | \
 		  sed -e 's/sourceforge.net/sf.net/' \
 		      -e 's/Stefan Sauer <ensonic@hora-obscura.de>/Stefan Sauer <ensonic@users.sf.net>/' \
+		      -e 's/\(Joseph Orbegoso Pea <joseph.pea@climate.com>\|trusktr <trusktr@gmail.com>\)/Joe Pea <trusktr@gmail.com>/' | \
 		      -e 's/\(Tom Mast <thomasomast@gmail.com>\|tom__m <thomasomast@gmail.com>\)/Tom Mast <amishmansteve@users.sf.net>/' \
 		      -e 's/\(Thomas Wabner <waffel@hora-obscura.de>\|Waffel <waffel@hora-obscura.de>\|waffel <waffel@users.sf.net>\)/Thomas Wabner <waffel@users.sf.net>/' | \
 		  sort | uniq -c | sed -e 's/^\ *//' | sort -rn | cut -d' ' -f2- \

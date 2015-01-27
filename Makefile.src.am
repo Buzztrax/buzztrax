@@ -24,14 +24,56 @@ endif
 
 # -- libs ----------------------------------------------------------------------
 
-lib_LTLIBRARIES = libbuzztrax-ic.la libbuzztrax-core.la
+lib_LTLIBRARIES = libbuzztrax-gst.la libbuzztrax-ic.la libbuzztrax-core.la
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = \
+  src/lib/core/libbuzztrax-core.pc \
+  src/lib/gst/libbuzztrax-gst.pc \
+  src/lib/ic/libbuzztrax-ic.pc
+
+libbuzztrax_gst_la_LIBADD =  \
+	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
+libbuzztrax_gst_la_LDFLAGS = \
+  -export-symbols-regex \^[_]*\(gstbt_\|GstBt\|GSTBT_\|gst_\|Gst\|GST_\).* \
+  -version-info @BT_VERSION_INFO@
+libbuzztrax_gst_la_SOURCES = \
+	src/lib/gst/audiosynth.c \
+	src/lib/gst/childbin.c \
+	src/lib/gst/delay.c \
+	src/lib/gst/envelope.c \
+	src/lib/gst/envelope-adsr.c \
+	src/lib/gst/envelope-d.c \
+	src/lib/gst/filter-svf.c \
+	src/lib/gst/musicenums.c \
+	src/lib/gst/osc-synth.c \
+	src/lib/gst/osc-wave.c \
+	src/lib/gst/toneconversion.c \
+	src/lib/gst/propertymeta.c \
+	src/lib/gst/tempo.c
+
+libbuzztrax_gstincludedir = $(includedir)/libbuzztrax-gst
+libbuzztrax_gstinclude_HEADERS = \
+	src/lib/gst/audiosynth.h \
+	src/lib/gst/childbin.h \
+	src/lib/gst/delay.h \
+	src/lib/gst/envelope.h \
+	src/lib/gst/envelope-adsr.h \
+	src/lib/gst/envelope-d.h \
+	src/lib/gst/filter-svf.h \
+	src/lib/gst/musicenums.h \
+	src/lib/gst/osc-synth.h \
+	src/lib/gst/osc-wave.h \
+	src/lib/gst/toneconversion.h \
+	src/lib/gst/propertymeta.h \
+	src/lib/gst/tempo.h
+
 
 libbuzztrax_ic_la_LIBADD = \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbuzztrax_ic_la_LDFLAGS = \
 	-export-symbols-regex ^_?\(btic_\|BtIc\|BTIC_\).* \
 	-version-info @BT_VERSION_INFO@
-libbuzztrax_ic_la_CFLAGS = -I$(top_builddir)/src/lib/ic
 libbuzztrax_ic_la_SOURCES = \
 	src/lib/ic/ic.c \
 	src/lib/ic/registry.c\
@@ -60,10 +102,6 @@ libbuzztrax_ic_HEADERS = \
 	src/lib/ic/abs-range-control.h \
 	src/lib/ic/trigger-control.h
 
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = \
-  src/lib/core/libbuzztrax-core.pc \
-  src/lib/ic/libbuzztrax-ic.pc
 
 src/lib/core/marshal.h: src/lib/core/marshal.list
 	$(AM_V_at)$(MKDIR_P) src/lib/core
@@ -80,12 +118,12 @@ EXTRA_libbuzztrax_core_la_SOURCES = src/lib/core/marshal.list
 nodist_libbuzztrax_core_la_SOURCES = src/lib/core/marshal.c src/lib/core/marshal.h
 libbuzztrax_core_la_LIBADD = \
 	libbuzztrax-ic.la \
+	libbuzztrax-gst.la \
 	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
 	-lgstaudio-@GST_MAJORMINOR@ -lgstpbutils-@GST_MAJORMINOR@
 libbuzztrax_core_la_LDFLAGS = \
 	-export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
 	-version-info @BT_VERSION_INFO@
-libbuzztrax_core_la_CFLAGS = -I$(top_builddir)/src/lib/core
 libbuzztrax_core_la_SOURCES = \
 	src/lib/core/core.c \
 	src/lib/core/tools.c \
@@ -177,7 +215,12 @@ noinst_HEADERS = \
 
 bin_PROGRAMS = buzztrax-cmd buzztrax-edit
 noinst_LTLIBRARIES = libbtcmd.la libbtedit.la
-plugin_LTLIBRARIES = libbuzztraxdec.la
+plugin_LTLIBRARIES = libbuzztraxdec.la \
+  libgstaudiodelay.la \
+  libgstsidsyn.la \
+  libgstsimsyn.la \
+  libgstwavereplay.la \
+  libgstwavetabsyn.la
 
 buzztrax_cmd_LDADD = \
 	libbuzztrax-core.la \
@@ -301,6 +344,189 @@ libbuzztraxdec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libbuzztraxdec_la_SOURCES = src/ui/dec/bt-dec.c src/ui/dec/bt-dec.h
 libbuzztraxdec_la_LIBTOOLFLAGS = --tag=disable-static
 
+
+# -- plugins -------------------------------------------------------------------
+
+ORC_SOURCE = src/gst/bml/gstbmlorc
+include $(top_srcdir)/orc.mak
+
+noinst_HEADERS += \
+  src/gst/audiodelay/audiodelay.h \
+  src/gst/sidsyn/sidsyn.h \
+  src/gst/sidsyn/sidsynv.h \
+  src/gst/sidsyn/envelope.h \
+  src/gst/sidsyn/extfilt.h \
+  src/gst/sidsyn/filter.h \
+  src/gst/sidsyn/pot.h \
+  src/gst/sidsyn/siddefs.h \
+  src/gst/sidsyn/sidemu.h \
+  src/gst/sidsyn/spline.h \
+  src/gst/sidsyn/voice.h \
+  src/gst/sidsyn/wave.h \
+  src/gst/simsyn/simsyn.h \
+  src/gst/wavereplay/wavereplay.h \
+  src/gst/wavetabsyn/wavetabsyn.h
+
+# audiodelay
+libgstaudiodelay_la_SOURCES = src/gst/audiodelay/audiodelay.c
+libgstaudiodelay_la_CFLAGS = \
+  -I$(srcdir) -I$(top_srcdir) \
+  -DDATADIR=\"$(datadir)\" \
+	$(GST_PLUGIN_CFLAGS) \
+	$(BASE_DEPS_CFLAGS)
+libgstaudiodelay_la_LIBADD = \
+	libbuzztrax-gst.la \
+	$(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS) -lgstaudio-1.0 
+libgstaudiodelay_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstaudiodelay_la_LIBTOOLFLAGS = --tag=disable-static
+
+
+if BML_SUPPORT
+
+plugin_LTLIBRARIES += libgstbml.la
+noinst_HEADERS += \
+  src/gst/bml/gstbmlsrc.h src/gst/bml/gstbmltransform.h \
+  src/gst/bml/gstbml.h src/gst/bml/gstbmlv.h \
+  src/gst/bml/plugin.h src/gst/bml/common.h
+
+# native
+libgstbmln_la_SOURCES = \
+  src/gst/bml/gstbml.c src/gst/bml/gstbmlsrc.c src/gst/bml/gstbmltransform.c \
+  src/gst/bml/gstbmlv.c
+libgstbmln_la_CFLAGS = -DBML_NATIVE \
+  -I$(srcdir) -I$(builddir) -I$(builddir)/src/bml \
+  $(GST_PLUGIN_CFLAGS) \
+  $(BASE_DEPS_CFLAGS) \
+  $(ORC_CFLAGS) \
+  $(BML_CFLAGS)
+  
+# wrapped
+libgstbmlw_la_SOURCES = \
+  src/gst/bml/gstbml.c src/bml/gst/gstbmlsrc.c src/gst/bml/gstbmltransform.c \
+  src/gst/bml/gstbmlv.c
+libgstbmlw_la_CFLAGS = -DBML_WRAPPED \
+  -I$(srcdir) -I$(builddir) -I$(builddir)/src/bml \
+  $(GST_PLUGIN_CFLAGS) \
+  $(BASE_DEPS_CFLAGS) \
+  $(ORC_CFLAGS) \
+  $(BML_CFLAGS)
+
+if BUILD_BMLW
+BMLW_LA = libgstbmlw.la
+else
+BMLW_LA = 
+endif
+
+noinst_LTLIBRARIES += libgstbmln.la $(BMLW_LA)
+
+libgstbml_la_SOURCES = src/gst/bml/plugin.c src/gst/bml/common.c
+nodist_libgstbml_la_SOURCES = $(ORC_NODIST_SOURCES)
+libgstbml_la_CFLAGS = \
+  -I$(srcdir) -I$(builddir) -I$(builddir)/src/bml \
+  -DLIBDIR=\"\${libdir}\" \
+  $(GST_PLUGIN_CFLAGS) \
+  $(BASE_DEPS_CFLAGS) \
+  $(ORC_CFLAGS) \
+  $(BML_CFLAGS)
+libgstbml_la_LIBADD = \
+	libbuzztrax-gst.la \
+	libgstbmln.la $(BMLW_LA) \
+	$(BASE_DEPS_LIBS) $(ORC_LIBS) $(BML_LIBS) \
+	$(GST_PLUGIN_LIBS) -lgstaudio-1.0 $(LIBM) 
+libgstbml_la_LDFLAGS =  $(GST_PLUGIN_LDFLAGS)
+libgstbml_la_LIBTOOLFLAGS = --tag=disable-static
+
+endif
+
+
+if FLUIDSYNTH_SUPPORT
+plugin_LTLIBRARIES += libgstfluidsynth.la
+noinst_HEADERS += src/gst/fluidsynth/fluidsynth.h
+
+libgstfluidsynth_la_SOURCES = src/gst/fluidsynth/fluidsynth.c
+libgstfluidsynth_la_CFLAGS = \
+  -I$(srcdir) -I$(top_srcdir) \
+  -DDATADIR=\"$(datadir)\" \
+	$(GST_PLUGIN_CFLAGS) \
+	$(BASE_DEPS_CFLAGS) \
+	$(FLUIDSYNTH_CFLAGS)
+libgstfluidsynth_la_LIBADD = \
+	libbuzztrax-gst.la  \
+	$(BASE_DEPS_LIBS) $(FLUIDSYNTH_LIBS) $(GST_PLUGIN_LIBS)
+libgstfluidsynth_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstfluidsynth_la_LIBTOOLFLAGS = --tag=disable-static
+endif
+
+
+libgstsidsyn_la_SOURCES = \
+  src/gst/sidsyn/sidsyn.cc \
+  src/gst/sidsyn/sidsynv.cc \
+  src/gst/sidsyn/envelope.cc \
+  src/gst/sidsyn/extfilt.cc \
+  src/gst/sidsyn/filter.cc \
+  src/gst/sidsyn/pot.cc \
+  src/gst/sidsyn/sidemu.cc \
+  src/gst/sidsyn/voice.cc \
+  src/gst/sidsyn/wave.cc \
+  src/gst/sidsyn/wave6581_PST.cc \
+  src/gst/sidsyn/wave6581_PS_.cc \
+  src/gst/sidsyn/wave6581_P_T.cc \
+  src/gst/sidsyn/wave6581__ST.cc \
+  src/gst/sidsyn/wave8580_PST.cc \
+  src/gst/sidsyn/wave8580_PS_.cc \
+  src/gst/sidsyn/wave8580_P_T.cc \
+  src/gst/sidsyn/wave8580__ST.cc
+libgstsidsyn_la_CXXFLAGS = \
+  -I$(srcdir) -I$(top_srcdir) \
+  -DDATADIR=\"$(datadir)\" \
+	$(GST_PLUGIN_CFLAGS) \
+	$(BASE_DEPS_CFLAGS)
+libgstsidsyn_la_LIBADD = \
+	libbuzztrax-gst.la \
+	$(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
+libgstsidsyn_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstsidsyn_la_LIBTOOLFLAGS = --tag=disable-static
+
+
+libgstsimsyn_la_SOURCES = src/gst/simsyn/plugin.c src/gst/simsyn/simsyn.c
+libgstsimsyn_la_CFLAGS = \
+  -I$(srcdir) -I$(top_srcdir) \
+  -DDATADIR=\"$(datadir)\" \
+	$(GST_PLUGIN_CFLAGS) \
+	$(BASE_DEPS_CFLAGS)
+libgstsimsyn_la_LIBADD = \
+	libbuzztrax-gst.la \
+	$(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
+libgstsimsyn_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstsimsyn_la_LIBTOOLFLAGS = --tag=disable-static
+
+
+libgstwavereplay_la_SOURCES = src/gst/wavereplay/wavereplay.c
+libgstwavereplay_la_CFLAGS = \
+  -I$(srcdir) -I$(top_srcdir) \
+  -DDATADIR=\"$(datadir)\" \
+	$(GST_PLUGIN_CFLAGS) \
+	$(BASE_DEPS_CFLAGS)
+libgstwavereplay_la_LIBADD = \
+	libbuzztrax-gst.la \
+	$(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
+libgstwavereplay_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstwavereplay_la_LIBTOOLFLAGS = --tag=disable-static
+
+
+libgstwavetabsyn_la_SOURCES = src/gst/wavetabsyn/wavetabsyn.c
+libgstwavetabsyn_la_CFLAGS = \
+  -I$(srcdir) -I$(top_srcdir) \
+  -DDATADIR=\"$(datadir)\" \
+	$(GST_PLUGIN_CFLAGS) \
+	$(BASE_DEPS_CFLAGS)
+libgstwavetabsyn_la_LIBADD = \
+	libbuzztrax-gst.la \
+	$(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
+libgstwavetabsyn_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstwavetabsyn_la_LIBTOOLFLAGS = --tag=disable-static
+
+
 # -- common --------------------------------------------------------------------
 
 desktopdir = ${with_desktop_dir}/applications
@@ -361,10 +587,10 @@ BuzztraxCore-0.0.gir: $(G_IR_SCANNER) libbuzztrax-core.la
 	     --include=libxml2-2.0 \
 	     --include=BuzztraxIc-0.0 \
 	     --library=libbuzztrax-core.la \
+	     --library=libbuzztrax-gst.la \
 	     --libtool="$(top_builddir)/libtool" \
 	     --pkg glib-2.0 \
 	     --pkg gobject-2.0 \
-	     --pkg libgstbuzztrax \
 	     --pkg libxml-2.0 \
 	     --pkg gstreamer-@GST_MAJORMINOR@ \
 	     --pkg-export libbuzztrax-core \
@@ -418,6 +644,7 @@ EXTRA_DIST += \
 	src/lib/core/libbuzztrax-core.pc.in \
 	src/lib/core/marshal.list \
 	src/lib/core/version.h.in \
+	src/lib/gst/libbuzztrax_gst.pc.in \
 	src/lib/ic/libbuzztrax-ic.pc.in \
 	src/lib/ic/version.h.in \
 	src/ui/edit/marshal.list

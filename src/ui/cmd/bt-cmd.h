@@ -51,7 +51,7 @@
 #endif
 #endif
 //-- libbtcore
-#include "core.h"
+#include "core/core.h"
 
 #include "cmd-application.h"
 

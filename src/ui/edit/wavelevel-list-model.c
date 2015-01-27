@@ -26,7 +26,7 @@
 #define BT_WAVELEVEL_LIST_MODEL_C
 
 #include "bt-edit.h"
-#include <libgstbuzztrax/toneconversion.h>
+#include "gst/toneconversion.h"
 
 //-- defines
 #define N_COLUMNS __BT_WAVELEVEL_LIST_MODEL_N_COLUMNS

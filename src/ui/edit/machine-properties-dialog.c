@@ -86,7 +86,7 @@
 #define BT_MACHINE_PROPERTIES_DIALOG_C
 
 #include "bt-edit.h"
-#include "persistence.h"
+#include "core/persistence.h"
 #include <glib/gprintf.h>
 
 #define DEFAULT_PARAM_WIDTH 70

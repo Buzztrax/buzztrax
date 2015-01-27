@@ -1,5 +1,5 @@
 if BUILD_CHECK_TESTS
-  TESTS_BIN = bt_core bt_ic bt_cmd bt_edit
+  TESTS_BIN = bt_core bt_ic bt_gst bt_cmd bt_edit
 else
   TESTS_BIN =
 endif
@@ -62,6 +62,7 @@ check_LTLIBRARIES = \
   libbt-check-ui.la \
   libbtcore-check.la \
   libbtic-check.la \
+  libbtgst-check.la \
   libbt-cmd-check.la \
   libbt-edit-check.la
 
@@ -105,6 +106,15 @@ bt_ic_LDFLAGS =  \
 bt_ic_SOURCES = \
 	tests/m-bt-ic.c
 
+bt_gst_LDADD = \
+  libbtgst-check.la \
+	libbuzztrax-gst.la \
+	libbt-check.la $(BASE_DEPS_LIBS) $(CHECK_LIBS)
+bt_gst_LDFLAGS =  \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
+bt_gst_SOURCES = \
+  tests/m-bt-gst.c
+
 bt_cmd_LDADD = \
 	libbt-cmd-check.la \
 	libbuzztrax-core.la \
@@ -127,7 +137,7 @@ bt_edit_SOURCES = \
 	tests/m-bt-edit.c
 
 libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
-libbtcore_check_la_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
+libbtcore_check_la_CFLAGS = $(BASE_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
 	tests/lib/core/e-application.c \
 	tests/lib/core/e-audio-session.c \
@@ -155,13 +165,19 @@ libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
 	tests/lib/core/e-wire.c tests/lib/core/t-wire.c
 
 libbtic_check_la_LIBADD = $(BASE_DEPS_LIBS)
-libbtic_check_la_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
+libbtic_check_la_CFLAGS = $(BASE_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbtic_check_la_SOURCES = tests/lib/ic/m-bt-ic.h \
 	tests/lib/ic/e-device.c \
 	tests/lib/ic/e-ic.c tests/lib/ic/t-ic.c \
 	tests/lib/ic/e-learn.c \
 	tests/lib/ic/e-registry.c \
 	$(ALSA_C_TEST_FILES)
+
+libbtgst_check_la_LIBADD = $(BASE_DEPS_LIBS)
+libbtgst_check_la_CFLAGS = $(BASE_DEPS_CFLAGS) $(CHECK_CFLAGS)
+libbtgst_check_la_SOURCES = tests/lib/gst/m-bt-gst.h \
+	tests/lib/gst/e-gst-note2frequency.c tests/lib/gst/t-gst-note2frequency.c \
+	tests/lib/gst/t-elements.c
 
 libbt_cmd_check_la_LIBADD = \
 	libbtcmd.la \

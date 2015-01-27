@@ -62,22 +62,22 @@
 #endif
 #endif
 //-- libbtcore
-#include "tools.h"
+#include "core/tools.h"
 
-#include "ic.h"
+#include "ic/ic.h"
 #if USE_ALSA
-#include "aseq-discoverer.h"
-#include "aseq-device.h"
+#include "ic/aseq-discoverer.h"
+#include "ic/aseq-device.h"
 #endif
 #if USE_GUDEV
-#include "gudev-discoverer.h"
+#include "ic/gudev-discoverer.h"
 #endif
 #ifdef HAVE_LINUX_INPUT_H
-#include "input-device.h"
+#include "ic/input-device.h"
 #endif
-#include "midi-device.h"
+#include "ic/midi-device.h"
 
-#include "version.h"
+#include "ic/version.h"
 
 #define GST_CAT_DEFAULT btic_debug
 #ifndef BTIC_CORE_C

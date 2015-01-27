@@ -1,4 +1,4 @@
-#include "core.h"
+#include "core/core.h"
 #include "bt-cmd.h"
 
 bt_cmd_application_get_type

@@ -37,8 +37,8 @@
 //-- glib/gobject
 #include <glib/gprintf.h>
 //-- gstbuzztrax
-#include <libgstbuzztrax/toneconversion.h>
-#include <libgstbuzztrax/propertymeta.h>
+#include "gst/toneconversion.h"
+#include "gst/propertymeta.h"
 
 struct _BtSongIOBuzzPrivate
 {

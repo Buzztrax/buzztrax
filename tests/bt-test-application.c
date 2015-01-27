@@ -26,7 +26,7 @@
 
 #include "bt-check.h"
 
-#include "core.h"
+#include "core/core.h"
 #include "bt-test-application.h"
 
 //-- the class

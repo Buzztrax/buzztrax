@@ -1,0 +1,11 @@
+*~
+Makefile.in
+Makefile
+*.o
+*.lo
+*.la
+*.loT
+.libs
+.deps
+gstbmlorc.h
+tmp-orc.c

@@ -12,6 +12,7 @@ ar-lib
 buzztrax-cmd
 buzztrax-edit
 bt_core
+bt_gst
 bt_ic
 bt_cmd
 bt_edit
@@ -52,6 +53,7 @@ intltool*
 mkinstalldirs
 coverage
 buzztrax.schemas
+tmp-orc.c
 *.prj
 *.pws
 *.log

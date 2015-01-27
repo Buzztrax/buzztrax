@@ -23,7 +23,7 @@
 #define BTIC_CORE
 #define BTIC_TEST_DEVICE_C
 
-#include "ic_private.h"
+#include "ic/ic_private.h"
 #include "btic-test-device.h"
 
 struct _BtIcTestDevicePrivate

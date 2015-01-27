@@ -65,6 +65,7 @@ AC_DEFINE_UNQUOTED(PACKAGE_VERSION_NUMBER, 800, [version as a number])
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CPP
+AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
@@ -233,17 +234,11 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   gstreamer-1.0 >= $REQ_GST gstreamer-controller-1.0 >= $REQ_GST \
   gstreamer-base-1.0 >= $REQ_GST \
   gstreamer-plugins-base-1.0 >= $REQ_GST \
+  gstreamer-audio-1.0 >= $REQ_GST \
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \
   clutter-1.0 clutter-gtk-1.0 gtk+-3.0 >= $REQ_GTK \
-)
-
-PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztrax >= 0.8.0, [
-    AC_DEFINE(USE_GSTBT, [1], [Define to 1 if we can use gst-buzztrax])
-    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTBT_DEPS_CFLAGS"
-    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTBT_DEPS_LIBS"
-  ]
 )
 
 dnl optional deps
@@ -252,10 +247,14 @@ PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.8.0, [
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $BML_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $BML_DEPS_LIBS"
     use_bml=yes
+    BML_DOC_TYPES=
   ],[
     use_bml=no
+    BML_DOC_TYPES="%"
   ]
 )
+AM_CONDITIONAL(BML_SUPPORT, test "x$use_bml" = "xyes")
+AC_SUBST(BML_DOC_TYPES)
 
 PKG_CHECK_MODULES(ALSA_DEPS, alsa, [
     AC_DEFINE(USE_ALSA, [1], [Define to 1 if we can use alsa libraries])
@@ -385,6 +384,44 @@ GST_PLUGIN_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS"
 AC_SUBST(GST_PLUGIN_CFLAGS)
 GST_PLUGIN_LDFLAGS="-module -avoid-version -export-symbols-regex '[_]*(gst_|bt_|Bt|BT_).*' $COVERAGE_LIBS"
 AC_SUBST(GST_PLUGIN_LDFLAGS)
+GST_PLUGIN_LIBS="$COVERAGE_LIBS"
+AC_SUBST(GST_PLUGIN_LIBS)
+
+
+dnl check for bml variant (wrapped/native)
+ac_cflags_save="$CFLAGS"
+ac_ldflags_save="$LDFLAGS"
+CFLAGS="$CFLAGS $BML_CFLAGS"
+LDFLAGS="$LDFLAGS $BML_LIBS"
+AC_CHECK_LIB( bml, bmlw_init, [
+    have_bmlw=yes
+    AC_DEFINE(HAVE_BMLW, [1], [Define to 1 if bml has been build with wrapper])
+    bml_types="native"
+  ],[
+    have_bmlw=no
+    bml_types="native and wrapped"
+  ]
+)
+AM_CONDITIONAL(BUILD_BMLW, test "x$have_bmlw" = "xyes")
+CFLAGS="$ac_cflags_save"
+LDFLAGS="$ac_ldflags_save"
+
+dnl check for oil runtime compiler
+ORC_CHECK([0.4.6])
+
+dnl check for FluidSynth
+PKG_CHECK_MODULES(FLUIDSYNTH, fluidsynth >= 1.0,
+    have_fluidsynth=yes, have_fluidsynth=no)
+AC_SUBST(FLUIDSYNTH_CFLAGS)
+AC_SUBST(FLUIDSYNTH_LIBS)
+AM_CONDITIONAL(FLUIDSYNTH_SUPPORT, test "x$have_fluidsynth" = "xyes")
+
+
+dnl set license and copyright notice
+AC_DEFINE(GST_PACKAGE_ORIGIN, "http://www.buzztrax.org", [Plugin package origin])
+AC_SUBST(GST_PACKAGE_ORIGIN)
+AC_DEFINE(GST_PACKAGE_NAME, "gst-buzztrax", [Plugin package name])
+AC_SUBST(GST_PACKAGE_NAME)
 
 
 dnl Check for gtk-doc.
@@ -539,6 +576,7 @@ AC_CONFIG_FILES(Makefile \
   docs/reference/bt-core/Makefile \
   docs/reference/bt-core/buzztrax-core.types \
   docs/reference/bt-edit/Makefile \
+  docs/reference/bt-gst/Makefile \
   docs/reference/bt-ic/Makefile \
   docs/reference/bt-ic/buzztrax-ic.types \
   docs/reference/bt-ic/buzztrax-ic-sections.txt \
@@ -546,6 +584,7 @@ AC_CONFIG_FILES(Makefile \
   src/lib/buzztrax.xml \
   src/lib/core/libbuzztrax-core.pc \
   src/lib/core/version.h \
+  src/lib/gst/libbuzztrax-gst.pc \
   src/lib/ic/libbuzztrax-ic.pc \
   src/lib/ic/version.h \
   tests/bt-cfg.sh \
@@ -568,10 +607,12 @@ Configuration
 	Documentation (Man)             : ${enable_man}
 	Documentation (User)            : ${have_scrollkeeper}
 	Bindings Metadata (GIR)         : ${enable_gir}
+
 	Alsa seq. for interaction ctrl. : ${use_alsa}
 	GUdev for interaction ctrl.     : ${use_gudev}
 	Linux HID for interaction ctrl. : ${have_linux_input_h}
-	Buzzmachine Host support        : ${use_bml}
+	Buzzmachine support             : ${use_bml}
+	FluidSynth support              : ${have_fluidsynth}
 	Zipped Song file support (bzt)  : ${use_gsf}
 	Compact UI (small screen)       : ${enable_compact_ui}
 
@@ -583,7 +624,7 @@ Configuration
 	Use valgrind on the tests       : ${have_valgrind}
 "
 
-if test "x${use_bml}" = "xno" -o "x${use_gudev}" = "xno" -o "x${use_gsf}" = "xno" ; then
+if test "x${use_bml}" = "xno" -o "x${use_gudev}" = "xno" -o "x${use_gsf}" = "xno" -o "x${have_fluidsynth}" = "xno" ; then
 echo "
 Some features are not built. If you like to have them built, please check that
 you have the required -devel packages installed and that they can be found in

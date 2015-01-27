@@ -1,0 +1,11 @@
+*~
+.libs
+.deps
+*.o
+*.lo
+*.la
+*.da
+*.bbg
+Makefile
+Makefile.in
+gst_buzztrax

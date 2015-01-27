@@ -56,7 +56,7 @@
 #endif
 #endif
 //-- btcore
-#include "core.h"
+#include "core/core.h"
 
 #include "song-io-buzz.h"
 

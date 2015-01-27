@@ -32,7 +32,7 @@
 //-- gstreamer
 #include <gst/gstinfo.h>
 //-- buzztrax
-#include "core.h"
+#include "core/core.h"
 #include "bt-test-application.h"
 #include "bt-test-plugin.h"
 #include "btic-test-device.h"
