@@ -326,6 +326,14 @@ bt_ui_resources_init_theme (void)
   GtkStyleProvider *provider;
   GError *err = NULL;
 
+/* TODO(ensonic): add UI theme setting
+ * gboolean dark; // prefer dark
+ * gboolean compact; // compact ui
+ *
+ * compact UI:
+ * - can we style separators on toolbars to be tiny and ideally invisible
+ * - can we use classes for larger labels (info page)
+ */
 //#define USE_DARK_THEME
 #ifdef USE_DARK_THEME
   g_object_set (gtk_settings_get_default (),
