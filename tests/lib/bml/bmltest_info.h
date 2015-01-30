@@ -45,13 +45,14 @@ int bml(test_info(char *libpath)) {
       if(bml(get_machine_info(bmh,BM_PROP_AUTHOR,(void *)&str)))               printf("    Author: \"%s\"\n",str);
       if(bml(get_machine_info(bmh,BM_PROP_COMMANDS,(void *)&str))) {
         if(str) {
-          char *p=str;
+          char *t=strdup(str), *p=t;
           while(*p) {
             if(*p=='\n') *p=',';
             p++;
           }
+          printf("    Commands: \"%s\"\n",t);
+          free(t);
         }
-        printf("    Commands: \"%s\"\n",str?str:"");
       }
       if(bml(get_machine_info(bmh,BM_PROP_TYPE,(void *)&val)))                 printf("    Type: %i -> \"%s\"\n",val,((val<3)?machine_types[val]:"unknown"));
       if(bml(get_machine_info(bmh,BM_PROP_VERSION,(void *)&val)))              printf("    Version: %3.1f\n",(float)val/10.0);
