@@ -529,7 +529,8 @@ ARCH_CFLAGS=""
 ARCH_CPPFLAGS=""
 case "x${target_cpu}" in
   xi?86|k?|xx86_64|xamd64)
-    ARCH_CFLAGS="-march=native"
+    # seems to cause "CPU you selected does not support x86-64 instruction set" on some targets
+    #ARCH_CFLAGS="-march=native"
     ARCH_CPPFLAGS="-D__SSE__ -D__MMX__"
     AC_CHECK_HEADERS([xmmintrin.h])
     ;;
