@@ -42,6 +42,11 @@ typedef struct _GtkScrolledSyncWindow              GtkScrolledSyncWindow;
 typedef struct _GtkScrolledSyncWindowPrivate       GtkScrolledSyncWindowPrivate;
 typedef struct _GtkScrolledSyncWindowClass         GtkScrolledSyncWindowClass;
 
+/**
+ * GtkScrolledSyncWindow:
+ *
+ * a scrolling container widget
+ */
 struct _GtkScrolledSyncWindow
 {
   GtkBin container;

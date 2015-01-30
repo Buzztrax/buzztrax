@@ -98,5 +98,9 @@
       <title>Index of new API in 0.6</title>
       <xi:include href="xml/api-index-0.6.xml"><xi:fallback /></xi:include>
     </index>
+    <index id="api-index-0-9" role="0.9">
+      <title>Index of new API in 0.9</title>
+      <xi:include href="xml/api-index-0.9.xml"><xi:fallback /></xi:include>
+    </index>
   </part>
 </book>
