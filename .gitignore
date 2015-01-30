@@ -9,6 +9,8 @@
 *.gir
 *.typelib
 ar-lib
+bmltest_info
+bmltest_process
 buzztrax-cmd
 buzztrax-edit
 bt_core

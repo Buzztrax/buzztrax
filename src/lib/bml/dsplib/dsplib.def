@@ -1,0 +1,27 @@
+; i586-mingw32msvc-dlltool --base-file /tmp/ccpuYmmm.base --output-exp dsplib.exp --dllname dsplib.dll --add-stdcall-alias --as=i586-mingw32msvc-as --output-def dsplib.def --exclude-symbol=DllMainCRTStartup@12 --def /tmp/ccXzUd5E.def --output-lib dsplib.lib
+EXPORTS
+        ?DSP_Add@@YIXPAMPBMK@Z = @_Z7DSP_AddPfPKfm@12 @ 0
+        ?DSP_Add@@YIXPAMPBMKM@Z = @_Z7DSP_AddPfPKfmf@16 @ 1
+        ?DSP_AddM2S@@YIXPAMPBMK@Z = @_Z10DSP_AddM2SPfPKfm@12 @ 2
+        ?DSP_AddM2S@@YIXPAMPBMKM@Z = @_Z10DSP_AddM2SPfPKfmf@16 @ 3
+        ?DSP_AddM2S@@YIXPAMPBMKMM@Z = @_Z10DSP_AddM2SPfPKfmff@20 @ 4
+        ?DSP_AddS2MOneChannel@@YIXPAMPBMKM@Z = @_Z20DSP_AddS2MOneChannelPfPKfmf@16 @ 5
+        ?DSP_AddS2S@@YIXPAMPBMKM@Z = @_Z10DSP_AddS2SPfPKfmf@16 @ 6
+        ?DSP_AddS2S@@YIXPAMPBMKMM@Z = @_Z10DSP_AddS2SPfPKfmff@20 @ 7
+        ?DSP_AddS2SOneChannel@@YIXPAMPBMKM@Z = @_Z20DSP_AddS2SOneChannelPfPKfmf@16 @ 8
+        ?DSP_Amp@@YIXPAMKM@Z = @_Z7DSP_AmpPfmf@12 @ 9
+	?DSP_BW_InitBandpass@@YIXAAVCBWState@@MM@Z = @DSP_BW_InitBandpass@12 @ 10
+	?DSP_BW_InitBandreject@@YIXAAVCBWState@@MM@Z = @DSP_BW_InitBandreject@12 @ 11
+	?DSP_BW_InitHighpass@@YIXAAVCBWState@@M@Z = @DSP_BW_InitHighpass@8 @ 12
+	?DSP_BW_InitLowpass@@YIXAAVCBWState@@M@Z = @DSP_BW_InitLowpass@8 @ 13
+	?DSP_BW_Reset@@YIXAAVCBWState@@@Z = @DSP_BW_Reset@4 @ 14
+	?DSP_BW_Work@@YI_NAAVCBWState@@PAMKH@Z = @DSP_BW_Work@16 @ 15
+	?DSP_BW_WorkStereo@@YI_NAAVCBWState@@PAMKH@Z = @DSP_BW_WorkStereo@16 @ 16
+        ?DSP_Copy@@YIXPAMPBMK@Z = @_Z8DSP_CopyPfPKfm@12 @ 17
+        ?DSP_Copy@@YIXPAMPBMKM@Z = @_Z8DSP_CopyPfPKfmf@16 @ 18
+        ?DSP_CopyM2S@@YIXPAMPBMK@Z = @_Z11DSP_CopyM2SPfPKfm@12 @ 19
+        ?DSP_CopyS2MOneChannel@@YIXPAMPBMKM@Z = @_Z21DSP_CopyS2MOneChannelPfPKfmf@16 @ 20
+	?DSP_Init@@YIXH@Z = @DSP_Init@4 @ 21
+	?DSP_Resample@@YIXPAMHAAVCResamplerState@@ABVCResamplerParams@@@Z = @DSP_Resample@16 @ 22
+	?DSP_Zero@@YIXPAMK@Z = @_Z8DSP_ZeroPfm@8 @ 23
+        DllMain = DllMain@12 @ 24

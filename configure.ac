@@ -1,6 +1,7 @@
 dnl Initialise autoconf/automake/libtool
 AC_PREREQ(2.61)
 AC_INIT([buzztrax],[0.9.0],[buzztrax-devel@buzztrax.org])
+AC_CANONICAL_TARGET([])
 # we can't do -Werror, because
 # - we use gnu make extensions
 # - we override uninstallcheck var
@@ -70,6 +71,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
 AC_PROG_SED
+AM_PROG_AS
 AM_PROG_CC_C_O
 IT_PROG_INTLTOOL
 PKG_PROG_PKG_CONFIG
@@ -224,6 +226,74 @@ if test "x$enable_compact_ui" = "xyes"; then
 fi
 AC_SUBST(USE_COMPACT_UI)
 
+
+dnl check if we have 32-bit headers installed
+ac_cppflags_save="$CPPFLAGS"
+CPPFLAGS="-m32"
+AC_CHECK_HEADERS([features.h],
+  [
+    have_x32_h=yes
+  ],
+  [
+    have_x32_h=no
+  ]
+)
+CPPFLAGS="$ac_cppflags_save"
+
+dnl check target cpu architecture
+BMLHOST_CFLAGS=""
+BMLHOST_CCASFLAGS=""
+case "x${target_cpu}" in
+  xi?86 | k?)
+    HAVE_X86=yes
+    CALLING_MODE=direct
+    ;;
+  xx86_64|xamd64)
+    dnl switch 'xyes' to 'yes' to build it for 32bit using the ipc wrapper
+    if test "$have_x32_h" = "xyes"; then
+      HAVE_X86=yes
+      BMLHOST_CFLAGS="-m32"
+      BMLHOST_CCASFLAGS="-m32"
+      CALLING_MODE=ipc
+    else
+      HAVE_X86=no
+      CALLING_MODE=void
+    fi
+    ;;
+  *)
+    HAVE_X86=no
+    CALLING_MODE=void
+    ;;
+esac
+
+AC_MSG_CHECKING(whether to include the emulation for buzzmachine dlls)
+AC_ARG_ENABLE(
+	dllwrapper,
+	AS_HELP_STRING([--enable-dllwrapper],[enable emulation for buzzmachine dlls (default=auto)]),
+	,
+	[enable_dllwrapper="auto"])
+if test "$enable_dllwrapper" != "no"; then
+  if test x$HAVE_X86 = xno; then
+    enable_dllwrapper="no"
+  else
+    enable_dllwrapper="yes"
+  fi
+fi
+AC_MSG_RESULT($enable_dllwrapper)
+if test "$enable_dllwrapper" = "yes"; then
+  AC_DEFINE(USE_DLLWRAPPER, 1, [Defined if emulation for buzzmachine dlls is enabled])
+fi
+if test "$CALLING_MODE" = "direct"; then
+  AC_DEFINE(USE_DLLWRAPPER_DIRECT, 1, [Defined if emulation for buzzmachine dlls is using direct calls])
+fi
+if test "$CALLING_MODE" = "ipc"; then
+  AC_DEFINE(USE_DLLWRAPPER_IPC, 1, [Defined if emulation for buzzmachine dlls is using ipc])
+fi
+AM_CONDITIONAL(USE_DLLWRAPPER, test x$enable_dllwrapper = xyes)
+AM_CONDITIONAL(USE_DLLWRAPPER_DIRECT, test x$CALLING_MODE = xdirect)
+AM_CONDITIONAL(USE_DLLWRAPPER_IPC, test x$CALLING_MODE = xipc)
+
+
 dnl Checks for libraries.
 
 dnl mandarory deps
@@ -240,21 +310,6 @@ PKG_CHECK_MODULES(BASE_DEPS, \
 PKG_CHECK_MODULES(GUI_DEPS, \
   clutter-1.0 clutter-gtk-1.0 gtk+-3.0 >= $REQ_GTK \
 )
-
-dnl optional deps
-PKG_CHECK_MODULES(BML_DEPS, libbml >= 0.8.0, [
-    AC_DEFINE(USE_BML, [1], [Define to 1 if we can use bml])
-    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $BML_DEPS_CFLAGS"
-    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $BML_DEPS_LIBS"
-    use_bml=yes
-    BML_DOC_TYPES=
-  ],[
-    use_bml=no
-    BML_DOC_TYPES="%"
-  ]
-)
-AM_CONDITIONAL(BML_SUPPORT, test "x$use_bml" = "xyes")
-AC_SUBST(BML_DOC_TYPES)
 
 PKG_CHECK_MODULES(ALSA_DEPS, alsa, [
     AC_DEFINE(USE_ALSA, [1], [Define to 1 if we can use alsa libraries])
@@ -388,24 +443,6 @@ GST_PLUGIN_LIBS="$COVERAGE_LIBS"
 AC_SUBST(GST_PLUGIN_LIBS)
 
 
-dnl check for bml variant (wrapped/native)
-ac_cflags_save="$CFLAGS"
-ac_ldflags_save="$LDFLAGS"
-CFLAGS="$CFLAGS $BML_CFLAGS"
-LDFLAGS="$LDFLAGS $BML_LIBS"
-AC_CHECK_LIB( bml, bmlw_init, [
-    have_bmlw=yes
-    AC_DEFINE(HAVE_BMLW, [1], [Define to 1 if bml has been build with wrapper])
-    bml_types="native"
-  ],[
-    have_bmlw=no
-    bml_types="native and wrapped"
-  ]
-)
-AM_CONDITIONAL(BUILD_BMLW, test "x$have_bmlw" = "xyes")
-CFLAGS="$ac_cflags_save"
-LDFLAGS="$ac_ldflags_save"
-
 dnl check for oil runtime compiler
 ORC_CHECK([0.4.6])
 
@@ -460,7 +497,11 @@ AM_CONDITIONAL(WITH_ASPELL,[test "x$ASPELL" != "x"])
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([X11/Xlocale.h])
+AC_CHECK_HEADERS( \
+  alloca.h assert.h dirent.h kstat.h malloc.h \
+  sys/mman.h sys/time.h sys/times.h \
+  X11/Xlocale.h \
+)
 AC_CHECK_HEADERS([linux/input.h],
   [
     have_linux_input_h=yes
@@ -477,6 +518,11 @@ AC_SUBST(LINUX_INPUT_DOC_TYPES)
 AC_SUBST(LINUX_INPUT_DOC_SECTIONS)
 AM_CONDITIONAL(USE_LINUX_INPUT, test x$have_linux_input_h == xyes)
 
+AC_CHECK_DECL(sysi86,[
+	AC_DEFINE(HAVE_SYSI86,1,[Define this if the 'sysi86' function is declared in sys/sysi86.h])
+      ],,[
+#include <sys/sysi86.h>
+])
 
 dnl check for SSE intrisics
 ARCH_CFLAGS=""
@@ -493,7 +539,8 @@ esac
 dnl check for libraries
 AC_CHECK_LIBM
 AC_SUBST(LIBM)
-
+ACX_PTHREAD
+AC_CHECK_LIB([rt], [main])
 
 dnl Checks for library functions.
 dnl libc functions
@@ -501,7 +548,17 @@ AC_CHECK_FUNCS(sched_setscheduler)
 AC_CHECK_FUNCS(mlockall)
 AC_CHECK_FUNCS(getrusage)
 AC_CHECK_FUNCS(setrlimit)
+AC_CHECK_FUNCS([vsscanf clock_gettime])
 
+AC_CHECK_FUNC(dlopen,
+    [AC_DEFINE(HAVE_LIBDL,1,[We can use libdl functions])],
+    [AC_CHECK_LIB(dl, dlopen,
+         [
+           DL_LIBS=-ldl
+           AC_DEFINE(HAVE_LIBDL,1,[We can use libdl functions])
+         ],
+         [])
+    ])
 
 dnl Check for -Bsymbolic-functions linker flag used to avoid
 dnl intra-library PLT jumps, if available.
@@ -530,6 +587,10 @@ if test "x${enable_Bsymbolic}" == "xyes"; then
   BT_LDFLAGS="$BT_LDFLAGS -Wl,-Bsymbolic-functions"
 fi
 
+BML_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS"
+# the -Wno-non-virtual-dtor is needed to suppress : virtual methods with no virtual destructor
+BML_CXXFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS -Wno-non-virtual-dtor"
+BML_LIBS="$COVERAGE_LIBS $DL_LIBS"
 
 dnl check for desktop and mimetype utilities
 
@@ -563,6 +624,13 @@ AC_SUBST(BASE_DEPS_LIBS)
 AC_SUBST(BASE_DEPS_CFLAGS)
 AC_SUBST(GUI_DEPS_LIBS)
 AC_SUBST(GUI_DEPS_CFLAGS)
+AC_SUBST(BML_CFLAGS)
+AC_SUBST(BML_CXXFLAGS)
+AC_SUBST(BML_LIBS)
+AC_SUBST(BMLHOST_CFLAGS)
+AC_SUBST(BMLHOST_CCASFLAGS)
+AC_SUBST(ARCH_CFLAGS)
+AC_SUBST(ARCH_CCASFLAGS)
 
 
 AC_CONFIG_FILES(Makefile \
@@ -580,6 +648,7 @@ AC_CONFIG_FILES(Makefile \
   docs/reference/bt-ic/buzztrax-ic-sections.txt \
   po/Makefile.in \
   src/lib/buzztrax.xml \
+  src/lib/bml/libbml.pc \
   src/lib/core/libbuzztrax-core.pc \
   src/lib/core/version.h \
   src/lib/gst/libbuzztrax-gst.pc \
@@ -609,9 +678,9 @@ Configuration
 	Alsa seq. for interaction ctrl. : ${use_alsa}
 	GUdev for interaction ctrl.     : ${use_gudev}
 	Linux HID for interaction ctrl. : ${have_linux_input_h}
-	Buzzmachine support             : ${use_bml}
 	FluidSynth support              : ${have_fluidsynth}
 	Zipped Song file support (bzt)  : ${use_gsf}
+	x86 win32 buzzmachines          : ${enable_dllwrapper}
 	Compact UI (small screen)       : ${enable_compact_ui}
 
 	Debug                           : ${enable_debug}
@@ -622,7 +691,7 @@ Configuration
 	Use valgrind on the tests       : ${have_valgrind}
 "
 
-if test "x${use_bml}" = "xno" -o "x${use_gudev}" = "xno" -o "x${use_gsf}" = "xno" -o "x${have_fluidsynth}" = "xno" ; then
+if test "x${use_gudev}" = "xno" -o "x${use_gsf}" = "xno" -o "x${have_fluidsynth}" = "xno" ; then
 echo "
 Some features are not built. If you like to have them built, please check that
 you have the required -devel packages installed and that they can be found in

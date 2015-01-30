@@ -22,85 +22,239 @@ LINUX_INPUT_C_FILES=
 LINUX_INPUT_H_FILES=
 endif
 
+if USE_DLLWRAPPER_DIRECT
+DLLWRAPPER_LIB=libloader.la
+DLLWRAPPER_SRC=src/lib/bml/bmlw.c
+else
+DLLWRAPPER_LIB=
+DLLWRAPPER_SRC=src/lib/bml/bmlipc.c src/lib/bml/strpool.c
+endif
+
 # -- libs ----------------------------------------------------------------------
 
-lib_LTLIBRARIES = libbuzztrax-gst.la libbuzztrax-ic.la libbuzztrax-core.la
+lib_LTLIBRARIES = libbml.la libbuzztrax-gst.la libbuzztrax-ic.la libbuzztrax-core.la
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = \
+  src/lib/bml/libbml.pc \
   src/lib/core/libbuzztrax-core.pc \
   src/lib/gst/libbuzztrax-gst.pc \
   src/lib/ic/libbuzztrax-ic.pc
 
+if USE_DLLWRAPPER
+noinst_LTLIBRARIES += libloader.la
+libloader_la_SOURCES = \
+  src/lib/dllwrapper/ldt_keeper.c \
+  src/lib/dllwrapper/pe_image.c \
+  src/lib/dllwrapper/module.c \
+  src/lib/dllwrapper/ext.c \
+  src/lib/dllwrapper/win32.c \
+  src/lib/dllwrapper/driver.c \
+  src/lib/dllwrapper/pe_resource.c \
+  src/lib/dllwrapper/resource.c \
+  src/lib/dllwrapper/registry.c \
+  src/lib/dllwrapper/elfdll.c \
+  src/lib/dllwrapper/afl.c \
+  src/lib/dllwrapper/vfl.c \
+  src/lib/dllwrapper/stubs.s \
+  src/lib/dllwrapper/wrapper.S
+
+libloader_la_CFLAGS = $(PTHREAD_CFLAGS) $(BML_CFLAGS) $(BMLHOST_CFLAGS) -ffast-math
+libloader_la_CCASFLAGS = $(BMLHOST_CCASFLAGS)
+libloader_la_CPPFLAGS =  \
+  -D__WINE__ \
+  -DWIN32_PATH=\"/usr/lib/win32\" \
+  -DWIN32_LIB_PATH=\"$(libdir)/win32\"
+libloader_la_LIBADD = $(LIBM) $(PTHREAD_LIBS) -ldl
+
+noinst_HEADERS += \
+  src/lib/dllwrapper/avifmt.h \
+  src/lib/dllwrapper/basetsd.h \
+  src/lib/dllwrapper/com.h \
+  src/lib/dllwrapper/debugtools.h \
+  src/lib/dllwrapper/driver.h \
+  src/lib/dllwrapper/elfdll.h \
+  src/lib/dllwrapper/ext.h \
+  src/lib/dllwrapper/heap.h \
+  src/lib/dllwrapper/ldt.h \
+  src/lib/dllwrapper/ldt_keeper.h \
+  src/lib/dllwrapper/loader.h \
+  src/lib/dllwrapper/mmreg.h \
+  src/lib/dllwrapper/module.h \
+  src/lib/dllwrapper/msacmdrv.h \
+  src/lib/dllwrapper/msacm.h \
+  src/lib/dllwrapper/ntdef.h \
+  src/lib/dllwrapper/pe_image.h \
+  src/lib/dllwrapper/poppack.h \
+  src/lib/dllwrapper/pshpack1.h \
+  src/lib/dllwrapper/pshpack2.h \
+  src/lib/dllwrapper/pshpack4.h \
+  src/lib/dllwrapper/pshpack8.h \
+  src/lib/dllwrapper/registry.h \
+  src/lib/dllwrapper/resource.h \
+  src/lib/dllwrapper/vfw.h \
+  src/lib/dllwrapper/win32.h \
+  src/lib/dllwrapper/winbase.h \
+  src/lib/dllwrapper/windef.h \
+  src/lib/dllwrapper/windows.h \
+  src/lib/dllwrapper/wineacm.h \
+  src/lib/dllwrapper/winerror.h \
+  src/lib/dllwrapper/winestring.h \
+  src/lib/dllwrapper/winnt.h \
+  src/lib/dllwrapper/winreg.h \
+  src/lib/dllwrapper/winuser.h \
+  src/lib/dllwrapper/wrapper.h
+endif
+
+
+libbmldir = $(includedir)/libbml
+libbml_HEADERS = src/lib/bml/bml.h src/lib/bml/BuzzMachineLoader/BuzzMachineLoader.h
+libbml_la_SOURCES = src/lib/bml/bml.c src/lib/bml/bmllog.c $(DLLWRAPPER_SRC)
+libbml_la_CFLAGS = \
+  -I$(srcdir) -I$(top_srcdir)/src/lib \
+  $(PTHREAD_CFLAGS) $(BML_CFLAGS)
+libbml_la_CPPFLAGS = -DNATIVE_BML_DIR="\"$(pkglibdir)\""
+libbml_la_LIBADD = $(LIBM) $(PTHREAD_LIBS) $(BML_LIBS) $(DLLWRAPPER_LIB)
+libbml_la_LDFLAGS = \
+  -export-symbols-regex ^_?\(bml_\|bmlw_\|bmln_\).* \
+  -version-info @BT_VERSION_INFO@
+
+noinst_HEADERS += \
+  src/lib/bml/bmlipc.h \
+  src/lib/bml/bmllog.h \
+  src/lib/bml/bmlw.h \
+  src/lib/bml/strpool.h
+
+if USE_DLLWRAPPER_IPC
+bin_PROGRAMS = bmlhost
+
+bmlhost_SOURCES = \
+  src/lib/bml/bmlhost.c \
+  src/lib/bml/bmllog.c \
+  src/lib/bml/bmlw.c \
+  src/lib/bml/bmlipc.c \
+  src/lib/bml/strpool.c
+bmlhost_CFLAGS = \
+  -I$(srcdir) -I$(top_srcdir)/src/lib \
+  -I$(top_srcdir)/src/lib/dllwrapper \
+  $(BML_CFLAGS) $(BMLHOST_CFLAGS)
+bmlhost_LDADD = $(PTHREAD_LIBS) $(BML_LIBS) libloader.la 
+else
+bin_PROGRAMS =
+endif
+
+# buzzmachine loader (native adapter)
+pkglib_LTLIBRARIES = libbuzzmachineloader.la
+libbuzzmachineloader_la_SOURCES = \
+  src/lib/bml/BuzzMachineLoader/BuzzMachineCallbacks.cpp \
+  src/lib/bml/BuzzMachineLoader/BuzzMachineCallbacksPre12.cpp \
+  src/lib/bml/BuzzMachineLoader/BuzzMachineLoader.cpp \
+  src/lib/bml/BuzzMachineLoader/BuzzMachineVirtualCallbacks.cpp \
+  src/lib/bml/BuzzMachineLoader/MachineDataImpl.cpp \
+  src/lib/bml/BuzzMachineLoader/OscTable.cpp \
+  src/lib/bml/BuzzMachineLoader/mdkimp.cpp \
+  src/lib/bml/BuzzMachineLoader/debug.cpp
+  
+noinst_HEADERS += \
+  src/lib/bml/BuzzMachineLoader/BuzzMachine.h \
+  src/lib/bml/BuzzMachineLoader/BuzzMachineCallbacks.h \
+  src/lib/bml/BuzzMachineLoader/BuzzMachineCallbacksPre12.h \
+  src/lib/bml/BuzzMachineLoader/BuzzMachineLoader.h \
+  src/lib/bml/BuzzMachineLoader/CMachine.h \
+  src/lib/bml/BuzzMachineLoader/MachineDataImpl.h \
+  src/lib/bml/BuzzMachineLoader/MachineInterface.h \
+  src/lib/bml/BuzzMachineLoader/OscTable.h \
+  src/lib/bml/BuzzMachineLoader/mdk.h \
+  src/lib/bml/BuzzMachineLoader/mdkimp.h \
+  src/lib/bml/BuzzMachineLoader/bw.h \
+  src/lib/bml/BuzzMachineLoader/debug.h \
+  src/lib/bml/BuzzMachineLoader/dsplib.h \
+  src/lib/bml/BuzzMachineLoader/resample.h
+
+libbuzzmachineloader_la_CXXFLAGS = $(PTHREAD_CFLAGS) $(BML_CXXFLAGS) \
+  -I$(top_srcdir)/src/lib/dllwrapper \
+  -I$(top_srcdir)/src/lib/bml/BuzzMachineLoader
+libbuzzmachineloader_la_LIBADD = $(LIBM) $(PTHREAD_LIBS) $(BML_LIBS) -lstdc++
+libbuzzmachineloader_la_LDFLAGS = -module -avoid-version
+libbuzzmachineloader_la_LIBTOOLFLAGS = --tag=disable-static
+
+# buzzmachine loader (wrapped adapter)
+
+if USE_DLLWRAPPER
+dlldir = $(libdir)/win32
+dll_DATA = src/lib/bml/BuzzMachineLoader.dll
+endif
+
+
 libbuzztrax_gst_la_LIBADD =  \
-	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
+  $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbuzztrax_gst_la_LDFLAGS = \
   -export-symbols-regex \^[_]*\(gstbt_\|GstBt\|GSTBT_\|gst_\|Gst\|GST_\).* \
   -version-info @BT_VERSION_INFO@
 libbuzztrax_gst_la_SOURCES = \
-	src/lib/gst/audiosynth.c \
-	src/lib/gst/childbin.c \
-	src/lib/gst/delay.c \
-	src/lib/gst/envelope.c \
-	src/lib/gst/envelope-adsr.c \
-	src/lib/gst/envelope-d.c \
-	src/lib/gst/filter-svf.c \
-	src/lib/gst/musicenums.c \
-	src/lib/gst/osc-synth.c \
-	src/lib/gst/osc-wave.c \
-	src/lib/gst/toneconversion.c \
-	src/lib/gst/propertymeta.c \
-	src/lib/gst/tempo.c
+  src/lib/gst/audiosynth.c \
+  src/lib/gst/childbin.c \
+  src/lib/gst/delay.c \
+  src/lib/gst/envelope.c \
+  src/lib/gst/envelope-adsr.c \
+  src/lib/gst/envelope-d.c \
+  src/lib/gst/filter-svf.c \
+  src/lib/gst/musicenums.c \
+  src/lib/gst/osc-synth.c \
+  src/lib/gst/osc-wave.c \
+  src/lib/gst/toneconversion.c \
+  src/lib/gst/propertymeta.c \
+  src/lib/gst/tempo.c
 
 libbuzztrax_gstincludedir = $(includedir)/libbuzztrax-gst
 libbuzztrax_gstinclude_HEADERS = \
-	src/lib/gst/audiosynth.h \
-	src/lib/gst/childbin.h \
-	src/lib/gst/delay.h \
-	src/lib/gst/envelope.h \
-	src/lib/gst/envelope-adsr.h \
-	src/lib/gst/envelope-d.h \
-	src/lib/gst/filter-svf.h \
-	src/lib/gst/musicenums.h \
-	src/lib/gst/osc-synth.h \
-	src/lib/gst/osc-wave.h \
-	src/lib/gst/toneconversion.h \
-	src/lib/gst/propertymeta.h \
-	src/lib/gst/tempo.h
+  src/lib/gst/audiosynth.h \
+  src/lib/gst/childbin.h \
+  src/lib/gst/delay.h \
+  src/lib/gst/envelope.h \
+  src/lib/gst/envelope-adsr.h \
+  src/lib/gst/envelope-d.h \
+  src/lib/gst/filter-svf.h \
+  src/lib/gst/musicenums.h \
+  src/lib/gst/osc-synth.h \
+  src/lib/gst/osc-wave.h \
+  src/lib/gst/toneconversion.h \
+  src/lib/gst/propertymeta.h \
+  src/lib/gst/tempo.h
 
 
 libbuzztrax_ic_la_LIBADD = \
-	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
+  $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbuzztrax_ic_la_LDFLAGS = \
-	-export-symbols-regex ^_?\(btic_\|BtIc\|BTIC_\).* \
-	-version-info @BT_VERSION_INFO@
+  -export-symbols-regex ^_?\(btic_\|BtIc\|BTIC_\).* \
+  -version-info @BT_VERSION_INFO@
 libbuzztrax_ic_la_SOURCES = \
-	src/lib/ic/ic.c \
-	src/lib/ic/registry.c\
-	$(ALSA_C_FILES) \
-	$(GUDEV_C_FILES) \
-	src/lib/ic/device.c \
-	src/lib/ic/learn.c \
-	$(LINUX_INPUT_C_FILES) \
-	src/lib/ic/midi-device.c \
-	src/lib/ic/control.c \
-	src/lib/ic/abs-range-control.c \
-	src/lib/ic/trigger-control.c
+  src/lib/ic/ic.c \
+  src/lib/ic/registry.c\
+  $(ALSA_C_FILES) \
+  $(GUDEV_C_FILES) \
+  src/lib/ic/device.c \
+  src/lib/ic/learn.c \
+  $(LINUX_INPUT_C_FILES) \
+  src/lib/ic/midi-device.c \
+  src/lib/ic/control.c \
+  src/lib/ic/abs-range-control.c \
+  src/lib/ic/trigger-control.c
 
 libbuzztrax_icdir = $(includedir)/libbuzztrax-ic
 libbuzztrax_ic_HEADERS = \
-	src/lib/ic/ic.h \
-	src/lib/ic/version.h \
-	src/lib/ic/registry.h \
-	$(ALSA_H_FILES) \
-	$(GUDEV_H_FILES) \
-	src/lib/ic/device.h \
-	src/lib/ic/learn.h \
-	$(LINUX_INPUT_H_FILES) \
-	src/lib/ic/midi-device.h \
-	src/lib/ic/control.h \
-	src/lib/ic/abs-range-control.h \
-	src/lib/ic/trigger-control.h
+  src/lib/ic/ic.h \
+  src/lib/ic/version.h \
+  src/lib/ic/registry.h \
+  $(ALSA_H_FILES) \
+  $(GUDEV_H_FILES) \
+  src/lib/ic/device.h \
+  src/lib/ic/learn.h \
+  $(LINUX_INPUT_H_FILES) \
+  src/lib/ic/midi-device.h \
+  src/lib/ic/control.h \
+  src/lib/ic/abs-range-control.h \
+  src/lib/ic/trigger-control.h
 
 
 src/lib/core/marshal.h: src/lib/core/marshal.list
@@ -117,104 +271,104 @@ CLEANFILES += src/lib/core/marshal.c src/lib/core/marshal.h
 EXTRA_libbuzztrax_core_la_SOURCES = src/lib/core/marshal.list
 nodist_libbuzztrax_core_la_SOURCES = src/lib/core/marshal.c src/lib/core/marshal.h
 libbuzztrax_core_la_LIBADD = \
-	libbuzztrax-ic.la \
-	libbuzztrax-gst.la \
-	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
-	-lgstaudio-@GST_MAJORMINOR@ -lgstpbutils-@GST_MAJORMINOR@
+  libbuzztrax-ic.la \
+  libbuzztrax-gst.la \
+  $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
+  -lgstaudio-@GST_MAJORMINOR@ -lgstpbutils-@GST_MAJORMINOR@
 libbuzztrax_core_la_LDFLAGS = \
-	-export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
-	-version-info @BT_VERSION_INFO@
+  -export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
+  -version-info @BT_VERSION_INFO@
 libbuzztrax_core_la_SOURCES = \
-	src/lib/core/core.c \
-	src/lib/core/tools.c \
-	src/lib/core/buzzcallbacks.c \
-	src/lib/core/application.c \
-	src/lib/core/audio-session.c \
-	src/lib/core/childproxy.c \
-	src/lib/core/cmd-pattern.c \
-	src/lib/core/machine.c \
-	src/lib/core/parameter-group.c \
-	src/lib/core/pattern.c \
-	src/lib/core/pattern-control-source.c \
-	src/lib/core/persistence.c \
-	src/lib/core/processor-machine.c \
-	src/lib/core/sequence.c \
-	src/lib/core/settings.c \
-	src/lib/core/setup.c \
-	src/lib/core/sink-bin.c \
-	src/lib/core/sink-machine.c \
-	src/lib/core/song.c \
-	src/lib/core/song-info.c \
-	src/lib/core/song-io.c \
-	src/lib/core/song-io-native.c \
-	src/lib/core/song-io-native-bzt.c \
-	src/lib/core/song-io-native-xml.c \
-	src/lib/core/source-machine.c \
-	src/lib/core/value-group.c \
-	src/lib/core/wavetable.c \
-	src/lib/core/wave.c \
-	src/lib/core/wavelevel.c \
-	src/lib/core/wire.c
+  src/lib/core/core.c \
+  src/lib/core/tools.c \
+  src/lib/core/buzzcallbacks.c \
+  src/lib/core/application.c \
+  src/lib/core/audio-session.c \
+  src/lib/core/childproxy.c \
+  src/lib/core/cmd-pattern.c \
+  src/lib/core/machine.c \
+  src/lib/core/parameter-group.c \
+  src/lib/core/pattern.c \
+  src/lib/core/pattern-control-source.c \
+  src/lib/core/persistence.c \
+  src/lib/core/processor-machine.c \
+  src/lib/core/sequence.c \
+  src/lib/core/settings.c \
+  src/lib/core/setup.c \
+  src/lib/core/sink-bin.c \
+  src/lib/core/sink-machine.c \
+  src/lib/core/song.c \
+  src/lib/core/song-info.c \
+  src/lib/core/song-io.c \
+  src/lib/core/song-io-native.c \
+  src/lib/core/song-io-native-bzt.c \
+  src/lib/core/song-io-native-xml.c \
+  src/lib/core/source-machine.c \
+  src/lib/core/value-group.c \
+  src/lib/core/wavetable.c \
+  src/lib/core/wave.c \
+  src/lib/core/wavelevel.c \
+  src/lib/core/wire.c
 
 libbuzztrax_coredir = $(includedir)/libbuzztrax-core
 libbuzztrax_core_HEADERS = \
-	src/lib/core/core.h \
-	src/lib/core/tools.h \
-	src/lib/core/version.h \
-	src/lib/core/application.h \
-	src/lib/core/audio-session.h \
-	src/lib/core/childproxy.h \
-	src/lib/core/cmd-pattern.h \
-	src/lib/core/machine.h \
-	src/lib/core/parameter-group.h \
-	src/lib/core/pattern.h \
-	src/lib/core/pattern-control-source.h \
-	src/lib/core/persistence.h \
-	src/lib/core/processor-machine.h \
-	src/lib/core/sequence.h \
-	src/lib/core/settings.h \
-	src/lib/core/setup.h \
-	src/lib/core/sink-bin.h \
-	src/lib/core/sink-machine.h \
-	src/lib/core/song.h \
-	src/lib/core/song-info.h \
-	src/lib/core/song-io.h \
-	src/lib/core/song-io-native.h \
-	src/lib/core/song-io-native-bzt.h \
-	src/lib/core/song-io-native-xml.h \
-	src/lib/core/source-machine.h \
-	src/lib/core/value-group.h \
-	src/lib/core/wavetable.h \
-	src/lib/core/wave.h \
-	src/lib/core/wavelevel.h \
-	src/lib/core/wire.h
+  src/lib/core/core.h \
+  src/lib/core/tools.h \
+  src/lib/core/version.h \
+  src/lib/core/application.h \
+  src/lib/core/audio-session.h \
+  src/lib/core/childproxy.h \
+  src/lib/core/cmd-pattern.h \
+  src/lib/core/machine.h \
+  src/lib/core/parameter-group.h \
+  src/lib/core/pattern.h \
+  src/lib/core/pattern-control-source.h \
+  src/lib/core/persistence.h \
+  src/lib/core/processor-machine.h \
+  src/lib/core/sequence.h \
+  src/lib/core/settings.h \
+  src/lib/core/setup.h \
+  src/lib/core/sink-bin.h \
+  src/lib/core/sink-machine.h \
+  src/lib/core/song.h \
+  src/lib/core/song-info.h \
+  src/lib/core/song-io.h \
+  src/lib/core/song-io-native.h \
+  src/lib/core/song-io-native-bzt.h \
+  src/lib/core/song-io-native-xml.h \
+  src/lib/core/source-machine.h \
+  src/lib/core/value-group.h \
+  src/lib/core/wavetable.h \
+  src/lib/core/wave.h \
+  src/lib/core/wavelevel.h \
+  src/lib/core/wire.h
 
 # -- songio plugins
 songiodir = ${exec_prefix}/lib/buzztrax-songio
 songio_LTLIBRARIES = libbtbsl.la
 libbtbsl_la_LIBADD = \
-	libbuzztrax-core.la \
+  libbuzztrax-core.la \
   $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBINTL)
 libbtbsl_la_LDFLAGS = \
-	$(BT_LDFLAGS) \
-	-export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
-	-module -avoid-version
+  $(BT_LDFLAGS) \
+  -export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
+  -module -avoid-version
 libbtbsl_la_LIBTOOLFLAGS = --tag=disable-static
 libbtbsl_la_SOURCES = \
-	src/lib/core/songio/bsl/bsl.c \
-	src/lib/core/songio/bsl/song-io-buzz.c \
-	src/lib/core/songio/bsl/bsl.h \
-	src/lib/core/songio/bsl/song-io-buzz.h \
-	src/lib/core/songio/bsl/song-io-buzz-private.h
+  src/lib/core/songio/bsl/bsl.c \
+  src/lib/core/songio/bsl/song-io-buzz.c \
+  src/lib/core/songio/bsl/bsl.h \
+  src/lib/core/songio/bsl/song-io-buzz.h \
+  src/lib/core/songio/bsl/song-io-buzz-private.h
 
-noinst_HEADERS = \
+noinst_HEADERS += \
   src/lib/core/core_private.h \
   src/lib/ic/ic_private.h
 
 # -- apps ----------------------------------------------------------------------
 
-bin_PROGRAMS = buzztrax-cmd buzztrax-edit
-noinst_LTLIBRARIES = libbtcmd.la libbtedit.la
+bin_PROGRAMS += buzztrax-cmd buzztrax-edit
+noinst_LTLIBRARIES += libbtcmd.la libbtedit.la
 plugin_LTLIBRARIES = libbuzztraxdec.la \
   libgstaudiodelay.la \
   libgstsidsyn.la \
@@ -223,96 +377,96 @@ plugin_LTLIBRARIES = libbuzztraxdec.la \
   libgstwavetabsyn.la
 
 buzztrax_cmd_LDADD = \
-	libbuzztrax-core.la \
-	libbuzztrax-ic.la \
-	libbtcmd.la \
-	$(BASE_DEPS_LIBS) $(BT_LIBS)
+  libbuzztrax-core.la \
+  libbuzztrax-ic.la \
+  libbtcmd.la \
+  $(BASE_DEPS_LIBS) $(BT_LIBS)
 buzztrax_cmd_SOURCES= \
-	src/ui/cmd/bt-cmd.c src/ui/cmd/bt-cmd.h
+  src/ui/cmd/bt-cmd.c src/ui/cmd/bt-cmd.h
 
 libbtcmd_la_LIBDADD = \
-	libbuzztrax-core.la \
-	libbuzztrax-ic.la \
-	$(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
-libbtcmd_la_SOURCES =	\
-	src/ui/cmd/cmd-application.c src/ui/cmd/cmd-application.h
+  libbuzztrax-core.la \
+  libbuzztrax-ic.la \
+  $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
+libbtcmd_la_SOURCES =  \
+  src/ui/cmd/cmd-application.c src/ui/cmd/cmd-application.h
 
 buzztrax_edit_LDADD = \
-	libbuzztrax-core.la \
-	libbuzztrax-ic.la \
-	libbtedit.la \
-	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS)
+  libbuzztrax-core.la \
+  libbuzztrax-ic.la \
+  libbtedit.la \
+  $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS)
 buzztrax_edit_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
 buzztrax_edit_SOURCES= \
-	src/ui/edit/bt-edit.c src/ui/edit/bt-edit.h
+  src/ui/edit/bt-edit.c src/ui/edit/bt-edit.h
 
 EXTRA_libbtedit_la_SOURCES = src/ui/edit/marshal.list
 nodist_libbtedit_la_SOURCES = src/ui/edit/marshal.c src/ui/edit/marshal.h \
   src/ui/edit/authors.h
 libbtedit_la_LIBADD = \
-	libbuzztrax-core.la \
-	libbuzztrax-ic.la \
-	$(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM)
+  libbuzztrax-core.la \
+  libbuzztrax-ic.la \
+  $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbtedit_la_CFLAGS = -I$(top_builddir)/src/ui/edit $(GUI_DEPS_CFLAGS)
 libbtedit_la_SOURCES = \
-	src/ui/edit/about-dialog.c src/ui/edit/about-dialog.h \
-	src/ui/edit/change-log.c src/ui/edit/change-log.h \
-	src/ui/edit/change-logger.c src/ui/edit/change-logger.h \
-	src/ui/edit/crash-recover-dialog.c src/ui/edit/crash-recover-dialog.h \
-	src/ui/edit/edit-application.c src/ui/edit/edit-application.h \
-	src/ui/edit/interaction-controller-menu.c src/ui/edit/interaction-controller-menu.h \
-	src/ui/edit/interaction-controller-learn-dialog.c src/ui/edit/interaction-controller-learn-dialog.h \
-	src/ui/edit/machine-canvas-item.c src/ui/edit/machine-canvas-item.h \
-	src/ui/edit/machine-menu.c src/ui/edit/machine-menu.h \
-	src/ui/edit/machine-actions.c src/ui/edit/machine-actions.h \
-	src/ui/edit/machine-list-model.c src/ui/edit/machine-list-model.h \
-	src/ui/edit/machine-preset-properties-dialog.c src/ui/edit/machine-preset-properties-dialog.h \
-	src/ui/edit/machine-properties-dialog.c src/ui/edit/machine-properties-dialog.h \
-	src/ui/edit/machine-preferences-dialog.c src/ui/edit/machine-preferences-dialog.h \
-	src/ui/edit/machine-rename-dialog.c src/ui/edit/machine-rename-dialog.h \
-	src/ui/edit/main-window.c src/ui/edit/main-window.h \
-	src/ui/edit/main-menu.c src/ui/edit/main-menu.h \
-	src/ui/edit/main-toolbar.c src/ui/edit/main-toolbar.h \
-	src/ui/edit/main-pages.c src/ui/edit/main-pages.h \
-	src/ui/edit/main-page-machines.c src/ui/edit/main-page-machines.h \
-	src/ui/edit/main-page-patterns.c src/ui/edit/main-page-patterns.h \
-	src/ui/edit/main-page-sequence.c src/ui/edit/main-page-sequence.h \
-	src/ui/edit/main-page-waves.c src/ui/edit/main-page-waves.h \
-	src/ui/edit/main-page-info.c src/ui/edit/main-page-info.h \
-	src/ui/edit/main-statusbar.c src/ui/edit/main-statusbar.h \
-	src/ui/edit/missing-framework-elements-dialog.c src/ui/edit/missing-framework-elements-dialog.h \
-	src/ui/edit/missing-song-elements-dialog.c src/ui/edit/missing-song-elements-dialog.h \
-	src/ui/edit/object-list-model.c src/ui/edit/object-list-model.h \
-	src/ui/edit/panorama-popup.c src/ui/edit/panorama-popup.h \
-	src/ui/edit/pattern-list-model.c src/ui/edit/pattern-list-model.h \
-	src/ui/edit/pattern-properties-dialog.c src/ui/edit/pattern-properties-dialog.h \
-	src/ui/edit/playback-controller-ic.c src/ui/edit/playback-controller-ic.h \
-	src/ui/edit/playback-controller-socket.c src/ui/edit/playback-controller-socket.h \
-	src/ui/edit/preset-list-model.c src/ui/edit/preset-list-model.h \
-	src/ui/edit/render-dialog.c src/ui/edit/render-dialog.h \
-	src/ui/edit/sequence-grid-model.c src/ui/edit/sequence-grid-model.h \
-	src/ui/edit/sequence-view.c src/ui/edit/sequence-view.h \
-	src/ui/edit/settings-dialog.c src/ui/edit/settings-dialog.h \
-	src/ui/edit/settings-page-audiodevices.c src/ui/edit/settings-page-audiodevices.h \
-	src/ui/edit/settings-page-directories.c src/ui/edit/settings-page-directories.h \
-	src/ui/edit/settings-page-interaction-controller.c src/ui/edit/settings-page-interaction-controller.h \
-	src/ui/edit/settings-page-playback-controller.c src/ui/edit/settings-page-playback-controller.h \
-	src/ui/edit/settings-page-shortcuts.c src/ui/edit/settings-page-shortcuts.h \
-	src/ui/edit/signal-analysis-dialog.c src/ui/edit/signal-analysis-dialog.h \
-	src/ui/edit/tip-dialog.c src/ui/edit/tip-dialog.h \
-	src/ui/edit/tools.c src/ui/edit/tools.h \
-	src/ui/edit/ui-resources.c src/ui/edit/ui-resources.h \
-	src/ui/edit/volume-popup.c src/ui/edit/volume-popup.h \
-	src/ui/edit/wave-list-model.c src/ui/edit/wave-list-model.h \
-	src/ui/edit/waveform-viewer.c src/ui/edit/waveform-viewer.h \
-	src/ui/edit/wavelevel-list-model.c src/ui/edit/wavelevel-list-model.h \
-	src/ui/edit/wire-canvas-item.c src/ui/edit/wire-canvas-item.h \
-	\
-	src/ui/edit/pattern-editor.c src/ui/edit/pattern-editor.h \
-	src/ui/edit/gtkscrolledsyncwindow.c src/ui/edit/gtkscrolledsyncwindow.h \
-	src/ui/edit/gtkvumeter.c src/ui/edit/gtkvumeter.h \
-	\
-	src/ui/edit/btmemoryaudiosrc.c src/ui/edit/btmemoryaudiosrc.h
+  src/ui/edit/about-dialog.c src/ui/edit/about-dialog.h \
+  src/ui/edit/change-log.c src/ui/edit/change-log.h \
+  src/ui/edit/change-logger.c src/ui/edit/change-logger.h \
+  src/ui/edit/crash-recover-dialog.c src/ui/edit/crash-recover-dialog.h \
+  src/ui/edit/edit-application.c src/ui/edit/edit-application.h \
+  src/ui/edit/interaction-controller-menu.c src/ui/edit/interaction-controller-menu.h \
+  src/ui/edit/interaction-controller-learn-dialog.c src/ui/edit/interaction-controller-learn-dialog.h \
+  src/ui/edit/machine-canvas-item.c src/ui/edit/machine-canvas-item.h \
+  src/ui/edit/machine-menu.c src/ui/edit/machine-menu.h \
+  src/ui/edit/machine-actions.c src/ui/edit/machine-actions.h \
+  src/ui/edit/machine-list-model.c src/ui/edit/machine-list-model.h \
+  src/ui/edit/machine-preset-properties-dialog.c src/ui/edit/machine-preset-properties-dialog.h \
+  src/ui/edit/machine-properties-dialog.c src/ui/edit/machine-properties-dialog.h \
+  src/ui/edit/machine-preferences-dialog.c src/ui/edit/machine-preferences-dialog.h \
+  src/ui/edit/machine-rename-dialog.c src/ui/edit/machine-rename-dialog.h \
+  src/ui/edit/main-window.c src/ui/edit/main-window.h \
+  src/ui/edit/main-menu.c src/ui/edit/main-menu.h \
+  src/ui/edit/main-toolbar.c src/ui/edit/main-toolbar.h \
+  src/ui/edit/main-pages.c src/ui/edit/main-pages.h \
+  src/ui/edit/main-page-machines.c src/ui/edit/main-page-machines.h \
+  src/ui/edit/main-page-patterns.c src/ui/edit/main-page-patterns.h \
+  src/ui/edit/main-page-sequence.c src/ui/edit/main-page-sequence.h \
+  src/ui/edit/main-page-waves.c src/ui/edit/main-page-waves.h \
+  src/ui/edit/main-page-info.c src/ui/edit/main-page-info.h \
+  src/ui/edit/main-statusbar.c src/ui/edit/main-statusbar.h \
+  src/ui/edit/missing-framework-elements-dialog.c src/ui/edit/missing-framework-elements-dialog.h \
+  src/ui/edit/missing-song-elements-dialog.c src/ui/edit/missing-song-elements-dialog.h \
+  src/ui/edit/object-list-model.c src/ui/edit/object-list-model.h \
+  src/ui/edit/panorama-popup.c src/ui/edit/panorama-popup.h \
+  src/ui/edit/pattern-list-model.c src/ui/edit/pattern-list-model.h \
+  src/ui/edit/pattern-properties-dialog.c src/ui/edit/pattern-properties-dialog.h \
+  src/ui/edit/playback-controller-ic.c src/ui/edit/playback-controller-ic.h \
+  src/ui/edit/playback-controller-socket.c src/ui/edit/playback-controller-socket.h \
+  src/ui/edit/preset-list-model.c src/ui/edit/preset-list-model.h \
+  src/ui/edit/render-dialog.c src/ui/edit/render-dialog.h \
+  src/ui/edit/sequence-grid-model.c src/ui/edit/sequence-grid-model.h \
+  src/ui/edit/sequence-view.c src/ui/edit/sequence-view.h \
+  src/ui/edit/settings-dialog.c src/ui/edit/settings-dialog.h \
+  src/ui/edit/settings-page-audiodevices.c src/ui/edit/settings-page-audiodevices.h \
+  src/ui/edit/settings-page-directories.c src/ui/edit/settings-page-directories.h \
+  src/ui/edit/settings-page-interaction-controller.c src/ui/edit/settings-page-interaction-controller.h \
+  src/ui/edit/settings-page-playback-controller.c src/ui/edit/settings-page-playback-controller.h \
+  src/ui/edit/settings-page-shortcuts.c src/ui/edit/settings-page-shortcuts.h \
+  src/ui/edit/signal-analysis-dialog.c src/ui/edit/signal-analysis-dialog.h \
+  src/ui/edit/tip-dialog.c src/ui/edit/tip-dialog.h \
+  src/ui/edit/tools.c src/ui/edit/tools.h \
+  src/ui/edit/ui-resources.c src/ui/edit/ui-resources.h \
+  src/ui/edit/volume-popup.c src/ui/edit/volume-popup.h \
+  src/ui/edit/wave-list-model.c src/ui/edit/wave-list-model.h \
+  src/ui/edit/waveform-viewer.c src/ui/edit/waveform-viewer.h \
+  src/ui/edit/wavelevel-list-model.c src/ui/edit/wavelevel-list-model.h \
+  src/ui/edit/wire-canvas-item.c src/ui/edit/wire-canvas-item.h \
+  \
+  src/ui/edit/pattern-editor.c src/ui/edit/pattern-editor.h \
+  src/ui/edit/gtkscrolledsyncwindow.c src/ui/edit/gtkscrolledsyncwindow.h \
+  src/ui/edit/gtkvumeter.c src/ui/edit/gtkvumeter.h \
+  \
+  src/ui/edit/btmemoryaudiosrc.c src/ui/edit/btmemoryaudiosrc.h
 
 src/ui/edit/marshal.h: src/ui/edit/marshal.list
 	$(AM_V_at)$(MKDIR_P) src/ui/edit
@@ -337,9 +491,9 @@ css_DATA = src/ui/edit/bt-edit.css \
 
 libbuzztraxdec_la_CFLAGS = $(GST_PLUGIN_CFLAGS)
 libbuzztraxdec_la_LIBADD = \
-	libbuzztrax-core.la \
-	libbuzztrax-ic.la \
-	$(BASE_DEPS_LIBS) $(LIBM)
+  libbuzztrax-core.la \
+  libbuzztrax-ic.la \
+  $(BASE_DEPS_LIBS) $(LIBM)
 libbuzztraxdec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libbuzztraxdec_la_SOURCES = src/ui/dec/bt-dec.c src/ui/dec/bt-dec.h
 libbuzztraxdec_la_LIBTOOLFLAGS = --tag=disable-static
@@ -372,16 +526,14 @@ libgstaudiodelay_la_SOURCES = src/gst/audiodelay/audiodelay.c
 libgstaudiodelay_la_CFLAGS = \
   -I$(srcdir) -I$(top_srcdir) \
   -DDATADIR=\"$(datadir)\" \
-	$(GST_PLUGIN_CFLAGS) \
-	$(BASE_DEPS_CFLAGS)
+  $(GST_PLUGIN_CFLAGS) \
+  $(BASE_DEPS_CFLAGS)
 libgstaudiodelay_la_LIBADD = \
-	libbuzztrax-gst.la \
-	$(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS) -lgstaudio-1.0 
+  libbuzztrax-gst.la \
+  $(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS) -lgstaudio-1.0 
 libgstaudiodelay_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstaudiodelay_la_LIBTOOLFLAGS = --tag=disable-static
 
-
-if BML_SUPPORT
 
 plugin_LTLIBRARIES += libgstbml.la
 noinst_HEADERS += \
@@ -397,21 +549,19 @@ libgstbmln_la_CFLAGS = -DBML_NATIVE \
   -I$(srcdir) -I$(builddir) -I$(builddir)/src/gst/bml \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS) \
-  $(ORC_CFLAGS) \
-  $(BML_CFLAGS)
+  $(ORC_CFLAGS)
   
 # wrapped
 libgstbmlw_la_SOURCES = \
-  src/gst/bml/gstbml.c src/gst/bml/gst/gstbmlsrc.c src/gst/bml/gstbmltransform.c \
+  src/gst/bml/gstbml.c src/gst/bml/gstbmlsrc.c src/gst/bml/gstbmltransform.c \
   src/gst/bml/gstbmlv.c
 libgstbmlw_la_CFLAGS = -DBML_WRAPPED \
   -I$(srcdir) -I$(builddir) -I$(builddir)/src/gst/bml \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS) \
-  $(ORC_CFLAGS) \
-  $(BML_CFLAGS)
+  $(ORC_CFLAGS)
 
-if BUILD_BMLW
+if USE_DLLWRAPPER
 BMLW_LA = libgstbmlw.la
 else
 BMLW_LA = 
@@ -426,17 +576,14 @@ libgstbml_la_CFLAGS = \
   -DLIBDIR=\"\${libdir}\" \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS) \
-  $(ORC_CFLAGS) \
-  $(BML_CFLAGS)
+  $(ORC_CFLAGS)
 libgstbml_la_LIBADD = \
-	libbuzztrax-gst.la \
-	libgstbmln.la $(BMLW_LA) \
-	$(BASE_DEPS_LIBS) $(ORC_LIBS) $(BML_LIBS) \
-	$(GST_PLUGIN_LIBS) -lgstaudio-1.0 $(LIBM) 
+  libbuzztrax-gst.la \
+  libgstbmln.la $(BMLW_LA) libbml.la \
+  $(BASE_DEPS_LIBS) $(ORC_LIBS) $(BML_LIBS) \
+  $(GST_PLUGIN_LIBS) -lgstaudio-1.0 $(LIBM) 
 libgstbml_la_LDFLAGS =  $(GST_PLUGIN_LDFLAGS)
 libgstbml_la_LIBTOOLFLAGS = --tag=disable-static
-
-endif
 
 
 if FLUIDSYNTH_SUPPORT
@@ -447,12 +594,12 @@ libgstfluidsynth_la_SOURCES = src/gst/fluidsynth/fluidsynth.c
 libgstfluidsynth_la_CFLAGS = \
   -I$(srcdir) -I$(top_srcdir) \
   -DDATADIR=\"$(datadir)\" \
-	$(GST_PLUGIN_CFLAGS) \
-	$(BASE_DEPS_CFLAGS) \
-	$(FLUIDSYNTH_CFLAGS)
+  $(GST_PLUGIN_CFLAGS) \
+  $(BASE_DEPS_CFLAGS) \
+  $(FLUIDSYNTH_CFLAGS)
 libgstfluidsynth_la_LIBADD = \
-	libbuzztrax-gst.la  \
-	$(BASE_DEPS_LIBS) $(FLUIDSYNTH_LIBS) $(GST_PLUGIN_LIBS)
+  libbuzztrax-gst.la  \
+  $(BASE_DEPS_LIBS) $(FLUIDSYNTH_LIBS) $(GST_PLUGIN_LIBS)
 libgstfluidsynth_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstfluidsynth_la_LIBTOOLFLAGS = --tag=disable-static
 endif
@@ -479,11 +626,11 @@ libgstsidsyn_la_SOURCES = \
 libgstsidsyn_la_CXXFLAGS = \
   -I$(srcdir) -I$(top_srcdir) \
   -DDATADIR=\"$(datadir)\" \
-	$(GST_PLUGIN_CFLAGS) \
-	$(BASE_DEPS_CFLAGS)
+  $(GST_PLUGIN_CFLAGS) \
+  $(BASE_DEPS_CFLAGS)
 libgstsidsyn_la_LIBADD = \
-	libbuzztrax-gst.la \
-	$(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
+  libbuzztrax-gst.la \
+  $(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
 libgstsidsyn_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstsidsyn_la_LIBTOOLFLAGS = --tag=disable-static
 
@@ -492,11 +639,11 @@ libgstsimsyn_la_SOURCES = src/gst/simsyn/plugin.c src/gst/simsyn/simsyn.c
 libgstsimsyn_la_CFLAGS = \
   -I$(srcdir) -I$(top_srcdir) \
   -DDATADIR=\"$(datadir)\" \
-	$(GST_PLUGIN_CFLAGS) \
-	$(BASE_DEPS_CFLAGS)
+  $(GST_PLUGIN_CFLAGS) \
+  $(BASE_DEPS_CFLAGS)
 libgstsimsyn_la_LIBADD = \
-	libbuzztrax-gst.la \
-	$(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
+  libbuzztrax-gst.la \
+  $(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
 libgstsimsyn_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstsimsyn_la_LIBTOOLFLAGS = --tag=disable-static
 
@@ -505,11 +652,11 @@ libgstwavereplay_la_SOURCES = src/gst/wavereplay/wavereplay.c
 libgstwavereplay_la_CFLAGS = \
   -I$(srcdir) -I$(top_srcdir) \
   -DDATADIR=\"$(datadir)\" \
-	$(GST_PLUGIN_CFLAGS) \
-	$(BASE_DEPS_CFLAGS)
+  $(GST_PLUGIN_CFLAGS) \
+  $(BASE_DEPS_CFLAGS)
 libgstwavereplay_la_LIBADD = \
-	libbuzztrax-gst.la \
-	$(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
+  libbuzztrax-gst.la \
+  $(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
 libgstwavereplay_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstwavereplay_la_LIBTOOLFLAGS = --tag=disable-static
 
@@ -518,11 +665,11 @@ libgstwavetabsyn_la_SOURCES = src/gst/wavetabsyn/wavetabsyn.c
 libgstwavetabsyn_la_CFLAGS = \
   -I$(srcdir) -I$(top_srcdir) \
   -DDATADIR=\"$(datadir)\" \
-	$(GST_PLUGIN_CFLAGS) \
-	$(BASE_DEPS_CFLAGS)
+  $(GST_PLUGIN_CFLAGS) \
+  $(BASE_DEPS_CFLAGS)
 libgstwavetabsyn_la_LIBADD = \
-	libbuzztrax-gst.la \
-	$(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
+  libbuzztrax-gst.la \
+  $(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
 libgstwavetabsyn_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstwavetabsyn_la_LIBTOOLFLAGS = --tag=disable-static
 
@@ -552,18 +699,18 @@ if WITH_UPDATE_DESKTOP
 	  echo "Updating Desktop database."; \
 	  test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)"; \
 	else \
-		echo "*** Desktop database not updated.  After (un)install, run this:"; \
-		echo "***   $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";"; \
+	  echo "*** Desktop database not updated.  After (un)install, run this:"; \
+	  echo "***   $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";"; \
 	fi
 endif
 update-mime-db:
 if WITH_UPDATE_MIME
 	@-if test -z "$(DESTDIR)"; then \
-		echo "Updating MIME database."; \
+	  echo "Updating MIME database."; \
 	  test -z "$(UPDATE_MIME_DATABASE)" || $(UPDATE_MIME_DATABASE) "$(DESTDIR)$(sharedmimedir)"; \
 	else \
-		echo "*** MIME database not updated.  After (un)install, run this:"; \
-		echo "***   $(UPDATE_MIME_DATABASE) "$(DESTDIR)$(sharedmimedir)";"; \
+	  echo "*** MIME database not updated.  After (un)install, run this:"; \
+	  echo "***   $(UPDATE_MIME_DATABASE) "$(DESTDIR)$(sharedmimedir)";"; \
 	fi
 endif
 
@@ -572,55 +719,55 @@ libbtcore_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztrax_core_la_SOURCES))
 
 BuzztraxCore-0.0.gir: $(G_IR_SCANNER) libbuzztrax-core.la
 	-PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):$(top_srcdir)/src/lib/ic/" $(AM_V_GEN)$(G_IR_SCANNER) -v \
-	     --namespace=BuzztraxCore \
-	     --nsversion 0.0 \
-	     -I$(builddir) \
-	     -I$(srcdir) \
-	     -I$(top_srcdir)/src/src/lib/ic/ \
-	     --add-include-path=$(top_srcdir)/src/src/lib/ic/ \
-	     --identifier-prefix=Bt \
-	     --symbol-prefix=bt \
-	     --c-include='src/lib/core/core.h' \
-	     --include=GLib-2.0 \
-	     --include=GObject-2.0 \
-	     --include=Gst-@GST_MAJORMINOR@ \
-	     --include=libxml2-2.0 \
-	     --include=BuzztraxIc-0.0 \
-	     --library=libbuzztrax-core.la \
-	     --library=libbuzztrax-gst.la \
-	     --libtool="$(top_builddir)/libtool" \
-	     --pkg glib-2.0 \
-	     --pkg gobject-2.0 \
-	     --pkg libxml-2.0 \
-	     --pkg gstreamer-@GST_MAJORMINOR@ \
-	     --pkg-export libbuzztrax-core \
-	     --add-init-section="bt_init(NULL,NULL);" \
-	     --output $@ \
-	     $(libbtcore_gir_sources) || touch $@
+	   --namespace=BuzztraxCore \
+	   --nsversion 0.0 \
+	   -I$(builddir) \
+	   -I$(srcdir) \
+	   -I$(top_srcdir)/src/src/lib/ic/ \
+	   --add-include-path=$(top_srcdir)/src/src/lib/ic/ \
+	   --identifier-prefix=Bt \
+	   --symbol-prefix=bt \
+	   --c-include='src/lib/core/core.h' \
+	   --include=GLib-2.0 \
+	   --include=GObject-2.0 \
+	   --include=Gst-@GST_MAJORMINOR@ \
+	   --include=libxml2-2.0 \
+	   --include=BuzztraxIc-0.0 \
+	   --library=libbuzztrax-core.la \
+	   --library=libbuzztrax-gst.la \
+	   --libtool="$(top_builddir)/libtool" \
+	   --pkg glib-2.0 \
+	   --pkg gobject-2.0 \
+	   --pkg libxml-2.0 \
+	   --pkg gstreamer-@GST_MAJORMINOR@ \
+	   --pkg-export libbuzztrax-core \
+	   --add-init-section="bt_init(NULL,NULL);" \
+	   --output $@ \
+	   $(libbtcore_gir_sources) || touch $@
 
 libbtic_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztrax_ic_la_SOURCES))
 
 BuzztraxIc-0.0.gir: $(G_IR_SCANNER) libbuzztrax-ic.la
 	-$(AM_V_GEN)$(G_IR_SCANNER) -v \
-	     --namespace=BuzztraxIc \
-	     --nsversion 0.0 \
-	     -I$(builddir) \
-	     -I$(srcdir) \
-	     --identifier-prefix=BtIc \
-	     --symbol-prefix=btic \
-	     --c-include='src/lib/ic/ic.h' \
-	     --include=GLib-2.0 \
-	     --include=GObject-2.0 \
-	     --include=Gst-@GST_MAJORMINOR@ \
-	     --library=libbuzztrax-ic.la \
-	     --libtool="$(top_builddir)/libtool" \
-	     --pkg glib-2.0 \
-	     --pkg gobject-2.0 \
-	     --pkg gstreamer-@GST_MAJORMINOR@ \
-	     --pkg-export libbuzztrax-ic \
-	     --add-init-section="btic_init(NULL,NULL);" \
-	     --output $@ \
-	     $(libbtic_gir_sources) || touch $@
+	   --namespace=BuzztraxIc \
+	   --nsversion 0.0 \
+	   -I$(builddir) \
+	   -I$(srcdir) \
+	   --identifier-prefix=BtIc \
+	   --symbol-prefix=btic \
+	   --c-include='src/lib/ic/ic.h' \
+	   --include=GLib-2.0 \
+	   --include=GObject-2.0 \
+	   --include=Gst-@GST_MAJORMINOR@ \
+	   --library=libbuzztrax-ic.la \
+	   --libtool="$(top_builddir)/libtool" \
+	   --pkg glib-2.0 \
+	   --pkg gobject-2.0 \
+	   --pkg gstreamer-@GST_MAJORMINOR@ \
+	   --pkg-export libbuzztrax-ic \
+	   --add-init-section="btic_init(NULL,NULL);" \
+	   --output $@ \
+	   $(libbtic_gir_sources) || touch $@
 
 BUILT_GIRSOURCES = BuzztraxCore-0.0.gir BuzztraxIc-0.0.gir
 
@@ -641,13 +788,16 @@ endif
 EXTRA_DIST += \
   $(desktop_in_files) $(sharedmimepackage_in_files) \
   $(css_DATA) \
-	src/lib/core/libbuzztrax-core.pc.in \
-	src/lib/core/marshal.list \
-	src/lib/core/version.h.in \
-	src/lib/gst/libbuzztrax_gst.pc.in \
-	src/lib/ic/libbuzztrax-ic.pc.in \
-	src/lib/ic/version.h.in \
-	src/ui/edit/marshal.list
+  src/lib/bml/libbml.pc.in \
+  src/lib/bml/BuzzMachineLoader.dll \
+  src/lib/core/libbuzztrax-core.pc.in \
+  src/lib/core/marshal.list \
+  src/lib/core/version.h.in \
+  src/lib/src/lib/dllwrapper/README \
+  src/lib/gst/libbuzztrax_gst.pc.in \
+  src/lib/ic/libbuzztrax-ic.pc.in \
+  src/lib/ic/version.h.in \
+  src/ui/edit/marshal.list
 
 # CLEANFILES is for files generated by make
 CLEANFILES += \

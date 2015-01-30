@@ -62,6 +62,10 @@ DISTCLEANFILES = \
 	intltool-update \
 	docs/version.entities
 
+# define list variables once so that we can unconditionally append
+noinst_HEADERS =
+noinst_LTLIBRARIES =
+
 include $(top_srcdir)/Makefile.pixmaps.am
 include $(top_srcdir)/Makefile.src.am
 include $(top_srcdir)/Makefile.tests.am
@@ -160,10 +164,11 @@ AUTHORS: .git/index
 		  git log --no-merges --pretty=format:"%an <%ae>" . | \
 		  sed -e 's/sourceforge.net/sf.net/' \
 		      -e 's/Stefan Sauer <ensonic@hora-obscura.de>/Stefan Sauer <ensonic@users.sf.net>/' \
-		      -e 's/\(Joseph Orbegoso Pea <joseph.pea@climate.com>\|trusktr <trusktr@gmail.com>\)/Joe Pea <trusktr@gmail.com>/' | \
+		      -e 's/\(Joseph Orbegoso Pea <joseph.pea@climate.com>\|trusktr <trusktr@gmail.com>\)/Joe Pea <trusktr@gmail.com>/' \
 		      -e 's/\(Tom Mast <thomasomast@gmail.com>\|tom__m <thomasomast@gmail.com>\)/Tom Mast <amishmansteve@users.sf.net>/' \
 		      -e 's/\(Thomas Wabner <waffel@hora-obscura.de>\|Waffel <waffel@hora-obscura.de>\|waffel <waffel@users.sf.net>\)/Thomas Wabner <waffel@users.sf.net>/' | \
-		  sort | uniq -c | sed -e 's/^\ *//' | sort -rn | cut -d' ' -f2- \
+		  sort | uniq -c | sed -e 's/^\ *//' | sort -rn | cut -d' ' -f2-; echo; \
+		  echo 'src/lib/dllwrapper is based on the work of various authors of the winelib and xine projects' \
 		  ) > $@.tmp && \
 		cmp -s $@ $@.tmp; \
 		if test "$(?)" = "0"; then rm -f $@.tmp; touch $@; else mv -f $@.tmp $@; fi \

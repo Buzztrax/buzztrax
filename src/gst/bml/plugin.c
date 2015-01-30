@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#if HAVE_BMLW
+#if USE_DLLWRAPPER
 #include <sys/wait.h>
 #endif
 
@@ -36,7 +36,7 @@ GHashTable *bml_category_by_machine_name;
 GQuark gst_bml_property_meta_quark_type;
 
 // we need to do this as this is compiled globally without bml/BML macros defined
-#if HAVE_BMLW
+#if USE_DLLWRAPPER
 extern gboolean bmlw_gstbml_inspect (gchar * file_name);
 extern gboolean bmlw_gstbml_register_element (GstPlugin * plugin,
     GstStructure * bml_meta);
@@ -170,7 +170,7 @@ blacklist_compare (const void *node1, const void *node2)
 static const gchar *
 get_bml_path (void)
 {
-#if HAVE_BMLW
+#if USE_DLLWRAPPER
   return (LIBDIR G_DIR_SEPARATOR_S "Gear:" LIBDIR G_DIR_SEPARATOR_S "Gear"
       G_DIR_SEPARATOR_S "Generators:" LIBDIR G_DIR_SEPARATOR_S "Gear"
       G_DIR_SEPARATOR_S "Effects");
@@ -179,7 +179,7 @@ get_bml_path (void)
 #endif
 }
 
-#if HAVE_BMLW
+#if USE_DLLWRAPPER
 #if 0
 static struct sigaction oldaction;
 static gboolean fault_handler_active = FALSE;
@@ -417,7 +417,7 @@ dir_scan (const gchar * dir_name)
         file_name = g_build_filename (dir_name, cur_entry_name, NULL);
         GST_INFO ("trying plugin '%s','%s'", cur_entry_name, file_name);
         if (!strcasecmp (ext, ".dll")) {
-#if HAVE_BMLW
+#if USE_DLLWRAPPER
 #if 0
           pid_t pid;
           int status;
@@ -551,7 +551,7 @@ plugin_init (GstPlugin * plugin)
   bml_plugin = plugin;
 
   // TODO(ensonic): this is a hack
-#if HAVE_BMLW
+#if USE_DLLWRAPPER
   bmlw_set_master_info (120, 4, 44100);
 #endif
   bmln_set_master_info (120, 4, 44100);
@@ -595,7 +595,7 @@ plugin_init (GstPlugin * plugin)
         if (bml_type == bmln_type) {
           res &= bmln_gstbml_register_element (plugin, bml_meta);
         }
-#if HAVE_BMLW
+#if USE_DLLWRAPPER
         else {
           res &= bmlw_gstbml_register_element (plugin, bml_meta);
         }

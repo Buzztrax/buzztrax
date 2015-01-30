@@ -53,7 +53,7 @@
 
 
 //-- libbml
-#include <libbml/bml.h>
+#include "bml/bml.h"
 
 #ifdef BML_WRAPPED
 #define bml(a) bmlw_ ## a

@@ -7,6 +7,11 @@ TESTRESULTDIR="@abs_top_builddir@/tests/songs"
 BUZZTRAX_CMD=@abs_top_builddir@/buzztrax-cmd
 BUZZTRAX_EDIT=@abs_top_builddir@/buzztrax-edit
 
+BMLTEST_INFO=@abs_top_builddir@/bmltest_info
+BMLTEST_PROCESS=@abs_top_builddir@/bmltest_process
+
+LIBDIR="@prefix@/lib"
+
 XVFB_PATH="@xvfb_path@"
 XFONT_PATH="@XFONT_PATH@"
 

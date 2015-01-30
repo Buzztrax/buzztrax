@@ -57,6 +57,7 @@ tests/bt-cmd-cli.sh:
 tests/bt-edit-cli.sh:
 	gschemas.compiled
 
+
 check_LTLIBRARIES = \
   libbt-check.la \
   libbt-check-ui.la \
@@ -226,7 +227,21 @@ libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/e-wavelevel-list-model.c \
 	tests/ui/edit/e-wire-canvas-item.c
 
+else
+noinst_PROGRAMS =
 endif
+
+
+noinst_PROGRAMS += bmltest_info bmltest_process
+
+bmltest_info_SOURCES = tests/lib/bml/bmltest_info.c tests/lib/bml/bmltest_info.h
+bmltest_info_CFLAGS = $(PTHREAD_CFLAGS) $(BML_CFLAGS)
+bmltest_info_LDADD = $(LIBM) $(PTHREAD_LIBS) $(BML_LIBS) libbml.la
+
+bmltest_process_SOURCES = tests/lib/bml/bmltest_process.c  tests/lib/bml/bmltest_process.h
+bmltest_process_CFLAGS = $(PTHREAD_CFLAGS) $(BML_CFLAGS)
+bmltest_process_LDADD = $(LIBM) $(PTHREAD_LIBS) $(BML_LIBS) libbml.la
+
 
 songdatadir = $(datadir)/$(PACKAGE)/songs
 songdata_DATA = \
@@ -282,7 +297,8 @@ EXTRA_DIST += \
 	$(songdata_DATA) $(noinst_songdata) \
 	tests/povalid.sh tests/xmlvalid.sh tests/shunit2 \
 	tests/bt-cfg.sh.in tests/bt-cmd-info.sh tests/bt-cmd-encode.sh \
-	tests/bt-cmd-cli.sh tests/bt-edit-cli.sh
+	tests/bt-cmd-cli.sh tests/bt-edit-cli.sh \
+	tests/lib/bml/sorttable.js tests/lib/bml/testmachine.sh
 
 test-clean-local:
 	@rm -f \
