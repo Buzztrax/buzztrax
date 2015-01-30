@@ -71,10 +71,11 @@ for machine in $machine_glob ; do
   # try to run it
   sig_segv=0
   sig_int=0
-  #env >testmachine.log 2>&1 LD_LIBRARY_PATH="../src/" ../src/bmltest_info "$machine"
+  echo >bmltest_info.log "BML_DEBUG=255 $BMLTEST_INFO \"$machine\""
+  #env >>bmltest_info.log 2>&1 LD_LIBRARY_PATH="../src/" ../src/bmltest_info "$machine"
   #res=$?
   # this suppresses the output of e.g. "Sementation fault"
-  res=`env >bmltest_info.log 2>&1 BML_DEBUG=255 LD_LIBRARY_PATH="../src/:../src/lib/bml/BuzzMachineLoader/.libs:$LD_LIBRARY_PATH" $BMLTEST_INFO "$machine"; echo $?`
+  res=`env >>bmltest_info.log 2>&1 BML_DEBUG=255 $BMLTEST_INFO "$machine"; echo $?`
   cat bmltest_info.log | grep >"$log_name" -v "Warning: the specified"
   if [ $sig_int -eq "1" ] ; then res=1; fi
   cat bmltest_info.log | iconv >bmltest_info.tmp -fWINDOWS-1250 -tUTF-8 -c
@@ -97,8 +98,9 @@ for machine in $machine_glob ; do
     # try to run it again
     sig_segv=0
     sig_int=0
+    echo >bmltest_process.log "BML_DEBUG=255 $BMLTEST_PROCESS \"$machine\" input.raw output.raw"
     # this suppresses the output of e.g. "Sementation fault"
-    res=`env >bmltest_process.log 2>&1 BML_DEBUG=255 LD_LIBRARY_PATH="../src/:../lib/bml/src/BuzzMachineLoader/.libs:$LD_LIBRARY_PATH" $BMLTEST_PROCESS "$machine" input.raw output.raw; echo $?`
+    res=`env >>bmltest_process.log 2>&1 BML_DEBUG=255 $BMLTEST_PROCESS "$machine" input.raw output.raw; echo $?`
     cat bmltest_process.log | grep >>"$log_name" -v "Warning: the specified"
     if [ $sig_int -eq "1" ] ; then res=1; fi
     if [ $res -eq "0" ] ; then
