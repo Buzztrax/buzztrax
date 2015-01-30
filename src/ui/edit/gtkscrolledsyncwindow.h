@@ -78,22 +78,22 @@ struct _GtkScrolledSyncWindowClass
 GType          gtk_scrolled_sync_window_get_type          (void) G_GNUC_CONST;
 GtkWidget*     gtk_scrolled_sync_window_new               (GtkAdjustment     *hadjustment,
 						      GtkAdjustment     *vadjustment);
-void           gtk_scrolled_sync_window_set_hadjustment   (GtkScrolledSyncWindow *scrolled_sync_window,
+void           gtk_scrolled_sync_window_set_hadjustment   (GtkScrolledSyncWindow *self,
 						      GtkAdjustment     *hadjustment);
-void           gtk_scrolled_sync_window_set_vadjustment   (GtkScrolledSyncWindow *scrolled_sync_window,
+void           gtk_scrolled_sync_window_set_vadjustment   (GtkScrolledSyncWindow *self,
 						      GtkAdjustment     *vadjustment);
-GtkAdjustment* gtk_scrolled_sync_window_get_hadjustment   (GtkScrolledSyncWindow *scrolled_sync_window);
-GtkAdjustment* gtk_scrolled_sync_window_get_vadjustment   (GtkScrolledSyncWindow *scrolled_sync_window);
+GtkAdjustment* gtk_scrolled_sync_window_get_hadjustment   (GtkScrolledSyncWindow *self);
+GtkAdjustment* gtk_scrolled_sync_window_get_vadjustment   (GtkScrolledSyncWindow *self);
 //GDK_DEPRECATED_IN_3_8_FOR(gtk_container_add)
-void	       gtk_scrolled_sync_window_add_with_viewport (GtkScrolledSyncWindow *scrolled_sync_window,
+void	       gtk_scrolled_sync_window_add_with_viewport (GtkScrolledSyncWindow *self,
 						      GtkWidget		*child);
-void           gtk_scrolled_sync_window_set_kinetic_scrolling  (GtkScrolledSyncWindow        *scrolled_sync_window,
+void           gtk_scrolled_sync_window_set_kinetic_scrolling  (GtkScrolledSyncWindow        *self,
                                                            gboolean                  kinetic_scrolling);
-gboolean       gtk_scrolled_sync_window_get_kinetic_scrolling  (GtkScrolledSyncWindow        *scrolled_sync_window);
+gboolean       gtk_scrolled_sync_window_get_kinetic_scrolling  (GtkScrolledSyncWindow        *self);
 
-void           gtk_scrolled_sync_window_set_capture_button_press (GtkScrolledSyncWindow      *scrolled_sync_window,
+void           gtk_scrolled_sync_window_set_capture_button_press (GtkScrolledSyncWindow      *self,
                                                              gboolean                capture_button_press);
-gboolean       gtk_scrolled_sync_window_get_capture_button_press (GtkScrolledSyncWindow      *scrolled_sync_window);
+gboolean       gtk_scrolled_sync_window_get_capture_button_press (GtkScrolledSyncWindow      *self);
 
 
 G_END_DECLS

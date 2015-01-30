@@ -1066,6 +1066,33 @@ BtWireCanvasItemPrivate
 
 
 <SECTION>
+<FILE>gtkscrolledsyncwindow</FILE>
+<TITLE>GtkScrolledSyncWindow</TITLE>
+GtkScrolledSyncWindow
+gtk_scrolled_sync_window_new
+gtk_scrolled_sync_window_set_hadjustment
+gtk_scrolled_sync_window_set_vadjustment
+gtk_scrolled_sync_window_get_hadjustment
+gtk_scrolled_sync_window_get_vadjustment
+gtk_scrolled_sync_window_add_with_viewport
+gtk_scrolled_sync_window_set_kinetic_scrolling
+gtk_scrolled_sync_window_get_kinetic_scrolling
+gtk_scrolled_sync_window_set_capture_button_press
+gtk_scrolled_sync_window_get_capture_button_press
+<SUBSECTION Standard>
+GtkScrolledSyncWindowClass
+GTK_SCROLLED_SYNC_WINDOW
+GTK_IS_SCROLLED_SYNC_WINDOW
+GTK_SCROLLED_SYNC_WINDOW_CLASS
+GTK_IS_SCROLLED_SYNC_WINDOW_CLASS
+GTK_SCROLLED_SYNC_WINDOW_GET_CLASS
+GTK_TYPE_SCROLLED_SYNC_WINDOW
+gtk_scrolled_sync_window_get_type
+GtkScrolledSyncWindowPrivate
+</SECTION>
+
+
+<SECTION>
 <FILE>gtkvumeter</FILE>
 <TITLE>GtkVUMeter</TITLE>
 GtkVUMeter

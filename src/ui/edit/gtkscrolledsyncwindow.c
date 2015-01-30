@@ -33,7 +33,7 @@
 #include "marshal.h"
 
 /**
- * SECTION:gtkscrolledsyscwindow
+ * SECTION:gtkscrolledsyncwindow
  * @Short_description: Adds scrolling to its child widget
  * @Title: GtkScrolledSyncWindow
  * @See_also: #GtkScrollable, #GtkViewport, #GtkAdjustment
@@ -1692,7 +1692,7 @@ gtk_scrolled_sync_window_remove (GtkContainer * container, GtkWidget * child)
 
 /**
  * gtk_scrolled_sync_window_add_with_viewport:
- * @scrolled_sync_window: a #GtkScrolledSyncWindow
+ * @self: a #GtkScrolledSyncWindow
  * @child: the widget you want to scroll
  *
  * Used to add children without native scrolling capabilities. This

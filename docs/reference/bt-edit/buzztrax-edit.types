@@ -1,6 +1,7 @@
 #include "core/core.h"
 #include "bt-edit.h"
 #include "btmemoryaudiosrc.h"
+#include "gtkscrolledsyncwindow.h"
 #include "gtkvumeter.h"
 
 bt_about_dialog_get_type
@@ -57,4 +58,5 @@ bt_pattern_editor_get_type
 bt_volume_popup_get_type
 bt_waveform_viewer_get_type
 
+gtk_scrolled_sync_window_get_type
 gtk_vumeter_get_type

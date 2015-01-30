@@ -130,6 +130,7 @@
       <title>Widget Class Reference</title>
       <xi:include href="xml/btpatterneditor.xml" />
       <xi:include href="xml/btwaveformviewer.xml" />
+      <xi:include href="xml/gtkscrolledsyncwindow.xml" />
       <xi:include href="xml/gtkvumeter.xml" />
     </chapter>
   </reference>
@@ -159,5 +160,7 @@
       <title>Index of new API in 0.6</title>
       <xi:include href="xml/api-index-0.6.xml"><xi:fallback /></xi:include>
     </index>
+
+    <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
   </part>
 </book>
