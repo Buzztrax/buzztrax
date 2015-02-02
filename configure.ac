@@ -715,3 +715,5 @@ export GI_TYPELIB_PATH="\$GI_TYPELIB_PATH:$prefix/lib/girepository"
 "
 fi
 
+ORC_OUTPUT
+
