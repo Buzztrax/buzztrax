@@ -129,6 +129,7 @@ main (gint argc, gchar ** argv)
   bt_ui_resources_init_theme ();
 
   // give some global context info
+  g_set_prgname ("buzztrax-edit");
   g_set_application_name ("Buzztrax");
   gtk_window_set_default_icon_name ("buzztrax");
   g_setenv ("PULSE_PROP_media.role", "production", TRUE);

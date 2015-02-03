@@ -134,6 +134,7 @@ main (gint argc, gchar ** argv)
       input_file_name, output_file_name);
 
   // give some global context info
+  g_set_prgname ("buzztrax-cmd");
   g_set_application_name ("Buzztrax");
   g_setenv ("PULSE_PROP_application.icon_name", "buzztrax", TRUE);
   g_setenv ("PULSE_PROP_media.role", "production", TRUE);
