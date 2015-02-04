@@ -205,7 +205,7 @@ gstbt_sim_syn_init (GstBtSimSyn * src)
 }
 
 static GParamSpec *
-bt_g_param_spec_clone (GObjectClass * src_class, const gchar src_name,
+bt_g_param_spec_clone (GObjectClass * src_class, const gchar * src_name,
     gchar * new_name, GParamFlags flags)
 {
   GParamSpec *src = g_object_class_find_property (src_class, src_name);
