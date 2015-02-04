@@ -204,6 +204,61 @@ gstbt_sim_syn_init (GstBtSimSyn * src)
   g_object_set (src->osc, "volume-envelope", src->volenv, NULL);
 }
 
+static GParamSpec *
+bt_g_param_spec_clone (GObjectClass * src_class, const gchar src_name,
+    gchar * new_name, GParamFlags flags)
+{
+  GParamSpec *src = g_object_class_find_property (src_class, src_name);
+  g_return_val_if_fail (src, NULL);
+
+  /* https://bugzilla.gnome.org/show_bug.cgi?id=744011
+   * the problem is that g_object_class_list_properties() will remove the 
+   * g_param_spec_override() - see pspec_list_remove_overridden_and_redirected()
+   * as it also goes up the hierarchy in order to try to supply the redirect 
+   * target instead. Here the filter_klass is not a parent, nor an interface
+   * and thus the pspec is lost.
+   */
+  GParamSpec *pspec;
+  GTypeQuery query;
+
+  g_type_query (G_PARAM_SPEC_TYPE (src), &query);
+  /* this is pretty lame, we have no idea if we copy e.g. pointer fields */
+  pspec = g_memdup (src, query.instance_size);
+  /* reset known flags */
+  pspec->owner_type = 0;
+  pspec->qdata = NULL;
+  pspec->ref_count = 0;
+  pspec->param_id = 0;
+
+  if (new_name) {
+    gchar *p = new_name;
+    while (*p != 0) {
+      gchar c = *p;
+
+      if (c != '-' && (c < '0' || c > '9') && (c < 'A' || c > 'Z') &&
+          (c < 'a' || c > 'z')) {
+        g_warning ("non-canonical pspec name: %s", new_name);
+        break;
+      }
+      p++;
+    }
+
+    if (flags & G_PARAM_STATIC_NAME) {
+      pspec->name = (gchar *) g_intern_static_string (new_name);
+    } else {
+      pspec->name = (gchar *) g_intern_string (new_name);
+    }
+  }
+  if (!(pspec->flags & G_PARAM_STATIC_NICK)) {
+    pspec->_nick = g_strdup (pspec->_nick);
+  }
+  if (!(pspec->flags & G_PARAM_STATIC_BLURB)) {
+    pspec->_blurb = g_strdup (pspec->_blurb);
+  }
+
+  return pspec;
+}
+
 static void
 gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
 {
@@ -250,6 +305,7 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
       "Volume decay of the tone in seconds", 0.001, 4.0, 0.5,
       G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
+#if 0
   properties[PROP_FILTER] = g_param_spec_enum ("filter", "Filtertype",
       "Type of audio filter", GSTBT_TYPE_FILTER_SVF_TYPE,
       GSTBT_FILTER_SVF_LOWPASS,
@@ -259,33 +315,20 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
       "Audio filter cut-off frequency", 0.0, 1.0, 0.8,
       G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
+  /* we repeat the param spec details from the component */
   properties[PROP_RESONANCE] = g_param_spec_double ("resonance", "Resonance",
       "Audio filter resonance", 0.7, 25.0, 0.8,
       G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+#else
+  GObjectClass *filter_klass = g_type_class_ref (GSTBT_TYPE_FILTER_SVF);
+  properties[PROP_FILTER] = bt_g_param_spec_clone (filter_klass, "filter",
+      NULL, 0);
+  properties[PROP_CUTOFF] = bt_g_param_spec_clone (filter_klass, "cut-off",
+      NULL, 0);
+  properties[PROP_RESONANCE] = bt_g_param_spec_clone (filter_klass, "resonance",
+      NULL, 0);
+  g_type_class_unref (filter_klass);
+#endif
 
   g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
-
-  /* it does not show up :/  
-     GObjectClass * filter_klass = g_type_class_ref (GSTBT_TYPE_FILTER_SVF);
-     g_object_class_install_property (gobject_class, PROP_RESONANCE,
-     g_param_spec_override ("resonance", 
-     g_object_class_find_property (filter_klass, "resonance")));
-     g_type_class_unref (filter_klass);
-   */
-  /* the paramspec is not reusable, we need a g_param_spec_clone()
-     GObjectClass * filter_klass = g_type_class_ref (GSTBT_TYPE_FILTER_SVF);
-     g_object_class_install_property (gobject_class, PROP_RESONANCE, 
-     g_param_spec_ref (
-     g_object_class_find_property (filter_klass, "resonance")));
-     g_type_class_unref (filter_klass);
-   */
-  /* we could define an interface for each component and have the component
-   * implement the iface, here we also implement the iface and thus inherit the
-   * properties. This unfortunately won't allow us to rename properties. If
-   * e.g. we use two Osc components, we want to prefix them with e.g. 'Osc1-'
-   * and 'Osc2-'. What we'd like to have is:
-   *
-   * g_object_class_proxy_property (gobject_class, "resonance", filter_klass,
-   *   "resonance"); 
-   */
 }
