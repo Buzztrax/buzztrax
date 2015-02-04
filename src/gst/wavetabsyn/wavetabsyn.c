@@ -178,9 +178,6 @@ gstbt_wave_tab_syn_set_property (GObject * object, guint prop_id,
         GST_DEBUG ("new note -> '%d'", src->note);
         gdouble freq =
             gstbt_tone_conversion_translate_from_number (src->n2f, src->note);
-        gdouble note_time =
-            (gdouble) (src->note_length * ((GstBtAudioSynth *) src)->ticktime) /
-            (gdouble) GST_SECOND;
 
         g_object_set (src->osc, "frequency", freq, NULL);
         g_object_get (src->osc, "duration", &src->duration, NULL);
@@ -190,30 +187,20 @@ gstbt_wave_tab_syn_set_property (GObject * object, guint prop_id,
         src->cycle_pos = 0;
 
         gstbt_envelope_adsr_setup (src->volenv,
-            ((GstBtAudioSynth *) src)->samplerate, src->attack, src->decay,
-            note_time, src->release, src->peak_volume, src->sustain_volume);
+            ((GstBtAudioSynth *) src)->samplerate,
+            ((GstBtAudioSynth *) src)->ticktime);
       }
-      break;
-    case PROP_NOTE_LENGTH:
-      src->note_length = g_value_get_uint (value);
       break;
     case PROP_OFFSET:
       src->offset = g_value_get_uint (value);
       break;
+    case PROP_NOTE_LENGTH:
     case PROP_ATTACK:
-      src->attack = g_value_get_double (value);
-      break;
     case PROP_PEAK_VOLUME:
-      src->peak_volume = g_value_get_double (value);
-      break;
     case PROP_DECAY:
-      src->decay = g_value_get_double (value);
-      break;
     case PROP_SUSTAIN_VOLUME:
-      src->sustain_volume = g_value_get_double (value);
-      break;
     case PROP_RELEASE:
-      src->release = g_value_get_double (value);
+      g_object_set_property ((GObject *) (src->volenv), pspec->name, value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -238,26 +225,16 @@ gstbt_wave_tab_syn_get_property (GObject * object, guint prop_id,
     case PROP_TUNING:
       g_object_get_property ((GObject *) (src->n2f), "tuning", value);
       break;
-    case PROP_NOTE_LENGTH:
-      g_value_set_uint (value, src->note_length);
-      break;
     case PROP_OFFSET:
       g_value_set_uint (value, src->offset);
       break;
+    case PROP_NOTE_LENGTH:
     case PROP_ATTACK:
-      g_value_set_double (value, src->attack);
-      break;
     case PROP_PEAK_VOLUME:
-      g_value_set_double (value, src->peak_volume);
-      break;
     case PROP_DECAY:
-      g_value_set_double (value, src->decay);
-      break;
     case PROP_SUSTAIN_VOLUME:
-      g_value_set_double (value, src->sustain_volume);
-      break;
     case PROP_RELEASE:
-      g_value_set_double (value, src->release);
+      g_object_get_property ((GObject *) (src->volenv), pspec->name, value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -289,14 +266,6 @@ gstbt_wave_tab_syn_dispose (GObject * object)
 static void
 gstbt_wave_tab_syn_init (GstBtWaveTabSyn * src)
 {
-  /* set base parameters */
-  src->note_length = 1;
-  src->attack = 0.1;
-  src->peak_volume = 0.8;
-  src->decay = 0.5;
-  src->sustain_volume = 0.4;
-  src->release = 0.5;
-
   src->n2f =
       gstbt_tone_conversion_new (GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT);
 

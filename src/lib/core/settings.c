@@ -560,6 +560,7 @@ bt_settings_format_ic_playback_spec (GHashTable * ht)
   }
 
   spec = g_string_new ("");
+  // TODO(ensonic): since glib 2.40
   keys = g_hash_table_get_keys_as_array (ht, &num_keys);
   g_qsort_with_data (keys, num_keys, sizeof (gchar *),
       (GCompareDataFunc) compare_strings, NULL);

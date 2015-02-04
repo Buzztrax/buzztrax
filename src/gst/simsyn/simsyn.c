@@ -40,7 +40,6 @@
 #include "config.h"
 #endif
 
-#include <string.h>
 #include "simsyn.h"
 
 #define GST_CAT_DEFAULT sim_syn_debug
@@ -119,7 +118,7 @@ gstbt_sim_syn_set_property (GObject * object, guint prop_id,
         gdouble freq =
             gstbt_tone_conversion_translate_from_number (src->n2f, src->note);
         gstbt_envelope_d_setup (src->volenv,
-            ((GstBtAudioSynth *) src)->samplerate, src->decay, src->volume);
+            ((GstBtAudioSynth *) src)->samplerate);
         g_object_set (src->osc, "frequency", freq, NULL);
       }
       break;
@@ -127,10 +126,8 @@ gstbt_sim_syn_set_property (GObject * object, guint prop_id,
       g_object_set_property ((GObject *) (src->osc), "wave", value);
       break;
     case PROP_VOLUME:
-      src->volume = g_value_get_double (value);
-      break;
     case PROP_DECAY:
-      src->decay = g_value_get_double (value);
+      g_object_set_property ((GObject *) (src->volenv), pspec->name, value);
       break;
     case PROP_FILTER:
     case PROP_CUTOFF:
@@ -160,10 +157,8 @@ gstbt_sim_syn_get_property (GObject * object, guint prop_id,
       g_object_get_property ((GObject *) (src->osc), "wave", value);
       break;
     case PROP_VOLUME:
-      g_value_set_double (value, src->volume);
-      break;
     case PROP_DECAY:
-      g_value_set_double (value, src->decay);
+      g_object_get_property ((GObject *) (src->volenv), pspec->name, value);
       break;
     case PROP_FILTER:
     case PROP_CUTOFF:
@@ -202,10 +197,6 @@ gstbt_sim_syn_dispose (GObject * object)
 static void
 gstbt_sim_syn_init (GstBtSimSyn * src)
 {
-  /* set base parameters */
-  src->volume = 0.8;
-  src->decay = 0.5;
-
   src->n2f =
       gstbt_tone_conversion_new (GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT);
 

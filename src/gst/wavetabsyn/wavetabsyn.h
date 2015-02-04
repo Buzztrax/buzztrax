@@ -52,8 +52,7 @@ struct _GstBtWaveTabSyn
 
   /* parameters */
   GstBtNote note;
-  guint note_length, offset;
-  gdouble attack, decay, release, peak_volume, sustain_volume;
+  guint offset;
 
   guint cycle_pos, cycle_size;
   guint64 duration;

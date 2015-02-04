@@ -44,6 +44,9 @@ struct _GstBtEnvelopeD {
   GstBtEnvelope parent;
   /* < private > */
   gboolean dispose_has_run;		/* validate if dispose has run */
+  
+  /* parameters */
+  gdouble decay, volume;
 };
 
 struct _GstBtEnvelopeDClass {
@@ -53,7 +56,7 @@ struct _GstBtEnvelopeDClass {
 GType gstbt_envelope_d_get_type (void);
 
 GstBtEnvelopeD *gstbt_envelope_d_new (void);
-void gstbt_envelope_d_setup (GstBtEnvelopeD *self, gint samplerate, gdouble decay_time, gdouble peak_level);
+void gstbt_envelope_d_setup (GstBtEnvelopeD *self, gint samplerate);
 
 G_END_DECLS
 

@@ -44,6 +44,10 @@ struct _GstBtEnvelopeADSR {
   GstBtEnvelope parent;
   /* < private > */
   gboolean dispose_has_run;		/* validate if dispose has run */
+
+  /* parameters */
+  guint note_length;
+  gdouble attack, decay, release, peak_volume, sustain_volume;
 };
 
 struct _GstBtEnvelopeADSRClass {
@@ -53,9 +57,7 @@ struct _GstBtEnvelopeADSRClass {
 GType gstbt_envelope_adsr_get_type (void);
 
 GstBtEnvelopeADSR *gstbt_envelope_adsr_new (void);
-void gstbt_envelope_adsr_setup (GstBtEnvelopeADSR * self, gint samplerate,
-                                gdouble attack_time, gdouble decay_time, gdouble note_time, 
-                                gdouble release_time, gdouble peak_level, gdouble sustain_level);
+void gstbt_envelope_adsr_setup (GstBtEnvelopeADSR * self, gint samplerate, GstClockTime ticktime);
 
 G_END_DECLS
 

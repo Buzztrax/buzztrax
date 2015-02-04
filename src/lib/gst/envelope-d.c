@@ -38,6 +38,12 @@
 #define GST_CAT_DEFAULT envelope_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
+enum
+{
+  PROP_VOLUME = 1,
+  PROP_DECAY
+};
+
 //-- the class
 
 G_DEFINE_TYPE (GstBtEnvelopeD, gstbt_envelope_d, GSTBT_TYPE_ENVELOPE);
@@ -65,15 +71,12 @@ gstbt_envelope_d_new (void)
  * gstbt_envelope_d_setup:
  * @self: the envelope
  * @samplerate: the audio sampling rate
- * @decay_time: the decay time in sec
- * @peak_level: peak volume level (0.0 -> 1.0)
  *
  * Initialize the envelope for a new cycle. Adds a short attack (~0.001 s) to
  * avoid clicks.
  */
 void
-gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate,
-    gdouble decay_time, gdouble peak_level)
+gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate)
 {
   GstBtEnvelope *base = (GstBtEnvelope *) self;
   GstTimedValueControlSource *cs = base->cs;
@@ -85,32 +88,90 @@ gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate,
   base->offset = G_GUINT64_CONSTANT (0);
 
   /* ensure a < d */
-  if (attack_time > decay_time) {
-    attack_time = decay_time / 2.0;
+  if (attack_time > self->decay) {
+    attack_time = self->decay / 2.0;
   }
 
   /* samplerate will be one second */
   attack = samplerate * attack_time;
-  decay = samplerate * decay_time;
+  decay = samplerate * self->decay;
   base->length = decay;
 
   /* configure envelope */
   gst_timed_value_control_source_unset_all (cs);
   gst_timed_value_control_source_set (cs, G_GUINT64_CONSTANT (0), 0.0);
-  gst_timed_value_control_source_set (cs, attack, peak_level);
+  gst_timed_value_control_source_set (cs, attack, self->volume);
   gst_timed_value_control_source_set (cs, decay, 0.0);
 }
 
 //-- virtual methods
 
 static void
+gstbt_envelope_d_set_property (GObject * object, guint prop_id,
+    const GValue * value, GParamSpec * pspec)
+{
+  GstBtEnvelopeD *self = GSTBT_ENVELOPE_D (object);
+
+  switch (prop_id) {
+    case PROP_VOLUME:
+      self->volume = g_value_get_double (value);
+      break;
+    case PROP_DECAY:
+      self->decay = g_value_get_double (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+static void
+gstbt_envelope_d_get_property (GObject * object, guint prop_id,
+    GValue * value, GParamSpec * pspec)
+{
+  GstBtEnvelopeD *self = GSTBT_ENVELOPE_D (object);
+
+  switch (prop_id) {
+    case PROP_VOLUME:
+      g_value_set_double (value, self->volume);
+      break;
+    case PROP_DECAY:
+      g_value_set_double (value, self->decay);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+  }
+}
+
+static void
 gstbt_envelope_d_init (GstBtEnvelopeD * self)
 {
+  /* set base parameters */
+  self->volume = 0.8;
+  self->decay = 0.5;
 }
 
 static void
 gstbt_envelope_d_class_init (GstBtEnvelopeDClass * klass)
 {
+  GObjectClass *gobject_class = (GObjectClass *) klass;
+
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "envelope",
       GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "parameter envelope");
+
+  gobject_class->set_property = gstbt_envelope_d_set_property;
+  gobject_class->get_property = gstbt_envelope_d_get_property;
+
+  // register own properties
+
+  g_object_class_install_property (gobject_class, PROP_VOLUME,
+      g_param_spec_double ("volume", "Volume", "Volume of tone", 0.0, 1.0, 0.8,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_DECAY,
+      g_param_spec_double ("decay", "Decay",
+          "Volume decay of the tone in seconds", 0.001, 4.0, 0.5,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+
 }

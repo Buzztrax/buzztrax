@@ -53,8 +53,7 @@ struct _GstBtSimSyn
 
   /* parameters */
   GstBtNote note;
-  gdouble decay, volume;
-
+ 
   GstBtToneConversion *n2f;
   GstBtEnvelopeD *volenv;
   GstBtOscSynth *osc;  
