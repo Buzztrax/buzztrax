@@ -1365,6 +1365,8 @@ bt_machine_init_global_params (const BtMachine * const self)
     guint i, j;
     gboolean skip;
 
+    GST_INFO ("checking %u properties", number_of_properties);
+
     // check if the elemnt implements the GstBtChildBin interface (implies GstChildProxy)
     if (GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE])) {
       GObject *voice_child;
@@ -1384,6 +1386,8 @@ bt_machine_init_global_params (const BtMachine * const self)
     for (i = 0; i < number_of_properties; i++) {
       skip = FALSE;
       if (!(properties[i]->flags & GST_PARAM_CONTROLLABLE)) {
+        GST_DEBUG ("    skipping global_param [%d] \"%s\", not controlable",
+            i, properties[i]->name);
         skip = TRUE;
       } else if (child_properties) {
         // check if this param is also registered as child param, if so skip
