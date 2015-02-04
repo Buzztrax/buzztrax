@@ -50,14 +50,11 @@ enum
   // static class properties
   PROP_TUNING = 1,
   // dynamic class properties
-  PROP_NOTE,
-  PROP_WAVE,
-  PROP_VOLUME,
-  PROP_DECAY,
-  PROP_FILTER,
-  PROP_CUTOFF,
-  PROP_RESONANCE
+  PROP_NOTE, PROP_WAVE, PROP_VOLUME, PROP_DECAY, PROP_FILTER, PROP_CUTOFF,
+  PROP_RESONANCE,
+  N_PROPERTIES
 };
+static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 
 //-- the class
 
@@ -231,45 +228,42 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
       G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtSimSyn.html");
 
   // register own properties
-  g_object_class_install_property (gobject_class, PROP_TUNING,
-      g_param_spec_enum ("tuning", "Tuning", "Harmonic tuning",
-          GSTBT_TYPE_TONE_CONVERSION_TUNING,
-          GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  properties[PROP_TUNING] = g_param_spec_enum ("tuning", "Tuning",
+      "Harmonic tuning", GSTBT_TYPE_TONE_CONVERSION_TUNING,
+      GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_NOTE,
-      g_param_spec_enum ("note", "Musical note",
-          "Musical note (e.g. 'c-3', 'd#4')", GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
-          G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  properties[PROP_NOTE] = g_param_spec_enum ("note", "Musical note",
+      "Musical note (e.g. 'c-3', 'd#4')", GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
+      G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_WAVE,
-      g_param_spec_enum ("wave", "Waveform", "Oscillator waveform",
-          GSTBT_TYPE_OSC_SYNTH_WAVE, GSTBT_OSC_SYNTH_WAVE_SINE,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  properties[PROP_WAVE] = g_param_spec_enum ("wave", "Waveform",
+      "Oscillator waveform", GSTBT_TYPE_OSC_SYNTH_WAVE,
+      GSTBT_OSC_SYNTH_WAVE_SINE,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_VOLUME,
-      g_param_spec_double ("volume", "Volume", "Volume of tone", 0.0, 1.0, 0.8,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  properties[PROP_VOLUME] = g_param_spec_double ("volume", "Volume",
+      "Volume of tone", 0.0, 1.0, 0.8,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_DECAY,
-      g_param_spec_double ("decay", "Decay",
-          "Volume decay of the tone in seconds", 0.001, 4.0, 0.5,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  properties[PROP_DECAY] = g_param_spec_double ("decay", "Decay",
+      "Volume decay of the tone in seconds", 0.001, 4.0, 0.5,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_FILTER,
-      g_param_spec_enum ("filter", "Filtertype", "Type of audio filter",
-          GSTBT_TYPE_FILTER_SVF_TYPE, GSTBT_FILTER_SVF_LOWPASS,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  properties[PROP_FILTER] = g_param_spec_enum ("filter", "Filtertype",
+      "Type of audio filter", GSTBT_TYPE_FILTER_SVF_TYPE,
+      GSTBT_FILTER_SVF_LOWPASS,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_CUTOFF,
-      g_param_spec_double ("cut-off", "Cut-Off",
-          "Audio filter cut-off frequency", 0.0, 1.0, 0.8,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  properties[PROP_CUTOFF] = g_param_spec_double ("cut-off", "Cut-Off",
+      "Audio filter cut-off frequency", 0.0, 1.0, 0.8,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_RESONANCE,
-      g_param_spec_double ("resonance", "Resonance", "Audio filter resonance",
-          0.7, 25.0, 0.8,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  properties[PROP_RESONANCE] = g_param_spec_double ("resonance", "Resonance",
+      "Audio filter resonance", 0.7, 25.0, 0.8,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
 
   /* it does not show up :/  
      GObjectClass * filter_klass = g_type_class_ref (GSTBT_TYPE_FILTER_SVF);
