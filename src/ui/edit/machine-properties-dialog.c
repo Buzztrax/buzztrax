@@ -1982,8 +1982,8 @@ make_checkbox_widget (const BtMachinePropertiesDialog * self, GObject * machine,
 
 static void
 make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
-    const gchar * pname, GParamSpec * property, GValue * range_min,
-    GValue * range_max, GtkWidget * table, gulong row, BtParameterGroup * pg)
+    GParamSpec * property, GValue * range_min, GValue * range_max,
+    GtkWidget * table, gulong row, BtParameterGroup * pg)
 {
   GtkWidget *label, *widget1, *widget2, *evb;
   GType base_type;
@@ -1993,7 +1993,7 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
   // label for parameter name
   evb = gtk_event_box_new ();
   g_object_set (evb, "visible-window", FALSE, NULL);
-  label = gtk_label_new (pname);
+  label = gtk_label_new (g_param_spec_get_nick (property));
   gtk_label_set_single_line_mode (GTK_LABEL (label), TRUE);
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
   gtk_widget_set_tooltip_text (label, tool_tip_text);
@@ -2213,8 +2213,6 @@ make_global_param_box (const BtMachinePropertiesDialog * self,
       params--;
   }
   if (params) {
-    const gchar *pname;
-
     expander = gtk_expander_new (_("global properties"));
     gtk_expander_set_expanded (GTK_EXPANDER (expander), TRUE);
 
@@ -2230,14 +2228,13 @@ make_global_param_box (const BtMachinePropertiesDialog * self,
       if (bt_parameter_group_is_param_trigger (pg, i))
         continue;
 
-      pname = bt_parameter_group_get_param_name (pg, i);
       bt_parameter_group_get_param_details (pg, i, &property, &range_min,
           &range_max);
       param_parent = bt_parameter_group_get_param_parent (pg, i);
       GST_INFO ("global property %p has name '%s','%s'", property,
-          property->name, pname);
-      make_param_control (self, param_parent, pname, property, range_min,
-          range_max, table, k++, pg);
+          property->name, g_param_spec_get_nick (property));
+      make_param_control (self, param_parent, property, range_min, range_max,
+          table, k++, pg);
     }
     gtk_container_add (GTK_CONTAINER (expander), table);
   }
@@ -2264,8 +2261,6 @@ make_voice_param_box (const BtMachinePropertiesDialog * self,
       params--;
   }
   if (params) {
-    const gchar *pname;
-
     name = g_strdup_printf (_("voice %lu properties"), voice + 1);
     expander = gtk_expander_new (name);
     gtk_expander_set_expanded (GTK_EXPANDER (expander), TRUE);
@@ -2282,13 +2277,12 @@ make_voice_param_box (const BtMachinePropertiesDialog * self,
       if (bt_parameter_group_is_param_trigger (pg, i))
         continue;
 
-      pname = bt_parameter_group_get_param_name (pg, i);
       bt_parameter_group_get_param_details (pg, i, &property, &range_min,
           &range_max);
       param_parent = bt_parameter_group_get_param_parent (pg, i);
       GST_INFO ("voice property %p has name '%s','%s'", property,
-          property->name, pname);
-      make_param_control (self, param_parent, pname, property, range_min,
+          property->name, g_param_spec_get_nick (property));
+      make_param_control (self, param_parent, property, range_min,
           range_max, table, k++, pg);
     }
     gtk_container_add (GTK_CONTAINER (expander), table);
@@ -2361,8 +2355,6 @@ make_wire_param_box (const BtMachinePropertiesDialog * self, BtWire * wire)
 
   g_object_get (wire, "num-params", &params, "src", &src, NULL);
   if (params) {
-    const gchar *pname;
-
     expander = gtk_expander_new (NULL);
     gtk_expander_set_expanded (GTK_EXPANDER (expander), TRUE);
     g_object_bind_property_full (src, "id", expander, "label",
@@ -2379,14 +2371,13 @@ make_wire_param_box (const BtMachinePropertiesDialog * self, BtWire * wire)
     // add wire controls into the table
     table = gtk_grid_new ();
     for (i = 0; i < params; i++) {
-      pname = bt_parameter_group_get_param_name (pg, i);
       bt_parameter_group_get_param_details (pg, i, &property, &range_min,
           &range_max);
       param_parent = bt_parameter_group_get_param_parent (pg, i);
       GST_INFO ("wire property %p has name '%s','%s'", property, property->name,
-          pname);
-      make_param_control (self, param_parent, pname, property, range_min,
-          range_max, table, i, pg);
+          g_param_spec_get_nick (property));
+      make_param_control (self, param_parent, property, range_min, range_max,
+          table, i, pg);
     }
     gtk_container_add (GTK_CONTAINER (expander), table);
   }

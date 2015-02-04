@@ -345,7 +345,7 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
     tool_tip_text = (gchar *) g_param_spec_get_blurb (property);
 
     // get name
-    label = gtk_label_new (property->name);
+    label = gtk_label_new (g_param_spec_get_nick (property));
     gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
     gtk_widget_set_tooltip_text (label, tool_tip_text);
     gtk_grid_attach (GTK_GRID (table), label, 0, i, 1, 1);
