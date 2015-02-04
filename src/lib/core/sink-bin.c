@@ -1324,39 +1324,35 @@ bt_sink_bin_class_init (BtSinkBinClass * klass)
       "subticks-per-tick");
 
   g_object_class_install_property (gobject_class, SINK_BIN_MODE,
-      g_param_spec_enum ("mode", "mode prop", "mode of operation",
+      g_param_spec_enum ("mode", "Mode", "mode of operation",
           BT_TYPE_SINK_BIN_MODE, BT_SINK_BIN_MODE_PLAY,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SINK_BIN_RECORD_FORMAT,
-      g_param_spec_enum ("record-format", "record-format prop",
+      g_param_spec_enum ("record-format", "Record format",
           "format to use when in record mode", BT_TYPE_SINK_BIN_RECORD_FORMAT,
           BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SINK_BIN_RECORD_FILE_NAME,
-      g_param_spec_string ("record-file-name", "record-file-name contruct prop",
+      g_param_spec_string ("record-file-name", "Record filename",
           "the file-name to use for recording", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SINK_BIN_INPUT_GAIN,
-      g_param_spec_object ("input-gain", "input-gain prop",
+      g_param_spec_object ("input-gain", "Input gain",
           "the input-gain element, if any",
           GST_TYPE_ELEMENT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SINK_BIN_MASTER_VOLUME,
       g_param_spec_double ("master-volume",
-          "master volume prop",
-          "master volume for the song",
-          0.0,
-          1.0,
-          1.0,
+          "Master volume", "master volume for the song",
+          0.0, 1.0, 1.0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | GST_PARAM_CONTROLLABLE));
 
   g_object_class_install_property (gobject_class, SINK_BIN_ANALYZERS,
       g_param_spec_pointer ("analyzers",
-          "analyzers prop",
-          "list of master analyzers",
+          "Analyzers", "list of master analyzers",
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_set_metadata (element_class,
