@@ -31,15 +31,12 @@
  * ]| Render a sine wave tone.
  * </refsect2>
  */
-/* TODO(ensonic): improvements
- * - implement property-meta iface (see gstbml) - why actually?
- *   - we could pretty print filter cut-off
- */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include "plugin.h"
 #include "simsyn.h"
 
 #define GST_CAT_DEFAULT bt_audio_debug
@@ -204,67 +201,13 @@ gstbt_sim_syn_init (GstBtSimSyn * src)
   g_object_set (src->osc, "volume-envelope", src->volenv, NULL);
 }
 
-static GParamSpec *
-bt_g_param_spec_clone (GObjectClass * src_class, const gchar * src_name,
-    gchar * new_name, GParamFlags flags)
-{
-  GParamSpec *src = g_object_class_find_property (src_class, src_name);
-  g_return_val_if_fail (src, NULL);
-
-  /* https://bugzilla.gnome.org/show_bug.cgi?id=744011
-   * the problem is that g_object_class_list_properties() will remove the 
-   * g_param_spec_override() - see pspec_list_remove_overridden_and_redirected()
-   * as it also goes up the hierarchy in order to try to supply the redirect 
-   * target instead. Here the filter_klass is not a parent, nor an interface
-   * and thus the pspec is lost.
-   */
-  GParamSpec *pspec;
-  GTypeQuery query;
-
-  g_type_query (G_PARAM_SPEC_TYPE (src), &query);
-  /* this is pretty lame, we have no idea if we copy e.g. pointer fields */
-  pspec = g_memdup (src, query.instance_size);
-  /* reset known flags */
-  pspec->owner_type = 0;
-  pspec->qdata = NULL;
-  pspec->ref_count = 0;
-  pspec->param_id = 0;
-
-  if (new_name) {
-    gchar *p = new_name;
-    while (*p != 0) {
-      gchar c = *p;
-
-      if (c != '-' && (c < '0' || c > '9') && (c < 'A' || c > 'Z') &&
-          (c < 'a' || c > 'z')) {
-        g_warning ("non-canonical pspec name: %s", new_name);
-        break;
-      }
-      p++;
-    }
-
-    if (flags & G_PARAM_STATIC_NAME) {
-      pspec->name = (gchar *) g_intern_static_string (new_name);
-    } else {
-      pspec->name = (gchar *) g_intern_string (new_name);
-    }
-  }
-  if (!(pspec->flags & G_PARAM_STATIC_NICK)) {
-    pspec->_nick = g_strdup (pspec->_nick);
-  }
-  if (!(pspec->flags & G_PARAM_STATIC_BLURB)) {
-    pspec->_blurb = g_strdup (pspec->_blurb);
-  }
-
-  return pspec;
-}
-
 static void
 gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
   GstElementClass *element_class = (GstElementClass *) klass;
   GstBtAudioSynthClass *audio_synth_class = (GstBtAudioSynthClass *) klass;
+  GObjectClass *component;
 
   audio_synth_class->process = gstbt_sim_syn_process;
   audio_synth_class->setup = gstbt_sim_syn_setup;
@@ -292,43 +235,21 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
       "Musical note (e.g. 'c-3', 'd#4')", GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
       G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  properties[PROP_WAVE] = g_param_spec_enum ("wave", "Waveform",
-      "Oscillator waveform", GSTBT_TYPE_OSC_SYNTH_WAVE,
-      GSTBT_OSC_SYNTH_WAVE_SINE,
-      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+  // register component properties
+  component = g_type_class_ref (GSTBT_TYPE_OSC_SYNTH);
+  properties[PROP_WAVE] = bt_g_param_spec_clone (component, "wave");
+  g_type_class_unref (component);
 
-  properties[PROP_VOLUME] = g_param_spec_double ("volume", "Volume",
-      "Volume of tone", 0.0, 1.0, 0.8,
-      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+  component = g_type_class_ref (GSTBT_TYPE_ENVELOPE_D);
+  properties[PROP_VOLUME] = bt_g_param_spec_clone (component, "volume");
+  properties[PROP_DECAY] = bt_g_param_spec_clone (component, "decay");
+  g_type_class_unref (component);
 
-  properties[PROP_DECAY] = g_param_spec_double ("decay", "Decay",
-      "Volume decay of the tone in seconds", 0.001, 4.0, 0.5,
-      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
-
-#if 0
-  properties[PROP_FILTER] = g_param_spec_enum ("filter", "Filtertype",
-      "Type of audio filter", GSTBT_TYPE_FILTER_SVF_TYPE,
-      GSTBT_FILTER_SVF_LOWPASS,
-      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
-
-  properties[PROP_CUTOFF] = g_param_spec_double ("cut-off", "Cut-Off",
-      "Audio filter cut-off frequency", 0.0, 1.0, 0.8,
-      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
-
-  /* we repeat the param spec details from the component */
-  properties[PROP_RESONANCE] = g_param_spec_double ("resonance", "Resonance",
-      "Audio filter resonance", 0.7, 25.0, 0.8,
-      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
-#else
-  GObjectClass *filter_klass = g_type_class_ref (GSTBT_TYPE_FILTER_SVF);
-  properties[PROP_FILTER] = bt_g_param_spec_clone (filter_klass, "filter",
-      NULL, 0);
-  properties[PROP_CUTOFF] = bt_g_param_spec_clone (filter_klass, "cut-off",
-      NULL, 0);
-  properties[PROP_RESONANCE] = bt_g_param_spec_clone (filter_klass, "resonance",
-      NULL, 0);
-  g_type_class_unref (filter_klass);
-#endif
+  component = g_type_class_ref (GSTBT_TYPE_FILTER_SVF);
+  properties[PROP_FILTER] = bt_g_param_spec_clone (component, "filter");
+  properties[PROP_CUTOFF] = bt_g_param_spec_clone (component, "cut-off");
+  properties[PROP_RESONANCE] = bt_g_param_spec_clone (component, "resonance");
+  g_type_class_unref (component);
 
   g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
 }

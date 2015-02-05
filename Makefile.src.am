@@ -503,6 +503,7 @@ ORC_SOURCE = src/gst/bml/gstbmlorc
 include $(top_srcdir)/orc.mak
 
 noinst_HEADERS += \
+  src/gst/audio/plugin.h \
   src/gst/audio/audiodelay.h \
   src/gst/audio/simsyn.h \
   src/gst/audio/wavereplay.h \
