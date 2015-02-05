@@ -33,12 +33,23 @@
  * metadata describes the overall tempo, but the iface allows to change the
  * tempo during playback.
  */
-/*
+/* upstream?
  * if this is in gstreamer we could enhance jacksink to call:
  * jack_set_timebase_callback()
  *
- * Can we use an event instead? The application would send a tempo event to the
- * sink and this would propagate upstream.
+ * a) should we rename 'tempo' to 'tempo_sync' or 'song_tempo'?
+ * b) can we remove the iface and use TAGS?
+ *   - we already have GST_TAG_BEATS_PER_MINUTE
+ *     gst_tag_register (GST_TAG_BEATS_PER_MINUTE, GST_TAG_FLAG_META, G_TYPE_DOUBLE,
+ *       _("beats per minute"), _("number of beats per minute in audio"), NULL);
+ *   - we need GST_TAG_TICKS_PER_BEAT and GST_TAG_SUBTICKS_PER_TICK
+ *     where to register them?
+ *   - the main problem with tags instead of an iface is that it is not easy to
+ *     change it while playing, we'd need to use the playback rate
+ * c) can we use events?
+ *    - the application would push them on to the sink and they travel up to the
+ *      sources
+ * d) context: http://wiki.buzztrax.org/index.php/GstAudioTempoContext
  */
 
 #include "tempo.h"
