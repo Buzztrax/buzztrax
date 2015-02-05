@@ -34,8 +34,8 @@
 #include "gst/propertymeta.h"
 #include "wavereplay.h"
 
-#define GST_CAT_DEFAULT wave_replay_debug
-GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_CAT_DEFAULT bt_audio_debug
+GST_DEBUG_CATEGORY_EXTERN (GST_CAT_DEFAULT);
 
 enum
 {
@@ -200,21 +200,3 @@ gstbt_wave_replay_class_init (GstBtWaveReplayClass * klass)
           0, 100, 0,
           G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 }
-
-//-- plugin
-
-static gboolean
-plugin_init (GstPlugin * plugin)
-{
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "wavereplay",
-      GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "wavetable player");
-
-  return gst_element_register (plugin, "wavereplay", GST_RANK_NONE,
-      GSTBT_TYPE_WAVE_REPLAY);
-}
-
-GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
-    GST_VERSION_MINOR,
-    wavereplay,
-    "Wavetable player",
-    plugin_init, VERSION, "LGPL", PACKAGE_NAME, PACKAGE_ORIGIN);

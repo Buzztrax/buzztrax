@@ -34,8 +34,8 @@
 #include "gst/propertymeta.h"
 #include "wavetabsyn.h"
 
-#define GST_CAT_DEFAULT wave_tab_syn_debug
-GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_CAT_DEFAULT bt_audio_debug
+GST_DEBUG_CATEGORY_EXTERN (GST_CAT_DEFAULT);
 
 enum
 {
@@ -291,7 +291,7 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
 
   // describe us
   gst_element_class_set_static_metadata (element_class,
-      "WaveTabSyn",
+      "Wavetable Synth",
       "Source/Audio",
       "Wavetable synthesizer", "Stefan Sauer <ensonic@users.sf.net>");
   gst_element_class_add_metadata (element_class, GST_ELEMENT_METADATA_DOC_URI,
@@ -357,21 +357,3 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
           "Volume release of the tone in seconds", 0.001, 4.0, 0.5,
           G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 }
-
-//-- plugin
-
-static gboolean
-plugin_init (GstPlugin * plugin)
-{
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "wavetabsyn",
-      GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "wavetable synthesizer");
-
-  return gst_element_register (plugin, "wavetabsyn", GST_RANK_NONE,
-      GSTBT_TYPE_WAVE_TAB_SYN);
-}
-
-GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
-    GST_VERSION_MINOR,
-    wavetabsyn,
-    "Wavetable synthesizer",
-    plugin_init, VERSION, "LGPL", PACKAGE_NAME, PACKAGE_ORIGIN);

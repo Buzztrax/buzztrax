@@ -42,7 +42,7 @@
 
 #include "simsyn.h"
 
-#define GST_CAT_DEFAULT sim_syn_debug
+#define GST_CAT_DEFAULT bt_audio_debug
 GST_DEBUG_CATEGORY_EXTERN (GST_CAT_DEFAULT);
 
 enum

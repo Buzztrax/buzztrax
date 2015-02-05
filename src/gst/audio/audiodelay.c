@@ -50,8 +50,8 @@
 
 #include "audiodelay.h"
 
-#define GST_CAT_DEFAULT gst_audio_delay_debug
-GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
+#define GST_CAT_DEFAULT bt_audio_debug
+GST_DEBUG_CATEGORY_EXTERN (GST_CAT_DEFAULT);
 
 enum
 {
@@ -394,21 +394,3 @@ gstbt_audio_delay_class_init (GstBtAudioDelayClass * klass)
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
       G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtAudioDelay.html");
 }
-
-//-- plugin
-
-static gboolean
-plugin_init (GstPlugin * plugin)
-{
-  GST_DEBUG_CATEGORY_INIT (gst_audio_delay_debug, "audiodelay", 0,
-      "audiodelay plugin");
-
-  return gst_element_register (plugin, "audiodelay", GST_RANK_NONE,
-      GSTBT_TYPE_AUDIO_DELAY);
-}
-
-GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
-    GST_VERSION_MINOR,
-    audiodelay,
-    "Audio echo plugin",
-    plugin_init, VERSION, "LGPL", PACKAGE_NAME, PACKAGE_ORIGIN);

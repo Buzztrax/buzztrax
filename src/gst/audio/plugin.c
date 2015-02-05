@@ -21,23 +21,32 @@
 #include "config.h"
 #endif
 
+#include "audiodelay.h"
 #include "simsyn.h"
+#include "wavereplay.h"
+#include "wavetabsyn.h"
 
-#define GST_CAT_DEFAULT sim_syn_debug
+#define GST_CAT_DEFAULT bt_audio_debug
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
-  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "simsyn",
-      GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "simple audio synthesizer");
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-audio",
+      GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "buzztrax audio elements");
 
-  return gst_element_register (plugin, "simsyn", GST_RANK_NONE,
-      GSTBT_TYPE_SIM_SYN);
+  return (gst_element_register (plugin, "audiodelay", GST_RANK_NONE,
+          GSTBT_TYPE_AUDIO_DELAY) &&
+      gst_element_register (plugin, "simsyn", GST_RANK_NONE,
+          GSTBT_TYPE_SIM_SYN) &&
+      gst_element_register (plugin, "wavereplay", GST_RANK_NONE,
+          GSTBT_TYPE_WAVE_REPLAY) &&
+      gst_element_register (plugin, "wavetabsyn", GST_RANK_NONE,
+          GSTBT_TYPE_WAVE_TAB_SYN));
 }
 
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
-    simsyn,
-    "Simple audio synthesizer",
+    buzztraxaudio,
+    "Buzztrax audio elements",
     plugin_init, VERSION, "LGPL", PACKAGE_NAME, PACKAGE_ORIGIN);

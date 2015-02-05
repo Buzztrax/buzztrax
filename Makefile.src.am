@@ -369,12 +369,10 @@ noinst_HEADERS += \
 
 bin_PROGRAMS += buzztrax-cmd buzztrax-edit
 noinst_LTLIBRARIES += libbtcmd.la libbtedit.la
-plugin_LTLIBRARIES = libbuzztraxdec.la \
-  libgstaudiodelay.la \
-  libgstsidsyn.la \
-  libgstsimsyn.la \
-  libgstwavereplay.la \
-  libgstwavetabsyn.la
+plugin_LTLIBRARIES = \
+  libbuzztraxaudio.la \
+  libbuzztraxdec.la \
+  libgstsidsyn.la
 
 buzztrax_cmd_LDADD = \
   libbuzztrax-core.la \
@@ -505,7 +503,10 @@ ORC_SOURCE = src/gst/bml/gstbmlorc
 include $(top_srcdir)/orc.mak
 
 noinst_HEADERS += \
-  src/gst/audiodelay/audiodelay.h \
+  src/gst/audio/audiodelay.h \
+  src/gst/audio/simsyn.h \
+  src/gst/audio/wavereplay.h \
+  src/gst/audio/wavetabsyn.h \
   src/gst/sidsyn/sidsyn.h \
   src/gst/sidsyn/sidsynv.h \
   src/gst/sidsyn/envelope.h \
@@ -516,24 +517,7 @@ noinst_HEADERS += \
   src/gst/sidsyn/sidemu.h \
   src/gst/sidsyn/spline.h \
   src/gst/sidsyn/voice.h \
-  src/gst/sidsyn/wave.h \
-  src/gst/simsyn/simsyn.h \
-  src/gst/wavereplay/wavereplay.h \
-  src/gst/wavetabsyn/wavetabsyn.h
-
-# audiodelay
-libgstaudiodelay_la_SOURCES = src/gst/audiodelay/audiodelay.c
-libgstaudiodelay_la_CFLAGS = \
-  -I$(srcdir) -I$(top_srcdir) \
-  -DDATADIR=\"$(datadir)\" \
-  $(GST_PLUGIN_CFLAGS) \
-  $(BASE_DEPS_CFLAGS)
-libgstaudiodelay_la_LIBADD = \
-  libbuzztrax-gst.la \
-  $(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS) -lgstaudio-1.0 
-libgstaudiodelay_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstaudiodelay_la_LIBTOOLFLAGS = --tag=disable-static
-
+  src/gst/sidsyn/wave.h
 
 plugin_LTLIBRARIES += libgstbml.la
 noinst_HEADERS += \
@@ -635,43 +619,22 @@ libgstsidsyn_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstsidsyn_la_LIBTOOLFLAGS = --tag=disable-static
 
 
-libgstsimsyn_la_SOURCES = src/gst/simsyn/plugin.c src/gst/simsyn/simsyn.c
-libgstsimsyn_la_CFLAGS = \
+libbuzztraxaudio_la_SOURCES = \
+  src/gst/audio/plugin.c \
+  src/gst/audio/audiodelay.c \
+  src/gst/audio/simsyn.c \
+  src/gst/audio/wavereplay.c \
+  src/gst/audio/wavetabsyn.c
+libbuzztraxaudio_la_CFLAGS = \
   -I$(srcdir) -I$(top_srcdir) \
   -DDATADIR=\"$(datadir)\" \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS)
-libgstsimsyn_la_LIBADD = \
+libbuzztraxaudio_la_LIBADD = \
   libbuzztrax-gst.la \
   $(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
-libgstsimsyn_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstsimsyn_la_LIBTOOLFLAGS = --tag=disable-static
-
-
-libgstwavereplay_la_SOURCES = src/gst/wavereplay/wavereplay.c
-libgstwavereplay_la_CFLAGS = \
-  -I$(srcdir) -I$(top_srcdir) \
-  -DDATADIR=\"$(datadir)\" \
-  $(GST_PLUGIN_CFLAGS) \
-  $(BASE_DEPS_CFLAGS)
-libgstwavereplay_la_LIBADD = \
-  libbuzztrax-gst.la \
-  $(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
-libgstwavereplay_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstwavereplay_la_LIBTOOLFLAGS = --tag=disable-static
-
-
-libgstwavetabsyn_la_SOURCES = src/gst/wavetabsyn/wavetabsyn.c
-libgstwavetabsyn_la_CFLAGS = \
-  -I$(srcdir) -I$(top_srcdir) \
-  -DDATADIR=\"$(datadir)\" \
-  $(GST_PLUGIN_CFLAGS) \
-  $(BASE_DEPS_CFLAGS)
-libgstwavetabsyn_la_LIBADD = \
-  libbuzztrax-gst.la \
-  $(BASE_DEPS_LIBS) $(GST_PLUGIN_LIBS)
-libgstwavetabsyn_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstwavetabsyn_la_LIBTOOLFLAGS = --tag=disable-static
+libbuzztraxaudio_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libbuzztraxaudio_la_LIBTOOLFLAGS = --tag=disable-static
 
 
 # -- common --------------------------------------------------------------------
