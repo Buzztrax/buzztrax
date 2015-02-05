@@ -370,17 +370,15 @@ gstbt_fluid_synth_load_patch (GstBtFluidSynth * src, const gchar * path)
 
 //-- audiosynth vmethods
 
-static gboolean
+static void
 gstbt_fluid_synth_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
 {
-  GstStructure *structure;
   gint i, n = gst_caps_get_size (caps);
 
   for (i = 0; i < n; i++) {
-    structure = gst_caps_get_structure (caps, i);
-    gst_structure_fixate_field_nearest_int (structure, "channels", 2);
+    gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
+        "channels", 2);
   }
-  return TRUE;
 }
 
 static gboolean

@@ -54,20 +54,18 @@ G_DEFINE_TYPE_WITH_CODE (GstBtWaveReplay, gstbt_wave_replay,
 
 //-- audiosynth vmethods
 
-static gboolean
+static void
 gstbt_wave_replay_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
 {
   GstBtWaveReplay *src = ((GstBtWaveReplay *) base);
-  GstStructure *structure;
   gint i, n = gst_caps_get_size (caps), c = src->osc->channels;
 
   gstbt_osc_wave_setup (src->osc);
 
   for (i = 0; i < n; i++) {
-    structure = gst_caps_get_structure (caps, i);
-    gst_structure_fixate_field_nearest_int (structure, "channels", c);
+    gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
+        "channels", c);
   }
-  return TRUE;
 }
 
 static gboolean

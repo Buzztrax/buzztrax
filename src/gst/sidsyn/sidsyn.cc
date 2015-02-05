@@ -336,17 +336,16 @@ gstbt_sid_syn_update_regs (GstBtSidSyn *src)
 
 //-- audiosynth vmethods
 
-static gboolean
+static void
 gstbt_sid_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
 {
   GstBtSidSyn *src = ((GstBtSidSyn *) base);
-  GstStructure *structure;
   gint i, n = gst_caps_get_size (caps);
 
   /* set channels to 1 */
   for (i = 0; i < n; i++) {
-    structure = gst_caps_get_structure (caps, i);
-    gst_structure_fixate_field_nearest_int (structure, "channels", 1);
+    gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
+        "channels", 1);
   }
   
   src->emu->reset ();
@@ -361,8 +360,6 @@ gstbt_sid_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
   for (i = 0; i < NUM_REGS; i++) {
     src->regs[i] = -1;
   }
-
-  return TRUE;
 }
 
 // TODO(ensonic): silence detection (gate off + release time is over)

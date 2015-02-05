@@ -80,7 +80,7 @@ struct _GstBtAudioSynthClass
 
   /* virtual functions */
   gboolean (*process) (GstBtAudioSynth * src, GstBuffer * data, GstMapInfo *info);
-  gboolean (*setup) (GstBtAudioSynth * src,GstPad * pad, GstCaps * caps);
+  void (*setup) (GstBtAudioSynth * src, GstPad * pad, GstCaps * caps);
 };
 
 GType gstbt_audio_synth_get_type (void);

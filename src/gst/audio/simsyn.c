@@ -59,17 +59,15 @@ G_DEFINE_TYPE (GstBtSimSyn, gstbt_sim_syn, GSTBT_TYPE_AUDIO_SYNTH);
 
 //-- audiosynth vmethods
 
-static gboolean
+static void
 gstbt_sim_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
 {
-  GstStructure *structure;
   gint i, n = gst_caps_get_size (caps);
 
   for (i = 0; i < n; i++) {
-    structure = gst_caps_get_structure (caps, i);
-    gst_structure_fixate_field_nearest_int (structure, "channels", 1);
+    gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
+        "channels", 1);
   }
-  return TRUE;
 }
 
 static gboolean

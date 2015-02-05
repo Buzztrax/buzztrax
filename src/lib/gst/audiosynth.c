@@ -111,21 +111,18 @@ gstbt_audio_synth_fixate (GstBaseSrc * basesrc, GstCaps * caps)
   GstBtAudioSynth *src = GSTBT_AUDIO_SYNTH (basesrc);
   GstBtAudioSynthClass *klass = GSTBT_AUDIO_SYNTH_GET_CLASS (src);
   GstCaps *res = gst_caps_copy (caps);
-  GstStructure *structure;
-  gint i;
+  gint i, n = gst_caps_get_size (res);
 
   GST_INFO_OBJECT (src, "fixate");
 
-  for (i = 0; i < gst_caps_get_size (res); i++) {
-    structure = gst_caps_get_structure (res, i);
-    gst_structure_fixate_field_nearest_int (structure, "rate", src->samplerate);
+  for (i = 0; i < n; i++) {
+    gst_structure_fixate_field_nearest_int (gst_caps_get_structure (res, i),
+        "rate", src->samplerate);
   }
   GST_INFO_OBJECT (src, "fixated to %" GST_PTR_FORMAT, res);
 
   if (klass->setup) {
     klass->setup (src, GST_BASE_SRC_PAD (basesrc), res);
-  } else {
-    GST_ERROR_OBJECT (src, "class lacks setup() vmethod implementation");
   }
   GST_INFO_OBJECT (src, "fixated to %" GST_PTR_FORMAT, res);
 
