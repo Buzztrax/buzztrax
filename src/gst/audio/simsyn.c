@@ -174,14 +174,10 @@ gstbt_sim_syn_dispose (GObject * object)
     return;
   src->dispose_has_run = TRUE;
 
-  if (src->n2f)
-    g_object_unref (src->n2f);
-  if (src->volenv)
-    g_object_unref (src->volenv);
-  if (src->osc)
-    g_object_unref (src->osc);
-  if (src->filter)
-    g_object_unref (src->filter);
+  g_clear_object (&src->n2f);
+  g_clear_object (&src->volenv);
+  g_clear_object (&src->osc);
+  g_clear_object (&src->filter);
 
   G_OBJECT_CLASS (gstbt_sim_syn_parent_class)->dispose (object);
 }
@@ -218,8 +214,7 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
 
   // describe us
   gst_element_class_set_static_metadata (element_class,
-      "Simple Synth",
-      "Source/Audio",
+      "Simple Synth", "Source/Audio",
       "Simple audio synthesizer", "Stefan Kost <ensonic@users.sf.net>");
   gst_element_class_add_metadata (element_class, GST_ELEMENT_METADATA_DOC_URI,
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
