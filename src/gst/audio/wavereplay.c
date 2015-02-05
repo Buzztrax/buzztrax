@@ -132,8 +132,7 @@ gstbt_wave_replay_dispose (GObject * object)
 {
   GstBtWaveReplay *src = GSTBT_WAVE_REPLAY (object);
 
-  if (src->osc)
-    g_object_unref (src->osc);
+  g_clear_object (&src->osc);
 
   G_OBJECT_CLASS (gstbt_wave_replay_parent_class)->dispose (object);
 }

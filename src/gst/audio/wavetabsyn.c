@@ -241,12 +241,9 @@ gstbt_wave_tab_syn_dispose (GObject * object)
 {
   GstBtWaveTabSyn *src = GSTBT_WAVE_TAB_SYN (object);
 
-  if (src->n2f)
-    g_object_unref (src->n2f);
-  if (src->osc)
-    g_object_unref (src->osc);
-  if (src->volenv)
-    g_object_unref (src->volenv);
+  g_clear_object (&src->n2f);
+  g_clear_object (&src->osc);
+  g_clear_object (&src->volenv);
 
   G_OBJECT_CLASS (gstbt_wave_tab_syn_parent_class)->dispose (object);
 }

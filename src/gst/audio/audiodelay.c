@@ -310,14 +310,13 @@ gstbt_audio_delay_get_property (GObject * object, guint prop_id,
 }
 
 static void
-gstbt_audio_delay_finalize (GObject * object)
+gstbt_audio_delay_dispose (GObject * object)
 {
   GstBtAudioDelay *self = GSTBT_AUDIO_DELAY (object);
 
-  if (self->delay)
-    g_object_unref (self->delay);
+  g_clear_object (&self->delay);
 
-  G_OBJECT_CLASS (gstbt_audio_delay_parent_class)->finalize (object);
+  G_OBJECT_CLASS (gstbt_audio_delay_parent_class)->dispose (object);
 }
 
 //-- gobject type methods
@@ -350,7 +349,7 @@ gstbt_audio_delay_class_init (GstBtAudioDelayClass * klass)
 
   gobject_class->set_property = gstbt_audio_delay_set_property;
   gobject_class->get_property = gstbt_audio_delay_get_property;
-  gobject_class->finalize = gstbt_audio_delay_finalize;
+  gobject_class->dispose = gstbt_audio_delay_dispose;
 
   // override interface properties
   g_object_class_override_property (gobject_class, PROP_BPM,
