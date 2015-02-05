@@ -162,9 +162,6 @@ gstbt_wave_tab_syn_set_property (GObject * object, guint prop_id,
 {
   GstBtWaveTabSyn *src = GSTBT_WAVE_TAB_SYN (object);
 
-  if (src->dispose_has_run)
-    return;
-
   switch (prop_id) {
     case PROP_WAVE_CALLBACKS:
     case PROP_WAVE:
@@ -214,9 +211,6 @@ gstbt_wave_tab_syn_get_property (GObject * object, guint prop_id,
 {
   GstBtWaveTabSyn *src = GSTBT_WAVE_TAB_SYN (object);
 
-  if (src->dispose_has_run)
-    return;
-
   switch (prop_id) {
     case PROP_WAVE_CALLBACKS:
     case PROP_WAVE:
@@ -246,10 +240,6 @@ static void
 gstbt_wave_tab_syn_dispose (GObject * object)
 {
   GstBtWaveTabSyn *src = GSTBT_WAVE_TAB_SYN (object);
-
-  if (src->dispose_has_run)
-    return;
-  src->dispose_has_run = TRUE;
 
   if (src->n2f)
     g_object_unref (src->n2f);

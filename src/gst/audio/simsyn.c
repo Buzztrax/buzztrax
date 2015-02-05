@@ -99,9 +99,6 @@ gstbt_sim_syn_set_property (GObject * object, guint prop_id,
 {
   GstBtSimSyn *src = GSTBT_SIM_SYN (object);
 
-  if (src->dispose_has_run)
-    return;
-
   switch (prop_id) {
     case PROP_TUNING:
       g_object_set_property ((GObject *) (src->n2f), "tuning", value);
@@ -140,9 +137,6 @@ gstbt_sim_syn_get_property (GObject * object, guint prop_id,
 {
   GstBtSimSyn *src = GSTBT_SIM_SYN (object);
 
-  if (src->dispose_has_run)
-    return;
-
   switch (prop_id) {
     case PROP_TUNING:
       g_object_get_property ((GObject *) (src->n2f), "tuning", value);
@@ -169,10 +163,6 @@ static void
 gstbt_sim_syn_dispose (GObject * object)
 {
   GstBtSimSyn *src = GSTBT_SIM_SYN (object);
-
-  if (src->dispose_has_run)
-    return;
-  src->dispose_has_run = TRUE;
 
   g_clear_object (&src->n2f);
   g_clear_object (&src->volenv);

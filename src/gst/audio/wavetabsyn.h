@@ -48,9 +48,6 @@ struct _GstBtWaveTabSyn
   GstBtAudioSynth parent;
   
   /* < private > */
-  gboolean dispose_has_run;     /* validate if dispose has run */
-
-  /* parameters */
   GstBtNote note;
   guint offset;
 

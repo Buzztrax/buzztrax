@@ -49,9 +49,6 @@ struct _GstBtSimSyn
   GstBtAudioSynth parent;
 
   /* < private > */
-  gboolean dispose_has_run;     /* validate if dispose has run */
-
-  /* parameters */
   GstBtNote note;
  
   GstBtToneConversion *n2f;

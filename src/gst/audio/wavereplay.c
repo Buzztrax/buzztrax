@@ -97,9 +97,6 @@ gstbt_wave_replay_set_property (GObject * object, guint prop_id,
 {
   GstBtWaveReplay *src = GSTBT_WAVE_REPLAY (object);
 
-  if (src->dispose_has_run)
-    return;
-
   switch (prop_id) {
     case PROP_WAVE_CALLBACKS:
     case PROP_WAVE:
@@ -118,9 +115,6 @@ gstbt_wave_replay_get_property (GObject * object, guint prop_id,
 {
   GstBtWaveReplay *src = GSTBT_WAVE_REPLAY (object);
 
-  if (src->dispose_has_run)
-    return;
-
   switch (prop_id) {
     case PROP_WAVE_CALLBACKS:
     case PROP_WAVE:
@@ -137,10 +131,6 @@ static void
 gstbt_wave_replay_dispose (GObject * object)
 {
   GstBtWaveReplay *src = GSTBT_WAVE_REPLAY (object);
-
-  if (src->dispose_has_run)
-    return;
-  src->dispose_has_run = TRUE;
 
   if (src->osc)
     g_object_unref (src->osc);

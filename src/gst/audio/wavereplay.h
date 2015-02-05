@@ -46,8 +46,6 @@ struct _GstBtWaveReplay
   GstBtAudioSynth parent;
 
   /* < private > */
-  gboolean dispose_has_run;     /* validate if dispose has run */
-
   GstBtOscWave *osc;  
 };
 
