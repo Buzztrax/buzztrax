@@ -32,6 +32,7 @@
 
 #include <string.h>
 #include "gst/propertymeta.h"
+#include "plugin.h"
 #include "wavetabsyn.h"
 
 #define GST_CAT_DEFAULT bt_audio_debug
@@ -43,16 +44,13 @@ enum
   PROP_WAVE_CALLBACKS = 1,
   PROP_TUNING,
   // dynamic class properties
-  PROP_NOTE,
-  PROP_NOTE_LENGTH,
-  PROP_WAVE,
-  PROP_OFFSET,
-  PROP_ATTACK,
-  PROP_PEAK_VOLUME,
-  PROP_DECAY,
-  PROP_SUSTAIN_VOLUME,
-  PROP_RELEASE
+  PROP_NOTE, PROP_NOTE_LENGTH, PROP_WAVE, PROP_OFFSET, PROP_ATTACK,
+  PROP_PEAK_VOLUME, PROP_DECAY, PROP_SUSTAIN_VOLUME, PROP_RELEASE,
+  N_PROPERTIES
 };
+static GParamSpec *properties[N_PROPERTIES] = { NULL, };
+
+#define PROP(name) properties[PROP_##name]
 
 #define INNER_LOOP 64
 
@@ -265,7 +263,7 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
   GstElementClass *element_class = (GstElementClass *) klass;
   GstBtAudioSynthClass *audio_synth_class = (GstBtAudioSynthClass *) klass;
-  GParamSpec *pspec;
+  GObjectClass *component1, *component2;
 
   audio_synth_class->process = gstbt_wave_tab_syn_process;
   audio_synth_class->setup = gstbt_wave_tab_syn_setup;
@@ -283,62 +281,41 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
       G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtWaveTabSyn.html");
 
-  // register own properties
-  g_object_class_install_property (gobject_class, PROP_WAVE_CALLBACKS,
-      g_param_spec_pointer ("wave-callbacks", "Wavetable Callbacks",
-          "The wave-table access callbacks",
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  // register properties
+  PROP (WAVE_CALLBACKS) = g_param_spec_pointer ("wave-callbacks",
+      "Wavetable Callbacks", "The wave-table access callbacks",
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_TUNING,
-      g_param_spec_enum ("tuning", "Tuning", "Harmonic tuning",
-          GSTBT_TYPE_TONE_CONVERSION_TUNING,
-          GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  PROP (TUNING) = g_param_spec_enum ("tuning", "Tuning",
+      "Harmonic tuning", GSTBT_TYPE_TONE_CONVERSION_TUNING,
+      GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_NOTE,
-      g_param_spec_enum ("note", "Musical note",
-          "Musical note (e.g. 'c-3', 'd#4')", GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
-          G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (NOTE) = g_param_spec_enum ("note", "Musical note",
+      "Musical note (e.g. 'c-3', 'd#4')", GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
+      G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_NOTE_LENGTH,
-      g_param_spec_uint ("length", "Note length", "Note length in ticks",
-          1, 255, 1,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  component1 = g_type_class_ref (GSTBT_TYPE_ENVELOPE_ADSR);
+  PROP (NOTE_LENGTH) = bt_g_param_spec_clone (component1, "length");
 
-  pspec = g_param_spec_uint ("wave", "Wave", "Wave index", 1, 200, 1,
-      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
-  g_param_spec_set_qdata (pspec, gstbt_property_meta_quark,
+  component2 = g_type_class_ref (GSTBT_TYPE_OSC_WAVE);
+  PROP (WAVE) = bt_g_param_spec_clone (component2, "wave");
+  g_param_spec_set_qdata (PROP (WAVE), gstbt_property_meta_quark,
       GUINT_TO_POINTER (1));
-  g_param_spec_set_qdata (pspec, gstbt_property_meta_quark_flags,
+  g_param_spec_set_qdata (PROP (WAVE), gstbt_property_meta_quark_flags,
       GUINT_TO_POINTER (GSTBT_PROPERTY_META_WAVE));
-  g_object_class_install_property (gobject_class, PROP_WAVE, pspec);
+  g_type_class_unref (component2);
 
-  g_object_class_install_property (gobject_class, PROP_OFFSET,
-      g_param_spec_uint ("offset", "Offset", "Wave table offset", 0, 0xFFFF, 0,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (OFFSET) = g_param_spec_uint ("offset", "Offset", "Wave table offset", 0,
+      0xFFFF, 0,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_ATTACK,
-      g_param_spec_double ("attack", "Attack",
-          "Volume attack of the tone in seconds", 0.001, 4.0, 0.1,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (ATTACK) = bt_g_param_spec_clone (component1, "attack");
+  PROP (PEAK_VOLUME) = bt_g_param_spec_clone (component1, "peak-volume");
+  PROP (DECAY) = bt_g_param_spec_clone (component1, "decay");
+  PROP (SUSTAIN_VOLUME) = bt_g_param_spec_clone (component1, "sustain-volume");
+  PROP (RELEASE) = bt_g_param_spec_clone (component1, "release");
+  g_type_class_unref (component1);
 
-  g_object_class_install_property (gobject_class, PROP_PEAK_VOLUME,
-      g_param_spec_double ("peak-volume", "Peak Volume", "Peak volume of tone",
-          0.0, 1.0, 0.8,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_DECAY,
-      g_param_spec_double ("decay", "Decay",
-          "Volume decay of the tone in seconds", 0.001, 4.0, 0.5,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_SUSTAIN_VOLUME,
-      g_param_spec_double ("sustain-volume", "Sustain Volume",
-          "Sustain volume of tone", 0.0, 1.0, 0.4,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_RELEASE,
-      g_param_spec_double ("release", "RELEASE",
-          "Volume release of the tone in seconds", 0.001, 4.0, 0.5,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
 }

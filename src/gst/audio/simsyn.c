@@ -53,6 +53,8 @@ enum
 };
 static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 
+#define PROP(name) properties[PROP_##name]
+
 //-- the class
 
 G_DEFINE_TYPE (GstBtSimSyn, gstbt_sim_syn, GSTBT_TYPE_AUDIO_SYNTH);
@@ -208,30 +210,29 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
       G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtSimSyn.html");
 
-  // register own properties
-  properties[PROP_TUNING] = g_param_spec_enum ("tuning", "Tuning",
+  // register properties
+  PROP (TUNING) = g_param_spec_enum ("tuning", "Tuning",
       "Harmonic tuning", GSTBT_TYPE_TONE_CONVERSION_TUNING,
       GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  properties[PROP_NOTE] = g_param_spec_enum ("note", "Musical note",
+  PROP (NOTE) = g_param_spec_enum ("note", "Musical note",
       "Musical note (e.g. 'c-3', 'd#4')", GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
       G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  // register component properties
   component = g_type_class_ref (GSTBT_TYPE_OSC_SYNTH);
-  properties[PROP_WAVE] = bt_g_param_spec_clone (component, "wave");
+  PROP (WAVE) = bt_g_param_spec_clone (component, "wave");
   g_type_class_unref (component);
 
   component = g_type_class_ref (GSTBT_TYPE_ENVELOPE_D);
-  properties[PROP_VOLUME] = bt_g_param_spec_clone (component, "volume");
-  properties[PROP_DECAY] = bt_g_param_spec_clone (component, "decay");
+  PROP (VOLUME) = bt_g_param_spec_clone (component, "volume");
+  PROP (DECAY) = bt_g_param_spec_clone (component, "decay");
   g_type_class_unref (component);
 
   component = g_type_class_ref (GSTBT_TYPE_FILTER_SVF);
-  properties[PROP_FILTER] = bt_g_param_spec_clone (component, "filter");
-  properties[PROP_CUTOFF] = bt_g_param_spec_clone (component, "cut-off");
-  properties[PROP_RESONANCE] = bt_g_param_spec_clone (component, "resonance");
+  PROP (FILTER) = bt_g_param_spec_clone (component, "filter");
+  PROP (CUTOFF) = bt_g_param_spec_clone (component, "cut-off");
+  PROP (RESONANCE) = bt_g_param_spec_clone (component, "resonance");
   g_type_class_unref (component);
 
   g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);

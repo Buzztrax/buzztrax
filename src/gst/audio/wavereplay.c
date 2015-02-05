@@ -32,6 +32,7 @@
 
 #include <string.h>
 #include "gst/propertymeta.h"
+#include "plugin.h"
 #include "wavereplay.h"
 
 #define GST_CAT_DEFAULT bt_audio_debug
@@ -42,9 +43,12 @@ enum
   // static class properties
   PROP_WAVE_CALLBACKS = 1,
   // dynamic class properties
-  PROP_WAVE,
-  PROP_WAVE_LEVEL
+  PROP_WAVE, PROP_WAVE_LEVEL,
+  N_PROPERTIES
 };
+static GParamSpec *properties[N_PROPERTIES] = { NULL, };
+
+#define PROP(name) properties[PROP_##name]
 
 //-- the class
 
@@ -150,7 +154,7 @@ gstbt_wave_replay_class_init (GstBtWaveReplayClass * klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
   GstElementClass *element_class = (GstElementClass *) klass;
   GstBtAudioSynthClass *audio_synth_class = (GstBtAudioSynthClass *) klass;
-  GParamSpec *pspec;
+  GObjectClass *component;
 
   audio_synth_class->process = gstbt_wave_replay_process;
   audio_synth_class->setup = gstbt_wave_replay_setup;
@@ -161,29 +165,25 @@ gstbt_wave_replay_class_init (GstBtWaveReplayClass * klass)
 
   // describe us
   gst_element_class_set_static_metadata (element_class,
-      "Wave Replay",
-      "Source/Audio",
+      "Wave Replay", "Source/Audio",
       "Wavetable player", "Stefan Sauer <ensonic@users.sf.net>");
   gst_element_class_add_metadata (element_class, GST_ELEMENT_METADATA_DOC_URI,
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
       G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtWaveReplay.html");
 
-  // register own properties
-  g_object_class_install_property (gobject_class, PROP_WAVE_CALLBACKS,
-      g_param_spec_pointer ("wave-callbacks", "Wavetable Callbacks",
-          "The wave-table access callbacks",
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  // register properties
+  PROP (WAVE_CALLBACKS) = g_param_spec_pointer ("wave-callbacks",
+      "Wavetable Callbacks", "The wave-table access callbacks",
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  pspec = g_param_spec_uint ("wave", "Wave", "Wave index", 1, 200, 1,
-      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
-  g_param_spec_set_qdata (pspec, gstbt_property_meta_quark,
+  component = g_type_class_ref (GSTBT_TYPE_OSC_WAVE);
+  PROP (WAVE) = bt_g_param_spec_clone (component, "wave");
+  g_param_spec_set_qdata (PROP (WAVE), gstbt_property_meta_quark,
       GUINT_TO_POINTER (1));
-  g_param_spec_set_qdata (pspec, gstbt_property_meta_quark_flags,
+  g_param_spec_set_qdata (PROP (WAVE), gstbt_property_meta_quark_flags,
       GUINT_TO_POINTER (GSTBT_PROPERTY_META_WAVE));
-  g_object_class_install_property (gobject_class, PROP_WAVE, pspec);
+  PROP (WAVE_LEVEL) = bt_g_param_spec_clone (component, "wave-level");
+  g_type_class_unref (component);
 
-  g_object_class_install_property (gobject_class, PROP_WAVE_LEVEL,
-      g_param_spec_uint ("wave-level", "Wavelevel", "Wave level index",
-          0, 100, 0,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
 }
