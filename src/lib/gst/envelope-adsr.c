@@ -228,7 +228,7 @@ gstbt_envelope_adsr_class_init (GstBtEnvelopeADSRClass * klass)
           G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_RELEASE,
-      g_param_spec_double ("release", "RELEASE",
+      g_param_spec_double ("release", "Release",
           "Volume release of the tone in seconds", 0.001, 4.0, 0.5,
           G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 }
