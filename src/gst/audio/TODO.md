@@ -1,4 +1,5 @@
-= Simsyn =
+# Simsyn
+
 - have more variants in the same plugin (share code, like oszillators and filter)
   - we'd like to have one with
     - dual-osc (with detune for the 2nd)
@@ -12,11 +13,11 @@
     - v2: we could assume the current cut-off is related to C-4 and rebase
       accordingly
 
-= WaveTabSynth =
+# WaveTabSynth
 - slightly modulating the wave-offset could be interesting
   - we could e.g. let it progress during the tone or have an envelope for it
 
-= GrainSynth =
+# GrainSynth
 - a grain synth takes snippets from the one wave-table slot, applies a
   fft-window function and mixes it into the output
 - using a triangle-window and a grain-ratio=1.0 would replicate the waveform
@@ -55,7 +56,7 @@ spread_range_ms = 12
 overlap_ms = 2
 voices = 1 + (12 / 2) = 7
 
-= EBeatz =
+# EBeatz
 - a versatile percussion sound generator
 - dual osc
   - peak-vol is trigger
@@ -74,12 +75,15 @@ voices = 1 + (12 / 2) = 7
        - ad-envelope for cut-off?
 - have presets for kick, snare, {open,closed}-hihat, claps, cymbal
 
-= synth components =
+# synth components
 The libgstbuzztrax already has a couple of components; we'd like to extend this
 to make it dead easy writing new synths.
 
-== components ideas ==
-=== osc-wave (wavetable oscillator) ===
+## component ideas
+### osc-*
+- a goolean 'mix' property to not overwrite the buffer
+
+### osc-wave (wavetable oscillator)
 - we might need to add some extra caps fields
   (root-note, loop, loop-start, loop-end)
 - do we want it to play loops?
@@ -87,12 +91,12 @@ to make it dead easy writing new synths.
 - we could resample all wave-table entries when loading a song (keeping original
   waves in the files)
 
-== design ==
+## design
 After adding more components we needs to extract common interfaces. Each
 component would have a couple of properties and vmethods (start, process, stop).
 When using them the element would proxy a few properties and ev. configure
 others manually. We can use GBinding (since glib-2.26) for the proxy properties.
 
-== open questions ==
+## open questions
 Do we need to pass the data fmt? What about mono/stereo.
 

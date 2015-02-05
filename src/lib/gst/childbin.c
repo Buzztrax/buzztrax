@@ -28,6 +28,9 @@
  * The interface provides a #GstBtChildBin:children property for the number of
  * children as well as two methods to add and remove children.
  */
+/* upstream?
+ * would be useful for the GstIirEqualizerNBands (num-bands->children)
+ */
 
 #include "childbin.h"
 
