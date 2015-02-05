@@ -1,17 +1,16 @@
-# Simsyn
+# SimSyn alike
 
-- have more variants in the same plugin (share code, like oszillators and filter)
-  - we'd like to have one with
-    - dual-osc (with detune for the 2nd)
-    - two ADSR envelopes
-    - each envelope can modulate volume and filter-cutoff/resonance
-  - current simsyn is missing key-tracking for the filter
-    - we could add a boolean to enable key-tracking (false by default)
-    - on cut-off changes we need to base it on the currently played note
-    - current cut-off range is 0.0->1.0 with 1.0 = srat/2.0
-    - v1: we could map 1.0 -> note_freq*32.0 (5 harmonics) instead
-    - v2: we could assume the current cut-off is related to C-4 and rebase
-      accordingly
+More synthesizer
+- we'd like to have one with
+  - dual-osc (with detune for the 2nd)
+  - two ADSR envelopes
+  - each envelope can modulate volume and filter-cutoff/resonance
+- current simsyn is missing key-tracking for the filter
+  - we could add a boolean to enable key-tracking (false by default)
+  - on cut-off changes we need to base it on the currently played note
+  - current cut-off range is 0.0->1.0 with 1.0 = srat/2.0
+  - v1: we could map 1.0 -> note_freq*32.0 (5 harmonics) instead
+  - v2: we could assume the current cut-off is related to C-4 and rebase accordingly
 
 # WaveTabSynth
 - slightly modulating the wave-offset could be interesting
@@ -37,6 +36,7 @@
   - for this little overlap and spread we already need 7 voices though
   - the wider a voice spreads and the smaller the overlap is, the more voices we
     need (voices = 1 + (spread_range_ms / overlap_ms)
+```
        /\
 0 /\  /  \  /\
          /\
@@ -51,7 +51,7 @@
 5           /\  /  \  /\
                    /\
 6             /\  /  \  /\
-
+```
 spread_range_ms = 12
 overlap_ms = 2
 voices = 1 + (12 / 2) = 7
