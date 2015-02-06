@@ -211,10 +211,9 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
       G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtSimSyn.html");
 
   // register properties
-  PROP (TUNING) = g_param_spec_enum ("tuning", "Tuning",
-      "Harmonic tuning", GSTBT_TYPE_TONE_CONVERSION_TUNING,
-      GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+  component = g_type_class_ref (GSTBT_TYPE_TONE_CONVERSION);
+  PROP (TUNING) = bt_g_param_spec_clone (component, "tuning");
+  g_type_class_unref (component);
 
   PROP (NOTE) = g_param_spec_enum ("note", "Musical note",
       "Musical note (e.g. 'c-3', 'd#4')", GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,

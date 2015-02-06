@@ -490,9 +490,7 @@ gstbt_tone_conversion_class_init (GstBtToneConversionClass * klass)
   gobject_class->dispose = gstbt_tone_conversion_dispose;
 
   g_object_class_install_property (gobject_class, GSTBT_TONE_CONVERSION_TUNING,
-      g_param_spec_enum ("tuning",
-          "tuning prop",
-          "selection frequency tuning table",
+      g_param_spec_enum ("tuning", "Tuning", "Harmonic tuning schema",
           GSTBT_TYPE_TONE_CONVERSION_TUNING,
           GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));

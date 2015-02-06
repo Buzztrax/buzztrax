@@ -263,7 +263,7 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
   GstElementClass *element_class = (GstElementClass *) klass;
   GstBtAudioSynthClass *audio_synth_class = (GstBtAudioSynthClass *) klass;
-  GObjectClass *component1, *component2;
+  GObjectClass *component;
 
   audio_synth_class->process = gstbt_wave_tab_syn_process;
   audio_synth_class->setup = gstbt_wave_tab_syn_setup;
@@ -286,36 +286,34 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
       "Wavetable Callbacks", "The wave-table access callbacks",
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  PROP (TUNING) = g_param_spec_enum ("tuning", "Tuning",
-      "Harmonic tuning", GSTBT_TYPE_TONE_CONVERSION_TUNING,
-      GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+  component = g_type_class_ref (GSTBT_TYPE_TONE_CONVERSION);
+  PROP (TUNING) = bt_g_param_spec_clone (component, "tuning");
+  g_type_class_unref (component);
 
   PROP (NOTE) = g_param_spec_enum ("note", "Musical note",
       "Musical note (e.g. 'c-3', 'd#4')", GSTBT_TYPE_NOTE, GSTBT_NOTE_NONE,
       G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  component1 = g_type_class_ref (GSTBT_TYPE_ENVELOPE_ADSR);
-  PROP (NOTE_LENGTH) = bt_g_param_spec_clone (component1, "length");
-
-  component2 = g_type_class_ref (GSTBT_TYPE_OSC_WAVE);
-  PROP (WAVE) = bt_g_param_spec_clone (component2, "wave");
+  component = g_type_class_ref (GSTBT_TYPE_OSC_WAVE);
+  PROP (WAVE) = bt_g_param_spec_clone (component, "wave");
   g_param_spec_set_qdata (PROP (WAVE), gstbt_property_meta_quark,
       GUINT_TO_POINTER (1));
   g_param_spec_set_qdata (PROP (WAVE), gstbt_property_meta_quark_flags,
       GUINT_TO_POINTER (GSTBT_PROPERTY_META_WAVE));
-  g_type_class_unref (component2);
+  g_type_class_unref (component);
 
   PROP (OFFSET) = g_param_spec_uint ("offset", "Offset", "Wave table offset", 0,
       0xFFFF, 0,
       G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  PROP (ATTACK) = bt_g_param_spec_clone (component1, "attack");
-  PROP (PEAK_VOLUME) = bt_g_param_spec_clone (component1, "peak-volume");
-  PROP (DECAY) = bt_g_param_spec_clone (component1, "decay");
-  PROP (SUSTAIN_VOLUME) = bt_g_param_spec_clone (component1, "sustain-volume");
-  PROP (RELEASE) = bt_g_param_spec_clone (component1, "release");
-  g_type_class_unref (component1);
+  component = g_type_class_ref (GSTBT_TYPE_ENVELOPE_ADSR);
+  PROP (NOTE_LENGTH) = bt_g_param_spec_clone (component, "length");
+  PROP (ATTACK) = bt_g_param_spec_clone (component, "attack");
+  PROP (PEAK_VOLUME) = bt_g_param_spec_clone (component, "peak-volume");
+  PROP (DECAY) = bt_g_param_spec_clone (component, "decay");
+  PROP (SUSTAIN_VOLUME) = bt_g_param_spec_clone (component, "sustain-volume");
+  PROP (RELEASE) = bt_g_param_spec_clone (component, "release");
+  g_type_class_unref (component);
 
   g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
 }
