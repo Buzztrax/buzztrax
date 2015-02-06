@@ -487,16 +487,6 @@ css_DATA = src/ui/edit/bt-edit.css \
   src/ui/edit/bt-edit.dark.css \
   src/ui/edit/bt-edit.light.css
 
-libbuzztraxdec_la_CFLAGS = $(GST_PLUGIN_CFLAGS)
-libbuzztraxdec_la_LIBADD = \
-  libbuzztrax-core.la \
-  libbuzztrax-ic.la \
-  $(BASE_DEPS_LIBS) $(LIBM)
-libbuzztraxdec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libbuzztraxdec_la_SOURCES = src/ui/dec/bt-dec.c src/ui/dec/bt-dec.h
-libbuzztraxdec_la_LIBTOOLFLAGS = --tag=disable-static
-
-
 # -- plugins -------------------------------------------------------------------
 
 ORC_SOURCE = src/gst/bml/gstbmlorc
@@ -508,6 +498,7 @@ noinst_HEADERS += \
   src/gst/audio/simsyn.h \
   src/gst/audio/wavereplay.h \
   src/gst/audio/wavetabsyn.h \
+  src/gst/dec/bt-dec.h \
   src/gst/sidsyn/sidsyn.h \
   src/gst/sidsyn/sidsynv.h \
   src/gst/sidsyn/envelope.h \
@@ -569,6 +560,16 @@ libgstbml_la_LIBADD = \
   $(GST_PLUGIN_LIBS) -lgstaudio-1.0 $(LIBM) 
 libgstbml_la_LDFLAGS =  $(GST_PLUGIN_LDFLAGS)
 libgstbml_la_LIBTOOLFLAGS = --tag=disable-static
+
+
+libbuzztraxdec_la_CFLAGS = $(GST_PLUGIN_CFLAGS)
+libbuzztraxdec_la_LIBADD = \
+  libbuzztrax-core.la \
+  libbuzztrax-ic.la \
+  $(BASE_DEPS_LIBS) $(LIBM)
+libbuzztraxdec_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libbuzztraxdec_la_SOURCES = src/gst/dec/bt-dec.c
+libbuzztraxdec_la_LIBTOOLFLAGS = --tag=disable-static
 
 
 if FLUIDSYNTH_SUPPORT
