@@ -300,6 +300,8 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
       GUINT_TO_POINTER (1));
   g_param_spec_set_qdata (PROP (WAVE), gstbt_property_meta_quark_flags,
       GUINT_TO_POINTER (GSTBT_PROPERTY_META_WAVE));
+  g_param_spec_set_qdata (PROP (WAVE), gstbt_property_meta_quark_max_val,
+      GUINT_TO_POINTER (200));
   g_type_class_unref (component);
 
   PROP (OFFSET) = g_param_spec_uint ("offset", "Offset", "Wave table offset", 0,
