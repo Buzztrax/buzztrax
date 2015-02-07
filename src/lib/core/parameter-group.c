@@ -608,6 +608,11 @@ bt_parameter_group_describe_param_value (const BtParameterGroup * const self,
     return
         gstbt_property_meta_describe_property (GSTBT_PROPERTY_META (self->priv->
             parents[index]), prop_id, event);
+  } else if (bt_g_type_get_base_type (PARAM_TYPE (index)) == G_TYPE_ENUM) {
+    // for enums return the nick
+    const GParamSpecEnum *p = G_PARAM_SPEC_ENUM (self->priv->params[index]);
+    GEnumValue *ev = g_enum_get_value (p->enum_class, g_value_get_enum (event));
+    return g_strdup (ev->value_nick);
   }
   return NULL;
 }
