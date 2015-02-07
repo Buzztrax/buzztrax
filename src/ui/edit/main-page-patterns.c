@@ -40,7 +40,7 @@
  *     - gtk_widget_add_accelerator (can't specify signal params)
  */
 /* TODO(ensonic): show wavetable name for wave-index properties in statusbar
- * - need a fallback _describe_param_value that cehcks the wavetable
+ * - need a fallback _describe_param_value that checks the wavetable
  */
 /* TODO(ensonic): use gray text color for disconnected machines in the machine
  * combobox (or machine without patterns) and unused waves
@@ -1349,13 +1349,17 @@ pattern_edit_set_data_at (gpointer pattern_data, gpointer column_data,
   }
   if (group->columns[param].type == PCT_BYTE) {
     if (wave_param == param) {
-      // don't allow to clear wave column, if we have a note in any trigger column
+      GST_DEBUG ("edit wave column: %f,'%s'", value, str);
+      // don't clear wave column, if we have a note in any trigger column
       if (!BT_IS_STRING (str)) {
         guint i;
         for (i = 0; i < group->num_columns; i++) {
-          if (bt_parameter_group_is_param_trigger (pg, i) &&
+          if ((i != wave_param) &&
+              bt_parameter_group_is_param_trigger (pg, i) &&
               bt_value_group_test_event (group->vg, row, i)) {
+            GST_DEBUG ("have note set in col: %d, row: %d", i, row);
             cancel_edit = TRUE;
+            break;
           }
         }
       } else {
