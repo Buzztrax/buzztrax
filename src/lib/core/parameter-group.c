@@ -64,7 +64,7 @@ struct _BtParameterGroupPrivate
   /* parameter data */
   GObject **parents;
   GParamSpec **params;
-  guint *flags;                 // only used for wave_index and is_trigger
+  guint *flags;                 // only used for wave_index and is_param_trigger
   GValue *no_val;
   GstControlBinding **cb;
 };
@@ -259,10 +259,11 @@ bt_parameter_group_is_param_no_value (const BtParameterGroup * const self,
   g_return_val_if_fail (index < self->priv->num_params, FALSE);
   g_return_val_if_fail (G_IS_VALUE (value), FALSE);
 
-  if (!BT_IS_GVALUE (&self->priv->no_val[index]))
+  GValue *v = &self->priv->no_val[index];
+  if (!BT_IS_GVALUE (v))
     return (FALSE);
 
-  if (gst_value_compare (&self->priv->no_val[index], value) == GST_VALUE_EQUAL)
+  if (gst_value_compare (v, value) == GST_VALUE_EQUAL)
     return (TRUE);
   return (FALSE);
 }
@@ -712,7 +713,11 @@ bt_parameter_group_constructed (GObject * object)
 
     // treat not readable params as triggers
     if (param->flags & G_PARAM_READABLE) {
-      self->priv->flags[i] = GSTBT_PROPERTY_META_STATE;
+      self->priv->flags[i] |= GSTBT_PROPERTY_META_STATE;
+    }
+    // treat GstBtWaveIndex as wave_index
+    if (param->value_type == GSTBT_TYPE_WAVE_INDEX) {
+      self->priv->flags[i] |= GSTBT_PROPERTY_META_WAVE;
     }
 
     if (GSTBT_IS_PROPERTY_META (parent)) {
@@ -720,7 +725,7 @@ bt_parameter_group_constructed (GObject * object)
           g_param_spec_get_qdata (param, gstbt_property_meta_quark);
 
       if (has_meta) {
-        self->priv->flags[i] =
+        self->priv->flags[i] |=
             GPOINTER_TO_INT (g_param_spec_get_qdata (param,
                 gstbt_property_meta_quark_flags));
         if (!(bt_parameter_group_get_property_meta_value (&self->

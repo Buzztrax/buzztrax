@@ -284,7 +284,7 @@ gstbt_osc_wave_set_property (GObject * object, guint prop_id,
       break;
     case PROP_WAVE:
       //GST_INFO("change wave %u -> %u",g_value_get_uint (value),self->wave);
-      self->wave = g_value_get_uint (value);
+      self->wave = g_value_get_enum (value);
       gstbt_osc_wave_setup (self);
       break;
     case PROP_WAVE_LEVEL:
@@ -314,7 +314,7 @@ gstbt_osc_wave_get_property (GObject * object, guint prop_id,
       g_value_set_pointer (value, self->wave_callbacks);
       break;
     case PROP_WAVE:
-      g_value_set_uint (value, self->wave);
+      g_value_set_enum (value, self->wave);
       break;
     case PROP_WAVE_LEVEL:
       g_value_set_uint (value, self->wave_level);
@@ -379,7 +379,7 @@ gstbt_osc_wave_class_init (GstBtOscWaveClass * klass)
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_WAVE,
-      g_param_spec_uint ("wave", "Wave", "Wave index", 1, 200, 1,
+      g_param_spec_enum ("wave", "Wave", "Wave index", GSTBT_TYPE_WAVE_INDEX, 0,
           G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_WAVE_LEVEL,

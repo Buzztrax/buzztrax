@@ -39,9 +39,6 @@
  *     - gtk_binding_entry_add_signal (do bindings work when not focused?)
  *     - gtk_widget_add_accelerator (can't specify signal params)
  */
-/* TODO(ensonic): show wavetable name for wave-index properties in statusbar
- * - need a fallback _describe_param_value that checks the wavetable
- */
 /* TODO(ensonic): use gray text color for disconnected machines in the machine
  * combobox (or machine without patterns) and unused waves
  * (like for unused patterns)

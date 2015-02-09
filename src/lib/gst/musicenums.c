@@ -193,3 +193,28 @@ gstbt_note_get_type (void)
   }
   return type;
 }
+
+GType
+gstbt_wave_index_get_type (void)
+{
+  static GType type = 0;
+
+  if (G_UNLIKELY (!type)) {
+    GEnumValue *values = g_new (GEnumValue, 202);
+    gint i;
+
+    values[0].value = 0;
+    values[0].value_name = values[0].value_nick = "no wave";
+    for (i = 1; i < 200; i++) {
+      values[i].value = i;
+      values[i].value_name = g_strdup_printf ("wave %03d", i);
+      // TODO(ensonic): replace them with "---" or wave name
+      values[i].value_nick = g_strdup_printf ("wave %03d", i);
+    }
+    values[i].value = 0;
+    values[i].value_name = values[i].value_nick = NULL;
+
+    type = g_enum_register_static ("GstBtWaveIndex", values);
+  }
+  return type;
+}

@@ -76,7 +76,7 @@ G_END_DECLS
  * Parameter flags to describe their behaviour.
  */
 /* FIXME(ensonic): eliminate this
- * GSTBT_PROPERTY_META_WAVE -> use a enum type for those properties
+ * GSTBT_PROPERTY_META_WAVE -> use musicenums/GstBtWaveIndex
  * GSTBT_PROPERTY_META_STATE -> GParamSpec->flags&G_PARAM_READABLE
  * GSTBT_PROPERTY_META_TICK_ON_EDIT -> ignore as we do now
  */

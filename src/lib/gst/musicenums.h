@@ -196,6 +196,11 @@ typedef enum {
 extern GType gstbt_note_get_type(void);
 
 
+#define GSTBT_TYPE_WAVE_INDEX   (gstbt_wave_index_get_type())
+
+extern GType gstbt_wave_index_get_type(void);
+
+
 G_END_DECLS
 
 #endif /* __GSTBT_MUSICENUMS_B__ */

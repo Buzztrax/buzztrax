@@ -31,7 +31,6 @@
 #endif
 
 #include <string.h>
-#include "gst/propertymeta.h"
 #include "plugin.h"
 #include "wavetabsyn.h"
 
@@ -56,9 +55,7 @@ static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 
 //-- the class
 
-G_DEFINE_TYPE_WITH_CODE (GstBtWaveTabSyn, gstbt_wave_tab_syn,
-    GSTBT_TYPE_AUDIO_SYNTH, G_IMPLEMENT_INTERFACE (GSTBT_TYPE_PROPERTY_META,
-        NULL));
+G_DEFINE_TYPE (GstBtWaveTabSyn, gstbt_wave_tab_syn, GSTBT_TYPE_AUDIO_SYNTH);
 
 //-- audiosynth vmethods
 
@@ -296,12 +293,6 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
 
   component = g_type_class_ref (GSTBT_TYPE_OSC_WAVE);
   PROP (WAVE) = bt_g_param_spec_clone (component, "wave");
-  g_param_spec_set_qdata (PROP (WAVE), gstbt_property_meta_quark,
-      GUINT_TO_POINTER (1));
-  g_param_spec_set_qdata (PROP (WAVE), gstbt_property_meta_quark_flags,
-      GUINT_TO_POINTER (GSTBT_PROPERTY_META_WAVE));
-  g_param_spec_set_qdata (PROP (WAVE), gstbt_property_meta_quark_max_val,
-      GUINT_TO_POINTER (200));
   g_type_class_unref (component);
 
   PROP (OFFSET) = g_param_spec_uint ("offset", "Offset", "Wave table offset", 0,
