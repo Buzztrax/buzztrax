@@ -64,12 +64,15 @@ G_DEFINE_TYPE (GstBtSimSyn, gstbt_sim_syn, GSTBT_TYPE_AUDIO_SYNTH);
 static void
 gstbt_sim_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
 {
+  GstBtSimSyn *src = ((GstBtSimSyn *) base);
   gint i, n = gst_caps_get_size (caps);
 
   for (i = 0; i < n; i++) {
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
         "channels", 1);
   }
+  g_object_set (src->osc, "sample-rate", ((GstBtAudioSynth *) src)->samplerate,
+      NULL);
 }
 
 static gboolean
