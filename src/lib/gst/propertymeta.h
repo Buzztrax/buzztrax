@@ -67,7 +67,6 @@ G_END_DECLS
 
 /**
  * GstBtPropertyMetaFlags:
- * @GSTBT_PROPERTY_META_NONE: no special treatment needed
  * @GSTBT_PROPERTY_META_WAVE: parameter value references a wavetable slot
  * @GSTBT_PROPERTY_META_STATE: parameter is continuously changing (not used for notes and triggers)
  * @GSTBT_PROPERTY_META_TICK_ON_EDIT: need to call tick after editing it
@@ -80,7 +79,6 @@ G_END_DECLS
  * GSTBT_PROPERTY_META_TICK_ON_EDIT -> ignore as we do now
  */
 typedef enum {
-  GSTBT_PROPERTY_META_NONE=0,
   GSTBT_PROPERTY_META_WAVE=1,		/* parameter value references a wavetable slot */
   GSTBT_PROPERTY_META_STATE=2,		/* parameter is continuously changing (not used for notes and triggers) */
   GSTBT_PROPERTY_META_TICK_ON_EDIT=4 /* causes the host to send you a Tick() message immediatly after the user enters a value in the pattern or machine editor */
