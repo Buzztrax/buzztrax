@@ -38,6 +38,8 @@
 #define GST_CAT_DEFAULT envelope_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
+#define MAX_DELAYTIME 1000
+
 enum
 {
   // class properties
@@ -79,7 +81,7 @@ void
 gstbt_delay_start (GstBtDelay * self, gint samplerate)
 {
   self->samplerate = samplerate;
-  self->max_delaytime = (2 + (self->delaytime * samplerate) / 100);
+  self->max_delaytime = (2 + (MAX_DELAYTIME * samplerate) / 100);
   self->ring_buffer = (gint16 *) g_new0 (gint16, self->max_delaytime);
   self->rb_ptr = 0;
   GST_INFO ("max_delaytime %d at %d Hz sampling rate", self->max_delaytime,
@@ -183,5 +185,5 @@ gstbt_delay_class_init (GstBtDelayClass * klass)
   g_object_class_install_property (gobject_class, PROP_DELAYTIME,
       g_param_spec_uint ("delaytime", "Delay time",
           "Time difference between two echos as milliseconds", 1,
-          1000, 100, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
+          MAX_DELAYTIME, 100, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
 }
