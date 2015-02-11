@@ -493,9 +493,6 @@ gstbt_osc_synth_get_property (GObject * object, guint prop_id,
     case PROP_WAVE:
       g_value_set_enum (value, self->wave);
       break;
-    case PROP_FREQUENCY:
-      g_value_set_double (value, self->freq);
-      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -556,5 +553,5 @@ gstbt_osc_synth_class_init (GstBtOscSynthClass * klass)
   g_object_class_install_property (gobject_class, PROP_FREQUENCY,
       g_param_spec_double ("frequency", "Frequency", "Frequency of tone",
           0.0, G_MAXDOUBLE, 0.0,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+          G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 }

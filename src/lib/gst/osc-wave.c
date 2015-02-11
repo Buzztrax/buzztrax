@@ -319,9 +319,6 @@ gstbt_osc_wave_get_property (GObject * object, guint prop_id,
     case PROP_WAVE_LEVEL:
       g_value_set_uint (value, self->wave_level);
       break;
-    case PROP_FREQUENCY:
-      g_value_set_double (value, self->freq);
-      break;
     case PROP_DURATION:
       g_value_set_uint64 (value, self->duration);
       break;
@@ -390,7 +387,7 @@ gstbt_osc_wave_class_init (GstBtOscWaveClass * klass)
   g_object_class_install_property (gobject_class, PROP_FREQUENCY,
       g_param_spec_double ("frequency", "Frequency",
           "Frequency of tone (0.0 for original)", 0.0, G_MAXDOUBLE, 0.0,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+          G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_DURATION,
       g_param_spec_uint64 ("duration", "Duration",
