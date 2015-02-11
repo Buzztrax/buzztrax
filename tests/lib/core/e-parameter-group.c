@@ -116,7 +116,7 @@ test_bt_parameter_group_describe (BT_TEST_ARGS)
 }
 
 static void
-test_bt_parameter_group_get_trigger (BT_TEST_ARGS)
+test_bt_parameter_group_get_trigger_param (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -132,15 +132,33 @@ test_bt_parameter_group_get_trigger (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-TCase *
-bt_param_group_example_case (void)
+static void
+test_bt_parameter_group_get_wave_param (BT_TEST_ARGS)
 {
-  TCase *tc = tcase_create ("BtParamGroupExamples");
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtParameterGroup *pg = get_mono_parameter_group ();
+
+  GST_INFO ("-- act --");
+  glong ix = bt_parameter_group_get_wave_param_index (pg);
+
+  GST_INFO ("-- assert --");
+  ck_assert_int_eq (ix, 5);
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
+TCase *
+bt_parameter_group_example_case (void)
+{
+  TCase *tc = tcase_create ("BtParameterGroupExamples");
 
   tcase_add_test (tc, test_bt_parameter_group_param);
   tcase_add_test (tc, test_bt_parameter_group_size);
   tcase_add_test (tc, test_bt_parameter_group_describe);
-  tcase_add_test (tc, test_bt_parameter_group_get_trigger);
+  tcase_add_test (tc, test_bt_parameter_group_get_trigger_param);
+  tcase_add_test (tc, test_bt_parameter_group_get_wave_param);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

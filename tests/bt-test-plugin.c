@@ -71,6 +71,7 @@ enum
   PROP_SWITCH,
   PROP_NOTE,
   PROP_SPARSE_ENUM,
+  PROP_WAVE,
   PROP_COUNT
 };
 
@@ -194,6 +195,9 @@ bt_test_mono_source_get_property (GObject * object, guint property_id,
     case PROP_SPARSE_ENUM:
       g_value_set_enum (value, self->sparse_enum_val);
       break;
+    case PROP_WAVE:
+      g_value_set_enum (value, self->wave_val);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -221,6 +225,9 @@ bt_test_mono_source_set_property (GObject * object, guint property_id,
       break;
     case PROP_SPARSE_ENUM:
       self->sparse_enum_val = g_value_get_enum (value);
+      break;
+    case PROP_WAVE:
+      self->wave_val = g_value_get_enum (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -284,6 +291,11 @@ bt_test_mono_source_class_init (BtTestMonoSourceClass * klass)
       g_param_spec_enum ("g-sparse-enum", "sparse enum prop",
           "sparse enum parameter for the test_mono_source",
           BT_TYPE_TEST_SPARSE_ENUM, BT_TEST_SPARSE_ENUM_ZERO,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_WAVE,
+      g_param_spec_enum ("g-wave", "wave",
+          "wave parameter for the test_mono_source", GSTBT_TYPE_WAVE_INDEX, 0,
           G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_add_pad_template (element_class,

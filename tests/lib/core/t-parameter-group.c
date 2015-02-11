@@ -53,7 +53,7 @@ case_teardown (void)
 //-- tests
 
 static void
-test_bt_param_group_invalid_param (BT_TEST_ARGS)
+test_bt_parameter_group_invalid_param (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -72,7 +72,7 @@ test_bt_param_group_invalid_param (BT_TEST_ARGS)
 }
 
 static void
-test_bt_param_group_no_trigger (BT_TEST_ARGS)
+test_bt_parameter_group_no_trigger_param (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -90,13 +90,33 @@ test_bt_param_group_no_trigger (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-TCase *
-bt_param_group_test_case (void)
+static void
+test_bt_parameter_group_no_wave_param (BT_TEST_ARGS)
 {
-  TCase *tc = tcase_create ("BtParamGroupTests");
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztrax-test-poly-source", 0, NULL));
+  BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
 
-  tcase_add_test (tc, test_bt_param_group_invalid_param);
-  tcase_add_test (tc, test_bt_param_group_no_trigger);
+  GST_INFO ("-- act --");
+  glong ix = bt_parameter_group_get_wave_param_index (pg);
+
+  GST_INFO ("-- assert --");
+  ck_assert_int_eq (ix, -1);
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
+TCase *
+bt_parameter_group_test_case (void)
+{
+  TCase *tc = tcase_create ("BtParameterGroupTests");
+
+  tcase_add_test (tc, test_bt_parameter_group_invalid_param);
+  tcase_add_test (tc, test_bt_parameter_group_no_trigger_param);
+  tcase_add_test (tc, test_bt_parameter_group_no_wave_param);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

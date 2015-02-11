@@ -36,7 +36,7 @@ BT_TEST_SUITE_E ("BtAudioSession", bt_audio_session);
 BT_TEST_SUITE_T_E ("BtCmdPattern", bt_cmd_pattern);
 BT_TEST_SUITE_T_E ("BtCore", bt_core);
 BT_TEST_SUITE_T_E ("BtMachine", bt_machine);
-BT_TEST_SUITE_T_E ("BtParamGroup", bt_param_group);
+BT_TEST_SUITE_T_E ("BtParameterGroup", bt_parameter_group);
 BT_TEST_SUITE_T_E ("BtPattern", bt_pattern);
 BT_TEST_SUITE_T_E ("BtPatternControlSource", bt_pattern_control_source);
 BT_TEST_SUITE_T_E ("BtProcessorMachine", bt_processor_machine);
@@ -76,7 +76,7 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_cmd_pattern_suite ());
   srunner_add_suite (sr, bt_core_suite ());
   srunner_add_suite (sr, bt_machine_suite ());
-  srunner_add_suite (sr, bt_param_group_suite ());
+  srunner_add_suite (sr, bt_parameter_group_suite ());
   srunner_add_suite (sr, bt_pattern_suite ());
   srunner_add_suite (sr, bt_pattern_control_source_suite ());
   srunner_add_suite (sr, bt_processor_machine_suite ());

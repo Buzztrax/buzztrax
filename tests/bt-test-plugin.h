@@ -85,6 +85,7 @@ struct _BtTestMonoSource {
   gboolean switch_val;
   GstBtNote note_val;
   BtTestSparseEnum sparse_enum_val;
+  gint wave_val;
 };
 /* structure of the test_mono_source class */
 struct _BtTestMonoSourceClass {
