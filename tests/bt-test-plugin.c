@@ -143,21 +143,21 @@ bt_test_child_proxy_interface_init (gpointer g_iface, gpointer iface_data)
 
 //-- test_no_arg_mono_source
 
-static void
-bt_test_no_arg_mono_source_init (GTypeInstance * instance, gpointer g_class)
-{
-  BtTestNoArgMonoSource *self = BT_TEST_NO_ARG_MONO_SOURCE (instance);
-  GstElementClass *klass = GST_ELEMENT_GET_CLASS (instance);
-  GstPad *src_pad;
+G_DEFINE_TYPE (BtTestNoArgMonoSource, bt_test_no_arg_mono_source,
+    GST_TYPE_ELEMENT);
 
-  src_pad =
+static void
+bt_test_no_arg_mono_source_init (BtTestNoArgMonoSource * self)
+{
+  GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
+  GstPad *src_pad =
       gst_pad_new_from_template (gst_element_class_get_pad_template (klass,
           "src"), "src");
   gst_element_add_pad (GST_ELEMENT (self), src_pad);
 }
 
 static void
-bt_test_no_arg_mono_source_base_init (BtTestMonoSourceClass * klass)
+bt_test_no_arg_mono_source_class_init (BtTestNoArgMonoSourceClass * klass)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
@@ -165,37 +165,15 @@ bt_test_no_arg_mono_source_base_init (BtTestMonoSourceClass * klass)
       gst_static_pad_template_get (&src_pad_template));
 
   gst_element_class_set_static_metadata (element_class,
-      "Monophonic source for unit tests with 0 properties",
-      "Source/Audio/MonoSource",
+      "Monophonic source for unit tests with 0 properties", "Source/Audio",
       "Use in unit tests", "Stefan Sauer <ensonic@users.sf.net>");
 }
 
-GType
-bt_test_no_arg_mono_source_get_type (void)
-{
-  static GType type = 0;
-  if (type == 0) {
-    const GTypeInfo info = {
-      sizeof (BtTestNoArgMonoSourceClass),
-      (GBaseInitFunc) bt_test_no_arg_mono_source_base_init,     // base_init
-      NULL,                     // base_finalize
-      NULL,                     // class_init
-      NULL,                     // class_finalize
-      NULL,                     // class_data
-      sizeof (BtTestNoArgMonoSource),
-      0,                        // n_preallocs
-      (GInstanceInitFunc) bt_test_no_arg_mono_source_init,      // instance_init
-      NULL                      // value_table
-    };
-    type =
-        g_type_register_static (GST_TYPE_ELEMENT,
-        "BtTestNoArgMonoSource", &info, 0);
-  }
-  return type;
-}
-
-
 //-- test_mono_source
+
+G_DEFINE_TYPE_WITH_CODE (BtTestMonoSource, bt_test_mono_source,
+    GST_TYPE_ELEMENT,
+    G_IMPLEMENT_INTERFACE (GSTBT_TYPE_TEMPO, bt_test_tempo_interface_init));
 
 static void
 bt_test_mono_source_get_property (GObject * object, guint property_id,
@@ -250,15 +228,11 @@ bt_test_mono_source_set_property (GObject * object, guint property_id,
   }
 }
 
-
 static void
-bt_test_mono_source_init (GTypeInstance * instance, gpointer g_class)
+bt_test_mono_source_init (BtTestMonoSource * self)
 {
-  BtTestMonoSource *self = BT_TEST_MONO_SOURCE (instance);
-  GstElementClass *klass = GST_ELEMENT_GET_CLASS (instance);
-  GstPad *src_pad;
-
-  src_pad =
+  GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
+  GstPad *src_pad =
       gst_pad_new_from_template (gst_element_class_get_pad_template (klass,
           "src"), "src");
   gst_element_add_pad (GST_ELEMENT (self), src_pad);
@@ -268,6 +242,7 @@ static void
 bt_test_mono_source_class_init (BtTestMonoSourceClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
   gobject_class->set_property = bt_test_mono_source_set_property;
   gobject_class->get_property = bt_test_mono_source_get_property;
@@ -310,52 +285,23 @@ bt_test_mono_source_class_init (BtTestMonoSourceClass * klass)
           "sparse enum parameter for the test_mono_source",
           BT_TYPE_TEST_SPARSE_ENUM, BT_TEST_SPARSE_ENUM_ZERO,
           G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
-}
-
-static void
-bt_test_mono_source_base_init (BtTestMonoSourceClass * klass)
-{
-  GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&src_pad_template));
 
   gst_element_class_set_static_metadata (element_class,
-      "Monophonic source for unit tests",
-      "Source/Audio/MonoSource",
+      "Monophonic source for unit tests", "Source/Audio",
       "Use in unit tests", "Stefan Kost <ensonic@users.sf.net>");
 }
 
-GType
-bt_test_mono_source_get_type (void)
-{
-  static GType type = 0;
-  if (type == 0) {
-    const GTypeInfo info = {
-      sizeof (BtTestMonoSourceClass),
-      (GBaseInitFunc) bt_test_mono_source_base_init,    // base_init
-      NULL,                     // base_finalize
-      (GClassInitFunc) bt_test_mono_source_class_init,  // class_init
-      NULL,                     // class_finalize
-      NULL,                     // class_data
-      sizeof (BtTestMonoSource),
-      0,                        // n_preallocs
-      (GInstanceInitFunc) bt_test_mono_source_init,     // instance_init
-      NULL                      // value_table
-    };
-    const GInterfaceInfo tempo_interface_info = {
-      (GInterfaceInitFunc) bt_test_tempo_interface_init,        /* interface_init */
-      NULL,                     /* interface_finalize */
-      NULL                      /* interface_data */
-    };
-    type =
-        g_type_register_static (GST_TYPE_ELEMENT, "BtTestMonoSource", &info, 0);
-    g_type_add_interface_static (type, GSTBT_TYPE_TEMPO, &tempo_interface_info);
-  }
-  return type;
-}
-
 //-- test_poly_source
+
+G_DEFINE_TYPE_WITH_CODE (BtTestPolySource, bt_test_poly_source,
+    GST_TYPE_ELEMENT,
+    G_IMPLEMENT_INTERFACE (GSTBT_TYPE_TEMPO, bt_test_tempo_interface_init)
+    G_IMPLEMENT_INTERFACE (GST_TYPE_CHILD_PROXY,
+        bt_test_child_proxy_interface_init)
+    G_IMPLEMENT_INTERFACE (GSTBT_TYPE_CHILD_BIN, NULL));
 
 static GObjectClass *poly_parent_class = NULL;
 
@@ -462,13 +408,10 @@ bt_test_poly_source_finalize (GObject * object)
 }
 
 static void
-bt_test_poly_source_init (GTypeInstance * instance, gpointer g_class)
+bt_test_poly_source_init (BtTestPolySource * self)
 {
-  BtTestPolySource *self = BT_TEST_POLY_SOURCE (instance);
-  GstElementClass *klass = GST_ELEMENT_GET_CLASS (instance);
-  GstPad *src_pad;
-
-  src_pad =
+  GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
+  GstPad *src_pad =
       gst_pad_new_from_template (gst_element_class_get_pad_template (klass,
           "src"), "src");
   gst_element_add_pad (GST_ELEMENT (self), src_pad);
@@ -478,6 +421,7 @@ static void
 bt_test_poly_source_class_init (BtTestPolySourceClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
   poly_parent_class = g_type_class_peek_parent (klass);
 
@@ -522,64 +466,13 @@ bt_test_poly_source_class_init (BtTestPolySourceClass * klass)
           "sparse enum parameter for the test_poly_source",
           BT_TYPE_TEST_SPARSE_ENUM, BT_TEST_SPARSE_ENUM_ZERO,
           G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
-}
-
-static void
-bt_test_poly_source_base_init (BtTestPolySourceClass * klass)
-{
-  GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&src_pad_template));
 
   gst_element_class_set_static_metadata (element_class,
-      "Polyphonic source for unit tests",
-      "Source/Audio/PolySource",
+      "Polyphonic source for unit tests", "Source/Audio",
       "Use in unit tests", "Stefan Kost <ensonic@users.sf.net>");
-}
-
-GType
-bt_test_poly_source_get_type (void)
-{
-  static GType type = 0;
-  if (type == 0) {
-    const GTypeInfo info = {
-      sizeof (BtTestPolySourceClass),
-      (GBaseInitFunc) bt_test_poly_source_base_init,    // base_init
-      NULL,                     // base_finalize
-      (GClassInitFunc) bt_test_poly_source_class_init,  // class_init
-      NULL,                     // class_finalize
-      NULL,                     // class_data
-      sizeof (BtTestPolySource),
-      0,                        // n_preallocs
-      (GInstanceInitFunc) bt_test_poly_source_init,     // instance_init
-      NULL                      // value_table
-    };
-    const GInterfaceInfo tempo_interface_info = {
-      (GInterfaceInitFunc) bt_test_tempo_interface_init,        /* interface_init */
-      NULL,                     /* interface_finalize */
-      NULL                      /* interface_data */
-    };
-    const GInterfaceInfo child_proxy_interface_info = {
-      (GInterfaceInitFunc) bt_test_child_proxy_interface_init,  /* interface_init */
-      NULL,                     /* interface_finalize */
-      NULL                      /* interface_data */
-    };
-    const GInterfaceInfo child_bin_interface_info = {
-      NULL,                     /* interface_init */
-      NULL,                     /* interface_finalize */
-      NULL                      /* interface_data */
-    };
-
-    type =
-        g_type_register_static (GST_TYPE_ELEMENT, "BtTestPolySource", &info, 0);
-    g_type_add_interface_static (type, GSTBT_TYPE_TEMPO, &tempo_interface_info);
-    g_type_add_interface_static (type, GST_TYPE_CHILD_PROXY,
-        &child_proxy_interface_info);
-    g_type_add_interface_static (type, GSTBT_TYPE_CHILD_BIN,
-        &child_bin_interface_info);
-  }
-  return type;
 }
 
 //-- test_mono_processor
