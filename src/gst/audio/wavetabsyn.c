@@ -87,6 +87,7 @@ gstbt_wave_tab_syn_process (GstBtAudioSynth * base, GstBuffer * data,
     guint pos = src->cycle_pos;
     guint p = 0;
     guint64 off = src->offset * (src->duration - src->cycle_size) / 0xFFFF;
+    GstBtEnvelope *volenv = (GstBtEnvelope *) src->volenv;
 
     // do we have a unfinished cycle?
     if (pos > 0) {
@@ -121,8 +122,7 @@ gstbt_wave_tab_syn_process (GstBtAudioSynth * base, GstBuffer * data,
       guint i = 0, j;
       while (i < ct) {
         j = ct - i;
-        amp = gstbt_envelope_get ((GstBtEnvelope *) src->volenv,
-            MIN (INNER_LOOP, j));
+        amp = gstbt_envelope_get (volenv, MIN (INNER_LOOP, j));
         for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
           d[i] *= amp;
         }
@@ -132,8 +132,7 @@ gstbt_wave_tab_syn_process (GstBtAudioSynth * base, GstBuffer * data,
       guint i = 0, j;
       while (i < ct) {
         j = ct - i;
-        amp = gstbt_envelope_get ((GstBtEnvelope *) src->volenv,
-            MIN (INNER_LOOP, j));
+        amp = gstbt_envelope_get (volenv, MIN (INNER_LOOP, j));
         for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
           d[(i << 1)] *= amp;
           d[(i << 1) + 1] *= amp;
