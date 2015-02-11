@@ -201,11 +201,7 @@ gstbml_preset_get_preset_names (GstBML * bml, GstBMLClass * klass)
 static gboolean
 skip_property (GParamSpec * prop, GObjectClass * voice_class)
 {
-  if (!(prop->flags & GST_PARAM_CONTROLLABLE))
-    return TRUE;
-  if (!(GPOINTER_TO_INT (g_param_spec_get_qdata (prop,
-                  gstbt_property_meta_quark_flags)) &
-          GSTBT_PROPERTY_META_STATE))
+  if (!(prop->flags & (GST_PARAM_CONTROLLABLE | G_PARAM_READABLE)))
     return TRUE;
   if (voice_class && g_object_class_find_property (voice_class, prop->name))
     return TRUE;
@@ -814,9 +810,15 @@ gstbml_register_param (GObjectClass * klass, gint prop_id,
          } */
       break;
     case PT_BYTE:
-      // TODO(ensonic): gstreamer has no support for CHAR/UCHAR
-      paramspec = g_param_spec_uint (name, nick, desc,
-          min_val, max_val, def_val, pspec_flags);
+      if (!(flags & GSTBT_PROPERTY_META_WAVE)) {
+        // TODO(ensonic): gstreamer has no support for CHAR/UCHAR
+        paramspec = g_param_spec_uint (name, nick, desc,
+            min_val, max_val, def_val, pspec_flags);
+      } else {
+        type = PT_ENUM;
+        paramspec = g_param_spec_enum (name, nick, desc,
+            GSTBT_TYPE_WAVE_INDEX, 0, pspec_flags);
+      }
       break;
     case PT_WORD:
       paramspec = g_param_spec_uint (name, nick, desc,
@@ -835,7 +837,8 @@ gstbml_register_param (GObjectClass * klass, gint prop_id,
       break;
   }
   if (paramspec) {
-    // TODO(ensonic): can we skip the gstbt_property_meta qdata business for some parameters?
+    // TODO(ensonic): can we skip the gstbt_property_meta qdata business for
+    // some parameters?
     g_param_spec_set_qdata (paramspec, gstbt_property_meta_quark,
         GINT_TO_POINTER (TRUE));
     g_param_spec_set_qdata (paramspec, gstbt_property_meta_quark_min_val,
@@ -846,8 +849,6 @@ gstbml_register_param (GObjectClass * klass, gint prop_id,
         GINT_TO_POINTER (saved_def_val));
     g_param_spec_set_qdata (paramspec, gstbt_property_meta_quark_no_val,
         GINT_TO_POINTER (no_val));
-    g_param_spec_set_qdata (paramspec, gstbt_property_meta_quark_flags,
-        GINT_TO_POINTER (flags));
     g_param_spec_set_qdata (paramspec, gst_bml_property_meta_quark_type,
         GINT_TO_POINTER (type));
     g_object_class_install_property (klass, prop_id, paramspec);

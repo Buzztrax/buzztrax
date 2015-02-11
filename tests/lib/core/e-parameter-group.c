@@ -115,6 +115,23 @@ test_bt_parameter_group_describe (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_parameter_group_get_trigger (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtParameterGroup *pg = get_mono_parameter_group ();
+
+  GST_INFO ("-- act --");
+  glong ix = bt_parameter_group_get_trigger_param_index (pg);
+
+  GST_INFO ("-- assert --");
+  ck_assert_int_eq (ix, 3);
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
 TCase *
 bt_param_group_example_case (void)
 {
@@ -123,6 +140,7 @@ bt_param_group_example_case (void)
   tcase_add_test (tc, test_bt_parameter_group_param);
   tcase_add_test (tc, test_bt_parameter_group_size);
   tcase_add_test (tc, test_bt_parameter_group_describe);
+  tcase_add_test (tc, test_bt_parameter_group_get_trigger);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

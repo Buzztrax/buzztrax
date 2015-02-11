@@ -668,9 +668,13 @@ fill_machine_parameter (const BtSongIOBuzz * self, BmxParameter * param,
     param->novalue =
         GPOINTER_TO_INT (g_param_spec_get_qdata (pspec,
             gstbt_property_meta_quark_no_val));
-    param->flags =
-        GPOINTER_TO_INT (g_param_spec_get_qdata (pspec,
-            gstbt_property_meta_quark_flags));
+    param->flags = 0;
+    if (pspec->flags & G_PARAM_READABLE) {
+      param->flags |= GSTBT_PROPERTY_META_STATE;
+    }
+    if (pspec->value_type == GSTBT_TYPE_WAVE_INDEX) {
+      param->flags |= GSTBT_PROPERTY_META_WAVE;
+    }
   } else {
     gint val;
     GST_DEBUG ("sync BmxParameter with machine qdata");

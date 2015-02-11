@@ -115,7 +115,6 @@ gst_bmlv_set_property (GObject * object, guint prop_id, const GValue * value,
   gpointer bm = bmlv->bm;
   gint val;
   gint type;
-  guint flags;
 
   // property ids have an offset of 1
   prop_id--;
@@ -124,11 +123,8 @@ gst_bmlv_set_property (GObject * object, guint prop_id, const GValue * value,
   type =
       GPOINTER_TO_INT (g_param_spec_get_qdata (pspec,
           gst_bml_property_meta_quark_type));
-  flags =
-      GPOINTER_TO_INT (g_param_spec_get_qdata (pspec,
-          gstbt_property_meta_quark_flags));
 
-  if (!(flags & GSTBT_PROPERTY_META_STATE)
+  if (!(pspec->flags & G_PARAM_READABLE)
       && !g_param_value_defaults (pspec, (GValue *) value)) {
     // flag triggered triggers
     g_atomic_int_set (&bmlv->triggers_changed[prop_id], 1);

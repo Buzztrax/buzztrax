@@ -22,7 +22,7 @@
  * group will not change.
  */
 
-/* FIXME(ensonic): consider to have a BtParameter struct and merge 7 arrays into
+/* FIXME(ensonic): consider to have a BtParameter struct and merge 6 arrays into
  * one
  * - for this we need to copy the values from parents & params though
  */
@@ -64,7 +64,6 @@ struct _BtParameterGroupPrivate
   /* parameter data */
   GObject **parents;
   GParamSpec **params;
-  guint *flags;                 // only used for wave_index and is_param_trigger
   GValue *no_val;
   GstControlBinding **cb;
 };
@@ -236,9 +235,7 @@ bt_parameter_group_is_param_trigger (const BtParameterGroup * const self,
   g_return_val_if_fail (BT_IS_PARAMETER_GROUP (self), FALSE);
   g_return_val_if_fail (index < self->priv->num_params, FALSE);
 
-  if (!(self->priv->flags[index] & GSTBT_PROPERTY_META_STATE))
-    return (TRUE);
-  return (FALSE);
+  return !(self->priv->params[index]->flags & G_PARAM_READABLE);
 }
 
 /**
@@ -498,16 +495,16 @@ bt_parameter_group_get_param_no_value (const BtParameterGroup * const self,
 glong
 bt_parameter_group_get_trigger_param_index (const BtParameterGroup * const self)
 {
-  const gulong params = self->priv->num_params;
-  guint *flags = self->priv->flags;
+  const gulong num_params = self->priv->num_params;
+  GParamSpec **params = self->priv->params;
   glong i;
   g_return_val_if_fail (BT_IS_PARAMETER_GROUP (self), -1);
 
-  for (i = 0; i < params; i++) {
-    if (!(flags[i] & GSTBT_PROPERTY_META_STATE))
-      return (i);
+  for (i = 0; i < num_params; i++) {
+    if (!(params[i]->flags & G_PARAM_READABLE))
+      return i;
   }
-  return (-1);
+  return -1;
 }
 
 /**
@@ -522,16 +519,16 @@ bt_parameter_group_get_trigger_param_index (const BtParameterGroup * const self)
 glong
 bt_parameter_group_get_wave_param_index (const BtParameterGroup * const self)
 {
-  const gulong params = self->priv->num_params;
-  guint *flags = self->priv->flags;
+  const gulong num_params = self->priv->num_params;
+  GParamSpec **params = self->priv->params;
   glong i;
   g_return_val_if_fail (BT_IS_PARAMETER_GROUP (self), -1);
 
-  for (i = 0; i < params; i++) {
-    if (flags[i] & GSTBT_PROPERTY_META_WAVE)
-      return (i);
+  for (i = 0; i < num_params; i++) {
+    if (params[i]->value_type == GSTBT_TYPE_WAVE_INDEX)
+      return i;
   }
-  return (-1);
+  return -1;
 }
 
 /**
@@ -696,7 +693,6 @@ bt_parameter_group_constructed (GObject * object)
 
   // init the param group
   GST_INFO ("create group with %lu params", num_params);
-  self->priv->flags = (guint *) g_new0 (guint, num_params);
   self->priv->no_val = (GValue *) g_new0 (GValue, num_params);
   self->priv->cb = (GstControlBinding **) g_new0 (gpointer, num_params);
 
@@ -711,23 +707,11 @@ bt_parameter_group_constructed (GObject * object)
 
     GST_DEBUG ("adding param [%lu/%lu] \"%s\"", i, num_params, param->name);
 
-    // treat not readable params as triggers
-    if (param->flags & G_PARAM_READABLE) {
-      self->priv->flags[i] |= GSTBT_PROPERTY_META_STATE;
-    }
-    // treat GstBtWaveIndex as wave_index
-    if (param->value_type == GSTBT_TYPE_WAVE_INDEX) {
-      self->priv->flags[i] |= GSTBT_PROPERTY_META_WAVE;
-    }
-
     if (GSTBT_IS_PROPERTY_META (parent)) {
       gconstpointer const has_meta =
           g_param_spec_get_qdata (param, gstbt_property_meta_quark);
 
       if (has_meta) {
-        self->priv->flags[i] |=
-            GPOINTER_TO_INT (g_param_spec_get_qdata (param,
-                gstbt_property_meta_quark_flags));
         if (!(bt_parameter_group_get_property_meta_value (&self->
                     priv->no_val[i], param,
                     gstbt_property_meta_quark_no_val))) {
@@ -867,7 +851,6 @@ bt_parameter_group_finalize (GObject * const object)
   g_free (self->priv->parents);
   g_free (self->priv->params);
   g_free (self->priv->no_val);
-  g_free (self->priv->flags);
   g_free (self->priv->cb);
 
   G_OBJECT_CLASS (bt_parameter_group_parent_class)->finalize (object);

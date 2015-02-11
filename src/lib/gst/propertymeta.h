@@ -62,7 +62,6 @@ extern GQuark gstbt_property_meta_quark_min_val;
 extern GQuark gstbt_property_meta_quark_max_val;
 extern GQuark gstbt_property_meta_quark_def_val;
 extern GQuark gstbt_property_meta_quark_no_val;
-extern GQuark gstbt_property_meta_quark_flags;
 
 G_END_DECLS
 
@@ -75,7 +74,7 @@ G_END_DECLS
  *
  * Parameter flags to describe their behaviour.
  */
-/* FIXME(ensonic): eliminate this
+/* FIXME(ensonic): eliminate this, move enum to gst/bml & song-io-buzz
  * GSTBT_PROPERTY_META_WAVE -> use musicenums/GstBtWaveIndex
  * GSTBT_PROPERTY_META_STATE -> GParamSpec->flags&G_PARAM_READABLE
  * GSTBT_PROPERTY_META_TICK_ON_EDIT -> ignore as we do now

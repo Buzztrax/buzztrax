@@ -67,12 +67,6 @@ GQuark gstbt_property_meta_quark_def_val = 0;
  * value)
  */
 GQuark gstbt_property_meta_quark_no_val = 0;
-/**
- * gstbt_property_meta_quark_flags:
- *
- * Application specific flags giving more hints about the property.
- */
-GQuark gstbt_property_meta_quark_flags = 0;
 
 /**
  * gstbt_property_meta_describe_property:
@@ -114,6 +108,4 @@ gstbt_property_meta_default_init (GstBtPropertyMetaInterface * iface)
       g_quark_from_string ("GstBtPropertyMeta::def-val");
   gstbt_property_meta_quark_no_val =
       g_quark_from_string ("GstBtPropertyMeta::no-val");
-  gstbt_property_meta_quark_flags =
-      g_quark_from_string ("GstBtPropertyMeta::flags");
 }

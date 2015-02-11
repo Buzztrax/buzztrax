@@ -676,8 +676,7 @@ gst_bml_register_global_enum_type (GObjectClass * klass, gpointer bmh, gint i,
       }
       // terminator
       enums[k].value = 0;
-      enums[k].value_name = NULL;
-      enums[k].value_nick = NULL;
+      enums[k].value_name = enums[k].value_nick = NULL;
 
       enum_type = g_enum_register_static (type_name, enums);
       GST_INFO ("register enum '%s' with %d values", type_name, vcount);
@@ -1213,11 +1212,9 @@ bml (gstbml_set_property (GstBML * bml, GstBMLClass * bml_class, guint prop_id,
       bml (set_attribute_value (bm, prop_id, g_value_get_int (value)));
       //GST_DEBUG("set attribute %d to %d", prop_id, g_value_get_int(value));
     } else {
-      guint flags = GPOINTER_TO_INT (g_param_spec_get_qdata (pspec,
-              gstbt_property_meta_quark_flags));
       prop_id -= bml_class->numattributes;
 
-      if (!(flags & GSTBT_PROPERTY_META_STATE)
+      if (!(pspec->flags & G_PARAM_READABLE)
           && !g_param_value_defaults (pspec, (GValue *) value)) {
         // flag triggered triggers
         g_atomic_int_set (&bml->triggers_changed[prop_id], 1);
