@@ -939,7 +939,15 @@ on_browser_preview_sample (GtkFileChooser * chooser, gpointer user_data)
     GST_INFO ("current uri : %s", uri);
     if (uri) {
       // stop previous play
-      gst_element_set_state (self->priv->playbin, GST_STATE_READY);
+      /* FIXME(ensonic): this sometimes hangs
+         "failed to link pad uridecodebin0:src_0 to combiner, reason -2:was linked"
+         gst_element_set_state (self->priv->playbin, GST_STATE_READY);
+         if (gst_element_get_state (self->priv->playbin, NULL, NULL, 
+         GST_CLOCK_TIME_NONE) != GST_STATE_CHANGE_SUCCESS) {
+         GST_WARNING_OBJECT (self->priv->playbin, "not yet paused");
+         }
+       */
+      gst_element_set_state (self->priv->playbin, GST_STATE_NULL);
 
       // ... and play
       g_object_set (self->priv->playbin, "uri", uri, NULL);
