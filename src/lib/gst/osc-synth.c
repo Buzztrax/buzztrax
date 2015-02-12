@@ -40,6 +40,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <gst/audio/audio.h>
+
 #include "osc-synth.h"
 
 #define GST_CAT_DEFAULT envelope_debug
@@ -519,7 +521,7 @@ gstbt_osc_synth_init (GstBtOscSynth * self)
   self->freq = 0.0;
   gstbt_osc_synth_change_wave (self);
   self->flip = 1.0;
-  self->samplerate = 44100;
+  self->samplerate = GST_AUDIO_DEF_RATE;
 }
 
 static void
@@ -538,7 +540,8 @@ gstbt_osc_synth_class_init (GstBtOscSynthClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_SAMPLERATE,
       g_param_spec_int ("sample-rate", "Sample Rate", "Sampling rate",
-          1, G_MAXINT, 44100, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+          1, G_MAXINT, GST_AUDIO_DEF_RATE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_VOLUME_ENVELOPE,
       g_param_spec_object ("volume-envelope", "Volume envelope",
