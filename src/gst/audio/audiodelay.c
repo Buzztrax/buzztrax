@@ -27,14 +27,17 @@
  * <para>
  * <programlisting>
  * gst-launch filesrc location="melo1.ogg" ! decodebin ! audioconvert ! audiodelay drywet=50 delaytime=25 feedback=75 ! autoaudiosink
- * gst-launch osssrc ! audiodelay delaytime=25 feedback=75 ! autoaudiosink
+ * gst-launch autoaudiosrc ! audiodelay delaytime=25 feedback=75 ! autoaudiosink
  * </programlisting>
  * In the latter example the echo is applied to the input signal of the
  * soundcard (like a microphone).
  * </para>
  * </refsect2>
  */
-/* FIXME: delay-time should be in ticks, thats what the tempo iface is good for here */
+/* FIXME: delay-time should be in ticks, thats what the tempo iface is good for
+ * here (see self->ticktime), we could add another property called 'delay' that
+ * is in ticks and/or remove 'delaytime'.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -59,14 +62,14 @@ enum
 {
   // static class properties
   // dynamic class properties
-  PROP_DRYWET = 1,
-  PROP_FEEDBACK,
-  PROP_DELAYTIME,
+  PROP_DRYWET = 1, PROP_FEEDBACK, PROP_DELAYTIME,
+  N_PROPERTIES,
   // tempo iface
-  PROP_BPM,
-  PROP_TPB,
-  PROP_STPT
+  PROP_BPM = N_PROPERTIES, PROP_TPB, PROP_STPT,
 };
+static GParamSpec *properties[N_PROPERTIES] = { NULL, };
+
+#define PROP(name) properties[PROP_##name]
 
 static GstStaticPadTemplate sink_template = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
@@ -354,30 +357,6 @@ gstbt_audio_delay_class_init (GstBtAudioDelayClass * klass)
   gobject_class->get_property = gstbt_audio_delay_get_property;
   gobject_class->dispose = gstbt_audio_delay_dispose;
 
-  // override interface properties
-  g_object_class_override_property (gobject_class, PROP_BPM,
-      "beats-per-minute");
-  g_object_class_override_property (gobject_class, PROP_TPB, "ticks-per-beat");
-  g_object_class_override_property (gobject_class, PROP_STPT,
-      "subticks-per-tick");
-
-  // register own properties
-
-  g_object_class_install_property (gobject_class, PROP_DRYWET,
-      g_param_spec_uint ("drywet", "Dry-Wet",
-          "Intensity of effect (0 none -> 100 full)", 0, 100, 50,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_FEEDBACK,
-      g_param_spec_uint ("feedback", "Fedback", "Echo feedback in percent",
-          0, 99, 50,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
-
-  component = g_type_class_ref (GSTBT_TYPE_DELAY);
-  g_object_class_install_property (gobject_class, PROP_DELAYTIME,
-      bt_g_param_spec_clone (component, "delaytime"));
-  g_type_class_unref (component);
-
   gstbasetransform_class->set_caps =
       GST_DEBUG_FUNCPTR (gstbt_audio_delay_set_caps);
   gstbasetransform_class->start = GST_DEBUG_FUNCPTR (gstbt_audio_delay_start);
@@ -390,10 +369,31 @@ gstbt_audio_delay_class_init (GstBtAudioDelayClass * klass)
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&sink_template));
   gst_element_class_set_static_metadata (element_class,
-      "AudioDelay",
-      "Filter/Effect/Audio",
+      "AudioDelay", "Filter/Effect/Audio",
       "Add echos to audio streams", "Stefan Kost <ensonic@users.sf.net>");
   gst_element_class_add_metadata (element_class, GST_ELEMENT_METADATA_DOC_URI,
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
       G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtAudioDelay.html");
+
+  // override interface properties
+  g_object_class_override_property (gobject_class, PROP_BPM,
+      "beats-per-minute");
+  g_object_class_override_property (gobject_class, PROP_TPB, "ticks-per-beat");
+  g_object_class_override_property (gobject_class, PROP_STPT,
+      "subticks-per-tick");
+
+  // register own properties
+  PROP (DRYWET) = g_param_spec_uint ("drywet", "Dry-Wet",
+      "Intensity of effect (0 none -> 100 full)", 0, 100, 50,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+
+  PROP (FEEDBACK) = g_param_spec_uint ("feedback", "Fedback",
+      "Echo feedback in percent", 0, 99, 50,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+
+  component = g_type_class_ref (GSTBT_TYPE_DELAY);
+  PROP (DELAYTIME) = bt_g_param_spec_clone (component, "delaytime");
+  g_type_class_unref (component);
+
+  g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
 }
