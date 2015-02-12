@@ -34,6 +34,7 @@
  * </para>
  * </refsect2>
  */
+/* FIXME: delay-time should be in ticks, thats what the tempo iface is good for here */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -48,6 +49,7 @@
 
 #include "gst/tempo.h"
 
+#include "plugin.h"
 #include "audiodelay.h"
 
 #define GST_CAT_DEFAULT bt_audio_debug
@@ -346,6 +348,7 @@ gstbt_audio_delay_class_init (GstBtAudioDelayClass * klass)
   GstElementClass *element_class = (GstElementClass *) klass;
   GstBaseTransformClass *gstbasetransform_class =
       (GstBaseTransformClass *) klass;
+  GObjectClass *component;
 
   gobject_class->set_property = gstbt_audio_delay_set_property;
   gobject_class->get_property = gstbt_audio_delay_get_property;
@@ -369,10 +372,10 @@ gstbt_audio_delay_class_init (GstBtAudioDelayClass * klass)
       g_param_spec_uint ("feedback", "Fedback", "Echo feedback in percent",
           0, 99, 50, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
 
+  component = g_type_class_ref (GSTBT_TYPE_DELAY);
   g_object_class_install_property (gobject_class, PROP_DELAYTIME,
-      g_param_spec_uint ("delaytime", "Delay time",
-          "Time difference between two echos as milliseconds", 1,
-          1000, 100, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
+      bt_g_param_spec_clone (component, "delaytime"));
+  g_type_class_unref (component);
 
   gstbasetransform_class->set_caps =
       GST_DEBUG_FUNCPTR (gstbt_audio_delay_set_caps);
