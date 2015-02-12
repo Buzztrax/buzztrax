@@ -366,11 +366,12 @@ gstbt_audio_delay_class_init (GstBtAudioDelayClass * klass)
   g_object_class_install_property (gobject_class, PROP_DRYWET,
       g_param_spec_uint ("drywet", "Dry-Wet",
           "Intensity of effect (0 none -> 100 full)", 0, 100, 50,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_FEEDBACK,
       g_param_spec_uint ("feedback", "Fedback", "Echo feedback in percent",
-          0, 99, 50, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
+          0, 99, 50,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
   component = g_type_class_ref (GSTBT_TYPE_DELAY);
   g_object_class_install_property (gobject_class, PROP_DELAYTIME,

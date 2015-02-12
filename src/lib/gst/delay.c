@@ -185,5 +185,6 @@ gstbt_delay_class_init (GstBtDelayClass * klass)
   g_object_class_install_property (gobject_class, PROP_DELAYTIME,
       g_param_spec_uint ("delaytime", "Delay time",
           "Time difference between two echos as milliseconds", 1,
-          MAX_DELAYTIME, 100, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
+          MAX_DELAYTIME, 100,
+          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 }
