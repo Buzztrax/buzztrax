@@ -59,20 +59,20 @@ voices = 1 + (12 / 2) = 7
 # EBeatz
 - a versatile percussion sound generator
 - dual osc
-  - peak-vol is trigger
+  - peak-vol is trigger param
   1) tonal
      - osc with sin, saw, sqr, tri
        - start and stop frequency
-       - linear fade?
+       - linear fade = d-envelope for frequency?
      - adsr-envelope
        - peak-vol relative to main-peak-vol
      - filter?
   2) noise
-     - osc with various nose flavours
-     - ad-envelope
+     - osc with various noise flavours
+     - d-envelope
        - peak-vol relative to main-peak-vol
      - filter
-       - ad-envelope for cut-off?
+       - adsr/d-envelope for cut-off?
 - have presets for kick, snare, {open,closed}-hihat, claps, cymbal
 
 # synth components
@@ -82,6 +82,8 @@ to make it dead easy writing new synths.
 ## component ideas
 ### osc-*
 - a goolean 'mix' property to not overwrite the buffer
+- have osc-synth variants: one for tonal waveforms and one for noises?
+  - we could just subclass and have override the 'Wave' enum?
 
 ### osc-wave (wavetable oscillator)
 - we might need to add some extra caps fields
@@ -92,11 +94,13 @@ to make it dead easy writing new synths.
   waves in the files)
 
 ## design
-After adding more components we needs to extract common interfaces. Each
+After adding more components we need to extract common interfaces. Each
 component would have a couple of properties and vmethods (start, process, stop).
 When using them the element would proxy a few properties and ev. configure
 others manually. We can use GBinding (since glib-2.26) for the proxy properties.
 
 ## open questions
-Do we need to pass the data fmt? What about mono/stereo.
+- do we need to pass the data fmt? What about mono/stereo.
+- most components would need to know e.g. the sampling-rate. need an easy way to
+  pass it to all of them
 
