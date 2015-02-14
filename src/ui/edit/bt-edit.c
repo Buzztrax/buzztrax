@@ -125,9 +125,6 @@ main (gint argc, gchar ** argv)
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-edit", 0,
       "music production environment / editor ui");
 
-  // load our custom gtk-theming
-  bt_ui_resources_init_theme ();
-
   // give some global context info
   g_set_prgname ("buzztrax-edit");
   g_set_application_name ("Buzztrax");

@@ -49,6 +49,7 @@ src/ui/edit/settings-page-directories.c
 src/ui/edit/settings-page-interaction-controller.c
 src/ui/edit/settings-page-playback-controller.c
 src/ui/edit/settings-page-shortcuts.c
+src/ui/edit/settings-page-ui.c
 src/ui/edit/signal-analysis-dialog.c
 src/ui/edit/tip-dialog.c
 src/ui/edit/tools.c

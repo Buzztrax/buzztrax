@@ -44,6 +44,7 @@
     <child name="audio" schema="org.buzztrax.audio"/>
     <child name="playback-controller" schema="org.buzztrax.playback-controller"/>
     <child name="directories" schema="org.buzztrax.directories"/>
+    <child name="ui" schema="org.buzztrax.ui"/>
   </schema>
   <schema id="org.buzztrax.window" path="/org/buzztrax/window/">
     <key name="x-pos" type="i">
@@ -141,6 +142,13 @@
       <default l10n="messages">''</default>
       <summary>Default directory for digital waveforms</summary>
       <description>Default directory for the sample browser in the wavetable view.</description>
+    </key>
+  </schema>
+  <schema id="org.buzztrax.ui" path="/org/buzztrax/ui/">
+    <key name="dark-theme" type="b">
+      <default l10n="messages">false</default>
+      <summary>Use dark theme variant</summary>
+      <description>Use the dark theme variant when set to true.</description>
     </key>
   </schema>
 </schemalist>

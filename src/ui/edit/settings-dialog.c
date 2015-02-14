@@ -62,6 +62,7 @@ struct _BtSettingsDialogPrivate
   BtSettingsPagePlaybackController *playback_controller_page;
   BtSettingsPageDirectories *directories_page;
   BtSettingsPageShortcuts *shortcuts_page;
+  BtSettingsPageUI *ui_page;
 };
 
 //-- the class
@@ -87,6 +88,7 @@ bt_settings_page_get_type (void)
       {BT_SETTINGS_PAGE_SHORTCUTS, "BT_SETTINGS_PAGE_SHORTCUTS", "shortcuts"},
       {BT_SETTINGS_PAGE_DIRECTORIES, "BT_SETTINGS_PAGE_DIRECTORIES",
           "directories"},
+      {BT_SETTINGS_PAGE_UI, "BT_SETTINGS_PAGE_UI", "ui"},
       {0, NULL, NULL},
     };
     type = g_enum_register_static ("BtSettingsPage", values);
@@ -206,6 +208,10 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
       COL_ID, BT_SETTINGS_PAGE_AUDIO_DEVICES, COL_ICON_NAME, "audio-card", -1);
   gtk_list_store_append (store, &tree_iter);
   gtk_list_store_set (store, &tree_iter,
+      COL_LABEL, _("Directories"),
+      COL_ID, BT_SETTINGS_PAGE_DIRECTORIES, COL_ICON_NAME, "folder", -1);
+  gtk_list_store_append (store, &tree_iter);
+  gtk_list_store_set (store, &tree_iter,
       COL_LABEL, _("Interaction Controller"),
       COL_ID, BT_SETTINGS_PAGE_INTERACTION_CONTROLLER,
       COL_ICON_NAME, "input-gaming", -1);
@@ -220,8 +226,9 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
       COL_ID, BT_SETTINGS_PAGE_SHORTCUTS, COL_ICON_NAME, "input-keyboard", -1);
   gtk_list_store_append (store, &tree_iter);
   gtk_list_store_set (store, &tree_iter,
-      COL_LABEL, _("Directories"),
-      COL_ID, BT_SETTINGS_PAGE_DIRECTORIES, COL_ICON_NAME, "folder", -1);
+      COL_LABEL, _("User interface"),
+      COL_ID, BT_SETTINGS_PAGE_UI, COL_ICON_NAME, "preferences-desktop-theme",
+      -1);
   gtk_tree_view_set_model (self->priv->settings_list, GTK_TREE_MODEL (store));
   g_object_unref (store);       // drop with treeview
 
@@ -240,6 +247,14 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (self->priv->settings_pages),
       gtk_notebook_get_nth_page (GTK_NOTEBOOK (self->priv->settings_pages),
           BT_SETTINGS_PAGE_AUDIO_DEVICES), gtk_label_new (_("Audio Devices")));
+
+  // add directories page
+  self->priv->directories_page = bt_settings_page_directories_new (pages);
+  gtk_container_add (GTK_CONTAINER (self->priv->settings_pages),
+      GTK_WIDGET (self->priv->directories_page));
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (self->priv->settings_pages),
+      gtk_notebook_get_nth_page (GTK_NOTEBOOK (self->priv->settings_pages),
+          BT_SETTINGS_PAGE_DIRECTORIES), gtk_label_new (_("Directories")));
 
   // add interaction controller page
   self->priv->interaction_controller_page =
@@ -269,20 +284,15 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
       gtk_notebook_get_nth_page (GTK_NOTEBOOK (self->priv->settings_pages),
           BT_SETTINGS_PAGE_SHORTCUTS), gtk_label_new (_("Shortcuts")));
 
-  // add directories page
-  self->priv->directories_page = bt_settings_page_directories_new (pages);
+  // add ui page
+  self->priv->ui_page = bt_settings_page_ui_new (pages);
   gtk_container_add (GTK_CONTAINER (self->priv->settings_pages),
-      GTK_WIDGET (self->priv->directories_page));
+      GTK_WIDGET (self->priv->ui_page));
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (self->priv->settings_pages),
       gtk_notebook_get_nth_page (GTK_NOTEBOOK (self->priv->settings_pages),
-          BT_SETTINGS_PAGE_DIRECTORIES), gtk_label_new (_("Directories")));
+          BT_SETTINGS_PAGE_UI), gtk_label_new (_("User Interface")));
 
   /* TODO(ensonic): more settings
-   * - appearance:
-   *   - ui theme + icon theme
-   * - fonts (add to css theme)
-   *   - font + size for machine view canvas
-   *   - font sizes for table-headings (as pango markup sizes)
    * - misc
    *   - initial song bpm (from, to)
    *   - cpu monitor (view menu?)

@@ -106,6 +106,7 @@
 #include "settings-page-interaction-controller.h"
 #include "settings-page-playback-controller.h"
 #include "settings-page-shortcuts.h"
+#include "settings-page-ui.h"
 #include "signal-analysis-dialog.h"
 #include "tip-dialog.h"
 #include "tools.h"

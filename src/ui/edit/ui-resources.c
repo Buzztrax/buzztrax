@@ -46,6 +46,9 @@ struct _BtUIResourcesPrivate
   GdkPixbuf *processor_machine_pixbufs[BT_MACHINE_STATE_COUNT];
   GdkPixbuf *sink_machine_pixbufs[BT_MACHINE_STATE_COUNT];
   GdkPixbuf *wire_pixbuf[2];
+
+  /* css provider */
+  GtkStyleProvider *provider;
 };
 
 static BtUIResources *singleton = NULL;
@@ -56,10 +59,54 @@ G_DEFINE_TYPE (BtUIResources, bt_ui_resources, G_TYPE_OBJECT);
 
 //-- event handler
 
+static void
+on_dark_theme_notify (BtSettings * const settings, GParamSpec * const arg,
+    gconstpointer user_data)
+{
+  GError *err = NULL;
+  gchar *style;
+  gboolean use_dark;
+
+  g_object_get (settings, "dark-theme", &use_dark, NULL);
+  if (use_dark) {
+    style = DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
+#ifndef USE_COMPACT_UI
+        "bt-edit.dark.css";
+#else
+        "bt-edit.compact.css";
+#endif
+  } else {
+    style = DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
+#ifndef USE_COMPACT_UI
+        "bt-edit.light.css";
+#else
+        "bt-edit.compact.css";
+#endif
+  }
+
+  /* TODO(ensonic): add UI theme setting
+   * gboolean dark; // prefer dark
+   * gboolean compact; // compact ui
+   *
+   * compact UI:
+   * - can we style separators on toolbars to be tiny and ideally invisible
+   * - can we use classes for larger labels (info page)
+   */
+  g_object_set (gtk_settings_get_default (),
+      "gtk-application-prefer-dark-theme", use_dark, NULL);
+
+  if (!gtk_css_provider_load_from_path (GTK_CSS_PROVIDER (singleton->
+              priv->provider), style, &err)) {
+    g_print ("Error loading css: %s\n", safe_string (err->message));
+    g_error_free (err);
+    err = NULL;
+  }
+}
+
 //-- helper methods
 
 static void
-bt_ui_resources_init_icons (BtUIResources * self)
+bt_ui_resources_init_icons (void)
 {
   GtkSettings *settings;
   gchar *icon_theme_name, *fallback_icon_theme_name;
@@ -81,14 +128,13 @@ bt_ui_resources_init_icons (BtUIResources * self)
   g_free (icon_theme_name);
   g_free (fallback_icon_theme_name);
 
-
   gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &w, &h);
 
-  self->priv->source_machine_pixbuf =
+  singleton->priv->source_machine_pixbuf =
       gdk_pixbuf_new_from_theme ("buzztrax_menu_source_machine", w);
-  self->priv->processor_machine_pixbuf =
+  singleton->priv->processor_machine_pixbuf =
       gdk_pixbuf_new_from_theme ("buzztrax_menu_processor_machine", w);
-  self->priv->sink_machine_pixbuf =
+  singleton->priv->sink_machine_pixbuf =
       gdk_pixbuf_new_from_theme ("buzztrax_menu_sink_machine", w);
 
   GST_INFO ("images created");
@@ -314,54 +360,6 @@ bt_ui_resources_get_accel_group (void)
   return (singleton->priv->accel_group);
 }
 
-/**
- * bt_ui_resources_init_theme:
- *
- * Initialize the themeing. Loads theme definitions to complement the active
- * theme.
- */
-void
-bt_ui_resources_init_theme (void)
-{
-  GtkStyleProvider *provider;
-  GError *err = NULL;
-
-/* TODO(ensonic): add UI theme setting
- * gboolean dark; // prefer dark
- * gboolean compact; // compact ui
- *
- * compact UI:
- * - can we style separators on toolbars to be tiny and ideally invisible
- * - can we use classes for larger labels (info page)
- */
-//#define USE_DARK_THEME
-#ifdef USE_DARK_THEME
-  g_object_set (gtk_settings_get_default (),
-      "gtk-application-prefer-dark-theme", TRUE, NULL);
-#endif
-
-  provider = (GtkStyleProvider *) gtk_css_provider_new ();
-  if (!gtk_css_provider_load_from_path (GTK_CSS_PROVIDER (provider), DATADIR
-          "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
-#ifndef USE_COMPACT_UI
-#ifdef USE_DARK_THEME
-          "bt-edit.dark.css",
-#else
-          "bt-edit.light.css",
-#endif
-#else
-          "bt-edit.compact.css"
-#endif
-          & err)) {
-    g_print ("Error loading css: %s\n", safe_string (err->message));
-    g_error_free (err);
-    err = NULL;
-  } else {
-    gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
-        provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-  }
-}
-
 //-- wrapper
 
 //-- class internals
@@ -398,15 +396,31 @@ bt_ui_resources_constructor (GType type, guint n_construct_params,
   GObject *object;
 
   if (G_UNLIKELY (!singleton)) {
+    BtEditApplication *app;
+    BtSettings *settings;
+
     object =
         G_OBJECT_CLASS (bt_ui_resources_parent_class)->constructor (type,
         n_construct_params, construct_params);
     singleton = BT_UI_RESOURCES (object);
     g_object_add_weak_pointer (object, (gpointer *) (gpointer) & singleton);
 
+    singleton->priv->provider = (GtkStyleProvider *) gtk_css_provider_new ();
+    gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
+        singleton->priv->provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    app = bt_edit_application_new ();
+    g_object_get (app, "settings", &settings, NULL);
+
+    // load our custom gtk-theming
+    g_signal_connect (settings, "notify::dark-theme",
+        G_CALLBACK (on_dark_theme_notify), NULL);
+    on_dark_theme_notify (settings, NULL, NULL);
     // initialise ressources
-    bt_ui_resources_init_icons (singleton);
+    bt_ui_resources_init_icons ();
     singleton->priv->accel_group = gtk_accel_group_new ();
+
+    g_object_unref (settings);
   } else {
     object = g_object_ref (singleton);
   }

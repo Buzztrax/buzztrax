@@ -1530,6 +1530,38 @@ on_panorama_popup_changed (GtkAdjustment * adj, gpointer user_data)
   g_object_set (self->priv->wire_pan, "panorama", pan, NULL);
 }
 
+static void
+on_canvas_style_updated (GtkWidget * widget, gconstpointer user_data)
+{
+  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
+#if 1
+  // force rebuilding the old style
+  gtk_widget_reset_style (self->priv->canvas_widget);
+  GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
+  GdkColor *c = &style->base[GTK_STATE_NORMAL];
+  ClutterColor stage_color = {
+    c->red >> 8, c->green >> 8, c->blue >> 8, 0xff
+  };
+#else
+  GtkStyleContext *style =
+      gtk_widget_get_style_context (self->priv->canvas_widget);
+  GdkRGBA c;
+  // this seems th be *always* black
+  gtk_style_context_get_background_color (style, GTK_STATE_FLAG_NORMAL, &c);
+  ClutterColor stage_color = {
+    c.red * 256, c.green * 256, c.blue * 256, c.alpha * 256
+  };
+  /*
+     gtk_style_context_get_color (style, GTK_STATE_FLAG_NORMAL, &c);
+     ClutterColor stage_color = {
+     256 - (c.red * 256), 256 - (c.green * 256), 256 - (c.blue * 256),
+     c.alpha * 256
+     };
+   */
+#endif
+  clutter_stage_set_color (CLUTTER_STAGE (self->priv->stage), &stage_color);
+}
+
 //-- helper methods
 
 static void
@@ -1748,13 +1780,10 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->stage =
       gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
           priv->canvas_widget));
-  GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
-  GdkColor *c = &style->base[GTK_STATE_NORMAL];
-  ClutterColor stage_color = {
-    c->red >> 8, c->green >> 8, c->blue >> 8, 0xff
-  };
-  clutter_stage_set_color (CLUTTER_STAGE (self->priv->stage), &stage_color);
   clutter_actor_set_size (self->priv->stage, MACHINE_VIEW_W, MACHINE_VIEW_H);
+  g_signal_connect (self->priv->canvas_widget, "style-updated",
+      G_CALLBACK (on_canvas_style_updated), (gpointer) self);
+  on_canvas_style_updated (self->priv->canvas_widget, (gpointer) self);
 
   self->priv->canvas = clutter_actor_new ();
   clutter_actor_set_reactive (self->priv->canvas, TRUE);
@@ -1816,7 +1845,6 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   g_object_bind_property_full (settings, "toolbar-style", self->priv->toolbar,
       "toolbar-style", G_BINDING_SYNC_CREATE, bt_toolbar_style_changed, NULL,
       NULL, NULL);
-
   g_object_unref (settings);
   GST_DEBUG ("  done");
 }

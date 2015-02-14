@@ -450,6 +450,7 @@ libbtedit_la_SOURCES = \
   src/ui/edit/settings-page-interaction-controller.c src/ui/edit/settings-page-interaction-controller.h \
   src/ui/edit/settings-page-playback-controller.c src/ui/edit/settings-page-playback-controller.h \
   src/ui/edit/settings-page-shortcuts.c src/ui/edit/settings-page-shortcuts.h \
+  src/ui/edit/settings-page-ui.c src/ui/edit/settings-page-ui.h \
   src/ui/edit/signal-analysis-dialog.c src/ui/edit/signal-analysis-dialog.h \
   src/ui/edit/tip-dialog.c src/ui/edit/tip-dialog.h \
   src/ui/edit/tools.c src/ui/edit/tools.h \

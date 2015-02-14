@@ -892,6 +892,7 @@ bt_settings_page_directories_get_type
 BtSettingsPageDirectoriesPrivate
 </SECTION>
 
+
 <SECTION>
 <FILE>btsettingspageshortcuts</FILE>
 <TITLE>BtSettingsPageShortcuts</TITLE>
@@ -907,6 +908,24 @@ BT_SETTINGS_PAGE_SHORTCUTS_GET_CLASS
 BT_TYPE_SETTINGS_PAGE_SHORTCUTS
 bt_settings_page_shortcuts_get_type
 BtSettingsPageShortcutsPrivate
+</SECTION>
+
+
+<SECTION>
+<FILE>btsettingspageui</FILE>
+<TITLE>BtSettingsPageUI</TITLE>
+BtSettingsPageUI
+bt_settings_page_ui_new
+<SUBSECTION Standard>
+BtSettingsPageUIClass
+BT_SETTINGS_PAGE_UI
+BT_IS_SETTINGS_PAGE_UI
+BT_SETTINGS_PAGE_UI_CLASS
+BT_IS_SETTINGS_PAGE_UI_CLASS
+BT_SETTINGS_PAGE_UI_GET_CLASS
+BT_TYPE_SETTINGS_PAGE_UI
+bt_settings_page_ui_get_type
+BtSettingsPageUIPrivate
 </SECTION>
 
 
@@ -952,7 +971,6 @@ BtTipDialogPrivate
 BtUIResources
 BtUIResourcesMachineColors
 bt_ui_resources_new
-bt_ui_resources_init_theme
 bt_ui_resources_get_icon_pixbuf_by_machine
 bt_ui_resources_get_machine_graphics_pixbuf_by_machine
 bt_ui_resources_get_wire_graphics_pixbuf_by_wire

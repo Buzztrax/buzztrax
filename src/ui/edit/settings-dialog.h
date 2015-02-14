@@ -54,19 +54,21 @@ struct _BtSettingsDialogClass {
 /**
  * BtSettingsPage:
  * @BT_SETTINGS_PAGE_AUDIO_DEVICES: audio devices
+ * @BT_SETTINGS_PAGE_DIRECTORIES: directories
  * @BT_SETTINGS_PAGE_INTERACTION_CONTROLLER: interaction controller
  * @BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER: playback controller
  * @BT_SETTINGS_PAGE_SHORTCUTS: shortcuts
- * @BT_SETTINGS_PAGE_DIRECTORIES: directories
+ * @BT_SETTINGS_PAGE_UI: themes and colors
  *
  * Ids for the setting pages.
  */
 typedef enum {
   BT_SETTINGS_PAGE_AUDIO_DEVICES=0,
+  BT_SETTINGS_PAGE_DIRECTORIES,
   BT_SETTINGS_PAGE_INTERACTION_CONTROLLER,
   BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER,
   BT_SETTINGS_PAGE_SHORTCUTS,
-  BT_SETTINGS_PAGE_DIRECTORIES
+  BT_SETTINGS_PAGE_UI
 } BtSettingsPage;
 
 #define BT_TYPE_SETTINGS_PAGE (bt_settings_page_get_type())

@@ -81,6 +81,4 @@ GdkPixbuf *bt_ui_resources_get_wire_graphics_pixbuf_by_wire(const BtWire *wire, 
 
 GtkAccelGroup *bt_ui_resources_get_accel_group(void);
 
-void bt_ui_resources_init_theme(void);
-
 #endif // BT_UI_RESOURCES_H
