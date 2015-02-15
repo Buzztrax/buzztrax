@@ -1534,6 +1534,8 @@ static void
 on_canvas_style_updated (GtkWidget * widget, gconstpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
+  // BUG(744517): https://bugzilla.gnome.org/show_bug.cgi?id=744517
+  // GtkStyle is deprecated, but the only thing that works here
 #if 1
   // force rebuilding the old style
   gtk_widget_reset_style (self->priv->canvas_widget);
@@ -1546,20 +1548,19 @@ on_canvas_style_updated (GtkWidget * widget, gconstpointer user_data)
   GtkStyleContext *style =
       gtk_widget_get_style_context (self->priv->canvas_widget);
   GdkRGBA c;
-  // this seems th be *always* black
-  gtk_style_context_get_background_color (style, GTK_STATE_FLAG_NORMAL, &c);
+  // these seems to be *always* black
+  // gtk_style_context_get_background_color (style, GTK_STATE_FLAG_NORMAL, &c);
+  gtk_style_context_get (style, GTK_STATE_FLAG_NORMAL, "background-color", &c,
+      NULL);
   ClutterColor stage_color = {
-    c.red * 256, c.green * 256, c.blue * 256, c.alpha * 256
+    CLAMP (c.red * 255, 0, 255), CLAMP (c.green * 255, 0, 255),
+    CLAMP (c.blue * 255, 0, 255), CLAMP (c.alpha * 255, 0, 255)
   };
-  /*
-     gtk_style_context_get_color (style, GTK_STATE_FLAG_NORMAL, &c);
-     ClutterColor stage_color = {
-     256 - (c.red * 256), 256 - (c.green * 256), 256 - (c.blue * 256),
-     c.alpha * 256
-     };
-   */
 #endif
-  clutter_stage_set_color (CLUTTER_STAGE (self->priv->stage), &stage_color);
+  // just setting a 'fully transparent' background or none at all wont work
+  // we do have to manage the background for the stage
+  // in case of fully transparent the background is always black
+  clutter_actor_set_background_color (self->priv->stage, &stage_color);
 }
 
 //-- helper methods
@@ -1780,6 +1781,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->stage =
       gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
           priv->canvas_widget));
+  clutter_stage_set_use_alpha (CLUTTER_STAGE (self->priv->stage), TRUE);
   clutter_actor_set_size (self->priv->stage, MACHINE_VIEW_W, MACHINE_VIEW_H);
   g_signal_connect (self->priv->canvas_widget, "style-updated",
       G_CALLBACK (on_canvas_style_updated), (gpointer) self);
