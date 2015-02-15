@@ -187,15 +187,7 @@ bt_pattern_editor_draw_rownum (BtPatternEditor * self, cairo_t * cr,
   gint row = 0;
   gint ch = self->ch, cw = self->cw;
   gint colw1 = bt_pattern_editor_rownum_width (self);
-  gint colw2 = self->rowhdr_width - self->ofs_x;
-  gint colwm = MAX (colw1, colw2);
   gint colw = colw1 - cw;
-
-  if (colwm > colw) {
-    gdk_cairo_set_source_rgba (cr, &self->bg_color);
-    cairo_rectangle (cr, x + colw, y, colwm - colw, self->num_rows * ch);
-    cairo_fill (cr);
-  }
 
   while (y < max_y && row < self->num_rows) {
     gdk_cairo_set_source_rgba (cr, &self->bg_shade_color[row & 0x1]);
@@ -219,11 +211,8 @@ bt_pattern_editor_draw_colnames (BtPatternEditor * self, cairo_t * cr,
 {
   PangoLayout *pl = self->pl;
   gint g;
-  gint ch = self->ch, cw = self->cw;
+  gint cw = self->cw;
 
-  gdk_cairo_set_source_rgba (cr, &self->bg_color);
-  cairo_rectangle (cr, x, 0, w - x, ch);
-  cairo_fill (cr);
   gdk_cairo_set_source_rgba (cr, &self->text_color);
 
   for (g = 0; g < self->num_groups; g++) {
@@ -244,14 +233,6 @@ bt_pattern_editor_draw_rowname (BtPatternEditor * self, cairo_t * cr,
     gint x, gint y)
 {
   PangoLayout *pl = self->pl;
-  gint ch = self->ch;
-  gint colw1 = bt_pattern_editor_rownum_width (self);
-  gint colw2 = self->rowhdr_width - self->ofs_x;
-  gint colw = MAX (colw1, colw2);
-
-  gdk_cairo_set_source_rgba (cr, &self->bg_color);
-  cairo_rectangle (cr, x, y, colw, ch);
-  cairo_fill (cr);
 
   if (self->num_groups) {
     gdk_cairo_set_source_rgba (cr, &self->text_color);
@@ -546,6 +527,55 @@ char_to_coords (gint charpos, BtPatternEditorColumn * columns, gint num_cols,
   return FALSE;
 }
 
+static void
+bt_pattern_editor_configure_style (BtPatternEditor * self,
+    GtkStyleContext * style_ctx)
+{
+  gtk_style_context_lookup_color (style_ctx, "playline_color",
+      &self->play_pos_color);
+
+  gtk_style_context_lookup_color (style_ctx, "row_even_color",
+      &self->bg_shade_color[0]);
+  gtk_style_context_lookup_color (style_ctx, "row_odd_color",
+      &self->bg_shade_color[1]);
+
+  gtk_style_context_get_color (style_ctx, GTK_STATE_FLAG_NORMAL,
+      &self->text_color);
+
+  gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_SELECTED,
+      &self->sel_color);
+  self->cursor_color.red = self->sel_color.red * 1.2;
+  self->cursor_color.green = self->sel_color.green * 1.2;
+  self->cursor_color.blue = self->sel_color.blue * 1.2;
+  self->cursor_color.alpha = self->sel_color.alpha;
+
+  /*
+     gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_ACTIVE,
+     &self->value_color[0]);
+     self->value_color[1].red = self->value_color[0].red * 0.8;
+     self->value_color[1].green = self->value_color[0].green * 0.8;
+     self->value_color[1].blue = self->value_color[0].blue * 0.8;
+     self->value_color[1].alpha = self->value_color[0].alpha;
+   */
+  self->value_color[0].red = self->bg_shade_color[0].red * 0.8;
+  self->value_color[0].green = self->bg_shade_color[0].green * 0.8;
+  self->value_color[0].blue = self->bg_shade_color[0].blue * 0.8;
+  self->value_color[0].alpha = self->bg_shade_color[0].alpha;
+  self->value_color[1].red = self->bg_shade_color[1].red * 0.8;
+  self->value_color[1].green = self->bg_shade_color[1].green * 0.8;
+  self->value_color[1].blue = self->bg_shade_color[1].blue * 0.8;
+  self->value_color[1].alpha = self->bg_shade_color[1].alpha;
+}
+
+static void
+bt_pattern_editor_style_updated (GtkWidget * widget)
+{
+  bt_pattern_editor_configure_style (BT_PATTERN_EDITOR (widget),
+      gtk_widget_get_style_context (widget));
+
+  GTK_WIDGET_CLASS (bt_pattern_editor_parent_class)->style_updated (widget);
+}
+
 //-- constructor methods
 
 /**
@@ -571,9 +601,7 @@ bt_pattern_editor_realize (GtkWidget * widget)
   GdkWindow *window;
   GtkAllocation allocation;
   GdkWindowAttr attributes;
-  GtkStyle *style;
   GtkStyleContext *style_ctx;
-  GdkColor *c;
   gint attributes_mask;
   const PangoFontDescription *style_pfd;
   PangoFontDescription *pfd;
@@ -614,56 +642,13 @@ bt_pattern_editor_realize (GtkWidget * widget)
   gdk_window_set_user_data (self->window, widget);
 #endif
 
-  style = gtk_widget_get_style (widget);
   style_ctx = gtk_widget_get_style_context (widget);
   gtk_style_context_add_class (style_ctx, GTK_STYLE_CLASS_VIEW);
 
   // setup graphic styles
-  gtk_style_context_lookup_color (style_ctx, "playline_color",
-      &self->play_pos_color);
+  bt_pattern_editor_configure_style (self, style_ctx);
 
-  gtk_style_context_lookup_color (style_ctx, "row_even_color",
-      &self->bg_shade_color[0]);
-  gtk_style_context_lookup_color (style_ctx, "row_odd_color",
-      &self->bg_shade_color[1]);
-
-  gtk_style_context_get_color (style_ctx, GTK_STATE_FLAG_NORMAL,
-      &self->text_color);
-
-  /* this is not set in many themes
-     gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_ACTIVE, // _NORMAL?
-     &self->bg_color);
-   */
-  c = &style->base[GTK_STATE_NORMAL];
-  self->bg_color.red = (gdouble) c->red / 65535.0;
-  self->bg_color.green = (gdouble) c->green / 65535.0;
-  self->bg_color.blue = (gdouble) c->blue / 65535.0;
-  self->bg_color.alpha = 1.0;
-
-  gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_SELECTED,
-      &self->sel_color);
-  self->cursor_color.red = self->sel_color.red * 1.2;
-  self->cursor_color.green = self->sel_color.green * 1.2;
-  self->cursor_color.blue = self->sel_color.blue * 1.2;
-  self->cursor_color.alpha = self->sel_color.alpha;
-
-  /*
-     gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_ACTIVE,
-     &self->value_color[0]);
-     self->value_color[1].red = self->value_color[0].red * 0.8;
-     self->value_color[1].green = self->value_color[0].green * 0.8;
-     self->value_color[1].blue = self->value_color[0].blue * 0.8;
-     self->value_color[1].alpha = self->value_color[0].alpha;
-   */
-  self->value_color[0].red = self->bg_shade_color[0].red * 0.8;
-  self->value_color[0].green = self->bg_shade_color[0].green * 0.8;
-  self->value_color[0].blue = self->bg_shade_color[0].blue * 0.8;
-  self->value_color[0].alpha = self->bg_shade_color[0].alpha;
-  self->value_color[1].red = self->bg_shade_color[1].red * 0.8;
-  self->value_color[1].green = self->bg_shade_color[1].green * 0.8;
-  self->value_color[1].blue = self->bg_shade_color[1].blue * 0.8;
-  self->value_color[1].alpha = self->bg_shade_color[1].alpha;
-
+  // TODO(ensonic): can we make the font part of the css?
   style_pfd = gtk_style_context_get_font (style_ctx, GTK_STATE_FLAG_NORMAL);
 
   /* copy size from default font and use default monospace font */
@@ -1578,6 +1563,7 @@ bt_pattern_editor_class_init (BtPatternEditorClass * klass)
   widget_class->map = bt_pattern_editor_map;
   widget_class->unmap = bt_pattern_editor_unmap;
   widget_class->draw = bt_pattern_editor_draw;
+  widget_class->style_updated = bt_pattern_editor_style_updated;
   widget_class->get_preferred_width = bt_pattern_editor_get_preferred_width;
   widget_class->get_preferred_height = bt_pattern_editor_get_preferred_height;
   widget_class->size_allocate = bt_pattern_editor_size_allocate;
