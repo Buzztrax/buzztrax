@@ -1778,13 +1778,13 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
       G_CALLBACK (on_canvas_query_tooltip), (gpointer) self);
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
       G_CALLBACK (on_canvas_size_changed), (gpointer) self);
+  g_signal_connect (self->priv->canvas_widget, "style-updated",
+      G_CALLBACK (on_canvas_style_updated), (gpointer) self);
   self->priv->stage =
       gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
           priv->canvas_widget));
   clutter_stage_set_use_alpha (CLUTTER_STAGE (self->priv->stage), TRUE);
   clutter_actor_set_size (self->priv->stage, MACHINE_VIEW_W, MACHINE_VIEW_H);
-  g_signal_connect (self->priv->canvas_widget, "style-updated",
-      G_CALLBACK (on_canvas_style_updated), (gpointer) self);
   on_canvas_style_updated (self->priv->canvas_widget, (gpointer) self);
 
   self->priv->canvas = clutter_actor_new ();
