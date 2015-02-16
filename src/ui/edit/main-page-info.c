@@ -368,6 +368,24 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 
 //-- helper methods
 
+static GtkWidget *
+make_heading (const gchar * txt)
+{
+  GtkWidget *label;
+  GtkStyleContext *context;
+  gchar *str;
+
+  label = gtk_label_new (NULL);
+  str = g_strdup_printf ("<b>%s</b>", txt);
+  gtk_label_set_markup (GTK_LABEL (label), str);
+  g_free (str);
+
+  context = gtk_widget_get_style_context (label);
+  gtk_style_context_add_class (context, "heading");
+
+  return label;
+}
+
 static void
 bt_main_page_info_init_ui (const BtMainPageInfo * self,
     const BtMainPages * pages)
@@ -378,7 +396,6 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   GtkAdjustment *spin_adjustment;
   GParamSpecULong *pspec, *pspec2;
   GObjectClass *song_info_class;
-  gchar *str;
   gulong def, min, max;
 
   GST_DEBUG ("!!!! self=%p", self);
@@ -389,14 +406,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
 
   // first row of vbox
   frame = gtk_frame_new (NULL);
-  label = gtk_label_new (NULL);
-#ifndef USE_COMPACT_UI
-  str = g_strdup_printf ("<big><b>%s</b></big>", _("song meta data"));
-#else
-  str = g_strdup_printf ("<b>%s</b>", _("song meta data"));
-#endif
-  gtk_label_set_markup (GTK_LABEL (label), str);
-  g_free (str);
+  label = make_heading (_("song meta data"));
   gtk_frame_set_label_widget (GTK_FRAME (frame), label);
   gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_NONE);
   gtk_container_set_border_width (GTK_CONTAINER (frame), BOX_BORDER);
@@ -526,15 +536,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
 
   // second row of hbox
   frame = gtk_frame_new (NULL);
-  label = gtk_label_new (NULL);
-#ifndef USE_COMPACT_UI
-  str = g_strdup_printf ("<big><b>%s</b></big>", _("free text info"));
-#else
-  str = g_strdup_printf ("<b>%s</b>", _("free text info"));
-#endif
-  gtk_label_set_markup (GTK_LABEL (label), str);
-  g_free (str);
-
+  label = make_heading (_("free text info"));
   gtk_frame_set_label_widget (GTK_FRAME (frame), label);
   gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_NONE);
   gtk_container_set_border_width (GTK_CONTAINER (frame), BOX_BORDER);

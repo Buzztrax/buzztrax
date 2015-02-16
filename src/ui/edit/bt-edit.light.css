@@ -27,4 +27,3 @@
 @define-color sink_machine_shade1 #99CAFF;
 @define-color sink_machine_shade2 mix (@sink_machine_base, @sink_machine_shade1, 0.5);
 
-@import url("bt-edit.css");

@@ -3588,10 +3588,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_container_add (GTK_CONTAINER (tool_item), box);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
 
-#ifndef USE_COMPACT_UI
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
       -1);
-#endif
 
   check_button = gtk_check_button_new_with_label (_("Follow playback"));
   gtk_toggle_button_set_active ((GtkToggleButton *) check_button,

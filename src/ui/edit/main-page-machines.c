@@ -1542,7 +1542,7 @@ on_canvas_style_updated (GtkWidget * widget, gconstpointer user_data)
   GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
   GdkColor *c = &style->base[GTK_STATE_NORMAL];
   ClutterColor stage_color = {
-    c->red >> 8, c->green >> 8, c->blue >> 8, 0xff
+    c->red >> 8, c->green >> 8, c->blue >> 8, 255
   };
 #else
   GtkStyleContext *style =

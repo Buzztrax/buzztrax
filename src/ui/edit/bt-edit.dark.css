@@ -27,4 +27,3 @@
 @define-color sink_machine_shade2 #204A87;
 @define-color sink_machine_shade1 mix (@sink_machine_base, @sink_machine_shade2, 0.5);
 
-@import url("bt-edit.css");

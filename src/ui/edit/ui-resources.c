@@ -60,40 +60,25 @@ G_DEFINE_TYPE (BtUIResources, bt_ui_resources, G_TYPE_OBJECT);
 //-- event handler
 
 static void
-on_dark_theme_notify (BtSettings * const settings, GParamSpec * const arg,
+on_theme_notify (BtSettings * const settings, GParamSpec * const arg,
     gconstpointer user_data)
 {
   GError *err = NULL;
   gchar *style;
-  gboolean use_dark;
+  gboolean use_dark, use_compact;
 
-  g_object_get (settings, "dark-theme", &use_dark, NULL);
-  if (use_dark) {
-    style = DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
-#ifndef USE_COMPACT_UI
-        "bt-edit.dark.css";
-#else
-        "bt-edit.compact.css";
-#endif
-  } else {
-    style = DATADIR "" G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S
-#ifndef USE_COMPACT_UI
-        "bt-edit.light.css";
-#else
-        "bt-edit.compact.css";
-#endif
-  }
+  g_object_get (settings, "dark-theme", &use_dark, "compact_theme",
+      &use_compact, NULL);
 
-  /* TODO(ensonic): add UI theme setting
-   * gboolean dark; // prefer dark
-   * gboolean compact; // compact ui
-   *
-   * compact UI:
-   * - can we style separators on toolbars to be tiny and ideally invisible
-   * - can we use classes for larger labels (info page)
+  /* TODO(ensonic): compact:
+   * - changes to the separators do not apply automatically right now
    */
   g_object_set (gtk_settings_get_default (),
       "gtk-application-prefer-dark-theme", use_dark, NULL);
+
+  style = g_strdup_printf (DATADIR ""
+      G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "bt-edit.%s.%s.css",
+      (use_dark ? "dark" : "light"), (use_compact ? "compact" : "normal"));
 
   if (!gtk_css_provider_load_from_path (GTK_CSS_PROVIDER (singleton->
               priv->provider), style, &err)) {
@@ -101,6 +86,7 @@ on_dark_theme_notify (BtSettings * const settings, GParamSpec * const arg,
     g_error_free (err);
     err = NULL;
   }
+  g_free (style);
 }
 
 //-- helper methods
@@ -414,8 +400,10 @@ bt_ui_resources_constructor (GType type, guint n_construct_params,
 
     // load our custom gtk-theming
     g_signal_connect (settings, "notify::dark-theme",
-        G_CALLBACK (on_dark_theme_notify), NULL);
-    on_dark_theme_notify (settings, NULL, NULL);
+        G_CALLBACK (on_theme_notify), NULL);
+    g_signal_connect (settings, "notify::compact-theme",
+        G_CALLBACK (on_theme_notify), NULL);
+    on_theme_notify (settings, NULL, NULL);
     // initialise ressources
     bt_ui_resources_init_icons ();
     singleton->priv->accel_group = gtk_accel_group_new ();

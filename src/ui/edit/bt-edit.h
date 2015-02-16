@@ -133,11 +133,7 @@
 #define SCREEN_BORDER_HEIGHT 80
 
 /* borders used in hbox/vbox or other containers */
-#ifndef USE_COMPACT_UI
 #define BOX_BORDER 6
-#else
-#define BOX_BORDER 3
-#endif
 
 /* space between a label and a widget in a grid layout */
 #define LABEL_PADDING 3

@@ -85,6 +85,7 @@ enum
   BT_SETTINGS_FOLDER_RECORD,
   BT_SETTINGS_FOLDER_SAMPLE,
   BT_SETTINGS_UI_DARK_THEME,
+  BT_SETTINGS_UI_COMPACT_THEME,
   /* system settings */
   BT_SETTINGS_SYSTEM_AUDIOSINK,
   BT_SETTINGS_SYSTEM_TOOLBAR_STYLE,
@@ -692,6 +693,9 @@ bt_settings_get_property (GObject * const object, const guint property_id,
     case BT_SETTINGS_UI_DARK_THEME:
       read_boolean (self->priv->org_buzztrax_ui, "dark-theme", value);
       break;
+    case BT_SETTINGS_UI_COMPACT_THEME:
+      read_boolean (self->priv->org_buzztrax_ui, "compact-theme", value);
+      break;
       /* system settings */
     case BT_SETTINGS_SYSTEM_AUDIOSINK:
       // org.freedesktop.gstreamer.default-elements : music-audiosink
@@ -814,6 +818,9 @@ bt_settings_set_property (GObject * const object, const guint property_id,
       break;
     case BT_SETTINGS_UI_DARK_THEME:
       write_boolean (self->priv->org_buzztrax_ui, "dark-theme", value);
+      break;
+    case BT_SETTINGS_UI_COMPACT_THEME:
+      write_boolean (self->priv->org_buzztrax_ui, "compact-theme", value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -1013,6 +1020,12 @@ bt_settings_class_init (BtSettingsClass * const klass)
       BT_SETTINGS_UI_DARK_THEME,
       g_param_spec_boolean ("dark-theme", "dark-theme",
           "use dark theme variant", FALSE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class,
+      BT_SETTINGS_UI_COMPACT_THEME,
+      g_param_spec_boolean ("compact-theme", "compact-theme",
+          "use dense theme variant for small screens", FALSE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   // system settings

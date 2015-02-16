@@ -150,5 +150,10 @@
       <summary>Use dark theme variant</summary>
       <description>Use the dark theme variant when set to true.</description>
     </key>
+    <key name="compact-theme" type="b">
+      <default l10n="messages">false</default>
+      <summary>Use dense theme variant for small screens</summary>
+      <description>Use the dense theme variant when set to true.</description>
+    </key>
   </schema>
 </schemalist>

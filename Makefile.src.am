@@ -481,12 +481,16 @@ src/ui/edit/authors.h: AUTHORS
 BUILT_SOURCES += $(nodist_libbtedit_la_SOURCES)
 CLEANFILES += $(nodist_libbtedit_la_SOURCES)
 
-# FIXME: don't install bt-edit.compact.css if not selected
 cssdir = $(datadir)/$(PACKAGE)
 css_DATA = src/ui/edit/bt-edit.css \
   src/ui/edit/bt-edit.compact.css \
+  src/ui/edit/bt-edit.normal.css \
   src/ui/edit/bt-edit.dark.css \
-  src/ui/edit/bt-edit.light.css
+  src/ui/edit/bt-edit.light.css \
+  src/ui/edit/bt-edit.dark.compact.css \
+  src/ui/edit/bt-edit.light.compact.css \
+  src/ui/edit/bt-edit.dark.normal.css \
+  src/ui/edit/bt-edit.light.normal.css
 
 # -- plugins -------------------------------------------------------------------
 

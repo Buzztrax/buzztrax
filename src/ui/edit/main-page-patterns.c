@@ -2958,10 +2958,8 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_container_add (GTK_CONTAINER (tool_item), box);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
 
-#ifndef USE_COMPACT_UI
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
       -1);
-#endif
 
   // pattern select
   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
@@ -2991,10 +2989,8 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_container_add (GTK_CONTAINER (tool_item), box);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
 
-#ifndef USE_COMPACT_UI
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
       -1);
-#endif
 
   // add wavetable entry select
   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
@@ -3029,10 +3025,8 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_container_add (GTK_CONTAINER (tool_item), box);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
 
-#ifndef USE_COMPACT_UI
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
       -1);
-#endif
 
   // add base octave (0-8)
   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
@@ -3059,10 +3053,8 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   gtk_container_add (GTK_CONTAINER (tool_item), box);
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
 
-#ifndef USE_COMPACT_UI
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), gtk_separator_tool_item_new (),
       -1);
-#endif
 
   // add play live toggle tool button
   tool_item = gtk_toggle_tool_button_new ();

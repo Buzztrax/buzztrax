@@ -957,11 +957,6 @@ bt_main_toolbar_init_ui (const BtMainToolbar * self)
 
   box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_container_set_border_width (GTK_CONTAINER (box), 0);
-#ifndef USE_COMPACT_UI
-  gtk_widget_set_size_request (GTK_WIDGET (box), 250, -1);
-#else
-  gtk_widget_set_size_request (GTK_WIDGET (box), 200, -1);
-#endif
   // add gtk_vumeter widgets and update from level_callback
   for (i = 0; i < MAX_VUMETER; i++) {
     self->priv->vumeter[i] =
@@ -993,16 +988,9 @@ bt_main_toolbar_init_ui (const BtMainToolbar * self)
       _("Change playback volume"));
   gtk_scale_set_draw_value (self->priv->volume, FALSE);
   //gtk_range_set_update_policy(GTK_RANGE(self->priv->volume),GTK_UPDATE_DELAYED);
-#ifndef USE_COMPACT_UI
+  gtk_widget_set_size_request (GTK_WIDGET (box), 250, -1);
   gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->volume), TRUE,
       TRUE, 0);
-#else
-  gtk_widget_set_size_request (GTK_WIDGET (self->priv->volume), 200, -1);
-  tool_item = GTK_WIDGET (gtk_tool_item_new ());
-  gtk_widget_set_name (tool_item, "volume-control");
-  gtk_container_add (GTK_CONTAINER (tool_item), self->priv->volume);
-  gtk_toolbar_insert (GTK_TOOLBAR (self), GTK_TOOL_ITEM (tool_item), -1);
-#endif
   gtk_widget_show_all (GTK_WIDGET (box));
 
   tool_item = GTK_WIDGET (gtk_tool_item_new ());

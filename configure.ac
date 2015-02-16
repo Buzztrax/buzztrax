@@ -214,18 +214,6 @@ AC_ARG_WITH(
 AC_MSG_RESULT($with_desktop_dir)
 AC_SUBST(with_desktop_dir)
 
-dnl enable compact UI (for netbooks/phones)
-AC_MSG_CHECKING(whether to use the compact UI)
-AC_ARG_ENABLE([compact_ui],
-  AS_HELP_STRING([--enable-compact-ui],[enable compact ui (default=no)]),
-  ,
-  [enable_compact_ui=no])
-AC_MSG_RESULT($enable_compact_ui)
-if test "x$enable_compact_ui" = "xyes"; then
-  AC_DEFINE(USE_COMPACT_UI, [1], [enable compact ui])
-fi
-AC_SUBST(USE_COMPACT_UI)
-
 
 dnl check if we have 32-bit headers installed
 ac_cppflags_save="$CPPFLAGS"
@@ -682,7 +670,6 @@ Configuration
 	FluidSynth support              : ${have_fluidsynth}
 	Zipped Song file support (bzt)  : ${use_gsf}
 	x86 win32 buzzmachines          : ${enable_dllwrapper}
-	Compact UI (small screen)       : ${enable_compact_ui}
 
 	Debug                           : ${enable_debug}
 	Coverage profiling              : ${enable_coverage} ${using_coverage_tool}

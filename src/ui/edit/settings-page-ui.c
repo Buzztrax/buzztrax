@@ -49,14 +49,14 @@ G_DEFINE_TYPE (BtSettingsPageUI, bt_settings_page_ui, GTK_TYPE_GRID);
 //-- event handler
 
 static void
-on_dark_theme_toggled (GtkToggleButton * button, gpointer user_data)
+on_theme_style_toggled (GtkToggleButton * button, gpointer user_data)
 {
   BtSettingsPageUI *self = BT_SETTINGS_PAGE_UI (user_data);
-  gboolean use_dark_theme = gtk_toggle_button_get_active (button);
   BtSettings *settings;
 
   g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_set (settings, "dark-theme", use_dark_theme, NULL);
+  g_object_set (settings, gtk_widget_get_name (GTK_WIDGET (button)),
+      gtk_toggle_button_get_active (button), NULL);
   g_object_unref (settings);
 }
 
@@ -68,13 +68,14 @@ bt_settings_page_ui_init_ui (const BtSettingsPageUI * self, GtkWidget * pages)
   BtSettings *settings;
   GtkWidget *label, *widget;
   gchar *str;
-  gboolean use_dark_theme;
+  gboolean use_dark_theme, use_compact_theme;
 
   gtk_widget_set_name (GTK_WIDGET (self), "ui shortcut settings");
 
   // get settings
   g_object_get (self->priv->app, "settings", &settings, NULL);
-  g_object_get (settings, "dark-theme", &use_dark_theme, NULL);
+  g_object_get (settings, "dark-theme", &use_dark_theme,
+      "compact-theme", &use_compact_theme, NULL);
 
   // add setting widgets
   label = gtk_label_new (NULL);
@@ -90,11 +91,24 @@ bt_settings_page_ui_init_ui (const BtSettingsPageUI * self, GtkWidget * pages)
   gtk_grid_attach (GTK_GRID (self), label, 1, 1, 1, 1);
 
   widget = gtk_check_button_new ();
+  gtk_widget_set_name (widget, "dark-theme");
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), use_dark_theme);
-  g_signal_connect (widget, "toggled", G_CALLBACK (on_dark_theme_toggled),
+  g_signal_connect (widget, "toggled", G_CALLBACK (on_theme_style_toggled),
       (gpointer) self);
   g_object_set (widget, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (self), widget, 2, 1, 1, 1);
+
+  label = gtk_label_new (_("Compact theme variant"));
+  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  gtk_grid_attach (GTK_GRID (self), label, 1, 2, 1, 1);
+
+  widget = gtk_check_button_new ();
+  gtk_widget_set_name (widget, "compact-theme");
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), use_compact_theme);
+  g_signal_connect (widget, "toggled", G_CALLBACK (on_theme_style_toggled),
+      (gpointer) self);
+  g_object_set (widget, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (self), widget, 2, 2, 1, 1);
 
   g_object_unref (settings);
 }

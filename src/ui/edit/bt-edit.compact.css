@@ -1,4 +1,7 @@
 /* custom styles for buzztrax-edit */
 
-@import url("bt-edit.css");
+GtkToolbar {
+  -GtkToolbar-space-size: 0;
+  -GtkToolbar-space-style: empty;
+}
 
