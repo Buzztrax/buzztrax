@@ -649,6 +649,7 @@ bt_pattern_editor_realize (GtkWidget * widget)
   bt_pattern_editor_configure_style (self, style_ctx);
 
   // TODO(ensonic): can we make the font part of the css?
+  // use gtk_style_context_get(.., "font", ...)
   style_pfd = gtk_style_context_get_font (style_ctx, GTK_STATE_FLAG_NORMAL);
 
   /* copy size from default font and use default monospace font */

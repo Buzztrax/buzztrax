@@ -1554,7 +1554,7 @@ on_canvas_style_updated (GtkWidget * widget, gconstpointer user_data)
       NULL);
   ClutterColor stage_color = {
     CLAMP (c.red * 255, 0, 255), CLAMP (c.green * 255, 0, 255),
-    CLAMP (c.blue * 255, 0, 255), CLAMP (c.alpha * 255, 0, 255)
+    CLAMP (c.blue * 255, 0, 255), 255
   };
 #endif
   // just setting a 'fully transparent' background or none at all wont work
