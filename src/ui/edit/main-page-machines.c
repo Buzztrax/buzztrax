@@ -1531,28 +1531,23 @@ on_panorama_popup_changed (GtkAdjustment * adj, gpointer user_data)
 }
 
 static void
-on_canvas_style_updated (GtkWidget * widget, gconstpointer user_data)
+on_canvas_style_updated (GtkStyleContext * style_ctx, gconstpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
   // BUG(744517): https://bugzilla.gnome.org/show_bug.cgi?id=744517
   // GtkStyle is deprecated, but the only thing that works here
 #if 1
-  // force rebuilding the old style, but this is causing
-  // "gdk-frame-clock: layout continuously requested, giving up after 4 tries"
-  // gtk_widget_reset_style (self->priv->canvas_widget);
   GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
   GdkColor *c = &style->base[GTK_STATE_NORMAL];
   ClutterColor stage_color = {
     c->red >> 8, c->green >> 8, c->blue >> 8, 255
   };
 #else
-  GtkStyleContext *style =
-      gtk_widget_get_style_context (self->priv->canvas_widget);
   GdkRGBA c;
   // these seems to be *always* black
-  // gtk_style_context_get_background_color (style, GTK_STATE_FLAG_NORMAL, &c);
-  gtk_style_context_get (style, GTK_STATE_FLAG_NORMAL, "background-color", &c,
-      NULL);
+  // gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_NORMAL, &c);
+  gtk_style_context_get (style_ctx, GTK_STATE_FLAG_NORMAL, "background-color",
+      &c, NULL);
   ClutterColor stage_color = {
     CLAMP (c.red * 255, 0, 255), CLAMP (c.green * 255, 0, 255),
     CLAMP (c.blue * 255, 0, 255), 255
@@ -1655,6 +1650,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   BtSettings *settings;
   GtkWidget *image, *table, *scrollbar;
   GtkToolItem *tool_item;
+  GtkStyleContext *style;
   gchar *density;
 
   GST_DEBUG ("!!!! self=%p", self);
@@ -1779,14 +1775,15 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
       G_CALLBACK (on_canvas_query_tooltip), (gpointer) self);
   g_signal_connect (self->priv->canvas_widget, "size-allocate",
       G_CALLBACK (on_canvas_size_changed), (gpointer) self);
-  g_signal_connect (self->priv->canvas_widget, "style-updated",
-      G_CALLBACK (on_canvas_style_updated), (gpointer) self);
   self->priv->stage =
       gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
           priv->canvas_widget));
   clutter_stage_set_use_alpha (CLUTTER_STAGE (self->priv->stage), TRUE);
   clutter_actor_set_size (self->priv->stage, MACHINE_VIEW_W, MACHINE_VIEW_H);
-  on_canvas_style_updated (self->priv->canvas_widget, (gpointer) self);
+  style = gtk_widget_get_style_context (self->priv->canvas_widget);
+  on_canvas_style_updated (style, (gpointer) self);
+  g_signal_connect_after (style, "changed",
+      G_CALLBACK (on_canvas_style_updated), (gpointer) self);
 
   self->priv->canvas = clutter_actor_new ();
   clutter_actor_set_reactive (self->priv->canvas, TRUE);
