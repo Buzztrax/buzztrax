@@ -208,8 +208,7 @@ gstbt_wave_index_get_type (void)
     for (i = 1; i < 200; i++) {
       values[i].value = i;
       values[i].value_name = g_strdup_printf ("wave %03d", i);
-      // TODO(ensonic): replace them with "---" or wave name
-      values[i].value_nick = g_strdup_printf ("wave %03d", i);
+      values[i].value_nick = g_strdup ("---");
     }
     values[i].value = 0;
     values[i].value_name = values[i].value_nick = NULL;
