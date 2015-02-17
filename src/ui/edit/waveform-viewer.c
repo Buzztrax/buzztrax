@@ -128,35 +128,35 @@ static gboolean
 bt_waveform_viewer_draw (GtkWidget * widget, cairo_t * cr)
 {
   BtWaveformViewer *self = BT_WAVEFORM_VIEWER (widget);
-  GtkStyleContext *context;
+  GtkStyleContext *style_ctx;
   gint width, height, left, top;
-  gint i, ch;
+  gint i, ch, x;
   gdouble xscl;
   gfloat *peaks = self->peaks;
+  GdkRGBA wave_color, peak_color, line_color;
 
   width = gtk_widget_get_allocated_width (widget);
   height = gtk_widget_get_allocated_height (widget);
-  context = gtk_widget_get_style_context (widget);
+  style_ctx = gtk_widget_get_style_context (widget);
 
   /* draw border */
-  gtk_render_background (context, cr, 0, 0, width, height);
-  gtk_render_frame (context, cr, 0, 0, width, height);
+  gtk_render_background (style_ctx, cr, 0, 0, width, height);
+  gtk_render_frame (style_ctx, cr, 0, 0, width, height);
+
+  if (!peaks)
+    return FALSE;
 
   left = self->border.left;
   top = self->border.top;
   width -= self->border.left + self->border.right;
   height -= self->border.top + self->border.bottom;
 
-  cairo_set_source_rgba (cr, 0, 0, 0, 1);
-  cairo_rectangle (cr, left, top, width, height);
-  cairo_fill (cr);
-
-  if (!peaks)
-    return FALSE;
-
   cairo_set_line_join (cr, CAIRO_LINE_JOIN_ROUND);
-  cairo_set_line_width (cr, 0.5);
+  cairo_set_line_width (cr, 1.0);
 
+  // waveform
+  gtk_style_context_lookup_color (style_ctx, "wave_color", &wave_color);
+  gtk_style_context_lookup_color (style_ctx, "peak_color", &peak_color);
   for (ch = 0; ch < self->channels; ch++) {
     gint lsy = height / self->channels;
     gint loy = top + ch * lsy;
@@ -177,19 +177,17 @@ bt_waveform_viewer_draw (GtkWidget * widget, cairo_t * cr)
         cairo_move_to (cr, left, y);
     }
 
-    cairo_set_source_rgba (cr, 0, 0.2, 0.2, 1);
+    gdk_cairo_set_source_rgba (cr, &wave_color);
     cairo_fill_preserve (cr);
-    cairo_set_source_rgba (cr, 0, 1, 1, 1);
+    gdk_cairo_set_source_rgba (cr, &peak_color);
     cairo_stroke (cr);
   }
 
   // casting to double loses precision, but we're not planning to deal with multiterabyte waveforms here :)
   xscl = (gdouble) width / self->wave_length;
   if (self->loop_start != -1) {
-    gint x;
-
-    cairo_set_source_rgba (cr, 1, 0, 0, 0.75);
-    cairo_set_line_width (cr, 1.0);
+    gtk_style_context_lookup_color (style_ctx, "loopline_color", &line_color);
+    gdk_cairo_set_source_rgba (cr, &line_color);
     x = (gint) (left + self->loop_start * xscl);
     cairo_move_to (cr, x, top + height);
     cairo_line_to (cr, x, top);
@@ -211,9 +209,8 @@ bt_waveform_viewer_draw (GtkWidget * widget, cairo_t * cr)
     cairo_fill (cr);
   }
   if (self->playback_cursor != -1) {
-    gint x;
-    cairo_set_source_rgba (cr, 1, 1, 0, 0.75);
-    cairo_set_line_width (cr, 1.0);
+    gtk_style_context_lookup_color (style_ctx, "playline_color", &line_color);
+    gdk_cairo_set_source_rgba (cr, &line_color);
     x = (gint) (left + self->playback_cursor * xscl) - 1;
     cairo_move_to (cr, x, top + height);
     cairo_line_to (cr, x, top);

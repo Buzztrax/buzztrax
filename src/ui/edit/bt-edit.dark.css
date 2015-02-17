@@ -27,3 +27,6 @@
 @define-color sink_machine_shade2 #204A87;
 @define-color sink_machine_shade1 mix (@sink_machine_base, @sink_machine_shade2, 0.5);
 
+/* like sink machine */
+@define-color wave_color shade (@sink_machine_base, 1.5);
+@define-color peak_color darker (@sink_machine_shade2);

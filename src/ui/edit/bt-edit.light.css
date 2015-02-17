@@ -27,3 +27,6 @@
 @define-color sink_machine_shade1 #99CAFF;
 @define-color sink_machine_shade2 mix (@sink_machine_base, @sink_machine_shade1, 0.5);
 
+/* like sink machine */
+@define-color wave_color darker (@sink_machine_shade2);
+@define-color peak_color shade (@sink_machine_base, 1.5);
