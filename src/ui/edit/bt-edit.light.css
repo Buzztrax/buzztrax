@@ -13,6 +13,10 @@
 @define-color selection2_color shade (@selection1_color, 0.9);
 
 @define-color analyzer_decay_color #FFBF00;
+@define-color analyzer_level_color #FFFFFF;
+@define-color spectrum_mono_color #FFFFFF;
+@define-color spectrum_left_color rgba(255, 128, 178, 0.7);
+@define-color spectrum_right_color rgba(153, 153, 255, 0.7);
 @define-color grid_lines_color #7F7F7F;
 
 @define-color source_machine_base #F57900;

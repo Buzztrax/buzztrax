@@ -101,8 +101,8 @@ struct _BtSignalAnalysisDialogPrivate
   /* the analyzer-graphs */
   GtkWidget *spectrum_drawingarea, *level_drawingarea;
   GtkWidget *spectrum_ruler;
-  GdkRGBA decay_color, grid_color;
-  cairo_pattern_t *spect_grad;
+  GdkRGBA decay_color, level_color, grid_color, spect_color[3];
+  cairo_pattern_t *spect_grad[3];
 
   /* the gstreamer elements that is used */
   GstElement *analyzers[ANALYZER_COUNT];
@@ -190,12 +190,9 @@ update_spectrum_analyzer (BtSignalAnalysisDialog * self)
   g_mutex_unlock (&self->priv->lock);
 }
 
-//-- event handler
-
 static void
-on_dialog_realize (GtkWidget * widget, gpointer user_data)
+update_colors (BtSignalAnalysisDialog * self, GtkWidget * widget)
 {
-  BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
   GtkStyleContext *style = gtk_widget_get_style_context (widget);
 
   GST_DEBUG ("dialog realize");
@@ -203,10 +200,40 @@ on_dialog_realize (GtkWidget * widget, gpointer user_data)
           &self->priv->decay_color)) {
     GST_WARNING ("Can't find 'analyzer_decay_color' in css.");
   }
+  if (!gtk_style_context_lookup_color (style, "analyzer_level_color",
+          &self->priv->level_color)) {
+    GST_WARNING ("Can't find 'analyzer_level_color' in css.");
+  }
   if (!gtk_style_context_lookup_color (style, "grid_lines_color",
           &self->priv->grid_color)) {
     GST_WARNING ("Can't find 'grid_lines_color' in css.");
   }
+  if (!gtk_style_context_lookup_color (style, "spectrum_mono_color",
+          &self->priv->spect_color[0])) {
+    GST_WARNING ("Can't find 'spectrum_mono_color' in css.");
+  }
+  if (!gtk_style_context_lookup_color (style, "spectrum_left_color",
+          &self->priv->spect_color[1])) {
+    GST_WARNING ("Can't find 'spectrum_left_color' in css.");
+  }
+  if (!gtk_style_context_lookup_color (style, "spectrum_right_color",
+          &self->priv->spect_color[2])) {
+    GST_WARNING ("Can't find 'spectrum_right_color' in css.");
+  }
+}
+
+//-- event handler
+
+static void
+on_dialog_realize (GtkWidget * widget, gpointer user_data)
+{
+  update_colors (BT_SIGNAL_ANALYSIS_DIALOG (user_data), widget);
+}
+
+static void
+on_dialog_style_updated (GtkWidget * widget, gpointer user_data)
+{
+  update_colors (BT_SIGNAL_ANALYSIS_DIALOG (user_data), widget);
 }
 
 /*
@@ -218,26 +245,26 @@ static gboolean
 on_level_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
 {
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
+  BtSignalAnalysisDialogPrivate *p = self->priv;
 
   if (!gtk_widget_get_realized (widget))
     return TRUE;
 
-  gint middle = self->priv->spect_bands >> 1;
+  gint middle = p->spect_bands >> 1;
   gdouble scl = middle / (-LOW_VUMETER_VAL);
   gdouble peak0, peak1, decay0, decay1;
+  GtkStyleContext *style = gtk_widget_get_style_context (widget);
 
-  cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
-  cairo_rectangle (cr, 0, 0, self->priv->spect_bands, LEVEL_HEIGHT);
-  cairo_fill (cr);
+  gtk_render_background (style, cr, 0, 0, p->spect_bands, LEVEL_HEIGHT);
 
-  peak0 = self->priv->peak[0] * scl;
-  peak1 = self->priv->peak[1] * scl;
-  decay0 = self->priv->decay[0] * scl;
-  decay1 = self->priv->decay[1] * scl;
-  cairo_set_source_rgb (cr, 1.0, 1.0, 1.0);
+  peak0 = p->peak[0] * scl;
+  peak1 = p->peak[1] * scl;
+  decay0 = p->decay[0] * scl;
+  decay1 = p->decay[1] * scl;
+  gdk_cairo_set_source_rgba (cr, &p->level_color);
   cairo_rectangle (cr, middle - peak0, 0, peak0 + peak1, LEVEL_HEIGHT);
   cairo_fill (cr);
-  gdk_cairo_set_source_rgba (cr, &self->priv->decay_color);
+  gdk_cairo_set_source_rgba (cr, &p->decay_color);
   cairo_rectangle (cr, middle - decay0, 0, 2, LEVEL_HEIGHT);
   cairo_fill (cr);
   cairo_rectangle (cr, (middle - 1) + decay1, 0, 2, LEVEL_HEIGHT);
@@ -278,10 +305,9 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   gdouble grid_dash_pattern[] = { 1.0 };
   gdouble prec = self->priv->frq_precision;
   GdkWindow *window = gtk_widget_get_window (widget);
+  GtkStyleContext *style = gtk_widget_get_style_context (widget);
 
-  cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
-  cairo_rectangle (cr, 0, 0, spect_bands, spect_height);
-  cairo_fill (cr);
+  gtk_render_background (style, cr, 0, 0, spect_bands, spect_height);
   /* draw grid lines
    * the bin center frequencies are f(i)=i*srat/spect_bands
    */
@@ -321,18 +347,9 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   for (c = 0; c < self->priv->spect_channels; c++) {
     if (self->priv->spect[c]) {
       gfloat *spect = self->priv->spect[c];
+      gint cix = (self->priv->spect_channels == 1) ? 0 : (c + 1);
 
-      // set different color for different channels
-      // maybe we also want a different gradient
-      if (self->priv->spect_channels == 1) {
-        cairo_set_source_rgb (cr, 1.0, 1.0, 1.0);
-      } else {
-        if (c == 0) {
-          cairo_set_source_rgba (cr, 1.0, 0.0, 0.7, 0.7);
-        } else {
-          cairo_set_source_rgba (cr, 0.6, 0.6, 1.0, 0.7);
-        }
-      }
+      gdk_cairo_set_source_rgba (cr, &self->priv->spect_color[cix]);
       cairo_set_line_width (cr, 1.0);
       cairo_set_dash (cr, NULL, 0, 0.0);
       cairo_move_to (cr, 0, spect_height);
@@ -355,9 +372,7 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
           (gdouble) spect_height - 0.5);
       cairo_line_to (cr, 0.5, (gdouble) spect_height - 0.5);
       cairo_stroke_preserve (cr);
-      // in case the gradient is too slow:
-      //cairo_set_source_rgb(cr,0.7,0.7,0.7);
-      cairo_set_source (cr, self->priv->spect_grad);
+      cairo_set_source (cr, self->priv->spect_grad[cix]);
       cairo_fill (cr);
     }
   }
@@ -796,25 +811,32 @@ on_size_allocate (GtkWidget * widget, GtkAllocation * allocation,
     gpointer user_data)
 {
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
-  guint old_heigth = self->priv->spect_height;
-  guint old_bands = self->priv->spect_bands;
+  BtSignalAnalysisDialogPrivate *p = self->priv;
+  guint old_heigth = p->spect_height;
+  guint old_bands = p->spect_bands;
 
   /*GST_INFO ("%d x %d", allocation->width, allocation->height); */
-  self->priv->spect_height = allocation->height;
-  self->priv->height_scale =
-      (gdouble) allocation->height / (gdouble) SPECTRUM_FLOOR;
-  self->priv->spect_bands = allocation->width;
+  p->spect_height = allocation->height;
+  p->height_scale = (gdouble) allocation->height / (gdouble) SPECTRUM_FLOOR;
+  p->spect_bands = allocation->width;
 
-  if (old_heigth != self->priv->spect_height || !self->priv->spect_grad) {
-    if (self->priv->spect_grad)
-      cairo_pattern_destroy (self->priv->spect_grad);
-    // this looks nice, but seems to be expensive
-    self->priv->spect_grad =
-        cairo_pattern_create_linear (0.0, self->priv->spect_height, 0.0, 0.0);
-    cairo_pattern_add_color_stop_rgba (self->priv->spect_grad, 0.00, 0.8, 0.8,
-        0.8, 0.7);
-    cairo_pattern_add_color_stop_rgba (self->priv->spect_grad, 1.00, 0.8, 0.8,
-        0.8, 0.0);
+  if (old_heigth != p->spect_height || !p->spect_grad[0]) {
+    GdkRGBA *c;
+    gint i;
+
+    for (i = 0; i < 3; i++) {
+      if (p->spect_grad[i])
+        cairo_pattern_destroy (p->spect_grad[i]);
+
+      // this looks nice, but seems to be expensive
+      p->spect_grad[i] =
+          cairo_pattern_create_linear (0.0, p->spect_height, 0.0, 0.0);
+      c = &p->spect_color[i];
+      cairo_pattern_add_color_stop_rgba (p->spect_grad[i], 0.00,
+          c->red, c->green, c->blue, c->alpha);
+      cairo_pattern_add_color_stop_rgba (p->spect_grad[i], 1.00,
+          c->red, c->green, c->blue, 0.0);
+    }
   }
   if (old_bands != self->priv->spect_bands) {
     update_spectrum_analyzer (self);
@@ -1092,6 +1114,8 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   // allocate visual ressources after the window has been realized
   g_signal_connect ((gpointer) self, "realize", G_CALLBACK (on_dialog_realize),
       (gpointer) self);
+  g_signal_connect_after ((gpointer) self, "style-updated",
+      G_CALLBACK (on_dialog_style_updated), (gpointer) self);
   // redraw when needed
   g_signal_connect (self->priv->level_drawingarea, "draw",
       G_CALLBACK (on_level_draw), (gpointer) self);
@@ -1175,8 +1199,11 @@ bt_signal_analysis_dialog_dispose (GObject * object)
   if (self->priv->clock)
     gst_object_unref (self->priv->clock);
 
-  if (self->priv->spect_grad)
-    cairo_pattern_destroy (self->priv->spect_grad);
+  if (self->priv->spect_grad[0]) {
+    cairo_pattern_destroy (self->priv->spect_grad[0]);
+    cairo_pattern_destroy (self->priv->spect_grad[1]);
+    cairo_pattern_destroy (self->priv->spect_grad[2]);
+  }
 
   GST_DEBUG ("!!!! removing signal handler");
 
