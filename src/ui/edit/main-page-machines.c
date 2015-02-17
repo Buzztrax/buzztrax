@@ -1537,8 +1537,9 @@ on_canvas_style_updated (GtkWidget * widget, gconstpointer user_data)
   // BUG(744517): https://bugzilla.gnome.org/show_bug.cgi?id=744517
   // GtkStyle is deprecated, but the only thing that works here
 #if 1
-  // force rebuilding the old style
-  gtk_widget_reset_style (self->priv->canvas_widget);
+  // force rebuilding the old style, but this is causing
+  // "gdk-frame-clock: layout continuously requested, giving up after 4 tries"
+  // gtk_widget_reset_style (self->priv->canvas_widget);
   GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
   GdkColor *c = &style->base[GTK_STATE_NORMAL];
   ClutterColor stage_color = {
