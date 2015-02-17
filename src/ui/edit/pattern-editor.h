@@ -159,8 +159,6 @@ struct _BtPatternEditor {
   guint cw, ch;
   guint rowhdr_width, colhdr_height;
 
-  gboolean size_changed;
-
   /* current octave number */
   guint octave;
 

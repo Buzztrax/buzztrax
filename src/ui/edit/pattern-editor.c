@@ -826,11 +826,6 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
     }
   }
 
-  if (G_UNLIKELY (self->size_changed)) {
-    // do this for resize the after the first redraw (see TODO(ensonic): above)
-    self->size_changed = FALSE;
-    gtk_widget_queue_resize_no_redraw (widget);
-  }
   return FALSE;
 }
 
@@ -1632,7 +1627,6 @@ bt_pattern_editor_init (BtPatternEditor * self)
   self->num_rows = 0;
   self->octave = 4;
   self->step = 1;
-  self->size_changed = TRUE;
   self->selection_mode = PESM_COLUMN;
   self->selection_start = 0;
   self->selection_end = 0;
@@ -1674,7 +1668,6 @@ bt_pattern_editor_set_pattern (BtPatternEditor * self, gpointer pattern_data,
   if (!self->groups || self->parameter >= self->groups[self->group].num_columns)
     self->parameter = 0;
 
-  self->size_changed = TRUE;
   gtk_widget_queue_draw (widget);
 }
 
