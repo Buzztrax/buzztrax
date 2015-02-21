@@ -70,11 +70,12 @@ struct _BtWireCanvasItemPrivate
   /* source and dst machine canvas item */
   BtMachineCanvasItem *src, *dst;
 
-  /* the graphcal components */
+  /* the graphical components */
   ClutterContent *canvas;
   ClutterActor *pad;
   ClutterContent *pad_image;
   ClutterActor *vol_level, *pan_pos;
+  GdkRGBA wire_color;
 
   /* wire context_menu */
   GtkMenu *context_menu;
@@ -164,7 +165,7 @@ static gboolean
 on_wire_draw (ClutterCanvas * canvas, cairo_t * cr, gint width,
     gint height, gpointer user_data)
 {
-  //BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
+  BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
   //const gfloat xm = (gfloat) width / 2.0;
   const gfloat ym = (gfloat) height / 2.0;
 
@@ -178,6 +179,7 @@ on_wire_draw (ClutterCanvas * canvas, cairo_t * cr, gint width,
   cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
   cairo_set_line_width (cr, 2.0);
   cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 1.0);
+  gdk_cairo_set_source_rgba (cr, &self->priv->wire_color);
 
   cairo_move_to (cr, 0.0, ym);
   cairo_line_to (cr, width, ym);
@@ -398,6 +400,15 @@ on_wire_pad_key_release (ClutterActor * citem, ClutterEvent * event,
   return res;
 }
 
+static void
+on_canvas_style_updated (GtkWidget * widget, gconstpointer user_data)
+{
+  BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (user_data);
+  GtkStyleContext *style = gtk_widget_get_style_context (widget);
+
+  gtk_style_context_lookup_color (style, "wire_line", &self->priv->wire_color);
+}
+
 //-- helper methods
 
 //-- constructor methods
@@ -613,6 +624,10 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
       self->priv->main_page_machines =
           BT_MAIN_PAGE_MACHINES (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->main_page_machines);
+      on_canvas_style_updated ((GtkWidget *) self->priv->main_page_machines,
+          (gpointer) self);
+      g_signal_connect_after (self->priv->main_page_machines, "style-updated",
+          G_CALLBACK (on_canvas_style_updated), (gpointer) self);
       //GST_DEBUG("set the main_page_machines for wire_canvas_item: %p",self->priv->main_page_machines);
       break;
     case WIRE_CANVAS_ITEM_WIRE:
