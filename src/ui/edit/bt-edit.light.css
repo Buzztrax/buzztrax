@@ -34,3 +34,6 @@
 /* like sink machine */
 @define-color wave_color darker (@sink_machine_shade2);
 @define-color peak_color shade (@sink_machine_base, 1.5);
+
+@define-color new_wire_good #33FF33;
+@define-color new_wire_bad #FF3333;

@@ -139,6 +139,7 @@ struct _BtMainPageMachinesPrivate
   /* used when interactivly adding a new wire */
   ClutterActor *new_wire;
   BtMachineCanvasItem *new_wire_src, *new_wire_dst;
+  GdkRGBA wire_good_color, wire_bad_color;
 
   /* cached setup properties */
   GHashTable *properties;
@@ -240,21 +241,18 @@ on_wire_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height,
     gpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  gfloat ms_x, ms_y, mm_x, mm_y;
-  gfloat x1, x2, y1, y2;
+  BtMainPageMachinesPrivate *p = self->priv;
+  gfloat mx, my, x1, x2, y1, y2;
 
-  clutter_actor_get_position ((ClutterActor *) self->priv->new_wire_src,
-      &ms_x, &ms_y);
-  mm_x = self->priv->mouse_x;
-  mm_y = self->priv->mouse_y;
-  if (ms_x < mm_x) {
+  clutter_actor_get_position ((ClutterActor *) p->new_wire_src, &mx, &my);
+  if (mx < p->mouse_x) {
     x1 = 0.0;
     x2 = width;
   } else {
     x1 = width;
     x2 = 0.0;
   }
-  if (ms_y < mm_y) {
+  if (my < p->mouse_y) {
     y1 = 0.0;
     y2 = height;
   } else {
@@ -263,19 +261,16 @@ on_wire_draw (ClutterCanvas * canvas, cairo_t * cr, gint width, gint height,
   }
 
   /* clear the contents of the canvas, to not paint over the previous frame */
-  cairo_save (cr);
   cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
   cairo_paint (cr);
-  cairo_restore (cr);
   cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 
   cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
   cairo_set_line_width (cr, 1.0);
-  // IDEA(ensonic): the green is a bit bright, use css
-  if (self->priv->new_wire_dst && bt_main_page_machines_check_wire (self)) {
-    cairo_set_source_rgba (cr, 0.0, 1.0, 0.0, 1.0);
+  if (p->new_wire_dst && bt_main_page_machines_check_wire (self)) {
+    gdk_cairo_set_source_rgba (cr, &p->wire_good_color);
   } else {
-    cairo_set_source_rgba (cr, 1.0, 0.0, 0.0, 1.0);
+    gdk_cairo_set_source_rgba (cr, &p->wire_bad_color);
   }
 
   cairo_move_to (cr, x1, y1);
@@ -1557,6 +1552,11 @@ on_canvas_style_updated (GtkStyleContext * style_ctx, gconstpointer user_data)
   // we do have to manage the background for the stage
   // in case of fully transparent the background is always black
   clutter_actor_set_background_color (self->priv->stage, &stage_color);
+
+  gtk_style_context_lookup_color (style_ctx, "new_wire_good",
+      &self->priv->wire_good_color);
+  gtk_style_context_lookup_color (style_ctx, "new_wire_bad",
+      &self->priv->wire_bad_color);
 }
 
 //-- helper methods
