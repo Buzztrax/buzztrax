@@ -407,6 +407,11 @@ on_canvas_style_updated (GtkWidget * widget, gconstpointer user_data)
   GtkStyleContext *style = gtk_widget_get_style_context (widget);
 
   gtk_style_context_lookup_color (style, "wire_line", &self->priv->wire_color);
+  if (self->priv->canvas) {
+    // a directy invalidate crashes
+    g_idle_add_full (G_PRIORITY_HIGH, (GSourceFunc) clutter_content_invalidate,
+        self->priv->canvas, NULL);
+  }
 }
 
 //-- helper methods
