@@ -178,7 +178,6 @@ on_wire_draw (ClutterCanvas * canvas, cairo_t * cr, gint width,
 
   cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
   cairo_set_line_width (cr, 2.0);
-  cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 1.0);
   gdk_cairo_set_source_rgba (cr, &self->priv->wire_color);
 
   cairo_move_to (cr, 0.0, ym);
