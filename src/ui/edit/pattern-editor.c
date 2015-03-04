@@ -1106,7 +1106,7 @@ bt_pattern_editor_key_press (GtkWidget * widget, GdkEventKey * event)
         case GDK_KEY_Up:
           if (!modifier) {
             if (self->row > 0) {
-              // invalidate old pos  
+              // invalidate old pos
               bt_pattern_editor_refresh_cursor (self);
               self->row -= 1;
               g_object_notify ((gpointer) self, "cursor-row");
@@ -1319,50 +1319,65 @@ bt_pattern_editor_key_press (GtkWidget * widget, GdkEventKey * event)
 }
 
 static gboolean
+bt_pattern_editor_position_to_coords (BtPatternEditor * self, gint x, gint y,
+    gint * row, gint * group, gint * parameter, gint * digit)
+{
+  gboolean ret = FALSE;
+
+  x = (self->ofs_x + x) - self->rowhdr_width;
+  y = (self->ofs_y + y) - self->colhdr_height;
+
+  *row = *group = *parameter = *digit = -1;
+  if (y >= 0) {
+    gint r = y / self->ch;
+    if (r < self->num_rows) {
+      *row = y / self->ch;
+      ret = TRUE;
+    }
+  }
+  if (x > 0) {
+    gint g;
+    for (g = 0; g < self->num_groups; g++) {
+      BtPatternEditorColumnGroup *grp = &self->groups[g];
+      if ((x < grp->width) && char_to_coords (x / self->cw, grp->columns,
+              grp->num_columns, parameter, digit)) {
+        *group = g;
+        ret = TRUE;
+        break;
+      }
+      x -= grp->width;
+    }
+  }
+  return ret;
+}
+
+static gboolean
 bt_pattern_editor_button_press (GtkWidget * widget, GdkEventButton * event)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR (widget);
-  gint x = self->ofs_x + event->x;
-  gint y = self->ofs_y + event->y;
-  gint parameter, digit;
-  gint g, r;
+  gint row, group, parameter, digit;
 
   gtk_widget_grab_focus_savely (GTK_WIDGET (self));
 
-  if (x < self->rowhdr_width) {
-    bt_pattern_editor_refresh_cursor (self);
-    self->row = (y - self->colhdr_height) / self->ch;
-    bt_pattern_editor_refresh_cursor_or_scroll (self);
-    return TRUE;
-  }
-  x -= self->rowhdr_width;
-  y -= self->colhdr_height;
-  r = y / self->ch;
-  if (r >= self->num_rows)
+  if (!bt_pattern_editor_position_to_coords (self, event->x, event->y, &row,
+          &group, &parameter, &digit))
     return FALSE;
 
-  // locate cell and move cursor
-  for (g = 0; g < self->num_groups; g++) {
-    BtPatternEditorColumnGroup *grp = &self->groups[g];
-    if (x < grp->width) {
-      if (char_to_coords (x / self->cw, grp->columns, grp->num_columns,
-              &parameter, &digit)) {
-        bt_pattern_editor_refresh_cursor (self);
-        self->row = r;
-        self->group = g;
-        self->parameter = parameter;
-        self->digit = digit;
-        g_object_notify ((gpointer) self, "cursor-row");
-        g_object_notify ((gpointer) self, "cursor-group");
-        bt_pattern_editor_refresh_cursor_or_scroll (self);
-        return TRUE;
-      }
-      return FALSE;
-    }
-    x -= grp->width;
+  bt_pattern_editor_refresh_cursor (self);
+  if (row > -1) {
+    self->row = row;
+    g_object_notify ((gpointer) self, "cursor-row");
   }
-
-  return FALSE;
+  if (group > -1) {
+    self->group = group;
+    self->parameter = parameter;
+    self->digit = digit;
+    g_object_notify ((gpointer) self, "cursor-group");
+    g_object_notify ((gpointer) self, "cursor-param");
+    g_object_notify ((gpointer) self, "cursor-digit");
+  }
+  bt_pattern_editor_refresh_cursor_or_scroll (self);
+  return TRUE;
 }
 
 static gboolean
