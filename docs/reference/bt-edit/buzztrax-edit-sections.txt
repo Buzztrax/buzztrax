@@ -632,6 +632,7 @@ BtPatternEditorSelectionMode
 bt_pattern_editor_new
 bt_pattern_editor_set_pattern
 bt_pattern_editor_get_selection
+bt_pattern_editor_position_to_coords
 <SUBSECTION Standard>
 BtPatternEditorClass
 BT_PATTERN_EDITOR

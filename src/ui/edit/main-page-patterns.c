@@ -279,13 +279,44 @@ pattern_menu_model_get_iter_by_pattern (GtkTreeModel * store,
 
 //-- status bar helpers
 
+static gchar *
+pattern_view_get_cell_description (const BtMainPagePatterns * self, gint row,
+    gint group, gint param)
+{
+  GParamSpec *prop = NULL;
+  BtValueGroup *vg;
+  BtParameterGroup *pg;
+  gchar *str = NULL, *desc = NULL;
+  GValue *v;
+
+  vg = self->priv->param_groups[group].vg;
+  g_object_get (vg, "parameter-group", &pg, NULL);
+  if (row >= 0 && (v = bt_value_group_get_event_data (vg, row, param)) &&
+      G_IS_VALUE (v)) {
+    desc = bt_parameter_group_describe_param_value (pg, param, v);
+  }
+  // get parameter description
+  if ((prop = bt_parameter_group_get_param_spec (pg, param))) {
+    const gchar *blurb = g_param_spec_get_blurb (prop);
+    if (desc && *desc) {
+      str = g_strdup_printf ("%s: %s: %s", prop->name, blurb, desc);
+    } else {
+      str = g_strdup_printf ("%s: %s", prop->name, blurb);
+    }
+  }
+  g_free (desc);
+  g_object_unref (pg);
+  return str;
+}
+
 static void
-pattern_view_update_column_description (const BtMainPagePatterns * self,
+pattern_view_update_cell_description (const BtMainPagePatterns * self,
     BtPatternViewUpdateColumn mode)
 {
+  BtMainPagePatternsPrivate *p = self->priv;
   BtMainWindow *main_window;
 
-  g_object_get (self->priv->app, "main-window", &main_window, NULL);
+  g_object_get (p->app, "main-window", &main_window, NULL);
   // called too early
   if (!main_window)
     return;
@@ -305,43 +336,18 @@ pattern_view_update_column_description (const BtMainPagePatterns * self,
     bt_child_proxy_set (main_window, "statusbar::status", NULL, NULL);
 
   if (mode & UPDATE_COLUMN_PUSH) {
-    if (self->priv->pattern && self->priv->number_of_groups) {
-      GParamSpec *property = NULL;
-      BtPatternEditorColumnGroup *group;
-      BtParameterGroup *pg;
-      gchar *str = NULL, *desc = NULL;
-      const gchar *blurb = "";
-      GValue *gval;
+    if (p->pattern && p->number_of_groups) {
+      gchar *str;
 
-      g_object_get (self->priv->pattern_table, "cursor-row",
-          &self->priv->cursor_row, "cursor-param", &self->priv->cursor_param,
-          "cursor-group", &self->priv->cursor_group, NULL);
+      g_object_get (p->pattern_table, "cursor-row", &p->cursor_row,
+          "cursor-param", &p->cursor_param,
+          "cursor-group", &p->cursor_group, NULL);
 
-      group = &self->priv->param_groups[self->priv->cursor_group];
-      g_object_get (group->vg, "parameter-group", &pg, NULL);
-      if ((gval =
-              bt_value_group_get_event_data (group->vg, self->priv->cursor_row,
-                  self->priv->cursor_param)) && G_IS_VALUE (gval)) {
-        desc =
-            bt_parameter_group_describe_param_value (pg,
-            self->priv->cursor_param, gval);
-      }
-      // get parameter description
-      if ((property =
-              bt_parameter_group_get_param_spec (pg,
-                  self->priv->cursor_param))) {
-        blurb = g_param_spec_get_blurb (property);
-        if (desc && *desc) {
-          str = g_strdup_printf ("%s: %s: %s", property->name, blurb, desc);
-        } else {
-          str = g_strdup_printf ("%s: %s", property->name, blurb);
-        }
-      }
+      str = pattern_view_get_cell_description (self, p->cursor_row,
+          p->cursor_group, p->cursor_param);
       bt_child_proxy_set (main_window, "statusbar::status",
           (str ? str : BT_MAIN_STATUSBAR_DEFAULT), NULL);
-      g_free (desc);
       g_free (str);
-      g_object_unref (pg);
     } else {
       GST_DEBUG ("no or empty pattern");
       bt_child_proxy_set (main_window, "statusbar::status",
@@ -948,7 +954,7 @@ on_pattern_table_cursor_group_changed (const BtPatternEditor * editor,
 
   g_object_get ((gpointer) editor, "cursor-group", &self->priv->cursor_group,
       "cursor-param", &self->priv->cursor_param, NULL);
-  pattern_view_update_column_description (self, UPDATE_COLUMN_UPDATE);
+  pattern_view_update_cell_description (self, UPDATE_COLUMN_UPDATE);
 }
 
 static void
@@ -959,7 +965,7 @@ on_pattern_table_cursor_param_changed (const BtPatternEditor * editor,
 
   g_object_get ((gpointer) editor, "cursor-param", &self->priv->cursor_param,
       NULL);
-  pattern_view_update_column_description (self, UPDATE_COLUMN_UPDATE);
+  pattern_view_update_cell_description (self, UPDATE_COLUMN_UPDATE);
 }
 
 static void
@@ -969,7 +975,27 @@ on_pattern_table_cursor_row_changed (const BtPatternEditor * editor,
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
 
   g_object_get ((gpointer) editor, "cursor-row", &self->priv->cursor_row, NULL);
-  pattern_view_update_column_description (self, UPDATE_COLUMN_UPDATE);
+  pattern_view_update_cell_description (self, UPDATE_COLUMN_UPDATE);
+}
+
+static gboolean
+on_pattern_table_query_tooltip (GtkWidget * widget, gint x, gint y,
+    gboolean keyboard_mode, GtkTooltip * tooltip, gpointer user_data)
+{
+  BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
+  gint row, group, param, digit;
+  gchar *str = NULL;
+
+  if (!bt_pattern_editor_position_to_coords (self->priv->pattern_table, x, y,
+          &row, &group, &param, &digit) || (group == -1)) {
+    return FALSE;
+  }
+  if ((str = pattern_view_get_cell_description (self, row, group, param))) {
+    gtk_tooltip_set_text (tooltip, str);
+    g_free (str);
+    return TRUE;
+  }
+  return FALSE;
 }
 
 static void
@@ -1409,7 +1435,7 @@ pattern_edit_set_data_at (gpointer pattern_data, gpointer column_data,
     g_string_free (old_data, TRUE);
   }
 
-  pattern_view_update_column_description (self, UPDATE_COLUMN_UPDATE);
+  pattern_view_update_cell_description (self, UPDATE_COLUMN_UPDATE);
   g_object_unref (machine);
 }
 
@@ -1949,7 +1975,7 @@ change_current_pattern (const BtMainPagePatterns * self,
   }
   // refresh pattern view
   pattern_table_refresh (self);
-  pattern_view_update_column_description (self, UPDATE_COLUMN_UPDATE);
+  pattern_view_update_cell_description (self, UPDATE_COLUMN_UPDATE);
   gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->pattern_table));
   return TRUE;
 }
@@ -2098,7 +2124,7 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
 
       // only reset old
       GST_DEBUG ("leave pattern page");
-      pattern_view_update_column_description (self, UPDATE_COLUMN_POP);
+      pattern_view_update_cell_description (self, UPDATE_COLUMN_POP);
       // remove local commands
       g_object_get (self->priv->app, "main-window", &main_window, "song", &song,
           NULL);
@@ -2126,7 +2152,7 @@ on_pattern_size_changed (BtPattern * pattern, GParamSpec * arg,
   // FIXME(ensonic): as length and voices are no constructor properties we seem 
   // to get notifies for new patterns and thus redraw things twice :/
   pattern_table_refresh (self);
-  pattern_view_update_column_description (self, UPDATE_COLUMN_UPDATE);
+  pattern_view_update_cell_description (self, UPDATE_COLUMN_UPDATE);
   gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->pattern_table));
 }
 
@@ -3098,7 +3124,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
 
   self->priv->pattern_table = BT_PATTERN_EDITOR (bt_pattern_editor_new ());
   g_object_set (self->priv->pattern_table, "octave", self->priv->base_octave,
-      "play-position", -1.0, NULL);
+      "play-position", -1.0, "has-tooltip", TRUE, NULL);
   //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   g_signal_connect (self->priv->pattern_table, "key-press-event",
       G_CALLBACK (on_pattern_table_key_press_event), (gpointer) self);
@@ -3110,6 +3136,8 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
       G_CALLBACK (on_pattern_table_cursor_param_changed), (gpointer) self);
   g_signal_connect (self->priv->pattern_table, "notify::cursor-row",
       G_CALLBACK (on_pattern_table_cursor_row_changed), (gpointer) self);
+  g_signal_connect (self->priv->pattern_table, "query-tooltip",
+      G_CALLBACK (on_pattern_table_query_tooltip), (gpointer) self);
   gtk_box_pack_start (GTK_BOX (self), scrolled_window, TRUE, TRUE, 0);
 
   gtk_container_add (GTK_CONTAINER (scrolled_window),
@@ -3791,7 +3819,7 @@ bt_main_page_patterns_focus (GtkWidget * widget, GtkDirectionType direction)
   GST_DEBUG ("focusing default widget");
   gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->pattern_table));
   // only set new text
-  pattern_view_update_column_description (self, UPDATE_COLUMN_PUSH);
+  pattern_view_update_cell_description (self, UPDATE_COLUMN_PUSH);
   return FALSE;
 }
 

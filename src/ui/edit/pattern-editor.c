@@ -626,8 +626,8 @@ bt_pattern_editor_realize (GtkWidget * widget)
   attributes.window_type = GDK_WINDOW_CHILD;
   attributes.event_mask = gtk_widget_get_events (widget) |
       GDK_EXPOSURE_MASK | GDK_SCROLL_MASK | GDK_KEY_PRESS_MASK |
-      GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
-      /*| GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK */ ;
+      GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+      GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK;
   attributes.visual = gtk_widget_get_visual (widget);
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
 
@@ -1319,39 +1319,6 @@ bt_pattern_editor_key_press (GtkWidget * widget, GdkEventKey * event)
 }
 
 static gboolean
-bt_pattern_editor_position_to_coords (BtPatternEditor * self, gint x, gint y,
-    gint * row, gint * group, gint * parameter, gint * digit)
-{
-  gboolean ret = FALSE;
-
-  x = (self->ofs_x + x) - self->rowhdr_width;
-  y = (self->ofs_y + y) - self->colhdr_height;
-
-  *row = *group = *parameter = *digit = -1;
-  if (y >= 0) {
-    gint r = y / self->ch;
-    if (r < self->num_rows) {
-      *row = y / self->ch;
-      ret = TRUE;
-    }
-  }
-  if (x > 0) {
-    gint g;
-    for (g = 0; g < self->num_groups; g++) {
-      BtPatternEditorColumnGroup *grp = &self->groups[g];
-      if ((x < grp->width) && char_to_coords (x / self->cw, grp->columns,
-              grp->num_columns, parameter, digit)) {
-        *group = g;
-        ret = TRUE;
-        break;
-      }
-      x -= grp->width;
-    }
-  }
-  return ret;
-}
-
-static gboolean
 bt_pattern_editor_button_press (GtkWidget * widget, GdkEventButton * event)
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR (widget);
@@ -1709,4 +1676,54 @@ bt_pattern_editor_get_selection (BtPatternEditor * self,
   *group = self->selection_mode == PESM_ALL ? -1 : self->selection_group;
   *param = self->selection_mode != PESM_COLUMN ? -1 : self->selection_param;
   return TRUE;
+}
+
+/**
+ * bt_pattern_editor_position_to_coords:
+ * @self: the widget
+ * @x: x position of the mouse
+ * @y: y position of the mouse
+ * @row: location for start tick
+ * @group: location for group
+ * @parameter: location for parameter in group
+ * @digit: location for the digit in parameter
+ *
+ * Get data coordinates for the mouse position. All out variables must not be
+ * %NULL.
+ *
+ * Returns: %TRUE if we selected a position.
+ */
+gboolean
+bt_pattern_editor_position_to_coords (BtPatternEditor * self, gint x, gint y,
+    gint * row, gint * group, gint * parameter, gint * digit)
+{
+  gboolean ret = FALSE;
+
+  g_return_val_if_fail ((row && group && parameter && digit), FALSE);
+
+  x = (self->ofs_x + x) - self->rowhdr_width;
+  y = (self->ofs_y + y) - self->colhdr_height;
+
+  *row = *group = *parameter = *digit = -1;
+  if (y >= 0) {
+    gint r = y / self->ch;
+    if (r < self->num_rows) {
+      *row = y / self->ch;
+      ret = TRUE;
+    }
+  }
+  if (x > 0) {
+    gint g;
+    for (g = 0; g < self->num_groups; g++) {
+      BtPatternEditorColumnGroup *grp = &self->groups[g];
+      if ((x < grp->width) && char_to_coords (x / self->cw, grp->columns,
+              grp->num_columns, parameter, digit)) {
+        *group = g;
+        ret = TRUE;
+        break;
+      }
+      x -= grp->width;
+    }
+  }
+  return ret;
 }

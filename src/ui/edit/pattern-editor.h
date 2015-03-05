@@ -184,15 +184,14 @@ struct _BtPatternEditorClass {
 
 /* note: does not copy the BtPatternEditorColumn * data (in this version) */
 void bt_pattern_editor_set_pattern (BtPatternEditor *self,
-                          gpointer pattern_data,
-                          guint num_rows,
-                          guint num_groups,
-                          BtPatternEditorColumnGroup *groups,
-                          BtPatternEditorCallbacks *cb);
+    gpointer pattern_data, guint num_rows, guint num_groups,
+    BtPatternEditorColumnGroup *groups, BtPatternEditorCallbacks *cb);
 
 gboolean bt_pattern_editor_get_selection (BtPatternEditor *self,
-                                          gint *start, gint *end,
-                                          gint *group, gint *param);
+    gint *start, gint *end, gint *group, gint *param);
+
+gboolean bt_pattern_editor_position_to_coords (BtPatternEditor * self, 
+    gint x, gint y, gint * row, gint * group, gint * parameter, gint * digit);
 
 GtkWidget *bt_pattern_editor_new (void);
 
