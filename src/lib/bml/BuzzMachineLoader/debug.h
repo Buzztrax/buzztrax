@@ -21,12 +21,9 @@ extern DebugLoggerFunc debug_log_func;
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#ifdef LOG
-#define _DEBUG
-#endif
 #endif
 
-#ifdef _DEBUG
+#ifdef USE_DEBUG
 extern void DebugLogger(const char *file, unsigned int line, const char *func, const char *obj, const char *fmt,...);
 
 #define DBG(str) DebugLogger(__FILE__,__LINE__,__FUNCTION__,NULL,str)
