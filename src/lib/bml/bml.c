@@ -50,7 +50,8 @@
 
 // wrapped(ipc)
 #ifdef USE_DLLWRAPPER_IPC
-static char socket_file[100];
+#define SOCKET_PATH_MAX	sizeof((((struct sockaddr_un *) 0)->sun_path))
+static char socket_file[SOCKET_PATH_MAX];
 static int server_socket;
 static StrPool *sp;
 #endif
@@ -744,12 +745,15 @@ bml_setup (void)
   }
 #endif /* USE_DLLWRAPPER_DIRECT */
 #ifdef USE_DLLWRAPPER_IPC
-  // TODO(ensonic): tmp is not ideal as everyone can read/write their and could
+  // TODO(ensonic): /tmp is not ideal as everyone can read/write there and could
   // steal the socket, we could create a user-owned subdir first to mitigate
   if (getenv ("BMLIPC_DEBUG")) {
-    snprintf (socket_file, 100, "/tmp/bml.sock");
+    // allows to run this manually, we will then not spawn a new one here
+    // TODO(ensonic): disable in a release
+    snprintf (socket_file, (SOCKET_PATH_MAX - 1), "/tmp/bml.sock");
   } else {
-    snprintf (socket_file, 100, "/tmp/bml.%d.XXXXXX", (int) getpid ());
+    snprintf (socket_file, (SOCKET_PATH_MAX - 1), "/tmp/bml.%d.XXXXXX",
+        (int) getpid ());
     mktemp (socket_file);
   }
   if (!bmpipc_connect ()) {
