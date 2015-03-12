@@ -417,6 +417,9 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
 
     if (blob_size && blob_data) {
       pcmdii = new CMachineDataInputImpl(blob_data, blob_size);
+      DBG("  CMachineDataInput created\n");
+    } else {
+      DBG("  no CMachineDataInput\n");
     }
 
     // call Init (this also calles mdkHelper::Init()
