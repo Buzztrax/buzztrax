@@ -103,6 +103,11 @@ update_wave_index_enum (gulong index, gchar * new_name)
   GEnumClass *enum_class;
   GEnumValue *enum_value;
 
+  if (!index) {
+    // index 0 is no wave, don't update
+    return;
+  }
+
   enum_class = g_type_class_ref (GSTBT_TYPE_WAVE_INDEX);
   enum_value = g_enum_get_value (enum_class, index);
   enum_nick = (gchar *) enum_value->value_nick;
