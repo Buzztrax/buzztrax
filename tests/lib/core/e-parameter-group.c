@@ -87,7 +87,7 @@ test_bt_parameter_group_size (BT_TEST_ARGS)
   BtParameterGroup *pg = get_mono_parameter_group ();
 
   /* act && assert */
-  ck_assert_gobject_glong_eq (pg, "num-params", 5);
+  ck_assert_gobject_glong_eq (pg, "num-params", 6);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
