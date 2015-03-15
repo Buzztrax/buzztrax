@@ -18,6 +18,8 @@ TESTS = \
   tests/povalid.sh \
   tests/xmlvalid.sh
 
+CHECK_REGISTRY = $(top_builddir)/tests/test-registry.reg
+
 # prevent endless loops, this requires bash, see idea in bt-check.c
 #   ulimit -St20;
 #
@@ -39,6 +41,9 @@ TESTS_ENVIRONMENT = \
 	GSETTINGS_SCHEMA_DIR=$(abs_top_builddir) \
 	NO_AT_BRIDGE=1 \
 	GST_DEBUG_FILE=/dev/null \
+	GST_REGISTRY_1_0=$(CHECK_REGISTRY) \
+	GST_PLUGIN_SYSTEM_PATH_1_0= \
+	GST_PLUGIN_PATH_1_0=$(top_builddir)/.libs:$(GST_PLUGINS_DIR) \
 	$(LIBTOOL) --mode=execute
 
 if BUILD_CHECK_TESTS

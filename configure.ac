@@ -238,7 +238,7 @@ case "x${target_cpu}" in
     ;;
   xx86_64|xamd64)
     dnl switch 'xyes' to 'yes' to build it for 32bit using the ipc wrapper
-    if test "$have_x32_h" = "xyes"; then
+    if test "$have_x32_h" = "yes"; then
       HAVE_X86=yes
       BMLHOST_CFLAGS="-m32"
       BMLHOST_CCASFLAGS="-m32"
@@ -419,6 +419,10 @@ PKG_CHECK_MODULES(CHECK, check >= 0.9.2,
   ]
 )
 AM_CONDITIONAL(BUILD_CHECK_TESTS, test "x$have_check" == "xyes")
+
+dnl existing plugins are here (this might be outside of $prefix)
+GST_PLUGINS_DIR="`$PKG_CONFIG --variable=pluginsdir gstreamer-1.0`"
+AC_SUBST(GST_PLUGINS_DIR)
 
 dnl GStreamer plugin build
 plugindir="\$(libdir)/gstreamer-$GST_MAJORMINOR"
