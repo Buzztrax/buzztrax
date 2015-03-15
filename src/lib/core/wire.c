@@ -1376,16 +1376,20 @@ bt_wire_set_property (GObject * const object, const guint property_id,
       GST_DEBUG ("set the src for the wire: %s, %" G_OBJECT_REF_COUNT_FMT,
           (self->priv->src ? GST_OBJECT_NAME (self->priv->src) : ""),
           G_OBJECT_LOG_REF_COUNT (self->priv->src));
-      g_signal_connect (self->priv->src, "notify::pretty-name",
-          G_CALLBACK (on_wire_name_changed), (gpointer) self);
+      if (self->priv->src) {
+        g_signal_connect (self->priv->src, "notify::pretty-name",
+            G_CALLBACK (on_wire_name_changed), (gpointer) self);
+      }
       break;
     case WIRE_DST:
       self->priv->dst = BT_MACHINE (g_value_dup_object (value));
       GST_DEBUG ("set the dst for the wire: %s, %" G_OBJECT_REF_COUNT_FMT,
           (self->priv->dst ? GST_OBJECT_NAME (self->priv->dst) : ""),
           G_OBJECT_LOG_REF_COUNT (self->priv->dst));
-      g_signal_connect (self->priv->src, "notify::pretty-name",
-          G_CALLBACK (on_wire_name_changed), (gpointer) self);
+      if (self->priv->dst) {
+        g_signal_connect (self->priv->dst, "notify::pretty-name",
+            G_CALLBACK (on_wire_name_changed), (gpointer) self);
+      }
       break;
     case WIRE_NUM_PARAMS:
       self->priv->num_params = g_value_get_ulong (value);
@@ -1436,10 +1440,14 @@ bt_wire_dispose (GObject * const object)
   gst_element_remove_pad (GST_ELEMENT (self), self->priv->src_pad);
   gst_element_remove_pad (GST_ELEMENT (self), self->priv->sink_pad);
 
-  g_signal_handlers_disconnect_by_func (self->priv->src, on_wire_name_changed,
-      (gpointer) self);
-  g_signal_handlers_disconnect_by_func (self->priv->dst, on_wire_name_changed,
-      (gpointer) self);
+  if (self->priv->src) {
+    g_signal_handlers_disconnect_by_func (self->priv->src, on_wire_name_changed,
+        (gpointer) self);
+  }
+  if (self->priv->dst) {
+    g_signal_handlers_disconnect_by_func (self->priv->dst, on_wire_name_changed,
+        (gpointer) self);
+  }
 
   g_object_try_weak_unref (self->priv->song);
   //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
