@@ -58,7 +58,7 @@ for song in $E_SONGS; do
   echo >>/tmp/bt_cmd_info.log "== $song =="
   GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" $LIBTOOL $BUZZTRAX_CMD >$info 2>>/tmp/bt_cmd_info.log --command=info --input-file="$song"
   if [ $? -ne 0 ]; then
-    echo "!!! failed"
+    echo >>/tmp/bt_cmd_info.log "!!! failed"
     res=1
   fi
 done
@@ -82,7 +82,7 @@ for song in $T_SONGS; do
   echo >>/tmp/bt_cmd_info.log "== $song =="
   GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" $LIBTOOL $BUZZTRAX_CMD >$info 2>>/tmp/bt_cmd_info.log --command=info --input-file="$song"
   if [ $? -eq 0 ]; then
-    echo "!!! failed"
+    echo >>/tmp/bt_cmd_info.log "!!! failed"
     res=1
   fi
 done
