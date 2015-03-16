@@ -89,6 +89,66 @@ bt_song_io_error_quark (void)
 
 //-- helper methods
 
+static void
+bt_song_io_scan_dir (const gchar * libdir)
+{
+  GDir *dir;
+  const gchar *entry_name;
+  gchar plugin_name[FILENAME_MAX];
+
+  GST_INFO ("  scanning external song-io plugins in '%s'", libdir);
+
+  if (!(dir = g_dir_open (libdir, 0, NULL))) {
+    GST_WARNING ("can't open song-io dir '%s'", libdir);
+    return;
+  }
+  // 1.) scan plugin-folder
+  while ((entry_name = g_dir_read_name (dir))) {
+    // skip names starting with a dot
+    if (*entry_name == '.')
+      continue;
+    g_sprintf (plugin_name, "%s" G_DIR_SEPARATOR_S "%s", libdir, entry_name);
+    // skip symlinks and directories
+    if (g_file_test (plugin_name, G_FILE_TEST_IS_SYMLINK | G_FILE_TEST_IS_DIR))
+      continue;
+
+    // skip files other than shared librares
+    if (!g_str_has_suffix (entry_name, "." G_MODULE_SUFFIX))
+      continue;
+    GST_INFO ("    found file '%s'", plugin_name);
+
+    // 2.) try to open each as g_module
+    //if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
+    GModule *const plugin =
+        g_module_open (plugin_name, G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL);
+    if (plugin != NULL) {
+      gpointer bt_song_io_module_info;
+      // 3.) gets the address of GType bt_song_io_detect(const gchar *);
+      if (g_module_symbol (plugin, "bt_song_io_module_info",
+              &bt_song_io_module_info)) {
+        if (!g_list_find (plugins, bt_song_io_module_info)) {
+          BtSongIOModuleInfo *info =
+              (BtSongIOModuleInfo *) bt_song_io_module_info;
+          // 4.) store the g_module handle and the function pointer in a list
+          //     (uhm, global (static) variable)
+          if (info->init && info->init ()) {
+            plugins = g_list_append (plugins, bt_song_io_module_info);
+          }
+        } else {
+          GST_WARNING ("%s skipped as duplicate", plugin_name);
+          g_module_close (plugin);
+        }
+      } else {
+        GST_WARNING ("%s is not a songio plugin", plugin_name);
+        g_module_close (plugin);
+      }
+    } else {
+      GST_WARNING ("%s is not a shared object", plugin_name);
+    }
+  }
+  g_dir_close (dir);
+}
+
 /*
  * bt_song_io_register_plugins:
  *
@@ -97,8 +157,6 @@ bt_song_io_error_quark (void)
 static void
 bt_song_io_register_plugins (void)
 {
-  GDir *dir;
-
   /* IDEA(ensonic): the plugin list now has structures
    * so that we could keep the modules handle.
    * we need this to close the plugins at sometime ... (do we?)
@@ -111,58 +169,10 @@ bt_song_io_register_plugins (void)
         g_list_append (plugins, (gpointer) & bt_song_io_native_module_info);
   }
   // registering external song-io plugins
-  GST_INFO ("  scanning external song-io plugins in " LIBDIR G_DIR_SEPARATOR_S
-      PACKAGE "-songio");
-  if ((dir = g_dir_open (LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio", 0, NULL))) {
-    const gchar *entry_name;
-    gpointer bt_song_io_module_info = NULL;
-    gchar plugin_name[FILENAME_MAX];
-
-    // 1.) scan plugin-folder (LIBDIR/songio)
-    while ((entry_name = g_dir_read_name (dir))) {
-      // skip names starting with a dot
-      if (*entry_name == '.')
-        continue;
-      g_sprintf (plugin_name,
-          LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio" G_DIR_SEPARATOR_S "%s",
-          entry_name);
-      // skip symlinks
-      if (g_file_test (plugin_name, G_FILE_TEST_IS_SYMLINK))
-        continue;
-      // skip files other than shared librares
-      if (!g_str_has_suffix (entry_name, "." G_MODULE_SUFFIX))
-        continue;
-      GST_INFO ("    found file '%s'", plugin_name);
-
-      // 2.) try to open each as g_module
-      //if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
-      GModule *const plugin =
-          g_module_open (plugin_name, G_MODULE_BIND_LAZY | G_MODULE_BIND_LOCAL);
-      if (plugin != NULL) {
-        // 3.) gets the address of GType bt_song_io_detect(const gchar *);
-        if (g_module_symbol (plugin, "bt_song_io_module_info",
-                &bt_song_io_module_info)) {
-          if (!g_list_find (plugins, bt_song_io_module_info)) {
-            BtSongIOModuleInfo *info =
-                (BtSongIOModuleInfo *) bt_song_io_module_info;
-            // 4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
-            if (info->init && info->init ()) {
-              plugins = g_list_append (plugins, bt_song_io_module_info);
-            }
-          } else {
-            GST_WARNING ("%s skipped as duplicate", plugin_name);
-            g_module_close (plugin);
-          }
-        } else {
-          GST_WARNING ("%s is not a songio plugin", plugin_name);
-          g_module_close (plugin);
-        }
-      } else {
-        GST_WARNING ("%s is not a shared object", plugin_name);
-      }
-    }
-    g_dir_close (dir);
-  }
+  // TODO(ensonic): also load from $srcdir (when uninstalled),
+  //                need recursive scanning
+  bt_song_io_scan_dir (".libs/");
+  bt_song_io_scan_dir (LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
 }
 
 
