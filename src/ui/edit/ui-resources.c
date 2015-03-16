@@ -76,10 +76,16 @@ on_theme_notify (BtSettings * const settings, GParamSpec * const arg,
   g_object_set (gtk_settings_get_default (),
       "gtk-application-prefer-dark-theme", use_dark, NULL);
 
-  // TODO(ensonic): also load from $srcdir (when uninstalled)
-  style = g_strdup_printf (DATADIR ""
-      G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "bt-edit.%s.%s.css",
+  // also load from $srcdir (when uninstalled)
+  style = g_strdup_printf ("src" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S
+      "edit" G_DIR_SEPARATOR_S "bt-edit.%s.%s.css",
       (use_dark ? "dark" : "light"), (use_compact ? "compact" : "normal"));
+  if (!g_file_test (style, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)) {
+    g_free (style);
+    style = g_strdup_printf (DATADIR ""
+        G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "bt-edit.%s.%s.css",
+        (use_dark ? "dark" : "light"), (use_compact ? "compact" : "normal"));
+  }
 
   if (!gtk_css_provider_load_from_path (GTK_CSS_PROVIDER (singleton->
               priv->provider), style, &err)) {
