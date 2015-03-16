@@ -66,7 +66,7 @@ DISTCLEANFILES = \
 noinst_HEADERS =
 noinst_LTLIBRARIES =
 
-include $(top_srcdir)/Makefile.pixmaps.am
+include $(top_srcdir)/Makefile.icons.am
 include $(top_srcdir)/Makefile.src.am
 include $(top_srcdir)/Makefile.tests.am
 
