@@ -724,6 +724,8 @@ bt_wire_canvas_item_dispose (GObject * object)
   }
   g_signal_handlers_disconnect_by_func (self->priv->wire, on_wire_pan_changed,
       self);
+  g_signal_handlers_disconnect_by_func (self->priv->main_page_machines,
+      on_canvas_style_updated, self);
   GST_DEBUG ("  signals disconected");
 
   GST_INFO ("releasing the wire %" G_OBJECT_REF_COUNT_FMT,
