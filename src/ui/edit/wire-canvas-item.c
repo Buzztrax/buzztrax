@@ -230,8 +230,8 @@ on_machine_removed (BtSetup * setup, BtMachine * machine, gpointer user_data)
   g_object_try_unref (src);
   g_object_try_unref (dst);
 
-  GST_INFO_OBJECT (self->priv->wire,
-      "checked wire for machine %" G_OBJECT_REF_COUNT_FMT,
+  // the wire is gone now
+  GST_INFO ("checked wire for machine %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
 }
 
