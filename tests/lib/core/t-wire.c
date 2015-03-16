@@ -82,17 +82,20 @@ test_bt_wire_new_null_song (BT_TEST_ARGS)
       BT_MACHINE (bt_processor_machine_new (song, "proc", "volume", 0L, NULL));
 
   GST_INFO ("-- act --");
-  BtWire *wire = bt_wire_new (NULL, src, dst, NULL);
+  GError *err = NULL;
+  BtWire *wire = bt_wire_new (NULL, src, dst, &err);
 
   GST_INFO ("-- assert --");
   fail_unless (wire != NULL, NULL);
+  fail_unless (err != NULL, NULL);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (wire);        // there is no setup to take ownership :/
+  g_error_free (err);
   BT_TEST_END;
 }
 
-/* create a new wire with NULL for song object */
+/* create a new wire with NULL for the dst machine */
 static void
 test_bt_wire_new_null_machine (BT_TEST_ARGS)
 {
@@ -102,12 +105,39 @@ test_bt_wire_new_null_machine (BT_TEST_ARGS)
           "buzztrax-test-mono-source", 0L, NULL));
 
   GST_INFO ("-- act --");
-  BtWire *wire = bt_wire_new (NULL, src, NULL, NULL);
+  GError *err = NULL;
+  BtWire *wire = bt_wire_new (song, src, NULL, &err);
 
   GST_INFO ("-- assert --");
   fail_unless (wire != NULL, NULL);
+  fail_unless (err != NULL, NULL);
 
   GST_INFO ("-- cleanup --");
+  g_error_free (err);
+  BT_TEST_END;
+}
+
+/* create a new wire with the wrong machine type for dst */
+static void
+test_bt_wire_new_wrong_machine_type (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0L, NULL));
+  BtMachine *dst = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0L, NULL));
+
+  GST_INFO ("-- act --");
+  GError *err = NULL;
+  BtWire *wire = bt_wire_new (song, src, dst, &err);
+
+  GST_INFO ("-- assert --");
+  fail_unless (wire != NULL, NULL);
+  fail_unless (err != NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_error_free (err);
   BT_TEST_END;
 }
 
@@ -123,10 +153,13 @@ test_bt_wire_same_src_and_dst (BT_TEST_ARGS)
   GST_INFO ("-- act --");
   GError *err = NULL;
   BtWire *wire = bt_wire_new (song, machine, machine, &err);
+
+  GST_INFO ("-- assert --");
   fail_unless (wire != NULL, NULL);
   fail_unless (err != NULL, NULL);
 
   GST_INFO ("-- cleanup --");
+  g_error_free (err);
   BT_TEST_END;
 }
 
@@ -138,6 +171,7 @@ bt_wire_test_case (void)
   tcase_add_test (tc, test_bt_wire_properties);
   tcase_add_test (tc, test_bt_wire_new_null_song);
   tcase_add_test (tc, test_bt_wire_new_null_machine);
+  tcase_add_test (tc, test_bt_wire_new_wrong_machine_type);
   tcase_add_test (tc, test_bt_wire_same_src_and_dst);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
