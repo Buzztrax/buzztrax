@@ -89,18 +89,19 @@ bt_song_io_error_quark (void)
 
 //-- helper methods
 
-static void
+static gboolean
 bt_song_io_scan_dir (const gchar * libdir)
 {
   GDir *dir;
   const gchar *entry_name;
   gchar plugin_name[FILENAME_MAX];
+  gboolean found_new_plugins = FALSE;
 
   GST_INFO ("  scanning external song-io plugins in '%s'", libdir);
 
   if (!(dir = g_dir_open (libdir, 0, NULL))) {
     GST_WARNING ("can't open song-io dir '%s'", libdir);
-    return;
+    return FALSE;
   }
   // 1.) scan plugin-folder
   while ((entry_name = g_dir_read_name (dir))) {
@@ -133,6 +134,8 @@ bt_song_io_scan_dir (const gchar * libdir)
           //     (uhm, global (static) variable)
           if (info->init && info->init ()) {
             plugins = g_list_append (plugins, bt_song_io_module_info);
+            found_new_plugins = TRUE;
+            GST_INFO ("    added plugin '%s'", plugin_name);
           }
         } else {
           GST_WARNING ("%s skipped as duplicate", plugin_name);
@@ -147,6 +150,7 @@ bt_song_io_scan_dir (const gchar * libdir)
     }
   }
   g_dir_close (dir);
+  return found_new_plugins;
 }
 
 /*
@@ -169,10 +173,10 @@ bt_song_io_register_plugins (void)
         g_list_append (plugins, (gpointer) & bt_song_io_native_module_info);
   }
   // registering external song-io plugins
-  // TODO(ensonic): also load from $srcdir (when uninstalled),
-  //                need recursive scanning
-  bt_song_io_scan_dir (".libs/");
-  bt_song_io_scan_dir (LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
+  // first try loading from $srcdir (when uninstalled) 
+  if (!bt_song_io_scan_dir (".libs/")) {
+    bt_song_io_scan_dir (LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
+  }
 }
 
 
