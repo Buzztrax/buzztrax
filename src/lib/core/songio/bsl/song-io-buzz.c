@@ -721,6 +721,45 @@ fill_machine_parameter (const BtSongIOBuzz * self, BmxParameter * param,
   }
 }
 
+static gboolean
+registry_filter (GstPluginFeature * const feature, gpointer user_data)
+{
+  const gchar *name = (const gchar *) user_data;
+
+  if (GST_IS_ELEMENT_FACTORY (feature)) {
+    const gchar *long_name =
+        gst_element_factory_get_metadata (GST_ELEMENT_FACTORY (feature),
+        GST_ELEMENT_METADATA_LONGNAME);
+    if (!strcasecmp (long_name, name)) {
+      return TRUE;
+    }
+
+    const gchar *desc =
+        gst_element_factory_get_metadata (GST_ELEMENT_FACTORY (feature),
+        GST_ELEMENT_METADATA_DESCRIPTION);
+    if (!strcasecmp (desc, name)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+static const gchar *
+find_machine_factory_by_name (const gchar * name)
+{
+  GList *list = gst_registry_feature_filter (gst_registry_get (),
+      registry_filter, TRUE, (gpointer) name);
+  if (list) {
+    const gchar *factory_name = gst_plugin_feature_get_name (
+        (GstPluginFeature *) (list->data));
+    gst_plugin_feature_list_free (list);
+
+    GST_WARNING ("name='%s' -> elem_name='%s'", name, factory_name);
+    return factory_name;
+  }
+  return NULL;
+}
+
 //-- helper methods
 
 static gboolean
@@ -828,6 +867,7 @@ read_mach_section (const BtSongIOBuzz * self, const BtSong * song)
   GObjectClass *class = NULL;
   gchar *name;
   gchar plugin_name[256 + 5];   // a dll-name can't be more than 256 chars
+  const gchar *elem_name;
   GError *err = NULL;
 
   if (!entry)
@@ -894,35 +934,43 @@ read_mach_section (const BtSongIOBuzz * self, const BtSong * song)
     // create machine
     name = bt_setup_get_unique_machine_id (setup, mach->name);
     machine = NULL;
-    if (mach->type) {
-      gchar *ptr1, *ptr2;
+    if ((mach->type == MT_GENERATOR) || (mach->type == MT_EFFECT)) {
+      // look for machine by factory->long_name
+      GST_WARNING ("searching long_name='%s'", mach->dllname);
+      if (!(elem_name = find_machine_factory_by_name (mach->dllname))) {
+        gchar *ptr1, *ptr2;
 
-      sprintf (plugin_name, "bml-%s", mach->dllname);
-      g_strcanon (plugin_name, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-+",
-          '-');
+        sprintf (plugin_name, "bml-%s", mach->dllname);
+        g_strcanon (plugin_name, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-+",
+            '-');
 
-      ptr1 = ptr2 = plugin_name;
-      // remove double '-'
-      while (*ptr2) {
-        if (*ptr2 == '-') {
-          while (ptr2[1] == '-')
-            ptr2++;
+        ptr1 = ptr2 = plugin_name;
+        // remove double '-'
+        while (*ptr2) {
+          if (*ptr2 == '-') {
+            while (ptr2[1] == '-')
+              ptr2++;
+          }
+          if (ptr1 != ptr2)
+            *ptr1 = *ptr2;
+          ptr1++;
+          ptr2++;
         }
         if (ptr1 != ptr2)
-          *ptr1 = *ptr2;
-        ptr1++;
-        ptr2++;
-      }
-      if (ptr1 != ptr2)
-        *ptr1 = '\0';
-      // remove trailing '-'
-      ptr1--;
-      while (*ptr1 == '-')
-        *ptr1++ = '\0';
+          *ptr1 = '\0';
+        // remove trailing '-'
+        ptr1--;
+        while (*ptr1 == '-')
+          *ptr1++ = '\0';
 
-      GST_DEBUG ("    name: %s, plugin_name: %s", name, plugin_name);
+        GST_DEBUG ("    name: %s, plugin_name: %s", name, plugin_name);
+        GST_WARNING ("long_name='%s' not found, trying as elem_name",
+            plugin_name);
+        elem_name = plugin_name;
+      }
     } else {
       plugin_name[0] = '\0';
+      elem_name = "\0";
       GST_DEBUG ("    name: %s, plugin_name: -", name);
     }
     switch (mach->type) {
@@ -930,11 +978,11 @@ read_mach_section (const BtSongIOBuzz * self, const BtSong * song)
         machine = BT_MACHINE (bt_sink_machine_new (song, name, &err));
         break;
       case 1:
-        machine = BT_MACHINE (bt_source_machine_new (song, name, plugin_name,
+        machine = BT_MACHINE (bt_source_machine_new (song, name, elem_name,
                 /*voices */ 1, &err));
         break;
       case 2:
-        machine = BT_MACHINE (bt_processor_machine_new (song, name, plugin_name,
+        machine = BT_MACHINE (bt_processor_machine_new (song, name, elem_name,
                 /*voices */ 1, &err));
         // some buzz src register as FX to be stereo, try again
         if (err) {
