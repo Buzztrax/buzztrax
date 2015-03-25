@@ -25,7 +25,7 @@ GST_DEBUG_CATEGORY_EXTERN (GST_CAT_DEFAULT);
 
 //-- preset iface
 
-/* buzzmacine preset format
+/* buzzmachine preset format
  * header:
  * 4 bytes: version
  * 4 bytes: machine name size
@@ -199,9 +199,19 @@ gstbml_preset_get_preset_names (GstBML * bml, GstBMLClass * klass)
 
 // skip non-controlable, trigger params & voice params
 static gboolean
-skip_property (GParamSpec * prop, GObjectClass * voice_class)
+skip_property (GParamSpec * prop, GType owner_type, GObjectClass * voice_class)
 {
   if (!(prop->flags & (GST_PARAM_CONTROLLABLE | G_PARAM_READABLE)))
+    return TRUE;
+  // skip uneditable gobject propertes properties
+  if (G_TYPE_IS_OBJECT (prop->value_type))
+    return TRUE;
+  if (G_TYPE_IS_INTERFACE (prop->value_type))
+    return TRUE;
+  if (prop->value_type == G_TYPE_POINTER)
+    return TRUE;
+  // skip inherited properties
+  if (owner_type && prop->owner_type != owner_type)
     return TRUE;
   if (voice_class && g_object_class_find_property (voice_class, prop->name))
     return TRUE;
@@ -249,24 +259,28 @@ gstbml_preset_load_preset (GstObject * self, GstBML * bml, GstBMLClass * klass,
     guint32 i, tracks, params;
     GObjectClass *global_class = G_OBJECT_CLASS (GST_ELEMENT_GET_CLASS (self));
     GObjectClass *voice_class = get_voice_class (klass->voice_type);
+    GType type = G_OBJECT_TYPE (self);
     GParamSpec **props;
     guint num_props;
 
     tracks = *data++;
     params = *data++;
 
-    GST_INFO ("about to load preset '%s' with %d tracks and %d total params",
+    GST_INFO_OBJECT (self,
+        "about to load preset '%s' with %d tracks and %d total params",
         name, tracks, params);
-    GST_INFO ("machine has %d global and %d voice params",
-        klass->numglobalparams, klass->numtrackparams);
+    GST_INFO_OBJECT (self,
+        "machine has %d attributes, %d global and %d voice params",
+        klass->numattributes, klass->numglobalparams, klass->numtrackparams);
 
     // set global parameters
     if ((props = g_object_class_list_properties (global_class, &num_props))) {
+      GST_DEBUG_OBJECT (self, "%d global properties", num_props);
       for (i = 0; i < num_props; i++) {
-        if (!skip_property (props[i], voice_class))
+        if (!skip_property (props[i], type, voice_class))
           g_object_set (self, props[i]->name, *data++, NULL);
         else {
-          GST_DEBUG ("skipping preset loading for global param %s",
+          GST_DEBUG_OBJECT (self, "skipping preset loading for global param %s",
               props[i]->name);
         }
       }
@@ -279,15 +293,16 @@ gstbml_preset_load_preset (GstObject * self, GstBML * bml, GstBMLClass * klass,
         GList *node;
         guint32 j;
 
+        GST_DEBUG_OBJECT (self, "%d voice properties", num_props);
         for (j = 0, node = bml->voices; (j < tracks && node);
             j++, node = g_list_next (node)) {
           voice = node->data;
           for (i = 0; i < num_props; i++) {
-            if (!skip_property (props[i], NULL))
+            if (!skip_property (props[i], klass->voice_type, NULL))
               g_object_set (voice, props[i]->name, *data++, NULL);
             else {
-              GST_DEBUG ("skipping preset loading for voide param %s",
-                  props[i]->name);
+              GST_DEBUG_OBJECT (self,
+                  "skipping preset loading for voide param %s", props[i]->name);
             }
           }
         }
@@ -411,6 +426,7 @@ gstbml_preset_save_preset (GstObject * self, GstBML * bml, GstBMLClass * klass,
 {
   GObjectClass *global_class = G_OBJECT_CLASS (GST_ELEMENT_GET_CLASS (self));
   GObjectClass *voice_class = get_voice_class (klass->voice_type);
+  GType type = G_OBJECT_TYPE (self);
   GParamSpec **props;
   guint num_props;
   guint32 *data, *ptr;
@@ -419,7 +435,7 @@ gstbml_preset_save_preset (GstObject * self, GstBML * bml, GstBMLClass * klass,
   // count global preset params
   if ((props = g_object_class_list_properties (global_class, &num_props))) {
     for (i = 0; i < num_props; i++) {
-      if (!skip_property (props[i], voice_class))
+      if (!skip_property (props[i], type, voice_class))
         numglobalparams++;
     }
     g_free (props);
@@ -428,7 +444,7 @@ gstbml_preset_save_preset (GstObject * self, GstBML * bml, GstBMLClass * klass,
   if (voice_class && bml->num_voices) {
     if ((props = g_object_class_list_properties (voice_class, &num_props))) {
       for (i = 0; i < num_props; i++) {
-        if (!skip_property (props[i], NULL))
+        if (!skip_property (props[i], klass->voice_type, NULL))
           numtrackparams++;
       }
       g_free (props);
@@ -442,13 +458,14 @@ gstbml_preset_save_preset (GstObject * self, GstBML * bml, GstBMLClass * klass,
   data[1] = params;
   ptr = &data[2];
 
-  GST_INFO ("about to add new preset '%s' with %lu tracks and %u total params",
+  GST_INFO_OBJECT (self,
+      "about to add new preset '%s' with %lu tracks and %u total params",
       name, bml->num_voices, params);
 
   // get global parameters
   if ((props = g_object_class_list_properties (global_class, &num_props))) {
     for (i = 0; i < num_props; i++) {
-      if (!skip_property (props[i], voice_class))
+      if (!skip_property (props[i], type, voice_class))
         g_object_get (self, props[i]->name, ptr++, NULL);
     }
     g_free (props);
@@ -464,7 +481,7 @@ gstbml_preset_save_preset (GstObject * self, GstBML * bml, GstBMLClass * klass,
           j++, node = g_list_next (node)) {
         voice = node->data;
         for (i = 0; i < num_props; i++) {
-          if (!skip_property (props[i], NULL))
+          if (!skip_property (props[i], klass->voice_type, NULL))
             g_object_get (voice, props[i]->name, ptr++, NULL);
         }
       }
