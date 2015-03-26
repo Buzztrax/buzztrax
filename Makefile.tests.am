@@ -46,6 +46,10 @@ TESTS_ENVIRONMENT = \
 	GST_PLUGIN_PATH_1_0=$(top_builddir)/.libs:$(GST_PLUGINS_DIR) \
 	$(LIBTOOL) --mode=execute
 
+# This should make the icon theme look here for icons too, but instead it breaks tons of things
+#	XDG_DATA_DIRS=$XDG_DATA_DIRS:$(abs_top_srcdir)
+
+
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)
 
