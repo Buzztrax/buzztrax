@@ -77,6 +77,7 @@ on_theme_notify (BtSettings * const settings, GParamSpec * const arg,
       "gtk-application-prefer-dark-theme", use_dark, NULL);
 
   // also load from $srcdir (when uninstalled)
+  // TODO: needs to be top_srcdir for out-of-srcdir builds
   style = g_strdup_printf ("src" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S
       "edit" G_DIR_SEPARATOR_S "bt-edit.%s.%s.css",
       (use_dark ? "dark" : "light"), (use_compact ? "compact" : "normal"));
@@ -120,6 +121,16 @@ bt_ui_resources_init_icons (void)
   }
   g_free (icon_theme_name);
   g_free (fallback_icon_theme_name);
+
+#if 0
+  // TODO: needs to be top_srcdir for out-of-srcdir builds
+  // TODO: don't show any effect :/
+  gchar *src_dir = g_get_current_dir ();
+  gchar *icon_dir = g_build_filename (src_dir, "icons/gnome", NULL);
+  gtk_icon_theme_append_search_path (gtk_icon_theme_get_default (), icon_dir);
+  g_free (src_dir);
+  g_free (icon_dir);
+#endif
 
   gtk_icon_size_lookup (GTK_ICON_SIZE_MENU, &w, &h);
 
