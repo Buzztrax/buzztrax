@@ -1119,7 +1119,9 @@ read_mach_section (const BtSongIOBuzz * self, const BtSong * song)
         // collect failed machines
         GST_WARNING ("failed to create machine: %s", plugin_name);
         bt_setup_remember_missing_machine (setup, g_strdup (plugin_name));
-        // we need to abort in no_para mode if we don't have a machine
+        // we need to abort in no_para mode if we don't have a machine as we
+        // don't know how much to skip
+        // TODO(ensonic): need a database of machine:num-{attr,global,track}
         result = FALSE;
         break;
       }
