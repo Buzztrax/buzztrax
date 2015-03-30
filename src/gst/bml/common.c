@@ -201,7 +201,9 @@ gstbml_preset_get_preset_names (GstBML * bml, GstBMLClass * klass)
 static gboolean
 skip_property (GParamSpec * prop, GType owner_type, GObjectClass * voice_class)
 {
-  if (!(prop->flags & (GST_PARAM_CONTROLLABLE | G_PARAM_READABLE)))
+  if (!(prop->flags & GST_PARAM_CONTROLLABLE))
+    return TRUE;
+  if (!(prop->flags & G_PARAM_READABLE))
     return TRUE;
   // skip uneditable gobject propertes properties
   if (G_TYPE_IS_OBJECT (prop->value_type))
@@ -261,7 +263,7 @@ gstbml_preset_load_preset (GstObject * self, GstBML * bml, GstBMLClass * klass,
     GObjectClass *voice_class = get_voice_class (klass->voice_type);
     GType type = G_OBJECT_TYPE (self);
     GParamSpec **props;
-    guint num_props;
+    guint num_props, num_loaded = 0;
 
     tracks = *data++;
     params = *data++;
@@ -277,15 +279,18 @@ gstbml_preset_load_preset (GstObject * self, GstBML * bml, GstBMLClass * klass,
     if ((props = g_object_class_list_properties (global_class, &num_props))) {
       GST_DEBUG_OBJECT (self, "%d global properties", num_props);
       for (i = 0; i < num_props; i++) {
-        if (!skip_property (props[i], type, voice_class))
+        GST_LOG_OBJECT (self, "check global param %s", props[i]->name);
+        if (!skip_property (props[i], type, voice_class)) {
           g_object_set (self, props[i]->name, *data++, NULL);
-        else {
+          num_loaded++;
+        } else {
           GST_DEBUG_OBJECT (self, "skipping preset loading for global param %s",
               props[i]->name);
         }
       }
       g_free (props);
     }
+    GST_DEBUG_OBJECT (self, "read global params %u / %u", num_loaded, params);
     // set track times voice parameters
     if (voice_class && bml->num_voices) {
       if ((props = g_object_class_list_properties (voice_class, &num_props))) {
@@ -298,17 +303,20 @@ gstbml_preset_load_preset (GstObject * self, GstBML * bml, GstBMLClass * klass,
             j++, node = g_list_next (node)) {
           voice = node->data;
           for (i = 0; i < num_props; i++) {
-            if (!skip_property (props[i], klass->voice_type, NULL))
+            GST_LOG_OBJECT (self, "check voice param %s", props[i]->name);
+            if (!skip_property (props[i], klass->voice_type, NULL)) {
               g_object_set (voice, props[i]->name, *data++, NULL);
-            else {
+              num_loaded++;
+            } else {
               GST_DEBUG_OBJECT (self,
-                  "skipping preset loading for voide param %s", props[i]->name);
+                  "skipping preset loading for voice param %s", props[i]->name);
             }
           }
         }
         g_free (props);
       }
     }
+    GST_DEBUG_OBJECT (self, "read total params %u / %u", num_loaded, params);
 
     if (voice_class)
       g_type_class_unref (voice_class);
