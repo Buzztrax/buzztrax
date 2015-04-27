@@ -1,11 +1,11 @@
 dnl Initialise autoconf/automake/libtool
-AC_PREREQ(2.61)
+AC_PREREQ(2.69)
 AC_INIT([buzztrax],[0.9.0],[buzztrax-devel@buzztrax.org])
 AC_CANONICAL_TARGET([])
 # we can't do -Werror, because
 # - we use gnu make extensions
 # - we override uninstallcheck var
-AM_INIT_AUTOMAKE([-Wall check-news std-options foreign subdir-objects])
+AM_INIT_AUTOMAKE([-Wall 1.14 check-news std-options foreign tar-ustar subdir-objects])
 AC_CONFIG_SRCDIR([README.md])
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR(m4)
