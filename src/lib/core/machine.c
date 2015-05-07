@@ -2609,7 +2609,7 @@ bt_machine_reset_parameters (const BtMachine * const self)
  * Searches for a wire in the wires originating from this machine that uses the
  * given #BtMachine instances as a target. Unref the wire, when done with it.
  *
- * Returns: the #BtWire or NULL
+ * Returns: the #BtWire or %NULL
  *
  * Since: 0.6
  */

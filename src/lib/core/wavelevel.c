@@ -89,7 +89,7 @@ G_DEFINE_TYPE_WITH_CODE (BtWavelevel, bt_wavelevel, G_TYPE_OBJECT,
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtWavelevel *
 bt_wavelevel_new (const BtSong * const song, const BtWave * const wave,

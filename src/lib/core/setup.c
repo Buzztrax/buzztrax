@@ -1760,7 +1760,7 @@ bt_setup_get_wire_by_dst_machine (const BtSetup * const self,
  * source and dest.
  * Unref the wire, when done with it.
  *
- * Returns: the #BtWire or NULL
+ * Returns: the #BtWire or %NULL
  */
 BtWire *
 bt_setup_get_wire_by_machines (const BtSetup * const self,
