@@ -42,8 +42,6 @@ BT_TEST_SUITE_E ("BtAboutDialog", bt_about_dialog);
 BT_TEST_SUITE_T_E ("BtChangeLog", bt_change_log);
 BT_TEST_SUITE_E ("BtCrashRecoverDialog", bt_crash_recover_dialog);
 BT_TEST_SUITE_E ("BtEditApplication", bt_edit_application);
-BT_TEST_SUITE_E ("BtInteractionControllerLearnDialog",
-    bt_interaction_controller_learn_dialog);
 BT_TEST_SUITE_E ("BtInteractionControllerMenu", bt_interaction_controller_menu);
 BT_TEST_SUITE_E ("BtMachineActions", bt_machine_actions);
 BT_TEST_SUITE_E ("BtMachineCanvasItem", bt_machine_canvas_item);
@@ -118,6 +116,29 @@ bt_edit_setup (void)
    * seems to be related to the xsettings manager
    *
    * Workaround: BT_CHECK_NO_XVFB=1 make bt_edit.check
+   *
+   #0  gdk_x_error (xdisplay=0x980710, error=0x7fffffffcfe0) at /build/buildd/gtk+3.0-3.10.8/./gdk/x11/gdkmain-x11.c:268
+   #1  0x00002aaab07c254b in _XError () from /usr/lib/x86_64-linux-gnu/libX11.so.6
+   #2  0x00002aaab07bf5e7 in ?? () from /usr/lib/x86_64-linux-gnu/libX11.so.6
+   #3  0x00002aaab07bf695 in ?? () from /usr/lib/x86_64-linux-gnu/libX11.so.6
+   #4  0x00002aaab07c0578 in _XReply () from /usr/lib/x86_64-linux-gnu/libX11.so.6
+   #5  0x00002aaab07a7c74 in _XGetWindowAttributes () from /usr/lib/x86_64-linux-gnu/libX11.so.6
+   #6  0x00002aaab07a7de1 in XGetWindowAttributes () from /usr/lib/x86_64-linux-gnu/libX11.so.6
+   #7  0x00002aaaac7daf61 in gdk_x11_window_foreign_new_for_display (display=display@entry=0x98f010, window=0) at /build/buildd/gtk+3.0-3.10.8/./gdk/x11/gdkwindow-x11.c:1216
+   #8  0x00002aaaac7de7c9 in check_manager_window (x11_screen=0x9941a0, notify_changes=notify_changes@entry=0) at /build/buildd/gtk+3.0-3.10.8/./gdk/x11/xsettings-client.c:506
+   #9  0x00002aaaac7de926 in _gdk_x11_xsettings_init (x11_screen=<optimized out>) at /build/buildd/gtk+3.0-3.10.8/./gdk/x11/xsettings-client.c:580
+   #10 0x00002aaaac7c653e in _gdk_x11_display_open (display_name=<optimized out>) at /build/buildd/gtk+3.0-3.10.8/./gdk/x11/gdkdisplay-x11.c:1429
+   #11 0x00002aaaac7a5e17 in gdk_display_manager_open_display (manager=<optimized out>, name=0x0) at /build/buildd/gtk+3.0-3.10.8/./gdk/gdkdisplaymanager.c:456
+   #12 0x00002aaaac7a53c5 in gdk_display_open (display_name=<optimized out>) at /build/buildd/gtk+3.0-3.10.8/./gdk/gdkdisplay.c:1799
+   #13 0x00002aaaac79dde9 in gdk_display_open_default_libgtk_only () at /build/buildd/gtk+3.0-3.10.8/./gdk/gdk.c:390
+   #14 0x00002aaaac79ddfe in gdk_init_check (argc=argc@entry=0x6e8770 <test_argc>, argv=argv@entry=0x6e8778 <test_argvptr>) at /build/buildd/gtk+3.0-3.10.8/./gdk/gdk.c:417
+   #15 0x00002aaaac79de19 in gdk_init (argc=argc@entry=0x6e8770 <test_argc>, argv=argv@entry=0x6e8778 <test_argvptr>) at /build/buildd/gtk+3.0-3.10.8/./gdk/gdk.c:439
+   #16 0x0000000000422b1a in bt_edit_setup () at tests/m-bt-edit.c:122
+   #17 0x0000000000422e59 in test_setup () at tests/ui/edit/e-about-dialog.c:36
+   #18 0x00000000004b0128 in tcase_run_checked_setup.isra ()
+   #19 0x00000000004b0162 in tcase_run_tfun_nofork.isra ()
+   #20 0x00000000004b047e in srunner_run ()
+   #21 0x0000000000422847 in main (argc=<optimized out>, argv=<optimized out>) at tests/m-bt-edit.c:225
    */
   gdk_init (&test_argc, &test_argvptr);
   check_setup_test_display ();
@@ -192,7 +213,6 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_change_log_suite ());
   srunner_add_suite (sr, bt_crash_recover_dialog_suite ());
   srunner_add_suite (sr, bt_edit_application_suite ());
-  srunner_add_suite (sr, bt_interaction_controller_learn_dialog_suite ());
   srunner_add_suite (sr, bt_interaction_controller_menu_suite ());
   srunner_add_suite (sr, bt_machine_actions_suite ());
   srunner_add_suite (sr, bt_machine_list_model_suite ());

@@ -33,16 +33,6 @@
  * - allow to hide devices
  * - allow to limit the value range (e.g. for the accelerometer)
  */
-/* TODO(ensonic): we could kill learn-dialog and redirect the "learn.."
- * to this settings page with the right device selected
- *   dialog = GTK_WIDGET (bt_settings_dialog_new ());
- *   g_object_set(dialog, "page", BT_SETTINGS_PAGE_INTERACTION_CONTROLLER, NULL);
- *   ...
- * - need a way to select the device
- *   - add gobject prop to get the current page widget?
- *   - add gobject prop to set/get the device on the page and also get the
-*      selected control
- */
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_INTERACTION_CONTROLLER_C
 
@@ -169,6 +159,7 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
   GtkTreeIter iter;
   GList *node, *list;
 
+  // release the old one
   if (self->priv->device) {
     stop_device (self);
   }
@@ -190,6 +181,7 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
     }
     g_list_free (list);
 
+    // activate the new one
     self->priv->device = g_object_ref (device);
     start_device (self);
   }
@@ -249,9 +241,20 @@ on_control_name_edited (GtkCellRendererText * cellrenderertext,
       if ((control =
               bt_object_list_model_get_object ((BtObjectListModel *) store,
                   &iter))) {
+        GtkTreePath *path;
+        gint pos;
+
         g_object_set (control, "name", new_text, NULL);
-        // TODO(ensonic): why?
-        //on_device_menu_changed (self->priv->device_menu, self);
+        // resort the list
+        on_device_menu_changed (self->priv->device_menu, self);
+        // select control again
+        pos = get_control_pos (self->priv->device, (BtIcControl *) control);
+        path = gtk_tree_path_new_from_indices (pos, -1);
+        gtk_widget_grab_focus (GTK_WIDGET (self->priv->controller_list));
+        gtk_tree_view_set_cursor (self->priv->controller_list, path,
+            gtk_tree_view_get_column (self->priv->controller_list,
+                CONTROLLER_LIST_LABEL), TRUE);
+        gtk_tree_path_free (path);
       }
     }
   }
@@ -288,23 +291,18 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
 //-- helper methods
 
 static void
-select_device (BtSettingsPageInteractionController * self,
-    BtIcDevice * new_device)
+select_device (BtSettingsPageInteractionController * self, BtIcDevice * device)
 {
   BtIcRegistry *ic_registry;
   gint index;
 
-  if (self->priv->device == new_device) {
-    g_object_unref (new_device);
+  if (self->priv->device == device) {
     return;
   }
-
-  g_object_try_unref (self->priv->device);
-  self->priv->device = new_device;
-
   // update combo selection
+  // on_device_menu_changed() will store the device -> self->priv->device
   g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);
-  index = get_device_pos (ic_registry, self->priv->device);
+  index = get_device_pos (ic_registry, device);
   gtk_combo_box_set_active (self->priv->device_menu, index);
   g_object_unref (ic_registry);
 }
@@ -331,20 +329,23 @@ start_device (BtSettingsPageInteractionController * self)
 static void
 stop_device (BtSettingsPageInteractionController * self)
 {
+  GList *node, *list;
+
   if (BTIC_IS_LEARN (self->priv->device)) {
     btic_learn_stop (BTIC_LEARN (self->priv->device));
     g_signal_handlers_disconnect_by_func (self->priv->device,
         notify_device_controlchange, self);
   } else {
-    GList *node, *list;
     btic_device_stop (self->priv->device);
-    g_object_get (self->priv->device, "controls", &list, NULL);
-    for (node = list; node; node = g_list_next (node)) {;
-      g_signal_handlers_disconnect_by_func (node->data,
-          notify_controlchange, (gpointer) self);
-    }
-    g_list_free (list);
   }
+
+  g_object_get (self->priv->device, "controls", &list, NULL);
+  for (node = list; node; node = g_list_next (node)) {;
+    g_signal_handlers_disconnect_by_func (node->data,
+        notify_controlchange, (gpointer) self);
+  }
+  g_list_free (list);
+
   g_object_unref (self->priv->device);
   self->priv->device = NULL;
 }
@@ -497,7 +498,7 @@ bt_settings_page_interaction_controller_set_property (GObject * const object,
   return_if_disposed ();
   switch (property_id) {
     case PROP_DEVICE:
-      select_device (self, BTIC_DEVICE (g_value_dup_object (value)));
+      select_device (self, BTIC_DEVICE (g_value_get_object (value)));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);

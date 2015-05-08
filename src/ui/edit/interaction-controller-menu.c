@@ -221,12 +221,39 @@ on_control_learn (GtkMenuItem * menuitem, gpointer user_data)
   BtIcDevice *device =
       BTIC_DEVICE (g_hash_table_lookup (self->priv->menuitem_to_device,
           (gpointer) menuitem));
-  BtInteractionControllerLearnDialog *dialog;
+  BtSettingsDialog *dialog;
 
-  if ((dialog = bt_interaction_controller_learn_dialog_new (device, self))) {
+  if ((dialog = bt_settings_dialog_new ())) {
+    GtkWidget *page;
+
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (dialog));
+    g_object_set (dialog, "page", BT_SETTINGS_PAGE_INTERACTION_CONTROLLER,
+        NULL);
+    g_object_get (dialog, "page-widget", &page, NULL);
+    g_object_set (page, "device", device, NULL);
     gtk_widget_show_all (GTK_WIDGET (dialog));
+    switch (gtk_dialog_run (GTK_DIALOG (dialog))) {
+      case GTK_RESPONSE_ACCEPT:
+        // TODO(ensonic): assign last selected control ?
+        // need a PROP_CONTROL on the page
+#if 0
+        BtIcControl * control;
+        GObject *menuitem;
+
+        g_object_get (page, "control", &control, NULL);
+        menuitem =
+            G_OBJECT (g_hash_table_lookup (self->priv->control_to_menuitem,
+                (gpointer) control));
+        on_control_bind (menuitem, self);
+        g_object_unref (control);
+#endif
+        break;
+      default:
+        break;
+    }
+    g_object_unref (page);
+    gtk_widget_destroy (GTK_WIDGET (dialog));
   }
   GST_INFO ("learn function activated on device");
 }

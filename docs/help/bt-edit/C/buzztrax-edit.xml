@@ -1195,7 +1195,8 @@ i o p</keycap></screen></entry>
         procedure. Every time such a device is selected, the lean mode will be
         activated. In this mode one can press the hardware buttons or move
         sliders and knobs. When this happens, controls not yet in the list will
-        be automatically added.
+        be automatically added, otherwise they will be selected. The selected
+        control can be renamed.
       </para>
     </sect3>
 
@@ -1324,7 +1325,7 @@ i o p</keycap></screen></entry>
       supports hid (e.g joysticks, wiimotes, harddisk accelerometers) and midi
       devices. For some device types the sub-menu with the controls will start
       with an entry "Learn ...". This will lead to the
-      <link linkend="bt-edit-dialog-interaction-controller-learn">lean dialog</link>,
+      <link linkend="bt-edit-prefs-interaction-controller">controller settings</link>,
       where new controllers can be taught.
     </para>
     <para>
@@ -1594,28 +1595,6 @@ i o p</keycap></screen></entry>
           </imageobject>
           <textobject>
             <phrase>Crash recovery dialog.</phrase>
-          </textobject>
-        </mediaobject>
-      </screenshot>
-    </figure>
-  </sect2>
-  <sect2 id="bt-edit-dialog-interaction-controller-learn">
-    <title id="bt-edit-dialog-interaction-controller-learn.title">Interaction controller learn dialog</title>
-    <para>
-      When this dialog is open, &app; will listen to control changes. Not yet
-      known controls will show in the dialog with an auto-generated name. This
-      name can be changed. Pressing okay, will store the new control and assign
-      it to the machine parameter (from which the dialog was invoked).
-    </para>
-    <figure id="bt-edit-dialog-interaction-controller-learn-fig">
-      <title>Interaction controller learn dialog</title>
-      <screenshot>
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="figures/interaction-controller-learn.png" format="PNG" contentwidth="65%"/>
-          </imageobject>
-          <textobject>
-            <phrase>Interaction controller learn dialog.</phrase>
           </textobject>
         </mediaobject>
       </screenshot>

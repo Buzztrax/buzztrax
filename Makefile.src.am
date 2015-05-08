@@ -413,7 +413,6 @@ libbtedit_la_SOURCES = \
   src/ui/edit/crash-recover-dialog.c src/ui/edit/crash-recover-dialog.h \
   src/ui/edit/edit-application.c src/ui/edit/edit-application.h \
   src/ui/edit/interaction-controller-menu.c src/ui/edit/interaction-controller-menu.h \
-  src/ui/edit/interaction-controller-learn-dialog.c src/ui/edit/interaction-controller-learn-dialog.h \
   src/ui/edit/machine-canvas-item.c src/ui/edit/machine-canvas-item.h \
   src/ui/edit/machine-menu.c src/ui/edit/machine-menu.h \
   src/ui/edit/machine-actions.c src/ui/edit/machine-actions.h \

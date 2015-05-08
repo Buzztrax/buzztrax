@@ -68,7 +68,6 @@
 #include "crash-recover-dialog.h"
 #include "edit-application.h"
 #include "interaction-controller-menu.h"
-#include "interaction-controller-learn-dialog.h"
 #include "machine-canvas-item.h"
 #include "machine-menu.h"
 #include "machine-actions.h"

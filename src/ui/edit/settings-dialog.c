@@ -29,7 +29,8 @@
 
 enum
 {
-  SETTINGS_DIALOG_PAGE = 1
+  PROP_PAGE = 1,
+  PROP_PAGE_WIDGET
 };
 
 enum
@@ -58,9 +59,9 @@ struct _BtSettingsDialogPrivate
 
   /* the audiodevices settings */
   BtSettingsPageAudiodevices *audiodevices_page;
+  BtSettingsPageDirectories *directories_page;
   BtSettingsPageInteractionController *interaction_controller_page;
   BtSettingsPagePlaybackController *playback_controller_page;
-  BtSettingsPageDirectories *directories_page;
   BtSettingsPageShortcuts *shortcuts_page;
   BtSettingsPageUI *ui_page;
 };
@@ -147,6 +148,26 @@ on_settings_list_realize (GtkWidget * widget, gpointer user_data)
 }
 
 //-- helper methods
+
+static void
+select_page (BtSettingsDialog * self, BtSettingsPage new_page)
+{
+  GtkTreeSelection *selection;
+  GtkTreePath *path;
+
+  if (self->priv->page == new_page)
+    return;
+
+  self->priv->page = new_page;
+  // switch page
+  selection = gtk_tree_view_get_selection (self->priv->settings_list);
+  if ((path = gtk_tree_path_new_from_indices (new_page, -1))) {
+    gtk_tree_selection_select_path (selection, path);
+    gtk_tree_view_set_cursor (self->priv->settings_list, path, NULL, FALSE);
+    gtk_tree_path_free (path);
+    on_settings_list_cursor_changed (self->priv->settings_list, self);
+  }
+}
 
 static void
 bt_settings_dialog_init_ui (const BtSettingsDialog * self)
@@ -334,8 +355,30 @@ bt_settings_dialog_get_property (GObject * object, guint property_id,
   BtSettingsDialog *self = BT_SETTINGS_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case SETTINGS_DIALOG_PAGE:
+    case PROP_PAGE:
       g_value_set_enum (value, self->priv->page);
+      break;
+    case PROP_PAGE_WIDGET:
+      switch (self->priv->page) {
+        case BT_SETTINGS_PAGE_AUDIO_DEVICES:
+          g_value_set_object (value, self->priv->audiodevices_page);
+          break;
+        case BT_SETTINGS_PAGE_DIRECTORIES:
+          g_value_set_object (value, self->priv->directories_page);
+          break;
+        case BT_SETTINGS_PAGE_INTERACTION_CONTROLLER:
+          g_value_set_object (value, self->priv->interaction_controller_page);
+          break;
+        case BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER:
+          g_value_set_object (value, self->priv->playback_controller_page);
+          break;
+        case BT_SETTINGS_PAGE_SHORTCUTS:
+          g_value_set_object (value, self->priv->shortcuts_page);
+          break;
+        case BT_SETTINGS_PAGE_UI:
+          g_value_set_object (value, self->priv->ui_page);
+          break;
+      }
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -350,27 +393,9 @@ bt_settings_dialog_set_property (GObject * object, guint property_id,
   BtSettingsDialog *self = BT_SETTINGS_DIALOG (object);
   return_if_disposed ();
   switch (property_id) {
-    case SETTINGS_DIALOG_PAGE:{
-      BtSettingsPage old_page = self->priv->page;
-
-      self->priv->page = g_value_get_enum (value);
-      if (self->priv->page != old_page) {
-        GtkTreeSelection *selection;
-        GtkTreePath *path;
-
-        // switch page
-        selection = gtk_tree_view_get_selection (self->priv->settings_list);
-        if ((path = gtk_tree_path_new_from_indices (self->priv->page, -1))) {
-          gtk_tree_selection_select_path (selection, path);
-          gtk_tree_view_set_cursor (self->priv->settings_list, path, NULL,
-              FALSE);
-          gtk_tree_path_free (path);
-          on_settings_list_cursor_changed (self->priv->settings_list,
-              (gpointer) self);
-        }
-      }
+    case PROP_PAGE:
+      select_page (self, g_value_get_enum (value));
       break;
-    }
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -411,8 +436,13 @@ bt_settings_dialog_class_init (BtSettingsDialogClass * klass)
   gobject_class->get_property = bt_settings_dialog_get_property;
   gobject_class->dispose = bt_settings_dialog_dispose;
 
-  g_object_class_install_property (gobject_class, SETTINGS_DIALOG_PAGE,
+  g_object_class_install_property (gobject_class, PROP_PAGE,
       g_param_spec_enum ("page", "page prop", "Current settings page",
           BT_TYPE_SETTINGS_PAGE, BT_SETTINGS_PAGE_AUDIO_DEVICES,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_PAGE_WIDGET,
+      g_param_spec_object ("page-widget", "page-widget prop",
+          "Current settings page widget",
+          GTK_TYPE_WIDGET, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
