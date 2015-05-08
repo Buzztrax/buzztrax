@@ -50,7 +50,8 @@ enum
 
 enum
 {
-  CONTROLLER_LIST_LABEL = 0
+  CONTROLLER_LIST_USED = 0,
+  CONTROLLER_LIST_LABEL
 };
 
 struct _BtSettingsPageInteractionControllerPrivate
@@ -171,7 +172,7 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
         bt_object_list_model_get_object (BT_OBJECT_LIST_MODEL (model), &iter);
   }
   // update list of controllers
-  store = bt_object_list_model_new (1, BTIC_TYPE_CONTROL, "name");
+  store = bt_object_list_model_new (2, BTIC_TYPE_CONTROL, "bound", "name");
   if (device) {
     g_object_get (device, "controls", &list, NULL);
     for (node = list; node; node = g_list_next (node)) {
@@ -208,12 +209,16 @@ on_ic_registry_devices_changed (BtIcRegistry * ic_registry, GParamSpec * arg,
   g_object_get (ic_registry, "devices", &list, NULL);
   for (node = list, i = 0; node; node = g_list_next (node), i++) {
     bt_object_list_model_append (store, (GObject *) node->data);
-    if (node->data == self->priv->device) {
-      index = i;
+    if (self->priv->device) {
+      if (node->data == self->priv->device) {
+        index = i;
+      }
+    } else {
+      index = 0;
     }
   }
 
-  GST_INFO ("device menu refreshed");
+  GST_INFO ("device menu refreshed: index = %d", index);
   gtk_label_set_text (self->priv->message, (list == NULL) ? NULL :
       _("Plug a USB input device or midi controller"));
   gtk_widget_set_sensitive (GTK_WIDGET (self->priv->device_menu),
@@ -393,7 +398,6 @@ bt_settings_page_interaction_controller_init_ui (const
   g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);
   g_signal_connect (ic_registry, "notify::devices",
       G_CALLBACK (on_ic_registry_devices_changed), (gpointer) self);
-  on_ic_registry_devices_changed (ic_registry, NULL, (gpointer) self);
   g_object_unref (ic_registry);
   g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (self), widget, 2, 1, 1, 1);
@@ -407,18 +411,24 @@ bt_settings_page_interaction_controller_init_ui (const
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window),
       GTK_SHADOW_ETCHED_IN);
   self->priv->controller_list = GTK_TREE_VIEW (gtk_tree_view_new ());
-  /* TODO(ensonic): add icon: trigger=button, range=knob/slider (from glade?)
-   * /usr/share/glade3/pixmaps/hicolor/22x22/actions/
-   * /usr/share/icons/gnome/22x22/apps/volume-knob.png
-   */
+  g_object_set (self->priv->controller_list,
+      "enable-search", FALSE, "rules-hint", TRUE, NULL);
+
+  // have this first as the last column gets the remaining space (always :/)
+  renderer = gtk_cell_renderer_toggle_new ();
+  gtk_tree_view_insert_column_with_attributes (self->priv->controller_list, -1,
+      _("In use"), renderer, "active", CONTROLLER_LIST_USED, NULL);
+
   self->priv->id_renderer = renderer = gtk_cell_renderer_text_new ();
-  gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
+  //gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
       (renderer), 1);
   g_signal_connect (renderer, "edited", G_CALLBACK (on_control_name_edited),
       (gpointer) self);
   gtk_tree_view_insert_column_with_attributes (self->priv->controller_list, -1,
-      _("Controller"), renderer, "text", CONTROLLER_LIST_LABEL, NULL);
+      _("Controller"), renderer, "text", CONTROLLER_LIST_LABEL, "expand", TRUE,
+      NULL);
+
   gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
           priv->controller_list), GTK_SELECTION_BROWSE);
   gtk_container_add (GTK_CONTAINER (scrolled_window),
@@ -440,6 +450,8 @@ bt_settings_page_interaction_controller_init_ui (const
   g_signal_connect ((gpointer) pages, "notify::page",
       G_CALLBACK (on_page_switched), (gpointer) self);
 
+  // initial refresh
+  on_ic_registry_devices_changed (ic_registry, NULL, (gpointer) self);
 }
 
 //-- constructor methods
