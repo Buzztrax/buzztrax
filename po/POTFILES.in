@@ -20,7 +20,6 @@ src/ui/edit/buzztrax-edit.desktop.in
 src/ui/edit/change-log.c
 src/ui/edit/crash-recover-dialog.c
 src/ui/edit/edit-application.c
-src/ui/edit/interaction-controller-learn-dialog.c
 src/ui/edit/interaction-controller-menu.c
 src/ui/edit/machine-actions.c
 src/ui/edit/machine-canvas-item.c
