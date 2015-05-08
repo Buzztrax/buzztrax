@@ -370,8 +370,41 @@ extern "C" DE BuzzMachine *bm_new(BuzzMachineHandle *bmh) {
     return(bm);
 }
 
+static void bm_init_global_params(BuzzMachine *bm, CMachineInfo *mi) {
+    int i;
+
+    // initialise global parameters (DefValue or NoValue, Buzz seems to use NoValue)
+    for(i=0;i<mi->numGlobalParameters;i++) {
+        if(mi->Parameters[i]->Flags&MPF_STATE) {
+            bm_set_global_parameter_value(bm,i,mi->Parameters[i]->DefValue);
+        }
+        else {
+            bm_set_global_parameter_value(bm,i,mi->Parameters[i]->NoValue);
+        }
+    }
+}
+
+static void bm_init_track_params(BuzzMachine *bm, CMachineInfo *mi) {
+    // initialise track parameters
+    if((mi->minTracks>0) && (mi->maxTracks>0)) {
+        int i,j,k=mi->numGlobalParameters;
+        DBG3(" need to initialize %d track params for tracks: %d...%d\n",mi->numTrackParameters,mi->minTracks,mi->maxTracks);
+        for(j=0;j<mi->maxTracks;j++) {
+            DBG1("  initialize track %d\n", j);
+            for(i=0;i<mi->numTrackParameters;i++) {
+                if(mi->Parameters[k+i]->Flags&MPF_STATE) {
+                    bm_set_track_parameter_value(bm,j,i,mi->Parameters[k+i]->DefValue);
+                }
+                else {
+                    bm_set_track_parameter_value(bm,j,i,mi->Parameters[k+i]->NoValue);
+                }
+            }
+        }
+    }
+}
+
 extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned char *blob_data) {
-    int i,j;
+    int i;
 
     DBG2("  bm_init(bm,%ld,%p)\n",blob_size,blob_data);
 
@@ -383,38 +416,14 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
 
     // CyanPhase DTMF-1 access gval.xxx in mi::Init
     // so we need to call these before
-
-    // initialise global parameters (DefValue or NoValue, Buzz seems to use NoValue)
-    for(i=0;i<bm->machine_info->numGlobalParameters;i++) {
-        if(bm->machine_info->Parameters[i]->Flags&MPF_STATE) {
-            bm_set_global_parameter_value(bm,i,bm->machine_info->Parameters[i]->DefValue);
-        }
-        else {
-            bm_set_global_parameter_value(bm,i,bm->machine_info->Parameters[i]->NoValue);
-        }
-    }
+    bm_init_global_params(bm, bm->machine_info);
     DBG("  global parameters initialized\n");
     // initialise track parameters
-    if((bm->machine_info->minTracks>0) && (bm->machine_info->maxTracks>0)) {
-        int k=bm->machine_info->numGlobalParameters;
-        DBG3(" need to initialize %d track params for tracks: %d...%d\n",bm->machine_info->numTrackParameters,bm->machine_info->minTracks,bm->machine_info->maxTracks);
-        for(j=0;j<bm->machine_info->maxTracks;j++) {
-            DBG1("  initialize track %d\n", j);
-            for(i=0;i<bm->machine_info->numTrackParameters;i++) {
-                if(bm->machine_info->Parameters[k+i]->Flags&MPF_STATE) {
-                    bm_set_track_parameter_value(bm,j,i,bm->machine_info->Parameters[k+i]->DefValue);
-                }
-                else {
-                    bm_set_track_parameter_value(bm,j,i,bm->machine_info->Parameters[k+i]->NoValue);
-                }
-            }
-        }
-    }
+    bm_init_track_params(bm, bm->machine_info);
     DBG("  track parameters initialized\n");
 
     // create the machine data input
     CMachineDataInput * pcmdii = NULL;
-
     if (blob_size && blob_data) {
       pcmdii = new CMachineDataInputImpl(blob_data, blob_size);
       DBG("  CMachineDataInput created\n");
@@ -427,7 +436,7 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
     DBG("  CMachineInterface::Init() called\n");
     // create and get mdk implementation
     if((bm->machine_info->Version & 0xff) >= 15) {
-      // imho mdk only works with for machines that use buzz 1.2 api
+      // AFAIK mdk only works with for machines that use buzz 1.2 api
       // we need to avoid creating mdkimpl here, if the machine is an mdkmachine
       // its already created
       // CMDKMachineInterface::Init() also sets CMachineInterfaceEx
@@ -438,18 +447,26 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
       }
     }
 
-    // call AttributesChanged always
-    //if(bm->machine_info->numAttributes>0) {
+    // always call AttributesChanged (also if numAttributes == 0)
 		bm->machine_iface->AttributesChanged();
-        DBG("  CMachineInterface::AttributesChanged() called\n");
-    //}
+    DBG("  CMachineInterface::AttributesChanged() called\n");
 
-    // call SetNumTracks
+    // always call SetNumTracks (also if numnumTrackParameters == 0)
     //DBG1("  CMachineInterface::SetNumTracks(%d)\n",bm->machine_info->minTracks);
     // calling this without the '-1' crashes: Automaton Parametric EQ.dll
     //bm->machine_iface->SetNumTracks(bm->machine_info->minTracks-1);
     bm->machine_iface->SetNumTracks(bm->machine_info->minTracks);
     DBG1("  CMachineInterface::SetNumTracks(%d) called\n",bm->machine_info->minTracks);
+
+    // TODO(ensonic): buzz seems to set the initial global- and track-parameters
+    // now, we need to try both combinations
+# if 0
+    bm_init_global_params(bm, bm->machine_info);
+    DBG("  global parameters initialized\n");
+    // initialise track parameters
+    bm_init_track_params(bm, bm->machine_info);
+    DBG("  track parameters initialized\n");
+#endif
 
     /* we've given the machine the initial global- and track-parameters,
      * and the attributes, give it a tick
@@ -469,6 +486,11 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
 
 static void * bm_get_track_parameter_location(BuzzMachine *bm,int track,int index) {
     byte *ptr=(byte *)bm->machine_iface->TrackVals;
+
+    if (!ptr) {
+      DBG("no track vals ptr\n");
+      return NULL;
+    }
     // @todo prepare pointer array in bm_init
     for(int j=0;j<=track;j++) {
         for(int i=0;i<bm->machine_info->numTrackParameters;i++) {
@@ -535,6 +557,11 @@ extern "C" DE void bm_set_track_parameter_value(BuzzMachine *bm,int track,int in
 
 static void * bm_get_global_parameter_location(BuzzMachine *bm,int index) {
     byte *ptr=(byte *)bm->machine_iface->GlobalVals;
+
+    if (!ptr) {
+      DBG("no global vals ptr\n");
+      return NULL;
+    }
     // @todo prepare pointer array in bm_init
     for(int i=0;i<=index;i++) {
         if(i==index)
