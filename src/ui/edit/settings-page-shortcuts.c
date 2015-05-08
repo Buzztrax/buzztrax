@@ -25,6 +25,8 @@
  * - save edited scheme under new/current name
  *   - g_build_filename(g_get_user_data_dir(),PACKAGE,"shortcut-maps",NULL);
  *   - check the midi-profiles in lib/ic/learn.c for the gkeyfile handling
+ *   - or use css:
+ *     https://git.gnome.org/browse/gnome-builder/tree/data/keybindings/vim.css
  * - in the settings we just store the map name
  */
 /* TODO(ensonic): we need a way to edit the current scheme
