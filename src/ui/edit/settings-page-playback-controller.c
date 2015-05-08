@@ -118,7 +118,7 @@ update_ic_playback_settings (BtSettingsPagePlaybackController * self)
   gchar *spec;
 
   spec = bt_settings_format_ic_playback_spec (self->priv->ic_playback_cfg);
-  GST_WARNING ("formatted spec: '%s'", spec);
+  GST_DEBUG ("formatted spec: '%s'", spec);
   g_object_set (self->priv->settings, "ic-playback-spec", spec, NULL);
   g_free (spec);
 }
@@ -384,7 +384,7 @@ on_command_menu_changed (GtkComboBox * combo_box, gpointer user_data)
   g_object_get (control, "name", &ctrl_name, NULL);
   g_hash_table_insert (self->priv->ic_playback_cfg, g_strdup (key), ctrl_name);
 
-  GST_WARNING ("command ['%s'] = '%s'", key, ctrl_name);
+  GST_DEBUG ("command ['%s'] = '%s'", key, ctrl_name);
 
 done:
   update_ic_playback_settings (self);
