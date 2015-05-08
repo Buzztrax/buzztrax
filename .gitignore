@@ -11,6 +11,7 @@
 ar-lib
 bmltest_info
 bmltest_process
+bmlhost
 buzztrax-cmd
 buzztrax-edit
 bt_core
@@ -72,3 +73,4 @@ gschemas.compiled
 buzztrax.appdata.xml
 *.test
 bt_*.tar.bz2
+test-registry.reg
