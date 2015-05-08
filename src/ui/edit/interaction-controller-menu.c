@@ -234,21 +234,20 @@ on_control_learn (GtkMenuItem * menuitem, gpointer user_data)
     g_object_set (page, "device", device, NULL);
     gtk_widget_show_all (GTK_WIDGET (dialog));
     switch (gtk_dialog_run (GTK_DIALOG (dialog))) {
-      case GTK_RESPONSE_ACCEPT:
-        // TODO(ensonic): assign last selected control ?
-        // need a PROP_CONTROL on the page
-#if 0
-        BtIcControl * control;
-        GObject *menuitem;
+      case GTK_RESPONSE_ACCEPT:{
+        // assign last selected control
+        BtIcControl *control;
 
         g_object_get (page, "control", &control, NULL);
-        menuitem =
-            G_OBJECT (g_hash_table_lookup (self->priv->control_to_menuitem,
-                (gpointer) control));
-        on_control_bind (menuitem, self);
-        g_object_unref (control);
-#endif
+        if (control) {
+          GtkMenuItem *menuitem =
+              g_hash_table_lookup (self->priv->control_to_menuitem,
+              (gpointer) control);
+          on_control_bind (menuitem, self);
+          g_object_unref (control);
+        }
         break;
+      }
       default:
         break;
     }

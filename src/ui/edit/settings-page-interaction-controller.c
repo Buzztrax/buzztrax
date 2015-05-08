@@ -40,7 +40,8 @@
 
 enum
 {
-  PROP_DEVICE = 1
+  PROP_DEVICE = 1,
+  PROP_CONTROL
 };
 
 enum
@@ -69,6 +70,8 @@ struct _BtSettingsPageInteractionControllerPrivate
 
   /* the active device or NULL */
   BtIcDevice *device;
+  /* the last selected control */
+  BtIcControl *control;
 };
 
 //-- the class
@@ -266,6 +269,29 @@ on_control_name_edited (GtkCellRendererText * cellrenderertext,
 }
 
 static void
+on_control_selected (GtkTreeSelection * tree_sel, gpointer user_data)
+{
+  BtSettingsPageInteractionController *self =
+      BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (user_data);
+  GtkTreeIter iter;
+
+  if (gtk_tree_selection_get_selected (tree_sel, NULL, &iter)) {
+    GtkTreeModel *store;
+
+    if ((store = gtk_tree_view_get_model (self->priv->controller_list))) {
+      GObject *control;
+
+      if ((control =
+              bt_object_list_model_get_object ((BtObjectListModel *) store,
+                  &iter))) {
+        self->priv->control = (BtIcControl *) control;
+        g_object_notify ((GObject *) self, "control");
+      }
+    }
+  }
+}
+
+static void
 on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
 {
   BtSettingsPageInteractionController *self =
@@ -361,6 +387,7 @@ bt_settings_page_interaction_controller_init_ui (const
 {
   GtkWidget *label, *widget, *scrolled_window;
   GtkCellRenderer *renderer;
+  GtkTreeSelection *tree_sel;
   BtIcRegistry *ic_registry;
   gchar *str;
 
@@ -429,8 +456,11 @@ bt_settings_page_interaction_controller_init_ui (const
       _("Controller"), renderer, "text", CONTROLLER_LIST_LABEL, "expand", TRUE,
       NULL);
 
-  gtk_tree_selection_set_mode (gtk_tree_view_get_selection (self->
-          priv->controller_list), GTK_SELECTION_BROWSE);
+  tree_sel = gtk_tree_view_get_selection (self->priv->controller_list);
+  gtk_tree_selection_set_mode (tree_sel, GTK_SELECTION_BROWSE);
+  g_signal_connect (tree_sel, "changed", G_CALLBACK (on_control_selected),
+      (gpointer) self);
+
   gtk_container_add (GTK_CONTAINER (scrolled_window),
       GTK_WIDGET (self->priv->controller_list));
   g_object_set (GTK_WIDGET (scrolled_window), "hexpand", TRUE, "vexpand", TRUE,
@@ -493,6 +523,9 @@ bt_settings_page_interaction_controller_get_property (GObject * const object,
   switch (property_id) {
     case PROP_DEVICE:
       g_value_set_object (value, self->priv->device);
+      break;
+    case PROP_CONTROL:
+      g_value_set_object (value, self->priv->control);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -575,4 +608,8 @@ static void
   g_object_class_install_property (gobject_class, PROP_DEVICE,
       g_param_spec_object ("device", "device prop", "device object",
           BTIC_TYPE_DEVICE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_CONTROL,
+      g_param_spec_object ("control", "control prop", "selected control",
+          BTIC_TYPE_CONTROL, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
