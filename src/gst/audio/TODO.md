@@ -75,6 +75,9 @@ voices = 1 + (12 / 2) = 7
        - adsr/d-envelope for cut-off?
 - have presets for kick, snare, {open,closed}-hihat, claps, cymbal
 
+# sfxr
+https://github.com/grimfang4/sfxr/blob/master/sfxr/source/main.cpp
+
 # synth components
 The libgstbuzztrax already has a couple of components; we'd like to extend this
 to make it dead easy writing new synths.
