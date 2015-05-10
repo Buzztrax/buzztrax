@@ -222,7 +222,6 @@ libbuzztrax_gstinclude_HEADERS = \
   src/lib/gst/propertymeta.h \
   src/lib/gst/tempo.h
 
-
 libbuzztrax_ic_la_LIBADD = \
   $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbuzztrax_ic_la_LDFLAGS = \
@@ -275,6 +274,7 @@ libbuzztrax_core_la_LIBADD = \
   libbuzztrax-gst.la \
   $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
   -lgstaudio-@GST_MAJORMINOR@ -lgstpbutils-@GST_MAJORMINOR@
+libbuzztrax_core_la_CFLAGS = -I$(top_builddir)/src/lib/core
 libbuzztrax_core_la_LDFLAGS = \
   -export-symbols-regex ^_?\(bt_\|Bt\|BT_\).* \
   -version-info @BT_VERSION_INFO@
