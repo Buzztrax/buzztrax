@@ -157,8 +157,8 @@ distuninstallcheck_listfiles += | grep -v 'mimeinfo.cache'
 builddirs:
 	$(AM_V_at)$(MKDIR_P) src/lib/core/songio/bsl/ src/ui/edit
 
-AUTHORS: .git/index
-	$(AM_V_GEN)if test -d "$(srcdir)/.git"; \
+AUTHORS: $(top_srcdir)/.git/index
+	$(AM_V_GEN)if test -d "$(top_srcdir)/.git"; \
 	then \
 		( cd "$(top_srcdir)" && \
 		  git log --no-merges --pretty=format:"%an <%ae>" . | \
