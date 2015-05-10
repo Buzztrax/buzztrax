@@ -1,0 +1,235 @@
+# $Id: buzztrax-ic-sections.txt 3552 2011-08-19 13:23:12Z ensonic $
+# :mode=html:
+
+# please add section in the alpahbetical order using the following template
+# <SECTION>
+# <FILE>btxxx</FILE>
+# <TITLE>BtXxx</TITLE>
+# <SUBSECTION Standard>
+# </SECTION>
+
+<INCLUDE>libbtic/ic.h</INCLUDE>
+
+<SECTION>
+<FILE>bticabsrangecontrol</FILE>
+<TITLE>BtIcAbsRangeControl</TITLE>
+BtIcAbsRangeControl
+btic_abs_range_control_new
+<SUBSECTION Standard>
+BtIcAbsRangeControlClass
+BTIC_ABS_RANGE_CONTROL
+BTIC_IS_ABS_RANGE_CONTROL
+BTIC_TYPE_ABS_RANGE_CONTROL
+BTIC_ABS_RANGE_CONTROL_CLASS
+BTIC_IS_ABS_RANGE_CONTROL_CLASS
+BTIC_ABS_RANGE_CONTROL_GET_CLASS
+BtIcAbsRangeControlPrivate
+btic_abs_range_control_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticcontrol</FILE>
+<TITLE>BtIcControl</TITLE>
+BtIcControl
+<SUBSECTION Standard>
+BtIcControlClass
+BTIC_CONTROL
+BTIC_IS_CONTROL
+BTIC_TYPE_CONTROL
+BTIC_CONTROL_CLASS
+BTIC_IS_CONTROL_CLASS
+BTIC_CONTROL_GET_CLASS
+BtIcControlPrivate
+btic_control_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticdevice</FILE>
+<TITLE>BtIcDevice</TITLE>
+BtIcDevice
+btic_device_add_control
+btic_device_get_control_by_id
+btic_device_get_control_by_name
+btic_device_has_controls
+btic_device_start
+btic_device_stop
+btic_device_virtual_start
+btic_device_virtual_stop
+<SUBSECTION Standard>
+BtIcDeviceClass
+BTIC_DEVICE
+BTIC_IS_DEVICE
+BTIC_TYPE_DEVICE
+BTIC_DEVICE_CLASS
+BTIC_IS_DEVICE_CLASS
+BTIC_DEVICE_GET_CLASS
+BtIcDevicePrivate
+btic_device_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticaseqdevice</FILE>
+<TITLE>BtIcASeqDevice</TITLE>
+BtIcASeqDevice
+btic_aseq_device_new
+<SUBSECTION Standard>
+BtIcASeqDeviceClass
+BTIC_ASEQ_DEVICE
+BTIC_IS_ASEQ_DEVICE
+BTIC_TYPE_ASEQ_DEVICE
+BTIC_ASEQ_DEVICE_CLASS
+BTIC_IS_ASEQ_DEVICE_CLASS
+BTIC_ASEQ_DEVICE_GET_CLASS
+BtIcASeqDevicePrivate
+btic_aseq_device_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticaseqdiscoverer</FILE>
+<TITLE>BtIcASeqDiscoverer</TITLE>
+BtIcASeqDiscoverer
+btic_aseq_discoverer_new
+<SUBSECTION Standard>
+BtIcASeqDiscovererClass
+BTIC_ASEQ_DISCOVERER
+BTIC_IS_ASEQ_DISCOVERER
+BTIC_TYPE_ASEQ_DISCOVERER
+BTIC_ASEQ_DISCOVERER_CLASS
+BTIC_IS_ASEQ_DISCOVERER_CLASS
+BTIC_ASEQ_DISCOVERER_GET_CLASS
+BtIcASeqDiscovererPrivate
+btic_aseq_discoverer_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticgudevdiscoverer</FILE>
+<TITLE>BtIcGudevDiscoverer</TITLE>
+BtIcGudevDiscoverer
+btic_gudev_discoverer_new
+<SUBSECTION Standard>
+BtIcGudevDiscovererClass
+BTIC_GUDEV_DISCOVERER
+BTIC_IS_GUDEV_DISCOVERER
+BTIC_TYPE_GUDEV_DISCOVERER
+BTIC_GUDEV_DISCOVERER_CLASS
+BTIC_IS_GUDEV_DISCOVERER_CLASS
+BTIC_GUDEV_DISCOVERER_GET_CLASS
+BtIcGudevDiscovererPrivate
+btic_gudev_discoverer_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticinputdevice</FILE>
+<TITLE>BtIcInputDevice</TITLE>
+BtIcInputDevice
+btic_input_device_new
+<SUBSECTION Standard>
+BtIcInputDeviceClass
+BTIC_INPUT_DEVICE
+BTIC_IS_INPUT_DEVICE
+BTIC_TYPE_INPUT_DEVICE
+BTIC_INPUT_DEVICE_CLASS
+BTIC_IS_INPUT_DEVICE_CLASS
+BTIC_INPUT_DEVICE_GET_CLASS
+BtIcInputDevicePrivate
+btic_input_device_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticlearn</FILE>
+<TITLE>BtIcLearn</TITLE>
+BtIcLearn
+btic_learn_start
+btic_learn_stop
+btic_learn_register_learned_control
+btic_learn_load_controller_map
+btic_learn_store_controller_map
+btic_learn_virtual_start
+btic_learn_virtual_stop
+btic_learn_virtual_register_learned_control
+<SUBSECTION Standard>
+BtIcLearnInterface
+BTIC_LEARN
+BTIC_IS_LEARN
+BTIC_TYPE_LEARN
+BTIC_LEARN_GET_INTERFACE
+btic_learn_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticmididevice</FILE>
+<TITLE>BtIcMidiDevice</TITLE>
+BtIcMidiDevice
+btic_midi_device_new
+<SUBSECTION Standard>
+BtIcMidiDeviceClass
+BTIC_MIDI_DEVICE
+BTIC_IS_MIDI_DEVICE
+BTIC_TYPE_MIDI_DEVICE
+BTIC_MIDI_DEVICE_CLASS
+BTIC_IS_MIDI_DEVICE_CLASS
+BTIC_MIDI_DEVICE_GET_CLASS
+BtIcMidiDevicePrivate
+btic_midi_device_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticregistry</FILE>
+<TITLE>BtIcRegistry</TITLE>
+BtIcRegistry
+btic_registry_new
+btic_registry_add_device
+btic_registry_get_device_by_name
+btic_registry_remove_device_by_udi
+<SUBSECTION Standard>
+BtIcRegistryClass
+BTIC_REGISTRY
+BTIC_IS_REGISTRY
+BTIC_TYPE_REGISTRY
+BTIC_REGISTRY_CLASS
+BTIC_IS_REGISTRY_CLASS
+BTIC_REGISTRY_GET_CLASS
+BtIcRegistryPrivate
+btic_registry_get_type
+</SECTION>
+
+<SECTION>
+<FILE>btictriggercontrol</FILE>
+<TITLE>BtIcTriggerControl</TITLE>
+BtIcTriggerControl
+btic_trigger_control_new
+<SUBSECTION Standard>
+BtIcTriggerControlClass
+BTIC_TRIGGER_CONTROL
+BTIC_IS_TRIGGER_CONTROL
+BTIC_TYPE_TRIGGER_CONTROL
+BTIC_TRIGGER_CONTROL_CLASS
+BTIC_IS_TRIGGER_CONTROL_CLASS
+BTIC_TRIGGER_CONTROL_GET_CLASS
+BtIcTriggerControlPrivate
+btic_trigger_control_get_type
+</SECTION>
+
+<SECTION>
+<FILE>libbtic</FILE>
+<TITLE>libbtic</TITLE>
+btic_init_get_option_group
+btic_init_check
+btic_init
+btic_major_version
+btic_micro_version
+btic_minor_version
+<SUBSECTION Standard>
+BTIC_MAJOR_VERSION
+BTIC_MICRO_VERSION
+BTIC_MINOR_VERSION
+# gstreamer extras
+GST_CAT_DEFAULT
+# gettext extras
+_
+N_
+gettext
+dgettext
+textdomain
+bindtextdomain
+</SECTION>
