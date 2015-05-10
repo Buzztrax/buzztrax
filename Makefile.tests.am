@@ -49,6 +49,9 @@ TESTS_ENVIRONMENT = \
 # This should make the icon theme look here for icons too, but instead it breaks tons of things
 #	XDG_DATA_DIRS=$XDG_DATA_DIRS:$(abs_top_srcdir)
 
+# the core dumps of some machines have PIDs appended, test registry and
+# profiling data
+CLEANFILES += core core.* tests/test-registry.* *.gcno *.gcda
 
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)
