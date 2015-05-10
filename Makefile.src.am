@@ -762,8 +762,8 @@ EXTRA_DIST += \
   src/lib/core/libbuzztrax-core.pc.in \
   src/lib/core/marshal.list \
   src/lib/core/version.h.in \
-  src/lib/src/lib/dllwrapper/README \
-  src/lib/gst/libbuzztrax_gst.pc.in \
+  src/lib/dllwrapper/README \
+  src/lib/gst/libbuzztrax-gst.pc.in \
   src/lib/ic/libbuzztrax-ic.pc.in \
   src/lib/ic/version.h.in \
   src/ui/edit/marshal.list
