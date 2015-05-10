@@ -157,7 +157,8 @@ distuninstallcheck_listfiles += | grep -v 'mimeinfo.cache'
 builddirs:
 	$(AM_V_at)$(MKDIR_P) src/lib/core/songio/bsl/ src/ui/edit
 
-AUTHORS: $(top_srcdir)/.git/index
+# meh, if we build from a tarball, there won't be a .git/index
+AUTHORS: $(wildcard $(top_srcdir)/.git/index)
 	$(AM_V_GEN)if test -d "$(top_srcdir)/.git"; \
 	then \
 		( cd "$(top_srcdir)" && \
