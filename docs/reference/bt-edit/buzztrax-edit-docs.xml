@@ -74,7 +74,6 @@
       <xi:include href="xml/btcrashrecoverdialog.xml" />
       <xi:include href="xml/bteditapplication.xml" />
       <xi:include href="xml/btinteractioncontrollermenu.xml" />
-      <xi:include href="xml/btinteractioncontrollerlearndialog.xml" />
       <xi:include href="xml/btmachineactions.xml" />
       <xi:include href="xml/btmachinecanvasitem.xml" />
       <xi:include href="xml/btmachinelistmodel.xml" />
