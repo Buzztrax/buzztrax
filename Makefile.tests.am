@@ -51,7 +51,7 @@ TESTS_ENVIRONMENT = \
 
 # the core dumps of some machines have PIDs appended, test registry and
 # profiling data
-CLEANFILES += core core.* tests/test-registry.* *.gcno *.gcda
+CLEANFILES += core core.* tests/test-registry.* *.gcno *.gcda bt_*.tar.bz2
 
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)

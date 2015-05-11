@@ -519,6 +519,9 @@ collect_logs (gboolean no_failures)
 {
   gchar *cmd;
 
+  if (!g_getenv ("BT_ARCHIVE_LOGS"))
+    return;
+
   if (no_failures) {
     cmd = g_strdup_printf ("touch ./%s.tar.bz2", __log_base);
   } else {
