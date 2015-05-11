@@ -144,24 +144,6 @@ BtInteractionControllerMenuPrivate
 
 
 <SECTION>
-<FILE>btinteractioncontrollerlearndialog</FILE>
-<TITLE>BtInteractionControllerLearnDialog</TITLE>
-BtInteractionControllerLearnDialog
-bt_interaction_controller_learn_dialog_new
-<SUBSECTION Standard>
-BtInteractionControllerLearnDialogClass
-BT_INTERACTION_CONTROLLER_LEARN_DIALOG
-BT_IS_INTERACTION_CONTROLLER_LEARN_DIALOG
-BT_INTERACTION_CONTROLLER_LEARN_DIALOG_CLASS
-BT_IS_INTERACTION_CONTROLLER_LEARN_DIALOG_CLASS
-BT_INTERACTION_CONTROLLER_LEARN_DIALOG_GET_CLASS
-BT_TYPE_INTERACTION_CONTROLLER_LEARN_DIALOG
-bt_interaction_controller_learn_dialog_get_type
-BtInteractionControllerLearnDialogPrivate
-</SECTION>
-
-
-<SECTION>
 <FILE>btmachineactions</FILE>
 <TITLE>BtMachineActions</TITLE>
 bt_machine_action_about
