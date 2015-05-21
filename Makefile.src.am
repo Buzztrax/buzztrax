@@ -688,9 +688,10 @@ libbtcore_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztrax_core_la_SOURCES))
 libbtcore_gir_headers=$(patsubst %,$(srcdir)/%, $(libbuzztrax_core_HEADERS))
 
 BuzztraxCore-@BT_MAJORMINOR@.gir: $(G_IR_SCANNER) libbuzztrax-core.la BuzztraxIc-@BT_MAJORMINOR@.gir
-	-PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):$(top_srcdir)/src/lib/ic/" $(AM_V_GEN)$(G_IR_SCANNER) -v \
+	-$(AM_V_GEN)PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):$(top_srcdir)/src/lib/ic/" $(G_IR_SCANNER) -v \
 	   --namespace=BuzztraxCore \
 	   --nsversion @BT_MAJORMINOR@ \
+	   --warn-all \
 	   -I$(builddir) \
 	   -I$(srcdir) \
 	   -I$(top_srcdir)/src/lib/ \
