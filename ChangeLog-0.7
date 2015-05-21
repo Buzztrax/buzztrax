@@ -1,0 +1,4838 @@
+commit 323a4deb20b83fcd59ab2fadeb80624d9e80f5f7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    release: set release date
+
+
+commit 25c4d359e7a9ff8b66d62ae8407f844de29eafc6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    po: update translations for the release
+
+
+commit acc755e17cbeb577af16f0eb4475258e231ab696
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: fix pipeline updates when removing source.
+
+
+commit a3a7ec00cdd012748c19a126369e4bd0383c5fe1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: don't send eos when disconnecting
+
+
+commit 63ea7a1b3420995708c2b80896db5f84e7475f5b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: planning
+
+
+commit 791e1f1f5ea15510f5ae2926a2dc4bcd274665f2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: update api docs (document new parameter)
+
+
+commit 4a1f9b2aca1e539ac6db2a698ec426f4fec9e433
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: wire-pattern value groups might be NULL if empty.
+
+
+commit cf7fcfcfbb3f28eb364b4c0f11d581f7c1f5821d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: add the tee-event hack from looplock test
+
+
+commit 45ccd0d66271db8eb6f4e40f31e143d88f7d772a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    looplock: hack the te event func to drop duplicated seeks
+
+
+commit 08e9d402f1854714aaa95557cc90b1b109e4365b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    logging: trim some loglevels
+
+
+commit 7d20a119f37337dd949b77e953750f5e7fb1f025
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    looplock: update the underrun test app
+
+ create mode 100644 design/gst/looplock.c
+ delete mode 100644 design/gst/underrun.c
+
+commit 097f1b7691c43048f5b4ae5278317d5dee376c98
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: conditional code for stopping playback for pipeline updates
+
+
+commit ecf718a99e693c09365cbf57e655865cd24aa7c7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    underrun: add a test app for debugging underrun issues
+
+ create mode 100644 design/gst/underrun.c
+
+commit 4807466299615634c11d8dfd2df4fd2e7ac834f9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    misc: few fixes warned by clang
+
+
+commit f4117a8b1ad636ddd2306d9a80c4887fc8d068b4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tools: more details in logging and an exp. to kickstart the analyzers
+
+
+commit 9fc83fcff716a72c7eb2f2626f8bf383d6e208f3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: ideas update
+
+
+commit e5a97b6f919153791669076c2ee2534963021c35
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    NEWS: newsletter update
+
+
+commit db325675440322aa9ac000a367d68be3f65c9b0c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-menu: add missing break
+
+
+commit de0fa21aabbd7ee112644f56315297a1c4a26357
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tonematrix: add support for a few control surfaces
+
+
+commit 2b473f925d49accc8fb6f0cc6e110637184be029
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tonematrix: add optional osc support
+
+
+commit c0de0fca317051ae3801620975db89daeafa9bf0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: complement connection-state macro with a setter
+
+
+commit 0a69bfe34b3e5f25cbee62bdd86f98e55fe2486a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave: add TODOs
+
+
+commit 2c9afe67268b77b3bba33ca334a56b67aa6a3a09
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: use check_LTLIBRARIES instead of noinst_...
+
+
+commit e4c735837631f96d08f3fef2011998851ef7b71a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    settings: don't cash on NULL ptr
+
+
+commit 2657828963ee6434df557be9a334e51fe749a154
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    waveform-viewer: add mouse based loop editing
+
+
+commit ba67c451a73024d9daf1871b3ce9153a14942f2f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    vumeter: remove a local var
+
+
+commit 381a68e82683c62f3c8c92f1f9aee92ac23bd056
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    waveform-viewer: use g-style var types, use a window
+
+
+commit f85d0f54adae0438962e794ff90e42038e71d5bc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wavetable: planning
+
+
+commit 7cc49998aed2ba004200575ffe1263de85e797e5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-waves: keep loop markers and loop status in sync
+
+
+commit 69dcc862a2a5213ff3a0b6849ef1bb7c85588801
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wavelevel: downgrade temp debug logging
+
+
+commit 4448135439915e923b38316d303ee96f692d10ac
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wavelevel: get rid of the -1 in the wave-level loop api
+
+
+commit 470d55e25014067e8263d10af1ea2c60610daab7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: add format reference
+
+ create mode 100644 src/lib/core/songio/bsl/bmformat.txt
+ create mode 100644 src/lib/core/songio/bsl/bmformat_HotKey.txt
+
+commit 35cff48c1bd832cfdc3decd9a713cfbc18d4762b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ignore: more files
+
+
+commit 78746932f454598ad66af886c641a7c80f074e23
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-machines: fix undo/redo logging order for initial machine placement
+
+
+commit 57b2d9efb77c21d9b43a8ab2eb9666253d32574c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: fix logging order to edits that extend the sequence
+
+
+commit 6df92b7b3d05925b4f91d710d4fa07add74ee7ba
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: ensure unique object name when adding parts
+
+
+commit 019e6d84e28c154672e84cdec63f30e50778c3e2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    analyzers: log details for failed gst_clock_id_wait_async() calls
+
+
+commit e6f29e94a2dc824fd5611cc7233a8f4fb1fb0bb4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: correctly set sequence length on crash recovery
+
+
+commit 813dac121703d6f8d587fb3897406b797eb99cfb
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-menu: listen to machine name changes
+
+
+commit 95a95964505966e0b85a2a8c5b0f8eb438c4b22d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: add idea for improving rendering
+
+
+commit a5e1d7631a7f1093515e0de7cd2b4b855104d601
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-menu: keep menu in sync with what is bound
+
+
+commit 2918d4a35f8e0ae8e6163e323daac58d1e1464cd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-menu: move more functionality into the menu
+
+
+commit 48a0225fa745e51313f0e65d6edaca915f3795f4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    NEWS: write NEWS for the release and add it to the about-dialog
+
+
+commit 52f94aeb7fd4a63e84f75188c513344d7df7e884
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: for improving how we use custom image icons
+
+
+commit 87276804e95e3dfdc9e982d71b2e440d4dd18340
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: also gray wave-combo on machine-menu rebuilds
+
+
+commit b72eac3952b9a4654629c94856ed64e72420fc9f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    copyright: replace FSF adress with a link to the webpage.
+
+
+commit 57cfa3a786f8a916c938511c0360daed05de94d6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: turn machine_create into a loop test
+
+
+commit a5346e8a5e40b22214145012c7d534fa6e434cc4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: handle the state where we don't have any voices yet more graceful
+
+
+commit cf55c5060421bd5baa8baaba2cb3933fb0026891
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    copyright: replace FSF adress with a link to the webpage.
+
+
+commit 01ea69e35f802de30f972ebd0ce606f9042fd81a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: remember to update the COPYING file before releasing
+
+
+commit 46f007e370224b247ae86c08a4281d3939dc10f5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    COPYING: update LGPL text from the FSF homepage
+
+
+commit de47ee921aaab65306bd502e482c2a95426ce1ed
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: use a common type for the controldata and have mono,poly subtypes
+
+
+commit 22c418578ab237ecda5fa6c99a14b0c3d14df274
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: gray out the wave combo for machines that don't do waves
+
+
+commit 6f035fd193696b41a76c0950cfd89d8765322b67
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: fix restoring poly control bindings
+
+
+commit d55bf25a0ddf06ec77fc6964699857d6c940832c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: add a checkbox to control follow playback in sequence
+
+
+commit f2335864788fc7da30613ac5c18d19a33156cfbf
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: fix scrolling using the mouse wheel
+
+
+commit 924897bb72fab43294678678064e9cf212ba88c1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    syncviews: make this more sophisticated to workaround a weird limitation in gtk
+
+
+commit 987c86fe2b2e307760e5100bfd5cffc37646cded
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pb-ctrl-midi: fix typo
+
+
+commit b6f88902e29b341a15fa95397ea444257f790eac
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO, NEWS: update what we did
+
+
+commit 4d9be818201c811d9baf9fc8ba9832764d7a4bd4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    api-docs: mark bt_machine_get_pattern_by_id as private
+
+
+commit 8a9ff78c226fe27f48396c38e40b28ab62ce32fa
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: give up on ogg-flac play&record
+
+
+commit 2b45d42d0b97ac5d2b872c49fc20e864f979f9c3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: mention how to renaming machines from the sequence view
+
+
+commit dca02ebcacd189b5f520e936e54c4c819d0963f6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tips: add two more tips
+
+
+commit 5dc9f14910194e7d26a4c22d87de2da459139558
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: allow inplace rename
+
+
+commit 786c8d6447d958ab02f18b36215494ea1baaef53
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: updated TODOs
+
+
+commit 006f5a8b045b765aba2eb6c405ce1e2d075a7b07
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: plug the queue for raw format
+
+
+commit 2eabaa4c8c0b0e0ac72bc9decca9ed9621744f58
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: also lock down endianess to native
+
+
+commit 85ce7fdb0966d1649dbe2c5027c50749bb808e29
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: more logging and indentation
+
+
+commit 83deb12d1d575bb5b591536ec167e05642854a6b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: fix format order
+
+
+commit 29c7dd8cdab847e9b6b1894787d4026d1ab0a410
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: disable sending newsegment events when dynamically linking
+
+
+commit 53fa93e89dc777eaffd1d90db576caba05f659de
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: fix refresh of context menu
+
+
+commit 3b0283787f47269bc97bbeb95c7471c70a75199a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test: improve the tests scripts so that they can also be run on other files
+
+
+commit 853d527e8e20e77c0a6dae626976df76b8ed7294
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    render-dialog: check for NULL as we also use this on error
+
+
+commit da8cdb346bc970bc2d4060477279d709e8242af8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wire: also use legacy api for fallback pattern lookups
+
+
+commit bea9644417e43f2ed26d59f502f007a6d9db0b92
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    recording: temp. disable loop and improve eos handling
+
+
+commit 98a7f7113e7c0d78e99173a6f9ec5043e4db3837
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: don't set an invalid iter
+
+
+commit 617906e6a7ba000e84134f26aeae1e204e4225fa
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    todo: add todos for new checks
+
+
+commit 0a5ce83125531242e9104c7315dc48ad1067f1ec
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: convert more songs to the new format.
+
+
+commit 793d616a3d087bb4128339d101a2bfd9492bc19b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave: allow savinf files where loading waves failed
+
+
+commit 3cf990c5998c531260f35df773f59cd1302abe6d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a test for loading from legacy format
+
+
+commit 887517c4ce9014bdc3b65da9620ceec39ff45dde
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ui: use utf-8 char instead of 3 dots for ellipsis
+
+
+commit fecdf1303fb964f82d2c03822c7a98e558edd903
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: small test rename
+
+
+commit 03c3992668ec433853665941b55b70db8c964c0e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    NEWS: collecting news and release planning
+
+
+commit e4a408fddef1051373a17653c63bf99f46964551
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    xsd: update schema
+
+
+commit 57ebbb43842baecdd7c1699711fa2bb8aa50d555
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: update the test song files
+
+ create mode 100644 tests/songs/legacy1.xml
+
+commit 29c15e79a8a1b6fffa32495e714bb72c086ad7ac
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern: eliminate the id parameter
+
+
+commit a3d71af855459112e3ab60344149c495f2b58196
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: fwrite never returns a values < 0
+
+
+commit 2bcdd1e281cca3cdae460ff26c7e96eeac900dca
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    value-group: add a range-randomize variant
+
+
+commit bcbdbbb6c3231fa7f295ac8fc03515bd616dd783
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: ensure we don't switch patterns when cancel cloning one
+
+
+commit f7ce109730ee296d1e7106ac974962ce2e79b500
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: only check the name to determine unique pattern names
+
+
+commit c7c22eb1d3f1843c7dfe02c726260b7e5647ef56
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: don#t use MOD4 as a modifier
+
+
+commit d341fc2549395c34d87c19a3d671ca809c49bca6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: improve handling of loops when length changes
+
+
+commit 6ca9d8890315f8d08c2ce810bbb2481206b3151d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: when extending the sequence, ev. extend loop_end
+
+
+commit 732e86f434a4c132815e49b2c6bf6b202a5e3d89
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: don't step over pattern length in ',' comamnd
+
+
+commit e7116c810fe0495d9ed77e0e0b6984578c41d082
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: reformat comment
+
+
+commit bbf4a1916fdcca20aeacd7ebe5260031afa5d253
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: fix expanding the loop
+
+
+commit edf0b6e1bddafa93ec17b5876ccde259e56c37f1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: make tests that play silent
+
+
+commit 4d57a8177435d3123c7777edb29f39a2a8a300dd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: encodebin starts we a queue already so we can save ours
+
+
+commit 80bc147f9206581dca6b63c20c94812ce88375d7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: use a fakesink to avoid beeps and format changes.
+
+
+commit 3439b7fcdebfee28a05eebbcdf175b8c3699a82d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: tweak logging for handoff in the test
+
+
+commit 3210d23952186e28a07222be83a5daf1716d7708
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: trigger values are not readable, access the value directly
+
+
+commit cc90d170a2b2ddc5f8f3fc5d2528a6449e625582
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: increase wait time a bit to make the tests less flaky here
+
+
+commit 532091951d76dc1c95c0da561758af46747346dc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add logging for main_loop handling
+
+
+commit 6f6d715365eae3f86a5d0c9d67935275c1c075d8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    text: fix the memory limit
+
+
+commit aa8a51033fed8ef433480a945044d5ac11885426
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: fix return type
+
+
+commit 390b4660e0b1ae0b7e8a18a2c6a35e4c27619f51
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wire: fix broekn format string
+
+
+commit f5adce3d94586520177cd134fc0063266d6cec26
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: add a workaround for broken muxers to the tests
+
+
+commit 2884991084d25dd97a65ff269712af00b61660bc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: fix per-test logs for loop-tests
+
+
+commit c83067a8e8e875575006d9936a78068dfdb77a92
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: don't leak elements when updating the graph
+
+
+commit eb0bdcc67bef7f46c7c74d015de770151dc0cc33
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ref_counts: tweak logging
+
+
+commit c77fdbef2884b5b7a3252cdab0033f1ec582fd5a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add log based ref count checks
+
+
+commit 22fccb8945239b1eef9ff74a98b7b48094761e09
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ref-counts: tweak logging and code fomatting
+
+
+commit 310530bce848e9ffa055d6a416d57876d570057c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: rework logging to have separate files per test
+
+
+commit d3156a364ba3f85016c2132539780fa19325a0e2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: also check the wire-ref counts
+
+
+commit 7838f1a8f23a7bafb78ded8b20c371dd814084dc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: use mkdir_p from autoconf
+
+
+commit 0b719477edd363378164c8efde7311406c58fb57
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: fix for a new automake-1. 12 warning
+
+
+commit 1bd4fb946149c7c29518cd34d19a3124c6f7ac33
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wavelevel: switch uchar to BtNote
+
+
+commit e84a25df4b9c9bbd7a05c8c110acee3396bcb0c5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wavetable: add root-note to the exported buffers
+
+
+commit ea35501ce73aaead336f3f5b8fe77af054ff9991
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: update api docs for ref-ct macros
+
+
+commit 5b12afcbb781d8ca4c39ad970578552fa308162a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    style: remove the workaround for the gcc type punning warnings
+
+
+commit 2b1c3c9cf47a1329c49fa6e71530c2b256479b6a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-properties-dialog: skip trigger parameters
+
+
+commit 379ad8d99856a11d2a074f8dd8b4d28f6dcfa7e4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ref_ct: some more ref count logging cleanups
+
+
+commit 17bf5218ea36235c5875351b15ff89c4ad9d773a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    formatting: remove not needed braces from switch case blocks
+
+
+commit 45de937d665b1a5391e9c50ddc5ca4f31188dfcf
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    formatting: remove some comments in boilerplate code that was breaking indent
+
+
+commit 22110f3b1f0d058a6b311aa27d09b70d9f62c67a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    NEWS: sent and prepare next
+
+
+commit 0d18c834f300bee8cd2106a2fd63ffe40d88948b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern-editor: fix typo
+
+
+commit bfd18239441c09d365bdfc8e33975d3e5ba93213
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern-editor: show value bars under the numbers
+
+
+commit ccbc6a4d19da47847fa9e6f89c283ee8cad1efe8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ref-ct: more ref count logging
+
+
+commit 06006671499b13d31906748bb75cb797491e2ac2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: add ',' shortcut to insert the current machine value
+
+
+commit 6aeeeb59605fef094082edea45ea65d8d5384d8c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: make more used of checked_unref and improve readability
+
+
+commit 49260d799cba18ec129a0c2df0d085bd3e83ffca
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ref-ct: another fix for the ref-count commit
+
+
+commit 2013ba993f50bc0df0bec05feae7db3f3f09b1f5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add two basic refcount to tests for machine removal
+
+
+commit 2e93a0133d6ff4607198fbb4c462dc0df926c492
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    cleanup: small cleanup from the ref count commit
+
+
+commit 2d1d4f9b5a2f1cbdabccce39d650c311f30a4394
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ref_ct: make ref-count logging more traceable
+
+
+commit f2f6051d08c0b16e516836846281b9e235d40cfb
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: remove the double ref and fixup obj creation
+
+
+commit c257dceb6d178a6b1309c55c22068a9e54e34de6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: rework the ref count handling
+
+
+commit 411af139dd7929cf5c993d3cb9de1ecf78b89237
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: simplify wire_{link,unlink} helpers.
+
+
+commit aac1492618c5aad1ab6dd47e40697604be6e1648
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song: fix high level pipeline dumps and improve them
+
+
+commit 8317c7d772d959472b3aa25237fdc246edb8e793
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    news, todo: update
+
+
+commit 0e786cf01451e111636d47f34d613ddf8be9a95b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: more logging
+
+
+commit 6fb861d6b979a4d2ea4c423b6d5ae50d8055ccdc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wire: access machine directly
+
+
+commit 88382b0ad8bf8c44028aa08e93241e55c92a9800
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: fix comment and add more ref_ct logging
+
+
+commit e7966c08ceb0042c2a2fe68213301b41549cfc56
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: planning update
+
+
+commit 86a4368db683d63da4d4027d943541fec7e07a6f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    setup: don't sync state when adding elements
+
+
+commit 92303d7618aac0f9170dac589c04a42dac289174
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: also clamp voices when setting them initially
+
+
+commit 3d3928241c7e262c5c747c7f7220f20f6b857523
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    help: fix image id
+
+
+commit 6a412d9a157f05ccada64ad9d68381ad2decc2f6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    help: little spelling update
+
+
+commit 707cdf78746210eae4b4f458a0667d97ddf254e6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: a few code cleanups
+
+
+commit b3f6ce9f2f636c29067d72e1684214e46ad9e478
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tools: extract a little helper for analyzer wait-time calculation
+
+
+commit f06cfb9843d205edd95eebe29255b7a33230f2ad
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: extract common code in celldata functions
+
+
+commit 92c97d0e3d99cea2ab8442195a752c7b9f46fe57
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    parameter-group: handle dispose with sequence already gone
+
+
+commit 4c14a38c89f2ca5f30623e17bea9bbf4a056151a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    timing: move timing calculations from sequence into song-info
+
+
+commit 67754d16e54f3252bd81aaf72e6a0b7fb742e05f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    check: add a getter for guint64
+
+
+commit d688f8f829dadd493e26bac848cfa2a0c18477f9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song-info: take tick-duration calculation from sequence
+
+
+commit 6dbd4b962159b6c5a3c6d71b88d2d9ef521c72c4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: cleanup from pattern-control source
+
+
+commit 99a980f9e09e2b7a30fbace40afeb89e268c1e10
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    value-group: more debug
+
+
+commit 91c56b5bb761e2ee07540d6119018d85fb82a094
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    parameter-group: only attach control-sources to machines, if we have tracks
+
+
+commit 817e2c03e2de3025c16d088164228bb747ec15ce
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence. fix bar_time updates after song-info timing changes.
+
+
+commit 380dc15cb53421de7fbb6284a0be2054323e16a8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: readd some voice initialisation code.
+
+
+commit e616aeabdeec42b7a499abd8f6eb15628a77ec41
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: standalone example for cloning a property
+
+ create mode 100644 design/gobject/propertyproxy.c
+
+commit fb64ba877d3fbbdb72906a26d991d25014aca050
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: improve handling of polyphonic machines
+
+
+commit 46c9df79c417f7b42e1dff81c893492705cf67a8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave-callbacks: add a wave-callback hack
+
+
+commit f90be9205307e182c440c65409033b2b83133352
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    buzzcallbacks: small code cleanup
+
+
+commit fdc5f4021bda21b8cc1b4de4dfd9dd248ea2fda0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: small updates on the design examples
+
+
+commit dc18292ac732d8eb3172b421edfba4790d2cf005
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: fix the compiler invocations in top comments
+
+
+commit 20bc69b823709d2d23ffc746a38a450f6a1aa3c5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: set default values also after controller interaction
+
+
+commit aa7a9a23ba9ba5e1a03da1e551487e39b7b74ee7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    todo: todo update and collection news
+
+
+commit 86cab7142e84704e1950f8a32ae074dff32dd97a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi: add missing file from midi-playback controller prototype
+
+ create mode 100644 src/ui/edit/playback-controller-midi.h
+
+commit c08ade3c887eae41462425ce55851667c4f8f828
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: add more design code snippets
+
+ create mode 100644 design/gui/cluttercanvas.c
+ create mode 100644 design/midi/aseqdump.c
+
+commit cb07ab9d5717ca7a8e2832d882d1c2aa15b3b6d9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    control: demote two log statements
+
+
+commit 8762eef210ac79e247384e3a0388dc43b76e71cf
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    settings: don't leak the custom pixbufs
+
+
+commit 74935634c50f8d8e86c87f900f2cabedb3436a32
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    learn: don't leak the gkeyfile.
+
+
+commit a4141677632251ba7db1b3423682f88886297072
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-settings: allow renaming controls
+
+
+commit 722acca6501b02aa3894843b6c509dce0477c650
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi-device: only expose new controls to learn function
+
+
+commit ddda1fd3d3ea1c4d26a5bccc8936dbc8d47e3f7d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-dialog: rename var for consistency
+
+
+commit 4ec58136a1ce5fa961537047f5786238bcce4b2f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    help: write more documentation for interaction controller
+
+
+commit bb0150fa1c1080a9129856148bb9d27df1c0ffb3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-dialog: attach newly learned controllers
+
+
+commit 0bb13cf559dd17827377a90c07ee0f51755f80cd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-settings: fix sorted insert
+
+
+commit 83269b7c27d6fa11cd4f2f0c18c212739bb2ffbe
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    api-docs: add recent gtk compat defines
+
+
+commit 5047671ef4716c57f8ff943947b1a9a89c9d7acd
+Author: Tom Mast <amishmansteve@users.sourceforge.net>
+
+    pattern-control-source: extract sequence refresh code into a control source
+
+ create mode 100644 src/lib/core/pattern-control-source.c
+ create mode 100644 src/lib/core/pattern-control-source.h
+ create mode 100644 tests/lib/core/e-pattern-control-source.c
+ create mode 100644 tests/lib/core/s-pattern-control-source.c
+ create mode 100644 tests/lib/core/t-pattern-control-source.c
+
+commit 28d4935a504b341388ae6c06400b5d9cb53ebe46
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: api doc fixes
+
+
+commit da18eff8a2ad19dbf925a6cf20ed6ce70b368ced
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    help: update local dictionary
+
+
+commit ca91c2838277415738a799149fbf8fb1d6ae279f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: don't leak the device-name
+
+
+commit 0c8fc9ec1872b31e513137090c5f5eafd0dcc681
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-properties-dialog: also handle defaults for wire-parameters
+
+
+commit 50c623161b1635854597c510c3c587f18403d71d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add more test helper
+
+
+commit ba31fe21a2420ab0acfadbeb8551d0c4820392ee
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tools: more comboxboxtext compatibility defines
+
+
+commit a5bfde970163562690a9f6227949c254d2cdd272
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tools: use the right api replcement
+
+
+commit a4aabd78b2d181c13e9422ed07624a793ae9658f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-settings: insert new controller at the right pos
+
+
+commit f5d90198705a9249bc956bc2674e6fcadb113b73
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: planning
+
+
+commit 018ab24a176d8b31cb22b77ca14189faacf8d9e4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-settings: add new controls
+
+
+commit d528b3e07304e6cc504ec75908352983d2db7abb
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    NEWS: monthly news update
+
+
+commit f3c1c0351644e8e18a11cd1243cb0b6e6adb04ec
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    api-docs: small doc update for param-group
+
+
+commit a7f7c36bf4fdb3a2f3711c94bcddf4da6a7db306
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add 3 more tests for default value handling
+
+
+commit 831ee89a95a42a7c3a8ac81e9844f36fdcae5753
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-settings: show message if there is no gudev support
+
+
+commit 9e074be6598262147a6dc0b86c26c8c449bfeb1b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: expand the settings documentation
+
+
+commit a6f388f49af5d2938ff9ce2ff055ff2ebb731980
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ic-settings: initial work to make page useful
+
+
+commit 71711025a1ae1a017d1c4fcad78182e0f9a7d9ad
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a source plugin with no args
+
+
+commit c81bb2c2d4f346c58e0ad48d4a747e489dc2b485
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: more user-docs for audio-settings
+
+
+commit 63172c0c16e4195e206ca932e5c903b8f9a41e06
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-waves: try to add '<','>' key bindings to the file chooser
+
+
+commit 7f1e742cf29f4dbf2f9d69731d3d3aeb97d93665
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    audio-settings: add ui for device selection
+
+
+commit 162140279ea0640c929327f552da1bf815b8bead
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    interaction-controller-settings: planning
+
+
+commit b270f36f99a6824b1cbae2d51eeaa444f676b2b3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    audio-sink: take the device name settings into account
+
+
+commit 25657ac09436e02ca3a64de88ac6fd64249b02e7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-canvas-item: don't trigger assertion on monophonic sources
+
+
+commit f30af47d820898854042c0f4a34bb28326ca79cc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-properties-dialog: dont crash on machines with 0 properties
+
+
+commit 60541522872c214063fd4887ac4e7d799ce87783
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-pages: more efforts to get initial focusing right
+
+
+commit cb3328de5f87e40121ed993096e3c69deba189d3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    valgind: fix memory leaks
+
+
+commit 86d8c436b45701df98d823c3c059bc263ca5e9dd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-toolbar: improve scrubbing
+
+
+commit 2ad396c9435c202a2d3c89625c5b09f7f56dfca2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    settings: boilerplate for audiosink device selection
+
+
+commit 09da987f47064db71dcc22a9fa2da0cae817ae80
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-pages: call the focus() vmethod on the page when switching the page
+
+
+commit 95f166cf062de58eaa9dfd3c2b4d14c8583bdd1b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: also fix the assertion on the object type check
+
+
+commit 6bfc1e1497597040789e76c17ba7d837901cd670
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a test for crash-log recovery
+
+ create mode 100644 tests/ui/edit/t-change-log.c
+
+commit 440dea1ed13b99f0846d275ab20c920e5bd0c4b2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    todo: add planning comments
+
+
+commit 533199e55ec947b9b8a56c23c25ef7f3b3982afd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    object-list-model: fix the check, subclasses are okay
+
+
+commit 6d85e92624194f2cff8853d6d9494ea7c72b4000
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: fix bug in undo/redo on machine removal
+
+
+commit eb1f5e198bceccdf0e3c0afa7a19030d1ed86914
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    help: update user manual
+
+
+commit bdcef66b0dce9dc5cd9b61d2030c63d5991fb669
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-waves: make the file browser preview useful
+
+
+commit 37828093de260a95a8674995fff901e23c826e43
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-waves: update after renaming tuning name
+
+
+commit 825948725cae3495307261a754025cf8a265e383
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: also use wave-list model here
+
+
+commit f5a4c1702669376c82d5a472e01042212eb03f9e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave-list-model: fix pos <-> index relationship
+
+
+commit 94529c15c7ed56bb27ba4aeb5c33a6f323222e23
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wavetable: small comment fix
+
+
+commit aa11b75942f0cf0523969c6948b7969ce34000b1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-sequence: don't leak the model
+
+
+commit 017ed2480ad50891c45acc781eb8f20d577cc577
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-waves: don't crash on wave removal
+
+
+commit 4f5fc78cadc716fe900f4e4aaa5ec7b297ff2496
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-waves: only make set wave entries editable
+
+
+commit b498c0e8ca11114bde746e57fe3b6457c5dd23d3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    waveform-viewer: add more docs
+
+
+commit 17ab302e362905218fd19df6a3735477a811502d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    waveform-viewer: rename file to follow object name
+
+ delete mode 100644 src/ui/edit/wave-viewer.c
+ delete mode 100644 src/ui/edit/wave-viewer.h
+ create mode 100644 src/ui/edit/waveform-viewer.c
+ create mode 100644 src/ui/edit/waveform-viewer.h
+
+commit 53653f6f0f7c912ac847bc444f8dc0c0e194ff06
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add tests for object-list-model
+
+ create mode 100644 tests/ui/edit/e-object-list-model.c
+ create mode 100644 tests/ui/edit/s-object-list-model.c
+ create mode 100644 tests/ui/edit/t-object-list-model.c
+
+commit a4a3431b1831071f049af4265d10eeef7a3e6094
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: planning
+
+
+commit 8f9966f2e1595a29ac7416d06aa63bbff7bcaa6e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern: add a internal property pointing to a pattern to copy from
+
+
+commit 77cf8720358b159663458148c11a4b13daba18ee
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: reflow code to avoid needless updates
+
+
+commit 99863f7e9122c68ee5ab8ed13054c1e1a292f3e1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    debug: logging update and reformating
+
+
+commit 0a4c7c874731ee291284763b12d27e35b5f1aa5f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a test for value_group_copy and optimize the function a bit
+
+
+commit a9848feee2b8230c90bb37db99a3247cfa73cf73
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    canvas-items: planning and TODO cleanup
+
+
+commit b621f46a95e30b71dafd74ae1ba2be155f42cfe7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add test from seq-grid model and fixup model tests
+
+ create mode 100644 tests/ui/edit/e-sequence-grid-model.c
+ create mode 100644 tests/ui/edit/s-sequence-grid-model.c
+
+commit 1333c4fdf5b3e469699be64caba36622f2e9bf92
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add tests for machine- and pattern-list-model
+
+ create mode 100644 tests/ui/edit/e-machine-list-model.c
+ create mode 100644 tests/ui/edit/e-pattern-list-model.c
+ create mode 100644 tests/ui/edit/s-machine-list-model.c
+ create mode 100644 tests/ui/edit/s-pattern-list-model.c
+
+commit 7c386b02f64167ea17c747f117aae8068554bfe5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add tests for wave-list-model and wavelevel-list-model
+
+ create mode 100644 tests/ui/edit/e-wave-list-model.c
+ create mode 100644 tests/ui/edit/e-wavelevel-list-model.c
+ create mode 100644 tests/ui/edit/s-wave-list-model.c
+ create mode 100644 tests/ui/edit/s-wavelevel-list-model.c
+
+commit a4eacf84278063c1d0232d16dec448a5483648f6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: add new list-models to api docs
+
+
+commit 428855b29f5a0820986048bf1c1f162508576eef
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wavelevel-model: doc comment fixes
+
+
+commit 7f202527d3e06c34580180237d8426527dd8f84f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-waves: add a wavelevel-list-model and use it
+
+ create mode 100644 src/ui/edit/wavelevel-list-model.c
+ create mode 100644 src/ui/edit/wavelevel-list-model.h
+
+commit 9bf4f985bdfad9aeafc4e218acdf220ffc9320be
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave-list-model: ref wavs before returning the current one
+
+
+commit 5e0e126ead92068975448c800276d15f4e79cb41
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi-device. more thoughts for poly play and note-off
+
+
+commit c7031af830e29031fda8dd8c79a4238cd0dec30a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave-list-model: more fixes
+
+
+commit c6f7921075e5a2f60f191ad9a99701e8ac4e40e5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave-list-model: finish impl and take it into use
+
+
+commit 906814d461bd313dd1446119da8ae7d3711af63c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern-lst-mode: doc fix
+
+
+commit 585d55706c996b8ac594621e75c7d77f78bbdf64
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave-list-mode: add new list model
+
+ create mode 100644 src/ui/edit/wave-list-model.c
+ create mode 100644 src/ui/edit/wave-list-model.h
+
+commit ef9d3a9bb847211113b6cbc1701f37f4d56a0d87
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave: reindent
+
+
+commit fcaa57c7843621d060c56e19b68add232d9c368d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: update
+
+
+commit 1a3bbd43b2cf87579eb2376dfaefb64a3c6ccf7f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi-device: disable note-off again
+
+
+commit e3733758cc90e1b16bac19031ddd25faaa671403
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern-list-model: rename columns for consistency
+
+
+commit bc9b246857098f1d6531076772c68eb043f7b13e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi-playback: add note-off and poly parameter support
+
+
+commit 4135fb23c7a152d200a1adf6cb22b3c9a3dcbf2c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: planning update
+
+
+commit d199a4d662a9c4c2714bea72eeacfdc72c274b04
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: support for polyphonic playback
+
+
+commit c8d277bb07fd4de5aaad4fa2e49c72d9d24600c8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-canvas-item: allow live playback of machines
+
+
+commit 513ca5574d2f46cf97b6485b57847931c7268536
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    parameter-group: add api to lookup trigger params
+
+
+commit 43d97bfec2de2b656ebbe5f42d85861cb43d5bc1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-canvas-item: prepare for live machine playback
+
+
+commit 4b124a122d6035490129e45c8c752c8d549bd2c9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: implement learn interface on test-device
+
+ create mode 100644 tests/lib/ic/e-learn.c
+ create mode 100644 tests/lib/ic/s-learn.c
+
+commit 64799ee0e9324863d32c6e854707ad9cd6f53e22
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    news: collection news
+
+
+commit d31f399c95e439cec0ecd1db49fd7da8b8bdd452
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a dummy ic-device for the unit tests and start using it
+
+ create mode 100644 tests/btic-test-device.c
+ create mode 100644 tests/btic-test-device.h
+ create mode 100644 tests/lib/ic/e-device.c
+ create mode 100644 tests/lib/ic/s-device.c
+
+commit 3d08e76633cfc6ac2118fd01e261e77baf446fe7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-waves: planning
+
+
+commit 0d3dac1792af8793e259350e837218634be9241b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add test for ui-ressources
+
+ create mode 100644 tests/ui/edit/e-ui-resources.c
+ create mode 100644 tests/ui/edit/s-ui-resources.c
+
+commit 734887994102c86a83140a724719f6d41e7dfc17
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add ui test for main-page-info
+
+ create mode 100644 tests/ui/edit/e-main-page-info.c
+ create mode 100644 tests/ui/edit/s-main-page-info.c
+
+commit 50caac9a0a37e3e37d559603e8e76fd629b96e1f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    statusbar: use constant for default text more
+
+
+commit e66b34eb862aa142568637803b3229019ab49774
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add tests for showing dialog parts on canvas items
+
+
+commit aecfc156b5255a2e9d5428e2ae397edba953501f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: split out main-apges tests from application
+
+ create mode 100644 tests/ui/edit/e-main-pages.c
+ create mode 100644 tests/ui/edit/s-main-pages.c
+
+commit a190311ab19cd7dfebee93c0d9ad36962bced99d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: finish renaming the suites and test cases
+
+
+commit 36da451b44002b7ba9792bd792e41ace7d89d1ab
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    gitignore: ignore more files
+
+
+commit 8a137ee902bf9a2a9df9a0cde112798f28d84810
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: unref using the right method
+
+
+commit 7460a6601c07d99df4b2c4a62ea435ff7231bba7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a helper to flush pending events
+
+
+commit 9ba07fbd7cbd94abd0b78615b213baa36c935313
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add UI tests for canvas items
+
+ create mode 100644 tests/ui/edit/e-machine-canvas-item.c
+ create mode 100644 tests/ui/edit/e-wire-canvas-item.c
+ create mode 100644 tests/ui/edit/s-machine-canvas-item.c
+ create mode 100644 tests/ui/edit/s-wire-canvas-item.c
+
+commit aca885035f8291ba4d253691f87bd709cf00c9bd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: add class level coverage report
+
+
+commit 5c69376e1ac8dc71437b9040dd41b24c93122a21
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    news: start collecting news
+
+
+commit 880240b62327a6d852779d75641440661c3dfb84
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: update class coverage commandlines
+
+
+commit 7ff29f79fd40acb91670a25f8353f4c79c5f9e58
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup last batch of ui tests
+
+
+commit f2d103b7eb8d0b35ffc20784ddc1baa5ef209782
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup another batch of ui tests
+
+
+commit 06aec2c5d6cf5c0145c639cac6d82f1c986bd680
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup ui tests
+
+
+commit c26431dbaeef06202982f2ac1e88f55c01605a50
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: more ui test cleanups
+
+
+commit f092e64fcf71952c662bd1a8a5bde60255882071
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup more ui tests
+
+
+commit 86b98e18aff8ad5c558a2dd6dc38bad78043d2a8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup UI tests
+
+
+commit fc279ef8c7e65e7a1234dca72bb26fc2317f7908
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup bt-cmd tests
+
+
+commit 1572e2b687afc8e54e1871d82c33d2b5ff9359e9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: rename ui test files
+
+ delete mode 100644 tests/ui/cmd/e-bt-cmd-application.c
+ create mode 100644 tests/ui/cmd/e-cmd-application.c
+ delete mode 100644 tests/ui/cmd/s-bt-cmd-application.c
+ create mode 100644 tests/ui/cmd/s-cmd-application.c
+ delete mode 100644 tests/ui/cmd/t-bt-cmd-application.c
+ create mode 100644 tests/ui/cmd/t-cmd-application.c
+
+commit 3118b969fa6cdcdc9d4fa6134c2fedbce7749aae
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: rename ui test files
+
+ create mode 100644 tests/ui/edit/e-about-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-about-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-change-log.c
+ delete mode 100644 tests/ui/edit/e-bt-controller-learn-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-crash-recover-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-edit-application.c
+ delete mode 100644 tests/ui/edit/e-bt-interaction-controller-menu.c
+ delete mode 100644 tests/ui/edit/e-bt-machine-actions.c
+ delete mode 100644 tests/ui/edit/e-bt-machine-page.c
+ delete mode 100644 tests/ui/edit/e-bt-machine-preferences-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-machine-preset-properties-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-machine-properties-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-machine-rename-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-main-window.c
+ delete mode 100644 tests/ui/edit/e-bt-missing-framework-elements-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-missing-song-elements-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-pattern-page.c
+ delete mode 100644 tests/ui/edit/e-bt-pattern-properties-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-render-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-sequence-page.c
+ delete mode 100644 tests/ui/edit/e-bt-settings-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-signal-analysis-dialog.c
+ delete mode 100644 tests/ui/edit/e-bt-tip-dialog.c
+ create mode 100644 tests/ui/edit/e-change-log.c
+ create mode 100644 tests/ui/edit/e-crash-recover-dialog.c
+ create mode 100644 tests/ui/edit/e-edit-application.c
+ create mode 100644 tests/ui/edit/e-interaction-controller-learn-dialog.c
+ create mode 100644 tests/ui/edit/e-interaction-controller-menu.c
+ create mode 100644 tests/ui/edit/e-machine-actions.c
+ create mode 100644 tests/ui/edit/e-machine-preferences-dialog.c
+ create mode 100644 tests/ui/edit/e-machine-preset-properties-dialog.c
+ create mode 100644 tests/ui/edit/e-machine-properties-dialog.c
+ create mode 100644 tests/ui/edit/e-machine-rename-dialog.c
+ create mode 100644 tests/ui/edit/e-main-page-machines.c
+ create mode 100644 tests/ui/edit/e-main-page-patterns.c
+ create mode 100644 tests/ui/edit/e-main-page-sequence.c
+ create mode 100644 tests/ui/edit/e-main-window.c
+ create mode 100644 tests/ui/edit/e-missing-framework-elements-dialog.c
+ create mode 100644 tests/ui/edit/e-missing-song-elements-dialog.c
+ create mode 100644 tests/ui/edit/e-pattern-properties-dialog.c
+ create mode 100644 tests/ui/edit/e-render-dialog.c
+ create mode 100644 tests/ui/edit/e-settings-dialog.c
+ create mode 100644 tests/ui/edit/e-signal-analysis-dialog.c
+ create mode 100644 tests/ui/edit/e-tip-dialog.c
+ create mode 100644 tests/ui/edit/s-about-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-about-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-change-log.c
+ delete mode 100644 tests/ui/edit/s-bt-controller-learn-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-crash-recover-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-edit-application.c
+ delete mode 100644 tests/ui/edit/s-bt-interaction-controller-menu.c
+ delete mode 100644 tests/ui/edit/s-bt-machine-actions.c
+ delete mode 100644 tests/ui/edit/s-bt-machine-page.c
+ delete mode 100644 tests/ui/edit/s-bt-machine-preferences-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-machine-preset-properties-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-machine-properties-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-machine-rename-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-main-window.c
+ delete mode 100644 tests/ui/edit/s-bt-missing-framework-elements-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-missing-song-elements-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-pattern-page.c
+ delete mode 100644 tests/ui/edit/s-bt-pattern-properties-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-render-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-sequence-page.c
+ delete mode 100644 tests/ui/edit/s-bt-settings-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-signal-analysis-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-tip-dialog.c
+ create mode 100644 tests/ui/edit/s-change-log.c
+ create mode 100644 tests/ui/edit/s-crash-recover-dialog.c
+ create mode 100644 tests/ui/edit/s-edit-application.c
+ create mode 100644 tests/ui/edit/s-interaction-controller-learn-dialog.c
+ create mode 100644 tests/ui/edit/s-interaction-controller-menu.c
+ create mode 100644 tests/ui/edit/s-machine-actions.c
+ create mode 100644 tests/ui/edit/s-machine-preferences-dialog.c
+ create mode 100644 tests/ui/edit/s-machine-preset-properties-dialog.c
+ create mode 100644 tests/ui/edit/s-machine-properties-dialog.c
+ create mode 100644 tests/ui/edit/s-machine-rename-dialog.c
+ create mode 100644 tests/ui/edit/s-main-page-machines.c
+ create mode 100644 tests/ui/edit/s-main-page-patterns.c
+ create mode 100644 tests/ui/edit/s-main-page-sequence.c
+ create mode 100644 tests/ui/edit/s-main-window.c
+ create mode 100644 tests/ui/edit/s-missing-framework-elements-dialog.c
+ create mode 100644 tests/ui/edit/s-missing-song-elements-dialog.c
+ create mode 100644 tests/ui/edit/s-pattern-properties-dialog.c
+ create mode 100644 tests/ui/edit/s-render-dialog.c
+ create mode 100644 tests/ui/edit/s-settings-dialog.c
+ create mode 100644 tests/ui/edit/s-signal-analysis-dialog.c
+ create mode 100644 tests/ui/edit/s-tip-dialog.c
+ delete mode 100644 tests/ui/edit/t-bt-pattern-page.c
+ create mode 100644 tests/ui/edit/t-main-page-patterns.c
+
+commit 6a3b14d1f31dc1277f6645853581a07ad27e1cdc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: ui test cleanups
+
+
+commit 993c12e9396d0da05c510b30db39bc9fc623432c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: update test after adding more properties to the test plugin
+
+
+commit 9b1b36059187a21326b8549de02d1b27c7260e11
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: rename the param-group and persistence support
+
+
+commit 7692d58b4404e1654ae3d4de67ba5cd547378a65
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: add property param group
+
+
+commit b5d8daf6d9ccc6aa8bcabe881d294541a09d9066
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: update
+
+
+commit 279d3db251fac86fbcd1f0c918e491b7b041117e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test: comment update
+
+
+commit 9247ae166760a30af0eabe475c5976cd8e071b2f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machne-prefs: small cleanup for machine settings
+
+
+commit 5e0c8f7026e95314af28f8d5956f154cc6ccfae8
+Merge: 0a1254a 137f6e0
+Author: trusktr <trusktr@gmail.com>
+
+    Merge branch 'master' of ssh://buzztard.git.sourceforge.net/gitroot/buzztard/buzztard
+
+commit 137f6e01bd40b2a5f478bc37eea90e56242a33c3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup the test for the sequence page and add more
+
+
+commit 3d0a1647a60e41f84e8c040cf4af4116e98b0821
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a digit property to the pattern editor widget and simplify the tests
+
+
+commit 4b6a0c5bceb83541a192082b40ab899e93acebd1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: planning
+
+
+commit a68a66aec24b3e97ab02fda444c007d97d35d8ba
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a sparse-enum to test plugin and new tests for pattern editor
+
+
+commit 1f23712d46382f7dd6cee9f1de7dda41c9aace46
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: ui test cleanups
+
+
+commit ce4cfa129d73f07d260752bf0f4446d2d965563f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test: add more coverage on pattern editing
+
+
+commit dbac2740170badac67346af7ef84045dc86e0be0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test-plugin: fix property names
+
+
+commit 71caeaaa6fb24636f19725266a31814d0fd573ea
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add more key commands to pattern editor and improve the tests
+
+
+commit afe1ce53984178eedbed4513b6aafb423fff9397
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: split and cleanup two ui tests modules
+
+
+commit 389ebaf303e66a644a7f279b45102a3b7b644c1b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    spelling: fix comment typo
+
+
+commit c49a570be3ada8829de7303bc6a53e4ed31d71ad
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: update pixmap path after non-recursive make changes
+
+
+commit d7e6d776cc09f71dddb67599c00c95d75a61924a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern-editor: allow step wise entry of sparse values
+
+
+commit 81f452d65051cefebf6f61a529e37b93563fe71b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    param-group: removed duplicated prototype
+
+
+commit 3f871c7a26a3969afa87286dc6332b596968b10f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: fix loading voice values from songs
+
+
+commit 75cac31cd6aea1d3af77f5b684ee4f90e3cedc01
+Author: Tom Mast <amishmansteve@users.sourceforge.net>
+
+    sink-bin: simplify profile creation
+
+
+commit 251e86ef350335fafba52bf3cdf792f3c72a8cae
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: try harder to keep a wave index associated with triggers
+
+
+commit 5f887d2cc591d12fe206b172956c3ded2b287e31
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-pattern: fix wave machines
+
+
+commit 86c86b0af12b5713192fdb5030a1058539ddfc17
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: move often used deref to local var
+
+
+commit b28600d3e28c4764d3248c2bb27378f0002d4bf2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    parameter-group: fix the describe function more (send the real property id).
+
+
+commit 71648887ea652eb15bcbcf88530fa82326f90e65
+Author: Tom Mast <amishmansteve@users.sourceforge.net>
+
+    sink-bin: use encodebin
+
+
+commit 8bf3d95a51424f27b904b94f286a724b2b72ead7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    param-group: adjust to propertymeta api change
+
+
+commit cc57829a62bf307a409ef6cbfa7d9e0629340c92
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: fix the test by also allowing to read the number of voices
+
+
+commit 6552114bbc858d98b97f811f67233e9de4aca30d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add initial wave test suite
+
+ create mode 100644 tests/lib/core/e-wave.c
+ create mode 100644 tests/lib/core/s-wave.c
+ create mode 100644 tests/lib/core/t-wave.c
+
+commit 75584671bac46ec78da64a22357e9d80f9f83c0f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    persistence: spelling
+
+
+commit 01c63d4f7127c85ef628a20dfd1aa4a311661157
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: fix no-value editing
+
+
+commit dfdfc493e9c06f2b10e8a3c539428f1ace501a3c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: check the actual number of voices after setting
+
+
+commit 2813e5775cb4c11abe22e61fdc2dbc844ce2eea7
+Author: Adrian Bunk <bunk@stusta.de>
+
+    configure.ac + autogen.sh updates
+
+
+commit f4ae19eb642af0f9ade386a7c7897b453ed76843
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a test suite for the wave table
+
+ create mode 100644 tests/lib/core/e-wave-table.c
+ create mode 100644 tests/lib/core/s-wave-table.c
+ create mode 100644 tests/lib/core/t-wave-table.c
+
+commit 9c6799d5b7b9e9aba986e486e17770f1998d1b7d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test: unref the sequence after use
+
+
+commit 087c7b11fd4710b986afad4616f9e75ea6325d05
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test: add a test for pattern removal
+
+
+commit b1957749282b90484a8bc8ed766c03d21ddfc6c4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song: notify the duration on each play to re-update the sources
+
+
+commit 01b4acf1e6a5db5422ab147b58d1ff366ee6a46e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: reindent once again
+
+
+commit 049407f4c86be71003420d8390a7d52132873168
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test: add tests for the duration query
+
+
+commit 30e62dca91fca3e12ccee036fb0e7b3ace9f00b0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: reshuffle the gconf rules
+
+
+commit a201d5de4498dd8b8d88060bad6b688553f38ef4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: change check test wrappers to be less style changing
+
+
+commit c34085e19c66f8b4b25fe0d68b58b41daf2e04c4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    po: ad 3 more files to skiplist even though I don't see translations there
+
+
+commit d7b1ad620d331c057807dc153c37d24b76a84b16
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    configure: remove double check for c compiler
+
+
+commit ec21da96b87863fe40c033fdafd2b42ecc889df5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    indent: switch to gstreamer coding style
+
+
+commit a690dba9f1d736602ce2f978870b334f441a5004
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    indent: switch to gstreamer coding style
+
+
+commit 17ce164a2962fba47724486969fc06fd6e4e61b3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    indent: switch to gstreamer coding style
+
+ create mode 100644 src/ui/edit/playback-controller-midi.c
+
+commit 9221db5790546daa5ab9115155f621c9be198c71
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    indent: switch to gstreamer coding style
+
+
+commit 34ef542dab65792791bce745ae618bc66614a665
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    indent: switch to gstreamer coding style
+
+
+commit aaedd04f02389afe93b147f2f67840c42f1be007
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    indent: switch to gstreamer coding style
+
+
+commit 34e875214f3298f49482f26237bf1697a093fd58
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    switch to gstreamer coding style
+
+
+commit 90d902f7787b682fe06ae0db770b3be5732d03a2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: add a few more tests
+
+
+commit 4af50d77a2435924c19a8f3085e4c0cbd3b9532d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    songs: lower a log message level
+
+
+commit 40d8a9bf51ddd25e0c442cf09db69a14bcb4876f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add missing makefile modifications for sink-bin tests and more tests
+
+
+commit e43f15be5402f2f0c4276957c5b3b8eb1a7604be
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: sync duration to the sequence length
+
+
+commit b819a10f459e4edf703287cdaf297b30373cd4f8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-menu: typo
+
+
+commit c96003f5e02b7992c7416d4a14e5a9ee949a9a5d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: explain the problem with the duration test
+
+
+commit 8b1d73f45a17e940820156c4c638e24eb4434161
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    memoryaudiosrc: add a comment about a possible replacement
+
+
+commit b1c749056dbe5ec6c26ee639b9d430de3c421f1d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: another test app to try to configure a duration on a synthetic pipeline
+
+ create mode 100644 design/gst/duration.c
+
+commit 946f32cf7ee19461f28a20f99739c1dce0f2271e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: add ogmux test
+
+ create mode 100644 design/gst/oggmux.c
+
+commit 6baa534a38cf3f6b11d9738a093ff05d97d19923
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: check duration as well
+
+
+commit 564ad80041f7339313f00bd04773efc84b3ed82d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: small cleanups
+
+
+commit 6c758bcfde43dc6faa43681675040bde98a3c6ba
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: add a test for encoding
+
+ create mode 100644 design/gst/encode.c
+
+commit 1c1859be51b59868f8c8725765dea4168a1f98d0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add basic recording loop test
+
+
+commit 2a98f89302d6c2c1d1833844064767515faeb583
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: comment and whitespace fixes
+
+
+commit 2cce85cf7bebfd26c0fd98398cadf3827752b52c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add tests for sink bin
+
+ create mode 100644 tests/lib/core/e-sink-bin.c
+ create mode 100644 tests/lib/core/s-sink-bin.c
+ create mode 100644 tests/lib/core/t-sink-bin.c
+
+commit 9964fcb797f4caf3a00fab8c040d2d97b1413ce0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    include: trim more includes
+
+
+commit 9430ead706ce73df59c6f300aaeec7f75834e979
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    help: kill the help interface
+
+
+commit fce488390314b84ce1c48817862a0096d5735a5f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    newsletter: news for 07/2012
+
+
+commit 0142a2e8ad8368e02bfd6af134c26201b5fc2c87
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    render-dialog: merge the render dialog with the progress dialog.
+
+ delete mode 100644 src/ui/edit/render-progress.c
+ delete mode 100644 src/ui/edit/render-progress.h
+ delete mode 100644 tests/ui/edit/e-bt-render-progress-dialog.c
+ delete mode 100644 tests/ui/edit/s-bt-render-progress-dialog.c
+
+commit 5fbf670532124ef6f771f897f1f70edbfb25a1f8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: cleanups
+
+
+commit 9715fd83d57123d6f6af20c900920b978d4a8ecd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: workaround for intltool bug in make distcheck
+
+
+commit dc82fe5171eadf8743c1dee327883aa7ab7678fe
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: only include generate marshallers where needed
+
+
+commit 5f5664f05798a411147a7911f1b5d3094ed7eb99
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: make distcheck fixes
+
+
+commit 06af18fde3e64b58cca0f0d7e05a654f37982bc1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: silly hack to fix make distcheck on a clean package
+
+
+commit 5e91b3d119b6cc0b43fb90a84d46f672b47d14ee
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: really fix a first time build
+
+
+commit 99e53b3ba35db3d2d4a7b6ea09cc05a5aa0b5af8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: fix a first time build
+
+
+commit 1331d82e75f36afae8d659b22305867dee5e039a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    Revert "build: use dir variables from configure for GI files"
+
+
+commit 1f4d03088ca1b8e4cde12c1f7d7884f51708f5ed
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: use BUILT_SOURCES for generated files
+
+
+commit 0417c024323846fe99682b96ef9543cd701a8999
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build make distclean fixes
+
+
+commit 51b48088347897269dc0530e865fe13d46737d27
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: improve the handling of generated sources
+
+
+commit 1e5075a8c173abf68098bcb878fe6332aa579c2e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: turn marshaller generation into a silent rule
+
+
+commit b9a081580d714bec85b9c4821472c74c43bc1460
+Author: Red Dwarf <reddwarf@opensuse.org>
+
+    build: use dir variables from configure for GI files
+
+
+commit 6a5fcd6e2c053f16290c2274557b1b4f87f88c55
+Author: Red Dwarf <reddwarf@opensuse.org>
+
+    build: set PKG_CONFIG_PATH for gir invocation to find the uninstalled pc-file
+
+
+commit 3b84229d77efcea899e25150e81f25aa64a475ed
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: fix generating or signal marshallers
+
+
+commit ccc175609f20152972eb2f43ab83fd68b82127c2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tools: extract level aggregation code into one helper function
+
+
+commit fc07588182d37c0a843e1f6c2672004ca48ac083
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    code-style: whitespace fixes
+
+
+commit 717714145f3f3a090c9917d1c29ed261db86cdf9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-pattern: serialisation fixes
+
+
+commit c83c0157b6bdff4487872db5352b889ab902b8cd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    includes: trim includes
+
+
+commit 51de2f1993f0d2349db81a7b96cc8a6432f1c2f4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    includes: rearrange includes for setlocale()
+
+
+commit 145742cc337999380052557fddfee623ee487f7e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song-info: provide api to get time since saved and localized timestamps
+
+
+commit 1a1eee15f5ed9238cc55835e46698c793fe1ea20
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: trim includes
+
+
+commit beb779f1a632149f0578e0c77a6610f381f4f0cc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: extract UI helpers
+
+ create mode 100644 tests/bt-check-ui.c
+ create mode 100644 tests/bt-check-ui.h
+
+commit 5cf8e8c68db816cea13f7cb945568190bb338249
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: no need to check for c++ compiler
+
+
+commit d1683d7224d406b8efb2b6fd743355a2c06a3a89
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    includes: trim includes
+
+
+commit 813b7b16fc02ad2a4aef4412e8ba51a16b29e5ba
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    desktop: remove the version from the desktop file.
+
+
+commit 9672d01e5a1a0f476eb1d173329b4bb5070e4db2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: improve the handling for docs builds
+
+
+commit 7eb51940f43a8a8d014ccb86aae53b92a08263c9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    api-docs: fix api docs
+
+
+commit 6478c38707c5032fbf827b05e2f00d6b0938554c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: change extension to xml (they never where sgml files)
+
+ delete mode 100644 docs/reference/bt-cmd/buzztard-cmd-docs.sgml
+ create mode 100644 docs/reference/bt-cmd/buzztard-cmd-docs.xml
+ delete mode 100644 docs/reference/bt-core/buzztard-core-docs.sgml
+ create mode 100644 docs/reference/bt-core/buzztard-core-docs.xml
+ delete mode 100644 docs/reference/bt-edit/buzztard-edit-docs.sgml
+ create mode 100644 docs/reference/bt-edit/buzztard-edit-docs.xml
+ delete mode 100644 docs/reference/bt-ic/buzztard-ic-docs.sgml
+ create mode 100644 docs/reference/bt-ic/buzztard-ic-docs.xml
+
+commit 95baf9d38ec0d815928ed39cf7aaa87eef15e15b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: try handling doc build subdirs manaually
+
+
+commit b19efd783333798a7d5e1c7e93bb67c28cd152cc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    api-docs: update bt-edit change
+
+
+commit bcf32b175fbc901dcedf156910f7d0069bf0e243
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    make: update splint target
+
+
+commit 4d9b40f42292168d6416b34677d4f7507e72d5b6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: more loop test cleanups
+
+
+commit e4896ff74ac8bfdd711d2737e9c3c8159d55cc7e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: use loops tests in songio
+
+
+commit 38aa21f9accc4db9b66ea6e49496286828572589
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: more non recursive build work
+
+ create mode 100644 Makefile.pixmaps.am
+ create mode 100644 Makefile.src.am
+ create mode 100644 Makefile.tests.am
+ delete mode 100644 docs/Makefile.am
+ delete mode 100644 docs/help/Makefile.am
+ delete mode 100644 docs/reference/Makefile.am
+ delete mode 100644 src/Makefile.am
+ delete mode 100644 tests/Makefile.am
+
+commit 659a15b6432a5c198e3a9917c2500d9ddbb7ad6b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: add api section for 0.7
+
+
+commit 35d3c7f75fea581768cd8dbd6dfe94d2b2ed9318
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: make _get_machine() more robust
+
+
+commit dc3e082613cdfd045b53a3d6ab07d3eeef27b180
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: convert to mostly non recursive build
+
+ delete mode 100644 pixmaps/Makefile.am
+ delete mode 100644 pixmaps/gnome/Makefile.am
+ delete mode 100644 pixmaps/hicolor/Makefile.am
+ delete mode 100644 src/lib/Makefile.am
+ delete mode 100644 src/lib/core/Makefile.am
+ delete mode 100644 src/lib/core/songio/Makefile.am
+ delete mode 100644 src/lib/core/songio/bsl/Makefile.am
+ delete mode 100644 src/lib/ic/Makefile.am
+ delete mode 100644 src/ui/Makefile.am
+ delete mode 100644 src/ui/cmd/Makefile.am
+ delete mode 100644 src/ui/dec/Makefile.am
+ delete mode 100644 src/ui/edit/Makefile.am
+ delete mode 100644 tests/lib/Makefile.am
+ delete mode 100644 tests/lib/core/Makefile.am
+ delete mode 100644 tests/lib/ic/Makefile.am
+ delete mode 100644 tests/ui/Makefile.am
+ delete mode 100644 tests/ui/cmd/Makefile.am
+ delete mode 100644 tests/ui/edit/Makefile.am
+
+commit 0cd442e603a517d50d49582e9c5364f1bb9d95ab
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wire: remove parameter that we droped from docs
+
+
+commit 339c54a1bbf404a29db8966fb3f71f27a9dcd22e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    b-dec: don#t use deprecated gst api
+
+
+commit 2dc360310f12994a76e6b86e25efd73ab515beee
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a suite for the persistence interface
+
+ create mode 100644 tests/lib/core/e-persistence.c
+ create mode 100644 tests/lib/core/s-persistence.c
+ create mode 100644 tests/lib/core/t-persistence.c
+
+commit 81ae2e14654bdcd95b60e273b5fe56083b3e61bc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add test suide for cmd-pattern and simplify construction
+
+ create mode 100644 tests/lib/core/e-cmd-pattern.c
+ create mode 100644 tests/lib/core/s-cmd-pattern.c
+ create mode 100644 tests/lib/core/t-cmd-pattern.c
+
+commit 4e8ae71d9a4b5b988682d85faf70454ff6c86cbe
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: rename test methods to follow the normal naming scheme
+
+
+commit fd507a16c13e504665a0e10b72af364b7e385a08
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add audio_session test suite
+
+ create mode 100644 tests/lib/core/e-audio-session.c
+ create mode 100644 tests/lib/core/s-audio-session.c
+
+commit 426abae3dc8e021d0ac67ac1e3de75bc08337e58
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    settings: split the settings and gconf settings suites
+
+ create mode 100644 tests/lib/core/e-gconf-settings.c
+ create mode 100644 tests/lib/core/e-settings.c
+ create mode 100644 tests/lib/core/s-gconf-settings.c
+ delete mode 100644 tests/lib/core/t-settings.c
+
+commit f8d84d5172e5af1451e2ecc938cb21d00dd42d9d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: little more cleanup on param groups suite + 1 more test
+
+
+commit cf875fd7acbd9775ee95477a7ef0e2237566ba2d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: fix naming of parameter-group tests
+
+ delete mode 100644 tests/lib/core/e-param-group.c
+ create mode 100644 tests/lib/core/e-parameter-group.c
+ delete mode 100644 tests/lib/core/s-param-group.c
+ create mode 100644 tests/lib/core/s-parameter-group.c
+ delete mode 100644 tests/lib/core/t-param-group.c
+ create mode 100644 tests/lib/core/t-parameter-group.c
+
+commit 01d83b8428a4a25e1466309088e7dbe977a86915
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    value-group: fix crashers in logs statements and add more tests
+
+
+commit 04e2728b7882c009f29b29123494f816a4aa747a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add new test suite for value group
+
+ create mode 100644 tests/lib/core/e-value-group.c
+ create mode 100644 tests/lib/core/s-value-group.c
+ create mode 100644 tests/lib/core/t-value-group.c
+
+commit 3c3f57d44067cfdf86de71053486ffecf5382911
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add some example-tests for param-group and move some checks to pattern
+
+ create mode 100644 tests/lib/core/e-param-group.c
+
+commit 06d79c3d3ee8a64b4c52059d75a9b1836a897c8f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add 't' suite for processor machine
+
+ create mode 100644 tests/lib/core/t-processor-machine.c
+
+commit d6e54b8b457badd63bda7126c41a958170ea9d9c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: move out one test to param-group suite
+
+ create mode 100644 tests/lib/core/s-param-group.c
+ create mode 100644 tests/lib/core/t-param-group.c
+
+commit 825f696a0e0f6e4f9502b23a6c1bd3138efe50b8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup more test suites
+
+
+commit e34046052abcd63c5bfc12fb772f6ede693d187d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup more test suites
+
+
+commit 7a95bfbd2dcb37f0d7659d381097476cecf9658e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup more test suites
+
+
+commit 90cf6e1a909a574584d7b5097a59615ac35b2faf
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wire: omit the NULL wire param from public api
+
+
+commit 5cff5f83f7fcf6a73fa3ad86b02a1f7147dbe84e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: avoid null-ptr deref on shutdown
+
+
+commit d340bc9ccdd2c59d5a19dd5beebb6dd5d662837a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    value-group: data can be NULL for empty groups
+
+
+commit 93ee80304925134594ee430ec2b98f06c7043add
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wire: add link cycle detection
+
+
+commit 9edac46bca1a478766fa67aba40d95447f916cce
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: more test cleanups
+
+
+commit b53bb798c771d7088466e765972a3bc44e33c1c9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wire: add new api for checking if we can connect two machines
+
+
+commit 0f0954d767a29d85f39564eaf750c1d7117e7400
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-pattern: Also don't crash when deserilizing the actual wire-patterns.
+
+
+commit d17f041301f651d77cbc0dd250aad54374777bfa
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: fix wundo/redo for wire removal after pattern class split
+
+
+commit 1bc7b6d31ac1280616ef2f27989349917c8097f8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern-editor: clamp the y-position to the number of rows
+
+
+commit 0d4e4a9c8e334b427c838fc7e49e0369c01f6e8b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wire: fix wire pattern serialisation
+
+
+commit 3a5cf9df5ec3a0c1a66529f441bea55378054e35
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: improve the cmd-line args tests
+
+
+commit 4d17b243f26f52105f3595e05836daab3d6bc78b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup more tests
+
+
+commit 2e536036bc2abd7ba83c23d0ed7ed53fd80bba6c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tsets: more cleanups on machine suite
+
+
+commit 3f95ea5c0fe39d6617fbc1c075ca2ca411b59fd3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: go back to init the lib in the test binary
+
+ create mode 100644 tests/lib/ic/e-ic.c
+
+commit a10bb5df9287160c25d7b6b98b08ae8d9fdf941c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: rework option handling and testing
+
+ create mode 100644 tests/lib/core/e-wire.c
+
+commit de996d9ca382ce729dfaae9e0097d7ef7caa2509
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup tools tests
+
+
+commit 0865b93e6dce6759313de6b252ad01d93f57d4f5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup source-machine tests
+
+
+commit aabc8dd55fa967e12c436bfd724f52b1a643376b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test: rewrite song test
+
+
+commit fbae0033e34dd34f22b3385a587e55d48875f05b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    portability: use glib format modifiers
+
+
+commit ff9322d81fc2f8beb35ac55e7f74406621d784d7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: rewrite a leftover test and improve sink-bin
+
+
+commit 46dc608e50465dbe431456940858ad8f5aa0c792
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup song-io suite and unify logging suite delimiters
+
+
+commit 35834c1aa7b36c37f468897f743012bdcddbbf3d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: add a typepun test and update the macros we're using
+
+ create mode 100644 design/gobject/typepun.c
+
+commit 38721fee00bd58ebcf24409e23aaf0027ce59128
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    gitignore: update ignore list
+
+
+commit 7358a22dc4ff5344dd2a6fbc520d2aa92ca322ad
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup song_info test suite
+
+ create mode 100644 tests/songs/test-simple0.xml
+
+commit 91978a4328a948e4cf6b15801607193d741ee24b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    logging: ref count logging cleanup
+
+
+commit 678a754275b1ab71d7f507622e32430360ab6a96
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tools: any caps always match, allows the tests to use fakesink
+
+
+commit bf95bcd242969723abfad76d9e254dbf09d0bc39
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    settings: cleanup logging
+
+
+commit 4235893f3cdd260de21b3b518cfa749c88ca8f41
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add testsuite for the application class
+
+ create mode 100644 tests/lib/core/e-application.c
+ create mode 100644 tests/lib/core/s-application.c
+
+commit a3b7d22de340346b85bc9f4c074b64887ba4d7b2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    coverage: unbreak it a little more
+
+
+commit 518612b1f7d2d2ccdde48309c633266cc891e2ef
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: use checked and unchecked fixtures
+
+
+commit 515ff01208b5a602f7271455cb6164246e48b840
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup song-info suite and add more helpers
+
+
+commit e882af3c5b977673006e630c0b60508e6f91ecef
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    make: fix the build from prev. coverage changes
+
+
+commit 4637bbf4985aa8da61c62b7a13483c240ac054c1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add more ck helpers and trim trailing whitespace
+
+
+commit fb4d7b02a4497cb1c12e87eded7960c14d9cd838
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    coverage: fix bcov based coverage a little
+
+
+commit 92a29b520be4c1f74b4251a4b4428b6f89516ce9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup sink-machine suite
+
+
+commit 4fadb2922ca83dfc58e09460b5a55aa0aa5c801e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: use new ck macros for int checks
+
+
+commit 59c2f8676273a86ce847064eae613a43d1a351fd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup the setup suite
+
+
+commit 191d9022489eb752dfbba1c34672c19638c33535
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: use the helper functions more
+
+
+commit 3c6963f921bfffdc10395d3ba7bdad5b1ac93206
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: cleanup the sequence suite and add more helpers
+
+
+commit 2be25b700687a3c0fd9df954d0f9647c992fa4a7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: rewrite another suite
+
+
+commit 3af79c0b4105a9a56981c82ac1f04db12e271a4e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: first batch of test cleanups
+
+
+commit 9831236af2ab5f535b81d0e56ef5a17bd1d10741
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    persitence: cleanup defines
+
+
+commit 8bdb811953e4f4a28a1f1669fe7fb5da5a3a7853
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern: add missing return value
+
+
+commit 4db72acfcf54b91ce4a38ce45f54fae0393c09ec
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    event: improve test and add graphs
+
+
+commit bc165417e13842794b4883803157df47340bac59
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    NEWS: collect news
+
+
+commit 1f4499b5f2e27ee4d24e6fe3cb8be1dc2fba0ff8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: fix copy'n'paste of logger var
+
+
+commit 58888432462224f700f586c3b33285365f14281a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    examples: improve the seek examples
+
+ create mode 100755 design/gst/event.sh
+
+commit d974a7f2803964f405f20cc0cbf45b45e0512c9a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: test app cleanup
+
+
+commit cebd6d2e2de7d41a9a9c37ded2c2a268ebfbcc6c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    designs: update the event examples (bus snoop) and add todos to song
+
+
+commit cebb8305a12fde9797d7fc6133779146b4342a95
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    event: add test for event handling order
+
+ create mode 100644 design/gst/event.c
+
+commit 904e8c1b7d5f2d89d9a7dfea6a84f94c44dbb966
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: use value groups when loading pattern data
+
+
+commit 127dc1cd6a3a8101dddacc70da81ff826c700d7d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add  test for changing the voices in the pattern-page
+
+
+commit 2547370e7ac329988d93a06b9a3681a22f89c7d6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: remove things we finished and add more ideas
+
+
+commit 3fbdfe25588c41bfa83c599ced5bf552dc48f754
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    value-groups: keep an ref on param-groups
+
+
+commit ef4571793b91403d2d44086bf172393b166b0595
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern: fix loop range on voice change and signal signature
+
+
+commit 4166870fd6359be4f1860cc837d7a0e093b6def6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    value-group: fix signal handler signaure
+
+
+commit 9e8b08a994c16ec9fcae61f2003460c1f39cf4d5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: use value groups in columnsgroups
+
+
+commit 89c788c88e5795046d3a00bcbb5e5dd2aaeffcca
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: simplify callback usage
+
+
+commit 0ac6c8af866646bb6ce081f25c49a51a52b7b680
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: remove the temp loging, as we indeed hit this case
+
+
+commit d76411bba68181a606471ccb3bbb4ca1edf5e49b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: inline bt_sequence_invalidate_param()
+
+
+commit fed80d8ec5871255615b61822a6cf9ae98b2c17d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: split bt_sequence_invalidate_pattern_region() for group changes
+
+
+commit e0cb21e6a5f069c74b961971e0dffb67e40957e9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add more tests for sequence & pattern edits
+
+
+commit ae80523b02da426e273d573d4f0b15a097f229f4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: remove left-over debug code
+
+
+commit 7eeebe579e064149f78e68df82e7f2f12a975624
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: api-doc updates for pattern/sequence changes.
+
+
+commit d5fb504ecb8869f639826beee088c1f6895a2591
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: reorganize the damage tracking and repair
+
+
+commit db1ba6d6d2b7a6564f2e2a075a11b9032bf034cf
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wire: fix-up the docs for wirepattern removal
+
+
+commit 723243872247abe3830316314b0b6acaba788c9b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    cmd-pattern: add missing dispose override
+
+
+commit 2a55e74c0a44a5dc2560e10d6d6af5b9a61ce1e9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    squence: small spellchecking and naming cleanup
+
+
+commit 08089baa16381044a6a5c58fa465d918f81cacd2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: reorganize damage data structures
+
+
+commit d14adaf8423a1e3ff3825aa4a17a6aeaafb4c04c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: remove one check from the test as we removed the sequence constructed()
+
+
+commit 58867fef9b8a8b68e86dffaef60741f06afd567c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern: refactor pattern handling to get rid of wire pattern.
+
+ delete mode 100644 src/lib/core/wire-pattern.c
+ delete mode 100644 src/lib/core/wire-pattern.h
+ delete mode 100644 tests/lib/core/e-wire-pattern.c
+ delete mode 100644 tests/lib/core/s-wire-pattern.c
+
+commit e5f4bfb38ec6e031b0a3f5b2318090d8dd9b93b9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern: no need to store the param groups
+
+
+commit a4f64e57f8241298021c4ac0ca16be93c2de6e77
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    po: update vi translatations
+
+
+commit 3a908be76fb2ce6293c98797159fb9527ab5f571
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: planning and comment update.
+
+
+commit d0f094c900d824be1e8736e893702811f59fa377
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: factor common code into one _param_changed() helper
+
+
+commit d6aac7e9be1747f239b07c67f8f930625da8d9e1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: move remaining TODOs to source file
+
+ delete mode 100644 src/lib/core/songio/bsl/TODO
+
+commit cecb98825498745d2823ef7edcf32df0853daaa5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: remove leftover version.h
+
+ delete mode 100644 src/lib/core/songio/bsl/version.h.in
+
+commit 13c5850266b10005c4e3600732855aa8d14f76f5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    value-group/pattern: api naming update
+
+
+commit 4395245456429b5d921666740aaeffd2f45889ab
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    value-group: refector common code from pattern and wire-pattern to new class
+
+ create mode 100644 src/lib/core/value-group.c
+ create mode 100644 src/lib/core/value-group.h
+
+commit ec709291948768063e32e795a49f23f479d304e1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    comments: update todo comments
+
+
+commit b749f24e24657edb67faeaeabc28715ca9a81d23
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: add a UI overview cheat sheet
+
+ create mode 100644 design/buzztard-structure.svg
+
+commit 92fb525f70087e0c45bbde13a1d77c6a57f836fe
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    mainpage-patterns: use the new instance vars more
+
+
+commit 3fd624619af04a80ac7572e69c2b010a303010a2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-patterns: reduce boilerplate code
+
+
+commit a163b213d151ab0b3bb59167a227d22b785bf81e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    core: remove obsolete todo
+
+
+commit 5df6e47aab6fe18e431823b0b2761a29f7baf58f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song: unbreak looping
+
+
+commit d527f12d9a920a3d43f862f50d895ba0d086da76
+Author: Tom Mast <thomasomast@gmail.com>
+
+    wave: more debug info in errors
+
+
+commit 05d959b7c747f59e0dbbddbb4fee858aba80eeb0
+Author: Tom Mast <thomasomast@gmail.com>
+
+    error reporting: more debug info in errors/warnings
+
+
+commit 1446c44b7745fffc59b18bc029e06d5584c133e1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: add bsl plugin to the api docs
+
+
+commit c8979c3505e143efb0e13fdcacea08e80812f048
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: api doc cleanup
+
+
+commit dd8d9014c8b1d4245c4f3faa319c0d84637366bc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test: check the stdio return values to be nice
+
+
+commit 9a2cc7fe33d141b1ffb48e6014934bc830d36238
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: silent support for generating test files
+
+
+commit 7f5117a4751a5767618741e05d9ebf26776a48d2
+Author: Adrian Bunk <bunk@stusta.de>
+
+    build: Remove the obsolete Hildon support
+
+ create mode 100644 src/ui/edit/bt-edit.compact.gtkrc
+ delete mode 100644 src/ui/edit/bt-edit.hildon.gtkrc
+
+commit 2a17aecfa26d14b3deb8f115c028c59a6a502b31
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: move mouse click handling to the test library
+
+
+commit 454bc628092b4095064ba096ce8ee6d2c09bae80
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: improve editing test
+
+
+commit bf85007d4bc68c0834f0dea1df5bc9132106fe78
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern-editor: also log key press event details here
+
+
+commit df8d972deed3bb0edcf6894a74afc53604704eae
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-canvas: allow to grad the canvas by clicking the background
+
+
+commit b49d45dfa760a9b5ed70d3ab5c9906390602627d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    TODO: planning for screen animation refrsh rate
+
+
+commit 4bd8a154749591155c86175dd724a57ed6230be4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern: cleanup initialisation order
+
+
+commit 0bf793fe401f54717244055d373c97b5c6349dac
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    persistence: check if the iface is implemented before forwarding the serialisation
+
+
+commit a9e60319884ec427f8802c0e3a7409e9f617ecf2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wavetable: use constant for the size
+
+
+commit cd0a4aaaa8814975491d874a6b165c90dabd9791
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: followup for pattern refactoring (smart editor did not ave a file)
+
+
+commit 8fb07b99afe4f04cf849565446e9167084ea65a8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern: factor the command pattern into a super-class
+
+ create mode 100644 src/lib/core/cmd-pattern.c
+ create mode 100644 src/lib/core/cmd-pattern.h
+
+commit b40f2b85c994a1d08ae5ed51ccc7dc3182873b1b
+Author: tom__m <thomasomast@gmail.com>
+
+    btmemoryaudiosrc: remove libbuzztard-core from include
+
+
+commit 0a1254abc08c0a2c83e776d03e558e9d8e1fd2b3
+Merge: 89920d2 111bc08
+Author: trusktr <trusktr@gmail.com>
+
+    Merge branch 'master' of ssh://buzztard.git.sourceforge.net/gitroot/buzztard/buzztard
+
+commit 89920d2c42fa84552ae0c7260c72126ae5e2ade5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    These are the modifications that work for me (1 of 3). They all have the same result where the first two instruments in Geonik Omega are fine but the other two are static.
+
+
+commit 111bc08ed1761fcc28d8ca750ec2ebe09d8f2edc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    waves-page: fix type punning warnings.
+
+
+commit 66a2719b29b782c96e86007917e586412a2896c5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern: simplify handling command-patterns
+
+
+commit dfc645c677a7ab3a43474364267641b8692fee1d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine. fix nul-ptr def
+
+
+commit e8e50ce91107a947ca2ed4b8c7aa6a3ebeccf332
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: improve shell tests
+
+
+commit ff9a768f80a75baed557b60a1d55f8c921264a5f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    news: write and sent news
+
+
+commit 627f86a766d742c0959ea2f1b200737cf105af7f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: more details in core apis docs.
+
+
+commit 6cc39c9cb271428d82ca7a72f26659f2cc6a15fe
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    planning: add more notes for killing wire-pattern
+
+
+commit d6164a21c468b47f2035d8139d2e962436c67138
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    childproxy: update child proxy and enable it for song
+
+
+commit af47907b098d5e8d6361fe537f206c0416e59ca8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    timeouts: use g_timeout_add_seconds more
+
+
+commit 00207d3dc349f9da8776403f974bbebb2090dc08
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    comments: remove commented code and obsolete todo
+
+
+commit 0054ad7beb4522559ce4d6e260e25a749dd77b4c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ic: remove hal discoverer.
+
+ delete mode 100644 src/lib/ic/hal-discoverer.c
+ delete mode 100644 src/lib/ic/hal-discoverer.h
+
+commit cf255be3aa22ad483d8556292b77fedac851a489
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: use local path for core include.
+
+
+commit fccb2ec5137984c51465ef04ce049c46246da900
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: sync makefile style with the rest of the module
+
+
+commit 9e928fe543f36a89ba7b9343b04629a5cc350cdf
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    autofoo: update libtool setup
+
+
+commit a0a1ab9fead04e4548612b42b78446faef3ddfe8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    dependencies: bump glib, gtk and gstreamer required versions
+
+
+commit c2fde051602e42d592632f044062035b16ef1dde
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    autofoo: add variables for the versions of our dependencies at the top
+
+
+commit a61444af27a70c44975b6b45c04fcd560f27de21
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    autofoo: just check for valgrind, no need for options
+
+
+commit bc2d74a924f6ffce3cea0be0c708f88b19a2c001
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    autofoo: remove unused variables
+
+
+commit cb84f0ffb969adbb89b0b7d40b586f55a83a4565
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: turn off sync on filesink as this was for testing only
+
+
+commit 10cc3842301882a8a0dad54f5373d48922c243de
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    error reporting: more details in error/warning dialogs
+
+
+commit 2c28c7297fff99dcb0da2539a47d2ab97f402f2b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song-info: remove conditinal code for older libs we already not supporting anyway
+
+
+commit 8069df1c4aebeb64c42412055079dfcbe3eeeee6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    autofoo: use GST_MAJORMINOR instead of hard-coding the 0.10
+
+
+commit 882534b04cf648a769aa4e453f6d05bf65ddc514
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    autofoo: cleanup the scripts
+
+
+commit f5b9d2277a67e72a95f382bd98af2b70e02e1613
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    toolbar: remove obsolete transport mode comment block
+
+
+commit d06636cdbafffad1f37a115e86c7216e67daf82a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    caps-change-signalling: rework the caps change listeners
+
+
+commit 88b7c0d93d53f819c4737dd915c737405f136401
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    toolbar: merge code path for audio-channel detection
+
+
+commit 25f8db62a23ff51f4fd1351bfe72856014b11453
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    comments: remove commented out code
+
+
+commit e001d6d959faa13f9c547089e4ca4ae1c9161370
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    songs: move empty song detection to the song class
+
+ create mode 100644 tests/songs/empty.xml
+
+commit eab8c0bd35db7d9cfbcf537b3cf4d2897cb3970a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: move test code from application to own test
+
+ create mode 100644 tests/lib/core/e-tools.c
+ create mode 100644 tests/lib/core/s-tools.c
+ create mode 100644 tests/lib/core/t-tools.c
+
+commit 3b3d90bdca5c553a97f25a4bc4294675b17f895f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bt-ic: fix goption category
+
+
+commit f087f6c12020fe06cb160217181b2f17fa5c68d3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    core-test: split into positive and negative parts
+
+ create mode 100644 tests/lib/core/e-core.c
+
+commit b421956f9496d96b429f5fc911e33156583f6ed7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    element-checks: update the list of element checks we run
+
+
+commit 923677119ef4dfff4da70857535ada19e7aba2b0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi_device: fix the build
+
+
+commit 5fa54863d2d94fadbc7a5d026890e26d2e43089e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    todo: review & update todo comments
+
+
+commit 2f3d538003713240bb7b10b1ea791e227e7fa458
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    todo: more feature planning
+
+
+commit bdcbde9fcb1eb70a25913e1fdf13b2e55c2274f8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi: experiment with transport comamnds
+
+
+commit 10ad303e9116deb47953f2f9c789956f06cdff7b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: improve bt-ic docs
+
+
+commit e14b2d5f6fda033ac4a2023e1d6049f6cbe86190
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: add the buzz song io plugin to the docs
+
+
+commit b05961cf683b627cd994e71786e82e39ae9b4fb9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    gitigore: ignore more files
+
+ create mode 100644 design/.gitignore
+ create mode 100644 design/midi/.gitignore
+
+commit 32c74a7fb8e6664404b283a30fe1ddc3ac5efef9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    planning: more planning updates
+
+
+commit f7834471aba8c8919bafd3d1eb6e1465dc0a144e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    todo: planning comments
+
+
+commit 768745a0e3f5e3ce305b313c50d9345ee454c9b2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    songs: only deal with clock-lost in playing
+
+
+commit c2136692a6fd0ea5216471b1f8aa0323c8fac430
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: activate pads not only in playing
+
+
+commit a029e7b41bdc9c04a39fed7aed68b5249a2fec7e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: fix the html entity
+
+
+commit 105782f32fbc0e2d880f22a12d147bbfefa4978f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    libbuzztard-core: move includes to sourcedir
+
+ create mode 100644 src/lib/core/application.h
+ create mode 100644 src/lib/core/audio-session.h
+ create mode 100644 src/lib/core/childproxy.h
+ create mode 100644 src/lib/core/core.h
+ create mode 100644 src/lib/core/gconf-settings.h
+ delete mode 100644 src/lib/core/libbuzztard-core/.gitignore
+ delete mode 100644 src/lib/core/libbuzztard-core/Makefile.am
+ delete mode 100644 src/lib/core/libbuzztard-core/application.h
+ delete mode 100644 src/lib/core/libbuzztard-core/audio-session.h
+ delete mode 100644 src/lib/core/libbuzztard-core/childproxy.h
+ delete mode 100644 src/lib/core/libbuzztard-core/core.h
+ delete mode 100644 src/lib/core/libbuzztard-core/gconf-settings.h
+ delete mode 100644 src/lib/core/libbuzztard-core/machine.h
+ delete mode 100644 src/lib/core/libbuzztard-core/parameter-group.h
+ delete mode 100644 src/lib/core/libbuzztard-core/pattern.h
+ delete mode 100644 src/lib/core/libbuzztard-core/persistence.h
+ delete mode 100644 src/lib/core/libbuzztard-core/plainfile-settings.h
+ delete mode 100644 src/lib/core/libbuzztard-core/processor-machine.h
+ delete mode 100644 src/lib/core/libbuzztard-core/sequence.h
+ delete mode 100644 src/lib/core/libbuzztard-core/settings-private.h
+ delete mode 100644 src/lib/core/libbuzztard-core/settings.h
+ delete mode 100644 src/lib/core/libbuzztard-core/setup.h
+ delete mode 100644 src/lib/core/libbuzztard-core/sink-bin.h
+ delete mode 100644 src/lib/core/libbuzztard-core/sink-machine.h
+ delete mode 100644 src/lib/core/libbuzztard-core/song-info.h
+ delete mode 100644 src/lib/core/libbuzztard-core/song-io-native-bzt.h
+ delete mode 100644 src/lib/core/libbuzztard-core/song-io-native-xml.h
+ delete mode 100644 src/lib/core/libbuzztard-core/song-io-native.h
+ delete mode 100644 src/lib/core/libbuzztard-core/song-io.h
+ delete mode 100644 src/lib/core/libbuzztard-core/song.h
+ delete mode 100644 src/lib/core/libbuzztard-core/source-machine.h
+ delete mode 100644 src/lib/core/libbuzztard-core/tools.h
+ delete mode 100644 src/lib/core/libbuzztard-core/version.h.in
+ delete mode 100644 src/lib/core/libbuzztard-core/wave.h
+ delete mode 100644 src/lib/core/libbuzztard-core/wavelevel.h
+ delete mode 100644 src/lib/core/libbuzztard-core/wavetable.h
+ delete mode 100644 src/lib/core/libbuzztard-core/wire-pattern.h
+ delete mode 100644 src/lib/core/libbuzztard-core/wire.h
+ create mode 100644 src/lib/core/machine.h
+ create mode 100644 src/lib/core/parameter-group.h
+ create mode 100644 src/lib/core/pattern.h
+ create mode 100644 src/lib/core/persistence.h
+ create mode 100644 src/lib/core/plainfile-settings.h
+ create mode 100644 src/lib/core/processor-machine.h
+ create mode 100644 src/lib/core/sequence.h
+ create mode 100644 src/lib/core/settings-private.h
+ create mode 100644 src/lib/core/settings.h
+ create mode 100644 src/lib/core/setup.h
+ create mode 100644 src/lib/core/sink-bin.h
+ create mode 100644 src/lib/core/sink-machine.h
+ create mode 100644 src/lib/core/song-info.h
+ create mode 100644 src/lib/core/song-io-native-bzt.h
+ create mode 100644 src/lib/core/song-io-native-xml.h
+ create mode 100644 src/lib/core/song-io-native.h
+ create mode 100644 src/lib/core/song-io.h
+ create mode 100644 src/lib/core/song.h
+ create mode 100644 src/lib/core/source-machine.h
+ create mode 100644 src/lib/core/tools.h
+ create mode 100644 src/lib/core/version.h.in
+ create mode 100644 src/lib/core/wave.h
+ create mode 100644 src/lib/core/wavelevel.h
+ create mode 100644 src/lib/core/wavetable.h
+ create mode 100644 src/lib/core/wire-pattern.h
+ create mode 100644 src/lib/core/wire.h
+
+commit 2239af59e5b8078efcced7a6bcaf461b711ba5e9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: update docs for btparametergroup
+
+
+commit a01fd40329c53d56c66788057a6d65cc9fe91475
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-properties: remember the last loaded preset
+
+
+commit 28fa4e3c51be167540de2d17103708614da9fa7b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    parameter-group: extract a parameter group class to address code duplication
+
+ create mode 100644 src/lib/core/libbuzztard-core/parameter-group.h
+ create mode 100644 src/lib/core/parameter-group.c
+
+commit 0389a2717af78f989a19b956d187fa024a70e3b9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wire: avoid NULL-ptr derefs in debug logging
+
+
+commit 8a3561579e8060095b7a855bb508c6926efd079e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bt-cmd: also check for non empty strings
+
+
+commit 4d2b236512e07833b686b3edfe7b32fdfc766f41
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: fix test-suite name
+
+
+commit fcdd44479b898bbb621d7008a833bcc7c709db4e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ic: fix gir setup after moving the header files
+
+
+commit 0c2f358bd11d1ded0f633c4340bbf23de3152336
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    pattern: planning update
+
+
+commit d23a279815dc5a6a8fab779b44a3ac10baf636cc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: core api docs cleanup
+
+
+commit f41a7eb9c1b18ab4cea5cc07dc35c3ff756835c1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ic: move the headers to the source dir
+
+ create mode 100644 src/lib/ic/abs-range-control.h
+ create mode 100644 src/lib/ic/control.h
+ create mode 100644 src/lib/ic/device.h
+ create mode 100644 src/lib/ic/gudev-discoverer.h
+ create mode 100644 src/lib/ic/hal-discoverer.h
+ create mode 100644 src/lib/ic/ic.h
+ create mode 100644 src/lib/ic/input-device.h
+ create mode 100644 src/lib/ic/learn.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/.gitignore
+ delete mode 100644 src/lib/ic/libbuzztard-ic/Makefile.am
+ delete mode 100644 src/lib/ic/libbuzztard-ic/abs-range-control.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/control.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/device.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/gudev-discoverer.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/hal-discoverer.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/ic.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/input-device.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/learn.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/midi-device.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/registry.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/trigger-control.h
+ delete mode 100644 src/lib/ic/libbuzztard-ic/version.h.in
+ create mode 100644 src/lib/ic/midi-device.h
+ create mode 100644 src/lib/ic/registry.h
+ create mode 100644 src/lib/ic/trigger-control.h
+ create mode 100644 src/lib/ic/version.h.in
+
+commit 5321351c77902b807ce59deeef05c1986407225c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: fix the expected refcounts
+
+
+commit 76b29f8d72f3e235e92be52e86fe0a8b26647931
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    logging: add more ref-count logging
+
+
+commit ab0a13d5d72f227dd9402cd4a8c73225f7a78d60
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test: also harmonize the ref count logging in the tests
+
+
+commit acbfd663dbfe9b2862042fb396a623472e7a6005
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    logging: harmonize ref count loging more
+
+
+commit 452c4caed4276a3c1e2ea5d3a1d5e33d1db36beb
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: don't use the example.xml in tests
+
+
+commit d89aad7fef9fa6075a7454a3920d58c7dcf5e562
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sequence: improve logging for clipping play pos
+
+
+commit bc0cbbd1a2d6e4e82658a20fd61dfd3497e48951
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song: treat no-master silently when trying to play
+
+
+commit 2f02e55f93531745b1b225cf73006f0f1a5d1450
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: remove network suite
+
+ delete mode 100644 tests/lib/core/e-network.c
+ delete mode 100644 tests/lib/core/s-network.c
+ delete mode 100644 tests/lib/core/t-network.c
+
+commit abcc79b11788eb728139853c7e94933083093e58
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    news: track changes
+
+
+commit 7a5d98d2fae72244d108a281be57fb1159398950
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: simplify fake argc,argv setup a bit
+
+
+commit d3f1df65d1fd6e47cac455fc29867555ec24ac2c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    gtypes: use glib types more often
+
+
+commit 3ec2100d6264718396125109e3d9ef8a597ba4e2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    planning: more preparation for the param group refactoring
+
+
+commit 05dc09e457c2e55019c66d0aa55ec51b489beb02
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    planning: reformat and update planning comments
+
+
+commit f55e649b5c5291f9088d2cf729b2bd9c33a527d2
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wire: small code reshuffle
+
+
+commit 4955bb4d17d622938dafc0589419d20372177fca
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: remove controller dump helpers
+
+
+commit bad9089bf01c14067f2af8d2e9e69878616dc6a5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: machine input/output planning
+
+
+commit 4156c3020f3bafc9dff376f17865694ed9e9b4da
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    architecture: update high-level overview picture
+
+
+commit cc5d7c87bba42a227c9c82335be5ace6b26b6ff1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    cleanup: remove dummy comments
+
+
+commit e4323eff5ff6e53679f4ff7ded39633682eaace4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: param group planning
+
+
+commit b07197d831a7fd0d222f4f4a8268a9d76f28be50
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    goption handling: remove flag that is only needed for callback based args
+
+
+commit d652bcd29b52f3d3dcf0aae793adcfbef6219a38
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+     playbackcontroller: fix doc markup (use html entities for < >)
+
+
+commit a820e33392c7c32941ac177fbeea6a5430c9d65c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song: fix clang warning
+
+
+commit 1a7fe2096e4c514099dab2eb145c6a26aef1cccb
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    common.mak: more stats and fix dependency
+
+
+commit cb91f49a0214c2e4cc2220498d342793b9722fd0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    jack-transport: add settings for jack transport and hook it up
+
+
+commit ac602d5c32c5d1e72a87456a8a4b48cc5b33aa42
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    architecture: add arch diagram from wiki to git
+
+ create mode 100644 design/buzztard-arch.svg
+
+commit 9531eed4bdf2f075bd9fbaad4fb0aa380099c5bf
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    playback-controller-settings: prepare the UI to support additional controllers
+
+
+commit feaf50ed2a853ec8eb53795206f997c14c17e62e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    settings: fix indentation
+
+
+commit d00b34109b7fa3f5b7c79a923d2ad537247d7e6d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    playback-controller: add some thoughts about lifecycle
+
+
+commit 24ae96fb25a89220fe75642238a11552dfb05108
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    settings: keep a settings instance around for the lifetime of the page
+
+
+commit 2a4d306adb3dace69a9611e8964ea5bf022da413
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    planning: define path for keymaps
+
+
+commit 40b2568456c827566a577c2bf8a188dcd442e8d6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    planning: more planning on playback controllers
+
+
+commit 391cf9690951c0b8e225b441ea533165772309c6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    plannings: some prototyping for per machine cpu-load
+
+
+commit 306fe9cd170d51b483521adc5231de81e86365ea
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song: remove an obsolete and disabled code snippet
+
+
+commit 3c4e512fdee77784d2bb82621a0c3803d82aeefb
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tools: there is no need to collect time for child processes as we don't have any
+
+
+commit 70f41493e4d31c4a5adaec8fe7aa203e0040406c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    cleanup: random cleanup from pedantic compiler settings
+
+
+commit 90fa96c4ad40a731a4a38b8fdc1839d2d22bb536
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bt-edit: planning comments for the playback controller
+
+
+commit 89e2bcb1b27f857d2aab4f5a8d31fd7ab4755e1f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    core: use READY for the stopped state
+
+
+commit 2d4d185494740b20afa9da9b34479952290f398c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    News: send news
+
+
+commit 162a4ff7600f08a7a33f8ff9593b0ef448372084
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    playback-controller: document commands
+
+
+commit 65ecdbeeea16c1a9e6c4ea6a7df06f4a1b8d59cd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    todo: planning update
+
+ create mode 100644 design/gst/TODO
+
+commit 17fde81151857d58a74062b63068cecf23085178
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: less spammy logging
+
+
+commit ab0726f123cef06220cf6a6f3abf12596597b63b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: log more detail
+
+
+commit 8c0bc6f3400bee6251db4a6b14a180a93160c953
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    change-log: the song can be NULL
+
+
+commit 333d7ca98ff6a08a50ae435d1dc3133f2516ec08
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    planning: more thoughs for upcomming features
+
+
+commit 454040b4f3a65e8ab68bc192d8eeabae9d42e187
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: don't overflow in subticks calculation
+
+
+commit 91e38340d500f477efd825fdfcb80832dc6a6fb8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: fix latency calculation and add a test
+
+
+commit 6a3c3ef27caf2b5036321964e19f2e1049cbe09f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi-device: fix comment typo
+
+
+commit 805e5cc5d3cd648059b48b8c348ad3d4d309f661
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song-info: don't do g_get_value twice for tempo props
+
+
+commit 575bdf4a97ab4360a2abc72f949ae65d931877c9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    visibility: make more functions static
+
+
+commit f45af1262e996739e6abdd018c1b60bfa9f237fb
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: remove the mainloop and make the test faster
+
+
+commit 9066a646a993533254becf8f5fe23d47779b9daf
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test: add a test to ensure ticks in the sequencer are triggered
+
+
+commit 8145df5e0f7de5feabd4057544a17da0663dfcc0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: disconnect the latency changed handler
+
+
+commit 37a04e74fe2e4644a2f0b2cb94d2cbdcbd756056
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: ensure that subticks_per_beat is >= 1
+
+
+commit cd5271df32d71bd1aac1a82831e5253a9621cc36
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    test-settings: add new settings to fix the tests
+
+
+commit 4ab798fd5dee21a934fdd44f2f59edf0a7973211
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi-device: add comments, cleanup sysex id-req experiemnt
+
+
+commit aff718cf6b04a8c8b94d6580c4fcca02158ec78e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: turn warning into debug log level
+
+
+commit cbf34bba32010173f56dab66f204493cda9b01a7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    didi: add a raw midi send/recv example
+
+ create mode 100644 design/midi/rawmidi.c
+
+commit bfd1356c69b440d126d6b80ea61f0a36c03ef021
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    cleanup: remove more $Id$ tags
+
+
+commit 74e27809060f7965ea0966fcead706772e68ae0f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    analysis-dialog: remove unused var
+
+
+commit 5a2330e4f9accf8795b31ec9f0daf36981f55897
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: update stpb from latency settings
+
+
+commit ede9b6c5bef287ee2de398b85aafdf4894b8b913
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    settings: add the ui for the audio-settings
+
+
+commit 9a3e50b3b8aeea8ead0e64b886d8b431173abfde
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    main-page-info: remove obsolete todo
+
+
+commit c21d577a4f6a127b8244ff709cc1aa404137f692
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    settings: add an entry for audio latency
+
+
+commit 2fdd591c6757b67f281e8fa917c81273c1bf2bf1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    analyzer-dialog add a cross-hair for the spectrum view
+
+
+commit 294600a9d15ba32854d895e2c74d5eb557b0dbd5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    analysis-dialog: keep a bus ref, so that we can safely remove signal handlers
+
+
+commit 66eef44a03b4080b84792653d4f64f16e0d16598
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine-canvasitem: also close the analzzer when closing the song
+
+
+commit 652e88a5031690d591798a122e7850f226b69c08
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ruler: remove the ruler widget
+
+ delete mode 100644 src/ui/edit/ruler.c
+ delete mode 100644 src/ui/edit/ruler.h
+
+commit e9f52fbc66fcfcc44f09b84df560274600d90bdb
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    signal-analysis: add log drawing for freq axis
+
+
+commit eaeda50dab962e7755aa551f0044a7c51613ec4d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    analyzer-dialog: use own ruler code
+
+
+commit 099a10d478f0c8f2e6ba9572caa1f49f24d14461
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    todo: planing updates
+
+
+commit cbe04ab117327aaf666b6f877aa1b63c90ece5fd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: mention time flow in trackers vs. classic sequencers
+
+
+commit d5b4d64b6fae6e1859d4d4d2a45991bdac3885d1
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    subticks: calculate subticks to match a target latency
+
+
+commit 6c35119e4b620794496d78c76c91bc098a400035
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: update spelling
+
+
+commit e5c726348dfdafa71539102da4cde07c3c4e5185
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    NEWSLETTER: finish NEWS and collect new items
+
+
+commit 8e419a8b39e194dce75300496069068269b78db5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song: disable the request state until the side effects are fixed
+
+
+commit 28dfff172b8aaef39f153d468ed45eeca4812d02
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    toolbar: also use the fallback casts
+
+
+commit a0a5dfdf5cf98a2aa4c462a2e06791846048ddca
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    audio-session: only set transport if the jacksink is new enough
+
+
+commit 4bf5fa088004e3c5f3ef30a277e0c993f88cb7c6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    toolbar: don't use deprecated api
+
+
+commit 742aae9e825ecfb98840667178b6f91e19143fdc
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: don't div by 0
+
+
+commit 6499ec8a22221c9efe9969105e5907ea7a8369ad
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tools: fix the last commit
+
+
+commit fea6a50a4911b59dc9eeac15b9d626899af8557b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tools: use new gst api conditionally
+
+
+commit 14c513ce0c893b9f8f9fc393e359022688d546ae
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine,sink-bin: configure subticks to get lower latency
+
+
+commit 0d3570d8160fb1c4c871da7a871a9a062f4366d3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: update latency comments
+
+
+commit 0b2b992b0060a02ad400965c29e6319739ee08d4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: don't rely on the element-name for lookups
+
+
+commit 256f16390cf62e443f68548d90532711895b57a3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: fix silly missing assignment
+
+
+commit 27393b38dc86ef7dad06d94f21dfe62ff9e60e98
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    latency: add echos before and after the test
+
+
+commit ebfc3e52fe6f7c0a47ab038ee298777d40674092
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    latency: make block sizes a parameter and compare
+
+
+commit 42f5bda543744d8b66055f6a2d4eaa1816ec5319
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    lateny: add a side by side compare and style the output more
+
+
+commit 51d555a33fcbfa890925cb0f97210dfc2a075f1c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    latency: add a html based viewer
+
+ create mode 100644 design/gst/latencies/.gitignore
+ create mode 100644 design/gst/latencies/latencies.html
+
+commit 59bafeee15226d52493198cc61aa44cdda6bb236
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    latency: update comments, tweak plots
+
+
+commit eeee82c79d6672f9b4090be05a0ac2c6d69fb48d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    latencies: improve the test script
+
+
+commit f58658b251582677c3385b47048a81fe707d8a09
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song: handle state change requisitions
+
+
+commit e0518230d99644125a43d3768647078ed949bfaa
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    audio-session: reorder property hndling and tweak logging
+
+
+commit e9edbe74237f1a719254a90b8d9d4e29fa553eb0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    gitignore: refine ignore glob for late ncy test
+
+
+commit 07585783494ad4cae9d167c0dd5cc6d297711190
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    audio-session: go back to default mode now that we have a ui to select it
+
+
+commit b02ea38f63d15441359a4989c15d3d8f3c00e896
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    toolbar: add transport mode selector
+
+
+commit 78deaefd4d98acdd71c4b0047b1fb802d0e1c232
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    gitignore: hide more latency-test files
+
+
+commit 942d8ea07374c218a8a46125dfb67c9532c28c9c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    audio-session: use the transport mode
+
+
+commit cb5629300ef8adcc8fad5c5131e3492166c6e4ee
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    comments: planning comments
+
+
+commit e92f2fc353b011e54281aeecfe7c93417478e213
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    audio-session: move the session code to a separate class
+
+ create mode 100644 src/lib/core/audio-session.c
+ create mode 100644 src/lib/core/libbuzztard-core/audio-session.h
+
+commit e030e3b41692da9bcb91442ef09bd8cf19b45e7a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave: initialize more variables as newer gcc versions point out
+
+
+commit 21792244090e34e1cf09fdb0499aac8245f4c454
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tips: add another tip and ideas
+
+
+commit 9fed8282d6f7162eceb164c627bf7a5c10f6a453
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: use 1/10th of a second sleeps in tests instead of 1 second sleeps
+
+
+commit d0ba62202e33980605675b674afccef7aa33ae3f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    wave: make wave loading sync
+
+
+commit c28285a7126b7add64b22739eca338bde9e1f9cf
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: skip the min/max check if those are -1
+
+
+commit fe84fdb9e8fba7cfaf99b009cef0b382ea9e3e94
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: fix the build
+
+
+commit 7bd296cb936e0644979e5777b8d64abe1a1c5ef3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: more logging
+
+
+commit dc6b09f6beb9788b426bb4b5f3e777b4dabed9a8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: revert the type change and fix the print format again
+
+
+commit 8d14a568107f3267f92bc7999e10dec18ac6830f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: fix format strings and variable types
+
+
+commit b1a04a0b35d5bde7d34a294d43d4d2b3e9ad9b0b
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    latency: planning
+
+
+commit bcda8e7ac9566f819bd8e433515a97a4ea956c5e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    comments: cleanup
+
+
+commit e112ebe107cbbb4e569181428f0657ac8fcd21c0
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    latency: improve scripts and test
+
+
+commit 564be79b9ac6bd21930f6cdb772f896c7c9345ea
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    design: add latency test app
+
+ create mode 100755 design/gst/latencies.sh
+ create mode 100644 design/gst/latency.c
+ create mode 100755 design/gst/latency.sh
+
+commit abe4b0997f2518cc0b5a31da943fb8d425739690
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ignore: update ignore files
+
+
+commit 10d6e02c6c1e1ab0c072511eb5b490f499272f2a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    core: fix version include
+
+
+commit dd3c1db72246ff700a07da867bdf6ab3bde94bb6
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    splint: make the splint target to work again
+
+
+commit b61c7e8834fe43ac12290c3e411bd898f747c064
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    make: fix variable misnaming
+
+
+commit 8b38c0c8284e4e72d1d982f6665f4411fc7ec652
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    make: use common.mak for test, apply make help changes
+
+
+commit d5a03dea2bbd284bdaf65644c7e41f42abf0b157
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: include the annotation glossary to fix the links
+
+
+commit 431006945c0c708f264c870eb2c82eb269a7f5b4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    todo: convert all todo, idea, fixme markers to a common format
+
+ create mode 100644 common.mak
+
+commit 850385d94ee28ffdfb735ef353133c3806568b8e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bt-cmd: add #ifdef's to emphasise experimental code
+
+
+commit 2a85ebbd012f75e68b138a9ab225066f8ddb3b73
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: keep single audio_sink for some types
+
+
+commit b9f6059b5210e2d6583d701cdd26296957ba828d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    core: cleanup lib init
+
+
+commit ae1331411b84bbebd2ab21e74d8c1986d8f3e730
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    session: fix session example
+
+
+commit 024f229a685b59cfbd448726d0c09d3c4c3dfdea
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine,wire: trim logging
+
+
+commit 27ae836f468ad9ff726828fdb95dfdde9f86bf8a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    session: add a test app for how to make a persistent jack session
+
+ create mode 100644 design/gst/session.c
+
+commit 63fd40c61f3b2a4371b7c48ac7692513752f5249
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: improve logging
+
+
+commit 96e017ff6cdfca3414d838861f25215e847c0537
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song: more ready for stopped experiments
+
+
+commit 4be9a13f8bd9c56268a3275d3ac8e942765997f8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: draft new api and add more logging
+
+
+commit c03b01fffc062cdb706ad0240e1322e875c3aea3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add build commands for gtk+2/3
+
+
+commit 4bf04130e21aa8f431e959b1201c2f7f6b7f1726
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    scripts: update script for svn->git transition
+
+
+commit fb87c40c27b6e7148fb2c57aa6c0ab6ed662b3f4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    scalemarks: make example buildable for gtk3 too (with warnings)
+
+
+commit 83ae78e80c084ec85710ca6ef19770ca0ee33f62
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    build: fix the uninstalled build
+
+
+commit 717a484dfb94fc44e2e22ce6cfa4fa8496edcb77
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    docs: fix spelling in api docs and comments
+
+
+commit 22e1f834c0b3fce2d6d21461459dd911b3e30d23
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    doap: update doap file
+
+
+commit 9668ffd6ff99d69c1741715b8e29d52569ff1555
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    cleanup.sh: remove script we don't need anymore
+
+ delete mode 100644 cleanup.sh
+
+commit 5d8a5b8cb8f7b61d28eeeaa24e0ce74c055ddf1d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: svn -> git
+
+
+commit 0072a5c385c876ad3ebd47fb052ec2198e47a883
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    README: svn->git
+
+
+commit e2f935c3bfe67cd450a8fef50025db2a4b1e7c4a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi: more ideas
+
+
+commit 5fb254a9e406c2ae1b1e9803aa4b614b0475f68e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    news: collecting news
+
+
+commit 126d7c52d66d5225317885aeef5e58729efe89ee
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi: more planning
+
+
+commit 18aff10d3d1c849313dbe86e45437541cc36a8bd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi: more defines and some log trimming
+
+
+commit c7353304e3bc1d116407d4b2281f74add549874c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi: define more command and do a dummy note-off handling
+
+
+commit 4e8bff6fc6c0457993f95bfbdc1bdd8bdc5e2329
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi: planning doc
+
+ create mode 100644 design/midi/TODO
+
+commit c7d7945298e1d224be6a3ed04e72360f685c2f1c
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    midi: add support for note-on events
+
+
+commit 4300a4e0cbe852f760eb6ad525dc4c1d753d1660
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    sink-bin: planning
+
+
+commit 0895b98408c418b1f4ace500785a97c0006ef26d
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    transport: improve example
+
+
+commit 7b7d1da482ebce8cc189b770ed68b811dc72ebef
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    song: make the transport handling work somewhat
+
+
+commit 78a9d7d9db7ef99e68907e70931f0528ae8bc41e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    example: start in PAUSED instead to avoid a blip in the begining
+
+
+commit a6c9683a36b834ab76900eca04c1186cbca025e7
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    examples: gstreamer transport control example
+
+ create mode 100644 design/gst/transport.c
+
+commit b5514919e595f5640410b51b18d9cbb6b698f111
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine: support binding controller to enum types
+
+
+commit d60c9307c2203f2876a2cd1f4422810cda3c88b8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    songs: handle state-change requests
+
+
+commit 3a45e3317e808446652bbca031b0cf94591cfbcd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    songs: handle latency message
+
+
+commit eacbb893ffcae141738a9d2c95dd367d1970c197
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    mixer-popup: replace the rulers in panorama&volume popups with scale markers
+
+
+commit b21eac6350d088f25893de2f28076be6ba869ae8
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: extend the scalemarker example
+
+
+commit 69742ce25545ea641dae672e2983563210ac35bd
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tests: add a example for the scale_marker bug in gtk
+
+ create mode 100644 design/gui/scalemarkers.c
+
+commit 6360cb904e698ae5432c21187bb1d58e2e1967ba
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    deps: require gtk+-2.16
+
+
+commit c74d81d35ba552c5d4faba6a572fec61bdfb8658
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine window: also have the context menu on fron labels
+
+
+commit 22b5c681282ae1d7c328bd95b8d23fcc56a50ebf
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    Makefile: whitespace fix
+
+
+commit 552be2c749f65568399ee4f8b17cde3d064e8b4e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: build and link against uninstalled resources
+
+
+commit a9938e585d6b1b69dbb69ec8865c13fc98a4aa0e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine window: make the context menus on comboboxes work
+
+
+commit 31d3035212bd95ba6c7afb8b2b22fa101b30a6e9
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    machine properties: also have context menu on range-labels
+
+
+commit 3270986931ad8aa200c0f72b3c556a390c2bf572
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    NEWS: collect more news
+
+
+commit 9f10ab6ee479f94d03ae77d1b0b282e00772f24e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    mod: collect some ideas for a mod file loader
+
+ create mode 100644 src/lib/core/songio/mod/mod.c
+
+commit cab106503d2dead22f12a0ce48523b67d3c49982
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    cleanup: remove $Id$ tags from cvs
+
+
+commit 4b7df5686f865929c087f509688d1b00e05405d5
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    gitignore: add bak files
+
+
+commit d5283d05c19ad87603e71e57af1144266d2b5d8e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    news: collect news
+
+
+commit 8cf8ba70dc4a80790b6c14e208890562b8b00d1a
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    patterns-view: show parameter name in statusbar too
+
+
+commit 881c29eea6be2aac006cf432d558c065c13fc91e
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    configure: update lib version and require 0.7 of bml/gst-buzztard
+
+
+commit 041875251c0d040e417d4434e3aa5e730501e852
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    help: tell about the context menus on groups in machine window
+
+
+commit cf5cafe180cfec63d4700eef346faa741658c286
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    tips: add a tip about parameter copy'n'paste
+
+
+commit 09a21cd4a2a1bd355969c8b8eda60477f5f8bf22
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    ruler: fix unused variables
+
+
+commit cc1f535f2d072847d3eb669756dff20ff28781a4
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    cruft: remove shave.m4
+
+ delete mode 100644 m4/shave.m4
+
+commit 35be1f4851a393fa419c7fc033d943db8a877777
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    gitignore: update ignore files
+
+
+commit 1b306d18640ffb2bdeda54e00edeb3e11dcd7de3
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    bsl: move to buzztard
+
+ create mode 100644 src/lib/core/songio/Makefile.am
+ create mode 100644 src/lib/core/songio/bsl/.gitignore
+ create mode 100644 src/lib/core/songio/bsl/Makefile.am
+ create mode 100644 src/lib/core/songio/bsl/TODO
+ create mode 100644 src/lib/core/songio/bsl/bsl.c
+ create mode 100644 src/lib/core/songio/bsl/bsl.h
+ create mode 100644 src/lib/core/songio/bsl/buzztard-songio-buzz.desktop.in
+ create mode 100644 src/lib/core/songio/bsl/buzztard-songio-buzz.xml.in
+ create mode 100644 src/lib/core/songio/bsl/song-io-buzz-private.h
+ create mode 100644 src/lib/core/songio/bsl/song-io-buzz.c
+ create mode 100644 src/lib/core/songio/bsl/song-io-buzz.h
+ create mode 100644 src/lib/core/songio/bsl/version.h.in
+ create mode 100644 tests/lib/core/songio/bsl/bt-cfg.sh.in
+ create mode 100755 tests/lib/core/songio/bsl/bt-cmd-encode.sh
+ create mode 100755 tests/lib/core/songio/bsl/bt-cmd-info.sh
+
+commit 7741a398374cdf1b0e0c9751b7baa396976ae69f
+Author: Stefan Sauer <ensonic@users.sf.net>
+
+    configure: back to development
+
