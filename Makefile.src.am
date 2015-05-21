@@ -741,10 +741,10 @@ BuzztraxIc-0.0.gir: $(G_IR_SCANNER) libbuzztrax-ic.la
 BUILT_GIRSOURCES = BuzztraxCore-0.0.gir BuzztraxIc-0.0.gir
 
 girdir = $(datadir)/gir
-dist_gir_DATA = $(BUILT_GIRSOURCES)
+gir_DATA = $(BUILT_GIRSOURCES)
 
-typelibsdir = $(libdir)/girepository
-typelibs_DATA = $(dist_gir_DATA:.gir=.typelib)
+typelibsdir = $(libdir)/girepository-1.0
+typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
 
 TXML = $(dist_gir_DATA:.gir=.gir.txml)
 
