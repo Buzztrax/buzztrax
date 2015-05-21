@@ -419,7 +419,7 @@ Error:
  * @self: the application instance to run
  * @input_file_name: the file to print information about
  * @output_file_name: the file to put informations from the input_file_name.
- * If the given file_name is NULL, stdout is used to print the informations.
+ * If the given file_name is %NULL, stdout is used to print the informations.
  *
  * load the file of the supplied name and print information about it to stdout.
  *

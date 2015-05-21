@@ -483,7 +483,7 @@ sequence_view_set_cursor_pos (const BtMainPageSequence * self)
  *
  * Get the currently cursor position in the sequence table.
  * The result will be place in the respective pointers.
- * If one is NULL, no value is returned for it.
+ * If one is %NULL, no value is returned for it.
  *
  * Returns: %TRUE if the cursor is at a valid track position
  */

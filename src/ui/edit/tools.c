@@ -166,7 +166,8 @@ gtk_target_table_make (GdkAtom format_atom, gint * n_targets)
  * @widget: widget that triggered the action
  * @uri: the uri
  * 
- * Show the given @uri. Uses same screen as @widget (default if @widget is NULL).
+ * Show the given @uri. Uses same screen as @widget (default if @widget is 
+ * %NULL).
  */
 void
 gtk_show_uri_simple (GtkWidget * widget, const gchar * uri)
