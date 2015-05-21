@@ -213,8 +213,8 @@ bt_init_add_option_groups (GOptionContext * const ctx)
 
 /**
  * bt_init_check:
- * @argc: (inout): pointer to application's argc
- * @argv: (array length=argc) (inout): pointer to application's argv
+ * @argc: (inout) (allow-none): pointer to application's argc
+ * @argv: (inout) (array length=argc) (allow-none): pointer to application's argv
  * @err: pointer to a #GError to which a message will be posted on error
  *
  * Initializes the Buzztrax core library.
@@ -241,8 +241,8 @@ bt_init_check (gint * argc, gchar ** argv[], GError ** err)
 
 /**
  * bt_init:
- * @argc: (inout): pointer to application's argc
- * @argv: (array length=argc) (inout): pointer to application's argv
+ * @argc: (inout) (allow-none): pointer to application's argc
+ * @argv: (inout) (array length=argc) (allow-none): pointer to application's argv
  *
  * Initializes the Buzztrax Core library.
  *

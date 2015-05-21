@@ -298,7 +298,7 @@ bt_song_io_update_filename (const BtSongIO * const self,
  * Create a new instance from the given @file_name. Each installed plugin will
  * test if it can handle the file type.
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: (transfer full): the new instance or %NULL in case of an error
  */
 BtSongIO *
 bt_song_io_from_file (const gchar * const file_name, GError ** err)
