@@ -693,7 +693,7 @@ BuzztraxCore-0.0.gir: $(G_IR_SCANNER) libbuzztrax-core.la BuzztraxIc-0.0.gir
 	   -I$(builddir) \
 	   -I$(srcdir) \
 	   -I$(top_srcdir)/src/lib/ic/ \
-	   --add-include-path=$(top_srcdir)/src/src/lib/ic/ \
+	   --add-include-path=$(top_srcdir)/src/lib/ic/ \
 	   --identifier-prefix=Bt \
 	   --symbol-prefix=bt \
 	   --c-include='src/lib/core/core.h' \
@@ -701,7 +701,7 @@ BuzztraxCore-0.0.gir: $(G_IR_SCANNER) libbuzztrax-core.la BuzztraxIc-0.0.gir
 	   --include=GObject-2.0 \
 	   --include=Gst-@GST_MAJORMINOR@ \
 	   --include=libxml2-2.0 \
-	   --include=BuzztraxIc-0.0 \
+	   --include-uninstalled=$(top_builddir)/BuzztraxIc-0.0.gir \
 	   --library=libbuzztrax-core.la \
 	   --library=libbuzztrax-gst.la \
 	   --libtool="$(top_builddir)/libtool" \
