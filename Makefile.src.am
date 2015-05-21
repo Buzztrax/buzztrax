@@ -685,14 +685,15 @@ endif
 
 if USE_GIR
 libbtcore_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztrax_core_la_SOURCES))
+libbtcore_gir_headers=$(patsubst %,$(srcdir)/%, $(libbuzztrax_core_HEADERS))
 
-BuzztraxCore-0.0.gir: $(G_IR_SCANNER) libbuzztrax-core.la BuzztraxIc-0.0.gir
+BuzztraxCore-@BT_MAJORMINOR@.gir: $(G_IR_SCANNER) libbuzztrax-core.la BuzztraxIc-@BT_MAJORMINOR@.gir
 	-PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):$(top_srcdir)/src/lib/ic/" $(AM_V_GEN)$(G_IR_SCANNER) -v \
 	   --namespace=BuzztraxCore \
-	   --nsversion 0.0 \
+	   --nsversion @BT_MAJORMINOR@ \
 	   -I$(builddir) \
 	   -I$(srcdir) \
-	   -I$(top_srcdir)/src/lib/ic/ \
+	   -I$(top_srcdir)/src/lib/ \
 	   --add-include-path=$(top_srcdir)/src/lib/ic/ \
 	   --identifier-prefix=Bt \
 	   --symbol-prefix=bt \
@@ -701,7 +702,7 @@ BuzztraxCore-0.0.gir: $(G_IR_SCANNER) libbuzztrax-core.la BuzztraxIc-0.0.gir
 	   --include=GObject-2.0 \
 	   --include=Gst-@GST_MAJORMINOR@ \
 	   --include=libxml2-2.0 \
-	   --include-uninstalled=$(top_builddir)/BuzztraxIc-0.0.gir \
+	   --include-uninstalled=$(top_builddir)/BuzztraxIc-$(BT_MAJORMINOR).gir \
 	   --library=libbuzztrax-core.la \
 	   --library=libbuzztrax-gst.la \
 	   --libtool="$(top_builddir)/libtool" \
@@ -712,16 +713,18 @@ BuzztraxCore-0.0.gir: $(G_IR_SCANNER) libbuzztrax-core.la BuzztraxIc-0.0.gir
 	   --pkg-export libbuzztrax-core \
 	   --add-init-section="bt_init(NULL,NULL);" \
 	   --output $@ \
-	   $(libbtcore_gir_sources) || touch $@
+	   $(libbtcore_gir_sources) $(libbtcore_gir_headers) || touch $@
 
 libbtic_gir_sources=$(patsubst %,$(srcdir)/%, $(libbuzztrax_ic_la_SOURCES))
+libbtic_gir_headers=$(patsubst %,$(srcdir)/%, $(libbuzztrax_ic_HEADERS))
 
-BuzztraxIc-0.0.gir: $(G_IR_SCANNER) libbuzztrax-ic.la
+BuzztraxIc-@BT_MAJORMINOR@.gir: $(G_IR_SCANNER) libbuzztrax-ic.la
 	-$(AM_V_GEN)$(G_IR_SCANNER) -v \
 	   --namespace=BuzztraxIc \
-	   --nsversion 0.0 \
+	   --nsversion @BT_MAJORMINOR@ \
 	   -I$(builddir) \
 	   -I$(srcdir) \
+	   -I$(top_srcdir)/src/lib/ \
 	   --identifier-prefix=BtIc \
 	   --symbol-prefix=btic \
 	   --c-include='src/lib/ic/ic.h' \
@@ -736,9 +739,9 @@ BuzztraxIc-0.0.gir: $(G_IR_SCANNER) libbuzztrax-ic.la
 	   --pkg-export libbuzztrax-ic \
 	   --add-init-section="btic_init(NULL,NULL);" \
 	   --output $@ \
-	   $(libbtic_gir_sources) || touch $@
+	   $(libbtic_gir_sources) $(libbtic_gir_headers) || touch $@
 
-BUILT_GIRSOURCES = BuzztraxCore-0.0.gir BuzztraxIc-0.0.gir
+BUILT_GIRSOURCES = BuzztraxCore-@BT_MAJORMINOR@.gir BuzztraxIc-@BT_MAJORMINOR@.gir
 
 girdir = $(datadir)/gir
 gir_DATA = $(BUILT_GIRSOURCES)
