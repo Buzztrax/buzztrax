@@ -81,4 +81,17 @@ extern GstCaps *bt_default_caps;
   GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif
 
+//-- legacy helper -------------------------------------------------------------
+
+BtCmdPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, const gchar * const id);
+
+//-- debug helper --------------------------------------------------------------
+
+GList *bt_machine_get_element_list(const BtMachine * const self);
+void bt_machine_dbg_print_parts(const BtMachine * const self);
+
+GList *bt_wire_get_element_list(const BtWire *self);
+void bt_wire_dbg_print_parts(const BtWire *self);
+
+
 #endif // BT_CORE_PRIVATE_H

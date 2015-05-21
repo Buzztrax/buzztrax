@@ -120,7 +120,6 @@ void bt_machine_remove_pattern(const BtMachine *self, const BtCmdPattern *patter
 
 BtCmdPattern *bt_machine_get_pattern_by_name(const BtMachine * const self,const gchar * const name);
 BtCmdPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index);
-BtCmdPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, const gchar * const id);
 
 gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self);
 gboolean bt_machine_has_patterns(const BtMachine * const self);
@@ -150,10 +149,5 @@ void bt_machine_reset_parameters(const BtMachine * const self) ;
 //-- linking
 
 BtWire *bt_machine_get_wire_by_dst_machine(const BtMachine * const self, const BtMachine * const dst);
-
-//-- debug helper
-
-GList *bt_machine_get_element_list(const BtMachine * const self);
-void bt_machine_dbg_print_parts(const BtMachine * const self);
 
 #endif // BT_MACHINE_H

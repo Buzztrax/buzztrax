@@ -67,9 +67,4 @@ gboolean bt_wire_can_link(const BtMachine * const src, const BtMachine * const d
 
 BtParameterGroup *bt_wire_get_param_group(const BtWire * const self);
 
-//-- debug helper
-
-GList *bt_wire_get_element_list(const BtWire *self);
-void bt_wire_dbg_print_parts(const BtWire *self);
-
 #endif // BT_WIRE_H
