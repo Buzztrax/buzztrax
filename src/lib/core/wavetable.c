@@ -205,10 +205,11 @@ bt_wavetable_remove_wave (const BtWavetable * const self,
  * @index: the index of the wave
  *
  * Search the wavetable for a wave by the supplied index.
- * The wave must have been added previously to this wavetable with bt_wavetable_add_wave().
- * Unref the wave, when done with it.
+ * The wave must have been added previously to this wavetable with
+ * bt_wavetable_add_wave().
  *
- * Returns: #BtWave instance or %NULL if not found
+ * Returns: (transfer full): #BtWave instance or %NULL if not found. Unref the
+ * wave, when done with it.
  */
 BtWave *
 bt_wavetable_get_wave_by_index (const BtWavetable * const self,

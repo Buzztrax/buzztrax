@@ -58,9 +58,8 @@ G_DEFINE_INTERFACE (BtChildProxy, bt_child_proxy, 0);
  *
  * Looks up a child element by the given name.
  *
- * Returns: the child object or %NULL if not found. Unref after usage.
- *
- * MT safe.
+ * Returns: (transfer full): the child object or %NULL if not found. Unref after
+ * usage.
  */
 GObject *
 bt_child_proxy_get_child_by_name (BtChildProxy * parent, const gchar * name)
@@ -79,10 +78,8 @@ bt_child_proxy_get_child_by_name (BtChildProxy * parent, const gchar * name)
  *
  * Fetches a child by its number.
  *
- * Returns: the child object or %NULL if not found (index too high). Unref
- * after usage.
- *
- * MT safe.
+ * Returns: (transfer full): the child object or %NULL if not found (index too
+ * high). Unref after usage.
  */
 GObject *
 bt_child_proxy_get_child_by_index (BtChildProxy * parent, guint index)
@@ -100,8 +97,6 @@ bt_child_proxy_get_child_by_index (BtChildProxy * parent, guint index)
  * Gets the number of child objects this parent contains.
  *
  * Returns: the number of child objects
- *
- * MT safe.
  */
 guint
 bt_child_proxy_get_children_count (BtChildProxy * parent)
@@ -125,8 +120,6 @@ bt_child_proxy_get_children_count (BtChildProxy * parent)
  * Returns: TRUE if @target and @pspec could be found. FALSE otherwise. In that
  * case the values for @pspec and @target are not modified. Unref @target after
  * usage.
- *
- * MT safe.
  */
 gboolean
 bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,

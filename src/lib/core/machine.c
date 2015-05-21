@@ -1912,10 +1912,11 @@ bt_machine_remove_pattern (const BtMachine * const self,
  * @name: the name of the pattern
  *
  * Search the machine for a pattern by the supplied name.
- * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
- * Unref the pattern, when done with it.
+ * The pattern must have been added previously to this setup with 
+ * bt_machine_add_pattern().
  *
- * Returns: #BtCmdPattern instance or %NULL if not found
+ * Returns: (transfer full): #BtCmdPattern instance or %NULL if not found. Unref
+ * the pattern, when done with it.
  */
 BtCmdPattern *
 bt_machine_get_pattern_by_name (const BtMachine * const self,
@@ -1950,10 +1951,11 @@ bt_machine_get_pattern_by_name (const BtMachine * const self,
  * @index: the index of the pattern in the machines pattern list
  *
  * Fetches the pattern from the given position of the machines pattern list.
- * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
- * Unref the pattern, when done with it.
+ * The pattern must have been added previously to this setup with
+ * bt_machine_add_pattern().
  *
- * Returns: #BtCmdPattern instance or %NULL if not found
+ * Returns: (transfer full): #BtCmdPattern instance or %NULL if not found. Unref
+ * the pattern, when done with it.
  */
 BtCmdPattern *
 bt_machine_get_pattern_by_index (const BtMachine * const self,
@@ -1993,7 +1995,7 @@ bt_machine_get_pattern_by_id (const BtMachine * const self,
  * The function generates a unique pattern name for this machine by eventually
  * adding a number postfix. This method should be used when adding new patterns.
  *
- * Returns: the newly allocated unique name
+ * Returns: (transfer full): the newly allocated unique name
  */
 gchar *
 bt_machine_get_unique_pattern_name (const BtMachine * const self)
@@ -2084,7 +2086,7 @@ bt_machine_handles_waves (const BtMachine * const self)
  * Get the parameter group of machine properties. Properties are settings that
  * cannot be changed during playback.
  *
- * Returns: the #BtParameterGroup or %NULL
+ * Returns: (transfer none): the #BtParameterGroup or %NULL
  */
 BtParameterGroup *
 bt_machine_get_prefs_param_group (const BtMachine * const self)
@@ -2099,7 +2101,7 @@ bt_machine_get_prefs_param_group (const BtMachine * const self)
  *
  * Get the parameter group of global parameters.
  *
- * Returns: the #BtParameterGroup or %NULL
+ * Returns: (transfer none): the #BtParameterGroup or %NULL
  */
 BtParameterGroup *
 bt_machine_get_global_param_group (const BtMachine * const self)
@@ -2115,7 +2117,7 @@ bt_machine_get_global_param_group (const BtMachine * const self)
  *
  * Get the parameter group of voice parameters for the given @voice.
  *
- * Returns: the #BtParameterGroup or %NULL
+ * Returns: (transfer none): the #BtParameterGroup or %NULL
  */
 BtParameterGroup *
 bt_machine_get_voice_param_group (const BtMachine * const self,
@@ -2607,9 +2609,9 @@ bt_machine_reset_parameters (const BtMachine * const self)
  * @dst: the machine that is at the dst end of the wire
  *
  * Searches for a wire in the wires originating from this machine that uses the
- * given #BtMachine instances as a target. Unref the wire, when done with it.
+ * given #BtMachine instances as a target.
  *
- * Returns: the #BtWire or %NULL
+ * Returns: (transfer full): the #BtWire or %NULL. Unref the wire, when done with it.
  *
  * Since: 0.6
  */

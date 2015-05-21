@@ -319,7 +319,7 @@ bt_pattern_new (const BtSong * const song, const gchar * const name,
  *
  * Create a new instance as a copy of the given instance.
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: (transfer full): the new instance or %NULL in case of an error
  */
 BtPattern *
 bt_pattern_copy (const BtPattern * const self)
@@ -671,7 +671,7 @@ bt_pattern_get_groups (const BtPattern * const self)
  *
  * Get the #BtValueGroup for global parameters.
  *
- * Returns: the group owned by the pattern.
+ * Returns: (transfer none): the group owned by the pattern.
  */
 BtValueGroup *
 bt_pattern_get_global_group (const BtPattern * const self)
@@ -688,7 +688,7 @@ bt_pattern_get_global_group (const BtPattern * const self)
  *
  * Get the #BtValueGroup for voice parameters.
  *
- * Returns: the group owned by the pattern.
+ * Returns: (transfer none): the group owned by the pattern.
  */
 BtValueGroup *
 bt_pattern_get_voice_group (const BtPattern * const self, const gulong voice)
@@ -706,7 +706,7 @@ bt_pattern_get_voice_group (const BtPattern * const self, const gulong voice)
  *
  * Get the #BtValueGroup for wire parameters.
  *
- * Returns: the group owned by the pattern.
+ * Returns: (transfer none): the group owned by the pattern.
  */
 BtValueGroup *
 bt_pattern_get_wire_group (const BtPattern * const self, const BtWire * wire)
@@ -724,7 +724,7 @@ bt_pattern_get_wire_group (const BtPattern * const self, const BtWire * wire)
  *
  * Get the #BtValueGroup for the given @param_group.
  *
- * Returns: the group owned by the pattern.
+ * Returns: (transfer none): the group owned by the pattern.
  */
 BtValueGroup *
 bt_pattern_get_group_by_parameter_group (const BtPattern * const self,

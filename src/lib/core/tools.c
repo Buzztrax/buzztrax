@@ -56,8 +56,8 @@ bt_gst_registry_class_filter (GstPluginFeature * const feature,
  * Iterates over all available elements and filters by categories given in
  * @class_filter.
  *
- * Returns: list of element factories, use gst_plugin_feature_list_free() after
- * use.
+ * Returns: (element-type Gst.PluginFeature) (transfer full): list of element
+ * factories, use gst_plugin_feature_list_free() after use.
  *
  * Since: 0.6
  */
@@ -87,7 +87,8 @@ bt_gst_registry_get_element_factories_matching_all_categories (const gchar *
  * Iterates over all available elements and filters by categories given in
  * @class_filter.
  *
- * Returns: list of read-only element names, g_list_free after use.
+ * Returns: (element-type utf8) (transfer container): list of read-only element
+ * names, g_list_free after use.
  */
 GList *
 bt_gst_registry_get_element_names_matching_all_categories (const gchar *
@@ -122,7 +123,7 @@ bt_gst_registry_get_element_names_matching_all_categories (const gchar *
  *
  * Lookup a pad template by name.
  *
- * Returns: the pad template or %NULL if not found
+ * Returns: (transfer full): the pad template or %NULL if not found
  */
 GstPadTemplate *
 bt_gst_element_factory_get_pad_template (GstElementFactory * factory,
@@ -192,11 +193,12 @@ bt_gst_element_factory_can_sink_media_type (GstElementFactory * factory,
 
 /**
  * bt_gst_check_elements:
- * @list: a #GList with element names
+ * @list: (element-type utf8): a #GList with element names
  *
  * Check if the given elements exist.
  *
- * Returns: a list of element-names which do not exist, %NULL if all elements exist
+ * Returns: (element-type utf8) (transfer full): a list of element-names which
+ * do not exist, %NULL if all elements exist, g_list_free after use.
  */
 GList *
 bt_gst_check_elements (GList * list)
@@ -226,8 +228,9 @@ bt_gst_check_elements (GList * list)
  *
  * Check if all core elements exist.
  *
- * Returns: a list of elements that does not exist, %NULL if all elements exist.
- * The list is static, don't free.
+ * Returns: (element-type utf8) (transfer none): a list of elements that does
+ * not exist, %NULL if all elements exist. The list is static, don't free or
+ * modify.
  */
 GList *
 bt_gst_check_core_elements (void)
@@ -409,7 +412,7 @@ async_add (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
  * bt_bin_activate_tee_chain:
  * @bin: the bin
  * @tee: the tee to connect the chain to
- * @elements: the list of elements to activate
+ * @elements: (element-type Gst.Element): the list of elements to activate
  * @is_playing: whether the pipeline is streaming data
  *
  * Add the @elements to the @bin and link them. Handle pad blocking in playing
@@ -510,7 +513,7 @@ async_remove (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
  * bt_bin_deactivate_tee_chain:
  * @bin: the bin
  * @tee: the tee to connect the chain to
- * @elements: the list of elements to deactivate
+ * @elements: (element-type Gst.Element): the list of elements to deactivate
  * @is_playing: wheter the pipeline is streaming data
  *
  * Add the @elements to the @bin and link them. Handle pad blocking in playing
@@ -575,8 +578,9 @@ gstbt_pad_link_get_name (GstPadLinkReturn ret)
  *
  * Format a nice debug message from failed pad links.
  *
- * Returns: the message. The returned string has to be used before the can be
- * called again, otherwise the previous reult will be overwritten.
+ * Returns: (transfer none): the message. The returned string has to be used
+ * before the can be called again, otherwise the previous reult will be
+ * overwritten.
  */
 const gchar *
 bt_gst_debug_pad_link_return (GstPadLinkReturn link_res, GstPad * src_pad,
@@ -754,10 +758,12 @@ on_object_weak_unref (gpointer user_data, GObject * obj)
  * bt_g_object_idle_add:
  * @obj: the old #GObject
  * @pri: the priority of the idle source. 
- * @func: the callback
+ * @func: (scope async): the callback
  *
  * A g_idle_add_full() variant, that passes @obj as user_data and detaches the
  * handler when @obj gets destroyed.
+ *
+ * Returns: the handler id
  */
 guint
 bt_g_object_idle_add (GObject * obj, gint pri, GSourceFunc func)
@@ -770,12 +776,13 @@ bt_g_object_idle_add (GObject * obj, gint pri, GSourceFunc func)
 
 /**
  * bt_g_signal_connect:
- * @instance: the instance to connect to.
+ * @instance: (type GObject.Object): the instance to connect to.
  * @detailed_signal: a string of the form "signal-name::detail".
- * @c_handler: the GCallback to connect.
+ * @c_handler: (scope async): the GCallback to connect.
  * @data: data to pass to c_handler calls.
  *
- * Like g_signal_connect(), but checks first if the handler is already connected.
+ * Like g_signal_connect(), but checks first if the handler is already
+ * connected.
  *
  * Returns: the handler id
  */
@@ -875,7 +882,8 @@ bt_cpu_load_get_current (void)
  *
  * Convenience methods, that formats a value to be serialized as a string.
  *
- * Returns: a reference to static memory containing the formatted value.
+ * Returns: (transfer none): a reference to static memory containing the
+ * formatted value.
  */
 const gchar *
 bt_str_format_uchar (const guchar val)
@@ -892,7 +900,8 @@ bt_str_format_uchar (const guchar val)
  *
  * Convenience methods, that formats a value to be serialized as a string.
  *
- * Returns: a reference to static memory containing the formatted value.
+ * Returns: (transfer none): a reference to static memory containing the
+ * formatted value.
  */
 const gchar *
 bt_str_format_long (const glong val)
@@ -909,7 +918,8 @@ bt_str_format_long (const glong val)
  *
  * Convenience methods, that formats a value to be serialized as a string.
  *
- * Returns: a reference to static memory containing the formatted value.
+ * Returns: (transfer none): a reference to static memory containing the
+ * formatted value.
  */
 const gchar *
 bt_str_format_ulong (const gulong val)
@@ -926,7 +936,8 @@ bt_str_format_ulong (const gulong val)
  *
  * Convenience methods, that formats a value to be serialized as a string.
  *
- * Returns: a reference to static memory containing the formatted value.
+ * Returns: (transfer none): a reference to static memory containing the
+ * formatted value.
  */
 const gchar *
 bt_str_format_double (const gdouble val)
@@ -944,7 +955,8 @@ bt_str_format_double (const gdouble val)
  *
  * Convenience methods, that formats a value to be serialized as a string.
  *
- * Returns: a reference to static memory containing the formatted value.
+ * Returns: (transfer none): a reference to static memory containing the
+ * formatted value.
  */
 const gchar *
 bt_str_format_enum (GType enum_type, gint value)
@@ -1088,7 +1100,8 @@ bt_str_parse_gvalue (GValue * const gvalue, const gchar * svalue)
  *
  * Returns the string representation of the given @gvalue. Free it when done.
  *
- * Returns: a newly allocated string with the data or %NULL on error
+ * Returns: (transfer full): a newly allocated string with the data or %NULL on
+ * error
  */
 gchar *
 bt_str_format_gvalue (GValue * const gvalue)

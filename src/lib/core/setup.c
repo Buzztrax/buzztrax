@@ -1377,7 +1377,7 @@ bt_setup_update_pipeline (const BtSetup * const self)
  *
  * Let the setup know that the supplied machine is now part of the song.
  *
- * Returns: return true, if the machine can be added. Returns false if the
+ * Returns: return %TRUE, if the machine can be added. Returns %FALSE if the
  * machine is currently added to the setup.
  */
 gboolean
@@ -1417,10 +1417,9 @@ bt_setup_add_machine (const BtSetup * const self,
  *
  * Let the setup know that the supplied wire is now part of the song.
  *
- * Returns: returns true, if the wire is added. Returns false, if the setup
- * contains a wire witch is link between the same src and dst machines (cycle
+ * Returns: returns %TRUE, if the wire is added. Returns %FALSE, if the setup
+ * contains a wire which is linked between the same src and dst machines (cycle
  * check).
-
  */
 gboolean
 bt_setup_add_wire (const BtSetup * const self, const BtWire * const wire)
@@ -1591,10 +1590,11 @@ bt_setup_remove_wire (const BtSetup * const self, const BtWire * const wire)
  * @id: the identifier of the machine
  *
  * Search the setup for a machine by the supplied id.
- * The machine must have been added previously to this setup with bt_setup_add_machine().
- * Unref the machine, when done with it.
+ * The machine must have been added previously to this setup with 
+ * bt_setup_add_machine().
  *
- * Returns: #BtMachine instance or %NULL if not found
+ * Returns: (transfer full): #BtMachine instance or %NULL if not found. Unref
+ * the machine, when done with it.
  */
 BtMachine *
 bt_setup_get_machine_by_id (const BtSetup * const self, const gchar * const id)
@@ -1654,10 +1654,11 @@ bt_setup_get_machine_by_id (const BtSetup * const self, const gchar * const id)
  * @type: the gobject type (sink,processor,source)
  *
  * Search the setup for the first machine with the given type.
- * The machine must have been added previously to this setup with bt_setup_add_machine().
- * Unref the machine, when done with it.
+ * The machine must have been added previously to this setup with
+ * bt_setup_add_machine().
  *
- * Returns: #BtMachine instance or %NULL if not found
+ * Returns: (transfer full): #BtMachine instance or %NULL if not found. Unref
+ * the machine, when done with it.
  */
 BtMachine *
 bt_setup_get_machine_by_type (const BtSetup * const self, const GType type)
@@ -1684,9 +1685,10 @@ bt_setup_get_machine_by_type (const BtSetup * const self, const GType type)
  * @type: the gobject type (sink,processor,source)
  *
  * Gathers all machines of the given type from the setup.
- * Free the list (and unref the machines), when done with it.
  *
- * Returns: the list instance or %NULL if not found
+ * Returns: (element-type BuzztraxCore.Machine) (transfer full): the list instance or
+ * %NULL if not found. Free the list (and unref the machines), when done with
+ * it.
  */
 GList *
 bt_setup_get_machines_by_type (const BtSetup * const self, const GType type)
@@ -1713,11 +1715,12 @@ bt_setup_get_machines_by_type (const BtSetup * const self, const GType type)
  * @self: the setup to search for the wire
  * @src: the machine that is at the src end of the wire
  *
- * Searches for the first wire in setup that uses the given #BtMachine as a source.
- * In other words - it returns the first wire that starts at the given #BtMachine.
- * Unref the wire, when done with it.
+ * Searches for the first wire in setup that uses the given #BtMachine as a
+ * source. In other words - it returns the first wire that starts at the given
+ * #BtMachine.
  *
- * Returns: the #BtWire or %NULL
+ * Returns: (transfer full): the #BtWire or %NULL. Unref the wire, when done
+ * with it.
  */
 BtWire *
 bt_setup_get_wire_by_src_machine (const BtSetup * const self,
@@ -1734,11 +1737,12 @@ bt_setup_get_wire_by_src_machine (const BtSetup * const self,
  * @self: the setup to search for the wire
  * @dst: the machine that is at the dst end of the wire
  *
- * Searches for the first wire in setup that uses the given #BtMachine as a target.
- * In other words - it returns the first wire that ends at the given #BtMachine.
- * Unref the wire, when done with it.
+ * Searches for the first wire in setup that uses the given #BtMachine as a
+ * target. In other words - it returns the first wire that ends at the given
+ * #BtMachine.
  *
- * Returns: the #BtWire or %NULL
+ * Returns: (transfer full): the #BtWire or %NULL. Unref the wire, when done
+ * with it.
  */
 BtWire *
 bt_setup_get_wire_by_dst_machine (const BtSetup * const self,
@@ -1758,9 +1762,9 @@ bt_setup_get_wire_by_dst_machine (const BtSetup * const self,
  *
  * Searches for a wire in setup that uses the given #BtMachine instances as a
  * source and dest.
- * Unref the wire, when done with it.
  *
- * Returns: the #BtWire or %NULL
+ * Returns: (transfer full): the #BtWire or %NULL. Unref the wire, when done
+ * with it.
  */
 BtWire *
 bt_setup_get_wire_by_machines (const BtSetup * const self,
@@ -1828,9 +1832,9 @@ bt_setup_get_wire_by_machines (const BtSetup * const self,
  * @src: the machine that is at the src end of the wire
  *
  * Searches for all wires in setup that use the given #BtMachine as a source.
- * Free the list (and unref the wires), when done with it.
  *
- * Returns: a #GList with the #BtWires or %NULL
+ * Returns: (element-type BuzztraxCore.Wire) (transfer full): a #GList with the
+ * #BtWires or %NULL. Free the list (and unref the wires), when done with it.
  */
 GList *
 bt_setup_get_wires_by_src_machine (const BtSetup * const self,
@@ -1848,9 +1852,9 @@ bt_setup_get_wires_by_src_machine (const BtSetup * const self,
  * @dst: the machine that is at the dst end of the wire
  *
  * Searches for all wires in setup that use the given #BtMachine as a target.
- * Free the list (and unref the wires), when done with it.
  *
- * Returns: a #GList with the #BtWires or %NULL
+ * Returns: (element-type BuzztraxCore.Wire) (transfer full): a #GList with the
+ * #BtWires or %NULL. Free the list (and unref the wires), when done with it.
  */
 GList *
 bt_setup_get_wires_by_dst_machine (const BtSetup * const self,
@@ -1869,7 +1873,7 @@ bt_setup_get_wires_by_dst_machine (const BtSetup * const self,
  * The function makes the supplied base_name unique in this setup by eventually
  * adding a number postfix. This method should be used when adding new machines.
  *
- * Returns: the newly allocated unique name
+ * Returns: (transfer full): the newly allocated unique name
  */
 gchar *
 bt_setup_get_unique_machine_id (const BtSetup * const self,

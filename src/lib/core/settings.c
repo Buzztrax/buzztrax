@@ -355,7 +355,7 @@ on_settings_changed (GSettings * settings, gchar * key, gpointer user_data)
  * Settings are implemented as a singleton. Thus the first invocation will
  * create the object and further calls will just give back a reference.
  *
- * Returns: the instance or %NULL in case of an error
+ * Returns: (transfer full): the instance or %NULL in case of an error
  */
 BtSettings *
 bt_settings_make (void)
@@ -513,7 +513,8 @@ bt_settings_determine_audiosink_name (const BtSettings * const self,
  *
  * Parses the string.
  *
- * Returns: a hashtable with strings as keys and values
+ * Returns: (element-type utf8 utf8) (transfer full): a hashtable with strings
+ * as keys and values
  */
 GHashTable *
 bt_settings_parse_ic_playback_spec (const gchar * spec)

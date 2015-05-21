@@ -205,7 +205,7 @@ bt_g_object_randomize_parameter (GObject * self, GParamSpec * property)
  *
  * Create a parameter group.
  *
- * Returns: the new parameter group
+ * Returns: (transfer full): the new parameter group
  */
 BtParameterGroup *
 bt_parameter_group_new (gulong num_params, GObject ** parents,
@@ -302,7 +302,7 @@ bt_parameter_group_get_param_index (const BtParameterGroup * const self,
  *
  * Retrieves the parameter specification for the param
  *
- * Returns: the #GParamSpec for the requested param
+ * Returns: (transfer none): the #GParamSpec for the requested param
  */
 GParamSpec *
 bt_parameter_group_get_param_spec (const BtParameterGroup * const self,
@@ -321,7 +321,7 @@ bt_parameter_group_get_param_spec (const BtParameterGroup * const self,
  *
  * Retrieves the owner instance for the param
  *
- * Returns: the #GParamSpec for the requested param
+ * Returns: (transfer none): the #GParamSpec for the requested param
  */
 GObject *
 bt_parameter_group_get_param_parent (const BtParameterGroup * const self,
@@ -345,9 +345,9 @@ bt_parameter_group_get_param_parent (const BtParameterGroup * const self,
  * bt_parameter_group_get_param_details:
  * @self: the parameter group to search for the param details
  * @index: the offset in the list of params
- * @pspec: place for the param spec
- * @min_val: place to hold new GValue with minimum
- * @max_val: place to hold new GValue with maximum
+ * @pspec: (out): place for the param spec
+ * @min_val: (out): place to hold new GValue with minimum
+ * @max_val: (out): place to hold new GValue with maximum
  *
  * Retrieves the details of a param. Any detail can be %NULL if its not
  * wanted.

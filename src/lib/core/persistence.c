@@ -53,7 +53,7 @@ G_DEFINE_INTERFACE (BtPersistence, bt_persistence, 0);
 
 /**
  * bt_persistence_save_list:
- * @list: a #GList
+ * @list: (element-type BuzztraxCore.Persistence): a #GList
  * @doc; the xml-document
  * @node: the list xml node
  *
@@ -122,7 +122,7 @@ bt_persistence_save_hashtable_entries (gpointer const key, gpointer const value,
 
 /**
  * bt_persistence_save_hashtable:
- * @hashtable: a #GHashTable with strings
+ * @hashtable: (element-type utf8 utf8): a #GHashTable with strings
  * @node: the list xml node
  *
  * Iterates over a hashtable with strings and serializes them.
@@ -142,7 +142,7 @@ bt_persistence_save_hashtable (GHashTable * hashtable, xmlNodePtr const node)
 
 /**
  * bt_persistence_load_hashtable:
- * @hashtable: a #GHashTable
+ * @hashtable: (element-type utf8 utf8): a #GHashTable
  * @node: the list xml node
  *
  * Iterates over the xml-node and deserializes elements into the hashtable.
@@ -197,10 +197,10 @@ bt_persistence_save (const BtPersistence * const self,
  * @err: a GError for deserialisation errors
  * @...: extra parameters NULL terminated name/value pairs.
  *
- * Deserializes the given object from the @node. If @self is NULL and a @type is
- * given it constructs a new object.
+ * Deserializes the given object from the @node. If @self is %NULL and a @type
+ * is given it constructs a new object.
  *
- * Returns: the deserialized object or %NULL.
+ * Returns: (transfer none): the deserialized object or %NULL.
  */
 BtPersistence *
 bt_persistence_load (const GType type, const BtPersistence * const self,

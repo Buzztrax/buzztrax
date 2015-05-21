@@ -95,7 +95,7 @@ guint bt_cpu_load_get_current(void);
  * BT_IS_STRING:
  * @a: string pointer
  *
- * checks if the supplied string pointer is not %NULL and contains not just '\0'
+ * Checks if the supplied string pointer is not %NULL and contains not just '\0'
  */
 #define BT_IS_STRING(a) (a && *a)
 
@@ -103,9 +103,9 @@ guint bt_cpu_load_get_current(void);
  * safe_string:
  * @a: string pointer
  *
- * passed the supplied string through or return an empty string when it is NULL
+ * Pass the supplied string through or return an empty string when it is %NULL.
  *
- * Returns: the given string or an empty string in the case of a NULL argument
+ * Returns: the given string or an empty string in the case of a %NULL argument
  */
 #define safe_string(a) ((gchar *)(a)?(gchar *)(a):"")
 

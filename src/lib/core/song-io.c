@@ -306,7 +306,6 @@ bt_song_io_from_file (const gchar * const file_name, GError ** err)
   BtSongIO *self = NULL;
   GType type = 0;
 
-
   if (!BT_IS_STRING (file_name)) {
     GST_WARNING ("filename must not be empty");
     g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_UNKNOWN_FORMAT,
@@ -335,7 +334,7 @@ bt_song_io_from_file (const gchar * const file_name, GError ** err)
  * Create a new instance from the given parameters. Each installed plugin will
  * test if it can handle the file type.
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: (transfer full): the new instance or %NULL in case of an error
  */
 BtSongIO *
 bt_song_io_from_data (gpointer * data, guint len, const gchar * media_type,
@@ -370,7 +369,8 @@ bt_song_io_from_data (gpointer * data, guint len, const gchar * media_type,
  *
  * Get read only access to list of #BtSongIOModuleInfo entries.
  *
- * Returns: the #GList.
+ * Returns: (element-type BuzztraxCore.SongIOModuleInfo) (transfer none): the
+ * #GList.
  */
 const GList *
 bt_song_io_get_module_info_list (void)

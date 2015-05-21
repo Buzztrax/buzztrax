@@ -583,9 +583,10 @@ bt_sequence_get_tick_by_pattern (const BtSequence * const self, gulong track,
  * @self: the #BtSequence that holds the tracks
  * @track: the requested track index
  *
- * Fetches the #BtMachine for the given @track. Unref when done.
+ * Fetches the #BtMachine for the given @track.
  *
- * Returns: a reference to the #BtMachine pointer or %NULL in case of an error
+ * Returns: (transfer full): a reference to the #BtMachine pointer or %NULL in
+ * case of an error. Unref when done.
  */
 BtMachine *
 bt_sequence_get_machine (const BtSequence * const self, const gulong track)
@@ -731,7 +732,7 @@ bt_sequence_remove_track_by_ix (const BtSequence * const self, const gulong ix)
  *
  * Move the selected track on column left.
  *
- * Returns: @TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean
 bt_sequence_move_track_left (const BtSequence * const self, const gulong track)
@@ -766,7 +767,7 @@ bt_sequence_move_track_left (const BtSequence * const self, const gulong track)
  *
  * Move the selected track on column left.
  *
- * Returns: @TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean
 bt_sequence_move_track_right (const BtSequence * const self, const gulong track)
@@ -876,9 +877,10 @@ bt_sequence_set_label (const BtSequence * const self, const gulong time,
  * @time: the requested time position
  * @track: the requested track index
  *
- * Fetches the pattern for the given @time and @track position. Unref when done.
+ * Fetches the pattern for the given @time and @track position.
  *
- * Returns: a reference to the #BtCmdPattern or %NULL when empty
+ * Returns: (transfer full): a reference to the #BtCmdPattern or %NULL when
+ * empty. Unref when done.
  */
 BtCmdPattern *
 bt_sequence_get_pattern (const BtSequence * const self, const gulong time,

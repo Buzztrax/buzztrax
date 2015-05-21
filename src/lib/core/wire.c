@@ -907,7 +907,7 @@ bt_wire_can_link (const BtMachine * const src, const BtMachine * const dst)
  *
  * Get the parameter group.
  *
- * Returns: the #BtParameterGroup or %NULL
+ * Returns: (transfer none): the #BtParameterGroup or %NULL
  */
 BtParameterGroup *
 bt_wire_get_param_group (const BtWire * const self)

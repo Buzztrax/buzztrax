@@ -148,7 +148,7 @@ bt_value_group_get_param_type (const BtValueGroup * const self,
  *
  * Create a new instance.
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: (transfer full): the new instance or %NULL in case of an error
  *
  * Since: 0.7
  */
@@ -166,7 +166,7 @@ bt_value_group_new (const BtParameterGroup * const param_group,
  *
  * Create a new instance as a copy of the given instance.
  *
- * Returns: the new instance or %NULL in case of an error
+ * Returns: (transfer full): the new instance or %NULL in case of an error
  *
  * Since: 0.7
  */
@@ -1432,6 +1432,7 @@ bt_value_group_class_init (BtValueGroupClass * const klass)
   /**
    * BtValueGroup::group-changed:
    * @self: the value-group object that emitted the signal
+   * @param_group: the related #BtParamGroup
    * @intermediate: flag that is %TRUE to signal that more change are coming
    *
    * Signals that this value-group has been changed (more than in one place).
