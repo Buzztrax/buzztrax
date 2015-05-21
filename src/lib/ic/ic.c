@@ -87,7 +87,7 @@ btic_init_post (void)
 //-- ic initialisation
 
 /**
- * btic_init_get_option_group:
+ * btic_init_get_option_group: (skip)
  *
  * Returns a #GOptionGroup with libbtic's argument specifications. The group
  * is set up to use standard GOption callbacks, so when using this group in
@@ -97,7 +97,8 @@ btic_init_post (void)
  * This function is useful if you want to integrate libbtic with other
  * libraries that use GOption (see g_option_context_add_group() ).
  *
- * Returns: a pointer to a GOption group. Should be dereferenced after use.
+ * Returns: (transfer full): a pointer to a GOption group. Should be
+ * dereferenced after use.
  */
 GOptionGroup *
 btic_init_get_option_group (void)

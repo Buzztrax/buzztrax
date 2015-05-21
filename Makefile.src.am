@@ -723,6 +723,7 @@ BuzztraxIc-@BT_MAJORMINOR@.gir: $(G_IR_SCANNER) libbuzztrax-ic.la
 	-$(AM_V_GEN)$(G_IR_SCANNER) -v \
 	   --namespace=BuzztraxIc \
 	   --nsversion @BT_MAJORMINOR@ \
+	   --warn-all \
 	   -I$(builddir) \
 	   -I$(srcdir) \
 	   -I$(top_srcdir)/src/lib/ \

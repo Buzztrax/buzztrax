@@ -97,7 +97,7 @@ btic_registry_new (void)
  *
  * Find the device identified by the given @name in the registry.
  *
- * Returns: a ref to the device or %NULL.
+ * Returns: (transfer full): a ref to the device or %NULL.
  *
  * Since: 0.9
  */

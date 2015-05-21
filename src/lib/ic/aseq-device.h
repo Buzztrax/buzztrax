@@ -53,8 +53,12 @@ struct _BtIcASeqDevice {
 
 struct _BtIcASeqDeviceClass {
   const BtIcDeviceClass parent;
-  
+
+#if USE_ALSA
   snd_seq_t *seq;
+#else
+  gpointer seq;
+#endif
 };
 
 GType btic_aseq_device_get_type(void) G_GNUC_CONST;

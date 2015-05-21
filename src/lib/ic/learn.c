@@ -105,7 +105,7 @@ btic_learn_stop (const BtIcLearn * self)
  *
  * Registers the last detected control with name @name.
  *
- * Returns: %TRUE for success
+ * Returns: (transfer full): the new #BtIcControl on success or %NULL
  */
 BtIcControl *
 btic_learn_register_learned_control (const BtIcLearn * self, const gchar * name)

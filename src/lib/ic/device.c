@@ -159,7 +159,8 @@ btic_device_add_control (const BtIcDevice * self, const BtIcControl * control)
  *
  * Look up a control by @id.
  *
- * Returns: the found instance or %NULL. This does not increase the ref-count!
+ * Returns: (transfer none): the found instance or %NULL. This does not increase
+ * the ref-count!
  *
  * Since: 0.6
  */
@@ -179,7 +180,7 @@ btic_device_get_control_by_id (const BtIcDevice * self, guint id)
  *
  * Look up a control by @name.
  *
- * Returns: the found instance or %NULL.
+ * Returns: (transfer full): the found instance or %NULL.
  *
  * Since: 0.9
  */
