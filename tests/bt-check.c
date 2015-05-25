@@ -139,7 +139,7 @@ check_init_error_trapp (gchar * method, gchar * test)
 
 /*
  * Check if the monitored log-output has been emitted.
- * If Gstreamer has not been compiled using --gst-enable-debug, this returns
+ * If GStreamer has not been compiled using --gst-enable-debug, this returns
  * %TRUE as there is no logoutput at all.
  */
 gboolean
