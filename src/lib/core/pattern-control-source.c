@@ -202,6 +202,7 @@ bt_pattern_control_source_get_value_array (GstControlBinding * self_,
   BtPatternControlSource *self = (BtPatternControlSource *) self_;
   gint i;
   GValue *value;
+  return_val_if_disposed (FALSE);
 
   if (!(value = bt_pattern_control_source_get_value (self_, timestamp))) {
     return FALSE;
@@ -247,6 +248,7 @@ bt_pattern_control_source_get_g_value_array (GstControlBinding * self_,
   BtPatternControlSource *self = (BtPatternControlSource *) self_;
   gint i;
   GValue *value;
+  return_val_if_disposed (FALSE);
 
   if (!(value = bt_pattern_control_source_get_value (self_, timestamp))) {
     return FALSE;
@@ -262,7 +264,9 @@ static gboolean
 gst_pattern_control_source_sync_values (GstControlBinding * self_,
     GstObject * object, GstClockTime timestamp, GstClockTime last_sync)
 {
+  BtPatternControlSource *self = (BtPatternControlSource *) self_;
   GValue *value;
+  return_val_if_disposed (FALSE);
 
   if ((value = bt_pattern_control_source_get_value (self_, timestamp))) {
     g_object_set_property ((GObject *) object, self_->name, value);
@@ -405,9 +409,13 @@ bt_pattern_control_source_dispose (GObject * const object)
   self->priv->dispose_has_run = TRUE;
 
   g_object_try_weak_unref (self->priv->machine);
+  self->priv->machine = NULL;
   g_object_try_weak_unref (self->priv->param_group);
+  self->priv->param_group = NULL;
   g_object_try_weak_unref (self->priv->song_info);
+  self->priv->song_info = NULL;
   g_object_try_weak_unref (self->priv->sequence);
+  self->priv->sequence = NULL;
 
   GST_DEBUG (" chaining up");
   G_OBJECT_CLASS (bt_pattern_control_source_parent_class)->dispose (object);
