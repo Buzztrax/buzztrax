@@ -219,6 +219,8 @@ bt_song_info_get_seconds_since_last_saved (const BtSongInfo * const self)
   time_t t, tn;
   gdouble td;
 
+  g_return_val_if_fail (BT_IS_SONG_INFO (self), 0);
+
   t = time (NULL);
   tn = mktime (localtime (&t));
 
@@ -242,6 +244,8 @@ bt_song_info_get_change_dts_in_local_tz (const BtSongInfo * const self)
   static gchar hdts[200];
   time_t t;
 
+  g_return_val_if_fail (BT_IS_SONG_INFO (self), NULL);
+
   t = bt_song_info_get_change_dts_in_local_time (self);
   strftime (hdts, 199, "%c", localtime (&t));
 
@@ -260,6 +264,8 @@ bt_song_info_get_change_dts_in_local_tz (const BtSongInfo * const self)
 GstClockTime
 bt_song_info_tick_to_time (const BtSongInfo * const self, const gulong tick)
 {
+  g_return_val_if_fail (BT_IS_SONG_INFO (self), G_GUINT64_CONSTANT (0));
+
   return self->priv->tick_duration * tick;
 }
 
@@ -275,6 +281,8 @@ bt_song_info_tick_to_time (const BtSongInfo * const self, const gulong tick)
 gulong
 bt_song_info_time_to_tick (const BtSongInfo * const self, const GstClockTime ts)
 {
+  g_return_val_if_fail (BT_IS_SONG_INFO (self), 0);
+
   return (gulong) (ts / self->priv->tick_duration);
 }
 
@@ -293,6 +301,8 @@ bt_song_info_time_to_m_s_ms (const BtSongInfo * const self, gulong ts,
     gulong * m, gulong * s, gulong * ms)
 {
   gulong c;
+
+  g_return_if_fail (BT_IS_SONG_INFO (self));
 
   *m = c = (gulong) (ts / 60000);
   ts -= (c * 60000);
@@ -316,6 +326,9 @@ bt_song_info_tick_to_m_s_ms (const BtSongInfo * const self, const gulong tick,
     gulong * m, gulong * s, gulong * ms)
 {
   gulong ts = (gulong) ((tick * self->priv->tick_duration) / G_USEC_PER_SEC);
+
+  g_return_if_fail (BT_IS_SONG_INFO (self));
+
   bt_song_info_time_to_m_s_ms (self, ts, m, s, ms);
 }
 
