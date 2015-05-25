@@ -148,7 +148,7 @@ void bt_check_init(void);
   gpointer __objref=obj;\
   g_assert(__objref);\
   gint __objrefct=G_OBJECT(__objref)->ref_count;\
-  GST_INFO("object %p,ref_ct=%d",__objref,__objrefct);\
+  GST_INFO("object <%s>:%p,ref_ct=%d",G_OBJECT_TYPE_NAME(__objref),__objref,__objrefct);\
   g_object_add_weak_pointer(__objref,&__objref);\
   g_object_unref(__objref);\
   fail_unless(__objref == NULL, "%d ref(s) left",__objrefct-1);\
