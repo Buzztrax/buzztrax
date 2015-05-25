@@ -833,18 +833,27 @@ static void
 bt_settings_dispose (GObject * const object)
 {
   const BtSettings *const self = BT_SETTINGS (object);
+  BtSettingsPrivate *p = singleton->priv;
 
   return_if_disposed ();
-  self->priv->dispose_has_run = TRUE;
+  p->dispose_has_run = TRUE;
 
-  g_object_unref (self->priv->org_buzztrax);
-  g_object_unref (self->priv->org_buzztrax_window);
-  g_object_unref (self->priv->org_buzztrax_audio);
-  g_object_unref (self->priv->org_buzztrax_playback_controller);
-  g_object_unref (self->priv->org_buzztrax_directories);
-  g_object_unref (self->priv->org_buzztrax_ui);
-  g_object_unref (self->priv->org_gnome_desktop_interface);
-  g_object_try_unref (self->priv->org_freedesktop_gstreamer_defaults);
+  g_object_unref (p->org_buzztrax);
+  g_object_unref (p->org_buzztrax_window);
+  g_object_unref (p->org_buzztrax_audio);
+  g_object_unref (p->org_buzztrax_playback_controller);
+  g_object_unref (p->org_buzztrax_directories);
+  g_object_unref (p->org_buzztrax_ui);
+
+  g_signal_handlers_disconnect_matched (p->org_gnome_desktop_interface,
+      G_SIGNAL_MATCH_FUNC, 0, 0, NULL, on_settings_changed, NULL);
+  g_object_unref (p->org_gnome_desktop_interface);
+
+  if (p->org_freedesktop_gstreamer_defaults) {
+    g_signal_handlers_disconnect_matched (p->org_freedesktop_gstreamer_defaults,
+        G_SIGNAL_MATCH_FUNC, 0, 0, NULL, on_settings_changed, NULL);
+    g_object_unref (p->org_freedesktop_gstreamer_defaults);
+  }
 
   G_OBJECT_CLASS (bt_settings_parent_class)->dispose (object);
   GST_DEBUG ("  done");
