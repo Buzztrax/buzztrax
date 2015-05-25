@@ -154,6 +154,31 @@ void bt_check_init(void);
   fail_unless(__objref == NULL, "%d ref(s) left",__objrefct-1);\
 }
 
+#define ck_g_object_remaining_unref(obj, n) \
+{\
+  gpointer __objref=obj;\
+  g_assert(__objref);\
+  gint __objrefct=G_OBJECT(__objref)->ref_count;\
+  GST_INFO("object <%s>:%p,ref_ct=%d",G_OBJECT_TYPE_NAME(__objref),__objref,__objrefct);\
+  g_object_add_weak_pointer(__objref,&__objref);\
+  g_object_unref(__objref);\
+  fail_if(__objref == NULL, "was last unref, %d remaining refs expectd", n); \
+  g_object_remove_weak_pointer(__objref,&__objref);\
+  ck_assert_int_eq(G_OBJECT(__objref)->ref_count, n);\
+}
+
+#define ck_g_object_logged_unref(obj) \
+{\
+  gpointer __objref=obj;\
+  g_assert(__objref);\
+  gint __objrefct=G_OBJECT(__objref)->ref_count;\
+  GST_INFO("object <%s>:%p,ref_ct=%d",G_OBJECT_TYPE_NAME(__objref),__objref,__objrefct);\
+  g_object_unref(__objref);\
+}
+
+#define ck_assert_gobject_ref_ct(obj,n ) \
+  ck_assert_int_eq(G_OBJECT(obj)->ref_count, n);
+
 void check_init_error_trapp(gchar *method, gchar *test);
 gboolean check_has_error_trapped(void);
 gboolean _check_log_contains(gchar *text);
