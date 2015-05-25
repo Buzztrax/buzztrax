@@ -46,7 +46,7 @@ test_setup (void)
 static void
 test_teardown (void)
 {
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
 }
 
 static void
@@ -112,7 +112,7 @@ test_bt_song_new (BT_TEST_ARGS)
   ck_assert_gobject_object_eq (song, "master", NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -151,7 +151,7 @@ test_bt_song_members (BT_TEST_ARGS)
   g_object_unref (sequence);
   g_object_unref (songinfo);
   g_object_unref (wavetable);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -166,7 +166,7 @@ test_bt_song_master (BT_TEST_ARGS)
   ck_assert_gobject_object_ne (song, "master", NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -196,7 +196,7 @@ test_bt_song_play_single (BT_TEST_ARGS)
   ck_assert_gobject_boolean_eq (song, "is-playing", FALSE);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -223,7 +223,7 @@ test_bt_song_play_twice (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -247,7 +247,7 @@ test_bt_song_play_and_change_sink (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -272,7 +272,7 @@ test_bt_song_play_fallback_sink (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -293,7 +293,7 @@ test_bt_song_idle1 (BT_TEST_ARGS)
   mark_point ();
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -328,7 +328,7 @@ test_bt_song_idle2 (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   g_object_set (G_OBJECT (song), "is-idle", FALSE, NULL);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -379,7 +379,7 @@ test_bt_song_play_two_sources (BT_TEST_ARGS)
   gst_object_unref (element1);
   gst_object_unref (element2);
   g_object_unref (sequence);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -432,7 +432,7 @@ test_bt_song_play_two_sources_and_one_fx (BT_TEST_ARGS)
   gst_object_unref (element1);
   gst_object_unref (element2);
   g_object_unref (sequence);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -502,7 +502,7 @@ test_bt_song_play_change_replay (BT_TEST_ARGS)
   gst_object_unref (element2);
   g_object_unref (setup);
   g_object_unref (sequence);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -524,7 +524,7 @@ test_bt_song_play_pos (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -545,7 +545,7 @@ test_bt_song_play_pos_on_eos (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -567,7 +567,7 @@ test_bt_song_play_pos_after_initial_seek (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -591,7 +591,7 @@ test_bt_song_play_again_should_restart (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 

@@ -47,7 +47,7 @@ test_setup (void)
 static void
 test_teardown (void)
 {
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
 }
 
 static void
@@ -69,7 +69,7 @@ test_bt_song_properties (BT_TEST_ARGS)
   fail_unless (check_gobject_properties (song));
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -106,7 +106,7 @@ test_bt_song_play_empty (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -127,7 +127,7 @@ test_bt_song_play_null (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -142,7 +142,7 @@ test_bt_song_play_and_load_new (BT_TEST_ARGS)
       bt_song_io_from_file (check_get_test_song_path ("test-simple1.xml"),
       NULL);
   bt_song_io_load (loader, song, NULL);
-  g_object_checked_unref (loader);
+  ck_g_object_final_unref (loader);
   bt_song_play (song);
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 5);
 
@@ -156,8 +156,8 @@ test_bt_song_play_and_load_new (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
-  g_object_checked_unref (loader);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (loader);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 

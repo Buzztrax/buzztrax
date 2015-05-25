@@ -62,7 +62,7 @@ test_bt_cmd_application_play_null_as_filename (BT_TEST_ARGS)
   fail_unless (ret == FALSE, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   BT_TEST_END;
 }
 
@@ -84,7 +84,7 @@ test_bt_cmd_application_play_non_existing_file (BT_TEST_ARGS)
   fail_unless (ret == FALSE, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   BT_TEST_END;
 }
 
@@ -106,7 +106,7 @@ test_bt_cmd_application_info_null_as_filename (BT_TEST_ARGS)
   fail_unless (ret == FALSE, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   BT_TEST_END;
 }
 
@@ -128,7 +128,7 @@ test_bt_cmd_application_info_non_existing_file (BT_TEST_ARGS)
   fail_unless (ret == FALSE, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   BT_TEST_END;
 }
 

@@ -60,7 +60,7 @@ test_bt_audio_session_singleton (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   g_object_unref (session2);
-  g_object_checked_unref (session1);
+  ck_g_object_final_unref (session1);
   BT_TEST_END;
 }
 

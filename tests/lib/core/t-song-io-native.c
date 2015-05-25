@@ -40,8 +40,8 @@ test_setup (void)
 static void
 test_teardown (void)
 {
-  g_object_checked_unref (song);
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (song);
+  ck_g_object_final_unref (app);
 }
 
 static void
@@ -64,7 +64,7 @@ test_bt_song_io_native_broken_file (BT_TEST_ARGS)
   fail_if (bt_song_io_load (song_io, song, NULL), NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
 
@@ -78,7 +78,7 @@ test_bt_song_io_native_load_twice (BT_TEST_ARGS)
       bt_song_io_from_file (check_get_test_song_path ("test-simple1.xml"),
       NULL);
   bt_song_io_load (song_io, song, NULL);
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   song_io =
       bt_song_io_from_file (check_get_test_song_path ("test-simple2.xml"),
       NULL);
@@ -87,7 +87,7 @@ test_bt_song_io_native_load_twice (BT_TEST_ARGS)
   fail_unless (bt_song_io_load (song_io, song, NULL), NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
 

@@ -60,7 +60,7 @@ test_bt_settings_singleton (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   g_object_unref (settings2);
-  g_object_checked_unref (settings1);
+  ck_g_object_final_unref (settings1);
   BT_TEST_END;
 }
 

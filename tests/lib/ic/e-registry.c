@@ -58,7 +58,7 @@ test_btic_registry_create (BT_TEST_ARGS)
   fail_unless (registry != NULL, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (registry);
+  ck_g_object_final_unref (registry);
   BT_TEST_END;
 }
 
@@ -79,7 +79,7 @@ test_btic_registry_not_empty (BT_TEST_ARGS)
   ck_assert_int_gt (g_list_length (devices), 0);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (registry);
+  ck_g_object_final_unref (registry);
   BT_TEST_END;
 }
 

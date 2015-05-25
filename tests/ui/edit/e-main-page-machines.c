@@ -56,7 +56,7 @@ test_teardown (void)
   gtk_widget_destroy (GTK_WIDGET (main_window));
   flush_main_loop ();
 
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   bt_edit_teardown ();
 }
 
@@ -141,7 +141,7 @@ test_bt_main_page_machines_machine_ref (BT_TEST_ARGS)
       G_OBJECT_LOG_REF_COUNT (src_machine));
 
   GST_INFO ("-- assert --");
-  g_object_checked_unref (src_machine);
+  ck_g_object_final_unref (src_machine);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (machines_page);
@@ -194,7 +194,7 @@ test_bt_main_page_machines_remove_source_machine (BT_TEST_ARGS)
   // wire-canvas-item is getting disposed, but something still has a ref on the wire
 
   GST_INFO ("-- assert --");
-  g_object_checked_unref (machine);
+  ck_g_object_final_unref (machine);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (machines_page);
@@ -231,7 +231,7 @@ test_bt_main_page_machines_remove_processor_machine (BT_TEST_ARGS)
   flush_main_loop ();
 
   GST_INFO ("-- assert --");
-  g_object_checked_unref (machine);
+  ck_g_object_final_unref (machine);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (machines_page);
@@ -269,7 +269,7 @@ test_bt_main_page_machines_remove_wire (BT_TEST_ARGS)
       G_OBJECT_LOG_REF_COUNT (wire));
 
   GST_INFO ("-- assert --");
-  g_object_checked_unref (wire);
+  ck_g_object_final_unref (wire);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (machine1);
@@ -323,7 +323,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   GST_INFO ("wire[sine1->amp1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (wire));
   // ref count should be 1 now
-  g_object_checked_unref (wire);
+  ck_g_object_final_unref (wire);
 
   // remove a source
   GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
@@ -333,7 +333,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   GST_INFO ("machine[sine1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine1));
   // ref count should be 1 now
-  g_object_checked_unref (machine1);
+  ck_g_object_final_unref (machine1);
 
   // remove an effect
   GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
@@ -343,7 +343,7 @@ test_bt_main_page_machines_edit (BT_TEST_ARGS)
   GST_INFO ("machine[amp1]: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine2));
   // ref count should be 1 now
-  g_object_checked_unref (machine2);
+  ck_g_object_final_unref (machine2);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);

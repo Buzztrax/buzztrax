@@ -51,7 +51,7 @@ test_setup (void)
 static void
 test_teardown (void)
 {
-  g_object_checked_unref (registry);
+  ck_g_object_final_unref (registry);
   if (seq) {
     snd_seq_close (seq);
   }

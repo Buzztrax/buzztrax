@@ -77,7 +77,7 @@ test_bt_song_io_file (BT_TEST_ARGS)
   fail_unless (BT_IS_SONG_IO_NATIVE (song_io), NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
 
@@ -95,7 +95,7 @@ test_bt_song_io_data (BT_TEST_ARGS)
   fail_unless (BT_IS_SONG_IO_NATIVE (song_io), NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
 

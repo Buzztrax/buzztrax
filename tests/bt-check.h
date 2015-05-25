@@ -143,7 +143,7 @@ __bt_tcase_add_test (TCase * tc, TFun tf, const char * fname, int signal,
 
 void bt_check_init(void);
 
-#define g_object_checked_unref(obj) \
+#define ck_g_object_final_unref(obj) \
 {\
   gpointer __objref=obj;\
   g_assert(__objref);\

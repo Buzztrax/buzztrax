@@ -40,8 +40,8 @@ test_setup (void)
 static void
 test_teardown (void)
 {
-  g_object_checked_unref (song);
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (song);
+  ck_g_object_final_unref (app);
 }
 
 static void
@@ -329,7 +329,7 @@ test_bt_setup_dynamic_add_src (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -388,7 +388,7 @@ test_bt_setup_dynamic_rem_src (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   g_object_unref (sequence);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -437,7 +437,7 @@ test_bt_setup_dynamic_add_proc (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -496,7 +496,7 @@ test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   g_object_unref (sequence);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 

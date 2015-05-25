@@ -77,7 +77,7 @@ test_bt_main_page_wave_missing_playbin (BT_TEST_ARGS)
   gtk_widget_destroy (GTK_WIDGET (main_window));
   flush_main_loop ();
 
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   BT_TEST_END;
 }
 

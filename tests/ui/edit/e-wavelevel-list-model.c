@@ -52,7 +52,7 @@ test_teardown (void)
   g_free (ext_data_uri);
   g_free (ext_data_path);
 
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   bt_edit_teardown ();
 }
 

@@ -45,8 +45,8 @@ test_teardown (void)
   g_object_unref (pattern);
   pattern = NULL;
   machine = NULL;
-  g_object_checked_unref (song);
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (song);
+  ck_g_object_final_unref (app);
 }
 
 static void

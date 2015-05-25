@@ -60,7 +60,7 @@ test_bt_cmd_application_create (BT_TEST_ARGS)
   ck_assert_int_eq (G_OBJECT_REF_COUNT (app), 1);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   BT_TEST_END;
 }
 
@@ -79,7 +79,7 @@ test_bt_cmd_application_play (BT_TEST_ARGS)
   fail_unless (ret == TRUE, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   BT_TEST_END;
 }
 
@@ -99,7 +99,7 @@ test_bt_cmd_application_play_two_files (BT_TEST_ARGS)
   fail_unless (ret == TRUE, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   BT_TEST_END;
 }
 
@@ -124,7 +124,7 @@ test_bt_cmd_application_info (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   g_unlink (tmp_file_name);
   g_free (tmp_file_name);
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   BT_TEST_END;
 }
 

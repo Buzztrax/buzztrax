@@ -45,7 +45,7 @@ test_create_obj (BT_TEST_ARGS)
   fail_unless (G_OBJECT (n2f)->ref_count == 1, NULL);
 
   // free object
-  g_object_checked_unref (n2f);
+  ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
 
@@ -68,7 +68,7 @@ test_translate_str_base (BT_TEST_ARGS)
   fail_unless (frq == 440.0, NULL);
 
   // free object
-  g_object_checked_unref (n2f);
+  ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
 
@@ -100,7 +100,7 @@ test_translate_str_series (BT_TEST_ARGS)
   }
 
   // free object
-  g_object_checked_unref (n2f);
+  ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
 
@@ -119,7 +119,7 @@ test_translate_num_base (BT_TEST_ARGS)
   fail_unless (frq == 440.0, NULL);
 
   // free object
-  g_object_checked_unref (n2f);
+  ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
 
@@ -145,7 +145,7 @@ test_translate_num_series (BT_TEST_ARGS)
   }
 
   // free object
-  g_object_checked_unref (n2f);
+  ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
 

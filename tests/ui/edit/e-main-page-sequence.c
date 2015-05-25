@@ -59,7 +59,7 @@ test_teardown (void)
   gtk_widget_destroy (GTK_WIDGET (main_window));
   flush_main_loop ();
 
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   bt_edit_teardown ();
 }
 

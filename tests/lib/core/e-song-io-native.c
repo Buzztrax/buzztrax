@@ -54,9 +54,9 @@ test_setup (void)
 static void
 test_teardown (void)
 {
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song);
   g_object_unref (settings);
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
 }
 
 static void
@@ -178,7 +178,7 @@ test_bt_song_io_native_new (BT_TEST_ARGS)
   fail_unless (song_io != NULL, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
 
@@ -197,7 +197,7 @@ test_bt_song_io_native_formats (BT_TEST_ARGS)
   fail_unless (song_io != NULL, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   g_free (song_path);
   BT_TEST_END;
 }
@@ -216,7 +216,7 @@ test_bt_song_io_native_load (BT_TEST_ARGS)
   fail_unless (bt_song_io_load (song_io, song, NULL) == TRUE, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
 
@@ -236,7 +236,7 @@ test_bt_song_io_native_core_refcounts (BT_TEST_ARGS)
   assert_song_part_refcounts (song);
 
   GST_INFO ("-- cleanup --");
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
 
@@ -260,7 +260,7 @@ test_bt_song_io_native_setup_refcounts_0 (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
 
@@ -295,7 +295,7 @@ test_bt_song_io_native_setup_refcounts_1 (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
 
@@ -334,7 +334,7 @@ test_bt_song_io_native_setup_refcounts_2 (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
 
@@ -357,8 +357,8 @@ test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
   ck_assert_int_eq (G_OBJECT_REF_COUNT (song), 1);
   assert_song_part_refcounts (song);
 
-  g_object_checked_unref (song_io);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song_io);
+  ck_g_object_final_unref (song);
   song = bt_song_new (app);
 
   ck_assert_int_eq (GST_BIN_NUMCHILDREN (bin), 0);
@@ -381,8 +381,8 @@ test_bt_song_io_write_empty_song (BT_TEST_ARGS)
   gboolean res = bt_song_io_save (song_io, song, NULL);
   fail_unless (res == TRUE, NULL);
 
-  g_object_checked_unref (song_io);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song_io);
+  ck_g_object_final_unref (song);
   song = bt_song_new (app);
 
   /* load the song */
@@ -390,8 +390,8 @@ test_bt_song_io_write_empty_song (BT_TEST_ARGS)
   res = bt_song_io_load (song_io, song, NULL);
   fail_unless (res == TRUE, NULL);
 
-  g_object_checked_unref (song_io);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song_io);
+  ck_g_object_final_unref (song);
   song = bt_song_new (app);
 
   GST_INFO ("-- cleanup --");
@@ -414,8 +414,8 @@ test_bt_song_io_write_song_without_externals (BT_TEST_ARGS)
   gboolean res = bt_song_io_save (song_io, song, NULL);
   fail_unless (res == TRUE, NULL);
 
-  g_object_checked_unref (song_io);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song_io);
+  ck_g_object_final_unref (song);
   song = bt_song_new (app);
 
   /* load the song */
@@ -423,8 +423,8 @@ test_bt_song_io_write_song_without_externals (BT_TEST_ARGS)
   res = bt_song_io_load (song_io, song, NULL);
   fail_unless (res == TRUE, NULL);
 
-  g_object_checked_unref (song_io);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song_io);
+  ck_g_object_final_unref (song);
   song = bt_song_new (app);
 
   g_free (song_path);
@@ -448,8 +448,8 @@ test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
   gboolean res = bt_song_io_save (song_io, song, NULL);
   fail_unless (res == TRUE, NULL);
 
-  g_object_checked_unref (song_io);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song_io);
+  ck_g_object_final_unref (song);
   song = bt_song_new (app);
 
   GST_INFO ("  song saved");
@@ -461,8 +461,8 @@ test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
 
   GST_INFO ("  song re-loaded");
 
-  g_object_checked_unref (song_io);
-  g_object_checked_unref (song);
+  ck_g_object_final_unref (song_io);
+  ck_g_object_final_unref (song);
   song = bt_song_new (app);
 
   g_free (song_path);
@@ -499,7 +499,7 @@ test_bt_song_io_native_load_legacy_0_7 (BT_TEST_ARGS)
   g_object_unref (machine);
   g_object_unref (setup);
   g_object_unref (sequence);
-  g_object_checked_unref (song_io);
+  ck_g_object_final_unref (song_io);
   BT_TEST_END;
 }
 

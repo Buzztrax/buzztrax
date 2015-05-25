@@ -52,7 +52,7 @@ test_translate_str_null (BT_TEST_ARGS)
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) |
       G_LOG_LEVEL_CRITICAL);
   // free object
-  g_object_checked_unref (n2f);
+  ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
 
@@ -80,7 +80,7 @@ test_translate_str_length (BT_TEST_ARGS)
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) |
       G_LOG_LEVEL_CRITICAL);
   // free object
-  g_object_checked_unref (n2f);
+  ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
 
@@ -102,7 +102,7 @@ test_translate_str_delim (BT_TEST_ARGS)
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) |
       G_LOG_LEVEL_CRITICAL);
   // free object
-  g_object_checked_unref (n2f);
+  ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
 
@@ -124,7 +124,7 @@ test_translate_enum_range (BT_TEST_ARGS)
   g_log_set_always_fatal (g_log_set_always_fatal (G_LOG_FATAL_MASK) |
       G_LOG_LEVEL_CRITICAL);
   // free object
-  g_object_checked_unref (n2f);
+  ck_g_object_final_unref (n2f);
   BT_TEST_END;
 }
 

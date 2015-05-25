@@ -61,7 +61,7 @@ test_bt_application_new (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (bin);
-  g_object_checked_unref (app);
+  ck_g_object_final_unref (app);
   BT_TEST_END;
 }
 
