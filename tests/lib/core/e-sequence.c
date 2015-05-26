@@ -643,7 +643,7 @@ test_bt_sequence_duration_play (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   fail_unless (res, NULL);
-  ck_assert_int64_ne (duration, -1);
+  ck_assert_int64_ne (duration, G_GINT64_CONSTANT (-1));
   ck_assert_uint64_eq (duration, 16L * tick_time);
 
   GST_INFO ("-- cleanup --");
