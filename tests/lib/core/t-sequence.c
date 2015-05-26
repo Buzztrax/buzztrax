@@ -64,7 +64,7 @@ test_bt_sequence_properties (BT_TEST_ARGS)
   fail_unless (check_gobject_properties (sequence), NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_unref (sequence);
+  ck_g_object_logged_unref (sequence);
   BT_TEST_END;
 }
 
@@ -80,7 +80,7 @@ test_bt_sequence_new_null_song (BT_TEST_ARGS)
   fail_unless (sequence != NULL, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_unref (sequence);
+  ck_g_object_logged_unref (sequence);
   BT_TEST_END;
 }
 
@@ -101,7 +101,7 @@ test_bt_sequence_add_track1 (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_try_unref (sequence);
+  ck_g_object_logged_unref (sequence);
   BT_TEST_END;
 }
 
@@ -142,7 +142,7 @@ test_bt_sequence_rem_track1 (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_try_unref (sequence);
+  ck_g_object_logged_unref (sequence);
   BT_TEST_END;
 }
 
@@ -164,7 +164,7 @@ test_bt_sequence_rem_track2 (BT_TEST_ARGS)
   mark_point ();
 
   GST_INFO ("-- cleanup --");
-  g_object_unref (sequence);
+  ck_g_object_logged_unref (sequence);
   BT_TEST_END;
 }
 
@@ -186,7 +186,7 @@ test_bt_sequence_length1 (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_unref (sequence);
+  ck_g_object_logged_unref (sequence);
   BT_TEST_END;
 }
 
@@ -211,8 +211,8 @@ test_bt_sequence_pattern1 (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_unref (pattern);
-  g_object_unref (sequence);
+  ck_g_object_logged_unref (pattern);
+  ck_g_object_logged_unref (sequence);
   BT_TEST_END;
 }
 
@@ -241,8 +241,10 @@ test_bt_sequence_pattern2 (BT_TEST_ARGS)
   fail_unless (check_has_error_trapped (), NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_unref (pattern1);
-  g_object_unref (sequence);
+  ck_assert_gobject_ref_ct (machine1, 2);       // song, sequence
+  ck_assert_gobject_ref_ct (machine1, 2);       // song, sequence
+  ck_g_object_remaining_unref (pattern1, 1);    // machine1
+  ck_g_object_remaining_unref (sequence, 1);    // song
   BT_TEST_END;
 }
 
