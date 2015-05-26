@@ -1,7 +1,24 @@
 #!/bin/bash
+# Buzztrax
+# Copyright (C) 2007 Buzztrax team <buzztrax-devel@buzztrax.org>
+#
 # iterates over the given directory and tries all buzz machines
 #
-# if machines hang, they can be skipped by pressing ctrl-c
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Library General Public License for more details.
+#
+# You should have received a copy of the GNU Library General Public
+# License along with this library; if not, see <http://www.gnu.org/licenses/>.
+
+# Test all machines matching the glob. If machines hang, they can be skipped by
+# pressing ctrl-c. Run as e.g.
 #
 # ./testmachine.sh "machines/*.dll"
 # ./testmachine.sh "/home/ensonic/buzztrax/lib/Gear-real/Effects/*.dll"
