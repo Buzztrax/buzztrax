@@ -85,8 +85,18 @@ GETTEXT_PACKAGE="buzztrax-$PACKAGE_VERSION"
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Package Name for Gettext])
 
-
-dnl common switches for all buzztrax modules
+dnl check if we build from vcs or tarball
+AC_MSG_CHECKING(if this is a development or release build)
+if test -f autogen.sh; then
+  dev_build=yes
+  rel_build=no
+  AC_DEFINE(DEV_BUILD, [1], [defined when building from version control system])
+  AC_MSG_RESULT(development)
+else
+  dev_build=no
+  rel_build=yes
+  AC_MSG_RESULT(release)
+fi
 
 dnl enable runtime debugging code
 AC_MSG_CHECKING(whether to enable runtime debugging code)
@@ -113,13 +123,7 @@ AC_MSG_CHECKING([whether to disable deprecated glib/gtk+/gst/etc. features])
 AC_ARG_ENABLE([deprecated],
 	AS_HELP_STRING([--disable-deprecated],[disable deprecated glib/gtk+/gst/etc. features]),
 	,
-	[
-		if test -f $ac_top_srcdir/autogen.sh; then
-			enable_deprecated=no
-		else
-			enable_deprecated=yes
-		fi
-	]
+	[enable_deprecated=$rel_build]
 )
 AC_MSG_RESULT($enable_deprecated)
 if test "x$enable_deprecated" = "xno"; then
