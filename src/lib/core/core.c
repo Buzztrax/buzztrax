@@ -77,9 +77,6 @@ bt_init_pre (void)
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 #endif /* ENABLE_NLS */
 
-  //-- initialize gobject
-  g_type_init ();
-
   return TRUE;
 }
 

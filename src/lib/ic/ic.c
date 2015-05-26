@@ -63,9 +63,6 @@ btic_init_pre (void)
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 #endif /* ENABLE_NLS */
 
-  //-- initialize gobject
-  g_type_init ();
-
   //g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
   return TRUE;
 }
