@@ -747,15 +747,18 @@ bml_setup (void)
 #ifdef USE_DLLWRAPPER_IPC
   // TODO(ensonic): /tmp is not ideal as everyone can read/write there and could
   // steal the socket, we could create a user-owned subdir first to mitigate
+#ifdef DEV_BUILD
   if (getenv ("BMLIPC_DEBUG")) {
     // allows to run this manually, we will then not spawn a new one here
-    // TODO(ensonic): disable in a release
     snprintf (socket_file, (SOCKET_PATH_MAX - 1), "/tmp/bml.sock");
   } else {
+#endif
     snprintf (socket_file, (SOCKET_PATH_MAX - 1), "/tmp/bml.%d.XXXXXX",
         (int) getpid ());
     mktemp (socket_file);
+#ifdef DEV_BUILD
   }
+#endif
   if (!bmpipc_connect ()) {
     return FALSE;
   }
