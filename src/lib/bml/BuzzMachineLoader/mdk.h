@@ -5,8 +5,9 @@
  * Using it for anything else is not allowed without a permission from the
  * author.
  *
- * The buzztrax project owns a buzzlib license to use this header
- * inside libbml.
+ * http://jeskola.net/archive/buzz/a15/Dev/
+ *
+ * The buzztrax project owns a buzzlib license to use this header inside libbml.
  * Contact: Stefan Sauer <ensonic@users.sf.net>
  */
      

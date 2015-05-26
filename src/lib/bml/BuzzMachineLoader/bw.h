@@ -1,18 +1,14 @@
-/* Buzz Machine Loader
- * Copyright (C) 2006 Buzztrax team <buzztrax-devel@buzztrax.org>
+/*
+ * Copyright (C) 2000 Oskari Tammelin (ot@iki.fi)
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * This header file may be used to write _freeware_ DLL "machines" for Buzz.
+ * Using it for anything else is not allowed without a permission from the
+ * author.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
+ * http://jeskola.net/archive/buzz/a15/Dev/
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ * The buzztrax project owns a buzzlib license to use this header inside libbml.
+ * Contact: Stefan Sauer <ensonic@users.sf.net>
  */
 #ifndef __BUZZ_DSPLIB_BW_H
 #define __BUZZ_DSPLIB_BW_H
@@ -29,11 +25,11 @@ public:
 };
 
 // work modes
-#define WM_NOIO                                 0
-#define WM_READ                                 1
-#define WM_WRITE                                2
-#define WM_READWRITE							3
+#define WM_NOIO           0
+#define WM_READ           1
+#define WM_WRITE          2
+#define WM_READWRITE      3
 
-#define BW_SETTLE_TIME		256		
+#define BW_SETTLE_TIME    256		
 
 #endif
