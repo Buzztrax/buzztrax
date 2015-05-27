@@ -311,17 +311,17 @@ write_string (GSettings * settings, const gchar * path,
  * Returns: TRUE if a schema is installed.
  */
 static gboolean
-g_settings_is_schema_installed (const gchar * schema)
+g_settings_is_schema_installed (const gchar * schema_id)
 {
-  const gchar *const *schemas = g_settings_list_schemas ();
-  gint i = 0;
+  GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
+  GSettingsSchema *schema;
 
-  while (schemas[i]) {
-    if (!strcmp (schemas[i], schema))
-      return TRUE;
-    i++;
+  if ((schema = g_settings_schema_source_lookup (source, schema_id, TRUE))) {
+    g_settings_schema_unref (schema);
+    return TRUE;
+  } else {
+    return FALSE;
   }
-  return FALSE;
 }
 
 static gint
