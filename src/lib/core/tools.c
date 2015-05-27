@@ -663,14 +663,14 @@ gdouble
 bt_gst_level_message_get_aggregated_field (const GstStructure * structure,
     const gchar * field_name, gdouble default_value)
 {
-  const GValue *values;
   guint i, size;
   gdouble sum = 0.0;
   GValueArray *arr;
   GValue *values;
 
-  values = gst_structure_get_value (structure, field_name);
-  arr = (GValueArray *) g_value_get_boxed (values);
+  arr =
+      (GValueArray *) g_value_get_boxed (gst_structure_get_value (structure,
+          field_name));
   size = arr->n_values;
   values = arr->values;
   for (i = 0; i < size; i++) {
