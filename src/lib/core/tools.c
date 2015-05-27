@@ -667,12 +667,14 @@ bt_gst_level_message_get_aggregated_field (const GstStructure * structure,
   guint i, size;
   gdouble sum = 0.0;
   GValueArray *arr;
+  GValue *values;
 
   values = gst_structure_get_value (structure, field_name);
   arr = (GValueArray *) g_value_get_boxed (values);
   size = arr->n_values;
+  values = arr->values;
   for (i = 0; i < size; i++) {
-    sum += g_value_get_double (g_value_array_get_nth (arr, i));
+    sum += g_value_get_double (&values[i]);
   }
   if (G_UNLIKELY (isinf (sum) || isnan (sum))) {
     //GST_WARNING("level.%s was INF or NAN, %lf",field_name,sum);
