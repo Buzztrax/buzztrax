@@ -40,14 +40,14 @@ typedef struct _BtMainStatusbarPrivate BtMainStatusbarPrivate;
  * the root window for the editor application
  */
 struct _BtMainStatusbar {
-  GtkHBox parent;
+  GtkBox parent;
   
   /*< private >*/
   BtMainStatusbarPrivate *priv;
 };
 
 struct _BtMainStatusbarClass {
-  GtkHBoxClass parent;
+  GtkBoxClass parent;
   
 };
 

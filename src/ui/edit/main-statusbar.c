@@ -74,7 +74,7 @@ struct _BtMainStatusbarPrivate
 
 //-- the class
 
-G_DEFINE_TYPE (BtMainStatusbar, bt_main_statusbar, GTK_TYPE_HBOX);
+G_DEFINE_TYPE (BtMainStatusbar, bt_main_statusbar, GTK_TYPE_BOX);
 
 
 //-- helper
@@ -381,7 +381,8 @@ bt_main_statusbar_new (void)
 {
   BtMainStatusbar *self;
 
-  self = BT_MAIN_STATUSBAR (g_object_new (BT_TYPE_MAIN_STATUSBAR, NULL));
+  self = BT_MAIN_STATUSBAR (g_object_new (BT_TYPE_MAIN_STATUSBAR, "orientation",
+          GTK_ORIENTATION_HORIZONTAL, NULL));
   bt_main_statusbar_init_ui (self);
   return (self);
 }
