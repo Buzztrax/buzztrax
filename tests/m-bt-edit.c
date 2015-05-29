@@ -200,7 +200,6 @@ main (gint argc, gchar ** argv)
   gint nf;
   SRunner *sr;
 
-  g_type_init ();
   g_set_application_name (PACKAGE_NAME);
   setup_log_base (argc, argv);
   setup_log_capture ();
