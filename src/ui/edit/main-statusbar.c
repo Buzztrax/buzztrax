@@ -307,10 +307,9 @@ bt_main_statusbar_init_ui (const BtMainStatusbar * self)
   // context sensitive help statusbar
   self->priv->status = GTK_STATUSBAR (gtk_statusbar_new ());
   self->priv->status_context_id =
-      gtk_statusbar_get_context_id (GTK_STATUSBAR (self->priv->status),
-      "default");
+      gtk_statusbar_get_context_id (self->priv->status, "default");
 
-  gtk_statusbar_push (GTK_STATUSBAR (self->priv->status),
+  gtk_statusbar_push (self->priv->status,
       self->priv->status_context_id, BT_MAIN_STATUSBAR_DEFAULT);
   gtk_box_pack_start (GTK_BOX (self), GTK_WIDGET (self->priv->status), TRUE,
       TRUE, 1);
@@ -401,17 +400,21 @@ bt_main_statusbar_set_property (GObject * object, guint property_id,
   switch (property_id) {
     case MAIN_STATUSBAR_STATUS:{
       gchar *str = g_value_dup_string (value);
-      gtk_statusbar_pop (GTK_STATUSBAR (self->priv->status),
-          self->priv->status_context_id);
+      gtk_statusbar_pop (self->priv->status, self->priv->status_context_id);
       if (str) {
-        gtk_statusbar_push (GTK_STATUSBAR (self->priv->status),
-            self->priv->status_context_id, str);
+        gtk_statusbar_push (self->priv->status, self->priv->status_context_id,
+            str);
         g_free (str);
       } else
-        gtk_statusbar_push (GTK_STATUSBAR (self->priv->status),
-            self->priv->status_context_id, BT_MAIN_STATUSBAR_DEFAULT);
-      while (gtk_events_pending ())
-        gtk_main_iteration ();
+        gtk_statusbar_push (self->priv->status, self->priv->status_context_id,
+            BT_MAIN_STATUSBAR_DEFAULT);
+      // FIXME(ensonic): this was does to ensure status-bar updates when the
+      // loader sets status while loading
+      //while (gtk_events_pending ()) gtk_main_iteration ();
+      // FIXME(ensonic): this does not help either, but on the other hand
+      // loading is fast
+      // gtk_widget_queue_draw (GTK_WIDGET (self->priv->status));
+      // see https://github.com/Buzztrax/buzztrax/issues/52
       //GST_DEBUG("set the status-text for main_statusbar");
       break;
     }
