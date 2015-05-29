@@ -235,7 +235,8 @@ bt_crash_recover_dialog_init_ui (const BtCrashRecoverDialog * self)
   hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
 
-  icon = gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
+  icon =
+      gtk_image_new_from_icon_name ("dialog-information", GTK_ICON_SIZE_DIALOG);
   gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
 
   vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);

@@ -133,8 +133,7 @@ bt_missing_song_elements_dialog_init_ui (const BtMissingSongElementsDialog *
   hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
 
-  icon =
-      gtk_image_new_from_stock (GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_DIALOG);
+  icon = gtk_image_new_from_icon_name ("dialog-warning", GTK_ICON_SIZE_DIALOG);
   gtk_container_add (GTK_CONTAINER (hbox), icon);
 
   vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);

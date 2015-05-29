@@ -1100,7 +1100,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   subitem = gtk_image_menu_item_new_with_label (_("Tip of the day"));
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_MENU));
+      gtk_image_new_from_icon_name ("dialog-information", GTK_ICON_SIZE_MENU));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_help_show_tip),
       (gpointer) self);

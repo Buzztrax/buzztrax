@@ -1002,7 +1002,8 @@ bt_dialog_message (const BtMainWindow * self, const gchar * title,
   gtk_container_set_border_width (GTK_CONTAINER (box), 6);
 
   // TODO(ensonic): when to use GTK_STOCK_DIALOG_WARNING ?
-  icon = gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
+  icon =
+      gtk_image_new_from_icon_name ("dialog-information", GTK_ICON_SIZE_DIALOG);
   gtk_container_add (GTK_CONTAINER (box), icon);
 
   // @idea if headline is NULL use title ?
@@ -1055,9 +1056,7 @@ bt_dialog_question (const BtMainWindow * self, const gchar * title,
   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (box), 6);
 
-  icon =
-      gtk_image_new_from_stock (GTK_STOCK_DIALOG_QUESTION,
-      GTK_ICON_SIZE_DIALOG);
+  icon = gtk_image_new_from_icon_name ("dialog-question", GTK_ICON_SIZE_DIALOG);
   gtk_container_add (GTK_CONTAINER (box), icon);
 
   // @idea if headline is NULL use title ?

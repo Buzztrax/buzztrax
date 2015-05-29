@@ -147,8 +147,8 @@ bt_missing_framework_elements_dialog_init_ui (const
   gtk_container_set_border_width (GTK_CONTAINER (hbox), 6);
 
   icon =
-      gtk_image_new_from_stock (self->
-      priv->core_elements ? GTK_STOCK_DIALOG_ERROR : GTK_STOCK_DIALOG_WARNING,
+      gtk_image_new_from_icon_name (self->
+      priv->core_elements ? "dialog-error" : "dialog-warning",
       GTK_ICON_SIZE_DIALOG);
   gtk_container_add (GTK_CONTAINER (hbox), icon);
 

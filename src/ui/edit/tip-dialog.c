@@ -215,7 +215,8 @@ bt_tip_dialog_init_ui (const BtTipDialog * self)
   // content area
   hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
 
-  icon = gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
+  icon =
+      gtk_image_new_from_icon_name ("dialog-information", GTK_ICON_SIZE_DIALOG);
   gtk_box_pack_start (GTK_BOX (hbox), icon, FALSE, FALSE, 0);
 
   vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
