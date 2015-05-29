@@ -26,6 +26,7 @@
 #include "bt-check-ui.h"
 #include "../src/ui/edit/bt-edit.h"
 #include <stdlib.h>
+#include <clutter-gtk/clutter-gtk.h>
 #include <glib/gstdio.h>
 
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
@@ -111,44 +112,10 @@ bt_edit_setup (void)
 {
   GST_INFO
       ("................................................................................");
-  /* BUG(749752): gdk_init() crashes when running under Xvfb.
-   * it calls gdk_x11_window_foreign_new_for_display() with a window_xid=0
-   * seems to be related to the xsettings manager
-   *
-   * Workaround: BT_CHECK_NO_XVFB=1 make bt_edit.check
-   *
-   * break gdk_x_error
-   *
-   #0  gdk_x_error (xdisplay=0x995230, error=0x7fffffffcf80) at /build/buildd/gtk+3.0-3.10.8/./gdk/x11/gdkmain-x11.c:268
-   #1  0x00002aaab0a4c54b in _XError (dpy=dpy@entry=0x995230, rep=rep@entry=0x9b0800) at ../../src/XlibInt.c:1463
-   #2  0x00002aaab0a495e7 in handle_error (dpy=0x995230, err=0x9b0800, in_XReply=<optimized out>) at ../../src/xcb_io.c:213
-   #3  0x00002aaab0a49695 in handle_response (dpy=dpy@entry=0x995230, response=0x9b0800, in_XReply=in_XReply@entry=1) at ../../src/xcb_io.c:325
-   #4  0x00002aaab0a4a578 in _XReply (dpy=dpy@entry=0x995230, rep=rep@entry=0x7fffffffd180, extra=extra@entry=0, discard=discard@entry=1) at ../../src/xcb_io.c:627
-   #5  0x00002aaab0a31c74 in _XGetWindowAttributes (dpy=dpy@entry=0x995230, w=0, attr=0x7fffffffd220) at ../../src/GetWAttrs.c:114
-   #6  0x00002aaab0a31de1 in XGetWindowAttributes (dpy=0x995230, w=w@entry=0, attr=attr@entry=0x7fffffffd220) at ../../src/GetWAttrs.c:149
-   #7  0x00002aaaaca00f61 in gdk_x11_window_foreign_new_for_display (display=display@entry=0x9a3050, window=0) at /build/buildd/gtk+3.0-3.10.8/./gdk/x11/gdkwindow-x11.c:1216
-   #8  0x00002aaaaca047c9 in check_manager_window (x11_screen=0x9aa1e0, notify_changes=notify_changes@entry=0) at /build/buildd/gtk+3.0-3.10.8/./gdk/x11/xsettings-client.c:506
-   #9  0x00002aaaaca04926 in _gdk_x11_xsettings_init (x11_screen=<optimized out>) at /build/buildd/gtk+3.0-3.10.8/./gdk/x11/xsettings-client.c:580
-   #10 0x00002aaaac9ec53e in _gdk_x11_display_open (display_name=<optimized out>) at /build/buildd/gtk+3.0-3.10.8/./gdk/x11/gdkdisplay-x11.c:1429
-   #11 0x00002aaaac9cbe17 in gdk_display_manager_open_display (manager=<optimized out>, name=0x0) at /build/buildd/gtk+3.0-3.10.8/./gdk/gdkdisplaymanager.c:456
-   #12 0x00002aaaac9cb3c5 in gdk_display_open (display_name=<optimized out>) at /build/buildd/gtk+3.0-3.10.8/./gdk/gdkdisplay.c:1799
-   #13 0x00002aaaac9c3de9 in gdk_display_open_default_libgtk_only () at /build/buildd/gtk+3.0-3.10.8/./gdk/gdk.c:390
-   #14 0x00002aaaac9c3dfe in gdk_init_check (argc=argc@entry=0x6e9770 <test_argc>, argv=argv@entry=0x6e9778 <test_argvptr>) at /build/buildd/gtk+3.0-3.10.8/./gdk/gdk.c:417
-   #15 0x00002aaaac9c3e19 in gdk_init (argc=argc@entry=0x6e9770 <test_argc>, argv=argv@entry=0x6e9778 <test_argvptr>) at /build/buildd/gtk+3.0-3.10.8/./gdk/gdk.c:439
-   #16 0x0000000000422a4a in bt_edit_setup () at tests/m-bt-edit.c:143
-   #17 0x0000000000422d89 in test_setup () at tests/ui/edit/e-about-dialog.c:36
-   #18 0x00000000004b0288 in tcase_run_checked_setup.isra ()
-   #19 0x00000000004b02c2 in tcase_run_tfun_nofork.isra ()
-   */
-  //const gchar *display_name = g_getenv ("DISPLAY");
-  //static gchar display_arg[100];
-  //sprintf (display_arg, "--display=%s", display_name);
-  //test_argv[1] = display_arg;
   gdk_init (&test_argc, &test_argvptr);
   check_setup_test_display ();
 
-  gtk_init (&test_argc, &test_argvptr);
-  if (clutter_init (&test_argc, &test_argvptr) != CLUTTER_INIT_SUCCESS)
+  if (gtk_clutter_init (&test_argc, &test_argvptr) != CLUTTER_INIT_SUCCESS)
     exit (1);
   bt_init (&test_argc, &test_argvptr);
   btic_init (&test_argc, &test_argvptr);

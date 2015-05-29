@@ -93,8 +93,10 @@ check_setup_test_server (void)
     /*"-terminate", */
     /* 32 bit does not work */
     "-screen", "0", "1024x786x24",
-    "-render",                  /*"color", */
     "+extension", "RANDR",
+    // causes issue like reported under
+    // https://bugzilla.gnome.org/show_bug.cgi?id=749752
+    //"-render",                  /*"color", */
     NULL
   };
   gboolean found = FALSE, launched = FALSE, trying = TRUE;
