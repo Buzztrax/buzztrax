@@ -33,6 +33,9 @@ CHECK_REGISTRY = $(top_builddir)/tests/test-registry.reg
 #    PULSE_SINK=???
 #    ALSA_CARD, ALSA_PCM_CARD, DISPLAY_ALSA_DEVICE, AUDIODEV
 #
+# for gtk/x11 issues
+#    GDK_SYNCHRONIZE=1
+#
 TESTS_ENVIRONMENT = \
 	CK_DEFAULT_TIMEOUT=20 \
 	LANG=C \
