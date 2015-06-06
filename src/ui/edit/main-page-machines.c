@@ -1347,6 +1347,15 @@ on_page_mapped (GtkWidget * widget, gpointer user_data)
   GTK_WIDGET_GET_CLASS (widget)->focus (widget, GTK_DIR_TAB_FORWARD);
 }
 
+static gboolean
+idle_redraw (gpointer user_data)
+{
+  BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
+  //gtk_widget_queue_draw (self->priv->canvas_widget);
+  clutter_content_invalidate (self->priv->grid_canvas);
+  return FALSE;
+}
+
 static void
 on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
 {
@@ -1361,7 +1370,10 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
     if (prev_page_num != BT_MAIN_PAGES_MACHINES_PAGE) {
       GST_DEBUG ("enter machine page");
       // BUG(???): issue in clutter?
-      clutter_content_invalidate (self->priv->grid_canvas);
+      // https://github.com/Buzztrax/buzztrax/issues/50
+      // we seem to need a low prio, which hints that we might need to chain
+      // this to something else :/
+      g_idle_add_full (G_PRIORITY_LOW, idle_redraw, (gpointer) self, NULL);
     }
   } else {
     // only do this if the page was BT_MAIN_PAGES_MACHINES_PAGE
