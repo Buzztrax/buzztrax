@@ -654,7 +654,6 @@ update_scrolled_window_zoom (const BtMainPageMachines * self)
   p->canvas_w = cw;
   p->canvas_h = ch;
   // apply zoom here as we don't scale the stage
-  clutter_actor_set_size (p->stage, cw * p->zoom, ch * p->zoom);
   clutter_actor_set_size (p->canvas, cw, ch);
   clutter_canvas_set_size (CLUTTER_CANVAS (p->grid_canvas), cw, ch);
 
@@ -1779,7 +1778,6 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
       gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (self->
           priv->canvas_widget));
   clutter_stage_set_use_alpha (CLUTTER_STAGE (self->priv->stage), TRUE);
-  clutter_actor_set_size (self->priv->stage, MACHINE_VIEW_W, MACHINE_VIEW_H);
   style = gtk_widget_get_style_context (self->priv->canvas_widget);
   on_canvas_style_updated (style, (gpointer) self);
   g_signal_connect_after (style, "changed",
