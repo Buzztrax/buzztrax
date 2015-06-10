@@ -343,6 +343,64 @@ on_wire_pan_changed (GstElement * element, GParamSpec * arg, gpointer user_data)
   // TODO(ensonic): need to change colors of the pan-icon
 }
 
+typedef struct
+{
+  BtWireCanvasItem *self;
+  guint32 activate_time;
+  guint x, y;
+} BtEventIdleData;
+
+#define MAKE_EVENT_IDLE_DATA(data,self,event) G_STMT_START { \
+  data=g_slice_new(BtEventIdleData); \
+  data->self=self; \
+  data->activate_time=clutter_event_get_time (event); \
+  data->x=((ClutterButtonEvent *) event)->x; \
+  data->y=((ClutterButtonEvent *) event)->y; \
+} G_STMT_END
+
+#define FREE_EVENT_IDLE_DATA(data) G_STMT_START { \
+  g_slice_free(BtEventIdleData,data); \
+} G_STMT_END
+
+static gboolean
+volume_popup_helper (gpointer user_data)
+{
+  BtEventIdleData *data = (BtEventIdleData *) user_data;
+  BtWireCanvasItem *self = data->self;
+  guint x = data->x, y = data->y;
+  FREE_EVENT_IDLE_DATA (data);
+
+  bt_main_page_machines_wire_volume_popup (self->priv->main_page_machines,
+      self->priv->wire, x, y);
+  return FALSE;
+}
+
+static gboolean
+wire_popup_helper (gpointer user_data)
+{
+  BtEventIdleData *data = (BtEventIdleData *) user_data;
+  BtWireCanvasItem *self = data->self;
+  guint x = data->x, y = data->y;
+  FREE_EVENT_IDLE_DATA (data);
+
+  bt_main_page_machines_wire_panorama_popup (self->priv->main_page_machines,
+      self->priv->wire, x, y);
+  return FALSE;
+}
+
+static gboolean
+popup_helper (gpointer user_data)
+{
+  BtEventIdleData *data = (BtEventIdleData *) user_data;
+  BtWireCanvasItem *self = data->self;
+  guint32 activate_time = data->activate_time;
+  FREE_EVENT_IDLE_DATA (data);
+
+  gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
+      GDK_BUTTON_SECONDARY, activate_time);
+  return FALSE;
+}
+
 static gboolean
 on_wire_pad_button_press (ClutterActor * citem, ClutterEvent * event,
     gpointer user_data)
@@ -353,24 +411,25 @@ on_wire_pad_button_press (ClutterActor * citem, ClutterEvent * event,
 
   GST_DEBUG ("CLUTTER_BUTTON_PRESS: %d", button_event->button);
   switch (button_event->button) {
-    case 1:
+    case 1:{
+      BtEventIdleData *data;
+      MAKE_EVENT_IDLE_DATA (data, self, event);
       GST_WARNING ("showing popup at %f,%f", button_event->x, button_event->y);
       if (!(button_event->modifier_state & CLUTTER_SHIFT_MASK)) {
-        bt_main_page_machines_wire_volume_popup (self->priv->main_page_machines,
-            self->priv->wire, (gint) button_event->x, (gint) button_event->y);
+        g_idle_add (volume_popup_helper, data);
       } else {
-        bt_main_page_machines_wire_panorama_popup (self->
-            priv->main_page_machines, self->priv->wire, (gint) button_event->x,
-            (gint) button_event->y);
+        g_idle_add (wire_popup_helper, data);
       }
       res = TRUE;
       break;
-    case 3:
-      // show context menu
-      gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-          GDK_BUTTON_SECONDARY, clutter_event_get_time (event));
+    }
+    case 3:{
+      BtEventIdleData *data;
+      MAKE_EVENT_IDLE_DATA (data, self, event);
+      g_idle_add (popup_helper, data);
       res = TRUE;
       break;
+    }
     default:
       break;
   }

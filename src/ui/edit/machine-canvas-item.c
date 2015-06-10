@@ -308,6 +308,7 @@ typedef struct
   g_slice_free(BtUpdateIdleData,data); \
 } G_STMT_END
 
+
 static gboolean
 on_delayed_idle_machine_level_change (gpointer user_data)
 {
@@ -1353,6 +1354,35 @@ bt_machine_canvas_item_finalize (GObject * object)
   GST_DEBUG ("  done");
 }
 
+typedef struct
+{
+  BtMachineCanvasItem *self;
+  guint32 activate_time;
+} BtEventIdleData;
+
+#define MAKE_EVENT_IDLE_DATA(data,self,event) G_STMT_START { \
+  data=g_slice_new(BtEventIdleData); \
+  data->self=self; \
+  data->activate_time=clutter_event_get_time (event); \
+} G_STMT_END
+
+#define FREE_EVENT_IDLE_DATA(data) G_STMT_START { \
+  g_slice_free(BtEventIdleData,data); \
+} G_STMT_END
+
+static gboolean
+popup_helper (gpointer user_data)
+{
+  BtEventIdleData *data = (BtEventIdleData *) user_data;
+  BtMachineCanvasItem *self = data->self;
+  guint32 activate_time = data->activate_time;
+  FREE_EVENT_IDLE_DATA (data);
+
+  gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
+      GDK_BUTTON_SECONDARY, activate_time);
+  return FALSE;
+}
+
 static gboolean on_captured_event (ClutterActor * citem, ClutterEvent * event,
     gpointer user_data);
 
@@ -1396,12 +1426,13 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
               break;
           }
           break;
-        case 3:
-          // show context menu
-          gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-              GDK_BUTTON_SECONDARY, clutter_event_get_time (event));
+        case 3:{
+          BtEventIdleData *data;
+          MAKE_EVENT_IDLE_DATA (data, self, event);
+          g_idle_add (popup_helper, data);
           res = TRUE;
           break;
+        }
         default:
           break;
       }
@@ -1504,12 +1535,13 @@ bt_machine_canvas_item_event (ClutterActor * citem, ClutterEvent * event)
       ClutterKeyEvent *key_event = (ClutterKeyEvent *) event;
       GST_DEBUG ("CLUTTER_KEY_RELEASE: %d", key_event->keyval);
       switch (key_event->keyval) {
-        case GDK_KEY_Menu:
-          // show context menu
-          gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-              GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
+        case GDK_KEY_Menu:{
+          BtEventIdleData *data;
+          MAKE_EVENT_IDLE_DATA (data, self, event);
+          g_idle_add (popup_helper, data);
           res = TRUE;
           break;
+        }
         default:
           break;
       }

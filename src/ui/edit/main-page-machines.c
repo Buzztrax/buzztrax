@@ -1385,6 +1385,35 @@ on_page_switched (GtkNotebook * notebook, GParamSpec * arg, gpointer user_data)
   prev_page_num = page_num;
 }
 
+typedef struct
+{
+  BtMainPageMachines *self;
+  guint32 activate_time;
+} BtEventIdleData;
+
+#define MAKE_EVENT_IDLE_DATA(data,self,event) G_STMT_START { \
+  data=g_slice_new(BtEventIdleData); \
+  data->self=self; \
+  data->activate_time=clutter_event_get_time (event); \
+} G_STMT_END
+
+#define FREE_EVENT_IDLE_DATA(data) G_STMT_START { \
+  g_slice_free(BtEventIdleData,data); \
+} G_STMT_END
+
+static gboolean
+popup_helper (gpointer user_data)
+{
+  BtEventIdleData *data = (BtEventIdleData *) user_data;
+  BtMainPageMachines *self = data->self;
+  guint32 activate_time = data->activate_time;
+  FREE_EVENT_IDLE_DATA (data);
+
+  gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
+      GDK_BUTTON_SECONDARY, activate_time);
+  return FALSE;
+}
+
 static gboolean
 on_canvas_button_press (ClutterActor * actor, ClutterEvent * event,
     gpointer user_data)
@@ -1407,9 +1436,9 @@ on_canvas_button_press (ClutterActor * actor, ClutterEvent * event,
       // start dragging the canvas
       self->priv->dragging = TRUE;
     } else if (button == 3) {
-      // show context menu
-      gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
-          GDK_BUTTON_SECONDARY, clutter_event_get_time (event));
+      BtEventIdleData *data;
+      MAKE_EVENT_IDLE_DATA (data, self, event);
+      g_idle_add (popup_helper, data);
       res = TRUE;
     }
   } else {
