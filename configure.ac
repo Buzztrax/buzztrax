@@ -1,5 +1,5 @@
 dnl Initialise autoconf/automake/libtool
-AC_PREREQ(2.69)
+AC_PREREQ([2.69])
 AC_INIT([buzztrax],[0.9.0],[buzztrax-devel@buzztrax.org])
 AC_CANONICAL_TARGET([])
 # we can't do -Werror, because
@@ -534,7 +534,7 @@ esac
 
 
 dnl check for libraries
-AC_CHECK_LIBM
+LT_LIB_M
 AC_SUBST(LIBM)
 ACX_PTHREAD
 AC_CHECK_LIB([rt], [main])
@@ -565,11 +565,11 @@ AC_ARG_ENABLE(Bsymbolic,
               [SAVED_LDFLAGS="${LDFLAGS}"
                AC_MSG_CHECKING([for -Bsymbolic-functions linker flag])
                LDFLAGS=-Wl,-Bsymbolic-functions
-               AC_TRY_LINK([], [int main (void) { return 0; }],
-                           AC_MSG_RESULT(yes)
-                           enable_Bsymbolic=yes,
-                           AC_MSG_RESULT(no)
-                           enable_Bsymbolic=no)
+               AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[int main (void) { return 0; }]])],
+                           [AC_MSG_RESULT(yes)
+                            enable_Bsymbolic=yes],
+                           [AC_MSG_RESULT(no)
+                            enable_Bsymbolic=no])
                LDFLAGS="${SAVED_LDFLAGS}"])
 
 
@@ -592,18 +592,15 @@ BML_LIBS="$COVERAGE_LIBS $DL_LIBS"
 dnl check for desktop and mimetype utilities
 
 AC_ARG_ENABLE(update-mime,
-	AC_HELP_STRING([--disable-update-mime],
-	[don't run update-mime-database utility (useful for packages) ]))
+	AS_HELP_STRING([--disable-update-mime],[don't run update-mime-database utility (useful for packages) ]))
 AM_CONDITIONAL(WITH_UPDATE_MIME, test "$enable_update_mime" != "no")
 
 AC_ARG_ENABLE(update-desktop,
-	AC_HELP_STRING([--disable-update-desktop],
-	[don't run update-desktop-database utility (useful for packages) ]))
+	AS_HELP_STRING([--disable-update-desktop],[don't run update-desktop-database utility (useful for packages) ]))
 AM_CONDITIONAL(WITH_UPDATE_DESKTOP, test "$enable_update_desktop" != "no")
 
 AC_ARG_ENABLE(update-icon-cache,
-	AC_HELP_STRING([--disable-update-icon-cache],
-	[don't run gtk-update-icon-cache utility (useful for packages) ]))
+	AS_HELP_STRING([--disable-update-icon-cache],[don't run gtk-update-icon-cache utility (useful for packages) ]))
 AM_CONDITIONAL(WITH_UPDATE_ICON_CACHE, test "$enable_update_icon_cache" != "no")
 
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)
