@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzztrax-0.6.0\n"
 "Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2011-10-07 21:35+0200\n"
+"POT-Creation-Date: 2015-05-21 12:37+0200\n"
 "PO-Revision-Date: 2011-12-20 10:13+0800\n"
 "Last-Translator: Wylmer Wang <wantinghard@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -16,249 +16,326 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../src/lib/core/core.c:196
+#: ../buzztrax.appdata.xml.in.h:1
+msgid "Fully integrated music composer."
+msgstr ""
+
+#: ../buzztrax.appdata.xml.in.h:2
+msgid ""
+"Buzztrax is a music composer similar to tracker applications. It is roughly "
+"modelled after the windows only, closed source application called Buzz."
+msgstr ""
+
+#: ../src/lib/core/core.c:183
 msgid "Print the buzztrax core version"
 msgstr "打印 buzztrax 核心版本"
 
-#: ../src/lib/core/core.c:200
+#: ../src/lib/core/core.c:189
+#, fuzzy
 msgid "Buzztrax core options"
 msgstr "Buzztrax 核心选项"
 
-#: ../src/lib/core/core.c:200
+#: ../src/lib/core/core.c:190
 msgid "Show buzztrax core options"
 msgstr "显示 buzztrax 核心选项"
 
-#. track commands in sequencer
-#: ../src/lib/core/pattern.c:371
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "normal"
 msgstr "正常"
 
-#: ../src/lib/core/pattern.c:371
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "break"
 msgstr ""
 
-#: ../src/lib/core/pattern.c:371
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "mute"
 msgstr "静音"
 
-#: ../src/lib/core/pattern.c:371
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "solo"
 msgstr ""
 
-#: ../src/lib/core/pattern.c:371
+#: ../src/lib/core/cmd-pattern.c:153
 msgid "bypass"
 msgstr ""
 
-#: ../src/lib/core/song-io-native-bzt.c:243
-#: ../src/lib/core/song-io-native-xml.c:54
+#: ../src/lib/core/song-io.c:313
+#, c-format
+msgid "Filename must not be empty."
+msgstr ""
+
+#: ../src/lib/core/song-io.c:323
+#, c-format
+msgid "No io-module for filename '%s'."
+msgstr ""
+
+#: ../src/lib/core/song-io.c:350
+#, c-format
+msgid "Media-type must not be empty."
+msgstr ""
+
+#: ../src/lib/core/song-io.c:361
+#, c-format
+msgid "No io-module for media-type '%s'."
+msgstr ""
+
+#: ../src/lib/core/song-io-native-bzt.c:250
+#: ../src/lib/core/song-io-native-xml.c:58
+#: ../src/lib/core/songio/bsl/song-io-buzz.c:2327
 #, c-format
 msgid "Loading file '%s'"
 msgstr "正在加载文件“%s”"
 
-#: ../src/lib/core/song-io-native-bzt.c:366
-#: ../src/lib/core/song-io-native-xml.c:122
+#: ../src/lib/core/song-io-native-bzt.c:312
+#, c-format
+msgid "Failed to create memory input."
+msgstr ""
+
+#: ../src/lib/core/song-io-native-bzt.c:320
+#: ../src/lib/core/song-io-native-xml.c:83
+#, c-format
+msgid "Is not a XML/Buzztrax document."
+msgstr ""
+
+#: ../src/lib/core/song-io-native-bzt.c:324
+#: ../src/lib/core/song-io-native-xml.c:87
+#, c-format
+msgid "Is not a wellformed XML document."
+msgstr ""
+
+#: ../src/lib/core/song-io-native-bzt.c:331
+#: ../src/lib/core/song-io-native-xml.c:94
+#, c-format
+msgid "XML document is empty."
+msgstr ""
+
+#: ../src/lib/core/song-io-native-bzt.c:336
+#: ../src/lib/core/song-io-native-xml.c:99
+#, c-format
+msgid "Wrong XML document root."
+msgstr ""
+
+#: ../src/lib/core/song-io-native-bzt.c:391
+#: ../src/lib/core/song-io-native-xml.c:142
 #, c-format
 msgid "Saving file '%s'"
 msgstr "正在保存文件“%s”"
 
 #. default name for new songs
-#: ../src/lib/core/song-info.c:99
+#: ../src/lib/core/song-info.c:122
 msgid "untitled song"
 msgstr "无标题歌曲"
 
-#: ../src/lib/ic/ic.c:115
+#: ../src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in.h:1
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:1
+msgid "Buzztrax Music Editor"
+msgstr ""
+
+#: ../src/lib/core/songio/bsl/song-io-buzz.c:2396
+#, c-format
+msgid "Error reading a buzz file section."
+msgstr ""
+
+#: ../src/lib/core/songio/bsl/song-io-buzz.c:2402
+#, c-format
+msgid "Is not a buzz file."
+msgstr ""
+
+#: ../src/lib/ic/ic.c:108
 msgid "Print the buzztrax interaction controller version"
 msgstr "打印 buzztrax 交互控制器版本"
 
-#: ../src/lib/ic/ic.c:119
+#: ../src/lib/ic/ic.c:114
+#, fuzzy
 msgid "Buzztrax interaction controller options"
 msgstr "Buzztrax 交互控制器选项"
 
-#: ../src/lib/ic/ic.c:119
+#: ../src/lib/ic/ic.c:115
 msgid "Show buzztrax interaction controller options"
 msgstr "显示 Buzztrax 交互控制器选项"
 
-#: ../src/ui/cmd/bt-cmd.c:72 ../src/ui/edit/bt-edit.c:82
+#: ../src/ui/cmd/bt-cmd.c:84 ../src/ui/edit/bt-edit.c:92
 msgid "Print application version"
 msgstr "打印应用程序版本"
 
-#: ../src/ui/cmd/bt-cmd.c:73
+#: ../src/ui/cmd/bt-cmd.c:85
 msgid "Be quiet"
 msgstr "保持安静"
 
-#: ../src/ui/cmd/bt-cmd.c:74 ../src/ui/edit/bt-edit.c:83
+#: ../src/ui/cmd/bt-cmd.c:86 ../src/ui/edit/bt-edit.c:94
 msgid "Command name"
 msgstr "命令名"
 
-#: ../src/ui/cmd/bt-cmd.c:75 ../src/ui/edit/bt-edit.c:84
+#: ../src/ui/cmd/bt-cmd.c:88 ../src/ui/edit/bt-edit.c:98
 msgid "Input file name"
 msgstr "输入文件名"
 
-#: ../src/ui/cmd/bt-cmd.c:75 ../src/ui/cmd/bt-cmd.c:76
-#: ../src/ui/edit/bt-edit.c:84
+#: ../src/ui/cmd/bt-cmd.c:89 ../src/ui/cmd/bt-cmd.c:91
+#: ../src/ui/edit/bt-edit.c:98
 msgid "<songfile>"
 msgstr "<歌曲文件>"
 
-#: ../src/ui/cmd/bt-cmd.c:76
+#: ../src/ui/cmd/bt-cmd.c:90
 msgid "Output file name"
 msgstr "输出文件名"
 
-#. g_option_context_add_main_entries(ctx, options, GETTEXT_PACKAGE);
-#: ../src/ui/cmd/bt-cmd.c:94
+#: ../src/ui/cmd/bt-cmd.c:105
 msgid "buzztrax-cmd options"
 msgstr "buzztrax-cmd 选项"
 
-#: ../src/ui/cmd/bt-cmd.c:94
+#: ../src/ui/cmd/bt-cmd.c:106
 msgid "Show buzztrax-cmd options"
 msgstr "显示 buzztrax-cmd 选项"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net>
-#: ../src/ui/edit/about-dialog.c:73
+#: ../src/ui/edit/about-dialog.c:65
 msgid "translator-credits"
 msgstr "Wylmer Wang <wantinghard@gmail.com>"
 
-#: ../src/ui/edit/about-dialog.c:75 ../src/ui/edit/about-dialog.c:76
-#, c-format
+#: ../src/ui/edit/about-dialog.c:68 ../src/ui/edit/about-dialog.c:70
+#, fuzzy, c-format
 msgid "Copyright © 2003-%d Buzztrax developer team"
 msgstr "版权所有 © 2003-%d Buzztrax 开发组"
 
-#: ../src/ui/edit/about-dialog.c:92
+#: ../src/ui/edit/about-dialog.c:87
 msgid "Music production environment"
 msgstr "音乐创作环境"
 
-#: ../src/ui/edit/about-dialog.c:97
+#: ../src/ui/edit/about-dialog.c:91
 msgid ""
-"This package is free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n"
+"This package is free software; you can redistribute it and/or modify it "
+"under the terms of the GNU Library General Public License as published by "
+"the Free Software Foundation; either version 2.1 of the License, or (at your "
+"option) any later version.\n"
 "\n"
-"This package is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.\n"
+"This package is distributed in the hope that it will be useful, but WITHOUT "
+"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+"FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License "
+"for more details.\n"
 "\n"
-"You should have received a copy of the GNU Library General Public License along with this package; if not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
+"You should have received a copy of the GNU Library General Public License "
+"along with this package; if not, write to the Free Software Foundation, "
+"Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA."
 msgstr ""
 
 #. "Development version (do not translate this)"
-#: ../src/ui/edit/about-dialog.c:130
-msgid "Main feature of this release is full undo/redo support. Related to it is the journaling of edit action and the crash recovery. This way chances of losing changes in the song are quite low. Other UI improvements are: tip of day, improved spectrum analyzer, clipboard support, more commands in context menus and many more). This release features a gstreamer decoder that enables playback of buzztrax songs in any gstreamer based media player. We also kept the buzztrax codebase clean and ported from deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The libraries and the applications got performance improvements in many areas. Also the docs have been improved a lot with tutorials, keyboard shortcut tables, better coverage and man-pages. "
-msgstr "这一发布版本的主要特性是完整的撤消/重做支持。程序具有相应的编辑操作日志和崩溃恢复功能。这样对歌曲的更改丢失的可能性将很小。其他用户界面上的改进包括：每日技巧提示、改进的频谱分析器、剪贴板支持、上下文菜单中的选项更多，等等。这一版本加入了一个 gstreamer 解码器，可能在任何基于 gstreamer 的媒体播放器中播放 buzztrax 歌曲。我们也清理了 buzztrax 的代码库，并由废弃的 API 迁移到了其继承者(gnomevfs->gio，hal->gudev)。库和应用程序性能在很多方面有所提高。文档也有所改进，加入了向导、键盘快捷键表，内容更全面，完善了 man-pages等。"
+#: ../src/ui/edit/about-dialog.c:116
+msgid ""
+"In this cycle we did a lot of finetuning on the gtk+3 port. More deprecated "
+"APIs are replaced with the new API. We did a lot of work on theming; e.g. "
+"all colors are now defined in the css files and settings let you select "
+"theme variants such as a dark theme. The interaction controller library now "
+"supports alsa-sequencer. The UI for training the controls of a new midi "
+"device is streamlined and much easier. Also the controls from the "
+"interaction controller can be used fro playback controls (play/pause/"
+"seeking). Finally things got easier for developers too. We merged bml, gst-"
+"buzztrax into buzztrax to simplify the build."
+msgstr ""
 
-#. g_option_context_add_main_entries (ctx, options, GETTEXT_PACKAGE);
-#: ../src/ui/edit/bt-edit.c:103
+#: ../src/ui/edit/bt-edit.c:107
 msgid "buzztrax-edit options"
 msgstr "buzztrax-edit 选项"
 
-#: ../src/ui/edit/bt-edit.c:103
+#: ../src/ui/edit/bt-edit.c:108
 msgid "Show buzztrax-edit options"
 msgstr "显示 buzztrax-edit 选项"
 
-#: ../src/ui/edit/change-log.c:544
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:2
+#, fuzzy
+msgid "Edit buzztrax song files"
+msgstr "buzztrax 设置"
+
+#: ../src/ui/edit/change-log.c:643
 msgid "unsaved song"
 msgstr "未保存的歌曲"
 
 #. the song recovery has been finished
-#: ../src/ui/edit/crash-recover-dialog.c:153
+#: ../src/ui/edit/crash-recover-dialog.c:174
 msgid "Recovery finished"
 msgstr "恢复完成"
 
-#: ../src/ui/edit/crash-recover-dialog.c:154
+#: ../src/ui/edit/crash-recover-dialog.c:175
 msgid "The selected song has been recovered successful."
 msgstr "所选的歌曲已成功恢复。"
 
-#: ../src/ui/edit/crash-recover-dialog.c:155
+#: ../src/ui/edit/crash-recover-dialog.c:176
 msgid "Please check the song and save it if everything is alright."
 msgstr "请检查此歌曲，若一切无误，对它进行保存。"
 
-#. FIXME: the log is still there
+#. FIXME(ensonic): the log is still there
 #. * - this dialog should be a warning
 #. * - ev. we want to suggest to ask for support
 #.
-#: ../src/ui/edit/crash-recover-dialog.c:162
+#. one or more steps in the recovery did not apply
+#: ../src/ui/edit/crash-recover-dialog.c:184
 msgid "Recovery failed"
 msgstr "恢复失败"
 
-#: ../src/ui/edit/crash-recover-dialog.c:163
+#: ../src/ui/edit/crash-recover-dialog.c:185
 msgid "Sorry, the selected song could not be fully recovered."
 msgstr "抱歉，无法完整恢复所选的歌曲。"
 
-#: ../src/ui/edit/crash-recover-dialog.c:164
+#: ../src/ui/edit/crash-recover-dialog.c:186
 msgid "Please check the song and save it if still looks good."
 msgstr "请检查该歌曲，如果恢复结果尚可，对它进行保存。"
 
-#: ../src/ui/edit/crash-recover-dialog.c:199
+#: ../src/ui/edit/crash-recover-dialog.c:225
 msgid "Unsaved song recovery"
 msgstr "未保存的歌曲恢复"
 
-#: ../src/ui/edit/crash-recover-dialog.c:217
+#: ../src/ui/edit/crash-recover-dialog.c:243
 msgid "Unsaved songs found"
 msgstr "有未保存的歌曲"
 
-#: ../src/ui/edit/crash-recover-dialog.c:217
+#: ../src/ui/edit/crash-recover-dialog.c:244
 msgid "Select them one by one and choose 'recover' or 'delete'."
 msgstr "逐个选择它们，并选择“恢复”或“删除”。"
 
-#. column listing song file names to recover
-#: ../src/ui/edit/crash-recover-dialog.c:233
+#: ../src/ui/edit/crash-recover-dialog.c:264
 msgid "Song file"
 msgstr "歌曲文件"
 
-#. column listing song file names to recover
-#: ../src/ui/edit/crash-recover-dialog.c:239
+#: ../src/ui/edit/crash-recover-dialog.c:270
 msgid "Last changed"
 msgstr "上次更改"
 
 #. add "undelete" button to action area
 #. GTK_STOCK_REVERT_TO_SAVED
-#: ../src/ui/edit/crash-recover-dialog.c:269
+#: ../src/ui/edit/crash-recover-dialog.c:301
 msgid "Recover"
 msgstr "恢复"
 
-#: ../src/ui/edit/edit-application.c:146
+#: ../src/ui/edit/edit-application.c:155
 msgid "-> You will not see any level-meters."
 msgstr ""
 
-#: ../src/ui/edit/edit-application.c:153
+#: ../src/ui/edit/edit-application.c:166
 msgid "-> You will not see the frequency spectrum in the analyzer window."
 msgstr ""
 
-#. set dialog title
-#: ../src/ui/edit/interaction-controller-learn-dialog.c:115
-#, c-format
-msgid "learn controller for %s"
+#: ../src/ui/edit/edit-application.c:177
+msgid "-> Sample playback previews from the wavetable page will not work."
 msgstr ""
 
-#: ../src/ui/edit/interaction-controller-learn-dialog.c:142
-msgid "Move or press a controller to detect it."
+#: ../src/ui/edit/interaction-controller-menu.c:296
+msgid "Learn…"
 msgstr ""
 
-#: ../src/ui/edit/interaction-controller-learn-dialog.c:148
-msgid "detected control"
-msgstr ""
-
-#: ../src/ui/edit/interaction-controller-learn-dialog.c:152
-msgid "none"
-msgstr "无"
-
-#: ../src/ui/edit/interaction-controller-learn-dialog.c:156
-msgid "register as"
-msgstr ""
-
-#: ../src/ui/edit/interaction-controller-menu.c:158
-msgid "Learn..."
-msgstr ""
-
-#: ../src/ui/edit/interaction-controller-menu.c:257
+#: ../src/ui/edit/interaction-controller-menu.c:421
 msgid "Bind controller"
 msgstr ""
 
-#: ../src/ui/edit/interaction-controller-menu.c:267
+#: ../src/ui/edit/interaction-controller-menu.c:432
 msgid "Unbind controller"
 msgstr ""
 
-#: ../src/ui/edit/interaction-controller-menu.c:273
+#: ../src/ui/edit/interaction-controller-menu.c:441
 msgid "Unbind all controllers"
 msgstr ""
 
 #. format about message for machines
-#: ../src/ui/edit/machine-actions.c:63
+#: ../src/ui/edit/machine-actions.c:68
 #, c-format
 msgid ""
 "by %s\n"
@@ -266,42 +343,50 @@ msgid ""
 "%s"
 msgstr ""
 
-#: ../src/ui/edit/machine-actions.c:66
-msgid "About..."
+#: ../src/ui/edit/machine-actions.c:69
+#, fuzzy
+msgid "About…"
 msgstr "关于..."
 
-#: ../src/ui/edit/machine-canvas-item.c:697
+#: ../src/ui/edit/machine-canvas-item.c:783
 msgid "Mute"
 msgstr "静音"
 
-#: ../src/ui/edit/machine-canvas-item.c:703
+#: ../src/ui/edit/machine-canvas-item.c:793
 msgid "Solo"
 msgstr ""
 
-#: ../src/ui/edit/machine-canvas-item.c:710
+#: ../src/ui/edit/machine-canvas-item.c:805
 msgid "Bypass"
 msgstr ""
 
-#: ../src/ui/edit/machine-canvas-item.c:750
-msgid "Rename..."
+#: ../src/ui/edit/machine-canvas-item.c:854
+#, fuzzy
+msgid "Rename…"
 msgstr "改名..."
 
-#: ../src/ui/edit/machine-canvas-item.c:764
+#: ../src/ui/edit/machine-canvas-item.c:872
 msgid "Connect machines"
 msgstr ""
 
-#: ../src/ui/edit/machine-canvas-item.c:769
-#: ../src/ui/edit/wire-canvas-item.c:800
-msgid "Signal Analysis..."
+#: ../src/ui/edit/machine-canvas-item.c:880
+#: ../src/ui/edit/wire-canvas-item.c:777
+#, fuzzy
+msgid "Signal Analysis…"
 msgstr "信号分析..."
 
+#: ../src/ui/edit/machine-canvas-item.c:931
+#, fuzzy
+msgid "Play with"
+msgstr "播放此歌曲"
+
 #. generators
-#: ../src/ui/edit/machine-menu.c:280
+#: ../src/ui/edit/machine-menu.c:331
 msgid "Generators"
 msgstr ""
 
 #. effects
-#: ../src/ui/edit/machine-menu.c:293
+#: ../src/ui/edit/machine-menu.c:346
 msgid "Effects"
 msgstr "效果"
 
@@ -313,216 +398,205 @@ msgstr "效果"
 #. }
 #.
 #. set dialog title
-#: ../src/ui/edit/machine-preset-properties-dialog.c:131
+#: ../src/ui/edit/machine-preset-properties-dialog.c:140
 msgid "preset name and comment"
 msgstr "预设名称和注释"
 
 #. GtkEntry : preset name
 #. GtkEntry : machine name
 #. GtkEntry : pattern name
-#: ../src/ui/edit/machine-preset-properties-dialog.c:158
-#: ../src/ui/edit/machine-rename-dialog.c:149
-#: ../src/ui/edit/main-page-info.c:334
-#: ../src/ui/edit/pattern-properties-dialog.c:166
+#: ../src/ui/edit/machine-preset-properties-dialog.c:161
+#: ../src/ui/edit/machine-rename-dialog.c:139
+#: ../src/ui/edit/main-page-info.c:426
+#: ../src/ui/edit/pattern-properties-dialog.c:165
 msgid "name"
 msgstr "名称"
 
 #. GtkEntry : preset comment
-#: ../src/ui/edit/machine-preset-properties-dialog.c:171
+#: ../src/ui/edit/machine-preset-properties-dialog.c:177
 msgid "comment"
 msgstr "注释"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:214
+#: ../src/ui/edit/machine-preferences-dialog.c:505
 #, c-format
 msgid "%s preferences"
 msgstr "%s 偏好设置"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:462
-msgid "no settings"
-msgstr "无设置"
-
-#: ../src/ui/edit/machine-preferences-dialog.c:469
-msgid "machine has no preferences"
-msgstr ""
-
-#: ../src/ui/edit/machine-properties-dialog.c:741
+#: ../src/ui/edit/machine-properties-dialog.c:691
 msgid "Reset parameter"
 msgstr "重设参数"
 
-#: ../src/ui/edit/machine-properties-dialog.c:746
+#: ../src/ui/edit/machine-properties-dialog.c:698
 msgid "Reset all parameters"
 msgstr "重设所有参数"
 
-#. @todo: copy parameter/group/all?
-#: ../src/ui/edit/machine-properties-dialog.c:757
+#: ../src/ui/edit/machine-properties-dialog.c:709
 msgid "Copy parameter"
 msgstr "复制参数"
 
-#: ../src/ui/edit/machine-properties-dialog.c:764
-#: ../src/ui/edit/machine-properties-dialog.c:838
+#: ../src/ui/edit/machine-properties-dialog.c:717
+#: ../src/ui/edit/machine-properties-dialog.c:821
 msgid "Paste"
 msgstr "粘贴"
 
 #. add copy/paste item
-#: ../src/ui/edit/machine-properties-dialog.c:831
+#: ../src/ui/edit/machine-properties-dialog.c:813
 msgid "Copy group"
 msgstr "复制组"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1861
+#: ../src/ui/edit/machine-properties-dialog.c:2216
 msgid "global properties"
 msgstr "全局属性"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1912
+#: ../src/ui/edit/machine-properties-dialog.c:2264
 #, c-format
 msgid "voice %lu properties"
 msgstr "声音 %lu 属性"
 
-#. set group title
-#: ../src/ui/edit/machine-properties-dialog.c:1995
+#: ../src/ui/edit/machine-properties-dialog.c:2362
 #, c-format
 msgid "%s wire properties"
 msgstr ""
 
-#. set dialog title
-#: ../src/ui/edit/machine-properties-dialog.c:2099
-#: ../src/ui/edit/pattern-properties-dialog.c:136
-#, c-format
-msgid "%s properties"
-msgstr "%s 属性"
-
-#: ../src/ui/edit/machine-properties-dialog.c:2117
+#: ../src/ui/edit/machine-properties-dialog.c:2441
 msgid "Add new preset"
 msgstr "添加新预设"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2122
+#: ../src/ui/edit/machine-properties-dialog.c:2450
 msgid "Remove preset"
 msgstr "移除预设"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2127
+#: ../src/ui/edit/machine-properties-dialog.c:2459
 msgid "Edit preset name and comment"
 msgstr "编辑预设名称和注释"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2153
+#: ../src/ui/edit/machine-properties-dialog.c:2507
 msgid "Preset"
 msgstr "预设"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2190
+#: ../src/ui/edit/machine-properties-dialog.c:2555
 msgid "machine properties"
 msgstr ""
 
-#: ../src/ui/edit/machine-properties-dialog.c:2237
+#: ../src/ui/edit/machine-properties-dialog.c:2595
 msgid "Info about this machine"
 msgstr ""
 
-#: ../src/ui/edit/machine-properties-dialog.c:2242
+#: ../src/ui/edit/machine-properties-dialog.c:2603
 msgid "Help for this machine"
 msgstr ""
 
-#: ../src/ui/edit/machine-properties-dialog.c:2252
+#: ../src/ui/edit/machine-properties-dialog.c:2615
 msgid "Randomize parameters"
 msgstr "随机化参数"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2257
+#: ../src/ui/edit/machine-properties-dialog.c:2623
 msgid "Reset parameters to defaults"
 msgstr "将参数重设为默认值"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2264
+#: ../src/ui/edit/machine-properties-dialog.c:2634
 msgid "Show/Hide preset pane"
 msgstr "显示/隐藏预设面板"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2265
+#: ../src/ui/edit/machine-properties-dialog.c:2635
 msgid "Presets"
 msgstr "预设"
 
 #. set dialog title
-#: ../src/ui/edit/machine-rename-dialog.c:119
+#: ../src/ui/edit/machine-properties-dialog.c:2736
+#: ../src/ui/edit/pattern-properties-dialog.c:142
+#, c-format
+msgid "%s properties"
+msgstr "%s 属性"
+
+#. set dialog title
+#: ../src/ui/edit/machine-rename-dialog.c:116
 #, c-format
 msgid "%s name"
 msgstr "%s 名称"
 
-#: ../src/ui/edit/main-menu.c:95 ../src/ui/edit/main-window.c:524
+#: ../src/ui/edit/main-menu.c:96 ../src/ui/edit/main-window.c:583
+#: ../src/ui/edit/main-window.c:584
 msgid "Load new song?"
 msgstr "加载新歌曲？"
 
-#: ../src/ui/edit/main-menu.c:104 ../src/ui/edit/main-window.c:228
-#: ../src/ui/edit/main-window.c:609
-#, c-format
-msgid "An error occurred while loading the song from file '%s'"
-msgstr "从文件“%s”加载歌曲时发生了一个错误"
+#: ../src/ui/edit/main-menu.c:105 ../src/ui/edit/main-window.c:156
+#, fuzzy, c-format
+msgid "Can't load song '%s'."
+msgstr "无法加载歌曲"
 
-#: ../src/ui/edit/main-menu.c:106 ../src/ui/edit/main-window.c:229
-#: ../src/ui/edit/main-window.c:610
+#: ../src/ui/edit/main-menu.c:106 ../src/ui/edit/main-window.c:157
 msgid "Can't load song"
 msgstr "无法加载歌曲"
 
-#: ../src/ui/edit/main-menu.c:132
+#: ../src/ui/edit/main-menu.c:141
 msgid "Recover a song?"
 msgstr "恢复歌曲？"
 
 #. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
-#: ../src/ui/edit/main-menu.c:712
+#: ../src/ui/edit/main-menu.c:768
 msgid "_File"
 msgstr "文件(_F)"
 
-#: ../src/ui/edit/main-menu.c:726
+#: ../src/ui/edit/main-menu.c:784
 msgid "_Recently used"
 msgstr "最近使用的(_R)"
 
 #. subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDELETE,accel_group);
-#: ../src/ui/edit/main-menu.c:769
+#: ../src/ui/edit/main-menu.c:824
 msgid "Recover unsaved songs"
 msgstr "恢复未保存的歌曲"
 
 #. edit menu
-#: ../src/ui/edit/main-menu.c:788
+#: ../src/ui/edit/main-menu.c:848
 msgid "_Edit"
 msgstr "编辑(_E)"
 
 #. view menu
-#: ../src/ui/edit/main-menu.c:837
+#: ../src/ui/edit/main-menu.c:909
 msgid "_View"
 msgstr "视图(_V)"
 
-#: ../src/ui/edit/main-menu.c:845
+#: ../src/ui/edit/main-menu.c:917
 msgid "Toolbar"
 msgstr "工具栏"
 
-#: ../src/ui/edit/main-menu.c:851
+#: ../src/ui/edit/main-menu.c:924
 msgid "Statusbar"
 msgstr "状态栏"
 
-#: ../src/ui/edit/main-menu.c:857
+#: ../src/ui/edit/main-menu.c:932
 msgid "Tabs"
 msgstr "标签"
 
-#. @todo 'Machine properties' show/hide toggle
-#. @todo 'Analyzer windows' show/hide toggle
-#: ../src/ui/edit/main-menu.c:866
+#. TODO(ensonic): 'Machine properties' show/hide toggle
+#. TODO(ensonic): 'Analyzer windows' show/hide toggle
+#: ../src/ui/edit/main-menu.c:942
 msgid "Fullscreen"
 msgstr "全屏"
 
-#: ../src/ui/edit/main-menu.c:874
+#: ../src/ui/edit/main-menu.c:953
 msgid "Go to machine view"
 msgstr ""
 
-#: ../src/ui/edit/main-menu.c:881
+#: ../src/ui/edit/main-menu.c:965
 msgid "Go to pattern view"
 msgstr ""
 
-#: ../src/ui/edit/main-menu.c:888
+#: ../src/ui/edit/main-menu.c:977
 msgid "Go to sequence view"
 msgstr ""
 
-#: ../src/ui/edit/main-menu.c:895
+#: ../src/ui/edit/main-menu.c:989
 msgid "Go to wave table view"
 msgstr ""
 
-#: ../src/ui/edit/main-menu.c:902
+#: ../src/ui/edit/main-menu.c:1000
 msgid "Go to song information"
 msgstr "转到歌曲信息"
 
-#. @todo zoom menu items
+#. TODO(ensonic): zoom menu items
 #. *  machine view:  zoom-in/zoom-out/zoom-fit
 #. *  sequence vide: zoom-in/zoom-out
 #. *
@@ -542,167 +616,167 @@ msgstr "转到歌曲信息"
 #. g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
 #.
 #. playback menu
-#: ../src/ui/edit/main-menu.c:930
+#: ../src/ui/edit/main-menu.c:1032
 msgid "_Playback"
 msgstr "播放(_P)"
 
-#: ../src/ui/edit/main-menu.c:944
+#: ../src/ui/edit/main-menu.c:1051
 msgid "Play from cursor"
 msgstr "从光标处播放"
 
-#. @todo toggle loop item
+#. TODO(ensonic): toggle loop item
 #. * - we only have:
 #. *   gtk_image_menu_item_new_from_stock - not a toggle
 #. *   gtk_check_menu_item_new_with_mnemonic - no image
 #.
-#. @todo: tools menu
+#. TODO(ensonic): tools menu
 #. * 'normalize song'
 #. * - dummy render with master->input-pre-gain, adjust master volume
 #. * 'cleanup'
 #. * - remove unsused patterns, unconnected machines with no empty/tracks
 #.
 #. help menu
-#: ../src/ui/edit/main-menu.c:970
+#: ../src/ui/edit/main-menu.c:1084
 msgid "_Help"
 msgstr "帮助(_H)"
 
-#: ../src/ui/edit/main-menu.c:983 ../src/ui/edit/tip-dialog.c:166
-#: ../src/ui/edit/tip-dialog.c:182
+#: ../src/ui/edit/main-menu.c:1101 ../src/ui/edit/tip-dialog.c:207
+#: ../src/ui/edit/tip-dialog.c:222
 msgid "Tip of the day"
 msgstr "每日技巧提示"
 
 #. join web-chat
-#: ../src/ui/edit/main-menu.c:989
+#: ../src/ui/edit/main-menu.c:1109
 msgid "Join IRC discussion"
 msgstr "参与 IRC 讨论"
 
-#. @todo 'translate application' -> link to translator project
+#. TODO(ensonic): 'translate application' -> link to translator project
 #. * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-translate.png
 #.
 #. 'report a problem' -> link to bug tracker
 #. * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-bug.png
 #. * /usr/share/app-install/icons/bug-buddy.png
 #.
-#: ../src/ui/edit/main-menu.c:1001
+#: ../src/ui/edit/main-menu.c:1122
 msgid "Report a problem"
 msgstr "报告一个问题"
 
-#: ../src/ui/edit/main-page-info.c:312 ../src/ui/edit/main-page-info.c:314
+#: ../src/ui/edit/main-page-info.c:409
 msgid "song meta data"
 msgstr "歌曲元数据"
 
-#: ../src/ui/edit/main-page-info.c:341
+#: ../src/ui/edit/main-page-info.c:436
 msgid "genre"
 msgstr "流派"
 
-#: ../src/ui/edit/main-page-info.c:348
+#: ../src/ui/edit/main-page-info.c:447
 msgid "author"
 msgstr "作者"
 
-#: ../src/ui/edit/main-page-info.c:355
+#: ../src/ui/edit/main-page-info.c:458
 msgid "created"
 msgstr "创建日期"
 
-#: ../src/ui/edit/main-page-info.c:367
+#: ../src/ui/edit/main-page-info.c:473
 msgid "beats per minute"
 msgstr ""
 
-#: ../src/ui/edit/main-page-info.c:376
+#: ../src/ui/edit/main-page-info.c:488
 msgid "beats"
 msgstr ""
 
-#: ../src/ui/edit/main-page-info.c:390
+#: ../src/ui/edit/main-page-info.c:511
 msgid "ticks per beat"
 msgstr ""
 
-#: ../src/ui/edit/main-page-info.c:398
+#: ../src/ui/edit/main-page-info.c:524
 msgid "last saved"
 msgstr "上次保存"
 
-#: ../src/ui/edit/main-page-info.c:416 ../src/ui/edit/main-page-info.c:418
+#: ../src/ui/edit/main-page-info.c:539
 msgid "free text info"
 msgstr ""
 
 #. menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
-#: ../src/ui/edit/main-page-machines.c:1136
+#: ../src/ui/edit/main-page-machines.c:1570
 msgid "Add machine"
 msgstr ""
 
-#: ../src/ui/edit/main-page-machines.c:1149
+#: ../src/ui/edit/main-page-machines.c:1581
 msgid "Unmute all machines"
 msgstr ""
 
-#. background grid density
-#: ../src/ui/edit/main-page-machines.c:1162
+#: ../src/ui/edit/main-page-machines.c:1598
 msgid "Off"
 msgstr "关"
 
-#: ../src/ui/edit/main-page-machines.c:1169
+#: ../src/ui/edit/main-page-machines.c:1610
 msgid "Low"
 msgstr "低"
 
-#: ../src/ui/edit/main-page-machines.c:1176
+#: ../src/ui/edit/main-page-machines.c:1622
 msgid "Medium"
 msgstr "中"
 
-#: ../src/ui/edit/main-page-machines.c:1183
+#: ../src/ui/edit/main-page-machines.c:1634
 msgid "High"
 msgstr "高"
 
-#: ../src/ui/edit/main-page-machines.c:1221
+#: ../src/ui/edit/main-page-machines.c:1682
 msgid "Zoom in/out so that everything is visible"
 msgstr "放大/缩小以看到所有内容"
 
-#: ../src/ui/edit/main-page-machines.c:1228
+#: ../src/ui/edit/main-page-machines.c:1691
 msgid "Zoom in for more details"
 msgstr "放大以查看更多细节"
 
-#: ../src/ui/edit/main-page-machines.c:1235
+#: ../src/ui/edit/main-page-machines.c:1702
 msgid "Zoom out for better overview"
 msgstr "缩小以更好地查看全貌"
 
-#: ../src/ui/edit/main-page-machines.c:1246
-#: ../src/ui/edit/main-page-machines.c:1254
+#: ../src/ui/edit/main-page-machines.c:1717
+#: ../src/ui/edit/main-page-machines.c:1728
 msgid "Grid"
 msgstr "网格"
 
-#: ../src/ui/edit/main-page-machines.c:1248
-#: ../src/ui/edit/main-page-machines.c:1249
-#: ../src/ui/edit/main-page-machines.c:1255
+#: ../src/ui/edit/main-page-machines.c:1721
+#: ../src/ui/edit/main-page-machines.c:1722
+#: ../src/ui/edit/main-page-machines.c:1729
 msgid "Show background grid"
 msgstr "显示背景网格"
 
-#: ../src/ui/edit/main-page-machines.c:1266
+#: ../src/ui/edit/main-page-machines.c:1745
 msgid "Machine view menu"
 msgstr ""
 
-#: ../src/ui/edit/main-page-machines.c:1267
+#: ../src/ui/edit/main-page-machines.c:1747
 msgid "Menu actions for machine view below"
 msgstr ""
 
-#. it would be nice if we could just do:
-#. * bt_child_proxy_set(self->priv->app,"main-window::statusbar::status",_(".."),NULL);
-#.
-#: ../src/ui/edit/main-page-machines.c:1941
-msgid "Add new machines from right click context menu. Connect machines with shift+drag from source to target."
+#: ../src/ui/edit/main-page-machines.c:2557
+msgid ""
+"Add new machines from right click context menu. Connect machines with shift"
+"+drag from source to target."
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:329
+#: ../src/ui/edit/main-page-patterns.c:354
 msgid "Add new patterns from right click context menu."
 msgstr ""
 
+#. create mapping for global params
 #. label for first global parameter column in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1963
+#: ../src/ui/edit/main-page-patterns.c:1757
 msgid "Globals"
 msgstr "全局"
 
+#. create mapping for voice params
 #. label for parameters of first voice column in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1982
+#: ../src/ui/edit/main-page-patterns.c:1779
 msgid "Voice 1"
 msgstr "声音 1"
 
 #. label for parameters of voice columns in a pattern
-#: ../src/ui/edit/main-page-patterns.c:1997
+#: ../src/ui/edit/main-page-patterns.c:1799
 #, c-format
 msgid "Voice %u"
 msgstr "声音 %u"
@@ -711,427 +785,405 @@ msgstr "声音 %u"
 #. * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
 #. * so, we need to subclass the combobox and add two signals: select-next, select-prev
 #.
-#: ../src/ui/edit/main-page-patterns.c:2998
+#: ../src/ui/edit/main-page-patterns.c:2977
 msgid "Machine"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:3026
+#: ../src/ui/edit/main-page-patterns.c:3005
 msgid "Pattern"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:3055
-#: ../src/ui/edit/main-page-waves.c:1197
+#: ../src/ui/edit/main-page-patterns.c:3043
+#: ../src/ui/edit/main-page-waves.c:1368
 msgid "Wave"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:3078
+#: ../src/ui/edit/main-page-patterns.c:3070
 msgid "Octave"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:3094
+#: ../src/ui/edit/main-page-patterns.c:3090
 msgid "Play live"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:3096
+#: ../src/ui/edit/main-page-patterns.c:3093
 msgid "Play notes and triggers while editing the pattern"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:3106
+#: ../src/ui/edit/main-page-patterns.c:3108
 msgid "Pattern view menu"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:3107
+#: ../src/ui/edit/main-page-patterns.c:3110
 msgid "Menu actions for pattern view below"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:3144
-msgid "New track"
-msgstr "新音轨"
+#: ../src/ui/edit/main-page-patterns.c:3157
+#, fuzzy
+msgid "New voice"
+msgstr "声音"
 
-#: ../src/ui/edit/main-page-patterns.c:3153
-msgid "Remove last track"
+#: ../src/ui/edit/main-page-patterns.c:3171
+#, fuzzy
+msgid "Remove last voice"
+msgstr "移除预设"
+
+#: ../src/ui/edit/main-page-patterns.c:3188
+msgid "New pattern …"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:3166
-msgid "New pattern ..."
-msgstr ""
+#: ../src/ui/edit/main-page-patterns.c:3202
+#, fuzzy
+msgid "Pattern properties…"
+msgstr "%s 属性"
 
-#: ../src/ui/edit/main-page-patterns.c:3175
-msgid "Pattern properties..."
-msgstr ""
+#: ../src/ui/edit/main-page-patterns.c:3217
+#, fuzzy
+msgid "Remove pattern…"
+msgstr "移除预设"
 
-#: ../src/ui/edit/main-page-patterns.c:3184
-msgid "Remove pattern..."
-msgstr ""
+#: ../src/ui/edit/main-page-patterns.c:3231
+#, fuzzy
+msgid "Copy pattern…"
+msgstr "复制参数"
 
-#: ../src/ui/edit/main-page-patterns.c:3193
-msgid "Copy pattern..."
-msgstr ""
-
-#: ../src/ui/edit/main-page-patterns.c:3206
-#: ../src/ui/edit/main-page-sequence.c:3119
+#. dynamic part
+#: ../src/ui/edit/main-page-patterns.c:3249
+#: ../src/ui/edit/main-page-sequence.c:3686
 msgid "Machine properties"
 msgstr ""
 
-#: ../src/ui/edit/main-page-patterns.c:3213
-#: ../src/ui/edit/main-page-sequence.c:3126
+#: ../src/ui/edit/main-page-patterns.c:3260
+#: ../src/ui/edit/main-page-sequence.c:3695
 msgid "Machine preferences"
 msgstr ""
 
 #. time line position
-#: ../src/ui/edit/main-page-sequence.c:1085
+#: ../src/ui/edit/main-page-sequence.c:1189
 msgid "Pos."
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:1091
+#: ../src/ui/edit/main-page-sequence.c:1198
 msgid "Ticks"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:1092
+#: ../src/ui/edit/main-page-sequence.c:1200
 msgid "Time"
 msgstr "时间"
 
-#: ../src/ui/edit/main-page-sequence.c:1093
+#: ../src/ui/edit/main-page-sequence.c:1202
 msgid "Beats"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:1237
-#: ../src/ui/edit/main-page-sequence.c:1268
+#: ../src/ui/edit/main-page-sequence.c:1375
+#: ../src/ui/edit/main-page-sequence.c:1402
 msgid "Labels"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:3046
+#: ../src/ui/edit/main-page-sequence.c:3571
 msgid "Show every n-th line"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:3053
+#: ../src/ui/edit/main-page-sequence.c:3581
 msgid "Steps"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:3067
+#: ../src/ui/edit/main-page-sequence.c:3594
+#, fuzzy
+msgid "Follow playback"
+msgstr "切换循环播放"
+
+#: ../src/ui/edit/main-page-sequence.c:3615
 msgid "Sequence view menu"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:3068
+#: ../src/ui/edit/main-page-sequence.c:3617
 msgid "Menu actions for sequence view below"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:3078
+#: ../src/ui/edit/main-page-sequence.c:3631
 msgid "Add track"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:3084
+#: ../src/ui/edit/main-page-sequence.c:3639
 msgid "Remove track"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:3097
+#: ../src/ui/edit/main-page-sequence.c:3656
 msgid "Move track left"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:3106
+#: ../src/ui/edit/main-page-sequence.c:3669
 msgid "Move track right"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:3177
+#: ../src/ui/edit/main-page-sequence.c:3768
 msgid "Browse to labels in the sequence"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:3274
+#: ../src/ui/edit/main-page-sequence.c:3922
 msgid "Key"
 msgstr ""
 
-#: ../src/ui/edit/main-page-sequence.c:3287
+#: ../src/ui/edit/main-page-sequence.c:3937
 msgid "Patterns"
 msgstr ""
 
-#. use status bar
-#: ../src/ui/edit/main-page-sequence.c:3881
+#: ../src/ui/edit/main-page-sequence.c:4585
 msgid "Add new tracks from right click context menu."
 msgstr ""
 
-#: ../src/ui/edit/main-page-waves.c:1153
+#: ../src/ui/edit/main-page-waves.c:1302
 msgid "Play current wave table entry as C-4"
 msgstr ""
 
-#: ../src/ui/edit/main-page-waves.c:1160
+#: ../src/ui/edit/main-page-waves.c:1313
 msgid "Stop playback of current wave table entry"
 msgstr ""
 
-#: ../src/ui/edit/main-page-waves.c:1167
+#: ../src/ui/edit/main-page-waves.c:1324
 msgid "Clear current wave table entry"
 msgstr ""
 
-#. Ix: index in wavetable
-#: ../src/ui/edit/main-page-waves.c:1191
+#: ../src/ui/edit/main-page-waves.c:1358
 msgid "Ix"
 msgstr ""
 
-#: ../src/ui/edit/main-page-waves.c:1203
+#: ../src/ui/edit/main-page-waves.c:1376
 msgid "Volume"
 msgstr ""
 
-#: ../src/ui/edit/main-page-waves.c:1208 ../src/ui/edit/main-toolbar.c:850
+#: ../src/ui/edit/main-page-waves.c:1384 ../src/ui/edit/main-toolbar.c:945
 msgid "Loop"
 msgstr ""
 
-#: ../src/ui/edit/main-page-waves.c:1233
+#: ../src/ui/edit/main-page-waves.c:1414
 msgid "Play current sample"
 msgstr ""
 
-#: ../src/ui/edit/main-page-waves.c:1239
-msgid "Stop playback of current sample"
-msgstr ""
-
-#: ../src/ui/edit/main-page-waves.c:1246
+#: ../src/ui/edit/main-page-waves.c:1423
 msgid "Load current sample into selected wave table entry"
 msgstr ""
 
-#: ../src/ui/edit/main-page-waves.c:1289
+#: ../src/ui/edit/main-page-waves.c:1478
 msgid "Root"
 msgstr ""
 
-#: ../src/ui/edit/main-page-waves.c:1294
+#: ../src/ui/edit/main-page-waves.c:1486
 msgid "Length"
 msgstr "长度"
 
-#: ../src/ui/edit/main-page-waves.c:1299
+#: ../src/ui/edit/main-page-waves.c:1494
 msgid "Rate"
 msgstr ""
 
-#: ../src/ui/edit/main-page-waves.c:1305
+#: ../src/ui/edit/main-page-waves.c:1504
 msgid "Loop start"
 msgstr ""
 
-#: ../src/ui/edit/main-page-waves.c:1311
+#: ../src/ui/edit/main-page-waves.c:1515
 msgid "Loop end"
 msgstr ""
 
-#: ../src/ui/edit/main-pages.c:171
+#: ../src/ui/edit/main-pages.c:177
 msgid "machines"
 msgstr ""
 
-#: ../src/ui/edit/main-pages.c:171
+#: ../src/ui/edit/main-pages.c:178
 msgid "machines used in the song and their wires"
 msgstr ""
 
-#: ../src/ui/edit/main-pages.c:176
+#: ../src/ui/edit/main-pages.c:184
 msgid "patterns"
 msgstr ""
 
-#: ../src/ui/edit/main-pages.c:176
+#: ../src/ui/edit/main-pages.c:184
 msgid "event pattern editor"
 msgstr ""
 
-#: ../src/ui/edit/main-pages.c:181
+#: ../src/ui/edit/main-pages.c:190
 msgid "sequence"
 msgstr ""
 
-#: ../src/ui/edit/main-pages.c:181
+#: ../src/ui/edit/main-pages.c:190
 msgid "song sequence editor"
 msgstr ""
 
-#: ../src/ui/edit/main-pages.c:186
+#: ../src/ui/edit/main-pages.c:196
 msgid "wave table"
 msgstr ""
 
-#: ../src/ui/edit/main-pages.c:186
+#: ../src/ui/edit/main-pages.c:196
 msgid "sample wave table editor"
 msgstr ""
 
-#: ../src/ui/edit/main-pages.c:191
+#: ../src/ui/edit/main-pages.c:202
 msgid "information"
 msgstr ""
 
-#: ../src/ui/edit/main-pages.c:191
+#: ../src/ui/edit/main-pages.c:202
 msgid "song meta data editor"
 msgstr ""
 
-#: ../src/ui/edit/main-statusbar.c:288 ../src/ui/edit/main-statusbar.c:380
-msgid "Ready to rock!"
-msgstr ""
-
-#. @idea: this could be used to avoid resizing when the label changes
-#. gtk_progress_bar_set_ellipsize(self->priv->cpu_load,PANGO_ELLIPSIZE_END);
-#. gtk_label_set_single_line_mode(self->priv->cpu_load,TRUE);
-#: ../src/ui/edit/main-statusbar.c:299
+#: ../src/ui/edit/main-statusbar.c:325
 msgid "CPU load"
 msgstr "CPU 负载"
 
-#: ../src/ui/edit/main-statusbar.c:310
+#: ../src/ui/edit/main-statusbar.c:340
 msgid "Playback time"
 msgstr "播放时间"
 
-#: ../src/ui/edit/main-statusbar.c:322
+#: ../src/ui/edit/main-statusbar.c:349
 msgid "Playback position"
 msgstr "播放位置"
 
-#: ../src/ui/edit/main-statusbar.c:334
+#: ../src/ui/edit/main-statusbar.c:358
 msgid "Playback length"
 msgstr "播放长度"
 
-#: ../src/ui/edit/main-toolbar.c:386
+#: ../src/ui/edit/main-toolbar.c:417
 msgid "Error"
 msgstr "错误"
 
-#: ../src/ui/edit/main-toolbar.c:386
-msgid "An error occurred"
-msgstr "发生了错误"
-
-#. bt_song_stop(song);
-#: ../src/ui/edit/main-toolbar.c:418
+#: ../src/ui/edit/main-toolbar.c:451
 msgid "Warning"
 msgstr "警告"
 
-#: ../src/ui/edit/main-toolbar.c:418
-msgid "A problem occurred"
-msgstr "出现了一个问题"
-
-#: ../src/ui/edit/main-toolbar.c:795
+#: ../src/ui/edit/main-toolbar.c:867
 msgid "Prepare a new empty song"
 msgstr "准备新的空白歌曲"
 
-#: ../src/ui/edit/main-toolbar.c:801
+#: ../src/ui/edit/main-toolbar.c:875
 msgid "Load a new song"
 msgstr "加载新歌曲"
 
-#: ../src/ui/edit/main-toolbar.c:808
+#: ../src/ui/edit/main-toolbar.c:884
 msgid "Save this song"
 msgstr "保存此歌曲"
 
-#: ../src/ui/edit/main-toolbar.c:818
+#: ../src/ui/edit/main-toolbar.c:897
 msgid "Rewind playback position of this song"
 msgstr ""
 
-#: ../src/ui/edit/main-toolbar.c:827
+#: ../src/ui/edit/main-toolbar.c:911
 msgid "Play this song"
 msgstr "播放此歌曲"
 
-#: ../src/ui/edit/main-toolbar.c:833
+#: ../src/ui/edit/main-toolbar.c:920
 msgid "Forward playback position of this song"
 msgstr ""
 
-#: ../src/ui/edit/main-toolbar.c:842
+#: ../src/ui/edit/main-toolbar.c:934
 msgid "Stop playback of this song"
 msgstr "停止回放此歌曲"
 
-#: ../src/ui/edit/main-toolbar.c:852
+#: ../src/ui/edit/main-toolbar.c:948
 msgid "Toggle looping of playback"
 msgstr "切换循环播放"
 
-#. @idea have distinct tooltips with channel names
-#: ../src/ui/edit/main-toolbar.c:872
+#: ../src/ui/edit/main-toolbar.c:966
 msgid "playback volume"
 msgstr "播放音量"
 
-#. add gain-control
-#. min=
-#. max=
-#. step=
-#: ../src/ui/edit/main-toolbar.c:890
+#: ../src/ui/edit/main-toolbar.c:988
 msgid "Change playback volume"
 msgstr "更改播放音量"
 
-#. we don't use PACKAGE_NAME = 'buzztrax' for the window title
-#: ../src/ui/edit/main-window.c:202
+#: ../src/ui/edit/main-window.c:268
 msgid "unsaved"
 msgstr "未保存"
 
-#: ../src/ui/edit/main-window.c:202
+#: ../src/ui/edit/main-window.c:268
 msgid "saved"
 msgstr "已保存"
 
-#: ../src/ui/edit/main-window.c:285 ../src/ui/edit/main-window.c:287
+#: ../src/ui/edit/main-window.c:334 ../src/ui/edit/main-window.c:339
 #, c-format
 msgid "%d %s and %d %s"
 msgstr ""
 
-#: ../src/ui/edit/main-window.c:285
+#: ../src/ui/edit/main-window.c:335
 msgid "hour"
 msgstr "小时"
 
-#: ../src/ui/edit/main-window.c:285
+#: ../src/ui/edit/main-window.c:335
 msgid "hours"
 msgstr "小时"
 
-#: ../src/ui/edit/main-window.c:285 ../src/ui/edit/main-window.c:287
+#: ../src/ui/edit/main-window.c:336 ../src/ui/edit/main-window.c:340
 msgid "minute"
 msgstr "分钟"
 
-#: ../src/ui/edit/main-window.c:285 ../src/ui/edit/main-window.c:287
+#: ../src/ui/edit/main-window.c:336 ../src/ui/edit/main-window.c:340
 msgid "minutes"
 msgstr "分钟"
 
-#: ../src/ui/edit/main-window.c:287 ../src/ui/edit/main-window.c:289
+#: ../src/ui/edit/main-window.c:341 ../src/ui/edit/main-window.c:345
 msgid "second"
 msgstr "秒"
 
-#: ../src/ui/edit/main-window.c:287 ../src/ui/edit/main-window.c:289
+#: ../src/ui/edit/main-window.c:341 ../src/ui/edit/main-window.c:345
 msgid "seconds"
 msgstr "秒"
 
-#: ../src/ui/edit/main-window.c:289
+#: ../src/ui/edit/main-window.c:344
 #, c-format
 msgid "%d %s"
 msgstr "%d %s"
 
-#: ../src/ui/edit/main-window.c:294
+#: ../src/ui/edit/main-window.c:353
 #, c-format
-msgid "All unsaved changes since %s will be lost. This song was last saved on: %s"
+msgid ""
+"All unsaved changes since %s will be lost. This song was last saved on: %s"
 msgstr "自 %s 之后的未保存更改将丢失。此歌曲上次保存于：%s"
 
-#: ../src/ui/edit/main-window.c:296
+#: ../src/ui/edit/main-window.c:358
 #, c-format
 msgid "All unsaved changes since %s will be lost. This song was created on: %s"
 msgstr "自 %s 之后的未保存更改将丢失。此歌曲创建于：%s"
 
-#: ../src/ui/edit/main-window.c:489
+#: ../src/ui/edit/main-window.c:544 ../src/ui/edit/main-window.c:545
 msgid "Really quit?"
 msgstr "真的退出吗？"
 
-#: ../src/ui/edit/main-window.c:499
+#: ../src/ui/edit/main-window.c:557
 msgid "New song?"
 msgstr "新建歌曲？"
 
-#: ../src/ui/edit/main-window.c:527
+#: ../src/ui/edit/main-window.c:588
 msgid "Open a song"
 msgstr "打开歌曲"
 
-#: ../src/ui/edit/main-window.c:647
-#, c-format
-msgid "An error occurred while saving the song to file '%s'."
-msgstr "在保存歌曲到文件“%s”时出现了一个错误。"
+#: ../src/ui/edit/main-window.c:684 ../src/ui/edit/main-window.c:945
+#, fuzzy, c-format
+msgid "Can't save song '%s'."
+msgstr "无法保存歌曲"
 
-#: ../src/ui/edit/main-window.c:648 ../src/ui/edit/main-window.c:898
-#: ../src/ui/edit/main-window.c:910
+#: ../src/ui/edit/main-window.c:685 ../src/ui/edit/main-window.c:932
+#: ../src/ui/edit/main-window.c:946
 msgid "Can't save song"
 msgstr "无法保存歌曲"
 
-#. gchar *glob;
-#: ../src/ui/edit/main-window.c:684
+#: ../src/ui/edit/main-window.c:720
 msgid "Save a song"
 msgstr "保存歌曲"
 
-#: ../src/ui/edit/main-window.c:843 ../src/ui/edit/render-dialog.c:287
+#: ../src/ui/edit/main-window.c:870 ../src/ui/edit/render-dialog.c:655
 msgid "Format"
 msgstr "格式"
 
-#: ../src/ui/edit/main-window.c:884 ../src/ui/edit/main-window.c:885
+#: ../src/ui/edit/main-window.c:915 ../src/ui/edit/main-window.c:916
 msgid "File already exists"
 msgstr "文件已存在"
 
-#: ../src/ui/edit/main-window.c:886
+#: ../src/ui/edit/main-window.c:918
 msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
 msgstr "选择“确定”覆盖文件，或“取消”中止保存歌曲。"
 
-#: ../src/ui/edit/main-window.c:897
+#: ../src/ui/edit/main-window.c:930
 #, c-format
 msgid "An error occurred while writing the file '%s': %s"
 msgstr "在写入文件“%s”时发生了一个错误：%s"
-
-#: ../src/ui/edit/main-window.c:909
-#, c-format
-msgid "An error occurred saving the song to file '%s'."
-msgstr "在将歌曲保存到文件“%s”时发生了一个错误。"
 
 #. create and set window icon
 #.
@@ -1141,20 +1193,24 @@ msgstr "在将歌曲保存到文件“%s”时发生了一个错误。"
 #. }
 #.
 #. set dialog title
-#: ../src/ui/edit/missing-framework-elements-dialog.c:130
-#: ../src/ui/edit/missing-framework-elements-dialog.c:147
+#: ../src/ui/edit/missing-framework-elements-dialog.c:138
+#: ../src/ui/edit/missing-framework-elements-dialog.c:158
 msgid "Missing GStreamer elements"
 msgstr "缺少 GStreamer 元素"
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:154
-msgid "The elements listed below are missing from your installation, but are required."
+#: ../src/ui/edit/missing-framework-elements-dialog.c:168
+msgid ""
+"The elements listed below are missing from your installation, but are "
+"required."
 msgstr "需要下列元素，但它们没有安装。"
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:194
-msgid "The elements listed below are missing from your installation, but are recommended for full functionality."
+#: ../src/ui/edit/missing-framework-elements-dialog.c:208
+msgid ""
+"The elements listed below are missing from your installation, but are "
+"recommended for full functionality."
 msgstr "下列元素没有安装；为了功能完整，建议安装它们。"
 
-#: ../src/ui/edit/missing-framework-elements-dialog.c:196
+#: ../src/ui/edit/missing-framework-elements-dialog.c:211
 msgid "don't warn again"
 msgstr "不要再警告了"
 
@@ -1166,255 +1222,431 @@ msgstr "不要再警告了"
 #. }
 #.
 #. set dialog title
-#: ../src/ui/edit/missing-song-elements-dialog.c:116
-#: ../src/ui/edit/missing-song-elements-dialog.c:133
+#: ../src/ui/edit/missing-song-elements-dialog.c:125
+#: ../src/ui/edit/missing-song-elements-dialog.c:142
 msgid "Missing elements in song"
 msgstr "歌曲中缺少元素"
 
-#: ../src/ui/edit/missing-song-elements-dialog.c:140
+#: ../src/ui/edit/missing-song-elements-dialog.c:150
 msgid "The machines listed below are missing or failed to load."
 msgstr ""
 
-#: ../src/ui/edit/missing-song-elements-dialog.c:144
+#: ../src/ui/edit/missing-song-elements-dialog.c:155
 msgid "The waves listed below are missing or failed to load."
 msgstr ""
 
 #. GtkComboBox : pattern length
-#: ../src/ui/edit/pattern-properties-dialog.c:176
+#: ../src/ui/edit/pattern-properties-dialog.c:178
 msgid "length"
 msgstr "长度"
 
 #. GtkSpinButton : number of voices
-#: ../src/ui/edit/pattern-properties-dialog.c:187
+#: ../src/ui/edit/pattern-properties-dialog.c:192
 msgid "voices"
 msgstr "声音"
 
-#: ../src/ui/edit/render-dialog.c:224
-msgid "song rendering"
-msgstr "歌曲渲染"
-
-#: ../src/ui/edit/render-dialog.c:243
-msgid "Folder"
-msgstr "文件夹"
-
-#: ../src/ui/edit/render-dialog.c:247
-#: ../src/ui/edit/settings-page-directories.c:99
-#: ../src/ui/edit/settings-page-directories.c:109
-#: ../src/ui/edit/settings-page-directories.c:119
-msgid "Select a folder"
-msgstr "选择文件夹"
-
-#: ../src/ui/edit/render-dialog.c:253
-msgid "Filename"
-msgstr "文件名"
-
-#: ../src/ui/edit/render-dialog.c:304
-msgid "Mode"
-msgstr "模式"
-
-#: ../src/ui/edit/render-progress.c:118
+#: ../src/ui/edit/render-dialog.c:192
 #, c-format
 msgid "Recording to: %s"
 msgstr ""
 
-#: ../src/ui/edit/render-progress.c:146
-msgid "song render progress"
-msgstr "歌曲渲染过程"
+#: ../src/ui/edit/render-dialog.c:361
+msgid ""
+"File already exists!\n"
+"It will be overwritten if you continue."
+msgstr ""
+
+#: ../src/ui/edit/render-dialog.c:604
+msgid "song rendering"
+msgstr "歌曲渲染"
+
+#: ../src/ui/edit/render-dialog.c:626
+msgid "Folder"
+msgstr "文件夹"
+
+#: ../src/ui/edit/render-dialog.c:631
+#: ../src/ui/edit/settings-page-directories.c:102
+#: ../src/ui/edit/settings-page-directories.c:116
+#: ../src/ui/edit/settings-page-directories.c:131
+msgid "Select a folder"
+msgstr "选择文件夹"
+
+#: ../src/ui/edit/render-dialog.c:641
+msgid "Filename"
+msgstr "文件名"
+
+#: ../src/ui/edit/render-dialog.c:685
+msgid "Mode"
+msgstr "模式"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
-#: ../src/ui/edit/settings-dialog.c:145
+#: ../src/ui/edit/settings-dialog.c:183
 msgid "buzztrax settings"
 msgstr "buzztrax 设置"
 
-#: ../src/ui/edit/settings-dialog.c:181 ../src/ui/edit/settings-dialog.c:236
+#: ../src/ui/edit/settings-dialog.c:228 ../src/ui/edit/settings-dialog.c:270
 msgid "Audio Devices"
 msgstr "音频设备"
 
-#: ../src/ui/edit/settings-dialog.c:188 ../src/ui/edit/settings-dialog.c:243
-#: ../src/ui/edit/settings-page-interaction-controller.c:127
-msgid "Interaction Controller"
-msgstr "交互控制器"
-
-#: ../src/ui/edit/settings-dialog.c:195 ../src/ui/edit/settings-dialog.c:250
-#: ../src/ui/edit/settings-page-playback-controller.c:107
-msgid "Playback Controller"
-msgstr "播放控制器"
-
-#: ../src/ui/edit/settings-dialog.c:202 ../src/ui/edit/settings-dialog.c:260
-msgid "Colors"
-msgstr "颜色"
-
-#: ../src/ui/edit/settings-dialog.c:209 ../src/ui/edit/settings-dialog.c:267
-#: ../src/ui/edit/settings-page-shortcuts.c:75
-msgid "Shortcuts"
-msgstr "快捷键"
-
-#: ../src/ui/edit/settings-dialog.c:216 ../src/ui/edit/settings-dialog.c:274
-#: ../src/ui/edit/settings-page-directories.c:88
+#: ../src/ui/edit/settings-dialog.c:232 ../src/ui/edit/settings-dialog.c:278
+#: ../src/ui/edit/settings-page-directories.c:90
 msgid "Directories"
 msgstr "目录"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:147
+#: ../src/ui/edit/settings-dialog.c:236 ../src/ui/edit/settings-dialog.c:288
+#: ../src/ui/edit/settings-page-interaction-controller.c:402
+msgid "Interaction Controller"
+msgstr "交互控制器"
+
+#: ../src/ui/edit/settings-dialog.c:241 ../src/ui/edit/settings-dialog.c:298
+#: ../src/ui/edit/settings-page-playback-controller.c:458
+msgid "Playback Controller"
+msgstr "播放控制器"
+
+#: ../src/ui/edit/settings-dialog.c:246 ../src/ui/edit/settings-dialog.c:306
+#: ../src/ui/edit/settings-page-shortcuts.c:87
+msgid "Shortcuts"
+msgstr "快捷键"
+
+#: ../src/ui/edit/settings-dialog.c:250
+msgid "User interface"
+msgstr ""
+
+#: ../src/ui/edit/settings-dialog.c:314 ../src/ui/edit/settings-page-ui.c:82
+msgid "User Interface"
+msgstr ""
+
+#: ../src/ui/edit/settings-page-audiodevices.c:113
+msgid "Auto"
+msgstr ""
+
+#: ../src/ui/edit/settings-page-audiodevices.c:269
 msgid "Audio Device"
 msgstr "音频设备"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:154
+#: ../src/ui/edit/settings-page-audiodevices.c:277
 msgid "Sink"
 msgstr ""
 
-#: ../src/ui/edit/settings-page-audiodevices.c:163
+#: ../src/ui/edit/settings-page-audiodevices.c:292
 #, c-format
 msgid "system default: %s (%s)"
 msgstr "系统默认：%s (%s)"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:170
+#: ../src/ui/edit/settings-page-audiodevices.c:298
 msgid "system default: -"
 msgstr "系统默认： -"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:295
+#: ../src/ui/edit/settings-page-audiodevices.c:382
+#, fuzzy
+msgid "Audio device"
+msgstr "音频设备"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:395
 msgid "Sampling rate"
 msgstr "采样率"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:323
+#: ../src/ui/edit/settings-page-audiodevices.c:444
 msgid "Channels"
 msgstr "声道"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:328
+#: ../src/ui/edit/settings-page-audiodevices.c:451
 msgid "mono"
 msgstr "单声道"
 
-#: ../src/ui/edit/settings-page-audiodevices.c:329
+#: ../src/ui/edit/settings-page-audiodevices.c:452
 msgid "stereo"
 msgstr "立体声"
 
-#: ../src/ui/edit/settings-page-directories.c:95
+#: ../src/ui/edit/settings-page-audiodevices.c:459
+msgid "Latency"
+msgstr ""
+
+#: ../src/ui/edit/settings-page-directories.c:97
 msgid "Songs"
 msgstr "歌曲"
 
-#: ../src/ui/edit/settings-page-directories.c:105
+#: ../src/ui/edit/settings-page-directories.c:111
 msgid "Recordings"
 msgstr ""
 
-#: ../src/ui/edit/settings-page-directories.c:115
+#: ../src/ui/edit/settings-page-directories.c:126
 msgid "Waveforms"
 msgstr "波形"
 
-#: ../src/ui/edit/settings-page-interaction-controller.c:134
+#: ../src/ui/edit/settings-page-interaction-controller.c:226
+msgid "Plug a USB input device or midi controller"
+msgstr ""
+
+#: ../src/ui/edit/settings-page-interaction-controller.c:349
+msgid "Use the device's controls to train them."
+msgstr ""
+
+#: ../src/ui/edit/settings-page-interaction-controller.c:409
+#: ../src/ui/edit/settings-page-playback-controller.c:596
 msgid "Device"
 msgstr "设备"
 
-#: ../src/ui/edit/settings-page-interaction-controller.c:171
+#: ../src/ui/edit/settings-page-interaction-controller.c:447
+msgid "In use"
+msgstr ""
+
+#: ../src/ui/edit/settings-page-interaction-controller.c:456
+#: ../src/ui/edit/settings-page-playback-controller.c:479
 msgid "Controller"
 msgstr "控制器"
 
+#: ../src/ui/edit/settings-page-interaction-controller.c:473
+msgid ""
+"This package has been built without GUdev and Alsa support and thus supports "
+"no interaction controllers."
+msgstr ""
+
+#: ../src/ui/edit/settings-page-playback-controller.c:482
+#, fuzzy
+msgid "Master"
+msgstr "粘贴"
+
+#: ../src/ui/edit/settings-page-playback-controller.c:488
+msgid "Slave"
+msgstr ""
+
 #. local network port number for socket communication
-#: ../src/ui/edit/settings-page-playback-controller.c:123
+#: ../src/ui/edit/settings-page-playback-controller.c:551
 msgid "Port number"
 msgstr "端口号"
 
-#. set dialog title : machine -> machine analysis
-#: ../src/ui/edit/signal-analysis-dialog.c:702
+#: ../src/ui/edit/settings-page-playback-controller.c:569
+msgid ""
+"Requires Coherence UPnP framework which can be found at: https://coherence."
+"beebits.net."
+msgstr ""
+
+#: ../src/ui/edit/settings-page-playback-controller.c:580
 #, c-format
-msgid "%s -> %s analysis"
+msgid ""
+"Jack transport requires that the jackaudiosink is active. Your current "
+"audiosink is '%s'."
+msgstr ""
+
+#: ../src/ui/edit/settings-page-playback-controller.c:582
+msgid "none"
+msgstr "无"
+
+#: ../src/ui/edit/settings-page-playback-controller.c:623
+#, fuzzy
+msgid "Play"
+msgstr "播放(_P)"
+
+#: ../src/ui/edit/settings-page-playback-controller.c:624
+msgid "Stop"
+msgstr ""
+
+#: ../src/ui/edit/settings-page-playback-controller.c:625
+msgid "Rewind"
+msgstr ""
+
+#: ../src/ui/edit/settings-page-playback-controller.c:626
+msgid "Forward"
+msgstr ""
+
+#: ../src/ui/edit/settings-page-ui.c:89
+msgid "Dark theme variant"
+msgstr ""
+
+#: ../src/ui/edit/settings-page-ui.c:101
+msgid "Compact theme variant"
+msgstr ""
+
+#: ../src/ui/edit/signal-analysis-dialog.c:971
+#, fuzzy, c-format
+msgid "%s analysis"
 msgstr "%s -> %s 分析"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:707
-msgid "master analysis"
-msgstr "主分析"
-
-#: ../src/ui/edit/signal-analysis-dialog.c:766
-msgid "lin."
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:767
-msgid "log."
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:770
+#. scale: linear and logarithmic
+#: ../src/ui/edit/signal-analysis-dialog.c:1018
 msgid "frequency mapping"
 msgstr "频率映射"
 
-#: ../src/ui/edit/signal-analysis-dialog.c:774
-msgid "single"
+#: ../src/ui/edit/signal-analysis-dialog.c:1023
+msgid "lin."
 msgstr ""
 
-#: ../src/ui/edit/signal-analysis-dialog.c:775
-msgid "double"
+#: ../src/ui/edit/signal-analysis-dialog.c:1024
+msgid "log."
 msgstr ""
 
-#: ../src/ui/edit/signal-analysis-dialog.c:776
-msgid "triple"
-msgstr ""
-
-#: ../src/ui/edit/signal-analysis-dialog.c:779
+#. precission
+#: ../src/ui/edit/signal-analysis-dialog.c:1032
 msgid "spectrum precision"
 msgstr "频谱精度"
 
-#: ../src/ui/edit/tip-dialog.c:48
-msgid "New machines are added in machine view from the context menu."
+#: ../src/ui/edit/signal-analysis-dialog.c:1037
+msgid "single"
 msgstr ""
 
-#: ../src/ui/edit/tip-dialog.c:49
-msgid "Connect machines by holding the shift key and dragging a connection for the source to the target machine."
+#: ../src/ui/edit/signal-analysis-dialog.c:1038
+msgid "double"
+msgstr ""
+
+#: ../src/ui/edit/signal-analysis-dialog.c:1039
+msgid "triple"
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:50
-msgid "Songs can be recorded as single waves per track to give it to remixers."
+msgid "New machines are added in machine view from the context menu."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:51
-msgid "Fill the details on the info page. When recording songs, the metadata is added to the recording as tags."
+msgid ""
+"Connect machines by holding the shift key and dragging a connection for the "
+"source to the target machine."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:52
-msgid "Use jackaudio sink in audio device settings to get lower latencies for live machine control."
+msgid "Songs can be recorded as single waves per track to give it to remixers."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:53
-msgid "You can use input devices such as joysticks, beside midi devices to live control machine parameters."
+msgid ""
+"Fill the details on the info page. When recording songs, the metadata is "
+"added to the recording as tags."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:54
-msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztrax."
+msgid ""
+"Use jackaudio sink in audio device settings to get lower latencies for live "
+"machine control."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:55
-msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
+msgid ""
+"You can use input devices such as joysticks, beside midi devices to live "
+"control machine parameters."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:56
-msgid "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
+msgid ""
+"You can use a upnp media client (e.g. media streamer on nokia tablets) to "
+"remote control buzztrax."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:57
-msgid "Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."
+msgid ""
+"To enter notes, imagine your pc keyboard as a music keyboard in two rows. "
+"Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:58
-msgid "Click the speaker icon in the pattern-view to hear notes as you enter them."
+msgid ""
+"You can get more help from the community on irc://irc.freenode.net/#buzztrax."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:59
-msgid "Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input."
+msgid ""
+"Pattern layouts are individual for each machine. Look at the statusbar at "
+"the bottom for information about the cursor-column."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:60
-msgid "The wire volume control pops up upon a click on the arrow box on the wire."
+msgid ""
+"Click the speaker icon in the pattern-view to hear notes as you enter them."
 msgstr ""
 
 #: ../src/ui/edit/tip-dialog.c:61
-msgid "The wire panorama/balance control pops up upon a shift+click on the arrow box on the wire if available."
+msgid ""
+"Each wire has volume and possible panorama/balance controls. These can also "
+"be adjusted in the machine-window of the machine that has the wire as an "
+"input."
 msgstr ""
 
-#: ../src/ui/edit/tip-dialog.c:199
+#: ../src/ui/edit/tip-dialog.c:62
+msgid ""
+"The wire volume control pops up upon a click on the arrow box on the wire."
+msgstr ""
+
+#: ../src/ui/edit/tip-dialog.c:63
+msgid ""
+"The wire panorama/balance control pops up upon a shift+click on the arrow "
+"box on the wire if available."
+msgstr ""
+
+#: ../src/ui/edit/tip-dialog.c:64
+msgid ""
+"One can copy settings from the machine window (from the context menu of a "
+"group) and paste them to patterns and the other way around."
+msgstr ""
+
+#: ../src/ui/edit/tip-dialog.c:65
+msgid "Install extra machines from http://github.com/Buzztrax/buzzmachines."
+msgstr ""
+
+#: ../src/ui/edit/tip-dialog.c:66
+msgid "Machines can also be renamed in the headers of the sequence view."
+msgstr ""
+
+#: ../src/ui/edit/tip-dialog.c:67
+msgid ""
+"Press the ',' (comma) key in the pattern editor to insert the current value "
+"for this parameter."
+msgstr ""
+
+#: ../src/ui/edit/tip-dialog.c:244
 msgid "Show tips on startup"
 msgstr "启动时显示技巧提示"
 
-#: ../src/ui/edit/tools.c:79 ../src/ui/edit/tools.c:106
-#, c-format
-msgid "Couldn't find pixmap file: %s"
-msgstr ""
-
-#: ../src/ui/edit/wire-canvas-item.c:791
+#: ../src/ui/edit/wire-canvas-item.c:767
 msgid "Disconnect"
 msgstr "断开"
+
+#~ msgid ""
+#~ "Main feature of this release is full undo/redo support. Related to it is "
+#~ "the journaling of edit action and the crash recovery. This way chances of "
+#~ "losing changes in the song are quite low. Other UI improvements are: tip "
+#~ "of day, improved spectrum analyzer, clipboard support, more commands in "
+#~ "context menus and many more). This release features a gstreamer decoder "
+#~ "that enables playback of buzztrax songs in any gstreamer based media "
+#~ "player. We also kept the buzztrax codebase clean and ported from "
+#~ "deprecated APIs to the successors (gnomevfs->gio, hal->gudev). The "
+#~ "libraries and the applications got performance improvements in many "
+#~ "areas. Also the docs have been improved a lot with tutorials, keyboard "
+#~ "shortcut tables, better coverage and man-pages. "
+#~ msgstr ""
+#~ "这一发布版本的主要特性是完整的撤消/重做支持。程序具有相应的编辑操作日志和"
+#~ "崩溃恢复功能。这样对歌曲的更改丢失的可能性将很小。其他用户界面上的改进包"
+#~ "括：每日技巧提示、改进的频谱分析器、剪贴板支持、上下文菜单中的选项更多，等"
+#~ "等。这一版本加入了一个 gstreamer 解码器，可能在任何基于 gstreamer 的媒体播"
+#~ "放器中播放 buzztrax 歌曲。我们也清理了 buzztrax 的代码库，并由废弃的 API "
+#~ "迁移到了其继承者(gnomevfs->gio，hal->gudev)。库和应用程序性能在很多方面有"
+#~ "所提高。文档也有所改进，加入了向导、键盘快捷键表，内容更全面，完善了 man-"
+#~ "pages等。"
+
+#~ msgid "no settings"
+#~ msgstr "无设置"
+
+#~ msgid "An error occurred while loading the song from file '%s'"
+#~ msgstr "从文件“%s”加载歌曲时发生了一个错误"
+
+#~ msgid "New track"
+#~ msgstr "新音轨"
+
+#~ msgid "An error occurred"
+#~ msgstr "发生了错误"
+
+#~ msgid "A problem occurred"
+#~ msgstr "出现了一个问题"
+
+#~ msgid "An error occurred while saving the song to file '%s'."
+#~ msgstr "在保存歌曲到文件“%s”时出现了一个错误。"
+
+#~ msgid "An error occurred saving the song to file '%s'."
+#~ msgstr "在将歌曲保存到文件“%s”时发生了一个错误。"
+
+#~ msgid "song render progress"
+#~ msgstr "歌曲渲染过程"
+
+#~ msgid "Colors"
+#~ msgstr "颜色"
+
+#~ msgid "master analysis"
+#~ msgstr "主分析"
