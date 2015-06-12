@@ -199,14 +199,6 @@ bt_volume_popup_show (BtVolumePopup * self)
   /* grab focus */
   gtk_widget_grab_focus_savely (GTK_WIDGET (self));
   gtk_grab_add (GTK_WIDGET (self));
-#ifdef NEED_TO_PORT
-  GdkWindow *window = gtk_widget_get_window (GTK_WIDGET (self));
-  gdk_pointer_grab (window, TRUE,
-      GDK_BUTTON_PRESS_MASK |
-      GDK_BUTTON_RELEASE_MASK |
-      GDK_POINTER_MOTION_MASK, NULL, NULL, GDK_CURRENT_TIME);
-  gdk_keyboard_grab (window, TRUE, GDK_CURRENT_TIME);
-#endif
 }
 
 /**
@@ -219,10 +211,6 @@ void
 bt_volume_popup_hide (BtVolumePopup * self)
 {
   /* ungrab focus */
-#ifdef NEED_TO_PORT
-  gdk_keyboard_ungrab (GDK_CURRENT_TIME);
-  gdk_pointer_ungrab (GDK_CURRENT_TIME);
-#endif
   gtk_grab_remove (GTK_WIDGET (self));
 
   gtk_widget_hide (GTK_WIDGET (self));
