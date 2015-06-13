@@ -112,14 +112,19 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
   gtk_text_view_set_editable (GTK_TEXT_VIEW (news), FALSE);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (news)),
-      "Development version (do not translate this)"
-      /*_
-      ("This release port the code base to the recent version of the libraries "
-          "we're using. We switched from gstreamer-0.10 to 1.2, from gtk+-2.x to "
-          "gtk+3.x, from gconf to gsettings and replaced gnomecanvas by clutter. "
-          "We've stared to make use of the new features in some places (e.g. "
-          "exporting labels in rendered songs).")
-      */ , -1);
+      /*"Development version (do not translate this)" */
+      _
+      ("In this cycle we did a lot of finetuning on the gtk+3 port. More deprecated APIs "
+          "are replaced with the new API. We did a lot of work on theming; e.g. all colors "
+          "are now defined in the css files and settings let you select theme variants such "
+          "as a dark theme. "
+          "The interaction controller library now supports alsa-sequencer. The UI for "
+          "training the controls of a new midi device is streamlined and much easier. Also "
+          "the controls from the interaction controller can be used fro playback controls "
+          "(play/pause/seeking). "
+          "Finally things got easier for developers too. We merged bml, gst-buzztrax into "
+          "buzztrax to simplify the build.")
+      , -1);
 
   news_view = gtk_scrolled_window_new (NULL, NULL);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (news_view),

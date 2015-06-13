@@ -1,5 +1,15 @@
-0.9.0 ??? (??.???.2015)
+0.9.0 ascension (13.Jun.2015)
 ================================================================================
+In this cycle we did a lot of finetuning on the gtk+3 port. More deprecated APIs
+are replaced with the new API. We did a lot of work on theming; e.g. all colors
+are now defined in the css files and settings let you select theme variants such
+as a dark theme.
+The interaction controller library now supports alsa-sequencer. The UI for
+training the controls of a new midi device is streamlined and much easier. Also
+the controls from the interaction controller can be used fro playback controls
+(play/pause/seeking).
+Finally things got easier for developers too. We merged bml, gst-buzztrax into
+buzztrax to simplify the build.
 
 0.8.0 bladerunner (24.Oct.2014)
 ================================================================================
