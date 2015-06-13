@@ -112,18 +112,10 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
   gtk_text_view_set_editable (GTK_TEXT_VIEW (news), FALSE);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (news)),
-      /*"Development version (do not translate this)" */
-      _
-      ("In this cycle we did a lot of finetuning on the gtk+3 port. More deprecated APIs "
-          "are replaced with the new API. We did a lot of work on theming; e.g. all colors "
-          "are now defined in the css files and settings let you select theme variants such "
-          "as a dark theme. "
-          "The interaction controller library now supports alsa-sequencer. The UI for "
-          "training the controls of a new midi device is streamlined and much easier. Also "
-          "the controls from the interaction controller can be used fro playback controls "
-          "(play/pause/seeking). "
-          "Finally things got easier for developers too. We merged bml, gst-buzztrax into "
-          "buzztrax to simplify the build.")
+      "Development version (do not translate this)"
+      /*_
+      ("")
+      */
       , -1);
 
   news_view = gtk_scrolled_window_new (NULL, NULL);
