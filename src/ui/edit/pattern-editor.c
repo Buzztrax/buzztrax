@@ -1650,7 +1650,7 @@ bt_pattern_editor_set_pattern (BtPatternEditor * self, gpointer pattern_data,
   if (!self->groups || self->parameter >= self->groups[self->group].num_columns)
     self->parameter = 0;
 
-  gtk_widget_queue_draw (widget);
+  gtk_widget_queue_resize (widget);
 }
 
 /**
