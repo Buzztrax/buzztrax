@@ -1432,7 +1432,7 @@ bt_value_group_class_init (BtValueGroupClass * const klass)
   /**
    * BtValueGroup::group-changed:
    * @self: the value-group object that emitted the signal
-   * @param_group: the related #BtParamGroup
+   * @param_group: the related #BtParameterGroup
    * @intermediate: flag that is %TRUE to signal that more change are coming
    *
    * Signals that this value-group has been changed (more than in one place).
