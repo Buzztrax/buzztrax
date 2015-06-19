@@ -84,6 +84,10 @@ struct _BtEditApplicationPrivate
 
   /* persistent audio session */
   BtAudioSession *audio_session;
+
+  /* error from loading a song via commandline args or NULL */
+  GError *init_err;
+  gchar *init_file_name;
 };
 
 static BtEditApplication *singleton = NULL;
@@ -231,6 +235,16 @@ bt_edit_application_run_ui_idle (gpointer user_data)
   if (!(res = bt_edit_application_check_missing (self)))
     gtk_main_quit ();
 
+  // show error from a song we loaded
+  if (self->priv->init_err && self->priv->init_file_name) {
+    gchar *msg = g_strdup_printf (_("Can't load song '%s'."),
+        self->priv->init_file_name);
+    bt_dialog_message (self->priv->main_window, _("Can't load song"), msg,
+        self->priv->init_err->message);
+    g_free (msg);
+    g_free (self->priv->init_file_name);
+    g_error_free (self->priv->init_err);
+  }
   // check for recoverable songs
   bt_edit_application_crash_log_recover (self);
 
@@ -403,6 +417,8 @@ bt_edit_application_load_song (const BtEditApplication * self,
     }
 #endif
 
+    // this is synchronous execution
+    // https://github.com/Buzztrax/buzztrax/issues/52
     if (bt_song_io_load (loader, song, err)) {
       BtMachine *machine;
 
@@ -600,11 +616,12 @@ bt_edit_application_load_and_run (const BtEditApplication * self,
 
   GST_INFO ("application.load_and_run launched");
 
-  if (bt_edit_application_load_song (self, input_file_name, NULL)) {
+  if (bt_edit_application_load_song (self, input_file_name,
+          &self->priv->init_err)) {
     res = bt_edit_application_run_ui (self);
   } else {
     GST_WARNING ("loading song '%s' failed", input_file_name);
-    // TODO(ensonic): show error message, maybe load in idle handler
+    self->priv->init_file_name = g_strdup (input_file_name);
     // start normaly
     bt_edit_application_run (self);
   }
