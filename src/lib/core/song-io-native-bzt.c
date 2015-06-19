@@ -237,30 +237,19 @@ bt_song_io_native_bzt_load (gconstpointer const _self,
   gboolean result = FALSE;
 #ifdef USE_GSF
   const BtSongIONativeBZT *const self = BT_SONG_IO_NATIVE_BZT (_self);
-  gchar *const file_name;
-  guint len;
-  gpointer data;
-  gchar *status;
-
-  g_object_get ((gpointer) self, "file-name", &file_name, "data", &data,
-      "data-len", &len, NULL);
-  GST_INFO ("native io bzt will now load song from \"%s\"",
-      file_name ? file_name : "data");
-
-  const gchar *const msg = _("Loading file '%s'");
-  if (file_name) {
-    status = g_alloca (1 + strlen (msg) + strlen (file_name));
-    g_sprintf (status, msg, file_name);
-  } else {
-    status = g_alloca (1 + strlen (msg) + 4);
-    g_sprintf (status, msg, "data");
-  }
-  g_object_set ((gpointer) self, "status", status, NULL);
 
   xmlParserCtxtPtr const ctxt = xmlNewParserCtxt ();
   if (ctxt) {
     xmlDocPtr song_doc = NULL;
     GError *e = NULL;
+    gchar *const file_name;
+    guint len;
+    gpointer data;
+
+    g_object_get ((gpointer) self, "file-name", &file_name, "data", &data,
+        "data-len", &len, NULL);
+    GST_INFO ("native io bzt will now load song from \"%s\"",
+        file_name ? file_name : "data");
 
     if (data && len) {
       // parse the file from the memory block
@@ -362,16 +351,13 @@ bt_song_io_native_bzt_load (gconstpointer const _self,
       g_object_unref (self->priv->input);
       self->priv->input = NULL;
     }
-
+    g_free (file_name);
+    xmlFreeParserCtxt (ctxt);
   } else {
     GST_WARNING ("failed to create parser context");
     g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
         "Failed to create parser context.");
   }
-  if (ctxt)
-    xmlFreeParserCtxt (ctxt);
-  g_free (file_name);
-  g_object_set ((gpointer) self, "status", NULL, NULL);
 #endif
   return result;
 }
@@ -387,13 +373,6 @@ bt_song_io_native_bzt_save (gconstpointer const _self,
 
   g_object_get ((gpointer) self, "file-name", &file_name, NULL);
   GST_INFO ("native io bzt will now save song to \"%s\"", file_name);
-
-  const gchar *const msg = _("Saving file '%s'");
-  gchar *const status = g_alloca (1 + strlen (msg) + strlen (file_name));
-  g_sprintf (status, msg, file_name);
-  //gchar * const status=g_alloca(1+strlen(_("Saving file '%s'"))+strlen(file_name));
-  //g_sprintf(status,_("Saving file '%s'"),file_name);
-  g_object_set ((gpointer) self, "status", status, NULL);
 
   xmlDocPtr const song_doc = xmlNewDoc (XML_CHAR_PTR ("1.0"));
   if (song_doc) {
@@ -466,8 +445,6 @@ Error:
   }
 
   g_free (file_name);
-
-  g_object_set ((gpointer) self, "status", NULL, NULL);
 #endif
   return result;
 }

@@ -398,22 +398,31 @@ gboolean
 bt_song_io_load (BtSongIO const *self, const BtSong * const song, GError ** err)
 {
   gboolean result;
+  gchar *status;
   bt_song_io_virtual_load load;
 
   g_return_val_if_fail (BT_IS_SONG_IO (self), FALSE);
   g_return_val_if_fail (BT_IS_SONG (song), FALSE);
 
   load = BT_SONG_IO_GET_CLASS (self)->load;
-
-  GST_INFO ("loading song [%s]",
-      self->priv->file_name ? self->priv->file_name : "data");
-
   if (!load) {
     GST_ERROR
         ("virtual method bt_song_io_load(self=%p,song=%p) called without implementation",
         self, song);
     return (FALSE);
   }
+
+  const gchar *const msg = _("Loading file '%s'");
+  if (self->priv->file_name) {
+    status = g_alloca (1 + strlen (msg) + strlen (self->priv->file_name));
+    g_sprintf (status, msg, self->priv->file_name);
+    GST_INFO ("loading song [%s]", self->priv->file_name);
+  } else {
+    status = g_alloca (1 + strlen (msg) + 4);
+    g_sprintf (status, msg, "data");
+    GST_INFO ("loading song [<data>]");
+  }
+  g_object_set ((gpointer) self, "status", status, NULL);
 
   g_object_set ((gpointer) song, "song-io", self, NULL);
   if ((result = BT_SONG_IO_GET_CLASS (self)->load (self, song, err))) {
@@ -442,9 +451,10 @@ bt_song_io_load (BtSongIO const *self, const BtSong * const song, GError ** err)
   }
   g_object_set ((gpointer) song, "song-io", NULL, NULL);
 
+  g_object_set ((gpointer) self, "status", NULL, NULL);
   GST_INFO ("loaded song [%s] = %d",
       self->priv->file_name ? self->priv->file_name : "data", result);
-  return (result);
+  return result;
 }
 
 /**
@@ -467,15 +477,20 @@ bt_song_io_save (BtSongIO const *self, const BtSong * const song, GError ** err)
   g_return_val_if_fail (BT_IS_SONG (song), FALSE);
 
   save = BT_SONG_IO_GET_CLASS (self)->save;
-
-  GST_INFO ("saving song [%s]", self->priv->file_name);
-
   if (!save) {
     GST_ERROR
         ("virtual method bt_song_io_save(self=%p,song=%p) called without implementation",
         self, song);
     return (FALSE);
   }
+
+  const gchar *const msg = _("Saving file '%s'");
+  gchar *const status = g_alloca (1 + strlen (msg) +
+      strlen (self->priv->file_name));
+  g_sprintf (status, msg, self->priv->file_name);
+  GST_INFO ("saving song [%s]", self->priv->file_name);
+  g_object_set ((gpointer) self, "status", status, NULL);
+
   // update the time-stamp
   bt_child_proxy_set ((gpointer) song, "song-info::change-dts", NULL, NULL);
 
@@ -485,8 +500,9 @@ bt_song_io_save (BtSongIO const *self, const BtSong * const song, GError ** err)
   }
   g_object_set ((gpointer) song, "song-io", NULL, NULL);
 
+  g_object_set ((gpointer) self, "status", NULL, NULL);
   GST_INFO ("saved song [%s] = %d", self->priv->file_name, result);
-  return (result);
+  return result;
 }
 
 //-- class internals

@@ -2318,21 +2318,10 @@ bt_song_io_buzz_load (gconstpointer const _self, const BtSong * const song,
   gchar *const file_name;
   guint len;
   gpointer data;
-  gchar *status;
 
   g_object_get ((gpointer) self, "file-name", &file_name, "data", &data,
       "data-len", &len, NULL);
   GST_INFO ("buzz loader will now load song from \"%s\"", file_name);
-
-  const gchar *const msg = _("Loading file '%s'");
-  if (file_name) {
-    status = g_alloca (1 + strlen (msg) + strlen (file_name));
-    g_sprintf (status, msg, file_name);
-  } else {
-    status = g_alloca (1 + strlen (msg) + 4);
-    g_sprintf (status, msg, "data");
-  }
-  g_object_set (G_OBJECT (self), "status", status, NULL);
 
   if (file_name) {
     GError *e = NULL;
@@ -2406,8 +2395,6 @@ bt_song_io_buzz_load (gconstpointer const _self, const BtSong * const song,
     g_free (self->priv->data);
     g_free (file_name);
   }
-
-  g_object_set (G_OBJECT (self), "status", NULL, NULL);
   return (result);
 }
 
