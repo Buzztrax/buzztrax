@@ -399,7 +399,7 @@ main (int argc, char **argv)
   int server_socket, client_socket;
   socklen_t addrlen;
   ssize_t size;
-  struct sockaddr_un address;
+  struct sockaddr_un address = { 0, };
   int running = TRUE;
   BmlIpcBuf bo = IPC_BUF_INIT, bi = IPC_BUF_INIT;
   BmAPI id;
@@ -426,8 +426,9 @@ main (int argc, char **argv)
 
   unlink (socket_file);
   address.sun_family = PF_LOCAL;
-  strcpy (address.sun_path, socket_file);
-  if (bind (server_socket, (struct sockaddr *) &address, sizeof (address)) != 0) {
+  strcpy (&address.sun_path[1], socket_file);
+  if (bind (server_socket, (struct sockaddr *) &address,
+          sizeof (sa_family_t) + strlen (socket_file) + 1) != 0) {
     TRACE ("socket path already in use!\n");
   }
   listen (server_socket, /* backlog of pending connections */ 5);

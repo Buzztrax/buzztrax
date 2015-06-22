@@ -130,12 +130,12 @@ bmpipc_connect (void)
     return FALSE;
   }
   address.sun_family = PF_LOCAL;
-  strcpy (address.sun_path, socket_file);
+  strcpy (&address.sun_path[1], socket_file);
   while (retries < 3) {
     int res;
     if ((res =
             connect (server_socket, (struct sockaddr *) &address,
-                sizeof (address))) == 0) {
+                sizeof (sa_family_t) + strlen (socket_file) + 1)) == 0) {
       TRACE ("server connected after %d retries\n", retries);
       break;
     } else {
@@ -750,12 +750,10 @@ bml_setup (void)
 #ifdef DEV_BUILD
   if (getenv ("BMLIPC_DEBUG")) {
     // allows to run this manually, we will then not spawn a new one here
-    snprintf (socket_file, (SOCKET_PATH_MAX - 1), "/tmp/bml.sock");
+    snprintf (socket_file, (SOCKET_PATH_MAX - 1), "bml.sock");
   } else {
 #endif
-    snprintf (socket_file, (SOCKET_PATH_MAX - 1), "/tmp/bml.%d.XXXXXX",
-        (int) getpid ());
-    mktemp (socket_file);
+    snprintf (socket_file, (SOCKET_PATH_MAX - 1), "bml.%d", (int) getpid ());
 #ifdef DEV_BUILD
   }
 #endif
