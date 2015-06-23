@@ -432,7 +432,8 @@ main (int argc, char **argv)
           sizeof (sa_family_t) + strlen (socket_file) + 1) != 0) {
     TRACE ("socket path already in use!\n");
   }
-  listen (server_socket, /* backlog of pending connections */ 5);
+  // TODO(ensonic): what is the actual effect of this?
+  listen (server_socket, /* backlog of pending connections */ 20);
   addrlen = sizeof (struct sockaddr_in);
   client_socket =
       accept (server_socket, (struct sockaddr *) &address, &addrlen);
