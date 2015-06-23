@@ -745,8 +745,6 @@ bml_setup (void)
   }
 #endif /* USE_DLLWRAPPER_DIRECT */
 #ifdef USE_DLLWRAPPER_IPC
-  // TODO(ensonic): /tmp is not ideal as everyone can read/write there and could
-  // steal the socket, we could create a user-owned subdir first to mitigate
 #ifdef DEV_BUILD
   if (getenv ("BMLIPC_DEBUG")) {
     // allows to run this manually, we will then not spawn a new one here
