@@ -341,7 +341,7 @@ _bmlw_work_m2s (BmlIpcBuf * bi, BmlIpcBuf * bo)
   int size = bmlipc_read_int (bi);
   float *pin = (float *) bmlipc_read_data (bi, size);
   int mode = bmlipc_read_int (bi);
-  float pout[256 + 256];        // MAX_BUFFER_LENGTH = 256 
+  float pout[256 + 256] = { 0.0, };     // MAX_BUFFER_LENGTH = 256
   int numsamples = size / sizeof (float);
   int ret = bmlw_work_m2s (bm, pin, pout, numsamples, mode);
   size += size;
