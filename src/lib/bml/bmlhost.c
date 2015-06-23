@@ -432,8 +432,10 @@ main (int argc, char **argv)
           sizeof (sa_family_t) + strlen (socket_file) + 1) != 0) {
     TRACE ("socket path already in use!\n");
   }
-  // TODO(ensonic): what is the actual effect of this?
-  listen (server_socket, /* backlog of pending connections */ 20);
+  // number of pending connections
+  // upper limmit is /proc/sys/net/core/somaxconn usually 128 == SOMAXCONN
+  // right we just have one anyway
+  listen (server_socket, /* backlog of pending connections */ SOMAXCONN);
   addrlen = sizeof (struct sockaddr_in);
   client_socket =
       accept (server_socket, (struct sockaddr *) &address, &addrlen);
