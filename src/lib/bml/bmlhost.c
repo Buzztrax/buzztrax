@@ -22,6 +22,7 @@
 #include <sys/un.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <errno.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -442,13 +443,14 @@ main (int argc, char **argv)
     TRACE ("waiting for command ====================\n");
     bmlipc_clear (&bi);
     size = recv (client_socket, bi.buffer, IPC_BUF_SIZE, 0);
-    if (size < 0) {
-      TRACE ("recv failed: %s\n", strerror (size));
-      continue;
-    }
     if (size == 0) {
       TRACE ("got EOF\n");
       running = FALSE;
+      continue;
+    }
+    if (size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+      // TODO(ensonic): specific action depending on error
       continue;
     }
     bi.size = (int) size;
@@ -545,6 +547,10 @@ main (int argc, char **argv)
     if (bo.size) {
       size = send (client_socket, bo.buffer, bo.size, MSG_NOSIGNAL);
       TRACE ("sent %d of %d bytes\n", size, bo.size);
+      if (size == -1) {
+        TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
+        // TODO(ensonic): specific action depending on error
+      }
     }
   }
   close (client_socket);

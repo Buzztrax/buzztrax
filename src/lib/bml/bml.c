@@ -182,6 +182,11 @@ bmlw_set_master_info (long bpm, long tpb, long srat)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
 }
 
@@ -203,11 +208,17 @@ retry:
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     return (BuzzMachineHandle *) ((long) bmlipc_read_int (&bi));
-  } else if (errno == EPIPE) {
-    TRACE ("bmlhost is dead, respawning\n");
-    if (bmpipc_connect ()) {
-      goto retry;
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
+    if (errno == EPIPE) {
+      TRACE ("bmlhost is dead, respawning\n");
+      if (bmpipc_connect ()) {
+        goto retry;
+      }
     }
   }
   return NULL;
@@ -227,6 +238,11 @@ bmlw_close (BuzzMachineHandle * bmh)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
 }
 
@@ -247,6 +263,9 @@ bmlw_get_machine_info (BuzzMachineHandle * bmh, BuzzMachineProperty key,
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     ret = bmlipc_read_int (&bi);
     // function writes result into value which is either an int or string
     switch (ret) {
@@ -261,6 +280,8 @@ bmlw_get_machine_info (BuzzMachineHandle * bmh, BuzzMachineProperty key,
       default:
         TRACE ("unhandled value type: %d", ret);
     }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return (ret ? 1 : 0);
 }
@@ -282,6 +303,9 @@ bmlw_get_global_parameter_info (BuzzMachineHandle * bmh, int index,
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     ret = bmlipc_read_int (&bi);
     // function writes result into value which is either an int or string
     switch (ret) {
@@ -296,6 +320,8 @@ bmlw_get_global_parameter_info (BuzzMachineHandle * bmh, int index,
       default:
         TRACE ("unhandled value type: %d", ret);
     }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return (ret ? 1 : 0);
 }
@@ -317,6 +343,9 @@ bmlw_get_track_parameter_info (BuzzMachineHandle * bmh, int index,
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     ret = bmlipc_read_int (&bi);
     // function writes result into value which is either an int or string
     switch (ret) {
@@ -331,6 +360,8 @@ bmlw_get_track_parameter_info (BuzzMachineHandle * bmh, int index,
       default:
         TRACE ("unhandled value type: %d", ret);
     }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return (ret ? 1 : 0);
 }
@@ -352,6 +383,9 @@ bmlw_get_attribute_info (BuzzMachineHandle * bmh, int index,
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     ret = bmlipc_read_int (&bi);
     // function writes result into value which is either an int or string
     switch (ret) {
@@ -366,6 +400,8 @@ bmlw_get_attribute_info (BuzzMachineHandle * bmh, int index,
       default:
         TRACE ("unhandled value type: %d", ret);
     }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return (ret ? 1 : 0);
 }
@@ -390,10 +426,15 @@ bmlw_describe_global_value (BuzzMachineHandle * bmh, int const param,
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     if ((ret = bmlipc_read_int (&bi))) {
       strncpy (desc, bmlipc_read_string (&bi), 1024);
       desc[1023] = '\0';
     }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return ret ? desc : empty;
 }
@@ -417,10 +458,15 @@ bmlw_describe_track_value (BuzzMachineHandle * bmh, int const param,
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     if ((ret = bmlipc_read_int (&bi))) {
       strncpy (desc, bmlipc_read_string (&bi), 1024);
       desc[1023] = '\0';
     }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return ret ? desc : empty;
 }
@@ -441,7 +487,12 @@ bmlw_new (BuzzMachineHandle * bmh)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     return (BuzzMachine *) ((long) bmlipc_read_int (&bi));
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return NULL;
 }
@@ -460,6 +511,11 @@ bmlw_free (BuzzMachine * bm)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
 }
 
@@ -479,6 +535,11 @@ bmlw_init (BuzzMachine * bm, unsigned long blob_size, unsigned char *blob_data)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
 }
 
@@ -498,7 +559,12 @@ bmlw_get_track_parameter_value (BuzzMachine * bm, int track, int index)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     return bmlipc_read_int (&bi);
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return 0;
 }
@@ -520,6 +586,11 @@ bmlw_set_track_parameter_value (BuzzMachine * bm, int track, int index,
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
 }
 
@@ -539,7 +610,12 @@ bmlw_get_global_parameter_value (BuzzMachine * bm, int index)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     return bmlipc_read_int (&bi);
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return 0;
 }
@@ -560,6 +636,11 @@ bmlw_set_global_parameter_value (BuzzMachine * bm, int index, int value)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
 }
 
@@ -578,7 +659,12 @@ bmlw_get_attribute_value (BuzzMachine * bm, int index)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     return bmlipc_read_int (&bi);
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return 0;
 }
@@ -599,6 +685,11 @@ bmlw_set_attribute_value (BuzzMachine * bm, int index, int value)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
 }
 
@@ -617,6 +708,11 @@ bmlw_tick (BuzzMachine * bm)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
 }
 
@@ -637,8 +733,13 @@ bmlw_work (BuzzMachine * bm, float *psamples, int numsamples, int const mode)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     bmlipc_read (&bi, sp, "id", &ret, &data_size, psamples);
     TRACE ("got %d bytes, data_size=%d\n", bi.size, data_size);
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return ret;
 }
@@ -661,8 +762,13 @@ bmlw_work_m2s (BuzzMachine * bm, float *pin, float *pout, int numsamples,
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
     bmlipc_read (&bi, sp, "id", &ret, &data_size, pout);
     TRACE ("got %d bytes, data_size=%d\n", bi.size, data_size);
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
   return ret;
 }
@@ -681,6 +787,11 @@ bmlw_stop (BuzzMachine * bm)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
 }
 
@@ -698,6 +809,11 @@ bmlw_attributes_changed (BuzzMachine * bm)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
 }
 
@@ -715,6 +831,11 @@ bmlw_set_num_tracks (BuzzMachine * bm, int num)
 
     bi.size = (int) recv (server_socket, bi.buffer, IPC_BUF_SIZE, 0);
     TRACE ("got %d bytes\n", bi.size);
+    if (bi.size == -1) {
+      TRACE ("ERROR: recv returned %d: %s\n", errno, strerror (errno));
+    }
+  } else if (size == -1) {
+    TRACE ("ERROR: send returned %d: %s\n", errno, strerror (errno));
   }
 }
 
@@ -722,6 +843,7 @@ void
 bmlw_set_callbacks (BuzzMachine * bm, CHostCallbacks * callbacks)
 {
   // TODO(ensonic): maybe a proxy
+  TRACE ("ERROR: unimplemented");
 }
 
 #endif /* USE_DLLWRAPPER_IPC */
