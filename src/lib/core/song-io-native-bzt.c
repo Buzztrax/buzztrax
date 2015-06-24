@@ -189,7 +189,7 @@ bt_song_io_native_bzt_copy_from_uri (const BtSongIONativeBZT * const self,
       }
     } else {
       if (g_str_has_prefix (uri, "fd://")) {
-        struct stat buf = { 0, };
+        struct stat buf;
         gint fd;
 
         sscanf (uri, "fd://%d", &fd);

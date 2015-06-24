@@ -322,7 +322,7 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
     guint64 length = 0;
     gint channels = 1, rate = GST_AUDIO_DEF_RATE;
     gpointer data = NULL;
-    struct stat buf = { 0, };
+    struct stat buf;
 
     res = FALSE;
     GST_INFO ("sample loaded");
