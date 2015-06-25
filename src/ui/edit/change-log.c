@@ -90,7 +90,7 @@
  *     - the pattern removal here is implicit and thus we don't want to handle
  *       undo/redo for it in the sequence where otherwise it would clear the
  *       cells that where using the pattern
- * - we probably need to extend the machine:pattern-{added,removed} and 
+ * - we probably need to extend the machine:pattern-{added,removed} and
  *   setup:{machine,wire}-{added,removed} signals with a gboolean explicit
  *   parameter, but that won't work as we call this from core too
  */
@@ -821,9 +821,8 @@ bt_change_log_recover (BtChangeLog * self, const gchar * log_name)
       goto done;
     }
     g_strchomp (linebuf);
-    /*
-       - load the song pointed to by entry or replay the new song
-       - no filename = never saved -> new file
+    /* load the song pointed to by entry or replay the new song
+     * no filename = never saved -> new file
      */
     if (*linebuf) {
       GError *err = NULL;
@@ -831,7 +830,7 @@ bt_change_log_recover (BtChangeLog * self, const gchar * log_name)
        * on_song_changed() where we setup a new logfile */
       if (!bt_edit_application_load_song (self->priv->app, linebuf, &err)) {
         GST_WARNING ("    song '%s' failed to load: %s", linebuf, err->message);
-        // TODO(ensonic): propagate GError?
+        // TODO(ensonic): propagate GError, bt_change_log_recover() neeeds GError arg
         g_error_free (err);
         goto done;
       }
