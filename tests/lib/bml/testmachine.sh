@@ -55,9 +55,13 @@ else
   BUZZTRAX_EDIT=buzztrax-edit  
 fi
 
-if [ -z "$1" ] ; then
+if [ -z "$1" ]; then
   echo "Usage: $0 <directory>";
   exit
+fi
+if [ -z "$(ls 2>/dev/null $1)" ]; then
+    echo "no machines found"
+    exit
 fi
 
 # initialize
