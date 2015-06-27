@@ -297,19 +297,27 @@ extern "C" DE int bm_get_attribute_info(BuzzMachineHandle *bmh,int index,BuzzMac
 extern "C" DE char const *bm_describe_global_value(BuzzMachineHandle *bmh,int const param,int const value) {
     static const char *empty="";
 
-    if(!(param<bmh->machine_info->numGlobalParameters)) return(empty);
+    if(!(param<bmh->machine_info->numGlobalParameters)) {
+        DBG3("(param=%d,value=%d), param >= numGlobalParameters (%d)\n",param,value,bmh->machine_info->numGlobalParameters);
+        return(empty);
+    }
 
-    //DBG2("(param=%d,value=%d)\n",param,value);
+    DBG2("(param=%d,value=%d)\n",param,value);
     return(bmh->bm->machine_iface->DescribeValue(param,value));
 }
 
 extern "C" DE char const *bm_describe_track_value(BuzzMachineHandle *bmh,int const param,int const value) {
     static const char *empty="";
 
-    if(!(param<bmh->machine_info->numTrackParameters)) return(empty);
+    if(!(param<bmh->machine_info->numTrackParameters)) {
+        DBG3("(param=%d,value=%d), param >= numTrackParameters (%d)\n",param,value,bmh->machine_info->numTrackParameters);
+        return(empty);
+    }
 
-    //DBG2("(param=%d,value=%d)\n",param,value);
-    return(bmh->bm->machine_iface->DescribeValue(bmh->machine_info->numGlobalParameters+param,value));
+    DBG2("(param=%d,value=%d)\n",param,value);
+    // we're actually running this on the static instance
+    //return(bmh->bm->machine_iface->DescribeValue(bmh->machine_info->numGlobalParameters+param,value));
+    return(empty);
 }
 
 
@@ -416,11 +424,13 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
 
     // CyanPhase DTMF-1 access gval.xxx in mi::Init
     // so we need to call these before
+#if 0
     bm_init_global_params(bm, bm->machine_info);
     DBG("  global parameters initialized\n");
     // initialise track parameters
     bm_init_track_params(bm, bm->machine_info);
     DBG("  track parameters initialized\n");
+#endif
 
     // create the machine data input
     CMachineDataInput * pcmdii = NULL;
@@ -448,10 +458,10 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
     }
 
     // always call AttributesChanged (also if numAttributes == 0)
-		bm->machine_iface->AttributesChanged();
+    bm->machine_iface->AttributesChanged();
     DBG("  CMachineInterface::AttributesChanged() called\n");
 
-    // always call SetNumTracks (also if numnumTrackParameters == 0)
+    // always call SetNumTracks (also if numTrackParameters == 0)
     //DBG1("  CMachineInterface::SetNumTracks(%d)\n",bm->machine_info->minTracks);
     // calling this without the '-1' crashes: Automaton Parametric EQ.dll
     //bm->machine_iface->SetNumTracks(bm->machine_info->minTracks-1);
@@ -460,7 +470,7 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
 
     // TODO(ensonic): buzz seems to set the initial global- and track-parameters
     // now, we need to try both combinations
-# if 0
+#if 1
     bm_init_global_params(bm, bm->machine_info);
     DBG("  global parameters initialized\n");
     // initialise track parameters
@@ -475,13 +485,16 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
      * - tick AFTER AttributesChanged, and after we've set initial track and
      *   global data for machine)
      */
-    //bm->machine_iface->Tick();
-    //DBG("  CMachineInterface::Tick() called\n");
+#if 0
+    bm->machine_iface->Tick();
+    DBG("  CMachineInterface::Tick() called\n");
+#endif
 
     if(bm->machine_info->Flags&MIF_USES_LIB_INTERFACE) {
         DBG(" MIF_USES_LIB_INTERFACE");
         FIXME;
     }
+    DBG("  bm_init() done\n");
 }
 
 static void * bm_get_track_parameter_location(BuzzMachine *bm,int track,int index) {

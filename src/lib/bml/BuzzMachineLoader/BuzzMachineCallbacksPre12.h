@@ -30,32 +30,7 @@ typedef struct _CHostCallbacks CHostCallbacks;
 
 class BuzzMachineCallbacksPre12 : public CMICallbacks
 {
-private:
-    CMachine *machine;
-    CMachineInterface *machine_interface;
-    CMachineInfo *machine_info;
-    CWaveLevel defaultWaveLevel;/*={0,NULL,0,0,0,0};*/
-    //BuzzMDKHelper *mdkHelper;
-    CMDKImplementation *mdkHelper;
-    CHostCallbacks **host_callbacks;
-    // static float ... does not work?
-    float auxBuffer[2*BMC_AUXBUFFER_SIZE]; // gah, inefficient, because BuzzMachineCallbacks objects could all share same aux buffer
 public:
-
-public:
-    BuzzMachineCallbacksPre12() {
-        machine=NULL;
-        machine_interface=NULL;
-        machine_info=NULL;
-        defaultWaveLevel.LoopEnd=0;
-        defaultWaveLevel.LoopStart=0;
-        defaultWaveLevel.numSamples=0;
-        defaultWaveLevel.pSamples=NULL;
-        defaultWaveLevel.RootNote=0;
-        defaultWaveLevel.SamplesPerSec=0;
-        mdkHelper=NULL;
-        host_callbacks=NULL;
-    }
     BuzzMachineCallbacksPre12(CMachine *_machine, CMachineInterface *_machine_interface,CMachineInfo *_machine_info,CHostCallbacks **_host_callbacks) {
         machine=_machine;
         machine_interface=_machine_interface;
@@ -69,6 +44,7 @@ public:
         mdkHelper=NULL;
         host_callbacks=_host_callbacks;
     }
+    virtual ~BuzzMachineCallbacksPre12() {}
 
     CWaveInfo const *GetWave(int const i);
     CWaveLevel const *GetWaveLevel(int const i, int const level);
@@ -112,6 +88,16 @@ public:
     // <thru> = (CPattern *)3
     CPattern *GetSequenceData(int const row);
     void SetSequenceData(int const row, CPattern *ppat);
+private:
+    CMachine *machine;
+    CMachineInterface *machine_interface;
+    CMachineInfo *machine_info;
+    CWaveLevel defaultWaveLevel;/*={0,NULL,0,0,0,0};*/
+    //BuzzMDKHelper *mdkHelper;
+    CMDKImplementation *mdkHelper;
+    CHostCallbacks **host_callbacks;
+    // static float ... does not work?
+    float auxBuffer[2*BMC_AUXBUFFER_SIZE]; // gah, inefficient, because BuzzMachineCallbacks objects could all share same aux buffer
 };
 
 

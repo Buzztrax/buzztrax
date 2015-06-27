@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;USE_DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
@@ -35,7 +35,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dsplib.lib"
+				AdditionalDependencies="&quot;C:\Programme\Jeskola Buzz\Dev\dsplib\dsplib.lib&quot;"
 				OutputFile="$(OutDir)/BuzzMachineLoader.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
@@ -88,7 +88,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dsplib.lib"
+				AdditionalDependencies="&quot;C:\Programme\Jeskola Buzz\Dev\dsplib\dsplib.lib&quot;"
 				OutputFile="$(OutDir)/BuzzMachineLoader.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"

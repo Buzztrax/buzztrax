@@ -72,7 +72,7 @@ CWaveLevel const *BuzzMachineCallbacks::GetNearestWaveLevel(int const i, int con
       // if(pCB->GetHostVersion() >= 2) { newbuzz = 1; }
       FIXME;
     }
-    
+
     if(host_callbacks && *host_callbacks) {
         return (CWaveLevel *)(*host_callbacks)->GetNearestWaveLevel(*host_callbacks,i,note);
     }
@@ -204,6 +204,19 @@ void BuzzMachineCallbacks::ClearAuxBuffer() {
  */
 int BuzzMachineCallbacks::GetEnvSize(int const wave, int const env) {
     DBG2("(wave=%d,env=%d)\n",wave,env);
+    /*
+      incredibly odd - i dont understand this, but jeskola raverb requires this to run =)
+      we do not keep the value though, it may haunt us later. both raverb and the host keep their own static copies of this value
+      the value seems to be combined from getlocaltime, getsystemtime, gettimezoneinfo and more.
+      from buzz.exe disassembly of GetEnvSize implementation:
+        00425028 69 C0 93 B1 39 3E imul        eax,eax,3E39B193h
+        0042502E 05 3B 30 00 00   add         eax,303Bh
+        00425033 25 FF FF FF 7F   and         eax,7FFFFFFFh
+        00425038 A3 F0 26 4D 00   mov         dword ptr ds:[004D26F0h],eax
+    */
+    if (wave<0) {
+      return ((wave*0x3E39B193) + 0x303b ) & 0x7FFFFFFF;
+    }
     FIXME;
     return(0);
 }

@@ -49,7 +49,7 @@ double const PI = 3.14159265358979323846;
 // CMachineParameter flags
 #define MPF_WAVE				1   // refers to a wavetable slot
 #define MPF_STATE				2	// is continuously changing (not used for notes and triggers)
-#define MPF_TICK_ON_EDIT		4	// causes the host to send you a Tick() message immediatly after the user enters a value in the pattern or machine editor
+#define MPF_TICK_ON_EDIT		4	// causes the host to send you a Tick() message immediately after the user enters a value in the pattern or machine editor
 
 // CMachineInfo flags
 #define MIF_MONO_TO_STEREO		(1<<0)		// used for effect machines that can expand mono inputs to stereo
@@ -157,7 +157,7 @@ public:
 #define OWF_NOISE			4
 #define OWF_303_SAWTOOTH	5
 
-// each oscillator table contains one full cycle of a bandlimited waveform at 11 levels
+// each oscillator table contains one full cycle of a band-limited waveform at 11 levels
 // level 0 = 2048 samples
 // level 1 = 1024 samples
 // level 2 = 512 samples
@@ -168,7 +168,7 @@ public:
 //
 // the waves are normalized to 16bit signed integers
 //
-// GetOscillatorTable retusns pointer to a table
+// GetOscillatorTable returns pointer to a table
 // GetOscTblOffset returns offset in the table for a specified level
 
 inline int GetOscTblOffset(int const level)
@@ -188,7 +188,6 @@ class CMachineInfo;
 class CMICallbacks
 {
 public:
-	virtual ~CMICallbacks() {}
 	virtual CWaveInfo const *GetWave(int const i);
 	virtual CWaveLevel const *GetWaveLevel(int const i, int const level);
 	virtual void MessageBox(char const *txt);
@@ -240,7 +239,7 @@ public:
 	// group 1=global, 2=track
 	virtual void ControlChange__obsolete__(int group, int track, int param, int value);						// set value of parameter
 
-	// direct calls to audiodriver, used by WaveInput and WaveOutput
+	// direct calls to audio-driver, used by WaveInput and WaveOutput
 	// shouldn't be used for anything else
 	virtual int ADGetnumChannels(bool input);
 	virtual void ADWrite(int channel, float *psamples, int numsamples);

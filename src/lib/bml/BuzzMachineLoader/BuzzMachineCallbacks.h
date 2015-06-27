@@ -30,35 +30,7 @@ typedef struct _CHostCallbacks CHostCallbacks;
 
 class BuzzMachineCallbacks : public CMICallbacks
 {
-private:
-    CMachine *machine;
-    CMachineInterface *machine_interface;
-    CMachineInfo *machine_info;
-    CWaveLevel defaultWaveLevel;/*={0,NULL,0,0,0,0};*/
-    //BuzzMDKHelper *mdkHelper;
-    CMDKImplementation *mdkHelper;
-    CHostCallbacks **host_callbacks;
-    // static float ... does not work?
-    float auxBuffer[2*BMC_AUXBUFFER_SIZE]; // gah, inefficient, because BuzzMachineCallbacks objects could all share same aux buffer
-
 public:
-    CMachineInterfaceEx *machine_ex;
-
-public:
-    BuzzMachineCallbacks() {
-        machine=NULL;
-        machine_interface=NULL;
-        machine_ex=NULL;
-        machine_info=NULL;
-        defaultWaveLevel.LoopEnd=0;
-        defaultWaveLevel.LoopStart=0;
-        defaultWaveLevel.numSamples=0;
-        defaultWaveLevel.pSamples=NULL;
-        defaultWaveLevel.RootNote=0;
-        defaultWaveLevel.SamplesPerSec=0;
-        mdkHelper=NULL;
-        host_callbacks=NULL;
-    }
     BuzzMachineCallbacks(CMachine *_machine, CMachineInterface *_machine_interface,CMachineInfo *_machine_info,CHostCallbacks **_host_callbacks) {
         machine=_machine;
         machine_interface=_machine_interface;
@@ -73,6 +45,7 @@ public:
         mdkHelper=NULL;
         host_callbacks=_host_callbacks;
     }
+    virtual ~BuzzMachineCallbacks() {}
 
     CWaveInfo const *GetWave(int const i);
     CWaveLevel const *GetWaveLevel(int const i, int const level);
@@ -155,6 +128,18 @@ public:
     char const *GetMachineName(CMachine *pmac);
 
     bool GetInput(int index, float *psamples, int numsamples, bool stereo, float *extrabuffer);
+private:
+    CMachine *machine;
+    CMachineInterface *machine_interface;
+    CMachineInfo *machine_info;
+    CWaveLevel defaultWaveLevel;/*={0,NULL,0,0,0,0};*/
+    //BuzzMDKHelper *mdkHelper;
+    CMDKImplementation *mdkHelper;
+    CHostCallbacks **host_callbacks;
+    // static float ... does not work?
+    float auxBuffer[2*BMC_AUXBUFFER_SIZE]; // gah, inefficient, because BuzzMachineCallbacks objects could all share same aux buffer
+public:
+    CMachineInterfaceEx *machine_ex;
 };
 
 
