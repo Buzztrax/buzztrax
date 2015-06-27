@@ -49,7 +49,7 @@ typedef void (*CMIInitPtr)(CMachineInterface *_this, CMachineDataInput * const p
 
 // globals
 
-CMasterInfo master_info;
+static CMasterInfo master_info;
 
 // prototypes
 
@@ -451,6 +451,7 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
       // its already created
       // CMDKMachineInterface::Init() also sets CMachineInterfaceEx
       if(((BuzzMachineCallbacks *)bm->callbacks)->machine_ex) {
+        DBG("  fetch mdkhelper\n");
         bm->mdkHelper = (CMDKImplementation*)bm->callbacks->GetNearestWaveLevel(-1,-1);
         DBG1("  numInputChannels=%d\n",(bm->mdkHelper)?bm->mdkHelper->numChannels:0);
         // if numChannels=0, its not a mdk-machine and numChannels=1
@@ -484,6 +485,7 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
      *   chance to update its state before any other machines need to rely on it
      * - tick AFTER AttributesChanged, and after we've set initial track and
      *   global data for machine)
+     * some machines crash if we do this: FSM TunaMan.dll, Geonik's Compressor.dll, ..
      */
 #if 0
     bm->machine_iface->Tick();

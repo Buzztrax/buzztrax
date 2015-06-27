@@ -162,7 +162,7 @@ int BuzzMachineCallbacks::GetPlayPos() {
 //-- since buzz 1.2
 // only call this in Init()!
 CMachine *BuzzMachineCallbacks::GetThisMachine() {
-    DBG("()\n");
+    DBG1("() = %p\n", machine);
     return(machine);
 }
 
