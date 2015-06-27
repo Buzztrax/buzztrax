@@ -449,8 +449,8 @@ bmlw_describe_track_value (BuzzMachineHandle * bmh, int const param,
   static const char *empty = "";
   static char desc[1024];
 
-  bmlipc_write (&bo, "iiii", BM_DESCRIBE_TRACK_VALUE, (int) ((long) bmh), param,
-      value);
+  bmlipc_write (&bo, "iiii", BM_DESCRIBE_TRACK_VALUE, (int) ((long) bmh),
+      param, value);
   size = send (server_socket, bo.buffer, bo.size, MSG_NOSIGNAL);
   TRACE ("sent %d of %d bytes\n", size, bo.size);
   if (size > 0) {

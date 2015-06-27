@@ -119,8 +119,8 @@ BuzzMachineLoader.cpp:83: undefined reference to `DSP_Init(int)'
 
 http://sourceforge.net/project/shownotes.php?release_id=90402
 However, the --enable-stdcall-fixup feature (which is on by default) has not yet
-been extended to fastcall symbols. That is, an undefined symbol @foo@n will *not* 
-automatically be resolved to a defined symbol foo. 
+been extended to fastcall symbols. That is, an undefined symbol @foo@n will *not*
+automatically be resolved to a defined symbol foo.
 
 Maybe a own .def can help:
 http://www.digitalmars.com/ctg/win32programming.html
@@ -135,8 +135,8 @@ winedump -x $HOME/buzztrax/lib/Gear-real/Effects/Shaman\ Chorus.dll
 /usr/bin/i586-mingw32msvc-objdump -d ~/projects/buzztrax/win32/Gear/Effects/Arguelles\ TruePan.dll
 
 # missing dlls
-wget kegel.com/wine/winetricks 
-sh winetricks mfc42 
+wget kegel.com/wine/winetricks
+sh winetricks mfc42
 
 # x86_64 bit support for native plugins
 ## IPC based (this is what we're currently trying)
@@ -169,9 +169,9 @@ sh winetricks mfc42
   * (uint32_t *) &m_trampoline[15] = 4;
   /* mov rsp, r8 */
   * (uint16_t *) &m_trampoline[19] = 0x894c;
-  m_trampoline[21] = 0xc4;                
+  m_trampoline[21] = 0xc4;
   /* ret */
-  m_trampoline[22] = 0xc3;      
+  m_trampoline[22] = 0xc3;
   /* m16:32 call far destination */
   * (uint32_t *) &m_trampoline[23] =
           (uint32_t) (uint64_t) m_32bitCode;
@@ -265,7 +265,7 @@ Shaman Chorus.dll
   #5  0xb7f843ba in ?? ()
   -> mangled/corrupted exports name table
      winedump -x ~/projects/buzztrax/win32/Gear/Effects/Shaman\ Chorus.dll
-     objconv -d Effects/Shaman\ Chorus.dll 
+     objconv -d Effects/Shaman\ Chorus.dll
      objconv -v2 -ew2035 -fgasm Effects/Shaman\ Chorus.dll
 Sonic Verb (seems to work now)
   buzzmachinecallbacks.cpp:199:BuzzMachineCallbacks::GetEnvPoint (wave=-1,env=-1,i=-1076278224,&x,&y,&flags)
