@@ -38,6 +38,7 @@
 # search for same last line in fail log
 #  tail -n1 testmachine/*.fail | grep -B1 "GetInfo()" | grep "==>"
 #  tail -n1 testmachine/*.fail | grep -B1 "Entering DllMain(DLL_PROCESS_ATTACH) for /home/ensonic/buzztrax/lib/Gear-real/"  | grep "==>"
+#  for file in testmachine/*.txt.fail; do echo $file; grep ":0::" "$file" | tail -n2; done
 #
 # stats
 #  ls -1 testmachine/*.okay | wc -l
@@ -52,7 +53,7 @@ if [ -e ../../bt-cfg.sh ]; then
   . ../../bt-cfg.sh
 else
   BUZZTRAX_CMD=buzztrax-cmd
-  BUZZTRAX_EDIT=buzztrax-edit  
+  BUZZTRAX_EDIT=buzztrax-edit
 fi
 
 if [ -z "$1" ]; then
