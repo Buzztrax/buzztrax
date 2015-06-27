@@ -354,12 +354,12 @@ extern "C" DE BuzzMachine *bm_new(BuzzMachineHandle *bmh) {
     // call CreateMachine
     bm->machine_iface=bm->bmh->CreateMachine();
     DBG("  CreateMachine() called\n");
+    bm->machine_iface->pMasterInfo=&master_info;
+    bm->host_callbacks = NULL;    // not callbacks set by host so far
 
     // we need to create a CMachine object
     bm->machine=new CMachine(bm->machine_iface,bm->machine_info);
 
-    // not callbacks set by host so far
-    bm->host_callbacks = NULL;
 
     DBG1("  mi-version 0x%04x\n",bm->machine_info->Version);
     if((bm->machine_info->Version & 0xff) < 15) {
@@ -370,9 +370,6 @@ extern "C" DE BuzzMachine *bm_new(BuzzMachineHandle *bmh) {
       bm->callbacks=(CMICallbacks *)new BuzzMachineCallbacks(bm->machine,bm->machine_iface,bm->machine_info,&bm->host_callbacks);
       DBG("  callback instance created\n");
     }
-
-    // FIXME: should we do this earlier?
-    bm->machine_iface->pMasterInfo=&master_info;
     bm->machine_iface->pCB=bm->callbacks;
 
     return(bm);
