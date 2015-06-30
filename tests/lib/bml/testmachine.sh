@@ -38,7 +38,9 @@
 # search for same last line in fail log
 #  tail -n1 testmachine/*.fail | grep -B1 "GetInfo()" | grep "==>"
 #  tail -n1 testmachine/*.fail | grep -B1 "Entering DllMain(DLL_PROCESS_ATTACH) for /home/ensonic/buzztrax/lib/Gear-real/"  | grep "==>"
+# show last lines from the win32 side
 #  for file in testmachine/*.txt.fail; do echo $file; grep ":0::" "$file" | tail -n2; done
+#  for file in testmachine/*.txt.fail; do grep -o ":0::.*" "$file" | sed -e 's/0x[0-9A-F]*/PTR/' | tail -n1; done | sort | uniq -c | sort -n
 #
 # stats
 #  ls -1 testmachine/*.okay | wc -l

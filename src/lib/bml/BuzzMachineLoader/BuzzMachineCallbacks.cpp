@@ -65,7 +65,7 @@ CWaveLevel const *BuzzMachineCallbacks::GetNearestWaveLevel(int const i, int con
             //mdkHelper = new BuzzMDKHelper;
             mdkHelper = new CMDKImplementation;
         }
-        DBG1("return the mdk helper, %p\n",mdkHelper);
+        DBG1("return the mdk helper, 0x%p\n",mdkHelper);
         return((CWaveLevel *)mdkHelper);
     }
     if((i==-2) && (note==-2)) {
@@ -100,7 +100,7 @@ char const *BuzzMachineCallbacks::GetWaveName(int const i) {
 
 // i >= 1, NULL name to clear
 void BuzzMachineCallbacks::SetInternalWaveName(CMachine *pmac, int const i, char const *name) {
-    DBG3("(pmac=%p,i=%d,name=\"%s\")\n",pmac,i,name);
+    DBG3("(pmac=0x%p,i=%d,name=\"%s\")\n",pmac,i,name);
 }
 
 
@@ -162,20 +162,20 @@ int BuzzMachineCallbacks::GetPlayPos() {
 //-- since buzz 1.2
 // only call this in Init()!
 CMachine *BuzzMachineCallbacks::GetThisMachine() {
-    DBG1("() = %p\n", machine);
+    DBG1("()=0x%p\n", machine);
     return(machine);
 }
 
 // returns pointer to the sequence if there is a pattern playing
 CSequence *BuzzMachineCallbacks::GetPlayingSequence(CMachine *pmac) {
-    DBG1("(pmac=%p)\n",pmac);
+    DBG1("(pmac=0x%p)\n",pmac);
     FIXME;
     return(NULL);
 }
 
 // gets ptr to raw pattern data for row of a track of a currently playing pattern (or something like that)
 void *BuzzMachineCallbacks::GetPlayingRow(CSequence *pseq, int group, int track) {
-    DBG3("(pseq=%p,group=%d,track=%d)\n",pseq,group,track);
+    DBG3("(pseq=0x%p,group=%d,track=%d)\n",pseq,group,track);
     FIXME;
     return(NULL);
 }
@@ -189,7 +189,7 @@ int BuzzMachineCallbacks::GetStateFlags() {
 /* AuxBus:
  */
 float *BuzzMachineCallbacks::GetAuxBuffer() {
-    DBGO1(machine_info->Name,"()=%p\n",auxBuffer);
+    DBGO1(machine_info->Name,"()=0x%p\n",auxBuffer);
     return(auxBuffer);
 }
 
@@ -247,7 +247,7 @@ CPattern *BuzzMachineCallbacks::GetPattern(int const index) {
 }
 
 char const *BuzzMachineCallbacks::GetPatternName(CPattern *ppat) {
-    DBG1("(ppat=%p)\n",ppat);
+    DBG1("(ppat=0x%p)\n",ppat);
     FIXME;
     return(NULL);
 }
@@ -258,18 +258,18 @@ void BuzzMachineCallbacks::RenamePattern(char const *oldname, char const *newnam
 }
 
 void BuzzMachineCallbacks::DeletePattern(CPattern *ppat) {
-    DBG1("(ppat=%p)\n",ppat);
+    DBG1("(ppat=0x%p)\n",ppat);
     FIXME;
 }
 
 int BuzzMachineCallbacks::GetPatternData(CPattern *ppat, int const row, int const group, int const track, int const field) {
-    DBG5("(ppat=%p,row=%d,group=%d,track=%d,field=%d)\n",ppat,row,group,track,field);
+    DBG5("(ppat=0x%p,row=%d,group=%d,track=%d,field=%d)\n",ppat,row,group,track,field);
     FIXME;
     return(0);
 }
 
 void BuzzMachineCallbacks::SetPatternData(CPattern *ppat, int const row, int const group, int const track, int const field, int const value) {
-    DBG6("(ppat=%p,row=%d,group=%d,track=%d,field=%d,value=%d)\n",ppat,row,group,track,field,value);
+    DBG6("(ppat=0x%p,row=%d,group=%d,track=%d,field=%d,value=%d)\n",ppat,row,group,track,field,value);
     FIXME;
 }
 
@@ -282,7 +282,7 @@ CSequence *BuzzMachineCallbacks::CreateSequence() {
     return(NULL);
 }
 void BuzzMachineCallbacks::DeleteSequence(CSequence *pseq) {
-    DBG1("(pseq=%p)\n",pseq);
+    DBG1("(pseq=0x%p)\n",pseq);
     FIXME;
 }
 
@@ -298,14 +298,14 @@ CPattern *BuzzMachineCallbacks::GetSequenceData(int const row) {
 }
 
 void BuzzMachineCallbacks::SetSequenceData(int const row, CPattern *ppat) {
-    DBG2("(row=%d,ppat=%p)\n",row,ppat);
+    DBG2("(row=%d,ppat=0x%p)\n",row,ppat);
 }
 
 
 //-- buzz v1.2 (MI_VERSION 15) additions start here ---
 
 void BuzzMachineCallbacks::SetMachineInterfaceEx(CMachineInterfaceEx *pex) {
-    DBG1("(pex=%p)\n",pex);
+    DBG1("(pex=0x%p)\n",pex);
     machine_ex=pex;
 }
 
@@ -318,7 +318,7 @@ void BuzzMachineCallbacks::ControlChange__obsolete__(int group, int track, int p
 }
 // set value of parameter (group & 16 == don't record)
 void BuzzMachineCallbacks::ControlChange(CMachine *pmac, int group, int track, int param, int value) {
-    DBG5("(pmac=%p,group=%d,track=%d,param=%d,value=%d)\n",pmac,group,track,param,value);
+    DBG5("(pmac=0x%p,group=%d,track=%d,param=%d,value=%d)\n",pmac,group,track,param,value);
     FIXME;
 }
 
@@ -331,25 +331,25 @@ int BuzzMachineCallbacks::ADGetnumChannels(bool input) {
 }
 
 void BuzzMachineCallbacks::ADWrite(int channel, float *psamples, int numsamples) {
-    DBG3("(channel=%d,psamples=%p,numsamples=%d)\n",channel,psamples,numsamples);
+    DBG3("(channel=%d,psamples=0x%p,numsamples=%d)\n",channel,psamples,numsamples);
     FIXME;
 }
 
 void BuzzMachineCallbacks::ADRead(int channel, float *psamples, int numsamples) {
-    DBG3("(channel=%d,psamples=%p,numsamples=%d)\n",channel,psamples,numsamples);
+    DBG3("(channel=%d,psamples=0x%p,numsamples=%d)\n",channel,psamples,numsamples);
     FIXME;
 }
 
 // if n=1 Work(), n=2 WorkMonoToStereo()
 void BuzzMachineCallbacks::SetnumOutputChannels(CMachine *pmac, int n) {
-    DBG2("(pmac=%p,n=%d)\n",pmac,n);
+    DBG2("(pmac=0x%p,n=%d)\n",pmac,n);
     FIXME;
     // used by : ld vocoder xp.dll
     // would this need to use mdk?
 }
 
 void BuzzMachineCallbacks::SetEventHandler(CMachine *pmac, BEventType et, EVENT_HANDLER_PTR p, void *param) {
-    DBG4("(pmac=%p,et=%d,p=%p,param=%p)\n",pmac,et,p,param);
+    DBG4("(pmac=0x%p,et=%d,p=0x%p,param=0x%p)\n",pmac,et,p,param);
     FIXME;
 }
 
@@ -357,7 +357,7 @@ void BuzzMachineCallbacks::SetEventHandler(CMachine *pmac, BEventType et, EVENT_
  */
 // *pout will get one name per Write()
 void BuzzMachineCallbacks::GetMachineNames(CMachineDataOutput *pout) {
-    DBG1("(pout=%p)\n",pout);
+    DBG1("(pout=0x%p)\n",pout);
     FIXME;
 }
 
@@ -368,19 +368,19 @@ CMachine *BuzzMachineCallbacks::GetMachine(char const *name) {
 }
 
 CMachineInfo const *BuzzMachineCallbacks::GetMachineInfo(CMachine *pmac) {
-    DBG1("(pmac=%p)\n",pmac);
+    DBG1("(pmac=0x%p)\n",pmac);
     //FIXME;
     return(pmac->machine_info);
 }
 
 char const *BuzzMachineCallbacks::GetMachineName(CMachine *pmac) {
-    DBG1("(pmac=%p)\n",pmac);
+    DBG1("(pmac=0x%p)\n",pmac);
     FIXME;
     return(NULL);
 }
 
 bool BuzzMachineCallbacks::GetInput(int index, float *psamples, int numsamples, bool stereo, float *extrabuffer) {
-    DBG5("(index=%d,psamples=%p,numsamples=%d,stereo=%d,extrabuffer=%p)\n",index,psamples,numsamples,stereo,extrabuffer);
+    DBG5("(index=%d,psamples=0x%p,numsamples=%d,stereo=%d,extrabuffer=0x%p)\n",index,psamples,numsamples,stereo,extrabuffer);
     FIXME;
     return(FALSE);
 }

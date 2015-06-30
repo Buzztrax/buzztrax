@@ -63,7 +63,7 @@ CWaveLevel const *BuzzMachineCallbacksPre12::GetNearestWaveLevel(int const i, in
             //mdkHelper = new BuzzMDKHelper;
             mdkHelper = new CMDKImplementation;
         }
-        DBG1("return the mdk helper, %p\n",mdkHelper);
+        DBG1("return the mdk helper, 0x%p\n",mdkHelper);
         return((CWaveLevel *)mdkHelper);
     }
     if((i==-2) && (note==-2)) {
@@ -146,7 +146,7 @@ int BuzzMachineCallbacksPre12::GetPlayPos() {
  *
  */
 float *BuzzMachineCallbacksPre12::GetAuxBuffer() {
-    DBGO1(machine_info->Name,"()=%p\n",auxBuffer);
+    DBGO1(machine_info->Name,"()=0x%p\n",auxBuffer);
     return(auxBuffer);
 }
 
@@ -204,7 +204,7 @@ CPattern *BuzzMachineCallbacksPre12::GetPattern(int const index) {
 }
 
 char const *BuzzMachineCallbacksPre12::GetPatternName(CPattern *ppat) {
-    DBG1("(ppat=%p)\n",ppat);
+    DBG1("(ppat=0x%p)\n",ppat);
     FIXME;
     return(NULL);
 }
@@ -215,18 +215,18 @@ void BuzzMachineCallbacksPre12::RenamePattern(char const *oldname, char const *n
 }
 
 void BuzzMachineCallbacksPre12::DeletePattern(CPattern *ppat) {
-    DBG1("(ppat=%p)\n",ppat);
+    DBG1("(ppat=0x%p)\n",ppat);
     FIXME;
 }
 
 int BuzzMachineCallbacksPre12::GetPatternData(CPattern *ppat, int const row, int const group, int const track, int const field) {
-    DBG5("(ppat=%p,row=%d,group=%d,track=%d,field=%d)\n",ppat,row,group,track,field);
+    DBG5("(ppat=0x%p,row=%d,group=%d,track=%d,field=%d)\n",ppat,row,group,track,field);
     FIXME;
     return(0);
 }
 
 void BuzzMachineCallbacksPre12::SetPatternData(CPattern *ppat, int const row, int const group, int const track, int const field, int const value) {
-    DBG6("(ppat=%p,row=%d,group=%d,track=%d,field=%d,value=%d)\n",ppat,row,group,track,field,value);
+    DBG6("(ppat=0x%p,row=%d,group=%d,track=%d,field=%d,value=%d)\n",ppat,row,group,track,field,value);
     FIXME;
 }
 
@@ -239,7 +239,7 @@ CSequence *BuzzMachineCallbacksPre12::CreateSequence() {
     return(NULL);
 }
 void BuzzMachineCallbacksPre12::DeleteSequence(CSequence *pseq) {
-    DBG1("(pseq=%p)\n",pseq);
+    DBG1("(pseq=0x%p)\n",pseq);
     FIXME;
 }
 
@@ -255,5 +255,5 @@ CPattern *BuzzMachineCallbacksPre12::GetSequenceData(int const row) {
 }
 
 void BuzzMachineCallbacksPre12::SetSequenceData(int const row, CPattern *ppat) {
-    DBG2("(row=%d,ppat=%p)\n",row,ppat);
+    DBG2("(row=%d,ppat=0x%p)\n",row,ppat);
 }

@@ -63,7 +63,6 @@ extern "C" DE void bm_set_track_parameter_value(BuzzMachine *bm,int track,int in
 
 // helpers
 
-
 // global API
 
 extern "C" DE void bm_set_logger(DebugLoggerFunc func) {
@@ -360,7 +359,6 @@ extern "C" DE BuzzMachine *bm_new(BuzzMachineHandle *bmh) {
     // we need to create a CMachine object
     bm->machine=new CMachine(bm->machine_iface,bm->machine_info);
 
-
     DBG1("  mi-version 0x%04x\n",bm->machine_info->Version);
     if((bm->machine_info->Version & 0xff) < 15) {
       bm->callbacks=(CMICallbacks *)new BuzzMachineCallbacksPre12(bm->machine,bm->machine_iface,bm->machine_info,&bm->host_callbacks);
@@ -411,7 +409,7 @@ static void bm_init_track_params(BuzzMachine *bm, CMachineInfo *mi) {
 extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned char *blob_data) {
     int i;
 
-    DBG2("  bm_init(bm,%ld,%p)\n",blob_size,blob_data);
+    DBG2("  bm_init(bm,%ld,0x%p)\n",blob_size,blob_data);
 
     // initialise attributes
     for(i=0;i<bm->machine_info->numAttributes;i++) {
@@ -552,7 +550,7 @@ extern "C" DE void bm_set_track_parameter_value(BuzzMachine *bm,int track,int in
     if(!(bm->machine_iface->TrackVals)) return;
 
     void *ptr=bm_get_track_parameter_location(bm,track,index);
-    DBG4("track=%d, index=%d, TrackVals :%p, %p\n",track, index,bm->machine_iface->TrackVals,ptr);
+    DBG4("track=%d, index=%d, TrackVals :0x%p, 0x%p\n",track, index,bm->machine_iface->TrackVals,ptr);
     if (ptr) {
         switch(bm->machine_info->Parameters[bm->machine_info->numGlobalParameters+index]->Type) {
             case pt_note:
@@ -619,7 +617,7 @@ extern "C" DE void bm_set_global_parameter_value(BuzzMachine *bm,int index,int v
     if(!(bm->machine_iface->GlobalVals)) return;
 
     void *ptr=bm_get_global_parameter_location(bm,index);
-    DBG3("index=%d, GlobalVals :%p, %p\n",index,bm->machine_iface->GlobalVals,ptr);
+    DBG3("index=%d, GlobalVals :0x%p, 0x%p\n",index,bm->machine_iface->GlobalVals,ptr);
     if (ptr) {
         switch(bm->machine_info->Parameters[index]->Type) {
             case pt_note:
