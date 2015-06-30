@@ -24,13 +24,13 @@ class CMachine {
     // Some machines look up these by reading directly from zzub::metaplugin memory.
     
     char _placeholder[12];
-    char* _internal_name;           // 0x14: polac's VST reads this string, set to 0
+    const char* _internal_name;           // 0x14: polac's VST reads this string, set to 0
     char _placeholder2[52];
     void* _internal_machine;        // pointer to CMachine*, scanned for by some plugins
     void* _internal_machine_ex;     // 0x50: same as above, but is not scanned for
     char _placeholder3[20];
-    char* _internal_globalState;    // 0x68: copy of machines global state
-    char* _internal_trackState;     // 0x6C: copy of machines track state
+    void* _internal_globalState;    // 0x68: copy of machines global state
+    void* _internal_trackState;     // 0x6C: copy of machines track state
     char _placeholder4[120];
     int _internal_seqCommand;       // 0xE8: used by mooter, 0 = --, 1 = mute, 2 = thru
     char _placeholder5[17];
@@ -44,24 +44,35 @@ public:
     CMachine() {
         machine_interface=NULL;
         machine_info=NULL;
-        _placeholder[0] = 0;
+        memset (_placeholder, 0,  sizeof(_placeholder));
         _internal_name = NULL;
-        _placeholder2[0] = 0;
+		memset (_placeholder2, 0,  sizeof(_placeholder2));
         _internal_machine = this;
         _internal_machine_ex = NULL;
-        _placeholder3[0] = 0;
+		memset (_placeholder3, 0,  sizeof(_placeholder3));
         _internal_globalState = NULL;
         _internal_trackState = NULL;
-        _placeholder4[0] = 0;
+		memset (_placeholder4, 0,  sizeof(_placeholder4));
         _internal_seqCommand = 0;
-        _placeholder5[0] = 0;
+		memset (_placeholder5, 0,  sizeof(_placeholder5));
         hardMuted = 0;
     }
     
     CMachine(CMachineInterface *_machine_interface,CMachineInfo *_machine_info) {
         machine_interface=_machine_interface;
         machine_info=_machine_info;
+        memset (_placeholder, 0,  sizeof(_placeholder));
+        _internal_name = _machine_info->Name;
+        memset (_placeholder2, 0,  sizeof(_placeholder2));
         _internal_machine = this;
+        _internal_machine_ex = NULL;
+        memset (_placeholder3, 0,  sizeof(_placeholder3));
+		_internal_globalState = _machine_interface->GlobalVals;
+        _internal_trackState = _machine_interface->TrackVals;
+        memset (_placeholder4, 0,  sizeof(_placeholder4));
+        _internal_seqCommand = 0;
+        memset (_placeholder5, 0,  sizeof(_placeholder5));
+        hardMuted = 0;
     }
 };
 
