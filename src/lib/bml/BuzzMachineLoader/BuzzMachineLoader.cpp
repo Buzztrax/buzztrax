@@ -35,9 +35,9 @@
 #include "MachineDataImpl.h"
 #include "CMachine.h"
 #include "BuzzMachineLoader.h"
-#include "dsplib.h"
 
 #ifdef _MSC_VER
+#include "dsplib.h"
 #define DE __declspec(dllexport)
 #else
 #define DE
@@ -46,6 +46,10 @@
 // buzz emulation code
 
 typedef void (*CMIInitPtr)(CMachineInterface *_this, CMachineDataInput * const pi);
+
+#define MPF_STATE 2
+#define MIF_MONO_TO_STEREO (1<<0)
+#define MIF_USES_LIB_INTERFACE (1<<2)
 
 // globals
 
@@ -211,7 +215,6 @@ extern "C" DE int bm_get_machine_info(BuzzMachineHandle *bmh,BuzzMachineProperty
         case BM_PROP_COMMANDS:            *sval=bmh->machine_info->Commands;break;
         case BM_PROP_DLL_NAME:            *sval=bmh->lib_name;break;
         case BM_PROP_NUM_INPUT_CHANNELS:
-          //*ival=(bm->mdkHelper && bm->mdkHelper->numChannels)?bm->mdkHelper->numChannels:1;
           if(bmh->mdk_num_channels) {
             *ival=bmh->mdk_num_channels;
           }
@@ -220,7 +223,6 @@ extern "C" DE int bm_get_machine_info(BuzzMachineHandle *bmh,BuzzMachineProperty
           }
           break;
         case BM_PROP_NUM_OUTPUT_CHANNELS:
-          //*ival=(bm->mdkHelper && bm->mdkHelper->numChannels==2)?2:((bm->machine_info->Flags&MIF_MONO_TO_STEREO)?2:1);
           if(bmh->mdk_num_channels==2) {
             *ival=2;
           }
@@ -502,19 +504,15 @@ static void * bm_get_track_parameter_location(BuzzMachine *bm,int track,int inde
       return NULL;
     }
     // @todo prepare pointer array in bm_init
+    int ng=bm->machine_info->numGlobalParameters;
     for(int j=0;j<=track;j++) {
         for(int i=0;i<bm->machine_info->numTrackParameters;i++) {
             if((j==track) && (i==index))
                 return (void *)ptr;
-            switch(bm->machine_info->Parameters[bm->machine_info->numGlobalParameters+i]->Type) {
-                case pt_note:
-                case pt_switch:
-                case pt_byte:
-                    ptr++;
-                    break;
-                case pt_word:
-                    ptr+=2;
-                    break;
+            if(bm->machine_info->Parameters[ng+i]->Type<3) {
+                ptr++;
+            } else {
+                ptr+=2;
             }
         }
     }
@@ -530,15 +528,10 @@ extern "C" DE int bm_get_track_parameter_value(BuzzMachine *bm,int track,int ind
     int value=0;
     void *ptr=bm_get_track_parameter_location(bm,track,index);
     if (ptr) {
-        switch(bm->machine_info->Parameters[bm->machine_info->numGlobalParameters+index]->Type) {
-            case pt_note:
-            case pt_switch:
-            case pt_byte:
-                value=(int)(*((byte *)ptr));
-                break;
-            case pt_word:
-                value=(int)(*((word *)ptr));
-                break;
+        if(bm->machine_info->Parameters[bm->machine_info->numGlobalParameters+index]->Type<3) {
+            value=(int)(*((byte *)ptr));
+        } else {
+            value=(int)(*((word *)ptr));
         }
     }
     return(value);
@@ -552,15 +545,10 @@ extern "C" DE void bm_set_track_parameter_value(BuzzMachine *bm,int track,int in
     void *ptr=bm_get_track_parameter_location(bm,track,index);
     DBG4("track=%d, index=%d, TrackVals :0x%p, 0x%p\n",track, index,bm->machine_iface->TrackVals,ptr);
     if (ptr) {
-        switch(bm->machine_info->Parameters[bm->machine_info->numGlobalParameters+index]->Type) {
-            case pt_note:
-            case pt_switch:
-            case pt_byte:
-                (*((byte *)ptr))=(byte)value;
-                break;
-            case pt_word:
-                (*((word *)ptr))=(word)value;
-                break;
+        if(bm->machine_info->Parameters[bm->machine_info->numGlobalParameters+index]->Type<3) {
+            (*((byte *)ptr))=(byte)value;
+        } else {
+            (*((word *)ptr))=(word)value;
         }
     }
 }
@@ -576,15 +564,10 @@ static void * bm_get_global_parameter_location(BuzzMachine *bm,int index) {
     for(int i=0;i<=index;i++) {
         if(i==index)
             return (void *)ptr;
-        switch(bm->machine_info->Parameters[i]->Type) {
-            case pt_note:
-            case pt_switch:
-            case pt_byte:
-                ptr++;
-                break;
-            case pt_word:
-                ptr+=2;
-                break;
+        if(bm->machine_info->Parameters[i]->Type<3) {
+            ptr++;
+        } else {
+            ptr+=2;
         }
     }
     DBG("parameter not found\n");
@@ -598,15 +581,10 @@ extern "C" DE int bm_get_global_parameter_value(BuzzMachine *bm,int index) {
     int value=0;
     void *ptr=bm_get_global_parameter_location(bm,index);
     if (ptr) {
-        switch(bm->machine_info->Parameters[index]->Type) {
-            case pt_note:
-            case pt_switch:
-            case pt_byte:
-                value=(int)(*((byte *)ptr));
-                break;
-            case pt_word:
-                value=(int)(*((word *)ptr));
-                break;
+        if(bm->machine_info->Parameters[index]->Type<3) {
+            value=(int)(*((byte *)ptr));
+        } else {
+            value=(int)(*((word *)ptr));
         }
     }
     return(value);
@@ -619,15 +597,10 @@ extern "C" DE void bm_set_global_parameter_value(BuzzMachine *bm,int index,int v
     void *ptr=bm_get_global_parameter_location(bm,index);
     DBG3("index=%d, GlobalVals :0x%p, 0x%p\n",index,bm->machine_iface->GlobalVals,ptr);
     if (ptr) {
-        switch(bm->machine_info->Parameters[index]->Type) {
-            case pt_note:
-            case pt_switch:
-            case pt_byte:
-                (*((byte *)ptr))=(byte)value;
-                break;
-            case pt_word:
-                (*((word *)ptr))=(word)value;
-                break;
+        if(bm->machine_info->Parameters[index]->Type<3) {
+            (*((byte *)ptr))=(byte)value;
+        } else {
+            (*((word *)ptr))=(word)value;
         }
     }
 }

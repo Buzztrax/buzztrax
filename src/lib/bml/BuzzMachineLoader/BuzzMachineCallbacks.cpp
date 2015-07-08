@@ -29,7 +29,6 @@
 #include "debug.h"
 
 #include "BuzzMachineCallbacks.h"
-//#include "BuzzMDKHelper.h"
 #include "mdkimp.h"
 #include "BuzzMachineLoader.h"
 #include "CMachine.h"
@@ -62,7 +61,6 @@ CWaveLevel const *BuzzMachineCallbacks::GetNearestWaveLevel(int const i, int con
         // the evil MDK hack that Buzz MDK machines rely upon
         if(!mdkHelper) {
             DBG("create the mdk helper\n");
-            //mdkHelper = new BuzzMDKHelper;
             mdkHelper = new CMDKImplementation;
         }
         DBG1("return the mdk helper, 0x%p\n",mdkHelper);
@@ -348,7 +346,7 @@ void BuzzMachineCallbacks::SetnumOutputChannels(CMachine *pmac, int n) {
     // would this need to use mdk?
 }
 
-void BuzzMachineCallbacks::SetEventHandler(CMachine *pmac, BEventType et, EVENT_HANDLER_PTR p, void *param) {
+void BuzzMachineCallbacks::SetEventHandler(CMachine *pmac, BEventType et, EventHandlerPtr p, void *param) {
     DBG4("(pmac=0x%p,et=%d,p=0x%p,param=0x%p)\n",pmac,et,p,param);
     FIXME;
 }

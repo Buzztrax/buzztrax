@@ -18,8 +18,7 @@
 #ifndef BUZZ_MACHINE_CALLBACKS_H
 #define BUZZ_MACHINE_CALLBACKS_H
 
-#include "MachineInterface.h"
-//#include "BuzzMDKHelper.h"
+#include "CMICallbacks.h"
 #include "mdkimp.h"
 
 // should be MAX_BUFFER_LENGTH=256
@@ -27,6 +26,9 @@
 #define BMC_AUXBUFFER_SIZE 1024
 
 typedef struct _CHostCallbacks CHostCallbacks;
+
+class CMachineInfo;
+class CMachineInterface;
 
 class BuzzMachineCallbacks : public CMICallbacks
 {
@@ -116,7 +118,7 @@ public:
 
     void SetnumOutputChannels(CMachine *pmac, int n);    // if n=1 Work(), n=2 WorkMonoToStereo()
 
-    void SetEventHandler(CMachine *pmac, BEventType et, EVENT_HANDLER_PTR p, void *param);
+    void SetEventHandler(CMachine *pmac, BEventType et, EventHandlerPtr p, void *param);
 
     char const *GetWaveName(int const i);
 
@@ -133,7 +135,6 @@ private:
     CMachineInterface *machine_interface;
     CMachineInfo *machine_info;
     CWaveLevel defaultWaveLevel;/*={0,NULL,0,0,0,0};*/
-    //BuzzMDKHelper *mdkHelper;
     CMDKImplementation *mdkHelper;
     CHostCallbacks **host_callbacks;
     // static float ... does not work?

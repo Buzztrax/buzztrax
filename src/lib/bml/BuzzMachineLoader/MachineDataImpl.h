@@ -24,7 +24,47 @@
 #include "windef.h"
 #endif
 #include <stdio.h>
-#include "MachineInterface.h"
+#include <string.h>
+
+typedef unsigned char byte;
+typedef unsigned short word;
+typedef unsigned long dword;
+
+class CMachineDataInput
+{
+public:
+  //virtual ~CMachineDataInput() {}
+	virtual void Read(void *pbuf, int const numbytes);
+
+	void Read(int &d) { Read(&d, sizeof(int)); }
+	void Read(dword &d) { Read(&d, sizeof(dword)); }
+	void Read(short &d) { Read(&d, sizeof(short)); }
+	void Read(word &d) { Read(&d, sizeof(word)); }
+	void Read(char &d) { Read(&d, sizeof(char)); }
+	void Read(byte &d) { Read(&d, sizeof(byte)); }
+	void Read(float &d) { Read(&d, sizeof(float)); }
+	void Read(double &d) { Read(&d, sizeof(double)); }
+	void Read(bool &d) { Read(&d, sizeof(bool)); }
+
+};
+
+class CMachineDataOutput
+{
+public:
+  //virtual ~CMachineDataOutput() {}
+	virtual void Write(void *pbuf, int const numbytes);
+	void Write(int d) { Write(&d, sizeof(int)); }
+	void Write(dword d) { Write(&d, sizeof(dword)); }
+	void Write(short d) { Write(&d, sizeof(short)); }
+	void Write(word d) { Write(&d, sizeof(word)); }
+	void Write(char d) { Write(&d, sizeof(char)); }
+	void Write(byte d) { Write(&d, sizeof(byte)); }
+	void Write(float d) { Write(&d, sizeof(float)); }
+	void Write(double d) { Write(&d, sizeof(double)); }
+	void Write(bool d) { Write(&d, sizeof(bool)); }
+	void Write(char const *str) { Write((void *)str, (int)(strlen(str)+1)); }
+
+};
 
 class CMachineDataInputImpl : public CMachineDataInput
 {

@@ -18,8 +18,7 @@
 #ifndef BUZZ_MACHINE_CALLBACKS_PRE12_H
 #define BUZZ_MACHINE_CALLBACKS_PRE12_H
 
-#include "MachineInterface.h"
-//#include "BuzzMDKHelper.h"
+#include "CMICallbacks.h"
 #include "mdkimp.h"
 
 // should be MAX_BUFFER_LENGTH=256
@@ -27,6 +26,9 @@
 #define BMC_AUXBUFFER_SIZE 1024
 
 typedef struct _CHostCallbacks CHostCallbacks;
+
+class CMachineInfo;
+class CMachineInterface;
 
 class BuzzMachineCallbacksPre12 : public CMICallbacks
 {
@@ -93,12 +95,10 @@ private:
     CMachineInterface *machine_interface;
     CMachineInfo *machine_info;
     CWaveLevel defaultWaveLevel;/*={0,NULL,0,0,0,0};*/
-    //BuzzMDKHelper *mdkHelper;
     CMDKImplementation *mdkHelper;
     CHostCallbacks **host_callbacks;
     // static float ... does not work?
     float auxBuffer[2*BMC_AUXBUFFER_SIZE]; // gah, inefficient, because BuzzMachineCallbacks objects could all share same aux buffer
 };
-
 
 #endif // BUZZ_MACHINE_CALLBACKS_H

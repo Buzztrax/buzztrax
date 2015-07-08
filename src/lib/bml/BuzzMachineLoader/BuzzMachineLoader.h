@@ -58,12 +58,8 @@ public:
 // machine instance handle
 class BuzzMachine {
 public:
-    /* FIXME: what about adding a 4 byte cookie here
-     * which bm_new() could set and
-     * a macro BM_IS_BM(bm) could check
-     */
 	// library handle
-    BuzzMachineHandle *bmh;
+	BuzzMachineHandle *bmh;
 	// callback instance
 	CMICallbacks *callbacks;
 	// classes
@@ -72,8 +68,6 @@ public:
 	CMachine *machine;
 	CMDKImplementation *mdkHelper;
 	CHostCallbacks *host_callbacks;
-	//callbacks->machine_ex;
-	//CMachineInterfaceEx *machine_ex;
 };
 #else
 typedef void BuzzMachineHandle;

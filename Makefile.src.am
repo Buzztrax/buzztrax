@@ -149,28 +149,24 @@ libbuzzmachineloader_la_SOURCES = \
   src/lib/bml/BuzzMachineLoader/BuzzMachineCallbacks.cpp \
   src/lib/bml/BuzzMachineLoader/BuzzMachineCallbacksPre12.cpp \
   src/lib/bml/BuzzMachineLoader/BuzzMachineLoader.cpp \
-  src/lib/bml/BuzzMachineLoader/BuzzMachineVirtualCallbacks.cpp \
   src/lib/bml/BuzzMachineLoader/MachineDataImpl.cpp \
   src/lib/bml/BuzzMachineLoader/OscTable.cpp \
   src/lib/bml/BuzzMachineLoader/mdkimp.cpp \
   src/lib/bml/BuzzMachineLoader/debug.cpp
   
 noinst_HEADERS += \
-  src/lib/bml/BuzzMachineLoader/BuzzMachine.h \
   src/lib/bml/BuzzMachineLoader/BuzzMachineCallbacks.h \
   src/lib/bml/BuzzMachineLoader/BuzzMachineCallbacksPre12.h \
   src/lib/bml/BuzzMachineLoader/BuzzMachineLoader.h \
+  src/lib/bml/BuzzMachineLoader/CLibInterface.h \
   src/lib/bml/BuzzMachineLoader/CMachine.h \
+  src/lib/bml/BuzzMachineLoader/CMICallbacks.h \
   src/lib/bml/BuzzMachineLoader/MachineDataImpl.h \
   src/lib/bml/BuzzMachineLoader/MachineInterface.h \
   src/lib/bml/BuzzMachineLoader/OscTable.h \
-  src/lib/bml/BuzzMachineLoader/mdk.h \
   src/lib/bml/BuzzMachineLoader/mdkimp.h \
-  src/lib/bml/BuzzMachineLoader/bw.h \
-  src/lib/bml/BuzzMachineLoader/debug.h \
-  src/lib/bml/BuzzMachineLoader/dsplib.h \
-  src/lib/bml/BuzzMachineLoader/resample.h
-
+  src/lib/bml/BuzzMachineLoader/debug.h
+  
 libbuzzmachineloader_la_CXXFLAGS = $(PTHREAD_CFLAGS) $(BML_CXXFLAGS) \
   -I$(top_srcdir)/src/lib/dllwrapper \
   -I$(top_srcdir)/src/lib/bml/BuzzMachineLoader

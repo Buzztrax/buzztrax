@@ -15,16 +15,11 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdk.h"
+#include <assert.h>
+
 #include "mdkimp.h"
 #include "debug.h"
-
-/*
-CMDKImplementation *NewMDKImp()
-{
-	return new CMDKImplementation;
-}
-*/
+#include "MachineDataImpl.h"
 
 void CopyStereoToMono(float *pout, float *pin, int numsamples, float amp)
 {
@@ -347,7 +342,6 @@ void CMDKImplementation::SetMode()
 		pmi->OutputModeChanged(numChannels > 1 ? true : false);
 		return;
 	}
-
 
 	for (InputList::iterator i = Inputs.begin(); i != Inputs.end(); i++)
 	{

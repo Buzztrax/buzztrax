@@ -28,7 +28,6 @@
 #include "debug.h"
 
 #include "BuzzMachineCallbacksPre12.h"
-//#include "BuzzMDKHelper.h"
 #include "mdkimp.h"
 #include "BuzzMachineLoader.h"
 #include "OscTable.h"
@@ -60,7 +59,6 @@ CWaveLevel const *BuzzMachineCallbacksPre12::GetNearestWaveLevel(int const i, in
         // the evil MDK hack that Buzz MDK machines rely upon
         if(!mdkHelper) {
             DBG("create the mdk helper\n");
-            //mdkHelper = new BuzzMDKHelper;
             mdkHelper = new CMDKImplementation;
         }
         DBG1("return the mdk helper, 0x%p\n",mdkHelper);
