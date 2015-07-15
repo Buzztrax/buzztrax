@@ -41,7 +41,7 @@ struct CWaveLevel
 
 class CMachine;
 class CMachineDataOutput;
-class CMachineInfo;
+struct CMachineInfo;
 class CMachineInterface;
 class CMachineInterfaceEx;
 class CPattern;

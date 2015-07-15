@@ -20,7 +20,7 @@
 #ifndef MACHINE_H
 #define MACHINE_H
 
-class CMachineInfo;
+struct CMachineInfo;
 class CMachineInterface;
 
 class CMachine {

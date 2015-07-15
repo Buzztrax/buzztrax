@@ -20,6 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;USE_DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -137,9 +138,6 @@
 				RelativePath=".\BuzzMachineLoader.cpp">
 			</File>
 			<File
-				RelativePath=".\BuzzMachineVirtualCallbacks.cpp">
-			</File>
-			<File
 				RelativePath=".\debug.cpp">
 			</File>
 			<File
@@ -184,16 +182,16 @@
 				RelativePath=".\BuzzMachineLoader.h">
 			</File>
 			<File
-				RelativePath=".\bw.h">
+				RelativePath=".\CLibInterface.h">
 			</File>
 			<File
 				RelativePath=".\CMachine.h">
 			</File>
 			<File
-				RelativePath=".\debug.h">
+				RelativePath=".\CMICallbacks.h">
 			</File>
 			<File
-				RelativePath=".\dsplib.h">
+				RelativePath=".\debug.h">
 			</File>
 			<File
 				RelativePath=".\MachineDataImpl.h">
@@ -202,16 +200,10 @@
 				RelativePath=".\MachineInterface.h">
 			</File>
 			<File
-				RelativePath=".\mdk.h">
-			</File>
-			<File
 				RelativePath=".\mdkimp.h">
 			</File>
 			<File
 				RelativePath=".\OscTable.h">
-			</File>
-			<File
-				RelativePath=".\resample.h">
 			</File>
 			<File
 				RelativePath=".\resource.h">

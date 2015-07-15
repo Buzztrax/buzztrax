@@ -27,7 +27,7 @@
 
 typedef struct _CHostCallbacks CHostCallbacks;
 
-class CMachineInfo;
+struct CMachineInfo;
 class CMachineInterface;
 
 class BuzzMachineCallbacksPre12 : public CMICallbacks

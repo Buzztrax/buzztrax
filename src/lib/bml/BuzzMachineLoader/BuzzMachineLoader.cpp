@@ -37,8 +37,10 @@
 #include "BuzzMachineLoader.h"
 
 #ifdef _MSC_VER
-#include "dsplib.h"
+//#include "dsplib.h"
 #define DE __declspec(dllexport)
+#define DI __declspec(dllimport)
+DI void __fastcall DSP_Init(int const samplerate);
 #else
 #define DE
 #endif
