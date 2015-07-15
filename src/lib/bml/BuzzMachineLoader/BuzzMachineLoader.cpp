@@ -79,7 +79,7 @@ extern "C" DE void bm_set_master_info(long bpm, long tpb, long srat) {
   master_info.BeatsPerMin=bpm;        /*   120 */
   master_info.TicksPerBeat=tpb;        /*     4 */
   master_info.SamplesPerSec=srat;    /* 44100 */
-  master_info.SamplesPerTick=(int)((60*master_info.SamplesPerSec)/(master_info.BeatsPerMin*master_info.TicksPerBeat));
+  master_info.SamplesPerTick=(int)((60.0*master_info.SamplesPerSec)/(float)(master_info.BeatsPerMin*master_info.TicksPerBeat));
   master_info.PosInTick=0; /*master_info.SamplesPerTick-1;*/
   master_info.TicksPerSec=(float)master_info.SamplesPerSec/(float)master_info.SamplesPerTick;
 #ifdef _MSC_VER
@@ -189,7 +189,6 @@ extern "C" DE BuzzMachineHandle *bm_open(char *bm_file_name) {
       bm_close(bmh);
       return(NULL);
     }
-
     return(bmh);
 }
 
@@ -356,12 +355,13 @@ extern "C" DE BuzzMachine *bm_new(BuzzMachineHandle *bmh) {
 
     // call CreateMachine
     bm->machine_iface=bm->bmh->CreateMachine();
-    DBG("  CreateMachine() called\n");
+    DBG1("  CreateMachine() called, mi=0x%p\n", bm->machine_iface);
     bm->machine_iface->pMasterInfo=&master_info;
     bm->host_callbacks = NULL;    // not callbacks set by host so far
 
     // we need to create a CMachine object
     bm->machine=new CMachine(bm->machine_iface,bm->machine_info);
+	DBG1("  new CMachine called, m=0x%p\n", bm->machine);
 
     DBG1("  mi-version 0x%04x\n",bm->machine_info->Version);
     if((bm->machine_info->Version & 0xff) < 15) {
@@ -373,6 +373,7 @@ extern "C" DE BuzzMachine *bm_new(BuzzMachineHandle *bmh) {
       DBG("  callback instance created\n");
     }
     bm->machine_iface->pCB=bm->callbacks;
+	DBG1("  new CMICallbacks called, pCB=0x%p\n", bm->callbacks);
 
     return(bm);
 }
@@ -454,6 +455,9 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
         bm->mdkHelper = (CMDKImplementation*)bm->callbacks->GetNearestWaveLevel(-1,-1);
         DBG1("  numInputChannels=%d\n",(bm->mdkHelper)?bm->mdkHelper->numChannels:0);
         // if numChannels=0, its not a mdk-machine and numChannels=1
+		if (bm->mdkHelper) {
+			bm->mdkHelper->Init(pcmdii);
+		}
       }
     }
 

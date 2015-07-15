@@ -95,6 +95,10 @@ public:
         memset (_placeholder6, 0,  sizeof(_placeholder6));
         hardMuted = 0;
     }
+	void Dummy1() {DBG1("    dummy1 called, this=0x%p\n", this);}
+	void Dummy2() {DBG1("    dummy2 called, this=0x%p\n", this);}
+	void Dummy3() {DBG1("    dummy3 called, this=0x%p\n", this);}
+	void Dummy4() {DBG1("    dummy4 called, this=0x%p\n", this);}
 };
 
 #endif // MACHINE_H

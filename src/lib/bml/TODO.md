@@ -246,13 +246,25 @@ Aeguelles TB4004
   noisy distortion
 
 ## Effects
-Arguelles TruePan
+Arguelles Degrader
+      4.6823: :0:: f:\buzzmachineloader.cpp:442:bm_init   no CMachineDataInput
+  vex x86->IR: unhandled instruction bytes: 0xDD 0xFE 0x32 0x0
+  ==14474== Invalid write of size 1
+  ==14474==    at 0xFEDD6398: ???
+  ==14474==  Address 0xf5c905d2 is not stack'd, malloc'd or (recently) free'd
+cheapo amp
+  seems to call some method on CMachine
+     17.4767: :0:: f:\buzzmachinecallbacks.cpp:163:BuzzMachineCallbacks::GetThisMachine ()=0x04685A80
+  ==14386== Jump to the invalid address stated on the next line
+  ==14386==    at 0x0: ???
+  ==14386==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+
 Jeskola XDelay (causes distortions)
 Jeskola Raverb (causes distortions)
   BuzzMachineCallbacks::GetEnvSize (wave=-96185375,env=0)
   buzzmachinecallbackspre12.cpp:112:BuzzMachineCallbacksPre12::GetOscillatorTable (waveform=-128840458)
 Jeskola Stereo Reverb (sometimes silences the whole song, NAN?)
-Effects/Jeskola Wave Shaper.dll
+Jeskola Wave Shaper.dll
   if we don't have MFC42.DLL
     Called unk_MFC42.DLL:1176
     Called unk_MFC42.DLL:1243

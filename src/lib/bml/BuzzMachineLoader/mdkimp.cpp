@@ -296,8 +296,9 @@ bool CMDKImplementation::WorkMonoToStereo(float *pin, float *pout, int numsample
 	
 void CMDKImplementation::Init(CMachineDataInput * const pi)
 {
-    DBG("  CMDKImplementation::Init() called\n");
+    DBG2("  CMDKImplementation::Init(0x%p) called, this=0x%p\n",pi,this);
 	ThisMachine = pmi->pCB->GetThisMachine();
+	DBG1("    machine is 0x%p\n", ThisMachine);
 	
 	numChannels = 1;
 
@@ -312,6 +313,7 @@ void CMDKImplementation::Init(CMachineDataInput * const pi)
 	}
 	
 
+	DBG1("    calling mdkmi->MDKInit(), pmi=0x%p\n",pmi);
 	pmi->MDKInit(pi);
 }
 
@@ -385,13 +387,16 @@ CMDKMachineInterface::~CMDKMachineInterface()
 
 void CMDKMachineInterface::Init(CMachineDataInput * const pi)
 {
-    DBG("  CMDKMachineInterface::Init() called\n");
+	DBG2("  CMDKMachineInterface::Init(0x%p) called, this=0x%p\n",pi,this);
     pImp = (CMDKImplementation*)pCB->GetNearestWaveLevel(-1,-1);
 	pImp->pmi = this;
+	DBG1("    mdk impl=0x%p\n",pImp);
 
 	CMDKMachineInterfaceEx *pex = GetEx();
+	DBG1("    mdkiface ex=0x%p\n",pex);
 	pex->pImp = pImp;
 	pCB->SetMachineInterfaceEx(pex);
 
+	DBG("    calling mdk->Init()\n");
 	pImp->Init(pi);
 }
