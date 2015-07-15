@@ -16,23 +16,17 @@ Buzztrax is a music composer similar to tracker applications. It is roughly
 modelled after the windows only, closed source application called Buzz.
 
 ## requirements
-* clutter
-* clutter-gtk
-* glib2
-* gtk+3
-* gstreamer
-* gst-plugins-base
-* gst-plugins-good
-* gst-plugins-bad
-* gst-buzztrax (from buzztrax git, use same version as this module)
-* gsf
-* libxml2
+* gstreamer >= 1.2 and its plugins (gstreamer, gst-plugins-base and gst-plugins-good).
+* glib, gsf and libxml2 for the core libraries.
+* clutter-gtk and gtk+ for the UI
 
-Regarding gstreamer - the newer the better.
-
-## supported packages
-* check (http://check.sf.net - for unit tests)
-* gudev (for interaction controller)
+## optional packages
+* gst-plugins-ugly: for the use of mp3 recording
+* gst-plugins-bad: extra audio effects
+* gudev and libasound: for interaction controller support
+* orc: for plugin acceleration
+* fluidsynth: to build a relates gstreamer wrapper
+* check: for unit tests
 
 ## building from git
 To build use autogen.sh instead of configure. This accept the same options like
@@ -41,7 +35,6 @@ To build from git one needs to have gtk-doc and cvs (for autopoint from gettext)
 installed.
 
 ## directories
-* design : little test sources, not needed for releases, not built during make
 * docs : design ideas and API reference
 * po : gettext i18n catalogs
 * src : the project sources
