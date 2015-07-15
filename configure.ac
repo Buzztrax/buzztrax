@@ -265,7 +265,7 @@ AC_ARG_ENABLE(
 	,
 	[enable_dllwrapper="auto"])
 if test "$enable_dllwrapper" != "no"; then
-  if test x$HAVE_X86 = xno; then
+  if test "x$HAVE_X86" = "xno"; then
     enable_dllwrapper="no"
   else
     enable_dllwrapper="yes"
