@@ -383,7 +383,7 @@ esac
 AM_CONDITIONAL(USE_GIR, test "x$enable_gir" == "xyes")
 
 GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
-GTK_PREFIX="`$PKG_CONFIG --variable=prefix gtk+-2.0`"
+GTK_PREFIX="`$PKG_CONFIG --variable=prefix gtk+-3.0`"
 GST_PREFIX="`$PKG_CONFIG --variable=prefix gstreamer-1.0`"
 AC_SUBST(GLIB_PREFIX)
 AC_SUBST(GTK_PREFIX)
