@@ -351,10 +351,10 @@ extern "C" DE BuzzMachine *bm_new(BuzzMachineHandle *bmh) {
 
     // copy some fields from bmh for convinient access
     bm->bmh=bmh;
-    bm->machine_info=bm->bmh->machine_info;
+    bm->machine_info=bmh->machine_info;
 
     // call CreateMachine
-    bm->machine_iface=bm->bmh->CreateMachine();
+    bm->machine_iface=bmh->CreateMachine();
     DBG1("  CreateMachine() called, mi=0x%p\n", bm->machine_iface);
     bm->machine_iface->pMasterInfo=&master_info;
     bm->host_callbacks = NULL;    // not callbacks set by host so far
@@ -455,9 +455,10 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
         bm->mdkHelper = (CMDKImplementation*)bm->callbacks->GetNearestWaveLevel(-1,-1);
         DBG1("  numInputChannels=%d\n",(bm->mdkHelper)?bm->mdkHelper->numChannels:0);
         // if numChannels=0, its not a mdk-machine and numChannels=1
-		if (bm->mdkHelper) {
-			bm->mdkHelper->Init(pcmdii);
-		}
+        // don't initialize this here, seems to cause recursion
+		//if (bm->mdkHelper) {
+		//	bm->mdkHelper->Init(pcmdii);
+		//}
       }
     }
 
