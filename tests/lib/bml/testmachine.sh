@@ -84,6 +84,15 @@ touch testmachine.body.html
 gst-launch-1.0 >/dev/null 2>&1 audiotestsrc wave="ticks" num-buffers=100 ! audio/x-raw,format=S16LE,channels=1 ! filesink location=input.raw
 #dd count=200 if=/dev/zero of=input.raw
 
+# limit the subprocesses
+# -S soft
+# -t cputime: 20sec
+# -d data seg size: 32768 (32Mb)
+# -m max memory size: 32768 (32Mb)
+# -v vitrual memory: 32768 (32Mb)
+#ulimit -S -t20 -d32768 -m32768 -v32768 # too tight
+ulimit -S -t20 -d32768 -m32768
+
 # run test loop
 
 for machine in $machine_glob ; do
