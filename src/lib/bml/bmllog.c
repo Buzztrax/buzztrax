@@ -113,6 +113,7 @@ _bmllog_init (int debug_log_flags)
   if (debug_log_flags & 0x1) {
     logger = _log_stdout_logger;
   }
+  // for dllwrappper
   if (debug_log_flags & 0x2) {
     _log_printf = _log_stdout_printf;
   }

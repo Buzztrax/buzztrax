@@ -178,29 +178,6 @@ longcount_stub (long long *z)
   longcount (z);
 }
 
-//#define DETAILED_OUT 1
-
-#ifndef DETAILED_OUT
-#define dbgprintf(...)
-#else
-static inline void
-    __attribute__ ((__format__ (__printf__, 1, 2))) dbgprintf (char *fmt, ...)
-{
-  va_list va;
-  va_start (va, fmt);
-  vprintf (fmt, va);
-  fflush (stdout);
-  /*FILE *f=fopen("./log", "a");
-     if(f)
-     {
-     vfprintf(f, fmt, va);
-     fsync(fileno(f));
-     fclose(f);
-     } */
-  va_end (va);
-}
-#endif
-
 #define NUM_STUB_ENTRIES 300
 char export_names[NUM_STUB_ENTRIES][32] = {
   "name1",
@@ -236,14 +213,14 @@ test_heap (void)
     return;
   while (offset < heap_counter) {
     if (*(int *) (heap + offset) != 0x433476) {
-      dbgprintf ("Heap corruption at address %d\n", offset);
+      TRACE ("Heap corruption at address %d\n", offset);
       return;
     }
     offset += 8 + *(int *) (heap + offset + 4);
   }
   for (; offset < __min (offset + 1000, 20000000); offset++)
     if (heap[offset] != 0xCC) {
-      dbgprintf ("Free heap corruption at address %d\n", offset);
+      TRACE ("Free heap corruption at address %d\n", offset);
     }
 }
 
@@ -253,25 +230,25 @@ my_mreq (int size, int to_zero)
   static int test = 0;
   test++;
   if (test % 10 == 0)
-    dbgprintf ("Memory: %d bytes allocated\n", heap_counter);
+    TRACE ("Memory: %d bytes allocated\n", heap_counter);
   //    test_heap();
   if (heap == NULL) {
     heap = malloc (20000000);
     memset (heap, 0xCC, 20000000);
   }
   if (heap == 0) {
-    dbgprintf ("No enough memory\n");
+    TRACE ("No enough memory\n");
     return 0;
   }
   if (heap_counter + size > 20000000) {
-    dbgprintf ("No enough memory\n");
+    TRACE ("No enough memory\n");
     return 0;
   }
   *(int *) (heap + heap_counter) = 0x433476;
   heap_counter += 4;
   *(int *) (heap + heap_counter) = size;
   heap_counter += 4;
-  dbgprintf ("Allocated %d bytes of memory: sys %d, user %d-%d\n", size,
+  TRACE ("Allocated %d bytes of memory: sys %d, user %d-%d\n", size,
       heap_counter - 8, heap_counter, heap_counter + size);
   if (to_zero)
     memset (heap + heap_counter, 0, size);
@@ -286,14 +263,14 @@ my_release (char *memory)
 {
   //    test_heap();
   if (memory == NULL) {
-    dbgprintf ("ERROR: free(0)\n");
+    TRACE ("ERROR: free(0)\n");
     return 0;
   }
   if (*(int *) (memory - 8) != 0x433476) {
-    dbgprintf ("MEMORY CORRUPTION !!!!!!!!!!!!!!!!!!!\n");
+    TRACE ("MEMORY CORRUPTION !!!!!!!!!!!!!!!!!!!\n");
     return 0;
   }
-  dbgprintf ("Freed %d bytes of memory\n", *(int *) (memory - 4));
+  TRACE ("Freed %d bytes of memory\n", *(int *) (memory - 4));
   //    memset(memory-8, *(int*)(memory-4), 0xCC);
   return 0;
 }
@@ -365,7 +342,7 @@ mreq_private (int size, int to_zero, int type)
   header->size = size;
   header->type = type;
 
-  //if (alccnt < 40000) dbgprintf("MY_REQ: %p\t%d   t:%d  (cnt:%d)\n",  header, size, type, alccnt);
+  //if (alccnt < 40000) TRACE("MY_REQ: %p\t%d   t:%d  (cnt:%d)\n",  header, size, type, alccnt);
   return header + 1;
 }
 
@@ -381,7 +358,7 @@ my_release (void *memory)
     return 0;
 
   if (header->deadbeef != (long) 0xdeadbeef) {
-    dbgprintf ("FATAL releasing corrupted memory! %p  0x%lx  (%d)\n", header,
+    TRACE ("FATAL releasing corrupted memory! %p  0x%lx  (%d)\n", header,
         header->deadbeef, alccnt);
     return 0;
   }
@@ -425,7 +402,7 @@ my_release (void *memory)
   if (!last_alloc)
     pthread_mutex_destroy (&memmut);
 
-  //if (alccnt < 40000) dbgprintf("MY_RELEASE: %p\t%ld    (%d)\n", header, header->size, alccnt);
+  //if (alccnt < 40000) TRACE("MY_RELEASE: %p\t%ld    (%d)\n", header, header->size, alccnt);
 #else
   if (memory == 0)
     return 0;
@@ -475,7 +452,7 @@ my_realloc (void *memory, int size)
 static int WINAPI
 ext_unknown ()
 {
-  dbgprintf ("Unknown func called\n");
+  TRACE ("Unknown func called\n");
   return 0;
 }
 
@@ -483,7 +460,7 @@ static int WINAPI
 expIsBadWritePtr (void *ptr, unsigned int count)
 {
   int result = (count == 0 || ptr != 0) ? 0 : 1;
-  dbgprintf ("IsBadWritePtr(%p, 0x%x) => %d\n", ptr, count, result);
+  TRACE ("IsBadWritePtr(%p, 0x%x) => %d\n", ptr, count, result);
   return result;
 }
 
@@ -491,14 +468,14 @@ static int WINAPI
 expIsBadReadPtr (void *ptr, unsigned int count)
 {
   int result = (count == 0 || ptr != 0) ? 0 : 1;
-  dbgprintf ("IsBadReadPtr(%p, 0x%x) => %d\n", ptr, count, result);
+  TRACE ("IsBadReadPtr(%p, 0x%x) => %d\n", ptr, count, result);
   return result;
 }
 
 static int WINAPI
 expDisableThreadLibraryCalls (int module)
 {
-  dbgprintf ("DisableThreadLibraryCalls(0x%x) => 0\n", module);
+  TRACE ("DisableThreadLibraryCalls(0x%x) => 0\n", module);
   return 0;
 }
 
@@ -510,7 +487,7 @@ expGetDriverModuleHandle (DRVR * pdrv)
     result = 0;
   else
     result = pdrv->hDriverModule;
-  dbgprintf ("GetDriverModuleHandle(%p) => %d\n", pdrv, result);
+  TRACE ("GetDriverModuleHandle(%p) => %d\n", pdrv, result);
   return result;
 }
 
@@ -534,7 +511,7 @@ expGetModuleHandleA (const char *name)
     result = 0;
 #endif
   else {
-    //TRACE("calling FindModule(%s)\n",name);
+    TRACE("calling FindModule(%s)\n",name);
     wm = MODULE_FindModule (name);
     if (wm == 0)
       result = 0;
@@ -550,7 +527,7 @@ expGetModuleHandleA (const char *name)
       result = MODULE_HANDLE_user32;
 #endif
   }
-  dbgprintf ("GetModuleHandleA('%s') => 0x%x\n", name, result);
+  TRACE ("GetModuleHandleA('%s') => 0x%x\n", name, result);
   return result;
 }
 
@@ -559,11 +536,11 @@ expCreateThread (void *pSecAttr, long dwStackSize,
     void *lpStartAddress, void *lpParameter, long dwFlags, long *dwThreadId)
 {
   pthread_t *pth;
-  //dbgprintf("CreateThread:");
+  //TRACE("CreateThread:");
   pth = (pthread_t *) my_mreq (sizeof (pthread_t), 0);
   pthread_create (pth, NULL, (void *(*)(void *)) lpStartAddress, lpParameter);
   if (dwFlags)
-    dbgprintf ("WARNING: CreateThread flags not supported\n");
+    TRACE ("WARNING: CreateThread flags not supported\n");
   if (dwThreadId)
     *dwThreadId = (long) pth;
   if (list == NULL) {
@@ -576,7 +553,7 @@ expCreateThread (void *pSecAttr, long dwStackSize,
     list = list->next;
   }
   list->thread = pth;
-  dbgprintf ("CreateThread(%p, %ld, %p, %p, %ld, %p) => %p\n",
+  TRACE ("CreateThread(%p, %ld, %p, %p, %ld, %p) => %p\n",
       pSecAttr, dwStackSize, lpStartAddress, lpParameter, dwFlags, dwThreadId,
       pth);
   return pth;
@@ -605,7 +582,7 @@ static void
 destroy_event (void *event)
 {
   mutex_list *pp = mlist;
-  //dbgprintf("garbage collector: destroy_event(%x)\n", event);
+  //TRACE("garbage collector: destroy_event(%x)\n", event);
   while (pp) {
     if (pp == (mutex_list *) event) {
       if (pp->next)
@@ -618,10 +595,10 @@ destroy_event (void *event)
          pp=mlist;
          while(pp)
          {
-         dbgprintf("%x => ", pp);
+         TRACE("%x => ", pp);
          pp=pp->prev;
          }
-         dbgprintf("0\n");
+         TRACE("0\n");
        */
       return;
     }
@@ -641,17 +618,17 @@ expCreateEventA (void *pSecAttr, char bManualReset,
      pp=mlist;
      while(pp)
      {
-     dbgprintf("%x => ", pp);
+     TRACE("%x => ", pp);
      pp=pp->prev;
      }
-     dbgprintf("0\n");
+     TRACE("0\n");
    */
   if (mlist != NULL) {
     mutex_list *pp = mlist;
     if (name != NULL)
       do {
         if ((strcmp (pp->name, name) == 0) && (pp->type == 0)) {
-          dbgprintf ("CreateEventA(%p, 0x%x, 0x%x, %p='%s') => %p\n",
+          TRACE ("CreateEventA(%p, 0x%x, 0x%x, %p='%s') => %p\n",
               pSecAttr, bManualReset, bInitialState, name, name, pp->pm);
           return pp->pm;
         }
@@ -684,10 +661,10 @@ expCreateEventA (void *pSecAttr, char bManualReset,
      pthread_mutex_lock(pm);
    */
   if (name)
-    dbgprintf ("CreateEventA(%p, 0x%x, 0x%x, %p='%s') => %p\n",
+    TRACE ("CreateEventA(%p, 0x%x, 0x%x, %p='%s') => %p\n",
         pSecAttr, bManualReset, bInitialState, name, name, mlist);
   else
-    dbgprintf ("CreateEventA(%p, 0x%x, 0x%x, NULL) => %p\n",
+    TRACE ("CreateEventA(%p, 0x%x, 0x%x, NULL) => %p\n",
         pSecAttr, bManualReset, bInitialState, mlist);
   return mlist;
 }
@@ -696,7 +673,7 @@ static void *WINAPI
 expSetEvent (void *event)
 {
   mutex_list *ml = (mutex_list *) event;
-  dbgprintf ("SetEvent(%p) => 0x1\n", event);
+  TRACE ("SetEvent(%p) => 0x1\n", event);
   pthread_mutex_lock (ml->pm);
   if (ml->state == 0) {
     ml->state = 1;
@@ -711,7 +688,7 @@ static void *WINAPI
 expResetEvent (void *event)
 {
   mutex_list *ml = (mutex_list *) event;
-  dbgprintf ("ResetEvent(%p) => 0x1\n", event);
+  TRACE ("ResetEvent(%p) => 0x1\n", event);
   pthread_mutex_lock (ml->pm);
   ml->state = 0;
   pthread_mutex_unlock (ml->pm);
@@ -735,10 +712,10 @@ expWaitForSingleObject (void *object, int duration)
 
 	 The function cannot be used by one thread to create a handle that can be used by other threads to refer to the first thread. The handle is always interpreted as referring to the thread that is using it. A thread can create a "real" handle to itself that can be used by other threads, or inherited by other processes, by specifying the pseudo handle as the source handle in a call to the DuplicateHandle function.
 	 **/
-    dbgprintf ("WaitForSingleObject(thread_handle) called\n");
+    TRACE ("WaitForSingleObject(thread_handle) called\n");
     return (void *) WAIT_FAILED;
   }
-  dbgprintf ("WaitForSingleObject(%p, duration %d) =>\n", object, duration);
+  TRACE ("WaitForSingleObject(%p, duration %d) =>\n", object, duration);
 
   // loop below was slightly fixed - its used just for checking if
   // this object really exists in our list
@@ -747,7 +724,7 @@ expWaitForSingleObject (void *object, int duration)
   while (pp && (pp->pm != ml->pm))
     pp = pp->prev;
   if (!pp) {
-    dbgprintf ("WaitForSingleObject: NotFound\n");
+    TRACE ("WaitForSingleObject: NotFound\n");
     return (void *) ret;
   }
 
@@ -802,7 +779,7 @@ expWaitForSingleObject (void *object, int duration)
   }
   pthread_mutex_unlock (ml->pm);
 
-  dbgprintf ("WaitForSingleObject(%p, %d): %p => 0x%x \n", object, duration, ml,
+  TRACE ("WaitForSingleObject(%p, %d): %p => 0x%x \n", object, duration, ml,
       ret);
   return (void *) ret;
 }
@@ -816,14 +793,14 @@ expWaitForMultipleObjects (int count, const void **objects,
   void *object;
   void *ret;
 
-  dbgprintf ("WaitForMultipleObjects(%d, %p, %d, duration %d) =>\n",
+  TRACE ("WaitForMultipleObjects(%d, %p, %d, duration %d) =>\n",
       count, objects, WaitAll, duration);
 
   for (i = 0; i < count; i++) {
     object = (void *) objects[i];
     ret = expWaitForSingleObject (object, duration);
     if (WaitAll)
-      dbgprintf ("WaitAll flag not yet supported...\n");
+      TRACE ("WaitAll flag not yet supported...\n");
     else
       return ret;
   }
@@ -833,7 +810,7 @@ expWaitForMultipleObjects (int count, const void **objects,
 static void WINAPI
 expExitThread (int retcode)
 {
-  dbgprintf ("ExitThread(%d)\n", retcode);
+  TRACE ("ExitThread(%d)\n", retcode);
   pthread_exit (&retcode);
 }
 
@@ -843,13 +820,13 @@ expCreateMutexA (void *pSecAttr, char bInitialOwner, const char *name)
 #ifndef QTX
   HANDLE mlist = (HANDLE) expCreateEventA (pSecAttr, 0, 0, name);
 
-  dbgprintf ("CreateMutexA(%p, %d, '%s') => 0x%x\n",
+  TRACE ("CreateMutexA(%p, %d, '%s') => 0x%x\n",
       pSecAttr, bInitialOwner, name ? name : "NULL", mlist);
   /* 10l to QTX, if CreateMutex returns a real mutex, WaitForSingleObject
      waits for ever, else it works ;) */
   return mlist;
 #else
-  dbgprintf ("CreateMutexA(%p, %d, '%s') => 0x0\n",
+  TRACE ("CreateMutexA(%p, %d, '%s') => 0x0\n",
       pSecAttr, bInitialOwner, name ? name : "NULL");
   return 0;
 #endif
@@ -858,7 +835,7 @@ expCreateMutexA (void *pSecAttr, char bInitialOwner, const char *name)
 static int WINAPI
 expReleaseMutex (HANDLE hMutex)
 {
-  dbgprintf ("ReleaseMutex(%x) => 1\n", hMutex);
+  TRACE ("ReleaseMutex(%x) => 1\n", hMutex);
   /* FIXME:XXX !! not yet implemented */
   return 1;
 }
@@ -870,16 +847,16 @@ static BYTE PF[64] = { 0, };
 static void
 DumpSystemInfo (const SYSTEM_INFO * si)
 {
-  dbgprintf ("  Processor architecture %d\n", si->u.s.wProcessorArchitecture);
-  dbgprintf ("  Page size: %ld\n", si->dwPageSize);
-  dbgprintf ("  Minimum app address: %p\n", si->lpMinimumApplicationAddress);
-  dbgprintf ("  Maximum app address: %p\n", si->lpMaximumApplicationAddress);
-  dbgprintf ("  Active processor mask: 0x%lx\n", si->dwActiveProcessorMask);
-  dbgprintf ("  Number of processors: %ld\n", si->dwNumberOfProcessors);
-  dbgprintf ("  Processor type: 0x%lx\n", si->dwProcessorType);
-  dbgprintf ("  Allocation granularity: 0x%lx\n", si->dwAllocationGranularity);
-  dbgprintf ("  Processor level: 0x%x\n", si->wProcessorLevel);
-  dbgprintf ("  Processor revision: 0x%x\n", si->wProcessorRevision);
+  TRACE ("  Processor architecture %d\n", si->u.s.wProcessorArchitecture);
+  TRACE ("  Page size: %ld\n", si->dwPageSize);
+  TRACE ("  Minimum app address: %p\n", si->lpMinimumApplicationAddress);
+  TRACE ("  Maximum app address: %p\n", si->lpMaximumApplicationAddress);
+  TRACE ("  Active processor mask: 0x%lx\n", si->dwActiveProcessorMask);
+  TRACE ("  Number of processors: %ld\n", si->dwNumberOfProcessors);
+  TRACE ("  Processor type: 0x%lx\n", si->dwProcessorType);
+  TRACE ("  Allocation granularity: 0x%lx\n", si->dwAllocationGranularity);
+  TRACE ("  Processor level: 0x%x\n", si->wProcessorLevel);
+  TRACE ("  Processor revision: 0x%x\n", si->wProcessorRevision);
 }
 
 static void WINAPI
@@ -891,7 +868,7 @@ expGetSystemInfo (SYSTEM_INFO * si)
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__svr4__)
   unsigned int regs[4];
 #endif
-  dbgprintf ("GetSystemInfo(%p) =>\n", si);
+  TRACE ("GetSystemInfo(%p) =>\n", si);
 
   if (cache) {
     memcpy (si, &cachedsi, sizeof (*si));
@@ -1144,7 +1121,7 @@ expIsProcessorFeaturePresent (DWORD v)
   }
   if (v < 64)
     result = PF[v];
-  dbgprintf ("IsProcessorFeaturePresent(0x%lx) => 0x%x\n", v, result);
+  TRACE ("IsProcessorFeaturePresent(0x%lx) => 0x%x\n", v, result);
   return result;
 }
 
@@ -1152,20 +1129,20 @@ expIsProcessorFeaturePresent (DWORD v)
 static long WINAPI
 expGetVersion ()
 {
-  dbgprintf ("GetVersion() => 0xC0000004\n");
+  TRACE ("GetVersion() => 0xC0000004\n");
   return 0xC0000004;            //Windows 95
 }
 
 static HANDLE WINAPI
 expHeapCreate (long flags, long init_size, long max_size)
 {
-  //    dbgprintf("HeapCreate:");
+  //    TRACE("HeapCreate:");
   HANDLE result;
   if (init_size == 0)
     result = (HANDLE) my_mreq (0x110000, 0);
   else
     result = (HANDLE) my_mreq ((init_size + 0xfff) & 0x7ffff000, 0);
-  dbgprintf
+  TRACE
       ("HeapCreate(flags 0x%lx, initial size %ld, maximum size %ld) => 0x%x\n",
       flags, init_size, max_size, result);
   return result;
@@ -1191,8 +1168,8 @@ expHeapAlloc (HANDLE heap, int flags, int size)
   //if (size == 22276) trapbug();
   z = my_mreq ((size + 0xfff) & 0x7ffff000, (flags & HEAP_ZERO_MEMORY));
   if (z == 0)
-    dbgprintf ("HeapAlloc failure\n");
-  dbgprintf ("HeapAlloc(heap 0x%x, flags 0x%x, size %d) => %p\n", heap, flags,
+    TRACE ("HeapAlloc failure\n");
+  TRACE ("HeapAlloc(heap 0x%x, flags 0x%x, size %d) => %p\n", heap, flags,
       size, z);
   heapfreehack = 0;             // reset
   return z;
@@ -1201,7 +1178,7 @@ expHeapAlloc (HANDLE heap, int flags, int size)
 static long WINAPI
 expHeapDestroy (void *heap)
 {
-  dbgprintf ("HeapDestroy(heap %p) => 1\n", heap);
+  TRACE ("HeapDestroy(heap %p) => 1\n", heap);
   my_release (heap);
   return 1;
 }
@@ -1209,7 +1186,7 @@ expHeapDestroy (void *heap)
 static long WINAPI
 expHeapFree (HANDLE heap, DWORD dwFlags, LPVOID lpMem)
 {
-  dbgprintf ("HeapFree(0x%x, 0x%lx, pointer %p) => 1\n", heap, dwFlags, lpMem);
+  TRACE ("HeapFree(0x%x, 0x%lx, pointer %p) => 1\n", heap, dwFlags, lpMem);
   if (heapfreehack != lpMem && lpMem != (void *) 0xffffffff
       && lpMem != (void *) 0xbdbdbdbd)
     // 0xbdbdbdbd is for i263_drv.drv && libefence
@@ -1218,7 +1195,7 @@ expHeapFree (HANDLE heap, DWORD dwFlags, LPVOID lpMem)
     my_release (lpMem);
   else {
     if (!heapfreehackshown++)
-      dbgprintf ("Info: HeapFree deallocating same memory twice! (%p)\n",
+      TRACE ("Info: HeapFree deallocating same memory twice! (%p)\n",
           lpMem);
   }
   heapfreehack = lpMem;
@@ -1229,7 +1206,7 @@ static long WINAPI
 expHeapSize (int heap, int flags, void *pointer)
 {
   long result = my_size (pointer);
-  dbgprintf ("HeapSize(heap 0x%x, flags 0x%x, pointer %p) => %ld\n", heap,
+  TRACE ("HeapSize(heap 0x%x, flags 0x%x, pointer %p) => %ld\n", heap,
       flags, pointer, result);
   return result;
 }
@@ -1237,14 +1214,14 @@ expHeapSize (int heap, int flags, void *pointer)
 static void *WINAPI
 expHeapReAlloc (HANDLE heap, int flags, void *lpMem, int size)
 {
-  dbgprintf ("HeapReAlloc() Size %d org %d\n", my_size (lpMem), size);
+  TRACE ("HeapReAlloc() Size %d org %d\n", my_size (lpMem), size);
   return my_realloc (lpMem, size);
 }
 
 static long WINAPI
 expGetProcessHeap (void)
 {
-  dbgprintf ("GetProcessHeap() => 1\n");
+  TRACE ("GetProcessHeap() => 1\n");
   return 1;
 }
 
@@ -1253,8 +1230,8 @@ expVirtualAlloc (void *v1, long v2, long v3, long v4)
 {
   void *z = VirtualAlloc (v1, v2, v3, v4);
   if (z == 0)
-    dbgprintf ("VirtualAlloc failure\n");
-  dbgprintf ("VirtualAlloc(%p, %ld, %ld, %ld) => %p\n", v1, v2, v3, v4, z);
+    TRACE ("VirtualAlloc failure\n");
+  TRACE ("VirtualAlloc(%p, %ld, %ld, %ld) => %p\n", v1, v2, v3, v4, z);
   return z;
 }
 
@@ -1262,7 +1239,7 @@ static int WINAPI
 expVirtualFree (void *v1, int v2, int v3)
 {
   int result = VirtualFree (v1, v2, v3);
-  dbgprintf ("VirtualFree(%p, %d, %d) => %d\n", v1, v2, v3, result);
+  TRACE ("VirtualFree(%p, %d, %d) => %d\n", v1, v2, v3, result);
   return result;
 }
 
@@ -1334,10 +1311,10 @@ critsecs_get_unix (CRITICAL_SECTION * cs_win)
 static void WINAPI
 expInitializeCriticalSection (CRITICAL_SECTION * c)
 {
-  dbgprintf ("InitializeCriticalSection(%p)\n", c);
+  TRACE ("InitializeCriticalSection(%p)\n", c);
   /*    if(sizeof(pthread_mutex_t)>sizeof(CRITICAL_SECTION))
      {
-     dbgprintf(" ERROR:::: sizeof(pthread_mutex_t) is %d, expected <=%d!\n",
+     TRACE(" ERROR:::: sizeof(pthread_mutex_t) is %d, expected <=%d!\n",
      sizeof(pthread_mutex_t), sizeof(CRITICAL_SECTION));
      return;
      } */
@@ -1348,20 +1325,20 @@ expInitializeCriticalSection (CRITICAL_SECTION * c)
     int i = critsecs_get_unused ();
 
     if (i < 0) {
-      dbgprintf ("InitializeCriticalSection(%p) - no more space in list\n", c);
+      TRACE ("InitializeCriticalSection(%p) - no more space in list\n", c);
       return;
     }
-    dbgprintf ("got unused space at %d\n", i);
+    TRACE ("got unused space at %d\n", i);
     cs = malloc (sizeof (struct CRITSECT));
     if (!cs) {
-      dbgprintf ("InitializeCriticalSection(%p) - out of memory\n", c);
+      TRACE ("InitializeCriticalSection(%p) - out of memory\n", c);
       return;
     }
     pthread_mutex_init (&cs->mutex, NULL);
     cs->locked = 0;
     critsecs_list[i].cs_win = c;
     critsecs_list[i].cs_unix = cs;
-    dbgprintf
+    TRACE
         ("InitializeCriticalSection -> itemno=%d, cs_win=%p, cs_unix=%p\n", i,
         c, cs);
   }
@@ -1387,16 +1364,16 @@ expEnterCriticalSection (CRITICAL_SECTION * c)
 #else
   struct CRITSECT *cs = (*(struct CRITSECT **) c);
 #endif
-  dbgprintf ("EnterCriticalSection(%p) %p\n", c, cs);
+  TRACE ("EnterCriticalSection(%p) %p\n", c, cs);
   if (!cs) {
-    dbgprintf ("entered uninitialized critisec!\n");
+    TRACE ("entered uninitialized critisec!\n");
     expInitializeCriticalSection (c);
 #ifdef CRITSECS_NEWTYPE
     cs = critsecs_get_unix (c);
 #else
     cs = (*(struct CRITSECT **) c);
 #endif
-    dbgprintf
+    TRACE
         ("wine/win32: Win32 Warning: Accessed uninitialized Critical Section (%p)!\n",
         c);
   }
@@ -1421,9 +1398,9 @@ expLeaveCriticalSection (CRITICAL_SECTION * c)
   struct CRITSECT *cs = (*(struct CRITSECT **) c);
 #endif
   //    struct CRITSECT* cs=(struct CRITSECT*)c;
-  dbgprintf ("LeaveCriticalSection(%p) %p\n", c, cs);
+  TRACE ("LeaveCriticalSection(%p) %p\n", c, cs);
   if (!cs) {
-    dbgprintf ("Win32 Warning: Leaving uninitialized Critical Section %p!!\n",
+    TRACE ("Win32 Warning: Leaving uninitialized Critical Section %p!!\n",
         c);
     return;
   }
@@ -1446,7 +1423,7 @@ expDeleteCriticalSection (CRITICAL_SECTION * c)
   struct CRITSECT *cs = (*(struct CRITSECT **) c);
 #endif
   //    struct CRITSECT* cs=(struct CRITSECT*)c;
-  dbgprintf ("DeleteCriticalSection(%p)\n", c);
+  TRACE ("DeleteCriticalSection(%p)\n", c);
 
 #ifndef GARBAGE
 
@@ -1462,14 +1439,14 @@ expDeleteCriticalSection (CRITICAL_SECTION * c)
     int i = critsecs_get_pos (c);
 
     if (i < 0) {
-      dbgprintf ("DeleteCriticalSection(%p) error (critsec not found)\n", c);
+      TRACE ("DeleteCriticalSection(%p) error (critsec not found)\n", c);
       return;
     }
 
     critsecs_list[i].cs_win = NULL;
     expfree (critsecs_list[i].cs_unix);
     critsecs_list[i].cs_unix = NULL;
-    dbgprintf ("DeleteCriticalSection -> itemno=%d\n", i);
+    TRACE ("DeleteCriticalSection -> itemno=%d\n", i);
   }
 #endif
   return;
@@ -1478,14 +1455,14 @@ expDeleteCriticalSection (CRITICAL_SECTION * c)
 static int WINAPI
 expGetCurrentThreadId ()
 {
-  dbgprintf ("GetCurrentThreadId() => %ld\n", pthread_self ());
+  TRACE ("GetCurrentThreadId() => %ld\n", pthread_self ());
   return (int) pthread_self ();
 }
 
 static int WINAPI
 expGetCurrentProcess ()
 {
-  dbgprintf ("GetCurrentProcess() => %d\n", getpid ());
+  TRACE ("GetCurrentProcess() => %d\n", getpid ());
   return getpid ();
 }
 
@@ -1503,10 +1480,10 @@ expTlsAlloc ()
   for (i = 0; i < TLS_COUNT; i++)
     if (tls_use_map[i] == 0) {
       tls_use_map[i] = 1;
-      dbgprintf ("TlsAlloc() => %d\n", i);
+      TRACE ("TlsAlloc() => %d\n", i);
       return i;
     }
-  dbgprintf ("TlsAlloc() => -1 (ERROR)\n");
+  TRACE ("TlsAlloc() => -1 (ERROR)\n");
   return -1;
 }
 
@@ -1514,7 +1491,7 @@ expTlsAlloc ()
 static int WINAPI
 expTlsSetValue (int index, void *value)
 {
-  dbgprintf ("TlsSetValue(%d,%p) => 1\n", index, value);
+  TRACE ("TlsSetValue(%d,%p) => 1\n", index, value);
 //    if((index<0) || (index>64))
   if ((index >= TLS_COUNT))
     return 0;
@@ -1542,7 +1519,7 @@ expTlsGetValue (DWORD index)
 {
   void *ret;
 
-  dbgprintf ("TlsGetValue(%ld)\n", index);
+  TRACE ("TlsGetValue(%ld)\n", index);
 //    if((index<0) || (index>64))
   if ((index >= TLS_COUNT))
     return NULL;
@@ -1568,7 +1545,7 @@ static int WINAPI
 expTlsFree (int idx)
 {
   int index = (int) idx;
-  dbgprintf ("TlsFree(%d)\n", index);
+  TRACE ("TlsFree(%d)\n", index);
   if ((index < 0) || (index >= TLS_COUNT))
     return 0;
   tls_use_map[index] = 0;
@@ -1596,7 +1573,7 @@ expTlsAlloc ()
     g_tls->next->next = NULL;
     g_tls = g_tls->next;
   }
-  dbgprintf ("TlsAlloc() => 0x%x\n", g_tls);
+  TRACE ("TlsAlloc() => 0x%x\n", g_tls);
   if (g_tls)
     g_tls->value = 0;           /* XXX For Divx.dll */
   return g_tls;
@@ -1613,7 +1590,7 @@ expTlsSetValue (void *idx, void *value)
     index->value = value;
     result = 1;
   }
-  dbgprintf ("TlsSetValue(index 0x%x, value 0x%x) => %d \n", index, value,
+  TRACE ("TlsSetValue(index 0x%x, value 0x%x) => %d \n", index, value,
       result);
   return result;
 }
@@ -1627,7 +1604,7 @@ expTlsGetValue (void *idx)
     result = 0;
   else
     result = index->value;
-  dbgprintf ("TlsGetValue(index 0x%x) => 0x%x\n", index, result);
+  TRACE ("TlsGetValue(index 0x%x) => 0x%x\n", index, result);
   return result;
 }
 
@@ -1648,7 +1625,7 @@ expTlsFree (void *idx)
     my_release ((void *) index);
     result = 1;
   }
-  dbgprintf ("TlsFree(index 0x%x) => %d\n", index, result);
+  TRACE ("TlsFree(index 0x%x) => %d\n", index, result);
   return result;
 }
 #endif
@@ -1658,8 +1635,8 @@ expLocalAlloc (int flags, int size)
 {
   void *z = my_mreq (size, (flags & GMEM_ZEROINIT));
   if (z == 0)
-    dbgprintf ("LocalAlloc() failed\n");
-  dbgprintf ("LocalAlloc(%d, flags 0x%x) => %p\n", size, flags, z);
+    TRACE ("LocalAlloc() failed\n");
+  TRACE ("LocalAlloc(%d, flags 0x%x) => %p\n", size, flags, z);
   return z;
 }
 
@@ -1667,20 +1644,20 @@ static void *WINAPI
 expLocalReAlloc (int handle, int size, int flags)
 {
   void *newpointer;
-#ifdef DETAILED_OUT
+#ifdef USE_DEBUG
   int oldsize;
 #endif
 
   newpointer = NULL;
   if (flags & LMEM_MODIFY) {
-    dbgprintf ("LocalReAlloc MODIFY\n");
+    TRACE ("LocalReAlloc MODIFY\n");
     return (void *) handle;
   }
-#ifdef DETAILED_OUT
+#ifdef USE_DEBUG
   oldsize = my_size ((void *) handle);
 #endif
   newpointer = my_realloc ((void *) handle, size);
-  dbgprintf ("LocalReAlloc(%x %d(old %d), flags 0x%x) => %p\n", handle, size,
+  TRACE ("LocalReAlloc(%x %d(old %d), flags 0x%x) => %p\n", handle, size,
       oldsize, flags, newpointer);
 
   return newpointer;
@@ -1689,7 +1666,7 @@ expLocalReAlloc (int handle, int size, int flags)
 static void *WINAPI
 expLocalLock (void *z)
 {
-  dbgprintf ("LocalLock(%p) => %p\n", z, z);
+  TRACE ("LocalLock(%p) => %p\n", z, z);
   return z;
 }
 
@@ -1697,21 +1674,21 @@ static void *WINAPI
 expGlobalAlloc (int flags, int size)
 {
   void *z;
-  dbgprintf ("GlobalAlloc(%d, flags 0x%X)\n", size, flags);
+  TRACE ("GlobalAlloc(%d, flags 0x%X)\n", size, flags);
 
   z = my_mreq (size, (flags & GMEM_ZEROINIT));
   //z=calloc(size, 1);
   //z=malloc(size);
   if (z == 0)
-    dbgprintf ("GlobalAlloc() failed\n");
-  dbgprintf ("GlobalAlloc(%d, flags 0x%x) => %p\n", size, flags, z);
+    TRACE ("GlobalAlloc() failed\n");
+  TRACE ("GlobalAlloc(%d, flags 0x%x) => %p\n", size, flags, z);
   return z;
 }
 
 static void *WINAPI
 expGlobalLock (void *z)
 {
-  dbgprintf ("GlobalLock(%p) => %p\n", z, z);
+  TRACE ("GlobalLock(%p) => %p\n", z, z);
   return z;
 }
 
@@ -1728,7 +1705,7 @@ expGlobalSize (void *amem)
   pthread_mutex_lock (&memmut);
   while (header) {
     if (header->deadbeef != 0xdeadbeef) {
-      dbgprintf ("FATAL found corrupted memory! %p  0x%lx  (%d)\n", header,
+      TRACE ("FATAL found corrupted memory! %p  0x%lx  (%d)\n", header,
           header->deadbeef, alccnt);
       break;
     }
@@ -1743,7 +1720,7 @@ expGlobalSize (void *amem)
   pthread_mutex_unlock (&memmut);
 #endif
 
-  dbgprintf ("GlobalSize(%p)\n", amem);
+  TRACE ("GlobalSize(%p)\n", amem);
   return size;
 }
 
@@ -1752,11 +1729,11 @@ expLoadStringA (long instance, long id, void *buf, long size)
 {
   int result = LoadStringA (instance, id, buf, size);
   //    if(buf)
-  dbgprintf
+  TRACE
       ("LoadStringA(instance 0x%lx, id 0x%lx, buffer %p, size %ld) => %d ( %s )\n",
       instance, id, buf, size, result, (char *) buf);
   //    else
-  //    dbgprintf("LoadStringA(instance 0x%x, id 0x%x, buffer 0x%x, size %d) => %d\n",
+  //    TRACE("LoadStringA(instance 0x%x, id 0x%x, buffer 0x%x, size %d) => %d\n",
   //  instance, id, buf, size, result);
   return result;
 }
@@ -1783,11 +1760,11 @@ expMultiByteToWideChar (long v1, long v2, char *s1, long siz1, short *s2,
     result = i;
   }
   if (s1)
-    dbgprintf ("MultiByteToWideChar(codepage %ld, flags 0x%lx, string %p='%s',"
+    TRACE ("MultiByteToWideChar(codepage %ld, flags 0x%lx, string %p='%s',"
         "size %ld, dest buffer %p, dest size %d) => %d\n",
         v1, v2, s1, s1, siz1, s2, siz2, result);
   else
-    dbgprintf ("MultiByteToWideChar(codepage %ld, flags 0x%lx, string NULL,"
+    TRACE ("MultiByteToWideChar(codepage %ld, flags 0x%lx, string NULL,"
         "size %ld, dest buffer %p, dest size %d) => %d\n",
         v1, v2, siz1, s2, siz2, result);
   return result;
@@ -1796,10 +1773,10 @@ expMultiByteToWideChar (long v1, long v2, char *s1, long siz1, short *s2,
 static void
 wch_print (const short *str)
 {
-  dbgprintf ("  src: ");
+  TRACE ("  src: ");
   while (*str)
-    dbgprintf ("%c", *str++);
-  dbgprintf ("\n");
+    TRACE ("%c", *str++);
+  TRACE ("\n");
 }
 
 static long WINAPI
@@ -1807,22 +1784,22 @@ expWideCharToMultiByte (long v1, long v2, short *s1, long siz1,
     char *s2, int siz2, char *c3, int *siz3)
 {
   long result;
-  dbgprintf
+  TRACE
       ("WideCharToMultiByte(codepage %ld, flags 0x%lx, src %p, src size %ld, "
       "dest %p, dest size %d, defch %p, used_defch %p)", v1, v2, s1, siz1, s2,
       siz2, c3, siz3);
   result = WideCharToMultiByte (v1, v2, (LPCWSTR) s1, siz1, s2, siz2, c3, siz3);
-  dbgprintf ("=> %ld\n", result);
+  TRACE ("=> %ld\n", result);
   //if(s1)wch_print(s1);
   if (s2)
-    dbgprintf ("  dest: %s\n", s2);
+    TRACE ("  dest: %s\n", s2);
   return result;
 }
 
 static long WINAPI
 expGetVersionExA (OSVERSIONINFOA * c)
 {
-  dbgprintf ("GetVersionExA(%p) => 1\n", c);
+  TRACE ("GetVersionExA(%p) => 1\n", c);
   c->dwOSVersionInfoSize = sizeof (*c);
   c->dwMajorVersion = 4;
   c->dwMinorVersion = 0;
@@ -1835,7 +1812,7 @@ expGetVersionExA (OSVERSIONINFOA * c)
   c->dwPlatformId = VER_PLATFORM_WIN32_NT;      // let's not make DLL assume that it can read CR* registers
   strcpy (c->szCSDVersion, "Service Pack 3");
 #endif
-  dbgprintf
+  TRACE
       ("  Major version: 4\n  Minor version: 0\n  Build number: 0x4000457\n"
       "  Platform Id: VER_PLATFORM_WIN32_NT\n Version string: 'Service Pack 3'\n");
   return 1;
@@ -1848,21 +1825,21 @@ expCreateSemaphoreA (char *v1, long init_count, long max_count, char *name)
   pthread_cond_t *pc;
   /* mutex_list* pp; -- unused */
   /*
-     dbgprintf("CreateSemaphoreA(%p = %s)\n", name, (name ? name : "<null>"));
+     TRACE("CreateSemaphoreA(%p = %s)\n", name, (name ? name : "<null>"));
      pp=mlist;
      while(pp)
      {
-     dbgprintf("%p => ", pp);
+     TRACE("%p => ", pp);
      pp=pp->prev;
      }
-     dbgprintf("0\n");
+     TRACE("0\n");
    */
   if (mlist != NULL) {
     mutex_list *pp = mlist;
     if (name != NULL)
       do {
         if ((strcmp (pp->name, name) == 0) && (pp->type == 1)) {
-          dbgprintf
+          TRACE
               ("CreateSemaphoreA(%p, init_count %ld, max_count %ld, name %p='%s') => %p\n",
               v1, init_count, max_count, name, name, mlist);
           return (HANDLE) mlist;
@@ -1881,7 +1858,7 @@ expCreateSemaphoreA (char *v1, long init_count, long max_count, char *name)
     mlist->next->prev = mlist;
     mlist->next->next = NULL;
     mlist = mlist->next;
-    //      dbgprintf("new semaphore %p\n", mlist);
+    //      TRACE("new semaphore %p\n", mlist);
   }
   mlist->type = 1;              /* Type Semaphore */
   mlist->pm = pm;
@@ -1894,11 +1871,11 @@ expCreateSemaphoreA (char *v1, long init_count, long max_count, char *name)
   else
     mlist->name[0] = 0;
   if (name)
-    dbgprintf
+    TRACE
         ("CreateSemaphoreA(%p, init_count %ld, max_count %ld, name %p='%s') => %p\n",
         v1, init_count, max_count, name, name, mlist);
   else
-    dbgprintf
+    TRACE
         ("CreateSemaphoreA(%p, init_count %ld, max_count %ld, name NULL) => %p\n",
         v1, init_count, max_count, mlist);
   return (HANDLE) mlist;
@@ -1920,7 +1897,7 @@ expReleaseSemaphore (long hsem, long increment, long *prev_count)
     pthread_cond_signal (ml->pc);
   ml->semaphore += increment;
   pthread_mutex_unlock (ml->pm);
-  dbgprintf
+  TRACE
       ("ReleaseSemaphore(semaphore 0x%lx, increment %ld, prev_count %p) => 1\n",
       hsem, increment, prev_count);
   return 1;
@@ -1932,11 +1909,11 @@ expRegOpenKeyExA (long key, const char *subkey, long reserved, long access,
     int *newkey)
 {
   long result = RegOpenKeyExA (key, subkey, reserved, access, newkey);
-  dbgprintf
+  TRACE
       ("RegOpenKeyExA(key 0x%lx, subkey %s, reserved %ld, access 0x%lx, pnewkey %p) => %ld\n",
       key, subkey, reserved, access, newkey, result);
   if (newkey)
-    dbgprintf ("  New key: 0x%x\n", *newkey);
+    TRACE ("  New key: 0x%x\n", *newkey);
   return result;
 }
 
@@ -1944,7 +1921,7 @@ static long WINAPI
 expRegCloseKey (long key)
 {
   long result = RegCloseKey (key);
-  dbgprintf ("RegCloseKey(0x%lx) => %ld\n", key, result);
+  TRACE ("RegCloseKey(0x%lx) => %ld\n", key, result);
   return result;
 }
 
@@ -1953,11 +1930,11 @@ expRegQueryValueExA (long key, const char *value, int *reserved, int *type,
     int *data, int *count)
 {
   long result = RegQueryValueExA (key, value, reserved, type, data, count);
-  dbgprintf
+  TRACE
       ("RegQueryValueExA(key 0x%lx, value %s, reserved %p, data %p, count %p)"
       " => 0x%lx\n", key, value, reserved, data, count, result);
   if (data && count)
-    dbgprintf ("  read %d bytes: '%s'\n", *count, (char *) data);       /* FIXME? */
+    TRACE ("  read %d bytes: '%s'\n", *count, (char *) data);       /* FIXME? */
   return result;
 }
 
@@ -1969,13 +1946,13 @@ expRegCreateKeyExA (long key, const char *name, long reserved,
   long result =
       RegCreateKeyExA (key, name, reserved, classs, options, security, sec_attr,
       newkey, status);
-  dbgprintf ("RegCreateKeyExA(key 0x%lx, name %p='%s', reserved=0x%lx,"
+  TRACE ("RegCreateKeyExA(key 0x%lx, name %p='%s', reserved=0x%lx,"
       " %p, 0x%lx, 0x%lx, %p, newkey=%p, status=%p) => %ld\n", key, name, name,
       reserved, classs, options, security, sec_attr, newkey, status, result);
   if (!result && newkey)
-    dbgprintf ("  New key: 0x%x\n", *newkey);
+    TRACE ("  New key: 0x%x\n", *newkey);
   if (!result && status)
-    dbgprintf ("  New key status: 0x%x\n", *status);
+    TRACE ("  New key status: 0x%x\n", *status);
   return result;
 }
 
@@ -1984,7 +1961,7 @@ expRegSetValueExA (long key, const char *name, long v1, long v2, void *data,
     long size)
 {
   long result = RegSetValueExA (key, name, v1, v2, data, size);
-  dbgprintf
+  TRACE
       ("RegSetValueExA(key 0x%lx, name '%s', 0x%lx, 0x%lx, data %p -> 0x%x '%s', size=%ld) => %ld",
       key, name, v1, v2, data, *(int *) data, (char *) data, size, result);
   return result;
@@ -1994,10 +1971,10 @@ static long WINAPI
 expRegOpenKeyA (long hKey, LPCSTR lpSubKey, int *phkResult)
 {
   long result = RegOpenKeyExA (hKey, lpSubKey, 0, 0, phkResult);
-  dbgprintf ("RegOpenKeyExA(key 0x%lx, subkey '%s', %p) => %ld\n",
+  TRACE ("RegOpenKeyExA(key 0x%lx, subkey '%s', %p) => %ld\n",
       hKey, lpSubKey, phkResult, result);
   if (!result && phkResult)
-    dbgprintf ("  New key: 0x%x\n", *phkResult);
+    TRACE ("  New key: 0x%x\n", *phkResult);
   return result;
 }
 
@@ -2022,7 +1999,7 @@ static long WINAPI
 expQueryPerformanceCounter (long long *z)
 {
   longcount (z);
-  dbgprintf ("QueryPerformanceCounter(%p) => 1 ( %Ld )\n", z, *z);
+  TRACE ("QueryPerformanceCounter(%p) => 1 ( %Ld )\n", z, *z);
   return 1;
 }
 
@@ -2140,7 +2117,7 @@ static long WINAPI
 expQueryPerformanceFrequency (long long *z)
 {
   *z = (long long) CPU_Freq ();
-  dbgprintf ("QueryPerformanceFrequency(%p) => 1 ( %Ld )\n", z, *z);
+  TRACE ("QueryPerformanceFrequency(%p) => 1 ( %Ld )\n", z, *z);
   return 1;
 }
 
@@ -2151,35 +2128,35 @@ exptimeGetTime ()
   long result;
   gettimeofday (&t, 0);
   result = 1000 * t.tv_sec + t.tv_usec / 1000;
-  dbgprintf ("timeGetTime() => %ld\n", result);
+  TRACE ("timeGetTime() => %ld\n", result);
   return result;
 }
 
 static void *WINAPI
 expLocalHandle (void *v)
 {
-  dbgprintf ("LocalHandle(%p) => %p\n", v, v);
+  TRACE ("LocalHandle(%p) => %p\n", v, v);
   return v;
 }
 
 static void *WINAPI
 expGlobalHandle (void *v)
 {
-  dbgprintf ("GlobalHandle(%p) => %p\n", v, v);
+  TRACE ("GlobalHandle(%p) => %p\n", v, v);
   return v;
 }
 
 static int WINAPI
 expGlobalUnlock (void *v)
 {
-  dbgprintf ("GlobalUnlock(%p) => 1\n", v);
+  TRACE ("GlobalUnlock(%p) => 1\n", v);
   return 1;
 }
 
 static void *WINAPI
 expGlobalFree (void *v)
 {
-  dbgprintf ("GlobalFree(%p) => 0\n", v);
+  TRACE ("GlobalFree(%p) => 0\n", v);
   my_release (v);
   //free(v);
   return 0;
@@ -2190,7 +2167,7 @@ expGlobalReAlloc (void *v, int size, int flags)
 {
   void *result = my_realloc (v, size);
   //void* result=realloc(v, size);
-  dbgprintf ("GlobalReAlloc(%p, size %d, flags 0x%x) => %p\n", v, size, flags,
+  TRACE ("GlobalReAlloc(%p, size %d, flags 0x%x) => %p\n", v, size, flags,
       result);
   return result;
 }
@@ -2198,7 +2175,7 @@ expGlobalReAlloc (void *v, int size, int flags)
 static int WINAPI
 expLocalUnlock (void *v)
 {
-  dbgprintf ("LocalUnlock(%p) => 1\n", v);
+  TRACE ("LocalUnlock(%p) => 1\n", v);
   return 1;
 }
 
@@ -2206,7 +2183,7 @@ expLocalUnlock (void *v)
 static void *WINAPI
 expLocalFree (void *v)
 {
-  dbgprintf ("LocalFree(%p) => 0\n", v);
+  TRACE ("LocalFree(%p) => 0\n", v);
   my_release (v);
   return 0;
 }
@@ -2217,7 +2194,7 @@ expFindResourceA (HMODULE module, char *name, char *type)
   HRSRC result;
 
   result = FindResourceA (module, name, type);
-  dbgprintf ("FindResourceA(module 0x%x, name %p(%s), type %p(%s)) => 0x%x\n",
+  TRACE ("FindResourceA(module 0x%x, name %p(%s), type %p(%s)) => 0x%x\n",
       module, name, HIWORD (name) ? name : "UNICODE", type,
       HIWORD (type) ? type : "UNICODE", result);
   return result;
@@ -2229,7 +2206,7 @@ expFindResourceExA (HMODULE module, char *type, char *name, WORD lang)
   HRSRC result;
 
   result = FindResourceExA (module, type, name, lang);
-  dbgprintf
+  TRACE
       ("FindResourceExA(module 0x%x, type %p(%s), name %p(%s), lang %d) => 0x%x\n",
       module, name, HIWORD (name) ? name : "UNICODE", type,
       HIWORD (type) ? type : "UNICODE", lang, result);
@@ -2241,7 +2218,7 @@ static HGLOBAL WINAPI
 expLoadResource (HMODULE module, HRSRC res)
 {
   HGLOBAL result = LoadResource (module, res);
-  dbgprintf ("LoadResource(module 0x%x, resource 0x%x) => 0x%x\n", module, res,
+  TRACE ("LoadResource(module 0x%x, resource 0x%x) => 0x%x\n", module, res,
       result);
   return result;
 }
@@ -2250,7 +2227,7 @@ static void *WINAPI
 expLockResource (long res)
 {
   void *result = LockResource (res);
-  dbgprintf ("LockResource(0x%lx) => %p\n", res, result);
+  TRACE ("LockResource(0x%lx) => %p\n", res, result);
   return result;
 }
 
@@ -2258,7 +2235,7 @@ static int WINAPI
 expFreeResource (long res)
 {
   int result = FreeResource (res);
-  dbgprintf ("FreeResource(0x%lx) => %d\n", res, result);
+  TRACE ("FreeResource(0x%lx) => %d\n", res, result);
   return result;
 }
 
@@ -2267,7 +2244,7 @@ expFreeResource (long res)
 static int WINAPI
 expCloseHandle (long v1)
 {
-  dbgprintf ("CloseHandle(0x%lx) => 1\n", v1);
+  TRACE ("CloseHandle(0x%lx) => 1\n", v1);
   /* do not close stdin,stdout and stderr */
   if (v1 > 2)
     if (!close (v1))
@@ -2278,7 +2255,7 @@ expCloseHandle (long v1)
 static const char *WINAPI
 expGetCommandLineA ()
 {
-  dbgprintf
+  TRACE
       ("GetCommandLineA() => \"C:\\Programme\\Jeskola Buzz\\Buzz.exe\"\n");
   return "C:\\Programme\\Jeskola Buzz\\Buzz.exe";
 }
@@ -2286,7 +2263,7 @@ expGetCommandLineA ()
 static const char *WINAPI
 expGetCommandLineW ()
 {
-  dbgprintf
+  TRACE
       ("GetCommandLineW() => \"C:\\Programme\\Jeskola Buzz\\Buzz.exe\"\n");
   return "C:\\Programme\\Jeskola Buzz\\Buzz.exe";
 }
@@ -2295,7 +2272,7 @@ expGetCommandLineW ()
 static LPWSTR WINAPI
 expGetEnvironmentStringsW ()
 {
-  dbgprintf ("GetEnvironmentStringsW() => 0\n");
+  TRACE ("GetEnvironmentStringsW() => 0\n");
   return 0;
 }
 
@@ -2303,7 +2280,7 @@ static void *WINAPI
 expRtlZeroMemory (void *p, size_t len)
 {
   void *result = memset (p, 0, len);
-  dbgprintf ("RtlZeroMemory(%p, len %d) => %p\n", p, len, result);
+  TRACE ("RtlZeroMemory(%p, len %d) => %p\n", p, len, result);
   return result;
 }
 
@@ -2311,7 +2288,7 @@ static void *WINAPI
 expRtlMoveMemory (void *dst, void *src, size_t len)
 {
   void *result = memmove (dst, src, len);
-  dbgprintf ("RtlMoveMemory (dest %p, src %p, len %d) => %p\n", dst, src, len,
+  TRACE ("RtlMoveMemory (dest %p, src %p, len %d) => %p\n", dst, src, len,
       result);
   return result;
 }
@@ -2320,7 +2297,7 @@ static void *WINAPI
 expRtlFillMemory (void *p, int ch, size_t len)
 {
   void *result = memset (p, ch, len);
-  dbgprintf ("RtlFillMemory(%p, char 0x%x, len %d) => %p\n", p, ch, len,
+  TRACE ("RtlFillMemory(%p, char 0x%x, len %d) => %p\n", p, ch, len,
       result);
   return result;
 }
@@ -2328,14 +2305,14 @@ expRtlFillMemory (void *p, int ch, size_t len)
 static int WINAPI
 expFreeEnvironmentStringsW (short *strings)
 {
-  dbgprintf ("FreeEnvironmentStringsW(%p) => 1\n", strings);
+  TRACE ("FreeEnvironmentStringsW(%p) => 1\n", strings);
   return 1;
 }
 
 static int WINAPI
 expFreeEnvironmentStringsA (char *strings)
 {
-  dbgprintf ("FreeEnvironmentStringsA(%p) => 1\n", strings);
+  TRACE ("FreeEnvironmentStringsA(%p) => 1\n", strings);
   return 1;
 }
 
@@ -2345,9 +2322,9 @@ static const char ch_envs[] =
 static LPCSTR WINAPI
 expGetEnvironmentStrings ()
 {
-  dbgprintf ("GetEnvironmentStrings() => %p\n", ch_envs);
+  TRACE ("GetEnvironmentStrings() => %p\n", ch_envs);
   return (LPCSTR) ch_envs;
-  // dbgprintf("GetEnvironmentStrings() => 0\n");
+  // TRACE("GetEnvironmentStrings() => 0\n");
   // return 0;
 }
 
@@ -2355,7 +2332,7 @@ static int WINAPI
 expGetStartupInfoA (STARTUPINFOA * s)
 {
   /* int i; -- unused */
-  dbgprintf ("GetStartupInfoA(%p) => 1\n", s);
+  TRACE ("GetStartupInfoA(%p) => 1\n", s);
   memset (s, 0, sizeof (*s));
   s->cb = sizeof (*s);
   // s->lpReserved="Reserved";
@@ -2366,17 +2343,17 @@ expGetStartupInfoA (STARTUPINFOA * s)
   s->dwFlags = 0x401;
   s->wShowWindow = 1;
   // s->hStdInput=s->hStdOutput=s->hStdError=0x1234;
-  dbgprintf ("  cb=%ld\n", s->cb);
-  dbgprintf ("  lpReserved='%s'\n", s->lpReserved);
-  dbgprintf ("  lpDesktop='%s'\n", s->lpDesktop);
-  dbgprintf ("  lpTitle='%s'\n", s->lpTitle);
-  dbgprintf ("  dwX=%ld dwY=%ld dwXSize=%ld dwYSize=%ld\n",
+  TRACE ("  cb=%ld\n", s->cb);
+  TRACE ("  lpReserved='%s'\n", s->lpReserved);
+  TRACE ("  lpDesktop='%s'\n", s->lpDesktop);
+  TRACE ("  lpTitle='%s'\n", s->lpTitle);
+  TRACE ("  dwX=%ld dwY=%ld dwXSize=%ld dwYSize=%ld\n",
       s->dwX, s->dwY, s->dwXSize, s->dwYSize);
-  dbgprintf ("  dwXCountChars=%ld dwYCountChars=%ld dwFillAttribute=%ld\n",
+  TRACE ("  dwXCountChars=%ld dwYCountChars=%ld dwFillAttribute=%ld\n",
       s->dwXCountChars, s->dwYCountChars, s->dwFillAttribute);
-  dbgprintf ("  dwFlags=0x%lx wShowWindow=0x%x cbReserved2=0x%x\n",
+  TRACE ("  dwFlags=0x%lx wShowWindow=0x%x cbReserved2=0x%x\n",
       s->dwFlags, s->wShowWindow, s->cbReserved2);
-  dbgprintf ("  lpReserved2=%p hStdInput=0x%x hStdOutput=0x%x hStdError=0x%x\n",
+  TRACE ("  lpReserved2=%p hStdInput=0x%x hStdOutput=0x%x hStdError=0x%x\n",
       s->lpReserved2, s->hStdInput, s->hStdOutput, s->hStdError);
   return 1;
 }
@@ -2385,7 +2362,7 @@ static int WINAPI
 expGetStdHandle (int z)
 {
   z += 0x1234;
-  dbgprintf ("GetStdHandle(0x%x) => 0x%x\n", z, z);
+  TRACE ("GetStdHandle(0x%x) => 0x%x\n", z, z);
   return z;
 }
 
@@ -2397,7 +2374,7 @@ expGetStdHandle (int z)
 static int WINAPI
 expGetFileType (int handle)
 {
-  dbgprintf ("GetFileType(0x%x) => 0x3 = pipe\n", handle);
+  TRACE ("GetFileType(0x%x) => 0x3 = pipe\n", handle);
   return 0x3;
 }
 
@@ -2405,7 +2382,7 @@ expGetFileType (int handle)
 static int WINAPI
 expGetFileAttributesA (char *filename)
 {
-  dbgprintf ("GetFileAttributesA(%s) => FILE_ATTR_NORMAL\n", filename);
+  TRACE ("GetFileAttributesA(%s) => FILE_ATTR_NORMAL\n", filename);
   if (strstr (filename, "QuickTime.qts"))
     return FILE_ATTRIBUTE_SYSTEM;
   return FILE_ATTRIBUTE_NORMAL;
@@ -2414,14 +2391,14 @@ expGetFileAttributesA (char *filename)
 static int WINAPI
 expSetHandleCount (int count)
 {
-  dbgprintf ("SetHandleCount(0x%x) => 1\n", count);
+  TRACE ("SetHandleCount(0x%x) => 1\n", count);
   return 1;
 }
 
 static int WINAPI
 expGetACP (void)
 {
-  dbgprintf ("GetACP() => 0\n");
+  TRACE ("GetACP() => 0\n");
   return 0;
 }
 
@@ -2431,7 +2408,7 @@ expGetModuleFileNameA (int module, char *s, int len)
 {
   WINE_MODREF *mr;
   int result;
-  //dbgprintf("File name of module %X (%s) requested\n", module, s);
+  //TRACE("File name of module %X (%s) requested\n", module, s);
 
   if (module == 0 && len >= 12) {
     /* return caller program name */
@@ -2453,10 +2430,10 @@ expGetModuleFileNameA (int module, char *s, int len)
       strcat (s, strrchr (mr->filename, '/') + 1);
   }
   if (!s)
-    dbgprintf ("GetModuleFileNameA(0x%x, NULL, %d) => %d\n",
+    TRACE ("GetModuleFileNameA(0x%x, NULL, %d) => %d\n",
         module, len, result);
   else
-    dbgprintf ("GetModuleFileNameA(0x%x, %p, %d) => %d ( '%s' )\n",
+    TRACE ("GetModuleFileNameA(0x%x, %p, %d) => %d ( '%s' )\n",
         module, s, len, result, s);
   return result;
 }
@@ -2464,7 +2441,7 @@ expGetModuleFileNameA (int module, char *s, int len)
 static int WINAPI
 expSetUnhandledExceptionFilter (void *filter)
 {
-  dbgprintf ("SetUnhandledExceptionFilter(%p) => 1\n", filter);
+  TRACE ("SetUnhandledExceptionFilter(%p) => 1\n", filter);
   return 1;                     //unsupported and probably won't ever be supported
 }
 
@@ -2495,7 +2472,7 @@ expLoadLibraryA (char *name)
   if (strncmp (name, ".\\", 2) == 0)
     name += 2;
 
-  dbgprintf ("Entering LoadLibraryA(%s)\n", name);
+  TRACE ("Entering LoadLibraryA(%s)\n", name);
 
   // PIMJ and VIVO audio are loading  kernel32.dll
   if (strcasecmp (name, "kernel32.dll") == 0
@@ -2520,7 +2497,7 @@ expLoadLibraryA (char *name)
 #endif
 
   result = LoadLibraryA (name);
-  dbgprintf ("Returned LoadLibraryA(%p='%s'), def_path=%s => 0x%x\n", name,
+  TRACE ("Returned LoadLibraryA(%p='%s'), def_path=%s => 0x%x\n", name,
       name, win32_def_path, result);
 
   return result;
@@ -2534,7 +2511,7 @@ expFreeLibrary (int module)
 #else
   int result = FreeLibrary (module);
 #endif
-  dbgprintf ("FreeLibrary(0x%x) => %d\n", module, result);
+  TRACE ("FreeLibrary(0x%x) => %d\n", module, result);
   return result;
 }
 
@@ -2563,7 +2540,7 @@ expGetProcAddress (HMODULE mod, char *name)
     default:
       result = GetProcAddress (mod, name);
   }
-  dbgprintf ("GetProcAddress(0x%x, '%s') => %p\n", mod, name, result);
+  TRACE ("GetProcAddress(0x%x, '%s') => %p\n", mod, name, result);
   return result;
 }
 
@@ -2574,11 +2551,11 @@ expCreateFileMappingA (int hFile, void *lpAttr,
   long result =
       CreateFileMappingA (hFile, lpAttr, flProtect, dwMaxHigh, dwMaxLow, name);
   if (!name)
-    dbgprintf ("CreateFileMappingA(file 0x%x, lpAttr %p,"
+    TRACE ("CreateFileMappingA(file 0x%x, lpAttr %p,"
         "flProtect 0x%lx, dwMaxHigh 0x%lx, dwMaxLow 0x%lx, name 0) => %ld\n",
         hFile, lpAttr, flProtect, dwMaxHigh, dwMaxLow, result);
   else
-    dbgprintf ("CreateFileMappingA(file 0x%x, lpAttr %p,"
+    TRACE ("CreateFileMappingA(file 0x%x, lpAttr %p,"
         "flProtect 0x%lx, dwMaxHigh 0x%lx, dwMaxLow 0x%lx, name %p='%s') => %ld\n",
         hFile, lpAttr, flProtect, dwMaxHigh, dwMaxLow, name, name, result);
   return result;
@@ -2589,9 +2566,9 @@ expOpenFileMappingA (long hFile, long hz, const char *name)
 {
   long result = OpenFileMappingA (hFile, hz, name);
   if (!name)
-    dbgprintf ("OpenFileMappingA(0x%lx, 0x%lx, 0) => %ld\n", hFile, hz, result);
+    TRACE ("OpenFileMappingA(0x%lx, 0x%lx, 0) => %ld\n", hFile, hz, result);
   else
-    dbgprintf ("OpenFileMappingA(0x%lx, 0x%lx, %p='%s') => %ld\n",
+    TRACE ("OpenFileMappingA(0x%lx, 0x%lx, %p='%s') => %ld\n",
         hFile, hz, name, name, result);
   return result;
 }
@@ -2600,7 +2577,7 @@ static void *WINAPI
 expMapViewOfFile (HANDLE file, DWORD mode, DWORD offHigh,
     DWORD offLow, DWORD size)
 {
-  dbgprintf ("MapViewOfFile(0x%x, 0x%lx, 0x%lx, 0x%lx, size %ld) => %p\n",
+  TRACE ("MapViewOfFile(0x%x, 0x%lx, 0x%lx, 0x%lx, size %ld) => %p\n",
       file, mode, offHigh, offLow, size, (char *) file + offLow);
   return (char *) file + offLow;
 }
@@ -2608,7 +2585,7 @@ expMapViewOfFile (HANDLE file, DWORD mode, DWORD offHigh,
 static void *WINAPI
 expUnmapViewOfFile (void *view)
 {
-  dbgprintf ("UnmapViewOfFile(%p) => 0\n", view);
+  TRACE ("UnmapViewOfFile(%p) => 0\n", view);
   return 0;
 }
 
@@ -2624,7 +2601,7 @@ expSleep (int time)
 #else
   usleep (time);
 #endif
-  dbgprintf ("Sleep(%d) => 0\n", time);
+  TRACE ("Sleep(%d) => 0\n", time);
   return 0;
 }
 
@@ -2633,15 +2610,15 @@ static int WINAPI
 expCreateCompatibleDC (int hdc)
 {
   int dc = 0;                   //0x81;
-  //dbgprintf("CreateCompatibleDC(%d) => 0x81\n", hdc);
-  dbgprintf ("CreateCompatibleDC(%d) => %d\n", hdc, dc);
+  //TRACE("CreateCompatibleDC(%d) => 0x81\n", hdc);
+  TRACE ("CreateCompatibleDC(%d) => %d\n", hdc, dc);
   return dc;
 }
 
 static int WINAPI
 expGetDeviceCaps (int hdc, int unk)
 {
-  dbgprintf ("GetDeviceCaps(0x%x, %d) => 0\n", hdc, unk);
+  TRACE ("GetDeviceCaps(0x%x, %d) => 0\n", hdc, unk);
 #ifdef QTX
 #define BITSPIXEL 12
 #define PLANES    14
@@ -2656,7 +2633,7 @@ expGetDeviceCaps (int hdc, int unk)
 static WIN_BOOL WINAPI
 expDeleteDC (int hdc)
 {
-  dbgprintf ("DeleteDC(0x%x) => 0\n", hdc);
+  TRACE ("DeleteDC(0x%x) => 0\n", hdc);
   if (hdc == 0x81)
     return 1;
   return 0;
@@ -2665,7 +2642,7 @@ expDeleteDC (int hdc)
 static WIN_BOOL WINAPI
 expDeleteObject (int hdc)
 {
-  dbgprintf ("DeleteObject(0x%x) => 1\n", hdc);
+  TRACE ("DeleteObject(0x%x) => 1\n", hdc);
   /* FIXME - implement code here */
   return 1;
 }
@@ -2674,7 +2651,7 @@ expDeleteObject (int hdc)
 static void *WINAPI
 expGetWindowDC (int hdc)
 {
-  dbgprintf ("GetWindowDC(%d) => 0x0\n", hdc);
+  TRACE ("GetWindowDC(%d) => 0x0\n", hdc);
   return 0;
 }
 
@@ -2682,7 +2659,7 @@ expGetWindowDC (int hdc)
 static int WINAPI
 expGetWindowRect (HWND win, RECT * r)
 {
-  dbgprintf ("GetWindowRect(0x%x, %p) => 1\n", win, r);
+  TRACE ("GetWindowRect(0x%x, %p) => 1\n", win, r);
   /* (win == 0) => desktop */
   r->right = PSEUDO_SCREEN_WIDTH;
   r->left = 0;
@@ -2694,21 +2671,21 @@ expGetWindowRect (HWND win, RECT * r)
 static int WINAPI
 expMonitorFromWindow (HWND win, int flags)
 {
-  dbgprintf ("MonitorFromWindow(0x%x, 0x%x) => 0\n", win, flags);
+  TRACE ("MonitorFromWindow(0x%x, 0x%x) => 0\n", win, flags);
   return 0;
 }
 
 static int WINAPI
 expMonitorFromRect (RECT * r, int flags)
 {
-  dbgprintf ("MonitorFromRect(%p, 0x%x) => 0\n", r, flags);
+  TRACE ("MonitorFromRect(%p, 0x%x) => 0\n", r, flags);
   return 0;
 }
 
 static int WINAPI
 expMonitorFromPoint (void *p, int flags)
 {
-  dbgprintf ("MonitorFromPoint(%p, 0x%x) => 0\n", p, flags);
+  TRACE ("MonitorFromPoint(%p, 0x%x) => 0\n", p, flags);
   return 0;
 }
 
@@ -2716,7 +2693,7 @@ static int WINAPI
 expEnumDisplayMonitors (void *dc, RECT * r,
     int WINAPI (*callback_proc) (), void *callback_param)
 {
-  dbgprintf ("EnumDisplayMonitors(%p, %p, %p, %p) => ?\n",
+  TRACE ("EnumDisplayMonitors(%p, %p, %p, %p) => ?\n",
       dc, r, callback_proc, callback_param);
   return callback_proc (0, dc, r, callback_param);
 }
@@ -2744,7 +2721,7 @@ typedef struct tagMONITORINFOEX
 static int WINAPI
 expGetMonitorInfoA (void *mon, LPMONITORINFO lpmi)
 {
-  dbgprintf ("GetMonitorInfoA(%p, %p) => 1\n", mon, lpmi);
+  TRACE ("GetMonitorInfoA(%p, %p) => 1\n", mon, lpmi);
 
   lpmi->rcMonitor.right = lpmi->rcWork.right = PSEUDO_SCREEN_WIDTH;
   lpmi->rcMonitor.left = lpmi->rcWork.left = 0;
@@ -2755,7 +2732,7 @@ expGetMonitorInfoA (void *mon, LPMONITORINFO lpmi)
 
   if (lpmi->cbSize == sizeof (MONITORINFOEX)) {
     LPMONITORINFOEX lpmiex = (LPMONITORINFOEX) lpmi;
-    dbgprintf ("MONITORINFOEX!\n");
+    TRACE ("MONITORINFOEX!\n");
     strncpy (lpmiex->szDevice, "Monitor1", CCHDEVICENAME);
   }
 
@@ -2766,7 +2743,7 @@ static int WINAPI
 expEnumDisplayDevicesA (const char *device, int devnum,
     void *dispdev, int flags)
 {
-  dbgprintf ("EnumDisplayDevicesA(%p = %s, %d, %p, %x) => 1\n",
+  TRACE ("EnumDisplayDevicesA(%p = %s, %d, %p, %x) => 1\n",
       device, device, devnum, dispdev, flags);
   return 1;
 }
@@ -2774,14 +2751,14 @@ expEnumDisplayDevicesA (const char *device, int devnum,
 static int WINAPI
 expIsWindowVisible (HWND win)
 {
-  dbgprintf ("IsWindowVisible(0x%x) => 1\n", win);
+  TRACE ("IsWindowVisible(0x%x) => 1\n", win);
   return 1;
 }
 
 static HWND WINAPI
 expGetActiveWindow (void)
 {
-  dbgprintf ("GetActiveWindow() => 0\n");
+  TRACE ("GetActiveWindow() => 0\n");
   return (HWND) 0;
 }
 
@@ -2789,7 +2766,7 @@ static int WINAPI
 expGetClassNameA (HWND win, LPTSTR classname, int maxcount)
 {
   strncat (classname, "QuickTime", maxcount);
-  dbgprintf ("GetClassNameA(0x%x, %p, %d) => %d\n",
+  TRACE ("GetClassNameA(0x%x, %p, %d) => %d\n",
       win, classname, maxcount, strlen (classname));
   return strlen (classname);
 }
@@ -2798,7 +2775,7 @@ expGetClassNameA (HWND win, LPTSTR classname, int maxcount)
 static int WINAPI
 expGetClassInfoA (HINSTANCE inst, LPCSTR classname, LPWNDCLASS wndclass)
 {
-  dbgprintf ("GetClassInfoA(0x%x, %p = %s, %p) => 1\n", inst,
+  TRACE ("GetClassInfoA(0x%x, %p = %s, %p) => 1\n", inst,
       classname, classname, wndclass);
   return 1;
 }
@@ -2806,21 +2783,21 @@ expGetClassInfoA (HINSTANCE inst, LPCSTR classname, LPWNDCLASS wndclass)
 static int WINAPI
 expGetWindowLongA (HWND win, int index)
 {
-  dbgprintf ("GetWindowLongA(0x%x, %d) => 0\n", win, index);
+  TRACE ("GetWindowLongA(0x%x, %d) => 0\n", win, index);
   return 1;
 }
 
 static int WINAPI
 expGetObjectA (HGDIOBJ hobj, int objsize, LPVOID obj)
 {
-  dbgprintf ("GetObjectA(0x%x, %d, %p) => %d\n", hobj, objsize, obj, objsize);
+  TRACE ("GetObjectA(0x%x, %d, %p) => %d\n", hobj, objsize, obj, objsize);
   return objsize;
 }
 
 static int WINAPI
 expCreateRectRgn (int x, int y, int width, int height)
 {
-  dbgprintf ("CreateRectRgn(%d, %d, %d, %d) => 0\n", x, y, width, height);
+  TRACE ("CreateRectRgn(%d, %d, %d, %d) => 0\n", x, y, width, height);
   return 0;
 }
 
@@ -2828,7 +2805,7 @@ static int WINAPI
 expEnumWindows (int (*callback_func) (), void *callback_param)
 {
   int i, i2;
-  dbgprintf ("EnumWindows(%p, %p) => 1\n", callback_func, callback_param);
+  TRACE ("EnumWindows(%p, %p) => 1\n", callback_func, callback_param);
   i = callback_func (0, callback_param);
   i2 = callback_func (1, callback_param);
   return i && i2;
@@ -2838,7 +2815,7 @@ static int WINAPI
 expGetWindowThreadProcessId (HWND win, int *pid_data)
 {
   int tid = (int) pthread_self ();
-  dbgprintf ("GetWindowThreadProcessId(0x%x, %p) => %d\n", win, pid_data, tid);
+  TRACE ("GetWindowThreadProcessId(0x%x, %p) => %d\n", win, pid_data, tid);
   if (pid_data)
     *pid_data = tid;
   return tid;
@@ -2852,7 +2829,7 @@ expCreateWindowExA (int exstyle, const char *classname,
     const char *winname, int style, int x, int y, int w, int h,
     HWND parent, HMENU menu, HINSTANCE inst, LPVOID param)
 {
-  dbgprintf
+  TRACE
       ("CreateWindowEx(%d, %p = %s, %p = %s, %d, %d, %d, %d, %d, 0x%x, 0x%x, 0x%x, %p) => 1\n",
       exstyle, classname, classname, winname, winname, style, x, y, w, h,
       parent, menu, inst, param);
@@ -2862,7 +2839,7 @@ expCreateWindowExA (int exstyle, const char *classname,
 static int WINAPI
 expwaveOutGetNumDevs (void)
 {
-  dbgprintf ("waveOutGetNumDevs() => 0\n");
+  TRACE ("waveOutGetNumDevs() => 0\n");
   return 0;
 }
 #endif
@@ -2883,14 +2860,14 @@ expGetTickCount (void)
     tcstart = 0;
     tc = 0;
   }
-  dbgprintf ("GetTickCount() => %d\n", tc);
+  TRACE ("GetTickCount() => %d\n", tc);
   return tc;
 }
 
 static int WINAPI
 expCreateFontA (void)
 {
-  dbgprintf ("CreateFontA() => 0x0\n");
+  TRACE ("CreateFontA() => 0x0\n");
   return 1;
 }
 
@@ -2899,7 +2876,7 @@ static int WINAPI
 expDrawTextA (int hDC, char *lpString, int nCount,
     LPRECT lpRect, unsigned int uFormat)
 {
-  dbgprintf ("expDrawTextA(%d,...) => 8\n", hDC);
+  TRACE ("expDrawTextA(%d,...) => 8\n", hDC);
   return 8;
 }
 
@@ -2914,7 +2891,7 @@ expGetPrivateProfileIntA (const char *appname,
 
   buffer[255] = 0;
   if (!(appname && keyname && filename)) {
-    dbgprintf ("GetPrivateProfileIntA('%s', '%s', %d, '%s') => %d\n", appname,
+    TRACE ("GetPrivateProfileIntA('%s', '%s', %d, '%s') => %d\n", appname,
         keyname, default_value, filename, default_value);
     return default_value;
   }
@@ -2932,13 +2909,13 @@ expGetPrivateProfileIntA (const char *appname,
       (int *) buffer, &size);
   if ((size >= 0) && (size < 256))
     buffer[size] = 0;
-  //    dbgprintf("GetPrivateProfileIntA(%s, %s, %s) -> %s\n", appname, keyname, filename, buffer);
+  //    TRACE("GetPrivateProfileIntA(%s, %s, %s) -> %s\n", appname, keyname, filename, buffer);
   free (fullname);
   if (result)
     result = default_value;
   else
     result = atoi (buffer);
-  dbgprintf ("GetPrivateProfileIntA('%s', '%s', %d, '%s') => %d\n", appname,
+  TRACE ("GetPrivateProfileIntA('%s', '%s', %d, '%s') => %d\n", appname,
       keyname, default_value, filename, result);
   return result;
 }
@@ -2946,7 +2923,7 @@ expGetPrivateProfileIntA (const char *appname,
 static int WINAPI
 expGetProfileIntA (const char *appname, const char *keyname, int default_value)
 {
-  dbgprintf ("GetProfileIntA -> ");
+  TRACE ("GetProfileIntA -> ");
   return expGetPrivateProfileIntA (appname, keyname, default_value, "default");
 }
 
@@ -2958,7 +2935,7 @@ expGetPrivateProfileStringA (const char *appname,
   int result;
   int size;
   char *fullname;
-  dbgprintf
+  TRACE
       ("GetPrivateProfileStringA('%s', '%s', def_val '%s', %p, 0x%x, '%s')",
       appname, keyname, def_val, dest, len, filename);
   if (!(appname && keyname && filename))
@@ -2982,7 +2959,7 @@ expGetPrivateProfileStringA (const char *appname,
     if (strlen (def_val) < size)
       size = strlen (def_val);
   }
-  dbgprintf (" => %d ( '%s' )\n", size, dest);
+  TRACE (" => %d ( '%s' )\n", size, dest);
   return size;
 }
 
@@ -2992,10 +2969,10 @@ expWritePrivateProfileStringA (const char *appname,
 {
   /* int size=256; */
   char *fullname;
-  dbgprintf ("WritePrivateProfileStringA('%s', '%s', '%s', '%s')", appname,
+  TRACE ("WritePrivateProfileStringA('%s', '%s', '%s', '%s')", appname,
       keyname, string, filename);
   if (!(appname && keyname && filename)) {
-    dbgprintf (" => -1\n");
+    TRACE (" => -1\n");
     return -1;
   }
   fullname =
@@ -3009,10 +2986,10 @@ expWritePrivateProfileStringA (const char *appname,
   strcat (fullname, filename);
   RegSetValueExA (HKEY_LOCAL_MACHINE, fullname, 0, REG_SZ, (int *) string,
       strlen (string));
-  //    dbgprintf("RegSetValueExA(%s,%d)\n", string, strlen(string));
-  //    dbgprintf("WritePrivateProfileStringA(%s, %s, %s, %s)\n", appname, keyname, string, filename );
+  //    TRACE("RegSetValueExA(%s,%d)\n", string, strlen(string));
+  //    TRACE("WritePrivateProfileStringA(%s, %s, %s, %s)\n", appname, keyname, string, filename );
   free (fullname);
-  dbgprintf (" => 0\n");
+  TRACE (" => 0\n");
   return 0;
 }
 
@@ -3045,7 +3022,7 @@ _WritePrivateProfileStringA (const char *appname, const char *keyname,
 static int WINAPI
 expDefDriverProc (int _private, int id, int msg, int arg1, int arg2)
 {
-  dbgprintf ("DefDriverProc(0x%x, 0x%x, 0x%x, 0x%x, 0x%x) => 0\n", _private, id,
+  TRACE ("DefDriverProc(0x%x, 0x%x, 0x%x, 0x%x, 0x%x) => 0\n", _private, id,
       msg, arg1, arg2);
   return 0;
 }
@@ -3054,7 +3031,7 @@ static int WINAPI
 expSizeofResource (int v1, int v2)
 {
   int result = SizeofResource (v1, v2);
-  dbgprintf ("SizeofResource(0x%x, 0x%x) => %d\n", v1, v2, result);
+  TRACE ("SizeofResource(0x%x, 0x%x) => %d\n", v1, v2, result);
   return result;
 }
 
@@ -3062,14 +3039,14 @@ static int WINAPI
 expGetLastError ()
 {
   int result = GetLastError ();
-  dbgprintf ("GetLastError() => 0x%x\n", result);
+  TRACE ("GetLastError() => 0x%x\n", result);
   return result;
 }
 
 static void WINAPI
 expSetLastError (int error)
 {
-  dbgprintf ("SetLastError(0x%x)\n", error);
+  TRACE ("SetLastError(0x%x)\n", error);
   SetLastError (error);
 }
 
@@ -3083,7 +3060,7 @@ expStringFromGUID2 (GUID * guid, char *str, int cbMax)
       (unsigned char) guid->f4[2], (unsigned char) guid->f4[3],
       (unsigned char) guid->f4[4], (unsigned char) guid->f4[5],
       (unsigned char) guid->f4[6], (unsigned char) guid->f4[7]);
-  dbgprintf ("StringFromGUID2(%p, %p='%s', %d) => %d\n", guid, str, str, cbMax,
+  TRACE ("StringFromGUID2(%p, %p='%s', %d) => %d\n", guid, str, str, cbMax,
       result);
   return result;
 }
@@ -3092,7 +3069,7 @@ expStringFromGUID2 (GUID * guid, char *str, int cbMax)
 static int WINAPI
 expGetFileVersionInfoSizeA (const char *name, int *lpHandle)
 {
-  dbgprintf ("GetFileVersionInfoSizeA(%p='%s', %p) => 0\n", name, name,
+  TRACE ("GetFileVersionInfoSizeA(%p='%s', %p) => 0\n", name, name,
       lpHandle);
   return 0;
 }
@@ -3105,7 +3082,7 @@ expIsBadStringPtrW (const short *string, int nchars)
     result = 1;
   else
     result = 0;
-  dbgprintf ("IsBadStringPtrW(%p, %d) => %d", string, nchars, result);
+  TRACE ("IsBadStringPtrW(%p, %d) => %d", string, nchars, result);
   if (string)
     wch_print (string);
   return result;
@@ -3141,7 +3118,7 @@ static long WINAPI
 expInterlockedIncrement (long *dest)
 {
   long result = expInterlockedExchangeAdd (dest, 1) + 1;
-  dbgprintf ("InterlockedIncrement(%p => %ld) => %ld\n", dest, *dest, result);
+  TRACE ("InterlockedIncrement(%p => %ld) => %ld\n", dest, *dest, result);
   return result;
 }
 
@@ -3149,35 +3126,35 @@ static long WINAPI
 expInterlockedDecrement (long *dest)
 {
   long result = expInterlockedExchangeAdd (dest, -1) - 1;
-  dbgprintf ("InterlockedDecrement(%p => %ld) => %ld\n", dest, *dest, result);
+  TRACE ("InterlockedDecrement(%p => %ld) => %ld\n", dest, *dest, result);
   return result;
 }
 
 static void WINAPI
 expOutputDebugStringA (const char *string)
 {
-  dbgprintf ("OutputDebugStringA(%p='%s')\n", string, string);
+  TRACE ("OutputDebugStringA(%p='%s')\n", string, string);
   fprintf (stderr, "DEBUG: %s\n", string);
 }
 
 static int WINAPI
 expGetDC (int hwnd)
 {
-  dbgprintf ("GetDC(0x%x) => 1\n", hwnd);
+  TRACE ("GetDC(0x%x) => 1\n", hwnd);
   return 1;
 }
 
 static int WINAPI
 expReleaseDC (int hwnd, int hdc)
 {
-  dbgprintf ("ReleaseDC(0x%x, 0x%x) => 1\n", hwnd, hdc);
+  TRACE ("ReleaseDC(0x%x, 0x%x) => 1\n", hwnd, hdc);
   return 1;
 }
 
 static int WINAPI
 expGetDesktopWindow ()
 {
-  dbgprintf ("GetDesktopWindow() => 0\n");
+  TRACE ("GetDesktopWindow() => 0\n");
   return 0;
 }
 
@@ -3186,22 +3163,22 @@ static int cursor[100] = { 0, };
 static int WINAPI
 expLoadCursorA (int handle, LPCSTR name)
 {
-  //dbgprintf("LoadCursorA(%d, %p='%s') => 0x%x\n", handle, name, name, (int)&cursor[0]);
-  dbgprintf ("LoadCursorA(%d, %p) => 0x%x\n", handle, name, (int) &cursor[0]);
+  //TRACE("LoadCursorA(%d, %p='%s') => 0x%x\n", handle, name, name, (int)&cursor[0]);
+  TRACE ("LoadCursorA(%d, %p) => 0x%x\n", handle, name, (int) &cursor[0]);
   return (int) &cursor[0];
 }
 
 static int WINAPI
 expSetCursor (void *cursor)
 {
-  dbgprintf ("SetCursor(%p) => %p\n", cursor, cursor);
+  TRACE ("SetCursor(%p) => %p\n", cursor, cursor);
   return (int) cursor;
 }
 
 static int WINAPI
 expGetCursorPos (void *cursor)
 {
-  dbgprintf ("GetCursorPos(%p) => 1\n", cursor);
+  TRACE ("GetCursorPos(%p) => 1\n", cursor);
   return 1;
 }
 
@@ -3210,7 +3187,7 @@ static int show_cursor = 0;
 static int WINAPI
 expShowCursor (int show)
 {
-  dbgprintf ("ShowCursor(%d) => %d\n", show, show);
+  TRACE ("ShowCursor(%d) => %d\n", show, show);
   if (show)
     show_cursor++;
   else
@@ -3221,14 +3198,14 @@ expShowCursor (int show)
 static int WINAPI
 expRegisterWindowMessageA (char *message)
 {
-  dbgprintf ("RegisterWindowMessageA(%s)\n", message);
+  TRACE ("RegisterWindowMessageA(%s)\n", message);
   return 1;
 }
 
 static int WINAPI
 expGetProcessVersion (int pid)
 {
-  dbgprintf ("GetProcessVersion(%d)\n", pid);
+  TRACE ("GetProcessVersion(%d)\n", pid);
   return 1;
 }
 
@@ -3236,21 +3213,21 @@ static int WINAPI
 expGetCurrentThread (void)
 {
 /* #warning FIXME! -- Worry about it later :) */
-  dbgprintf ("GetCurrentThread() => %x\n", 0xcfcf9898);
+  TRACE ("GetCurrentThread() => %x\n", 0xcfcf9898);
   return 0xcfcf9898;
 }
 
 static int WINAPI
 expGetOEMCP (void)
 {
-  dbgprintf ("GetOEMCP()\n");
+  TRACE ("GetOEMCP()\n");
   return 1;
 }
 
 static int WINAPI
 expGetCPInfo (int cp, void *info)
 {
-  dbgprintf ("GetCPInfo()\n");
+  TRACE ("GetCPInfo()\n");
   return 0;
 }
 
@@ -3266,7 +3243,7 @@ expGetCPInfo (int cp, void *info)
 static int WINAPI
 expGetSystemMetrics (int index)
 {
-  dbgprintf ("GetSystemMetrics(%d)\n", index);
+  TRACE ("GetSystemMetrics(%d)\n", index);
 #ifdef QTX
   switch (index) {
     case SM_XVIRTUALSCREEN:
@@ -3288,14 +3265,14 @@ expGetSystemMetrics (int index)
 static int WINAPI
 expGetSysColor (int index)
 {
-  dbgprintf ("GetSysColor(%d) => 1\n", index);
+  TRACE ("GetSysColor(%d) => 1\n", index);
   return 1;
 }
 
 static int WINAPI
 expGetSysColorBrush (int index)
 {
-  dbgprintf ("GetSysColorBrush(%d)\n", index);
+  TRACE ("GetSysColorBrush(%d)\n", index);
   return 1;
 }
 
@@ -3304,7 +3281,7 @@ expGetSysColorBrush (int index)
 static int WINAPI
 expGetSystemPaletteEntries (int hdc, int iStartIndex, int nEntries, void *lppe)
 {
-  dbgprintf ("GetSystemPaletteEntries(0x%x, 0x%x, 0x%x, %p) => 0\n",
+  TRACE ("GetSystemPaletteEntries(0x%x, 0x%x, 0x%x, %p) => 0\n",
       hdc, iStartIndex, nEntries, lppe);
   return 0;
 }
@@ -3330,7 +3307,7 @@ expGetTimeZoneInformation (LPTIME_ZONE_INFORMATION lpTimeZoneInformation)
   const short pname[] = { 'C', 'e', 'n', 't', 'r', 'a', 'l', ' ', 'D', 'a', 'y',
     'l', 'i', 'g', 'h', 't', ' ', 'T', 'i', 'm', 'e', 0
   };
-  dbgprintf ("GetTimeZoneInformation(%p) => TIME_ZONE_ID_STANDARD\n",
+  TRACE ("GetTimeZoneInformation(%p) => TIME_ZONE_ID_STANDARD\n",
       lpTimeZoneInformation);
   memset (lpTimeZoneInformation, 0, sizeof (TIME_ZONE_INFORMATION));
   lpTimeZoneInformation->Bias = 360;    //GMT-6
@@ -3350,8 +3327,8 @@ expGetTimeZoneInformation (LPTIME_ZONE_INFORMATION lpTimeZoneInformation)
 static int WINAPI
 expSetLocalTime (SYSTEMTIME * systime)
 {
-  dbgprintf ("SetLocalTime(%p)\n", systime);
-  dbgprintf ("  Year: %d\n  Month: %d\n  Day of week: %d\n"
+  TRACE ("SetLocalTime(%p)\n", systime);
+  TRACE ("  Year: %d\n  Month: %d\n  Day of week: %d\n"
       "  Day: %d\n  Hour: %d\n  Minute: %d\n  Second:  %d\n"
       "  Milliseconds: %d\n",
       systime->wYear, systime->wMonth, systime->wDayOfWeek, systime->wDay,
@@ -3367,7 +3344,7 @@ expGetLocalTime (SYSTEMTIME * systime)
   struct tm *local_tm;
   struct timeval tv;
 
-  dbgprintf ("GetLocalTime(%p)\n", systime);
+  TRACE ("GetLocalTime(%p)\n", systime);
   gettimeofday (&tv, NULL);
   local_time = tv.tv_sec;
   local_tm = localtime (&local_time);
@@ -3380,7 +3357,7 @@ expGetLocalTime (SYSTEMTIME * systime)
   systime->wMinute = local_tm->tm_min;
   systime->wSecond = local_tm->tm_sec;
   systime->wMilliseconds = (tv.tv_usec / 1000) % 1000;
-  dbgprintf ("  Year: %d\n  Month: %d\n  Day of week: %d\n"
+  TRACE ("  Year: %d\n  Month: %d\n  Day of week: %d\n"
       "  Day: %d\n  Hour: %d\n  Minute: %d\n  Second:  %d\n"
       "  Milliseconds: %d\n",
       systime->wYear, systime->wMonth, systime->wDayOfWeek, systime->wDay,
@@ -3395,7 +3372,7 @@ expGetSystemTime (SYSTEMTIME * systime)
   struct tm *local_tm;
   struct timeval tv;
 
-  dbgprintf ("GetSystemTime(%p)\n", systime);
+  TRACE ("GetSystemTime(%p)\n", systime);
   gettimeofday (&tv, NULL);
   local_time = tv.tv_sec;
   local_tm = gmtime (&local_time);
@@ -3408,7 +3385,7 @@ expGetSystemTime (SYSTEMTIME * systime)
   systime->wMinute = local_tm->tm_min;
   systime->wSecond = local_tm->tm_sec;
   systime->wMilliseconds = (tv.tv_usec / 1000) % 1000;
-  dbgprintf ("  Year: %d\n  Month: %d\n  Day of week: %d\n"
+  TRACE ("  Year: %d\n  Month: %d\n  Day of week: %d\n"
       "  Day: %d\n  Hour: %d\n  Minute: %d\n  Second:  %d\n"
       "  Milliseconds: %d\n",
       systime->wYear, systime->wMonth, systime->wDayOfWeek, systime->wDay,
@@ -3424,7 +3401,7 @@ expGetSystemTimeAsFileTime (FILETIME * systime)
   struct timeval tv;
   unsigned long long secs;
 
-  dbgprintf ("GetSystemTime(%p)\n", systime);
+  TRACE ("GetSystemTime(%p)\n", systime);
   gettimeofday (&tv, NULL);
   secs = (tv.tv_sec + SECS_1601_TO_1970) * 10000000;
   secs += tv.tv_usec * 10;
@@ -3468,7 +3445,7 @@ static int WINAPI
 expGetEnvironmentVariableA (const char *name, char *field, int size)
 {
   /* char *p; */
-  //    dbgprintf("%s %x %x\n", name, field, size);
+  //    TRACE("%s %x %x\n", name, field, size);
   if (field)
     field[0] = 0;
   /*
@@ -3479,7 +3456,7 @@ expGetEnvironmentVariableA (const char *name, char *field, int size)
     return 0;
   if (strcmp (name, "__MSVCRT_HEAP_SELECT") == 0)
     strcpy (field, "__GLOBAL_HEAP_SELECTED,1");
-  dbgprintf ("GetEnvironmentVariableA(%p='%s', %p, %d) => %d\n", name, name,
+  TRACE ("GetEnvironmentVariableA(%p='%s', %p, %d) => %d\n", name, name,
       field, size, strlen (field));
   return strlen (field);
 }
@@ -3487,7 +3464,7 @@ expGetEnvironmentVariableA (const char *name, char *field, int size)
 static int WINAPI
 expSetEnvironmentVariableA (const char *name, const char *value)
 {
-  dbgprintf ("SetEnvironmentVariableA(%s, %s)\n", name, value);
+  TRACE ("SetEnvironmentVariableA(%s, %s)\n", name, value);
   return 0;
 }
 
@@ -3548,7 +3525,7 @@ UnregisterComClass (const GUID * clsid, GETCLASSOBJECT gcs)
     return -1;
 
   if (com_object_table == 0)
-    dbgprintf
+    TRACE
         ("Warning: UnregisterComClass() called without any registered class\n");
   while (i < com_object_size) {
     if (found && i > 0) {
@@ -3619,8 +3596,8 @@ expIsRectEmpty (CONST RECT * lprc)
   } else
     r = 1;
 
-  dbgprintf ("IsRectEmpty(%p) => %s\n", lprc, (r) ? "TRUE" : "FALSE");
-  //dbgprintf("Rect: left: %d, top: %d, right: %d, bottom: %d\n", lprc->left, lprc->top, lprc->right, lprc->bottom);
+  TRACE ("IsRectEmpty(%p) => %s\n", lprc, (r) ? "TRUE" : "FALSE");
+  //TRACE("Rect: left: %d, top: %d, right: %d, bottom: %d\n", lprc->left, lprc->top, lprc->right, lprc->bottom);
 //    return 0; // wmv9?
   return r;                     // TM20
 }
@@ -3633,13 +3610,13 @@ static int _adjust_fdiv = 0;    //what's this? - used to adjust division
 static unsigned int WINAPI
 expGetTempPathA (unsigned int len, char *path)
 {
-  dbgprintf ("GetTempPathA(%d, %p)", len, path);
+  TRACE ("GetTempPathA(%d, %p)", len, path);
   if (len < 5) {
-    dbgprintf (" => 0\n");
+    TRACE (" => 0\n");
     return 0;
   }
   strcpy (path, "/tmp");
-  dbgprintf (" => 5 ( '/tmp' )\n");
+  TRACE (" => 5 ( '/tmp' )\n");
   return 5;
 }
 
@@ -3666,7 +3643,7 @@ static WIN_BOOL WINAPI
 expFindNextFileA (HANDLE h, LPWIN32_FIND_DATAA lpfd)
 {
 #ifdef QTX
-  dbgprintf ("FindNextFileA(0x%x, %p) => 0\n", h, lpfd);
+  TRACE ("FindNextFileA(0x%x, %p) => 0\n", h, lpfd);
   if (h == FILE_HANDLE_quicktimeqtx) {
     struct dirent *d;
     if (!qtx_dir)
@@ -3680,7 +3657,7 @@ expFindNextFileA (HANDLE h, LPWIN32_FIND_DATAA lpfd)
       strcpy (lpfd->cFileName, d->d_name);
 //          sprintf(lpfd->cAlternateFileName,"%-8s.qtx",d->d_name);
       strcpy (lpfd->cAlternateFileName, "foobar.qtx");
-      dbgprintf ("### FindNext: %s\n", lpfd->cFileName);
+      TRACE ("### FindNext: %s\n", lpfd->cFileName);
       return 1;
     }
     closedir (qtx_dir);
@@ -3696,20 +3673,20 @@ expFindFirstFileA (LPCSTR s, LPWIN32_FIND_DATAA lpfd)
 {
 #ifdef QTX
   if (strstr (s, "*.QTX")) {
-    dbgprintf ("FindFirstFileA(%p='%s', %p) => QTX\n", s, s, lpfd);
+    TRACE ("FindFirstFileA(%p='%s', %p) => QTX\n", s, s, lpfd);
     qtx_dir = opendir (win32_def_path);
     if (!qtx_dir)
       return (HANDLE) - 1;
     memset (lpfd, 0, sizeof (*lpfd));
     if (expFindNextFileA (FILE_HANDLE_quicktimeqtx, lpfd))
       return FILE_HANDLE_quicktimeqtx;
-    dbgprintf
+    TRACE
         ("loader: Couldn't find the QuickTime plugins (.qtx files) at %s\n",
         win32_def_path);
     return (HANDLE) - 1;
   }
   if (strstr (s, "QuickTime.qts")) {
-    dbgprintf ("FindFirstFileA(%p='%s', %p) => QTS\n", s, s, lpfd);
+    TRACE ("FindFirstFileA(%p='%s', %p) => QTS\n", s, s, lpfd);
 //      if(!strcmp(s,"C:\\windows\\QuickTime.qts\\QuickTime.qts\\*.QTX"))
 //          return (HANDLE)-1;
     strcpy (lpfd->cFileName, "QuickTime.qts");
@@ -3719,7 +3696,7 @@ expFindFirstFileA (LPCSTR s, LPWIN32_FIND_DATAA lpfd)
 #endif
   if (strstr (s, "*.vwp")) {
     // hack for VoxWare codec plugins:
-    dbgprintf ("FindFirstFileA(%p='%s', %p) => 0\n", s, s, lpfd);
+    TRACE ("FindFirstFileA(%p='%s', %p) => 0\n", s, s, lpfd);
     strcpy (lpfd->cFileName, "msms001.vwp");
     strcpy (lpfd->cAlternateFileName, "msms001.vwp");
     return (HANDLE) 0;
@@ -3730,7 +3707,7 @@ expFindFirstFileA (LPCSTR s, LPWIN32_FIND_DATAA lpfd)
 static WIN_BOOL WINAPI
 expFindClose (HANDLE h)
 {
-  dbgprintf ("FindClose(0x%x) => 0\n", h);
+  TRACE ("FindClose(0x%x) => 0\n", h);
 #ifdef QTX
 //    if(h==FILE_HANDLE_quicktimeqtx && qtx_dir){
 //      closedir(qtx_dir);
@@ -3743,7 +3720,7 @@ expFindClose (HANDLE h)
 static UINT WINAPI
 expSetErrorMode (UINT i)
 {
-  dbgprintf ("SetErrorMode(%d) => 0\n", i);
+  TRACE ("SetErrorMode(%d) => 0\n", i);
   return 0;
 }
 
@@ -3754,7 +3731,7 @@ expGetWindowsDirectoryA (LPSTR s, UINT c)
   int result;
   strncpy (s, windir, c);
   result = 1 + ((c < strlen (windir)) ? c : strlen (windir));
-  dbgprintf ("GetWindowsDirectoryA(%p, %d) => %d\n", s, c, result);
+  TRACE ("GetWindowsDirectoryA(%p, %d) => %d\n", s, c, result);
   return result;
 }
 
@@ -3766,14 +3743,14 @@ expGetCurrentDirectoryA (UINT c, LPSTR s)
   int result;
   strncpy (s, curdir, c);
   result = 1 + ((c < strlen (curdir)) ? c : strlen (curdir));
-  dbgprintf ("GetCurrentDirectoryA(%p, %d) => %d\n", s, c, result);
+  TRACE ("GetCurrentDirectoryA(%p, %d) => %d\n", s, c, result);
   return result;
 }
 
 static int WINAPI
 expSetCurrentDirectoryA (const char *pathname)
 {
-  dbgprintf ("SetCurrentDirectoryA(%p = %s) => 1\n", pathname, pathname);
+  TRACE ("SetCurrentDirectoryA(%p = %s) => 1\n", pathname, pathname);
 #if 0
   if (strrchr (pathname, '\\'))
     chdir (strcat (strrchr (pathname, '\\') + 1, '/'));
@@ -3786,7 +3763,7 @@ expSetCurrentDirectoryA (const char *pathname)
 static int WINAPI
 expCreateDirectoryA (const char *pathname, void *sa)
 {
-  dbgprintf ("CreateDirectory(%p = %s, %p) => 1\n", pathname, pathname, sa);
+  TRACE ("CreateDirectory(%p = %s, %p) => 1\n", pathname, pathname, sa);
 #if 0
   p = strrchr (pathname, '\\') + 1;
   strcpy (&buf[0], p);          /* should be strncpy */
@@ -3808,14 +3785,14 @@ expCreateDirectoryA (const char *pathname, void *sa)
 static WIN_BOOL WINAPI
 expDeleteFileA (LPCSTR s)
 {
-  dbgprintf ("DeleteFileA(%p='%s') => 0\n", s, s);
+  TRACE ("DeleteFileA(%p='%s') => 0\n", s, s);
   return 0;
 }
 
 static WIN_BOOL WINAPI
 expFileTimeToLocalFileTime (const FILETIME * cpf, LPFILETIME pf)
 {
-  dbgprintf ("FileTimeToLocalFileTime(%p, %p) => 0\n", cpf, pf);
+  TRACE ("FileTimeToLocalFileTime(%p, %p) => 0\n", cpf, pf);
   return 0;
 }
 
@@ -3824,15 +3801,15 @@ expGetTempFileNameA (LPCSTR cs1, LPCSTR cs2, UINT i, LPSTR ps)
 {
   char mask[16] = "/tmp/AP_XXXXXX";
   int result;
-  dbgprintf ("GetTempFileNameA(%p='%s', %p='%s', %d, %p)", cs1, cs1, cs2, cs2,
+  TRACE ("GetTempFileNameA(%p='%s', %p='%s', %d, %p)", cs1, cs1, cs2, cs2,
       i, ps);
   if (i && i < 10) {
-    dbgprintf (" => -1\n");
+    TRACE (" => -1\n");
     return -1;
   }
   result = mkstemp (mask);
   sprintf (ps, "AP%d", result);
-  dbgprintf (" => %d\n", strlen (ps));
+  TRACE (" => %d\n", strlen (ps));
   return strlen (ps);
 }
 
@@ -3845,7 +3822,7 @@ static HANDLE WINAPI
 expCreateFileA (LPCSTR cs1, DWORD i1, DWORD i2,
     LPSECURITY_ATTRIBUTES p1, DWORD i3, DWORD i4, HANDLE i5)
 {
-  dbgprintf ("CreateFileA(%p='%s', %ld, %ld, %p, %ld, %ld, 0x%x)\n", cs1, cs1,
+  TRACE ("CreateFileA(%p='%s', %ld, %ld, %p, %ld, %ld, 0x%x)\n", cs1, cs1,
       i1, i2, p1, i3, i4, i5);
   if ((!cs1) || (strlen (cs1) < 2))
     return -1;
@@ -3866,7 +3843,7 @@ expCreateFileA (LPCSTR cs1, DWORD i1, DWORD i2,
     char *tmp = (char *) malloc (strlen (win32_def_path) + 250);
     char *x = strrchr (cs1, '\\');
     sprintf (tmp, "%s/%s", win32_def_path, x ? (x + 1) : cs1);
-//      dbgprintf("### Open: %s -> %s\n",cs1,tmp);
+//      TRACE("### Open: %s -> %s\n",cs1,tmp);
     result = open (tmp, O_RDONLY);
     free (tmp);
     return result;
@@ -3899,7 +3876,7 @@ expCreateFileA (LPCSTR cs1, DWORD i1, DWORD i2,
       flg |= O_RDONLY;
     else if (GENERIC_WRITE & i1) {
       flg |= O_WRONLY;
-      dbgprintf ("Warning: openning filename %s  %d (flags; 0x%x) for write\n",
+      TRACE ("Warning: openning filename %s  %d (flags; 0x%x) for write\n",
           tmp, r, flg);
     }
     r = open (tmp, flg);
@@ -3915,7 +3892,7 @@ expCreateFileA (LPCSTR cs1, DWORD i1, DWORD i2,
       flg |= O_RDONLY;
     else if (GENERIC_WRITE & i1) {
       flg |= O_WRONLY;
-      dbgprintf ("Warning: openning filename %s  (flags; 0x%x) for write\n",
+      TRACE ("Warning: openning filename %s  (flags; 0x%x) for write\n",
           cs1, flg);
     }
     r = open (cs1, flg);
@@ -4029,7 +4006,7 @@ expGetSystemDirectoryA (char *lpBuffer, // address of buffer for system director
     UINT uSize                  // size of directory buffer
     )
 {
-  dbgprintf ("GetSystemDirectoryA(%p,%d)\n", lpBuffer, uSize);
+  TRACE ("GetSystemDirectoryA(%p,%d)\n", lpBuffer, uSize);
   if (!lpBuffer || uSize < 2)
     return 0;
   strcpy (lpBuffer, ".");
@@ -4040,7 +4017,7 @@ expGetSystemDirectoryA (char *lpBuffer, // address of buffer for system director
 static char sysdir[]=".";
 static LPCSTR WINAPI expGetSystemDirectoryA()
 {
-    dbgprintf("GetSystemDirectoryA() => 0x%x='%s'\n", sysdir, sysdir);
+    TRACE("GetSystemDirectoryA() => 0x%x='%s'\n", sysdir, sysdir);
     return sysdir;
 }
 */
@@ -4050,7 +4027,7 @@ static DWORD WINAPI expGetFullPathNameA
 {
   if (!lpFileName)
     return 0;
-  dbgprintf ("GetFullPathNameA('%s',%ld,%p,%p)\n", lpFileName, nBufferLength,
+  TRACE ("GetFullPathNameA('%s',%ld,%p,%p)\n", lpFileName, nBufferLength,
       lpBuffer, lpFilePart);
 #if 0
 #ifdef QTX
@@ -4074,7 +4051,7 @@ static DWORD WINAPI expGetShortPathNameA
 {
   if (!longpath)
     return 0;
-  dbgprintf ("GetShortPathNameA('%s',%p,%ld)\n", longpath, shortpath, shortlen);
+  TRACE ("GetShortPathNameA('%s',%p,%ld)\n", longpath, shortpath, shortlen);
   strcpy (shortpath, longpath);
   return strlen (shortpath);
 }
@@ -4083,7 +4060,7 @@ static WIN_BOOL WINAPI
 expReadFile (HANDLE h, LPVOID pv, DWORD size, LPDWORD rd, LPOVERLAPPED unused)
 {
   int result;
-  dbgprintf ("ReadFile(%d, %p, %ld -> %p)\n", h, pv, size, rd);
+  TRACE ("ReadFile(%d, %p, %ld -> %p)\n", h, pv, size, rd);
   result = read (h, pv, size);
   if (rd)
     *rd = result;
@@ -4096,7 +4073,7 @@ static WIN_BOOL WINAPI
 expWriteFile (HANDLE h, LPCVOID pv, DWORD size, LPDWORD wr, LPOVERLAPPED unused)
 {
   int result;
-  dbgprintf ("WriteFile(%d, %p, %ld -> %p)\n", h, pv, size, wr);
+  TRACE ("WriteFile(%d, %p, %ld -> %p)\n", h, pv, size, wr);
   if (h == 1234)
     h = 1;
   result = write (h, pv, size);
@@ -4111,7 +4088,7 @@ static DWORD WINAPI
 expSetFilePointer (HANDLE h, LONG val, LPLONG ext, DWORD whence)
 {
   int wh;
-  dbgprintf ("SetFilePointer(%d, 0x%lx, %p = %ld, %ld)\n", h, val, ext,
+  TRACE ("SetFilePointer(%d, 0x%lx, %p = %ld, %ld)\n", h, val, ext,
       ext ? *ext : -1, whence);
   //why would DLL want temporary file with >2Gb size?
   switch (whence) {
@@ -4137,7 +4114,7 @@ expSetFilePointer (HANDLE h, LONG val, LPLONG ext, DWORD whence)
 static HDRVR WINAPI
 expOpenDriverA (LPCSTR szDriverName, LPCSTR szSectionName, LPARAM lParam2)
 {
-  dbgprintf ("OpenDriverA(%p='%s', %p='%s', 0x%lx) => -1\n", szDriverName,
+  TRACE ("OpenDriverA(%p='%s', %p='%s', 0x%lx) => -1\n", szDriverName,
       szDriverName, szSectionName, szSectionName, lParam2);
   return -1;
 }
@@ -4145,7 +4122,7 @@ expOpenDriverA (LPCSTR szDriverName, LPCSTR szSectionName, LPARAM lParam2)
 static HDRVR WINAPI
 expOpenDriver (LPCSTR szDriverName, LPCSTR szSectionName, LPARAM lParam2)
 {
-  dbgprintf ("OpenDriver(%p='%s', %p='%s', 0x%lx) => -1\n", szDriverName,
+  TRACE ("OpenDriver(%p='%s', %p='%s', 0x%lx) => -1\n", szDriverName,
       szDriverName, szSectionName, szSectionName, lParam2);
   return -1;
 }
@@ -4155,7 +4132,7 @@ static WIN_BOOL WINAPI
 expGetProcessAffinityMask (HANDLE hProcess,
     LPDWORD lpProcessAffinityMask, LPDWORD lpSystemAffinityMask)
 {
-  dbgprintf ("GetProcessAffinityMask(0x%x, %p, %p) => 1\n",
+  TRACE ("GetProcessAffinityMask(0x%x, %p, %p) => 1\n",
       hProcess, lpProcessAffinityMask, lpSystemAffinityMask);
   if (lpProcessAffinityMask)
     *lpProcessAffinityMask = 1;
@@ -4170,7 +4147,7 @@ expMulDiv (int nNumber, int nNumerator, int nDenominator)
   static const long long max_int = 0x7FFFFFFFLL;
   static const long long min_int = -0x80000000LL;
   long long tmp = (long long) nNumber * (long long) nNumerator;
-  dbgprintf ("expMulDiv %d * %d / %d\n", nNumber, nNumerator, nDenominator);
+  TRACE ("expMulDiv %d * %d / %d\n", nNumber, nNumerator, nDenominator);
   if (!nDenominator)
     return 1;
   tmp /= nDenominator;
@@ -4185,7 +4162,7 @@ static LONG WINAPI
 explstrcmpiA (const char *str1, const char *str2)
 {
   LONG result = strcasecmp (str1, str2);
-  dbgprintf ("strcmpi(%p='%s', %p='%s') => %ld\n", str1, str1, str2, str2,
+  TRACE ("strcmpi(%p='%s', %p='%s') => %ld\n", str1, str1, str2, str2,
       result);
   return result;
 }
@@ -4194,7 +4171,7 @@ static LONG WINAPI
 explstrlenA (const char *str1)
 {
   LONG result = strlen (str1);
-  dbgprintf ("strlen(%p='%.50s') => %ld\n", str1, str1, result);
+  TRACE ("strlen(%p='%.50s') => %ld\n", str1, str1, result);
   return result;
 }
 
@@ -4202,7 +4179,7 @@ static LONG WINAPI
 explstrcpyA (char *str1, const char *str2)
 {
   int result = (int) strcpy (str1, str2);
-  dbgprintf ("strcpy(%p, %p='%.50s') => %d\n", str1, str2, str2, result);
+  TRACE ("strcpy(%p, %p='%.50s') => %d\n", str1, str2, str2, result);
   return result;
 }
 
@@ -4214,7 +4191,7 @@ explstrcpynA (char *str1, const char *str2, int len)
     result = (int) strncpy (str1, str2, len);
   else
     result = (int) strcpy (str1, str2);
-  dbgprintf ("strncpy(%p, %p='%s' len %d strlen %d) => %x\n", str1, str2, str2,
+  TRACE ("strncpy(%p, %p='%s' len %d strlen %d) => %x\n", str1, str2, str2,
       len, strlen (str2), result);
   return result;
 }
@@ -4223,7 +4200,7 @@ static LONG WINAPI
 explstrcatA (char *str1, const char *str2)
 {
   int result = (int) strcat (str1, str2);
-  dbgprintf ("strcat(%p, %p='%s') => %d\n", str1, str2, str2, result);
+  TRACE ("strcat(%p, %p='%s') => %d\n", str1, str2, str2, result);
   return result;
 }
 
@@ -4239,7 +4216,7 @@ expInterlockedExchange (long *dest, long l)
 static void WINAPI
 expInitCommonControls (void)
 {
-  dbgprintf ("InitCommonControls called!\n");
+  TRACE ("InitCommonControls called!\n");
   return;
 }
 
@@ -4250,7 +4227,7 @@ expCreateUpDownControl (DWORD style, INT x, INT y, INT cx, INT cy,
     HWND parent, INT id, HINSTANCE inst,
     HWND buddy, INT maxVal, INT minVal, INT curVal)
 {
-  dbgprintf ("CreateUpDownControl(...)\n");
+  TRACE ("CreateUpDownControl(...)\n");
   return 0;
 }
 #endif
@@ -4259,7 +4236,7 @@ expCreateUpDownControl (DWORD style, INT x, INT y, INT cx, INT cy,
 static HRESULT WINAPI
 expCoCreateFreeThreadedMarshaler (void *pUnkOuter, void **ppUnkInner)
 {
-  dbgprintf ("CoCreateFreeThreadedMarshaler(%p, %p) called!\n",
+  TRACE ("CoCreateFreeThreadedMarshaler(%p, %p) called!\n",
       pUnkOuter, ppUnkInner);
 //    return 0;
   return ERROR_CALL_NOT_IMPLEMENTED;
@@ -4276,7 +4253,7 @@ expDuplicateHandle (HANDLE hSourceProcessHandle,        // handle to source proc
     DWORD dwOptions             // optional actions
     )
 {
-  dbgprintf ("DuplicateHandle(0x%x, 0x%x, 0x%x, %p, 0x%lx, %d, %ld) called\n",
+  TRACE ("DuplicateHandle(0x%x, 0x%x, 0x%x, %p, 0x%lx, %d, %ld) called\n",
       hSourceProcessHandle, hSourceHandle, hTargetProcessHandle,
       lpTargetHandle, dwDesiredAccess, bInheritHandle, dwOptions);
   *lpTargetHandle = hSourceHandle;
@@ -4307,12 +4284,12 @@ static DWORD WINAPI expSetThreadAffinityMask
 static void *
 expmalloc (int size)
 {
-  //dbgprintf("malloc");
+  //TRACE("malloc");
   //    return malloc(size);
   void *result = my_mreq (size, 0);
-  dbgprintf ("malloc(0x%x) => %p\n", size, result);
+  TRACE ("malloc(0x%x) => %p\n", size, result);
   if (result == 0)
-    dbgprintf ("WARNING: malloc() failed\n");
+    TRACE ("WARNING: malloc() failed\n");
   return result;
 }
 
@@ -4320,7 +4297,7 @@ static void
 expfree (void *mem)
 {
   //    return free(mem);
-  dbgprintf ("free(%p)\n", mem);
+  TRACE ("free(%p)\n", mem);
   my_release (mem);
 }
 
@@ -4329,17 +4306,17 @@ static void *
 expcalloc (int num, int size)
 {
   void *result = my_mreq (num * size, 1);
-  dbgprintf ("calloc(%d,%d) => %p\n", num, size, result);
+  TRACE ("calloc(%d,%d) => %p\n", num, size, result);
   if (result == 0)
-    dbgprintf ("WARNING: calloc() failed\n");
+    TRACE ("WARNING: calloc() failed\n");
   return result;
 }
 
 static void *
 expnew (int size)
 {
-  //    dbgprintf("NEW:: Call from address %08x\n STACK DUMP:\n", *(-1+(int*)&size));
-  //    dbgprintf("%08x %08x %08x %08x\n",
+  //    TRACE("NEW:: Call from address %08x\n STACK DUMP:\n", *(-1+(int*)&size));
+  //    TRACE("%08x %08x %08x %08x\n",
   //    size, *(1+(int*)&size),
   //    *(2+(int*)&size),*(3+(int*)&size));
   void *result;
@@ -4347,9 +4324,9 @@ expnew (int size)
 
   //result=my_mreq(size,0);
   result = my_mreq (size, 1);
-  dbgprintf ("new(%d) => %p\n", size, result);
+  TRACE ("new(%d) => %p\n", size, result);
   if (result == 0)
-    dbgprintf ("WARNING: new() failed\n");
+    TRACE ("WARNING: new() failed\n");
   return result;
 
 }
@@ -4357,7 +4334,7 @@ expnew (int size)
 static int
 expdelete (void *memory)
 {
-  dbgprintf ("delete(%p)\n", memory);
+  TRACE ("delete(%p)\n", memory);
   my_release (memory);
   return 0;
 }
@@ -4455,7 +4432,7 @@ expMoDeleteMediaType (MY_MEDIA_TYPE * dest)
 static int
 exp_initterm (int v1, int v2)
 {
-  dbgprintf ("_initterm(0x%x, 0x%x) => 0\n", v1, v2);
+  TRACE ("_initterm(0x%x, 0x%x) => 0\n", v1, v2);
   return 0;
 }
 #else
@@ -4464,10 +4441,10 @@ typedef void (*_INITTERMFUNC) ();
 static int
 exp_initterm (_INITTERMFUNC * start, _INITTERMFUNC * end)
 {
-  dbgprintf ("_initterm(%p, %p) %p\n", start, end, *start);
+  TRACE ("_initterm(%p, %p) %p\n", start, end, *start);
   while (start < end) {
     if (*start) {
-      //dbgprintf("call _initfunc: from: %p %d\n", *start);
+      //TRACE("call _initfunc: from: %p %d\n", *start);
       // ok this trick with push/pop is necessary as otherwice
       // edi/esi registers are being trashed
       void *p = *start;
@@ -4483,7 +4460,7 @@ exp_initterm (_INITTERMFUNC * start, _INITTERMFUNC * end)
           "popl  %%edx		\n\t"
           "popl  %%ecx		\n\t" "popl  %%ebx		\n\t"::"a" (p)
           :"memory");
-      //dbgprintf("done  %p  %d:%d\n", end);
+      //TRACE("done  %p  %d:%d\n", end);
     }
     start++;
   }
@@ -4506,7 +4483,7 @@ static int
   int result;
   va_start (va, format);
   result = vsprintf (string, format, va);
-  dbgprintf ("wsprintfA(%p, '%s', ...) => %d\n", string, format, result);
+  TRACE ("wsprintfA(%p, '%s', ...) => %d\n", string, format, result);
   va_end (va);
   return result;
 }
@@ -4517,7 +4494,7 @@ static int
 {
   va_list args;
   int r;
-  dbgprintf ("sprintf(%s, %s)\n", str, format);
+  TRACE ("sprintf(%s, %s)\n", str, format);
   va_start (args, format);
   r = vsprintf (str, format, args);
   va_end (args);
@@ -4530,7 +4507,7 @@ static int
 {
   va_list args;
   int r;
-  dbgprintf ("sscanf(%s, %s)\n", str, format);
+  TRACE ("sscanf(%s, %s)\n", str, format);
   va_start (args, format);
   r = vsscanf (str, format, args);
   va_end (args);
@@ -4540,7 +4517,7 @@ static int
 static void *
 expfopen (const char *path, const char *mode)
 {
-  dbgprintf ("fopen: \"%s\"  mode:%s\n", path, mode);
+  TRACE ("fopen: \"%s\"  mode:%s\n", path, mode);
   //return fopen(path, mode);
   return fdopen (0, mode);      // everything on screen
 }
@@ -4551,7 +4528,7 @@ static int
 {
   va_list args;
   int r = 0;
-  dbgprintf ("fprintf(%p, %s, ...)\n", stream, format);
+  TRACE ("fprintf(%p, %s, ...)\n", stream, format);
 #if 1
   va_start (args, format);
   r = vfprintf ((FILE *) stream, format, args);
@@ -4566,7 +4543,7 @@ static int
 {
   va_list args;
   int r;
-  dbgprintf ("printf(%s, ...)\n", format);
+  TRACE ("printf(%s, ...)\n", format);
   va_start (args, format);
   r = vprintf (format, args);
   va_end (args);
@@ -4577,7 +4554,7 @@ static char *
 expgetenv (const char *varname)
 {
   char *v = getenv (varname);
-  dbgprintf ("getenv(%s) => %s\n", varname, v);
+  TRACE ("getenv(%s) => %s\n", varname, v);
   return v;
 }
 
@@ -4594,10 +4571,10 @@ expstrrchr (char *string, int value)
 {
   char *result = strrchr (string, value);
   if (result)
-    dbgprintf ("strrchr(%p='%s', %d) => %p='%s'", string, string, value, result,
+    TRACE ("strrchr(%p='%s', %d) => %p='%s'", string, string, value, result,
         result);
   else
-    dbgprintf ("strrchr(%p='%s', %d) => 0", string, string, value);
+    TRACE ("strrchr(%p='%s', %d) => 0", string, string, value);
   return result;
 }
 
@@ -4606,10 +4583,10 @@ expstrchr (char *string, int value)
 {
   char *result = strchr (string, value);
   if (result)
-    dbgprintf ("strchr(%p='%s', %d) => %p='%s'", string, string, value, result,
+    TRACE ("strchr(%p='%s', %d) => %p='%s'", string, string, value, result,
         result);
   else
-    dbgprintf ("strchr(%p='%s', %d) => 0", string, string, value);
+    TRACE ("strchr(%p='%s', %d) => 0", string, string, value);
   return result;
 }
 
@@ -4617,7 +4594,7 @@ static int
 expstrlen (char *str)
 {
   int result = strlen (str);
-  dbgprintf ("strlen(%p='%s') => %d\n", str, str, result);
+  TRACE ("strlen(%p='%s') => %d\n", str, str, result);
   return result;
 }
 
@@ -4625,7 +4602,7 @@ static char *
 expstrcpy (char *str1, const char *str2)
 {
   char *result = strcpy (str1, str2);
-  dbgprintf ("strcpy(%p, %p='%s') => %p\n", str1, str2, str2, result);
+  TRACE ("strcpy(%p, %p='%s') => %p\n", str1, str2, str2, result);
   return result;
 }
 
@@ -4633,7 +4610,7 @@ static char *
 expstrncpy (char *str1, const char *str2, int x)
 {
   char *result = strncpy (str1, str2, x);
-  dbgprintf ("strncpy(%p, %p='%s', %d) => %p\n", str1, str2, str2, x, result);
+  TRACE ("strncpy(%p, %p='%s', %d) => %p\n", str1, str2, str2, x, result);
   return result;
 }
 
@@ -4641,7 +4618,7 @@ static int
 expstrcmp (const char *str1, const char *str2)
 {
   int result = strcmp (str1, str2);
-  dbgprintf ("strcmp(%p='%s', %p='%s') => %d\n", str1, str1, str2, str2,
+  TRACE ("strcmp(%p='%s', %p='%s') => %d\n", str1, str1, str2, str2,
       result);
   return result;
 }
@@ -4650,7 +4627,7 @@ static int
 expstrncmp (const char *str1, const char *str2, int x)
 {
   int result = strncmp (str1, str2, x);
-  dbgprintf ("strcmp(%p='%s', %p='%s') => %d\n", str1, str1, str2, str2,
+  TRACE ("strcmp(%p='%s', %p='%s') => %d\n", str1, str1, str2, str2,
       result);
   return result;
 }
@@ -4659,7 +4636,7 @@ static char *
 expstrcat (char *str1, const char *str2)
 {
   char *result = strcat (str1, str2);
-  dbgprintf ("strcat(%p='%s', %p='%s') => %p\n", str1, str1, str2, str2,
+  TRACE ("strcat(%p='%s', %p='%s') => %p\n", str1, str1, str2, str2,
       result);
   return result;
 }
@@ -4671,7 +4648,7 @@ exp_strdup (const char *str1)
   char *result = (char *) my_mreq (l + 1, 0);
   if (result)
     strcpy (result, str1);
-  dbgprintf ("_strdup(%p='%s') => %p\n", str1, str1, result);
+  TRACE ("_strdup(%p='%s') => %p\n", str1, str1, result);
   return result;
 }
 
@@ -4679,7 +4656,7 @@ static int
 expisalnum (int c)
 {
   int result = (int) isalnum (c);
-  dbgprintf ("isalnum(0x%x='%c' => %d\n", c, c, result);
+  TRACE ("isalnum(0x%x='%c' => %d\n", c, c, result);
   return result;
 }
 
@@ -4687,7 +4664,7 @@ static int
 expisspace (int c)
 {
   int result = (int) isspace (c);
-  dbgprintf ("isspace(0x%x='%c' => %d\n", c, c, result);
+  TRACE ("isspace(0x%x='%c' => %d\n", c, c, result);
   return result;
 }
 
@@ -4695,7 +4672,7 @@ static int
 expisalpha (int c)
 {
   int result = (int) isalpha (c);
-  dbgprintf ("isalpha(0x%x='%c' => %d\n", c, c, result);
+  TRACE ("isalpha(0x%x='%c' => %d\n", c, c, result);
   return result;
 }
 
@@ -4703,7 +4680,7 @@ static int
 expisdigit (int c)
 {
   int result = (int) isdigit (c);
-  dbgprintf ("isdigit(0x%x='%c' => %d\n", c, c, result);
+  TRACE ("isdigit(0x%x='%c' => %d\n", c, c, result);
   return result;
 }
 
@@ -4711,7 +4688,7 @@ static void *
 expmemmove (void *dest, void *src, int n)
 {
   void *result = memmove (dest, src, n);
-  dbgprintf ("memmove(%p, %p, %d) => %p\n", dest, src, n, result);
+  TRACE ("memmove(%p, %p, %d) => %p\n", dest, src, n, result);
   return result;
 }
 
@@ -4719,7 +4696,7 @@ static int
 expmemcmp (void *dest, void *src, int n)
 {
   int result = memcmp (dest, src, n);
-  dbgprintf ("memcmp(%p, %p, %d) => %d\n", dest, src, n, result);
+  TRACE ("memcmp(%p, %p, %d) => %d\n", dest, src, n, result);
   return result;
 }
 
@@ -4727,7 +4704,7 @@ static void *
 expmemcpy (void *dest, void *src, int n)
 {
   void *result = memcpy (dest, src, n);
-  dbgprintf ("memcpy(%p, %p, %d) => %p\n", dest, src, n, result);
+  TRACE ("memcpy(%p, %p, %d) => %p\n", dest, src, n, result);
   return result;
 }
 
@@ -4735,7 +4712,7 @@ static void *
 expmemset (void *dest, int c, size_t n)
 {
   void *result = memset (dest, c, n);
-  dbgprintf ("memset(%p, %d, %d) => %p\n", dest, c, n, result);
+  TRACE ("memset(%p, %d, %d) => %p\n", dest, c, n, result);
   return result;
 }
 
@@ -4743,7 +4720,7 @@ static time_t
 exptime (time_t * t)
 {
   time_t result = time (t);
-  dbgprintf ("time(%p) => %ld\n", t, result);
+  TRACE ("time(%p) => %ld\n", t, result);
   return result;
 }
 
@@ -4755,7 +4732,7 @@ exp_control87 (unsigned int newval, unsigned int mask)
   //#include <fpu_control.h>
   fpu_control_t cw;
 
-  dbgprintf ("_control87(%u,%u)\n", newval, mask);
+  TRACE ("_control87(%u,%u)\n", newval, mask);
 
   _FPU_GETCW (cw);
   //cw&=~_FPU_EXTENDED;
@@ -4768,12 +4745,12 @@ exp_control87 (unsigned int newval, unsigned int mask)
   unsigned int flags = 0;
 
 
-  //TRACE("(%08x, %08x): Called\n", newval, mask);
+  TRACE("(%08x, %08x): Called\n", newval, mask);
 
   /* Get fp control word */
   __asm__ __volatile__ ("fstcw %0":"=m" (fpword):);
 
-  //TRACE("Control word before : %08x\n", fpword);
+  TRACE("Control word before : %08x\n", fpword);
 
   /* Convert into mask constants */
 
@@ -4878,7 +4855,7 @@ exp_control87 (unsigned int newval, unsigned int mask)
   if (flags & _IC_AFFINE)
     fpword |= 0x1000;
 
-  //TRACE("Control word after  : %08x\n", fpword);
+  TRACE("Control word after  : %08x\n", fpword);
 
   /* Put fp control word */
   __asm__ __volatile__ ("fldcw %0"::"m" (fpword));
@@ -4896,21 +4873,21 @@ exp_control87 (unsigned int newval, unsigned int mask)
 static double
 explog10 (double x)
 {
-  /*dbgprintf("Log10 %f => %f    0x%Lx\n", x, log10(x), *((int64_t*)&x)); */
+  /*TRACE("Log10 %f => %f    0x%Lx\n", x, log10(x), *((int64_t*)&x)); */
   return log10 (x);
 }
 
 static double
 expsin (double x)
 {
-  /*dbgprintf("Sin %f => %f  0x%Lx\n", x, sin(x), *((int64_t*)&x)); */
+  /*TRACE("Sin %f => %f  0x%Lx\n", x, sin(x), *((int64_t*)&x)); */
   return sin (x);
 }
 
 static double
 expcos (double x)
 {
-  /*dbgprintf("Cos %f => %f  0x%Lx\n", x, cos(x), *((int64_t*)&x)); */
+  /*TRACE("Cos %f => %f  0x%Lx\n", x, cos(x), *((int64_t*)&x)); */
   return cos (x);
 }
 
@@ -4972,14 +4949,14 @@ exp_ftol (void)
 static double
 explog (double x)
 {
-  /*dbgprintf("Log %f => %f    0x%Lx\n", x, log(x), *((int64_t*)&x)); */
+  /*TRACE("Log %f => %f    0x%Lx\n", x, log(x), *((int64_t*)&x)); */
   return log (x);
 }
 
 static double
 expexp (double x)
 {
-  /*dbgprintf("Exp %f => %f    0x%Lx\n", x, exp(x), *((int64_t*)&x)); */
+  /*TRACE("Exp %f => %f    0x%Lx\n", x, exp(x), *((int64_t*)&x)); */
   return exp (x);
 }
 
@@ -4992,28 +4969,28 @@ exp_CIpow (void)
 {
   FPU_DOUBLES (x, y);
 
-  /*dbgprintf("_CIpow(%lf, %lf)\n", x, y); */
+  /*TRACE("_CIpow(%lf, %lf)\n", x, y); */
   return pow (x, y);
 }
 
 static double
 exppow (double x, double y)
 {
-  /*dbgprintf("Pow %f  %f    0x%Lx  0x%Lx  => %f\n", x, y, *((int64_t*)&x), *((int64_t*)&y), pow(x, y)); */
+  /*TRACE("Pow %f  %f    0x%Lx  0x%Lx  => %f\n", x, y, *((int64_t*)&x), *((int64_t*)&y), pow(x, y)); */
   return pow (x, y);
 }
 
 static double
 expldexp (double x, int expo)
 {
-  /*dbgprintf("Cos %f => %f  0x%Lx\n", x, cos(x), *((int64_t*)&x)); */
+  /*TRACE("Cos %f => %f  0x%Lx\n", x, cos(x), *((int64_t*)&x)); */
   return ldexp (x, expo);
 }
 
 static double
 expfrexp (double x, int *expo)
 {
-  /*dbgprintf("Cos %f => %f  0x%Lx\n", x, cos(x), *((int64_t*)&x)); */
+  /*TRACE("Cos %f => %f  0x%Lx\n", x, cos(x), *((int64_t*)&x)); */
   return frexp (x, expo);
 }
 
@@ -5028,7 +5005,7 @@ exp_stricmp (const char *s1, const char *s2)
 static int
 exp_setjmp3 (void *jmpbuf, int x)
 {
-  //dbgprintf("!!!!UNIMPLEMENTED: setjmp3(%p, %d) => 0\n", jmpbuf, x);
+  //TRACE("!!!!UNIMPLEMENTED: setjmp3(%p, %d) => 0\n", jmpbuf, x);
   //return 0;
   __asm__ __volatile__ (
       //"mov 4(%%esp), %%edx \n\t"
@@ -5052,7 +5029,7 @@ exp_setjmp3 (void *jmpbuf, int x)
 static DWORD WINAPI
 expGetCurrentProcessId (void)
 {
-  dbgprintf ("GetCurrentProcessId(void) => %d\n", getpid ());
+  TRACE ("GetCurrentProcessId(void) => %d\n", getpid ());
   return getpid ();             //(DWORD)NtCurrentTeb()->pid;
 }
 
@@ -5066,7 +5043,7 @@ typedef struct
 static MMRESULT WINAPI
 exptimeGetDevCaps (LPTIMECAPS lpCaps, UINT wSize)
 {
-  dbgprintf ("timeGetDevCaps(%p, %u) !\n", lpCaps, wSize);
+  TRACE ("timeGetDevCaps(%p, %u) !\n", lpCaps, wSize);
 
   lpCaps->wPeriodMin = 1;
   lpCaps->wPeriodMax = 65535;
@@ -5076,7 +5053,7 @@ exptimeGetDevCaps (LPTIMECAPS lpCaps, UINT wSize)
 static MMRESULT WINAPI
 exptimeBeginPeriod (UINT wPeriod)
 {
-  dbgprintf ("timeBeginPeriod(%u) !\n", wPeriod);
+  TRACE ("timeBeginPeriod(%u) !\n", wPeriod);
 
   if (wPeriod < 1 || wPeriod > 65535)
     return 96 + 1;              //TIMERR_NOCANDO;
@@ -5087,7 +5064,7 @@ exptimeBeginPeriod (UINT wPeriod)
 static MMRESULT WINAPI
 exptimeEndPeriod (UINT wPeriod)
 {
-  dbgprintf ("timeEndPeriod(%u) !\n", wPeriod);
+  TRACE ("timeEndPeriod(%u) !\n", wPeriod);
 
   if (wPeriod < 1 || wPeriod > 65535)
     return 96 + 1;              //TIMERR_NOCANDO;
@@ -5188,21 +5165,21 @@ static WIN_BOOL WINAPI
 expSetThreadPriority (HANDLE hthread,   /* [in] Handle to thread */
     INT priority)
 {                               /* [in] Thread priority level */
-  dbgprintf ("SetThreadPriority(0x%x,%d)\n", hthread, priority);
+  TRACE ("SetThreadPriority(0x%x,%d)\n", hthread, priority);
   return TRUE;
 }
 
 static void WINAPI
 expExitProcess (DWORD status)
 {
-  dbgprintf ("EXIT - code %d\n", (int) status);
+  TRACE ("EXIT - code %d\n", (int) status);
   exit (status);
 }
 
 static INT WINAPI
 expMessageBoxA (HWND hWnd, LPCSTR text, LPCSTR title, UINT type)
 {
-  dbgprintf ("MSGBOX '%s' '%s' (%d)\n", text, title, type);
+  TRACE ("MSGBOX '%s' '%s' (%d)\n", text, title, type);
 #ifdef QTX
   if (type == MB_ICONHAND && !strlen (text) && !strlen (title))
     return IDIGNORE;
@@ -5213,7 +5190,7 @@ expMessageBoxA (HWND hWnd, LPCSTR text, LPCSTR title, UINT type)
 static WIN_BOOL
 expTerminateProcess (HANDLE hProcess, DWORD uExitCode)
 {
-  dbgprintf ("TERMINATE - pid %u, code %lu\n", hProcess, uExitCode);
+  TRACE ("TERMINATE - pid %u, code %lu\n", hProcess, uExitCode);
   return TRUE;
 }
 
@@ -5233,35 +5210,35 @@ void exp_EH_prolog (void);
 static WINAPI inline unsigned long int
 exphtonl (unsigned long int hostlong)
 {
-//    dbgprintf("htonl(%x) => %x\n", hostlong, htonl(hostlong));
+//    TRACE("htonl(%x) => %x\n", hostlong, htonl(hostlong));
   return htonl (hostlong);
 }
 
 static WINAPI inline unsigned long int
 expntohl (unsigned long int netlong)
 {
-//    dbgprintf("ntohl(%x) => %x\n", netlong, ntohl(netlong));
+//    TRACE("ntohl(%x) => %x\n", netlong, ntohl(netlong));
   return ntohl (netlong);
 }
 
 static void WINAPI
 expVariantInit (void *p)
 {
-  dbgprintf ("InitCommonControls called!\n");
+  TRACE ("InitCommonControls called!\n");
   return;
 }
 
 int
 expRegisterClassA (const void /*WNDCLASSA*/ *wc)
 {
-  dbgprintf ("RegisterClassA(%p) => random id\n", wc);
+  TRACE ("RegisterClassA(%p) => random id\n", wc);
   return time (NULL);           /* be precise ! */
 }
 
 int
 expUnregisterClassA (const char *className, HINSTANCE hInstance)
 {
-  dbgprintf ("UnregisterClassA(%s, 0x%x) => 0\n", className, hInstance);
+  TRACE ("UnregisterClassA(%s, 0x%x) => 0\n", className, hInstance);
   return 0;
 }
 
@@ -5270,14 +5247,14 @@ expUnregisterClassA (const char *className, HINSTANCE hInstance)
 static int
 expSysStringByteLen (void *str)
 {
-  dbgprintf ("SysStringByteLen(%p) => %d\n", str, strlen (str));
+  TRACE ("SysStringByteLen(%p) => %d\n", str, strlen (str));
   return strlen (str);
 }
 
 static int
 expDirectDrawCreate (void)
 {
-  dbgprintf ("DirectDrawCreate(...) => NULL\n");
+  TRACE ("DirectDrawCreate(...) => NULL\n");
   return 0;
 }
 
@@ -5304,7 +5281,7 @@ expCreatePalette (CONST LOGPALETTE * lpgpl)
   HPALETTE test;
   int i;
 
-  dbgprintf ("CreatePalette(%p) => NULL\n", lpgpl);
+  TRACE ("CreatePalette(%p) => NULL\n", lpgpl);
 
   i = sizeof (LOGPALETTE) + ((lpgpl->palNumEntries -
           1) * sizeof (PALETTEENTRY));
@@ -5318,7 +5295,7 @@ expCreatePalette (CONST LOGPALETTE * lpgpl)
 static int
 expCreatePalette (void)
 {
-  dbgprintf ("CreatePalette(...) => NULL\n");
+  TRACE ("CreatePalette(...) => NULL\n");
   return NULL;
 }
 #endif
@@ -5326,7 +5303,7 @@ expCreatePalette (void)
 static int WINAPI
 expGetClientRect (HWND win, RECT * r)
 {
-  dbgprintf ("GetClientRect(0x%x, %p) => 1\n", win, r);
+  TRACE ("GetClientRect(0x%x, %p) => 1\n", win, r);
   r->right = PSEUDO_SCREEN_WIDTH;
   r->left = 0;
   r->bottom = PSEUDO_SCREEN_HEIGHT;
@@ -5345,7 +5322,7 @@ typedef struct tagPOINT
 static int WINAPI
 expClientToScreen (HWND win, POINT * p)
 {
-  dbgprintf ("ClientToScreen(0x%x, %p = %ld,%ld) => 1\n", win, p, p->x, p->y);
+  TRACE ("ClientToScreen(0x%x, %p = %ld,%ld) => 1\n", win, p, p->x, p->y);
   p->x = 0;
   p->y = 0;
   return 1;
@@ -5356,14 +5333,14 @@ expClientToScreen (HWND win, POINT * p)
 static int WINAPI
 expSetThreadIdealProcessor (HANDLE thread, int proc)
 {
-  dbgprintf ("SetThreadIdealProcessor(0x%x, %x) => 0\n", thread, proc);
+  TRACE ("SetThreadIdealProcessor(0x%x, %x) => 0\n", thread, proc);
   return 0;
 }
 
 static int WINAPI
 expMessageBeep (int type)
 {
-  dbgprintf ("MessageBeep(%d) => 1\n", type);
+  TRACE ("MessageBeep(%d) => 1\n", type);
   return 1;
 }
 
@@ -5371,7 +5348,7 @@ static int WINAPI
 expDialogBoxParamA (void *inst, const char *name,
     HWND parent, void *dialog_func, void *init_param)
 {
-  dbgprintf ("DialogBoxParamA(%p, %p = %s, 0x%x, %p, %p) => 0x42424242\n",
+  TRACE ("DialogBoxParamA(%p, %p = %s, 0x%x, %p, %p) => 0x42424242\n",
       inst, name, name, parent, dialog_func, init_param);
   return 0x42424242;
 }
@@ -5385,7 +5362,7 @@ expRegisterClipboardFormatA (char *format)
   if (id < 0xFFFF)
     id++;
 
-  dbgprintf ("RegisterClipboardFormatA(%s) => %d\n", format, id);
+  TRACE ("RegisterClipboardFormatA(%s) => %d\n", format, id);
   return (id);
 }
 
@@ -5394,7 +5371,7 @@ expRegisterClipboardFormatA (char *format)
 static void *
 exprealloc (void *ptr, size_t size)
 {
-  dbgprintf ("realloc(%p, %x)\n", ptr, size);
+  TRACE ("realloc(%p, %x)\n", ptr, size);
   if (!ptr)
     return my_mreq (size, 0);
   else
@@ -5404,7 +5381,7 @@ exprealloc (void *ptr, size_t size)
 static double
 expfloor (double x)
 {
-  dbgprintf ("floor(%lf)\n", x);
+  TRACE ("floor(%lf)\n", x);
   return floor (x);
 }
 
@@ -5416,7 +5393,7 @@ exp_CIcos (void)
 {
   FPU_DOUBLE (x);
 
-  /*dbgprintf("_CIcos(%lf)\n", x); */
+  /*TRACE("_CIcos(%lf)\n", x); */
   return cos (x);
 }
 
@@ -5425,7 +5402,7 @@ exp_CIsin (void)
 {
   FPU_DOUBLE (x);
 
-  /*dbgprintf("_CIsin(%lf)\n", x); */
+  /*TRACE("_CIsin(%lf)\n", x); */
   return sin (x);
 }
 
@@ -5434,7 +5411,7 @@ exp_CIcosh (void)
 {
   FPU_DOUBLE (x);
 
-  /*dbgprintf("_CIcosh(%lf)\n", x); */
+  /*TRACE("_CIcosh(%lf)\n", x); */
   return cosh (x);
 }
 
@@ -5443,7 +5420,7 @@ exp_CIsinh (void)
 {
   FPU_DOUBLE (x);
 
-  /*dbgprintf("_CIsinh(%lf)\n", x); */
+  /*TRACE("_CIsinh(%lf)\n", x); */
   return sinh (x);
 }
 
@@ -5452,7 +5429,7 @@ exp_CItanh (void)
 {
   FPU_DOUBLE (x);
 
-  /*dbgprintf("_CItanh(%lf)\n", x); */
+  /*TRACE("_CItanh(%lf)\n", x); */
   return tanh (x);
 }
 
@@ -5461,7 +5438,7 @@ exp_CIacos (void)
 {
   FPU_DOUBLE (x);
 
-  /*dbgprintf("_CIacos(%lf)\n", x); */
+  /*TRACE("_CIacos(%lf)\n", x); */
   return acos (x);
 }
 
@@ -5470,7 +5447,7 @@ exp_CIasin (void)
 {
   FPU_DOUBLE (x);
 
-  /*dbgprintf("_CIasin(%lf)\n", x); */
+  /*TRACE("_CIasin(%lf)\n", x); */
   return asin (x);
 }
 
@@ -5479,7 +5456,7 @@ exp_CIfmod (void)
 {
   FPU_DOUBLES (x, y);
 
-  /*dbgprintf("_CIfmod(%lf)\n", x); */
+  /*TRACE("_CIfmod(%lf)\n", x); */
   return fmod (x, y);
 }
 
@@ -5487,7 +5464,7 @@ exp_CIfmod (void)
 //static void exp_CxxThrowException( void *object, cxx_exception_type *type )
 static void exp_CxxThrowException( void *object, void *type )
 {
-  dbgprintf("_CxxThrowException\n");
+  TRACE("_CxxThrowException\n");
 
 #if 0
 //we don't have RaiseException() :/
@@ -6064,16 +6041,16 @@ LookupExternalNative (const char *library, LPCSTR name)
   }
   func = PE_FindExportedFunction (wm, name, 0);
   if (!func) {
-    dbgprintf ("No such ordinal in external dll\n");
+    TRACE ("No such ordinal in external dll\n");
     FreeLibrary ((int) hand);
     goto no_dll;
   }
 
-  dbgprintf ("External dll loaded (offset: 0x%x, func: %p)\n", hand, func);
+  TRACE ("External dll loaded (offset: 0x%x, func: %p)\n", hand, func);
   return func;
 
 no_dll:
-  dbgprintf ("Dll not found: '%s'\n", library);
+  TRACE ("Dll not found: '%s'\n", library);
 #endif
   return NULL;
 }
@@ -6085,12 +6062,12 @@ LookupExternal (const char *library, int ordinal)
   void *func;
 
   if (library == 0) {
-    dbgprintf ("ERROR: library=0\n");
+    TRACE ("ERROR: library=0\n");
     return (void *) ext_unknown;
   }
-  //dbgprintf("%x %x\n", &unk_exp1, &unk_exp2);
+  //TRACE("%x %x\n", &unk_exp1, &unk_exp2);
 
-  dbgprintf ("External func %s:%d\n", library, ordinal);
+  TRACE ("External func %s:%d\n", library, ordinal);
 
   for (i = 0; i < sizeof (libraries) / sizeof (struct libs); i++) {
     if (strcasecmp (library, libraries[i].name))
@@ -6098,7 +6075,7 @@ LookupExternal (const char *library, int ordinal)
     for (j = 0; j < libraries[i].length; j++) {
       if (ordinal != libraries[i].exps[j].id)
         continue;
-      //dbgprintf("Hit: 0x%p\n", libraries[i].exps[j].func);
+      //TRACE("Hit: 0x%p\n", libraries[i].exps[j].func);
       return libraries[i].exps[j].func;
     }
   }
@@ -6121,21 +6098,21 @@ LookupExternalByName (const char *library, const char *name)
   void *func;
 
   if (library == 0) {
-    dbgprintf ("ERROR: library=0\n");
+    TRACE ("ERROR: library=0\n");
     return (void *) ext_unknown;
   }
   if (name == 0) {
-    dbgprintf ("ERROR: name=0\n");
+    TRACE ("ERROR: name=0\n");
     return (void *) ext_unknown;
   }
-  dbgprintf ("External func %s:%s\n", library, name);
+  TRACE ("External func %s:%s\n", library, name);
   for (i = 0; i < sizeof (libraries) / sizeof (struct libs); i++) {
     if (strcasecmp (library, libraries[i].name))
       continue;
     for (j = 0; j < libraries[i].length; j++) {
       if (strcmp (name, libraries[i].exps[j].name))
         continue;
-      //          dbgprintf("Hit: 0x%08X\n", libraries[i].exps[j].func);
+      //          TRACE("Hit: 0x%08X\n", libraries[i].exps[j].func);
       return libraries[i].exps[j].func;
     }
   }
@@ -6146,7 +6123,7 @@ LookupExternalByName (const char *library, const char *name)
      if(pos>NUM_STUB_ENTRIES)return 0;// to many symbols
    */
   if (strlen (name) > 31) {
-    dbgprintf ("ERROR: name=%s longer that 32 chars (%d)! (fix export_names)\n",
+    TRACE ("ERROR: name=%s longer that 32 chars (%d)! (fix export_names)\n",
         name, strlen (name));
   }
   strcpy (export_names[pos], name);
@@ -6170,7 +6147,7 @@ my_garbagecollection (void)
       if (--max_fatal < 0)
         break;
   }
-  dbgprintf ("Total Unfree %d bytes cnt %d [%p,%d]\n", unfree, unfreecnt,
+  TRACE ("Total Unfree %d bytes cnt %d [%p,%d]\n", unfree, unfreecnt,
       last_alloc, alccnt);
 #endif
   g_tls = NULL;
