@@ -11,7 +11,7 @@
 struct _GUID;
 
 #ifndef TRACE
-#ifdef LOG
+#ifdef USE_DEBUG
 extern void (*_log_printf)(const char *file, const int line, const char *func, const char *fmt, ...);
 #  define TRACE(...) _log_printf(__FILE__,__LINE__,__FUNCTION__,__VA_ARGS__)
 #else
@@ -20,7 +20,7 @@ extern void (*_log_printf)(const char *file, const int line, const char *func, c
 #endif
 
 #ifndef dbg_printf
-#ifdef LOG
+#ifdef USE_DEBUG
 #  define dbg_printf printf
 #else
 #  define dbg_printf(...)

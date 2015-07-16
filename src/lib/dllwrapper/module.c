@@ -131,7 +131,7 @@ MODULE_InitDll (WINE_MODREF * wm, DWORD type, LPVOID lpReserved)
 {
   WIN_BOOL retv = TRUE;
 
-#ifdef LOG
+#ifdef USE_DEBUG
   static LPCSTR typeName[] =
       { "PROCESS_DETACH", "PROCESS_ATTACH", "THREAD_ATTACH", "THREAD_DETACH" };
 #endif
