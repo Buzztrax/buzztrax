@@ -1134,7 +1134,6 @@ bt_machine_canvas_item_constructed (GObject * object)
   if (!GST_OBJECT_PARENT ((GstObject *) self->priv->machine)) {
     on_machine_parent_unset (NULL, (GstElement *) self->priv->machine, self);
   }
-  clutter_actor_show_all ((ClutterActor *) self);
 
   prop =
       (gchar *) g_hash_table_lookup (self->priv->properties,

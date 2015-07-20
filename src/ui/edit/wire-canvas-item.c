@@ -626,8 +626,6 @@ bt_wire_canvas_item_constructed (GObject * object)
   on_wire_size_changed (self, NULL, self);
   clutter_content_invalidate (self->priv->canvas);
 
-  clutter_actor_show_all ((ClutterActor *) self);
-
   GST_INFO ("done and all shown");
 
   prop =
