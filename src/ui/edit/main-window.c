@@ -404,9 +404,6 @@ bt_main_window_init_ui (const BtMainWindow * self)
   gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->statusbar), FALSE,
       FALSE, 0);
 
-  gtk_window_add_accel_group (GTK_WINDOW (self),
-      bt_ui_resources_get_accel_group ());
-
   gtk_drag_dest_set (GTK_WIDGET (self),
       (GtkDestDefaults) (GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT |
           GTK_DEST_DEFAULT_DROP), drop_types, n_drop_types, GDK_ACTION_COPY);

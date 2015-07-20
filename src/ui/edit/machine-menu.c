@@ -223,7 +223,7 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
         if (!(cached_menu =
                 g_hash_table_lookup (parent_menu_hash, (gpointer) menu_path))) {
           GST_DEBUG ("    create new: '%s'", names[i]);
-          menu_item = gtk_image_menu_item_new_with_label (names[i]);
+          menu_item = gtk_menu_item_new_with_label (names[i]);
           gtk_menu_shell_append (GTK_MENU_SHELL (parentmenu), menu_item);
           gtk_widget_show (menu_item);
           parentmenu = gtk_menu_new ();
@@ -270,7 +270,7 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
         if (!(cached_menu =
                 g_hash_table_lookup (parent_menu_hash, (gpointer) menu_path))) {
           GST_DEBUG ("    create new: '%s'", &menu_path[1]);
-          menu_item = gtk_image_menu_item_new_with_label (&menu_path[1]);
+          menu_item = gtk_menu_item_new_with_label (&menu_path[1]);
           gtk_menu_shell_append (GTK_MENU_SHELL (parentmenu), menu_item);
           gtk_widget_show (menu_item);
           parentmenu = gtk_menu_new ();
@@ -323,16 +323,13 @@ bt_machine_menu_init_submenu (const BtMachineMenu * self, GtkWidget * submenu,
 static void
 bt_machine_menu_init_ui (const BtMachineMenu * self)
 {
-  GtkWidget *menu_item, *submenu, *image;
+  GtkWidget *menu_item, *submenu;
 
   gtk_widget_set_name (GTK_WIDGET (self), "add machine menu");
 
   // generators
-  menu_item = gtk_image_menu_item_new_with_label (_("Generators"));     // red machine icon
+  menu_item = gtk_menu_item_new_with_label (_("Generators"));
   gtk_menu_shell_append (GTK_MENU_SHELL (self), menu_item);
-  image =
-      bt_ui_resources_get_icon_image_by_machine_type (BT_TYPE_SOURCE_MACHINE);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_widget_show (menu_item);
   // add another submenu
   submenu = gtk_menu_new ();
@@ -343,12 +340,8 @@ bt_machine_menu_init_ui (const BtMachineMenu * self)
       G_CALLBACK (on_source_machine_add_activated));
 
   // effects
-  menu_item = gtk_image_menu_item_new_with_label (_("Effects"));        // green machine icon
+  menu_item = gtk_menu_item_new_with_label (_("Effects"));
   gtk_menu_shell_append (GTK_MENU_SHELL (self), menu_item);
-  image =
-      bt_ui_resources_get_icon_image_by_machine_type
-      (BT_TYPE_PROCESSOR_MACHINE);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
   gtk_widget_show (menu_item);
   // add another submenu
   submenu = gtk_menu_new ();

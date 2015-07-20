@@ -675,7 +675,7 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
 
       // create context menu
       if (!self->priv->param_menu[type]) {
-        GtkWidget *menu_item, *image;
+        GtkWidget *menu_item;
         GtkMenuShell *menu;
 
         self->priv->param_menu[type] =
@@ -688,14 +688,13 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
         gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
 
-        menu_item = gtk_image_menu_item_new_with_label (_("Reset parameter"));
+        menu_item = gtk_menu_item_new_with_label (_("Reset parameter"));
         g_signal_connect (menu_item, "activate",
             G_CALLBACK (on_parameter_reset), (gpointer) self);
         gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
 
-        menu_item =
-            gtk_image_menu_item_new_with_label (_("Reset all parameters"));
+        menu_item = gtk_menu_item_new_with_label (_("Reset all parameters"));
         g_signal_connect (menu_item, "activate",
             G_CALLBACK (on_parameter_reset_all), (gpointer) self);
         gtk_menu_shell_append (menu, menu_item);
@@ -706,17 +705,13 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
         gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
 
-        menu_item = gtk_image_menu_item_new_with_label (_("Copy parameter"));
-        image = gtk_image_new_from_stock (GTK_STOCK_COPY, GTK_ICON_SIZE_MENU);
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
+        menu_item = gtk_menu_item_new_with_label (_("Copy parameter"));
         g_signal_connect (menu_item, "activate",
             G_CALLBACK (on_parameters_copy_single), (gpointer) self);
         gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
 
-        menu_item = gtk_image_menu_item_new_with_label (_("Paste"));
-        image = gtk_image_new_from_stock (GTK_STOCK_PASTE, GTK_ICON_SIZE_MENU);
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
+        menu_item = gtk_menu_item_new_with_label (_("Paste"));
         g_signal_connect (menu_item, "activate",
             G_CALLBACK (on_parameters_paste), (gpointer) self);
         gtk_menu_shell_append (menu, menu_item);
@@ -800,7 +795,7 @@ on_group_button_press_event (GtkWidget * widget, GdkEventButton * event,
   if (event->type == GDK_BUTTON_PRESS) {
     if (event->button == GDK_BUTTON_SECONDARY) {
       GtkMenu *menu;
-      GtkWidget *menu_item, *image;
+      GtkWidget *menu_item;
       BtParameterGroup *pg =
           g_hash_table_lookup (self->priv->param_groups, widget);
 
@@ -810,17 +805,13 @@ on_group_button_press_event (GtkWidget * widget, GdkEventButton * event,
             GTK_MENU (g_object_ref_sink (gtk_menu_new ()));
 
         // add copy/paste item
-        menu_item = gtk_image_menu_item_new_with_label (_("Copy group"));
-        image = gtk_image_new_from_stock (GTK_STOCK_COPY, GTK_ICON_SIZE_MENU);
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
+        menu_item = gtk_menu_item_new_with_label (_("Copy group"));
         g_signal_connect (menu_item, "activate",
             G_CALLBACK (on_parameters_copy_group), (gpointer) self);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
         gtk_widget_show (menu_item);
 
-        menu_item = gtk_image_menu_item_new_with_label (_("Paste"));
-        image = gtk_image_new_from_stock (GTK_STOCK_PASTE, GTK_ICON_SIZE_MENU);
-        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
+        menu_item = gtk_menu_item_new_with_label (_("Paste"));
         g_signal_connect (menu_item, "activate",
             G_CALLBACK (on_parameters_paste), (gpointer) self);
         gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);

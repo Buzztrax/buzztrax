@@ -771,12 +771,12 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), menu);
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_NEW, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_New"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_new_activate),
       (gpointer) self);
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_OPEN, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Open"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_open_activate),
       (gpointer) self);
@@ -807,20 +807,19 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   gtk_container_add (GTK_CONTAINER (menu), gtk_separator_menu_item_new ());
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_SAVE, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Save"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_save_activate),
       (gpointer) self);
   self->priv->save_item = subitem;
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_SAVE_AS, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("Save _As"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_saveas_activate),
       (gpointer) self);
 
   gtk_container_add (GTK_CONTAINER (menu), gtk_separator_menu_item_new ());
 
-  //subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_UNDELETE,accel_group);
   subitem = gtk_menu_item_new_with_label (_("Recover unsaved songs"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_recover_activate),
@@ -831,15 +830,14 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   gtk_container_add (GTK_CONTAINER (menu), gtk_separator_menu_item_new ());
 
-  subitem =
-      gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_RECORD, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Record"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_render_activate),
       (gpointer) self);
 
   gtk_container_add (GTK_CONTAINER (menu), gtk_separator_menu_item_new ());
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_QUIT, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Quit"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_quit_activate),
       (gpointer) self);
@@ -853,7 +851,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   gtk_menu_set_accel_group (GTK_MENU (menu), accel_group);
   gtk_menu_set_accel_path (GTK_MENU (menu), "<Buzztrax-Main>/MainMenu/Edit");
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_UNDO, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Undo"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
       "<Buzztrax-Main>/MainMenu/Edit/Undo");
   gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/Edit/Undo", GDK_KEY_z,
@@ -864,7 +862,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   g_object_bind_property (self->priv->change_log, "can-undo", subitem,
       "sensitive", G_BINDING_SYNC_CREATE);
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_REDO, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Redo"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
       "<Buzztrax-Main>/MainMenu/Edit/Redo");
   gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/Edit/Redo", GDK_KEY_z,
@@ -877,30 +875,29 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   gtk_container_add (GTK_CONTAINER (menu), gtk_separator_menu_item_new ());
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_CUT, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("Cu_t"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_cut_activate),
       (gpointer) self);
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_COPY, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Copy"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_copy_activate),
       (gpointer) self);
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_PASTE, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Paste"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_paste_activate),
       (gpointer) self);
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_DELETE, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Delete"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_delete_activate),
       (gpointer) self);
 
   gtk_container_add (GTK_CONTAINER (menu), gtk_separator_menu_item_new ());
 
-  subitem =
-      gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Preferences"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_settings_activate),
       (gpointer) self);
@@ -950,10 +947,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   gtk_container_add (GTK_CONTAINER (menu), gtk_separator_menu_item_new ());
 
-  subitem = gtk_image_menu_item_new_with_label (_("Go to machine view"));
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_icon_name ("buzztrax_tab_machines",
-          GTK_ICON_SIZE_MENU));
+  subitem = gtk_menu_item_new_with_label (_("Go to machine view"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
       "<Buzztrax-Main>/MainMenu/View/MachineView");
   gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/View/MachineView",
@@ -962,10 +956,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   g_signal_connect (subitem, "activate",
       G_CALLBACK (on_menu_goto_machine_view_activate), (gpointer) self);
 
-  subitem = gtk_image_menu_item_new_with_label (_("Go to pattern view"));
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_icon_name ("buzztrax_tab_patterns",
-          GTK_ICON_SIZE_MENU));
+  subitem = gtk_menu_item_new_with_label (_("Go to pattern view"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
       "<Buzztrax-Main>/MainMenu/View/PatternView");
   gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/View/PatternView",
@@ -974,10 +965,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   g_signal_connect (subitem, "activate",
       G_CALLBACK (on_menu_goto_pattern_view_activate), (gpointer) self);
 
-  subitem = gtk_image_menu_item_new_with_label (_("Go to sequence view"));
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_icon_name ("buzztrax_tab_sequence",
-          GTK_ICON_SIZE_MENU));
+  subitem = gtk_menu_item_new_with_label (_("Go to sequence view"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
       "<Buzztrax-Main>/MainMenu/View/SequenceView");
   gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/View/SequenceView",
@@ -986,9 +974,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   g_signal_connect (subitem, "activate",
       G_CALLBACK (on_menu_goto_sequence_view_activate), (gpointer) self);
 
-  subitem = gtk_image_menu_item_new_with_label (_("Go to wave table view"));
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_icon_name ("buzztrax_tab_waves", GTK_ICON_SIZE_MENU));
+  subitem = gtk_menu_item_new_with_label (_("Go to wave table view"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
       "<Buzztrax-Main>/MainMenu/View/WaveteableView");
   gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/View/WaveteableView",
@@ -997,9 +983,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   g_signal_connect (subitem, "activate",
       G_CALLBACK (on_menu_goto_waves_view_activate), (gpointer) self);
 
-  subitem = gtk_image_menu_item_new_with_label (_("Go to song information"));
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_icon_name ("buzztrax_tab_info", GTK_ICON_SIZE_MENU));
+  subitem = gtk_menu_item_new_with_label (_("Go to song information"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
       "<Buzztrax-Main>/MainMenu/View/InfoView");
   gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/View/InfoView",
@@ -1015,15 +999,15 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
    gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
 
-   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_FIT,accel_group);
+   subitem=gtk_menu_item_new_with_mnemonic(_)"Best _Fit"));
    gtk_container_add(GTK_CONTAINER(menu),subitem);
    g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_fit_activate),(gpointer)self);
 
-   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_IN,accel_group);
+   subitem=gtk_menu_item_new_with_mnemonic(_("Zoom _In"));
    gtk_container_add(GTK_CONTAINER(menu),subitem);
    g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_in_activate),(gpointer)self);
 
-   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_OUT,accel_group);
+   subitem=gtk_menu_item_new_with_mnemonic(_("Zoom _Out"));
    gtk_container_add(GTK_CONTAINER(menu),subitem);
    g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
    */
@@ -1038,8 +1022,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   gtk_menu_set_accel_path (GTK_MENU (menu),
       "<Buzztrax-Main>/MainMenu/Playback");
 
-  subitem =
-      gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_PLAY, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Play"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
       "<Buzztrax-Main>/MainMenu/Playback/Play");
   gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/Playback/Play", GDK_KEY_F5,
@@ -1048,7 +1031,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_play_activate),
       (gpointer) self);
 
-  subitem = gtk_image_menu_item_new_with_label (_("Play from cursor"));
+  subitem = gtk_menu_item_new_with_label (_("Play from cursor"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
       "<Buzztrax-Main>/MainMenu/Playback/PlayFromCursor");
   gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/Playback/PlayFromCursor",
@@ -1057,8 +1040,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   g_signal_connect (subitem, "activate",
       G_CALLBACK (on_menu_play_from_cursor_activate), (gpointer) self);
 
-  subitem =
-      gtk_image_menu_item_new_from_stock (GTK_STOCK_MEDIA_STOP, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_Stop"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem),
       "<Buzztrax-Main>/MainMenu/Playback/Stop");
   gtk_accel_map_add_entry ("<Buzztrax-Main>/MainMenu/Playback/Stop", GDK_KEY_F8,
@@ -1068,9 +1050,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
       (gpointer) self);
 
   /* TODO(ensonic): toggle loop item
-   * - we only have:
-   *   gtk_image_menu_item_new_from_stock - not a toggle
-   *   gtk_check_menu_item_new_with_mnemonic - no image
+   *   gtk_check_menu_item_new_with_mnemonic
    */
 
   /* TODO(ensonic): tools menu
@@ -1088,7 +1068,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), menu);
   gtk_menu_set_accel_group (GTK_MENU (menu), accel_group);
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_HELP, accel_group);
+  subitem = gtk_menu_item_new_with_label (_("Help"));
   if (gtk_accel_group_query (accel_group, 'h', GDK_CONTROL_MASK, NULL)) {
     gtk_widget_remove_accelerator (subitem, accel_group, 'h', GDK_CONTROL_MASK);
   }
@@ -1098,9 +1078,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_help_activate),
       (gpointer) self);
 
-  subitem = gtk_image_menu_item_new_with_label (_("Tip of the day"));
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (subitem),
-      gtk_image_new_from_icon_name ("dialog-information", GTK_ICON_SIZE_MENU));
+  subitem = gtk_menu_item_new_with_label (_("Tip of the day"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_help_show_tip),
       (gpointer) self);
@@ -1126,7 +1104,7 @@ bt_main_menu_init_ui (const BtMainMenu * self)
 
   gtk_container_add (GTK_CONTAINER (menu), gtk_separator_menu_item_new ());
 
-  subitem = gtk_image_menu_item_new_from_stock (GTK_STOCK_ABOUT, accel_group);
+  subitem = gtk_menu_item_new_with_mnemonic (_("_About"));
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate", G_CALLBACK (on_menu_about_activate),
       (gpointer) self);
@@ -1194,15 +1172,14 @@ bt_main_menu_init_ui (const BtMainMenu * self)
         G_CALLBACK (on_menu_debug_use_png_toggled), (gpointer) self);
   }
 
-  subitem =
-      gtk_image_menu_item_new_with_mnemonic ("Dump pipeline graph and show");
+  subitem = gtk_menu_item_new_with_mnemonic ("Dump pipeline graph and show");
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate",
       G_CALLBACK (on_menu_debug_dump_pipeline_graph_and_show), (gpointer) self);
 
   gtk_container_add (GTK_CONTAINER (menu), gtk_separator_menu_item_new ());
 
-  subitem = gtk_image_menu_item_new_with_mnemonic ("Update plugin registry");
+  subitem = gtk_menu_item_new_with_mnemonic ("Update plugin registry");
   gtk_container_add (GTK_CONTAINER (menu), subitem);
   g_signal_connect (subitem, "activate",
       G_CALLBACK (on_menu_debug_update_registry), (gpointer) self);

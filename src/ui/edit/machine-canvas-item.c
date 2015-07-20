@@ -819,7 +819,7 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
   gtk_widget_show (menu_item);
 
   // dynamic part
-  menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_PROPERTIES, NULL);
+  menu_item = gtk_menu_item_new_with_mnemonic (_("_Properties"));
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   // make this menu item bold (default)
   label = gtk_bin_get_child (GTK_BIN (menu_item));
@@ -841,7 +841,7 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
       G_CALLBACK (on_context_menu_properties_activate), (gpointer) self);
 
   // static part
-  menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_PREFERENCES, NULL);
+  menu_item = gtk_menu_item_new_with_mnemonic (_("_Preferences"));
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",
@@ -858,7 +858,7 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
   g_signal_connect (menu_item, "activate",
       G_CALLBACK (on_context_menu_rename_activate), (gpointer) self);
   if (!BT_IS_SINK_MACHINE (machine)) {
-    menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_DELETE, NULL);
+    menu_item = gtk_menu_item_new_with_mnemonic (_("_Delete"));
     gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
         menu_item);
     gtk_widget_show (menu_item);
@@ -945,7 +945,7 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
 
-  menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_HELP, NULL);
+  menu_item = gtk_menu_item_new_with_mnemonic (_("_Help"));
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   if (!self->priv->help_uri) {
     gtk_widget_set_sensitive (menu_item, FALSE);
@@ -955,7 +955,7 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
   }
   gtk_widget_show (menu_item);
 
-  menu_item = gtk_image_menu_item_new_from_stock (GTK_STOCK_ABOUT, NULL);
+  menu_item = gtk_menu_item_new_with_mnemonic (_("_About"));
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",

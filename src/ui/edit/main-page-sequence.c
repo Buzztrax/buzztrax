@@ -1736,7 +1736,7 @@ machine_menu_refresh (const BtMainPageSequence * self, const BtSetup * setup)
 {
   BtMachine *machine;
   GList *node, *list, *widgets;
-  GtkWidget *menu_item, *submenu, *image, *label;
+  GtkWidget *menu_item, *submenu, *label;
 
   GST_INFO ("refreshing track menu");
 
@@ -1750,10 +1750,8 @@ machine_menu_refresh (const BtMainPageSequence * self, const BtSetup * setup)
   for (node = list; node; node = g_list_next (node)) {
     machine = BT_MACHINE (node->data);
 
-    menu_item = gtk_image_menu_item_new_with_label ("");
+    menu_item = gtk_menu_item_new_with_label ("");
     gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menu_item);
-    image = bt_ui_resources_get_icon_image_by_machine (machine);
-    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
     gtk_widget_show (menu_item);
     widgets = gtk_container_get_children (GTK_CONTAINER (menu_item));
     label = g_list_nth_data (widgets, 0);
@@ -3628,17 +3626,12 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
       "<Buzztrax-Main>/SequenceView/SequenceContext");
 
   self->priv->context_menu_add =
-      GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (_("Add track")));
-  image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (self->
-          priv->context_menu_add), image);
+      GTK_MENU_ITEM (gtk_menu_item_new_with_label (_("Add track")));
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu),
       GTK_WIDGET (self->priv->context_menu_add));
   gtk_widget_show (GTK_WIDGET (self->priv->context_menu_add));
 
-  menu_item = gtk_image_menu_item_new_with_label (_("Remove track"));
-  image = gtk_image_new_from_stock (GTK_STOCK_REMOVE, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
+  menu_item = gtk_menu_item_new_with_label (_("Remove track"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
       "<Buzztrax-Main>/SequenceView/SequenceContext/RemoveTrack");
   gtk_accel_map_add_entry
@@ -3653,9 +3646,7 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
 
-  menu_item = gtk_image_menu_item_new_with_label (_("Move track left"));
-  image = gtk_image_new_from_stock (GTK_STOCK_GO_BACK, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
+  menu_item = gtk_menu_item_new_with_label (_("Move track left"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
       "<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackLeft");
   gtk_accel_map_add_entry
@@ -3666,9 +3657,7 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   g_signal_connect (menu_item, "activate",
       G_CALLBACK (on_track_move_left_activated), (gpointer) self);
 
-  menu_item = gtk_image_menu_item_new_with_label (_("Move track right"));
-  image = gtk_image_new_from_stock (GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
+  menu_item = gtk_menu_item_new_with_label (_("Move track right"));
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item),
       "<Buzztrax-Main>/SequenceView/SequenceContext/MoveTrackRight");
   gtk_accel_map_add_entry
@@ -3683,18 +3672,14 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
 
-  menu_item = gtk_image_menu_item_new_with_label (_("Machine properties"));     // dynamic part
-  image = gtk_image_new_from_stock (GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
+  menu_item = gtk_menu_item_new_with_label (_("Machine properties"));   // dynamic part
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",
       G_CALLBACK (on_context_menu_machine_properties_activate),
       (gpointer) self);
 
-  menu_item = gtk_image_menu_item_new_with_label (_("Machine preferences"));    // static part
-  image = gtk_image_new_from_stock (GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
+  menu_item = gtk_menu_item_new_with_label (_("Machine preferences"));  // static part
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
   g_signal_connect (menu_item, "activate",

@@ -293,7 +293,7 @@ bt_interaction_controller_menu_init_control_menu (const
   // add learn function entry for device which implement the BtIcLearn interface
   if (BTIC_IS_LEARN (device)) {
     submenu = gtk_menu_new ();
-    menu_item = gtk_image_menu_item_new_with_label (_("Learn…"));
+    menu_item = gtk_menu_item_new_with_label (_("Learn…"));
     gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menu_item);
     gtk_widget_show (menu_item);
     // connect handler
@@ -396,7 +396,7 @@ bt_interaction_controller_menu_init_device_menu (const
         g_object_get (device, "name", &str, NULL);
         GST_INFO ("Build control menu for '%s'", str);
 
-        menu_item = gtk_image_menu_item_new_with_label (str);
+        menu_item = gtk_menu_item_new_with_label (str);
         gtk_menu_shell_append (GTK_MENU_SHELL (submenu), menu_item);
         gtk_widget_show (menu_item);
         g_free (str);
@@ -414,37 +414,30 @@ static void
 bt_interaction_controller_menu_init_ui (const BtInteractionControllerMenu *
     self)
 {
-  GtkWidget *menu_item, *image;
+  BtInteractionControllerMenuPrivate *p = self->priv;
+  GtkWidget *item;
 
   gtk_widget_set_name (GTK_WIDGET (self), "interaction controller menu");
 
-  menu_item = gtk_image_menu_item_new_with_label (_("Bind controller"));
-  gtk_menu_shell_append (GTK_MENU_SHELL (self), menu_item);
-  image = gtk_image_new_from_stock (GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
-  gtk_widget_show (menu_item);
-  self->priv->device_menu = menu_item;
+  p->device_menu = item = gtk_menu_item_new_with_label (_("Bind controller"));
+  gtk_menu_shell_append (GTK_MENU_SHELL (self), item);
+  gtk_widget_show (item);
 
   // add the device submenu
   bt_interaction_controller_menu_init_device_menu (self);
 
-  self->priv->item_unbind = menu_item =
-      gtk_image_menu_item_new_with_label (_("Unbind controller"));
-  gtk_menu_shell_append (GTK_MENU_SHELL (self), menu_item);
-  image = gtk_image_new_from_stock (GTK_STOCK_REMOVE, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
-  g_signal_connect (menu_item, "activate", G_CALLBACK (on_control_unbind),
+  p->item_unbind = item = gtk_menu_item_new_with_label (_("Unbind controller"));
+  gtk_menu_shell_append (GTK_MENU_SHELL (self), item);
+  g_signal_connect (item, "activate", G_CALLBACK (on_control_unbind),
       (gpointer) self);
-  gtk_widget_show (menu_item);
+  gtk_widget_show (item);
 
-  self->priv->item_unbind_all = menu_item =
-      gtk_image_menu_item_new_with_label (_("Unbind all controllers"));
-  gtk_menu_shell_append (GTK_MENU_SHELL (self), menu_item);
-  image = gtk_image_new_from_stock (GTK_STOCK_REMOVE, GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), image);
-  g_signal_connect (menu_item, "activate", G_CALLBACK (on_control_unbind_all),
+  p->item_unbind_all = item =
+      gtk_menu_item_new_with_label (_("Unbind all controllers"));
+  gtk_menu_shell_append (GTK_MENU_SHELL (self), item);
+  g_signal_connect (item, "activate", G_CALLBACK (on_control_unbind_all),
       (gpointer) self);
-  gtk_widget_show (menu_item);
+  gtk_widget_show (item);
 }
 
 //-- constructor methods
