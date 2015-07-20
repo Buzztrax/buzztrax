@@ -253,7 +253,7 @@ bt_tip_dialog_init_ui (const BtTipDialog * self)
       hbox, TRUE, TRUE, 0);
 
   // add "refresh" button to action area
-  btn = gtk_button_new_from_stock (GTK_STOCK_REFRESH);
+  btn = gtk_button_new_with_label (_("Refresh"));
   g_signal_connect (btn, "clicked", G_CALLBACK (on_refresh_clicked),
       (gpointer) self);
   gtk_box_pack_start (GTK_BOX (gtk_dialog_get_action_area (GTK_DIALOG (self))),

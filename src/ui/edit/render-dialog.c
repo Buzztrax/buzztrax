@@ -604,7 +604,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   gtk_window_set_title (GTK_WINDOW (self), _("song rendering"));
 
   // add dialog commision widgets (okay, cancel)
-  self->priv->okay_button = gtk_button_new_from_stock (GTK_STOCK_OK);
+  self->priv->okay_button = gtk_button_new_with_label (_("OK"));
   gtk_container_add (GTK_CONTAINER (gtk_dialog_get_action_area (GTK_DIALOG
               (self))), self->priv->okay_button);
   gtk_dialog_add_button (GTK_DIALOG (self), GTK_STOCK_CANCEL,
