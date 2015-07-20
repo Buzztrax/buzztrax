@@ -419,6 +419,8 @@ bt_edit_application_load_song (const BtEditApplication * self,
 
     // this is synchronous execution
     // https://github.com/Buzztrax/buzztrax/issues/52
+    // if we bump glib from 2.32 -> 2.36 we can use GTask and 
+    // g_task_run_in_thread()
     if (bt_song_io_load (loader, song, err)) {
       BtMachine *machine;
 
