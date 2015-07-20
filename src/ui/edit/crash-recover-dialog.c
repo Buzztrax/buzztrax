@@ -228,8 +228,7 @@ bt_crash_recover_dialog_init_ui (const BtCrashRecoverDialog * self)
   // FIXME(ensonic): add Okay, Cancel, Delete
   // select song + okay -> recover
   // select song + delete -> remove log
-  gtk_dialog_add_buttons (GTK_DIALOG (self),
-      GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE, NULL);
+  gtk_dialog_add_button (GTK_DIALOG (self), _("_Close"), GTK_RESPONSE_CLOSE);
 
   // content area
   hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);

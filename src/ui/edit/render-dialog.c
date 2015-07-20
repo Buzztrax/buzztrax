@@ -607,8 +607,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   self->priv->okay_button = gtk_button_new_with_label (_("OK"));
   gtk_container_add (GTK_CONTAINER (gtk_dialog_get_action_area (GTK_DIALOG
               (self))), self->priv->okay_button);
-  gtk_dialog_add_button (GTK_DIALOG (self), GTK_STOCK_CANCEL,
-      GTK_RESPONSE_REJECT);
+  gtk_dialog_add_button (GTK_DIALOG (self), _("_Cancel"), GTK_RESPONSE_REJECT);
 
   //gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_NONE);
   g_signal_connect (self->priv->okay_button, "clicked",

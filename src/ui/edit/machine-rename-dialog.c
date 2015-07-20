@@ -119,8 +119,7 @@ bt_machine_rename_dialog_init_ui (const BtMachineRenameDialog * self)
 
   // add dialog commision widgets (okay, cancel)
   gtk_dialog_add_buttons (GTK_DIALOG (self),
-      GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-      GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, NULL);
+      _("_OK"), GTK_RESPONSE_ACCEPT, _("_Cancel"), GTK_RESPONSE_REJECT, NULL);
 
   gtk_dialog_set_default_response (GTK_DIALOG (self), GTK_RESPONSE_ACCEPT);
 

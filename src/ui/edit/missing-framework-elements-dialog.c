@@ -138,8 +138,7 @@ bt_missing_framework_elements_dialog_init_ui (const
   gtk_window_set_title (GTK_WINDOW (self), _("Missing GStreamer elements"));
 
   // add dialog commision widgets (okay, cancel)
-  gtk_dialog_add_buttons (GTK_DIALOG (self),
-      GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL);
+  gtk_dialog_add_button (GTK_DIALOG (self), _("_OK"), GTK_RESPONSE_ACCEPT);
 
   gtk_dialog_set_default_response (GTK_DIALOG (self), GTK_RESPONSE_ACCEPT);
 
