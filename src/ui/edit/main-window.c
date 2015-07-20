@@ -586,8 +586,8 @@ bt_main_window_open_song (const BtMainWindow * self)
 
   self->priv->dialog =
       GTK_DIALOG (gtk_file_chooser_dialog_new (_("Open a song"),
-          GTK_WINDOW (self), GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL,
-          GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL));
+          GTK_WINDOW (self), GTK_FILE_CHOOSER_ACTION_OPEN, _("_Cancel"),
+          GTK_RESPONSE_CANCEL, _("_Open"), GTK_RESPONSE_ACCEPT, NULL));
   bt_edit_application_attach_child_window (self->priv->app,
       GTK_WINDOW (self->priv->dialog));
   // store for format-changed signal handler
@@ -718,8 +718,8 @@ bt_main_window_save_song_as (const BtMainWindow * self)
 
   self->priv->dialog =
       GTK_DIALOG (gtk_file_chooser_dialog_new (_("Save a song"),
-          GTK_WINDOW (self), GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL,
-          GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL));
+          GTK_WINDOW (self), GTK_FILE_CHOOSER_ACTION_SAVE, _("_Cancel"),
+          GTK_RESPONSE_CANCEL, _("_Save"), GTK_RESPONSE_ACCEPT, NULL));
   bt_edit_application_attach_child_window (self->priv->app,
       GTK_WINDOW (self->priv->dialog));
   // store for format-changed signal handler
