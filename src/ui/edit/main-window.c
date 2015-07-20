@@ -993,7 +993,7 @@ bt_dialog_message (const BtMainWindow * self, const gchar * title,
   self->priv->dialog = GTK_DIALOG (gtk_dialog_new_with_buttons (title,
           GTK_WINDOW (self),
           GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-          GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL));
+          _("_OK"), GTK_RESPONSE_ACCEPT, NULL));
 
   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (box), 6);
@@ -1047,8 +1047,8 @@ bt_dialog_question (const BtMainWindow * self, const gchar * title,
   self->priv->dialog = GTK_DIALOG (gtk_dialog_new_with_buttons (title,
           GTK_WINDOW (self),
           GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-          GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-          GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, NULL));
+          _("_OK"), GTK_RESPONSE_ACCEPT,
+          _("_Cancel"), GTK_RESPONSE_REJECT, NULL));
 
   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
   gtk_container_set_border_width (GTK_CONTAINER (box), 6);
