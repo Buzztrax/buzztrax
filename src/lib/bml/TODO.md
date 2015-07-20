@@ -129,10 +129,17 @@ what about using winegcc - e.g.:
 winegcc -shared XXX.dll.spec -mnocygwin -o XXX.dll.so abc.o def.o -lole32 -lwinmm -lpthread -luuid
 
 # inspecting the dlls
-winedump -x $HOME/buzztrax/lib/Gear-real/Effects/Shaman\ Chorus.dll
-./objconv -fgasm ~/projects/buzztrax/win32/Gear/Effects/Arguelles\ TruePan.dll
-/usr/bin/i586-mingw32msvc-objdump -x ~/projects/buzztrax/win32/Gear/Effects/Arguelles\ TruePan.dll
-/usr/bin/i586-mingw32msvc-objdump -d ~/projects/buzztrax/win32/Gear/Effects/Arguelles\ TruePan.dll
+winedump -x $HOME/buzztrax/lib/Gear/Effects/cheapo\ amp.dll
+./objconv -fgasm $HOME/buzztrax/lib/Gear/Effects/cheapo\ amp.dll
+/usr/bin/i586-mingw32msvc-objdump -x $HOME/buzztrax/lib/Gear/Effects/cheapo\ amp.dll
+/usr/bin/i586-mingw32msvc-objdump -d $HOME/buzztrax/lib/Gear/Effects/cheapo\ amp.dll
+
+# debugging with gcc
+BML_DEBUG=255 gdb --args ./bmlhost bml.sock
+and from gdb: run
+in 2nd terminal:
+BMLIPC_DEBUG=1 BML_DEBUG=255 /home/ensonic/projects/buzztrax/buzztrax/bmltest_info $HOME/buzztrax/lib/Gear/Effects/cheapo\ amp.dll
+upon crash back in gdb: bt, disas <addr>,<addr>+100
 
 # missing dlls
 wget kegel.com/wine/winetricks
