@@ -1589,10 +1589,11 @@ bt_main_page_machines_init_main_context_menu (const BtMainPageMachines * self)
 {
   GtkWidget *menu_item, *menu;
   self->priv->context_menu = GTK_MENU (g_object_ref_sink (gtk_menu_new ()));
-  //menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
+
   menu_item = gtk_menu_item_new_with_label (_("Add machine"));
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->context_menu), menu_item);
   gtk_widget_show (menu_item);
+
   // add machine selection sub-menu
   menu = GTK_WIDGET (bt_machine_menu_new (self));
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), menu);

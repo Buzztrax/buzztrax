@@ -1082,8 +1082,9 @@ bt_machine_canvas_item_constructed (GObject * object)
   clutter_actor_set_content_scaling_filters ((ClutterActor *) self,
       CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
   clutter_actor_set_size ((ClutterActor *) self, MACHINE_W, MACHINE_H);
-  clutter_actor_set_anchor_point ((ClutterActor *) self,
-      MACHINE_W / 2.0, MACHINE_H / 2.0);
+  clutter_actor_set_pivot_point ((ClutterActor *) self, 0.5, 0.5);
+  clutter_actor_set_translation ((ClutterActor *) self, (MACHINE_W / -2.0),
+      (MACHINE_H / -2.0), 0.0);
   clutter_actor_set_content ((ClutterActor *) self, self->priv->image);
 
   // the name label
@@ -1107,10 +1108,10 @@ bt_machine_canvas_item_constructed (GObject * object)
 
   // we want that as a max-width for clipping :/
   clutter_actor_set_width (self->priv->label, MACHINE_LABEL_WIDTH);
-  clutter_actor_set_anchor_point_from_gravity (self->priv->label,
-      CLUTTER_GRAVITY_CENTER);
+  clutter_actor_set_pivot_point (self->priv->label, 0.5, 0.5);
   clutter_actor_add_child ((ClutterActor *) self, self->priv->label);
-  clutter_actor_set_position (self->priv->label, MACHINE_W / 2.0,
+  clutter_actor_set_position (self->priv->label,
+      (MACHINE_W - MACHINE_LABEL_WIDTH) / 2.0,
       MACHINE_LABEL_BASE - (MACHINE_LABEL_HEIGHT / 2.0));
 
   // the input volume level meter

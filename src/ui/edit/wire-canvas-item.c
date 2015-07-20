@@ -583,11 +583,12 @@ bt_wire_canvas_item_constructed (GObject * object)
   clutter_actor_set_content_scaling_filters (self->priv->pad,
       CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
   clutter_actor_set_size (self->priv->pad, WIRE_PAD_W, WIRE_PAD_H);
-  clutter_actor_set_anchor_point_from_gravity (self->priv->pad,
-      CLUTTER_GRAVITY_CENTER);
+  clutter_actor_set_pivot_point (self->priv->pad, 0.5, 0.5);
+  clutter_actor_set_translation ((ClutterActor *) self->priv->pad,
+      (WIRE_PAD_W / -2.0), (WIRE_PAD_H / -2.0), 0.0);
   clutter_actor_set_reactive (self->priv->pad, TRUE);
-  clutter_actor_set_content (self->priv->pad, self->priv->pad_image);
   clutter_actor_add_child ((ClutterActor *) self, self->priv->pad);
+  clutter_actor_set_content (self->priv->pad, self->priv->pad_image);
   clutter_actor_set_child_above_sibling ((ClutterActor *) self, self->priv->pad,
       NULL);
   g_signal_connect (self->priv->pad, "button-press-event",
