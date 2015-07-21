@@ -2651,8 +2651,13 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolled_window),
       GTK_SHADOW_NONE);
   self->priv->param_group_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+#if GTK_CHECK_VERSION (3, 8, 0)
+  gtk_container_add (GTK_CONTAINER (scrolled_window),
+      self->priv->param_group_box);
+#else
   gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolled_window),
       self->priv->param_group_box);
+#endif
   gtk_box_pack_start (GTK_BOX (param_box), scrolled_window, TRUE, TRUE, 0);
   g_signal_connect (self->priv->param_group_box, "realize",
       G_CALLBACK (on_box_realize), (gpointer) self);

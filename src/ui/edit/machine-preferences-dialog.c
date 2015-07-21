@@ -495,8 +495,12 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
     }
   }
   // eat remaning space
+#if GTK_CHECK_VERSION (3, 8, 0)
+  gtk_container_add (GTK_CONTAINER (scrolled_window), table);
+#else
   gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolled_window),
       table);
+#endif
   gtk_container_add (GTK_CONTAINER (self), scrolled_window);
 
   // track machine name (keep window title up-to-date)
