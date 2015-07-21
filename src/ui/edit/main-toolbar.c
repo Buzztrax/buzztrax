@@ -456,6 +456,8 @@ on_song_warning (const GstBus * const bus, GstMessage * message,
   g_free (desc);
 }
 
+#define g_value_array_get_ix(va,ix) (va->values + ix)
+
 static gboolean
 on_delayed_idle_song_level_change (gpointer user_data)
 {
@@ -483,8 +485,8 @@ on_delayed_idle_song_level_change (gpointer user_data)
     decay_arr = (GValueArray *) g_value_get_boxed (values);
     size = decay_arr->n_values;
     for (i = 0; i < size; i++) {
-      decay = g_value_get_double (g_value_array_get_nth (decay_arr, i));
-      peak = g_value_get_double (g_value_array_get_nth (peak_arr, i));
+      decay = g_value_get_double (g_value_array_get_ix (decay_arr, i));
+      peak = g_value_get_double (g_value_array_get_ix (peak_arr, i));
       if (isinf (decay) || isnan (decay))
         decay = LOW_VUMETER_VAL;
       if (isinf (peak) || isnan (peak))

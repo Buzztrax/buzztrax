@@ -629,6 +629,8 @@ on_level_axis_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   return (TRUE);
 }
 
+#define g_value_array_get_ix(va,ix) (va->values + ix)
+
 static gboolean
 on_delayed_idle_signal_analyser_change (gpointer user_data)
 {
@@ -657,12 +659,12 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
     // size of list is number of channels
     switch (decay_arr->n_values) {
       case 1:                  // mono
-        val = g_value_get_double (g_value_array_get_nth (peak_arr, 0));
+        val = g_value_get_double (g_value_array_get_ix (peak_arr, 0));
         if (isinf (val) || isnan (val))
           val = LOW_VUMETER_VAL;
         self->priv->peak[0] = -(LOW_VUMETER_VAL - val);
         self->priv->peak[1] = self->priv->peak[0];
-        val = g_value_get_double (g_value_array_get_nth (decay_arr, 0));
+        val = g_value_get_double (g_value_array_get_ix (decay_arr, 0));
         if (isinf (val) || isnan (val))
           val = LOW_VUMETER_VAL;
         self->priv->decay[0] = -(LOW_VUMETER_VAL - val);
@@ -670,11 +672,11 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
         break;
       case 2:                  // stereo
         for (i = 0; i < 2; i++) {
-          val = g_value_get_double (g_value_array_get_nth (peak_arr, i));
+          val = g_value_get_double (g_value_array_get_ix (peak_arr, i));
           if (isinf (val) || isnan (val))
             val = LOW_VUMETER_VAL;
           self->priv->peak[i] = -(LOW_VUMETER_VAL - val);
-          val = g_value_get_double (g_value_array_get_nth (decay_arr, i));
+          val = g_value_get_double (g_value_array_get_ix (decay_arr, i));
           if (isinf (val) || isnan (val))
             val = LOW_VUMETER_VAL;
           self->priv->decay[i] = -(LOW_VUMETER_VAL - val);
