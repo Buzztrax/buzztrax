@@ -1579,8 +1579,8 @@ on_canvas_style_updated (GtkStyleContext * style_ctx, gconstpointer user_data)
   GdkRGBA c;
   // these seems to be *always* black
   // gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_NORMAL, &c);
-  gtk_style_context_get (style_ctx, GTK_STATE_FLAG_NORMAL, "background-color",
-      &c, NULL);
+  gtk_style_context_get (style_ctx, GTK_STATE_FLAG_NORMAL,
+      GTK_STYLE_PROPERTY_BACKGROUND_COLOR, &c, NULL);
   ClutterColor stage_color = {
     CLAMP (c.red * 255, 0, 255), CLAMP (c.green * 255, 0, 255),
     CLAMP (c.blue * 255, 0, 255), 255
