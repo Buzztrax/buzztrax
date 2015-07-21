@@ -1165,7 +1165,6 @@ on_toolbar_zoom_out_clicked (GtkButton * button, gpointer user_data)
   gtk_widget_grab_focus_savely (p->canvas_widget);
 }
 
-#ifndef GRID_USES_MENU_TOOL_ITEM
 static void
 on_toolbar_grid_clicked (GtkButton * button, gpointer user_data)
 {
@@ -1174,7 +1173,6 @@ on_toolbar_grid_clicked (GtkButton * button, gpointer user_data)
   gtk_menu_popup (self->priv->grid_density_menu, NULL, NULL, NULL, NULL,
       GDK_BUTTON_PRIMARY, gtk_get_current_event_time ());
 }
-#endif
 
 static void
 on_toolbar_grid_densitoff_y_activated (GtkMenuItem * menuitem,
@@ -1686,7 +1684,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
     const BtMainPages * pages)
 {
   BtSettings *settings;
-  GtkWidget *image, *table, *scrollbar;
+  GtkWidget *table, *scrollbar, *toolbar;
   GtkToolItem *tool_item;
   GtkStyleContext *style;
   gchar *density;
@@ -1712,78 +1710,58 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   bt_main_page_machines_init_main_context_menu (self);
 
   // add toolbar
-  self->priv->toolbar = gtk_toolbar_new ();
-  gtk_widget_set_name (self->priv->toolbar, "machine view toolbar");
-  tool_item = gtk_tool_button_new_from_stock (GTK_STOCK_ZOOM_FIT);
-  gtk_widget_set_name (GTK_WIDGET (tool_item), "Zoom Fit");
+  self->priv->toolbar = toolbar = gtk_toolbar_new ();
+  gtk_widget_set_name (toolbar, "machine view toolbar");
+
+  tool_item = gtk_tool_button_new_from_icon_name ("zoom-fit-best",
+      _("Best _Fit"));
   gtk_tool_item_set_tooltip_text (tool_item,
       _("Zoom in/out so that everything is visible"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar), tool_item, -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_signal_connect (tool_item, "clicked",
       G_CALLBACK (on_toolbar_zoom_fit_clicked), (gpointer) self);
-  self->priv->zoom_in =
-      GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_ZOOM_IN));
-  gtk_widget_set_name (self->priv->zoom_in, "Zoom In");
-  gtk_widget_set_sensitive (self->priv->zoom_in, (self->priv->zoom < ZOOM_MAX));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (self->priv->zoom_in),
-      _("Zoom in for more details"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar),
-      GTK_TOOL_ITEM (self->priv->zoom_in), -1);
-  g_signal_connect (self->priv->zoom_in, "clicked",
+
+  tool_item = gtk_tool_button_new_from_icon_name ("zoom-in", _("Zoom _In"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Zoom in for more details"));
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
+  g_signal_connect (tool_item, "clicked",
       G_CALLBACK (on_toolbar_zoom_in_clicked), (gpointer) self);
-  self->priv->zoom_out =
-      GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_ZOOM_OUT));
-  gtk_widget_set_name (self->priv->zoom_out, "Zoom Out");
+  self->priv->zoom_in = GTK_WIDGET (tool_item);
+  gtk_widget_set_sensitive (self->priv->zoom_in, (self->priv->zoom < ZOOM_MAX));
+
+  tool_item = gtk_tool_button_new_from_icon_name ("zoom-out", _("Zoom _Out"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Zoom out for better overview"));
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
+  g_signal_connect (tool_item, "clicked",
+      G_CALLBACK (on_toolbar_zoom_out_clicked), (gpointer) self);
+  self->priv->zoom_out = GTK_WIDGET (tool_item);
   gtk_widget_set_sensitive (self->priv->zoom_out,
       (self->priv->zoom > ZOOM_MIN));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (self->priv->zoom_out),
-      _("Zoom out for better overview"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar),
-      GTK_TOOL_ITEM (self->priv->zoom_out), -1);
-  g_signal_connect (self->priv->zoom_out, "clicked",
-      G_CALLBACK (on_toolbar_zoom_out_clicked), (gpointer) self);
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar),
+
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar),
       gtk_separator_tool_item_new (), -1);
 
   // grid density toolbar icon
-#ifdef GRID_USES_MENU_TOOL_ITEM
-  // this is weird, we end up with a button and a menu, instead of a joint thing
-  // so this is probably meant for e.g. undo, where the button undos and the
-  // menu allows to undo up to a certain step
-  image =
-      gtk_image_new_from_icon_name ("view-grid-symbolic", GTK_ICON_SIZE_MENU);
-  tool_item = gtk_menu_tool_button_new (image, _("Grid"));
-  gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (tool_item),
-      GTK_WIDGET (self->priv->grid_density_menu));
-  gtk_menu_tool_button_set_arrow_tooltip_text (GTK_MENU_TOOL_BUTTON (tool_item),
-      _("Show background grid"));
+  tool_item =
+      gtk_tool_button_new_from_icon_name ("view-grid-symbolic", _("Grid"));
   gtk_tool_item_set_tooltip_text (tool_item, _("Show background grid"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar), tool_item, -1);
-  //g_signal_connect(tool_item,"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
-#else
-  image =
-      gtk_image_new_from_icon_name ("view-grid-symbolic", GTK_ICON_SIZE_MENU);
-  tool_item = gtk_tool_button_new (image, _("Grid"));
-  gtk_tool_item_set_tooltip_text (tool_item, _("Show background grid"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar), tool_item, -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_grid_clicked),
       (gpointer) self);
-#endif
 
   // all that follow is right aligned
   tool_item = gtk_separator_tool_item_new ();
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar), tool_item, -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_object_set (tool_item, "draw", FALSE, NULL);
-  gtk_container_child_set (GTK_CONTAINER (self->priv->toolbar),
+  gtk_container_child_set (GTK_CONTAINER (toolbar),
       GTK_WIDGET (tool_item), "expand", TRUE, NULL);
 
   // popup menu button
-  image = gtk_image_new_from_icon_name ("emblem-system-symbolic",
-      GTK_ICON_SIZE_MENU);
-  tool_item = gtk_tool_button_new (image, _("Machine view menu"));
+  tool_item = gtk_tool_button_new_from_icon_name ("emblem-system-symbolic",
+      _("Machine view menu"));
   gtk_tool_item_set_tooltip_text (tool_item,
       _("Menu actions for machine view below"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->toolbar), tool_item, -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_menu_clicked),
       (gpointer) self);
 

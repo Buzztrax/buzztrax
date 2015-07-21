@@ -250,3 +250,42 @@ bt_label_value_changed (GBinding * binding, const GValue * from_value,
           g_value_get_string (from_value)));
   return TRUE;
 }
+
+/* tool bar icon helper */
+// icon_size = gtk_tool_shell_get_icon_size (GTK_TOOL_SHELL (toolbar));
+
+/**
+ * gtk_tool_button_new_from_icon_name:
+ * @icon_name: (allow-none): the name of the themed icon
+ * @label: (allow-none): a string that will be used as label, or %NULL
+ *
+ * Creates a new #GtkToolButton containing @icon_name as contents and @label as
+ * label.
+ * 
+ * Returns: the new #GtkToolItem
+ */
+GtkToolItem *
+gtk_tool_button_new_from_icon_name (const gchar * icon_name,
+    const gchar * label)
+{
+  return g_object_new (GTK_TYPE_TOOL_BUTTON,
+      "icon-name", icon_name, "label", label, NULL);
+}
+
+/**
+ * gtk_toggle_tool_button_new_from_icon_name:
+ * @icon_name: (allow-none): the name of the themed icon
+ * @label: (allow-none): a string that will be used as label, or %NULL
+ *
+ * Creates a new #GtkToggleToolButton containing @icon_name as contents and
+ * @label as label.
+ * 
+ * Returns: the new #GtkToolItem
+ */
+GtkToolItem *
+gtk_toggle_tool_button_new_from_icon_name (const gchar * icon_name,
+    const gchar * label)
+{
+  return g_object_new (GTK_TYPE_TOGGLE_TOOL_BUTTON,
+      "icon-name", icon_name, "label", label, NULL);
+}

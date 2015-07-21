@@ -2414,8 +2414,8 @@ static gboolean
 bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
     self, GstElement * machine)
 {
-  GtkWidget *scrolled_window;
-  GtkWidget *tool_item, *remove_tool_button, *edit_tool_button;
+  GtkWidget *scrolled_window, *toolbar;
+  GtkToolItem *tool_item, *remove_tool_button, *edit_tool_button;
   GtkTreeSelection *tree_sel;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
@@ -2425,31 +2425,25 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
   self->priv->preset_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 
   // add preset controls toolbar
-  self->priv->preset_toolbar = gtk_toolbar_new ();
+  self->priv->preset_toolbar = toolbar = gtk_toolbar_new ();
 
-  tool_item = GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_ADD));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Add new preset"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->preset_toolbar),
-      GTK_TOOL_ITEM (tool_item), -1);
+  tool_item = gtk_tool_button_new_from_icon_name ("list-add", _("_Add"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Add new preset"));
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_signal_connect (tool_item, "clicked",
       G_CALLBACK (on_toolbar_preset_add_clicked), (gpointer) self);
 
-  remove_tool_button =
-      GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_REMOVE));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Remove preset"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->preset_toolbar),
-      GTK_TOOL_ITEM (remove_tool_button), -1);
+  remove_tool_button = gtk_tool_button_new_from_icon_name ("list-remove",
+      _("_Remove"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Remove preset"));
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), remove_tool_button, -1);
   g_signal_connect (remove_tool_button, "clicked",
       G_CALLBACK (on_toolbar_preset_remove_clicked), (gpointer) self);
 
   edit_tool_button =
-      GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_EDIT));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Edit preset name and comment"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->preset_toolbar),
-      GTK_TOOL_ITEM (edit_tool_button), -1);
+      gtk_tool_button_new_from_icon_name ("gtk-edit", _("_Edit"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Edit preset name and comment"));
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), edit_tool_button, -1);
   g_signal_connect (edit_tool_button, "clicked",
       G_CALLBACK (on_toolbar_preset_edit_clicked), (gpointer) self);
 
@@ -2535,8 +2529,8 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
   BtSong *song;
   BtSetup *setup;
   GtkWidget *param_box, *hbox;
-  GtkWidget *expander, *scrolled_window;
-  GtkWidget *tool_item;
+  GtkWidget *expander, *scrolled_window, *toolbar;
+  GtkToolItem *tool_item;
   GdkPixbuf *window_icon = NULL;
   gulong global_params, voice_params;
   GstElement *machine;
@@ -2579,55 +2573,44 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
     }
   }
   // create toolbar
-  self->priv->main_toolbar = gtk_toolbar_new ();
+  self->priv->main_toolbar = toolbar = gtk_toolbar_new ();
 
-  tool_item = GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_ABOUT));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Info about this machine"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->main_toolbar),
-      GTK_TOOL_ITEM (tool_item), -1);
+  tool_item = gtk_tool_button_new_from_icon_name ("help-about", _("_About"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Info about this machine"));
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_about_clicked),
       (gpointer) self);
 
-  tool_item = GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_HELP));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Help for this machine"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->main_toolbar),
-      GTK_TOOL_ITEM (tool_item), -1);
+  tool_item = gtk_tool_button_new_from_icon_name ("help-browser", _("_Help"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Help for this machine"));
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   if (!self->priv->help_uri) {
-    gtk_widget_set_sensitive (tool_item, FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (tool_item), FALSE);
   } else {
     g_signal_connect (tool_item, "clicked",
         G_CALLBACK (on_toolbar_help_clicked), (gpointer) self);
   }
 
-  tool_item = GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_NEW));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Randomize parameters"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->main_toolbar),
-      GTK_TOOL_ITEM (tool_item), -1);
+  tool_item = gtk_tool_button_new_from_icon_name ("document-new", _("_New"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Randomize parameters"));
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_signal_connect (tool_item, "clicked",
       G_CALLBACK (on_toolbar_random_clicked), (gpointer) self);
 
-  tool_item = GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_UNDO));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Reset parameters to defaults"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->main_toolbar),
-      GTK_TOOL_ITEM (tool_item), -1);
+  tool_item = gtk_tool_button_new_from_icon_name ("edit-undo", _("_Undo"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Reset parameters to defaults"));
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_reset_clicked),
       (gpointer) self);
 
   // TODO(ensonic): add copy/paste buttons
 
-  tool_item =
-      GTK_WIDGET (gtk_toggle_tool_button_new_from_stock (GTK_STOCK_INDEX));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Show/Hide preset pane"));
-  gtk_tool_button_set_label (GTK_TOOL_BUTTON (tool_item), _("Presets"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self->priv->main_toolbar),
-      GTK_TOOL_ITEM (tool_item), -1);
+  tool_item = gtk_toggle_tool_button_new_from_icon_name ("gtk-index",
+      _("Presets"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Show/Hide preset pane"));
+  gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   if (!GST_IS_PRESET (machine)) {
-    gtk_widget_set_sensitive (tool_item, FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET (tool_item), FALSE);
   } else {
     GHashTable *properties;
     gchar *prop;

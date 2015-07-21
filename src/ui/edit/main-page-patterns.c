@@ -2931,7 +2931,7 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
 {
   GtkWidget *toolbar, *box;
   GtkWidget *scrolled_window;
-  GtkWidget *menu_item, *image;
+  GtkWidget *menu_item;
   GtkToolItem *tool_item;
   GtkCellRenderer *renderer;
   BtSettings *settings;
@@ -3103,9 +3103,8 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
       "expand", TRUE, NULL);
 
   // popup menu button
-  image = gtk_image_new_from_icon_name ("emblem-system-symbolic",
-      GTK_ICON_SIZE_MENU);
-  tool_item = gtk_tool_button_new (image, _("Pattern view menu"));
+  tool_item = gtk_tool_button_new_from_icon_name ("emblem-system-symbolic",
+      _("Pattern view menu"));
   gtk_tool_item_set_tooltip_text (tool_item,
       _("Menu actions for pattern view below"));
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);

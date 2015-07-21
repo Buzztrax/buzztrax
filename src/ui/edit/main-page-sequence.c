@@ -3542,7 +3542,7 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   GtkWidget *split_box, *box, *table;
   GtkWidget *scrolled_window, *scrolled_vsync_window, *scrolled_hsync_window;
   GtkWidget *hsync_viewport;
-  GtkWidget *menu_item, *image, *check_button;
+  GtkWidget *menu_item, *check_button;
   GtkToolItem *tool_item;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
@@ -3608,9 +3608,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
       "expand", TRUE, NULL);
 
   // popup menu button
-  image = gtk_image_new_from_icon_name ("emblem-system-symbolic",
-      GTK_ICON_SIZE_MENU);
-  tool_item = gtk_tool_button_new (image, _("Sequence view menu"));
+  tool_item = gtk_tool_button_new_from_icon_name ("emblem-system-symbolic",
+      _("Sequence view menu"));
   gtk_tool_item_set_tooltip_text (tool_item,
       _("Menu actions for sequence view below"));
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);

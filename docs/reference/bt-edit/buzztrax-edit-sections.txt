@@ -1123,6 +1123,8 @@ gtk_target_table_make
 gtk_show_uri_simple
 bt_toolbar_style_changed
 bt_label_value_changed
+gtk_tool_button_new_from_icon_name
+gtk_toggle_tool_button_new_from_icon_name
 <SUBSECTION Private>
 BOX_BORDER
 LABEL_PADDING

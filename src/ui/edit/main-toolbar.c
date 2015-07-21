@@ -852,7 +852,7 @@ static void
 bt_main_toolbar_init_ui (const BtMainToolbar * self)
 {
   BtSettings *settings;
-  GtkWidget *tool_item;
+  GtkToolItem *tool_item;
   GtkWidget *box, *child;
   gulong i;
   BtChangeLog *change_log;
@@ -861,41 +861,34 @@ bt_main_toolbar_init_ui (const BtMainToolbar * self)
 
   //-- file controls
 
-  tool_item = GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_NEW));
-  gtk_widget_set_name (tool_item, "New");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Prepare a new empty song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), GTK_TOOL_ITEM (tool_item), -1);
+  tool_item = gtk_tool_button_new_from_icon_name ("document-new", _("_New"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Prepare a new empty song"));
+  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_new_clicked),
       (gpointer) self);
 
-  tool_item = GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_OPEN));
-  gtk_widget_set_name (tool_item, "Open");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Load a new song"));
-
-  gtk_toolbar_insert (GTK_TOOLBAR (self), GTK_TOOL_ITEM (tool_item), -1);
+  tool_item = gtk_tool_button_new_from_icon_name ("document-open", _("_Open"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Load a new song"));
+  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_open_clicked),
       (gpointer) self);
 
-  tool_item = GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_SAVE));
-  gtk_widget_set_name (tool_item, "Save");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Save this song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), GTK_TOOL_ITEM (tool_item), -1);
+  tool_item = gtk_tool_button_new_from_icon_name ("document-save", _("_Save"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Save this song"));
+  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_save_clicked),
       (gpointer) self);
-  self->priv->save_button = tool_item;
+  self->priv->save_button = GTK_WIDGET (tool_item);
 
   gtk_toolbar_insert (GTK_TOOLBAR (self), gtk_separator_tool_item_new (), -1);
 
   //-- media controls
 
-  tool_item =
-      GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_MEDIA_REWIND));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
+  tool_item = gtk_tool_button_new_from_icon_name ("media-seek-backward",
+      _("R_ewind"));
+  gtk_tool_item_set_tooltip_text (tool_item,
       _("Rewind playback position of this song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
   child = gtk_bin_get_child (GTK_BIN (tool_item));
   gtk_widget_add_events (child,
       GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
@@ -905,20 +898,18 @@ bt_main_toolbar_init_ui (const BtMainToolbar * self)
       G_CALLBACK (on_toolbar_rewind_released), (gpointer) self);
 
   tool_item =
-      GTK_WIDGET (gtk_toggle_tool_button_new_from_stock (GTK_STOCK_MEDIA_PLAY));
-  gtk_widget_set_name (tool_item, "Play");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Play this song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), GTK_TOOL_ITEM (tool_item), -1);
+      gtk_tool_button_new_from_icon_name ("media-playback-start", _("_Play"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Play this song"));
+  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_play_clicked),
       (gpointer) self);
-  self->priv->play_button = tool_item;
+  self->priv->play_button = GTK_WIDGET (tool_item);
 
-  tool_item =
-      GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_MEDIA_FORWARD));
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
+  tool_item = gtk_tool_button_new_from_icon_name ("media-seek-forward",
+      _("_Forward"));
+  gtk_tool_item_set_tooltip_text (tool_item,
       _("Forward playback position of this song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
   child = gtk_bin_get_child (GTK_BIN (tool_item));
   gtk_widget_add_events (child,
       GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
@@ -928,28 +919,21 @@ bt_main_toolbar_init_ui (const BtMainToolbar * self)
       G_CALLBACK (on_toolbar_forward_released), (gpointer) self);
 
   tool_item =
-      GTK_WIDGET (gtk_tool_button_new_from_stock (GTK_STOCK_MEDIA_STOP));
-  gtk_widget_set_name (tool_item, "Stop");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Stop playback of this song"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), GTK_TOOL_ITEM (tool_item), -1);
+      gtk_tool_button_new_from_icon_name ("media-playback-stop", _("_Stop"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Stop playback of this song"));
+  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_stop_clicked),
       (gpointer) self);
-  gtk_widget_set_sensitive (tool_item, FALSE);
-  self->priv->stop_button = tool_item;
+  self->priv->stop_button = GTK_WIDGET (tool_item);
+  gtk_widget_set_sensitive (self->priv->stop_button, FALSE);
 
-  tool_item = GTK_WIDGET (gtk_toggle_tool_button_new ());
-  gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (tool_item),
-      gtk_image_new_from_icon_name ("view-refresh",
-          GTK_ICON_SIZE_SMALL_TOOLBAR));
-  gtk_tool_button_set_label (GTK_TOOL_BUTTON (tool_item), _("Loop"));
-  gtk_widget_set_name (tool_item, "Loop");
-  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM (tool_item),
-      _("Toggle looping of playback"));
-  gtk_toolbar_insert (GTK_TOOLBAR (self), GTK_TOOL_ITEM (tool_item), -1);
+  tool_item = gtk_toggle_tool_button_new_from_icon_name ("view-refresh",
+      _("Loop"));
+  gtk_tool_item_set_tooltip_text (tool_item, _("Toggle looping of playback"));
+  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
   g_signal_connect (tool_item, "toggled", G_CALLBACK (on_toolbar_loop_toggled),
       (gpointer) self);
-  self->priv->loop_button = tool_item;
+  self->priv->loop_button = GTK_WIDGET (tool_item);
 
   gtk_toolbar_insert (GTK_TOOLBAR (self), gtk_separator_tool_item_new (), -1);
 
@@ -993,10 +977,9 @@ bt_main_toolbar_init_ui (const BtMainToolbar * self)
       TRUE, 0);
   gtk_widget_show_all (GTK_WIDGET (box));
 
-  tool_item = GTK_WIDGET (gtk_tool_item_new ());
-  gtk_widget_set_name (tool_item, "volume");
+  tool_item = gtk_tool_item_new ();
   gtk_container_add (GTK_CONTAINER (tool_item), box);
-  gtk_toolbar_insert (GTK_TOOLBAR (self), GTK_TOOL_ITEM (tool_item), -1);
+  gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
 
   // register event handlers
   g_signal_connect (self->priv->app, "notify::song",

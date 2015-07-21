@@ -48,4 +48,8 @@ gboolean bt_edit_ui_config(const gchar *str);
 gboolean bt_toolbar_style_changed(GBinding * binding, const GValue * from_value, GValue * to_value, gpointer user_data);
 gboolean bt_label_value_changed(GBinding * binding, const GValue * from_value, GValue * to_value, gpointer user_data);
 
+/* tool bar icon helper */
+GtkToolItem *gtk_tool_button_new_from_icon_name(const gchar *icon_name, const gchar *label);
+GtkToolItem *gtk_toggle_tool_button_new_from_icon_name(const gchar *icon_name, const gchar *label);
+
 #endif // BT_EDIT_TOOLS_H
