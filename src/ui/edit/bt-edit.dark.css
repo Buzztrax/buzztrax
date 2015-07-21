@@ -38,3 +38,5 @@
 @define-color new_wire_good #00AA00;
 @define-color new_wire_bad #AA0000;
 @define-color wire_line #AAAAAA;
+
+@define-color machine_view_bg_color #333333;

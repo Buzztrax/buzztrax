@@ -51,3 +51,6 @@ BtSequenceView, #sequence-pattern-list, #wave-level-list, #wave-list {
       -gtk-gradient(linear, 0 0, 0 1, from(darker(@bypass-bg)), to(lighter(@bypass-bg)));
 }
 
+GtkClutterEmbed, #machine-and-wire-editor { 
+    background-color: @machine_view_bg_color;
+} 

@@ -1567,28 +1567,13 @@ static void
 on_canvas_style_updated (GtkStyleContext * style_ctx, gconstpointer user_data)
 {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
-  // BUG(744517): https://bugzilla.gnome.org/show_bug.cgi?id=744517
-  // GtkStyle is deprecated, but the only thing that works here
-#if 1
-  GtkStyle *style = gtk_widget_get_style (self->priv->canvas_widget);
-  GdkColor *c = &style->base[GTK_STATE_NORMAL];
-  ClutterColor stage_color = {
-    c->red >> 8, c->green >> 8, c->blue >> 8, 255
-  };
-#else
   GdkRGBA c;
-  // these seems to be *always* black
-  // gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_NORMAL, &c);
-  gtk_style_context_get (style_ctx, GTK_STATE_FLAG_NORMAL,
-      GTK_STYLE_PROPERTY_BACKGROUND_COLOR, &c, NULL);
+
+  gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_NORMAL, &c);
   ClutterColor stage_color = {
     CLAMP (c.red * 255, 0, 255), CLAMP (c.green * 255, 0, 255),
     CLAMP (c.blue * 255, 0, 255), 255
   };
-#endif
-  // just setting a 'fully transparent' background or none at all wont work
-  // we do have to manage the background for the stage
-  // in case of fully transparent the background is always black
   clutter_actor_set_background_color (self->priv->stage, &stage_color);
 
   gtk_style_context_lookup_color (style_ctx, "new_wire_good",
