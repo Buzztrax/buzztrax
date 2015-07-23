@@ -900,7 +900,8 @@ bt_main_toolbar_init_ui (const BtMainToolbar * self)
       G_CALLBACK (on_toolbar_rewind_released), (gpointer) self);
 
   tool_item =
-      gtk_tool_button_new_from_icon_name ("media-playback-start", _("_Play"));
+      gtk_toggle_tool_button_new_from_icon_name ("media-playback-start",
+      _("_Play"));
   gtk_tool_item_set_tooltip_text (tool_item, _("Play this song"));
   gtk_toolbar_insert (GTK_TOOLBAR (self), tool_item, -1);
   g_signal_connect (tool_item, "clicked", G_CALLBACK (on_toolbar_play_clicked),
