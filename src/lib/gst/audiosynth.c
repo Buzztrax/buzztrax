@@ -92,6 +92,7 @@ gstbt_audio_synth_calculate_buffer_frames (GstBtAudioSynth * self)
   self->samples_per_buffer = ((self->samplerate * div) / ticks_per_minute);
   self->ticktime = (GstClockTime) (0.5 + subticktime);
   GST_DEBUG ("samples_per_buffer=%lf", self->samples_per_buffer);
+  self->generate_samples_per_buffer = (guint) (0.5 + self->samples_per_buffer);
   gst_base_src_set_blocksize (GST_BASE_SRC (self),
       gstbt_audio_synth_calculate_buffer_size (self));
   // the sequence is quantized to ticks and not subticks
@@ -528,7 +529,6 @@ gstbt_audio_synth_init (GstBtAudioSynth * src)
   src->ticks_per_beat = 4;
   src->subticks_per_tick = 1;
   gstbt_audio_synth_calculate_buffer_frames (src);
-  src->generate_samples_per_buffer = (guint) (0.5 + src->samples_per_buffer);
 
   /* we operate in time */
   gst_base_src_set_format (GST_BASE_SRC (src), GST_FORMAT_TIME);
