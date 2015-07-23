@@ -252,7 +252,6 @@ bt_label_value_changed (GBinding * binding, const GValue * from_value,
 }
 
 /* tool bar icon helper */
-// icon_size = gtk_tool_shell_get_icon_size (GTK_TOOL_SHELL (toolbar));
 
 /**
  * gtk_tool_button_new_from_icon_name:
