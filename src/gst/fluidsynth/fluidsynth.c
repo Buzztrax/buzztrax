@@ -35,10 +35,10 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch fluidsynth num-buffers=10 note="c-3" ! autoaudiosink
+ * gst-launch-1.0 fluidsynth num-buffers=10 note="c-3" ! autoaudiosink
  * ]| Plays one c-3 tone using the first instrument.
  * |[
- * gst-launch fluidsynth num-buffers=20 instrument-patch="Vintage_Dreams_Waves_v2.sf2" program=2 note="c-3" ! alsasink
+ * gst-launch-1.0 fluidsynth num-buffers=20 instrument-patch="Vintage_Dreams_Waves_v2.sf2" program=2 note="c-3" ! alsasink
  * ]| Load a specific patch and plays one c-3 tone using the second program.
  * </refsect2>
  */

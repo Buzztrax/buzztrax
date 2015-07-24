@@ -27,7 +27,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch simsyn num-buffers=1000 note="c-4" ! autoaudiosink
+ * gst-launch-1.0 simsyn num-buffers=1000 note="c-4" ! autoaudiosink
  * ]| Render a sine wave tone.
  * </refsect2>
  */

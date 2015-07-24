@@ -26,8 +26,8 @@
  * <title>Example launch line</title>
  * <para>
  * <programlisting>
- * gst-launch filesrc location="melo1.ogg" ! decodebin ! audioconvert ! audiodelay drywet=50 delaytime=25 feedback=75 ! autoaudiosink
- * gst-launch autoaudiosrc ! audiodelay delaytime=25 feedback=75 ! autoaudiosink
+ * gst-launch-1.0 filesrc location="melo1.ogg" ! decodebin ! audioconvert ! audiodelay drywet=50 delaytime=25 feedback=75 ! autoaudiosink
+ * gst-launch-1.0 autoaudiosrc ! audiodelay delaytime=25 feedback=75 ! autoaudiosink
  * </programlisting>
  * In the latter example the echo is applied to the input signal of the
  * soundcard (like a microphone).
