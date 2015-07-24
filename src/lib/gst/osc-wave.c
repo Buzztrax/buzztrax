@@ -47,8 +47,12 @@ enum
   PROP_WAVE_LEVEL,
   PROP_FREQUENCY,
   // readable class properties
-  PROP_DURATION
+  PROP_DURATION,
+  N_PROPERTIES
 };
+static GParamSpec *properties[N_PROPERTIES] = { NULL, };
+
+#define PROP(name) properties[PROP_##name]
 
 //-- the class
 
@@ -370,27 +374,25 @@ gstbt_osc_wave_class_init (GstBtOscWaveClass * klass)
   gobject_class->dispose = gstbt_osc_wave_dispose;
 
   // register own properties
-  g_object_class_install_property (gobject_class, PROP_WAVE_CALLBACKS,
-      g_param_spec_pointer ("wave-callbacks", "Wavetable Callbacks",
-          "The wave-table access callbacks",
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  PROP (WAVE_CALLBACKS) = g_param_spec_pointer ("wave-callbacks",
+      "Wavetable Callbacks", "The wave-table access callbacks",
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_WAVE,
-      g_param_spec_enum ("wave", "Wave", "Wave index", GSTBT_TYPE_WAVE_INDEX, 0,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (WAVE) = g_param_spec_enum ("wave", "Wave", "Wave index",
+      GSTBT_TYPE_WAVE_INDEX, 0,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_WAVE_LEVEL,
-      g_param_spec_uint ("wave-level", "Wavelevel", "Wave level index",
-          0, 100, 0,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (WAVE_LEVEL) = g_param_spec_uint ("wave-level", "Wavelevel",
+      "Wave level index", 0, 100, 0,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_FREQUENCY,
-      g_param_spec_double ("frequency", "Frequency",
-          "Frequency of tone (0.0 for original)", 0.0, G_MAXDOUBLE, 0.0,
-          G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (FREQUENCY) = g_param_spec_double ("frequency", "Frequency",
+      "Frequency of tone (0.0 for original)", 0.0, G_MAXDOUBLE, 0.0,
+      G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_DURATION,
-      g_param_spec_uint64 ("duration", "Duration",
-          "Duration in samples at the given rate", 0, G_MAXUINT64, 0,
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+  PROP (DURATION) = g_param_spec_uint64 ("duration", "Duration",
+      "Duration in samples at the given rate", 0, G_MAXUINT64, 0,
+      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
 }

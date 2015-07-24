@@ -23,6 +23,12 @@
  * @short_description: synthetic waveform oscillator
  *
  * An audio generator producing classic oscillator waveforms.
+ *
+ * If the #GstBtOscSynth:volume-envelope is %NULL a static volume of 1.0 is
+ * used.
+ */
+/* TODO(ensonic): add a static 'volume' property that would be used if
+ * volume-envelope is %NULL
  */
 /* TODO(ensonic): we should do a linear fade down in the last inner_loop block as an
  * anticlick messure
@@ -57,8 +63,12 @@ enum
   PROP_VOLUME_ENVELOPE,
   // dynamic class properties
   PROP_WAVE,
-  PROP_FREQUENCY
+  PROP_FREQUENCY,
+  N_PROPERTIES
 };
+static GParamSpec *properties[N_PROPERTIES] = { NULL, };
+
+#define PROP(name) properties[PROP_##name]
 
 //-- the class
 
@@ -576,23 +586,21 @@ gstbt_osc_synth_class_init (GstBtOscSynthClass * klass)
 
   // register own properties
 
-  g_object_class_install_property (gobject_class, PROP_SAMPLERATE,
-      g_param_spec_int ("sample-rate", "Sample Rate", "Sampling rate",
-          1, G_MAXINT, GST_AUDIO_DEF_RATE,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  PROP (SAMPLERATE) = g_param_spec_int ("sample-rate", "Sample Rate",
+      "Sampling rate", 1, G_MAXINT, GST_AUDIO_DEF_RATE,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_VOLUME_ENVELOPE,
-      g_param_spec_object ("volume-envelope", "Volume envelope",
-          "Volume envelope of tone", GSTBT_TYPE_ENVELOPE,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  PROP (VOLUME_ENVELOPE) = g_param_spec_object ("volume-envelope",
+      "Volume envelope", "Volume envelope of tone", GSTBT_TYPE_ENVELOPE,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_WAVE,
-      g_param_spec_enum ("wave", "Waveform", "Oscillator waveform",
-          GSTBT_TYPE_OSC_SYNTH_WAVE, GSTBT_OSC_SYNTH_WAVE_SINE,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (WAVE) = g_param_spec_enum ("wave", "Waveform", "Oscillator waveform",
+      GSTBT_TYPE_OSC_SYNTH_WAVE, GSTBT_OSC_SYNTH_WAVE_SINE,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_FREQUENCY,
-      g_param_spec_double ("frequency", "Frequency", "Frequency of tone",
-          0.0, G_MAXDOUBLE, 0.0,
-          G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (FREQUENCY) = g_param_spec_double ("frequency", "Frequency",
+      "Frequency of tone", 0.0, G_MAXDOUBLE, 0.0,
+      G_PARAM_WRITABLE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
 }
