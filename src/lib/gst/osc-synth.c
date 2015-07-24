@@ -44,7 +44,7 @@
 
 #include "osc-synth.h"
 
-#define GST_CAT_DEFAULT envelope_debug
+#define GST_CAT_DEFAULT osc_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 #define M_PI_M2 ( M_PI + M_PI )

@@ -35,7 +35,7 @@
 
 #include "osc-wave.h"
 
-#define GST_CAT_DEFAULT envelope_debug
+#define GST_CAT_DEFAULT osc_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 enum
