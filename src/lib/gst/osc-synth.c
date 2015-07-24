@@ -109,14 +109,11 @@ gstbt_osc_synth_new (void)
 
 //-- private methods
 
-static gdouble
-get_volume (GstBtOscSynth * self, gdouble ampf, guint size)
+static inline gdouble
+get_volume (GstBtOscSynth * self, guint size)
 {
-  if (self->volenv) {
-    return gstbt_envelope_get (self->volenv, MIN (INNER_LOOP, size)) * ampf;
-  } else {
-    return ampf;
-  }
+  return (self->volenv) ?
+      gstbt_envelope_get (self->volenv, MIN (INNER_LOOP, size)) : 1.0;
 }
 
 static void
@@ -128,7 +125,7 @@ gstbt_osc_synth_create_sine (GstBtOscSynth * self, guint ct, gint16 * samples)
   gdouble step = M_PI_M2 * self->freq / self->samplerate;
 
   while (i < ct) {
-    amp = get_volume (self, 32767.0, ct - i);
+    amp = get_volume (self, ct - i) * 32767.0;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
       accumulator += step;
       /* TODO(ensonic): move out of inner loop? */
@@ -150,7 +147,7 @@ gstbt_osc_synth_create_square (GstBtOscSynth * self, guint ct, gint16 * samples)
   gdouble step = M_PI_M2 * self->freq / self->samplerate;
 
   while (i < ct) {
-    amp = get_volume (self, 32767.0, ct - i);
+    amp = get_volume (self, ct - i) * 32767.0;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
       accumulator += step;
       if (G_UNLIKELY (accumulator >= M_PI_M2))
@@ -171,7 +168,7 @@ gstbt_osc_synth_create_saw (GstBtOscSynth * self, guint ct, gint16 * samples)
   gdouble step = M_PI_M2 * self->freq / self->samplerate;
 
   while (i < ct) {
-    amp = get_volume (self, ampf, ct - i);
+    amp = get_volume (self, ct - i) * ampf;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
       accumulator += step;
       if (G_UNLIKELY (accumulator >= M_PI_M2))
@@ -197,7 +194,7 @@ gstbt_osc_synth_create_triangle (GstBtOscSynth * self, guint ct,
   gdouble step = M_PI_M2 * self->freq / self->samplerate;
 
   while (i < ct) {
-    amp = get_volume (self, ampf, ct - i);
+    amp = get_volume (self, ct - i) * ampf;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
       accumulator += step;
       if (G_UNLIKELY (accumulator >= M_PI_M2))
@@ -230,7 +227,7 @@ gstbt_osc_synth_create_white_noise (GstBtOscSynth * self, guint ct,
   gdouble amp;
 
   while (i < ct) {
-    amp = get_volume (self, 65535.0, ct - i);
+    amp = get_volume (self, ct - i) * 65535.0;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
       samples[i] = (gint16) (32768 - (amp * rand () / (RAND_MAX + 1.0)));
     }
@@ -304,7 +301,7 @@ gstbt_osc_synth_create_pink_noise (GstBtOscSynth * self, guint ct,
   gdouble amp;
 
   while (i < ct) {
-    amp = get_volume (self, 32767.0, ct - i);
+    amp = get_volume (self, ct - i) * 32767.0;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
       samples[i] =
           (gint16) (gstbt_osc_synth_generate_pink_noise_value (pink) * amp);
@@ -325,7 +322,7 @@ gstbt_osc_synth_create_gaussian_white_noise (GstBtOscSynth * self, guint ct,
   gdouble amp;
 
   while (i < ct) {
-    amp = get_volume (self, 32767.0, ct - i);
+    amp = get_volume (self, ct - i) * 32767.0;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j += 2) {
       gdouble mag = sqrt (-2 * log (1.0 - rand () / (RAND_MAX + 1.0)));
       gdouble phs = M_PI_M2 * rand () / (RAND_MAX + 1.0);
@@ -346,7 +343,7 @@ gstbt_osc_synth_create_red_noise (GstBtOscSynth * self, guint ct,
   gdouble state = self->red.state;
 
   while (i < ct) {
-    amp = get_volume (self, 32767.0, ct - i);
+    amp = get_volume (self, ct - i) * 32767.0;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
       while (TRUE) {
         gdouble r = 1.0 - (2.0 * rand () / (RAND_MAX + 1.0));
