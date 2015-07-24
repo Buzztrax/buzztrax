@@ -26,6 +26,9 @@
 G_BEGIN_DECLS
 
 #define GSTBT_TYPE_OSC_SYNTH_WAVE (gstbt_osc_synth_wave_get_type())
+#define GSTBT_TYPE_OSC_SYNTH_TONAL_WAVE (gstbt_osc_synth_tonal_wave_get_type())
+#define GSTBT_TYPE_OSC_SYNTH_NOISE_WAVE (gstbt_osc_synth_noise_wave_get_type())
+
 
 /**
  * GstBtOscSynthWave:
@@ -63,6 +66,8 @@ typedef enum
 } GstBtOscSynthWave;
 
 GType gstbt_osc_synth_wave_get_type(void);
+GType gstbt_osc_synth_tonal_wave_get_type(void);
+GType gstbt_osc_synth_noise_wave_get_type(void);
 
 #define _PINK_MAX_RANDOM_ROWS   (30)
 

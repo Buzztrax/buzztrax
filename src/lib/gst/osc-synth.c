@@ -92,6 +92,47 @@ gstbt_osc_synth_wave_get_type (void)
   return type;
 }
 
+GType
+gstbt_osc_synth_tonal_wave_get_type (void)
+{
+  static GType type = 0;
+  static const GEnumValue enums[] = {
+    {GSTBT_OSC_SYNTH_WAVE_SINE, "Sine", "sine"},
+    {GSTBT_OSC_SYNTH_WAVE_SQUARE, "Square", "square"},
+    {GSTBT_OSC_SYNTH_WAVE_SAW, "Saw", "saw"},
+    {GSTBT_OSC_SYNTH_WAVE_TRIANGLE, "Triangle", "triangle"},
+    {0, NULL, NULL},
+  };
+
+  if (G_UNLIKELY (!type)) {
+    type = g_enum_register_static ("GstBtOscSynthTonalWave", enums);
+  }
+  return type;
+}
+
+GType
+gstbt_osc_synth_noise_wave_get_type (void)
+{
+  static GType type = 0;
+  static const GEnumValue enums[] = {
+    {GSTBT_OSC_SYNTH_WAVE_SILENCE, "Silence", "silence"},
+    {GSTBT_OSC_SYNTH_WAVE_WHITE_NOISE, "White noise", "white-noise"},
+    {GSTBT_OSC_SYNTH_WAVE_PINK_NOISE, "Pink noise", "pink-noise"},
+    {GSTBT_OSC_SYNTH_WAVE_GAUSSIAN_WHITE_NOISE, "White Gaussian noise",
+        "gaussian-noise"},
+    {GSTBT_OSC_SYNTH_WAVE_RED_NOISE, "Red (brownian) noise", "red-noise"},
+    {GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE, "Blue noise", "blue-noise"},
+    {GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE, "Violet noise", "violet-noise"},
+    {0, NULL, NULL},
+  };
+
+  if (G_UNLIKELY (!type)) {
+    type = g_enum_register_static ("GstBtOscSynthNoiseWave", enums);
+  }
+  return type;
+}
+
+
 //-- constructor methods
 
 /**
@@ -462,12 +503,12 @@ gstbt_osc_synth_set_property (GObject * object, guint prop_id,
           (gpointer *) & self->volenv);
       break;
     case PROP_WAVE:
-      //GST_INFO("change wave %d -> %d",g_value_get_enum (value),self->wave);
+      //GST_INFO("change wave %d <- %d",g_value_get_enum (value),self->wave);
       self->wave = g_value_get_enum (value);
       gstbt_osc_synth_change_wave (self);
       break;
     case PROP_FREQUENCY:
-      //GST_INFO("change frequency %lf -> %lf",g_value_get_double (value),self->freq);
+      //GST_INFO("change frequency %lf <- %lf",g_value_get_double (value),self->freq);
       self->freq = g_value_get_double (value);
       break;
     default:
