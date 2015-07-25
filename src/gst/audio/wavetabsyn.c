@@ -216,11 +216,15 @@ gstbt_wave_tab_syn_get_property (GObject * object, guint prop_id,
       break;
     case PROP_NOTE_LENGTH:
     case PROP_ATTACK:
-    case PROP_PEAK_VOLUME:
     case PROP_DECAY:
-    case PROP_SUSTAIN_VOLUME:
     case PROP_RELEASE:
       g_object_get_property ((GObject *) (src->volenv), pspec->name, value);
+      break;
+    case PROP_PEAK_VOLUME:
+      g_object_get_property ((GObject *) (src->volenv), "peak-level", value);
+      break;
+    case PROP_SUSTAIN_VOLUME:
+      g_object_get_property ((GObject *) (src->volenv), "sustain-level", value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -301,9 +305,11 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
   component = g_type_class_ref (GSTBT_TYPE_ENVELOPE_ADSR);
   PROP (NOTE_LENGTH) = bt_g_param_spec_clone (component, "length");
   PROP (ATTACK) = bt_g_param_spec_clone (component, "attack");
-  PROP (PEAK_VOLUME) = bt_g_param_spec_clone (component, "peak-volume");
+  PROP (PEAK_VOLUME) =
+      bt_g_param_spec_clone_as (component, "peak-level", "peak-volume");
   PROP (DECAY) = bt_g_param_spec_clone (component, "decay");
-  PROP (SUSTAIN_VOLUME) = bt_g_param_spec_clone (component, "sustain-volume");
+  PROP (SUSTAIN_VOLUME) =
+      bt_g_param_spec_clone_as (component, "sustain-level", "sustain-volume");
   PROP (RELEASE) = bt_g_param_spec_clone (component, "release");
   g_type_class_unref (component);
 

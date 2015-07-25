@@ -46,7 +46,7 @@ struct _GstBtEnvelopeD {
   gboolean dispose_has_run;		/* validate if dispose has run */
   
   /* parameters */
-  gdouble decay, volume;
+  gdouble peak_level, decay, floor_level;
 };
 
 struct _GstBtEnvelopeDClass {

@@ -47,7 +47,7 @@ struct _GstBtEnvelopeADSR {
 
   /* parameters */
   guint note_length;
-  gdouble attack, decay, release, peak_volume, sustain_volume;
+  gdouble attack, decay, release, peak_level, sustain_level, floor_level;
 };
 
 struct _GstBtEnvelopeADSRClass {

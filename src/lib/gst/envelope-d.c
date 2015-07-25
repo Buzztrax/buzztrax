@@ -40,9 +40,14 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 enum
 {
-  PROP_VOLUME = 1,
-  PROP_DECAY
+  PROP_PEAK_LEVEL = 1,
+  PROP_DECAY,
+  PROP_FLOOR_LEVEL,
+  N_PROPERTIES
 };
+static GParamSpec *properties[N_PROPERTIES] = { NULL, };
+
+#define PROP(name) properties[PROP_##name]
 
 //-- the class
 
@@ -99,9 +104,10 @@ gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate)
 
   /* configure envelope */
   gst_timed_value_control_source_unset_all (cs);
-  gst_timed_value_control_source_set (cs, G_GUINT64_CONSTANT (0), 0.0);
-  gst_timed_value_control_source_set (cs, attack, self->volume);
-  gst_timed_value_control_source_set (cs, decay, 0.0);
+  gst_timed_value_control_source_set (cs, G_GUINT64_CONSTANT (0),
+      self->floor_level);
+  gst_timed_value_control_source_set (cs, attack, self->peak_level);
+  gst_timed_value_control_source_set (cs, decay, self->floor_level);
 }
 
 //-- virtual methods
@@ -113,11 +119,14 @@ gstbt_envelope_d_set_property (GObject * object, guint prop_id,
   GstBtEnvelopeD *self = GSTBT_ENVELOPE_D (object);
 
   switch (prop_id) {
-    case PROP_VOLUME:
-      self->volume = g_value_get_double (value);
+    case PROP_PEAK_LEVEL:
+      self->peak_level = g_value_get_double (value);
       break;
     case PROP_DECAY:
       self->decay = g_value_get_double (value);
+      break;
+    case PROP_FLOOR_LEVEL:
+      self->floor_level = g_value_get_double (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -132,11 +141,14 @@ gstbt_envelope_d_get_property (GObject * object, guint prop_id,
   GstBtEnvelopeD *self = GSTBT_ENVELOPE_D (object);
 
   switch (prop_id) {
-    case PROP_VOLUME:
-      g_value_set_double (value, self->volume);
+    case PROP_PEAK_LEVEL:
+      g_value_set_double (value, self->peak_level);
       break;
     case PROP_DECAY:
       g_value_set_double (value, self->decay);
+      break;
+    case PROP_FLOOR_LEVEL:
+      g_value_set_double (value, self->floor_level);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -148,8 +160,9 @@ static void
 gstbt_envelope_d_init (GstBtEnvelopeD * self)
 {
   /* set base parameters */
-  self->volume = 0.8;
+  self->peak_level = 0.8;
   self->decay = 0.5;
+  self->floor_level = 0.0;
 }
 
 static void
@@ -165,13 +178,17 @@ gstbt_envelope_d_class_init (GstBtEnvelopeDClass * klass)
 
   // register own properties
 
-  g_object_class_install_property (gobject_class, PROP_VOLUME,
-      g_param_spec_double ("volume", "Volume", "Volume of tone", 0.0, 1.0, 0.8,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (PEAK_LEVEL) = g_param_spec_double ("peak-level", "Peak level",
+      "Highest level of the envelope", 0.0, 1.0, 0.8,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_DECAY,
-      g_param_spec_double ("decay", "Decay",
-          "Volume decay of the tone in seconds", 0.001, 4.0, 0.5,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (DECAY) = g_param_spec_double ("decay", "Decay",
+      "Decay of the envelope in seconds", 0.001, 4.0, 0.5,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
+  PROP (FLOOR_LEVEL) = g_param_spec_double ("floor-level", "Floor level",
+      "Lowest level of the envelope", 0.0, 1.0, 0.0,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
 }

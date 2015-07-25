@@ -148,8 +148,10 @@ gstbt_sim_syn_get_property (GObject * object, guint prop_id,
       g_object_get_property ((GObject *) (src->osc), "wave", value);
       break;
     case PROP_VOLUME:
+      g_object_get_property ((GObject *) (src->volenv), "peak-volume", value);
+      break;
     case PROP_DECAY:
-      g_object_get_property ((GObject *) (src->volenv), pspec->name, value);
+      g_object_get_property ((GObject *) (src->volenv), "decay", value);
       break;
     case PROP_FILTER:
     case PROP_CUTOFF:
@@ -227,7 +229,7 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
   g_type_class_unref (component);
 
   component = g_type_class_ref (GSTBT_TYPE_ENVELOPE_D);
-  PROP (VOLUME) = bt_g_param_spec_clone (component, "volume");
+  PROP (VOLUME) = bt_g_param_spec_clone_as (component, "peak-level", "volume");
   PROP (DECAY) = bt_g_param_spec_clone (component, "decay");
   g_type_class_unref (component);
 

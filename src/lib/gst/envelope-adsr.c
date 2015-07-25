@@ -42,11 +42,17 @@ enum
 {
   PROP_NOTE_LENGTH = 1,
   PROP_ATTACK,
-  PROP_PEAK_VOLUME,
+  PROP_PEAK_LEVEL,
   PROP_DECAY,
-  PROP_SUSTAIN_VOLUME,
-  PROP_RELEASE
+  PROP_SUSTAIN_LEVEL,
+  PROP_RELEASE,
+  PROP_FLOOR_LEVEL,
+  N_PROPERTIES
 };
+static GParamSpec *properties[N_PROPERTIES] = { NULL, };
+
+#define PROP(name) properties[PROP_##name]
+
 
 //-- the class
 
@@ -108,11 +114,12 @@ gstbt_envelope_adsr_setup (GstBtEnvelopeADSR * self, gint samplerate,
 
   /* configure envelope */
   gst_timed_value_control_source_unset_all (cs);
-  gst_timed_value_control_source_set (cs, G_GUINT64_CONSTANT (0), 0.0);
-  gst_timed_value_control_source_set (cs, attack, self->peak_volume);
-  gst_timed_value_control_source_set (cs, decay, self->sustain_volume);
-  gst_timed_value_control_source_set (cs, sustain, self->sustain_volume);
-  gst_timed_value_control_source_set (cs, release, 0.0);
+  gst_timed_value_control_source_set (cs, G_GUINT64_CONSTANT (0),
+      self->floor_level);
+  gst_timed_value_control_source_set (cs, attack, self->peak_level);
+  gst_timed_value_control_source_set (cs, decay, self->sustain_level);
+  gst_timed_value_control_source_set (cs, sustain, self->sustain_level);
+  gst_timed_value_control_source_set (cs, release, self->floor_level);
 }
 
 //-- virtual methods
@@ -130,17 +137,20 @@ gstbt_envelope_adsr_set_property (GObject * object, guint prop_id,
     case PROP_ATTACK:
       self->attack = g_value_get_double (value);
       break;
-    case PROP_PEAK_VOLUME:
-      self->peak_volume = g_value_get_double (value);
+    case PROP_PEAK_LEVEL:
+      self->peak_level = g_value_get_double (value);
       break;
     case PROP_DECAY:
       self->decay = g_value_get_double (value);
       break;
-    case PROP_SUSTAIN_VOLUME:
-      self->sustain_volume = g_value_get_double (value);
+    case PROP_SUSTAIN_LEVEL:
+      self->sustain_level = g_value_get_double (value);
       break;
     case PROP_RELEASE:
       self->release = g_value_get_double (value);
+      break;
+    case PROP_FLOOR_LEVEL:
+      self->floor_level = g_value_get_double (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -161,17 +171,20 @@ gstbt_envelope_adsr_get_property (GObject * object, guint prop_id,
     case PROP_ATTACK:
       g_value_set_double (value, self->attack);
       break;
-    case PROP_PEAK_VOLUME:
-      g_value_set_double (value, self->peak_volume);
+    case PROP_PEAK_LEVEL:
+      g_value_set_double (value, self->peak_level);
       break;
     case PROP_DECAY:
       g_value_set_double (value, self->decay);
       break;
-    case PROP_SUSTAIN_VOLUME:
-      g_value_set_double (value, self->sustain_volume);
+    case PROP_SUSTAIN_LEVEL:
+      g_value_set_double (value, self->sustain_level);
       break;
     case PROP_RELEASE:
       g_value_set_double (value, self->release);
+      break;
+    case PROP_FLOOR_LEVEL:
+      g_value_set_double (value, self->floor_level);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -185,10 +198,11 @@ gstbt_envelope_adsr_init (GstBtEnvelopeADSR * self)
   /* set base parameters */
   self->note_length = 1;
   self->attack = 0.1;
-  self->peak_volume = 0.8;
+  self->peak_level = 0.8;
   self->decay = 0.5;
-  self->sustain_volume = 0.4;
+  self->sustain_level = 0.4;
   self->release = 0.5;
+  self->floor_level = 0.0;
 }
 
 static void
@@ -202,33 +216,33 @@ gstbt_envelope_adsr_class_init (GstBtEnvelopeADSRClass * klass)
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "envelope",
       GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "parameter envelope");
 
-  g_object_class_install_property (gobject_class, PROP_NOTE_LENGTH,
-      g_param_spec_uint ("length", "Note length", "Note length in ticks",
-          1, 255, 1,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (NOTE_LENGTH) = g_param_spec_uint ("length", "Note length",
+      "Note length in ticks", 1, 255, 1,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_ATTACK,
-      g_param_spec_double ("attack", "Attack",
-          "Volume attack of the tone in seconds", 0.001, 4.0, 0.1,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (ATTACK) = g_param_spec_double ("attack", "Attack",
+      "Attack of the envelope in seconds", 0.001, 4.0, 0.1,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_PEAK_VOLUME,
-      g_param_spec_double ("peak-volume", "Peak Volume", "Peak volume of tone",
-          0.0, 1.0, 0.8,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (PEAK_LEVEL) = g_param_spec_double ("peak-level", "Peak Level",
+      "Highest level of envelope", 0.0, 1.0, 0.8,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_DECAY,
-      g_param_spec_double ("decay", "Decay",
-          "Volume decay of the tone in seconds", 0.001, 4.0, 0.5,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (DECAY) = g_param_spec_double ("decay", "Decay",
+      "Decay of the envelope in seconds", 0.001, 4.0, 0.5,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_SUSTAIN_VOLUME,
-      g_param_spec_double ("sustain-volume", "Sustain Volume",
-          "Sustain volume of tone", 0.0, 1.0, 0.4,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (SUSTAIN_LEVEL) = g_param_spec_double ("sustain-level", "Sustain Level",
+      "Sustain level of envelope", 0.0, 1.0, 0.4,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
-  g_object_class_install_property (gobject_class, PROP_RELEASE,
-      g_param_spec_double ("release", "Release",
-          "Volume release of the tone in seconds", 0.001, 4.0, 0.5,
-          G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
+  PROP (RELEASE) = g_param_spec_double ("release", "Release",
+      "Release of the envelope in seconds", 0.001, 4.0, 0.5,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+
+  PROP (FLOOR_LEVEL) = g_param_spec_double ("floor-level", "Floor level",
+      "Lowest level of the envelope", 0.0, 1.0, 0.0,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
 }
