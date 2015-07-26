@@ -22,7 +22,7 @@
 
 #include <gst/gst.h>
 #include "gst/audiosynth.h"
-#include "gst/envelope-d.h"
+#include "gst/envelope-ad.h"
 #include "gst/filter-svf.h"
 #include "gst/osc-synth.h"
 #include "gst/toneconversion.h"
@@ -52,7 +52,7 @@ struct _GstBtSimSyn
   GstBtNote note;
  
   GstBtToneConversion *n2f;
-  GstBtEnvelopeD *volenv;
+  GstBtEnvelopeAD *volenv;
   GstBtOscSynth *osc;  
   GstBtFilterSVF *filter;
 };

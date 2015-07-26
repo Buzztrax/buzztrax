@@ -1,7 +1,7 @@
 /* GStreamer
  * Copyright (C) 2012 Stefan Sauer <ensonic@users.sf.net>
  *
- * envelope-d.c: decay envelope generator
+ * envelope-ad.c: attack-decay envelope generator
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -17,12 +17,12 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * SECTION:envelope-d
- * @title: GstBtEnvelopeD
- * @include: libgstbuzztrax/envelope-d.h
- * @short_description: decay envelope generator
+ * SECTION:envelope-ad
+ * @title: GstBtEnvelopeAD
+ * @include: libgstbuzztrax/envelope-ad.h
+ * @short_description: attack-decay envelope generator
  *
- * Simple decay envelope.
+ * Simple attack-decay envelope.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -33,14 +33,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "envelope-d.h"
+#include "envelope-ad.h"
 
 #define GST_CAT_DEFAULT envelope_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 enum
 {
-  PROP_PEAK_LEVEL = 1,
+  PROP_ATTACK = 1,
+  PROP_PEAK_LEVEL,
   PROP_DECAY,
   PROP_FLOOR_LEVEL,
   N_PROPERTIES
@@ -51,21 +52,21 @@ static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 
 //-- the class
 
-G_DEFINE_TYPE (GstBtEnvelopeD, gstbt_envelope_d, GSTBT_TYPE_ENVELOPE);
+G_DEFINE_TYPE (GstBtEnvelopeAD, gstbt_envelope_ad, GSTBT_TYPE_ENVELOPE);
 
 //-- constructor methods
 
 /**
- * gstbt_envelope_d_new:
+ * gstbt_envelope_ad_new:
  *
  * Create a new instance
  *
  * Returns: the new instance or %NULL in case of an error
  */
-GstBtEnvelopeD *
-gstbt_envelope_d_new (void)
+GstBtEnvelopeAD *
+gstbt_envelope_ad_new (void)
 {
-  return GSTBT_ENVELOPE_D (g_object_new (GSTBT_TYPE_ENVELOPE_D, NULL));
+  return GSTBT_ENVELOPE_AD (g_object_new (GSTBT_TYPE_ENVELOPE_AD, NULL));
 }
 
 //-- private methods
@@ -73,44 +74,54 @@ gstbt_envelope_d_new (void)
 //-- public methods
 
 /**
- * gstbt_envelope_d_setup:
+ * gstbt_envelope_ad_setup:
  * @self: the envelope
  * @samplerate: the audio sampling rate
  *
- * Initialize the envelope for a new cycle. Adds a short attack (~0.001 s) to
- * avoid clicks.
+ * Initialize the envelope for a new cycle.
  */
 void
-gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate)
+gstbt_envelope_ad_setup (GstBtEnvelopeAD * self, gint samplerate)
 {
   GstBtEnvelope *base = (GstBtEnvelope *) self;
   GstTimedValueControlSource *cs = base->cs;
-  guint64 decay;
+  gdouble attack_time = self->attack;
+  guint64 attack, decay;
 
   /* reset states */
-  base->value = self->peak_level;
+  base->value = self->floor_level;
   base->offset = G_GUINT64_CONSTANT (0);
 
+  /* ensure a < d */
+  if (attack_time > self->decay) {
+    attack_time = self->decay / 2.0;
+  }
+
   /* samplerate will be one second */
+  attack = samplerate * attack_time;
   decay = samplerate * self->decay;
   base->length = decay;
 
   /* configure envelope */
   gst_timed_value_control_source_unset_all (cs);
   gst_timed_value_control_source_set (cs, G_GUINT64_CONSTANT (0),
-      self->peak_level);
+      self->floor_level);
+  gst_timed_value_control_source_set (cs, attack, self->peak_level);
   gst_timed_value_control_source_set (cs, decay, self->floor_level);
 }
 
 //-- virtual methods
 
 static void
-gstbt_envelope_d_set_property (GObject * object, guint prop_id,
+gstbt_envelope_ad_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
-  GstBtEnvelopeD *self = GSTBT_ENVELOPE_D (object);
+  GstBtEnvelopeAD *self = GSTBT_ENVELOPE_AD (object);
 
   switch (prop_id) {
+    case PROP_ATTACK:
+      self->attack = g_value_get_double (value);
+      break;
     case PROP_PEAK_LEVEL:
       self->peak_level = g_value_get_double (value);
       break;
@@ -127,12 +138,15 @@ gstbt_envelope_d_set_property (GObject * object, guint prop_id,
 }
 
 static void
-gstbt_envelope_d_get_property (GObject * object, guint prop_id,
+gstbt_envelope_ad_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec)
 {
-  GstBtEnvelopeD *self = GSTBT_ENVELOPE_D (object);
+  GstBtEnvelopeAD *self = GSTBT_ENVELOPE_AD (object);
 
   switch (prop_id) {
+    case PROP_ATTACK:
+      g_value_set_double (value, self->attack);
+      break;
     case PROP_PEAK_LEVEL:
       g_value_set_double (value, self->peak_level);
       break;
@@ -149,26 +163,31 @@ gstbt_envelope_d_get_property (GObject * object, guint prop_id,
 }
 
 static void
-gstbt_envelope_d_init (GstBtEnvelopeD * self)
+gstbt_envelope_ad_init (GstBtEnvelopeAD * self)
 {
   /* set base parameters */
+  self->attack = 0.001;
   self->peak_level = G_MAXDOUBLE;
   self->decay = 0.5;
   self->floor_level = 0.0;
 }
 
 static void
-gstbt_envelope_d_class_init (GstBtEnvelopeDClass * klass)
+gstbt_envelope_ad_class_init (GstBtEnvelopeADClass * klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "envelope",
       GST_DEBUG_FG_WHITE | GST_DEBUG_BG_BLACK, "parameter envelope");
 
-  gobject_class->set_property = gstbt_envelope_d_set_property;
-  gobject_class->get_property = gstbt_envelope_d_get_property;
+  gobject_class->set_property = gstbt_envelope_ad_set_property;
+  gobject_class->get_property = gstbt_envelope_ad_get_property;
 
   // register own properties
+
+  PROP (ATTACK) = g_param_spec_double ("attack", "Attack",
+      "Attack of the envelope in seconds", 0.001, 4.0, 0.001,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
   PROP (PEAK_LEVEL) = g_param_spec_double ("peak-level", "Peak level",
       "Highest level of the envelope", 0.0, G_MAXDOUBLE, G_MAXDOUBLE,

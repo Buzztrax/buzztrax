@@ -21,7 +21,7 @@
  * @title: GstBtSimSyn
  * @short_description: simple monophonic audio synthesizer
  *
- * Simple monophonic audio synthesizer with a decay envelope and a
+ * Simple monophonic audio synthesizer with an attack-decay envelope and a
  * state-variable filter.
  *
  * <refsect2>
@@ -47,8 +47,8 @@ enum
   // static class properties
   PROP_TUNING = 1,
   // dynamic class properties
-  PROP_NOTE, PROP_WAVE, PROP_VOLUME, PROP_DECAY, PROP_FILTER, PROP_CUTOFF,
-  PROP_RESONANCE,
+  PROP_NOTE, PROP_WAVE, PROP_VOLUME, PROP_ATTACK, PROP_DECAY, PROP_FILTER,
+  PROP_CUTOFF, PROP_RESONANCE,
   N_PROPERTIES
 };
 static GParamSpec *properties[N_PROPERTIES] = { NULL, };
@@ -111,7 +111,7 @@ gstbt_sim_syn_set_property (GObject * object, guint prop_id,
         GST_DEBUG ("new note -> '%d'", src->note);
         gdouble freq =
             gstbt_tone_conversion_translate_from_number (src->n2f, src->note);
-        gstbt_envelope_d_setup (src->volenv,
+        gstbt_envelope_ad_setup (src->volenv,
             ((GstBtAudioSynth *) src)->samplerate);
         g_object_set (src->osc, "frequency", freq, NULL);
       }
@@ -120,6 +120,9 @@ gstbt_sim_syn_set_property (GObject * object, guint prop_id,
       g_object_set_property ((GObject *) (src->osc), "wave", value);
       break;
     case PROP_VOLUME:
+      g_object_set_property ((GObject *) (src->volenv), "peak-level", value);
+      break;
+    case PROP_ATTACK:
     case PROP_DECAY:
       g_object_set_property ((GObject *) (src->volenv), pspec->name, value);
       break;
@@ -148,10 +151,11 @@ gstbt_sim_syn_get_property (GObject * object, guint prop_id,
       g_object_get_property ((GObject *) (src->osc), "wave", value);
       break;
     case PROP_VOLUME:
-      g_object_get_property ((GObject *) (src->volenv), "peak-volume", value);
+      g_object_get_property ((GObject *) (src->volenv), "peak-level", value);
       break;
+    case PROP_ATTACK:
     case PROP_DECAY:
-      g_object_get_property ((GObject *) (src->volenv), "decay", value);
+      g_object_get_property ((GObject *) (src->volenv), pspec->name, value);
       break;
     case PROP_FILTER:
     case PROP_CUTOFF:
@@ -187,9 +191,10 @@ gstbt_sim_syn_init (GstBtSimSyn * src)
 
   /* synth components */
   src->osc = gstbt_osc_synth_new ();
-  src->volenv = gstbt_envelope_d_new ();
+  src->volenv = gstbt_envelope_ad_new ();
   src->filter = gstbt_filter_svf_new ();
   g_object_set (src->osc, "volume-envelope", src->volenv, NULL);
+  g_object_set (src->volenv, "peak-level", 0.8, NULL);
 }
 
 static void
@@ -228,8 +233,11 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
   PROP (WAVE) = bt_g_param_spec_clone (component, "wave");
   g_type_class_unref (component);
 
-  component = g_type_class_ref (GSTBT_TYPE_ENVELOPE_D);
+  component = g_type_class_ref (GSTBT_TYPE_ENVELOPE_AD);
   PROP (VOLUME) = bt_g_param_spec_clone_as (component, "peak-level", "volume");
+  bt_g_param_spec_override_range (GParamSpecDouble, PROP (VOLUME), 0.0, 1.0,
+      0.8);
+  PROP (ATTACK) = bt_g_param_spec_clone (component, "attack");
   PROP (DECAY) = bt_g_param_spec_clone (component, "decay");
   g_type_class_unref (component);
 

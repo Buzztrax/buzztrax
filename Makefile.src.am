@@ -193,6 +193,7 @@ libbuzztrax_gst_la_SOURCES = \
   src/lib/gst/delay.c \
   src/lib/gst/envelope.c \
   src/lib/gst/envelope-adsr.c \
+  src/lib/gst/envelope-ad.c \
   src/lib/gst/envelope-d.c \
   src/lib/gst/filter-svf.c \
   src/lib/gst/musicenums.c \
@@ -209,6 +210,7 @@ libbuzztrax_gstinclude_HEADERS = \
   src/lib/gst/delay.h \
   src/lib/gst/envelope.h \
   src/lib/gst/envelope-adsr.h \
+  src/lib/gst/envelope-ad.h \
   src/lib/gst/envelope-d.h \
   src/lib/gst/filter-svf.h \
   src/lib/gst/musicenums.h \
