@@ -2222,8 +2222,9 @@ make_global_param_box (const BtMachinePropertiesDialog * self,
       bt_parameter_group_get_param_details (pg, i, &property, &range_min,
           &range_max);
       param_parent = bt_parameter_group_get_param_parent (pg, i);
-      GST_INFO ("global property %p has name '%s','%s'", property,
-          property->name, g_param_spec_get_nick (property));
+      GST_INFO ("global property[%lu/%lu] %p has name '%s','%s'", i,
+          global_params, property, property->name,
+          g_param_spec_get_nick (property));
       make_param_control (self, param_parent, property, range_min, range_max,
           table, k++, pg);
     }
@@ -2271,8 +2272,9 @@ make_voice_param_box (const BtMachinePropertiesDialog * self,
       bt_parameter_group_get_param_details (pg, i, &property, &range_min,
           &range_max);
       param_parent = bt_parameter_group_get_param_parent (pg, i);
-      GST_INFO ("voice property %p has name '%s','%s'", property,
-          property->name, g_param_spec_get_nick (property));
+      GST_INFO ("voice property[%lu/%lu] %p has name '%s','%s'", i,
+          voice_params, property, property->name,
+          g_param_spec_get_nick (property));
       make_param_control (self, param_parent, property, range_min,
           range_max, table, k++, pg);
     }
@@ -2664,6 +2666,7 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
 
   /* show widgets for global parameters */
   if (global_params) {
+    GST_INFO ("adding %lu global properties", global_params);
     if ((expander = make_global_param_box (self, global_params, machine))) {
       gtk_box_pack_start (GTK_BOX (self->priv->param_group_box), expander, TRUE,
           TRUE, 0);
@@ -2673,6 +2676,8 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
   if (self->priv->voices && voice_params) {
     gulong j;
 
+    GST_INFO ("madding %lu voice properties for %lu voices", voice_params,
+        self->priv->voices);
     for (j = 0; j < self->priv->voices; j++) {
       if ((expander = make_voice_param_box (self, voice_params, j, machine))) {
         gtk_box_pack_start (GTK_BOX (self->priv->param_group_box), expander,
