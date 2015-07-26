@@ -255,6 +255,7 @@ gstbt_wave_tab_syn_init (GstBtWaveTabSyn * src)
   /* synth components */
   src->osc = gstbt_osc_wave_new ();
   src->volenv = gstbt_envelope_adsr_new ();
+  g_object_set (src->volenv, "peak-level", 0.8, "sustain-level", 0.4, NULL);
 }
 
 static void
@@ -307,9 +308,13 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
   PROP (ATTACK) = bt_g_param_spec_clone (component, "attack");
   PROP (PEAK_VOLUME) =
       bt_g_param_spec_clone_as (component, "peak-level", "peak-volume");
+  bt_g_param_spec_override_range (GParamSpecDouble, PROP (PEAK_VOLUME), 0.0,
+      1.0, 0.8);
   PROP (DECAY) = bt_g_param_spec_clone (component, "decay");
   PROP (SUSTAIN_VOLUME) =
       bt_g_param_spec_clone_as (component, "sustain-level", "sustain-volume");
+  bt_g_param_spec_override_range (GParamSpecDouble, PROP (SUSTAIN_VOLUME), 0.0,
+      1.0, 0.4);
   PROP (RELEASE) = bt_g_param_spec_clone (component, "release");
   g_type_class_unref (component);
 

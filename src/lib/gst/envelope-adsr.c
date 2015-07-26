@@ -97,7 +97,7 @@ gstbt_envelope_adsr_setup (GstBtEnvelopeADSR * self, gint samplerate,
   gdouble fc = 1.0;
 
   /* reset states */
-  base->value = 0.001;
+  base->value = self->floor_level;
   base->offset = G_GUINT64_CONSTANT (0);
 
   /* ensure a+d < s */
@@ -225,7 +225,7 @@ gstbt_envelope_adsr_class_init (GstBtEnvelopeADSRClass * klass)
       G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
   PROP (PEAK_LEVEL) = g_param_spec_double ("peak-level", "Peak Level",
-      "Highest level of envelope", 0.0, 1.0, 0.8,
+      "Highest level of envelope", 0.0, G_MAXDOUBLE, G_MAXDOUBLE,
       G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
   PROP (DECAY) = g_param_spec_double ("decay", "Decay",
@@ -233,7 +233,7 @@ gstbt_envelope_adsr_class_init (GstBtEnvelopeADSRClass * klass)
       G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
   PROP (SUSTAIN_LEVEL) = g_param_spec_double ("sustain-level", "Sustain Level",
-      "Sustain level of envelope", 0.0, 1.0, 0.4,
+      "Sustain level of envelope", 0.0, G_MAXDOUBLE, G_MAXDOUBLE / 2.0,
       G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
   PROP (RELEASE) = g_param_spec_double ("release", "Release",
@@ -241,7 +241,7 @@ gstbt_envelope_adsr_class_init (GstBtEnvelopeADSRClass * klass)
       G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
   PROP (FLOOR_LEVEL) = g_param_spec_double ("floor-level", "Floor level",
-      "Lowest level of the envelope", 0.0, 1.0, 0.0,
+      "Lowest level of the envelope", 0.0, G_MAXDOUBLE, 0.0,
       G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);

@@ -61,6 +61,7 @@ enum
   // static class properties
   PROP_SAMPLERATE = 1,
   PROP_VOLUME_ENVELOPE,
+  PROP_FREQUENCY_ENVELOPE,
   // dynamic class properties
   PROP_WAVE,
   PROP_FREQUENCY,
@@ -167,16 +168,23 @@ get_volume (GstBtOscSynth * self, guint size)
       gstbt_envelope_get (self->volenv, MIN (INNER_LOOP, size)) : 1.0;
 }
 
+static inline gdouble
+get_frequency (GstBtOscSynth * self, guint size)
+{
+  return (self->freqenv) ?
+      gstbt_envelope_get (self->freqenv, MIN (INNER_LOOP, size)) : self->freq;
+}
+
 static void
 gstbt_osc_synth_create_sine (GstBtOscSynth * self, guint ct, gint16 * samples)
 {
   guint i = 0, j;
-  gdouble amp;
+  gdouble amp, step;
   gdouble accumulator = self->accumulator;
-  gdouble step = M_PI_M2 * self->freq / self->samplerate;
 
   while (i < ct) {
     amp = get_volume (self, ct - i) * 32767.0;
+    step = M_PI_M2 * get_frequency (self, ct - i) / self->samplerate;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
       accumulator += step;
       /* TODO(ensonic): move out of inner loop? */
@@ -193,12 +201,12 @@ static void
 gstbt_osc_synth_create_square (GstBtOscSynth * self, guint ct, gint16 * samples)
 {
   guint i = 0, j;
-  gdouble amp;
+  gdouble amp, step;
   gdouble accumulator = self->accumulator;
-  gdouble step = M_PI_M2 * self->freq / self->samplerate;
 
   while (i < ct) {
     amp = get_volume (self, ct - i) * 32767.0;
+    step = M_PI_M2 * get_frequency (self, ct - i) / self->samplerate;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
       accumulator += step;
       if (G_UNLIKELY (accumulator >= M_PI_M2))
@@ -214,12 +222,12 @@ static void
 gstbt_osc_synth_create_saw (GstBtOscSynth * self, guint ct, gint16 * samples)
 {
   guint i = 0, j;
-  gdouble amp, ampf = 32767.0 / M_PI;
+  gdouble amp, ampf = 32767.0 / M_PI, step;
   gdouble accumulator = self->accumulator;
-  gdouble step = M_PI_M2 * self->freq / self->samplerate;
 
   while (i < ct) {
     amp = get_volume (self, ct - i) * ampf;
+    step = M_PI_M2 * get_frequency (self, ct - i) / self->samplerate;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
       accumulator += step;
       if (G_UNLIKELY (accumulator >= M_PI_M2))
@@ -240,12 +248,12 @@ gstbt_osc_synth_create_triangle (GstBtOscSynth * self, guint ct,
     gint16 * samples)
 {
   guint i = 0, j;
-  gdouble amp, ampf = 32767.0 / M_PI;
+  gdouble amp, ampf = 32767.0 / M_PI, step;
   gdouble accumulator = self->accumulator;
-  gdouble step = M_PI_M2 * self->freq / self->samplerate;
 
   while (i < ct) {
     amp = get_volume (self, ct - i) * ampf;
+    step = M_PI_M2 * get_frequency (self, ct - i) / self->samplerate;
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
       accumulator += step;
       if (G_UNLIKELY (accumulator >= M_PI_M2))
@@ -512,6 +520,11 @@ gstbt_osc_synth_set_property (GObject * object, guint prop_id,
       g_object_add_weak_pointer (G_OBJECT (self->volenv),
           (gpointer *) & self->volenv);
       break;
+    case PROP_FREQUENCY_ENVELOPE:
+      self->freqenv = GSTBT_ENVELOPE (g_value_get_object (value));
+      g_object_add_weak_pointer (G_OBJECT (self->freqenv),
+          (gpointer *) & self->freqenv);
+      break;
     case PROP_WAVE:
       //GST_INFO("change wave %d <- %d",g_value_get_enum (value),self->wave);
       self->wave = g_value_get_enum (value);
@@ -540,6 +553,9 @@ gstbt_osc_synth_get_property (GObject * object, guint prop_id,
     case PROP_VOLUME_ENVELOPE:
       g_value_set_object (value, self->volenv);
       break;
+    case PROP_FREQUENCY_ENVELOPE:
+      g_value_set_object (value, self->freqenv);
+      break;
     case PROP_WAVE:
       g_value_set_enum (value, self->wave);
       break;
@@ -557,6 +573,10 @@ gstbt_osc_synth_dispose (GObject * const object)
   if (self->volenv) {
     g_object_remove_weak_pointer (G_OBJECT (self->volenv),
         (gpointer *) & self->volenv);
+  }
+  if (self->freqenv) {
+    g_object_remove_weak_pointer (G_OBJECT (self->freqenv),
+        (gpointer *) & self->freqenv);
   }
 
   G_OBJECT_CLASS (gstbt_osc_synth_parent_class)->dispose (object);
@@ -592,6 +612,10 @@ gstbt_osc_synth_class_init (GstBtOscSynthClass * klass)
 
   PROP (VOLUME_ENVELOPE) = g_param_spec_object ("volume-envelope",
       "Volume envelope", "Volume envelope of tone", GSTBT_TYPE_ENVELOPE,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  PROP (FREQUENCY_ENVELOPE) = g_param_spec_object ("frequency-envelope",
+      "Frequency envelope", "Frequency envelope of tone", GSTBT_TYPE_ENVELOPE,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
   PROP (WAVE) = g_param_spec_enum ("wave", "Waveform", "Oscillator waveform",

@@ -22,6 +22,12 @@
 
 #include <glib-object.h>
 
+#define bt_g_param_spec_override_range(type, ps, mi, ma, def) do { \
+  ((type *)(ps))->minimum = mi; \
+  ((type *)(ps))->maximum = ma; \
+  ((type *)(ps))->default_value = def; \
+} while (0)
+
 G_BEGIN_DECLS
 
 GParamSpec * bt_g_param_spec_clone (GObjectClass * src_class, const gchar * src_name);

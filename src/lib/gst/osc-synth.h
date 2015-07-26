@@ -107,7 +107,7 @@ struct _GstBtOscSynth {
   gboolean dispose_has_run;		/* validate if dispose has run */
   /* parameters */
   gint samplerate;
-  GstBtEnvelope *volenv;
+  GstBtEnvelope *volenv, *freqenv;
   GstBtOscSynthWave wave;
   gdouble freq;
 
