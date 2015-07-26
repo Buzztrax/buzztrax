@@ -108,6 +108,7 @@ gstbt_osc_synth_tonal_wave_get_type (void)
 {
   static GType type = 0;
   static const GEnumValue enums[] = {
+    {GSTBT_OSC_SYNTH_WAVE_SILENCE, "Silence", "silence"},
     {GSTBT_OSC_SYNTH_WAVE_SINE, "Sine", "sine"},
     {GSTBT_OSC_SYNTH_WAVE_SQUARE, "Square", "square"},
     {GSTBT_OSC_SYNTH_WAVE_SAW, "Saw", "saw"},
