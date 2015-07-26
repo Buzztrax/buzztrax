@@ -51,10 +51,11 @@ bt_g_param_spec_clone (GObjectClass * src_class, const gchar * src_name)
   g_type_query (G_PARAM_SPEC_TYPE (src), &query);
   /* this is pretty lame, we have no idea if we copy e.g. pointer fields */
   pspec = g_memdup (src, query.instance_size);
-  /* reset known flags */
+  /* reset known fields, see g_param_spec_init() */
   pspec->owner_type = 0;
   pspec->qdata = NULL;
-  pspec->ref_count = 0;
+  g_datalist_set_flags (&pspec->qdata, /*PARAM_FLOATING_FLAG */ 0x2);
+  pspec->ref_count = 1;
   pspec->param_id = 0;
 
   if (!(pspec->flags & G_PARAM_STATIC_NICK)) {
