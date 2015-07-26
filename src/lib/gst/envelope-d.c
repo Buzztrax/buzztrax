@@ -22,7 +22,10 @@
  * @include: libgstbuzztrax/envelope-d.h
  * @short_description: decay envelope generator
  *
- * Simple decay envelope.
+ * Simple decay envelope. Does a linear fade between #GstBtEnvelopeD:peak-level
+ * and #GstBtEnvelopeD:floor-level by default (#GstBtEnvelopeD:curve = 0.5). For
+ * smaller values of #GstBtEnvelopeD:curve the transition starts quicker and
+ * then slows down and for values > than 0.5 it is the other way around.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -43,6 +46,7 @@ enum
   PROP_PEAK_LEVEL = 1,
   PROP_DECAY,
   PROP_FLOOR_LEVEL,
+  PROP_CURVE,
   N_PROPERTIES
 };
 static GParamSpec *properties[N_PROPERTIES] = { NULL, };
@@ -77,8 +81,7 @@ gstbt_envelope_d_new (void)
  * @self: the envelope
  * @samplerate: the audio sampling rate
  *
- * Initialize the envelope for a new cycle. Adds a short attack (~0.001 s) to
- * avoid clicks.
+ * Initialize the envelope for a new cycle.
  */
 void
 gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate)
@@ -86,10 +89,15 @@ gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate)
   GstBtEnvelope *base = (GstBtEnvelope *) self;
   GstTimedValueControlSource *cs = base->cs;
   guint64 decay;
+  gboolean use_curve = (self->curve != 0.5);
 
   /* reset states */
   base->value = self->peak_level;
   base->offset = G_GUINT64_CONSTANT (0);
+
+  g_object_set (cs, "mode",
+      use_curve ? GST_INTERPOLATION_MODE_CUBIC : GST_INTERPOLATION_MODE_LINEAR,
+      NULL);
 
   /* samplerate will be one second */
   decay = samplerate * self->decay;
@@ -99,6 +107,11 @@ gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate)
   gst_timed_value_control_source_unset_all (cs);
   gst_timed_value_control_source_set (cs, G_GUINT64_CONSTANT (0),
       self->peak_level);
+  if (use_curve) {
+    gst_timed_value_control_source_set (cs, self->curve * decay,
+        self->peak_level + (1.0 - self->curve) *
+        (self->floor_level - self->peak_level));
+  }
   gst_timed_value_control_source_set (cs, decay, self->floor_level);
 }
 
@@ -119,6 +132,9 @@ gstbt_envelope_d_set_property (GObject * object, guint prop_id,
       break;
     case PROP_FLOOR_LEVEL:
       self->floor_level = g_value_get_double (value);
+      break;
+    case PROP_CURVE:
+      self->curve = g_value_get_double (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -142,6 +158,9 @@ gstbt_envelope_d_get_property (GObject * object, guint prop_id,
     case PROP_FLOOR_LEVEL:
       g_value_set_double (value, self->floor_level);
       break;
+    case PROP_CURVE:
+      g_value_set_double (value, self->curve);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -155,6 +174,7 @@ gstbt_envelope_d_init (GstBtEnvelopeD * self)
   self->peak_level = G_MAXDOUBLE;
   self->decay = 0.5;
   self->floor_level = 0.0;
+  self->curve = 0.5;
 }
 
 static void
@@ -180,6 +200,10 @@ gstbt_envelope_d_class_init (GstBtEnvelopeDClass * klass)
 
   PROP (FLOOR_LEVEL) = g_param_spec_double ("floor-level", "Floor level",
       "Lowest level of the envelope", 0.0, G_MAXDOUBLE, 0.0,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+
+  PROP (CURVE) = g_param_spec_double ("curve", "Curve",
+      "Curve of the envelope, 0.5=linear", 0.0, 1.0, 0.5,
       G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, N_PROPERTIES, properties);
