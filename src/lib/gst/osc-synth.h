@@ -47,6 +47,8 @@ G_BEGIN_DECLS
  * @GSTBT_OSC_SYNTH_WAVE_RED_NOISE: red (brownian) noise
  * @GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE: spectraly inverted pink noise
  * @GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE: spectraly inverted red (brownian) noise
+ * @GSTBT_OSC_SYNTH_WAVE_S_AND_H: sample and hold. Create an random value and 
+ * hold it for a time specified by #GstBtOscSynth:frequency.
  *
  * Oscillator wave forms.
  */
@@ -62,7 +64,8 @@ typedef enum
   GSTBT_OSC_SYNTH_WAVE_GAUSSIAN_WHITE_NOISE,
   GSTBT_OSC_SYNTH_WAVE_RED_NOISE,
   GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE,
-  GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE
+  GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE,
+  GSTBT_OSC_SYNTH_WAVE_S_AND_H
 } GstBtOscSynthWave;
 
 GType gstbt_osc_synth_wave_get_type(void);
@@ -84,6 +87,12 @@ typedef struct
 {
   gdouble state;                /* noise state */
 } GstBtRedNoise;
+
+typedef struct
+{
+  gint count;                   /* count down */
+  gdouble smpl;                 /* current sample */
+} GstBtSampleAndHold;
 
 #define GSTBT_TYPE_OSC_SYNTH            (gstbt_osc_synth_get_type())
 #define GSTBT_OSC_SYNTH(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj),GSTBT_TYPE_OSC_SYNTH,GstBtOscSynth))
@@ -117,6 +126,7 @@ struct _GstBtOscSynth {
   gdouble flip;
   GstBtPinkNoise pink;
   GstBtRedNoise red;
+  GstBtSampleAndHold sh;
 
   /* < private > */
   void (*process) (GstBtOscSynth *, guint, gint16 *);  

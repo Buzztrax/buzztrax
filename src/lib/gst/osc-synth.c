@@ -94,6 +94,7 @@ gstbt_osc_synth_wave_get_type (void)
     {GSTBT_OSC_SYNTH_WAVE_RED_NOISE, "Red (brownian) noise", "red-noise"},
     {GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE, "Blue noise", "blue-noise"},
     {GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE, "Violet noise", "violet-noise"},
+    {GSTBT_OSC_SYNTH_WAVE_S_AND_H, "Sample & Hold", "sample-and-hold"},
     {0, NULL, NULL},
   };
 
@@ -113,6 +114,7 @@ gstbt_osc_synth_tonal_wave_get_type (void)
     {GSTBT_OSC_SYNTH_WAVE_SQUARE, "Square", "square"},
     {GSTBT_OSC_SYNTH_WAVE_SAW, "Saw", "saw"},
     {GSTBT_OSC_SYNTH_WAVE_TRIANGLE, "Triangle", "triangle"},
+    {GSTBT_OSC_SYNTH_WAVE_S_AND_H, "Sample & Hold", "sample-and-hold"},
     {0, NULL, NULL},
   };
 
@@ -465,6 +467,37 @@ gstbt_osc_synth_create_violet_noise (GstBtOscSynth * self, guint ct,
   self->flip = flip;
 }
 
+static void
+gstbt_osc_synth_create_s_and_h (GstBtOscSynth * self, guint ct,
+    gint16 * samples)
+{
+  guint i = 0, j, r = ct;
+  gdouble amp, step;
+  gdouble freq = self->freq;
+  gint count = self->sh.count;
+  gint samplerate = self->samplerate;
+  gdouble smpl = self->sh.smpl;
+  GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
+
+  while (i < ct) {
+    amp = get_env (volenv, r, 1.0) * 65535.0;
+    for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++, r--) {
+      if (G_UNLIKELY (count <= 0.0)) {
+        // if freq = 100, we want 100 changes per second
+        // = 100 changes per samplingrate samples
+        step = get_env (freqenv, r, freq);
+        step = CLAMP (step, 0, samplerate);
+        count = samplerate / step;
+        smpl = rand () / (RAND_MAX + 1.0);
+      }
+      samples[i] = (gint16) (32768 - (amp * smpl));
+      count--;
+    }
+  }
+  self->sh.count = count;
+  self->sh.smpl = smpl;
+}
+
 /*
  * gstbt_osc_synth_change_wave:
  * Assign function pointer of wave genrator.
@@ -511,6 +544,10 @@ gstbt_osc_synth_change_wave (GstBtOscSynth * self)
       self->red.state = 0.0;
       self->flip = 1.0;
       self->process = gstbt_osc_synth_create_violet_noise;
+      break;
+    case GSTBT_OSC_SYNTH_WAVE_S_AND_H:
+      self->process = gstbt_osc_synth_create_s_and_h;
+      self->sh.count = 0;
       break;
     default:
       GST_ERROR ("invalid wave-form: %d", self->wave);
