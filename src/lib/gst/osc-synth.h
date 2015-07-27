@@ -113,6 +113,7 @@ struct _GstBtOscSynth {
 
   /* oscillator state */
   gdouble accumulator;          /* phase angle */
+  gdouble period;
   gdouble flip;
   GstBtPinkNoise pink;
   GstBtRedNoise red;
