@@ -25,7 +25,17 @@
  * An audio generator producing classic oscillator waveforms.
  *
  * If the #GstBtOscSynth:volume-envelope is %NULL a static volume of 1.0 is
- * used.
+ * used. Likewise one can use #GstBtOscSynth:frequency in a static fashion or
+ * apply an envelope using #GstBtOscSynth:frequency-envelope.
+ *
+ * # Waveforms
+ *
+ * ![Sine wave](../images/lt-bt_gst_sine.svg) ![Square wave](../images/lt-bt_gst_square.svg)
+ * ![Saw wave](../images/lt-bt_gst_saw.svg) ![Triangle wave](../images/lt-bt_gst_triangle.svg)
+ * ![Silence](../images/lt-bt_gst_silence.svg) ![White noise](../images/lt-bt_gst_white_noise.svg)
+ * ![Pink noise](../images/lt-bt_gst_pink_noise.svg) ![White Gaussian noise](../images/lt-bt_gst_white_gaussian_noise.svg)
+ * ![Red (brownian) noise](../images/lt-bt_gst_red__brownian__noise.svg) ![Blue noise](../images/lt-bt_gst_blue_noise.svg)
+ * ![Violet noise](../images/lt-bt_gst_violet_noise.svg) ![Sample &amp; Hold](../images/lt-bt_gst_sample_and_hold.svg)
  */
 /* TODO(ensonic): add a static 'volume' property that would be used if
  * volume-envelope is %NULL
