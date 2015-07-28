@@ -95,16 +95,15 @@ gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate)
   base->value = self->peak_level;
   base->offset = G_GUINT64_CONSTANT (0);
 
-  g_object_set (cs, "mode",
-      use_curve ? GST_INTERPOLATION_MODE_CUBIC : GST_INTERPOLATION_MODE_LINEAR,
-      NULL);
-
   /* samplerate will be one second */
   decay = samplerate * self->decay;
   base->length = decay;
 
   /* configure envelope */
   gst_timed_value_control_source_unset_all (cs);
+  g_object_set (cs, "mode",
+      use_curve ? GST_INTERPOLATION_MODE_CUBIC : GST_INTERPOLATION_MODE_LINEAR,
+      NULL);
   gst_timed_value_control_source_set (cs, G_GUINT64_CONSTANT (0),
       self->peak_level);
   if (use_curve) {
