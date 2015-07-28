@@ -645,16 +645,25 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
     GST_DEBUG ("no profile, do raw recording");
     // encodebin starts with a queue already
     element = gst_element_factory_make ("queue", "record-queue");
-    g_object_set (element, "silent", TRUE, NULL);
-    list = g_list_append (list, element);
+    if (element) {
+      g_object_set (element, "silent", TRUE, NULL);
+      list = g_list_append (list, element);
+    } else {
+      GST_WARNING_OBJECT (self, "failed to create 'queue'");
+    }
   }
   // create filesink, set location property
+  GST_DEBUG ("recording to: %s", self->priv->record_file_name);
   element = gst_element_factory_make ("filesink", "filesink");
-  g_object_set (element, "location", self->priv->record_file_name,
-      // only for recording in in realtime and not as fast as we can
-      // "sync", TRUE,
-      NULL);
-  list = g_list_append (list, element);
+  if (element) {
+    g_object_set (element, "location", self->priv->record_file_name,
+        // only for recording in in realtime and not as fast as we can
+        // "sync", TRUE,
+        NULL);
+    list = g_list_append (list, element);
+  } else {
+    GST_WARNING_OBJECT (self, "failed to create 'filesink'");
+  }
   return (list);
 }
 
