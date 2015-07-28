@@ -17,6 +17,8 @@
 
 #include "m-bt-gst.h"
 
+#include "gst/toneconversion.h"
+
 //-- globals
 
 //-- fixtures

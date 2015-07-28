@@ -20,7 +20,6 @@
 #include "glib.h"
 #include "gst/gst.h"
 
-#include "gst/toneconversion.h"
 #include "../../bt-check.h"
 
 //-- globals
