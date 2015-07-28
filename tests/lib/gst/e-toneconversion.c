@@ -185,7 +185,7 @@ test_note_number_offset (BT_TEST_ARGS)
 }
 
 TCase *
-gst_buzztrax_note2frequency_example_case (void)
+gst_buzztrax_toneconversion_example_case (void)
 {
   TCase *tc = tcase_create ("GstBtToneConversionExamples");
 

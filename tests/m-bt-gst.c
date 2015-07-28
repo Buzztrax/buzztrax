@@ -27,7 +27,7 @@ gchar **test_argvptr = test_argv;
 gint test_argc = G_N_ELEMENTS (test_argv);
 
 BT_TEST_SUITE_T ("GstElement", gst_buzztrax_elements);
-BT_TEST_SUITE_T_E ("GstBtToneConversion", gst_buzztrax_note2frequency);
+BT_TEST_SUITE_T_E ("GstBtToneConversion", gst_buzztrax_toneconversion);
 
 /* start the test run */
 gint
@@ -43,7 +43,7 @@ main (gint argc, gchar ** argv)
   bt_check_init ();
   bt_init (&test_argc, &test_argvptr);
 
-  sr = srunner_create (gst_buzztrax_note2frequency_suite ());
+  sr = srunner_create (gst_buzztrax_toneconversion_suite ());
   srunner_add_suite (sr, gst_buzztrax_elements_suite ());
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);

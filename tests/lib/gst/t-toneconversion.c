@@ -129,7 +129,7 @@ test_translate_enum_range (BT_TEST_ARGS)
 }
 
 TCase *
-gst_buzztrax_note2frequency_test_case (void)
+gst_buzztrax_toneconversion_test_case (void)
 {
   TCase *tc = tcase_create ("GstBtToneConversionTests");
 
