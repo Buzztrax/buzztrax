@@ -119,7 +119,7 @@ gstbt_envelope_get_property (GObject * object, guint prop_id,
 
   switch (prop_id) {
     case PROP_VALUE:
-      // TODO(ensonic): gst_object_sync_values (GST_OBJECT (env), self->running_time);
+      // TODO(ensonic): gst_object_sync_values (GST_OBJECT (env), self->offset);
       g_value_set_double (value, self->value);
       break;
     default:
@@ -169,7 +169,7 @@ gstbt_envelope_class_init (GstBtEnvelopeClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_VALUE,
       g_param_spec_double ("value", "Value", "Current envelope value",
-          0.0, 1.0, 0.0,
+          0.0, G_MAXDOUBLE, 0.0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | GST_PARAM_CONTROLLABLE));
 
 }
