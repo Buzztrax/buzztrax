@@ -94,7 +94,7 @@ gstbt_osc_synth_wave_get_type (void)
     {GSTBT_OSC_SYNTH_WAVE_RED_NOISE, "Red (brownian) noise", "red-noise"},
     {GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE, "Blue noise", "blue-noise"},
     {GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE, "Violet noise", "violet-noise"},
-    {GSTBT_OSC_SYNTH_WAVE_S_AND_H, "Sample & Hold", "sample-and-hold"},
+    {GSTBT_OSC_SYNTH_WAVE_S_AND_H, "Sample and Hold", "sample-and-hold"},
     {0, NULL, NULL},
   };
 
@@ -255,7 +255,7 @@ gstbt_osc_synth_create_triangle (GstBtOscSynth * self, guint ct,
     gint16 * samples)
 {
   guint i = 0, j, r = ct;
-  gdouble amp, ampf = 32767.0 / M_PI, step;
+  gdouble amp, ampf = 65535.0 / M_PI, step;
   gdouble accumulator = self->accumulator;
   gdouble freq = self->freq;
   gdouble period = self->period;
@@ -287,6 +287,10 @@ gstbt_osc_synth_create_silence (GstBtOscSynth * self, guint ct,
     gint16 * samples)
 {
   memset (samples, 0, ct * sizeof (gint16));
+  // still need to advance it to satisfy gstbt_envelope_is_running()
+  if (self->volenv) {
+    ((GstBtEnvelope *) self->volenv)->offset += ct;
+  }
 }
 
 static void
@@ -298,9 +302,10 @@ gstbt_osc_synth_create_white_noise (GstBtOscSynth * self, guint ct,
   GstBtEnvelope *volenv = self->volenv;
 
   while (i < ct) {
-    amp = get_env (volenv, r, 1.0) * 65535.0;
+    amp = get_env (volenv, r, 1.0);
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
-      samples[i] = (gint16) (32768 - (amp * rand () / (RAND_MAX + 1.0)));
+      samples[i] =
+          (gint16) (amp * (32768.0 - (65535.0 * rand () / (RAND_MAX + 1.0))));
     }
     r -= INNER_LOOP;
   }
@@ -318,7 +323,9 @@ gstbt_osc_synth_init_pink_noise (GstBtOscSynth * self)
 
   self->pink.index = 0;
   self->pink.index_mask = (1 << num_rows) - 1;
-  self->pink.scalar = 1.0f / (RAND_MAX + 1.0);
+  /* calculate maximum possible signed random value.
+   * Extra 1 for white noise always added. */
+  self->pink.scalar = 1.0f / ((num_rows + 1) * (1 << 15));
   /* Initialize rows. */
   memset (self->pink.rows, 0, sizeof (self->pink.rows));
   self->pink.running_sum = 0;
@@ -351,13 +358,13 @@ gstbt_osc_synth_generate_pink_noise_value (GstBtPinkNoise * pink)
      * values together. Only one changes each time.
      */
     pink->running_sum -= pink->rows[num_zeros];
-    new_random = 32768.0 - (65536.0 * (gulong) rand () / (RAND_MAX + 1.0));
+    new_random = 32768.0 - (65536.0 * rand () / (RAND_MAX + 1.0));
     pink->running_sum += new_random;
     pink->rows[num_zeros] = new_random;
   }
 
   /* Add extra white noise value. */
-  new_random = 32768.0 - (65536.0 * (gulong) rand () / (RAND_MAX + 1.0));
+  new_random = 32768.0 - (65536.0 * rand () / (RAND_MAX + 1.0));
   sum = pink->running_sum + new_random;
 
   /* Scale to range of -1.0 to 0.9999. */
@@ -480,7 +487,7 @@ gstbt_osc_synth_create_s_and_h (GstBtOscSynth * self, guint ct,
   GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
 
   while (i < ct) {
-    amp = get_env (volenv, r, 1.0) * 65535.0;
+    amp = get_env (volenv, r, 1.0);
     for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++, r--) {
       if (G_UNLIKELY (count <= 0.0)) {
         // if freq = 100, we want 100 changes per second
@@ -488,9 +495,9 @@ gstbt_osc_synth_create_s_and_h (GstBtOscSynth * self, guint ct,
         step = get_env (freqenv, r, freq);
         step = CLAMP (step, 0, samplerate);
         count = samplerate / step;
-        smpl = rand () / (RAND_MAX + 1.0);
+        smpl = 32768 - (65535.0 * rand () / (RAND_MAX + 1.0));
       }
-      samples[i] = (gint16) (32768 - (amp * smpl));
+      samples[i] = (gint16) (amp * smpl);
       count--;
     }
   }
