@@ -49,6 +49,7 @@ G_BEGIN_DECLS
  * @GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE: spectraly inverted red (brownian) noise
  * @GSTBT_OSC_SYNTH_WAVE_S_AND_H: sample and hold. Create an random value and 
  * hold it for a time specified by #GstBtOscSynth:frequency.
+ * @GSTBT_OSC_SYNTH_WAVE_COUNT: number of waves
  *
  * Oscillator wave forms.
  */
@@ -65,7 +66,8 @@ typedef enum
   GSTBT_OSC_SYNTH_WAVE_RED_NOISE,
   GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE,
   GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE,
-  GSTBT_OSC_SYNTH_WAVE_S_AND_H
+  GSTBT_OSC_SYNTH_WAVE_S_AND_H,
+  GSTBT_OSC_SYNTH_WAVE_COUNT
 } GstBtOscSynthWave;
 
 GType gstbt_osc_synth_wave_get_type(void);
