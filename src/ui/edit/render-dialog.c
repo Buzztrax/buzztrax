@@ -34,6 +34,10 @@
 /* TODO(ensonic): kick the plugin installer when one selects a format where we
  * miss some plugins
  */
+/* TODO(ensonic):
+ * - remember the format, should we store this with song or as a setting or
+ *   just remember for the session
+ */
 
 #define BT_EDIT
 #define BT_RENDER_DIALOG_C

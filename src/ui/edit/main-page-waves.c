@@ -47,6 +47,7 @@
  * - selection to new wave: copy selection to next free wave
  *   - do a lazy copy to safe extra memory?
  * - zoom to selection
+ *   - nned toolbar for the commands (e.v. to the right to save space
  */
 /* IDEA(ensonic): allow to paste samples from other apps
  * - audacity does not place samples snippets in the clipboard
