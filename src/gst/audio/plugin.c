@@ -70,7 +70,7 @@ bt_g_param_spec_clone (GObjectClass * src_class, const gchar * src_name)
 
 GParamSpec *
 bt_g_param_spec_clone_as (GObjectClass * src_class, const gchar * src_name,
-    gchar * new_name)
+    gchar * new_name, gchar * new_nick, gchar * new_blurb)
 {
   GParamSpec *pspec = bt_g_param_spec_clone (src_class, src_name);
   gchar *p = new_name;
@@ -93,6 +93,22 @@ bt_g_param_spec_clone_as (GObjectClass * src_class, const gchar * src_name,
     pspec->name = (gchar *) g_intern_static_string (new_name);
   } else {
     pspec->name = (gchar *) g_intern_string (new_name);
+  }
+  if (new_nick) {
+    if (!(pspec->flags & G_PARAM_STATIC_NICK)) {
+      g_free (pspec->_nick);
+      pspec->_nick = g_strdup (new_nick);
+    } else {
+      pspec->_nick = new_nick;
+    }
+  }
+  if (new_blurb) {
+    if (!(pspec->flags & G_PARAM_STATIC_NICK)) {
+      g_free (pspec->_nick);
+      pspec->_blurb = g_strdup (new_blurb);
+    } else {
+      pspec->_blurb = new_blurb;
+    }
   }
   return pspec;
 }

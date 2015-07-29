@@ -307,12 +307,14 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
   PROP (NOTE_LENGTH) = bt_g_param_spec_clone (component, "length");
   PROP (ATTACK) = bt_g_param_spec_clone (component, "attack");
   PROP (PEAK_VOLUME) =
-      bt_g_param_spec_clone_as (component, "peak-level", "peak-volume");
+      bt_g_param_spec_clone_as (component, "peak-level", "peak-volume",
+      "Peak Volume", NULL);
   bt_g_param_spec_override_range (GParamSpecDouble, PROP (PEAK_VOLUME), 0.0,
       1.0, 0.8);
   PROP (DECAY) = bt_g_param_spec_clone (component, "decay");
   PROP (SUSTAIN_VOLUME) =
-      bt_g_param_spec_clone_as (component, "sustain-level", "sustain-volume");
+      bt_g_param_spec_clone_as (component, "sustain-level", "sustain-volume",
+      "Sustain Volume", NULL);
   bt_g_param_spec_override_range (GParamSpecDouble, PROP (SUSTAIN_VOLUME), 0.0,
       1.0, 0.4);
   PROP (RELEASE) = bt_g_param_spec_clone (component, "release");

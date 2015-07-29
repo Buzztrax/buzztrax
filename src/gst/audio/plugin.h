@@ -31,7 +31,7 @@
 G_BEGIN_DECLS
 
 GParamSpec * bt_g_param_spec_clone (GObjectClass * src_class, const gchar * src_name);
-GParamSpec * bt_g_param_spec_clone_as (GObjectClass * src_class, const gchar * src_name, gchar * new_name);
+GParamSpec * bt_g_param_spec_clone_as (GObjectClass * src_class, const gchar * src_name, gchar * new_name, gchar * new_nick, gchar * new_blurb);
 
 G_END_DECLS
 #endif /* __PLUGIN_H__ */

@@ -234,7 +234,9 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
   g_type_class_unref (component);
 
   component = g_type_class_ref (GSTBT_TYPE_ENVELOPE_AD);
-  PROP (VOLUME) = bt_g_param_spec_clone_as (component, "peak-level", "volume");
+  PROP (VOLUME) =
+      bt_g_param_spec_clone_as (component, "peak-level", "volume", "Volume",
+      NULL);
   bt_g_param_spec_override_range (GParamSpecDouble, PROP (VOLUME), 0.0, 1.0,
       0.8);
   PROP (ATTACK) = bt_g_param_spec_clone (component, "attack");
