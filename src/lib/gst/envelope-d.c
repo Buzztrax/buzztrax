@@ -30,11 +30,11 @@
  * #GstBtEnvelopeD:floor-level (for 0.0) or the #GstBtEnvelopeD:peak-level (for
  * 1.0) to be used.
  *
- * ![curve=0.00](../images/lt-bt_gst_envelope-d_0.00.svg)
- * ![curve=0.25](../images/lt-bt_gst_envelope-d_0.25.svg)
- * ![curve=0.50](../images/lt-bt_gst_envelope-d_0.50.svg)
- * ![curve=0.75](../images/lt-bt_gst_envelope-d_0.75.svg)
- * ![curve=1.00](../images/lt-bt_gst_envelope-d_1.00.svg)
+ * ![curve=0.00](lt-bt_gst_envelope-d_0.00.svg)
+ * ![curve=0.25](lt-bt_gst_envelope-d_0.25.svg)
+ * ![curve=0.50](lt-bt_gst_envelope-d_0.50.svg)
+ * ![curve=0.75](lt-bt_gst_envelope-d_0.75.svg)
+ * ![curve=1.00](lt-bt_gst_envelope-d_1.00.svg)
  */
 
 #ifdef HAVE_CONFIG_H
