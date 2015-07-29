@@ -192,6 +192,7 @@ libbtic_check_la_SOURCES = tests/lib/ic/m-bt-ic.h \
 libbtgst_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtgst_check_la_CFLAGS = $(BASE_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbtgst_check_la_SOURCES = tests/lib/gst/m-bt-gst.h \
+	tests/lib/gst/e-envelope-d.c \
 	tests/lib/gst/e-osc-synth.c \
 	tests/lib/gst/e-toneconversion.c tests/lib/gst/t-toneconversion.c \
 	tests/lib/gst/t-elements.c

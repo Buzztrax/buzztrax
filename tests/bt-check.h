@@ -327,4 +327,9 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 #define ck_assert_float_ge(X, Y) _ck_assert_float(X, >=, Y)
 #define ck_assert_float_le(X, Y) _ck_assert_float(X, <=, Y)
 
+// plotting helper
+
+gint check_plot_data_int16 (gint16 * d, guint size, const gchar * _name);
+gint check_plot_data_float (gfloat * d, guint size, const gchar * _name);
+
 #endif /* BT_CHECK_H */

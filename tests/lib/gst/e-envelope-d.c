@@ -17,7 +17,7 @@
 
 #include "m-bt-gst.h"
 
-#include "gst/osc-synth.h"
+#include "gst/envelope-d.h"
 
 //-- globals
 
@@ -42,68 +42,60 @@ static void
 test_create_obj (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  GstBtOscSynth *osc;
+  GstBtEnvelopeD *env;
 
   GST_INFO ("-- arrange --");
   GST_INFO ("-- act --");
-  osc = gstbt_osc_synth_new ();
+  env = gstbt_envelope_d_new ();
 
   GST_INFO ("-- assert --");
-  fail_unless (osc != NULL, NULL);
-  fail_unless (G_OBJECT (osc)->ref_count == 1, NULL);
+  fail_unless (env != NULL, NULL);
+  fail_unless (G_OBJECT (env)->ref_count == 1, NULL);
 
   GST_INFO ("-- cleanup --");
-  ck_g_object_final_unref (osc);
+  ck_g_object_final_unref (env);
   BT_TEST_END;
 }
 
-// cp /tmp/lt-bt_gst_*.svg docs/reference/bt-gst/images/
 static void
-test_waves_not_silent (BT_TEST_ARGS)
+test_envelope_curves (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  GstBtOscSynth *osc;
-  gint16 data[WAVE_SIZE];
+  GstBtEnvelopeD *env;
+  gfloat data[WAVE_SIZE];
+  gdouble curve = _i / 4.0;
+  gchar name[20];
+  gint i;
 
   GST_INFO ("-- arrange --");
-  osc = gstbt_osc_synth_new ();
-  // plot 1 cycle
-  g_object_set (osc, "wave", _i, "sample-rate", WAVE_SIZE, "frequency", 1.0,
-      NULL);
+  env = gstbt_envelope_d_new ();
+  g_object_set (env, "curve", curve, "peak-level", 1.0, "floor-level", 0.0,
+      "decay", 1.0, NULL);
 
   GST_INFO ("-- act --");
-  osc->process (osc, WAVE_SIZE, data);
-
-  GST_INFO ("-- assert --");
-  GEnumClass *enum_class = g_type_class_peek_static (GSTBT_TYPE_OSC_SYNTH_WAVE);
-  GEnumValue *enum_value = g_enum_get_value (enum_class, _i);
-  check_plot_data_int16 (data, WAVE_SIZE, enum_value->value_name);
-
-  if (_i != GSTBT_OSC_SYNTH_WAVE_SILENCE) {
-    gint j;
-    for (j = 0; j < WAVE_SIZE; j++) {
-      if (data[j] != 0)
-        break;
-    }
-    fail_if (j == WAVE_SIZE, "in %s all samples are 0", enum_value->value_name);
+  gstbt_envelope_d_setup (env, WAVE_SIZE);
+  for (i = 0; i < WAVE_SIZE; i++) {
+    data[i] = gstbt_envelope_get ((GstBtEnvelope *) env, 1);
   }
 
+  GST_INFO ("-- assert --");
+  sprintf (name, "envelope-d_%4.2f", curve);
+  check_plot_data_float (data, WAVE_SIZE, name);
+
   GST_INFO ("-- cleanup --");
-  ck_g_object_final_unref (osc);
+  ck_g_object_final_unref (env);
   BT_TEST_END;
 }
 
+
 TCase *
-gst_buzztrax_osc_synth_example_case (void)
+gst_buzztrax_envelope_d_example_case (void)
 {
-  TCase *tc = tcase_create ("GstBtOscSynthExamples");
+  TCase *tc = tcase_create ("GstBtEnvelopeDExamples");
 
   tcase_add_test (tc, test_create_obj);
-  tcase_add_loop_test (tc, test_waves_not_silent, 0,
-      GSTBT_OSC_SYNTH_WAVE_COUNT);
-  // test each wave with a volume and frequency decay env
-  // test that for a larger wave, summing up all values should be ~0
-  // test that for non noise waves, we should get min/max
+  tcase_add_loop_test (tc, test_envelope_curves, 0, 5);
+  // test access beyond range
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }

@@ -33,6 +33,7 @@
 
 #include <sys/types.h>
 #include <signal.h>
+#include <stdlib.h>
 #include <unistd.h>
 //-- glib
 #include <glib/gstdio.h>
@@ -1261,4 +1262,77 @@ check_gobject_get_ptr_property (gpointer obj, const gchar * prop)
 
   g_object_get (obj, prop, &val, NULL);
   return val;
+}
+
+// plotting helper
+// http://stackoverflow.com/questions/5826701/plot-audio-data-in-gnuplot
+
+static void
+check_write_raw_data (void *d, guint size, gchar * _fn)
+{
+  FILE *f;
+  gchar *fn = g_strconcat (_fn, ".raw", NULL);
+
+  if ((f = fopen (fn, "wb"))) {
+    fwrite (d, size, 1, f);
+    fclose (f);
+  }
+  g_free (fn);
+}
+
+static gchar *
+check_plot_get_basename (const gchar * _name)
+{
+  gchar *name, *res;
+
+  name = g_ascii_strdown (g_strdelimit (g_strdup (_name), " ()", '_'), -1);
+
+  // like in bt-check-ui.c:make_filename()
+  // should we have some helper api for this in the test lib?
+  res = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s_%s",
+      g_get_tmp_dir (), g_get_prgname (), name);
+  g_free (name);
+  return res;
+}
+
+gint
+check_plot_data_int16 (gint16 * d, guint size, const gchar * _name)
+{
+  gint ret;
+  gchar *base_name = check_plot_get_basename (_name);
+  gchar *cmd =
+      g_strdup_printf
+      ("/bin/sh -c \"echo \\\"set terminal svg size 200,160 fsize 6;set output '%s.svg';"
+      "set yrange [-33000:32999];set grid xtics;set grid ytics;"
+      "set key outside below;"
+      "plot '%s.raw' binary format='%%int16' using 0:1 with lines title '%s'\\\" | gnuplot\"",
+      base_name, base_name, _name);
+
+  check_write_raw_data (d, size * sizeof (gint16), base_name);
+  ret = system (cmd);
+
+  g_free (cmd);
+  g_free (base_name);
+  return ret;
+}
+
+gint
+check_plot_data_float (gfloat * d, guint size, const gchar * _name)
+{
+  gint ret;
+  gchar *base_name = check_plot_get_basename (_name);
+  gchar *cmd =
+      g_strdup_printf
+      ("/bin/sh -c \"echo \\\"set terminal svg size 200,160 fsize 6;set output '%s.svg';"
+      "set yrange [0.0:1.0];set grid xtics;set grid ytics;"
+      "set key outside below;"
+      "plot '%s.raw' binary format='%%float32' using 0:1 with lines title '%s'\\\" | gnuplot\"",
+      base_name, base_name, _name);
+
+  check_write_raw_data (d, size * sizeof (gfloat), base_name);
+  ret = system (cmd);
+
+  g_free (cmd);
+  g_free (base_name);
+  return ret;
 }
