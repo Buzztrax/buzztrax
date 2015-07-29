@@ -38,6 +38,7 @@
     <xi:include href="xml/audiosynth.xml"/>
     <xi:include href="xml/delay.xml"/>
     <xi:include href="xml/envelope.xml"/>
+    <xi:include href="xml/envelope-ad.xml"/>
     <xi:include href="xml/envelope-adsr.xml"/>
     <xi:include href="xml/envelope-d.xml"/>
     <xi:include href="xml/filter-svf.xml"/>

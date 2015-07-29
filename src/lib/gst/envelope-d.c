@@ -25,7 +25,16 @@
  * Simple decay envelope. Does a linear fade between #GstBtEnvelopeD:peak-level
  * and #GstBtEnvelopeD:floor-level by default (#GstBtEnvelopeD:curve = 0.5). For
  * smaller values of #GstBtEnvelopeD:curve the transition starts quicker and
- * then slows down and for values > than 0.5 it is the other way around.
+ * then slows down and for values > than 0.5 it is the other way around. Values 
+ * of 0.0 or 1.0 don't make sense itself and would result in only the 
+ * #GstBtEnvelopeD:floor-level (for 0.0) or the #GstBtEnvelopeD:peak-level (for
+ * 1.0) to be used.
+ *
+ * ![curve=0.00](../images/lt-bt_gst_envelope-d_0.00.svg)
+ * ![curve=0.25](../images/lt-bt_gst_envelope-d_0.25.svg)
+ * ![curve=0.50](../images/lt-bt_gst_envelope-d_0.50.svg)
+ * ![curve=0.75](../images/lt-bt_gst_envelope-d_0.75.svg)
+ * ![curve=1.00](../images/lt-bt_gst_envelope-d_1.00.svg)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -89,7 +98,8 @@ gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate)
   GstBtEnvelope *base = (GstBtEnvelope *) self;
   GstTimedValueControlSource *cs = base->cs;
   guint64 decay;
-  gboolean use_curve = (self->curve != 0.5);
+  gdouble c = self->curve;
+  gboolean use_curve = (c != 0.5 && c > 0.0 && c < 1.0);
 
   /* reset states */
   base->value = self->peak_level;
@@ -101,17 +111,32 @@ gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate)
 
   /* configure envelope */
   gst_timed_value_control_source_unset_all (cs);
-  g_object_set (cs, "mode",
-      use_curve ? GST_INTERPOLATION_MODE_CUBIC : GST_INTERPOLATION_MODE_LINEAR,
-      NULL);
+  /* _CUBIC is using a *natural* cubic spline, this unfortunately overshoots
+   * what we and probably everybody else would want are monotonic splines:
+   * http://en.wikipedia.org/wiki/Monotone_cubic_interpolation
+   * http://en.wikipedia.org/wiki/Cubic_Hermite_spline
+   *
+   * see the difference
+   * http://blog.mackerron.com/2011/01/01/javascript-cubic-splines/
+   *
+   * if for the middle point, we only move [x] and keep the middle-level (swap
+   * (1.0 - c) with 0.5) then it looks a bit better
+   */
+  /*
+     g_object_set (cs, "mode",
+     use_curve ? GST_INTERPOLATION_MODE_CUBIC : GST_INTERPOLATION_MODE_LINEAR,
+     NULL);
+   */
+  /* with curve=0.0 we only use the floor_level */
   gst_timed_value_control_source_set (cs, G_GUINT64_CONSTANT (0),
-      self->peak_level);
+      (c > 0.0) ? self->peak_level : self->floor_level);
   if (use_curve) {
-    gst_timed_value_control_source_set (cs, self->curve * decay,
-        self->peak_level + (1.0 - self->curve) *
-        (self->floor_level - self->peak_level));
+    gst_timed_value_control_source_set (cs, c * decay,
+        self->peak_level + (1.0 - c) * (self->floor_level - self->peak_level));
   }
-  gst_timed_value_control_source_set (cs, decay, self->floor_level);
+  /* with curve=1.0 we only use the peak_level */
+  gst_timed_value_control_source_set (cs, decay,
+      (c < 1.0) ? self->floor_level : self->peak_level);
 }
 
 //-- virtual methods

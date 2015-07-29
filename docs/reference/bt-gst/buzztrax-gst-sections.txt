@@ -69,6 +69,23 @@ gstbt_envelope_get_type
 </SECTION>
 
 <SECTION>
+<FILE>envelope-ad</FILE>
+<TITLE>GstBtEnvelopeAD</TITLE>
+GstBtEnvelopeAD
+gstbt_envelope_ad_new
+gstbt_envelope_ad_setup
+<SUBSECTION Standard>
+GSTBT_ENVELOPE_AD
+GSTBT_ENVELOPE_AD_CLASS
+GSTBT_ENVELOPE_AD_GET_CLASS
+GSTBT_IS_ENVELOPE_AD
+GSTBT_IS_ENVELOPE_AD_CLASS
+GSTBT_TYPE_ENVELOPE_AD
+GstBtEnvelopeADClass
+gstbt_envelope_ad_get_type
+</SECTION>
+
+<SECTION>
 <FILE>envelope-adsr</FILE>
 <TITLE>GstBtEnvelopeADSR</TITLE>
 GstBtEnvelopeADSR
