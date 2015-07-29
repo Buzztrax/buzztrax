@@ -79,7 +79,7 @@ test_envelope_curves (BT_TEST_ARGS)
   }
 
   GST_INFO ("-- assert --");
-  sprintf (name, "envelope-d_%4.2f", curve);
+  sprintf (name, "envelope-d %4.2f", curve);
   check_plot_data_float (data, WAVE_SIZE, name);
 
   GST_INFO ("-- cleanup --");

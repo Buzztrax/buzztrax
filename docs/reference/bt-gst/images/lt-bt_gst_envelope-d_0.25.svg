@@ -157,7 +157,7 @@
 	<g id="gnuplot_plot_1" ><title>gnuplot_plot_1</title>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
 	<g transform="translate(123.3,153.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
-		<text>envelope-d_0.25</text>
+		<text>envelope-d 0.25</text>
 	</g>
 	<path  d='M127.4,151.0 L148.3,151.0 M26.6,8.3 L27.4,10.0 L28.2,11.8 L29.0,13.5 L29.8,15.2 L30.6,17.0 
 		L31.4,18.7 L32.2,20.4 L33.0,22.2 L33.8,23.9 L34.7,25.7 L35.5,27.4 L36.3,29.1 L37.1,30.9 
