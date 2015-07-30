@@ -24,6 +24,16 @@
  *
  * Base class for envelopes. 
  */
+/* TODO: we don't use the value property right now */
+/* TODO: these classes would ideally be just subclass control soures so that we
+ *   can use them as control sources too.
+ * - Instead of gstbt_evelope_get(GstBtEnvelope * self, guint offset), we can use the
+ *   gst_control_source_get_value (GstControlSource *self,GstClockTime timestamp, gdouble *value);
+ * - For that all components that have controlable-properties (osc-synth, filter-svf) need to
+ *   track their running time, so that they can call gst_object_sync_values(self, pos);
+ * - we wouln't need this class anymore, maybe add an interface for
+ *   gstbt_envelope_is_running()
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -57,24 +67,24 @@ G_DEFINE_ABSTRACT_TYPE (GstBtEnvelope, gstbt_envelope, G_TYPE_OBJECT);
 /**
  * gstbt_envelope_get:
  * @self: the envelope
- * @offset: the time offset to add 
+ * @offset: the current offset
  *
- * Get the currect envelope level and add the time-offset for the next position.
+ * Get the currect envelope level at the time-offset.
  *
  * Returns: the current level
  */
 gdouble
-gstbt_envelope_get (GstBtEnvelope * self, guint offset)
+gstbt_envelope_get (GstBtEnvelope * self, guint64 offset)
 {
-  gst_control_source_get_value ((GstControlSource *) self->cs, self->offset,
+  gst_control_source_get_value ((GstControlSource *) self->cs, offset,
       &self->value);
-  self->offset += offset;
   return self->value;
 }
 
 /**
  * gstbt_envelope_is_running:
  * @self: the envelope
+ * @offset: the current offset
  *
  * Checks if the end of the envelop has reached. Can be used to skip audio
  * rendering once the end is reached.
@@ -82,9 +92,9 @@ gstbt_envelope_get (GstBtEnvelope * self, guint offset)
  * Returns: if the envelope is still running
  */
 gboolean
-gstbt_envelope_is_running (GstBtEnvelope * self)
+gstbt_envelope_is_running (GstBtEnvelope * self, guint64 offset)
 {
-  return self->offset < self->length;
+  return offset < self->length;
 }
 
 //-- virtual methods

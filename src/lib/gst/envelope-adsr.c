@@ -98,7 +98,6 @@ gstbt_envelope_adsr_setup (GstBtEnvelopeADSR * self, gint samplerate,
 
   /* reset states */
   base->value = self->floor_level;
-  base->offset = G_GUINT64_CONSTANT (0);
 
   /* ensure a+d < s */
   if ((self->attack + self->decay) > note_time) {

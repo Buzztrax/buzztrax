@@ -52,7 +52,7 @@ struct _GstBtEnvelope {
 
   /* < private > */
   GstTimedValueControlSource *cs;
-  guint64 offset, length;
+  guint64 length;
 };
 
 struct _GstBtEnvelopeClass {
@@ -61,8 +61,8 @@ struct _GstBtEnvelopeClass {
 
 GType gstbt_envelope_get_type (void);
 
-gdouble gstbt_envelope_get (GstBtEnvelope *self, guint offset);
-gboolean gstbt_envelope_is_running (GstBtEnvelope *self);
+gdouble gstbt_envelope_get (GstBtEnvelope *self, guint64 offset);
+gboolean gstbt_envelope_is_running (GstBtEnvelope *self, guint64 offset);
 
 G_END_DECLS
 

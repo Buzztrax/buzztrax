@@ -86,7 +86,8 @@ gstbt_wave_tab_syn_process (GstBtAudioSynth * base, GstBuffer * data,
     guint sz = src->cycle_size;
     guint pos = src->cycle_pos;
     guint p = 0;
-    guint64 off = src->offset * (src->duration - src->cycle_size) / 0xFFFF;
+    guint64 offset = src->offset;
+    guint64 off = src->wt_offset * (src->duration - src->cycle_size) / 0xFFFF;
     GstBtEnvelope *volenv = (GstBtEnvelope *) src->volenv;
 
     // do we have a unfinished cycle?
@@ -122,7 +123,7 @@ gstbt_wave_tab_syn_process (GstBtAudioSynth * base, GstBuffer * data,
       guint i = 0, j;
       while (i < ct) {
         j = ct - i;
-        amp = gstbt_envelope_get (volenv, MIN (INNER_LOOP, j));
+        amp = gstbt_envelope_get (volenv, offset + i);
         for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
           d[i] *= amp;
         }
@@ -132,13 +133,14 @@ gstbt_wave_tab_syn_process (GstBtAudioSynth * base, GstBuffer * data,
       guint i = 0, j;
       while (i < ct) {
         j = ct - i;
-        amp = gstbt_envelope_get (volenv, MIN (INNER_LOOP, j));
+        amp = gstbt_envelope_get (volenv, offset + i);
         for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
           d[(i << 1)] *= amp;
           d[(i << 1) + 1] *= amp;
         }
       }
     }
+    src->offset += ct;
     return TRUE;
   }
   return FALSE;
@@ -175,13 +177,14 @@ gstbt_wave_tab_syn_set_property (GObject * object, guint prop_id,
         src->cycle_size = ((GstBtAudioSynth *) src)->samplerate / freq;
         src->cycle_pos = 0;
 
+        src->offset = 0;
         gstbt_envelope_adsr_setup (src->volenv,
             ((GstBtAudioSynth *) src)->samplerate,
             ((GstBtAudioSynth *) src)->ticktime);
       }
       break;
     case PROP_OFFSET:
-      src->offset = g_value_get_uint (value);
+      src->wt_offset = g_value_get_uint (value);
       break;
     case PROP_NOTE_LENGTH:
     case PROP_ATTACK:
@@ -212,7 +215,7 @@ gstbt_wave_tab_syn_get_property (GObject * object, guint prop_id,
       g_object_get_property ((GObject *) (src->n2f), "tuning", value);
       break;
     case PROP_OFFSET:
-      g_value_set_uint (value, src->offset);
+      g_value_set_uint (value, src->wt_offset);
       break;
     case PROP_NOTE_LENGTH:
     case PROP_ATTACK:

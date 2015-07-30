@@ -90,7 +90,6 @@ gstbt_envelope_ad_setup (GstBtEnvelopeAD * self, gint samplerate)
 
   /* reset states */
   base->value = self->floor_level;
-  base->offset = G_GUINT64_CONSTANT (0);
 
   /* ensure a < d */
   if (attack_time > self->decay) {

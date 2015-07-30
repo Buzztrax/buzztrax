@@ -123,6 +123,7 @@ struct _GstBtOscSynth {
   gdouble freq;
 
   /* oscillator state */
+  guint64 offset;
   gdouble accumulator;          /* phase angle */
   gdouble period;
   gdouble flip;
@@ -141,6 +142,8 @@ struct _GstBtOscSynthClass {
 GType gstbt_osc_synth_get_type(void);
 
 GstBtOscSynth *gstbt_osc_synth_new(void);
+void gstbt_osc_synth_trigger(GstBtOscSynth *self);
+void gstbt_osc_synth_process(GstBtOscSynth *self, guint size, gint16 *data);
 
 G_END_DECLS
 #endif /* __GSTBT_OSC_SYNTH_H__ */

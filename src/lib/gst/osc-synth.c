@@ -175,15 +175,24 @@ gstbt_osc_synth_new (void)
 //-- private methods
 
 static inline gdouble
-get_env (GstBtEnvelope * env, guint size, gdouble def)
+get_env (GstBtEnvelope * env, guint64 offset, gdouble def)
 {
-  return (env) ? gstbt_envelope_get (env, MIN (INNER_LOOP, size)) : def;
+  return (env) ? gstbt_envelope_get (env, offset) : def;
 }
+
+#define UPDATE_INNER_LOOP(c,r) do { \
+  if (INNER_LOOP < r) {             \
+    c = INNER_LOOP; r-= INNER_LOOP; \
+  } else {                          \
+    c = r; r = 0;                   \
+  }                                 \
+} while (0)
 
 static void
 gstbt_osc_synth_create_sine (GstBtOscSynth * self, guint ct, gint16 * samples)
 {
-  guint i = 0, j, r = ct;
+  guint i = 0, j, c, r = ct;
+  guint64 offset = self->offset;
   gdouble amp, step;
   gdouble accumulator = self->accumulator;
   gdouble freq = self->freq;
@@ -191,9 +200,10 @@ gstbt_osc_synth_create_sine (GstBtOscSynth * self, guint ct, gint16 * samples)
   GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
 
   while (i < ct) {
-    amp = get_env (volenv, r, 1.0) * 32767.0;
-    step = get_env (freqenv, r, freq) * period;
-    for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
+    amp = get_env (volenv, offset + i, 1.0) * 32767.0;
+    step = get_env (freqenv, offset + i, freq) * period;
+    UPDATE_INNER_LOOP (c, r);
+    for (j = 0; j < c; j++, i++) {
       accumulator += step;
       /* TODO(ensonic): move out of inner loop? */
       if (G_UNLIKELY (accumulator >= M_PI_M2))
@@ -201,7 +211,6 @@ gstbt_osc_synth_create_sine (GstBtOscSynth * self, guint ct, gint16 * samples)
 
       samples[i] = (gint16) (sin (accumulator) * amp);
     }
-    r -= INNER_LOOP;
   }
   self->accumulator = accumulator;
 }
@@ -209,7 +218,8 @@ gstbt_osc_synth_create_sine (GstBtOscSynth * self, guint ct, gint16 * samples)
 static void
 gstbt_osc_synth_create_square (GstBtOscSynth * self, guint ct, gint16 * samples)
 {
-  guint i = 0, j, r = ct;
+  guint i = 0, j, c, r = ct;
+  guint64 offset = self->offset;
   gdouble amp, step;
   gdouble accumulator = self->accumulator;
   gdouble freq = self->freq;
@@ -217,16 +227,16 @@ gstbt_osc_synth_create_square (GstBtOscSynth * self, guint ct, gint16 * samples)
   GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
 
   while (i < ct) {
-    amp = get_env (volenv, r, 1.0) * 32767.0;
-    step = get_env (freqenv, r, freq) * period;
-    for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
+    amp = get_env (volenv, offset + i, 1.0) * 32767.0;
+    step = get_env (freqenv, offset + i, freq) * period;
+    UPDATE_INNER_LOOP (c, r);
+    for (j = 0; j < c; j++, i++) {
       accumulator += step;
       if (G_UNLIKELY (accumulator >= M_PI_M2))
         accumulator -= M_PI_M2;
 
       samples[i] = (gint16) ((accumulator < M_PI) ? amp : -amp);
     }
-    r -= INNER_LOOP;
   }
   self->accumulator = accumulator;
 }
@@ -234,7 +244,8 @@ gstbt_osc_synth_create_square (GstBtOscSynth * self, guint ct, gint16 * samples)
 static void
 gstbt_osc_synth_create_saw (GstBtOscSynth * self, guint ct, gint16 * samples)
 {
-  guint i = 0, j, r = ct;
+  guint i = 0, j, c, r = ct;
+  guint64 offset = self->offset;
   gdouble amp, ampf = 32767.0 / M_PI, step;
   gdouble accumulator = self->accumulator;
   gdouble freq = self->freq;
@@ -242,9 +253,10 @@ gstbt_osc_synth_create_saw (GstBtOscSynth * self, guint ct, gint16 * samples)
   GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
 
   while (i < ct) {
-    amp = get_env (volenv, r, 1.0) * ampf;
-    step = get_env (freqenv, r, freq) * period;
-    for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
+    amp = get_env (volenv, offset + i, 1.0) * ampf;
+    step = get_env (freqenv, offset + i, freq) * period;
+    UPDATE_INNER_LOOP (c, r);
+    for (j = 0; j < c; j++, i++) {
       accumulator += step;
       if (G_UNLIKELY (accumulator >= M_PI_M2))
         accumulator -= M_PI_M2;
@@ -255,7 +267,6 @@ gstbt_osc_synth_create_saw (GstBtOscSynth * self, guint ct, gint16 * samples)
         samples[i] = (gint16) ((M_PI_M2 - accumulator) * -amp);
       }
     }
-    r -= INNER_LOOP;
   }
   self->accumulator = accumulator;
 }
@@ -264,7 +275,8 @@ static void
 gstbt_osc_synth_create_triangle (GstBtOscSynth * self, guint ct,
     gint16 * samples)
 {
-  guint i = 0, j, r = ct;
+  guint i = 0, j, c, r = ct;
+  guint64 offset = self->offset;
   gdouble amp, ampf = 65535.0 / M_PI, step;
   gdouble accumulator = self->accumulator;
   gdouble freq = self->freq;
@@ -272,9 +284,10 @@ gstbt_osc_synth_create_triangle (GstBtOscSynth * self, guint ct,
   GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
 
   while (i < ct) {
-    amp = get_env (volenv, r, 1.0) * ampf;
-    step = get_env (freqenv, r, freq) * period;
-    for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
+    amp = get_env (volenv, offset + i, 1.0) * ampf;
+    step = get_env (freqenv, offset + i, freq) * period;
+    UPDATE_INNER_LOOP (c, r);
+    for (j = 0; j < c; j++, i++) {
       accumulator += step;
       if (G_UNLIKELY (accumulator >= M_PI_M2))
         accumulator -= M_PI_M2;
@@ -287,7 +300,6 @@ gstbt_osc_synth_create_triangle (GstBtOscSynth * self, guint ct,
         samples[i] = (gint16) ((M_PI_M2 - accumulator) * -amp);
       }
     }
-    r -= INNER_LOOP;
   }
   self->accumulator = accumulator;
 }
@@ -297,27 +309,24 @@ gstbt_osc_synth_create_silence (GstBtOscSynth * self, guint ct,
     gint16 * samples)
 {
   memset (samples, 0, ct * sizeof (gint16));
-  // still need to advance it to satisfy gstbt_envelope_is_running()
-  if (self->volenv) {
-    ((GstBtEnvelope *) self->volenv)->offset += ct;
-  }
 }
 
 static void
 gstbt_osc_synth_create_white_noise (GstBtOscSynth * self, guint ct,
     gint16 * samples)
 {
-  guint i = 0, j, r = ct;
+  guint i = 0, j, c, r = ct;
+  guint64 offset = self->offset;
   gdouble amp;
   GstBtEnvelope *volenv = self->volenv;
 
   while (i < ct) {
-    amp = get_env (volenv, r, 1.0);
-    for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
+    amp = get_env (volenv, offset + i, 1.0);
+    UPDATE_INNER_LOOP (c, r);
+    for (j = 0; j < c; j++, i++) {
       samples[i] =
           (gint16) (amp * (32768.0 - (65535.0 * rand () / (RAND_MAX + 1.0))));
     }
-    r -= INNER_LOOP;
   }
 }
 
@@ -385,18 +394,19 @@ static void
 gstbt_osc_synth_create_pink_noise (GstBtOscSynth * self, guint ct,
     gint16 * samples)
 {
-  guint i = 0, j, r = ct;
+  guint i = 0, j, c, r = ct;
   GstBtPinkNoise *pink = &self->pink;
+  guint64 offset = self->offset;
   gdouble amp;
   GstBtEnvelope *volenv = self->volenv;
 
   while (i < ct) {
-    amp = get_env (volenv, r, 1.0) * 32767.0;
-    for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
+    amp = get_env (volenv, offset + i, 1.0) * 32767.0;
+    UPDATE_INNER_LOOP (c, r);
+    for (j = 0; j < c; j++, i++) {
       samples[i] =
           (gint16) (gstbt_osc_synth_generate_pink_noise_value (pink) * amp);
     }
-    r -= INNER_LOOP;
   }
 }
 
@@ -409,13 +419,15 @@ static void
 gstbt_osc_synth_create_gaussian_white_noise (GstBtOscSynth * self, guint ct,
     gint16 * samples)
 {
-  gint i = 0, j, r = ct;
+  gint i = 0, j, c, r = ct;
+  guint64 offset = self->offset;
   gdouble amp;
   GstBtEnvelope *volenv = self->volenv;
 
   while (i < ct) {
-    amp = get_env (volenv, r, 1.0) * 32767.0;
-    for (j = 0; ((j < INNER_LOOP) && (i < ct)); j += 2) {
+    amp = get_env (volenv, offset + i, 1.0) * 32767.0;
+    UPDATE_INNER_LOOP (c, r);
+    for (j = 0; j < c; j += 2) {
       gdouble mag = sqrt (-2 * log (1.0 - rand () / (RAND_MAX + 1.0)));
       gdouble phs = M_PI_M2 * rand () / (RAND_MAX + 1.0);
 
@@ -423,7 +435,6 @@ gstbt_osc_synth_create_gaussian_white_noise (GstBtOscSynth * self, guint ct,
       if (i < ct)
         samples[i++] = (gint16) (amp * mag * sin (phs));
     }
-    r -= INNER_LOOP;
   }
 }
 
@@ -431,14 +442,16 @@ static void
 gstbt_osc_synth_create_red_noise (GstBtOscSynth * self, guint ct,
     gint16 * samples)
 {
-  gint i = 0, j, r = ct;
+  gint i = 0, j, c, r = ct;
+  guint64 offset = self->offset;
   gdouble amp;
   gdouble state = self->red.state;
   GstBtEnvelope *volenv = self->volenv;
 
   while (i < ct) {
-    amp = get_env (volenv, r, 1.0) * 32767.0;
-    for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++) {
+    amp = get_env (volenv, offset + i, 1.0) * 32767.0;
+    UPDATE_INNER_LOOP (c, r);
+    for (j = 0; j < c; j++, i++) {
       while (TRUE) {
         gdouble r = 1.0 - (2.0 * rand () / (RAND_MAX + 1.0));
         state += r;
@@ -449,7 +462,6 @@ gstbt_osc_synth_create_red_noise (GstBtOscSynth * self, guint ct,
       }
       samples[i] = (gint16) (amp * state * 0.0625f);    /* /16.0 */
     }
-    r -= INNER_LOOP;
   }
   self->red.state = state;
 }
@@ -488,7 +500,8 @@ static void
 gstbt_osc_synth_create_s_and_h (GstBtOscSynth * self, guint ct,
     gint16 * samples)
 {
-  guint i = 0, j, r = ct;
+  guint i = 0, j, c, r = ct;
+  guint64 offset = self->offset;
   gdouble amp, step;
   gdouble freq = self->freq;
   gint count = self->sh.count;
@@ -497,12 +510,13 @@ gstbt_osc_synth_create_s_and_h (GstBtOscSynth * self, guint ct,
   GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
 
   while (i < ct) {
-    amp = get_env (volenv, r, 1.0);
-    for (j = 0; ((j < INNER_LOOP) && (i < ct)); j++, i++, r--) {
+    amp = get_env (volenv, offset + i, 1.0);
+    UPDATE_INNER_LOOP (c, r);
+    for (j = 0; j < c; j++, i++, r--) {
       if (G_UNLIKELY (count <= 0.0)) {
         // if freq = 100, we want 100 changes per second
         // = 100 changes per samplingrate samples
-        step = get_env (freqenv, r, freq);
+        step = get_env (freqenv, c, freq);
         step = CLAMP (step, 0, samplerate);
         count = samplerate / step;
         smpl = 32768 - (65535.0 * rand () / (RAND_MAX + 1.0));
@@ -517,6 +531,8 @@ gstbt_osc_synth_create_s_and_h (GstBtOscSynth * self, guint ct,
 
 /*
  * gstbt_osc_synth_change_wave:
+ * @self: the oscillator
+ *
  * Assign function pointer of wave genrator.
  */
 static void
@@ -542,28 +558,62 @@ gstbt_osc_synth_change_wave (GstBtOscSynth * self)
       self->process = gstbt_osc_synth_create_white_noise;
       break;
     case GSTBT_OSC_SYNTH_WAVE_PINK_NOISE:
-      gstbt_osc_synth_init_pink_noise (self);
       self->process = gstbt_osc_synth_create_pink_noise;
       break;
     case GSTBT_OSC_SYNTH_WAVE_GAUSSIAN_WHITE_NOISE:
       self->process = gstbt_osc_synth_create_gaussian_white_noise;
       break;
     case GSTBT_OSC_SYNTH_WAVE_RED_NOISE:
-      self->red.state = 0.0;
       self->process = gstbt_osc_synth_create_red_noise;
       break;
     case GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE:
-      gstbt_osc_synth_init_pink_noise (self);
-      self->flip = 1.0;
       self->process = gstbt_osc_synth_create_blue_noise;
       break;
     case GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE:
-      self->red.state = 0.0;
-      self->flip = 1.0;
       self->process = gstbt_osc_synth_create_violet_noise;
       break;
     case GSTBT_OSC_SYNTH_WAVE_S_AND_H:
       self->process = gstbt_osc_synth_create_s_and_h;
+      break;
+    default:
+      GST_ERROR ("invalid wave-form: %d", self->wave);
+      break;
+  }
+  gstbt_osc_synth_trigger (self);
+}
+
+//-- public methods
+
+/**
+ * gstbt_osc_synth_trigger:
+ * @self: the oscillator
+ *
+ * Reset oscillator state. Typically called for new notes.
+ */
+void
+gstbt_osc_synth_trigger (GstBtOscSynth * self)
+{
+  self->offset = 0;
+  self->accumulator = 0.0;
+  self->flip = 1.0;
+  switch (self->wave) {
+    case GSTBT_OSC_SYNTH_WAVE_SINE:
+    case GSTBT_OSC_SYNTH_WAVE_SQUARE:
+    case GSTBT_OSC_SYNTH_WAVE_SAW:
+    case GSTBT_OSC_SYNTH_WAVE_TRIANGLE:
+    case GSTBT_OSC_SYNTH_WAVE_SILENCE:
+    case GSTBT_OSC_SYNTH_WAVE_WHITE_NOISE:
+    case GSTBT_OSC_SYNTH_WAVE_GAUSSIAN_WHITE_NOISE:
+      break;
+    case GSTBT_OSC_SYNTH_WAVE_PINK_NOISE:
+    case GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE:
+      gstbt_osc_synth_init_pink_noise (self);
+      break;
+    case GSTBT_OSC_SYNTH_WAVE_RED_NOISE:
+    case GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE:
+      self->red.state = 0.0;
+      break;
+    case GSTBT_OSC_SYNTH_WAVE_S_AND_H:
       self->sh.count = 0;
       break;
     default:
@@ -572,7 +622,20 @@ gstbt_osc_synth_change_wave (GstBtOscSynth * self)
   }
 }
 
-//-- public methods
+/**
+ * gstbt_osc_synth_process:
+ * @self: the oscillator
+ * @size: number of sample to generate
+ * @data: buffer to hold the audio
+ *
+ * Generate @size samples of audio and store them into @data.
+ */
+void
+gstbt_osc_synth_process (GstBtOscSynth * self, guint size, gint16 * data)
+{
+  self->process (self, size, data);
+  self->offset += size;
+}
 
 //-- virtual methods
 

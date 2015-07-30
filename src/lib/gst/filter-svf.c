@@ -208,6 +208,36 @@ gstbt_filter_svf_change_filter (GstBtFilterSVF * self)
 
 //-- public methods
 
+/**
+ * gstbt_filter_svf_trigger:
+ * @self: the filter
+ *
+ * Reset filter state. Typically called for new notes.
+ */
+void
+gstbt_filter_svf_trigger (GstBtFilterSVF * self)
+{
+  self->offset = 0;
+  self->flt_low = self->flt_mid = self->flt_high = 0.0;
+}
+
+/**
+ * gstbt_filter_svf_process:
+ * @self: the oscillator
+ * @size: number of sample to filter
+ * @data: buffer with the audio
+ *
+ * Process @size samples of audio from @data and store them into @data.
+ */
+void
+gstbt_filter_svf_process (GstBtFilterSVF * self, guint size, gint16 * data)
+{
+  if (self->process) {
+    self->process (self, size, data);
+    self->offset += size;
+  }
+}
+
 //-- virtual methods
 
 static void

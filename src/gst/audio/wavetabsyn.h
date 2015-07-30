@@ -49,8 +49,9 @@ struct _GstBtWaveTabSyn
   
   /* < private > */
   GstBtNote note;
-  guint offset;
+  guint wt_offset;
 
+  guint64 offset;
   guint cycle_pos, cycle_size;
   guint64 duration;
   GstBtToneConversion *n2f;

@@ -22,6 +22,7 @@
 #endif
 #include "plugin.h"
 #include "audiodelay.h"
+#include "ebeats.h"
 #include "simsyn.h"
 #include "wavereplay.h"
 #include "wavetabsyn.h"
@@ -123,6 +124,8 @@ plugin_init (GstPlugin * plugin)
 
   return (gst_element_register (plugin, "audiodelay", GST_RANK_NONE,
           GSTBT_TYPE_AUDIO_DELAY) &&
+      gst_element_register (plugin, "ebeats", GST_RANK_NONE,
+          GSTBT_TYPE_E_BEATS) &&
       gst_element_register (plugin, "simsyn", GST_RANK_NONE,
           GSTBT_TYPE_SIM_SYN) &&
       gst_element_register (plugin, "wavereplay", GST_RANK_NONE,

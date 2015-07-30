@@ -77,6 +77,7 @@ struct _GstBtFilterSVF {
   gdouble cutoff, resonance;
 
   /* < private > */
+  guint64 offset;
   /* filter state */
   gdouble flt_low, flt_mid, flt_high;
   gdouble flt_res;
@@ -92,6 +93,9 @@ struct _GstBtFilterSVFClass {
 GType gstbt_filter_svf_get_type(void);
 
 GstBtFilterSVF *gstbt_filter_svf_new(void);
+
+void gstbt_filter_svf_trigger(GstBtFilterSVF *self);
+void gstbt_filter_svf_process(GstBtFilterSVF *self, guint size, gint16 *data);
 
 G_END_DECLS
 #endif /* __GSTBT_FILTER_SVF_H__ */

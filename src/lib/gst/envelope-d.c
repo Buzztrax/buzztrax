@@ -103,7 +103,6 @@ gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate)
 
   /* reset states */
   base->value = self->peak_level;
-  base->offset = G_GUINT64_CONSTANT (0);
 
   /* samplerate will be one second */
   decay = samplerate * self->decay;

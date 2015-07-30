@@ -82,13 +82,13 @@ gstbt_sim_syn_process (GstBtAudioSynth * base, GstBuffer * data,
   GstBtSimSyn *src = ((GstBtSimSyn *) base);
 
   if ((src->note != GSTBT_NOTE_OFF)
-      && gstbt_envelope_is_running ((GstBtEnvelope *) src->volenv)) {
+      && gstbt_envelope_is_running ((GstBtEnvelope *) src->volenv,
+          src->osc->offset)) {
     gint16 *d = (gint16 *) info->data;
     guint ct = ((GstBtAudioSynth *) src)->generate_samples_per_buffer;
 
-    src->osc->process (src->osc, ct, d);
-    if (src->filter->process)
-      src->filter->process (src->filter, ct, d);
+    gstbt_osc_synth_process (src->osc, ct, d);
+    gstbt_filter_svf_process (src->filter, ct, d);
     return TRUE;
   }
   return FALSE;
@@ -114,6 +114,8 @@ gstbt_sim_syn_set_property (GObject * object, guint prop_id,
         gstbt_envelope_ad_setup (src->volenv,
             ((GstBtAudioSynth *) src)->samplerate);
         g_object_set (src->osc, "frequency", freq, NULL);
+        gstbt_osc_synth_trigger (src->osc);
+        gstbt_filter_svf_trigger (src->filter);
       }
       break;
     case PROP_WAVE:
