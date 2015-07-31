@@ -120,7 +120,7 @@ struct _GstBtOscSynth {
   gint samplerate;
   GstBtEnvelope *volenv, *freqenv;
   GstBtOscSynthWave wave;
-  gdouble freq;
+  gdouble vol, freq;
 
   /* oscillator state */
   guint64 offset;
