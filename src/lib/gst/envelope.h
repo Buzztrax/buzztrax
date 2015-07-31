@@ -37,26 +37,21 @@ typedef struct _GstBtEnvelopeClass GstBtEnvelopeClass;
 
 /**
  * GstBtEnvelope:
- * @value: current envelope value
+ * @length: length of the envelope in samples
  *
  * Class instance data.
  */
 struct _GstBtEnvelope {
-  GObject parent;
+  GstInterpolationControlSource parent;
   /* < private > */
   gboolean dispose_has_run;		/* validate if dispose has run */
 
   /* < public > */
-  /* parameters */
-  gdouble value;
-
-  /* < private > */
-  GstTimedValueControlSource *cs;
   guint64 length;
 };
 
 struct _GstBtEnvelopeClass {
-  GObjectClass parent_class;
+  GstInterpolationControlSourceClass parent_class;
 };
 
 GType gstbt_envelope_get_type (void);

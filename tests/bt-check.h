@@ -330,6 +330,6 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
 // plotting helper
 
 gint check_plot_data_int16 (gint16 * d, guint size, const gchar * _name);
-gint check_plot_data_float (gfloat * d, guint size, const gchar * _name);
+gint check_plot_data_double (gdouble * d, guint size, const gchar * _name);
 
 #endif /* BT_CHECK_H */

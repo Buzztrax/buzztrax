@@ -1317,7 +1317,7 @@ check_plot_data_int16 (gint16 * d, guint size, const gchar * _name)
 }
 
 gint
-check_plot_data_float (gfloat * d, guint size, const gchar * _name)
+check_plot_data_double (gdouble * d, guint size, const gchar * _name)
 {
   gint ret;
   gchar *base_name = check_plot_get_basename (_name);
@@ -1326,10 +1326,10 @@ check_plot_data_float (gfloat * d, guint size, const gchar * _name)
       ("/bin/sh -c \"echo \\\"set terminal svg size 200,160 fsize 6;set output '%s.svg';"
       "set yrange [0.0:1.0];set grid xtics;set grid ytics;"
       "set key outside below;"
-      "plot '%s.raw' binary format='%%float32' using 0:1 with lines title '%s'\\\" | gnuplot\"",
+      "plot '%s.raw' binary format='%%float64' using 0:1 with lines title '%s'\\\" | gnuplot\"",
       base_name, base_name, _name);
 
-  check_write_raw_data (d, size * sizeof (gfloat), base_name);
+  check_write_raw_data (d, size * sizeof (gdouble), base_name);
   ret = system (cmd);
 
   g_free (cmd);

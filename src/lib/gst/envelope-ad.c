@@ -83,13 +83,9 @@ gstbt_envelope_ad_new (void)
 void
 gstbt_envelope_ad_setup (GstBtEnvelopeAD * self, gint samplerate)
 {
-  GstBtEnvelope *base = (GstBtEnvelope *) self;
-  GstTimedValueControlSource *cs = base->cs;
+  GstTimedValueControlSource *cs = (GstTimedValueControlSource *) self;
   gdouble attack_time = self->attack;
   guint64 attack, decay;
-
-  /* reset states */
-  base->value = self->floor_level;
 
   /* ensure a < d */
   if (attack_time > self->decay) {
@@ -99,7 +95,7 @@ gstbt_envelope_ad_setup (GstBtEnvelopeAD * self, gint samplerate)
   /* samplerate will be one second */
   attack = samplerate * attack_time;
   decay = samplerate * self->decay;
-  base->length = decay;
+  g_object_set (self, "length", decay, NULL);
 
   /* configure envelope */
   gst_timed_value_control_source_unset_all (cs);

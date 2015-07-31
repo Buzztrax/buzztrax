@@ -24,15 +24,21 @@
  *
  * Base class for envelopes. 
  */
-/* TODO: we don't use the value property right now */
-/* TODO: these classes would ideally be just subclass control soures so that we
- *   can use them as control sources too.
- * - Instead of gstbt_evelope_get(GstBtEnvelope * self, guint offset), we can use the
- *   gst_control_source_get_value (GstControlSource *self,GstClockTime timestamp, gdouble *value);
- * - For that all components that have controlable-properties (osc-synth, filter-svf) need to
- *   track their running time, so that they can call gst_object_sync_values(self, pos);
- * - we wouln't need this class anymore, maybe add an interface for
- *   gstbt_envelope_is_running()
+/* TODO: these classes can now be used them as control sources directly
+ *
+ * - components would change 
+ *     gstbt_evelope_get(GstBtEnvelope * self, guint offset)
+ *   to
+ *     gst_object_sync_values (self, offset)
+ *
+ * - elements would change
+ *     g_object_set (src->osc, "volume-envelope", src->volenv, NULL);
+ *   to
+ *     gst_object_add_control_binding (src->osc,
+ *         gst_direct_control_binding_new_absolute (src->osc, "volume", src->volenv));
+ *
+ * - then we can remove gstbt_envelope_get()
+ *   - in wavetabsyn we can gst_control_source_get_value() directly
  */
 
 #ifdef HAVE_CONFIG_H
@@ -51,12 +57,13 @@ GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 enum
 {
   // class properties
-  PROP_VALUE = 1,
+  PROP_LENGTH = 1,
 };
 
 //-- the class
 
-G_DEFINE_ABSTRACT_TYPE (GstBtEnvelope, gstbt_envelope, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE (GstBtEnvelope, gstbt_envelope,
+    GST_TYPE_INTERPOLATION_CONTROL_SOURCE);
 
 //-- constructor methods
 
@@ -76,9 +83,9 @@ G_DEFINE_ABSTRACT_TYPE (GstBtEnvelope, gstbt_envelope, G_TYPE_OBJECT);
 gdouble
 gstbt_envelope_get (GstBtEnvelope * self, guint64 offset)
 {
-  gst_control_source_get_value ((GstControlSource *) self->cs, offset,
-      &self->value);
-  return self->value;
+  gdouble value;
+  gst_control_source_get_value ((GstControlSource *) self, offset, &value);
+  return value;
 }
 
 /**
@@ -109,8 +116,8 @@ gstbt_envelope_set_property (GObject * object, guint prop_id,
     return;
 
   switch (prop_id) {
-    case PROP_VALUE:
-      self->value = g_value_get_double (value);
+    case PROP_LENGTH:
+      self->length = g_value_get_uint64 (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -128,9 +135,8 @@ gstbt_envelope_get_property (GObject * object, guint prop_id,
     return;
 
   switch (prop_id) {
-    case PROP_VALUE:
-      // TODO(ensonic): gst_object_sync_values (GST_OBJECT (env), self->offset);
-      g_value_set_double (value, self->value);
+    case PROP_LENGTH:
+      g_value_set_uint64 (value, self->length);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -147,19 +153,14 @@ gstbt_envelope_dispose (GObject * object)
     return;
   self->dispose_has_run = TRUE;
 
-  if (self->cs)
-    g_object_unref (self->cs);
-
   G_OBJECT_CLASS (gstbt_envelope_parent_class)->dispose (object);
 }
 
 static void
 gstbt_envelope_init (GstBtEnvelope * self)
 {
-  self->value = 0.0;
-  self->cs =
-      (GstTimedValueControlSource *) gst_interpolation_control_source_new ();
-  g_object_set (self->cs, "mode", GST_INTERPOLATION_MODE_LINEAR, NULL);
+  self->length = G_GUINT64_CONSTANT (0);
+  g_object_set (self, "mode", GST_INTERPOLATION_MODE_LINEAR, NULL);
 
 }
 
@@ -177,9 +178,9 @@ gstbt_envelope_class_init (GstBtEnvelopeClass * klass)
 
   // register own properties
 
-  g_object_class_install_property (gobject_class, PROP_VALUE,
-      g_param_spec_double ("value", "Value", "Current envelope value",
-          0.0, G_MAXDOUBLE, 0.0,
-          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | GST_PARAM_CONTROLLABLE));
+  g_object_class_install_property (gobject_class, PROP_LENGTH,
+      g_param_spec_uint64 ("length", "Length",
+          "Length of the envelope in samples", 0, G_MAXUINT64, 0,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 }

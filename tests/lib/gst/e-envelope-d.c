@@ -62,10 +62,9 @@ test_envelope_curves (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GstBtEnvelopeD *env;
-  gfloat data[WAVE_SIZE];
+  gdouble data[WAVE_SIZE];
   gdouble curve = _i / 4.0;
   gchar name[20];
-  gint i;
 
   GST_INFO ("-- arrange --");
   env = gstbt_envelope_d_new ();
@@ -74,13 +73,12 @@ test_envelope_curves (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   gstbt_envelope_d_setup (env, WAVE_SIZE);
-  for (i = 0; i < WAVE_SIZE; i++) {
-    data[i] = gstbt_envelope_get ((GstBtEnvelope *) env, 1);
-  }
+  gst_control_source_get_value_array ((GstControlSource *) env, 0, 1, WAVE_SIZE,
+      data);
 
   GST_INFO ("-- assert --");
   sprintf (name, "envelope-d %4.2f", curve);
-  check_plot_data_float (data, WAVE_SIZE, name);
+  check_plot_data_double (data, WAVE_SIZE, name);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (env);

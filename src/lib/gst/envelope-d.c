@@ -95,18 +95,14 @@ gstbt_envelope_d_new (void)
 void
 gstbt_envelope_d_setup (GstBtEnvelopeD * self, gint samplerate)
 {
-  GstBtEnvelope *base = (GstBtEnvelope *) self;
-  GstTimedValueControlSource *cs = base->cs;
+  GstTimedValueControlSource *cs = (GstTimedValueControlSource *) self;
   guint64 decay;
   gdouble c = self->curve;
   gboolean use_curve = (c != 0.5 && c > 0.0 && c < 1.0);
 
-  /* reset states */
-  base->value = self->peak_level;
-
   /* samplerate will be one second */
   decay = samplerate * self->decay;
-  base->length = decay;
+  g_object_set (self, "length", decay, NULL);
 
   /* configure envelope */
   gst_timed_value_control_source_unset_all (cs);
