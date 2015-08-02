@@ -410,6 +410,14 @@ dnl check for gstreamer devel additions
 #CPPFLAGS="$ac_cppflags_save"
 #LIBS="$ac_libs_save"
 
+# TODO(ensonic: remove when we require gst-1.6
+ac_libs_save="$LIBS"
+AC_CHECK_LIB( gstcontroller-1.0, gst_direct_control_binding_new_absolute, \
+   AC_DEFINE(HAVE_GST_CONTROL_BINDING_ABS, [1], [Define to 1 if we have abs direct control binding]) \
+)
+AM_CONDITIONAL(BUILD_GST_CONTROL_BINDING_ABS, test "x$ac_cv_lib_gstcontroller_1_0_gst_direct_control_binding_new_absolute" == "xno")
+LIBS="$ac_libs_save"
+
 dnl Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"
 

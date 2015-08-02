@@ -39,6 +39,12 @@
 #include "plugin.h"
 #include "simsyn.h"
 
+#ifdef HAVE_GST_CONTROL_BINDING_ABS
+#include <gst/controller/gstdirectcontrolbinding.h>
+#else
+#include "gst/gstdirectcontrolbinding.h"
+#endif
+
 #define GST_CAT_DEFAULT bt_audio_debug
 GST_DEBUG_CATEGORY_EXTERN (GST_CAT_DEFAULT);
 
@@ -195,7 +201,9 @@ gstbt_sim_syn_init (GstBtSimSyn * src)
   src->osc = gstbt_osc_synth_new ();
   src->volenv = gstbt_envelope_ad_new ();
   src->filter = gstbt_filter_svf_new ();
-  g_object_set (src->osc, "volume-envelope", src->volenv, NULL);
+  gst_object_add_control_binding ((GstObject *) src->osc,
+      gst_direct_control_binding_new_absolute ((GstObject *) src->osc, "volume",
+          (GstControlSource *) src->volenv));
   g_object_set (src->volenv, "peak-level", 0.8, NULL);
 }
 

@@ -112,13 +112,12 @@ typedef struct _GstBtOscSynthClass GstBtOscSynthClass;
  * Class instance data.
  */
 struct _GstBtOscSynth {
-  GObject parent;
+  GstObject parent;
 
   /* < private > */
   gboolean dispose_has_run;		/* validate if dispose has run */
   /* parameters */
   gint samplerate;
-  GstBtEnvelope *volenv, *freqenv;
   GstBtOscSynthWave wave;
   gdouble vol, freq;
 
@@ -136,7 +135,7 @@ struct _GstBtOscSynth {
 };
 
 struct _GstBtOscSynthClass {
-  GObjectClass parent_class;
+  GstObjectClass parent_class;
 };
 
 GType gstbt_osc_synth_get_type(void);

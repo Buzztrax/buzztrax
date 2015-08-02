@@ -67,7 +67,7 @@ typedef struct _GstBtFilterSVFClass GstBtFilterSVFClass;
  * Class instance data.
  */
 struct _GstBtFilterSVF {
-  GObject parent;
+  GstObject parent;
   /* < private > */
   gboolean dispose_has_run;		/* validate if dispose has run */
 
@@ -87,7 +87,7 @@ struct _GstBtFilterSVF {
 };
 
 struct _GstBtFilterSVFClass {
-  GObjectClass parent_class;
+  GstObjectClass parent_class;
 };
 
 GType gstbt_filter_svf_get_type(void);

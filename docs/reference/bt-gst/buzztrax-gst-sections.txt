@@ -55,7 +55,6 @@ gstbt_delay_get_type
 <FILE>envelope</FILE>
 <TITLE>GstBtEnvelope</TITLE>
 GstBtEnvelope
-gstbt_envelope_get
 gstbt_envelope_is_running
 <SUBSECTION Standard>
 GSTBT_ENVELOPE
@@ -125,6 +124,8 @@ gstbt_envelope_d_get_type
 GstBtFilterSVFType
 GstBtFilterSVF
 gstbt_filter_svf_new
+gstbt_osc_synth_trigger
+gstbt_osc_synth_process
 <SUBSECTION Standard>
 GSTBT_FILTER_SVF
 GSTBT_FILTER_SVF_CLASS
@@ -157,6 +158,8 @@ gstbt_wave_index_get_type
 GstBtOscSynthWave
 GstBtOscSynth
 gstbt_osc_synth_new
+gstbt_osc_synth_trigger
+gstbt_osc_synth_process
 <SUBSECTION Standard>
 GSTBT_IS_OSC_SYNTH
 GSTBT_IS_OSC_SYNTH_CLASS

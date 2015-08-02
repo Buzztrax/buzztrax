@@ -35,7 +35,7 @@
 
 #include "filter-svf.h"
 
-#define GST_CAT_DEFAULT envelope_debug
+#define GST_CAT_DEFAULT filter_debug
 GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 enum
@@ -48,7 +48,7 @@ enum
 
 //-- the class
 
-G_DEFINE_TYPE (GstBtFilterSVF, gstbt_filter_svf, G_TYPE_OBJECT);
+G_DEFINE_TYPE (GstBtFilterSVF, gstbt_filter_svf, GST_TYPE_OBJECT);
 
 //-- enums
 
@@ -233,6 +233,7 @@ void
 gstbt_filter_svf_process (GstBtFilterSVF * self, guint size, gint16 * data)
 {
   if (self->process) {
+    gst_object_sync_values ((GstObject *) self, self->offset);
     self->process (self, size, data);
     self->offset += size;
   }

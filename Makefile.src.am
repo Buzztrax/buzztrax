@@ -181,6 +181,13 @@ dlldir = $(libdir)/win32
 dll_DATA = src/lib/bml/BuzzMachineLoader.dll
 endif
 
+if BUILD_GST_CONTROL_BINDING_ABS
+GST_COMPAT_C_FILES = src/lib/gst/gstdirectcontrolbinding.c
+GST_COMPAT_H_FILES = src/lib/gst/gstdirectcontrolbinding.h
+else
+GST_COMPAT_C_FILES =
+GST_COMPAT_H_FILES =
+endif
 
 libbuzztrax_gst_la_LIBADD =  \
   $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
@@ -201,7 +208,8 @@ libbuzztrax_gst_la_SOURCES = \
   src/lib/gst/osc-wave.c \
   src/lib/gst/toneconversion.c \
   src/lib/gst/propertymeta.c \
-  src/lib/gst/tempo.c
+  src/lib/gst/tempo.c \
+  $(GST_COMPAT_C_FILES)
 
 libbuzztrax_gstincludedir = $(includedir)/libbuzztrax-gst
 libbuzztrax_gstinclude_HEADERS = \
@@ -218,7 +226,8 @@ libbuzztrax_gstinclude_HEADERS = \
   src/lib/gst/osc-wave.h \
   src/lib/gst/toneconversion.h \
   src/lib/gst/propertymeta.h \
-  src/lib/gst/tempo.h
+  src/lib/gst/tempo.h \
+  $(GST_COMPAT_H_FILES)
 
 libbuzztrax_ic_la_LIBADD = \
   $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)

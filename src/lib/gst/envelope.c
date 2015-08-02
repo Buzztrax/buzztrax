@@ -22,23 +22,9 @@
  * @include: libgstbuzztrax/envelope.h
  * @short_description: envelope base class
  *
- * Base class for envelopes. 
- */
-/* TODO: these classes can now be used them as control sources directly
- *
- * - components would change 
- *     gstbt_evelope_get(GstBtEnvelope * self, guint offset)
- *   to
- *     gst_object_sync_values (self, offset)
- *
- * - elements would change
- *     g_object_set (src->osc, "volume-envelope", src->volenv, NULL);
- *   to
- *     gst_object_add_control_binding (src->osc,
- *         gst_direct_control_binding_new_absolute (src->osc, "volume", src->volenv));
- *
- * - then we can remove gstbt_envelope_get()
- *   - in wavetabsyn we can gst_control_source_get_value() directly
+ * Base class for envelopes. The are specialized control sources. Subclsses
+ * provide constructors and configure a #GstInterpolationControlSource according
+ * to the parameters given.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -70,23 +56,6 @@ G_DEFINE_ABSTRACT_TYPE (GstBtEnvelope, gstbt_envelope,
 //-- private methods
 
 //-- public methods
-
-/**
- * gstbt_envelope_get:
- * @self: the envelope
- * @offset: the current offset
- *
- * Get the currect envelope level at the time-offset.
- *
- * Returns: the current level
- */
-gdouble
-gstbt_envelope_get (GstBtEnvelope * self, guint64 offset)
-{
-  gdouble value;
-  gst_control_source_get_value ((GstControlSource *) self, offset, &value);
-  return value;
-}
 
 /**
  * gstbt_envelope_is_running:

@@ -24,9 +24,7 @@
  *
  * An audio generator producing classic oscillator waveforms.
  *
- * If the #GstBtOscSynth:volume-envelope is %NULL a static volume of 1.0 is
- * used. Likewise one can use #GstBtOscSynth:frequency in a static fashion or
- * apply an envelope using #GstBtOscSynth:frequency-envelope.
+ * One can attach #GstControlSources to some of the patameters to modulate them. 
  *
  * # Waveforms
  *
@@ -67,8 +65,6 @@ enum
 {
   // static class properties
   PROP_SAMPLERATE = 1,
-  PROP_VOLUME_ENVELOPE,
-  PROP_FREQUENCY_ENVELOPE,
   // dynamic class properties
   PROP_WAVE,
   PROP_VOLUME,
@@ -81,7 +77,7 @@ static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 
 //-- the class
 
-G_DEFINE_TYPE (GstBtOscSynth, gstbt_osc_synth, G_TYPE_OBJECT);
+G_DEFINE_TYPE (GstBtOscSynth, gstbt_osc_synth, GST_TYPE_OBJECT);
 
 //-- enums
 
@@ -172,12 +168,6 @@ gstbt_osc_synth_new (void)
 
 //-- private methods
 
-static inline gdouble
-get_env (GstBtEnvelope * env, guint64 offset, gdouble def)
-{
-  return (env) ? gstbt_envelope_get (env, offset) : def;
-}
-
 #define UPDATE_INNER_LOOP(c,r) do { \
   if (INNER_LOOP < r) {             \
     c = INNER_LOOP; r-= INNER_LOOP; \
@@ -191,19 +181,17 @@ gstbt_osc_synth_create_sine (GstBtOscSynth * self, guint ct, gint16 * samples)
 {
   guint i = 0, j, c, r = ct;
   guint64 offset = self->offset;
-  gdouble amp = self->vol, step;
+  gdouble amp, step;
   gdouble accumulator = self->accumulator;
-  gdouble freq = self->freq;
   gdouble period = self->period;
-  GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
 
   while (i < ct) {
-    amp = get_env (volenv, offset + i, amp) * 32767.0;
-    step = get_env (freqenv, offset + i, freq) * period;
+    gst_object_sync_values ((GstObject *) self, offset + i);
+    amp = self->vol * 32767.0;
+    step = self->freq * period;
     UPDATE_INNER_LOOP (c, r);
     for (j = 0; j < c; j++, i++) {
       accumulator += step;
-      /* TODO(ensonic): move out of inner loop? */
       if (G_UNLIKELY (accumulator >= M_PI_M2))
         accumulator -= M_PI_M2;
 
@@ -218,15 +206,14 @@ gstbt_osc_synth_create_square (GstBtOscSynth * self, guint ct, gint16 * samples)
 {
   guint i = 0, j, c, r = ct;
   guint64 offset = self->offset;
-  gdouble amp = self->vol, step;
+  gdouble amp, step;
   gdouble accumulator = self->accumulator;
-  gdouble freq = self->freq;
   gdouble period = self->period;
-  GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
 
   while (i < ct) {
-    amp = get_env (volenv, offset + i, amp) * 32767.0;
-    step = get_env (freqenv, offset + i, freq) * period;
+    gst_object_sync_values ((GstObject *) self, offset + i);
+    amp = self->vol * 32767.0;
+    step = self->freq * period;
     UPDATE_INNER_LOOP (c, r);
     for (j = 0; j < c; j++, i++) {
       accumulator += step;
@@ -244,15 +231,15 @@ gstbt_osc_synth_create_saw (GstBtOscSynth * self, guint ct, gint16 * samples)
 {
   guint i = 0, j, c, r = ct;
   guint64 offset = self->offset;
-  gdouble amp = self->vol, ampf = 32767.0 / M_PI, step;
+  gdouble amp, step;
+  gdouble ampf = 32767.0 / M_PI;
   gdouble accumulator = self->accumulator;
-  gdouble freq = self->freq;
   gdouble period = self->period;
-  GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
 
   while (i < ct) {
-    amp = get_env (volenv, offset + i, amp) * ampf;
-    step = get_env (freqenv, offset + i, freq) * period;
+    gst_object_sync_values ((GstObject *) self, offset + i);
+    amp = self->vol * ampf;
+    step = self->freq * period;
     UPDATE_INNER_LOOP (c, r);
     for (j = 0; j < c; j++, i++) {
       accumulator += step;
@@ -275,15 +262,15 @@ gstbt_osc_synth_create_triangle (GstBtOscSynth * self, guint ct,
 {
   guint i = 0, j, c, r = ct;
   guint64 offset = self->offset;
-  gdouble amp = self->vol, ampf = 65535.0 / M_PI, step;
+  gdouble amp, step;
+  gdouble ampf = 65535.0 / M_PI;
   gdouble accumulator = self->accumulator;
-  gdouble freq = self->freq;
   gdouble period = self->period;
-  GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
 
   while (i < ct) {
-    amp = get_env (volenv, offset + i, amp) * ampf;
-    step = get_env (freqenv, offset + i, freq) * period;
+    gst_object_sync_values ((GstObject *) self, offset + i);
+    amp = self->vol * ampf;
+    step = self->freq * period;
     UPDATE_INNER_LOOP (c, r);
     for (j = 0; j < c; j++, i++) {
       accumulator += step;
@@ -315,11 +302,11 @@ gstbt_osc_synth_create_white_noise (GstBtOscSynth * self, guint ct,
 {
   guint i = 0, j, c, r = ct;
   guint64 offset = self->offset;
-  gdouble amp = self->vol;
-  GstBtEnvelope *volenv = self->volenv;
+  gdouble amp;
 
   while (i < ct) {
-    amp = get_env (volenv, offset + i, amp);
+    gst_object_sync_values ((GstObject *) self, offset + i);
+    amp = self->vol;
     UPDATE_INNER_LOOP (c, r);
     for (j = 0; j < c; j++, i++) {
       samples[i] =
@@ -395,11 +382,11 @@ gstbt_osc_synth_create_pink_noise (GstBtOscSynth * self, guint ct,
   guint i = 0, j, c, r = ct;
   GstBtPinkNoise *pink = &self->pink;
   guint64 offset = self->offset;
-  gdouble amp = self->vol;
-  GstBtEnvelope *volenv = self->volenv;
+  gdouble amp;
 
   while (i < ct) {
-    amp = get_env (volenv, offset + i, amp) * 32767.0;
+    gst_object_sync_values ((GstObject *) self, offset + i);
+    amp = self->vol * 32767.0;
     UPDATE_INNER_LOOP (c, r);
     for (j = 0; j < c; j++, i++) {
       samples[i] =
@@ -419,11 +406,11 @@ gstbt_osc_synth_create_gaussian_white_noise (GstBtOscSynth * self, guint ct,
 {
   gint i = 0, j, c, r = ct;
   guint64 offset = self->offset;
-  gdouble amp = self->vol;
-  GstBtEnvelope *volenv = self->volenv;
+  gdouble amp;
 
   while (i < ct) {
-    amp = get_env (volenv, offset + i, amp) * 32767.0;
+    gst_object_sync_values ((GstObject *) self, offset + i);
+    amp = self->vol * 32767.0;
     UPDATE_INNER_LOOP (c, r);
     for (j = 0; j < c; j += 2) {
       gdouble mag = sqrt (-2 * log (1.0 - rand () / (RAND_MAX + 1.0)));
@@ -442,12 +429,12 @@ gstbt_osc_synth_create_red_noise (GstBtOscSynth * self, guint ct,
 {
   gint i = 0, j, c, r = ct;
   guint64 offset = self->offset;
-  gdouble amp = self->vol;
+  gdouble amp;
   gdouble state = self->red.state;
-  GstBtEnvelope *volenv = self->volenv;
 
   while (i < ct) {
-    amp = get_env (volenv, offset + i, amp) * 32767.0;
+    gst_object_sync_values ((GstObject *) self, offset + i);
+    amp = self->vol * 32767.0;
     UPDATE_INNER_LOOP (c, r);
     for (j = 0; j < c; j++, i++) {
       while (TRUE) {
@@ -500,24 +487,25 @@ gstbt_osc_synth_create_s_and_h (GstBtOscSynth * self, guint ct,
 {
   guint i = 0, j, c, r = ct;
   guint64 offset = self->offset;
-  gdouble amp = self->vol, step;
-  gdouble freq = self->freq;
+  gdouble amp, step;
   gint count = self->sh.count;
   gint samplerate = self->samplerate;
   gdouble smpl = self->sh.smpl;
-  GstBtEnvelope *volenv = self->volenv, *freqenv = self->freqenv;
 
   while (i < ct) {
-    amp = get_env (volenv, offset + i, amp);
+    gst_object_sync_values ((GstObject *) self, offset + i);
+    amp = self->vol;
     UPDATE_INNER_LOOP (c, r);
     for (j = 0; j < c; j++, i++, r--) {
       if (G_UNLIKELY (count <= 0.0)) {
+        gst_object_sync_values ((GstObject *) self, offset + i);
         // if freq = 100, we want 100 changes per second
         // = 100 changes per samplingrate samples
-        step = get_env (freqenv, c, freq);
+        step = self->freq;
         step = CLAMP (step, 0, samplerate);
         count = samplerate / step;
         smpl = 32768 - (65535.0 * rand () / (RAND_MAX + 1.0));
+        amp = self->vol;
       }
       samples[i] = (gint16) (amp * smpl);
       count--;
@@ -648,16 +636,6 @@ gstbt_osc_synth_set_property (GObject * object, guint prop_id,
       self->samplerate = g_value_get_int (value);
       self->period = M_PI_M2 / self->samplerate;
       break;
-    case PROP_VOLUME_ENVELOPE:
-      self->volenv = GSTBT_ENVELOPE (g_value_get_object (value));
-      g_object_add_weak_pointer (G_OBJECT (self->volenv),
-          (gpointer *) & self->volenv);
-      break;
-    case PROP_FREQUENCY_ENVELOPE:
-      self->freqenv = GSTBT_ENVELOPE (g_value_get_object (value));
-      g_object_add_weak_pointer (G_OBJECT (self->freqenv),
-          (gpointer *) & self->freqenv);
-      break;
     case PROP_WAVE:
       //GST_INFO("change wave %d <- %d",g_value_get_enum (value),self->wave);
       self->wave = g_value_get_enum (value);
@@ -687,12 +665,6 @@ gstbt_osc_synth_get_property (GObject * object, guint prop_id,
     case PROP_SAMPLERATE:
       g_value_set_int (value, self->samplerate);
       break;
-    case PROP_VOLUME_ENVELOPE:
-      g_value_set_object (value, self->volenv);
-      break;
-    case PROP_FREQUENCY_ENVELOPE:
-      g_value_set_object (value, self->freqenv);
-      break;
     case PROP_WAVE:
       g_value_set_enum (value, self->wave);
       break;
@@ -700,23 +672,6 @@ gstbt_osc_synth_get_property (GObject * object, guint prop_id,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
   }
-}
-
-static void
-gstbt_osc_synth_dispose (GObject * const object)
-{
-  GstBtOscSynth *self = GSTBT_OSC_SYNTH (object);
-
-  if (self->volenv) {
-    g_object_remove_weak_pointer (G_OBJECT (self->volenv),
-        (gpointer *) & self->volenv);
-  }
-  if (self->freqenv) {
-    g_object_remove_weak_pointer (G_OBJECT (self->freqenv),
-        (gpointer *) & self->freqenv);
-  }
-
-  G_OBJECT_CLASS (gstbt_osc_synth_parent_class)->dispose (object);
 }
 
 static void
@@ -741,20 +696,11 @@ gstbt_osc_synth_class_init (GstBtOscSynthClass * klass)
 
   gobject_class->set_property = gstbt_osc_synth_set_property;
   gobject_class->get_property = gstbt_osc_synth_get_property;
-  gobject_class->dispose = gstbt_osc_synth_dispose;
 
   // register own properties
 
   PROP (SAMPLERATE) = g_param_spec_int ("sample-rate", "Sample Rate",
       "Sampling rate", 1, G_MAXINT, GST_AUDIO_DEF_RATE,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-
-  PROP (VOLUME_ENVELOPE) = g_param_spec_object ("volume-envelope",
-      "Volume envelope", "Volume envelope of tone", GSTBT_TYPE_ENVELOPE,
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-
-  PROP (FREQUENCY_ENVELOPE) = g_param_spec_object ("frequency-envelope",
-      "Frequency envelope", "Frequency envelope of tone", GSTBT_TYPE_ENVELOPE,
       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
   PROP (WAVE) = g_param_spec_enum ("wave", "Waveform", "Oscillator waveform",
