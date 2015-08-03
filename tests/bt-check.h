@@ -176,6 +176,39 @@ void bt_check_init(void);
   g_object_unref(__objref);\
 }
 
+#define ck_gst_object_final_unref(obj) \
+{\
+  gpointer __objref=obj;\
+  g_assert(__objref);\
+  gint __objrefct=G_OBJECT(__objref)->ref_count;\
+  GST_INFO_OBJECT(__objref, "object <%s>:%p,ref_ct=%d",G_OBJECT_TYPE_NAME(__objref),__objref,__objrefct);\
+  g_object_add_weak_pointer(__objref,&__objref);\
+  gst_object_unref(__objref);\
+  fail_unless(__objref == NULL, "%d ref(s) left",__objrefct-1);\
+}
+
+#define ck_gst_object_remaining_unref(obj, n) \
+{\
+  gpointer __objref=obj;\
+  g_assert(__objref);\
+  gint __objrefct=G_OBJECT(__objref)->ref_count;\
+  GST_INFO_OBJECT(__objref, "object <%s>:%p,ref_ct=%d",G_OBJECT_TYPE_NAME(__objref),__objref,__objrefct);\
+  g_object_add_weak_pointer(__objref,&__objref);\
+  gst_object_unref(__objref);\
+  fail_if(__objref == NULL, "was last unref, %d remaining refs expectd", n); \
+  g_object_remove_weak_pointer(__objref,&__objref);\
+  ck_assert_int_eq(G_OBJECT(__objref)->ref_count, n);\
+}
+
+#define ck_gst_object_logged_unref(obj) \
+{\
+  gpointer __objref=obj;\
+  g_assert(__objref);\
+  gint __objrefct=G_OBJECT(__objref)->ref_count;\
+  GST_INFO_OBJECT(__objref, "object <%s>:%p,ref_ct=%d",G_OBJECT_TYPE_NAME(__objref),__objref,__objrefct);\
+  gst_object_unref(__objref);\
+}
+
 #define ck_assert_gobject_ref_ct(obj,n ) \
   ck_assert_int_eq(G_OBJECT(obj)->ref_count, n);
 

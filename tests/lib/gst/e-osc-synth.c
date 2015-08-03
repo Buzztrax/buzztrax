@@ -53,7 +53,7 @@ test_create_obj (BT_TEST_ARGS)
   fail_unless (G_OBJECT (osc)->ref_count == 1, NULL);
 
   GST_INFO ("-- cleanup --");
-  ck_g_object_final_unref (osc);
+  ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
 
@@ -74,11 +74,12 @@ test_waves_not_silent (BT_TEST_ARGS)
   GST_INFO ("-- act --");
   osc->process (osc, WAVE_SIZE, data);
 
-  GST_INFO ("-- assert --");
+  GST_INFO ("-- plot --");
   GEnumClass *enum_class = g_type_class_peek_static (GSTBT_TYPE_OSC_SYNTH_WAVE);
   GEnumValue *enum_value = g_enum_get_value (enum_class, _i);
   check_plot_data_int16 (data, WAVE_SIZE, enum_value->value_name);
 
+  GST_INFO ("-- assert --");
   if (_i != GSTBT_OSC_SYNTH_WAVE_SILENCE) {
     gint j;
     for (j = 0; j < WAVE_SIZE; j++) {
@@ -89,7 +90,7 @@ test_waves_not_silent (BT_TEST_ARGS)
   }
 
   GST_INFO ("-- cleanup --");
-  ck_g_object_final_unref (osc);
+  ck_gst_object_final_unref (osc);
   BT_TEST_END;
 }
 

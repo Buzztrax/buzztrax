@@ -53,7 +53,7 @@ test_create_obj (BT_TEST_ARGS)
   fail_unless (G_OBJECT (env)->ref_count == 1, NULL);
 
   GST_INFO ("-- cleanup --");
-  ck_g_object_final_unref (env);
+  ck_gst_object_final_unref (env);
   BT_TEST_END;
 }
 
@@ -81,7 +81,7 @@ test_envelope_curves (BT_TEST_ARGS)
   check_plot_data_double (data, WAVE_SIZE, name);
 
   GST_INFO ("-- cleanup --");
-  ck_g_object_final_unref (env);
+  ck_gst_object_final_unref (env);
   BT_TEST_END;
 }
 
