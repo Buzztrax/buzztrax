@@ -730,19 +730,27 @@ bt_sink_bin_format_update (const BtSinkBin * const self)
 static gboolean
 bt_sink_bin_update (const BtSinkBin * const self)
 {
+  GstStateChangeReturn scr;
   GstElement *audio_resample, *tee;
   GstState state;
   gboolean defer = FALSE;
 
-  // check current state
-  if (gst_element_get_state (GST_ELEMENT (self), &state, NULL,
-          0) == GST_STATE_CHANGE_SUCCESS) {
-    if (state > GST_STATE_READY)
+  // check current state, if ASYNC the element is changing state already/still
+  if ((scr = gst_element_get_state (GST_ELEMENT (self), &state, NULL,
+              0)) != GST_STATE_CHANGE_ASYNC) {
+    if (state > GST_STATE_READY) {
+      GST_INFO_OBJECT (self, "state > READY");
       defer = TRUE;
-  } else
+    }
+  } else {
+    GST_INFO_OBJECT (self, "_get_state() returned %s",
+        gst_element_state_change_return_get_name (scr));
     defer = TRUE;
+  }
   if (defer) {
-    GST_INFO ("defer switching sink-bin elements");
+    GST_INFO_OBJECT (self, "defer switching sink-bin elements");
+    GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
+        GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-sinkbin-error");
     self->priv->pending_update = TRUE;
     return (FALSE);
   }
@@ -1173,6 +1181,7 @@ bt_sink_bin_set_property (GObject * const object, const guint property_id,
     case SINK_BIN_RECORD_FILE_NAME:
       g_free (self->priv->record_file_name);
       self->priv->record_file_name = g_value_dup_string (value);
+      GST_INFO ("recording to '%s'", self->priv->record_file_name);
       if ((self->priv->mode == BT_SINK_BIN_MODE_RECORD)
           || (self->priv->mode == BT_SINK_BIN_MODE_PLAY_AND_RECORD)) {
         bt_sink_bin_update (self);

@@ -246,6 +246,7 @@ bt_render_dialog_record_init (const BtRenderDialog * self)
 
     g_object_unref (machine);
   }
+  self->priv->has_error = FALSE;
   if (self->priv->mode == BT_RENDER_MODE_MIXDOWN) {
     self->priv->track = -1;
     self->priv->tracks = 0;
@@ -315,6 +316,7 @@ bt_render_dialog_record_next (const BtRenderDialog * self)
 
   /* cleanup from previous run */
   if (self->priv->has_error && self->priv->file_name) {
+    GST_INFO ("delete output file '%s' due to errors", self->priv->file_name);
     g_unlink (self->priv->file_name);
   }
   if (self->priv->tracks && machine) {
