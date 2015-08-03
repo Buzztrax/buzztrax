@@ -197,6 +197,7 @@ libbuzztrax_gst_la_LDFLAGS = \
 libbuzztrax_gst_la_SOURCES = \
   src/lib/gst/audiosynth.c \
   src/lib/gst/childbin.c \
+  src/lib/gst/combine.c \
   src/lib/gst/delay.c \
   src/lib/gst/envelope.c \
   src/lib/gst/envelope-adsr.c \
@@ -215,6 +216,7 @@ libbuzztrax_gstincludedir = $(includedir)/libbuzztrax-gst
 libbuzztrax_gstinclude_HEADERS = \
   src/lib/gst/audiosynth.h \
   src/lib/gst/childbin.h \
+  src/lib/gst/combine.h \
   src/lib/gst/delay.h \
   src/lib/gst/envelope.h \
   src/lib/gst/envelope-adsr.h \
