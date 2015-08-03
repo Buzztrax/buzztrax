@@ -1,0 +1,39 @@
+[_presets_]
+element-name=GstBtSimSyn
+version=1.5.0.1
+
+[Closed-HiHat]
+beats-per-minute=125
+subticks-per-tick=4
+ticks-per-beat=4
+name=simsyn:simsyn
+parent="\\(BtSourceMachine\\)\\ simsyn"
+blocksize=2646
+num-buffers=-1
+typefind=false
+do-timestamp=false
+tuning=GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT
+wave=White noise
+volume=0.80000000000000004
+decay=0.13561624775583483
+filter=HiPass
+cut-off=0.80037274180879714
+resonance=2.5085855097060143
+
+[Static-Noise]
+beats-per-minute=125
+subticks-per-tick=4
+ticks-per-beat=4
+name=simsyn:simsyn
+parent="\\(BtSourceMachine\\)\\ simsyn"
+blocksize=2646
+num-buffers=-1
+typefind=false
+do-timestamp=false
+tuning=GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT
+wave=White noise
+volume=0.80000000000000004
+decay=0.55086250000000003
+filter=BandPass
+cut-off=0.11874999999999999
+resonance=18.469374999999999

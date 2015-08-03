@@ -231,6 +231,9 @@ libbuzztrax_gstinclude_HEADERS = \
   src/lib/gst/tempo.h \
   $(GST_COMPAT_H_FILES)
 
+presetdir = $(datadir)/gstreamer-$(GST_MAJORMINOR)/presets
+preset_DATA = src/gst/audio/GstBtEBeats.prs src/gst/audio/GstBtSimSyn.prs
+
 libbuzztrax_ic_la_LIBADD = \
   $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
 libbuzztrax_ic_la_LDFLAGS = \
