@@ -429,6 +429,7 @@ class-coverage::
 
 
 if USE_VALGRIND
+
 VALPREFIX = \
 	CK_FORK=no CK_DEFAULT_TIMEOUT=500 \
 	LANG=C XDG_CACHE_HOME=$(abs_builddir) \
@@ -452,13 +453,16 @@ VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS) $(VALSUPPRESSION)
 valgrind:: $(TESTS_BIN)
 	for i in $^; do \
 	  rm -rf /tmp/$$i.valgrind.pid*; \
-	  $(VALCMD) --log-file=/tmp/$$i_valgrind.pid%p ./$$i; \
+	  $(VALCMD) --log-file=/tmp/$$i.valgrind.pid%p ./$$i; \
+	  grep -l "ERROR SUMMARY: 0 errors from 0 contexts" /tmp/$$i.valgrind.pid* | xargs rm; \
 	done
 
 # make (test).valgrind -- valgrind the given test"
 %.valgrind: %
 	rm -rf /tmp/$*.valgrind.pid*; \
-	$(VALCMD) --log-file=/tmp/$*.valgrind.pid%p ./$*;
+	$(VALCMD) --log-file=/tmp/$*.valgrind.pid%p ./$*; \
+	grep -l "ERROR SUMMARY: 0 errors from 0 contexts" /tmp/$*.valgrind.pid* | xargs rm;
+
 endif
 
 # make test-status     -- show info about disabled tests
