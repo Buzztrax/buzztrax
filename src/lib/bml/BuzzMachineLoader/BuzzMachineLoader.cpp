@@ -361,7 +361,7 @@ extern "C" DE BuzzMachine *bm_new(BuzzMachineHandle *bmh) {
 
     // we need to create a CMachine object
     bm->machine=new CMachine(bm->machine_iface,bm->machine_info);
-	DBG1("  new CMachine called, m=0x%p\n", bm->machine);
+    DBG1("  new CMachine called, m=0x%p\n", bm->machine);
 
     DBG1("  mi-version 0x%04x\n",bm->machine_info->Version);
     if((bm->machine_info->Version & 0xff) < 15) {
@@ -373,7 +373,7 @@ extern "C" DE BuzzMachine *bm_new(BuzzMachineHandle *bmh) {
       DBG("  callback instance created\n");
     }
     bm->machine_iface->pCB=bm->callbacks;
-	DBG1("  new CMICallbacks called, pCB=0x%p\n", bm->callbacks);
+    DBG1("  new CMICallbacks called, pCB=0x%p\n", bm->callbacks);
 
     return(bm);
 }
@@ -422,7 +422,8 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
     }
     DBG("  attributes initialized\n");
 
-    // CyanPhase DTMF-1 access gval.xxx in mi::Init
+    // a few machines access gval.xxx in mi::Init, CyanPhase DTMF-1, Oomek Aggressor
+    // valgrind finds these by complaining accessing uninitialized memory
     // so we need to call these before
 #if 0
     bm_init_global_params(bm, bm->machine_info);
@@ -456,9 +457,9 @@ extern "C" DE void bm_init(BuzzMachine *bm, unsigned long blob_size, unsigned ch
         DBG1("  numInputChannels=%d\n",(bm->mdkHelper)?bm->mdkHelper->numChannels:0);
         // if numChannels=0, its not a mdk-machine and numChannels=1
         // don't initialize this here, seems to cause recursion
-		//if (bm->mdkHelper) {
-		//	bm->mdkHelper->Init(pcmdii);
-		//}
+        //if (bm->mdkHelper) {
+        //    bm->mdkHelper->Init(pcmdii);
+        //}
       }
     }
 
@@ -630,7 +631,7 @@ extern "C" DE void bm_attributes_changed(BuzzMachine *bm) {
     // call AttributesChanged
     // FIXME: should we call this always?
     if(bm->machine_info->numAttributes>0) {
-		bm->machine_iface->AttributesChanged();
+        bm->machine_iface->AttributesChanged();
         DBG("  CMachineInterface::AttributesChanged() called\n");
     }
 }
@@ -644,28 +645,28 @@ extern "C" DE void bm_tick(BuzzMachine *bm) {
 extern "C" DE bool bm_work(BuzzMachine *bm,float *psamples, int numsamples, int const mode) {
     bool res=0;
 
-	res=bm->machine_iface->Work(psamples,numsamples,mode);
+    res=bm->machine_iface->Work(psamples,numsamples,mode);
     return(res);
 }
 
 extern "C" DE bool bm_work_m2s(BuzzMachine *bm, float *pin, float *pout, int numsamples, int const mode) {
     bool res=0;
 
-	res=bm->machine_iface->WorkMonoToStereo(pin,pout,numsamples,mode);
+    res=bm->machine_iface->WorkMonoToStereo(pin,pout,numsamples,mode);
     return(res);
 }
 
 extern "C" DE void bm_stop(BuzzMachine *bm) {
-	bm->machine_iface->Stop();
+    bm->machine_iface->Stop();
 }
 
 /*
 virtual void Command(int const i) {}
 */
 extern "C" DE void bm_set_num_tracks(BuzzMachine *bm, int num) {
-	DBG1("(num=%d)\n",num);
-	bm->machine_iface->SetNumTracks(num);
-	// we don't need to initialize the track params, as the max-num of tracks is already initialized in bm_init()
+    DBG1("(num=%d)\n",num);
+    bm->machine_iface->SetNumTracks(num);
+    // we don't need to initialize the track params, as the max-num of tracks is already initialized in bm_init()
     // dunno if some machines would require this
 }
 
