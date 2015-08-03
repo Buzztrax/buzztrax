@@ -508,6 +508,7 @@ include $(top_srcdir)/orc.mak
 noinst_HEADERS += \
   src/gst/audio/plugin.h \
   src/gst/audio/audiodelay.h \
+  src/gst/audio/ebeats.h \
   src/gst/audio/simsyn.h \
   src/gst/audio/wavereplay.h \
   src/gst/audio/wavetabsyn.h \
@@ -637,6 +638,7 @@ libgstsidsyn_la_LIBTOOLFLAGS = --tag=disable-static
 libbuzztraxaudio_la_SOURCES = \
   src/gst/audio/plugin.c \
   src/gst/audio/audiodelay.c \
+  src/gst/audio/ebeats.c \
   src/gst/audio/simsyn.c \
   src/gst/audio/wavereplay.c \
   src/gst/audio/wavetabsyn.c
