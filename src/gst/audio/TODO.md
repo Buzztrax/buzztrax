@@ -1,8 +1,9 @@
 # SimSyn alike
 
-More synthesizer
+More synthesizers
 - we'd like to have one with
   - dual-osc (with detune for the 2nd)
+    - detune with coarse in semitones (factor for one semitone: pow(2,1/12) =~ 1.05946))
   - two ADSR envelopes
   - each envelope can modulate volume and filter-cutoff/resonance
 - current simsyn is missing key-tracking for the filter
@@ -56,25 +57,6 @@ spread_range_ms = 12
 overlap_ms = 2
 voices = 1 + (12 / 2) = 7
 
-# EBeatz
-- a versatile percussion sound generator
-- dual osc
-  - peak-vol is trigger param
-  1) tonal
-     - osc with sin, saw, sqr, tri
-       - start and stop frequency
-       - linear fade = d-envelope for frequency?
-     - adsr-envelope
-       - peak-vol relative to main-peak-vol
-     - filter?
-  2) noise
-     - osc with various noise flavours
-     - d-envelope
-       - peak-vol relative to main-peak-vol
-     - filter
-       - adsr/d-envelope for cut-off?
-- have presets for kick, snare, {open,closed}-hihat, claps, cymbal
-
 # sfxr
 https://github.com/grimfang4/sfxr/blob/master/sfxr/source/main.cpp
 
@@ -84,9 +66,16 @@ to make it dead easy writing new synths.
 
 ## component ideas
 ### osc-*
-- a goolean 'mix' property to not overwrite the buffer
-- have osc-synth variants: one for tonal waveforms and one for noises?
-  - we could just subclass and have override the 'Wave' enum?
+- non-linear sampling (phase distortion), right now the step that advances the
+  phase is 'constant'. we can map the phase through a function. this creates
+  more overtones. this could be a curve function that we also (like) to use on
+  the envelope-d, so that the curve-param is editable. A curve=0.5 would be 
+  linear.
+- add a sync/cycle/trigger property
+  - set: gstbt_osc_synth_trigger()
+  - get:
+  - notify: when a has a phase done (re-trig)
+  this way we can use a GBinding to sync to osc's
 
 ### osc-wave (wavetable oscillator)
 - we might need to add some extra caps fields
@@ -96,14 +85,19 @@ to make it dead easy writing new synths.
 - we could resample all wave-table entries when loading a song (keeping original
   waves in the files)
 
+
 ## design
 After adding more components we need to extract common interfaces. Each
 component would have a couple of properties and vmethods (start, process, stop).
 When using them the element would proxy a few properties and ev. configure
 others manually. We can use GBinding (since glib-2.26) for the proxy properties.
 
+## component interface
+- most components would need to know e.g. the 'sampling-rate'
+- most components need to restart envelopes on note-on, maybe per
+ 'trigger' property
+- all synths can have a list of 'synth-components' and use that to configure,
+  reset and release them
+
 ## open questions
 - do we need to pass the data fmt? What about mono/stereo.
-- most components would need to know e.g. the sampling-rate. need an easy way to
-  pass it to all of them
-
