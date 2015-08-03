@@ -233,7 +233,7 @@ on_song_is_playing_notify (const BtSong * song, GParamSpec * arg,
 
   g_object_get ((gpointer) song, "is-playing", &is_playing, NULL);
   GST_INFO_OBJECT (self, "is_playing: %d", is_playing);
-  if (!is_playing) {
+  if (!is_playing && self->srcpad) {
     GST_INFO_OBJECT (self, "sending eos");
     gst_pad_push_event (self->srcpad, gst_event_new_eos ());
   }
