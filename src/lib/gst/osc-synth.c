@@ -496,13 +496,13 @@ gstbt_osc_synth_create_s_and_h (GstBtOscSynth * self, guint ct,
     gst_object_sync_values ((GstObject *) self, offset + i);
     amp = self->vol;
     UPDATE_INNER_LOOP (c, r);
-    for (j = 0; j < c; j++, i++, r--) {
-      if (G_UNLIKELY (count <= 0.0)) {
+    for (j = 0; j < c; j++, i++) {
+      if (G_UNLIKELY (count <= 0)) {
         gst_object_sync_values ((GstObject *) self, offset + i);
         // if freq = 100, we want 100 changes per second
         // = 100 changes per samplingrate samples
         step = self->freq;
-        step = CLAMP (step, 0, samplerate);
+        step = CLAMP (step, 1, samplerate);
         count = samplerate / step;
         smpl = 32768 - (65535.0 * rand () / (RAND_MAX + 1.0));
         amp = self->vol;
@@ -601,6 +601,7 @@ gstbt_osc_synth_trigger (GstBtOscSynth * self)
       break;
     case GSTBT_OSC_SYNTH_WAVE_S_AND_H:
       self->sh.count = 0;
+      self->sh.smpl = 0.0;
       break;
     default:
       GST_ERROR ("invalid wave-form: %d", self->wave);
@@ -680,10 +681,10 @@ gstbt_osc_synth_init (GstBtOscSynth * self)
   self->wave = GSTBT_OSC_SYNTH_WAVE_SINE;
   self->vol = 1.0;
   self->freq = 0.0;
-  gstbt_osc_synth_change_wave (self);
   self->flip = 1.0;
   self->samplerate = GST_AUDIO_DEF_RATE;
   self->period = M_PI_M2 / self->samplerate;
+  gstbt_osc_synth_change_wave (self);
 }
 
 static void
