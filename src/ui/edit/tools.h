@@ -52,4 +52,6 @@ gboolean bt_label_value_changed(GBinding * binding, const GValue * from_value, G
 GtkToolItem *gtk_tool_button_new_from_icon_name(const gchar *icon_name, const gchar *label);
 GtkToolItem *gtk_toggle_tool_button_new_from_icon_name(const gchar *icon_name, const gchar *label);
 
+/* menu accel helper */
+void gtk_menu_item_add_accel(GtkMenuItem *mi, const gchar *path, guint accel_key, GdkModifierType accel_mods);
 #endif // BT_EDIT_TOOLS_H

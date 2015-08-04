@@ -288,3 +288,26 @@ gtk_toggle_tool_button_new_from_icon_name (const gchar * icon_name,
   return g_object_new (GTK_TYPE_TOGGLE_TOOL_BUTTON,
       "icon-name", icon_name, "label", label, NULL);
 }
+
+/* menu accel helper */
+
+/**
+ * gtk_menu_item_add_accel:
+ * @mi: a valid GtkMenuItem
+ * @path: accelerator path, corresponding to this menu item's functionality.
+ * @accel_key: the accelerator key
+ * @accel_mods: the accelerator modifiers
+ *
+ * Convenience wrapper around gtk_menu_item_set_accel_path() and 
+ * gtk_accel_map_add_entry().
+ *
+ * see_also: gtk_widget_add_accelerator()
+ */
+void
+gtk_menu_item_add_accel (GtkMenuItem * mi, const gchar * path, guint accel_key,
+    GdkModifierType accel_mods)
+{
+  g_intern_static_string (path);
+  gtk_menu_item_set_accel_path (mi, path);
+  gtk_accel_map_add_entry (path, accel_key, accel_mods);
+}
