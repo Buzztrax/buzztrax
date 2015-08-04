@@ -380,6 +380,9 @@ bt_main_window_init_ui (const BtMainWindow * self)
   // create and set window icon
   gtk_window_set_icon_name (GTK_WINDOW (self), "buzztrax");
 
+  gtk_window_add_accel_group (GTK_WINDOW (self),
+      bt_ui_resources_get_accel_group ());
+
   // create main layout container
   box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_container_add (GTK_CONTAINER (self), box);
@@ -1123,6 +1126,10 @@ bt_main_window_dispose (GObject * object)
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
+
+  gtk_window_remove_accel_group (GTK_WINDOW (self),
+      bt_ui_resources_get_accel_group ());
+
   //g_signal_handlers_disconnect_matched(self,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_window_delete_event,NULL);
   //g_signal_handlers_disconnect_matched(self,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_window_destroy,NULL);
   g_object_unref (self->priv->app);
