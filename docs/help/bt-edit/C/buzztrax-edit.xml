@@ -654,7 +654,7 @@ i o p</keycap></screen></entry>
             <row>
               <entry>insert column</entry>
               <entry><keycap>insert</keycap></entry>
-              <entry>insert a black row at the cursor for the current column (move entries below down)</entry>
+              <entry>insert a blank row at the cursor for the current column (move entries below down)</entry>
             </row>
             <row>
               <entry>delete group</entry>
@@ -664,7 +664,7 @@ i o p</keycap></screen></entry>
             <row>
               <entry>insert group</entry>
               <entry><keycombo><keycap>shift</keycap><keycap>insert</keycap></keycombo></entry>
-              <entry>insert a black row at the cursor for the current group (move entries below down)</entry>
+              <entry>insert a blank row at the cursor for the current group (move entries below down)</entry>
             </row>
             <row>
               <entry>delete full row</entry>
@@ -674,7 +674,7 @@ i o p</keycap></screen></entry>
             <row>
               <entry>insert full row</entry>
               <entry><keycombo><keycap>ctrl</keycap><keycap>shift</keycap><keycap>insert</keycap></keycombo></entry>
-              <entry>insert a black row at the cursor for the whole pattern (move entries below down)</entry>
+              <entry>insert a blank row at the cursor for the whole pattern (move entries below down)</entry>
             </row>
             <row>
               <entry>flip</entry>
