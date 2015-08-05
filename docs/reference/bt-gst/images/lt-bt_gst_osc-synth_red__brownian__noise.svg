@@ -164,7 +164,7 @@
 	<g id="gnuplot_plot_1" ><title>gnuplot_plot_1</title>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
 	<g transform="translate(137.7,153.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
-		<text>red__brownian__noise</text>
+		<text>Red (brownian) noise</text>
 	</g>
 	<path  d='M141.8,151.0 L162.7,151.0 M34.8,68.6 L35.6,67.8 L36.3,69.9 L37.1,72.0 L37.9,75.0 L38.6,72.8 
 		L39.4,71.6 L40.1,73.5 L40.9,71.9 L41.7,72.3 L42.4,72.2 L43.2,73.1 L44.0,72.1 L44.7,72.2 

@@ -164,7 +164,7 @@
 	<g id="gnuplot_plot_1" ><title>gnuplot_plot_1</title>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
 	<g transform="translate(119.2,153.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
-		<text>white_noise</text>
+		<text>White noise</text>
 	</g>
 	<path  d='M123.3,151.0 L144.2,151.0 M34.8,105.2 L35.6,54.0 L36.3,98.7 L37.1,100.4 L37.9,113.4 L38.6,31.4 
 		L39.4,47.2 L40.1,97.0 L40.9,40.6 L41.7,72.3 L42.4,63.6 L43.2,81.0 L44.0,50.6 L44.7,67.7 

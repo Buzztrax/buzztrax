@@ -164,7 +164,7 @@
 	<g id="gnuplot_plot_1" ><title>gnuplot_plot_1</title>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
 	<g transform="translate(127.4,153.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
-		<text>sample_and_hold</text>
+		<text>Sample and Hold</text>
 	</g>
 	<path  d='M131.5,151.0 L152.4,151.0 M34.8,105.2 L35.6,105.2 L36.3,105.2 L37.1,105.2 L37.9,105.2 L38.6,105.2 
 		L39.4,105.2 L40.1,105.2 L40.9,105.2 L41.7,105.2 L42.4,105.2 L43.2,105.2 L44.0,105.2 L44.7,105.2 

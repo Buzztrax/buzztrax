@@ -164,7 +164,7 @@
 	<g id="gnuplot_plot_1" ><title>gnuplot_plot_1</title>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
 	<g transform="translate(104.9,153.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
-		<text>sine</text>
+		<text>Sine</text>
 	</g>
 	<path  d='M109.0,151.0 L129.9,151.0 M34.8,64.3 L35.6,62.5 L36.3,60.7 L37.1,59.0 L37.9,57.2 L38.6,55.4 
 		L39.4,53.6 L40.1,51.9 L40.9,50.1 L41.7,48.4 L42.4,46.7 L43.2,45.0 L44.0,43.3 L44.7,41.7 

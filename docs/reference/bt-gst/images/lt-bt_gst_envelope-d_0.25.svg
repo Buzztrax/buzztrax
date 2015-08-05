@@ -156,10 +156,10 @@
 	<path stroke='black'  d='M26.6,8.3 L26.6,124.0 L187.6,124.0 L187.6,8.3 L26.6,8.3 Z  h0.01'/></g>
 	<g id="gnuplot_plot_1" ><title>gnuplot_plot_1</title>
 <g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
-	<g transform="translate(123.3,153.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
-		<text>envelope-d 0.25</text>
+	<g transform="translate(100.8,153.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
+		<text>0.25</text>
 	</g>
-	<path  d='M127.4,151.0 L148.3,151.0 M26.6,8.3 L27.4,10.0 L28.2,11.8 L29.0,13.5 L29.8,15.2 L30.6,17.0 
+	<path  d='M104.9,151.0 L125.8,151.0 M26.6,8.3 L27.4,10.0 L28.2,11.8 L29.0,13.5 L29.8,15.2 L30.6,17.0 
 		L31.4,18.7 L32.2,20.4 L33.0,22.2 L33.8,23.9 L34.7,25.7 L35.5,27.4 L36.3,29.1 L37.1,30.9 
 		L37.9,32.6 L38.7,34.3 L39.5,36.1 L40.3,37.8 L41.1,39.5 L41.9,41.3 L42.7,43.0 L43.5,44.7 
 		L44.3,46.5 L45.1,48.2 L45.9,50.0 L46.7,51.7 L47.5,53.4 L48.3,55.2 L49.1,56.9 L49.9,58.6 
