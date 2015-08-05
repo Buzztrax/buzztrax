@@ -28,12 +28,12 @@
  *
  * # Waveforms
  *
- * ![Sine wave](lt-bt_gst_sine.svg) ![Square wave](lt-bt_gst_square.svg)
- * ![Saw wave](lt-bt_gst_saw.svg) ![Triangle wave](lt-bt_gst_triangle.svg)
- * ![Silence](lt-bt_gst_silence.svg) ![White noise](lt-bt_gst_white_noise.svg)
- * ![Pink noise](lt-bt_gst_pink_noise.svg) ![White Gaussian noise](lt-bt_gst_white_gaussian_noise.svg)
- * ![Red (brownian) noise](lt-bt_gst_red__brownian__noise.svg) ![Blue noise](lt-bt_gst_blue_noise.svg)
- * ![Violet noise](lt-bt_gst_violet_noise.svg) ![Sample &amp; Hold](lt-bt_gst_sample_and_hold.svg)
+ * ![Sine wave](lt-bt_gst_osc-synth_sine.svg) ![Square wave](lt-bt_gst_osc-synth_square.svg)
+ * ![Saw wave](lt-bt_gst_osc-synth_saw.svg) ![Triangle wave](lt-bt_gst_osc-synth_triangle.svg)
+ * ![Silence](lt-bt_gst_osc-synth_silence.svg) ![White noise](lt-bt_gst_osc-synth_white_noise.svg)
+ * ![Pink noise](lt-bt_gst_osc-synth_pink_noise.svg) ![White Gaussian noise](lt-bt_gst_osc-synth_white_gaussian_noise.svg)
+ * ![Red (brownian) noise](lt-bt_gst_osc-synth_red__brownian__noise.svg) ![Blue noise](lt-bt_gst_osc-synth_blue_noise.svg)
+ * ![Violet noise](lt-bt_gst_osc-synth_violet_noise.svg) ![Sample &amp; Hold](lt-bt_gst_osc-synth_sample_and_hold.svg)
  */
 /* TODO(ensonic): we should do a linear fade down in the last inner_loop block as an
  * anticlick messure
