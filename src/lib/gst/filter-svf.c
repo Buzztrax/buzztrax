@@ -23,6 +23,13 @@
  * @short_description: state variable filter
  *
  * An audio filter that can work in 4 modes (#GstBtFilterSVF:type).
+ *
+ * # Filter modes
+ *
+ * ![low pass](lt-bt_gst_filter-svf_lowpass_0.50.svg)
+ * ![hi pass](lt-bt_gst_filter-svf_hipass_0.50.svg)
+ * ![band pass](lt-bt_gst_filter-svf_bandpass_0.50.svg)
+ * ![band stop](lt-bt_gst_filter-svf_bandstop_0.50.svg)
  */
 
 #ifdef HAVE_CONFIG_H
