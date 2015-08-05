@@ -1281,32 +1281,35 @@ check_write_raw_data (void *d, guint size, gchar * _fn)
 }
 
 static gchar *
-check_plot_get_basename (const gchar * _name)
+check_plot_get_basename (const gchar * base, const gchar * name)
 {
-  gchar *name, *res;
+  gchar *full_name, *res;
 
-  name = g_ascii_strdown (g_strdelimit (g_strdup (_name), " ()", '_'), -1);
+  full_name =
+      g_ascii_strdown (g_strdelimit (g_strdup_printf ("%s %s", base, name),
+          " ()", '_'), -1);
 
   // like in bt-check-ui.c:make_filename()
   // should we have some helper api for this in the test lib?
   res = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s_%s",
-      g_get_tmp_dir (), g_get_prgname (), name);
-  g_free (name);
+      g_get_tmp_dir (), g_get_prgname (), full_name);
+  g_free (full_name);
   return res;
 }
 
 gint
-check_plot_data_int16 (gint16 * d, guint size, const gchar * _name)
+check_plot_data_int16 (gint16 * d, guint size, const gchar * base,
+    const gchar * name)
 {
   gint ret;
-  gchar *base_name = check_plot_get_basename (_name);
+  gchar *base_name = check_plot_get_basename (base, name);
   gchar *cmd =
       g_strdup_printf
       ("/bin/sh -c \"echo \\\"set terminal svg size 200,160 fsize 6;set output '%s.svg';"
       "set yrange [-33000:32999];set grid xtics;set grid ytics;"
       "set key outside below;"
       "plot '%s.raw' binary format='%%int16' using 0:1 with lines title '%s'\\\" | gnuplot\"",
-      base_name, base_name, _name);
+      base_name, base_name, name);
 
   check_write_raw_data (d, size * sizeof (gint16), base_name);
   ret = system (cmd);
@@ -1317,17 +1320,18 @@ check_plot_data_int16 (gint16 * d, guint size, const gchar * _name)
 }
 
 gint
-check_plot_data_double (gdouble * d, guint size, const gchar * _name)
+check_plot_data_double (gdouble * d, guint size, const gchar * base,
+    const gchar * name, const gchar * cfg)
 {
   gint ret;
-  gchar *base_name = check_plot_get_basename (_name);
+  gchar *base_name = check_plot_get_basename (base, name);
   gchar *cmd =
       g_strdup_printf
       ("/bin/sh -c \"echo \\\"set terminal svg size 200,160 fsize 6;set output '%s.svg';"
-      "set yrange [0.0:1.0];set grid xtics;set grid ytics;"
-      "set key outside below;"
+      "set grid xtics;set grid ytics;"
+      "set key outside below;%s"
       "plot '%s.raw' binary format='%%float64' using 0:1 with lines title '%s'\\\" | gnuplot\"",
-      base_name, base_name, _name);
+      base_name, (cfg ? cfg : "set yrange [0.0:1.0];"), base_name, name);
 
   check_write_raw_data (d, size * sizeof (gdouble), base_name);
   ret = system (cmd);

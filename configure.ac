@@ -297,6 +297,7 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   gstreamer-base-1.0 >= $REQ_GST \
   gstreamer-plugins-base-1.0 >= $REQ_GST \
   gstreamer-audio-1.0 >= $REQ_GST \
+  gstreamer-fft-1.0 >= $REQ_GST \
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \

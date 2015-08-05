@@ -33,6 +33,7 @@ G_BEGIN_DECLS
  * @GSTBT_FILTER_SVF_HIPASS: high pass
  * @GSTBT_FILTER_SVF_BANDPASS: band pass
  * @GSTBT_FILTER_SVF_BANDSTOP: band stop (notch)
+ * @GSTBT_FILTER_SVF_COUNT: number of filter modes
  *
  * Filter types.
  */
@@ -42,7 +43,8 @@ typedef enum
   GSTBT_FILTER_SVF_LOWPASS,
   GSTBT_FILTER_SVF_HIPASS,
   GSTBT_FILTER_SVF_BANDPASS,
-  GSTBT_FILTER_SVF_BANDSTOP
+  GSTBT_FILTER_SVF_BANDSTOP,
+  GSTBT_FILTER_SVF_COUNT
 } GstBtFilterSVFType;
 
 GType gstbt_filter_svf_type_get_type(void);

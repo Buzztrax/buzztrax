@@ -1,5 +1,5 @@
 /* GStreamer
- * Copyright (C) 2012 Stefan Sauer <ensonic@users.sf.net>
+ * Copyright (C) 2015 Stefan Sauer <ensonic@users.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -77,8 +77,8 @@ test_envelope_curves (BT_TEST_ARGS)
       data);
 
   GST_INFO ("-- assert --");
-  sprintf (name, "envelope-d %4.2f", curve);
-  check_plot_data_double (data, WAVE_SIZE, name);
+  sprintf (name, "%4.2f", curve);
+  check_plot_data_double (data, WAVE_SIZE, "envelope-d", name, NULL);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (env);

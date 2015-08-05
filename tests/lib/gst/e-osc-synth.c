@@ -72,12 +72,12 @@ test_waves_not_silent (BT_TEST_ARGS)
       NULL);
 
   GST_INFO ("-- act --");
-  osc->process (osc, WAVE_SIZE, data);
+  gstbt_osc_synth_process (osc, WAVE_SIZE, data);
 
   GST_INFO ("-- plot --");
   GEnumClass *enum_class = g_type_class_peek_static (GSTBT_TYPE_OSC_SYNTH_WAVE);
   GEnumValue *enum_value = g_enum_get_value (enum_class, _i);
-  check_plot_data_int16 (data, WAVE_SIZE, enum_value->value_name);
+  check_plot_data_int16 (data, WAVE_SIZE, "osc-synth", enum_value->value_name);
 
   GST_INFO ("-- assert --");
   if (_i != GSTBT_OSC_SYNTH_WAVE_SILENCE) {
@@ -105,6 +105,7 @@ gst_buzztrax_osc_synth_example_case (void)
   // test each wave with a volume and frequency decay env
   // test that for a larger wave, summing up all values should be ~0
   // test that for non noise waves, we should get min/max
+  // test gstbt_osc_synth_trigger()
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }

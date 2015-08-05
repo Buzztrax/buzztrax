@@ -125,7 +125,7 @@ bt_ic_SOURCES = \
 bt_gst_LDADD = \
   libbtgst-check.la \
 	libbuzztrax-gst.la \
-	libbt-check.la $(BASE_DEPS_LIBS) $(CHECK_LIBS)
+	libbt-check.la $(BASE_DEPS_LIBS) $(CHECK_LIBS) $(LIBM)
 bt_gst_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
 bt_gst_SOURCES = \
@@ -189,10 +189,11 @@ libbtic_check_la_SOURCES = tests/lib/ic/m-bt-ic.h \
 	tests/lib/ic/e-registry.c \
 	$(ALSA_C_TEST_FILES)
 
-libbtgst_check_la_LIBADD = $(BASE_DEPS_LIBS)
+libbtgst_check_la_LIBADD = $(BASE_DEPS_LIBS) $(LIBM)
 libbtgst_check_la_CFLAGS = $(BASE_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbtgst_check_la_SOURCES = tests/lib/gst/m-bt-gst.h \
 	tests/lib/gst/e-envelope-d.c \
+	tests/lib/gst/e-filter-svf.c \
 	tests/lib/gst/e-osc-synth.c \
 	tests/lib/gst/e-toneconversion.c tests/lib/gst/t-toneconversion.c \
 	tests/lib/gst/t-elements.c
