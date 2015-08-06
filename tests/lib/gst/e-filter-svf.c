@@ -18,13 +18,13 @@
 #include "m-bt-gst.h"
 
 #include <string.h>
-#include <gst/fft/gstffts16.h>
+#include <gst/fft/gstfftf64.h>
 
 #include "gst/filter-svf.h"
 
 //-- globals
 
-#define WAVE_SIZE 1024
+#define WAVE_SIZE 8192
 
 //-- fixtures
 
@@ -65,12 +65,13 @@ test_filter (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GstBtFilterSVF *filter;
-  gint16 data[WAVE_SIZE * 2];
   gdouble freq[WAVE_SIZE];
-  GstFFTS16 *fft;
-  GstFFTS16Complex freqdata[WAVE_SIZE];
-  guint nfft = 2 * WAVE_SIZE - 2;
-  gdouble nfft2 = (gdouble) nfft * (gdouble) nfft;
+  GstFFTF64 *fft;
+  GstFFTF64Complex ffres[WAVE_SIZE];
+  const guint nfft = 2 * WAVE_SIZE - 2;
+  const gdouble nfft2 = (gdouble) nfft * (gdouble) nfft;
+  gint16 data[nfft];
+  gdouble fdata[nfft];
   gint j;
   gchar name[30];
 
@@ -78,32 +79,41 @@ test_filter (BT_TEST_ARGS)
   filter = gstbt_filter_svf_new ();
   g_object_set (filter, "filter", _i, "cut-off", 0.5, "resonance", 0.0, NULL);
   // unit impulse (delta function)
-  memset (data, 0, WAVE_SIZE * sizeof (gint16));
+  memset (data, 0, nfft * sizeof (gint16));
   data[0] = G_MAXINT16;
 
   GST_INFO ("-- act --");
-  gstbt_filter_svf_process (filter, WAVE_SIZE * 2, data);
-  // test filter response
-  // calculate fft on data
-  fft = gst_fft_s16_new (nfft, FALSE);
-  // 
-  gst_fft_s16_window (fft, data, GST_FFT_WINDOW_RECTANGULAR);
-  gst_fft_s16_fft (fft, data, freqdata);
+  gstbt_filter_svf_process (filter, nfft, data);
+  // test filter response using fft on filtered data
+  for (j = 0; j < nfft; j++) {
+    fdata[j] =
+        (data[j] >
+        0) ? ((gdouble) data[j] / (gdouble) G_MAXINT16) : ((gdouble) data[j] /
+        (gdouble) - G_MININT16);
+  }
+  fft = gst_fft_f64_new (nfft, FALSE);
+  // when using actual window function we get mangled curves
+  gst_fft_f64_window (fft, fdata, GST_FFT_WINDOW_RECTANGULAR);
+  gst_fft_f64_fft (fft, fdata, ffres);
   for (j = 0; j < WAVE_SIZE; j++) {
-    gdouble val = freqdata[j].r * freqdata[j].r + freqdata[j].i * freqdata[j].i;
+    gdouble val = ffres[j].r * ffres[j].r + ffres[j].i * ffres[j].i;
     freq[j] = 10.0 * log10 (val / nfft2);
   }
 
   GST_INFO ("-- plot --");
+  // inspect data file
+  // hexdump -v -e '/8 "%f\n"' /tmp/lt-bt_gst_filter-svf_hipass_0.50.raw | more
   GEnumClass *enum_class =
       g_type_class_peek_static (GSTBT_TYPE_FILTER_SVF_TYPE);
   GEnumValue *enum_value = g_enum_get_value (enum_class, _i);
   sprintf (name, "%s %4.2f", enum_value->value_name, 0.5);
+  // TODO(ensonc): without logscale it might look better
+  // right now x is the data-index anyway, should be frequency
   check_plot_data_double (freq, WAVE_SIZE, "filter-svf", name,
       "set logscale x; set autoscale y;");
 
   GST_INFO ("-- cleanup --");
-  gst_fft_s16_free (fft);
+  gst_fft_f64_free (fft);
   ck_gst_object_final_unref (filter);
   BT_TEST_END;
 }
