@@ -73,11 +73,11 @@ test_filter (BT_TEST_ARGS)
   gint16 data[nfft];
   gdouble fdata[nfft];
   gint j;
-  gchar name[30];
+  gchar name[40];
 
   GST_INFO ("-- arrange --");
   filter = gstbt_filter_svf_new ();
-  g_object_set (filter, "filter", _i, "cut-off", 0.5, "resonance", 0.0, NULL);
+  g_object_set (filter, "filter", _i, "cut-off", 0.5, "resonance", 0.7, NULL);
   // unit impulse (delta function)
   memset (data, 0, nfft * sizeof (gint16));
   data[0] = G_MAXINT16;
@@ -106,7 +106,7 @@ test_filter (BT_TEST_ARGS)
   GEnumClass *enum_class =
       g_type_class_peek_static (GSTBT_TYPE_FILTER_SVF_TYPE);
   GEnumValue *enum_value = g_enum_get_value (enum_class, _i);
-  sprintf (name, "%s %4.2f", enum_value->value_name, 0.5);
+  sprintf (name, "%s cut-off=0.5 resonance=0.7", enum_value->value_name);
   // TODO(ensonc): without logscale it might look better
   // right now x is the data-index anyway, should be frequency
   check_plot_data_double (freq, WAVE_SIZE, "filter-svf", name,

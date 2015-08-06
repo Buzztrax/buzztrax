@@ -26,10 +26,10 @@
  *
  * # Filter modes
  *
- * ![low pass](lt-bt_gst_filter-svf_lowpass_0.50.svg)
- * ![hi pass](lt-bt_gst_filter-svf_hipass_0.50.svg)
- * ![band pass](lt-bt_gst_filter-svf_bandpass_0.50.svg)
- * ![band stop](lt-bt_gst_filter-svf_bandstop_0.50.svg)
+ * ![low pass](lt-bt_gst_filter-svf_lowpass_cut-off=0.5_resonance=0.7.svg)
+ * ![hi pass](lt-bt_gst_filter-svf_hipass_cut-off=0.5_resonance=0.7.svg)
+ * ![band pass](lt-bt_gst_filter-svf_bandpass_cut-off=0.5_resonance=0.7.svg)
+ * ![band stop](lt-bt_gst_filter-svf_bandstop_cut-off=0.5_resonance=0.7.svg)
  */
 
 #ifdef HAVE_CONFIG_H
