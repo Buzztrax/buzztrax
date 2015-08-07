@@ -49,7 +49,8 @@ G_BEGIN_DECLS
  * @GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE: spectraly inverted red (brownian) noise
  * @GSTBT_OSC_SYNTH_WAVE_S_AND_H: sample and hold. Create an random value and 
  * hold it for a time specified by #GstBtOscSynth:frequency.
- * @GSTBT_OSC_SYNTH_WAVE_COUNT: number of waves
+ * @GSTBT_OSC_SYNTH_WAVE_COUNT: number of waves, this can change with new
+ * releases
  *
  * Oscillator wave forms.
  */

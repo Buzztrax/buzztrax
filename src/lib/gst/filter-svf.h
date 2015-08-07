@@ -33,7 +33,8 @@ G_BEGIN_DECLS
  * @GSTBT_FILTER_SVF_HIPASS: high pass
  * @GSTBT_FILTER_SVF_BANDPASS: band pass
  * @GSTBT_FILTER_SVF_BANDSTOP: band stop (notch)
- * @GSTBT_FILTER_SVF_COUNT: number of filter modes
+ * @GSTBT_FILTER_SVF_COUNT: number of filter modes, this can change with new
+ * releases
  *
  * Filter types.
  */
