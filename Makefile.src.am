@@ -138,7 +138,7 @@ bmlhost_CFLAGS = \
   -I$(srcdir) -I$(top_srcdir)/src/lib \
   -I$(top_srcdir)/src/lib/dllwrapper \
   $(BML_CFLAGS) $(BMLHOST_CFLAGS)
-bmlhost_LDADD = $(PTHREAD_LIBS) $(BML_LIBS) libloader.la 
+bmlhost_LDADD = $(PTHREAD_LIBS) $(BML_LIBS) libloader.la
 else
 bin_PROGRAMS =
 endif
@@ -153,7 +153,7 @@ libbuzzmachineloader_la_SOURCES = \
   src/lib/bml/BuzzMachineLoader/OscTable.cpp \
   src/lib/bml/BuzzMachineLoader/mdkimp.cpp \
   src/lib/bml/BuzzMachineLoader/debug.cpp
-  
+
 noinst_HEADERS += \
   src/lib/bml/BuzzMachineLoader/BuzzMachineCallbacks.h \
   src/lib/bml/BuzzMachineLoader/BuzzMachineCallbacksPre12.h \
@@ -166,7 +166,7 @@ noinst_HEADERS += \
   src/lib/bml/BuzzMachineLoader/OscTable.h \
   src/lib/bml/BuzzMachineLoader/mdkimp.h \
   src/lib/bml/BuzzMachineLoader/debug.h
-  
+
 libbuzzmachineloader_la_CXXFLAGS = $(PTHREAD_CFLAGS) $(BML_CXXFLAGS) \
   -I$(top_srcdir)/src/lib/dllwrapper \
   -I$(top_srcdir)/src/lib/bml/BuzzMachineLoader
@@ -543,7 +543,7 @@ libgstbmln_la_CFLAGS = -DBML_NATIVE \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS) \
   $(ORC_CFLAGS)
-  
+
 # wrapped
 libgstbmlw_la_SOURCES = \
   src/gst/bml/gstbml.c src/gst/bml/gstbmlsrc.c src/gst/bml/gstbmltransform.c \
@@ -557,7 +557,7 @@ libgstbmlw_la_CFLAGS = -DBML_WRAPPED \
 if USE_DLLWRAPPER
 BMLW_LA = libgstbmlw.la
 else
-BMLW_LA = 
+BMLW_LA =
 endif
 
 noinst_LTLIBRARIES += libgstbmln.la $(BMLW_LA)
@@ -574,7 +574,7 @@ libgstbml_la_LIBADD = \
   libbuzztrax-gst.la \
   libgstbmln.la $(BMLW_LA) libbml.la \
   $(BASE_DEPS_LIBS) $(ORC_LIBS) $(BML_LIBS) \
-  $(GST_PLUGIN_LIBS) -lgstaudio-1.0 $(LIBM) 
+  $(GST_PLUGIN_LIBS) -lgstaudio-1.0 $(LIBM)
 libgstbml_la_LDFLAGS =  $(GST_PLUGIN_LDFLAGS)
 libgstbml_la_LIBTOOLFLAGS = --tag=disable-static
 
@@ -780,6 +780,7 @@ EXTRA_DIST += \
   $(css_DATA) \
   src/lib/bml/libbml.pc.in \
   src/lib/bml/BuzzMachineLoader.dll \
+  src/lib/bml/BuzzMachineLoader/README \
   src/lib/core/libbuzztrax-core.pc.in \
   src/lib/core/marshal.list \
   src/lib/core/version.h.in \

@@ -1,0 +1,7 @@
+All code in this directory is based on:
+* plugin code that has been released under LGPL
+  https://github.com/Buzztrax/buzzmachines/tree/master/FSM
+* library code from other projects that support plugins with a smiliar api
+  https://bitbucket.org/paniq/armstrong/src/
+
+The code is compiled into a library that is loaded as a plugin from libbml.
