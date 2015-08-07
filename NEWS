@@ -1,6 +1,10 @@
-0.10.0 ??? (??)
+0.10.0 loud (??.Aug.2015)
 ================================================================================
-develoment
+Just a few month since the previous release, this update mostly focuses on
+getting rid of deprecated APIs. Besides that it also come with a new
+synthesizer plugin called 'ebeats'. As the name suggests it is good at making
+percussion sounds. Together with that the library providing the dsp components
+got overhauled.
 
 0.9.0 ascension (13.Jun.2015)
 ================================================================================
@@ -10,7 +14,7 @@ are now defined in the css files and settings let you select theme variants such
 as a dark theme.
 The interaction controller library now supports alsa-sequencer. The UI for
 training the controls of a new midi device is streamlined and much easier. Also
-the controls from the interaction controller can be used fro playback controls
+the controls from the interaction controller can be used for playback controls
 (play/pause/seeking).
 Finally things got easier for developers too. We merged bml, gst-buzztrax into
 buzztrax to simplify the build.
@@ -32,7 +36,7 @@ implemented GStreamer EncodeBin support, which improves the song rendering code,
 wrote a audio-synth baseclass that greatly simplifies writing a new synth and wrote
 the pattern control source that allowed us to remove a lot of complicated code from
 the sequencer core.
-The gst-buzztrax module got more modular. There are a few new plugins (sidsyn, 
+The gst-buzztrax module got more modular. There are a few new plugins (sidsyn,
 wave-replay and wavetabsyn).
 We changed all modules to use non recursive make and we merged bsl into buzztrax to
 make development easier.
@@ -64,7 +68,7 @@ and javascript via gobject introspection.
 As planned, main focus for this release was the wavetable support. Its done -
 buzztrax can load what gstreamer can decode. The wavetable view has a nice
 waveform widget. Related to that buzztrax has a new song-format that bundles the
-XML together with external files in a zip archive. 
+XML together with external files in a zip archive.
 Also the UI has seen a lot of improvements. The machine view looks nicer - Marc
 drew spiffy machine icons. In addition they now show real volume meters when
 playing. All meters are now properly synced.
