@@ -21,13 +21,14 @@
  * @title: GstBtSimSyn
  * @short_description: simple monophonic audio synthesizer
  *
- * Simple monophonic audio synthesizer with an attack-decay envelope and a
- * state-variable filter.
+ * Simple monophonic audio synthesizer with a single oscillator (#GstBtOscSynth)
+ * , an attack-decay envelope (#GstBtEnvelopeAD) and a state-variable filter
+ * (#GstBtFilterSVF).
  *
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch-1.0 simsyn num-buffers=1000 note="c-4" ! autoaudiosink
+ * gst-launch-1.0 simsyn num-buffers=10 note="c-4" ! autoaudiosink
  * ]| Render a sine wave tone.
  * </refsect2>
  */

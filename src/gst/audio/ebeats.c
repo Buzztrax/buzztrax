@@ -21,13 +21,20 @@
  * @title: GstBtEBeats
  * @short_description: electric drum audio synthesizer
  *
- * Drum synthesizer with two tonal and one noise oscillator, envelopes and
- * a filter. The synthesizer uses a trigger param to be played.
+ * Drum synthesizer with two tonal and one noise oscillator (#GstBtOscSynth),
+ * decay envelopes (#GstBtEnvelopeD) for tonal transitions and volumes.
+ * The tonal oscillators can be mixed through various #GstBtCombine:combine
+ * modes. The noise part is then mixed with the tonal parts and the mix is feed
+ * through a filter (#GstBtFilterSVF) where the #GstBtFilterSVF:cut-off is also 
+ * controlled by a decay envelope.
+ *
+ * The synthesizer uses a trigger parameter (#GstBtEBeats:volume) to be start a
+ * tone.
  *
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch-1.0 ebeats num-buffers=1000 trigger=true freq-start=1000 freq-end=30 ! autoaudiosink
+ * gst-launch-1.0 ebeats num-buffers=10 volume=100 ! autoaudiosink
  * ]| Render a drum tone.
  * </refsect2>
  */
