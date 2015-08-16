@@ -2,10 +2,15 @@
 
 More synthesizers
 - we'd like to have one with
-  - dual-osc (with detune for the 2nd)
-    - detune with coarse in semitones (factor for one semitone: pow(2,1/12) =~ 1.05946))
-  - two ADSR envelopes
-  - each envelope can modulate volume and filter-cutoff/resonance
+  - dual-osc
+    - with detune for the 2nd osc: coarse in semitones
+      (factor for one semitone: pow(2,1/12) =~ 1.05946))
+    - combine for the mixing
+  - two ADSR envelopes for the osc-volume
+    - maybe one even with initial delay
+  - glide to use a curve-envelope to transition from previous note to new note
+    - glide-time and glide-curve
+  - another ADSR envelope for the filter-cutoff (also one for resonance?)
 - current simsyn is missing key-tracking for the filter
   - we could add a boolean to enable key-tracking (false by default)
   - on cut-off changes we need to base it on the currently played note

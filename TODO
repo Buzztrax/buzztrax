@@ -60,17 +60,20 @@
 = feature =
 
 * controller api
-- 1.0
-  - we might want to allow to attach a controller to a parameter and control
-    the controllers parameters in the pattern instead
-  - e.g. user attaches LFO to Filter-CutOff, in the pattern he can now edit:
-    center-value, depth, shape, freq (controlable values of the controller)
-  - we setup extra controller-functions to scale and shift the value (or
-    introduce a special binding for that) 
-  - song format
-    - we store it under machine, next to {global,voice}data, patterns
-    - maybe call it {global,voice}control and have controldata children
-      (name, value)
+- we might want to allow to attach a controller to a parameter and control
+  the controllers parameters in the pattern instead, e.g.:
+  - user attaches LFO to Filter-CutOff, in the pattern he can now edit:
+    center-value, depth, shape, freq (controlable values of the control-source)
+  - user attaches an Arpeggiator to a Note property
+- we setup extra controller-functions to scale and shift the value (or
+  introduce a special binding for that)
+- we need a controlbinding-router so that on pattern basis we can select which
+  controlsource is used (pattern, lfo, arpeggiator)
+- song format
+  - we store it per pattern before the data
+- ui
+  - we need some extra buttons in the parameter header to select between
+    {manual,automation}
 
 
 * OSC support
@@ -409,3 +412,39 @@
   * interaction controller ?
   * do we need to store some of them with the song?
 
+
+* machine UIs
+  * instead of adding more metadata to the paramspecs we could also use 
+    GtkBuilder xml file. This way machines can ship a customized layout.
+  * if not present in the filesystem we generate them on
+    the fly, maybe also expose this as a standalone tool
+  * the xml file only covers the parameter boxes
+
+
+* physical remotes
+  * physical remotes to control synths
+  * each synth could generate the required arduino sketch + instructions for the
+    hw
+  * arduino/esp2866
+    * https://www.adafruit.com/products/1085: 4ch @ 16bit: 15$
+    * https://www.adafruit.com/products/1083: 4ch @ 12bit: 10$
+    * https://www.adafruit.com/products/856:  8ch @ 10bit:  3.75$
+    * Arduino Uno: 6ch @ 10bit (mine)
+    * Arduino Micro: 12ch @ 10bit
+    * Teensy 3.1: 21ch @ 10bit (12ch on the headers)
+  * controls
+    * trigger button
+      https://www.arduino.cc/en/tutorial/button
+    * toggle button
+      https://www.arduino.cc/en/Tutorial/Switch
+    * poti
+      https://www.arduino.cc/en/Tutorial/AnalogInput
+    * many buttons on 1 ADC pin
+      http://www.instructables.com/id/How-to-access-5-buttons-through-1-Arduino-input/?ALLSTEPS
+      useful also for rotary switches like e.g.
+      https://www.sparkfun.com/products/10064?_ga=1.108337922.1878275335.1438803671
+      http://www.conrad.de/ce/de/Search.html?search=Encoder+5+V%2FDC+0.01+A+Schaltpositionen+16&searchType=mainSearchBar
+      e.g. for mode-selectors
+  * send osc events
+    http://trippylighting.com/2014/10/12/touchosc-arduino-tutorial/
+  
