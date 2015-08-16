@@ -65,6 +65,7 @@
     <title>GStreamer Buzztrax elements</title>
     <xi:include href="xml/audiodelay.xml"/>
     <xi:include href="xml/bml.xml"/>
+    <xi:include href="xml/bt-dec.xml"/>
     <xi:include href="xml/ebeats.xml"/>
     <xi:include href="xml/fluidsynth.xml"><xi:fallback /></xi:include>
     <xi:include href="xml/sidsyn.xml"/>
