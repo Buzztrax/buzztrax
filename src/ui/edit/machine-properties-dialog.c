@@ -2437,14 +2437,15 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
 
   remove_tool_button = gtk_tool_button_new_from_icon_name ("list-remove",
       _("_Remove"));
-  gtk_tool_item_set_tooltip_text (tool_item, _("Remove preset"));
+  gtk_tool_item_set_tooltip_text (remove_tool_button, _("Remove preset"));
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), remove_tool_button, -1);
   g_signal_connect (remove_tool_button, "clicked",
       G_CALLBACK (on_toolbar_preset_remove_clicked), (gpointer) self);
 
   edit_tool_button =
       gtk_tool_button_new_from_icon_name ("gtk-edit", _("_Edit"));
-  gtk_tool_item_set_tooltip_text (tool_item, _("Edit preset name and comment"));
+  gtk_tool_item_set_tooltip_text (edit_tool_button,
+      _("Edit preset name and comment"));
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), edit_tool_button, -1);
   g_signal_connect (edit_tool_button, "clicked",
       G_CALLBACK (on_toolbar_preset_edit_clicked), (gpointer) self);
