@@ -349,6 +349,7 @@ gstbt_osc_wave_get_type
 
 <SECTION>
 <FILE>plugin</FILE>
+<SUBSECTION Private>
 bt_g_param_spec_override_range
 bt_g_param_spec_clone
 bt_g_param_spec_clone_as
