@@ -37,6 +37,21 @@ typedef enum chip_model {
 } chip_model;
 #endif
 
+/**
+ * GstBtSidSynChip:
+ * @MOS6581: first chip version
+ * @MOS8580: second chip version
+ *
+ * Chip variant.
+ */
+#if 0
+typedef enum
+{
+  MOS6581,
+  MOS8580
+} GstBtSidSynChip;
+#endif
+
 G_BEGIN_DECLS
 #define GSTBT_TYPE_SID_SYN            (gstbt_sid_syn_get_type())
 #define GSTBT_SID_SYN(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj),GSTBT_TYPE_SID_SYN,GstBtSidSyn))

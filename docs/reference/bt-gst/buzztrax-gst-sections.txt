@@ -376,6 +376,7 @@ gstbt_property_meta_get_type
 <FILE>sidsyn</FILE>
 <TITLE>GstBtSidSyn</TITLE>
 GstBtSidSyn
+GstBtSidSynChip
 <SUBSECTION Standard>
 GSTBT_IS_SID_SYN
 GSTBT_IS_SID_SYN_CLASS
@@ -385,6 +386,7 @@ GSTBT_SID_SYN_GET_CLASS
 GSTBT_TYPE_SID_SYN
 GstBtSidSynClass
 gstbt_sid_syn_get_type
+gstbt_sid_syn_chip_get_type
 </SECTION>
 
 <SECTION>

@@ -73,6 +73,11 @@
     <xi:include href="xml/wavetabsyn.xml"/>
   </chapter>
 
+  <chapter>
+    <title>GStreamer Buzztrax elements subclasses</title>
+    <xi:include href="xml/sidsynv.xml"/>
+  </chapter>
+
   <chapter id="hierarchy">
     <title>Object Hierarchy</title>
     <xi:include href="xml/tree_index.sgml"/>
