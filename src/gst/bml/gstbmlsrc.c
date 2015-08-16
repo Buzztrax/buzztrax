@@ -16,6 +16,13 @@
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * SECTION:gstbmlsrc
+ * @title: GstBmlSrc
+ * @short_description: buzzmachine wrapper for generators
+ *
+ * Wrapper for buzzmachine sound generators.
+ */
 
 #include "plugin.h"
 

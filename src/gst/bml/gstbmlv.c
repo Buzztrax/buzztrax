@@ -14,6 +14,13 @@
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * SECTION:gstbmlv
+ * @title: GstBmlV
+ * @short_description: helper object for machine voices
+ *
+ * Helper for polyphonic buzzmachines.
+ */
 
 #include "plugin.h"
 

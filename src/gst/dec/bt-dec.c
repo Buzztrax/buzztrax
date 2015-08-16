@@ -14,16 +14,28 @@
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * SECTION:bt-dec
+ * @title: BtDec
+ * @short_description: buzztrax song playback bin
+ *
+ * Element to play buzztrax songs.
+ *
+ * <refsect2>
+ * <title>Example launch line</title>
+ * |[
+ * gst-launch-1.0 filesrc location=$HOME/buzztrax/share/buzztrax/songs/melo3.xml ! buzztrax-dec ! autoaudiosink
+ * ]| Play a buzztrax song.
+ * </refsect2>
+ */
 
 /*
- * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztrax/share/buzztrax/songs/303.bzt ! bt-bin ! fakesink
- * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 -v filesrc location=$HOME/buzztrax/share/buzztrax/songs/303.bzt ! typefind ! buzztrax-dec ! fakesink
- * GST_DEBUG="*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztrax/share/buzztrax/songs/303.bzt
- * GST_DEBUG="*:2,play*:3,bt*:4" gst-launch-0.10 playbin2 uri=file://$HOME/buzztrax/share/buzztrax/songs/303.bzt
+ * GST_DEBUG="*:3,bt*:4" gst-launch-1.0 -v filesrc location=$HOME/buzztrax/share/buzztrax/songs/melo3.xml ! buzztrax-dec ! fakesink
+ * GST_DEBUG="*:3,bt*:4" gst-launch-1.0 playbin uri=file://$HOME/buzztrax/share/buzztrax/songs/melo3.xml
  * ~/projects/gstreamer/gst-plugins-base/tests/examples/seek/.libs/seek 16 file:///home/ensonic/buzztrax/share/buzztrax/songs/lac2010_01a.bzt
  *
- * GST_DEBUG="*:3,bt*:4,*type*:4" gst-launch-0.10 -v -m filesrc location=$HOME/buzztrax/share/buzztrax/songs/303.bzt ! typefind ! fakesink
- * GST_DEBUG="*:2,bt*:4,*type*:5,default:5" gst-launch-0.10 filesrc location=$HOME/buzztrax/share/buzztrax/songs/303.bzt ! typefind ! fakesink
+ * GST_DEBUG="*:3,bt*:4,*type*:4" gst-launch-1.0 -v -m filesrc location=$HOME/buzztrax/share/buzztrax/songs/melo3.xml ! typefind ! fakesink
+ * GST_DEBUG="*:2,bt*:4,*type*:5,default:5" gst-launch-1.0 filesrc location=$HOME/buzztrax/share/buzztrax/songs/melo3.xml ! typefind ! fakesink
  *
  * gst-typefind $HOME/buzztrax/share/buzztrax/songs/303.bzt
  */
