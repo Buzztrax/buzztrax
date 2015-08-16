@@ -17,8 +17,8 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GSTBT_MUSICENUMS_B__
-#define __GSTBT_MUSICENUMS_B__
+#ifndef __GSTBT_MUSICENUMS_H__
+#define __GSTBT_MUSICENUMS_H__
 
 #include <glib-object.h>
 
@@ -195,6 +195,14 @@ typedef enum {
 
 extern GType gstbt_note_get_type(void);
 
+/**
+ * GstBtWaveIndex:
+ *
+ * The #BtWavetable index entries. A value of 0 means no wave in use.
+ */
+#if 0
+typedef guint GstBtWaveIndex;
+#endif
 
 #define GSTBT_TYPE_WAVE_INDEX   (gstbt_wave_index_get_type())
 
@@ -203,4 +211,4 @@ extern GType gstbt_wave_index_get_type(void);
 
 G_END_DECLS
 
-#endif /* __GSTBT_MUSICENUMS_B__ */
+#endif /* __GSTBT_MUSICENUMS_H__ */
