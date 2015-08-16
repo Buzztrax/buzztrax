@@ -24,6 +24,16 @@
  *
  * A module that combines 2 buffers using different (#GstBtCombine:combine)
  * modes.
+ *
+ * # Combine modes
+ *
+ * Examples of combining a saw-wave with another saw wave of double frequency.
+ *
+ * ![mix](lt-bt_gst_combine_mix__a+b.svg)
+ * ![mul](/tmp/lt-bt_gst_combine_mul__a*b.svg)
+ * ![sub](/tmp/lt-bt_gst_combine_sub__a-b.svg)
+ * ![max](/tmp/lt-bt_gst_combine_max__max_a,b_.svg)
+ * ![min](/tmp/lt-bt_gst_combine_min__min_a,b_.svg)
  */
 
 #ifdef HAVE_CONFIG_H
