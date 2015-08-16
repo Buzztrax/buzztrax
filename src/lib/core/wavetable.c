@@ -18,12 +18,17 @@
  * SECTION:btwavetable
  * @short_description: the list of #BtWave items in a #BtSong
  *
- * Each wave table entry can constist of multiple #BtWaves, were each of the
+ * Each wave table entry can consist of multiple #BtWaves, were each of the
  * waves has a #BtWavelevel with the data for a note range.
+ *
+ * The first entry starts at index pos 1. Index 0 is used in a #BtPattern to
+ * indicate that no (new) wave is referenced. 
  */
 /* TODO(ensonic): defer freeing waves if playing
- * - buzzmachines don't ref waves
- * - we can replace waves in the wavetable, but we should put the old ones in a to-be-freed list
+ * - buzzmachines don't ref waves, machines are supposed to check the wave ptr
+ *   in work() each time
+ * - we can replace waves in the wavetable, but we should put the old ones in a
+ *   to-be-freed list
  * - on song::stop we clear them
  */
 

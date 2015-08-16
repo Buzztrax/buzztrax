@@ -1060,7 +1060,7 @@ bt_wave_class_init (BtWaveClass * const klass)
 
   g_object_class_install_property (gobject_class, WAVE_INDEX,
       g_param_spec_ulong ("index", "index prop",
-          "The index of the wave in the wavtable", 0, G_MAXULONG, 0,
+          "The index of the wave in the wavtable", 1, G_MAXULONG, 1,
           G_PARAM_CONSTRUCT | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, WAVE_NAME,
