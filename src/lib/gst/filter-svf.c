@@ -26,10 +26,23 @@
  *
  * # Filter modes
  *
+ * Frequency response of the filter with no resonance applied
+ *
  * ![low pass](lt-bt_gst_filter-svf_lowpass_cut-off=0.5_resonance=0.7.svg)
  * ![hi pass](lt-bt_gst_filter-svf_hipass_cut-off=0.5_resonance=0.7.svg)
  * ![band pass](lt-bt_gst_filter-svf_bandpass_cut-off=0.5_resonance=0.7.svg)
  * ![band stop](lt-bt_gst_filter-svf_bandstop_cut-off=0.5_resonance=0.7.svg)
+ *
+ * Frequency response of the filter with resonance applied
+ *
+ * ![low pass](lt-bt_gst_filter-svf_lowpass_cut-off=0.5_resonance=10.0.svg)
+ * ![hi pass](lt-bt_gst_filter-svf_hipass_cut-off=0.5_resonance=10.0.svg)
+ * ![band pass](lt-bt_gst_filter-svf_bandpass_cut-off=0.5_resonance=10.0.svg)
+ * ![band stop](lt-bt_gst_filter-svf_bandstop_cut-off=0.5_resonance=10.0.svg)
+ *
+ * The second graphs show that applying #GstBtFilterSVF:resonance when using 
+ * %GSTBT_FILTER_SVF_BANDSTOP mode does not make sense, as the resonance is
+ * filling the notch.
  */
 
 #ifdef HAVE_CONFIG_H

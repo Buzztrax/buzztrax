@@ -25,6 +25,7 @@
 //-- globals
 
 #define WAVE_SIZE 8192
+#define FILTER_MODES (GSTBT_FILTER_SVF_COUNT - GSTBT_FILTER_SVF_LOWPASS)
 
 //-- fixtures
 
@@ -75,10 +76,21 @@ test_filter (BT_TEST_ARGS)
   gdouble fdata[nfft];
   gint j;
   gchar name[40];
+  guint filter_mode = GSTBT_FILTER_SVF_LOWPASS;
+  gdouble resonance = 0.7;
+
+  // run all modes twice with resonance off and on
+  if (_i >= FILTER_MODES) {
+    filter_mode += (_i - FILTER_MODES);
+    resonance = 10.0;
+  } else {
+    filter_mode += _i;
+  }
 
   GST_INFO ("-- arrange --");
   filter = gstbt_filter_svf_new ();
-  g_object_set (filter, "filter", _i, "cut-off", 0.5, "resonance", 0.7, NULL);
+  g_object_set (filter, "filter", filter_mode, "cut-off", 0.5, "resonance",
+      resonance, NULL);
   // unit impulse (delta function)
   memset (data, 0, nfft * sizeof (gint16));
   data[0] = G_MAXINT16;
@@ -106,8 +118,9 @@ test_filter (BT_TEST_ARGS)
   // hexdump -v -e '/8 "%f\n"' /tmp/lt-bt_gst_filter-svf_hipass_0.50.raw | more
   GEnumClass *enum_class =
       g_type_class_peek_static (GSTBT_TYPE_FILTER_SVF_TYPE);
-  GEnumValue *enum_value = g_enum_get_value (enum_class, _i);
-  sprintf (name, "%s cut-off=0.5 resonance=0.7", enum_value->value_name);
+  GEnumValue *enum_value = g_enum_get_value (enum_class, filter_mode);
+  sprintf (name, "%s cut-off=0.5 resonance=%.1lf", enum_value->value_name,
+      resonance);
   // TODO(ensonc): without logscale it might look better
   // right now x is the data-index anyway, should be frequency
   check_plot_data_double (freq, WAVE_SIZE, "filter-svf", name,
@@ -126,8 +139,7 @@ gst_buzztrax_filter_svf_example_case (void)
   TCase *tc = tcase_create ("GstBtFilterSVFExamples");
 
   tcase_add_test (tc, test_create_obj);
-  tcase_add_loop_test (tc, test_filter, GSTBT_FILTER_SVF_LOWPASS,
-      GSTBT_FILTER_SVF_COUNT);
+  tcase_add_loop_test (tc, test_filter, 0, FILTER_MODES * 2);
   // test gstbt_filter_svf_trigger()
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
