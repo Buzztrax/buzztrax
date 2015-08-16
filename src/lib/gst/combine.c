@@ -34,6 +34,9 @@
  * ![sub](lt-bt_gst_combine_sub__a-b.svg)
  * ![max](lt-bt_gst_combine_max__max_a,b_.svg)
  * ![min](lt-bt_gst_combine_min__min_a,b_.svg)
+ * ![and](lt-bt_gst_combine_and__a_b.svg)
+ * ![or](lt-bt_gst_combine_or__a_b.svg)
+ * ![xor](lt-bt_gst_combine_xor__a_b.svg)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -70,8 +73,11 @@ gstbt_combine_type_get_type (void)
     {GSTBT_COMBINE_MUL, "Mul: A*B",
         "multiply signals (A*B) (amplitude modulation)"},
     {GSTBT_COMBINE_SUB, "Sub: A-B", "subtract signals (A-B)"},
-    {GSTBT_COMBINE_MAX, "Max: Max(A,B)", "max of both  signals (max(A,B))"},
-    {GSTBT_COMBINE_MIN, "Min: Min(A,B)", "min of both  signals (min(A,B))"},
+    {GSTBT_COMBINE_MAX, "Max: Max(A,B)", "max of both signals (max(A,B))"},
+    {GSTBT_COMBINE_MIN, "Min: Min(A,B)", "min of both signals (min(A,B))"},
+    {GSTBT_COMBINE_AND, "And: A&B", "logical and of both signals (A&B)"},
+    {GSTBT_COMBINE_OR, "Or: A|B", "logical or of both signals (A|B)"},
+    {GSTBT_COMBINE_XOR, "Xor: A^B", "logical xor of both signals (A^B)"},
     {0, NULL, NULL},
   };
 
@@ -154,6 +160,36 @@ gstbt_combine_min (GstBtCombine * self, guint ct, gint16 * d1, gint16 * d2)
   }
 }
 
+static void
+gstbt_combine_and (GstBtCombine * self, guint ct, gint16 * d1, gint16 * d2)
+{
+  guint i;
+
+  for (i = 0; i < ct; i++) {
+    d1[i] &= d2[i];
+  }
+}
+
+static void
+gstbt_combine_or (GstBtCombine * self, guint ct, gint16 * d1, gint16 * d2)
+{
+  guint i;
+
+  for (i = 0; i < ct; i++) {
+    d1[i] |= d2[i];
+  }
+}
+
+static void
+gstbt_combine_xor (GstBtCombine * self, guint ct, gint16 * d1, gint16 * d2)
+{
+  guint i;
+
+  for (i = 0; i < ct; i++) {
+    d1[i] ^= d2[i];
+  }
+}
+
 /*
  * gstbt_combine_change_type:
  * Assign combine function
@@ -176,6 +212,15 @@ gstbt_combine_change_type (GstBtCombine * self)
       break;
     case GSTBT_COMBINE_MIN:
       self->process = gstbt_combine_min;
+      break;
+    case GSTBT_COMBINE_AND:
+      self->process = gstbt_combine_and;
+      break;
+    case GSTBT_COMBINE_OR:
+      self->process = gstbt_combine_or;
+      break;
+    case GSTBT_COMBINE_XOR:
+      self->process = gstbt_combine_xor;
       break;
     default:
       GST_ERROR ("invalid combine-type: %d", self->type);

@@ -31,8 +31,11 @@ G_BEGIN_DECLS
  * @GSTBT_COMBINE_MIX: add both signals (A+B)
  * @GSTBT_COMBINE_MUL: multiply signals (A*B) (amplitude modulation)
  * @GSTBT_COMBINE_SUB: subtract signals (A-B)
- * @GSTBT_COMBINE_MAX: max of both  signals (max(A,B))
- * @GSTBT_COMBINE_MIN: min of both  signals (min(A,B))
+ * @GSTBT_COMBINE_MAX: max of both signals (max(A,B))
+ * @GSTBT_COMBINE_MIN: min of both signals (min(A,B))
+ * @GSTBT_COMBINE_AND: logical and of both signals (A&B)
+ * @GSTBT_COMBINE_OR: logical or of both signals (A|B)
+ * @GSTBT_COMBINE_XOR: logical xor of both signals (A^B)
  * @GSTBT_COMBINE_COUNT: number of combine modes, this can change with new
  * releases
  *
@@ -45,6 +48,9 @@ typedef enum
   GSTBT_COMBINE_SUB,
   GSTBT_COMBINE_MAX,
   GSTBT_COMBINE_MIN,
+  GSTBT_COMBINE_AND,
+  GSTBT_COMBINE_OR,
+  GSTBT_COMBINE_XOR,
   GSTBT_COMBINE_COUNT
 } GstBtCombineType;
 

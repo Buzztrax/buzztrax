@@ -1287,7 +1287,7 @@ check_plot_get_basename (const gchar * base, const gchar * name)
 
   full_name =
       g_ascii_strdown (g_strdelimit (g_strdup_printf ("%s %s", base, name),
-          " ():", '_'), -1);
+          " ():&|^", '_'), -1);
 
   // like in bt-check-ui.c:make_filename()
   // should we have some helper api for this in the test lib?
