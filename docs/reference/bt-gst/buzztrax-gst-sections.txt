@@ -294,6 +294,7 @@ bmlw_v_get_type
 <FILE>musicenums</FILE>
 GstBtTriggerSwitch
 GstBtNote
+GstBtWaveIndex
 <SUBSECTION Standard>
 GSTBT_TYPE_NOTE
 GSTBT_TYPE_TRIGGER_SWITCH

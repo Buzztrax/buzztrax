@@ -77,6 +77,11 @@
   <chapter>
     <title>GStreamer Buzztrax elements subclasses</title>
     <xi:include href="xml/sidsynv.xml"/>
+    <xi:include href="xml/gstbml.xml"/>
+    <xi:include href="xml/gstbmlsrc.xml"/>
+    <xi:include href="xml/gstbmltransform.xml"/>
+    <xi:include href="xml/gstbmlv.xml"/>
+    <xi:include href="xml/plugin.xml"/>
   </chapter>
 
   <chapter id="hierarchy">

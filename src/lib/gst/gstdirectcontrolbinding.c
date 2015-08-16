@@ -493,19 +493,6 @@ gstbt_direct_control_binding_get_g_value_array (GstControlBinding * _self,
 
 /* functions */
 
-/**
- * gst_direct_control_binding_new_absolute:
- * @object: the object of the property
- * @property_name: the property-name to attach the control source
- * @cs: the control source
- *
- * Create a new control-binding that attaches the #GstControlSource to the
- * #GObject property.
- *
- * Returns: (transfer floating): the new #GstBtDirectControlBinding
- *
- * Since: 1.6
- */
 GstControlBinding *
 gst_direct_control_binding_new_absolute (GstObject * object,
     const gchar * property_name, GstControlSource * cs)
