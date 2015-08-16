@@ -307,6 +307,8 @@ gstbt_wave_index_get_type
 <FILE>osc-synth</FILE>
 <TITLE>GstBtOscSynth</TITLE>
 GstBtOscSynthWave
+GstBtOscSynthNoiseWave
+GstBtOscSynthTonalWave
 GstBtOscSynth
 gstbt_osc_synth_new
 gstbt_osc_synth_trigger

@@ -71,6 +71,59 @@ typedef enum
   GSTBT_OSC_SYNTH_WAVE_COUNT
 } GstBtOscSynthWave;
 
+/**
+ * GstBtOscSynthTonalWave:
+ * @GSTBT_OSC_SYNTH_WAVE_SILENCE: silence
+ * @GSTBT_OSC_SYNTH_WAVE_SINE: sine wave
+ * @GSTBT_OSC_SYNTH_WAVE_SQUARE: square wave
+ * @GSTBT_OSC_SYNTH_WAVE_SAW: saw wave
+ * @GSTBT_OSC_SYNTH_WAVE_TRIANGLE: triangle wave
+ * @GSTBT_OSC_SYNTH_WAVE_S_AND_H: sample and hold. Create an random value and 
+ * hold it for a time specified by #GstBtOscSynth:frequency.
+ *
+ * Tonal oscillator wave forms from #GstBtOscSynthWave.
+ */
+#if 0
+typedef enum
+{
+  GSTBT_OSC_SYNTH_WAVE_SILENCE,
+  GSTBT_OSC_SYNTH_WAVE_SINE,
+  GSTBT_OSC_SYNTH_WAVE_SQUARE,
+  GSTBT_OSC_SYNTH_WAVE_SAW,
+  GSTBT_OSC_SYNTH_WAVE_TRIANGLE,
+  GSTBT_OSC_SYNTH_WAVE_S_AND_H
+} GstBtOscSynthTonalWave;
+#endif
+
+/**
+ * GstBtOscSynthNoiseWave:
+ * @GSTBT_OSC_SYNTH_WAVE_SILENCE: silence
+ * @GSTBT_OSC_SYNTH_WAVE_WHITE_NOISE: white noise
+ * @GSTBT_OSC_SYNTH_WAVE_PINK_NOISE: pink noise
+ * @GSTBT_OSC_SYNTH_WAVE_GAUSSIAN_WHITE_NOISE: white (zero mean) Gaussian noise;
+ *   volume sets the standard deviation of the noise in units of the range of
+ *   values of the sample type, e.g. volume=0.1 produces noise with a standard
+ *   deviation of 0.1*32767=3277 with 16-bit integer samples, or 0.1*1.0=0.1
+ *   with floating-point samples.
+ * @GSTBT_OSC_SYNTH_WAVE_RED_NOISE: red (brownian) noise
+ * @GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE: spectraly inverted pink noise
+ * @GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE: spectraly inverted red (brownian) noise
+ *
+ * Noise oscillator wave forms from #GstBtOscSynthWave.
+ */
+#if 0
+typedef enum
+{
+  GSTBT_OSC_SYNTH_WAVE_SILENCE,
+  GSTBT_OSC_SYNTH_WAVE_WHITE_NOISE,
+  GSTBT_OSC_SYNTH_WAVE_PINK_NOISE,
+  GSTBT_OSC_SYNTH_WAVE_GAUSSIAN_WHITE_NOISE,
+  GSTBT_OSC_SYNTH_WAVE_RED_NOISE,
+  GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE,
+  GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE
+} GstBtOscSynthNoiseWave;
+#endif
+
 GType gstbt_osc_synth_wave_get_type(void);
 GType gstbt_osc_synth_tonal_wave_get_type(void);
 GType gstbt_osc_synth_noise_wave_get_type(void);
