@@ -97,9 +97,10 @@ bt_render_mode_get_type (void)
   static GType type = 0;
   if (G_UNLIKELY (type == 0)) {
     static const GEnumValue values[] = {
-      {BT_RENDER_MODE_MIXDOWN, "BT_RENDER_MODE_MIXDOWN", "mix to one track"},
+      {BT_RENDER_MODE_MIXDOWN, "BT_RENDER_MODE_MIXDOWN",
+          N_("mix to one track")},
       {BT_RENDER_MODE_SINGLE_TRACKS, "BT_RENDER_MODE_SINGLE_TRACKS",
-          "record one track for each source"},
+          N_("record one track for each source")},
       {0, NULL, NULL},
     };
     type = g_enum_register_static ("BtRenderMode", values);
@@ -697,7 +698,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   for (i = enum_class->minimum; i <= enum_class->maximum; i++) {
     if ((enum_value = g_enum_get_value (enum_class, i))) {
       gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget),
-          enum_value->value_nick);
+          gettext (enum_value->value_nick));
     }
   }
   g_type_class_unref (enum_class);
