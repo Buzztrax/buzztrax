@@ -48,7 +48,8 @@ struct _GstBMLSrcClass {
   GstBMLClass bml_class;
 };
 
-extern GType bml(src_get_type(const char *name, gboolean is_polyphonic));
+extern GType bmln_src_get_type(const char *name, gboolean is_polyphonic);
+extern GType bmlw_src_get_type(const char *name, gboolean is_polyphonic);
 
 G_END_DECLS
 

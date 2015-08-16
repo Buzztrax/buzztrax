@@ -65,7 +65,8 @@ struct _GstBMLVClass {
   GParamSpec **track_property;
 };
 
-extern GType bml(v_get_type(const gchar *name));
+extern GType bmln_v_get_type(const gchar *name);
+extern GType bmlw_v_get_type(const gchar *name);
 
 G_END_DECLS
 

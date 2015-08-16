@@ -22,7 +22,8 @@
  * @include: libgstbuzztrax/combine.h
  * @short_description: combine/mixing module
  *
- * A module that combines 2 buffers using different (#GstBtCombine:type).
+ * A module that combines 2 buffers using different (#GstBtCombine:combine)
+ * modes.
  */
 
 #ifdef HAVE_CONFIG_H

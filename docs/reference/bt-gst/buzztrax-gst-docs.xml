@@ -31,11 +31,17 @@
       This module contains experimental code that extends gstreamer.
       The extensions are required to build a git version of buzztrax.
     </para>
+    <para>
+      It also contains some nice audio elements. These could be easily moved to
+      gst-plugin modules, but only with some of the interfaces base and utilty
+      classes.
+    </para>
   </preface>
 
   <chapter>
     <title>GStreamer Buzztrax classes</title>
     <xi:include href="xml/audiosynth.xml"/>
+    <xi:include href="xml/combine.xml"/>
     <xi:include href="xml/delay.xml"/>
     <xi:include href="xml/envelope.xml"/>
     <xi:include href="xml/envelope-ad.xml"/>
@@ -53,6 +59,18 @@
     <xi:include href="xml/childbin.xml"/>
     <xi:include href="xml/propertymeta.xml"/>
     <xi:include href="xml/tempo.xml"/>
+  </chapter>
+
+  <chapter>
+    <title>GStreamer Buzztrax elements</title>
+    <xi:include href="xml/audiodelay.xml"/>
+    <xi:include href="xml/bml.xml"/>
+    <xi:include href="xml/ebeats.xml"/>
+    <xi:include href="xml/fluidsynth.xml"><xi:fallback /></xi:include>
+    <xi:include href="xml/sidsyn.xml"/>
+    <xi:include href="xml/simsyn.xml"/>
+    <xi:include href="xml/wavereplay.xml"/>
+    <xi:include href="xml/wavetabsyn.xml"/>
   </chapter>
 
   <chapter id="hierarchy">

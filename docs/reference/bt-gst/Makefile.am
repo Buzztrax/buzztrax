@@ -9,10 +9,19 @@ DOC_MODULE=buzztrax-gst
 # The top-level SGML file. You can change this if you want to.
 DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.xml
 
+# Some parts are dynamic
+if FLUIDSYNTH_SUPPORT
+FLUIDSYNTH_LA = $(top_builddir)/libgstfluidsynth.la
+FLUIDSYNTH_IGNORE_H =
+else
+FLUIDSYNTH_LA =
+FLUIDSYNTH_IGNORE_H = fluidsynth.h
+endif
+
 # The directory containing the source code. Relative to $(srcdir).
 # gtk-doc will search all .c & .h files beneath here for inline comments
 # documenting the functions and macros.
-DOC_SOURCE_DIR=$(top_srcdir)/src/lib/gst
+DOC_SOURCE_DIR=$(top_srcdir)/src/lib/gst $(top_srcdir)/src/gst
 
 # Extra options to pass to gtkdoc-scangobj. Not normally needed.
 SCANGOBJ_OPTIONS=--type-init-func="extern void gst_init(gint *,gchar***);gst_init(&argc,&argv)"
@@ -35,13 +44,16 @@ FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/ \
 	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/
 
 # Used for dependencies. The docs will be rebuilt if any of these change.
-HFILE_GLOB= $(top_srcdir)/src/lib/gst/*.h
-CFILE_GLOB= $(top_srcdir)/src/lib/gst/*.c
+HFILE_GLOB= $(top_srcdir)/src/lib/gst/*.h $(top_srcdir)/src/gst/*/*.h
+CFILE_GLOB= $(top_srcdir)/src/lib/gst/*.c $(top_srcdir)/src/gst/*/*.c
 
 # Header files to ignore when scanning.
 # e.g. IGNORE_HFILES=gtkdebug.h gtkintl.h
 # FIXME: this does not support path and thus is ambigous
-IGNORE_HFILES=gstdirectcontrolbinding.h
+IGNORE_HFILES=gstdirectcontrolbinding.h \
+	$(BML_IGNORE_H) gstbmlorc.h gstbmlorc-dist.h \
+	$(top_srcdir)/src/gst/sidsyn/envelope.h extfilt.h filter.h pot.h siddefs.h sidemu.h spline.h voice.h wave.h \
+	$(FLUIDSYNTH_IGNORE_H)
 
 # Images to copy into HTML directory.
 # e.g. HTML_IMAGES=$(top_srcdir)/gtk/stock-icons/stock_about_24.png
@@ -67,6 +79,11 @@ GTKDOC_CFLAGS = \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = \
 	$(top_builddir)/libbuzztrax-gst.la \
+	$(top_builddir)/libbuzztraxaudio.la \
+	$(top_builddir)/libbuzztraxdec.la \
+	$(top_builddir)/libgstbml.la \
+	$(FLUIDSYNTH_LA) \
+	$(top_builddir)/libgstsidsyn.la \
 	$(BASE_DEPS_LIBS) \
 	$(BT_LIBS)
 
