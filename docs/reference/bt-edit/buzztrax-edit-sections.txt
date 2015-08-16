@@ -1162,6 +1162,7 @@ gtk_widget_set_can_focus
 gtk_widget_set_has_window
 gtk_widget_set_realized
 gtk_widget_set_tooltip_text
+gtk_menu_item_add_accel
 # gstreamer extras
 GST_CAT_DEFAULT
 # gettext extras
