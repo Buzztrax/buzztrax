@@ -27,6 +27,7 @@ gchar **test_argvptr = test_argv;
 gint test_argc = G_N_ELEMENTS (test_argv);
 
 BT_TEST_SUITE_T ("GstElement", gst_buzztrax_elements);
+BT_TEST_SUITE_E ("GstBtCombine", gst_buzztrax_combine);
 BT_TEST_SUITE_E ("GstBtEnvelopeD", gst_buzztrax_envelope_d);
 BT_TEST_SUITE_E ("GstBtFilterSVF", gst_buzztrax_filter_svf);
 BT_TEST_SUITE_E ("GstBtOscSynth", gst_buzztrax_osc_synth);
@@ -47,6 +48,7 @@ main (gint argc, gchar ** argv)
   bt_init (&test_argc, &test_argvptr);
 
   sr = srunner_create (gst_buzztrax_elements_suite ());
+  srunner_add_suite (sr, gst_buzztrax_combine_suite ());
   srunner_add_suite (sr, gst_buzztrax_envelope_d_suite ());
   srunner_add_suite (sr, gst_buzztrax_filter_svf_suite ());
   srunner_add_suite (sr, gst_buzztrax_osc_synth_suite ());

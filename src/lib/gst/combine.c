@@ -95,7 +95,7 @@ gstbt_combine_mix (GstBtCombine * self, guint ct, gint16 * d1, gint16 * d2)
   glong mix;
 
   for (i = 0; i < ct; i++) {
-    mix = (glong) d1[i] + (glong) d2[i];
+    mix = ((glong) d1[i] + (glong) d2[i]) >> 1;
     d1[i] = (gint16) CLAMP (mix, G_MININT16, G_MAXINT16);
   }
 }
@@ -119,7 +119,7 @@ gstbt_combine_sub (GstBtCombine * self, guint ct, gint16 * d1, gint16 * d2)
   glong mix;
 
   for (i = 0; i < ct; i++) {
-    mix = (glong) d1[i] - (glong) d2[i];
+    mix = ((glong) d1[i] - (glong) d2[i]) >> 1;
     d1[i] = (gint16) CLAMP (mix, G_MININT16, G_MAXINT16);
   }
 }
