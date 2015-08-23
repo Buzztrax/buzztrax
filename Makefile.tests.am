@@ -194,6 +194,7 @@ libbtgst_check_la_LIBADD = $(BASE_DEPS_LIBS) $(LIBM)
 libbtgst_check_la_CFLAGS = $(BASE_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbtgst_check_la_SOURCES = tests/lib/gst/m-bt-gst.h \
 	tests/lib/gst/e-combine.c \
+	tests/lib/gst/e-envelope-ad.c \
 	tests/lib/gst/e-envelope-d.c \
 	tests/lib/gst/e-filter-svf.c \
 	tests/lib/gst/e-osc-synth.c \
