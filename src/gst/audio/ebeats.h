@@ -29,6 +29,25 @@
 
 G_BEGIN_DECLS
 
+#define GSTBT_TYPE_E_BEATS_FILTER_ROUTING_TYPE (gstbt_e_beats_filter_routing_get_type())
+
+/**
+ * GstBtEBeatsFilterRouting:
+ * @GSTBT_E_BEATS_FILTER_ROUTING_T_N: apply filter at the end to both tonal and
+ *   noise parts
+ * @GSTBT_E_BEATS_FILTER_ROUTING_T: apply filter only to tonal parts
+ * @GSTBT_E_BEATS_FILTER_ROUTING_N: apply filter only to noise parts
+ *
+ * The filter routing modes configure to which parts of the signal to apply the
+ * filter.
+ */
+typedef enum
+{
+  GSTBT_E_BEATS_FILTER_ROUTING_T_N,
+  GSTBT_E_BEATS_FILTER_ROUTING_T,
+  GSTBT_E_BEATS_FILTER_ROUTING_N,
+} GstBtEBeatsFilterRouting;
+
 #define GSTBT_TYPE_E_BEATS            (gstbt_e_beats_get_type())
 #define GSTBT_E_BEATS(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj),GSTBT_TYPE_E_BEATS,GstBtEBeats))
 #define GSTBT_IS_E_BEATS(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj),GSTBT_TYPE_E_BEATS))
@@ -54,6 +73,7 @@ struct _GstBtEBeats
   GstBtOscSynth *osc_t1, *osc_t2, *osc_n;  
   GstBtFilterSVF *filter;
   GstBtCombine *mix;
+  GstBtEBeatsFilterRouting flt_routing;
 };
 
 struct _GstBtEBeatsClass

@@ -21,15 +21,18 @@
  * @title: GstBtEBeats
  * @short_description: electric drum audio synthesizer
  *
- * Drum synthesizer with two tonal and one noise oscillator (#GstBtOscSynth),
- * decay envelopes (#GstBtEnvelopeD) for tonal transitions and volumes.
+ * A drum synthesizer with two tonal and one noise oscillator (#GstBtOscSynth),
+ * plus decay envelopes (#GstBtEnvelopeD) for tonal transitions and volumes.
  * The tonal oscillators can be mixed through various #GstBtCombine:combine
- * modes. The noise part is then mixed with the tonal parts and the mix is feed
- * through a filter (#GstBtFilterSVF) where the #GstBtFilterSVF:cut-off is also 
- * controlled by a decay envelope.
+ * modes. The noise part is then mixed with the tonal parts.
+ *
+ * Finally one can apply a filter (#GstBtFilterSVF) to either the tonal mix, the
+ * noise or both. The #GstBtFilterSVF:cut-off is also controlled by a decay
+ * envelope and the decay is the same as the one from the tonal osc, noise osc
+ * or the max of both depending on the (#GstBtEBeats:filter-routing).
  *
  * The synthesizer uses a trigger parameter (#GstBtEBeats:volume) to be start a
- * tone.
+ * tone that also controls the overall volume.
  *
  * <refsect2>
  * <title>Example launch line</title>
@@ -39,11 +42,6 @@
  * </refsect2>
  */
 /* TODO: add a delay line for metalic effects */
-/* TODO: add enum-param for filter routing: T / N / T+N */
-/* TODO: envelope for the filter cut-off envelope:
- * - the decay for the filter cut-off envelope could be dependend on the filter
- *   routing, for T+N it would be the max of T and N's decay
- */
 /* TODO: have presets for:
  * kick
  * snare
@@ -95,8 +93,8 @@ enum
   // noise
   PROP_N_WAVE, PROP_N_VOLUME, PROP_N_DECAY, PROP_N_VOL_CURVE,
   // filter
-  PROP_FILTER, PROP_CUTOFF_START, PROP_CUTOFF_END, PROP_CUTOFF_CURVE,
-  PROP_RESONANCE,
+  PROP_FILTER_ROUTING, PROP_FILTER, PROP_CUTOFF_START, PROP_CUTOFF_END,
+  PROP_CUTOFF_CURVE, PROP_RESONANCE,
   N_PROPERTIES
 };
 static GParamSpec *properties[N_PROPERTIES] = { NULL, };
@@ -106,6 +104,54 @@ static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 //-- the class
 
 G_DEFINE_TYPE (GstBtEBeats, gstbt_e_beats, GSTBT_TYPE_AUDIO_SYNTH);
+
+//-- enums
+
+GType
+gstbt_e_beats_filter_routing_get_type (void)
+{
+  static GType type = 0;
+  static const GEnumValue enums[] = {
+    {GSTBT_E_BEATS_FILTER_ROUTING_T_N, "Tonal+Noise",
+        "both tonal and noise parts"},
+    {GSTBT_E_BEATS_FILTER_ROUTING_T, "Tonal", "only tonal parts"},
+    {GSTBT_E_BEATS_FILTER_ROUTING_N, "Noise", "only noise parts"},
+    {0, NULL, NULL},
+  };
+
+  if (G_UNLIKELY (!type)) {
+    type = g_enum_register_static ("GstBtEBeatsFilterRouting", enums);
+  }
+  return type;
+}
+
+//-- helper methods
+
+static void
+gstbt_e_beats_update_filter_decay (GstBtEBeats * src)
+{
+  GValue value = { 0, };
+  gdouble tv, nv;
+
+  g_value_init (&value, G_TYPE_DOUBLE);
+  switch (src->flt_routing) {
+    case GSTBT_E_BEATS_FILTER_ROUTING_T_N:
+      g_object_get_property ((GObject *) (src->volenv_t), "decay", &value);
+      tv = g_value_get_double (&value);
+      g_object_get_property ((GObject *) (src->volenv_n), "decay", &value);
+      nv = g_value_get_double (&value);
+      g_value_set_double (&value, MAX (tv, nv));
+      break;
+    case GSTBT_E_BEATS_FILTER_ROUTING_T:
+      g_object_get_property ((GObject *) (src->volenv_t), "decay", &value);
+      break;
+    case GSTBT_E_BEATS_FILTER_ROUTING_N:
+      g_object_get_property ((GObject *) (src->volenv_n), "decay", &value);
+      break;
+  }
+
+  g_object_set_property ((GObject *) (src->fltenv), "decay", &value);
+}
 
 //-- audiosynth vmethods
 
@@ -149,18 +195,27 @@ gstbt_e_beats_process (GstBtAudioSynth * base, GstBuffer * data,
       gstbt_osc_synth_process (src->osc_t1, ct, d1);
       gstbt_osc_synth_process (src->osc_t2, ct, d2);
       gstbt_combine_process (src->mix, ct, d1, d2);
+      if (src->flt_routing == GSTBT_E_BEATS_FILTER_ROUTING_T) {
+        gstbt_filter_svf_process (src->filter, ct, d1);
+      }
     } else {
       memset (d1, 0, ct * sizeof (gint16));
     }
     /* Noise osc */
     if (env_n) {
       gstbt_osc_synth_process (src->osc_n, ct, d3);
+      if (src->flt_routing == GSTBT_E_BEATS_FILTER_ROUTING_N) {
+        gstbt_filter_svf_process (src->filter, ct, d3);
+      }
     }
+    /* Mix */
     for (i = 0; i < ct; i++) {
       mix = (glong) (v * ((glong) d1[i] + (glong) d3[i]));
       d1[i] = (gint16) CLAMP (mix, G_MININT16, G_MAXINT16);
     }
-    gstbt_filter_svf_process (src->filter, ct, d1);
+    if (src->flt_routing == GSTBT_E_BEATS_FILTER_ROUTING_T_N) {
+      gstbt_filter_svf_process (src->filter, ct, d1);
+    }
 
     g_free (d2);
     g_free (d3);
@@ -231,6 +286,7 @@ gstbt_e_beats_set_property (GObject * object, guint prop_id,
       g_object_set_property ((GObject *) (src->volenv_t), "decay", value);
       g_object_set_property ((GObject *) (src->freqenv_t1), "decay", value);
       g_object_set_property ((GObject *) (src->freqenv_t2), "decay", value);
+      gstbt_e_beats_update_filter_decay (src);
       break;
     case PROP_T_VOL_CURVE:
       g_object_set_property ((GObject *) (src->volenv_t), "curve", value);
@@ -246,7 +302,7 @@ gstbt_e_beats_set_property (GObject * object, guint prop_id,
       break;
     case PROP_N_DECAY:
       g_object_set_property ((GObject *) (src->volenv_n), "decay", value);
-      g_object_set_property ((GObject *) (src->fltenv), "decay", value);
+      gstbt_e_beats_update_filter_decay (src);
       break;
     case PROP_N_VOL_CURVE:
       g_object_set_property ((GObject *) (src->volenv_n), "curve", value);
@@ -259,6 +315,10 @@ gstbt_e_beats_set_property (GObject * object, guint prop_id,
       break;
     case PROP_CUTOFF_CURVE:
       g_object_set_property ((GObject *) (src->fltenv), "curve", value);
+      break;
+    case PROP_FILTER_ROUTING:
+      src->flt_routing = g_value_get_enum (value);
+      gstbt_e_beats_update_filter_decay (src);
       break;
     case PROP_FILTER:
     case PROP_RESONANCE:
@@ -338,6 +398,9 @@ gstbt_e_beats_get_property (GObject * object, guint prop_id,
     case PROP_CUTOFF_CURVE:
       g_object_get_property ((GObject *) (src->fltenv), "curve", value);
       break;
+    case PROP_FILTER_ROUTING:
+      g_value_set_enum (value, src->flt_routing);
+      break;
     case PROP_FILTER:
     case PROP_RESONANCE:
       g_object_get_property ((GObject *) (src->filter), pspec->name, value);
@@ -382,6 +445,7 @@ gstbt_e_beats_init (GstBtEBeats * src)
   src->fltenv = gstbt_envelope_d_new ();
   src->filter = gstbt_filter_svf_new ();
   src->mix = gstbt_combine_new ();
+  src->flt_routing = GSTBT_E_BEATS_FILTER_ROUTING_T_N;
 
   g_object_set (src->osc_t1, "wave", GSTBT_OSC_SYNTH_WAVE_SINE, NULL);
   g_object_set (src->osc_t2, "wave", GSTBT_OSC_SYNTH_WAVE_SINE, NULL);
@@ -500,9 +564,13 @@ gstbt_e_beats_class_init (GstBtEBeatsClass * klass)
       NULL);
   PROP (N_VOL_CURVE) =
       bt_g_param_spec_clone_as (env_component, "curve", "n-vol-curve",
-      "N Curve", NULL);
+      "N Vol. Curve", NULL);
 
   component = g_type_class_ref (GSTBT_TYPE_FILTER_SVF);
+  PROP (FILTER_ROUTING) = g_param_spec_enum ("filter-routing", "Filterrouting",
+      "Configuration to which parts of the signal to apply the filter",
+      GSTBT_TYPE_E_BEATS_FILTER_ROUTING_TYPE, GSTBT_E_BEATS_FILTER_ROUTING_T_N,
+      G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
   PROP (FILTER) = bt_g_param_spec_clone (component, "filter");
   PROP (CUTOFF_START) = g_param_spec_double ("cutoff-start", "Start Cut-Off",
       "Initial audio filter cut-off frequency", 0.0, 1.0, 0.8,
