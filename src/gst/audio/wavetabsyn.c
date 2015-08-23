@@ -283,7 +283,8 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
       "Wavetable synthesizer", "Stefan Sauer <ensonic@users.sf.net>");
   gst_element_class_add_metadata (element_class, GST_ELEMENT_METADATA_DOC_URI,
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
-      G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtWaveTabSyn.html");
+      G_DIR_SEPARATOR_S "" PACKAGE "-gst" G_DIR_SEPARATOR_S
+      "GstBtWaveTabSyn.html");
 
   // register properties
   PROP (WAVE_CALLBACKS) = g_param_spec_pointer ("wave-callbacks",

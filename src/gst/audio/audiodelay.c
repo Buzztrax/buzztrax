@@ -377,7 +377,8 @@ gstbt_audio_delay_class_init (GstBtAudioDelayClass * klass)
       "Add echos to audio streams", "Stefan Kost <ensonic@users.sf.net>");
   gst_element_class_add_metadata (element_class, GST_ELEMENT_METADATA_DOC_URI,
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
-      G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtAudioDelay.html");
+      G_DIR_SEPARATOR_S "" PACKAGE "-gst" G_DIR_SEPARATOR_S
+      "GstBtAudioDelay.html");
 
   // override interface properties
   g_object_class_override_property (gobject_class, PROP_BPM,

@@ -229,7 +229,7 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
       "Simple audio synthesizer", "Stefan Kost <ensonic@users.sf.net>");
   gst_element_class_add_metadata (element_class, GST_ELEMENT_METADATA_DOC_URI,
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
-      G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtSimSyn.html");
+      G_DIR_SEPARATOR_S "" PACKAGE "-gst" G_DIR_SEPARATOR_S "GstBtSimSyn.html");
 
   // register properties
   component = g_type_class_ref (GSTBT_TYPE_TONE_CONVERSION);

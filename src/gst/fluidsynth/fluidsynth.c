@@ -879,7 +879,8 @@ gstbt_fluid_synth_class_init (GstBtFluidSynthClass * klass)
       "FluidSynth wavetable synthesizer", "Josh Green <josh@users.sf.net>");
   gst_element_class_add_metadata (element_class, GST_ELEMENT_METADATA_DOC_URI,
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
-      G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtFluidSynth.html");
+      G_DIR_SEPARATOR_S "" PACKAGE "-gst" G_DIR_SEPARATOR_S
+      "GstBtFluidSynth.html");
 
   gstbt_fluid_synth_init_sf2_path ();
 }

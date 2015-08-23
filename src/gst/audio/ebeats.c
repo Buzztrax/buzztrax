@@ -499,7 +499,7 @@ gstbt_e_beats_class_init (GstBtEBeatsClass * klass)
       "Electric drum synthesizer", "Stefan Sauer <ensonic@users.sf.net>");
   gst_element_class_add_metadata (element_class, GST_ELEMENT_METADATA_DOC_URI,
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
-      G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtEBeats.html");
+      G_DIR_SEPARATOR_S "" PACKAGE "-gst" G_DIR_SEPARATOR_S "GstBtEBeats.html");
 
   // register properties
   PROP (VOLUME) = g_param_spec_uint ("volume", "Tone volume", "Tone volume",

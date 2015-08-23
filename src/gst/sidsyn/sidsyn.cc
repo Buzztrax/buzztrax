@@ -691,7 +691,7 @@ gstbt_sid_syn_class_init (GstBtSidSynClass * klass)
       "c64 sid synthesizer", "Stefan Sauer <ensonic@users.sf.net>");
   gst_element_class_add_metadata (element_class, GST_ELEMENT_METADATA_DOC_URI,
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
-      G_DIR_SEPARATOR_S "" PACKAGE "" G_DIR_SEPARATOR_S "GstBtSidSyn.html");
+      G_DIR_SEPARATOR_S "" PACKAGE "-gst" G_DIR_SEPARATOR_S "GstBtSidSyn.html");
 }
 
 //-- plugin
