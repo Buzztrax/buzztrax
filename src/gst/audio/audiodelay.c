@@ -35,8 +35,12 @@
  * </refsect2>
  */
 /* FIXME: delay-time should be in ticks, thats what the tempo iface is good for
- * here (see self->ticktime), we could add another property called 'delay' that
- * is in ticks and/or remove 'delaytime'.
+ * here (see self->ticktime),
+ * - we could add another property called 'delay' that is in ticks and/or remove
+ *   'delaytime'.
+ * - or we add a unit-mode (time, ticks)
+ * - some buzzmachine use MAX-16 for ticks (up to 16), for that we'd need a
+ *   describe() method for the UI
  */
 
 #ifdef HAVE_CONFIG_H
