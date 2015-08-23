@@ -62,7 +62,7 @@ enum
 
 G_DEFINE_TYPE (GstBtCombine, gstbt_combine, GST_TYPE_OBJECT);
 
-//-- enumscombine.h
+//-- enums
 
 GType
 gstbt_combine_type_get_type (void)
