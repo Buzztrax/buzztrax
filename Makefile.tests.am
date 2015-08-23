@@ -14,6 +14,7 @@ TESTS = \
   $(TESTS_BIN) \
   tests/bt-cmd-info.sh \
   tests/bt-cmd-cli.sh \
+  tests/bt-dec-launch.sh \
   tests/bt-edit-cli.sh \
   tests/povalid.sh \
   tests/xmlvalid.sh
