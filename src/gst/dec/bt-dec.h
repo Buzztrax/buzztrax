@@ -47,8 +47,9 @@ struct _BtDec {
   GstPad *sinkpad, *srcpad, *binpad;
 
   /* raw song data */
-  GstAdapter *adapter;
+  GstBuffer   *buffer;
   guint64 offset;
+  gint64 song_size;
 
   BtApplication *app;
   BtSong *song;

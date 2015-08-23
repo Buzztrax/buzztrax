@@ -24,7 +24,7 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch-1.0 filesrc location=$HOME/buzztrax/share/buzztrax/songs/melo3.xml ! buzztrax-dec ! autoaudiosink
+ * gst-launch-1.0 filesrc location=$HOME/buzztrax/share/buzztrax/songs/melo3.xml ! typefind ! buzztrax-dec ! autoaudiosink
  * ]| Play a buzztrax song.
  * </refsect2>
  */
@@ -41,8 +41,8 @@
  */
 
 /* description:
- * - we use an adapter to receive the whole song-data
- * - on EOS we load the song and drop the eos.
+ * - we use an buffer to receive the whole song-data
+ * - on EOS/buffer-filled we parse the song (and drop the eos).
  * - we use a fakesink in sink-bin
  * - we take the buffers from it and push them on our src pad
  * - this way we can keep the song-as a top-level pipeline.
@@ -81,6 +81,10 @@ GST_STATIC_PAD_TEMPLATE ("src",
         "layout = (string) interleaved, "
         "rate = (int) [ 1, MAX ], " "channels = (int) [1, 2] ")
     );
+
+//-- helpers
+
+static gchar *bt_dec_type_find_helper (const guint8 * data, gsize length);
 
 //-- local application subclass
 
@@ -260,6 +264,7 @@ bt_dec_move_buffer (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
   gint64 position;
 
   if (G_UNLIKELY (self->newsegment_event)) {
+    GST_INFO_OBJECT (self, "sending newsegment");
     gst_pad_push_event (self->srcpad, self->newsegment_event);
     self->newsegment_event = NULL;
   }
@@ -325,12 +330,15 @@ bt_dec_load_song (BtDec * self)
 {
   gboolean res = FALSE;
   BtSongIO *loader = NULL;
+  GstMapInfo map;
   GstCaps *caps;
   GstStructure *s;
   GError *err = NULL;
   const gchar *media_type = "audio/x-buzztrax";
-  guint len;
-  gpointer data;
+
+  GST_DEBUG_OBJECT (self, "song loaded");
+
+  gst_buffer_map (self->buffer, &map, GST_MAP_READ);
 
   caps = gst_pad_get_current_caps (self->sinkpad);
   GST_INFO_OBJECT (self, "input caps %" GST_PTR_FORMAT, caps);
@@ -341,15 +349,16 @@ bt_dec_load_song (BtDec * self)
     s = gst_caps_get_structure (caps, 0);
     media_type = gst_structure_get_string (s, "format");
     gst_caps_unref (caps);
+  } else {
+    /* it seems that our type-finder was not run */
+    media_type = bt_dec_type_find_helper (map.data, self->song_size);
   }
   GST_INFO_OBJECT (self, "about to load buzztrax song in %s format",
       media_type);
 
   /* create song-loader */
-  len = gst_adapter_available (self->adapter);
-  data = (gpointer) gst_adapter_take (self->adapter, len);
-
-  if ((loader = bt_song_io_from_data (data, len, media_type, &err))) {
+  if ((loader = bt_song_io_from_data ((gpointer) map.data, self->song_size,
+              media_type, &err))) {
     if (bt_song_io_load (loader, self->song, &err)) {
       BtSetup *setup;
       BtSequence *sequence;
@@ -382,7 +391,7 @@ bt_dec_load_song (BtDec * self)
         fakesink = gst_element_factory_make ("fakesink", NULL);
         /* otherwise the song is not starting .. */
         g_object_set (fakesink,
-            "async", FALSE, "enable-last-buffer", FALSE, "silent", TRUE,
+            "async", FALSE, "enable-last-sample", FALSE, "silent", TRUE,
             /*"sync", TRUE, */
             NULL);
         gst_bin_add (GST_BIN (machine), fakesink);
@@ -431,7 +440,10 @@ bt_dec_load_song (BtDec * self)
     GST_WARNING_OBJECT (self, "could not create song-io: %s", err->message);
     g_error_free (err);
   }
-  g_free (data);
+  gst_buffer_unmap (self->buffer, &map);
+  gst_buffer_unref (self->buffer);
+  self->buffer = NULL;
+  self->offset = 0;
 
 Error:
   if (loader) {
@@ -451,21 +463,69 @@ bt_dec_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_EOS:
       GST_DEBUG_OBJECT (self, "song loaded");
-      /* parse the song */
-      bt_dec_load_song (self);
       /* don't forward the event */
       gst_event_unref (event);
+      res = TRUE;
       break;
     default:
       if (self->srcpad) {
         res = gst_pad_push_event (self->srcpad, event);
       } else {
-        gst_event_unref (event);
+        res = gst_pad_event_default (pad, parent, event);
       }
       break;
   }
 
   return res;
+}
+
+static void
+bt_dec_append_data (BtDec * self, GstBuffer * buffer)
+{
+  GstMapInfo map;
+
+  gst_buffer_map (buffer, &map, GST_MAP_READ);
+  GST_DEBUG_OBJECT (self, "storing buffer, size = %" G_GSIZE_FORMAT, map.size);
+  gst_buffer_fill (self->buffer, self->offset, map.data, map.size);
+  self->offset += map.size;
+  gst_buffer_unmap (buffer, &map);
+  gst_buffer_unref (buffer);
+}
+
+static gboolean
+bt_dec_get_upstream_size (BtDec * self, gint64 * length)
+{
+  gboolean res = FALSE;
+  GstPad *peer;
+
+  peer = gst_pad_get_peer (self->sinkpad);
+  if (peer == NULL)
+    return FALSE;
+
+  if (gst_pad_query_duration (peer, GST_FORMAT_BYTES, length) && *length >= 0) {
+    res = TRUE;
+  }
+
+  gst_object_unref (peer);
+  return res;
+}
+
+static gboolean
+bt_dec_init_song_buffer (BtDec * self)
+{
+  GST_DEBUG_OBJECT (self, "checking size");
+  if (!bt_dec_get_upstream_size (self, &self->song_size)) {
+    GST_ELEMENT_ERROR (self, STREAM, DECODE, (NULL), ("Unable to load song"));
+    return FALSE;
+  }
+  GST_DEBUG_OBJECT (self, "got size: %" G_GINT64_FORMAT, self->song_size);
+
+  if (self->buffer) {
+    gst_buffer_unref (self->buffer);
+  }
+  self->buffer = gst_buffer_new_and_alloc (self->song_size);
+  self->offset = 0;
+  return TRUE;
 }
 
 static GstFlowReturn
@@ -475,9 +535,24 @@ bt_dec_chain (GstPad * sinkpad, GstObject * parent, GstBuffer * buffer)
 
   GST_DEBUG_OBJECT (self, "loading song");
 
-  /* push stuff in the adapter, we will start doing something in the sink event
-   * handler when we get EOS */
-  gst_adapter_push (self->adapter, buffer);
+  /* first, get the size of the song */
+  if (!self->song_size) {
+    if (!bt_dec_init_song_buffer (self)) {
+      return GST_FLOW_ERROR;
+    }
+  }
+
+  /* just append data to internal buffer, we play when we get eos */
+  bt_dec_append_data (self, buffer);
+  if (self->offset >= self->song_size) {
+    if (bt_dec_load_song (self)) {
+      GST_DEBUG_OBJECT (self, "start to play");
+      bt_song_play (self->song);
+    } else {
+      GST_ELEMENT_ERROR (self, STREAM, WRONG_TYPE, (NULL),
+          ("failed to load the song"));
+    }
+  }
 
   return GST_FLOW_OK;
 }
@@ -487,27 +562,44 @@ bt_dec_loop (GstPad * sinkpad)
 {
   BtDec *self = BT_DEC (GST_PAD_PARENT (sinkpad));
   GstFlowReturn ret;
-  GstBuffer *buffer;
+  GstBuffer *buffer = NULL;
 
-  GST_DEBUG_OBJECT (self, "loading song ...");
-
-  ret = gst_pad_pull_range (self->sinkpad, self->offset, -1, &buffer);
-  if (ret == GST_FLOW_EOS) {
-    GST_DEBUG_OBJECT (self, "song loaded");
-    /* parse the song */
-    if (bt_dec_load_song (self)) {
-      GST_DEBUG_OBJECT (self, "start to play");
-      bt_song_play (self->song);
+  /* first, get the size of the song */
+  if (!self->song_size) {
+    if (!bt_dec_init_song_buffer (self)) {
+      ret = GST_FLOW_ERROR;
+      goto pause;
     }
-    ret = GST_FLOW_OK;
-    goto pause;
-  } else if (ret != GST_FLOW_OK) {
-    GST_ELEMENT_ERROR (self, STREAM, DECODE, (NULL), ("Unable to read song"));
-    goto pause;
-  } else {
-    GST_DEBUG_OBJECT (self, "pushing buffer");
-    gst_adapter_push (self->adapter, buffer);
-    self->offset += gst_buffer_get_size (buffer);
+  }
+
+  if (self->buffer) {
+    ret = gst_pad_pull_range (self->sinkpad, self->offset, -1, &buffer);
+    if (ret == GST_FLOW_EOS) {
+      if (bt_dec_load_song (self)) {
+        GST_DEBUG_OBJECT (self, "start to play");
+        bt_song_play (self->song);
+        ret = GST_FLOW_OK;
+      } else {
+        GST_ELEMENT_ERROR (self, STREAM, WRONG_TYPE, (NULL),
+            ("failed to load the song"));
+      }
+      goto pause;
+    } else if (ret != GST_FLOW_OK) {
+      GST_ELEMENT_ERROR (self, STREAM, DECODE, (NULL), ("Unable to read song"));
+      goto pause;
+    } else {
+      bt_dec_append_data (self, buffer);
+      /* actually load it */
+      if (self->offset >= self->song_size) {
+        if (bt_dec_load_song (self)) {
+          GST_DEBUG_OBJECT (self, "start to play");
+          bt_song_play (self->song);
+        } else {
+          GST_ELEMENT_ERROR (self, STREAM, WRONG_TYPE, (NULL),
+              ("failed to load the song"));
+        }
+      }
+    }
   }
 
   return;
@@ -579,15 +671,36 @@ bt_dec_activate (GstPad * sinkpad, GstObject * parent)
     goto push;
 
   GST_INFO_OBJECT (sinkpad, "activating in pull mode");
-  if (!gst_pad_activate_mode (sinkpad, GST_PAD_MODE_PULL, TRUE))
-    goto push;
-
-  return gst_pad_start_task (sinkpad, (GstTaskFunction) bt_dec_loop, sinkpad,
-      NULL);
+  return gst_pad_activate_mode (sinkpad, GST_PAD_MODE_PULL, TRUE);
 
 push:
   GST_INFO_OBJECT (sinkpad, "activating in push mode");
   return gst_pad_activate_mode (sinkpad, GST_PAD_MODE_PUSH, TRUE);
+}
+
+static gboolean
+bt_dec_activate_mode (GstPad * pad, GstObject * parent,
+    GstPadMode mode, gboolean active)
+{
+  gboolean res;
+
+  switch (mode) {
+    case GST_PAD_MODE_PUSH:
+      res = TRUE;
+      break;
+    case GST_PAD_MODE_PULL:
+      if (active) {
+        res = gst_pad_start_task (pad, (GstTaskFunction) bt_dec_loop, pad,
+            NULL);
+      } else {
+        res = gst_pad_stop_task (pad);
+      }
+      break;
+    default:
+      res = FALSE;
+      break;
+  }
+  return res;
 }
 
 static void
@@ -596,9 +709,13 @@ bt_dec_reset (BtDec * self)
   GST_INFO_OBJECT (self, "reset");
 
   self->offset = 0;
+  self->song_size = 0;
   //self->discont = FALSE;
 
-  gst_adapter_clear (self->adapter);
+  if (self->buffer) {
+    gst_buffer_unref (self->buffer);
+    self->buffer = NULL;
+  }
   gst_event_replace (&self->newsegment_event, NULL);
 
   if (self->srcpad) {
@@ -672,7 +789,6 @@ bt_dec_dispose (GObject * object)
   }
 
   g_object_unref (self->app);
-  g_object_unref (self->adapter);
 
   G_OBJECT_CLASS (bt_dec_parent_class)->dispose (object);
 }
@@ -702,7 +818,6 @@ bt_dec_init (BtDec * self)
 {
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
 
-  self->adapter = gst_adapter_new ();
   gst_segment_init (&self->segment, GST_FORMAT_TIME);
 
   self->app = g_object_new (BT_TYPE_DEC_APPLICATION, NULL);
@@ -715,6 +830,7 @@ bt_dec_init (BtDec * self)
       gst_pad_new_from_template (gst_element_class_get_pad_template (klass,
           "sink"), "sink");
   gst_pad_set_activate_function (self->sinkpad, bt_dec_activate);
+  gst_pad_set_activatemode_function (self->sinkpad, bt_dec_activate_mode);
   gst_pad_set_event_function (self->sinkpad, bt_dec_sink_event);
   gst_pad_set_chain_function (self->sinkpad, bt_dec_chain);
   gst_element_add_pad (GST_ELEMENT (self), self->sinkpad);
@@ -723,36 +839,28 @@ bt_dec_init (BtDec * self)
 }
 
 
-static void
-bt_dec_type_find (GstTypeFind * tf, gpointer ignore)
+static gchar *
+bt_dec_type_find_helper (const guint8 * data, gsize length)
 {
-  gsize length = 16384;
-  guint64 tf_length;
-  const guint8 *data;
   gchar *tmp, *mimetype;
   const GList *plugins, *node;
   BtSongIOModuleInfo *info;
   guint ix;
   gboolean found_match = FALSE;
 
-  if ((tf_length = gst_type_find_get_length (tf)) > 0)
-    length = MIN (length, tf_length);
-
-  if ((data = gst_type_find_peek (tf, 0, length)) == NULL)
-    return;
-
   // check it
   tmp = g_content_type_guess (NULL, data, length, NULL);
   if (tmp == NULL || g_content_type_is_unknown (tmp)) {
+    GST_DEBUG ("content type is unknown or NULL (type=0x%p)", tmp);
     g_free (tmp);
-    return;
+    return NULL;
   }
 
   mimetype = g_content_type_get_mime_type (tmp);
   g_free (tmp);
 
   if (mimetype == NULL)
-    return;
+    return NULL;
 
   GST_INFO ("Got mimetype '%s'", mimetype);
 
@@ -766,8 +874,26 @@ bt_dec_type_find (GstTypeFind * tf, gpointer ignore)
       ix++;
     }
   }
+  return (found_match ? mimetype : NULL);
+}
 
-  if (found_match) {
+static void
+bt_dec_type_find (GstTypeFind * tf, gpointer ignore)
+{
+  gsize length = 16384;
+  guint64 tf_length;
+  const guint8 *data;
+  gchar *mimetype;
+
+  GST_DEBUG ("checking type");
+
+  if ((tf_length = gst_type_find_get_length (tf)) > 0)
+    length = MIN (length, tf_length);
+
+  if ((data = gst_type_find_peek (tf, 0, length)) == NULL)
+    return;
+
+  if ((mimetype = bt_dec_type_find_helper (data, length))) {
     GST_INFO ("Found a match");
     // just suggest one static type, we can internally differentiate between the
     // different formats we do support
