@@ -22,7 +22,13 @@
  * @include: libgstbuzztrax/envelope-ad.h
  * @short_description: attack-decay envelope generator
  *
- * Simple attack-decay envelope.
+ * Simple attack-decay envelope. The total time for the envelope is the
+ * #GstBtEnvelopeAD:decay value. If the #GstBtEnvelopeAD:attack value is larger
+ * than the #GstBtEnvelopeAD:decay value, it will be clamped.
+ *
+ * ![attack=0.25](lt-bt_gst_envelope-ad_attack=0.25.svg)
+ * ![attack=0.50](lt-bt_gst_envelope-ad_attack=0.50.svg)
+ * ![attack=0.75](lt-bt_gst_envelope-ad_attack=0.75.svg)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -88,6 +94,7 @@ gstbt_envelope_ad_setup (GstBtEnvelopeAD * self, gint samplerate)
   guint64 attack, decay;
 
   /* ensure a < d */
+  // TODO(ensonic): or CLAMP to decay * 0.75?
   if (attack_time > self->decay) {
     attack_time = self->decay / 2.0;
   }
