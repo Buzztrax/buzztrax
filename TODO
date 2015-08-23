@@ -421,6 +421,17 @@
   * the xml file only covers the parameter boxes
 
 
+* single window UI
+  * like we have main-window.c, add a extra-window.c, where the extra window
+    only has a main-pages widget
+  * on each tab we have a context menu to move it to the 'next'/'prev' window
+  * each page is only part of one window
+  * the settings store how many extra windows we have and for each page in which
+    one it is docked
+  * when we close an extra window, we move the pages to the previous window
+  * the edit-application stores the list of the windows that are open
+
+
 * physical remotes
   * physical remotes to control synths
   * each synth could generate the required arduino sketch + instructions for the
@@ -447,4 +458,16 @@
       e.g. for mode-selectors
   * send osc events
     http://trippylighting.com/2014/10/12/touchosc-arduino-tutorial/
-  
+
+
+* internet exchange for ic-profiles
+  * store ic-profiles also on files.buzztrax.org/ic-profiles
+  * when plugging a ic-device, check if we find a profile online
+  * from the profile-settings, add a button to submit a profile
+    * ideally upload through a the mailing-list/wordpress/...
+    * if we upload to files.buzztrax.org, upload to a staging area, where the uploads
+      are limited by ip/size/... and files are checked immediately after upload
+      for the file-type
+    * if we upload to wordpress, we'd need to do OAuth2 to avoid storing the
+      password in the settings
+  * maybe do something similar for presets

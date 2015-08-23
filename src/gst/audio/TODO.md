@@ -11,12 +11,16 @@ More synthesizers
   - glide to use a curve-envelope to transition from previous note to new note
     - glide-time and glide-curve
   - another ADSR envelope for the filter-cutoff (also one for resonance?)
+  - lfo?
 - current simsyn is missing key-tracking for the filter
   - we could add a boolean to enable key-tracking (false by default)
   - on cut-off changes we need to base it on the currently played note
   - current cut-off range is 0.0->1.0 with 1.0 = srat/2.0
   - v1: we could map 1.0 -> note_freq*32.0 (5 harmonics) instead
-  - v2: we could assume the current cut-off is related to C-4 and rebase accordingly
+  - v2: we could assume the current cut-off is related to C-4 (base), get freq
+    for base and tone and:
+    a) map for tone above and below base
+    b) map for tone related to base and clamp against 1.0
 
 # WaveTabSynth
 - slightly modulating the wave-offset could be interesting
@@ -97,12 +101,21 @@ component would have a couple of properties and vmethods (start, process, stop).
 When using them the element would proxy a few properties and ev. configure
 others manually. We can use GBinding (since glib-2.26) for the proxy properties.
 
-## component interface
+### component interface
 - most components would need to know e.g. the 'sampling-rate'
 - most components need to restart envelopes on note-on, maybe per
  'trigger' property
 - all synths can have a list of 'synth-components' and use that to configure,
   reset and release them
+- components should implement propertymeta to supply a describe function for
+  params
 
 ## open questions
-- do we need to pass the data fmt? What about mono/stereo.
+- do we need to pass the data fmt and channels? right now all components are
+  "mono s16"
+- should we make the components GstElements (GstAudioSynth and GstAudioFilter)?
+  - the actual elements would be bins, that ideally are configured through a 
+    spec-file (check SynthEd and co.)
+  - for this we need to handle the running time mapping from trigger for the
+    components
+  - pro: debug_dumps would show the layout of the synth/effect
