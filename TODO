@@ -423,6 +423,8 @@
     one it is docked
   * when we close an extra window, we move the pages to the previous window
   * the edit-application stores the list of the windows that are open
+  * see design/gui/multiscreen.c, when saving the monitor positions
+    gdk_screen_get_monitor_at_point()
 
 
 * physical remotes
