@@ -34,13 +34,6 @@
   for file in src/lib/core/*.c; do gtkdoc-depscan -v --book gstreamer-1.0:1.2.0 $file; done
 
 
-* check translation markup
-  podebug --rewrite=xxx buzztrax.pot aa.po
-  LC_ALL=aa ./buzztrax-edit
-  - this creates a translation with all strings wrapped by 'xxx' (Help -> xxxHelpxxx)
-  - it is easy to see what is not marked for translation  
-
-
 * sparse
   make CC=cgcc
 
