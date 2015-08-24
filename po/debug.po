@@ -1,27 +1,25 @@
-# translation of buzztrax-0.4.po to Nederlands
-# This file is distributed under the same license as the buzztrax package.
-# Erwin Poeze <erwin.poeze@gmail.com>, 2008.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztrax-0.5.0-pre1\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2015-08-16 22:53+0200\n"
-"PO-Revision-Date: 2009-07-22 18:33+0100\n"
-"Last-Translator: Erwin Poeze <erwin.poeze@gmail.com>\n"
-"Language-Team: Dutch <vertaling@vrijschrift.org>\n"
-"Language: nl\n"
+"POT-Creation-Date: 2015-08-16 20:55+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-Language: Dutch\n"
-"X-Poedit-Country: NETHERLANDS\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Poedit-Bookmarks: 142,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: ../buzztrax.appdata.xml.in.h:1
 msgid "Fully integrated music composer."
-msgstr ""
+msgstr "[i18n]Fully integrated music composer."
 
 #. don't translate 'tracker'
 #: ../buzztrax.appdata.xml.in.h:3
@@ -29,183 +27,182 @@ msgid ""
 "Buzztrax is a music composer similar to tracker applications. It is roughly "
 "modelled after the windows only, closed source application called Buzz."
 msgstr ""
+"[i18n]Buzztrax is a music composer similar to tracker applications. It is "
+"roughly modelled after the windows only, closed source application called "
+"Buzz."
 
 #: ../src/lib/core/core.c:181
 msgid "Print the buzztrax core version"
-msgstr "Versie buzztraxkern tonen"
+msgstr "[i18n]Print the buzztrax core version"
 
 #: ../src/lib/core/core.c:187
-#, fuzzy
 msgid "Buzztrax core options"
-msgstr "Opties buzztraxkern"
+msgstr "[i18n]Buzztrax core options"
 
 #: ../src/lib/core/core.c:188
 msgid "Show buzztrax core options"
-msgstr "Opties buzztraxkern tonen"
+msgstr "[i18n]Show buzztrax core options"
 
 #: ../src/lib/core/cmd-pattern.c:153
 msgid "normal"
-msgstr "normaal"
+msgstr "[i18n]normal"
 
 #: ../src/lib/core/cmd-pattern.c:153
 msgid "break"
-msgstr "onderbreken"
+msgstr "[i18n]break"
 
 #: ../src/lib/core/cmd-pattern.c:153
 msgid "mute"
-msgstr "dempen"
+msgstr "[i18n]mute"
 
 #: ../src/lib/core/cmd-pattern.c:153
 msgid "solo"
-msgstr "solo"
+msgstr "[i18n]solo"
 
 #: ../src/lib/core/cmd-pattern.c:153
 msgid "bypass"
-msgstr "omleiding"
+msgstr "[i18n]bypass"
 
 #: ../src/lib/core/song-io.c:312
 #, c-format
 msgid "Filename must not be empty."
-msgstr ""
+msgstr "[i18n]Filename must not be empty."
 
 #: ../src/lib/core/song-io.c:322
 #, c-format
 msgid "No io-module for filename '%s'."
-msgstr ""
+msgstr "[i18n]No io-module for filename '%s'."
 
 #: ../src/lib/core/song-io.c:349
 #, c-format
 msgid "Media-type must not be empty."
-msgstr ""
+msgstr "[i18n]Media-type must not be empty."
 
 #: ../src/lib/core/song-io.c:360
 #, c-format
 msgid "No io-module for media-type '%s'."
-msgstr ""
+msgstr "[i18n]No io-module for media-type '%s'."
 
 #: ../src/lib/core/song-io.c:415
 #, c-format
 msgid "Loading file '%s'"
-msgstr "Bestand '%s' laden"
+msgstr "[i18n]Loading file '%s'"
 
 #: ../src/lib/core/song-io.c:487
 #, c-format
 msgid "Saving file '%s'"
-msgstr "Bestand '%s' bewaren"
+msgstr "[i18n]Saving file '%s'"
 
 #: ../src/lib/core/song-io-native-bzt.c:301
 #, c-format
 msgid "Failed to create memory input."
-msgstr ""
+msgstr "[i18n]Failed to create memory input."
 
 #: ../src/lib/core/song-io-native-bzt.c:309
 #: ../src/lib/core/song-io-native-xml.c:72
 #, c-format
 msgid "Is not a XML/Buzztrax document."
-msgstr ""
+msgstr "[i18n]Is not a XML/Buzztrax document."
 
 #: ../src/lib/core/song-io-native-bzt.c:313
 #: ../src/lib/core/song-io-native-xml.c:76
 #, c-format
 msgid "Is not a wellformed XML document."
-msgstr ""
+msgstr "[i18n]Is not a wellformed XML document."
 
 #: ../src/lib/core/song-io-native-bzt.c:320
 #: ../src/lib/core/song-io-native-xml.c:83
 #, c-format
 msgid "XML document is empty."
-msgstr ""
+msgstr "[i18n]XML document is empty."
 
 #: ../src/lib/core/song-io-native-bzt.c:325
 #: ../src/lib/core/song-io-native-xml.c:88
 #, c-format
 msgid "Wrong XML document root."
-msgstr ""
+msgstr "[i18n]Wrong XML document root."
 
 #. default name for new songs
 #: ../src/lib/core/song-info.c:122
 msgid "untitled song"
-msgstr "nummer zonder titel"
+msgstr "[i18n]untitled song"
 
 #: ../src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in.h:1
 #: ../src/ui/edit/buzztrax-edit.desktop.in.h:1
-#, fuzzy
 msgid "Buzztrax Music Editor"
-msgstr "Buzztraxmuziekbewerker"
+msgstr "[i18n]Buzztrax Music Editor"
 
 #: ../src/lib/core/songio/bsl/song-io-buzz.c:2385
 #, c-format
 msgid "Error reading a buzz file section."
-msgstr ""
+msgstr "[i18n]Error reading a buzz file section."
 
 #: ../src/lib/core/songio/bsl/song-io-buzz.c:2391
 #, c-format
 msgid "Is not a buzz file."
-msgstr ""
+msgstr "[i18n]Is not a buzz file."
 
 #: ../src/lib/ic/ic.c:106
 msgid "Print the buzztrax interaction controller version"
-msgstr "Versie interactieregelaar tonen"
+msgstr "[i18n]Print the buzztrax interaction controller version"
 
 #: ../src/lib/ic/ic.c:112
-#, fuzzy
 msgid "Buzztrax interaction controller options"
-msgstr "Opties interactieregelaar"
+msgstr "[i18n]Buzztrax interaction controller options"
 
 #: ../src/lib/ic/ic.c:113
 msgid "Show buzztrax interaction controller options"
-msgstr "Opties interactieregelaar tonen"
+msgstr "[i18n]Show buzztrax interaction controller options"
 
 #: ../src/ui/cmd/bt-cmd.c:84 ../src/ui/edit/bt-edit.c:92
 msgid "Print application version"
-msgstr "Programmaversie tonen"
+msgstr "[i18n]Print application version"
 
 #: ../src/ui/cmd/bt-cmd.c:85
 msgid "Be quiet"
-msgstr "Wees stil"
+msgstr "[i18n]Be quiet"
 
 #: ../src/ui/cmd/bt-cmd.c:86 ../src/ui/edit/bt-edit.c:94
 msgid "Command name"
-msgstr "Naam opdracht"
+msgstr "[i18n]Command name"
 
 #: ../src/ui/cmd/bt-cmd.c:88 ../src/ui/edit/bt-edit.c:98
 msgid "Input file name"
-msgstr "Naam invoerbestand"
+msgstr "[i18n]Input file name"
 
 #: ../src/ui/cmd/bt-cmd.c:89 ../src/ui/cmd/bt-cmd.c:91
 #: ../src/ui/edit/bt-edit.c:98
 msgid "<songfile>"
-msgstr "<nummerbestand>"
+msgstr "[i18n]<songfile>"
 
 #: ../src/ui/cmd/bt-cmd.c:90
 msgid "Output file name"
-msgstr "Naam uitvoerbestand"
+msgstr "[i18n]Output file name"
 
 #: ../src/ui/cmd/bt-cmd.c:105
 msgid "buzztrax-cmd options"
-msgstr "Opties buzztrax-cmd"
+msgstr "[i18n]buzztrax-cmd options"
 
 #: ../src/ui/cmd/bt-cmd.c:106
 msgid "Show buzztrax-cmd options"
-msgstr "Opties buzztrax-cmd tonen"
+msgstr "[i18n]Show buzztrax-cmd options"
 
 #. Note to translators: put here your name and email so it will show up in
 #. * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net>
 #: ../src/ui/edit/about-dialog.c:65
 msgid "translator-credits"
-msgstr "Erwin Poeze <erwin.poeze@gmail.com>"
+msgstr "[i18n]translator-credits"
 
 #: ../src/ui/edit/about-dialog.c:68 ../src/ui/edit/about-dialog.c:70
-#, fuzzy, c-format
+#, c-format
 msgid "Copyright © 2003-%d Buzztrax developer team"
-msgstr "Copyright © 2003-%d Buzztrax-ontwikkelteam"
+msgstr "[i18n]Copyright © 2003-%d Buzztrax developer team"
 
 #: ../src/ui/edit/about-dialog.c:87
 msgid "Music production environment"
-msgstr "Omgeving voor muziekproductie"
+msgstr "[i18n]Music production environment"
 
 #: ../src/ui/edit/about-dialog.c:91
-#, fuzzy
 msgid ""
 "This package is free software; you can redistribute it and/or modify it "
 "under the terms of the GNU Library General Public License as published by "
@@ -221,19 +218,19 @@ msgid ""
 "along with this package; if not, write to the Free Software Foundation, "
 "Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA."
 msgstr ""
-"Dit pakket is vrije software. U kunt het herdistribueren en/of aanpassen "
-"onder de voorwaarden van de GNU Library Public License zoals gepubliceerd "
-"door de Free Software Foundation; ofwel versie 2 van de licentie, ofwel "
-"iedere latere versie (naar uw keuze).\n"
+"[i18n]This package is free software; you can redistribute it and/or modify "
+"it under the terms of the GNU Library General Public License as published by "
+"the Free Software Foundation; either version 2.1 of the License, or (at your "
+"option) any later version.\n"
 "\n"
-"Dit pakket is verspreid in de hoop dat het bruikbaar zal zijn, maar ZONDER "
-"ENIGE GARANTIE; zelfs zonder de gesuggereerde waarborg van VERHANDELBAARHEID "
-"of BRUIKBAARHEID VOOR EEN BEPAALD DOEL. Zie de GNU Library General Public "
-"Licence voor meer details.\n"
+"This package is distributed in the hope that it will be useful, but WITHOUT "
+"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+"FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License "
+"for more details.\n"
 "\n"
-"Samen met dit pakket moet een u kopie van de GNU Library General Public "
-"License ontvangen hebben; zo niet, schrijft dan naar Free Software "
-"Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
+"You should have received a copy of the GNU Library General Public License "
+"along with this package; if not, write to the Free Software Foundation, "
+"Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA."
 
 #. "Development version (do not translate this)"
 #.
@@ -245,36 +242,40 @@ msgid ""
 "making percussion sounds. Together with that the library providing the dsp "
 "components got overhauled."
 msgstr ""
+"[i18n]Just a few month since the previous release, this update mostly "
+"focuses on getting rid of deprecated APIs. Besides that it also come with a "
+"new synthesizer plugin called 'ebeats'. As the name suggests it is good at "
+"making percussion sounds. Together with that the library providing the dsp "
+"components got overhauled."
 
 #: ../src/ui/edit/bt-edit.c:107
 msgid "buzztrax-edit options"
-msgstr "Opties Buzztrax-bewerken"
+msgstr "[i18n]buzztrax-edit options"
 
 #: ../src/ui/edit/bt-edit.c:108
 msgid "Show buzztrax-edit options"
-msgstr "Opties Buzztrax-bewerken tonen"
+msgstr "[i18n]Show buzztrax-edit options"
 
 #: ../src/ui/edit/buzztrax-edit.desktop.in.h:2
 msgid "Edit buzztrax song files"
-msgstr "Buzztraxnummerbestanden bewerken"
+msgstr "[i18n]Edit buzztrax song files"
 
 #: ../src/ui/edit/change-log.c:643
-#, fuzzy
 msgid "unsaved song"
-msgstr "Nummer kan niet bewaard worden"
+msgstr "[i18n]unsaved song"
 
 #. the song recovery has been finished
 #: ../src/ui/edit/crash-recover-dialog.c:174
 msgid "Recovery finished"
-msgstr ""
+msgstr "[i18n]Recovery finished"
 
 #: ../src/ui/edit/crash-recover-dialog.c:175
 msgid "The selected song has been recovered successful."
-msgstr ""
+msgstr "[i18n]The selected song has been recovered successful."
 
 #: ../src/ui/edit/crash-recover-dialog.c:176
 msgid "Please check the song and save it if everything is alright."
-msgstr ""
+msgstr "[i18n]Please check the song and save it if everything is alright."
 
 #. FIXME(ensonic): the log is still there
 #. * - this dialog should be a warning
@@ -283,19 +284,19 @@ msgstr ""
 #. one or more steps in the recovery did not apply
 #: ../src/ui/edit/crash-recover-dialog.c:184
 msgid "Recovery failed"
-msgstr ""
+msgstr "[i18n]Recovery failed"
 
 #: ../src/ui/edit/crash-recover-dialog.c:185
 msgid "Sorry, the selected song could not be fully recovered."
-msgstr ""
+msgstr "[i18n]Sorry, the selected song could not be fully recovered."
 
 #: ../src/ui/edit/crash-recover-dialog.c:186
 msgid "Please check the song and save it if still looks good."
-msgstr ""
+msgstr "[i18n]Please check the song and save it if still looks good."
 
 #: ../src/ui/edit/crash-recover-dialog.c:225
 msgid "Unsaved song recovery"
-msgstr ""
+msgstr "[i18n]Unsaved song recovery"
 
 #. add dialog commision widgets (okay)
 #. FIXME(ensonic): add Okay, Cancel, Delete
@@ -303,75 +304,74 @@ msgstr ""
 #. select song + delete -> remove log
 #: ../src/ui/edit/crash-recover-dialog.c:231
 msgid "_Close"
-msgstr ""
+msgstr "[i18n]_Close"
 
 #: ../src/ui/edit/crash-recover-dialog.c:243
 msgid "Unsaved songs found"
-msgstr ""
+msgstr "[i18n]Unsaved songs found"
 
 #: ../src/ui/edit/crash-recover-dialog.c:244
 msgid "Select them one by one and choose 'recover' or 'delete'."
-msgstr ""
+msgstr "[i18n]Select them one by one and choose 'recover' or 'delete'."
 
 #: ../src/ui/edit/crash-recover-dialog.c:264
-#, fuzzy
 msgid "Song file"
-msgstr "<nummerbestand>"
+msgstr "[i18n]Song file"
 
 #: ../src/ui/edit/crash-recover-dialog.c:270
-#, fuzzy
 msgid "Last changed"
-msgstr "Recent bewaard"
+msgstr "[i18n]Last changed"
 
 #. add "undelete" button to action area
 #. GTK_STOCK_REVERT_TO_SAVED
 #: ../src/ui/edit/crash-recover-dialog.c:301
 msgid "Recover"
-msgstr ""
+msgstr "[i18n]Recover"
 
 #: ../src/ui/edit/crash-recover-dialog.c:307
 msgid "Delete"
-msgstr "Verwijder"
+msgstr "[i18n]Delete"
 
 #: ../src/ui/edit/edit-application.c:159
 msgid "-> You will not see any level-meters."
-msgstr "-> u zult geen niveaumeters zien."
+msgstr "[i18n]-> You will not see any level-meters."
 
 #: ../src/ui/edit/edit-application.c:170
 msgid "-> You will not see the frequency spectrum in the analyzer window."
-msgstr "-> u zult het frequentiespectrum in het analysescherm niet zien."
+msgstr ""
+"[i18n]-> You will not see the frequency spectrum in the analyzer window."
 
 #: ../src/ui/edit/edit-application.c:181
 msgid "-> Sample playback previews from the wavetable page will not work."
 msgstr ""
+"[i18n]-> Sample playback previews from the wavetable page will not work."
 
 #: ../src/ui/edit/edit-application.c:240 ../src/ui/edit/main-menu.c:105
 #: ../src/ui/edit/main-window.c:156
-#, fuzzy, c-format
+#, c-format
 msgid "Can't load song '%s'."
-msgstr "Nummer kan niet worden geladen"
+msgstr "[i18n]Can't load song '%s'."
 
 #: ../src/ui/edit/edit-application.c:242 ../src/ui/edit/main-menu.c:106
 #: ../src/ui/edit/main-window.c:157
 msgid "Can't load song"
-msgstr "Nummer kan niet worden geladen"
+msgstr "[i18n]Can't load song"
 
 #: ../src/ui/edit/interaction-controller-menu.c:296
-#, fuzzy
 msgid "Learn…"
-msgstr "Leren..."
+msgstr "[i18n]Learn…"
 
 #: ../src/ui/edit/interaction-controller-menu.c:422
 msgid "Bind controller"
-msgstr "Regelaar koppelen"
+msgstr "[i18n]Bind controller"
 
 #: ../src/ui/edit/interaction-controller-menu.c:429
 msgid "Unbind controller"
-msgstr "Regelaar ontkoppelen"
+msgstr "[i18n]Unbind controller"
 
 #: ../src/ui/edit/interaction-controller-menu.c:436
 msgid "Unbind all controllers"
-msgstr "Alle regelaars ontkoppelen"
+msgstr "[i18n]Unbind all controllers"
 
 #. format about message for machines
 #: ../src/ui/edit/machine-actions.c:68
@@ -381,64 +381,56 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"door %s\n"
+"[i18n]by %s\n"
 "\n"
 "%s"
 
 #: ../src/ui/edit/machine-actions.c:69
-#, fuzzy
 msgid "About…"
-msgstr "Over"
+msgstr "[i18n]About…"
 
 #: ../src/ui/edit/machine-canvas-item.c:784
 msgid "Mute"
-msgstr "Dempen"
+msgstr "[i18n]Mute"
 
 #: ../src/ui/edit/machine-canvas-item.c:794
 msgid "Solo"
-msgstr "Solo"
+msgstr "[i18n]Solo"
 
 #: ../src/ui/edit/machine-canvas-item.c:806
 msgid "Bypass"
-msgstr "Omleiding"
+msgstr "[i18n]Bypass"
 
 #. dynamic part
 #: ../src/ui/edit/machine-canvas-item.c:822
-#, fuzzy
 msgid "_Properties"
-msgstr "%s-eigenschappen"
+msgstr "[i18n]_Properties"
 
 #. static part
 #: ../src/ui/edit/machine-canvas-item.c:844 ../src/ui/edit/main-menu.c:916
-#, fuzzy
 msgid "_Preferences"
-msgstr "%s-voorkeuren"
+msgstr "[i18n]_Preferences"
 
 #: ../src/ui/edit/machine-canvas-item.c:855
-#, fuzzy
 msgid "Rename…"
-msgstr "Hernoem..."
+msgstr "[i18n]Rename…"
 
 #: ../src/ui/edit/machine-canvas-item.c:861 ../src/ui/edit/main-menu.c:909
-#, fuzzy
 msgid "_Delete"
-msgstr "Verwijder"
+msgstr "[i18n]_Delete"
 
 #: ../src/ui/edit/machine-canvas-item.c:873
-#, fuzzy
 msgid "Connect machines"
-msgstr "machines"
+msgstr "[i18n]Connect machines"
 
 #: ../src/ui/edit/machine-canvas-item.c:881
 #: ../src/ui/edit/wire-canvas-item.c:835
-#, fuzzy
 msgid "Signal Analysis…"
-msgstr "Signaalanalyse..."
+msgstr "[i18n]Signal Analysis…"
 
 #: ../src/ui/edit/machine-canvas-item.c:932
-#, fuzzy
 msgid "Play with"
-msgstr "'Live' afspelen"
+msgstr "[i18n]Play with"
 
 #. TODO(ensonic): toggle loop item
 #. *   gtk_check_menu_item_new_with_mnemonic
@@ -454,24 +446,23 @@ msgstr "'Live' afspelen"
 #: ../src/ui/edit/machine-properties-dialog.c:2587
 #: ../src/ui/edit/main-menu.c:1062
 msgid "_Help"
-msgstr "_Hulp"
+msgstr "[i18n]_Help"
 
 #: ../src/ui/edit/machine-canvas-item.c:958
 #: ../src/ui/edit/machine-properties-dialog.c:2581
 #: ../src/ui/edit/main-menu.c:1103
-#, fuzzy
 msgid "_About"
-msgstr "Over"
+msgstr "[i18n]_About"
 
 #. generators
 #: ../src/ui/edit/machine-menu.c:331
 msgid "Generators"
-msgstr "Generatoren"
+msgstr "[i18n]Generators"
 
 #. effects
 #: ../src/ui/edit/machine-menu.c:343
 msgid "Effects"
-msgstr "Effecten"
+msgstr "[i18n]Effects"
 
 #. create and set window icon
 #.
@@ -483,7 +474,7 @@ msgstr "Effecten"
 #. set dialog title
 #: ../src/ui/edit/machine-preset-properties-dialog.c:140
 msgid "preset name and comment"
-msgstr "voorinstelling naam en opmerking"
+msgstr "[i18n]preset name and comment"
 
 #. add dialog commision widgets (okay, cancel)
 #. add dialog commision widgets (okay)
@@ -495,7 +486,7 @@ msgstr "voorinstelling naam en opmerking"
 #: ../src/ui/edit/pattern-properties-dialog.c:148
 #: ../src/ui/edit/settings-dialog.c:187 ../src/ui/edit/tip-dialog.c:210
 msgid "_OK"
-msgstr ""
+msgstr "[i18n]_OK"
 
 #: ../src/ui/edit/machine-preset-properties-dialog.c:144
 #: ../src/ui/edit/machine-rename-dialog.c:122 ../src/ui/edit/main-window.c:589
@@ -503,7 +494,7 @@ msgstr ""
 #: ../src/ui/edit/pattern-properties-dialog.c:148
 #: ../src/ui/edit/render-dialog.c:617 ../src/ui/edit/settings-dialog.c:187
 msgid "_Cancel"
-msgstr ""
+msgstr "[i18n]_Cancel"
 
 #. GtkEntry : preset name
 #. GtkEntry : machine name
@@ -513,252 +504,239 @@ msgstr ""
 #: ../src/ui/edit/main-page-info.c:426
 #: ../src/ui/edit/pattern-properties-dialog.c:164
 msgid "name"
-msgstr "naam"
+msgstr "[i18n]name"
 
 #. GtkEntry : preset comment
 #: ../src/ui/edit/machine-preset-properties-dialog.c:176
 msgid "comment"
-msgstr "opmerking"
+msgstr "[i18n]comment"
 
 #: ../src/ui/edit/machine-preferences-dialog.c:509
 #, c-format
 msgid "%s preferences"
-msgstr "%s-voorkeuren"
+msgstr "[i18n]%s preferences"
 
 #: ../src/ui/edit/machine-properties-dialog.c:691
-#, fuzzy
 msgid "Reset parameter"
-msgstr "Parameters terugzetten naar standaardwaarden"
+msgstr "[i18n]Reset parameter"
 
 #: ../src/ui/edit/machine-properties-dialog.c:697
-#, fuzzy
 msgid "Reset all parameters"
-msgstr "Parameters terugzetten naar standaardwaarden"
+msgstr "[i18n]Reset all parameters"
 
 #: ../src/ui/edit/machine-properties-dialog.c:708
-#, fuzzy
 msgid "Copy parameter"
-msgstr "Kopieer patroon..."
+msgstr "[i18n]Copy parameter"
 
 #: ../src/ui/edit/machine-properties-dialog.c:714
 #: ../src/ui/edit/machine-properties-dialog.c:814
 msgid "Paste"
-msgstr "Plak"
+msgstr "[i18n]Paste"
 
 #. add copy/paste item
 #: ../src/ui/edit/machine-properties-dialog.c:808
 msgid "Copy group"
-msgstr ""
+msgstr "[i18n]Copy group"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2207
 msgid "global properties"
-msgstr "algemene eigenschappen"
+msgstr "[i18n]global properties"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2256
 #, c-format
 msgid "voice %lu properties"
-msgstr "stem-%lu-eigenschappen"
+msgstr "[i18n]voice %lu properties"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2355
 #, c-format
 msgid "%s wire properties"
-msgstr "%s signaaleigenschappen"
+msgstr "[i18n]%s wire properties"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2432
 msgid "_Add"
-msgstr ""
+msgstr "[i18n]_Add"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2433
 msgid "Add new preset"
-msgstr "Nieuwe voorinstelling toevoegen"
+msgstr "[i18n]Add new preset"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2439
-#, fuzzy
 msgid "_Remove"
-msgstr "Nummer verwijderen"
+msgstr "[i18n]_Remove"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2440
 msgid "Remove preset"
-msgstr "Voorinstelling verwijderen"
+msgstr "[i18n]Remove preset"
 
 #. edit menu
 #: ../src/ui/edit/machine-properties-dialog.c:2446
 #: ../src/ui/edit/main-menu.c:859
 msgid "_Edit"
-msgstr "B_ewerk"
+msgstr "[i18n]_Edit"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2448
 msgid "Edit preset name and comment"
-msgstr "Vooringestelde naam en opmerking bewerken"
+msgstr "[i18n]Edit preset name and comment"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2495
 msgid "Preset"
-msgstr "Voorinstelling"
+msgstr "[i18n]Preset"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2543
 msgid "machine properties"
-msgstr "machine-eigenschappen"
+msgstr "[i18n]machine properties"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2582
 msgid "Info about this machine"
-msgstr "Informatie over deze machine"
+msgstr "[i18n]Info about this machine"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2588
 msgid "Help for this machine"
-msgstr "Hulp voor deze machine"
+msgstr "[i18n]Help for this machine"
 
 #. -- file controls
 #: ../src/ui/edit/machine-properties-dialog.c:2597
 #: ../src/ui/edit/main-menu.c:776 ../src/ui/edit/main-toolbar.c:866
 msgid "_New"
-msgstr ""
+msgstr "[i18n]_New"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2598
 msgid "Randomize parameters"
-msgstr "Parameters willekeurig maken"
+msgstr "[i18n]Randomize parameters"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2603
 #: ../src/ui/edit/main-menu.c:867
 msgid "_Undo"
-msgstr ""
+msgstr "[i18n]_Undo"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2604
 msgid "Reset parameters to defaults"
-msgstr "Parameters terugzetten naar standaardwaarden"
+msgstr "[i18n]Reset parameters to defaults"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2612
 msgid "Presets"
-msgstr "Voorinstellingen"
+msgstr "[i18n]Presets"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2613
 msgid "Show/Hide preset pane"
-msgstr "Paneel voorinstellingen tonen/verbergen"
+msgstr "[i18n]Show/Hide preset pane"
 
 #. set dialog title
 #: ../src/ui/edit/machine-properties-dialog.c:2723
 #: ../src/ui/edit/pattern-properties-dialog.c:142
 #, c-format
 msgid "%s properties"
-msgstr "%s-eigenschappen"
+msgstr "[i18n]%s properties"
 
 #. set dialog title
 #: ../src/ui/edit/machine-rename-dialog.c:116
 #, c-format
 msgid "%s name"
-msgstr "%s-naam"
+msgstr "[i18n]%s name"
 
 #: ../src/ui/edit/main-menu.c:96 ../src/ui/edit/main-window.c:583
 #: ../src/ui/edit/main-window.c:584
-#, fuzzy
 msgid "Load new song?"
-msgstr "Nieuw nummer laden"
+msgstr "[i18n]Load new song?"
 
 #: ../src/ui/edit/main-menu.c:141
-#, fuzzy
 msgid "Recover a song?"
-msgstr "Nummer bewaren"
+msgstr "[i18n]Recover a song?"
 
 #. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
 #: ../src/ui/edit/main-menu.c:768
 msgid "_File"
-msgstr "_Bestand"
+msgstr "[i18n]_File"
 
 #: ../src/ui/edit/main-menu.c:783 ../src/ui/edit/main-page-waves.c:1415
 #: ../src/ui/edit/main-toolbar.c:872 ../src/ui/edit/main-window.c:590
-#, fuzzy
 msgid "_Open"
-msgstr "Open"
+msgstr "[i18n]_Open"
 
 #: ../src/ui/edit/main-menu.c:790
 msgid "_Recently used"
-msgstr "_Recent gebruikt"
+msgstr "[i18n]_Recently used"
 
 #: ../src/ui/edit/main-menu.c:816 ../src/ui/edit/main-toolbar.c:878
 #: ../src/ui/edit/main-window.c:722
-#, fuzzy
 msgid "_Save"
-msgstr "Opslaan"
+msgstr "[i18n]_Save"
 
 #: ../src/ui/edit/main-menu.c:824
-#, fuzzy
 msgid "Save _As"
-msgstr "Opslaan als"
+msgstr "[i18n]Save _As"
 
 #: ../src/ui/edit/main-menu.c:834
 msgid "Recover unsaved songs"
-msgstr ""
+msgstr "[i18n]Recover unsaved songs"
 
 #: ../src/ui/edit/main-menu.c:844
-#, fuzzy
 msgid "_Record"
-msgstr "Opnamen"
+msgstr "[i18n]_Record"
 
 #: ../src/ui/edit/main-menu.c:851
-#, fuzzy
 msgid "_Quit"
-msgstr "Beëindig"
+msgstr "[i18n]_Quit"
 
 #: ../src/ui/edit/main-menu.c:876
 msgid "_Redo"
-msgstr ""
+msgstr "[i18n]_Redo"
 
 #: ../src/ui/edit/main-menu.c:888
 msgid "Cu_t"
-msgstr ""
+msgstr "[i18n]Cu_t"
 
 #: ../src/ui/edit/main-menu.c:895
-#, fuzzy
 msgid "_Copy"
-msgstr "Kopieer"
+msgstr "[i18n]_Copy"
 
 #: ../src/ui/edit/main-menu.c:902
-#, fuzzy
 msgid "_Paste"
-msgstr "Plak"
+msgstr "[i18n]_Paste"
 
 #. view menu
 #: ../src/ui/edit/main-menu.c:922
 msgid "_View"
-msgstr "_Beeld"
+msgstr "[i18n]_View"
 
 #: ../src/ui/edit/main-menu.c:930
 msgid "Toolbar"
-msgstr "Werkbalk"
+msgstr "[i18n]Toolbar"
 
 #: ../src/ui/edit/main-menu.c:937
 msgid "Statusbar"
-msgstr "statusbalk"
+msgstr "[i18n]Statusbar"
 
 #: ../src/ui/edit/main-menu.c:945
 msgid "Tabs"
-msgstr "Tabbladen"
+msgstr "[i18n]Tabs"
 
 #. TODO(ensonic): 'Machine properties' show/hide toggle
 #. TODO(ensonic): 'Analyzer windows' show/hide toggle
 #: ../src/ui/edit/main-menu.c:955
 msgid "Fullscreen"
-msgstr ""
+msgstr "[i18n]Fullscreen"
 
 #: ../src/ui/edit/main-menu.c:964
 msgid "Go to machine view"
-msgstr "Naar machineweergave gaan"
+msgstr "[i18n]Go to machine view"
 
 #: ../src/ui/edit/main-menu.c:971
 msgid "Go to pattern view"
-msgstr "Naar patroonweergave gaan"
+msgstr "[i18n]Go to pattern view"
 
 #: ../src/ui/edit/main-menu.c:978
 msgid "Go to sequence view"
-msgstr "Naar reeksweergave gaan"
+msgstr "[i18n]Go to sequence view"
 
 #: ../src/ui/edit/main-menu.c:985
 msgid "Go to wave table view"
-msgstr "Naar golftabelweergave gaan"
+msgstr "[i18n]Go to wave table view"
 
 #: ../src/ui/edit/main-menu.c:992
 msgid "Go to song information"
-msgstr "Naar nummerinformatie gaan"
+msgstr "[i18n]Go to song information"
 
 #. TODO(ensonic): zoom menu items
 #. *  machine view:  zoom-in/zoom-out/zoom-fit
@@ -782,38 +760,35 @@ msgstr "Naar nummerinformatie gaan"
 #. playback menu
 #: ../src/ui/edit/main-menu.c:1020
 msgid "_Playback"
-msgstr "_Afspelen"
+msgstr "[i18n]_Playback"
 
 #: ../src/ui/edit/main-menu.c:1029 ../src/ui/edit/main-page-waves.c:1300
 #: ../src/ui/edit/main-page-waves.c:1408 ../src/ui/edit/main-toolbar.c:904
-#, fuzzy
 msgid "_Play"
-msgstr "Afspelen"
+msgstr "[i18n]_Play"
 
 #: ../src/ui/edit/main-menu.c:1036
 msgid "Play from cursor"
-msgstr "Vanaf cursor spelen"
+msgstr "[i18n]Play from cursor"
 
 #: ../src/ui/edit/main-menu.c:1043 ../src/ui/edit/main-page-waves.c:1310
 #: ../src/ui/edit/main-toolbar.c:925
-#, fuzzy
 msgid "_Stop"
-msgstr "Stop"
+msgstr "[i18n]_Stop"
 
 #: ../src/ui/edit/main-menu.c:1070
-#, fuzzy
 msgid "Help"
-msgstr "_Hulp"
+msgstr "[i18n]Help"
 
 #: ../src/ui/edit/main-menu.c:1077 ../src/ui/edit/tip-dialog.c:207
 #: ../src/ui/edit/tip-dialog.c:222
 msgid "Tip of the day"
-msgstr ""
+msgstr "[i18n]Tip of the day"
 
 #. join web-chat
 #: ../src/ui/edit/main-menu.c:1083
 msgid "Join IRC discussion"
-msgstr ""
+msgstr "[i18n]Join IRC discussion"
 
 #. TODO(ensonic): 'translate application' -> link to translator project
 #. * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-translate.png
@@ -824,139 +799,137 @@ msgstr ""
 #.
 #: ../src/ui/edit/main-menu.c:1096
 msgid "Report a problem"
-msgstr ""
+msgstr "[i18n]Report a problem"
 
 #: ../src/ui/edit/main-page-info.c:409
 msgid "song meta data"
-msgstr "metagegevens nummer"
+msgstr "[i18n]song meta data"
 
 #: ../src/ui/edit/main-page-info.c:436
 msgid "genre"
-msgstr "genre"
+msgstr "[i18n]genre"
 
 #: ../src/ui/edit/main-page-info.c:447
 msgid "author"
-msgstr "auteur"
+msgstr "[i18n]author"
 
 #: ../src/ui/edit/main-page-info.c:458
 msgid "created"
-msgstr "gemaakt"
+msgstr "[i18n]created"
 
 #: ../src/ui/edit/main-page-info.c:473
 msgid "beats per minute"
-msgstr "slagen per minuut"
+msgstr "[i18n]beats per minute"
 
 #: ../src/ui/edit/main-page-info.c:488
 msgid "beats"
-msgstr "slagen"
+msgstr "[i18n]beats"
 
 #: ../src/ui/edit/main-page-info.c:511
 msgid "ticks per beat"
-msgstr "tikken per slag"
+msgstr "[i18n]ticks per beat"
 
 #: ../src/ui/edit/main-page-info.c:524
 msgid "last saved"
-msgstr "Recent bewaard"
+msgstr "[i18n]last saved"
 
 #: ../src/ui/edit/main-page-info.c:539
 msgid "free text info"
-msgstr "vrije informatietekst"
+msgstr "[i18n]free text info"
 
 #: ../src/ui/edit/main-page-machines.c:1593
 msgid "Add machine"
-msgstr "Machine toevoegen"
+msgstr "[i18n]Add machine"
 
 #: ../src/ui/edit/main-page-machines.c:1603
 msgid "Unmute all machines"
-msgstr "Demping van alle machines verwijderen"
+msgstr "[i18n]Unmute all machines"
 
 #: ../src/ui/edit/main-page-machines.c:1620
 msgid "Off"
-msgstr "Uitschakelen"
+msgstr "[i18n]Off"
 
 #: ../src/ui/edit/main-page-machines.c:1632
 msgid "Low"
-msgstr "Laag"
+msgstr "[i18n]Low"
 
 #: ../src/ui/edit/main-page-machines.c:1644
 msgid "Medium"
-msgstr "Middel"
+msgstr "[i18n]Medium"
 
 #: ../src/ui/edit/main-page-machines.c:1656
 msgid "High"
-msgstr "Hoog"
+msgstr "[i18n]High"
 
 #: ../src/ui/edit/main-page-machines.c:1703
 msgid "Best _Fit"
-msgstr ""
+msgstr "[i18n]Best _Fit"
 
 #: ../src/ui/edit/main-page-machines.c:1705
 msgid "Zoom in/out so that everything is visible"
-msgstr "Zoom uitersten"
+msgstr "[i18n]Zoom in/out so that everything is visible"
 
 #: ../src/ui/edit/main-page-machines.c:1710
-#, fuzzy
 msgid "Zoom _In"
-msgstr "Zoom in"
+msgstr "[i18n]Zoom _In"
 
 #: ../src/ui/edit/main-page-machines.c:1711
 msgid "Zoom in for more details"
-msgstr "Zoom verder in"
+msgstr "[i18n]Zoom in for more details"
 
 #: ../src/ui/edit/main-page-machines.c:1718
-#, fuzzy
 msgid "Zoom _Out"
-msgstr "Zoom uit"
+msgstr "[i18n]Zoom _Out"
 
 #: ../src/ui/edit/main-page-machines.c:1719
 msgid "Zoom out for better overview"
-msgstr "Zoom verder uit"
+msgstr "[i18n]Zoom out for better overview"
 
 #: ../src/ui/edit/main-page-machines.c:1732
 msgid "Grid"
-msgstr "Rooster"
+msgstr "[i18n]Grid"
 
 #: ../src/ui/edit/main-page-machines.c:1733
 msgid "Show background grid"
-msgstr "Achtergrondrooster tonen"
+msgstr "[i18n]Show background grid"
 
 #: ../src/ui/edit/main-page-machines.c:1747
-#, fuzzy
 msgid "Machine view menu"
-msgstr "Machineweergave"
+msgstr "[i18n]Machine view menu"
 
 #: ../src/ui/edit/main-page-machines.c:1749
-#, fuzzy
 msgid "Menu actions for machine view below"
-msgstr "Naar machineweergave gaan"
+msgstr "[i18n]Menu actions for machine view below"
 
 #: ../src/ui/edit/main-page-machines.c:2558
 msgid ""
 "Add new machines from right click context menu. Connect machines with shift"
 "+drag from source to target."
 msgstr ""
+"[i18n]Add new machines from right click context menu. Connect machines with "
+"shift+drag from source to target."
 
 #: ../src/ui/edit/main-page-patterns.c:354
 msgid "Add new patterns from right click context menu."
-msgstr ""
+msgstr "[i18n]Add new patterns from right click context menu."
 
 #. create mapping for global params
 #. label for first global parameter column in a pattern
 #: ../src/ui/edit/main-page-patterns.c:1757
 msgid "Globals"
-msgstr "Algemeen"
+msgstr "[i18n]Globals"
 
 #. create mapping for voice params
 #. label for parameters of first voice column in a pattern
 #: ../src/ui/edit/main-page-patterns.c:1779
 msgid "Voice 1"
-msgstr "Stem 1"
+msgstr "[i18n]Voice 1"
 
 #. label for parameters of voice columns in a pattern
 #: ../src/ui/edit/main-page-patterns.c:1799
 #, c-format
 msgid "Voice %u"
-msgstr "Stem %u"
+msgstr "[i18n]Voice %u"
 
 #. this won't work, as we can't pass anything to the event handler
 #. * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
@@ -964,428 +937,412 @@ msgstr "Stem %u"
 #.
 #: ../src/ui/edit/main-page-patterns.c:2977
 msgid "Machine"
-msgstr "Machine"
+msgstr "[i18n]Machine"
 
 #: ../src/ui/edit/main-page-patterns.c:3005
 msgid "Pattern"
-msgstr "Patroon"
+msgstr "[i18n]Pattern"
 
 #: ../src/ui/edit/main-page-patterns.c:3043
 #: ../src/ui/edit/main-page-waves.c:1365
 msgid "Wave"
-msgstr "Golf"
+msgstr "[i18n]Wave"
 
 #: ../src/ui/edit/main-page-patterns.c:3070
 msgid "Octave"
-msgstr "Octaaf"
+msgstr "[i18n]Octave"
 
 #: ../src/ui/edit/main-page-patterns.c:3090
 msgid "Play live"
-msgstr "'Live' afspelen"
+msgstr "[i18n]Play live"
 
 #: ../src/ui/edit/main-page-patterns.c:3093
 msgid "Play notes and triggers while editing the pattern"
-msgstr "Speel noten en triggers tijdens de patroonbewerking"
+msgstr "[i18n]Play notes and triggers while editing the pattern"
 
 #: ../src/ui/edit/main-page-patterns.c:3107
-#, fuzzy
 msgid "Pattern view menu"
-msgstr "Patroonweergave"
+msgstr "[i18n]Pattern view menu"
 
 #: ../src/ui/edit/main-page-patterns.c:3109
-#, fuzzy
 msgid "Menu actions for pattern view below"
-msgstr "Naar patroonweergave gaan"
+msgstr "[i18n]Menu actions for pattern view below"
 
 #: ../src/ui/edit/main-page-patterns.c:3156
-#, fuzzy
 msgid "New voice"
-msgstr "stemmen"
+msgstr "[i18n]New voice"
 
 #: ../src/ui/edit/main-page-patterns.c:3168
-#, fuzzy
 msgid "Remove last voice"
-msgstr "Laatste nummer verwijderen"
+msgstr "[i18n]Remove last voice"
 
 #: ../src/ui/edit/main-page-patterns.c:3183
-#, fuzzy
 msgid "New pattern …"
-msgstr "Nieuw patroon..."
+msgstr "[i18n]New pattern …"
 
 #: ../src/ui/edit/main-page-patterns.c:3195
-#, fuzzy
 msgid "Pattern properties…"
-msgstr "patrooneigenschappen"
+msgstr "[i18n]Pattern properties…"
 
 #: ../src/ui/edit/main-page-patterns.c:3208
-#, fuzzy
 msgid "Remove pattern…"
-msgstr "Verwijder patroon..."
+msgstr "[i18n]Remove pattern…"
 
 #: ../src/ui/edit/main-page-patterns.c:3220
-#, fuzzy
 msgid "Copy pattern…"
-msgstr "Kopieer patroon..."
+msgstr "[i18n]Copy pattern…"
 
 #. dynamic part
 #: ../src/ui/edit/main-page-patterns.c:3236
 #: ../src/ui/edit/main-page-sequence.c:3674
-#, fuzzy
 msgid "Machine properties"
-msgstr "machine-eigenschappen"
+msgstr "[i18n]Machine properties"
 
 #: ../src/ui/edit/main-page-patterns.c:3245
 #: ../src/ui/edit/main-page-sequence.c:3681
-#, fuzzy
 msgid "Machine preferences"
-msgstr "machinevoorkeuren"
+msgstr "[i18n]Machine preferences"
 
 #. time line position
 #: ../src/ui/edit/main-page-sequence.c:1189
 msgid "Pos."
-msgstr "Pos."
+msgstr "[i18n]Pos."
 
 #: ../src/ui/edit/main-page-sequence.c:1198
 msgid "Ticks"
-msgstr "Tikken"
+msgstr "[i18n]Ticks"
 
 #: ../src/ui/edit/main-page-sequence.c:1200
 msgid "Time"
-msgstr "Tijd"
+msgstr "[i18n]Time"
 
 #: ../src/ui/edit/main-page-sequence.c:1202
-#, fuzzy
 msgid "Beats"
-msgstr "slagen"
+msgstr "[i18n]Beats"
 
 #: ../src/ui/edit/main-page-sequence.c:1375
 #: ../src/ui/edit/main-page-sequence.c:1402
 msgid "Labels"
-msgstr "Labels"
+msgstr "[i18n]Labels"
 
 #: ../src/ui/edit/main-page-sequence.c:3569
 msgid "Show every n-th line"
-msgstr "Iedere n-de regel tonen"
+msgstr "[i18n]Show every n-th line"
 
 #: ../src/ui/edit/main-page-sequence.c:3579
 msgid "Steps"
-msgstr "Stappen"
+msgstr "[i18n]Steps"
 
 #: ../src/ui/edit/main-page-sequence.c:3592
-#, fuzzy
 msgid "Follow playback"
-msgstr "Herhalen afspelen aan/uit"
+msgstr "[i18n]Follow playback"
 
 #: ../src/ui/edit/main-page-sequence.c:3612
-#, fuzzy
 msgid "Sequence view menu"
-msgstr "Reeksweergave"
+msgstr "[i18n]Sequence view menu"
 
 #: ../src/ui/edit/main-page-sequence.c:3614
-#, fuzzy
 msgid "Menu actions for sequence view below"
-msgstr "Naar reeksweergave gaan"
+msgstr "[i18n]Menu actions for sequence view below"
 
 #: ../src/ui/edit/main-page-sequence.c:3628
 msgid "Add track"
-msgstr "Nummer toevoegen"
+msgstr "[i18n]Add track"
 
 #: ../src/ui/edit/main-page-sequence.c:3633
 msgid "Remove track"
-msgstr "Nummer verwijderen"
+msgstr "[i18n]Remove track"
 
 #: ../src/ui/edit/main-page-sequence.c:3648
 msgid "Move track left"
-msgstr "Nummer links verplaatsen"
+msgstr "[i18n]Move track left"
 
 #: ../src/ui/edit/main-page-sequence.c:3659
 msgid "Move track right"
-msgstr "Nummer rechts verplaatsen"
+msgstr "[i18n]Move track right"
 
 #: ../src/ui/edit/main-page-sequence.c:3752
 msgid "Browse to labels in the sequence"
-msgstr "Naar labels in reeks bladeren"
+msgstr "[i18n]Browse to labels in the sequence"
 
 #: ../src/ui/edit/main-page-sequence.c:3906
 msgid "Key"
-msgstr "Sleutel"
+msgstr "[i18n]Key"
 
 #: ../src/ui/edit/main-page-sequence.c:3921
 msgid "Patterns"
-msgstr "Patronen"
+msgstr "[i18n]Patterns"
 
 #: ../src/ui/edit/main-page-sequence.c:4569
 msgid "Add new tracks from right click context menu."
-msgstr ""
+msgstr "[i18n]Add new tracks from right click context menu."
 
 #: ../src/ui/edit/main-page-waves.c:1302
 msgid "Play current wave table entry as C-4"
-msgstr "Huidige golftabelitem afspelen als C-4"
+msgstr "[i18n]Play current wave table entry as C-4"
 
 #: ../src/ui/edit/main-page-waves.c:1312
 msgid "Stop playback of current wave table entry"
-msgstr "Afspelen huidige golftabelitem beëindigen"
+msgstr "[i18n]Stop playback of current wave table entry"
 
 #: ../src/ui/edit/main-page-waves.c:1319
-#, fuzzy
 msgid "_Clear"
-msgstr "Wissen"
+msgstr "[i18n]_Clear"
 
 #: ../src/ui/edit/main-page-waves.c:1321
 msgid "Clear current wave table entry"
-msgstr "Huidige golftabelitem wissen"
+msgstr "[i18n]Clear current wave table entry"
 
 #: ../src/ui/edit/main-page-waves.c:1355
 msgid "Ix"
-msgstr "Ix"
+msgstr "[i18n]Ix"
 
 #: ../src/ui/edit/main-page-waves.c:1373
 msgid "Volume"
-msgstr "Geluidsterkte"
+msgstr "[i18n]Volume"
 
 #: ../src/ui/edit/main-page-waves.c:1381 ../src/ui/edit/main-toolbar.c:934
 msgid "Loop"
-msgstr "Lus"
+msgstr "[i18n]Loop"
 
 #: ../src/ui/edit/main-page-waves.c:1409
 msgid "Play current sample"
-msgstr "Huidige sample afspelen"
+msgstr "[i18n]Play current sample"
 
 #: ../src/ui/edit/main-page-waves.c:1417
 msgid "Load current sample into selected wave table entry"
-msgstr "Huidige sample in geselecteerde golftabelitem laden"
+msgstr "[i18n]Load current sample into selected wave table entry"
 
 #: ../src/ui/edit/main-page-waves.c:1471
 msgid "Root"
-msgstr "Basis"
+msgstr "[i18n]Root"
 
 #: ../src/ui/edit/main-page-waves.c:1479
 msgid "Length"
-msgstr "Lengte"
+msgstr "[i18n]Length"
 
 #: ../src/ui/edit/main-page-waves.c:1487
 msgid "Rate"
-msgstr "Snelheid"
+msgstr "[i18n]Rate"
 
 #: ../src/ui/edit/main-page-waves.c:1497
 msgid "Loop start"
-msgstr "Begin lus"
+msgstr "[i18n]Loop start"
 
 #: ../src/ui/edit/main-page-waves.c:1508
 msgid "Loop end"
-msgstr "Einde lus"
+msgstr "[i18n]Loop end"
 
 #: ../src/ui/edit/main-pages.c:177
 msgid "machines"
-msgstr "machines"
+msgstr "[i18n]machines"
 
 #: ../src/ui/edit/main-pages.c:178
 msgid "machines used in the song and their wires"
-msgstr "machines gebruikt in nummers en hun signalen"
+msgstr "[i18n]machines used in the song and their wires"
 
 #: ../src/ui/edit/main-pages.c:184
 msgid "patterns"
-msgstr "patronen"
+msgstr "[i18n]patterns"
 
 #: ../src/ui/edit/main-pages.c:184
 msgid "event pattern editor"
-msgstr "bewerker gebeurtenispatroon"
+msgstr "[i18n]event pattern editor"
 
 #: ../src/ui/edit/main-pages.c:190
 msgid "sequence"
-msgstr "reeks"
+msgstr "[i18n]sequence"
 
 #: ../src/ui/edit/main-pages.c:190
 msgid "song sequence editor"
-msgstr "bewerker nummerreeks"
+msgstr "[i18n]song sequence editor"
 
 #: ../src/ui/edit/main-pages.c:196
 msgid "wave table"
-msgstr "golftabel"
+msgstr "[i18n]wave table"
 
 #: ../src/ui/edit/main-pages.c:196
 msgid "sample wave table editor"
-msgstr "bewerker sample-golftabel"
+msgstr "[i18n]sample wave table editor"
 
 #: ../src/ui/edit/main-pages.c:202
 msgid "information"
-msgstr "informatie"
+msgstr "[i18n]information"
 
 #: ../src/ui/edit/main-pages.c:202
 msgid "song meta data editor"
-msgstr "bewerker metagegevens van nummer"
+msgstr "[i18n]song meta data editor"
 
 #: ../src/ui/edit/main-statusbar.c:324
 msgid "CPU load"
-msgstr "belasting processor"
+msgstr "[i18n]CPU load"
 
 #: ../src/ui/edit/main-statusbar.c:339
 msgid "Playback time"
-msgstr "Afspeeltijd"
+msgstr "[i18n]Playback time"
 
 #: ../src/ui/edit/main-statusbar.c:348
 msgid "Playback position"
-msgstr "Afspeelpositie"
+msgstr "[i18n]Playback position"
 
 #: ../src/ui/edit/main-statusbar.c:357
 msgid "Playback length"
-msgstr "Afspeelduur"
+msgstr "[i18n]Playback length"
 
 #: ../src/ui/edit/main-toolbar.c:417
 msgid "Error"
-msgstr "Fout"
+msgstr "[i18n]Error"
 
 #: ../src/ui/edit/main-toolbar.c:451
 msgid "Warning"
-msgstr "Waarschuwing"
+msgstr "[i18n]Warning"
 
 #: ../src/ui/edit/main-toolbar.c:867
 msgid "Prepare a new empty song"
-msgstr "Nieuw, leeg nummer voorbereiden"
+msgstr "[i18n]Prepare a new empty song"
 
 #: ../src/ui/edit/main-toolbar.c:873
 msgid "Load a new song"
-msgstr "Nieuw nummer laden"
+msgstr "[i18n]Load a new song"
 
 #: ../src/ui/edit/main-toolbar.c:879
 msgid "Save this song"
-msgstr "Nummer bewaren"
+msgstr "[i18n]Save this song"
 
 #: ../src/ui/edit/main-toolbar.c:890
 msgid "R_ewind"
-msgstr ""
+msgstr "[i18n]R_ewind"
 
 #: ../src/ui/edit/main-toolbar.c:892
-#, fuzzy
 msgid "Rewind playback position of this song"
-msgstr "Afspelen van dit nummer stoppen"
+msgstr "[i18n]Rewind playback position of this song"
 
 #: ../src/ui/edit/main-toolbar.c:905
 msgid "Play this song"
-msgstr "Nummer afspelen"
+msgstr "[i18n]Play this song"
 
 #: ../src/ui/edit/main-toolbar.c:912
 msgid "_Forward"
-msgstr ""
+msgstr "[i18n]_Forward"
 
 #: ../src/ui/edit/main-toolbar.c:914
-#, fuzzy
 msgid "Forward playback position of this song"
-msgstr "Afspelen van dit nummer stoppen"
+msgstr "[i18n]Forward playback position of this song"
 
 #: ../src/ui/edit/main-toolbar.c:926
 msgid "Stop playback of this song"
-msgstr "Afspelen van dit nummer stoppen"
+msgstr "[i18n]Stop playback of this song"
 
 #: ../src/ui/edit/main-toolbar.c:935
 msgid "Toggle looping of playback"
-msgstr "Herhalen afspelen aan/uit"
+msgstr "[i18n]Toggle looping of playback"
 
 #: ../src/ui/edit/main-toolbar.c:953
 msgid "playback volume"
-msgstr "geluidsterkte bij afspelen"
+msgstr "[i18n]playback volume"
 
 #: ../src/ui/edit/main-toolbar.c:975
 msgid "Change playback volume"
-msgstr "geluidsterkte bij afspelen veranderen"
+msgstr "[i18n]Change playback volume"
 
 #: ../src/ui/edit/main-window.c:268
 msgid "unsaved"
-msgstr "Niet bewaard"
+msgstr "[i18n]unsaved"
 
 #: ../src/ui/edit/main-window.c:268
 msgid "saved"
-msgstr "Bewaard"
+msgstr "[i18n]saved"
 
 #: ../src/ui/edit/main-window.c:334 ../src/ui/edit/main-window.c:339
 #, c-format
 msgid "%d %s and %d %s"
-msgstr ""
+msgstr "[i18n]%d %s and %d %s"
 
 #: ../src/ui/edit/main-window.c:335
 msgid "hour"
-msgstr ""
+msgstr "[i18n]hour"
 
 #: ../src/ui/edit/main-window.c:335
 msgid "hours"
-msgstr ""
+msgstr "[i18n]hours"
 
 #: ../src/ui/edit/main-window.c:336 ../src/ui/edit/main-window.c:340
 msgid "minute"
-msgstr ""
+msgstr "[i18n]minute"
 
 #: ../src/ui/edit/main-window.c:336 ../src/ui/edit/main-window.c:340
 msgid "minutes"
-msgstr ""
+msgstr "[i18n]minutes"
 
 #: ../src/ui/edit/main-window.c:341 ../src/ui/edit/main-window.c:345
 msgid "second"
-msgstr ""
+msgstr "[i18n]second"
 
 #: ../src/ui/edit/main-window.c:341 ../src/ui/edit/main-window.c:345
 msgid "seconds"
-msgstr ""
+msgstr "[i18n]seconds"
 
 #: ../src/ui/edit/main-window.c:344
 #, c-format
 msgid "%d %s"
-msgstr ""
+msgstr "[i18n]%d %s"
 
 #: ../src/ui/edit/main-window.c:353
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "All unsaved changes since %s will be lost. This song was last saved on: %s"
-msgstr "Veranderingen die niet bewaard zijn gaan dan verloren."
+msgstr ""
+"[i18n]All unsaved changes since %s will be lost. This song was last saved "
+"on: %s"
 
 #: ../src/ui/edit/main-window.c:358
-#, fuzzy, c-format
+#, c-format
 msgid "All unsaved changes since %s will be lost. This song was created on: %s"
-msgstr "Veranderingen die niet bewaard zijn gaan dan verloren."
+msgstr ""
+"[i18n]All unsaved changes since %s will be lost. This song was created on: %s"
 
 #: ../src/ui/edit/main-window.c:544 ../src/ui/edit/main-window.c:545
 msgid "Really quit?"
-msgstr "Echt afsluiten?"
+msgstr "[i18n]Really quit?"
 
 #: ../src/ui/edit/main-window.c:557
 msgid "New song?"
-msgstr "Nieuw nummer?"
+msgstr "[i18n]New song?"
 
 #: ../src/ui/edit/main-window.c:588
 msgid "Open a song"
-msgstr "Nummer openen"
+msgstr "[i18n]Open a song"
 
 #: ../src/ui/edit/main-window.c:684 ../src/ui/edit/main-window.c:945
-#, fuzzy, c-format
+#, c-format
 msgid "Can't save song '%s'."
-msgstr "Nummer kan niet bewaard worden"
+msgstr "[i18n]Can't save song '%s'."
 
 #: ../src/ui/edit/main-window.c:685 ../src/ui/edit/main-window.c:932
 #: ../src/ui/edit/main-window.c:946
 msgid "Can't save song"
-msgstr "Nummer kan niet bewaard worden"
+msgstr "[i18n]Can't save song"
 
 #: ../src/ui/edit/main-window.c:720
 msgid "Save a song"
-msgstr "Nummer bewaren"
+msgstr "[i18n]Save a song"
 
 #: ../src/ui/edit/main-window.c:870 ../src/ui/edit/render-dialog.c:661
 msgid "Format"
-msgstr "Indeling"
+msgstr "[i18n]Format"
 
 #: ../src/ui/edit/main-window.c:915 ../src/ui/edit/main-window.c:916
 msgid "File already exists"
-msgstr "Bestand bestaat al"
+msgstr "[i18n]File already exists"
 
 #: ../src/ui/edit/main-window.c:918
 msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
-msgstr ""
-"Kies 'OK' om het nummer te overschrijven, 'Annuleren' om het bewaren af te "
-"breken."
+msgstr "[i18n]Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
 
 #: ../src/ui/edit/main-window.c:930
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while writing the file '%s': %s"
-msgstr "Bewaren van het nummer in bestand '%s' is mislukt."
+msgstr "[i18n]An error occurred while writing the file '%s': %s"
 
 #. create and set window icon
 #.
@@ -1398,26 +1355,27 @@ msgstr "Bewaren van het nummer in bestand '%s' is mislukt."
 #: ../src/ui/edit/missing-framework-elements-dialog.c:138
 #: ../src/ui/edit/missing-framework-elements-dialog.c:157
 msgid "Missing GStreamer elements"
-msgstr "Ontbrekende onderdelen van GStreamer"
+msgstr "[i18n]Missing GStreamer elements"
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:167
 msgid ""
 "The elements listed below are missing from your installation, but are "
 "required."
 msgstr ""
-"De onderstaande elementen ontbreken in uw installatie, maar zijn wel vereist."
+"[i18n]The elements listed below are missing from your installation, but are "
+"required."
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:207
 msgid ""
 "The elements listed below are missing from your installation, but are "
 "recommended for full functionality."
 msgstr ""
-"De onderstaande elementen ontbreken in uw installatie, maar zijn wel "
-"aanbevolen voor een volledige functionaliteit."
+"[i18n]The elements listed below are missing from your installation, but are "
+"recommended for full functionality."
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:210
 msgid "don't warn again"
-msgstr "niet opnieuw waarschuwen"
+msgstr "[i18n]don't warn again"
 
 #. create and set window icon
 #.
@@ -1430,217 +1388,219 @@ msgstr "niet opnieuw waarschuwen"
 #: ../src/ui/edit/missing-song-elements-dialog.c:125
 #: ../src/ui/edit/missing-song-elements-dialog.c:140
 msgid "Missing elements in song"
-msgstr "Ontbrekende elementen in nummer"
+msgstr "[i18n]Missing elements in song"
 
 #: ../src/ui/edit/missing-song-elements-dialog.c:148
 msgid "The machines listed below are missing or failed to load."
-msgstr "De onderstaande machines ontbreken of kunnen niet worden geladen."
+msgstr "[i18n]The machines listed below are missing or failed to load."
 
 #: ../src/ui/edit/missing-song-elements-dialog.c:153
 msgid "The waves listed below are missing or failed to load."
-msgstr "De onderstaande golven ontbreken of kunnen niet geladen worden"
+msgstr "[i18n]The waves listed below are missing or failed to load."
 
 #. GtkComboBox : pattern length
 #: ../src/ui/edit/pattern-properties-dialog.c:177
 msgid "length"
-msgstr "lengte"
+msgstr "[i18n]length"
 
 #. GtkSpinButton : number of voices
 #: ../src/ui/edit/pattern-properties-dialog.c:191
 msgid "voices"
-msgstr "stemmen"
+msgstr "[i18n]voices"
 
 #: ../src/ui/edit/render-dialog.c:101
-#, fuzzy
 msgid "mix to one track"
-msgstr "Nummer verwijderen"
+msgstr "[i18n]mix to one track"
 
 #: ../src/ui/edit/render-dialog.c:103
 msgid "record one track for each source"
-msgstr ""
+msgstr "[i18n]record one track for each source"
 
 #: ../src/ui/edit/render-dialog.c:197
 #, c-format
 msgid "Recording to: %s"
-msgstr "Opnemen naar: %s"
+msgstr "[i18n]Recording to: %s"
 
 #: ../src/ui/edit/render-dialog.c:368
 msgid ""
 "File already exists!\n"
 "It will be overwritten if you continue."
 msgstr ""
+"[i18n]File already exists!\n"
+"It will be overwritten if you continue."
 
 #: ../src/ui/edit/render-dialog.c:611
 msgid "song rendering"
-msgstr "nummervertolking"
+msgstr "[i18n]song rendering"
 
 #. add dialog commision widgets (okay, cancel)
 #: ../src/ui/edit/render-dialog.c:614
 msgid "OK"
-msgstr ""
+msgstr "[i18n]OK"
 
 #: ../src/ui/edit/render-dialog.c:632
 msgid "Folder"
-msgstr "Map"
+msgstr "[i18n]Folder"
 
 #: ../src/ui/edit/render-dialog.c:637
 #: ../src/ui/edit/settings-page-directories.c:102
 #: ../src/ui/edit/settings-page-directories.c:116
 #: ../src/ui/edit/settings-page-directories.c:131
 msgid "Select a folder"
-msgstr "Selecteer een map"
+msgstr "[i18n]Select a folder"
 
 #: ../src/ui/edit/render-dialog.c:647
 msgid "Filename"
-msgstr "Bestandsnaam"
+msgstr "[i18n]Filename"
 
 #: ../src/ui/edit/render-dialog.c:691
 msgid "Mode"
-msgstr "Modus"
+msgstr "[i18n]Mode"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:183
 msgid "buzztrax settings"
-msgstr "Buzztrax-instellingen"
+msgstr "[i18n]buzztrax settings"
 
 #: ../src/ui/edit/settings-dialog.c:227 ../src/ui/edit/settings-dialog.c:269
 msgid "Audio Devices"
-msgstr "Geluidsapparaten"
+msgstr "[i18n]Audio Devices"
 
 #: ../src/ui/edit/settings-dialog.c:231 ../src/ui/edit/settings-dialog.c:277
 #: ../src/ui/edit/settings-page-directories.c:90
 msgid "Directories"
-msgstr "Mappen"
+msgstr "[i18n]Directories"
 
 #: ../src/ui/edit/settings-dialog.c:235 ../src/ui/edit/settings-dialog.c:287
 #: ../src/ui/edit/settings-page-interaction-controller.c:402
 msgid "Interaction Controller"
-msgstr "Interactieregelaar"
+msgstr "[i18n]Interaction Controller"
 
 #: ../src/ui/edit/settings-dialog.c:240 ../src/ui/edit/settings-dialog.c:297
 #: ../src/ui/edit/settings-page-playback-controller.c:458
 msgid "Playback Controller"
-msgstr "Afspeelregelaar"
+msgstr "[i18n]Playback Controller"
 
 #: ../src/ui/edit/settings-dialog.c:245 ../src/ui/edit/settings-dialog.c:305
 #: ../src/ui/edit/settings-page-shortcuts.c:87
 msgid "Shortcuts"
-msgstr "Snelkoppelingen"
+msgstr "[i18n]Shortcuts"
 
 #: ../src/ui/edit/settings-dialog.c:249
 msgid "User interface"
-msgstr ""
+msgstr "[i18n]User interface"
 
 #: ../src/ui/edit/settings-dialog.c:313 ../src/ui/edit/settings-page-ui.c:82
 msgid "User Interface"
-msgstr ""
+msgstr "[i18n]User Interface"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:113
 msgid "Auto"
-msgstr ""
+msgstr "[i18n]Auto"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:269
 msgid "Audio Device"
-msgstr "Geluidsapparaat"
+msgstr "[i18n]Audio Device"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:277
 msgid "Sink"
-msgstr "Put"
+msgstr "[i18n]Sink"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:292
 #, c-format
 msgid "system default: %s (%s)"
-msgstr "systeemstandaard: %s (%s)"
+msgstr "[i18n]system default: %s (%s)"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:298
 msgid "system default: -"
-msgstr "systeemstandaard: -"
+msgstr "[i18n]system default: -"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:382
-#, fuzzy
 msgid "Audio device"
-msgstr "Geluidsapparaat"
+msgstr "[i18n]Audio device"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:395
 msgid "Sampling rate"
-msgstr "Monsterfrequentie"
+msgstr "[i18n]Sampling rate"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:444
 msgid "Channels"
-msgstr "Kanalen"
+msgstr "[i18n]Channels"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:451
 msgid "mono"
-msgstr "mono"
+msgstr "[i18n]mono"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:452
 msgid "stereo"
-msgstr "stereo"
+msgstr "[i18n]stereo"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:459
 msgid "Latency"
-msgstr ""
+msgstr "[i18n]Latency"
 
 #: ../src/ui/edit/settings-page-directories.c:97
 msgid "Songs"
-msgstr "Nummers"
+msgstr "[i18n]Songs"
 
 #: ../src/ui/edit/settings-page-directories.c:111
 msgid "Recordings"
-msgstr "Opnamen"
+msgstr "[i18n]Recordings"
 
 #: ../src/ui/edit/settings-page-directories.c:126
 msgid "Waveforms"
-msgstr "Golfvormen"
+msgstr "[i18n]Waveforms"
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:226
 msgid "Plug a USB input device or midi controller"
-msgstr ""
+msgstr "[i18n]Plug a USB input device or midi controller"
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:349
 msgid "Use the device's controls to train them."
-msgstr ""
+msgstr "[i18n]Use the device's controls to train them."
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:409
 #: ../src/ui/edit/settings-page-playback-controller.c:596
 msgid "Device"
-msgstr "Apparaat"
+msgstr "[i18n]Device"
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:447
 msgid "In use"
-msgstr ""
+msgstr "[i18n]In use"
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:456
 #: ../src/ui/edit/settings-page-playback-controller.c:479
-#, fuzzy
 msgid "Controller"
-msgstr "Regelaar koppelen"
+msgstr "[i18n]Controller"
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:473
 msgid ""
 "This package has been built without GUdev and Alsa support and thus supports "
 "no interaction controllers."
 msgstr ""
+"[i18n]This package has been built without GUdev and Alsa support and thus "
+"supports no interaction controllers."
 
 #: ../src/ui/edit/settings-page-playback-controller.c:482
-#, fuzzy
 msgid "Master"
-msgstr "Plak"
+msgstr "[i18n]Master"
 
 #: ../src/ui/edit/settings-page-playback-controller.c:488
 msgid "Slave"
-msgstr ""
+msgstr "[i18n]Slave"
 
 #. local network port number for socket communication
 #: ../src/ui/edit/settings-page-playback-controller.c:551
 msgid "Port number"
-msgstr "Poortnummer"
+msgstr "[i18n]Port number"
 
 #: ../src/ui/edit/settings-page-playback-controller.c:569
 msgid ""
 "Requires Coherence UPnP framework which can be found at: https://coherence."
 "beebits.net."
 msgstr ""
+"[i18n]Requires Coherence UPnP framework which can be found at: https://"
+"coherence.beebits.net."
 
 #: ../src/ui/edit/settings-page-playback-controller.c:580
 #, c-format
@@ -1648,129 +1608,150 @@ msgid ""
 "Jack transport requires that the jackaudiosink is active. Your current "
 "audiosink is '%s'."
 msgstr ""
+"[i18n]Jack transport requires that the jackaudiosink is active. Your current "
+"audiosink is '%s'."
 
 #: ../src/ui/edit/settings-page-playback-controller.c:582
 msgid "none"
-msgstr ""
+msgstr "[i18n]none"
 
 #: ../src/ui/edit/settings-page-playback-controller.c:623
 msgid "Play"
-msgstr "Afspelen"
+msgstr "[i18n]Play"
 
 #: ../src/ui/edit/settings-page-playback-controller.c:624
 msgid "Stop"
-msgstr "Stop"
+msgstr "[i18n]Stop"
 
 #: ../src/ui/edit/settings-page-playback-controller.c:625
 msgid "Rewind"
-msgstr ""
+msgstr "[i18n]Rewind"
 
 #: ../src/ui/edit/settings-page-playback-controller.c:626
 msgid "Forward"
-msgstr ""
+msgstr "[i18n]Forward"
 
 #: ../src/ui/edit/settings-page-ui.c:89
 msgid "Dark theme variant"
-msgstr ""
+msgstr "[i18n]Dark theme variant"
 
 #: ../src/ui/edit/settings-page-ui.c:101
 msgid "Compact theme variant"
-msgstr ""
+msgstr "[i18n]Compact theme variant"
 
 #: ../src/ui/edit/signal-analysis-dialog.c:973
-#, fuzzy, c-format
+#, c-format
 msgid "%s analysis"
-msgstr "analyse %s -> %s"
+msgstr "[i18n]%s analysis"
 
 #. scale: linear and logarithmic
 #: ../src/ui/edit/signal-analysis-dialog.c:1020
 msgid "frequency mapping"
-msgstr ""
+msgstr "[i18n]frequency mapping"
 
 #: ../src/ui/edit/signal-analysis-dialog.c:1025
 msgid "lin."
-msgstr ""
+msgstr "[i18n]lin."
 
 #: ../src/ui/edit/signal-analysis-dialog.c:1026
 msgid "log."
-msgstr ""
+msgstr "[i18n]log."
 
 #. precission
 #: ../src/ui/edit/signal-analysis-dialog.c:1034
 msgid "spectrum precision"
-msgstr ""
+msgstr "[i18n]spectrum precision"
 
 #: ../src/ui/edit/signal-analysis-dialog.c:1039
 msgid "single"
-msgstr ""
+msgstr "[i18n]single"
 
 #: ../src/ui/edit/signal-analysis-dialog.c:1040
 msgid "double"
-msgstr ""
+msgstr "[i18n]double"
 
 #: ../src/ui/edit/signal-analysis-dialog.c:1041
 msgid "triple"
-msgstr ""
+msgstr "[i18n]triple"
 
 #: ../src/ui/edit/tip-dialog.c:50
 msgid "New machines are added in machine view from the context menu."
-msgstr ""
+msgstr "[i18n]New machines are added in machine view from the context menu."
 
 #: ../src/ui/edit/tip-dialog.c:51
 msgid ""
 "Connect machines by holding the shift key and dragging a connection for the "
 "source to the target machine."
 msgstr ""
+"[i18n]Connect machines by holding the shift key and dragging a connection "
+"for the source to the target machine."
 
 #: ../src/ui/edit/tip-dialog.c:52
 msgid "Songs can be recorded as single waves per track to give it to remixers."
 msgstr ""
+"[i18n]Songs can be recorded as single waves per track to give it to remixers."
 
 #: ../src/ui/edit/tip-dialog.c:53
 msgid ""
 "Fill the details on the info page. When recording songs, the metadata is "
 "added to the recording as tags."
 msgstr ""
+"[i18n]Fill the details on the info page. When recording songs, the metadata "
+"is added to the recording as tags."
 
 #: ../src/ui/edit/tip-dialog.c:54
 msgid ""
 "Use jackaudio sink in audio device settings to get lower latencies for live "
 "machine control."
 msgstr ""
+"[i18n]Use jackaudio sink in audio device settings to get lower latencies for "
+"live machine control."
 
 #: ../src/ui/edit/tip-dialog.c:55
 msgid ""
 "You can use input devices such as joysticks, beside midi devices to live "
 "control machine parameters."
 msgstr ""
+"[i18n]You can use input devices such as joysticks, beside midi devices to "
+"live control machine parameters."
 
 #: ../src/ui/edit/tip-dialog.c:56
 msgid ""
 "You can use a upnp media client (e.g. media streamer on nokia tablets) to "
 "remote control buzztrax."
 msgstr ""
+"[i18n]You can use a upnp media client (e.g. media streamer on nokia tablets) "
+"to remote control buzztrax."
 
 #: ../src/ui/edit/tip-dialog.c:57
 msgid ""
 "To enter notes, imagine your pc keyboard as a music keyboard in two rows. "
 "Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
 msgstr ""
+"[i18n]To enter notes, imagine your pc keyboard as a music keyboard in two "
+"rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
 
 #: ../src/ui/edit/tip-dialog.c:58
 msgid ""
 "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
 msgstr ""
+"[i18n]You can get more help from the community on irc://irc.freenode.net/"
+"#buzztrax."
 
 #: ../src/ui/edit/tip-dialog.c:59
 msgid ""
 "Pattern layouts are individual for each machine. Look at the statusbar at "
 "the bottom for information about the cursor-column."
 msgstr ""
+"[i18n]Pattern layouts are individual for each machine. Look at the statusbar "
+"at the bottom for information about the cursor-column."
 
 #: ../src/ui/edit/tip-dialog.c:60
 msgid ""
 "Click the speaker icon in the pattern-view to hear notes as you enter them."
 msgstr ""
+"[i18n]Click the speaker icon in the pattern-view to hear notes as you enter "
+"them."
 
 #: ../src/ui/edit/tip-dialog.c:61
 msgid ""
@@ -1778,305 +1759,60 @@ msgid ""
 "be adjusted in the machine-window of the machine that has the wire as an "
 "input."
 msgstr ""
+"[i18n]Each wire has volume and possible panorama/balance controls. These can "
+"also be adjusted in the machine-window of the machine that has the wire as "
+"an input."
 
 #: ../src/ui/edit/tip-dialog.c:62
 msgid ""
 "The wire volume control pops up upon a click on the arrow box on the wire."
 msgstr ""
+"[i18n]The wire volume control pops up upon a click on the arrow box on the "
+"wire."
 
 #: ../src/ui/edit/tip-dialog.c:63
 msgid ""
 "The wire panorama/balance control pops up upon a shift+click on the arrow "
 "box on the wire if available."
 msgstr ""
+"[i18n]The wire panorama/balance control pops up upon a shift+click on the "
+"arrow box on the wire if available."
 
 #: ../src/ui/edit/tip-dialog.c:64
 msgid ""
 "One can copy settings from the machine window (from the context menu of a "
 "group) and paste them to patterns and the other way around."
 msgstr ""
+"[i18n]One can copy settings from the machine window (from the context menu "
+"of a group) and paste them to patterns and the other way around."
 
 #: ../src/ui/edit/tip-dialog.c:65
 msgid "Install extra machines from http://github.com/Buzztrax/buzzmachines."
 msgstr ""
+"[i18n]Install extra machines from http://github.com/Buzztrax/buzzmachines."
 
 #: ../src/ui/edit/tip-dialog.c:66
 msgid "Machines can also be renamed in the headers of the sequence view."
 msgstr ""
+"[i18n]Machines can also be renamed in the headers of the sequence view."
 
 #: ../src/ui/edit/tip-dialog.c:67
 msgid ""
 "Press the ',' (comma) key in the pattern editor to insert the current value "
 "for this parameter."
 msgstr ""
+"[i18n]Press the ',' (comma) key in the pattern editor to insert the current "
+"value for this parameter."
 
 #: ../src/ui/edit/tip-dialog.c:244
 msgid "Show tips on startup"
-msgstr ""
+msgstr "[i18n]Show tips on startup"
 
 #. add "refresh" button to action area
 #: ../src/ui/edit/tip-dialog.c:255
 msgid "Refresh"
-msgstr ""
+msgstr "[i18n]Refresh"
 
 #: ../src/ui/edit/wire-canvas-item.c:825
 msgid "Disconnect"
-msgstr "Verbreken"
-
-#~ msgid "About..."
-#~ msgstr "Over..."
-
-#~ msgid "Delete machine '%s'"
-#~ msgstr "Machine '%s' verwijderen"
-
-#~ msgid "Delete machine..."
-#~ msgstr "Machine verwijderen..."
-
-#~ msgid "There is no undo for this."
-#~ msgstr "Dit kan niet ongedaan gemaakt worden."
-
-#~ msgid "no settings"
-#~ msgstr "geen instellingen"
-
-#~ msgid "machine has no preferences"
-#~ msgstr "machine heeft geen voorkeuren"
-
-#~ msgid "An error occurred while loading the song from file '%s'"
-#~ msgstr "Laden van het nummer uit bestand '%s' is mislukt"
-
-#~ msgid "Delete pattern '%s'"
-#~ msgstr "Patroon '%s' verwijderen"
-
-#~ msgid "Delete pattern..."
-#~ msgstr "Patroon verwijderen..."
-
-#~ msgid "New track"
-#~ msgstr "Nieuw nummer"
-
-#~ msgid "Pattern properties..."
-#~ msgstr "Patrooneigenschappen..."
-
-#~ msgid "  clear"
-#~ msgstr "  wissen"
-
-#~ msgid "  mute"
-#~ msgstr "  dempen"
-
-#~ msgid "  break"
-#~ msgstr "  onderbreken"
-
-#~ msgid "  bypass"
-#~ msgstr "  omleiding"
-
-#~ msgid "  solo"
-#~ msgstr "  solo"
-
-#~ msgid "Stop playback of current sample"
-#~ msgstr "Afspelen huidige sample stoppen"
-
-#~ msgid "default"
-#~ msgstr "standaard"
-
-#~ msgid "Ready to rock!"
-#~ msgstr "Klaar om te gaan!"
-
-#~ msgid "An error occurred"
-#~ msgstr "Fout opgetreden"
-
-#~ msgid "A problem occurred"
-#~ msgstr "Probleem opgetreden"
-
-#~ msgid "An error occurred while trying to load the song from file '%s'"
-#~ msgstr "Laden van het nummer uit bestand '%s' is mislukt"
-
-#~ msgid "An error occurred while trying to open the file '%s' for writing: %s"
-#~ msgstr "Het openen van bestand '%s' om %s naar te schrijven is mislukt."
-
-#~ msgid "An error occurred while trying to save the song to file '%s'."
-#~ msgstr "Het bewaren van het nummer naar bestand '%s' is mislukt."
-
-#~ msgid "song render progress"
-#~ msgstr "voorgang nummervertolking"
-
-#~ msgid "Colors"
-#~ msgstr "Kleuren"
-
-#~ msgid "Couldn't find pixmap file: %s"
-#~ msgstr "Kan afbeeldingsbestand %s niet vinden"
-
-#~ msgid "Show version"
-#~ msgstr "Versie tonen"
-
-#~ msgid ""
-#~ "As planned, main focus for this release was the wavetable support. Its "
-#~ "done - buzztrax can load what gstreamer can decode.The wavetable view has "
-#~ "a nice waveform widget. Related to that buzztrax has a new song-format "
-#~ "that bundles the XML together with external files in a zip archive. Also "
-#~ "the UI has seen a lot of improvements. The machine view looks nicer - "
-#~ "Marc drew spiffy machine icons. In addition they now show real volume "
-#~ "meters when playing. All meters are now properly synced."
-#~ msgstr ""
-#~ "De nadruk in deze uitgave ligt op de ondersteuning van de golftabel. "
-#~ "Buzztrax kan alles laden wat gstreamer kan decoderen. De golftabel heeft "
-#~ "een mooie golfvormassistent. Daaraan gerelateerd heeft Buzztrax een "
-#~ "nieuwe nummerstructuur dat de XML samenbundelt met externe bestanden in "
-#~ "een zip-achief. Ook heeft de grafische interface vele verbeteringen "
-#~ "ondergaan. De machineweergave toont prettiger; Marc tekende strakke "
-#~ "machinepictogrammen. Daarnaast tonen ze nu echte geluidsterktemeters "
-#~ "tijdens het afspelen. Alle meters zijn nu correct gesynchroniseerd."
-
-#~ msgid "interaction controller menu"
-#~ msgstr "menu interactieregelaar"
-
-#~ msgid "interaction controllers menu"
-#~ msgstr "menu interactieregelaars"
-
-#~ msgid "add menu"
-#~ msgstr "menu toevoegen"
-
-#~ msgid "generators menu"
-#~ msgstr "menu generatoren"
-
-#~ msgid "effects menu"
-#~ msgstr "menu effecten"
-
-#~ msgid "rename machine"
-#~ msgstr "machine hernoemen"
-
-#~ msgid "main menu"
-#~ msgstr "hoofdmenu"
-
-#~ msgid "file menu"
-#~ msgstr "menu bestand"
-
-#~ msgid "New"
-#~ msgstr "Nieuw"
-
-#~ msgid "separator"
-#~ msgstr "scheidingsteken"
-
-#~ msgid "Render"
-#~ msgstr "Vertolken"
-
-#~ msgid "edit menu"
-#~ msgstr "menu bewerk"
-
-#~ msgid "Cut"
-#~ msgstr "Knip"
-
-#~ msgid "Settings"
-#~ msgstr "Instellingen"
-
-#~ msgid "view menu"
-#~ msgstr "menu beeld"
-
-#~ msgid "Wave table view"
-#~ msgstr "Golftabelweergave"
-
-#~ msgid "Song information"
-#~ msgstr "Nummerinformatie"
-
-#~ msgid "playback menu"
-#~ msgstr "menu afspelen"
-
-#~ msgid "help menu"
-#~ msgstr "menu hulp"
-
-#~ msgid "Content"
-#~ msgstr "Inhoud"
-
-#~ msgid "song information"
-#~ msgstr "nummerinformatie"
-
-#~ msgid "machine view"
-#~ msgstr "machineweergave"
-
-#~ msgid "machine view toolbar"
-#~ msgstr "werkbalk machineweergave"
-
-#~ msgid "Zoom Fit"
-#~ msgstr "Zoom passend"
-
-#~ msgid "machine and wire editor"
-#~ msgstr "machine en signaalbewerker"
-
-#~ msgid "Delete unused pattern '%s'"
-#~ msgstr "Ongebruikt patroon '%s' verwijderen"
-
-#~ msgid "pattern view"
-#~ msgstr "patroonweergave"
-
-#~ msgid "pattern view toolbar"
-#~ msgstr "werkbalk patroonweergave"
-
-#~ msgid "pattern editor"
-#~ msgstr "Patroonbewerker"
-
-#~ msgid "  thru"
-#~ msgstr "  doorgaan"
-
-#~ msgid "sequence view"
-#~ msgstr "reeksweergave"
-
-#~ msgid "sequence view toolbar"
-#~ msgstr "werkbalk reeksweergave"
-
-#~ msgid "sequence editor"
-#~ msgstr "reeksbewerker"
-
-#~ msgid "pattern list for sequence track"
-#~ msgstr "patroonlijst voor reeksnummer"
-
-#~ msgid "wave table view"
-#~ msgstr "golftabelweergave"
-
-#~ msgid "sample list toolbar"
-#~ msgstr "werkbalk samplelijst"
-
-#~ msgid "wave list"
-#~ msgstr "golflijst"
-
-#~ msgid "sample browser toolbar"
-#~ msgstr "werkbalk sample-browser"
-
-#~ msgid "sample edit toolbar"
-#~ msgstr "werkbalk sample-bewerker"
-
-#~ msgid "wave-level list"
-#~ msgstr "lijst golfniveau"
-
-#~ msgid "song views"
-#~ msgstr "nummerweergaven"
-
-#~ msgid "main toolbar"
-#~ msgstr "Hoofdwerkbalk"
-
-#~ msgid "main window"
-#~ msgstr "Hoofdscherm"
-
-#~ msgid "settings pages"
-#~ msgstr "instellingspagina's"
-
-#~ msgid "color settings"
-#~ msgstr "Kleurinstellingen"
-
-#~ msgid "keyboard shortcut settings"
-#~ msgstr "instellingen sneltoetsen"
-
-#~ msgid "audio device settings"
-#~ msgstr "instellingen geluidsapparaat"
-
-#~ msgid "default directory settings"
-#~ msgstr "standaard mapinstellingen"
-
-#~ msgid "interaction controller settings"
-#~ msgstr "instellingen interactieregelaar"
-
-#~ msgid "playback controller settings"
-#~ msgstr "instellingen afspeelregelaar"
-
-#~ msgid "Coherence UPnP"
-#~ msgstr "Coherentie UPnP"
-
-#~ msgid "wire analysis"
-#~ msgstr "signaalanalyse"
+msgstr "[i18n]Disconnect"
