@@ -112,14 +112,10 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
   gtk_text_view_set_editable (GTK_TEXT_VIEW (news), FALSE);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (news)),
-      /*"Development version (do not translate this)"
-      */_
-      ("Just a few month since the previous release, this update mostly focuses on "
-        "getting rid of deprecated APIs. Besides that it also come with a new "
-        "synthesizer plugin called 'ebeats'. As the name suggests it is good at making "
-        "percussion sounds. Together with that the library providing the dsp components "
-        "got overhauled.")
-      /**/
+      "Development version (do not translate this)"
+      /*_
+      ("")
+      */
       , -1);
 
   news_view = gtk_scrolled_window_new (NULL, NULL);
