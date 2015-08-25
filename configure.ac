@@ -1,6 +1,6 @@
 dnl Initialise autoconf/automake/libtool
 AC_PREREQ([2.69])
-AC_INIT([buzztrax],[0.10.0],[buzztrax-devel@buzztrax.org])
+AC_INIT([buzztrax],[0.11.0],[buzztrax-devel@buzztrax.org])
 AC_CANONICAL_TARGET([])
 # we can't do -Werror, because
 # - we use gnu make extensions
@@ -693,7 +693,8 @@ Configuration
 	Use valgrind on the tests       : ${have_valgrind}
 "
 
-if test "x${use_gudev}" = "xno" -o "x${use_gsf}" = "xno" -o "x${have_fluidsynth}" = "xno" ; then
+features="${use_alsa}${use_gudev}${use_gsf}${have_fluidsynth}" 
+if test `echo "$features" | grep "no"` ; then
 echo "
 Some features are not built. If you like to have them built, please check that
 you have the required -devel packages installed and that they can be found in
@@ -717,4 +718,3 @@ export GI_TYPELIB_PATH="\$GI_TYPELIB_PATH:$prefix/lib/girepository"
 fi
 
 ORC_OUTPUT
-
