@@ -1214,6 +1214,15 @@ bt_signal_analysis_dialog_dispose (GObject * object)
         on_signal_analyser_change, self);
     gst_object_unref (self->priv->bus);
   }
+  if (self->priv->analyzers[ANALYZER_SPECTRUM]) {
+    GstPad *pad =
+        gst_element_get_static_pad (self->priv->analyzers[ANALYZER_SPECTRUM],
+        "sink");
+    if (pad) {
+      g_signal_handlers_disconnect_by_func (pad, on_caps_negotiated, self);
+      gst_object_unref (pad);
+    }
+  }
   // this destroys the analyzers too
   GST_DEBUG ("!!!! free analyzers");
   if (BT_IS_WIRE (self->priv->element)) {
