@@ -213,6 +213,9 @@ bt_pattern_editor_draw_colnames (BtPatternEditor * self, cairo_t * cr,
   gint g;
   gint cw = self->cw;
 
+  gtk_render_background (gtk_widget_get_style_context ((GtkWidget *) self), cr,
+      x, y, w, self->ch);
+
   gdk_cairo_set_source_rgba (cr, &self->text_color);
 
   for (g = 0; g < self->num_groups; g++) {
@@ -233,6 +236,9 @@ bt_pattern_editor_draw_rowname (BtPatternEditor * self, cairo_t * cr,
     gint x, gint y)
 {
   PangoLayout *pl = self->pl;
+
+  gtk_render_background (gtk_widget_get_style_context ((GtkWidget *) self), cr,
+      x, y, bt_pattern_editor_rownum_width (self), self->ch);
 
   if (self->num_groups) {
     gdk_cairo_set_source_rgba (cr, &self->text_color);
@@ -771,7 +777,7 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
   /* leave space for headers */
   x = self->rowhdr_width;
   y = ch = self->ch;
-  /* calculate the first a last row in the dirty region */
+  /* calculate the first and last row in the dirty region */
   max_y = allocation.height + ch;       // one extra line
   max_y = ch + (gint) (ch * ceil ((max_y - ch) / ch));
 
