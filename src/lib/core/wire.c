@@ -471,6 +471,7 @@ bt_wire_link_machines (const BtWire * const self)
           if (!bt_wire_make_internal_element (self, PART_PAN, "audiopanorama",
                   "pan"))
             return (FALSE);
+          // simple method
           g_object_set (G_OBJECT (machines[PART_PAN]), "method", 1, NULL);
         }
       } else {
@@ -964,7 +965,7 @@ bt_wire_persistence_save (const BtPersistence * const persistence,
   const BtWire *const self = BT_WIRE (persistence);
   gchar *const id;
   xmlNodePtr node = NULL;
-  xmlNodePtr child_node, child_node2, child_node3;
+  xmlNodePtr child_node, child_node2, child_node3, child_node4;
 
   GST_DEBUG ("PERSISTENCE::wire");
 
@@ -1033,13 +1034,13 @@ bt_wire_persistence_save (const BtPersistence * const persistence,
                 // save tick data
                 for (k = 0; k < num_params; k++) {
                   if ((value = bt_value_group_get_event (vg, i, k))) {
-                    child_node3 =
-                        xmlNewChild (child_node2, NULL,
+                    child_node4 =
+                        xmlNewChild (child_node3, NULL,
                         XML_CHAR_PTR ("wiredata"), NULL);
-                    xmlNewProp (child_node3, XML_CHAR_PTR ("name"),
+                    xmlNewProp (child_node4, XML_CHAR_PTR ("name"),
                         XML_CHAR_PTR (bt_parameter_group_get_param_name (pg,
                                 k)));
-                    xmlNewProp (child_node3, XML_CHAR_PTR ("value"),
+                    xmlNewProp (child_node4, XML_CHAR_PTR ("value"),
                         XML_CHAR_PTR (value));
                     g_free (value);
                   }
