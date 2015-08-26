@@ -45,6 +45,7 @@
 #include <math.h>
 
 #include "bt-edit.h"
+#include "gtkvumeter.h"
 #include <glib/gprintf.h>
 #include <gst/audio/audio.h>
 
@@ -58,6 +59,7 @@ enum
 /* TODO(ensonic): add more later:
  * waveform (oszilloscope)
  * panorama (spacescope)
+ * if stereo draw pan-meter (L-R, R-L)
  */
 typedef enum
 {
@@ -78,7 +80,7 @@ typedef enum
   MAP_LOG = 1
 } BtWireAnalyzerMapping;
 
-#define AXIS_THICKNESS 30
+#define AXIS_THICKNESS 35
 #define LEVEL_HEIGHT 16
 #define LOW_VUMETER_VAL -90.0
 
@@ -99,17 +101,17 @@ struct _BtSignalAnalysisDialogPrivate
   GstBus *bus;
 
   /* the analyzer-graphs */
-  GtkWidget *spectrum_drawingarea, *level_drawingarea;
+  GtkWidget *spectrum_drawingarea;
   GtkWidget *spectrum_ruler;
-  GdkRGBA decay_color, level_color, grid_color, spect_color[3];
+  GdkRGBA cross_hair_color, grid_color, spect_color[3];
   cairo_pattern_t *spect_grad[3];
+  GtkVUMeter *vumeter[2];
 
   /* the gstreamer elements that is used */
   GstElement *analyzers[ANALYZER_COUNT];
   GList *analyzers_list;
 
   /* the analyzer results (max stereo) */
-  gdouble peak[2], decay[2];
   gfloat *spect[2];
   GMutex lock;
 
@@ -196,13 +198,9 @@ update_colors (BtSignalAnalysisDialog * self, GtkWidget * widget)
   GtkStyleContext *style = gtk_widget_get_style_context (widget);
 
   GST_DEBUG ("dialog realize");
-  if (!gtk_style_context_lookup_color (style, "analyzer_decay_color",
-          &self->priv->decay_color)) {
-    GST_WARNING ("Can't find 'analyzer_decay_color' in css.");
-  }
-  if (!gtk_style_context_lookup_color (style, "analyzer_level_color",
-          &self->priv->level_color)) {
-    GST_WARNING ("Can't find 'analyzer_level_color' in css.");
+  if (!gtk_style_context_lookup_color (style, "spectrum_cross_hair_color",
+          &self->priv->cross_hair_color)) {
+    GST_WARNING ("Can't find 'spectrum_cross_hair_color' in css.");
   }
   if (!gtk_style_context_lookup_color (style, "grid_lines_color",
           &self->priv->grid_color)) {
@@ -234,44 +232,6 @@ static void
 on_dialog_style_updated (GtkWidget * widget, gpointer user_data)
 {
   update_colors (BT_SIGNAL_ANALYSIS_DIALOG (user_data), widget);
-}
-
-/*
- * on_level_draw:
- *
- * Draw volume levels.
- */
-static gboolean
-on_level_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
-{
-  BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
-  BtSignalAnalysisDialogPrivate *p = self->priv;
-
-  if (!gtk_widget_get_realized (widget))
-    return TRUE;
-
-  gint middle = p->spect_bands >> 1;
-  gdouble scl = middle / (-LOW_VUMETER_VAL);
-  gdouble peak0, peak1, decay0, decay1;
-  GtkStyleContext *style = gtk_widget_get_style_context (widget);
-
-  gtk_render_background (style, cr, 0, 0, p->spect_bands, LEVEL_HEIGHT);
-
-  peak0 = p->peak[0] * scl;
-  peak1 = p->peak[1] * scl;
-  decay0 = p->decay[0] * scl;
-  decay1 = p->decay[1] * scl;
-  gdk_cairo_set_source_rgba (cr, &p->level_color);
-  cairo_rectangle (cr, middle - peak0, 0, peak0 + peak1, LEVEL_HEIGHT);
-  cairo_fill (cr);
-  gdk_cairo_set_source_rgba (cr, &p->decay_color);
-  cairo_rectangle (cr, middle - decay0, 0, 2, LEVEL_HEIGHT);
-  cairo_fill (cr);
-  cairo_rectangle (cr, (middle - 1) + decay1, 0, 2, LEVEL_HEIGHT);
-  cairo_fill (cr);
-
-  /* TODO(ensonic): if stereo draw pan-meter (L-R, R-L) */
-  return TRUE;
 }
 
 /*
@@ -385,7 +345,7 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
           (gtk_widget_get_display (widget))), &mx, &my, NULL);
   if ((mx >= 0) && (mx < gtk_widget_get_allocated_width (widget))
       && (my >= 0) && (my < gtk_widget_get_allocated_height (widget))) {
-    gdk_cairo_set_source_rgba (cr, &self->priv->decay_color);
+    gdk_cairo_set_source_rgba (cr, &self->priv->cross_hair_color);
     cairo_rectangle (cr, mx - 1.0, 0.0, 2.0, spect_height);
     cairo_rectangle (cr, 0.0, my - 1.0, spect_bands, 2.0);
     cairo_fill (cr);
@@ -411,13 +371,23 @@ draw_hlabel (GtkStyleContext * sc, cairo_t * cr, PangoLayout * l,
   gtk_render_line (sc, cr, tx, ty1, tx, ty2);
 }
 
+static void
+draw_vlabel (GtkStyleContext * sc, cairo_t * cr, PangoLayout * l,
+    gint lx, gint ly, gint tx1, gint tx2, gint ty)
+{
+  if (l) {
+    gtk_render_layout (sc, cr, lx, ly, l);
+  }
+  gtk_render_line (sc, cr, tx1, ty, tx2, ty);
+}
+
 typedef struct
 {
   gint d, r, l;                 // divide, recurse, labels
 } BtAxisData;
 
 static void
-layout_label (GtkStyleContext * sc, cairo_t * cr, PangoLayout * l,
+layout_hlabel (GtkStyleContext * sc, cairo_t * cr, PangoLayout * l,
     BtAxisData * ad, gint d, gint v1, gint v3, gint x1, gint x3, gint w1,
     gint y1, gint y2, gint y3)
 {
@@ -453,13 +423,60 @@ layout_label (GtkStyleContext * sc, cairo_t * cr, PangoLayout * l,
       draw_hlabel (sc, cr, NULL, x2 - w2, y1, x2, y4, y3);
     }
     if ((d < 5) && recurse) {
-      layout_label (sc, cr, l, ad, d + 1, vo, v2, xo, x2, w1, y1, y2, y3);
+      layout_hlabel (sc, cr, l, ad, d + 1, vo, v2, xo, x2, w1, y1, y2, y3);
     }
     vo = v2;
     xo = x2;
   }
   if ((d < 5) && recurse) {
-    layout_label (sc, cr, l, ad, d + 1, v2, v3, x2, x3, w1, y1, y2, y3);
+    layout_hlabel (sc, cr, l, ad, d + 1, v2, v3, x2, x3, w1, y1, y2, y3);
+  }
+}
+
+static void
+layout_vlabel (GtkStyleContext * sc, cairo_t * cr, PangoLayout * l,
+    BtAxisData * ad, gint d, gint v1, gint v3, gint y1, gint y3, gint h1,
+    gint x1, gint x2, gint x3)
+{
+  PangoRectangle lr;
+  gchar str[30];
+  gint st = ad[d - 1].d / ad[d].d;
+  gint yo = y1, y2 = y1, vo = v1, v2 = v1;
+  gdouble ys = (y3 - y1) / (gdouble) st, vs = (v3 - v1) / (gdouble) st;
+  gint i, h2;
+  gint x4 = x2 - (d - 1) * ((gdouble) (x3 - x2) / 7.0); // make ticks shorter on each level
+  gboolean recurse, labels;
+
+  // check if there is enough space for labels and ticks once we enter a new level
+  if (ad[d].r == -1)
+    ad[d].r = ((y3 - y1) > (st * 10));
+  recurse = ad[d].r;
+  if (ad[d].l == -1)
+    ad[d].l = (((y3 - h1) - (y1 + h1)) > (st * h1));
+  labels = ad[d].l;
+
+  //GST_DEBUG("depth=%d, steps=%d, vs=%lf, ys=%lf",d,st,vs,ys);
+
+  for (i = 1; i < st; i++) {
+    v2 = v1 + ((gdouble) i * vs);
+    y2 = y1 + ((gdouble) i * ys);
+    sprintf (str, "<small>%d</small>", abs (v2));
+    pango_layout_set_markup (l, str, -1);
+    pango_layout_get_pixel_extents (l, NULL, &lr);
+    h2 = lr.height / 2;
+    if ((d < 4) && labels) {    // long tick with label
+      draw_vlabel (sc, cr, l, x2, y2 - h2, x1, x2, y2);
+    } else {                    // short tick without label
+      draw_vlabel (sc, cr, NULL, x2, y2 - h2, x1, x4, y2);
+    }
+    if ((d < 5) && recurse) {
+      layout_vlabel (sc, cr, l, ad, d + 1, vo, v2, yo, y2, h1, x1, x2, x3);
+    }
+    vo = v2;
+    yo = y2;
+  }
+  if ((d < 5) && recurse) {
+    layout_vlabel (sc, cr, l, ad, d + 1, v2, v3, y2, y3, h1, x1, x2, x3);
   }
 }
 
@@ -508,7 +525,6 @@ on_spectrum_freq_axis_draw (GtkWidget * widget, cairo_t * cr,
   gtk_style_context_add_class (sc, GTK_STYLE_CLASS_SEPARATOR);
   gtk_style_context_add_class (sc, GTK_STYLE_CLASS_MARK);
 
-  // draw beg,end
   x1 = 0;
   x3 = gtk_widget_get_allocated_width (widget);
   y1 = 0;
@@ -530,7 +546,7 @@ on_spectrum_freq_axis_draw (GtkWidget * widget, cairo_t * cr,
 
   if (self->priv->frq_map == MAP_LIN) {
     // recurse
-    layout_label (sc, cr, layout, ad, 1, 0, m, x1, x3, w1, y1, y2, y3);
+    layout_hlabel (sc, cr, layout, ad, 1, 0, m, x1, x3, w1, y1, y2, y3);
   } else {
     gdouble v = self->priv->spect_bands / log10 (m);
     gdouble f = 0.0, inc = 1.0, end = 10.0;
@@ -572,12 +588,12 @@ on_level_axis_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   if (!gtk_widget_get_realized (GTK_WIDGET (self)))
     return (TRUE);
 
-  GdkRectangle rect = { 0, 0, self->priv->spect_bands, AXIS_THICKNESS };
+  GdkRectangle rect = { 0, 0, AXIS_THICKNESS, self->priv->spect_height };
   GdkWindow *window = gtk_widget_get_window (widget);
   GtkStyleContext *sc = gtk_widget_get_style_context (widget);
   PangoLayout *layout = gtk_widget_create_pango_layout (widget, NULL);
   PangoRectangle lr;
-  gint x1, x3, y1, y2, y3, w1;
+  gint x1, x2, x3, y1, y3, h1;
   gchar str[30];
   BtAxisData ad[] = {
     {200, 1, 1}
@@ -602,26 +618,29 @@ on_level_axis_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   gtk_style_context_add_class (sc, GTK_STYLE_CLASS_MARK);
 
   x1 = 0;
-  x3 = gtk_widget_get_allocated_width (widget);
+  x2 = (AXIS_THICKNESS - 1) / 2;
+  x3 = AXIS_THICKNESS - 1;
   y1 = 0;
-  y2 = (AXIS_THICKNESS - 1) / 2;
-  y3 = AXIS_THICKNESS - 1;
+  y3 = gtk_widget_get_allocated_height (widget);
   //GST_DEBUG("draw level axis: %d..%d x %d..%d",x1,x3,y1,y3);
 
   // draw beg,end
   sprintf (str, "<small>100</small>");
   pango_layout_set_markup (layout, str, -1);
   pango_layout_get_pixel_extents (layout, NULL, &lr);
-  w1 = lr.width;
+  draw_vlabel (sc, cr, layout, /*text */ x2, y1, /*line */ x1, x2, y1);
 
-  draw_hlabel (sc, cr, layout, x1, y1, x1, y2, y3);
-  draw_hlabel (sc, cr, layout, x3 - w1, y1, x3 - 1, y2, y3);
+  sprintf (str, "<small>0</small>");
+  pango_layout_set_markup (layout, str, -1);
+  pango_layout_get_pixel_extents (layout, NULL, &lr);
+  h1 = lr.height;
+  draw_vlabel (sc, cr, layout, /*text */ x2, y3 - h1, /*line */ x1, x2, y3);
 
   // draw mid and recurse, d : 0  ,1  , 2, 3,4,5
   // we'd like to subdiv by  : 200,100,50,10,5,1
   // for labels we stop at d=3 or not enough space
   // for ticks  we stop at d=5 or not enough space
-  layout_label (sc, cr, layout, ad, 1, -100, 100, x1, x3, w1, y1, y2, y3);
+  layout_vlabel (sc, cr, layout, ad, 1, 100, 0, y1, y3, h1, x1, x2, x3);
 
   gdk_window_end_paint (window);
   gtk_style_context_restore (sc);
@@ -649,7 +668,7 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
     const GValue *values;
     GValueArray *peak_arr, *decay_arr;
     guint i;
-    gdouble val;
+    gdouble peak, decay;
 
     //GST_INFO("get level data");
     values = (GValue *) gst_structure_get_value (structure, "peak");
@@ -659,31 +678,28 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
     // size of list is number of channels
     switch (decay_arr->n_values) {
       case 1:                  // mono
-        val = g_value_get_double (g_value_array_get_ix (peak_arr, 0));
-        if (isinf (val) || isnan (val))
-          val = LOW_VUMETER_VAL;
-        self->priv->peak[0] = -(LOW_VUMETER_VAL - val);
-        self->priv->peak[1] = self->priv->peak[0];
-        val = g_value_get_double (g_value_array_get_ix (decay_arr, 0));
-        if (isinf (val) || isnan (val))
-          val = LOW_VUMETER_VAL;
-        self->priv->decay[0] = -(LOW_VUMETER_VAL - val);
-        self->priv->decay[1] = self->priv->decay[0];
+        peak = g_value_get_double (g_value_array_get_ix (peak_arr, 0));
+        if (isinf (peak) || isnan (peak))
+          peak = LOW_VUMETER_VAL;
+        decay = g_value_get_double (g_value_array_get_ix (decay_arr, 0));
+        if (isinf (decay) || isnan (decay))
+          decay = LOW_VUMETER_VAL;
+        for (i = 0; i < 2; i++) {
+          gtk_vumeter_set_levels (self->priv->vumeter[i], peak, decay);
+        }
         break;
       case 2:                  // stereo
         for (i = 0; i < 2; i++) {
-          val = g_value_get_double (g_value_array_get_ix (peak_arr, i));
-          if (isinf (val) || isnan (val))
-            val = LOW_VUMETER_VAL;
-          self->priv->peak[i] = -(LOW_VUMETER_VAL - val);
-          val = g_value_get_double (g_value_array_get_ix (decay_arr, i));
-          if (isinf (val) || isnan (val))
-            val = LOW_VUMETER_VAL;
-          self->priv->decay[i] = -(LOW_VUMETER_VAL - val);
+          peak = g_value_get_double (g_value_array_get_ix (peak_arr, i));
+          if (isinf (peak) || isnan (peak))
+            peak = LOW_VUMETER_VAL;
+          decay = g_value_get_double (g_value_array_get_ix (decay_arr, i));
+          if (isinf (decay) || isnan (decay))
+            decay = LOW_VUMETER_VAL;
+          gtk_vumeter_set_levels (self->priv->vumeter[i], peak, decay);
         }
         break;
     }
-    gtk_widget_queue_draw (self->priv->level_drawingarea);
   } else if (name_id == bus_msg_spectrum_quark) {
     const GValue *data;
     const GValue *value;
@@ -935,6 +951,7 @@ Error:
 static gboolean
 bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
 {
+  BtSignalAnalysisDialogPrivate *p = self->priv;
   BtMainWindow *main_window;
   BtSong *song;
   GstBin *bin;
@@ -945,42 +962,41 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
 
   gtk_widget_set_name (GTK_WIDGET (self), "wire analysis");
 
-  g_object_get (self->priv->app, "main-window", &main_window, "song", &song,
-      NULL);
+  g_object_get (p->app, "main-window", &main_window, "song", &song, NULL);
   gtk_window_set_transient_for (GTK_WINDOW (self), GTK_WINDOW (main_window));
 
   /* TODO(ensonic): create and set *proper* window icon (analyzer, scope)
-     if((window_icon=bt_ui_resources_get_pixbuf_by_wire(self->priv->element))) {
+     if((window_icon=bt_ui_resources_get_pixbuf_by_wire(p->element))) {
      gtk_window_set_icon(GTK_WINDOW(self),window_icon);
      }
    */
 
   /* DEBUG
-     self->priv->min_rms=1000.0;
-     self->priv->max_rms=-1000.0;
-     self->priv->min_peak=1000.0;
-     self->priv->max_peak=-1000.0;
+     p->min_rms=1000.0;
+     p->max_rms=-1000.0;
+     p->min_peak=1000.0;
+     p->max_peak=-1000.0;
      // DEBUG */
 
   // leave the choice of width to gtk
   gtk_window_set_default_size (GTK_WINDOW (self), -1, 200);
 
   // sync title with element name
-  if (BT_IS_WIRE (self->priv->element)
-      || BT_IS_SINK_MACHINE (self->priv->element)) {
-    g_object_bind_property_full (self->priv->element, "pretty-name",
+  if (BT_IS_WIRE (p->element)
+      || BT_IS_SINK_MACHINE (p->element)) {
+    g_object_bind_property_full (p->element, "pretty-name",
         (GObject *) self, "title", G_BINDING_SYNC_CREATE,
         bt_label_value_changed, NULL, _("%s analysis"), NULL);
   } else {
     GST_WARNING ("unsupported object for signal analyser: %s,%p",
-        G_OBJECT_TYPE_NAME (self->priv->element), self->priv->element);
+        G_OBJECT_TYPE_NAME (p->element), p->element);
   }
 
   table = gtk_grid_new ();
 
   /* add scales for spectrum analyzer drawable */
   /* TODO(ensonic): we need to use a gtk_grid() and also add a vruler with levels */
-  self->priv->spectrum_ruler = widget = gtk_drawing_area_new ();
+  p->spectrum_ruler = widget = gtk_drawing_area_new ();
   g_signal_connect (widget, "draw",
       G_CALLBACK (on_spectrum_freq_axis_draw), (gpointer) self);
   gtk_widget_set_size_request (widget, -1, AXIS_THICKNESS);
@@ -989,9 +1005,8 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   update_spectrum_ruler ((gpointer) self);
 
   /* add spectrum canvas */
-  self->priv->spectrum_drawingarea = widget = gtk_drawing_area_new ();
-  gtk_widget_set_size_request (widget,
-      self->priv->spect_bands, self->priv->spect_height);
+  p->spectrum_drawingarea = widget = gtk_drawing_area_new ();
+  gtk_widget_set_size_request (widget, p->spect_bands, p->spect_height);
   gtk_widget_add_events (widget, GDK_POINTER_MOTION_MASK);
   g_signal_connect (widget, "size-allocate", G_CALLBACK (on_size_allocate),
       (gpointer) self);
@@ -1002,24 +1017,45 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
       NULL);
   gtk_grid_attach (GTK_GRID (table), widget, 0, 1, 2, 1);
 
+  /* add level-meters */
+  /* 'L' for 'left' volume meter */
+  label = gtk_label_new (_("L"));
+  g_object_set (label, "margin-left", 2 * LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (table), label, 2, 0, 1, 1);
+
+  widget = gtk_vumeter_new (GTK_ORIENTATION_VERTICAL);
+  p->vumeter[0] = GTK_VUMETER (widget);
+  gtk_vumeter_set_min_max (p->vumeter[0], LOW_VUMETER_VAL, 0);
+  gtk_vumeter_set_levels (p->vumeter[0], LOW_VUMETER_VAL, LOW_VUMETER_VAL);
+  gtk_vumeter_set_scale (p->vumeter[0], GTK_VUMETER_SCALE_LINEAR);
+  g_object_set (widget, "vexpand", TRUE, "margin-left", 2 * LABEL_PADDING,
+      NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 2, 1, 1, 1);
+
+  /* 'R' for 'right' volume meter */
+  label = gtk_label_new (_("R"));
+  gtk_grid_attach (GTK_GRID (table), label, 3, 0, 1, 1);
+
+  widget = gtk_vumeter_new (GTK_ORIENTATION_VERTICAL);
+  p->vumeter[1] = GTK_VUMETER (widget);
+  gtk_vumeter_set_min_max (p->vumeter[1], LOW_VUMETER_VAL, 0);
+  gtk_vumeter_set_levels (p->vumeter[1], LOW_VUMETER_VAL, LOW_VUMETER_VAL);
+  gtk_vumeter_set_scale (p->vumeter[1], GTK_VUMETER_SCALE_LINEAR);
+  g_object_set (widget, "vexpand", TRUE, NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 3, 1, 1, 1);
+
   /* add scales for level meter */
   widget = gtk_drawing_area_new ();
-  gtk_widget_set_size_request (widget, -1, AXIS_THICKNESS);
+  gtk_widget_set_size_request (widget, AXIS_THICKNESS, -1);
   g_signal_connect (widget, "draw", G_CALLBACK (on_level_axis_draw),
       (gpointer) self);
-  g_object_set (widget, "hexpand", TRUE, NULL);
-  gtk_grid_attach (GTK_GRID (table), widget, 0, 2, 2, 1);
-
-  /* add level-meter canvas */
-  self->priv->level_drawingarea = widget = gtk_drawing_area_new ();
-  gtk_widget_set_size_request (widget, self->priv->spect_bands, LEVEL_HEIGHT);
-  g_object_set (widget, "hexpand", TRUE, "margin-bottom", 3, NULL);
-  gtk_grid_attach (GTK_GRID (table), widget, 0, 3, 2, 1);
+  g_object_set (widget, "vexpand", TRUE, "margin-right", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 4, 1, 1, 1);
 
   /* scale: linear and logarithmic */
   label = gtk_label_new (_("frequency mapping"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_grid_attach (GTK_GRID (table), label, 0, 4, 1, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
 
   widget = gtk_combo_box_text_new ();
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("lin."));
@@ -1028,12 +1064,12 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   g_signal_connect (widget, "changed",
       G_CALLBACK (on_spectrum_frequency_mapping_changed), (gpointer) self);
   g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
-  gtk_grid_attach (GTK_GRID (table), widget, 1, 4, 1, 1);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, 2, 1, 1);
 
   /* precission */
   label = gtk_label_new (_("spectrum precision"));
   gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_grid_attach (GTK_GRID (table), label, 0, 5, 1, 1);
+  gtk_grid_attach (GTK_GRID (table), label, 0, 3, 1, 1);
 
   widget = gtk_combo_box_text_new ();
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (widget), _("single"));
@@ -1043,13 +1079,13 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   g_signal_connect (widget, "changed",
       G_CALLBACK (on_spectrum_frequency_precision_changed), (gpointer) self);
   g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
-  gtk_grid_attach (GTK_GRID (table), widget, 1, 5, 1, 1);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, 3, 1, 1);
 
   gtk_container_set_border_width (GTK_CONTAINER (self), 6);
   gtk_container_add (GTK_CONTAINER (self), table);
 
   /* TODO(ensonic): better error handling
-   * - don't fail if we miss only spectrum or bt_child_proxy_set (self->priv->app, "level
+   * - don't fail if we miss only spectrum or level
    * - also don't return false, but instead add a label with the error message
    */
 
@@ -1059,20 +1095,21 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
     res = FALSE;
     goto Error;
   }
-  g_object_set (self->priv->analyzers[ANALYZER_FAKESINK],
-      "sync", FALSE, "qos", FALSE, "silent", TRUE, "async", FALSE, NULL);
+  g_object_set (p->analyzers[ANALYZER_FAKESINK],
+      "sync", FALSE, "qos", FALSE, "silent", TRUE, "async", FALSE,
+      "enable-last-sample", FALSE, NULL);
   // create spectrum analyzer
   if (!bt_signal_analysis_dialog_make_element (self, ANALYZER_SPECTRUM,
           "spectrum")) {
     res = FALSE;
     goto Error;
   }
-  g_object_set (self->priv->analyzers[ANALYZER_SPECTRUM], "interval",
+  g_object_set (p->analyzers[ANALYZER_SPECTRUM], "interval",
       UPDATE_INTERVAL, "post-messages", TRUE, "bands",
-      self->priv->spect_bands * self->priv->frq_precision, "threshold",
+      p->spect_bands * p->frq_precision, "threshold",
       SPECTRUM_FLOOR, "multi-channel", TRUE, NULL);
   if ((pad =
-          gst_element_get_static_pad (self->priv->analyzers[ANALYZER_SPECTRUM],
+          gst_element_get_static_pad (p->analyzers[ANALYZER_SPECTRUM],
               "sink"))) {
     g_signal_connect (pad, "notify::caps", G_CALLBACK (on_caps_negotiated),
         (gpointer) self);
@@ -1083,7 +1120,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
     res = FALSE;
     goto Error;
   }
-  g_object_set (self->priv->analyzers[ANALYZER_LEVEL],
+  g_object_set (p->analyzers[ANALYZER_LEVEL],
       "interval", UPDATE_INTERVAL, "post-messages", TRUE,
       "peak-ttl", UPDATE_INTERVAL * 2, "peak-falloff", 80.0, NULL);
   // create queue
@@ -1092,25 +1129,24 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
     goto Error;
   }
   // leave "max-size-buffer >> 1, if 1 every buffer gets marked as discont!
-  g_object_set (self->priv->analyzers[ANALYZER_QUEUE],
+  g_object_set (p->analyzers[ANALYZER_QUEUE],
       "max-size-buffers", 10, "max-size-bytes", 0, "max-size-time",
       G_GUINT64_CONSTANT (0), "leaky", 2, "silent", TRUE, NULL);
 
-  if (BT_IS_WIRE (self->priv->element)) {
-    g_object_set (self->priv->element, "analyzers", self->priv->analyzers_list,
-        NULL);
-  } else if (BT_IS_SINK_MACHINE (self->priv->element)) {
+  if (BT_IS_WIRE (p->element)) {
+    g_object_set (p->element, "analyzers", p->analyzers_list, NULL);
+  } else if (BT_IS_SINK_MACHINE (p->element)) {
     GstElement *machine;
-    g_object_get (self->priv->element, "machine", &machine, NULL);
-    g_object_set (machine, "analyzers", self->priv->analyzers_list, NULL);
+    g_object_get (p->element, "machine", &machine, NULL);
+    g_object_set (machine, "analyzers", p->analyzers_list, NULL);
     g_object_unref (machine);
   }
 
   g_object_get (song, "bin", &bin, NULL);
-  self->priv->bus = gst_element_get_bus (GST_ELEMENT (bin));
-  g_signal_connect (self->priv->bus, "sync-message::element",
+  p->bus = gst_element_get_bus (GST_ELEMENT (bin));
+  g_signal_connect (p->bus, "sync-message::element",
       G_CALLBACK (on_signal_analyser_change), (gpointer) self);
-  self->priv->clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
+  p->clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
   gst_object_unref (bin);
 
   // allocate visual ressources after the window has been realized
@@ -1119,9 +1155,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   g_signal_connect_after ((gpointer) self, "style-updated",
       G_CALLBACK (on_dialog_style_updated), (gpointer) self);
   // redraw when needed
-  g_signal_connect (self->priv->level_drawingarea, "draw",
-      G_CALLBACK (on_level_draw), (gpointer) self);
-  g_signal_connect (self->priv->spectrum_drawingarea, "draw",
+  g_signal_connect (p->spectrum_drawingarea, "draw",
       G_CALLBACK (on_spectrum_draw), (gpointer) self);
 
 Error:
