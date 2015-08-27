@@ -77,10 +77,12 @@ struct _BtPlaybackControllerSocketPrivate
   gchar *cur_label;
 
   /* master */
-  gint master_socket, master_source;
+  gint master_socket;
+  guint master_source;
   GIOChannel *master_channel;
   /* client */
-  gint client_socket, client_source;
+  gint client_socket;
+  guint client_source;
   GIOChannel *client_channel;
 };
 
@@ -99,11 +101,11 @@ client_connection_close (BtPlaybackControllerSocket * self)
   if (self->priv->client_channel) {
     GError *error = NULL;
 
-    if (self->priv->client_source >= 0) {
+    if (self->priv->client_source) {
       g_source_remove (self->priv->client_source);
       // the above already unrefs
       //g_io_channel_unref(self->priv->client_channel);
-      self->priv->client_source = -1;
+      self->priv->client_source = 0;
     }
     g_io_channel_shutdown (self->priv->client_channel, TRUE, &error);
     if (error) {
@@ -359,7 +361,7 @@ client_socket_io_handler (GIOChannel * channel, GIOCondition condition,
   }
   if (!res) {
     GST_INFO ("closing client connection");
-    self->priv->master_source = -1;
+    self->priv->master_source = 0;
   }
   return (res);
 }
@@ -464,11 +466,11 @@ master_connection_close (BtPlaybackControllerSocket * self)
   if (self->priv->master_channel) {
     GError *error = NULL;
 
-    if (self->priv->master_source >= 0) {
+    if (self->priv->master_source) {
       g_source_remove (self->priv->master_source);
       // the above already unrefs
       //g_io_channel_unref(self->priv->master_channel);
-      self->priv->master_source = -1;
+      self->priv->master_source = 0;
     }
     g_io_channel_shutdown (self->priv->master_channel, TRUE, &error);
     if (error) {

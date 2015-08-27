@@ -56,7 +56,7 @@ struct _BtIcInputDevicePrivate
 
   /* io channel */
   GIOChannel *io_channel;
-  gint io_source;
+  guint io_source;
 };
 
 //-- the class
@@ -487,7 +487,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
   }
   if (!res) {
     GST_INFO ("closing connection");
-    self->priv->io_source = -1;
+    self->priv->io_source = 0;
   }
   return (res);
 }
@@ -552,9 +552,9 @@ btic_input_device_stop (gconstpointer _self)
 
   // stop the io-loop
   if (self->priv->io_channel) {
-    if (self->priv->io_source >= 0) {
+    if (self->priv->io_source) {
       g_source_remove (self->priv->io_source);
-      self->priv->io_source = -1;
+      self->priv->io_source = 0;
     }
     g_io_channel_unref (self->priv->io_channel);
     self->priv->io_channel = NULL;
