@@ -450,9 +450,11 @@ bt_main_statusbar_dispose (GObject * object)
     g_object_unref (sequence);
     g_object_unref (song);
   }
-  g_source_remove (self->priv->cpu_load_handler_id);
+  if (self->priv->cpu_load_handler_id)
+    g_source_remove (self->priv->cpu_load_handler_id);
 #ifdef USE_MAIN_LOOP_IDLE_TRACKER
-  g_source_remove (self->priv->main_loop_idle_handler_id);
+  if (self->priv->main_loop_idle_handler_id)
+    g_source_remove (self->priv->main_loop_idle_handler_id);
 #endif
 
   g_object_unref (self->priv->app);
