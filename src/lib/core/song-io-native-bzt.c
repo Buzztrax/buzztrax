@@ -42,6 +42,7 @@
 #include <gsf/gsf-input-memory.h>
 #include <gsf/gsf-infile.h>
 #include <gsf/gsf-infile-zip.h>
+#include <gsf/gsf-output-memory.h>
 #include <gsf/gsf-output-stdio.h>
 #include <gsf/gsf-outfile.h>
 #include <gsf/gsf-outfile-zip.h>
@@ -372,23 +373,32 @@ bt_song_io_native_bzt_save (gconstpointer const _self,
   gchar *const file_name;
 
   g_object_get ((gpointer) self, "file-name", &file_name, NULL);
-  GST_INFO ("native io bzt will now save song to \"%s\"", file_name);
+  GST_INFO ("native io bzt will now save song to \"%s\"",
+      file_name ? file_name : "data");
 
   xmlDocPtr const song_doc = xmlNewDoc (XML_CHAR_PTR ("1.0"));
   if (song_doc) {
     GError *e = NULL;
 
-    // open the file from the file_name argument
-    if ((self->priv->output = gsf_output_stdio_new (file_name, &e))) {
-      // create an gsf output file
-      if (!(self->priv->outfile = gsf_outfile_zip_new (self->priv->output, &e))) {
-        GST_WARNING ("failed to create zip song file \"%s\" : %s", file_name,
+    if (file_name) {
+      // open the file from the file_name argument
+      if (!(self->priv->output = gsf_output_stdio_new (file_name, &e))) {
+        GST_WARNING ("failed to write song file \"%s\" : %s", file_name,
             e->message);
         g_propagate_error (err, e);
         goto Error;
       }
     } else {
-      GST_WARNING ("failed to write song file \"%s\" : %s", file_name,
+      if (!(self->priv->output = gsf_output_memory_new ())) {
+        GST_WARNING ("failed to create song buffer");
+        g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
+            "Failed to create song buffer.");
+        goto Error;
+      }
+    }
+    // create an gsf output file
+    if (!(self->priv->outfile = gsf_outfile_zip_new (self->priv->output, &e))) {
+      GST_WARNING ("failed to create zip song file \"%s\" : %s", file_name,
           e->message);
       g_propagate_error (err, e);
       goto Error;
@@ -409,6 +419,14 @@ bt_song_io_native_bzt_save (gconstpointer const _self,
 
         xmlDocDumpMemory (song_doc, &bytes, &size);
         if (gsf_output_write (data, (size_t) size, (guint8 const *) bytes)) {
+          if (!file_name) {
+            gsf_off_t len = gsf_output_size (self->priv->output);
+            const guint8 *mem = gsf_output_memory_get_bytes (
+                (GsfOutputMemory *) self->priv->output);
+            gpointer data = g_memdup (mem, (guint) len);
+            g_object_set ((gpointer) self, "data", data, "data-len",
+                (guint) len, NULL);
+          }
           result = TRUE;
           GST_INFO ("bzt saved okay");
         } else {
@@ -433,7 +451,7 @@ bt_song_io_native_bzt_save (gconstpointer const _self,
   }
 
 Error:
-  if (self->priv->output) {
+  if (self->priv->outfile) {
     gsf_output_close (GSF_OUTPUT (self->priv->outfile));
     g_object_unref (self->priv->outfile);
     self->priv->outfile = NULL;

@@ -174,7 +174,7 @@ typedef struct {
 GType bt_song_io_get_type(void) G_GNUC_CONST;
 
 BtSongIO *bt_song_io_from_file(const gchar * const file_name, GError **err);
-BtSongIO *bt_song_io_from_data(gpointer *data, guint len, const gchar *media_type, GError **err);
+BtSongIO *bt_song_io_from_data(gpointer data, guint len, const gchar *media_type, GError **err);
 
 const GList *bt_song_io_get_module_info_list(void);
 

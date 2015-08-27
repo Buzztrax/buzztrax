@@ -101,7 +101,8 @@ bt_song_io_native_xml_load (gconstpointer const _self,
       if (song_doc)
         xmlFreeDoc (song_doc);
     } else {
-      GST_WARNING ("failed to read song file '%s'", file_name);
+      GST_WARNING ("failed to read song file '%s'",
+          file_name ? file_name : "data");
       g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
           g_strerror (errno));
     }
@@ -124,7 +125,8 @@ bt_song_io_native_xml_save (gconstpointer const _self,
   gchar *const file_name;
 
   g_object_get ((gpointer) self, "file-name", &file_name, NULL);
-  GST_INFO ("native io xml will now save song to \"%s\"", file_name);
+  GST_INFO ("native io xml will now save song to \"%s\"",
+      file_name ? file_name : "data");
 
   xmlDocPtr const song_doc = xmlNewDoc (XML_CHAR_PTR ("1.0"));
   if (song_doc) {
@@ -132,13 +134,24 @@ bt_song_io_native_xml_save (gconstpointer const _self,
         bt_persistence_save (BT_PERSISTENCE (song), NULL);
     if (root_node) {
       xmlDocSetRootElement (song_doc, root_node);
-      if (xmlSaveFile (file_name, song_doc) != -1) {
-        result = TRUE;
-        GST_INFO ("xml saved okay");
+      if (file_name) {
+        if (xmlSaveFile (file_name, song_doc) != -1) {
+          result = TRUE;
+          GST_INFO ("xml saved okay");
+        } else {
+          GST_WARNING ("failed to write song file \"%s\"", file_name);
+          g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
+              g_strerror (errno));
+        }
       } else {
-        GST_WARNING ("failed to write song file \"%s\"", file_name);
-        g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
-            g_strerror (errno));
+        xmlChar *mem;
+        guint len;
+        gpointer data;
+
+        xmlDocDumpMemory (song_doc, &mem, (int *) &len);
+        data = g_memdup (mem, len);
+        xmlFree (mem);
+        g_object_set ((gpointer) self, "data", data, "data-len", len, NULL);
       }
     } else {
       g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,

@@ -59,7 +59,7 @@ struct _BtSongIOPrivate
 
   /* used to load or save the song file */
   gchar *file_name;
-  gpointer *data;
+  gpointer data;
   guint len;
 
   /* informs about the progress of the loader */
@@ -337,7 +337,7 @@ bt_song_io_from_file (const gchar * const file_name, GError ** err)
  * Returns: (transfer full): the new instance or %NULL in case of an error
  */
 BtSongIO *
-bt_song_io_from_data (gpointer * data, guint len, const gchar * media_type,
+bt_song_io_from_data (gpointer data, guint len, const gchar * media_type,
     GError ** err)
 {
   BtSongIO *self = NULL;
@@ -471,6 +471,7 @@ gboolean
 bt_song_io_save (BtSongIO const *self, const BtSong * const song, GError ** err)
 {
   gboolean result;
+  gchar *status;
   bt_song_io_virtual_save save;
 
   g_return_val_if_fail (BT_IS_SONG_IO (self), FALSE);
@@ -485,10 +486,15 @@ bt_song_io_save (BtSongIO const *self, const BtSong * const song, GError ** err)
   }
 
   const gchar *const msg = _("Saving file '%s'");
-  gchar *const status = g_alloca (1 + strlen (msg) +
-      strlen (self->priv->file_name));
-  g_sprintf (status, msg, self->priv->file_name);
-  GST_INFO ("saving song [%s]", self->priv->file_name);
+  if (self->priv->file_name) {
+    status = g_alloca (1 + strlen (msg) + strlen (self->priv->file_name));
+    g_sprintf (status, msg, self->priv->file_name);
+    GST_INFO ("saving song [%s]", self->priv->file_name);
+  } else {
+    status = g_alloca (1 + strlen (msg) + 4);
+    g_sprintf (status, msg, "data");
+    GST_INFO ("saving song [<data>]");
+  }
   g_object_set ((gpointer) self, "status", status, NULL);
 
   // update the time-stamp
@@ -501,7 +507,8 @@ bt_song_io_save (BtSongIO const *self, const BtSong * const song, GError ** err)
   g_object_set ((gpointer) song, "song-io", NULL, NULL);
 
   g_object_set ((gpointer) self, "status", NULL, NULL);
-  GST_INFO ("saved song [%s] = %d", self->priv->file_name, result);
+  GST_INFO ("saved song [%s] = %d",
+      self->priv->file_name ? self->priv->file_name : "data", result);
   return result;
 }
 
@@ -539,6 +546,12 @@ bt_song_io_set_property (GObject * const object, const guint property_id,
   const BtSongIO *const self = BT_SONG_IO (object);
   return_if_disposed ();
   switch (property_id) {
+    case SONG_IO_DATA:
+      self->priv->data = g_value_get_pointer (value);
+      break;
+    case SONG_IO_DATA_LEN:
+      self->priv->len = g_value_get_uint (value);
+      break;
     case SONG_IO_STATUS:
       g_free (self->priv->status);
       self->priv->status = g_value_dup_string (value);
@@ -596,23 +609,23 @@ bt_song_io_class_init (BtSongIOClass * const klass)
 
   g_object_class_install_property (gobject_class, SONG_IO_FILE_NAME,
       g_param_spec_string ("file-name", "filename prop",
-          "full filename for load save operations", NULL,
+          "full filename for load/save operations", NULL,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SONG_IO_DATA,
       g_param_spec_pointer ("data",
           "data prop",
-          "in memory block pointer for load save operations",
-          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+          "in memory block pointer for load/save operations",
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SONG_IO_DATA_LEN,
       g_param_spec_uint ("data-len",
           "data-len prop",
-          "in memory block length for load save operations",
-          0, G_MAXUINT, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+          "in memory block length for load/save operations",
+          0, G_MAXUINT, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, SONG_IO_STATUS,
       g_param_spec_string ("status", "status prop",
-          "status of load save operations", NULL,
+          "status of load/save operations", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
