@@ -1,7 +1,11 @@
+0.10.1 loud (xx.xxx.2015)
+================================================================================
+Bugfix release.
+
 0.10.0 loud (24.Aug.2015)
 ================================================================================
 Just a few month since the previous release, this update mostly focuses on
-getting rid of deprecated APIs. Besides that it also come with a new
+getting rid of deprecated APIs. Besides that it also comes with a new
 synthesizer plugin called 'ebeats'. As the name suggests it is good at making
 percussion sounds. Together with that the library providing the dsp components
 got overhauled.
