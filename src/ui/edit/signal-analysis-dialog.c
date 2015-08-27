@@ -29,6 +29,7 @@
  */
 /* IDEA(ensonic): nice monitoring ideas:
  * http://www.music-software-reviews.com/adobe_audition_2.html
+ * http://www.protoolsproduction.com/phasescope/
  * oszilloscope: we can e.g. set it to fit a 55Hz signal to the window width
  */
 /* TODO(ensonic): shall we add a volume and panorama control to the dialog as well?
