@@ -345,18 +345,20 @@ bt_song_info_persistence_save (const BtPersistence * const persistence,
 
   if ((node = xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("meta"), NULL))) {
     if (!strcmp (self->priv->name, DEFAULT_SONG_NAME)) {
-      gchar *file_path, *file_name, *ext;
+      gchar *file_path = NULL, *file_name, *ext;
 
       bt_child_proxy_get (self->priv->song, "song-io::file-name", &file_path,
           NULL);
-      file_name = g_path_get_basename (file_path);
-      if ((ext = strrchr (file_name, '.'))) {
-        *ext = '\0';
+      if (file_path) {
+        file_name = g_path_get_basename (file_path);
+        if ((ext = strrchr (file_name, '.'))) {
+          *ext = '\0';
+        }
+        GST_INFO ("using '%s' instead of default title", file_name);
+        g_object_set ((gpointer) self, "name", file_name, NULL);
+        g_free (file_name);
+        g_free (file_path);
       }
-      GST_INFO ("using '%s' instead of default title", file_name);
-      g_object_set ((gpointer) self, "name", file_name, NULL);
-      g_free (file_name);
-      g_free (file_path);
     }
 
     if (self->priv->info) {
