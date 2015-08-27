@@ -7,11 +7,42 @@
 
 * test infrastructure
   * add a stub song-io saver
+    * or use memory based song-io-native-xml:
+      * add BtSongIO *bt_song_io_to_data(gpointer *data, guint *len, const gchar * media_type); or do we use song-io-native-xml anyway
+      * saving
+        * create song1
+        * save song1 to memory
+        * load from memory to song2
+        * compare song1 and song2 - but how?
+      * loading
+        * load song1 from memory1
+        * save song1 to memory2
+        * compare memory1 & memory2
+      * if before/after differs we need a nice formatting :/
+        * dump both songs using xmlDocFormatDump(file, doc, TRUE) and diff
+    * or test via BtPersistence directly
+    * or we just have a sav&load helper
+    * we need to verify loading first
+      * load from memory and check details
+      * then test saving and assume that loading is good
   * add a stub processor machine
   * have a means to make a copy of log-files for passing tests
     * this could help to check 'what changed'
     * we'd need to also do xml output from check to run the log compare for
       failed tests
+  * write a scripts that goes over all the songs under a directory and:
+    * load + info them
+    * render them to a set of given formats
+    * load + save to tmp + compare orig with tmp
+      * for hand-witten songs, we need to initially fix the delta
+      * for binary formats
+        * we cannot really diff
+        * we'd need a hack to handle the 'change-dts'
+      xmllint --c14n11 --format tests/songs/buzz1.xml >/tmp/bt-in.xml
+      ./buzztrax-cmd -c convert -i tests/songs/buzz1.xml -o /tmp/bt-tmp.xml
+      xmllint --c14n11 --format /tmp/bt-tmp.xml >/tmp/bt-out.xml
+      diff /tmp/bt-in.xml /tmp/bt-out.xml
+    
   * use https://github.com/martinpitt/umockdev for btic tests
 
 
@@ -260,10 +291,6 @@
     at the end
 
 
-* eventually merge machine-rename dialog with machine properties
-  - we now have inplace rename in the sequence headers as a quick alternative
-
-
 * control machines (no in/out)
   - color=gray
     it is never connected and thus, does not need a desaturated shade
@@ -414,9 +441,28 @@
   * the xml file only covers the parameter boxes
 
 
-* single window UI
+* eventually merge machine-rename dialog with machine properties
+  - we now have inplace rename in the sequence headers as a quick alternative
+  - with the parameter-view (as proposed below) we can also rename in the
+    parameter-view headers 
+
+
+* single window UI + multiscreen support
+  * for the single window support add a parameter view (F7)
+    * this will dock all machine-property dialogs (and maybe also machine-
+      preferences and machine-controls through tabs)
+    * from sequence/pattern view one can just there with shift+enter
+      * we need shortcuts to cycle: parameters -> patterns -> sequence
+      * maybe we just use enter to cycle through the chain (and shift-enter to
+        cycle backwards if the cycle gets longer)
+    * TODO: what about the signal-analysis-dialogs?
+      * another page with them stacked horizontaly?
   * like we have main-window.c, add a extra-window.c, where the extra window
     only has a main-pages widget
+    * when opening the new window, try to place it on the next monitor if there
+      is no space on the current monitor
+    * maybe also have a way to split a window with a hpaned to allow split on
+      one monitor
   * on each tab we have a context menu to move it to the 'next'/'prev' window
   * each page is only part of one window
   * the settings store how many extra windows we have and for each page in which
