@@ -595,6 +595,26 @@ test_bt_song_play_again_should_restart (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_song_persistence (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSong *song = make_new_song ();
+
+  GST_INFO ("-- act --");
+  xmlNodePtr node = bt_persistence_save (BT_PERSISTENCE (song), NULL);
+
+  GST_INFO ("-- assert --");
+  fail_unless (node != NULL, NULL);
+  ck_assert_str_eq ((gchar *) node->name, "buzztrax");
+  fail_unless (node->children != NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  ck_g_object_final_unref (song);
+  BT_TEST_END;
+}
+
 
 /* should we have variants, where we remove the machines instead of the wires? */
 TCase *
@@ -618,6 +638,7 @@ bt_song_example_case (void)
   tcase_add_test (tc, test_bt_song_play_pos_on_eos);
   tcase_add_test (tc, test_bt_song_play_pos_after_initial_seek);
   tcase_add_test (tc, test_bt_song_play_again_should_restart);
+  tcase_add_test (tc, test_bt_song_persistence);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

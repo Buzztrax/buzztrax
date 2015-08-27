@@ -16,6 +16,7 @@
  */
 
 #include "core/core.h"
+#include "core/core_private.h"
 #include "../../bt-check.h"
 
 //-- globals

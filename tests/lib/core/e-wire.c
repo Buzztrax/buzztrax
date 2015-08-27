@@ -112,6 +112,31 @@ test_bt_wire_pretty_name (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_wire_persistence (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *src =
+      BT_MACHINE (bt_source_machine_new (song, "audiotestsrc", "audiotestsrc",
+          0L, NULL));
+  BtMachine *proc = BT_MACHINE (bt_processor_machine_new (song, "volume",
+          "volume", 0L, NULL));
+  BtWire *wire = bt_wire_new (song, src, proc, NULL);
+
+  GST_INFO ("-- act --");
+  xmlNodePtr parent = xmlNewNode (NULL, XML_CHAR_PTR ("buzztrax"));
+  xmlNodePtr node = bt_persistence_save (BT_PERSISTENCE (wire), parent);
+
+  GST_INFO ("-- assert --");
+  fail_unless (node != NULL, NULL);
+  ck_assert_str_eq ((gchar *) node->name, "wire");
+  fail_unless (node->children != NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
 
 TCase *
 bt_wire_example_case (void)
@@ -121,6 +146,7 @@ bt_wire_example_case (void)
   tcase_add_test (tc, test_bt_wire_can_link);
   tcase_add_test (tc, test_bt_wire_new);
   tcase_add_test (tc, test_bt_wire_pretty_name);
+  tcase_add_test (tc, test_bt_wire_persistence);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
