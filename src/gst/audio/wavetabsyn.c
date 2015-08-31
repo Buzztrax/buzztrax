@@ -63,13 +63,12 @@ static void
 gstbt_wave_tab_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
 {
   GstBtWaveTabSyn *src = ((GstBtWaveTabSyn *) base);
-  gint i, n = gst_caps_get_size (caps), c = src->osc->channels;
+  gint i, n = gst_caps_get_size (caps);
 
   gstbt_osc_wave_setup (src->osc);
-
   for (i = 0; i < n; i++) {
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
-        "channels", c);
+        "channels", src->osc->channels);
   }
 }
 
