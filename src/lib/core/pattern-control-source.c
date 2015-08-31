@@ -182,7 +182,8 @@ bt_pattern_control_source_get_value (GstControlBinding * self_,
     return res;
   } else {
     if (self->priv->is_trigger || !timestamp) {
-      // set defaults value for triggers (no value) or the default at ts=0
+      // set defaults value for triggers or for all paramters at ts=0, for
+      // triggers the default value should be the no-value
       GST_LOG_OBJECT (self->priv->machine,
           "tick %lu: Set default for %s", tick,
           bt_parameter_group_get_param_name (pg, param_index));
