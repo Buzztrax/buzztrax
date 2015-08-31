@@ -1297,7 +1297,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
 
   // add buttons (play,stop,clear)
   tool_item =
-      gtk_tool_button_new_from_icon_name ("media-playback-start", _("_Play"));
+      gtk_toggle_tool_button_new_from_icon_name ("media-playback-start",
+      _("_Play"));
   gtk_tool_item_set_tooltip_text (tool_item,
       _("Play current wave table entry as C-4"));
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
