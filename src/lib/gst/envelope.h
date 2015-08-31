@@ -43,8 +43,6 @@ typedef struct _GstBtEnvelopeClass GstBtEnvelopeClass;
  */
 struct _GstBtEnvelope {
   GstInterpolationControlSource parent;
-  /* < private > */
-  gboolean dispose_has_run;		/* validate if dispose has run */
 
   /* < public > */
   guint64 length;
