@@ -24,15 +24,46 @@
 
 /* TODO(ensonic): shortcuts
  * - on_pattern_table_key_press_event()
+ * - used keys:
+ *   a: select all
+ *   b: begin selection
+ *   c: copy
+ *   d:
+ *   e: end selection
+ *   f: flip
+ *   g:
+ *   h:
+ *   i: interpolate
+ *   j:
+ *   k: select group
+ *   l: select column
+ *   m:
+ *   n:
+ *   o:
+ *   p:
+ *   q:
+ *   r: randomize
+ *   s:
+ *   t:
+ *   u: unselect
+ *   v: paste
+ *   w:
+ *   x: cut
+ *   y:
+ *   z:
  * - Ctrl-S : Smooth
  *   - low pass median filter over values
  *   - need to figure what to do with empty slots
- * - Ctrl-Shift-R: Randomize-Range
- *   - randomize between first and last value
+ *     - we could leave them blank for triggers and interpolate for others
  * - Ctrl-T : Invert (I is Interpolate already)
  *   - value = max - (value-min))
  * - Ctrl-Shift-T : Invert-Range
  *   - like invert, but take min, max from the values in the selection
+ * - Ctrl-? (s/w, n/j)
+ *   - transpose up/down (+/- 1 to the value)
+ * - Ctrl-Shift-?
+ *   - transpose up/down (+/- 10% to the value)
+ *   - do ocatves for notes
  * - prev/next for combobox entries
  *   - trigger "move-active" action signal with GTK_SCROLL_STEP_UP/GTK_SCROLL_STEP_DOWN
  *   - what mechanism to use:
@@ -678,12 +709,13 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     gpointer user_data)
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
+  BtMainPagePatternsPrivate *p = self->priv;
   gboolean res = FALSE;
   gulong modifier =
       (gulong) event->state & gtk_accelerator_get_default_mod_mask ();
   //gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
 
-  if (!gtk_widget_get_realized (GTK_WIDGET (self->priv->pattern_table)))
+  if (!gtk_widget_get_realized (GTK_WIDGET (p->pattern_table)))
     return (FALSE);
 
   GST_INFO
@@ -691,20 +723,20 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
       event->state, event->keyval, event->hardware_keycode,
       gdk_keyval_name (event->keyval));
   if (event->keyval == GDK_KEY_Return) {        /* GDK_KP_Enter */
-    bt_child_proxy_set (self->priv->app, "main-window::pages::page",
+    bt_child_proxy_set (p->app, "main-window::pages::page",
         BT_MAIN_PAGES_SEQUENCE_PAGE, NULL);
     /* if we came from sequence page via Enter we could go back to where we came from
      * if the machine or pattern has been changed here, we could go to first
      * track and first pos where the new pattern is used.
      */
     //BtMainPageSequence *sequence_page;
-    //bt_child_proxy_get(self->priv->app,"main-window::pages::sequence-page",&sequence_page,NULL);
+    //bt_child_proxy_get(p->app,"main-window::pages::sequence-page",&sequence_page,NULL);
     //bt_main_page_sequence_goto_???(sequence_page,pattern);
     //g_object_unref(sequence_page);
 
     res = TRUE;
   } else if (event->keyval == GDK_KEY_Menu) {
-    gtk_menu_popup (self->priv->context_menu, NULL, NULL, NULL, NULL,
+    gtk_menu_popup (p->context_menu, NULL, NULL, NULL, NULL,
         GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
     res = TRUE;
   } else if (event->keyval == ',') {
@@ -713,11 +745,11 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     guint param;
 
     // copy the current value from the machine to the pattern
-    g_object_get (self->priv->pattern_table, "cursor-row",
-        &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group,
-        "cursor-param", &self->priv->cursor_param, NULL);
-    group = &self->priv->param_groups[self->priv->cursor_group];
-    param = self->priv->cursor_param;
+    g_object_get (p->pattern_table, "cursor-row",
+        &p->cursor_row, "cursor-group", &p->cursor_group,
+        "cursor-param", &p->cursor_param, NULL);
+    group = &p->param_groups[p->cursor_group];
+    param = p->cursor_param;
     g_object_get (group->vg, "parameter-group", &pg, NULL);
 
     // don't do this for trigger params !!!!! (not readable) =======================
@@ -737,15 +769,14 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
       str = bt_str_format_gvalue (&value);
       GST_DEBUG ("get property %s: %s", prop_name, str);
 
-      pattern_edit_set_data_at (self, pcc, self->priv->cursor_row,
-          self->priv->cursor_group, param, 0, pcc->val_to_float (str, pcc));
+      pattern_edit_set_data_at (self, pcc, p->cursor_row,
+          p->cursor_group, param, 0, pcc->val_to_float (str, pcc));
 
-      g_object_get (self->priv->pattern, "length", &number_of_ticks, NULL);
-      if (self->priv->cursor_row + 1 < number_of_ticks) {
-        g_object_set (self->priv->pattern_table, "cursor-row",
-            self->priv->cursor_row + 1, NULL);
+      g_object_get (p->pattern, "length", &number_of_ticks, NULL);
+      if (p->cursor_row + 1 < number_of_ticks) {
+        g_object_set (p->pattern_table, "cursor-row", p->cursor_row + 1, NULL);
       }
-      gtk_widget_queue_draw (GTK_WIDGET (self->priv->pattern_table));
+      gtk_widget_queue_draw (GTK_WIDGET (p->pattern_table));
 
       g_free (str);
       g_value_unset (&value);
@@ -756,53 +787,49 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     gulong number_of_ticks;
     gint beg, end, group, param;
 
-    g_object_get (self->priv->pattern_table, "cursor-row",
-        &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group,
-        "cursor-param", &self->priv->cursor_param, NULL);
-    g_object_get (self->priv->pattern, "length", &number_of_ticks, NULL);
-    beg = self->priv->cursor_row;
+    g_object_get (p->pattern_table, "cursor-row",
+        &p->cursor_row, "cursor-group", &p->cursor_group,
+        "cursor-param", &p->cursor_param, NULL);
+    g_object_get (p->pattern, "length", &number_of_ticks, NULL);
+    beg = p->cursor_row;
     end = number_of_ticks - 1;
     if ((modifier & (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) ==
         (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) {
       group = -1;
       param = -1;
     } else if (modifier & GDK_SHIFT_MASK) {
-      group = self->priv->cursor_group;
+      group = p->cursor_group;
       param = -1;
     } else {
-      group = self->priv->cursor_group;
-      param = self->priv->cursor_param;
+      group = p->cursor_group;
+      param = p->cursor_param;
     }
     pattern_range_copy (self, beg, end, group, param, old_data);
 
     if ((modifier & (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) ==
         (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) {
       // insert full row
-      GST_INFO ("ctrl-shift-insert pressed, row %lu", self->priv->cursor_row);
-      bt_pattern_insert_row (self->priv->pattern, self->priv->cursor_row);
+      GST_INFO ("ctrl-shift-insert pressed, row %lu", p->cursor_row);
+      bt_pattern_insert_row (p->pattern, p->cursor_row);
       res = TRUE;
     } else if (modifier & GDK_SHIFT_MASK) {
-      BtPatternEditorColumnGroup *group =
-          &self->priv->param_groups[self->priv->cursor_group];
+      BtPatternEditorColumnGroup *group = &p->param_groups[p->cursor_group];
       // insert group
       GST_INFO ("shift-insert pressed, row %ld, group %u",
-          self->priv->cursor_row, self->priv->cursor_group);
-      bt_value_group_insert_full_row (group->vg, self->priv->cursor_row);
+          p->cursor_row, p->cursor_group);
+      bt_value_group_insert_full_row (group->vg, p->cursor_row);
       res = TRUE;
     } else {
-      BtPatternEditorColumnGroup *group =
-          &self->priv->param_groups[self->priv->cursor_group];
+      BtPatternEditorColumnGroup *group = &p->param_groups[p->cursor_group];
       // insert column
       GST_INFO ("insert pressed, row %ld, group %u, param %u",
-          self->priv->cursor_row, self->priv->cursor_group,
-          self->priv->cursor_param);
-      bt_value_group_insert_row (group->vg, self->priv->cursor_row,
-          self->priv->cursor_param);
+          p->cursor_row, p->cursor_group, p->cursor_param);
+      bt_value_group_insert_row (group->vg, p->cursor_row, p->cursor_param);
       res = TRUE;
     }
 
     if (res) {
-      gtk_widget_queue_draw (GTK_WIDGET (self->priv->pattern_table));
+      gtk_widget_queue_draw (GTK_WIDGET (p->pattern_table));
       pattern_range_copy (self, beg, end, group, param, new_data);
       pattern_range_log_undo_redo (self, beg, end, group, param, old_data->str,
           new_data->str);
@@ -814,22 +841,22 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     gulong number_of_ticks;
     gint beg, end, group, param;
 
-    g_object_get (self->priv->pattern_table, "cursor-row",
-        &self->priv->cursor_row, "cursor-group", &self->priv->cursor_group,
-        "cursor-param", &self->priv->cursor_param, NULL);
-    g_object_get (self->priv->pattern, "length", &number_of_ticks, NULL);
-    beg = self->priv->cursor_row;
+    g_object_get (p->pattern_table, "cursor-row",
+        &p->cursor_row, "cursor-group", &p->cursor_group,
+        "cursor-param", &p->cursor_param, NULL);
+    g_object_get (p->pattern, "length", &number_of_ticks, NULL);
+    beg = p->cursor_row;
     end = number_of_ticks - 1;
     if ((modifier & (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) ==
         (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) {
       group = -1;
       param = -1;
     } else if (modifier & GDK_SHIFT_MASK) {
-      group = self->priv->cursor_group;
+      group = p->cursor_group;
       param = -1;
     } else {
-      group = self->priv->cursor_group;
-      param = self->priv->cursor_param;
+      group = p->cursor_group;
+      param = p->cursor_param;
     }
 
     pattern_range_copy (self, beg, end, group, param, old_data);
@@ -837,31 +864,27 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     if ((modifier & (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) ==
         (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) {
       // delete full row
-      GST_INFO ("ctrl-shift-delete pressed, row %lu", self->priv->cursor_row);
-      bt_pattern_delete_row (self->priv->pattern, self->priv->cursor_row);
+      GST_INFO ("ctrl-shift-delete pressed, row %lu", p->cursor_row);
+      bt_pattern_delete_row (p->pattern, p->cursor_row);
       res = TRUE;
     } else if (modifier & GDK_SHIFT_MASK) {
-      BtPatternEditorColumnGroup *group =
-          &self->priv->param_groups[self->priv->cursor_group];
+      BtPatternEditorColumnGroup *group = &p->param_groups[p->cursor_group];
       // delete group
-      GST_INFO ("delete pressed, row %ld, group %u", self->priv->cursor_row,
-          self->priv->cursor_group);
-      bt_value_group_delete_full_row (group->vg, self->priv->cursor_row);
+      GST_INFO ("delete pressed, row %ld, group %u", p->cursor_row,
+          p->cursor_group);
+      bt_value_group_delete_full_row (group->vg, p->cursor_row);
       res = TRUE;
     } else {
-      BtPatternEditorColumnGroup *group =
-          &self->priv->param_groups[self->priv->cursor_group];
+      BtPatternEditorColumnGroup *group = &p->param_groups[p->cursor_group];
       // delete column
       GST_INFO ("delete pressed, row %ld, group %u, param %u",
-          self->priv->cursor_row, self->priv->cursor_group,
-          self->priv->cursor_param);
-      bt_value_group_delete_row (group->vg, self->priv->cursor_row,
-          self->priv->cursor_param);
+          p->cursor_row, p->cursor_group, p->cursor_param);
+      bt_value_group_delete_row (group->vg, p->cursor_row, p->cursor_param);
       res = TRUE;
     }
 
     if (res) {
-      gtk_widget_queue_draw (GTK_WIDGET (self->priv->pattern_table));
+      gtk_widget_queue_draw (GTK_WIDGET (p->pattern_table));
       pattern_range_copy (self, beg, end, group, param, new_data);
       pattern_range_log_undo_redo (self, beg, end, group, param, old_data->str,
           new_data->str);
@@ -894,35 +917,35 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
           bt_pattern_range_randomize_columns);
     }
   } else if ((event->keyval == GDK_KEY_Up) && (modifier == GDK_CONTROL_MASK)) {
-    g_signal_emit_by_name (self->priv->machine_menu, "move-active",
+    g_signal_emit_by_name (p->machine_menu, "move-active",
         GTK_SCROLL_STEP_BACKWARD, NULL);
     res = TRUE;
   } else if ((event->keyval == GDK_KEY_Down) && (modifier == GDK_CONTROL_MASK)) {
-    g_signal_emit_by_name (self->priv->machine_menu, "move-active",
+    g_signal_emit_by_name (p->machine_menu, "move-active",
         GTK_SCROLL_STEP_FORWARD, NULL);
     res = TRUE;
   } else if (event->keyval == GDK_KEY_KP_Subtract) {
-    g_signal_emit_by_name (self->priv->pattern_menu, "move-active",
+    g_signal_emit_by_name (p->pattern_menu, "move-active",
         GTK_SCROLL_STEP_BACKWARD, NULL);
     res = TRUE;
   } else if (event->keyval == GDK_KEY_KP_Add) {
-    g_signal_emit_by_name (self->priv->pattern_menu, "move-active",
+    g_signal_emit_by_name (p->pattern_menu, "move-active",
         GTK_SCROLL_STEP_FORWARD, NULL);
     res = TRUE;
   } else if (event->keyval == GDK_KEY_KP_Divide) {
-    g_signal_emit_by_name (self->priv->base_octave_menu, "move-active",
+    g_signal_emit_by_name (p->base_octave_menu, "move-active",
         GTK_SCROLL_STEP_BACKWARD, NULL);
     res = TRUE;
   } else if (event->keyval == GDK_KEY_KP_Multiply) {
-    g_signal_emit_by_name (self->priv->base_octave_menu, "move-active",
+    g_signal_emit_by_name (p->base_octave_menu, "move-active",
         GTK_SCROLL_STEP_FORWARD, NULL);
     res = TRUE;
   } else if (event->keyval == GDK_KEY_less) {
-    g_signal_emit_by_name (self->priv->wavetable_menu, "move-active",
+    g_signal_emit_by_name (p->wavetable_menu, "move-active",
         GTK_SCROLL_STEP_BACKWARD, NULL);
     res = TRUE;
   } else if (event->keyval == GDK_KEY_greater) {
-    g_signal_emit_by_name (self->priv->wavetable_menu, "move-active",
+    g_signal_emit_by_name (p->wavetable_menu, "move-active",
         GTK_SCROLL_STEP_FORWARD, NULL);
     res = TRUE;
   }
