@@ -169,6 +169,10 @@ gstbt_e_beats_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
   g_object_set (src->osc_t1, "sample-rate", samplerate, NULL);
   g_object_set (src->osc_t2, "sample-rate", samplerate, NULL);
   g_object_set (src->osc_n, "sample-rate", samplerate, NULL);
+  src->volume = 0.0;
+  gstbt_envelope_reset ((GstBtEnvelope *) src->volenv_t);
+  gstbt_envelope_reset ((GstBtEnvelope *) src->volenv_n);
+  GST_DEBUG_OBJECT (src, "reset");
 }
 
 static gboolean
@@ -181,7 +185,7 @@ gstbt_e_beats_process (GstBtAudioSynth * base, GstBuffer * data,
   gboolean env_n = gstbt_envelope_is_running ((GstBtEnvelope *) src->volenv_n,
       src->osc_n->offset);
 
-  if (env_t || env_n) {
+  if (src->volume && (env_t || env_n)) {
     gint16 *d1 = (gint16 *) info->data;
     guint ct = ((GstBtAudioSynth *) src)->generate_samples_per_buffer;
     gint16 *d2 = g_new0 (gint16, ct);
@@ -238,7 +242,7 @@ gstbt_e_beats_set_property (GObject * object, guint prop_id,
       if (vol) {
         gint samplerate = ((GstBtAudioSynth *) src)->samplerate;
         src->volume = (gdouble) vol / 128.0;
-        GST_DEBUG ("trigger");
+        GST_DEBUG_OBJECT (object, "trigger -> %d", vol);
         gstbt_osc_synth_trigger (src->osc_t1);
         gstbt_osc_synth_trigger (src->osc_t2);
         gstbt_osc_synth_trigger (src->osc_n);

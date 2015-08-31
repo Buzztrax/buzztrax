@@ -55,6 +55,8 @@ struct _GstBtEnvelopeClass {
 GType gstbt_envelope_get_type (void);
 
 gboolean gstbt_envelope_is_running (GstBtEnvelope *self, guint64 offset);
+void gstbt_envelope_reset (GstBtEnvelope * self);
+
 
 G_END_DECLS
 

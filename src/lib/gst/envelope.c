@@ -67,6 +67,19 @@ gstbt_envelope_is_running (GstBtEnvelope * self, guint64 offset)
   return offset < self->length;
 }
 
+/**
+ * gstbt_envelope_reset:
+ * @self: the envelope
+ *
+ * Resets the envelope. Call this to to turn off envelopes before playing a
+ * song another time.
+ */
+void
+gstbt_envelope_reset (GstBtEnvelope * self)
+{
+  self->length = 0;
+}
+
 //-- virtual methods
 
 static void

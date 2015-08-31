@@ -356,6 +356,7 @@ gstbt_sid_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
   for (i = 0; i < NUM_VOICES; i++) {
     src->voices[i]->prev_freq = 0.0;
     src->voices[i]->want_freq = 0.0;
+    src->voices[i]->note = src->voices[i]->prev_note = GSTBT_NOTE_OFF;
   }
   for (i = 0; i < NUM_REGS; i++) {
     src->regs[i] = -1;
