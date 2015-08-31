@@ -373,12 +373,16 @@ gstbt_fluid_synth_load_patch (GstBtFluidSynth * src, const gchar * path)
 static void
 gstbt_fluid_synth_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
 {
+  GstBtFluidSynth *src = ((GstBtFluidSynth *) base);
   gint i, n = gst_caps_get_size (caps);
 
   for (i = 0; i < n; i++) {
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
         "channels", 2);
   }
+  src->cur_note_length = 0;
+  src->note = GSTBT_NOTE_OFF;
+  GST_DEBUG_OBJECT (src, "reset");
 }
 
 static gboolean

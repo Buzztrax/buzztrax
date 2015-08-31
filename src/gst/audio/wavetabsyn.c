@@ -70,6 +70,9 @@ gstbt_wave_tab_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
         "channels", src->osc->channels);
   }
+  src->note = GSTBT_NOTE_OFF;
+  gstbt_envelope_reset ((GstBtEnvelope *) src->volenv);
+  GST_DEBUG_OBJECT (src, "reset");
 }
 
 static gboolean
@@ -78,16 +81,19 @@ gstbt_wave_tab_syn_process (GstBtAudioSynth * base, GstBuffer * data,
 {
   GstBtWaveTabSyn *src = ((GstBtWaveTabSyn *) base);
 
-  if (src->osc->process) {
+  if (src->osc->process && src->note != GSTBT_NOTE_OFF &&
+      gstbt_envelope_is_running ((GstBtEnvelope *) src->volenv, src->offset)) {
     gint16 *d = (gint16 *) info->data;
     guint ct = ((GstBtAudioSynth *) src)->generate_samples_per_buffer;
     gint ch = ((GstBtAudioSynth *) src)->channels;
     guint sz = src->cycle_size;
     guint pos = src->cycle_pos;
-    guint p = 0;
+    guint p = 0;                // work pos in buffer
     guint64 offset = src->offset;
     guint64 off = src->wt_offset * (src->duration - src->cycle_size) / 0xFFFF;
     GstControlSource *volenv = (GstControlSource *) src->volenv;
+
+    GST_DEBUG_OBJECT (src, "processing %d sampels with %d channels", ct, ch);
 
     // do we have a unfinished cycle?
     if (pos > 0) {
@@ -165,7 +171,6 @@ gstbt_wave_tab_syn_set_property (GObject * object, guint prop_id,
       break;
     case PROP_NOTE:
       if ((src->note = g_value_get_enum (value))) {
-        GST_DEBUG ("new note -> '%d'", src->note);
         gdouble freq =
             gstbt_tone_conversion_translate_from_number (src->n2f, src->note);
 
