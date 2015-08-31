@@ -188,11 +188,15 @@ gstbt_wave_tab_syn_set_property (GObject * object, guint prop_id,
       break;
     case PROP_NOTE_LENGTH:
     case PROP_ATTACK:
-    case PROP_PEAK_VOLUME:
     case PROP_DECAY:
-    case PROP_SUSTAIN_VOLUME:
     case PROP_RELEASE:
       g_object_set_property ((GObject *) (src->volenv), pspec->name, value);
+      break;
+    case PROP_PEAK_VOLUME:
+      g_object_set_property ((GObject *) (src->volenv), "peak-level", value);
+      break;
+    case PROP_SUSTAIN_VOLUME:
+      g_object_set_property ((GObject *) (src->volenv), "sustain-level", value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
