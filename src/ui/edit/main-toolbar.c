@@ -545,7 +545,7 @@ on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
         data[0] = (gpointer) self;
         data[1] = (gpointer) gst_message_ref (message);
         g_mutex_lock (&self->priv->lock);
-        g_object_add_weak_pointer ((gpointer) self, (gpointer *) & data[0]);
+        g_object_add_weak_pointer ((gpointer) self, &data[0]);
         g_mutex_unlock (&self->priv->lock);
         waittime += gst_element_get_base_time (level);
         clock_id = gst_clock_new_single_shot_id (self->priv->clock, waittime);
@@ -554,6 +554,7 @@ on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
                     (gpointer) data, NULL)) != GST_CLOCK_OK) {
           GST_WARNING_OBJECT (level, "clock wait failed: %d", clk_ret);
           gst_message_unref (message);
+          g_object_remove_weak_pointer ((gpointer) self, &data[0]);
           g_slice_free1 (2 * sizeof (gconstpointer), data);
         }
         gst_clock_id_unref (clock_id);
