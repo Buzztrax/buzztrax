@@ -89,6 +89,7 @@
   - user attaches LFO to Filter-CutOff, in the pattern he can now edit:
     center-value, depth, shape, freq (controlable values of the control-source)
   - user attaches an Arpeggiator to a Note property
+  - extra controllable parameter on pattern-control-source for transpose
 - we setup extra controller-functions to scale and shift the value (or
   introduce a special binding for that)
 - we need a controlbinding-router so that on pattern basis we can select which
