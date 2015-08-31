@@ -102,7 +102,7 @@ gstbt_envelope_ad_setup (GstBtEnvelopeAD * self, gint samplerate)
   /* samplerate will be one second */
   attack = samplerate * attack_time;
   decay = samplerate * self->decay;
-  g_object_set (self, "length", decay, NULL);
+  ((GstBtEnvelope *) self)->length = decay;
 
   /* configure envelope */
   gst_timed_value_control_source_unset_all (cs);

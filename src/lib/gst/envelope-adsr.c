@@ -105,7 +105,7 @@ gstbt_envelope_adsr_setup (GstBtEnvelopeADSR * self, gint samplerate,
   decay = attack + samplerate * (self->decay * fc);
   sustain = samplerate * note_time;
   release = sustain + samplerate * self->release;
-  g_object_set (self, "length", release, NULL);
+  ((GstBtEnvelope *) self)->length = release;
 
   /* configure envelope */
   gst_timed_value_control_source_unset_all (cs);
