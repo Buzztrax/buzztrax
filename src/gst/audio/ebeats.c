@@ -427,6 +427,7 @@ gstbt_e_beats_dispose (GObject * object)
   g_clear_object (&src->fltenv);
   g_clear_object (&src->osc_t1);
   g_clear_object (&src->osc_t2);
+  g_clear_object (&src->mix);
   g_clear_object (&src->osc_n);
   g_clear_object (&src->filter);
 
