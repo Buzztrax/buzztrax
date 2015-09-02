@@ -264,6 +264,21 @@ grab_main_window (const BtMainPageSequence * self)
   }
 }
 
+static gint
+get_avg_pixels_per_char (GtkWidget * widget)
+{
+  PangoContext *context = gtk_widget_get_pango_context (widget);
+  PangoFontMetrics *metrics = pango_context_get_metrics (context,
+      pango_context_get_font_description (context),
+      pango_context_get_language (context));
+  gint char_width = pango_font_metrics_get_approximate_char_width (metrics);
+  gint digit_width = pango_font_metrics_get_approximate_digit_width (metrics);
+
+  pango_font_metrics_unref (metrics);
+
+  return ceil ((MAX (char_width, digit_width) + PANGO_SCALE - 1) / PANGO_SCALE);
+}
+
 //-- tree filter func
 
 static gboolean
@@ -1487,16 +1502,7 @@ sequence_table_refresh_columns (const BtMainPageSequence * self,
       // instead of using the hard-coded 150 pixels, that still is not good
       // with gtk > 3.12 we also need to set "max-width-chars"
       // Despite the docs, even using "elipsize" does not affect the min alloc
-      PangoContext *context = gtk_widget_get_pango_context (label);
-      PangoFontMetrics *metrics = pango_context_get_metrics (context,
-          pango_context_get_font_description (context),
-          pango_context_get_language (context));
-
-      gint char_width = pango_font_metrics_get_approximate_char_width (metrics);
-      gint digit_width =
-          pango_font_metrics_get_approximate_digit_width (metrics);
-      gint char_pixels = ceil ((MAX (char_width,
-                  digit_width) + PANGO_SCALE - 1) / PANGO_SCALE);
+      gint char_pixels = get_avg_pixels_per_char (label);
       gint num_chars = SEQUENCE_CELL_WIDTH / (char_pixels + 1);
       GST_DEBUG ("setting width to %d chars", num_chars);
       g_object_set (label, "has-frame", FALSE, "inner-border", 0, "width-chars",

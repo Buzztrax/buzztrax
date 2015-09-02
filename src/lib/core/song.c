@@ -416,6 +416,7 @@ bt_song_send_toc (const BtSong * const self)
 
   gst_element_send_event (GST_ELEMENT (self->priv->bin),
       gst_event_new_toc (toc, FALSE));
+  gst_toc_unref (toc);
 }
 
 #ifndef GST_BUG_733031

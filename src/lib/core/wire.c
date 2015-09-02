@@ -243,9 +243,10 @@ bt_wire_make_internal_element (const BtWire * const self, const BtWirePart part,
     if (src_pn[part][0] != '\0') {
       self->priv->src_pads[part] = gst_element_get_static_pad (m, src_pn[part]);
     } else {
-      self->priv->src_pads[part] = gst_element_request_pad (m,
-          bt_gst_element_factory_get_pad_template (f, &src_pn[part][1]), NULL,
-          NULL);
+      GstPadTemplate *t =
+          bt_gst_element_factory_get_pad_template (f, &src_pn[part][1]);
+      self->priv->src_pads[part] = gst_element_request_pad (m, t, NULL, NULL);
+      gst_object_unref (t);
     }
   }
   if (sink_pn[part]) {

@@ -268,6 +268,7 @@ bt_pattern_properties_dialog_apply (const BtPatternPropertiesDialog * self)
     GST_DEBUG ("set name from '%s' -> '%s'", self->priv->name, name);
     g_object_set (self->priv->pattern, "name", self->priv->name, NULL);
   }
+  g_free (name);
   if (self->priv->length != length) {
     GST_DEBUG ("set length from %lu -> %lu", self->priv->length, length);
     g_object_set (self->priv->pattern, "length", self->priv->length, NULL);
