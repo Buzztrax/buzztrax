@@ -436,6 +436,9 @@ class-coverage::
 
 if USE_VALGRIND
 
+# extra env-vars
+# LIBOVERLAY_SCROLLBAR=0
+
 VALPREFIX = \
 	CK_FORK=no CK_DEFAULT_TIMEOUT=500 \
 	LANG=C XDG_CACHE_HOME=$(abs_builddir) \
@@ -446,7 +449,8 @@ VALSUPP = @VALGRIND@/lib/valgrind
 VALSUPPRESSIONDEF = --suppressions=$(VALSUPP)/default.supp
 VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztrax.supp \
 	--suppressions=$(top_builddir)/gst.supp \
-	--suppressions=$(top_builddir)/gtk.supp
+	--suppressions=$(top_builddir)/gtk.supp \
+	--suppressions=$(top_builddir)/clutter.supp
 VALSUPPRESSION = $(VALSUPPRESSIONDEF) $(VALSUPPRESSIONOWN)
 VALOPTIONS = --trace-children=yes --num-callers=30 --read-var-info=yes \
   --tool=memcheck --leak-check=full --leak-resolution=high --track-origins=yes
