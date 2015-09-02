@@ -37,7 +37,6 @@
       * for hand-witten songs, we need to initially fix the delta
       * for binary formats
         * we cannot really diff
-        * we'd need a hack to handle the 'change-dts'
       xmllint --c14n11 --format tests/songs/buzz1.xml >/tmp/bt-in.xml
       ./buzztrax-cmd -c convert -i tests/songs/buzz1.xml -o /tmp/bt-tmp.xml
       xmllint --c14n11 --format /tmp/bt-tmp.xml >/tmp/bt-out.xml

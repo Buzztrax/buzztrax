@@ -79,7 +79,7 @@ to make it dead easy writing new synths.
   phase is 'constant'. we can map the phase through a function. this creates
   more overtones. this could be a curve function that we also (like) to use on
   the envelope-d, so that the curve-param is editable. A curve=0.5 would be 
-  linear.
+  linear. (see e.g. http://www.electricdruid.net/index.php?page=info.pdsynthesis)
 - add a sync/cycle/trigger property
   - set: gstbt_osc_synth_trigger()
   - get:
@@ -107,8 +107,19 @@ others manually. We can use GBinding (since glib-2.26) for the proxy properties.
  'trigger' property
 - all synths can have a list of 'synth-components' and use that to configure,
   reset and release them
-- components should implement propertymeta to supply a describe function for
-  params
+- components should implement propertymeta:
+  - to supply a describe function for params
+- preview images:
+  - add api to supply a 'preview' image (e.g. the wave-form of an osc, or the
+    transfer-function of a filter)
+    - for combine it might be tricky to get the inputs
+    - for the filter, we'd like to edit the cut-off+reso in the image
+  - in the UI we'd like to show the image per component
+    - osc: the images changes when wave-form, shape, ... changes
+    - filter: the image changes when filter, cut-off and resonance changes
+- could we also generate a block diagramm and request it from the component
+  interface
+  - we need a way to draw the preview-images into it
 
 ## open questions
 - do we need to pass the data fmt and channels? right now all components are
