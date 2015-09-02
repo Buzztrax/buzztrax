@@ -556,6 +556,7 @@ bt_wire_canvas_item_constructed (GObject * object)
 {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (object);
   gchar *prop;
+  ClutterColor *meter_bg;
 
   if (G_OBJECT_CLASS (bt_wire_canvas_item_parent_class)->constructed)
     G_OBJECT_CLASS (bt_wire_canvas_item_parent_class)->constructed (object);
@@ -598,8 +599,9 @@ bt_wire_canvas_item_constructed (GObject * object)
 
 
   // the meters
+  meter_bg = clutter_color_new (0x5f, 0x5f, 0x5f, 0xff);
   self->priv->vol_level = g_object_new (CLUTTER_TYPE_ACTOR,
-      "background-color", clutter_color_new (0x5f, 0x5f, 0x5f, 0xff),
+      "background-color", meter_bg,
       "x", WIRE_PAD_METER_BASE, "y", WIRE_PAD_METER_VOL,
       "width", 0.0, "height", WIRE_PAD_METER_HEIGHT, NULL);
   clutter_actor_add_child (self->priv->pad, self->priv->vol_level);
@@ -607,12 +609,13 @@ bt_wire_canvas_item_constructed (GObject * object)
 
   if (self->priv->wire_pan) {
     self->priv->pan_pos = g_object_new (CLUTTER_TYPE_ACTOR,
-        "background-color", clutter_color_new (0x5f, 0x5f, 0x5f, 0xff),
+        "background-color", meter_bg,
         "x", WIRE_PAD_METER_BASE, "y", WIRE_PAD_METER_PAN,
         "width", 0.0, "height", WIRE_PAD_METER_HEIGHT, NULL);
     clutter_actor_add_child (self->priv->pad, self->priv->pan_pos);
     on_pan_changed (self->priv->wire_pan, NULL, (gpointer) self);
   }
+  clutter_color_free (meter_bg);
   // the wire line
   self->priv->canvas = clutter_canvas_new ();
   clutter_actor_set_content ((ClutterActor *) self, self->priv->canvas);

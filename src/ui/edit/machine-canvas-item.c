@@ -1069,6 +1069,7 @@ bt_machine_canvas_item_constructed (GObject * object)
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (object);
   gchar *id, *prop;
   PangoAttrList *pango_attrs;
+  ClutterColor *meter_bg;
 
   if (G_OBJECT_CLASS (bt_machine_canvas_item_parent_class)->constructed)
     G_OBJECT_CLASS (bt_machine_canvas_item_parent_class)->constructed (object);
@@ -1114,22 +1115,23 @@ bt_machine_canvas_item_constructed (GObject * object)
       (MACHINE_W - MACHINE_LABEL_WIDTH) / 2.0,
       MACHINE_LABEL_BASE - (MACHINE_LABEL_HEIGHT / 2.0));
 
-  // the input volume level meter
+  // the meters
+  meter_bg = clutter_color_new (0x5f, 0x5f, 0x5f, 0xff);
   //if(!BT_IS_SOURCE_MACHINE(self->priv->machine)) {
   self->priv->input_meter = g_object_new (CLUTTER_TYPE_ACTOR,
-      "background-color", clutter_color_new (0x5f, 0x5f, 0x5f, 0xff),
+      "background-color", meter_bg,
       "x", MACHINE_METER_LEFT, "y", MACHINE_METER_BASE,
       "width", MACHINE_METER_WIDTH, "height", 0.0, NULL);
   clutter_actor_add_child ((ClutterActor *) self, self->priv->input_meter);
   //}
-  // the output volume level meter
   //if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
   self->priv->output_meter = g_object_new (CLUTTER_TYPE_ACTOR,
-      "background-color", clutter_color_new (0x5f, 0x5f, 0x5f, 0xff),
+      "background-color", meter_bg,
       "x", MACHINE_METER_RIGHT, "y", MACHINE_METER_BASE,
       "width", MACHINE_METER_WIDTH, "height", 0.0, NULL);
   clutter_actor_add_child ((ClutterActor *) self, self->priv->output_meter);
   //}
+  clutter_color_free (meter_bg);
 
   g_free (id);
   if (!GST_OBJECT_PARENT ((GstObject *) self->priv->machine)) {
