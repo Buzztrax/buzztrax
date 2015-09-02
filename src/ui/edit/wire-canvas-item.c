@@ -789,6 +789,8 @@ bt_wire_canvas_item_dispose (GObject * object)
       on_canvas_style_updated, self);
   GST_DEBUG ("  signals disconected");
 
+  g_object_unref (self->priv->pad_image);
+
   GST_INFO ("releasing the wire %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self->priv->wire));
   g_object_try_unref (self->priv->wire);

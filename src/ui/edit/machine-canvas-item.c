@@ -1310,6 +1310,8 @@ bt_machine_canvas_item_dispose (GObject * object)
 
   GST_DEBUG ("  signal disconected");
 
+  g_object_unref (self->priv->image);
+
   GST_INFO ("release the machine %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self->priv->machine));
 

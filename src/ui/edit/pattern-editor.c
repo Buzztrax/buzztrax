@@ -609,7 +609,7 @@ bt_pattern_editor_realize (GtkWidget * widget)
   GdkWindowAttr attributes;
   GtkStyleContext *style_ctx;
   gint attributes_mask;
-  const PangoFontDescription *style_pfd;
+  PangoFontDescription *style_pfd;
   PangoFontDescription *pfd;
   PangoContext *pc;
   PangoFontMetrics *pfm;
@@ -678,6 +678,7 @@ bt_pattern_editor_realize (GtkWidget * widget)
     pango_font_description_set_size (pfd,
         pango_font_description_get_size (style_pfd));
   }
+  pango_font_description_free (style_pfd);
   pango_context_load_font (pc, pfd);
 
   pfm = pango_context_get_metrics (pc, pfd, NULL);
