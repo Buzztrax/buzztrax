@@ -124,6 +124,7 @@ gstbt_e_beats_get_type
 <TITLE>GstBtEnvelope</TITLE>
 GstBtEnvelope
 gstbt_envelope_is_running
+gstbt_envelope_reset
 <SUBSECTION Standard>
 GSTBT_ENVELOPE
 GSTBT_ENVELOPE_CLASS
