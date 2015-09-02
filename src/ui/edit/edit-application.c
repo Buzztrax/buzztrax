@@ -506,6 +506,9 @@ bt_edit_application_save_song (const BtEditApplication * self,
     g_signal_connect (saver, "notify::status",
         G_CALLBACK (on_songio_status_changed), (gpointer) self);
 
+    // update the time-stamp
+    bt_child_proxy_set (self->priv->song, "song-info::change-dts", NULL, NULL);
+
     bt_child_proxy_get (self->priv->song, "song-info::file-name",
         &old_file_name, NULL);
 

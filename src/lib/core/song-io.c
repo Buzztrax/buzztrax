@@ -497,9 +497,6 @@ bt_song_io_save (BtSongIO const *self, const BtSong * const song, GError ** err)
   }
   g_object_set ((gpointer) self, "status", status, NULL);
 
-  // update the time-stamp
-  bt_child_proxy_set ((gpointer) song, "song-info::change-dts", NULL, NULL);
-
   g_object_set ((gpointer) song, "song-io", self, NULL);
   if ((result = BT_SONG_IO_GET_CLASS (self)->save (self, song, err))) {
     bt_song_io_update_filename (BT_SONG_IO (self), song);
