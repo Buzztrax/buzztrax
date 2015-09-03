@@ -373,6 +373,7 @@ on_machine_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
           new_skip = 1;         // below min level
           peak = 1.0;
         }
+        peak = 1.0 - peak;      // invert since it was -db
         // skip *updates* if we are still below LOW_VUMETER_VAL or beyond 0.0
         if (level == self->priv->output_level) {
           meter = self->priv->output_meter;
