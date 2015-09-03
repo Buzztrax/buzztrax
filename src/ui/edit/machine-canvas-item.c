@@ -1210,12 +1210,14 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
           BT_MAIN_PAGE_MACHINES (g_value_get_object (value));
       g_object_try_weak_ref (self->priv->main_page_machines);
       break;
-    case MACHINE_CANVAS_ITEM_MACHINE:
-      g_object_try_unref (self->priv->machine);
-      self->priv->machine = BT_MACHINE (g_value_dup_object (value));
-      if (self->priv->machine) {
+    case MACHINE_CANVAS_ITEM_MACHINE:{
+      BtMachine *new_machine = (BtMachine *) g_value_get_object (value);
+      if (new_machine != self->priv->machine) {
         GstElement *element;
         GstBin *bin;
+
+        g_object_try_unref (self->priv->machine);
+        self->priv->machine = g_object_ref (new_machine);
 
         GST_INFO ("set the machine %" G_OBJECT_REF_COUNT_FMT,
             G_OBJECT_LOG_REF_COUNT (self->priv->machine));
@@ -1245,6 +1247,7 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
 
         if (!BT_IS_SINK_MACHINE (self->priv->machine)) {
           if (bt_machine_enable_output_post_level (self->priv->machine)) {
+            g_object_try_weak_unref (self->priv->output_level);
             g_object_get (self->priv->machine, "output-post-level",
                 &self->priv->output_level, NULL);
             g_object_try_weak_ref (self->priv->output_level);
@@ -1255,6 +1258,7 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
         }
         if (!BT_IS_SOURCE_MACHINE (self->priv->machine)) {
           if (bt_machine_enable_input_pre_level (self->priv->machine)) {
+            g_object_try_weak_unref (self->priv->input_level);
             g_object_get (self->priv->machine, "input-pre-level",
                 &self->priv->input_level, NULL);
             g_object_try_weak_ref (self->priv->input_level);
@@ -1265,6 +1269,7 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
         }
       }
       break;
+    }
     case MACHINE_CANVAS_ITEM_ZOOM:
       self->priv->zoom = g_value_get_double (value);
       GST_DEBUG ("set the zoom for machine_canvas_item: %f", self->priv->zoom);

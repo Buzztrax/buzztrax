@@ -641,6 +641,7 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
     if ((element = bt_sink_bin_make_and_configure_encodebin (profile))) {
       list = g_list_append (list, element);
     }
+    g_object_unref (profile);
   } else {
     GST_DEBUG ("no profile, do raw recording");
     // encodebin starts with a queue already
@@ -1053,6 +1054,7 @@ bt_sink_bin_is_record_format_supported (BtSinkBinRecordFormat format)
     } else {
       format_states[format] = RECORD_FORMAT_STATE_MISSES_ELEMENTS;
     }
+    g_object_unref (profile);
   }
   return format_states[format] > RECORD_FORMAT_STATE_NOT_CHECKED;
 }
