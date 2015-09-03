@@ -193,7 +193,9 @@ bt_render_dialog_record (const BtRenderDialog * self)
 
   GST_INFO ("recording to '%s'", self->priv->file_name);
   g_object_set (self->priv->sink_bin, "record-file-name", self->priv->file_name,
-      NULL);
+      // TODO(ensonic): BT_SINK_BIN_MODE_PLAY_AND_RECORD hangs
+      "mode", BT_SINK_BIN_MODE_RECORD,
+      "record-format", self->priv->format, NULL);
   info = g_strdup_printf (_("Recording to: %s"), self->priv->file_name);
   gtk_label_set_text (self->priv->info, info);
   g_free (info);
@@ -230,11 +232,6 @@ bt_render_dialog_record_init (const BtRenderDialog * self)
   if ((machine = bt_setup_get_machine_by_type (setup, BT_TYPE_SINK_MACHINE))) {
     g_object_get (machine, "machine", &self->priv->sink_bin, "adder-convert",
         &self->priv->convert, NULL);
-
-    g_object_set (self->priv->sink_bin, "mode", BT_SINK_BIN_MODE_RECORD,
-        // TODO(ensonic): this hangs :/
-        //"mode",BT_SINK_BIN_MODE_PLAY_AND_RECORD,
-        "record-format", self->priv->format, NULL);
 
     /* TODO(ensonic): configure dithering/noise-shaping
      * - should sink-bin do it so that we get this also when recording from
