@@ -58,7 +58,7 @@ test_create_obj (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-// cp /tmp/lt-bt_gst_combine*.svg docs/reference/bt-gst/images/
+// cp /tmp/lt-bt_gst_combine_*.svg docs/reference/bt-gst/images/
 static void
 test_combine_modes (BT_TEST_ARGS)
 {

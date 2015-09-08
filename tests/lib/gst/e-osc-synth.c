@@ -57,7 +57,7 @@ test_create_obj (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-// cp /tmp/lt-bt_gst_osc-synth*.svg docs/reference/bt-gst/images/
+// cp /tmp/lt-bt_gst_osc-synth_*.svg docs/reference/bt-gst/images/
 static void
 test_waves_not_silent (BT_TEST_ARGS)
 {

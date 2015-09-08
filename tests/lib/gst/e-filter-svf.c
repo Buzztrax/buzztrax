@@ -61,7 +61,7 @@ test_create_obj (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-// cp /tmp/lt-bt_gst_filter-svf*.svg docs/reference/bt-gst/images/
+// cp /tmp/lt-bt_gst_filter-svf_*.svg docs/reference/bt-gst/images/
 static void
 test_filter (BT_TEST_ARGS)
 {
