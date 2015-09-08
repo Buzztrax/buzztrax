@@ -22,7 +22,11 @@
  * @include: libgstbuzztrax/envelope-adsr.h
  * @short_description: attack-decay-sustain-release envelope generator
  *
- * Classic attack-decay-sustain-release envelope.
+ * Classic attack-decay-sustain-release envelope. The #GstBtEnvelopeADSR:length
+ * determines the note-length. The #GstBtEnvelopeADSR:release time adds to the
+ * overall envelope time.
+ *
+ *![sample envelope](lt-bt_gst_envelope-adsr_def.svg)
  */
 
 #ifdef HAVE_CONFIG_H

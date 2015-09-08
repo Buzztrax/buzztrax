@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"  standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg 
+ width="200" height="160" 
+ viewBox="0 0 200 160"
+ xmlns="http://www.w3.org/2000/svg"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+>
+
+<title>Gnuplot</title>
+<desc>Produced by GNUPLOT 4.6 patchlevel 4 </desc>
+
+<g id="gnuplot_canvas">
+
+<rect x="0" y="0" width="200" height="160" fill="none"/>
+<defs>
+
+	<circle id='gpDot' r='0.5' stroke-width='0.5'/>
+	<path id='gpPt0' stroke-width='0.444' stroke='currentColor' d='M-1,0 h2 M0,-1 v2'/>
+	<path id='gpPt1' stroke-width='0.444' stroke='currentColor' d='M-1,-1 L1,1 M1,-1 L-1,1'/>
+	<path id='gpPt2' stroke-width='0.444' stroke='currentColor' d='M-1,0 L1,0 M0,-1 L0,1 M-1,-1 L1,1 M-1,1 L1,-1'/>
+	<rect id='gpPt3' stroke-width='0.444' stroke='currentColor' x='-1' y='-1' width='2' height='2'/>
+	<rect id='gpPt4' stroke-width='0.444' stroke='currentColor' fill='currentColor' x='-1' y='-1' width='2' height='2'/>
+	<circle id='gpPt5' stroke-width='0.444' stroke='currentColor' cx='0' cy='0' r='1'/>
+	<use xlink:href='#gpPt5' id='gpPt6' fill='currentColor' stroke='none'/>
+	<path id='gpPt7' stroke-width='0.444' stroke='currentColor' d='M0,-1.33 L-1.33,0.67 L1.33,0.67 z'/>
+	<use xlink:href='#gpPt7' id='gpPt8' fill='currentColor' stroke='none'/>
+	<use xlink:href='#gpPt7' id='gpPt9' stroke='currentColor' transform='rotate(180)'/>
+	<use xlink:href='#gpPt9' id='gpPt10' fill='currentColor' stroke='none'/>
+	<use xlink:href='#gpPt3' id='gpPt11' stroke='currentColor' transform='rotate(45)'/>
+	<use xlink:href='#gpPt11' id='gpPt12' fill='currentColor' stroke='none'/>
+</defs>
+<g style="fill:none; color:white; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+</g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M26.6,124.0 L187.6,124.0  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M26.6,124.0 L31.1,124.0 M187.6,124.0 L183.1,124.0  h0.01'/>	<g transform="translate(22.5,126.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
+		<text> 0</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M26.6,100.9 L187.6,100.9  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M26.6,100.9 L31.1,100.9 M187.6,100.9 L183.1,100.9  h0.01'/>	<g transform="translate(22.5,103.1)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
+		<text> 0.2</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M26.6,77.7 L187.6,77.7  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M26.6,77.7 L31.1,77.7 M187.6,77.7 L183.1,77.7  h0.01'/>	<g transform="translate(22.5,79.9)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
+		<text> 0.4</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M26.6,54.6 L187.6,54.6  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M26.6,54.6 L31.1,54.6 M187.6,54.6 L183.1,54.6  h0.01'/>	<g transform="translate(22.5,56.8)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
+		<text> 0.6</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M26.6,31.4 L187.6,31.4  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M26.6,31.4 L31.1,31.4 M187.6,31.4 L183.1,31.4  h0.01'/>	<g transform="translate(22.5,33.6)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
+		<text> 0.8</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M26.6,8.3 L187.6,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M26.6,8.3 L31.1,8.3 M187.6,8.3 L183.1,8.3  h0.01'/>	<g transform="translate(22.5,10.5)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
+		<text> 1</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M26.6,124.0 L26.6,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M26.6,124.0 L26.6,119.5 M26.6,8.3 L26.6,12.8  h0.01'/>	<g transform="translate(26.6,135.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:middle">
+		<text> 0</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M42.7,124.0 L42.7,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M42.7,124.0 L42.7,119.5 M42.7,8.3 L42.7,12.8  h0.01'/>	<g transform="translate(42.7,135.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:middle">
+		<text> 20</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M58.8,124.0 L58.8,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M58.8,124.0 L58.8,119.5 M58.8,8.3 L58.8,12.8  h0.01'/>	<g transform="translate(58.8,135.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:middle">
+		<text> 40</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M74.9,124.0 L74.9,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M74.9,124.0 L74.9,119.5 M74.9,8.3 L74.9,12.8  h0.01'/>	<g transform="translate(74.9,135.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:middle">
+		<text> 60</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M91.0,124.0 L91.0,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M91.0,124.0 L91.0,119.5 M91.0,8.3 L91.0,12.8  h0.01'/>	<g transform="translate(91.0,135.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:middle">
+		<text> 80</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M107.1,124.0 L107.1,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M107.1,124.0 L107.1,119.5 M107.1,8.3 L107.1,12.8  h0.01'/>	<g transform="translate(107.1,135.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:middle">
+		<text> 100</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M123.2,124.0 L123.2,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M123.2,124.0 L123.2,119.5 M123.2,8.3 L123.2,12.8  h0.01'/>	<g transform="translate(123.2,135.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:middle">
+		<text> 120</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M139.3,124.0 L139.3,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M139.3,124.0 L139.3,119.5 M139.3,8.3 L139.3,12.8  h0.01'/>	<g transform="translate(139.3,135.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:middle">
+		<text> 140</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M155.4,124.0 L155.4,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M155.4,124.0 L155.4,119.5 M155.4,8.3 L155.4,12.8  h0.01'/>	<g transform="translate(155.4,135.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:middle">
+		<text> 160</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M171.5,124.0 L171.5,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M171.5,124.0 L171.5,119.5 M171.5,8.3 L171.5,12.8  h0.01'/>	<g transform="translate(171.5,135.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:middle">
+		<text> 180</text>
+	</g>
+</g>
+<g style="fill:none; color:gray; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='gray' stroke-dasharray=' 2,4' class="gridline"  d='M187.6,124.0 L187.6,8.3  h0.01'/></g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M187.6,124.0 L187.6,119.5 M187.6,8.3 L187.6,12.8  h0.01'/>	<g transform="translate(187.6,135.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:middle">
+		<text> 200</text>
+	</g>
+	<path stroke='black'  d='M26.6,8.3 L26.6,124.0 L187.6,124.0 L187.6,8.3 L26.6,8.3 Z  h0.01'/></g>
+	<g id="gnuplot_plot_1" ><title>gnuplot_plot_1</title>
+<g style="fill:none; color:red; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<g transform="translate(98.7,153.2)" style="stroke:none; fill:black; font-family:Arial; font-size:6.00pt; text-anchor:end">
+		<text>def</text>
+	</g>
+	<path  d='M102.8,151.0 L123.7,151.0 M26.6,124.0 L27.4,112.4 L28.2,100.9 L29.0,89.3 L29.8,77.7 L30.6,66.1 
+		L31.4,54.6 L32.2,43.0 L33.0,31.4 L33.8,19.9 L34.7,8.3 L35.5,9.7 L36.3,11.1 L37.1,12.5 
+		L37.9,13.9 L38.7,15.2 L39.5,16.6 L40.3,18.0 L41.1,19.4 L41.9,20.8 L42.7,22.2 L43.5,23.6 
+		L44.3,25.0 L45.1,26.3 L45.9,27.7 L46.7,29.1 L47.5,30.5 L48.3,31.9 L49.1,33.3 L49.9,34.7 
+		L50.8,36.1 L51.6,37.5 L52.4,38.8 L53.2,40.2 L54.0,41.6 L54.8,43.0 L55.6,44.4 L56.4,45.8 
+		L57.2,47.2 L58.0,48.6 L58.8,50.0 L59.6,51.3 L60.4,52.7 L61.2,54.1 L62.0,55.5 L62.8,56.9 
+		L63.6,58.3 L64.4,59.7 L65.2,61.1 L66.0,62.4 L66.9,63.8 L67.7,65.2 L68.5,66.6 L69.3,68.0 
+		L70.1,69.4 L70.9,70.8 L71.7,72.2 L72.5,73.6 L73.3,74.9 L74.1,76.3 L74.9,77.7 L75.7,77.7 
+		L76.5,77.7 L77.3,77.7 L78.1,77.7 L78.9,77.7 L79.7,77.7 L80.5,77.7 L81.3,77.7 L82.1,77.7 
+		L83.0,77.7 L83.8,77.7 L84.6,77.7 L85.4,77.7 L86.2,77.7 L87.0,77.7 L87.8,77.7 L88.6,77.7 
+		L89.4,77.7 L90.2,77.7 L91.0,77.7 L91.8,77.7 L92.6,77.7 L93.4,77.7 L94.2,77.7 L95.0,77.7 
+		L95.8,77.7 L96.6,77.7 L97.4,77.7 L98.2,77.7 L99.1,77.7 L99.9,77.7 L100.7,77.7 L101.5,77.7 
+		L102.3,77.7 L103.1,77.7 L103.9,77.7 L104.7,77.7 L105.5,77.7 L106.3,77.7 L107.1,77.7 L107.9,77.7 
+		L108.7,77.7 L109.5,77.7 L110.3,77.7 L111.1,77.7 L111.9,77.7 L112.7,77.7 L113.5,77.7 L114.3,77.7 
+		L115.2,77.7 L116.0,77.7 L116.8,77.7 L117.6,77.7 L118.4,77.7 L119.2,77.7 L120.0,77.7 L120.8,77.7 
+		L121.6,77.7 L122.4,77.7 L123.2,77.7 L124.0,77.7 L124.8,77.7 L125.6,77.7 L126.4,77.7 L127.2,77.7 
+		L128.0,77.7 L128.8,77.7 L129.6,77.7 L130.4,77.7 L131.3,77.7 L132.1,77.7 L132.9,77.7 L133.7,77.7 
+		L134.5,77.7 L135.3,77.7 L136.1,77.7 L136.9,77.7 L137.7,77.7 L138.5,77.7 L139.3,77.7 L140.1,77.7 
+		L140.9,77.7 L141.7,77.7 L142.5,77.7 L143.3,77.7 L144.1,77.7 L144.9,77.7 L145.7,77.7 L146.5,77.7 
+		L147.4,77.7 L148.2,78.6 L149.0,79.6 L149.8,80.5 L150.6,81.4 L151.4,82.3 L152.2,83.3 L153.0,84.2 
+		L153.8,85.1 L154.6,86.1 L155.4,87.0 L156.2,87.9 L157.0,88.8 L157.8,89.8 L158.6,90.7 L159.4,91.6 
+		L160.2,92.5 L161.0,93.5 L161.8,94.4 L162.6,95.3 L163.5,96.2 L164.3,97.2 L165.1,98.1 L165.9,99.0 
+		L166.7,99.9 L167.5,100.9 L168.3,101.8 L169.1,102.7 L169.9,103.6 L170.7,104.6 L171.5,105.5 L172.3,106.4 
+		L173.1,107.3 L173.9,108.3 L174.7,109.2 L175.5,110.1 L176.3,111.0 L177.1,112.0 L177.9,112.9 L178.7,113.8 
+		L179.6,114.7 L180.4,115.7 L181.2,116.6 L182.0,117.5 L182.8,118.4 L183.6,119.4 L184.4,120.3 L185.2,121.2 
+		L186.0,122.1 L186.8,123.1  h0.01'/></g>
+	</g>
+<g style="fill:none; color:black; stroke:currentColor; stroke-width:1.00; stroke-linecap:butt; stroke-linejoin:miter">
+	<path stroke='black'  d='M26.6,8.3 L26.6,124.0 L187.6,124.0 L187.6,8.3 L26.6,8.3 Z  h0.01'/></g>
+</g>
+</svg>
+
