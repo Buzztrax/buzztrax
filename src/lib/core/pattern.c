@@ -181,6 +181,33 @@ bt_pattern_resize_data_voices (const BtPattern * const self,
   }
 }
 
+typedef void (*DoValueGroupColumns) (const BtValueGroup * const self,
+    const gulong start_tick, const gulong end_tick);
+/*
+ * bt_pattern_apply:
+ *
+ */
+static void
+bt_pattern_apply (const BtPattern * const self, const gulong start_tick,
+    const gulong end_tick, DoValueGroupColumns do_value_group_columns)
+{
+  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, TRUE);
+  bt_value_group_clear_columns (self->priv->global_value_group, start_tick,
+      end_tick);
+  const gulong voices = self->priv->voices;
+  gulong j;
+  for (j = 0; j < voices; j++) {
+    do_value_group_columns (self->priv->voice_value_groups[j], start_tick,
+        end_tick);
+  }
+  GList *node;
+  for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
+    do_value_group_columns (g_hash_table_lookup (self->priv->wire_value_groups,
+            node->data), start_tick, end_tick);
+  }
+  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
+}
+
 //-- signal handler
 
 static void
@@ -814,21 +841,7 @@ bt_pattern_clear_columns (const BtPattern * const self, const gulong start_tick,
 {
   g_return_if_fail (BT_IS_PATTERN (self));
 
-  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, TRUE);
-  bt_value_group_clear_columns (self->priv->global_value_group, start_tick,
-      end_tick);
-  const gulong voices = self->priv->voices;
-  gulong j;
-  for (j = 0; j < voices; j++) {
-    bt_value_group_clear_columns (self->priv->voice_value_groups[j], start_tick,
-        end_tick);
-  }
-  GList *node;
-  for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_clear_columns (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), start_tick, end_tick);
-  }
-  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
+  bt_pattern_apply (self, start_tick, end_tick, bt_value_group_clear_columns);
 }
 
 /**
@@ -847,20 +860,7 @@ bt_pattern_blend_columns (const BtPattern * const self, const gulong start_tick,
 {
   g_return_if_fail (BT_IS_PATTERN (self));
 
-  bt_value_group_blend_columns (self->priv->global_value_group, start_tick,
-      end_tick);
-  const gulong voices = self->priv->voices;
-  gulong j;
-  for (j = 0; j < voices; j++) {
-    bt_value_group_blend_columns (self->priv->voice_value_groups[j], start_tick,
-        end_tick);
-  }
-  GList *node;
-  for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_blend_columns (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), start_tick, end_tick);
-  }
-  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
+  bt_pattern_apply (self, start_tick, end_tick, bt_value_group_blend_columns);
 }
 
 /**
@@ -879,20 +879,7 @@ bt_pattern_flip_columns (const BtPattern * const self, const gulong start_tick,
 {
   g_return_if_fail (BT_IS_PATTERN (self));
 
-  bt_value_group_flip_columns (self->priv->global_value_group, start_tick,
-      end_tick);
-  const gulong voices = self->priv->voices;
-  gulong j;
-  for (j = 0; j < voices; j++) {
-    bt_value_group_flip_columns (self->priv->voice_value_groups[j], start_tick,
-        end_tick);
-  }
-  GList *node;
-  for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_flip_columns (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), start_tick, end_tick);
-  }
-  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
+  bt_pattern_apply (self, start_tick, end_tick, bt_value_group_flip_columns);
 }
 
 /**
@@ -911,20 +898,8 @@ bt_pattern_randomize_columns (const BtPattern * const self,
 {
   g_return_if_fail (BT_IS_PATTERN (self));
 
-  bt_value_group_randomize_columns (self->priv->global_value_group, start_tick,
-      end_tick);
-  const gulong voices = self->priv->voices;
-  gulong j;
-  for (j = 0; j < voices; j++) {
-    bt_value_group_randomize_columns (self->priv->voice_value_groups[j],
-        start_tick, end_tick);
-  }
-  GList *node;
-  for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_randomize_columns (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), start_tick, end_tick);
-  }
-  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
+  bt_pattern_apply (self, start_tick, end_tick,
+      bt_value_group_randomize_columns);
 }
 
 /**
@@ -944,20 +919,8 @@ bt_pattern_range_randomize_columns (const BtPattern * const self,
 {
   g_return_if_fail (BT_IS_PATTERN (self));
 
-  bt_value_group_range_randomize_columns (self->priv->global_value_group,
-      start_tick, end_tick);
-  const gulong voices = self->priv->voices;
-  gulong j;
-  for (j = 0; j < voices; j++) {
-    bt_value_group_range_randomize_columns (self->priv->voice_value_groups[j],
-        start_tick, end_tick);
-  }
-  GList *node;
-  for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    bt_value_group_range_randomize_columns (g_hash_table_lookup (self->priv->
-            wire_value_groups, node->data), start_tick, end_tick);
-  }
-  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
+  bt_pattern_apply (self, start_tick, end_tick,
+      bt_value_group_range_randomize_columns);
 }
 
 /**
