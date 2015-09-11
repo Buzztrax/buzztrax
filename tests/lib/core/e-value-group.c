@@ -56,7 +56,7 @@ case_teardown (void)
 
 //-- helper
 
-BtValueGroup *
+static BtValueGroup *
 get_mono_value_group (void)
 {
   machine =
@@ -226,6 +226,35 @@ test_bt_value_group_randomize_column (BT_TEST_ARGS)
 }
 
 static void
+test_bt_value_group_range_randomize_column (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtValueGroup *vg = get_mono_value_group ();
+  bt_value_group_set_event (vg, 0, 0, "5");
+  bt_value_group_set_event (vg, 3, 0, "50");
+
+  GST_INFO ("-- act --");
+  bt_value_group_range_randomize_column (vg, 0, 3, 0);
+
+  GST_INFO ("-- assert --");
+  gchar *str;
+  gint v, i;
+  for (i = 0; i < 4; i++) {
+    GST_DEBUG ("value[%d]", i);
+    str = bt_value_group_get_event (vg, i, 0);
+    fail_unless (str != NULL, NULL);
+    v = atoi (str);
+    ck_assert_int_ge (v, 5);
+    ck_assert_int_le (v, 50);
+    g_free (str);
+  }
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
+static void
 test_bt_value_group_copy (BT_TEST_ARGS)
 {
   BT_TEST_START;
@@ -257,6 +286,7 @@ bt_value_group_example_case (void)
   tcase_add_test (tc, test_bt_value_group_blend_column);
   tcase_add_test (tc, test_bt_value_group_flip_column);
   tcase_add_test (tc, test_bt_value_group_randomize_column);
+  tcase_add_test (tc, test_bt_value_group_range_randomize_column);
   tcase_add_test (tc, test_bt_value_group_copy);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);

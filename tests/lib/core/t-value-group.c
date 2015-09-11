@@ -21,6 +21,8 @@
 
 static BtApplication *app;
 static BtSong *song;
+static BtMachine *machine;
+static BtPattern *pattern;
 
 //-- fixtures
 
@@ -40,6 +42,9 @@ test_setup (void)
 static void
 test_teardown (void)
 {
+  g_object_unref (pattern);
+  pattern = NULL;
+  machine = NULL;
   ck_g_object_final_unref (song);
   ck_g_object_final_unref (app);
 }
@@ -49,6 +54,17 @@ case_teardown (void)
 {
 }
 
+//-- helper
+
+static BtValueGroup *
+get_mono_value_group (void)
+{
+  machine =
+      BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztrax-test-mono-source", 0, NULL));
+  pattern = bt_pattern_new (song, "pattern-name", 4L, machine);
+  return bt_pattern_get_global_group (pattern);
+}
 
 //-- tests
 
@@ -57,10 +73,7 @@ test_bt_value_group_get_beyond_size (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
-          "buzztrax-test-mono-source", 0, NULL));
-  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
-  BtValueGroup *vg = bt_pattern_get_global_group (pattern);
+  BtValueGroup *vg = get_mono_value_group ();
 
   /* act && assert */
   fail_unless (bt_value_group_get_event_data (vg, 100, 100) == NULL, NULL);
@@ -70,12 +83,35 @@ test_bt_value_group_get_beyond_size (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_value_group_range_randomize_column_empty_end (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtValueGroup *vg = get_mono_value_group ();
+  bt_value_group_set_event (vg, 0, 0, "10");
+
+  GST_INFO ("-- act --");
+  bt_value_group_range_randomize_column (vg, 0, 3, 0);
+
+  GST_INFO ("-- assert --");
+  ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 0), "10");
+  ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 1, 0), NULL);
+  ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 2, 0), NULL);
+  ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 3, 0), NULL);
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
+
 TCase *
 bt_value_group_test_case (void)
 {
   TCase *tc = tcase_create ("BtValueGroupTests");
 
   tcase_add_test (tc, test_bt_value_group_get_beyond_size);
+  tcase_add_test (tc, test_bt_value_group_range_randomize_column_empty_end);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
