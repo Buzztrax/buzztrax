@@ -775,7 +775,8 @@ i o p</keycap></screen></entry>
         The sequence header for each track shows the name of the machine, mute,
         solo. bypass buttons (depending whether it is a generator, effect or
         sink) and a level-meter. The name field is editable and changing it will
-        rename the machine.
+        rename the machine. When using multiple tracks for the same machine,
+        only the first track will show the full header.
       </para>
       <para>
         The sequence header for the label column offers shortcuts to jump to the
@@ -802,9 +803,9 @@ i o p</keycap></screen></entry>
         the right shadow patterns to the left (only the filled parameters are
         overlayed). Why is that useful? One can have multiple tracks for the
         same machine and then on-the-fly combine patterns.
-        To give an example, for a synthesizer one can have patterns with the
-        melodies and patterns with filter sweeps. Then one can use the filter
-        sweep patterns with the melody patterns.
+        To give an example, for a synthesizer, one can have patterns with the
+        melodies and patterns with filter sweeps. Then one can combine each of
+        the filter sweep patterns with each of the melody patterns.
       </para>
       <para>
         The pattern list always contains a few special patterns. Depending on
