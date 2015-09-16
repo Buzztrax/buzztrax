@@ -273,16 +273,16 @@ bt_wire_init_params (const BtWire * const self)
       (GParamSpec **) g_new (gpointer, self->priv->num_params);
   GObject **parents = (GObject **) g_new (gpointer, self->priv->num_params);
 
+  parents[0] = (GObject *) self->priv->machines[PART_GAIN];
   params[0] =
       g_object_class_find_property (G_OBJECT_CLASS (GST_ELEMENT_GET_CLASS
-          (self->priv->machines[PART_GAIN])), "volume");
-  parents[0] = (GObject *) self->priv->machines[PART_GAIN];
+          (parents[0])), "volume");
 
   if (self->priv->machines[PART_PAN]) {
+    parents[1] = (GObject *) self->priv->machines[PART_PAN];
     params[1] =
         g_object_class_find_property (G_OBJECT_CLASS (GST_ELEMENT_GET_CLASS
-            (self->priv->machines[PART_PAN])), "panorama");
-    parents[1] = (GObject *) self->priv->machines[PART_PAN];
+            (parents[1])), "panorama");
   }
   self->priv->param_group =
       bt_parameter_group_new (self->priv->num_params, parents, params,
