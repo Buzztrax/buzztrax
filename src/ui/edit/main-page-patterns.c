@@ -31,7 +31,7 @@
  *   d:
  *   e: end selection
  *   f: flip
- *   g:
+ *   g: transpose fine/coarse down
  *   h:
  *   i: interpolate
  *   j:
@@ -42,28 +42,24 @@
  *   o:
  *   p:
  *   q:
- *   r: randomize
+ *   r: randomize, randomize range
  *   s:
- *   t:
+ *   t: transpose fine/coarse up
  *   u: unselect
  *   v: paste
  *   w:
  *   x: cut
  *   y:
  *   z:
+ *
  * - Ctrl-S : Smooth
  *   - low pass median filter over values
- *   - need to figure what to do with empty slots
- *     - we could leave them blank for triggers and interpolate for others
- * - Ctrl-T : Invert (I is Interpolate already)
+ *   - when hitting empty tick, we can leave them blank for triggers and
+ *     interpolate for others (maybe, default: skip, Ctrl-Shift-S: fill)
+ * - Ctrl-M : Mirror
  *   - value = max - (value-min))
- * - Ctrl-Shift-T : Invert-Range
+ * - Ctrl-Shift-M : Mirror-Range
  *   - like invert, but take min, max from the values in the selection
- * - Ctrl-? (s/w, n/j)
- *   - transpose up/down (+/- 1 to the value)
- * - Ctrl-Shift-?
- *   - transpose up/down (+/- 10% to the value)
- *   - do ocatves for notes
  * - prev/next for combobox entries
  *   - trigger "move-active" action signal with GTK_SCROLL_STEP_UP/GTK_SCROLL_STEP_DOWN
  *   - what mechanism to use:
@@ -725,9 +721,10 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
   if (event->keyval == GDK_KEY_Return) {        /* GDK_KP_Enter */
     bt_child_proxy_set (p->app, "main-window::pages::page",
         BT_MAIN_PAGES_SEQUENCE_PAGE, NULL);
-    /* if we came from sequence page via Enter we could go back to where we came from
-     * if the machine or pattern has been changed here, we could go to first
-     * track and first pos where the new pattern is used.
+    /* TODO(ensonic): if we came from sequence page via Enter we could go back
+     * to where we came from, but if the machine or pattern has been changed
+     * here, we could go to first track and first pos where the new pattern is 
+     * used.
      */
     //BtMainPageSequence *sequence_page;
     //bt_child_proxy_get(p->app,"main-window::pages::sequence-page",&sequence_page,NULL);
@@ -915,6 +912,34 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
           bt_value_group_range_randomize_column,
           bt_value_group_range_randomize_columns,
           bt_pattern_range_randomize_columns);
+    }
+  } else if (event->keyval == GDK_KEY_t) {
+    if (modifier & GDK_CONTROL_MASK) {
+      res = pattern_selection_apply (self,
+          bt_value_group_transpose_fine_up_column,
+          bt_value_group_transpose_fine_up_columns,
+          bt_pattern_transpose_fine_up_columns);
+    }
+  } else if (event->keyval == GDK_KEY_T) {
+    if (modifier & GDK_CONTROL_MASK) {
+      res = pattern_selection_apply (self,
+          bt_value_group_transpose_coarse_up_column,
+          bt_value_group_transpose_coarse_up_columns,
+          bt_pattern_transpose_coarse_up_columns);
+    }
+  } else if (event->keyval == GDK_KEY_g) {
+    if (modifier & GDK_CONTROL_MASK) {
+      res = pattern_selection_apply (self,
+          bt_value_group_transpose_fine_down_column,
+          bt_value_group_transpose_fine_down_columns,
+          bt_pattern_transpose_fine_down_columns);
+    }
+  } else if (event->keyval == GDK_KEY_G) {
+    if (modifier & GDK_CONTROL_MASK) {
+      res = pattern_selection_apply (self,
+          bt_value_group_transpose_coarse_down_column,
+          bt_value_group_transpose_coarse_down_columns,
+          bt_pattern_transpose_coarse_down_columns);
     }
   } else if ((event->keyval == GDK_KEY_Up) && (modifier == GDK_CONTROL_MASK)) {
     g_signal_emit_by_name (p->machine_menu, "move-active",

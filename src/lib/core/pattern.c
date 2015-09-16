@@ -185,7 +185,12 @@ typedef void (*DoValueGroupColumns) (const BtValueGroup * const self,
     const gulong start_tick, const gulong end_tick);
 /*
  * bt_pattern_apply:
+ * @self: the pattern
+ * @start_tick: the start position for the range
+ * @end_tick: the end position for the range
+ * @do_value_group_columns: function to apply
  *
+ *  Apply the function from @start_tick to @end_tick to all params.
  */
 static void
 bt_pattern_apply (const BtPattern * const self, const gulong start_tick,
@@ -922,6 +927,87 @@ bt_pattern_range_randomize_columns (const BtPattern * const self,
   bt_pattern_apply (self, start_tick, end_tick,
       bt_value_group_range_randomize_columns);
 }
+
+/**
+ * bt_pattern_transpose_fine_up_columns:
+ * @self: the pattern
+ * @start_tick: the start position for the range
+ * @end_tick: the end position for the range
+ *
+ * Transposes values from @start_tick to @end_tick for all params.
+ *
+ * Since: 0.11
+ */
+void
+bt_pattern_transpose_fine_up_columns (const BtPattern * const self,
+    const gulong start_tick, const gulong end_tick)
+{
+  g_return_if_fail (BT_IS_PATTERN (self));
+
+  bt_pattern_apply (self, start_tick, end_tick,
+      bt_value_group_transpose_fine_up_columns);
+}
+
+/**
+ * bt_pattern_transpose_fine_down_columns:
+ * @self: the pattern
+ * @start_tick: the start position for the range
+ * @end_tick: the end position for the range
+ *
+ * Transposes values from @start_tick to @end_tick for all params.
+ *
+ * Since: 0.11
+ */
+void
+bt_pattern_transpose_fine_down_columns (const BtPattern * const self,
+    const gulong start_tick, const gulong end_tick)
+{
+  g_return_if_fail (BT_IS_PATTERN (self));
+
+  bt_pattern_apply (self, start_tick, end_tick,
+      bt_value_group_transpose_fine_down_columns);
+}
+
+/**
+ * bt_pattern_transpose_coarse_up_columns:
+ * @self: the pattern
+ * @start_tick: the start position for the range
+ * @end_tick: the end position for the range
+ *
+ * Transposes values from @start_tick to @end_tick for all params.
+ *
+ * Since: 0.11
+ */
+void
+bt_pattern_transpose_coarse_up_columns (const BtPattern * const self,
+    const gulong start_tick, const gulong end_tick)
+{
+  g_return_if_fail (BT_IS_PATTERN (self));
+
+  bt_pattern_apply (self, start_tick, end_tick,
+      bt_value_group_transpose_coarse_up_columns);
+}
+
+/**
+ * bt_pattern_transpose_coarse_down_columns:
+ * @self: the pattern
+ * @start_tick: the start position for the range
+ * @end_tick: the end position for the range
+ *
+ * Transposes values from @start_tick to @end_tick for all params.
+ *
+ * Since: 0.11
+ */
+void
+bt_pattern_transpose_coarse_down_columns (const BtPattern * const self,
+    const gulong start_tick, const gulong end_tick)
+{
+  g_return_if_fail (BT_IS_PATTERN (self));
+
+  bt_pattern_apply (self, start_tick, end_tick,
+      bt_value_group_transpose_coarse_down_columns);
+}
+
 
 /**
  * bt_pattern_serialize_columns:

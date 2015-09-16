@@ -81,6 +81,14 @@ void bt_value_group_randomize_column(const BtValueGroup * const self, const gulo
 void bt_value_group_randomize_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
 void bt_value_group_range_randomize_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
 void bt_value_group_range_randomize_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
+void bt_value_group_transpose_fine_up_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+void bt_value_group_transpose_fine_up_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
+void bt_value_group_transpose_fine_down_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+void bt_value_group_transpose_fine_down_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
+void bt_value_group_transpose_coarse_up_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+void bt_value_group_transpose_coarse_up_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
+void bt_value_group_transpose_coarse_down_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
+void bt_value_group_transpose_coarse_down_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
 
 void bt_value_group_serialize_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param, GString *data);
 void bt_value_group_serialize_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, GString *data);

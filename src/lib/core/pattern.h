@@ -92,6 +92,10 @@ void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_t
 void bt_pattern_flip_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
 void bt_pattern_randomize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
 void bt_pattern_range_randomize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+void bt_pattern_transpose_fine_up_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+void bt_pattern_transpose_fine_down_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+void bt_pattern_transpose_coarse_up_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+void bt_pattern_transpose_coarse_down_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
 void bt_pattern_serialize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick, GString *data);
 
 #endif /* BT_PATTERN_H */
