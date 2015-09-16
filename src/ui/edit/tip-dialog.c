@@ -61,10 +61,11 @@ static gchar *tips[] = {
   N_("Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input."),
   N_("The wire volume control pops up upon a click on the arrow box on the wire."),
   N_("The wire panorama/balance control pops up upon a shift+click on the arrow box on the wire if available."),
-  N_("One can copy settings from the machine window (from the context menu of a group) and paste them to patterns and the other way around."),
+  N_("You can copy settings from the machine window (from the context menu of a group) and paste them to patterns and the other way around."),
   N_("Install extra machines from http://github.com/Buzztrax/buzzmachines."),
   N_("Machines can also be renamed in the headers of the sequence view."),
-  N_("Press the ',' (comma) key in the pattern editor to insert the current value for this parameter.")
+  N_("Press the ',' (comma) key in the pattern editor to insert the current value for this parameter."),
+  N_("You can use multiple tracks for a single machine. The patterns used in each track will be overlayed from left to right.")
 };
 
 struct _BtTipDialogPrivate
