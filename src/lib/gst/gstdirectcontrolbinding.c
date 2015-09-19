@@ -26,8 +26,8 @@
 
 #include <gst/math-compat.h>
 
-#define GSTBT_CAT_DEFAULT control_binding_debug
-GSTBT_DEBUG_CATEGORY_STATIC (GSTBT_CAT_DEFAULT);
+#define GST_CAT_DEFAULT control_binding_debug
+GST_DEBUG_CATEGORY_STATIC (GST_CAT_DEFAULT);
 
 
 static GObject *gstbt_direct_control_binding_constructor (GType type,
@@ -52,12 +52,12 @@ gstbt_direct_control_binding_get_g_value_array (GstControlBinding * _self,
     GValue * values);
 
 #define _do_init \
-  GSTBT_DEBUG_CATEGORY_INIT (GSTBT_CAT_DEFAULT, "gstdirectcontrolbinding", 0, \
+  GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "gstdirectcontrolbinding", 0, \
       "dynamic parameter control source attachment");
 
 #define gstbt_direct_control_binding_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE (GstBtDirectControlBinding,
-    gstbt_direct_control_binding, GSTBT_TYPE_CONTROL_BINDING, _do_init);
+    gstbt_direct_control_binding, GST_TYPE_CONTROL_BINDING, _do_init);
 
 enum
 {
@@ -168,7 +168,7 @@ gstbt_direct_control_binding_class_init (GstBtDirectControlBindingClass * klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GstControlBindingClass *control_binding_class =
-      GSTBT_CONTROL_BINDING_CLASS (klass);
+      GST_CONTROL_BINDING_CLASS (klass);
 
   gobject_class->constructor = gstbt_direct_control_binding_constructor;
   gobject_class->set_property = gstbt_direct_control_binding_set_property;
@@ -186,7 +186,7 @@ gstbt_direct_control_binding_class_init (GstBtDirectControlBindingClass * klass)
   properties[PROP_CS] =
       g_param_spec_object ("control-source", "ControlSource",
       "The control source",
-      GSTBT_TYPE_CONTROL_SOURCE,
+      GST_TYPE_CONTROL_SOURCE,
       G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_STATIC_STRINGS);
 
   properties[PROP_ABSOLUTE] =
@@ -213,15 +213,15 @@ gstbt_direct_control_binding_constructor (GType type, guint n_construct_params,
       GSTBT_DIRECT_CONTROL_BINDING (G_OBJECT_CLASS (parent_class)->constructor
       (type, n_construct_params, construct_params));
 
-  if (GSTBT_CONTROL_BINDING_PSPEC (self)) {
+  if (GST_CONTROL_BINDING_PSPEC (self)) {
     GType type, base;
 
-    base = type = G_PARAM_SPEC_VALUE_TYPE (GSTBT_CONTROL_BINDING_PSPEC (self));
+    base = type = G_PARAM_SPEC_VALUE_TYPE (GST_CONTROL_BINDING_PSPEC (self));
     g_value_init (&self->cur_value, type);
     while ((type = g_type_parent (type)))
       base = type;
 
-    GSTBT_DEBUG ("  using type %s", g_type_name (base));
+    GST_DEBUG ("  using type %s", g_type_name (base));
 
     /* select mapping function */
 
@@ -273,9 +273,9 @@ gstbt_direct_control_binding_constructor (GType type, guint n_construct_params,
         self->byte_size = sizeof (gint);
         break;
       default:
-        GSTBT_WARNING ("incomplete implementation for paramspec type '%s'",
-            G_PARAM_SPEC_TYPE_NAME (GSTBT_CONTROL_BINDING_PSPEC (self)));
-        GSTBT_CONTROL_BINDING_PSPEC (self) = NULL;
+        GST_WARNING ("incomplete implementation for paramspec type '%s'",
+            G_PARAM_SPEC_TYPE_NAME (GST_CONTROL_BINDING_PSPEC (self)));
+        GST_CONTROL_BINDING_PSPEC (self) = NULL;
         break;
     }
   }
@@ -326,7 +326,7 @@ gstbt_direct_control_binding_dispose (GObject * object)
   GstBtDirectControlBinding *self = GSTBT_DIRECT_CONTROL_BINDING (object);
 
   if (self->cs)
-    gstbt_object_replace ((GstObject **) & self->cs, NULL);
+    gst_object_replace ((GstObject **) & self->cs, NULL);
 
   G_OBJECT_CLASS (parent_class)->dispose (object);
 }
@@ -350,14 +350,14 @@ gstbt_direct_control_binding_sync_values (GstControlBinding * _self,
   gboolean ret;
 
   g_return_val_if_fail (GSTBT_IS_DIRECT_CONTROL_BINDING (self), FALSE);
-  g_return_val_if_fail (GSTBT_CONTROL_BINDING_PSPEC (self), FALSE);
+  g_return_val_if_fail (GST_CONTROL_BINDING_PSPEC (self), FALSE);
 
-  GSTBT_LOG_OBJECT (object, "property '%s' at ts=%" GSTBT_TIME_FORMAT,
-      _self->name, GSTBT_TIME_ARGS (timestamp));
+  GST_LOG_OBJECT (object, "property '%s' at ts=%" GST_TIME_FORMAT,
+      _self->name, GST_TIME_ARGS (timestamp));
 
-  ret = gstbt_control_source_get_value (self->cs, timestamp, &src_val);
+  ret = gst_control_source_get_value (self->cs, timestamp, &src_val);
   if (G_LIKELY (ret)) {
-    GSTBT_LOG_OBJECT (object, "  new value %lf", src_val);
+    GST_LOG_OBJECT (object, "  new value %lf", src_val);
     /* always set the value for first time, but then only if it changed
      * this should limit g_object_notify invocations.
      * FIXME: can we detect negative playback rates?
@@ -365,7 +365,7 @@ gstbt_direct_control_binding_sync_values (GstControlBinding * _self,
     if ((timestamp < last_sync) || (src_val != self->last_value)) {
       GValue *dst_val = &self->cur_value;
 
-      GSTBT_LOG_OBJECT (object, "  mapping %s to value of type %s", _self->name,
+      GST_LOG_OBJECT (object, "  mapping %s to value of type %s", _self->name,
           G_VALUE_TYPE_NAME (dst_val));
       /* run mapping function to convert gdouble to GValue */
       self->convert_g_value (self, src_val, dst_val);
@@ -376,7 +376,7 @@ gstbt_direct_control_binding_sync_values (GstControlBinding * _self,
       self->last_value = src_val;
     }
   } else {
-    GSTBT_DEBUG_OBJECT (object, "no control value for param %s", _self->name);
+    GST_DEBUG_OBJECT (object, "no control value for param %s", _self->name);
   }
   return (ret);
 }
@@ -390,17 +390,17 @@ gstbt_direct_control_binding_get_value (GstControlBinding * _self,
   gdouble src_val;
 
   g_return_val_if_fail (GSTBT_IS_DIRECT_CONTROL_BINDING (self), NULL);
-  g_return_val_if_fail (GSTBT_CLOCK_TIME_IS_VALID (timestamp), NULL);
-  g_return_val_if_fail (GSTBT_CONTROL_BINDING_PSPEC (self), FALSE);
+  g_return_val_if_fail (GST_CLOCK_TIME_IS_VALID (timestamp), NULL);
+  g_return_val_if_fail (GST_CONTROL_BINDING_PSPEC (self), FALSE);
 
   /* get current value via control source */
-  if (gstbt_control_source_get_value (self->cs, timestamp, &src_val)) {
+  if (gst_control_source_get_value (self->cs, timestamp, &src_val)) {
     dst_val = g_new0 (GValue, 1);
     g_value_init (dst_val, G_PARAM_SPEC_VALUE_TYPE (_self->pspec));
     self->convert_g_value (self, src_val, dst_val);
   } else {
-    GSTBT_LOG ("no control value for property %s at ts %" GSTBT_TIME_FORMAT,
-        _self->name, GSTBT_TIME_ARGS (timestamp));
+    GST_LOG ("no control value for property %s at ts %" GST_TIME_FORMAT,
+        _self->name, GST_TIME_ARGS (timestamp));
   }
 
   return dst_val;
@@ -420,30 +420,30 @@ gstbt_direct_control_binding_get_value_array (GstControlBinding * _self,
   guint8 *values = (guint8 *) values_;
 
   g_return_val_if_fail (GSTBT_IS_DIRECT_CONTROL_BINDING (self), FALSE);
-  g_return_val_if_fail (GSTBT_CLOCK_TIME_IS_VALID (timestamp), FALSE);
-  g_return_val_if_fail (GSTBT_CLOCK_TIME_IS_VALID (interval), FALSE);
+  g_return_val_if_fail (GST_CLOCK_TIME_IS_VALID (timestamp), FALSE);
+  g_return_val_if_fail (GST_CLOCK_TIME_IS_VALID (interval), FALSE);
   g_return_val_if_fail (values, FALSE);
-  g_return_val_if_fail (GSTBT_CONTROL_BINDING_PSPEC (self), FALSE);
+  g_return_val_if_fail (GST_CONTROL_BINDING_PSPEC (self), FALSE);
 
   convert = self->convert_value;
   byte_size = self->byte_size;
 
   src_val = g_new0 (gdouble, n_values);
-  if ((res = gstbt_control_source_get_value_array (self->cs, timestamp,
+  if ((res = gst_control_source_get_value_array (self->cs, timestamp,
               interval, n_values, src_val))) {
     for (i = 0; i < n_values; i++) {
       /* we will only get NAN for sparse control sources, such as triggers */
       if (!isnan (src_val[i])) {
         convert (self, src_val[i], (gpointer) values);
       } else {
-        GSTBT_LOG ("no control value for property %s at index %d", _self->name,
+        GST_LOG ("no control value for property %s at index %d", _self->name,
             i);
       }
       values += byte_size;
     }
   } else {
-    GSTBT_LOG ("failed to get control value for property %s at ts %"
-        GSTBT_TIME_FORMAT, _self->name, GSTBT_TIME_ARGS (timestamp));
+    GST_LOG ("failed to get control value for property %s at ts %"
+        GST_TIME_FORMAT, _self->name, GST_TIME_ARGS (timestamp));
   }
   g_free (src_val);
   return res;
@@ -462,16 +462,16 @@ gstbt_direct_control_binding_get_g_value_array (GstControlBinding * _self,
   GstBtDirectControlBindingConvertGValue convert;
 
   g_return_val_if_fail (GSTBT_IS_DIRECT_CONTROL_BINDING (self), FALSE);
-  g_return_val_if_fail (GSTBT_CLOCK_TIME_IS_VALID (timestamp), FALSE);
-  g_return_val_if_fail (GSTBT_CLOCK_TIME_IS_VALID (interval), FALSE);
+  g_return_val_if_fail (GST_CLOCK_TIME_IS_VALID (timestamp), FALSE);
+  g_return_val_if_fail (GST_CLOCK_TIME_IS_VALID (interval), FALSE);
   g_return_val_if_fail (values, FALSE);
-  g_return_val_if_fail (GSTBT_CONTROL_BINDING_PSPEC (self), FALSE);
+  g_return_val_if_fail (GST_CONTROL_BINDING_PSPEC (self), FALSE);
 
   convert = self->convert_g_value;
   type = G_PARAM_SPEC_VALUE_TYPE (_self->pspec);
 
   src_val = g_new0 (gdouble, n_values);
-  if ((res = gstbt_control_source_get_value_array (self->cs, timestamp,
+  if ((res = gst_control_source_get_value_array (self->cs, timestamp,
               interval, n_values, src_val))) {
     for (i = 0; i < n_values; i++) {
       /* we will only get NAN for sparse control sources, such as triggers */
@@ -479,13 +479,13 @@ gstbt_direct_control_binding_get_g_value_array (GstControlBinding * _self,
         g_value_init (&values[i], type);
         convert (self, src_val[i], &values[i]);
       } else {
-        GSTBT_LOG ("no control value for property %s at index %d", _self->name,
+        GST_LOG ("no control value for property %s at index %d", _self->name,
             i);
       }
     }
   } else {
-    GSTBT_LOG ("failed to get control value for property %s at ts %"
-        GSTBT_TIME_FORMAT, _self->name, GSTBT_TIME_ARGS (timestamp));
+    GST_LOG ("failed to get control value for property %s at ts %"
+        GST_TIME_FORMAT, _self->name, GST_TIME_ARGS (timestamp));
   }
   g_free (src_val);
   return res;
