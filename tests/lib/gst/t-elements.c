@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  *
  * unit test for state changes on all elements
  *

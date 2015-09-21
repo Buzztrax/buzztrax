@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2005 Stefan Kost <ensonic@users.sf.net>
  *
  * note2frequency.c: helper class for unit conversion

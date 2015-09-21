@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2005 Stefan Kost <ensonic at users.sf.net>
  *
  * common.c: Functions shared among all native and wrapped elements

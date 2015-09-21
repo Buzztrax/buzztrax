@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2005 Stefan Kost <ensonic at users.sf.net>
  *
  * gstbmlsrc.c: BML source plugin

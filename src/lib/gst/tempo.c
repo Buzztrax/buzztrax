@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2005 Stefan Kost <ensonic@users.sf.net>
  *
  * tempo.c: helper interface for tempo synced gstreamer elements

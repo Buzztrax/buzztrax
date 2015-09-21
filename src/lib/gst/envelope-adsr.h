@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2012 Stefan Sauer <ensonic@users.sf.net>
  *
  * envelope-adsr.h: attack-decay-sustain-release envelope generator

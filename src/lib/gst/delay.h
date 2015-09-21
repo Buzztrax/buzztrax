@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2014 Stefan Sauer <ensonic@users.sf.net>
  *
  * delay.h: delay line object

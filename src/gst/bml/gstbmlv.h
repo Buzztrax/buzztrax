@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2004 Stefan Kost <ensonic at user.sf.net>
  *
  * gstbml.h: Header for BML plugin

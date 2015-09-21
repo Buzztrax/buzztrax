@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2006 Stefan Kost <ensonic@users.sf.net>
  *
  * envelope.h: envelope generator for gstreamer

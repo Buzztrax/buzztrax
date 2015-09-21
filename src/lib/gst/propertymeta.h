@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2005 Stefan Kost <ensonic@users.sf.net>
  *
  * propertymeta.h: helper interface header for extendet gstreamer element meta data

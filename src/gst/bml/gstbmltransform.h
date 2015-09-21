@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2005 Stefan Kost <ensonic at user.sf.net>
  *
  * gstbmltransform.h: Header for BML transform plugin

@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2004 Stefan Kost <ensonic at users.sf.net>
  *
  * This library is free software; you can redistribute it and/or

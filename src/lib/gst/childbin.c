@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2005 Stefan Kost <ensonic@users.sf.net>
  *
  * childbin.c: helper interface for multi child gstreamer elements

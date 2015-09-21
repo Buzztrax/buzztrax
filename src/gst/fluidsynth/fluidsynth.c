@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2007 Josh Green <josh@users.sf.net>
  *
  * Adapted from simsyn synthesizer plugin in gst-buzztrax source.

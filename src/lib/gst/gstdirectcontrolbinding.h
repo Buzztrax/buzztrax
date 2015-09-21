@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  *
  * Copyright (C) 2011 Stefan Sauer <ensonic@users.sf.net>
  *

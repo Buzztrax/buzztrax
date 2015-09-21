@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2015 Stefan Sauer <ensonic@users.sf.net>
  *
  * plugin.h: common code

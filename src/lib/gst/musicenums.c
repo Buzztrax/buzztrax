@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2007 Stefan Kost <ensonic@users.sf.net>
  *
  * musicenums.c: enum types for gstreamer elements

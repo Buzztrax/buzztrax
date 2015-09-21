@@ -1,4 +1,5 @@
-/* GStreamer
+/* Buzztrax
+ * Copyright (C) 2012 Buzztrax team <buzztrax-devel@buzztrax.org>
  *
  * audiosynth.c: base audio synthesizer
  *

@@ -1,4 +1,4 @@
-/* GStreamer
+/* Buzztrax
  * Copyright (C) 2005 Stefan Kost <ensonic at user.sf.net>
  *
  * common.h: Header for functions shared among all native and wrapped elements
