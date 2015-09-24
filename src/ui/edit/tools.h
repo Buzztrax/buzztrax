@@ -54,4 +54,18 @@ GtkToolItem *gtk_toggle_tool_button_new_from_icon_name(const gchar *icon_name, c
 
 /* menu accel helper */
 void gtk_menu_item_add_accel(GtkMenuItem *mi, const gchar *path, guint accel_key, GdkModifierType accel_mods);
+
+/* notify main-loop dispatch helper */
+
+/**
+ * BtNotifyFunc:
+ * @object: the object
+ * @pspec: the arg
+ * @user_data: the extra data
+ *
+ * Callback function for #GObject::notify.
+ */
+typedef void (*BtNotifyFunc)(GObject *gobject, GParamSpec *pspec, gpointer user_data);
+void bt_notify_idle_dispatch (GObject *object, GParamSpec *pspec, gpointer user_data, BtNotifyFunc func);
+
 #endif // BT_EDIT_TOOLS_H

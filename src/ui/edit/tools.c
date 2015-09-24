@@ -311,3 +311,51 @@ gtk_menu_item_add_accel (GtkMenuItem * mi, const gchar * path, guint accel_key,
   gtk_menu_item_set_accel_path (mi, path);
   gtk_accel_map_add_entry (path, accel_key, accel_mods);
 }
+
+/* notify main-loop dispatch helper */
+
+typedef struct
+{
+  GObject *object;
+  GParamSpec *pspec;
+  GWeakRef user_data;
+  BtNotifyFunc func;
+} BtNotifyIdleData;
+
+static gboolean
+on_idle_notify (gpointer user_data)
+{
+  BtNotifyIdleData *data = (BtNotifyIdleData *) user_data;
+  gpointer weak_data = g_weak_ref_get (&data->user_data);
+
+  if (weak_data) {
+    data->func (data->object, data->pspec, weak_data);
+    g_object_unref (weak_data);
+  }
+  g_weak_ref_clear (&data->user_data);
+  g_slice_free (BtNotifyIdleData, data);
+  return FALSE;
+}
+
+/**
+ * bt_notify_idle_dispatch:
+ * @object: the object
+ * @pspec: the arg
+ * @user_data: the extra data
+ * @func: the actual callback
+ *
+ * Save the parameters from a #GObject::notify callback, run it through
+ * g_idle_add(), unpack the params and call @func.
+ */
+void
+bt_notify_idle_dispatch (GObject * object, GParamSpec * pspec,
+    gpointer user_data, BtNotifyFunc func)
+{
+  BtNotifyIdleData *data = g_slice_new (BtNotifyIdleData);
+
+  data->object = object;
+  data->pspec = pspec;
+  data->func = func;
+  g_weak_ref_init (&data->user_data, user_data);
+  g_idle_add (on_idle_notify, data);
+}

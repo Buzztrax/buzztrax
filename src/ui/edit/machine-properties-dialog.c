@@ -148,28 +148,6 @@ static GQuark widget_param_num_quark = 0;       /* which parameter inside the gr
 G_DEFINE_TYPE (BtMachinePropertiesDialog, bt_machine_properties_dialog,
     GTK_TYPE_WINDOW);
 
-//-- idle update helper
-
-typedef struct
-{
-  const GstElement *machine;
-  GParamSpec *property;
-  gpointer user_data;
-} BtNotifyIdleData;
-
-#define MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data) G_STMT_START { \
-  data=g_slice_new(BtNotifyIdleData); \
-  data->machine=machine; \
-  data->property=property; \
-  data->user_data=user_data; \
-  g_object_add_weak_pointer(data->user_data,&data->user_data); \
-} G_STMT_END
-
-#define FREE_NOTIFY_IDLE_DATA(data) G_STMT_START { \
-  if(data->user_data) g_object_remove_weak_pointer(data->user_data,&data->user_data); \
-  g_slice_free(BtNotifyIdleData,data); \
-} G_STMT_END
-
 //-- event handler helper
 
 static gboolean
@@ -841,44 +819,34 @@ update_double_range_label (GtkLabel * label, gdouble value)
   gtk_label_set_text (label, str);
 }
 
-static gboolean
-on_double_range_property_notify_idle (gpointer _data)
+static void
+on_double_range_property_notify_idle (GObject * machine, GParamSpec * property,
+    gpointer user_data)
 {
-  BtNotifyIdleData *data = (BtNotifyIdleData *) _data;
+  GtkWidget *widget = GTK_WIDGET (user_data);
+  GtkLabel *label =
+      GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
+  gdouble value;
 
-  if (data->user_data) {
-    const GstElement *machine = data->machine;
-    GParamSpec *property = data->property;
-    GtkWidget *widget = GTK_WIDGET (data->user_data);
-    GtkLabel *label =
-        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
-    gdouble value;
+  g_object_get (machine, property->name, &value, NULL);
+  //GST_INFO("property value notify received : %s => : %lf",property->name,value);
 
-    GST_INFO ("property value notify received : %s ", property->name);
-
-    g_object_get ((gpointer) machine, property->name, &value, NULL);
-    g_signal_handlers_block_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_double_range_property_changed, (gpointer) machine);
-    gtk_range_set_value (GTK_RANGE (widget), value);
-    g_signal_handlers_unblock_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_double_range_property_changed, (gpointer) machine);
-    update_double_range_label (label, value);
-  }
-  FREE_NOTIFY_IDLE_DATA (data);
-  return (FALSE);
+  g_signal_handlers_block_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_double_range_property_changed, (gpointer) machine);
+  gtk_range_set_value (GTK_RANGE (widget), value);
+  g_signal_handlers_unblock_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_double_range_property_changed, (gpointer) machine);
+  update_double_range_label (label, value);
 }
 
 static void
-on_double_range_property_notify (const GstElement * machine,
-    GParamSpec * property, gpointer user_data)
+on_double_range_property_notify (GObject * object, GParamSpec * property,
+    gpointer user_data)
 {
-  BtNotifyIdleData *data;
-  //BtMachinePropertiesDialog *self=g_object_get_qdata(G_OBJECT(user_data),widget_parent_quark);
-
-  MAKE_NOTIFY_IDLE_DATA (data, machine, property, user_data);
-  g_idle_add (on_double_range_property_notify_idle, (gpointer) data);
+  bt_notify_idle_dispatch (object, property, user_data,
+      on_double_range_property_notify_idle);
 }
 
 static void
@@ -916,43 +884,34 @@ update_float_range_label (GtkLabel * label, gfloat value)
   gtk_label_set_text (label, str);
 }
 
-static gboolean
-on_float_range_property_notify_idle (gpointer _data)
+static void
+on_float_range_property_notify_idle (GObject * machine, GParamSpec * property,
+    gpointer user_data)
 {
-  BtNotifyIdleData *data = (BtNotifyIdleData *) _data;
+  GtkWidget *widget = GTK_WIDGET (user_data);
+  GtkLabel *label =
+      GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
+  gfloat value;
 
-  if (data->user_data) {
-    const GstElement *machine = data->machine;
-    GParamSpec *property = data->property;
-    GtkWidget *widget = GTK_WIDGET (data->user_data);
-    GtkLabel *label =
-        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
-    gfloat value;
+  g_object_get (machine, property->name, &value, NULL);
+  //GST_INFO("property value notify received : %s => : %f",property->name,value);
 
-    //GST_INFO("property value notify received : %s ",property->name);
-
-    g_object_get ((gpointer) machine, property->name, &value, NULL);
-    g_signal_handlers_block_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_float_range_property_changed, (gpointer) machine);
-    gtk_range_set_value (GTK_RANGE (widget), value);
-    g_signal_handlers_unblock_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_float_range_property_changed, (gpointer) machine);
-    update_float_range_label (label, value);
-  }
-  FREE_NOTIFY_IDLE_DATA (data);
-  return (FALSE);
+  g_signal_handlers_block_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_float_range_property_changed, (gpointer) machine);
+  gtk_range_set_value (GTK_RANGE (widget), value);
+  g_signal_handlers_unblock_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_float_range_property_changed, (gpointer) machine);
+  update_float_range_label (label, value);
 }
 
 static void
-on_float_range_property_notify (const GstElement * machine,
-    GParamSpec * property, gpointer user_data)
+on_float_range_property_notify (GObject * object, GParamSpec * property,
+    gpointer user_data)
 {
-  BtNotifyIdleData *data;
-
-  MAKE_NOTIFY_IDLE_DATA (data, machine, property, user_data);
-  g_idle_add (on_float_range_property_notify_idle, (gpointer) data);
+  bt_notify_idle_dispatch (object, property, user_data,
+      on_float_range_property_notify_idle);
 }
 
 static void
@@ -990,47 +949,38 @@ update_int_range_label (const BtMachinePropertiesDialog * self,
           (gpointer) get_param_group (self, param_parent)));
 }
 
-static gboolean
-on_int_range_property_notify_idle (gpointer _data)
+static void
+on_int_range_property_notify_idle (GObject * machine, GParamSpec * property,
+    gpointer user_data)
 {
-  BtNotifyIdleData *data = (BtNotifyIdleData *) _data;
+  GtkWidget *widget = GTK_WIDGET (user_data);
+  GtkLabel *label =
+      GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
+  BtMachinePropertiesDialog *self =
+      BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (widget),
+          widget_parent_quark));
+  gint value;
 
-  if (data->user_data) {
-    const GstElement *machine = data->machine;
-    GParamSpec *property = data->property;
-    GtkWidget *widget = GTK_WIDGET (data->user_data);
-    GtkLabel *label =
-        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
-    BtMachinePropertiesDialog *self =
-        BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (widget),
-            widget_parent_quark));
-    gint value;
+  g_object_get (machine, property->name, &value, NULL);
+  //GST_INFO("property value notify received : %s => : %d",property->name,value);
 
-    g_object_get ((gpointer) machine, property->name, &value, NULL);
-    //GST_INFO("property value notify received : %s => : %d",property->name,value);
-
-    g_signal_handlers_block_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_int_range_property_changed, (gpointer) machine);
-    gtk_range_set_value (GTK_RANGE (widget), (gdouble) value);
-    g_signal_handlers_unblock_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_int_range_property_changed, (gpointer) machine);
-    update_int_range_label (self, GTK_RANGE (widget), G_OBJECT (machine), label,
-        (gdouble) value);
-  }
-  FREE_NOTIFY_IDLE_DATA (data);
-  return (FALSE);
+  g_signal_handlers_block_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_int_range_property_changed, (gpointer) machine);
+  gtk_range_set_value (GTK_RANGE (widget), (gdouble) value);
+  g_signal_handlers_unblock_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_int_range_property_changed, (gpointer) machine);
+  update_int_range_label (self, GTK_RANGE (widget), G_OBJECT (machine), label,
+      (gdouble) value);
 }
 
 static void
-on_int_range_property_notify (const GstElement * machine, GParamSpec * property,
+on_int_range_property_notify (GObject * object, GParamSpec * property,
     gpointer user_data)
 {
-  BtNotifyIdleData *data;
-
-  MAKE_NOTIFY_IDLE_DATA (data, machine, property, user_data);
-  g_idle_add (on_int_range_property_notify_idle, (gpointer) data);
+  bt_notify_idle_dispatch (object, property, user_data,
+      on_int_range_property_notify_idle);
 }
 
 static void
@@ -1068,47 +1018,38 @@ update_uint_range_label (const BtMachinePropertiesDialog * self,
           (gpointer) get_param_group (self, param_parent)));
 }
 
-static gboolean
-on_uint_range_property_notify_idle (gpointer _data)
+static void
+on_uint_range_property_notify_idle (GObject * machine, GParamSpec * property,
+    gpointer user_data)
 {
-  BtNotifyIdleData *data = (BtNotifyIdleData *) _data;
+  GtkWidget *widget = GTK_WIDGET (user_data);
+  GtkLabel *label =
+      GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
+  BtMachinePropertiesDialog *self =
+      BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (widget),
+          widget_parent_quark));
+  guint value;
 
-  if (data->user_data) {
-    const GstElement *machine = data->machine;
-    GParamSpec *property = data->property;
-    GtkWidget *widget = GTK_WIDGET (data->user_data);
-    GtkLabel *label =
-        GTK_LABEL (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
-    BtMachinePropertiesDialog *self =
-        BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (widget),
-            widget_parent_quark));
-    guint value;
+  g_object_get (machine, property->name, &value, NULL);
+  //GST_INFO("property value notify received : %s => : %d",property->name,value);
 
-    //GST_INFO("property value notify received : %s ",property->name);
-
-    g_object_get ((gpointer) machine, property->name, &value, NULL);
-    g_signal_handlers_block_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_uint_range_property_changed, (gpointer) machine);
-    gtk_range_set_value (GTK_RANGE (widget), (gdouble) value);
-    g_signal_handlers_unblock_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_uint_range_property_changed, (gpointer) machine);
-    update_uint_range_label (self, GTK_RANGE (widget), G_OBJECT (machine),
-        label, (gdouble) value);
-  }
-  FREE_NOTIFY_IDLE_DATA (data);
-  return (FALSE);
+  g_signal_handlers_block_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_uint_range_property_changed, (gpointer) machine);
+  gtk_range_set_value (GTK_RANGE (widget), (gdouble) value);
+  g_signal_handlers_unblock_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_uint_range_property_changed, (gpointer) machine);
+  update_uint_range_label (self, GTK_RANGE (widget), G_OBJECT (machine),
+      label, (gdouble) value);
 }
 
 static void
-on_uint_range_property_notify (const GstElement * machine,
-    GParamSpec * property, gpointer user_data)
+on_uint_range_property_notify (GObject * object, GParamSpec * property,
+    gpointer user_data)
 {
-  BtNotifyIdleData *data;
-
-  MAKE_NOTIFY_IDLE_DATA (data, machine, property, user_data);
-  g_idle_add (on_uint_range_property_notify_idle, (gpointer) data);
+  bt_notify_idle_dispatch (object, property, user_data,
+      on_uint_range_property_notify_idle);
 }
 
 static void
@@ -1146,53 +1087,44 @@ update_uint64_range_entry (const BtMachinePropertiesDialog * self,
           (gpointer) get_param_group (self, param_parent)));
 }
 
-static gboolean
-on_uint64_range_property_notify_idle (gpointer _data)
+static void
+on_uint64_range_property_notify_idle (GObject * machine, GParamSpec * property,
+    gpointer user_data)
 {
-  BtNotifyIdleData *data = (BtNotifyIdleData *) _data;
+  GtkWidget *widget = GTK_WIDGET (user_data);
+  GtkEntry *entry =
+      GTK_ENTRY (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
+  BtMachinePropertiesDialog *self =
+      BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (widget),
+          widget_parent_quark));
+  guint64 value;
 
-  if (data->user_data) {
-    const GstElement *machine = data->machine;
-    GParamSpec *property = data->property;
-    GtkWidget *widget = GTK_WIDGET (data->user_data);
-    GtkEntry *entry =
-        GTK_ENTRY (g_object_get_qdata (G_OBJECT (widget), widget_peer_quark));
-    BtMachinePropertiesDialog *self =
-        BT_MACHINE_PROPERTIES_DIALOG (g_object_get_qdata (G_OBJECT (widget),
-            widget_parent_quark));
-    guint64 value;
+  g_object_get (machine, property->name, &value, NULL);
+  //GST_INFO("property value notify received : %s ",property->name);
 
-    //GST_INFO("property value notify received : %s ",property->name);
-
-    g_object_get ((gpointer) machine, property->name, &value, NULL);
-    g_signal_handlers_block_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_uint64_range_property_changed, (gpointer) machine);
-    gtk_range_set_value (GTK_RANGE (widget), (gdouble) value);
-    g_signal_handlers_unblock_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_uint64_range_property_changed, (gpointer) machine);
-    g_signal_handlers_block_matched (entry,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_uint64_entry_property_changed, (gpointer) machine);
-    update_uint64_range_entry (self, GTK_RANGE (widget), G_OBJECT (machine),
-        entry, (gdouble) value);
-    g_signal_handlers_unblock_matched (entry,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_uint64_entry_property_changed, (gpointer) machine);
-  }
-  FREE_NOTIFY_IDLE_DATA (data);
-  return (FALSE);
+  g_signal_handlers_block_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_uint64_range_property_changed, (gpointer) machine);
+  gtk_range_set_value (GTK_RANGE (widget), (gdouble) value);
+  g_signal_handlers_unblock_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_uint64_range_property_changed, (gpointer) machine);
+  g_signal_handlers_block_matched (entry,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_uint64_entry_property_changed, (gpointer) machine);
+  update_uint64_range_entry (self, GTK_RANGE (widget), machine,
+      entry, (gdouble) value);
+  g_signal_handlers_unblock_matched (entry,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_uint64_entry_property_changed, (gpointer) machine);
 }
 
 static void
-on_uint64_range_property_notify (const GstElement * machine,
-    GParamSpec * property, gpointer user_data)
+on_uint64_range_property_notify (GObject * object, GParamSpec * property,
+    gpointer user_data)
 {
-  BtNotifyIdleData *data;
-
-  MAKE_NOTIFY_IDLE_DATA (data, machine, property, user_data);
-  g_idle_add (on_uint64_range_property_notify_idle, (gpointer) data);
+  bt_notify_idle_dispatch (object, property, user_data,
+      on_uint64_range_property_notify_idle);
 }
 
 static void
@@ -1268,57 +1200,48 @@ on_uint64_entry_property_changed (GtkEditable * editable, gpointer user_data)
   bt_edit_application_set_song_unsaved (self->priv->app);
 }
 
-static gboolean
-on_combobox_property_notify_idle (gpointer _data)
+static void
+on_combobox_property_notify_idle (GObject * machine, GParamSpec * property,
+    gpointer user_data)
 {
-  BtNotifyIdleData *data = (BtNotifyIdleData *) _data;
+  GtkWidget *widget = GTK_WIDGET (user_data);
+  gint ivalue, nvalue;
+  GtkTreeModel *store;
+  GtkTreeIter iter;
 
-  if (data->user_data) {
-    const GstElement *machine = data->machine;
-    GParamSpec *property = data->property;
-    GtkWidget *widget = GTK_WIDGET (data->user_data);
-    gint ivalue, nvalue;
-    GtkTreeModel *store;
-    GtkTreeIter iter;
+  //GST_DEBUG ("property value notify received : %s ", property->name);
 
-    GST_DEBUG ("property value notify received : %s ", property->name);
+  g_object_get (machine, property->name, &nvalue, NULL);
+  store = gtk_combo_box_get_model (GTK_COMBO_BOX (widget));
+  gtk_tree_model_get_iter_first (store, &iter);
+  do {
+    gtk_tree_model_get (store, &iter, 0, &ivalue, -1);
+    if (ivalue == nvalue)
+      break;
+  } while (gtk_tree_model_iter_next (store, &iter));
 
-    g_object_get ((gpointer) machine, property->name, &nvalue, NULL);
-    store = gtk_combo_box_get_model (GTK_COMBO_BOX (widget));
-    gtk_tree_model_get_iter_first (store, &iter);
-    do {
-      gtk_tree_model_get (store, &iter, 0, &ivalue, -1);
-      if (ivalue == nvalue)
-        break;
-    } while (gtk_tree_model_iter_next (store, &iter));
-
-    g_signal_handlers_block_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_combobox_property_changed, (gpointer) machine);
-    if (ivalue == nvalue) {
-      gtk_combo_box_set_active_iter (GTK_COMBO_BOX (widget), &iter);
-    } else {
-      gtk_combo_box_set_active (GTK_COMBO_BOX (widget), -1);
-      GST_WARNING
-          ("current value (%d) for machines parameter %s is not part of the enum values",
-          nvalue, property->name);
-    }
-    g_signal_handlers_unblock_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_combobox_property_changed, (gpointer) machine);
+  g_signal_handlers_block_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_combobox_property_changed, (gpointer) machine);
+  if (ivalue == nvalue) {
+    gtk_combo_box_set_active_iter (GTK_COMBO_BOX (widget), &iter);
+  } else {
+    gtk_combo_box_set_active (GTK_COMBO_BOX (widget), -1);
+    GST_WARNING
+        ("current value (%d) for machines parameter %s is not part of the enum values",
+        nvalue, property->name);
   }
-  FREE_NOTIFY_IDLE_DATA (data);
-  return (FALSE);
+  g_signal_handlers_unblock_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_combobox_property_changed, (gpointer) machine);
 }
 
 static void
-on_combobox_property_notify (const GstElement * machine, GParamSpec * property,
+on_combobox_property_notify (GObject * object, GParamSpec * property,
     gpointer user_data)
 {
-  BtNotifyIdleData *data;
-
-  MAKE_NOTIFY_IDLE_DATA (data, machine, property, user_data);
-  g_idle_add (on_combobox_property_notify_idle, (gpointer) data);
+  bt_notify_idle_dispatch (object, property, user_data,
+      on_combobox_property_notify_idle);
 }
 
 static void
@@ -1353,40 +1276,31 @@ on_combobox_property_changed (GtkComboBox * combobox, gpointer user_data)
 }
 
 
-static gboolean
-on_checkbox_property_notify_idle (gpointer _data)
+static void
+on_checkbox_property_notify_idle (GObject * machine, GParamSpec * property,
+    gpointer user_data)
 {
-  BtNotifyIdleData *data = (BtNotifyIdleData *) _data;
+  GtkWidget *widget = GTK_WIDGET (user_data);
+  gboolean value;
 
-  if (data->user_data) {
-    const GstElement *machine = data->machine;
-    GParamSpec *property = data->property;
-    GtkWidget *widget = GTK_WIDGET (data->user_data);
-    gboolean value;
+  //GST_INFO("property value notify received : %s ",property->name);
 
-    //GST_INFO("property value notify received : %s ",property->name);
-
-    g_object_get ((gpointer) machine, property->name, &value, NULL);
-    g_signal_handlers_block_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_checkbox_property_toggled, (gpointer) machine);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
-    g_signal_handlers_unblock_matched (widget,
-        G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
-        on_checkbox_property_toggled, (gpointer) machine);
-  }
-  FREE_NOTIFY_IDLE_DATA (data);
-  return (FALSE);
+  g_object_get (machine, property->name, &value, NULL);
+  g_signal_handlers_block_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_checkbox_property_toggled, (gpointer) machine);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
+  g_signal_handlers_unblock_matched (widget,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
+      on_checkbox_property_toggled, (gpointer) machine);
 }
 
 static void
-on_checkbox_property_notify (const GstElement * machine, GParamSpec * property,
+on_checkbox_property_notify (GObject * object, GParamSpec * property,
     gpointer user_data)
 {
-  BtNotifyIdleData *data;
-
-  MAKE_NOTIFY_IDLE_DATA (data, machine, property, user_data);
-  g_idle_add (on_checkbox_property_notify_idle, (gpointer) data);
+  bt_notify_idle_dispatch (object, property, user_data,
+      on_checkbox_property_notify_idle);
 }
 
 static void
