@@ -94,6 +94,9 @@ to make it dead easy writing new synths.
 - we could resample all wave-table entries when loading a song (keeping original
   waves in the files)
 
+### fancy transitions
+http://soledadpenades.com/2012/07/03/tween-audio/
+- e.g. bouncy
 
 ## design
 After adding more components we need to extract common interfaces. Each
@@ -119,7 +122,18 @@ others manually. We can use GBinding (since glib-2.26) for the proxy properties.
     - filter: the image changes when filter, cut-off and resonance changes
 - could we also generate a block diagramm and request it from the component
   interface
+  - maybe just sent as a structure - a list of rectangles, lines and
+    labels - and render it on the ui side, or generate dot files and pre-layout
+    as xdot during build.  
   - we need a way to draw the preview-images into it
+    - the boxes have a tag that refereces the preview image)
+  - if the image is in portrait format, we can draw it on the left side of the
+    machine-prop window
+  - when tabbing through the ui, we'd like to hightlight the related block
+    - this can be several of them (e.g. for an envelope length
+    - for envelopes it would be nice to highlight the point or segment
+    - for filters we'd like to hightlight the cut-off, but resonance is hard
+    
 
 ## open questions
 - do we need to pass the data fmt and channels? right now all components are

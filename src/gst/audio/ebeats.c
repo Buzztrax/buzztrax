@@ -62,6 +62,8 @@
  * http://www.soundonsound.com/sos/1996_articles/apr96/analoguedrums.html
  * http://www.soundonsound.com/search?page=2&Keyword=%22synth%20secrets%22&Words=All&Summary=Yes
  *   http://www.soundonsound.com/sos/Feb02/articles/synthsecrets0202.asp
+ *
+ * http://www.heise.de/ct/artikel/Tutorial-Einstieg-in-die-Drum-Synthese-mit-Waldorf-Attack-2799668.html
  */
 
 #ifdef HAVE_CONFIG_H

@@ -41,6 +41,10 @@
  * - when lowering the tick resolution, we need to handle loss of notes
  *   when doing 1/4 we would merge 4 rows into one keeping the first note found
  */
+/* TODO(ensonic): song-name generator
+ * - add a magic-wand buton behind the song-name
+ * - when clicked generate a song name
+ */
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_INFO_C

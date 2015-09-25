@@ -91,13 +91,24 @@
   - extra controllable parameter on pattern-control-source for transpose
 - we setup extra controller-functions to scale and shift the value (or
   introduce a special binding for that)
-- we need a controlbinding-router so that on pattern basis we can select which
-  controlsource is used (pattern, lfo, arpeggiator)
+- if we do this per pattern
+  - we need a controlbinding-router so that on pattern basis we can select which
+    controlsource is used (pattern, lfo, arpeggiator)
+  - parameter-group can already deal with different parents for each property,
+    but we can't change this per pattern
+  - the pattern layout would be different not only per machine, but also per
+    pattern
 - song format
-  - we store it per pattern before the data
+  - we store it per pattern before the tick-data, as e.g.
+    <controller name="<property>" type="lfo">
+    and then in the pattern for the ticks we store
+    <globaldata name="<property>.<control-property>" value="<val>">
 - ui
   - we need some extra buttons in the parameter header to select between
     {manual,automation}
+- !!!!: maybe this is overkill and the elements should just do it them self
+  - we can't store these setups in presets
+  + this would be a nice way of adding an arpeggiator
 
 
 * OSC support
