@@ -475,14 +475,16 @@ bt_machine_change_state (const BtMachine * const self,
   gboolean res = TRUE;
   BtSetup *setup;
 
+  // nothing changed, we're done
+  if (self->priv->state == new_state)
+    return TRUE;
+
   // reject a few nonsense changes
   if ((new_state == BT_MACHINE_STATE_BYPASS)
       && (!BT_IS_PROCESSOR_MACHINE (self)))
-    return (FALSE);
+    return FALSE;
   if ((new_state == BT_MACHINE_STATE_SOLO) && (BT_IS_SINK_MACHINE (self)))
-    return (FALSE);
-  if (self->priv->state == new_state)
-    return (TRUE);
+    return FALSE;
 
   g_object_get (self->priv->song, "setup", &setup, NULL);
 
@@ -1280,6 +1282,38 @@ bt_machine_check_type (const BtMachine * const self)
     return (FALSE);
   }
   return (TRUE);
+}
+
+static void
+bt_machine_init_ctrl_params (BtMachine * const self)
+{
+  // create a special control-source directly, no need to have a param-group
+  GstObject *parent;
+  BtSequence *sequence;
+  BtSongInfo *song_info;
+  GstControlBinding *cb;
+
+  GST_INFO ("building the control-source for machine::state");
+
+  g_object_get (self->priv->song, "sequence", &sequence, "song-info",
+      &song_info, NULL);
+
+  // need to ensure we have that created
+  if (BT_IS_SINK_MACHINE (self)) {
+    bt_machine_enable_input_gain (self);
+    parent = (GstObject *) self->priv->machines[PART_INPUT_GAIN];
+  } else {
+    bt_machine_enable_output_gain (self);
+    parent = (GstObject *) self->priv->machines[PART_OUTPUT_GAIN];
+  }
+
+  cb = (GstControlBinding *) bt_cmd_pattern_control_source_new (parent, "mute",
+      sequence, song_info, self);
+  gst_object_add_control_binding (parent, cb);
+  // TODO: need def-value handling
+
+  g_object_unref (song_info);
+  g_object_unref (sequence);
 }
 
 static void
@@ -3134,6 +3168,7 @@ bt_machine_constructed (GObject * object)
       G_OBJECT_LOG_REF_COUNT (self));
 
   // register params
+  bt_machine_init_ctrl_params (self);
   bt_machine_init_prefs_params (self);
   bt_machine_init_global_params (self);
   bt_machine_init_voice_params (self);
@@ -3376,7 +3411,8 @@ bt_machine_dispose (GObject * const object)
       gst_object_unref (self->priv->sink_pads[i]);
   }
 
-  // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
+  // gstreamer uses floating references, therefore elements are destroyed,
+  // when removed from the bin
   GST_DEBUG ("  releasing song: %p", self->priv->song);
   g_object_try_weak_unref (self->priv->song);
 

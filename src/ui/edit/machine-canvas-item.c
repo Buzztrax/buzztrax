@@ -448,7 +448,7 @@ on_machine_parent_changed (GstObject * object, GParamSpec * arg,
 */
 
 static void
-on_machine_state_changed (BtMachine * machine, GParamSpec * arg,
+on_machine_state_changed_idle (BtMachine * machine, GParamSpec * arg,
     gpointer user_data)
 {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
@@ -592,6 +592,13 @@ on_machine_state_changed (BtMachine * machine, GParamSpec * arg,
       GST_WARNING ("invalid machine state: %d", state);
       break;
   }
+}
+
+static void
+on_machine_state_changed (GObject * obj, GParamSpec * arg, gpointer user_data)
+{
+  bt_notify_idle_dispatch (obj, arg, user_data,
+      (BtNotifyFunc) on_machine_state_changed_idle);
 }
 
 static void

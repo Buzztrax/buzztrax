@@ -901,7 +901,7 @@ on_bypass_toggled (GtkToggleButton * togglebutton, gpointer user_data)
 }
 
 static void
-on_machine_state_changed_mute (BtMachine * machine, GParamSpec * arg,
+on_machine_state_changed_mute_idle (GObject * machine, GParamSpec * arg,
     gpointer user_data)
 {
   GtkToggleButton *button = GTK_TOGGLE_BUTTON (user_data);
@@ -918,7 +918,15 @@ on_machine_state_changed_mute (BtMachine * machine, GParamSpec * arg,
 }
 
 static void
-on_machine_state_changed_solo (BtMachine * machine, GParamSpec * arg,
+on_machine_state_changed_mute (GObject * obj, GParamSpec * arg,
+    gpointer user_data)
+{
+  bt_notify_idle_dispatch (obj, arg, user_data,
+      on_machine_state_changed_mute_idle);
+}
+
+static void
+on_machine_state_changed_solo_idle (GObject * machine, GParamSpec * arg,
     gpointer user_data)
 {
   GtkToggleButton *button = GTK_TOGGLE_BUTTON (user_data);
@@ -935,7 +943,15 @@ on_machine_state_changed_solo (BtMachine * machine, GParamSpec * arg,
 }
 
 static void
-on_machine_state_changed_bypass (BtMachine * machine, GParamSpec * arg,
+on_machine_state_changed_solo (GObject * obj, GParamSpec * arg,
+    gpointer user_data)
+{
+  bt_notify_idle_dispatch (obj, arg, user_data,
+      on_machine_state_changed_solo_idle);
+}
+
+static void
+on_machine_state_changed_bypass_idle (GObject * machine, GParamSpec * arg,
     gpointer user_data)
 {
   GtkToggleButton *button = GTK_TOGGLE_BUTTON (user_data);
@@ -949,6 +965,14 @@ on_machine_state_changed_bypass (BtMachine * machine, GParamSpec * arg,
   g_signal_handlers_unblock_matched (button,
       G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, on_bypass_toggled,
       (gpointer) machine);
+}
+
+static void
+on_machine_state_changed_bypass (GObject * obj, GParamSpec * arg,
+    gpointer user_data)
+{
+  bt_notify_idle_dispatch (obj, arg, user_data,
+      on_machine_state_changed_bypass_idle);
 }
 
 typedef struct

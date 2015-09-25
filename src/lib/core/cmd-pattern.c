@@ -27,16 +27,49 @@
  *   - the mute-pattern would need to control the mute-parameter of a machines
  *     output-volume (input-volume for master)
  *   - solo would be interpreted as mute on all other generators
- *   - bypass would need a (controllable) gobject property
+ *   - bypass would need a (controllable) gobject property on basetransform
  *   - break would need to be able to undo mute, solo, bypass
- * - for now we would need to handle the special patterns in
- *   bt_sequence_repair_global_damage_entry()
- * - we could see if we can make BtMachine::state controllable
+ *   - see bt_machine_change_state() for how the manual control works
+ *
+ * - we could see if we can make BtMachine::state controllable and attach a 
+ *     BtPatternControlSource to it.
+ *   - bt_machine_constructed() calles bt_machine_init_xxx_params() that creates
+ *     BtParamGroups, which in trun create the control-cources, we could create
+ *     the control-source for the state param from bt_machine_init_ctrl_params()
+ *     directly.
  *   - BtPatternCmd can be mapped 1:1 to BtMachineState (except _BREAK).
  *   - we would need a pad-probe to call gst_object_sync()
  *   - normal patterns + break would set the BtMachine::state=NORMAL
  *   - in sequence.c we need to do handle intern_damage (like global_damage) and
  *     we need BtMachine::bt_machine_intern_controller_change_value()
+ *
+ *   - or when we create the ctrl param group we do this like in 
+ *     bt_wire_init_params(), see also bt_machine_set_mute()
+ *     - then the cmd patterns need to set the right values, instead of just the
+ *       cmd
+ *     - won't work, since e.g. for solo, we change the state in other machines 
+ *       too
+ *
+ *  - or we need a special control_source here (BtCmdPatternControlSource), that
+ *    will check the other-machines, this is the only way to have the changes
+ *    properly synced
+ *      for each other_machine:
+ *        switch state:
+ *          case solo: mute myself, return
+ *      switch state:
+ *         case mute: mute myself
+ *         case solo: unmute myself
+ *         case bypass: set bypass on basetransform
+ *    - since we control e.g. volume::mute it will work without any extra
+ *      pad-probe.
+ *
+ *  - what happens if one uses the solo pattern twice in the sequencer?
+ *    -> song would be completely muted
+ *  - if we use a custom control-source we still would like to sync the machine
+ *    status, so that if a pattern switches to mute, the machine icons shows
+ *    that :/
+ *  - what should happen if a solo pattern is place while the prev pattern still
+ *    runs?
  */
 #define BT_CORE
 #define BT_CMD_PATTERN_C
@@ -144,13 +177,14 @@ bt_cmd_pattern_constructed (GObject * object)
   if (self->priv->cmd != BT_PATTERN_CMD_NORMAL) {
     gchar *name;
     /* track commands in sequencer:
-     * break : interrupt the pattern
+     *  normal: pattern with data and no command
      * mute: silence the machine
      * solo: only play this machine
      * bypass: deactivate this effect
+     * break : interrupt the pattern
      */
     const gchar *const cmd_names[] =
-        { N_("normal"), N_("break"), N_("mute"), N_("solo"), N_("bypass") };
+        { N_("normal"), N_("mute"), N_("solo"), N_("bypass"), N_("break") };
 
     // use 3 spaces to avoid clashes with normal patterns?
     name = g_strdup_printf ("   %s", _(cmd_names[self->priv->cmd]));

@@ -1,0 +1,60 @@
+/* Buzztrax
+ * Copyright (C) 2015 Buzztrax team <buzztrax-devel@buzztrax.org>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef BT_CMD_PATTERN_CONTROL_SOURCE_H
+#define BT_CMD_PATTERN_CONTROL_SOURCE_H
+
+#include <glib.h>
+#include <glib-object.h>
+
+#include "sequence.h"
+#include "song-info.h"
+
+#define BT_TYPE_CMD_PATTERN_CONTROL_SOURCE						(bt_cmd_pattern_control_source_get_type ())
+#define BT_CMD_PATTERN_CONTROL_SOURCE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_CMD_PATTERN_CONTROL_SOURCE, BtCmdPatternControlSource))
+#define BT_CMD_PATTERN_CONTROL_SOURCE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_CMD_PATTERN_CONTROL_SOURCE, BtCmdPatternControlSourceClass))
+#define BT_IS_CMD_PATTERN_CONTROL_SOURCE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_CMD_PATTERN_CONTROL_SOURCE))
+#define BT_IS_CMD_PATTERN_CONTROL_SOURCE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_CMD_PATTERN_CONTROL_SOURCE))
+#define BT_CMD_PATTERN_CONTROL_SOURCE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_CMD_PATTERN_CONTROL_SOURCE, BtCmdPatternControlSourceClass))
+
+/* type macros */
+
+typedef struct _BtCmdPatternControlSource BtCmdPatternControlSource;
+typedef struct _BtCmdPatternControlSourceClass BtCmdPatternControlSourceClass;
+typedef struct _BtCmdPatternControlSourcePrivate BtCmdPatternControlSourcePrivate;
+
+/**
+ * BtCmdPatternControlSource:
+ *
+ * A pattern based control source
+ */
+struct _BtCmdPatternControlSource {
+  const GstControlBinding parent;
+
+  /*< private > */
+  BtCmdPatternControlSourcePrivate *priv;
+};
+
+struct _BtCmdPatternControlSourceClass {
+  const GstControlBindingClass parent;
+};
+
+GType bt_cmd_pattern_control_source_get_type (void) G_GNUC_CONST;
+
+BtCmdPatternControlSource *bt_cmd_pattern_control_source_new (GstObject * object, const gchar * property_name, BtSequence * sequence, const BtSongInfo *song_info, const BtMachine * machine);
+
+#endif // BT_CMD_PATTERN_CONTROL_SOURCE_H

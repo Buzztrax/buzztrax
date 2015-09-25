@@ -298,6 +298,7 @@ libbuzztrax_core_la_SOURCES = \
   src/lib/core/audio-session.c \
   src/lib/core/childproxy.c \
   src/lib/core/cmd-pattern.c \
+  src/lib/core/cmd-pattern-control-source.c \
   src/lib/core/machine.c \
   src/lib/core/parameter-group.c \
   src/lib/core/pattern.c \
@@ -331,6 +332,7 @@ libbuzztrax_core_HEADERS = \
   src/lib/core/audio-session.h \
   src/lib/core/childproxy.h \
   src/lib/core/cmd-pattern.h \
+  src/lib/core/cmd-pattern-control-source.h \
   src/lib/core/machine.h \
   src/lib/core/parameter-group.h \
   src/lib/core/pattern.h \
