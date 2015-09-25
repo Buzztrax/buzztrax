@@ -86,6 +86,23 @@ bt_cmd_pattern_get_type
 </SECTION>
 
 <SECTION>
+<FILE>btcmdpatterncontrolsource</FILE>
+<TITLE>BtCmdPatternControlSource</TITLE>
+BtCmdPatternControlSource
+bt_cmd_pattern_control_source_new
+<SUBSECTION Standard>
+BT_CMD_PATTERN_CONTROL_SOURCE
+BT_CMD_PATTERN_CONTROL_SOURCE_CLASS
+BT_CMD_PATTERN_CONTROL_SOURCE_GET_CLASS
+BT_IS_CMD_PATTERN_CONTROL_SOURCE
+BT_IS_CMD_PATTERN_CONTROL_SOURCE_CLASS
+BT_TYPE_CMD_PATTERN_CONTROL_SOURCE
+BtCmdPatternControlSourceClass
+BtCmdPatternControlSourcePrivate
+bt_cmd_pattern_control_source_get_type
+</SECTION>
+
+<SECTION>
 <FILE>btmachine</FILE>
 <TITLE>BtMachine</TITLE>
 BtMachine

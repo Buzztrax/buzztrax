@@ -9,6 +9,7 @@ bt_application_get_type
 bt_audio_session_get_type
 bt_child_proxy_get_type
 bt_cmd_pattern_get_type
+bt_cmd_pattern_control_source_get_type
 bt_machine_get_type
 bt_parameter_group_get_type
 bt_pattern_get_type
