@@ -295,17 +295,14 @@ bt_pattern_control_source_constructor (GType type, guint n_construct_params,
   pspec = GST_CONTROL_BINDING_PSPEC (self);
   if (pspec) {
     BtParameterGroup *pg = self->priv->param_group;
-    GType type, base;
+    GType type;
 
     /* get the fundamental base type */
-    self->priv->type = base = type = G_PARAM_SPEC_VALUE_TYPE (pspec);
-    while ((type = g_type_parent (type)))
-      base = type;
-    self->priv->base = base;
-    type = self->priv->type;
+    self->priv->type = type = G_PARAM_SPEC_VALUE_TYPE (pspec);
+    self->priv->base = bt_g_type_get_base_type (type);
 
     GST_DEBUG_OBJECT (self->priv->machine, "%s: type %s, base %s", pspec->name,
-        g_type_name (type), g_type_name (base));
+        g_type_name (type), g_type_name (self->priv->base));
 
     /* assign param index from pspec */
     self->priv->param_index =
