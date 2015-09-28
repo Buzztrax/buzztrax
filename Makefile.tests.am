@@ -161,6 +161,7 @@ libbtcore_check_la_SOURCES = tests/lib/core/m-bt-core.h \
 	tests/lib/core/e-application.c \
 	tests/lib/core/e-audio-session.c \
 	tests/lib/core/e-cmd-pattern.c tests/lib/core/t-cmd-pattern.c \
+	tests/lib/core/e-cmd-pattern-control-source.c \
 	tests/lib/core/e-core.c tests/lib/core/t-core.c \
 	tests/lib/core/e-machine.c tests/lib/core/t-machine.c \
 	tests/lib/core/e-parameter-group.c tests/lib/core/t-parameter-group.c \
