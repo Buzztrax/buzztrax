@@ -423,10 +423,10 @@ bt_machine_on_duration_changed (BtSequence * const sequence,
 //-- helper methods
 
 /*
- * mute the machine output
+ * mute/unmute the machine output
  */
 static gboolean
-bt_machine_set_mute (const BtMachine * const self)
+bt_machine_set_mute (const BtMachine * const self, gboolean mute)
 {
   const BtMachinePart part =
       BT_IS_SINK_MACHINE (self) ? PART_INPUT_GAIN : PART_OUTPUT_GAIN;
@@ -434,29 +434,10 @@ bt_machine_set_mute (const BtMachine * const self)
   //if(self->priv->state==BT_MACHINE_STATE_MUTE) return(TRUE);
 
   if (self->priv->machines[part]) {
-    g_object_set (self->priv->machines[part], "mute", TRUE, NULL);
+    g_object_set (self->priv->machines[part], "mute", mute, NULL);
     return (TRUE);
   }
   GST_WARNING_OBJECT (self, "can't mute element '%s'", self->priv->id);
-  return (FALSE);
-}
-
-/*
- * unmute the machine output
- */
-static gboolean
-bt_machine_unset_mute (const BtMachine * const self)
-{
-  const BtMachinePart part =
-      BT_IS_SINK_MACHINE (self) ? PART_INPUT_GAIN : PART_OUTPUT_GAIN;
-
-  //if(self->priv->state!=BT_MACHINE_STATE_MUTE) return(TRUE);
-
-  if (self->priv->machines[part]) {
-    g_object_set (self->priv->machines[part], "mute", FALSE, NULL);
-    return (TRUE);
-  }
-  GST_WARNING_OBJECT (self, "can't unmute element '%s'", self->priv->id);
   return (FALSE);
 }
 
@@ -494,7 +475,7 @@ bt_machine_change_state (const BtMachine * const self,
   switch (self->priv->state) {
     case BT_MACHINE_STATE_MUTE:
       // source, processor, sink
-      if (!bt_machine_unset_mute (self))
+      if (!bt_machine_set_mute (self, FALSE))
         res = FALSE;
       break;
     case BT_MACHINE_STATE_SOLO:{
@@ -506,7 +487,7 @@ bt_machine_change_state (const BtMachine * const self,
       for (node = machines; node; node = g_list_next (node)) {
         machine = BT_MACHINE (node->data);
         if (machine != self) {
-          if (!bt_machine_unset_mute (machine))
+          if (!bt_machine_set_mute (machine, FALSE))
             res = FALSE;
         }
         g_object_unref (machine);
@@ -540,7 +521,7 @@ bt_machine_change_state (const BtMachine * const self,
   switch (new_state) {
     case BT_MACHINE_STATE_MUTE:{
       // source, processor, sink
-      if (!bt_machine_set_mute (self))
+      if (!bt_machine_set_mute (self, TRUE))
         res = FALSE;
     }
       break;
@@ -557,10 +538,10 @@ bt_machine_change_state (const BtMachine * const self,
           if (machine->priv->state == BT_MACHINE_STATE_SOLO) {
             machine->priv->state = BT_MACHINE_STATE_NORMAL;
             g_object_notify (G_OBJECT (machine), "state");
-            if (!bt_machine_unset_mute (self))
+            if (!bt_machine_set_mute (self, FALSE))
               res = FALSE;
           }
-          if (!bt_machine_set_mute (machine))
+          if (!bt_machine_set_mute (machine, TRUE))
             res = FALSE;
         }
         g_object_unref (machine);
