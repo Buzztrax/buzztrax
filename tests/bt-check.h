@@ -251,8 +251,8 @@ gpointer check_gobject_get_ptr_property(gpointer obj, const gchar *prop);
   gboolean __ck = check_gobject_get_boolean_property((O), (X)); \
   fail_unless(__ck C (Y), "Assertion '"#X#C#Y"' failed: "#X"==%ld, "#Y"==%ld", __ck, Y); \
 } while (0)
-#define ck_assert_gobject_boolean_eq(O, X, Y) _ck_assert_gboolean(O, X, ==, Y)
-#define ck_assert_gobject_boolean_ne(O, X, Y) _ck_assert_gboolean(O, X, !=, Y)
+#define ck_assert_gobject_gboolean_eq(O, X, Y) _ck_assert_gboolean(O, X, ==, Y)
+#define ck_assert_gobject_gboolean_ne(O, X, Y) _ck_assert_gboolean(O, X, !=, Y)
 
 #define _ck_assert_guint(O, X, C, Y) do { \
   guint __ck = check_gobject_get_uint_property((O), (X)); \

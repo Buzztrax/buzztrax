@@ -186,14 +186,14 @@ test_bt_song_play_single (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   fail_unless (play_signal_invoked, NULL);
-  ck_assert_gobject_boolean_eq (song, "is-playing", TRUE);
+  ck_assert_gobject_gboolean_eq (song, "is-playing", TRUE);
 
   GST_INFO ("-- act --");
   bt_song_stop (song);
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_boolean_eq (song, "is-playing", FALSE);
+  ck_assert_gobject_gboolean_eq (song, "is-playing", FALSE);
 
   GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (song);
@@ -314,8 +314,8 @@ test_bt_song_idle2 (BT_TEST_ARGS)
   GST_INFO ("playing");
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_boolean_eq (song, "is-playing", TRUE);
-  ck_assert_gobject_boolean_eq (song, "is-idle", TRUE);
+  ck_assert_gobject_gboolean_eq (song, "is-playing", TRUE);
+  ck_assert_gobject_gboolean_eq (song, "is-idle", TRUE);
 
   GST_INFO ("-- act --");
   bt_song_stop (song);
@@ -323,8 +323,8 @@ test_bt_song_idle2 (BT_TEST_ARGS)
   GST_INFO ("stopped");
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_boolean_eq (song, "is-playing", FALSE);
-  ck_assert_gobject_boolean_eq (song, "is-idle", TRUE);
+  ck_assert_gobject_gboolean_eq (song, "is-playing", FALSE);
+  ck_assert_gobject_gboolean_eq (song, "is-idle", TRUE);
 
   GST_INFO ("-- cleanup --");
   g_object_set (G_OBJECT (song), "is-idle", FALSE, NULL);

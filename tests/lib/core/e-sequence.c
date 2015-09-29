@@ -74,7 +74,7 @@ test_bt_sequence_new (BT_TEST_ARGS)
   GST_INFO ("-- assert --");
   ck_assert_gobject_gulong_eq (sequence, "length", 0);
   ck_assert_gobject_gulong_eq (sequence, "tracks", 0);
-  ck_assert_gobject_boolean_eq (sequence, "loop", FALSE);
+  ck_assert_gobject_gboolean_eq (sequence, "loop", FALSE);
   ck_assert_gobject_glong_eq (sequence, "loop-start", -1);
   ck_assert_gobject_glong_eq (sequence, "loop-end", -1);
 
@@ -575,7 +575,7 @@ test_bt_sequence_shortening_length_disables_loop (BT_TEST_ARGS)
   g_object_set (sequence, "length", 12L, NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_boolean_eq (sequence, "loop", FALSE);
+  ck_assert_gobject_gboolean_eq (sequence, "loop", FALSE);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (sequence);

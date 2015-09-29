@@ -155,7 +155,7 @@ test_bt_edit_application_new_song_is_saved (BT_TEST_ARGS)
   bt_edit_application_new_song (app);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_boolean_eq (app, "unsaved", FALSE);
+  ck_assert_gobject_gboolean_eq (app, "unsaved", FALSE);
   check_make_widget_screenshot (GTK_WIDGET (main_window), "song");
 
   GST_INFO ("-- cleanup --");
@@ -191,7 +191,7 @@ test_bt_edit_application_load_song_is_saved (BT_TEST_ARGS)
       NULL);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_boolean_eq (app, "unsaved", FALSE);
+  ck_assert_gobject_gboolean_eq (app, "unsaved", FALSE);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
