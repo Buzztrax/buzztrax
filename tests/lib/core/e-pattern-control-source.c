@@ -81,7 +81,7 @@ test_bt_pattern_control_source_new (BT_TEST_ARGS)
   fail_unless (pcs != NULL, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_object_unref (pcs);
+  gst_object_unref (pcs);
   BT_TEST_END;
 }
 
