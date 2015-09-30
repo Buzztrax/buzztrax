@@ -86,7 +86,7 @@ test_bt_pattern_control_source_new (BT_TEST_ARGS)
 }
 
 static void
-test_bt_pattern_control_source_normal_default_value (BT_TEST_ARGS)
+test_bt_pattern_control_source_normal_default_for_empty_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -110,7 +110,32 @@ test_bt_pattern_control_source_normal_default_value (BT_TEST_ARGS)
 }
 
 static void
-test_bt_pattern_control_source_trigger_default_value (BT_TEST_ARGS)
+test_bt_pattern_control_source_normal_default_for_cmd_pattern (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtCmdPattern *pattern = bt_cmd_pattern_new (song, machine,
+      BT_PATTERN_CMD_MUTE);
+  g_object_set (sequence, "length", 4L, NULL);
+  bt_sequence_add_track (sequence, machine, -1);
+  bt_sequence_set_pattern (sequence, 0, 0, pattern);
+
+  g_object_set (element, "g-ulong", 10, NULL);
+  bt_parameter_group_set_param_default (pg, 0);
+
+  GST_INFO ("-- act --");
+  gst_object_sync_values (element, G_GUINT64_CONSTANT (0));
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_gulong_eq (element, "g-ulong", 10);
+
+  GST_INFO ("-- cleanup --");
+  g_object_unref (pattern);
+  BT_TEST_END;
+}
+
+static void
+test_bt_pattern_control_source_trigger_default_for_empty_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -131,7 +156,7 @@ test_bt_pattern_control_source_trigger_default_value (BT_TEST_ARGS)
 }
 
 static void
-test_bt_pattern_control_source_override_default_value (BT_TEST_ARGS)
+test_bt_pattern_control_source_override_default_from_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -157,7 +182,7 @@ test_bt_pattern_control_source_override_default_value (BT_TEST_ARGS)
 }
 
 static void
-test_bt_pattern_control_source_restore_default_value (BT_TEST_ARGS)
+test_bt_pattern_control_source_restore_default_on_pattern_cleared (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -377,10 +402,16 @@ bt_pattern_control_source_example_case (void)
   TCase *tc = tcase_create ("BtPatternControlSourceExamples");
 
   tcase_add_test (tc, test_bt_pattern_control_source_new);
-  tcase_add_test (tc, test_bt_pattern_control_source_normal_default_value);
-  tcase_add_test (tc, test_bt_pattern_control_source_trigger_default_value);
-  tcase_add_test (tc, test_bt_pattern_control_source_override_default_value);
-  tcase_add_test (tc, test_bt_pattern_control_source_restore_default_value);
+  tcase_add_test (tc,
+      test_bt_pattern_control_source_normal_default_for_empty_pattern);
+  tcase_add_test (tc,
+      test_bt_pattern_control_source_normal_default_for_cmd_pattern);
+  tcase_add_test (tc,
+      test_bt_pattern_control_source_trigger_default_for_empty_pattern);
+  tcase_add_test (tc,
+      test_bt_pattern_control_source_override_default_from_pattern);
+  tcase_add_test (tc,
+      test_bt_pattern_control_source_restore_default_on_pattern_cleared);
   tcase_add_test (tc, test_bt_pattern_control_source_change_pattern);
   tcase_add_test (tc, test_bt_pattern_control_source_hold_normal);
   tcase_add_test (tc, test_bt_pattern_control_source_release_trigger);
