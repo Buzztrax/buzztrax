@@ -602,12 +602,13 @@ bt_machine_update_default_param_value (BtMachine * self,
   if ((cb = gst_object_get_control_binding (param_parent, property_name))) {
     bt_parameter_group_set_param_default (pg,
         bt_parameter_group_get_param_index (pg, property_name));
-    /* TODO(ensonic): it should actualy postpone the disable to the next timestamp
-     * (not possible right now).
-     *
-     * IDEA(ensonic): in pattern-cs
-     * - when enabling, it would need to delay the enabled to the next control-point
-     * - it would need to peek at the control-point list :/
+    /* TODO(ensonic): it should actualy postpone the enable to the next
+     * timestamp.
+     * for that in pattern-cs it would need to peek at the control-point-list,
+     * or somehow schedule this for the next sync call
+     */
+    /* re-enable cb on button_release
+     * see gst_object_set_control_binding_disabled() on button_press
      */
     gst_control_binding_set_disabled (cb, FALSE);
     gst_object_unref (cb);
