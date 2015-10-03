@@ -1406,7 +1406,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
 
   // add buttons (play,load)
   tool_item =
-      gtk_tool_button_new_from_icon_name ("media-playback-start", _("_Play"));
+      gtk_toggle_tool_button_new_from_icon_name ("media-playback-start",
+      _("_Play"));
   gtk_tool_item_set_tooltip_text (tool_item, _("Play current sample"));
   gtk_toolbar_insert (GTK_TOOLBAR (toolbar), tool_item, -1);
   g_signal_connect (tool_item, "clicked",
