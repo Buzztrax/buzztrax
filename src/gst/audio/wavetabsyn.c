@@ -171,20 +171,23 @@ gstbt_wave_tab_syn_set_property (GObject * object, guint prop_id,
       break;
     case PROP_NOTE:
       if ((src->note = g_value_get_enum (value))) {
-        gdouble freq =
-            gstbt_tone_conversion_translate_from_number (src->n2f, src->note);
+        GST_DEBUG_OBJECT (object, "new note -> '%d'", src->note);
+        if (src->note != GSTBT_NOTE_OFF) {
+          gdouble freq =
+              gstbt_tone_conversion_translate_from_number (src->n2f, src->note);
 
-        g_object_set (src->osc, "frequency", freq, NULL);
-        g_object_get (src->osc, "duration", &src->duration, NULL);
+          g_object_set (src->osc, "frequency", freq, NULL);
+          g_object_get (src->osc, "duration", &src->duration, NULL);
 
-        // this is the chunk that we need to repeat for the selected tone
-        src->cycle_size = ((GstBtAudioSynth *) src)->samplerate / freq;
-        src->cycle_pos = 0;
+          // this is the chunk that we need to repeat for the selected tone
+          src->cycle_size = ((GstBtAudioSynth *) src)->samplerate / freq;
+          src->cycle_pos = 0;
 
-        src->offset = 0;
-        gstbt_envelope_adsr_setup (src->volenv,
-            ((GstBtAudioSynth *) src)->samplerate,
-            ((GstBtAudioSynth *) src)->ticktime);
+          src->offset = 0;
+          gstbt_envelope_adsr_setup (src->volenv,
+              ((GstBtAudioSynth *) src)->samplerate,
+              ((GstBtAudioSynth *) src)->ticktime);
+        }
       }
       break;
     case PROP_OFFSET:

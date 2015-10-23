@@ -120,13 +120,15 @@ gstbt_sim_syn_set_property (GObject * object, guint prop_id,
     case PROP_NOTE:
       if ((src->note = g_value_get_enum (value))) {
         GST_DEBUG_OBJECT (object, "new note -> '%d'", src->note);
-        gdouble freq =
-            gstbt_tone_conversion_translate_from_number (src->n2f, src->note);
-        gstbt_envelope_ad_setup (src->volenv,
-            ((GstBtAudioSynth *) src)->samplerate);
-        g_object_set (src->osc, "frequency", freq, NULL);
-        gstbt_osc_synth_trigger (src->osc);
-        gstbt_filter_svf_trigger (src->filter);
+        if (src->note != GSTBT_NOTE_OFF) {
+          gdouble freq =
+              gstbt_tone_conversion_translate_from_number (src->n2f, src->note);
+          gstbt_envelope_ad_setup (src->volenv,
+              ((GstBtAudioSynth *) src)->samplerate);
+          g_object_set (src->osc, "frequency", freq, NULL);
+          gstbt_osc_synth_trigger (src->osc);
+          gstbt_filter_svf_trigger (src->filter);
+        }
       }
       break;
     case PROP_WAVE:
