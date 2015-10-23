@@ -548,7 +548,7 @@ bt_parameter_group_set_param_default (const BtParameterGroup * const self,
   if (!bt_parameter_group_is_param_trigger (self, index)) {
     GValue def_value = { 0, };
 
-    GST_INFO ("setting the current value");
+    GST_INFO_OBJECT (self->priv->parents[index], "setting the current value");
     g_value_init (&def_value, PARAM_TYPE (index));
     g_object_get_property (self->priv->parents[index], PARAM_NAME (index),
         &def_value);
@@ -556,7 +556,7 @@ bt_parameter_group_set_param_default (const BtParameterGroup * const self,
         NULL);
     g_value_unset (&def_value);
   } else {
-    GST_INFO ("setting the no value");
+    GST_INFO_OBJECT (self->priv->parents[index], "setting the no value");
     g_object_set (G_OBJECT (self->priv->cb[index]), "default-value",
         &self->priv->no_val[index], NULL);
   }
@@ -578,7 +578,8 @@ bt_parameter_group_set_param_value (const BtParameterGroup * const self,
   g_return_if_fail (G_IS_VALUE (event));
   g_return_if_fail (index < self->priv->num_params);
 
-  GST_DEBUG ("set value for %s", PARAM_NAME (index));
+  GST_DEBUG_OBJECT (self->priv->parents[index], "set value for %s",
+      PARAM_NAME (index));
   g_object_set_property (self->priv->parents[index], PARAM_NAME (index), event);
 }
 
