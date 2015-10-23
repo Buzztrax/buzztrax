@@ -135,6 +135,8 @@ get_value (GstControlBinding * self_, GstClockTime timestamp)
         if ((pattern = bt_sequence_get_pattern (sequence, l, i)))
           break;
       }
+      if (!pattern)
+        continue;
       if (BT_IS_PATTERN (pattern)) {
         g_object_get (pattern, "command", &cmd, "length", &len, NULL);
       } else {
