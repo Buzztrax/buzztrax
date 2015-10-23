@@ -126,6 +126,8 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   gint width, height, left, top;
   gint x, k;
   gboolean sensitive = gtk_widget_is_sensitive (widget);
+  gint pressed_key = -1, pressed_oct = -1;
+  static const gint bwk[] = { 1, -1, 2, -2, 3, 4, -4, 5, -5, 6, -6, 7 };
 
   width = gtk_widget_get_allocated_width (widget);
   height = gtk_widget_get_allocated_height (widget);
@@ -135,12 +137,17 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   gtk_render_background (style_ctx, cr, 0, 0, width, height);
   gtk_render_frame (style_ctx, cr, 0, 0, width, height);
 
-  // TODO: also render selected key
-
   left = self->border.left;
   top = self->border.top;
   width -= self->border.left + self->border.right;
   height -= self->border.top + self->border.bottom;
+
+  // render selected key
+  if (self->key != GSTBT_NOTE_NONE) {
+    pressed_key = self->key - GSTBT_NOTE_C_0;
+    pressed_oct = pressed_key / 16;
+    pressed_key &= 0xf;
+  }
 
   if (sensitive) {
     cairo_set_source_rgb (cr, 1.0, 1.0, 1.0);
@@ -157,7 +164,16 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   }
   // draw white keys
   for (x = left; x < width; x += KEY_WIDTH) {
-    cairo_rectangle (cr, x, 0.0, KEY_WIDTH, WHITE_KEY_HEIGHT);
+    cairo_rectangle (cr, x, top, KEY_WIDTH, WHITE_KEY_HEIGHT);
+    cairo_stroke (cr);
+  }
+  // render selected white key
+  if (pressed_key != -1 && bwk[pressed_key] > 0) {
+    x = left + (pressed_oct * 7 + (bwk[pressed_key] - 1)) * KEY_WIDTH;
+    cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
+    cairo_rectangle (cr, x, top, KEY_WIDTH, WHITE_KEY_HEIGHT);
+    cairo_fill_preserve (cr);
+    cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
     cairo_stroke (cr);
   }
   // draw black keys
@@ -166,7 +182,15 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
       k = 0;
     if (k == 2 || k == 6)
       continue;
-    cairo_rectangle (cr, x + 1, 0.0, KEY_WIDTH - 2, BLACK_KEY_HEIGHT);
+    cairo_rectangle (cr, x + 1, top, KEY_WIDTH - 2, BLACK_KEY_HEIGHT);
+    cairo_fill (cr);
+  }
+  // render selected black key
+  if (pressed_key != -1 && bwk[pressed_key] < 0) {
+    x = left + KEY_WIDTH / 2 +
+        (pressed_oct * 7 + (-bwk[pressed_key] - 1)) * KEY_WIDTH;
+    cairo_set_source_rgb (cr, 0.2, 0.2, 0.2);
+    cairo_rectangle (cr, x + 1, top, KEY_WIDTH - 2, BLACK_KEY_HEIGHT);
     cairo_fill (cr);
   }
 
@@ -239,6 +263,7 @@ bt_piano_keys_button_press (GtkWidget * widget, GdkEventButton * event)
 
     if (k < GSTBT_NOTE_LAST) {
       self->key = k;
+      gtk_widget_queue_draw (widget);
       g_signal_emit (self, signals[KEY_PRESSED], 0, k);
     }
   }
@@ -254,6 +279,7 @@ bt_piano_keys_button_release (GtkWidget * widget, GdkEventButton * event)
     return TRUE;
 
   if (self->key != GSTBT_NOTE_NONE) {
+    gtk_widget_queue_draw (widget);
     g_signal_emit (self, signals[KEY_RELEASED], 0, self->key);
     self->key = GSTBT_NOTE_NONE;
   }
