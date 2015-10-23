@@ -22,7 +22,7 @@
  * Provides an viewer for audio waveforms. It can handle multi-channel
  * waveforms, show loop-markers and a playback cursor.
  */
-/* TODO(ensonic): add seletion support
+/* TODO(ensonic): add selection support
  * - export the selection as two properties
  */
 
@@ -398,7 +398,6 @@ bt_waveform_viewer_set_property (GObject * object,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
   }
-  /* printf("SetProperty: loop_start=%d loop_end=%d\n", (int)self->loop_start, (int)self->loop_end); */
 }
 
 static void
