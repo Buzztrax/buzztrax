@@ -451,6 +451,7 @@ libbtedit_la_SOURCES = \
   src/ui/edit/panorama-popup.c src/ui/edit/panorama-popup.h \
   src/ui/edit/pattern-list-model.c src/ui/edit/pattern-list-model.h \
   src/ui/edit/pattern-properties-dialog.c src/ui/edit/pattern-properties-dialog.h \
+  src/ui/edit/piano-keys.c src/ui/edit/piano-keys.h \
   src/ui/edit/playback-controller-ic.c src/ui/edit/playback-controller-ic.h \
   src/ui/edit/playback-controller-socket.c src/ui/edit/playback-controller-socket.h \
   src/ui/edit/preset-list-model.c src/ui/edit/preset-list-model.h \

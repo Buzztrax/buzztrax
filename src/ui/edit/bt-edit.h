@@ -93,6 +93,7 @@
 #include "pattern-list-model.h"
 #include "pattern-properties-dialog.h"
 #include "pattern-editor.h"
+#include "piano-keys.h"
 #include "playback-controller-ic.h"
 #include "playback-controller-socket.h"
 #include "preset-list-model.h"
