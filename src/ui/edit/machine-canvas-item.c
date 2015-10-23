@@ -1645,6 +1645,7 @@ bt_machine_canvas_item_class_init (BtMachineCanvasItemClass * klass)
   /**
    * BtMachineCanvasItem::position-changed:
    * @self: the machine-canvas-item object that emitted the signal
+   * @event: the clutter event type, e.g. %CLUTTER_BUTTON_PRESS
    *
    * Signals that item has been moved around. The new position can be read from
    * the canvas item.
