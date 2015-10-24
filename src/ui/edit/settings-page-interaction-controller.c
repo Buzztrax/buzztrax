@@ -387,6 +387,7 @@ bt_settings_page_interaction_controller_init_ui (const
 {
   GtkWidget *label, *widget, *scrolled_window;
   GtkCellRenderer *renderer;
+  GtkTreeViewColumn *tree_col;
   GtkTreeSelection *tree_sel;
   BtIcRegistry *ic_registry;
   gchar *str;
@@ -452,9 +453,14 @@ bt_settings_page_interaction_controller_init_ui (const
       (renderer), 1);
   g_signal_connect (renderer, "edited", G_CALLBACK (on_control_name_edited),
       (gpointer) self);
-  gtk_tree_view_insert_column_with_attributes (self->priv->controller_list, -1,
-      _("Controller"), renderer, "text", CONTROLLER_LIST_LABEL, "expand", TRUE,
-      NULL);
+  if ((tree_col =
+          gtk_tree_view_column_new_with_attributes (_("Controller"), renderer,
+              "text", CONTROLLER_LIST_LABEL, NULL))
+      ) {
+    g_object_set (tree_col, "expand", TRUE, NULL);
+    gtk_tree_view_insert_column (self->priv->controller_list, tree_col, -1);
+  } else
+    GST_WARNING ("can't create treeview column");
 
   tree_sel = gtk_tree_view_get_selection (self->priv->controller_list);
   gtk_tree_selection_set_mode (tree_sel, GTK_SELECTION_BROWSE);
