@@ -545,6 +545,7 @@ btic_midi_device_dispose (GObject * const object)
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
+  btic_midi_device_stop (self);
 
   GST_DEBUG ("  chaining up");
   G_OBJECT_CLASS (btic_midi_device_parent_class)->dispose (object);
