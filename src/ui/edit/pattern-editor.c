@@ -999,14 +999,13 @@ bt_pattern_editor_key_press (GtkWidget * widget, GdkEventKey * event)
               // use event->hardware_keycode because of y<>z
               p = strchr (notenames, (char) event->hardware_keycode);
               if (p) {
-                gint value = 1 + (p - notenames) + 16 * self->octave;
+                gint value =
+                    GSTBT_NOTE_C_0 + (p - notenames) + 16 * self->octave;
                 if (value < col->min)
                   value = col->min;
                 if (value > col->max)
                   value = col->max;
-
-                if (value >= col->min && value <= col->max
-                    && (value & 15) <= 12) {
+                if ((value & 15) <= 12) {
                   self->callbacks->set_data_func (self->pattern_data,
                       col->user_data, self->row, self->group, self->parameter,
                       self->digit, value);
