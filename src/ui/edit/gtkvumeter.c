@@ -388,7 +388,7 @@ gtk_vumeter_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
 
   context = gtk_widget_get_style_context (widget);
   state = gtk_widget_get_state_flags (widget);
-  gtk_style_context_get_padding (context, state, &self->border);
+  gtk_style_context_get_border (context, state, &self->border);
 
   gtk_vumeter_allocate_colors (self);
 }
