@@ -40,14 +40,13 @@
  *   to filter for them
  * - we should also create widgets (or just drawables) for triggers:
  *   - note: small keyboard
- *   - triggers: a button where the x-pos is mapped to value
- *   - booleans: plain button
- *   - the non-note ones maybe with a drum icon
+ *   - int-triggers: a button where the x-pos is mapped to value
+ *   - bool-triggers: a plain button
  *   - then we can play then with the mouse (or keyboard when focused) and
  *     assign controllers
  *   - these should probably be all in one expander that is sticky at the bottom
  *     - it needs to combine voice triggers into a poly trigger
- *   - this needs to have live-playback running
+ *   - this needs to have idle-playback running
  */
 /* TODO(ensonic): mute/solo/bypass
  * - have a row with mute/solo/bypass check-boxes in the UI
