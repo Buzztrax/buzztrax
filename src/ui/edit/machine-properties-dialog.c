@@ -2783,7 +2783,7 @@ bt_machine_properties_dialog_dispose (GObject * object)
     gtk_widget_destroy (GTK_WIDGET (self->priv->group_menu));
     g_object_unref (self->priv->group_menu);
   }
-  for (j = 0; j < 2; j++) {
+  for (j = 0; j < G_N_ELEMENTS (self->priv->param_menu); j++) {
     if (self->priv->param_menu[j]) {
       gtk_widget_destroy (GTK_WIDGET (self->priv->param_menu[j]));
       g_object_unref (self->priv->param_menu[j]);
