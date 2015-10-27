@@ -122,8 +122,8 @@ bt_machine_list_model_add (BtMachineListModel * model, BtMachine * machine)
       g_sequence_insert_sorted (seq, machine, model_item_cmp, NULL);
   position = g_sequence_iter_get_position (iter.user_data);
 
-  g_signal_connect (machine, "notify::id", G_CALLBACK (on_machine_id_changed),
-      (gpointer) model);
+  g_signal_connect_object (machine, "notify::id",
+      G_CALLBACK (on_machine_id_changed), (gpointer) model, 0);
 
   // signal to the view/app
   path = gtk_tree_path_new ();
@@ -141,9 +141,6 @@ bt_machine_list_model_rem (BtMachineListModel * model, BtMachine * machine)
   gint position;
 
   GST_INFO_OBJECT (machine, "removing machine from model");
-
-  g_signal_handlers_disconnect_by_func (machine,
-      on_machine_id_changed, (gpointer) model);
 
   // remove entry
   iter = g_sequence_lookup (seq, machine, model_item_cmp, NULL);
@@ -259,10 +256,10 @@ bt_machine_list_model_new (BtSetup * setup)
   }
   g_list_free (list);
 
-  g_signal_connect (setup, "machine-added", G_CALLBACK (on_machine_added),
-      (gpointer) self);
-  g_signal_connect_after (setup, "machine-removed",
-      G_CALLBACK (on_machine_removed), (gpointer) self);
+  g_signal_connect_object (setup, "machine-added",
+      G_CALLBACK (on_machine_added), (gpointer) self, 0);
+  g_signal_connect_object (setup, "machine-removed",
+      G_CALLBACK (on_machine_removed), (gpointer) self, G_CONNECT_AFTER);
 
   return (self);
 }
@@ -482,20 +479,7 @@ bt_machine_list_model_finalize (GObject * object)
   GST_DEBUG ("!!!! self=%p", self);
 
   if (self->priv->setup) {
-    BtSetup *setup = self->priv->setup;
-    BtMachine *machine;
-    GList *list, *node;
-
-    g_signal_handlers_disconnect_by_data (setup, self);
-
-    g_object_get ((gpointer) setup, "machines", &list, NULL);
-    for (node = list; node; node = g_list_next (node)) {
-      machine = BT_MACHINE (node->data);
-      g_signal_handlers_disconnect_by_func (machine, on_machine_id_changed,
-          self);
-    }
-    g_list_free (list);
-    g_object_remove_weak_pointer ((GObject *) setup,
+    g_object_remove_weak_pointer ((GObject *) self->priv->setup,
         (gpointer *) & self->priv->setup);
   }
 

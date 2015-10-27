@@ -2624,13 +2624,13 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
         (gpointer) self);
   }
   // dynamically adjust voices
-  g_signal_connect (self->priv->machine, "notify::voices",
-      G_CALLBACK (on_machine_voices_notify), (gpointer) self);
+  g_signal_connect_object (self->priv->machine, "notify::voices",
+      G_CALLBACK (on_machine_voices_notify), (gpointer) self, 0);
   // dynamically adjust wire params
-  g_signal_connect (setup, "wire-added", G_CALLBACK (on_wire_added),
-      (gpointer) self);
-  g_signal_connect (setup, "wire-removed", G_CALLBACK (on_wire_removed),
-      (gpointer) self);
+  g_signal_connect_object (setup, "wire-added", G_CALLBACK (on_wire_added),
+      (gpointer) self, 0);
+  g_signal_connect_object (setup, "wire-removed", G_CALLBACK (on_wire_removed),
+      (gpointer) self, 0);
 
   // track machine name (keep window title up-to-date)
   g_object_bind_property_full (self->priv->machine, "pretty-name",
@@ -2707,8 +2707,6 @@ static void
 bt_machine_properties_dialog_dispose (GObject * object)
 {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (object);
-  BtSong *song;
-  BtSetup *setup;
   gulong j;
   GstElement *machine;
   GObject *machine_voice;
@@ -2719,17 +2717,6 @@ bt_machine_properties_dialog_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_object_get (self->priv->app, "song", &song, NULL);
-  if (song) {
-    g_object_get (song, "setup", &setup, NULL);
-  } else {
-    setup = NULL;
-  }
-  // disconnect handlers
-  g_signal_handlers_disconnect_by_data (self->priv->machine, self);
-  if (setup) {
-    g_signal_handlers_disconnect_by_data (setup, self);
-  }
   // disconnect all handlers that are connected to params
   g_object_get (self->priv->machine, "machine", &machine, NULL);
   g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
@@ -2790,8 +2777,6 @@ bt_machine_properties_dialog_dispose (GObject * object)
     }
   }
   g_object_unref (machine);
-  g_object_try_unref (setup);
-  g_object_try_unref (song);
 
   // get rid of context menus
   if (self->priv->group_menu) {

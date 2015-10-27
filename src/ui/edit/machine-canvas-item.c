@@ -1239,17 +1239,17 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
         gst_object_unref (element);
 
         bt_machine_canvas_item_init_context_menu (self);
-        g_signal_connect (self->priv->machine, "notify::state",
-            G_CALLBACK (on_machine_state_changed), (gpointer) self);
+        g_signal_connect_object (self->priv->machine, "notify::state",
+            G_CALLBACK (on_machine_state_changed), (gpointer) self, 0);
         /* FIXME(ensonic): this does not work anymore in gst-1.0
          * g_signal_connect (self->priv->machine, "notify::parent",
          *     G_CALLBACK (on_machine_parent_changed), (gpointer) self);
          */
         g_object_get (self->priv->app, "bin", &bin, NULL);
-        g_signal_connect (bin, "element-added",
-            G_CALLBACK (on_machine_parent_set), (gpointer) self);
-        g_signal_connect (bin, "element-removed",
-            G_CALLBACK (on_machine_parent_unset), (gpointer) self);
+        g_signal_connect_object (bin, "element-added",
+            G_CALLBACK (on_machine_parent_set), (gpointer) self, 0);
+        g_signal_connect_object (bin, "element-removed",
+            G_CALLBACK (on_machine_parent_unset), (gpointer) self, 0);
         gst_object_unref (bin);
 
         if (!BT_IS_SINK_MACHINE (self->priv->machine)) {
@@ -1295,9 +1295,6 @@ static void
 bt_machine_canvas_item_dispose (GObject * object)
 {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (object);
-  BtSong *song;
-  GstBin *bin;
-  GstBus *bus;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
@@ -1306,22 +1303,6 @@ bt_machine_canvas_item_dispose (GObject * object)
 
   GST_DEBUG ("machine: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self->priv->machine));
-
-  g_signal_handlers_disconnect_by_data (self->priv->machine, (gpointer) self);
-
-  g_object_get (self->priv->app, "song", &song, "bin", &bin, NULL);
-  if (song) {
-    g_signal_handlers_disconnect_by_func (song, on_song_is_playing_notify,
-        self);
-    g_object_unref (song);
-  }
-  g_signal_handlers_disconnect_by_data (bin, (gpointer) self);
-  bus = gst_element_get_bus (GST_ELEMENT (bin));
-  g_signal_handlers_disconnect_by_func (bus, on_machine_level_change, self);
-  gst_object_unref (bus);
-  gst_object_unref (bin);
-
-  GST_DEBUG ("  signal disconected");
 
   g_object_unref (self->priv->image);
 
@@ -1600,11 +1581,11 @@ bt_machine_canvas_item_init (BtMachineCanvasItem * self)
   self->priv->app = bt_edit_application_new ();
 
   g_object_get (self->priv->app, "song", &song, "bin", &bin, NULL);
-  g_signal_connect (song, "notify::is-playing",
-      G_CALLBACK (on_song_is_playing_notify), (gpointer) self);
+  g_signal_connect_object (song, "notify::is-playing",
+      G_CALLBACK (on_song_is_playing_notify), (gpointer) self, 0);
   bus = gst_element_get_bus (GST_ELEMENT (bin));
-  g_signal_connect (bus, "sync-message::element",
-      G_CALLBACK (on_machine_level_change), (gpointer) self);
+  g_signal_connect_object (bus, "sync-message::element",
+      G_CALLBACK (on_machine_level_change), (gpointer) self, 0);
   gst_object_unref (bus);
   self->priv->clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
   gst_object_unref (bin);

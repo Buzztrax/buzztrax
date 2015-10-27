@@ -1372,23 +1372,23 @@ bt_song_constructed (GObject * object)
   if (bus) {
     GST_DEBUG ("listen to bus messages (%p)", bus);
     gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-    bt_g_signal_connect (bus, "message::segment-done",
-        G_CALLBACK (on_song_segment_done), (gpointer) self);
-    bt_g_signal_connect (bus, "message::eos", G_CALLBACK (on_song_eos),
-        (gpointer) self);
-    bt_g_signal_connect (bus, "message::state-changed",
-        G_CALLBACK (on_song_state_changed), (gpointer) self);
-    bt_g_signal_connect (bus, "message::async-done",
-        G_CALLBACK (on_song_async_done), (gpointer) self);
-    bt_g_signal_connect (bus, "message::clock-lost",
-        G_CALLBACK (on_song_clock_lost), (gpointer) self);
-    bt_g_signal_connect (bus, "message::latency", G_CALLBACK (on_song_latency),
-        (gpointer) self);
-    bt_g_signal_connect (bus, "message::request-state",
-        G_CALLBACK (on_song_request_state), (gpointer) self);
+    bt_g_signal_connect_object (bus, "message::segment-done",
+        G_CALLBACK (on_song_segment_done), (gpointer) self, 0);
+    bt_g_signal_connect_object (bus, "message::eos", G_CALLBACK (on_song_eos),
+        (gpointer) self, 0);
+    bt_g_signal_connect_object (bus, "message::state-changed",
+        G_CALLBACK (on_song_state_changed), (gpointer) self, 0);
+    bt_g_signal_connect_object (bus, "message::async-done",
+        G_CALLBACK (on_song_async_done), (gpointer) self, 0);
+    bt_g_signal_connect_object (bus, "message::clock-lost",
+        G_CALLBACK (on_song_clock_lost), (gpointer) self, 0);
+    bt_g_signal_connect_object (bus, "message::latency",
+        G_CALLBACK (on_song_latency), (gpointer) self, 0);
+    bt_g_signal_connect_object (bus, "message::request-state",
+        G_CALLBACK (on_song_request_state), (gpointer) self, 0);
 #ifdef DETAILED_CPU_LOAD
-    bt_g_signal_connect (bus, "message::stream-status",
-        G_CALLBACK (on_song_stream_status), (gpointer) self);
+    bt_g_signal_connect_object (bus, "message::stream-status",
+        G_CALLBACK (on_song_stream_status), (gpointer) self, 0);
 #endif
 
     gst_bus_set_flushing (bus, FALSE);
@@ -1401,19 +1401,19 @@ bt_song_constructed (GObject * object)
   self->priv->sequence = bt_sequence_new (self);
   self->priv->wavetable = bt_wavetable_new (self);
 
-  g_signal_connect (self->priv->sequence, "notify::loop",
-      G_CALLBACK (bt_song_on_loop_changed), (gpointer) self);
-  g_signal_connect (self->priv->sequence, "notify::loop-start",
-      G_CALLBACK (bt_song_on_loop_start_changed), (gpointer) self);
-  g_signal_connect (self->priv->sequence, "notify::loop-end",
-      G_CALLBACK (bt_song_on_loop_end_changed), (gpointer) self);
-  g_signal_connect (self->priv->sequence, "notify::length",
-      G_CALLBACK (bt_song_on_length_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->sequence, "notify::loop",
+      G_CALLBACK (bt_song_on_loop_changed), (gpointer) self, 0);
+  g_signal_connect_object (self->priv->sequence, "notify::loop-start",
+      G_CALLBACK (bt_song_on_loop_start_changed), (gpointer) self, 0);
+  g_signal_connect_object (self->priv->sequence, "notify::loop-end",
+      G_CALLBACK (bt_song_on_loop_end_changed), (gpointer) self, 0);
+  g_signal_connect_object (self->priv->sequence, "notify::length",
+      G_CALLBACK (bt_song_on_length_changed), (gpointer) self, 0);
   GST_DEBUG ("  loop-signals connected");
-  g_signal_connect (self->priv->song_info, "notify::tpb",
-      G_CALLBACK (bt_song_on_tempo_changed), (gpointer) self);
-  g_signal_connect (self->priv->song_info, "notify::bpm",
-      G_CALLBACK (bt_song_on_tempo_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->song_info, "notify::tpb",
+      G_CALLBACK (bt_song_on_tempo_changed), (gpointer) self, 0);
+  g_signal_connect_object (self->priv->song_info, "notify::bpm",
+      G_CALLBACK (bt_song_on_tempo_changed), (gpointer) self, 0);
   GST_DEBUG ("  tempo-signals connected");
 
   bt_song_update_play_seek_event_and_play_pos (BT_SONG (self));
@@ -1559,18 +1559,8 @@ bt_song_dispose (GObject * const object)
       bt_song_idle_stop (self);
 
     GstBus *const bus = gst_element_get_bus (GST_ELEMENT (self->priv->bin));
-    g_signal_handlers_disconnect_by_data (bus, (gpointer) self);
     gst_bus_remove_signal_watch (bus);
     gst_object_unref (bus);
-  }
-
-  if (self->priv->sequence) {
-    g_signal_handlers_disconnect_by_data (self->priv->sequence,
-        (gpointer) self);
-  }
-  if (self->priv->song_info) {
-    g_signal_handlers_disconnect_by_func (self->priv->song_info,
-        bt_song_on_tempo_changed, (gpointer) self);
   }
 
   GST_DEBUG_OBJECT (self->priv->master, "sink-machine: %"

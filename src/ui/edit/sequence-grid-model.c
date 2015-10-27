@@ -306,18 +306,8 @@ on_sequence_pattern_added (BtSequence * sequence, BtPattern * pattern,
 {
   BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (user_data);
 
-  g_signal_connect (pattern, "notify::name",
-      G_CALLBACK (on_pattern_name_changed), (gpointer) model);
-}
-
-static void
-on_sequence_pattern_removed (BtSequence * sequence, BtPattern * pattern,
-    gpointer user_data)
-{
-  BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (user_data);
-
-  g_signal_handlers_disconnect_by_func (pattern, on_pattern_name_changed,
-      model);
+  g_signal_connect_object (pattern, "notify::name",
+      G_CALLBACK (on_pattern_name_changed), (gpointer) model, 0);
 }
 
 //-- constructor methods
@@ -367,21 +357,19 @@ bt_sequence_grid_model_new (BtSequence * sequence, BtSongInfo * song_info,
   on_sequence_length_changed (sequence, NULL, (gpointer) self);
 
   g_object_get (song_info, "tpb", &self->priv->ticks_per_beat, NULL);
-  g_signal_connect (song_info, "notify::tpb",
-      G_CALLBACK (on_song_info_tpb_changed), (gpointer) self);
+  g_signal_connect_object (song_info, "notify::tpb",
+      G_CALLBACK (on_song_info_tpb_changed), (gpointer) self, 0);
 
   // follow sequence grid size changes
-  g_signal_connect (sequence, "notify::length",
-      G_CALLBACK (on_sequence_length_changed), (gpointer) self);
-  g_signal_connect (sequence, "notify::tracks",
-      G_CALLBACK (on_sequence_tracks_changed), (gpointer) self);
-  g_signal_connect (sequence, "rows-changed",
-      G_CALLBACK (on_sequence_rows_changed), (gpointer) self);
+  g_signal_connect_object (sequence, "notify::length",
+      G_CALLBACK (on_sequence_length_changed), (gpointer) self, 0);
+  g_signal_connect_object (sequence, "notify::tracks",
+      G_CALLBACK (on_sequence_tracks_changed), (gpointer) self, 0);
+  g_signal_connect_object (sequence, "rows-changed",
+      G_CALLBACK (on_sequence_rows_changed), (gpointer) self, 0);
   // track pattern first additions, last removal
-  g_signal_connect (sequence, "pattern-added",
-      G_CALLBACK (on_sequence_pattern_added), (gpointer) self);
-  g_signal_connect (sequence, "pattern-removed",
-      G_CALLBACK (on_sequence_pattern_removed), (gpointer) self);
+  g_signal_connect_object (sequence, "pattern-added",
+      G_CALLBACK (on_sequence_pattern_added), (gpointer) self, 0);
 
   return (self);
 }
@@ -680,10 +668,7 @@ bt_sequence_grid_model_finalize (GObject * object)
   GST_DEBUG ("!!!! self=%p", self);
 
   if (self->priv->sequence) {
-    BtSequence *sequence = self->priv->sequence;
-
-    g_signal_handlers_disconnect_by_data (sequence, self);
-    g_object_remove_weak_pointer ((GObject *) sequence,
+    g_object_remove_weak_pointer ((GObject *) self->priv->sequence,
         (gpointer *) & self->priv->sequence);
   }
   if (self->priv->song_info) {

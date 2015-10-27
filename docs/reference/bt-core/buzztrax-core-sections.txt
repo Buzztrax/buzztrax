@@ -742,6 +742,7 @@ G_OBJECT_LOG_REF_COUNT
 bt_g_type_get_base_type
 bt_g_object_idle_add
 bt_g_signal_connect
+bt_g_signal_connect_object
 g_object_try_ref
 g_object_try_unref
 g_object_try_weak_ref

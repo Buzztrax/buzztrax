@@ -781,13 +781,7 @@ bt_dec_dispose (GObject * object)
 
   bt_dec_reset (self);
 
-  if (self->song) {
-    g_signal_handlers_disconnect_by_func (self->song, on_song_is_playing_notify,
-        self);
-    g_object_unref (self->song);
-    self->song = NULL;
-  }
-
+  g_clear_object (&self->song);
   g_object_unref (self->app);
 
   G_OBJECT_CLASS (bt_dec_parent_class)->dispose (object);
@@ -822,8 +816,8 @@ bt_dec_init (BtDec * self)
 
   self->app = g_object_new (BT_TYPE_DEC_APPLICATION, NULL);
   self->song = bt_song_new (self->app);
-  g_signal_connect (self->song, "notify::is-playing",
-      G_CALLBACK (on_song_is_playing_notify), (gpointer) self);
+  g_signal_connect_object (self->song, "notify::is-playing",
+      G_CALLBACK (on_song_is_playing_notify), (gpointer) self, 0);
   g_object_get (self->app, "bin", &self->bin, NULL);
 
   self->sinkpad =

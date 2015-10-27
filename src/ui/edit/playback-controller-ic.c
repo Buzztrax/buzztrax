@@ -126,22 +126,12 @@ on_control_notify (const BtIcControl * control, GParamSpec * arg,
 static void
 bt_playback_controller_ic_stop (BtPlaybackControllerIc * self)
 {
-  GHashTableIter iter;
-  gpointer key, value;
-
   if (!self->priv->device)
     return;
 
-  // unbind controllers + stop device
+  // stop device
   btic_device_stop (self->priv->device);
-  g_hash_table_iter_init (&iter, self->priv->commands);
-  while (g_hash_table_iter_next (&iter, &key, &value)) {
-    g_signal_handlers_disconnect_by_func (key, on_control_notify,
-        (gpointer) self);
-  }
-
-  g_object_unref (self->priv->device);
-  self->priv->device = NULL;
+  g_clear_object (&self->priv->device);
 
   g_hash_table_destroy (self->priv->commands);
   self->priv->commands = NULL;
@@ -176,8 +166,8 @@ bt_playback_controller_ic_start (BtPlaybackControllerIc * self)
         continue;
       if ((control = btic_device_get_control_by_name (self->priv->device,
                   (gchar *) value))) {
-        g_signal_connect (control, "notify::value",
-            G_CALLBACK (on_control_notify), (gpointer) self);
+        g_signal_connect_object (control, "notify::value",
+            G_CALLBACK (on_control_notify), (gpointer) self, 0);
         g_hash_table_insert (self->priv->commands, control, g_strdup (key));
       }
     }

@@ -188,8 +188,8 @@ on_control_notify_bound (BtIcControl * const control,
 
   machine = g_object_get_qdata ((GObject *) control, bt_machine_machine);
   if (machine) {
-    g_signal_connect (machine, "notify::id",
-        G_CALLBACK (on_machine_notify_id), (gpointer) control);
+    g_signal_connect_object (machine, "notify::id",
+        G_CALLBACK (on_machine_notify_id), (gpointer) control, 0);
   }
 }
 
@@ -335,16 +335,16 @@ bt_interaction_controller_menu_init_control_menu (const
     g_hash_table_insert (self->priv->control_to_menuitem, control, menu_item);
     g_signal_connect (menu_item, "activate", G_CALLBACK (on_control_bind),
         (gpointer) self);
-    g_signal_connect (control, "notify::bound",
-        G_CALLBACK (on_control_notify_bound), (gpointer) self);
+    g_signal_connect_object (control, "notify::bound",
+        G_CALLBACK (on_control_notify_bound), (gpointer) self, 0);
 
     machine = g_object_get_qdata ((GObject *) control, bt_machine_machine);
     if (machine) {
       if (!g_signal_handler_find (machine,
               G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
               on_machine_notify_id, (gpointer) control)) {
-        g_signal_connect (machine, "notify::id",
-            G_CALLBACK (on_machine_notify_id), (gpointer) control);
+        g_signal_connect_object (machine, "notify::id",
+            G_CALLBACK (on_machine_notify_id), (gpointer) control, 0);
       }
     }
   }
@@ -365,8 +365,8 @@ bt_interaction_controller_menu_init_device_menu (const
   g_object_get (ic_registry, "devices", &list, NULL);
   if (!self->priv->ic_changed_handler_id) {
     self->priv->ic_changed_handler_id =
-        g_signal_connect (ic_registry, "notify::devices",
-        G_CALLBACK (on_devices_changed), (gpointer) self);
+        g_signal_connect_object (ic_registry, "notify::devices",
+        G_CALLBACK (on_devices_changed), (gpointer) self, 0);
   }
   g_object_unref (ic_registry);
   if (list) {
@@ -386,8 +386,8 @@ bt_interaction_controller_menu_init_device_menu (const
       if (!g_signal_handler_find (device,
               G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL,
               on_controls_changed, (gpointer) self)) {
-        g_signal_connect (device, "notify::controls",
-            G_CALLBACK (on_controls_changed), (gpointer) self);
+        g_signal_connect_object (device, "notify::controls",
+            G_CALLBACK (on_controls_changed), (gpointer) self, 0);
       }
       // only create items for non-empty submenus
       if ((parentmenu =
@@ -536,35 +536,11 @@ static void
 bt_interaction_controller_menu_dispose (GObject * object)
 {
   BtInteractionControllerMenu *self = BT_INTERACTION_CONTROLLER_MENU (object);
-  BtIcRegistry *ic_registry;
-  BtIcDevice *device;
-  BtIcControl *control;
-  GList *dnode, *cnode, *devices, *controls;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
-
-  // disconnect notify handlers
-  g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);
-  g_object_get (ic_registry, "devices", &devices, NULL);
-  for (dnode = devices; dnode; dnode = g_list_next (dnode)) {
-    device = BTIC_DEVICE (dnode->data);
-    g_signal_handlers_disconnect_by_func (device,
-        on_controls_changed, (gpointer) self);
-    g_object_get (device, "controls", &controls, NULL);
-    for (cnode = controls; cnode; cnode = g_list_next (cnode)) {
-      control = BTIC_CONTROL (cnode->data);
-      g_signal_handlers_disconnect_by_func (control,
-          on_control_notify_bound, (gpointer) self);
-    }
-    g_list_free (controls);
-  }
-  g_list_free (devices);
-  g_signal_handlers_disconnect_by_func (ic_registry, on_devices_changed,
-      (gpointer) self);
-  g_object_unref (ic_registry);
 
   g_object_try_unref (self->priv->selected_control);
   g_object_try_unref (self->priv->selected_object);

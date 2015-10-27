@@ -162,10 +162,10 @@ bt_wave_list_model_new (BtWavetable * wavetable)
   }
   g_list_free (list);
 
-  g_signal_connect (wavetable, "wave-added", G_CALLBACK (on_wave_added),
-      (gpointer) self);
-  g_signal_connect (wavetable, "wave-removed", G_CALLBACK (on_wave_removed),
-      (gpointer) self);
+  g_signal_connect_object (wavetable, "wave-added", G_CALLBACK (on_wave_added),
+      (gpointer) self, 0);
+  g_signal_connect_object (wavetable, "wave-removed",
+      G_CALLBACK (on_wave_removed), (gpointer) self, 0);
 
   return (self);
 }
@@ -396,10 +396,7 @@ bt_wave_list_model_finalize (GObject * object)
   GST_DEBUG ("!!!! self=%p", self);
 
   if (self->priv->wavetable) {
-    BtWavetable *wavetable = self->priv->wavetable;
-
-    g_signal_handlers_disconnect_by_data (wavetable, self);
-    g_object_remove_weak_pointer ((GObject *) wavetable,
+    g_object_remove_weak_pointer ((GObject *) self->priv->wavetable,
         (gpointer *) & self->priv->wavetable);
   }
   g_ptr_array_free (self->priv->seq, TRUE);

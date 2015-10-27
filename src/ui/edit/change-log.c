@@ -1112,8 +1112,6 @@ bt_change_log_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_signal_handlers_disconnect_by_func (self->priv->app, on_song_changed, self);
-
   close_and_free_log (self);
   g_object_try_weak_unref (self->priv->app);
 
@@ -1215,8 +1213,8 @@ bt_change_log_init (BtChangeLog * self)
   self->priv->loggers = g_hash_table_new (g_str_hash, g_str_equal);
   on_song_changed (self->priv->app, NULL, self);
 
-  g_signal_connect (self->priv->app, "notify::song",
-      G_CALLBACK (on_song_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->app, "notify::song",
+      G_CALLBACK (on_song_changed), (gpointer) self, 0);
 }
 
 static void

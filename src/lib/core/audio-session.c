@@ -297,7 +297,6 @@ bt_audio_session_dispose (GObject * const object)
   self->priv->dispose_has_run = TRUE;
   GST_INFO ("!!!! self=%p", self);
 
-  g_signal_handlers_disconnect_by_data (self->priv->settings, (gpointer) self);
   g_object_unref (self->priv->settings);
 
   bt_audio_session_cleanup ();
@@ -331,10 +330,11 @@ bt_audio_session_init (BtAudioSession * self)
 
   // watch settings changes
   self->priv->settings = bt_settings_make ();
-  g_signal_connect (self->priv->settings, "notify::jack-transport-master",
-      G_CALLBACK (on_jack_transport_mode_changed), (gpointer) self);
-  g_signal_connect (self->priv->settings, "notify::jack-transport-slave",
-      G_CALLBACK (on_jack_transport_mode_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->settings,
+      "notify::jack-transport-master",
+      G_CALLBACK (on_jack_transport_mode_changed), (gpointer) self, 0);
+  g_signal_connect_object (self->priv->settings, "notify::jack-transport-slave",
+      G_CALLBACK (on_jack_transport_mode_changed), (gpointer) self, 0);
 
   GST_INFO ("done");
 }

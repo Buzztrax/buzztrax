@@ -418,10 +418,11 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
         g_object_set (widget2, "max-length", 9, "width-chars", 9, NULL);
         g_free (str_value);
         signal_name = g_strdup_printf ("notify::%s", property->name);
-        g_signal_connect (machine, signal_name,
-            G_CALLBACK (on_range_property_notify), (gpointer) widget1);
-        g_signal_connect (machine, signal_name,
-            G_CALLBACK (on_double_entry_property_notify), (gpointer) widget2);
+        g_signal_connect_object (machine, signal_name,
+            G_CALLBACK (on_range_property_notify), (gpointer) widget1, 0);
+        g_signal_connect_object (machine, signal_name,
+            G_CALLBACK (on_double_entry_property_notify), (gpointer) widget2,
+            0);
         g_signal_connect (widget1, "value-changed",
             G_CALLBACK (on_range_property_changed), (gpointer) machine);
         g_signal_connect (widget2, "changed",
@@ -467,8 +468,8 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
         on_combobox_property_notify (machine, property, (gpointer) widget1);
 
         signal_name = g_strdup_printf ("notify::%s", property->name);
-        g_signal_connect (machine, signal_name,
-            G_CALLBACK (on_combobox_property_notify), (gpointer) widget1);
+        g_signal_connect_object (machine, signal_name,
+            G_CALLBACK (on_combobox_property_notify), (gpointer) widget1, 0);
         g_signal_connect (widget1, "changed",
             G_CALLBACK (on_combobox_property_changed), (gpointer) machine);
         g_free (signal_name);
@@ -562,22 +563,11 @@ static void
 bt_machine_preferences_dialog_dispose (GObject * object)
 {
   BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG (object);
-  GstElement *machine;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
-
-  // disconnect handlers connected to machine properties
-  g_object_get (self->priv->machine, "machine", &machine, NULL);
-  g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
-      NULL, on_range_property_notify, NULL);
-  g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
-      NULL, on_double_entry_property_notify, NULL);
-  g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
-      NULL, on_combobox_property_notify, NULL);
-  g_object_unref (machine);
 
   g_object_try_unref (self->priv->machine);
   g_object_unref (self->priv->app);

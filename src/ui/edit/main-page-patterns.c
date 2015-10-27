@@ -2613,17 +2613,17 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   machine_menu_refresh (self, setup);
   //pattern_menu_refresh(self); // should be triggered by machine_menu_refresh()
   wavetable_menu_refresh (self, wavetable);
-  g_signal_connect (setup, "machine-added", G_CALLBACK (on_machine_added),
-      (gpointer) self);
-  g_signal_connect_after (setup, "machine-removed",
-      G_CALLBACK (on_machine_removed), (gpointer) self);
-  g_signal_connect_after (setup, "wire-added", G_CALLBACK (on_wire_added),
-      (gpointer) self);
-  g_signal_connect (setup, "wire-removed", G_CALLBACK (on_wire_removed),
-      (gpointer) self);
+  g_signal_connect_object (setup, "machine-added",
+      G_CALLBACK (on_machine_added), (gpointer) self, 0);
+  g_signal_connect_object (setup, "machine-removed",
+      G_CALLBACK (on_machine_removed), (gpointer) self, G_CONNECT_AFTER);
+  g_signal_connect_object (setup, "wire-added", G_CALLBACK (on_wire_added),
+      (gpointer) self, G_CONNECT_AFTER);
+  g_signal_connect_object (setup, "wire-removed", G_CALLBACK (on_wire_removed),
+      (gpointer) self, 0);
   // subscribe to play-pos changes of song->sequence
-  g_signal_connect (song, "notify::play-pos", G_CALLBACK (on_sequence_tick),
-      (gpointer) self);
+  g_signal_connect_object (song, "notify::play-pos",
+      G_CALLBACK (on_sequence_tick), (gpointer) self, 0l);
   // release the references
   g_object_unref (wavetable);
   g_object_unref (setup);
@@ -3303,8 +3303,8 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   // TODO(ensonic): cut, copy, paste
 
   // register event handlers
-  g_signal_connect ((gpointer) (self->priv->app), "notify::song",
-      G_CALLBACK (on_song_changed), (gpointer) self);
+  g_signal_connect_object ((gpointer) (self->priv->app), "notify::song",
+      G_CALLBACK (on_song_changed), (gpointer) self, 0);
   // listen to page changes
   g_signal_connect ((gpointer) pages, "notify::page",
       G_CALLBACK (on_page_switched), (gpointer) self);
@@ -3858,32 +3858,11 @@ static void
 bt_main_page_patterns_dispose (GObject * object)
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (object);
-  BtSong *song;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
-
-  g_object_get (self->priv->app, "song", &song, NULL);
-  if (song) {
-    BtSetup *setup;
-    BtWavetable *wavetable;
-
-    GST_DEBUG ("disconnect handlers from song=%" G_OBJECT_REF_COUNT_FMT,
-        G_OBJECT_LOG_REF_COUNT (song));
-    g_object_get (song, "setup", &setup, "wavetable", &wavetable, NULL);
-
-    g_signal_handlers_disconnect_by_data (setup, self);
-    g_signal_handlers_disconnect_by_func (song, on_sequence_tick, self);
-
-    // release the references
-    g_object_unref (wavetable);
-    g_object_unref (setup);
-    g_object_unref (song);
-  }
-
-  g_signal_handlers_disconnect_by_func (self->priv->app, on_song_changed, self);
 
   g_object_unref (self->priv->change_log);
   g_object_unref (self->priv->app);

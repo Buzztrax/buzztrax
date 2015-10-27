@@ -798,12 +798,12 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 
     // connect bus signals
     bus = gst_element_get_bus (GST_ELEMENT (bin));
-    bt_g_signal_connect (bus, "message::error", G_CALLBACK (on_song_error),
-        (gpointer) self);
-    bt_g_signal_connect (bus, "message::warning", G_CALLBACK (on_song_warning),
-        (gpointer) self);
-    bt_g_signal_connect (bus, "sync-message::element",
-        G_CALLBACK (on_song_level_change), (gpointer) self);
+    bt_g_signal_connect_object (bus, "message::error",
+        G_CALLBACK (on_song_error), (gpointer) self, 0);
+    bt_g_signal_connect_object (bus, "message::warning",
+        G_CALLBACK (on_song_warning), (gpointer) self, 0);
+    bt_g_signal_connect_object (bus, "sync-message::element",
+        G_CALLBACK (on_song_level_change), (gpointer) self, 0);
     gst_object_unref (bus);
 
     if (self->priv->clock)
@@ -813,8 +813,8 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
     // get the pad from the input-level and listen there for channel negotiation
     g_assert (GST_IS_ELEMENT (self->priv->level));
     if ((pad = gst_element_get_static_pad (self->priv->level, "src"))) {
-      g_signal_connect (pad, "notify::caps",
-          G_CALLBACK (on_channels_negotiated), (gpointer) self);
+      g_signal_connect_object (pad, "notify::caps",
+          G_CALLBACK (on_channels_negotiated), (gpointer) self, 0);
       gst_object_unref (pad);
     }
 
@@ -829,9 +829,8 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
         G_CALLBACK (on_song_volume_slider_press_event), (gpointer) self);
     g_signal_connect (self->priv->volume, "button-release-event",
         G_CALLBACK (on_song_volume_slider_release_event), (gpointer) self);
-    //g_signal_connect(self->priv->gain ,"notify::volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
-    g_signal_connect (self->priv->gain, "notify::master-volume",
-        G_CALLBACK (on_song_volume_changed), (gpointer) self);
+    g_signal_connect_object (self->priv->gain, "notify::master-volume",
+        G_CALLBACK (on_song_volume_changed), (gpointer) self, 0);
 
     gst_object_unref (self->priv->gain);
     gst_object_unref (self->priv->level);
@@ -839,11 +838,11 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   } else {
     GST_WARNING ("failed to get the master element of the song");
   }
-  g_signal_connect (song, "notify::is-playing",
-      G_CALLBACK (on_song_is_playing_notify), (gpointer) self);
+  g_signal_connect_object (song, "notify::is-playing",
+      G_CALLBACK (on_song_is_playing_notify), (gpointer) self, 0);
   on_sequence_loop_notify (sequence, NULL, (gpointer) self);
-  g_signal_connect (sequence, "notify::loop",
-      G_CALLBACK (on_sequence_loop_notify), (gpointer) self);
+  g_signal_connect_object (sequence, "notify::loop",
+      G_CALLBACK (on_sequence_loop_notify), (gpointer) self, 0);
   //-- release the references
   gst_object_unref (bin);
   g_object_unref (sequence);
@@ -1033,32 +1032,11 @@ static void
 bt_main_toolbar_dispose (GObject * object)
 {
   BtMainToolbar *self = BT_MAIN_TOOLBAR (object);
-  BtSong *song;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
-
-  g_object_get (self->priv->app, "song", &song, NULL);
-  if (song) {
-    GstBin *bin;
-    GstBus *bus;
-
-    GST_DEBUG ("disconnect handlers from song=%p", song);
-
-    g_signal_handlers_disconnect_by_data (song, self);
-
-    g_object_get (song, "bin", &bin, NULL);
-    bus = gst_element_get_bus (GST_ELEMENT (bin));
-    g_signal_handlers_disconnect_by_data (bus, self);
-    gst_object_unref (bus);
-    gst_object_unref (bin);
-    g_object_unref (song);
-  }
-
-  if (self->priv->gain)
-    g_signal_handlers_disconnect_by_data (self->priv->gain, self);
 
   g_object_try_weak_unref (self->priv->master);
   g_object_try_weak_unref (self->priv->gain);

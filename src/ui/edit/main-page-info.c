@@ -566,8 +566,8 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
       G_CALLBACK (on_info_changed), (gpointer) self);
 
   // register event handlers
-  g_signal_connect (self->priv->app, "notify::song",
-      G_CALLBACK (on_song_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->app, "notify::song",
+      G_CALLBACK (on_song_changed), (gpointer) self, 0);
   // listen to page changes
   g_signal_connect ((gpointer) pages, "notify::page",
       G_CALLBACK (on_page_switched), (gpointer) self);
@@ -623,8 +623,6 @@ bt_main_page_info_dispose (GObject * object)
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
-
-  g_signal_handlers_disconnect_by_func (self->priv->app, on_song_changed, self);
 
   g_object_try_unref (self->priv->song_info);
 

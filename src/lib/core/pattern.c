@@ -1275,13 +1275,14 @@ bt_pattern_constructed (GObject * object)
   }
   self->priv->_src = NULL;
 
-  g_signal_connect (self->priv->machine, "notify::voices",
-      G_CALLBACK (bt_pattern_on_voices_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->machine, "notify::voices",
+      G_CALLBACK (bt_pattern_on_voices_changed), (gpointer) self, 0);
   g_object_get (self->priv->song, "setup", &setup, NULL);
-  g_signal_connect (setup, "wire-added",
-      G_CALLBACK (bt_pattern_on_setup_wire_added), (gpointer) self);
-  g_signal_connect_after (setup, "wire-removed",
-      G_CALLBACK (bt_pattern_on_setup_wire_removed), (gpointer) self);
+  g_signal_connect_object (setup, "wire-added",
+      G_CALLBACK (bt_pattern_on_setup_wire_added), (gpointer) self, 0);
+  g_signal_connect_object (setup, "wire-removed",
+      G_CALLBACK (bt_pattern_on_setup_wire_removed), (gpointer) self,
+      G_CONNECT_AFTER);
   g_object_unref (setup);
 
   GST_DEBUG ("add pattern to machine");
@@ -1352,19 +1353,6 @@ bt_pattern_dispose (GObject * const object)
   }
   g_hash_table_destroy (self->priv->wire_value_groups);
   g_hash_table_destroy (self->priv->param_to_value_groups);
-
-  if (self->priv->machine) {
-    g_signal_handlers_disconnect_by_func (self->priv->machine,
-        bt_pattern_on_voices_changed, (gpointer) self);
-  }
-  if (self->priv->song) {
-    BtSetup *setup;
-    g_object_get (self->priv->song, "setup", &setup, NULL);
-    if (setup) {
-      g_signal_handlers_disconnect_by_data (setup, (gpointer) self);
-      g_object_unref (setup);
-    }
-  }
 
   g_object_try_weak_unref (self->priv->song);
   g_object_try_weak_unref (self->priv->machine);

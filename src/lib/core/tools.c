@@ -800,6 +800,32 @@ bt_g_signal_connect (gpointer instance, const gchar * detailed_signal,
   return id;
 }
 
+/**
+ * bt_g_signal_connect_object:
+ * @instance: (type GObject.Object): the instance to connect to.
+ * @detailed_signal: a string of the form "signal-name::detail".
+ * @c_handler: (scope async): the GCallback to connect.
+ * @data: data to pass to c_handler calls.
+ * @connect_flags: a combination of GConnectFlags
+ *
+ * Like g_signal_connect_object(), but checks first if the handler is already
+ * connected.
+ *
+ * Returns: the handler id
+ */
+gulong
+bt_g_signal_connect_object (gpointer instance, const gchar * detailed_signal,
+    GCallback c_handler, gpointer data, GConnectFlags connect_flags)
+{
+  gulong id = g_signal_handler_find (instance,
+      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, c_handler, data);
+  if (!id) {
+    id = g_signal_connect_object (instance, detailed_signal, c_handler, data,
+        connect_flags);
+  }
+  return id;
+}
+
 //-- cpu load monitoring
 
 static GstClockTime treal_last = G_GINT64_CONSTANT (0), tuser_last =

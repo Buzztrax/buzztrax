@@ -208,8 +208,8 @@ bt_main_pages_init_ui (const BtMainPages * self)
   g_object_thaw_notify ((GObject *) self);
 
   // register event handlers
-  g_signal_connect (self->priv->app, "notify::song",
-      G_CALLBACK (on_song_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->app, "notify::song",
+      G_CALLBACK (on_song_changed), (gpointer) self, 0);
   g_signal_connect ((gpointer) self, "notify::page",
       G_CALLBACK (on_page_switched), (gpointer) self);
 
@@ -277,8 +277,6 @@ bt_main_pages_dispose (GObject * object)
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
-
-  g_signal_handlers_disconnect_by_func (self->priv->app, on_song_changed, self);
 
   g_object_unref (self->priv->app);
   // this disposes the pages for us

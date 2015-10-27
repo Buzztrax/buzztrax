@@ -103,14 +103,14 @@ bt_wavelevel_list_model_add (BtWavelevelListModel * model,
   iter.user_data = g_sequence_append (seq, wavelevel);
   position = g_sequence_iter_get_position (iter.user_data);
 
-  g_signal_connect (wavelevel, "notify::root-note",
-      G_CALLBACK (on_wavelevel_property_changed), (gpointer) model);
-  g_signal_connect (wavelevel, "notify::rate",
-      G_CALLBACK (on_wavelevel_property_changed), (gpointer) model);
-  g_signal_connect (wavelevel, "notify::loop-start",
-      G_CALLBACK (on_wavelevel_property_changed), (gpointer) model);
-  g_signal_connect (wavelevel, "notify::loop-end",
-      G_CALLBACK (on_wavelevel_property_changed), (gpointer) model);
+  g_signal_connect_object (wavelevel, "notify::root-note",
+      G_CALLBACK (on_wavelevel_property_changed), (gpointer) model, 0);
+  g_signal_connect_object (wavelevel, "notify::rate",
+      G_CALLBACK (on_wavelevel_property_changed), (gpointer) model, 0);
+  g_signal_connect_object (wavelevel, "notify::loop-start",
+      G_CALLBACK (on_wavelevel_property_changed), (gpointer) model, 0);
+  g_signal_connect_object (wavelevel, "notify::loop-end",
+      G_CALLBACK (on_wavelevel_property_changed), (gpointer) model, 0);
 
   // signal to the view/app
   path = gtk_tree_path_new ();
@@ -393,18 +393,7 @@ bt_wavelevel_list_model_finalize (GObject * object)
   GST_DEBUG ("!!!! self=%p", self);
 
   if (self->priv->wave) {
-    BtWave *wave = self->priv->wave;
-    BtWavelevel *wavelevel;
-    GList *list, *node;
-
-    g_object_get ((gpointer) wave, "wavelevels", &list, NULL);
-    for (node = list; node; node = g_list_next (node)) {
-      wavelevel = BT_WAVELEVEL (node->data);
-      g_signal_handlers_disconnect_by_func (wavelevel,
-          on_wavelevel_property_changed, self);
-    }
-    g_list_free (list);
-    g_object_remove_weak_pointer ((GObject *) wave,
+    g_object_remove_weak_pointer ((GObject *) self->priv->wave,
         (gpointer *) & self->priv->wave);
   }
 

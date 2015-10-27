@@ -1179,13 +1179,13 @@ bt_machine_init_interfaces (const BtMachine * const self)
     gstbt_tempo_change_tempo (GSTBT_TEMPO (machine),
         (glong) bpm, (glong) tpb, update_subticks (bpm, tpb, latency));
 
-    g_signal_connect (song_info, "notify::bpm",
-        G_CALLBACK (bt_machine_on_bpm_changed), (gpointer) self);
-    g_signal_connect (song_info, "notify::tpb",
-        G_CALLBACK (bt_machine_on_tpb_changed), (gpointer) self);
+    g_signal_connect_object (song_info, "notify::bpm",
+        G_CALLBACK (bt_machine_on_bpm_changed), (gpointer) self, 0);
+    g_signal_connect_object (song_info, "notify::tpb",
+        G_CALLBACK (bt_machine_on_tpb_changed), (gpointer) self, 0);
     g_object_unref (song_info);
-    g_signal_connect (settings, "notify::latency",
-        G_CALLBACK (bt_machine_on_latency_changed), (gpointer) self);
+    g_signal_connect_object (settings, "notify::latency",
+        G_CALLBACK (bt_machine_on_latency_changed), (gpointer) self, 0);
     g_object_unref (settings);
     GST_INFO ("  tempo iface initialized");
   }
@@ -1195,8 +1195,8 @@ bt_machine_init_interfaces (const BtMachine * const self)
 
     g_object_get ((gpointer) (self->priv->song), "sequence", &sequence, NULL);
     bt_machine_on_duration_changed (sequence, NULL, (gpointer) self);
-    g_signal_connect (sequence, "notify::length",
-        G_CALLBACK (bt_machine_on_duration_changed), (gpointer) self);
+    g_signal_connect_object (sequence, "notify::length",
+        G_CALLBACK (bt_machine_on_duration_changed), (gpointer) self, 0);
 
     g_object_unref (sequence);
     GST_INFO ("  duration sync initialized");
@@ -3349,7 +3349,6 @@ static void
 bt_machine_dispose (GObject * const object)
 {
   const BtMachine *const self = BT_MACHINE (object);
-  BtSettings *settings = bt_settings_make ();
   const gulong voices = self->priv->voices;
   gulong i;
 
@@ -3361,28 +3360,6 @@ bt_machine_dispose (GObject * const object)
 
   // shut down interaction control setup
   g_hash_table_destroy (self->priv->control_data);
-
-  // disconnect notify handlers
-  if (self->priv->song) {
-    BtSequence *sequence;
-    BtSongInfo *song_info;
-    g_object_get ((gpointer) (self->priv->song), "sequence", &sequence,
-        "song-info", &song_info, NULL);
-    if (sequence) {
-      GST_DEBUG ("  disconnecting sequence handlers");
-      g_signal_handlers_disconnect_by_func (sequence,
-          bt_machine_on_duration_changed, (gpointer) self);
-      g_object_unref (sequence);
-    }
-    if (song_info) {
-      GST_DEBUG ("  disconnecting song-info handlers");
-      g_signal_handlers_disconnect_by_data (song_info, (gpointer) self);
-      g_object_unref (song_info);
-    }
-  }
-  g_signal_handlers_disconnect_by_func (settings,
-      bt_machine_on_latency_changed, (gpointer) self);
-  g_object_unref (settings);
 
   // unref the pads
   for (i = 0; i < PART_COUNT; i++) {

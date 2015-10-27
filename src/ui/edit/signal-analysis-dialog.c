@@ -1112,8 +1112,8 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   if ((pad =
           gst_element_get_static_pad (p->analyzers[ANALYZER_SPECTRUM],
               "sink"))) {
-    g_signal_connect (pad, "notify::caps", G_CALLBACK (on_caps_negotiated),
-        (gpointer) self);
+    g_signal_connect_object (pad, "notify::caps",
+        G_CALLBACK (on_caps_negotiated), (gpointer) self, 0);
     gst_object_unref (pad);
   }
   // create level meter
@@ -1145,8 +1145,8 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
 
   g_object_get (song, "bin", &bin, NULL);
   p->bus = gst_element_get_bus (GST_ELEMENT (bin));
-  g_signal_connect (p->bus, "sync-message::element",
-      G_CALLBACK (on_signal_analyser_change), (gpointer) self);
+  g_signal_connect_object (p->bus, "sync-message::element",
+      G_CALLBACK (on_signal_analyser_change), (gpointer) self, 0);
   p->clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
   gst_object_unref (bin);
 
@@ -1244,20 +1244,8 @@ bt_signal_analysis_dialog_dispose (GObject * object)
 
   GST_DEBUG ("!!!! removing signal handler");
 
-  if (self->priv->bus) {
-    g_signal_handlers_disconnect_by_func (self->priv->bus,
-        on_signal_analyser_change, self);
+  if (self->priv->bus)
     gst_object_unref (self->priv->bus);
-  }
-  if (self->priv->analyzers[ANALYZER_SPECTRUM]) {
-    GstPad *pad =
-        gst_element_get_static_pad (self->priv->analyzers[ANALYZER_SPECTRUM],
-        "sink");
-    if (pad) {
-      g_signal_handlers_disconnect_by_func (pad, on_caps_negotiated, self);
-      gst_object_unref (pad);
-    }
-  }
   // this destroys the analyzers too
   GST_DEBUG ("!!!! free analyzers");
   if (BT_IS_WIRE (self->priv->element)) {

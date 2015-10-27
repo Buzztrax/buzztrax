@@ -746,13 +746,13 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   on_format_menu_changed (GTK_COMBO_BOX (widget), (gpointer) self);
 
   // connect signal handlers    
-  g_signal_connect (self->priv->song, "notify::play-pos",
-      G_CALLBACK (on_song_play_pos_notify), (gpointer) self);
+  g_signal_connect_object (self->priv->song, "notify::play-pos",
+      G_CALLBACK (on_song_play_pos_notify), (gpointer) self, 0);
   bus = gst_element_get_bus (GST_ELEMENT (bin));
-  g_signal_connect (bus, "message::error", G_CALLBACK (on_song_error),
-      (gpointer) self);
-  g_signal_connect (bus, "message::eos", G_CALLBACK (on_song_eos),
-      (gpointer) self);
+  g_signal_connect_object (bus, "message::error", G_CALLBACK (on_song_error),
+      (gpointer) self, 0);
+  g_signal_connect_object (bus, "message::eos", G_CALLBACK (on_song_eos),
+      (gpointer) self, 0);
 
   gst_object_unref (bus);
   gst_object_unref (bin);
@@ -801,20 +801,7 @@ bt_render_dialog_dispose (GObject * object)
     self->priv->file_name = NULL;
   }
 
-  if (self->priv->song) {
-    GstBin *bin;
-
-    g_object_get (self->priv->song, "bin", &bin, NULL);
-    if (bin) {
-      GstBus *bus = gst_element_get_bus (GST_ELEMENT (bin));
-      g_signal_handlers_disconnect_by_data (bus, self);
-      gst_object_unref (bus);
-      gst_object_unref (bin);
-    }
-    g_signal_handlers_disconnect_by_func (self->priv->song,
-        on_song_play_pos_notify, self);
-    g_object_unref (self->priv->song);
-  }
+  g_object_try_unref (self->priv->song);
   g_object_unref (self->priv->app);
 
   G_OBJECT_CLASS (bt_render_dialog_parent_class)->dispose (object);

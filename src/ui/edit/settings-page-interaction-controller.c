@@ -147,8 +147,8 @@ notify_device_controlchange (BtIcLearn * learn, GParamSpec * arg,
             CONTROLLER_LIST_LABEL), TRUE);
     gtk_tree_path_free (path);
 
-    g_signal_connect (control, "notify::value",
-        G_CALLBACK (notify_controlchange), (gpointer) self);
+    g_signal_connect_object (control, "notify::value",
+        G_CALLBACK (notify_controlchange), (gpointer) self, 0);
   }
 }
 
@@ -180,8 +180,8 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
     g_object_get (device, "controls", &list, NULL);
     for (node = list; node; node = g_list_next (node)) {
       bt_object_list_model_append (store, (GObject *) node->data);
-      g_signal_connect (node->data, "notify::value",
-          G_CALLBACK (notify_controlchange), (gpointer) self);
+      g_signal_connect_object (node->data, "notify::value",
+          G_CALLBACK (notify_controlchange), (gpointer) self, 0);
     }
     g_list_free (list);
 
@@ -342,8 +342,8 @@ static void
 start_device (BtSettingsPageInteractionController * self)
 {
   if (BTIC_IS_LEARN (self->priv->device)) {
-    g_signal_connect (self->priv->device, "notify::device-controlchange",
-        G_CALLBACK (notify_device_controlchange), (gpointer) self);
+    g_signal_connect_object (self->priv->device, "notify::device-controlchange",
+        G_CALLBACK (notify_device_controlchange), (gpointer) self, 0);
     btic_learn_start (BTIC_LEARN (self->priv->device));
     gtk_label_set_text (self->priv->message,
         _("Use the device's controls to train them."));
@@ -360,8 +360,6 @@ start_device (BtSettingsPageInteractionController * self)
 static void
 stop_device (BtSettingsPageInteractionController * self)
 {
-  GList *node, *list;
-
   if (BTIC_IS_LEARN (self->priv->device)) {
     btic_learn_stop (BTIC_LEARN (self->priv->device));
     g_signal_handlers_disconnect_by_func (self->priv->device,
@@ -369,13 +367,6 @@ stop_device (BtSettingsPageInteractionController * self)
   } else {
     btic_device_stop (self->priv->device);
   }
-
-  g_object_get (self->priv->device, "controls", &list, NULL);
-  for (node = list; node; node = g_list_next (node)) {;
-    g_signal_handlers_disconnect_by_func (node->data,
-        notify_controlchange, (gpointer) self);
-  }
-  g_list_free (list);
 
   g_object_unref (self->priv->device);
   self->priv->device = NULL;
@@ -424,8 +415,8 @@ bt_settings_page_interaction_controller_init_ui (const
 
   // get list of devices from libbtic and listen to changes
   g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);
-  g_signal_connect (ic_registry, "notify::devices",
-      G_CALLBACK (on_ic_registry_devices_changed), (gpointer) self);
+  g_signal_connect_object (ic_registry, "notify::devices",
+      G_CALLBACK (on_ic_registry_devices_changed), (gpointer) self, 0);
   g_object_unref (ic_registry);
   g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
   gtk_grid_attach (GTK_GRID (self), widget, 2, 1, 1, 1);
@@ -562,7 +553,6 @@ bt_settings_page_interaction_controller_dispose (GObject * object)
 {
   BtSettingsPageInteractionController *self =
       BT_SETTINGS_PAGE_INTERACTION_CONTROLLER (object);
-  BtIcRegistry *ic_registry;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
@@ -572,11 +562,6 @@ bt_settings_page_interaction_controller_dispose (GObject * object)
   if (self->priv->device) {
     stop_device (self);
   }
-
-  g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);
-  g_signal_handlers_disconnect_by_func (ic_registry,
-      on_ic_registry_devices_changed, self);
-  g_object_unref (ic_registry);
 
   g_object_unref (self->priv->app);
 

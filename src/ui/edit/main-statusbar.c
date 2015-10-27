@@ -222,24 +222,24 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   g_object_get (song, "sequence", &sequence, "song-info", &song_info, NULL);
   bt_main_statusbar_update_length (self, sequence, song_info);
   // subscribe to property changes in song
-  g_signal_connect (song, "notify::play-pos",
-      G_CALLBACK (on_song_play_pos_notify), (gpointer) self);
-  g_signal_connect (song, "notify::is-playing",
-      G_CALLBACK (on_song_is_playing_notify), (gpointer) self);
+  g_signal_connect_object (song, "notify::play-pos",
+      G_CALLBACK (on_song_play_pos_notify), (gpointer) self, 0);
+  g_signal_connect_object (song, "notify::is-playing",
+      G_CALLBACK (on_song_is_playing_notify), (gpointer) self, 0);
   // subscribe to property changes in song_info
-  g_signal_connect (song_info, "notify::bpm",
-      G_CALLBACK (on_song_info_rhythm_notify), (gpointer) self);
-  g_signal_connect (song_info, "notify::tpb",
-      G_CALLBACK (on_song_info_rhythm_notify), (gpointer) self);
+  g_signal_connect_object (song_info, "notify::bpm",
+      G_CALLBACK (on_song_info_rhythm_notify), (gpointer) self, 0);
+  g_signal_connect_object (song_info, "notify::tpb",
+      G_CALLBACK (on_song_info_rhythm_notify), (gpointer) self, 0);
   // subscribe to property changes in sequence
-  g_signal_connect (sequence, "notify::length",
-      G_CALLBACK (on_sequence_loop_time_notify), (gpointer) self);
-  g_signal_connect (sequence, "notify::loop",
-      G_CALLBACK (on_sequence_loop_time_notify), (gpointer) self);
-  g_signal_connect (sequence, "notify::loop-start",
-      G_CALLBACK (on_sequence_loop_time_notify), (gpointer) self);
-  g_signal_connect (sequence, "notify::loop-end",
-      G_CALLBACK (on_sequence_loop_time_notify), (gpointer) self);
+  g_signal_connect_object (sequence, "notify::length",
+      G_CALLBACK (on_sequence_loop_time_notify), (gpointer) self, 0);
+  g_signal_connect_object (sequence, "notify::loop",
+      G_CALLBACK (on_sequence_loop_time_notify), (gpointer) self, 0);
+  g_signal_connect_object (sequence, "notify::loop-start",
+      G_CALLBACK (on_sequence_loop_time_notify), (gpointer) self, 0);
+  g_signal_connect_object (sequence, "notify::loop-end",
+      G_CALLBACK (on_sequence_loop_time_notify), (gpointer) self, 0);
   // release the references
   g_object_unref (song_info);
   g_object_unref (sequence);
@@ -428,28 +428,12 @@ static void
 bt_main_statusbar_dispose (GObject * object)
 {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR (object);
-  BtSong *song;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_object_get (self->priv->app, "song", &song, NULL);
-  if (song) {
-    BtSongInfo *song_info;
-    BtSequence *sequence;
-
-    GST_DEBUG ("disconnect handlers from song=%p", song);
-    g_object_get (song, "sequence", &sequence, "song-info", &song_info, NULL);
-
-    g_signal_handlers_disconnect_by_data (song, self);
-    g_signal_handlers_disconnect_by_data (song_info, self);
-    g_signal_handlers_disconnect_by_data (sequence, self);
-    g_object_unref (song_info);
-    g_object_unref (sequence);
-    g_object_unref (song);
-  }
   if (self->priv->cpu_load_handler_id)
     g_source_remove (self->priv->cpu_load_handler_id);
 #ifdef USE_MAIN_LOOP_IDLE_TRACKER

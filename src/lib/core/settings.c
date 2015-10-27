@@ -391,11 +391,11 @@ bt_settings_make (void)
     p->org_buzztrax_ui = g_settings_get_child (p->org_buzztrax, "ui");
 
     // add bindings
-    g_signal_connect (p->org_gnome_desktop_interface, "changed",
-        G_CALLBACK (on_settings_changed), (gpointer) singleton);
+    g_signal_connect_object (p->org_gnome_desktop_interface, "changed",
+        G_CALLBACK (on_settings_changed), (gpointer) singleton, 0);
     if (p->org_freedesktop_gstreamer_defaults) {
-      g_signal_connect (p->org_freedesktop_gstreamer_defaults, "changed",
-          G_CALLBACK (on_settings_changed), (gpointer) singleton);
+      g_signal_connect_object (p->org_freedesktop_gstreamer_defaults, "changed",
+          G_CALLBACK (on_settings_changed), (gpointer) singleton, 0);
     }
 
     g_object_add_weak_pointer ((GObject *) singleton,
@@ -845,15 +845,8 @@ bt_settings_dispose (GObject * const object)
   g_object_unref (p->org_buzztrax_directories);
   g_object_unref (p->org_buzztrax_ui);
 
-  g_signal_handlers_disconnect_matched (p->org_gnome_desktop_interface,
-      G_SIGNAL_MATCH_FUNC, 0, 0, NULL, on_settings_changed, NULL);
   g_object_unref (p->org_gnome_desktop_interface);
-
-  if (p->org_freedesktop_gstreamer_defaults) {
-    g_signal_handlers_disconnect_matched (p->org_freedesktop_gstreamer_defaults,
-        G_SIGNAL_MATCH_FUNC, 0, 0, NULL, on_settings_changed, NULL);
-    g_object_unref (p->org_freedesktop_gstreamer_defaults);
-  }
+  g_object_try_unref (p->org_freedesktop_gstreamer_defaults);
 
   G_OBJECT_CLASS (bt_settings_parent_class)->dispose (object);
   GST_DEBUG ("  done");

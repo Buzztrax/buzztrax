@@ -1248,7 +1248,6 @@ bt_sink_bin_dispose (GObject * const object)
   GST_DEBUG ("->NULL state change returned '%s'",
       gst_element_state_change_return_get_name (res));
 
-  g_signal_handlers_disconnect_by_data (self->priv->settings, (gpointer) self);
   g_object_unref (self->priv->settings);
 
   if (self->priv->mv_handler_id && self->priv->gain) {
@@ -1295,16 +1294,16 @@ bt_sink_bin_init (BtSinkBin * self)
   // watch settings changes
   self->priv->settings = bt_settings_make ();
   //GST_DEBUG("listen to settings changes (%p)",self->priv->settings);
-  g_signal_connect (self->priv->settings, "notify::audiosink",
-      G_CALLBACK (on_audio_sink_changed), (gpointer) self);
-  g_signal_connect (self->priv->settings, "notify::audiosink-device",
-      G_CALLBACK (on_audio_sink_changed), (gpointer) self);
-  g_signal_connect (self->priv->settings, "notify::system-audiosink",
-      G_CALLBACK (on_system_audio_sink_changed), (gpointer) self);
-  g_signal_connect (self->priv->settings, "notify::sample-rate",
-      G_CALLBACK (on_sample_rate_changed), (gpointer) self);
-  g_signal_connect (self->priv->settings, "notify::channels",
-      G_CALLBACK (on_channels_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->settings, "notify::audiosink",
+      G_CALLBACK (on_audio_sink_changed), (gpointer) self, 0);
+  g_signal_connect_object (self->priv->settings, "notify::audiosink-device",
+      G_CALLBACK (on_audio_sink_changed), (gpointer) self, 0);
+  g_signal_connect_object (self->priv->settings, "notify::system-audiosink",
+      G_CALLBACK (on_system_audio_sink_changed), (gpointer) self, 0);
+  g_signal_connect_object (self->priv->settings, "notify::sample-rate",
+      G_CALLBACK (on_sample_rate_changed), (gpointer) self, 0);
+  g_signal_connect_object (self->priv->settings, "notify::channels",
+      G_CALLBACK (on_channels_changed), (gpointer) self, 0);
 
   g_object_get (self->priv->settings,
       "sample-rate", &self->priv->sample_rate,

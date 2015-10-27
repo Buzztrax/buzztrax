@@ -1130,8 +1130,6 @@ bt_main_window_dispose (GObject * object)
   gtk_window_remove_accel_group (GTK_WINDOW (self),
       bt_ui_resources_get_accel_group ());
 
-  //g_signal_handlers_disconnect_matched(self,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_window_delete_event,NULL);
-  //g_signal_handlers_disconnect_matched(self,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_window_destroy,NULL);
   g_object_unref (self->priv->app);
 
   GST_DEBUG ("  chaining up");

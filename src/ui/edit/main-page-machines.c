@@ -1825,8 +1825,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
       G_CALLBACK (on_panorama_popup_changed), (gpointer) self);
 
   // register event handlers
-  g_signal_connect (self->priv->app, "notify::song",
-      G_CALLBACK (on_song_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->app, "notify::song",
+      G_CALLBACK (on_song_changed), (gpointer) self, 0);
   g_signal_connect (self->priv->canvas, "button-press-event",
       G_CALLBACK (on_canvas_button_press), (gpointer) self);
   g_signal_connect (self->priv->canvas, "button-release-event",
@@ -2594,7 +2594,6 @@ bt_main_page_machines_dispose (GObject * object)
     bt_panorama_popup_hide (self->priv->pan_popup);
     gtk_widget_destroy (GTK_WIDGET (self->priv->pan_popup));
   }
-  g_signal_handlers_disconnect_by_func (self->priv->app, on_song_changed, self);
   g_object_try_unref (self->priv->setup);
   g_object_unref (self->priv->change_log);
   g_object_unref (self->priv->app);

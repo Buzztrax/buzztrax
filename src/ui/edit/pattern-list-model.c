@@ -140,8 +140,8 @@ bt_pattern_list_model_add (BtPatternListModel * model, BtCmdPattern * pattern)
       g_sequence_insert_sorted (seq, pattern, model_item_cmp, NULL);
   position = g_sequence_iter_get_position (iter.user_data);
 
-  g_signal_connect (pattern, "notify::name",
-      G_CALLBACK (on_pattern_name_changed), (gpointer) model);
+  g_signal_connect_object (pattern, "notify::name",
+      G_CALLBACK (on_pattern_name_changed), (gpointer) model, 0);
 
   // signal to the view/app
   path = gtk_tree_path_new ();
@@ -160,9 +160,6 @@ bt_pattern_list_model_rem (BtPatternListModel * model, BtPattern * pattern)
   gint position;
 
   GST_INFO ("removing pattern from model");
-
-  g_signal_handlers_disconnect_by_func (pattern, on_pattern_name_changed,
-      model);
 
   // remove entry
   iter = g_sequence_lookup (seq, pattern, model_item_cmp, NULL);
@@ -328,14 +325,14 @@ bt_pattern_list_model_new (BtMachine * machine, BtSequence * sequence,
   }
   g_list_free (list);
 
-  g_signal_connect (machine, "pattern-added", G_CALLBACK (on_pattern_added),
-      (gpointer) self);
-  g_signal_connect (machine, "pattern-removed", G_CALLBACK (on_pattern_removed),
-      (gpointer) self);
-  g_signal_connect (sequence, "pattern-added",
-      G_CALLBACK (on_sequence_pattern_usage_changed), (gpointer) self);
-  g_signal_connect (sequence, "pattern-removed",
-      G_CALLBACK (on_sequence_pattern_usage_changed), (gpointer) self);
+  g_signal_connect_object (machine, "pattern-added",
+      G_CALLBACK (on_pattern_added), (gpointer) self, 0);
+  g_signal_connect_object (machine, "pattern-removed",
+      G_CALLBACK (on_pattern_removed), (gpointer) self, 0);
+  g_signal_connect_object (sequence, "pattern-added",
+      G_CALLBACK (on_sequence_pattern_usage_changed), (gpointer) self, 0);
+  g_signal_connect_object (sequence, "pattern-removed",
+      G_CALLBACK (on_sequence_pattern_usage_changed), (gpointer) self, 0);
 
   return (self);
 }
@@ -604,26 +601,10 @@ bt_pattern_list_model_finalize (GObject * object)
   GST_DEBUG ("!!!! self=%p", self);
 
   if (self->priv->machine) {
-    BtMachine *machine = self->priv->machine;
-    BtCmdPattern *pattern;
-    GList *list, *node;
-
-    g_signal_handlers_disconnect_by_data (machine, self);
-
-    g_object_get ((gpointer) machine, "patterns", &list, NULL);
-    for (node = list; node; node = g_list_next (node)) {
-      pattern = BT_CMD_PATTERN (node->data);
-      g_signal_handlers_disconnect_by_func (pattern, on_pattern_name_changed,
-          self);
-      g_object_unref (pattern);
-    }
-    g_list_free (list);
-    g_object_remove_weak_pointer ((GObject *) machine,
+    g_object_remove_weak_pointer ((GObject *) self->priv->machine,
         (gpointer *) & self->priv->machine);
   }
   if (self->priv->sequence) {
-    g_signal_handlers_disconnect_by_func (self->priv->sequence,
-        on_sequence_pattern_usage_changed, self);
     g_object_remove_weak_pointer ((GObject *) self->priv->sequence,
         (gpointer *) & self->priv->sequence);
   }

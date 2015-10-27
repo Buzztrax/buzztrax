@@ -611,8 +611,8 @@ bt_settings_page_playback_controller_init_ui (const
 
   // get list of devices from libbtic and listen to changes
   g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);
-  g_signal_connect (ic_registry, "notify::devices",
-      G_CALLBACK (on_ic_registry_devices_changed), (gpointer) self);
+  g_signal_connect_object (ic_registry, "notify::devices",
+      G_CALLBACK (on_ic_registry_devices_changed), (gpointer) self, 0);
   on_ic_registry_devices_changed (ic_registry, NULL, (gpointer) self);
   g_object_unref (ic_registry);
   gtk_grid_attach (table, widget, 1, 0, 1, 1);
@@ -663,7 +663,6 @@ bt_settings_page_playback_controller_dispose (GObject * object)
 {
   BtSettingsPagePlaybackController *self =
       BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER (object);
-  BtIcRegistry *ic_registry;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
@@ -672,11 +671,6 @@ bt_settings_page_playback_controller_dispose (GObject * object)
 
   g_hash_table_destroy (self->priv->ic_playback_cfg);
   g_hash_table_destroy (self->priv->ic_playback_widgets);
-
-  g_object_get (self->priv->app, "ic-registry", &ic_registry, NULL);
-  g_signal_handlers_disconnect_by_func (ic_registry,
-      on_ic_registry_devices_changed, self);
-  g_object_unref (ic_registry);
 
   g_object_unref (self->priv->settings);
   g_object_unref (self->priv->app);

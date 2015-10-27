@@ -517,8 +517,8 @@ bt_wire_canvas_item_new (const BtMainPageMachines * main_page_machines,
       (ClutterActor *) self, NULL);
 
   bt_child_proxy_get (self->priv->app, "song::setup", &setup, NULL);
-  g_signal_connect (setup, "machine-removed", G_CALLBACK (on_machine_removed),
-      (gpointer) self);
+  g_signal_connect_object (setup, "machine-removed",
+      G_CALLBACK (on_machine_removed), (gpointer) self, 0);
 
   //GST_INFO("wire canvas item added");
 
@@ -564,14 +564,14 @@ bt_wire_canvas_item_constructed (GObject * object)
   // volume and panorama handling
   g_object_get (self->priv->wire, "gain", &self->priv->wire_gain, "pan",
       &self->priv->wire_pan, NULL);
-  g_signal_connect (self->priv->wire_gain, "notify::volume",
-      G_CALLBACK (on_gain_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->wire_gain, "notify::volume",
+      G_CALLBACK (on_gain_changed), (gpointer) self, 0);
   if (self->priv->wire_pan) {
-    g_signal_connect (self->priv->wire_pan, "notify::panorama",
-        G_CALLBACK (on_pan_changed), (gpointer) self);
+    g_signal_connect_object (self->priv->wire_pan, "notify::panorama",
+        G_CALLBACK (on_pan_changed), (gpointer) self, 0);
   } else {
-    g_signal_connect (self->priv->wire, "notify::pan",
-        G_CALLBACK (on_wire_pan_changed), (gpointer) self);
+    g_signal_connect_object (self->priv->wire, "notify::pan",
+        G_CALLBACK (on_wire_pan_changed), (gpointer) self, 0);
   }
 
 
@@ -691,8 +691,9 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
       g_object_try_weak_ref (self->priv->main_page_machines);
       on_canvas_style_updated ((GtkWidget *) self->priv->main_page_machines,
           (gpointer) self);
-      g_signal_connect_after (self->priv->main_page_machines, "style-updated",
-          G_CALLBACK (on_canvas_style_updated), (gpointer) self);
+      g_signal_connect_object (self->priv->main_page_machines, "style-updated",
+          G_CALLBACK (on_canvas_style_updated), (gpointer) self,
+          G_CONNECT_AFTER);
       //GST_DEBUG("set the main_page_machines for wire_canvas_item: %p",self->priv->main_page_machines);
       break;
     case WIRE_CANVAS_ITEM_WIRE:
@@ -707,28 +708,18 @@ bt_wire_canvas_item_set_property (GObject * object, guint property_id,
       }
       break;
     case WIRE_CANVAS_ITEM_SRC:
-      if (self->priv->src) {
-        g_signal_handlers_disconnect_by_func (self->priv->src,
-            on_wire_src_position_changed, self);
-        g_object_unref (self->priv->src);
-      }
       self->priv->src = BT_MACHINE_CANVAS_ITEM (g_value_dup_object (value));
       if (self->priv->src) {
-        g_signal_connect (self->priv->src, "position-changed",
-            G_CALLBACK (on_wire_src_position_changed), (gpointer) self);
+        g_signal_connect_object (self->priv->src, "position-changed",
+            G_CALLBACK (on_wire_src_position_changed), (gpointer) self, 0);
         GST_DEBUG ("set the src for wire_canvas_item: %p", self->priv->src);
       }
       break;
     case WIRE_CANVAS_ITEM_DST:
-      if (self->priv->dst) {
-        g_signal_handlers_disconnect_by_func (self->priv->dst,
-            on_wire_dst_position_changed, self);
-        g_object_unref (self->priv->dst);
-      }
       self->priv->dst = BT_MACHINE_CANVAS_ITEM (g_value_dup_object (value));
       if (self->priv->dst) {
-        g_signal_connect (self->priv->dst, "position-changed",
-            G_CALLBACK (on_wire_dst_position_changed), (gpointer) self);
+        g_signal_connect_object (self->priv->dst, "position-changed",
+            G_CALLBACK (on_wire_dst_position_changed), (gpointer) self, 0);
         GST_DEBUG ("set the dst for wire_canvas_item: %p", self->priv->dst);
       }
       break;
@@ -750,56 +741,20 @@ static void
 bt_wire_canvas_item_dispose (GObject * object)
 {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM (object);
-  BtSong *song;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
-  if (self->priv->src) {
-    g_signal_handlers_disconnect_by_func (self->priv->src,
-        on_wire_src_position_changed, self);
-  }
-  if (self->priv->dst) {
-    g_signal_handlers_disconnect_by_func (self->priv->dst,
-        on_wire_dst_position_changed, self);
-  }
-  g_object_get (self->priv->app, "song", &song, NULL);
-  if (song) {
-    BtSetup *setup;
 
-    g_object_get (song, "setup", &setup, NULL);
-    g_signal_handlers_disconnect_by_func (setup, on_machine_removed, self);
-    g_object_unref (setup);
-    g_object_unref (song);
-  }
-  if (self->priv->wire_gain) {
-    g_signal_handlers_disconnect_by_func (self->priv->wire_gain,
-        on_gain_changed, self);
-    g_object_unref (self->priv->wire_gain);
-  }
-  if (self->priv->wire_pan) {
-    g_signal_handlers_disconnect_by_func (self->priv->wire_pan, on_pan_changed,
-        self);
-    g_object_unref (self->priv->wire_pan);
-  }
-  g_signal_handlers_disconnect_by_func (self->priv->wire, on_wire_pan_changed,
-      self);
-  g_signal_handlers_disconnect_by_func (self->priv->main_page_machines,
-      on_canvas_style_updated, self);
-  GST_DEBUG ("  signals disconected");
-
+  g_object_try_unref (self->priv->wire_gain);
+  g_object_try_unref (self->priv->wire_pan);
   g_object_unref (self->priv->pad_image);
-
-  GST_INFO ("releasing the wire %" G_OBJECT_REF_COUNT_FMT,
-      G_OBJECT_LOG_REF_COUNT (self->priv->wire));
   g_object_try_unref (self->priv->wire);
   g_object_try_unref (self->priv->src);
   g_object_try_unref (self->priv->dst);
   g_object_try_weak_unref (self->priv->main_page_machines);
   g_object_unref (self->priv->app);
-
-  GST_DEBUG ("  unrefing done");
 
   if (self->priv->analysis_dialog) {
     gtk_widget_destroy (self->priv->analysis_dialog);

@@ -1074,16 +1074,16 @@ on_wavetable_toolbar_play_clicked (GtkToolButton * button, gpointer user_data)
 
         bus = gst_element_get_bus (self->priv->preview);
         gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-        g_signal_connect (bus, "message::state-changed",
-            G_CALLBACK (on_preview_state_changed), (gpointer) self);
-        g_signal_connect (bus, "message::eos", G_CALLBACK (on_preview_eos),
-            (gpointer) self);
-        g_signal_connect (bus, "message::segment-done",
-            G_CALLBACK (on_preview_segment_done), (gpointer) self);
-        g_signal_connect (bus, "message::error", G_CALLBACK (on_preview_error),
-            (gpointer) self);
-        g_signal_connect (bus, "message::warning",
-            G_CALLBACK (on_preview_warning), (gpointer) self);
+        g_signal_connect_object (bus, "message::state-changed",
+            G_CALLBACK (on_preview_state_changed), (gpointer) self, 0);
+        g_signal_connect_object (bus, "message::eos",
+            G_CALLBACK (on_preview_eos), (gpointer) self, 0);
+        g_signal_connect_object (bus, "message::segment-done",
+            G_CALLBACK (on_preview_segment_done), (gpointer) self, 0);
+        g_signal_connect_object (bus, "message::error",
+            G_CALLBACK (on_preview_error), (gpointer) self, 0);
+        g_signal_connect_object (bus, "message::warning",
+            G_CALLBACK (on_preview_warning), (gpointer) self, 0);
         gst_object_unref (bus);
 
         self->priv->position_query =
@@ -1522,8 +1522,8 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
       0);
 
   // register event handlers
-  g_signal_connect (self->priv->app, "notify::song",
-      G_CALLBACK (on_song_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->app, "notify::song",
+      G_CALLBACK (on_song_changed), (gpointer) self, 0);
   g_signal_connect (self->priv->waveform_viewer, "notify::loop-start",
       G_CALLBACK (on_waveform_viewer_loop_start_changed), (gpointer) self);
   g_signal_connect (self->priv->waveform_viewer, "notify::loop-end",
@@ -1532,14 +1532,19 @@ bt_main_page_waves_init_ui (const BtMainPageWaves * self,
   // let settings control toolbar style and listen to other settings changes
   on_default_sample_folder_changed (self->priv->settings, NULL,
       (gpointer) self);
-  g_signal_connect (self->priv->settings, "notify::sample-folder",
-      G_CALLBACK (on_default_sample_folder_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->settings, "notify::sample-folder",
+      G_CALLBACK (on_default_sample_folder_changed), (gpointer) self, 0);
   g_object_bind_property_full (self->priv->settings, "toolbar-style",
       self->priv->list_toolbar, "toolbar-style", G_BINDING_SYNC_CREATE,
       bt_toolbar_style_changed, NULL, NULL, NULL);
   g_object_bind_property_full (self->priv->settings, "toolbar-style",
       self->priv->browser_toolbar, "toolbar-style", G_BINDING_SYNC_CREATE,
       bt_toolbar_style_changed, NULL, NULL, NULL);
+  g_signal_connect_object (self->priv->settings, "notify::audiosink",
+      G_CALLBACK (on_audio_sink_changed), (gpointer) self, 0);
+  g_signal_connect_object (self->priv->settings, "notify::system-audiosink",
+      G_CALLBACK (on_system_audio_sink_changed), (gpointer) self, 0);
+  update_audio_sink (self);
 
   GST_DEBUG ("  done");
 }
@@ -1561,14 +1566,6 @@ bt_main_page_waves_new (const BtMainPages * pages)
 
   self = BT_MAIN_PAGE_WAVES (g_object_new (BT_TYPE_MAIN_PAGE_WAVES, NULL));
   bt_main_page_waves_init_ui (self, pages);
-
-  // watch settings changes
-  g_signal_connect (self->priv->settings, "notify::audiosink",
-      G_CALLBACK (on_audio_sink_changed), (gpointer) self);
-  g_signal_connect (self->priv->settings, "notify::system-audiosink",
-      G_CALLBACK (on_system_audio_sink_changed), (gpointer) self);
-  update_audio_sink (self);
-
   return (self);
 }
 
@@ -1588,9 +1585,6 @@ bt_main_page_waves_dispose (GObject * object)
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_signal_handlers_disconnect_by_data (self->priv->settings, self);
-  g_signal_handlers_disconnect_by_func (self->priv->app, on_song_changed, self);
-
   g_object_unref (self->priv->settings);
   g_object_unref (self->priv->n2f);
   g_object_try_unref (self->priv->wavetable);
@@ -1608,7 +1602,6 @@ bt_main_page_waves_dispose (GObject * object)
     preview_stop (self);
     gst_element_set_state (self->priv->preview, GST_STATE_NULL);
     bus = gst_element_get_bus (GST_ELEMENT (self->priv->preview));
-    g_signal_handlers_disconnect_by_data (bus, self);
     gst_bus_remove_signal_watch (bus);
     gst_object_unref (bus);
     gst_object_unref (self->priv->preview);

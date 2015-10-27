@@ -1310,6 +1310,18 @@ sequence_table_refresh_model (const BtMainPageSequence * self,
   g_object_unref (store);
 }
 
+static void
+disconnect_machine_signals (BtMachine * machine)
+{
+  // FIXME(ensonic): be careful when using the new sequence model
+  // even though we can have multiple tracks per machine, we can disconnect them all, as we rebuild the treeview anyway
+  g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0,
+      0, NULL, on_machine_state_changed_mute, NULL);
+  g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0,
+      0, NULL, on_machine_state_changed_solo, NULL);
+  g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0,
+      0, NULL, on_machine_state_changed_bypass, NULL);
+}
 
 /*
  * sequence_table_clear:
@@ -1340,13 +1352,7 @@ sequence_table_clear (const BtMainPageSequence * self)
     // disconnect signal handlers
     for (i = 0; i < number_of_tracks; i++) {
       if ((machine = bt_sequence_get_machine (self->priv->sequence, i))) {
-        // even though we can have multiple tracks per machine, we can disconnect them all, as we rebuild the treeview anyway
-        g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0,
-            0, NULL, on_machine_state_changed_mute, NULL);
-        g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0,
-            0, NULL, on_machine_state_changed_solo, NULL);
-        g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0,
-            0, NULL, on_machine_state_changed_bypass, NULL);
+        disconnect_machine_signals (machine);
         // need to disconnect the label updates for the seq headers, unfortunately we don#t know the label
         // so we use a weak_ref and on_sequence_header_label_destroy()
         GST_INFO ("machine %" G_OBJECT_REF_COUNT_FMT,
@@ -2035,14 +2041,7 @@ sequence_remove_track (const BtMainPageSequence * self, gulong ix)
   BtMachine *machine;
 
   if ((machine = bt_sequence_get_machine (self->priv->sequence, ix))) {
-    // even though we can have multiple tracks per machine, we can disconnect them all, as we rebuild the treeview anyway
-    // FIXME(ensonic): be careful when using the new sequence model
-    g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
-        NULL, on_machine_state_changed_mute, NULL);
-    g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
-        NULL, on_machine_state_changed_solo, NULL);
-    g_signal_handlers_disconnect_matched (machine, G_SIGNAL_MATCH_FUNC, 0, 0,
-        NULL, on_machine_state_changed_bypass, NULL);
+    disconnect_machine_signals (machine);
     GST_INFO ("removing track for machine %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (machine));
 
@@ -3522,12 +3521,12 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   sequence_table_refresh_columns (self, song);
   update_after_track_changed (self);
   machine_menu_refresh (self, setup);
-  g_signal_connect (setup, "machine-added", G_CALLBACK (on_machine_added),
-      (gpointer) self);
-  g_signal_connect (setup, "machine-removed", G_CALLBACK (on_machine_removed),
-      (gpointer) self);
-  g_signal_connect (self->priv->sequence, "track-removed",
-      G_CALLBACK (on_track_removed), (gpointer) self);
+  g_signal_connect_object (setup, "machine-added",
+      G_CALLBACK (on_machine_added), (gpointer) self, 0);
+  g_signal_connect_object (setup, "machine-removed",
+      G_CALLBACK (on_machine_removed), (gpointer) self, 0);
+  g_signal_connect_object (self->priv->sequence, "track-removed",
+      G_CALLBACK (on_track_removed), (gpointer) self, 0);
   gtk_combo_box_set_active (GTK_COMBO_BOX (self->priv->pos_menu),
       self->priv->pos_format);
   // update toolbar
@@ -3540,21 +3539,21 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   g_object_set (self->priv->sequence_pos_table, "play-position", 0.0, NULL);
   // vumeters
   bus = gst_element_get_bus (GST_ELEMENT (bin));
-  bt_g_signal_connect (bus, "sync-message::element",
-      G_CALLBACK (on_track_level_change), (gpointer) self);
+  bt_g_signal_connect_object (bus, "sync-message::element",
+      G_CALLBACK (on_track_level_change), (gpointer) self, 0);
   gst_object_unref (bus);
   if (self->priv->clock)
     gst_object_unref (self->priv->clock);
   self->priv->clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
 
   // subscribe to play-pos changes of song->sequence
-  g_signal_connect (song, "notify::play-pos",
-      G_CALLBACK (on_song_play_pos_notify), (gpointer) self);
-  g_signal_connect (song, "notify::is-playing",
-      G_CALLBACK (on_song_is_playing_notify), (gpointer) self);
+  g_signal_connect_object (song, "notify::play-pos",
+      G_CALLBACK (on_song_play_pos_notify), (gpointer) self, 0);
+  g_signal_connect_object (song, "notify::is-playing",
+      G_CALLBACK (on_song_is_playing_notify), (gpointer) self, 0);
   // subscribe to changes in the rythm
-  g_signal_connect (self->priv->song_info, "notify::bars",
-      G_CALLBACK (on_song_info_bars_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->song_info, "notify::bars",
+      G_CALLBACK (on_song_info_bars_changed), (gpointer) self, 0);
   //-- release the references
   gst_object_unref (bin);
   g_object_unref (setup);
@@ -3966,8 +3965,8 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   pattern_list_refresh (self);  // this is needed for the initial model creation
 
   // register event handlers
-  g_signal_connect (self->priv->app, "notify::song",
-      G_CALLBACK (on_song_changed), (gpointer) self);
+  g_signal_connect_object (self->priv->app, "notify::song",
+      G_CALLBACK (on_song_changed), (gpointer) self, 0);
   // listen to page changes
   g_signal_connect ((gpointer) pages, "notify::page",
       G_CALLBACK (on_page_switched), (gpointer) self);
@@ -4646,46 +4645,14 @@ static void
 bt_main_page_sequence_dispose (GObject * object)
 {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE (object);
-  BtSong *song;
 
   return_if_disposed ();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG ("!!!! self=%p", self);
 
-  g_object_get (self->priv->app, "song", &song, NULL);
-  if (song) {
-    BtSetup *setup;
-    GstBin *bin;
-    GstBus *bus;
-
-    GST_DEBUG ("disconnect handlers from song=%" G_OBJECT_REF_COUNT_FMT,
-        G_OBJECT_LOG_REF_COUNT (song));
-    g_object_get (song, "setup", &setup, "bin", &bin, NULL);
-
-    g_signal_handlers_disconnect_by_data (song, self);
-    g_signal_handlers_disconnect_by_data (setup, self);
-
-    bus = gst_element_get_bus (GST_ELEMENT (bin));
-    g_signal_handlers_disconnect_by_func (bus, on_track_level_change, self);
-    gst_object_unref (bus);
-
-    gst_object_unref (bin);
-    g_object_unref (setup);
-    g_object_unref (song);
-  }
-  if (self->priv->song_info) {
-    BtSongInfo *song_info = self->priv->song_info;
-    g_signal_handlers_disconnect_by_func (song_info, on_song_info_bars_changed,
-        self);
-    g_object_unref (song_info);
-  }
-  if (self->priv->sequence) {
-    BtSequence *sequence = self->priv->sequence;
-    g_signal_handlers_disconnect_by_func (sequence, on_track_removed, self);
-    g_object_unref (sequence);
-  }
-  g_signal_handlers_disconnect_by_func (self->priv->app, on_song_changed, self);
+  g_object_try_unref (self->priv->song_info);
+  g_object_unref (self->priv->sequence);
   self->priv->main_window = NULL;
 
   g_object_unref (self->priv->change_log);
