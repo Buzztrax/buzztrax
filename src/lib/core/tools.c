@@ -777,30 +777,6 @@ bt_g_object_idle_add (GObject * obj, gint pri, GSourceFunc func)
 }
 
 /**
- * bt_g_signal_connect:
- * @instance: (type GObject.Object): the instance to connect to.
- * @detailed_signal: a string of the form "signal-name::detail".
- * @c_handler: (scope async): the GCallback to connect.
- * @data: data to pass to c_handler calls.
- *
- * Like g_signal_connect(), but checks first if the handler is already
- * connected.
- *
- * Returns: the handler id
- */
-gulong
-bt_g_signal_connect (gpointer instance, const gchar * detailed_signal,
-    GCallback c_handler, gpointer data)
-{
-  gulong id = g_signal_handler_find (instance,
-      G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, c_handler, data);
-  if (!id) {
-    id = g_signal_connect (instance, detailed_signal, c_handler, data);
-  }
-  return id;
-}
-
-/**
  * bt_g_signal_connect_object:
  * @instance: (type GObject.Object): the instance to connect to.
  * @detailed_signal: a string of the form "signal-name::detail".

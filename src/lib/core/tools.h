@@ -55,7 +55,6 @@ GType bt_g_type_get_base_type(const GType type);
 
 guint bt_g_object_idle_add(GObject *obj, gint pri, GSourceFunc func);
 
-gulong bt_g_signal_connect(gpointer instance, const gchar *detailed_signal, GCallback c_handler, gpointer data);
 gulong bt_g_signal_connect_object(gpointer instance, const gchar * detailed_signal, GCallback c_handler, gpointer data, GConnectFlags connect_flags);
 
 //-- cpu load monitoring
