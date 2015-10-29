@@ -169,19 +169,11 @@ on_song_info_rhythm_notify (const BtSongInfo * song_info, GParamSpec * arg,
     gpointer user_data)
 {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR (user_data);
-  BtSong *song;
   BtSequence *sequence;
 
-  // get song from app
-  g_object_get (self->priv->app, "song", &song, NULL);
-  g_return_if_fail (song);
-  g_object_get (song, "sequence", &sequence, NULL);
-
+  bt_child_proxy_get (self->priv->app, "song::sequence", &sequence, NULL);
   bt_main_statusbar_update_length (self, sequence, song_info);
-
-  // release the references
   g_object_unref (sequence);
-  g_object_unref (song);
 }
 
 static void
@@ -189,19 +181,11 @@ on_sequence_loop_time_notify (const BtSequence * sequence, GParamSpec * arg,
     gpointer user_data)
 {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR (user_data);
-  BtSong *song;
   BtSongInfo *song_info;
 
-  // get song from app
-  g_object_get (self->priv->app, "song", &song, NULL);
-  g_return_if_fail (song);
-  g_object_get (song, "song-info", &song_info, NULL);
-
+  bt_child_proxy_get (self->priv->app, "song::song-info", &song_info, NULL);
   bt_main_statusbar_update_length (self, sequence, song_info);
-
-  // release the references
   g_object_unref (song_info);
-  g_object_unref (song);
 }
 
 static void
