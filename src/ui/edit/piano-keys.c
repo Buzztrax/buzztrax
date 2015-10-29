@@ -123,7 +123,7 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
 {
   BtPianoKeys *self = BT_PIANO_KEYS (widget);
   GtkStyleContext *style_ctx;
-  gint width, height, left, top;
+  gint width, height, left, right, top;
   gint x, k;
   gboolean sensitive = gtk_widget_is_sensitive (widget);
   gint pressed_key = -1, pressed_oct = -1;
@@ -141,6 +141,7 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   top = self->border.top;
   width -= self->border.left + self->border.right;
   height -= self->border.top + self->border.bottom;
+  right = left + width;
 
   // render selected key
   if (self->key != GSTBT_NOTE_NONE) {
@@ -163,7 +164,7 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
     cairo_set_source_rgb (cr, 0.3, 0.3, 0.3);
   }
   // draw white keys
-  for (x = left; x < width; x += KEY_WIDTH) {
+  for (x = left; x < right; x += KEY_WIDTH) {
     cairo_rectangle (cr, x, top, KEY_WIDTH, WHITE_KEY_HEIGHT);
     cairo_stroke (cr);
   }
@@ -177,7 +178,7 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
     cairo_stroke (cr);
   }
   // draw black keys
-  for (x = left + KEY_WIDTH / 2, k = 0; x < width; x += KEY_WIDTH, k++) {
+  for (x = left + KEY_WIDTH / 2, k = 0; x < right; x += KEY_WIDTH, k++) {
     if (k == 7)
       k = 0;
     if (k == 2 || k == 6)
@@ -208,16 +209,30 @@ bt_piano_keys_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
   BtPianoKeys *self = BT_PIANO_KEYS (widget);
   GtkStyleContext *context;
   GtkStateFlags state;
+  GtkBorder pad;
+  gint max_width;
+
+  context = gtk_widget_get_style_context (widget);
+  state = gtk_widget_get_state_flags (widget);
+  gtk_style_context_get_border (context, state, &self->border);
+  gtk_style_context_get_padding (context, state, &pad);
+  // the default padding is a bit weird :/
+  self->border.left += pad.left - 1;
+  self->border.right += pad.right - 1;
+  self->border.top += pad.top + 1;
+  self->border.bottom += pad.bottom + 1;
+
+  // no more than 10 octaves
+  max_width = self->border.left + self->border.right + KEY_WIDTH * 70;
+  if (allocation->width > max_width) {
+    allocation->width = max_width;
+  }
 
   gtk_widget_set_allocation (widget, allocation);
 
   if (gtk_widget_get_realized (widget))
     gdk_window_move_resize (self->window,
         allocation->x, allocation->y, allocation->width, allocation->height);
-
-  context = gtk_widget_get_style_context (widget);
-  state = gtk_widget_get_state_flags (widget);
-  gtk_style_context_get_border (context, state, &self->border);
 }
 
 static void
