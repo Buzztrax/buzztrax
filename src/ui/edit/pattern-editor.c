@@ -1464,7 +1464,8 @@ bt_pattern_editor_set_property (GObject * object,
     case PROP_PLAY_POSITION:{
       gdouble old_pos = self->play_pos;
       self->play_pos = g_value_get_double (value);
-      if (gtk_widget_get_realized (GTK_WIDGET (self))) {
+      if (gtk_widget_get_realized (GTK_WIDGET (self)) &&
+          (old_pos != self->play_pos)) {
         gint w = gtk_widget_get_allocated_width (GTK_WIDGET (self));
         gdouble h = (gdouble) bt_pattern_editor_get_col_height (self)
             - (gdouble) self->colhdr_height;
