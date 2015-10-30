@@ -215,13 +215,17 @@ gst_cmd_pattern_control_source_sync_values (GstControlBinding * self_,
     GstObject * object, GstClockTime timestamp, GstClockTime last_sync)
 {
   BtCmdPatternControlSource *self = (BtCmdPatternControlSource *) self_;
-  BtMachineState state;
+  BtMachineState new_state, old_state;
   return_val_if_disposed (FALSE);
 
-  if ((state = get_value (self_, timestamp)) != -1) {
+  if ((new_state = get_value (self_, timestamp)) != -1) {
     /* we only attach the cb to volume::mute to be called regularilly,
      * of couse for solo, this is not perfect :/ */
-    g_object_set (self->priv->machine, "state", state, NULL);
+    g_object_get (self->priv->machine, "state", &old_state, NULL);
+    /* avoid notify:: emissions */
+    if (old_state != new_state) {
+      g_object_set (self->priv->machine, "state", new_state, NULL);
+    }
     return TRUE;
   } else {
     GST_DEBUG_OBJECT (object, "no control value for machine::state");
