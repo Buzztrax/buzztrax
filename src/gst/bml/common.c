@@ -170,7 +170,7 @@ gstbml_preset_get_preset_names (GstBML * bml, GstBMLClass * klass)
     if (!klass->preset_comments) {
       klass->preset_comments = g_hash_table_new (g_str_hash, g_str_equal);
     }
-    // load them from local path and then from system path 
+    // load them from local path and then from system path
     preset_dir = g_build_filename (g_get_user_data_dir (),
         "gstreamer-" GST_MAJORMINOR, "presets", NULL);
     preset_path = gstbml_preset_make_preset_file_name (klass, preset_dir);
@@ -803,7 +803,7 @@ gstbml_register_param (GObjectClass * klass, gint prop_id,
     case PT_SWITCH:
       //if(!(flags&GSTBT_PROPERTY_META_STATE)) {
       /* TODO(ensonic): use better type for triggers
-       * this is how its define for buzz
+       * this is how its defined for buzz
        * [ 0 ... n=255 ... 1]
        *
        * some machines have random stuff in here :(
