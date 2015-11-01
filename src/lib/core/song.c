@@ -775,7 +775,7 @@ bt_song_on_tempo_changed (BtSongInfo * const song_info, GParamSpec * const arg,
  * @self: a #BtSong
  *
  * Works like bt_song_play(), but sends a segmented-seek that loops from
- * G_MAXUINT64-GST_SECOND to G_MAXUINT64-1.
+ * for a few seconds close to G_MAXINT64.
  * This is needed to do state changes (mute, solo, bypass) and to play notes
  * live.
  *
@@ -1638,8 +1638,8 @@ bt_song_init (BtSong * self)
   self->priv->position_query = gst_query_new_position (GST_FORMAT_TIME);
   self->priv->play_rate = 1.0;
 
-  s = (GstClockTime) (G_MAXINT64 - (2 * GST_SECOND));
-  e = (GstClockTime) (G_MAXINT64 - 1);
+  s = (GstClockTime) (G_MAXINT64 - (11 * GST_SECOND));
+  e = (GstClockTime) (G_MAXINT64 - (1 * GST_SECOND));
   self->priv->idle_seek_event = MAKE_SEEK_EVENT_FL (1.0, s, e);
   self->priv->idle_loop_seek_event = MAKE_SEEK_EVENT_L (1.0, s, e);
   GST_DEBUG ("  done");
