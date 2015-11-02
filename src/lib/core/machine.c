@@ -1598,8 +1598,9 @@ bt_machine_enable_output_gain (BtMachine * const self)
  * bt_machine_activate_adder:
  * @self: the machine to activate the adder in
  *
- * Machines use an adder to allow multiple incoming wires.
- * This method is used by the #BtWire class to activate the adder when needed.
+ * Machines use a mixing element (such as adder) to allow multiple incoming
+ * wires. This method is used by the #BtWire class to activate the adder when
+ * needed.
  *
  * Returns: %TRUE for success
  */
@@ -1628,9 +1629,7 @@ bt_machine_activate_adder (BtMachine * const self)
       }
     }
 
-    // create the adder (we can try "audiomixer"/"liveadder" too)
-    // - audiomixer: does synchronized mixing
-    // - liveadder: also syncs timestamps and skips pads after timeout
+    // create the adder (we can try "audiomixer" too)
     if (!(bt_machine_make_internal_element (self, PART_ADDER, "adder",
                 "adder")))
       goto Error;
@@ -1927,7 +1926,7 @@ bt_machine_remove_pattern (const BtMachine * const self,
  * @name: the name of the pattern
  *
  * Search the machine for a pattern by the supplied name.
- * The pattern must have been added previously to this setup with 
+ * The pattern must have been added previously to this setup with
  * bt_machine_add_pattern().
  *
  * Returns: (transfer full): #BtCmdPattern instance or %NULL if not found. Unref
