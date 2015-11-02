@@ -42,7 +42,7 @@
  * When we remove a wire, we run check_connected(self,master,NULL,NULL).
  *
  * We don't need to handle the not_visited_* lists. Disconnected things are
- * never added (see {add,rem}_bin_in_pipeline()). 
+ * never added (see {add,rem}_bin_in_pipeline()).
  *
  * When adding/removing a bin while playing, block all src-pads that are
  * connected to existing elements when linking.
@@ -676,7 +676,7 @@ add_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
 
   if (!is_added) {
     // when we rename elements after they have been added, the object name stays
-    // unchanged, thus we need to be careful when adding another bjec of the same 
+    // unchanged, thus we need to be careful when adding another bjec of the same
     // type
     GstElement *e;
     if ((e = gst_bin_get_by_name (self->priv->bin, GST_OBJECT_NAME (bin)))) {
@@ -716,6 +716,9 @@ rem_bin_in_pipeline (const BtSetup * const self, GstBin * bin)
     if (gst_bin_remove (self->priv->bin, GST_ELEMENT (bin))) {
       GST_INFO_OBJECT (bin, "removed object: %" G_OBJECT_REF_COUNT_FMT,
           G_OBJECT_LOG_REF_COUNT (bin));
+      // notify::GstObject.parent does not work
+      // see https://bugzilla.gnome.org/show_bug.cgi?id=693281
+      g_object_notify ((GObject *) bin, "parent");
     } else {
       GST_WARNING_OBJECT (bin,
           "error removing object: %" G_OBJECT_REF_COUNT_FMT,
@@ -937,7 +940,7 @@ add_wire_in_pipeline (gpointer key, gpointer user_data)
         (key == (gpointer) self->priv->last_wire));
     add_bin_in_pipeline (self, GST_BIN (key));
     link_wire (self, GST_ELEMENT (key));
-    // TODO(ensonic): what to do if it fails? 
+    // TODO(ensonic): what to do if it fails?
     // We should always be able to link in theory ...
     // Maybe dump extensive diagnostics to add debugging
   }
@@ -1105,7 +1108,7 @@ async_add_to_pipeline (GstPad * peer, GstPadProbeInfo * info,
   }
 #endif
 
-// free the lists  
+// free the lists
   g_list_free (p->elements_to_play);
   p->elements_to_play = NULL;
 
@@ -1221,7 +1224,7 @@ async_remove_from_pipeline (GstPad * peer, GstPadProbeInfo * info,
   }
 #endif
 
-  // free the lists  
+  // free the lists
   g_list_free (p->elements_to_stop);
   p->elements_to_stop = NULL;
 
@@ -1237,7 +1240,7 @@ async_remove_from_pipeline (GstPad * peer, GstPadProbeInfo * info,
 
 /* When unlinking wires (in del_wire_in_pipeline() -> unlink_wire()), we need to
  * block the src-pad of the already active peer, and unlink from the block
- * callback. 
+ * callback.
  */
 static void
 remove_from_pipeline (const BtSetup * const self)
@@ -1590,7 +1593,7 @@ bt_setup_remove_wire (const BtSetup * const self, const BtWire * const wire)
  * @id: the identifier of the machine
  *
  * Search the setup for a machine by the supplied id.
- * The machine must have been added previously to this setup with 
+ * The machine must have been added previously to this setup with
  * bt_setup_add_machine().
  *
  * Returns: (transfer full): #BtMachine instance or %NULL if not found. Unref

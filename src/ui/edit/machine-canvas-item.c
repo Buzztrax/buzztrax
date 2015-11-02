@@ -124,7 +124,6 @@ struct _BtMachineCanvasItemPrivate
 
   /* the graphical components */
   ClutterContent *image;
-  ClutterEffect *desaturate_effect;
   ClutterActor *label;
   ClutterActor *output_meter, *input_meter;
   GstElement *output_level;
@@ -408,44 +407,17 @@ on_machine_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
 }
 
 static void
-on_machine_parent_set (GstBin * bin, GstElement * element, gpointer user_data)
-{
-  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
-
-  if (element == (GstElement *) self->priv->machine) {
-    GST_INFO_OBJECT (self->priv->machine, "parent=%p,'%s' desaturation off",
-        bin, bin ? GST_OBJECT_NAME (bin) : "");
-    clutter_actor_clear_effects ((ClutterActor *) self);
-  }
-}
-
-static void
-on_machine_parent_unset (GstBin * bin, GstElement * element, gpointer user_data)
-{
-  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM (user_data);
-
-  if (element == (GstElement *) self->priv->machine) {
-    GST_INFO_OBJECT (self->priv->machine, "parent=%p,'%s' desaturation on",
-        bin, bin ? GST_OBJECT_NAME (bin) : "");
-    ClutterEffect *desaturate_effect = clutter_desaturate_effect_new (0.8);
-    clutter_actor_add_effect ((ClutterActor *) self, desaturate_effect);
-  }
-}
-
-/*
-static void
 on_machine_parent_changed (GstObject * object, GParamSpec * arg,
     gpointer user_data)
 {
-  GstBin *parent = (GstBin *)GST_OBJECT_PARENT (object);
+  ClutterActor *self = CLUTTER_ACTOR (user_data);
 
-  if (parent) {
-    on_machine_parent_set (parent, (GstElement *)object, user_data);
+  if (GST_OBJECT_PARENT (object)) {
+    clutter_actor_clear_effects (self);
   } else {
-    on_machine_parent_unset (parent, (GstElement *)object, user_data);
+    clutter_actor_add_effect (self, clutter_desaturate_effect_new (0.8));
   }
 }
-*/
 
 static void
 on_machine_state_changed_idle (BtMachine * machine, GParamSpec * arg,
@@ -1143,7 +1115,7 @@ bt_machine_canvas_item_constructed (GObject * object)
 
   g_free (id);
   if (!GST_OBJECT_PARENT ((GstObject *) self->priv->machine)) {
-    on_machine_parent_unset (NULL, (GstElement *) self->priv->machine, self);
+    on_machine_parent_changed ((GstObject *) self->priv->machine, NULL, self);
   }
 
   prop =
@@ -1221,7 +1193,6 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
       BtMachine *new_machine = (BtMachine *) g_value_get_object (value);
       if (new_machine != self->priv->machine) {
         GstElement *element;
-        GstBin *bin;
 
         g_object_try_unref (self->priv->machine);
         self->priv->machine = g_object_ref (new_machine);
@@ -1241,16 +1212,8 @@ bt_machine_canvas_item_set_property (GObject * object, guint property_id,
         bt_machine_canvas_item_init_context_menu (self);
         g_signal_connect_object (self->priv->machine, "notify::state",
             G_CALLBACK (on_machine_state_changed), (gpointer) self, 0);
-        /* FIXME(ensonic): this does not work anymore in gst-1.0
-         * g_signal_connect (self->priv->machine, "notify::parent",
-         *     G_CALLBACK (on_machine_parent_changed), (gpointer) self);
-         */
-        g_object_get (self->priv->app, "bin", &bin, NULL);
-        g_signal_connect_object (bin, "element-added",
-            G_CALLBACK (on_machine_parent_set), (gpointer) self, 0);
-        g_signal_connect_object (bin, "element-removed",
-            G_CALLBACK (on_machine_parent_unset), (gpointer) self, 0);
-        gst_object_unref (bin);
+        g_signal_connect_object (self->priv->machine, "notify::parent",
+            G_CALLBACK (on_machine_parent_changed), (gpointer) self, 0);
 
         if (!BT_IS_SINK_MACHINE (self->priv->machine)) {
           if (bt_machine_enable_output_post_level (self->priv->machine)) {
