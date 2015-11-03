@@ -45,6 +45,8 @@
 
 #include "bt-edit.h"
 
+#define DEFAULT_PARAM_WIDTH 120
+
 //-- property ids
 
 enum
@@ -246,14 +248,20 @@ static void
 on_table_realize (GtkWidget * widget, gpointer user_data)
 {
   //BtMachinePreferencesDialog *self=BT_MACHINE_PREFERENCES_DIALOG(user_data);
-  GtkWidget *parent = gtk_widget_get_parent (gtk_widget_get_parent (widget));
-  GtkRequisition requisition;
+  GtkScrolledWindow *parent =
+      GTK_SCROLLED_WINDOW (gtk_widget_get_parent (gtk_widget_get_parent
+          (widget)));
+  GtkRequisition minimum, natural, requisition;
   GdkScreen *screen = gdk_screen_get_default ();
-  gint height, available_heigth, width, available_width;
+  gint height, available_heigth, width, available_width, border;
 
-  gtk_widget_get_preferred_size (widget, NULL, &requisition);
+  gtk_widget_get_preferred_size (widget, &minimum, &natural);
+  border = gtk_container_get_border_width (GTK_CONTAINER (widget));
 
-  GST_DEBUG ("#### table  size req %d x %d", requisition.width,
+  requisition.width = MAX (minimum.width, natural.width) + border;
+  requisition.height = MAX (minimum.height, natural.height) + border;
+
+  GST_DEBUG ("#### table size req %d x %d", requisition.width,
       requisition.height);
 
   // constrain the height by screen height minus some space for panels and deco
@@ -263,11 +271,8 @@ on_table_realize (GtkWidget * widget, gpointer user_data)
   available_width = gdk_screen_get_width (screen) - 16;
   width = MIN (requisition.width, available_width);
 
-  // TODO(ensonic): is the '2' some border or padding
-  gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
-      height + 2);
-  gtk_scrolled_window_set_min_content_width (GTK_SCROLLED_WINDOW (parent),
-      width);
+  gtk_scrolled_window_set_min_content_height (parent, height);
+  gtk_scrolled_window_set_min_content_width (parent, width);
 }
 
 //-- helper methods
@@ -486,6 +491,8 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
       }
     }
     gtk_widget_set_tooltip_text (widget1, tool_tip_text);
+    // TODO: this causes layout issues for comboboxes that wish to be wider
+    gtk_widget_set_size_request (widget1, DEFAULT_PARAM_WIDTH, -1);
     g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
     if (!widget2) {
       gtk_grid_attach (GTK_GRID (table), widget1, 1, i, 2, 1);

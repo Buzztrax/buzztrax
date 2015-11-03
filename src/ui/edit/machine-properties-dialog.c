@@ -88,7 +88,7 @@
 #include "core/persistence.h"
 #include <glib/gprintf.h>
 
-#define DEFAULT_PARAM_WIDTH 100
+#define DEFAULT_PARAM_WIDTH 120
 #define DEFAULT_LABEL_WIDTH 80
 #define PRESET_BOX_WIDTH 135
 
@@ -1564,14 +1564,20 @@ static void
 on_box_realize (GtkWidget * widget, gpointer user_data)
 {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (user_data);
-  GtkWidget *parent = gtk_widget_get_parent (gtk_widget_get_parent (widget));
-  GtkRequisition requisition;
+  GtkScrolledWindow *parent =
+      GTK_SCROLLED_WINDOW (gtk_widget_get_parent (gtk_widget_get_parent
+          (widget)));
+  GtkRequisition minimum, natural, requisition;
   GtkAllocation tb_alloc;
   GdkScreen *screen = gdk_screen_get_default ();
-  gint height, available_heigth, width, available_width;
+  gint height, available_heigth, width, available_width, border;
 
-  gtk_widget_get_preferred_size (widget, NULL, &requisition);
+  gtk_widget_get_preferred_size (widget, &minimum, &natural);
   gtk_widget_get_allocation (GTK_WIDGET (self->priv->main_toolbar), &tb_alloc);
+  border = gtk_container_get_border_width (GTK_CONTAINER (widget));
+
+  requisition.width = MAX (minimum.width, natural.width) + border;
+  requisition.height = MAX (minimum.height, natural.height) + border;
 
   GST_DEBUG ("#### box size req %d x %d (toolbar-height=%d)",
       requisition.width, requisition.height, tb_alloc.height);
@@ -1585,11 +1591,8 @@ on_box_realize (GtkWidget * widget, gpointer user_data)
   available_width = gdk_screen_get_width (screen) - 16;
   width = MIN (requisition.width, available_width);
 
-  // TODO(ensonic): is the '2' some border or padding
-  gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
-      height + 2);
-  gtk_scrolled_window_set_min_content_width (GTK_SCROLLED_WINDOW (parent),
-      width);
+  gtk_scrolled_window_set_min_content_height (parent, height);
+  gtk_scrolled_window_set_min_content_width (parent, width);
 }
 
 static void
@@ -2055,6 +2058,7 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
       G_CALLBACK (on_button_release_event), (gpointer) object);
 
   gtk_widget_set_tooltip_text (widget1, tool_tip_text);
+  // TODO: this causes layout issues for comboboxes that wish to be wider
   gtk_widget_set_size_request (widget1, DEFAULT_PARAM_WIDTH, -1);
   if (!widget2) {
     g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
