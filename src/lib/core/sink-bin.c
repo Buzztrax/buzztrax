@@ -31,7 +31,7 @@
  *     (the iface properties are not controllable)
  *   - we could have separate properties and forward the changes
  * - key
- *   - this would need to propagate to all sources that support tuning  
+ *   - this would need to propagate to all sources that support tuning
  */
 /* TODO(ensonic): for upnp it would be nice to stream on-demand */
 /* TODO(ensonic): add a metronome
@@ -890,7 +890,7 @@ bt_sink_bin_update (const BtSinkBin * const self)
       GstElementClass *klass = GST_ELEMENT_GET_CLASS (self->priv->caps_filter);
       sink_pad = req_sink_pad =
           gst_element_request_pad (self->priv->caps_filter,
-          gst_element_class_get_pad_template (klass, "sink_%d"), NULL, NULL);
+          gst_element_class_get_pad_template (klass, "sink_%u"), NULL, NULL);
       if (!sink_pad) {
         GST_WARNING_OBJECT (self->priv->caps_filter,
             "failed to get request 'sink' request-pad");
@@ -1032,7 +1032,7 @@ master_volume_sync_handler (GstPad * pad, GstPadProbeInfo * info,
 /**
  * bt_sink_bin_is_record_format_supported:
  * @format: the format to check
- * 
+ *
  * Each record format might need a couple of GStreamer element to work. This
  * function verifies that all needed element are available.
  *
