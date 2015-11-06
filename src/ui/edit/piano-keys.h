@@ -39,11 +39,13 @@ typedef struct _BtPianoKeysClass BtPianoKeysClass;
  */
 struct _BtPianoKeys {
   GtkWidget parent;
-  
+
   /* state */
   GstBtNote key;
   GdkWindow *window;
   GtkBorder border;
+
+  GdkRGBA white_key_sel_color, black_key_sel_color;
 };
 
 struct _BtPianoKeysClass {
