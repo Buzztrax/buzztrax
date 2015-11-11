@@ -88,8 +88,6 @@
 #include "core/persistence.h"
 #include <glib/gprintf.h>
 
-#define DEFAULT_PARAM_WIDTH 120
-#define DEFAULT_LABEL_WIDTH 80
 #define PRESET_BOX_WIDTH 135
 
 //-- property ids
@@ -2058,8 +2056,6 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
       G_CALLBACK (on_button_release_event), (gpointer) object);
 
   gtk_widget_set_tooltip_text (widget1, tool_tip_text);
-  // TODO: this causes layout issues for comboboxes that wish to be wider
-  gtk_widget_set_size_request (widget1, DEFAULT_PARAM_WIDTH, -1);
   if (!widget2) {
     g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
     gtk_grid_attach (GTK_GRID (table), widget1, 1, row, 2, 1);
@@ -2068,11 +2064,6 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
     g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING,
         "margin-right", LABEL_PADDING, NULL);
     gtk_grid_attach (GTK_GRID (table), widget1, 1, row, 1, 1);
-    /* TODO(ensonic): how can we avoid the wobble here?
-     * We'd need to set some 'good' default size
-     * if we use hexpand=TRUE than it uses too much space (same as widget1)
-     */
-    gtk_widget_set_size_request (widget2, DEFAULT_LABEL_WIDTH, -1);
     if (GTK_IS_LABEL (widget2)) {
       evb = gtk_event_box_new ();
       g_object_set (evb, "visible-window", FALSE, NULL);
@@ -2080,6 +2071,9 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
 
       gtk_label_set_ellipsize (GTK_LABEL (widget2), PANGO_ELLIPSIZE_END);
       gtk_label_set_single_line_mode (GTK_LABEL (widget2), TRUE);
+      // float/double formatting uses 8-9 chars, some machine with custom
+      // descriptions use more, but ideally text is detected as enums
+      gtk_label_set_width_chars (GTK_LABEL (widget2), 10);
       gtk_misc_set_alignment (GTK_MISC (widget2), 0.0, 0.5);
       g_signal_connect (evb, "button-press-event",
           G_CALLBACK (on_label_button_press_event), (gpointer) widget1);
@@ -2464,6 +2458,7 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
       &settings, "song", &song, NULL);
   g_object_get (song, "setup", &setup, NULL);
   gtk_window_set_transient_for (GTK_WINDOW (self), GTK_WINDOW (main_window));
+  gtk_window_set_default_size (GTK_WINDOW (self), 300, -1);
 
   // create and set window icon
   if ((window_icon =

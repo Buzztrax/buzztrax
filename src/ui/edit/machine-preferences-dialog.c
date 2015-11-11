@@ -45,8 +45,6 @@
 
 #include "bt-edit.h"
 
-#define DEFAULT_PARAM_WIDTH 120
-
 //-- property ids
 
 enum
@@ -315,6 +313,7 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
 
   g_object_get (self->priv->app, "main-window", &main_window, NULL);
   gtk_window_set_transient_for (GTK_WINDOW (self), GTK_WINDOW (main_window));
+  gtk_window_set_default_size (GTK_WINDOW (self), 300, -1);
 
   // create and set window icon
   if ((window_icon =
@@ -351,6 +350,7 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
 
     // get name
     label = gtk_label_new (g_param_spec_get_nick (property));
+    gtk_label_set_single_line_mode (GTK_LABEL (label), TRUE);
     gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
     gtk_widget_set_tooltip_text (label, tool_tip_text);
     gtk_grid_attach (GTK_GRID (table), label, 0, i, 1, 1);
@@ -491,13 +491,14 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
       }
     }
     gtk_widget_set_tooltip_text (widget1, tool_tip_text);
-    // TODO: this causes layout issues for comboboxes that wish to be wider
-    gtk_widget_set_size_request (widget1, DEFAULT_PARAM_WIDTH, -1);
-    g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
     if (!widget2) {
+      g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING,
+          NULL);
       gtk_grid_attach (GTK_GRID (table), widget1, 1, i, 2, 1);
     } else {
       gtk_widget_set_tooltip_text (widget2, tool_tip_text);
+      g_object_set (widget1, "hexpand", TRUE, "margin-left", LABEL_PADDING,
+          "margin-right", LABEL_PADDING, NULL);
       gtk_grid_attach (GTK_GRID (table), widget1, 1, i, 1, 1);
       gtk_grid_attach (GTK_GRID (table), widget2, 2, i, 1, 1);
     }
