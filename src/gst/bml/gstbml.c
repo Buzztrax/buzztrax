@@ -614,12 +614,21 @@ gst_bml_register_global_enum_type (GObjectClass * klass, gpointer bmh, gint i,
     gint j, total = (max_val + 1) - min_val, vcount = 0, tcount = 0;
     GEnumValue *enums;
 
-    // count entries that start with a character
+    // count entries that contain mostly characters
     for (j = 0; j < total; j++) {
       desc = bml (describe_global_value (bmh, i, min_val + j));
       if (desc) {
+        gint k = 0, nc = 0, cc = 0;
         vcount++;
-        if (g_ascii_isalpha (desc[0])) {
+        // count numbers and characters
+        while (desc[k]) {
+          if (g_ascii_isalpha (desc[k++]))
+            cc++;
+          else
+            nc++;
+        }
+        // if there are more/eq characters than numbers assume it is text
+        if (cc >= nc) {
           tcount++;
           GST_DEBUG ("check enum, description[%2d]='%s'", j, desc);
         }
