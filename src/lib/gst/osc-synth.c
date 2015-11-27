@@ -24,7 +24,7 @@
  *
  * An audio generator producing classic oscillator waveforms.
  *
- * One can attach #GstControlSources to some of the patameters to modulate them. 
+ * One can attach #GstControlSources to some of the patameters to modulate them.
  *
  * # Waveforms
  *
@@ -41,6 +41,9 @@
  *     ac_f=1.0;
  *     ac_s=1.0/INNER_LOOP;
  *   }
+ */
+/* TODO(ensonic): new wave like S&H, but doing spikes only
+ * -> high req, more spikes
  */
 
 #ifdef HAVE_CONFIG_H
@@ -99,6 +102,7 @@ gstbt_osc_synth_wave_get_type (void)
     {GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE, "Blue noise", "blue-noise"},
     {GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE, "Violet noise", "violet-noise"},
     {GSTBT_OSC_SYNTH_WAVE_S_AND_H, "Sample and Hold", "sample-and-hold"},
+    {GSTBT_OSC_SYNTH_WAVE_SPIKES, "Spikes", "spikes"},
     {0, NULL, NULL},
   };
 
@@ -119,6 +123,7 @@ gstbt_osc_synth_tonal_wave_get_type (void)
     {GSTBT_OSC_SYNTH_WAVE_SAW, "Saw", "saw"},
     {GSTBT_OSC_SYNTH_WAVE_TRIANGLE, "Triangle", "triangle"},
     {GSTBT_OSC_SYNTH_WAVE_S_AND_H, "Sample & Hold", "sample-and-hold"},
+    {GSTBT_OSC_SYNTH_WAVE_SPIKES, "Spikes", "spikes"},
     {0, NULL, NULL},
   };
 
@@ -515,6 +520,37 @@ gstbt_osc_synth_create_s_and_h (GstBtOscSynth * self, guint ct,
   self->sh.smpl = smpl;
 }
 
+static void
+gstbt_osc_synth_create_spikes (GstBtOscSynth * self, guint ct, gint16 * samples)
+{
+  guint i = 0, j, c, r = ct;
+  guint64 offset = self->offset;
+  gdouble step, smpl;
+  gint count = self->sh.count;
+  gint samplerate = self->samplerate;
+
+  while (i < ct) {
+    gst_object_sync_values ((GstObject *) self, offset + i);
+    UPDATE_INNER_LOOP (c, r);
+    for (j = 0; j < c; j++, i++) {
+      if (G_UNLIKELY (count <= 0)) {
+        gst_object_sync_values ((GstObject *) self, offset + i);
+        // if freq = 100, we want 100 spikes per second
+        // = 100 changes per samplingrate samples
+        step = self->freq;
+        step = CLAMP (step, 1, samplerate);
+        count = samplerate / step;
+        smpl = 32768 - (65535.0 * rand () / (RAND_MAX + 1.0));
+        samples[i] = (gint16) (self->vol * smpl);
+      } else {
+        samples[i] = (gint16) 0;
+      }
+      count--;
+    }
+  }
+  self->sh.count = count;
+}
+
 /*
  * gstbt_osc_synth_change_wave:
  * @self: the oscillator
@@ -561,6 +597,9 @@ gstbt_osc_synth_change_wave (GstBtOscSynth * self)
     case GSTBT_OSC_SYNTH_WAVE_S_AND_H:
       self->process = gstbt_osc_synth_create_s_and_h;
       break;
+    case GSTBT_OSC_SYNTH_WAVE_SPIKES:
+      self->process = gstbt_osc_synth_create_spikes;
+      break;
     default:
       GST_ERROR ("invalid wave-form: %d", self->wave);
       break;
@@ -602,6 +641,9 @@ gstbt_osc_synth_trigger (GstBtOscSynth * self)
     case GSTBT_OSC_SYNTH_WAVE_S_AND_H:
       self->sh.count = 0;
       self->sh.smpl = 0.0;
+      break;
+    case GSTBT_OSC_SYNTH_WAVE_SPIKES:
+      self->sh.count = 0;
       break;
     default:
       GST_ERROR ("invalid wave-form: %d", self->wave);

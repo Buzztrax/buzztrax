@@ -47,8 +47,10 @@ G_BEGIN_DECLS
  * @GSTBT_OSC_SYNTH_WAVE_RED_NOISE: red (brownian) noise
  * @GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE: spectraly inverted pink noise
  * @GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE: spectraly inverted red (brownian) noise
- * @GSTBT_OSC_SYNTH_WAVE_S_AND_H: sample and hold. Create an random value and 
+ * @GSTBT_OSC_SYNTH_WAVE_S_AND_H: sample and hold. Create a random value and
  * hold it for a time specified by #GstBtOscSynth:frequency.
+ * @GSTBT_OSC_SYNTH_WAVE_SPIKES: spikes. Create a random level spikes at a rate
+ * specified by #GstBtOscSynth:frequency.
  * @GSTBT_OSC_SYNTH_WAVE_COUNT: number of waves, this can change with new
  * releases
  *
@@ -68,6 +70,7 @@ typedef enum
   GSTBT_OSC_SYNTH_WAVE_BLUE_NOISE,
   GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE,
   GSTBT_OSC_SYNTH_WAVE_S_AND_H,
+  GSTBT_OSC_SYNTH_WAVE_SPIKES,
   GSTBT_OSC_SYNTH_WAVE_COUNT
 } GstBtOscSynthWave;
 
@@ -78,7 +81,9 @@ typedef enum
  * @GSTBT_OSC_SYNTH_WAVE_SQUARE: square wave
  * @GSTBT_OSC_SYNTH_WAVE_SAW: saw wave
  * @GSTBT_OSC_SYNTH_WAVE_TRIANGLE: triangle wave
- * @GSTBT_OSC_SYNTH_WAVE_S_AND_H: sample and hold. Create an random value and 
+ * @GSTBT_OSC_SYNTH_WAVE_S_AND_H: sample and hold. Create an random value and
+ * @GSTBT_OSC_SYNTH_WAVE_SPIKES: spikes. Create a random level spikes at a rate
+ * specified by #GstBtOscSynth:frequency.
  * hold it for a time specified by #GstBtOscSynth:frequency.
  *
  * Tonal oscillator wave forms from #GstBtOscSynthWave.
@@ -91,7 +96,8 @@ typedef enum
   GSTBT_OSC_SYNTH_WAVE_SQUARE,
   GSTBT_OSC_SYNTH_WAVE_SAW,
   GSTBT_OSC_SYNTH_WAVE_TRIANGLE,
-  GSTBT_OSC_SYNTH_WAVE_S_AND_H
+  GSTBT_OSC_SYNTH_WAVE_S_AND_H,
+  GSTBT_OSC_SYNTH_WAVE_SPIKES
 } GstBtOscSynthTonalWave;
 #endif
 
@@ -185,7 +191,7 @@ struct _GstBtOscSynth {
   GstBtSampleAndHold sh;
 
   /* < private > */
-  void (*process) (GstBtOscSynth *, guint, gint16 *);  
+  void (*process) (GstBtOscSynth *, guint, gint16 *);
 };
 
 struct _GstBtOscSynthClass {
