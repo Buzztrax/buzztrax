@@ -5,6 +5,9 @@ DIE=0
 package=buzztrax
 
 # a silly hack that generates autoregen.sh but it's handy
+if [ -f "autoregen.sh" ]; then
+  rm autoregen.sh
+fi
 echo "#!/bin/sh" > autoregen.sh
 echo "./autogen.sh $@ \$@" >> autoregen.sh
 chmod +x autoregen.sh
