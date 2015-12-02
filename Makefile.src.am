@@ -489,8 +489,8 @@ src/ui/edit/marshal.c: src/ui/edit/marshal.list
 	$(AM_V_at)$(MKDIR_P) src/ui/edit
 	$(AM_V_GEN) glib-genmarshal --body --prefix=bt_marshal $< >$@
 
-src/ui/edit/authors.h: $(top_srcdir)/AUTHORS
-	$(AM_V_GEN)sed -e 's/^/"/' -e 's/$$/",/' $(top_srcdir)/AUTHORS >$@
+src/ui/edit/authors.h: AUTHORS
+	$(AM_V_GEN)sed -e 's/^/"/' -e 's/$$/",/' AUTHORS >$@
 
 BUILT_SOURCES += $(nodist_libbtedit_la_SOURCES)
 CLEANFILES += $(nodist_libbtedit_la_SOURCES)
