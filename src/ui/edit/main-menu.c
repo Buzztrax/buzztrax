@@ -170,7 +170,7 @@ on_menu_render_activate (GtkMenuItem * menuitem, gpointer user_data)
   bt_edit_application_attach_child_window (self->priv->app,
       GTK_WINDOW (settings));
   gtk_widget_show_all (settings);
-  gtk_dialog_run (GTK_DIALOG (settings));
+  while (gtk_dialog_run (GTK_DIALOG (settings)) == GTK_RESPONSE_NONE);
   GST_INFO ("rendering done");
   gtk_widget_hide (settings);
   gtk_widget_destroy (settings);

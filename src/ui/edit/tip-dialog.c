@@ -37,7 +37,7 @@ Algorithm:
  * IDEA(ensonic): make this less annoying:
  *   - an info-banner that has an auto-hide
  *   - show as the default status-bar text after startup (with a tip-icon)
- *   - a tips page in the docs 
+ *   - a tips page in the docs
  */
 
 #define BT_EDIT
@@ -253,11 +253,10 @@ bt_tip_dialog_init_ui (const BtTipDialog * self)
       hbox, TRUE, TRUE, 0);
 
   // add "refresh" button to action area
-  btn = gtk_button_new_with_label (_("Refresh"));
+  btn = gtk_dialog_add_button (GTK_DIALOG (self), _("Refresh"),
+      GTK_RESPONSE_NONE);
   g_signal_connect (btn, "clicked", G_CALLBACK (on_refresh_clicked),
       (gpointer) self);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_action_area (GTK_DIALOG (self))),
-      btn, FALSE, FALSE, 0);
 
   on_refresh_clicked (GTK_BUTTON (btn), (gpointer) self);
 }

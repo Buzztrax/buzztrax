@@ -303,7 +303,7 @@ bt_render_dialog_record_done (const BtRenderDialog * self)
     g_free (self->priv->song_name);
   }
   // close the dialog
-  gtk_dialog_response (GTK_DIALOG (self), GTK_RESPONSE_NONE);
+  gtk_dialog_response (GTK_DIALOG (self), GTK_RESPONSE_OK);
 }
 
 /* Run the rendering. */
@@ -608,14 +608,11 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   gtk_window_set_title (GTK_WINDOW (self), _("song rendering"));
 
   // add dialog commision widgets (okay, cancel)
-  self->priv->okay_button = gtk_button_new_with_label (_("OK"));
-  gtk_container_add (GTK_CONTAINER (gtk_dialog_get_action_area (GTK_DIALOG
-              (self))), self->priv->okay_button);
-  gtk_dialog_add_button (GTK_DIALOG (self), _("_Cancel"), GTK_RESPONSE_REJECT);
-
-  //gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_NONE);
+  self->priv->okay_button = gtk_dialog_add_button (GTK_DIALOG (self), _("OK"),
+      GTK_RESPONSE_NONE);
   g_signal_connect (self->priv->okay_button, "clicked",
       G_CALLBACK (on_okay_clicked), (gpointer) self);
+  gtk_dialog_add_button (GTK_DIALOG (self), _("_Cancel"), GTK_RESPONSE_REJECT);
 
   // add widgets to the dialog content area
   overlay = gtk_overlay_new ();
@@ -745,7 +742,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   // set initial filename:
   on_format_menu_changed (GTK_COMBO_BOX (widget), (gpointer) self);
 
-  // connect signal handlers    
+  // connect signal handlers
   g_signal_connect_object (self->priv->song, "notify::play-pos",
       G_CALLBACK (on_song_play_pos_notify), (gpointer) self, 0);
   bus = gst_element_get_bus (GST_ELEMENT (bin));

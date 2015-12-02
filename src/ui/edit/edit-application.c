@@ -24,7 +24,7 @@
  *
  * It also provides functions to invoke some dialogs like about and tips.
  *
- * The application instance will have exactly one active 
+ * The application instance will have exactly one active
  * #BtEditApplication:song at a time. I tracks undo/redo-able changes to the
  * song via #BtChangeLog and simple flagged changes via the
  * #BtEditApplication:unsaved property.
@@ -419,7 +419,7 @@ bt_edit_application_load_song (const BtEditApplication * self,
 
     // this is synchronous execution
     // https://github.com/Buzztrax/buzztrax/issues/52
-    // if we bump glib from 2.32 -> 2.36 we can use GTask and 
+    // if we bump glib from 2.32 -> 2.36 we can use GTask and
     // g_task_run_in_thread()
     if (bt_song_io_load (loader, song, err)) {
       BtMachine *machine;
@@ -699,7 +699,7 @@ bt_edit_application_show_tip (const BtEditApplication * self)
     bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
     gtk_widget_show_all (dialog);
 
-    gtk_dialog_run (GTK_DIALOG (dialog));
+    while (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_NONE);
     gtk_widget_destroy (dialog);
   }
 }
@@ -726,7 +726,7 @@ bt_edit_application_crash_log_recover (const BtEditApplication * self)
       bt_edit_application_attach_child_window (self, GTK_WINDOW (dialog));
       gtk_widget_show_all (dialog);
 
-      gtk_dialog_run (GTK_DIALOG (dialog));
+      while (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_NONE);
       gtk_widget_destroy (dialog);
     }
   }

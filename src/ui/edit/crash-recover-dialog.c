@@ -298,17 +298,14 @@ bt_crash_recover_dialog_init_ui (const BtCrashRecoverDialog * self)
 
   // add "undelete" button to action area
   // GTK_STOCK_REVERT_TO_SAVED
-  btn = gtk_button_new_with_label (_("Recover"));
+  btn = gtk_dialog_add_button (GTK_DIALOG (self), _("Recover"), GTK_RESPONSE_NONE);     // we send close once we recovered the log
   g_signal_connect (btn, "clicked", G_CALLBACK (on_recover_clicked),
       (gpointer) self);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_action_area (GTK_DIALOG (self))),
-      btn, FALSE, FALSE, 0);
 
-  btn = gtk_button_new_with_label (_("Delete"));
+  btn = gtk_dialog_add_button (GTK_DIALOG (self), _("Delete"),
+      GTK_RESPONSE_NONE);
   g_signal_connect (btn, "clicked", G_CALLBACK (on_delete_clicked),
       (gpointer) self);
-  gtk_box_pack_start (GTK_BOX (gtk_dialog_get_action_area (GTK_DIALOG (self))),
-      btn, FALSE, FALSE, 0);
 }
 
 //-- constructor methods
