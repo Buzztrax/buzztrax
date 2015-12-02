@@ -58,7 +58,7 @@ gdk_pixbuf_new_from_theme (const gchar * name, gint size)
     /* TODO(ensonic): machine icons are in 'gnome' theme, how can we use this as a
      * fallback
      * gtk_icon_theme_set_custom_theme(it,"gnome");
-     * is a bit brutal 
+     * is a bit brutal
      */
     return gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, size, size);
     //return NULL;
@@ -132,7 +132,7 @@ gtk_widget_grab_focus_savely (GtkWidget * widget)
  * Generate the target table for pasting to clipboard. Use
  * gtk_target_table_free (targets, n_targets);
  *
- * Returns: the table and the size in the out variable @n_targets 
+ * Returns: the table and the size in the out variable @n_targets
  */
 GtkTargetEntry *
 gtk_target_table_make (GdkAtom format_atom, gint * n_targets)
@@ -165,8 +165,8 @@ gtk_target_table_make (GdkAtom format_atom, gint * n_targets)
  * gtk_show_uri_simple:
  * @widget: widget that triggered the action
  * @uri: the uri
- * 
- * Show the given @uri. Uses same screen as @widget (default if @widget is 
+ *
+ * Show the given @uri. Uses same screen as @widget (default if @widget is
  * %NULL).
  */
 void
@@ -251,6 +251,25 @@ bt_label_value_changed (GBinding * binding, const GValue * from_value,
   return TRUE;
 }
 
+/**
+ * bt_pointer_to_boolean:
+ * @binding: the binding
+ * @from_value: the source value
+ * @to_value: the target value
+ * @user_data: the label formatstring
+ *
+ * Transform function to be used with g_object_bind_property_full()
+ *
+ * Returns: %TRUE for successful sync of the properties
+ */
+gboolean
+bt_pointer_to_boolean (GBinding * binding, const GValue * from_value,
+    GValue * to_value, gpointer user_data)
+{
+  g_value_set_boolean (to_value, (g_value_get_object (from_value) != NULL));
+  return TRUE;
+}
+
 /* tool bar icon helper */
 
 /**
@@ -260,7 +279,7 @@ bt_label_value_changed (GBinding * binding, const GValue * from_value,
  *
  * Creates a new #GtkToolButton containing @icon_name as contents and @label as
  * label.
- * 
+ *
  * Returns: the new #GtkToolItem
  */
 GtkToolItem *
@@ -278,7 +297,7 @@ gtk_tool_button_new_from_icon_name (const gchar * icon_name,
  *
  * Creates a new #GtkToggleToolButton containing @icon_name as contents and
  * @label as label.
- * 
+ *
  * Returns: the new #GtkToolItem
  */
 GtkToolItem *
@@ -298,7 +317,7 @@ gtk_toggle_tool_button_new_from_icon_name (const gchar * icon_name,
  * @accel_key: the accelerator key
  * @accel_mods: the accelerator modifiers
  *
- * Convenience wrapper around gtk_menu_item_set_accel_path() and 
+ * Convenience wrapper around gtk_menu_item_set_accel_path() and
  * gtk_accel_map_add_entry().
  *
  * see_also: gtk_widget_add_accelerator()

@@ -47,6 +47,7 @@ gboolean bt_edit_ui_config(const gchar *str);
 /* gobject property binding transform functions */
 gboolean bt_toolbar_style_changed(GBinding * binding, const GValue * from_value, GValue * to_value, gpointer user_data);
 gboolean bt_label_value_changed(GBinding * binding, const GValue * from_value, GValue * to_value, gpointer user_data);
+gboolean bt_pointer_to_boolean(GBinding * binding, const GValue * from_value, GValue * to_value, gpointer user_data);
 
 /* tool bar icon helper */
 GtkToolItem *gtk_tool_button_new_from_icon_name(const gchar *icon_name, const gchar *label);
