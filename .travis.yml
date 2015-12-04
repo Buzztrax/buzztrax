@@ -9,3 +9,8 @@ before_install:
 before_script: 
 - ./autogen.sh --noconfigure
 
+script: configure && make && make check
+
+notifications:
+  irc: "chat.freenode.net#buzztrax"
+
