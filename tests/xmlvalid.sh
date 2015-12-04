@@ -21,6 +21,9 @@ if [ -z $srcdir ]; then
   srcdir=.
 fi
 
+# check for needed tools
+which xmllint || exit 77
+
 XML_OPTS="--noout --nonet"
 
 E_SONGS="$srcdir/tests/songs/buzz*.xml $srcdir/tests/songs/combi*.xml $srcdir/tests/songs/melo*.xml $srcdir/tests/songs/simple*.xml"

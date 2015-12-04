@@ -21,6 +21,9 @@ if [ -z $srcdir ]; then
   srcdir=.
 fi
 
+# check for needed tools
+which intltool-update || exit 77
+
 pwd=`pwd`;
 cd $srcdir/po
 
