@@ -1,6 +1,7 @@
 language: c
 sudo: required
 dist: trusty
+cache: ccache
 
 before_install:
 - sudo apt-get update -qq
@@ -15,4 +16,13 @@ after_failure: cat ./test-suite.log
 
 notifications:
   irc: "chat.freenode.net#buzztrax"
+
+addons:
+  artifacts:
+    paths:
+    - bt_cmd.tar.bz2
+    - bt_core.tar.bz2
+    - bt_edit.tar.bz2
+    - bt_ic.tar.bz2
+  s3_region: "us-west-1"
 
