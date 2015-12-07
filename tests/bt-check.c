@@ -147,7 +147,7 @@ gboolean
 check_has_error_trapped (void)
 {
   g_log_set_always_fatal (__fatal_mask);
-#ifndef GST_DISABLE_GST_DEBUG
+#if !defined(GST_DISABLE_GST_DEBUG) || !defined(USE_DEBUG)
   return (__check_error_trapped);
 #else
   return (TRUE);
@@ -259,7 +259,7 @@ check_log_handler (const gchar * const log_domain,
       && !__check_method)
     __check_error_trapped = TRUE;
 
-  //-- format  
+  //-- format
   switch (log_level & G_LOG_LEVEL_MASK) {
     case G_LOG_LEVEL_ERROR:
       level = "ERROR";
@@ -1176,7 +1176,7 @@ check_gobject_properties (GObject * toCheck)
 }
 
 /* helpers to get single gobject properties
- * allows to write 
+ * allows to write
  *   fail_unless(check_get_gulong_property(obj,"voice")==1, NULL);
  * instead of
  *   gulong voices;
