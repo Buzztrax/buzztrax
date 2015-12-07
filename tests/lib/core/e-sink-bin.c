@@ -227,6 +227,7 @@ get_media_type (const gchar * filename)
       (gpointer) filename);
   gst_object_unref (bus);
 
+  GST_INFO ("check media type for '%s'", filename);
   typefind_media_type = NULL;
   typefind_main_loop = g_main_loop_new (NULL, FALSE);
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
@@ -378,6 +379,9 @@ test_bt_sink_bin_record (BT_TEST_ARGS)
   GST_INFO ("-- assert --");
   GST_INFO ("assert: == %s ==", filename);
   fail_unless (g_file_test (filename, G_FILE_TEST_IS_REGULAR));
+  GStatBuf *stat;
+  g_stat (filename, &stat);
+  ck_assert_int_gt (stat.st_size, 0);
   ck_assert_str_eq_and_free (get_media_type (filename), media_types[_i]);
 
   GST_INFO ("-- cleanup --");
@@ -419,6 +423,9 @@ test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
   GST_INFO ("-- assert --");
   GST_INFO ("assert: == %s ==", filename);
   fail_unless (g_file_test (filename, G_FILE_TEST_IS_REGULAR));
+  GStatBuf *stat;
+  g_stat (filename, &stat);
+  ck_assert_int_gt (stat.st_size, 0);
   ck_assert_str_eq_and_free (get_media_type (filename), media_types[_i]);
 
   GST_INFO ("-- cleanup --");
