@@ -16,9 +16,9 @@
  */
 /**
  * SECTION:btictriggercontrol
- * @short_description: buzztraxs interaction controller single trigger control
+ * @short_description: buzztraxss interaction controller single trigger control
  *
- * Trigger control. The state of the hardware control can be read from
+ * Boolean value control. The state of the hardware control can be read from
  * BtIcTriggerControl:value.
  */
 #define BTIC_CORE

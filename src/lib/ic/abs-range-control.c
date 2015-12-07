@@ -16,9 +16,9 @@
  */
 /**
  * SECTION:bticabsrangecontrol
- * @short_description: buzztraxs interaction controller single absolute range control
+ * @short_description: buzztraxxs interaction controller single absolute range control
  *
- * Absolute range control. The state of the hardware control can be read from
+ * Absolute value-range control. The state of the hardware control can be read from
  * BtIcAbsRangeControl:value.
  */
 #define BTIC_CORE
