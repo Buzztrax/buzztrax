@@ -24,4 +24,5 @@ addons:
     - bt_core.tar.bz2
     - bt_edit.tar.bz2
     - bt_ic.tar.bz2
+    debug: true
 
