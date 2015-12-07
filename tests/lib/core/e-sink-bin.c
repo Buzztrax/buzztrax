@@ -274,7 +274,7 @@ on_song_is_playing_notify (BtSong * song, GParamSpec * arg, gpointer user_data)
 {
   gboolean playing;
 
-  g_object_get ((gpointer) song, "playing", &playing, NULL);
+  g_object_get ((gpointer) song, "is-playing", &playing, NULL);
   GST_DEBUG ("%d < %d", old_playing, playing);
 
   if (!playing && old_playing) {
