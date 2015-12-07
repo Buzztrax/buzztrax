@@ -409,7 +409,8 @@ test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
   GEnumClass *enum_class =
       g_type_class_peek_static (BT_TYPE_SINK_BIN_RECORD_FORMAT);
   GEnumValue *enum_value = g_enum_get_value (enum_class, _i);
-  gchar *filename = make_tmp_song_path ("record", enum_value->value_name);
+  gchar *filename = make_tmp_song_path ("record_and_play",
+      enum_value->value_name);
   g_object_set (sink_bin,
       "mode", BT_SINK_BIN_MODE_PLAY_AND_RECORD,
       "record-format", _i, "record-file-name", filename, NULL);
