@@ -145,10 +145,12 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   BtPianoKeys *self = BT_PIANO_KEYS (widget);
   GtkStyleContext *style_ctx;
   gint width, height, left, right, top;
-  gint x, k;
+  gint x, k, y;
   gboolean sensitive = gtk_widget_is_sensitive (widget);
   gint pressed_key = -1, pressed_oct = -1;
   static const gint bwk[] = { 1, -1, 2, -2, 3, 4, -4, 5, -5, 6, -6, 7 };
+  gchar oct[3];
+  cairo_text_extents_t ext;
 
   width = gtk_widget_get_allocated_width (widget);
   height = gtk_widget_get_allocated_height (widget);
@@ -215,8 +217,24 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
     cairo_rectangle (cr, x + 1, top, KEY_WIDTH - 2, BLACK_KEY_HEIGHT);
     cairo_fill (cr);
   }
+  // draw octave numbers
+  if (sensitive) {
+    cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
+  } else {
+    cairo_set_source_rgb (cr, 0.3, 0.3, 0.3);
+  }
+  y = top + (WHITE_KEY_HEIGHT - 2);
+  for (x = left; x < right; x += (7 * KEY_WIDTH)) {
+    sprintf (oct, "%d", (x - left) / (7 * KEY_WIDTH));
+    cairo_text_extents (cr, oct, &ext);
+    k = x + ((KEY_WIDTH / 2) - (ext.width / 2));
+    if (k + ext.width < right) {
+      cairo_move_to (cr, k, y);
+      cairo_show_text (cr, oct);
+    }
+  }
 
-  /* draw focus */
+  // draw focus
   if (gtk_widget_has_visible_focus (widget)) {
     gtk_render_focus (style_ctx, cr, 0, 0, width, height);
   }
@@ -240,8 +258,8 @@ bt_piano_keys_get_preferred_width (GtkWidget * widget,
   BtPianoKeys *self = BT_PIANO_KEYS (widget);
   gint border_padding = self->border.left + self->border.right;
 
-  *minimal_width = KEY_WIDTH + border_padding;
-  *natural_width = (KEY_WIDTH * 7) + border_padding;    // one octave
+  *minimal_width = (KEY_WIDTH * 7) + border_padding;    // one octave
+  *natural_width = (KEY_WIDTH * 70) + border_padding;   // 10 octaves
 }
 
 static void
