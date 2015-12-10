@@ -68,7 +68,7 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
       g_alloca (strlen (_("Copyright \xc2\xa9 2003-%d Buzztrax developer team"))
       + 3);
   sprintf (copyright, _("Copyright \xc2\xa9 2003-%d Buzztrax developer team"),
-      2014);
+      BT_RELEASE_YEAR);
 
   /* we can get logo via icon name, so this here is just for educational purpose
      GdkPixbuf *logo;
