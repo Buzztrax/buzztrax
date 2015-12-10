@@ -7,9 +7,9 @@ Please turn you browser to http://www.buzztrax.org to learn what this project
 is about. Buzztrax is free software and distributed under the LGPL.
 
 ## build status
-We are running continuous integration on drone.io
+We are running continuous integration on travis-ci.
 
-[![Build Status](https://drone.io/github.com/Buzztrax/buzztrax/status.png)](https://drone.io/github.com/Buzztrax/buzztrax/latest)
+[![Build Status](https://travis-ci.org/Buzztrax/buzzmachines.svg?branch=master)](https://travis-ci.org/Buzztrax/buzzmachines/builds)
 
 ## intro
 Buzztrax is a music composer similar to tracker applications. It is roughly
