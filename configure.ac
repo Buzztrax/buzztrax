@@ -49,8 +49,15 @@ AC_DEFINE_UNQUOTED(GST_MAJORMINOR, "$GST_MAJORMINOR", [gstreamer series])
 AC_SUBST(GST_MAJORMINOR)
 
 dnl release year and date
-BT_RELEASE_YEAR=`date +%Y`
-BT_RELEASE_DATE=`date +%Y-%m-%d`
+DATE_STAMP=`head -n1 NEWS | sed 's/^[[^(]]*(\(.*\)).*$/\1/'`
+if test "$DATE_STAMP" == "XX.XXX.XXXX"; then
+  BT_RELEASE_YEAR=`date +%Y`
+  BT_RELEASE_DATE=`date +%Y-%m-%d`
+else
+  IFS="." read -r d m y <<< "$DATE_STAMP"
+  BT_RELEASE_YEAR="$y"
+  BT_RELEASE_DATE=`date -d "%d %m %y" +%Y-%m-%d`
+fi
 
 AC_SUBST(BT_MAJOR_VERSION)
 AC_SUBST(BT_MINOR_VERSION)
@@ -62,6 +69,7 @@ AC_SUBST(BT_RELEASE_DATE)
 
 AC_DEFINE_UNQUOTED(BT_VERSION, "$BT_VERSION", [library version as string])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION_NUMBER, 900, [version as a number])
+AC_DEFINE_UNQUOTED(BT_RELEASE_YEAR, $BT_RELEASE_YEAR, [release year])
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -693,7 +701,7 @@ Configuration
 	Use valgrind on the tests       : ${have_valgrind}
 "
 
-features="${use_alsa}${use_gudev}${use_gsf}${have_fluidsynth}" 
+features="${use_alsa}${use_gudev}${use_gsf}${have_fluidsynth}"
 if test `echo "$features" | grep "no"` ; then
 echo "
 Some features are not built. If you like to have them built, please check that
