@@ -1630,6 +1630,12 @@ bt_machine_activate_adder (BtMachine * const self)
     }
 
     // create the adder (we can try "audiomixer" too)
+    // TODO: request-pad creation fails for audiomixer ?#%&!
+    // fixed: c1fa51953c7985bf59e45a96da796b08fa02fff4
+    //        > 1.6.0
+    // TODO: looping is broken in audiomixer still
+    // https://bugzilla.gnome.org/show_bug.cgi?id=757563
+    //       works if always flushing
     if (!(bt_machine_make_internal_element (self, PART_ADDER, "adder",
                 "adder")))
       goto Error;
@@ -3035,6 +3041,10 @@ bt_machine_request_new_pad (GstElement * element, GstPadTemplate * templ,
       src_pt =
           bt_gst_element_factory_get_pad_template (factories[PART_SPREADER],
           "src_%u");
+      if (!src_pt) {
+        GST_WARNING_OBJECT (element, "failed to pad_template 'src_%%u'");
+        return NULL;
+      }
     }
 
     if (!(target = gst_element_request_pad (self->priv->machines[PART_SPREADER],
@@ -3049,6 +3059,10 @@ bt_machine_request_new_pad (GstElement * element, GstPadTemplate * templ,
       sink_pt =
           bt_gst_element_factory_get_pad_template (factories[PART_ADDER],
           "sink_%u");
+      if (!sink_pt) {
+        GST_WARNING_OBJECT (element, "failed to pad_template 'sink_%%u'");
+        return NULL;
+      }
     }
 
     if (!(target = gst_element_request_pad (self->priv->machines[PART_ADDER],
