@@ -372,6 +372,7 @@ bt_pattern_editor_refresh_cell (BtPatternEditor * self)
   BtPatternEditorColumnGroup *cgrp;
   BtPatternEditorColumn *col;
   ParamType *pt;
+  GtkAllocation allocation;
 
   for (g = 0; g < self->group; g++) {
     cgrp = &self->groups[g];
@@ -387,6 +388,10 @@ bt_pattern_editor_refresh_cell (BtPatternEditor * self)
   pt = &param_types[col->type];
   w = self->cw * (pt->chars + 1);
 
+  gtk_widget_get_allocation (GTK_WIDGET (self), &allocation);
+  x += allocation.x;
+  y += allocation.y;
+
   //GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",x, y, w, self->ch);
   gtk_widget_queue_draw_area (GTK_WIDGET (self), x, y, w, self->ch);
 }
@@ -400,6 +405,7 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor * self)
   BtPatternEditorColumnGroup *cgrp;
   BtPatternEditorColumn *col;
   ParamType *pt;
+  GtkAllocation allocation;
 
   if (!self->num_groups)
     return;
@@ -417,6 +423,10 @@ bt_pattern_editor_refresh_cursor (BtPatternEditor * self)
   col = &cgrp->columns[self->parameter];
   pt = &param_types[col->type];
   x += self->cw * pt->column_pos[self->digit];
+
+  gtk_widget_get_allocation (GTK_WIDGET (self), &allocation);
+  x += allocation.x;
+  y += allocation.y;
 
   //GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",x, y, self->cw, self->ch);
   gtk_widget_queue_draw_area (GTK_WIDGET (self), x, y, self->cw, self->ch);
@@ -1466,16 +1476,21 @@ bt_pattern_editor_set_property (GObject * object,
       self->play_pos = g_value_get_double (value);
       if (gtk_widget_get_realized (GTK_WIDGET (self)) &&
           (old_pos != self->play_pos)) {
-        gint w = gtk_widget_get_allocated_width (GTK_WIDGET (self));
+        GtkAllocation allocation;
         gdouble h = (gdouble) bt_pattern_editor_get_col_height (self)
             - (gdouble) self->colhdr_height;
-        gint y;
+        gint w, x, y, yo;
 
-        y = self->colhdr_height + (gint) (old_pos * h) - self->ofs_y;
-        gtk_widget_queue_draw_area (GTK_WIDGET (self), 0, y - 1, w, 2);
+        gtk_widget_get_allocation (GTK_WIDGET (self), &allocation);
+        w = allocation.width;
+        x = allocation.x;
+        yo = allocation.y + self->colhdr_height - self->ofs_y;
+
+        y = yo + (gint) (old_pos * h);
+        gtk_widget_queue_draw_area (GTK_WIDGET (self), x, (y - 1), w, 2);
         GST_INFO ("Mark Area Dirty: %d,%d -> %d,%d", 0, y - 1, w, 2);
-        y = self->colhdr_height + (gint) (self->play_pos * h) - self->ofs_y;
-        gtk_widget_queue_draw_area (GTK_WIDGET (self), 0, y - 1, w, 2);
+        y = yo + (gint) (self->play_pos * h);
+        gtk_widget_queue_draw_area (GTK_WIDGET (self), x, (y - 1), w, 2);
         //GST_INFO("Mark Area Dirty: %d,%d -> %d,%d",0, y-1, w, 2);
       }
       break;
