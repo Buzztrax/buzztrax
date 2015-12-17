@@ -22,7 +22,7 @@
  * A song is the top-level container object to manage all song-related objects.
  * The #BtSetup contains the machines and their connections, the #BtSequence
  * contains the overall time-line, the #BtWavetable holds a list of audio
- * snippets and the #BtSongInfo has a couple of meta-data items for the song. 
+ * snippets and the #BtSongInfo has a couple of meta-data items for the song.
  *
  * To load or save a song, use a #BtSongIO object. These implement loading and
  * saving for different file-formats.
@@ -94,7 +94,14 @@
 /* Something changed in gstreamer to break seek in READY again. The pipeline
  * plays from the right pos, but reports position starting from 0 instead of
  * seek-pos.
- * Now we waste some CPU for preroll and then flushing with the actual seek :/
+ *
+ * We've filed the bug on 2014-07-10 (short before 1.4.0?) and switched to seek
+ * in paused. This wastes some CPU for preroll and then flushing with the actual
+ * seek :/ It also breaks some file formats (e.g. ogg which seems to have
+ * duplicated headers) (e.g. on ubuntu trusty which has 1.2.3). But this was
+ * fixed in never versions (at least in 1.4.3 (ubuntu ppa)).
+ *
+ * git log --tags --simplify-by-decoration --pretty="format:%ai %d"
  */
 #define GST_BUG_733031
 
@@ -420,6 +427,11 @@ bt_song_send_toc (const BtSong * const self)
 }
 
 #ifndef GST_BUG_733031
+/*
+ * bt_song_send_initial_seek:
+ *
+ * Only seeks on elements. This is a workaround for making seek-in-ready work.
+ */
 static gboolean
 bt_song_send_initial_seek (const BtSong * const self, GstBin * bin)
 {
@@ -707,7 +719,7 @@ on_song_stream_status (const GstBus * const bus, GstMessage * message,
    *   all pads in that thread
    * - the dataprobe would
    *   - need a previous ClockTime, elapsed wallclock time and a pointer to the
-   *     BtMachine, we could have a global hastable that maps thread-id to a 
+   *     BtMachine, we could have a global hashtable that maps thread-id to a
    *     BtPerfData struct
    *   - set the cpu-load value on the BtMachine (no notify!)
    * - the application can poll the value from a machine property
