@@ -20,22 +20,37 @@
  *
  * Abstract base class for controls.
  */
-/* TODO(ensonic): need flags=BTIC_CONTROL_ABS,BTIC_CONTROL_TRIGGER,... 
- * to quickly filter e.g. for the controller menu
- *
- * TODO(ensonic): new subclasses:
+/* TODO(ensonic): need flags to quickly filter e.g. for the controller menu
+ * - BTIC_CONTROL_ABS,BTIC_CONTROL_TRIGGER,... checking types right now
+ * - keyboard, trigger pad: to know which ones are useful for live-play
+ *   - a range control can be a slider/knob (not instant) or
+ *     a velocity, aftertouch from a pad/key (instant)
+ *     - 'instant' it is implicit for note-on/off
+ *   - maybe add this as a flag for range-controls and let the user-override
+ *     - e.g. for a ribbon-controller (AN-1x) we might see a normal controller,
+ *       but one can tap it anywhere
+ */
+/* TODO(ensonic): new subclasses:
  * - BTIC_CONTROL_KEY (midi keyboard, computer keyboard)
  *   - value would be a guint with the key-number (see GSTBT_NOTE_*)
+ *   - from midi, we get key-press and release events for each key
  *   - if a midi keyboard is polyphonic, should it register multiple controls?
+ *     - how large can polyphony be?
+ *     - also what if we want to use this on a monophonic synth
+ *     - if we register multiple controls they could have a shared group-id
  *   - when we bind it, we need to smartly assign the controls to voices
  *     - if a synth has 4 voices we assign key0->voice0, key1->voice1, ...
  *     - a max number of e.g. 16 voices shold be enough in practise (given that
  *       one has 10 fingers)
  *    - the device class would implement the voice allocation
- *      - e.g. round-robin, ev. take key-release or velocity into account 
- *   - we could have virtual devices to define key-zones 
- *     (those could be assigned separately). so if the device is called "midi", 
- *     the virtual ones could be named "midi(C-0 B-1)" and "midi(C-1 B-2)" 
+ *      - e.g. round-robin, ev. take key-release or velocity into account
+ */
+/* TODO(ensonic): virtual devices:
+ * we could have virtual devices that remap controls from other devices:
+ * - define key-zones
+ *   if the device is called "midi", the virtual ones could be named
+ *   "midi(C-0 B-1)" and "midi(C-1 B-2)"
+ * - scaled range controls (offset + factor)
  */
 #define BTIC_CORE
 #define BTIC_CONTROL_C
