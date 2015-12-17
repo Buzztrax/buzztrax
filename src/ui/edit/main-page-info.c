@@ -36,7 +36,7 @@
 /* TODO(ensonic): changing tpb, beats
  * - when changing tpb and beats the playback-speed of the current song is
  *   affected, we might want to offer a tool to resample the patterns.
- * - it would probably be easier to have some buttons for 
+ * - it would probably be easier to have some buttons for
  *   1/4x 1/3x 1/2x 2x, 3x, 4x tick resolution
  * - when lowering the tick resolution, we need to handle loss of notes
  *   when doing 1/4 we would merge 4 rows into one keeping the first note found
@@ -428,7 +428,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   gtk_box_pack_start (GTK_BOX (box), table, TRUE, TRUE, 0);
 
   label = gtk_label_new (_("name"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
   self->priv->name = GTK_ENTRY (gtk_entry_new ());
   g_object_set (self->priv->name, "hexpand", TRUE, "margin-left", LABEL_PADDING,
@@ -438,7 +438,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
       (gpointer) self);
 
   label = gtk_label_new (_("genre"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
   self->priv->genre = GTK_ENTRY (gtk_entry_new ());
   g_object_set (self->priv->genre, "hexpand", TRUE, "margin-left",
@@ -449,7 +449,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
       (gpointer) self);
 
   label = gtk_label_new (_("author"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
   self->priv->author = GTK_ENTRY (gtk_entry_new ());
   g_object_set (self->priv->author, "hexpand", TRUE, "margin-left",
@@ -460,7 +460,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
       G_CALLBACK (on_author_changed), (gpointer) self);
 
   label = gtk_label_new (_("created"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 3, 1, 1);
   self->priv->date_created = GTK_ENTRY (gtk_entry_new ());
   gtk_editable_set_editable (GTK_EDITABLE (self->priv->date_created), FALSE);
@@ -475,7 +475,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   gtk_box_pack_start (GTK_BOX (box), table, TRUE, TRUE, 0);
 
   label = gtk_label_new (_("beats per minute"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
   pspec =
       (GParamSpecULong *) g_object_class_find_property (song_info_class, "bpm");
@@ -490,7 +490,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
       G_CALLBACK (on_bpm_changed), (gpointer) self);
 
   label = gtk_label_new (_("beats"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
   pspec =
       (GParamSpecULong *) g_object_class_find_property (song_info_class, "tpb");
@@ -513,7 +513,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
       G_CALLBACK (on_beats_changed), (gpointer) self);
 
   label = gtk_label_new (_("ticks per beat"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
   spin_adjustment =
       GTK_ADJUSTMENT (gtk_adjustment_new (pspec->default_value, pspec->minimum,
@@ -526,7 +526,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
       G_CALLBACK (on_tpb_changed), (gpointer) self);
 
   label = gtk_label_new (_("last saved"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 3, 1, 1);
   self->priv->date_changed = GTK_ENTRY (gtk_entry_new ());
   gtk_editable_set_editable (GTK_EDITABLE (self->priv->date_changed), FALSE);

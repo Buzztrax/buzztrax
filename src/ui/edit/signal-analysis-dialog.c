@@ -340,7 +340,7 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   g_mutex_unlock (&self->priv->lock);
 
   // draw cross-hair for mouse
-  // TODO(ensonic): cache GdkDevice* 
+  // TODO(ensonic): cache GdkDevice*
   gdk_window_get_device_position (window,
       gdk_device_manager_get_client_pointer (gdk_display_get_device_manager
           (gtk_widget_get_display (widget))), &mx, &my, NULL);
@@ -1055,7 +1055,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
 
   /* scale: linear and logarithmic */
   label = gtk_label_new (_("frequency mapping"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
 
   widget = gtk_combo_box_text_new ();
@@ -1069,7 +1069,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
 
   /* precission */
   label = gtk_label_new (_("spectrum precision"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 3, 1, 1);
 
   widget = gtk_combo_box_text_new ();

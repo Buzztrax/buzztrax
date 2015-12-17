@@ -394,12 +394,12 @@ bt_settings_page_interaction_controller_init_ui (const
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Interaction Controller"));
   gtk_label_set_markup (GTK_LABEL (label), str);
   g_free (str);
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  g_object_set (label, "xalign", 0.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 0, 0, 3, 1);
   gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 3);
 
   label = gtk_label_new (_("Device"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 1, 1, 1);
 
   widget = gtk_combo_box_new ();

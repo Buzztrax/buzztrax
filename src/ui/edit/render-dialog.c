@@ -624,7 +624,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
   gtk_container_add (GTK_CONTAINER (overlay), table);
 
   label = gtk_label_new (_("Folder"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
 
   self->priv->dir_chooser = widget =
@@ -639,7 +639,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
 
 
   label = gtk_label_new (_("Filename"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
 
   self->priv->file_name_entry = widget = gtk_entry_new ();
@@ -653,7 +653,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
 
 
   label = gtk_label_new (_("Format"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
 
   // query supported formats from sinkbin
@@ -683,7 +683,7 @@ bt_render_dialog_init_ui (const BtRenderDialog * self)
 
 
   label = gtk_label_new (_("Mode"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 3, 1, 1);
 
   // query supported modes from sinkbin

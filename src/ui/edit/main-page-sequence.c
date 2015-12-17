@@ -1226,7 +1226,7 @@ sequence_pos_table_init (const BtMainPageSequence * self)
       gtk_box_new (GTK_ORIENTATION_VERTICAL, HEADER_SPACING);
   // time line position
   label = gtk_label_new (_("Pos."));
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  g_object_set (label, "xalign", 0.0, NULL);
   gtk_box_pack_start (GTK_BOX (self->priv->pos_header), label, TRUE, TRUE, 0);
 
   self->priv->pos_menu = gtk_combo_box_text_new ();
@@ -1418,7 +1418,7 @@ sequence_table_init (const BtMainPageSequence * self)
   gtk_box_pack_start (GTK_BOX (header), vbox, TRUE, TRUE, 0);
 
   label = gtk_label_new (_("Labels"));
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  g_object_set (label, "xalign", 0.0, NULL);
   gtk_box_pack_start (GTK_BOX (vbox), label, TRUE, TRUE, 0);
 
   gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET (self->priv->label_menu), TRUE,

@@ -162,7 +162,7 @@ bt_pattern_properties_dialog_init_ui (const BtPatternPropertiesDialog * self)
 
   // GtkEntry : pattern name
   label = gtk_label_new (_("name"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
 
   widget = gtk_entry_new ();
@@ -175,7 +175,7 @@ bt_pattern_properties_dialog_init_ui (const BtPatternPropertiesDialog * self)
 
   // GtkComboBox : pattern length
   label = gtk_label_new (_("length"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
   length_str = g_strdup_printf ("%lu", self->priv->length);
   widget = gtk_entry_new ();
@@ -189,7 +189,7 @@ bt_pattern_properties_dialog_init_ui (const BtPatternPropertiesDialog * self)
 
   // GtkSpinButton : number of voices
   label = gtk_label_new (_("voices"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
   spin_adjustment =
       GTK_ADJUSTMENT (gtk_adjustment_new (1.0, 1.0, 16.0, 1.0, 4.0, 0.0));

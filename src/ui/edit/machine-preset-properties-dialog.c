@@ -158,7 +158,7 @@ bt_machine_preset_properties_dialog_init_ui (const
 
   // GtkEntry : preset name
   label = gtk_label_new (_("name"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
 
   widget = gtk_entry_new ();
@@ -174,7 +174,7 @@ bt_machine_preset_properties_dialog_init_ui (const
 
   // GtkEntry : preset comment
   label = gtk_label_new (_("comment"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 1, 1, 1);
 
   widget = gtk_entry_new ();

@@ -90,12 +90,12 @@ bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self,
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Directories"));
   gtk_label_set_markup (GTK_LABEL (label), str);
   g_free (str);
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  g_object_set (label, "xalign", 0.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 0, 0, 3, 1);
   gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 3);
 
   label = gtk_label_new (_("Songs"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 1, 1, 1);
 
   widget =
@@ -109,7 +109,7 @@ bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self,
   gtk_grid_attach (GTK_GRID (self), widget, 2, 1, 1, 1);
 
   label = gtk_label_new (_("Recordings"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 2, 1, 1);
 
   widget =
@@ -124,7 +124,7 @@ bt_settings_page_directories_init_ui (const BtSettingsPageDirectories * self,
   gtk_grid_attach (GTK_GRID (self), widget, 2, 2, 1, 1);
 
   label = gtk_label_new (_("Waveforms"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 3, 1, 1);
 
   widget =

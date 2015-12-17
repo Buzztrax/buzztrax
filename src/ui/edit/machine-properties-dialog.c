@@ -1914,9 +1914,8 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
   evb = gtk_event_box_new ();
   g_object_set (evb, "visible-window", FALSE, NULL);
   label = gtk_label_new (g_param_spec_get_nick (property));
-  gtk_label_set_single_line_mode (GTK_LABEL (label), TRUE);
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_widget_set_tooltip_text (label, tool_tip_text);
+  g_object_set (label, "single-line-mode", TRUE, "xalign", 1.0, "tooltip-text",
+      tool_tip_text, NULL);
   gtk_container_add (GTK_CONTAINER (evb), label);
   gtk_grid_attach (GTK_GRID (table), evb, 0, row, 1, 1);
 
@@ -2082,13 +2081,10 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
       evb = gtk_event_box_new ();
       g_object_set (evb, "visible-window", FALSE, NULL);
       gtk_container_add (GTK_CONTAINER (evb), widget2);
-
-      gtk_label_set_ellipsize (GTK_LABEL (widget2), PANGO_ELLIPSIZE_END);
-      gtk_label_set_single_line_mode (GTK_LABEL (widget2), TRUE);
-      // float/double formatting uses 8-9 chars, some machine with custom
-      // descriptions use more, but ideally text is detected as enums
-      gtk_label_set_width_chars (GTK_LABEL (widget2), 10);
-      gtk_misc_set_alignment (GTK_MISC (widget2), 0.0, 0.5);
+      /* float/double formatting uses 8-9 chars, some machine with custom
+       * descriptions use more, but ideally text is detected as enums */
+      g_object_set (widget2, "ellipsize", PANGO_ELLIPSIZE_END,
+          "single-line-mode", TRUE, "xalign", 0.0, "width-chars", 10, NULL);
       g_signal_connect (evb, "button-press-event",
           G_CALLBACK (on_label_button_press_event), (gpointer) widget1);
     } else {
@@ -2448,9 +2444,8 @@ make_trigger_control (const BtMachinePropertiesDialog * self, GObject * object,
   evb = gtk_event_box_new ();
   g_object_set (evb, "visible-window", FALSE, NULL);
   label = gtk_label_new (g_param_spec_get_nick (property));
-  gtk_label_set_single_line_mode (GTK_LABEL (label), TRUE);
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  gtk_widget_set_tooltip_text (label, tool_tip_text);
+  g_object_set (label, "single-line-mode", TRUE, "xalign", 1.0, "tooltip-text",
+      tool_tip_text, NULL);
   gtk_container_add (GTK_CONTAINER (evb), label);
   gtk_grid_attach (GTK_GRID (table), evb, 0, row, 1, 1);
 

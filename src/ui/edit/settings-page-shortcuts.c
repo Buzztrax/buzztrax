@@ -35,7 +35,7 @@
  * - we need to ensure that keys are unique and not otherwise bound
  */
 /* TODO(ensonic): allow to assign bt-ic trigger events as short cuts
- * - the list will have 3 columns : short-cut-name, key-command, controller-command 
+ * - the list will have 3 columns : short-cut-name, key-command, controller-command
  * - when clicking the key-column, one can press a short cut or ESC
  *   - if a key is already bound, we bring up a dialog, where the user can confirm
  *     (and unassign the old function) or cancel
@@ -87,13 +87,12 @@ bt_settings_page_shortcuts_init_ui (const BtSettingsPageShortcuts * self,
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Shortcuts"));
   gtk_label_set_markup (GTK_LABEL (label), str);
   g_free (str);
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  g_object_set (label, "xalign", 0.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 0, 0, 3, 1);
   gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 2);
 
   /* FIXME(ensonic): add the UI */
   label = gtk_label_new ("no keyboard settings yet");
-  gtk_misc_set_alignment (GTK_MISC (label), 0.5, 0.5);
   g_object_set (label, "hexpand", TRUE, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 1, 2, 1);
 

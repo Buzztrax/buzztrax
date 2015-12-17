@@ -26,14 +26,14 @@
  */
 /* TODO(ensonic): show the latency
  * - gst_base_sink_get_latency()
- *   - when is that available? - 
+ *   - when is that available? -
  *   - we might not be able to swap the sink immediately
  * - we have the latency caused by the fragment-size and depth of graph
  *   - thus it is different for each graph level
  *   - the min/max latency depends on the songs bpm,tpb and graph-depth
  *     - we could show that on the info-page instead
  * - the latency from changing a parameter until we hear something is what
- *   the user is interested in 
+ *   the user is interested in
  * => we want to check how much ahead of the pipeline clock the data is processed
  *    - compare timestamps we set on buffers in chain functions with the clock
  * - we need a target latency setting
@@ -269,13 +269,12 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Audio Device"));
   gtk_label_set_markup (GTK_LABEL (label), str);
   g_free (str);
-  g_object_set (label, "hexpand", TRUE, NULL);
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  g_object_set (label, "hexpand", TRUE, "xalign", 0.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 0, 0, 3, 1);
   gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 5);
 
   label = gtk_label_new (_("Sink"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 1, 1, 1);
 
   widget = gtk_combo_box_text_new ();
@@ -380,7 +379,7 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
       (gpointer) self);
 
   label = gtk_label_new (_("Audio device"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 2, 1, 1);
 
   widget = gtk_combo_box_text_new ();
@@ -393,7 +392,7 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
       (gpointer) self);
 
   label = gtk_label_new (_("Sampling rate"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 3, 1, 1);
 
   widget = gtk_combo_box_text_new ();
@@ -442,7 +441,7 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
       (gpointer) self);
 
   label = gtk_label_new (_("Channels"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 4, 1, 1);
 
   widget = gtk_combo_box_text_new ();
@@ -457,7 +456,7 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
       (gpointer) self);
 
   label = gtk_label_new (_("Latency"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 5, 1, 1);
 
   pspec = (GParamSpecUInt *) g_object_class_find_property ((GObjectClass *)

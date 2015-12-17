@@ -325,7 +325,7 @@ bt_main_statusbar_init_ui (const BtMainStatusbar * self)
   g_object_set (ev_box, "visible-window", FALSE, NULL);
   gtk_widget_set_tooltip_text (ev_box, _("Playback time"));
   self->priv->elapsed = GTK_LABEL (gtk_label_new (str));
-  gtk_misc_set_alignment (GTK_MISC (self->priv->elapsed), 1.0, 0.5);
+  g_object_set (self->priv->elapsed, "xalign", 1.0, NULL);
   gtk_widget_set_size_request (GTK_WIDGET (self->priv->elapsed), 100, -1);
   gtk_container_add (GTK_CONTAINER (ev_box), GTK_WIDGET (self->priv->elapsed));
   gtk_box_pack_start (GTK_BOX (self), ev_box, FALSE, FALSE, 1);
@@ -334,7 +334,7 @@ bt_main_statusbar_init_ui (const BtMainStatusbar * self)
   g_object_set (ev_box, "visible-window", FALSE, NULL);
   gtk_widget_set_tooltip_text (ev_box, _("Playback position"));
   self->priv->current = GTK_LABEL (gtk_label_new (str));
-  gtk_misc_set_alignment (GTK_MISC (self->priv->current), 1.0, 0.5);
+  g_object_set (self->priv->current, "xalign", 1.0, NULL);
   gtk_widget_set_size_request (GTK_WIDGET (self->priv->current), 100, -1);
   gtk_container_add (GTK_CONTAINER (ev_box), GTK_WIDGET (self->priv->current));
   gtk_box_pack_start (GTK_BOX (self), ev_box, FALSE, FALSE, 1);
@@ -343,7 +343,7 @@ bt_main_statusbar_init_ui (const BtMainStatusbar * self)
   g_object_set (ev_box, "visible-window", FALSE, NULL);
   gtk_widget_set_tooltip_text (ev_box, _("Playback length"));
   self->priv->loop = GTK_LABEL (gtk_label_new (str));
-  gtk_misc_set_alignment (GTK_MISC (self->priv->loop), 1.0, 0.5);
+  g_object_set (self->priv->loop, "xalign", 1.0, NULL);
   gtk_widget_set_size_request (GTK_WIDGET (self->priv->loop), 100, -1);
   gtk_container_add (GTK_CONTAINER (ev_box), GTK_WIDGET (self->priv->loop));
   gtk_box_pack_start (GTK_BOX (self), ev_box, FALSE, FALSE, 1);

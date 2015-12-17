@@ -82,12 +82,12 @@ bt_settings_page_ui_init_ui (const BtSettingsPageUI * self, GtkWidget * pages)
   str = g_strdup_printf ("<big><b>%s</b></big>", _("User Interface"));
   gtk_label_set_markup (GTK_LABEL (label), str);
   g_free (str);
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  g_object_set (label, "xalign", 0.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 0, 0, 3, 1);
   gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 2);
 
   label = gtk_label_new (_("Dark theme variant"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 1, 1, 1);
 
   widget = gtk_check_button_new ();
@@ -99,7 +99,7 @@ bt_settings_page_ui_init_ui (const BtSettingsPageUI * self, GtkWidget * pages)
   gtk_grid_attach (GTK_GRID (self), widget, 2, 1, 1, 1);
 
   label = gtk_label_new (_("Compact theme variant"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 1, 2, 1, 1);
 
   widget = gtk_check_button_new ();

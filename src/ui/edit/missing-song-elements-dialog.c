@@ -70,7 +70,7 @@ make_listview (GtkWidget * vbox, GList * missing_elements, const gchar * msg)
   gint length = 0;
 
   label = gtk_label_new (msg);
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  g_object_set (label, "xalign", 0.0, NULL);
   gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
 
   for (node = missing_elements; node; node = g_list_next (node)) {
@@ -139,7 +139,7 @@ bt_missing_song_elements_dialog_init_ui (const BtMissingSongElementsDialog *
   label = gtk_label_new (NULL);
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Missing elements in song"));
   gtk_label_set_markup (GTK_LABEL (label), str);
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  g_object_set (label, "xalign", 0.0, NULL);
   g_free (str);
   gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 0);
   if (self->priv->machines) {

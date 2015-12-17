@@ -339,7 +339,7 @@ on_device_menu_changed (GtkComboBox * combo_box, gpointer user_data)
     active = -1;
     cfg_name = g_hash_table_lookup (self->priv->ic_playback_cfg, key);
     if (cfg_name) {
-      // select entry from settings 
+      // select entry from settings
       for (node = list, ix = 0; (node && active == -1);
           node = g_list_next (node), ix++) {
         g_object_get (node->data, "name", &ctrl_name, NULL);
@@ -400,7 +400,7 @@ add_ic_playback_command_widgets (const BtSettingsPagePlaybackController * self,
   GtkCellRenderer *renderer;
 
   label = gtk_label_new (label_str);
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (table, label, 0, line, 1, 1);
 
   widget = gtk_combo_box_new ();
@@ -458,7 +458,7 @@ bt_settings_page_playback_controller_init_ui (const
   str = g_strdup_printf ("<big><b>%s</b></big>", _("Playback Controller"));
   gtk_label_set_markup (GTK_LABEL (label), str);
   g_free (str);
-  gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+  g_object_set (label, "xalign", 0.0, NULL);
   gtk_grid_attach (GTK_GRID (self), label, 0, 0, 3, 1);
   gtk_grid_attach (GTK_GRID (self), gtk_label_new ("    "), 0, 1, 1, 3);
 
@@ -549,7 +549,7 @@ bt_settings_page_playback_controller_init_ui (const
 
   // local network port number for socket communication
   label = gtk_label_new (_("Port number"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (table, label, 0, 0, 1, 1);
 
   spin_adjustment =
@@ -567,9 +567,7 @@ bt_settings_page_playback_controller_init_ui (const
       gtk_label_new
       (_
       ("Requires Coherence UPnP framework which can be found at: https://coherence.beebits.net."));
-  gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
-  gtk_label_set_selectable (GTK_LABEL (label), TRUE);
-  g_object_set (label, "hexpand", TRUE, NULL);
+  g_object_set (label, "hexpand", TRUE, "wrap", TRUE, "selectable", TRUE, NULL);
   gtk_grid_attach (table, label, 0, 2, 2, 1);
 
 
@@ -581,8 +579,7 @@ bt_settings_page_playback_controller_init_ui (const
           "Your current audiosink is '%s'."),
       (element_name ? element_name : _("none")));
   label = gtk_label_new (str);
-  gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
-  gtk_label_set_selectable (GTK_LABEL (label), TRUE);
+  g_object_set (label, "hexpand", TRUE, "wrap", TRUE, "selectable", TRUE, NULL);
   gtk_container_add (GTK_CONTAINER (self->priv->controller_pages), label);
   g_free (element_name);
   g_free (str);
@@ -594,8 +591,7 @@ bt_settings_page_playback_controller_init_ui (const
   gtk_container_add (GTK_CONTAINER (self->priv->controller_pages), widget);
 
   label = gtk_label_new (_("Device"));
-  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-  g_object_set (label, "margin-bottom", LABEL_PADDING, NULL);
+  g_object_set (label, "xalign", 1.0, "margin-bottom", LABEL_PADDING, NULL);
   gtk_grid_attach (table, label, 0, 0, 1, 1);
 
   widget = gtk_combo_box_new ();

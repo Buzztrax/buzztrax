@@ -350,9 +350,8 @@ bt_machine_preferences_dialog_init_ui (const BtMachinePreferencesDialog * self)
 
     // get name
     label = gtk_label_new (g_param_spec_get_nick (property));
-    gtk_label_set_single_line_mode (GTK_LABEL (label), TRUE);
-    gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
-    gtk_widget_set_tooltip_text (label, tool_tip_text);
+    g_object_set (label, "single-line-mode", TRUE, "xalign", 1.0,
+        "tooltip-text", tool_tip_text, NULL);
     gtk_grid_attach (GTK_GRID (table), label, 0, i, 1, 1);
 
     param_type = property->value_type;
