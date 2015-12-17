@@ -36,8 +36,6 @@
 /* TODO(ensonic): play machines
  * - we want to assign a note-controller to a machines note-trigger property
  *   and boolean-trigger controller to machines trigger properties
- * - right now we register note-controllers as abs_range controls, we need a way
- *   to filter for them
  * - we should also create widgets (or just drawables) for triggers:
  *   - note: small keyboard
  *   - int-triggers: a button where the x-pos is mapped to value
@@ -47,6 +45,8 @@
  *   - these should probably be all in one expander that is sticky at the bottom
  *     - it needs to combine voice triggers into a poly trigger
  *   - this needs to have idle-playback running
+ *     - we could run idle only if the machine-properties window is focused (and
+ *       if there is no controller assigned) (and if the machine is connected)
  */
 /* TODO(ensonic): mute/solo/bypass
  * - have a row with mute/solo/bypass check-boxes in the UI
@@ -79,7 +79,7 @@
  * - this method would allow us to:
  *   - select the preset in older songs (where we did not store it)
  *   - dynamically add/remove the preset changed marker
- * 
+ *
  */
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C
@@ -127,7 +127,7 @@ struct _BtMachinePropertiesDialogPrivate
 
   /* context menus */
   GtkMenu *group_menu;
-  GtkMenu *param_menu[2];       // we have two controller types
+  GtkMenu *param_menu[4];       // we have two controller types + 2 variants
 
   /* first real child for setting a sane focus */
   GtkWidget *first_widget;
@@ -596,6 +596,8 @@ bt_machine_update_default_param_value (BtMachine * self,
 {
   GstControlBinding *cb;
 
+  GST_WARNING_OBJECT (self, "set new default for '%s'", property_name);
+
   if ((cb = gst_object_get_control_binding (param_parent, property_name))) {
     bt_parameter_group_set_param_default (pg,
         bt_parameter_group_get_param_index (pg, property_name));
@@ -630,7 +632,8 @@ update_param_after_interaction (GtkWidget * widget, gpointer user_data)
 
 static gboolean
 on_button_press_event (GtkWidget * widget, GdkEventButton * event,
-    gpointer user_data, BtInteractionControllerMenuType type)
+    gpointer user_data, BtInteractionControllerMenuType type,
+    gboolean add_copy_paste)
 {
   GstObject *param_parent = GST_OBJECT (user_data);
   const gchar *property_name = gtk_widget_get_name (widget);
@@ -648,16 +651,17 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
       BtParameterGroup *pg = g_object_get_qdata (w, widget_param_group_quark);
       gint pi =
           GPOINTER_TO_INT (g_object_get_qdata (w, widget_param_num_quark));
+      gint ix = (type << 1) | add_copy_paste;
 
       // create context menu
-      if (!self->priv->param_menu[type]) {
+      if (!self->priv->param_menu[ix]) {
         GtkWidget *menu_item;
         GtkMenuShell *menu;
 
-        self->priv->param_menu[type] =
+        self->priv->param_menu[ix] =
             GTK_MENU (g_object_ref_sink (bt_interaction_controller_menu_new
                 (type, self->priv->machine)));
-        menu = GTK_MENU_SHELL (self->priv->param_menu[type]);
+        menu = GTK_MENU_SHELL (self->priv->param_menu[ix]);
 
         // add extra items
         menu_item = gtk_separator_menu_item_new ();
@@ -676,24 +680,26 @@ on_button_press_event (GtkWidget * widget, GdkEventButton * event,
         gtk_menu_shell_append (menu, menu_item);
         gtk_widget_show (menu_item);
 
-        // add copy/paste item
-        menu_item = gtk_separator_menu_item_new ();
-        gtk_menu_shell_append (menu, menu_item);
-        gtk_widget_show (menu_item);
+        if (add_copy_paste) {
+          // add copy/paste item
+          menu_item = gtk_separator_menu_item_new ();
+          gtk_menu_shell_append (menu, menu_item);
+          gtk_widget_show (menu_item);
 
-        menu_item = gtk_menu_item_new_with_label (_("Copy parameter"));
-        g_signal_connect (menu_item, "activate",
-            G_CALLBACK (on_parameters_copy_single), (gpointer) self);
-        gtk_menu_shell_append (menu, menu_item);
-        gtk_widget_show (menu_item);
+          menu_item = gtk_menu_item_new_with_label (_("Copy parameter"));
+          g_signal_connect (menu_item, "activate",
+              G_CALLBACK (on_parameters_copy_single), (gpointer) self);
+          gtk_menu_shell_append (menu, menu_item);
+          gtk_widget_show (menu_item);
 
-        menu_item = gtk_menu_item_new_with_label (_("Paste"));
-        g_signal_connect (menu_item, "activate",
-            G_CALLBACK (on_parameters_paste), (gpointer) self);
-        gtk_menu_shell_append (menu, menu_item);
-        gtk_widget_show (menu_item);
+          menu_item = gtk_menu_item_new_with_label (_("Paste"));
+          g_signal_connect (menu_item, "activate",
+              G_CALLBACK (on_parameters_paste), (gpointer) self);
+          gtk_menu_shell_append (menu, menu_item);
+          gtk_widget_show (menu_item);
+        }
       }
-      m = (GObject *) self->priv->param_menu[type];
+      m = (GObject *) self->priv->param_menu[ix];
       g_object_set_qdata (m, widget_param_group_quark, (gpointer) pg);
       g_object_set_qdata (m, widget_param_num_quark, GINT_TO_POINTER (pi));
 
@@ -734,11 +740,11 @@ on_key_release_event (GtkWidget * widget, GdkEventKey * event,
 }
 
 static gboolean
-on_trigger_button_press_event (GtkWidget * widget, GdkEventButton * event,
+on_boolean_button_press_event (GtkWidget * widget, GdkEventButton * event,
     gpointer user_data)
 {
   return (on_button_press_event (widget, event, user_data,
-          BT_INTERACTION_CONTROLLER_TRIGGER_MENU));
+          BT_INTERACTION_CONTROLLER_TRIGGER_MENU, TRUE));
 }
 
 static gboolean
@@ -746,7 +752,15 @@ on_range_button_press_event (GtkWidget * widget, GdkEventButton * event,
     gpointer user_data)
 {
   return (on_button_press_event (widget, event, user_data,
-          BT_INTERACTION_CONTROLLER_RANGE_MENU));
+          BT_INTERACTION_CONTROLLER_RANGE_MENU, TRUE));
+}
+
+static gboolean
+on_trigger_button_press_event (GtkWidget * widget, GdkEventButton * event,
+    gpointer user_data)
+{
+  return (on_button_press_event (widget, event, user_data,
+          BT_INTERACTION_CONTROLLER_RANGE_MENU, FALSE));
 }
 
 static gboolean
@@ -1893,7 +1907,7 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
 {
   GtkWidget *label, *widget1, *widget2, *evb;
   GType base_type;
-  gboolean is_trigger = FALSE;
+  gboolean is_boolean = FALSE;
   const gchar *tool_tip_text = g_param_spec_get_blurb (property);
 
   // label for parameter name
@@ -1927,7 +1941,7 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
       break;
     case G_TYPE_BOOLEAN:
       widget1 = make_checkbox_widget (self, object, property);
-      is_trigger = TRUE;
+      is_boolean = TRUE;
       widget2 = NULL;
       break;
     case G_TYPE_INT:
@@ -1961,7 +1975,7 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
     case G_TYPE_ENUM:
       if (property->value_type == GSTBT_TYPE_TRIGGER_SWITCH) {
         widget1 = make_checkbox_widget (self, object, property);
-        is_trigger = TRUE;
+        is_boolean = TRUE;
       } else {
         widget1 =
             make_combobox_widget (self, object, property, range_min, range_max);
@@ -2043,9 +2057,9 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
       break;
     }
   }
-  if (is_trigger) {
+  if (is_boolean) {
     g_signal_connect (evb, "button-press-event",
-        G_CALLBACK (on_trigger_button_press_event), (gpointer) object);
+        G_CALLBACK (on_boolean_button_press_event), (gpointer) object);
   } else {
     g_signal_connect (evb, "button-press-event",
         G_CALLBACK (on_range_button_press_event), (gpointer) object);
@@ -2322,6 +2336,258 @@ on_wire_removed (const BtSetup * setup, BtWire * wire, gpointer user_data)
     g_hash_table_remove (self->priv->param_groups, expander);
     self->priv->num_wires--;
   }
+}
+
+static gboolean
+on_drum_trigger_pressed (GtkWidget * widget, GdkEventButton * event,
+    gpointer user_data)
+{
+  GstObject *param_parent = GST_OBJECT (user_data);
+  const gchar *name = gtk_widget_get_name (GTK_WIDGET (widget));
+
+  GST_INFO ("drum pressed: %s", name);
+  g_object_set (param_parent, name, TRUE, NULL);
+  return FALSE;
+}
+
+static gboolean
+on_drum_button_pressed (GtkWidget * widget, GdkEventButton * event,
+    gpointer user_data)
+{
+  GstObject *param_parent = GST_OBJECT (user_data);
+  const gchar *name = gtk_widget_get_name (GTK_WIDGET (widget));
+  GtkAllocation alloc;
+  BtParameterGroup *pg;
+  GParamSpec *property;
+  GValue *range_min, *range_max;
+  gint pi;
+  gdouble velocity;
+
+  gtk_widget_get_allocation (widget, &alloc);
+  velocity = event->x / (gdouble) alloc.width;
+
+  GST_INFO ("drum pressed: %s: velocity = %d / %lf = %lf",
+      name, alloc.width, event->x, velocity);
+  // get paramspec and scale value
+  pg = g_object_get_qdata (G_OBJECT (widget), widget_param_group_quark);
+  pi = GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (widget),
+          widget_param_num_quark));
+  bt_parameter_group_get_param_details (pg, pi, &property, &range_min,
+      &range_max);
+  // trigger drum
+  switch (property->value_type) {
+    case G_TYPE_UINT:{
+      guint value_min = g_value_get_uint (range_min);
+      guint value_max = g_value_get_uint (range_max);
+      guint val = (guint) (value_min + velocity * (value_max - value_min));
+      g_object_set (param_parent, name, val, NULL);
+      break;
+    }
+    case G_TYPE_ENUM:
+      // trigger switch
+      g_object_set (param_parent, name, 1, NULL);
+      break;
+    default:
+      GST_WARNING ("unhandled type: \"%s\"", G_PARAM_SPEC_TYPE_NAME (property));
+      break;
+  }
+  return FALSE;
+}
+
+static void
+on_keyboard_key_pressed (GtkWidget * widget, GstBtNote key, gpointer user_data)
+{
+  GstObject *param_parent = GST_OBJECT (user_data);
+  const gchar *name = gtk_widget_get_name (GTK_WIDGET (widget));
+
+  GST_INFO ("piano keyboard pressed: %s: key = %d", name, key);
+  // play note
+  g_object_set (param_parent, name, key, NULL);
+}
+
+static void
+on_keyboard_key_released (GtkWidget * widget, GstBtNote key, gpointer user_data)
+{
+  GstObject *param_parent = GST_OBJECT (user_data);
+  const gchar *name = gtk_widget_get_name (GTK_WIDGET (widget));
+
+  GST_INFO ("piano keyboard released: %s: key = %d", name, key);
+  // stop note
+  g_object_set (param_parent, name, GSTBT_NOTE_OFF, NULL);
+}
+
+
+
+static GtkWidget *
+make_mini_button (void)
+{
+  GtkWidget *button;
+  GtkStyleContext *context;
+
+  // TODO(ensonic): a drum icon? trigger indicator, 'note' is not good
+  // we can put the icons into ./icons/hicolor/24x24/
+  button = gtk_button_new_from_icon_name ("media-playback-stop",
+      GTK_ICON_SIZE_BUTTON);
+  gtk_container_set_border_width (GTK_CONTAINER (button), 0);
+  context = gtk_widget_get_style_context (button);
+  gtk_style_context_add_class (context, "mini");
+
+  return button;
+}
+
+static void
+make_trigger_control (const BtMachinePropertiesDialog * self, GObject * object,
+    GParamSpec * property, GtkWidget * table, gulong row, BtParameterGroup * pg)
+{
+  GtkWidget *label, *widget, *evb;
+  GtkWidget *scrolled_window = NULL;
+  GType base_type;
+  const gchar *tool_tip_text = g_param_spec_get_blurb (property);
+
+  // label for parameter name
+  evb = gtk_event_box_new ();
+  g_object_set (evb, "visible-window", FALSE, NULL);
+  label = gtk_label_new (g_param_spec_get_nick (property));
+  gtk_label_set_single_line_mode (GTK_LABEL (label), TRUE);
+  gtk_misc_set_alignment (GTK_MISC (label), 1.0, 0.5);
+  gtk_widget_set_tooltip_text (label, tool_tip_text);
+  gtk_container_add (GTK_CONTAINER (evb), label);
+  gtk_grid_attach (GTK_GRID (table), evb, 0, row, 1, 1);
+
+  base_type = bt_g_type_get_base_type (property->value_type);
+  GST_INFO ("... base type is : %s", g_type_name (base_type));
+
+  switch (base_type) {
+    case G_TYPE_BOOLEAN:
+      widget = make_mini_button ();
+      g_signal_connect (widget, "button-press-event",
+          G_CALLBACK (on_drum_trigger_pressed), (gpointer) object);
+      break;
+    case G_TYPE_UINT:
+      // ... various int types
+      widget = make_mini_button ();
+      g_signal_connect (widget, "button-press-event",
+          G_CALLBACK (on_drum_button_pressed), (gpointer) object);
+      break;
+    case G_TYPE_ENUM:
+      if (property->value_type == GSTBT_TYPE_TRIGGER_SWITCH) {
+        widget = make_mini_button ();
+        g_signal_connect (widget, "button-press-event",
+            G_CALLBACK (on_drum_trigger_pressed), (gpointer) object);
+      } else if (property->value_type == GSTBT_TYPE_NOTE) {
+        GtkWidget *vport = gtk_viewport_new (NULL, NULL);
+        scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+        gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+            GTK_POLICY_ALWAYS, GTK_POLICY_NEVER);
+        // keyboard
+        widget = bt_piano_keys_new ();
+        g_object_set (widget, "hexpand", TRUE, NULL);
+        gtk_scrollable_set_hscroll_policy (GTK_SCROLLABLE (vport),
+            GTK_SCROLL_NATURAL);
+        gtk_container_add (GTK_CONTAINER (vport), widget);
+        gtk_container_add (GTK_CONTAINER (scrolled_window), vport);
+        g_signal_connect (widget, "key-pressed",
+            G_CALLBACK (on_keyboard_key_pressed), (gpointer) object);
+        g_signal_connect (widget, "key-released",
+            G_CALLBACK (on_keyboard_key_released), (gpointer) object);
+      } else {
+        gchar *str = g_strdup_printf ("unhandled type \"%s\"",
+            G_PARAM_SPEC_TYPE_NAME (property));
+        widget = gtk_label_new (str);
+        g_free (str);
+      }
+      break;
+    default:{
+      gchar *str = g_strdup_printf ("unhandled type \"%s\"",
+          G_PARAM_SPEC_TYPE_NAME (property));
+      widget = gtk_label_new (str);
+      g_free (str);
+    }
+  }
+
+  gtk_widget_set_name (GTK_WIDGET (evb), property->name);
+  g_object_set_qdata (G_OBJECT (evb), widget_parent_quark, (gpointer) self);
+  g_object_set_qdata (G_OBJECT (evb), widget_param_group_quark, (gpointer) pg);
+  gtk_widget_set_name (GTK_WIDGET (widget), property->name);
+  g_object_set_qdata (G_OBJECT (widget), widget_parent_quark, (gpointer) self);
+  g_object_set_qdata (G_OBJECT (widget), widget_param_group_quark,
+      (gpointer) pg);
+  g_object_set_qdata (G_OBJECT (widget), widget_param_num_quark,
+      GINT_TO_POINTER (row));
+
+  g_signal_connect (evb, "button-press-event",
+      G_CALLBACK (on_label_button_press_event), (gpointer) widget);
+  g_signal_connect (widget, "button-press-event",
+      G_CALLBACK (on_trigger_button_press_event), (gpointer) object);
+  g_signal_connect (evb, "button-press-event",
+      G_CALLBACK (on_trigger_button_press_event), (gpointer) object);
+  g_signal_connect (evb, "button-press-event",
+      G_CALLBACK (on_label_button_press_event), (gpointer) widget);
+
+  gtk_widget_set_tooltip_text (widget, tool_tip_text);
+  if (scrolled_window) {
+    widget = scrolled_window;
+  }
+  g_object_set (widget, "hexpand", TRUE, "margin-left", LABEL_PADDING, NULL);
+  gtk_grid_attach (GTK_GRID (table), widget, 1, row, 1, 1);
+}
+
+static GtkWidget *
+make_trigger_param_box (const BtMachinePropertiesDialog * self,
+    gulong global_params, gulong voice_params, GstElement * machine)
+{
+  GtkWidget *expander = NULL;
+  GtkWidget *table;
+  GObject *param_parent;
+  GParamSpec *property;
+  gulong i, j = 0;
+  BtParameterGroup *pg;
+
+  // we can have global triggers - one monophonic widget for each
+  // we can have voice triggers - one polyphonic widget for each
+  // in many cases we have just one trigger
+  // there are special cases where two notes are used to do a glide
+
+  table = gtk_grid_new ();
+
+  if (global_params) {
+    if ((pg = bt_machine_get_global_param_group (self->priv->machine))) {
+      for (i = 0; i < global_params; i++) {
+        if (bt_parameter_group_is_param_trigger (pg, i)) {
+          param_parent = bt_parameter_group_get_param_parent (pg, i);
+          property = bt_parameter_group_get_param_spec (pg, i);
+          make_trigger_control (self, param_parent, property, table, i, pg);
+          j++;
+        }
+      }
+    }
+  }
+  if (voice_params) {
+    if ((pg = bt_machine_get_voice_param_group (self->priv->machine, 0))) {
+      for (i = 0; i < voice_params; i++) {
+        if (bt_parameter_group_is_param_trigger (pg, i)) {
+          param_parent = bt_parameter_group_get_param_parent (pg, i);
+          property = bt_parameter_group_get_param_spec (pg, i);
+          make_trigger_control (self, param_parent, property, table, i, pg);
+          j++;
+        }
+      }
+    }
+  }
+  if (j) {
+    expander = gtk_expander_new (_("trigger properties"));
+    gtk_expander_set_expanded (GTK_EXPANDER (expander), TRUE);
+    gtk_container_add (GTK_CONTAINER (expander), table);
+
+    // if machine is not connected, set insensitive
+    g_object_bind_property_full (self->priv->machine, "parent", table,
+        "sensitive", G_BINDING_SYNC_CREATE, bt_pointer_to_boolean, NULL, NULL,
+        NULL);
+  } else {
+    gtk_widget_destroy (table);
+  }
+
+  return expander;
 }
 
 static gboolean
@@ -2612,6 +2878,15 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
         gtk_box_pack_start (GTK_BOX (self->priv->param_group_box), expander,
             TRUE, TRUE, 0);
       }
+    }
+  }
+  /* show widgets for trigger params */
+  if (global_params || voice_params) {
+    GST_INFO ("adding triggers properties");
+    if ((expander = make_trigger_param_box (self, global_params,
+                voice_params, machine))) {
+      gtk_box_pack_start (GTK_BOX (self->priv->param_group_box), expander, TRUE,
+          TRUE, 0);
     }
   }
   gtk_container_add (GTK_CONTAINER (self), hbox);
