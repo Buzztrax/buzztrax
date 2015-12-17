@@ -299,7 +299,7 @@ on_main_loop_idle (gpointer user_data)
 static void
 bt_main_statusbar_init_ui (const BtMainStatusbar * self)
 {
-  GtkWidget *ev_box;
+  GtkWidget *ev_box, *align;
   gchar str[] = "00:00.000";
 
   gtk_widget_set_name (GTK_WIDGET (self), "status-bar");
@@ -315,6 +315,9 @@ bt_main_statusbar_init_ui (const BtMainStatusbar * self)
       TRUE, 1);
 
   // cpu load
+  // see https://bugzilla.gnome.org/show_bug.cgi?id=746688
+  // the progress bar does not fill since gtk 3.13
+  align = gtk_alignment_new (0.5, 0.5, 1.0, 0.0);
   // TODO(ensonic): add some settings to show/hide (view menu?)
   self->priv->cpu_load = GTK_PROGRESS_BAR (gtk_progress_bar_new ());
   // IDEA(ensonic): this could be used to avoid resizing when the label changes
@@ -323,8 +326,8 @@ bt_main_statusbar_init_ui (const BtMainStatusbar * self)
   gtk_widget_set_tooltip_text (GTK_WIDGET (self->priv->cpu_load),
       _("CPU load"));
 
-  gtk_box_pack_start (GTK_BOX (self), GTK_WIDGET (self->priv->cpu_load), FALSE,
-      FALSE, 1);
+  gtk_container_add (GTK_CONTAINER (align), GTK_WIDGET (self->priv->cpu_load));
+  gtk_box_pack_start (GTK_BOX (self), align, FALSE, FALSE, 1);
   self->priv->cpu_load_handler_id =
       g_timeout_add_seconds (1, on_cpu_load_update, (gpointer) self);
 #ifdef USE_MAIN_LOOP_IDLE_TRACKER
