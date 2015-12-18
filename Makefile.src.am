@@ -549,7 +549,8 @@ libgstbmlw_la_SOURCES = \
   src/gst/bml/gstbml.c src/gst/bml/gstbmlsrc.c src/gst/bml/gstbmltransform.c \
   src/gst/bml/gstbmlv.c
 libgstbmlw_la_CFLAGS = -DBML_WRAPPED \
-  -I$(srcdir) -I$(builddir) -I$(builddir)/src/gst/bml \
+  -I$(srcdir) -I$(builddir) \
+  -I$(builddir)/src/gst/bml -I$(top_srcdir)/src/lib/dllwrapper \
   $(GST_PLUGIN_CFLAGS) \
   $(BASE_DEPS_CFLAGS) \
   $(ORC_CFLAGS)
