@@ -742,7 +742,10 @@ on_song_unsaved_changed (const GObject * object, GParamSpec * arg,
 static void
 bt_main_menu_init_ui (const BtMainMenu * self)
 {
-  GtkWidget *item, *menu, *submenu, *subitem;
+  GtkWidget *item, *menu, *subitem;
+#ifdef USE_DEBUG
+  GtkWidget *submenu;
+#endif
   BtSettings *settings;
   gboolean toolbar_hide, statusbar_hide, tabs_hide;
   GtkAccelGroup *accel_group = bt_ui_resources_get_accel_group ();
