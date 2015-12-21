@@ -369,8 +369,8 @@ gtk_scrolled_sync_window_init (GtkScrolledSyncWindow * self)
  * Creates a new synced scrolled window.
  *
  * The two arguments are the scrolled window's adjustments; these will be
- * shared with the scrollbars and the child widget to keep the bars in sync 
- * with the child. Usually you want to pass %NULL for the adjustments, which 
+ * shared with the scrollbars and the child widget to keep the bars in sync
+ * with the child. Usually you want to pass %NULL for the adjustments, which
  * will cause the scrolled window to create them for you.
  *
  * Returns: a new synced scrolled window
@@ -488,9 +488,9 @@ gtk_scrolled_sync_window_get_hadjustment (GtkScrolledSyncWindow * self)
 /**
  * gtk_scrolled_sync_window_get_vadjustment:
  * @self: a #GtkScrolledSyncWindow
- * 
+ *
  * Returns the vertical adjustment.
- * 
+ *
  * Returns: (transfer none): the vertical #GtkAdjustment
  */
 GtkAdjustment *
@@ -1642,12 +1642,9 @@ gtk_scrolled_sync_window_add (GtkContainer * container, GtkWidget * child)
 {
   GtkScrolledSyncWindowPrivate *priv;
   GtkScrolledSyncWindow *self;
-  GtkBin *bin;
-  GtkWidget *child_widget, *scrollable_child;
+  GtkWidget *scrollable_child;
 
-  bin = GTK_BIN (container);
-  child_widget = gtk_bin_get_child (bin);
-  g_return_if_fail (child_widget == NULL);
+  g_return_if_fail (gtk_bin_get_child (GTK_BIN (container)) == NULL);
 
   self = GTK_SCROLLED_SYNC_WINDOW (container);
   priv = self->priv;
@@ -1666,7 +1663,7 @@ gtk_scrolled_sync_window_add (GtkContainer * container, GtkWidget * child)
     gtk_container_add (GTK_CONTAINER (scrollable_child), child);
   }
 
-  if (gtk_widget_get_realized (GTK_WIDGET (bin)))
+  if (gtk_widget_get_realized (GTK_WIDGET (container)))
     gtk_widget_set_parent_window (scrollable_child, priv->overshoot_window);
 
   GTK_CONTAINER_CLASS (gtk_scrolled_sync_window_parent_class)->add (container,
@@ -1702,11 +1699,11 @@ gtk_scrolled_sync_window_remove (GtkContainer * container, GtkWidget * child)
  * gtk_container_add() instead of this function.
  *
  * The viewport scrolls the child by moving its #GdkWindow, and takes
- * the size of the child to be the size of its toplevel #GdkWindow. 
+ * the size of the child to be the size of its toplevel #GdkWindow.
  * This will be very wrong for most widgets that support native scrolling;
  * for example, if you add a widget such as #GtkTreeView with a viewport,
- * the whole widget will scroll, including the column headings. Thus, 
- * widgets with native scrolling support should not be used with the 
+ * the whole widget will scroll, including the column headings. Thus,
+ * widgets with native scrolling support should not be used with the
  * #GtkViewport proxy.
  *
  * A widget supports scrolling natively if it implements the
