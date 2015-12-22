@@ -68,6 +68,35 @@ extern gchar **test_argvptr;
   setup_log_test (NULL, 0); \
   }
 
+#define BT_TEST_SUITE_E(N, n) \
+extern TCase *n##_example_case (void); \
+static inline Suite * \
+n##_suite (void) \
+{ \
+  Suite *s = suite_create (N); \
+  suite_add_tcase (s, n##_example_case ()); \
+  return s; \
+}
+
+#ifdef G_DISABLE_CHECKS
+#define BT_TEST_SUITE_T_E(N, n) \
+extern TCase *n##_example_case (void); \
+static inline Suite * \
+n##_suite (void) \
+{ \
+  Suite *s = suite_create (N); \
+  suite_add_tcase (s, n##_example_case ()); \
+  return s; \
+}
+
+#define BT_TEST_SUITE_T(N, n)  \
+static inline Suite * \
+n##_suite (void) \
+{ \
+  Suite *s = suite_create (N); \
+  return s; \
+}
+#else
 #define BT_TEST_SUITE_T_E(N, n) \
 extern TCase *n##_test_case (void); \
 extern TCase *n##_example_case (void); \
@@ -89,16 +118,7 @@ n##_suite (void) \
   suite_add_tcase (s, n##_test_case ()); \
   return s; \
 }
-
-#define BT_TEST_SUITE_E(N, n) \
-extern TCase *n##_example_case (void); \
-static inline Suite * \
-n##_suite (void) \
-{ \
-  Suite *s = suite_create (N); \
-  suite_add_tcase (s, n##_example_case ()); \
-  return s; \
-}
+#endif
 
 /* Hack to allow run-time selection of unit tests to run via the
  * BT_CHECKS environment variable (test function names, comma-separated)
