@@ -147,10 +147,10 @@ gboolean
 check_has_error_trapped (void)
 {
   g_log_set_always_fatal (__fatal_mask);
-#if !defined(GST_DISABLE_GST_DEBUG) || !defined(USE_DEBUG)
-  return (__check_error_trapped);
+#if !defined(GST_DISABLE_GST_DEBUG) && defined(USE_DEBUG)
+  return __check_error_trapped;
 #else
-  return (TRUE);
+  return TRUE;
 #endif
 }
 
