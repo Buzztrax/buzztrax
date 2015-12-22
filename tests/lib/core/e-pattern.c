@@ -412,23 +412,6 @@ test_bt_pattern_mono_get_global_vg (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static void
-test_bt_pattern_mono_get_voice_vg (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  GST_INFO ("-- arrange --");
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
-          "buzztrax-test-mono-source", 0, NULL));
-  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 1L, machine);
-
-  /* act && assert */
-  fail_unless (bt_pattern_get_voice_group (pattern, 1) == NULL, NULL);
-
-  GST_INFO ("-- cleanup --");
-  g_object_unref (pattern);
-  BT_TEST_END;
-}
-
 TCase *
 bt_pattern_example_case (void)
 {
@@ -450,7 +433,6 @@ bt_pattern_example_case (void)
   tcase_add_test (tc, test_bt_pattern_insert_row);
   tcase_add_test (tc, test_bt_pattern_delete_row);
   tcase_add_test (tc, test_bt_pattern_mono_get_global_vg);
-  tcase_add_test (tc, test_bt_pattern_mono_get_voice_vg);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

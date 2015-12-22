@@ -35,6 +35,7 @@ test_setup (void)
 {
   app = bt_test_application_new ();
   song = bt_song_new (app);
+  bt_sink_machine_new (song, "master", NULL);
 }
 
 static void
