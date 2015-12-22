@@ -375,7 +375,9 @@ bt_main_window_init_ui (const BtMainWindow * self)
 
   gtk_widget_set_name (GTK_WIDGET (self), "main window");
   gtk_window_set_role (GTK_WINDOW (self), "buzztrax-edit::main");
+#if !GTK_CHECK_VERSION (3,14,0)
   gtk_window_set_has_resize_grip (GTK_WINDOW (self), FALSE);
+#endif
 
   // create and set window icon
   gtk_window_set_icon_name (GTK_WINDOW (self), "buzztrax");
