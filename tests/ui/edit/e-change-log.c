@@ -37,6 +37,8 @@ typedef struct
 
 } BtTestChangeLoggerClass;
 
+static GObjectClass *test_change_logger_parent_class = NULL;
+
 static gboolean
 bt_test_change_logger_change (const BtChangeLogger * owner, const gchar * data)
 {
@@ -95,6 +97,8 @@ bt_test_change_logger_finalize (GObject * object)
   BtTestChangeLogger *self = (BtTestChangeLogger *) object;
 
   g_free (self->data);
+
+  G_OBJECT_CLASS (test_change_logger_parent_class)->finalize (object);
 }
 
 static void
@@ -106,6 +110,8 @@ static void
 bt_test_change_logger_class_init (BtTestChangeLoggerClass * const klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  test_change_logger_parent_class = g_type_class_peek_parent (klass);
 
   gobject_class->finalize = bt_test_change_logger_finalize;
 }
