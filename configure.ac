@@ -1,6 +1,6 @@
 dnl Initialise autoconf/automake/libtool
 AC_PREREQ([2.69])
-AC_INIT([buzztrax],[0.10.1],[buzztrax-devel@buzztrax.org])
+AC_INIT([buzztrax],[0.10.2],[buzztrax-devel@buzztrax.org])
 AC_CANONICAL_TARGET([])
 # we can't do -Werror, because
 # - we use gnu make extensions
