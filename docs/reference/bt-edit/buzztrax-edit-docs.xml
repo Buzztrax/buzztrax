@@ -129,6 +129,7 @@
     <chapter>
       <title>Widget Class Reference</title>
       <xi:include href="xml/btpatterneditor.xml" />
+      <xi:include href="xml/btpianokeys.xml" />
       <xi:include href="xml/btwaveformviewer.xml" />
       <xi:include href="xml/gtkscrolledsyncwindow.xml" />
       <xi:include href="xml/gtkvumeter.xml" />

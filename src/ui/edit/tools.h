@@ -66,7 +66,7 @@ void gtk_menu_item_add_accel(GtkMenuItem *mi, const gchar *path, guint accel_key
  *
  * Callback function for #GObject::notify.
  */
-typedef void (*BtNotifyFunc)(GObject *gobject, GParamSpec *pspec, gpointer user_data);
+typedef void (*BtNotifyFunc)(GObject *object, GParamSpec *pspec, gpointer user_data);
 void bt_notify_idle_dispatch (GObject *object, GParamSpec *pspec, gpointer user_data, BtNotifyFunc func);
 
 #endif // BT_EDIT_TOOLS_H

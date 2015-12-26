@@ -55,6 +55,7 @@ bt_wire_canvas_item_get_type
 
 bt_panorama_popup_get_type
 bt_pattern_editor_get_type
+bt_piano_keys_get_type
 bt_volume_popup_get_type
 bt_waveform_viewer_get_type
 

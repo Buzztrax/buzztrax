@@ -664,6 +664,20 @@ bt_pattern_properties_dialog_get_type
 BtPatternPropertiesDialogPrivate
 </SECTION>
 
+<SECTION>
+<FILE>btpianokeys</FILE>
+<TITLE>BtPianoKeys</TITLE>
+BtPianoKeys
+bt_piano_keys_new
+<SUBSECTION Standard>
+BT_IS_PIANO_KEYS
+BT_IS_PIANO_KEYS_CLASS
+BT_PIANO_KEYS
+BT_PIANO_KEYS_CLASS
+BT_TYPE_PIANO_KEYS
+BtPianoKeysClass
+bt_piano_keys_get_type
+</SECTION>
 
 <SECTION>
 <FILE>btplaybackcontrolleric</FILE>
@@ -1123,8 +1137,10 @@ gtk_target_table_make
 gtk_show_uri_simple
 bt_toolbar_style_changed
 bt_label_value_changed
+bt_pointer_to_boolean
 gtk_tool_button_new_from_icon_name
 gtk_toggle_tool_button_new_from_icon_name
+BtNotifyFunc
 bt_notify_idle_dispatch
 <SUBSECTION Private>
 BOX_BORDER

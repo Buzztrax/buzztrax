@@ -15,7 +15,7 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * SECTION:btpiano_keys
+ * SECTION:btpianokeys
  * @short_description: a piano keyboard widget
  * @see_also: #BtMachinePropertiesDialog
  *
