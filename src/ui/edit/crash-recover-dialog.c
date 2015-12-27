@@ -115,10 +115,12 @@ remove_selected (BtCrashRecoverDialog * self)
 
   if (check_selection (self, &model, &iter)) {
     GtkTreeIter next_iter = iter;
-    gboolean have_next = (gtk_tree_model_iter_next (model, &next_iter)
-        || gtk_tree_model_get_iter_first (model, &next_iter));
+    gboolean have_next = gtk_tree_model_iter_next (model, &next_iter);
 
     gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+    if (!have_next) {
+      have_next = gtk_tree_model_get_iter_first (model, &next_iter);
+    }
     if (have_next) {
       gtk_tree_selection_select_iter (gtk_tree_view_get_selection (GTK_TREE_VIEW
               (self->priv->entries_list)), &next_iter);
