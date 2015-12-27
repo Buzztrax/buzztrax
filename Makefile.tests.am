@@ -60,7 +60,7 @@ CLEANFILES += core core.* *.gcno *.gcda bt_*.tar.bz2 \
   tests/test-registry.* fontconfig/*
 
 if BUILD_CHECK_TESTS
-noinst_PROGRAMS=$(TESTS_BIN)
+check_PROGRAMS=$(TESTS_BIN)
 
 /tmp/test.wav:
 	$(AM_V_GEN) gst-launch-@GST_MAJORMINOR@ -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=$@
@@ -105,7 +105,7 @@ libbt_check_ui_la_LDFLAGS = \
 libbt_check_ui_la_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbt_check_ui_la_SOURCES = \
 	tests/bt-check-ui.c tests/bt-check-ui.h
-  
+
 bt_core_LDADD = \
 	libbtcore-check.la \
 	libbuzztrax-core.la \
@@ -252,11 +252,11 @@ libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/e-wire-canvas-item.c
 
 else
-noinst_PROGRAMS =
+check_PROGRAMS =
 endif
 
 
-noinst_PROGRAMS += bmltest_info bmltest_process
+check_PROGRAMS += bmltest_info bmltest_process
 
 bmltest_info_SOURCES = tests/lib/bml/bmltest_info.c tests/lib/bml/bmltest_info.h
 bmltest_info_CFLAGS = $(PTHREAD_CFLAGS) $(BML_CFLAGS)
@@ -479,7 +479,7 @@ endif
 
 # make test-status     -- show info about disabled tests
 test-status::
-	@grep -r -A2 -B6 -Hn --include="*.c" "#ifdef __CHECK_DISABLED__" . | grep -e '\.c-[0-9][0-9]*-\(\/\/\|\/\*\|\ \*\|ST\)' 
+	@grep -r -A2 -B6 -Hn --include="*.c" "#ifdef __CHECK_DISABLED__" . | grep -e '\.c-[0-9][0-9]*-\(\/\/\|\/\*\|\ \*\|ST\)'
 	@echo "number of disabled tests"
 	@grep -r -Hn --include="*.c" --color=auto "#ifdef __CHECK_DISABLED__" . | wc -l
 
