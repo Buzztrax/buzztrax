@@ -59,7 +59,7 @@
  * Option '2' looks nice and would also help on touch-screens.
  */
 /* TODO(ensonic): add a machine list to the right side
- * - this would be like the menu, but as a tree view and therefore more 
+ * - this would be like the menu, but as a tree view and therefore more
  *   discoverable
  * - one can drag machines out of the list
  * - we could even show presets as children of machines
@@ -562,7 +562,7 @@ wire_item_new (const BtMainPageMachines * self, BtWire * wire,
  *     0 ... 100 ... 200 : window.width is 200
  *        90 ... 150     : bb.width = 150-90 = 60
  *    20 ... 120 ... 220 : bb.cx = 90 + 60/2
- *     
+ *
  */
 static void
 update_adjustment (GtkAdjustment * adj, gdouble bbmi, gdouble bbma,
@@ -1798,8 +1798,8 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   clutter_actor_set_content_scaling_filters (self->priv->canvas,
       CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
 
-  g_signal_connect (self->priv->grid_canvas, "draw", G_CALLBACK (on_grid_draw),
-      (gpointer) self);
+  g_signal_connect_object (self->priv->grid_canvas, "draw",
+      G_CALLBACK (on_grid_draw), (gpointer) self, 0);
   /* invalidate the canvas, so that we can draw before the main loop starts */
   clutter_content_invalidate (self->priv->grid_canvas);
 
@@ -2092,8 +2092,8 @@ bt_main_page_machines_delete_machine (const BtMainPageMachines * self,
    * defer their execution. Which they can't as they don't know the context they
    * are called from. A pre-delete signal would not solve it either.
    *
-   * BtMainPageMachines:bt_main_page_machines_delete_machine -> BtSetup:machine-removed { 
-   *   BtMainPagePatterns:on_machine_removed -> BtMachine::pattern-removed { 
+   * BtMainPageMachines:bt_main_page_machines_delete_machine -> BtSetup:machine-removed {
+   *   BtMainPagePatterns:on_machine_removed -> BtMachine::pattern-removed {
    *     BtMainPageSequence:on_pattern_removed
    *   }
    *   BtMainPageSequence:on_machine_removed

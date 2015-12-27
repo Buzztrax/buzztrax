@@ -417,9 +417,9 @@ gtk_scrolled_sync_window_set_hadjustment (GtkScrolledSyncWindow * self,
     return;
 
   self->priv->hadjustment = g_object_ref (hadjustment);
-  g_signal_connect (hadjustment,
+  g_signal_connect_object (hadjustment,
       "value-changed",
-      G_CALLBACK (gtk_scrolled_sync_window_adjustment_value_changed), self);
+      G_CALLBACK (gtk_scrolled_sync_window_adjustment_value_changed), self, 0);
   gtk_scrolled_sync_window_adjustment_value_changed (hadjustment, self);
 
   child = gtk_bin_get_child (bin);
@@ -457,9 +457,9 @@ gtk_scrolled_sync_window_set_vadjustment (GtkScrolledSyncWindow * self,
     return;
 
   self->priv->vadjustment = g_object_ref (vadjustment);
-  g_signal_connect (vadjustment,
+  g_signal_connect_object (vadjustment,
       "value-changed",
-      G_CALLBACK (gtk_scrolled_sync_window_adjustment_value_changed), self);
+      G_CALLBACK (gtk_scrolled_sync_window_adjustment_value_changed), self, 0);
   gtk_scrolled_sync_window_adjustment_value_changed (vadjustment, self);
 
   child = gtk_bin_get_child (bin);

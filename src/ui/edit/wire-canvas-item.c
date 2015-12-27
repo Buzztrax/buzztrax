@@ -621,8 +621,8 @@ bt_wire_canvas_item_constructed (GObject * object)
   clutter_actor_set_content ((ClutterActor *) self, self->priv->canvas);
   clutter_actor_set_content_scaling_filters ((ClutterActor *) self,
       CLUTTER_SCALING_FILTER_TRILINEAR, CLUTTER_SCALING_FILTER_LINEAR);
-  g_signal_connect (self->priv->canvas, "draw", G_CALLBACK (on_wire_draw),
-      self);
+  g_signal_connect_object (self->priv->canvas, "draw",
+      G_CALLBACK (on_wire_draw), self, 0);
   g_signal_connect (self, "notify::width", G_CALLBACK (on_wire_size_changed),
       self);
   g_signal_connect (self, "notify::height", G_CALLBACK (on_wire_size_changed),

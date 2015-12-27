@@ -1441,8 +1441,8 @@ sequence_table_init (const BtMainPageSequence * self)
   gtk_cell_renderer_set_fixed_size (renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
       (renderer), 1);
-  g_signal_connect (renderer, "edited", G_CALLBACK (on_sequence_label_edited),
-      (gpointer) self);
+  g_signal_connect_object (renderer, "edited",
+      G_CALLBACK (on_sequence_label_edited), (gpointer) self, 0);
   if ((tree_col =
           gtk_tree_view_column_new_with_attributes (_("Labels"), renderer,
               "text", BT_SEQUENCE_GRID_MODEL_LABEL, NULL))
