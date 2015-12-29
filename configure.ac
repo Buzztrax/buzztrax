@@ -579,15 +579,16 @@ dnl intra-library PLT jumps, if available.
 AC_ARG_ENABLE(Bsymbolic,
               [AS_HELP_STRING([--disable-Bsymbolic],
                               [avoid linking with -Bsymbolic])],,
-              [SAVED_LDFLAGS="${LDFLAGS}"
+              [SAVED_LDFLAGS="${LDFLAGS}" SAVED_LIBS="${LIBS}"
                AC_MSG_CHECKING([for -Bsymbolic-functions linker flag])
                LDFLAGS=-Wl,-Bsymbolic-functions
-               AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[int main (void) { return 0; }]])],
-                           [AC_MSG_RESULT(yes)
-                            enable_Bsymbolic=yes],
-                           [AC_MSG_RESULT(no)
-                            enable_Bsymbolic=no])
-               LDFLAGS="${SAVED_LDFLAGS}"])
+               LIBS=
+               AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[ return 0; ]])],[
+                           AC_MSG_RESULT(yes)
+                           enable_Bsymbolic=yes], [
+                           AC_MSG_RESULT(no)
+                           enable_Bsymbolic=no])
+               LDFLAGS="${SAVED_LDFLAGS}" LIBS="${SAVED_LIBS}"])
 
 
 dnl Extra vars
