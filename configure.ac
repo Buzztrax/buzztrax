@@ -538,30 +538,30 @@ AC_CHECK_DECL(sysi86,[
 ])
 
 dnl check for SSE intrisics
-have_mmx_intrinsics=no
+have_sse_intrinsics=no
 ARCH_CFLAGS=""
 case "x${target_cpu}" in
   xi?86|k?|xx86_64|xamd64)
     AC_CHECK_HEADERS([xmmintrin.h],
       [
         SAVED_CFLAGS="${CFLAGS}"
-        AC_MSG_CHECKING([for working mmx intrinsics])
+        AC_MSG_CHECKING([for working sse intrinsics])
         CFLAGS="-mmmx -msse"
         AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-                          #include <mmintrin.h>
+                          #include <xmmintrin.h>
                           int main () {
                               _mm_getcsr ();
                           }]])], [
                           AC_MSG_RESULT(yes)
-                          have_mmx_intrinsics=yes],[
+                          have_sse_intrinsics=yes],[
                           AC_MSG_RESULT(no)])
         CFLAGS="${SAVED_CFLAGS}"
         ARCH_CFLAGS="-mmmx -msse"
       ],[])
     ;;
 esac
-if test $have_mmx_intrinsics = yes ; then
-   AC_DEFINE(USE_X86_MMX, 1, [use x86 MMX compiler intrinsics])
+if test $have_sse_intrinsics = yes ; then
+   AC_DEFINE(USE_X86_SSE, 1, [use x86 SSE compiler intrinsics])
    ARCH_CFLAGS="-mmmx -msse"
 fi
 
