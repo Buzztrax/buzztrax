@@ -112,6 +112,7 @@ libbml_HEADERS = src/lib/bml/bml.h src/lib/bml/BuzzMachineLoader/BuzzMachineLoad
 libbml_la_SOURCES = src/lib/bml/bml.c src/lib/bml/bmllog.c $(DLLWRAPPER_SRC)
 libbml_la_CFLAGS = \
   -I$(srcdir) -I$(top_srcdir)/src/lib \
+  -I$(top_srcdir)/src/lib/dllwrapper \
   $(PTHREAD_CFLAGS) $(BML_CFLAGS)
 libbml_la_CPPFLAGS = -DNATIVE_BML_DIR="\"$(pkglibdir)\""
 libbml_la_LIBADD = $(LIBM) $(PTHREAD_LIBS) $(BML_LIBS) $(DLLWRAPPER_LIB)
