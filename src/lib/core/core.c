@@ -37,7 +37,7 @@
 #endif
 #endif
 
-#ifdef USE_X86_MMX
+#ifdef USE_X86_SSE
 #ifdef HAVE_XMMINTRIN_H
 #include <xmmintrin.h>
 #endif
@@ -147,7 +147,7 @@ bt_init_post (void)
 #endif
 #endif
 
-#if USE_X86_MMX
+#if USE_X86_SSE
   // TODO(ensonic): we need to probe the CPU capabilities
   // see http://www.mail-archive.com/linux-audio-dev@music.columbia.edu/msg19520.html
   //   [linux-audio-dev] Channels and best practice
