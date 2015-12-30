@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2015-08-16 20:55+0200\n"
+"POT-Creation-Date: 2015-12-29 22:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -389,46 +389,46 @@ msgstr ""
 msgid "About…"
 msgstr "[i18n]About…"
 
-#: ../src/ui/edit/machine-canvas-item.c:784
+#: ../src/ui/edit/machine-canvas-item.c:785
 msgid "Mute"
 msgstr "[i18n]Mute"
 
-#: ../src/ui/edit/machine-canvas-item.c:794
+#: ../src/ui/edit/machine-canvas-item.c:795
 msgid "Solo"
 msgstr "[i18n]Solo"
 
-#: ../src/ui/edit/machine-canvas-item.c:806
+#: ../src/ui/edit/machine-canvas-item.c:807
 msgid "Bypass"
 msgstr "[i18n]Bypass"
 
 #. dynamic part
-#: ../src/ui/edit/machine-canvas-item.c:822
+#: ../src/ui/edit/machine-canvas-item.c:823
 msgid "_Properties"
 msgstr "[i18n]_Properties"
 
 #. static part
-#: ../src/ui/edit/machine-canvas-item.c:844 ../src/ui/edit/main-menu.c:916
+#: ../src/ui/edit/machine-canvas-item.c:845 ../src/ui/edit/main-menu.c:919
 msgid "_Preferences"
 msgstr "[i18n]_Preferences"
 
-#: ../src/ui/edit/machine-canvas-item.c:855
+#: ../src/ui/edit/machine-canvas-item.c:856
 msgid "Rename…"
 msgstr "[i18n]Rename…"
 
-#: ../src/ui/edit/machine-canvas-item.c:861 ../src/ui/edit/main-menu.c:909
+#: ../src/ui/edit/machine-canvas-item.c:862 ../src/ui/edit/main-menu.c:912
 msgid "_Delete"
 msgstr "[i18n]_Delete"
 
-#: ../src/ui/edit/machine-canvas-item.c:873
+#: ../src/ui/edit/machine-canvas-item.c:874
 msgid "Connect machines"
 msgstr "[i18n]Connect machines"
 
-#: ../src/ui/edit/machine-canvas-item.c:881
-#: ../src/ui/edit/wire-canvas-item.c:835
+#: ../src/ui/edit/machine-canvas-item.c:882
+#: ../src/ui/edit/wire-canvas-item.c:840
 msgid "Signal Analysis…"
 msgstr "[i18n]Signal Analysis…"
 
-#: ../src/ui/edit/machine-canvas-item.c:932
+#: ../src/ui/edit/machine-canvas-item.c:933
 msgid "Play with"
 msgstr "[i18n]Play with"
 
@@ -442,15 +442,15 @@ msgstr "[i18n]Play with"
 #. * - remove unsused patterns, unconnected machines with no empty/tracks
 #.
 #. help menu
-#: ../src/ui/edit/machine-canvas-item.c:948
+#: ../src/ui/edit/machine-canvas-item.c:949
 #: ../src/ui/edit/machine-properties-dialog.c:2587
-#: ../src/ui/edit/main-menu.c:1062
+#: ../src/ui/edit/main-menu.c:1065
 msgid "_Help"
 msgstr "[i18n]_Help"
 
-#: ../src/ui/edit/machine-canvas-item.c:958
+#: ../src/ui/edit/machine-canvas-item.c:959
 #: ../src/ui/edit/machine-properties-dialog.c:2581
-#: ../src/ui/edit/main-menu.c:1103
+#: ../src/ui/edit/main-menu.c:1106
 msgid "_About"
 msgstr "[i18n]_About"
 
@@ -479,8 +479,8 @@ msgstr "[i18n]preset name and comment"
 #. add dialog commision widgets (okay, cancel)
 #. add dialog commision widgets (okay)
 #: ../src/ui/edit/machine-preset-properties-dialog.c:144
-#: ../src/ui/edit/machine-rename-dialog.c:122 ../src/ui/edit/main-window.c:999
-#: ../src/ui/edit/main-window.c:1053
+#: ../src/ui/edit/machine-rename-dialog.c:122
+#: ../src/ui/edit/main-window.c:1001 ../src/ui/edit/main-window.c:1055
 #: ../src/ui/edit/missing-framework-elements-dialog.c:141
 #: ../src/ui/edit/missing-song-elements-dialog.c:128
 #: ../src/ui/edit/pattern-properties-dialog.c:148
@@ -489,10 +489,10 @@ msgid "_OK"
 msgstr "[i18n]_OK"
 
 #: ../src/ui/edit/machine-preset-properties-dialog.c:144
-#: ../src/ui/edit/machine-rename-dialog.c:122 ../src/ui/edit/main-window.c:589
-#: ../src/ui/edit/main-window.c:721 ../src/ui/edit/main-window.c:1054
+#: ../src/ui/edit/machine-rename-dialog.c:122 ../src/ui/edit/main-window.c:591
+#: ../src/ui/edit/main-window.c:723 ../src/ui/edit/main-window.c:1056
 #: ../src/ui/edit/pattern-properties-dialog.c:148
-#: ../src/ui/edit/render-dialog.c:617 ../src/ui/edit/settings-dialog.c:187
+#: ../src/ui/edit/render-dialog.c:614 ../src/ui/edit/settings-dialog.c:187
 msgid "_Cancel"
 msgstr "[i18n]_Cancel"
 
@@ -570,7 +570,7 @@ msgstr "[i18n]Remove preset"
 
 #. edit menu
 #: ../src/ui/edit/machine-properties-dialog.c:2446
-#: ../src/ui/edit/main-menu.c:859
+#: ../src/ui/edit/main-menu.c:862
 msgid "_Edit"
 msgstr "[i18n]_Edit"
 
@@ -596,7 +596,7 @@ msgstr "[i18n]Help for this machine"
 
 #. -- file controls
 #: ../src/ui/edit/machine-properties-dialog.c:2597
-#: ../src/ui/edit/main-menu.c:776 ../src/ui/edit/main-toolbar.c:866
+#: ../src/ui/edit/main-menu.c:779 ../src/ui/edit/main-toolbar.c:867
 msgid "_New"
 msgstr "[i18n]_New"
 
@@ -605,7 +605,7 @@ msgid "Randomize parameters"
 msgstr "[i18n]Randomize parameters"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2603
-#: ../src/ui/edit/main-menu.c:867
+#: ../src/ui/edit/main-menu.c:870
 msgid "_Undo"
 msgstr "[i18n]_Undo"
 
@@ -634,8 +634,8 @@ msgstr "[i18n]%s properties"
 msgid "%s name"
 msgstr "[i18n]%s name"
 
-#: ../src/ui/edit/main-menu.c:96 ../src/ui/edit/main-window.c:583
-#: ../src/ui/edit/main-window.c:584
+#: ../src/ui/edit/main-menu.c:96 ../src/ui/edit/main-window.c:585
+#: ../src/ui/edit/main-window.c:586
 msgid "Load new song?"
 msgstr "[i18n]Load new song?"
 
@@ -645,96 +645,96 @@ msgstr "[i18n]Recover a song?"
 
 #. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
 #. -- file menu
-#: ../src/ui/edit/main-menu.c:768
+#: ../src/ui/edit/main-menu.c:771
 msgid "_File"
 msgstr "[i18n]_File"
 
-#: ../src/ui/edit/main-menu.c:783 ../src/ui/edit/main-page-waves.c:1415
-#: ../src/ui/edit/main-toolbar.c:872 ../src/ui/edit/main-window.c:590
+#: ../src/ui/edit/main-menu.c:786 ../src/ui/edit/main-page-waves.c:1417
+#: ../src/ui/edit/main-toolbar.c:873 ../src/ui/edit/main-window.c:592
 msgid "_Open"
 msgstr "[i18n]_Open"
 
-#: ../src/ui/edit/main-menu.c:790
+#: ../src/ui/edit/main-menu.c:793
 msgid "_Recently used"
 msgstr "[i18n]_Recently used"
 
-#: ../src/ui/edit/main-menu.c:816 ../src/ui/edit/main-toolbar.c:878
-#: ../src/ui/edit/main-window.c:722
+#: ../src/ui/edit/main-menu.c:819 ../src/ui/edit/main-toolbar.c:879
+#: ../src/ui/edit/main-window.c:724
 msgid "_Save"
 msgstr "[i18n]_Save"
 
-#: ../src/ui/edit/main-menu.c:824
+#: ../src/ui/edit/main-menu.c:827
 msgid "Save _As"
 msgstr "[i18n]Save _As"
 
-#: ../src/ui/edit/main-menu.c:834
+#: ../src/ui/edit/main-menu.c:837
 msgid "Recover unsaved songs"
 msgstr "[i18n]Recover unsaved songs"
 
-#: ../src/ui/edit/main-menu.c:844
+#: ../src/ui/edit/main-menu.c:847
 msgid "_Record"
 msgstr "[i18n]_Record"
 
-#: ../src/ui/edit/main-menu.c:851
+#: ../src/ui/edit/main-menu.c:854
 msgid "_Quit"
 msgstr "[i18n]_Quit"
 
-#: ../src/ui/edit/main-menu.c:876
+#: ../src/ui/edit/main-menu.c:879
 msgid "_Redo"
 msgstr "[i18n]_Redo"
 
-#: ../src/ui/edit/main-menu.c:888
+#: ../src/ui/edit/main-menu.c:891
 msgid "Cu_t"
 msgstr "[i18n]Cu_t"
 
-#: ../src/ui/edit/main-menu.c:895
+#: ../src/ui/edit/main-menu.c:898
 msgid "_Copy"
 msgstr "[i18n]_Copy"
 
-#: ../src/ui/edit/main-menu.c:902
+#: ../src/ui/edit/main-menu.c:905
 msgid "_Paste"
 msgstr "[i18n]_Paste"
 
 #. view menu
-#: ../src/ui/edit/main-menu.c:922
+#: ../src/ui/edit/main-menu.c:925
 msgid "_View"
 msgstr "[i18n]_View"
 
-#: ../src/ui/edit/main-menu.c:930
+#: ../src/ui/edit/main-menu.c:933
 msgid "Toolbar"
 msgstr "[i18n]Toolbar"
 
-#: ../src/ui/edit/main-menu.c:937
+#: ../src/ui/edit/main-menu.c:940
 msgid "Statusbar"
 msgstr "[i18n]Statusbar"
 
-#: ../src/ui/edit/main-menu.c:945
+#: ../src/ui/edit/main-menu.c:948
 msgid "Tabs"
 msgstr "[i18n]Tabs"
 
 #. TODO(ensonic): 'Machine properties' show/hide toggle
 #. TODO(ensonic): 'Analyzer windows' show/hide toggle
-#: ../src/ui/edit/main-menu.c:955
+#: ../src/ui/edit/main-menu.c:958
 msgid "Fullscreen"
 msgstr "[i18n]Fullscreen"
 
-#: ../src/ui/edit/main-menu.c:964
+#: ../src/ui/edit/main-menu.c:967
 msgid "Go to machine view"
 msgstr "[i18n]Go to machine view"
 
-#: ../src/ui/edit/main-menu.c:971
+#: ../src/ui/edit/main-menu.c:974
 msgid "Go to pattern view"
 msgstr "[i18n]Go to pattern view"
 
-#: ../src/ui/edit/main-menu.c:978
+#: ../src/ui/edit/main-menu.c:981
 msgid "Go to sequence view"
 msgstr "[i18n]Go to sequence view"
 
-#: ../src/ui/edit/main-menu.c:985
+#: ../src/ui/edit/main-menu.c:988
 msgid "Go to wave table view"
 msgstr "[i18n]Go to wave table view"
 
-#: ../src/ui/edit/main-menu.c:992
+#: ../src/ui/edit/main-menu.c:995
 msgid "Go to song information"
 msgstr "[i18n]Go to song information"
 
@@ -758,35 +758,35 @@ msgstr "[i18n]Go to song information"
 #. g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
 #.
 #. playback menu
-#: ../src/ui/edit/main-menu.c:1020
+#: ../src/ui/edit/main-menu.c:1023
 msgid "_Playback"
 msgstr "[i18n]_Playback"
 
-#: ../src/ui/edit/main-menu.c:1029 ../src/ui/edit/main-page-waves.c:1300
-#: ../src/ui/edit/main-page-waves.c:1408 ../src/ui/edit/main-toolbar.c:904
+#: ../src/ui/edit/main-menu.c:1032 ../src/ui/edit/main-page-waves.c:1301
+#: ../src/ui/edit/main-page-waves.c:1410 ../src/ui/edit/main-toolbar.c:905
 msgid "_Play"
 msgstr "[i18n]_Play"
 
-#: ../src/ui/edit/main-menu.c:1036
+#: ../src/ui/edit/main-menu.c:1039
 msgid "Play from cursor"
 msgstr "[i18n]Play from cursor"
 
-#: ../src/ui/edit/main-menu.c:1043 ../src/ui/edit/main-page-waves.c:1310
-#: ../src/ui/edit/main-toolbar.c:925
+#: ../src/ui/edit/main-menu.c:1046 ../src/ui/edit/main-page-waves.c:1311
+#: ../src/ui/edit/main-toolbar.c:926
 msgid "_Stop"
 msgstr "[i18n]_Stop"
 
-#: ../src/ui/edit/main-menu.c:1070
+#: ../src/ui/edit/main-menu.c:1073
 msgid "Help"
 msgstr "[i18n]Help"
 
-#: ../src/ui/edit/main-menu.c:1077 ../src/ui/edit/tip-dialog.c:207
+#: ../src/ui/edit/main-menu.c:1080 ../src/ui/edit/tip-dialog.c:207
 #: ../src/ui/edit/tip-dialog.c:222
 msgid "Tip of the day"
 msgstr "[i18n]Tip of the day"
 
 #. join web-chat
-#: ../src/ui/edit/main-menu.c:1083
+#: ../src/ui/edit/main-menu.c:1086
 msgid "Join IRC discussion"
 msgstr "[i18n]Join IRC discussion"
 
@@ -797,7 +797,7 @@ msgstr "[i18n]Join IRC discussion"
 #. * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-bug.png
 #. * /usr/share/app-install/icons/bug-buddy.png
 #.
-#: ../src/ui/edit/main-menu.c:1096
+#: ../src/ui/edit/main-menu.c:1099
 msgid "Report a problem"
 msgstr "[i18n]Report a problem"
 
@@ -944,7 +944,7 @@ msgid "Pattern"
 msgstr "[i18n]Pattern"
 
 #: ../src/ui/edit/main-page-patterns.c:3043
-#: ../src/ui/edit/main-page-waves.c:1365
+#: ../src/ui/edit/main-page-waves.c:1366
 msgid "Wave"
 msgstr "[i18n]Wave"
 
@@ -994,142 +994,142 @@ msgstr "[i18n]Copy pattern…"
 
 #. dynamic part
 #: ../src/ui/edit/main-page-patterns.c:3236
-#: ../src/ui/edit/main-page-sequence.c:3674
+#: ../src/ui/edit/main-page-sequence.c:3680
 msgid "Machine properties"
 msgstr "[i18n]Machine properties"
 
 #: ../src/ui/edit/main-page-patterns.c:3245
-#: ../src/ui/edit/main-page-sequence.c:3681
+#: ../src/ui/edit/main-page-sequence.c:3687
 msgid "Machine preferences"
 msgstr "[i18n]Machine preferences"
 
 #. time line position
-#: ../src/ui/edit/main-page-sequence.c:1189
+#: ../src/ui/edit/main-page-sequence.c:1204
 msgid "Pos."
 msgstr "[i18n]Pos."
 
-#: ../src/ui/edit/main-page-sequence.c:1198
+#: ../src/ui/edit/main-page-sequence.c:1213
 msgid "Ticks"
 msgstr "[i18n]Ticks"
 
-#: ../src/ui/edit/main-page-sequence.c:1200
+#: ../src/ui/edit/main-page-sequence.c:1215
 msgid "Time"
 msgstr "[i18n]Time"
 
-#: ../src/ui/edit/main-page-sequence.c:1202
+#: ../src/ui/edit/main-page-sequence.c:1217
 msgid "Beats"
 msgstr "[i18n]Beats"
 
-#: ../src/ui/edit/main-page-sequence.c:1375
-#: ../src/ui/edit/main-page-sequence.c:1402
+#: ../src/ui/edit/main-page-sequence.c:1390
+#: ../src/ui/edit/main-page-sequence.c:1417
 msgid "Labels"
 msgstr "[i18n]Labels"
 
-#: ../src/ui/edit/main-page-sequence.c:3569
+#: ../src/ui/edit/main-page-sequence.c:3575
 msgid "Show every n-th line"
 msgstr "[i18n]Show every n-th line"
 
-#: ../src/ui/edit/main-page-sequence.c:3579
+#: ../src/ui/edit/main-page-sequence.c:3585
 msgid "Steps"
 msgstr "[i18n]Steps"
 
-#: ../src/ui/edit/main-page-sequence.c:3592
+#: ../src/ui/edit/main-page-sequence.c:3598
 msgid "Follow playback"
 msgstr "[i18n]Follow playback"
 
-#: ../src/ui/edit/main-page-sequence.c:3612
+#: ../src/ui/edit/main-page-sequence.c:3618
 msgid "Sequence view menu"
 msgstr "[i18n]Sequence view menu"
 
-#: ../src/ui/edit/main-page-sequence.c:3614
+#: ../src/ui/edit/main-page-sequence.c:3620
 msgid "Menu actions for sequence view below"
 msgstr "[i18n]Menu actions for sequence view below"
 
-#: ../src/ui/edit/main-page-sequence.c:3628
+#: ../src/ui/edit/main-page-sequence.c:3634
 msgid "Add track"
 msgstr "[i18n]Add track"
 
-#: ../src/ui/edit/main-page-sequence.c:3633
+#: ../src/ui/edit/main-page-sequence.c:3639
 msgid "Remove track"
 msgstr "[i18n]Remove track"
 
-#: ../src/ui/edit/main-page-sequence.c:3648
+#: ../src/ui/edit/main-page-sequence.c:3654
 msgid "Move track left"
 msgstr "[i18n]Move track left"
 
-#: ../src/ui/edit/main-page-sequence.c:3659
+#: ../src/ui/edit/main-page-sequence.c:3665
 msgid "Move track right"
 msgstr "[i18n]Move track right"
 
-#: ../src/ui/edit/main-page-sequence.c:3752
+#: ../src/ui/edit/main-page-sequence.c:3758
 msgid "Browse to labels in the sequence"
 msgstr "[i18n]Browse to labels in the sequence"
 
-#: ../src/ui/edit/main-page-sequence.c:3906
+#: ../src/ui/edit/main-page-sequence.c:3912
 msgid "Key"
 msgstr "[i18n]Key"
 
-#: ../src/ui/edit/main-page-sequence.c:3921
+#: ../src/ui/edit/main-page-sequence.c:3927
 msgid "Patterns"
 msgstr "[i18n]Patterns"
 
-#: ../src/ui/edit/main-page-sequence.c:4569
+#: ../src/ui/edit/main-page-sequence.c:4575
 msgid "Add new tracks from right click context menu."
 msgstr "[i18n]Add new tracks from right click context menu."
 
-#: ../src/ui/edit/main-page-waves.c:1302
+#: ../src/ui/edit/main-page-waves.c:1303
 msgid "Play current wave table entry as C-4"
 msgstr "[i18n]Play current wave table entry as C-4"
 
-#: ../src/ui/edit/main-page-waves.c:1312
+#: ../src/ui/edit/main-page-waves.c:1313
 msgid "Stop playback of current wave table entry"
 msgstr "[i18n]Stop playback of current wave table entry"
 
-#: ../src/ui/edit/main-page-waves.c:1319
+#: ../src/ui/edit/main-page-waves.c:1320
 msgid "_Clear"
 msgstr "[i18n]_Clear"
 
-#: ../src/ui/edit/main-page-waves.c:1321
+#: ../src/ui/edit/main-page-waves.c:1322
 msgid "Clear current wave table entry"
 msgstr "[i18n]Clear current wave table entry"
 
-#: ../src/ui/edit/main-page-waves.c:1355
+#: ../src/ui/edit/main-page-waves.c:1356
 msgid "Ix"
 msgstr "[i18n]Ix"
 
-#: ../src/ui/edit/main-page-waves.c:1373
+#: ../src/ui/edit/main-page-waves.c:1374
 msgid "Volume"
 msgstr "[i18n]Volume"
 
-#: ../src/ui/edit/main-page-waves.c:1381 ../src/ui/edit/main-toolbar.c:934
+#: ../src/ui/edit/main-page-waves.c:1382 ../src/ui/edit/main-toolbar.c:935
 msgid "Loop"
 msgstr "[i18n]Loop"
 
-#: ../src/ui/edit/main-page-waves.c:1409
+#: ../src/ui/edit/main-page-waves.c:1411
 msgid "Play current sample"
 msgstr "[i18n]Play current sample"
 
-#: ../src/ui/edit/main-page-waves.c:1417
+#: ../src/ui/edit/main-page-waves.c:1419
 msgid "Load current sample into selected wave table entry"
 msgstr "[i18n]Load current sample into selected wave table entry"
 
-#: ../src/ui/edit/main-page-waves.c:1471
+#: ../src/ui/edit/main-page-waves.c:1473
 msgid "Root"
 msgstr "[i18n]Root"
 
-#: ../src/ui/edit/main-page-waves.c:1479
+#: ../src/ui/edit/main-page-waves.c:1481
 msgid "Length"
 msgstr "[i18n]Length"
 
-#: ../src/ui/edit/main-page-waves.c:1487
+#: ../src/ui/edit/main-page-waves.c:1489
 msgid "Rate"
 msgstr "[i18n]Rate"
 
-#: ../src/ui/edit/main-page-waves.c:1497
+#: ../src/ui/edit/main-page-waves.c:1499
 msgid "Loop start"
 msgstr "[i18n]Loop start"
 
-#: ../src/ui/edit/main-page-waves.c:1508
+#: ../src/ui/edit/main-page-waves.c:1510
 msgid "Loop end"
 msgstr "[i18n]Loop end"
 
@@ -1173,19 +1173,21 @@ msgstr "[i18n]information"
 msgid "song meta data editor"
 msgstr "[i18n]song meta data editor"
 
-#: ../src/ui/edit/main-statusbar.c:324
+#. see https://bugzilla.gnome.org/show_bug.cgi?id=746688
+#. the progress bar does not fill since gtk 3.13
+#: ../src/ui/edit/main-statusbar.c:322
 msgid "CPU load"
 msgstr "[i18n]CPU load"
 
-#: ../src/ui/edit/main-statusbar.c:339
+#: ../src/ui/edit/main-statusbar.c:338
 msgid "Playback time"
 msgstr "[i18n]Playback time"
 
-#: ../src/ui/edit/main-statusbar.c:348
+#: ../src/ui/edit/main-statusbar.c:347
 msgid "Playback position"
 msgstr "[i18n]Playback position"
 
-#: ../src/ui/edit/main-statusbar.c:357
+#: ../src/ui/edit/main-statusbar.c:356
 msgid "Playback length"
 msgstr "[i18n]Playback length"
 
@@ -1197,51 +1199,51 @@ msgstr "[i18n]Error"
 msgid "Warning"
 msgstr "[i18n]Warning"
 
-#: ../src/ui/edit/main-toolbar.c:867
+#: ../src/ui/edit/main-toolbar.c:868
 msgid "Prepare a new empty song"
 msgstr "[i18n]Prepare a new empty song"
 
-#: ../src/ui/edit/main-toolbar.c:873
+#: ../src/ui/edit/main-toolbar.c:874
 msgid "Load a new song"
 msgstr "[i18n]Load a new song"
 
-#: ../src/ui/edit/main-toolbar.c:879
+#: ../src/ui/edit/main-toolbar.c:880
 msgid "Save this song"
 msgstr "[i18n]Save this song"
 
-#: ../src/ui/edit/main-toolbar.c:890
+#: ../src/ui/edit/main-toolbar.c:891
 msgid "R_ewind"
 msgstr "[i18n]R_ewind"
 
-#: ../src/ui/edit/main-toolbar.c:892
+#: ../src/ui/edit/main-toolbar.c:893
 msgid "Rewind playback position of this song"
 msgstr "[i18n]Rewind playback position of this song"
 
-#: ../src/ui/edit/main-toolbar.c:905
+#: ../src/ui/edit/main-toolbar.c:906
 msgid "Play this song"
 msgstr "[i18n]Play this song"
 
-#: ../src/ui/edit/main-toolbar.c:912
+#: ../src/ui/edit/main-toolbar.c:913
 msgid "_Forward"
 msgstr "[i18n]_Forward"
 
-#: ../src/ui/edit/main-toolbar.c:914
+#: ../src/ui/edit/main-toolbar.c:915
 msgid "Forward playback position of this song"
 msgstr "[i18n]Forward playback position of this song"
 
-#: ../src/ui/edit/main-toolbar.c:926
+#: ../src/ui/edit/main-toolbar.c:927
 msgid "Stop playback of this song"
 msgstr "[i18n]Stop playback of this song"
 
-#: ../src/ui/edit/main-toolbar.c:935
+#: ../src/ui/edit/main-toolbar.c:936
 msgid "Toggle looping of playback"
 msgstr "[i18n]Toggle looping of playback"
 
-#: ../src/ui/edit/main-toolbar.c:953
+#: ../src/ui/edit/main-toolbar.c:954
 msgid "playback volume"
 msgstr "[i18n]playback volume"
 
-#: ../src/ui/edit/main-toolbar.c:975
+#: ../src/ui/edit/main-toolbar.c:976
 msgid "Change playback volume"
 msgstr "[i18n]Change playback volume"
 
@@ -1301,45 +1303,45 @@ msgid "All unsaved changes since %s will be lost. This song was created on: %s"
 msgstr ""
 "[i18n]All unsaved changes since %s will be lost. This song was created on: %s"
 
-#: ../src/ui/edit/main-window.c:544 ../src/ui/edit/main-window.c:545
+#: ../src/ui/edit/main-window.c:546 ../src/ui/edit/main-window.c:547
 msgid "Really quit?"
 msgstr "[i18n]Really quit?"
 
-#: ../src/ui/edit/main-window.c:557
+#: ../src/ui/edit/main-window.c:559
 msgid "New song?"
 msgstr "[i18n]New song?"
 
-#: ../src/ui/edit/main-window.c:588
+#: ../src/ui/edit/main-window.c:590
 msgid "Open a song"
 msgstr "[i18n]Open a song"
 
-#: ../src/ui/edit/main-window.c:684 ../src/ui/edit/main-window.c:945
+#: ../src/ui/edit/main-window.c:686 ../src/ui/edit/main-window.c:947
 #, c-format
 msgid "Can't save song '%s'."
 msgstr "[i18n]Can't save song '%s'."
 
-#: ../src/ui/edit/main-window.c:685 ../src/ui/edit/main-window.c:932
-#: ../src/ui/edit/main-window.c:946
+#: ../src/ui/edit/main-window.c:687 ../src/ui/edit/main-window.c:934
+#: ../src/ui/edit/main-window.c:948
 msgid "Can't save song"
 msgstr "[i18n]Can't save song"
 
-#: ../src/ui/edit/main-window.c:720
+#: ../src/ui/edit/main-window.c:722
 msgid "Save a song"
 msgstr "[i18n]Save a song"
 
-#: ../src/ui/edit/main-window.c:870 ../src/ui/edit/render-dialog.c:661
+#: ../src/ui/edit/main-window.c:872 ../src/ui/edit/render-dialog.c:658
 msgid "Format"
 msgstr "[i18n]Format"
 
-#: ../src/ui/edit/main-window.c:915 ../src/ui/edit/main-window.c:916
+#: ../src/ui/edit/main-window.c:917 ../src/ui/edit/main-window.c:918
 msgid "File already exists"
 msgstr "[i18n]File already exists"
 
-#: ../src/ui/edit/main-window.c:918
+#: ../src/ui/edit/main-window.c:920
 msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
 msgstr "[i18n]Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
 
-#: ../src/ui/edit/main-window.c:930
+#: ../src/ui/edit/main-window.c:932
 #, c-format
 msgid "An error occurred while writing the file '%s': %s"
 msgstr "[i18n]An error occurred while writing the file '%s': %s"
@@ -1416,12 +1418,12 @@ msgstr "[i18n]mix to one track"
 msgid "record one track for each source"
 msgstr "[i18n]record one track for each source"
 
-#: ../src/ui/edit/render-dialog.c:197
+#: ../src/ui/edit/render-dialog.c:199
 #, c-format
 msgid "Recording to: %s"
 msgstr "[i18n]Recording to: %s"
 
-#: ../src/ui/edit/render-dialog.c:368
+#: ../src/ui/edit/render-dialog.c:365
 msgid ""
 "File already exists!\n"
 "It will be overwritten if you continue."
@@ -1429,31 +1431,31 @@ msgstr ""
 "[i18n]File already exists!\n"
 "It will be overwritten if you continue."
 
-#: ../src/ui/edit/render-dialog.c:611
+#: ../src/ui/edit/render-dialog.c:608
 msgid "song rendering"
 msgstr "[i18n]song rendering"
 
 #. add dialog commision widgets (okay, cancel)
-#: ../src/ui/edit/render-dialog.c:614
+#: ../src/ui/edit/render-dialog.c:611
 msgid "OK"
 msgstr "[i18n]OK"
 
-#: ../src/ui/edit/render-dialog.c:632
+#: ../src/ui/edit/render-dialog.c:629
 msgid "Folder"
 msgstr "[i18n]Folder"
 
-#: ../src/ui/edit/render-dialog.c:637
+#: ../src/ui/edit/render-dialog.c:634
 #: ../src/ui/edit/settings-page-directories.c:102
 #: ../src/ui/edit/settings-page-directories.c:116
 #: ../src/ui/edit/settings-page-directories.c:131
 msgid "Select a folder"
 msgstr "[i18n]Select a folder"
 
-#: ../src/ui/edit/render-dialog.c:647
+#: ../src/ui/edit/render-dialog.c:644
 msgid "Filename"
 msgstr "[i18n]Filename"
 
-#: ../src/ui/edit/render-dialog.c:691
+#: ../src/ui/edit/render-dialog.c:688
 msgid "Mode"
 msgstr "[i18n]Mode"
 
@@ -1472,7 +1474,7 @@ msgid "Directories"
 msgstr "[i18n]Directories"
 
 #: ../src/ui/edit/settings-dialog.c:235 ../src/ui/edit/settings-dialog.c:287
-#: ../src/ui/edit/settings-page-interaction-controller.c:402
+#: ../src/ui/edit/settings-page-interaction-controller.c:403
 msgid "Interaction Controller"
 msgstr "[i18n]Interaction Controller"
 
@@ -1559,21 +1561,21 @@ msgstr "[i18n]Plug a USB input device or midi controller"
 msgid "Use the device's controls to train them."
 msgstr "[i18n]Use the device's controls to train them."
 
-#: ../src/ui/edit/settings-page-interaction-controller.c:409
+#: ../src/ui/edit/settings-page-interaction-controller.c:410
 #: ../src/ui/edit/settings-page-playback-controller.c:596
 msgid "Device"
 msgstr "[i18n]Device"
 
-#: ../src/ui/edit/settings-page-interaction-controller.c:447
+#: ../src/ui/edit/settings-page-interaction-controller.c:448
 msgid "In use"
 msgstr "[i18n]In use"
 
-#: ../src/ui/edit/settings-page-interaction-controller.c:456
+#: ../src/ui/edit/settings-page-interaction-controller.c:457
 #: ../src/ui/edit/settings-page-playback-controller.c:479
 msgid "Controller"
 msgstr "[i18n]Controller"
 
-#: ../src/ui/edit/settings-page-interaction-controller.c:473
+#: ../src/ui/edit/settings-page-interaction-controller.c:479
 msgid ""
 "This package has been built without GUdev and Alsa support and thus supports "
 "no interaction controllers."
@@ -1779,6 +1781,7 @@ msgstr ""
 "arrow box on the wire if available."
 
 #: ../src/ui/edit/tip-dialog.c:64
+#, fuzzy
 msgid ""
 "One can copy settings from the machine window (from the context menu of a "
 "group) and paste them to patterns and the other way around."
@@ -1813,6 +1816,10 @@ msgstr "[i18n]Show tips on startup"
 msgid "Refresh"
 msgstr "[i18n]Refresh"
 
-#: ../src/ui/edit/wire-canvas-item.c:825
+#: ../src/ui/edit/wire-canvas-item.c:830
 msgid "Disconnect"
 msgstr "[i18n]Disconnect"
+
+#, fuzzy
+#~ msgid "trigger properties"
+#~ msgstr "[i18n]%s wire properties"
