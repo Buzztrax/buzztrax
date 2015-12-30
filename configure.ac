@@ -538,17 +538,32 @@ AC_CHECK_DECL(sysi86,[
 ])
 
 dnl check for SSE intrisics
+have_mmx_intrinsics=no
 ARCH_CFLAGS=""
-ARCH_CPPFLAGS=""
 case "x${target_cpu}" in
   xi?86|k?|xx86_64|xamd64)
-    # seems to cause "CPU you selected does not support x86-64 instruction set" on some targets
-    #ARCH_CFLAGS="-march=native"
-    ARCH_CPPFLAGS="-D__SSE__ -D__MMX__"
-    AC_CHECK_HEADERS([xmmintrin.h])
+    AC_CHECK_HEADERS([xmmintrin.h],
+      [
+        SAVED_CFLAGS="${CFLAGS}"
+        AC_MSG_CHECKING([for working mmx intrinsics])
+        CFLAGS="-mmmx -msse"
+        AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+                          #include <mmintrin.h>
+                          int main () {
+                              _mm_getcsr ();
+                          }]])], [
+                          AC_MSG_RESULT(yes)
+                          have_mmx_intrinsics=yes],[
+                          AC_MSG_RESULT(no)])
+        CFLAGS="${SAVED_CFLAGS}"
+        ARCH_CFLAGS="-mmmx -msse"
+      ],[])
     ;;
 esac
-
+if test $have_mmx_intrinsics = yes ; then
+   AC_DEFINE(USE_X86_MMX, 1, [use x86 MMX compiler intrinsics])
+   ARCH_CFLAGS="-mmmx -msse"
+fi
 
 dnl check for libraries
 LT_LIB_M
@@ -594,7 +609,7 @@ AC_ARG_ENABLE(Bsymbolic,
 dnl Extra vars
 BT_INCLUDEDIR='-I${includedir}'
 dnl -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
-BT_CFLAGS="$ARCH_CFLAGS $ARCH_CPPFLAGS $DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
+BT_CFLAGS="$ARCH_CFLAGS $DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
 BT_LIBS="$COVERAGE_LIBS"
 BT_LDFLAGS="$DEBUG_LDFLAGS"
