@@ -32,13 +32,15 @@
 
 #ifdef HAVE_SCHED_SETSCHEDULER
 #include <sched.h>
-#if HAVE_MLOCKALL
+#ifdef HAVE_MLOCKALL
 #include <sys/mman.h>
 #endif
 #endif
 
-#if HAVE_XMMINTRIN_H
+#ifdef USE_X86_MMX
+#ifdef HAVE_XMMINTRIN_H
 #include <xmmintrin.h>
+#endif
 #endif
 
 /**
@@ -145,11 +147,13 @@ bt_init_post (void)
 #endif
 #endif
 
-#if HAVE_XMMINTRIN_H
+#if USE_X86_MMX
   // TODO(ensonic): we need to probe the CPU capabilities
   // see http://www.mail-archive.com/linux-audio-dev@music.columbia.edu/msg19520.html
   //   [linux-audio-dev] Channels and best practice
   // _MM_FLUSH_ZERO_ON = FZ
+  // TODO(ensonic): wikipedia says we must do this for each thread:
+  // https://en.wikipedia.org/wiki/Denormal_number#Disabling_denormal_floats_at_the_code_level
   _mm_setcsr (_mm_getcsr () | 0x8040);  // set DAZ and FZ bits
 #endif
 
