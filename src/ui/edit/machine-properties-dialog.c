@@ -2514,6 +2514,8 @@ make_trigger_control (const BtMachinePropertiesDialog * self, GObject * object,
       G_CALLBACK (on_label_button_press_event), (gpointer) widget);
   g_signal_connect (widget, "button-press-event",
       G_CALLBACK (on_trigger_button_press_event), (gpointer) object);
+  g_signal_connect (widget, "button-release-event",
+      G_CALLBACK (on_button_release_event), (gpointer) object);
   g_signal_connect (evb, "button-press-event",
       G_CALLBACK (on_trigger_button_press_event), (gpointer) object);
   g_signal_connect (evb, "button-press-event",
