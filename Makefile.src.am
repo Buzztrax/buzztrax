@@ -764,7 +764,9 @@ BuzztraxIc-@BT_MAJORMINOR@.gir: $(G_IR_SCANNER) libbuzztrax-ic.la
 
 BUILT_GIRSOURCES = BuzztraxCore-@BT_MAJORMINOR@.gir BuzztraxIc-@BT_MAJORMINOR@.gir
 
-girdir = $(datadir)/gir
+# We can't use $(GIRDIR) and $(TYPELIBDIR), since that might using a different
+# prefix
+girdir = $(datadir)/gir-1.0
 gir_DATA = $(BUILT_GIRSOURCES)
 
 typelibsdir = $(libdir)/girepository-1.0
