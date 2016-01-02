@@ -357,7 +357,7 @@ libbuzztrax_core_HEADERS = \
   src/lib/core/wire.h
 
 # -- songio plugins
-songiodir = ${exec_prefix}/lib/buzztrax-songio
+songiodir = ${libdir}/buzztrax-songio
 songio_LTLIBRARIES = libbtbsl.la
 libbtbsl_la_LIBADD = \
   libbuzztrax-core.la \
