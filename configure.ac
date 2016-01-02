@@ -279,6 +279,9 @@ if test "$enable_dllwrapper" != "no"; then
     enable_dllwrapper="yes"
   fi
 fi
+if test "$enable_dllwrapper" == "no"; then
+  CALLING_MODE=void
+fi
 AC_MSG_RESULT($enable_dllwrapper)
 if test "$enable_dllwrapper" = "yes"; then
   AC_DEFINE(USE_DLLWRAPPER, 1, [Defined if emulation for buzzmachine dlls is enabled])
