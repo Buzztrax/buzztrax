@@ -36,6 +36,7 @@ G_BEGIN_DECLS
  * @GSTBT_COMBINE_AND: logical and of both signals (A&B)
  * @GSTBT_COMBINE_OR: logical or of both signals (A|B)
  * @GSTBT_COMBINE_XOR: logical xor of both signals (A^B)
+ * @GSTBT_COMBINE_FOLD: wrap a inside b
  * @GSTBT_COMBINE_COUNT: number of combine modes, this can change with new
  * releases
  *
@@ -51,6 +52,7 @@ typedef enum
   GSTBT_COMBINE_AND,
   GSTBT_COMBINE_OR,
   GSTBT_COMBINE_XOR,
+  GSTBT_COMBINE_FOLD,
   GSTBT_COMBINE_COUNT
 } GstBtCombineType;
 

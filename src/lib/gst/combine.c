@@ -37,6 +37,7 @@
  * ![and](lt-bt_gst_combine_and__a_b.svg)
  * ![or](lt-bt_gst_combine_or__a_b.svg)
  * ![xor](lt-bt_gst_combine_xor__a_b.svg)
+ * ![fold](lt-bt_gst_combine_fold__a_b.svg)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -78,6 +79,7 @@ gstbt_combine_type_get_type (void)
     {GSTBT_COMBINE_AND, "And: A&B", "logical and of both signals (A&B)"},
     {GSTBT_COMBINE_OR, "Or: A|B", "logical or of both signals (A|B)"},
     {GSTBT_COMBINE_XOR, "Xor: A^B", "logical xor of both signals (A^B)"},
+    {GSTBT_COMBINE_FOLD, "fold: A?B", "wrap a inside b"},
     {0, NULL, NULL},
   };
 
@@ -190,6 +192,22 @@ gstbt_combine_xor (GstBtCombine * self, guint ct, gint16 * d1, gint16 * d2)
   }
 }
 
+static void
+gstbt_combine_fold (GstBtCombine * self, guint ct, gint16 * d1, gint16 * d2)
+{
+  guint i;
+  gint16 d2a;
+
+  for (i = 0; i < ct; i++) {
+    d2a = abs (d2[i]);
+    if (d1[i] > 0) {
+      d1[i] = (d1[i] > d2a) ? (d2a - (d1[i] - d2a)) : d1[i];
+    } else {
+      d1[i] = (d1[i] < d2a) ? (d2a - (d1[i] - d2a)) : d1[i];
+    }
+  }
+}
+
 /*
  * gstbt_combine_change_type:
  * Assign combine function
@@ -221,6 +239,9 @@ gstbt_combine_change_type (GstBtCombine * self)
       break;
     case GSTBT_COMBINE_XOR:
       self->process = gstbt_combine_xor;
+      break;
+    case GSTBT_COMBINE_FOLD:
+      self->process = gstbt_combine_fold;
       break;
     default:
       GST_ERROR ("invalid combine-type: %d", self->type);
