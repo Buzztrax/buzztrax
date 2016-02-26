@@ -34,6 +34,7 @@
  * ![Pink noise](lt-bt_gst_osc-synth_pink_noise.svg) ![White Gaussian noise](lt-bt_gst_osc-synth_white_gaussian_noise.svg)
  * ![Red (brownian) noise](lt-bt_gst_osc-synth_red__brownian__noise.svg) ![Blue noise](lt-bt_gst_osc-synth_blue_noise.svg)
  * ![Violet noise](lt-bt_gst_osc-synth_violet_noise.svg) ![Sample &amp; Hold](lt-bt_gst_osc-synth_sample_and_hold.svg)
+ * ![Spikes](lt-bt_gst_osc-synth_spikes.svg) ![Sample &amp; Glide](lt-bt_gst_osc-synth_sample_and_glide.svg)
  */
 /* TODO(ensonic): we should do a linear fade down in the last inner_loop block as an
  * anticlick messure
@@ -41,9 +42,6 @@
  *     ac_f=1.0;
  *     ac_s=1.0/INNER_LOOP;
  *   }
- */
-/* TODO(ensonic): new wave like S&H, but doing spikes only
- * -> high req, more spikes
  */
 
 #ifdef HAVE_CONFIG_H
@@ -103,6 +101,7 @@ gstbt_osc_synth_wave_get_type (void)
     {GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE, "Violet noise", "violet-noise"},
     {GSTBT_OSC_SYNTH_WAVE_S_AND_H, "Sample and Hold", "sample-and-hold"},
     {GSTBT_OSC_SYNTH_WAVE_SPIKES, "Spikes", "spikes"},
+    {GSTBT_OSC_SYNTH_WAVE_S_AND_G, "Sample and Glide", "sample-and-glide"},
     {0, NULL, NULL},
   };
 
@@ -122,8 +121,9 @@ gstbt_osc_synth_tonal_wave_get_type (void)
     {GSTBT_OSC_SYNTH_WAVE_SQUARE, "Square", "square"},
     {GSTBT_OSC_SYNTH_WAVE_SAW, "Saw", "saw"},
     {GSTBT_OSC_SYNTH_WAVE_TRIANGLE, "Triangle", "triangle"},
-    {GSTBT_OSC_SYNTH_WAVE_S_AND_H, "Sample & Hold", "sample-and-hold"},
+    {GSTBT_OSC_SYNTH_WAVE_S_AND_H, "Sample and Hold", "sample-and-hold"},
     {GSTBT_OSC_SYNTH_WAVE_SPIKES, "Spikes", "spikes"},
+    {GSTBT_OSC_SYNTH_WAVE_S_AND_G, "Sample and Glide", "sample-and-glide"},
     {0, NULL, NULL},
   };
 
@@ -551,6 +551,44 @@ gstbt_osc_synth_create_spikes (GstBtOscSynth * self, guint ct, gint16 * samples)
   self->sh.count = count;
 }
 
+static void
+gstbt_osc_synth_create_s_and_g (GstBtOscSynth * self, guint ct,
+    gint16 * samples)
+{
+  guint i = 0, j, c, r = ct;
+  guint64 offset = self->offset;
+  gdouble amp, step;
+  gint count = self->sh.count;
+  gint samplerate = self->samplerate;
+  gdouble smpl = self->sh.smpl;
+  gdouble next = self->sh.next;
+
+  while (i < ct) {
+    gst_object_sync_values ((GstObject *) self, offset + i);
+    amp = self->vol;
+    UPDATE_INNER_LOOP (c, r);
+    for (j = 0; j < c; j++, i++) {
+      if (G_UNLIKELY (count <= 0)) {
+        gst_object_sync_values ((GstObject *) self, offset + i);
+        // if freq = 100, we want 100 changes per second
+        // = 100 changes per samplingrate samples
+        step = self->freq;
+        step = CLAMP (step, 1, samplerate);
+        count = samplerate / step;
+        next = 32768 - (65535.0 * rand () / (RAND_MAX + 1.0));
+        next = (next - smpl) / (gdouble) count;
+        amp = self->vol;
+      }
+      samples[i] = (gint16) (amp * smpl);
+      count--;
+      smpl += next;
+    }
+  }
+  self->sh.count = count;
+  self->sh.smpl = smpl;
+  self->sh.next = next;
+}
+
 /*
  * gstbt_osc_synth_change_wave:
  * @self: the oscillator
@@ -600,6 +638,9 @@ gstbt_osc_synth_change_wave (GstBtOscSynth * self)
     case GSTBT_OSC_SYNTH_WAVE_SPIKES:
       self->process = gstbt_osc_synth_create_spikes;
       break;
+    case GSTBT_OSC_SYNTH_WAVE_S_AND_G:
+      self->process = gstbt_osc_synth_create_s_and_g;
+      break;
     default:
       GST_ERROR ("invalid wave-form: %d", self->wave);
       break;
@@ -645,6 +686,10 @@ gstbt_osc_synth_trigger (GstBtOscSynth * self)
     case GSTBT_OSC_SYNTH_WAVE_SPIKES:
       self->sh.count = 0;
       break;
+    case GSTBT_OSC_SYNTH_WAVE_S_AND_G:
+      self->sh.count = 0;
+      self->sh.smpl = 0.0;
+      self->sh.next = 32768 - (65535.0 * rand () / (RAND_MAX + 1.0));
     default:
       GST_ERROR ("invalid wave-form: %d", self->wave);
       break;

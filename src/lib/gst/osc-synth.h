@@ -51,6 +51,8 @@ G_BEGIN_DECLS
  * hold it for a time specified by #GstBtOscSynth:frequency.
  * @GSTBT_OSC_SYNTH_WAVE_SPIKES: spikes. Create a random level spikes at a rate
  * specified by #GstBtOscSynth:frequency.
+ * @GSTBT_OSC_SYNTH_WAVE_S_AND_G: sample and glide. Create an random values and
+ *  blend between them over a time specified by #GstBtOscSynth:frequency.
  * @GSTBT_OSC_SYNTH_WAVE_COUNT: number of waves, this can change with new
  * releases
  *
@@ -71,6 +73,7 @@ typedef enum
   GSTBT_OSC_SYNTH_WAVE_VIOLET_NOISE,
   GSTBT_OSC_SYNTH_WAVE_S_AND_H,
   GSTBT_OSC_SYNTH_WAVE_SPIKES,
+  GSTBT_OSC_SYNTH_WAVE_S_AND_G,
   GSTBT_OSC_SYNTH_WAVE_COUNT
 } GstBtOscSynthWave;
 
@@ -82,9 +85,11 @@ typedef enum
  * @GSTBT_OSC_SYNTH_WAVE_SAW: saw wave
  * @GSTBT_OSC_SYNTH_WAVE_TRIANGLE: triangle wave
  * @GSTBT_OSC_SYNTH_WAVE_S_AND_H: sample and hold. Create an random value and
+ *  hold it for a time specified by #GstBtOscSynth:frequency.
  * @GSTBT_OSC_SYNTH_WAVE_SPIKES: spikes. Create a random level spikes at a rate
- * specified by #GstBtOscSynth:frequency.
- * hold it for a time specified by #GstBtOscSynth:frequency.
+ *  specified by #GstBtOscSynth:frequency.
+ * @GSTBT_OSC_SYNTH_WAVE_S_AND_G: sample and glide. Create an random values and
+ *  blend between them over a time specified by #GstBtOscSynth:frequency.
  *
  * Tonal oscillator wave forms from #GstBtOscSynthWave.
  */
@@ -97,7 +102,8 @@ typedef enum
   GSTBT_OSC_SYNTH_WAVE_SAW,
   GSTBT_OSC_SYNTH_WAVE_TRIANGLE,
   GSTBT_OSC_SYNTH_WAVE_S_AND_H,
-  GSTBT_OSC_SYNTH_WAVE_SPIKES
+  GSTBT_OSC_SYNTH_WAVE_SPIKES,
+  GSTBT_OSC_SYNTH_WAVE_S_AND_G
 } GstBtOscSynthTonalWave;
 #endif
 
@@ -153,7 +159,7 @@ typedef struct
 typedef struct
 {
   gint count;                   /* count down */
-  gdouble smpl;                 /* current sample */
+  gdouble smpl, next;           /* current and next sample */
 } GstBtSampleAndHold;
 
 #define GSTBT_TYPE_OSC_SYNTH            (gstbt_osc_synth_get_type())

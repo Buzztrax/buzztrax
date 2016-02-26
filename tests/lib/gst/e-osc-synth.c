@@ -68,6 +68,7 @@ test_waves_not_silent (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
   osc = gstbt_osc_synth_new ();
   // plot 1 cycle
+  // TODO: this is less useful for S&H, Spikes and S&G
   g_object_set (osc, "wave", _i, "sample-rate", WAVE_SIZE, "frequency", 1.0,
       NULL);
 
