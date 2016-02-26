@@ -174,8 +174,8 @@ static gdouble
 gstbt_tone_conversion_translate_equal_temperament (GstBtToneConversion * self,
     guint octave, guint tone)
 {
-  gdouble frequency = 0.0, step;
-  guint steps, i;
+  gdouble frequency = 0.0;
+  guint steps;
 
   g_assert (tone < 12);
   g_assert (octave < 10);
@@ -185,17 +185,14 @@ gstbt_tone_conversion_translate_equal_temperament (GstBtToneConversion * self,
   // http://en.wikipedia.org/wiki/Note#Note_designation_in_accordance_with_octave_name
   frequency = (gdouble) (55 << octave);
   /* do tone stepping */
-  step = pow (2.0, (1.0 / 12.0));
   if (tone < 9) {
     // go down
     steps = 9 - tone;
-    for (i = 0; i < steps; i++)
-      frequency /= step;
+    frequency /= pow (2.0, (steps / 12.0));
   } else {
     // go up
     steps = tone - 9;
-    for (i = 0; i < steps; i++)
-      frequency *= step;
+    frequency *= pow (2.0, (steps / 12.0));
   }
   return frequency;
 }
