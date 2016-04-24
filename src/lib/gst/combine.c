@@ -199,11 +199,12 @@ gstbt_combine_fold (GstBtCombine * self, guint ct, gint16 * d1, gint16 * d2)
   gint16 d2a;
 
   for (i = 0; i < ct; i++) {
+    // we fold around +/- d2
     d2a = abs (d2[i]);
     if (d1[i] > 0) {
       d1[i] = (d1[i] > d2a) ? (d2a - (d1[i] - d2a)) : d1[i];
     } else {
-      d1[i] = (d1[i] < d2a) ? (d2a - (d1[i] - d2a)) : d1[i];
+      d1[i] = (d1[i] < -d2a) ? (-d2a - (d1[i] + d2a)) : d1[i];
     }
   }
 }
