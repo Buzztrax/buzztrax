@@ -112,6 +112,10 @@ bt_about_dialog_init_ui (const BtAboutDialog * self)
   gtk_text_view_set_editable (GTK_TEXT_VIEW (news), FALSE);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (news)),
+      /* Note to translators: We will send announcements of pre-release tarballs
+       * roughly one month before the final release. We collect feedback from
+       * beta testers during this period and do smaller changes, but take care
+       * to not change translated strings. */
       "Development version (do not translate this)"
       /*_
       ("")
