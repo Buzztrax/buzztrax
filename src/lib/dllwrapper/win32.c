@@ -511,7 +511,7 @@ expGetModuleHandleA (const char *name)
     result = 0;
 #endif
   else {
-    TRACE("calling FindModule(%s)\n",name);
+    TRACE ("calling FindModule(%s)\n", name);
     wm = MODULE_FindModule (name);
     if (wm == 0)
       result = 0;
@@ -1195,8 +1195,7 @@ expHeapFree (HANDLE heap, DWORD dwFlags, LPVOID lpMem)
     my_release (lpMem);
   else {
     if (!heapfreehackshown++)
-      TRACE ("Info: HeapFree deallocating same memory twice! (%p)\n",
-          lpMem);
+      TRACE ("Info: HeapFree deallocating same memory twice! (%p)\n", lpMem);
   }
   heapfreehack = lpMem;
   return 1;
@@ -1400,8 +1399,7 @@ expLeaveCriticalSection (CRITICAL_SECTION * c)
   //    struct CRITSECT* cs=(struct CRITSECT*)c;
   TRACE ("LeaveCriticalSection(%p) %p\n", c, cs);
   if (!cs) {
-    TRACE ("Win32 Warning: Leaving uninitialized Critical Section %p!!\n",
-        c);
+    TRACE ("Win32 Warning: Leaving uninitialized Critical Section %p!!\n", c);
     return;
   }
 
@@ -1590,8 +1588,7 @@ expTlsSetValue (void *idx, void *value)
     index->value = value;
     result = 1;
   }
-  TRACE ("TlsSetValue(index 0x%x, value 0x%x) => %d \n", index, value,
-      result);
+  TRACE ("TlsSetValue(index 0x%x, value 0x%x) => %d \n", index, value, result);
   return result;
 }
 
@@ -1934,7 +1931,7 @@ expRegQueryValueExA (long key, const char *value, int *reserved, int *type,
       ("RegQueryValueExA(key 0x%lx, value %s, reserved %p, data %p, count %p)"
       " => 0x%lx\n", key, value, reserved, data, count, result);
   if (data && count)
-    TRACE ("  read %d bytes: '%s'\n", *count, (char *) data);       /* FIXME? */
+    TRACE ("  read %d bytes: '%s'\n", *count, (char *) data);   /* FIXME? */
   return result;
 }
 
@@ -2255,16 +2252,14 @@ expCloseHandle (long v1)
 static const char *WINAPI
 expGetCommandLineA ()
 {
-  TRACE
-      ("GetCommandLineA() => \"C:\\Programme\\Jeskola Buzz\\Buzz.exe\"\n");
+  TRACE ("GetCommandLineA() => \"C:\\Programme\\Jeskola Buzz\\Buzz.exe\"\n");
   return "C:\\Programme\\Jeskola Buzz\\Buzz.exe";
 }
 
 static const char *WINAPI
 expGetCommandLineW ()
 {
-  TRACE
-      ("GetCommandLineW() => \"C:\\Programme\\Jeskola Buzz\\Buzz.exe\"\n");
+  TRACE ("GetCommandLineW() => \"C:\\Programme\\Jeskola Buzz\\Buzz.exe\"\n");
   return "C:\\Programme\\Jeskola Buzz\\Buzz.exe";
 }
 
@@ -2297,8 +2292,7 @@ static void *WINAPI
 expRtlFillMemory (void *p, int ch, size_t len)
 {
   void *result = memset (p, ch, len);
-  TRACE ("RtlFillMemory(%p, char 0x%x, len %d) => %p\n", p, ch, len,
-      result);
+  TRACE ("RtlFillMemory(%p, char 0x%x, len %d) => %p\n", p, ch, len, result);
   return result;
 }
 
@@ -2430,8 +2424,7 @@ expGetModuleFileNameA (int module, char *s, int len)
       strcat (s, strrchr (mr->filename, '/') + 1);
   }
   if (!s)
-    TRACE ("GetModuleFileNameA(0x%x, NULL, %d) => %d\n",
-        module, len, result);
+    TRACE ("GetModuleFileNameA(0x%x, NULL, %d) => %d\n", module, len, result);
   else
     TRACE ("GetModuleFileNameA(0x%x, %p, %d) => %d ( '%s' )\n",
         module, s, len, result, s);
@@ -3069,8 +3062,7 @@ expStringFromGUID2 (GUID * guid, char *str, int cbMax)
 static int WINAPI
 expGetFileVersionInfoSizeA (const char *name, int *lpHandle)
 {
-  TRACE ("GetFileVersionInfoSizeA(%p='%s', %p) => 0\n", name, name,
-      lpHandle);
+  TRACE ("GetFileVersionInfoSizeA(%p='%s', %p) => 0\n", name, name, lpHandle);
   return 0;
 }
 
@@ -4162,8 +4154,7 @@ static LONG WINAPI
 explstrcmpiA (const char *str1, const char *str2)
 {
   LONG result = strcasecmp (str1, str2);
-  TRACE ("strcmpi(%p='%s', %p='%s') => %ld\n", str1, str1, str2, str2,
-      result);
+  TRACE ("strcmpi(%p='%s', %p='%s') => %ld\n", str1, str1, str2, str2, result);
   return result;
 }
 
@@ -4618,8 +4609,7 @@ static int
 expstrcmp (const char *str1, const char *str2)
 {
   int result = strcmp (str1, str2);
-  TRACE ("strcmp(%p='%s', %p='%s') => %d\n", str1, str1, str2, str2,
-      result);
+  TRACE ("strcmp(%p='%s', %p='%s') => %d\n", str1, str1, str2, str2, result);
   return result;
 }
 
@@ -4627,8 +4617,7 @@ static int
 expstrncmp (const char *str1, const char *str2, int x)
 {
   int result = strncmp (str1, str2, x);
-  TRACE ("strcmp(%p='%s', %p='%s') => %d\n", str1, str1, str2, str2,
-      result);
+  TRACE ("strcmp(%p='%s', %p='%s') => %d\n", str1, str1, str2, str2, result);
   return result;
 }
 
@@ -4636,8 +4625,7 @@ static char *
 expstrcat (char *str1, const char *str2)
 {
   char *result = strcat (str1, str2);
-  TRACE ("strcat(%p='%s', %p='%s') => %p\n", str1, str1, str2, str2,
-      result);
+  TRACE ("strcat(%p='%s', %p='%s') => %p\n", str1, str1, str2, str2, result);
   return result;
 }
 
@@ -4745,12 +4733,12 @@ exp_control87 (unsigned int newval, unsigned int mask)
   unsigned int flags = 0;
 
 
-  TRACE("(%08x, %08x): Called\n", newval, mask);
+  TRACE ("(%08x, %08x): Called\n", newval, mask);
 
   /* Get fp control word */
   __asm__ __volatile__ ("fstcw %0":"=m" (fpword):);
 
-  TRACE("Control word before : %08x\n", fpword);
+  TRACE ("Control word before : %08x\n", fpword);
 
   /* Convert into mask constants */
 
@@ -4855,7 +4843,7 @@ exp_control87 (unsigned int newval, unsigned int mask)
   if (flags & _IC_AFFINE)
     fpword |= 0x1000;
 
-  TRACE("Control word after  : %08x\n", fpword);
+  TRACE ("Control word after  : %08x\n", fpword);
 
   /* Put fp control word */
   __asm__ __volatile__ ("fldcw %0"::"m" (fpword));
@@ -4893,13 +4881,6 @@ expcos (double x)
 
 #else
 
-/* doens't work */
-static long
-exp_ftol_wrong (double x)
-{
-  return (long) x;
-}
-
 static void
 explog10 (void)
 {
@@ -4922,15 +4903,22 @@ expcos (void)
 
 #endif
 
+#if 0
+// See other implementation below
+
 // this seem to be the only how to make this function working properly
 // ok - I've spent tremendous amount of time (many many many hours
 // of debuging fixing & testing - it's almost unimaginable - kabi
 
 // _ftol - operated on the float value which is already on the FPU stack
+// This function has a nonstandard calling convention: the input value is
+// expected on the x87 stack instead of the callstack. The input value is
+// popped by the callee.
 
 static void
 exp_ftol (void)
 {
+  // crashes :/
   __asm__ __volatile__
       ("sub $12, %esp		\n\t"
       "fstcw   -2(%ebp)	\n\t"
@@ -4945,6 +4933,7 @@ exp_ftol (void)
       //      knows that ebp=esp
       "movl %ebp, %esp       \n\t");
 }
+#endif
 
 static double
 explog (double x)
@@ -4963,6 +4952,7 @@ expexp (double x)
 #define FPU_DOUBLES(var1,var2) double var1,var2; \
   __asm__ __volatile__( "fstpl %0;fwait" : "=m" (var2) : ); \
   __asm__ __volatile__( "fstpl %0;fwait" : "=m" (var1) : )
+
 
 static double
 exp_CIpow (void)
@@ -5387,6 +5377,13 @@ expfloor (double x)
 
 #define FPU_DOUBLE(var) double var; \
   __asm__ __volatile__( "fstpl %0;fwait" : "=m" (var) : )
+
+static int64_t
+exp_ftol (void)
+{
+  FPU_DOUBLE (x);
+  return (int64_t) x;
+}
 
 static double
 exp_CIcos (void)
