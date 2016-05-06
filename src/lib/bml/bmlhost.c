@@ -543,6 +543,7 @@ main (int argc, char **argv)
         _bmlw_set_num_tracks (&bi, &bo);
         break;
       case BM_SET_CALLBACKS:
+        TRACE ("FIXME");
         break;
       default:
         break;

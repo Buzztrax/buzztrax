@@ -157,7 +157,7 @@ sh winetricks mfc42
     - we have no multithreading for the running machines
     - one dll would kill all other already running plugins
 - we need to handle callback support which is needed for wavetables
-- we need to SIGPIPE handle cases (e.g. bad dll kills the bmlhost)
+- we need to handle SIGPIPE cases (e.g. bad dll kills the bmlhost)
 
 ## calling into 32bit code from 64bit code
 - with a specific trampoline, we can call into 32bit code:
