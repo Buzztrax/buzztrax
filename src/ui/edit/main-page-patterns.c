@@ -118,7 +118,7 @@ struct _BtMainPagePatternsPrivate
   /* wavetable selection menu */
   GtkComboBox *wavetable_menu;
   /* base octave selection menu */
-  GtkWidget *base_octave_menu;
+  GtkSpinButton *base_octave_menu;
 
   /* the pattern table */
   BtPatternEditor *pattern_table;
@@ -723,7 +723,7 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         BT_MAIN_PAGES_SEQUENCE_PAGE, NULL);
     /* TODO(ensonic): if we came from sequence page via Enter we could go back
      * to where we came from, but if the machine or pattern has been changed
-     * here, we could go to first track and first pos where the new pattern is 
+     * here, we could go to first track and first pos where the new pattern is
      * used.
      */
     //BtMainPageSequence *sequence_page;
@@ -958,11 +958,11 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         GTK_SCROLL_STEP_FORWARD, NULL);
     res = TRUE;
   } else if (event->keyval == GDK_KEY_KP_Divide) {
-    g_signal_emit_by_name (p->base_octave_menu, "move-active",
+    g_signal_emit_by_name (p->base_octave_menu, "change-value",
         GTK_SCROLL_STEP_BACKWARD, NULL);
     res = TRUE;
   } else if (event->keyval == GDK_KEY_KP_Multiply) {
-    g_signal_emit_by_name (p->base_octave_menu, "move-active",
+    g_signal_emit_by_name (p->base_octave_menu, "change-value",
         GTK_SCROLL_STEP_FORWARD, NULL);
     res = TRUE;
   } else if (event->keyval == GDK_KEY_less) {
@@ -2197,7 +2197,7 @@ on_pattern_size_changed (BtPattern * pattern, GParamSpec * arg,
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
 
   GST_INFO ("pattern size changed (%s): %p", arg->name, self->priv->pattern);
-  // FIXME(ensonic): as length and voices are no constructor properties we seem 
+  // FIXME(ensonic): as length and voices are no constructor properties we seem
   // to get notifies for new patterns and thus redraw things twice :/
   pattern_table_refresh (self);
   pattern_view_update_cell_description (self, UPDATE_COLUMN_UPDATE);
@@ -2261,13 +2261,12 @@ static void on_wavetable_menu_changed(GtkComboBox *menu, gpointer user_data) {
 */
 
 static void
-on_base_octave_menu_changed (GtkComboBox * menu, gpointer user_data)
+on_base_octave_menu_changed (GtkSpinButton * spinbutton, gpointer user_data)
 {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS (user_data);
   GHashTable *properties;
 
-  self->priv->base_octave =
-      gtk_combo_box_get_active (GTK_COMBO_BOX (self->priv->base_octave_menu));
+  self->priv->base_octave = gtk_spin_button_get_value_as_int (spinbutton);
   g_object_set (self->priv->pattern_table, "octave", self->priv->base_octave,
       NULL);
 
@@ -2490,7 +2489,7 @@ on_machine_menu_changed (GtkComboBox * menu, gpointer user_data)
   } else {
     self->priv->base_octave = DEFAULT_BASE_OCTAVE;
   }
-  gtk_combo_box_set_active (GTK_COMBO_BOX (self->priv->base_octave_menu),
+  gtk_spin_button_set_value (self->priv->base_octave_menu,
       self->priv->base_octave);
 
   // enable disable the wave combobox, depending on machine caps
@@ -2982,9 +2981,8 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   GtkWidget *menu_item;
   GtkToolItem *tool_item;
   GtkCellRenderer *renderer;
+  GtkAdjustment *spin_adjustment;
   BtSettings *settings;
-  gint i;
-  gchar oct_str[2];
 
   GST_DEBUG ("!!!! self=%p", self);
 
@@ -3105,21 +3103,17 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   // add base octave (0-8)
   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
-  self->priv->base_octave_menu = gtk_combo_box_text_new ();
-  gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->priv->
-          base_octave_menu), FALSE);
-  for (i = 0; i < 8; i++) {
-    sprintf (oct_str, "%1d", i);
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->
-            base_octave_menu), oct_str);
-  }
-  gtk_combo_box_set_active (GTK_COMBO_BOX (self->priv->base_octave_menu),
-      self->priv->base_octave);
+  spin_adjustment = gtk_adjustment_new (self->priv->base_octave, 0, 8, 1.0, 1.0,
+      0.0);
+  self->priv->base_octave_menu =
+      GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
+  gtk_button_set_focus_on_click (GTK_BUTTON (self->priv->base_octave_menu),
+      FALSE);
   gtk_box_pack_start (GTK_BOX (box), gtk_label_new (_("Octave")), FALSE, FALSE,
       2);
-  gtk_box_pack_start (GTK_BOX (box), self->priv->base_octave_menu, TRUE, TRUE,
-      2);
-  g_signal_connect (self->priv->base_octave_menu, "changed",
+  gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->base_octave_menu),
+      TRUE, TRUE, 2);
+  g_signal_connect (self->priv->base_octave_menu, "value-changed",
       G_CALLBACK (on_base_octave_menu_changed), (gpointer) self);
 
   tool_item = gtk_tool_item_new ();
