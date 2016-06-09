@@ -191,8 +191,7 @@ bt_pattern_properties_dialog_init_ui (const BtPatternPropertiesDialog * self)
   label = gtk_label_new (_("voices"));
   g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
-  spin_adjustment =
-      GTK_ADJUSTMENT (gtk_adjustment_new (1.0, 1.0, 16.0, 1.0, 4.0, 0.0));
+  spin_adjustment = gtk_adjustment_new (1.0, 1.0, 16.0, 1.0, 4.0, 0.0);
   widget =
       gtk_spin_button_new (spin_adjustment, (gdouble) (self->priv->voices), 0);
   if (bt_machine_is_polyphonic (self->priv->machine)) {

@@ -552,9 +552,8 @@ bt_settings_page_playback_controller_init_ui (const
   g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (table, label, 0, 0, 1, 1);
 
-  spin_adjustment =
-      GTK_ADJUSTMENT (gtk_adjustment_new ((gdouble) coherence_upnp_port, 1024.0,
-          65536.0, 1.0, 5.0, 0.0));
+  spin_adjustment = gtk_adjustment_new ((gdouble) coherence_upnp_port, 1024.0,
+      65536.0, 1.0, 5.0, 0.0);
   self->priv->port_entry = gtk_spin_button_new (spin_adjustment, 1.0, 0);
   g_signal_connect (self->priv->port_entry, "value-changed",
       G_CALLBACK (on_port_changed), (gpointer) self);

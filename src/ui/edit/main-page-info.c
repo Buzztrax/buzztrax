@@ -479,9 +479,8 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   gtk_grid_attach (GTK_GRID (table), label, 0, 0, 1, 1);
   pspec =
       (GParamSpecULong *) g_object_class_find_property (song_info_class, "bpm");
-  spin_adjustment =
-      GTK_ADJUSTMENT (gtk_adjustment_new (pspec->default_value, pspec->minimum,
-          pspec->maximum, 1.0, 5.0, 0.0));
+  spin_adjustment = gtk_adjustment_new (pspec->default_value, pspec->minimum,
+      pspec->maximum, 1.0, 5.0, 0.0);
   self->priv->bpm =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
   g_object_set (self->priv->bpm, "margin-left", LABEL_PADDING, NULL);
@@ -502,8 +501,7 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   max = pspec2->maximum / pspec->minimum;
   if (min < 1)
     min = 1;
-  spin_adjustment =
-      GTK_ADJUSTMENT (gtk_adjustment_new (def, min, max, 1.0, 4.0, 0.0));
+  spin_adjustment = gtk_adjustment_new (def, min, max, 1.0, 4.0, 0.0);
   self->priv->beats =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
   g_object_set (self->priv->beats, "margin-left", LABEL_PADDING, NULL);
@@ -515,9 +513,8 @@ bt_main_page_info_init_ui (const BtMainPageInfo * self,
   label = gtk_label_new (_("ticks per beat"));
   g_object_set (label, "xalign", 1.0, NULL);
   gtk_grid_attach (GTK_GRID (table), label, 0, 2, 1, 1);
-  spin_adjustment =
-      GTK_ADJUSTMENT (gtk_adjustment_new (pspec->default_value, pspec->minimum,
-          pspec->maximum, 1.0, 4.0, 0.0));
+  spin_adjustment = gtk_adjustment_new (pspec->default_value, pspec->minimum,
+      pspec->maximum, 1.0, 4.0, 0.0);
   self->priv->tpb =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
   g_object_set (self->priv->tpb, "margin-left", LABEL_PADDING, NULL);

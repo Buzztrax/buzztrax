@@ -1810,8 +1810,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->vol_popup_adj =
       gtk_adjustment_new (100.0, 0.0, 400.0, 1.0, 10.0, 1.0);
   self->priv->vol_popup =
-      BT_VOLUME_POPUP (bt_volume_popup_new (GTK_ADJUSTMENT (self->priv->
-              vol_popup_adj)));
+      BT_VOLUME_POPUP (bt_volume_popup_new (self->priv->vol_popup_adj));
   g_signal_connect (self->priv->vol_popup_adj, "value-changed",
       G_CALLBACK (on_volume_popup_changed), (gpointer) self);
 
@@ -1819,8 +1818,7 @@ bt_main_page_machines_init_ui (const BtMainPageMachines * self,
   self->priv->pan_popup_adj =
       gtk_adjustment_new (0.0, -100.0, 100.0, 1.0, 10.0, 1.0);
   self->priv->pan_popup =
-      BT_PANORAMA_POPUP (bt_panorama_popup_new (GTK_ADJUSTMENT (self->priv->
-              pan_popup_adj)));
+      BT_PANORAMA_POPUP (bt_panorama_popup_new (self->priv->pan_popup_adj));
   g_signal_connect (self->priv->pan_popup_adj, "value-changed",
       G_CALLBACK (on_panorama_popup_changed), (gpointer) self);
 
@@ -1923,8 +1921,7 @@ bt_main_page_machines_wire_volume_popup (const BtMainPageMachines * self,
   /* set initial value */
   g_object_get (self->priv->wire_gain, "volume", &gain, NULL);
   // FIXME(ensonic): workaround for https://bugzilla.gnome.org/show_bug.cgi?id=667598
-  gtk_adjustment_set_value (GTK_ADJUSTMENT (self->priv->vol_popup_adj),
-      (4.0 - gain) * 100.0);
+  gtk_adjustment_set_value (self->priv->vol_popup_adj, (4.0 - gain) * 100.0);
 
   place_popup (self, GTK_WINDOW (self->priv->vol_popup), xpos, ypos);
   bt_volume_popup_show (self->priv->vol_popup);
@@ -1952,8 +1949,7 @@ bt_main_page_machines_wire_panorama_popup (const BtMainPageMachines * self,
     gfloat pan;
     /* set initial value */
     g_object_get (self->priv->wire_pan, "panorama", &pan, NULL);
-    gtk_adjustment_set_value (GTK_ADJUSTMENT (self->priv->pan_popup_adj),
-        (gdouble) pan * 100.0);
+    gtk_adjustment_set_value (self->priv->pan_popup_adj, (gdouble) pan * 100.0);
 
     place_popup (self, GTK_WINDOW (self->priv->pan_popup), xpos, ypos);
     bt_panorama_popup_show (self->priv->pan_popup);

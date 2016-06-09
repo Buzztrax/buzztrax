@@ -461,9 +461,8 @@ bt_settings_page_audiodevices_init_ui (const BtSettingsPageAudiodevices * self,
 
   pspec = (GParamSpecUInt *) g_object_class_find_property ((GObjectClass *)
       settings_class, "latency");
-  spin_adjustment =
-      GTK_ADJUSTMENT (gtk_adjustment_new (latency, pspec->minimum,
-          pspec->maximum, 5.0, 10.0, 0.0));
+  spin_adjustment = gtk_adjustment_new (latency, pspec->minimum,
+      pspec->maximum, 5.0, 10.0, 0.0);
   self->priv->latency_entry =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
   g_object_set (self->priv->latency_entry, "hexpand", TRUE, "margin-left",

@@ -1381,7 +1381,7 @@ bt_pattern_editor_set_hadjustment (BtPatternEditor * self, GtkAdjustment * adj)
     g_object_unref (self->hadj);
   }
   if (!adj) {
-    adj = GTK_ADJUSTMENT (gtk_adjustment_new (0.0, 0.0, 0.0, 0.0, 0.0, 0.0));
+    adj = gtk_adjustment_new (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   }
 
   self->hadj = g_object_ref_sink (adj);
@@ -1403,7 +1403,7 @@ bt_pattern_editor_set_vadjustment (BtPatternEditor * self, GtkAdjustment * adj)
     g_object_unref (self->vadj);
   }
   if (!adj) {
-    adj = GTK_ADJUSTMENT (gtk_adjustment_new (0.0, 0.0, 0.0, 0.0, 0.0, 0.0));
+    adj = gtk_adjustment_new (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   }
 
   self->vadj = g_object_ref_sink (adj);
