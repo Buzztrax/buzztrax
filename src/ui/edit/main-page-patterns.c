@@ -2999,7 +2999,11 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->machine_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
+#if GTK_CHECK_VERSION (3, 20, 0)
+  gtk_widget_set_focus_on_click (GTK_WIDGET (self->priv->machine_menu), FALSE);
+#else
   gtk_combo_box_set_focus_on_click (self->priv->machine_menu, FALSE);
+#endif
   renderer = gtk_cell_renderer_pixbuf_new ();
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (self->priv->machine_menu),
       renderer, FALSE);
@@ -3037,7 +3041,11 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->pattern_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
+#if GTK_CHECK_VERSION (3, 20, 0)
+  gtk_widget_set_focus_on_click (GTK_WIDGET (self->priv->pattern_menu), FALSE);
+#else
   gtk_combo_box_set_focus_on_click (self->priv->pattern_menu, FALSE);
+#endif
   renderer = gtk_cell_renderer_text_new ();
   //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
@@ -3068,7 +3076,12 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
   gtk_container_set_border_width (GTK_CONTAINER (box), 4);
   self->priv->wavetable_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
+#if GTK_CHECK_VERSION (3, 20, 0)
+  gtk_widget_set_focus_on_click (GTK_WIDGET (self->priv->wavetable_menu),
+      FALSE);
+#else
   gtk_combo_box_set_focus_on_click (self->priv->wavetable_menu, FALSE);
+#endif
   renderer = gtk_cell_renderer_text_new ();
   //gtk_cell_renderer_set_fixed_size(renderer, 1, -1);
   gtk_cell_renderer_text_set_fixed_height_from_font (GTK_CELL_RENDERER_TEXT
@@ -3107,8 +3120,10 @@ bt_main_page_patterns_init_ui (const BtMainPagePatterns * self,
       0.0);
   self->priv->base_octave_menu =
       GTK_SPIN_BUTTON (gtk_spin_button_new (spin_adjustment, 1.0, 0));
-  gtk_button_set_focus_on_click (GTK_BUTTON (self->priv->base_octave_menu),
+#if GTK_CHECK_VERSION (3, 20, 0)
+  gtk_widget_set_focus_on_click (GTK_WIDGET (self->priv->base_octave_menu),
       FALSE);
+#endif
   gtk_box_pack_start (GTK_BOX (box), gtk_label_new (_("Octave")), FALSE, FALSE,
       2);
   gtk_box_pack_start (GTK_BOX (box), GTK_WIDGET (self->priv->base_octave_menu),

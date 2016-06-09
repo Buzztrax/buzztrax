@@ -1231,8 +1231,12 @@ sequence_pos_table_init (const BtMainPageSequence * self)
 
   self->priv->pos_menu = gtk_combo_box_text_new ();
   gtk_widget_set_can_focus (self->priv->pos_menu, FALSE);
+#if GTK_CHECK_VERSION (3, 20, 0)
+  gtk_widget_set_focus_on_click (self->priv->pos_menu, FALSE);
+#else
   gtk_combo_box_set_focus_on_click (GTK_COMBO_BOX (self->priv->pos_menu),
       FALSE);
+#endif
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->pos_menu),
       _("Ticks"));
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (self->priv->pos_menu),
@@ -3776,7 +3780,11 @@ bt_main_page_sequence_init_ui (const BtMainPageSequence * self,
   // build label menu
   self->priv->label_menu = GTK_COMBO_BOX (gtk_combo_box_new ());
   gtk_widget_set_can_focus (GTK_WIDGET (self->priv->label_menu), FALSE);
+#if GTK_CHECK_VERSION (3, 20, 0)
+  gtk_widget_set_focus_on_click (GTK_WIDGET (self->priv->label_menu), FALSE);
+#else
   gtk_combo_box_set_focus_on_click (self->priv->label_menu, FALSE);
+#endif
   gtk_widget_set_tooltip_text (GTK_WIDGET (self->priv->label_menu),
       _("Browse to labels in the sequence"));
   renderer = gtk_cell_renderer_text_new ();
