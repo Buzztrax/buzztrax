@@ -22,25 +22,57 @@ if [ -z $srcdir ]; then
 fi
 
 # check for needed tools
-which xmllint || exit 77
+which >/dev/null xmllint || exit 77
 
 XML_OPTS="--noout --nonet"
 
 E_SONGS="$srcdir/tests/songs/buzz*.xml $srcdir/tests/songs/combi*.xml $srcdir/tests/songs/melo*.xml $srcdir/tests/songs/simple*.xml"
 
+res=0
+fails=0;
+checks=0;
+report="\n"
+
+echo -n "Running suite(s): wellformedness"
+checks=$(($checks+1))
 # do wellformed checking
-xmllint $XML_OPTS $E_SONGS
-if [ $? -ne 0 ]; then exit 1; fi
+xmllint 2>/dev/null $XML_OPTS $E_SONGS $srcdir/docs/buzztrax.xsd
+if [ $? -ne 0 ]; then
+  res=1
+  fails=$(($fails+1))
+  report=$report"wellformedness:1:E: xmllint failed: $?\n"
+fi
 
-# check the schema itself
-xmllint $XML_OPTS $srcdir/docs/buzztrax.xsd
-if [ $? -ne 0 ]; then exit 1; fi
 
+echo -n " schema-valid"
+checks=$(($checks+1))
 # do schema validation
-xmllint $XML_OPTS --schema $srcdir/docs/buzztrax.xsd $E_SONGS
-if [ $? -ne 0 ]; then exit 1; fi
+xmllint 2>/dev/null $XML_OPTS --schema $srcdir/docs/buzztrax.xsd $E_SONGS
+if [ $? -ne 0 ]; then
+  res=1
+  fails=$(($fails+1))
+  report=$report"schema-valid:1:E: xmllint failed: $?\n"
+fi
 
+
+echo -n " docs-valid"
+checks=$(($checks+1))
 # test the docs
 xmllint $XML_OPTS --xinclude --postvalid $srcdir/docs/help/bt-edit/C/buzztrax-edit.xml
-if [ $? -ne 0 ]; then exit 1; fi
+if [ $? -ne 0 ]; then
+  # this can fail it the dtd is not install, fallback to simple validity check
+  # I/O error : Attempt to load network entity http://www.oasis-open.org/docbook/xml/4.7/docbookx.dtd
+  xmllint $XML_OPTS --xinclude $srcdir/docs/help/bt-edit/C/buzztrax-edit.xml
+  if [ $? -ne 0 ]; then
+    res=1
+    fails=$(($fails+1))
+    report=$report"docs-valid:1:E: xmllint failed: $?\n"
+  fi
+fi
 
+rate=$((($checks-$fails)*100/$checks))
+echo
+echo -n "$rate%: Checks: $checks, Failures: $fails"
+echo -e -n $report
+
+exit $res

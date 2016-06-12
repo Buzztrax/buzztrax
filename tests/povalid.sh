@@ -1,4 +1,4 @@
-#!/bin/bash       
+#!/bin/bash
 # Buzztrax
 # Copyright (C) 2005 Buzztrax team <buzztrax-devel@buzztrax.org>
 #
@@ -22,7 +22,7 @@ if [ -z $srcdir ]; then
 fi
 
 # check for needed tools
-which intltool-update || exit 77
+which >/dev/null intltool-update || exit 77
 
 pwd=`pwd`;
 cd $srcdir/po
