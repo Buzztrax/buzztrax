@@ -11,7 +11,11 @@ before_install:
 before_script: 
 - ./autogen.sh --noconfigure
 
-script: ./configure --enable-debug && make && make check
+env:
+- CONFIGURE_OPTS="--enable-debug"
+- CONFIGURE_OPTS=""
+
+script: ./configure ${CONFIGURE_OPTS} && make && make check
 
 after_failure: cat ./test-suite.log
 
