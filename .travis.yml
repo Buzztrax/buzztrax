@@ -13,7 +13,7 @@ before_script:
 
 env:
 - CONFIGURE_OPTS="--enable-debug"
-- CONFIGURE_OPTS=""
+- CONFIGURE_OPTS="--disable-debug"
 
 script: ./configure ${CONFIGURE_OPTS} && make && make check
 
