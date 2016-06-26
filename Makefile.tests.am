@@ -37,7 +37,7 @@ CHECK_REGISTRY = $(top_builddir)/tests/test-registry.reg
 # for gtk/x11 issues
 #    GDK_SYNCHRONIZE=1
 #
-TESTS_ENVIRONMENT = \
+AM_TESTS_ENVIRONMENT = \
 	CK_DEFAULT_TIMEOUT=20 \
 	LANG=C \
 	XDG_CACHE_HOME=$(abs_builddir) \
