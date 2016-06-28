@@ -393,7 +393,7 @@ typedef struct
 } BtSequenceTicksTestData;
 
 static void
-on_btsequence_ticks_notify (GstObject * machine, GParamSpec * arg,
+on_bt_sequence_ticks_notify (GstObject * machine, GParamSpec * arg,
     gpointer user_data)
 {
   BtSequenceTicksTestData *data = (BtSequenceTicksTestData *) user_data;
@@ -432,17 +432,17 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
       GST_OBJECT (check_gobject_get_object_property (src, "machine"));
   g_object_set (sequence, "length", 8L, NULL);
   bt_sequence_add_track (sequence, src, -1);
-  bt_pattern_set_global_event (pattern, 0, 1, "0");
-  bt_pattern_set_global_event (pattern, 1, 1, "1");
-  bt_pattern_set_global_event (pattern, 2, 1, "2");
-  bt_pattern_set_global_event (pattern, 3, 1, "3");
-  bt_pattern_set_global_event (pattern, 4, 1, "4");
-  bt_pattern_set_global_event (pattern, 5, 1, "5");
-  bt_pattern_set_global_event (pattern, 6, 1, "6");
-  bt_pattern_set_global_event (pattern, 7, 1, "7");
+  gint i;
+  gchar str[] = { '\0', '\0' };
+
+  for (i = 0; i < 8; i++) {
+    str[0] = 48 + i;
+    bt_pattern_set_global_event (pattern, i, 1, str);
+    data.values[i] = -1;
+  }
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
   g_signal_connect (G_OBJECT (element), "notify::wave",
-      G_CALLBACK (on_btsequence_ticks_notify), &data);
+      G_CALLBACK (on_bt_sequence_ticks_notify), &data);
 
   GST_INFO ("-- act --");
   bt_song_play (song);
@@ -453,14 +453,9 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
   GST_INFO ("stopped");
 
   GST_INFO ("-- assert --");
-  ck_assert_int_eq (data.values[0], 0);
-  ck_assert_int_eq (data.values[1], 1);
-  ck_assert_int_eq (data.values[2], 2);
-  ck_assert_int_eq (data.values[3], 3);
-  ck_assert_int_eq (data.values[4], 4);
-  ck_assert_int_eq (data.values[5], 5);
-  ck_assert_int_eq (data.values[6], 6);
-  ck_assert_int_eq (data.values[7], 7);
+  for (i = 0; i < 8; i++) {
+    ck_assert_int_eq (data.values[i], i);
+  }
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (element);
