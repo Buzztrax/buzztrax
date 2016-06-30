@@ -6,12 +6,13 @@ More synthesizers
     - with detune for the 2nd osc: coarse in semitones
       (factor for one semitone: pow(2,1/12) =~ 1.05946))
     - combine for the mixing
-  - two ADSR envelopes for the osc-volume
-    - maybe one even with initial delay
   - glide to use a curve-envelope to transition from previous note to new note
     - glide-time and glide-curve
-  - another ADSR envelope for the filter-cutoff (also one for resonance?)
-  - lfo?
+  - two ADSR envelopes
+    - maybe one even with initial delay
+    - mod-targets -> osc1-vol, osc2-vol, filter-cutoff, filter-resonance
+  - lfo
+    - wave-form, frequency
 - current simsyn is missing key-tracking for the filter
   - we could add a boolean to enable key-tracking (false by default)
   - on cut-off changes we need to base it on the currently played note
@@ -78,7 +79,7 @@ to make it dead easy writing new synths.
 - non-linear sampling (phase distortion), right now the step that advances the
   phase is 'constant'. we can map the phase through a function. this creates
   more overtones. this could be a curve function that we also (like) to use on
-  the envelope-d, so that the curve-param is editable. A curve=0.5 would be 
+  the envelope-d, so that the curve-param is editable. A curve=0.5 would be
   linear. (see e.g. http://www.electricdruid.net/index.php?page=info.pdsynthesis)
 - add a sync/cycle/trigger property
   - set: gstbt_osc_synth_trigger()
@@ -124,7 +125,7 @@ others manually. We can use GBinding (since glib-2.26) for the proxy properties.
   interface
   - maybe just sent as a structure - a list of rectangles, lines and
     labels - and render it on the ui side, or generate dot files and pre-layout
-    as xdot during build.  
+    as xdot during build.
   - we need a way to draw the preview-images into it
     - the boxes have a tag that refereces the preview image)
   - if the image is in portrait format, we can draw it on the left side of the
@@ -133,13 +134,13 @@ others manually. We can use GBinding (since glib-2.26) for the proxy properties.
     - this can be several of them (e.g. for an envelope length
     - for envelopes it would be nice to highlight the point or segment
     - for filters we'd like to hightlight the cut-off, but resonance is hard
-    
+
 
 ## open questions
 - do we need to pass the data fmt and channels? right now all components are
   "mono s16"
 - should we make the components GstElements (GstAudioSynth and GstAudioFilter)?
-  - the actual elements would be bins, that ideally are configured through a 
+  - the actual elements would be bins, that ideally are configured through a
     spec-file (check SynthEd and co.)
   - for this we need to handle the running time mapping from trigger for the
     components
