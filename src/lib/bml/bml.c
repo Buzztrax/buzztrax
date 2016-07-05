@@ -122,7 +122,7 @@ bmpipc_connect (void)
       return FALSE;
     }
   }
-
+  // TODO: maybe switch to SOCK_SEQPACKET
   if ((server_socket = socket (PF_LOCAL, SOCK_STREAM, 0)) > 0) {
     TRACE ("server socket created\n");
   } else {

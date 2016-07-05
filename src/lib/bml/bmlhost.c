@@ -420,7 +420,7 @@ main (int argc, char **argv)
     TRACE ("bmlw setup failed\n");
     return EXIT_FAILURE;
   }
-
+  // TODO: maybe switch to SOCK_SEQPACKET
   if ((server_socket = socket (PF_LOCAL, SOCK_STREAM, 0)) > 0) {
     TRACE ("server socket created\n");
   }
