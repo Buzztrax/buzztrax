@@ -2,7 +2,7 @@
   * make check
   * cd po;intltool-update -M
   * make dist
-  * wget http://www.gnu.org/licenses/lgpl-2.1.txt; mv lgpl-2.1.txt COPYING; 
+  * wget http://www.gnu.org/licenses/lgpl-2.1.txt; mv lgpl-2.1.txt COPYING;
 
 
 * test infrastructure
@@ -41,7 +41,7 @@
       ./buzztrax-cmd -c convert -i tests/songs/buzz1.xml -o /tmp/bt-tmp.xml
       xmllint --c14n11 --format /tmp/bt-tmp.xml >/tmp/bt-out.xml
       diff /tmp/bt-in.xml /tmp/bt-out.xml
-    
+
   * use https://github.com/martinpitt/umockdev for btic tests
 
 
@@ -52,7 +52,7 @@
     nm --defined-only .libs/libbuzztrax-core.a | grep " T " | cut -d' ' -f3 | grep -v "marshal" | sort >/tmp/m1.txt;
     nm --undefined-only .libs/libbtcore-check.a | grep " U bt" | cut -c20- | sort | uniq >/tmp/m2.txt;
     comm -2 -3 /tmp/m{1,2}.txt
-    
+
     grep ");" src/lib/core/core.h | cut -d'(' -f1 | cut -d' ' -f2 | cut -d'*' -f2
     find src/lib/core -name "*.h" -exec grep ");" {} \; | cut -d'(' -f1 | cut -d' ' -f2 | cut -d'*' -f2
 
@@ -84,13 +84,19 @@
 
 * controller api
 - we might want to allow to attach a controller to a parameter and control
-  the controllers parameters in the pattern instead, e.g.:
-  - user attaches LFO to Filter-CutOff, in the pattern he can now edit:
-    center-value, depth, shape, freq (controlable values of the control-source)
-  - user attaches an Arpeggiator to a Note property
+  the controller's parameters in the pattern/property window instead, e.g.:
+  - user attaches LFO to Filter-CutOff, the original param expands to:
+    center-value (original value), depth, shape, freq (controlable values of the
+    control-source)
+  - user attaches an Arpeggiator to a Note property, the original param expands
+    to: note (original, pattern, (speed))
+    - the arp, ideally needs a chord (or multiple notes), so maybe we have
+      arp-3 (adds two params for semitone offsets) and arp-4 (adds three params)
   - extra controllable parameter on pattern-control-source for transpose
-- we setup extra controller-functions to scale and shift the value (or
-  introduce a special binding for that)
+    (parameters will be part of the sequence)
+- we add a transform-controller that has shift/scale params and takes a value
+  - neutral is shift=0.0, scale=1.0
+  - it can have a boolean clamp param
 - if we do this per pattern
   - we need a controlbinding-router so that on pattern basis we can select which
     controlsource is used (pattern, lfo, arpeggiator)
@@ -98,17 +104,29 @@
     but we can't change this per pattern
   - the pattern layout would be different not only per machine, but also per
     pattern
-- song format
-  - we store it per pattern before the tick-data, as e.g.
+  => so maybe you choose this per song
+- file format
+  - per song
+    - we store it in the machine before <global,voice>data
+  - per pattern
+    - we store it before the tick-data
+  - format:
     <controller name="<property>" type="lfo">
     and then in the pattern for the ticks we store
     <globaldata name="<property>.<control-property>" value="<val>">
 - ui
   - we need some extra buttons in the parameter header to select between
-    {manual,automation}
-- !!!!: maybe this is overkill and the elements should just do it them self
+    {manual,automation} (cant use a context menu here) and in the context menu
+    of the machine properties window
+  -
+
+- pros and cons:
   - we can't store these setups in presets
+    (we need a way to make those modulation setup part of presets)
+  - quite a lot of work (maybe this is overkill and the elements should just do
+    it them self)
   + this would be a nice way of adding an arpeggiator
+  + adds a lot of flexibility and keeps the plugins simple
 
 
 * OSC support
@@ -116,7 +134,7 @@
     - the OSC port for listening
     - add song to path (/<song>/...)
   * namespace
-    - ../<machine>/set_{wire,global,voice}_param 
+    - ../<machine>/set_{wire,global,voice}_param
     - ../<machine>/set_{mute,solo,bypass}
     - ../<machine>/<pattern>/set_{wire,global,voice}_event
     - ../{play,stop,pause}
@@ -208,7 +226,7 @@
         void bt_main_page_machines_delete_machine (const BtMainPageMachines * self, BtMachine * machine)
         void bt_main_page_machines_delete_wire (const BtMainPageMachines * self, BtWire * wire)
         to serialize and to actually delete afterwards, this way we can trigger
-        the deletion of the top-level after serialisation is done 
+        the deletion of the top-level after serialisation is done
       - examples:
         bt_main_page_machines_delete_machine(self, machine) {
           bt_main_page_machines_serialize_machine(self, machine) {
@@ -217,7 +235,7 @@
             g_signal_emit(BtMainPageMachines::machine-delete-event, machine);
               // bt_main_page_sequence_on_machine_delete_event() -> bt_main_page_sequence_delete_track()
             // 3) serialize all children
-            foreach(pattern) { bt_main_page_patterns_serialize(self,pattern); } 
+            foreach(pattern) { bt_main_page_patterns_serialize(self,pattern); }
           }
           bt_setup_remove_machine(setup, machine);
         }
@@ -227,7 +245,7 @@
             // 2) serialize data from object that have a ref to this wire by
             g_signal_emit(BtMainPageMachines::wire-delete-event, wire);
             // 3) serialize all children
-            foreach(pattern) { bt_main_page_patterns_serialize_value_group(self,pattern,wire_value_group); }              
+            foreach(pattern) { bt_main_page_patterns_serialize_value_group(self,pattern,wire_value_group); }
           }
           bt_setup_remove_wire(setup, wire);
         }
@@ -252,7 +270,7 @@
             // 2) serialize data from object that have a ref to this wave by
             // TODO: we probably don't want this, as we won't clear wave-refs in
             //       pattern when e.g. loading a new wave into an existing slot
-            g_signal_emit(BtMainPagePatterns::wave-delete-event, wave);            
+            g_signal_emit(BtMainPagePatterns::wave-delete-event, wave);
             // 3) serialize all children
             // - no children -
           }
@@ -269,19 +287,19 @@
   gboolean bt_persistence_io_set_value(PersistenceIONode *parent, gchar *value);
   gboolean bt_persistence_io_set_attribute(PersistenceIONode *parent, gchar *name, gchar *value);
   // a varargs function that takes (gchar *name, GType type, <type> value)
-  // triplets, terminated by NULL 
-  gboolean bt_persistence_io_set_attributes(PersistenceIONode *parent, 
+  // triplets, terminated by NULL
+  gboolean bt_persistence_io_set_attributes(PersistenceIONode *parent,
     gchar *name, ...);
   // collection api ...
   gboolean bt_persistence_io_set_attributes_from_hash_table(PersistenceIONode *parent, GHashTable *hash_table);
-  
+
   // for loading
   GList *bt_persistence_io_get_nodes(PersistenceIONode *parent);
   gchar *bt_persistence_io_get_value(PersistenceIONode *parent);
   gchar *bt_persistence_io_get_attribute(PersistenceIONode *parent, gchar *name);
   // a varargs function that takes (gchar *name, GType type, <type *> value)
-  // triplets, terminated by NULL 
-  gboolean bt_persistence_io_get_attributes(PersistenceIONode *parent, 
+  // triplets, terminated by NULL
+  gboolean bt_persistence_io_get_attributes(PersistenceIONode *parent,
     gchar *name, ...);
 
 
@@ -313,7 +331,7 @@
       - need to hande seeks (to know direction :/)
   - we can use that for midi-out
     - global params: midi-device (enum)
-    - voice params: midi-channel, note, velocity, controller1, control-value1, ... 
+    - voice params: midi-channel, note, velocity, controller1, control-value1, ...
   - subclass the control-machines from GstElement
     - no pads (and therefore no _loop() or _chain() function
     - we see them in the registry
@@ -350,7 +368,7 @@
     - v2: start from pattern column headings
       - have bind/unbind like in machine window
       - define split'ed devices elsewhere
-    - v3: add controller to context menu on machine-canvas 
+    - v3: add controller to context menu on machine-canvas
   - how to easily assign a series of key to a series of triggers in one machine
     - have a trigger group  (and assign to white keys only)
     - this would manage both key-number and velocity as we'd only bind a series
@@ -445,7 +463,7 @@
 
 
 * machine UIs
-  * instead of adding more metadata to the paramspecs we could also use 
+  * instead of adding more metadata to the paramspecs we could also use
     GtkBuilder xml file. This way machines can ship a customized layout.
   * if not present in the filesystem we generate them on
     the fly, maybe also expose this as a standalone tool
@@ -455,7 +473,7 @@
 * eventually merge machine-rename dialog with machine properties
   - we now have inplace rename in the sequence headers as a quick alternative
   - with the parameter-view (as proposed below) we can also rename in the
-    parameter-view headers 
+    parameter-view headers
 
 
 * single window UI + multiscreen support
