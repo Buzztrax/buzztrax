@@ -449,6 +449,8 @@ test_bt_sequence_ticks (BT_TEST_ARGS)
   check_run_main_loop_until_playing_or_error (song);
   GST_INFO ("playing ...");
   check_run_main_loop_until_eos_or_error (song);
+  // TODO(ensonic): the signal emissions are like function calls, no idea why
+  // we are getting through here and not always got all notifies
   check_run_main_loop_for_usec (G_USEC_PER_SEC / 10);
   GST_INFO ("stopped");
 
