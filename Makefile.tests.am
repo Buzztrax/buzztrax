@@ -362,20 +362,20 @@ LOOPS ?= 10
 %.gdb: %
 	@CK_FORK=no		\
 	$(TESTS_ENVIRONMENT)	\
-	gdb ./$*
+	$(LIBTOOL) --mode=execute gdb ./$*
 
 # make (test).refdbg   -- run test under refdbg
 %.refdbg: %
 	@CK_FORK=no		\
 	$(TESTS_ENVIRONMENT)	\
-	refdbg -c "btnum=20 ; logobjs=0 ; $(REFDBG_RULE)" \
+	$(LIBTOOL) --mode=execute refdbg -c "btnum=20 ; logobjs=0 ; $(REFDBG_RULE)" \
 	./$*
 
 # make (test).strace  -- run test under strace
 %.strace: %
 	@CK_FORK=no		\
 	$(TESTS_ENVIRONMENT)	\
-	strace -e file -o /tmp/strace.log ./$*
+	$(LIBTOOL) --mode=execute strace -e file -o /tmp/strace.log ./$*
 
 ## todo: check if code has been compiled using --enable-debug
 ##
