@@ -60,6 +60,7 @@ GTKDOC_CFLAGS = \
 GTKDOC_LIBS = \
 	$(top_builddir)/libbuzztrax-core.la \
 	$(top_builddir)/libbtbsl.la \
+	$(top_builddir)/libbuzztrax-gst.la \
 	$(top_builddir)/libbuzztrax-ic.la \
 	$(BASE_DEPS_LIBS) \
 	$(BT_LIBS)

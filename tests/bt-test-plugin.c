@@ -20,7 +20,7 @@
  * SECTION::bttestplugin:
  * @short_description: test gstreamer element for unit tests
  *
- * Two stub elements for unit-tests. The Polyphonic elemnt use the monophonic
+ * Stub elements for unit-tests. The Polyphonic element use the monophonic
  * one for its voices. Thus prefix the parameter names with 'g-' for 'global'
  * (in the monophonic class) and 'v-' for 'voice' in the poly class.
  */
@@ -93,24 +93,6 @@ static GstStaticPadTemplate src_pad_template = GST_STATIC_PAD_TEMPLATE ("src",
     GST_STATIC_CAPS ("ANY")
     );
 
-//-- tempo interface implementation
-
-static void
-bt_test_tempo_change_tempo (GstBtTempo * tempo, glong beats_per_minute,
-    glong ticks_per_beat, glong subticks_per_tick)
-{
-  GST_INFO ("changing tempo to %lu BPM  %lu TPB  %lu STPT", beats_per_minute,
-      ticks_per_beat, subticks_per_tick);
-}
-
-static void
-bt_test_tempo_interface_init (gpointer g_iface, gpointer iface_data)
-{
-  GstBtTempoInterface *iface = g_iface;
-
-  iface->change_tempo = bt_test_tempo_change_tempo;
-}
-
 //-- child proxy interface implementation
 
 static GObject *
@@ -172,9 +154,9 @@ bt_test_no_arg_mono_source_class_init (BtTestNoArgMonoSourceClass * klass)
 
 //-- test_mono_source
 
-G_DEFINE_TYPE_WITH_CODE (BtTestMonoSource, bt_test_mono_source,
-    GST_TYPE_ELEMENT,
-    G_IMPLEMENT_INTERFACE (GSTBT_TYPE_TEMPO, bt_test_tempo_interface_init));
+G_DEFINE_TYPE (BtTestMonoSource, bt_test_mono_source, GST_TYPE_ELEMENT);
+
+static GObjectClass *mono_parent_class = NULL;
 
 static void
 bt_test_mono_source_get_property (GObject * object, guint property_id,
@@ -236,6 +218,17 @@ bt_test_mono_source_set_property (GObject * object, guint property_id,
 }
 
 static void
+bt_test_mono_source_set_context (GstElement * element, GstContext * context)
+{
+  BtTestMonoSource *self = BT_TEST_MONO_SOURCE (element);
+
+  gstbt_audio_tempo_context_get_tempo (context, &self->bpm, &self->tpb,
+      &self->stpb);
+
+  GST_ELEMENT_CLASS (mono_parent_class)->set_context (element, context);
+}
+
+static void
 bt_test_mono_source_init (BtTestMonoSource * self)
 {
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
@@ -251,14 +244,12 @@ bt_test_mono_source_class_init (BtTestMonoSourceClass * klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
+  mono_parent_class = g_type_class_peek_parent (klass);
+
   gobject_class->set_property = bt_test_mono_source_set_property;
   gobject_class->get_property = bt_test_mono_source_get_property;
 
-  g_object_class_override_property (gobject_class, PROP_BPM,
-      "beats-per-minute");
-  g_object_class_override_property (gobject_class, PROP_TPB, "ticks-per-beat");
-  g_object_class_override_property (gobject_class, PROP_STPT,
-      "subticks-per-tick");
+  element_class->set_context = bt_test_mono_source_set_context;
 
   g_object_class_install_property (gobject_class, PROP_ULONG,
       g_param_spec_ulong ("g-ulong",
@@ -310,7 +301,6 @@ bt_test_mono_source_class_init (BtTestMonoSourceClass * klass)
 
 G_DEFINE_TYPE_WITH_CODE (BtTestPolySource, bt_test_poly_source,
     GST_TYPE_ELEMENT,
-    G_IMPLEMENT_INTERFACE (GSTBT_TYPE_TEMPO, bt_test_tempo_interface_init)
     G_IMPLEMENT_INTERFACE (GST_TYPE_CHILD_PROXY,
         bt_test_child_proxy_interface_init)
     G_IMPLEMENT_INTERFACE (GSTBT_TYPE_CHILD_BIN, NULL));
@@ -420,6 +410,18 @@ bt_test_poly_source_finalize (GObject * object)
 }
 
 static void
+bt_test_poly_source_set_context (GstElement * element, GstContext * context)
+{
+  BtTestPolySource *self = BT_TEST_POLY_SOURCE (element);
+
+  gstbt_audio_tempo_context_get_tempo (context, &self->bpm, &self->tpb,
+      &self->stpb);
+
+  GST_ELEMENT_CLASS (poly_parent_class)->set_context (element, context);
+}
+
+
+static void
 bt_test_poly_source_init (BtTestPolySource * self)
 {
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (self);
@@ -442,11 +444,8 @@ bt_test_poly_source_class_init (BtTestPolySourceClass * klass)
   //gobject_class->dispose      = bt_test_poly_source_dispose;
   gobject_class->finalize = bt_test_poly_source_finalize;
 
-  g_object_class_override_property (gobject_class, PROP_BPM,
-      "beats-per-minute");
-  g_object_class_override_property (gobject_class, PROP_TPB, "ticks-per-beat");
-  g_object_class_override_property (gobject_class, PROP_STPT,
-      "subticks-per-tick");
+  element_class->set_context = bt_test_poly_source_set_context;
+
   g_object_class_override_property (gobject_class, PROP_VOICES, "children");
 
   g_object_class_install_property (gobject_class, PROP_ULONG,

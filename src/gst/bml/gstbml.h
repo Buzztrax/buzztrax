@@ -83,7 +83,7 @@ struct _GstBML {
   GstPad **sinkpads,**srcpads;
 
   gint samplerate, samples_per_buffer;
-  
+
   // array with an entry for each parameter
   // flags that a g_object_set has set a value for a trigger param
   gint * volatile triggers_changed;
@@ -120,7 +120,7 @@ struct _GstBMLClass {
   gint numattributes,numglobalparams,numtrackparams;
 
   gint input_channels,output_channels;
-  
+
   // param specs
   GParamSpec **global_property,**track_property;
 };
@@ -135,7 +135,7 @@ extern gboolean bml(gstbml_is_polyphonic(gpointer bmh));
 //-- common iface functions
 
 extern gchar *bml(gstbml_property_meta_describe_property(GstBMLClass *bml_class, GstBML *bml, guint prop_id, const GValue *event));
-extern void bml(gstbml_tempo_change_tempo(GObject *gstbml, GstBML *bml, glong beats_per_minute, glong ticks_per_beat, glong subticks_per_tick));
+extern void bml(gstbml_tempo_change_tempo(GObject *gstbml, GstBML *bml, guint beats_per_minute, guint ticks_per_beat, guint subticks_per_tick));
 
 //-- common class functions
 

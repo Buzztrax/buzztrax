@@ -411,34 +411,17 @@ bml (gstbml_property_meta_describe_property (GstBMLClass * bml_class,
 
 void
 bml (gstbml_tempo_change_tempo (GObject * gstbml, GstBML * bml,
-        glong beats_per_minute, glong ticks_per_beat, glong subticks_per_tick))
+        guint beats_per_minute, guint ticks_per_beat, guint subticks_per_tick))
 {
-  gboolean changed = FALSE;
+  if (bml->beats_per_minute != beats_per_minute ||
+      bml->ticks_per_beat != ticks_per_beat ||
+      bml->subticks_per_tick != subticks_per_tick) {
+    bml->beats_per_minute = (gulong) beats_per_minute;
+    bml->ticks_per_beat = (gulong) ticks_per_beat;
+    bml->subticks_per_tick = (gulong) subticks_per_tick;
 
-  if (beats_per_minute >= 0) {
-    if (bml->beats_per_minute != beats_per_minute) {
-      bml->beats_per_minute = (gulong) beats_per_minute;
-      g_object_notify (gstbml, "beats-per-minute");
-      changed = TRUE;
-    }
-  }
-  if (ticks_per_beat >= 0) {
-    if (bml->ticks_per_beat != ticks_per_beat) {
-      bml->ticks_per_beat = (gulong) ticks_per_beat;
-      g_object_notify (gstbml, "ticks-per-beat");
-      changed = TRUE;
-    }
-  }
-  if (subticks_per_tick >= 0) {
-    if (bml->subticks_per_tick != subticks_per_tick) {
-      bml->subticks_per_tick = (gulong) subticks_per_tick;
-      g_object_notify (gstbml, "subticks-per-tick");
-      changed = TRUE;
-    }
-  }
-  if (changed) {
-    GST_INFO ("changing tempo to %lu BPM  %lu TPB  %lu STPT",
-        bml->beats_per_minute, bml->ticks_per_beat, bml->subticks_per_tick);
+    GST_INFO ("changing tempo to %u BPM  %u TPB  %u STPT",
+        beats_per_minute, ticks_per_beat, subticks_per_tick);
     gstbml_calculate_buffer_frames (bml);
     if (GST_IS_BASE_SRC (gstbml)) {
       gst_base_src_set_blocksize (GST_BASE_SRC (gstbml),
@@ -798,11 +781,6 @@ bml (gstbml_class_prepare_properties (GObjectClass * klass,
   gchar *name, *nick, *desc;
   gint prop_id = ARG_LAST;
 
-  // override interface properties
-  g_object_class_override_property (klass, ARG_BPM, "beats-per-minute");
-  g_object_class_override_property (klass, ARG_TPB, "ticks-per-beat");
-  g_object_class_override_property (klass, ARG_STPT, "subticks-per-tick");
-
   g_object_class_install_property (klass, ARG_HOST_CALLBACKS,
       g_param_spec_pointer ("host-callbacks",
           "host-callbacks property",
@@ -1154,12 +1132,6 @@ bml (gstbml_set_property (GstBML * bml, GstBMLClass * bml_class, guint prop_id,
 
   switch (prop_id) {
       // handle properties <ARG_LAST first
-    case ARG_BPM:
-    case ARG_TPB:
-    case ARG_STPT:
-      GST_WARNING_OBJECT (bml->self, "use gst_bml_tempo_change_tempo()");
-      handled = TRUE;
-      break;
     case ARG_HOST_CALLBACKS:
       // supply the callbacks to bml
       GST_DEBUG_OBJECT (bml->self, "passing callbacks to bml");
@@ -1265,23 +1237,6 @@ bml (gstbml_get_property (GstBML * bml, GstBMLClass * bml_class, guint prop_id,
 
   switch (prop_id) {
       // handle properties <ARG_LAST first
-    case ARG_BPM:
-      g_value_set_ulong (value, bml->beats_per_minute);
-      GST_DEBUG_OBJECT (bml->self, "requested BPM = %lu",
-          bml->beats_per_minute);
-      handled = TRUE;
-      break;
-    case ARG_TPB:
-      g_value_set_ulong (value, bml->ticks_per_beat);
-      GST_DEBUG_OBJECT (bml->self, "requested TPB = %lu", bml->ticks_per_beat);
-      handled = TRUE;
-      break;
-    case ARG_STPT:
-      g_value_set_ulong (value, bml->subticks_per_tick);
-      GST_DEBUG_OBJECT (bml->self, "requested STPB = %lu",
-          bml->subticks_per_tick);
-      handled = TRUE;
-      break;
       /*case ARG_HOST_CALLBACKS:
          GST_WARNING ("callbacks property is write only");
          handled=TRUE;

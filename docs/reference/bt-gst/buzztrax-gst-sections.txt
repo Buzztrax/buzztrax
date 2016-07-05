@@ -431,15 +431,10 @@ gstbt_sim_syn_get_type
 <SECTION>
 <FILE>tempo</FILE>
 <TITLE>GstBtTempo</TITLE>
-GstBtTempoInterface
-gstbt_tempo_change_tempo
-GstBtTempo
+gstbt_audio_tempo_context_new
+gstbt_audio_tempo_context_get_tempo
 <SUBSECTION Standard>
-GSTBT_IS_TEMPO
-GSTBT_TEMPO
-GSTBT_TEMPO_GET_INTERFACE
-GSTBT_TYPE_TEMPO
-gstbt_tempo_get_type
+GSTBT_AUDIO_TEMPO_TYPE
 </SECTION>
 
 <SECTION>

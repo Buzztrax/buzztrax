@@ -104,10 +104,6 @@ enum
   SINK_BIN_INPUT_GAIN,
   SINK_BIN_MASTER_VOLUME,
   SINK_BIN_ANALYZERS,
-  // tempo iface
-  SINK_BIN_TEMPO_BPM,
-  SINK_BIN_TEMPO_TPB,
-  SINK_BIN_TEMPO_STPT,
 };
 
 typedef enum
@@ -202,62 +198,7 @@ static void on_audio_sink_child_added (GstBin * bin, GstElement * element,
 
 //-- the class
 
-static void bt_sink_bin_tempo_interface_init (gpointer const g_iface,
-    gpointer const iface_data);
-
-G_DEFINE_TYPE_WITH_CODE (BtSinkBin, bt_sink_bin, GST_TYPE_BIN,
-    G_IMPLEMENT_INTERFACE (GSTBT_TYPE_TEMPO, bt_sink_bin_tempo_interface_init));
-
-
-//-- tempo interface implementations
-
-static void
-bt_sink_bin_tempo_change_tempo (GstBtTempo * tempo, glong beats_per_minute,
-    glong ticks_per_beat, glong subticks_per_tick)
-{
-  BtSinkBin *self = BT_SINK_BIN (tempo);
-  gboolean changed = FALSE;
-
-  if (beats_per_minute >= 0) {
-    if (self->priv->beats_per_minute != beats_per_minute) {
-      self->priv->beats_per_minute = (gulong) beats_per_minute;
-      g_object_notify (G_OBJECT (self), "beats-per-minute");
-      changed = TRUE;
-    }
-  }
-  if (ticks_per_beat >= 0) {
-    if (self->priv->ticks_per_beat != ticks_per_beat) {
-      self->priv->ticks_per_beat = (gulong) ticks_per_beat;
-      g_object_notify (G_OBJECT (self), "ticks-per-beat");
-      changed = TRUE;
-    }
-  }
-  if (subticks_per_tick >= 0) {
-    if (self->priv->subticks_per_tick != subticks_per_tick) {
-      self->priv->subticks_per_tick = (gulong) subticks_per_tick;
-      g_object_notify (G_OBJECT (self), "subticks-per-tick");
-      changed = TRUE;
-    }
-  }
-  if (changed) {
-    GST_DEBUG ("changing tempo to %lu BPM  %lu TPB  %lu STPT",
-        self->priv->beats_per_minute, self->priv->ticks_per_beat,
-        self->priv->subticks_per_tick);
-    if (self->priv->audio_sink) {
-      bt_sink_bin_configure_latency (self);
-    } else {
-      GST_INFO ("no player object created yet.");
-    }
-  }
-}
-
-static void
-bt_sink_bin_tempo_interface_init (gpointer g_iface, gpointer iface_data)
-{
-  GstBtTempoInterface *iface = g_iface;
-
-  iface->change_tempo = bt_sink_bin_tempo_change_tempo;
-}
+G_DEFINE_TYPE (BtSinkBin, bt_sink_bin, GST_TYPE_BIN);
 
 //-- enums
 
@@ -431,6 +372,13 @@ bt_sink_bin_configure_latency (const BtSinkBin * const self)
 static void
 bt_sink_bin_set_audio_sink (const BtSinkBin * const self, GstElement * sink)
 {
+  // disable deep notify
+  {
+    GObjectClass *gobject_class = G_OBJECT_GET_CLASS (sink);
+    GObjectClass *parent_class = g_type_class_peek_static (G_TYPE_OBJECT);
+    gobject_class->dispatch_properties_changed =
+        parent_class->dispatch_properties_changed;
+  }
   // enable syncing to timestamps
   g_object_set (sink, "sync", TRUE,
       /* if we do this, live pipelines go playing, but still sources don't start */
@@ -1104,6 +1052,33 @@ bt_sink_bin_change_state (GstElement * element, GstStateChange transition)
 }
 
 static void
+bt_sink_bin_set_context (GstElement * element, GstContext * context)
+{
+  const BtSinkBin *const self = BT_SINK_BIN (element);
+  guint bpm, tpb, stpb;
+
+  if (gstbt_audio_tempo_context_get_tempo (context, &bpm, &tpb, &stpb)) {
+    if (self->priv->beats_per_minute != bpm ||
+        self->priv->ticks_per_beat != tpb ||
+        self->priv->subticks_per_tick != stpb) {
+      self->priv->beats_per_minute = bpm;
+      self->priv->ticks_per_beat = tpb;
+      self->priv->subticks_per_tick = stpb;
+
+      GST_INFO_OBJECT (self, "audio tempo context: bmp=%u, tpb=%u, stpb=%u",
+          bpm, tpb, stpb);
+
+      if (self->priv->audio_sink) {
+        bt_sink_bin_configure_latency (self);
+      } else {
+        GST_INFO ("no player object created yet.");
+      }
+    }
+  }
+  GST_ELEMENT_CLASS (bt_sink_bin_parent_class)->set_context (element, context);
+}
+
+static void
 bt_sink_bin_get_property (GObject * const object, const guint property_id,
     GValue * const value, GParamSpec * const pspec)
 {
@@ -1132,16 +1107,6 @@ bt_sink_bin_get_property (GObject * const object, const guint property_id,
       break;
     case SINK_BIN_ANALYZERS:
       g_value_set_pointer (value, self->priv->analyzers);
-      break;
-      // tempo iface
-    case SINK_BIN_TEMPO_BPM:
-      g_value_set_ulong (value, self->priv->beats_per_minute);
-      break;
-    case SINK_BIN_TEMPO_TPB:
-      g_value_set_ulong (value, self->priv->ticks_per_beat);
-      break;
-    case SINK_BIN_TEMPO_STPT:
-      g_value_set_ulong (value, self->priv->subticks_per_tick);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -1216,12 +1181,6 @@ bt_sink_bin_set_property (GObject * const object, const guint property_id,
       bt_sink_bin_deactivate_analyzers (self);
       self->priv->analyzers = g_value_get_pointer (value);
       bt_sink_bin_activate_analyzers (self);
-      break;
-      // tempo iface
-    case SINK_BIN_TEMPO_BPM:
-    case SINK_BIN_TEMPO_TPB:
-    case SINK_BIN_TEMPO_STPT:
-      GST_WARNING ("use gstbt_tempo_change_tempo()");
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -1333,14 +1292,7 @@ bt_sink_bin_class_init (BtSinkBinClass * klass)
   gobject_class->finalize = bt_sink_bin_finalize;
 
   element_class->change_state = bt_sink_bin_change_state;
-
-  // override interface properties
-  g_object_class_override_property (gobject_class, SINK_BIN_TEMPO_BPM,
-      "beats-per-minute");
-  g_object_class_override_property (gobject_class, SINK_BIN_TEMPO_TPB,
-      "ticks-per-beat");
-  g_object_class_override_property (gobject_class, SINK_BIN_TEMPO_STPT,
-      "subticks-per-tick");
+  element_class->set_context = bt_sink_bin_set_context;
 
   g_object_class_install_property (gobject_class, SINK_BIN_MODE,
       g_param_spec_enum ("mode", "Mode", "mode of operation",

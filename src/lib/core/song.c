@@ -86,6 +86,7 @@
 
 #include "core_private.h"
 #include <glib/gprintf.h>
+#include "gst/tempo.h"
 
 /* if a state change does not happen within this time, cancel playback
  * this time includes prerolling, set to 30 seconds for now */
@@ -343,6 +344,48 @@ bt_song_update_play_seek_event_and_play_pos (const BtSong * const self)
   bt_song_update_play_seek_event (self);
   /* the update needs to take the current play-position into account */
   bt_song_seek_to_play_pos (self);
+}
+
+/* IDEA(ensonic): dynamically handle stpb (subticks per beat)
+ * - we'd like to set stpb=1 for non interactive playback and recording
+ * - we'd like to set stpb>1 for:
+ *   - idle-loop play
+ *   - open machine windows (with controllers assigned)
+ *
+ * (GST_SECOND*60)
+ * ------------------- = 30
+ * (bpm*tpb*stpb*1000)
+ *
+ * (GST_SECOND*60)
+ * ------------------- = stpb
+ * (bpm*tpb*30*1000000)
+ *
+ * - maybe we get set target-latency=-1 for no subticks (=1) e.g. when recording
+ * - make this a property on the song that merges latency setting + playback mode?
+ */
+static void
+bt_song_send_audio_context (const BtSong * const self)
+{
+  BtSongPrivate *p = self->priv;
+  BtSettings *settings = bt_settings_make ();
+  GstContext *ctx;
+  gulong bpm, tpb;
+  guint latency;
+  glong stpb = 0;
+
+  g_object_get (p->song_info, "bpm", &bpm, "tpb", &tpb, NULL);
+  g_object_get (settings, "latency", &latency, NULL);
+  g_object_unref (settings);
+
+  stpb = (glong) ((GST_SECOND * 60) / (bpm * tpb * latency *
+          G_GINT64_CONSTANT (1000000)));
+  stpb = MAX (1, stpb);
+  GST_INFO ("chosing subticks=%ld from bpm=%lu,tpb=%lu,latency=%u", stpb, bpm,
+      tpb, latency);
+
+  ctx = gstbt_audio_tempo_context_new (bpm, tpb, stpb);
+  gst_element_set_context ((GstElement *) p->bin, ctx);
+  gst_context_unref (ctx);
 }
 
 static void
@@ -777,8 +820,15 @@ bt_song_on_tempo_changed (BtSongInfo * const song_info, GParamSpec * const arg,
 {
   GST_DEBUG ("tempo changed");
   bt_song_update_play_seek_event_and_play_pos (BT_SONG (user_data));
+  bt_song_send_audio_context (BT_SONG (user_data));
 }
 
+static void
+bt_song_on_latency_changed (BtSongInfo * const song_info,
+    GParamSpec * const arg, gconstpointer user_data)
+{
+  bt_song_send_audio_context (BT_SONG (user_data));
+}
 
 /* required for live mode */
 
@@ -1371,6 +1421,7 @@ static void
 bt_song_constructed (GObject * object)
 {
   BtSong *self = BT_SONG (object);
+  BtSettings *settings = bt_settings_make ();
   GstStateChangeReturn res;
 
   if (G_OBJECT_CLASS (bt_song_parent_class)->constructed)
@@ -1421,12 +1472,15 @@ bt_song_constructed (GObject * object)
       G_CALLBACK (bt_song_on_loop_end_changed), (gpointer) self, 0);
   g_signal_connect_object (self->priv->sequence, "notify::length",
       G_CALLBACK (bt_song_on_length_changed), (gpointer) self, 0);
-  GST_DEBUG ("  loop-signals connected");
+  GST_DEBUG ("  sequence-signals connected");
   g_signal_connect_object (self->priv->song_info, "notify::tpb",
       G_CALLBACK (bt_song_on_tempo_changed), (gpointer) self, 0);
   g_signal_connect_object (self->priv->song_info, "notify::bpm",
       G_CALLBACK (bt_song_on_tempo_changed), (gpointer) self, 0);
-  GST_DEBUG ("  tempo-signals connected");
+  GST_DEBUG ("  song-info-signals connected");
+  g_signal_connect_object (settings, "notify::latency",
+      G_CALLBACK (bt_song_on_latency_changed), (gpointer) self, 0);
+  g_object_unref (settings);
 
   bt_song_update_play_seek_event_and_play_pos (BT_SONG (self));
   if ((res =

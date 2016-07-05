@@ -615,6 +615,34 @@ test_bt_song_persistence (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_song_tempo_update_set_context (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSong *song = bt_song_new (app);
+  BtSongInfo *song_info =
+      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0L, NULL));
+  BtTestMonoSource *e =
+      (BtTestMonoSource *) check_gobject_get_object_property (gen, "machine");
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  bt_wire_new (song, gen, sink, NULL);
+
+  GST_INFO ("-- act --");
+  g_object_set (song_info, "bpm", 250L, "tpb", 16L, NULL);
+
+  GST_INFO ("-- assert --");
+  ck_assert_int_eq (e->bpm, 250);
+  ck_assert_int_eq (e->tpb, 16);
+
+  GST_INFO ("-- cleanup --");
+  ck_g_object_final_unref (song);
+  BT_TEST_END;
+}
+
+
 
 /* should we have variants, where we remove the machines instead of the wires? */
 TCase *
@@ -639,6 +667,7 @@ bt_song_example_case (void)
   tcase_add_test (tc, test_bt_song_play_pos_after_initial_seek);
   tcase_add_test (tc, test_bt_song_play_again_should_restart);
   tcase_add_test (tc, test_bt_song_persistence);
+  tcase_add_test (tc, test_bt_song_tempo_update_set_context);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

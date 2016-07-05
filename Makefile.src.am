@@ -390,6 +390,7 @@ plugin_LTLIBRARIES = \
   libgstsidsyn.la
 
 buzztrax_cmd_LDADD = \
+  libbuzztrax-gst.la \
   libbuzztrax-core.la \
   libbuzztrax-ic.la \
   libbtcmd.la \
@@ -398,6 +399,7 @@ buzztrax_cmd_SOURCES= \
   src/ui/cmd/bt-cmd.c src/ui/cmd/bt-cmd.h
 
 libbtcmd_la_LIBDADD = \
+  libbuzztrax-gst.la \
   libbuzztrax-core.la \
   libbuzztrax-ic.la \
   $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
@@ -405,6 +407,7 @@ libbtcmd_la_SOURCES =  \
   src/ui/cmd/cmd-application.c src/ui/cmd/cmd-application.h
 
 buzztrax_edit_LDADD = \
+  libbuzztrax-gst.la \
   libbuzztrax-core.la \
   libbuzztrax-ic.la \
   libbtedit.la \
@@ -417,6 +420,7 @@ EXTRA_libbtedit_la_SOURCES = src/ui/edit/marshal.list
 nodist_libbtedit_la_SOURCES = src/ui/edit/marshal.c src/ui/edit/marshal.h \
   src/ui/edit/authors.h
 libbtedit_la_LIBADD = \
+  libbuzztrax-gst.la \
   libbuzztrax-core.la \
   libbuzztrax-ic.la \
   $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) $(LIBM)

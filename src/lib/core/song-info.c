@@ -150,7 +150,7 @@ bt_song_info_tempo_changed (const BtSongInfo * const self)
    *   bpm    60     60
    *   tpb     4      8
    *   tpm   240    480 bpm*tpb
-   *   wpp  0.25  0.125 60/tpm
+   *   wpp  0.25  0.125 60/tpm  (wait per ?)
    */
 
   const gdouble ticks_per_minute =

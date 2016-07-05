@@ -1,5 +1,5 @@
 /*
- * GStreamer             
+ * GStreamer
  * Copyright (C) 2006 Stefan Kost <ensonic@users.sf.net>
  *
  * This library is free software; you can redistribute it and/or
@@ -34,8 +34,7 @@
  * </para>
  * </refsect2>
  */
-/* FIXME: delay-time should be in ticks, thats what the tempo iface is good for
- * here (see self->ticktime),
+/* FIXME: delay-time should be in ticks (see self->ticktime),
  * - we could add another property called 'delay' that is in ticks and/or remove
  *   'delaytime'.
  * - or we add a unit-mode (time, ticks)
@@ -68,8 +67,6 @@ enum
   // dynamic class properties
   PROP_DRYWET = 1, PROP_FEEDBACK, PROP_DELAYTIME,
   N_PROPERTIES,
-  // tempo iface
-  PROP_BPM = N_PROPERTIES, PROP_TPB, PROP_STPT,
 };
 static GParamSpec *properties[N_PROPERTIES] = { NULL, };
 
@@ -95,12 +92,7 @@ static GstStaticPadTemplate src_template = GST_STATIC_PAD_TEMPLATE ("src",
 
 //-- the class
 
-static void gstbt_audio_delay_tempo_interface_init (gpointer g_iface,
-    gpointer iface_data);
-
-G_DEFINE_TYPE_WITH_CODE (GstBtAudioDelay, gstbt_audio_delay,
-    GST_TYPE_BASE_TRANSFORM, G_IMPLEMENT_INTERFACE (GSTBT_TYPE_TEMPO,
-        gstbt_audio_delay_tempo_interface_init));
+G_DEFINE_TYPE (GstBtAudioDelay, gstbt_audio_delay, GST_TYPE_BASE_TRANSFORM);
 
 //-- basetransform vmethods
 
@@ -202,7 +194,7 @@ gstbt_audio_delay_stop (GstBaseTransform * base)
   return TRUE;
 }
 
-//-- interfaces
+//-- gstelement vmethods
 
 static void
 gstbt_audio_delay_calculate_tick_time (GstBtAudioDelay * self)
@@ -213,47 +205,23 @@ gstbt_audio_delay_calculate_tick_time (GstBtAudioDelay * self)
 }
 
 static void
-gstbt_audio_delay_tempo_change_tempo (GstBtTempo * tempo,
-    glong beats_per_minute, glong ticks_per_beat, glong subticks_per_tick)
+gstbt_audio_delay_set_context (GstElement * element, GstContext * context)
 {
-  GstBtAudioDelay *self = GSTBT_AUDIO_DELAY (tempo);
-  gboolean changed = FALSE;
+  GstBtAudioDelay *self = GSTBT_AUDIO_DELAY (element);
+  guint bpm, tpb, stpb;
 
-  if (beats_per_minute >= 0) {
-    if (self->beats_per_minute != beats_per_minute) {
-      self->beats_per_minute = (gulong) beats_per_minute;
-      g_object_notify (G_OBJECT (self), "beats-per-minute");
-      changed = TRUE;
-    }
-  }
-  if (ticks_per_beat >= 0) {
-    if (self->ticks_per_beat != ticks_per_beat) {
-      self->ticks_per_beat = (gulong) ticks_per_beat;
-      g_object_notify (G_OBJECT (self), "ticks-per-beat");
-      changed = TRUE;
-    }
-  }
-  if (subticks_per_tick >= 0) {
-    if (self->subticks_per_tick != subticks_per_tick) {
-      self->subticks_per_tick = (gulong) subticks_per_tick;
-      g_object_notify (G_OBJECT (self), "subticks-per-tick");
-      changed = TRUE;
-    }
-  }
-  if (changed) {
-    GST_DEBUG ("changing tempo to %ld BPM  %ld TPB  %ld STPT",
-        self->beats_per_minute, self->ticks_per_beat, self->subticks_per_tick);
+  if (gstbt_audio_tempo_context_get_tempo (context, &bpm, &tpb, &stpb)) {
+    self->beats_per_minute = bpm;
+    self->ticks_per_beat = tpb;
+    self->subticks_per_tick = stpb;
+
+    GST_INFO_OBJECT (self, "audio tempo context: bmp=%u, tpb=%u, stpb=%u", bpm,
+        tpb, stpb);
+
     gstbt_audio_delay_calculate_tick_time (self);
   }
-}
-
-static void
-gstbt_audio_delay_tempo_interface_init (gpointer g_iface, gpointer iface_data)
-{
-  GstBtTempoInterface *iface = g_iface;
-
-  GST_INFO ("initializing iface");
-  iface->change_tempo = gstbt_audio_delay_tempo_change_tempo;
+  GST_ELEMENT_CLASS (gstbt_audio_delay_parent_class)->set_context (element,
+      context);
 }
 
 //-- gobject vmethods
@@ -273,12 +241,6 @@ gstbt_audio_delay_set_property (GObject * object, guint prop_id,
       break;
     case PROP_DELAYTIME:
       g_object_set_property ((GObject *) (self->delay), pspec->name, value);
-      break;
-      // tempo iface
-    case PROP_BPM:
-    case PROP_TPB:
-    case PROP_STPT:
-      GST_WARNING ("use gstbt_tempo_change_tempo()");
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -301,16 +263,6 @@ gstbt_audio_delay_get_property (GObject * object, guint prop_id,
       break;
     case PROP_DELAYTIME:
       g_object_get_property ((GObject *) (self->delay), pspec->name, value);
-      break;
-      // tempo iface
-    case PROP_BPM:
-      g_value_set_ulong (value, self->beats_per_minute);
-      break;
-    case PROP_TPB:
-      g_value_set_ulong (value, self->ticks_per_beat);
-      break;
-    case PROP_STPT:
-      g_value_set_ulong (value, self->subticks_per_tick);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -361,6 +313,9 @@ gstbt_audio_delay_class_init (GstBtAudioDelayClass * klass)
   gobject_class->get_property = gstbt_audio_delay_get_property;
   gobject_class->dispose = gstbt_audio_delay_dispose;
 
+  element_class->set_context =
+      GST_DEBUG_FUNCPTR (gstbt_audio_delay_set_context);
+
   gstbasetransform_class->set_caps =
       GST_DEBUG_FUNCPTR (gstbt_audio_delay_set_caps);
   gstbasetransform_class->start = GST_DEBUG_FUNCPTR (gstbt_audio_delay_start);
@@ -379,13 +334,6 @@ gstbt_audio_delay_class_init (GstBtAudioDelayClass * klass)
       "file://" DATADIR "" G_DIR_SEPARATOR_S "gtk-doc" G_DIR_SEPARATOR_S "html"
       G_DIR_SEPARATOR_S "" PACKAGE "-gst" G_DIR_SEPARATOR_S
       "GstBtAudioDelay.html");
-
-  // override interface properties
-  g_object_class_override_property (gobject_class, PROP_BPM,
-      "beats-per-minute");
-  g_object_class_override_property (gobject_class, PROP_TPB, "ticks-per-beat");
-  g_object_class_override_property (gobject_class, PROP_STPT,
-      "subticks-per-tick");
 
   // register own properties
   PROP (DRYWET) = g_param_spec_uint ("drywet", "Dry-Wet",

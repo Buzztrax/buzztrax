@@ -318,88 +318,6 @@ bt_machine_state_get_type (void)
 
 //-- signal handler
 
-/* IDEA(ensonic): dynamically handle stpb (subticks per beat)
- * - we'd like to set stpb=1 for non interactive playback and recording
- * - we'd like to set stpb>1 for:
- *   - idle-loop play
- *   - open machine windows (with controllers assigned)
- *
- * (GST_SECOND*60)
- * ------------------- = 30
- * (bpm*tpb*stpb*1000)
- *
- * (GST_SECOND*60)
- * ------------------- = stpb
- * (bpm*tpb*30*1000000)
- *
- * - maybe we get set target-latency=-1 for no subticks (=1) e.g. when recording
- * - make this a property on the song that merges latency setting + playback mode?
- */
-static glong
-update_subticks (gulong bpm, gulong tpb, guint latency)
-{
-  glong st = 0;
-
-  st = (glong) ((GST_SECOND * 60) / (bpm * tpb * latency *
-          G_GINT64_CONSTANT (1000000)));
-  st = MAX (1, st);
-  GST_DEBUG ("chosing subticks=%ld from bpm=%lu,tpb=%lu,latency=%u", st, bpm,
-      tpb, latency);
-  return (st);
-}
-
-static void
-bt_machine_on_bpm_changed (BtSongInfo * const song_info,
-    const GParamSpec * const arg, gconstpointer const user_data)
-{
-  const BtMachine *const self = BT_MACHINE (user_data);
-  BtSettings *settings = bt_settings_make ();
-  gulong bpm, tpb;
-  guint latency;
-
-  GST_DEBUG_OBJECT (self, "bpm changed");
-  g_object_get (song_info, "bpm", &bpm, "tpb", &tpb, NULL);
-  g_object_get (settings, "latency", &latency, NULL);
-  g_object_unref (settings);
-  gstbt_tempo_change_tempo (GSTBT_TEMPO (self->priv->machines[PART_MACHINE]),
-      (glong) bpm, -1, update_subticks (bpm, tpb, latency));
-}
-
-static void
-bt_machine_on_tpb_changed (BtSongInfo * const song_info,
-    const GParamSpec * const arg, gconstpointer const user_data)
-{
-  const BtMachine *const self = BT_MACHINE (user_data);
-  BtSettings *settings = bt_settings_make ();
-  gulong bpm, tpb;
-  guint latency;
-
-  GST_DEBUG_OBJECT (self, "tpb changed");
-  g_object_get (song_info, "bpm", &bpm, "tpb", &tpb, NULL);
-  g_object_get (settings, "latency", &latency, NULL);
-  g_object_unref (settings);
-  gstbt_tempo_change_tempo (GSTBT_TEMPO (self->priv->machines[PART_MACHINE]),
-      -1, (glong) tpb, update_subticks (bpm, tpb, latency));
-}
-
-static void
-bt_machine_on_latency_changed (BtSettings * const settings,
-    const GParamSpec * const arg, gconstpointer const user_data)
-{
-  const BtMachine *const self = BT_MACHINE (user_data);
-  BtSongInfo *song_info;
-  gulong bpm, tpb;
-  guint latency;
-
-  GST_DEBUG_OBJECT (self, "latency changed");
-  g_object_get (settings, "latency", &latency, NULL);
-  g_object_get ((gpointer) (self->priv->song), "song-info", &song_info, NULL);
-  g_object_get (song_info, "bpm", &bpm, "tpb", &tpb, NULL);
-  g_object_unref (song_info);
-  gstbt_tempo_change_tempo (GSTBT_TEMPO (self->priv->machines[PART_MACHINE]),
-      -1, -1, update_subticks (bpm, tpb, latency));
-}
-
 static void
 bt_machine_on_duration_changed (BtSequence * const sequence,
     const GParamSpec * const arg, gconstpointer const user_data)
@@ -1166,29 +1084,6 @@ bt_machine_init_interfaces (const BtMachine * const self)
     }
     GST_INFO ("  child proxy iface initialized");
   }
-  // initialize tempo iface properties
-  if (GSTBT_IS_TEMPO (machine)) {
-    BtSongInfo *song_info;
-    BtSettings *settings = bt_settings_make ();
-    gulong bpm, tpb;
-    guint latency;
-
-    g_object_get ((gpointer) (self->priv->song), "song-info", &song_info, NULL);
-    g_object_get (song_info, "bpm", &bpm, "tpb", &tpb, NULL);
-    g_object_get (settings, "latency", &latency, NULL);
-    gstbt_tempo_change_tempo (GSTBT_TEMPO (machine),
-        (glong) bpm, (glong) tpb, update_subticks (bpm, tpb, latency));
-
-    g_signal_connect_object (song_info, "notify::bpm",
-        G_CALLBACK (bt_machine_on_bpm_changed), (gpointer) self, 0);
-    g_signal_connect_object (song_info, "notify::tpb",
-        G_CALLBACK (bt_machine_on_tpb_changed), (gpointer) self, 0);
-    g_object_unref (song_info);
-    g_signal_connect_object (settings, "notify::latency",
-        G_CALLBACK (bt_machine_on_latency_changed), (gpointer) self, 0);
-    g_object_unref (settings);
-    GST_INFO ("  tempo iface initialized");
-  }
   // sync duration with song
   if (GST_IS_BASE_SRC (machine)) {
     BtSequence *sequence;
@@ -1332,10 +1227,8 @@ bt_machine_init_prefs_params (const BtMachine * const self)
         skip = TRUE;
       else if (properties[i]->owner_type == GST_TYPE_BIN)
         skip = TRUE;
-      // skip know interface properties (tempo, childbin)
+      // skip know interface properties (childbin)
       else if (properties[i]->owner_type == GSTBT_TYPE_CHILD_BIN)
-        skip = TRUE;
-      else if (properties[i]->owner_type == GSTBT_TYPE_TEMPO)
         skip = TRUE;
 
       if (skip) {

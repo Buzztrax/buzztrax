@@ -86,6 +86,9 @@ struct _BtTestMonoSource {
   GstBtNote note_val;
   BtTestSparseEnum sparse_enum_val;
   gint wave_val;
+
+  // audio tempo context
+  guint bpm, tpb, stpb;
 };
 /* structure of the test_mono_source class */
 struct _BtTestMonoSourceClass {
@@ -111,13 +114,16 @@ typedef struct _BtTestPolySourceClass BtTestPolySourceClass;
 /* polyphonic source element */
 struct _BtTestPolySource {
   GstElement parent;
-  
+
   // test properties
   gulong ulong_val;
   gdouble double_val;
   gboolean switch_val;
   GstBtNote note_val;
   BtTestSparseEnum sparse_enum_val;
+
+  // audio tempo context
+  guint bpm, tpb, stpb;
 
   // the number of voices the plugin has
   gulong num_voices;

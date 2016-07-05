@@ -19,82 +19,93 @@
 /**
  * SECTION:tempo
  * @title: GstBtTempo
- * @include: libgstbuzztrax/tempo.h
- * @short_description: helper interface for tempo synced gstreamer elements
+ * @include: gst/tempo.h
+ * @short_description: helper for tempo synced gstreamer elements
  *
- * This interface offers three #GObject properties to specify a rythmic tempo of
- * the GStreamer pipeline. The tempo can be changed from the application side by
- * calling gstbt_tempo_change_tempo().
+ * Methods to work with a #GstContext that distributes tempo and timing
+ * information.
  *
- * #GstElements that implement this interface should use the given tempo, to
- * adjust their gst_object_sync_values() cycle.
+ * Applications use gstbt_audio_tempo_context_new() to create and initialize the
+ * context and gst_element_set_context() to set it on the top-level pipeline.
+ * The context is persistent and therefore can be set at any time.
  *
- * The difference between the tempo iface and the tempo-tag metadata is that the
- * metadata describes the overall tempo, but the iface allows to change the
- * tempo during playback.
+ * #GstElements that implement the #GstElementClass::set_context() vmethod can
+ * use gstbt_audio_tempo_context_get_tempo() to retrieve the values. Based on
+ * the parameters they can adjust their gst_object_sync_values() cycle.
+ *
+ * The difference between the tempo context and %GST_TAG_BEATS_PER_MINUTE is
+ * that the tag describes the overall tempo, but the context allows to change
+ * the tempo during playback and offers more finegrained control.
  */
-/* upstream?
- * if this is in gstreamer we could enhance jacksink to call:
- * jack_set_timebase_callback()
- *
- * a) should we rename 'tempo' to 'tempo_sync' or 'song_tempo'?
- * b) can we remove the iface and use TAGS?
- *   - we already have GST_TAG_BEATS_PER_MINUTE
- *     gst_tag_register (GST_TAG_BEATS_PER_MINUTE, GST_TAG_FLAG_META, G_TYPE_DOUBLE,
- *       _("beats per minute"), _("number of beats per minute in audio"), NULL);
- *   - we need GST_TAG_TICKS_PER_BEAT and GST_TAG_SUBTICKS_PER_TICK
- *     where to register them?
- *   - the main problem with tags instead of an iface is that it is not easy to
- *     change it while playing, we'd need to use the playback rate
- * c) can we use events?
- *    - the application would push them on to the sink and they travel up to the
- *      sources
- * d) context: http://wiki.buzztrax.org/index.php/GstAudioTempoContext
+/* offer upstream?
+ * if this is in gstreamer we could enhance the following elements:
+ * jacksink: jack_set_timebase_callback()
  */
 
 #include "tempo.h"
 
-//-- the iface
-
-G_DEFINE_INTERFACE (GstBtTempo, gstbt_tempo, 0);
-
+//-- the context
 
 /**
- * gstbt_tempo_change_tempo:
- * @self: a #GObject that implements #GstBtTempo
- * @beats_per_minute: the number of beats in a minute
- * @ticks_per_beat: the number of ticks of one beat (measure)
- * @subticks_per_tick: the number of subticks within one tick
+ * gstbt_audio_tempo_context_new:
+ * @bpm: beats per minute
+ * @tpb: ticks per beat
+ * @stpb: sub-ticks per beat
  *
- * Set all tempo properties at once. Pass -1 to leave a value unchanged.
+ * The values of @bpm and @tpb define the meassure and speed of an audio track.
+ * Elements (mostly sources) use these value to configure how the quantise
+ * controller events and size their buffers. Elements can also use this for
+ * tempo synced effects.
+ *
+ * When using controllers one can also use @stpb to achieve smoother modulation.
+ *
+ * Returns: a  new context that can be send to the pipeline
  */
-void
-gstbt_tempo_change_tempo (GstBtTempo * self, glong beats_per_minute,
-    glong ticks_per_beat, glong subticks_per_tick)
+GstContext *
+gstbt_audio_tempo_context_new (guint bpm, guint tpb, guint stpb)
 {
-  g_return_if_fail (GSTBT_IS_TEMPO (self));
-
-  GSTBT_TEMPO_GET_INTERFACE (self)->change_tempo (self, beats_per_minute,
-      ticks_per_beat, subticks_per_tick);
+  GstContext *ctx = gst_context_new (GSTBT_AUDIO_TEMPO_TYPE, TRUE);
+  GstStructure *s = gst_context_writable_structure (ctx);
+  gst_structure_set (s,
+      "beats-per-minute", G_TYPE_UINT, bpm,
+      "ticks-per-beat", G_TYPE_UINT, tpb,
+      "subticks-per-beat", G_TYPE_UINT, stpb, NULL);
+  return ctx;
 }
 
-static void
-gstbt_tempo_default_init (GstBtTempoInterface * iface)
+/**
+ * gstbt_audio_tempo_context_get_tempo:
+ * @ctx: the context
+ * @bpm: beats per minute
+ * @tpb: ticks per beat
+ * @stpb: sub-ticks per beat
+ *
+ * Get values from the audio-tempo context. Pointers can be %NULL to skip them.
+ *
+ * Returns: %FALSE if the context if of the wrong type or any of the values were
+ * not stored in the context.
+ */
+gboolean
+gstbt_audio_tempo_context_get_tempo (GstContext * ctx, guint * bpm, guint * tpb,
+    guint * stpb)
 {
-  /* create interface signals and properties here. */
-  g_object_interface_install_property (iface,
-      g_param_spec_ulong ("beats-per-minute",
-          "beat-per-minute tempo property",
-          "the number of beats per minute the top level pipeline uses",
-          1, G_MAXULONG, 120, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-  g_object_interface_install_property (iface,
-      g_param_spec_ulong ("ticks-per-beat",
-          "ticks-per-beat tempo property",
-          "the number of ticks (events) per beat the top level pipeline uses",
-          1, G_MAXULONG, 4, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-  g_object_interface_install_property (iface,
-      g_param_spec_ulong ("subticks-per-tick",
-          "subticks-per-tick tempo property",
-          "the number of subticks (for smoothing) per tick the top level pipeline uses",
-          1, G_MAXULONG, 1, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  const GstStructure *s;
+  const gchar *context_type;
+  gboolean res = TRUE;
+
+  if (!ctx)
+    return FALSE;
+
+  context_type = gst_context_get_context_type (ctx);
+  if (g_strcmp0 (context_type, GSTBT_AUDIO_TEMPO_TYPE) != 0)
+    return FALSE;
+
+  s = gst_context_get_structure (ctx);
+  if (bpm)
+    res &= gst_structure_get_uint (s, "beats-per-minute", bpm);
+  if (tpb)
+    res &= gst_structure_get_uint (s, "ticks-per-beat", tpb);
+  if (stpb)
+    res &= gst_structure_get_uint (s, "subticks-per-beat", stpb);
+  return res;
 }

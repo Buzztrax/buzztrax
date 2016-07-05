@@ -18,6 +18,7 @@
 #include "m-bt-core.h"
 #include <gst/base/gstbasesink.h>
 #include <gst/audio/gstaudiobasesink.h>
+#include "gst/tempo.h"
 
 //-- globals
 
@@ -266,13 +267,18 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
   BtSongInfo *song_info =
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
-  BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0L, NULL));
+  BtSinkMachine *master = bt_sink_machine_new (song, "master", NULL);
   GstElement *sink_bin =
-      GST_ELEMENT (check_gobject_get_object_property (machine, "machine"));
+      GST_ELEMENT (check_gobject_get_object_property (master, "machine"));
+  bt_wire_new (song, gen, master, NULL);
   gst_element_set_state (sink_bin, GST_STATE_READY);
   GstElement *sink = get_sink_element ((GstBin *) sink_bin);
-  if (!sink || !GST_IS_AUDIO_BASE_SINK (sink))
+  if (!sink || !GST_IS_AUDIO_BASE_SINK (sink)) {
+    GST_WARNING ("no sink or not AudioBaseSink");
     goto Cleanup;
+  }
   guint latency = 20 + 20 * (_i & 0x3);
   gulong bpm = 80 + 20 * ((_i >> 2) & 0x3);
   gulong tpb = 4 + 2 * ((_i >> 4) & 0x3);
@@ -284,15 +290,17 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
   g_object_set (song_info, "bpm", bpm, "tpb", tpb, NULL);
 
   GST_INFO ("-- assert --");
-  gulong st, c_bpm, c_tpb;
+  guint st, c_bpm, c_tpb;
   gint64 latency_time, c_latency_time;
-  g_object_get (sink_bin, "subticks-per-tick", &st, "ticks-per-beat", &c_tpb,
-      "beats-per-minute", &c_bpm, NULL);
+  GstContext *ctx = gst_element_get_context (sink_bin, GSTBT_AUDIO_TEMPO_TYPE);
+  gstbt_audio_tempo_context_get_tempo (ctx, &c_bpm, &c_tpb, &st);
+  gst_context_unref (ctx);
+
   g_object_get (sink, "latency-time", &c_latency_time, NULL);
   latency_time = GST_TIME_AS_USECONDS ((GST_SECOND * 60) / (bpm * tpb * st));
 
   GST_INFO_OBJECT (sink,
-      "bpm=%3lu=%3lu, tpb=%lu=%lu, stpb=%2lu, target-latency=%2u , latency-time=%6"
+      "bpm=%3lu=%3u, tpb=%lu=%u, stpb=%2u, target-latency=%2u , latency-time=%6"
       G_GINT64_FORMAT "=%6" G_GINT64_FORMAT ", delta=%+4" G_GINT64_FORMAT, bpm,
       c_bpm, tpb, c_tpb, st, latency, latency_time, c_latency_time,
       (latency_time - ((gint) latency * 1000)) / 1000);
@@ -301,8 +309,8 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
   ck_assert_ulong_eq (c_tpb, tpb);
   ck_assert_int64_eq (c_latency_time, latency_time);
 
-  GST_INFO ("-- cleanup --");
 Cleanup:
+  GST_INFO ("-- cleanup --");
   gst_object_unref (sink_bin);
   g_object_unref (song_info);
   BT_TEST_END;

@@ -114,29 +114,6 @@ gst_bml_property_meta_interface_init (gpointer g_iface, gpointer iface_data)
   iface->describe_property = gst_bml_property_meta_describe_property;
 }
 
-//-- tempo interface implementations
-
-static void
-gst_bml_tempo_change_tempo (GstBtTempo * tempo, glong beats_per_minute,
-    glong ticks_per_beat, glong subticks_per_tick)
-{
-  GstBMLSrc *bml_src = GST_BML_SRC (tempo);
-  GstBML *bml = GST_BML (bml_src);
-
-  bml (gstbml_tempo_change_tempo (G_OBJECT (bml_src), bml, beats_per_minute,
-          ticks_per_beat, subticks_per_tick));
-}
-
-static void
-gst_bml_tempo_interface_init (gpointer g_iface, gpointer iface_data)
-{
-  GstBtTempoInterface *iface = g_iface;
-
-  GST_INFO ("initializing iface");
-
-  iface->change_tempo = gst_bml_tempo_change_tempo;
-}
-
 //-- preset interface implementations
 
 static gchar **
@@ -234,6 +211,19 @@ gst_bml_preset_interface_init (gpointer g_iface, gpointer iface_data)
 }
 
 //-- gstbmlsrc class implementation
+
+static void
+gstbt_bml_src_set_context (GstElement * element, GstContext * context)
+{
+  guint bpm, tpb, stpb;
+
+  if (gstbt_audio_tempo_context_get_tempo (context, &bpm, &tpb, &stpb)) {
+    GstBML *bml = GST_BML (GST_BML_SRC (element));
+
+    bml (gstbml_tempo_change_tempo (G_OBJECT (element), bml, bpm, tpb, stpb));
+  }
+  GST_ELEMENT_CLASS (parent_class)->set_context (element, context);
+}
 
 static GstCaps *
 gst_bml_src_fixate (GstBaseSrc * base, GstCaps * caps)
@@ -784,6 +774,7 @@ gst_bml_src_class_init (GstBMLSrcClass * klass)
 {
   GstBMLClass *bml_class = GST_BML_CLASS (klass);
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
   GstBaseSrcClass *gstbasesrc_class = GST_BASE_SRC_CLASS (klass);
 
   GST_INFO ("initializing class");
@@ -794,6 +785,7 @@ gst_bml_src_class_init (GstBMLSrcClass * klass)
   gobject_class->get_property = GST_DEBUG_FUNCPTR (gst_bml_src_get_property);
   gobject_class->dispose = GST_DEBUG_FUNCPTR (gst_bml_src_dispose);
   gobject_class->finalize = GST_DEBUG_FUNCPTR (gst_bml_src_finalize);
+  element_class->set_context = GST_DEBUG_FUNCPTR (gstbt_bml_src_set_context);
   gstbasesrc_class->set_caps = GST_DEBUG_FUNCPTR (gst_bml_src_set_caps);
   gstbasesrc_class->fixate = GST_DEBUG_FUNCPTR (gst_bml_src_fixate);
   gstbasesrc_class->is_seekable = GST_DEBUG_FUNCPTR (gst_bml_src_is_seekable);
@@ -874,11 +866,6 @@ bml (src_get_type (const char *element_type_name, gboolean is_polyphonic))
     NULL,                       /* interface_finalize */
     NULL                        /* interface_data */
   };
-  const GInterfaceInfo tempo_interface_info = {
-    (GInterfaceInitFunc) gst_bml_tempo_interface_init,  /* interface_init */
-    NULL,                       /* interface_finalize */
-    NULL                        /* interface_data */
-  };
   const GInterfaceInfo preset_interface_info = {
     (GInterfaceInitFunc) gst_bml_preset_interface_init, /* interface_init */
     NULL,                       /* interface_finalize */
@@ -895,8 +882,6 @@ bml (src_get_type (const char *element_type_name, gboolean is_polyphonic))
   GST_INFO ("succefully registered new type : \"%s\"", element_type_name);
   g_type_add_interface_static (element_type, GSTBT_TYPE_PROPERTY_META,
       &property_meta_interface_info);
-  g_type_add_interface_static (element_type, GSTBT_TYPE_TEMPO,
-      &tempo_interface_info);
 
   // check if this plugin can do multiple voices
   if (is_polyphonic) {
