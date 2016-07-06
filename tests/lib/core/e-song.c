@@ -62,6 +62,8 @@ make_new_song (void)
   BtSong *song = bt_song_new (app);
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  BtSongInfo *song_info =
+      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
   BtMachine *gen =
       BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
@@ -71,12 +73,12 @@ make_new_song (void)
   GstElement *element =
       (GstElement *) check_gobject_get_object_property (gen, "machine");
 
-  g_object_set (sequence, "length", 64L, NULL);
+  /* duration: 0:00:00.480000000 */
+  g_object_set (song_info, "bpm", 250L, "tpb", 16L, NULL);
+  g_object_set (sequence, "length", 32L, NULL);
   bt_sequence_add_track (sequence, gen, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
   bt_sequence_set_pattern (sequence, 16, 0, (BtCmdPattern *) pattern);
-  bt_sequence_set_pattern (sequence, 32, 0, (BtCmdPattern *) pattern);
-  bt_sequence_set_pattern (sequence, 48, 0, (BtCmdPattern *) pattern);
   g_object_set (element, "wave", /* silence */ 4, NULL);
 
   gst_object_unref (element);
@@ -541,7 +543,7 @@ test_bt_song_play_pos_on_eos (BT_TEST_ARGS)
   bt_song_update_playback_position (song);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_ge (song, "play-pos", 64L);
+  ck_assert_gobject_gulong_ge (song, "play-pos", 32L);
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);
