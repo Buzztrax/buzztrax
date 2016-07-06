@@ -269,6 +269,8 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
   BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
+  BtTestMonoSource *src =
+      (BtTestMonoSource *) check_gobject_get_object_property (gen, "machine");
   BtSinkMachine *master = bt_sink_machine_new (song, "master", NULL);
   GstElement *sink_bin =
       GST_ELEMENT (check_gobject_get_object_property (master, "machine"));
@@ -288,14 +290,10 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
   // assert the resulting latency-time properties on the audio_sink
   g_object_set (settings, "latency", latency, NULL);
   g_object_set (song_info, "bpm", bpm, "tpb", tpb, NULL);
+  guint st = src->stpb, c_bpm = src->bpm, c_tpb = src->tpb;
 
   GST_INFO ("-- assert --");
-  guint st, c_bpm, c_tpb;
   gint64 latency_time, c_latency_time;
-  GstContext *ctx = gst_element_get_context (sink_bin, GSTBT_AUDIO_TEMPO_TYPE);
-  gstbt_audio_tempo_context_get_tempo (ctx, &c_bpm, &c_tpb, &st);
-  gst_context_unref (ctx);
-
   g_object_get (sink, "latency-time", &c_latency_time, NULL);
   latency_time = GST_TIME_AS_USECONDS ((GST_SECOND * 60) / (bpm * tpb * st));
 
