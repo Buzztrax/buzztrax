@@ -31,12 +31,13 @@
  * Finally, the class offers a couple of timing related conversion functions.
  */
 /* TODO(ensonic): add more metadata
+ * (https://mediaarea.net/en/MediaInfo/Support/Tags)
  *  - copyright: GST_TAG_COPYRIGHT
  *    string: "(C) YYYY <SONG_INFO_AUTHOR>"
  *  - url to artist homepage
  *  - license: GST_TAG_LICENSE (http://creativecommons.org/licenses/)
  *    - gchar** gst_tag_get_licenses()
- *    - would be nice to use liblicense (not widely packaged :/)
+ *    - would be nice to use liblicense
  *    - we'll have liblicense support in gst-0.10.36
  *    - CC consists of three parts: permits, requires, prohibits
  *  - scale/key: we might want to allow selecting the musical scale
@@ -45,12 +46,9 @@
  *    - in the UI
  *      - we can use 'b' instead of '#' in the pattern editor
  *      - we can show out of scale notes
- *      - we can suggest chords?
- *      - if we have a keyboard widget in the bottom
- *        - show the notes belonging to the key there
- *        - suggest chords when the cursor is over a note
- *        - record notes (if enabled) and play current machine otherwise
+ *      - we can suggest chords, arpeggios?
  *    - this can be emitted as a tag: GST_TAG_MUSICAL_KEY
+ *      Matroska: INITIAL_KEY, ID3-V2:	TKEY
  *  - need defaults for e.g. url, license, copyright
  */
 
