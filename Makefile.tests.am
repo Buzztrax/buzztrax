@@ -364,6 +364,12 @@ LOOPS ?= 10
 	$(AM_TESTS_ENVIRONMENT)	\
 	$(LIBTOOL) --mode=execute gdb ./$*
 
+# make (test).gdbrun      -- start and run gdb for the given test
+%.gdbrun: %
+	@CK_FORK=no		\
+	$(AM_TESTS_ENVIRONMENT)	\
+	$(LIBTOOL) --mode=execute gdb -batch -ex "run" -ex "bt" ./$*
+
 # make (test).refdbg   -- run test under refdbg
 %.refdbg: %
 	@CK_FORK=no		\
