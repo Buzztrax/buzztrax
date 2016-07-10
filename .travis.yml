@@ -17,7 +17,7 @@ env:
 
 script: ./configure ${CONFIGURE_OPTS} && make && make check
 
-after_failure: cat ./test-suite.log
+after_failure: cat ./test-suite.log && scripts/gdbtests.sh ./test-suite.log
 
 notifications:
   irc: "chat.freenode.net#buzztrax"
