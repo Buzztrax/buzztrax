@@ -341,7 +341,7 @@ test-clean-local:
 # make (test).check    -- run the given check once
 #	make (test).check BT_CHECKS="test5*" -- run the given testcase(s) only
 %.check: %
-	@$(TESTS_ENVIRONMENT)	\
+	@$(AM_TESTS_ENVIRONMENT)	\
 	./$*
 
 LOOPS ?= 10
@@ -349,32 +349,32 @@ LOOPS ?= 10
 # make (test).loop LOOPS=20 -- run the given check 20 times
 %.loop: %
 	@for i in `seq 1 $(LOOPS)`; do \
-	$(TESTS_ENVIRONMENT) \
+	$(AM_TESTS_ENVIRONMENT) \
 	./$*; done
 
 # make (test).forever  -- run the given check indefinitely
 %.forever: %
 	@while true; do	\
-	$(TESTS_ENVIRONMENT) \
+	$(AM_TESTS_ENVIRONMENT) \
 	./$* || break; done
 
 # make (test).gdb      -- start up gdb for the given test
 %.gdb: %
 	@CK_FORK=no		\
-	$(TESTS_ENVIRONMENT)	\
+	$(AM_TESTS_ENVIRONMENT)	\
 	$(LIBTOOL) --mode=execute gdb ./$*
 
 # make (test).refdbg   -- run test under refdbg
 %.refdbg: %
 	@CK_FORK=no		\
-	$(TESTS_ENVIRONMENT)	\
+	$(AM_TESTS_ENVIRONMENT)	\
 	$(LIBTOOL) --mode=execute refdbg -c "btnum=20 ; logobjs=0 ; $(REFDBG_RULE)" \
 	./$*
 
 # make (test).strace  -- run test under strace
 %.strace: %
 	@CK_FORK=no		\
-	$(TESTS_ENVIRONMENT)	\
+	$(AM_TESTS_ENVIRONMENT)	\
 	$(LIBTOOL) --mode=execute strace -e file -o /tmp/strace.log ./$*
 
 ## todo: check if code has been compiled using --enable-debug
@@ -409,7 +409,7 @@ coverage:: $(TESTS_BIN)
 	echo "command make check" >.bcovdump.all; \
 	echo "date "`date` >>.bcovdump.all; \
 	for i in $^; do \
-	  CK_FORK="no" $(TESTS_ENVIRONMENT) bcov \
+	  CK_FORK="no" $(AM_TESTS_ENVIRONMENT) bcov \
 	    -l$(top_builddir)/src/.libs/libbuzztrax-core.so \
 	    -l$(top_builddir)/src/.libs/libbuzztrax-ic.so \
 	    ./$$i; \
