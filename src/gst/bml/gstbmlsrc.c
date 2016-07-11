@@ -222,7 +222,13 @@ gstbt_bml_src_set_context (GstElement * element, GstContext * context)
 
     bml (gstbml_tempo_change_tempo (G_OBJECT (element), bml, bpm, tpb, stpb));
   }
+#if GST_CHECK_VERSION (1,8,0)
   GST_ELEMENT_CLASS (parent_class)->set_context (element, context);
+#else
+  if (GST_ELEMENT_CLASS (parent_class)->set_context) {
+    GST_ELEMENT_CLASS (parent_class)->set_context (element, context);
+  }
+#endif
 }
 
 static GstCaps *

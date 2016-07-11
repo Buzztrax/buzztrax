@@ -1075,7 +1075,14 @@ bt_sink_bin_set_context (GstElement * element, GstContext * context)
       }
     }
   }
+#if GST_CHECK_VERSION (1,8,0)
   GST_ELEMENT_CLASS (bt_sink_bin_parent_class)->set_context (element, context);
+#else
+  if (GST_ELEMENT_CLASS (bt_sink_bin_parent_class)) {
+    GST_ELEMENT_CLASS (bt_sink_bin_parent_class)->set_context (element,
+        context);
+  }
+#endif
 }
 
 static void
