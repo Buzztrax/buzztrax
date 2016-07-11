@@ -220,8 +220,13 @@ gstbt_audio_delay_set_context (GstElement * element, GstContext * context)
 
     gstbt_audio_delay_calculate_tick_time (self);
   }
-  GST_ELEMENT_CLASS (gstbt_audio_delay_parent_class)->set_context (element,
-      context);
+  if (GST_ELEMENT_CLASS (gstbt_audio_delay_parent_class)->set_context) {
+    GST_ELEMENT_CLASS (gstbt_audio_delay_parent_class)->set_context (element,
+        context);
+  } else {
+    GST_WARNING_OBJECT (element,
+        "expected set_context() in parent class, but is NULL");
+  }
 }
 
 //-- gobject vmethods
