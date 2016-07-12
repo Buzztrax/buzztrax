@@ -377,8 +377,7 @@ bt_song_send_audio_context (const BtSong * const self)
   g_object_get (settings, "latency", &latency, NULL);
   g_object_unref (settings);
 
-  stpb = (glong) ((GST_SECOND * 60) / (bpm * tpb * latency *
-          G_GINT64_CONSTANT (1000000)));
+  stpb = (glong) ((GST_SECOND * 60) / (bpm * tpb * latency * GST_MSECOND));
   stpb = MAX (1, stpb);
   GST_INFO ("chosing subticks=%ld from bpm=%lu,tpb=%lu,latency=%u", stpb, bpm,
       tpb, latency);
