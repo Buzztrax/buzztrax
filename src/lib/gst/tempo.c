@@ -40,6 +40,10 @@
 /* offer upstream?
  * if this is in gstreamer we could enhance the following elements:
  * jacksink: jack_set_timebase_callback()
+ *
+ * lv2, ladspa and all kind of audio-sources: gst_base_src_set_blocksize()
+ *
+ * alsamidisink: could send "MIDI beat clock" + "MIDI timecode"
  */
 
 #include "tempo.h"
@@ -111,12 +115,12 @@ gstbt_audio_tempo_context_get_tempo (GstContext * ctx, guint * bpm, guint * tpb,
 }
 
 #if 0
-  // extra value calculated in the app from latency in ms
+// extra value calculated in the app from latency in ms
 guint stpb = (glong) ((GST_SECOND * 60) / (bpm * tpb * latency * GST_MSECOND));
 stpb = MAX (1, stpb);
 
-  // extra values calculated in plugins based on tempo values and samplerate
-  // stored values: subticktime (as ticktime), samples_per_buffer
+// extra values calculated in plugins based on tempo values and samplerate
+// stored values: subticktime (as ticktime), samples_per_buffer
 
 gdouble tpm = (gdouble) (bpm * tpb);
 gdouble div = 60.0 / stpb;
@@ -126,13 +130,13 @@ GstClockTime subticktime = (GstClockTime) (0.5 + ((GST_SECOND * div) / tpm));
 gdouble samples_per_buffer = ((samplerate * div) / tpm);
 guint generate_samples_per_buffer = (guint) (0.5 + samples_per_buffer);
 
-  // music apps quantize trigger events (notes) to ticks and not subticks
-  // we need to compensate for the rounding errors
-  // subticks are used to smooth modulation effects and lower live-latency
+// music apps quantize trigger events (notes) to ticks and not subticks
+// we need to compensate for the rounding errors
+// subticks are used to smooth modulation effects and lower live-latency
 gdouble ticktime_err =
     ((gdouble) ticktime - (gdouble) (stpb * ticktime)) / (gdouble) stpb;
 
-  // the values are use like this in sources:
+// the values are use like this in sources:
 gst_base_src_set_blocksize (GST_BASE_SRC (self),
     channels * generate_samples_per_buffer * sizeof (gint16));
 #endif
