@@ -199,9 +199,10 @@ gstbt_audio_delay_stop (GstBaseTransform * base)
 static void
 gstbt_audio_delay_calculate_tick_time (GstBtAudioDelay * self)
 {
+  const gdouble ticks_per_minute =
+      (gdouble) (self->beats_per_minute * self->ticks_per_beat);
   self->ticktime =
-      ((GST_SECOND * 60) / (GstClockTime) (self->beats_per_minute *
-          self->ticks_per_beat));
+      (GstClockTime) (0.5 + ((GST_SECOND * 60.0) / ticks_per_minute));
 }
 
 static void

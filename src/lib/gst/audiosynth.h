@@ -60,7 +60,7 @@ struct _GstBtAudioSynth
   /* tempo handling */
   gulong beats_per_minute;
   gulong ticks_per_beat;
-  gulong subticks_per_tick;
+  gulong subticks_per_beat;
   gulong subtick_count;
   GstClockTime ticktime;
   gdouble ticktime_err, ticktime_err_accum;

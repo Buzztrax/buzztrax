@@ -80,13 +80,13 @@ gstbt_audio_synth_calculate_buffer_frames (GstBtAudioSynth * self)
 {
   const gdouble ticks_per_minute =
       (gdouble) (self->beats_per_minute * self->ticks_per_beat);
-  const gdouble div = 60.0 / self->subticks_per_tick;
-  const gdouble subticktime = ((GST_SECOND * div) / ticks_per_minute);
-  GstClockTime ticktime =
+  const gdouble div = 60.0 / self->subticks_per_beat;
+  const GstClockTime ticktime =
       (GstClockTime) (0.5 + ((GST_SECOND * 60.0) / ticks_per_minute));
 
+  self->ticktime =
+      (GstClockTime) (0.5 + ((GST_SECOND * div) / ticks_per_minute));
   self->samples_per_buffer = ((self->samplerate * div) / ticks_per_minute);
-  self->ticktime = (GstClockTime) (0.5 + subticktime);
   GST_DEBUG ("samples_per_buffer=%lf", self->samples_per_buffer);
   self->generate_samples_per_buffer = (guint) (0.5 + self->samples_per_buffer);
   gst_base_src_set_blocksize (GST_BASE_SRC (self),
@@ -95,8 +95,8 @@ gstbt_audio_synth_calculate_buffer_frames (GstBtAudioSynth * self)
   // we need to compensate for the rounding errors :/
   self->ticktime_err =
       ((gdouble) ticktime -
-      (gdouble) (self->subticks_per_tick * self->ticktime)) /
-      (gdouble) self->subticks_per_tick;
+      (gdouble) (self->subticks_per_beat * self->ticktime)) /
+      (gdouble) self->subticks_per_beat;
   GST_DEBUG ("ticktime err=%lf", self->ticktime_err);
 }
 
@@ -110,10 +110,10 @@ gstbt_audio_synth_set_context (GstElement * element, GstContext * context)
 
   if (gstbt_audio_tempo_context_get_tempo (context, &bpm, &tpb, &stpb)) {
     if (self->beats_per_minute != bpm ||
-        self->ticks_per_beat != tpb || self->subticks_per_tick != stpb) {
+        self->ticks_per_beat != tpb || self->subticks_per_beat != stpb) {
       self->beats_per_minute = bpm;
       self->ticks_per_beat = tpb;
-      self->subticks_per_tick = stpb;
+      self->subticks_per_beat = stpb;
 
       GST_INFO_OBJECT (self, "audio tempo context: bmp=%u, tpb=%u, stpb=%u",
           bpm, tpb, stpb);
@@ -265,7 +265,7 @@ gstbt_audio_synth_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
     } else {
       src->check_eos = FALSE;
     }
-    src->subtick_count = src->subticks_per_tick;
+    src->subtick_count = src->subticks_per_beat;
   } else {
     if (GST_CLOCK_TIME_IS_VALID (segment->stop)) {
       segment->time = segment->stop;
@@ -406,7 +406,7 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
     GST_BUFFER_OFFSET_END (buf) = src->n_samples;
   }
 
-  if (src->subtick_count >= src->subticks_per_tick) {
+  if (src->subtick_count >= src->subticks_per_beat) {
     src->subtick_count = 1;
   } else {
     src->subtick_count++;
@@ -445,7 +445,7 @@ gstbt_audio_synth_init (GstBtAudioSynth * src)
   src->samplerate = GST_AUDIO_DEF_RATE;
   src->beats_per_minute = 120;
   src->ticks_per_beat = 4;
-  src->subticks_per_tick = 1;
+  src->subticks_per_beat = 1;
   gstbt_audio_synth_calculate_buffer_frames (src);
 
   /* we operate in time */

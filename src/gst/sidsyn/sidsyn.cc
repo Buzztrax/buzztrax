@@ -85,11 +85,11 @@ static void gstbt_sid_syn_child_proxy_interface_init (gpointer g_iface,
 static void gstbt_sid_syn_property_meta_interface_init (gpointer g_iface,
     gpointer iface_data);
 
-G_DEFINE_TYPE_WITH_CODE (GstBtSidSyn, gstbt_sid_syn, GSTBT_TYPE_AUDIO_SYNTH, 
-    G_IMPLEMENT_INTERFACE (GST_TYPE_CHILD_PROXY, 
+G_DEFINE_TYPE_WITH_CODE (GstBtSidSyn, gstbt_sid_syn, GSTBT_TYPE_AUDIO_SYNTH,
+    G_IMPLEMENT_INTERFACE (GST_TYPE_CHILD_PROXY,
         gstbt_sid_syn_child_proxy_interface_init)
     G_IMPLEMENT_INTERFACE (GSTBT_TYPE_CHILD_BIN, NULL)
-    G_IMPLEMENT_INTERFACE (GSTBT_TYPE_PROPERTY_META, 
+    G_IMPLEMENT_INTERFACE (GSTBT_TYPE_PROPERTY_META,
         gstbt_sid_syn_property_meta_interface_init));
 
 //-- the enums
@@ -129,12 +129,12 @@ gstbt_sid_syn_update_regs (GstBtSidSyn *src)
   gint *pregs = src->regs;
   guchar regs[NUM_REGS];
   guint filters = 0;
-  guint subticks = NUM_STEPS * ((GstBtAudioSynth *)src)->subticks_per_tick;
+  guint subticks = NUM_STEPS * ((GstBtAudioSynth *)src)->subticks_per_beat;
 
   for (i = 0; i < NUM_VOICES; i++) {
     GstBtSidSynV *v = src->voices[i];
     guint tone;
-        
+
     if (v->filter)
       filters |= (1 << i);
 
@@ -149,8 +149,8 @@ gstbt_sid_syn_update_regs (GstBtSidSyn *src)
       } else {
         // stop voice
         v->gate = FALSE;
-      }        
-      v->note_set = FALSE;      
+      }
+      v->note_set = FALSE;
     }
     // init effects
     if (v->effect_set) {
@@ -160,14 +160,14 @@ gstbt_sid_syn_update_regs (GstBtSidSyn *src)
       case GSTBT_SID_SYN_EFFECT_ARPEGGIO: {
           if (value > 0) {
             // need to use _prev_note to also work after note_off
-            guint note = 
+            guint note =
                 gstbt_tone_conversion_note_number_offset (v->prev_note, (value & 0xF));
             v->arp_freq[0] = v->finetune *
               gstbt_tone_conversion_translate_from_number (src->n2f, note);
-            note = 
+            note =
               gstbt_tone_conversion_note_number_offset (v->prev_note, (value >> 4));
             v->arp_freq[1] = v->finetune *
-              gstbt_tone_conversion_translate_from_number (src->n2f, note);          
+              gstbt_tone_conversion_translate_from_number (src->n2f, note);
             v->arp_freq[2] = v->freq;
             v->fx_ticks_remain = subticks;
             GST_INFO_OBJECT (src, "%1d: arpeggio: %d + %d -> %lf, %lf, %lf",
@@ -264,7 +264,7 @@ gstbt_sid_syn_update_regs (GstBtSidSyn *src)
           break;
         case GSTBT_SID_SYN_EFFECT_VIBRATO: {
           gdouble	depth = 0.0;
-        
+
           switch (v->vib_type) {
             case 0:
               depth = sin (v->vib_pos);
@@ -289,7 +289,7 @@ gstbt_sid_syn_update_regs (GstBtSidSyn *src)
       }
       v->fx_ticks_remain--;
     }
-    
+
     if (v->freq > 0.0) {
       GST_DEBUG_OBJECT (src, "%1d: freq: %lf Hz", i, v->freq);
       // PAL:  x = f * (18*2^24)/17734475 (0 - 3848 Hz)
@@ -302,7 +302,7 @@ gstbt_sid_syn_update_regs (GstBtSidSyn *src)
     regs[0x00 + i*7] = (guchar)(tone & 0xFF);
     regs[0x01 + i*7] = (guchar)(tone >> 8);
     GST_DEBUG_OBJECT (src, "%1d: tone: 0x%x", i, tone);
-          
+
     regs[0x02 + i*7] = (guchar) (v->pulse_width & 0xFF);
     regs[0x03 + i*7] = (guchar) (v->pulse_width >> 8);
     regs[0x05 + i*7] = (guchar) ((v->attack << 4) | v->decay);
@@ -312,7 +312,7 @@ gstbt_sid_syn_update_regs (GstBtSidSyn *src)
     GST_DEBUG ("%1d: 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x",
       i, regs[0x00 + i*7], regs[0x01 + i*7], regs[0x02 + i*7], regs[0x03 + i*7],
       regs[0x04 + i*7], regs[0x05 + i*7], regs[0x06 + i*7]);
-    
+
     WRITE_REG(0x00 + i*7);
     WRITE_REG(0x01 + i*7);
     WRITE_REG(0x02 + i*7);
@@ -331,7 +331,7 @@ gstbt_sid_syn_update_regs (GstBtSidSyn *src)
   WRITE_REG(0x16);
   WRITE_REG(0x17);
   WRITE_REG(0x18);
-  
+
 }
 
 //-- audiosynth vmethods
@@ -347,12 +347,12 @@ gstbt_sid_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
         "channels", 1);
   }
-  
+
   src->emu->reset ();
 	src->emu->set_chip_model (src->chip);
   src->emu->set_sampling_parameters (src->clockrate, SAMPLE_FAST,
       base->samplerate);
-  
+
   for (i = 0; i < NUM_VOICES; i++) {
     src->voices[i]->prev_freq = 0.0;
     src->voices[i]->want_freq = 0.0;
@@ -365,7 +365,7 @@ gstbt_sid_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
 
 // TODO(ensonic): silence detection (gate off + release time is over)
 static gboolean
-gstbt_sid_syn_process (GstBtAudioSynth * base, GstBuffer * data, 
+gstbt_sid_syn_process (GstBtAudioSynth * base, GstBuffer * data,
     GstMapInfo *info)
 {
   GstBtSidSyn *src = ((GstBtSidSyn *) base);
@@ -373,23 +373,23 @@ gstbt_sid_syn_process (GstBtAudioSynth * base, GstBuffer * data,
   gint i, n, m, samples;
   gdouble scale = (gdouble)src->clockrate / (gdouble)base->samplerate;
   gint step = NUM_STEPS * (base->subtick_count - 1);
-  gint step_mod = base->subticks_per_tick;
+  gint step_mod = base->subticks_per_beat;
   gint fx_ticks_remain = 0;
 
   for (i = 0; i < NUM_VOICES; i++) {
     GstBtSidSynV *v = src->voices[i];
     gst_object_sync_values ((GstObject *)v, GST_BUFFER_TIMESTAMP (data));
-    fx_ticks_remain += v->fx_ticks_remain; 
+    fx_ticks_remain += v->fx_ticks_remain;
   }
-  
-  GST_DEBUG_OBJECT (src, "generate %d samples (using %lu subticks)", 
-    base->generate_samples_per_buffer, base->subticks_per_tick);
-  
+
+  GST_DEBUG_OBJECT (src, "generate %d samples (using %lu subticks)",
+    base->generate_samples_per_buffer, base->subticks_per_beat);
+
   if (!fx_ticks_remain) {
     /* no need to subdivide if no effect runs */
     m = base->generate_samples_per_buffer;
     samples = m;
-    
+
     GST_LOG_OBJECT (src, "subtick: %2d -- -- sync", step/6);
     gstbt_sid_syn_update_regs (src);
 
@@ -585,13 +585,13 @@ gstbt_sid_syn_dispose (GObject * object)
   if (src->dispose_has_run)
     return;
   src->dispose_has_run = TRUE;
-  
+
   if (src->n2f)
     g_object_unref (src->n2f);
 	for (i = 0; i < NUM_VOICES; i++) {
 	  gst_object_unparent ((GstObject *)src->voices[i]);
 	}
-	
+
 	delete src->emu;
 
   G_OBJECT_CLASS (gstbt_sid_syn_parent_class)->dispose (object);
@@ -610,7 +610,7 @@ gstbt_sid_syn_init (GstBtSidSyn * src)
   src->chip = MOS6581;
   src->tuning = GSTBT_TONE_CONVERSION_EQUAL_TEMPERAMENT;
 	src->n2f = gstbt_tone_conversion_new (src->tuning);
-	
+
 	for (i = 0; i < NUM_VOICES; i++) {
 	  src->voices[i] = (GstBtSidSynV *) g_object_new (GSTBT_TYPE_SID_SYNV, NULL);
 	  sprintf (name, "voice%1d",i);
@@ -629,18 +629,18 @@ gstbt_sid_syn_class_init (GstBtSidSynClass * klass)
   GObjectClass *gobject_class = (GObjectClass *) klass;
   GstElementClass *element_class = (GstElementClass *) klass;
   GstBtAudioSynthClass *audio_synth_class = (GstBtAudioSynthClass *) klass;
-  const GParamFlags pflags1 = (GParamFlags) 
+  const GParamFlags pflags1 = (GParamFlags)
       (G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
-  const GParamFlags pflags2 = (GParamFlags) 
+  const GParamFlags pflags2 = (GParamFlags)
       (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-      
+
   audio_synth_class->process = gstbt_sid_syn_process;
   audio_synth_class->setup = gstbt_sid_syn_setup;
 
   gobject_class->set_property = gstbt_sid_syn_set_property;
   gobject_class->get_property = gstbt_sid_syn_get_property;
   gobject_class->dispose = gstbt_sid_syn_dispose;
-  
+
   // override iface properties
 
   g_object_class_install_property (gobject_class, PROP_CHILDREN,
@@ -669,7 +669,7 @@ gstbt_sid_syn_class_init (GstBtSidSynClass * klass)
   g_object_class_install_property (gobject_class, PROP_VOLUME,
       g_param_spec_uint ("volume", "Volume", "Volume of tone",
           0, 15, 15, pflags1));
-  
+
   g_object_class_install_property (gobject_class, PROP_FILTER_LOW_PASS,
       g_param_spec_boolean ("low-pass", "LowPass", "Enable LowPass Filter",
           FALSE, pflags1));
@@ -683,7 +683,7 @@ gstbt_sid_syn_class_init (GstBtSidSynClass * klass)
           FALSE, pflags1));
 
   g_object_class_install_property (gobject_class, PROP_VOICE_3_OFF,
-      g_param_spec_boolean ("voice3-off", "Voice3Off", 
+      g_param_spec_boolean ("voice3-off", "Voice3Off",
           "Detach voice 3 from mixer",  FALSE, pflags1));
 
   gst_element_class_set_static_metadata (element_class,
