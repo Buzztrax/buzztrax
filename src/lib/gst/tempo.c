@@ -59,7 +59,7 @@
  *
  * When using controllers one can also use @stpb to achieve smoother modulation.
  *
- * Returns: a  new context that can be send to the pipeline
+ * Returns: a new persistent context that can be send to the pipeline
  */
 GstContext *
 gstbt_audio_tempo_context_new (guint bpm, guint tpb, guint stpb)
@@ -109,3 +109,30 @@ gstbt_audio_tempo_context_get_tempo (GstContext * ctx, guint * bpm, guint * tpb,
     res &= gst_structure_get_uint (s, "subticks-per-beat", stpb);
   return res;
 }
+
+#if 0
+  // extra value calculated in the app from latency in ms
+guint stpb = (glong) ((GST_SECOND * 60) / (bpm * tpb * latency * GST_MSECOND));
+stpb = MAX (1, stpb);
+
+  // extra values calculated in plugins based on tempo values and samplerate
+  // stored values: subticktime (as ticktime), samples_per_buffer
+
+gdouble tpm = (gdouble) (bpm * tpb);
+gdouble div = 60.0 / stpb;
+GstClockTime ticktime = (GstClockTime) (0.5 + ((GST_SECOND * 60.0) / tpm));
+GstClockTime subticktime = (GstClockTime) (0.5 + ((GST_SECOND * div) / tpm));
+
+gdouble samples_per_buffer = ((samplerate * div) / tpm);
+guint generate_samples_per_buffer = (guint) (0.5 + samples_per_buffer);
+
+  // music apps quantize trigger events (notes) to ticks and not subticks
+  // we need to compensate for the rounding errors
+  // subticks are used to smooth modulation effects and lower live-latency
+gdouble ticktime_err =
+    ((gdouble) ticktime - (gdouble) (stpb * ticktime)) / (gdouble) stpb;
+
+  // the values are use like this in sources:
+gst_base_src_set_blocksize (GST_BASE_SRC (self),
+    channels * generate_samples_per_buffer * sizeof (gint16));
+#endif
