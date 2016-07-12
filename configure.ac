@@ -316,6 +316,9 @@ PKG_CHECK_MODULES(GUI_DEPS, \
   clutter-1.0 clutter-gtk-1.0 gtk+-3.0 >= $REQ_GTK \
 )
 
+PKG_CHECK_EXISTS(gtk+-3.0 >= 3.14, have_gtk_3_14="yes", have_gtk_3_14="no")
+AM_CONDITIONAL(HAVE_GTK_3_14, test "x$have_gtk_3_14" == "xyes")
+
 PKG_CHECK_MODULES(ALSA_DEPS, alsa, [
     AC_DEFINE(USE_ALSA, [1], [Define to 1 if we can use alsa libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $ALSA_DEPS_CFLAGS"

@@ -498,7 +498,17 @@ src/ui/edit/authors.h: AUTHORS
 	$(AM_V_GEN)sed -e 's/^/"/' -e 's/$$/",/' $< >$@
 
 BUILT_SOURCES += $(nodist_libbtedit_la_SOURCES)
-CLEANFILES += $(nodist_libbtedit_la_SOURCES)
+CLEANFILES += $(nodist_libbtedit_la_SOURCES) src/ui/edit/bt-edit.css
+
+if HAVE_GTK_3_14
+src/ui/edit/bt-edit.css: src/ui/edit/bt-edit.css.in
+	$(AM_V_at)$(MKDIR_P) src/ui/edit
+	$(AM_V_GEN) grep -v "deprecated 3.14" $< >$@
+else
+src/ui/edit/bt-edit.css: src/ui/edit/bt-edit.css.in
+	$(AM_V_at)$(MKDIR_P) src/ui/edit
+	$(AM_V_GEN) cp $< $@
+endif
 
 cssdir = $(datadir)/$(PACKAGE)
 css_DATA = src/ui/edit/bt-edit.css \
