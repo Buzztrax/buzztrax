@@ -798,7 +798,7 @@ BUILT_SOURCES += $(BUILT_GIRSOURCES)
 
 EXTRA_DIST += \
   $(desktop_in_files) $(sharedmimepackage_in_files) \
-  $(css_DATA) \
+  $(css_DATA) src/ui/edit/bt-edit.css.in \
   $(preset_DATA) \
   src/lib/bml/libbml.pc.in \
   src/lib/bml/BuzzMachineLoader.dll \
