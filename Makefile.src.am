@@ -500,15 +500,17 @@ src/ui/edit/authors.h: AUTHORS
 BUILT_SOURCES += $(nodist_libbtedit_la_SOURCES)
 CLEANFILES += $(nodist_libbtedit_la_SOURCES) src/ui/edit/bt-edit.css
 
-if HAVE_GTK_3_14
-src/ui/edit/bt-edit.css: src/ui/edit/bt-edit.css.in
-	$(AM_V_at)$(MKDIR_P) src/ui/edit
-	$(AM_V_GEN) grep -v "deprecated 3.14" $< >$@
-else
-src/ui/edit/bt-edit.css: src/ui/edit/bt-edit.css.in
-	$(AM_V_at)$(MKDIR_P) src/ui/edit
-	$(AM_V_GEN) cp $< $@
+CSS_REWRITES = -e 's/x/x/'
+if HAVE_GTK_3_19_6
+CSS_REWRITES += -e 's/:prelight/:hover/'
 endif
+if HAVE_GTK_3_14
+CSS_REWRITES += -e '/deprecated 3.14/d'
+endif
+
+src/ui/edit/bt-edit.css: src/ui/edit/bt-edit.css.in
+	$(AM_V_at)$(MKDIR_P) src/ui/edit
+	$(AM_V_GEN) sed $< >$@ $(CSS_REWRITES)
 
 cssdir = $(datadir)/$(PACKAGE)
 css_DATA = src/ui/edit/bt-edit.css \
