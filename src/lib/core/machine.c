@@ -3037,7 +3037,7 @@ bt_machine_set_context (GstElement * element, GstContext * context)
 
   bin = GST_BIN (element);
 
-  if (GST_ELEMENT_CLASS (bt_sink_bin_parent_class)->set_context) {
+  if (GST_ELEMENT_CLASS (bt_machine_parent_class)->set_context) {
     GST_ELEMENT_CLASS (bt_machine_parent_class)->set_context (element, context);
   }
 
