@@ -3037,9 +3037,10 @@ bt_machine_set_context (GstElement * element, GstContext * context)
 
   bin = GST_BIN (element);
 
-  if (GST_ELEMENT_CLASS (bt_machine_parent_class)->set_context) {
-    GST_ELEMENT_CLASS (bt_machine_parent_class)->set_context (element, context);
-  }
+  // < 1.8 this will again iterate and die while iterating
+  //if (GST_ELEMENT_CLASS (bt_machine_parent_class)->set_context) {
+  //  GST_ELEMENT_CLASS (bt_machine_parent_class)->set_context (element, context);
+  //}
 
   children = gst_bin_iterate_elements (bin);
   while (gst_iterator_foreach (children, set_context,
