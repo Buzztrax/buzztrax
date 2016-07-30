@@ -3018,6 +3018,35 @@ bt_machine_release_pad (GstElement * element, GstPad * pad)
   gst_object_unref (target);
 }
 
+#if !GST_CHECK_VERSION (1,8,0)
+static void
+set_context (const GValue * item, gpointer user_data)
+{
+  GstElement *element = g_value_get_object (item);
+
+  gst_element_set_context (element, user_data);
+}
+
+static void
+bt_machine_set_context (GstElement * element, GstContext * context)
+{
+  GstBin *bin;
+  GstIterator *children;
+
+  g_return_if_fail (GST_IS_BIN (element));
+
+  bin = GST_BIN (element);
+
+  GST_ELEMENT_CLASS (bt_machine_parent_class)->set_context (element, context);
+
+  // this seems to hang??
+  children = gst_bin_iterate_elements (bin);
+  while (gst_iterator_foreach (children, set_context,
+          context) == GST_ITERATOR_RESYNC)
+    gst_iterator_resync (children);
+  gst_iterator_free (children);
+}
+#endif
 
 //-- gobject overrides
 
@@ -3391,6 +3420,9 @@ bt_machine_class_init (BtMachineClass * const klass)
 
   gstelement_class->request_new_pad = bt_machine_request_new_pad;
   gstelement_class->release_pad = bt_machine_release_pad;
+#if !GST_CHECK_VERSION(1,8,0)
+  gstelement_class->set_context = bt_machine_set_context;
+#endif
 
   /**
    * BtMachine::pattern-added:
