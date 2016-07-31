@@ -271,7 +271,7 @@ test_bt_sink_machine_latency (BT_TEST_ARGS)
           "buzztrax-test-mono-source", 0L, NULL));
   BtTestMonoSource *src =
       (BtTestMonoSource *) check_gobject_get_object_property (gen, "machine");
-  BtSinkMachine *master = bt_sink_machine_new (song, "master", NULL);
+  BtMachine *master = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
   GstElement *sink_bin =
       GST_ELEMENT (check_gobject_get_object_property (master, "machine"));
   bt_wire_new (song, gen, master, NULL);
