@@ -225,7 +225,13 @@ bt_test_mono_source_set_context (GstElement * element, GstContext * context)
   gstbt_audio_tempo_context_get_tempo (context, &self->bpm, &self->tpb,
       &self->stpb);
 
+#if GST_CHECK_VERSION (1,8,0)
   GST_ELEMENT_CLASS (mono_parent_class)->set_context (element, context);
+#else
+  if (GST_ELEMENT_CLASS (mono_parent_class)->set_context) {
+    GST_ELEMENT_CLASS (mono_parent_class)->set_context (element, context);
+  }
+#endif
 }
 
 static void
@@ -417,7 +423,13 @@ bt_test_poly_source_set_context (GstElement * element, GstContext * context)
   gstbt_audio_tempo_context_get_tempo (context, &self->bpm, &self->tpb,
       &self->stpb);
 
+#if GST_CHECK_VERSION (1,8,0)
   GST_ELEMENT_CLASS (poly_parent_class)->set_context (element, context);
+#else
+  if (GST_ELEMENT_CLASS (poly_parent_class)->set_context) {
+    GST_ELEMENT_CLASS (poly_parent_class)->set_context (element, context);
+  }
+#endif
 }
 
 
