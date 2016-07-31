@@ -359,6 +359,10 @@ test_bt_sink_bin_record (BT_TEST_ARGS)
   // see GST_BUG_733031
   if (_i == 3 || _i == 6)
     return;
+#if !GST_CHECK_VERSION (1,8,0)
+  if (_i == 5 || _i == 7)
+    return;
+#endif
 
   make_new_song ( /*silence */ 4);
   GstElement *sink_bin = get_sink_bin ();
@@ -402,6 +406,10 @@ test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
   // see GST_BUG_733031
   if (_i == 3 || _i == 6)
     return;
+#if !GST_CHECK_VERSION (1,8,0)
+  if (_i == 5 || _i == 7)
+    return;
+#endif
 
   g_object_set (settings, "audiosink", "fakesink", NULL);
   make_new_song ( /*silence */ 4);
