@@ -179,6 +179,10 @@ if test "x$enable_coverage" = "xyes"; then
         COVERAGE_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
         COVERAGE_LIBS="-lgcov"
       fi
+    else
+      coverage_tool="gcov"
+      COVERAGE_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
+      COVERAGE_LIBS="-lgcov"
     fi
   fi
 fi
