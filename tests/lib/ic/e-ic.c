@@ -53,7 +53,7 @@ case_teardown (void)
 
 // test if the normal init call works with commandline arguments (no args)
 static void
-test_btic_init0 (BT_TEST_ARGS)
+test_btic_init_no_args (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
@@ -63,7 +63,7 @@ test_btic_init0 (BT_TEST_ARGS)
 
 // test if the init call handles correct null pointers
 static void
-test_btic_init1 (BT_TEST_ARGS)
+test_btic_init_nullptr_args (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- act --");
@@ -73,7 +73,7 @@ test_btic_init1 (BT_TEST_ARGS)
 
 // test if the normal init call works with commandline arguments
 static void
-test_btic_init2 (BT_TEST_ARGS)
+test_btic_init_args (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -96,9 +96,9 @@ bt_ic_example_case (void)
 {
   TCase *tc = tcase_create ("BtICExamples");
 
-  tcase_add_test (tc, test_btic_init0);
-  tcase_add_test (tc, test_btic_init1);
-  tcase_add_test (tc, test_btic_init2);
+  tcase_add_test (tc, test_btic_init_no_args);
+  tcase_add_test (tc, test_btic_init_nullptr_args);
+  tcase_add_test (tc, test_btic_init_args);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

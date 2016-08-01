@@ -53,7 +53,7 @@ case_teardown (void)
 
 // test init with wrong arg usage
 static void
-test_bt_core_init0 (BT_TEST_ARGS)
+test_bt_core_init_bad_arg_value (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -65,13 +65,12 @@ test_bt_core_init0 (BT_TEST_ARGS)
   bt_init (&test_argc, &test_argvptr);
 
   GST_INFO ("-- assert --");
-  mark_point ();
   BT_TEST_END;
 }
 
 // test init with nonsense args
 static void
-test_bt_core_init1 (BT_TEST_ARGS)
+test_bt_core_init_bad_arg (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -79,7 +78,7 @@ test_bt_core_init1 (BT_TEST_ARGS)
   gchar **test_argvptr = test_argv;
   gint test_argc = G_N_ELEMENTS (test_argv);
 
-  GST_INFO ("-- arrange --");
+  GST_INFO ("-- act --");
   GOptionContext *ctx = g_option_context_new (NULL);
   g_option_context_add_group (ctx, bt_init_get_option_group ());
   g_option_context_set_ignore_unknown_options (ctx, TRUE);
@@ -93,13 +92,30 @@ test_bt_core_init1 (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_core_init_bad_arg_exits (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  gchar *test_argv[] = { "check_buzztrax", "--bt-non-sense" };
+  gchar **test_argvptr = test_argv;
+  gint test_argc = G_N_ELEMENTS (test_argv);
+
+  GST_INFO ("-- act --");
+  bt_init (&test_argc, &test_argvptr);
+
+  GST_INFO ("-- assert --");
+  BT_TEST_END;
+}
+
 TCase *
 bt_core_test_case (void)
 {
   TCase *tc = tcase_create ("BtCoreTests");
 
-  tcase_add_test (tc, test_bt_core_init0);
-  tcase_add_test (tc, test_bt_core_init1);
+  tcase_add_test (tc, test_bt_core_init_bad_arg_value);
+  tcase_add_test (tc, test_bt_core_init_bad_arg);
+  tcase_add_exit_test (tc, test_bt_core_init_bad_arg_exits, 1);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
