@@ -162,9 +162,16 @@ btic_test_device_dispose (GObject * const object)
 static void
 btic_test_device_init (BtIcTestDevice * self)
 {
+  guint ix = 0;
+
   self->priv =
       G_TYPE_INSTANCE_GET_PRIVATE (self, BTIC_TYPE_TEST_DEVICE,
       BtIcTestDevicePrivate);
+
+  // register some static controls
+  btic_abs_range_control_new (BTIC_DEVICE (self), "abs1", ix++, 0, 255, 0);
+  btic_trigger_control_new (BTIC_DEVICE (self), "trig1", ix++);
+  self->priv->learn_key = ix;
 }
 
 static void

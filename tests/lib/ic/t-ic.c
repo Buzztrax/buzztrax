@@ -111,7 +111,7 @@ test_btic_core_init_bad_arg_exits (BT_TEST_ARGS)
 TCase *
 bt_ic_test_case (void)
 {
-  TCase *tc = tcase_create ("BtICTests");
+  TCase *tc = tcase_create ("BticTests");
 
   tcase_add_test (tc, test_btic_core_init_bad_arg_value);
   tcase_add_test (tc, test_btic_core_init_bad_arg);

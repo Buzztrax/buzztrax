@@ -94,7 +94,7 @@ test_btic_init_args (BT_TEST_ARGS)
 TCase *
 bt_ic_example_case (void)
 {
-  TCase *tc = tcase_create ("BtICExamples");
+  TCase *tc = tcase_create ("BticExamples");
 
   tcase_add_test (tc, test_btic_init_no_args);
   tcase_add_test (tc, test_btic_init_nullptr_args);

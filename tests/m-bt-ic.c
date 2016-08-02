@@ -34,7 +34,7 @@ gint test_argc = G_N_ELEMENTS (test_argv);
 BT_TEST_SUITE_E ("BticDevice", bt_device);
 BT_TEST_SUITE_T_E ("Btic", bt_ic);
 BT_TEST_SUITE_E ("BticLearn", bt_learn);
-BT_TEST_SUITE_E ("BticRegistry", bt_registry);
+BT_TEST_SUITE_T_E ("BticRegistry", bt_registry);
 #if USE_ALSA
 BT_TEST_SUITE_E ("BticAseqDiscoverer", bt_aseq_discoverer);
 #endif

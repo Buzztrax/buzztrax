@@ -66,12 +66,71 @@ test_btic_device_lookup (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_btic_device_has_controls (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtIcDevice *device = btic_registry_get_device_by_name ("test");
+
+  GST_INFO ("-- act --");
+  gboolean has_controls = btic_device_has_controls (device);
+
+  GST_INFO ("-- assert --");
+  fail_unless (has_controls, NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_object_unref (device);
+  BT_TEST_END;
+}
+
+static void
+test_btic_device_get_control_by_name (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtIcDevice *device = btic_registry_get_device_by_name ("test");
+
+  GST_INFO ("-- act --");
+  BtIcControl *control = btic_device_get_control_by_name (device, "abs1");
+
+  GST_INFO ("-- assert --");
+  fail_unless (control != NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_object_unref (control);
+  g_object_unref (device);
+  BT_TEST_END;
+}
+
+static void
+test_btic_device_get_control_by_id (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtIcDevice *device = btic_registry_get_device_by_name ("test");
+
+  GST_INFO ("-- act --");
+  BtIcControl *control = btic_device_get_control_by_id (device, 0);
+
+  GST_INFO ("-- assert --");
+  fail_unless (control != NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_object_unref (control);
+  g_object_unref (device);
+  BT_TEST_END;
+}
+
 TCase *
 bt_device_example_case (void)
 {
   TCase *tc = tcase_create ("BticDeviceExamples");
 
   tcase_add_test (tc, test_btic_device_lookup);
+  tcase_add_test (tc, test_btic_device_has_controls);
+  tcase_add_test (tc, test_btic_device_get_control_by_name);
+  tcase_add_test (tc, test_btic_device_get_control_by_id);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

@@ -190,7 +190,7 @@ libbtic_check_la_SOURCES = tests/lib/ic/m-bt-ic.h \
 	tests/lib/ic/e-device.c \
 	tests/lib/ic/e-ic.c tests/lib/ic/t-ic.c \
 	tests/lib/ic/e-learn.c \
-	tests/lib/ic/e-registry.c \
+	tests/lib/ic/e-registry.c tests/lib/ic/t-registry.c \
 	$(ALSA_C_TEST_FILES)
 
 libbtgst_check_la_LIBADD = $(BASE_DEPS_LIBS) $(LIBM)
