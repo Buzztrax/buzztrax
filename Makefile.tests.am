@@ -41,6 +41,7 @@ AM_TESTS_ENVIRONMENT = \
 	CK_DEFAULT_TIMEOUT=20 \
 	LANG=C \
 	XDG_CACHE_HOME=$(abs_builddir) \
+	XDG_DATA_HOME=$(abs_builddir) \
 	GSETTINGS_BACKEND=memory \
 	GSETTINGS_SCHEMA_DIR=$(abs_top_builddir) \
 	NO_AT_BRIDGE=1 \

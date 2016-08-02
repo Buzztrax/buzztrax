@@ -83,6 +83,26 @@ test_btic_registry_not_empty (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_btic_registry_get_device_by_name (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtIcRegistry *registry = btic_registry_new ();
+  btic_registry_add_device ((BtIcDevice *) btic_test_device_new ("test"));
+
+  GST_INFO ("-- act --");
+  BtIcDevice *device = btic_registry_get_device_by_name ("test");
+
+  GST_INFO ("-- assert --");
+  fail_unless (device != NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_object_unref (device);
+  ck_g_object_final_unref (registry);
+  BT_TEST_END;
+}
+
 TCase *
 bt_registry_example_case (void)
 {
@@ -90,6 +110,7 @@ bt_registry_example_case (void)
 
   tcase_add_test (tc, test_btic_registry_create);
   tcase_add_test (tc, test_btic_registry_not_empty);
+  tcase_add_test (tc, test_btic_registry_get_device_by_name);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

@@ -54,13 +54,7 @@ test_btic_learn_register_control (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  GList *list = (GList *) check_gobject_get_ptr_property (registry, "devices");
-  BtIcDevice *device = NULL;
-  for (; list; list = g_list_next (list)) {
-    if (BTIC_IS_TEST_DEVICE (list->data)) {
-      device = (BtIcDevice *) list->data;
-    }
-  }
+  BtIcDevice *device = btic_registry_get_device_by_name ("test");
 
   GST_INFO ("-- act --");
   BtIcControl *control =
@@ -70,6 +64,27 @@ test_btic_learn_register_control (BT_TEST_ARGS)
   fail_unless (control != NULL, NULL);
 
   GST_INFO ("-- cleanup --");
+  g_object_unref (device);
+  BT_TEST_END;
+}
+
+static void
+test_btic_learn_store_controls (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtIcDevice *device = btic_registry_get_device_by_name ("test");
+  btic_learn_register_learned_control (BTIC_LEARN (device), "learn1");
+
+  GST_INFO ("-- act --");
+  btic_learn_store_controller_map (BTIC_LEARN (device));
+
+  GST_INFO ("-- assert --");
+  ck_assert (g_file_test ("./buzztrax/controller-maps/test",
+          G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR));
+
+  GST_INFO ("-- cleanup --");
+  g_object_unref (device);
   BT_TEST_END;
 }
 
@@ -79,6 +94,7 @@ bt_learn_example_case (void)
   TCase *tc = tcase_create ("BticLearnExamples");
 
   tcase_add_test (tc, test_btic_learn_register_control);
+  tcase_add_test (tc, test_btic_learn_store_controls);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
