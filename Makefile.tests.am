@@ -203,6 +203,7 @@ libbtgst_check_la_SOURCES = tests/lib/gst/m-bt-gst.h \
 	tests/lib/gst/e-envelope-d.c \
 	tests/lib/gst/e-filter-svf.c \
 	tests/lib/gst/e-osc-synth.c \
+	tests/lib/gst/e-osc-wave.c tests/lib/gst/t-osc-wave.c \
 	tests/lib/gst/e-toneconversion.c tests/lib/gst/t-toneconversion.c \
 	tests/lib/gst/t-elements.c
 
