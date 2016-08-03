@@ -226,6 +226,7 @@ gstbt_osc_wave_setup (GstBtOscWave * self)
       "buffer", GST_TYPE_BUFFER, &self->data, NULL);
 
   if (!self->data) {
+    GST_WARNING ("missing buffer");
     return;
   }
 
@@ -242,7 +243,7 @@ gstbt_osc_wave_setup (GstBtOscWave * self)
     self->rate = 1.0;
   }
 
-  GST_WARNING ("got wave with %d channels", self->channels);
+  GST_INFO ("got wave with %d channels", self->channels);
 
   self->duration = self->map_info.size / (self->rate * sizeof (gint16));
 
