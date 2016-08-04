@@ -65,6 +65,11 @@
  * - we could even show presets as children of machines
  *   - dragging the preset would create the machine with the preset selected
  * - we could also allow to preview machines and/or presets
+ * - write a machine-model.{c,h}
+ *   - a GtkTreeModel provides row-{inserted,deleted,changed} signals, which we
+ *     can use to update the machine-menu
+ *   - this lets us extract the code that is in bt_machine_menu_init_submenu()
+ *     and thus simply the machine-menu.c (~180 lines)
  */
 
 #define BT_EDIT

@@ -20,7 +20,7 @@
  * SECTION::btcheckui:
  * @short_description: ui testing helpers
  *
- * This module contains utilities for bringing up the default display on Xvfb 
+ * This module contains utilities for bringing up the default display on Xvfb
  * (if available). One can use the environment variable BT_CHECK_NO_XVFB=1 for
  * bypassing Xvfb.
  *
@@ -351,6 +351,8 @@ make_screenshot (GtkWidget * widget)
   gtk_widget_queue_draw (widget);
   flush_main_loop ();
 
+  // TODO: cairo_surface_flush()
+
   gdk_window_get_geometry (window, NULL, NULL, &ww, &wh);
   return gdk_pixbuf_get_from_window (window, 0, 0, ww, wh);
 }
@@ -534,7 +536,7 @@ find_child (GtkWidget * w, BtCheckWidgetScreenshotRegions * r)
  * callouts to the given position. The callouts are numberd with the array
  * index. Widgets can be specified by name and/or type.
  *
- * The array needs to be terminated with an entry using 
+ * The array needs to be terminated with an entry using
  * match=%BT_CHECK_WIDGET_SCREENSHOT_REGION_MATCH_NONE.
  */
 void

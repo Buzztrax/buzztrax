@@ -40,10 +40,12 @@
 /* offer upstream?
  * if this is in gstreamer we could enhance the following elements:
  * jacksink: jack_set_timebase_callback()
+ * - see jack_mclk_dump,jack_midi_clock
  *
  * lv2, ladspa and all kind of audio-sources: gst_base_src_set_blocksize()
  *
  * alsamidisink: could send "MIDI beat clock" + "MIDI timecode"
+ * alsamidisrc: could provide a clock based based on incomming midi
  */
 
 #include "tempo.h"
