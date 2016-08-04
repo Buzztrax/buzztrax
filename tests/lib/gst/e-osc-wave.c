@@ -21,12 +21,12 @@
 
 //-- globals
 
-#define WAVE_SIZE 200
+#define WAVE_SIZE 10
 
 static GstStructure *
 get_mono_wave_buffer (gpointer user_data, guint wave_ix, guint wave_level_ix)
 {
-  static gint16 data[] = { G_MININT16, 0, 0, G_MAXINT16 };
+  static gint16 data[] = { G_MININT16, -1, 1, G_MAXINT16 };
   GstBuffer *buffer = gst_buffer_new_wrapped_full (GST_MEMORY_FLAG_READONLY,
       data, sizeof (data), 0, sizeof (data), NULL, NULL);
 
@@ -39,7 +39,7 @@ get_mono_wave_buffer (gpointer user_data, guint wave_ix, guint wave_level_ix)
 static GstStructure *
 get_stereo_wave_buffer (gpointer user_data, guint wave_ix, guint wave_level_ix)
 {
-  static gint16 data[] = { G_MININT16, 0, 0, G_MAXINT16 };
+  static gint16 data[] = { G_MININT16, -1, 1, G_MAXINT16 };
   GstBuffer *buffer = gst_buffer_new_wrapped_full (GST_MEMORY_FLAG_READONLY,
       data, sizeof (data), 0, sizeof (data), NULL, NULL);
 
@@ -47,6 +47,12 @@ get_stereo_wave_buffer (gpointer user_data, guint wave_ix, guint wave_level_ix)
       "channels", G_TYPE_INT, 2,
       "root-note", GSTBT_TYPE_NOTE, (guint) GSTBT_NOTE_C_3,
       "buffer", GST_TYPE_BUFFER, buffer, NULL);
+}
+
+static GstStructure *
+get_no_wave_buffer (gpointer user_data, guint wave_ix, guint wave_level_ix)
+{
+  return NULL;
 }
 
 //-- fixtures
@@ -65,7 +71,7 @@ case_teardown (void)
 //-- tests
 
 static void
-test_create_obj (BT_TEST_ARGS)
+test_osc_wave_create_obj (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -84,7 +90,7 @@ test_create_obj (BT_TEST_ARGS)
 }
 
 static void
-test_create_is_configured (BT_TEST_ARGS)
+test_osc_wave_is_configured (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -105,7 +111,54 @@ test_create_is_configured (BT_TEST_ARGS)
 }
 
 static void
-test_create_mono (BT_TEST_ARGS)
+test_osc_wave_reconfigure (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GstBtOscWave *osc;
+  gpointer mono_wave_callbacks[] = { NULL, get_mono_wave_buffer };
+  gpointer stereo_wave_callbacks[] = { NULL, get_stereo_wave_buffer };
+
+  GST_INFO ("-- arrange --");
+  osc = gstbt_osc_wave_new ();
+  g_object_set (osc, "wave-callbacks", mono_wave_callbacks, NULL);
+  gpointer mono_process_fn = osc->process;
+
+  GST_INFO ("-- act --");
+  g_object_set (osc, "wave-callbacks", stereo_wave_callbacks, NULL);
+
+  GST_INFO ("-- assert --");
+  fail_if (osc->process == mono_process_fn, NULL);
+
+  GST_INFO ("-- cleanup --");
+  ck_gst_object_final_unref (osc);
+  BT_TEST_END;
+}
+
+static void
+test_osc_wave_reconfigure_resets (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GstBtOscWave *osc;
+  gpointer mono_wave_callbacks[] = { NULL, get_mono_wave_buffer };
+  gpointer no_wave_callbacks[] = { NULL, get_no_wave_buffer };
+
+  GST_INFO ("-- arrange --");
+  osc = gstbt_osc_wave_new ();
+  g_object_set (osc, "wave-callbacks", mono_wave_callbacks, NULL);
+
+  GST_INFO ("-- act --");
+  g_object_set (osc, "wave-callbacks", no_wave_callbacks, NULL);
+
+  GST_INFO ("-- assert --");
+  fail_unless (osc->process == NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  ck_gst_object_final_unref (osc);
+  BT_TEST_END;
+}
+
+static void
+test_osc_wave_create_mono (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -121,8 +174,8 @@ test_create_mono (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   ck_assert_int_eq (data[0], G_MININT16);
-  ck_assert_int_eq (data[1], 0);
-  ck_assert_int_eq (data[2], 0);
+  ck_assert_int_eq (data[1], -1);
+  ck_assert_int_eq (data[2], 1);
   ck_assert_int_eq (data[3], G_MAXINT16);
 
   GST_INFO ("-- cleanup --");
@@ -131,7 +184,7 @@ test_create_mono (BT_TEST_ARGS)
 }
 
 static void
-test_create_stereo (BT_TEST_ARGS)
+test_osc_wave_create_stereo (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -147,9 +200,59 @@ test_create_stereo (BT_TEST_ARGS)
 
   GST_INFO ("-- assert --");
   ck_assert_int_eq (data[0], G_MININT16);
-  ck_assert_int_eq (data[1], 0);
-  ck_assert_int_eq (data[2], 0);
+  ck_assert_int_eq (data[1], -1);
+  ck_assert_int_eq (data[2], 1);
   ck_assert_int_eq (data[3], G_MAXINT16);
+
+  GST_INFO ("-- cleanup --");
+  ck_gst_object_final_unref (osc);
+  BT_TEST_END;
+}
+
+static void
+test_osc_wave_create_mono_beyond_size (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GstBtOscWave *osc;
+  gint16 data[WAVE_SIZE];
+  gpointer wave_callbacks[] = { NULL, get_mono_wave_buffer };
+  gint i;
+
+  GST_INFO ("-- arrange --");
+  osc = gstbt_osc_wave_new ();
+  g_object_set (osc, "wave-callbacks", wave_callbacks, NULL);
+
+  GST_INFO ("-- act --");
+  osc->process (osc, 4, WAVE_SIZE, data);
+
+  GST_INFO ("-- assert --");
+  for (i = 0; i < WAVE_SIZE; i++)
+    ck_assert_int_eq (data[i], 0);
+
+  GST_INFO ("-- cleanup --");
+  ck_gst_object_final_unref (osc);
+  BT_TEST_END;
+}
+
+static void
+test_osc_wave_create_stereo_beyond_size (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GstBtOscWave *osc;
+  gint16 data[WAVE_SIZE];
+  gpointer wave_callbacks[] = { NULL, get_stereo_wave_buffer };
+  gint i;
+
+  GST_INFO ("-- arrange --");
+  osc = gstbt_osc_wave_new ();
+  g_object_set (osc, "wave-callbacks", wave_callbacks, NULL);
+
+  GST_INFO ("-- act --");
+  osc->process (osc, 2, WAVE_SIZE / 2, data);
+
+  GST_INFO ("-- assert --");
+  for (i = 0; i < WAVE_SIZE; i++)
+    ck_assert_int_eq (data[i], 0);
 
   GST_INFO ("-- cleanup --");
   ck_gst_object_final_unref (osc);
@@ -161,10 +264,14 @@ gst_buzztrax_osc_wave_example_case (void)
 {
   TCase *tc = tcase_create ("GstBtOscWaveExamples");
 
-  tcase_add_test (tc, test_create_obj);
-  tcase_add_test (tc, test_create_is_configured);
-  tcase_add_test (tc, test_create_mono);
-  tcase_add_test (tc, test_create_stereo);
+  tcase_add_test (tc, test_osc_wave_create_obj);
+  tcase_add_test (tc, test_osc_wave_is_configured);
+  tcase_add_test (tc, test_osc_wave_reconfigure);
+  tcase_add_test (tc, test_osc_wave_reconfigure_resets);
+  tcase_add_test (tc, test_osc_wave_create_mono);
+  tcase_add_test (tc, test_osc_wave_create_stereo);
+  tcase_add_test (tc, test_osc_wave_create_mono_beyond_size);
+  tcase_add_test (tc, test_osc_wave_create_stereo_beyond_size);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }

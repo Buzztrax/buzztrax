@@ -79,13 +79,12 @@ static gboolean
 gstbt_osc_wave_create_mono (GstBtOscWave * self, guint64 off, guint ct,
     gint16 * dst)
 {
-  if (!self->data) {
-    GST_DEBUG ("no wave buffer");
-    return FALSE;
-  }
+  g_return_val_if_fail (self->data, FALSE);
+
   const guint ss = sizeof (gint16);
   guint size = self->map_info.size;
   if (off * ss >= size) {
+    memset (dst, 0, ct * ss);
     GST_DEBUG ("beyond size");
     return FALSE;
   }
@@ -108,13 +107,12 @@ static gboolean
 gstbt_osc_wave_create_stereo (GstBtOscWave * self, guint64 off, guint ct,
     gint16 * dst)
 {
-  if (!self->data) {
-    GST_DEBUG ("no wave buffer");
-    return FALSE;
-  }
+  g_return_val_if_fail (self->data, FALSE);
+
   const guint ss = 2 * sizeof (gint16);
   guint size = self->map_info.size;
   if (off * ss >= size) {
+    memset (dst, 0, ct * ss);
     GST_DEBUG ("beyond size");
     return FALSE;
   }
@@ -137,13 +135,12 @@ static gboolean
 gstbt_osc_wave_create_mono_resampled (GstBtOscWave * self, guint64 off,
     guint ct, gint16 * dst)
 {
-  if (!self->data) {
-    GST_DEBUG ("no wave buffer");
-    return FALSE;
-  }
+  g_return_val_if_fail (self->data, FALSE);
+
   const guint ss = sizeof (gint16);
   guint size = self->map_info.size;
   if (off * ss >= size) {
+    memset (dst, 0, ct * ss);
     GST_DEBUG ("beyond size");
     return FALSE;
   }
@@ -164,13 +161,12 @@ static gboolean
 gstbt_osc_wave_create_stereo_resampled (GstBtOscWave * self, guint64 off,
     guint ct, gint16 * dst)
 {
-  if (!self->data) {
-    GST_DEBUG ("no wave buffer");
-    return FALSE;
-  }
+  g_return_val_if_fail (self->data, FALSE);
+
   const guint ss = 2 * sizeof (gint16);
   guint size = self->map_info.size;
   if (off * ss >= size) {
+    memset (dst, 0, ct * ss);
     GST_DEBUG ("beyond size");
     return FALSE;
   }
@@ -208,17 +204,23 @@ gstbt_osc_wave_setup (GstBtOscWave * self)
   GstStructure *s;
   GstBtNote root_note;
 
-  if (!cb) {
-    return;
-  }
   if (self->data) {
     gst_buffer_unmap (self->data, &self->map_info);
     gst_buffer_unref (self->data);
     self->data = NULL;
   }
-  get_wave_buffer = cb[1];
-  if (!(s = get_wave_buffer (cb[0], self->wave, self->wave_level)))
+  self->process = NULL;
+  if (!cb) {
+    GST_WARNING_OBJECT (self, "no callbacks set");
     return;
+  }
+
+  get_wave_buffer = cb[1];
+  if (!(s = get_wave_buffer (cb[0], self->wave, self->wave_level))) {
+    GST_WARNING_OBJECT (self, "no wave for index=%d, level=%d", self->wave,
+        self->wave_level);
+    return;
+  }
 
   gst_structure_get (s,
       "channels", G_TYPE_INT, &self->channels,
@@ -226,7 +228,7 @@ gstbt_osc_wave_setup (GstBtOscWave * self)
       "buffer", GST_TYPE_BUFFER, &self->data, NULL);
 
   if (!self->data) {
-    GST_WARNING ("missing buffer");
+    GST_WARNING_OBJECT (self, "missing buffer");
     return;
   }
 
@@ -243,7 +245,7 @@ gstbt_osc_wave_setup (GstBtOscWave * self)
     self->rate = 1.0;
   }
 
-  GST_INFO ("got wave with %d channels", self->channels);
+  GST_INFO_OBJECT (self, "got wave with %d channels", self->channels);
 
   self->duration = self->map_info.size / (self->rate * sizeof (gint16));
 
@@ -264,12 +266,13 @@ gstbt_osc_wave_setup (GstBtOscWave * self)
       }
       break;
     default:
-      GST_ERROR ("unsupported number of channels: %d", self->channels);
+      GST_ERROR_OBJECT (self, "unsupported number of channels: %d",
+          self->channels);
       break;
   }
 
-  GST_WARNING ("duration at rate %lf is %" G_GUINT64_FORMAT, self->rate,
-      self->duration);
+  GST_INFO_OBJECT (self, "duration at rate %lf is %" G_GUINT64_FORMAT,
+      self->rate, self->duration);
 }
 
 //-- public methods

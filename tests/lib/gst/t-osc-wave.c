@@ -21,7 +21,13 @@
 
 //-- globals
 
-#define WAVE_SIZE 200
+#define WAVE_SIZE 10
+
+static GstStructure *
+get_no_wave_buffer (gpointer user_data, guint wave_ix, guint wave_level_ix)
+{
+  return NULL;
+}
 
 //-- fixtures
 
@@ -40,7 +46,7 @@ case_teardown (void)
 
 // no wavetable set, no format negotiated
 static void
-test_create_disconncted (BT_TEST_ARGS)
+test_osc_wave_create_disconncted (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GstBtOscWave *osc;
@@ -58,12 +64,34 @@ test_create_disconncted (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_osc_wave_no_wave (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GstBtOscWave *osc;
+  gpointer wave_callbacks[] = { NULL, get_no_wave_buffer };
+
+  GST_INFO ("-- arrange --");
+  osc = gstbt_osc_wave_new ();
+  g_object_set (osc, "wave-callbacks", wave_callbacks, NULL);
+
+  GST_INFO ("-- act --");
+
+  GST_INFO ("-- assert --");
+  fail_unless (osc->process == NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  ck_gst_object_final_unref (osc);
+  BT_TEST_END;
+}
+
 TCase *
 gst_buzztrax_osc_wave_test_case (void)
 {
   TCase *tc = tcase_create ("GstBtOscWaveTests");
 
-  tcase_add_test (tc, test_create_disconncted);
+  tcase_add_test (tc, test_osc_wave_create_disconncted);
+  tcase_add_test (tc, test_osc_wave_no_wave);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }
