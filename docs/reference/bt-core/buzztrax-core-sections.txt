@@ -678,6 +678,7 @@ bt_wavelevel_get_type
 <TITLE>BtWavetable</TITLE>
 BtWavetable
 bt_wavetable_add_wave
+bt_wavetable_get_callbacks
 bt_wavetable_get_wave_by_index
 bt_wavetable_new
 bt_wavetable_remember_missing_wave

@@ -227,6 +227,8 @@ gstbt_osc_wave_setup (GstBtOscWave * self)
       "root-note", GSTBT_TYPE_NOTE, &root_note,
       "buffer", GST_TYPE_BUFFER, &self->data, NULL);
 
+  gst_structure_free (s);
+
   if (!self->data) {
     GST_WARNING_OBJECT (self, "missing buffer");
     return;

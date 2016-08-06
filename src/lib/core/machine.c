@@ -1065,12 +1065,11 @@ bt_machine_init_interfaces (const BtMachine * const self)
   }
   pspec = g_object_class_find_property (klass, "wave-callbacks");
   if (pspec && G_IS_PARAM_SPEC_POINTER (pspec)) {
-    extern gpointer bt_wavetable_callbacks_get (BtWavetable * self);
     BtWavetable *wavetable;
 
     g_object_get (self->priv->song, "wavetable", &wavetable, NULL);
     g_object_set (machine, "wave-callbacks",
-        bt_wavetable_callbacks_get (wavetable), NULL);
+        bt_wavetable_get_callbacks (wavetable), NULL);
     g_object_unref (wavetable);
     GST_INFO ("  wave-table bridge initialized");
   }

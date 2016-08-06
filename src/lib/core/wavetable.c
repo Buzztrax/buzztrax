@@ -22,7 +22,7 @@
  * waves has a #BtWavelevel with the data for a note range.
  *
  * The first entry starts at index pos 1. Index 0 is used in a #BtPattern to
- * indicate that no (new) wave is referenced. 
+ * indicate that no (new) wave is referenced.
  */
 /* TODO(ensonic): defer freeing waves if playing
  * - buzzmachines don't ref waves, machines are supposed to check the wave ptr
@@ -524,8 +524,19 @@ static gpointer callbacks[] = {
   get_wave_buffer
 };
 
+/* bt_wavetable_get_callbacks:
+ * @self: wabe table
+ *
+ * Get wavetable callbacks. The returned handle can be passed to plugin that
+ * need wave-table access.
+ *
+ * Note: this is not a well defined interface yet and subject to change.
+ *
+ * Returns a static pointer array. The first entry will point to the wavetable
+ * and the 2nd entry will be a pointer to a function get get wave buffers.
+ */
 gpointer
-bt_wavetable_callbacks_get (BtWavetable * self)
+bt_wavetable_get_callbacks (BtWavetable * self)
 {
   callbacks[0] = (gpointer) self;
   return &callbacks;

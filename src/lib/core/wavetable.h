@@ -41,7 +41,7 @@ typedef struct _BtWavetablePrivate BtWavetablePrivate;
  */
 struct _BtWavetable {
   const GObject parent;
-  
+
   /*< private >*/
   BtWavetablePrivate *priv;
 };
@@ -63,5 +63,7 @@ gboolean bt_wavetable_remove_wave(const BtWavetable * const self, const BtWave *
 BtWave *bt_wavetable_get_wave_by_index(const BtWavetable * const self, const gulong index);
 
 void bt_wavetable_remember_missing_wave(const BtWavetable * const self, const gchar * const str);
+
+gpointer bt_wavetable_get_callbacks(BtWavetable * self);
 
 #endif // BT_WAVETABLE_H
