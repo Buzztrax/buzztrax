@@ -15,9 +15,7 @@ before_script:
 env:
   - CONFIGURE_OPTS="--enable-debug --enable-coverage"
   - CONFIGURE_OPTS="--disable-debug"
-  global:
-    # COVERITY_SCAN_TOKEN
-    - secure: "itvRhPpXHHWwQqyW1hbb-Q"
+  - secure: "itvRhPpXHHWwQqyW1hbb-Q"
 
 script: ./configure ${CONFIGURE_OPTS} && make && make check
 
