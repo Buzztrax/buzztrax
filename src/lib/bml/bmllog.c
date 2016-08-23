@@ -80,7 +80,7 @@ static void
 _log_stdout_logger (char *str)
 {
 #ifdef USE_DEBUG
-  static char lbuf[1000];
+  static char lbuf[1000 + 1];
   static int p = 0;
   int i = 0;
 
