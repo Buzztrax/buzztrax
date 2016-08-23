@@ -1138,7 +1138,7 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
           BT_SEQUENCE_GRID_MODEL_LABEL, &old_text, -1);
       GST_INFO ("old_text '%s'", old_text);
 
-      if (old_text || new_text) {
+      if ((old_text == NULL) != (new_text == NULL)) {
         changed = TRUE;
         if (old_text && !*old_text)
           old_text = NULL;
