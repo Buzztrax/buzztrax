@@ -15,9 +15,8 @@ before_script:
 env:
   - CONFIGURE_OPTS="--enable-debug --enable-coverage"
   - CONFIGURE_OPTS="--disable-debug"
-  - secure: "H7yalPLBMJpUjPFeN2saZ46PcXor2wrIay3DTV+74Nqh/RMmeuDGt8dbvbiYSOJmpOW5j1uHnFc1UGffH4wOPafvV6SazqGJkHifoXQmZY+twfUBO7B6JTnEIy+UhP+uAk64oDdy2zyNbKpUUCAQmBqD3WMFfwZFLj/uRpt+P1E="
 
-script: if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then ./configure ${CONFIGURE_OPTS} && make && make check; fi
+script: ./configure ${CONFIGURE_OPTS} && make && make check
 
 after_failure: cat ./test-suite.log && scripts/gdbtests.sh ./test-suite.log
 
@@ -36,12 +35,3 @@ addons:
     - bt_ic.tar.bz2
     - $(ls /tmp/record.* | tr "\n" ":")
 
-  coverity_scan:
-    project:
-      name: Buzztrax/buzztrax
-      description: Buzztrax is a modular music composer for Linux.
-    notification_email: buzztrax-devel@buzztrax.org
-    build_command_prepend: ./autogen.sh
-    build_command: make
-    branch_pattern: coverity_scan
-    
