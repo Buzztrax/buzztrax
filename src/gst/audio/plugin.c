@@ -40,9 +40,9 @@ GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 
 /* https://bugzilla.gnome.org/show_bug.cgi?id=744011
  *
- * the problem is that g_object_class_list_properties() will remove the 
+ * the problem is that g_object_class_list_properties() will remove the
  * g_param_spec_override() - see pspec_list_remove_overridden_and_redirected()
- * as it also goes up the hierarchy in order to try to supply the redirect 
+ * as it also goes up the hierarchy in order to try to supply the redirect
  * target instead. Here the filter_klass is not a parent, nor an interface and
  * thus the pspec is lost.
  */
@@ -110,7 +110,7 @@ bt_g_param_spec_clone_as (GObjectClass * src_class, const gchar * src_name,
     }
   }
   if (new_blurb) {
-    if (!(pspec->flags & G_PARAM_STATIC_NICK)) {
+    if (!(pspec->flags & G_PARAM_STATIC_BLURB)) {
       g_free (pspec->_nick);
       pspec->_blurb = g_strdup (new_blurb);
     } else {

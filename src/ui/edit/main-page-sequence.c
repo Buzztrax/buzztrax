@@ -276,7 +276,9 @@ get_avg_pixels_per_char (GtkWidget * widget)
 
   pango_font_metrics_unref (metrics);
 
-  return ceil ((MAX (char_width, digit_width) + PANGO_SCALE - 1) / PANGO_SCALE);
+  gint width = MAX (char_width, digit_width);
+
+  return (width + (PANGO_SCALE - 1)) / PANGO_SCALE;
 }
 
 //-- tree filter func
@@ -1136,7 +1138,7 @@ on_sequence_label_edited (GtkCellRendererText * cellrenderertext,
           BT_SEQUENCE_GRID_MODEL_LABEL, &old_text, -1);
       GST_INFO ("old_text '%s'", old_text);
 
-      if (old_text || new_text) {
+      if ((old_text == NULL) != (new_text == NULL)) {
         changed = TRUE;
         if (old_text && !*old_text)
           old_text = NULL;

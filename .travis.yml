@@ -26,4 +26,4 @@ addons:
     build_command_prepend: ./autogen.sh
     build_command: make
     branch_pattern: coverity_scan
-    
+

@@ -129,6 +129,30 @@
   + adds a lot of flexibility and keeps the plugins simple
 
 
+* editable machines
+  * polybin
+    * idea:
+      * select machine that does not support childbin yet
+      * internal pipelines:
+        * source: src[n] | adder
+        * effect: tee ! effect[n] | adder
+      * select which properties to expose as global params, other are per voice
+  * templates
+    * idea:
+      * load a song fragment
+      * show a list of machines with their parameters, ignore master
+      * select which properties to expose
+    * issues:
+      * what if some elements are polyphonic?
+      * can we wrap a template machine into a polybin?
+  * ext midi
+    * idea:
+      * midi-out + audio-in with latency compensation
+      * select an audio-in and a midi out
+      * meassure latency and store with setup
+      * midi-device program list as presets
+
+
 * OSC support
   * settings
     - the OSC port for listening

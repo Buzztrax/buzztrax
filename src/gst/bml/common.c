@@ -141,19 +141,17 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
 static gchar *
 gstbml_preset_make_preset_file_name (GstBMLClass * klass, gchar * preset_dir)
 {
-  gchar *preset_path, *base_name, *ext;
+  gchar *preset_path, *base_name;
 
+  // extract name from system preset path
+  // FIXME: assumes this is != NULL
   if ((base_name = strrchr (klass->preset_path, '/'))) {
     base_name++;
   } else {
     base_name = klass->preset_path;
   }
-  ext = g_strrstr (base_name, ".");
-  *ext = '\0';                  // temporarily terminate
-  preset_path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s.prs", preset_dir,
+  preset_path = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s", preset_dir,
       base_name);
-  *ext = '.';                   // restore
-
   return preset_path;
 }
 
@@ -161,8 +159,6 @@ gchar **
 gstbml_preset_get_preset_names (GstBML * bml, GstBMLClass * klass)
 {
   if (!klass->presets) {
-    gchar *preset_path, *preset_dir;
-
     // create data hash if its not there
     if (!klass->preset_data) {
       klass->preset_data = g_hash_table_new (g_str_hash, g_str_equal);
@@ -170,14 +166,17 @@ gstbml_preset_get_preset_names (GstBML * bml, GstBMLClass * klass)
     if (!klass->preset_comments) {
       klass->preset_comments = g_hash_table_new (g_str_hash, g_str_equal);
     }
-    // load them from local path and then from system path
-    preset_dir = g_build_filename (g_get_user_data_dir (),
-        "gstreamer-" GST_MAJORMINOR, "presets", NULL);
-    preset_path = gstbml_preset_make_preset_file_name (klass, preset_dir);
-    gstbml_preset_parse_preset_file (klass, preset_path);
-    g_free (preset_dir);
-    g_free (preset_path);
     if (klass->preset_path) {
+      gchar *preset_path, *preset_dir;
+
+      // load them from local path ...
+      preset_dir = g_build_filename (g_get_user_data_dir (),
+          "gstreamer-" GST_MAJORMINOR, "presets", NULL);
+      preset_path = gstbml_preset_make_preset_file_name (klass, preset_dir);
+      gstbml_preset_parse_preset_file (klass, preset_path);
+      g_free (preset_dir);
+      g_free (preset_path);
+      // ... and from system path
       gstbml_preset_parse_preset_file (klass, klass->preset_path);
     }
   } else {
