@@ -1,17 +1,17 @@
 /* Buzz Machine Loader
  * Copyright (C) 2003-2007 Anders Ervik <calvin@countzero.no>
  * Copyright (C) 2008 Buzztrax team <buzztrax-devel@buzztrax.org>*
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -45,6 +45,8 @@ class CMachine {
     dword globalParams;             // 0x94: number of global params
     dword trackParams;              // 0x98: number of track params
     char _placeholder5[76];         // 0x9C:
+      // float posX, posY             // 0xA8: machine pos
+      //                              // 0xB8: ...
     int _internal_seqCommand;       // 0xE8: used by mooter, 0 = --, 1 = mute, 2 = thru
     char _placeholder6[17];
     bool hardMuted;                 // 0xFD: true when muted by user, used by mooter
@@ -68,6 +70,7 @@ public:
         _internal_trackState = NULL;
     		memset (_placeholder4, 0,  sizeof(_placeholder4));
     		machineInterface2 = NULL;
+    		globalSize = trackSize = unk1 = unk2 = globalParams = trackParams = 0;
     		memset (_placeholder5, 0,  sizeof(_placeholder5));
         _internal_seqCommand = 0;
     		memset (_placeholder6, 0,  sizeof(_placeholder6));
