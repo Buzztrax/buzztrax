@@ -15,9 +15,9 @@ before_script:
 env:
   - CONFIGURE_OPTS="--enable-debug --enable-coverage"
   - CONFIGURE_OPTS="--disable-debug"
-  - secure: "itvRhPpXHHWwQqyW1hbb-Q"
+  - secure: "H7yalPLBMJpUjPFeN2saZ46PcXor2wrIay3DTV+74Nqh/RMmeuDGt8dbvbiYSOJmpOW5j1uHnFc1UGffH4wOPafvV6SazqGJkHifoXQmZY+twfUBO7B6JTnEIy+UhP+uAk64oDdy2zyNbKpUUCAQmBqD3WMFfwZFLj/uRpt+P1E="
 
-script: ./configure ${CONFIGURE_OPTS} && make && make check
+script: if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then ./configure ${CONFIGURE_OPTS} && make && make check; fi
 
 after_failure: cat ./test-suite.log && scripts/gdbtests.sh ./test-suite.log
 
@@ -35,25 +35,13 @@ addons:
     - bt_edit.tar.bz2
     - bt_ic.tar.bz2
     - $(ls /tmp/record.* | tr "\n" ":")
+
   coverity_scan:
     project:
       name: Buzztrax/buzztrax
-      version: 0.11
       description: Buzztrax is a modular music composer for Linux.
-
-    # Where email notification of build analysis results will be sent
     notification_email: buzztrax-devel@buzztrax.org
-
-    # Commands to prepare for build_command
-    # ** likely specific to your build **
     build_command_prepend: ./autogen.sh
-
-    # The command that will be added as an argument to "cov-build" to compile your project for analysis,
-    # ** likely specific to your build **
     build_command: make
-
-    # Pattern to match selecting branches that will run analysis. We recommend leaving this set to 'coverity_scan'.
-    # Take care in resource usage, and consider the build frequency allowances per
-    #   https://scan.coverity.com/faq#frequency
     branch_pattern: coverity_scan
     
