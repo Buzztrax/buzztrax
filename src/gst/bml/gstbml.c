@@ -467,8 +467,8 @@ bml (gstbml_class_base_init (GstBMLClass * klass, GType type, gint numsrcpads,
       (gchar *) gst_structure_get_string (bml_meta, "help-filename");
   klass->preset_path =
       (gchar *) gst_structure_get_string (bml_meta, "preset-filename");
-  GST_INFO ("initializing base: type_name=%s, file_name=%s", g_type_name (type),
-      klass->dll_name);
+  GST_INFO ("initializing base: type_name=%s, file_name=%s, preset_path=%s",
+      g_type_name (type), klass->dll_name, klass->preset_path);
 
   bmh = bml (open (klass->dll_name));
   g_assert (bmh);
