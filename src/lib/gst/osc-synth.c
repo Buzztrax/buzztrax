@@ -690,6 +690,7 @@ gstbt_osc_synth_trigger (GstBtOscSynth * self)
       self->sh.count = 0;
       self->sh.smpl = 0.0;
       self->sh.next = 32768 - (65535.0 * rand () / (RAND_MAX + 1.0));
+      break;
     default:
       GST_ERROR ("invalid wave-form: %d", self->wave);
       break;
