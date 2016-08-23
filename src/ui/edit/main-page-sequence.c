@@ -276,7 +276,9 @@ get_avg_pixels_per_char (GtkWidget * widget)
 
   pango_font_metrics_unref (metrics);
 
-  return ceil ((MAX (char_width, digit_width) + PANGO_SCALE - 1) / PANGO_SCALE);
+  gint width = MAX (char_width, digit_width);
+
+  return (width + (PANGO_SCALE - 1)) / PANGO_SCALE;
 }
 
 //-- tree filter func

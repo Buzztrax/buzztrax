@@ -790,7 +790,7 @@ bt_pattern_editor_draw (GtkWidget * widget, cairo_t * cr)
   y = ch = self->ch;
   /* calculate the first and last row in the dirty region */
   max_y = allocation.height + ch;       // one extra line
-  max_y = ch + (gint) (ch * ceil ((max_y - ch) / ch));
+  max_y = ch + (gint) (ch * ((max_y - ch) / ch));
 
   GST_DEBUG ("Scroll: %d,%d, rows: %d", self->ofs_x, self->ofs_y,
       self->num_rows);
