@@ -12,6 +12,8 @@ before_install:
 env:
   - secure: "H7yalPLBMJpUjPFeN2saZ46PcXor2wrIay3DTV+74Nqh/RMmeuDGt8dbvbiYSOJmpOW5j1uHnFc1UGffH4wOPafvV6SazqGJkHifoXQmZY+twfUBO7B6JTnEIy+UhP+uAk64oDdy2zyNbKpUUCAQmBqD3WMFfwZFLj/uRpt+P1E="
 
+script: /bin/true
+
 notifications:
   irc: "chat.freenode.net#buzztrax"
 
