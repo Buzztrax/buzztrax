@@ -51,7 +51,7 @@
 /* TODO(ensonic): multi-sample wave support
  * - on sample CDs we have multiple waves as separate files
  * - we could have a uri per wavelevel, if wave.uri==NULL, then loop over wavelevels
- *   and the uris   
+ *   and the uris
  */
 #define BT_CORE
 #define BT_WAVE_C
@@ -101,7 +101,6 @@ struct _BtWavePrivate
 
   /* wave loader */
   gint fd, ext_fd;
-  FILE *tf, *ext_tf;
 };
 
 static GQuark error_domain = 0;
@@ -139,21 +138,11 @@ bt_wave_loop_mode_get_type (void)
 static void
 wave_io_free (const BtWave * self)
 {
-  if (self->priv->ext_tf) {
-    // ext_fd is fileno() of a ext_tf
-    fclose (self->priv->ext_tf);
-    self->priv->ext_tf = NULL;
-    self->priv->ext_fd = -1;
-  } else if (self->priv->ext_fd != -1) {
+  if (self->priv->ext_fd != -1) {
     close (self->priv->ext_fd);
     self->priv->ext_fd = -1;
   }
-  if (self->priv->tf) {
-    // fd is fileno() of a tf
-    fclose (self->priv->tf);
-    self->priv->tf = NULL;
-    self->priv->fd = -1;
-  } else if (self->priv->fd != -1) {
+  if (self->priv->fd != -1) {
     close (self->priv->fd);
     self->priv->fd = -1;
   }
@@ -212,12 +201,11 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
   g_object_set (fmt, "caps", caps, NULL);
   gst_caps_unref (caps);
 
-  if (!(self->priv->tf = tmpfile ())) {
+  if ((self->priv->fd = g_file_open_tmp (NULL, NULL, NULL)) == -1) {
     res = FALSE;
     GST_WARNING ("Can't create tempfile.");
     goto Error;
   }
-  self->priv->fd = fileno (self->priv->tf);
   g_object_set (sink, "fd", self->priv->fd, "sync", FALSE, NULL);
 
   // add and link
@@ -260,7 +248,7 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
     GST_INFO_OBJECT (pipeline, "loading sample ...");
   }
 
-  /* load wave in sync mode, loading them async causes troubles in the 
+  /* load wave in sync mode, loading them async causes troubles in the
    * persistence code and makes testing complicated */
   while (!done) {
     msg = gst_bus_poll (bus,
@@ -411,8 +399,7 @@ bt_wave_save_to_fd (const BtWave * const self)
   //gchar *fn_wav;
   gulong srate, length, size, written;
   gint16 *data;
-  FILE *tf = NULL;
-  gint fd;
+  gint fd = -1;
 
   if (!self->priv->wavelevels) {
     res = FALSE;
@@ -420,19 +407,16 @@ bt_wave_save_to_fd (const BtWave * const self)
     goto Error;
   }
 
-  if (!(tf = tmpfile ())) {
+  if ((fd = g_file_open_tmp (NULL, NULL, NULL)) == -1) {
     res = FALSE;
     GST_WARNING ("Can't create tempfile.");
     goto Error;
   }
-  fd = fileno (tf);
-  if (!(self->priv->ext_tf = tmpfile ())) {
+  if ((self->priv->ext_fd = g_file_open_tmp (NULL, NULL, NULL)) == -1) {
     res = FALSE;
     GST_WARNING ("Can't create tempfile.");
     goto Error;
   }
-  self->priv->ext_fd = fileno (self->priv->ext_tf);
-
   // the data is in the wave-level :/
   wavelevel = BT_WAVELEVEL (self->priv->wavelevels->data);
   g_object_get (wavelevel,
@@ -530,8 +514,8 @@ Error:
     gst_element_set_state (pipeline, GST_STATE_NULL);
     gst_object_unref (pipeline);
   }
-  if (tf)
-    fclose (tf);
+  if (fd != -1)
+    close (fd);
   if (!res)
     wave_io_free (self);
   return (res);
@@ -778,14 +762,12 @@ bt_wave_persistence_load (const GType type,
       GST_INFO ("loading external uri=%s -> zip=%s", (gchar *) uri_str, fp);
 
       // we need to copy the files from zip and change the uri to "fd://%d"
-      if ((self->priv->ext_tf = tmpfile ())) {
-        self->priv->ext_fd = fileno (self->priv->ext_tf);
+      if ((self->priv->ext_fd = g_file_open_tmp (NULL, NULL, NULL)) != -1) {
         if (bt_song_io_native_bzt_copy_to_fd (BT_SONG_IO_NATIVE_BZT (song_io),
                 fp, self->priv->ext_fd)) {
           uri = g_strdup_printf ("fd://%d", self->priv->ext_fd);
         } else {
-          fclose (self->priv->ext_tf);
-          self->priv->ext_tf = NULL;
+          close (self->priv->ext_fd);
           self->priv->ext_fd = -1;
           unpack_failed = TRUE;
         }
