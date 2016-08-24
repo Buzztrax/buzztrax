@@ -641,9 +641,13 @@ bt_change_log_crash_check (BtChangeLog * self)
         crash_log->song_file_name =
             *song_file_name ? g_strdup (song_file_name) :
             g_strdup (_("unsaved song"));
-        fstat (fileno (log_file), &fileinfo);
-        strftime (linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN - 1, "%c",
-            localtime (&fileinfo.st_mtime));
+        if (!fstat (fileno (log_file), &fileinfo)) {
+          strftime (linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN - 1, "%c",
+              localtime (&fileinfo.st_mtime));
+        } else {
+          strcpy (linebuf, "?");
+          GST_WARNING ("Failed to stat '%s': %s", log_path, g_strerror (errno));
+        }
         crash_log->change_ts = g_strdup (linebuf);
         crash_log->mtime = fileinfo.st_mtime;
         crash_logs = g_list_prepend (crash_logs, crash_log);
@@ -658,7 +662,10 @@ bt_change_log_crash_check (BtChangeLog * self)
          */
         if (auto_clean) {
           GST_WARNING ("auto removing '%s'", log_name);
-          g_remove (log_path);
+          if (g_remove (log_path)) {
+            GST_WARNING ("failed removing '%s': %s", log_name,
+                g_strerror (errno));
+          }
         }
       }
     }
@@ -681,7 +688,10 @@ on_song_file_name_changed (const BtSong * song, GParamSpec * arg,
   // move the log
   g_object_get ((GObject *) song, "song-info", &song_info, NULL);
   log_file_name = make_log_file_name (self, song_info);
-  g_rename (self->priv->log_file_name, log_file_name);
+  if (g_rename (self->priv->log_file_name, log_file_name)) {
+    GST_WARNING ("failed renaming '%s' to '%s': %s", self->priv->log_file_name,
+        log_file_name, g_strerror (errno));
+  }
   g_free (self->priv->log_file_name);
   self->priv->log_file_name = log_file_name;
   g_object_unref (song_info);

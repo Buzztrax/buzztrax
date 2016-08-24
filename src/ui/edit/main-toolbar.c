@@ -654,9 +654,11 @@ on_song_volume_slider_release_event (GtkWidget * widget, GdkEventButton * event,
     if ((cb = gst_object_get_control_binding (machine, "master-volume"))) {
       BtParameterGroup *pg =
           bt_machine_get_global_param_group (self->priv->master);
-      // update the default value at ts=0
-      bt_parameter_group_set_param_default (pg,
-          bt_parameter_group_get_param_index (pg, "master-volume"));
+      glong param = bt_parameter_group_get_param_index (pg, "master-volume");
+      if (G_LIKELY (param != -1)) {
+        // update the default value at ts=0
+        bt_parameter_group_set_param_default (pg, param);
+      }
 
       /* TODO(ensonic): it should actualy postpone the enable to the next
        * timestamp.

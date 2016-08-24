@@ -198,7 +198,9 @@ on_delete_clicked (GtkButton * button, gpointer user_data)
   gchar *log_name = get_selected (self);
 
   if (log_name) {
-    g_remove (log_name);
+    if (g_remove (log_name)) {
+      GST_WARNING ("failed removing '%s': %s", log_name, g_strerror (errno));
+    }
     remove_selected (self);
     g_free (log_name);
     /* if that was the last entry, close dialog */

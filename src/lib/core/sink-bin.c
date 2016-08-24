@@ -421,9 +421,9 @@ bt_sink_bin_clear (const BtSinkBin * const self)
       if ((res =
               gst_element_set_state (elem,
                   GST_STATE_NULL)) == GST_STATE_CHANGE_FAILURE)
-        GST_WARNING ("can't go to null state");
+        GST_WARNING_OBJECT (self, "can't go to null state");
       else
-        GST_DEBUG ("->NULL state change returned '%s'",
+        GST_DEBUG_OBJECT (self, "->NULL state change returned '%s'",
             gst_element_state_change_return_get_name (res));
       gst_bin_remove (bin, elem);
     }
@@ -434,7 +434,7 @@ bt_sink_bin_clear (const BtSinkBin * const self)
       self->priv->src = NULL;
     }
   }
-  GST_DEBUG ("done");
+  GST_DEBUG_OBJECT (self, "done");
 }
 
 static gboolean
@@ -443,7 +443,7 @@ bt_sink_bin_add_many (const BtSinkBin * const self, GList * const list)
   const GList *node;
   GstElement *elem;
 
-  GST_DEBUG ("add elements: list=%p", list);
+  GST_DEBUG_OBJECT (self, "add elements: list=%p", list);
 
   for (node = list; node; node = node->next) {
     elem = GST_ELEMENT_CAST (node->data);
@@ -468,7 +468,7 @@ bt_sink_bin_link_many (const BtSinkBin * const self, GstElement * last_elem,
 {
   const GList *node;
 
-  GST_DEBUG ("link elements: last_elem=%s, list=%p",
+  GST_DEBUG_OBJECT (self, "link elements: last_elem=%s, list=%p",
       GST_OBJECT_NAME (last_elem), list);
   if (!list)
     return;
@@ -477,7 +477,8 @@ bt_sink_bin_link_many (const BtSinkBin * const self, GstElement * last_elem,
     GstElement *const cur_elem = GST_ELEMENT (node->data);
 
     if (!gst_element_link (last_elem, cur_elem)) {
-      GST_WARNING ("can't link elements: last_elem=%s, cur_elem=%s",
+      GST_WARNING_OBJECT (self,
+          "can't link elements: last_elem=%s, cur_elem=%s",
           GST_OBJECT_NAME (last_elem), GST_OBJECT_NAME (cur_elem));
     }
     last_elem = cur_elem;
@@ -492,7 +493,7 @@ bt_sink_bin_get_player_elements (const BtSinkBin * const self)
   GstElement *element;
   BtAudioSession *audio_session;
 
-  GST_DEBUG ("get playback elements");
+  GST_DEBUG_OBJECT (self, "get playback elements");
 
   // need to also get the "audiosink-device" setting
   if (!bt_settings_determine_audiosink_name (self->priv->settings,
@@ -577,7 +578,7 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
   GstElement *element;
   GstEncodingProfile *profile = NULL;
 
-  GST_DEBUG ("get record elements");
+  GST_DEBUG_OBJECT (self, "get record elements");
 
   // TODO(ensonic): check extension ?
 
@@ -591,7 +592,7 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
     }
     g_object_unref (profile);
   } else {
-    GST_DEBUG ("no profile, do raw recording");
+    GST_DEBUG_OBJECT (self, "no profile, do raw recording");
     // encodebin starts with a queue already
     element = gst_element_factory_make ("queue", "record-queue");
     if (element) {
@@ -602,7 +603,7 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
     }
   }
   // create filesink, set location property
-  GST_DEBUG ("recording to: %s", self->priv->record_file_name);
+  GST_DEBUG_OBJECT (self, "recording to: %s", self->priv->record_file_name);
   element = gst_element_factory_make ("filesink", "filesink");
   if (element) {
     g_object_set (element, "location", self->priv->record_file_name,
@@ -658,7 +659,7 @@ bt_sink_bin_format_update (const BtSinkBin * const self)
       "channels", G_TYPE_INT, self->priv->channels, NULL);
   sink_format_caps = gst_caps_new_full (s, NULL);
 
-  GST_INFO ("sink is using: sample-rate=%u, channels=%u",
+  GST_INFO_OBJECT (self, "sink is using: sample-rate=%u, channels=%u",
       self->priv->sample_rate, self->priv->channels);
 
   g_object_set (self->priv->caps_filter, "caps", sink_format_caps, NULL);
@@ -723,7 +724,7 @@ bt_sink_bin_update (const BtSinkBin * const self)
 
   if (!gst_element_link_pads (self->priv->caps_filter, "src", audio_resample,
           "sink")) {
-    GST_WARNING ("Can't link caps-filter and audio-resample");
+    GST_WARNING_OBJECT (self, "Can't link caps-filter and audio-resample");
   }
 #ifdef BT_MONITOR_TIMESTAMPS
   {
@@ -732,15 +733,15 @@ bt_sink_bin_update (const BtSinkBin * const self)
     g_object_set (identity, "check-perfect", TRUE, "silent", FALSE, NULL);
     gst_bin_add (GST_BIN (self), identity);
     if (!gst_element_link_pads (audio_resample, "src", identity, "sink")) {
-      GST_WARNING ("Can't link audio-resample and identity");
+      GST_WARNING_OBJECT (self, "Can't link audio-resample and identity");
     }
     if (!gst_element_link_pads (identity, "src", tee, "sink")) {
-      GST_WARNING ("Can't link identity and tee");
+      GST_WARNING_OBJECT (self, "Can't link identity and tee");
     }
   }
 #else
   if (!gst_element_link_pads (audio_resample, "src", tee, "sink")) {
-    GST_WARNING ("Can't link audio-resample and tee");
+    GST_WARNING_OBJECT (self, "Can't link audio-resample and tee");
   }
 #endif
 
@@ -753,8 +754,8 @@ bt_sink_bin_update (const BtSinkBin * const self)
         bt_sink_bin_link_many (self, tee, list);
         g_list_free (list);
       } else {
-        GST_WARNING ("Can't get playback element list");
-        return (FALSE);
+        GST_WARNING_OBJECT (self, "Can't get playback element list");
+        return FALSE;
       }
       break;
     }
@@ -766,7 +767,7 @@ bt_sink_bin_update (const BtSinkBin * const self)
         g_list_free (list);
       } else {
         GST_WARNING ("Can't get record element list");
-        return (FALSE);
+        return FALSE;
       }
       break;
     }
@@ -790,8 +791,8 @@ bt_sink_bin_update (const BtSinkBin * const self)
         bt_sink_bin_link_many (self, tee, list1);
         g_list_free (list1);
       } else {
-        GST_WARNING ("Can't get playback element list");
-        return (FALSE);
+        GST_WARNING_OBJECT (self, "Can't get playback element list");
+        return FALSE;
       }
       // add recorder elements
       GList *const list2 = bt_sink_bin_get_recorder_elements (self);
@@ -800,8 +801,8 @@ bt_sink_bin_update (const BtSinkBin * const self)
         bt_sink_bin_link_many (self, tee, list2);
         g_list_free (list2);
       } else {
-        GST_WARNING ("Can't get record element list");
-        return (FALSE);
+        GST_WARNING_OBJECT (self, "Can't get record element list");
+        return FALSE;
       }
       break;
     }
@@ -851,10 +852,10 @@ bt_sink_bin_update (const BtSinkBin * const self)
         G_OBJECT_LOG_REF_COUNT (sink_pad));
 
     if (!gst_ghost_pad_set_target (GST_GHOST_PAD (self->priv->sink), sink_pad)) {
-      GST_WARNING ("failed to link internal pads");
+      GST_WARNING_OBJECT (self, "failed to link internal pads");
     }
 
-    GST_INFO ("  done, pad=%" G_OBJECT_REF_COUNT_FMT,
+    GST_INFO_OBJECT (self, "  done, pad=%" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (sink_pad));
     // request pads need to be released
     if (!req_sink_pad) {
@@ -875,8 +876,8 @@ bt_sink_bin_update (const BtSinkBin * const self)
   }
 #endif
 
-  GST_INFO ("done");
-  return (TRUE);
+  GST_INFO_OBJECT (self, "done");
+  return TRUE;
 }
 
 //-- event handler
@@ -898,7 +899,7 @@ on_audio_sink_changed (const BtSettings * const settings,
 {
   BtSinkBin *self = BT_SINK_BIN (user_data);
 
-  GST_INFO ("audio-sink has changed");
+  GST_INFO_OBJECT (self, "audio-sink has changed");
 
   // exchange the machine
   switch (self->priv->mode) {
@@ -918,14 +919,15 @@ on_system_audio_sink_changed (const BtSettings * const settings,
   BtSinkBin *self = BT_SINK_BIN (user_data);
   gchar *element_name, *sink_name;
 
-  GST_INFO ("system audio-sink has changed");
+  GST_INFO_OBJECT (self, "system audio-sink has changed");
 
   // exchange the machine (only if the system-audiosink is in use)
   bt_settings_determine_audiosink_name (self->priv->settings, &element_name,
       NULL);
   g_object_get ((gpointer) settings, "system-audiosink-name", &sink_name, NULL);
 
-  GST_INFO ("  -> '%s' (sytem_sink is '%s')", element_name, sink_name);
+  GST_INFO_OBJECT (self, "  -> '%s' (sytem_sink is '%s')", element_name,
+      sink_name);
   if (!strcmp (element_name, sink_name)) {
     // exchange the machine
     switch (self->priv->mode) {
@@ -947,7 +949,7 @@ on_sample_rate_changed (const BtSettings * const settings,
 {
   BtSinkBin *self = BT_SINK_BIN (user_data);
 
-  GST_INFO ("sample-rate has changed");
+  GST_INFO_OBJECT (self, "sample-rate has changed");
   g_object_get ((gpointer) settings, "sample-rate", &self->priv->sample_rate,
       NULL);
   bt_sink_bin_format_update (self);
@@ -959,7 +961,7 @@ on_channels_changed (const BtSettings * const settings, GParamSpec * const arg,
 {
   BtSinkBin *self = BT_SINK_BIN (user_data);
 
-  GST_INFO ("channels have changed");
+  GST_INFO_OBJECT (self, "channels have changed");
   g_object_get ((gpointer) settings, "channels", &self->priv->channels, NULL);
   bt_sink_bin_format_update (self);
   // TODO(ensonic): this would render all panorama/balance elements useless and also
@@ -1071,7 +1073,7 @@ bt_sink_bin_set_context (GstElement * element, GstContext * context)
       if (self->priv->audio_sink) {
         bt_sink_bin_configure_latency (self);
       } else {
-        GST_INFO ("no player object created yet.");
+        GST_INFO_OBJECT (self, "no player object created yet.");
       }
     }
   }
@@ -1155,7 +1157,7 @@ bt_sink_bin_set_property (GObject * const object, const guint property_id,
     case SINK_BIN_RECORD_FILE_NAME:
       g_free (self->priv->record_file_name);
       self->priv->record_file_name = g_value_dup_string (value);
-      GST_INFO ("recording to '%s'", self->priv->record_file_name);
+      GST_INFO_OBJECT (self, "recording to '%s'", self->priv->record_file_name);
       if ((self->priv->mode == BT_SINK_BIN_MODE_RECORD)
           || (self->priv->mode == BT_SINK_BIN_MODE_PLAY_AND_RECORD)) {
         bt_sink_bin_update (self);
@@ -1181,7 +1183,7 @@ bt_sink_bin_set_property (GObject * const object, const guint property_id,
       if (self->priv->gain) {
         self->priv->volume = g_value_get_double (value);
         g_object_set (self->priv->gain, "volume", self->priv->volume, NULL);
-        GST_DEBUG ("Set master volume: %lf", self->priv->volume);
+        GST_DEBUG_OBJECT (self, "Set master volume: %lf", self->priv->volume);
       }
       break;
     case SINK_BIN_ANALYZERS:
