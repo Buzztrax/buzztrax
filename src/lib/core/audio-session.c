@@ -25,7 +25,7 @@
  * lifecycle. The audio-session is a singleton, parts in the code can just call
  * bt_audio_session_new() to get the instance.
  */
-/* It turns out that what you see in qjackctrl are the ports and those are 
+/* It turns out that what you see in qjackctrl are the ports and those are
  * showing up from individual sinks and sources, the client is reused already.
  * So we need to keep the actual element alive!
  *
@@ -119,9 +119,6 @@ bt_audio_session_setup (void)
     if (!audio_sink) {
       GstElement *bin;
       GstElement *sink, *src;
-      GstBus *bus;
-      GstMessage *message;
-      gboolean loop = TRUE;
 
       // create audio sink and drop floating ref
       audio_sink = gst_element_factory_make (element_name, NULL);
@@ -131,44 +128,52 @@ bt_audio_session_setup (void)
 
       // we need this hack to make the ports show up
       bin = gst_pipeline_new ("__kickstart__");
-      bus = gst_element_get_bus (bin);
       src = gst_element_factory_make ("audiotestsrc", NULL);
       sink = gst_object_ref (audio_sink);
       gst_bin_add_many (GST_BIN (bin), src, sink, NULL);
-      gst_element_link (src, sink);
-      gst_element_set_state (bin, GST_STATE_PAUSED);
+      if (!gst_element_link (src, sink)) {
+        GST_WARNING_OBJECT (bin, "can't link elements: src=%s, sink=%s",
+            GST_OBJECT_NAME (src), GST_OBJECT_NAME (sink));
+        gst_object_unref (audio_sink);
+      } else {
+        GstBus *bus;
+        GstMessage *message;
+        gboolean loop = TRUE;
 
-      while (loop) {
-        message = gst_bus_poll (bus, GST_MESSAGE_ANY, -1);
-        switch (message->type) {
-          case GST_MESSAGE_STATE_CHANGED:
-            if (GST_MESSAGE_SRC (message) == GST_OBJECT (bin)) {
-              GstState oldstate, newstate;
+        gst_element_set_state (bin, GST_STATE_PAUSED);
 
-              gst_message_parse_state_changed (message, &oldstate, &newstate,
-                  NULL);
-              if (GST_STATE_TRANSITION (oldstate,
-                      newstate) == GST_STATE_CHANGE_READY_TO_PAUSED)
-                loop = FALSE;
-            }
-            break;
-          case GST_MESSAGE_ERROR:
-            loop = FALSE;
-            break;
-          default:
-            break;
+        bus = gst_element_get_bus (bin);
+        while (loop) {
+          message = gst_bus_poll (bus, GST_MESSAGE_ANY, -1);
+          switch (message->type) {
+            case GST_MESSAGE_STATE_CHANGED:
+              if (GST_MESSAGE_SRC (message) == GST_OBJECT (bin)) {
+                GstState oldstate, newstate;
+
+                gst_message_parse_state_changed (message, &oldstate, &newstate,
+                    NULL);
+                if (GST_STATE_TRANSITION (oldstate,
+                        newstate) == GST_STATE_CHANGE_READY_TO_PAUSED)
+                  loop = FALSE;
+              }
+              break;
+            case GST_MESSAGE_ERROR:
+              loop = FALSE;
+              break;
+            default:
+              break;
+          }
+          gst_message_unref (message);
         }
-        gst_message_unref (message);
+        gst_object_unref (bus);
+
+        gst_element_set_state (bin, GST_STATE_READY);
+        gst_element_set_locked_state (audio_sink, TRUE);
+        gst_element_set_state (bin, GST_STATE_NULL);
+        singleton->priv->audio_sink = audio_sink;
+        update_tranport_mode ();
       }
-      gst_object_unref (bus);
-
-      gst_element_set_state (bin, GST_STATE_READY);
-      gst_element_set_locked_state (audio_sink, TRUE);
-      gst_element_set_state (bin, GST_STATE_NULL);
       gst_object_unref (bin);
-
-      singleton->priv->audio_sink = audio_sink;
-      update_tranport_mode ();
     } else {
       GstObject *parent;
       // we know that we're not playing anymore, but due to ref-counting the
