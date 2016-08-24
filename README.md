@@ -7,10 +7,12 @@ Please turn you browser to http://www.buzztrax.org to learn what this project
 is about. Buzztrax is free software and distributed under the LGPL.
 
 ## build status
-We are running continuous integration on travis-ci and get coverage rom codecov:
+We are running continuous integration on travis-ci, get coverage from codecov
+and have the codebase checked by coverity:
 
 [![Build Status](https://travis-ci.org/Buzztrax/buzzmachines.svg?branch=master)](https://travis-ci.org/Buzztrax/buzzmachines/builds)
 [![Test Coverage](https://codecov.io/gh/Buzztrax/buzztrax/branch/master/graph/badge.svg)](https://codecov.io/gh/Buzztrax/buzztrax)
+[![Coverity Defects](https://scan.coverity.com/projects/533/badge.svg)](https://scan.coverity.com/projects/buzztrax)
 
 ## intro
 Buzztrax is a music composer similar to tracker applications. It is roughly
