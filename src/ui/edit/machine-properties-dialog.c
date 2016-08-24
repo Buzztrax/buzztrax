@@ -599,8 +599,10 @@ bt_machine_update_default_param_value (BtMachine * self,
   GST_WARNING_OBJECT (self, "set new default for '%s'", property_name);
 
   if ((cb = gst_object_get_control_binding (param_parent, property_name))) {
-    bt_parameter_group_set_param_default (pg,
-        bt_parameter_group_get_param_index (pg, property_name));
+    glong param = bt_parameter_group_get_param_index (pg, property_name);
+    if (param != -1) {
+      bt_parameter_group_set_param_default (pg, param);
+    }
     /* TODO(ensonic): it should actualy postpone the enable to the next
      * timestamp.
      * for that in pattern-cs it would need to peek at the control-point-list,
