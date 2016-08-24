@@ -662,7 +662,10 @@ bt_change_log_crash_check (BtChangeLog * self)
          */
         if (auto_clean) {
           GST_WARNING ("auto removing '%s'", log_name);
-          g_remove (log_path);
+          if (g_remove (log_path)) {
+            GST_WARNING ("failed removing '%s': %s", log_name,
+                g_strerror (errno));
+          }
         }
       }
     }
