@@ -2250,11 +2250,12 @@ read_pdlg_section (const BtSongIOBuzz * self, const BtSong * song)
   name = read_null_string (self, entry->size);
   while (name && *name) {
     // read windowplacement
-    mem_read (self, &win, sizeof (win), 1);
-    //GST_MEMDUMP ("window pos: ", (guint8 *)&win, sizeof (win));
-    GST_DEBUG ("  window pos '%s': %d,%d-%d,%d", name,
-        GUINT_FROM_LE (win.pos[0]), GUINT_FROM_LE (win.pos[1]),
-        GUINT_FROM_LE (win.pos[2]), GUINT_FROM_LE (win.pos[3]));
+    if (mem_read (self, &win, sizeof (win), 1)) {
+      //GST_MEMDUMP ("window pos: ", (guint8 *)&win, sizeof (win));
+      GST_DEBUG ("  window pos '%s': %d,%d-%d,%d", name,
+          GUINT_FROM_LE (win.pos[0]), GUINT_FROM_LE (win.pos[1]),
+          GUINT_FROM_LE (win.pos[2]), GUINT_FROM_LE (win.pos[3]));
+    }
     name = read_null_string (self, entry->size);
   }
 
