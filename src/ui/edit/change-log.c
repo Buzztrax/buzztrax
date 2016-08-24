@@ -641,7 +641,7 @@ bt_change_log_crash_check (BtChangeLog * self)
         crash_log->song_file_name =
             *song_file_name ? g_strdup (song_file_name) :
             g_strdup (_("unsaved song"));
-        stat (log_path, &fileinfo);
+        fstat (fileno (log_file), &fileinfo);
         strftime (linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN - 1, "%c",
             localtime (&fileinfo.st_mtime));
         crash_log->change_ts = g_strdup (linebuf);
