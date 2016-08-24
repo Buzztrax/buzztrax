@@ -751,7 +751,7 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
 
 done:
   gst_message_unref (message);
-  g_slice_free1 (2 * sizeof (gconstpointer), params);
+  g_slice_free1 (2 * sizeof (gpointer), params);
   return (FALSE);
 }
 
@@ -767,7 +767,7 @@ on_delayed_signal_analyser_change (GstClock * clock, GstClockTime time,
     gconstpointer *const params = (gconstpointer *) user_data;
     GstMessage *message = (GstMessage *) params[1];
     gst_message_unref (message);
-    g_slice_free1 (2 * sizeof (gconstpointer), user_data);
+    g_slice_free1 (2 * sizeof (gpointer), user_data);
     GST_WARNING_OBJECT (GST_MESSAGE_SRC (message),
         "dropped analyzer update due to invalid ts");
   }

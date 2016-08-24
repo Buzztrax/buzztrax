@@ -555,7 +555,7 @@ on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data)
           GST_WARNING_OBJECT (level, "clock wait failed: %d", clk_ret);
           gst_message_unref (message);
           g_object_remove_weak_pointer ((gpointer) self, &data[0]);
-          g_slice_free1 (2 * sizeof (gconstpointer), data);
+          g_slice_free1 (2 * sizeof (gpointer), data);
         }
         gst_clock_id_unref (clock_id);
       }
