@@ -641,9 +641,13 @@ bt_change_log_crash_check (BtChangeLog * self)
         crash_log->song_file_name =
             *song_file_name ? g_strdup (song_file_name) :
             g_strdup (_("unsaved song"));
-        fstat (fileno (log_file), &fileinfo);
-        strftime (linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN - 1, "%c",
-            localtime (&fileinfo.st_mtime));
+        if (!fstat (fileno (log_file), &fileinfo)) {
+          strftime (linebuf, BT_CHANGE_LOG_MAX_HEADER_LINE_LEN - 1, "%c",
+              localtime (&fileinfo.st_mtime));
+        } else {
+          strcpy (linebuf, "?");
+          GST_WARNING ("Failed to stat '%s': %s", log_path, g_strerror (errno));
+        }
         crash_log->change_ts = g_strdup (linebuf);
         crash_log->mtime = fileinfo.st_mtime;
         crash_logs = g_list_prepend (crash_logs, crash_log);
