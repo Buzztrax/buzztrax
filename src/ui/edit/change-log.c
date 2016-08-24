@@ -685,7 +685,10 @@ on_song_file_name_changed (const BtSong * song, GParamSpec * arg,
   // move the log
   g_object_get ((GObject *) song, "song-info", &song_info, NULL);
   log_file_name = make_log_file_name (self, song_info);
-  g_rename (self->priv->log_file_name, log_file_name);
+  if (g_rename (self->priv->log_file_name, log_file_name)) {
+    GST_WARNING ("failed renaming '%s' to '%s': %s", self->priv->log_file_name,
+        log_file_name, g_strerror (errno));
+  }
   g_free (self->priv->log_file_name);
   self->priv->log_file_name = log_file_name;
   g_object_unref (song_info);
