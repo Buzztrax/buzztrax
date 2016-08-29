@@ -1302,7 +1302,7 @@ gtk_scrolled_sync_window_calculate_velocity (GtkScrolledSyncWindow * self,
 
   if (priv->last_motion_event_x_root != x_root ||
       priv->last_motion_event_y_root != y_root ||
-      ABS (_time - priv->last_motion_event_time) > STILL_THRESHOLD) {
+      (_time - priv->last_motion_event_time) > STILL_THRESHOLD) {
     priv->x_velocity = (priv->last_motion_event_x_root - x_root) /
         (gdouble) (_time - priv->last_motion_event_time);
     priv->y_velocity = (priv->last_motion_event_y_root - y_root) /
@@ -1461,7 +1461,8 @@ gtk_scrolled_sync_window_captured_motion_notify (GtkWidget * widget,
        * bottom/right corner
        */
       gtk_widget_queue_resize (GTK_WIDGET (self));
-    } else if (new_overshoot_x < 0 || new_overshoot_y < 0)
+    }
+    if (new_overshoot_x < 0 || new_overshoot_y < 0)
       _gtk_scrolled_sync_window_allocate_overshoot_window (self);
   }
 

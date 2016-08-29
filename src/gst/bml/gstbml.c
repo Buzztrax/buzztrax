@@ -96,9 +96,10 @@ bml (describe_plugin (gchar * pathname, gpointer bmh))
       // we only support, MONO_TO_STEREO(1), PLAYS_WAVES(2) yet
       GST_WARNING ("  machine is not yet fully supported, flags: %x", flags);
     }
-    // get basename
-    ext = g_strrstr (filename, ".");
-    *ext = '\0';                // temporarily terminate
+    // get basename (filenames should have an extension, but lets be defensive)
+    if ((ext = g_strrstr (filename, "."))) {
+      *ext = '\0';              // temporarily terminate
+    }
     if (!(name =
             g_convert_with_fallback (filename, -1, "ASCII", "WINDOWS-1252", "-",
                 NULL, NULL, &error))) {
@@ -110,7 +111,9 @@ bml (describe_plugin (gchar * pathname, gpointer bmh))
     if (name) {
       g_strstrip (name);
     }
-    *ext = '.';                 // restore
+    if (ext) {
+      *ext = '.';               // restore
+    }
     GST_INFO ("  name is '%s'", name);
 
     // construct the type name

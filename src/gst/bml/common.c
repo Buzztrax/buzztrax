@@ -25,6 +25,23 @@ GST_DEBUG_CATEGORY_EXTERN (GST_CAT_DEFAULT);
 
 //-- preset iface
 
+static gchar *
+gstbml_preset_read_string (FILE * in)
+{
+  guint32 size;
+  gchar *str;
+
+  if (!(fread (&size, sizeof (size), 1, in)))
+    return NULL;
+  str = g_malloc (size + 1);
+  if (!(fread (str, size, 1, in))) {
+    g_free (str);
+    return NULL;
+  }
+  str[size] = '\0';
+  return str;
+}
+
 /* buzzmachine preset format
  * header:
  * 4 bytes: version
@@ -50,19 +67,15 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
   if ((in = fopen (preset_path, "rb"))) {
     guint32 i, version, size, count;
     guint32 tracks, params;
+    guint64 data_size;
     guint32 *data;
     gchar *machine_name, *preset_name, *comment;
 
     // read header
     if (!(fread (&version, sizeof (version), 1, in)))
       goto eof_error;
-    if (!(fread (&size, sizeof (size), 1, in)))
+    if (!(machine_name = gstbml_preset_read_string (in)))
       goto eof_error;
-
-    machine_name = g_malloc (size + 1);
-    if (!(fread (machine_name, size, 1, in)))
-      goto eof_error;
-    machine_name[size] = '\0';
     // need to cut off path and '.dll'
     if (!strstr (klass->dll_name, machine_name)) {
       GST_WARNING ("Preset for wrong machine? '%s' <> '%s'",
@@ -80,53 +93,54 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
     for (i = 0; i < count; i++) {
       gboolean add;
 
-      if (!(fread (&size, sizeof (size), 1, in)))
+      if (!(preset_name = gstbml_preset_read_string (in)))
         goto eof_error;
+      add = !g_hash_table_lookup (klass->preset_data, (gpointer) preset_name);
 
-      preset_name = g_malloc (size + 1);
-      if (!(fread (preset_name, size, 1, in)))
-        goto eof_error;
-      preset_name[size] = '\0';
-      GST_INFO ("  reading preset %d: %p '%s'", i, preset_name, preset_name);
+      GST_INFO ("  reading preset %d: '%s' (new = %d)", i, preset_name, add);
+
       if (!(fread (&tracks, sizeof (tracks), 1, in)))
         goto eof_error;
       if (!(fread (&params, sizeof (params), 1, in)))
         goto eof_error;
       // read preset data
-      GST_INFO ("  data size %u", (4 * (2 + params)));
-      data = g_malloc (4 * (2 + params));
+      data_size = sizeof (*data) * (2 + params);
+      GST_INFO ("  data size %lu", data_size);
+      data = g_malloc (data_size);
       data[0] = tracks;
       data[1] = params;
-      if (!(fread (&data[2], 4 * params, 1, in)))
+      if (!(fread (&data[2], sizeof (*data) * params, 1, in)))
         goto eof_error;
-
-      add = (g_hash_table_lookup (klass->preset_data, (gpointer) preset_name)
-          == NULL);
-      g_hash_table_insert (klass->preset_data, (gpointer) preset_name,
-          (gpointer) data);
 
       if (!(fread (&size, sizeof (size), 1, in)))
         goto eof_error;
-
       if (size) {
         comment = g_malloc0 (size + 1);
-        if (!(fread (comment, size, 1, in)))
+        if (!(fread (comment, size, 1, in))) {
+          g_free (comment);
           goto eof_error;
-        g_hash_table_insert (klass->preset_comments, (gpointer) preset_name,
-            (gpointer) comment);
+        }
       } else {
         comment = NULL;
       }
 
-      GST_INFO ("    %u tracks, %u params, comment '%s'", tracks, params,
-          comment);
+      GST_INFO ("  %u tracks, %u params, comment '%s'", tracks, params,
+          (comment ? comment : ""));
 
       if (add) {
+        g_hash_table_insert (klass->preset_data, (gpointer) preset_name,
+            (gpointer) data);
+        if (comment) {
+          g_hash_table_insert (klass->preset_comments, (gpointer) preset_name,
+              (gpointer) comment);
+        }
         klass->presets =
             g_list_insert_sorted (klass->presets, (gpointer) preset_name,
             (GCompareFunc) strcmp);
       } else {
+        g_free (data);
         g_free (preset_name);
+        g_free (comment);
       }
     }
     g_free (machine_name);
