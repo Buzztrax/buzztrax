@@ -92,7 +92,8 @@ test_bt_value_group_range_randomize_column_empty_end (BT_TEST_ARGS)
   bt_value_group_set_event (vg, 0, 0, "10");
 
   GST_INFO ("-- act --");
-  bt_value_group_range_randomize_column (vg, 0, 3, 0);
+  bt_value_group_transform_colum (vg, BT_VALUE_GROUP_OP_RANGE_RANDOMIZE, 0, 3,
+      0);
 
   GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 0), "10");
@@ -114,7 +115,8 @@ test_bt_value_group_transpose_fine_down_column_clip (BT_TEST_ARGS)
   bt_value_group_set_event (vg, 1, 0, "1");
 
   GST_INFO ("-- act --");
-  bt_value_group_transpose_fine_down_column (vg, 0, 3, 0);
+  bt_value_group_transform_colum (vg, BT_VALUE_GROUP_OP_TRANSPOSE_FINE_DOWN, 0,
+      3, 0);
 
   GST_INFO ("-- assert --");
   ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 0), "0");

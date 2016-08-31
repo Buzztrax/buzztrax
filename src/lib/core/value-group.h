@@ -41,15 +41,49 @@ typedef struct _BtValueGroupPrivate BtValueGroupPrivate;
  */
 struct _BtValueGroup {
   const GObject parent;
-  
+
   /*< private >*/
   BtValueGroupPrivate *priv;
 };
 
 struct _BtValueGroupClass {
   const GObjectClass parent;
-  
+
 };
+
+/**
+ * BtValueGroupOp:
+ * @BT_VALUE_GROUP_OP_CLEAR: clear values
+ * @BT_VALUE_GROUP_OP_BLEND: linear blend from start to end
+ * @BT_VALUE_GROUP_OP_FLIP: swap values from start to end
+ * @BT_VALUE_GROUP_OP_RANDOMIZE: fill with random values
+ * @BT_VALUE_GROUP_OP_RANGE_RANDOMIZE: fill with random values using the first
+ *  and last value as bounds for the random values
+ * @BT_VALUE_GROUP_OP_TRANSPOSE_FINE_UP: transposes values in single steps up
+ * @BT_VALUE_GROUP_OP_TRANSPOSE_FINE_DOWN: transposes values in single steps
+ *  down
+ * @BT_VALUE_GROUP_OP_TRANSPOSE_COARSE_UP: transposes values in large steps up
+ * @BT_VALUE_GROUP_OP_TRANSPOSE_COARSE_DOWN: transposes values in large steps
+ *  down
+ *
+ * Operations that can be applied to pattern values.
+ */
+typedef enum {
+  BT_VALUE_GROUP_OP_CLEAR=0,
+  BT_VALUE_GROUP_OP_BLEND,
+  BT_VALUE_GROUP_OP_FLIP,
+  BT_VALUE_GROUP_OP_RANDOMIZE,
+  BT_VALUE_GROUP_OP_RANGE_RANDOMIZE,
+  BT_VALUE_GROUP_OP_TRANSPOSE_FINE_UP,
+  BT_VALUE_GROUP_OP_TRANSPOSE_FINE_DOWN,
+  BT_VALUE_GROUP_OP_TRANSPOSE_COARSE_UP,
+  BT_VALUE_GROUP_OP_TRANSPOSE_COARSE_DOWN,
+  // TODO: mirror
+  // TODO: mirror_range
+  /*< private >*/
+  BT_VALUE_GROUP_OP_COUNT
+} BtValueGroupOp;
+
 
 #include "parameter-group.h"
 
@@ -70,25 +104,8 @@ void bt_value_group_insert_full_row(const BtValueGroup * const self, const gulon
 void bt_value_group_delete_row(const BtValueGroup * const self, const gulong tick, const gulong param);
 void bt_value_group_delete_full_row(const BtValueGroup * const self, const gulong tick);
 
-void bt_value_group_clear_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-void bt_value_group_clear_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
-
-void bt_value_group_blend_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-void bt_value_group_blend_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
-void bt_value_group_flip_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-void bt_value_group_flip_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
-void bt_value_group_randomize_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-void bt_value_group_randomize_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
-void bt_value_group_range_randomize_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-void bt_value_group_range_randomize_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
-void bt_value_group_transpose_fine_up_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-void bt_value_group_transpose_fine_up_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
-void bt_value_group_transpose_fine_down_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-void bt_value_group_transpose_fine_down_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
-void bt_value_group_transpose_coarse_up_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-void bt_value_group_transpose_coarse_up_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
-void bt_value_group_transpose_coarse_down_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param);
-void bt_value_group_transpose_coarse_down_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick);
+void bt_value_group_transform_colum(const BtValueGroup * const self, BtValueGroupOp op, const gulong start_tick, const gulong end_tick, const gulong param);
+void bt_value_group_transform_colums(const BtValueGroup * const self, BtValueGroupOp op, const gulong start_tick, const gulong end_tick);
 
 void bt_value_group_serialize_column(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, const gulong param, GString *data);
 void bt_value_group_serialize_columns(const BtValueGroup * const self, const gulong start_tick, const gulong end_tick, GString *data);

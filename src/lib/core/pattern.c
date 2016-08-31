@@ -23,11 +23,11 @@
  * have no event for the parameter at the time.
  *
  * Patterns can have individual lengths. The length is measured in ticks. How
- * much that is in e.g. milliseconds is determined by #BtSongInfo:bpm and 
+ * much that is in e.g. milliseconds is determined by #BtSongInfo:bpm and
  * #BtSongInfo:tpb.
  *
- * A pattern might consist of several groups. These are mapped to the global 
- * parameters of a machine and the voice parameters for each machine voice (if 
+ * A pattern might consist of several groups. These are mapped to the global
+ * parameters of a machine and the voice parameters for each machine voice (if
  * any). The number of voices (tracks) is the same in all patterns of a machine.
  * If the voices are changed on the machine patterns resize themselves.
  *
@@ -179,38 +179,6 @@ bt_pattern_resize_data_voices (const BtPattern * const self,
         new_value_group (self,
         bt_machine_get_voice_param_group (self->priv->machine, i));
   }
-}
-
-typedef void (*DoValueGroupColumns) (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick);
-/*
- * bt_pattern_apply:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @do_value_group_columns: function to apply
- *
- *  Apply the function from @start_tick to @end_tick to all params.
- */
-static void
-bt_pattern_apply (const BtPattern * const self, const gulong start_tick,
-    const gulong end_tick, DoValueGroupColumns do_value_group_columns)
-{
-  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, TRUE);
-  bt_value_group_clear_columns (self->priv->global_value_group, start_tick,
-      end_tick);
-  const gulong voices = self->priv->voices;
-  gulong j;
-  for (j = 0; j < voices; j++) {
-    do_value_group_columns (self->priv->voice_value_groups[j], start_tick,
-        end_tick);
-  }
-  GList *node;
-  for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
-    do_value_group_columns (g_hash_table_lookup (self->priv->wire_value_groups,
-            node->data), start_tick, end_tick);
-  }
-  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
 
 //-- signal handler
@@ -830,182 +798,27 @@ bt_pattern_delete_row (const BtPattern * const self, const gulong tick)
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
 
-/**
- * bt_pattern_clear_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Clear values from @start_tick to @end_tick for all params.
- *
- * Since: 0.6
- */
 void
-bt_pattern_clear_columns (const BtPattern * const self, const gulong start_tick,
-    const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_PATTERN (self));
-
-  bt_pattern_apply (self, start_tick, end_tick, bt_value_group_clear_columns);
-}
-
-/**
- * bt_pattern_blend_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Fade values from @start_tick to @end_tick for all params.
- *
- * Since: 0.3
- */
-void
-bt_pattern_blend_columns (const BtPattern * const self, const gulong start_tick,
-    const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_PATTERN (self));
-
-  bt_pattern_apply (self, start_tick, end_tick, bt_value_group_blend_columns);
-}
-
-/**
- * bt_pattern_flip_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Flips values from @start_tick to @end_tick for all params up-side down.
- *
- * Since: 0.5
- */
-void
-bt_pattern_flip_columns (const BtPattern * const self, const gulong start_tick,
-    const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_PATTERN (self));
-
-  bt_pattern_apply (self, start_tick, end_tick, bt_value_group_flip_columns);
-}
-
-/**
- * bt_pattern_randomize_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Randomize values from @start_tick to @end_tick for all params.
- *
- * Since: 0.3
- */
-void
-bt_pattern_randomize_columns (const BtPattern * const self,
+bt_pattern_transform_colums (const BtPattern * const self, BtValueGroupOp op,
     const gulong start_tick, const gulong end_tick)
 {
   g_return_if_fail (BT_IS_PATTERN (self));
 
-  bt_pattern_apply (self, start_tick, end_tick,
-      bt_value_group_randomize_columns);
-}
-
-/**
- * bt_pattern_range_randomize_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Randomize values from @start_tick to @end_tick for all params using the first
- * and last value as bounds for the random values.
- *
- * Since: 0.7
- */
-void
-bt_pattern_range_randomize_columns (const BtPattern * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_PATTERN (self));
-
-  bt_pattern_apply (self, start_tick, end_tick,
-      bt_value_group_range_randomize_columns);
-}
-
-/**
- * bt_pattern_transpose_fine_up_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Transposes values from @start_tick to @end_tick for all params.
- *
- * Since: 0.11
- */
-void
-bt_pattern_transpose_fine_up_columns (const BtPattern * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_PATTERN (self));
-
-  bt_pattern_apply (self, start_tick, end_tick,
-      bt_value_group_transpose_fine_up_columns);
-}
-
-/**
- * bt_pattern_transpose_fine_down_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Transposes values from @start_tick to @end_tick for all params.
- *
- * Since: 0.11
- */
-void
-bt_pattern_transpose_fine_down_columns (const BtPattern * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_PATTERN (self));
-
-  bt_pattern_apply (self, start_tick, end_tick,
-      bt_value_group_transpose_fine_down_columns);
-}
-
-/**
- * bt_pattern_transpose_coarse_up_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Transposes values from @start_tick to @end_tick for all params.
- *
- * Since: 0.11
- */
-void
-bt_pattern_transpose_coarse_up_columns (const BtPattern * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_PATTERN (self));
-
-  bt_pattern_apply (self, start_tick, end_tick,
-      bt_value_group_transpose_coarse_up_columns);
-}
-
-/**
- * bt_pattern_transpose_coarse_down_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Transposes values from @start_tick to @end_tick for all params.
- *
- * Since: 0.11
- */
-void
-bt_pattern_transpose_coarse_down_columns (const BtPattern * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_PATTERN (self));
-
-  bt_pattern_apply (self, start_tick, end_tick,
-      bt_value_group_transpose_coarse_down_columns);
+  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, TRUE);
+  bt_value_group_transform_colums (self->priv->global_value_group,
+      BT_VALUE_GROUP_OP_CLEAR, start_tick, end_tick);
+  const gulong voices = self->priv->voices;
+  gulong j;
+  for (j = 0; j < voices; j++) {
+    bt_value_group_transform_colums (self->priv->voice_value_groups[j], op,
+        start_tick, end_tick);
+  }
+  GList *node;
+  for (node = self->priv->machine->dst_wires; node; node = g_list_next (node)) {
+    bt_value_group_transform_colums (g_hash_table_lookup (self->
+            priv->wire_value_groups, node->data), op, start_tick, end_tick);
+  }
+  g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
 
 
@@ -1419,7 +1232,7 @@ bt_pattern_class_init (BtPatternClass * const klass)
    * @param_group: the parameter group
    * @intermediate: flag that is %TRUE to signal that more change are coming
    *
-   * Signals that a group of this pattern has been changed (more than in one 
+   * Signals that a group of this pattern has been changed (more than in one
    * place).
    * When doing e.g. line inserts, one will receive two updates, one before and
    * one after. The first will have @intermediate=%TRUE. Applications can use

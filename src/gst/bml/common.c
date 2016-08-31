@@ -31,10 +31,10 @@ gstbml_preset_read_string (FILE * in)
   guint32 size;
   gchar *str;
 
-  if (!(fread (&size, sizeof (size), 1, in)))
+  if (!fread (&size, sizeof (size), 1, in))
     return NULL;
-  str = g_malloc (size + 1);
-  if (!(fread (str, size, 1, in))) {
+  str = g_malloc (((gsize) size) + 1);
+  if (!fread (str, size, 1, in)) {
     g_free (str);
     return NULL;
   }
@@ -72,7 +72,7 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
     gchar *machine_name, *preset_name, *comment;
 
     // read header
-    if (!(fread (&version, sizeof (version), 1, in)))
+    if (!fread (&version, sizeof (version), 1, in))
       goto eof_error;
     if (!(machine_name = gstbml_preset_read_string (in)))
       goto eof_error;
@@ -82,7 +82,7 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
           klass->dll_name, machine_name);
     }
 
-    if (!(fread (&count, sizeof (count), 1, in)))
+    if (!fread (&count, sizeof (count), 1, in))
       goto eof_error;
 
     GST_INFO
@@ -99,9 +99,9 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
 
       GST_INFO ("  reading preset %d: '%s' (new = %d)", i, preset_name, add);
 
-      if (!(fread (&tracks, sizeof (tracks), 1, in)))
+      if (!fread (&tracks, sizeof (tracks), 1, in))
         goto eof_error;
-      if (!(fread (&params, sizeof (params), 1, in)))
+      if (!fread (&params, sizeof (params), 1, in))
         goto eof_error;
       // read preset data
       data_size = sizeof (*data) * (2 + params);
@@ -109,14 +109,14 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
       data = g_malloc (data_size);
       data[0] = tracks;
       data[1] = params;
-      if (!(fread (&data[2], sizeof (*data) * params, 1, in)))
+      if (!fread (&data[2], sizeof (*data) * params, 1, in))
         goto eof_error;
 
-      if (!(fread (&size, sizeof (size), 1, in)))
+      if (!fread (&size, sizeof (size), 1, in))
         goto eof_error;
       if (size) {
-        comment = g_malloc0 (size + 1);
-        if (!(fread (comment, size, 1, in))) {
+        comment = g_malloc0 (((gsize) size) + 1);
+        if (!fread (comment, size, 1, in)) {
           g_free (comment);
           goto eof_error;
         }
@@ -386,6 +386,9 @@ gstbml_preset_save_presets_file (GstBMLClass * klass)
         goto eof_error;
 
       machine_name = strrchr (klass->dll_name, '/');
+      if (!machine_name) {
+        machine_name = klass->dll_name;
+      }
       if (!(ext = strstr (machine_name, ".dll"))) {
         if (!(ext = strstr (machine_name, ".so"))) {
           ext = machine_name;
