@@ -62,10 +62,7 @@ bt_test_sparse_enum_get_type (void)
 
 enum
 {
-  PROP_BPM = 1,                 // tempo iface
-  PROP_TPB,
-  PROP_STPT,
-  PROP_VOICES,                  // child bin iface
+  PROP_VOICES = 1,              // child bin iface
   PROP_ULONG,
   PROP_DOUBLE,
   PROP_SWITCH,
@@ -268,7 +265,7 @@ bt_test_mono_source_class_init (BtTestMonoSourceClass * klass)
       g_param_spec_double ("g-double",
           "double prop",
           "double number parameter for the test_mono_source",
-          -1000.0, 1000.0, 0,
+          -1000.0, 1000.0, 0.0,
           G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_SWITCH,
