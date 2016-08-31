@@ -567,8 +567,8 @@ bt_value_group_delete_full_row (const BtValueGroup * const self,
 
 
 static void
-_clear_column (const BtValueGroup * const self, const gulong start_tick,
-    const gulong end_tick, const gulong param)
+_clear_column (const BtValueGroup * const self, BtValueGroupOp op,
+    const gulong start_tick, const gulong end_tick, const gulong param)
 {
   gulong params = self->priv->columns;
   GValue *beg = &self->priv->data[param + params * start_tick];
@@ -579,63 +579,6 @@ _clear_column (const BtValueGroup * const self, const gulong start_tick,
       g_value_unset (beg);
     beg += params;
   }
-}
-
-/**
- * bt_value_group_clear_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Clears values from @start_tick to @end_tick for @param.
- *
- * Since: 0.7
- */
-void
-bt_value_group_clear_column (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick, const gulong param)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, TRUE);
-  _clear_column (self, start_tick, end_tick, param);
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
-/**
- * bt_value_group_clear_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Clear values from @start_tick to @end_tick for all params.
- *
- * Since: 0.7
- */
-void
-bt_value_group_clear_columns (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  gulong j, params = self->priv->params;
-
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, TRUE);
-  for (j = 0; j < params; j++) {
-    _clear_column (self, start_tick, end_tick, j);
-  }
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
 }
 
 
@@ -653,8 +596,8 @@ bt_value_group_clear_columns (const BtValueGroup * const self,
 	} break;
 
 static void
-_blend_column (const BtValueGroup * const self, const gulong start_tick,
-    const gulong end_tick, const gulong param)
+_blend_column (const BtValueGroup * const self, BtValueGroupOp op,
+    const gulong start_tick, const gulong end_tick, const gulong param)
 {
   gulong params = self->priv->columns;
   GValue *beg = &self->priv->data[param + params * start_tick];
@@ -719,63 +662,10 @@ _blend_column (const BtValueGroup * const self, const gulong start_tick,
   }
 }
 
-/**
- * bt_value_group_blend_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Fade values from @start_tick to @end_tick for @param.
- *
- * Since: 0.7
- */
-void
-bt_value_group_blend_column (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick, const gulong param)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  _blend_column (self, start_tick, end_tick, param);
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
-/**
- * bt_value_group_blend_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Fade values from @start_tick to @end_tick for all params.
- *
- * Since: 0.7
- */
-void
-bt_value_group_blend_columns (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  gulong j, params = self->priv->params;
-
-  for (j = 0; j < params; j++) {
-    _blend_column (self, start_tick, end_tick, j);
-  }
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
 
 static void
-_flip_column (const BtValueGroup * const self, const gulong start_tick,
-    const gulong end_tick, const gulong param)
+_flip_column (const BtValueGroup * const self, BtValueGroupOp op,
+    const gulong start_tick, const gulong end_tick, const gulong param)
 {
   gulong params = self->priv->columns;
   GValue *beg = &self->priv->data[param + params * start_tick];
@@ -810,59 +700,6 @@ _flip_column (const BtValueGroup * const self, const gulong start_tick,
   g_value_unset (&tmp);
 }
 
-/**
- * bt_value_group_flip_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Flips values from @start_tick to @end_tick for @param up-side down.
- *
- * Since: 0.7
- */
-void
-bt_value_group_flip_column (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick, const gulong param)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  _flip_column (self, start_tick, end_tick, param);
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
-/**
- * bt_value_group_flip_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Flips values from @start_tick to @end_tick for all params up-side down.
- *
- * Since: 0.7
- */
-void
-bt_value_group_flip_columns (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  gulong j, params = self->priv->params;
-
-  for (j = 0; j < params; j++) {
-    _flip_column (self, start_tick, end_tick, j);
-  }
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
 
 #define _RANDOMIZE(t,T,p)                                                      \
 	case G_TYPE_ ## T: {                                                         \
@@ -878,8 +715,8 @@ bt_value_group_flip_columns (const BtValueGroup * const self,
     } break;
 
 static void
-_randomize_column (const BtValueGroup * const self, const gulong start_tick,
-    const gulong end_tick, const gulong param)
+_randomize_column (const BtValueGroup * const self, BtValueGroupOp op,
+    const gulong start_tick, const gulong end_tick, const gulong param)
 {
   gulong params = self->priv->columns;
   GValue *beg = &self->priv->data[param + params * start_tick];
@@ -937,59 +774,6 @@ _randomize_column (const BtValueGroup * const self, const gulong start_tick,
   }
 }
 
-/**
- * bt_value_group_randomize_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Randomize values from @start_tick to @end_tick for @param.
- *
- * Since: 0.7
- */
-void
-bt_value_group_randomize_column (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick, const gulong param)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  _randomize_column (self, start_tick, end_tick, param);
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
-/**
- * bt_value_group_randomize_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Randomize values from @start_tick to @end_tick for all params.
- *
- * Since: 0.7
- */
-void
-bt_value_group_randomize_columns (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  gulong j, params = self->priv->params;
-
-  for (j = 0; j < params; j++) {
-    _randomize_column (self, start_tick, end_tick, j);
-  }
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
 
 #define _RANGE_RANDOMIZE(t,T)                                                  \
 	case G_TYPE_ ## T: {                                                         \
@@ -1011,7 +795,7 @@ bt_value_group_randomize_columns (const BtValueGroup * const self,
     } break;
 
 static void
-_range_randomize_column (const BtValueGroup * const self,
+_range_randomize_column (const BtValueGroup * const self, BtValueGroupOp op,
     const gulong start_tick, const gulong end_tick, const gulong param)
 {
   gulong params = self->priv->columns;
@@ -1102,64 +886,6 @@ _range_randomize_column (const BtValueGroup * const self,
   }
 }
 
-/**
- * bt_value_group_range_randomize_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Randomize values from @start_tick to @end_tick for @param using the first
- * and last value as bounds for the random values.
- *
- * Since: 0.7
- */
-void
-bt_value_group_range_randomize_column (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick, const gulong param)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  _range_randomize_column (self, start_tick, end_tick, param);
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
-/**
- * bt_value_group_range_randomize_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Randomize values from @start_tick to @end_tick for all params using the first
- * and last value as bounds for the random values.
- *
- * Since: 0.7
- */
-void
-bt_value_group_range_randomize_columns (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  gulong j, params = self->priv->params;
-
-  for (j = 0; j < params; j++) {
-    _range_randomize_column (self, start_tick, end_tick, j);
-  }
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
-
-// TODO: mirror
-// TODO: mirror_range
 
 #define _TRANSPOSE_INT(t,T,p)                                                  \
 	case G_TYPE_ ## T: {                                                         \
@@ -1205,18 +931,9 @@ bt_value_group_range_randomize_columns (const BtValueGroup * const self,
       }                                                                        \
     } break;
 
-typedef enum
-{
-  BT_VALUE_GROUP_TRANSPOSE_COARSE_DOWN = -2,
-  BT_VALUE_GROUP_TRANSPOSE_FINE_DOWN = -1,
-  BT_VALUE_GROUP_TRANSPOSE_FINE_UP = 1,
-  BT_VALUE_GROUP_TRANSPOSE_COARSE_UP = 2
-} BtValueGroupTranspose;
-
 static void
-_transpose_column (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick, const gulong param,
-    const BtValueGroupTranspose mode)
+_transpose_column (const BtValueGroup * const self, BtValueGroupOp op,
+    const gulong start_tick, const gulong end_tick, const gulong param)
 {
   gulong params = self->priv->columns;
   GValue *beg = &self->priv->data[param + params * start_tick];
@@ -1226,8 +943,26 @@ _transpose_column (const BtValueGroup * const self,
   gdouble step, dir;
   gboolean fine;
 
-  dir = (mode > 0) ? 1.0 : -1.0;
-  fine = abs (mode) == BT_VALUE_GROUP_TRANSPOSE_FINE_UP;
+  switch (op) {
+    case BT_VALUE_GROUP_OP_TRANSPOSE_FINE_UP:
+      dir = 1.0;
+      fine = TRUE;
+      break;
+    case BT_VALUE_GROUP_OP_TRANSPOSE_FINE_DOWN:
+      dir = -1.0;
+      fine = TRUE;
+      break;
+    case BT_VALUE_GROUP_OP_TRANSPOSE_COARSE_UP:
+      dir = 1.0;
+      fine = FALSE;
+      break;
+    case BT_VALUE_GROUP_OP_TRANSPOSE_COARSE_DOWN:
+      dir = -1.0;
+      fine = FALSE;
+      break;
+    default:
+      g_assert_not_reached ();
+  }
 
   property = bt_parameter_group_get_param_spec (self->priv->param_group, param);
   base_type = bt_g_type_get_base_type (property->value_type);
@@ -1250,10 +985,10 @@ _transpose_column (const BtValueGroup * const self,
       for (i = 0; i < ticks; i++) {
         if (BT_IS_GVALUE (beg)) {
           v = g_value_get_boolean (beg);
-          if (v == FALSE && mode > 0) {
+          if (v == FALSE && dir > 0) {
             g_value_set_boolean (beg, TRUE);
           }
-          if (v == TRUE && mode < 0) {
+          if (v == TRUE && dir < 0) {
             g_value_set_boolean (beg, FALSE);
           }
         }
@@ -1299,45 +1034,68 @@ _transpose_column (const BtValueGroup * const self,
   }
 }
 
+
+typedef void (*OpFunc) (const BtValueGroup * const self, BtValueGroupOp op,
+    const gulong start_tick, const gulong end_tick, const gulong param);
+
+static OpFunc ops[BT_VALUE_GROUP_OP_COUNT] = {
+  _clear_column,
+  _blend_column,
+  _flip_column,
+  _randomize_column,
+  _range_randomize_column,
+  _transpose_column,
+  _transpose_column,
+  _transpose_column,
+  _transpose_column
+};
+
 /**
- * bt_value_group_transpose_fine_up_column:
+ * bt_value_group_transform_colum:
  * @self: the pattern
+ * @op: the transform operation
  * @start_tick: the start position for the range
  * @end_tick: the end position for the range
  * @param: the parameter
  *
- * Transposes values from @start_tick to @end_tick for @param in single steps.
+ * Applies @op to values from @start_tick to @end_tick for @param.
  *
- * Since: 0.11
+ * Since: 0.12
  */
 void
-bt_value_group_transpose_fine_up_column (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick, const gulong param)
+bt_value_group_transform_colum (const BtValueGroup * const self,
+    BtValueGroupOp op, const gulong start_tick, const gulong end_tick,
+    const gulong param)
 {
   g_return_if_fail (BT_IS_VALUE_GROUP (self));
   g_return_if_fail (start_tick < self->priv->length);
   g_return_if_fail (end_tick < self->priv->length);
   g_return_if_fail (self->priv->data);
 
-  _transpose_column (self, start_tick, end_tick, param,
-      BT_VALUE_GROUP_TRANSPOSE_FINE_UP);
+  if (op == BT_VALUE_GROUP_OP_CLEAR) {
+    g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+        self->priv->param_group, TRUE);
+  }
+  ops[op] (self, op, start_tick, end_tick, param);
   g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
       self->priv->param_group, FALSE);
+
 }
 
 /**
- * bt_value_group_transpose_fine_up_columns:
+ * bt_value_group_transform_colums:
  * @self: the pattern
+ * @op: the transform operation
  * @start_tick: the start position for the range
  * @end_tick: the end position for the range
  *
- * Transposes values from @start_tick to @end_tick for all params in single steps.
+ * Applies @op to values from @start_tick to @end_tick for all params.
  *
- * Since: 0.11
+ * Since: 0.12
  */
 void
-bt_value_group_transpose_fine_up_columns (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick)
+bt_value_group_transform_colums (const BtValueGroup * const self,
+    BtValueGroupOp op, const gulong start_tick, const gulong end_tick)
 {
   g_return_if_fail (BT_IS_VALUE_GROUP (self));
   g_return_if_fail (start_tick < self->priv->length);
@@ -1345,178 +1103,18 @@ bt_value_group_transpose_fine_up_columns (const BtValueGroup * const self,
   g_return_if_fail (self->priv->data);
 
   gulong j, params = self->priv->params;
+  OpFunc opfunc = ops[op];
 
+  if (op == BT_VALUE_GROUP_OP_CLEAR) {
+    g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
+        self->priv->param_group, TRUE);
+  }
   for (j = 0; j < params; j++) {
-    _transpose_column (self, start_tick, end_tick, j,
-        BT_VALUE_GROUP_TRANSPOSE_FINE_UP);
+    opfunc (self, op, start_tick, end_tick, j);
   }
   g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
       self->priv->param_group, FALSE);
-}
 
-/**
- * bt_value_group_transpose_fine_down_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Transposes values from @start_tick to @end_tick for @param in single steps.
- *
- * Since: 0.11
- */
-void
-bt_value_group_transpose_fine_down_column (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick, const gulong param)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  _transpose_column (self, start_tick, end_tick, param,
-      BT_VALUE_GROUP_TRANSPOSE_FINE_DOWN);
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
-/**
- * bt_value_group_transpose_fine_down_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Transposes values from @start_tick to @end_tick for all params in single steps.
- *
- * Since: 0.11
- */
-void
-bt_value_group_transpose_fine_down_columns (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  gulong j, params = self->priv->params;
-
-  for (j = 0; j < params; j++) {
-    _transpose_column (self, start_tick, end_tick, j,
-        BT_VALUE_GROUP_TRANSPOSE_FINE_DOWN);
-  }
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
-/**
- * bt_value_group_transpose_coarse_up_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Transposes values from @start_tick to @end_tick for @param in single steps.
- *
- * Since: 0.11
- */
-void
-bt_value_group_transpose_coarse_up_column (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick, const gulong param)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  _transpose_column (self, start_tick, end_tick, param,
-      BT_VALUE_GROUP_TRANSPOSE_COARSE_UP);
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
-/**
- * bt_value_group_transpose_coarse_up_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Transposes values from @start_tick to @end_tick for all params in single steps.
- *
- * Since: 0.11
- */
-void
-bt_value_group_transpose_coarse_up_columns (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  gulong j, params = self->priv->params;
-
-  for (j = 0; j < params; j++) {
-    _transpose_column (self, start_tick, end_tick, j,
-        BT_VALUE_GROUP_TRANSPOSE_COARSE_UP);
-  }
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
-/**
- * bt_value_group_transpose_coarse_down_column:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- * @param: the parameter
- *
- * Transposes values from @start_tick to @end_tick for @param in single steps.
- *
- * Since: 0.11
- */
-void
-bt_value_group_transpose_coarse_down_column (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick, const gulong param)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  _transpose_column (self, start_tick, end_tick, param,
-      BT_VALUE_GROUP_TRANSPOSE_COARSE_DOWN);
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
-}
-
-/**
- * bt_value_group_transpose_coarse_down_columns:
- * @self: the pattern
- * @start_tick: the start position for the range
- * @end_tick: the end position for the range
- *
- * Transposes values from @start_tick to @end_tick for all params in single steps.
- *
- * Since: 0.11
- */
-void
-bt_value_group_transpose_coarse_down_columns (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick)
-{
-  g_return_if_fail (BT_IS_VALUE_GROUP (self));
-  g_return_if_fail (start_tick < self->priv->length);
-  g_return_if_fail (end_tick < self->priv->length);
-  g_return_if_fail (self->priv->data);
-
-  gulong j, params = self->priv->params;
-
-  for (j = 0; j < params; j++) {
-    _transpose_column (self, start_tick, end_tick, j,
-        BT_VALUE_GROUP_TRANSPOSE_COARSE_DOWN);
-  }
-  g_signal_emit ((gpointer) self, signals[GROUP_CHANGED_EVENT], 0,
-      self->priv->param_group, FALSE);
 }
 
 

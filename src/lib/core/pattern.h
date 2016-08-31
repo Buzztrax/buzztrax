@@ -43,7 +43,7 @@ typedef struct _BtPatternPrivate BtPatternPrivate;
  */
 struct _BtPattern {
   const BtCmdPattern parent;
-  
+
   /*< private >*/
   BtPatternPrivate *priv;
 };
@@ -87,15 +87,8 @@ BtValueGroup *bt_pattern_get_group_by_parameter_group(const BtPattern * const se
 void bt_pattern_insert_row(const BtPattern * const self, const gulong tick);
 void bt_pattern_delete_row(const BtPattern * const self, const gulong tick);
 
-void bt_pattern_clear_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
-void bt_pattern_blend_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
-void bt_pattern_flip_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
-void bt_pattern_randomize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
-void bt_pattern_range_randomize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
-void bt_pattern_transpose_fine_up_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
-void bt_pattern_transpose_fine_down_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
-void bt_pattern_transpose_coarse_up_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
-void bt_pattern_transpose_coarse_down_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick);
+void bt_pattern_transform_colums(const BtPattern * const self, BtValueGroupOp op, const gulong start_tick, const gulong end_tick);
+
 void bt_pattern_serialize_columns(const BtPattern * const self, const gulong start_tick, const gulong end_tick, GString *data);
 
 #endif /* BT_PATTERN_H */

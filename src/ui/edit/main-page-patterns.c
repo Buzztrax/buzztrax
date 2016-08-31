@@ -536,26 +536,10 @@ pattern_range_log_undo_redo (const BtMainPagePatterns * self, gint beg,
  * - would be good to use this for cut/copy/paste
  *   -> copy/cut want to return the data from the selection
  *   -> paste needs to receive the data from the selection
- * ideally we'd like to avoid separate column/columns functions
- * - _column(BtPattern * self, gulong start_tick, gulong end_tick, gulong param)
- * - _columns(BtPattern * self, gulong start_tick, gulong end_tick)
- * - the groups would trigger the update several times as we need to use the column one a few times
- * better would be:
- * - _columns(BtPattern * self, gulong start_tick, gulong end_tick, gulong start_param, gulong end_param)
  */
 
-typedef void (*DoValueGroupColumn) (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick, const gulong param);
-typedef void (*DoValueGroupColumns) (const BtValueGroup * const self,
-    const gulong start_tick, const gulong end_tick);
-typedef void (*DoPatternColumns) (const BtPattern * const self,
-    const gulong start_tick, const gulong end_tick);
-
 static gboolean
-pattern_selection_apply (const BtMainPagePatterns * self,
-    DoValueGroupColumn do_value_group_column,
-    DoValueGroupColumns do_value_group_columns,
-    DoPatternColumns do_pattern_columns)
+pattern_selection_apply (const BtMainPagePatterns * self, BtValueGroupOp op)
 {
   gboolean res = FALSE;
   gint beg, end, group, param;
@@ -570,19 +554,19 @@ pattern_selection_apply (const BtMainPagePatterns * self,
     GST_INFO ("applying : %d %d , %d %d", beg, end, group, param);
     // process full pattern
     if (group == -1 && param == -1) {
-      do_pattern_columns (self->priv->pattern, beg, end);
+      bt_pattern_transform_colums (self->priv->pattern, op, beg, end);
       res = TRUE;
     }
     // process whole group
     if (group != -1 && param == -1) {
       pc_group = &self->priv->param_groups[group];
-      do_value_group_columns (pc_group->vg, beg, end);
+      bt_value_group_transform_colums (pc_group->vg, op, beg, end);
       res = TRUE;
     }
     // process one param in one group
     if (group != -1 && param != -1) {
       pc_group = &self->priv->param_groups[group];
-      do_value_group_column (pc_group->vg, beg, end, param);
+      bt_value_group_transform_colum (pc_group->vg, op, beg, end, param);
       res = TRUE;
     }
 
@@ -890,56 +874,38 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     g_string_free (new_data, TRUE);
   } else if (event->keyval == GDK_KEY_f) {
     if (modifier & GDK_CONTROL_MASK) {
-      res = pattern_selection_apply (self,
-          bt_value_group_flip_column,
-          bt_value_group_flip_columns, bt_pattern_flip_columns);
+      res = pattern_selection_apply (self, BT_VALUE_GROUP_OP_FLIP);
     }
   } else if (event->keyval == GDK_KEY_i) {
     if (modifier & GDK_CONTROL_MASK) {
-      res = pattern_selection_apply (self,
-          bt_value_group_blend_column,
-          bt_value_group_blend_columns, bt_pattern_blend_columns);
+      res = pattern_selection_apply (self, BT_VALUE_GROUP_OP_BLEND);
     }
   } else if (event->keyval == GDK_KEY_r) {
     if (modifier & GDK_CONTROL_MASK) {
-      res = pattern_selection_apply (self,
-          bt_value_group_randomize_column,
-          bt_value_group_randomize_columns, bt_pattern_randomize_columns);
+      res = pattern_selection_apply (self, BT_VALUE_GROUP_OP_RANDOMIZE);
     }
   } else if (event->keyval == GDK_KEY_R) {
     if (modifier & GDK_CONTROL_MASK) {
-      res = pattern_selection_apply (self,
-          bt_value_group_range_randomize_column,
-          bt_value_group_range_randomize_columns,
-          bt_pattern_range_randomize_columns);
+      res = pattern_selection_apply (self, BT_VALUE_GROUP_OP_RANGE_RANDOMIZE);
     }
   } else if (event->keyval == GDK_KEY_t) {
     if (modifier & GDK_CONTROL_MASK) {
-      res = pattern_selection_apply (self,
-          bt_value_group_transpose_fine_up_column,
-          bt_value_group_transpose_fine_up_columns,
-          bt_pattern_transpose_fine_up_columns);
+      res = pattern_selection_apply (self, BT_VALUE_GROUP_OP_TRANSPOSE_FINE_UP);
     }
   } else if (event->keyval == GDK_KEY_T) {
     if (modifier & GDK_CONTROL_MASK) {
       res = pattern_selection_apply (self,
-          bt_value_group_transpose_coarse_up_column,
-          bt_value_group_transpose_coarse_up_columns,
-          bt_pattern_transpose_coarse_up_columns);
+          BT_VALUE_GROUP_OP_TRANSPOSE_COARSE_UP);
     }
   } else if (event->keyval == GDK_KEY_g) {
     if (modifier & GDK_CONTROL_MASK) {
       res = pattern_selection_apply (self,
-          bt_value_group_transpose_fine_down_column,
-          bt_value_group_transpose_fine_down_columns,
-          bt_pattern_transpose_fine_down_columns);
+          BT_VALUE_GROUP_OP_TRANSPOSE_FINE_DOWN);
     }
   } else if (event->keyval == GDK_KEY_G) {
     if (modifier & GDK_CONTROL_MASK) {
       res = pattern_selection_apply (self,
-          bt_value_group_transpose_coarse_down_column,
-          bt_value_group_transpose_coarse_down_columns,
-          bt_pattern_transpose_coarse_down_columns);
+          BT_VALUE_GROUP_OP_TRANSPOSE_COARSE_DOWN);
     }
   } else if ((event->keyval == GDK_KEY_Up) && (modifier == GDK_CONTROL_MASK)) {
     g_signal_emit_by_name (p->machine_menu, "move-active",
@@ -3431,9 +3397,7 @@ pattern_clipboard_clear_func (GtkClipboard * clipboard, gpointer data)
 void
 bt_main_page_patterns_delete_selection (const BtMainPagePatterns * self)
 {
-  pattern_selection_apply (self,
-      bt_value_group_clear_column,
-      bt_value_group_clear_columns, bt_pattern_clear_columns);
+  pattern_selection_apply (self, BT_VALUE_GROUP_OP_CLEAR);
 }
 
 /**
