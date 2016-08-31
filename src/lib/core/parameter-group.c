@@ -28,7 +28,7 @@
  */
 /* TODO(ensonic): should we have the default values in the param group to be
  * able to create the controllers as needed, right now we create them
- * unconditionally, just to track the default value. 
+ * unconditionally, just to track the default value.
  */
 #define BT_CORE
 #define BT_PARAMETER_GROUP_C
@@ -536,7 +536,8 @@ bt_parameter_group_get_wave_param_index (const BtParameterGroup * const self)
  * @self: the parameter group
  * @index: the offset in the list of params
  *
- * Set a default value that should be used before the first control-point.
+ * Set the current value as default value that should be used before the first
+ * control-point.
  */
 void
 bt_parameter_group_set_param_default (const BtParameterGroup * const self,
@@ -622,8 +623,8 @@ bt_parameter_group_describe_param_value (const BtParameterGroup * const self,
  * bt_parameter_group_set_param_defaults:
  * @self: the parameter group
  *
- * Set a default value that should be used before the first control-point for
- * each parameter.
+ * Set the current values as a default values that should be used before the
+ * first control-point for each parameter.
  */
 void
 bt_parameter_group_set_param_defaults (const BtParameterGroup * const self)
