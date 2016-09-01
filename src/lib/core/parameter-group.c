@@ -546,20 +546,28 @@ bt_parameter_group_set_param_default (const BtParameterGroup * const self,
   g_return_if_fail (BT_IS_PARAMETER_GROUP (self));
   g_return_if_fail (index < self->priv->num_params);
 
+  BtParameterGroupPrivate *p = self->priv;
+
+  if (!p->cb[index]) {
+    GST_WARNING_OBJECT (p->parents[index], "param %s is not controllable",
+        PARAM_NAME (index));
+    return;
+  }
+
   if (!bt_parameter_group_is_param_trigger (self, index)) {
     GValue def_value = { 0, };
 
-    GST_INFO_OBJECT (self->priv->parents[index], "setting the current value");
+    GST_INFO_OBJECT (p->parents[index], "setting the current value for %s",
+        PARAM_NAME (index));
     g_value_init (&def_value, PARAM_TYPE (index));
-    g_object_get_property (self->priv->parents[index], PARAM_NAME (index),
-        &def_value);
-    g_object_set (G_OBJECT (self->priv->cb[index]), "default-value", &def_value,
-        NULL);
+    g_object_get_property (p->parents[index], PARAM_NAME (index), &def_value);
+    g_object_set (G_OBJECT (p->cb[index]), "default-value", &def_value, NULL);
     g_value_unset (&def_value);
   } else {
-    GST_INFO_OBJECT (self->priv->parents[index], "setting the no value");
-    g_object_set (G_OBJECT (self->priv->cb[index]), "default-value",
-        &self->priv->no_val[index], NULL);
+    GST_INFO_OBJECT (p->parents[index], "setting the no value for %s",
+        PARAM_NAME (index));
+    g_object_set (G_OBJECT (p->cb[index]), "default-value", &p->no_val[index],
+        NULL);
   }
 }
 
@@ -632,9 +640,7 @@ bt_parameter_group_set_param_defaults (const BtParameterGroup * const self)
   const gulong num_params = self->priv->num_params;
   gulong i;
   for (i = 0; i < num_params; i++) {
-    if (self->priv->cb[i]) {
-      bt_parameter_group_set_param_default (self, i);
-    }
+    bt_parameter_group_set_param_default (self, i);
   }
 }
 

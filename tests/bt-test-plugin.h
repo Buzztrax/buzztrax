@@ -86,6 +86,7 @@ struct _BtTestMonoSource {
   GstBtNote note_val;
   BtTestSparseEnum sparse_enum_val;
   gint wave_val;
+  gint int_val;
 
   // audio tempo context
   guint bpm, tpb, stpb;
