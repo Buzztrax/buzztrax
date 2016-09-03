@@ -205,7 +205,7 @@ libbtgst_check_la_SOURCES = tests/lib/gst/m-bt-gst.h \
 	tests/lib/gst/e-osc-synth.c \
 	tests/lib/gst/e-osc-wave.c tests/lib/gst/t-osc-wave.c \
 	tests/lib/gst/e-toneconversion.c tests/lib/gst/t-toneconversion.c \
-	tests/lib/gst/t-elements.c
+	tests/lib/gst/e-elements.c tests/lib/gst/t-elements.c
 
 libbt_cmd_check_la_LIBADD = \
 	libbtcmd.la \
