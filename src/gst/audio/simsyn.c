@@ -83,7 +83,6 @@ gstbt_sim_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
   // FIXME: need to turn off the envelope: reset length?
   src->note = GSTBT_NOTE_OFF;
   gstbt_envelope_reset ((GstBtEnvelope *) src->volenv);
-  GST_DEBUG_OBJECT (src, "reset");
 }
 
 static gboolean
