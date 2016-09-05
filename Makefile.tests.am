@@ -58,13 +58,19 @@ AM_TESTS_ENVIRONMENT = \
 # profiling data
 # most of the files are there due to XDG_CACHE_HOME=$(abs_builddir)
 CLEANFILES += core core.* *.gcno *.gcda bt_*.tar.bz2 \
-  tests/test-registry.* fontconfig/*
+  tests/test-registry.* fontconfig/* mime/*
 
 if BUILD_CHECK_TESTS
 check_PROGRAMS=$(TESTS_BIN)
 
 /tmp/test.wav:
 	$(AM_V_GEN) gst-launch-@GST_MAJORMINOR@ -q audiotestsrc num-buffers=10 ! wavenc ! filesink location=$@
+
+# make custom mimetypes work in uninstalled setup
+mime/mime.cache: $(sharedmimepackage_DATA)
+	@$(MKDIR_P) mime/packages; \
+	cp $^ mime/packages/; \
+	$(UPDATE_MIME_DATABASE) $(abs_builddir)/mime
 
 gschemas.compiled: org.buzztrax.gschema.xml
 	$(AM_V_GEN) $(GLIB_COMPILE_SCHEMAS) .
@@ -97,7 +103,7 @@ libbt_check_la_SOURCES = \
 	tests/bt-test-application.c tests/bt-test-application.h \
 	tests/bt-test-plugin.c tests/bt-test-plugin.h \
 	tests/btic-test-device.c tests/btic-test-device.h
-EXTRA_libbt_check_la_DEPENDENCIES = /tmp/test.wav gschemas.compiled
+EXTRA_libbt_check_la_DEPENDENCIES = /tmp/test.wav gschemas.compiled mime/mime.cache
 
 libbt_check_ui_la_LIBADD = \
   $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS)
