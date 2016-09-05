@@ -33,66 +33,6 @@ case_teardown (void)
 {
 }
 
-//-- helper
-
-/*
- * run_pipeline:
- * @pipe: the pipeline to run
- * @desc: the description for use in messages
- * @message_types: is a mask of expected message_types
- * @tmessage: is the expected terminal message
- *
- * the poll call will time out after half a second.
- */
-static gboolean
-run_pipeline (GstElement * pipeline, GstMessageType message_types,
-    GstMessageType tmessage)
-{
-  gboolean res = TRUE;
-  gst_element_set_state (pipeline, GST_STATE_PLAYING);
-  GstStateChangeReturn ret = gst_element_get_state (pipeline, NULL, NULL,
-      GST_CLOCK_TIME_NONE);
-
-  if (ret != GST_STATE_CHANGE_SUCCESS) {
-    GST_ERROR_OBJECT (pipeline, "Couldn't set pipeline to PLAYING, %d", ret);
-    res = FALSE;
-    goto done;
-  }
-
-  GstBus *bus = gst_element_get_bus (pipeline);
-  while (1) {
-    GstMessage *message = gst_bus_poll (bus, GST_MESSAGE_ANY, GST_SECOND / 2);
-    GstMessageType rmessage;
-
-    if (message) {
-      rmessage = GST_MESSAGE_TYPE (message);
-      gst_message_unref (message);
-    } else {
-      rmessage = GST_MESSAGE_UNKNOWN;
-    }
-
-    if (rmessage == tmessage) {
-      break;
-    } else if (rmessage == GST_MESSAGE_UNKNOWN) {
-      GST_ERROR_OBJECT (pipeline,
-          "Unexpected timeout in gst_bus_poll, looking for %d", tmessage);
-      res = FALSE;
-      break;
-    } else if (rmessage & message_types) {
-      continue;
-    }
-    GST_ERROR_OBJECT (pipeline,
-        "Unexpected message received of type %d, '%s', looking for %d",
-        rmessage, gst_message_type_get_name (rmessage), tmessage);
-    res = FALSE;
-  }
-  gst_object_unref (bus);
-
-done:
-  gst_element_set_state (pipeline, GST_STATE_NULL);
-  return res;
-}
-
 //-- tests
 
 gchar *pipeline_desc[] = {
