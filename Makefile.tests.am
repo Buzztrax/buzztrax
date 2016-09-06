@@ -70,7 +70,7 @@ check_PROGRAMS=$(TESTS_BIN)
 mime/mime.cache: $(sharedmimepackage_DATA)
 	@$(MKDIR_P) mime/packages; \
 	cp $^ mime/packages/; \
-	$(UPDATE_MIME_DATABASE) $(abs_builddir)/mime
+	XDG_DATA_HOME=$(abs_builddir) $(UPDATE_MIME_DATABASE) $(abs_builddir)/mime
 
 gschemas.compiled: org.buzztrax.gschema.xml
 	$(AM_V_GEN) $(GLIB_COMPILE_SCHEMAS) .
