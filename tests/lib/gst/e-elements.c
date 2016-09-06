@@ -41,13 +41,17 @@ gchar *pipeline_desc[] = {
   "playbin uri=file://%s audio-sink=\"fakesink sync=false\""
 };
 
+gchar *files[] = { "simple2.xml", "simple2.bzt" };
+
 static void
 test_launch_bt_dec (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  gchar *str = g_strdup_printf (pipeline_desc[_i],
-      check_get_test_song_path ("simple2.xml"));
+  guint pix = _i >> 1;
+  guint fix = _i & 1;
+  gchar *str = g_strdup_printf (pipeline_desc[pix],
+      check_get_test_song_path (files[fix]));
   GstElement *pipeline = gst_parse_launch (str, NULL);
   GstMessageType message_types =
       GST_MESSAGE_NEW_CLOCK | GST_MESSAGE_STATE_CHANGED |
@@ -102,7 +106,8 @@ gst_buzztrax_elements_example_case (void)
 {
   TCase *tc = tcase_create ("GstElementExamples");
 
-  tcase_add_loop_test (tc, test_launch_bt_dec, 0, G_N_ELEMENTS (pipeline_desc));
+  tcase_add_loop_test (tc, test_launch_bt_dec, 0,
+      G_N_ELEMENTS (pipeline_desc) * G_N_ELEMENTS (files));
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return tc;
 }
