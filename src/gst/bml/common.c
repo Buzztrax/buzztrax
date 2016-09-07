@@ -685,9 +685,13 @@ gstbml_convert_names (GObjectClass * klass, gchar * tmp_name, gchar * tmp_desc,
   }
   if (nick) {
     *nick = g_convert (tmp_name, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
+  } else {
+    *nick = NULL;
   }
   if (desc && tmp_desc) {
     *desc = g_convert (tmp_desc, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
+  } else {
+    *desc = NULL;
   }
   g_strcanon (cname, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '-');
 
