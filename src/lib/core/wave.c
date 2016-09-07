@@ -340,11 +340,11 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
         channels, rate, GST_TIME_ARGS (duration));
 
     if (!(fstat (self->priv->fd, &buf))) {
-      if ((data = g_try_malloc (buf.st_size))) {
-        /* mmap is unsave for removable drives :(
-         * gpointer data=mmap(void *start, buf->st_size, PROT_READ, MAP_SHARED, self->priv->fd, 0);
-         */
-        if (lseek (self->priv->fd, 0, SEEK_SET) == 0) {
+      if (lseek (self->priv->fd, 0, SEEK_SET) == 0) {
+        if ((data = g_try_malloc (buf.st_size))) {
+          /* mmap is unsave for removable drives :(
+           * gpointer data=mmap(void *start, buf->st_size, PROT_READ, MAP_SHARED, self->priv->fd, 0);
+           */
           BtWavelevel *wavelevel;
           ssize_t bytes = read (self->priv->fd, data, buf.st_size);
 
@@ -358,12 +358,12 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
               buf.st_size);
           res = TRUE;
         } else {
-          GST_WARNING ("can't seek to start of sample data");
+          GST_WARNING
+              ("sample is too long or empty (%ld bytes), not trying to load",
+              buf.st_size);
         }
       } else {
-        GST_WARNING
-            ("sample is too long or empty (%ld bytes), not trying to load",
-            buf.st_size);
+        GST_WARNING ("can't seek to start of sample data");
       }
     } else {
       GST_WARNING ("can't stat() sample");
