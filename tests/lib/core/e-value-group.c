@@ -162,6 +162,30 @@ test_bt_value_group_clear_column (BT_TEST_ARGS)
 }
 
 static void
+test_bt_value_group_clear_columns (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtValueGroup *vg = get_mono_value_group ();
+  bt_value_group_set_event (vg, 0, 0, "10");
+  bt_value_group_set_event (vg, 1, 0, "20");
+  bt_value_group_set_event (vg, 0, 1, "10");
+  bt_value_group_set_event (vg, 1, 1, "20");
+
+  GST_INFO ("-- act --");
+  bt_value_group_transform_colums (vg, BT_VALUE_GROUP_OP_CLEAR, 0, 3);
+
+  GST_INFO ("-- assert --");
+  ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 0), NULL);
+  ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 1, 0), NULL);
+  ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 0, 1), NULL);
+  ck_assert_str_eq_and_free (bt_value_group_get_event (vg, 1, 1), NULL);
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
+static void
 test_bt_value_group_blend_column (BT_TEST_ARGS)
 {
   BT_TEST_START;
@@ -328,6 +352,7 @@ bt_value_group_example_case (void)
   tcase_add_test (tc, test_bt_value_group_insert_row);
   tcase_add_test (tc, test_bt_value_group_delete_row);
   tcase_add_test (tc, test_bt_value_group_clear_column);
+  tcase_add_test (tc, test_bt_value_group_clear_columns);
   tcase_add_test (tc, test_bt_value_group_blend_column);
   tcase_add_test (tc, test_bt_value_group_flip_column);
   tcase_add_test (tc, test_bt_value_group_randomize_column);

@@ -292,17 +292,21 @@ bt_missing_framework_elements_dialog_apply (const
       name = (gchar *) (node->data);
       if (name[0] != '-') {
         if (!offset || !strstr (machine_ignore_list, name)) {
-          edit_elements = g_list_append (edit_elements, node->data);
-          length += 2 + strlen ((gchar *) (node->data));
+          edit_elements = g_list_append (edit_elements, name);
+          length += 2 + strlen ((gchar *) name);
         }
       }
     }
-    GST_INFO ("enlarging to %d bytes", length);
-    machine_ignore_list = g_realloc (machine_ignore_list, length);
-    ptr = &machine_ignore_list[offset];
-    for (node = edit_elements; node; node = g_list_next (node)) {
-      length = g_sprintf (ptr, "%s,", (gchar *) (node->data));
-      ptr = &ptr[length];
+    if (length) {
+      GST_INFO ("enlarging to %d bytes", length);
+      machine_ignore_list = g_realloc (machine_ignore_list, length);
+    }
+    if (machine_ignore_list) {
+      ptr = &machine_ignore_list[offset];
+      for (node = edit_elements; node; node = g_list_next (node)) {
+        length = g_sprintf (ptr, "%s,", (gchar *) (node->data));
+        ptr = &ptr[length];
+      }
     }
     g_list_free (edit_elements);
     GST_INFO ("now ignoring : [%s]", machine_ignore_list);

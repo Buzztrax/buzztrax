@@ -109,6 +109,26 @@ test_bt_parameter_group_no_wave_param (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_parameter_group_set_default_for_prefs (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztrax-test-mono-source", 0, NULL));
+  BtParameterGroup *pg = bt_machine_get_prefs_param_group (machine);
+
+  GST_INFO ("-- act --");
+  bt_parameter_group_set_param_default (pg, 0);
+
+  GST_INFO ("-- assert --");
+  check_log_contains ("param g-static is not controllable",
+      "param not ignored");
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
 TCase *
 bt_parameter_group_test_case (void)
 {
@@ -117,6 +137,7 @@ bt_parameter_group_test_case (void)
   tcase_add_test (tc, test_bt_parameter_group_invalid_param);
   tcase_add_test (tc, test_bt_parameter_group_no_trigger_param);
   tcase_add_test (tc, test_bt_parameter_group_no_wave_param);
+  tcase_add_test (tc, test_bt_parameter_group_set_default_for_prefs);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

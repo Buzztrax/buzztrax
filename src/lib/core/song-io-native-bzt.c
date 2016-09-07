@@ -197,16 +197,16 @@ bt_song_io_native_bzt_copy_from_uri (const BtSongIONativeBZT * const self,
         GST_INFO ("read data from file-deskriptor: fd=%d", fd);
 
         if (!(fstat (fd, &buf))) {
-          if ((bytes = g_try_malloc (buf.st_size))) {
-            if (lseek (fd, 0, SEEK_SET) == 0) {
+          if (lseek (fd, 0, SEEK_SET) == 0) {
+            if ((bytes = g_try_malloc (buf.st_size))) {
               size = read (fd, bytes, buf.st_size);
               if (size != buf.st_size) {
                 GST_WARNING ("did not write all data");
               }
               have_data = TRUE;
-            } else {
-              GST_WARNING ("can't seek in filedeskriptor");
             }
+          } else {
+            GST_WARNING ("can't seek in filedeskriptor");
           }
         }
       }
