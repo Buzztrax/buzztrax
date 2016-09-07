@@ -2005,7 +2005,6 @@ read_cwav_section (const BtSongIOBuzz * self, const BtSong * song)
   BtWave *wave;
   BtWavelevel *wavelevel;
   GList *list, *node;
-  gpointer data;
   gulong bytes, length, remain;
   guint channels;
 
@@ -2110,6 +2109,8 @@ read_cwav_section (const BtSongIOBuzz * self, const BtSong * song)
     if ((wave = bt_wavetable_get_wave_by_index (wavetable, (index + 1)))) {
       g_object_get (wave, "wavelevels", &list, "channels", &channels, NULL);
       for (node = list; node; node = g_list_next (node)) {
+        gpointer data;
+
         wavelevel = BT_WAVELEVEL (node->data);
         g_object_get (wavelevel, "length", &length, NULL);
 
@@ -2119,6 +2120,7 @@ read_cwav_section (const BtSongIOBuzz * self, const BtSong * song)
         if ((data = g_try_malloc (bytes))) {
           if (!format) {
             if ((mem_read (self, data, bytes, 1)) != 1) {
+              g_free (data);
               GST_WARNING ("error reading data");
               break;
             }
