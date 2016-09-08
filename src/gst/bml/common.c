@@ -59,17 +59,78 @@ gstbml_preset_read_string (FILE * in)
  * n bytes: comment
  *
  */
+
+static gboolean
+gstbml_preset_parse_preset_entry (GstBMLClass * klass, FILE * in)
+{
+  gboolean add;
+  gchar *preset_name = NULL, *comment = NULL;
+  guint32 tracks, params, size;
+  guint64 data_size;
+  guint32 *data = NULL;
+
+  if (!(preset_name = gstbml_preset_read_string (in)))
+    goto eof_error;
+  add = !g_hash_table_lookup (klass->preset_data, (gpointer) preset_name);
+
+  GST_INFO ("  reading preset: '%s' (new = %d)", preset_name, add);
+
+  if (!fread (&tracks, sizeof (tracks), 1, in))
+    goto eof_error;
+  if (!fread (&params, sizeof (params), 1, in))
+    goto eof_error;
+  // read preset data
+  data_size = sizeof (*data) * (2 + params);
+  GST_INFO ("  data size %lu", data_size);
+  data = g_malloc (data_size);
+  data[0] = tracks;
+  data[1] = params;
+  if (!fread (&data[2], sizeof (*data) * params, 1, in))
+    goto eof_error;
+
+  if (!fread (&size, sizeof (size), 1, in))
+    goto eof_error;
+  if (size) {
+    comment = g_malloc0 (((gsize) size) + 1);
+    if (!fread (comment, size, 1, in)) {
+      goto eof_error;
+    }
+  } else {
+    comment = NULL;
+  }
+
+  GST_INFO ("  %u tracks, %u params, comment '%s'", tracks, params,
+      (comment ? comment : ""));
+
+  if (add) {
+    g_hash_table_insert (klass->preset_data, (gpointer) preset_name,
+        (gpointer) data);
+    if (comment) {
+      g_hash_table_insert (klass->preset_comments, (gpointer) preset_name,
+          (gpointer) comment);
+    }
+    klass->presets =
+        g_list_insert_sorted (klass->presets, (gpointer) preset_name,
+        (GCompareFunc) strcmp);
+  }
+
+  return TRUE;
+
+eof_error:
+  g_free (data);
+  g_free (preset_name);
+  g_free (comment);
+  return FALSE;
+}
+
 static void
 gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
 {
   FILE *in;
 
   if ((in = fopen (preset_path, "rb"))) {
-    guint32 i, version, size, count;
-    guint32 tracks, params;
-    guint64 data_size;
-    guint32 *data;
-    gchar *machine_name, *preset_name, *comment;
+    guint32 i, version, count;
+    gchar *machine_name = NULL;
 
     // read header
     if (!fread (&version, sizeof (version), 1, in))
@@ -91,61 +152,12 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
 
     // read presets
     for (i = 0; i < count; i++) {
-      gboolean add;
-
-      if (!(preset_name = gstbml_preset_read_string (in)))
-        goto eof_error;
-      add = !g_hash_table_lookup (klass->preset_data, (gpointer) preset_name);
-
-      GST_INFO ("  reading preset %d: '%s' (new = %d)", i, preset_name, add);
-
-      if (!fread (&tracks, sizeof (tracks), 1, in))
-        goto eof_error;
-      if (!fread (&params, sizeof (params), 1, in))
-        goto eof_error;
-      // read preset data
-      data_size = sizeof (*data) * (2 + params);
-      GST_INFO ("  data size %lu", data_size);
-      data = g_malloc (data_size);
-      data[0] = tracks;
-      data[1] = params;
-      if (!fread (&data[2], sizeof (*data) * params, 1, in))
-        goto eof_error;
-
-      if (!fread (&size, sizeof (size), 1, in))
-        goto eof_error;
-      if (size) {
-        comment = g_malloc0 (((gsize) size) + 1);
-        if (!fread (comment, size, 1, in)) {
-          g_free (comment);
-          goto eof_error;
-        }
-      } else {
-        comment = NULL;
-      }
-
-      GST_INFO ("  %u tracks, %u params, comment '%s'", tracks, params,
-          (comment ? comment : ""));
-
-      if (add) {
-        g_hash_table_insert (klass->preset_data, (gpointer) preset_name,
-            (gpointer) data);
-        if (comment) {
-          g_hash_table_insert (klass->preset_comments, (gpointer) preset_name,
-              (gpointer) comment);
-        }
-        klass->presets =
-            g_list_insert_sorted (klass->presets, (gpointer) preset_name,
-            (GCompareFunc) strcmp);
-      } else {
-        g_free (data);
-        g_free (preset_name);
-        g_free (comment);
-      }
+      if (!gstbml_preset_parse_preset_entry (klass, in))
+        break;
     }
-    g_free (machine_name);
 
   eof_error:
+    g_free (machine_name);
     fclose (in);
   } else {
     GST_INFO ("can't open preset file: '%s'", preset_path);
@@ -664,9 +676,9 @@ gstbml_preset_finalize (GstBMLClass * klass)
  * @klass: the instance class
  * @tmp_name: name to build @name and @nick from
  * @tmp_desc: desc to build @desc from
- * @name: target for name
- * @nick: target for nick
- * @desc: target for description
+ * @name: target for name, must not be %NULL
+ * @nick: target for nick, must not be %NULL
+ * @desc: target for description, must not be %NULL
  *
  * Convert charset encoding and make property-names unique.
  */
@@ -674,72 +686,79 @@ void
 gstbml_convert_names (GObjectClass * klass, gchar * tmp_name, gchar * tmp_desc,
     gchar ** name, gchar ** nick, gchar ** desc)
 {
-  gchar *cname, *ptr1, *ptr2;
+  g_return_if_fail (name);
+  g_return_if_fail (nick);
+  g_return_if_fail (desc);
 
-  GST_DEBUG ("        tmp_name='%s'", tmp_name);
-  // TODO(ensonic): do we want different charsets for BML_WRAPPED/BML_NATIVE?
-  cname = g_convert (tmp_name, -1, "ASCII", "WINDOWS-1252", NULL, NULL, NULL);
-  if (!cname) {
-    // weak fallback when conversion failed
-    cname = g_strdup (tmp_name);
-  }
-  if (nick) {
-    *nick = g_convert (tmp_name, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
-  } else {
-    *nick = NULL;
-  }
-  if (desc && tmp_desc) {
+  if (tmp_desc) {
     *desc = g_convert (tmp_desc, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
   } else {
     *desc = NULL;
   }
-  g_strcanon (cname, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '-');
 
-  // remove leading '-'
-  ptr1 = ptr2 = cname;
-  while (*ptr2 == '-')
-    ptr2++;
-  // remove double '-'
-  while (*ptr2) {
-    if (*ptr2 == '-') {
-      while (ptr2[1] == '-')
-        ptr2++;
+  if (tmp_name) {
+    gchar *cname, *ptr1, *ptr2;
+
+    GST_DEBUG ("        tmp_name='%s'", tmp_name);
+    // TODO(ensonic): do we want different charsets for BML_WRAPPED/BML_NATIVE?
+    cname = g_convert (tmp_name, -1, "ASCII", "WINDOWS-1252", NULL, NULL, NULL);
+    if (!cname) {
+      // weak fallback when conversion failed
+      cname = g_strdup (tmp_name);
+    }
+    *nick = g_convert (tmp_name, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
+
+    g_strcanon (cname, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '-');
+
+    // remove leading '-'
+    ptr1 = ptr2 = cname;
+    while (*ptr2 == '-')
+      ptr2++;
+    // remove double '-'
+    while (*ptr2) {
+      if (*ptr2 == '-') {
+        while (ptr2[1] == '-')
+          ptr2++;
+      }
+      if (ptr1 != ptr2)
+        *ptr1 = *ptr2;
+      ptr1++;
+      ptr2++;
     }
     if (ptr1 != ptr2)
-      *ptr1 = *ptr2;
-    ptr1++;
-    ptr2++;
-  }
-  if (ptr1 != ptr2)
-    *ptr1 = '\0';
-  // remove trailing '-'
-  ptr1--;
-  while (*ptr1 == '-')
-    *ptr1++ = '\0';
+      *ptr1 = '\0';
+    // remove trailing '-'
+    ptr1--;
+    while (*ptr1 == '-')
+      *ptr1++ = '\0';
 
-  // name must begin with a char
-  if (!g_ascii_isalpha (cname[0])) {
-    gchar *old_name = cname;
-    cname = g_strconcat ("Par_", old_name, NULL);
-    g_free (old_name);
-  }
-  // check for already existing property names
-  if (g_object_class_find_property (klass, cname)) {
-    gchar *old_name = cname;
-    gchar postfix[5];
-    gint i = 0;
+    // name must begin with a char
+    if (!g_ascii_isalpha (cname[0])) {
+      gchar *old_name = cname;
+      cname = g_strconcat ("Par_", old_name, NULL);
+      g_free (old_name);
+    }
+    // check for already existing property names
+    if (g_object_class_find_property (klass, cname)) {
+      gchar *old_name = cname;
+      gchar postfix[5];
+      gint i = 0;
 
-    // make name uniqe
-    cname = NULL;
-    do {
-      if (cname)
-        g_free (cname);
-      snprintf (postfix, 5, "_%03d", i++);
-      cname = g_strconcat (old_name, postfix, NULL);
-    } while (g_object_class_find_property (klass, cname));
-    g_free (old_name);
+      // make name uniqe
+      cname = NULL;
+      do {
+        if (cname)
+          g_free (cname);
+        snprintf (postfix, 5, "_%03d", i++);
+        cname = g_strconcat (old_name, postfix, NULL);
+      } while (g_object_class_find_property (klass, cname));
+      g_free (old_name);
+    }
+    *name = cname;
+  } else {
+    *nick = NULL;
+    *name = NULL;
   }
-  *name = cname;
 }
 
 /**
