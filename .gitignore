@@ -74,3 +74,8 @@ buzztrax.appdata.xml
 *.test
 bt_*.tar.bz2
 test-registry.reg
+recently-used.xbel
+mime/
+fontconfig/
+gstreamer-1.0/
+
