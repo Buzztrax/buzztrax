@@ -237,7 +237,7 @@ gst_bmlv_class_init (GstBMLVClass * klass)
     gint min_val, max_val, def_val, no_val;
     gint type, flags;
     gchar *tmp_name, *tmp_desc;
-    gchar *name, *nick, *desc;
+    gchar *name = NULL, *nick = NULL, *desc = NULL;
     gint i, prop_id = 1;
 
     //klass->numtrackparams=num;
@@ -283,8 +283,11 @@ gst_bmlv_class_init (GstBMLVClass * klass)
           GST_WARNING ("registering voice_param failed!");
         }
         g_free (name);
+        name = NULL;
         g_free (nick);
+        nick = NULL;
         g_free (desc);
+        desc = NULL;
       }
     }
   }

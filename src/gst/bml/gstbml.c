@@ -781,7 +781,7 @@ bml (gstbml_class_prepare_properties (GObjectClass * klass,
   gint i, flags, type;
   gint num, min_val, max_val, def_val, no_val;
   gchar *tmp_name, *tmp_desc;
-  gchar *name, *nick, *desc;
+  gchar *name = NULL, *nick = NULL, *desc = NULL;
   gint prop_id = ARG_LAST;
 
   g_object_class_install_property (klass, ARG_HOST_CALLBACKS,
@@ -830,8 +830,11 @@ bml (gstbml_class_prepare_properties (GObjectClass * klass,
         GST_WARNING ("registering attribute failed!");
       }
       g_free (name);
+      name = NULL;
       g_free (nick);
+      nick = NULL;
       g_free (desc);
+      desc = NULL;
     }
   }
   GST_INFO ("  %d attribute installed", bml_class->numattributes);
@@ -875,8 +878,11 @@ bml (gstbml_class_prepare_properties (GObjectClass * klass,
           GST_WARNING ("registering global_param failed!");
         }
         g_free (name);
+        name = NULL;
         g_free (nick);
+        nick = NULL;
         g_free (desc);
+        desc = NULL;
       }
     }
   }
@@ -921,8 +927,11 @@ bml (gstbml_class_prepare_properties (GObjectClass * klass,
           GST_WARNING ("registering global_param (pseudo track param) failed!");
         }
         g_free (name);
+        name = NULL;
         g_free (nick);
+        nick = NULL;
         g_free (desc);
+        desc = NULL;
       }
     }
   }
