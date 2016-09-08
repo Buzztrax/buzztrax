@@ -112,9 +112,8 @@ gstbml_preset_parse_preset_entry (GstBMLClass * klass, FILE * in)
     klass->presets =
         g_list_insert_sorted (klass->presets, (gpointer) preset_name,
         (GCompareFunc) strcmp);
+    return TRUE;
   }
-
-  return TRUE;
 
 eof_error:
   g_free (data);
