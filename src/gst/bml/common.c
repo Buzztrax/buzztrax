@@ -664,9 +664,9 @@ gstbml_preset_finalize (GstBMLClass * klass)
  * @klass: the instance class
  * @tmp_name: name to build @name and @nick from
  * @tmp_desc: desc to build @desc from
- * @name: target for name
- * @nick: target for nick
- * @desc: target for description
+ * @name: target for name, must not be %NULL
+ * @nick: target for nick, must not be %NULL
+ * @desc: target for description, must not be %NULL
  *
  * Convert charset encoding and make property-names unique.
  */
@@ -674,72 +674,79 @@ void
 gstbml_convert_names (GObjectClass * klass, gchar * tmp_name, gchar * tmp_desc,
     gchar ** name, gchar ** nick, gchar ** desc)
 {
-  gchar *cname, *ptr1, *ptr2;
+  g_return_if_fail (name);
+  g_return_if_fail (nick);
+  g_return_if_fail (desc);
 
-  GST_DEBUG ("        tmp_name='%s'", tmp_name);
-  // TODO(ensonic): do we want different charsets for BML_WRAPPED/BML_NATIVE?
-  cname = g_convert (tmp_name, -1, "ASCII", "WINDOWS-1252", NULL, NULL, NULL);
-  if (!cname) {
-    // weak fallback when conversion failed
-    cname = g_strdup (tmp_name);
-  }
-  if (nick) {
-    *nick = g_convert (tmp_name, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
-  } else {
-    *nick = NULL;
-  }
-  if (desc && tmp_desc) {
+  if (tmp_desc) {
     *desc = g_convert (tmp_desc, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
   } else {
     *desc = NULL;
   }
-  g_strcanon (cname, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '-');
 
-  // remove leading '-'
-  ptr1 = ptr2 = cname;
-  while (*ptr2 == '-')
-    ptr2++;
-  // remove double '-'
-  while (*ptr2) {
-    if (*ptr2 == '-') {
-      while (ptr2[1] == '-')
-        ptr2++;
+  if (tmp_name) {
+    gchar *cname, *ptr1, *ptr2;
+
+    GST_DEBUG ("        tmp_name='%s'", tmp_name);
+    // TODO(ensonic): do we want different charsets for BML_WRAPPED/BML_NATIVE?
+    cname = g_convert (tmp_name, -1, "ASCII", "WINDOWS-1252", NULL, NULL, NULL);
+    if (!cname) {
+      // weak fallback when conversion failed
+      cname = g_strdup (tmp_name);
+    }
+    *nick = g_convert (tmp_name, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
+
+    g_strcanon (cname, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '-');
+
+    // remove leading '-'
+    ptr1 = ptr2 = cname;
+    while (*ptr2 == '-')
+      ptr2++;
+    // remove double '-'
+    while (*ptr2) {
+      if (*ptr2 == '-') {
+        while (ptr2[1] == '-')
+          ptr2++;
+      }
+      if (ptr1 != ptr2)
+        *ptr1 = *ptr2;
+      ptr1++;
+      ptr2++;
     }
     if (ptr1 != ptr2)
-      *ptr1 = *ptr2;
-    ptr1++;
-    ptr2++;
-  }
-  if (ptr1 != ptr2)
-    *ptr1 = '\0';
-  // remove trailing '-'
-  ptr1--;
-  while (*ptr1 == '-')
-    *ptr1++ = '\0';
+      *ptr1 = '\0';
+    // remove trailing '-'
+    ptr1--;
+    while (*ptr1 == '-')
+      *ptr1++ = '\0';
 
-  // name must begin with a char
-  if (!g_ascii_isalpha (cname[0])) {
-    gchar *old_name = cname;
-    cname = g_strconcat ("Par_", old_name, NULL);
-    g_free (old_name);
-  }
-  // check for already existing property names
-  if (g_object_class_find_property (klass, cname)) {
-    gchar *old_name = cname;
-    gchar postfix[5];
-    gint i = 0;
+    // name must begin with a char
+    if (!g_ascii_isalpha (cname[0])) {
+      gchar *old_name = cname;
+      cname = g_strconcat ("Par_", old_name, NULL);
+      g_free (old_name);
+    }
+    // check for already existing property names
+    if (g_object_class_find_property (klass, cname)) {
+      gchar *old_name = cname;
+      gchar postfix[5];
+      gint i = 0;
 
-    // make name uniqe
-    cname = NULL;
-    do {
-      if (cname)
-        g_free (cname);
-      snprintf (postfix, 5, "_%03d", i++);
-      cname = g_strconcat (old_name, postfix, NULL);
-    } while (g_object_class_find_property (klass, cname));
-    g_free (old_name);
+      // make name uniqe
+      cname = NULL;
+      do {
+        if (cname)
+          g_free (cname);
+        snprintf (postfix, 5, "_%03d", i++);
+        cname = g_strconcat (old_name, postfix, NULL);
+      } while (g_object_class_find_property (klass, cname));
+      g_free (old_name);
+    }
+    *name = cname;
+  } else {
+    *nick = NULL;
+    *name = NULL;
   }
-  *name = cname;
 }
 
 /**
