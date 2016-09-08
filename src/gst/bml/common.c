@@ -69,7 +69,7 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
     guint32 tracks, params;
     guint64 data_size;
     guint32 *data;
-    gchar *machine_name, *preset_name, *comment;
+    gchar *machine_name = NULL, *preset_name, *comment;
 
     // read header
     if (!fread (&version, sizeof (version), 1, in))
@@ -143,9 +143,9 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
         g_free (comment);
       }
     }
-    g_free (machine_name);
 
   eof_error:
+    g_free (machine_name);
     fclose (in);
   } else {
     GST_INFO ("can't open preset file: '%s'", preset_path);
