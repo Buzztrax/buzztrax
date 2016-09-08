@@ -59,17 +59,78 @@ gstbml_preset_read_string (FILE * in)
  * n bytes: comment
  *
  */
+
+static gboolean
+gstbml_preset_parse_preset_entry (GstBMLClass * klass, FILE * in)
+{
+  gboolean add;
+  gchar *preset_name = NULL, *comment = NULL;
+  guint32 tracks, params, size;
+  guint64 data_size;
+  guint32 *data = NULL;
+
+  if (!(preset_name = gstbml_preset_read_string (in)))
+    goto eof_error;
+  add = !g_hash_table_lookup (klass->preset_data, (gpointer) preset_name);
+
+  GST_INFO ("  reading preset: '%s' (new = %d)", preset_name, add);
+
+  if (!fread (&tracks, sizeof (tracks), 1, in))
+    goto eof_error;
+  if (!fread (&params, sizeof (params), 1, in))
+    goto eof_error;
+  // read preset data
+  data_size = sizeof (*data) * (2 + params);
+  GST_INFO ("  data size %lu", data_size);
+  data = g_malloc (data_size);
+  data[0] = tracks;
+  data[1] = params;
+  if (!fread (&data[2], sizeof (*data) * params, 1, in))
+    goto eof_error;
+
+  if (!fread (&size, sizeof (size), 1, in))
+    goto eof_error;
+  if (size) {
+    comment = g_malloc0 (((gsize) size) + 1);
+    if (!fread (comment, size, 1, in)) {
+      goto eof_error;
+    }
+  } else {
+    comment = NULL;
+  }
+
+  GST_INFO ("  %u tracks, %u params, comment '%s'", tracks, params,
+      (comment ? comment : ""));
+
+  if (add) {
+    g_hash_table_insert (klass->preset_data, (gpointer) preset_name,
+        (gpointer) data);
+    if (comment) {
+      g_hash_table_insert (klass->preset_comments, (gpointer) preset_name,
+          (gpointer) comment);
+    }
+    klass->presets =
+        g_list_insert_sorted (klass->presets, (gpointer) preset_name,
+        (GCompareFunc) strcmp);
+  }
+
+  return TRUE;
+
+eof_error:
+  g_free (data);
+  g_free (preset_name);
+  g_free (comment);
+  return FALSE;
+}
+
 static void
 gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
 {
   FILE *in;
 
   if ((in = fopen (preset_path, "rb"))) {
-    guint32 i, version, size, count;
-    guint32 tracks, params;
-    guint64 data_size;
-    guint32 *data;
-    gchar *machine_name = NULL, *preset_name, *comment;
+    guint32 i, version, count;
+    gchar *machine_name = NULL;
 
     // read header
     if (!fread (&version, sizeof (version), 1, in))
@@ -91,57 +152,8 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
 
     // read presets
     for (i = 0; i < count; i++) {
-      gboolean add;
-
-      if (!(preset_name = gstbml_preset_read_string (in)))
-        goto eof_error;
-      add = !g_hash_table_lookup (klass->preset_data, (gpointer) preset_name);
-
-      GST_INFO ("  reading preset %d: '%s' (new = %d)", i, preset_name, add);
-
-      if (!fread (&tracks, sizeof (tracks), 1, in))
-        goto eof_error;
-      if (!fread (&params, sizeof (params), 1, in))
-        goto eof_error;
-      // read preset data
-      data_size = sizeof (*data) * (2 + params);
-      GST_INFO ("  data size %lu", data_size);
-      data = g_malloc (data_size);
-      data[0] = tracks;
-      data[1] = params;
-      if (!fread (&data[2], sizeof (*data) * params, 1, in))
-        goto eof_error;
-
-      if (!fread (&size, sizeof (size), 1, in))
-        goto eof_error;
-      if (size) {
-        comment = g_malloc0 (((gsize) size) + 1);
-        if (!fread (comment, size, 1, in)) {
-          g_free (comment);
-          goto eof_error;
-        }
-      } else {
-        comment = NULL;
-      }
-
-      GST_INFO ("  %u tracks, %u params, comment '%s'", tracks, params,
-          (comment ? comment : ""));
-
-      if (add) {
-        g_hash_table_insert (klass->preset_data, (gpointer) preset_name,
-            (gpointer) data);
-        if (comment) {
-          g_hash_table_insert (klass->preset_comments, (gpointer) preset_name,
-              (gpointer) comment);
-        }
-        klass->presets =
-            g_list_insert_sorted (klass->presets, (gpointer) preset_name,
-            (GCompareFunc) strcmp);
-      } else {
-        g_free (data);
-        g_free (preset_name);
-        g_free (comment);
-      }
+      if (!gstbml_preset_parse_preset_entry (klass, in))
+        break;
     }
 
   eof_error:
