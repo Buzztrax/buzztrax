@@ -26,12 +26,14 @@ GST_DEBUG_CATEGORY_EXTERN (GST_CAT_DEFAULT);
 //-- preset iface
 
 static gchar *
-gstbml_preset_read_string (FILE * in)
+gstbml_preset_read_string (FILE * in, gsize fsize)
 {
   guint32 size;
   gchar *str;
 
   if (!fread (&size, sizeof (size), 1, in))
+    return NULL;
+  if (size > (fsize - ftell (in)))
     return NULL;
   str = g_malloc (((gsize) size) + 1);
   if (!fread (str, size, 1, in)) {
@@ -61,7 +63,7 @@ gstbml_preset_read_string (FILE * in)
  */
 
 static gboolean
-gstbml_preset_parse_preset_entry (GstBMLClass * klass, FILE * in)
+gstbml_preset_parse_preset_entry (GstBMLClass * klass, FILE * in, gsize fsize)
 {
   gboolean add;
   gchar *preset_name = NULL, *comment = NULL;
@@ -69,7 +71,7 @@ gstbml_preset_parse_preset_entry (GstBMLClass * klass, FILE * in)
   guint64 data_size;
   guint32 *data = NULL;
 
-  if (!(preset_name = gstbml_preset_read_string (in)))
+  if (!(preset_name = gstbml_preset_read_string (in, fsize)))
     goto eof_error;
   add = !g_hash_table_lookup (klass->preset_data, (gpointer) preset_name);
 
@@ -82,6 +84,8 @@ gstbml_preset_parse_preset_entry (GstBMLClass * klass, FILE * in)
   // read preset data
   data_size = sizeof (*data) * (2 + params);
   GST_INFO ("  data size %lu", data_size);
+  if (data_size > (fsize - ftell (in)))
+    goto eof_error;
   data = g_malloc (data_size);
   data[0] = tracks;
   data[1] = params;
@@ -89,6 +93,8 @@ gstbml_preset_parse_preset_entry (GstBMLClass * klass, FILE * in)
     goto eof_error;
 
   if (!fread (&size, sizeof (size), 1, in))
+    goto eof_error;
+  if (size > (fsize - ftell (in)))
     goto eof_error;
   if (size) {
     comment = g_malloc0 (((gsize) size) + 1);
@@ -130,11 +136,16 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
   if ((in = fopen (preset_path, "rb"))) {
     guint32 i, version, count;
     gchar *machine_name = NULL;
+    gsize fsize;
+
+    fseek (in, 0, SEEK_END);
+    fsize = ftell (in);
+    fseek (in, 0, SEEK_SET);
 
     // read header
     if (!fread (&version, sizeof (version), 1, in))
       goto eof_error;
-    if (!(machine_name = gstbml_preset_read_string (in)))
+    if (!(machine_name = gstbml_preset_read_string (in, fsize)))
       goto eof_error;
     // need to cut off path and '.dll'
     if (!strstr (klass->dll_name, machine_name)) {
@@ -151,7 +162,7 @@ gstbml_preset_parse_preset_file (GstBMLClass * klass, const gchar * preset_path)
 
     // read presets
     for (i = 0; i < count; i++) {
-      if (!gstbml_preset_parse_preset_entry (klass, in))
+      if (!gstbml_preset_parse_preset_entry (klass, in, fsize))
         break;
     }
 
