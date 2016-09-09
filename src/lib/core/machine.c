@@ -1051,7 +1051,7 @@ is_callback_pspec (GParamSpec * pspec)
     return FALSE;
   if (!G_IS_PARAM_SPEC_POINTER (pspec))
     return FALSE;
-  if (!pspec->flags & G_PARAM_WRITABLE)
+  if (!(pspec->flags & G_PARAM_WRITABLE))
     return FALSE;
   if (pspec->flags & G_PARAM_READABLE)
     return FALSE;
