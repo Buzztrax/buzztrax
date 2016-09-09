@@ -88,6 +88,8 @@ struct _BtTestMonoSource {
   gint wave_val;
   gint int_val;
 
+  gpointer host_callbacks, wave_callbacks;
+
   // audio tempo context
   guint bpm, tpb, stpb;
 };

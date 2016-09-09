@@ -70,6 +70,8 @@ enum
   PROP_SPARSE_ENUM,
   PROP_WAVE,
   PROP_STATIC,                  // static
+  PROP_HOST_CALLBACKS,
+  PROP_WAVE_CALLBACKS,
   PROP_COUNT
 };
 
@@ -215,6 +217,12 @@ bt_test_mono_source_set_property (GObject * object, guint property_id,
     case PROP_STATIC:
       self->int_val = g_value_get_int (value);
       break;
+    case PROP_HOST_CALLBACKS:
+      self->host_callbacks = g_value_get_pointer (value);
+      break;
+    case PROP_WAVE_CALLBACKS:
+      self->wave_callbacks = g_value_get_pointer (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -304,6 +312,17 @@ bt_test_mono_source_class_init (BtTestMonoSourceClass * klass)
           "int prop",
           "int number parameter for the test_mono_source",
           0, G_MAXINT, 0, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_WAVE_CALLBACKS,
+      g_param_spec_pointer ("wave-callbacks",
+          "Wavetable Callbacks", "The wave-table access callbacks",
+          G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_HOST_CALLBACKS,
+      g_param_spec_pointer ("host-callbacks",
+          "host-callbacks property",
+          "Buzz host callback structure",
+          G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&src_pad_template));

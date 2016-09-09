@@ -95,6 +95,58 @@ test_bt_machine_names (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_machine_state_bypass_on_source (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *src =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *proc =
+      BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0L, NULL));
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+  bt_wire_new (song, src, proc, NULL);
+  bt_wire_new (song, proc, sink, NULL);
+
+  GST_INFO ("-- act --");
+  g_object_set (src, "state", BT_MACHINE_STATE_BYPASS, NULL);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_guint_eq (src, "state", BT_MACHINE_STATE_NORMAL);
+  ck_assert_gobject_guint_eq (proc, "state", BT_MACHINE_STATE_NORMAL);
+  ck_assert_gobject_guint_eq (sink, "state", BT_MACHINE_STATE_NORMAL);
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
+static void
+test_bt_machine_state_solo_on_sink (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *src =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *proc =
+      BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0L, NULL));
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+  bt_wire_new (song, src, proc, NULL);
+  bt_wire_new (song, proc, sink, NULL);
+
+  GST_INFO ("-- act --");
+  g_object_set (sink, "state", BT_MACHINE_STATE_SOLO, NULL);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_guint_eq (src, "state", BT_MACHINE_STATE_NORMAL);
+  ck_assert_gobject_guint_eq (proc, "state", BT_MACHINE_STATE_NORMAL);
+  ck_assert_gobject_guint_eq (sink, "state", BT_MACHINE_STATE_NORMAL);
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
 TCase *
 bt_machine_test_case (void)
 {
@@ -102,6 +154,8 @@ bt_machine_test_case (void)
 
   tcase_add_test (tc, test_bt_machine_add_pattern);
   tcase_add_test (tc, test_bt_machine_names);
+  tcase_add_test (tc, test_bt_machine_state_bypass_on_source);
+  tcase_add_test (tc, test_bt_machine_state_solo_on_sink);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
