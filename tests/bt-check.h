@@ -246,8 +246,9 @@ void setup_log_capture(void);
 void collect_logs(gboolean no_failures);
 
 void check_run_main_loop_for_usec(gulong usec);
-void check_run_main_loop_until_playing_or_error(BtSong * song);
-void check_run_main_loop_until_eos_or_error(BtSong * song);
+gboolean check_run_main_loop_until_msg_or_error(BtSong * song, const gchar * msg);
+gboolean check_run_main_loop_until_playing_or_error(BtSong * song);
+gboolean check_run_main_loop_until_eos_or_error(BtSong * song);
 
 void check_remove_gst_feature(gchar *feature_name);
 

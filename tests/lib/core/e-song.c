@@ -598,6 +598,32 @@ test_bt_song_play_again_should_restart (BT_TEST_ARGS)
 }
 
 static void
+test_bt_song_play_loop (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSong *song = make_new_song ();
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  g_object_set (sequence, "loop", TRUE, NULL);
+
+  GST_INFO ("-- act --");
+  bt_song_play (song);
+
+  gboolean res =
+      check_run_main_loop_until_msg_or_error (song, "message::segment-done");
+
+  GST_INFO ("-- assert --");
+  fail_unless (res);
+
+  GST_INFO ("-- cleanup --");
+  bt_song_stop (song);
+  g_object_unref (sequence);
+  ck_g_object_final_unref (song);
+  BT_TEST_END;
+}
+
+static void
 test_bt_song_persistence (BT_TEST_ARGS)
 {
   BT_TEST_START;
@@ -668,6 +694,7 @@ bt_song_example_case (void)
   tcase_add_test (tc, test_bt_song_play_pos_on_eos);
   tcase_add_test (tc, test_bt_song_play_pos_after_initial_seek);
   tcase_add_test (tc, test_bt_song_play_again_should_restart);
+  tcase_add_test (tc, test_bt_song_play_loop);
   tcase_add_test (tc, test_bt_song_persistence);
   tcase_add_test (tc, test_bt_song_tempo_update_set_context);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);

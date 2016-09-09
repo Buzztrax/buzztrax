@@ -621,19 +621,18 @@ check_run_main_loop_for_usec (gulong usec)
   g_main_loop_unref (loop);
 }
 
+static gboolean _check_run_main_loop_error = FALSE;
+
 static void
 _check_message_received (GstBus * bus, GstMessage * message, gpointer user_data)
 {
+  GMainLoop *main_loop = (GMainLoop *) user_data;
+
+  GST_DEBUG_OBJECT (GST_MESSAGE_SRC (message), "%s: %" GST_PTR_FORMAT,
+      GST_MESSAGE_TYPE_NAME (message), message);
+
   switch (GST_MESSAGE_TYPE (message)) {
-    case GST_MESSAGE_ERROR:
-      GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "error: %" GST_PTR_FORMAT,
-          message);
-      if (g_main_loop_is_running (user_data))
-        g_main_loop_quit (user_data);
-      break;
     case GST_MESSAGE_STATE_CHANGED:
-      GST_DEBUG_OBJECT (GST_MESSAGE_SRC (message),
-          "state-changed: %" GST_PTR_FORMAT, message);
       if (GST_IS_PIPELINE (GST_MESSAGE_SRC (message))) {
         GstState oldstate, newstate, pending;
 
@@ -641,27 +640,32 @@ _check_message_received (GstBus * bus, GstMessage * message, gpointer user_data)
             &pending);
         switch (GST_STATE_TRANSITION (oldstate, newstate)) {
           case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-            if (g_main_loop_is_running (user_data))
-              g_main_loop_quit (user_data);
+            goto done;
             break;
           default:
             break;
         }
       }
       break;
+    case GST_MESSAGE_ERROR:
+      _check_run_main_loop_error = TRUE;
+      // fall through
+    case GST_MESSAGE_SEGMENT_DONE:
     case GST_MESSAGE_EOS:
-      GST_DEBUG_OBJECT (GST_MESSAGE_SRC (message),
-          "eos: %" GST_PTR_FORMAT, message);
-      if (g_main_loop_is_running (user_data))
-        g_main_loop_quit (user_data);
+      goto done;
     default:
       GST_WARNING ("unexpected messges: %s", GST_MESSAGE_TYPE_NAME (message));
   }
+  return;
+done:
+  if (g_main_loop_is_running (main_loop))
+    g_main_loop_quit (main_loop);
 }
 
-static void
+gboolean
 check_run_main_loop_until_msg_or_error (BtSong * song, const gchar * msg)
 {
+  gboolean res = FALSE;
   GstStateChangeReturn sret;
   GstState state, pending;
 
@@ -680,7 +684,9 @@ check_run_main_loop_until_msg_or_error (BtSong * song, const gchar * msg)
 
   GST_INFO_OBJECT (song, "running main_loop");
   if (sret != GST_STATE_CHANGE_SUCCESS) {
+    _check_run_main_loop_error = FALSE;
     g_main_loop_run (main_loop);
+    res = !_check_run_main_loop_error;
   }
   gst_bus_remove_signal_watch (bus);
   g_signal_handlers_disconnect_matched (bus, G_SIGNAL_MATCH_DATA, 0, 0, NULL,
@@ -688,18 +694,20 @@ check_run_main_loop_until_msg_or_error (BtSong * song, const gchar * msg)
   gst_object_unref (bus);
   g_main_loop_unref (main_loop);
   GST_INFO_OBJECT (song, "finished main_loop");
+  return res;
 }
 
-void
+gboolean
 check_run_main_loop_until_playing_or_error (BtSong * song)
 {
-  check_run_main_loop_until_msg_or_error (song, "message::state-changed");
+  return
+      check_run_main_loop_until_msg_or_error (song, "message::state-changed");
 }
 
-void
+gboolean
 check_run_main_loop_until_eos_or_error (BtSong * song)
 {
-  check_run_main_loop_until_msg_or_error (song, "message::eos");
+  return check_run_main_loop_until_msg_or_error (song, "message::eos");
 }
 
 // gstreamer registry
