@@ -367,6 +367,9 @@ bt_settings_make (void)
     GSettingsBackend *backend = g_settings_backend_get_default ();
 
     // add schemas
+    // TODO: for local installs we can avoid the extra env-var by using
+    // g_settings_new_with_backend_and_path("org.buzztrax", backend,
+    //     DATADIR "/glib-2.0/schemas/")
     p->org_buzztrax = g_settings_new_with_backend ("org.buzztrax", backend);
     p->org_gnome_desktop_interface =
         g_settings_new_with_backend ("org.gnome.desktop.interface", backend);
