@@ -325,7 +325,7 @@ test_bt_machine_state_mute_no_sideeffects (BT_TEST_ARGS)
 }
 
 static void
-test_bt_machine_state_solo_unmutes_others (BT_TEST_ARGS)
+test_bt_machine_state_solo_resets_others (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -346,6 +346,32 @@ test_bt_machine_state_solo_unmutes_others (BT_TEST_ARGS)
   GST_INFO ("-- assert --");
   ck_assert_gobject_guint_eq (src1, "state", BT_MACHINE_STATE_NORMAL);
   ck_assert_gobject_guint_eq (src2, "state", BT_MACHINE_STATE_SOLO);
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
+static void
+test_bt_machine_state_bypass_no_sideeffects (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *src =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *proc =
+      BT_MACHINE (bt_processor_machine_new (song, "vol", "volume", 0L, NULL));
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+  bt_wire_new (song, src, proc, NULL);
+  bt_wire_new (song, proc, sink, NULL);
+
+  GST_INFO ("-- act --");
+  g_object_set (proc, "state", BT_MACHINE_STATE_BYPASS, NULL);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_guint_eq (src, "state", BT_MACHINE_STATE_NORMAL);
+  ck_assert_gobject_guint_eq (proc, "state", BT_MACHINE_STATE_BYPASS);
+  ck_assert_gobject_guint_eq (sink, "state", BT_MACHINE_STATE_NORMAL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
@@ -405,7 +431,8 @@ bt_machine_example_case (void)
   tcase_add_test (tc, test_bt_machine_check_voices);
   tcase_add_test (tc, test_bt_machine_change_voices);
   tcase_add_test (tc, test_bt_machine_state_mute_no_sideeffects);
-  tcase_add_test (tc, test_bt_machine_state_solo_unmutes_others);
+  tcase_add_test (tc, test_bt_machine_state_solo_resets_others);
+  tcase_add_test (tc, test_bt_machine_state_bypass_no_sideeffects);
   tcase_add_test (tc, test_bt_machine_pretty_name);
   tcase_add_test (tc, test_bt_machine_pretty_name_with_detail);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
