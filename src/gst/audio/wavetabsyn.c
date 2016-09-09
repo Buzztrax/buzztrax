@@ -218,7 +218,6 @@ gstbt_wave_tab_syn_get_property (GObject * object, guint prop_id,
   GstBtWaveTabSyn *src = GSTBT_WAVE_TAB_SYN (object);
 
   switch (prop_id) {
-    case PROP_WAVE_CALLBACKS:
     case PROP_WAVE:
       g_object_get_property ((GObject *) (src->osc), pspec->name, value);
       break;
@@ -300,7 +299,7 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
   // register properties
   PROP (WAVE_CALLBACKS) = g_param_spec_pointer ("wave-callbacks",
       "Wavetable Callbacks", "The wave-table access callbacks",
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+      G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS);
 
   component = g_type_class_ref (GSTBT_TYPE_TONE_CONVERSION);
   PROP (TUNING) = bt_g_param_spec_clone (component, "tuning");

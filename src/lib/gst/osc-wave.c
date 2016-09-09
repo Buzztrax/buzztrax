@@ -320,9 +320,6 @@ gstbt_osc_wave_get_property (GObject * object, guint prop_id,
   GstBtOscWave *self = GSTBT_OSC_WAVE (object);
 
   switch (prop_id) {
-    case PROP_WAVE_CALLBACKS:
-      g_value_set_pointer (value, self->wave_callbacks);
-      break;
     case PROP_WAVE:
       g_value_set_enum (value, self->wave);
       break;
@@ -382,7 +379,7 @@ gstbt_osc_wave_class_init (GstBtOscWaveClass * klass)
   // register own properties
   PROP (WAVE_CALLBACKS) = g_param_spec_pointer ("wave-callbacks",
       "Wavetable Callbacks", "The wave-table access callbacks",
-      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+      G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS);
 
   PROP (WAVE) = g_param_spec_enum ("wave", "Wave", "Wave index",
       GSTBT_TYPE_WAVE_INDEX, 0,

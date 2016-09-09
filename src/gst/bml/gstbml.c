@@ -787,7 +787,8 @@ bml (gstbml_class_prepare_properties (GObjectClass * klass,
   g_object_class_install_property (klass, ARG_HOST_CALLBACKS,
       g_param_spec_pointer ("host-callbacks",
           "host-callbacks property",
-          "Buzz host callback structure", G_PARAM_WRITABLE));
+          "Buzz host callback structure",
+          G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 
   if (bml (gstbml_is_polyphonic (bmh))) {
     gboolean res = TRUE;

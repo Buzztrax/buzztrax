@@ -1044,6 +1044,22 @@ Error:
   return (res);
 }
 
+static gboolean
+is_callback_pspec (GParamSpec * pspec)
+{
+  if (!pspec)
+    return FALSE;
+  if (!G_IS_PARAM_SPEC_POINTER (pspec))
+    return FALSE;
+  if (!pspec->flags && G_PARAM_WRITABLE)
+    return FALSE;
+  if (pspec->flags && G_PARAM_READABLE)
+    return FALSE;
+  if (pspec->flags && GST_PARAM_CONTROLLABLE)
+    return FALSE;
+  return TRUE;
+}
+
 static void
 bt_machine_init_interfaces (const BtMachine * const self)
 {
@@ -1056,7 +1072,7 @@ bt_machine_init_interfaces (const BtMachine * const self)
    * would be good to set this as early as possible
    */
   pspec = g_object_class_find_property (klass, "host-callbacks");
-  if (pspec && G_IS_PARAM_SPEC_POINTER (pspec)) {
+  if (is_callback_pspec (pspec)) {
     extern gpointer bt_buzz_callbacks_get (BtSong * song);
 
     g_object_set (machine, "host-callbacks",
@@ -1064,7 +1080,7 @@ bt_machine_init_interfaces (const BtMachine * const self)
     GST_INFO ("  host-callbacks iface initialized");
   }
   pspec = g_object_class_find_property (klass, "wave-callbacks");
-  if (pspec && G_IS_PARAM_SPEC_POINTER (pspec)) {
+  if (is_callback_pspec (pspec)) {
     BtWavetable *wavetable;
 
     g_object_get (self->priv->song, "wavetable", &wavetable, NULL);
