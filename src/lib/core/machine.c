@@ -1051,11 +1051,11 @@ is_callback_pspec (GParamSpec * pspec)
     return FALSE;
   if (!G_IS_PARAM_SPEC_POINTER (pspec))
     return FALSE;
-  if (!pspec->flags && G_PARAM_WRITABLE)
+  if (!pspec->flags & G_PARAM_WRITABLE)
     return FALSE;
-  if (pspec->flags && G_PARAM_READABLE)
+  if (pspec->flags & G_PARAM_READABLE)
     return FALSE;
-  if (pspec->flags && GST_PARAM_CONTROLLABLE)
+  if (pspec->flags & GST_PARAM_CONTROLLABLE)
     return FALSE;
   return TRUE;
 }
