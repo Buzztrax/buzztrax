@@ -38,7 +38,7 @@
  * gst-launch-1.0 fluidsynth num-buffers=10 note="c-3" ! autoaudiosink
  * ]| Plays one c-3 tone using the first instrument.
  * |[
- * gst-launch-1.0 fluidsynth num-buffers=20 instrument-patch="Vintage_Dreams_Waves_v2.sf2" program=2 note="c-3" ! alsasink
+ * gst-launch-1.0 fluidsynth num-buffers=20 instrument-patch="Vintage_Dreams_Waves_v2.sf2" program=2 note="c-3" ! autoaudiosink
  * ]| Load a specific patch and plays one c-3 tone using the second program.
  * </refsect2>
  */

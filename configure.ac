@@ -474,7 +474,12 @@ ORC_CHECK([0.4.6])
 
 dnl check for FluidSynth
 PKG_CHECK_MODULES(FLUIDSYNTH, fluidsynth >= 1.0,
-    have_fluidsynth=yes, have_fluidsynth=no)
+    [
+        AC_DEFINE(HAVE_FLUIDSYNTH, [1], [defined when we have a fluidsynth element])
+        have_fluidsynth=yes
+    ], [
+        have_fluidsynth=no
+    ])
 AC_SUBST(FLUIDSYNTH_CFLAGS)
 AC_SUBST(FLUIDSYNTH_LIBS)
 AM_CONDITIONAL(FLUIDSYNTH_SUPPORT, test "x$have_fluidsynth" = "xyes")
