@@ -70,9 +70,15 @@ gstbt_wave_tab_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
         "channels", src->osc->channels);
   }
+}
+
+static void
+gstbt_wave_tab_syn_reset (GstBtAudioSynth * base)
+{
+  GstBtWaveTabSyn *src = ((GstBtWaveTabSyn *) base);
+
   src->note = GSTBT_NOTE_OFF;
   gstbt_envelope_reset ((GstBtEnvelope *) src->volenv);
-  GST_DEBUG_OBJECT (src, "reset");
 }
 
 static gboolean
@@ -280,6 +286,7 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
   GObjectClass *component;
 
   audio_synth_class->process = gstbt_wave_tab_syn_process;
+  audio_synth_class->reset = gstbt_wave_tab_syn_reset;
   audio_synth_class->setup = gstbt_wave_tab_syn_setup;
 
   gobject_class->set_property = gstbt_wave_tab_syn_set_property;

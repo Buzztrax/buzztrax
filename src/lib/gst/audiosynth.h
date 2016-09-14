@@ -54,8 +54,9 @@ struct _GstBtAudioSynth
   gint64 n_samples_stop;
   gboolean check_eos;
   gboolean eos_reached;
-  guint generate_samples_per_buffer;    /* generate a partial buffer */
-  gboolean reverse;             /* play backwards */
+  guint generate_samples_per_buffer;  /* generate a partial buffer */
+  gboolean reverse;                   /* play backwards */
+  gboolean discont;            /* discont buffer flag on loops */
 
   /* tempo handling */
   gulong beats_per_minute;
@@ -71,6 +72,7 @@ struct _GstBtAudioSynth
  * @parent_class: parent type
  * @process: vmethod for generating a block of audio, return false to indicate
  * that a GAP buffer should be sent
+ * @reset: vmethod call on stream discontinuities
  * @setup: vmethod for initial processign setup
  *
  * Class structure.
@@ -81,6 +83,7 @@ struct _GstBtAudioSynthClass
 
   /* virtual functions */
   gboolean (*process) (GstBtAudioSynth * src, GstBuffer * data, GstMapInfo *info);
+  void (*reset) (GstBtAudioSynth * src);
   void (*setup) (GstBtAudioSynth * src, GstPad * pad, GstCaps * caps);
 };
 

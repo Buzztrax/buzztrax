@@ -26,7 +26,7 @@
  * Base audio synthesizer to use as a foundation for new synthesizers. Handles
  * tempo, seeking, trick mode playback and format negotiation.
  * The pure virtual process and setup methods must be implemented by the child
- * class. The setup vmethod provides the caps to negotiate. Form them the elemnt
+ * class. The setup vmethod provides the caps to negotiate. From them the elemnt
  * can take parameters such as sampling rate or data format.
  */
 #ifdef HAVE_CONFIG_H
@@ -248,6 +248,19 @@ gstbt_audio_synth_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
   src->reverse = (segment->rate < 0.0);
   src->running_time = time;
   src->ticktime_err_accum = 0.0;
+  /* Assume that seeks in < PAUSED configure the playback segment. Don't
+   * generate disconts on them as there is nothing to reset.
+   * Doing needless resets breaks comamndline usage, where we'd reset the
+   * parameters set on element creation.
+   */
+  if (GST_STATE (src) >= GST_STATE_PAUSED) {
+    src->discont = TRUE;
+    GST_WARNING_OBJECT (src, "applying discont on seek in %s",
+        gst_element_state_get_name (GST_STATE (src)));
+  } else {
+    GST_WARNING_OBJECT (src, "skipping discont on seek in %s",
+        gst_element_state_get_name (GST_STATE (src)));
+  }
 
   /* now move to the time indicated */
   src->n_samples =
@@ -306,6 +319,7 @@ gstbt_audio_synth_start (GstBaseSrc * basesrc)
   src->n_samples = G_GINT64_CONSTANT (0);
   src->running_time = G_GUINT64_CONSTANT (0);
   src->ticktime_err_accum = 0.0;
+  src->discont = FALSE;
 
   return TRUE;
 }
@@ -410,6 +424,14 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
     src->subtick_count = 1;
   } else {
     src->subtick_count++;
+  }
+
+  if (src->discont) {
+    GST_BUFFER_FLAG_SET (buf, GST_BUFFER_FLAG_DISCONT);
+    if (klass->reset) {
+      klass->reset (src);
+    }
+    src->discont = FALSE;
   }
 
   gst_object_sync_values (GST_OBJECT (src), GST_BUFFER_TIMESTAMP (buf));

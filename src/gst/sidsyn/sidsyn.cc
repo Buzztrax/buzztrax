@@ -356,10 +356,20 @@ gstbt_sid_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
   for (i = 0; i < NUM_VOICES; i++) {
     src->voices[i]->prev_freq = 0.0;
     src->voices[i]->want_freq = 0.0;
-    src->voices[i]->note = src->voices[i]->prev_note = GSTBT_NOTE_OFF;
   }
   for (i = 0; i < NUM_REGS; i++) {
     src->regs[i] = -1;
+  }
+}
+
+static void
+gstbt_sid_syn_reset (GstBtAudioSynth * base)
+{
+  GstBtSidSyn *src = ((GstBtSidSyn *) base);
+  gint i;
+
+  for (i = 0; i < NUM_VOICES; i++) {
+    src->voices[i]->note = src->voices[i]->prev_note = GSTBT_NOTE_OFF;
   }
 }
 
@@ -635,6 +645,7 @@ gstbt_sid_syn_class_init (GstBtSidSynClass * klass)
       (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
   audio_synth_class->process = gstbt_sid_syn_process;
+  audio_synth_class->reset = gstbt_sid_syn_reset;
   audio_synth_class->setup = gstbt_sid_syn_setup;
 
   gobject_class->set_property = gstbt_sid_syn_set_property;

@@ -80,7 +80,13 @@ gstbt_sim_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
   }
   g_object_set (src->osc, "sample-rate", ((GstBtAudioSynth *) src)->samplerate,
       NULL);
-  // FIXME: need to turn off the envelope: reset length?
+}
+
+static void
+gstbt_sim_syn_reset (GstBtAudioSynth * base)
+{
+  GstBtSimSyn *src = ((GstBtSimSyn *) base);
+
   src->note = GSTBT_NOTE_OFF;
   gstbt_envelope_reset ((GstBtEnvelope *) src->volenv);
 }
@@ -118,7 +124,7 @@ gstbt_sim_syn_set_property (GObject * object, guint prop_id,
       break;
     case PROP_NOTE:
       if ((src->note = g_value_get_enum (value))) {
-        GST_DEBUG_OBJECT (object, "new note -> '%d'", src->note);
+        GST_INFO_OBJECT (object, "new note -> '%d'", src->note);
         if (src->note != GSTBT_NOTE_OFF) {
           gdouble freq =
               gstbt_tone_conversion_translate_from_number (src->n2f, src->note);
@@ -222,6 +228,7 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
   GObjectClass *component;
 
   audio_synth_class->process = gstbt_sim_syn_process;
+  audio_synth_class->reset = gstbt_sim_syn_reset;
   audio_synth_class->setup = gstbt_sim_syn_setup;
 
   gobject_class->set_property = gstbt_sim_syn_set_property;
