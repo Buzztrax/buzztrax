@@ -387,7 +387,8 @@ bt_machine_change_state (const BtMachine * const self,
 
   g_object_get (self->priv->song, "setup", &setup, NULL);
 
-  GST_INFO ("state change for element '%s'", self->priv->id);
+  GST_INFO_OBJECT (self, "change the state for machine: %d -> %d",
+      self->priv->state, new_state);
 
   // return to normal state
   switch (self->priv->state) {
@@ -410,7 +411,7 @@ bt_machine_change_state (const BtMachine * const self,
         }
         g_object_unref (machine);
       }
-      GST_INFO ("unmuted %d elements with result = %d",
+      GST_INFO_OBJECT (self, "unmuted %d elements with result = %d",
           g_list_length (machines), res);
       g_list_free (machines);
       break;
@@ -423,7 +424,7 @@ bt_machine_change_state (const BtMachine * const self,
             FALSE);
       } else {
         // TODO(ensonic): disconnect its source and sink + set this machine to playing
-        GST_INFO ("element does not support passthrough");
+        GST_INFO_OBJECT (self, "element does not support passthrough");
       }
       break;
     }
@@ -464,8 +465,8 @@ bt_machine_change_state (const BtMachine * const self,
         }
         g_object_unref (machine);
       }
-      GST_INFO ("muted %d elements with result = %d", g_list_length (machines),
-          res);
+      GST_INFO_OBJECT (self, "muted %d elements with result = %d",
+          g_list_length (machines), res);
       g_list_free (machines);
     }
       break;
@@ -476,7 +477,7 @@ bt_machine_change_state (const BtMachine * const self,
         gst_base_transform_set_passthrough (GST_BASE_TRANSFORM (element), TRUE);
       } else {
         // TODO(ensonic): set this machine to paused + connect its source and sink
-        GST_INFO ("element does not support passthrough");
+        GST_INFO_OBJECT (self, "element does not support passthrough");
       }
     }
       break;
