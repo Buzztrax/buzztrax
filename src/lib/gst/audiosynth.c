@@ -255,11 +255,6 @@ gstbt_audio_synth_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
    */
   if (GST_STATE (src) >= GST_STATE_PAUSED) {
     src->discont = TRUE;
-    GST_WARNING_OBJECT (src, "applying discont on seek in %s",
-        gst_element_state_get_name (GST_STATE (src)));
-  } else {
-    GST_WARNING_OBJECT (src, "skipping discont on seek in %s",
-        gst_element_state_get_name (GST_STATE (src)));
   }
 
   /* now move to the time indicated */
