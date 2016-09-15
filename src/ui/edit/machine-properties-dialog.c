@@ -1787,20 +1787,11 @@ make_double_range_widget (const BtMachinePropertiesDialog * self,
   return (widget);
 }
 
-static void
-find_internal_combobox_widget (GtkWidget * widget, gpointer user_data)
-{
-  GtkWidget **child = (GtkWidget **) user_data;
-
-  if (GTK_IS_TOGGLE_BUTTON (widget))
-    *child = widget;
-}
-
 static GtkWidget *
 make_combobox_widget (const BtMachinePropertiesDialog * self, GObject * machine,
     GParamSpec * property, GValue * range_min, GValue * range_max)
 {
-  GtkWidget *widget, *child;
+  GtkWidget *widget;
   gchar *signal_name;
   GParamSpecEnum *enum_property = G_PARAM_SPEC_ENUM (property);
   GEnumClass *enum_class = enum_property->enum_class;
@@ -1856,18 +1847,9 @@ make_combobox_widget (const BtMachinePropertiesDialog * self, GObject * machine,
       G_CALLBACK (on_combobox_property_notify), (gpointer) widget);
   g_signal_connect (widget, "changed",
       G_CALLBACK (on_combobox_property_changed), (gpointer) machine);
-
-  // combobox is a GtkBin and it uses a GtkToggleButton that is not really exposed
-  gtk_container_forall (GTK_CONTAINER (widget), find_internal_combobox_widget,
-      &child);
-  GST_DEBUG ("combobox child: %p,%s", child, G_OBJECT_TYPE_NAME (child));
-  gtk_widget_add_events (child,
-      GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
-  gtk_widget_set_name (child, property->name);
-  g_object_set_qdata (G_OBJECT (child), widget_parent_quark, (gpointer) self);
-  g_signal_connect (child, "button-press-event",
+  g_signal_connect (widget, "button-press-event",
       G_CALLBACK (on_range_button_press_event), (gpointer) machine);
-  g_signal_connect (child, "button-release-event",
+  g_signal_connect (widget, "button-release-event",
       G_CALLBACK (on_button_release_event), (gpointer) machine);
   g_signal_connect (widget, "key-release-event",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
