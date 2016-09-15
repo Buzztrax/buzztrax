@@ -335,13 +335,16 @@ error:
   }
 }
 
-/*
-static gboolean gst_bml_src_start(GstBaseSrc * base) {
-  GstBMLSrc *bml_src=GST_BML_SRC(base);
 
+static gboolean
+gst_bml_src_start (GstBaseSrc * base)
+{
+  GstBMLSrc *bml_src = GST_BML_SRC (base);
+  GstBML *bml = GST_BML (bml_src);
+
+  bml->discont = FALSE;
   return TRUE;
 }
-*/
 
 static gboolean
 gst_bml_src_stop (GstBaseSrc * base)
@@ -365,6 +368,14 @@ gst_bml_src_do_seek (GstBaseSrc * base, GstSegment * segment)
   bml->reverse = (segment->rate < 0.0);
   bml->running_time = time;
   bml->ticktime_err_accum = 0.0;
+  /* Assume that seeks in < PAUSED configure the playback segment. Don't
+   * generate disconts on them as there is nothing to reset.
+   * Doing needless resets breaks comamndline usage, where we'd reset the
+   * parameters set on element creation.
+   */
+  if (GST_STATE (bml_src) >= GST_STATE_PAUSED) {
+    bml->discont = TRUE;
+  }
 
   /* now move to the time indicated */
   bml->n_samples =
@@ -509,6 +520,11 @@ gst_bml_src_create_mono (GstBaseSrc * base, GstClockTime offset, guint length,
     GST_BUFFER_OFFSET_END (buf) = bml->n_samples;
   }
 
+  if (bml->discont) {
+    GST_BUFFER_FLAG_SET (buf, GST_BUFFER_FLAG_DISCONT);
+    bml->discont = FALSE;
+  }
+
   /* TODO(ensonic): sync on subticks ? */
   if (bml->subtick_count >= bml->subticks_per_tick) {
     bml (gstbml_reset_triggers (bml, bml_class));
@@ -649,6 +665,11 @@ gst_bml_src_create_stereo (GstBaseSrc * base, GstClockTime offset, guint length,
     GST_BUFFER_DURATION (buf) = bml->running_time - next_running_time;
     GST_BUFFER_OFFSET (buf) = n_samples;
     GST_BUFFER_OFFSET_END (buf) = bml->n_samples;
+  }
+
+  if (bml->discont) {
+    GST_BUFFER_FLAG_SET (buf, GST_BUFFER_FLAG_DISCONT);
+    bml->discont = FALSE;
   }
 
   /* TODO(ensonic): sync on subticks ? */
@@ -797,7 +818,7 @@ gst_bml_src_class_init (GstBMLSrcClass * klass)
   gstbasesrc_class->is_seekable = GST_DEBUG_FUNCPTR (gst_bml_src_is_seekable);
   gstbasesrc_class->do_seek = GST_DEBUG_FUNCPTR (gst_bml_src_do_seek);
   gstbasesrc_class->query = GST_DEBUG_FUNCPTR (gst_bml_src_query);
-  //gstbasesrc_class->start       = GST_DEBUG_FUNCPTR(gst_bml_src_start);
+  gstbasesrc_class->start = GST_DEBUG_FUNCPTR (gst_bml_src_start);
   gstbasesrc_class->stop = GST_DEBUG_FUNCPTR (gst_bml_src_stop);
   if (bml_class->output_channels == 1) {
     gstbasesrc_class->create = GST_DEBUG_FUNCPTR (gst_bml_src_create_mono);

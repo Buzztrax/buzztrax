@@ -97,6 +97,7 @@ struct _GstBML {
   gboolean check_eos;
   gboolean eos_reached;
   gboolean reverse;                  /* play backwards */
+  gboolean discont;                  /* discont buffer flag on loops */
 };
 
 struct _GstBMLClass {
