@@ -2240,6 +2240,9 @@ on_base_octave_menu_changed (GtkSpinButton * spinbutton, gpointer user_data)
   g_object_get (self->priv->machine, "properties", &properties, NULL);
   g_hash_table_insert (properties, g_strdup ("base-octave"),
       g_strdup_printf ("%d", self->priv->base_octave));
+#if !GTK_CHECK_VERSION (3, 20, 0)
+  gtk_widget_grab_focus_savely (GTK_WIDGET (self->priv->pattern_table));
+#endif
 }
 
 static void
