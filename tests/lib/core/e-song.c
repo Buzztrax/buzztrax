@@ -80,6 +80,7 @@ make_new_song (void)
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
   bt_sequence_set_pattern (sequence, 16, 0, (BtCmdPattern *) pattern);
   g_object_set (element, "wave", /* silence */ 4, NULL);
+  bt_machine_set_param_defaults (gen);
 
   gst_object_unref (element);
   g_object_unref (pattern);

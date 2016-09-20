@@ -303,6 +303,7 @@ test_bt_setup_dynamic_add_src (BT_TEST_ARGS)
   g_object_set (sequence, "length", 16L, NULL);
   bt_sequence_add_track (sequence, gen1, -1);
   g_object_set (element1, "wave", /* silence */ 4, NULL);
+  bt_machine_set_param_defaults (gen1);
 
   /* play the song */
   if (bt_song_play (song)) {
@@ -316,6 +317,7 @@ test_bt_setup_dynamic_add_src (BT_TEST_ARGS)
     GstElement *element2 =
         (GstElement *) check_gobject_get_object_property (gen2, "machine");
     g_object_set (element2, "wave", /* silence */ 4, NULL);
+    bt_machine_set_param_defaults (gen2);
     bt_wire_new (song, gen2, sink, NULL);
     gst_object_unref (element2);
 
@@ -365,6 +367,8 @@ test_bt_setup_dynamic_rem_src (BT_TEST_ARGS)
   bt_sequence_add_track (sequence, gen2, -1);
   g_object_set (element1, "wave", /* silence */ 4, NULL);
   g_object_set (element2, "wave", /* silence */ 4, NULL);
+  bt_machine_set_param_defaults (gen1);
+  bt_machine_set_param_defaults (gen2);
   mark_point ();
 
   /* play the song */
@@ -414,6 +418,7 @@ test_bt_setup_dynamic_add_proc (BT_TEST_ARGS)
   g_object_set (sequence, "length", 16L, NULL);
   bt_sequence_add_track (sequence, gen1, -1);
   g_object_set (element1, "wave", /* silence */ 4, NULL);
+  bt_machine_set_param_defaults (gen1);
   mark_point ();
 
   /* play the song */
@@ -470,6 +475,7 @@ test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
   g_object_set (sequence, "length", 16L, NULL);
   bt_sequence_add_track (sequence, gen1, -1);
   g_object_set (element1, "wave", /* silence */ 4, NULL);
+  bt_machine_set_param_defaults (gen1);
   mark_point ();
 
   /* play the song */
@@ -504,7 +510,7 @@ test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
 // We can't implement these below, as songs without atleast 1 src..sink chain
 // wont play. Also when we disconnect the last, the song stops.
 // Maybe we should consider to have a permanent silent-src -> master:
-// - We can't du it in sink-bin as this has a static sink-pad
+// - We can't do it in sink-bin as this has a static sink-pad
 // - We could do it in bt_sink_machine_constructed. After the internal elements
 //   including adder are activated, we can request a pad on adder and link
 //   a "audiotestsrc wave=silence "to it.

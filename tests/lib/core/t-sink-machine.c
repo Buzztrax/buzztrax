@@ -65,6 +65,7 @@ make_test_song (void)
   GstElement *element =
       (GstElement *) check_gobject_get_object_property (gen, "machine");
   g_object_set (element, "wave", /* silence */ 4, NULL);
+  bt_machine_set_param_defaults (gen);
 
   gst_object_unref (element);
 }
