@@ -84,6 +84,7 @@ make_new_song (void)
   gst_object_unref (element);
   g_object_unref (pattern);
   g_object_unref (sequence);
+  g_object_unref (song_info);
   GST_INFO ("  song created");
   return song;
 }
