@@ -588,38 +588,6 @@ on_uint64_range_property_format_value (GtkScale * scale, gdouble value,
   return (str);
 }
 
-// TODO(ensonic): should we have this in btmachine.c?
-static void
-bt_machine_update_default_param_value (BtMachine * self,
-    GstObject * param_parent, const gchar * property_name,
-    BtParameterGroup * pg)
-{
-  GstControlBinding *cb;
-
-  GST_WARNING_OBJECT (self, "set new default for '%s'", property_name);
-
-  if ((cb = gst_object_get_control_binding (param_parent, property_name))) {
-    glong param = bt_parameter_group_get_param_index (pg, property_name);
-    if (param != -1) {
-      bt_parameter_group_set_param_default (pg, param);
-    }
-    /* TODO(ensonic): it should actualy postpone the enable to the next
-     * timestamp.
-     * for that in pattern-cs it would need to peek at the control-point-list,
-     * or somehow schedule this for the next sync call
-     */
-    /* re-enable cb on button_release
-     * see gst_object_set_control_binding_disabled() on button_press
-     */
-    gst_control_binding_set_disabled (cb, FALSE);
-    gst_object_unref (cb);
-  } else {
-    GST_DEBUG ("object not controlled, type=%s, instance=%s",
-        G_OBJECT_TYPE_NAME (param_parent),
-        GST_IS_OBJECT (param_parent) ? GST_OBJECT_NAME (param_parent) : "");
-  }
-}
-
 static void
 update_param_after_interaction (GtkWidget * widget, gpointer user_data)
 {
@@ -628,7 +596,7 @@ update_param_after_interaction (GtkWidget * widget, gpointer user_data)
           widget_parent_quark));
 
   bt_machine_update_default_param_value (self->priv->machine,
-      GST_OBJECT (user_data), gtk_widget_get_name (GTK_WIDGET (widget)),
+      gtk_widget_get_name (GTK_WIDGET (widget)),
       g_object_get_qdata (G_OBJECT (widget), widget_param_group_quark));
 }
 

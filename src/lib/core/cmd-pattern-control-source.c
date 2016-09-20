@@ -26,9 +26,8 @@
  * account.
  *
  * At the begin of the timeline (ts==0) all parameters that have no value in the
- * sequence will be initialized from #BtCmdPatternControlSource:default-value. For
- * trigger parameter this usualy is the no-value. For other parameters it is the
- * last value one has set in the ui or via interaction controller.
+ * sequence will be initialized from #BtCmdPatternControlSource:default-value.
+ * This is the last value one has set in the ui or via interaction controller.
  */
 
 #define BT_CORE
@@ -56,7 +55,8 @@ struct _BtCmdPatternControlSourcePrivate
   BtSongInfo *song_info;
   BtMachine *machine;
 
-  GValue cur_value, def_value;
+  GValue cur_value;
+  BtMachineState def_state;
 
   GstClockTime tick_duration;
 };
@@ -105,6 +105,10 @@ get_value (GstControlBinding * self_, GstClockTime timestamp)
   gulong tick = bt_song_info_time_to_tick (song_info, timestamp);
   GstClockTime ts = bt_song_info_tick_to_time (song_info, tick);
   BtPatternCmd ret = -1, cmd;
+
+  /* If we manually mute/solo/bypass from the UI, bypass the controller */
+  if (self->priv->def_state != BT_MACHINE_STATE_NORMAL)
+    return -1;
 
   GST_LOG_OBJECT (machine, "get control_value for pattern cmd at tick%4lu,"
       " %1d: %" G_GUINT64_FORMAT " == %" G_GUINT64_FORMAT,
@@ -171,9 +175,19 @@ get_value (GstControlBinding * self_, GstClockTime timestamp)
   } else {
     if (!timestamp) {
       // set defaults value for paramters at ts=0
-      GST_LOG_OBJECT (self->priv->machine,
+      GST_DEBUG_OBJECT (self->priv->machine,
           "tick %lu: Set default for machine:.state", tick);
-      return BT_MACHINE_STATE_NORMAL;
+      /* FIXME: need def-value handling:
+       * - when changing the state from the UI, we need to store this as the
+       *   default in main-page-sequence.c and machine-canvas-item.c
+       * - see:
+       *     machine-properties-dialog:bt_machine_update_default_param_value()
+       *   this essentially calls
+       *     bt_parameter_group_set_param_default(pg, param)
+       *   which will copy the current value into the the def_value of the
+       *   control_binding
+       */
+      return self->priv->def_state;
     }
   }
   return -1;
@@ -247,10 +261,7 @@ bt_cmd_pattern_control_source_constructor (GType type, guint n_construct_params,
       (bt_cmd_pattern_control_source_parent_class)->constructor (type,
           n_construct_params, construct_params));
 
-  if (!G_IS_VALUE (&self->priv->def_value)) {
-    g_value_init (&self->priv->def_value, BT_TYPE_MACHINE_STATE);
-    //g_param_value_set_default (pspec, &self->priv->def_value);
-  }
+  self->priv->def_state = BT_MACHINE_STATE_NORMAL;
   g_value_init (&self->priv->cur_value, BT_TYPE_MACHINE_STATE);
   return (GObject *) self;
 }
@@ -307,11 +318,9 @@ bt_cmd_pattern_control_source_set_property (GObject * const object,
       break;
     case CMD_PATTERN_CONTROL_SOURCE_DEFAULT_VALUE:{
       GValue *new_value = g_value_get_pointer (value);
-      GST_INFO ("%s -> %s", G_VALUE_TYPE_NAME (new_value),
-          G_VALUE_TYPE_NAME (&self->priv->def_value));
-      GST_INFO ("%s -> %s", g_strdup_value_contents (new_value),
-          g_strdup_value_contents (&self->priv->def_value));
-      g_value_copy (new_value, &self->priv->def_value);
+      GST_INFO ("%d -> %d", self->priv->def_state,
+          g_value_get_enum (new_value));
+      self->priv->def_state = g_value_get_enum (new_value);
       GST_DEBUG ("set the def_value for the controlsource");
       break;
     }
@@ -346,9 +355,6 @@ bt_cmd_pattern_control_source_finalize (GObject * const object)
 {
   BtCmdPatternControlSource *self = BT_CMD_PATTERN_CONTROL_SOURCE (object);
 
-  if (G_IS_VALUE (&self->priv->def_value)) {
-    g_value_unset (&self->priv->def_value);
-  }
   if (G_IS_VALUE (&self->priv->cur_value)) {
     g_value_unset (&self->priv->cur_value);
   }

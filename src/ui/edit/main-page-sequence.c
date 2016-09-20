@@ -876,6 +876,7 @@ on_mute_toggled (GtkToggleButton * togglebutton, gpointer user_data)
   } else {
     g_object_set (machine, "state", BT_MACHINE_STATE_NORMAL, NULL);
   }
+  bt_machine_update_default_state_value (machine);
 }
 
 static void
@@ -888,6 +889,7 @@ on_solo_toggled (GtkToggleButton * togglebutton, gpointer user_data)
   } else {
     g_object_set (machine, "state", BT_MACHINE_STATE_NORMAL, NULL);
   }
+  bt_machine_update_default_state_value (machine);
 }
 
 static void
@@ -900,6 +902,7 @@ on_bypass_toggled (GtkToggleButton * togglebutton, gpointer user_data)
   } else {
     g_object_set (machine, "state", BT_MACHINE_STATE_NORMAL, NULL);
   }
+  bt_machine_update_default_state_value (machine);
 }
 
 static void

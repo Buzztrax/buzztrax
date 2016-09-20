@@ -378,6 +378,47 @@ test_bt_machine_state_bypass_no_sideeffects (BT_TEST_ARGS)
 }
 
 static void
+test_bt_machine_state_not_overridden (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSequence *sequence =
+      (BtSequence *) check_gobject_get_object_property (song, "sequence");
+  BtSongInfo *song_info =
+      BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
+  BtMachine *src = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "simsyn", 0L, NULL));
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+  bt_wire_new (song, src, sink, NULL);
+  BtCmdPattern *pattern = bt_cmd_pattern_new (song, src, BT_PATTERN_CMD_SOLO);
+  GstElement *element =
+      (GstElement *) check_gobject_get_object_property (src, "machine");
+
+  /* duration: 0:00:00.480000000 */
+  g_object_set (song_info, "bpm", 250L, "tpb", 16L, NULL);
+  g_object_set (sequence, "length", 32L, NULL);
+  bt_sequence_add_track (sequence, src, -1);
+  bt_sequence_set_pattern (sequence, 4, 0, pattern);
+  g_object_set (element, "wave", /* silence */ 4, NULL);
+
+  GST_INFO ("-- act --");
+  g_object_set (src, "state", BT_MACHINE_STATE_MUTE, NULL);
+  bt_machine_update_default_state_value (src);
+  bt_song_play (song);
+  check_run_main_loop_until_eos_or_error (song);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_guint_eq (src, "state", BT_MACHINE_STATE_MUTE);
+
+  GST_INFO ("-- cleanup --");
+  gst_object_unref (element);
+  g_object_unref (pattern);
+  g_object_unref (sequence);
+  g_object_unref (song_info);
+  BT_TEST_END;
+}
+
+static void
 test_bt_machine_pretty_name (BT_TEST_ARGS)
 {
   BT_TEST_START;
@@ -433,6 +474,7 @@ bt_machine_example_case (void)
   tcase_add_test (tc, test_bt_machine_state_mute_no_sideeffects);
   tcase_add_test (tc, test_bt_machine_state_solo_resets_others);
   tcase_add_test (tc, test_bt_machine_state_bypass_no_sideeffects);
+  tcase_add_test (tc, test_bt_machine_state_not_overridden);
   tcase_add_test (tc, test_bt_machine_pretty_name);
   tcase_add_test (tc, test_bt_machine_pretty_name_with_detail);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);

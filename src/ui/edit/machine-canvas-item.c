@@ -607,6 +607,7 @@ on_context_menu_mute_toggled (GtkMenuItem * menuitem, gpointer user_data)
   } else {
     g_object_set (self->priv->machine, "state", BT_MACHINE_STATE_NORMAL, NULL);
   }
+  bt_machine_update_default_state_value (self->priv->machine);
   bt_edit_application_set_song_unsaved (self->priv->app);
 }
 
@@ -622,6 +623,7 @@ on_context_menu_solo_toggled (GtkMenuItem * menuitem, gpointer user_data)
   } else {
     g_object_set (self->priv->machine, "state", BT_MACHINE_STATE_NORMAL, NULL);
   }
+  bt_machine_update_default_state_value (self->priv->machine);
   bt_edit_application_set_song_unsaved (self->priv->app);
 }
 
@@ -637,6 +639,7 @@ on_context_menu_bypass_toggled (GtkMenuItem * menuitem, gpointer user_data)
   } else {
     g_object_set (self->priv->machine, "state", BT_MACHINE_STATE_NORMAL, NULL);
   }
+  bt_machine_update_default_state_value (self->priv->machine);
   bt_edit_application_set_song_unsaved (self->priv->app);
 }
 

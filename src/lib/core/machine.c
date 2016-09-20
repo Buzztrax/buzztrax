@@ -1202,7 +1202,6 @@ bt_machine_init_ctrl_params (BtMachine * const self)
   cb = (GstControlBinding *) bt_cmd_pattern_control_source_new (parent, "mute",
       sequence, song_info, self);
   gst_object_add_control_binding (parent, cb);
-  // TODO: need def-value handling
 
   g_object_unref (song_info);
   g_object_unref (sequence);
@@ -1957,6 +1956,8 @@ bt_machine_get_unique_pattern_name (const BtMachine * const self)
 gboolean
 bt_machine_has_patterns (const BtMachine * const self)
 {
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
+
   return (g_list_length (self->priv->patterns) > self->priv->private_patterns);
 }
 
@@ -1996,6 +1997,8 @@ bt_machine_handles_waves (const BtMachine * const self)
 {
   BtParameterGroup *pg;
   gboolean handles_waves = FALSE;
+
+  g_return_val_if_fail (BT_IS_MACHINE (self), FALSE);
 
   if ((pg = self->priv->global_param_group) &&
       (bt_parameter_group_get_wave_param_index (pg) != -1)) {
@@ -2069,12 +2072,88 @@ bt_machine_get_voice_param_group (const BtMachine * const self,
 void
 bt_machine_set_param_defaults (const BtMachine * const self)
 {
+  g_return_if_fail (BT_IS_MACHINE (self));
+
   const gulong voices = self->priv->voices;
   gulong j;
 
   bt_parameter_group_set_param_defaults (self->priv->global_param_group);
   for (j = 0; j < voices; j++) {
     bt_parameter_group_set_param_defaults (self->priv->voice_param_groups[j]);
+  }
+}
+
+/**
+ * bt_machine_update_default_state_value:
+ * @self: the machine
+ *
+ * Sets default value for the 'state' param. Should be called when manually
+ * setting mute/solo/bypass.
+ */
+void
+bt_machine_update_default_state_value (BtMachine * self)
+{
+  g_return_if_fail (BT_IS_MACHINE (self));
+
+  const BtMachinePart part =
+      BT_IS_SINK_MACHINE (self) ? PART_INPUT_GAIN : PART_OUTPUT_GAIN;
+  GstObject *param_parent = (GstObject *) self->priv->machines[part];
+  GstControlBinding *cb;
+
+  GST_WARNING_OBJECT (self, "set new default for 'state'");
+
+  if ((cb = gst_object_get_control_binding (param_parent, "mute"))) {
+    GValue def_value = { 0, };
+
+    g_value_init (&def_value, BT_TYPE_MACHINE_STATE);
+    g_object_get_property ((GObject *) self, "state", &def_value);
+    g_object_set (cb, "default-value", &def_value, NULL);
+    g_value_unset (&def_value);
+  } else {
+    GST_WARNING_OBJECT (self, "no control binding for 'state' found");
+  }
+}
+
+/**
+ * bt_machine_update_default_param_value:
+ * @self: the machine
+ * @property_name: the parameter name
+ * @pg: the parameter group
+ *
+ * Sets default value for @property_name. Should be called when manually
+ * setting the param (e.g. from the UI).
+ */
+void
+bt_machine_update_default_param_value (BtMachine * self,
+    const gchar * property_name, BtParameterGroup * pg)
+{
+  g_return_if_fail (BT_IS_MACHINE (self));
+
+  GstControlBinding *cb;
+  glong param = bt_parameter_group_get_param_index (pg, property_name);
+  g_return_if_fail (param != -1);
+
+  GstObject *param_parent =
+      (GstObject *) bt_parameter_group_get_param_parent (pg, param);
+
+  GST_WARNING_OBJECT (self, "set new default for '%s'", property_name);
+
+  if ((cb = gst_object_get_control_binding (param_parent, property_name))) {
+    bt_parameter_group_set_param_default (pg, param);
+    /* TODO(ensonic): it should actualy postpone the enable to the next
+     * timestamp.
+     * for that in pattern-cs it would need to peek at the control-point-list,
+     * or somehow schedule this for the next sync call
+     */
+    /* re-enable cb on button_release
+     * see gst_object_set_control_binding_disabled() on button_press
+     */
+    gst_control_binding_set_disabled (cb, FALSE);
+    gst_object_unref (cb);
+  } else {
+    GST_DEBUG ("object not controlled, type=%s, instance=%s",
+        G_OBJECT_TYPE_NAME (param_parent),
+        GST_IS_OBJECT (param_parent) ? GST_OBJECT_NAME (param_parent) : "");
   }
 }
 

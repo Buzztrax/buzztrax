@@ -134,6 +134,9 @@ BtParameterGroup *bt_machine_get_prefs_param_group(const BtMachine * const self)
 BtParameterGroup *bt_machine_get_global_param_group(const BtMachine * const self);
 BtParameterGroup *bt_machine_get_voice_param_group(const BtMachine * const self, const gulong voice);
 
+void bt_machine_update_default_state_value(BtMachine * self);
+void bt_machine_update_default_param_value(BtMachine * self, const gchar * property_name, BtParameterGroup * pg);
+
 //-- interaction control
 
 void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control, BtParameterGroup *pg);
