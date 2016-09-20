@@ -88,6 +88,25 @@ test_bt_cmd_application_play_non_existing_file (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_cmd_application_play_bad_file (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
+
+  GST_INFO ("-- act --");
+  gboolean ret = bt_cmd_application_play (app,
+      check_get_test_song_path ("broken1.xml"));
+
+  GST_INFO ("-- assert --");
+  fail_unless (ret == FALSE, NULL);
+
+  GST_INFO ("-- cleanup --");
+  ck_g_object_final_unref (app);
+  BT_TEST_END;
+}
+
 // test if the info method works with NULL argument for the filename,
 static void
 test_bt_cmd_application_info_null_as_filename (BT_TEST_ARGS)
@@ -132,6 +151,25 @@ test_bt_cmd_application_info_non_existing_file (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_cmd_application_info_bad_file (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
+
+  GST_INFO ("-- act --");
+  gboolean ret = bt_cmd_application_info (app,
+      check_get_test_song_path ("broken1.xml"), NULL);
+
+  GST_INFO ("-- assert --");
+  fail_unless (ret == FALSE, NULL);
+
+  GST_INFO ("-- cleanup --");
+  ck_g_object_final_unref (app);
+  BT_TEST_END;
+}
+
 TCase *
 bt_cmd_application_test_case (void)
 {
@@ -139,8 +177,10 @@ bt_cmd_application_test_case (void)
 
   tcase_add_test (tc, test_bt_cmd_application_play_null_as_filename);
   tcase_add_test (tc, test_bt_cmd_application_play_non_existing_file);
+  tcase_add_test (tc, test_bt_cmd_application_play_bad_file);
   tcase_add_test (tc, test_bt_cmd_application_info_null_as_filename);
   tcase_add_test (tc, test_bt_cmd_application_info_non_existing_file);
+  tcase_add_test (tc, test_bt_cmd_application_info_bad_file);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
