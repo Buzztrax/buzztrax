@@ -342,7 +342,7 @@ test-clean-local:
 	  /tmp/test.wav;
 	@rm -rf gstreamer-1.0;
 	@if test -d $(abs_builddir)/buzztrax; then \
-	  rmdir $(abs_builddir)/buzztrax; \
+	  rm -rf $(abs_builddir)/buzztrax; \
 	fi;
 
 # make check           -- run all checks
