@@ -112,9 +112,8 @@ static gchar *synth_pipelines[] = {
 #ifdef HAVE_FLUIDSYNTH
   "fluidsynth num-buffers=10 note=\"c-4\" ! fakesink sync=false",
 #endif
-  "simsyn num-buffers=10 note=\"c-4\" ! fakesink sync=false",
   "sidsyn num-buffers=10 voice0::note=\"c-4\" ! fakesink sync=false",
-
+  "simsyn num-buffers=10 note=\"c-4\" ! fakesink sync=false"
 };
 
 static void
@@ -160,6 +159,8 @@ test_launch_synths (BT_TEST_ARGS)
   gst_object_unref (pipeline);
   BT_TEST_END;
 }
+
+// TODO(ensonic): test with level that all synths produce data
 
 
 TCase *
