@@ -104,6 +104,26 @@ test_bt_cmd_application_play_two_files (BT_TEST_ARGS)
 }
 
 static void
+test_bt_cmd_application_play_incomplete_file (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
+
+  GST_INFO ("-- act --");
+  gboolean ret = bt_cmd_application_play (app,
+      check_get_test_song_path ("broken2.xml"));
+
+  GST_INFO ("-- assert --");
+  // we should still attempt to play it
+  fail_unless (ret == TRUE, NULL);
+
+  GST_INFO ("-- cleanup --");
+  ck_g_object_final_unref (app);
+  BT_TEST_END;
+}
+
+static void
 test_bt_cmd_application_info (BT_TEST_ARGS)
 {
   BT_TEST_START;
@@ -128,6 +148,35 @@ test_bt_cmd_application_info (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_cmd_application_info_for_incomplete_file (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtCmdApplication *app = bt_cmd_application_new (TRUE);
+  gchar *tmp_file_name =
+      g_build_filename (g_get_tmp_dir (), "broken2.xml.txt", NULL);
+
+  GST_INFO ("-- act --");
+  gboolean ret = bt_cmd_application_info (app,
+      check_get_test_song_path ("broken2.xml"), tmp_file_name);
+
+  GST_INFO ("-- assert --");
+  fail_unless (ret == TRUE, NULL);
+  fail_unless (check_file_contains_str (NULL, tmp_file_name,
+          "song.song_info.name: \"broken 2\""), NULL);
+  fail_unless (check_file_contains_str (NULL, tmp_file_name,
+          "song.setup.number_of_missing_machines: 1"), NULL);
+  fail_unless (check_file_contains_str (NULL, tmp_file_name,
+          "song.wavetable.number_of_missing_waves: 2"), NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_unlink (tmp_file_name);
+  g_free (tmp_file_name);
+  ck_g_object_final_unref (app);
+  BT_TEST_END;
+}
+
 TCase *
 bt_cmd_application_example_case (void)
 {
@@ -136,7 +185,9 @@ bt_cmd_application_example_case (void)
   tcase_add_test (tc, test_bt_cmd_application_create);
   tcase_add_test (tc, test_bt_cmd_application_play);
   tcase_add_test (tc, test_bt_cmd_application_play_two_files);
+  tcase_add_test (tc, test_bt_cmd_application_play_incomplete_file);
   tcase_add_test (tc, test_bt_cmd_application_info);
+  tcase_add_test (tc, test_bt_cmd_application_info_for_incomplete_file);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
