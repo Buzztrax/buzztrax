@@ -163,6 +163,31 @@ test_bt_wire_same_src_and_dst (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_wire_new_twice (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *src =
+      BT_MACHINE (bt_source_machine_new (song, "audiotestsrc", "audiotestsrc",
+          0L, NULL));
+  BtMachine *proc = BT_MACHINE (bt_processor_machine_new (song, "volume",
+          "volume", 0L, NULL));
+  bt_wire_new (song, src, proc, NULL);
+
+  GST_INFO ("-- act --");
+  GError *err = NULL;
+  BtWire *wire = bt_wire_new (song, src, proc, &err);
+
+  GST_INFO ("-- assert --");
+  fail_unless (wire != NULL, NULL);
+  fail_unless (err != NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_error_free (err);
+  BT_TEST_END;
+}
+
 TCase *
 bt_wire_test_case (void)
 {
@@ -173,6 +198,7 @@ bt_wire_test_case (void)
   tcase_add_test (tc, test_bt_wire_new_null_machine);
   tcase_add_test (tc, test_bt_wire_new_wrong_machine_type);
   tcase_add_test (tc, test_bt_wire_same_src_and_dst);
+  tcase_add_test (tc, test_bt_wire_new_twice);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
