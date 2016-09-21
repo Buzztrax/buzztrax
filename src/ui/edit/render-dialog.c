@@ -528,9 +528,8 @@ on_song_error (const GstBus * const bus, GstMessage * message,
 {
   BtRenderDialog *self = BT_RENDER_DIALOG (user_data);
 
-  GST_WARNING ("received %s bus message from %s",
-      GST_MESSAGE_TYPE_NAME (message),
-      GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
+  GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "received %s bus message",
+      GST_MESSAGE_TYPE_NAME (message));
 
   self->priv->has_error = TRUE;
   bt_render_dialog_record_next (self);

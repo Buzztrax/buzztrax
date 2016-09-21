@@ -95,10 +95,6 @@ on_song_error (const GstBus * const bus, GstMessage * message,
   GError *err = NULL;
   gchar *desc, *dbg = NULL;
 
-  GST_INFO ("received %s bus message from %s",
-      GST_MESSAGE_TYPE_NAME (message),
-      GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
-
   gst_message_parse_error (message, &err, &dbg);
   desc = gst_error_get_message (err->domain, err->code);
   GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "ERROR: %s (%s) (%s)",
@@ -118,10 +114,6 @@ on_song_warning (const GstBus * const bus, GstMessage * message,
   //const BtCmdApplication *self=BT_CMD_APPLICATION(user_data);
   GError *err = NULL;
   gchar *desc, *dbg = NULL;
-
-  GST_INFO ("received %s bus message from %s",
-      GST_MESSAGE_TYPE_NAME (message),
-      GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
 
   gst_message_parse_warning (message, &err, &dbg);
   desc = gst_error_get_message (err->domain, err->code);
