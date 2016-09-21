@@ -42,6 +42,11 @@ case_teardown (void)
 {
 }
 
+//-- data
+static gchar *bad_files[] = {
+  "broken1.xml", "not_a_song.abc"
+};
+
 //-- tests
 
 // tests if the play method works without exceptions if we put NULL as filename.
@@ -97,7 +102,7 @@ test_bt_cmd_application_play_bad_file (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   gboolean ret = bt_cmd_application_play (app,
-      check_get_test_song_path ("broken1.xml"));
+      check_get_test_song_path (bad_files[_i]));
 
   GST_INFO ("-- assert --");
   fail_unless (ret == FALSE, NULL);
@@ -160,7 +165,7 @@ test_bt_cmd_application_info_bad_file (BT_TEST_ARGS)
 
   GST_INFO ("-- act --");
   gboolean ret = bt_cmd_application_info (app,
-      check_get_test_song_path ("broken1.xml"), NULL);
+      check_get_test_song_path (bad_files[_i]), NULL);
 
   GST_INFO ("-- assert --");
   fail_unless (ret == FALSE, NULL);
@@ -177,10 +182,12 @@ bt_cmd_application_test_case (void)
 
   tcase_add_test (tc, test_bt_cmd_application_play_null_as_filename);
   tcase_add_test (tc, test_bt_cmd_application_play_non_existing_file);
-  tcase_add_test (tc, test_bt_cmd_application_play_bad_file);
+  tcase_add_loop_test (tc, test_bt_cmd_application_play_bad_file, 0,
+      G_N_ELEMENTS (bad_files));
   tcase_add_test (tc, test_bt_cmd_application_info_null_as_filename);
   tcase_add_test (tc, test_bt_cmd_application_info_non_existing_file);
-  tcase_add_test (tc, test_bt_cmd_application_info_bad_file);
+  tcase_add_loop_test (tc, test_bt_cmd_application_info_bad_file, 0,
+      G_N_ELEMENTS (bad_files));
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
