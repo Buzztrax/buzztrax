@@ -359,7 +359,7 @@ bt_cmd_application_play (const BtCmdApplication * self,
   gboolean res = FALSE;
   BtSong *song = NULL;
   BtSongIO *loader = NULL;
-  GList *node, *missing_machines, *missing_waves;
+  GList *missing_machines, *missing_waves;
   GError *err = NULL;
 
   g_return_val_if_fail (BT_IS_CMD_APPLICATION (self), FALSE);
@@ -386,18 +386,14 @@ bt_cmd_application_play (const BtCmdApplication * self,
       &missing_machines, "wavetable::missing-waves", &missing_waves, NULL);
 
   if (missing_machines || missing_waves) {
-    g_fprintf (stderr, "could not load all of song\"%s\"\n", input_file_name);
-  }
-  if (missing_machines) {
-    g_fprintf (stderr, "missing machines\n");
-    for (node = missing_machines; node; node = g_list_next (node)) {
-      fprintf (stderr, "\t%s\n", (gchar *) (node->data));
-    }
-  }
-  if (missing_waves) {
-    g_fprintf (stderr, "missing waves\n");
-    for (node = missing_waves; node; node = g_list_next (node)) {
-      g_fprintf (stderr, "\t%s\n", (gchar *) (node->data));
+    g_fprintf (stderr, "could not load all of song \"%s\", there are missing ",
+        input_file_name);
+    if (missing_machines && missing_waves) {
+      g_fprintf (stderr, "machines and waves.\n");
+    } else if (missing_machines) {
+      g_fprintf (stderr, "machines.\n");
+    } else if (missing_waves) {
+      g_fprintf (stderr, "waves.\n");
     }
   }
 
