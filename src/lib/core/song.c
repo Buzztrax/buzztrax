@@ -1285,11 +1285,6 @@ bt_song_write_to_highlevel_dot_file (const BtSong * const self)
         index++;
       }
       g_list_free (sublist);
-
-      /*
-         fprintf(out,"  %s -> %s\n",src_name,dst_name);
-       */
-
       g_object_unref (src);
       g_object_unref (dst);
       g_free (id);
