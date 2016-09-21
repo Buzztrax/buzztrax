@@ -79,43 +79,6 @@ bt_gst_registry_get_element_factories_matching_all_categories (const gchar *
   return (list);
 }
 
-
-/**
- * bt_gst_registry_get_element_names_matching_all_categories:
- * @class_filter: path for filtering (e.g. "Sink/Audio")
- *
- * Iterates over all available elements and filters by categories given in
- * @class_filter.
- *
- * Returns: (element-type utf8) (transfer container): list of read-only element
- * names, g_list_free after use.
- */
-GList *
-bt_gst_registry_get_element_names_matching_all_categories (const gchar *
-    class_filter)
-{
-  const GList *node;
-  GList *res = NULL;
-
-  g_return_val_if_fail (BT_IS_STRING (class_filter), NULL);
-
-  GST_DEBUG ("run filter for categories: %s", class_filter);
-
-  GList *const list =
-      bt_gst_registry_get_element_factories_matching_all_categories
-      (class_filter);
-
-  GST_DEBUG ("filtering done");
-
-  for (node = list; node; node = g_list_next (node)) {
-    GstPluginFeature *const feature = GST_PLUGIN_FEATURE (node->data);
-    res =
-        g_list_prepend (res, (gpointer) gst_plugin_feature_get_name (feature));
-  }
-  gst_plugin_feature_list_free ((GList *) list);
-  return (res);
-}
-
 /**
  * bt_gst_element_factory_get_pad_template:
  * @factory: element factory
@@ -858,7 +821,7 @@ bt_cpu_load_get_current (void)
   treal_last = tnow;
   // check time spent in our process
   getrusage (RUSAGE_SELF, &rus);
-  /* children are child processes, which we don't have 
+  /* children are child processes, which we don't have
    * getrusage(RUSAGE_CHILDREN,&ruc); */
   tnow = GST_TIMEVAL_TO_TIME (rus.ru_utime);
   tuser = tnow - tuser_last;
