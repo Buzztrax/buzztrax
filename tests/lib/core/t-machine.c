@@ -52,7 +52,7 @@ case_teardown (void)
 //-- tests
 
 static void
-test_bt_machine_add_pattern (BT_TEST_ARGS)
+test_bt_machine_add_null_pattern (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -70,26 +70,42 @@ test_bt_machine_add_pattern (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-// FIXME(ensonic): is this really testing something?
 static void
-test_bt_machine_names (BT_TEST_ARGS)
+test_bt_machine_add_pattern_twice (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
-  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen2",
-          "buzztrax-test-mono-source", 0L, NULL));
-  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "sink", NULL));
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen1);
 
   GST_INFO ("-- act --");
-  g_object_set (gen1, "id", "beep1", NULL);
-  g_object_set (gen2, "id", "beep2", NULL);
-  bt_wire_new (song, gen1, sink, NULL);
-  bt_wire_new (song, gen2, sink, NULL);
+  bt_machine_add_pattern (gen1, (BtCmdPattern *) pattern);
 
   GST_INFO ("-- assert --");
-  mark_point ();
+  GList *list = (GList *) check_gobject_get_ptr_property (gen1, "patterns");
+  ck_assert_int_eq (g_list_length (list), 3 + 1);       /* break+mute+solo */
+
+  GST_INFO ("-- cleanup --");
+  g_list_foreach (list, (GFunc) g_object_unref, NULL);
+  g_list_free (list);
+  BT_TEST_END;
+}
+
+static void
+test_bt_machine_remove_null_pattern (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0L, NULL));
+  check_init_error_trapp ("", "BT_IS_CMD_PATTERN (pattern)");
+
+  GST_INFO ("-- act --");
+  bt_machine_remove_pattern (gen1, NULL);
+
+  GST_INFO ("-- assert --");
+  fail_unless (check_has_error_trapped (), NULL);
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
@@ -152,8 +168,9 @@ bt_machine_test_case (void)
 {
   TCase *tc = tcase_create ("BtMachineTests");
 
-  tcase_add_test (tc, test_bt_machine_add_pattern);
-  tcase_add_test (tc, test_bt_machine_names);
+  tcase_add_test (tc, test_bt_machine_add_null_pattern);
+  tcase_add_test (tc, test_bt_machine_add_pattern_twice);
+  tcase_add_test (tc, test_bt_machine_remove_null_pattern);
   tcase_add_test (tc, test_bt_machine_state_bypass_on_source);
   tcase_add_test (tc, test_bt_machine_state_solo_on_sink);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
