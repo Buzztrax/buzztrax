@@ -137,24 +137,24 @@ gstbt_audio_synth_fixate (GstBaseSrc * basesrc, GstCaps * caps)
 {
   GstBtAudioSynth *src = GSTBT_AUDIO_SYNTH (basesrc);
   GstBtAudioSynthClass *klass = GSTBT_AUDIO_SYNTH_GET_CLASS (src);
-  GstCaps *res = gst_caps_copy (caps);
-  gint i, n = gst_caps_get_size (res);
+  gint i, n = gst_caps_get_size (caps);
 
   GST_INFO_OBJECT (src, "fixate");
 
+  caps = gst_caps_make_writable (caps);
   for (i = 0; i < n; i++) {
-    gst_structure_fixate_field_nearest_int (gst_caps_get_structure (res, i),
+    gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
         "rate", src->samplerate);
   }
-  GST_INFO_OBJECT (src, "fixated to %" GST_PTR_FORMAT, res);
+  GST_INFO_OBJECT (src, "fixated to %" GST_PTR_FORMAT, caps);
 
   if (klass->setup) {
-    klass->setup (src, GST_BASE_SRC_PAD (basesrc), res);
+    klass->setup (src, GST_BASE_SRC_PAD (basesrc), caps);
   }
-  GST_INFO_OBJECT (src, "fixated to %" GST_PTR_FORMAT, res);
+  GST_INFO_OBJECT (src, "fixated to %" GST_PTR_FORMAT, caps);
 
   return GST_BASE_SRC_CLASS (gstbt_audio_synth_parent_class)->fixate (basesrc,
-      res);
+      caps);
 }
 
 static gboolean
