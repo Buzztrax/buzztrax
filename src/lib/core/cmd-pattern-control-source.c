@@ -147,6 +147,7 @@ get_value (GstControlBinding * self_, GstClockTime timestamp)
         g_object_get (pattern, "command", &cmd, NULL);
         len = 1;
       }
+      g_object_unref (pattern);
       if ((l + len) > min_l) {
         ret = cmd;
       }
