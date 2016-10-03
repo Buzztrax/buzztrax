@@ -491,7 +491,6 @@ bt_sink_bin_get_player_elements (const BtSinkBin * const self)
   GList *list = NULL;
   gchar *element_name, *device_name;
   GstElement *element;
-  BtAudioSession *audio_session;
 
   GST_DEBUG_OBJECT (self, "get playback elements");
 
@@ -500,11 +499,7 @@ bt_sink_bin_get_player_elements (const BtSinkBin * const self)
           &element_name, &device_name)) {
     return (NULL);
   }
-  audio_session = bt_audio_session_new ();
-  g_object_set (audio_session, "audio-sink-device", device_name,
-      "audio-sink-name", element_name, NULL);
-  g_object_get (audio_session, "audio-sink", &element, NULL);
-  g_object_unref (audio_session);
+  element = bt_audio_session_get_sink_for (element_name, device_name);
   if (!element) {
     GST_WARNING ("No session sink for '%s'", element_name);
     element = gst_element_factory_make (element_name, NULL);

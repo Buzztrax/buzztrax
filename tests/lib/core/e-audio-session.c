@@ -64,7 +64,23 @@ test_bt_audio_session_singleton (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-;
+static void
+test_bt_audio_session_no_session_element_for_fakesink (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtAudioSession *session = bt_audio_session_new ();
+
+  GST_INFO ("-- act --");
+  GstElement *e = bt_audio_session_get_sink_for ("fakesink", NULL);
+
+  GST_INFO ("-- assert --");
+  fail_unless (e == NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  ck_g_object_final_unref (session);
+  BT_TEST_END;
+}
 
 
 TCase *
@@ -73,6 +89,7 @@ bt_audio_session_example_case (void)
   TCase *tc = tcase_create ("BtAudioSessionExamples");
 
   tcase_add_test (tc, test_bt_audio_session_singleton);
+  tcase_add_test (tc, test_bt_audio_session_no_session_element_for_fakesink);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

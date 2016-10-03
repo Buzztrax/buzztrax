@@ -54,4 +54,6 @@ GType bt_audio_session_get_type(void) G_GNUC_CONST;
 
 BtAudioSession *bt_audio_session_new(void);
 
+GstElement *bt_audio_session_get_sink_for(const gchar *element_name, const gchar *device_name);
+
 #endif // BT_AUDIO_SESSION_H

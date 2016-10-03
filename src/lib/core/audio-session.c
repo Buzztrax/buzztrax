@@ -108,17 +108,28 @@ bt_audio_session_cleanup (void)
   }
 }
 
+static gboolean
+bt_audio_session_sink_is_server (void)
+{
+  gchar *element_name = singleton->priv->audio_sink_name;
+  // ->audio_sink_device is not used to detect a session sinks right now
+  /* TODO(ensonic): improve heuristic, both pulsesink and jackaudiosink:
+   * - have a property 'server' with the server name
+   * - habe a property 'client-name' to name the connected client
+   */
+  return !strcmp (element_name, "jackaudiosink");
+}
+
 static void
 bt_audio_session_setup (void)
 {
-  gchar *element_name = singleton->priv->audio_sink_name;
-  // audio_sink_device is not used for know session sinks right now
-  if (!strcmp (element_name, "jackaudiosink")) {
+  if (bt_audio_session_sink_is_server ()) {
     GstElement *audio_sink = singleton->priv->audio_sink;
 
     if (!audio_sink) {
       GstElement *bin;
       GstElement *sink, *src;
+      gchar *element_name = singleton->priv->audio_sink_name;
 
       // create audio sink and drop floating ref
       audio_sink = gst_element_factory_make (element_name, NULL);
@@ -213,6 +224,32 @@ bt_audio_session_new (void)
 }
 
 //-- methods
+
+/**
+ * bt_audio_session_get_sink_for:
+ * @element_name: the element name of the sink
+ * @device_name: optional device name (not implemented)
+ *
+ * If the element is a sound server return the a persistent session sink for it.
+ *
+ * Since: 0.11
+ * Returns: the #GstElement or %NULL, unref when done.
+ */
+GstElement *
+bt_audio_session_get_sink_for (const gchar * element_name,
+    const gchar * device_name)
+{
+  g_return_val_if_fail (element_name, NULL);
+
+  if (G_LIKELY (singleton)) {
+    g_object_set (singleton, "audio-sink-device", device_name,
+        "audio-sink-name", element_name, NULL);
+    if (singleton->priv->audio_sink) {
+      return g_object_ref (singleton->priv->audio_sink);
+    }
+  }
+  return NULL;
+}
 
 //-- wrapper
 
