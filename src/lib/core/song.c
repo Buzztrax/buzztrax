@@ -540,23 +540,12 @@ on_song_segment_done (const GstBus * const bus,
     const GstMessage * const message, gconstpointer user_data)
 {
   const BtSong *const self = BT_SONG (user_data);
-  //GstStateChangeReturn res;
 #ifndef GST_DISABLE_GST_DEBUG
   GstFormat format;
   gint64 position;
   guint32 seek_seqnum = gst_message_get_seqnum ((GstMessage *) message);
 
   gst_message_parse_segment_done ((GstMessage *) message, &format, &position);
-#endif
-#if 0
-  /* time it takes from emitting to handling the event, depends on a change in
-   * gstreamer core to timestamp messages */
-  {
-    GstClockTime delta = GST_CLOCK_DIFF (GST_MESSAGE_TIMESTAMP (message),
-        gst_util_get_timestamp ());
-    GST_WARNING ("received SEGMENT_DONE after=%" GST_TIME_FORMAT,
-        GST_TIME_ARGS (delta));
-  }
 #endif
 
   GST_INFO
