@@ -544,15 +544,20 @@ on_song_segment_done (const GstBus * const bus,
   GstFormat format;
   gint64 position;
   guint32 seek_seqnum = gst_message_get_seqnum ((GstMessage *) message);
+  // check how regullar the SEGMENT DONE comes
+  static GstClockTime last_ts = 0;
+  GstClockTime this_ts = gst_util_get_timestamp ();
+  GstClockTimeDiff ts_diff = last_ts ? (this_ts - last_ts) : 0;
+  last_ts = this_ts;
 
   gst_message_parse_segment_done ((GstMessage *) message, &format, &position);
 #endif
 
   GST_INFO
-      ("received SEGMENT_DONE (%u) bus message: %p, from %s, with fmt=%s, ts=%"
-      GST_TIME_FORMAT, seek_seqnum, message,
+      ("received SEGMENT_DONE (%u) bus message: from %s, with fmt=%s, ts=%"
+      GST_TIME_FORMAT " after %" GST_TIME_FORMAT, seek_seqnum,
       GST_OBJECT_NAME (GST_MESSAGE_SRC (message)), gst_format_get_name (format),
-      GST_TIME_ARGS (position));
+      GST_TIME_ARGS (position), GST_TIME_ARGS (ts_diff));
 
   if (self->priv->is_playing || self->priv->is_idle_active) {
     GstEvent *event;
