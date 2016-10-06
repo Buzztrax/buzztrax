@@ -10,7 +10,7 @@ is about. Buzztrax is free software and distributed under the LGPL.
 We are running continuous integration on travis-ci, get coverage from codecov
 and have the codebase checked by coverity:
 
-[![Build Status](https://travis-ci.org/Buzztrax/buzzmachines.svg?branch=master)](https://travis-ci.org/Buzztrax/buzzmachines/builds)
+[![Build Status](https://travis-ci.org/Buzztrax/buzztrax.svg?branch=master)](https://travis-ci.org/Buzztrax/buzztrax/builds)
 [![Test Coverage](https://codecov.io/gh/Buzztrax/buzztrax/branch/master/graph/badge.svg)](https://codecov.io/gh/Buzztrax/buzztrax)
 [![Coverity Defects](https://scan.coverity.com/projects/533/badge.svg)](https://scan.coverity.com/projects/buzztrax)
 
