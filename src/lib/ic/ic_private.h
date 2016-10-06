@@ -84,4 +84,6 @@
   GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif
 
+extern gboolean btic_registry_active (void);
+
 #endif // BT_IC_PRIVATE_H

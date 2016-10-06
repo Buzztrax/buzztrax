@@ -280,6 +280,9 @@ btic_gudev_discoverer_constructor (GType type, guint n_construct_params,
       (btic_gudev_discoverer_parent_class)->constructor (type,
           n_construct_params, construct_params));
 
+  if (!btic_registry_active ())
+    goto done;
+
   // get a gudev client
   if (!(self->priv->client = g_udev_client_new (subsystems))) {
     GST_WARNING ("Could not create gudev client context");

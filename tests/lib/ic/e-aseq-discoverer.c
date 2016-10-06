@@ -46,6 +46,7 @@ test_setup (void)
   }
 
   registry = btic_registry_new ();
+  btic_registry_start_discovery ();
 }
 
 static void

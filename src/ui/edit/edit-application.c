@@ -906,6 +906,7 @@ bt_edit_application_constructor (GType type, guint n_construct_params,
 
     // create the interaction controller registry
     singleton->priv->ic_registry = btic_registry_new ();
+    btic_registry_start_discovery ();
 
     // create the playback controllers (we need to create them all as they watch
     // the settings them self)

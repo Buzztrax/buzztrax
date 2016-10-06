@@ -280,6 +280,10 @@ btic_aseq_discoverer_constructor (GType type, guint n_construct_params,
       BTIC_ASEQ_DISCOVERER (G_OBJECT_CLASS
       (btic_aseq_discoverer_parent_class)->constructor (type,
           n_construct_params, construct_params));
+
+  if (!btic_registry_active ())
+    goto done;
+
   p = self->priv;
 
   if ((err = snd_lib_error_set_handler (alsa_error_handler)) < 0) {
@@ -315,7 +319,7 @@ btic_aseq_discoverer_constructor (GType type, guint n_construct_params,
     GST_WARNING ("set nonblock mode failed: %s", snd_strerror (err));
     goto done;
   }
-  // npfds is usually 1  
+  // npfds is usually 1
   npfds = snd_seq_poll_descriptors_count (p->seq, POLLIN);
   GST_INFO ("alsa sequencer api ready: nr_poll_fds=%d", npfds);
 

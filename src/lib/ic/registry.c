@@ -89,6 +89,38 @@ btic_registry_new (void)
   return (g_object_new (BTIC_TYPE_REGISTRY, NULL));
 }
 
+/*
+ * btic_registry_active:
+ *
+ * Check if there is an active registry. Meant to be used by internal
+ * API (e.g. discoverers to only run if created from the registry),
+ *
+ * Returns: %TRUE if there is an active registry instance
+ */
+gboolean
+btic_registry_active (void)
+{
+  return singleton != NULL;
+}
+
+/**
+ * btic_registry_start_discovery:
+ *
+ * Run discovery services (if available).
+ *
+ * Since: 0.11
+ */
+void
+btic_registry_start_discovery (void)
+{
+#if USE_ALSA
+  singleton->priv->aseq_discoverer = btic_aseq_discoverer_new ();
+#endif
+#if USE_GUDEV
+  singleton->priv->gudev_discoverer = btic_gudev_discoverer_new ();
+#endif
+}
+
 //-- methods
 
 /**
@@ -104,6 +136,7 @@ btic_registry_new (void)
 BtIcDevice *
 btic_registry_get_device_by_name (const gchar * name)
 {
+  g_return_val_if_fail (singleton, NULL);
   GList *node = find_device_node_by_property ("name", name);
   return node ? g_object_ref (node->data) : NULL;
 }
@@ -120,6 +153,8 @@ void
 btic_registry_remove_device_by_udi (const gchar * udi)
 {
   BtIcRegistry *self = singleton;
+  g_return_if_fail (self);
+
   GList *node = find_device_node_by_property ("udi", udi);
 
   if (node) {
@@ -144,7 +179,6 @@ void
 btic_registry_add_device (BtIcDevice * device)
 {
   BtIcRegistry *self = singleton;
-
   g_return_if_fail (self);
 
   if (btic_device_has_controls (device) || BTIC_IS_LEARN (device)) {
@@ -239,12 +273,6 @@ btic_registry_constructor (GType type, guint n_construct_params,
     g_object_add_weak_pointer (object, (gpointer *) (gpointer) & singleton);
 
     GST_INFO ("new device registry created");
-#if USE_ALSA
-    singleton->priv->aseq_discoverer = btic_aseq_discoverer_new ();
-#endif
-#if USE_GUDEV
-    singleton->priv->gudev_discoverer = btic_gudev_discoverer_new ();
-#endif
   } else {
     object = g_object_ref (singleton);
   }

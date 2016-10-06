@@ -43,19 +43,21 @@ typedef struct _BtIcRegistryPrivate BtIcRegistryPrivate;
  */
 struct _BtIcRegistry {
   const GObject parent;
-  
+
   /*< private >*/
   BtIcRegistryPrivate *priv;
 };
 
 struct _BtIcRegistryClass {
   const GObjectClass parent;
-  
+
 };
 
 GType btic_registry_get_type(void) G_GNUC_CONST;
 
 BtIcRegistry *btic_registry_new(void);
+
+void btic_registry_start_discovery(void);
 
 BtIcDevice *btic_registry_get_device_by_name(const gchar * name);
 
