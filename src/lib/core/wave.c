@@ -477,9 +477,9 @@ bt_wave_save_to_fd (const BtWave * const self)
     // we need to run this sync'ed with eos
     GST_INFO ("saving sample ...");
 
-    if ((msg =
-            gst_bus_poll (bus, GST_MESSAGE_EOS | GST_MESSAGE_ERROR,
-                GST_CLOCK_TIME_NONE))) {
+    msg = gst_bus_poll (bus, GST_MESSAGE_EOS | GST_MESSAGE_ERROR,
+        GST_CLOCK_TIME_NONE);
+    if (msg) {
       switch (msg->type) {
         case GST_MESSAGE_EOS:
           res = TRUE;

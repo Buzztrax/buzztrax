@@ -148,20 +148,25 @@ bt_audio_session_setup (void)
         gst_object_unref (audio_sink);
       } else {
         GstBus *bus;
-        GstMessage *message;
+        GstMessage *msg;
         gboolean loop = TRUE;
 
         gst_element_set_state (bin, GST_STATE_PAUSED);
 
         bus = gst_element_get_bus (bin);
         while (loop) {
-          message = gst_bus_poll (bus, GST_MESSAGE_ANY, -1);
-          switch (message->type) {
+          msg = gst_bus_poll (bus,
+              GST_MESSAGE_STATE_CHANGED | GST_MESSAGE_ERROR,
+              GST_CLOCK_TIME_NONE);
+          if (!msg)
+            continue;
+
+          switch (msg->type) {
             case GST_MESSAGE_STATE_CHANGED:
-              if (GST_MESSAGE_SRC (message) == GST_OBJECT (bin)) {
+              if (GST_MESSAGE_SRC (msg) == GST_OBJECT (bin)) {
                 GstState oldstate, newstate;
 
-                gst_message_parse_state_changed (message, &oldstate, &newstate,
+                gst_message_parse_state_changed (msg, &oldstate, &newstate,
                     NULL);
                 if (GST_STATE_TRANSITION (oldstate,
                         newstate) == GST_STATE_CHANGE_READY_TO_PAUSED)
@@ -174,7 +179,7 @@ bt_audio_session_setup (void)
             default:
               break;
           }
-          gst_message_unref (message);
+          gst_message_unref (msg);
         }
         gst_object_unref (bus);
 
