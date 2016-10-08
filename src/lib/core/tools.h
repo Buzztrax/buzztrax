@@ -46,6 +46,24 @@ const gchar *bt_gst_debug_pad_link_return(GstPadLinkReturn link_res,GstPad *src_
 gdouble bt_gst_level_message_get_aggregated_field(const GstStructure *structure, const gchar *field_name, gdouble default_value);
 GstClockTime bt_gst_analyzer_get_waittime(GstElement *analyzer, const GstStructure *structure, gboolean endtime_is_running_time);
 
+gboolean bt_gst_log_message_error(GstDebugCategory *cat, const gchar *file, const gchar *func, const int line, GstMessage *msg, gchar **err_msg, gchar ** err_desc);
+/**
+ * BT_GST_LOG_MESSAGE_ERROR:
+ * @msg: a #GstMessage of type %GST_MESSAGE_ERROR
+ * @err_msg: optional output variable for the error message
+ * @err_desc: optional output variable for the error description
+ *
+ * Helper to logs the message to the debug log. If @description is
+ * given, it is set to the error detail (free after use).
+ *
+ * Returns: %TRUE if the message could be parsed
+ */
+#ifndef GST_DISABLE_GST_DEBUG
+#define BT_GST_LOG_MESSAGE_ERROR(msg, err_msg, err_desc) \
+  bt_gst_log_message_error(GST_CAT_DEFAULT,  __FILE__, GST_FUNCTION, __LINE__, msg, err_msg, err_desc)
+#else
+#define BT_GST_LOG_MESSAGE_ERROR(msg, err_msg, err_desc)
+#endif
 //-- gst compat
 
 //-- glib compat & helper

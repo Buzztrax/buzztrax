@@ -174,6 +174,7 @@ bt_audio_session_setup (void)
               }
               break;
             case GST_MESSAGE_ERROR:
+              BT_GST_LOG_MESSAGE_ERROR (msg, NULL, NULL);
               loop = FALSE;
               break;
             default:

@@ -390,17 +390,13 @@ on_song_error (const GstBus * const bus, GstMessage * message,
     gconstpointer user_data)
 {
   const BtMainToolbar *const self = BT_MAIN_TOOLBAR (user_data);
-  GError *err = NULL;
-  gchar *desc, *dbg = NULL;
-
-  gst_message_parse_error (message, &err, &dbg);
-  desc = gst_error_get_message (err->domain, err->code);
-  GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "ERROR: %s (%s) (%s)",
-      err->message, desc, (dbg ? dbg : "no debug"));
 
   if (!self->priv->has_error) {
     BtSong *song;
     BtMainWindow *main_window;
+    gchar *msg, *desc;
+
+    BT_GST_LOG_MESSAGE_ERROR (message, &msg, &desc);
 
     // get song from app
     g_object_get (self->priv->app, "song", &song, "main-window", &main_window,
@@ -410,15 +406,16 @@ on_song_error (const GstBus * const bus, GstMessage * message,
     bt_song_write_to_lowlevel_dot_file (song);
     bt_song_stop (song);
 
-    bt_dialog_message (main_window, _("Error"), err->message, desc);
+    bt_dialog_message (main_window, _("Error"), msg, desc);
 
     // release the reference
     g_object_unref (song);
     g_object_unref (main_window);
+    g_free (msg);
+    g_free (desc);
+  } else {
+    BT_GST_LOG_MESSAGE_ERROR (message, NULL, NULL);
   }
-  g_error_free (err);
-  g_free (dbg);
-  g_free (desc);
 
   self->priv->has_error = TRUE;
 }

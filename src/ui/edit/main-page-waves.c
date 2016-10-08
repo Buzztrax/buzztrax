@@ -85,7 +85,7 @@ struct _BtMainPageWavesPrivate
 
   /* the list of wavelevels */
   GtkTreeView *wavelevels_list;
-  //gulong 
+  //gulong
 
   /* the sample chooser */
   GtkWidget *file_chooser;
@@ -577,16 +577,8 @@ on_preview_error (const GstBus * const bus, GstMessage * message,
     gconstpointer user_data)
 {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
-  GError *err = NULL;
-  gchar *desc, *dbg = NULL;
 
-  gst_message_parse_error (message, &err, &dbg);
-  desc = gst_error_get_message (err->domain, err->code);
-  GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "ERROR: %s (%s) (%s)",
-      err->message, desc, (dbg ? dbg : "no debug"));
-  g_error_free (err);
-  g_free (dbg);
-  g_free (desc);
+  BT_GST_LOG_MESSAGE_ERROR (message, NULL, NULL);
 
   GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self->priv->preview),
       GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-waves");
@@ -943,7 +935,7 @@ on_browser_preview_sample (GtkFileChooser * chooser, gpointer user_data)
       /* FIXME(ensonic): this sometimes hangs
          "failed to link pad uridecodebin0:src_0 to combiner, reason -2:was linked"
          gst_element_set_state (self->priv->playbin, GST_STATE_READY);
-         if (gst_element_get_state (self->priv->playbin, NULL, NULL, 
+         if (gst_element_get_state (self->priv->playbin, NULL, NULL,
          GST_CLOCK_TIME_NONE) != GST_STATE_CHANGE_SUCCESS) {
          GST_WARNING_OBJECT (self->priv->playbin, "not yet paused");
          }

@@ -261,21 +261,11 @@ bt_wave_load_from_uri (const BtWave * const self, const gchar * const uri)
       case GST_MESSAGE_EOS:
         res = done = TRUE;
         break;
-      case GST_MESSAGE_ERROR:{
-        GError *err;
-        gchar *desc, *dbg = NULL;
-
-        gst_message_parse_error (msg, &err, &dbg);
-        desc = gst_error_get_message (err->domain, err->code);
-        GST_WARNING_OBJECT (GST_MESSAGE_SRC (msg), "ERROR: %s (%s) (%s)",
-            err->message, desc, (dbg ? dbg : "no debug"));
-        g_error_free (err);
-        g_free (dbg);
-        g_free (desc);
+      case GST_MESSAGE_ERROR:
+        BT_GST_LOG_MESSAGE_ERROR (msg, NULL, NULL);
         res = FALSE;
         done = TRUE;
         break;
-      }
       case GST_MESSAGE_TAG:{
         GstTagList *tags;
 #if GST_CHECK_VERSION(1,3,0)
@@ -484,20 +474,10 @@ bt_wave_save_to_fd (const BtWave * const self)
         case GST_MESSAGE_EOS:
           res = TRUE;
           break;
-        case GST_MESSAGE_ERROR:{
-          GError *err;
-          gchar *desc, *dbg = NULL;
-
-          gst_message_parse_error (msg, &err, &dbg);
-          desc = gst_error_get_message (err->domain, err->code);
-          GST_WARNING_OBJECT (GST_MESSAGE_SRC (msg), "ERROR: %s (%s) (%s)",
-              err->message, desc, (dbg ? dbg : "no debug"));
-          g_error_free (err);
-          g_free (dbg);
-          g_free (desc);
+        case GST_MESSAGE_ERROR:
+          BT_GST_LOG_MESSAGE_ERROR (msg, NULL, NULL);
           res = FALSE;
           break;
-        }
         default:
           break;
       }

@@ -684,6 +684,53 @@ bt_gst_analyzer_get_waittime (GstElement * analyzer,
   return waittime;
 }
 
+/**
+ * bt_gst_log_message_error:
+ * @cat: category
+ * @file: source file
+ * @func: function name
+ * @line: source code line
+ * @msg: a #GstMessage of type %GST_MESSAGE_ERROR
+ * @err_msg: optional output variable for the error message
+ * @err_desc: optional output variable for the error description
+ *
+ * Low level helper that logs the message to the debug log. If @description is
+ * given, it is set to the error detail (free after use).
+ *
+ * Use the #BT_GST_LOG_MESSAGE_ERROR() macro instead.
+ *
+ * Returns: %TRUE if the message could be parsed
+ */
+gboolean
+bt_gst_log_message_error (GstDebugCategory * cat, const gchar * file,
+    const gchar * func, const int line, GstMessage * msg, gchar ** err_msg,
+    gchar ** err_desc)
+{
+  GError *err;
+  gchar *desc, *dbg = NULL;
+
+  g_return_val_if_fail (msg, FALSE);
+  g_return_val_if_fail (msg->type == GST_MESSAGE_ERROR, FALSE);
+
+  gst_message_parse_error (msg, &err, &dbg);
+  desc = gst_error_get_message (err->domain, err->code);
+  gst_debug_log (cat, GST_LEVEL_WARNING, file, func, line,
+      (GObject *) GST_MESSAGE_SRC (msg), "ERROR: %s (%s) (%s)",
+      err->message, desc, (dbg ? dbg : "no debug"));
+
+  if (err_msg) {
+    *err_msg = g_strdup (err->message);
+  }
+  if (err_desc) {
+    *err_desc = desc;
+  } else {
+    g_free (desc);
+  }
+  g_error_free (err);
+  g_free (dbg);
+  return TRUE;
+}
+
 //-- gst compat
 
 //-- glib compat & helper
