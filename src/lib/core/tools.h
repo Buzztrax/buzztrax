@@ -74,7 +74,7 @@ gboolean bt_gst_log_message_warning(GstDebugCategory *cat, const gchar *file, co
 #define BT_GST_LOG_MESSAGE_ERROR(msg, err_msg, err_desc) \
   bt_gst_log_message_error(GST_CAT_DEFAULT,  __FILE__, GST_FUNCTION, __LINE__, msg, err_msg, err_desc)
 #define BT_GST_LOG_MESSAGE_WARNING(msg, warn_msg, warn_desc) \
-  bt_gst_log_message_error(GST_CAT_DEFAULT,  __FILE__, GST_FUNCTION, __LINE__, msg, warn_msg, warn_desc)
+  bt_gst_log_message_warning(GST_CAT_DEFAULT,  __FILE__, GST_FUNCTION, __LINE__, msg, warn_msg, warn_desc)
 #else
 #define BT_GST_LOG_MESSAGE_ERROR(msg, err_msg, err_desc)
 #define BT_GST_LOG_MESSAGE_WARNING(msg, warn_msg, warn_desc)

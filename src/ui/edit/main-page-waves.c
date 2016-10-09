@@ -591,20 +591,13 @@ on_preview_warning (const GstBus * const bus, GstMessage * message,
     gconstpointer user_data)
 {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES (user_data);
-  GError *err = NULL;
-  gchar *desc, *dbg = NULL;
 
-  gst_message_parse_warning (message, &err, &dbg);
-  desc = gst_error_get_message (err->domain, err->code);
-  GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "WARNING: %s (%s) (%s)",
-      err->message, desc, (dbg ? dbg : "no debug"));
-  g_error_free (err);
-  g_free (dbg);
-  g_free (desc);
+  BT_GST_LOG_MESSAGE_WARNING (message, NULL, NULL);
+
   preview_stop (self);
 }
 
-gst_message_parse_error static void
+static void
 on_wave_name_edited (GtkCellRendererText * cellrenderertext,
     gchar * path_string, gchar * new_text, gpointer user_data)
 {
