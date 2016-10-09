@@ -112,6 +112,62 @@ test_bt_str_format_enum (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_log_message_error (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  GstObject *src = (GstObject *) gst_element_factory_make ("fakesrc", NULL);
+  GError *error = g_error_new (GST_CORE_ERROR, GST_CORE_ERROR_FAILED,
+      "description");
+  GstMessage *msg = gst_message_new_error (src, error, "debug");
+  gchar *message, *description;
+
+  GST_INFO ("-- act --");
+  gboolean res = bt_gst_log_message_error (GST_CAT_DEFAULT, __FILE__, "",
+      __LINE__, msg, &message, &description);
+
+  GST_INFO ("-- assert --");
+  fail_unless (res, NULL);
+  fail_unless (description != NULL, NULL);
+  ck_assert_str_eq (message, "description");
+
+  GST_INFO ("-- cleanup --");
+  g_free (message);
+  g_free (description);
+  gst_message_unref (msg);
+  gst_object_unref (src);
+  BT_TEST_END;
+}
+
+static void
+test_bt_log_message_warning (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  GstObject *src = (GstObject *) gst_element_factory_make ("fakesrc", NULL);
+  GError *error = g_error_new (GST_CORE_ERROR, GST_CORE_ERROR_FAILED,
+      "description");
+  GstMessage *msg = gst_message_new_warning (src, error, "debug");
+  gchar *message, *description;
+
+  GST_INFO ("-- act --");
+  gboolean res = bt_gst_log_message_warning (GST_CAT_DEFAULT, __FILE__, "",
+      __LINE__, msg, &message, &description);
+
+  GST_INFO ("-- assert --");
+  fail_unless (res, NULL);
+  fail_unless (description != NULL, NULL);
+  ck_assert_str_eq (message, "description");
+
+  GST_INFO ("-- cleanup --");
+  g_free (message);
+  g_free (description);
+  gst_message_unref (msg);
+  gst_object_unref (src);
+  BT_TEST_END;
+}
+
 TCase *
 bt_tools_example_case (void)
 {
@@ -121,6 +177,8 @@ bt_tools_example_case (void)
   tcase_add_test (tc, test_bt_tools_element_check1);
   tcase_add_test (tc, test_bt_str_parse_enum);
   tcase_add_test (tc, test_bt_str_format_enum);
+  tcase_add_test (tc, test_bt_log_message_error);
+  tcase_add_test (tc, test_bt_log_message_warning);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

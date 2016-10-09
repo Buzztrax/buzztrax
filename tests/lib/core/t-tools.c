@@ -103,6 +103,57 @@ test_bt_str_format_enum_wrong_value (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static GstMessage *
+make_msg (void)
+{
+  GstObject *src = (GstObject *) gst_element_factory_make ("fakesrc", NULL);
+  GError *error = g_error_new (GST_CORE_ERROR, GST_CORE_ERROR_FAILED,
+      "description");
+  GstMessage *msg = gst_message_new_info (src, error, "debug");
+  gst_object_unref (src);
+
+  return msg;
+}
+
+static void
+test_bt_log_message_error_wrong_type (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  GstMessage *msg = make_msg ();
+
+  GST_INFO ("-- act --");
+  gboolean res = bt_gst_log_message_error (GST_CAT_DEFAULT, "", "", 0, msg,
+      NULL, NULL);
+
+  GST_INFO ("-- assert --");
+  fail_if (res, NULL);
+
+  GST_INFO ("-- cleanup --");
+  gst_message_unref (msg);
+  BT_TEST_END;
+}
+
+static void
+test_bt_log_message_warning_wrong_type (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  GstMessage *msg = make_msg ();
+
+  GST_INFO ("-- act --");
+  gboolean res = bt_gst_log_message_warning (GST_CAT_DEFAULT, "", "", 0, msg,
+      NULL, NULL);
+
+  GST_INFO ("-- assert --");
+  fail_if (res, NULL);
+
+  GST_INFO ("-- cleanup --");
+  gst_message_unref (msg);
+  BT_TEST_END;
+}
+
+
 TCase *
 bt_tools_test_case (void)
 {
@@ -113,6 +164,8 @@ bt_tools_test_case (void)
   tcase_add_test (tc, test_bt_str_parse_enum_null_str);
   tcase_add_test (tc, test_bt_str_format_enum_wrong_type);
   tcase_add_test (tc, test_bt_str_format_enum_wrong_value);
+  tcase_add_test (tc, test_bt_log_message_error_wrong_type);
+  tcase_add_test (tc, test_bt_log_message_warning_wrong_type);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
