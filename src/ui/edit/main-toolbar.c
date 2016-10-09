@@ -433,7 +433,7 @@ on_song_warning (const GstBus * const bus, GstMessage * message,
     BT_GST_LOG_MESSAGE_WARNING (message, &msg, &desc);
 
     g_object_get (self->priv->app, "main-window", &main_window, NULL);
-    bt_dialog_message (main_window, _("Warning"), err->message, desc);
+    bt_dialog_message (main_window, _("Warning"), msg, desc);
     g_object_unref (main_window);
   } else {
     BT_GST_LOG_MESSAGE_WARNING (message, NULL, NULL);
