@@ -47,6 +47,7 @@ gdouble bt_gst_level_message_get_aggregated_field(const GstStructure *structure,
 GstClockTime bt_gst_analyzer_get_waittime(GstElement *analyzer, const GstStructure *structure, gboolean endtime_is_running_time);
 
 gboolean bt_gst_log_message_error(GstDebugCategory *cat, const gchar *file, const gchar *func, const int line, GstMessage *msg, gchar **err_msg, gchar ** err_desc);
+gboolean bt_gst_log_message_warning(GstDebugCategory *cat, const gchar *file, const gchar *func, const int line, GstMessage *msg, gchar **warn_msg, gchar ** warn_desc);
 /**
  * BT_GST_LOG_MESSAGE_ERROR:
  * @msg: a #GstMessage of type %GST_MESSAGE_ERROR
@@ -58,11 +59,25 @@ gboolean bt_gst_log_message_error(GstDebugCategory *cat, const gchar *file, cons
  *
  * Returns: %TRUE if the message could be parsed
  */
+/**
+ * BT_GST_LOG_MESSAGE_WARNING:
+ * @msg: a #GstMessage of type %GST_MESSAGE_WARNING
+ * @warn_msg: optional output variable for the error message
+ * @warn_desc: optional output variable for the error description
+ *
+ * Helper to logs the message to the debug log. If @description is
+ * given, it is set to the error detail (free after use).
+ *
+ * Returns: %TRUE if the message could be parsed
+ */
 #ifndef GST_DISABLE_GST_DEBUG
 #define BT_GST_LOG_MESSAGE_ERROR(msg, err_msg, err_desc) \
   bt_gst_log_message_error(GST_CAT_DEFAULT,  __FILE__, GST_FUNCTION, __LINE__, msg, err_msg, err_desc)
+#define BT_GST_LOG_MESSAGE_WARNING(msg, warn_msg, warn_desc) \
+  bt_gst_log_message_error(GST_CAT_DEFAULT,  __FILE__, GST_FUNCTION, __LINE__, msg, warn_msg, warn_desc)
 #else
 #define BT_GST_LOG_MESSAGE_ERROR(msg, err_msg, err_desc)
+#define BT_GST_LOG_MESSAGE_WARNING(msg, warn_msg, warn_desc)
 #endif
 //-- gst compat
 

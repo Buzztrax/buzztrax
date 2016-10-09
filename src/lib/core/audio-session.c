@@ -156,8 +156,8 @@ bt_audio_session_setup (void)
         bus = gst_element_get_bus (bin);
         while (loop) {
           msg = gst_bus_poll (bus,
-              GST_MESSAGE_STATE_CHANGED | GST_MESSAGE_ERROR,
-              GST_CLOCK_TIME_NONE);
+              GST_MESSAGE_STATE_CHANGED | GST_MESSAGE_ERROR |
+              GST_MESSAGE_WARNING, GST_CLOCK_TIME_NONE);
           if (!msg)
             continue;
 
@@ -176,6 +176,9 @@ bt_audio_session_setup (void)
             case GST_MESSAGE_ERROR:
               BT_GST_LOG_MESSAGE_ERROR (msg, NULL, NULL);
               loop = FALSE;
+              break;
+            case GST_MESSAGE_WARNING:
+              BT_GST_LOG_MESSAGE_WARNING (msg, NULL, NULL);
               break;
             default:
               break;

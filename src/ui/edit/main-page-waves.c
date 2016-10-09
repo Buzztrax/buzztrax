@@ -604,7 +604,7 @@ on_preview_warning (const GstBus * const bus, GstMessage * message,
   preview_stop (self);
 }
 
-static void
+gst_message_parse_error static void
 on_wave_name_edited (GtkCellRendererText * cellrenderertext,
     gchar * path_string, gchar * new_text, gpointer user_data)
 {
