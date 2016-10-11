@@ -381,15 +381,18 @@ bt_sink_bin_set_audio_sink (const BtSinkBin * const self, GstElement * sink)
   }
   // enable syncing to timestamps
   g_object_set (sink, "sync", TRUE,
-      /* if we do this, live pipelines go playing, but still sources don't start */
-      /*"async", FALSE, *//* <- this breaks scrubbing on timeline */
+      /* if we do this, live pipelines go playing, but:
+       * - non-live sources don't start
+       * - scrubbing on timeline is broken
+       */
+      //"async", FALSE,
       /* this helps trickplay and scrubbing, there seems to be some time issue
        * in baseaudiosink
        */
-      /*"slave-method",2, */
-      /*"provide-clock",FALSE, */
+      //"slave-method",2,
+      //"provide-clock",FALSE,
       /* this does not lockup anymore, but does not give us better latencies */
-      /*"can-activate-pull",TRUE, */
+      //"can-activate-pull",TRUE,
       NULL);
   self->priv->audio_sink = sink;
   bt_sink_bin_configure_latency (self);
@@ -604,7 +607,8 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
     g_object_set (element, "location", self->priv->record_file_name,
         // only for recording in in realtime and not as fast as we can
         // "sync", TRUE,
-        NULL);
+        /* this avoids the prerolling */
+        "async", FALSE, NULL);
     list = g_list_append (list, element);
   } else {
     GST_WARNING_OBJECT (self, "failed to create 'filesink'");

@@ -403,9 +403,6 @@ test_bt_sink_bin_record_and_play (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
   if (!bt_sink_bin_is_record_format_supported (_i))
     return;
-  // see GST_BUG_733031
-  if (_i == 3 || _i == 6)
-    return;
 #if !GST_CHECK_VERSION (1,8,0)
   if (_i == 5 || _i == 7)
     return;
