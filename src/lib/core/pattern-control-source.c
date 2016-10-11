@@ -169,7 +169,7 @@ bt_pattern_control_source_get_value (GstControlBinding * self_,
           }
         }
       }
-      g_object_unref (pattern);
+      g_object_try_unref (pattern);
     }
   } else {
     GST_LOG_OBJECT (self->priv->machine, "skipping subtick");
