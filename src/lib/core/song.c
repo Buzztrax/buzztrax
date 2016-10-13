@@ -1470,6 +1470,7 @@ bt_song_constructed (GObject * object)
       G_CALLBACK (bt_song_on_latency_changed), (gpointer) self, 0);
   g_object_unref (settings);
 
+  bt_song_send_audio_context (self);
   bt_song_update_play_seek_event_and_play_pos (BT_SONG (self));
   if ((res =
           gst_element_set_state (GST_ELEMENT (self->priv->bin),
