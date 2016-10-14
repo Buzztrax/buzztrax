@@ -648,13 +648,21 @@ _check_message_received (GstBus * bus, GstMessage * message, gpointer user_data)
       }
       break;
     case GST_MESSAGE_ERROR:
+      GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "error: %" GST_PTR_FORMAT,
+          message);
       _check_run_main_loop_error = TRUE;
-      // fall through
+      goto done;
     case GST_MESSAGE_SEGMENT_DONE:
     case GST_MESSAGE_EOS:
-      goto done;
+      if (GST_IS_PIPELINE (GST_MESSAGE_SRC (message))) {
+        GST_INFO_OBJECT (GST_MESSAGE_SRC (message), "%s: %" GST_PTR_FORMAT,
+            GST_MESSAGE_TYPE_NAME (message), message);
+        goto done;
+      }
+      break;
     default:
-      GST_WARNING ("unexpected messges: %s", GST_MESSAGE_TYPE_NAME (message));
+      GST_WARNING_OBJECT (GST_MESSAGE_SRC (message), "unexpected messges: %s",
+          GST_MESSAGE_TYPE_NAME (message));
   }
   return;
 done:
@@ -665,7 +673,6 @@ done:
 gboolean
 check_run_main_loop_until_msg_or_error (BtSong * song, const gchar * msg)
 {
-  gboolean res = FALSE;
   GstStateChangeReturn sret;
   GstState state, pending;
 
@@ -679,22 +686,30 @@ check_run_main_loop_until_msg_or_error (BtSong * song, const gchar * msg)
   g_signal_connect (bus, msg,
       G_CALLBACK (_check_message_received), (gpointer) main_loop);
 
+  _check_run_main_loop_error = FALSE;
   sret = gst_element_get_state (bin, &state, &pending, G_GUINT64_CONSTANT (0));
-  gst_object_unref (bin);
 
-  GST_INFO_OBJECT (song, "running main_loop");
-  if (sret != GST_STATE_CHANGE_SUCCESS) {
-    _check_run_main_loop_error = FALSE;
+  // be careful to not run this when the song already finished
+  if (sret != GST_STATE_CHANGE_FAILURE) {
+    GST_INFO_OBJECT (song, "running main_loop: sret=%s, state=%s/%s",
+        gst_element_state_change_return_get_name (sret),
+        gst_element_state_get_name (state),
+        gst_element_state_get_name (pending));
     g_main_loop_run (main_loop);
-    res = !_check_run_main_loop_error;
+  } else {
+    GST_INFO_OBJECT (song, "skipping main_loop: sret=%s, state=%s/%s",
+        gst_element_state_change_return_get_name (sret),
+        gst_element_state_get_name (state),
+        gst_element_state_get_name (pending));
   }
   gst_bus_remove_signal_watch (bus);
   g_signal_handlers_disconnect_matched (bus, G_SIGNAL_MATCH_DATA, 0, 0, NULL,
       NULL, (gpointer) main_loop);
   gst_object_unref (bus);
+  gst_object_unref (bin);
   g_main_loop_unref (main_loop);
   GST_INFO_OBJECT (song, "finished main_loop");
-  return res;
+  return sret == GST_STATE_CHANGE_FAILURE ? FALSE : !_check_run_main_loop_error;
 }
 
 gboolean
