@@ -243,7 +243,7 @@ gst_cmd_pattern_control_source_sync_values (GstControlBinding * self_,
     }
     return TRUE;
   } else {
-    GST_DEBUG_OBJECT (object, "at %" GST_TIME_FORMAT
+    GST_LOG_OBJECT (object, "at %" GST_TIME_FORMAT
         ", no control value for machine::state", GST_TIME_ARGS (timestamp));
     return FALSE;
   }

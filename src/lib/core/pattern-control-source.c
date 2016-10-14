@@ -274,7 +274,7 @@ gst_pattern_control_source_sync_values (GstControlBinding * self_,
     g_object_set_property ((GObject *) object, self_->name, value);
     return TRUE;
   } else {
-    GST_DEBUG_OBJECT (object, "at %" GST_TIME_FORMAT
+    GST_LOG_OBJECT (object, "at %" GST_TIME_FORMAT
         ", no control value for param %s", GST_TIME_ARGS (timestamp),
         self_->name);
     return FALSE;
