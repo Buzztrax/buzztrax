@@ -96,14 +96,12 @@ gstbt_audio_tempo_context_get_tempo (GstContext * ctx, guint * bpm, guint * tpb,
     guint * stpb)
 {
   const GstStructure *s;
-  const gchar *context_type;
   gboolean res = TRUE;
 
   if (!ctx)
     return FALSE;
 
-  context_type = gst_context_get_context_type (ctx);
-  if (g_strcmp0 (context_type, GSTBT_AUDIO_TEMPO_TYPE) != 0)
+  if (!gst_context_has_context_type (ctx, GSTBT_AUDIO_TEMPO_TYPE))
     return FALSE;
 
   s = gst_context_get_structure (ctx);
