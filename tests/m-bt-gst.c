@@ -27,6 +27,7 @@ gchar **test_argvptr = test_argv;
 gint test_argc = G_N_ELEMENTS (test_argv);
 
 BT_TEST_SUITE_T_E ("GstElement", gst_buzztrax_elements);
+BT_TEST_SUITE_E ("GstBtAudiosynth", gst_buzztrax_audiosynth);
 BT_TEST_SUITE_E ("GstBtCombine", gst_buzztrax_combine);
 BT_TEST_SUITE_E ("GstBtEnvelopeAD", gst_buzztrax_envelope_ad);
 BT_TEST_SUITE_E ("GstBtEnvelopeADSR", gst_buzztrax_envelope_adsr);
@@ -34,6 +35,7 @@ BT_TEST_SUITE_E ("GstBtEnvelopeD", gst_buzztrax_envelope_d);
 BT_TEST_SUITE_E ("GstBtFilterSVF", gst_buzztrax_filter_svf);
 BT_TEST_SUITE_E ("GstBtOscSynth", gst_buzztrax_osc_synth);
 BT_TEST_SUITE_T_E ("GstBtOscWave", gst_buzztrax_osc_wave);
+BT_TEST_SUITE_T_E ("GstBtTempo", gst_buzztrax_tempo);
 BT_TEST_SUITE_T_E ("GstBtToneConversion", gst_buzztrax_toneconversion);
 
 /* start the test run */
@@ -51,6 +53,7 @@ main (gint argc, gchar ** argv)
   bt_init (&test_argc, &test_argvptr);
 
   sr = srunner_create (gst_buzztrax_elements_suite ());
+  srunner_add_suite (sr, gst_buzztrax_audiosynth_suite ());
   srunner_add_suite (sr, gst_buzztrax_combine_suite ());
   srunner_add_suite (sr, gst_buzztrax_envelope_ad_suite ());
   srunner_add_suite (sr, gst_buzztrax_envelope_adsr_suite ());
@@ -58,6 +61,7 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, gst_buzztrax_filter_svf_suite ());
   srunner_add_suite (sr, gst_buzztrax_osc_synth_suite ());
   srunner_add_suite (sr, gst_buzztrax_osc_wave_suite ());
+  srunner_add_suite (sr, gst_buzztrax_tempo_suite ());
   srunner_add_suite (sr, gst_buzztrax_toneconversion_suite ());
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);
