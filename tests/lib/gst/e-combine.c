@@ -43,11 +43,10 @@ static void
 test_create_obj (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  GstBtCombine *mix;
-
   GST_INFO ("-- arrange --");
+
   GST_INFO ("-- act --");
-  mix = gstbt_combine_new ();
+  GstBtCombine *mix = gstbt_combine_new ();
 
   GST_INFO ("-- assert --");
   fail_unless (mix != NULL, NULL);
@@ -63,18 +62,16 @@ static void
 test_combine_modes (BT_TEST_ARGS)
 {
   BT_TEST_START;
-  GstBtCombine *mix;
-  GstBtOscSynth *osc1, *osc2;
   gint16 data1[WAVE_SIZE], data2[WAVE_SIZE];
 
   GST_INFO ("-- arrange --");
-  mix = gstbt_combine_new ();
+  GstBtCombine *mix = gstbt_combine_new ();
   g_object_set (mix, "combine", _i, NULL);
-  osc1 = gstbt_osc_synth_new ();
+  GstBtOscSynth *osc1 = gstbt_osc_synth_new ();
   g_object_set (osc1, "wave", 2, "sample-rate", WAVE_SIZE, "frequency", 1.0,
       NULL);
   gstbt_osc_synth_process (osc1, WAVE_SIZE, data1);
-  osc2 = gstbt_osc_synth_new ();
+  GstBtOscSynth *osc2 = gstbt_osc_synth_new ();
   g_object_set (osc2, "wave", 2, "sample-rate", WAVE_SIZE, "frequency", 2.0,
       NULL);
   gstbt_osc_synth_process (osc2, WAVE_SIZE, data2);
