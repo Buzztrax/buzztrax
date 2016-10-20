@@ -437,7 +437,7 @@ gst_bml_src_create_mono (GstBaseSrc * base, GstClockTime offset, guint length,
   GstBML *bml = GST_BML (bml_src);
   GstBMLClass *bml_class = GST_BML_CLASS (klass);
   GstBuffer *buf;
-  GstClockTime next_running_time;
+  GstClockTime next_running_time, ticktime;
   gint64 n_samples;
   gdouble samples_done;
   BMLData *data, *seg_data;
@@ -487,15 +487,18 @@ gst_bml_src_create_mono (GstBaseSrc * base, GstClockTime offset, guint length,
       return GST_FLOW_EOS;
     }
     n_samples = bml->n_samples_stop;
+    ticktime = gst_util_uint64_scale (GST_SECOND,
+        samples_per_buffer, bml->samplerate);
     bml->eos_reached = TRUE;
   } else {
     /* calculate full buffer */
     n_samples =
         bml->n_samples +
         (bml->reverse ? (-samples_per_buffer) : samples_per_buffer);
+    ticktime = bml->ticktime;
   }
   next_running_time =
-      bml->running_time + (bml->reverse ? (-bml->ticktime) : bml->ticktime);
+      bml->running_time + (bml->reverse ? (-ticktime) : ticktime);
   bml->ticktime_err_accum =
       bml->ticktime_err_accum +
       (bml->reverse ? (-bml->ticktime_err) : bml->ticktime_err);

@@ -310,7 +310,7 @@ test_buffers_are_contigous (BT_TEST_ARGS)
 }
 
 static void
-test_num_buffers_with_segment (BT_TEST_ARGS)
+test_num_buffers_with_stop_pos (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -322,7 +322,51 @@ test_num_buffers_with_segment (BT_TEST_ARGS)
       (BtTestAudioSynth *) gst_bin_get_by_name (GST_BIN (p), "src");
   GstContext *ctx = gstbt_audio_tempo_context_new (120, 4, 8);
   GstBus *bus = gst_element_get_bus (p);
+  GstSeekFlags seek_flags[] = {
+    GST_SEEK_FLAG_FLUSH, GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT
+  };
+  GstMessageType end_msg[] = {
+    GST_MESSAGE_EOS, GST_MESSAGE_SEGMENT_DONE
+  };
+  GstClockTime ticktime =
+      (GstClockTime) (0.5 + (GST_SECOND * (60.0 / 8)) / (120 * 4));
 
+  GST_INFO ("-- act --");
+  gst_element_set_state (p, GST_STATE_READY);
+  gst_element_set_context (p, ctx);
+  gst_element_set_state (p, GST_STATE_PAUSED);
+  gst_element_get_state (p, NULL, NULL, GST_CLOCK_TIME_NONE);
+  gst_element_seek (p, 1.0, GST_FORMAT_TIME, seek_flags[_i],
+      GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT (0),
+      GST_SEEK_TYPE_SET, ticktime * 2);
+  gst_element_set_state (p, GST_STATE_PLAYING);
+  gst_element_get_state (p, NULL, NULL, GST_CLOCK_TIME_NONE);
+  gst_bus_poll (bus, end_msg[_i] | GST_MESSAGE_ERROR, GST_CLOCK_TIME_NONE);
+
+  GST_INFO ("-- assert --");
+  gint num_buffers = g_list_length (e->buffer_info);
+  ck_assert_uint_eq (num_buffers, 2);
+
+  GST_INFO ("-- cleanup --");
+  gst_element_set_state (p, GST_STATE_NULL);
+  gst_object_unref (e);
+  gst_object_unref (p);
+  BT_TEST_END;
+}
+
+static void
+test_last_buffer_is_clipped (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  GstElement *p =
+      gst_parse_launch
+      ("buzztrax-test-audio-synth name=\"src\" ! fakesink async=false",
+      NULL);
+  BtTestAudioSynth *e =
+      (BtTestAudioSynth *) gst_bin_get_by_name (GST_BIN (p), "src");
+  GstContext *ctx = gstbt_audio_tempo_context_new (120, 4, 8);
+  GstBus *bus = gst_element_get_bus (p);
   GstClockTime ticktime =
       (GstClockTime) (0.5 + (GST_SECOND * (60.0 / 8)) / (120 * 4));
 
@@ -333,14 +377,16 @@ test_num_buffers_with_segment (BT_TEST_ARGS)
   gst_element_get_state (p, NULL, NULL, GST_CLOCK_TIME_NONE);
   gst_element_seek (p, 1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
       GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT (0),
-      GST_SEEK_TYPE_SET, ticktime * 2);
+      GST_SEEK_TYPE_SET, ticktime * 1.5);
   gst_element_set_state (p, GST_STATE_PLAYING);
   gst_element_get_state (p, NULL, NULL, GST_CLOCK_TIME_NONE);
   gst_bus_poll (bus, GST_MESSAGE_EOS | GST_MESSAGE_ERROR, GST_CLOCK_TIME_NONE);
 
   GST_INFO ("-- assert --");
-  gint num_buffers = g_list_length (e->buffer_info);
-  ck_assert_uint_eq (num_buffers, 2);
+  BufferFields *bf0 = get_buffer_info (e, 0);
+  BufferFields *bf1 = get_buffer_info (e, 1);
+  ck_assert_uint64_le (bf1->duration, bf0->duration / 2);
+  ck_assert_uint_le (bf1->size, bf0->size / 2);
 
   GST_INFO ("-- cleanup --");
   gst_element_set_state (p, GST_STATE_NULL);
@@ -405,8 +451,7 @@ test_reset_on_seek (BT_TEST_ARGS)
 
 /*
 test buffer metadata in process
-  - with playback segment
-  - forward/backwards
+  - backwards playback
 test position queries
 */
 
@@ -420,7 +465,8 @@ gst_buzztrax_audiosynth_example_case (void)
   tcase_add_test (tc, test_audio_context_configures_buffer_size);
   tcase_add_test (tc, test_first_buffer_starts_at_zero);
   tcase_add_test (tc, test_buffers_are_contigous);
-  tcase_add_test (tc, test_num_buffers_with_segment);
+  tcase_add_loop_test (tc, test_num_buffers_with_stop_pos, 0, 2);
+  tcase_add_test (tc, test_last_buffer_is_clipped);
   tcase_add_test (tc, test_no_reset_without_seeks);
   tcase_add_test (tc, test_reset_on_seek);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);

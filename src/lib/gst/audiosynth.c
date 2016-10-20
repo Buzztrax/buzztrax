@@ -25,9 +25,12 @@
  *
  * Base audio synthesizer to use as a foundation for new synthesizers. Handles
  * tempo, seeking, trick mode playback and format negotiation.
+ *
  * The pure virtual process and setup methods must be implemented by the child
  * class. The setup vmethod provides the caps to negotiate. From them the elemnt
  * can take parameters such as sampling rate or data format.
+ * The reset method, if implemented, is called on discontinuities - e.g. after
+ * seeking. It can be used to e.g. cut off playing notes.
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -328,7 +331,7 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
   GstFlowReturn res;
   GstBuffer *buf;
   GstMapInfo info;
-  GstClockTime next_running_time;
+  GstClockTime next_running_time, ticktime;
   gint64 n_samples;
   gdouble samples_done;
   guint samples_per_buffer;
@@ -355,7 +358,7 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
   /*
      GST_DEBUG_OBJECT(src,"samples_done=%lf, src->n_samples=%lf, samples_per_buffer=%u",
      samples_done,(gdouble)src->n_samples,samples_per_buffer);
-     GST_DEBUG("  samplers-per-buffer = %7d (%8.3lf), length = %u",samples_per_buffer,src->samples_per_buffer,length);
+     GST_DEBUG("  samples-per-buffer = %7d (%8.3lf), length = %u",samples_per_buffer,src->samples_per_buffer,length);
    */
 
   /* check for eos */
@@ -381,6 +384,8 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
       return GST_FLOW_EOS;
     }
     n_samples = src->n_samples_stop;
+    ticktime = gst_util_uint64_scale (GST_SECOND,
+        src->generate_samples_per_buffer, src->samplerate);
     src->eos_reached = TRUE;
   } else {
     /* calculate full buffer */
@@ -388,9 +393,10 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
     n_samples =
         src->n_samples +
         (src->reverse ? (-samples_per_buffer) : samples_per_buffer);
+    ticktime = src->ticktime;
   }
   next_running_time =
-      src->running_time + (src->reverse ? (-src->ticktime) : src->ticktime);
+      src->running_time + (src->reverse ? (-ticktime) : ticktime);
   src->ticktime_err_accum =
       src->ticktime_err_accum +
       (src->reverse ? (-src->ticktime_err) : src->ticktime_err);
@@ -431,10 +437,12 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
 
   gst_object_sync_values (GST_OBJECT (src), GST_BUFFER_TIMESTAMP (buf));
 
-  GST_DEBUG ("n_samples %12" G_GUINT64_FORMAT ", d_samples %6u running_time %"
-      GST_TIME_FORMAT ", next_time %" GST_TIME_FORMAT ", duration %"
-      GST_TIME_FORMAT, src->n_samples, src->generate_samples_per_buffer,
-      GST_TIME_ARGS (src->running_time), GST_TIME_ARGS (next_running_time),
+  GST_DEBUG_OBJECT (src, "generate_samples %6u, offset %12" G_GUINT64_FORMAT
+      ", offset_end %12" G_GUINT64_FORMAT " timestamp %" GST_TIME_FORMAT
+      ", duration %" GST_TIME_FORMAT, src->generate_samples_per_buffer,
+      GST_BUFFER_OFFSET (buf),
+      GST_BUFFER_OFFSET_END (buf),
+      GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (buf)),
       GST_TIME_ARGS (GST_BUFFER_DURATION (buf)));
 
   src->running_time = next_running_time;
