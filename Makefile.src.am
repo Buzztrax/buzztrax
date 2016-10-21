@@ -191,7 +191,8 @@ GST_COMPAT_H_FILES =
 endif
 
 libbuzztrax_gst_la_LIBADD =  \
-  $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM)
+  $(BASE_DEPS_LIBS) $(BT_LIBS) $(LIBM) \
+  -lgstaudio-@GST_MAJORMINOR@
 libbuzztrax_gst_la_LDFLAGS = \
   -export-symbols-regex \^[_]*\(gstbt_\|GstBt\|GSTBT_\|gst_\|Gst\|GST_\).* \
   -version-info @BT_VERSION_INFO@

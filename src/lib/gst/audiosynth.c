@@ -163,15 +163,19 @@ gstbt_audio_synth_fixate (GstBaseSrc * basesrc, GstCaps * caps)
 static gboolean
 gstbt_audio_synth_set_caps (GstBaseSrc * basesrc, GstCaps * caps)
 {
-  GstBtAudioSynth *src = GSTBT_AUDIO_SYNTH (basesrc);
+  GstBtAudioSynth *self = GSTBT_AUDIO_SYNTH (basesrc);
   const GstStructure *structure = gst_caps_get_structure (caps, 0);
   gboolean ret;
 
-  ret = gst_structure_get_int (structure, "rate", &src->samplerate);
-  ret &= gst_structure_get_int (structure, "channels", &src->channels);
+  GST_INFO_OBJECT (self, "set_caps");
+
+  ret = gst_audio_info_from_caps (&self->info, caps);
+
+  ret &= gst_structure_get_int (structure, "rate", &self->samplerate);
+  ret &= gst_structure_get_int (structure, "channels", &self->channels);
   if (ret) {
     gst_base_src_set_blocksize (basesrc,
-        gstbt_audio_synth_calculate_buffer_size (src));
+        gstbt_audio_synth_calculate_buffer_size (self));
   }
   return ret;
 }
@@ -189,40 +193,10 @@ gstbt_audio_synth_query (GstBaseSrc * basesrc, GstQuery * query)
       gint64 src_val, dest_val;
 
       gst_query_parse_convert (query, &src_fmt, &src_val, &dest_fmt, &dest_val);
-      if (src_fmt == dest_fmt) {
-        dest_val = src_val;
-        goto done;
+      if ((res = gst_audio_info_convert (&src->info, src_fmt, src_val, dest_fmt,
+                  &dest_val))) {
+        gst_query_set_convert (query, src_fmt, src_val, dest_fmt, dest_val);
       }
-
-      switch (src_fmt) {
-        case GST_FORMAT_DEFAULT:
-          switch (dest_fmt) {
-            case GST_FORMAT_TIME:
-              /* samples to time */
-              dest_val = gst_util_uint64_scale_int (src_val, GST_SECOND,
-                  src->samplerate);
-              break;
-            default:
-              goto error;
-          }
-          break;
-        case GST_FORMAT_TIME:
-          switch (dest_fmt) {
-            case GST_FORMAT_DEFAULT:
-              /* time to samples */
-              dest_val = gst_util_uint64_scale_int (src_val, src->samplerate,
-                  GST_SECOND);
-              break;
-            default:
-              goto error;
-          }
-          break;
-        default:
-          goto error;
-      }
-    done:
-      gst_query_set_convert (query, src_fmt, src_val, dest_fmt, dest_val);
-      res = TRUE;
       break;
     }
     default:
@@ -233,12 +207,6 @@ gstbt_audio_synth_query (GstBaseSrc * basesrc, GstQuery * query)
   }
 
   return res;
-  /* ERROR */
-error:
-  {
-    GST_DEBUG_OBJECT (src, "query failed");
-    return FALSE;
-  }
 }
 
 static gboolean
@@ -462,20 +430,31 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
   return GST_FLOW_OK;
 }
 
+static gboolean
+gstbt_audio_synth_stop (GstBaseSrc * basesrc)
+{
+  GstBtAudioSynth *self = GSTBT_AUDIO_SYNTH (basesrc);
+
+  gst_audio_info_init (&self->info);
+
+  return TRUE;
+}
+
 //-- gobject type methods
 
 static void
-gstbt_audio_synth_init (GstBtAudioSynth * src)
+gstbt_audio_synth_init (GstBtAudioSynth * self)
 {
-  src->samplerate = GST_AUDIO_DEF_RATE;
-  src->beats_per_minute = 120;
-  src->ticks_per_beat = 4;
-  src->subticks_per_beat = 1;
-  gstbt_audio_synth_calculate_buffer_frames (src);
+  gst_audio_info_init (&self->info);
+  self->samplerate = GST_AUDIO_DEF_RATE;
+  self->beats_per_minute = 120;
+  self->ticks_per_beat = 4;
+  self->subticks_per_beat = 1;
+  gstbt_audio_synth_calculate_buffer_frames (self);
 
   /* we operate in time */
-  gst_base_src_set_format (GST_BASE_SRC (src), GST_FORMAT_TIME);
-  gst_base_src_set_live (GST_BASE_SRC (src), FALSE);
+  gst_base_src_set_format (GST_BASE_SRC (self), GST_FORMAT_TIME);
+  gst_base_src_set_live (GST_BASE_SRC (self), FALSE);
 }
 
 static void
@@ -498,6 +477,7 @@ gstbt_audio_synth_class_init (GstBtAudioSynthClass * klass)
   gstbasesrc_class->query = GST_DEBUG_FUNCPTR (gstbt_audio_synth_query);
   gstbasesrc_class->start = GST_DEBUG_FUNCPTR (gstbt_audio_synth_start);
   gstbasesrc_class->create = GST_DEBUG_FUNCPTR (gstbt_audio_synth_create);
+  gstbasesrc_class->stop = GST_DEBUG_FUNCPTR (gstbt_audio_synth_stop);
 
   /* make process and setup method pure virtual */
   klass->process = NULL;
