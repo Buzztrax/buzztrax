@@ -145,3 +145,7 @@ others manually. We can use GBinding (since glib-2.26) for the proxy properties.
   - for this we need to handle the running time mapping from trigger for the
     components
   - pro: debug_dumps would show the layout of the synth/effect
+- for polyphonic elements can we have the voice properties also on the global
+  element?
+  - when using those we would do voice-allocation.
+  - it would not work with the controller though
