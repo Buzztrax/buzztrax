@@ -324,11 +324,8 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
             samples_done));
   }
 
-  /*
-     GST_DEBUG_OBJECT(src,"samples_done=%lf, src->n_samples=%lf, samples_per_buffer=%u",
-     samples_done,(gdouble)src->n_samples,samples_per_buffer);
-     GST_DEBUG("  samples-per-buffer = %7d (%8.3lf), length = %u",samples_per_buffer,src->samples_per_buffer,length);
-   */
+  //GST_DEBUG_OBJECT(src,"samples_done=%lf, src->n_samples=%u", samples_done,src->n_samples);
+  //GST_DEBUG_OBJECT(src,"samples-per-buffer=%7u (%8.3lf), length=%u",samples_per_buffer,src->samples_per_buffer,length);
 
   /* check for eos */
   if (src->check_eos) {
