@@ -49,9 +49,6 @@ struct _GstBtAudioSynth
   gboolean dispose_has_run;     /* validate if dispose has run */
 
   GstAudioInfo info;
-  // TODO: remove the next two fields
-  gint samplerate; // info.rate;
-  gint channels;   // info.channels;
   GstClockTime running_time;    /* total running time */
   gint64 n_samples;             /* total samples sent */
   gint64 n_samples_stop;

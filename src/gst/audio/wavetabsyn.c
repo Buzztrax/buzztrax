@@ -93,7 +93,7 @@ gstbt_wave_tab_syn_process (GstBtAudioSynth * base, GstBuffer * data,
       gstbt_envelope_is_running ((GstBtEnvelope *) src->volenv, src->offset)) {
     gint16 *d = (gint16 *) info->data;
     guint ct = ((GstBtAudioSynth *) src)->generate_samples_per_buffer;
-    gint ch = ((GstBtAudioSynth *) src)->channels;
+    gint ch = ((GstBtAudioSynth *) src)->info.channels;
     guint sz = src->cycle_size;
     guint pos = src->cycle_pos;
     guint p = 0;                // work pos in buffer
@@ -188,12 +188,12 @@ gstbt_wave_tab_syn_set_property (GObject * object, guint prop_id,
           g_object_get (src->osc, "duration", &src->duration, NULL);
 
           // this is the chunk that we need to repeat for the selected tone
-          src->cycle_size = ((GstBtAudioSynth *) src)->samplerate / freq;
+          src->cycle_size = ((GstBtAudioSynth *) src)->info.rate / freq;
           src->cycle_pos = 0;
 
           src->offset = 0;
           gstbt_envelope_adsr_setup (src->volenv,
-              ((GstBtAudioSynth *) src)->samplerate,
+              ((GstBtAudioSynth *) src)->info.rate,
               ((GstBtAudioSynth *) src)->ticktime);
         }
       }

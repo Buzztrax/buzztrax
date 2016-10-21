@@ -256,7 +256,7 @@ gstbt_e_beats_set_property (GObject * object, guint prop_id,
     case PROP_VOLUME:{
       guint vol = g_value_get_uint (value);
       if (vol) {
-        gint samplerate = ((GstBtAudioSynth *) src)->samplerate;
+        gint samplerate = ((GstBtAudioSynth *) src)->info.rate;
         src->volume = (gdouble) vol / 128.0;
         GST_DEBUG_OBJECT (object, "trigger -> %d = %lf", vol, src->volume);
         gstbt_osc_synth_trigger (src->osc_t1);

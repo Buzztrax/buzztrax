@@ -78,7 +78,7 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (GstBtAudioSynth, gstbt_audio_synth,
 static guint
 gstbt_audio_synth_calculate_buffer_size (GstBtAudioSynth * self)
 {
-  return self->channels * self->generate_samples_per_buffer * sizeof (gint16);
+  return self->info.bpf * self->generate_samples_per_buffer;
 }
 
 static void
@@ -92,7 +92,7 @@ gstbt_audio_synth_calculate_buffer_frames (GstBtAudioSynth * self)
 
   self->ticktime =
       (GstClockTime) (0.5 + ((GST_SECOND * div) / ticks_per_minute));
-  self->samples_per_buffer = ((self->samplerate * div) / ticks_per_minute);
+  self->samples_per_buffer = ((self->info.rate * div) / ticks_per_minute);
   GST_DEBUG ("samples_per_buffer=%lf", self->samples_per_buffer);
   self->generate_samples_per_buffer = (guint) (0.5 + self->samples_per_buffer);
   gst_base_src_set_blocksize (GST_BASE_SRC (self),
@@ -150,7 +150,7 @@ gstbt_audio_synth_fixate (GstBaseSrc * basesrc, GstCaps * caps)
   caps = gst_caps_make_writable (caps);
   for (i = 0; i < n; i++) {
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
-        "rate", self->samplerate);
+        "rate", self->info.rate);
   }
   GST_INFO_OBJECT (self, "fixated to %" GST_PTR_FORMAT, caps);
 
@@ -168,16 +168,11 @@ gstbt_audio_synth_set_caps (GstBaseSrc * basesrc, GstCaps * caps)
 {
   GstBtAudioSynth *self = GSTBT_AUDIO_SYNTH (basesrc);
   GstBtAudioSynthClass *klass = GSTBT_AUDIO_SYNTH_GET_CLASS (self);
-  const GstStructure *structure = gst_caps_get_structure (caps, 0);
   gboolean ret;
 
   GST_INFO_OBJECT (self, "set_caps");
 
-  ret = gst_audio_info_from_caps (&self->info, caps);
-
-  ret &= gst_structure_get_int (structure, "rate", &self->samplerate);
-  ret &= gst_structure_get_int (structure, "channels", &self->channels);
-  if (ret) {
+  if ((ret = gst_audio_info_from_caps (&self->info, caps))) {
     if (klass->setup) {
       klass->setup (self, &self->info);
     }
@@ -236,8 +231,7 @@ gstbt_audio_synth_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
   }
 
   /* now move to the time indicated */
-  src->n_samples =
-      gst_util_uint64_scale_int (time, src->samplerate, GST_SECOND);
+  src->n_samples = gst_util_uint64_scale_int (time, src->info.rate, GST_SECOND);
 
   if (!src->reverse) {
     if (GST_CLOCK_TIME_IS_VALID (segment->start)) {
@@ -245,7 +239,7 @@ gstbt_audio_synth_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
     }
     if (GST_CLOCK_TIME_IS_VALID (segment->stop)) {
       time = segment->stop;
-      src->n_samples_stop = gst_util_uint64_scale_int (time, src->samplerate,
+      src->n_samples_stop = gst_util_uint64_scale_int (time, src->info.rate,
           GST_SECOND);
       src->check_eos = TRUE;
     } else {
@@ -258,7 +252,7 @@ gstbt_audio_synth_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
     }
     if (GST_CLOCK_TIME_IS_VALID (segment->start)) {
       time = segment->start;
-      src->n_samples_stop = gst_util_uint64_scale_int (time, src->samplerate,
+      src->n_samples_stop = gst_util_uint64_scale_int (time, src->info.rate,
           GST_SECOND);
       src->check_eos = TRUE;
     } else {
@@ -318,7 +312,7 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
   }
   // the amount of samples to produce (handle rounding errors by collecting left over fractions)
   samples_done =
-      (gdouble) src->running_time * (gdouble) src->samplerate /
+      (gdouble) src->running_time * (gdouble) src->info.rate /
       (gdouble) GST_SECOND;
   if (!src->reverse) {
     samples_per_buffer =
@@ -360,7 +354,7 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
     }
     n_samples = src->n_samples_stop;
     ticktime = gst_util_uint64_scale (GST_SECOND,
-        src->generate_samples_per_buffer, src->samplerate);
+        src->generate_samples_per_buffer, src->info.rate);
     src->eos_reached = TRUE;
   } else {
     /* calculate full buffer */
@@ -453,7 +447,7 @@ static void
 gstbt_audio_synth_init (GstBtAudioSynth * self)
 {
   gst_audio_info_init (&self->info);
-  self->samplerate = GST_AUDIO_DEF_RATE;
+  self->info.rate = GST_AUDIO_DEF_RATE;
   self->beats_per_minute = 120;
   self->ticks_per_beat = 4;
   self->subticks_per_beat = 1;

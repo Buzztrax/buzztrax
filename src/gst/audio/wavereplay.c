@@ -80,7 +80,7 @@ gstbt_wave_replay_process (GstBtAudioSynth * base, GstBuffer * data,
     gint16 *d = (gint16 *) info->data;
     guint ct = ((GstBtAudioSynth *) src)->generate_samples_per_buffer;
     guint64 off = gst_util_uint64_scale_round (GST_BUFFER_TIMESTAMP (data),
-        base->samplerate, GST_SECOND);
+        base->info.rate, GST_SECOND);
 
     return src->osc->process (src->osc, off, ct, d);
   }

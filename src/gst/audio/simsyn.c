@@ -134,7 +134,7 @@ gstbt_sim_syn_set_property (GObject * object, guint prop_id,
           gdouble freq =
               gstbt_tone_conversion_translate_from_number (src->n2f, src->note);
           gstbt_envelope_ad_setup (src->volenv,
-              ((GstBtAudioSynth *) src)->samplerate);
+              ((GstBtAudioSynth *) src)->info.rate);
           g_object_set (src->osc, "frequency", freq, NULL);
           gstbt_osc_synth_trigger (src->osc);
           gstbt_filter_svf_trigger (src->filter);

@@ -386,7 +386,7 @@ gstbt_sid_syn_process (GstBtAudioSynth * base, GstBuffer * data,
   GstBtSidSyn *src = ((GstBtSidSyn *) base);
   gint16 *out = (gint16 *)info->data;
   gint i, n, m, samples;
-  gdouble scale = (gdouble)src->clockrate / (gdouble)base->samplerate;
+  gdouble scale = (gdouble)src->clockrate / (gdouble)base->info.rate;
   gint step = NUM_STEPS * (base->subtick_count - 1);
   gint step_mod = base->subticks_per_beat;
   gint fx_ticks_remain = 0;

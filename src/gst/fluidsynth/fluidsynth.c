@@ -695,9 +695,9 @@ gstbt_fluid_synth_init (GstBtFluidSynth * src)
   src->settings = new_fluid_settings ();
   //fluid_settings_setstr(src->settings, "audio.driver", "alsa");
   if (!(fluid_settings_setnum (src->settings, "synth.sample-rate",
-              ((GstBtAudioSynth *) src)->samplerate))) {
+              ((GstBtAudioSynth *) src)->info.rate))) {
     GST_WARNING ("Can't set samplerate : %d",
-        ((GstBtAudioSynth *) src)->samplerate);
+        ((GstBtAudioSynth *) src)->info.rate);
   }
 
   /* create new FluidSynth */
