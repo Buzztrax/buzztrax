@@ -161,7 +161,7 @@ test_launch_synths (BT_TEST_ARGS)
 }
 
 // TODO(ensonic): test with level that all synths produce data
-
+// TODO(ensonic): if the synth supports presets, test all presets
 
 TCase *
 gst_buzztrax_elements_example_case (void)
