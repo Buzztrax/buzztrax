@@ -449,10 +449,40 @@ test_reset_on_seek (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_position_query_time (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  GstElement *p =
+      gst_parse_launch
+      ("buzztrax-test-audio-synth name=\"src\" num-buffers=1 ! fakesink async=false",
+      NULL);
+  BtTestAudioSynth *e =
+      (BtTestAudioSynth *) gst_bin_get_by_name (GST_BIN (p), "src");
+  GstBus *bus = gst_element_get_bus (p);
+
+  GST_INFO ("-- act --");
+  gst_element_set_state (p, GST_STATE_PLAYING);
+  gst_bus_poll (bus, GST_MESSAGE_EOS | GST_MESSAGE_ERROR, GST_CLOCK_TIME_NONE);
+
+  GST_INFO ("-- assert --");
+  BufferFields *bf = get_buffer_info (e, 0);
+  gint64 pos;
+  gboolean res = gst_element_query_position (e, GST_FORMAT_TIME, &pos);
+  fail_unless (res, NULL);
+  ck_assert_uint64_eq (bf->duration, pos);
+
+  GST_INFO ("-- cleanup --");
+  gst_element_set_state (p, GST_STATE_NULL);
+  gst_object_unref (e);
+  gst_object_unref (p);
+  BT_TEST_END;
+}
+
 /*
 test buffer metadata in process
   - backwards playback
-test position queries
 */
 
 TCase *
@@ -469,6 +499,7 @@ gst_buzztrax_audiosynth_example_case (void)
   tcase_add_test (tc, test_last_buffer_is_clipped);
   tcase_add_test (tc, test_no_reset_without_seeks);
   tcase_add_test (tc, test_reset_on_seek);
+  tcase_add_test (tc, test_position_query_time);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
 }
