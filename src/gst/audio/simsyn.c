@@ -69,17 +69,22 @@ G_DEFINE_TYPE (GstBtSimSyn, gstbt_sim_syn, GSTBT_TYPE_AUDIO_SYNTH);
 //-- audiosynth vmethods
 
 static void
-gstbt_sim_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
+gstbt_sim_syn_negotiate (GstBtAudioSynth * base, GstCaps * caps)
 {
-  GstBtSimSyn *src = ((GstBtSimSyn *) base);
   gint i, n = gst_caps_get_size (caps);
 
   for (i = 0; i < n; i++) {
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
         "channels", 1);
   }
-  g_object_set (src->osc, "sample-rate", ((GstBtAudioSynth *) src)->samplerate,
-      NULL);
+}
+
+static void
+gstbt_sim_syn_setup (GstBtAudioSynth * base, GstAudioInfo * info)
+{
+  GstBtSimSyn *src = ((GstBtSimSyn *) base);
+
+  g_object_set (src->osc, "sample-rate", info->rate, NULL);
 }
 
 static void
@@ -229,6 +234,7 @@ gstbt_sim_syn_class_init (GstBtSimSynClass * klass)
 
   audio_synth_class->process = gstbt_sim_syn_process;
   audio_synth_class->reset = gstbt_sim_syn_reset;
+  audio_synth_class->negotiate = gstbt_sim_syn_negotiate;
   audio_synth_class->setup = gstbt_sim_syn_setup;
 
   gobject_class->set_property = gstbt_sim_syn_set_property;

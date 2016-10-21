@@ -371,7 +371,7 @@ gstbt_fluid_synth_load_patch (GstBtFluidSynth * src, const gchar * path)
 //-- audiosynth vmethods
 
 static void
-gstbt_fluid_synth_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
+gstbt_fluid_synth_negotiate (GstBtAudioSynth * base, GstCaps * caps)
 {
   gint i, n = gst_caps_get_size (caps);
 
@@ -764,7 +764,7 @@ gstbt_fluid_synth_class_init (GstBtFluidSynthClass * klass)
 
   audio_synth_class->process = gstbt_fluid_synth_process;
   audio_synth_class->reset = gstbt_fluid_synth_reset;
-  audio_synth_class->setup = gstbt_fluid_synth_setup;
+  audio_synth_class->negotiate = gstbt_fluid_synth_negotiate;
 
   gobject_class->set_property = gstbt_fluid_synth_set_property;
   gobject_class->get_property = gstbt_fluid_synth_get_property;

@@ -337,9 +337,8 @@ gstbt_sid_syn_update_regs (GstBtSidSyn *src)
 //-- audiosynth vmethods
 
 static void
-gstbt_sid_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
+gstbt_sid_syn_negotiate (GstBtAudioSynth * base, GstCaps * caps)
 {
-  GstBtSidSyn *src = ((GstBtSidSyn *) base);
   gint i, n = gst_caps_get_size (caps);
 
   /* set channels to 1 */
@@ -347,11 +346,17 @@ gstbt_sid_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
         "channels", 1);
   }
+}
+
+static void
+gstbt_sid_syn_setup (GstBtAudioSynth * base, GstAudioInfo * info)
+{
+  GstBtSidSyn *src = ((GstBtSidSyn *) base);
+  gint i;
 
   src->emu->reset ();
 	src->emu->set_chip_model (src->chip);
-  src->emu->set_sampling_parameters (src->clockrate, SAMPLE_FAST,
-      base->samplerate);
+  src->emu->set_sampling_parameters (src->clockrate, SAMPLE_FAST, info->rate);
 
   for (i = 0; i < NUM_VOICES; i++) {
     src->voices[i]->prev_freq = 0.0;
@@ -646,6 +651,7 @@ gstbt_sid_syn_class_init (GstBtSidSynClass * klass)
 
   audio_synth_class->process = gstbt_sid_syn_process;
   audio_synth_class->reset = gstbt_sid_syn_reset;
+  audio_synth_class->negotiate = gstbt_sid_syn_negotiate;
   audio_synth_class->setup = gstbt_sid_syn_setup;
 
   gobject_class->set_property = gstbt_sid_syn_set_property;

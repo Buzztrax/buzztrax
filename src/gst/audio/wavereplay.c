@@ -56,12 +56,13 @@ G_DEFINE_TYPE (GstBtWaveReplay, gstbt_wave_replay, GSTBT_TYPE_AUDIO_SYNTH);
 //-- audiosynth vmethods
 
 static void
-gstbt_wave_replay_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
+gstbt_wave_replay_negotiate (GstBtAudioSynth * base, GstCaps * caps)
 {
   GstBtWaveReplay *src = ((GstBtWaveReplay *) base);
-  gint i, n = gst_caps_get_size (caps), c = src->osc->channels;
+  gint i, n = gst_caps_get_size (caps), c;
 
   gstbt_osc_wave_setup (src->osc);
+  c = src->osc->channels;
 
   for (i = 0; i < n; i++) {
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
@@ -153,7 +154,7 @@ gstbt_wave_replay_class_init (GstBtWaveReplayClass * klass)
   GObjectClass *component;
 
   audio_synth_class->process = gstbt_wave_replay_process;
-  audio_synth_class->setup = gstbt_wave_replay_setup;
+  audio_synth_class->negotiate = gstbt_wave_replay_negotiate;
 
   gobject_class->set_property = gstbt_wave_replay_set_property;
   gobject_class->get_property = gstbt_wave_replay_get_property;

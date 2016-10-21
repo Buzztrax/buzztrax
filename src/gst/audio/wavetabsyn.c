@@ -60,15 +60,17 @@ G_DEFINE_TYPE (GstBtWaveTabSyn, gstbt_wave_tab_syn, GSTBT_TYPE_AUDIO_SYNTH);
 //-- audiosynth vmethods
 
 static void
-gstbt_wave_tab_syn_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
+gstbt_wave_tab_syn_negotiate (GstBtAudioSynth * base, GstCaps * caps)
 {
   GstBtWaveTabSyn *src = ((GstBtWaveTabSyn *) base);
-  gint i, n = gst_caps_get_size (caps);
+  gint i, n = gst_caps_get_size (caps), c;
 
   gstbt_osc_wave_setup (src->osc);
+  c = src->osc->channels;
+
   for (i = 0; i < n; i++) {
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
-        "channels", src->osc->channels);
+        "channels", c);
   }
 }
 
@@ -287,7 +289,7 @@ gstbt_wave_tab_syn_class_init (GstBtWaveTabSynClass * klass)
 
   audio_synth_class->process = gstbt_wave_tab_syn_process;
   audio_synth_class->reset = gstbt_wave_tab_syn_reset;
-  audio_synth_class->setup = gstbt_wave_tab_syn_setup;
+  audio_synth_class->negotiate = gstbt_wave_tab_syn_negotiate;
 
   gobject_class->set_property = gstbt_wave_tab_syn_set_property;
   gobject_class->get_property = gstbt_wave_tab_syn_get_property;

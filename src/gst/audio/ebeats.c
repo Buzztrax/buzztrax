@@ -158,19 +158,24 @@ gstbt_e_beats_update_filter_decay (GstBtEBeats * src)
 //-- audiosynth vmethods
 
 static void
-gstbt_e_beats_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
+gstbt_e_beats_negotiate (GstBtAudioSynth * base, GstCaps * caps)
 {
-  GstBtEBeats *src = ((GstBtEBeats *) base);
   gint i, n = gst_caps_get_size (caps);
-  gint samplerate = ((GstBtAudioSynth *) src)->samplerate;
 
   for (i = 0; i < n; i++) {
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
         "channels", 1);
   }
-  g_object_set (src->osc_t1, "sample-rate", samplerate, NULL);
-  g_object_set (src->osc_t2, "sample-rate", samplerate, NULL);
-  g_object_set (src->osc_n, "sample-rate", samplerate, NULL);
+}
+
+static void
+gstbt_e_beats_setup (GstBtAudioSynth * base, GstAudioInfo * info)
+{
+  GstBtEBeats *src = ((GstBtEBeats *) base);
+
+  g_object_set (src->osc_t1, "sample-rate", info->rate, NULL);
+  g_object_set (src->osc_t2, "sample-rate", info->rate, NULL);
+  g_object_set (src->osc_n, "sample-rate", info->rate, NULL);
 }
 
 static void
@@ -504,6 +509,7 @@ gstbt_e_beats_class_init (GstBtEBeatsClass * klass)
 
   audio_synth_class->process = gstbt_e_beats_process;
   audio_synth_class->reset = gstbt_e_beats_reset;
+  audio_synth_class->negotiate = gstbt_e_beats_negotiate;
   audio_synth_class->setup = gstbt_e_beats_setup;
 
   gobject_class->set_property = gstbt_e_beats_set_property;

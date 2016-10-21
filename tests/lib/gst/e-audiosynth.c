@@ -68,7 +68,7 @@ reset_buffer_info (BtTestAudioSynth * self)
 }
 
 static void
-bt_test_audio_synth_setup (GstBtAudioSynth * base, GstPad * pad, GstCaps * caps)
+bt_test_audio_synth_negotiate (GstBtAudioSynth * base, GstCaps * caps)
 {
   BtTestAudioSynth *self = (BtTestAudioSynth *) base;
 
@@ -131,7 +131,7 @@ bt_test_audio_synth_class_init (BtTestAudioSynthClass * klass)
 
   audio_synth_class->process = bt_test_audio_synth_process;
   audio_synth_class->reset = bt_test_audio_synth_reset;
-  audio_synth_class->setup = bt_test_audio_synth_setup;
+  audio_synth_class->negotiate = bt_test_audio_synth_negotiate;
 
   gst_element_class_set_static_metadata (element_class,
       "Audio synth for unit tests", "Source/Audio",

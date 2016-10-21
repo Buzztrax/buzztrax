@@ -26,11 +26,14 @@
  * Base audio synthesizer to use as a foundation for new synthesizers. Handles
  * tempo, seeking, trick mode playback and format negotiation.
  *
- * The pure virtual process and setup methods must be implemented by the child
- * class. The setup vmethod provides the caps to negotiate. From them the elemnt
- * can take parameters such as sampling rate or data format.
+ * There are a few virtual methods that can subclasses will implement:
+ * The negotiate vmethod provides the #GstCaps to negotiate. Once the caps
+ * are negotiated, setup is called. There the element can take parameters such
+ * as sampling rate or data format from the #GstAudioInfo parameter.
  * The reset method, if implemented, is called on discontinuities - e.g. after
  * seeking. It can be used to e.g. cut off playing notes.
+ * Finally the process method is where the audio generation is going to be
+ * implemented.
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -138,23 +141,23 @@ gstbt_audio_synth_set_context (GstElement * element, GstContext * context)
 static GstCaps *
 gstbt_audio_synth_fixate (GstBaseSrc * basesrc, GstCaps * caps)
 {
-  GstBtAudioSynth *src = GSTBT_AUDIO_SYNTH (basesrc);
-  GstBtAudioSynthClass *klass = GSTBT_AUDIO_SYNTH_GET_CLASS (src);
+  GstBtAudioSynth *self = GSTBT_AUDIO_SYNTH (basesrc);
+  GstBtAudioSynthClass *klass = GSTBT_AUDIO_SYNTH_GET_CLASS (self);
   gint i, n = gst_caps_get_size (caps);
 
-  GST_INFO_OBJECT (src, "fixate");
+  GST_INFO_OBJECT (self, "fixate");
 
   caps = gst_caps_make_writable (caps);
   for (i = 0; i < n; i++) {
     gst_structure_fixate_field_nearest_int (gst_caps_get_structure (caps, i),
-        "rate", src->samplerate);
+        "rate", self->samplerate);
   }
-  GST_INFO_OBJECT (src, "fixated to %" GST_PTR_FORMAT, caps);
+  GST_INFO_OBJECT (self, "fixated to %" GST_PTR_FORMAT, caps);
 
-  if (klass->setup) {
-    klass->setup (src, GST_BASE_SRC_PAD (basesrc), caps);
+  if (klass->negotiate) {
+    klass->negotiate (self, caps);
   }
-  GST_INFO_OBJECT (src, "fixated to %" GST_PTR_FORMAT, caps);
+  GST_INFO_OBJECT (self, "fixated to %" GST_PTR_FORMAT, caps);
 
   return GST_BASE_SRC_CLASS (gstbt_audio_synth_parent_class)->fixate (basesrc,
       caps);
@@ -164,6 +167,7 @@ static gboolean
 gstbt_audio_synth_set_caps (GstBaseSrc * basesrc, GstCaps * caps)
 {
   GstBtAudioSynth *self = GSTBT_AUDIO_SYNTH (basesrc);
+  GstBtAudioSynthClass *klass = GSTBT_AUDIO_SYNTH_GET_CLASS (self);
   const GstStructure *structure = gst_caps_get_structure (caps, 0);
   gboolean ret;
 
@@ -174,6 +178,9 @@ gstbt_audio_synth_set_caps (GstBaseSrc * basesrc, GstCaps * caps)
   ret &= gst_structure_get_int (structure, "rate", &self->samplerate);
   ret &= gst_structure_get_int (structure, "channels", &self->channels);
   if (ret) {
+    if (klass->setup) {
+      klass->setup (self, &self->info);
+    }
     gst_base_src_set_blocksize (basesrc,
         gstbt_audio_synth_calculate_buffer_size (self));
   }

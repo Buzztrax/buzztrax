@@ -76,6 +76,7 @@ struct _GstBtAudioSynth
  * @process: vmethod for generating a block of audio, return false to indicate
  * that a GAP buffer should be sent
  * @reset: vmethod call on stream discontinuities
+ * @negotiate: vmethod for format negotiation
  * @setup: vmethod for initial processign setup
  *
  * Class structure.
@@ -87,7 +88,8 @@ struct _GstBtAudioSynthClass
   /* virtual functions */
   gboolean (*process) (GstBtAudioSynth * src, GstBuffer * data, GstMapInfo *info);
   void (*reset) (GstBtAudioSynth * src);
-  void (*setup) (GstBtAudioSynth * src, GstPad * pad, GstCaps * caps);
+  void (*negotiate) (GstBtAudioSynth * src, GstCaps * caps);
+  void (*setup) (GstBtAudioSynth * src, GstAudioInfo * info);
 };
 
 GType gstbt_audio_synth_get_type (void);
