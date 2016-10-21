@@ -469,7 +469,8 @@ test_position_query_time (BT_TEST_ARGS)
   GST_INFO ("-- assert --");
   BufferFields *bf = get_buffer_info (e, 0);
   gint64 pos;
-  gboolean res = gst_element_query_position (e, GST_FORMAT_TIME, &pos);
+  gboolean res = gst_element_query_position ((GstElement *) e, GST_FORMAT_TIME,
+      &pos);
   fail_unless (res, NULL);
   ck_assert_uint64_eq (bf->duration, pos);
 
