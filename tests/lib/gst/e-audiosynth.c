@@ -430,14 +430,17 @@ test_reset_on_seek (BT_TEST_ARGS)
       ("buzztrax-test-audio-synth name=\"src\" ! fakesink async=false", NULL);
   BtTestAudioSynth *e =
       (BtTestAudioSynth *) gst_bin_get_by_name (GST_BIN (p), "src");
+  GstBus *bus = gst_element_get_bus (p);
 
   GST_INFO ("-- act --");
   gst_element_set_state (p, GST_STATE_PAUSED);
   gst_element_get_state (p, NULL, NULL, GST_CLOCK_TIME_NONE);
-  gst_element_seek_simple (p, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
-      GST_MSECOND * 100);
+  gst_element_seek (p, 1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
+      GST_SEEK_TYPE_SET, GST_MSECOND * 100,
+      GST_SEEK_TYPE_SET, GST_MSECOND * 200);
   gst_element_set_state (p, GST_STATE_PLAYING);
   gst_element_get_state (p, NULL, NULL, GST_CLOCK_TIME_NONE);
+  gst_bus_poll (bus, GST_MESSAGE_EOS | GST_MESSAGE_ERROR, GST_CLOCK_TIME_NONE);
 
   GST_INFO ("-- assert --");
   ck_assert_int_eq (e->num_disconts, 1);
