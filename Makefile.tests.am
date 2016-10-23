@@ -1,5 +1,5 @@
 if BUILD_CHECK_TESTS
-  TESTS_BIN = bt_core bt_ic bt_gst bt_cmd bt_edit
+  TESTS_BIN = bml bt_core bt_ic bt_gst bt_cmd bt_edit
 else
   TESTS_BIN =
 endif
@@ -86,6 +86,7 @@ tests/bt-edit-cli.sh:
 check_LTLIBRARIES = \
   libbt-check.la \
   libbt-check-ui.la \
+  libbml-check.la \
   libbtcore-check.la \
   libbtic-check.la \
   libbtgst-check.la \
@@ -112,6 +113,17 @@ libbt_check_ui_la_LDFLAGS = \
 libbt_check_ui_la_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbt_check_ui_la_SOURCES = \
 	tests/bt-check-ui.c tests/bt-check-ui.h
+
+
+bml_LDADD = \
+	libbml-check.la \
+	libbt-check.la \
+	libbml.la \
+	libbt-check.la $(BASE_DEPS_LIBS) $(PTHREAD_LIBS) $(BML_LIBS) $(LIBM) $(CHECK_LIBS)
+bml_LDFLAGS =  \
+	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
+bml_SOURCES = \
+	tests/m-bml.c
 
 bt_core_LDADD = \
 	libbtcore-check.la \
@@ -161,6 +173,12 @@ bt_edit_LDFLAGS =  \
 bt_edit_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
 bt_edit_SOURCES = \
 	tests/m-bt-edit.c
+
+
+libbml_check_la_LIBADD = $(BASE_DEPS_LIBS)
+libbml_check_la_CFLAGS = $(BASE_DEPS_CFLAGS) $(PTHREAD_CFLAGS) $(BML_CFLAGS) $(CHECK_CFLAGS)
+libbml_check_la_SOURCES = tests/lib/bml/m-bml.h \
+	tests/lib/bml/e-core.c
 
 libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtcore_check_la_CFLAGS = $(BASE_DEPS_CFLAGS) $(CHECK_CFLAGS)

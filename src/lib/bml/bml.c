@@ -884,9 +884,14 @@ bml_setup (void)
   sp = sp_new (25);
 #endif /* USE_DLLWRAPPER_IPC */
 
-  if (!(emu_so = dlopen (NATIVE_BML_DIR "/libbuzzmachineloader.so", RTLD_LAZY))) {
+  // try local dir first (for tests)
+  if (!(emu_so = dlopen ("libbuzzmachineloader.so", RTLD_LAZY))) {
     TRACE ("   failed to load native bml : %s\n", dlerror ());
-    return (FALSE);
+    if (!(emu_so =
+            dlopen (NATIVE_BML_DIR "/libbuzzmachineloader.so", RTLD_LAZY))) {
+      TRACE ("   failed to load native bml : %s\n", dlerror ());
+      return (FALSE);
+    }
   }
   TRACE ("   native bml loaded\n");
 
