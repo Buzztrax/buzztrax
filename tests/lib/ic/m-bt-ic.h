@@ -20,7 +20,7 @@
 
 //-- globals
 
-GST_DEBUG_CATEGORY_EXTERN(bt_ic_debug);
+GST_DEBUG_CATEGORY_EXTERN(btic_debug);
 
 //-- prototypes
 

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include <signal.h>
 #include "check.h"
 #include "glib.h"
@@ -23,8 +23,6 @@
 #include "../../bt-check.h"
 
 //-- globals
-
-GST_DEBUG_CATEGORY_EXTERN(gst_buzztrax_debug);
 
 //-- prototypes
 

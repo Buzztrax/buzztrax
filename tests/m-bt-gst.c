@@ -19,7 +19,6 @@
 #include <stdlib.h>
 
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
-GST_DEBUG_CATEGORY_EXTERN (gst_buzztrax_debug);
 
 gchar *test_argv[] = { "check_buzztrax" };
 
