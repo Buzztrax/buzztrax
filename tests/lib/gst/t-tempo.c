@@ -36,6 +36,21 @@ case_teardown (void)
 //-- tests
 
 static void
+test_null_context (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  GST_INFO ("-- act --");
+  gboolean res = gstbt_audio_tempo_context_get_tempo (NULL, NULL, NULL, NULL);
+
+  GST_INFO ("-- assert --");
+  fail_if (res, NULL);
+
+  GST_INFO ("-- cleanup --");
+  BT_TEST_END;
+}
+
+static void
 test_wrong_context_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
@@ -59,6 +74,7 @@ gst_buzztrax_tempo_test_case (void)
 {
   TCase *tc = tcase_create ("GstBtTempoTests");
 
+  tcase_add_test (tc, test_null_context);
   tcase_add_test (tc, test_wrong_context_type);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
