@@ -33,6 +33,7 @@ gint test_argc = G_N_ELEMENTS (test_argv);
 
 BT_TEST_SUITE_E ("BtApplication", bt_application);
 BT_TEST_SUITE_E ("BtAudioSession", bt_audio_session);
+BT_TEST_SUITE_E ("BtChildProxy", bt_child_proxy);
 BT_TEST_SUITE_T_E ("BtCmdPattern", bt_cmd_pattern);
 BT_TEST_SUITE_E ("BtCmdPatternControlSource", bt_cmd_pattern_control_source);
 BT_TEST_SUITE_T_E ("BtCore", bt_core);
@@ -73,6 +74,7 @@ main (gint argc, gchar ** argv)
 
   sr = srunner_create (bt_application_suite ());
   srunner_add_suite (sr, bt_audio_session_suite ());
+  srunner_add_suite (sr, bt_child_proxy_suite ());
   srunner_add_suite (sr, bt_cmd_pattern_suite ());
   srunner_add_suite (sr, bt_cmd_pattern_control_source_suite ());
   srunner_add_suite (sr, bt_core_suite ());
