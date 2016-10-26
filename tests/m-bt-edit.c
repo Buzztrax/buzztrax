@@ -66,6 +66,7 @@ BT_TEST_SUITE_E ("BtMissingSongElementsDialog",
 BT_TEST_SUITE_T_E ("BtObjectListModel", bt_object_list_model);
 BT_TEST_SUITE_E ("BtPatternListModel", bt_pattern_list_model);
 BT_TEST_SUITE_E ("BtPatternPropertiesDialog", bt_pattern_properties_dialog);
+BT_TEST_SUITE_E ("BtPresetListModel", bt_preset_list_model);
 BT_TEST_SUITE_E ("BtRenderDialog", bt_render_dialog);
 BT_TEST_SUITE_E ("BtSequenceGridModel", bt_sequence_grid_model);
 BT_TEST_SUITE_E ("BtSettingsDialog", bt_settings_dialog);
@@ -203,6 +204,7 @@ main (gint argc, gchar ** argv)
   srunner_add_suite (sr, bt_object_list_model_suite ());
   srunner_add_suite (sr, bt_pattern_list_model_suite ());
   srunner_add_suite (sr, bt_pattern_properties_dialog_suite ());
+  srunner_add_suite (sr, bt_preset_list_model_suite ());
   srunner_add_suite (sr, bt_render_dialog_suite ());
   srunner_add_suite (sr, bt_sequence_grid_model_suite ());
   srunner_add_suite (sr, bt_settings_dialog_suite ());

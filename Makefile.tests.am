@@ -269,6 +269,7 @@ libbt_edit_check_la_SOURCES = tests/ui/edit/m-bt-edit.h \
 	tests/ui/edit/e-object-list-model.c tests/ui/edit/t-object-list-model.c \
 	tests/ui/edit/e-pattern-list-model.c \
 	tests/ui/edit/e-pattern-properties-dialog.c \
+	tests/ui/edit/e-preset-list-model.c \
 	tests/ui/edit/e-render-dialog.c \
 	tests/ui/edit/e-sequence-grid-model.c \
 	tests/ui/edit/e-settings-dialog.c \
