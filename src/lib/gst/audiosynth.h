@@ -50,6 +50,7 @@ struct _GstBtAudioSynth
 
   GstAudioInfo info;
   GstClockTime running_time;    /* total running time */
+  GstClockTime stop_time;       /* end of the segment */
   gint64 n_samples;             /* total samples sent */
   gint64 n_samples_stop;
   gboolean check_eos;

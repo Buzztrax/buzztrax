@@ -149,6 +149,10 @@ bt_test_audio_synth_plugin_init (GstPlugin * const plugin)
 
 //-- fixtures
 
+static GstClockTime ticktime =
+    (GstClockTime) (0.5 + (GST_SECOND * (60.0 / 8)) / (120 * 4));
+static GstContext *ctx;
+
 static void
 case_setup (void)
 {
@@ -159,11 +163,14 @@ case_setup (void)
       GST_VERSION_MINOR, "buzztrax-test-audio-synth", "test plugin",
       bt_test_audio_synth_plugin_init,
       VERSION, "LGPL", PACKAGE, PACKAGE_NAME, "http://www.buzztrax.org");
+
+  ctx = gstbt_audio_tempo_context_new (120, 4, 8);
 }
 
 static void
 case_teardown (void)
 {
+  gst_context_unref (ctx);
 }
 
 //-- tests
@@ -186,19 +193,21 @@ test_create_obj (BT_TEST_ARGS)
 }
 
 static void
-test_setup_is_called_with_audio_caps (BT_TEST_ARGS)
+test_initialized_with_audio_caps (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   GstElement *p =
       gst_parse_launch
-      ("buzztrax-test-audio-synth name=\"src\" ! fakesink async=false", NULL);
+      ("buzztrax-test-audio-synth name=\"src\" num-buffers=1 ! fakesink async=false",
+      NULL);
   BtTestAudioSynth *e =
       (BtTestAudioSynth *) gst_bin_get_by_name (GST_BIN (p), "src");
+  GstBus *bus = gst_element_get_bus (p);
 
   GST_INFO ("-- act --");
   gst_element_set_state (p, GST_STATE_PLAYING);
-  gst_element_get_state (p, NULL, NULL, GST_CLOCK_TIME_NONE);
+  gst_bus_poll (bus, GST_MESSAGE_EOS | GST_MESSAGE_ERROR, GST_CLOCK_TIME_NONE);
 
   GST_INFO ("-- assert --");
   fail_unless (e->caps != NULL, NULL);
@@ -227,7 +236,6 @@ test_audio_context_configures_buffer_size (BT_TEST_ARGS)
       NULL);
   BtTestAudioSynth *e =
       (BtTestAudioSynth *) gst_bin_get_by_name (GST_BIN (p), "src");
-  GstContext *ctx = gstbt_audio_tempo_context_new (120, 4, 8);
   GstBus *bus = gst_element_get_bus (p);
 
   GST_INFO ("-- act --");
@@ -243,7 +251,6 @@ test_audio_context_configures_buffer_size (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   gst_element_set_state (p, GST_STATE_NULL);
-  gst_context_unref (ctx);
   gst_object_unref (bus);
   gst_object_unref (e);
   gst_object_unref (p);
@@ -251,7 +258,7 @@ test_audio_context_configures_buffer_size (BT_TEST_ARGS)
 }
 
 static void
-test_first_buffer_starts_at_zero (BT_TEST_ARGS)
+test_forward_first_buffer_starts_at_zero (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -276,6 +283,43 @@ test_first_buffer_starts_at_zero (BT_TEST_ARGS)
   gst_element_set_state (p, GST_STATE_NULL);
   gst_object_unref (e);
   gst_object_unref (p);
+  BT_TEST_END;
+}
+
+static void
+test_backwards_last_buffer_ends_at_zero (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  GstElement *p =
+      gst_parse_launch
+      ("buzztrax-test-audio-synth name=\"src\" num-buffers=1 ! fakesink async=false",
+      NULL);
+  BtTestAudioSynth *e =
+      (BtTestAudioSynth *) gst_bin_get_by_name (GST_BIN (p), "src");
+  GstBus *bus = gst_element_get_bus (p);
+
+  GST_INFO ("-- act --");
+  gst_element_set_state (p, GST_STATE_READY);
+  gst_element_set_context (p, ctx);
+  gst_element_set_state (p, GST_STATE_PAUSED);
+  gst_element_get_state (p, NULL, NULL, GST_CLOCK_TIME_NONE);
+  gst_element_seek (p, -1.0, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
+      GST_SEEK_TYPE_SET, G_GUINT64_CONSTANT (0), GST_SEEK_TYPE_SET, ticktime);
+  gst_element_set_state (p, GST_STATE_PLAYING);
+  gst_element_get_state (p, NULL, NULL, GST_CLOCK_TIME_NONE);
+  gst_bus_poll (bus, GST_MESSAGE_EOS | GST_MESSAGE_ERROR, GST_CLOCK_TIME_NONE);
+
+  GST_INFO ("-- assert --");
+  BufferFields *bf = get_buffer_info (e, 0);
+  ck_assert_uint64_eq (bf->ts, 0);
+  ck_assert_uint64_eq (bf->offset, 0);
+
+  GST_INFO ("-- cleanup --");
+  gst_element_set_state (p, GST_STATE_NULL);
+  gst_object_unref (e);
+  gst_object_unref (p);
+
   BT_TEST_END;
 }
 
@@ -320,7 +364,6 @@ test_num_buffers_with_stop_pos (BT_TEST_ARGS)
       NULL);
   BtTestAudioSynth *e =
       (BtTestAudioSynth *) gst_bin_get_by_name (GST_BIN (p), "src");
-  GstContext *ctx = gstbt_audio_tempo_context_new (120, 4, 8);
   GstBus *bus = gst_element_get_bus (p);
   GstSeekFlags seek_flags[] = {
     GST_SEEK_FLAG_FLUSH, GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT
@@ -328,8 +371,6 @@ test_num_buffers_with_stop_pos (BT_TEST_ARGS)
   GstMessageType end_msg[] = {
     GST_MESSAGE_EOS, GST_MESSAGE_SEGMENT_DONE
   };
-  GstClockTime ticktime =
-      (GstClockTime) (0.5 + (GST_SECOND * (60.0 / 8)) / (120 * 4));
 
   GST_INFO ("-- act --");
   gst_element_set_state (p, GST_STATE_READY);
@@ -365,10 +406,7 @@ test_last_buffer_is_clipped (BT_TEST_ARGS)
       NULL);
   BtTestAudioSynth *e =
       (BtTestAudioSynth *) gst_bin_get_by_name (GST_BIN (p), "src");
-  GstContext *ctx = gstbt_audio_tempo_context_new (120, 4, 8);
   GstBus *bus = gst_element_get_bus (p);
-  GstClockTime ticktime =
-      (GstClockTime) (0.5 + (GST_SECOND * (60.0 / 8)) / (120 * 4));
 
   GST_INFO ("-- act --");
   gst_element_set_state (p, GST_STATE_READY);
@@ -495,9 +533,10 @@ gst_buzztrax_audiosynth_example_case (void)
   TCase *tc = tcase_create ("GstBtAudiosynthExamples");
 
   tcase_add_test (tc, test_create_obj);
-  tcase_add_test (tc, test_setup_is_called_with_audio_caps);
+  tcase_add_test (tc, test_initialized_with_audio_caps);
   tcase_add_test (tc, test_audio_context_configures_buffer_size);
-  tcase_add_test (tc, test_first_buffer_starts_at_zero);
+  tcase_add_test (tc, test_forward_first_buffer_starts_at_zero);
+  tcase_add_test (tc, test_backwards_last_buffer_ends_at_zero);
   tcase_add_test (tc, test_buffers_are_contigous);
   tcase_add_loop_test (tc, test_num_buffers_with_stop_pos, 0, 2);
   tcase_add_test (tc, test_last_buffer_is_clipped);

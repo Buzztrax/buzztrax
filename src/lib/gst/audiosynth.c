@@ -215,9 +215,8 @@ static gboolean
 gstbt_audio_synth_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
 {
   GstBtAudioSynth *src = GSTBT_AUDIO_SYNTH (basesrc);
-  GstClockTime time;
+  GstClockTime time = segment->position;
 
-  time = segment->position;
   src->reverse = (segment->rate < 0.0);
   src->running_time = time;
   src->ticktime_err_accum = 0.0;
@@ -238,9 +237,9 @@ gstbt_audio_synth_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
       segment->time = segment->start;
     }
     if (GST_CLOCK_TIME_IS_VALID (segment->stop)) {
-      time = segment->stop;
-      src->n_samples_stop = gst_util_uint64_scale_int (time, src->info.rate,
-          GST_SECOND);
+      src->stop_time = segment->stop;
+      src->n_samples_stop = gst_util_uint64_scale_int (src->stop_time,
+          src->info.rate, GST_SECOND);
       src->check_eos = TRUE;
     } else {
       src->check_eos = FALSE;
@@ -251,9 +250,9 @@ gstbt_audio_synth_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
       segment->time = segment->stop;
     }
     if (GST_CLOCK_TIME_IS_VALID (segment->start)) {
-      time = segment->start;
-      src->n_samples_stop = gst_util_uint64_scale_int (time, src->info.rate,
-          GST_SECOND);
+      src->stop_time = segment->start;
+      src->n_samples_stop = gst_util_uint64_scale_int (src->stop_time,
+          src->info.rate, GST_SECOND);
       src->check_eos = TRUE;
     } else {
       src->check_eos = FALSE;
@@ -263,9 +262,10 @@ gstbt_audio_synth_do_seek (GstBaseSrc * basesrc, GstSegment * segment)
   src->eos_reached = FALSE;
 
   GST_DEBUG_OBJECT (src,
-      "seek from %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT " cur %"
-      GST_TIME_FORMAT " rate %lf", GST_TIME_ARGS (segment->start),
-      GST_TIME_ARGS (segment->stop), GST_TIME_ARGS (segment->position),
+      "seek from %" GST_TIME_FORMAT " to %" GST_TIME_FORMAT " pos %"
+      GST_TIME_FORMAT " == pos %" GST_TIME_FORMAT " rate %lf",
+      GST_TIME_ARGS (segment->start), GST_TIME_ARGS (segment->stop),
+      GST_TIME_ARGS (segment->position), GST_TIME_ARGS (segment->time),
       segment->rate);
 
   return TRUE;
@@ -324,8 +324,12 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
             samples_done));
   }
 
-  //GST_DEBUG_OBJECT(src,"samples_done=%lf, src->n_samples=%u", samples_done,src->n_samples);
-  //GST_DEBUG_OBJECT(src,"samples-per-buffer=%7u (%8.3lf), length=%u",samples_per_buffer,src->samples_per_buffer,length);
+  GST_DEBUG_OBJECT (src,
+      "samples_done=%lf, src->n_samples=%" G_GUINT64_FORMAT
+      ", src->n_samples_stop=%" G_GUINT64_FORMAT,
+      samples_done, src->n_samples, src->n_samples_stop);
+  GST_DEBUG_OBJECT (src, "samples-per-buffer=%7u (%8.3lf), length=%u",
+      samples_per_buffer, src->samples_per_buffer, length);
 
   /* check for eos */
   if (src->check_eos) {
@@ -340,19 +344,24 @@ gstbt_audio_synth_create (GstBaseSrc * basesrc, guint64 offset,
 
   if (G_UNLIKELY (partial_buffer)) {
     /* calculate only partial buffer */
-    src->generate_samples_per_buffer =
-        (guint) (src->n_samples_stop - src->n_samples);
-    GST_INFO_OBJECT (src, "partial buffer: %u",
-        src->generate_samples_per_buffer);
+    if (!src->reverse) {
+      src->generate_samples_per_buffer =
+          (guint) (src->n_samples_stop - src->n_samples);
+      ticktime = src->stop_time - src->running_time;
+    } else {
+      src->generate_samples_per_buffer =
+          (guint) (src->n_samples - src->n_samples_stop);
+      ticktime = src->running_time - src->stop_time;
+    }
     if (G_UNLIKELY (!src->generate_samples_per_buffer)) {
       GST_WARNING_OBJECT (src, "0 samples left -> EOS reached");
       src->eos_reached = TRUE;
       return GST_FLOW_EOS;
     }
     n_samples = src->n_samples_stop;
-    ticktime = gst_util_uint64_scale (GST_SECOND,
-        src->generate_samples_per_buffer, src->info.rate);
     src->eos_reached = TRUE;
+    GST_INFO_OBJECT (src, "partial buffer: %u, ticktime: %" GST_TIME_FORMAT,
+        src->generate_samples_per_buffer, GST_TIME_ARGS (ticktime));
   } else {
     /* calculate full buffer */
     src->generate_samples_per_buffer = samples_per_buffer;
