@@ -63,6 +63,7 @@ const guint bt_minor_version = BT_MINOR_VERSION;
 const guint bt_micro_version = BT_MICRO_VERSION;
 
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
+GST_DEBUG_CATEGORY_STATIC (libxml_category);
 
 static gboolean arg_version = FALSE;
 
@@ -82,6 +83,29 @@ bt_init_pre (void)
   return TRUE;
 }
 
+/* xml error log handler */
+static void
+bt_libxml_error_func (void *user_data, xmlErrorPtr error)
+{
+  GstDebugLevel level;
+  switch (error->level) {
+    case XML_ERR_FATAL:
+    case XML_ERR_ERROR:
+      level = GST_LEVEL_ERROR;
+      break;
+    case XML_ERR_WARNING:
+      level = GST_LEVEL_WARNING;
+      break;
+    case XML_ERR_NONE:
+    default:
+      level = GST_LEVEL_INFO;
+      break;
+  }
+
+  gst_debug_log (libxml_category, level, error->file, "", error->line, NULL,
+      "%d:%d:%s", error->domain, error->code, error->message);
+}
+
 static gboolean
 bt_init_post (void)
 {
@@ -94,6 +118,7 @@ bt_init_post (void)
 
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-core", 0,
       "music production environment / core library");
+  GST_DEBUG_CATEGORY_INIT (libxml_category, "libxml", 0, "xml library");
 
   extern gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin);
   gst_plugin_register_static (GST_VERSION_MAJOR,
@@ -112,7 +137,7 @@ bt_init_post (void)
   GST_DEBUG ("init xml");
   //-- initialize libxml
   // set own error handler
-  //xmlSetGenericErrorFunc("libxml-error: ",&gitk_libxmlxslt_error_func);
+  xmlSetStructuredErrorFunc (NULL, &bt_libxml_error_func);
   // initialize the xml parser
   xmlInitParser ();
   // xmlInitParser does that for us
