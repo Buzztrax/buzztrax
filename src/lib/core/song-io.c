@@ -173,7 +173,7 @@ bt_song_io_register_plugins (void)
         g_list_append (plugins, (gpointer) & bt_song_io_native_module_info);
   }
   // registering external song-io plugins
-  // first try loading from $srcdir (when uninstalled) 
+  // first try loading from $srcdir (when uninstalled)
   if (!bt_song_io_scan_dir (".libs/")) {
     bt_song_io_scan_dir (LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
   }
@@ -409,7 +409,7 @@ bt_song_io_load (BtSongIO const *self, const BtSong * const song, GError ** err)
     GST_ERROR
         ("virtual method bt_song_io_load(self=%p,song=%p) called without implementation",
         self, song);
-    return (FALSE);
+    return FALSE;
   }
 
   const gchar *const msg = _("Loading file '%s'");
@@ -425,7 +425,7 @@ bt_song_io_load (BtSongIO const *self, const BtSong * const song, GError ** err)
   g_object_set ((gpointer) self, "status", status, NULL);
 
   g_object_set ((gpointer) song, "song-io", self, NULL);
-  if ((result = BT_SONG_IO_GET_CLASS (self)->load (self, song, err))) {
+  if ((result = load (self, song, err))) {
     bt_song_io_update_filename (BT_SONG_IO (self), song);
     GST_INFO ("loading done");
     //DEBUG
@@ -482,7 +482,7 @@ bt_song_io_save (BtSongIO const *self, const BtSong * const song, GError ** err)
     GST_ERROR
         ("virtual method bt_song_io_save(self=%p,song=%p) called without implementation",
         self, song);
-    return (FALSE);
+    return FALSE;
   }
 
   const gchar *const msg = _("Saving file '%s'");
@@ -498,7 +498,7 @@ bt_song_io_save (BtSongIO const *self, const BtSong * const song, GError ** err)
   g_object_set ((gpointer) self, "status", status, NULL);
 
   g_object_set ((gpointer) song, "song-io", self, NULL);
-  if ((result = BT_SONG_IO_GET_CLASS (self)->save (self, song, err))) {
+  if ((result = save (self, song, err))) {
     bt_song_io_update_filename (BT_SONG_IO (self), song);
   }
   g_object_set ((gpointer) song, "song-io", NULL, NULL);
