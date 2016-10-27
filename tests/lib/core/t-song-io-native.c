@@ -51,33 +51,20 @@ case_teardown (void)
 
 //-- tests
 
-// load file with errors
+static gchar *bad_songs[] = {
+  "broken1.xml",                // wrong xml type
+  "broken3.xml",                // not well formed (truncated)
+  "broken5.xml",                // not well formed (not start tag)
+};
+
+// load files with errors
 static void
-test_bt_song_io_native_wrong_xml_type (BT_TEST_ARGS)
+test_bt_song_io_native_bad_songs (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSongIO *song_io =
-      bt_song_io_from_file (check_get_test_song_path ("broken1.xml"), NULL);
-
-  GST_INFO ("-- act & assert --");
-  GError *err = NULL;
-  fail_if (bt_song_io_load (song_io, song, &err), NULL);
-  fail_if (err == NULL, NULL);
-
-  GST_INFO ("-- cleanup --");
-  g_error_free (err);
-  ck_g_object_final_unref (song_io);
-  BT_TEST_END;
-}
-
-static void
-test_bt_song_io_native_truncated_xml (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  GST_INFO ("-- arrange --");
-  BtSongIO *song_io =
-      bt_song_io_from_file (check_get_test_song_path ("broken3.xml"), NULL);
+      bt_song_io_from_file (check_get_test_song_path (bad_songs[_i]), NULL);
 
   GST_INFO ("-- act & assert --");
   GError *err = NULL;
@@ -120,8 +107,8 @@ bt_song_io_native_test_case (void)
 {
   TCase *tc = tcase_create ("BtSongIONativeTests");
 
-  tcase_add_test (tc, test_bt_song_io_native_wrong_xml_type);
-  tcase_add_test (tc, test_bt_song_io_native_truncated_xml);
+  tcase_add_loop_test (tc, test_bt_song_io_native_bad_songs, 0,
+      G_N_ELEMENTS (bad_songs));
   tcase_add_test (tc, test_bt_song_io_native_load_twice);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);

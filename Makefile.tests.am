@@ -324,6 +324,7 @@ noinst_songdata = \
 	tests/songs/broken2.xml \
 	tests/songs/broken3.xml \
 	tests/songs/broken4.xml \
+	tests/songs/broken5.xml \
 	tests/songs/empty.xml \
 	tests/songs/example.xml \
 	tests/songs/legacy1.xml \

@@ -69,6 +69,8 @@ bt_song_io_native_xml_load (gconstpointer const _self,
       xmlNodePtr const root_node = xmlDocGetRootElement (song_doc);
 
       if (root_node == NULL) {
+        // this cannot really happen, since a missing too tag would fail the
+        // validity checks
         GST_WARNING ("XML document is empty");
         g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
             _("XML document is empty."));
