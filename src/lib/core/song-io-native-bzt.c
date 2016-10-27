@@ -304,45 +304,44 @@ bt_song_io_native_bzt_load (gconstpointer const _self,
     }
 
     if (song_doc) {
-      if (!ctxt->valid) {
-        GST_WARNING ("is not a XML/Buzztrax document");
+      xmlNodePtr const root_node = xmlDocGetRootElement (song_doc);
+
+      if (root_node == NULL) {
+        GST_WARNING ("XML document is empty");
         g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
-            _("Is not a XML/Buzztrax document."));
-      } else if (!ctxt->wellFormed) {
+            _("XML document is empty."));
+      } else if (xmlStrcmp (root_node->name, (const xmlChar *) "buzztrax") &&
+          xmlStrcmp (root_node->name, (const xmlChar *) "buzztard")) {
+        GST_WARNING ("wrong XML document root");
+        g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+            _("Wrong XML document root."));
+      } else {
+        GError *e = NULL;
+        bt_persistence_load (BT_TYPE_SONG, BT_PERSISTENCE (song), root_node,
+            &e, NULL);
+        if (e != NULL) {
+          GST_WARNING ("deserialisation failed: %s", e->message);
+          g_propagate_error (err, e);
+        } else {
+          result = TRUE;
+        }
+      }
+      xmlFreeDoc (song_doc);
+    } else {
+      if (!ctxt->wellFormed) {
         GST_WARNING ("is not a wellformed XML document");
         g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
             _("Is not a wellformed XML document."));
+      } else if (!ctxt->valid) {
+        GST_WARNING ("is not a XML/Buzztrax document");
+        g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+            _("Is not a XML/Buzztrax document."));
       } else {
-        xmlNodePtr const root_node = xmlDocGetRootElement (song_doc);
-
-        if (root_node == NULL) {
-          GST_WARNING ("XML document is empty");
-          g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
-              _("XML document is empty."));
-        } else if (xmlStrcmp (root_node->name, (const xmlChar *) "buzztrax") &&
-            xmlStrcmp (root_node->name, (const xmlChar *) "buzztard")) {
-          GST_WARNING ("wrong XML document root");
-          g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
-              _("Wrong XML document root."));
-        } else {
-          GError *e = NULL;
-          bt_persistence_load (BT_TYPE_SONG, BT_PERSISTENCE (song), root_node,
-              &e, NULL);
-          if (e != NULL) {
-            GST_WARNING ("deserialisation failed: %s", e->message);
-            g_propagate_error (err, e);
-          } else {
-            result = TRUE;
-          }
-        }
+        GST_WARNING ("failed to read song file '%s'",
+            (file_name ? file_name : "data"));
+        g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
+            g_strerror (errno));
       }
-      if (song_doc)
-        xmlFreeDoc (song_doc);
-    } else {
-      GST_WARNING ("failed to read song file '%s'",
-          (file_name ? file_name : "data"));
-      g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
-          g_strerror (errno));
     }
     if (self->priv->infile) {
       g_object_unref (self->priv->infile);
