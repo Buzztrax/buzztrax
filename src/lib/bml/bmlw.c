@@ -361,6 +361,58 @@ bmlw_set_callbacks (BuzzMachine * bm, CHostCallbacks * callbacks)
   win32_eliplog ();
 }
 
+static ApiTable api[] = {
+  // global api
+  {(void **) &BMLX (bmlw_set_logger), "bm_set_logger"},
+  {(void **) &BMLX (bmlw_set_master_info), "bm_set_master_info"},
+  // class api
+  {(void **) &BMLX (bmlw_open), "bm_open"},
+  {(void **) &BMLX (bmlw_close), "bm_close"},
+  {(void **) &BMLX (bmlw_get_machine_info), "bm_get_machine_info"},
+  {(void **) &BMLX (bmlw_get_global_parameter_info),
+      "bm_get_global_parameter_info"},
+  {(void **) &BMLX (bmlw_get_track_parameter_info),
+      "bm_get_track_parameter_info"},
+  {(void **) &BMLX (bmlw_get_attribute_info), "bm_get_attribute_info"},
+  {(void **) &BMLX (bmlw_describe_global_value), "bm_describe_global_value"},
+  {(void **) &BMLX (bmlw_describe_track_value), "bm_describe_track_value"},
+  // instance api
+  {(void **) &BMLX (bmlw_new), "bm_new"},
+  {(void **) &BMLX (bmlw_free), "bm_free"},
+  {(void **) &BMLX (bmlw_init), "bm_init"},
+  {(void **) &BMLX (bmlw_get_track_parameter_value),
+      "bm_get_track_parameter_value"},
+  {(void **) &BMLX (bmlw_set_track_parameter_value),
+      "bm_set_track_parameter_value"},
+  {(void **) &BMLX (bmlw_get_global_parameter_value),
+      "bm_get_global_parameter_value"},
+  {(void **) &BMLX (bmlw_set_global_parameter_value),
+      "bm_set_global_parameter_value"},
+  {(void **) &BMLX (bmlw_get_attribute_value), "bm_get_attribute_value"},
+  {(void **) &BMLX (bmlw_set_attribute_value), "bm_set_attribute_value"},
+  {(void **) &BMLX (bmlw_tick), "bm_tick"},
+  {(void **) &BMLX (bmlw_work), "bm_work"},
+  {(void **) &BMLX (bmlw_work_m2s), "bm_work_m2s"},
+  {(void **) &BMLX (bmlw_stop), "bm_stop"},
+  {(void **) &BMLX (bmlw_attributes_changed), "bm_attributes_changed"},
+  {(void **) &BMLX (bmlw_set_num_tracks), "bm_set_num_tracks"},
+  {(void **) &BMLX (bmlw_set_callbacks), "bm_set_callbacks"},
+};
+
+static int
+get_symbols (HINSTANCE * dll, ApiTable * tab, int entries)
+{
+  int i;
+
+  for (i = 0; i < entries; i++) {
+    if (!(*(tab[i].func) = GetSymbol (dll, tab[i].symbol))) {
+      TRACE ("%s is missing\n", tab[i].symbol);
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
 int
 _bmlw_setup (BMLDebugLogger logger)
 {
@@ -374,151 +426,8 @@ _bmlw_setup (BMLDebugLogger logger)
   }
   TRACE ("   windows bml loaded\n");
 
-  if (!(BMLX (bmlw_set_logger) =
-          (BMSetLogger) GetSymbol (emu_dll, "bm_set_logger"))) {
-    TRACE ("bm_set_logger is missing\n");
-    return (FALSE);
-  }
-
-  if (!(BMLX (bmlw_set_master_info) =
-          (BMSetMasterInfo) GetSymbol (emu_dll, "bm_set_master_info"))) {
-    TRACE ("bm_set_master_info is missing\n");
-    return (FALSE);
-  }
-
-
-  if (!(BMLX (bmlw_open) = (BMOpen) GetSymbol (emu_dll, "bm_open"))) {
-    TRACE ("bm_open is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_close) = (BMClose) GetSymbol (emu_dll, "bm_close"))) {
-    TRACE ("bm_close is missing\n");
-    return (FALSE);
-  }
-
-  if (!(BMLX (bmlw_get_machine_info) =
-          (BMGetMachineInfo) GetSymbol (emu_dll, "bm_get_machine_info"))) {
-    TRACE ("bm_get_machine_info is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_get_global_parameter_info) =
-          (BMGetGlobalParameterInfo) GetSymbol (emu_dll,
-              "bm_get_global_parameter_info"))) {
-    TRACE ("bm_get_global_parameter_info is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_get_track_parameter_info) =
-          (BMGetTrackParameterInfo) GetSymbol (emu_dll,
-              "bm_get_track_parameter_info"))) {
-    TRACE ("bm_get_track_parameter_info is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_get_attribute_info) =
-          (BMGetAttributeInfo) GetSymbol (emu_dll, "bm_get_attribute_info"))) {
-    TRACE ("bm_get_attribute_info is missing\n");
-    return (FALSE);
-  }
-
-  if (!(BMLX (bmlw_describe_global_value) =
-          (BMDescribeGlobalValue) GetSymbol (emu_dll,
-              "bm_describe_global_value"))) {
-    TRACE ("bm_describe_global_value is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_describe_track_value) =
-          (BMDescribeTrackValue) GetSymbol (emu_dll,
-              "bm_describe_track_value"))) {
-    TRACE ("bm_describe_track_value is missing\n");
-    return (FALSE);
-  }
-
-
-  if (!(BMLX (bmlw_new) = (BMNew) GetSymbol (emu_dll, "bm_new"))) {
-    TRACE ("bm_new is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_free) = (BMFree) GetSymbol (emu_dll, "bm_free"))) {
-    TRACE ("bm_free is missing\n");
-    return (FALSE);
-  }
-
-  if (!(BMLX (bmlw_init) = (BMInit) GetSymbol (emu_dll, "bm_init"))) {
-    TRACE ("bm_init is missing\n");
-    return (FALSE);
-  }
-
-  if (!(BMLX (bmlw_get_track_parameter_value) =
-          (BMGetTrackParameterValue) GetSymbol (emu_dll,
-              "bm_get_track_parameter_value"))) {
-    TRACE ("bm_get_track_parameter_value is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_set_track_parameter_value) =
-          (BMSetTrackParameterValue) GetSymbol (emu_dll,
-              "bm_set_track_parameter_value"))) {
-    TRACE ("bm_set_track_parameter_value is missing\n");
-    return (FALSE);
-  }
-
-  if (!(BMLX (bmlw_get_global_parameter_value) =
-          (BMGetGlobalParameterValue) GetSymbol (emu_dll,
-              "bm_get_global_parameter_value"))) {
-    TRACE ("bm_get_global_parameter_value is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_set_global_parameter_value) =
-          (BMSetGlobalParameterValue) GetSymbol (emu_dll,
-              "bm_set_global_parameter_value"))) {
-    TRACE ("bm_set_global_parameter_value is missing\n");
-    return (FALSE);
-  }
-
-  if (!(BMLX (bmlw_get_attribute_value) =
-          (BMGetAttributeValue) GetSymbol (emu_dll,
-              "bm_get_attribute_value"))) {
-    TRACE ("bm_get_attribute_value is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_set_attribute_value) =
-          (BMSetAttributeValue) GetSymbol (emu_dll,
-              "bm_set_attribute_value"))) {
-    TRACE ("bm_set_attribute_value is missing\n");
-    return (FALSE);
-  }
-
-  if (!(BMLX (bmlw_tick) = (BMTick) GetSymbol (emu_dll, "bm_tick"))) {
-    TRACE ("bm_tick is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_work) = (BMWork) GetSymbol (emu_dll, "bm_work"))) {
-    TRACE ("bm_work is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_work_m2s) = (BMWorkM2S) GetSymbol (emu_dll, "bm_work_m2s"))) {
-    TRACE ("bm_work_m2s is missing\n");
-    return (FALSE);
-  }
-  if (!(BMLX (bmlw_stop) = (BMStop) GetSymbol (emu_dll, "bm_stop"))) {
-    TRACE ("bm_stop is missing\n");
-    return (FALSE);
-  }
-
-  if (!(BMLX (bmlw_attributes_changed) =
-          (BMAttributesChanged) GetSymbol (emu_dll, "bm_attributes_changed"))) {
-    TRACE ("bm_attributes_changed is missing\n");
-    return (FALSE);
-  }
-
-  if (!(BMLX (bmlw_set_num_tracks) =
-          (BMSetNumTracks) GetSymbol (emu_dll, "bm_set_num_tracks"))) {
-    TRACE ("bm_set_num_tracks is missing\n");
-    return (FALSE);
-  }
-
-  if (!(BMLX (bmlw_set_callbacks) =
-          (BMSetCallbacks) GetSymbol (emu_dll, "bm_set_callbacks"))) {
-    TRACE ("bm_set_callbacks is missing\n");
-    return (FALSE);
+  if (!get_symbols (emu_dll, api, sizeof (api) / sizeof (api[0]))) {
+    return FALSE;
   }
 
   TRACE ("   symbols connected\n");

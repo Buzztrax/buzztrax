@@ -162,6 +162,12 @@ extern BMSetNumTracks bmln_set_num_tracks;
 
 extern BMSetCallbacks bmln_set_callbacks;
 
+
+typedef struct _api_table {
+  void **func;
+  const char *symbol;
+} ApiTable;
+
 //#ifdef __cplusplus
 //}
 //#endif

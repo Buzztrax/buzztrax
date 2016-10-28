@@ -15,6 +15,24 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
+/* TODO(ensonic): instead of having all the api twice, maybe we can
+ * add the function pointers to the BuzzMachineHandle/BuzzMachine.
+ * Pro:
+ *   - we don't leak that we have differnt implementations
+ * Cons:
+ *   - another indirection
+ * Tricky part: the BuzzMachineHandle/BuzzMachine handles are opaque.
+ *
+ * bmh = bml_open(char *bm_file_name);
+ * bmh->close(bmh);
+ * // or as macro
+ * bml_close(bmh);
+ *
+ * bm = klass->new(bmh);
+ * // or as macro
+ * bm = bml_new(bmh);
+ *
+ */
 #include "config.h"
 
 #include <sys/types.h>
@@ -848,6 +866,52 @@ bmlw_set_callbacks (BuzzMachine * bm, CHostCallbacks * callbacks)
 
 #endif /* USE_DLLWRAPPER_IPC */
 
+static ApiTable api[] = {
+  // global api
+  {(void **) &bmln_set_logger, "bm_set_logger"},
+  {(void **) &bmln_set_master_info, "bm_set_master_info"},
+  // class api
+  {(void **) &bmln_open, "bm_open"},
+  {(void **) &bmln_close, "bm_close"},
+  {(void **) &bmln_get_machine_info, "bm_get_machine_info"},
+  {(void **) &bmln_get_global_parameter_info, "bm_get_global_parameter_info"},
+  {(void **) &bmln_get_track_parameter_info, "bm_get_track_parameter_info"},
+  {(void **) &bmln_get_attribute_info, "bm_get_attribute_info"},
+  {(void **) &bmln_describe_global_value, "bm_describe_global_value"},
+  {(void **) &bmln_describe_track_value, "bm_describe_track_value"},
+  // instance api
+  {(void **) &bmln_new, "bm_new"},
+  {(void **) &bmln_free, "bm_free"},
+  {(void **) &bmln_init, "bm_init"},
+  {(void **) &bmln_get_track_parameter_value, "bm_get_track_parameter_value"},
+  {(void **) &bmln_set_track_parameter_value, "bm_set_track_parameter_value"},
+  {(void **) &bmln_get_global_parameter_value, "bm_get_global_parameter_value"},
+  {(void **) &bmln_set_global_parameter_value, "bm_set_global_parameter_value"},
+  {(void **) &bmln_get_attribute_value, "bm_get_attribute_value"},
+  {(void **) &bmln_set_attribute_value, "bm_set_attribute_value"},
+  {(void **) &bmln_tick, "bm_tick"},
+  {(void **) &bmln_work, "bm_work"},
+  {(void **) &bmln_work_m2s, "bm_work_m2s"},
+  {(void **) &bmln_stop, "bm_stop"},
+  {(void **) &bmln_attributes_changed, "bm_attributes_changed"},
+  {(void **) &bmln_set_num_tracks, "bm_set_num_tracks"},
+  {(void **) &bmln_set_callbacks, "bm_set_callbacks"},
+};
+
+static int
+get_symbols (void *so, ApiTable * tab, int entries)
+{
+  int i;
+
+  for (i = 0; i < entries; i++) {
+    if (!(*(tab[i].func) = dlsym (so, tab[i].symbol))) {
+      TRACE ("%s is missing\n", tab[i].symbol);
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
 int
 bml_setup (void)
 {
@@ -890,151 +954,13 @@ bml_setup (void)
     if (!(emu_so =
             dlopen (NATIVE_BML_DIR "/libbuzzmachineloader.so", RTLD_LAZY))) {
       TRACE ("   failed to load native bml : %s\n", dlerror ());
-      return (FALSE);
+      return FALSE;
     }
   }
   TRACE ("   native bml loaded\n");
 
-  if (!(bmln_set_logger = (BMSetLogger) dlsym (emu_so, "bm_set_logger"))) {
-    TRACE ("bm_set_logger is missing\n");
-    return (FALSE);
-  }
-
-  if (!(bmln_set_master_info =
-          (BMSetMasterInfo) dlsym (emu_so, "bm_set_master_info"))) {
-    TRACE ("bm_set_master_info is missing\n");
-    return (FALSE);
-  }
-
-
-  if (!(bmln_open = (BMOpen) dlsym (emu_so, "bm_open"))) {
-    TRACE ("bm_open is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_close = (BMClose) dlsym (emu_so, "bm_close"))) {
-    TRACE ("bm_close is missing\n");
-    return (FALSE);
-  }
-
-  if (!(bmln_get_machine_info =
-          (BMGetMachineInfo) dlsym (emu_so, "bm_get_machine_info"))) {
-    TRACE ("bm_get_machine_info is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_get_global_parameter_info =
-          (BMGetGlobalParameterInfo) dlsym (emu_so,
-              "bm_get_global_parameter_info"))) {
-    TRACE ("bm_get_global_parameter_info is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_get_track_parameter_info =
-          (BMGetTrackParameterInfo) dlsym (emu_so,
-              "bm_get_track_parameter_info"))) {
-    TRACE ("bm_get_track_parameter_info is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_get_attribute_info =
-          (BMGetAttributeInfo) dlsym (emu_so, "bm_get_attribute_info"))) {
-    TRACE ("bm_get_attribute_info is missing\n");
-    return (FALSE);
-  }
-
-  if (!(bmln_describe_global_value =
-          (BMDescribeGlobalValue) dlsym (emu_so, "bm_describe_global_value"))) {
-    TRACE ("bm_describe_global_value is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_describe_track_value =
-          (BMDescribeTrackValue) dlsym (emu_so, "bm_describe_track_value"))) {
-    TRACE ("bm_describe_track_value is missing\n");
-    return (FALSE);
-  }
-
-
-  if (!(bmln_new = (BMNew) dlsym (emu_so, "bm_new"))) {
-    TRACE ("bm_new is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_free = (BMFree) dlsym (emu_so, "bm_free"))) {
-    TRACE ("bm_free is missing\n");
-    return (FALSE);
-  }
-
-  if (!(bmln_init = (BMInit) dlsym (emu_so, "bm_init"))) {
-    TRACE ("bm_init is missing\n");
-    return (FALSE);
-  }
-
-  if (!(bmln_get_track_parameter_value =
-          (BMGetTrackParameterValue) dlsym (emu_so,
-              "bm_get_track_parameter_value"))) {
-    TRACE ("bm_get_track_parameter_value is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_set_track_parameter_value =
-          (BMSetTrackParameterValue) dlsym (emu_so,
-              "bm_set_track_parameter_value"))) {
-    TRACE ("bm_set_track_parameter_value is missing\n");
-    return (FALSE);
-  }
-
-  if (!(bmln_get_global_parameter_value =
-          (BMGetGlobalParameterValue) dlsym (emu_so,
-              "bm_get_global_parameter_value"))) {
-    TRACE ("bm_get_global_parameter_value is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_set_global_parameter_value =
-          (BMSetGlobalParameterValue) dlsym (emu_so,
-              "bm_set_global_parameter_value"))) {
-    TRACE ("bm_set_global_parameter_value is missing\n");
-    return (FALSE);
-  }
-
-  if (!(bmln_get_attribute_value =
-          (BMGetAttributeValue) dlsym (emu_so, "bm_get_attribute_value"))) {
-    TRACE ("bm_get_attribute_value is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_set_attribute_value =
-          (BMSetAttributeValue) dlsym (emu_so, "bm_set_attribute_value"))) {
-    TRACE ("bm_set_attribute_value is missing\n");
-    return (FALSE);
-  }
-
-  if (!(bmln_tick = (BMTick) dlsym (emu_so, "bm_tick"))) {
-    TRACE ("bm_tick is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_work = (BMWork) dlsym (emu_so, "bm_work"))) {
-    TRACE ("bm_work is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_work_m2s = (BMWorkM2S) dlsym (emu_so, "bm_work_m2s"))) {
-    TRACE ("bm_work_m2s is missing\n");
-    return (FALSE);
-  }
-  if (!(bmln_stop = (BMStop) dlsym (emu_so, "bm_stop"))) {
-    TRACE ("bm_stop is missing\n");
-    return (FALSE);
-  }
-
-  if (!(bmln_attributes_changed =
-          (BMAttributesChanged) dlsym (emu_so, "bm_attributes_changed"))) {
-    TRACE ("bm_attributes_changed is missing\n");
-    return (FALSE);
-  }
-
-  if (!(bmln_set_num_tracks =
-          (BMSetNumTracks) dlsym (emu_so, "bm_set_num_tracks"))) {
-    TRACE ("bm_set_num_tracks is missing\n");
-    return (FALSE);
-  }
-
-  if (!(bmln_set_callbacks =
-          (BMSetCallbacks) dlsym (emu_so, "bm_set_callbacks"))) {
-    TRACE ("bm_set_callbacks is missing\n");
-    return (FALSE);
+  if (!get_symbols (emu_so, api, sizeof (api) / sizeof (api[0]))) {
+    return FALSE;
   }
 
   TRACE ("   symbols connected\n");
