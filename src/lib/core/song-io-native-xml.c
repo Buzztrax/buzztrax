@@ -69,7 +69,7 @@ bt_song_io_native_xml_load (gconstpointer const _self,
       xmlNodePtr const root_node = xmlDocGetRootElement (song_doc);
 
       if (root_node == NULL) {
-        // this cannot really happen, since a missing too tag would fail the
+        // this cannot really happen, since a missing root tag would fail the
         // validity checks
         GST_WARNING ("XML document is empty");
         g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
@@ -92,14 +92,15 @@ bt_song_io_native_xml_load (gconstpointer const _self,
       }
       xmlFreeDoc (song_doc);
     } else {
+      /* other things that can be checked:
+       * ctxt->valid: DTD validation issue, we don't use a DTD anymore, also
+       *              set if !wellFormed
+       * ctxt->nsWellFormed:Namespace issue
+       */
       if (!ctxt->wellFormed) {
         GST_WARNING ("is not a wellformed XML document");
         g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
             _("Is not a wellformed XML document."));
-      } else if (!ctxt->valid) {
-        GST_WARNING ("is not a XML/Buzztrax document");
-        g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
-            _("Is not a XML/Buzztrax document."));
       } else {
         GST_WARNING ("failed to read song file '%s'",
             file_name ? file_name : "data");
