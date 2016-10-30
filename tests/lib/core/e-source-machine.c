@@ -134,6 +134,26 @@ test_bt_source_machine_pattern_by_id (BT_TEST_ARGS)
 }
 
 static void
+test_bt_source_machine_pattern_by_index (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSourceMachine *machine =
+      bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
+
+  GST_INFO ("-- act --");
+  BtPattern *pattern = bt_machine_get_pattern_by_index (machine,
+      BT_SOURCE_MACHINE_PATTERN_INDEX_MUTE);
+
+  GST_INFO ("-- assert --");
+  fail_unless (pattern != NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_object_unref (pattern);
+  BT_TEST_END;
+}
+
+static void
 test_bt_source_machine_pattern_by_list (BT_TEST_ARGS)
 {
   BT_TEST_START;
@@ -214,6 +234,7 @@ bt_source_machine_example_case (void)
   tcase_add_test (tc, test_bt_source_machine_def_patterns);
   tcase_add_test (tc, test_bt_source_machine_pattern);
   tcase_add_test (tc, test_bt_source_machine_pattern_by_id);
+  tcase_add_test (tc, test_bt_source_machine_pattern_by_index);
   tcase_add_test (tc, test_bt_source_machine_pattern_by_list);
   tcase_add_test (tc, test_bt_source_machine_change_voices);
   tcase_add_test (tc, test_bt_source_machine_ref);
