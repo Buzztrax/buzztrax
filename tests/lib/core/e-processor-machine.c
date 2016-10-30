@@ -142,7 +142,7 @@ test_bt_processor_machine_pattern_by_index (BT_TEST_ARGS)
       bt_processor_machine_new (song, "vol", "volume", 0, NULL);
 
   GST_INFO ("-- act --");
-  BtPattern *pattern = bt_machine_get_pattern_by_index (machine,
+  BtCmdPattern *pattern = bt_machine_get_pattern_by_index (machine,
       BT_PROCESSOR_MACHINE_PATTERN_INDEX_MUTE);
 
   GST_INFO ("-- assert --");
