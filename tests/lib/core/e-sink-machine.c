@@ -176,7 +176,7 @@ test_bt_sink_machine_pattern_by_index (BT_TEST_ARGS)
   BtSinkMachine *machine = bt_sink_machine_new (song, "master", NULL);
 
   GST_INFO ("-- act --");
-  BtCmdPattern *pattern = bt_machine_get_pattern_by_index (machine,
+  BtCmdPattern *pattern = bt_machine_get_pattern_by_index (BT_MACHINE (machine),
       BT_SINK_MACHINE_PATTERN_INDEX_MUTE);
 
   GST_INFO ("-- assert --");

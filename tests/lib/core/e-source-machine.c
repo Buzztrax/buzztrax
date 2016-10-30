@@ -142,7 +142,7 @@ test_bt_source_machine_pattern_by_index (BT_TEST_ARGS)
       bt_source_machine_new (song, "gen", "buzztrax-test-mono-source", 0, NULL);
 
   GST_INFO ("-- act --");
-  BtCmdPattern *pattern = bt_machine_get_pattern_by_index (machine,
+  BtCmdPattern *pattern = bt_machine_get_pattern_by_index (BT_MACHINE (machine),
       BT_SOURCE_MACHINE_PATTERN_INDEX_MUTE);
 
   GST_INFO ("-- assert --");
