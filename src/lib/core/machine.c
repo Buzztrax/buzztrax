@@ -510,6 +510,8 @@ bt_machine_link_elements (const BtMachine * const self, GstPad * src,
   GstPadLinkReturn plr;
 
   if (GST_PAD_LINK_FAILED (plr = gst_pad_link (src, sink))) {
+    GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
+        GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
     GST_WARNING_OBJECT (self, "can't link %s:%s with %s:%s: %d",
         GST_DEBUG_PAD_NAME (src), GST_DEBUG_PAD_NAME (sink), plr);
     GST_WARNING_OBJECT (self, "%s", bt_gst_debug_pad_link_return (plr, src,
@@ -888,8 +890,6 @@ bt_machine_add_input_element (BtMachine * const self, const BtMachinePart part)
     GST_DEBUG_OBJECT (sink_pads[tix],
         "target is not yet connected on the input side");
     if (!bt_machine_link_elements (self, src_pads[part], sink_pads[tix])) {
-      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
-          GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
       GST_ERROR_OBJECT (self, "failed to link the element '%s' for '%s'",
           GST_OBJECT_NAME (machines[part]),
           GST_OBJECT_NAME (machines[PART_MACHINE]));
@@ -949,8 +949,6 @@ bt_machine_add_output_element (BtMachine * const self, const BtMachinePart part)
     GST_DEBUG_OBJECT (src_pads[tix],
         "target is not yet connected on the output side");
     if (!bt_machine_link_elements (self, src_pads[tix], sink_pads[part])) {
-      GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
-          GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-machine");
       GST_ERROR_OBJECT (self, "failed to link the element '%s' for '%s'",
           GST_OBJECT_NAME (machines[part]),
           GST_OBJECT_NAME (machines[PART_MACHINE]));
