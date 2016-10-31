@@ -223,6 +223,30 @@ test_bt_parameter_group_set_default_trigger (BT_TEST_ARGS)
 }
 
 static void
+test_bt_parameter_group_set_defaults (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtParameterGroup *pg = get_mono_parameter_group ();
+  GstObject *element =
+      (GstObject *) check_gobject_get_object_property (machine, "machine");
+  GstControlBinding *cb = gst_object_get_control_binding (element, "g-ulong");
+  g_object_set (element, "g-ulong", 10, NULL);
+
+  GST_INFO ("-- act --");
+  bt_parameter_group_set_param_defaults (pg);
+
+  GST_INFO ("-- assert --");
+  GValue *val = gst_control_binding_get_value (cb, G_GUINT64_CONSTANT (0));
+  gulong uval = g_value_get_ulong (val);
+  ck_assert_int_eq (uval, 10);
+
+  GST_INFO ("-- cleanup --");
+  gst_object_unref (element);
+  BT_TEST_END;
+}
+
+static void
 test_bt_parameter_group_reset_all (BT_TEST_ARGS)
 {
   BT_TEST_START;
@@ -258,6 +282,7 @@ bt_parameter_group_example_case (void)
   tcase_add_test (tc, test_bt_parameter_group_set_value);
   tcase_add_test (tc, test_bt_parameter_group_set_default);
   tcase_add_test (tc, test_bt_parameter_group_set_default_trigger);
+  tcase_add_test (tc, test_bt_parameter_group_set_defaults);
   tcase_add_test (tc, test_bt_parameter_group_reset_all);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);

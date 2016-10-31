@@ -454,6 +454,31 @@ test_bt_machine_pretty_name_with_detail (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_machine_set_defaults (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztrax-test-mono-source", 0, NULL));
+  GstObject *element =
+      (GstObject *) check_gobject_get_object_property (machine, "machine");
+  GstControlBinding *cb = gst_object_get_control_binding (element, "g-ulong");
+  g_object_set (element, "g-ulong", 10, NULL);
+
+  GST_INFO ("-- act --");
+  bt_machine_set_param_defaults (machine);
+
+  GST_INFO ("-- assert --");
+  GValue *val = gst_control_binding_get_value (cb, G_GUINT64_CONSTANT (0));
+  gulong uval = g_value_get_ulong (val);
+  ck_assert_int_eq (uval, 10);
+
+  GST_INFO ("-- cleanup --");
+  gst_object_unref (element);
+  BT_TEST_END;
+}
+
 TCase *
 bt_machine_example_case (void)
 {
@@ -477,6 +502,7 @@ bt_machine_example_case (void)
   tcase_add_test (tc, test_bt_machine_state_not_overridden);
   tcase_add_test (tc, test_bt_machine_pretty_name);
   tcase_add_test (tc, test_bt_machine_pretty_name_with_detail);
+  tcase_add_test (tc, test_bt_machine_set_defaults);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
