@@ -74,7 +74,7 @@ test_bt_pattern_control_source_new (BT_TEST_ARGS)
       GST_OBJECT (check_gobject_get_object_property (machine, "machine"));
 
   GST_INFO ("-- act --");
-  BtPatternControlSource *pcs = bt_pattern_control_source_new (m, "g-ulong",
+  BtPatternControlSource *pcs = bt_pattern_control_source_new (m, "g-uint",
       sequence, song_info, machine, pg);
 
   GST_INFO ("-- assert --");
@@ -95,14 +95,14 @@ test_bt_pattern_control_source_normal_default_for_empty_pattern (BT_TEST_ARGS)
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
 
-  g_object_set (element, "g-ulong", 10, NULL);
+  g_object_set (element, "g-uint", 10, NULL);
   bt_parameter_group_set_param_default (pg, 0);
 
   GST_INFO ("-- act --");
   gst_object_sync_values (element, G_GUINT64_CONSTANT (0));
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 10);
+  ck_assert_gobject_guint_eq (element, "g-uint", 10);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
@@ -120,14 +120,14 @@ test_bt_pattern_control_source_normal_default_for_cmd_pattern (BT_TEST_ARGS)
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, pattern);
 
-  g_object_set (element, "g-ulong", 10, NULL);
+  g_object_set (element, "g-uint", 10, NULL);
   bt_parameter_group_set_param_default (pg, 0);
 
   GST_INFO ("-- act --");
   gst_object_sync_values (element, G_GUINT64_CONSTANT (0));
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 10);
+  ck_assert_gobject_guint_eq (element, "g-uint", 10);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
@@ -165,7 +165,7 @@ test_bt_pattern_control_source_override_default_from_pattern (BT_TEST_ARGS)
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
 
-  g_object_set (element, "g-ulong", 10, NULL);
+  g_object_set (element, "g-uint", 10, NULL);
   bt_parameter_group_set_param_default (pg, 0);
 
   bt_pattern_set_global_event (pattern, 0, 0, "100");
@@ -174,7 +174,7 @@ test_bt_pattern_control_source_override_default_from_pattern (BT_TEST_ARGS)
   gst_object_sync_values (element, G_GUINT64_CONSTANT (0));
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 100);
+  ck_assert_gobject_guint_eq (element, "g-uint", 100);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
@@ -191,7 +191,7 @@ test_bt_pattern_control_source_restore_default_on_pattern_cleared (BT_TEST_ARGS)
   bt_sequence_add_track (sequence, machine, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
 
-  g_object_set (element, "g-ulong", 10, NULL);
+  g_object_set (element, "g-uint", 10, NULL);
   bt_parameter_group_set_param_default (pg, 0);
 
   bt_pattern_set_global_event (pattern, 0, 0, "100");
@@ -201,7 +201,7 @@ test_bt_pattern_control_source_restore_default_on_pattern_cleared (BT_TEST_ARGS)
   gst_object_sync_values (element, G_GUINT64_CONSTANT (0));
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 10);
+  ck_assert_gobject_guint_eq (element, "g-uint", 10);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
@@ -223,7 +223,7 @@ test_bt_pattern_control_source_change_pattern (BT_TEST_ARGS)
   gst_object_sync_values (element, G_GUINT64_CONSTANT (0));
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 100);
+  ck_assert_gobject_guint_eq (element, "g-uint", 100);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
@@ -247,7 +247,7 @@ test_bt_pattern_control_source_hold_normal (BT_TEST_ARGS)
   gst_object_sync_values (element, G_GUINT64_CONSTANT (1) * tick_time);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 50);
+  ck_assert_gobject_guint_eq (element, "g-uint", 50);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);
@@ -298,7 +298,7 @@ test_bt_pattern_control_source_combine_pattern_shadows (BT_TEST_ARGS)
   gst_object_sync_values (element, G_GUINT64_CONSTANT (4) * tick_time);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 200);
+  ck_assert_gobject_guint_eq (element, "g-uint", 200);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern1);
@@ -329,7 +329,7 @@ test_bt_pattern_control_source_combine_pattern_unshadows (BT_TEST_ARGS)
   gst_object_sync_values (element, G_GUINT64_CONSTANT (4) * tick_time);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 100);
+  ck_assert_gobject_guint_eq (element, "g-uint", 100);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern1);
@@ -360,7 +360,7 @@ test_bt_pattern_control_source_combine_value_unshadows (BT_TEST_ARGS)
   gst_object_sync_values (element, G_GUINT64_CONSTANT (4) * tick_time);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 50);
+  ck_assert_gobject_guint_eq (element, "g-uint", 50);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern1);
@@ -389,7 +389,7 @@ test_bt_pattern_control_source_combine_two_tracks (BT_TEST_ARGS)
   gst_object_sync_values (element, G_GUINT64_CONSTANT (1) * tick_time);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 100);
+  ck_assert_gobject_guint_eq (element, "g-uint", 100);
 
   GST_INFO ("-- cleanup --");
   g_object_unref (pattern);

@@ -63,7 +63,7 @@ bt_test_sparse_enum_get_type (void)
 enum
 {
   PROP_VOICES = 1,              // child bin iface
-  PROP_ULONG,                   // controlable
+  PROP_UINT,                    // controlable
   PROP_DOUBLE,
   PROP_SWITCH,
   PROP_NOTE,
@@ -165,8 +165,8 @@ bt_test_mono_source_get_property (GObject * object, guint property_id,
   BtTestMonoSource *self = BT_TEST_MONO_SOURCE (object);
 
   switch (property_id) {
-    case PROP_ULONG:
-      g_value_set_ulong (value, self->ulong_val);
+    case PROP_UINT:
+      g_value_set_uint (value, self->uint_val);
       break;
     case PROP_DOUBLE:
       g_value_set_double (value, self->double_val);
@@ -196,8 +196,8 @@ bt_test_mono_source_set_property (GObject * object, guint property_id,
   BtTestMonoSource *self = BT_TEST_MONO_SOURCE (object);
 
   switch (property_id) {
-    case PROP_ULONG:
-      self->ulong_val = g_value_get_ulong (value);
+    case PROP_UINT:
+      self->uint_val = g_value_get_uint (value);
       break;
     case PROP_DOUBLE:
       self->double_val = g_value_get_double (value);
@@ -269,11 +269,11 @@ bt_test_mono_source_class_init (BtTestMonoSourceClass * klass)
 
   element_class->set_context = bt_test_mono_source_set_context;
 
-  g_object_class_install_property (gobject_class, PROP_ULONG,
-      g_param_spec_ulong ("g-ulong",
-          "ulong prop",
-          "ulong number parameter for the test_mono_source",
-          0, G_MAXULONG, 0,
+  g_object_class_install_property (gobject_class, PROP_UINT,
+      g_param_spec_uint ("g-uint",
+          "uint prop",
+          "uint number parameter for the test_mono_source",
+          0, G_MAXUINT, 0,
           G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_DOUBLE,
@@ -352,8 +352,8 @@ bt_test_poly_source_get_property (GObject * object, guint property_id,
     case PROP_VOICES:
       g_value_set_ulong (value, self->num_voices);
       break;
-    case PROP_ULONG:
-      g_value_set_ulong (value, self->ulong_val);
+    case PROP_UINT:
+      g_value_set_uint (value, self->uint_val);
       break;
     case PROP_DOUBLE:
       g_value_set_double (value, self->double_val);
@@ -402,8 +402,8 @@ bt_test_poly_source_set_property (GObject * object, guint property_id,
         }
       }
       break;
-    case PROP_ULONG:
-      self->ulong_val = g_value_get_ulong (value);
+    case PROP_UINT:
+      self->uint_val = g_value_get_uint (value);
       break;
     case PROP_DOUBLE:
       self->double_val = g_value_get_double (value);
@@ -489,11 +489,11 @@ bt_test_poly_source_class_init (BtTestPolySourceClass * klass)
 
   g_object_class_override_property (gobject_class, PROP_VOICES, "children");
 
-  g_object_class_install_property (gobject_class, PROP_ULONG,
-      g_param_spec_ulong ("v-ulong",
-          "ulong prop",
-          "ulong number parameter for the test_poly_source",
-          0, G_MAXULONG, 0, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
+  g_object_class_install_property (gobject_class, PROP_UINT,
+      g_param_spec_uint ("v-uint",
+          "uint prop",
+          "uint number parameter for the test_poly_source",
+          0, G_MAXUINT, 0, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
 
   g_object_class_install_property (gobject_class, PROP_DOUBLE,
       g_param_spec_double ("v-double",

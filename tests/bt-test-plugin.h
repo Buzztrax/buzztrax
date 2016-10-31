@@ -80,7 +80,7 @@ struct _BtTestMonoSource {
   GstElement parent;
 
   // test properties
-  gulong ulong_val;
+  guint uint_val;
   gdouble double_val;
   gboolean switch_val;
   GstBtNote note_val;
@@ -119,7 +119,7 @@ struct _BtTestPolySource {
   GstElement parent;
 
   // test properties
-  gulong ulong_val;
+  guint uint_val;
   gdouble double_val;
   gboolean switch_val;
   GstBtNote note_val;

@@ -21,6 +21,8 @@
 
 static BtApplication *app;
 static BtSong *song;
+static BtIcRegistry *registry;
+static BtIcDevice *device;
 
 //-- fixtures
 
@@ -28,6 +30,7 @@ static void
 case_setup (void)
 {
   BT_CASE_START;
+  btic_init (NULL, NULL);
 }
 
 static void
@@ -36,11 +39,16 @@ test_setup (void)
   app = bt_test_application_new ();
   song = bt_song_new (app);
   bt_sink_machine_new (song, "master", NULL);
+
+  registry = btic_registry_new ();
+  device = (BtIcDevice *) btic_test_device_new ("test");
+  btic_registry_add_device (device);
 }
 
 static void
 test_teardown (void)
 {
+  ck_g_object_final_unref (registry);
   ck_g_object_final_unref (song);
   ck_g_object_final_unref (app);
 }
@@ -463,21 +471,49 @@ test_bt_machine_set_defaults (BT_TEST_ARGS)
           "buzztrax-test-mono-source", 0, NULL));
   GstObject *element =
       (GstObject *) check_gobject_get_object_property (machine, "machine");
-  GstControlBinding *cb = gst_object_get_control_binding (element, "g-ulong");
-  g_object_set (element, "g-ulong", 10, NULL);
+  GstControlBinding *cb = gst_object_get_control_binding (element, "g-uint");
+  g_object_set (element, "g-uint", 10, NULL);
 
   GST_INFO ("-- act --");
   bt_machine_set_param_defaults (machine);
 
   GST_INFO ("-- assert --");
   GValue *val = gst_control_binding_get_value (cb, G_GUINT64_CONSTANT (0));
-  gulong uval = g_value_get_ulong (val);
+  guint uval = g_value_get_uint (val);
   ck_assert_int_eq (uval, 10);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (element);
   BT_TEST_END;
 }
+
+static void
+test_bt_machine_bind_parameter_control (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztrax-test-mono-source", 0, NULL));
+  GstObject *element =
+      (GstObject *) check_gobject_get_object_property (machine, "machine");
+  BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
+  BtIcControl *control = btic_device_get_control_by_name (device, "abs1");
+  g_object_set (element, "g-uint", 10, NULL);
+
+  bt_machine_bind_parameter_control (machine, element, "g-uint", control, pg);
+
+  GST_INFO ("-- act --");
+  g_object_set (control, "value", 0, NULL);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_gulong_eq (element, "g-uint", 0);
+
+  GST_INFO ("-- cleanup --");
+  gst_object_unref (element);
+  g_object_unref (control);
+  BT_TEST_END;
+}
+
 
 TCase *
 bt_machine_example_case (void)
@@ -503,6 +539,7 @@ bt_machine_example_case (void)
   tcase_add_test (tc, test_bt_machine_pretty_name);
   tcase_add_test (tc, test_bt_machine_pretty_name_with_detail);
   tcase_add_test (tc, test_bt_machine_set_defaults);
+  tcase_add_test (tc, test_bt_machine_bind_parameter_control);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

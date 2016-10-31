@@ -165,7 +165,7 @@ test_bt_parameter_group_set_value (BT_TEST_ARGS)
   bt_parameter_group_set_param_value (pg, 0, &val);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 10);
+  ck_assert_gobject_guint_eq (element, "g-uint", 10);
 
   GST_INFO ("-- cleanup --");
   gst_object_unref (element);
@@ -182,15 +182,15 @@ test_bt_parameter_group_set_default (BT_TEST_ARGS)
   BtParameterGroup *pg = get_mono_parameter_group ();
   GstObject *element =
       (GstObject *) check_gobject_get_object_property (machine, "machine");
-  GstControlBinding *cb = gst_object_get_control_binding (element, "g-ulong");
-  g_object_set (element, "g-ulong", 10, NULL);
+  GstControlBinding *cb = gst_object_get_control_binding (element, "g-uint");
+  g_object_set (element, "g-uint", 10, NULL);
 
   GST_INFO ("-- act --");
   bt_parameter_group_set_param_default (pg, 0);
 
   GST_INFO ("-- assert --");
   GValue *val = gst_control_binding_get_value (cb, G_GUINT64_CONSTANT (0));
-  gulong uval = g_value_get_ulong (val);
+  guint uval = g_value_get_uint (val);
   ck_assert_int_eq (uval, 10);
 
   GST_INFO ("-- cleanup --");
@@ -230,15 +230,15 @@ test_bt_parameter_group_set_defaults (BT_TEST_ARGS)
   BtParameterGroup *pg = get_mono_parameter_group ();
   GstObject *element =
       (GstObject *) check_gobject_get_object_property (machine, "machine");
-  GstControlBinding *cb = gst_object_get_control_binding (element, "g-ulong");
-  g_object_set (element, "g-ulong", 10, NULL);
+  GstControlBinding *cb = gst_object_get_control_binding (element, "g-uint");
+  g_object_set (element, "g-uint", 10, NULL);
 
   GST_INFO ("-- act --");
   bt_parameter_group_set_param_defaults (pg);
 
   GST_INFO ("-- assert --");
   GValue *val = gst_control_binding_get_value (cb, G_GUINT64_CONSTANT (0));
-  gulong uval = g_value_get_ulong (val);
+  guint uval = g_value_get_uint (val);
   ck_assert_int_eq (uval, 10);
 
   GST_INFO ("-- cleanup --");
@@ -254,13 +254,13 @@ test_bt_parameter_group_reset_all (BT_TEST_ARGS)
   BtParameterGroup *pg = get_mono_parameter_group ();
   GstObject *element =
       (GstObject *) check_gobject_get_object_property (machine, "machine");
-  g_object_set (element, "g-ulong", 10, "g-switch", TRUE, NULL);
+  g_object_set (element, "g-uint", 10, "g-switch", TRUE, NULL);
 
   GST_INFO ("-- act --");
   bt_parameter_group_reset_values (pg);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_gulong_eq (element, "g-ulong", 0);
+  ck_assert_gobject_guint_eq (element, "g-uint", 0);
   ck_assert_gobject_gboolean_eq (element, "g-switch", FALSE);
 
   GST_INFO ("-- cleanup --");
