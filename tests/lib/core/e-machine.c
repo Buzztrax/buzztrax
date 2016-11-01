@@ -514,6 +514,62 @@ test_bt_machine_bind_parameter_control (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bt_machine_unbind_parameter_control (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztrax-test-mono-source", 0, NULL));
+  GstObject *element =
+      (GstObject *) check_gobject_get_object_property (machine, "machine");
+  BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
+  BtIcControl *control = btic_device_get_control_by_name (device, "abs1");
+  g_object_set (element, "g-uint", 10, NULL);
+  bt_machine_bind_parameter_control (machine, element, "g-uint", control, pg);
+  g_object_set (control, "value", 0, NULL);
+
+  GST_INFO ("-- act --");
+  bt_machine_unbind_parameter_control (machine, element, "g-uint");
+  g_object_set (control, "value", 100, NULL);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_gulong_eq (element, "g-uint", 0);
+
+  GST_INFO ("-- cleanup --");
+  gst_object_unref (element);
+  g_object_unref (control);
+  BT_TEST_END;
+}
+
+static void
+test_bt_machine_unbind_parameter_controls (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "id",
+          "buzztrax-test-mono-source", 0, NULL));
+  GstObject *element =
+      (GstObject *) check_gobject_get_object_property (machine, "machine");
+  BtParameterGroup *pg = bt_machine_get_global_param_group (machine);
+  BtIcControl *control = btic_device_get_control_by_name (device, "abs1");
+  g_object_set (element, "g-uint", 10, NULL);
+  bt_machine_bind_parameter_control (machine, element, "g-uint", control, pg);
+  g_object_set (control, "value", 0, NULL);
+
+  GST_INFO ("-- act --");
+  bt_machine_unbind_parameter_controls (machine);
+  g_object_set (control, "value", 100, NULL);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_gulong_eq (element, "g-uint", 0);
+
+  GST_INFO ("-- cleanup --");
+  gst_object_unref (element);
+  g_object_unref (control);
+  BT_TEST_END;
+}
+
 
 TCase *
 bt_machine_example_case (void)
@@ -540,6 +596,8 @@ bt_machine_example_case (void)
   tcase_add_test (tc, test_bt_machine_pretty_name_with_detail);
   tcase_add_test (tc, test_bt_machine_set_defaults);
   tcase_add_test (tc, test_bt_machine_bind_parameter_control);
+  tcase_add_test (tc, test_bt_machine_unbind_parameter_control);
+  tcase_add_test (tc, test_bt_machine_unbind_parameter_controls);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);
