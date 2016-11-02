@@ -86,7 +86,7 @@ bt_settings_dialog_example_case (void)
   TCase *tc = tcase_create ("BtSettingsDialogExamples");
 
   tcase_add_loop_test (tc, test_bt_settings_dialog_create, 0,
-      BT_SETTINGS_PAGE_DIRECTORIES + 1);
+      BT_SETTINGS_PAGES_COUNT);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return (tc);

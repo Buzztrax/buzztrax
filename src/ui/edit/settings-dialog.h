@@ -59,6 +59,7 @@ struct _BtSettingsDialogClass {
  * @BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER: playback controller
  * @BT_SETTINGS_PAGE_SHORTCUTS: shortcuts
  * @BT_SETTINGS_PAGE_UI: themes and colors
+ * @BT_SETTINGS_PAGES_COUNT: number of settings pages
  *
  * Ids for the setting pages.
  */
@@ -68,7 +69,8 @@ typedef enum {
   BT_SETTINGS_PAGE_INTERACTION_CONTROLLER,
   BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER,
   BT_SETTINGS_PAGE_SHORTCUTS,
-  BT_SETTINGS_PAGE_UI
+  BT_SETTINGS_PAGE_UI,
+  BT_SETTINGS_PAGES_COUNT
 } BtSettingsPage;
 
 #define BT_TYPE_SETTINGS_PAGE (bt_settings_page_get_type())

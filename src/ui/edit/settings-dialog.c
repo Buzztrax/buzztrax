@@ -377,6 +377,9 @@ bt_settings_dialog_get_property (GObject * object, guint property_id,
         case BT_SETTINGS_PAGE_UI:
           g_value_set_object (value, self->priv->ui_page);
           break;
+        default:
+          g_assert_not_reached ();
+          break;
       }
       break;
     default:
