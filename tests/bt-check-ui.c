@@ -34,6 +34,7 @@
 //-- gstreamer
 #include <gst/gst.h>
 
+#include "bt-check.h"
 #include "bt-check-ui.h"
 
 // gtk+ gui tests
@@ -357,19 +358,21 @@ make_screenshot (GtkWidget * widget)
   return gdk_pixbuf_get_from_window (window, 0, 0, ww, wh);
 }
 
+// creates files names under the test data dir
 static gchar *
 make_filename (GtkWidget * widget, const gchar * name)
 {
   gchar *filename;
 
   if (!name) {
-    filename = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s_%s.png",
-        g_get_tmp_dir (), g_get_prgname (), gtk_widget_get_name (widget));
+    filename = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s.png",
+        get_suite_log_base (), gtk_widget_get_name (widget));
   } else {
-    filename = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s_%s_%s.png",
-        g_get_tmp_dir (), g_get_prgname (), gtk_widget_get_name (widget), name);
+    filename = g_strdup_printf ("%s" G_DIR_SEPARATOR_S "%s_%s.png",
+        get_suite_log_base (), gtk_widget_get_name (widget), name);
   }
-  return (filename);
+  g_strdelimit (filename, " ", '_');
+  return filename;
 }
 
 static void

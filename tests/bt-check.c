@@ -120,6 +120,7 @@ static GLogLevelFlags __fatal_mask = 0;
 
 // set during setup_log_*() and leaked :/
 static const gchar *__log_root = NULL;  // /tmp
+static const gchar *__log_suite = NULL; // /tmp/<suite>
 static gchar *__log_base = NULL;        // the test binary
 static gchar *__log_case = NULL;        // the test case
 static const gchar *__log_test = NULL;  // the actual test
@@ -358,7 +359,7 @@ check_gst_log_handler (GstDebugCategory * category,
 #endif
 
 static void
-reset_log (gchar * path, gchar * file)
+reset_log (const gchar * path, const gchar * file)
 {
   if (path) {
     g_mkdir_with_parents (path, 0755);
@@ -376,7 +377,7 @@ reset_log (gchar * path, gchar * file)
 void
 setup_log_base (gint argc, gchar ** argv)
 {
-  gchar *log, *path;
+  gchar *log;
 
   __log_root = g_get_tmp_dir ();
 
@@ -402,9 +403,8 @@ setup_log_base (gint argc, gchar ** argv)
   g_free (log);
 
   // ensure directory and reset log file
-  path = g_build_filename (__log_root, __log_base, NULL);
-  reset_log (path, __log_file_name);
-  g_free (path);
+  __log_suite = g_build_filename (__log_root, __log_base, NULL);
+  reset_log (__log_suite, __log_file_name);
 }
 
 void
@@ -534,12 +534,19 @@ collect_logs (gboolean no_failures)
 }
 
 const gchar *
+get_suite_log_base (void)
+{
+  return __log_suite;
+}
+
+const gchar *
 get_suite_log_filename (void)
 {
-  static gchar log_suite[PATH_MAX];
+  static gchar suite_log_fn[PATH_MAX];
 
-  sprintf (log_suite, "%s/%s/log.xml", __log_root, __log_base);
-  return log_suite;
+  sprintf (suite_log_fn, "%s" G_DIR_SEPARATOR_S "log.xml", __log_suite);
+  reset_log (__log_suite, suite_log_fn);
+  return suite_log_fn;
 }
 
 /*

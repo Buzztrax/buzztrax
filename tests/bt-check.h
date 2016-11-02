@@ -244,6 +244,7 @@ void setup_log_case(const gchar * file_name);
 void setup_log_test(const gchar * func_name, gint i);
 void setup_log_capture(void);
 void collect_logs(gboolean no_failures);
+const gchar *get_suite_log_base(void);
 const gchar *get_suite_log_filename(void);
 
 void check_run_main_loop_for_usec(gulong usec);
