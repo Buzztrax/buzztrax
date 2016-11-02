@@ -100,9 +100,6 @@ update_figures:
 	if [ -e "$$base/song_rendering.png" ]; then \
 	  pngtopnm "$$base/song_rendering.png" | ../../mk-shadow.sh | pnmtopng >figures/recording-settings.png; \
 	fi; \
-	if [ -e "$$base/song_render_progress.png" ]; then \
-	  pngtopnm "$$base/song_render_progress.png" | ../../mk-shadow.sh | pnmtopng >figures/recording-progress.png; \
-	fi; \
 	if [ -e "$$base/Missing_elements_in_song.png" ]; then \
 	  pngtopnm "$$base/Missing_elements_in_song.png" | ../../mk-shadow.sh | pnmtopng >figures/missing-song-elements.png; \
 	fi; \

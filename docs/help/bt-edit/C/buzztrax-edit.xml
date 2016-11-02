@@ -423,7 +423,7 @@
         Effects and the Master. Effects can be inked to other Effects and the
         Master. It is not possible to create loops in the signal flow.
         Fully connected machines are shown in bright color and disconnected ones
-        in a desaturated style. 
+        in a desaturated style.
         Alternatively you can select "connect machines" from the right-click
         context menu of a machine. Again you need to move the mouse to the target
         machine and click it.
@@ -752,7 +752,7 @@ i o p</keycap></screen></entry>
       <title id="bt-edit-main-view-sequence.title">The sequence view of a song</title>
       <para>
         A song consists of several tracks (columns), where in each track patterns
-        are played. There can be several tracks for the same machine. 
+        are played. There can be several tracks for the same machine.
         The rows are time slots. The position column can show the time in
         different formats such as ticks and time. The label column can be use to
         annotate parts of the song, such as 'verse' and 'chorus' for easy
@@ -1491,19 +1491,6 @@ i o p</keycap></screen></entry>
         </mediaobject>
       </screenshot>
     </figure>
-    <figure id="bt-edit-dialog-song-recording-progress-fig">
-      <title>Song recording progress dialog</title>
-      <screenshot>
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="figures/recording-progress.png" format="PNG" contentwidth="65%"/>
-          </imageobject>
-          <textobject>
-            <phrase>Song recording progress dialog.</phrase>
-          </textobject>
-        </mediaobject>
-      </screenshot>
-    </figure>
   </sect2>
   <sect2 id="bt-edit-dialog-about">
     <title id="bt-edit-dialog-about.title">About dialog</title>
@@ -1615,7 +1602,7 @@ i o p</keycap></screen></entry>
     <para>
       A complete list of keyboard shortcuts is listed on
       <ulink url="http://wiki.buzztrax.org/index.php/Keyboard_shortcuts">the buzztrax wiki</ulink>.
-      Each of <link linkend="bt-edit-main-views" endterm="bt-edit-main-views.title" /> 
+      Each of <link linkend="bt-edit-main-views" endterm="bt-edit-main-views.title" />
       has a table describing the local keyboard shortcuts.
     </para>
   </sect2>
