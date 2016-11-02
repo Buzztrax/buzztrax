@@ -1234,21 +1234,21 @@ i o p</keycap></screen></entry>
       </figure>
     </sect3>
 
-    <sect3 id="bt-edit-prefs-colors">
-      <title id="bt-edit-prefs-colors.title">Color settings</title>
+    <sect3 id="bt-edit-prefs-ui">
+      <title id="bt-edit-prefs-ui.title">Ui settings</title>
 
       <para>
-        (FIXME: no theme settings yet)
+        Configure UI styling.
       </para>
-      <figure id="bt-edit-settings-colors-fig">
+      <figure id="bt-edit-settings-ui-fig">
         <title>Colors settings</title>
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/settings-colors.png" format="PNG" contentwidth="65%"/>
+              <imagedata fileref="figures/settings-ui.png" format="PNG" contentwidth="65%"/>
             </imageobject>
             <textobject>
-              <phrase>Colors settings.</phrase>
+              <phrase>Ui settings.</phrase>
             </textobject>
           </mediaobject>
         </screenshot>
