@@ -36,6 +36,7 @@ main (gint argc, gchar ** argv)
 
   sr = srunner_create (bml_core_suite ());
   //srunner_add_suite (sr, bml_???_suite ());
+  srunner_set_xml (sr, get_suite_log_filename ());
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);
   srunner_free (sr);

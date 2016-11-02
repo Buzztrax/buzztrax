@@ -533,6 +533,14 @@ collect_logs (gboolean no_failures)
   g_free (cmd);
 }
 
+const gchar *
+get_suite_log_filename (void)
+{
+  static gchar log_suite[PATH_MAX];
+
+  sprintf (log_suite, "%s/%s/log.xml", __log_root, __log_base);
+  return log_suite;
+}
 
 /*
  * file output tests:
