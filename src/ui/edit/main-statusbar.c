@@ -238,16 +238,11 @@ on_cpu_load_update (gpointer user_data)
 #ifdef USE_MAIN_LOOP_IDLE_TRACKER
   guint ml_lag = GST_TIME_AS_MSECONDS (self->priv->ml_tavg);
   gchar str[strlen ("CPU: 000 %, ML: 00000 ms") + 3];
-#else
-  gchar str[strlen ("CPU: 000 %") + 3];
-#endif
 
-  if (cpu_load > 100.0)
-    cpu_load = 100.0;
-
-#ifdef USE_MAIN_LOOP_IDLE_TRACKER
   g_sprintf (str, "CPU: %d %%, ML: %d ms", cpu_load, ml_lag);
 #else
+  gchar str[strlen ("CPU: 000 %") + 3];
+
   g_sprintf (str, "CPU: %d %%", cpu_load);
 #endif
   gtk_progress_bar_set_fraction (self->priv->cpu_load,

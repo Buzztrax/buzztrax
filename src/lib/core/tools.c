@@ -923,12 +923,13 @@ bt_cpu_load_get_current (void)
   cpuload =
       (guint) gst_util_uint64_scale (tuser + tsys, G_GINT64_CONSTANT (100),
       treal);
+  cpuload = (cpuload < 100) ? cpuload : 100;
   GST_LOG ("real %" GST_TIME_FORMAT ", user %" GST_TIME_FORMAT ", sys %"
       GST_TIME_FORMAT " => cpuload %d", GST_TIME_ARGS (treal),
       GST_TIME_ARGS (tuser), GST_TIME_ARGS (tsys), cpuload);
   //printf("user %6.4lf, sys %6.4lf\n",(double)tms.tms_utime/(double)clk,(double)tms.tms_stime/(double)clk);
 
-  return (cpuload);
+  return cpuload;
 }
 
 //-- string formatting helper
