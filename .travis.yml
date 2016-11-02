@@ -29,6 +29,7 @@ notifications:
 addons:
   artifacts:
     paths:
+    - bml.tar.bz2
     - bt_cmd.tar.bz2
     - bt_core.tar.bz2
     - bt_edit.tar.bz2
