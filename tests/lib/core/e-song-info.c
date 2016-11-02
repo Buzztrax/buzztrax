@@ -130,6 +130,7 @@ test_bt_song_info_seconds_since_last_saved (BT_TEST_ARGS)
       BT_SONG_INFO (check_gobject_get_object_property (song, "song-info"));
 
   GST_INFO ("-- act --");
+  // TODO: waiting one sec makes this the slowest test :/
   g_usleep (G_USEC_PER_SEC);
   gint ts = bt_song_info_get_seconds_since_last_saved (song_info);
 

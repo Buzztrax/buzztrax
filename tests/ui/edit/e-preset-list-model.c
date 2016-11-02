@@ -73,6 +73,7 @@ test_bt_preset_list_model_create (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
+  // TODO: implement preset iface on a test machine with built-in presets
   GstElement *machine = gst_element_factory_make ("simsyn", NULL);
 
   GST_INFO ("-- act --");
