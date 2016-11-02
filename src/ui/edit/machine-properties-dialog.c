@@ -1962,6 +1962,7 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
   g_object_set_qdata (G_OBJECT (widget1), widget_peer_quark,
       (gpointer) widget2);
   // update formatted text on labels
+  GST_INFO ("... update formatted text on labels");
   switch (base_type) {
     case G_TYPE_INT:{
       gint value;
@@ -2807,7 +2808,7 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
   if (self->priv->voices && voice_params) {
     gulong j;
 
-    GST_INFO ("madding %lu voice properties for %lu voices", voice_params,
+    GST_INFO ("adding %lu voice properties for %lu voices", voice_params,
         self->priv->voices);
     for (j = 0; j < self->priv->voices; j++) {
       if ((expander = make_voice_param_box (self, voice_params, j, machine))) {
@@ -2821,6 +2822,7 @@ bt_machine_properties_dialog_init_ui (const BtMachinePropertiesDialog * self)
     BtWire *wire;
     GList *node;
 
+    GST_INFO ("adding wire properties");
     for (node = wires; node; node = g_list_next (node)) {
       wire = BT_WIRE (node->data);
       if ((expander = make_wire_param_box (self, wire))) {
