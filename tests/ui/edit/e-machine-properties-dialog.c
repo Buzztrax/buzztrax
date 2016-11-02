@@ -85,6 +85,8 @@ test_bt_machine_properties_dialog_create (BT_TEST_ARGS)
   g_object_get (app, "song", &song, NULL);
   machine = BT_MACHINE (bt_source_machine_new (song, "gen", element_names[_i],
           element_voices[_i], NULL));
+  // FIXME: this will still overwrite the file for the two runs with the poly src
+  const gchar *name = &element_names[_i][strlen ("buzztrax-test-")];
 
   GST_INFO ("-- act --");
   dialog = GTK_WIDGET (bt_machine_properties_dialog_new (machine));
@@ -92,7 +94,7 @@ test_bt_machine_properties_dialog_create (BT_TEST_ARGS)
   GST_INFO ("-- assert --");
   fail_unless (dialog != NULL, NULL);
   gtk_widget_show_all (dialog);
-  check_make_widget_screenshot (GTK_WIDGET (dialog), NULL);
+  check_make_widget_screenshot (GTK_WIDGET (dialog), name);
 
   GST_INFO ("-- cleanup --");
   gtk_widget_destroy (dialog);
