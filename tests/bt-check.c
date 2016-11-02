@@ -358,15 +358,6 @@ check_gst_log_handler (GstDebugCategory * category,
 }
 #endif
 
-static void
-reset_log (const gchar * path, const gchar * file)
-{
-  if (path) {
-    g_mkdir_with_parents (path, 0755);
-  }
-  g_unlink (file);
-}
-
 /*
  * setup_log_base:
  * @argc: command line argument count received in main()
@@ -404,7 +395,7 @@ setup_log_base (gint argc, gchar ** argv)
 
   // ensure directory and reset log file
   __log_suite = g_build_filename (__log_root, __log_base, NULL);
-  reset_log (__log_suite, __log_file_name);
+  g_mkdir_with_parents (__log_suite, 0755);
 }
 
 void
@@ -436,7 +427,7 @@ setup_log_case (const gchar * file_name)
 
   // ensure directory and reset log file
   path = g_build_filename (__log_root, __log_base, __log_case, NULL);
-  reset_log (path, __log_file_name);
+  g_mkdir_with_parents (path, 0755);
   g_free (path);
 }
 
@@ -464,9 +455,6 @@ setup_log_test (const gchar * func_name, gint i)
     __log_file_name = g_strdup (FALLBACK_LOG_FILE_NAME);
   }
   g_free (log);
-
-  // reset log file
-  reset_log (NULL, __log_file_name);
 }
 
 /*
@@ -545,7 +533,6 @@ get_suite_log_filename (void)
   static gchar suite_log_fn[PATH_MAX];
 
   sprintf (suite_log_fn, "%s" G_DIR_SEPARATOR_S "log.xml", __log_suite);
-  reset_log (__log_suite, suite_log_fn);
   return suite_log_fn;
 }
 
