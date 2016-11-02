@@ -146,7 +146,9 @@ function pnmDropShadow() {
 PNMT="$TEMPDIR/temp.pnm"
 
 if [ -z "$1" ]; then
-    pnmtopnm > $PNMT
+    #pnmtopnm > $PNMT
+    pnmtoplainpnm > $PNMT
+    
 else
     cp $1 $PNMT
 fi
@@ -154,6 +156,7 @@ fi
 #pnmBorder "$PNMT"
 pnmDropShadow "$PNMT"
 
-pnmtopnm "$PNMT"
+#pnmtopnm "$PNMT"
+pnmtoplainpnm "$PNMT"
 
 rm -rf $TEMPDIR

@@ -50,90 +50,92 @@ buzztrax-edit2.pdf: buzztrax-edit.xml
 
 # this relies on particular names in the tests
 # it would be nicer to fix the names in the tests and apply some rule:
-#   /tmp/check_buzzard_help_(*).png -> figures/\1.png
-#   - here we would mark the images by having an additional "_help" in the name
-#   - right now this is prgname + widget name + optinal extra name
+#   $$base/(*).png -> figures/\1.png
+# maybe we just have a file with "from:to" entries
 update_figures:
-	if [ -e "/tmp/check_buzzard_main window.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_main window.png" | ../../mk-shadow.sh | pnmtopng >figures/main-window.png; \
+	base="/tmp/bt_edit"; \
+	if [ -e "$$base/main_window.png" ]; then \
+	  pngtopnm "$$base/main_window.png" | ../../mk-shadow.sh | pnmtopng >figures/main-window.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_song views_machine view.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song views_machine view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-machine-view.png; \
+	if [ -e "$$base/song_views_machine_view.png" ]; then \
+	  pngtopnm "$$base/song_views_machine_view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-machine-view.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_song views_pattern view.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song views_pattern view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-pattern-view.png; \
+	if [ -e "$$base/song_views_pattern_view.png" ]; then \
+	  pngtopnm "$$base/song_views_pattern_view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-pattern-view.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_song views_sequence view.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song views_sequence view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-sequence-view.png; \
+	if [ -e "$$base/song_views_sequence_view.png" ]; then \
+	  pngtopnm "$$base/song_views_sequence_view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-sequence-view.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_song views_song information.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song views_song information.png" | ../../mk-shadow.sh | pnmtopng >figures/page-info-view.png; \
+	if [ -e "$$base/song_views_song_information.png" ]; then \
+	  pngtopnm "$$base/song_views_song_information.png" | ../../mk-shadow.sh | pnmtopng >figures/page-info-view.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_song views_wave table view.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song views_wave table view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-wavetable-view.png; \
-	fi; \
-	\
-	if [ -e "/tmp/check_buzzard_pattern properties.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_pattern properties.png" | ../../mk-shadow.sh | pnmtopng >figures/pattern-properties.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_machine properties.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_machine properties.png" | ../../mk-shadow.sh | pnmtopng >figures/machine-properties.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_machine preferences.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_machine preferences.png" | ../../mk-shadow.sh | pnmtopng >figures/machine-preferences.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_rename machine.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_rename machine.png" | ../../mk-shadow.sh | pnmtopng >figures/machine-rename.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_preset name and comment.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_preset name and comment.png" | ../../mk-shadow.sh | pnmtopng >figures/preset-properties.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_wire analysis.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_wire analysis.png" | ../../mk-shadow.sh | pnmtopng >figures/signal-analysis.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_BtAboutDialog.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_BtAboutDialog.png" | ../../mk-shadow.sh | pnmtopng >figures/about.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_Tip of the day.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_Tip of the day.png" | ../../mk-shadow.sh | pnmtopng >figures/tip.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_song rendering.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song rendering.png" | ../../mk-shadow.sh | pnmtopng >figures/recording-settings.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_song render progress.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_song render progress.png" | ../../mk-shadow.sh | pnmtopng >figures/recording-progress.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_Missing elements in song.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_Missing elements in song.png" | ../../mk-shadow.sh | pnmtopng >figures/missing-song-elements.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_Missing GStreamer elements.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_Missing GStreamer elements.png" | ../../mk-shadow.sh | pnmtopng >figures/missing-gstreamer-elements.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_Unsaved song recovery.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_Unsaved song recovery.png" | ../../mk-shadow.sh | pnmtopng >figures/crash-recovery.png; \
-	fi; \
-	if [ -e "/tmp/check_buzzard_interaction controller learn.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_interaction controller learn.png" | ../../mk-shadow.sh | pnmtopng >figures/interaction-controller-learn.png; \
+	if [ -e "$$base/song_views_wave_table_view.png" ]; then \
+	  pngtopnm "$$base/song_views_wave_table_view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-wavetable-view.png; \
 	fi; \
 	\
-	if [ -e "/tmp/check_buzzard_buzztrax settings_audio devices.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztrax settings_audio devices.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-audio.png; \
+	if [ -e "$$base/pattern_properties.png" ]; then \
+	  pngtopnm "$$base/pattern_properties.png" | ../../mk-shadow.sh | pnmtopng >figures/pattern-properties.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_buzztrax settings_colors.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztrax settings_colors.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-colors.png; \
+	if [ -e "$$base/machine_properties_poly-source.png" ]; then \
+	  pngtopnm "$$base/machine_properties_poly-source.png" | ../../mk-shadow.sh | pnmtopng >figures/machine-properties.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_buzztrax settings_directories.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztrax settings_directories.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-directories.png; \
+	if [ -e "$$base/machine_preferences.png" ]; then \
+	  pngtopnm "$$base/machine_preferences.png" | ../../mk-shadow.sh | pnmtopng >figures/machine-preferences.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_buzztrax settings_interaction controller.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztrax settings_interaction controller.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-ic.png; \
+	if [ -e "$$base/rename_machine.png" ]; then \
+	  pngtopnm "$$base/rename_machine.png" | ../../mk-shadow.sh | pnmtopng >figures/machine-rename.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_buzztrax settings_playback controller.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztrax settings_playback controller.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-pc.png; \
+	if [ -e "$$base/preset_name_and_comment.png" ]; then \
+	  pngtopnm "$$base/preset_name_and_comment.png" | ../../mk-shadow.sh | pnmtopng >figures/preset-properties.png; \
 	fi; \
-	if [ -e "/tmp/check_buzzard_buzztrax settings_shortcuts.png" ]; then \
-	  pngtopnm "/tmp/check_buzzard_buzztrax settings_shortcuts.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-shortcuts.png; \
+	if [ -e "$$base/wire_analysis.png" ]; then \
+	  pngtopnm "$$base/wire_analysis.png" | ../../mk-shadow.sh | pnmtopng >figures/signal-analysis.png; \
+	fi; \
+	if [ -e "$$base/BtAboutDialog.png" ]; then \
+	  pngtopnm "$$base/BtAboutDialog.png" | ../../mk-shadow.sh | pnmtopng >figures/about.png; \
+	fi; \
+	if [ -e "$$base/Tip_of_the_day.png" ]; then \
+	  pngtopnm "$$base/Tip_of_the_day.png" | ../../mk-shadow.sh | pnmtopng >figures/tip.png; \
+	fi; \
+	if [ -e "$$base/song_rendering.png" ]; then \
+	  pngtopnm "$$base/song_rendering.png" | ../../mk-shadow.sh | pnmtopng >figures/recording-settings.png; \
+	fi; \
+	if [ -e "$$base/song_render_progress.png" ]; then \
+	  pngtopnm "$$base/song_render_progress.png" | ../../mk-shadow.sh | pnmtopng >figures/recording-progress.png; \
+	fi; \
+	if [ -e "$$base/Missing_elements_in_song.png" ]; then \
+	  pngtopnm "$$base/Missing_elements_in_song.png" | ../../mk-shadow.sh | pnmtopng >figures/missing-song-elements.png; \
+	fi; \
+	if [ -e "$$base/Missing_GStreamer_elements.png" ]; then \
+	  pngtopnm "$$base/Missing_GStreamer_elements.png" | ../../mk-shadow.sh | pnmtopng >figures/missing-gstreamer-elements.png; \
+	fi; \
+	if [ -e "$$base/Unsaved_song_recovery.png" ]; then \
+	  pngtopnm "$$base/Unsaved_song_recovery.png" | ../../mk-shadow.sh | pnmtopng >figures/crash-recovery.png; \
+	fi; \
+	\
+	if [ -e "$$base/buzztrax_settings_audio_devices.png" ]; then \
+	  pngtopnm "$$base/buzztrax_settings_audio_devices.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-audio.png; \
+	fi; \
+	if [ -e "$$base/buzztrax_settings_colors.png" ]; then \
+	  pngtopnm "$$base/buzztrax_settings_colors.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-colors.png; \
+	fi; \
+	if [ -e "$$base/buzztrax_settings_directories.png" ]; then \
+	  pngtopnm "$$base/buzztrax_settings_directories.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-directories.png; \
+	fi; \
+	if [ -e "$$base/buzztrax_settings_interaction_controller.png" ]; then \
+	  pngtopnm "$$base/buzztrax_settings_interaction_controller.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-ic.png; \
+	fi; \
+	if [ -e "$$base/buzztrax_settings_playback_controller.png" ]; then \
+	  pngtopnm "$$base/buzztrax_settings_playback_controller.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-pc.png; \
+	fi; \
+	if [ -e "$$base/buzztrax_settings_shortcuts.png" ]; then \
+	  pngtopnm "$$base/buzztrax_settings_shortcuts.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-shortcuts.png; \
+	fi; \
+	if [ -e "$$base/buzztrax_settings_ui.png" ]; then \
+	  pngtopnm "$$base/buzztrax_settings_ui.png" | ../../mk-shadow.sh | pnmtopng >figures/settings-ui.png; \
 	fi;
 
 ## add shadows (now integrated above)
 ## for PNG in *.png; do pngtopnm "$PNG" | ../../../mk-shadow.sh | pnmtopng > "${PNG//.png}"-with-shadow.png
+
+.PHONY: update-figures
