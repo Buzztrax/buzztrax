@@ -16,9 +16,11 @@ env:
   - CONFIGURE_OPTS="--enable-debug --enable-coverage"
   - CONFIGURE_OPTS="--disable-debug"
 
-script: ./configure ${CONFIGURE_OPTS} && make && make check
+script:
+  - ./configure ${CONFIGURE_OPTS} && make && make check
 
-after_failure: cat ./test-suite.log && scripts/gdbtests.sh ./test-suite.log
+after_failure:
+  - cat ./test-suite.log && scripts/gdbtests.sh ./test-suite.log
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
