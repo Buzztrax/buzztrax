@@ -86,6 +86,7 @@
 
 #include "bt-edit.h"
 #include "core/persistence.h"
+#include "gst/childbin.h"
 #include <glib/gprintf.h>
 
 #define PRESET_BOX_WIDTH 135
