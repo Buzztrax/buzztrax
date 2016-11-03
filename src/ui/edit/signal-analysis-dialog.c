@@ -1178,21 +1178,18 @@ Error:
 BtSignalAnalysisDialog *
 bt_signal_analysis_dialog_new (const GstBin * element)
 {
-  BtSignalAnalysisDialog *self;
-
-  self =
+  BtSignalAnalysisDialog *self =
       BT_SIGNAL_ANALYSIS_DIALOG (g_object_new (BT_TYPE_SIGNAL_ANALYSIS_DIALOG,
           "element", element, NULL));
   // generate UI
   if (!bt_signal_analysis_dialog_init_ui (self)) {
     goto Error;
   }
-  gtk_widget_show_all (GTK_WIDGET (self));
-  GST_DEBUG ("dialog created and shown");
-  return (self);
+  GST_DEBUG ("dialog created");
+  return self;
 Error:
   gtk_widget_destroy (GTK_WIDGET (self));
-  return (NULL);
+  return NULL;
 }
 
 //-- methods

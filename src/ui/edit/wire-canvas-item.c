@@ -134,6 +134,7 @@ show_wire_analyzer_dialog (BtWireCanvasItem * self)
         GTK_WIDGET (bt_signal_analysis_dialog_new (GST_BIN (self->priv->wire)));
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (self->priv->analysis_dialog));
+    gtk_widget_show_all (self->priv->analysis_dialog);
     GST_INFO ("analyzer dialog opened");
     // remember open/closed state
     g_hash_table_insert (self->priv->properties, g_strdup ("analyzer-shown"),
@@ -640,6 +641,7 @@ bt_wire_canvas_item_constructed (GObject * object)
                         priv->wire))))) {
       bt_edit_application_attach_child_window (self->priv->app,
           GTK_WINDOW (self->priv->analysis_dialog));
+      gtk_widget_show_all (self->priv->analysis_dialog);
       g_signal_connect (self->priv->analysis_dialog, "destroy",
           G_CALLBACK (on_signal_analysis_dialog_destroy), (gpointer) self);
     }

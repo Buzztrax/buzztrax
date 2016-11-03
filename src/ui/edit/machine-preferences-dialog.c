@@ -539,7 +539,6 @@ bt_machine_preferences_dialog_new (const BtMachine * machine)
       BT_MACHINE_PREFERENCES_DIALOG (g_object_new
       (BT_TYPE_MACHINE_PREFERENCES_DIALOG, "machine", machine, NULL));
   bt_machine_preferences_dialog_init_ui (self);
-  gtk_widget_show_all (GTK_WIDGET (self));
   return (self);
 }
 

@@ -273,9 +273,7 @@ bt_tip_dialog_init_ui (const BtTipDialog * self)
 BtTipDialog *
 bt_tip_dialog_new (void)
 {
-  BtTipDialog *self;
-
-  self = BT_TIP_DIALOG (g_object_new (BT_TYPE_TIP_DIALOG, NULL));
+  BtTipDialog *self = BT_TIP_DIALOG (g_object_new (BT_TYPE_TIP_DIALOG, NULL));
   bt_tip_dialog_init_ui (self);
   return (self);
 }

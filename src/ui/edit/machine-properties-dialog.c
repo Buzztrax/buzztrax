@@ -1582,6 +1582,9 @@ on_window_show (GtkWidget * widget, gpointer user_data)
 {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG (user_data);
 
+  if (self->priv->preset_box) {
+    gtk_widget_set_no_show_all (self->priv->preset_box, FALSE);
+  }
   gtk_widget_grab_focus (self->priv->first_widget);
 }
 
@@ -2887,10 +2890,6 @@ bt_machine_properties_dialog_new (const BtMachine * machine)
       BT_MACHINE_PROPERTIES_DIALOG (g_object_new
       (BT_TYPE_MACHINE_PROPERTIES_DIALOG, "machine", machine, NULL));
   bt_machine_properties_dialog_init_ui (self);
-  gtk_widget_show_all (GTK_WIDGET (self));
-  if (self->priv->preset_box) {
-    gtk_widget_set_no_show_all (self->priv->preset_box, FALSE);
-  }
   return (self);
 }
 

@@ -197,11 +197,11 @@ static void
 show_machine_properties_dialog (BtMachineCanvasItem * self)
 {
   if (!self->priv->properties_dialog) {
-
     self->priv->properties_dialog =
         GTK_WIDGET (bt_machine_properties_dialog_new (self->priv->machine));
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (self->priv->properties_dialog));
+    gtk_widget_show_all (self->priv->properties_dialog);
     GST_INFO ("machine properties dialog opened");
     // remember open/closed state
     g_hash_table_insert (self->priv->properties, g_strdup ("properties-shown"),
@@ -221,6 +221,7 @@ show_machine_preferences_dialog (BtMachineCanvasItem * self)
         GTK_WIDGET (bt_machine_preferences_dialog_new (self->priv->machine));
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (self->priv->preferences_dialog));
+    gtk_widget_show_all (self->priv->preferences_dialog);
     g_signal_connect (self->priv->preferences_dialog, "destroy",
         G_CALLBACK (on_machine_preferences_dialog_destroy), (gpointer) self);
     g_object_notify ((GObject *) self, "preferences-dialog");
@@ -237,6 +238,7 @@ show_machine_analyzer_dialog (BtMachineCanvasItem * self)
                 priv->machine)));
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (self->priv->analysis_dialog));
+    gtk_widget_show_all (self->priv->analysis_dialog);
     GST_INFO ("analyzer dialog opened");
     // remember open/closed state
     g_hash_table_insert (self->priv->properties, g_strdup ("analyzer-shown"),
@@ -1129,6 +1131,7 @@ bt_machine_canvas_item_constructed (GObject * object)
         GTK_WIDGET (bt_machine_properties_dialog_new (self->priv->machine));
     bt_edit_application_attach_child_window (self->priv->app,
         GTK_WINDOW (self->priv->properties_dialog));
+    gtk_widget_show_all (self->priv->properties_dialog);
     g_signal_connect (self->priv->properties_dialog, "destroy",
         G_CALLBACK (on_machine_properties_dialog_destroy), (gpointer) self);
   }
@@ -1140,6 +1143,7 @@ bt_machine_canvas_item_constructed (GObject * object)
                         priv->machine))))) {
       bt_edit_application_attach_child_window (self->priv->app,
           GTK_WINDOW (self->priv->analysis_dialog));
+      gtk_widget_show_all (self->priv->analysis_dialog);
       g_signal_connect (self->priv->analysis_dialog, "destroy",
           G_CALLBACK (on_signal_analysis_dialog_destroy), (gpointer) self);
     }

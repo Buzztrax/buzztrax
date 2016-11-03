@@ -325,9 +325,7 @@ bt_crash_recover_dialog_init_ui (const BtCrashRecoverDialog * self)
 BtCrashRecoverDialog *
 bt_crash_recover_dialog_new (GList * crash_entries)
 {
-  BtCrashRecoverDialog *self;
-
-  self =
+  BtCrashRecoverDialog *self =
       BT_CRASH_RECOVER_DIALOG (g_object_new (BT_TYPE_CRASH_RECOVER_DIALOG,
           "entries", crash_entries, NULL));
   bt_crash_recover_dialog_init_ui (self);

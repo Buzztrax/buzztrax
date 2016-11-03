@@ -244,9 +244,7 @@ BtMissingFrameworkElementsDialog *
 bt_missing_framework_elements_dialog_new (GList * core_elements,
     GList * edit_elements)
 {
-  BtMissingFrameworkElementsDialog *self;
-
-  self =
+  BtMissingFrameworkElementsDialog *self =
       BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG (g_object_new
       (BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG, "core-elements",
           core_elements, "edit-elements", edit_elements, NULL));
@@ -256,7 +254,7 @@ bt_missing_framework_elements_dialog_new (GList * core_elements,
   return (self);
 EmptyLists:
   gtk_widget_destroy (GTK_WIDGET (self));
-  return (NULL);
+  return NULL;
 }
 
 //-- methods

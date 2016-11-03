@@ -334,9 +334,8 @@ bt_settings_dialog_init_ui (const BtSettingsDialog * self)
 BtSettingsDialog *
 bt_settings_dialog_new (void)
 {
-  BtSettingsDialog *self;
-
-  self = BT_SETTINGS_DIALOG (g_object_new (BT_TYPE_SETTINGS_DIALOG, NULL));
+  BtSettingsDialog *self =
+      BT_SETTINGS_DIALOG (g_object_new (BT_TYPE_SETTINGS_DIALOG, NULL));
   bt_settings_dialog_init_ui (self);
   return (self);
 }
