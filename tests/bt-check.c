@@ -288,11 +288,12 @@ check_log_handler (const gchar * const log_domain,
   elapsed =
       GST_CLOCK_DIFF (_priv_bt_info_start_time, gst_util_get_timestamp ());
 
-  msg = g_alloca (85 + strlen (log_domain) + strlen (level) + strlen (message));
+  msg = g_alloca (85 + strlen (level) + (log_domain ? strlen (log_domain) : 0)
+      + (message ? strlen (message) : 0));
   g_sprintf (msg,
       "%" GST_TIME_FORMAT " %" PID_FMT " %" PTR_FMT " %-7s %20s ::: %s",
-      GST_TIME_ARGS (elapsed), getpid (), g_thread_self (), level, log_domain,
-      message);
+      GST_TIME_ARGS (elapsed), getpid (), g_thread_self (), level,
+      (log_domain ? log_domain : ""), (message ? message : ""));
   check_print_handler (msg);
 }
 
