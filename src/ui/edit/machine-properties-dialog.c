@@ -177,10 +177,14 @@ preset_list_edit_preset_meta (const BtMachinePropertiesDialog * self,
 static BtParameterGroup *
 get_param_group (const BtMachinePropertiesDialog * self, GObject * param_parent)
 {
-  if (GST_IS_ELEMENT (param_parent)) {
-    return bt_machine_get_global_param_group (self->priv->machine);
+  if (bt_machine_is_polyphonic (self->priv->machine)) {
+    if (GSTBT_IS_CHILD_BIN (param_parent)) {
+      return bt_machine_get_global_param_group (self->priv->machine);
+    } else {
+      return bt_machine_get_voice_param_group (self->priv->machine, 0);
+    }
   } else {
-    return bt_machine_get_voice_param_group (self->priv->machine, 0);
+    return bt_machine_get_global_param_group (self->priv->machine);
   }
 }
 
@@ -1965,7 +1969,6 @@ make_param_control (const BtMachinePropertiesDialog * self, GObject * object,
   g_object_set_qdata (G_OBJECT (widget1), widget_peer_quark,
       (gpointer) widget2);
   // update formatted text on labels
-  GST_INFO ("... update formatted text on labels");
   switch (base_type) {
     case G_TYPE_INT:{
       gint value;
