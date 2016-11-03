@@ -1,6 +1,7 @@
 #!/bin/sh
 # rerun failed tests under gdb and get backtraces
 
+# avoid clobbering log files
 unset BT_ARCHIVE_LOGS
 log=$1
 IFS="
