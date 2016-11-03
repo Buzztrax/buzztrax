@@ -512,7 +512,8 @@ collect_logs (gboolean no_failures)
     return;
 
   if (no_failures) {
-    cmd = g_strdup_printf ("touch ./%s.tar.bz2", __log_base);
+    cmd = g_strdup_printf ("tar cpjf ./%s.tar.bz2 %s/%s/log.xml", __log_base,
+        __log_root, __log_base);
   } else {
     cmd = g_strdup_printf ("tar cpjf ./%s.tar.bz2 %s/%s", __log_base,
         __log_root, __log_base);
