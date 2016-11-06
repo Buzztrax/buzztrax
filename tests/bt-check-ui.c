@@ -523,7 +523,7 @@ find_child (GtkWidget * w, BtCheckWidgetScreenshotRegions * r)
     }
     g_list_free (list);
   }
-  return (f);
+  return f;
 }
 
 /*

@@ -87,15 +87,15 @@ gtk_toolbar_get_style_from_string (const gchar * style_name)
   g_return_val_if_fail (style_name, GTK_TOOLBAR_BOTH);
 
   if (!strcmp (style_name, "icons")) {
-    return (GTK_TOOLBAR_ICONS);
+    return GTK_TOOLBAR_ICONS;
   } else if (!strcmp (style_name, "both")) {
-    return (GTK_TOOLBAR_BOTH);
+    return GTK_TOOLBAR_BOTH;
   } else if (!strcmp (style_name, "both-horiz")) {
-    return (GTK_TOOLBAR_BOTH_HORIZ);
+    return GTK_TOOLBAR_BOTH_HORIZ;
   } else if (!strcmp (style_name, "text")) {
-    return (GTK_TOOLBAR_TEXT);
+    return GTK_TOOLBAR_TEXT;
   }
-  return (GTK_TOOLBAR_BOTH);
+  return GTK_TOOLBAR_BOTH;
 }
 
 
@@ -155,7 +155,7 @@ gtk_target_table_make (GdkAtom format_atom, gint * n_targets)
   targets = gtk_target_table_new_from_list (list, n_targets);
   gtk_target_list_unref (list);
 
-  return (targets);
+  return targets;
 }
 
 
@@ -200,9 +200,9 @@ bt_edit_ui_config (const gchar * str)
 {
   const gchar *env = g_getenv ("BT_EDIT_UI_CFG");
   if (env && strstr (env, str)) {
-    return (TRUE);
+    return TRUE;
   }
-  return (FALSE);
+  return FALSE;
 }
 #endif
 

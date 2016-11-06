@@ -166,7 +166,7 @@ parse_and_check_audio_sink (gchar * plugin_name)
     }
   }
   GST_INFO ("parsed and checked element name: '%s'", plugin_name);
-  return (plugin_name);
+  return plugin_name;
 }
 
 static void

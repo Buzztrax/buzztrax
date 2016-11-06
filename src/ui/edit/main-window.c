@@ -141,10 +141,10 @@ update_filename_ext (const BtMainWindow * self, gchar * file_name,
 
   if (new_file_name && strcmp (file_name, new_file_name)) {
     GST_WARNING ("new song name = '%s'", new_file_name);
-    return (new_file_name);
+    return new_file_name;
   }
   g_free (new_file_name);
-  return (NULL);
+  return NULL;
 }
 
 static gboolean
@@ -362,7 +362,7 @@ bt_main_window_make_unsaved_changes_message (const BtSong * song)
   g_free (since);
   g_object_unref (song_info);
 
-  return (msg);
+  return msg;
 }
 
 //-- helper methods
@@ -486,7 +486,7 @@ bt_main_window_new (void)
       G_CALLBACK (on_window_mapped), (gpointer) self);
 
   GST_INFO ("new main_window created");
-  return (self);
+  return self;
 }
 
 //-- methods
@@ -528,7 +528,7 @@ bt_main_window_check_unsaved_song (const BtMainWindow * self,
     g_object_unref (song);
   }
 
-  return (res);
+  return res;
 }
 
 
@@ -1088,7 +1088,7 @@ bt_dialog_question (const BtMainWindow * self, const gchar * title,
   g_object_notify ((gpointer) self, "dialog");
 
   GST_INFO ("bt_dialog_question(\"%s\") = %d", title, result);
-  return (result);
+  return result;
 }
 
 //-- wrapper

@@ -119,7 +119,7 @@ bt_settings_page_shortcuts_new (GtkWidget * pages)
           NULL));
   bt_settings_page_shortcuts_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
-  return (self);
+  return self;
 }
 
 //-- methods

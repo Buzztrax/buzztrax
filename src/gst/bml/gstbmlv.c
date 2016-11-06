@@ -88,7 +88,7 @@ bml (v_property_meta_describe_property (gpointer bmh, guint prop_id,
     res = g_convert (str, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
   }
   GST_INFO ("formatted track parameter : '%s'", res);
-  return (res);
+  return res;
 }
 
 static gchar *
@@ -319,5 +319,5 @@ bml (v_get_type (const gchar * name))
   type = g_type_register_static (GST_TYPE_OBJECT, name, &voice_type_info, 0);
   g_type_add_interface_static (type, GSTBT_TYPE_PROPERTY_META,
       &property_meta_interface_info);
-  return (type);
+  return type;
 }

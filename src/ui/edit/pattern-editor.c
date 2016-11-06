@@ -106,7 +106,7 @@ to_string_note (gchar * buf, gfloat value, gint def)
   if (note == def || note == 0)
     return ("...");
   if (note == 255)
-    return ("off");
+    return "off";
 
   note--;
   octave = note >> 4;
@@ -114,7 +114,7 @@ to_string_note (gchar * buf, gfloat value, gint def)
   buf[1] = note_names[1 + 2 * (note & 15)];
   buf[2] = '0' + octave;
   buf[3] = '\0';
-  return (buf);
+  return buf;
 }
 
 static gchar *
@@ -126,7 +126,7 @@ to_string_trigger (gchar * buf, gfloat value, gint def)
     return (".");
 
   sprintf (buf, "%01X", v != 0 ? 1 : 0);
-  return (buf);
+  return buf;
 }
 
 static gchar *
@@ -138,7 +138,7 @@ to_string_byte (gchar * buf, gfloat value, gint def)
     return ("..");
 
   sprintf (buf, "%02X", v & 255);
-  return (buf);
+  return buf;
 }
 
 static gchar *
@@ -150,7 +150,7 @@ to_string_word (gchar * buf, gfloat value, gint def)
     return ("....");
 
   sprintf (buf, "%04X", v & 65535);
-  return (buf);
+  return buf;
 }
 
 static gchar *
@@ -161,7 +161,7 @@ to_string_float (gchar * buf, gfloat value, gint def)
     return ("........");
 
   sprintf (buf, "%-8f", value);
-  return (buf);
+  return buf;
 }
 
 static ParamType param_types[] = {

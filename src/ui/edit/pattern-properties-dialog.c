@@ -240,7 +240,7 @@ bt_pattern_properties_dialog_new (const BtPattern * pattern)
       BT_PATTERN_PROPERTIES_DIALOG (g_object_new
       (BT_TYPE_PATTERN_PROPERTIES_DIALOG, "pattern", pattern, NULL));
   bt_pattern_properties_dialog_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

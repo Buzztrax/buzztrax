@@ -644,7 +644,7 @@ bt_settings_page_playback_controller_new (GtkWidget * pages)
       (BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER, NULL));
   bt_settings_page_playback_controller_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
-  return (self);
+  return self;
 }
 
 //-- methods

@@ -68,13 +68,13 @@ check_name_exists (BtMachinePresetPropertiesDialog * self, const gchar * name)
   gchar **preset;
 
   if (!self->priv->presets)
-    return (FALSE);
+    return FALSE;
 
   for (preset = self->priv->presets; *preset; preset++) {
     if (!strcmp (name, *preset))
       return TRUE;
   }
-  return (FALSE);
+  return FALSE;
 }
 
 static void
@@ -210,7 +210,7 @@ bt_machine_preset_properties_dialog_new (GstElement * machine, gchar ** name,
       (BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG, "machine", machine, "name",
           name, "comment", comment, NULL));
   bt_machine_preset_properties_dialog_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

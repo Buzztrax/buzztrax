@@ -73,7 +73,7 @@ bt_persistence_save_list (const GList * list, xmlNodePtr const node)
           (bt_persistence_save ((BtPersistence *) (list->data), node) != NULL);
     }
   }
-  return (res);
+  return res;
 }
 
 /*
@@ -137,7 +137,7 @@ bt_persistence_save_hashtable (GHashTable * hashtable, xmlNodePtr const node)
   g_hash_table_foreach (hashtable, bt_persistence_save_hashtable_entries,
       (gpointer) node);
 
-  return (res);
+  return res;
 }
 
 /**
@@ -166,7 +166,7 @@ bt_persistence_load_hashtable (GHashTable * hashtable, xmlNodePtr node)
       //xmlFree(key);xmlFree(value);
     }
   }
-  return (TRUE);
+  return TRUE;
 }
 
 //-- wrapper
@@ -230,7 +230,7 @@ bt_persistence_load (const GType type, const BtPersistence * const self,
         var_args);
     va_end (var_args);
   }
-  return (result);
+  return result;
 }
 
 //-- interface internals

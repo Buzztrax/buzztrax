@@ -532,7 +532,7 @@ on_song_paused_timeout (gpointer user_data)
     bt_song_stop (self);
   }
   self->priv->paused_timeout_id = 0;
-  return (FALSE);
+  return FALSE;
 }
 
 static void
@@ -853,7 +853,7 @@ bt_song_idle_start (const BtSong * const self)
               GST_STATE_PAUSED)) == GST_STATE_CHANGE_FAILURE) {
     GST_WARNING ("can't go to paused state");
     self->priv->is_idle_active = FALSE;
-    return (FALSE);
+    return FALSE;
   }
   GST_DEBUG ("->PAUSED state change returned '%s'",
       gst_element_state_change_return_get_name (res));
@@ -869,12 +869,12 @@ bt_song_idle_start (const BtSong * const self)
               GST_STATE_PLAYING)) == GST_STATE_CHANGE_FAILURE) {
     GST_WARNING ("can't go to playing state");
     self->priv->is_idle_active = FALSE;
-    return (FALSE);
+    return FALSE;
   }
   GST_DEBUG (">PLAYING state change returned '%s'",
       gst_element_state_change_return_get_name (res));
   GST_INFO ("idle loop running");
-  return (TRUE);
+  return TRUE;
 }
 
 /*
@@ -896,12 +896,12 @@ bt_song_idle_stop (const BtSong * const self)
           gst_element_set_state (GST_ELEMENT (self->priv->bin),
               GST_STATE_READY)) == GST_STATE_CHANGE_FAILURE) {
     GST_WARNING ("can't go to ready state");
-    return (FALSE);
+    return FALSE;
   }
   GST_DEBUG ("state change returned '%s'",
       gst_element_state_change_return_get_name (res));
   self->priv->is_idle_active = FALSE;
-  return (TRUE);
+  return TRUE;
 }
 
 
@@ -951,11 +951,11 @@ bt_song_play (const BtSong * const self)
 
   // the user can always press play
   if (!self->priv->master_bin)
-    return (TRUE);
+    return TRUE;
 
   // do not play again
   if (self->priv->is_playing)
-    return (TRUE);
+    return TRUE;
   if (self->priv->is_idle)
     bt_song_idle_stop (self);
 
@@ -1029,7 +1029,7 @@ bt_song_stop (const BtSong * const self)
   if (!(self->priv->is_preparing || self->priv->is_playing)
       && (GST_STATE (self->priv->bin) <= GST_STATE_READY)) {
     GST_INFO ("not playing");
-    return (TRUE);
+    return TRUE;
   }
 
   if ((res =
@@ -1061,7 +1061,7 @@ done:
   if (self->priv->is_idle)
     bt_song_idle_start (self);
 
-  return (TRUE);
+  return TRUE;
 }
 
 /**
@@ -1115,7 +1115,7 @@ bt_song_update_playback_position (const BtSong * const self)
 
   if (G_UNLIKELY (!self->priv->is_playing)) {
     GST_WARNING ("not playing");
-    return (FALSE);
+    return FALSE;
   }
   // query playback position and update self->priv->play-pos;
   if (gst_element_query (GST_ELEMENT (self->priv->master_bin),
@@ -1140,7 +1140,7 @@ bt_song_update_playback_position (const BtSong * const self)
   }
   // don't return FALSE in the WARNING case above, we use the return value to
   // return from time-out handlers (e.g. toolbar)
-  return (TRUE);
+  return TRUE;
 }
 
 /**
@@ -1339,7 +1339,7 @@ bt_song_persistence_save (const BtPersistence * const persistence,
     bt_persistence_save (BT_PERSISTENCE (self->priv->sequence), node);
     bt_persistence_save (BT_PERSISTENCE (self->priv->wavetable), node);
   }
-  return (node);
+  return node;
 }
 
 static BtPersistence *
@@ -1388,7 +1388,7 @@ Error:
     /* TODO(ensonic): set the GError? */
     GST_WARNING ("failed to load %s", (gchar *) node->name);
   }
-  return (NULL);
+  return NULL;
 }
 
 static void

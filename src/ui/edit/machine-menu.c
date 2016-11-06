@@ -96,7 +96,7 @@ bt_machine_menu_compare (GstPluginFeature * f1, GstPluginFeature * f2)
 
   g_free (str1c);
   g_free (str2c);
-  return (res);
+  return res;
 #else
   return (strcasecmp (gst_plugin_feature_get_name (f1),
           gst_plugin_feature_get_name (f2)));
@@ -371,7 +371,7 @@ bt_machine_menu_new (const BtMainPageMachines * main_page_machines)
       BT_MACHINE_MENU (g_object_new (BT_TYPE_MACHINE_MENU, "machines-page",
           main_page_machines, NULL));
   bt_machine_menu_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

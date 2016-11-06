@@ -20,7 +20,7 @@
  * @see_also: #BtEditApplication
  *
  * Implements the body of the buzztrax GUI editor.
- * 
+ *
  * You can try to run the uninstalled program via
  * <informalexample><programlisting>
  *   libtool --mode=execute buzztrax-edit
@@ -67,7 +67,7 @@ parse_goption_arg (const gchar * opt, const gchar * arg, gpointer data,
     g_printf ("%s from " PACKAGE_STRING "\n", (gchar *) data);
     exit (0);
   }
-  return (TRUE);
+  return TRUE;
 }
 
 gint
@@ -175,5 +175,5 @@ Done:
   g_free (command);
   g_free (input_file_name);
   g_option_context_free (ctx);
-  return (!res);
+  return !res;
 }

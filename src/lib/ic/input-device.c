@@ -77,7 +77,7 @@ register_trigger_controls (const BtIcInputDevice * const self, int fd)
   memset (key_bitmask, 0, sizeof (key_bitmask));
   if (ioctl (fd, EVIOCGBIT (EV_KEY, sizeof (key_bitmask)), key_bitmask) < 0) {
     GST_WARNING ("evdev ioctl : %s", g_strerror (errno));
-    return (FALSE);
+    return FALSE;
   }
   // read details
   for (ix = 0; ix < KEY_MAX; ix++) {
@@ -260,7 +260,7 @@ register_trigger_controls (const BtIcInputDevice * const self, int fd)
       }
     }
   }
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -275,7 +275,7 @@ register_abs_range_controls (const BtIcInputDevice * const self, int fd)
   memset (abs_bitmask, 0, sizeof (abs_bitmask));
   if (ioctl (fd, EVIOCGBIT (EV_ABS, sizeof (abs_bitmask)), abs_bitmask) < 0) {
     GST_WARNING ("evdev ioctl : %s", g_strerror (errno));
-    return (FALSE);
+    return FALSE;
   }
   // read details
   for (ix = 0; ix < ABS_MAX; ix++) {
@@ -377,7 +377,7 @@ register_abs_range_controls (const BtIcInputDevice * const self, int fd)
     }
   }
   // create controller instances and register them
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -392,12 +392,12 @@ register_controls (const BtIcInputDevice * const self)
   if ((fd = open (self->priv->devnode, O_RDONLY)) < 0) {
     GST_WARNING ("evdev open failed on device %s: %s", self->priv->devnode,
         g_strerror (errno));
-    return (FALSE);
+    return FALSE;
   }
   GST_INFO ("opened device : %s", self->priv->devnode);
 
   // query capabillities and register controllers
-  // FIXME(ensonic): doing that for e.g. js0/js1 fails slowly 
+  // FIXME(ensonic): doing that for e.g. js0/js1 fails slowly
   memset (evtype_bitmask, 0, sizeof (evtype_bitmask));
   if (ioctl (fd, EVIOCGBIT (0, sizeof (evtype_bitmask)), evtype_bitmask) < 0) {
     GST_WARNING ("evdev ioctl : %s", g_strerror (errno));
@@ -441,7 +441,7 @@ register_controls (const BtIcInputDevice * const self)
     }
   }
   close (fd);
-  return (TRUE);
+  return TRUE;
 }
 
 //-- handler
@@ -489,7 +489,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
     GST_INFO ("closing connection");
     self->priv->io_source = 0;
   }
-  return (res);
+  return res;
 }
 
 //-- constructor methods
@@ -527,7 +527,7 @@ btic_input_device_start (gconstpointer _self)
     GST_WARNING ("iochannel error for open(%s): %s", self->priv->devnode,
         error->message);
     g_error_free (error);
-    return (FALSE);
+    return FALSE;
   }
   g_io_channel_set_encoding (self->priv->io_channel, NULL, &error);
   if (error) {
@@ -536,13 +536,13 @@ btic_input_device_start (gconstpointer _self)
     g_error_free (error);
     g_io_channel_unref (self->priv->io_channel);
     self->priv->io_channel = NULL;
-    return (FALSE);
+    return FALSE;
   }
   self->priv->io_source = g_io_add_watch_full (self->priv->io_channel,
       G_PRIORITY_LOW,
       G_IO_IN | G_IO_PRI | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
       io_handler, (gpointer) self, NULL);
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -559,7 +559,7 @@ btic_input_device_stop (gconstpointer _self)
     g_io_channel_unref (self->priv->io_channel);
     self->priv->io_channel = NULL;
   }
-  return (TRUE);
+  return TRUE;
 }
 
 //-- wrapper

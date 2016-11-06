@@ -55,5 +55,5 @@ bt_song_io_init (void)
     bt_song_io_module_info.formats[1].type = BT_TYPE_SONG_IO_BUZZ;
     first_run = FALSE;
   }
-  return (TRUE);
+  return TRUE;
 }

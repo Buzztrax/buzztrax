@@ -141,7 +141,7 @@ waves_list_get_current (const BtMainPageWaves * self)
   if (selection && gtk_tree_selection_get_selected (selection, &model, &iter)) {
     wave = bt_wave_list_model_get_object ((BtWaveListModel *) model, &iter);
   }
-  return (wave);
+  return wave;
 }
 
 static BtWavelevel *
@@ -158,7 +158,7 @@ wavelevels_list_get_current (const BtMainPageWaves * self, BtWave * wave)
     wavelevel = bt_wavelevel_list_model_get_object (
         (BtWavelevelListModel *) model, &iter);
   }
-  return (wavelevel);
+  return wavelevel;
 }
 
 /*
@@ -264,7 +264,7 @@ wavelevels_get_wavelevel_and_set_iter (BtMainPageWaves * self,
     }
     g_object_unref (wave);
   }
-  return (wavelevel);
+  return wavelevel;
 }
 
 static void
@@ -973,7 +973,7 @@ on_browser_key_press_event (GtkWidget * widget, GdkEventKey * event,
     g_signal_emit_by_name (self->priv->waves_list, "select-cursor-row",
         TRUE, NULL);
   }
-  return (res);
+  return res;
 }
 #endif
 
@@ -1011,7 +1011,7 @@ on_preview_playback_update (gpointer user_data)
   } else {
     GST_WARNING_OBJECT (self->priv->preview, "position query failed");
   }
-  return (TRUE);
+  return TRUE;
 }
 
 static void
@@ -1551,7 +1551,7 @@ bt_main_page_waves_new (const BtMainPages * pages)
 
   self = BT_MAIN_PAGE_WAVES (g_object_new (BT_TYPE_MAIN_PAGE_WAVES, NULL));
   bt_main_page_waves_init_ui (self, pages);
-  return (self);
+  return self;
 }
 
 //-- methods

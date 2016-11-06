@@ -104,7 +104,7 @@ get_selected (BtCrashRecoverDialog * self)
   if (check_selection (self, &model, &iter)) {
     gtk_tree_model_get (model, &iter, COL_LOG_NAME, &log_name, -1);
   }
-  return (log_name);
+  return log_name;
 }
 
 static void
@@ -329,7 +329,7 @@ bt_crash_recover_dialog_new (GList * crash_entries)
       BT_CRASH_RECOVER_DIALOG (g_object_new (BT_TYPE_CRASH_RECOVER_DIALOG,
           "entries", crash_entries, NULL));
   bt_crash_recover_dialog_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

@@ -130,7 +130,7 @@ bt_wavelevel_persistence_save (const BtPersistence * const persistence,
     xmlNewProp (node, XML_CHAR_PTR ("loop-end"),
         XML_CHAR_PTR (bt_str_format_long (self->priv->loop_end)));
   }
-  return (node);
+  return node;
 }
 
 

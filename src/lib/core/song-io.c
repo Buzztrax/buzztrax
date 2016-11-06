@@ -256,7 +256,7 @@ bt_song_io_detect (const gchar * file_name, const gchar * media_type)
   }
 
   g_free (lc_file_name);
-  return (type);
+  return type;
 }
 
 /*
@@ -379,7 +379,7 @@ bt_song_io_get_module_info_list (void)
   if (!plugins)
     bt_song_io_register_plugins ();
 
-  return (plugins);
+  return plugins;
 }
 
 //-- wrapper

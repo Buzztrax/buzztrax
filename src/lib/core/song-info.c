@@ -247,7 +247,7 @@ bt_song_info_get_change_dts_in_local_tz (const BtSongInfo * const self)
   t = bt_song_info_get_change_dts_in_local_time (self);
   strftime (hdts, 199, "%c", localtime (&t));
 
-  return (hdts);
+  return hdts;
 }
 
 /**
@@ -390,7 +390,7 @@ bt_song_info_persistence_save (const BtPersistence * const persistence,
     xmlNewChild (node, NULL, XML_CHAR_PTR ("bars"),
         XML_CHAR_PTR (bt_str_format_ulong (self->priv->bars)));
   }
-  return (node);
+  return node;
 }
 
 static BtPersistence *

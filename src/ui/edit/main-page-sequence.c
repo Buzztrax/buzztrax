@@ -452,7 +452,7 @@ sequence_view_get_cursor_pos (GtkTreeView * tree_view, GtkTreePath * path,
   } else {
     GST_WARNING ("Can't get tree-model");
   }
-  return (res);
+  return res;
 }
 
 static gboolean
@@ -464,7 +464,7 @@ sequence_view_set_cursor_pos (const BtMainPageSequence * self)
   // TODO(ensonic): http://bugzilla.gnome.org/show_bug.cgi?id=498010, fixed in 2008
   if (!GTK_IS_TREE_VIEW (self->priv->sequence_table)
       || !gtk_tree_view_get_model (self->priv->sequence_table))
-    return (FALSE);
+    return FALSE;
 
   if ((path =
           gtk_tree_path_new_from_indices ((self->priv->cursor_row /
@@ -524,7 +524,7 @@ sequence_view_get_current_pos (const BtMainPageSequence * self, gulong * time,
   }
   if (path)
     gtk_tree_path_free (path);
-  return (res);
+  return res;
 }
 
 static GtkTreeModel *
@@ -538,7 +538,7 @@ sequence_model_get_store (const BtMainPageSequence * self)
                   priv->sequence_table)))) {
     store = gtk_tree_model_filter_get_model (filtered_store);
   }
-  return (store);
+  return store;
 }
 
 /*
@@ -636,7 +636,7 @@ make_mini_button (const gchar * txt, const gchar * style, gboolean toggled)
   gtk_style_context_add_class (context, "mini");
   gtk_style_context_add_class (context, style);
 
-  return (button);
+  return button;
 }
 
 //-- tree model helper
@@ -665,7 +665,7 @@ pattern_list_model_get_pattern_by_key (GtkTreeModel * store, gchar that_key)
     }
     g_free (this_key);
   } while (gtk_tree_model_iter_next (store, &iter));
-  return (pattern);
+  return pattern;
 }
 
 //-- undo/redo helpers
@@ -1027,7 +1027,7 @@ on_delayed_idle_track_level_change (gpointer user_data)
     gtk_vumeter_set_levels (data->vumeter, data->peak, data->decay);
   }
   FREE_UPDATE_IDLE_DATA (data);
-  return (FALSE);
+  return FALSE;
 }
 
 static gboolean
@@ -1046,7 +1046,7 @@ on_delayed_track_level_change (GstClock * clock, GstClockTime time,
     BtUpdateIdleData *data = (BtUpdateIdleData *) user_data;
     FREE_UPDATE_IDLE_DATA (data);
   }
-  return (TRUE);
+  return TRUE;
 }
 
 static void
@@ -2115,7 +2115,7 @@ update_bars_menu (const BtMainPageSequence * self, gulong bars)
   gtk_combo_box_set_active (self->priv->bars_menu, active);
   g_object_unref (store);       // drop with combobox
 
-  return (TRUE);
+  return TRUE;
 }
 
 static void
@@ -2605,7 +2605,7 @@ on_sequence_table_cursor_changed_idle (gpointer user_data)
   if (path)
     gtk_tree_path_free (path);
 
-  return (FALSE);
+  return FALSE;
 }
 
 static void
@@ -2655,7 +2655,7 @@ change_pattern (BtMainPageSequence * self, BtCmdPattern * new_pattern,
     g_object_unref (machine);
     res = TRUE;
   }
-  return (res);
+  return res;
 }
 
 #ifdef USE_DEBUG
@@ -2683,7 +2683,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
   gulong row, track;
 
   if (!gtk_widget_get_realized (GTK_WIDGET (self->priv->sequence_table)))
-    return (FALSE);
+    return FALSE;
 
   GST_INFO
       ("sequence_table key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
@@ -2702,7 +2702,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
 
     GST_DEBUG ("cursor pos : %lu/%lu, %lu/%lu", row, length, track, tracks);
     if (track > tracks)
-      return (FALSE);
+      return FALSE;
 
     // look up pattern for key
     if (event->keyval == GDK_KEY_space || event->keyval == GDK_KEY_period) {
@@ -3051,7 +3051,7 @@ on_sequence_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
     }
     //else if(!select) GST_INFO("  nothing assigned to this key");
   }
-  return (res);
+  return res;
 }
 
 static gboolean
@@ -3068,7 +3068,7 @@ on_sequence_header_button_press_event (GtkWidget * widget,
         GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
     res = TRUE;
   }
-  return (res);
+  return res;
 }
 
 static gboolean
@@ -3147,7 +3147,7 @@ on_sequence_table_button_press_event (GtkWidget * widget,
         GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
     res = TRUE;
   }
-  return (res);
+  return res;
 }
 
 static gboolean
@@ -3231,7 +3231,7 @@ on_sequence_table_motion_notify_event (GtkWidget * widget,
         gtk_tree_path_free (path);
     }
   }
-  return (res);
+  return res;
 }
 
 // setup colors for sequence view
@@ -4014,7 +4014,7 @@ bt_main_page_sequence_new (const BtMainPages * pages)
   self =
       BT_MAIN_PAGE_SEQUENCE (g_object_new (BT_TYPE_MAIN_PAGE_SEQUENCE, NULL));
   bt_main_page_sequence_init_ui (self, pages);
-  return (self);
+  return self;
 }
 
 //-- methods
@@ -4239,7 +4239,7 @@ sequence_deserialize_pattern_track (BtMainPageSequence * self,
     GST_INFO ("no machine for track");
     res = FALSE;
   }
-  return (res);
+  return res;
 }
 
 static gboolean
@@ -4278,7 +4278,7 @@ sequence_deserialize_label_track (BtMainPageSequence * self,
     res = FALSE;
   }
 
-  return (res);
+  return res;
 }
 
 

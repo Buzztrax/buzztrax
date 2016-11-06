@@ -226,7 +226,7 @@ bt_song_io_native_bzt_copy_from_uri (const BtSongIONativeBZT * const self,
     g_object_unref (data);
   }
 #endif
-  return (res);
+  return res;
 }
 
 //-- methods

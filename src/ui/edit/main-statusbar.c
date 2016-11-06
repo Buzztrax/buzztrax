@@ -248,7 +248,7 @@ on_cpu_load_update (gpointer user_data)
   gtk_progress_bar_set_fraction (self->priv->cpu_load,
       (gdouble) cpu_load / 100.0);
   gtk_progress_bar_set_text (self->priv->cpu_load, str);
-  return (TRUE);
+  return TRUE;
 }
 
 #ifdef USE_MAIN_LOOP_IDLE_TRACKER
@@ -361,7 +361,7 @@ bt_main_statusbar_new (void)
   self = BT_MAIN_STATUSBAR (g_object_new (BT_TYPE_MAIN_STATUSBAR, "orientation",
           GTK_ORIENTATION_HORIZONTAL, NULL));
   bt_main_statusbar_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

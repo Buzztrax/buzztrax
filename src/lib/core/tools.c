@@ -46,7 +46,7 @@ bt_gst_registry_class_filter (GstPluginFeature * const feature,
       res = (strstr (klass, *categories++) != NULL);
     }
   }
-  return (res);
+  return res;
 }
 
 /**
@@ -76,7 +76,7 @@ bt_gst_registry_get_element_factories_matching_all_categories (const gchar *
 
   GST_DEBUG ("filtering done");
   g_strfreev (categories);
-  return (list);
+  return list;
 }
 
 /**
@@ -136,14 +136,14 @@ bt_gst_element_factory_can_sink_media_type (GstElementFactory * factory,
       GST_INFO ("  testing caps: %" GST_PTR_FORMAT, caps);
       if (gst_caps_is_any (caps)) {
         gst_caps_unref (caps);
-        return (TRUE);
+        return TRUE;
       }
       size = gst_caps_get_size (caps);
       for (i = 0; i < size; i++) {
         s = gst_caps_get_structure (caps, i);
         if (gst_structure_has_name (s, name)) {
           gst_caps_unref (caps);
-          return (TRUE);
+          return TRUE;
         }
       }
       gst_caps_unref (caps);
@@ -151,7 +151,7 @@ bt_gst_element_factory_can_sink_media_type (GstElementFactory * factory,
       GST_DEBUG ("  skipping template, wrong dir: %d", tmpl->direction);
     }
   }
-  return (FALSE);
+  return FALSE;
 }
 
 /**
@@ -183,7 +183,7 @@ bt_gst_check_elements (GList * list)
       }
     }
   }
-  return (res);
+  return res;
 }
 
 /**
@@ -228,7 +228,7 @@ bt_gst_check_core_elements (void)
   } else {
     res = core_elements;
   }
-  return (res);
+  return res;
 }
 
 //-- gst safe linking
@@ -268,7 +268,7 @@ bt_gst_get_peer_pad (GstIterator * it)
   }
   g_value_unset (&item);
   gst_iterator_free (it);
-  return (peer_pad);
+  return peer_pad;
 }
 
 /**
@@ -428,7 +428,7 @@ bt_bin_activate_tee_chain (GstBin * bin, GstElement * tee, GList * elements,
   } else {
     async_add (tee_src, NULL, elements);
   }
-  return (res);
+  return res;
 }
 
 static GstPadProbeReturn
@@ -949,7 +949,7 @@ bt_str_format_uchar (const guchar val)
   static gchar str[20];
 
   g_sprintf (str, "%u", val);
-  return (str);
+  return str;
 }
 
 /**
@@ -967,7 +967,7 @@ bt_str_format_long (const glong val)
   static gchar str[20];
 
   g_sprintf (str, "%ld", val);
-  return (str);
+  return str;
 }
 
 /**
@@ -985,7 +985,7 @@ bt_str_format_ulong (const gulong val)
   static gchar str[20];
 
   g_sprintf (str, "%lu", val);
-  return (str);
+  return str;
 }
 
 /**
@@ -1003,7 +1003,7 @@ bt_str_format_double (const gdouble val)
   static gchar str[G_ASCII_DTOSTR_BUF_SIZE + 1];
 
   g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, val);
-  return (str);
+  return str;
 }
 
 /**
@@ -1045,7 +1045,7 @@ bt_str_parse_enum (GType enum_type, const gchar * str)
   g_return_val_if_fail (G_TYPE_IS_ENUM (enum_type), -1);
 
   if (!str)
-    return (-1);
+    return -1;
 
   GEnumClass *enum_class = g_type_class_ref (enum_type);
   GEnumValue *enum_value = g_enum_get_value_by_nick (enum_class, str);
@@ -1147,9 +1147,9 @@ bt_str_parse_gvalue (GValue * const gvalue, const gchar * svalue)
     default:
       GST_ERROR ("unsupported GType=%lu:'%s' for value=\"%s\"",
           (gulong) G_VALUE_TYPE (gvalue), G_VALUE_TYPE_NAME (gvalue), svalue);
-      return (FALSE);
+      return FALSE;
   }
-  return (res);
+  return res;
 }
 
 /**
@@ -1232,7 +1232,7 @@ bt_str_format_gvalue (GValue * const gvalue)
     default:
       GST_ERROR ("unsupported GType=%lu:'%s'", (gulong) G_VALUE_TYPE (gvalue),
           G_VALUE_TYPE_NAME (gvalue));
-      return (NULL);
+      return NULL;
   }
-  return (res);
+  return res;
 }

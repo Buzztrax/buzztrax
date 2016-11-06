@@ -353,10 +353,10 @@ bt_machine_set_mute (const BtMachine * const self, gboolean mute)
 
   if (self->priv->machines[part]) {
     g_object_set (self->priv->machines[part], "mute", mute, NULL);
-    return (TRUE);
+    return TRUE;
   }
   GST_WARNING_OBJECT (self, "can't mute element '%s'", self->priv->id);
-  return (FALSE);
+  return FALSE;
 }
 
 /*
@@ -491,7 +491,7 @@ bt_machine_change_state (const BtMachine * const self,
   self->priv->state = new_state;
 
   g_object_unref (setup);
-  return (res);
+  return res;
 }
 
 /*
@@ -516,9 +516,9 @@ bt_machine_link_elements (const BtMachine * const self, GstPad * src,
         GST_DEBUG_PAD_NAME (src), GST_DEBUG_PAD_NAME (sink), plr);
     GST_WARNING_OBJECT (self, "%s", bt_gst_debug_pad_link_return (plr, src,
             sink));
-    return (FALSE);
+    return FALSE;
   }
-  return (TRUE);
+  return TRUE;
 }
 
 /*
@@ -639,7 +639,7 @@ bt_machine_insert_element (BtMachine * const self, GstPad * const peer,
     GST_ERROR_OBJECT (self, "failed to link part '%s' in broken machine",
         GST_OBJECT_NAME (machines[pos]));
   }
-  return (res);
+  return res;
 }
 
 static void
@@ -856,7 +856,7 @@ bt_machine_make_internal_element (const BtMachine * const self,
   }
   res = TRUE;
 Error:
-  return (res);
+  return res;
 }
 
 /*
@@ -915,7 +915,7 @@ bt_machine_add_input_element (BtMachine * const self, const BtMachinePart part)
   }
   res = TRUE;
 Error:
-  return (res);
+  return res;
 }
 
 /*
@@ -974,7 +974,7 @@ bt_machine_add_output_element (BtMachine * const self, const BtMachinePart part)
   }
   res = TRUE;
 Error:
-  return (res);
+  return res;
 }
 
 /* bt_machine_enable_part:
@@ -992,7 +992,7 @@ bt_machine_enable_part (BtMachine * const self, const BtMachinePart part,
   gboolean res = FALSE;
 
   if (self->priv->machines[part])
-    return (TRUE);
+    return TRUE;
 
   if (!bt_machine_make_internal_element (self, part, factory_name,
           element_name))
@@ -1020,7 +1020,7 @@ bt_machine_enable_part (BtMachine * const self, const BtMachinePart part,
   }
   res = TRUE;
 Error:
-  return (res);
+  return res;
 }
 
 
@@ -1040,7 +1040,7 @@ bt_machine_init_core_machine (BtMachine * const self)
 
   res = TRUE;
 Error:
-  return (res);
+  return res;
 }
 
 static gboolean
@@ -1133,7 +1133,7 @@ bt_machine_check_type (const BtMachine * const self)
 
   if (!klass->check_type) {
     GST_WARNING_OBJECT (self, "no BtMachine::check_type() implemented");
-    return (TRUE);
+    return TRUE;
   }
   // get pad counts per type
   it = gst_element_iterate_pads (self->priv->machines[PART_MACHINE]);
@@ -1169,9 +1169,9 @@ bt_machine_check_type (const BtMachine * const self)
 
   // test pad counts and element type
   if (!((klass->check_type) (self, pad_src_ct, pad_sink_ct))) {
-    return (FALSE);
+    return FALSE;
   }
-  return (TRUE);
+  return TRUE;
 }
 
 static void
@@ -1593,7 +1593,7 @@ bt_machine_activate_adder (BtMachine * const self)
 Error:
   bt_machine_dbg_print_parts (self);
   bt_song_write_to_lowlevel_dot_file (self->priv->song);
-  return (res);
+  return res;
 }
 
 /**
@@ -1713,7 +1713,7 @@ bt_machine_activate_spreader (BtMachine * const self)
 Error:
   bt_machine_dbg_print_parts (self);
   bt_song_write_to_lowlevel_dot_file (self->priv->song);
-  return (res);
+  return res;
 }
 
 /**
@@ -1978,7 +1978,7 @@ bt_machine_is_polyphonic (const BtMachine * const self)
 
   res = GSTBT_IS_CHILD_BIN (self->priv->machines[PART_MACHINE]);
   GST_INFO (" is machine \"%s\" polyphonic ? %d", self->priv->id, res);
-  return (res);
+  return res;
 }
 
 /**
@@ -2634,7 +2634,7 @@ bt_machine_get_wire_by_dst_machine (const BtMachine * const self,
 
   // either src or dst has no wires
   if (!self->src_wires || !dst->dst_wires)
-    return (NULL);
+    return NULL;
 
   // check if self links to dst
   // ideally we would search the shorter of the lists
@@ -2649,7 +2649,7 @@ bt_machine_get_wire_by_dst_machine (const BtMachine * const self,
   }
   GST_DEBUG ("no wire found for machines %p:%s %p:%s", self,
       GST_OBJECT_NAME (self), dst, GST_OBJECT_NAME (dst));
-  return (NULL);
+  return NULL;
 }
 
 
@@ -2668,7 +2668,7 @@ bt_machine_get_element_list (const BtMachine * const self)
     }
   }
 
-  return (list);
+  return list;
 }
 
 void
@@ -2840,7 +2840,7 @@ bt_machine_persistence_save (const BtPersistence * const persistence,
     }
   }
 Error:
-  return (node);
+  return node;
 }
 
 static BtPersistence *
@@ -3081,7 +3081,7 @@ bt_machine_request_new_pad (GstElement * element, GstPadTemplate * templ,
   gst_object_unref (target);
   g_free (name);
 
-  return (pad);
+  return pad;
 }
 
 static void

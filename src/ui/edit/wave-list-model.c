@@ -167,7 +167,7 @@ bt_wave_list_model_new (BtWavetable * wavetable)
   g_signal_connect_object (wavetable, "wave-removed",
       G_CALLBACK (on_wave_removed), (gpointer) self, 0);
 
-  return (self);
+  return self;
 }
 
 //-- methods
@@ -200,7 +200,7 @@ bt_wave_list_model_tree_model_get_flags (GtkTreeModel * tree_model)
 static gint
 bt_wave_list_model_tree_model_get_n_columns (GtkTreeModel * tree_model)
 {
-  return (N_COLUMNS);
+  return N_COLUMNS;
 }
 
 static GType
@@ -222,12 +222,12 @@ bt_wave_list_model_tree_model_get_iter (GtkTreeModel * tree_model,
   gint i = gtk_tree_path_get_indices (path)[0];
 
   if (i >= N_ROWS)
-    return (FALSE);
+    return FALSE;
 
   iter->stamp = model->priv->stamp;
   iter->user_data = GINT_TO_POINTER (i);
 
-  return (TRUE);
+  return TRUE;
 }
 
 static GtkTreePath *
@@ -242,7 +242,7 @@ bt_wave_list_model_tree_model_get_path (GtkTreeModel *
   path = gtk_tree_path_new ();
   gtk_tree_path_append_index (path, GPOINTER_TO_UINT (iter->user_data));
 
-  return (path);
+  return path;
 }
 
 static void
@@ -315,17 +315,17 @@ bt_wave_list_model_tree_model_iter_children (GtkTreeModel * tree_model,
   if (!parent) {
     iter->stamp = model->priv->stamp;
     iter->user_data = GINT_TO_POINTER (0);
-    return (TRUE);
+    return TRUE;
   }
   iter->stamp = 0;
-  return (FALSE);
+  return FALSE;
 }
 
 static gboolean
 bt_wave_list_model_tree_model_iter_has_child (GtkTreeModel * tree_model,
     GtkTreeIter * iter)
 {
-  return (FALSE);
+  return FALSE;
 }
 
 static gint
@@ -338,7 +338,7 @@ bt_wave_list_model_tree_model_iter_n_children (GtkTreeModel * tree_model,
     return N_ROWS;
 
   g_return_val_if_fail (model->priv->stamp == iter->stamp, -1);
-  return (0);
+  return 0;
 }
 
 static gboolean
@@ -350,12 +350,12 @@ bt_wave_list_model_tree_model_iter_nth_child (GtkTreeModel * tree_model,
   iter->stamp = 0;
 
   if (parent)
-    return (FALSE);
+    return FALSE;
 
   iter->stamp = model->priv->stamp;
   iter->user_data = GINT_TO_POINTER (n);
 
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -363,7 +363,7 @@ bt_wave_list_model_tree_model_iter_parent (GtkTreeModel * tree_model,
     GtkTreeIter * iter, GtkTreeIter * child)
 {
   iter->stamp = 0;
-  return (FALSE);
+  return FALSE;
 }
 
 static void

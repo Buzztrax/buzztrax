@@ -178,7 +178,7 @@ bt_missing_song_elements_dialog_new (GList * machines, GList * waves)
       (BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG, "machines", machines, "waves",
           waves, NULL));
   bt_missing_song_elements_dialog_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

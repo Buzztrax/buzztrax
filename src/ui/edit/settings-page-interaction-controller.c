@@ -501,7 +501,7 @@ bt_settings_page_interaction_controller_new (GtkWidget * pages)
       (BT_TYPE_SETTINGS_PAGE_INTERACTION_CONTROLLER, NULL));
   bt_settings_page_interaction_controller_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
-  return (self);
+  return self;
 }
 
 //-- methods

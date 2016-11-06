@@ -755,7 +755,7 @@ check_get_test_song_path (const gchar * name)
   // TESTSONGDIR gets defined in Makefile.am and is an absolute path
   g_snprintf (path, 2047, TESTSONGDIR "" G_DIR_SEPARATOR_S "%s", name);
   GST_INFO ("build path: '%s'", path);
-  return (path);
+  return path;
 }
 
 // test plugins

@@ -350,7 +350,7 @@ bt_interaction_controller_menu_init_control_menu (const
   }
   g_list_free (list);
 
-  return (submenu);
+  return submenu;
 }
 
 static void
@@ -462,7 +462,7 @@ bt_interaction_controller_menu_new (BtInteractionControllerMenuType type,
       (BT_TYPE_INTERACTION_CONTROLLER_MENU, "type", type, "machine", machine,
           NULL));
   bt_interaction_controller_menu_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

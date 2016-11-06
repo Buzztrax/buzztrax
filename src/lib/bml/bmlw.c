@@ -115,7 +115,7 @@ bmlw_open (char *bm_file_name)
   win32_prolog ();
   bmh = BMLX (bmlw_open (bm_file_name));
   win32_eliplog ();
-  return (bmh);
+  return bmh;
 }
 
 void
@@ -136,7 +136,7 @@ bmlw_get_machine_info (BuzzMachineHandle * bmh, BuzzMachineProperty key,
   win32_prolog ();
   ret = BMLX (bmlw_get_machine_info (bmh, key, value));
   win32_eliplog ();
-  return (ret);
+  return ret;
 }
 
 int
@@ -148,7 +148,7 @@ bmlw_get_global_parameter_info (BuzzMachineHandle * bmh, int index,
   win32_prolog ();
   ret = BMLX (bmlw_get_global_parameter_info (bmh, index, key, value));
   win32_eliplog ();
-  return (ret);
+  return ret;
 }
 
 int
@@ -160,7 +160,7 @@ bmlw_get_track_parameter_info (BuzzMachineHandle * bmh, int index,
   win32_prolog ();
   ret = BMLX (bmlw_get_track_parameter_info (bmh, index, key, value));
   win32_eliplog ();
-  return (ret);
+  return ret;
 }
 
 int
@@ -172,7 +172,7 @@ bmlw_get_attribute_info (BuzzMachineHandle * bmh, int index,
   win32_prolog ();
   ret = BMLX (bmlw_get_attribute_info (bmh, index, key, value));
   win32_eliplog ();
-  return (ret);
+  return ret;
 }
 
 
@@ -185,7 +185,7 @@ bmlw_describe_global_value (BuzzMachineHandle * bmh, int const param,
   win32_prolog ();
   ret = BMLX (bmlw_describe_global_value (bmh, param, value));
   win32_eliplog ();
-  return (ret);
+  return ret;
 }
 
 const char *
@@ -197,7 +197,7 @@ bmlw_describe_track_value (BuzzMachineHandle * bmh, int const param,
   win32_prolog ();
   ret = BMLX (bmlw_describe_track_value (bmh, param, value));
   win32_eliplog ();
-  return (ret);
+  return ret;
 }
 
 
@@ -211,7 +211,7 @@ bmlw_new (BuzzMachineHandle * bmh)
   win32_prolog ();
   bm = BMLX (bmlw_new (bmh));
   win32_eliplog ();
-  return (bm);
+  return bm;
 }
 
 void
@@ -240,7 +240,7 @@ bmlw_get_track_parameter_value (BuzzMachine * bm, int track, int index)
   win32_prolog ();
   ret = BMLX (bmlw_get_track_parameter_value (bm, track, index));
   win32_eliplog ();
-  return (ret);
+  return ret;
 }
 
 void
@@ -261,7 +261,7 @@ bmlw_get_global_parameter_value (BuzzMachine * bm, int index)
   win32_prolog ();
   ret = BMLX (bmlw_get_global_parameter_value (bm, index));
   win32_eliplog ();
-  return (ret);
+  return ret;
 }
 
 void
@@ -281,7 +281,7 @@ bmlw_get_attribute_value (BuzzMachine * bm, int index)
   win32_prolog ();
   ret = BMLX (bmlw_get_attribute_value (bm, index));
   win32_eliplog ();
-  return (ret);
+  return ret;
 }
 
 void
@@ -309,7 +309,7 @@ bmlw_work (BuzzMachine * bm, float *psamples, int numsamples, int const mode)
   win32_prolog ();
   ret = BMLX (bmlw_work (bm, psamples, numsamples, mode));
   win32_eliplog ();
-  return (ret);
+  return ret;
 }
 
 int
@@ -321,7 +321,7 @@ bmlw_work_m2s (BuzzMachine * bm, float *pin, float *pout, int numsamples,
   win32_prolog ();
   ret = BMLX (bmlw_work_m2s (bm, pin, pout, numsamples, mode));
   win32_eliplog ();
-  return (ret);
+  return ret;
 }
 
 void

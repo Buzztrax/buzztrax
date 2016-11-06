@@ -149,7 +149,7 @@ bt_about_dialog_new (void)
 
   self = BT_ABOUT_DIALOG (g_object_new (BT_TYPE_ABOUT_DIALOG, NULL));
   bt_about_dialog_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

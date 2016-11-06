@@ -572,7 +572,7 @@ gst_bml_src_create_mono (GstBaseSrc * base, GstClockTime offset, guint length,
   gst_buffer_unmap (buf, &info);
   *buffer = buf;
 
-  return (GST_FLOW_OK);
+  return GST_FLOW_OK;
 }
 
 static GstFlowReturn
@@ -720,7 +720,7 @@ gst_bml_src_create_stereo (GstBaseSrc * base, GstClockTime offset, guint length,
   gst_buffer_unmap (buf, &info);
   *buffer = buf;
 
-  return (GST_FLOW_OK);
+  return GST_FLOW_OK;
 }
 
 static void
@@ -926,5 +926,5 @@ bml (src_get_type (const char *element_type_name, gboolean is_polyphonic))
 
   GST_INFO ("successfully registered type interfaces");
 
-  return (element_type);
+  return element_type;
 }

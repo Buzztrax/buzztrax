@@ -157,7 +157,7 @@ read_index (const gchar * dir_name)
     fclose (file);
   }
   g_free (file_name);
-  return (res);
+  return res;
 }
 
 static int
@@ -171,11 +171,11 @@ static const gchar *
 get_bml_path (void)
 {
 #if USE_DLLWRAPPER
-  return (LIBDIR G_DIR_SEPARATOR_S "Gear:" LIBDIR G_DIR_SEPARATOR_S "Gear"
+  return LIBDIR G_DIR_SEPARATOR_S "Gear:" LIBDIR G_DIR_SEPARATOR_S "Gear"
       G_DIR_SEPARATOR_S "Generators:" LIBDIR G_DIR_SEPARATOR_S "Gear"
-      G_DIR_SEPARATOR_S "Effects");
+      G_DIR_SEPARATOR_S "Effects";
 #else
-  return (LIBDIR G_DIR_SEPARATOR_S "Gear");
+  return LIBDIR G_DIR_SEPARATOR_S "Gear";
 #endif
 }
 
@@ -393,7 +393,7 @@ dir_scan (const gchar * dir_name)
 
   dir = g_dir_open (dir_name, 0, NULL);
   if (!dir)
-    return (res);
+    return res;
 
   while ((entry_name = g_dir_read_name (dir))) {
     cur_entry_name = (gchar *) entry_name;
@@ -471,7 +471,7 @@ dir_scan (const gchar * dir_name)
   g_dir_close (dir);
 
   GST_INFO ("after scanning dir \"%s\", res=%d", dir_name, res);
-  return (res);
+  return res;
 }
 
 /*
@@ -520,7 +520,7 @@ bml_scan (void)
   g_hash_table_destroy (bml_category_by_machine_name);
 
   GST_INFO ("after scanning path \"%s\", res=%d", bml_path, res);
-  return (res);
+  return res;
 }
 
 static gboolean
@@ -545,7 +545,7 @@ plugin_init (GstPlugin * plugin)
   // init bml library
   if (!bml_setup ()) {
     GST_WARNING ("failed to init bml library");
-    return (FALSE);
+    return FALSE;
   }
   // init global data
   bml_plugin = plugin;

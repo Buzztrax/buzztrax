@@ -322,7 +322,7 @@ on_delayed_idle_machine_level_change (gpointer user_data)
     g_object_set (data->meter, "y", MACHINE_METER_BASE - h, "height", h, NULL);
   }
   FREE_UPDATE_IDLE_DATA (data);
-  return (FALSE);
+  return FALSE;
 }
 
 static gboolean
@@ -337,7 +337,7 @@ on_delayed_machine_level_change (GstClock * clock, GstClockTime time,
     BtUpdateIdleData *data = (BtUpdateIdleData *) user_data;
     FREE_UPDATE_IDLE_DATA (data);
   }
-  return (TRUE);
+  return TRUE;
 }
 
 static void
@@ -748,7 +748,7 @@ bt_machine_canvas_item_is_over_state_switch (const BtMachineCanvasItem * self,
     g_object_unref (pci);
   }
   g_object_unref (canvas);
-  return (res);
+  return res;
 }
 #endif
 
@@ -946,7 +946,7 @@ bt_machine_canvas_item_init_context_menu (const BtMachineCanvasItem * self)
   g_signal_connect (menu_item, "activate",
       G_CALLBACK (on_context_menu_about_activate), (gpointer) self);
 
-  return (TRUE);
+  return TRUE;
 }
 
 //-- constructor methods
@@ -985,7 +985,7 @@ bt_machine_canvas_item_new (const BtMainPageMachines * main_page_machines,
       G_OBJECT_LOG_REF_COUNT (self));
 
   g_object_unref (canvas);
-  return (self);
+  return self;
 }
 
 //-- methods

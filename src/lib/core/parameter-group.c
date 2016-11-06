@@ -144,7 +144,7 @@ bt_parameter_group_get_property_meta_value (GValue * const value,
         }
     }
   }
-  return (res);
+  return res;
 }
 
 #define _RANDOMIZE(t,T,p)                                                      \
@@ -258,11 +258,11 @@ bt_parameter_group_is_param_no_value (const BtParameterGroup * const self,
 
   GValue *v = &self->priv->no_val[index];
   if (!BT_IS_GVALUE (v))
-    return (FALSE);
+    return FALSE;
 
   if (gst_value_compare (v, value) == GST_VALUE_EQUAL)
-    return (TRUE);
-  return (FALSE);
+    return TRUE;
+  return FALSE;
 }
 
 

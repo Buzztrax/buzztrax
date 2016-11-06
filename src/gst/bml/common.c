@@ -227,9 +227,9 @@ gstbml_preset_get_preset_names (GstBML * bml, GstBMLClass * klass)
       preset_names[i++] = g_strdup (node->data);
     }
     preset_names[i] = NULL;
-    return (preset_names);
+    return preset_names;
   }
-  return (NULL);
+  return NULL;
 }
 
 // skip non-controlable, trigger params & voice params
@@ -930,7 +930,7 @@ gstbml_register_param (GObjectClass * klass, gint prop_id,
   } else {
     GST_WARNING ("failed to create paramspec");
   }
-  return (paramspec);
+  return paramspec;
 }
 
 //-- common element functions

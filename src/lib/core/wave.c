@@ -369,7 +369,7 @@ Error:
   }
   if (!res)
     wave_io_free (self);
-  return (res);
+  return res;
 }
 
 
@@ -498,7 +498,7 @@ Error:
     close (fd);
   if (!res)
     wave_io_free (self);
-  return (res);
+  return res;
 }
 
 
@@ -522,7 +522,7 @@ bt_wave_save_from_fd (const BtWave * const self, BtSongIONative * song_io,
       uri);
   g_free (fp);
 
-  return (TRUE);
+  return TRUE;
 }
 
 
@@ -607,7 +607,7 @@ bt_wave_get_level_by_index (const BtWave * const self, const gulong index)
   if ((wavelevel = g_list_nth_data (self->priv->wavelevels, index))) {
     return (g_object_ref (wavelevel));
   }
-  return (NULL);
+  return NULL;
 }
 
 //-- io interface
@@ -661,7 +661,7 @@ bt_wave_persistence_save (const BtPersistence * const persistence,
       bt_persistence_save_list (self->priv->wavelevels, child_node);
     }
   }
-  return (node);
+  return node;
 }
 
 static BtPersistence *
@@ -803,7 +803,7 @@ bt_wave_persistence_load (const GType type,
 Done:
   g_free (uri);
   xmlFree (uri_str);
-  return (result);
+  return result;
 WaveUnpackError:
   GST_WARNING ("Failed to unpack wave %lu, uri='%s'", index, uri_str);
   if (err) {

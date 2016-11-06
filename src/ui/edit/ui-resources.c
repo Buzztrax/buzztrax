@@ -234,7 +234,7 @@ bt_ui_resources_get_icon_pixbuf_by_machine (const BtMachine * machine)
   } else if (BT_IS_SINK_MACHINE (machine)) {
     return (g_object_ref (singleton->priv->sink_machine_pixbuf));
   }
-  return (NULL);
+  return NULL;
 }
 
 /**
@@ -269,7 +269,7 @@ bt_ui_resources_get_machine_graphics_pixbuf_by_machine (const BtMachine *
   } else if (BT_IS_SINK_MACHINE (machine)) {
     return (g_object_ref (singleton->priv->sink_machine_pixbufs[state]));
   }
-  return (NULL);
+  return NULL;
 }
 
 /**
@@ -291,7 +291,7 @@ bt_ui_resources_get_icon_image_by_machine (const BtMachine * machine)
   } else if (BT_IS_SINK_MACHINE (machine)) {
     return (gtk_image_new_from_pixbuf (singleton->priv->sink_machine_pixbuf));
   }
-  return (NULL);
+  return NULL;
 }
 
 /**
@@ -313,7 +313,7 @@ bt_ui_resources_get_icon_image_by_machine_type (GType machine_type)
   } else if (machine_type == BT_TYPE_SINK_MACHINE) {
     return (gtk_image_new_from_pixbuf (singleton->priv->sink_machine_pixbuf));
   }
-  return (NULL);
+  return NULL;
 }
 
 /**

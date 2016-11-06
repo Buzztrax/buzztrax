@@ -593,7 +593,7 @@ bt_main_page_info_new (const BtMainPages * pages)
       BT_MAIN_PAGE_INFO (g_object_new (BT_TYPE_MAIN_PAGE_INFO, "spacing", 6,
           NULL));
   bt_main_page_info_init_ui (self, pages);
-  return (self);
+  return self;
 }
 
 //-- methods

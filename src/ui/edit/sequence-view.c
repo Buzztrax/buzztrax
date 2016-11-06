@@ -104,7 +104,7 @@ bt_sequence_view_new (void)
   BtSequenceView *self;
 
   self = BT_SEQUENCE_VIEW (g_object_new (BT_TYPE_SEQUENCE_VIEW, NULL));
-  return (self);
+  return self;
 }
 
 //-- methods
@@ -209,7 +209,7 @@ bt_sequence_view_draw (GtkWidget * widget, cairo_t * c)
     cairo_stroke (c);
   }
 
-  return (FALSE);
+  return FALSE;
 }
 
 static void

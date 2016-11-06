@@ -1208,7 +1208,7 @@ bt_main_menu_new (void)
 
   self = BT_MAIN_MENU (g_object_new (BT_TYPE_MAIN_MENU, NULL));
   bt_main_menu_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

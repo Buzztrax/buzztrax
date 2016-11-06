@@ -545,7 +545,7 @@ bt_sequence_get_track_by_machine (const BtSequence * const self,
       return ((glong) track);
     }
   }
-  return (-1);
+  return -1;
 }
 
 /**
@@ -575,7 +575,7 @@ bt_sequence_get_tick_by_pattern (const BtSequence * const self, gulong track,
       return ((glong) tick);
     }
   }
-  return (-1);
+  return -1;
 }
 
 /**
@@ -594,7 +594,7 @@ bt_sequence_get_machine (const BtSequence * const self, const gulong track)
   g_return_val_if_fail (BT_IS_SEQUENCE (self), NULL);
 
   if (track >= self->priv->tracks)
-    return (NULL);
+    return NULL;
 
   BtMachine *machine = bt_sequence_get_machine_unchecked (self, track);
   if (machine) {
@@ -664,7 +664,7 @@ bt_sequence_add_track (const BtSequence * const self,
   GST_INFO_OBJECT (machine,
       ".. added track for machine %" G_OBJECT_REF_COUNT_FMT " at %lu",
       G_OBJECT_LOG_REF_COUNT (machine), pos);
-  return (TRUE);
+  return TRUE;
 }
 
 /**
@@ -722,7 +722,7 @@ bt_sequence_remove_track_by_ix (const BtSequence * const self, const gulong ix)
   GST_INFO_OBJECT (machine, "release machine %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (machine));
   g_object_unref (machine);
-  return (TRUE);
+  return TRUE;
 }
 
 /**
@@ -757,7 +757,7 @@ bt_sequence_move_track_left (const BtSequence * const self, const gulong track)
   machines[track] = machines[track - 1];
   machines[track - 1] = machine;
 
-  return (TRUE);
+  return TRUE;
 }
 
 /**
@@ -792,7 +792,7 @@ bt_sequence_move_track_right (const BtSequence * const self, const gulong track)
   machines[track] = machines[track + 1];
   machines[track + 1] = machine;
 
-  return (TRUE);
+  return TRUE;
 }
 
 /**
@@ -825,7 +825,7 @@ bt_sequence_remove_track_by_machine (const BtSequence * const self,
   }
   GST_INFO_OBJECT (machine, "removed tracks for machine %"
       G_OBJECT_REF_COUNT_FMT " res=%d", G_OBJECT_LOG_REF_COUNT (machine), res);
-  return (res);
+  return res;
 }
 
 /**
@@ -937,7 +937,7 @@ bt_sequence_set_pattern_quick (const BtSequence * const self, const gulong time,
   g_signal_emit ((gpointer) self, signals[SEQUENCE_ROWS_CHANGED_EVENT], 0, time,
       time);
   GST_DEBUG ("done: %d", changed);
-  return (changed);
+  return changed;
 }
 
 /**
@@ -1016,7 +1016,7 @@ bt_sequence_limit_play_pos (const BtSequence * const self, gulong play_pos)
   if (play_pos < self->priv->play_start) {
     play_pos = self->priv->play_start;
   }
-  return (play_pos);
+  return play_pos;
 }
 
 /**
@@ -1399,7 +1399,7 @@ bt_sequence_persistence_save (const BtPersistence * const persistence,
     }
   }
 Error:
-  return (node);
+  return node;
 }
 
 static BtPersistence *

@@ -146,7 +146,7 @@ bml (describe_plugin (gchar * pathname, gpointer bmh))
     if (!type_names_ok) {
       g_free (element_type_name);
       g_free (voice_type_name);
-      return (TRUE);
+      return TRUE;
     }
     // create the metadata store
 #ifdef BML_WRAPPED
@@ -253,7 +253,7 @@ bml (describe_plugin (gchar * pathname, gpointer bmh))
     }
     res = TRUE;
   }
-  return (res);
+  return res;
 }
 
 gboolean
@@ -341,9 +341,9 @@ bml (gstbml_is_polyphonic (gpointer bmh))
   if (bml (get_machine_info (bmh, BM_PROP_NUM_TRACK_PARAMS,
               (void *) &track_params))) {
     if (track_params > 0)
-      return (TRUE);
+      return TRUE;
   }
-  return (FALSE);
+  return FALSE;
 }
 
 
@@ -409,7 +409,7 @@ bml (gstbml_property_meta_describe_property (GstBMLClass * bml_class,
     res = g_convert (str, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
   }
   GST_INFO ("formatted global parameter : '%s'", res);
-  return (res);
+  return res;
 }
 
 void
@@ -513,7 +513,7 @@ bml (gstbml_class_base_init (GstBMLClass * klass, GType type, gint numsrcpads,
       klass->output_channels = 2;
   }
 
-  return (bmh);
+  return bmh;
 }
 
 /* it seems that this is never called :/
@@ -683,7 +683,7 @@ gst_bml_register_global_enum_type (GObjectClass * klass, gpointer bmh, gint i,
     GST_INFO ("existing enum '%s'", type_name);
   }
   g_free (type_name);
-  return (enum_type);
+  return enum_type;
 }
 
 GType
@@ -764,7 +764,7 @@ bml (gstbml_register_track_enum_type (GObjectClass * klass, gpointer bmh,
   }
   g_free (type_name);
   //}
-  return (enum_type);
+  return enum_type;
 }
 
 /*
@@ -973,7 +973,7 @@ gst_bml_add_voice (GstBML * bml, GType voice_type)
   bml->num_voices++;
 
   GST_DEBUG_OBJECT (bml->self, "added a new voice");
-  return (bmlv);
+  return bmlv;
 }
 
 // not wrapper/native specific

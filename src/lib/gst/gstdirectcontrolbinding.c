@@ -378,7 +378,7 @@ gstbt_direct_control_binding_sync_values (GstControlBinding * _self,
   } else {
     GST_DEBUG_OBJECT (object, "no control value for param %s", _self->name);
   }
-  return (ret);
+  return ret;
 }
 
 static GValue *

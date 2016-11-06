@@ -82,5 +82,5 @@ gst_buzztrax_tempo_example_case (void)
   tcase_add_test (tc, test_create_obj);
   tcase_add_test (tc, test_get_tempo);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
-  return (tc);
+  return tc;
 }

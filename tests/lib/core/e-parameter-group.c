@@ -286,5 +286,5 @@ bt_parameter_group_example_case (void)
   tcase_add_test (tc, test_bt_parameter_group_reset_all);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
-  return (tc);
+  return tc;
 }

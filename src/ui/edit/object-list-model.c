@@ -65,7 +65,7 @@ G_DEFINE_TYPE_WITH_CODE (BtObjectListModel, bt_object_list_model, G_TYPE_OBJECT,
  * @object_type: the #GType of the objects in the model
  * @...: property names for the columns
  *
- * Creates a list model mapping object properties to model columns. 
+ * Creates a list model mapping object properties to model columns.
  *
  * Returns: the model.
  */
@@ -95,7 +95,7 @@ bt_object_list_model_new (gint n_columns, GType object_type, ...)
   }
   va_end (args);
 
-  return (self);
+  return self;
 }
 
 //-- methods
@@ -229,12 +229,12 @@ bt_object_list_model_tree_model_get_iter (GtkTreeModel * tree_model,
   gint i = gtk_tree_path_get_indices (path)[0];
 
   if (i >= g_sequence_get_length (seq))
-    return (FALSE);
+    return FALSE;
 
   iter->stamp = model->priv->stamp;
   iter->user_data = g_sequence_get_iter_at_pos (seq, i);
 
-  return (TRUE);
+  return TRUE;
 }
 
 static GtkTreePath *
@@ -247,13 +247,13 @@ bt_object_list_model_tree_model_get_path (GtkTreeModel * tree_model,
   g_return_val_if_fail (iter->stamp == model->priv->stamp, NULL);
 
   if (g_sequence_iter_is_end (iter->user_data))
-    return (NULL);
+    return NULL;
 
   path = gtk_tree_path_new ();
   gtk_tree_path_append_index (path,
       g_sequence_iter_get_position (iter->user_data));
 
-  return (path);
+  return path;
 }
 
 static void
@@ -302,18 +302,18 @@ bt_object_list_model_tree_model_iter_children (GtkTreeModel * tree_model,
     if (g_sequence_get_length (model->priv->seq) > 0) {
       iter->stamp = model->priv->stamp;
       iter->user_data = g_sequence_get_begin_iter (model->priv->seq);
-      return (TRUE);
+      return TRUE;
     }
   }
   iter->stamp = 0;
-  return (FALSE);
+  return FALSE;
 }
 
 static gboolean
 bt_object_list_model_tree_model_iter_has_child (GtkTreeModel * tree_model,
     GtkTreeIter * iter)
 {
-  return (FALSE);
+  return FALSE;
 }
 
 static gint
@@ -326,7 +326,7 @@ bt_object_list_model_tree_model_iter_n_children (GtkTreeModel * tree_model,
     return g_sequence_get_length (model->priv->seq);
 
   g_return_val_if_fail (model->priv->stamp == iter->stamp, -1);
-  return (0);
+  return 0;
 }
 
 static gboolean
@@ -339,17 +339,17 @@ bt_object_list_model_tree_model_iter_nth_child (GtkTreeModel * tree_model,
   iter->stamp = 0;
 
   if (parent)
-    return (FALSE);
+    return FALSE;
 
   child = g_sequence_get_iter_at_pos (model->priv->seq, n);
 
   if (g_sequence_iter_is_end (child))
-    return (FALSE);
+    return FALSE;
 
   iter->stamp = model->priv->stamp;
   iter->user_data = child;
 
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -357,7 +357,7 @@ bt_object_list_model_tree_model_iter_parent (GtkTreeModel * tree_model,
     GtkTreeIter * iter, GtkTreeIter * child)
 {
   iter->stamp = 0;
-  return (FALSE);
+  return FALSE;
 }
 
 static void

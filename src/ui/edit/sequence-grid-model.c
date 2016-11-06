@@ -147,7 +147,7 @@ format_position (const BtSequenceGridModel * model, gulong pos)
       *pos_str = '\0';
       GST_WARNING ("unimplemented time format %d", model->priv->pos_format);
   }
-  return (pos_str);
+  return pos_str;
 }
 
 static void
@@ -321,7 +321,7 @@ on_sequence_pattern_added (BtSequence * sequence, BtPattern * pattern,
  * Creates a grid model for the @sequence. The model is automatically updated on
  * changes in the content. It also expands its length in sync to the sequence.
  *
- * To make the row-shading work, the application has to update 
+ * To make the row-shading work, the application has to update
  * #BtSequenceGridModel:bars when it changed on the view.
  *
  * When setting #BtSequenceGridModel:length to a value greater than the real
@@ -371,7 +371,7 @@ bt_sequence_grid_model_new (BtSequence * sequence, BtSongInfo * song_info,
   g_signal_connect_object (sequence, "pattern-added",
       G_CALLBACK (on_sequence_pattern_added), (gpointer) self, 0);
 
-  return (self);
+  return self;
 }
 
 //-- methods
@@ -404,7 +404,7 @@ bt_sequence_grid_model_tree_model_get_column_type (GtkTreeModel * tree_model,
   if (index < N_COLUMNS)
     return (model->priv->param_types[index]);
   else
-    return (G_TYPE_STRING);
+    return G_TYPE_STRING;
 }
 
 static gboolean
@@ -415,12 +415,12 @@ bt_sequence_grid_model_tree_model_get_iter (GtkTreeModel * tree_model,
   guint tick = gtk_tree_path_get_indices (path)[0];
 
   if (tick >= model->priv->visible_length)
-    return (FALSE);
+    return FALSE;
 
   iter->stamp = model->priv->stamp;
   iter->user_data = GUINT_TO_POINTER (tick);
 
-  return (TRUE);
+  return TRUE;
 }
 
 static GtkTreePath *
@@ -433,12 +433,12 @@ bt_sequence_grid_model_tree_model_get_path (GtkTreeModel * tree_model,
   g_return_val_if_fail (iter->stamp == model->priv->stamp, NULL);
 
   if (g_sequence_iter_is_end (iter->user_data))
-    return (NULL);
+    return NULL;
 
   path = gtk_tree_path_new ();
   gtk_tree_path_append_index (path, GPOINTER_TO_UINT (iter->user_data));
 
-  return (path);
+  return path;
 }
 
 static void
@@ -527,18 +527,18 @@ bt_sequence_grid_model_tree_model_iter_children (GtkTreeModel * tree_model,
     if (model->priv->visible_length > 0) {
       iter->stamp = model->priv->stamp;
       iter->user_data = GUINT_TO_POINTER (0);
-      return (TRUE);
+      return TRUE;
     }
   }
   iter->stamp = 0;
-  return (FALSE);
+  return FALSE;
 }
 
 static gboolean
 bt_sequence_grid_model_tree_model_iter_has_child (GtkTreeModel * tree_model,
     GtkTreeIter * iter)
 {
-  return (FALSE);
+  return FALSE;
 }
 
 static gint
@@ -551,7 +551,7 @@ bt_sequence_grid_model_tree_model_iter_n_children (GtkTreeModel * tree_model,
     return (model->priv->visible_length);
 
   g_return_val_if_fail (model->priv->stamp == iter->stamp, -1);
-  return (0);
+  return 0;
 }
 
 static gboolean
@@ -562,13 +562,13 @@ bt_sequence_grid_model_tree_model_iter_nth_child (GtkTreeModel * tree_model,
 
   if (parent || n >= model->priv->visible_length) {
     iter->stamp = 0;
-    return (FALSE);
+    return FALSE;
   }
 
   iter->stamp = model->priv->stamp;
   iter->user_data = GUINT_TO_POINTER (n);
 
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -576,7 +576,7 @@ bt_sequence_grid_model_tree_model_iter_parent (GtkTreeModel * tree_model,
     GtkTreeIter * iter, GtkTreeIter * child)
 {
   iter->stamp = 0;
-  return (FALSE);
+  return FALSE;
 }
 
 static void

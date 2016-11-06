@@ -172,7 +172,7 @@ preset_list_edit_preset_meta (const BtMachinePropertiesDialog * self,
   }
 
   gtk_widget_destroy (dialog);
-  return (result);
+  return result;
 }
 
 static BtParameterGroup *
@@ -539,7 +539,7 @@ on_int_range_property_format_value (GtkScale * scale, gdouble value,
     g_free (str);
     str = _str;
   }
-  return (str);
+  return str;
 }
 
 static gchar *
@@ -564,7 +564,7 @@ on_uint_range_property_format_value (GtkScale * scale, gdouble value,
     g_free (str);
     str = _str;
   }
-  return (str);
+  return str;
 }
 
 static gchar *
@@ -590,7 +590,7 @@ on_uint64_range_property_format_value (GtkScale * scale, gdouble value,
     g_free (str);
     str = _str;
   }
-  return (str);
+  return str;
 }
 
 static void
@@ -793,7 +793,7 @@ on_group_button_press_event (GtkWidget * widget, GdkEventButton * event,
       res = TRUE;
     }
   }
-  return (res);
+  return res;
 }
 
 
@@ -1531,7 +1531,7 @@ on_preset_list_query_tooltip (GtkWidget * widget, gint x, gint y,
     }
     gtk_tree_path_free (path);
   }
-  return (res);
+  return res;
 }
 
 static void
@@ -1624,7 +1624,7 @@ make_int_range_widget (const BtMachinePropertiesDialog * self,
       G_CALLBACK (on_button_release_event), (gpointer) machine);
   g_signal_connect (widget, "key-release-event",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
-  return (widget);
+  return widget;
 }
 
 static GtkWidget *
@@ -1656,7 +1656,7 @@ make_uint_range_widget (const BtMachinePropertiesDialog * self,
       G_CALLBACK (on_button_release_event), (gpointer) machine);
   g_signal_connect (widget, "key-release-event",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
-  return (widget);
+  return widget;
 }
 
 static GtkWidget *
@@ -1690,7 +1690,7 @@ make_uint64_range_widget (const BtMachinePropertiesDialog * self,
       G_CALLBACK (on_key_release_event), (gpointer) machine);
   g_signal_connect (entry, "changed",
       G_CALLBACK (on_uint64_entry_property_changed), (gpointer) machine);
-  return (widget);
+  return widget;
 }
 
 static GtkWidget *
@@ -1725,7 +1725,7 @@ make_float_range_widget (const BtMachinePropertiesDialog * self,
       G_CALLBACK (on_button_release_event), (gpointer) machine);
   g_signal_connect (widget, "key-release-event",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
-  return (widget);
+  return widget;
 }
 
 static GtkWidget *
@@ -1760,7 +1760,7 @@ make_double_range_widget (const BtMachinePropertiesDialog * self,
       G_CALLBACK (on_button_release_event), (gpointer) machine);
   g_signal_connect (widget, "key-release-event",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
-  return (widget);
+  return widget;
 }
 
 static GtkWidget *
@@ -1829,7 +1829,7 @@ make_combobox_widget (const BtMachinePropertiesDialog * self, GObject * machine,
       G_CALLBACK (on_button_release_event), (gpointer) machine);
   g_signal_connect (widget, "key-release-event",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
-  return (widget);
+  return widget;
 }
 
 static GtkWidget *
@@ -1857,7 +1857,7 @@ make_checkbox_widget (const BtMachinePropertiesDialog * self, GObject * machine,
       G_CALLBACK (on_button_release_event), (gpointer) machine);
   g_signal_connect (widget, "key-release-event",
       G_CALLBACK (on_key_release_event), (gpointer) machine);
-  return (widget);
+  return widget;
 }
 
 static void
@@ -2112,7 +2112,7 @@ make_global_param_box (const BtMachinePropertiesDialog * self,
     }
     gtk_container_add (GTK_CONTAINER (expander), table);
   }
-  return (expander);
+  return expander;
 }
 
 static GtkWidget *
@@ -2162,7 +2162,7 @@ make_voice_param_box (const BtMachinePropertiesDialog * self,
     }
     gtk_container_add (GTK_CONTAINER (expander), table);
   }
-  return (expander);
+  return expander;
 }
 
 static void
@@ -2257,7 +2257,7 @@ make_wire_param_box (const BtMachinePropertiesDialog * self, BtWire * wire)
     gtk_container_add (GTK_CONTAINER (expander), table);
   }
   g_object_unref (src);
-  return (expander);
+  return expander;
 }
 
 static void
@@ -2656,7 +2656,7 @@ bt_machine_properties_dialog_init_preset_box (const BtMachinePropertiesDialog *
   gtk_container_add (GTK_CONTAINER (scrolled_window), self->priv->preset_list);
   gtk_box_pack_start (GTK_BOX (self->priv->preset_box),
       GTK_WIDGET (scrolled_window), TRUE, TRUE, 0);
-  return (TRUE);
+  return TRUE;
 }
 
 
@@ -2894,7 +2894,7 @@ bt_machine_properties_dialog_new (const BtMachine * machine)
       BT_MACHINE_PROPERTIES_DIALOG (g_object_new
       (BT_TYPE_MACHINE_PROPERTIES_DIALOG, "machine", machine, NULL));
   bt_machine_properties_dialog_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

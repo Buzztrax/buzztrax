@@ -77,5 +77,5 @@ gst_buzztrax_tempo_test_case (void)
   tcase_add_test (tc, test_null_context);
   tcase_add_test (tc, test_wrong_context_type);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
-  return (tc);
+  return tc;
 }

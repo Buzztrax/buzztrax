@@ -69,7 +69,7 @@ btic_test_device_start (gconstpointer _self)
   BtIcTestDevice *self = BTIC_TEST_DEVICE (_self);
 
   self->priv->running = TRUE;
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -78,7 +78,7 @@ btic_test_device_stop (gconstpointer _self)
   BtIcTestDevice *self = BTIC_TEST_DEVICE (_self);
 
   self->priv->running = FALSE;
-  return (TRUE);
+  return TRUE;
 }
 
 //-- learn interface
@@ -91,7 +91,7 @@ btic_test_device_learn_start (gconstpointer _self)
   self->priv->learn_mode = TRUE;
   btic_device_start (BTIC_DEVICE (self));
 
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -102,7 +102,7 @@ btic_test_device_learn_stop (gconstpointer _self)
   self->priv->learn_mode = FALSE;
   btic_device_stop (BTIC_DEVICE (self));
 
-  return (TRUE);
+  return TRUE;
 }
 
 static BtIcControl *
@@ -123,7 +123,7 @@ btic_test_device_register_learned_control (gconstpointer _self,
             self->priv->learn_key, 0, 255, 0));
     self->priv->learn_key++;
   }
-  return (control);
+  return control;
 }
 
 static void

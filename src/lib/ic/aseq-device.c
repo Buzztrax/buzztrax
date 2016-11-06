@@ -196,7 +196,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
     GST_INFO ("closing connection");
     g_hash_table_remove (p->io, channel);
   }
-  return (res);
+  return res;
 }
 
 
@@ -254,7 +254,7 @@ btic_aseq_device_start (gconstpointer _self)
         snd_strerror (err));
     goto done;
   }
-  // npfds is usually 1  
+  // npfds is usually 1
   npfds = snd_seq_poll_descriptors_count (klass->seq, POLLIN);
   GST_INFO ("alsa sequencer api ready: nr_poll_fds=%d", npfds);
 
@@ -296,7 +296,7 @@ btic_aseq_device_stop (gconstpointer _self)
     p->src_port = -1;
   }
 
-  return (TRUE);
+  return TRUE;
 }
 
 //-- learn interface
@@ -309,7 +309,7 @@ btic_aseq_device_learn_start (gconstpointer _self)
   self->priv->learn_mode = TRUE;
   btic_device_start (BTIC_DEVICE (self));
 
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -320,7 +320,7 @@ btic_aseq_device_learn_stop (gconstpointer _self)
   self->priv->learn_mode = FALSE;
   btic_device_stop (BTIC_DEVICE (self));
 
-  return (TRUE);
+  return TRUE;
 }
 
 static BtIcControl *
@@ -341,7 +341,7 @@ btic_aseq_device_register_learned_control (gconstpointer _self,
             self->priv->learn_key, 0, (1 << self->priv->learn_bits) - 1, 0));
     btic_learn_store_controller_map (BTIC_LEARN (self));
   }
-  return (control);
+  return control;
 }
 
 static void

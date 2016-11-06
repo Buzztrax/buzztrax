@@ -499,7 +499,7 @@ make_log_file_name (BtChangeLog * self, BtSongInfo * song_info)
 
   log_file_name = g_build_filename (self->priv->cache_dir, file_name, NULL);
   g_free (file_name);
-  return (log_file_name);
+  return log_file_name;
 }
 
 static void
@@ -908,7 +908,7 @@ bt_change_log_recover (BtChangeLog * self, const gchar * log_name)
       }
     }
   }
-  return (res);
+  return res;
 }
 
 /**

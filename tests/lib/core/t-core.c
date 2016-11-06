@@ -118,5 +118,5 @@ bt_core_test_case (void)
   tcase_add_exit_test (tc, test_bt_core_init_bad_arg_exits, 1);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
-  return (tc);
+  return tc;
 }

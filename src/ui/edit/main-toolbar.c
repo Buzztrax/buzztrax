@@ -279,15 +279,15 @@ on_song_playback_rate_rewind (gpointer user_data)
 
   if (G_UNLIKELY (playback_rate > 0.0)) {
     // we switched from forrward to backward
-    return (FALSE);
+    return FALSE;
   }
 
   if (playback_rate > -SEEK_MAX_RATE) {
     set_new_playback_rate (self, playback_rate);
-    return (TRUE);
+    return TRUE;
   } else {
     self->priv->playback_rate_id = 0;
-    return (FALSE);
+    return FALSE;
   }
 }
 
@@ -298,7 +298,7 @@ on_toolbar_rewind_pressed (GtkWidget * widget, GdkEventButton * event,
   BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
 
   if (event->button != GDK_BUTTON_PRIMARY)
-    return (FALSE);
+    return FALSE;
 
   GST_DEBUG (" << pressed");
 
@@ -309,7 +309,7 @@ on_toolbar_rewind_pressed (GtkWidget * widget, GdkEventButton * event,
 
   GST_DEBUG (" << <<");
 
-  return (FALSE);
+  return FALSE;
 }
 
 static gboolean
@@ -319,12 +319,12 @@ on_toolbar_rewind_released (GtkWidget * widget, GdkEventButton * event,
   BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
 
   if (event->button != GDK_BUTTON_PRIMARY)
-    return (FALSE);
+    return FALSE;
 
   GST_DEBUG (" << released");
   reset_playback_rate (self);
 
-  return (FALSE);
+  return FALSE;
 }
 
 static gboolean
@@ -337,15 +337,15 @@ on_song_playback_rate_forward (gpointer user_data)
 
   if (G_UNLIKELY (playback_rate < 0.0)) {
     // we switched from forrward to backward
-    return (FALSE);
+    return FALSE;
   }
 
   if (playback_rate < SEEK_MAX_RATE) {
     set_new_playback_rate (self, playback_rate);
-    return (TRUE);
+    return TRUE;
   } else {
     self->priv->playback_rate_id = 0;
-    return (FALSE);
+    return FALSE;
   }
 }
 
@@ -356,7 +356,7 @@ on_toolbar_forward_pressed (GtkWidget * widget, GdkEventButton * event,
   BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
 
   if (event->button != GDK_BUTTON_PRIMARY)
-    return (FALSE);
+    return FALSE;
 
   GST_DEBUG (" >> pressed");
 
@@ -367,7 +367,7 @@ on_toolbar_forward_pressed (GtkWidget * widget, GdkEventButton * event,
       (gpointer) self);
 
   GST_DEBUG (" >> >>");
-  return (FALSE);
+  return FALSE;
 }
 
 static gboolean
@@ -377,12 +377,12 @@ on_toolbar_forward_released (GtkWidget * widget, GdkEventButton * event,
   BtMainToolbar *self = BT_MAIN_TOOLBAR (user_data);
 
   if (event->button != GDK_BUTTON_PRIMARY)
-    return (FALSE);
+    return FALSE;
 
   GST_DEBUG (" >> released");
   reset_playback_rate (self);
 
-  return (FALSE);
+  return FALSE;
 }
 
 static void
@@ -484,7 +484,7 @@ on_delayed_idle_song_level_change (gpointer user_data)
 done:
   gst_message_unref (message);
   g_slice_free1 (2 * sizeof (gconstpointer), params);
-  return (FALSE);
+  return FALSE;
 }
 
 static gboolean
@@ -501,7 +501,7 @@ on_delayed_song_level_change (GstClock * clock, GstClockTime time,
     gst_message_unref (message);
     g_slice_free1 (2 * sizeof (gconstpointer), user_data);
   }
-  return (TRUE);
+  return TRUE;
 }
 
 
@@ -622,7 +622,7 @@ on_song_volume_slider_press_event (GtkWidget * widget, GdkEventButton * event,
       g_object_unref (machine);
     }
   }
-  return (FALSE);
+  return FALSE;
 }
 
 static gboolean
@@ -657,7 +657,7 @@ on_song_volume_slider_release_event (GtkWidget * widget, GdkEventButton * event,
     }
     g_object_unref (machine);
   }
-  return (FALSE);
+  return FALSE;
 }
 
 static void
@@ -1006,7 +1006,7 @@ bt_main_toolbar_new (void)
 
   self = BT_MAIN_TOOLBAR (g_object_new (BT_TYPE_MAIN_TOOLBAR, NULL));
   bt_main_toolbar_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

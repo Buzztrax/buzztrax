@@ -183,7 +183,7 @@ bt_render_dialog_make_file_name (const BtRenderDialog * self, gint track)
   }
   GST_INFO ("record file template: '%s'", file_name);
 
-  return (file_name);
+  return file_name;
 }
 
 static void
@@ -772,7 +772,7 @@ bt_render_dialog_new (void)
   self = BT_RENDER_DIALOG (g_object_new (BT_TYPE_RENDER_DIALOG, NULL));
   g_object_get (self->priv->app, "song", &self->priv->song, NULL);
   bt_render_dialog_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

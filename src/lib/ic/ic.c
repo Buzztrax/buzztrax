@@ -78,7 +78,7 @@ btic_init_post (void)
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-ic", 0,
       "music production environment / interaction controller library");
 
-  return (TRUE);
+  return TRUE;
 }
 
 //-- ic initialisation
@@ -145,7 +145,7 @@ btic_init_check (gint * argc, gchar ** argv[], GError ** err)
   res = g_option_context_parse (ctx, argc, argv, err);
   g_option_context_free (ctx);
 
-  return (res);
+  return res;
 }
 
 

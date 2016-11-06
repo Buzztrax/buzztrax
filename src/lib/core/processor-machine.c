@@ -105,7 +105,7 @@ bt_processor_machine_persistence_save (const BtPersistence * const persistence,
         XML_CHAR_PTR (bt_str_format_ulong (voices)));
     g_free (plugin_name);
   }
-  return (node);
+  return node;
 }
 
 static BtPersistence *
@@ -168,7 +168,7 @@ bt_processor_machine_persistence_load (const GType type,
       g_type_interface_peek_parent (BT_PERSISTENCE_GET_INTERFACE (result));
   parent_iface->load (BT_TYPE_MACHINE, result, node, NULL, var_args);
 
-  return (result);
+  return result;
 }
 
 static void
@@ -193,9 +193,9 @@ bt_processor_machine_check_type (const BtMachine * const self,
     GST_ERROR_OBJECT (self,
         "plugin has %lu src pads instead of >0 and %lu sink pads instead of >0",
         pad_src_ct, pad_sink_ct);
-    return (FALSE);
+    return FALSE;
   }
-  return (TRUE);
+  return TRUE;
 }
 
 //-- g_object overrides

@@ -92,5 +92,5 @@ gst_buzztrax_envelope_adsr_example_case (void)
   tcase_add_test (tc, test_envelope_defaults);
   // test access beyond range
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
-  return (tc);
+  return tc;
 }

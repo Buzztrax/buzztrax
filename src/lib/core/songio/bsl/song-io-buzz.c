@@ -289,7 +289,7 @@ decompress_samples (CompressionValues * cv, guint16 * outbuf,
   GST_LOG ("  decompress_samples(ptr=%p,size=%d)", outbuf, block_size);
 
   if (!block_size)
-    return (FALSE);
+    return FALSE;
 
   //Get compression method
   switch_value = unpack_bits (2);
@@ -342,7 +342,7 @@ decompress_samples (CompressionValues * cv, guint16 * outbuf,
         break;
       default:                 //error
         GST_INFO ("wrong switch value %d", switch_value);
-        return (FALSE);
+        return FALSE;
     }
 
     //store value into output buffer and prepare for next loop...
@@ -364,12 +364,12 @@ decompress_wave (guint16 * outbuf, guint32 num_samples, guint channels)
   GST_DEBUG ("decomp samples:%d channels:%d", num_samples, channels);
 
   if (!outbuf)
-    return (FALSE);
+    return FALSE;
 
   zero_count = count_zero_bits ();
   if (zero_count) {
     GST_WARNING ("Unknown wave data compression %d\n", zero_count);
-    return (FALSE);
+    return FALSE;
   }
   //get size shifter
   shift = unpack_bits (4);
@@ -409,7 +409,7 @@ decompress_wave (guint16 * outbuf, guint32 num_samples, guint channels)
 
       if (!decompress_samples (&cv1, outbuf, block_size)) {
         GST_WARNING ("abort with %d remaining blocks", count);
-        return (FALSE);
+        return FALSE;
       }
 
       if (result_shift) {
@@ -441,7 +441,7 @@ decompress_wave (guint16 * outbuf, guint32 num_samples, guint channels)
       //decompress both channels into temporary area
       if ((!decompress_samples (&cv1, cv1.temp, block_size)) ||
           (!decompress_samples (&cv2, cv2.temp, block_size)))
-        return (FALSE);
+        return FALSE;
 
       for (i = 0; i < block_size; i++) {
         //store channel 1 and apply result shift
@@ -470,7 +470,7 @@ decompress_wave (guint16 * outbuf, guint32 num_samples, guint channels)
     free_compression_values (&cv2);
   }
   GST_DEBUG ("decomp done");
-  return (TRUE);
+  return TRUE;
 }
 
 //-- io helper methods
@@ -495,7 +495,7 @@ read_dword (const BtSongIOBuzz * self)
     GST_WARNING ("can't read from file : %d : %s", errno, strerror (errno));
     self->priv->io_error = TRUE;
   }
-  return (buffer);
+  return buffer;
 }
 
 static guint16
@@ -508,7 +508,7 @@ read_word (const BtSongIOBuzz * self)
     GST_WARNING ("can't read from file : %d : %s", errno, strerror (errno));
     self->priv->io_error = TRUE;
   }
-  return (buffer);
+  return buffer;
 }
 
 static guint8
@@ -521,7 +521,7 @@ read_byte (const BtSongIOBuzz * self)
     GST_WARNING ("can't read from file : %d : %s", errno, strerror (errno));
     self->priv->io_error = TRUE;
   }
-  return (buffer);
+  return buffer;
 }
 
 static gint
@@ -534,7 +534,7 @@ read_int (const BtSongIOBuzz * self)
     GST_WARNING ("can't read from file : %d : %s", errno, strerror (errno));
     self->priv->io_error = TRUE;
   }
-  return (buffer);
+  return buffer;
 }
 
 static gfloat
@@ -547,7 +547,7 @@ read_float (const BtSongIOBuzz * self)
     GST_WARNING ("can't read from file : %d : %s", errno, strerror (errno));
     self->priv->io_error = TRUE;
   }
-  return (buffer);
+  return buffer;
 }
 
 static gchar *
@@ -556,7 +556,7 @@ read_string (const BtSongIOBuzz * self, guint32 len)
   GST_INFO ("reading string of len=%u", (guint) len);
 
   if (!len) {
-    return (NULL);
+    return NULL;
   } else {
     gchar *buffer = g_new (gchar, len + 1);
     gchar *res;
@@ -568,7 +568,7 @@ read_string (const BtSongIOBuzz * self, guint32 len)
     buffer[len] = '\0';
     res = g_convert (buffer, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
     g_free (buffer);
-    return (res);
+    return res;
   }
 }
 
@@ -595,7 +595,7 @@ read_null_string (const BtSongIOBuzz * self, guint32 len)
     res = g_convert (buffer, -1, "UTF-8", "WINDOWS-1252", NULL, NULL, NULL);
   }
   g_free (buffer);
-  return (res);
+  return res;
 }
 
 static BmxParameter *
@@ -606,7 +606,7 @@ read_parameters (const BtSongIOBuzz * self, guint32 number,
   guint j;
 
   if (!number)
-    return (NULL);
+    return NULL;
 
   params = g_new0 (BmxParameter, number);
   for (j = 0; ((j < number) && !self->priv->io_error); j++) {
@@ -621,7 +621,7 @@ read_parameters (const BtSongIOBuzz * self, guint32 number,
     GST_DEBUG ("%u : %s : min/max/no/def = %d,%d,%d,%d", j, param->name,
         param->minvalue, param->maxvalue, param->novalue, param->defvalue);
   }
-  return (params);
+  return params;
 }
 
 static BmxSectionEntry *
@@ -783,7 +783,7 @@ read_section_table (const BtSongIOBuzz * self)
         entry->name[1], entry->name[2], entry->name[3], entry->offset,
         entry->size);
   }
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -795,7 +795,7 @@ read_bver_section (const BtSongIOBuzz * self, const BtSong * song)
 
   // this section is optional
   if (!entry)
-    return (TRUE);
+    return TRUE;
 
   mem_seek (self, entry->offset, SEEK_SET);
   GST_INFO ("reading BVER section: 0x%x, %u", entry->offset, entry->size);
@@ -806,7 +806,7 @@ read_bver_section (const BtSongIOBuzz * self, const BtSong * song)
     result = FALSE;
   GST_INFO ("read BVER section %d: off+size=%u, pos=%lu", result,
       entry->offset + entry->size, self->priv->data_pos);
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -818,7 +818,7 @@ read_para_section (const BtSongIOBuzz * self, const BtSong * song)
 
   // this section is optional
   if (!entry)
-    return (TRUE);
+    return TRUE;
 
   mem_seek (self, entry->offset, SEEK_SET);
   GST_INFO ("reading PARA section: 0x%x, %u", entry->offset, entry->size);
@@ -849,7 +849,7 @@ read_para_section (const BtSongIOBuzz * self, const BtSong * song)
     result = FALSE;
   GST_INFO ("read PARA section %d: off+size=%u, pos=%lu", result,
       entry->offset + entry->size, self->priv->data_pos);
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -871,7 +871,7 @@ read_mach_section (const BtSongIOBuzz * self, const BtSong * song)
   GError *err = NULL;
 
   if (!entry)
-    return (FALSE);
+    return FALSE;
 
   g_object_get (G_OBJECT (song), "setup", &setup, NULL);
 
@@ -1350,7 +1350,7 @@ read_mach_section (const BtSongIOBuzz * self, const BtSong * song)
     result = FALSE;
   GST_INFO ("read MACH section %d: off+size=%u, pos=%lu", result,
       entry->offset + entry->size, self->priv->data_pos);
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -1366,7 +1366,7 @@ read_conn_section (const BtSongIOBuzz * self, const BtSong * song)
   GError *err = NULL;
 
   if (!entry)
-    return (FALSE);
+    return FALSE;
 
   g_object_get (G_OBJECT (song), "setup", &setup, NULL);
 
@@ -1419,7 +1419,7 @@ read_conn_section (const BtSongIOBuzz * self, const BtSong * song)
     result = FALSE;
   GST_INFO ("read CONN section %d: off+size=%u, pos=%lu", result,
       entry->offset + entry->size, self->priv->data_pos);
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -1448,7 +1448,7 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
   // DEBUG
 
   if (!entry)
-    return (FALSE);
+    return FALSE;
 
   g_object_get (G_OBJECT (song), "setup", &setup, NULL);
 
@@ -1689,7 +1689,7 @@ read_patt_section (const BtSongIOBuzz * self, const BtSong * song)
     result = FALSE;
   GST_INFO ("read PATT section %d: off+size=%u, pos=%lu", result,
       entry->offset + entry->size, self->priv->data_pos);
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -1712,7 +1712,7 @@ read_sequ_section (const BtSongIOBuzz * self, const BtSong * song)
   BtCmdPattern *pattern;
 
   if (!entry)
-    return (FALSE);
+    return FALSE;
 
   g_object_get (G_OBJECT (song), "sequence", &sequence, "setup", &setup, NULL);
 
@@ -1853,7 +1853,7 @@ read_sequ_section (const BtSongIOBuzz * self, const BtSong * song)
     result = FALSE;
   GST_INFO ("read SEQU section %d: off+size=%u, pos=%lu", result,
       entry->offset + entry->size, self->priv->data_pos);
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -1880,7 +1880,7 @@ read_wavt_section (const BtSongIOBuzz * self, const BtSong * song)
   BtWaveLoopMode loop_mode;
 
   if (!entry)
-    return (FALSE);
+    return FALSE;
 
   mem_seek (self, entry->offset, SEEK_SET);
   GST_INFO ("reading WAVT section: 0x%x, %u", entry->offset, entry->size);
@@ -1989,7 +1989,7 @@ read_wavt_section (const BtSongIOBuzz * self, const BtSong * song)
     result = FALSE;
   GST_INFO ("read WAVT section %d: off+size=%u, pos=%lu", result,
       entry->offset + entry->size, self->priv->data_pos);
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -2012,7 +2012,7 @@ read_cwav_section (const BtSongIOBuzz * self, const BtSong * song)
   if (!entry)
     entry = get_section_entry (self, "WAVE");
   if (!entry)
-    return (TRUE);
+    return TRUE;
 
   g_object_get (G_OBJECT (song), "wavetable", &wavetable, NULL);
 
@@ -2081,7 +2081,7 @@ read_cwav_section (const BtSongIOBuzz * self, const BtSong * song)
           }
         } else {
           GST_WARNING ("reach end of block in quirk scan");
-          return (FALSE);
+          return FALSE;
         }
       }
     }
@@ -2171,7 +2171,7 @@ read_cwav_section (const BtSongIOBuzz * self, const BtSong * song)
     result = FALSE;
   GST_INFO ("read CWAV section %d: off+size=%u, pos=%lu", result,
       entry->offset + entry->size, self->priv->data_pos);
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -2186,7 +2186,7 @@ read_blah_section (const BtSongIOBuzz * self, const BtSong * song)
   gchar *str;
 
   if (!entry)
-    return (FALSE);
+    return FALSE;
 
   g_object_get (G_OBJECT (song), "song-info", &song_info, "setup", &setup,
       NULL);
@@ -2211,7 +2211,7 @@ read_blah_section (const BtSongIOBuzz * self, const BtSong * song)
     result = FALSE;
   GST_INFO ("read BLAH section %d: off+size=%u, pos=%lu", result,
       entry->offset + entry->size, self->priv->data_pos);
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -2234,7 +2234,7 @@ read_pdlg_section (const BtSongIOBuzz * self, const BtSong * song)
 
   // this section is optional
   if (!entry)
-    return (TRUE);
+    return TRUE;
 
   mem_seek (self, entry->offset, SEEK_SET);
   GST_INFO ("reading PDLG section: 0x%x, %u", entry->offset, entry->size);
@@ -2265,7 +2265,7 @@ read_pdlg_section (const BtSongIOBuzz * self, const BtSong * song)
     result = FALSE;
   GST_INFO ("read PDLG section %d: off+size=%u, pos=%lu", result,
       entry->offset + entry->size, self->priv->data_pos);
-  return (result);
+  return result;
 }
 
 static gboolean
@@ -2279,7 +2279,7 @@ read_midi_section (const BtSongIOBuzz * self, const BtSong * song)
 
   // this section is optional
   if (!entry)
-    return (TRUE);
+    return TRUE;
 
   mem_seek (self, entry->offset, SEEK_SET);
   GST_INFO ("reading MIDI section: 0x%x, %u", entry->offset, entry->size);
@@ -2307,7 +2307,7 @@ read_midi_section (const BtSongIOBuzz * self, const BtSong * song)
     result = FALSE;
   GST_INFO ("read MIDI section %d: off+size=%u, pos=%lu", result,
       entry->offset + entry->size, self->priv->data_pos);
-  return (result);
+  return result;
 }
 
 //-- methods
@@ -2398,7 +2398,7 @@ bt_song_io_buzz_load (gconstpointer const _self, const BtSong * const song,
     g_free (self->priv->data);
     g_free (file_name);
   }
-  return (result);
+  return result;
 }
 
 //-- wrapper

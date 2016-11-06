@@ -275,7 +275,7 @@ new_value_group (const BtPattern * const self, BtParameterGroup * pg)
   g_hash_table_insert (self->priv->param_to_value_groups, pg,
       g_object_ref (vg));
 
-  return (vg);
+  return vg;
 }
 
 static void
@@ -336,7 +336,7 @@ bt_pattern_copy (const BtPattern * const self)
           "name", name, "machine", self->priv->machine, "length",
           self->priv->length, "copy-source", self, NULL));
   g_free (name);
-  return (pattern);
+  return pattern;
 }
 
 //-- methods
@@ -640,17 +640,17 @@ bt_pattern_test_tick (const BtPattern * const self, const gulong tick)
   g_return_val_if_fail (BT_IS_PATTERN (self), FALSE);
 
   if (bt_value_group_test_tick (self->priv->global_value_group, tick)) {
-    return (TRUE);
+    return TRUE;
   }
 
   const gulong voices = self->priv->voices;
   gulong j;
   for (j = 0; j < voices; j++) {
     if (bt_value_group_test_tick (self->priv->voice_value_groups[j], tick)) {
-      return (TRUE);
+      return TRUE;
     }
   }
-  return (FALSE);
+  return FALSE;
 }
 
 #if 0
@@ -925,7 +925,7 @@ bt_pattern_persistence_save (const BtPersistence * const persistence,
       }
     }
   }
-  return (node);
+  return node;
 }
 
 static BtPersistence *
@@ -1035,7 +1035,7 @@ bt_pattern_persistence_load (const GType type,
     }
   }
 
-  return (result);
+  return result;
 }
 
 static void

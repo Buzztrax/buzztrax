@@ -226,7 +226,7 @@ bt_missing_framework_elements_dialog_init_ui (const
   gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (self))),
       hbox, TRUE, TRUE, 0);
 
-  return (res);
+  return res;
 }
 
 //-- constructor methods
@@ -251,7 +251,7 @@ bt_missing_framework_elements_dialog_new (GList * core_elements,
   if (!bt_missing_framework_elements_dialog_init_ui (self)) {
     goto EmptyLists;
   }
-  return (self);
+  return self;
 EmptyLists:
   gtk_widget_destroy (GTK_WIDGET (self));
   return NULL;

@@ -169,7 +169,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
             // note-off, sending this as part of the key-controler causes trouble
             // for the enum scaling
             // we still need a way to ensure note-off is send to the voice
-            // matching the note, maybe a user_data field in the 
+            // matching the note, maybe a user_data field in the
             // BtPolyControlData struct
             key = MIDI_CTRL_NOTE_KEY;
             if ((control =
@@ -210,7 +210,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
              * and a list/tree of controls. The control list could show if a
              * control is bound already (e.g. to another machine). We would need
              * a drawable between the lists to show the connections with lines.
-             * 
+             *
              * An alternative would be to only list the devices in the
              * controller menu. When selecting a device we ensure its running
              * and set the learn mode. As soon as controls changed, we list them
@@ -320,7 +320,7 @@ io_handler (GIOChannel * channel, GIOCondition condition, gpointer user_data)
     GST_INFO ("closing connection");
     self->priv->io_source = 0;
   }
-  return (res);
+  return res;
 }
 
 
@@ -361,7 +361,7 @@ btic_midi_device_start (gconstpointer _self)
     GST_WARNING ("iochannel error for open(%s): %s", self->priv->devnode,
         error->message);
     g_error_free (error);
-    return (FALSE);
+    return FALSE;
   }
   g_io_channel_set_encoding (self->priv->io_channel, NULL, &error);
   if (error) {
@@ -370,14 +370,14 @@ btic_midi_device_start (gconstpointer _self)
     g_error_free (error);
     g_io_channel_unref (self->priv->io_channel);
     self->priv->io_channel = NULL;
-    return (FALSE);
+    return FALSE;
   }
   self->priv->io_source = g_io_add_watch_full (self->priv->io_channel,
       G_PRIORITY_LOW,
       G_IO_IN | G_IO_PRI | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
       io_handler, (gpointer) self, NULL);
 
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -394,7 +394,7 @@ btic_midi_device_stop (gconstpointer _self)
     g_io_channel_unref (self->priv->io_channel);
     self->priv->io_channel = NULL;
   }
-  return (TRUE);
+  return TRUE;
 }
 
 //-- learn interface
@@ -407,7 +407,7 @@ btic_midi_device_learn_start (gconstpointer _self)
   self->priv->learn_mode = TRUE;
   btic_device_start (BTIC_DEVICE (self));
 
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -418,7 +418,7 @@ btic_midi_device_learn_stop (gconstpointer _self)
   self->priv->learn_mode = FALSE;
   btic_device_stop (BTIC_DEVICE (self));
 
-  return (TRUE);
+  return TRUE;
 }
 
 static BtIcControl *
@@ -439,7 +439,7 @@ btic_midi_device_register_learned_control (gconstpointer _self,
             self->priv->learn_key, 0, (1 << self->priv->learn_bits) - 1, 0));
     btic_learn_store_controller_map (BTIC_LEARN (self));
   }
-  return (control);
+  return control;
 }
 
 static void
@@ -468,7 +468,7 @@ btic_midi_device_constructed (GObject * object)
   btic_learn_load_controller_map (BTIC_LEARN (self));
 
 #if 0
-  // also see design/midi/rawmidi.c 
+  // also see design/midi/rawmidi.c
   gint io;
   if ((io = open (self->priv->devnode, O_NONBLOCK | O_RDWR | O_SYNC)) > 0) {
     gchar data[17] = { 0, };

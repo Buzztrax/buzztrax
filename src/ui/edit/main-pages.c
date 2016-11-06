@@ -232,7 +232,7 @@ bt_main_pages_new (void)
 
   self = BT_MAIN_PAGES (g_object_new (BT_TYPE_MAIN_PAGES, NULL));
   bt_main_pages_init_ui (self);
-  return (self);
+  return self;
 }
 
 //-- methods

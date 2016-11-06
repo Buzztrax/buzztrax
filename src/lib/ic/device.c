@@ -27,7 +27,7 @@
  * call to btic_device_stop() to stop the device on the last call.
  *
  * This baseclass manages the added controls. They can be queried by calling
- * btic_device_get_control_by_id() or iterating the list in 
+ * btic_device_get_control_by_id() or iterating the list in
  * BtIcDevice::controls.
  */
 #define BTIC_CORE
@@ -83,7 +83,7 @@ sort_by_name (const gpointer obj1, const gpointer obj2)
   g_free (str1);
   g_free (str2c);
   g_free (str2);
-  return (res);
+  return res;
 }
 
 static GList *
@@ -142,7 +142,7 @@ btic_device_add_control (const BtIcDevice * self, const BtIcControl * control)
       g_list_insert_sorted (self->priv->controls, (gpointer) control,
       (GCompareFunc) sort_by_name);
 
-  // we take the ref and unref when we destroy the device 
+  // we take the ref and unref when we destroy the device
   g_object_get ((GObject *) control, "id", &id, NULL);
   g_hash_table_insert (self->priv->controls_by_id, GUINT_TO_POINTER (id),
       (gpointer) control);
@@ -170,7 +170,7 @@ btic_device_get_control_by_id (const BtIcDevice * self, guint id)
   BtIcControl *control =
       g_hash_table_lookup (self->priv->controls_by_id, GUINT_TO_POINTER (id));
 
-  return (control);
+  return control;
 }
 
 /**
@@ -213,14 +213,14 @@ static gboolean
 btic_device_default_start (gconstpointer self)
 {
   GST_ERROR ("virtual method btic_device_start(self=%p) called", self);
-  return (FALSE);               // this is a base class that can't do anything
+  return FALSE;                 // this is a base class that can't do anything
 }
 
 static gboolean
 btic_device_default_stop (gconstpointer self)
 {
   GST_ERROR ("virtual method btic_device_stop(self=%p) called", self);
-  return (FALSE);               // this is a base class that can't do anything
+  return FALSE;                 // this is a base class that can't do anything
 }
 
 //-- wrapper
@@ -244,7 +244,7 @@ btic_device_start (const BtIcDevice * self)
   if (self->priv->run_ct == 1) {
     result = BTIC_DEVICE_GET_CLASS (self)->start (self);
   }
-  return (result);
+  return result;
 }
 
 /**
@@ -268,7 +268,7 @@ btic_device_stop (const BtIcDevice * self)
   if (self->priv->run_ct == 0) {
     result = BTIC_DEVICE_GET_CLASS (self)->stop (self);
   }
-  return (result);
+  return result;
 }
 
 //-- class internals

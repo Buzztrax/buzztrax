@@ -544,5 +544,5 @@ gst_buzztrax_audiosynth_example_case (void)
   tcase_add_test (tc, test_reset_on_seek);
   tcase_add_test (tc, test_position_query_time);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
-  return (tc);
+  return tc;
 }

@@ -108,5 +108,5 @@ gst_buzztrax_osc_synth_example_case (void)
   // test that for non noise waves, we should get min/max
   // test gstbt_osc_synth_trigger()
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
-  return (tc);
+  return tc;
 }

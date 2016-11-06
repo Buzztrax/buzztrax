@@ -696,7 +696,7 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
   //gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
 
   if (!gtk_widget_get_realized (GTK_WIDGET (p->pattern_table)))
-    return (FALSE);
+    return FALSE;
 
   GST_INFO
       ("pattern_table key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
@@ -940,7 +940,7 @@ on_pattern_table_key_press_event (GtkWidget * widget, GdkEventKey * event,
         GTK_SCROLL_STEP_FORWARD, NULL);
     res = TRUE;
   }
-  return (res);
+  return res;
 }
 
 static gboolean
@@ -957,7 +957,7 @@ on_pattern_table_button_press_event (GtkWidget * widget, GdkEventButton * event,
         GDK_BUTTON_SECONDARY, gtk_get_current_event_time ());
     res = TRUE;
   }
-  return (res);
+  return res;
 }
 
 static void
@@ -1943,7 +1943,7 @@ add_new_pattern (const BtMainPagePatterns * self, BtMachine * machine)
   g_free (name);
   g_object_unref (song);
 
-  return (pattern);
+  return pattern;
 }
 
 static gboolean
@@ -2013,7 +2013,7 @@ get_current_machine (const BtMainPagePatterns * self)
       return (g_object_ref (machine));
     }
   }
-  return (NULL);
+  return NULL;
 }
 
 static void
@@ -3317,7 +3317,7 @@ bt_main_page_patterns_new (const BtMainPages * pages)
   self =
       BT_MAIN_PAGE_PATTERNS (g_object_new (BT_TYPE_MAIN_PAGE_PATTERNS, NULL));
   bt_main_page_patterns_init_ui (self, pages);
-  return (self);
+  return self;
 }
 
 //-- methods

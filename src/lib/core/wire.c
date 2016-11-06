@@ -184,9 +184,9 @@ bt_wire_link_elements (const BtWire * const self, GstPad * src, GstPad * sink)
         GST_DEBUG_PAD_NAME (src), GST_DEBUG_PAD_NAME (sink), plr);
     GST_WARNING_OBJECT (self, "%s", bt_gst_debug_pad_link_return (plr, src,
             sink));
-    return (FALSE);
+    return FALSE;
   }
-  return (TRUE);
+  return TRUE;
 }
 
 
@@ -257,7 +257,7 @@ bt_wire_make_internal_element (const BtWire * const self, const BtWirePart part,
   gst_element_sync_state_with_parent (m);
   res = TRUE;
 Error:
-  return (res);
+  return res;
 }
 
 //-- helper methods
@@ -382,7 +382,7 @@ bt_wire_link_machines (const BtWire * const self)
      *   queue. See also the idle-loop section in song.c.
      */
     if (!bt_wire_make_internal_element (self, PART_QUEUE, "queue", "queue"))
-      return (FALSE);
+      return FALSE;
     // configure the queue
     // IDEA(ensonic): if machine on source side is a live-source, should be keep the queue larger?
     // can max-size-buffers=1 cause stalling when dynamically relinking ?
@@ -394,13 +394,13 @@ bt_wire_link_machines (const BtWire * const self)
   }
   if (!machines[PART_TEE]) {
     if (!bt_wire_make_internal_element (self, PART_TEE, "tee", "tee"))
-      return (FALSE);
+      return FALSE;
     GST_DEBUG ("created tee element for wire : %p '%s' -> %p '%s'", src,
         GST_OBJECT_NAME (src), dst, GST_OBJECT_NAME (dst));
   }
   if (!machines[PART_GAIN]) {
     if (!bt_wire_make_internal_element (self, PART_GAIN, "volume", "gain"))
-      return (FALSE);
+      return FALSE;
     GST_DEBUG ("created volume-gain element for wire : %p '%s' -> %p '%s'", src,
         GST_OBJECT_NAME (src), dst, GST_OBJECT_NAME (dst));
   }
@@ -471,7 +471,7 @@ bt_wire_link_machines (const BtWire * const self)
         if (!machines[PART_PAN]) {
           if (!bt_wire_make_internal_element (self, PART_PAN, "audiopanorama",
                   "pan"))
-            return (FALSE);
+            return FALSE;
           // simple method
           g_object_set (G_OBJECT (machines[PART_PAN]), "method", 1, NULL);
         }
@@ -619,7 +619,7 @@ bt_wire_link_machines (const BtWire * const self)
     bt_wire_dbg_print_parts (self);
     bt_machine_dbg_print_parts (dst);
   }
-  return (res);
+  return res;
 }
 
 /*
@@ -932,7 +932,7 @@ bt_wire_get_element_list (const BtWire * const self)
     }
   }
 
-  return (list);
+  return list;
 }
 
 void
@@ -1057,7 +1057,7 @@ bt_wire_persistence_save (const BtPersistence * const persistence,
       goto Error;
   }
 Error:
-  return (node);
+  return node;
 }
 
 static BtPersistence *
@@ -1211,7 +1211,7 @@ bt_wire_persistence_load (const GType type,
 
 Done:
   g_object_try_unref (setup);
-  return (result);
+  return result;
 Error:
   goto Done;
 }

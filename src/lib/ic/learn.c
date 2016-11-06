@@ -46,14 +46,14 @@ static gboolean
 btic_learn_default_start (gconstpointer self)
 {
   GST_ERROR ("virtual method btic_learn_start(self=%p) called", self);
-  return (FALSE);               // this is a base class that can't do anything
+  return FALSE;                 // this is a base class that can't do anything
 }
 
 static gboolean
 btic_learn_default_stop (gconstpointer self)
 {
   GST_ERROR ("virtual method btic_learn_stop(self=%p) called", self);
-  return (FALSE);               // this is a base class that can't do anything
+  return FALSE;                 // this is a base class that can't do anything
 }
 
 static BtIcControl *
@@ -63,7 +63,7 @@ btic_learn_default_register_learned_control (gconstpointer self,
   GST_ERROR
       ("virtual method btic_learn_register_learned_control(self=%p) called",
       self);
-  return (NULL);                // this is a base class that can't do anything
+  return NULL;                  // this is a base class that can't do anything
 }
 
 //-- interface vmethods
@@ -196,21 +196,21 @@ btic_learn_store_controller_map (const BtIcLearn * self)
 
   g_key_file_free (out);
   g_free (map_name);
-  return (TRUE);
+  return TRUE;
 
   /* ERRORS */
 mkdir_failed:
   GST_WARNING ("Can't create controll-maps dir: '%s': %s", map_dir,
       g_strerror (errno));
   g_free (map_dir);
-  return (FALSE);
+  return FALSE;
 convert_failed:
   GST_WARNING ("can not get the keyfile contents: %s", error->message);
   g_error_free (error);
   g_free (data);
   g_key_file_free (out);
   g_free (map_name);
-  return (FALSE);
+  return FALSE;
 write_failed:
   GST_WARNING ("Unable to store control-map file %s: %s", map_name,
       error->message);
@@ -218,7 +218,7 @@ write_failed:
   g_free (data);
   g_key_file_free (out);
   g_free (map_name);
-  return (FALSE);
+  return FALSE;
 }
 
 /**
@@ -287,7 +287,7 @@ btic_learn_load_controller_map (const BtIcLearn * self)
   g_key_file_free (in);
   g_free (device_name);
   g_free (map_name);
-  return (TRUE);
+  return TRUE;
 
   /* Errors */
 load_error:
@@ -297,7 +297,7 @@ load_error:
   g_key_file_free (in);
   g_free (device_name);
   g_free (map_name);
-  return (FALSE);
+  return FALSE;
 wrong_name:
   GST_WARNING
       ("Wrong device name in controller map file %s. Expected %s, got %s",
@@ -306,7 +306,7 @@ wrong_name:
   g_free (file_device_name);
   g_free (device_name);
   g_free (map_name);
-  return (FALSE);
+  return FALSE;
 
 }
 

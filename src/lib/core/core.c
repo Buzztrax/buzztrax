@@ -182,7 +182,7 @@ bt_init_post (void)
   _mm_setcsr (_mm_getcsr () | 0x8040);  // set DAZ and FZ bits
 #endif
 
-  return (TRUE);
+  return TRUE;
 }
 
 //-- core initialisation
@@ -263,7 +263,7 @@ bt_init_check (gint * argc, gchar ** argv[], GError ** err)
   res = g_option_context_parse (ctx, argc, argv, err);
   g_option_context_free (ctx);
 
-  return (res);
+  return res;
 }
 
 /**

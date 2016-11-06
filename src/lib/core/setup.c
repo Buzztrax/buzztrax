@@ -491,7 +491,7 @@ bt_setup_get_wire_by_machine_type (const BtSetup * const self,
       return g_object_ref (wire);
   }
   GST_DEBUG ("no wire found for %s-machine %p", type, machine);
-  return (NULL);
+  return NULL;
 }
 
 /*
@@ -520,7 +520,7 @@ bt_setup_get_wires_by_machine_type (const BtSetup * const self,
     }
     g_object_unref (search_machine);
   }
-  return (wires);
+  return wires;
 }
 
 static GstPad *
@@ -816,7 +816,7 @@ check_connected (const BtSetup * const self, BtMachine * dst_machine,
   *not_visited_machines =
       g_list_remove (*not_visited_machines, (gconstpointer) dst_machine);
   GST_INFO ("all wire targets checked, connected=%d?", is_connected);
-  return (is_connected);
+  return is_connected;
 }
 
 #ifndef STOP_PLAYBACK_FOR_UPDATES
@@ -1364,7 +1364,7 @@ bt_setup_update_pipeline (const BtSetup * const self)
   }
 
   GST_INFO ("result of graph update = %d", res);
-  return (res);
+  return res;
 }
 
 //-- public methods
@@ -1644,7 +1644,7 @@ bt_setup_get_machine_by_id (const BtSetup * const self, const gchar * const id)
     }
   }
   GST_DEBUG ("no machine found for id \"%s\"", id);
-  return (NULL);
+  return NULL;
 }
 
 /**
@@ -1675,7 +1675,7 @@ bt_setup_get_machine_by_type (const BtSetup * const self, const GType type)
     }
   }
   GST_DEBUG ("no machine found for this type");
-  return (NULL);
+  return NULL;
 }
 
 /**
@@ -1705,7 +1705,7 @@ bt_setup_get_machines_by_type (const BtSetup * const self, const GType type)
       machines = g_list_prepend (machines, g_object_ref (machine));
     }
   }
-  return (machines);
+  return machines;
 }
 
 // TODO(ensonic): remove this, use machine->dst_wires list instead
@@ -1779,7 +1779,7 @@ bt_setup_get_wire_by_machines (const BtSetup * const self,
 
   // either src or dst has no wires
   if (!src->src_wires || !dst->dst_wires)
-    return (NULL);
+    return NULL;
 
   // check if src links to dst
   // ideally we would search the shorter of the lists
@@ -1821,7 +1821,7 @@ bt_setup_get_wire_by_machines (const BtSetup * const self,
 #endif
   GST_DEBUG ("no wire found for machines %p:%s %p:%s", src,
       GST_OBJECT_NAME (src), dst, GST_OBJECT_NAME (dst));
-  return (NULL);
+  return NULL;
 }
 
 // TODO(ensonic): remove this, use machine->dst_wires list instead
@@ -1898,7 +1898,7 @@ bt_setup_get_unique_machine_id (const BtSetup * const self,
     g_object_try_unref (machine);
   } while ((machine = bt_setup_get_machine_by_id (self, id)) && (i < 100));
   g_object_try_unref (machine);
-  return (id);
+  return id;
 }
 
 /**
@@ -1965,7 +1965,7 @@ bt_setup_persistence_save (const BtPersistence * const persistence,
       goto Error;
   }
 Error:
-  return (node);
+  return node;
 }
 
 static BtPersistence *

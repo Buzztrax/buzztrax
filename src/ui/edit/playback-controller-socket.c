@@ -130,7 +130,7 @@ client_cmd_parse_and_process (BtPlaybackControllerSocket * self, gchar * cmd)
 
   g_object_get (self->priv->app, "song", &song, NULL);
   if (!song)
-    return (NULL);
+    return NULL;
 
   if (!strcasecmp (cmd, "browse")) {
     BtSongInfo *song_info = self->priv->song_info;
@@ -271,7 +271,7 @@ client_cmd_parse_and_process (BtPlaybackControllerSocket * self, gchar * cmd)
   }
 
   g_object_unref (song);
-  return (reply);
+  return reply;
 }
 
 static gchar *
@@ -295,7 +295,7 @@ client_read (BtPlaybackControllerSocket * self)
       str = NULL;
     }
   }
-  return (str);
+  return str;
 }
 
 static gboolean
@@ -306,7 +306,7 @@ client_write (BtPlaybackControllerSocket * self, gchar * str)
   gsize len;
 
   if (!self->priv->client_channel)
-    return (FALSE);
+    return FALSE;
 
   GST_INFO ("sending reply : %s", str);
 
@@ -330,7 +330,7 @@ client_write (BtPlaybackControllerSocket * self, gchar * str)
     GST_WARNING ("iochannel error while writing: %s", error->message);
     g_error_free (error);
   }
-  return (res);
+  return res;
 }
 
 //-- event handler
@@ -363,7 +363,7 @@ client_socket_io_handler (GIOChannel * channel, GIOCondition condition,
     GST_INFO ("closing client connection");
     self->priv->master_source = 0;
   }
-  return (res);
+  return res;
 }
 
 static gboolean
@@ -394,7 +394,7 @@ master_socket_io_handler (GIOChannel * channel, GIOCondition condition,
     client_connection_close (self);
     GST_INFO ("playback controller client disconnected");
   }
-  return (TRUE);
+  return TRUE;
 }
 
 static void

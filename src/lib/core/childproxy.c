@@ -200,7 +200,7 @@ bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,
     g_object_unref (object);
   }
   g_strfreev (names);
-  return (res);
+  return res;
 }
 
 /**

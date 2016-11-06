@@ -273,5 +273,5 @@ gst_buzztrax_osc_wave_example_case (void)
   tcase_add_test (tc, test_osc_wave_create_mono_beyond_size);
   tcase_add_test (tc, test_osc_wave_create_stereo_beyond_size);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
-  return (tc);
+  return tc;
 }

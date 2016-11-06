@@ -129,7 +129,7 @@ bt_cmd_application_song_init (const BtCmdApplication * self)
 
   gst_object_unref (bus);
   gst_object_unref (bin);
-  return (song);
+  return song;
 }
 
 /*
@@ -293,7 +293,7 @@ bt_cmd_application_prepare_encoding (const BtCmdApplication * self,
     g_object_unref (machine);
   }
   g_object_unref (setup);
-  return (ret);
+  return ret;
 }
 
 //-- constructor methods
@@ -597,7 +597,7 @@ Error:
   g_object_try_unref (song);
   g_object_try_unref (loader);
   g_object_try_unref (saver);
-  return (res);
+  return res;
 }
 
 /**
@@ -654,7 +654,7 @@ bt_cmd_application_encode (const BtCmdApplication * self,
 Error:
   g_object_try_unref (song);
   g_object_try_unref (loader);
-  return (res);
+  return res;
 }
 
 //-- wrapper

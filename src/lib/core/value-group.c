@@ -196,7 +196,7 @@ bt_value_group_copy (const BtValueGroup * const self)
   }
   GST_INFO ("  group vg = %p copied", value_group);
 
-  return (value_group);
+  return value_group;
 }
 
 //-- methods
@@ -305,7 +305,7 @@ bt_value_group_set_event (const BtValueGroup * const self, const gulong tick,
     g_signal_emit ((gpointer) self, signals[PARAM_CHANGED_EVENT], 0,
         self->priv->param_group, tick, param);
   }
-  return (res);
+  return res;
 }
 
 /**
@@ -398,11 +398,11 @@ bt_value_group_test_tick (const BtValueGroup * const self, const gulong tick)
   data = &self->priv->data[tick * self->priv->columns];
   for (i = 0; i < params; i++) {
     if (BT_IS_GVALUE (data)) {
-      return (TRUE);
+      return TRUE;
     }
     data++;
   }
-  return (FALSE);
+  return FALSE;
 }
 
 
@@ -1257,7 +1257,7 @@ bt_value_group_deserialize_column (const BtValueGroup * const self,
     ret = FALSE;
   }
   g_strfreev (fields);
-  return (ret);
+  return ret;
 }
 
 //-- g_object overrides

@@ -525,7 +525,7 @@ bt_wire_canvas_item_new (const BtMainPageMachines * main_page_machines,
 
   g_object_unref (setup);
   g_object_unref (canvas);
-  return (self);
+  return self;
 }
 
 //-- methods

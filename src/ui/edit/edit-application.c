@@ -201,7 +201,7 @@ bt_edit_application_check_missing (const BtEditApplication * self)
   // don't free. its static
   //g_list_free(missing_core_elements);
   g_list_free (missing_edit_elements);
-  return (res);
+  return res;
 }
 
 static gboolean
@@ -358,7 +358,7 @@ bt_edit_application_new_song (const BtEditApplication * self)
   // release references
   g_object_unref (setup);
   g_object_unref (song);
-  return (res);
+  return res;
 }
 
 /**
@@ -475,7 +475,7 @@ bt_edit_application_load_song (const BtEditApplication * self,
   } else {
     GST_WARNING ("Unknown extension \"%s\"", file_name);
   }
-  return (res);
+  return res;
 }
 
 /**
@@ -575,7 +575,7 @@ bt_edit_application_save_song (const BtEditApplication * self,
   } else {
     GST_WARNING ("Unknown extension \"%s\"", file_name);
   }
-  return (res);
+  return res;
 }
 
 /**
@@ -599,7 +599,7 @@ bt_edit_application_run (const BtEditApplication * self)
     res = bt_edit_application_run_ui (self);
   }
   GST_INFO ("application.run finished");
-  return (res);
+  return res;
 }
 
 /**
@@ -631,7 +631,7 @@ bt_edit_application_load_and_run (const BtEditApplication * self,
     bt_edit_application_run (self);
   }
   GST_INFO ("application.load_and_run finished");
-  return (res);
+  return res;
 }
 
 /**
@@ -657,9 +657,9 @@ bt_edit_application_quit (const BtEditApplication * self)
         w, "window-height", h, NULL);
     g_object_unref (settings);
 
-    return (TRUE);
+    return TRUE;
   }
-  return (FALSE);
+  return FALSE;
 }
 
 /**
@@ -800,7 +800,7 @@ bt_edit_application_is_song_unsaved (const BtEditApplication * self)
 
   if (!unsaved)
     g_object_get (self->priv->change_log, "can-undo", &unsaved, NULL);
-  return (unsaved);
+  return unsaved;
 }
 
 /**

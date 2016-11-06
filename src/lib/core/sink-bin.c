@@ -462,7 +462,7 @@ bt_sink_bin_add_many (const BtSinkBin * const self, GList * const list)
       }
     }
   }
-  return (TRUE);
+  return TRUE;
 }
 
 static void
@@ -500,7 +500,7 @@ bt_sink_bin_get_player_elements (const BtSinkBin * const self)
   // need to also get the "audiosink-device" setting
   if (!bt_settings_determine_audiosink_name (self->priv->settings,
           &element_name, &device_name)) {
-    return (NULL);
+    return NULL;
   }
   element = bt_audio_session_get_sink_for (element_name, device_name);
   if (!element) {
@@ -526,7 +526,7 @@ bt_sink_bin_get_player_elements (const BtSinkBin * const self)
 Error:
   g_free (element_name);
   g_free (device_name);
-  return (list);
+  return list;
 }
 
 GstElement *
@@ -613,7 +613,7 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
   } else {
     GST_WARNING_OBJECT (self, "failed to create 'filesink'");
   }
-  return (list);
+  return list;
 }
 
 #ifdef BT_MONITOR_SINK_DATA_FLOW
@@ -635,7 +635,7 @@ sink_probe (GstPad * pad, GstMiniObject * mini_obj, gpointer user_data)
       sink_probe_last_ts = GST_CLOCK_TIME_NONE;
     }
   }
-  return (TRUE);
+  return TRUE;
 }
 #endif
 
@@ -646,7 +646,7 @@ bt_sink_bin_format_update (const BtSinkBin * const self)
   GstCaps *sink_format_caps;
 
   if (!self->priv->caps_filter)
-    return (FALSE);
+    return FALSE;
 
   // always add caps-filter as a first element and enforce sample rate and channels
   s = gst_structure_from_string ("audio/x-raw, "
@@ -664,7 +664,7 @@ bt_sink_bin_format_update (const BtSinkBin * const self)
   g_object_set (self->priv->caps_filter, "caps", sink_format_caps, NULL);
   gst_caps_unref (sink_format_caps);
 
-  return (TRUE);
+  return TRUE;
 }
 
 /*
@@ -701,7 +701,7 @@ bt_sink_bin_update (const BtSinkBin * const self)
     GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
         GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-sinkbin-error");
     self->priv->pending_update = TRUE;
-    return (FALSE);
+    return FALSE;
   }
 
   GST_INFO_OBJECT (self, "clearing sink-bin");
@@ -1049,7 +1049,7 @@ bt_sink_bin_change_state (GstElement * element, GstStateChange transition)
       break;
   }
   g_object_unref (audio_session);
-  return (res);
+  return res;
 }
 
 static void

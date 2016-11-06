@@ -140,5 +140,5 @@ gst_buzztrax_toneconversion_test_case (void)
   tcase_add_test (tc, test_translate_str_delim);
   tcase_add_test (tc, test_translate_enum_range);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
-  return (tc);
+  return tc;
 }

@@ -63,11 +63,11 @@ GetWave (CHostCallbacks * self, int const i)
 
   GST_DEBUG ("(%p,%d)", self, i);
   if (G_UNLIKELY (!song))
-    return (NULL);
+    return NULL;
 
   g_object_get (song, "wavetable", &wavetable, NULL);
   if (G_UNLIKELY (!wavetable))
-    return (NULL);
+    return NULL;
   if ((wave = bt_wavetable_get_wave_by_index (wavetable, i))) {
     g_object_get (wave, "volume", &volume, "loop-mode", &loop_mode, "channels",
         &channels, NULL);
@@ -110,11 +110,11 @@ GetWaveLevel (CHostCallbacks * self, int const i, int const level)
 
   GST_DEBUG ("(%p,%d,%d)", self, i, level);
   if (G_UNLIKELY (!song))
-    return (NULL);
+    return NULL;
 
   g_object_get (song, "wavetable", &wavetable, NULL);
   if (G_UNLIKELY (!wavetable))
-    return (NULL);
+    return NULL;
   if ((wave = bt_wavetable_get_wave_by_index (wavetable, i))) {
     if ((wavelevel = bt_wave_get_level_by_index (wave, level))) {
       gulong length, rate;
@@ -154,11 +154,11 @@ GetNearestWaveLevel (CHostCallbacks * self, int const i, int const note)
 
   GST_DEBUG ("(%p,%d,%d)", self, i, note);
   if (G_UNLIKELY (!song))
-    return (NULL);
+    return NULL;
 
   g_object_get (song, "wavetable", &wavetable, NULL);
   if (G_UNLIKELY (!wavetable))
-    return (NULL);
+    return NULL;
   if ((wave = bt_wavetable_get_wave_by_index (wavetable, i))) {
     GList *list, *node;
     BtWavelevel *wavelevel, *best = NULL;

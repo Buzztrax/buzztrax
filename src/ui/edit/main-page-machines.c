@@ -473,7 +473,7 @@ machine_view_get_machine_position (GHashTable * properties, gdouble * pos_x,
       GST_INFO ("no ypos property found");
   } else
     GST_WARNING ("no properties supplied");
-  return (res);
+  return res;
 }
 
 /*
@@ -855,7 +855,7 @@ bt_main_page_machines_check_wire (const BtMainPageMachines * self)
   }
   g_object_unref (dst_machine);
   g_object_unref (src_machine);
-  return (ret);
+  return ret;
 }
 
 //-- event handler
@@ -1870,7 +1870,7 @@ bt_main_page_machines_new (const BtMainPages * pages)
   self =
       BT_MAIN_PAGE_MACHINES (g_object_new (BT_TYPE_MAIN_PAGE_MACHINES, NULL));
   bt_main_page_machines_init_ui (self, pages);
-  return (self);
+  return self;
 }
 
 //-- methods
@@ -1930,7 +1930,7 @@ bt_main_page_machines_wire_volume_popup (const BtMainPageMachines * self,
 
   place_popup (self, GTK_WINDOW (self->priv->vol_popup), xpos, ypos);
   bt_volume_popup_show (self->priv->vol_popup);
-  return (TRUE);
+  return TRUE;
 }
 
 /**
@@ -1959,7 +1959,7 @@ bt_main_page_machines_wire_panorama_popup (const BtMainPageMachines * self,
     place_popup (self, GTK_WINDOW (self->priv->pan_popup), xpos, ypos);
     bt_panorama_popup_show (self->priv->pan_popup);
   }
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean

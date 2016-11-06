@@ -488,7 +488,7 @@ on_spectrum_freq_axis_draw (GtkWidget * widget, cairo_t * cr,
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
 
   if (!gtk_widget_get_realized (GTK_WIDGET (self)))
-    return (TRUE);
+    return TRUE;
 
   GdkRectangle rect = { 0, 0, self->priv->spect_bands, AXIS_THICKNESS };
   GdkWindow *window = gtk_widget_get_window (widget);
@@ -578,7 +578,7 @@ on_spectrum_freq_axis_draw (GtkWidget * widget, cairo_t * cr,
   gdk_window_end_paint (window);
   gtk_style_context_restore (sc);
   g_object_unref (layout);
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -587,7 +587,7 @@ on_level_axis_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
 
   if (!gtk_widget_get_realized (GTK_WIDGET (self)))
-    return (TRUE);
+    return TRUE;
 
   GdkRectangle rect = { 0, 0, AXIS_THICKNESS, self->priv->spect_height };
   GdkWindow *window = gtk_widget_get_window (widget);
@@ -646,7 +646,7 @@ on_level_axis_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   gdk_window_end_paint (window);
   gtk_style_context_restore (sc);
   g_object_unref (layout);
-  return (TRUE);
+  return TRUE;
 }
 
 #define g_value_array_get_ix(va,ix) (va->values + ix)
@@ -752,7 +752,7 @@ on_delayed_idle_signal_analyser_change (gpointer user_data)
 done:
   gst_message_unref (message);
   g_slice_free1 (2 * sizeof (gpointer), params);
-  return (FALSE);
+  return FALSE;
 }
 
 static gboolean
@@ -771,7 +771,7 @@ on_delayed_signal_analyser_change (GstClock * clock, GstClockTime time,
     GST_WARNING_OBJECT (GST_MESSAGE_SRC (message),
         "dropped analyzer update due to invalid ts");
   }
-  return (TRUE);
+  return TRUE;
 }
 
 static void
@@ -914,7 +914,7 @@ on_spectrum_drawingarea_motion_notify_event (GtkWidget * widget,
   BtSignalAnalysisDialog *self = BT_SIGNAL_ANALYSIS_DIALOG (user_data);
 
   gtk_widget_queue_draw (self->priv->spectrum_drawingarea);
-  return (FALSE);
+  return FALSE;
 }
 
 //-- helper methods
@@ -946,7 +946,7 @@ bt_signal_analysis_dialog_make_element (const BtSignalAnalysisDialog * self,
       g_list_prepend (self->priv->analyzers_list, self->priv->analyzers[part]);
   res = TRUE;
 Error:
-  return (res);
+  return res;
 }
 
 static gboolean
@@ -1162,7 +1162,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
 Error:
   g_object_unref (song);
   g_object_unref (main_window);
-  return (res);
+  return res;
 }
 
 //-- constructor methods

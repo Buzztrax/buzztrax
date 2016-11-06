@@ -42,7 +42,7 @@ G_DEFINE_INTERFACE (BtChangeLogger, bt_change_logger, 0);
  * a match is found the parameters are returned in @match_info.
  *
  * Returns: the command id from @change_logger_methods or -1 for no match. Free
- * the match_info on positive matches. 
+ * the match_info on positive matches.
  */
 gint
 bt_change_logger_match_method (BtChangeLoggerMethods * change_logger_methods,
@@ -68,7 +68,7 @@ bt_change_logger_match_method (BtChangeLoggerMethods * change_logger_methods,
     i++;
     clm++;
   }
-  return (res);
+  return res;
 }
 
 //-- wrapper

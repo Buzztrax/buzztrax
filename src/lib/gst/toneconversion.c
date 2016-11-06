@@ -77,13 +77,13 @@ static gboolean
 note_string_to_values (const gchar * note, guint * tone, guint * octave)
 {
   if (!note)
-    return (FALSE);
+    return FALSE;
   if ((strlen (note) != 3))
-    return (FALSE);
+    return FALSE;
   if (!(note[1] == '-' || note[1] == '#'))
-    return (FALSE);
+    return FALSE;
   if (!(note[2] >= '0' && note[2] <= '9'))
-    return (FALSE);
+    return FALSE;
   g_assert (tone);
   g_assert (octave);
 
@@ -123,7 +123,7 @@ note_string_to_values (const gchar * note, guint * tone, guint * octave)
       g_return_val_if_reached (FALSE);
   }
   *octave = note[2] - '0';
-  return (TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -134,12 +134,12 @@ note_number_to_values (guint note, guint * tone, guint * octave)
   g_assert (octave);
 
   if (note == 0)
-    return (FALSE);
+    return FALSE;
 
   note -= 1;
   *octave = note / 16;
   *tone = note - (*octave * 16);
-  return (TRUE);
+  return TRUE;
 }
 
 //-- constructor methods
@@ -163,9 +163,9 @@ gstbt_tone_conversion_new (GstBtToneConversionTuning tuning)
                   "tuning", tuning, NULL)))) {
     goto Error;
   }
-  return (self);
+  return self;
 Error:
-  return (NULL);
+  return NULL;
 }
 
 //-- methods
@@ -347,13 +347,13 @@ gstbt_tone_conversion_note_string_2_number (const gchar * note)
   guint tone, octave;
 
   if (note[0] == 'o' && note[1] == 'f' && note[2] == 'f') {
-    return (GSTBT_NOTE_OFF);
+    return GSTBT_NOTE_OFF;
   }
 
   if (note_string_to_values (note, &tone, &octave))
     return (1 + (octave << 4) + tone);
   else
-    return (0);
+    return 0;
 }
 
 /**
@@ -378,13 +378,13 @@ gstbt_tone_conversion_note_number_2_string (guint note)
   guint tone, octave;
 
   if (note == GSTBT_NOTE_OFF)
-    return ("off");
+    return "off";
 
   if (note_number_to_values (note, &tone, &octave)) {
     sprintf (str, "%2s%1d", key[tone], octave);
-    return (str);
+    return str;
   } else
-    return ("");
+    return "";
 }
 
 /**
@@ -402,7 +402,7 @@ gstbt_tone_conversion_note_number_offset (guint note, guint semitones)
   guint tone, octave;
 
   if (note == GSTBT_NOTE_OFF)
-    return (GSTBT_NOTE_OFF);
+    return GSTBT_NOTE_OFF;
 
   if (note_number_to_values (note, &tone, &octave)) {
     tone += semitones;

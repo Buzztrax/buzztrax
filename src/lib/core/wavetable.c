@@ -231,7 +231,7 @@ bt_wavetable_get_wave_by_index (const BtWavetable * const self,
     if (index == wave_index)
       return (g_object_ref (wave));
   }
-  return (NULL);
+  return NULL;
 }
 
 /**
@@ -268,7 +268,7 @@ bt_wavetable_persistence_save (const BtPersistence * const persistence,
           xmlNewChild (parent_node, NULL, XML_CHAR_PTR ("wavetable"), NULL))) {
     bt_persistence_save_list (self->priv->waves, node);
   }
-  return (node);
+  return node;
 }
 
 static BtPersistence *

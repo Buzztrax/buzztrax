@@ -72,10 +72,10 @@ btic_trigger_control_new (const BtIcDevice * device, const gchar * name,
   }
   // register myself with the device
   btic_device_add_control (device, BTIC_CONTROL (self));
-  return (self);
+  return self;
 Error:
   g_object_try_unref (self);
-  return (NULL);
+  return NULL;
 }
 
 

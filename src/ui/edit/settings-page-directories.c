@@ -164,7 +164,7 @@ bt_settings_page_directories_new (GtkWidget * pages)
       (BT_TYPE_SETTINGS_PAGE_DIRECTORIES, NULL));
   bt_settings_page_directories_init_ui (self, pages);
   gtk_widget_show_all (GTK_WIDGET (self));
-  return (self);
+  return self;
 }
 
 //-- methods

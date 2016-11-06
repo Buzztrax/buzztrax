@@ -177,7 +177,7 @@ interpolation_mode_get_type (void)
   if (!G_UNLIKELY (type))
     type = g_enum_register_static ("GstBtFluidSynthInterpolationMode", values);
 
-  return (type);
+  return type;
 }
 
 #define CHORUS_WAVEFORM_TYPE chorus_waveform_get_type ()
@@ -197,7 +197,7 @@ chorus_waveform_get_type (void)
   if (!G_UNLIKELY (type))
     type = g_enum_register_static ("GstBtFluidSynthChorusWaveform", values);
 
-  return (type);
+  return type;
 }
 
 //-- fluid_synth implementation

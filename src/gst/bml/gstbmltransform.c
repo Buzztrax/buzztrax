@@ -351,7 +351,7 @@ gst_bml_transform_transform_ip_mono (GstBaseTransform * base,
 
   gst_buffer_unmap (outbuf, &info);
 
-  return (GST_FLOW_OK);
+  return GST_FLOW_OK;
 }
 
 static GstFlowReturn
@@ -427,7 +427,7 @@ gst_bml_transform_transform_ip_stereo (GstBaseTransform * base,
 
   gst_buffer_unmap (outbuf, &info);
 
-  return (GST_FLOW_OK);
+  return GST_FLOW_OK;
 }
 
 static GstFlowReturn
@@ -516,7 +516,7 @@ gst_bml_transform_transform_mono_to_stereo (GstBaseTransform * base,
 
   gst_buffer_unmap (inbuf, &infoi);
   gst_buffer_unmap (outbuf, &infoo);
-  return (GST_FLOW_OK);
+  return GST_FLOW_OK;
 }
 
 static gboolean
@@ -826,5 +826,5 @@ bml (transform_get_type (const char *element_type_name, gboolean is_polyphonic))
 
   GST_INFO ("successfully registered type interfaces");
 
-  return (element_type);
+  return element_type;
 }
