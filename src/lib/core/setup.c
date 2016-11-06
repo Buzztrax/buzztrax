@@ -100,7 +100,7 @@
  *       }
  *     }
  *     foreach(sub_graph) {
- *       // do we need gst_element_set_locked_state(...,TRUE);
+ *       // do we need gst_element_set_locked_state(...,TRUE);?
  *       {add,rem}_bin_in_pipeline(...);
  *     }
  *     foreach(src_wires) {
@@ -976,7 +976,7 @@ activate_element (const BtSetup * const self, gpointer key)
 {
   GstElement *elem = GST_ELEMENT (key);
 
-  //gst_element_set_locked_state (elem, FALSE);
+  gst_element_set_locked_state (elem, FALSE);
 #ifndef STOP_PLAYBACK_FOR_UPDATES
   GST_INFO_OBJECT (GST_OBJECT (key), "activating");
   if (GST_STATE (GST_OBJECT_PARENT (GST_OBJECT (key))) == GST_STATE_PLAYING) {
@@ -1009,7 +1009,7 @@ deactivate_element (const BtSetup * const self, gpointer key)
 {
   GstElement *elem = GST_ELEMENT (key);
 
-  //gst_element_set_locked_state (elem, TRUE);
+  gst_element_set_locked_state (elem, TRUE);
 #ifndef STOP_PLAYBACK_FOR_UPDATES
   GST_INFO_OBJECT (GST_OBJECT (key), "deactivating");
   GstObject *parent = GST_OBJECT_PARENT (elem);
@@ -1182,10 +1182,8 @@ add_to_pipeline (const BtSetup * const self)
     GST_INFO_OBJECT (peer, "adding probe");
 
     g_mutex_lock (&self->priv->update_mutex);
-    gst_pad_add_probe (peer,
-        (GST_PAD_PROBE_TYPE_BLOCK | GST_PAD_PROBE_TYPE_BUFFER |
-            GST_PAD_PROBE_TYPE_BUFFER_LIST), async_add_to_pipeline,
-        (gpointer) self, NULL);
+    gst_pad_add_probe (peer, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
+        async_add_to_pipeline, (gpointer) self, NULL);
     GST_INFO_OBJECT (peer,
         "updating pipeline for add via probe ----------------------");
   } else {
@@ -1289,10 +1287,8 @@ remove_from_pipeline (const BtSetup * const self)
     GST_INFO_OBJECT (peer, "adding probe");
 
     g_mutex_lock (&self->priv->update_mutex);
-    gst_pad_add_probe (peer,
-        (GST_PAD_PROBE_TYPE_BLOCK | GST_PAD_PROBE_TYPE_BUFFER |
-            GST_PAD_PROBE_TYPE_BUFFER_LIST), async_remove_from_pipeline,
-        (gpointer) self, NULL);
+    gst_pad_add_probe (peer, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
+        async_remove_from_pipeline, (gpointer) self, NULL);
     GST_INFO_OBJECT (peer,
         "updating pipeline for del via probe ----------------------");
     gst_object_unref (peer);
