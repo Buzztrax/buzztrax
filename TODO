@@ -13,7 +13,8 @@
         * create song1
         * save song1 to memory
         * load from memory to song2
-        * compare song1 and song2 - but how?
+        * compare song1 and song2 - but how - we don't had a compareable iface
+          * maybe use canolicalized xml (what about waves?)
       * loading
         * load song1 from memory1
         * save song1 to memory2
@@ -21,15 +22,19 @@
       * if before/after differs we need a nice formatting :/
         * dump both songs using xmlDocFormatDump(file, doc, TRUE) and diff
     * or test via BtPersistence directly
-    * or we just have a sav&load helper
+    * or we just have a save & load helper
     * we need to verify loading first
       * load from memory and check details
       * then test saving and assume that loading is good
   * add a stub processor machine
   * have a means to make a copy of log-files for passing tests
     * this could help to check 'what changed'
-    * we'd need to also do xml output from check to run the log compare for
-      failed tests
+    * we need a download script to mirror the logs from travis/s3 bucket
+    * we have past logs at travis, need some scripts to analyze them
+      * get suite/test/duration via xmlstarlet:
+        xmlstarlet sel -t -m "/_:testsuites/_:suite/_:test" -s A:N:- "_:duration" -v "concat(_:duration, ', ', _:fn, ', ', _:id)" -n log.xml
+        for file in */log.xml; do echo $file; xmlstarlet sel -t -m "/_:testsuites/_:suite/_:test" -s A:N:- "_:duration" -v "concat(_:duration, ', ', _:fn, ', ', _:id)" -n $file | tail -n 3; echo; done
+      * check for flaky tests
   * write a scripts that goes over all the songs under a directory and:
     * load + info them
     * render them to a set of given formats
