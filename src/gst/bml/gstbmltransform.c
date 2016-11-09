@@ -86,7 +86,7 @@ gst_bml_child_proxy_get_child_by_index (GstChildProxy * child_proxy,
 
   g_return_val_if_fail (index < bml->num_voices, NULL);
 
-  return (gst_object_ref (g_list_nth_data (bml->voices, index)));
+  return gst_object_ref (g_list_nth_data (bml->voices, index));
 }
 
 static guint
@@ -95,7 +95,7 @@ gst_bml_child_proxy_get_children_count (GstChildProxy * child_proxy)
   GstBMLTransform *bml_transform = GST_BML_TRANSFORM (child_proxy);
   GstBML *bml = GST_BML (bml_transform);
 
-  return (bml->num_voices);
+  return bml->num_voices;
 }
 
 
@@ -145,7 +145,7 @@ gst_bml_preset_get_preset_names (GstPreset * preset)
   GstBML *bml = GST_BML (bml_transform);
   GstBMLClass *bml_class = GST_BML_CLASS (klass);
 
-  return (gstbml_preset_get_preset_names (bml, bml_class));
+  return gstbml_preset_get_preset_names (bml, bml_class);
 }
 
 static gboolean
@@ -180,7 +180,7 @@ gst_bml_preset_rename_preset (GstPreset * preset, const gchar * old_name,
   GstBMLTransformClass *klass = GST_BML_TRANSFORM_GET_CLASS (bml_transform);
   GstBMLClass *bml_class = GST_BML_CLASS (klass);
 
-  return (gstbml_preset_rename_preset (bml_class, old_name, new_name));
+  return gstbml_preset_rename_preset (bml_class, old_name, new_name);
 }
 
 static gboolean
@@ -190,7 +190,7 @@ gst_bml_preset_delete_preset (GstPreset * preset, const gchar * name)
   GstBMLTransformClass *klass = GST_BML_TRANSFORM_GET_CLASS (bml_transform);
   GstBMLClass *bml_class = GST_BML_CLASS (klass);
 
-  return (gstbml_preset_delete_preset (bml_class, name));
+  return gstbml_preset_delete_preset (bml_class, name);
 }
 
 static gboolean
@@ -201,7 +201,7 @@ gst_bml_set_meta (GstPreset * preset, const gchar * name, const gchar * tag,
   GstBMLTransformClass *klass = GST_BML_TRANSFORM_GET_CLASS (bml_transform);
   GstBMLClass *bml_class = GST_BML_CLASS (klass);
 
-  return (gstbml_preset_set_meta (bml_class, name, tag, value));
+  return gstbml_preset_set_meta (bml_class, name, tag, value);
 }
 
 static gboolean
@@ -212,7 +212,7 @@ gst_bml_get_meta (GstPreset * preset, const gchar * name, const gchar * tag,
   GstBMLTransformClass *klass = GST_BML_TRANSFORM_GET_CLASS (bml_transform);
   GstBMLClass *bml_class = GST_BML_CLASS (klass);
 
-  return (gstbml_preset_get_meta (bml_class, name, tag, value));
+  return gstbml_preset_get_meta (bml_class, name, tag, value);
 }
 
 static void

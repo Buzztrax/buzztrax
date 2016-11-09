@@ -96,7 +96,7 @@ G_DEFINE_TYPE_WITH_CODE (BtWavetable, bt_wavetable, G_TYPE_OBJECT,
 BtWavetable *
 bt_wavetable_new (const BtSong * const song)
 {
-  return (BT_WAVETABLE (g_object_new (BT_TYPE_WAVETABLE, "song", song, NULL)));
+  return BT_WAVETABLE (g_object_new (BT_TYPE_WAVETABLE, "song", song, NULL));
 }
 
 //-- private methods
@@ -229,7 +229,7 @@ bt_wavetable_get_wave_by_index (const BtWavetable * const self,
     BtWave *const wave = BT_WAVE (node->data);
     g_object_get (wave, "index", &wave_index, NULL);
     if (index == wave_index)
-      return (g_object_ref (wave));
+      return g_object_ref (wave);
   }
   return NULL;
 }
@@ -305,7 +305,7 @@ bt_wavetable_persistence_load (const GType type,
       g_object_unref (wave);
     }
   }
-  return (BT_PERSISTENCE (persistence));
+  return BT_PERSISTENCE (persistence);
 }
 
 static void

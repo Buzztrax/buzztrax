@@ -350,7 +350,7 @@ decompress_samples (CompressionValues * cv, guint16 * outbuf,
     size--;
   }
   GST_LOG ("decompress_samples() = %d", !ctxt.error);
-  return (!ctxt.error);
+  return !ctxt.error;
 }
 
 static gboolean

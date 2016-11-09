@@ -95,9 +95,7 @@ G_DEFINE_TYPE (BtMainToolbar, bt_main_toolbar, GTK_TYPE_TOOLBAR);
 static gboolean
 on_song_playback_update (gpointer user_data)
 {
-  BtSong *song = BT_SONG (user_data);
-
-  return (bt_song_update_playback_position (song));
+  return bt_song_update_playback_position (BT_SONG (user_data));
 }
 
 static void

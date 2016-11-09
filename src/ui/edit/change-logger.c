@@ -87,7 +87,7 @@ bt_change_logger_change (const BtChangeLogger * self, const gchar * data)
 {
   g_return_val_if_fail (BT_IS_CHANGE_LOGGER (self), FALSE);
 
-  return (BT_CHANGE_LOGGER_GET_INTERFACE (self)->change (self, data));
+  return BT_CHANGE_LOGGER_GET_INTERFACE (self)->change (self, data);
 }
 
 //-- interface internals

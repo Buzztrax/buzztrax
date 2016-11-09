@@ -779,7 +779,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
 BtChangeLog *
 bt_change_log_new (void)
 {
-  return (g_object_new (BT_TYPE_CHANGE_LOG, NULL));
+  return g_object_new (BT_TYPE_CHANGE_LOG, NULL);
 }
 
 
@@ -797,7 +797,7 @@ bt_change_log_new (void)
 gboolean
 bt_change_log_is_active (BtChangeLog * self)
 {
-  return (self->priv->is_active);
+  return self->priv->is_active;
 }
 
 /**

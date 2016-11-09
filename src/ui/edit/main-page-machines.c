@@ -2038,7 +2038,7 @@ gboolean
 bt_main_page_machines_add_source_machine (const BtMainPageMachines * self,
     const gchar * id, const gchar * plugin_name)
 {
-  return (bt_main_page_machines_add_machine (self, 0, id, plugin_name));
+  return bt_main_page_machines_add_machine (self, 0, id, plugin_name);
 }
 
 /**
@@ -2053,7 +2053,7 @@ gboolean
 bt_main_page_machines_add_processor_machine (const BtMainPageMachines *
     self, const gchar * id, const gchar * plugin_name)
 {
-  return (bt_main_page_machines_add_machine (self, 1, id, plugin_name));
+  return bt_main_page_machines_add_machine (self, 1, id, plugin_name);
 }
 
 /**

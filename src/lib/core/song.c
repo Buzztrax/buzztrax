@@ -928,7 +928,7 @@ bt_song_idle_stop (const BtSong * const self)
 BtSong *
 bt_song_new (const BtApplication * const app)
 {
-  return (BT_SONG (g_object_new (BT_TYPE_SONG, "app", app, NULL)));
+  return BT_SONG (g_object_new (BT_TYPE_SONG, "app", app, NULL));
 }
 
 //-- methods
@@ -1382,7 +1382,7 @@ bt_song_persistence_load (const GType type,
     }
   }
 
-  return (BT_PERSISTENCE (persistence));
+  return BT_PERSISTENCE (persistence);
 Error:
   if (node) {
     /* TODO(ensonic): set the GError? */

@@ -340,8 +340,8 @@ BtIcMidiDevice *
 btic_midi_device_new (const gchar * udi, const gchar * name,
     const gchar * devnode)
 {
-  return (BTIC_MIDI_DEVICE (g_object_new (BTIC_TYPE_MIDI_DEVICE, "udi", udi,
-              "name", name, "devnode", devnode, NULL)));
+  return BTIC_MIDI_DEVICE (g_object_new (BTIC_TYPE_MIDI_DEVICE, "udi", udi,
+          "name", name, "devnode", devnode, NULL));
 }
 
 //-- methods

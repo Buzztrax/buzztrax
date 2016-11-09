@@ -75,9 +75,9 @@ BtSinkMachine *
 bt_sink_machine_new (const BtSong * const song, const gchar * const id,
     GError ** err)
 {
-  return (BT_SINK_MACHINE (g_object_new (BT_TYPE_SINK_MACHINE,
-              "construction-error", err, "song", song, "id", id, "plugin-name",
-              "bt-sink-bin", NULL)));
+  return BT_SINK_MACHINE (g_object_new (BT_TYPE_SINK_MACHINE,
+          "construction-error", err, "song", song, "id", id, "plugin-name",
+          "bt-sink-bin", NULL));
 }
 
 //-- methods

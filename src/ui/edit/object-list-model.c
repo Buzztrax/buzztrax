@@ -190,7 +190,7 @@ bt_object_list_model_clear (BtObjectListModel * model)
 GObject *
 bt_object_list_model_get_object (BtObjectListModel * model, GtkTreeIter * iter)
 {
-  return (g_sequence_get (iter->user_data));
+  return g_sequence_get (iter->user_data);
 }
 
 //-- tree model interface
@@ -204,9 +204,7 @@ bt_object_list_model_tree_model_get_flags (GtkTreeModel * tree_model)
 static gint
 bt_object_list_model_tree_model_get_n_columns (GtkTreeModel * tree_model)
 {
-  BtObjectListModel *model = BT_OBJECT_LIST_MODEL (tree_model);
-
-  return (model->priv->n_columns);
+  return BT_OBJECT_LIST_MODEL (tree_model)->priv->n_columns;
 }
 
 static GType
@@ -217,7 +215,7 @@ bt_object_list_model_tree_model_get_column_type (GtkTreeModel * tree_model,
 
   g_return_val_if_fail (index < model->priv->n_columns, G_TYPE_INVALID);
 
-  return (model->priv->params[index]->value_type);
+  return model->priv->params[index]->value_type;
 }
 
 static gboolean

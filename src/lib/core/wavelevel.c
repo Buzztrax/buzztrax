@@ -96,10 +96,10 @@ bt_wavelevel_new (const BtSong * const song, const BtWave * const wave,
     const GstBtNote root_note, const gulong length, const gulong loop_start,
     const gulong loop_end, const gulong rate, gconstpointer sample)
 {
-  return (BT_WAVELEVEL (g_object_new (BT_TYPE_WAVELEVEL, "song", song, "wave",
-              wave, "root-note", root_note, "length", length, "loop_start",
-              loop_start, "loop_end", loop_end, "rate", rate, "data", sample,
-              NULL)));
+  return BT_WAVELEVEL (g_object_new (BT_TYPE_WAVELEVEL, "song", song, "wave",
+          wave, "root-note", root_note, "length", length, "loop_start",
+          loop_start, "loop_end", loop_end, "rate", rate, "data", sample,
+          NULL));
 }
 
 //-- private methods
@@ -166,7 +166,7 @@ bt_wavelevel_persistence_load (const GType type,
   xmlFree (loop_start_str);
   xmlFree (loop_end_str);
 
-  return (BT_PERSISTENCE (persistence));
+  return BT_PERSISTENCE (persistence);
 }
 
 static void

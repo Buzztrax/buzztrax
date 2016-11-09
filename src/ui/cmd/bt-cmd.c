@@ -175,5 +175,5 @@ Done:
   g_free (output_file_name);
   g_option_context_free (ctx);
 
-  return (!res);
+  return !res;
 }

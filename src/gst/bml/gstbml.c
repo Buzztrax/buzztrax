@@ -397,11 +397,11 @@ bml (gstbml_property_meta_describe_property (GstBMLClass * bml_class,
       }
       break;
     case G_TYPE_STRING:
-      return (g_strdup_value_contents (value));
+      return g_strdup_value_contents (value);
       break;
     default:
       GST_ERROR ("unsupported GType='%s'", G_VALUE_TYPE_NAME (value));
-      return (g_strdup_value_contents (value));
+      return g_strdup_value_contents (value);
   }
   if (str == def) {
     res = g_strdup (str);

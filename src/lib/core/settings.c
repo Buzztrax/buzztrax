@@ -408,7 +408,7 @@ bt_settings_make (void)
         G_OBJECT_LOG_REF_COUNT (singleton));
     singleton = g_object_ref (singleton);
   }
-  return (BT_SETTINGS (singleton));
+  return BT_SETTINGS (singleton);
 }
 
 //-- methods

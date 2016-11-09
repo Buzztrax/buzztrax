@@ -129,7 +129,7 @@ static GValue *
 bt_value_group_get_event_data_unchecked (const BtValueGroup * const self,
     const gulong tick, const gulong param)
 {
-  return (&self->priv->data[(tick * self->priv->columns) + param]);
+  return &self->priv->data[(tick * self->priv->columns) + param];
 }
 
 static GType
@@ -156,8 +156,8 @@ BtValueGroup *
 bt_value_group_new (const BtParameterGroup * const param_group,
     const gulong length)
 {
-  return (BT_VALUE_GROUP (g_object_new (BT_TYPE_VALUE_GROUP, "parameter-group",
-              param_group, "length", length, NULL)));
+  return BT_VALUE_GROUP (g_object_new (BT_TYPE_VALUE_GROUP, "parameter-group",
+          param_group, "length", length, NULL));
 }
 
 /**
@@ -226,7 +226,7 @@ bt_value_group_get_event_data (const BtValueGroup * const self,
   GST_LOG ("getting gvalue at tick=%lu/%lu and param %lu/%lu", tick,
       self->priv->length, param, self->priv->params);
 
-  return (bt_value_group_get_event_data_unchecked (self, tick, param));
+  return bt_value_group_get_event_data_unchecked (self, tick, param);
 }
 
 /**
@@ -371,7 +371,7 @@ bt_value_group_test_event (const BtValueGroup * const self, const gulong tick,
   const GValue *const event =
       bt_value_group_get_event_data_unchecked (self, tick, param);
 
-  return (BT_IS_GVALUE (event));
+  return BT_IS_GVALUE (event);
 }
 
 /**

@@ -397,7 +397,7 @@ G_DEFINE_TYPE_WITH_CODE (BtSetup, bt_setup, G_TYPE_OBJECT,
 BtSetup *
 bt_setup_new (const BtSong * const song)
 {
-  return (BT_SETUP (g_object_new (BT_TYPE_SETUP, "song", song, NULL)));
+  return BT_SETUP (g_object_new (BT_TYPE_SETUP, "song", song, NULL));
 }
 
 //-- private methods
@@ -1727,7 +1727,7 @@ bt_setup_get_wire_by_src_machine (const BtSetup * const self,
 {
   g_return_val_if_fail (BT_IS_SETUP (self), NULL);
   g_return_val_if_fail (BT_IS_MACHINE (src), NULL);
-  return (bt_setup_get_wire_by_machine_type (self, src, "src"));
+  return bt_setup_get_wire_by_machine_type (self, src, "src");
 }
 
 // TODO(ensonic): remove this, use machine->src_wires list instead
@@ -1749,7 +1749,7 @@ bt_setup_get_wire_by_dst_machine (const BtSetup * const self,
 {
   g_return_val_if_fail (BT_IS_SETUP (self), NULL);
   g_return_val_if_fail (BT_IS_MACHINE (dst), NULL);
-  return (bt_setup_get_wire_by_machine_type (self, dst, "dst"));
+  return bt_setup_get_wire_by_machine_type (self, dst, "dst");
 }
 
 // TODO(ensonic): remove this, use bt_machine_get_wire_by_dst_machine() instead
@@ -1841,7 +1841,7 @@ bt_setup_get_wires_by_src_machine (const BtSetup * const self,
 {
   g_return_val_if_fail (BT_IS_SETUP (self), NULL);
   g_return_val_if_fail (BT_IS_MACHINE (src), NULL);
-  return (bt_setup_get_wires_by_machine_type (self, src, "src"));
+  return bt_setup_get_wires_by_machine_type (self, src, "src");
 }
 
 // TODO(ensonic): remove this, use machine->src_wires list instead
@@ -1861,7 +1861,7 @@ bt_setup_get_wires_by_dst_machine (const BtSetup * const self,
 {
   g_return_val_if_fail (BT_IS_SETUP (self), NULL);
   g_return_val_if_fail (BT_IS_MACHINE (dst), NULL);
-  return (bt_setup_get_wires_by_machine_type (self, dst, "dst"));
+  return bt_setup_get_wires_by_machine_type (self, dst, "dst");
 }
 
 /**
@@ -1885,7 +1885,7 @@ bt_setup_get_unique_machine_id (const BtSetup * const self,
   g_return_val_if_fail (BT_IS_STRING (base_name), NULL);
 
   if (!(machine = bt_setup_get_machine_by_id (self, base_name))) {
-    return (g_strdup (base_name));
+    return g_strdup (base_name);
   } else {
     g_object_unref (machine);
     machine = NULL;
@@ -2053,7 +2053,7 @@ bt_setup_persistence_load (const GType type,
   if (failed_parts) {
     bt_song_write_to_lowlevel_dot_file (self->priv->song);
   }
-  return (BT_PERSISTENCE (persistence));
+  return BT_PERSISTENCE (persistence);
 }
 
 static void

@@ -186,7 +186,7 @@ bt_persistence_save (const BtPersistence * const self,
 {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
 
-  return (BT_PERSISTENCE_GET_INTERFACE (self)->save (self, parent_node));
+  return BT_PERSISTENCE_GET_INTERFACE (self)->save (self, parent_node);
 }
 
 /**

@@ -229,7 +229,7 @@ bt_audio_session_setup (void)
 BtAudioSession *
 bt_audio_session_new (void)
 {
-  return (BT_AUDIO_SESSION (g_object_new (BT_TYPE_AUDIO_SESSION, NULL)));
+  return BT_AUDIO_SESSION (g_object_new (BT_TYPE_AUDIO_SESSION, NULL));
 }
 
 //-- methods

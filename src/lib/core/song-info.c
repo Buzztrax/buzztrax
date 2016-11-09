@@ -197,7 +197,7 @@ bt_song_info_get_change_dts_in_local_time (const BtSongInfo * const self)
 BtSongInfo *
 bt_song_info_new (const BtSong * const song)
 {
-  return (BT_SONG_INFO (g_object_new (BT_TYPE_SONG_INFO, "song", song, NULL)));
+  return BT_SONG_INFO (g_object_new (BT_TYPE_SONG_INFO, "song", song, NULL));
 }
 
 //-- methods
@@ -432,7 +432,7 @@ bt_song_info_persistence_load (const GType type,
       }
     }
   }
-  return (BT_PERSISTENCE (persistence));
+  return BT_PERSISTENCE (persistence);
 }
 
 static void

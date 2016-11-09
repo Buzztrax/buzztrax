@@ -856,8 +856,8 @@ BtWire *
 bt_wire_new (const BtSong * const song, const BtMachine * const src_machine,
     const BtMachine * const dst_machine, GError ** err)
 {
-  return (BT_WIRE (g_object_new (BT_TYPE_WIRE, "construction-error", err,
-              "song", song, "src", src_machine, "dst", dst_machine, NULL)));
+  return BT_WIRE (g_object_new (BT_TYPE_WIRE, "construction-error", err,
+          "song", song, "src", src_machine, "dst", dst_machine, NULL));
 }
 
 //-- methods
@@ -880,7 +880,7 @@ bt_wire_reconnect (BtWire * const self)
   GST_DEBUG ("relinking machines '%s' -> '%s'",
       GST_OBJECT_NAME (self->priv->src), GST_OBJECT_NAME (self->priv->dst));
   bt_wire_unlink_machines (self);
-  return (bt_wire_link_machines (self));
+  return bt_wire_link_machines (self);
 }
 
 /**
@@ -900,7 +900,7 @@ bt_wire_can_link (const BtMachine * const src, const BtMachine * const dst)
   g_return_val_if_fail (BT_IS_MACHINE (src), FALSE);
   g_return_val_if_fail (BT_IS_MACHINE (dst), FALSE);
 
-  return (bt_wire_can_link_internal (NULL, src, dst));
+  return bt_wire_can_link_internal (NULL, src, dst);
 }
 
 /**

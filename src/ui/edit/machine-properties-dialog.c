@@ -718,24 +718,24 @@ static gboolean
 on_boolean_button_press_event (GtkWidget * widget, GdkEventButton * event,
     gpointer user_data)
 {
-  return (on_button_press_event (widget, event, user_data,
-          BT_INTERACTION_CONTROLLER_TRIGGER_MENU, TRUE));
+  return on_button_press_event (widget, event, user_data,
+      BT_INTERACTION_CONTROLLER_TRIGGER_MENU, TRUE);
 }
 
 static gboolean
 on_range_button_press_event (GtkWidget * widget, GdkEventButton * event,
     gpointer user_data)
 {
-  return (on_button_press_event (widget, event, user_data,
-          BT_INTERACTION_CONTROLLER_RANGE_MENU, TRUE));
+  return on_button_press_event (widget, event, user_data,
+      BT_INTERACTION_CONTROLLER_RANGE_MENU, TRUE);
 }
 
 static gboolean
 on_trigger_button_press_event (GtkWidget * widget, GdkEventButton * event,
     gpointer user_data)
 {
-  return (on_button_press_event (widget, event, user_data,
-          BT_INTERACTION_CONTROLLER_RANGE_MENU, FALSE));
+  return on_button_press_event (widget, event, user_data,
+      BT_INTERACTION_CONTROLLER_RANGE_MENU, FALSE);
 }
 
 static gboolean

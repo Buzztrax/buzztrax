@@ -125,7 +125,7 @@ static int
 blacklist_compare (const void *node1, const void *node2)
 {
   //GST_DEBUG("comparing '%s' '%s'",*(gchar**)node1,*(gchar**)node2);
-  return (strcasecmp (*(gchar **) node1, *(gchar **) node2));
+  return strcasecmp (*(gchar **) node1, *(gchar **) node2);
 }
 
 static void

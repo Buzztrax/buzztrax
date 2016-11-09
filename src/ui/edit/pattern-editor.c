@@ -104,7 +104,7 @@ to_string_note (gchar * buf, gfloat value, gint def)
   gint note = ((gint) value) & 255, octave;
 
   if (note == def || note == 0)
-    return ("...");
+    return "...";
   if (note == 255)
     return "off";
 
@@ -123,7 +123,7 @@ to_string_trigger (gchar * buf, gfloat value, gint def)
   gint v = (gint) value;
 
   if (v == def)
-    return (".");
+    return ".";
 
   sprintf (buf, "%01X", v != 0 ? 1 : 0);
   return buf;
@@ -135,7 +135,7 @@ to_string_byte (gchar * buf, gfloat value, gint def)
   gint v = (gint) (value + 0.5);
 
   if (v == def)
-    return ("..");
+    return "..";
 
   sprintf (buf, "%02X", v & 255);
   return buf;
@@ -147,7 +147,7 @@ to_string_word (gchar * buf, gfloat value, gint def)
   gint v = (gint) (value + 0.5);
 
   if (v == def)
-    return ("....");
+    return "....";
 
   sprintf (buf, "%04X", v & 65535);
   return buf;
@@ -158,7 +158,7 @@ to_string_float (gchar * buf, gfloat value, gint def)
 {
   gint v = (gint) value;
   if (fabs (v - def) < 0.00001)
-    return ("........");
+    return "........";
 
   sprintf (buf, "%-8f", value);
   return buf;

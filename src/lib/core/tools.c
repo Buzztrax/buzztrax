@@ -320,7 +320,7 @@ bt_gst_try_element (GstElementFactory * factory, const gchar * format)
 static GstPad *
 bt_gst_element_get_src_peer_pad (GstElement * const elem)
 {
-  return (bt_gst_get_peer_pad (gst_element_iterate_src_pads (elem)));
+  return bt_gst_get_peer_pad (gst_element_iterate_src_pads (elem));
 }
 #endif
 
@@ -335,7 +335,7 @@ bt_gst_element_get_src_peer_pad (GstElement * const elem)
 static GstPad *
 bt_gst_element_get_sink_peer_pad (GstElement * const elem)
 {
-  return (bt_gst_get_peer_pad (gst_element_iterate_sink_pads (elem)));
+  return bt_gst_get_peer_pad (gst_element_iterate_sink_pads (elem));
 }
 
 static GstPadProbeReturn

@@ -1865,7 +1865,7 @@ bt_machine_get_pattern_by_name (const BtMachine * const self,
       found = TRUE;
     g_free (pattern_name);
     if (found)
-      return (g_object_ref (pattern));
+      return g_object_ref (pattern);
   }
   GST_DEBUG ("no pattern found for name \"%s\"", name);
   return NULL;
@@ -2645,7 +2645,7 @@ bt_machine_get_wire_by_dst_machine (const BtMachine * const self,
       found = TRUE;
     g_object_unref (machine);
     if (found)
-      return (g_object_ref (wire));
+      return g_object_ref (wire);
   }
   GST_DEBUG ("no wire found for machines %p:%s %p:%s", self,
       GST_OBJECT_NAME (self), dst, GST_OBJECT_NAME (dst));
@@ -2996,7 +2996,7 @@ bt_machine_persistence_load (const GType type,
       }
     }
   }
-  return (BT_PERSISTENCE (persistence));
+  return BT_PERSISTENCE (persistence);
 }
 
 static void

@@ -53,7 +53,7 @@ gstbt_child_bin_add_child (GstBtChildBin * self, GstObject * child)
 {
   g_return_val_if_fail (GSTBT_IS_CHILD_BIN (self), FALSE);
 
-  return (GSTBT_CHILD_BIN_GET_INTERFACE (self)->add_child (self, child));
+  return GSTBT_CHILD_BIN_GET_INTERFACE (self)->add_child (self, child);
 }
 
 /**
@@ -70,7 +70,7 @@ gstbt_child_bin_remove_child (GstBtChildBin * self, GstObject * child)
 {
   g_return_val_if_fail (GSTBT_IS_CHILD_BIN (self), FALSE);
 
-  return (GSTBT_CHILD_BIN_GET_INTERFACE (self)->remove_child (self, child));
+  return GSTBT_CHILD_BIN_GET_INTERFACE (self)->remove_child (self, child);
 }
 
 static void

@@ -111,7 +111,7 @@ bt_test_child_proxy_get_child_by_index (GstChildProxy * child_proxy,
 static guint
 bt_test_child_proxy_get_children_count (GstChildProxy * child_proxy)
 {
-  return (BT_TEST_POLY_SOURCE (child_proxy)->num_voices);
+  return BT_TEST_POLY_SOURCE (child_proxy)->num_voices;
 }
 
 

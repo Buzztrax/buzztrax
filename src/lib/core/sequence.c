@@ -227,8 +227,8 @@ static inline gulong
 bt_sequence_get_number_of_pattern_uses (const BtSequence * const self,
     const BtPattern * const pattern)
 {
-  return (GPOINTER_TO_UINT (g_hash_table_lookup (self->priv->pattern_usage,
-              pattern)));
+  return GPOINTER_TO_UINT (g_hash_table_lookup (self->priv->pattern_usage,
+          pattern));
 }
 
 /*
@@ -316,7 +316,7 @@ bt_sequence_get_pattern_unchecked (const BtSequence * const self,
     const gulong time, const gulong track)
 {
   //GST_DEBUG("get pattern at time %d, track %d",time, track);
-  return (self->priv->patterns[time * self->priv->tracks + track]);
+  return self->priv->patterns[time * self->priv->tracks + track];
 }
 
 static BtMachine *
@@ -325,7 +325,7 @@ bt_sequence_get_machine_unchecked (const BtSequence * const self,
 {
   //GST_DEBUG("getting machine : %" G_OBJECT_REF_COUNT_FMT,
   //    G_OBJECT_LOG_REF_COUNT(self->priv->machines[track]));
-  return (self->priv->machines[track]);
+  return self->priv->machines[track];
 }
 
 /*
@@ -515,7 +515,7 @@ bt_sequence_limit_play_pos_internal (const BtSequence * const self)
 BtSequence *
 bt_sequence_new (const BtSong * const song)
 {
-  return (BT_SEQUENCE (g_object_new (BT_TYPE_SEQUENCE, "song", song, NULL)));
+  return BT_SEQUENCE (g_object_new (BT_TYPE_SEQUENCE, "song", song, NULL));
 }
 
 //-- methods
@@ -542,7 +542,7 @@ bt_sequence_get_track_by_machine (const BtSequence * const self,
 
   for (; track < tracks; track++) {
     if (machines[track] == machine) {
-      return ((glong) track);
+      return (glong) track;
     }
   }
   return -1;
@@ -572,7 +572,7 @@ bt_sequence_get_tick_by_pattern (const BtSequence * const self, gulong track,
 
   for (; tick < length; tick++) {
     if (patterns[tick * tracks + track] == pattern) {
-      return ((glong) tick);
+      return (glong) tick;
     }
   }
   return -1;
@@ -600,7 +600,7 @@ bt_sequence_get_machine (const BtSequence * const self, const gulong track)
   if (machine) {
     GST_DEBUG_OBJECT (machine, "getting machine : %" G_OBJECT_REF_COUNT_FMT
         " for track %lu", G_OBJECT_LOG_REF_COUNT (machine), track);
-    return (g_object_ref (machine));
+    return g_object_ref (machine);
   } else {
     /* TODO(ensonic): shouldn't we better make self->priv->tracks a readonly property
      * and offer methods to insert/remove tracks as it should not be allowed to change
@@ -843,7 +843,7 @@ bt_sequence_get_label (const BtSequence * const self, const gulong time)
   g_return_val_if_fail (BT_IS_SEQUENCE (self), NULL);
   g_return_val_if_fail (time < self->priv->length, NULL);
 
-  return (g_strdup (self->priv->labels[time]));
+  return g_strdup (self->priv->labels[time]);
 }
 
 /**
@@ -1532,7 +1532,7 @@ bt_sequence_persistence_load (const GType type,
     }
   }
 
-  return (BT_PERSISTENCE (persistence));
+  return BT_PERSISTENCE (persistence);
 }
 
 static void

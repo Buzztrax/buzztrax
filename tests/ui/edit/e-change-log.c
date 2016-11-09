@@ -123,8 +123,8 @@ G_DEFINE_TYPE_WITH_CODE (BtTestChangeLogger, bt_test_change_logger,
 static BtTestChangeLogger *
 bt_test_change_logger_new (void)
 {
-  return ((BtTestChangeLogger *)
-      g_object_new (bt_test_change_logger_get_type (), NULL));
+  return (BtTestChangeLogger *)
+      g_object_new (bt_test_change_logger_get_type (), NULL);
 }
 
 static void

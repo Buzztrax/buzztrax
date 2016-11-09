@@ -211,7 +211,7 @@ bt_wave_list_model_tree_model_get_column_type (GtkTreeModel * tree_model,
 
   g_return_val_if_fail (index < N_COLUMNS, G_TYPE_INVALID);
 
-  return (model->priv->param_types[index]);
+  return model->priv->param_types[index];
 }
 
 static gboolean

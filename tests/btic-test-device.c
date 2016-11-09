@@ -57,8 +57,8 @@ G_DEFINE_TYPE_WITH_CODE (BtIcTestDevice, btic_test_device, BTIC_TYPE_DEVICE,
 BtIcTestDevice *
 btic_test_device_new (const gchar * name)
 {
-  return (BTIC_TEST_DEVICE (g_object_new (BTIC_TYPE_TEST_DEVICE, "name", name,
-              NULL)));
+  return BTIC_TEST_DEVICE (g_object_new (BTIC_TYPE_TEST_DEVICE, "name", name,
+          NULL));
 }
 
 //-- methods

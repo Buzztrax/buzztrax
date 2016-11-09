@@ -211,9 +211,9 @@ BtParameterGroup *
 bt_parameter_group_new (gulong num_params, GObject ** parents,
     GParamSpec ** params, BtSong * song, const BtMachine * machine)
 {
-  return (BT_PARAMETER_GROUP (g_object_new (BT_TYPE_PARAMETER_GROUP,
-              "num-params", num_params, "parents", parents, "params", params,
-              "song", song, "machine", machine, NULL)));
+  return BT_PARAMETER_GROUP (g_object_new (BT_TYPE_PARAMETER_GROUP,
+          "num-params", num_params, "parents", parents, "params", params,
+          "song", song, "machine", machine, NULL));
 }
 
 //-- methods
@@ -311,7 +311,7 @@ bt_parameter_group_get_param_spec (const BtParameterGroup * const self,
   g_return_val_if_fail (BT_IS_PARAMETER_GROUP (self), NULL);
   g_return_val_if_fail (index < self->priv->num_params, NULL);
 
-  return (self->priv->params[index]);
+  return self->priv->params[index];
 }
 
 /**
@@ -330,7 +330,7 @@ bt_parameter_group_get_param_parent (const BtParameterGroup * const self,
   g_return_val_if_fail (BT_IS_PARAMETER_GROUP (self), NULL);
   g_return_val_if_fail (index < self->priv->num_params, NULL);
 
-  return (self->priv->parents[index]);
+  return self->priv->parents[index];
 }
 
 
@@ -441,7 +441,7 @@ bt_parameter_group_get_param_type (const BtParameterGroup * const self,
   g_return_val_if_fail (BT_IS_PARAMETER_GROUP (self), G_TYPE_INVALID);
   g_return_val_if_fail (index < self->priv->num_params, G_TYPE_INVALID);
 
-  return (PARAM_TYPE (index));
+  return PARAM_TYPE (index);
 }
 
 /**
@@ -460,7 +460,7 @@ bt_parameter_group_get_param_name (const BtParameterGroup * const self,
   g_return_val_if_fail (BT_IS_PARAMETER_GROUP (self), NULL);
   g_return_val_if_fail (index < self->priv->num_params, NULL);
 
-  return (PARAM_NAME (index));
+  return PARAM_NAME (index);
 }
 
 /**
@@ -481,7 +481,7 @@ bt_parameter_group_get_param_no_value (const BtParameterGroup * const self,
   g_return_val_if_fail (BT_IS_PARAMETER_GROUP (self), FALSE);
   g_return_val_if_fail (index < self->priv->num_params, FALSE);
 
-  return (&self->priv->no_val[index]);
+  return &self->priv->no_val[index];
 }
 
 /**

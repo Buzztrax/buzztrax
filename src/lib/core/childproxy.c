@@ -103,7 +103,7 @@ bt_child_proxy_get_children_count (BtChildProxy * parent)
 {
   g_return_val_if_fail (BT_IS_CHILD_PROXY (parent), 0);
 
-  return (BT_CHILD_PROXY_GET_INTERFACE (parent)->get_children_count (parent));
+  return BT_CHILD_PROXY_GET_INTERFACE (parent)->get_children_count (parent);
 }
 
 /* interface methods */

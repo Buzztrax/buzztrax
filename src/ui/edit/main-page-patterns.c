@@ -1489,13 +1489,13 @@ int_val_to_float (gchar * in, gpointer user_data)
 static const gchar *
 any_float_to_str (gfloat in, gpointer user_data)
 {
-  return (bt_str_format_double (in));
+  return bt_str_format_double (in);
 }
 
 static const gchar *
 note_float_to_str (gfloat in, gpointer user_data)
 {
-  return (gstbt_tone_conversion_note_number_2_string ((guint) in));
+  return gstbt_tone_conversion_note_number_2_string ((guint) in);
 }
 
 static const gchar *
@@ -2010,7 +2010,7 @@ get_current_machine (const BtMainPagePatterns * self)
                 &iter))) {
       GST_DEBUG ("  got machine: %" G_OBJECT_REF_COUNT_FMT,
           G_OBJECT_LOG_REF_COUNT (machine));
-      return (g_object_ref (machine));
+      return g_object_ref (machine);
     }
   }
   return NULL;

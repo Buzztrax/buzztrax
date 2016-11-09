@@ -90,9 +90,9 @@ gstbt_property_meta_describe_property (GstBtPropertyMeta * self,
 
   GstBtPropertyMetaInterface *iface = GSTBT_PROPERTY_META_GET_INTERFACE (self);
   if (iface->describe_property) {
-    return (iface->describe_property (self, property_id, value));
+    return iface->describe_property (self, property_id, value);
   } else {
-    return (g_strdup_value_contents (value));
+    return g_strdup_value_contents (value);
   }
 }
 

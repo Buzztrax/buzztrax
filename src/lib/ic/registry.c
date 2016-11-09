@@ -86,7 +86,7 @@ find_device_node_by_property (const gchar * prop, const gchar * value)
 BtIcRegistry *
 btic_registry_new (void)
 {
-  return (g_object_new (BTIC_TYPE_REGISTRY, NULL));
+  return g_object_new (BTIC_TYPE_REGISTRY, NULL);
 }
 
 /*

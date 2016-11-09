@@ -234,7 +234,7 @@ on_window_delete_event (GtkWidget * widget, GdkEvent * event,
 
   GST_INFO ("delete event occurred");
   // returning TRUE means, we don't want the window to be destroyed
-  return (!bt_edit_application_quit (self->priv->app));
+  return !bt_edit_application_quit (self->priv->app);
 }
 
 static void
@@ -543,8 +543,8 @@ bt_main_window_check_unsaved_song (const BtMainWindow * self,
 gboolean
 bt_main_window_check_quit (const BtMainWindow * self)
 {
-  return (bt_main_window_check_unsaved_song (self, _("Really quit?"),
-          _("Really quit?")));
+  return bt_main_window_check_unsaved_song (self, _("Really quit?"),
+      _("Really quit?"));
 }
 
 /**

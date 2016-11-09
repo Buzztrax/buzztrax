@@ -217,8 +217,8 @@ BtIcASeqDevice *
 btic_aseq_device_new (const gchar * udi, const gchar * name,
     gint client, gint port)
 {
-  return (BTIC_ASEQ_DEVICE (g_object_new (BTIC_TYPE_ASEQ_DEVICE, "udi", udi,
-              "name", name, "client", client, "port", port, NULL)));
+  return BTIC_ASEQ_DEVICE (g_object_new (BTIC_TYPE_ASEQ_DEVICE, "udi", udi,
+          "name", name, "client", client, "port", port, NULL));
 }
 
 //-- methods

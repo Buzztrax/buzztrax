@@ -237,7 +237,7 @@ gudev_scan (BtIcGudevDiscoverer * self, const gchar * subsystem)
 BtIcGudevDiscoverer *
 btic_gudev_discoverer_new (void)
 {
-  return (g_object_new (BTIC_TYPE_GUDEV_DISCOVERER, NULL));
+  return g_object_new (BTIC_TYPE_GUDEV_DISCOVERER, NULL);
 }
 
 //-- methods
@@ -297,7 +297,7 @@ btic_gudev_discoverer_constructor (GType type, guint n_construct_params,
   gudev_scan (self, "sound");
 
 done:
-  return ((GObject *) self);
+  return (GObject *) self;
 }
 
 static void

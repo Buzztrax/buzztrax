@@ -547,9 +547,9 @@ bt_wave_new (const BtSong * const song, const gchar * const name,
     const gchar * const uri, const gulong index, const gdouble volume,
     const BtWaveLoopMode loop_mode, const guint channels)
 {
-  return (BT_WAVE (g_object_new (BT_TYPE_WAVE, "song", song, "name", name,
-              "uri", uri, "index", index, "volume", volume, "loop-mode",
-              loop_mode, "channels", channels, NULL)));
+  return BT_WAVE (g_object_new (BT_TYPE_WAVE, "song", song, "name", name,
+          "uri", uri, "index", index, "volume", volume, "loop-mode",
+          loop_mode, "channels", channels, NULL));
 }
 
 //-- private methods
@@ -605,7 +605,7 @@ bt_wave_get_level_by_index (const BtWave * const self, const gulong index)
   BtWavelevel *wavelevel;
 
   if ((wavelevel = g_list_nth_data (self->priv->wavelevels, index))) {
-    return (g_object_ref (wavelevel));
+    return g_object_ref (wavelevel);
   }
   return NULL;
 }

@@ -216,13 +216,12 @@ static gboolean
 bt_cmd_application_play_song (const BtCmdApplication * self,
     const BtSong * song)
 {
-
   self->priv->song = song;
 
   g_idle_add ((GSourceFunc) bt_cmd_application_idle_play_song, (gpointer) self);
   g_main_loop_run (self->priv->loop);
 
-  return (self->priv->res);
+  return self->priv->res;
 }
 
 /*
@@ -309,8 +308,8 @@ bt_cmd_application_prepare_encoding (const BtCmdApplication * self,
 BtCmdApplication *
 bt_cmd_application_new (gboolean quiet)
 {
-  return (BT_CMD_APPLICATION (g_object_new (BT_TYPE_CMD_APPLICATION, "quiet",
-              quiet, NULL)));
+  return BT_CMD_APPLICATION (g_object_new (BT_TYPE_CMD_APPLICATION, "quiet",
+          quiet, NULL));
 }
 
 //-- methods

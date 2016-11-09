@@ -76,11 +76,11 @@ bml (v_property_meta_describe_property (gpointer bmh, guint prop_id,
       }
       break;
     case G_TYPE_STRING:
-      return (g_strdup_value_contents (value));
+      return g_strdup_value_contents (value);
       break;
     default:
       GST_ERROR ("unsupported GType='%s'", G_VALUE_TYPE_NAME (value));
-      return (g_strdup_value_contents (value));
+      return g_strdup_value_contents (value);
   }
   if (str == def) {
     res = g_strdup (str);
@@ -98,7 +98,7 @@ gst_bmlv_property_meta_describe_property (GstBtPropertyMeta * property_meta,
   GstBMLV *bmlv = GST_BMLV (property_meta);
   GstBMLVClass *klass = GST_BMLV_GET_CLASS (bmlv);
 
-  return (bml (v_property_meta_describe_property (klass->bmh, prop_id, value)));
+  return bml (v_property_meta_describe_property (klass->bmh, prop_id, value));
 }
 
 static void

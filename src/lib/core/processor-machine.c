@@ -72,9 +72,9 @@ BtProcessorMachine *
 bt_processor_machine_new (const BtSong * const song, const gchar * const id,
     const gchar * const plugin_name, const glong voices, GError ** err)
 {
-  return (BT_PROCESSOR_MACHINE (g_object_new (BT_TYPE_PROCESSOR_MACHINE,
-              "construction-error", err, "song", song, "id", id, "plugin-name",
-              plugin_name, "voices", voices, NULL)));
+  return BT_PROCESSOR_MACHINE (g_object_new (BT_TYPE_PROCESSOR_MACHINE,
+          "construction-error", err, "song", song, "id", id, "plugin-name",
+          plugin_name, "voices", voices, NULL));
 }
 
 //-- methods

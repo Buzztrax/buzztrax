@@ -93,7 +93,7 @@ GetWave (CHostCallbacks * self, int const i)
   }
   g_object_unref (wavetable);
 
-  return (&res[i]);
+  return &res[i];
 }
 
 // TODO(ensonic): this is still racy if multiple levels are used
@@ -140,7 +140,7 @@ GetWaveLevel (CHostCallbacks * self, int const i, int const level)
   }
   g_object_unref (wavetable);
 
-  return (&res[i]);
+  return &res[i];
 }
 
 static void const *
@@ -202,7 +202,7 @@ GetNearestWaveLevel (CHostCallbacks * self, int const i, int const note)
   }
   g_object_unref (wavetable);
 
-  return (&res[i]);
+  return &res[i];
 }
 
 // callback bundle

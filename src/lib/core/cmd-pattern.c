@@ -31,7 +31,7 @@
  *   - break would need to be able to undo mute, solo, bypass
  *   - see bt_machine_change_state() for how the manual control works
  *
- * - we could see if we can make BtMachine::state controllable and attach a 
+ * - we could see if we can make BtMachine::state controllable and attach a
  *     BtPatternControlSource to it.
  *   - bt_machine_constructed() calles bt_machine_init_xxx_params() that creates
  *     BtParamGroups, which in trun create the control-cources, we could create
@@ -43,11 +43,11 @@
  *   - in sequence.c we need to do handle intern_damage (like global_damage) and
  *     we need BtMachine::bt_machine_intern_controller_change_value()
  *
- *   - or when we create the ctrl param group we do this like in 
+ *   - or when we create the ctrl param group we do this like in
  *     bt_wire_init_params(), see also bt_machine_set_mute()
  *     - then the cmd patterns need to set the right values, instead of just the
  *       cmd
- *     - won't work, since e.g. for solo, we change the state in other machines 
+ *     - won't work, since e.g. for solo, we change the state in other machines
  *       too
  *
  *  - or we need a special control_source here (BtCmdPatternControlSource), that
@@ -151,8 +151,8 @@ BtCmdPattern *
 bt_cmd_pattern_new (const BtSong * const song, const BtMachine * const machine,
     const BtPatternCmd cmd)
 {
-  return (BT_CMD_PATTERN (g_object_new (BT_TYPE_CMD_PATTERN, "song", song,
-              "machine", machine, "command", cmd, NULL)));
+  return BT_CMD_PATTERN (g_object_new (BT_TYPE_CMD_PATTERN, "song", song,
+          "machine", machine, "command", cmd, NULL));
 }
 
 //-- methods

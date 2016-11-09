@@ -309,8 +309,8 @@ BtPattern *
 bt_pattern_new (const BtSong * const song, const gchar * const name,
     const gulong length, const BtMachine * const machine)
 {
-  return (BT_PATTERN (g_object_new (BT_TYPE_PATTERN, "song", song, "name", name,
-              "machine", machine, "length", length, NULL)));
+  return BT_PATTERN (g_object_new (BT_TYPE_PATTERN, "song", song, "name", name,
+          "machine", machine, "length", length, NULL));
 }
 
 /**
@@ -413,7 +413,7 @@ bt_pattern_get_wire_event_data (const BtPattern * const self, const gulong tick,
   g_return_val_if_fail (BT_IS_WIRE (wire), NULL);
 
   if ((vg = g_hash_table_lookup (self->priv->wire_value_groups, wire))) {
-    return (bt_value_group_get_event_data (vg, tick, param));
+    return bt_value_group_get_event_data (vg, tick, param);
   }
   return NULL;
 }

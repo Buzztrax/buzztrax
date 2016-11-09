@@ -508,8 +508,8 @@ BtIcInputDevice *
 btic_input_device_new (const gchar * udi, const gchar * name,
     const gchar * devnode)
 {
-  return (BTIC_INPUT_DEVICE (g_object_new (BTIC_TYPE_INPUT_DEVICE, "udi", udi,
-              "name", name, "devnode", devnode, NULL)));
+  return BTIC_INPUT_DEVICE (g_object_new (BTIC_TYPE_INPUT_DEVICE, "udi", udi,
+          "name", name, "devnode", devnode, NULL));
 }
 
 //-- methods

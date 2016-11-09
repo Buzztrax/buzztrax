@@ -402,7 +402,7 @@ bt_sequence_grid_model_tree_model_get_column_type (GtkTreeModel * tree_model,
       G_TYPE_INVALID);
 
   if (index < N_COLUMNS)
-    return (model->priv->param_types[index]);
+    return model->priv->param_types[index];
   else
     return G_TYPE_STRING;
 }
@@ -548,7 +548,7 @@ bt_sequence_grid_model_tree_model_iter_n_children (GtkTreeModel * tree_model,
   BtSequenceGridModel *model = BT_SEQUENCE_GRID_MODEL (tree_model);
 
   if (iter == NULL)
-    return (model->priv->visible_length);
+    return model->priv->visible_length;
 
   g_return_val_if_fail (model->priv->stamp == iter->stamp, -1);
   return 0;

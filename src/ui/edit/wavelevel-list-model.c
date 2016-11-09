@@ -178,7 +178,7 @@ BtWavelevel *
 bt_wavelevel_list_model_get_object (BtWavelevelListModel * model,
     GtkTreeIter * iter)
 {
-  return (g_object_ref (g_sequence_get (iter->user_data)));
+  return g_object_ref (g_sequence_get (iter->user_data));
 }
 
 //-- tree model interface
@@ -203,7 +203,7 @@ bt_wavelevel_list_model_tree_model_get_column_type (GtkTreeModel * tree_model,
 
   g_return_val_if_fail (index < N_COLUMNS, G_TYPE_INVALID);
 
-  return (model->priv->param_types[index]);
+  return model->priv->param_types[index];
 }
 
 static gboolean

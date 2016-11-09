@@ -299,13 +299,13 @@ gstbt_tone_conversion_translate_from_string (GstBtToneConversion * self,
   g_return_val_if_fail (note, 0.0);
 
   if (note[0] == 'o' && note[1] == 'f' && note[2] == 'f') {
-    return (-1.0);
+    return -1.0;
   }
 
   if (note_string_to_values (note, &tone, &octave))
-    return (self->translate (self, octave, tone));
+    return self->translate (self, octave, tone);
   else
-    return (0.0);
+    return 0.0;
 }
 
 /**
@@ -324,12 +324,12 @@ gstbt_tone_conversion_translate_from_number (GstBtToneConversion * self,
   guint tone, octave;
 
   if (note == GSTBT_NOTE_OFF)
-    return (-1.0);
+    return -1.0;
 
   if (note_number_to_values (note, &tone, &octave))
-    return (self->translate (self, octave, tone));
+    return self->translate (self, octave, tone);
   else
-    return (0.0);
+    return 0.0;
 }
 
 /**

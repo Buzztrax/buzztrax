@@ -352,7 +352,7 @@ BtPattern *
 bt_pattern_list_model_get_object (BtPatternListModel * model,
     GtkTreeIter * iter)
 {
-  return (g_sequence_get (iter->user_data));
+  return g_sequence_get (iter->user_data);
 }
 
 /* more efficient than main-page-patterns::pattern_menu_model_get_iter_by_pattern()
@@ -389,7 +389,7 @@ bt_pattern_list_model_tree_model_get_column_type (GtkTreeModel * tree_model,
 
   g_return_val_if_fail (index < N_COLUMNS, G_TYPE_INVALID);
 
-  return (model->priv->param_types[index]);
+  return model->priv->param_types[index];
 }
 
 static gboolean

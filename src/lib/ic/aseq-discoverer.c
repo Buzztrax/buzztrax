@@ -239,7 +239,7 @@ alsa_error_handler (const char *file, int line, const char *function,
 BtIcASeqDiscoverer *
 btic_aseq_discoverer_new (void)
 {
-  return (g_object_new (BTIC_TYPE_ASEQ_DISCOVERER, NULL));
+  return g_object_new (BTIC_TYPE_ASEQ_DISCOVERER, NULL);
 }
 
 //-- methods
@@ -359,7 +359,7 @@ btic_aseq_discoverer_constructor (GType type, guint n_construct_params,
      0:1   Client exit                client 129
    */
 done:
-  return ((GObject *) self);
+  return (GObject *) self;
 }
 
 static void

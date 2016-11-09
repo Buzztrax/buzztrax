@@ -211,7 +211,7 @@ bt_ui_resources_init_graphics (BtUIResources * self)
 BtUIResources *
 bt_ui_resources_new (void)
 {
-  return (g_object_new (BT_TYPE_UI_RESOURCES, NULL));
+  return g_object_new (BT_TYPE_UI_RESOURCES, NULL);
 }
 
 //-- methods
@@ -228,11 +228,11 @@ GdkPixbuf *
 bt_ui_resources_get_icon_pixbuf_by_machine (const BtMachine * machine)
 {
   if (BT_IS_SOURCE_MACHINE (machine)) {
-    return (g_object_ref (singleton->priv->source_machine_pixbuf));
+    return g_object_ref (singleton->priv->source_machine_pixbuf);
   } else if (BT_IS_PROCESSOR_MACHINE (machine)) {
-    return (g_object_ref (singleton->priv->processor_machine_pixbuf));
+    return g_object_ref (singleton->priv->processor_machine_pixbuf);
   } else if (BT_IS_SINK_MACHINE (machine)) {
-    return (g_object_ref (singleton->priv->sink_machine_pixbuf));
+    return g_object_ref (singleton->priv->sink_machine_pixbuf);
   }
   return NULL;
 }
@@ -263,11 +263,11 @@ bt_ui_resources_get_machine_graphics_pixbuf_by_machine (const BtMachine *
   g_object_get ((gpointer) machine, "state", &state, NULL);
 
   if (BT_IS_SOURCE_MACHINE (machine)) {
-    return (g_object_ref (singleton->priv->source_machine_pixbufs[state]));
+    return g_object_ref (singleton->priv->source_machine_pixbufs[state]);
   } else if (BT_IS_PROCESSOR_MACHINE (machine)) {
-    return (g_object_ref (singleton->priv->processor_machine_pixbufs[state]));
+    return g_object_ref (singleton->priv->processor_machine_pixbufs[state]);
   } else if (BT_IS_SINK_MACHINE (machine)) {
-    return (g_object_ref (singleton->priv->sink_machine_pixbufs[state]));
+    return g_object_ref (singleton->priv->sink_machine_pixbufs[state]);
   }
   return NULL;
 }
@@ -284,12 +284,12 @@ GtkWidget *
 bt_ui_resources_get_icon_image_by_machine (const BtMachine * machine)
 {
   if (BT_IS_SOURCE_MACHINE (machine)) {
-    return (gtk_image_new_from_pixbuf (singleton->priv->source_machine_pixbuf));
+    return gtk_image_new_from_pixbuf (singleton->priv->source_machine_pixbuf);
   } else if (BT_IS_PROCESSOR_MACHINE (machine)) {
-    return (gtk_image_new_from_pixbuf (singleton->priv->
-            processor_machine_pixbuf));
+    return gtk_image_new_from_pixbuf (singleton->
+        priv->processor_machine_pixbuf);
   } else if (BT_IS_SINK_MACHINE (machine)) {
-    return (gtk_image_new_from_pixbuf (singleton->priv->sink_machine_pixbuf));
+    return gtk_image_new_from_pixbuf (singleton->priv->sink_machine_pixbuf);
   }
   return NULL;
 }
@@ -306,12 +306,12 @@ GtkWidget *
 bt_ui_resources_get_icon_image_by_machine_type (GType machine_type)
 {
   if (machine_type == BT_TYPE_SOURCE_MACHINE) {
-    return (gtk_image_new_from_pixbuf (singleton->priv->source_machine_pixbuf));
+    return gtk_image_new_from_pixbuf (singleton->priv->source_machine_pixbuf);
   } else if (machine_type == BT_TYPE_PROCESSOR_MACHINE) {
-    return (gtk_image_new_from_pixbuf (singleton->priv->
-            processor_machine_pixbuf));
+    return gtk_image_new_from_pixbuf (singleton->priv->
+        processor_machine_pixbuf);
   } else if (machine_type == BT_TYPE_SINK_MACHINE) {
-    return (gtk_image_new_from_pixbuf (singleton->priv->sink_machine_pixbuf));
+    return gtk_image_new_from_pixbuf (singleton->priv->sink_machine_pixbuf);
   }
   return NULL;
 }
@@ -361,7 +361,7 @@ bt_ui_resources_get_wire_graphics_pixbuf_by_wire (const BtWire * wire,
 GtkAccelGroup *
 bt_ui_resources_get_accel_group (void)
 {
-  return (singleton->priv->accel_group);
+  return singleton->priv->accel_group;
 }
 
 //-- wrapper
