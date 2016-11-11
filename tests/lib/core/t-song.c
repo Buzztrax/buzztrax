@@ -93,16 +93,21 @@ test_bt_song_new_null_app (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-// play without loading a song (means don't play anything audible)
+// we need the apps bin to actually play
 static void
 test_bt_song_play_empty (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSong *song = bt_song_new (app);
+  check_init_error_trapp ("bt_song_play",
+      "GST_IS_BIN (self->priv->master_bin)");
 
-  /* act & assert */
-  fail_unless (bt_song_play (song), NULL);
+  GST_INFO ("-- act --");
+  bt_song_play (song);
+
+  GST_INFO ("-- assert --");
+  fail_unless (check_has_error_trapped (), NULL);
 
   GST_INFO ("-- cleanup --");
   bt_song_stop (song);

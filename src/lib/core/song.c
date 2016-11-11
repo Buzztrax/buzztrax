@@ -27,6 +27,9 @@
  * To load or save a song, use a #BtSongIO object. These implement loading and
  * saving for different file-formats.
  *
+ * When creating a new song, one needs to add exactly one #BtSinkMachine to make
+ * the song playable.
+ *
  * One can seek in a song by setting the #BtSong:play-pos property. Likewise one
  * can watch the property to display the playback position.
  *
@@ -948,10 +951,8 @@ bt_song_play (const BtSong * const self)
   GstStateChangeReturn res;
 
   g_return_val_if_fail (BT_IS_SONG (self), FALSE);
-
-  // the user can always press play
-  if (!self->priv->master_bin)
-    return TRUE;
+  // this is the sink machine, and there should always be one
+  g_return_val_if_fail (GST_IS_BIN (self->priv->master_bin), FALSE);
 
   // do not play again
   if (self->priv->is_playing)
