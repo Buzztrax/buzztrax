@@ -986,6 +986,7 @@ bt_song_play (const BtSong * const self)
       gst_element_state_change_return_get_name (res));
   switch (res) {
     case GST_STATE_CHANGE_SUCCESS:
+    case GST_STATE_CHANGE_NO_PREROLL:
       GST_INFO ("playback started");
       break;
     case GST_STATE_CHANGE_FAILURE:

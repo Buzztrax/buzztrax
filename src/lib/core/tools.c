@@ -297,7 +297,7 @@ bt_gst_try_element (GstElementFactory * factory, const gchar * format)
   }
 
   ret = gst_element_set_state (e, GST_STATE_READY);
-  if (ret == GST_STATE_CHANGE_SUCCESS) {
+  if (ret != GST_STATE_CHANGE_FAILURE) {
     GST_DEBUG_OBJECT (e, "this worked!");
     valid = TRUE;
   } else {
@@ -439,18 +439,14 @@ async_remove (GstPad * tee_src, GstPadProbeInfo * info, gpointer user_data)
   GstBin *bin = (GstBin *) gst_element_get_parent (tee);
   const GList *node;
   GstElement *prev, *next;
-  GstStateChangeReturn state_ret;
 
   prev = tee;
   for (node = elements; node; node = g_list_next (node)) {
     next = GST_ELEMENT (node->data);
 
-    if ((state_ret =
-            gst_element_set_state (next,
-                GST_STATE_NULL)) != GST_STATE_CHANGE_SUCCESS) {
-      GST_INFO ("cannot set state to NULL for element '%s', ret='%s'",
-          GST_OBJECT_NAME (next),
-          gst_element_state_change_return_get_name (state_ret));
+    if (gst_element_set_state (next, GST_STATE_NULL) ==
+        GST_STATE_CHANGE_FAILURE) {
+      GST_INFO ("cannot set state to NULL for '%s'", GST_OBJECT_NAME (next));
     }
     gst_element_unlink (prev, next);
     prev = next;

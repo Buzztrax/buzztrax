@@ -1487,8 +1487,6 @@ bt_setup_remove_machine (const BtSetup * const self,
       G_OBJECT_LOG_REF_COUNT (machine));
 
   if ((node = g_list_find (self->priv->machines, machine))) {
-    GstStateChangeReturn sret;
-
     GST_DEBUG_OBJECT (machine, "emit remove signal: %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (machine));
     g_signal_emit ((gpointer) self, signals[MACHINE_REMOVED_EVENT], 0, machine);
@@ -1500,10 +1498,9 @@ bt_setup_remove_machine (const BtSetup * const self,
     GST_DEBUG_OBJECT (machine, "releasing machine: %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (machine));
     // this triggers finalize if we don't have a ref
-    sret = gst_element_set_state (GST_ELEMENT (machine), GST_STATE_NULL);
-    if (sret != GST_STATE_CHANGE_SUCCESS) {
-      GST_WARNING_OBJECT (machine, "state_change to NULL returned %s",
-          gst_element_state_change_return_get_name (sret));
+    if (gst_element_set_state (GST_ELEMENT (machine), GST_STATE_NULL) ==
+        GST_STATE_CHANGE_FAILURE) {
+      GST_WARNING_OBJECT (machine, "state_change to NULL failed");
     }
     if (((GstObject *) machine)->parent) {
       gst_bin_remove (self->priv->bin, GST_ELEMENT (machine));
@@ -1535,7 +1532,6 @@ bt_setup_remove_wire (const BtSetup * const self, const BtWire * const wire)
 
   if ((node = g_list_find (self->priv->wires, wire))) {
     BtMachine *src, *dst;
-    GstStateChangeReturn sret;
 
     // also remove from the convenience lists
     g_object_get ((gpointer) wire, "src", &src, "dst", &dst, NULL);
@@ -1566,10 +1562,9 @@ bt_setup_remove_wire (const BtSetup * const self, const BtWire * const wire)
 
     GST_DEBUG_OBJECT (wire, "releasing wire: %" G_OBJECT_REF_COUNT_FMT,
         G_OBJECT_LOG_REF_COUNT (wire));
-    sret = gst_element_set_state (GST_ELEMENT (wire), GST_STATE_NULL);
-    if (sret != GST_STATE_CHANGE_SUCCESS) {
-      GST_WARNING_OBJECT (wire, "state_change to NULL returned %s",
-          gst_element_state_change_return_get_name (sret));
+    if (gst_element_set_state (GST_ELEMENT (wire), GST_STATE_NULL) ==
+        GST_STATE_CHANGE_FAILURE) {
+      GST_WARNING_OBJECT (wire, "state_change to NULL failed");
     }
     // this triggers finalize if we don't have a ref
     if (((GstObject *) wire)->parent) {
