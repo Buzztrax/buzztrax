@@ -279,7 +279,7 @@ bt_song_seek_to_play_pos (const BtSong * const self)
         (length + 1) * tick_duration);
   }
   /* TODO(ensonic): handle async-done when seeking, see top-level comment */
-  if (!(gst_element_send_event (GST_ELEMENT (self->priv->master_bin), event))) {
+  if (!(gst_element_send_event (GST_ELEMENT (p->master_bin), event))) {
     GST_WARNING ("element failed to seek to play_pos event");
   }
 }
@@ -327,7 +327,7 @@ bt_song_change_play_rate (const BtSong * const self)
     }
   }
   /* TODO(ensonic): handle async-done when seeking, see top-level comment */
-  if (!(gst_element_send_event (GST_ELEMENT (self->priv->master_bin), event))) {
+  if (!(gst_element_send_event (GST_ELEMENT (p->master_bin), event))) {
     GST_WARNING ("element failed to change playback rate");
   }
   GST_INFO ("rate updated");
