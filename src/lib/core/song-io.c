@@ -174,7 +174,7 @@ bt_song_io_register_plugins (void)
   }
   // registering external song-io plugins
   // first try loading from $srcdir (when uninstalled)
-  if (!bt_song_io_scan_dir (".libs/")) {
+  if (!bt_song_io_scan_dir (".libs")) {
     bt_song_io_scan_dir (LIBDIR G_DIR_SEPARATOR_S PACKAGE "-songio");
   }
 }
