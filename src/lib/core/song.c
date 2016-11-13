@@ -70,6 +70,19 @@
  *   queue for one of wires connected to a src. We could optimize the live
  *   latencies of one machine, by disabling most of the wires on its way. That
  *   will not help though, when we play several machines live (using keyboards)
+ *
+ * - bt_song_play() and bt_song_idle_start() as well as the stop variants should
+ *   be symetric, but they arent. Ideally we call common helpers with different
+ *   seek-events for start.
+ *
+ * - for continous playback we'd like to change this to:
+ *     bt_song_play(): call bt_song_idle_stop()
+ *     bt_song_stop(): call bt_song_idle_start()
+ *     - already is called on EOS
+ *   and in another round, just make each of those ensure that the song is in
+ *   PLAYING and send a seek. Then we can remove the is-idle property. We'd then
+ *   also need to retry to start playback for each wire add/remove.
+ *
  */
 /* TODO(ensonic): handle async-done when seeking
  * - whenever we send flushing seeks, we need to wait for GST_MESSAGE_ASYNC_DONE
@@ -478,13 +491,13 @@ bt_song_send_toc (const BtSong * const self)
  * Only seeks on elements. This is a workaround for making seek-in-ready work.
  */
 static gboolean
-bt_song_send_initial_seek (const BtSong * const self, GstBin * bin)
+bt_song_send_initial_seek (const BtSong * const self, GstBin * bin,
+    GstEvent * ev)
 {
   GstIterator *it;
   GstElement *e;
   gboolean done = FALSE, res = TRUE;
   GValue item = { 0, };
-  GstEvent *ev = self->priv->play_seek_event;
 
   // gst_bin_iterate_elements (bin) does not fix seek-in-ready
   it = gst_bin_iterate_sources (bin);
@@ -493,7 +506,7 @@ bt_song_send_initial_seek (const BtSong * const self, GstBin * bin)
       case GST_ITERATOR_OK:
         e = GST_ELEMENT (g_value_get_object (&item));
         if (GST_IS_BIN (e)) {
-          res &= bt_song_send_initial_seek (self, (GstBin *) e);
+          res &= bt_song_send_initial_seek (self, (GstBin *) e, ev);
         } else {
           GST_INFO_OBJECT (e, "sending initial seek");
           if (!(gst_element_send_event (e, gst_event_ref (ev)))) {
@@ -636,8 +649,8 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
 #ifdef GST_BUG_733031
         // meh, we preroll twice now, this also breaks recording as we send the
         // preroll part twice :/
-        gst_element_send_event (GST_ELEMENT (self->priv->master_bin),
-            gst_event_ref (self->priv->play_seek_event));
+        gst_element_send_event (GST_ELEMENT (p->master_bin),
+            gst_event_ref (p->play_seek_event));
 #endif
         // ensure that sources set their durations
         g_object_notify (G_OBJECT (p->sequence), "length");
@@ -655,11 +668,11 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
         } else {
           GST_INFO ("looping");
         }
+        bt_song_update_playback_position (self);
         if (p->paused_timeout_id) {
           g_source_remove (p->paused_timeout_id);
           p->paused_timeout_id = 0;
         }
-        bt_song_update_playback_position (self);
         break;
       default:
         break;
@@ -975,7 +988,8 @@ bt_song_play (const BtSong * const self)
 
 #ifndef GST_BUG_733031
   // send seek
-  bt_song_send_initial_seek (self, self->priv->bin);
+  bt_song_send_initial_seek (self, self->priv->bin,
+      self->priv->play_seek_event);
 #endif
   // send tags && toc
   bt_song_send_tags (self);
