@@ -578,7 +578,7 @@ on_song_segment_done (const GstBus * const bus,
     gst_event_set_seqnum (event, gst_util_seqnum_next ());
 #endif
     if (!(gst_element_send_event (GST_ELEMENT (self->priv->master_bin), event))) {
-      GST_WARNING ("element failed to handle continuing play seek event");
+      GST_WARNING ("element failed to handle loop seek event");
     } else {
       GST_INFO ("-> loop (%u)", seek_seqnum);
       /*
@@ -613,15 +613,16 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
     gconstpointer user_data)
 {
   const BtSong *const self = BT_SONG (user_data);
+  BtSongPrivate *p = self->priv;
 
   //GST_WARNING("user_data=%p,<%s>, bin=%p, msg->src=%p,<%s>",
   //  user_data, G_OBJECT_TYPE_NAME(G_OBJECT(user_data)),
-  //  self->priv->bin,GST_MESSAGE_SRC(message),G_OBJECT_TYPE_NAME(GST_MESSAGE_SRC(message)));
+  //  p->bin,GST_MESSAGE_SRC(message),G_OBJECT_TYPE_NAME(GST_MESSAGE_SRC(message)));
 
-  if (self->priv->is_idle_active)
+  if (p->is_idle_active)
     return;
 
-  if (GST_MESSAGE_SRC (message) == GST_OBJECT (self->priv->bin)) {
+  if (GST_MESSAGE_SRC (message) == GST_OBJECT (p->bin)) {
     GstState oldstate, newstate, pending;
 
     gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
@@ -631,7 +632,7 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
     switch (GST_STATE_TRANSITION (oldstate, newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
         // we're prepared to play
-        self->priv->is_preparing = FALSE;
+        p->is_preparing = FALSE;
 #ifdef GST_BUG_733031
         // meh, we preroll twice now, this also breaks recording as we send the
         // preroll part twice :/
@@ -639,24 +640,24 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
             gst_event_ref (self->priv->play_seek_event));
 #endif
         // ensure that sources set their durations
-        g_object_notify (G_OBJECT (self->priv->sequence), "length");
+        g_object_notify (G_OBJECT (p->sequence), "length");
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-        if (!self->priv->is_playing) {
+        if (!p->is_playing) {
           GST_INFO ("playback started");
-          self->priv->is_playing = TRUE;
+          p->is_playing = TRUE;
           g_object_notify (G_OBJECT (self), "is-playing");
           // if the song is empty playback is done
-          if (!GST_BIN_NUMCHILDREN (self->priv->bin)) {
+          if (!GST_BIN_NUMCHILDREN (p->bin)) {
             GST_INFO ("song is empty - stopping playback");
             bt_song_stop (self);
           }
         } else {
           GST_INFO ("looping");
         }
-        if (self->priv->paused_timeout_id) {
-          g_source_remove (self->priv->paused_timeout_id);
-          self->priv->paused_timeout_id = 0;
+        if (p->paused_timeout_id) {
+          g_source_remove (p->paused_timeout_id);
+          p->paused_timeout_id = 0;
         }
         bt_song_update_playback_position (self);
         break;
@@ -837,7 +838,7 @@ bt_song_on_latency_changed (BtSongInfo * const song_info,
  * This is needed to do state changes (mute, solo, bypass) and to play notes
  * live.
  *
- * The application should not be concered about this internal detail. Stopping
+ * The application should not be concerned about this internal detail. Stopping
  * and restarting the idle loop should only be done, when massive changes are
  * about (e.g. loading a song).
  *
