@@ -198,6 +198,9 @@ test_bt_sequence_enlarge_length (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0, NULL));
+  bt_sequence_add_track (sequence, machine, -1);
 
   GST_INFO ("-- act --");
   g_object_set (sequence, "length", 8L, NULL);
@@ -264,6 +267,9 @@ test_bt_sequence_shrink_length (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0, NULL));
+  bt_sequence_add_track (sequence, machine, -1);
   g_object_set (sequence, "length", 16L, NULL);
 
   GST_INFO ("-- act --");
