@@ -117,9 +117,9 @@ test_bt_wire_new_null_machine (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-/* create a new wire with the wrong machine type for dst */
+/* create a new wire with the wrong machine type for src */
 static void
-test_bt_wire_new_wrong_machine_type (BT_TEST_ARGS)
+test_bt_wire_new_wrong_src_machine_type (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
@@ -127,6 +127,28 @@ test_bt_wire_new_wrong_machine_type (BT_TEST_ARGS)
           "buzztrax-test-mono-source", 0L, NULL));
   BtMachine *dst = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
+
+  GST_INFO ("-- act --");
+  GError *err = NULL;
+  BtWire *wire = bt_wire_new (song, src, dst, &err);
+
+  GST_INFO ("-- assert --");
+  fail_unless (wire != NULL, NULL);
+  fail_unless (err != NULL, NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_error_free (err);
+  BT_TEST_END;
+}
+
+/* create a new wire with the wrong machine type for dst */
+static void
+test_bt_wire_new_wrong_dst_machine_type (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtMachine *src = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachine *dst = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
 
   GST_INFO ("-- act --");
   GError *err = NULL;
@@ -196,7 +218,8 @@ bt_wire_test_case (void)
   tcase_add_test (tc, test_bt_wire_properties);
   tcase_add_test (tc, test_bt_wire_new_null_song);
   tcase_add_test (tc, test_bt_wire_new_null_machine);
-  tcase_add_test (tc, test_bt_wire_new_wrong_machine_type);
+  tcase_add_test (tc, test_bt_wire_new_wrong_src_machine_type);
+  tcase_add_test (tc, test_bt_wire_new_wrong_dst_machine_type);
   tcase_add_test (tc, test_bt_wire_same_src_and_dst);
   tcase_add_test (tc, test_bt_wire_new_twice);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
