@@ -742,14 +742,6 @@ bt_wire_connect (const BtWire * const self)
 
   g_assert (BT_IS_WIRE (self));
 
-  // move this to connect?
-  if ((!src) || (!dst)) {
-    GST_WARNING
-        ("trying to add create wire with NULL endpoint(s), src=%p and dst=%p",
-        src, dst);
-    return FALSE;
-  }
-
   GST_DEBUG_OBJECT (self, "self=%" G_OBJECT_REF_COUNT_FMT ", src: %"
       G_OBJECT_REF_COUNT_FMT ", dst: %" G_OBJECT_REF_COUNT_FMT,
       G_OBJECT_LOG_REF_COUNT (self),
