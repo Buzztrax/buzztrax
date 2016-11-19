@@ -162,6 +162,36 @@ test_bt_sequence_pattern (BT_TEST_ARGS)
 }
 
 static void
+test_bt_sequence_get_tick_by_pattern (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0, NULL));
+  BtCmdPattern *p1 = (BtCmdPattern *) bt_pattern_new (song, "p1", 4L, machine);
+  BtCmdPattern *p2 = (BtCmdPattern *) bt_pattern_new (song, "p2", 4L, machine);
+  g_object_set (sequence, "length", 8L, NULL);
+  bt_sequence_add_track (sequence, machine, -1);
+
+  GST_INFO ("-- act --");
+  bt_sequence_set_pattern (sequence, 0, 0, p1);
+  bt_sequence_set_pattern (sequence, 3, 0, p2);
+  bt_sequence_set_pattern (sequence, 6, 0, p1);
+
+  GST_INFO ("-- assert --");
+  ck_assert_int_eq (bt_sequence_get_tick_by_pattern (sequence, 0, p1, 0), 0);
+  ck_assert_int_eq (bt_sequence_get_tick_by_pattern (sequence, 0, p1, 2), 6);
+
+  GST_INFO ("-- cleanup --");
+  g_object_try_unref (p1);
+  g_object_try_unref (p2);
+  g_object_try_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
 test_bt_sequence_enlarge_length (BT_TEST_ARGS)
 {
   BT_TEST_START;
@@ -660,6 +690,7 @@ bt_sequence_example_case (void)
   tcase_add_test (tc, test_bt_sequence_labels);
   tcase_add_test (tc, test_bt_sequence_tracks);
   tcase_add_test (tc, test_bt_sequence_pattern);
+  tcase_add_test (tc, test_bt_sequence_get_tick_by_pattern);
   tcase_add_test (tc, test_bt_sequence_enlarge_length);
   tcase_add_test (tc, test_bt_sequence_enlarge_length_check_labels);
   tcase_add_test (tc, test_bt_sequence_enlarge_length_labels);

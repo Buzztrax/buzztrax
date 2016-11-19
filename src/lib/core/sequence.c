@@ -568,10 +568,11 @@ bt_sequence_get_tick_by_pattern (const BtSequence * const self, gulong track,
 {
   const gulong length = self->priv->length;
   const gulong tracks = self->priv->tracks;
+  gulong pos = tick * tracks + track;
   BtCmdPattern **patterns = self->priv->patterns;
 
-  for (; tick < length; tick++) {
-    if (patterns[tick * tracks + track] == pattern) {
+  for (; tick < length; tick++, pos += tracks) {
+    if (patterns[pos] == pattern) {
       return (glong) tick;
     }
   }
