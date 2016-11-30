@@ -867,7 +867,7 @@ bt_edit_application_set_property (GObject * object, guint property_id,
     case EDIT_APPLICATION_SONG:
 #ifdef USE_DEBUG
       if (G_OBJECT_REF_COUNT (self->priv->song) != 1) {
-        GST_WARNING ("old song: %" G_OBJECT_REF_COUNT_FMT,
+        GST_DEBUG ("old song: %" G_OBJECT_REF_COUNT_FMT,
             G_OBJECT_LOG_REF_COUNT (self->priv->song));
       }
 #endif

@@ -712,7 +712,7 @@ on_song_file_unsaved_changed (const BtEditApplication * app, GParamSpec * arg,
 
   g_object_get (song, "song-info", &song_info, NULL);
   if (!unsaved) {
-    GST_WARNING ("reset log file");
+    GST_DEBUG ("reset log file");
     // reset the log
     close_and_free_log (self);
     self->priv->log_file_name = make_log_file_name (self, song_info);
@@ -737,7 +737,7 @@ on_song_changed (const BtEditApplication * app, GParamSpec * arg,
   if (!self->priv->cache_dir)
     return;
 
-  GST_WARNING ("song has changed : app=%p, self=%p", app, self);
+  GST_DEBUG ("song has changed : app=%p, self=%p", app, self);
 
   // remove old log file
   close_and_free_log (self);
