@@ -1210,7 +1210,7 @@ pattern_menu_refresh (const BtMainPagePatterns * self, BtMachine * machine)
 
   // unfortunately we need to do this, gtk+ swallows the first changed signal here
   // as nothing was selected and we don't select anything
-  if (active == -1) {
+  if (active == -1 && self->priv->pattern) {
     change_current_pattern (self, NULL);
   }
 }
