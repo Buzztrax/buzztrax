@@ -472,8 +472,8 @@ bt_sink_bin_link_many (const BtSinkBin * const self, GstElement * last_elem,
   const GList *node;
 
   GST_DEBUG_OBJECT (self, "link elements: last_elem=%s, list=%p",
-      GST_OBJECT_NAME (last_elem), list);
-  if (!list)
+      (last_elem ? GST_OBJECT_NAME (last_elem) : "<NULL>"), list);
+  if (!last_elem || !list)
     return;
 
   for (node = list; node; node = node->next) {
@@ -679,13 +679,15 @@ bt_sink_bin_format_update (const BtSinkBin * const self)
 static gboolean
 bt_sink_bin_update (const BtSinkBin * const self)
 {
+  BtSinkBinPrivate *p = self->priv;
+  GstElement *audio_resample = NULL, *tee = NULL;
   GstStateChangeReturn scr;
-  GstElement *audio_resample, *tee;
   GstState state;
   gboolean defer = FALSE;
 
   // check current state, if ASYNC the element is changing state already/still
-  if ((scr = gst_element_get_state (GST_ELEMENT (self), &state, NULL,
+  if ((scr =
+          gst_element_get_state (GST_ELEMENT (self), &state, NULL,
               0)) != GST_STATE_CHANGE_ASYNC) {
     if (state > GST_STATE_READY) {
       GST_INFO_OBJECT (self, "state > READY");
@@ -700,7 +702,7 @@ bt_sink_bin_update (const BtSinkBin * const self)
     GST_INFO_OBJECT (self, "defer switching sink-bin elements");
     GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS (GST_BIN (self),
         GST_DEBUG_GRAPH_SHOW_ALL, PACKAGE_NAME "-sinkbin-error");
-    self->priv->pending_update = TRUE;
+    p->pending_update = TRUE;
     return FALSE;
   }
 
@@ -711,19 +713,31 @@ bt_sink_bin_update (const BtSinkBin * const self)
 
   GST_INFO_OBJECT (self, "initializing sink-bin");
 
-  self->priv->caps_filter =
-      gst_element_factory_make ("capsfilter", "sink-format");
+  p->caps_filter = gst_element_factory_make ("capsfilter", "sink-format");
   bt_sink_bin_format_update (self);
   audio_resample =
       gst_element_factory_make ("audioresample", "sink-audioresample");
-  tee = self->priv->tee = gst_element_factory_make ("tee", "sink-tee");
+  tee = p->tee = gst_element_factory_make ("tee", "sink-tee");
+  if (!tee || !audio_resample) {
+    if (audio_resample) {
+      gst_object_unref (audio_resample);
+    } else {
+      GST_WARNING_OBJECT (self, "Failed to create audio-resample");
+    }
+    if (tee) {
+      gst_object_unref (tee);
+      p->tee = NULL;
+    } else {
+      GST_WARNING_OBJECT (self, "Failed to create tee");
+    }
+    return FALSE;
+  }
 
-  gst_bin_add_many (GST_BIN (self), self->priv->caps_filter, tee,
-      audio_resample, NULL);
+  gst_bin_add_many (GST_BIN (self), p->caps_filter, tee, audio_resample, NULL);
 
-  if (!gst_element_link_pads (self->priv->caps_filter, "src", audio_resample,
-          "sink")) {
+  if (!gst_element_link_pads (p->caps_filter, "src", audio_resample, "sink")) {
     GST_WARNING_OBJECT (self, "Can't link caps-filter and audio-resample");
+    return FALSE;
   }
 #ifdef BT_MONITOR_TIMESTAMPS
   {
@@ -741,11 +755,12 @@ bt_sink_bin_update (const BtSinkBin * const self)
 #else
   if (!gst_element_link_pads (audio_resample, "src", tee, "sink")) {
     GST_WARNING_OBJECT (self, "Can't link audio-resample and tee");
+    return FALSE;
   }
 #endif
 
   // add new children
-  switch (self->priv->mode) {
+  switch (p->mode) {
     case BT_SINK_BIN_MODE_PLAY:{
       GList *const list = bt_sink_bin_get_player_elements (self);
       if (list) {
@@ -814,9 +829,9 @@ bt_sink_bin_update (const BtSinkBin * const self)
         GST_WARNING_OBJECT (tee, "failed to get request 'src' request-pad");
       }
 
-      self->priv->src = gst_ghost_pad_new ("src", target_pad);
-      gst_pad_set_active (self->priv->src, TRUE);
-      gst_element_add_pad (GST_ELEMENT (self), self->priv->src);
+      p->src = gst_ghost_pad_new ("src", target_pad);
+      gst_pad_set_active (p->src, TRUE);
+      gst_element_add_pad (GST_ELEMENT (self), p->src);
       break;
     }
     default:
@@ -824,33 +839,30 @@ bt_sink_bin_update (const BtSinkBin * const self)
   }
 
   // set new ghostpad-target
-  if (self->priv->sink) {
-    GstPad *sink_pad =
-        gst_element_get_static_pad (self->priv->caps_filter, "sink");
+  if (p->sink) {
+    GstPad *sink_pad = gst_element_get_static_pad (p->caps_filter, "sink");
     GstPad *req_sink_pad = NULL;
 
-    GST_INFO_OBJECT (self->priv->sink, "updating ghostpad: %p",
-        self->priv->sink);
+    GST_INFO_OBJECT (p->sink, "updating ghostpad: %p", p->sink);
 
     if (!sink_pad) {
-      GST_INFO_OBJECT (self->priv->caps_filter,
-          "failed to get static 'sink' pad");
-      GstElementClass *klass = GST_ELEMENT_GET_CLASS (self->priv->caps_filter);
+      GST_INFO_OBJECT (p->caps_filter, "failed to get static 'sink' pad");
+      GstElementClass *klass = GST_ELEMENT_GET_CLASS (p->caps_filter);
       sink_pad = req_sink_pad =
-          gst_element_request_pad (self->priv->caps_filter,
+          gst_element_request_pad (p->caps_filter,
           gst_element_class_get_pad_template (klass, "sink_%u"), NULL, NULL);
       if (!sink_pad) {
-        GST_WARNING_OBJECT (self->priv->caps_filter,
+        GST_WARNING_OBJECT (p->caps_filter,
             "failed to get request 'sink' request-pad");
       }
     }
-    GST_INFO_OBJECT (self->priv->caps_filter,
+    GST_INFO_OBJECT (p->caps_filter,
         "updating ghost pad : elem=%" G_OBJECT_REF_COUNT_FMT
         "pad=%" G_OBJECT_REF_COUNT_FMT,
-        G_OBJECT_LOG_REF_COUNT (self->priv->caps_filter),
+        G_OBJECT_LOG_REF_COUNT (p->caps_filter),
         G_OBJECT_LOG_REF_COUNT (sink_pad));
 
-    if (!gst_ghost_pad_set_target (GST_GHOST_PAD (self->priv->sink), sink_pad)) {
+    if (!gst_ghost_pad_set_target (GST_GHOST_PAD (p->sink), sink_pad)) {
       GST_WARNING_OBJECT (self, "failed to link internal pads");
     }
 
