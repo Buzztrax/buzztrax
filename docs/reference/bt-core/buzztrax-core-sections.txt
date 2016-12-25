@@ -46,24 +46,13 @@ bt_audio_session_get_type
 <SECTION>
 <FILE>btchildproxy</FILE>
 <TITLE>BtChildProxy</TITLE>
-BtChildProxy
-BtChildProxyInterface
 bt_child_proxy_get
-bt_child_proxy_get_child_by_index
-bt_child_proxy_get_child_by_name
-bt_child_proxy_get_children_count
 bt_child_proxy_get_property
 bt_child_proxy_get_valist
-bt_child_proxy_lookup
 bt_child_proxy_set
 bt_child_proxy_set_property
 bt_child_proxy_set_valist
 <SUBSECTION Standard>
-BT_CHILD_PROXY
-BT_CHILD_PROXY_GET_INTERFACE
-BT_IS_CHILD_PROXY
-BT_TYPE_CHILD_PROXY
-bt_child_proxy_get_type
 </SECTION>
 
 <SECTION>

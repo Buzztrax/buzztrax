@@ -17,29 +17,19 @@
 
 /**
  * SECTION:btchildproxy
- * @short_description: Interface for multi child elements.
+ * @short_description: Helpers for multi child elements.
  *
- * This interface abstracts handling of property sets for elements with
- * children. Imagine elements such as mixers or polyphonic generators. They all
- * have multiple #GstPad or some kind of voice objects. Another use case are
- * container elements like #GstBin.
- * The element implementing the interface acts as a parent for those child
- * objects.
- *
- * By implementing this interface the child properties can be accessed from the
- * parent element by using bt_child_proxy_get() and bt_child_proxy_set().
+ * These helpers provide an extension to the #GstChildProxy interface. In the
+ * same way as that #GstChildProxy lets you access properties of named children
+ * objects, these methods let you do that for all #GObject projects that return
+ * #GObjects.
  *
  * Property names are written as "child-name::property-name". The whole naming
  * scheme is recursive. Thus "child1::child2::property" is valid too, if
- * "child1" and "child2" are objects that implement the interface or are properties
- * that return a GObject. The later is a convenient way to set or get properties
- * a few hops down the hierarchy in one go (without being able to forget the unrefs
- * of the intermediate objects).
- */
-/* This is a copy of gstreamer's gstchildproxy, but this also works for
- * GObjects. In this case the 'child-name' refers to a property name.
- * TODO: turn this into a set of helpers and remove the interface
- * - instead of BT_IS_CHILD_PROXY use GST_IS_CHILD_PROXY and so on
+ * "child1" and "child2" are objects that implement the interface or are
+ * properties that return a #GObject. The later is a convenient way to set or
+ * get properties a few hops down the hierarchy in one go (without being able to
+ * forget the unrefs of the intermediate objects).
  */
 /* IDEA(ensonic): allow implementors to provide a lookup cache if they have
  *   static name -> object mappings
@@ -50,71 +40,8 @@
 #include "core_private.h"
 #include <gobject/gvaluecollector.h>
 
-//-- the iface
 
-G_DEFINE_INTERFACE (BtChildProxy, bt_child_proxy, 0);
-
-
-/* interface vmethods */
-
-/**
- * bt_child_proxy_get_child_by_name:
- * @parent: the parent object to get the child from
- * @name: the childs name
- *
- * Looks up a child element by the given name.
- *
- * Returns: (transfer full) (nullable): the child object or %NULL if
- *     not found. Unref after usage.
- */
-GObject *
-bt_child_proxy_get_child_by_name (BtChildProxy * parent, const gchar * name)
-{
-  g_return_val_if_fail (BT_IS_CHILD_PROXY (parent), NULL);
-  g_return_val_if_fail (name != NULL, NULL);
-
-  return (BT_CHILD_PROXY_GET_INTERFACE (parent)->get_child_by_name (parent,
-          name));
-}
-
-/**
- * bt_child_proxy_get_child_by_index:
- * @parent: the parent object to get the child from
- * @index: the child's position in the child list
- *
- * Fetches a child by its number.
- *
- * Returns: (transfer full) (nullable): the child object or %NULL if
- *     not found (index too high). Unref after usage.
- */
-GObject *
-bt_child_proxy_get_child_by_index (BtChildProxy * parent, guint index)
-{
-  g_return_val_if_fail (BT_IS_CHILD_PROXY (parent), NULL);
-
-  return (BT_CHILD_PROXY_GET_INTERFACE (parent)->get_child_by_index (parent,
-          index));
-}
-
-/**
- * bt_child_proxy_get_children_count:
- * @parent: the parent object
- *
- * Gets the number of child objects this parent contains.
- *
- * Returns: the number of child objects
- */
-guint
-bt_child_proxy_get_children_count (BtChildProxy * parent)
-{
-  g_return_val_if_fail (BT_IS_CHILD_PROXY (parent), 0);
-
-  return BT_CHILD_PROXY_GET_INTERFACE (parent)->get_children_count (parent);
-}
-
-/* interface methods */
-
-/**
+/*
  * bt_child_proxy_lookup:
  * @object: object to lookup the property in
  * @name: child proxy name of the property to look up
@@ -129,7 +56,7 @@ bt_child_proxy_get_children_count (BtChildProxy * parent)
  * case the values for @pspec and @target are not modified. Unref @target after
  * usage.
  */
-gboolean
+static gboolean
 bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,
     GParamSpec ** pspec)
 {
@@ -150,7 +77,7 @@ bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,
     GST_LOG ("trying object %p:%s for %s", object, G_OBJECT_TYPE_NAME (object),
         current[0]);
 
-    if (!BT_IS_CHILD_PROXY (object)) {
+    if (!GST_IS_CHILD_PROXY (object)) {
       // what if we just do a find by object class property?
       spec =
           g_object_class_find_property (G_OBJECT_GET_CLASS (object),
@@ -167,7 +94,7 @@ bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,
       }
     } else {
       next =
-          bt_child_proxy_get_child_by_name (BT_CHILD_PROXY (object),
+          gst_child_proxy_get_child_by_name (GST_CHILD_PROXY (object),
           current[0]);
       if (!next) {
         GST_INFO ("object %p:%s has no child named %s", object,
@@ -412,11 +339,4 @@ bt_child_proxy_set (gpointer object, const gchar * first_property_name, ...)
   va_start (var_args, first_property_name);
   bt_child_proxy_set_valist (object, first_property_name, var_args);
   va_end (var_args);
-}
-
-//-- interface internals
-
-static void
-bt_child_proxy_default_init (BtChildProxyInterface * klass)
-{
 }
