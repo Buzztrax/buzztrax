@@ -23,6 +23,8 @@
 static BtApplication *app;
 static BtSong *song;
 static BtSettings *settings;
+static BtIcRegistry *registry;
+static BtIcDevice *device;
 
 static gchar *song_names[] = {
   "test-simple0.xml",
@@ -40,6 +42,11 @@ static void
 case_setup (void)
 {
   BT_CASE_START;
+  btic_init (NULL, NULL);
+
+  registry = btic_registry_new ();
+  device = (BtIcDevice *) btic_test_device_new ("test");
+  btic_registry_add_device (device);
 }
 
 static void
@@ -62,6 +69,7 @@ test_teardown (void)
 static void
 case_teardown (void)
 {
+  g_object_unref (registry);
 }
 
 //-- helper
@@ -137,27 +145,68 @@ static void
 make_song_without_externals (void)
 {
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
-  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen-m",
           "buzztrax-test-mono-source", 0L, NULL));
-  bt_wire_new (song, gen, sink, NULL);
-  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
+  bt_wire_new (song, gen1, sink, NULL);
+  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen1);
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  g_object_set (sequence, "length", 8L, NULL);
+  bt_sequence_add_track (sequence, gen1, -1);
+  bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
+
   g_object_unref (pattern);
+  g_object_unref (sequence);
   GST_INFO ("  song created");
 }
 
+static gchar *
+make_ext_data_uri (const gchar * file_name)
+{
+  gchar *ext_data_path = g_build_filename (g_get_tmp_dir (), file_name, NULL);
+  gchar *ext_data_uri = g_strconcat ("file://", ext_data_path, NULL);
+  g_free (ext_data_path);
+
+  return ext_data_uri;
+}
+
 static void
-make_song_with_externals (const gchar * ext_data_uri)
+make_song_with_externals (void)
 {
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
   BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0L, NULL));
   bt_wire_new (song, gen, sink, NULL);
   BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen);
+  gchar *ext_data_uri = make_ext_data_uri ("test.wav");
   BtWave *wave =
       bt_wave_new (song, "sample1", ext_data_uri, 1, 1.0, BT_WAVE_LOOP_MODE_OFF,
       0);
+
   g_object_unref (wave);
   g_object_unref (pattern);
+  g_free (ext_data_uri);
+  GST_INFO ("  song created");
+}
+
+static void
+make_song_with_ic_binding (void)
+{
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0L, NULL));
+  bt_wire_new (song, gen, sink, NULL);
+
+  BtParameterGroup *pg = bt_machine_get_global_param_group (gen);
+  BtIcControl *control = btic_device_get_control_by_name (device, "abs1");
+  GstObject *element =
+      (GstObject *) check_gobject_get_object_property (gen, "machine");
+  // FIXME: there seems to be insufficient ref-counting
+  // it we remove a device, we end up with control-bindings without parents
+  bt_machine_bind_parameter_control (gen, element, "g-uint", control, pg);
+
+  gst_object_unref (element);
+  g_object_unref (control);
   GST_INFO ("  song created");
 }
 
@@ -353,17 +402,17 @@ test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
   GST_INFO ("song[%d:%s].elements=%d", _i, song_name,
       GST_BIN_NUMCHILDREN (bin));
 
-  /* assert  */
+  GST_INFO ("-- assert --");
   ck_assert_int_eq (G_OBJECT_REF_COUNT (song), 1);
   assert_song_part_refcounts (song);
 
   ck_g_object_final_unref (song_io);
   ck_g_object_final_unref (song);
-  song = bt_song_new (app);
 
   ck_assert_int_eq (GST_BIN_NUMCHILDREN (bin), 0);
 
   GST_INFO ("-- cleanup --");
+  song = bt_song_new (app);
   gst_object_unref (bin);
   BT_TEST_END;
 }
@@ -375,9 +424,10 @@ test_bt_song_io_write_empty_song (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
   BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
   gchar *song_path = make_tmp_song_path ("bt-test1-song.", fi->extension);
+  BtSongIO *song_io = bt_song_io_from_file (song_path, NULL);
 
   /* save empty song */
-  BtSongIO *song_io = bt_song_io_from_file (song_path, NULL);
+  GST_INFO ("-- act --");
   gboolean res = bt_song_io_save (song_io, song, NULL);
   fail_unless (res == TRUE, NULL);
 
@@ -386,15 +436,13 @@ test_bt_song_io_write_empty_song (BT_TEST_ARGS)
   song = bt_song_new (app);
 
   /* load the song */
+  GST_INFO ("-- assert --");
   song_io = bt_song_io_from_file (song_path, NULL);
   res = bt_song_io_load (song_io, song, NULL);
   fail_unless (res == TRUE, NULL);
 
-  ck_g_object_final_unref (song_io);
-  ck_g_object_final_unref (song);
-  song = bt_song_new (app);
-
   GST_INFO ("-- cleanup --");
+  ck_g_object_final_unref (song_io);
   g_free (song_path);
   BT_TEST_END;
 }
@@ -410,6 +458,7 @@ test_bt_song_io_write_song_without_externals (BT_TEST_ARGS)
   make_song_without_externals ();
 
   /* save the song */
+  GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file (song_path, NULL);
   gboolean res = bt_song_io_save (song_io, song, NULL);
   fail_unless (res == TRUE, NULL);
@@ -419,14 +468,13 @@ test_bt_song_io_write_song_without_externals (BT_TEST_ARGS)
   song = bt_song_new (app);
 
   /* load the song */
+  GST_INFO ("-- assert --");
   song_io = bt_song_io_from_file (song_path, NULL);
   res = bt_song_io_load (song_io, song, NULL);
   fail_unless (res == TRUE, NULL);
 
+  GST_INFO ("-- cleanup --");
   ck_g_object_final_unref (song_io);
-  ck_g_object_final_unref (song);
-  song = bt_song_new (app);
-
   g_free (song_path);
   BT_TEST_END;
 }
@@ -437,13 +485,12 @@ test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
-  gchar *ext_data_path = g_build_filename (g_get_tmp_dir (), "test.wav", NULL);
-  gchar *ext_data_uri = g_strconcat ("file://", ext_data_path, NULL);
   gchar *song_path = make_tmp_song_path ("bt-test3-song.", fi->extension);
 
-  make_song_with_externals (ext_data_uri);
+  make_song_with_externals ();
 
   /* save the song */
+  GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file (song_path, NULL);
   gboolean res = bt_song_io_save (song_io, song, NULL);
   fail_unless (res == TRUE, NULL);
@@ -452,24 +499,47 @@ test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
   ck_g_object_final_unref (song);
   song = bt_song_new (app);
 
-  GST_INFO ("  song saved");
-
   /* load the song */
+  GST_INFO ("-- assert --");
   song_io = bt_song_io_from_file (song_path, NULL);
   res = bt_song_io_load (song_io, song, NULL);
   fail_unless (res == TRUE, NULL);
 
-  GST_INFO ("  song re-loaded");
+  GST_INFO ("-- cleanup --");
+  ck_g_object_final_unref (song_io);
+  g_free (song_path);
+  BT_TEST_END;
+}
+
+static void
+test_bt_song_io_write_song_with_ic_binding (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
+  gchar *song_path = make_tmp_song_path ("bt-test4-song.", fi->extension);
+
+  make_song_with_ic_binding ();
+
+  /* save the song */
+  GST_INFO ("-- act --");
+  BtSongIO *song_io = bt_song_io_from_file (song_path, NULL);
+  gboolean res = bt_song_io_save (song_io, song, NULL);
+  fail_unless (res == TRUE, NULL);
 
   ck_g_object_final_unref (song_io);
   ck_g_object_final_unref (song);
   song = bt_song_new (app);
 
-  g_free (song_path);
+  /* load the song */
+  GST_INFO ("-- assert --");
+  song_io = bt_song_io_from_file (song_path, NULL);
+  res = bt_song_io_load (song_io, song, NULL);
+  fail_unless (res == TRUE, NULL);
 
   GST_INFO ("-- cleanup --");
-  g_free (ext_data_uri);
-  g_free (ext_data_path);
+  ck_g_object_final_unref (song_io);
+  g_free (song_path);
   BT_TEST_END;
 }
 
@@ -528,6 +598,8 @@ bt_song_io_native_example_case (void)
   tcase_add_loop_test (tc, test_bt_song_io_write_song_without_externals, 0,
       num_formats);
   tcase_add_loop_test (tc, test_bt_song_io_write_song_with_externals, 0,
+      num_formats);
+  tcase_add_loop_test (tc, test_bt_song_io_write_song_with_ic_binding, 0,
       num_formats);
   tcase_add_test (tc, test_bt_song_io_native_load_legacy_0_7);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
