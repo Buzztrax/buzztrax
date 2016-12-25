@@ -639,9 +639,11 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
     GstState oldstate, newstate, pending;
 
     gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
-    GST_INFO ("state change on the bin: %s -> %s",
+    GST_INFO ("state change on the bin: %s -> %s, pending: %s",
         gst_element_state_get_name (oldstate),
-        gst_element_state_get_name (newstate));
+        gst_element_state_get_name (newstate),
+        gst_element_state_get_name (pending));
+
     switch (GST_STATE_TRANSITION (oldstate, newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
         // we're prepared to play
@@ -649,8 +651,10 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
 #ifdef GST_BUG_733031
         // meh, we preroll twice now, this also breaks recording as we send the
         // preroll part twice :/
-        gst_element_send_event (GST_ELEMENT (p->master_bin),
-            gst_event_ref (p->play_seek_event));
+        if (!(gst_element_send_event (GST_ELEMENT (p->master_bin),
+                    gst_event_ref (p->play_seek_event)))) {
+          GST_WARNING ("element failed to handle seek event");
+        }
 #endif
         // ensure that sources set their durations
         g_object_notify (G_OBJECT (p->sequence), "length");
