@@ -427,11 +427,14 @@
   * like we have a wavetable, we could have a text table
     * a list of text snipped (more than 256!)
     * each snippet has a label and a text block (multiline)
+  * alternatively we can have the text in the machine properties
   * in a text to speech machine we can use text-table index (gint 16 bit),
     text offset (gint 16 bit char offset), length (unset, to the end) and
     direction (forward, backward)
   * in a command out machine, we use the text table index (gint 16 bit) and
     ev. script parameters (passed as $1, $2, ...)
+  * the machines should implement property meta and implement a describe
+    function to show the referenced text snippet
 
 
 * wave table
