@@ -639,38 +639,49 @@ on_song_state_changed (const GstBus * const bus, GstMessage * message,
     GstState oldstate, newstate, pending;
 
     gst_message_parse_state_changed (message, &oldstate, &newstate, &pending);
-    GST_INFO ("state change on the bin: %s -> %s, pending: %s",
+    GST_INFO_OBJECT (p->bin, "state change on the bin: %s -> %s, pending: %s",
         gst_element_state_get_name (oldstate),
         gst_element_state_get_name (newstate),
         gst_element_state_get_name (pending));
 
     switch (GST_STATE_TRANSITION (oldstate, newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
-        // we're prepared to play
-        p->is_preparing = FALSE;
+        if (!p->is_preparing)
+          break;
 #ifdef GST_BUG_733031
         // meh, we preroll twice now, this also breaks recording as we send the
         // preroll part twice :/
         if (!(gst_element_send_event (GST_ELEMENT (p->master_bin),
                     gst_event_ref (p->play_seek_event)))) {
-          GST_WARNING ("element failed to handle seek event");
+          GST_WARNING_OBJECT (p->master_bin,
+              "element failed to handle seek event");
         }
 #endif
         // ensure that sources set their durations
         g_object_notify (G_OBJECT (p->sequence), "length");
+
+        GstStateChangeReturn res;
+        if ((res = gst_element_set_state (GST_ELEMENT (p->bin),
+                    GST_STATE_PLAYING)) == GST_STATE_CHANGE_FAILURE) {
+          GST_WARNING_OBJECT (p->bin, "can't go to playing state");
+        }
+        GST_DEBUG_OBJECT (p->bin, "->PLAYING state change returned '%s'",
+            gst_element_state_change_return_get_name (res));
+        // we're prepared to play
+        p->is_preparing = FALSE;
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
         if (!p->is_playing) {
-          GST_INFO ("playback started");
+          GST_INFO_OBJECT (p->bin, "playback started");
           p->is_playing = TRUE;
           g_object_notify (G_OBJECT (self), "is-playing");
           // if the song is empty playback is done
           if (!GST_BIN_NUMCHILDREN (p->bin)) {
-            GST_INFO ("song is empty - stopping playback");
+            GST_INFO_OBJECT (p->bin, "song is empty - stopping playback");
             bt_song_stop (self);
           }
         } else {
-          GST_INFO ("looping");
+          GST_INFO_OBJECT (p->bin, "looping");
         }
         bt_song_update_playback_position (self);
         if (p->paused_timeout_id) {
@@ -999,9 +1010,8 @@ bt_song_play (const BtSong * const self)
   bt_song_send_tags (self);
   bt_song_send_toc (self);
 
-  res =
-      gst_element_set_state (GST_ELEMENT (self->priv->bin), GST_STATE_PLAYING);
-  GST_DEBUG ("->PLAYING state change returned '%s'",
+  res = gst_element_set_state (GST_ELEMENT (self->priv->bin), GST_STATE_PAUSED);
+  GST_DEBUG ("->PAUSED state change returned '%s'",
       gst_element_state_change_return_get_name (res));
   switch (res) {
     case GST_STATE_CHANGE_SUCCESS:
