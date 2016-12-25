@@ -289,7 +289,6 @@ test_bt_setup_dynamic_add_src (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtSong *song = bt_song_new (app);
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
@@ -300,7 +299,7 @@ test_bt_setup_dynamic_add_src (BT_TEST_ARGS)
   GstElement *element1 =
       (GstElement *) check_gobject_get_object_property (gen1, "machine");
 
-  g_object_set (sequence, "length", 16L, NULL);
+  g_object_set (sequence, "length", 64L, "loop", TRUE, NULL);
   bt_sequence_add_track (sequence, gen1, -1);
   g_object_set (element1, "wave", /* silence */ 4, NULL);
   bt_machine_set_param_defaults (gen1);
@@ -308,7 +307,7 @@ test_bt_setup_dynamic_add_src (BT_TEST_ARGS)
   /* play the song */
   if (bt_song_play (song)) {
     mark_point ();
-    g_usleep (G_USEC_PER_SEC / 10);
+    check_run_main_loop_until_playing_or_error (song);
     GST_DEBUG ("song plays");
 
     BtMachine *gen2 =
@@ -331,7 +330,6 @@ test_bt_setup_dynamic_add_src (BT_TEST_ARGS)
 
   GST_INFO ("-- cleanup --");
   g_object_unref (sequence);
-  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -343,7 +341,6 @@ test_bt_setup_dynamic_rem_src (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtSong *song = bt_song_new (app);
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtSequence *sequence =
@@ -362,7 +359,7 @@ test_bt_setup_dynamic_rem_src (BT_TEST_ARGS)
   GstElement *element2 =
       (GstElement *) check_gobject_get_object_property (gen2, "machine");
 
-  g_object_set (sequence, "length", 16L, NULL);
+  g_object_set (sequence, "length", 64L, "loop", TRUE, NULL);
   bt_sequence_add_track (sequence, gen1, -1);
   bt_sequence_add_track (sequence, gen2, -1);
   g_object_set (element1, "wave", /* silence */ 4, NULL);
@@ -374,7 +371,7 @@ test_bt_setup_dynamic_rem_src (BT_TEST_ARGS)
   /* play the song */
   if (bt_song_play (song)) {
     mark_point ();
-    g_usleep (G_USEC_PER_SEC / 10);
+    check_run_main_loop_until_playing_or_error (song);
     GST_DEBUG ("song plays");
 
     /* unlink machines */
@@ -392,7 +389,6 @@ test_bt_setup_dynamic_rem_src (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   g_object_unref (sequence);
-  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
@@ -404,7 +400,6 @@ test_bt_setup_dynamic_add_proc (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtSong *song = bt_song_new (app);
   BtSequence *sequence =
       (BtSequence *) check_gobject_get_object_property (song, "sequence");
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
@@ -415,7 +410,7 @@ test_bt_setup_dynamic_add_proc (BT_TEST_ARGS)
   GstElement *element1 =
       (GstElement *) check_gobject_get_object_property (gen1, "machine");
 
-  g_object_set (sequence, "length", 16L, NULL);
+  g_object_set (sequence, "length", 64L, "loop", TRUE, NULL);
   bt_sequence_add_track (sequence, gen1, -1);
   g_object_set (element1, "wave", /* silence */ 4, NULL);
   bt_machine_set_param_defaults (gen1);
@@ -424,7 +419,7 @@ test_bt_setup_dynamic_add_proc (BT_TEST_ARGS)
   /* play the song */
   if (bt_song_play (song)) {
     mark_point ();
-    g_usleep (G_USEC_PER_SEC / 10);
+    check_run_main_loop_until_playing_or_error (song);
     GST_DEBUG ("song plays");
 
     BtMachine *proc =
@@ -441,8 +436,7 @@ test_bt_setup_dynamic_add_proc (BT_TEST_ARGS)
   }
 
   GST_INFO ("-- cleanup --");
-  g_object_unref (sequence);
-  ck_g_object_final_unref (song);
+  g_object_unref (sequence);;
   BT_TEST_END;
 }
 
@@ -455,7 +449,6 @@ test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtSong *song = bt_song_new (app);
   BtSetup *setup =
       (BtSetup *) check_gobject_get_object_property (song, "setup");
   BtSequence *sequence =
@@ -472,7 +465,7 @@ test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
   GstElement *element1 =
       (GstElement *) check_gobject_get_object_property (gen1, "machine");
 
-  g_object_set (sequence, "length", 16L, NULL);
+  g_object_set (sequence, "length", 64L, "loop", TRUE, NULL);
   bt_sequence_add_track (sequence, gen1, -1);
   g_object_set (element1, "wave", /* silence */ 4, NULL);
   bt_machine_set_param_defaults (gen1);
@@ -481,7 +474,7 @@ test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
   /* play the song */
   if (bt_song_play (song)) {
     mark_point ();
-    g_usleep (G_USEC_PER_SEC / 10);
+    check_run_main_loop_until_playing_or_error (song);
     GST_DEBUG ("song plays");
 
     /* unlink machines */
@@ -502,7 +495,6 @@ test_bt_setup_dynamic_rem_proc (BT_TEST_ARGS)
   GST_INFO ("-- cleanup --");
   g_object_unref (setup);
   g_object_unref (sequence);
-  ck_g_object_final_unref (song);
   BT_TEST_END;
 }
 
