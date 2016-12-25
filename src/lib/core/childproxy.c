@@ -36,9 +36,15 @@
  * a few hops down the hierarchy in one go (without being able to forget the unrefs
  * of the intermediate objects).
  */
+/* This is a copy of gstreamer's gstchildproxy, but this also works for
+ * GObjects. In this case the 'child-name' refers to a property name.
+ * TODO: turn this into a set of helpers and remove the interface
+ * - instead of BT_IS_CHILD_PROXY use GST_IS_CHILD_PROXY and so on
+ */
 /* IDEA(ensonic): allow implementors to provide a lookup cache if they have
  *   static name -> object mappings
- * TODO(ensonic): right now, the varargs function would lookup the owner for
+ */
+/* TODO(ensonic): right now, the varargs function would lookup the owner for
  *   each property even if it is the same
  */
 #include "core_private.h"
@@ -58,8 +64,8 @@ G_DEFINE_INTERFACE (BtChildProxy, bt_child_proxy, 0);
  *
  * Looks up a child element by the given name.
  *
- * Returns: (transfer full): the child object or %NULL if not found. Unref after
- * usage.
+ * Returns: (transfer full) (nullable): the child object or %NULL if
+ *     not found. Unref after usage.
  */
 GObject *
 bt_child_proxy_get_child_by_name (BtChildProxy * parent, const gchar * name)
@@ -74,12 +80,12 @@ bt_child_proxy_get_child_by_name (BtChildProxy * parent, const gchar * name)
 /**
  * bt_child_proxy_get_child_by_index:
  * @parent: the parent object to get the child from
- * @index: the childs position in the child list
+ * @index: the child's position in the child list
  *
  * Fetches a child by its number.
  *
- * Returns: (transfer full): the child object or %NULL if not found (index too
- * high). Unref after usage.
+ * Returns: (transfer full) (nullable): the child object or %NULL if
+ *     not found (index too high). Unref after usage.
  */
 GObject *
 bt_child_proxy_get_child_by_index (BtChildProxy * parent, guint index)
@@ -111,9 +117,11 @@ bt_child_proxy_get_children_count (BtChildProxy * parent)
 /**
  * bt_child_proxy_lookup:
  * @object: object to lookup the property in
- * @name: name of the property to look up
- * @target: pointer to a #GObject that takes the real object to set property on
- * @pspec: pointer to take the #GParamSpec describing the property
+ * @name: child proxy name of the property to look up
+ * @target: (out) (allow-none) (transfer full): pointer to a #GObject that
+ *     takes the real object to set property on
+ * @pspec: (out) (allow-none) (transfer none): pointer to take the #GParamSpec
+ *     describing the property
  *
  * Looks up which object and #GParamSpec would be effected by the given @name.
  *
@@ -135,6 +143,7 @@ bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,
   g_object_ref (object);
 
   current = names = g_strsplit (name, "::", -1);
+  /* find the owner of the property */
   while (current[1]) {
     GObject *next;
 
@@ -207,7 +216,7 @@ bt_child_proxy_lookup (GObject * object, const gchar * name, GObject ** target,
  * bt_child_proxy_get_property:
  * @object: object to query
  * @name: name of the property
- * @value: a #GValue that should take the result.
+ * @value: (out caller-allocates): a #GValue that should take the result.
  *
  * Gets a single property using the BtChildProxy mechanism.
  * You are responsible for for freeing it by calling g_value_unset()
@@ -226,7 +235,7 @@ bt_child_proxy_get_property (GObject * object, const gchar * name,
   if (!bt_child_proxy_lookup (object, name, &target, &pspec))
     goto not_found;
 
-  g_object_get_property (G_OBJECT (target), pspec->name, value);
+  g_object_get_property (target, pspec->name, value);
   g_object_unref (target);
 
   return;
@@ -264,7 +273,7 @@ bt_child_proxy_get_valist (GObject * object, const gchar * first_property_name,
       goto not_found;
 
     g_value_init (&value, G_PARAM_SPEC_VALUE_TYPE (pspec));
-    g_object_get_property (G_OBJECT (target), pspec->name, &value);
+    g_object_get_property (target, pspec->name, &value);
     g_object_unref (target);
 
     G_VALUE_LCOPY (&value, var_args, 0, &error);
@@ -326,8 +335,8 @@ bt_child_proxy_set_property (GObject * object, const gchar * name,
   if (!bt_child_proxy_lookup (object, name, &target, &pspec))
     goto not_found;
 
-  g_object_set_property (G_OBJECT (target), pspec->name, value);
-  gst_object_unref (target);
+  g_object_set_property (target, pspec->name, value);
+  g_object_unref (target);
   return;
 
 not_found:
@@ -339,7 +348,7 @@ not_found:
  * bt_child_proxy_set_valist:
  * @object: the parent object
  * @first_property_name: name of the first property to set
- * @var_args: value for the first property, followed optionally by more name/value pairs, followed by NULL
+ * @var_args: value for the first property, followed optionally by more name/value pairs, followed by %NULL
  *
  * Sets properties of the parent object and its children.
  */
@@ -366,7 +375,7 @@ bt_child_proxy_set_valist (GObject * object, const gchar * first_property_name,
     if (error)
       goto cant_copy;
 
-    g_object_set_property (G_OBJECT (target), pspec->name, &value);
+    g_object_set_property (target, pspec->name, &value);
     g_object_unref (target);
 
     g_value_unset (&value);
@@ -389,7 +398,7 @@ cant_copy:
  * bt_child_proxy_set:
  * @object: the parent object
  * @first_property_name: name of the first property to set
- * @...: value for the first property, followed optionally by more name/value pairs, followed by NULL
+ * @...: value for the first property, followed optionally by more name/value pairs, followed by %NULL
  *
  * Sets properties of the parent object and its children.
  */
