@@ -221,8 +221,7 @@ test_bt_sequence_pattern (BT_TEST_ARGS)
   bt_sequence_set_pattern (sequence, 7, 1, pattern);
 
   GST_INFO ("-- assert --");
-  fail_unless (bt_sequence_is_pattern_used (sequence, (BtPattern *) pattern),
-      NULL);
+  fail_unless (bt_sequence_is_pattern_used (sequence, (BtPattern *) pattern));
   ck_assert_gobject_eq_and_unref (bt_sequence_get_pattern (sequence, 0, 0),
       pattern);
   ck_assert_gobject_eq_and_unref (bt_sequence_get_pattern (sequence, 7, 1),
@@ -688,6 +687,106 @@ test_bt_sequence_shortening_length_disables_loop (BT_TEST_ARGS)
 }
 
 static void
+test_bt_sequence_insert_rows (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  g_object_set (sequence, "length", 16L, NULL);
+  BtMachine *gen =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  bt_wire_new (song, gen, sink, NULL);
+  BtCmdPattern *pattern =
+      (BtCmdPattern *) bt_pattern_new (song, "melo", 8L, gen);
+  bt_sequence_add_track (sequence, gen, -1);
+  bt_sequence_set_pattern (sequence, 4, 0, pattern);
+
+  GST_INFO ("-- act --");
+  bt_sequence_insert_rows (sequence, 4, 0, 4);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_eq_and_unref (bt_sequence_get_pattern (sequence, 8, 0),
+      pattern);
+  fail_unless (bt_sequence_get_pattern (sequence, 4, 0) == NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_object_unref (pattern);
+  g_object_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_insert_rows_shifts_out (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  g_object_set (sequence, "length", 8L, NULL);
+  BtMachine *gen =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  bt_wire_new (song, gen, sink, NULL);
+  BtCmdPattern *pattern =
+      (BtCmdPattern *) bt_pattern_new (song, "melo", 8L, gen);
+  bt_sequence_add_track (sequence, gen, -1);
+  bt_sequence_set_pattern (sequence, 4, 0, pattern);
+
+  GST_INFO ("-- act --");
+  bt_sequence_insert_rows (sequence, 4, 0, 4);
+
+  GST_INFO ("-- assert --");
+  fail_if (bt_sequence_is_pattern_used (sequence, (BtPattern *) pattern));
+  fail_unless (bt_sequence_get_pattern (sequence, 4, 0) == NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_object_unref (pattern);
+  g_object_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_insert_full_rows (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  g_object_set (sequence, "length", 16L, NULL);
+  BtMachine *gen =
+      BT_MACHINE (bt_source_machine_new (song, "gen", "audiotestsrc", 0L,
+          NULL));
+  BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
+  bt_wire_new (song, gen, sink, NULL);
+  BtCmdPattern *pattern =
+      (BtCmdPattern *) bt_pattern_new (song, "melo", 8L, gen);
+  bt_sequence_add_track (sequence, gen, -1);
+  bt_sequence_add_track (sequence, gen, -1);
+  bt_sequence_set_pattern (sequence, 4, 0, pattern);
+  bt_sequence_set_pattern (sequence, 4, 1, pattern);
+
+  GST_INFO ("-- act --");
+  bt_sequence_insert_full_rows (sequence, 4, 4);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_eq_and_unref (bt_sequence_get_pattern (sequence, 8, 0),
+      pattern);
+  fail_unless (bt_sequence_get_pattern (sequence, 4, 0) == NULL);
+  ck_assert_gobject_eq_and_unref (bt_sequence_get_pattern (sequence, 8, 1),
+      pattern);
+  fail_unless (bt_sequence_get_pattern (sequence, 4, 1) == NULL);
+
+  GST_INFO ("-- cleanup --");
+  g_object_unref (pattern);
+  g_object_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
 test_bt_sequence_duration (BT_TEST_ARGS)
 {
   BT_TEST_START;
@@ -788,6 +887,9 @@ bt_sequence_example_case (void)
   tcase_add_test (tc, test_bt_sequence_enlarging_length_keeps_loop);
   tcase_add_test (tc, test_bt_sequence_shortening_length_truncates_loop);
   tcase_add_test (tc, test_bt_sequence_shortening_length_disables_loop);
+  tcase_add_test (tc, test_bt_sequence_insert_rows);
+  tcase_add_test (tc, test_bt_sequence_insert_rows_shifts_out);
+  tcase_add_test (tc, test_bt_sequence_insert_full_rows);
   tcase_add_test (tc, test_bt_sequence_duration);
   tcase_add_test (tc, test_bt_sequence_duration_play);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);

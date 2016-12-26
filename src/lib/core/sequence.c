@@ -1052,28 +1052,32 @@ static void
 insert_rows (const BtSequence * const self, const gulong time,
     const gulong track, const gulong rows)
 {
-  const gulong tracks = self->priv->tracks;
-  const gulong length = self->priv->length;
-  BtCmdPattern **src =
-      &self->priv->patterns[track + tracks * (length - (1 + rows))];
-  BtCmdPattern **dst = &self->priv->patterns[track + tracks * (length - 1)];
+  BtSequencePrivate *p = self->priv;
+  const gulong tracks = p->tracks;
+  const gulong length = p->length;
+  BtCmdPattern **src = &p->patterns[track + tracks * (length - (1 + rows))];
+  BtCmdPattern **dst = &p->patterns[track + tracks * (length - 1)];
+  BtCmdPattern **clr = &src[tracks];
   gulong i;
 
-  /* ins 3     0 1 2 3 4
-   * 0 a       a a a a .
-   * 1 b       b b b . .
-   * 2 c       c c . . .
-   * 3 d       d . . . a
-   * 4 e src   . . . b b
-   * 5 f    \  f f c c c
-   * 6 g     v g d d d d
-   * 7 h dst e e e e e e
+  /* ins 3     0 1
+   * 0 a       a a
+   * 1 b       b b
+   * 2 c       c c
+   * 3 d       d d
+   * 4 e src   e .
+   * 5 f    \  - .
+   * 6 g     v - .
+   * 7 h dst . - e
    */
 
-  /* we're overwriting these */
-  for (i = 1; i <= rows; i++) {
-    if (src[i * tracks])
-      bt_sequence_unuse_pattern (self, src[i * tracks]);
+  /* we're pushing out the last @rows rows */
+  for (i = 0; i < rows; i++) {
+    if (*clr) {
+      bt_sequence_unuse_pattern (self, *clr);
+      *clr = NULL;
+    }
+    clr += tracks;
   }
   /* copy patterns and move upwards */
   for (i = (length - 1); i >= (time + rows); i--) {
@@ -1091,7 +1095,7 @@ insert_rows (const BtSequence * const self, const gulong time,
  * @track: the track
  * @rows: the number of rows to insert
  *
- * Insert one empty row for given @track.
+ * Insert @rows empty rows for given @track at position given by @time.
  *
  * Since: 0.3
  */
