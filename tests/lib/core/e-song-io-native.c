@@ -20,13 +20,15 @@
 
 //-- globals
 
+static gint num_formats = 0;
+
 static BtApplication *app;
 static BtSong *song;
 static BtSettings *settings;
 static BtIcRegistry *registry;
 static BtIcDevice *device;
 
-static gchar *song_names[] = {
+static gchar *input_song_names[] = {
   "test-simple0.xml",
   "test-simple1.xml",
   "test-simple2.xml",
@@ -35,6 +37,21 @@ static gchar *song_names[] = {
   "test-simple5.xml"
 };
 
+enum
+{
+  EMPTY_SONG = 0,
+  SONG_NORMAL,
+  SONG_WITH_EXTERNALS,
+  SONG_WITH_IC_BINDINGS,
+  NUM_SONG_TYPES
+};
+
+static gchar *output_song_names[] = {
+  "bt-test-empty.",
+  "bt-test-normal.",
+  "bt-test-with-externals.",
+  "bt-test-with-ic-bindings.",
+};
 
 //-- fixtures
 
@@ -142,20 +159,31 @@ make_tmp_song_path (const gchar * name, const gchar * ext)
 }
 
 static void
-make_song_without_externals (void)
+make_song_normal (void)
 {
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  g_object_set (sequence, "length", 8L, NULL);
+
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
   BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen-m",
           "buzztrax-test-mono-source", 0L, NULL));
   bt_wire_new (song, gen1, sink, NULL);
-  BtPattern *pattern = bt_pattern_new (song, "pattern-name", 8L, gen1);
-  BtSequence *sequence =
-      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  g_object_set (sequence, "length", 8L, NULL);
+  BtPattern *pat_gen1 = bt_pattern_new (song, "melo", 8L, gen1);
+  bt_pattern_set_global_event (pat_gen1, 0, 0, "5");
   bt_sequence_add_track (sequence, gen1, -1);
-  bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pattern);
+  bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pat_gen1);
 
-  g_object_unref (pattern);
+  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen-p",
+          "buzztrax-test-poly-source", 0L, NULL));
+  bt_wire_new (song, gen2, sink, NULL);
+  BtPattern *pat_gen2 = bt_pattern_new (song, "melo", 8L, gen2);
+  bt_pattern_set_global_event (pat_gen2, 0, 0, "5");
+  bt_pattern_set_voice_event (pat_gen2, 0, 0, 0, "5");
+  bt_sequence_add_track (sequence, gen2, -1);
+  bt_sequence_set_pattern (sequence, 0, 1, (BtCmdPattern *) pat_gen2);
+
+  g_object_unref (pat_gen1);
   g_object_unref (sequence);
   GST_INFO ("  song created");
 }
@@ -396,7 +424,7 @@ test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
       (GstElement *) check_gobject_get_object_property (app, "bin");
 
   GST_INFO ("-- act --");
-  const gchar *song_name = song_names[_i];
+  const gchar *song_name = input_song_names[_i];
   BtSongIO *song_io =
       bt_song_io_from_file (check_get_test_song_path (song_name), NULL);
   GST_INFO ("song[%d:%s].elements=%d", _i, song_name,
@@ -418,110 +446,34 @@ test_bt_song_io_native_song_refcounts (BT_TEST_ARGS)
 }
 
 static void
-test_bt_song_io_write_empty_song (BT_TEST_ARGS)
+test_bt_song_io_write_song (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
-  gchar *song_path = make_tmp_song_path ("bt-test1-song.", fi->extension);
-  BtSongIO *song_io = bt_song_io_from_file (song_path, NULL);
+  guint song_type = _i / num_formats;
+  guint fmt = _i % num_formats;
+  BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[fmt];
+  gchar *song_path = make_tmp_song_path (output_song_names[song_type],
+      fi->extension);
 
-  /* save empty song */
-  GST_INFO ("-- act --");
-  gboolean res = bt_song_io_save (song_io, song, NULL);
-  fail_unless (res == TRUE, NULL);
+  switch (song_type) {
+    case EMPTY_SONG:
+      break;
+    case SONG_NORMAL:
+      make_song_normal ();
+      break;
+    case SONG_WITH_EXTERNALS:
+      make_song_with_externals ();
+      break;
+    case SONG_WITH_IC_BINDINGS:
+      make_song_with_ic_binding ();
+      break;
+    default:
+      break;
+  }
+  GST_INFO ("testing [type=%d/fmt=%d] %s", song_type, fmt, song_path);
 
-  ck_g_object_final_unref (song_io);
-  ck_g_object_final_unref (song);
-  song = bt_song_new (app);
-
-  /* load the song */
-  GST_INFO ("-- assert --");
-  song_io = bt_song_io_from_file (song_path, NULL);
-  res = bt_song_io_load (song_io, song, NULL);
-  fail_unless (res == TRUE, NULL);
-
-  GST_INFO ("-- cleanup --");
-  ck_g_object_final_unref (song_io);
-  g_free (song_path);
-  BT_TEST_END;
-}
-
-static void
-test_bt_song_io_write_song_without_externals (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  GST_INFO ("-- arrange --");
-  BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
-  gchar *song_path = make_tmp_song_path ("bt-test2-song.", fi->extension);
-
-  make_song_without_externals ();
-
-  /* save the song */
-  GST_INFO ("-- act --");
-  BtSongIO *song_io = bt_song_io_from_file (song_path, NULL);
-  gboolean res = bt_song_io_save (song_io, song, NULL);
-  fail_unless (res == TRUE, NULL);
-
-  ck_g_object_final_unref (song_io);
-  ck_g_object_final_unref (song);
-  song = bt_song_new (app);
-
-  /* load the song */
-  GST_INFO ("-- assert --");
-  song_io = bt_song_io_from_file (song_path, NULL);
-  res = bt_song_io_load (song_io, song, NULL);
-  fail_unless (res == TRUE, NULL);
-
-  GST_INFO ("-- cleanup --");
-  ck_g_object_final_unref (song_io);
-  g_free (song_path);
-  BT_TEST_END;
-}
-
-static void
-test_bt_song_io_write_song_with_externals (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  GST_INFO ("-- arrange --");
-  BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
-  gchar *song_path = make_tmp_song_path ("bt-test3-song.", fi->extension);
-
-  make_song_with_externals ();
-
-  /* save the song */
-  GST_INFO ("-- act --");
-  BtSongIO *song_io = bt_song_io_from_file (song_path, NULL);
-  gboolean res = bt_song_io_save (song_io, song, NULL);
-  fail_unless (res == TRUE, NULL);
-
-  ck_g_object_final_unref (song_io);
-  ck_g_object_final_unref (song);
-  song = bt_song_new (app);
-
-  /* load the song */
-  GST_INFO ("-- assert --");
-  song_io = bt_song_io_from_file (song_path, NULL);
-  res = bt_song_io_load (song_io, song, NULL);
-  fail_unless (res == TRUE, NULL);
-
-  GST_INFO ("-- cleanup --");
-  ck_g_object_final_unref (song_io);
-  g_free (song_path);
-  BT_TEST_END;
-}
-
-static void
-test_bt_song_io_write_song_with_ic_binding (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  GST_INFO ("-- arrange --");
-  BtSongIOFormatInfo *fi = &bt_song_io_native_module_info.formats[_i];
-  gchar *song_path = make_tmp_song_path ("bt-test4-song.", fi->extension);
-
-  make_song_with_ic_binding ();
-
-  /* save the song */
+  /* save song */
   GST_INFO ("-- act --");
   BtSongIO *song_io = bt_song_io_from_file (song_path, NULL);
   gboolean res = bt_song_io_save (song_io, song, NULL);
@@ -578,12 +530,12 @@ bt_song_io_native_example_case (void)
 {
   TCase *tc = tcase_create ("BtSongIONativeExamples");
 
-  static gint num_formats = 0;
   BtSongIOFormatInfo *fi = bt_song_io_native_module_info.formats;
   while (fi->name) {
     num_formats++;
     fi++;
   }
+  GST_INFO ("testing %d formats", num_formats);
 
   tcase_add_test (tc, test_bt_song_io_native_new);
   tcase_add_loop_test (tc, test_bt_song_io_native_formats, 0, num_formats);
@@ -593,14 +545,9 @@ bt_song_io_native_example_case (void)
   tcase_add_test (tc, test_bt_song_io_native_setup_refcounts_1);
   tcase_add_test (tc, test_bt_song_io_native_setup_refcounts_2);
   tcase_add_loop_test (tc, test_bt_song_io_native_song_refcounts, 0,
-      G_N_ELEMENTS (song_names));
-  tcase_add_loop_test (tc, test_bt_song_io_write_empty_song, 0, num_formats);
-  tcase_add_loop_test (tc, test_bt_song_io_write_song_without_externals, 0,
-      num_formats);
-  tcase_add_loop_test (tc, test_bt_song_io_write_song_with_externals, 0,
-      num_formats);
-  tcase_add_loop_test (tc, test_bt_song_io_write_song_with_ic_binding, 0,
-      num_formats);
+      G_N_ELEMENTS (input_song_names));
+  tcase_add_loop_test (tc, test_bt_song_io_write_song, 0,
+      num_formats * NUM_SONG_TYPES);
   tcase_add_test (tc, test_bt_song_io_native_load_legacy_0_7);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
