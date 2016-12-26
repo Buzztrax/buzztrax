@@ -168,11 +168,13 @@ make_song_normal (void)
   BtMachine *sink = BT_MACHINE (bt_sink_machine_new (song, "master", NULL));
   BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen-m",
           "buzztrax-test-mono-source", 0L, NULL));
-  bt_wire_new (song, gen1, sink, NULL);
+  BtWire *wire = bt_wire_new (song, gen1, sink, NULL);
   BtPattern *pat_gen1 = bt_pattern_new (song, "melo", 8L, gen1);
   bt_pattern_set_global_event (pat_gen1, 0, 0, "5");
   bt_sequence_add_track (sequence, gen1, -1);
   bt_sequence_set_pattern (sequence, 0, 0, (BtCmdPattern *) pat_gen1);
+
+  bt_pattern_set_wire_event (pat_gen1, 0, wire, 0, "100");
 
   BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen-p",
           "buzztrax-test-poly-source", 1L, NULL));
