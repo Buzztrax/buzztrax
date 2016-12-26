@@ -107,21 +107,94 @@ test_bt_sequence_labels (BT_TEST_ARGS)
 }
 
 static void
-test_bt_sequence_tracks (BT_TEST_ARGS)
+test_bt_sequence_append_track (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
   BtSequence *sequence =
       BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
-  BtMachine *machine = BT_MACHINE (bt_source_machine_new (song, "gen",
+  BtMachine *gen = BT_MACHINE (bt_source_machine_new (song, "gen",
           "buzztrax-test-mono-source", 0, NULL));
 
   GST_INFO ("-- act --");
-  bt_sequence_add_track (sequence, machine, -1);
+  bt_sequence_add_track (sequence, gen, -1);
 
   GST_INFO ("-- assert --");
-  ck_assert_gobject_eq_and_unref (bt_sequence_get_machine (sequence, 0),
-      machine);
+  ck_assert_gobject_eq_and_unref (bt_sequence_get_machine (sequence, 0), gen);
+
+  GST_INFO ("-- cleanup --");
+  g_object_try_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_insert_track (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0, NULL));
+  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-poly-source", 0, NULL));
+  bt_sequence_add_track (sequence, gen1, -1);
+
+  GST_INFO ("-- act --");
+  bt_sequence_add_track (sequence, gen2, 0);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_eq_and_unref (bt_sequence_get_machine (sequence, 0), gen2);
+
+  GST_INFO ("-- cleanup --");
+  g_object_try_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_move_track_left (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0, NULL));
+  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-poly-source", 0, NULL));
+  bt_sequence_add_track (sequence, gen1, -1);
+  bt_sequence_add_track (sequence, gen2, -1);
+
+  GST_INFO ("-- act --");
+  bt_sequence_move_track_left (sequence, 1);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_eq_and_unref (bt_sequence_get_machine (sequence, 0), gen2);
+
+  GST_INFO ("-- cleanup --");
+  g_object_try_unref (sequence);
+  BT_TEST_END;
+}
+
+static void
+test_bt_sequence_move_track_right (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  BtSequence *sequence =
+      BT_SEQUENCE (check_gobject_get_object_property (song, "sequence"));
+  BtMachine *gen1 = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-mono-source", 0, NULL));
+  BtMachine *gen2 = BT_MACHINE (bt_source_machine_new (song, "gen",
+          "buzztrax-test-poly-source", 0, NULL));
+  bt_sequence_add_track (sequence, gen1, -1);
+  bt_sequence_add_track (sequence, gen2, -1);
+
+  GST_INFO ("-- act --");
+  bt_sequence_move_track_right (sequence, 0);
+
+  GST_INFO ("-- assert --");
+  ck_assert_gobject_eq_and_unref (bt_sequence_get_machine (sequence, 0), gen2);
 
   GST_INFO ("-- cleanup --");
   g_object_try_unref (sequence);
@@ -694,7 +767,10 @@ bt_sequence_example_case (void)
 
   tcase_add_test (tc, test_bt_sequence_new);
   tcase_add_test (tc, test_bt_sequence_labels);
-  tcase_add_test (tc, test_bt_sequence_tracks);
+  tcase_add_test (tc, test_bt_sequence_append_track);
+  tcase_add_test (tc, test_bt_sequence_insert_track);
+  tcase_add_test (tc, test_bt_sequence_move_track_left);
+  tcase_add_test (tc, test_bt_sequence_move_track_right);
   tcase_add_test (tc, test_bt_sequence_pattern);
   tcase_add_test (tc, test_bt_sequence_get_tick_by_pattern);
   tcase_add_test (tc, test_bt_sequence_enlarge_length);
