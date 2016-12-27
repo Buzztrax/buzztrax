@@ -123,10 +123,10 @@ libbt_check_ui_la_SOURCES = \
 libTestBmGenerator_la_SOURCES = tests/bt-test-bm-generator.cpp \
 	src/lib/bml/BuzzMachineLoader/MachineInterface.h
 libTestBmGenerator_la_CXXFLAGS = -I src/lib/bml/BuzzMachineLoader \
-  $(COVERAGE_CFLAGS)
+  $(BT_CFLAGS)
 libTestBmGenerator_la_LDFLAGS = -avoid-version -module -shared -export-dynamic \
   -rpath /nowhere
-libTestBmGenerator_la_LIBADD = $(COVERAGE_LIBS)
+libTestBmGenerator_la_LIBADD = $(BT_LIBS)
 libTestBmGenerator_la_LIBTOOLFLAGS = --tag=disable-static
 
 bml_LDADD = \
