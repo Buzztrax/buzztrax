@@ -20,7 +20,7 @@
 
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 
-BT_TEST_SUITE_E ("BmlCore", bml_core);
+BT_TEST_SUITE_T_E ("BmlCore", bml_core);
 
 /* start the test run */
 gint
