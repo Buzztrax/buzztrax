@@ -110,10 +110,11 @@ _bmllog_init (int debug_log_flags)
   BMLDebugLogger logger = _log_null_logger;
 
   _first_ts = _get_timestamp ();
+  // for BuzzMachineLoader
   if (debug_log_flags & 0x1) {
     logger = _log_stdout_logger;
   }
-  // for dllwrappper
+  // for libbml itself
   if (debug_log_flags & 0x2) {
     _log_printf = _log_stdout_printf;
   }
