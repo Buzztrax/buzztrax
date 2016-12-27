@@ -91,7 +91,8 @@ check_LTLIBRARIES = \
   libbtic-check.la \
   libbtgst-check.la \
   libbt-cmd-check.la \
-  libbt-edit-check.la
+  libbt-edit-check.la \
+  libTestBmGenerator.la
 
 libbt_check_la_LIBADD = \
 	libbuzztrax-ic.la \
@@ -114,6 +115,16 @@ libbt_check_ui_la_CFLAGS = $(GUI_DEPS_CFLAGS) $(CHECK_CFLAGS)
 libbt_check_ui_la_SOURCES = \
 	tests/bt-check-ui.c tests/bt-check-ui.h
 
+# Oh dear, litool. We need to add the -rpath in LDFLAGS to force it to build
+# a .so instead of only the .la (deficiency of check_LTLIBRARIES instead of
+# lib_LTLIBRARIES)
+# - https://lists.gnu.org/archive/html/automake/2005-10/msg00107.html
+libTestBmGenerator_la_SOURCES = tests/bt-test-bm-generator.cpp \
+	src/lib/bml/BuzzMachineLoader/MachineInterface.h
+libTestBmGenerator_la_CXXFLAGS = -I src/lib/bml/BuzzMachineLoader
+libTestBmGenerator_la_LDFLAGS = -avoid-version -module -shared -export-dynamic \
+  -rpath /nowhere
+libTestBmGenerator_la_LIBTOOLFLAGS = --tag=disable-static
 
 bml_LDADD = \
 	libbml-check.la \
@@ -124,6 +135,7 @@ bml_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
 bml_SOURCES = \
 	tests/m-bml.c
+EXTRA_bml_DEPENDENCIES = libTestBmGenerator.la
 
 bt_core_LDADD = \
 	libbtcore-check.la \

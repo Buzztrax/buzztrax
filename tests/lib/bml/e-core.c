@@ -79,6 +79,22 @@ test_bmln_master_info (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
+static void
+test_bmln_open (BT_TEST_ARGS)
+{
+  BT_TEST_START;
+  GST_INFO ("-- arrange --");
+  bml_setup ();
+  bmln_set_master_info (120, 4, 44100);
+  GST_INFO ("-- act --");
+  BuzzMachineHandle *bmh = bmln_open (".libs/libTestBmGenerator.so");
+  GST_INFO ("-- assert --");
+  fail_unless (bmh != NULL);
+  GST_INFO ("-- cleanup --");
+  bmln_close (bmh);
+  BT_TEST_END;
+}
+
 TCase *
 bml_core_example_case (void)
 {
@@ -88,6 +104,7 @@ bml_core_example_case (void)
   tcase_add_test (tc, test_bml_finalize);
   // TODO: extract into a separate suite
   tcase_add_test (tc, test_bmln_master_info);
+  tcase_add_test (tc, test_bmln_open);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return tc;
