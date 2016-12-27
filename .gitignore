@@ -15,6 +15,7 @@ bmlhost
 buzztrax-cmd
 buzztrax-edit
 bml
+!bml/
 bt_core
 bt_gst
 bt_ic
