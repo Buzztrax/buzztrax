@@ -49,6 +49,7 @@ AM_TESTS_ENVIRONMENT = \
 	GST_REGISTRY_1_0=$(CHECK_REGISTRY) \
 	GST_PLUGIN_SYSTEM_PATH_1_0= \
 	GST_PLUGIN_PATH_1_0=$(top_builddir)/.libs:$(GST_PLUGINS_DIR) \
+	BML_PATH=$(top_builddir)/.libs \
 	$(LIBTOOL) --mode=execute
 
 # This should make the icon theme look here for icons too, but instead it breaks tons of things
