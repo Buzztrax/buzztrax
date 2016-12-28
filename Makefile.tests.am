@@ -59,7 +59,7 @@ AM_TESTS_ENVIRONMENT = \
 # profiling data
 # most of the files are there due to XDG_CACHE_HOME=$(abs_builddir)
 CLEANFILES += core core.* *.gcno *.gcda bt_*.tar.bz2 \
-  tests/test-registry.* fontconfig/* mime/*
+  $(CHECK_REGISTRY) fontconfig/* mime/*
 
 if BUILD_CHECK_TESTS
 check_PROGRAMS=$(TESTS_BIN)
@@ -93,7 +93,7 @@ check_LTLIBRARIES = \
   libbtgst-check.la \
   libbt-cmd-check.la \
   libbt-edit-check.la \
-  libTestBmGenerator.la
+  libTestBmGenerator.la libTestBmEffect.la
 
 libbt_check_la_LIBADD = \
 	libbuzztrax-ic.la \
@@ -122,12 +122,20 @@ libbt_check_ui_la_SOURCES = \
 # - https://lists.gnu.org/archive/html/automake/2005-10/msg00107.html
 libTestBmGenerator_la_SOURCES = tests/bt-test-bm-generator.cpp \
 	src/lib/bml/BuzzMachineLoader/MachineInterface.h
-libTestBmGenerator_la_CXXFLAGS = -I src/lib/bml/BuzzMachineLoader \
-  $(BT_CFLAGS)
+libTestBmGenerator_la_CXXFLAGS = -I src/lib/bml/BuzzMachineLoader $(BT_CFLAGS)
 libTestBmGenerator_la_LDFLAGS = -avoid-version -module -shared -export-dynamic \
   -rpath /nowhere
 libTestBmGenerator_la_LIBADD = $(BT_LIBS)
 libTestBmGenerator_la_LIBTOOLFLAGS = --tag=disable-static
+
+libTestBmEffect_la_SOURCES = tests/bt-test-bm-effect.cpp \
+	src/lib/bml/BuzzMachineLoader/MachineInterface.h
+libTestBmEffect_la_CXXFLAGS = -I src/lib/bml/BuzzMachineLoader $(BT_CFLAGS)
+libTestBmEffect_la_LDFLAGS = -avoid-version -module -shared -export-dynamic \
+  -rpath /nowhere
+libTestBmEffect_la_LIBADD = $(BT_LIBS)
+libTestBmEffect_la_LIBTOOLFLAGS = --tag=disable-static
+
 
 bml_LDADD = \
 	libbml-check.la \
@@ -138,7 +146,7 @@ bml_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
 bml_SOURCES = \
 	tests/m-bml.c
-EXTRA_bml_DEPENDENCIES = libTestBmGenerator.la
+EXTRA_bml_DEPENDENCIES = libTestBmGenerator.la libTestBmEffect.la
 
 bt_core_LDADD = \
 	libbtcore-check.la \
@@ -167,6 +175,7 @@ bt_gst_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
 bt_gst_SOURCES = \
   tests/m-bt-gst.c
+EXTRA_bml_DEPENDENCIES = libTestBmGenerator.la libTestBmEffect.la
 
 bt_cmd_LDADD = \
 	libbt-cmd-check.la \

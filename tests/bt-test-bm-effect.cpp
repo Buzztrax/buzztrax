@@ -21,7 +21,6 @@ typedef unsigned char byte;
 typedef unsigned short word;
 typedef unsigned long dword;
 
-#define pt_note (CMPType)0
 #define pt_word (CMPType)3
 #define MPF_STATE				2	// is continuously changing (not used for notes and triggers)
 
@@ -39,25 +38,10 @@ CMachineParameter const paraTest =
   16            // DefValue
 };
 
-// track values
-
-CMachineParameter const paraNote =
-{
-  pt_note,      // type
-  "Note",
-  "Note",       // description
-  0,            // MinValue
-  240,          // MaxValue
-  0,            // NoValue
-  0,            // Flags
-  0             // DefValue
-};
-
 CMachineParameter const *pParameters[] = {
   // global
   &paraTest,
   // track
-  &paraNote,
 };
 
 CMachineAttribute const attrMaxDelay =
@@ -81,13 +65,6 @@ public:
   word test;
 };
 
-class tvals
-{
-public:
-  byte note;
-
-};
-
 class avals
 {
 public:
@@ -98,18 +75,18 @@ public:
 
 CMachineInfo const MacInfo =
 {
-  1,                    // type == MT_GENERATOR
+  2,                    // type == MT_EFFECT
   15,                   // version
   0,                    // flags
-  1,                    // min tracks
-  1,                    // max tracks
+  0,                    // min tracks
+  0,                    // max tracks
   1,                    // numGlobalParameters
-  1,                    // numTrackParameters
+  0,                    // numTrackParameters
   pParameters,
   1,
   pAttributes,
-  "Buzz Tester G",
-  "BT G",               // short name
+  "Buzz Tester E",
+  "BT E",               // short name
   "Stefan Sauer",       // author
   NULL
 };
@@ -124,18 +101,16 @@ public:
   virtual void Tick();
   virtual bool Work(float *psamples, int numsamples, int const mode);
   virtual void Stop();
-  virtual void SetNumTracks(int const n);
 
 public:
   avals aval;
   gvals gval;
-  tvals tval[1];
 };
 
 mi::mi()
 {
   GlobalVals = &gval;
-  TrackVals = tval;
+  TrackVals = NULL;
   AttrVals = (int *)&aval;
 }
 
@@ -157,10 +132,6 @@ bool mi::Work(float *psamples, int numsamples, int const)
 }
 
 void mi::Stop()
-{
-}
-
-void mi::SetNumTracks(int const n)
 {
 }
 
