@@ -241,7 +241,7 @@ dir_scan (const gchar * dir_name)
   GDir *dir;
   gchar *file_name, *ext, *conv_entry_name = NULL, *cur_entry_name;
   const gchar *entry_name;
-  gboolean res = FALSE;
+  gboolean res = TRUE;
 
   /* @TODO: find a way to sync this with bml's testmachine report
    * also turning this into an include would ease, e.g. sorting it
@@ -443,7 +443,7 @@ dir_scan (const gchar * dir_name)
             if (WEXITSTATUS (status) == 0) {
               GST_WARNING ("loading %s worked okay", file_name);
 #endif
-              res = bmlw_gstbml_inspect (file_name);
+              res |= bmlw_gstbml_inspect (file_name);
 #if 0
             } else {
               GST_WARNING ("try loading %s failed with exit code %d", file_name,
@@ -458,7 +458,7 @@ dir_scan (const gchar * dir_name)
           GST_WARNING ("no dll emulation on non x86 platforms");
 #endif
         } else {
-          res = bmln_gstbml_inspect (file_name);
+          res |= bmln_gstbml_inspect (file_name);
         }
         g_free (file_name);
       } else {
