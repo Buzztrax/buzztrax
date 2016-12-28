@@ -150,13 +150,9 @@ test_state_changes_up_seq (BT_TEST_ARGS)
   for (e = elements; e; e = e->next) {
     const gchar *name = e->data;
 
-    GST_DEBUG ("testing element %s", name);
+    GST_INFO ("testing element %s", name);
     element = gst_element_factory_make (name, name);
     fail_if (element == NULL, "Could not make element from factory %s", name);
-
-    if (GST_IS_PIPELINE (element)) {
-      GST_DEBUG ("element %s is a pipeline", name);
-    }
 
     gst_element_set_state (element, GST_STATE_READY);
 
@@ -184,13 +180,9 @@ test_state_changes_down_seq (BT_TEST_ARGS)
   for (e = elements; e; e = e->next) {
     const gchar *name = e->data;
 
-    GST_DEBUG ("testing element %s", name);
+    GST_INFO ("testing element %s", name);
     element = gst_element_factory_make (name, name);
     fail_if (element == NULL, "Could not make element from factory %s", name);
-
-    if (GST_IS_PIPELINE (element)) {
-      GST_DEBUG ("element %s is a pipeline", name);
-    }
 
     gst_element_set_state (element, GST_STATE_READY);
     gst_element_set_state (element, GST_STATE_PAUSED);
