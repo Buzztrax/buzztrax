@@ -21,6 +21,7 @@
 GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 
 BT_TEST_SUITE_T_E ("BmlCore", bml_core);
+BT_TEST_SUITE_E ("BmlClass", bml_class);
 
 /* start the test run */
 gint
@@ -35,7 +36,7 @@ main (gint argc, gchar ** argv)
   bt_check_init ();
 
   sr = srunner_create (bml_core_suite ());
-  //srunner_add_suite (sr, bml_???_suite ());
+  srunner_add_suite (sr, bml_class_suite ());
   srunner_set_xml (sr, get_suite_log_filename ());
   srunner_run_all (sr, CK_NORMAL);
   nf = srunner_ntests_failed (sr);

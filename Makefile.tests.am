@@ -193,7 +193,8 @@ bt_edit_SOURCES = \
 libbml_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbml_check_la_CFLAGS = $(BASE_DEPS_CFLAGS) $(PTHREAD_CFLAGS) $(BML_CFLAGS) $(CHECK_CFLAGS)
 libbml_check_la_SOURCES = tests/lib/bml/m-bml.h \
-	tests/lib/bml/e-core.c tests/lib/bml/t-core.c
+	tests/lib/bml/e-core.c tests/lib/bml/t-core.c \
+	tests/lib/bml/e-class.c
 
 libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtcore_check_la_CFLAGS = $(BASE_DEPS_CFLAGS) $(CHECK_CFLAGS)

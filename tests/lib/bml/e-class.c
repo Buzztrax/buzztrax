@@ -26,6 +26,8 @@ static void
 case_setup (void)
 {
   BT_CASE_START;
+  bml_setup ();
+  bmln_set_master_info (120, 4, 44100);
 }
 
 static void
@@ -47,63 +49,31 @@ case_teardown (void)
 //-- tests
 
 static void
-test_bml_setup (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  GST_INFO ("-- act --");
-  int res = bml_setup ();
-  GST_INFO ("-- assert --");
-  fail_unless (res, NULL);
-  BT_TEST_END;
-}
-
-static void
-test_bml_finalize (BT_TEST_ARGS)
+test_bmln_get_machine_info (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  bml_setup ();
-  GST_INFO ("-- act --");
-  bml_finalize ();
-  BT_TEST_END;
-}
-
-static void
-test_bmln_master_info (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  GST_INFO ("-- arrange --");
-  bml_setup ();
-  GST_INFO ("-- act --");
-  bmln_set_master_info (120, 4, 44100);
-  BT_TEST_END;
-}
-
-static void
-test_bmln_open (BT_TEST_ARGS)
-{
-  BT_TEST_START;
-  GST_INFO ("-- arrange --");
-  bml_setup ();
-  bmln_set_master_info (120, 4, 44100);
-  GST_INFO ("-- act --");
   BuzzMachineHandle *bmh = bmln_open (".libs/libTestBmGenerator.so");
+
+  GST_INFO ("-- act --");
+  int val;
+  int ret = bmln_get_machine_info (bmh, BM_PROP_TYPE, &val);
+
   GST_INFO ("-- assert --");
-  fail_unless (bmh != NULL);
+  ck_assert_int_eq (ret, 1);
+  ck_assert_int_eq (val, 1);    // generator
+
   GST_INFO ("-- cleanup --");
   bmln_close (bmh);
   BT_TEST_END;
 }
 
 TCase *
-bml_core_example_case (void)
+bml_class_example_case (void)
 {
-  TCase *tc = tcase_create ("BmlCoreExamples");
+  TCase *tc = tcase_create ("BmlClassExamples");
 
-  tcase_add_test (tc, test_bml_setup);
-  tcase_add_test (tc, test_bml_finalize);
-  tcase_add_test (tc, test_bmln_master_info);
-  tcase_add_test (tc, test_bmln_open);
+  tcase_add_test (tc, test_bmln_get_machine_info);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return tc;

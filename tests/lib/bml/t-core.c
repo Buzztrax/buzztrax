@@ -65,7 +65,6 @@ bml_core_test_case (void)
 {
   TCase *tc = tcase_create ("BmlCoreTests");
 
-  // TODO: extract into a separate suite
   tcase_add_test (tc, test_bmln_open_bad_path);
   tcase_add_checked_fixture (tc, test_setup, test_teardown);
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
