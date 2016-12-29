@@ -153,6 +153,27 @@ void mi::Tick()
 
 bool mi::Work(float *psamples, int numsamples, int const)
 {
+  float v1=0.0, v2=0.0;
+
+  switch (gval.test) {
+  case 0:
+    v1 = v2 = 0.0;
+    break;
+  case 1:
+    v1 = v2 = 1.0;
+    break;
+  case 2:
+    v1 = v2 = -1.0;
+    break;
+  case 3:
+    v1 = 1.0;
+    v2 = -1.0;
+    break;
+  }
+  for (int i = 0; i < numsamples; i+=2) {
+    psamples[i] = v1;
+    psamples[i+1] = v2;
+  }
   return true;
 }
 

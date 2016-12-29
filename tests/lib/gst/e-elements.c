@@ -113,7 +113,8 @@ static gchar *synth_pipelines[] = {
   "fluidsynth num-buffers=10 note=\"c-4\" ! fakesink sync=false",
 #endif
   "sidsyn num-buffers=10 voice0::note=\"c-4\" ! fakesink sync=false",
-  "simsyn num-buffers=10 note=\"c-4\" ! fakesink sync=false"
+  "simsyn num-buffers=10 note=\"c-4\" ! fakesink sync=false",
+  "bml-libTestBmGenerator num-buffers=10 ! fakesink sync=false"
 };
 
 static void
