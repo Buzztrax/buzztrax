@@ -651,22 +651,6 @@ gst_bml_transform_init (GstBMLTransform * bml_transform)
       bml_class->numsinkpads);
 
   bml (gstbml_init (bml, bml_class, GST_ELEMENT (bml_transform)));
-  /* this is not nedded when using the base class
-     bml(gstbml_init_pads(GST_ELEMENT(bml_transform),bml,gst_bml_transform_link));
-
-     if (sinkcount == 1) {
-     // with one sink (input ports) we can use the chain function
-     // effects
-     GST_DEBUG_OBJECT(bml, "chain mode");
-     gst_pad_set_chain_function(bml->sinkpads[0], gst_bml_transform_chain);
-     }
-     else if (sinkcount > 1) {
-     // more than one sink (input ports) pad needs loop mode
-     // auxbus based effects
-     GST_DEBUG_OBJECT(bml, "loop mode with %d sink pads and %d src pads", sinkcount, srccount);
-     gst_element_set_loop_function(GST_ELEMENT(bml_transform), gst_bml_transform_loop);
-     }
-   */
 
   gst_base_transform_set_gap_aware (GST_BASE_TRANSFORM (bml_transform), TRUE);
 

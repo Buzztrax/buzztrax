@@ -149,7 +149,6 @@ extern GType bml(gstbml_register_track_enum_type(GObjectClass *klass, gpointer b
 //-- common element functions
 
 extern void bml(gstbml_init(GstBML *bml,GstBMLClass *klass,GstElement *element));
-extern void bml(gstbml_init_pads(GstElement *element, GstBML *bml, GstPadLinkFunction *gst_bml_link));
 
 extern void bml(gstbml_finalize(GstBML *bml));
 

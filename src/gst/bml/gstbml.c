@@ -1080,39 +1080,6 @@ bml (gstbml_init (GstBML * bml, GstBMLClass * klass, GstElement * element))
   //bml(set_num_tracks(bml,bml->num_voices));
 }
 
-/*
- * gstbml_init_pads
- *
- * add pads
- */
-void
-bml (gstbml_init_pads (GstElement * element, GstBML * bml,
-        GstPadLinkFunction * gst_bml_link))
-{
-  GstElementClass *klass = GST_ELEMENT_GET_CLASS (element);
-  GstPad *pad;
-  GList *l;
-  gint sinkcount = 0, srccount = 0;
-
-  for (l = klass->padtemplates; l; l = l->next) {
-    pad =
-        gst_pad_new_from_template (GST_PAD_TEMPLATE (l->data),
-        GST_PAD_TEMPLATE_NAME_TEMPLATE (l->data));
-
-    //gst_pad_set_link_function(pad,gst_bml_link);
-    gst_element_add_pad (element, pad);
-
-    if (GST_PAD_DIRECTION (pad) == GST_PAD_SINK) {
-      bml->sinkpads[sinkcount++] = pad;
-      GST_INFO_OBJECT (element, "  added sinkpad");
-    } else {
-      bml->srcpads[srccount++] = pad;
-      GST_INFO_OBJECT (element, "  added srcpad");
-    }
-  }
-  GST_INFO_OBJECT (element, "  src_ct=%d, sink_ct=%d", srccount, sinkcount);
-}
-
 void
 bml (gstbml_finalize (GstBML * bml))
 {
