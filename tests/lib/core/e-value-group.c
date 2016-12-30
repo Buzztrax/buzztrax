@@ -24,6 +24,8 @@ static BtSong *song;
 static BtMachine *machine;
 static BtPattern *pattern;
 
+#define NUM_COLUMNS 5
+
 //-- fixtures
 
 static void
@@ -187,16 +189,15 @@ test_bt_value_group_clear_columns (BT_TEST_ARGS)
 
 static struct _blend_column
 {
-  guint param;
   const gchar *init[2];
   const gchar *res[4];
 } blend_column[] = {
   /* *INDENT-OFF* */
-  { 0, { "10", "40"}, { "10", "20", "30", "40"}},       // uint
-  { 1, { "10", "40"}, { "10", "20", "30", "40"}},       // gdouble
-  { 2, { "0", "1"}, { "0", "0", "1", "1" }},            // switch: not impl.
-  { 3, { "c-3", "d#3"}, { "c-3", "c#3", "d-3", "d#3"}}, // note
-  { 4, { "0", "20"}, {"0", "1", "10", "20"}},           // sparse enum
+  {{ "10", "40"}, { "10", "20", "30", "40"}},       // uint
+  {{ "10", "40"}, { "10", "20", "30", "40"}},       // gdouble
+  {{ "0", "1"}, { "0", "0", "1", "1" }},            // switch: not impl.
+  {{ "c-3", "d#3"}, { "c-3", "c#3", "d-3", "d#3"}}, // note
+  {{ "0", "20"}, {"0", "1", "10", "20"}},           // sparse enum
   /* *INDENT-ON* */
 };
 
@@ -207,17 +208,16 @@ test_bt_value_group_blend_column (BT_TEST_ARGS)
   GST_INFO ("-- arrange --");
   struct _blend_column *p = &blend_column[_i];
   BtValueGroup *vg = get_mono_value_group ();
-  bt_value_group_set_event (vg, 0, p->param, p->init[0]);
-  bt_value_group_set_event (vg, 3, p->param, p->init[1]);
+  bt_value_group_set_event (vg, 0, _i, p->init[0]);
+  bt_value_group_set_event (vg, 3, _i, p->init[1]);
 
   GST_INFO ("-- act --");
-  bt_value_group_transform_colum (vg, BT_VALUE_GROUP_OP_BLEND, 0, 3, p->param);
+  bt_value_group_transform_colum (vg, BT_VALUE_GROUP_OP_BLEND, 0, 3, _i);
 
   GST_INFO ("-- assert --");
   guint i;
-  for (i = 0; i < G_N_ELEMENTS (p->res); i++) {
-    ck_assert_str_eq_and_free (bt_value_group_get_event (vg, i, p->param),
-        p->res[i]);
+  for (i = 0; i < 4; i++) {
+    ck_assert_str_eq_and_free (bt_value_group_get_event (vg, i, _i), p->res[i]);
   }
 
   GST_INFO ("-- cleanup --");
@@ -254,13 +254,13 @@ test_bt_value_group_randomize_column (BT_TEST_ARGS)
   BtValueGroup *vg = get_mono_value_group ();
 
   GST_INFO ("-- act --");
-  bt_value_group_transform_colum (vg, BT_VALUE_GROUP_OP_RANDOMIZE, 0, 3, 0);
+  bt_value_group_transform_colum (vg, BT_VALUE_GROUP_OP_RANDOMIZE, 0, 3, _i);
 
   GST_INFO ("-- assert --");
-  fail_unless (G_IS_VALUE (bt_value_group_get_event_data (vg, 0, 0)), NULL);
-  fail_unless (G_IS_VALUE (bt_value_group_get_event_data (vg, 1, 0)), NULL);
-  fail_unless (G_IS_VALUE (bt_value_group_get_event_data (vg, 2, 0)), NULL);
-  fail_unless (G_IS_VALUE (bt_value_group_get_event_data (vg, 3, 0)), NULL);
+  guint i;
+  for (i = 0; i < 4; i++) {
+    fail_unless (G_IS_VALUE (bt_value_group_get_event_data (vg, 0, _i)), NULL);
+  }
 
   GST_INFO ("-- cleanup --");
   BT_TEST_END;
@@ -370,10 +370,10 @@ bt_value_group_example_case (void)
   tcase_add_test (tc, test_bt_value_group_delete_row);
   tcase_add_test (tc, test_bt_value_group_clear_column);
   tcase_add_test (tc, test_bt_value_group_clear_columns);
-  tcase_add_loop_test (tc, test_bt_value_group_blend_column, 0,
-      G_N_ELEMENTS (blend_column));
+  tcase_add_loop_test (tc, test_bt_value_group_blend_column, 0, NUM_COLUMNS);
   tcase_add_test (tc, test_bt_value_group_flip_column);
-  tcase_add_test (tc, test_bt_value_group_randomize_column);
+  tcase_add_loop_test (tc, test_bt_value_group_randomize_column, 0,
+      NUM_COLUMNS);
   tcase_add_test (tc, test_bt_value_group_range_randomize_column);
   tcase_add_test (tc, test_bt_value_group_transpose_fine_up_column);
   tcase_add_test (tc, test_bt_value_group_transpose_fine_down_column);
