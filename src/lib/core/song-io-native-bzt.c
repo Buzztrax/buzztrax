@@ -238,129 +238,129 @@ bt_song_io_native_bzt_load (gconstpointer const _self,
   gboolean result = FALSE;
 #ifdef USE_GSF
   const BtSongIONativeBZT *const self = BT_SONG_IO_NATIVE_BZT (_self);
+  xmlDocPtr song_doc = NULL;
+  GError *e = NULL;
+  gchar *const file_name;
+  guint len;
+  gpointer data;
 
   xmlParserCtxtPtr const ctxt = xmlNewParserCtxt ();
-  if (ctxt) {
-    xmlDocPtr song_doc = NULL;
-    GError *e = NULL;
-    gchar *const file_name;
-    guint len;
-    gpointer data;
-
-    g_object_get ((gpointer) self, "file-name", &file_name, "data", &data,
-        "data-len", &len, NULL);
-    GST_INFO ("native io bzt will now load song from \"%s\"",
-        file_name ? file_name : "data");
-
-    if (data && len) {
-      // parse the file from the memory block
-      self->priv->input = gsf_input_memory_new (data, len, FALSE);
-    } else {
-      // open the file from the file_name argument
-      self->priv->input = gsf_input_stdio_new (file_name, &e);
-    }
-    if (self->priv->input) {
-      // create an gsf input file
-      if ((self->priv->infile = gsf_infile_zip_new (self->priv->input, &e))) {
-        GsfInput *data;
-
-        GST_INFO ("'%s' size: %" GSF_OFF_T_FORMAT ", files: %d",
-            gsf_input_name (self->priv->input),
-            gsf_input_size (self->priv->input),
-            gsf_infile_num_children (self->priv->infile));
-
-        // get file from zip
-        if ((data = gsf_infile_child_by_name (self->priv->infile, "song.xml"))) {
-          const guint8 *bytes;
-          size_t len = (size_t) gsf_input_size (data);
-
-          GST_INFO ("'%s' size: %" G_GSIZE_FORMAT, gsf_input_name (data), len);
-
-          if ((bytes = gsf_input_read (data, len, NULL))) {
-            song_doc =
-                xmlCtxtReadMemory (ctxt, (const char *) bytes, len,
-                "http://www.buzztrax.org", NULL, 0L);
-          } else {
-            GST_WARNING ("'%s': error reading data",
-                (file_name ? file_name : "data"));
-          }
-          g_object_unref (data);
-        }
-      } else {
-        GST_WARNING ("'%s' is not a zip file: %s",
-            (file_name ? file_name : "data"), e->message);
-        g_propagate_error (err, e);
-      }
-    } else {
-      if (e) {
-        GST_WARNING ("'%s' error: %s", (file_name ? file_name : "data"),
-            e->message);
-        g_propagate_error (err, e);
-      } else {
-        GST_WARNING ("'%s' error", (file_name ? file_name : "data"));
-        g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
-            _("Failed to create memory input."));
-      }
-    }
-
-    if (song_doc) {
-      xmlNodePtr const root_node = xmlDocGetRootElement (song_doc);
-
-      if (root_node == NULL) {
-        // this cannot really happen, since a missing root tag would fail the
-        // validity checks
-        GST_WARNING ("XML document is empty");
-        g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
-            _("XML document is empty."));
-      } else if (xmlStrcmp (root_node->name, (const xmlChar *) "buzztrax") &&
-          xmlStrcmp (root_node->name, (const xmlChar *) "buzztard")) {
-        GST_WARNING ("wrong XML document root");
-        g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
-            _("Wrong XML document root."));
-      } else {
-        GError *e = NULL;
-        bt_persistence_load (BT_TYPE_SONG, BT_PERSISTENCE (song), root_node,
-            &e, NULL);
-        if (e != NULL) {
-          GST_WARNING ("deserialisation failed: %s", e->message);
-          g_propagate_error (err, e);
-        } else {
-          result = TRUE;
-        }
-      }
-      xmlFreeDoc (song_doc);
-    } else {
-      /* other things that can be checked:
-       * ctxt->valid: DTD validation issue, we don't use a DTD anymore, also
-       *              set if !wellFormed
-       * ctxt->nsWellFormed:Namespace issue
-       */
-      if (!ctxt->wellFormed) {
-        GST_WARNING ("is not a wellformed XML document");
-        g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
-            _("Is not a wellformed XML document."));
-      } else {
-        GST_WARNING ("failed to read song file '%s'",
-            (file_name ? file_name : "data"));
-        g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
-            g_strerror (errno));
-      }
-    }
-    if (self->priv->infile) {
-      g_object_unref (self->priv->infile);
-      self->priv->infile = NULL;
-    }
-    if (self->priv->input) {
-      g_object_unref (self->priv->input);
-      self->priv->input = NULL;
-    }
-    g_free (file_name);
-    xmlFreeParserCtxt (ctxt);
-  } else {
+  if (!ctxt) {
     GST_WARNING ("failed to create parser context");
     g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
         "Failed to create parser context.");
+    return FALSE;
   }
+
+  g_object_get ((gpointer) self, "file-name", &file_name, "data", &data,
+      "data-len", &len, NULL);
+  GST_INFO ("native io bzt will now load song from \"%s\"",
+      file_name ? file_name : "data");
+
+  if (data && len) {
+    // parse the file from the memory block
+    self->priv->input = gsf_input_memory_new (data, len, FALSE);
+  } else {
+    // open the file from the file_name argument
+    self->priv->input = gsf_input_stdio_new (file_name, &e);
+  }
+  if (self->priv->input) {
+    // create an gsf input file
+    if ((self->priv->infile = gsf_infile_zip_new (self->priv->input, &e))) {
+      GsfInput *data;
+
+      GST_INFO ("'%s' size: %" GSF_OFF_T_FORMAT ", files: %d",
+          gsf_input_name (self->priv->input),
+          gsf_input_size (self->priv->input),
+          gsf_infile_num_children (self->priv->infile));
+
+      // get file from zip
+      if ((data = gsf_infile_child_by_name (self->priv->infile, "song.xml"))) {
+        const guint8 *bytes;
+        size_t len = (size_t) gsf_input_size (data);
+
+        GST_INFO ("'%s' size: %" G_GSIZE_FORMAT, gsf_input_name (data), len);
+
+        if ((bytes = gsf_input_read (data, len, NULL))) {
+          song_doc =
+              xmlCtxtReadMemory (ctxt, (const char *) bytes, len,
+              "http://www.buzztrax.org", NULL, 0L);
+        } else {
+          GST_WARNING ("'%s': error reading data",
+              (file_name ? file_name : "data"));
+        }
+        g_object_unref (data);
+      }
+    } else {
+      GST_WARNING ("'%s' is not a zip file: %s",
+          (file_name ? file_name : "data"), e->message);
+      g_propagate_error (err, e);
+    }
+  } else {
+    if (e) {
+      GST_WARNING ("'%s' error: %s", (file_name ? file_name : "data"),
+          e->message);
+      g_propagate_error (err, e);
+    } else {
+      GST_WARNING ("'%s' error", (file_name ? file_name : "data"));
+      g_set_error (err, G_IO_ERROR, G_IO_ERROR_FAILED,
+          _("Failed to create memory input."));
+    }
+  }
+
+  if (song_doc) {
+    xmlNodePtr const root_node = xmlDocGetRootElement (song_doc);
+
+    if (root_node == NULL) {
+      // this cannot really happen, since a missing root tag would fail the
+      // validity checks
+      GST_WARNING ("XML document is empty");
+      g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+          _("XML document is empty."));
+    } else if (xmlStrcmp (root_node->name, (const xmlChar *) "buzztrax") &&
+        xmlStrcmp (root_node->name, (const xmlChar *) "buzztard")) {
+      GST_WARNING ("wrong XML document root");
+      g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+          _("Wrong XML document root."));
+    } else {
+      GError *e = NULL;
+      bt_persistence_load (BT_TYPE_SONG, BT_PERSISTENCE (song), root_node,
+          &e, NULL);
+      if (e != NULL) {
+        GST_WARNING ("deserialisation failed: %s", e->message);
+        g_propagate_error (err, e);
+      } else {
+        result = TRUE;
+      }
+    }
+    xmlFreeDoc (song_doc);
+  } else {
+    /* other things that can be checked:
+     * ctxt->valid: DTD validation issue, we don't use a DTD anymore, also
+     *              set if !wellFormed
+     * ctxt->nsWellFormed:Namespace issue
+     */
+    if (!ctxt->wellFormed) {
+      GST_WARNING ("is not a wellformed XML document");
+      g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+          _("Is not a wellformed XML document."));
+    } else {
+      GST_WARNING ("failed to read song file '%s'",
+          (file_name ? file_name : "data"));
+      g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
+          g_strerror (errno));
+    }
+  }
+  if (self->priv->infile) {
+    g_object_unref (self->priv->infile);
+    self->priv->infile = NULL;
+  }
+  if (self->priv->input) {
+    g_object_unref (self->priv->input);
+    self->priv->input = NULL;
+  }
+  g_free (file_name);
+  xmlFreeParserCtxt (ctxt);
 #endif
   return result;
 }
