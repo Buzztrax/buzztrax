@@ -81,6 +81,60 @@ bt_song_io_init (void)
   return TRUE;
 }
 
+//-- common helpers
+
+gboolean
+bt_song_io_native_load (xmlDocPtr song_doc, const BtSong * const song,
+    GError ** err)
+{
+  xmlNodePtr const root_node = xmlDocGetRootElement (song_doc);
+
+  if (root_node == NULL) {
+    // this cannot really happen, since a missing root tag would fail the
+    // validity checks
+    GST_WARNING ("XML document is empty");
+    g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+        _("XML document is empty."));
+  } else if (xmlStrcmp (root_node->name, (const xmlChar *) "buzztrax") &&
+      xmlStrcmp (root_node->name, (const xmlChar *) "buzztard")) {
+    GST_WARNING ("wrong XML document root");
+    g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+        _("Wrong XML document root."));
+  } else {
+    GError *e = NULL;
+    bt_persistence_load (BT_TYPE_SONG, BT_PERSISTENCE (song), root_node,
+        &e, NULL);
+    if (e != NULL) {
+      GST_WARNING ("deserialisation failed: %s", e->message);
+      g_propagate_error (err, e);
+    } else {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+void
+bt_song_io_native_load_set_error (xmlParserCtxtPtr const ctxt,
+    gchar * const file_name, GError ** err)
+{
+  /* other things that can be checked:
+   * ctxt->valid: DTD validation issue, we don't use a DTD anymore, also
+   *              set if !wellFormed
+   * ctxt->nsWellFormed:Namespace issue
+   */
+  if (!ctxt->wellFormed) {
+    GST_WARNING ("is not a wellformed XML document");
+    g_set_error (err, BT_SONG_IO_ERROR, BT_SONG_IO_ERROR_INVALID_FORMAT,
+        _("Is not a wellformed XML document."));
+  } else {
+    GST_WARNING ("failed to read song file '%s'",
+        (file_name ? file_name : "data"));
+    g_set_error_literal (err, G_IO_ERROR, g_io_error_from_errno (errno),
+        g_strerror (errno));
+  }
+}
+
 //-- methods
 
 //-- wrapper
