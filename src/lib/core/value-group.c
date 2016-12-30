@@ -626,7 +626,21 @@ _blend_column (const BtValueGroup * const self, BtValueGroupOp op,
         _BLEND (uint64, UINT64)
         _BLEND (float, FLOAT)
         _BLEND (double, DOUBLE)
-      case G_TYPE_ENUM:
+      case G_TYPE_BOOLEAN:
+    {
+      gdouble val = (gdouble) g_value_get_boolean (beg);
+      gdouble step =
+          ((gdouble) g_value_get_boolean (end) - val) / (gdouble) ticks;
+      val += 0.5;
+      for (i = 0; i < ticks; i++) {
+        if (!BT_IS_GVALUE (beg))
+          g_value_init (beg, G_TYPE_BOOLEAN);
+        g_value_set_boolean (beg, (gboolean) (val + (step * i)));
+        beg += params;
+      }
+    }
+      break;
+    case G_TYPE_ENUM:
     {
       GParamSpecEnum *p = G_PARAM_SPEC_ENUM (property);
       GEnumClass *e = p->enum_class;
