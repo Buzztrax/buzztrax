@@ -115,6 +115,8 @@ static gchar *launch_pipelines[] = {
 #endif
   "sidsyn num-buffers=10 voice0::note=\"c-4\" ! fakesink sync=false",
   "simsyn num-buffers=10 note=\"c-4\" ! fakesink sync=false",
+  "wavetabsyn num-buffers=10 note=\"c-4\" ! fakesink sync=false",
+  "wavereplay num-buffers=10 note=\"c-4\" ! fakesink sync=false",
   "bml-libTestBmGenerator num-buffers=10 ! fakesink sync=false",
   // effects
   "audiotestsrc num-buffers=10 wave=4 ! audiodelay ! fakesink sync=false",
