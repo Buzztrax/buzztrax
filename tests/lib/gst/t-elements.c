@@ -207,7 +207,7 @@ test_state_changes_down_seq (BT_TEST_ARGS)
 TCase *
 gst_buzztrax_elements_test_case (void)
 {
-  TCase *tc = tcase_create ("GstElementTests");
+  TCase *tc = tcase_create ("GstElementsTests");
 
   tcase_add_test (tc, test_state_changes_up_and_down_seq);
   tcase_add_test (tc, test_state_changes_up_seq);

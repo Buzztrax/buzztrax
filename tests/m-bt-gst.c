@@ -25,7 +25,7 @@ gchar *test_argv[] = { "check_buzztrax" };
 gchar **test_argvptr = test_argv;
 gint test_argc = G_N_ELEMENTS (test_argv);
 
-BT_TEST_SUITE_T_E ("GstElement", gst_buzztrax_elements);
+BT_TEST_SUITE_T_E ("GstElements", gst_buzztrax_elements);
 BT_TEST_SUITE_E ("GstBtAudiosynth", gst_buzztrax_audiosynth);
 BT_TEST_SUITE_E ("GstBtCombine", gst_buzztrax_combine);
 BT_TEST_SUITE_E ("GstBtEnvelopeAD", gst_buzztrax_envelope_ad);

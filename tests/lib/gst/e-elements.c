@@ -107,22 +107,26 @@ test_launch_bt_dec (BT_TEST_ARGS)
   BT_TEST_END;
 }
 
-static gchar *synth_pipelines[] = {
+static gchar *launch_pipelines[] = {
+  // synthesizers
   "ebeats num-buffers=10 volume=100 ! fakesink sync=false",
 #ifdef HAVE_FLUIDSYNTH
   "fluidsynth num-buffers=10 note=\"c-4\" ! fakesink sync=false",
 #endif
   "sidsyn num-buffers=10 voice0::note=\"c-4\" ! fakesink sync=false",
   "simsyn num-buffers=10 note=\"c-4\" ! fakesink sync=false",
-  "bml-libTestBmGenerator num-buffers=10 ! fakesink sync=false"
+  "bml-libTestBmGenerator num-buffers=10 ! fakesink sync=false",
+  // effects
+  "audiotestsrc num-buffers=10 wave=4 ! audiodelay ! fakesink sync=false",
+  "audiotestsrc num-buffers=10 wave=4 ! bml-libTestBmEffect ! fakesink sync=false"
 };
 
 static void
-test_launch_synths (BT_TEST_ARGS)
+test_launch_elements (BT_TEST_ARGS)
 {
   BT_TEST_START;
   GST_INFO ("-- arrange --");
-  GstElement *pipeline = gst_parse_launch (synth_pipelines[_i], NULL);
+  GstElement *pipeline = gst_parse_launch (launch_pipelines[_i], NULL);
   GstMessageType message_types =
       GST_MESSAGE_NEW_CLOCK | GST_MESSAGE_STATE_CHANGED |
       GST_MESSAGE_STREAM_STATUS | GST_MESSAGE_ASYNC_DONE |
@@ -167,12 +171,12 @@ test_launch_synths (BT_TEST_ARGS)
 TCase *
 gst_buzztrax_elements_example_case (void)
 {
-  TCase *tc = tcase_create ("GstElementExamples");
+  TCase *tc = tcase_create ("GstElementsExamples");
 
   tcase_add_loop_test (tc, test_launch_bt_dec, 0,
       G_N_ELEMENTS (bt_dec_pipelines) * G_N_ELEMENTS (bt_dec_files));
-  tcase_add_loop_test (tc, test_launch_synths, 0,
-      G_N_ELEMENTS (synth_pipelines));
+  tcase_add_loop_test (tc, test_launch_elements, 0,
+      G_N_ELEMENTS (launch_pipelines));
   tcase_add_unchecked_fixture (tc, case_setup, case_teardown);
   return tc;
 }
