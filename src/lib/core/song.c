@@ -84,18 +84,55 @@
  *   also need to retry to start playback for each wire add/remove.
  *
  */
-/* TODO(ensonic): handle async-done when seeking
+/* handle async-done when seeking
  * - whenever we send flushing seeks, we need to wait for GST_MESSAGE_ASYNC_DONE
  *   to ensure that the previous flushing seek is done (see design/gst/event.c)
  *   and on_song_async_done(). If we don't do this, the previous seeks can get
  *   canceled
- * - we could add a pending_seek event. In async_done, we swap the pending seek
- *   event with NULL and send the pending one. Instead of seeking directly we
- *   use a seek_update helper to update the pending event. If the pending event
- *   is NULL we start a new pending seek. If async_done is called and pending is
- *   NULL, we set a flag, so that the next seek_update will send the seek
- *   directly.
- * - this needs changes whenever we call gst_element_send_event() with a seek
+ * - I added a pending_async_seek flag, but since we rate limmit from the UI we
+ *   never skipped a seek
+ */
+/* TODO: make looping seamless:
+ * - play with loop enabled:
+ *   - apps sends flushing segmented seek
+ *   - on segment_done, send segmented seek
+ * - imagine this simplified graph and some of the events + msg, and this
+ *   notation:
+ *     p:xx = pipeline, b:xx = bin, e:xx = element
+ *     e.xx = event, m.xx = message
+ *       e.flush-start: pushed downstrean, not serialized
+ *       e.flush-stop : pushed downstream, serialized
+ *   TODO: add e.new_seg below
+ * - playback starts:
+ *   application        : e.seek
+ *   - bus ------------------------------------------------------------------
+ *   p:song             : e.seek
+ *     b:src-machine    :  e.seek
+ *       e:src          :   e.seek, e.flush-start, e.flush-stop, e.new_seg, buffer, buffer, ...
+ *       e:tee          :            e.flush-start, e.flush-stop, e.new_seg, buffer, buffer, ...
+ *     b:src->sink-wire :             e.flush-start, e.flush-stop, e.new_seg, buffer, buffer, ...
+ *       e:queue        :              e.flush-start, e.flush-stop, e.new_seg, buffer, buffer, ...
+ *       e:volume       :               e.flush-start, e.flush-stop, e.new_seg, buffer, buffer, ...
+ *     b:sink-machine   :                e.flush-start, e.flush-stop, e.new_seg, buffer, buffer, ...
+ *       e:adder        :                 e.flush-start, e.flush-stop, e.new_seg, buffer, buffer, ...
+ *       e:sink         :                  e.flush-start, e.flush-stop, e.new_seg, buffer, buffer, ...
+ * - looping:
+ *   application        :    m.seg_done, e.seek
+ *   - bus ------------------------------------------------------------------
+ *   p:song             :   m.seg_done    e.seek
+ *     b:src-machine    :  m.seg_done      e.seek
+ *       e:src          : m.seg_done        e.seek, e.new_seg, buffer, buffer, ...
+ *       e:tee          :                    e.seek, e.new_seg, buffer, buffer, ...
+ *     b:src->sink-wire :                     e.seek, e.new_seg, buffer, buffer, ...
+ *       e:queue        :                      e.seek, e.new_seg, buffer, buffer, ...
+ *       e:volume       :                       e.seek, e.new_seg, buffer, buffer, ...
+ *     b:sink-machine   :                        e.seek, e.new_seg, buffer, buffer, ...
+ *       e:adder        :                         e.seek, e.new_seg, buffer, buffer, ...
+ *       e:sink         :                          e.seek, e.new_seg, buffer, buffer, ...
+ *
+ * - using "sync-message::segment-done" does not help
+ * - making buffer-time more than twice latency-time does not help either
+ *   see sink-bin.c::bt_sink_bin_configure_latency()
  */
 #define BT_CORE
 #define BT_SONG_C
@@ -291,7 +328,6 @@ bt_song_seek_to_play_pos (const BtSong * const self)
     event = MAKE_SEEK_EVENT_F (1.0, p->play_pos * tick_duration,
         (length + 1) * tick_duration);
   }
-  /* TODO(ensonic): handle async-done when seeking, see top-level comment */
   if (!(gst_element_send_event (GST_ELEMENT (p->master_bin), event))) {
     GST_WARNING ("element failed to seek to play_pos event");
   }
@@ -339,7 +375,6 @@ bt_song_change_play_rate (const BtSong * const self)
           p->play_pos * tick_duration);
     }
   }
-  /* TODO(ensonic): handle async-done when seeking, see top-level comment */
   if (!(gst_element_send_event (GST_ELEMENT (p->master_bin), event))) {
     GST_WARNING ("element failed to change playback rate");
   }
