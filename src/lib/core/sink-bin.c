@@ -379,11 +379,14 @@ bt_sink_bin_set_audio_sink (const BtSinkBin * const self, GstElement * sink)
     gobject_class->dispatch_properties_changed =
         parent_class->dispatch_properties_changed;
   }
-  // enable syncing to timestamps
-  g_object_set (sink, "sync", TRUE,
+  g_object_set (sink,
+      /* enable syncing to timestamps */
+      "sync", TRUE,
+      /* no need to keep the last rendered buffer */
+      "enable-last-sample", FALSE,
       /* if we do this, live pipelines go playing, but:
        * - non-live sources don't start
-       * - scrubbing on timeline is broken
+       * - scrubbing on timeline and fast seeking is broken
        */
       //"async", FALSE,
       /* this helps trickplay and scrubbing, there seems to be some time issue
