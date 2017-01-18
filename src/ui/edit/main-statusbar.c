@@ -386,7 +386,7 @@ bt_main_statusbar_set_property (GObject * object, guint property_id,
       } else
         gtk_statusbar_push (self->priv->status, self->priv->status_context_id,
             BT_MAIN_STATUSBAR_DEFAULT);
-      // FIXME(ensonic): this was does to ensure status-bar updates when the
+      // FIXME(ensonic): this was done to ensure status-bar updates when the
       // loader sets status while loading
       //while (gtk_events_pending ()) gtk_main_iteration ();
       // FIXME(ensonic): this does not help either, but on the other hand
