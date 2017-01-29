@@ -1139,7 +1139,8 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
   // leave "max-size-buffer >> 1, if 1 every buffer gets marked as discont!
   g_object_set (p->analyzers[ANALYZER_QUEUE],
       "max-size-buffers", 10, "max-size-bytes", 0, "max-size-time",
-      G_GUINT64_CONSTANT (0), "leaky", 2, "silent", TRUE, NULL);
+      G_GUINT64_CONSTANT (0), "leaky", /*old-buffers */ 2, "silent", TRUE,
+      NULL);
 
   if (BT_IS_WIRE (p->element)) {
     g_object_set (p->element, "analyzers", p->analyzers_list, NULL);
@@ -1255,7 +1256,10 @@ bt_signal_analysis_dialog_dispose (GObject * object)
   if (BT_IS_WIRE (self->priv->element)) {
     g_object_set (self->priv->element, "analyzers", NULL, NULL);
   } else {
-    bt_child_proxy_set (self->priv->element, "machine::analyzers", NULL, NULL);
+    GstElement *machine;
+    g_object_get (self->priv->element, "machine", &machine, NULL);
+    g_object_set (machine, "analyzers", NULL, NULL);
+    g_object_unref (machine);
   }
 
   g_object_unref (self->priv->element);
