@@ -70,7 +70,6 @@ typedef enum
   PART_GAIN,
   /* wire format conversion elements */
   PART_CONVERT,
-  /*PART_SCALE, unused right now */
   /* panorama / balance */
   PART_PAN,
   /* how many elements are used */
