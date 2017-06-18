@@ -380,22 +380,27 @@ bt_sink_bin_set_audio_sink (const BtSinkBin * const self, GstElement * sink)
         parent_class->dispatch_properties_changed;
   }
   g_object_set (sink,
-      /* enable syncing to timestamps */
+      /* enable syncing buffer timestamps to the clock */
       "sync", TRUE,
       /* no need to keep the last rendered buffer */
       "enable-last-sample", FALSE,
+      /* try to avoid any gaps, see design/gst/underrun.c */
+      "max-lateness", G_GUINT64_CONSTANT (0),
+      "discont-wait", G_GUINT64_CONSTANT (0),
       /* if we do this, live pipelines go playing, but:
        * - non-live sources don't start
        * - scrubbing on timeline and fast seeking is broken
        */
       //"async", FALSE,
-      /* this helps trickplay and scrubbing, there seems to be some time issue
-       * in baseaudiosink
+      /* default is 1: skew, this should not be required if the audio sink
+       * provides the clock
+       * trying 2: none, this helps trickplay and scrubbing, but this should be
+       * auto-selected by audiobasesink anyway since clock==provided_clock
        */
-      //"slave-method",2,
-      //"provide-clock",FALSE,
+      "slave-method", 2,
+      //"provide-clock", FALSE,  // default is TRUE
       /* this does not lockup anymore, but does not give us better latencies */
-      //"can-activate-pull",TRUE,
+      //"can-activate-pull",TRUE,  // default is FALSE
       NULL);
   self->priv->audio_sink = sink;
   bt_sink_bin_configure_latency (self);
@@ -597,7 +602,8 @@ bt_sink_bin_get_recorder_elements (const BtSinkBin * const self)
     // encodebin starts with a queue already
     element = gst_element_factory_make ("queue", "record-queue");
     if (element) {
-      g_object_set (element, "silent", TRUE, NULL);
+      g_object_set (element, "max-size-buffers", 1, "max-size-bytes", 0,
+          "max-size-time", G_GUINT64_CONSTANT (0), "silent", TRUE, NULL);
       list = g_list_append (list, element);
     } else {
       GST_WARNING_OBJECT (self, "failed to create 'queue'");
@@ -801,8 +807,13 @@ bt_sink_bin_update (const BtSinkBin * const self)
 
         // start with a queue
         element = gst_element_factory_make ("queue", "play-queue");
-        g_object_set (element, "silent", TRUE, NULL);
-        list1 = g_list_prepend (list1, element);
+        if (element) {
+          g_object_set (element, "max-size-buffers", 1, "max-size-bytes", 0,
+              "max-size-time", G_GUINT64_CONSTANT (0), "silent", TRUE, NULL);
+          list1 = g_list_prepend (list1, element);
+        } else {
+          GST_WARNING_OBJECT (self, "failed to create 'queue'");
+        }
 
         bt_sink_bin_add_many (self, list1);
         bt_sink_bin_link_many (self, tee, list1);

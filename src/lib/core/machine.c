@@ -994,6 +994,11 @@ bt_machine_enable_part (BtMachine * const self, const BtMachinePart part,
   if (self->priv->machines[part])
     return TRUE;
 
+  /* TODO(ensonic): add a debug mode where we reduce the complexity:
+   * - ignore level meters
+   * - create volume element, but don't link them
+   */
+
   if (!bt_machine_make_internal_element (self, part, factory_name,
           element_name))
     goto Error;

@@ -1137,6 +1137,7 @@ bt_signal_analysis_dialog_init_ui (const BtSignalAnalysisDialog * self)
     goto Error;
   }
   // leave "max-size-buffer >> 1, if 1 every buffer gets marked as discont!
+  // leaky: 1,2 does not really matter
   g_object_set (p->analyzers[ANALYZER_QUEUE],
       "max-size-buffers", 10, "max-size-bytes", 0, "max-size-time",
       G_GUINT64_CONSTANT (0), "leaky", /*old-buffers */ 2, "silent", TRUE,

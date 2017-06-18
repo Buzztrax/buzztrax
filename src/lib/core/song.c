@@ -130,9 +130,28 @@
  *       e:adder        :                         e.seek, e.new_seg, buffer, buffer, ...
  *       e:sink         :                          e.seek, e.new_seg, buffer, buffer, ...
  *
+ * CHECKED:
  * - using "sync-message::segment-done" does not help
  * - making buffer-time more than twice latency-time does not help either
  *   see sink-bin.c::bt_sink_bin_configure_latency()
+ * TODO:
+ * - run with realtime scheduling - both help!
+ *   sudo chrt -f -p 1 $(pidof lt-buzztrax-edit)
+ *   sudo chrt -r -p 1 $(pidof lt-buzztrax-edit)
+ * - run with different sinks:
+ *   jack: issues with loops !
+ * (buzztrax-edit:6784): GStreamer-CRITICAL **: gst_buffer_copy_into: assertion 'bufsize >= offset + size' failed
+ * 0:00:35.996753504  6784      0x4384770 ERROR                  audio audio.c:237:gst_audio_buffer_clip: copy_region failed
+ *     - only happens if we change the loop after playing,
+ *       if we load a song, change the loop and then play, it is good
+ *     - still also suffers from the jumpy loops
+ *   alsa/pulse: no difference
+ * - figure how to check buffers on the sink for:
+ *   - discontinuities
+ *   - late buffers
+ *   - over/under-runs
+ *
+ * GST_DEBUG_FILE="trace.log" GST_DEBUG_NO_COLOR=1 GST_DEBUG="GST_TRACER:7" GST_TRACERS=stats ./buzztrax-edit
  */
 #define BT_CORE
 #define BT_SONG_C
