@@ -752,16 +752,16 @@ gstbml_convert_names (GObjectClass * klass, gchar * tmp_name, gchar * tmp_desc,
     if (g_object_class_find_property (klass, cname)) {
       gchar *old_name = cname;
       gchar postfix[5];
-      gint i = 0;
+      guint8 i = 0;
 
       // make name uniqe
       cname = NULL;
       do {
         if (cname)
           g_free (cname);
-        snprintf (postfix, 5, "_%03d", i++);
+        snprintf (postfix, 5, "_%03u", i++);
         cname = g_strconcat (old_name, postfix, NULL);
-      } while (g_object_class_find_property (klass, cname));
+      } while (g_object_class_find_property (klass, cname) && i<100);
       g_free (old_name);
     }
     *name = cname;
