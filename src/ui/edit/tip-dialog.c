@@ -136,20 +136,15 @@ on_tip_view_realize (GtkWidget * widget, gpointer user_data)
 {
   GtkWidget *parent = gtk_widget_get_parent (widget);
   GtkRequisition requisition;
-  gint height, available_heigth;
-  gint max_height = gdk_screen_get_height (gdk_screen_get_default ());
+  gint height, max_height;
 
   gtk_widget_get_preferred_size (widget, NULL, &requisition);
+  bt_gtk_workarea_size (NULL, &max_height);
 
   GST_DEBUG ("#### tip_view  size req %d x %d (max-height=%d)",
       requisition.width, requisition.height, max_height);
 
-  height = requisition.height;
-  // constrain the height by screen height minus some space for panels and deco
-  available_heigth = max_height - SCREEN_BORDER_HEIGHT;
-  if (height > available_heigth) {
-    height = available_heigth;
-  }
+  height = MIN (requisition.height, max_height);
   // TODO(ensonic): is the '4' some border or padding
   gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
       height + 4);

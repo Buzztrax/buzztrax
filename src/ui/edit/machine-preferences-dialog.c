@@ -250,24 +250,21 @@ on_table_realize (GtkWidget * widget, gpointer user_data)
       GTK_SCROLLED_WINDOW (gtk_widget_get_parent (gtk_widget_get_parent
           (widget)));
   GtkRequisition minimum, natural, requisition;
-  GdkScreen *screen = gdk_screen_get_default ();
-  gint height, available_heigth, width, available_width, border;
+  gint height, max_heigth, width, max_width, border;
 
   gtk_widget_get_preferred_size (widget, &minimum, &natural);
   border = gtk_container_get_border_width (GTK_CONTAINER (widget));
 
   requisition.width = MAX (minimum.width, natural.width) + border;
   requisition.height = MAX (minimum.height, natural.height) + border;
+  bt_gtk_workarea_size (&max_width, &max_heigth);
 
-  GST_DEBUG ("#### table size req %d x %d", requisition.width,
-      requisition.height);
+  GST_DEBUG ("#### table size req %d x %d (max %d x %d)", requisition.width,
+      requisition.height, max_width, max_heigth);
 
-  // constrain the height by screen height minus some space for panels and deco
-  available_heigth = gdk_screen_get_height (screen) - SCREEN_BORDER_HEIGHT;
-  height = MIN (requisition.height, available_heigth);
-  // constrain the width by screen width minus some space for deco
-  available_width = gdk_screen_get_width (screen) - 16;
-  width = MIN (requisition.width, available_width);
+  // constrain the size by screen size minus some space for panels and deco
+  height = MIN (requisition.height, max_heigth);
+  width = MIN (requisition.width, max_width);
 
   gtk_scrolled_window_set_min_content_height (parent, height);
   gtk_scrolled_window_set_min_content_width (parent, width);

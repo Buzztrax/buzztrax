@@ -135,15 +135,18 @@ on_list_realize (GtkWidget * widget, gpointer user_data)
 {
   GtkWidget *parent = gtk_widget_get_parent (widget);
   GtkRequisition requisition;
-  gint height;
-  gint max_height = gdk_screen_get_height (gdk_screen_get_default ()) / 2;
+  gint height, max_height;
 
   gtk_widget_get_preferred_size (widget, NULL, &requisition);
-
-  height = MIN (requisition.height, max_height);
+  bt_gtk_workarea_size (NULL, &max_height);
   /* make sure the dialog resize without scrollbar until it would reach half
    * screen height */
-  GST_DEBUG (" height=%d", height);
+  max_height /= 2;
+
+  GST_DEBUG ("#### crash_recover_list  size req %d x %d (max-height=%d)",
+      requisition.width, requisition.height, max_height);
+
+  height = MIN (requisition.height, max_height);
   // TODO(ensonic): is the '2' some border or padding
   gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
       height + 2);

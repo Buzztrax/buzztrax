@@ -1556,8 +1556,7 @@ on_box_realize (GtkWidget * widget, gpointer user_data)
           (widget)));
   GtkRequisition minimum, natural, requisition;
   GtkAllocation tb_alloc;
-  GdkScreen *screen = gdk_screen_get_default ();
-  gint height, available_heigth, width, available_width, border;
+  gint height, max_heigth, width, max_width, border;
 
   gtk_widget_get_preferred_size (widget, &minimum, &natural);
   gtk_widget_get_allocation (GTK_WIDGET (self->priv->main_toolbar), &tb_alloc);
@@ -1565,18 +1564,15 @@ on_box_realize (GtkWidget * widget, gpointer user_data)
 
   requisition.width = MAX (minimum.width, natural.width) + border;
   requisition.height = MAX (minimum.height, natural.height) + border;
+  bt_gtk_workarea_size (&max_width, &max_heigth);
+  max_heigth -= tb_alloc.height;
 
-  GST_DEBUG ("#### box size req %d x %d (toolbar-height=%d)",
-      requisition.width, requisition.height, tb_alloc.height);
+  GST_DEBUG ("#### box size req %d x %d (toolbar-height %d, max %d x %d)",
+      requisition.width, requisition.height, tb_alloc.height, max_width, max_heigth);
 
-  // constrain the height by screen height minus some space for panels, deco and
-  // our toolbar
-  available_heigth = gdk_screen_get_height (screen) - SCREEN_BORDER_HEIGHT -
-      tb_alloc.height;
-  height = MIN (requisition.height, available_heigth);
-  // constrain the width by screen width minus some space for deco
-  available_width = gdk_screen_get_width (screen) - 16;
-  width = MIN (requisition.width, available_width);
+  // constrain the size by screen size minus some space for panels, deco and toolbar
+  height = MIN (requisition.height, max_heigth);
+  width = MIN (requisition.width, max_width);
 
   gtk_scrolled_window_set_min_content_height (parent, height);
   gtk_scrolled_window_set_min_content_width (parent, width);

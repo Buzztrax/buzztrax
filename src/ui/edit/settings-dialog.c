@@ -129,19 +129,15 @@ on_settings_list_realize (GtkWidget * widget, gpointer user_data)
 {
   GtkWidget *parent = GTK_WIDGET (user_data);
   GtkRequisition requisition;
-  gint height;
-  gint max_height = gdk_screen_get_height (gdk_screen_get_default ());
+  gint height, max_height;
 
   gtk_widget_get_preferred_size (widget, NULL, &requisition);
+  bt_gtk_workarea_size (NULL, &max_height);
 
-  GST_LOG ("#### list size req %d x %d (max-height=%d)", requisition.width,
+  GST_LOG ("#### list size req %d x %d (max-height %d)", requisition.width,
       requisition.height, max_height);
-  height = requisition.height;
   // constrain the height by screen height
-  if (height > max_height) {
-    // lets hope that 32 gives enough space for window-decoration + panels
-    height = max_height - 32;
-  }
+  height = MIN (requisition.height,  max_height);
   // TODO(ensonic): is the '2' some border or padding
   gtk_scrolled_window_set_min_content_height (GTK_SCROLLED_WINDOW (parent),
       height + 4);

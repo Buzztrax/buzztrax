@@ -69,4 +69,7 @@ void gtk_menu_item_add_accel(GtkMenuItem *mi, const gchar *path, guint accel_key
 typedef void (*BtNotifyFunc)(GObject *object, GParamSpec *pspec, gpointer user_data);
 void bt_notify_idle_dispatch (GObject *object, GParamSpec *pspec, gpointer user_data, BtNotifyFunc func);
 
+/* gtk compat helper */
+void bt_gtk_workarea_size (gint * max_width, gint * max_height);
+
 #endif // BT_EDIT_TOOLS_H

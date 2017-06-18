@@ -1142,10 +1142,10 @@ gtk_tool_button_new_from_icon_name
 gtk_toggle_tool_button_new_from_icon_name
 BtNotifyFunc
 bt_notify_idle_dispatch
+bt_gtk_workarea_size
 <SUBSECTION Private>
 BOX_BORDER
 LABEL_PADDING
-SCREEN_BORDER_HEIGHT
 <SUBSECTION Standard>
 # testing
 bt_edit_ui_config

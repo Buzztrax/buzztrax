@@ -378,3 +378,38 @@ bt_notify_idle_dispatch (GObject * object, GParamSpec * pspec,
   g_weak_ref_init (&data->user_data, user_data);
   g_idle_add (on_idle_notify, data);
 }
+
+/* gtk compat helper */
+
+/**
+ * bt_gtk_workarea_size:
+ * @max_width: destination for the width or %NULL
+ * @max_height: destination for the heigth or %NULL
+ *
+ * Gets the potitial max size the window could occupy. This can be used to
+ * hint the content size for #GtkScrelledWindow.
+ */
+void
+bt_gtk_workarea_size (gint * max_width, gint * max_height)
+{
+#if GTK_CHECK_VERSION (3, 22, 0)
+  GdkRectangle area;
+  gdk_monitor_get_workarea (
+      gdk_display_get_primary_monitor (gdk_display_get_default ()),
+      &area);
+  if (max_width)
+    *max_width = area.width;
+  if (max_height)
+    *max_height = area.height;
+#else
+  GdkScreen *screen = gdk_screen_get_default ();
+  /* TODO(ensonjc): these constances below are arbitrary
+   * look at http://standards.freedesktop.org/wm-spec/1.3/ar01s05.html#id2523368
+   * search for _NET_WM_STRUT_PARTIAL
+   */
+  if (max_width)
+    *max_width = gdk_screen_get_width (screen) - 16;
+  if (max_height)
+    *max_height = gdk_screen_get_height (screen) - 80;
+#endif
+}
