@@ -614,7 +614,7 @@ bt_wave_get_level_by_index (const BtWave * const self, const gulong index)
 
 static xmlNodePtr
 bt_wave_persistence_save (const BtPersistence * const persistence,
-    const xmlNodePtr const parent_node)
+    const xmlNodePtr parent_node)
 {
   const BtWave *const self = BT_WAVE (persistence);
   xmlNodePtr node = NULL;

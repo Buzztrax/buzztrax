@@ -2693,7 +2693,7 @@ bt_machine_dbg_print_parts (const BtMachine * const self)
 
 static xmlNodePtr
 bt_machine_persistence_save (const BtPersistence * const persistence,
-    const xmlNodePtr const parent_node)
+    const xmlNodePtr parent_node)
 {
   const BtMachine *const self = BT_MACHINE (persistence);
   GstObject *machine;
