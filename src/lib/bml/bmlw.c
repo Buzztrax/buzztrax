@@ -400,7 +400,7 @@ static ApiTable api[] = {
 };
 
 static int
-get_symbols (HINSTANCE * dll, ApiTable * tab, int entries)
+get_symbols (HINSTANCE dll, ApiTable * tab, int entries)
 {
   int i;
 
