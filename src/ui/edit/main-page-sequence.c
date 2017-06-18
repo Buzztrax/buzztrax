@@ -2066,7 +2066,7 @@ update_bars_menu (const BtMainPageSequence * self, gulong bars)
 {
   GtkListStore *store;
   GtkTreeIter iter;
-  gchar str[5];
+  gchar str[21];
   gulong i, j;
   gint active = 2;
   gint selected = -1;

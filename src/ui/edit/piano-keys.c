@@ -149,7 +149,7 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   gboolean sensitive = gtk_widget_is_sensitive (widget);
   gint pressed_key = -1, pressed_oct = -1;
   static const gint bwk[] = { 1, -1, 2, -2, 3, 4, -4, 5, -5, 6, -6, 7 };
-  gchar oct[3];
+  gchar oct[4];
   cairo_text_extents_t ext;
 
   width = gtk_widget_get_allocated_width (widget);
@@ -225,7 +225,7 @@ bt_piano_keys_draw (GtkWidget * widget, cairo_t * cr)
   }
   y = top + (WHITE_KEY_HEIGHT - 2);
   for (x = left; x < right; x += (7 * KEY_WIDTH)) {
-    sprintf (oct, "%d", (x - left) / (7 * KEY_WIDTH));
+    sprintf (oct, "%u", (guint8)((x - left) / (7 * KEY_WIDTH)));
     cairo_text_extents (cr, oct, &ext);
     k = x + ((KEY_WIDTH / 2) - (ext.width / 2));
     if (k + ext.width < right) {
