@@ -115,7 +115,7 @@ on_uevent (GUdevClient * client, gchar * action, GUdevDevice * udevice,
       devnode = g_strdup (devnode);
 
     /* dump properties, also available as:
-     * /sbin/udevadm info -qall -p /sys/class/sound/card0
+     * $(which udevadm) info -qall -p /sys/class/sound/card0
      *
      const gchar* const *props=g_udev_device_get_property_keys(udevice);
      while(*props) {
