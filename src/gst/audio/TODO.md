@@ -27,6 +27,28 @@ More synthesizers
 - slightly modulating the wave-offset could be interesting
   - we could e.g. let it progress during the tone or have an envelope for it
 
+# BLoop (beat looper)
+- parameters:
+  - wavetable-ix
+  - subdivide / slices (e.g. 4 for quarter)
+    use the last value if not given, default=4
+  - slice-ix
+    trigger param, from 0 to (subdivide-1)
+  - volume
+  - backwards (boolean)
+    only applied if slice ix is set
+  - pitch (percent)
+    0x00=0%, 0x7f=100%, 0xff=1000%
+- algorithm
+  - wavetable ix refers to a drum loop
+  - code will always stetch one loop to one beat
+  - multiple tracks?
+    track params: slice-ix, volume, backwards, pitch
+  - pitchshifter or grainsynth?
+- example
+  subdivide=4, pattern={0,1,2,3} plays the loop as is
+  subdivide=4, pattern={0,3,0,1} plays segments in different order
+
 # GrainSynth
 - a grain synth takes snippets from the one wave-table slot, applies a
   fft-window function and mixes it into the output
