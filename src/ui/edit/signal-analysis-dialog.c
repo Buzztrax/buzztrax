@@ -497,8 +497,6 @@ on_spectrum_freq_axis_draw (GtkWidget * widget, cairo_t * cr,
   if (!gtk_widget_get_realized (GTK_WIDGET (self)))
     return TRUE;
 
-  GdkRectangle rect = { 0, 0, self->priv->spect_bands, AXIS_THICKNESS };
-  GdkWindow *window = gtk_widget_get_window (widget);
   GtkStyleContext *sc = gtk_widget_get_style_context (widget);
   PangoLayout *layout = gtk_widget_create_pango_layout (widget, NULL);
   PangoRectangle lr;
@@ -526,8 +524,6 @@ on_spectrum_freq_axis_draw (GtkWidget * widget, cairo_t * cr,
     ,
     {0, -1, -1}
   };
-
-  gdk_window_begin_paint_rect (window, &rect);
 
   gtk_style_context_save (sc);
   gtk_style_context_add_class (sc, GTK_STYLE_CLASS_SEPARATOR);
@@ -582,7 +578,6 @@ on_spectrum_freq_axis_draw (GtkWidget * widget, cairo_t * cr,
     }
   }
 
-  gdk_window_end_paint (window);
   gtk_style_context_restore (sc);
   g_object_unref (layout);
   return TRUE;
@@ -596,8 +591,6 @@ on_level_axis_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   if (!gtk_widget_get_realized (GTK_WIDGET (self)))
     return TRUE;
 
-  GdkRectangle rect = { 0, 0, AXIS_THICKNESS, self->priv->spect_height };
-  GdkWindow *window = gtk_widget_get_window (widget);
   GtkStyleContext *sc = gtk_widget_get_style_context (widget);
   PangoLayout *layout = gtk_widget_create_pango_layout (widget, NULL);
   PangoRectangle lr;
@@ -618,8 +611,6 @@ on_level_axis_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
     ,
     {0, -1, -1}
   };
-
-  gdk_window_begin_paint_rect (window, &rect);
 
   gtk_style_context_save (sc);
   gtk_style_context_add_class (sc, GTK_STYLE_CLASS_SEPARATOR);
@@ -650,7 +641,6 @@ on_level_axis_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   // for ticks  we stop at d=5 or not enough space
   layout_vlabel (sc, cr, layout, ad, 1, 100, 0, y1, y3, h1, x1, x2, x3);
 
-  gdk_window_end_paint (window);
   gtk_style_context_restore (sc);
   g_object_unref (layout);
   return TRUE;
