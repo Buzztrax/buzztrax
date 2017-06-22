@@ -272,7 +272,6 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
   gdouble *graph_log10 = self->priv->graph_log10;
   gdouble grid_dash_pattern[] = { 1.0 };
   gdouble prec = self->priv->frq_precision;
-  GdkWindow *window = gtk_widget_get_window (widget);
   GtkStyleContext *style = gtk_widget_get_style_context (widget);
 
   gtk_render_background (style, cr, 0, 0, spect_bands, spect_height);
@@ -348,9 +347,16 @@ on_spectrum_draw (GtkWidget * widget, cairo_t * cr, gpointer user_data)
 
   // draw cross-hair for mouse
   // TODO(ensonic): cache GdkDevice*
-  gdk_window_get_device_position (window,
-      gdk_device_manager_get_client_pointer (gdk_display_get_device_manager
-          (gtk_widget_get_display (widget))), &mx, &my, NULL);
+  GdkDisplay *display = gtk_widget_get_display (widget);
+  gdk_window_get_device_position (
+      gtk_widget_get_window (widget),
+#if GTK_CHECK_VERSION (3, 20, 0)
+      gdk_seat_get_pointer (gdk_display_get_default_seat (display)),
+#else
+      gdk_device_manager_get_client_pointer (
+          gdk_display_get_device_manager (display)),
+#endif
+      &mx, &my, NULL);
   if ((mx >= 0) && (mx < gtk_widget_get_allocated_width (widget))
       && (my >= 0) && (my < gtk_widget_get_allocated_height (widget))) {
     gdk_cairo_set_source_rgba (cr, &self->priv->cross_hair_color);
