@@ -50,7 +50,7 @@ AC_DEFINE_UNQUOTED(GST_MAJORMINOR, "$GST_MAJORMINOR", [gstreamer series])
 AC_SUBST(GST_MAJORMINOR)
 
 dnl release year and date
-DATE_STAMP=`head -n1 NEWS | sed 's/^[[^(]]*(\(.*\)).*$/\1/'`
+DATE_STAMP=`head -n1 "${srcdir}/NEWS" | sed -e 's/^.*(\([[^\)]]*\)).*$/\1/'`
 if test "$DATE_STAMP" == "XX.XXX.XXXX"; then
   BT_RELEASE_YEAR=`date +%Y`
   BT_RELEASE_DATE=`date +%Y-%m-%d`
@@ -96,7 +96,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Package Name for Gettext
 
 dnl check if we build from vcs or tarball
 AC_MSG_CHECKING(if this is a development or release build)
-if test -f autogen.sh; then
+if test -f "${srcdir}/autogen.sh"; then
   dev_build=yes
   rel_build=no
   AC_DEFINE(DEV_BUILD, [1], [defined when building from version control system])
