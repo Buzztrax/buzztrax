@@ -85,6 +85,10 @@ extern GstCaps *bt_default_caps;
 
 BtCmdPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, const gchar * const id);
 
+//-- non public api ------------------------------------------------------------
+
+gpointer bt_wavetable_get_callbacks(BtWavetable * self);
+
 //-- debug helper --------------------------------------------------------------
 
 GList *bt_machine_get_element_list(const BtMachine * const self);

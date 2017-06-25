@@ -64,6 +64,4 @@ BtWave *bt_wavetable_get_wave_by_index(const BtWavetable * const self, const gul
 
 void bt_wavetable_remember_missing_wave(const BtWavetable * const self, const gchar * const str);
 
-gpointer bt_wavetable_get_callbacks(BtWavetable * self);
-
 #endif // BT_WAVETABLE_H

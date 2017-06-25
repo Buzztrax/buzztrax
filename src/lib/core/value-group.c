@@ -1066,7 +1066,7 @@ static OpFunc ops[BT_VALUE_GROUP_OP_COUNT] = {
 
 /**
  * bt_value_group_transform_colum:
- * @self: the pattern
+ * @self: the value group
  * @op: the transform operation
  * @start_tick: the start position for the range
  * @end_tick: the end position for the range
@@ -1098,7 +1098,7 @@ bt_value_group_transform_colum (const BtValueGroup * const self,
 
 /**
  * bt_value_group_transform_colums:
- * @self: the pattern
+ * @self: the value group
  * @op: the transform operation
  * @start_tick: the start position for the range
  * @end_tick: the end position for the range
@@ -1161,7 +1161,7 @@ _serialize_column (const BtValueGroup * const self, const gulong start_tick,
 
 /**
  * bt_value_group_serialize_column:
- * @self: the pattern
+ * @self: the value group
  * @start_tick: the start position for the range
  * @end_tick: the end position for the range
  * @param: the parameter
@@ -1187,7 +1187,7 @@ bt_value_group_serialize_column (const BtValueGroup * const self,
 
 /**
  * bt_value_group_serialize_columns:
- * @self: the pattern
+ * @self: the value group
  * @start_tick: the start position for the range
  * @end_tick: the end position for the range
  * @data: the target
@@ -1214,7 +1214,7 @@ bt_value_group_serialize_columns (const BtValueGroup * const self,
 
 /**
  * bt_value_group_deserialize_column:
- * @self: the pattern
+ * @self: the value group
  * @start_tick: the start position for the range
  * @end_tick: the end position for the range
  * @param: the parameter

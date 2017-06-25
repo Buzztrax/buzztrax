@@ -233,6 +233,7 @@ BML
 BMLData
 BML_VERSION
 GstBML
+gst_bml_property_meta_quark_type
 <SUBSECTION Private>
 GST_BML
 GST_BML_CLASS
@@ -240,6 +241,14 @@ GstBMLClass
 GstBMLMachineTypes
 GstBMLParameterTypes
 GstBMLPropertyIDs
+gstbml_calculate_buffer_frames
+gstbml_calculate_buffer_size
+gstbml_convert_names
+gstbml_dispose
+gstbml_fix_data
+gstbml_get_param
+gstbml_register_param
+gstbml_set_param
 gstbml_preset_delete_preset
 gstbml_preset_finalize
 gstbml_preset_get_meta
@@ -248,6 +257,7 @@ gstbml_preset_load_preset
 gstbml_preset_rename_preset
 gstbml_preset_save_preset
 gstbml_preset_set_meta
+orc_memset
 </SECTION>
 
 <SECTION>

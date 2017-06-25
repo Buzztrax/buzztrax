@@ -798,6 +798,18 @@ bt_pattern_delete_row (const BtPattern * const self, const gulong tick)
   g_signal_emit ((gpointer) self, signals[PATTERN_CHANGED_EVENT], 0, FALSE);
 }
 
+/**
+ * bt_pattern_transform_colums:
+ * @self: the pattern
+ * @op: the transform operation
+ * @start_tick: the start position for the range
+ * @end_tick: the end position for the range
+ *
+ * Applies @op to values from @start_tick to @end_tick to all parameters in the
+ * pattern.
+ *
+ * Since: 0.11
+ */
 void
 bt_pattern_transform_colums (const BtPattern * const self, BtValueGroupOp op,
     const gulong start_tick, const gulong end_tick)

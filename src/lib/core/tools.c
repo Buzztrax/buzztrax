@@ -730,8 +730,8 @@ bt_gst_log_message_error (GstDebugCategory * cat, const gchar * file,
  * @func: function name
  * @line: source code line
  * @msg: a #GstMessage of type %GST_MESSAGE_ERROR
- * @err_msg: optional output variable for the error message
- * @err_desc: optional output variable for the error description
+ * @warn_msg: optional output variable for the error message
+ * @warn_desc: optional output variable for the error description
  *
  * Low level helper that logs the message to the debug log. If @description is
  * given, it is set to the error detail (free after use).
