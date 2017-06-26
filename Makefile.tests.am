@@ -59,7 +59,7 @@ AM_TESTS_ENVIRONMENT = \
 # profiling data
 # most of the files are there due to XDG_CACHE_HOME=$(abs_builddir)
 CLEANFILES += core core.* *.gcno *.gcda bt_*.tar.bz2 \
-  $(CHECK_REGISTRY) fontconfig/* mime/*
+  $(CHECK_REGISTRY) fontconfig/* mime/*/* mime/* recently-used.xbel
 
 if BUILD_CHECK_TESTS
 check_PROGRAMS=$(TESTS_BIN)
