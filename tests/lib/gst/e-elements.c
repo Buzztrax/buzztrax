@@ -51,8 +51,8 @@ get_message_type (GstBus * bus)
 //-- tests
 
 static gchar *bt_dec_pipelines[] = {
-  "filesrc location=%s ! buzztrax-dec ! fakesink sync=false",
-  "filesrc location=%s ! queue ! buzztrax-dec ! fakesink sync=false",
+  "filesrc location=%s ! buzztraxdec ! fakesink sync=false",
+  "filesrc location=%s ! queue ! buzztraxdec ! fakesink sync=false",
   "playbin uri=file://%s audio-sink=\"fakesink sync=false\""
 };
 

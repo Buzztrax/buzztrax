@@ -947,6 +947,6 @@ plugin_init (GstPlugin * plugin)
 
 GST_PLUGIN_DEFINE (GST_VERSION_MAJOR,
     GST_VERSION_MINOR,
-    btdec,
+    buzztraxdec,
     "Buzztrax song renderer",
     plugin_init, VERSION, "LGPL", PACKAGE_NAME, "http://www.buzztrax.org");
