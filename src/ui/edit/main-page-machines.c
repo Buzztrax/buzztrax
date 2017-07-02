@@ -1574,6 +1574,7 @@ on_canvas_style_updated (GtkStyleContext * style_ctx, gconstpointer user_data)
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES (user_data);
   GdkRGBA c;
 
+  // BUG(744517): this is deprecated and there is no obvious quick fix
   gtk_style_context_get_background_color (style_ctx, GTK_STATE_FLAG_NORMAL, &c);
   ClutterColor stage_color = {
     CLAMP (c.red * 255, 0, 255), CLAMP (c.green * 255, 0, 255),
