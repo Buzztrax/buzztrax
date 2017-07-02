@@ -1,45 +1,42 @@
 # Swedish messages for buzztrax.
-# Copyright (C) 2014 Sebastian Rasmussen
+# Copyright (C) 2014-2015 Sebastian Rasmussen
 # This file is distributed under the same license as the buzztrax package.
-# Sebastian Rasmussen <sebras@gmail.com>, 2014.
+# Sebastian Rasmussen <sebras@gmail.com>, 2014-2015.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: buzztrax-0.7.0\n"
+"Project-Id-Version: buzztrax-0.10.0\n"
 "Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2015-08-16 22:53+0200\n"
-"PO-Revision-Date: 2014-07-05 15:13+0100\n"
+"POT-Creation-Date: 2015-08-07 15:24+0200\n"
+"PO-Revision-Date: 2015-12-10 01:34+0100\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.8.6\n"
 
 #: ../buzztrax.appdata.xml.in.h:1
 msgid "Fully integrated music composer."
-msgstr ""
+msgstr "Fullständigt integrerad musikkompositör."
 
 #. don't translate 'tracker'
 #: ../buzztrax.appdata.xml.in.h:3
-msgid ""
-"Buzztrax is a music composer similar to tracker applications. It is roughly "
-"modelled after the windows only, closed source application called Buzz."
-msgstr ""
+msgid "Buzztrax is a music composer similar to tracker applications. It is roughly modelled after the windows only, closed source application called Buzz."
+msgstr "Buzztrax är en musikkompositör liknande tracker-programvaror. Den har i stora drag modellerats efter den stängda Windowsprogramvaran Buzz."
 
 #: ../src/lib/core/core.c:181
-#, fuzzy
 msgid "Print the buzztrax core version"
 msgstr "Skriv ut buzztrax kärnversion"
 
 #: ../src/lib/core/core.c:187
-#, fuzzy
 msgid "Buzztrax core options"
 msgstr "Buzztrax kärnalternativ"
 
 #: ../src/lib/core/core.c:188
-#, fuzzy
 msgid "Show buzztrax core options"
 msgstr "Visa buzztrax kärnalternativ"
 
@@ -66,22 +63,22 @@ msgstr "förbigå"
 #: ../src/lib/core/song-io.c:312
 #, c-format
 msgid "Filename must not be empty."
-msgstr ""
+msgstr "Filnamn får inte vara tomt."
 
 #: ../src/lib/core/song-io.c:322
 #, c-format
 msgid "No io-module for filename '%s'."
-msgstr ""
+msgstr "Ingen io-modul med filnamn '%s'."
 
 #: ../src/lib/core/song-io.c:349
 #, c-format
 msgid "Media-type must not be empty."
-msgstr ""
+msgstr "Mediatyp får inte vara tom."
 
 #: ../src/lib/core/song-io.c:360
 #, c-format
 msgid "No io-module for media-type '%s'."
-msgstr ""
+msgstr "Ingen io-modul för mediatyp '%s'."
 
 #: ../src/lib/core/song-io.c:415
 #, c-format
@@ -96,31 +93,31 @@ msgstr "Sparar fil '%s'"
 #: ../src/lib/core/song-io-native-bzt.c:301
 #, c-format
 msgid "Failed to create memory input."
-msgstr ""
+msgstr "Misslyckades att skapa minnesingång."
 
 #: ../src/lib/core/song-io-native-bzt.c:309
 #: ../src/lib/core/song-io-native-xml.c:72
 #, c-format
 msgid "Is not a XML/Buzztrax document."
-msgstr ""
+msgstr "Är inte ett XML/Buzztrax-dokument."
 
 #: ../src/lib/core/song-io-native-bzt.c:313
 #: ../src/lib/core/song-io-native-xml.c:76
 #, c-format
 msgid "Is not a wellformed XML document."
-msgstr ""
+msgstr "Är inte ett välformat XML-dokument."
 
 #: ../src/lib/core/song-io-native-bzt.c:320
 #: ../src/lib/core/song-io-native-xml.c:83
 #, c-format
 msgid "XML document is empty."
-msgstr ""
+msgstr "XML-dokument är tomt."
 
 #: ../src/lib/core/song-io-native-bzt.c:325
 #: ../src/lib/core/song-io-native-xml.c:88
 #, c-format
 msgid "Wrong XML document root."
-msgstr ""
+msgstr "Felaktig XML-dokumentrot."
 
 #. default name for new songs
 #: ../src/lib/core/song-info.c:122
@@ -129,32 +126,28 @@ msgstr "namnlös sång"
 
 #: ../src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in.h:1
 #: ../src/ui/edit/buzztrax-edit.desktop.in.h:1
-#, fuzzy
 msgid "Buzztrax Music Editor"
 msgstr "Buzztrax musikredigerare"
 
 #: ../src/lib/core/songio/bsl/song-io-buzz.c:2385
 #, c-format
 msgid "Error reading a buzz file section."
-msgstr ""
+msgstr "Fel vid läsning av buzz-filstycke."
 
 #: ../src/lib/core/songio/bsl/song-io-buzz.c:2391
 #, c-format
 msgid "Is not a buzz file."
-msgstr ""
+msgstr "Är inte en buzz-fil."
 
 #: ../src/lib/ic/ic.c:106
-#, fuzzy
 msgid "Print the buzztrax interaction controller version"
 msgstr "Skriv ut version av buzztrax interaktionskontroller"
 
 #: ../src/lib/ic/ic.c:112
-#, fuzzy
 msgid "Buzztrax interaction controller options"
 msgstr "Alternativ för Buzztrax interaktionskontroller"
 
 #: ../src/lib/ic/ic.c:113
-#, fuzzy
 msgid "Show buzztrax interaction controller options"
 msgstr "Visa alternativ för buzztrax interaktionskontroller"
 
@@ -184,12 +177,10 @@ msgid "Output file name"
 msgstr "Utmatningsfilnamn"
 
 #: ../src/ui/cmd/bt-cmd.c:105
-#, fuzzy
 msgid "buzztrax-cmd options"
-msgstr "alternadiv för buzztrax-cmd"
+msgstr "alternativ för buzztrax-cmd"
 
 #: ../src/ui/cmd/bt-cmd.c:106
-#, fuzzy
 msgid "Show buzztrax-cmd options"
 msgstr "Visa alternativ för buzztrax-cmd"
 
@@ -204,7 +195,7 @@ msgstr ""
 "<tp-sv@listor.tp-sv.se>"
 
 #: ../src/ui/edit/about-dialog.c:68 ../src/ui/edit/about-dialog.c:70
-#, fuzzy, c-format
+#, c-format
 msgid "Copyright © 2003-%d Buzztrax developer team"
 msgstr "Copyright © 2003-%d Buzztrax utvecklargrupp"
 
@@ -214,59 +205,35 @@ msgstr "Musikproduktionsmiljö"
 
 #: ../src/ui/edit/about-dialog.c:91
 msgid ""
-"This package is free software; you can redistribute it and/or modify it "
-"under the terms of the GNU Library General Public License as published by "
-"the Free Software Foundation; either version 2.1 of the License, or (at your "
-"option) any later version.\n"
+"This package is free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.\n"
 "\n"
-"This package is distributed in the hope that it will be useful, but WITHOUT "
-"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
-"FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License "
-"for more details.\n"
+"This package is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.\n"
 "\n"
-"You should have received a copy of the GNU Library General Public License "
-"along with this package; if not, write to the Free Software Foundation, "
-"Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA."
+"You should have received a copy of the GNU Library General Public License along with this package; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA."
 msgstr ""
-"Detta program är fri programvara. Du kan distribuera det och/eller modifiera "
-"det under villkoren i GNU Library General Public License, publicerad av Free "
-"Software Foundation, antingen version 2.1 eller (om du så vill) någon senare "
-"version.\n"
+"Detta program är fri programvara. Du kan distribuera det och/eller modifiera det under villkoren i GNU Library General Public License, publicerad av Free Software Foundation, antingen version 2.1 eller (om du så vill) någon senare version.\n"
 "\n"
-"Detta program distribueras i hopp om att det ska vara användbart, men UTAN "
-"NÅGON SOM HELST GARANTI, även utan underförstådd garanti om SÄLJBARHET eller "
-"LÄMPLIGHET FÖR NÅGOT SPECIELLT ÄNDAMÅL. Se GNU General Public License för "
-"ytterligare information.\n"
+"Detta program distribueras i hopp om att det ska vara användbart, men UTAN NÅGON SOM HELST GARANTI, även utan underförstådd garanti om SÄLJBARHET eller LÄMPLIGHET FÖR NÅGOT SPECIELLT ÄNDAMÅL. Se GNU General Public License för ytterligare information.\n"
 "\n"
-"Du bör ha fått en kopia av GNU General Public License tillsammans med detta "
-"program. Om inte, skriv till Free Software Foundation, Inc., 51 Franklin "
-"Street, Fifth Floor, Boston, MA  02110-1301  USA."
+"Du bör ha fått en kopia av GNU General Public License tillsammans med detta program. Om inte, skriv till Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA."
 
 #. "Development version (do not translate this)"
 #.
 #: ../src/ui/edit/about-dialog.c:117
-msgid ""
-"Just a few month since the previous release, this update mostly focuses on "
-"getting rid of deprecated APIs. Besides that it also come with a new "
-"synthesizer plugin called 'ebeats'. As the name suggests it is good at "
-"making percussion sounds. Together with that the library providing the dsp "
-"components got overhauled."
-msgstr ""
+msgid "Just a few month since the previous release, this update mostly focuses on getting rid of deprecated APIs. Besides that it also come with a new synthesizer plugin called 'ebeats'. As the name suggests it is good at making percussion sounds. Together with that the library providing the dsp components got overhauled."
+msgstr "Då det bara är ett par månader sedan den föregående släppet, så fokuserar denna uppdatering mestadels på att bli av med föråldrade API:er. Förutom detta så finns det också en ny synthesizer-insticksmodul som heter 'ebeats'. Som namnet antyder så är den bra på att göra slagverksljud. Tillsammans med detta så har biblioteket som tillhandahåller dsp-komponenter reviderats."
 
 #: ../src/ui/edit/bt-edit.c:107
-#, fuzzy
 msgid "buzztrax-edit options"
 msgstr "alternativ för buzztrax-edit"
 
 #: ../src/ui/edit/bt-edit.c:108
-#, fuzzy
 msgid "Show buzztrax-edit options"
 msgstr "Visa alternativ för buzztrax-edit"
 
 #: ../src/ui/edit/buzztrax-edit.desktop.in.h:2
-#, fuzzy
 msgid "Edit buzztrax song files"
-msgstr "Redigera buzztrax sångfiler"
+msgstr "Redigera buzztrax-sångfiler"
 
 #: ../src/ui/edit/change-log.c:643
 msgid "unsaved song"
@@ -300,8 +267,7 @@ msgstr "Tyvärr kunde den valda sången inte återskapas helt."
 
 #: ../src/ui/edit/crash-recover-dialog.c:186
 msgid "Please check the song and save it if still looks good."
-msgstr ""
-"Vänligen kontrollera sången och spara den om den fortfarande ser OK ut."
+msgstr "Vänligen kontrollera sången och spara den om den fortfarande ser OK ut."
 
 #: ../src/ui/edit/crash-recover-dialog.c:225
 msgid "Unsaved song recovery"
@@ -313,7 +279,7 @@ msgstr "Försök att återskapa osparad sång"
 #. select song + delete -> remove log
 #: ../src/ui/edit/crash-recover-dialog.c:231
 msgid "_Close"
-msgstr ""
+msgstr "_Stäng"
 
 #: ../src/ui/edit/crash-recover-dialog.c:243
 msgid "Unsaved songs found"
@@ -339,7 +305,7 @@ msgstr "Återskapa"
 
 #: ../src/ui/edit/crash-recover-dialog.c:307
 msgid "Delete"
-msgstr ""
+msgstr "Ta bort"
 
 #: ../src/ui/edit/edit-application.c:159
 msgid "-> You will not see any level-meters."
@@ -351,15 +317,13 @@ msgstr "-> Du kommer inte att se frekvensspektrumet i analysfönstret."
 
 #: ../src/ui/edit/edit-application.c:181
 msgid "-> Sample playback previews from the wavetable page will not work."
-msgstr ""
-"-> Uppspelning av samplingar från sidan med vågformstabellen kommer ej att "
-"fungera."
+msgstr "-> Uppspelning av samplingar från sidan med vågformstabellen kommer ej att fungera."
 
 #: ../src/ui/edit/edit-application.c:240 ../src/ui/edit/main-menu.c:105
 #: ../src/ui/edit/main-window.c:156
-#, fuzzy, c-format
+#, c-format
 msgid "Can't load song '%s'."
-msgstr "Kan ej läsa in sång"
+msgstr "Kan inte läsa in sång '%s'."
 
 #: ../src/ui/edit/edit-application.c:242 ../src/ui/edit/main-menu.c:106
 #: ../src/ui/edit/main-window.c:157
@@ -412,15 +376,13 @@ msgstr "Förbigå"
 
 #. dynamic part
 #: ../src/ui/edit/machine-canvas-item.c:822
-#, fuzzy
 msgid "_Properties"
-msgstr "%s egenskaper"
+msgstr "_Egenskaper"
 
 #. static part
 #: ../src/ui/edit/machine-canvas-item.c:844 ../src/ui/edit/main-menu.c:916
-#, fuzzy
 msgid "_Preferences"
-msgstr "%s inställningar"
+msgstr "_Inställningar"
 
 #: ../src/ui/edit/machine-canvas-item.c:855
 msgid "Rename…"
@@ -428,7 +390,7 @@ msgstr "Byt namn…"
 
 #: ../src/ui/edit/machine-canvas-item.c:861 ../src/ui/edit/main-menu.c:909
 msgid "_Delete"
-msgstr ""
+msgstr "_Ta bort"
 
 #: ../src/ui/edit/machine-canvas-item.c:873
 msgid "Connect machines"
@@ -454,17 +416,16 @@ msgstr "Uppspelning med"
 #.
 #. help menu
 #: ../src/ui/edit/machine-canvas-item.c:948
-#: ../src/ui/edit/machine-properties-dialog.c:2587
+#: ../src/ui/edit/machine-properties-dialog.c:2586
 #: ../src/ui/edit/main-menu.c:1062
 msgid "_Help"
 msgstr "_Hjälp"
 
 #: ../src/ui/edit/machine-canvas-item.c:958
-#: ../src/ui/edit/machine-properties-dialog.c:2581
+#: ../src/ui/edit/machine-properties-dialog.c:2580
 #: ../src/ui/edit/main-menu.c:1103
-#, fuzzy
 msgid "_About"
-msgstr "Om…"
+msgstr "_Om"
 
 #. generators
 #: ../src/ui/edit/machine-menu.c:331
@@ -498,15 +459,15 @@ msgstr "förinställt namn och kommentar"
 #: ../src/ui/edit/pattern-properties-dialog.c:148
 #: ../src/ui/edit/settings-dialog.c:187 ../src/ui/edit/tip-dialog.c:210
 msgid "_OK"
-msgstr ""
+msgstr "_OK"
 
 #: ../src/ui/edit/machine-preset-properties-dialog.c:144
 #: ../src/ui/edit/machine-rename-dialog.c:122 ../src/ui/edit/main-window.c:589
 #: ../src/ui/edit/main-window.c:721 ../src/ui/edit/main-window.c:1054
 #: ../src/ui/edit/pattern-properties-dialog.c:148
-#: ../src/ui/edit/render-dialog.c:617 ../src/ui/edit/settings-dialog.c:187
+#: ../src/ui/edit/render-dialog.c:616 ../src/ui/edit/settings-dialog.c:187
 msgid "_Cancel"
-msgstr ""
+msgstr "_Avbryt"
 
 #. GtkEntry : preset name
 #. GtkEntry : machine name
@@ -566,16 +527,15 @@ msgstr "egenskaper för sladd %s"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2432
 msgid "_Add"
-msgstr ""
+msgstr "_Lägg till"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2433
 msgid "Add new preset"
 msgstr "Lägg till ny förinställning"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2439
-#, fuzzy
 msgid "_Remove"
-msgstr "Ta bort spår"
+msgstr "_Ta bort"
 
 #: ../src/ui/edit/machine-properties-dialog.c:2440
 msgid "Remove preset"
@@ -587,55 +547,55 @@ msgstr "Ta bort förinställning"
 msgid "_Edit"
 msgstr "_Redigera"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2448
+#: ../src/ui/edit/machine-properties-dialog.c:2447
 msgid "Edit preset name and comment"
 msgstr "Redigera förinställningsnamn och kommentar"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2495
+#: ../src/ui/edit/machine-properties-dialog.c:2494
 msgid "Preset"
 msgstr "Förinställning"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2543
+#: ../src/ui/edit/machine-properties-dialog.c:2542
 msgid "machine properties"
 msgstr "maskinegenskaper"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2582
+#: ../src/ui/edit/machine-properties-dialog.c:2581
 msgid "Info about this machine"
 msgstr "Information om denna maskin"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2588
+#: ../src/ui/edit/machine-properties-dialog.c:2587
 msgid "Help for this machine"
 msgstr "Hjälp för denna maskin"
 
 #. -- file controls
-#: ../src/ui/edit/machine-properties-dialog.c:2597
+#: ../src/ui/edit/machine-properties-dialog.c:2596
 #: ../src/ui/edit/main-menu.c:776 ../src/ui/edit/main-toolbar.c:866
 msgid "_New"
-msgstr ""
+msgstr "_Ny"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2598
+#: ../src/ui/edit/machine-properties-dialog.c:2597
 msgid "Randomize parameters"
 msgstr "Slumpa parametrarna"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2603
+#: ../src/ui/edit/machine-properties-dialog.c:2602
 #: ../src/ui/edit/main-menu.c:867
 msgid "_Undo"
-msgstr ""
+msgstr "_Ångra"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2604
+#: ../src/ui/edit/machine-properties-dialog.c:2603
 msgid "Reset parameters to defaults"
 msgstr "Återställ parametrar till standard"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2612
+#: ../src/ui/edit/machine-properties-dialog.c:2611
 msgid "Presets"
 msgstr "Förinställningar"
 
-#: ../src/ui/edit/machine-properties-dialog.c:2613
+#: ../src/ui/edit/machine-properties-dialog.c:2612
 msgid "Show/Hide preset pane"
 msgstr "Visa/Göm förinställningspanelen"
 
 #. set dialog title
-#: ../src/ui/edit/machine-properties-dialog.c:2723
+#: ../src/ui/edit/machine-properties-dialog.c:2722
 #: ../src/ui/edit/pattern-properties-dialog.c:142
 #, c-format
 msgid "%s properties"
@@ -665,7 +625,7 @@ msgstr "_Arkiv"
 #: ../src/ui/edit/main-menu.c:783 ../src/ui/edit/main-page-waves.c:1415
 #: ../src/ui/edit/main-toolbar.c:872 ../src/ui/edit/main-window.c:590
 msgid "_Open"
-msgstr ""
+msgstr "_Öppna"
 
 #: ../src/ui/edit/main-menu.c:790
 msgid "_Recently used"
@@ -674,42 +634,39 @@ msgstr "_Senast använda"
 #: ../src/ui/edit/main-menu.c:816 ../src/ui/edit/main-toolbar.c:878
 #: ../src/ui/edit/main-window.c:722
 msgid "_Save"
-msgstr ""
+msgstr "_Spara"
 
 #: ../src/ui/edit/main-menu.c:824
-#, fuzzy
 msgid "Save _As"
-msgstr "Spara en sång"
+msgstr "Spara s_om"
 
 #: ../src/ui/edit/main-menu.c:834
 msgid "Recover unsaved songs"
 msgstr "Återskapade osparade sånger"
 
 #: ../src/ui/edit/main-menu.c:844
-#, fuzzy
 msgid "_Record"
-msgstr "Återskapa"
+msgstr "_Spela in"
 
 #: ../src/ui/edit/main-menu.c:851
 msgid "_Quit"
-msgstr ""
+msgstr "_Avsluta"
 
 #: ../src/ui/edit/main-menu.c:876
 msgid "_Redo"
-msgstr ""
+msgstr "_Gör om"
 
 #: ../src/ui/edit/main-menu.c:888
 msgid "Cu_t"
-msgstr ""
+msgstr "Klipp _ut"
 
 #: ../src/ui/edit/main-menu.c:895
 msgid "_Copy"
-msgstr ""
+msgstr "_Kopiera"
 
 #: ../src/ui/edit/main-menu.c:902
-#, fuzzy
 msgid "_Paste"
-msgstr "Klistra in"
+msgstr "Klistra _in"
 
 #. view menu
 #: ../src/ui/edit/main-menu.c:922
@@ -718,7 +675,7 @@ msgstr "_Vy"
 
 #: ../src/ui/edit/main-menu.c:930
 msgid "Toolbar"
-msgstr "Verktygsrad"
+msgstr "Verktygsfält"
 
 #: ../src/ui/edit/main-menu.c:937
 msgid "Statusbar"
@@ -780,9 +737,8 @@ msgstr "_Uppspelning"
 
 #: ../src/ui/edit/main-menu.c:1029 ../src/ui/edit/main-page-waves.c:1300
 #: ../src/ui/edit/main-page-waves.c:1408 ../src/ui/edit/main-toolbar.c:904
-#, fuzzy
 msgid "_Play"
-msgstr "Uppspelning med"
+msgstr "_Spela upp"
 
 #: ../src/ui/edit/main-menu.c:1036
 msgid "Play from cursor"
@@ -791,12 +747,11 @@ msgstr "Spela upp från markör"
 #: ../src/ui/edit/main-menu.c:1043 ../src/ui/edit/main-page-waves.c:1310
 #: ../src/ui/edit/main-toolbar.c:925
 msgid "_Stop"
-msgstr ""
+msgstr "_Stoppa"
 
 #: ../src/ui/edit/main-menu.c:1070
-#, fuzzy
 msgid "Help"
-msgstr "_Hjälp"
+msgstr "Hjälp"
 
 #: ../src/ui/edit/main-menu.c:1077 ../src/ui/edit/tip-dialog.c:207
 #: ../src/ui/edit/tip-dialog.c:222
@@ -881,7 +836,7 @@ msgstr "Hög"
 
 #: ../src/ui/edit/main-page-machines.c:1703
 msgid "Best _Fit"
-msgstr ""
+msgstr "Bästa _anpassning"
 
 #: ../src/ui/edit/main-page-machines.c:1705
 msgid "Zoom in/out so that everything is visible"
@@ -889,7 +844,7 @@ msgstr "Zooma in/ut så att allting syns"
 
 #: ../src/ui/edit/main-page-machines.c:1710
 msgid "Zoom _In"
-msgstr ""
+msgstr "Zooma _in"
 
 #: ../src/ui/edit/main-page-machines.c:1711
 msgid "Zoom in for more details"
@@ -897,7 +852,7 @@ msgstr "Zooma in för fler detaljer"
 
 #: ../src/ui/edit/main-page-machines.c:1718
 msgid "Zoom _Out"
-msgstr ""
+msgstr "Zooma _ut"
 
 #: ../src/ui/edit/main-page-machines.c:1719
 msgid "Zoom out for better overview"
@@ -920,12 +875,8 @@ msgid "Menu actions for machine view below"
 msgstr "Menyval för maskinvyn nedan"
 
 #: ../src/ui/edit/main-page-machines.c:2558
-msgid ""
-"Add new machines from right click context menu. Connect machines with shift"
-"+drag from source to target."
-msgstr ""
-"Lägg till nya maskiner via snabbmenyn genom högerklick. Koppla maskiner "
-"genom att hålla ned skift och dra från källa till mål."
+msgid "Add new machines from right click context menu. Connect machines with shift+drag from source to target."
+msgstr "Lägg till nya maskiner via snabbmenyn genom högerklick. Koppla maskiner genom att hålla ned skift och dra från källa till mål."
 
 #: ../src/ui/edit/main-page-patterns.c:354
 msgid "Add new patterns from right click context menu."
@@ -987,18 +938,16 @@ msgid "Menu actions for pattern view below"
 msgstr "Menyval för mönstervy nedan"
 
 #: ../src/ui/edit/main-page-patterns.c:3156
-#, fuzzy
 msgid "New voice"
-msgstr "röster"
+msgstr "Ny röst"
 
 #: ../src/ui/edit/main-page-patterns.c:3168
-#, fuzzy
 msgid "Remove last voice"
-msgstr "Ta bort senaste spår"
+msgstr "Ta bort senaste röst"
 
 #: ../src/ui/edit/main-page-patterns.c:3183
 msgid "New pattern …"
-msgstr "Nytt möster …"
+msgstr "Nytt mönster …"
 
 #: ../src/ui/edit/main-page-patterns.c:3195
 msgid "Pattern properties…"
@@ -1107,7 +1056,7 @@ msgstr "Stoppa uppspelningen av innevarande post i vågformstabellen"
 
 #: ../src/ui/edit/main-page-waves.c:1319
 msgid "_Clear"
-msgstr ""
+msgstr "_Rensa"
 
 #: ../src/ui/edit/main-page-waves.c:1321
 msgid "Clear current wave table entry"
@@ -1231,7 +1180,7 @@ msgstr "Spara denna sång"
 
 #: ../src/ui/edit/main-toolbar.c:890
 msgid "R_ewind"
-msgstr ""
+msgstr "Spola _bakåt"
 
 #: ../src/ui/edit/main-toolbar.c:892
 msgid "Rewind playback position of this song"
@@ -1243,7 +1192,7 @@ msgstr "Spela upp denna sång"
 
 #: ../src/ui/edit/main-toolbar.c:912
 msgid "_Forward"
-msgstr ""
+msgstr "Spola _framåt"
 
 #: ../src/ui/edit/main-toolbar.c:914
 msgid "Forward playback position of this song"
@@ -1309,18 +1258,13 @@ msgstr "%d %s"
 
 #: ../src/ui/edit/main-window.c:353
 #, c-format
-msgid ""
-"All unsaved changes since %s will be lost. This song was last saved on: %s"
-msgstr ""
-"Alla osparade ändringar sedan %s kommer att gå förlorade. Denna sången "
-"sparades senast: %s"
+msgid "All unsaved changes since %s will be lost. This song was last saved on: %s"
+msgstr "Alla osparade ändringar sedan %s kommer att gå förlorade. Denna sången sparades senast: %s"
 
 #: ../src/ui/edit/main-window.c:358
 #, c-format
 msgid "All unsaved changes since %s will be lost. This song was created on: %s"
-msgstr ""
-"Alla osparade ändringar sedan %s kommer att gå förlorade. Denna sången "
-"skapades: %s"
+msgstr "Alla osparade ändringar sedan %s kommer att gå förlorade. Denna sången skapades: %s"
 
 #: ../src/ui/edit/main-window.c:544 ../src/ui/edit/main-window.c:545
 msgid "Really quit?"
@@ -1335,9 +1279,9 @@ msgid "Open a song"
 msgstr "Öppna en sång"
 
 #: ../src/ui/edit/main-window.c:684 ../src/ui/edit/main-window.c:945
-#, fuzzy, c-format
+#, c-format
 msgid "Can't save song '%s'."
-msgstr "Kan inte spara sång"
+msgstr "Kan inte spara sång '%s'."
 
 #: ../src/ui/edit/main-window.c:685 ../src/ui/edit/main-window.c:932
 #: ../src/ui/edit/main-window.c:946
@@ -1348,7 +1292,7 @@ msgstr "Kan inte spara sång"
 msgid "Save a song"
 msgstr "Spara en sång"
 
-#: ../src/ui/edit/main-window.c:870 ../src/ui/edit/render-dialog.c:661
+#: ../src/ui/edit/main-window.c:870 ../src/ui/edit/render-dialog.c:660
 msgid "Format"
 msgstr "Format"
 
@@ -1358,9 +1302,7 @@ msgstr "Filen existerar redan"
 
 #: ../src/ui/edit/main-window.c:918
 msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
-msgstr ""
-"Välj 'OK' för att skriva över eller 'Avbryt' för att avbryta sparandet av "
-"denna sång."
+msgstr "Välj 'OK' för att skriva över eller 'Avbryt' för att avbryta sparandet av denna sång."
 
 #: ../src/ui/edit/main-window.c:930
 #, c-format
@@ -1381,19 +1323,12 @@ msgid "Missing GStreamer elements"
 msgstr "Saknar GStreamer-element"
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:167
-msgid ""
-"The elements listed below are missing from your installation, but are "
-"required."
-msgstr ""
-"Elementen som listas nedan saknas från din installation, men är nödvändiga."
+msgid "The elements listed below are missing from your installation, but are required."
+msgstr "Elementen som listas nedan saknas från din installation, men är nödvändiga."
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:207
-msgid ""
-"The elements listed below are missing from your installation, but are "
-"recommended for full functionality."
-msgstr ""
-"Elementen som listas nedan saknas från din installation, men är "
-"rekommenderade för full funktionalitet."
+msgid "The elements listed below are missing from your installation, but are recommended for full functionality."
+msgstr "Elementen som listas nedan saknas från din installation, men är rekommenderade för full funktionalitet."
 
 #: ../src/ui/edit/missing-framework-elements-dialog.c:210
 msgid "don't warn again"
@@ -1430,59 +1365,51 @@ msgstr "längd"
 msgid "voices"
 msgstr "röster"
 
-#: ../src/ui/edit/render-dialog.c:101
-#, fuzzy
-msgid "mix to one track"
-msgstr "Ta bort spår"
-
-#: ../src/ui/edit/render-dialog.c:103
-msgid "record one track for each source"
-msgstr ""
-
-#: ../src/ui/edit/render-dialog.c:197
+#: ../src/ui/edit/render-dialog.c:196
 #, c-format
 msgid "Recording to: %s"
 msgstr "Inspelning till: %s"
 
-#: ../src/ui/edit/render-dialog.c:368
+#: ../src/ui/edit/render-dialog.c:367
 msgid ""
 "File already exists!\n"
 "It will be overwritten if you continue."
 msgstr ""
+"Fil existerar redan!\n"
+"Den kommer att skrivas över om du fortsätter."
 
-#: ../src/ui/edit/render-dialog.c:611
+#: ../src/ui/edit/render-dialog.c:610
 msgid "song rendering"
 msgstr "sångåtergivelse"
 
 #. add dialog commision widgets (okay, cancel)
-#: ../src/ui/edit/render-dialog.c:614
+#: ../src/ui/edit/render-dialog.c:613
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
-#: ../src/ui/edit/render-dialog.c:632
+#: ../src/ui/edit/render-dialog.c:631
 msgid "Folder"
 msgstr "Mapp"
 
-#: ../src/ui/edit/render-dialog.c:637
+#: ../src/ui/edit/render-dialog.c:636
 #: ../src/ui/edit/settings-page-directories.c:102
 #: ../src/ui/edit/settings-page-directories.c:116
 #: ../src/ui/edit/settings-page-directories.c:131
 msgid "Select a folder"
 msgstr "Välj en mapp"
 
-#: ../src/ui/edit/render-dialog.c:647
+#: ../src/ui/edit/render-dialog.c:646
 msgid "Filename"
 msgstr "Filnamn"
 
-#: ../src/ui/edit/render-dialog.c:691
+#: ../src/ui/edit/render-dialog.c:690
 msgid "Mode"
 msgstr "Läge"
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:183
-#, fuzzy
 msgid "buzztrax settings"
-msgstr "buzztrax inställningar"
+msgstr "buzztrax-inställningar"
 
 #: ../src/ui/edit/settings-dialog.c:227 ../src/ui/edit/settings-dialog.c:269
 msgid "Audio Devices"
@@ -1510,11 +1437,11 @@ msgstr "Genvägar"
 
 #: ../src/ui/edit/settings-dialog.c:249
 msgid "User interface"
-msgstr ""
+msgstr "Användargränssnitt"
 
 #: ../src/ui/edit/settings-dialog.c:313 ../src/ui/edit/settings-page-ui.c:82
 msgid "User Interface"
-msgstr ""
+msgstr "Användargränssnitt"
 
 #: ../src/ui/edit/settings-page-audiodevices.c:113
 msgid "Auto"
@@ -1588,7 +1515,7 @@ msgstr "Enhet"
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:447
 msgid "In use"
-msgstr ""
+msgstr "I bruk"
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:456
 #: ../src/ui/edit/settings-page-playback-controller.c:479
@@ -1596,13 +1523,8 @@ msgid "Controller"
 msgstr "Styrenhet"
 
 #: ../src/ui/edit/settings-page-interaction-controller.c:473
-#, fuzzy
-msgid ""
-"This package has been built without GUdev and Alsa support and thus supports "
-"no interaction controllers."
-msgstr ""
-"Detta paket har byggts utan GUdev-stöd och stöder därför inga "
-"interaktionsstyrenheter."
+msgid "This package has been built without GUdev and Alsa support and thus supports no interaction controllers."
+msgstr "Detta paket har byggts utan GUdev- och Alsa-stöd och stöder därför inga interaktionsstyrenheter."
 
 #: ../src/ui/edit/settings-page-playback-controller.c:482
 msgid "Master"
@@ -1618,51 +1540,46 @@ msgid "Port number"
 msgstr "Portnummer"
 
 #: ../src/ui/edit/settings-page-playback-controller.c:569
-msgid ""
-"Requires Coherence UPnP framework which can be found at: https://coherence."
-"beebits.net."
-msgstr ""
+msgid "Requires Coherence UPnP framework which can be found at: https://coherence.beebits.net."
+msgstr "Kräver Coherence UPnP-ramverk som kan hittas på: https://coherence.beebits.net."
 
 #: ../src/ui/edit/settings-page-playback-controller.c:580
 #, c-format
-msgid ""
-"Jack transport requires that the jackaudiosink is active. Your current "
-"audiosink is '%s'."
-msgstr ""
+msgid "Jack transport requires that the jackaudiosink is active. Your current audiosink is '%s'."
+msgstr "Jack-transport kräver att jackljudutgången är aktiv. Din aktuella ljudutgång är '%s'."
 
 #: ../src/ui/edit/settings-page-playback-controller.c:582
 msgid "none"
 msgstr "ingen"
 
 #: ../src/ui/edit/settings-page-playback-controller.c:623
-#, fuzzy
 msgid "Play"
-msgstr "Uppspelning med"
+msgstr "Spela upp"
 
 #: ../src/ui/edit/settings-page-playback-controller.c:624
 msgid "Stop"
-msgstr ""
+msgstr "Stoppa"
 
 #: ../src/ui/edit/settings-page-playback-controller.c:625
 msgid "Rewind"
-msgstr ""
+msgstr "Spola tillbaka"
 
 #: ../src/ui/edit/settings-page-playback-controller.c:626
 msgid "Forward"
-msgstr ""
+msgstr "Spola framåt"
 
 #: ../src/ui/edit/settings-page-ui.c:89
 msgid "Dark theme variant"
-msgstr ""
+msgstr "Mörkt tema-variant"
 
 #: ../src/ui/edit/settings-page-ui.c:101
 msgid "Compact theme variant"
-msgstr ""
+msgstr "Kompakt tema-variant"
 
 #: ../src/ui/edit/signal-analysis-dialog.c:973
-#, fuzzy, c-format
+#, c-format
 msgid "%s analysis"
-msgstr "%s -> %s analys"
+msgstr "%s analys"
 
 #. scale: linear and logarithmic
 #: ../src/ui/edit/signal-analysis-dialog.c:1020
@@ -1699,127 +1616,72 @@ msgid "New machines are added in machine view from the context menu."
 msgstr "Nya maskiner läggs till i maskin-vyn från snabbmenyn."
 
 #: ../src/ui/edit/tip-dialog.c:51
-msgid ""
-"Connect machines by holding the shift key and dragging a connection for the "
-"source to the target machine."
-msgstr ""
-"Koppla ihop maskiner genom att hålla ned skift-knappen och dra en koppling "
-"från käll- till mål-maskin."
+msgid "Connect machines by holding the shift key and dragging a connection for the source to the target machine."
+msgstr "Koppla ihop maskiner genom att hålla ned skift-knappen och dra en koppling från käll- till mål-maskin."
 
 #: ../src/ui/edit/tip-dialog.c:52
 msgid "Songs can be recorded as single waves per track to give it to remixers."
-msgstr ""
-"Sånger kan spelas in som enkla vågformer per spår för att ges till remixers."
+msgstr "Sånger kan spelas in som enkla vågformer per spår för att ges till remixers."
 
 #: ../src/ui/edit/tip-dialog.c:53
-msgid ""
-"Fill the details on the info page. When recording songs, the metadata is "
-"added to the recording as tags."
-msgstr ""
-"Fyll i detaljerna på info-sidan. När sånger spelas in så kommer metadatan "
-"att läggas till inspelningen som taggar."
+msgid "Fill the details on the info page. When recording songs, the metadata is added to the recording as tags."
+msgstr "Fyll i detaljerna på info-sidan. När sånger spelas in så kommer metadatan att läggas till inspelningen som taggar."
 
 #: ../src/ui/edit/tip-dialog.c:54
-msgid ""
-"Use jackaudio sink in audio device settings to get lower latencies for live "
-"machine control."
-msgstr ""
-"Använd jackaudio-utgång i ljudenhetens inställningar för att få lägre "
-"latenser för maskinstyrning live."
+msgid "Use jackaudio sink in audio device settings to get lower latencies for live machine control."
+msgstr "Använd jackaudio-utgång i ljudenhetens inställningar för att få lägre latenser för maskinstyrning live."
 
 #: ../src/ui/edit/tip-dialog.c:55
-msgid ""
-"You can use input devices such as joysticks, beside midi devices to live "
-"control machine parameters."
-msgstr ""
-"Du kan använda ingångsenheter så som styrspak, förutom midi-enheter för att "
-"kontrollera maskin-parametrar live."
+msgid "You can use input devices such as joysticks, beside midi devices to live control machine parameters."
+msgstr "Du kan använda ingångsenheter så som styrspak, förutom midi-enheter för att kontrollera maskin-parametrar live."
 
 #: ../src/ui/edit/tip-dialog.c:56
-#, fuzzy
-msgid ""
-"You can use a upnp media client (e.g. media streamer on nokia tablets) to "
-"remote control buzztrax."
-msgstr ""
-"Du kan använda en upnp media-klient (t.ex. en mediaströmmare på en nokia-"
-"platta) för att fjärrstyra buzztrax."
+msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztrax."
+msgstr "Du kan använda en upnp media-klient (t.ex. en mediaströmmare på en nokia-platta) för att fjärrstyra buzztrax."
 
 #: ../src/ui/edit/tip-dialog.c:57
-msgid ""
-"To enter notes, imagine your pc keyboard as a music keyboard in two rows. "
-"Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
-msgstr ""
-"För att skriva in noter, tänk dig ditt PC-tangentbord som en två-raders "
-"klaviatur. Längst ner till vänster y/z blir ett 'c', s ett 'c#', x ett 'd' "
-"och så vidare."
+msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
+msgstr "För att skriva in noter, tänk dig ditt PC-tangentbord som en två-raders klaviatur. Längst ner till vänster y/z blir ett 'c', s ett 'c#', x ett 'd' och så vidare."
 
 #: ../src/ui/edit/tip-dialog.c:58
-#, fuzzy
-msgid ""
-"You can get more help from the community on irc://irc.freenode.net/#buzztrax."
-msgstr ""
-"Du kan få mer hjälp från intressegruppen på irc://irc.freenode.net/#buzztrax."
+msgid "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
+msgstr "Du kan få mer hjälp från intressegruppen på irc://irc.freenode.net/#buzztrax."
 
 #: ../src/ui/edit/tip-dialog.c:59
-msgid ""
-"Pattern layouts are individual for each machine. Look at the statusbar at "
-"the bottom for information about the cursor-column."
-msgstr ""
-"Mönsterlayouter är individuella för varje maskin. Titta på statusraden i "
-"botten för information om markörkolumnen."
+msgid "Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."
+msgstr "Mönsterlayouter är individuella för varje maskin. Titta på statusraden i botten för information om markörkolumnen."
 
 #: ../src/ui/edit/tip-dialog.c:60
-msgid ""
-"Click the speaker icon in the pattern-view to hear notes as you enter them."
-msgstr ""
-"Klicka på högtalarikonen i mönstervyn för att höra noterna medan du skriver "
-"in dem."
+msgid "Click the speaker icon in the pattern-view to hear notes as you enter them."
+msgstr "Klicka på högtalarikonen i mönstervyn för att höra noterna medan du skriver in dem."
 
 #: ../src/ui/edit/tip-dialog.c:61
-msgid ""
-"Each wire has volume and possible panorama/balance controls. These can also "
-"be adjusted in the machine-window of the machine that has the wire as an "
-"input."
-msgstr ""
-"Varje sladd har volym och kontrollmöjlighet för panorama/balans. Dessa kan "
-"också justeras i maskinfönstret för den maskin som har sladden som en ingång."
+msgid "Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input."
+msgstr "Varje sladd har volym och kontrollmöjlighet för panorama/balans. Dessa kan också justeras i maskinfönstret för den maskin som har sladden som en ingång."
 
 #: ../src/ui/edit/tip-dialog.c:62
-msgid ""
-"The wire volume control pops up upon a click on the arrow box on the wire."
+msgid "The wire volume control pops up upon a click on the arrow box on the wire."
 msgstr "När boxen med en pil på klickas på visas sladdens volyminställning."
 
 #: ../src/ui/edit/tip-dialog.c:63
-msgid ""
-"The wire panorama/balance control pops up upon a shift+click on the arrow "
-"box on the wire if available."
-msgstr ""
-"När boxen med en pil på klickas på med skift nedhållen visas sladdens "
-"panorama-/balansinställning."
+msgid "The wire panorama/balance control pops up upon a shift+click on the arrow box on the wire if available."
+msgstr "När boxen med en pil på klickas på med skift nedhållen visas sladdens panorama-/balansinställning."
 
 #: ../src/ui/edit/tip-dialog.c:64
-msgid ""
-"One can copy settings from the machine window (from the context menu of a "
-"group) and paste them to patterns and the other way around."
-msgstr ""
-"Man kan kopiera inställningar från maskinfönstret (från en grupps snabbmeny) "
-"och klistra in dem som mönster och tvärtom."
+msgid "One can copy settings from the machine window (from the context menu of a group) and paste them to patterns and the other way around."
+msgstr "Man kan kopiera inställningar från maskinfönstret (från en grupps snabbmeny) och klistra in dem som mönster och tvärtom."
 
 #: ../src/ui/edit/tip-dialog.c:65
 msgid "Install extra machines from http://github.com/Buzztrax/buzzmachines."
-msgstr "Installera extra maskiner från http://github.com/Buzztrax/buzzmachines"
+msgstr "Installera extra maskiner från http://github.com/Buzztrax/buzzmachines."
 
 #: ../src/ui/edit/tip-dialog.c:66
 msgid "Machines can also be renamed in the headers of the sequence view."
-msgstr "Det går också att byta namn på maskiner i rubrikerna i sekvensvyn"
+msgstr "Det går också att byta namn på maskiner i rubrikerna i sekvensvyn."
 
 #: ../src/ui/edit/tip-dialog.c:67
-msgid ""
-"Press the ',' (comma) key in the pattern editor to insert the current value "
-"for this parameter."
-msgstr ""
-"Tryck på ',' (kommatangenten) i mönsterredigeraren för att infoga det "
-"nuvarande värdet för denna parameter."
+msgid "Press the ',' (comma) key in the pattern editor to insert the current value for this parameter."
+msgstr "Tryck på ',' (kommatangenten) i mönsterredigeraren för att infoga det nuvarande värdet för denna parameter."
 
 #: ../src/ui/edit/tip-dialog.c:244
 msgid "Show tips on startup"
@@ -1828,40 +1690,20 @@ msgstr "Visa tips vid uppstart"
 #. add "refresh" button to action area
 #: ../src/ui/edit/tip-dialog.c:255
 msgid "Refresh"
-msgstr ""
+msgstr "Uppdatera"
 
 #: ../src/ui/edit/wire-canvas-item.c:825
 msgid "Disconnect"
 msgstr "Koppla ned"
 
 #~ msgid ""
-#~ "This release comes with a large number of smaller changes. Audio settings "
-#~ "are more flexible and allow to choose a target latency. Jack users will "
-#~ "be happy to see that we keep the session alive. We rewrote our test "
-#~ "suite, fixed lots of bugs and refactored a large part of the code base. "
-#~ "This summer we had a GSoC student, who implemented GStreamer EncodeBin "
-#~ "support, which improves the song rendering code, wrote a audio-synth "
-#~ "baseclass that greatly simplifies writing a new synth and wrote the "
-#~ "pattern control source that allowed us to remove a lot of complicated "
-#~ "code from the sequencer core.\n"
-#~ "The gst-buzztrax module got more modular. There are a few new plugins "
-#~ "(sidsyn, wave-replay and wavetabsyn).\n"
-#~ "We changed all modules to use non recursive make and we merged bsl into "
-#~ "buzztrax to make development easier."
+#~ "This release comes with a large number of smaller changes. Audio settings are more flexible and allow to choose a target latency. Jack users will be happy to see that we keep the session alive. We rewrote our test suite, fixed lots of bugs and refactored a large part of the code base. This summer we had a GSoC student, who implemented GStreamer EncodeBin support, which improves the song rendering code, wrote a audio-synth baseclass that greatly simplifies writing a new synth and wrote the pattern control source that allowed us to remove a lot of complicated code from the sequencer core.\n"
+#~ "The gst-buzztard module got more modular. There are a few new plugins (sidsyn, wave-replay and wavetabsyn).\n"
+#~ "We changed all modules to use non recursive make and we merged bsl into buzztard to make development easier."
 #~ msgstr ""
-#~ "Denna utgåva kommer med en stor mängd mindre ändringar. "
-#~ "Ljudinställningarna är mer flexibla och tillåter val av mållatens. Jack-"
-#~ "användare kommer att glädjas att se att vi behåller sessionen vid liv. Vi "
-#~ "skrev om vår testsvit, fixade många buggar och skrev om en stor del av "
-#~ "kodbasen. Denna sommar hade vi en GSoC-student, som implementerade stöd "
-#~ "för GStreamer EncodeBin, vilket förbättrar koden för sångåtergivelse, "
-#~ "skrev om basklassen för audio-synth:en vilket signifikant förenklar "
-#~ "skrivning av en ny synth samt skrev mönsterkontrolkällan som tillät oss "
-#~ "att ta bort en stor del komplicerad kod från sequencer-kärnan.\n"
-#~ "gst-buzztrax-modulen blev mer modulär. Det finns några nya "
-#~ "insticksmoduler (sidsyn, wave-replay och wavetabsyn).\n"
-#~ "Vi ändrade alla moduler till att använda icke-rekursiv make och vi fogade "
-#~ "in bsl i buzztrax för att förenkla utvecklingen."
+#~ "Denna utgåva kommer med en stor mängd mindre ändringar. Ljudinställningarna är mer flexibla och tillåter val av mållatens. Jack-användare kommer att glädjas att se att vi behåller sessionen vid liv. Vi skrev om vår testsvit, fixade många buggar och skrev om en stor del av kodbasen. Denna sommar hade vi en GSoC-student, som implementerade stöd för GStreamer EncodeBin, vilket förbättrar koden för sångåtergivelse, skrev om basklassen för audio-synth:en vilket signifikant förenklar skrivning av en ny synth samt skrev mönsterkontrolkällan som tillät oss att ta bort en stor del komplicerad kod från sequencer-kärnan.\n"
+#~ "gst-buzztard-modulen blev mer modulär. Det finns några nya insticksmoduler (sidsyn, wave-replay och wavetabsyn).\n"
+#~ "Vi ändrade alla moduler till att använda icke-rekursiv make och vi fogade in bsl i buzztard för att förenkla utvecklingen."
 
 #~ msgid "learn controller for %s"
 #~ msgstr "Inlärning av styrenhet för %s"

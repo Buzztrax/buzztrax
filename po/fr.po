@@ -26,10 +26,11 @@ msgstr ""
 "Project-Id-Version: buzztrax-0.10.0\n"
 "Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2015-08-07 15:24+0200\n"
-"PO-Revision-Date: 2015-08-11 21:30+0200\n"
+"PO-Revision-Date: 2015-12-27 03:37+0100\n"
 "Last-Translator: Frédéric Marchal <fmarchal@perso.be>\n"
 "Language-Team: French <traduc@traduc.org>\n"
 "Language: fr\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -233,7 +234,7 @@ msgstr ""
 #.
 #: ../src/ui/edit/about-dialog.c:117
 msgid "Just a few month since the previous release, this update mostly focuses on getting rid of deprecated APIs. Besides that it also come with a new synthesizer plugin called 'ebeats'. As the name suggests it is good at making percussion sounds. Together with that the library providing the dsp components got overhauled."
-msgstr ""
+msgstr "Just a few month since the previous release, this update mostly focuses on getting rid of deprecated APIs. Besides that it also come with a new synthesizer plugin called 'ebeats'. As the name suggests it is good at making percussion sounds. Together with that the library providing the dsp components got overhauled."
 
 #: ../src/ui/edit/bt-edit.c:107
 msgid "buzztrax-edit options"
