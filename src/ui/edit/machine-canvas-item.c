@@ -1566,7 +1566,8 @@ bt_machine_canvas_item_init (BtMachineCanvasItem * self)
   // the menu-items are generated in bt_machine_canvas_item_init_context_menu()
 
   // the cursor for dragging
-  self->priv->drag_cursor = gdk_cursor_new (GDK_FLEUR);
+  self->priv->drag_cursor =
+      gdk_cursor_new_for_display (gdk_display_get_default (), GDK_FLEUR);
 
   self->priv->zoom = 1.0;
 

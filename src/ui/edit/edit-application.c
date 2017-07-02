@@ -760,7 +760,8 @@ bt_edit_application_attach_child_window (const BtEditApplication * self,
 void
 bt_edit_application_ui_lock (const BtEditApplication * self)
 {
-  GdkCursor *cursor = gdk_cursor_new (GDK_WATCH);
+  GdkCursor *cursor =
+      gdk_cursor_new_for_display (gdk_display_get_default (), GDK_WATCH);
 
   gdk_window_set_cursor (gtk_widget_get_window (GTK_WIDGET (self->
               priv->main_window)), cursor);

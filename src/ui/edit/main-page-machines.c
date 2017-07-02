@@ -2629,7 +2629,8 @@ bt_main_page_machines_init (BtMainPageMachines * self)
   self->priv->machines = g_hash_table_new (NULL, NULL);
   self->priv->wires = g_hash_table_new (NULL, NULL);
   // the cursor for dragging
-  self->priv->drag_cursor = gdk_cursor_new (GDK_FLEUR);
+  self->priv->drag_cursor =
+      gdk_cursor_new_for_display (gdk_display_get_default (), GDK_FLEUR);
   // initial size
   self->priv->view_w = MACHINE_VIEW_W;
   self->priv->view_h = MACHINE_VIEW_H;
