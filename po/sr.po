@@ -1,0 +1,1691 @@
+# Serbian translation of buzztrax.
+# Copyright (C) 2015 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the buzztrax package.
+# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2016.
+msgid ""
+msgstr ""
+"Project-Id-Version: buzztrax 0.10.0\n"
+"Report-Msgid-Bugs-To: buzztrax-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2015-08-07 15:24+0200\n"
+"PO-Revision-Date: 2016-09-13 21:19+0200\n"
+"Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
+"Language-Team: Serbian <(nothing)>\n"
+"Language: sr\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: ../buzztrax.appdata.xml.in.h:1
+msgid "Fully integrated music composer."
+msgstr "Потпуно обједињен музички композитор."
+
+#. don't translate 'tracker'
+#: ../buzztrax.appdata.xml.in.h:3
+msgid "Buzztrax is a music composer similar to tracker applications. It is roughly modelled after the windows only, closed source application called Buzz."
+msgstr "Зујавко је музички композитор сличан „tracker“ програмима. Грубо је оцртан према Базу, програму затвореног кода који је радио само на виндоузу."
+
+#: ../src/lib/core/core.c:181
+msgid "Print the buzztrax core version"
+msgstr "Исписује кључно издање зујавка"
+
+#: ../src/lib/core/core.c:187
+msgid "Buzztrax core options"
+msgstr "Кључне опције зујавка"
+
+#: ../src/lib/core/core.c:188
+msgid "Show buzztrax core options"
+msgstr "Приказује кључне опције зујавка"
+
+#: ../src/lib/core/cmd-pattern.c:153
+msgid "normal"
+msgstr "обично"
+
+#: ../src/lib/core/cmd-pattern.c:153
+msgid "break"
+msgstr "прекини"
+
+#: ../src/lib/core/cmd-pattern.c:153
+msgid "mute"
+msgstr "утишај"
+
+#: ../src/lib/core/cmd-pattern.c:153
+msgid "solo"
+msgstr "соло"
+
+#: ../src/lib/core/cmd-pattern.c:153
+msgid "bypass"
+msgstr "премости"
+
+#: ../src/lib/core/song-io.c:312
+#, c-format
+msgid "Filename must not be empty."
+msgstr "Назив датотеке не сме бити празан."
+
+#: ../src/lib/core/song-io.c:322
+#, c-format
+msgid "No io-module for filename '%s'."
+msgstr "Нема уи-модула за датотеку „%s“."
+
+#: ../src/lib/core/song-io.c:349
+#, c-format
+msgid "Media-type must not be empty."
+msgstr "Врста медија не сме бити празна."
+
+#: ../src/lib/core/song-io.c:360
+#, c-format
+msgid "No io-module for media-type '%s'."
+msgstr "Нема уи-модула за врсту медија „%s“."
+
+#: ../src/lib/core/song-io.c:415
+#, c-format
+msgid "Loading file '%s'"
+msgstr "Учитавам датотеку „%s“"
+
+#: ../src/lib/core/song-io.c:487
+#, c-format
+msgid "Saving file '%s'"
+msgstr "Чувам датотеку „%s“"
+
+#: ../src/lib/core/song-io-native-bzt.c:301
+#, c-format
+msgid "Failed to create memory input."
+msgstr "Нисам успео да направим улаз меморије."
+
+#: ../src/lib/core/song-io-native-bzt.c:309
+#: ../src/lib/core/song-io-native-xml.c:72
+#, c-format
+msgid "Is not a XML/Buzztrax document."
+msgstr "Није ИксМЛ/зујавков документ."
+
+#: ../src/lib/core/song-io-native-bzt.c:313
+#: ../src/lib/core/song-io-native-xml.c:76
+#, c-format
+msgid "Is not a wellformed XML document."
+msgstr "Није добро обликован ИксМЛ документ."
+
+#: ../src/lib/core/song-io-native-bzt.c:320
+#: ../src/lib/core/song-io-native-xml.c:83
+#, c-format
+msgid "XML document is empty."
+msgstr "ИксМЛ документ је празан."
+
+#: ../src/lib/core/song-io-native-bzt.c:325
+#: ../src/lib/core/song-io-native-xml.c:88
+#, c-format
+msgid "Wrong XML document root."
+msgstr "Погрешан корен ИксМЛ документа."
+
+#. default name for new songs
+#: ../src/lib/core/song-info.c:122
+msgid "untitled song"
+msgstr "песма без наслова"
+
+#: ../src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in.h:1
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:1
+msgid "Buzztrax Music Editor"
+msgstr "Зујавко музички уредник"
+
+#: ../src/lib/core/songio/bsl/song-io-buzz.c:2385
+#, c-format
+msgid "Error reading a buzz file section."
+msgstr "Грешка читања одељка датотеке зујавка."
+
+#: ../src/lib/core/songio/bsl/song-io-buzz.c:2391
+#, c-format
+msgid "Is not a buzz file."
+msgstr "Није бузова датотека."
+
+#: ../src/lib/ic/ic.c:106
+msgid "Print the buzztrax interaction controller version"
+msgstr "Исписује издање контролера интеракције зујавка"
+
+#: ../src/lib/ic/ic.c:112
+msgid "Buzztrax interaction controller options"
+msgstr "Опције контролера интеракције зујавка"
+
+#: ../src/lib/ic/ic.c:113
+msgid "Show buzztrax interaction controller options"
+msgstr "Приказује опције контролера интеракције зујавка"
+
+#: ../src/ui/cmd/bt-cmd.c:84 ../src/ui/edit/bt-edit.c:92
+msgid "Print application version"
+msgstr "Исписује издање програма"
+
+#: ../src/ui/cmd/bt-cmd.c:85
+msgid "Be quiet"
+msgstr "Бива нечујан"
+
+#: ../src/ui/cmd/bt-cmd.c:86 ../src/ui/edit/bt-edit.c:94
+msgid "Command name"
+msgstr "Назив наредбе"
+
+#: ../src/ui/cmd/bt-cmd.c:88 ../src/ui/edit/bt-edit.c:98
+msgid "Input file name"
+msgstr "Назив улазне датотеке"
+
+#: ../src/ui/cmd/bt-cmd.c:89 ../src/ui/cmd/bt-cmd.c:91
+#: ../src/ui/edit/bt-edit.c:98
+msgid "<songfile>"
+msgstr "<датотека_песме>"
+
+#: ../src/ui/cmd/bt-cmd.c:90
+msgid "Output file name"
+msgstr "Назив излазне датотеке"
+
+#: ../src/ui/cmd/bt-cmd.c:105
+msgid "buzztrax-cmd options"
+msgstr "Опције „buzztrax-cmd“"
+
+#: ../src/ui/cmd/bt-cmd.c:106
+msgid "Show buzztrax-cmd options"
+msgstr "Приказује опције „buzztrax-cmd“"
+
+#. Note to translators: put here your name and email so it will show up in
+#. * the "about" box. Example: Stefan 'ensonic' Sauer <ensonic@users.sf.net>
+#: ../src/ui/edit/about-dialog.c:65
+msgid "translator-credits"
+msgstr "Мирослав Николић <mirosavnikoic@rocketmailcom>"
+
+#: ../src/ui/edit/about-dialog.c:68 ../src/ui/edit/about-dialog.c:70
+#, c-format
+msgid "Copyright © 2003-%d Buzztrax developer team"
+msgstr "Ауторска права © 2003-%d Развојна екипа Зујавка"
+
+#: ../src/ui/edit/about-dialog.c:87
+msgid "Music production environment"
+msgstr "Музичко производно окружење"
+
+#: ../src/ui/edit/about-dialog.c:91
+msgid ""
+"This package is free software; you can redistribute it and/or modify it under the terms of the GNU Library General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.\n"
+"\n"
+"This package is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library General Public License for more details.\n"
+"\n"
+"You should have received a copy of the GNU Library General Public License along with this package; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA."
+msgstr ""
+"Овај програм је слободан софтвер; можете га расподељивати и/или мењати под условима Гнуове библиотечке опште јавне лиценце коју је објавила Задужбина слободног софтвера; издања 2.1 лиценце или (по вашем избору) било којег новијег издања.\n"
+"\n"
+"Овај програм се расподељује у нади да ће бити користан, али БЕЗ ИКАКВЕ ГАРАНЦИЈЕ; чак и без примењене гаранције ТРЖИШНЕ ВРЕДНОСТИ или ПРИЛАГОЂЕНОСТИ ОДРЕЂЕНОЈ НАМЕНИ. Погледајте Гнуову Библиотечку општу јавну лиценцу за више детаља.\n"
+"\n"
+"Требали сте да примите примерак Гнуове Библиотечке опште јавне лиценце уз овај програм. Ако нисте, пишите Задужбини слободног софтвера на адресу: „Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA“."
+
+#. "Development version (do not translate this)"
+#.
+#: ../src/ui/edit/about-dialog.c:117
+msgid "Just a few month since the previous release, this update mostly focuses on getting rid of deprecated APIs. Besides that it also come with a new synthesizer plugin called 'ebeats'. As the name suggests it is good at making percussion sounds. Together with that the library providing the dsp components got overhauled."
+msgstr "Само неколико месеци од претходног издања, ово освежење се углавном фокусира на ослобађање од застарелих АПИ-ја. Поред тога такође долазе са новим прикључком синтисајзера под називом „“. Као што име сугерише добар је за добијање звукова удараљки. Заједно са тим библиотека обезбеђује да дсп компоненте добију ремонт."
+
+#: ../src/ui/edit/bt-edit.c:107
+msgid "buzztrax-edit options"
+msgstr "Опције „buzztrax-edit“"
+
+#: ../src/ui/edit/bt-edit.c:108
+msgid "Show buzztrax-edit options"
+msgstr "Приказује опције уређивања зујавка"
+
+#: ../src/ui/edit/buzztrax-edit.desktop.in.h:2
+msgid "Edit buzztrax song files"
+msgstr "Уређујте зујавкове датотеке песама"
+
+#: ../src/ui/edit/change-log.c:643
+msgid "unsaved song"
+msgstr "несачувана песма"
+
+#. the song recovery has been finished
+#: ../src/ui/edit/crash-recover-dialog.c:174
+msgid "Recovery finished"
+msgstr "Опоравак је завршен"
+
+#: ../src/ui/edit/crash-recover-dialog.c:175
+msgid "The selected song has been recovered successful."
+msgstr "Изабрана песма је успешно опорављена."
+
+#: ../src/ui/edit/crash-recover-dialog.c:176
+msgid "Please check the song and save it if everything is alright."
+msgstr "Проверите песму и сачувајте је ако је све у реду."
+
+#. FIXME(ensonic): the log is still there
+#. * - this dialog should be a warning
+#. * - ev. we want to suggest to ask for support
+#.
+#. one or more steps in the recovery did not apply
+#: ../src/ui/edit/crash-recover-dialog.c:184
+msgid "Recovery failed"
+msgstr "Опоравак није успео"
+
+#: ../src/ui/edit/crash-recover-dialog.c:185
+msgid "Sorry, the selected song could not be fully recovered."
+msgstr "Извините, изабрана песма не може у потпуности бити опорављена."
+
+#: ../src/ui/edit/crash-recover-dialog.c:186
+msgid "Please check the song and save it if still looks good."
+msgstr "Проверите песму и сачувајте је ако још увек изгледа добро."
+
+#: ../src/ui/edit/crash-recover-dialog.c:225
+msgid "Unsaved song recovery"
+msgstr "Опоравак несачуване песме"
+
+#. add dialog commision widgets (okay)
+#. FIXME(ensonic): add Okay, Cancel, Delete
+#. select song + okay -> recover
+#. select song + delete -> remove log
+#: ../src/ui/edit/crash-recover-dialog.c:231
+msgid "_Close"
+msgstr "_Затвори"
+
+#: ../src/ui/edit/crash-recover-dialog.c:243
+msgid "Unsaved songs found"
+msgstr "Нађох несачуване песме"
+
+#: ../src/ui/edit/crash-recover-dialog.c:244
+msgid "Select them one by one and choose 'recover' or 'delete'."
+msgstr "Изаберите их једну по једну и изаберите „опоравак“ или „брисање“."
+
+#: ../src/ui/edit/crash-recover-dialog.c:264
+msgid "Song file"
+msgstr "Датотека песме"
+
+#: ../src/ui/edit/crash-recover-dialog.c:270
+msgid "Last changed"
+msgstr "Последња измена"
+
+#. add "undelete" button to action area
+#. GTK_STOCK_REVERT_TO_SAVED
+#: ../src/ui/edit/crash-recover-dialog.c:301
+msgid "Recover"
+msgstr "Опорави"
+
+#: ../src/ui/edit/crash-recover-dialog.c:307
+msgid "Delete"
+msgstr "Обриши"
+
+#: ../src/ui/edit/edit-application.c:159
+msgid "-> You will not see any level-meters."
+msgstr "→ Нећете видети никакав мерач нивоа."
+
+#: ../src/ui/edit/edit-application.c:170
+msgid "-> You will not see the frequency spectrum in the analyzer window."
+msgstr "→ Нећете видети спектар учесталости у прозору анализатора."
+
+#: ../src/ui/edit/edit-application.c:181
+msgid "-> Sample playback previews from the wavetable page will not work."
+msgstr "→ Прегледи репродуковања узорка са странице таласне табеле неће радити."
+
+#: ../src/ui/edit/edit-application.c:240 ../src/ui/edit/main-menu.c:105
+#: ../src/ui/edit/main-window.c:156
+#, c-format
+msgid "Can't load song '%s'."
+msgstr "Не могу да учитам песму „%s“."
+
+#: ../src/ui/edit/edit-application.c:242 ../src/ui/edit/main-menu.c:106
+#: ../src/ui/edit/main-window.c:157
+msgid "Can't load song"
+msgstr "Не могу да учитам песму"
+
+#: ../src/ui/edit/interaction-controller-menu.c:296
+msgid "Learn…"
+msgstr "Учим…"
+
+#: ../src/ui/edit/interaction-controller-menu.c:422
+msgid "Bind controller"
+msgstr "Свежи контролер"
+
+#: ../src/ui/edit/interaction-controller-menu.c:429
+msgid "Unbind controller"
+msgstr "Развежи контролер"
+
+#: ../src/ui/edit/interaction-controller-menu.c:436
+msgid "Unbind all controllers"
+msgstr "Развежи све контролере"
+
+#. format about message for machines
+#: ../src/ui/edit/machine-actions.c:68
+#, c-format
+msgid ""
+"by %s\n"
+"\n"
+"%s"
+msgstr ""
+"од %s\n"
+"\n"
+"%s"
+
+#: ../src/ui/edit/machine-actions.c:69
+msgid "About…"
+msgstr "Подаци…"
+
+#: ../src/ui/edit/machine-canvas-item.c:784
+msgid "Mute"
+msgstr "Утишај"
+
+#: ../src/ui/edit/machine-canvas-item.c:794
+msgid "Solo"
+msgstr "Соло"
+
+#: ../src/ui/edit/machine-canvas-item.c:806
+msgid "Bypass"
+msgstr "Премости"
+
+#. dynamic part
+#: ../src/ui/edit/machine-canvas-item.c:822
+msgid "_Properties"
+msgstr "_Својства"
+
+#. static part
+#: ../src/ui/edit/machine-canvas-item.c:844 ../src/ui/edit/main-menu.c:916
+msgid "_Preferences"
+msgstr "_Поставке"
+
+#: ../src/ui/edit/machine-canvas-item.c:855
+msgid "Rename…"
+msgstr "Преименуј…"
+
+#: ../src/ui/edit/machine-canvas-item.c:861 ../src/ui/edit/main-menu.c:909
+msgid "_Delete"
+msgstr "_Обриши"
+
+#: ../src/ui/edit/machine-canvas-item.c:873
+msgid "Connect machines"
+msgstr "Повежи машине"
+
+#: ../src/ui/edit/machine-canvas-item.c:881
+#: ../src/ui/edit/wire-canvas-item.c:835
+msgid "Signal Analysis…"
+msgstr "Анализа сигнала…"
+
+#: ../src/ui/edit/machine-canvas-item.c:932
+msgid "Play with"
+msgstr "Пусти програмом"
+
+#. TODO(ensonic): toggle loop item
+#. *   gtk_check_menu_item_new_with_mnemonic
+#.
+#. TODO(ensonic): tools menu
+#. * 'normalize song'
+#. * - dummy render with master->input-pre-gain, adjust master volume
+#. * 'cleanup'
+#. * - remove unsused patterns, unconnected machines with no empty/tracks
+#.
+#. help menu
+#: ../src/ui/edit/machine-canvas-item.c:948
+#: ../src/ui/edit/machine-properties-dialog.c:2586
+#: ../src/ui/edit/main-menu.c:1062
+msgid "_Help"
+msgstr "По_моћ"
+
+#: ../src/ui/edit/machine-canvas-item.c:958
+#: ../src/ui/edit/machine-properties-dialog.c:2580
+#: ../src/ui/edit/main-menu.c:1103
+msgid "_About"
+msgstr "_Инфо"
+
+#. generators
+#: ../src/ui/edit/machine-menu.c:331
+msgid "Generators"
+msgstr "Генератори"
+
+#. effects
+#: ../src/ui/edit/machine-menu.c:343
+msgid "Effects"
+msgstr "Дејства"
+
+#. create and set window icon
+#.
+#. if((window_icon=bt_ui_resources_get_icon_pixbuf_by_machine(self->priv->machine))) {
+#. gtk_window_set_icon(GTK_WINDOW(self),window_icon);
+#. g_object_unref(window_icon);
+#. }
+#.
+#. set dialog title
+#: ../src/ui/edit/machine-preset-properties-dialog.c:140
+msgid "preset name and comment"
+msgstr "назив и напомена подешености"
+
+#. add dialog commision widgets (okay, cancel)
+#. add dialog commision widgets (okay)
+#: ../src/ui/edit/machine-preset-properties-dialog.c:144
+#: ../src/ui/edit/machine-rename-dialog.c:122 ../src/ui/edit/main-window.c:999
+#: ../src/ui/edit/main-window.c:1053
+#: ../src/ui/edit/missing-framework-elements-dialog.c:141
+#: ../src/ui/edit/missing-song-elements-dialog.c:128
+#: ../src/ui/edit/pattern-properties-dialog.c:148
+#: ../src/ui/edit/settings-dialog.c:187 ../src/ui/edit/tip-dialog.c:210
+msgid "_OK"
+msgstr "У _реду"
+
+#: ../src/ui/edit/machine-preset-properties-dialog.c:144
+#: ../src/ui/edit/machine-rename-dialog.c:122 ../src/ui/edit/main-window.c:589
+#: ../src/ui/edit/main-window.c:721 ../src/ui/edit/main-window.c:1054
+#: ../src/ui/edit/pattern-properties-dialog.c:148
+#: ../src/ui/edit/render-dialog.c:616 ../src/ui/edit/settings-dialog.c:187
+msgid "_Cancel"
+msgstr "_Откажи"
+
+#. GtkEntry : preset name
+#. GtkEntry : machine name
+#. GtkEntry : pattern name
+#: ../src/ui/edit/machine-preset-properties-dialog.c:160
+#: ../src/ui/edit/machine-rename-dialog.c:138
+#: ../src/ui/edit/main-page-info.c:426
+#: ../src/ui/edit/pattern-properties-dialog.c:164
+msgid "name"
+msgstr "назив"
+
+#. GtkEntry : preset comment
+#: ../src/ui/edit/machine-preset-properties-dialog.c:176
+msgid "comment"
+msgstr "напомена"
+
+#: ../src/ui/edit/machine-preferences-dialog.c:509
+#, c-format
+msgid "%s preferences"
+msgstr "Поставке %s-а"
+
+#: ../src/ui/edit/machine-properties-dialog.c:691
+msgid "Reset parameter"
+msgstr "Врати параметар"
+
+#: ../src/ui/edit/machine-properties-dialog.c:697
+msgid "Reset all parameters"
+msgstr "Врати све параметре"
+
+#: ../src/ui/edit/machine-properties-dialog.c:708
+msgid "Copy parameter"
+msgstr "Умножи параметар"
+
+#: ../src/ui/edit/machine-properties-dialog.c:714
+#: ../src/ui/edit/machine-properties-dialog.c:814
+msgid "Paste"
+msgstr "Убаци"
+
+#. add copy/paste item
+#: ../src/ui/edit/machine-properties-dialog.c:808
+msgid "Copy group"
+msgstr "Умножи групу"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2207
+msgid "global properties"
+msgstr "општа својства"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2256
+#, c-format
+msgid "voice %lu properties"
+msgstr "својства гласа %lu"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2355
+#, c-format
+msgid "%s wire properties"
+msgstr "својства жице „%s“"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2432
+msgid "_Add"
+msgstr "_Додај"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2433
+msgid "Add new preset"
+msgstr "Додајте нову подешеност"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2439
+msgid "_Remove"
+msgstr "У_клони"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2440
+msgid "Remove preset"
+msgstr "Уклоните подешеност"
+
+#. edit menu
+#: ../src/ui/edit/machine-properties-dialog.c:2446
+#: ../src/ui/edit/main-menu.c:859
+msgid "_Edit"
+msgstr "У_реди"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2447
+msgid "Edit preset name and comment"
+msgstr "Уредите назив и напомену подешености"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2494
+msgid "Preset"
+msgstr "Подешеност"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2542
+msgid "machine properties"
+msgstr "својства машине"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2581
+msgid "Info about this machine"
+msgstr "Подаци о овој машини"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2587
+msgid "Help for this machine"
+msgstr "Помоћ за ову машину"
+
+#. -- file controls
+#: ../src/ui/edit/machine-properties-dialog.c:2596
+#: ../src/ui/edit/main-menu.c:776 ../src/ui/edit/main-toolbar.c:866
+msgid "_New"
+msgstr "_Ново"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2597
+msgid "Randomize parameters"
+msgstr "Насумичи својства"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2602
+#: ../src/ui/edit/main-menu.c:867
+msgid "_Undo"
+msgstr "_Поништи"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2603
+msgid "Reset parameters to defaults"
+msgstr "Вратите параметре на подразумеване"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2611
+msgid "Presets"
+msgstr "Подешености"
+
+#: ../src/ui/edit/machine-properties-dialog.c:2612
+msgid "Show/Hide preset pane"
+msgstr "Прикажи/сакриј окно подешености"
+
+#. set dialog title
+#: ../src/ui/edit/machine-properties-dialog.c:2722
+#: ../src/ui/edit/pattern-properties-dialog.c:142
+#, c-format
+msgid "%s properties"
+msgstr "својства за „%s“"
+
+#. set dialog title
+#: ../src/ui/edit/machine-rename-dialog.c:116
+#, c-format
+msgid "%s name"
+msgstr "назив „%s“"
+
+#: ../src/ui/edit/main-menu.c:96 ../src/ui/edit/main-window.c:583
+#: ../src/ui/edit/main-window.c:584
+msgid "Load new song?"
+msgstr "Да учитам нову песму?"
+
+#: ../src/ui/edit/main-menu.c:141
+msgid "Recover a song?"
+msgstr "Да опоравим песму?"
+
+#. gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztrax-Main>/MainMenu");
+#. -- file menu
+#: ../src/ui/edit/main-menu.c:768
+msgid "_File"
+msgstr "_Датотека"
+
+#: ../src/ui/edit/main-menu.c:783 ../src/ui/edit/main-page-waves.c:1415
+#: ../src/ui/edit/main-toolbar.c:872 ../src/ui/edit/main-window.c:590
+msgid "_Open"
+msgstr "_Отвори"
+
+#: ../src/ui/edit/main-menu.c:790
+msgid "_Recently used"
+msgstr "_Недавно коришћена"
+
+#: ../src/ui/edit/main-menu.c:816 ../src/ui/edit/main-toolbar.c:878
+#: ../src/ui/edit/main-window.c:722
+msgid "_Save"
+msgstr "_Сачувај"
+
+#: ../src/ui/edit/main-menu.c:824
+msgid "Save _As"
+msgstr "Сачувај _као"
+
+#: ../src/ui/edit/main-menu.c:834
+msgid "Recover unsaved songs"
+msgstr "Опорави несачуване песме"
+
+#: ../src/ui/edit/main-menu.c:844
+msgid "_Record"
+msgstr "_Снимај"
+
+#: ../src/ui/edit/main-menu.c:851
+msgid "_Quit"
+msgstr "_Изађи"
+
+#: ../src/ui/edit/main-menu.c:876
+msgid "_Redo"
+msgstr "_Понови"
+
+#: ../src/ui/edit/main-menu.c:888
+msgid "Cu_t"
+msgstr "_Исеци"
+
+#: ../src/ui/edit/main-menu.c:895
+msgid "_Copy"
+msgstr "_Умножи"
+
+#: ../src/ui/edit/main-menu.c:902
+msgid "_Paste"
+msgstr "У_баци"
+
+#. view menu
+#: ../src/ui/edit/main-menu.c:922
+msgid "_View"
+msgstr "_Преглед"
+
+#: ../src/ui/edit/main-menu.c:930
+msgid "Toolbar"
+msgstr "Трака алата"
+
+#: ../src/ui/edit/main-menu.c:937
+msgid "Statusbar"
+msgstr "Трака стања"
+
+#: ../src/ui/edit/main-menu.c:945
+msgid "Tabs"
+msgstr "Табулатори"
+
+#. TODO(ensonic): 'Machine properties' show/hide toggle
+#. TODO(ensonic): 'Analyzer windows' show/hide toggle
+#: ../src/ui/edit/main-menu.c:955
+msgid "Fullscreen"
+msgstr "Цео екран"
+
+#: ../src/ui/edit/main-menu.c:964
+msgid "Go to machine view"
+msgstr "Иди на преглед машине"
+
+#: ../src/ui/edit/main-menu.c:971
+msgid "Go to pattern view"
+msgstr "Иди на преглед шаблона"
+
+#: ../src/ui/edit/main-menu.c:978
+msgid "Go to sequence view"
+msgstr "Иди на преглед низа"
+
+#: ../src/ui/edit/main-menu.c:985
+msgid "Go to wave table view"
+msgstr "Иди на преглед таласне табеле"
+
+#: ../src/ui/edit/main-menu.c:992
+msgid "Go to song information"
+msgstr "Иди на податке о песми"
+
+#. TODO(ensonic): zoom menu items
+#. *  machine view:  zoom-in/zoom-out/zoom-fit
+#. *  sequence vide: zoom-in/zoom-out
+#. *
+#.
+#. gtk_container_add(GTK_CONTAINER(menu),gtk_separator_menu_item_new());
+#.
+#. subitem=gtk_menu_item_new_with_mnemonic(_)"Best _Fit"));
+#. gtk_container_add(GTK_CONTAINER(menu),subitem);
+#. g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_fit_activate),(gpointer)self);
+#.
+#. subitem=gtk_menu_item_new_with_mnemonic(_("Zoom _In"));
+#. gtk_container_add(GTK_CONTAINER(menu),subitem);
+#. g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_in_activate),(gpointer)self);
+#.
+#. subitem=gtk_menu_item_new_with_mnemonic(_("Zoom _Out"));
+#. gtk_container_add(GTK_CONTAINER(menu),subitem);
+#. g_signal_connect(subitem,"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
+#.
+#. playback menu
+#: ../src/ui/edit/main-menu.c:1020
+msgid "_Playback"
+msgstr "_Репродукуј"
+
+#: ../src/ui/edit/main-menu.c:1029 ../src/ui/edit/main-page-waves.c:1300
+#: ../src/ui/edit/main-page-waves.c:1408 ../src/ui/edit/main-toolbar.c:904
+msgid "_Play"
+msgstr "_Пусти"
+
+#: ../src/ui/edit/main-menu.c:1036
+msgid "Play from cursor"
+msgstr "Пусти од курзора"
+
+#: ../src/ui/edit/main-menu.c:1043 ../src/ui/edit/main-page-waves.c:1310
+#: ../src/ui/edit/main-toolbar.c:925
+msgid "_Stop"
+msgstr "_Заустави"
+
+#: ../src/ui/edit/main-menu.c:1070
+msgid "Help"
+msgstr "Помоћ"
+
+#: ../src/ui/edit/main-menu.c:1077 ../src/ui/edit/tip-dialog.c:207
+#: ../src/ui/edit/tip-dialog.c:222
+msgid "Tip of the day"
+msgstr "Савет дана"
+
+#. join web-chat
+#: ../src/ui/edit/main-menu.c:1083
+msgid "Join IRC discussion"
+msgstr "Приступите ИРЦ расправи"
+
+#. TODO(ensonic): 'translate application' -> link to translator project
+#. * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-translate.png
+#.
+#. 'report a problem' -> link to bug tracker
+#. * liblaunchpad-integration1:/usr/share/icons/hicolor/16x16/apps/lpi-bug.png
+#. * /usr/share/app-install/icons/bug-buddy.png
+#.
+#: ../src/ui/edit/main-menu.c:1096
+msgid "Report a problem"
+msgstr "Пријавите проблем"
+
+#: ../src/ui/edit/main-page-info.c:409
+msgid "song meta data"
+msgstr "мета подаци песме"
+
+#: ../src/ui/edit/main-page-info.c:436
+msgid "genre"
+msgstr "жанр"
+
+#: ../src/ui/edit/main-page-info.c:447
+msgid "author"
+msgstr "аутор"
+
+#: ../src/ui/edit/main-page-info.c:458
+msgid "created"
+msgstr "снимљена"
+
+#: ../src/ui/edit/main-page-info.c:473
+msgid "beats per minute"
+msgstr "тактова у минуту"
+
+#: ../src/ui/edit/main-page-info.c:488
+msgid "beats"
+msgstr "тактова"
+
+#: ../src/ui/edit/main-page-info.c:511
+msgid "ticks per beat"
+msgstr "откуцаја у такту"
+
+#: ../src/ui/edit/main-page-info.c:524
+msgid "last saved"
+msgstr "последње чување"
+
+#: ../src/ui/edit/main-page-info.c:539
+msgid "free text info"
+msgstr "слободни подаци текста"
+
+#: ../src/ui/edit/main-page-machines.c:1593
+msgid "Add machine"
+msgstr "Додај машину"
+
+#: ../src/ui/edit/main-page-machines.c:1603
+msgid "Unmute all machines"
+msgstr "Поништи утишање свих машина"
+
+#: ../src/ui/edit/main-page-machines.c:1620
+msgid "Off"
+msgstr "Искљ."
+
+#: ../src/ui/edit/main-page-machines.c:1632
+msgid "Low"
+msgstr "Ниско"
+
+#: ../src/ui/edit/main-page-machines.c:1644
+msgid "Medium"
+msgstr "Средње"
+
+#: ../src/ui/edit/main-page-machines.c:1656
+msgid "High"
+msgstr "Високо"
+
+#: ../src/ui/edit/main-page-machines.c:1703
+msgid "Best _Fit"
+msgstr "Најбоље _уклапање"
+
+#: ../src/ui/edit/main-page-machines.c:1705
+msgid "Zoom in/out so that everything is visible"
+msgstr "Увећај/умањи тако да се све види"
+
+#: ../src/ui/edit/main-page-machines.c:1710
+msgid "Zoom _In"
+msgstr "У_већај"
+
+#: ../src/ui/edit/main-page-machines.c:1711
+msgid "Zoom in for more details"
+msgstr "Увећајте за више детаља"
+
+#: ../src/ui/edit/main-page-machines.c:1718
+msgid "Zoom _Out"
+msgstr "У_мањи"
+
+#: ../src/ui/edit/main-page-machines.c:1719
+msgid "Zoom out for better overview"
+msgstr "Умањи за бољи преглед"
+
+#: ../src/ui/edit/main-page-machines.c:1732
+msgid "Grid"
+msgstr "Мрежа"
+
+#: ../src/ui/edit/main-page-machines.c:1733
+msgid "Show background grid"
+msgstr "Прикажите мрежу позадине"
+
+#: ../src/ui/edit/main-page-machines.c:1747
+msgid "Machine view menu"
+msgstr "Изборник прегледа машине"
+
+#: ../src/ui/edit/main-page-machines.c:1749
+msgid "Menu actions for machine view below"
+msgstr "Радње изборника за преглед машине испод"
+
+#: ../src/ui/edit/main-page-machines.c:2558
+msgid "Add new machines from right click context menu. Connect machines with shift+drag from source to target."
+msgstr "Додајте нове машине из приручног изборника десног клика. Повежите машине са помаком+превлачењем од извора до циља."
+
+#: ../src/ui/edit/main-page-patterns.c:354
+msgid "Add new patterns from right click context menu."
+msgstr "Додајте нове шаблоне из приручног изборника десног клика."
+
+#. create mapping for global params
+#. label for first global parameter column in a pattern
+#: ../src/ui/edit/main-page-patterns.c:1757
+msgid "Globals"
+msgstr "Општости"
+
+#. create mapping for voice params
+#. label for parameters of first voice column in a pattern
+#: ../src/ui/edit/main-page-patterns.c:1779
+msgid "Voice 1"
+msgstr "Глас 1"
+
+#. label for parameters of voice columns in a pattern
+#: ../src/ui/edit/main-page-patterns.c:1799
+#, c-format
+msgid "Voice %u"
+msgstr "Глас %u"
+
+#. this won't work, as we can't pass anything to the event handler
+#. * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
+#. * so, we need to subclass the combobox and add two signals: select-next, select-prev
+#.
+#: ../src/ui/edit/main-page-patterns.c:2977
+msgid "Machine"
+msgstr "Машина"
+
+#: ../src/ui/edit/main-page-patterns.c:3005
+msgid "Pattern"
+msgstr "Шаблон"
+
+#: ../src/ui/edit/main-page-patterns.c:3043
+#: ../src/ui/edit/main-page-waves.c:1365
+msgid "Wave"
+msgstr "Талас"
+
+#: ../src/ui/edit/main-page-patterns.c:3070
+msgid "Octave"
+msgstr "Октава"
+
+#: ../src/ui/edit/main-page-patterns.c:3090
+msgid "Play live"
+msgstr "Пусти уживо"
+
+#: ../src/ui/edit/main-page-patterns.c:3093
+msgid "Play notes and triggers while editing the pattern"
+msgstr "Пусти ноте и окидаче приликом обраде шаблона"
+
+#: ../src/ui/edit/main-page-patterns.c:3107
+msgid "Pattern view menu"
+msgstr "Изборник прегледа шаблона"
+
+#: ../src/ui/edit/main-page-patterns.c:3109
+msgid "Menu actions for pattern view below"
+msgstr "Радње изборника за преглед шаблона испод"
+
+#: ../src/ui/edit/main-page-patterns.c:3156
+msgid "New voice"
+msgstr "Нови глас"
+
+#: ../src/ui/edit/main-page-patterns.c:3168
+msgid "Remove last voice"
+msgstr "Уклони последњи глас"
+
+#: ../src/ui/edit/main-page-patterns.c:3183
+msgid "New pattern …"
+msgstr "Нови шаблон …"
+
+#: ../src/ui/edit/main-page-patterns.c:3195
+msgid "Pattern properties…"
+msgstr "Својства шаблона…"
+
+#: ../src/ui/edit/main-page-patterns.c:3208
+msgid "Remove pattern…"
+msgstr "Уклони шаблон…"
+
+#: ../src/ui/edit/main-page-patterns.c:3220
+msgid "Copy pattern…"
+msgstr "Умножи шаблон…"
+
+#. dynamic part
+#: ../src/ui/edit/main-page-patterns.c:3236
+#: ../src/ui/edit/main-page-sequence.c:3674
+msgid "Machine properties"
+msgstr "Својства машине"
+
+#: ../src/ui/edit/main-page-patterns.c:3245
+#: ../src/ui/edit/main-page-sequence.c:3681
+msgid "Machine preferences"
+msgstr "Поставке машине"
+
+#. time line position
+#: ../src/ui/edit/main-page-sequence.c:1189
+msgid "Pos."
+msgstr "Пол."
+
+#: ../src/ui/edit/main-page-sequence.c:1198
+msgid "Ticks"
+msgstr "Врхови"
+
+#: ../src/ui/edit/main-page-sequence.c:1200
+msgid "Time"
+msgstr "Време"
+
+#: ../src/ui/edit/main-page-sequence.c:1202
+msgid "Beats"
+msgstr "Тактови"
+
+#: ../src/ui/edit/main-page-sequence.c:1375
+#: ../src/ui/edit/main-page-sequence.c:1402
+msgid "Labels"
+msgstr "Натписи"
+
+#: ../src/ui/edit/main-page-sequence.c:3569
+msgid "Show every n-th line"
+msgstr "Прикажи сваки n-ти ред"
+
+#: ../src/ui/edit/main-page-sequence.c:3579
+msgid "Steps"
+msgstr "Кораци"
+
+#: ../src/ui/edit/main-page-sequence.c:3592
+msgid "Follow playback"
+msgstr "Прати репродукцију"
+
+#: ../src/ui/edit/main-page-sequence.c:3612
+msgid "Sequence view menu"
+msgstr "Изборник прегледа низа"
+
+#: ../src/ui/edit/main-page-sequence.c:3614
+msgid "Menu actions for sequence view below"
+msgstr "Радње изборника за преглед низа испод"
+
+#: ../src/ui/edit/main-page-sequence.c:3628
+msgid "Add track"
+msgstr "Додај нумеру"
+
+#: ../src/ui/edit/main-page-sequence.c:3633
+msgid "Remove track"
+msgstr "Уклони нумеру"
+
+#: ../src/ui/edit/main-page-sequence.c:3648
+msgid "Move track left"
+msgstr "Премести нумеру на лево"
+
+#: ../src/ui/edit/main-page-sequence.c:3659
+msgid "Move track right"
+msgstr "Премести нумеру на десно"
+
+#: ../src/ui/edit/main-page-sequence.c:3752
+msgid "Browse to labels in the sequence"
+msgstr "Разгледај до натписа у низу"
+
+#: ../src/ui/edit/main-page-sequence.c:3906
+msgid "Key"
+msgstr "Кључ"
+
+#: ../src/ui/edit/main-page-sequence.c:3921
+msgid "Patterns"
+msgstr "Шаблони"
+
+#: ../src/ui/edit/main-page-sequence.c:4569
+msgid "Add new tracks from right click context menu."
+msgstr "Додајте нове нумере из приручног изборника десног клика."
+
+#: ../src/ui/edit/main-page-waves.c:1302
+msgid "Play current wave table entry as C-4"
+msgstr "Свирај текући унос таласне табеле као „C-4“"
+
+#: ../src/ui/edit/main-page-waves.c:1312
+msgid "Stop playback of current wave table entry"
+msgstr "Заустави репродукцију текућег уноса таласне табеле"
+
+#: ../src/ui/edit/main-page-waves.c:1319
+msgid "_Clear"
+msgstr "_Очисти"
+
+#: ../src/ui/edit/main-page-waves.c:1321
+msgid "Clear current wave table entry"
+msgstr "Очисти текући унос таласне табеле"
+
+#: ../src/ui/edit/main-page-waves.c:1355
+msgid "Ix"
+msgstr "Ix"
+
+#: ../src/ui/edit/main-page-waves.c:1373
+msgid "Volume"
+msgstr "Јачина звука"
+
+#: ../src/ui/edit/main-page-waves.c:1381 ../src/ui/edit/main-toolbar.c:934
+msgid "Loop"
+msgstr "Петља"
+
+#: ../src/ui/edit/main-page-waves.c:1409
+msgid "Play current sample"
+msgstr "Пусти текући узорак"
+
+#: ../src/ui/edit/main-page-waves.c:1417
+msgid "Load current sample into selected wave table entry"
+msgstr "Учатај текући узорак у изабрани унос таласне табеле"
+
+#: ../src/ui/edit/main-page-waves.c:1471
+msgid "Root"
+msgstr "Корен"
+
+#: ../src/ui/edit/main-page-waves.c:1479
+msgid "Length"
+msgstr "Трајање"
+
+#: ../src/ui/edit/main-page-waves.c:1487
+msgid "Rate"
+msgstr "Проток"
+
+#: ../src/ui/edit/main-page-waves.c:1497
+msgid "Loop start"
+msgstr "Почетак петље"
+
+#: ../src/ui/edit/main-page-waves.c:1508
+msgid "Loop end"
+msgstr "Крај петље"
+
+#: ../src/ui/edit/main-pages.c:177
+msgid "machines"
+msgstr "машине"
+
+#: ../src/ui/edit/main-pages.c:178
+msgid "machines used in the song and their wires"
+msgstr "машине коришћене у песми и њиховим жицама"
+
+#: ../src/ui/edit/main-pages.c:184
+msgid "patterns"
+msgstr "шаблони"
+
+#: ../src/ui/edit/main-pages.c:184
+msgid "event pattern editor"
+msgstr "уређивач шаблона догађаја"
+
+#: ../src/ui/edit/main-pages.c:190
+msgid "sequence"
+msgstr "низ"
+
+#: ../src/ui/edit/main-pages.c:190
+msgid "song sequence editor"
+msgstr "уређивач низа песме"
+
+#: ../src/ui/edit/main-pages.c:196
+msgid "wave table"
+msgstr "таласна табела"
+
+#: ../src/ui/edit/main-pages.c:196
+msgid "sample wave table editor"
+msgstr "уређивач узорка таласне табеле"
+
+#: ../src/ui/edit/main-pages.c:202
+msgid "information"
+msgstr "подаци"
+
+#: ../src/ui/edit/main-pages.c:202
+msgid "song meta data editor"
+msgstr "уређивач метаподатака песме"
+
+#: ../src/ui/edit/main-statusbar.c:324
+msgid "CPU load"
+msgstr "Учитавање процесора"
+
+#: ../src/ui/edit/main-statusbar.c:339
+msgid "Playback time"
+msgstr "Време репродукције"
+
+#: ../src/ui/edit/main-statusbar.c:348
+msgid "Playback position"
+msgstr "Положај репродукције"
+
+#: ../src/ui/edit/main-statusbar.c:357
+msgid "Playback length"
+msgstr "Трајање репродукције"
+
+#: ../src/ui/edit/main-toolbar.c:417
+msgid "Error"
+msgstr "Грешка"
+
+#: ../src/ui/edit/main-toolbar.c:451
+msgid "Warning"
+msgstr "Упозорење"
+
+#: ../src/ui/edit/main-toolbar.c:867
+msgid "Prepare a new empty song"
+msgstr "Примпреми нову празну песму"
+
+#: ../src/ui/edit/main-toolbar.c:873
+msgid "Load a new song"
+msgstr "Учитај нову песму"
+
+#: ../src/ui/edit/main-toolbar.c:879
+msgid "Save this song"
+msgstr "Сачувај ову песму"
+
+#: ../src/ui/edit/main-toolbar.c:890
+msgid "R_ewind"
+msgstr "На_зад"
+
+#: ../src/ui/edit/main-toolbar.c:892
+msgid "Rewind playback position of this song"
+msgstr "Померите уназад положај репродукције ове песме"
+
+#: ../src/ui/edit/main-toolbar.c:905
+msgid "Play this song"
+msgstr "Пусти ову песму"
+
+#: ../src/ui/edit/main-toolbar.c:912
+msgid "_Forward"
+msgstr "На_пред"
+
+#: ../src/ui/edit/main-toolbar.c:914
+msgid "Forward playback position of this song"
+msgstr "Померите унапред положај репродукције ове песме"
+
+#: ../src/ui/edit/main-toolbar.c:926
+msgid "Stop playback of this song"
+msgstr "Заустави репродукцију ове песме"
+
+#: ../src/ui/edit/main-toolbar.c:935
+msgid "Toggle looping of playback"
+msgstr "Пребаци понављање репродукције"
+
+#: ../src/ui/edit/main-toolbar.c:953
+msgid "playback volume"
+msgstr "јачина звука репродукције"
+
+#: ../src/ui/edit/main-toolbar.c:975
+msgid "Change playback volume"
+msgstr "Промени јачину звука репродукције"
+
+#: ../src/ui/edit/main-window.c:268
+msgid "unsaved"
+msgstr "несачувано"
+
+#: ../src/ui/edit/main-window.c:268
+msgid "saved"
+msgstr "сачувано"
+
+#: ../src/ui/edit/main-window.c:334 ../src/ui/edit/main-window.c:339
+#, c-format
+msgid "%d %s and %d %s"
+msgstr "%d %s и %d %s"
+
+#: ../src/ui/edit/main-window.c:335
+msgid "hour"
+msgstr "сат"
+
+#: ../src/ui/edit/main-window.c:335
+msgid "hours"
+msgstr "сата"
+
+#: ../src/ui/edit/main-window.c:336 ../src/ui/edit/main-window.c:340
+msgid "minute"
+msgstr "минут"
+
+#: ../src/ui/edit/main-window.c:336 ../src/ui/edit/main-window.c:340
+msgid "minutes"
+msgstr "минута"
+
+#: ../src/ui/edit/main-window.c:341 ../src/ui/edit/main-window.c:345
+msgid "second"
+msgstr "секунда"
+
+#: ../src/ui/edit/main-window.c:341 ../src/ui/edit/main-window.c:345
+msgid "seconds"
+msgstr "секунде"
+
+#: ../src/ui/edit/main-window.c:344
+#, c-format
+msgid "%d %s"
+msgstr "%d %s"
+
+#: ../src/ui/edit/main-window.c:353
+#, c-format
+msgid "All unsaved changes since %s will be lost. This song was last saved on: %s"
+msgstr "Све несачуване измене до „%s“ биће изгубљене. Ова песма је сачувана последњи пут: %s"
+
+#: ../src/ui/edit/main-window.c:358
+#, c-format
+msgid "All unsaved changes since %s will be lost. This song was created on: %s"
+msgstr "Све несачуване измене до „%s“ биће изгубљене. Ова песма је направљена: %s"
+
+#: ../src/ui/edit/main-window.c:544 ../src/ui/edit/main-window.c:545
+msgid "Really quit?"
+msgstr "Стварно да изађем?"
+
+#: ../src/ui/edit/main-window.c:557
+msgid "New song?"
+msgstr "Нова песма?"
+
+#: ../src/ui/edit/main-window.c:588
+msgid "Open a song"
+msgstr "Отворите песму"
+
+#: ../src/ui/edit/main-window.c:684 ../src/ui/edit/main-window.c:945
+#, c-format
+msgid "Can't save song '%s'."
+msgstr "Не могу да сачувам песму „%s“."
+
+#: ../src/ui/edit/main-window.c:685 ../src/ui/edit/main-window.c:932
+#: ../src/ui/edit/main-window.c:946
+msgid "Can't save song"
+msgstr "Не могу да сачувам песму"
+
+#: ../src/ui/edit/main-window.c:720
+msgid "Save a song"
+msgstr "Сачувајте песму"
+
+#: ../src/ui/edit/main-window.c:870 ../src/ui/edit/render-dialog.c:660
+msgid "Format"
+msgstr "Формат"
+
+#: ../src/ui/edit/main-window.c:915 ../src/ui/edit/main-window.c:916
+msgid "File already exists"
+msgstr "Датотека већ постоји"
+
+#: ../src/ui/edit/main-window.c:918
+msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
+msgstr "Изаберите „У реду“ да препишете или „Откажи“ да прекинете чување песме."
+
+#: ../src/ui/edit/main-window.c:930
+#, c-format
+msgid "An error occurred while writing the file '%s': %s"
+msgstr "Дошло је до грешке при записивању датотеке „%s“: %s"
+
+#. create and set window icon
+#.
+#. if((window_icon=bt_ui_resources_get_icon_pixbuf_by_machine(self->priv->machine))) {
+#. gtk_window_set_icon(GTK_WINDOW(self),window_icon);
+#. g_object_unref(window_icon);
+#. }
+#.
+#. set dialog title
+#: ../src/ui/edit/missing-framework-elements-dialog.c:138
+#: ../src/ui/edit/missing-framework-elements-dialog.c:157
+msgid "Missing GStreamer elements"
+msgstr "Недостаје елемент Гстримера"
+
+#: ../src/ui/edit/missing-framework-elements-dialog.c:167
+msgid "The elements listed below are missing from your installation, but are required."
+msgstr "Елементи на списку испод недостају у вашој инсталацији, а потребни су."
+
+#: ../src/ui/edit/missing-framework-elements-dialog.c:207
+msgid "The elements listed below are missing from your installation, but are recommended for full functionality."
+msgstr "Елементи на списку испод недостају у вашој инсталацији, али су препоручљиви за потпуну функционалност."
+
+#: ../src/ui/edit/missing-framework-elements-dialog.c:210
+msgid "don't warn again"
+msgstr "не упозоравај ме више"
+
+#. create and set window icon
+#.
+#. if((window_icon=bt_ui_resources_get_icon_pixbuf_by_machine(self->priv->machine))) {
+#. gtk_window_set_icon(GTK_WINDOW(self),window_icon);
+#. g_object_unref(window_icon);
+#. }
+#.
+#. set dialog title
+#: ../src/ui/edit/missing-song-elements-dialog.c:125
+#: ../src/ui/edit/missing-song-elements-dialog.c:140
+msgid "Missing elements in song"
+msgstr "Недостају елементи у песми"
+
+#: ../src/ui/edit/missing-song-elements-dialog.c:148
+msgid "The machines listed below are missing or failed to load."
+msgstr "Машине на списку испод недостају или нису успеле да се учитају."
+
+#: ../src/ui/edit/missing-song-elements-dialog.c:153
+msgid "The waves listed below are missing or failed to load."
+msgstr "Таласи на списку испод недостају или нису успели да се учитају."
+
+#. GtkComboBox : pattern length
+#: ../src/ui/edit/pattern-properties-dialog.c:177
+msgid "length"
+msgstr "тарјање"
+
+#. GtkSpinButton : number of voices
+#: ../src/ui/edit/pattern-properties-dialog.c:191
+msgid "voices"
+msgstr "гласови"
+
+#: ../src/ui/edit/render-dialog.c:196
+#, c-format
+msgid "Recording to: %s"
+msgstr "Снимам у: %s"
+
+#: ../src/ui/edit/render-dialog.c:367
+msgid ""
+"File already exists!\n"
+"It will be overwritten if you continue."
+msgstr ""
+"Датотека већ постоји!\n"
+"Биже преписана ако наставите."
+
+#: ../src/ui/edit/render-dialog.c:610
+msgid "song rendering"
+msgstr "исцртавање песме"
+
+#. add dialog commision widgets (okay, cancel)
+#: ../src/ui/edit/render-dialog.c:613
+msgid "OK"
+msgstr "У реду"
+
+#: ../src/ui/edit/render-dialog.c:631
+msgid "Folder"
+msgstr "Фасцикла"
+
+#: ../src/ui/edit/render-dialog.c:636
+#: ../src/ui/edit/settings-page-directories.c:102
+#: ../src/ui/edit/settings-page-directories.c:116
+#: ../src/ui/edit/settings-page-directories.c:131
+msgid "Select a folder"
+msgstr "Изаберите фасциклу"
+
+#: ../src/ui/edit/render-dialog.c:646
+msgid "Filename"
+msgstr "Назив датотеке"
+
+#: ../src/ui/edit/render-dialog.c:690
+msgid "Mode"
+msgstr "Режим"
+
+#. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
+#: ../src/ui/edit/settings-dialog.c:183
+msgid "buzztrax settings"
+msgstr "Подешавања зујавка"
+
+#: ../src/ui/edit/settings-dialog.c:227 ../src/ui/edit/settings-dialog.c:269
+msgid "Audio Devices"
+msgstr "Звучни уређаји"
+
+#: ../src/ui/edit/settings-dialog.c:231 ../src/ui/edit/settings-dialog.c:277
+#: ../src/ui/edit/settings-page-directories.c:90
+msgid "Directories"
+msgstr "Директоријуми"
+
+#: ../src/ui/edit/settings-dialog.c:235 ../src/ui/edit/settings-dialog.c:287
+#: ../src/ui/edit/settings-page-interaction-controller.c:402
+msgid "Interaction Controller"
+msgstr "Контролер интеракције"
+
+#: ../src/ui/edit/settings-dialog.c:240 ../src/ui/edit/settings-dialog.c:297
+#: ../src/ui/edit/settings-page-playback-controller.c:458
+msgid "Playback Controller"
+msgstr "Контролер репродукције"
+
+#: ../src/ui/edit/settings-dialog.c:245 ../src/ui/edit/settings-dialog.c:305
+#: ../src/ui/edit/settings-page-shortcuts.c:87
+msgid "Shortcuts"
+msgstr "Пречице"
+
+#: ../src/ui/edit/settings-dialog.c:249
+msgid "User interface"
+msgstr "Корисничко сучеље"
+
+#: ../src/ui/edit/settings-dialog.c:313 ../src/ui/edit/settings-page-ui.c:82
+msgid "User Interface"
+msgstr "Корисничко сучеље"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:113
+msgid "Auto"
+msgstr "Ауто"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:269
+msgid "Audio Device"
+msgstr "Звучни уређај"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:277
+msgid "Sink"
+msgstr "Усклађеност"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:292
+#, c-format
+msgid "system default: %s (%s)"
+msgstr "системске основности: %s (%s)"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:298
+msgid "system default: -"
+msgstr "системске основности: -"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:382
+msgid "Audio device"
+msgstr "Звучни уређај"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:395
+msgid "Sampling rate"
+msgstr "Проток узорковања"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:444
+msgid "Channels"
+msgstr "Канали"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:451
+msgid "mono"
+msgstr "моно"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:452
+msgid "stereo"
+msgstr "стерео"
+
+#: ../src/ui/edit/settings-page-audiodevices.c:459
+msgid "Latency"
+msgstr "Кашњење"
+
+#: ../src/ui/edit/settings-page-directories.c:97
+msgid "Songs"
+msgstr "Песме"
+
+#: ../src/ui/edit/settings-page-directories.c:111
+msgid "Recordings"
+msgstr "Снимања"
+
+#: ../src/ui/edit/settings-page-directories.c:126
+msgid "Waveforms"
+msgstr "Таласни облици"
+
+#: ../src/ui/edit/settings-page-interaction-controller.c:226
+msgid "Plug a USB input device or midi controller"
+msgstr "Прикључите улазни УСБ уређај или миди контролер"
+
+#: ../src/ui/edit/settings-page-interaction-controller.c:349
+msgid "Use the device's controls to train them."
+msgstr "Користите контроле уређаја да их вучете."
+
+#: ../src/ui/edit/settings-page-interaction-controller.c:409
+#: ../src/ui/edit/settings-page-playback-controller.c:596
+msgid "Device"
+msgstr "Уређај"
+
+#: ../src/ui/edit/settings-page-interaction-controller.c:447
+msgid "In use"
+msgstr "У употреби"
+
+#: ../src/ui/edit/settings-page-interaction-controller.c:456
+#: ../src/ui/edit/settings-page-playback-controller.c:479
+msgid "Controller"
+msgstr "Контролер"
+
+#: ../src/ui/edit/settings-page-interaction-controller.c:473
+msgid "This package has been built without GUdev and Alsa support and thus supports no interaction controllers."
+msgstr "Овај пакет је изграђен без подршке ГУдев-а и Алсе а такве подршке не дејствују на контролере."
+
+#: ../src/ui/edit/settings-page-playback-controller.c:482
+msgid "Master"
+msgstr "Главни"
+
+#: ../src/ui/edit/settings-page-playback-controller.c:488
+msgid "Slave"
+msgstr "Споредни"
+
+#. local network port number for socket communication
+#: ../src/ui/edit/settings-page-playback-controller.c:551
+msgid "Port number"
+msgstr "Број прикључника"
+
+#: ../src/ui/edit/settings-page-playback-controller.c:569
+msgid "Requires Coherence UPnP framework which can be found at: https://coherence.beebits.net."
+msgstr "Захтева Кохерентни УПнП радни оквир који можете наћи на: https://coherence.beebits.net."
+
+#: ../src/ui/edit/settings-page-playback-controller.c:580
+#, c-format
+msgid "Jack transport requires that the jackaudiosink is active. Your current audiosink is '%s'."
+msgstr "Џек пренос захтева да је активан „jackaudiosink“. Ваш тренутни усаглашавач звука је „%s“."
+
+#: ../src/ui/edit/settings-page-playback-controller.c:582
+msgid "none"
+msgstr "ништа"
+
+#: ../src/ui/edit/settings-page-playback-controller.c:623
+msgid "Play"
+msgstr "Пусти"
+
+#: ../src/ui/edit/settings-page-playback-controller.c:624
+msgid "Stop"
+msgstr "Заустави"
+
+#: ../src/ui/edit/settings-page-playback-controller.c:625
+msgid "Rewind"
+msgstr "Назад"
+
+#: ../src/ui/edit/settings-page-playback-controller.c:626
+msgid "Forward"
+msgstr "Напред"
+
+#: ../src/ui/edit/settings-page-ui.c:89
+msgid "Dark theme variant"
+msgstr "Тамна варијанта теме"
+
+#: ../src/ui/edit/settings-page-ui.c:101
+msgid "Compact theme variant"
+msgstr "Компактна варијанта теме"
+
+#: ../src/ui/edit/signal-analysis-dialog.c:973
+#, c-format
+msgid "%s analysis"
+msgstr "Анализа „%s“"
+
+#. scale: linear and logarithmic
+#: ../src/ui/edit/signal-analysis-dialog.c:1020
+msgid "frequency mapping"
+msgstr "мапирање учесталости"
+
+#: ../src/ui/edit/signal-analysis-dialog.c:1025
+msgid "lin."
+msgstr "лин."
+
+#: ../src/ui/edit/signal-analysis-dialog.c:1026
+msgid "log."
+msgstr "лог."
+
+#. precission
+#: ../src/ui/edit/signal-analysis-dialog.c:1034
+msgid "spectrum precision"
+msgstr "прецизност спектра"
+
+#: ../src/ui/edit/signal-analysis-dialog.c:1039
+msgid "single"
+msgstr "једно"
+
+#: ../src/ui/edit/signal-analysis-dialog.c:1040
+msgid "double"
+msgstr "два"
+
+#: ../src/ui/edit/signal-analysis-dialog.c:1041
+msgid "triple"
+msgstr "три"
+
+#: ../src/ui/edit/tip-dialog.c:50
+msgid "New machines are added in machine view from the context menu."
+msgstr "Нове машине су додате у преглед машина из приручног изборника."
+
+#: ../src/ui/edit/tip-dialog.c:51
+msgid "Connect machines by holding the shift key and dragging a connection for the source to the target machine."
+msgstr "Повежите машине држећи тастер „Помак“ и превуците везу за извор до циљне машине."
+
+#: ../src/ui/edit/tip-dialog.c:52
+msgid "Songs can be recorded as single waves per track to give it to remixers."
+msgstr "Песме се могу снимити као појединачни таласи по нумери да би се дале ремикерсима."
+
+#: ../src/ui/edit/tip-dialog.c:53
+msgid "Fill the details on the info page. When recording songs, the metadata is added to the recording as tags."
+msgstr "Попуните детаље на страници података. Када снимате песме, метаподаци се додају снимању као ознаке."
+
+#: ../src/ui/edit/tip-dialog.c:54
+msgid "Use jackaudio sink in audio device settings to get lower latencies for live machine control."
+msgstr "Користите „“ усаглашавање у подешавањима звучног уређаја да снизите притајеност за управљање машине уживо."
+
+#: ../src/ui/edit/tip-dialog.c:55
+msgid "You can use input devices such as joysticks, beside midi devices to live control machine parameters."
+msgstr "Можете користити улазне уређаје као што су играчке палице, уз миди уређаје да уживо управљате параметрима машине."
+
+#: ../src/ui/edit/tip-dialog.c:56
+msgid "You can use a upnp media client (e.g. media streamer on nokia tablets) to remote control buzztrax."
+msgstr "Можете користити упнп медијски клијент (на пример медијски токовник на нокиа таблицама) да на даљину управљате зујавком."
+
+#: ../src/ui/edit/tip-dialog.c:57
+msgid "To enter notes, imagine your pc keyboard as a music keyboard in two rows. Bottom left y/z key becomes a 'c', s a 'c#', x a 'd' and so on."
+msgstr "Да бисте унели ноте, замислите тастатури вашег рачунара као музичку клавијатуру у два реда. Доле лево тастер „y/z“ постаје „c“, „s“ → „c#“, „x“ → „d“ и тако даље."
+
+#: ../src/ui/edit/tip-dialog.c:58
+msgid "You can get more help from the community on irc://irc.freenode.net/#buzztrax."
+msgstr "Можете добити још помоћи од заједнице на „irc://irc.freenode.net/#buzztrax“."
+
+#: ../src/ui/edit/tip-dialog.c:59
+msgid "Pattern layouts are individual for each machine. Look at the statusbar at the bottom for information about the cursor-column."
+msgstr "Распореди шаблона су појединачни за сваку машину. Погледајте на траку стања при дну за информације о колони курзора."
+
+#: ../src/ui/edit/tip-dialog.c:60
+msgid "Click the speaker icon in the pattern-view to hear notes as you enter them."
+msgstr "Кликните на иконицу звучника у прегледу шаблона да чујете ноте како их будете уносили."
+
+#: ../src/ui/edit/tip-dialog.c:61
+msgid "Each wire has volume and possible panorama/balance controls. These can also be adjusted in the machine-window of the machine that has the wire as an input."
+msgstr "Свака жица има јачину звука и могуће контроле панораме/равнотеже. Могу се такође подесити у прозору машине која има жицу као улаз."
+
+#: ../src/ui/edit/tip-dialog.c:62
+msgid "The wire volume control pops up upon a click on the arrow box on the wire."
+msgstr "Управљање јачином звука жице се појављује на клик над кутијом стрелице на жици."
+
+#: ../src/ui/edit/tip-dialog.c:63
+msgid "The wire panorama/balance control pops up upon a shift+click on the arrow box on the wire if available."
+msgstr "Управљање панорамом/равнотежом жице се појављује на помак+клик над кутијом стрелице на жици ако је доступно."
+
+#: ../src/ui/edit/tip-dialog.c:64
+msgid "One can copy settings from the machine window (from the context menu of a group) and paste them to patterns and the other way around."
+msgstr "Можете умножити подешавања из прозора машине (из приручног изборника групе) и убацити их у обрасце и обрнуто."
+
+#: ../src/ui/edit/tip-dialog.c:65
+msgid "Install extra machines from http://github.com/Buzztrax/buzzmachines."
+msgstr "Инсталирајте додатне машине са „http://github.com/Buzztrax/buzzmachines“."
+
+#: ../src/ui/edit/tip-dialog.c:66
+msgid "Machines can also be renamed in the headers of the sequence view."
+msgstr "Машине могу такође бити преименоване у заглављима прегледа секвенце."
+
+#: ../src/ui/edit/tip-dialog.c:67
+msgid "Press the ',' (comma) key in the pattern editor to insert the current value for this parameter."
+msgstr "Притисните тастер зареза (,) у уређивачу шаблона да уметнете текућу вредност за овај параметар."
+
+#: ../src/ui/edit/tip-dialog.c:244
+msgid "Show tips on startup"
+msgstr "Прикажи савете при покретању"
+
+#. add "refresh" button to action area
+#: ../src/ui/edit/tip-dialog.c:255
+msgid "Refresh"
+msgstr "Освежи"
+
+#: ../src/ui/edit/wire-canvas-item.c:825
+msgid "Disconnect"
+msgstr "Прекини везу"
