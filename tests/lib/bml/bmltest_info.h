@@ -96,7 +96,7 @@ int bml(test_info(char *libpath)) {
         num=val;numtrig=0;
         for(i=0;i<num;i++)
           if(bml(get_global_parameter_info(bmh,i,BM_PARA_FLAGS,(void *)&val)))
-            if(val&&(1<<1)==0) numtrig++;
+            if((val&(1<<1))==0) numtrig++;
         printf("    NumGlobalTriggerParams: %i\n",numtrig);fflush(stdout);
         for(i=0;i<num;i++) {
           printf("      GlobalParam=%02i\n",i);
@@ -136,7 +136,7 @@ int bml(test_info(char *libpath)) {
         num=val;numtrig=0;
         for(i=0;i<num;i++)
           if(bml(get_track_parameter_info(bmh,i,BM_PARA_FLAGS,(void *)&val)))
-            if(val&&(1<<1)==0) numtrig++;
+            if((val&(1<<1))==0) numtrig++;
         printf("    NumTrackTriggerParams: %i\n",numtrig);fflush(stdout);
         if(num && tracks) {
           for(i=0;i<num;i++) {
