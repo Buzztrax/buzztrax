@@ -109,9 +109,9 @@ for machine in $machine_glob ; do
   #res=$?
   # this suppresses the output of e.g. "Sementation fault"
   res=`env >>bmltest_info.log 2>&1 BML_DEBUG=255 $BMLTEST_INFO "$machine"; echo $?`
-  cat bmltest_info.log | grep >"$log_name" -v "Warning: the specified"
+  grep >"$log_name" -v "Warning: the specified" bmltest_info.log
   if [ $sig_int -eq "1" ] ; then res=1; fi
-  cat bmltest_info.log | iconv >bmltest_info.tmp -fWINDOWS-1250 -tUTF-8 -c
+  iconv >bmltest_info.tmp -fWINDOWS-1250 -tUTF-8 -c bmltest_info.log
   fieldCreateTime=`egrep -o "machine created in .*$" bmltest_info.tmp | sed -e 's/machine created in \(.*\) sec$/\1/'`
   fieldInitTime=`egrep -o "machine initialized in .*$" bmltest_info.tmp | sed -e 's/machine initialized in \(.*\) sec$/\1/'`
   fieldShortName=`egrep -o "Short Name: .*$" bmltest_info.tmp | sed -e 's/Short Name: "\(.*\)"$/\1/'`
@@ -134,7 +134,7 @@ for machine in $machine_glob ; do
     echo >bmltest_process.log "BML_DEBUG=255 $BMLTEST_PROCESS \"$machine\" input.raw output.raw"
     # this suppresses the output of e.g. "Sementation fault"
     res=`env >>bmltest_process.log 2>&1 BML_DEBUG=255 $BMLTEST_PROCESS "$machine" input.raw output.raw; echo $?`
-    cat bmltest_process.log | grep >>"$log_name" -v "Warning: the specified"
+    grep >>"$log_name" -v "Warning: the specified" bmltest_process.log
     if [ $sig_int -eq "1" ] ; then res=1; fi
     if [ $res -eq "0" ] ; then
       echo "okay : $machine";
@@ -161,7 +161,7 @@ for machine in $machine_glob ; do
     echo "$reason :: $name" >>testmachine.failtmp
     touch bmltest_process.log
   fi
-  cat bmltest_process.log | iconv >bmltest_process.tmp -fWINDOWS-1250 -tUTF-8 -c
+  iconv >bmltest_process.tmp -fWINDOWS-1250 -tUTF-8 -c bmltest_process.log
   fieldMaxAmp=`egrep -o "MaxAmp: .*$" bmltest_process.tmp | sed -e 's/MaxAmp: \(.*\)$/\1/'`
   fieldClipped=`egrep -o "Clipped: .*$" bmltest_process.tmp | sed -e 's/Clipped: \(.*\)$/\1/'`
   fieldMathNaN=`egrep -o "some values are nan" bmltest_process.tmp | sed -e 's/some values are \(.*\)$/\1/'`
