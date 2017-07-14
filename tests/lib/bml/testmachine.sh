@@ -208,6 +208,9 @@ rm -f input.raw output.raw
 sort testmachine.failtmp >testmachine/_.fails
 rm testmachine.failtmp
 
+# get sorttable.js from
+# https://raw.githubusercontent.com/stuartlangridge/sorttable/master/sorttable.js
+
 cat >testmachine/_.html <<END_OF_HTML
 <html>
   <head>
