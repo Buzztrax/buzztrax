@@ -175,7 +175,7 @@ bt_gst_LDFLAGS =  \
 	-Wl,--rpath -Wl,$(abs_top_builddir)/.libs
 bt_gst_SOURCES = \
   tests/m-bt-gst.c
-EXTRA_bml_DEPENDENCIES = libTestBmGenerator.la libTestBmEffect.la
+EXTRA_bt_gst_DEPENDENCIES = libTestBmGenerator.la libTestBmEffect.la
 
 bt_cmd_LDADD = \
 	libbt-cmd-check.la \
