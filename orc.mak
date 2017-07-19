@@ -31,12 +31,12 @@ orc-update: tmp-orc.c $(ORC_SOURCE).h
 	cp tmp-orc.c $(srcdir)/$(ORC_SOURCE)-dist.c
 	cp $(ORC_SOURCE).h $(srcdir)/$(ORC_SOURCE)-dist.h
 
-orcc_v_gen = $(orcc_v_gen_$(V))
-orcc_v_gen_ = $(orcc_v_gen_$(AM_DEFAULT_VERBOSITY))
+orcc_v_gen = $(orcc_v_gen_@AM_V@)
+orcc_v_gen_ = $(orcc_v_gen_@AM_DEFAULT_V@)
 orcc_v_gen_0 = @echo "  ORCC   $@";
 
-cp_v_gen = $(cp_v_gen_$(V))
-cp_v_gen_ = $(cp_v_gen_$(AM_DEFAULT_VERBOSITY))
+cp_v_gen = $(cp_v_gen_@AM_V@)
+cp_v_gen_ = $(cp_v_gen_@AM_DEFAULT_V@)
 cp_v_gen_0 = @echo "  CP     $@";
 
 if HAVE_ORC
