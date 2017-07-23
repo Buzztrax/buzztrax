@@ -31,6 +31,7 @@
 #include "core/audio-session.h"
 #include "core/cmd-pattern.h"
 #include "core/cmd-pattern-control-source.h"
+#include "core/experiments.h"
 #include "core/machine.h"
 #include "core/parameter-group.h"
 #include "core/pattern.h"

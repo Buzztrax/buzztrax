@@ -66,6 +66,7 @@ GST_DEBUG_CATEGORY (GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_STATIC (libxml_category);
 
 static gboolean arg_version = FALSE;
+static gchar **arg_experiments = NULL;
 
 GstCaps *bt_default_caps = NULL;
 
@@ -119,6 +120,12 @@ bt_init_post (void)
   GST_DEBUG_CATEGORY_INIT (GST_CAT_DEFAULT, "bt-core", 0,
       "music production environment / core library");
   GST_DEBUG_CATEGORY_INIT (libxml_category, "libxml", 0, "xml library");
+
+  if (arg_experiments) {
+    bt_experiments_init (arg_experiments);
+    g_strfreev (arg_experiments);
+    arg_experiments = NULL;
+  }
 
   extern gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin);
   gst_plugin_register_static (GST_VERSION_MAJOR,
@@ -208,9 +215,12 @@ bt_init_get_option_group (void)
   static GOptionEntry options[] = {
     {"bt-version", 0, 0, G_OPTION_ARG_NONE, NULL,
         N_("Print the buzztrax core version"), NULL},
+    {"bt-core-experiment", 0, 0,
+        G_OPTION_ARG_STRING_ARRAY, NULL, N_("Experiments"), "{audiomixer}"},
     {NULL}
   };
   options[0].arg_data = &arg_version;
+  options[1].arg_data = &arg_experiments;
 
   group =
       g_option_group_new ("bt-core", _("Buzztrax core options"),
@@ -262,7 +272,6 @@ bt_init_check (gint * argc, gchar ** argv[], GError ** err)
   bt_init_add_option_groups (ctx);
   res = g_option_context_parse (ctx, argc, argv, err);
   g_option_context_free (ctx);
-
   return res;
 }
 

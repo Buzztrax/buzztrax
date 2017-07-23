@@ -739,6 +739,10 @@ bt_str_format_ulong
 bt_str_parse_enum
 bt_str_format_gvalue
 bt_str_parse_gvalue
+# experiments
+BtExperimentFlags
+bt_experiments_init
+bt_experiments_check_active
 <SUBSECTION Standard>
 # glib extras
 G_OPTION_FLAG_NO_ARG
