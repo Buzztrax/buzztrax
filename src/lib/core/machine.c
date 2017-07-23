@@ -1540,16 +1540,41 @@ bt_machine_activate_adder (BtMachine * const self)
       }
     }
 
-    // create the adder (we can try "audiomixer" too)
-    // TODO: request-pad creation fails for audiomixer ?#%&!
-    // fixed: c1fa51953c7985bf59e45a96da796b08fa02fff4
-    //        > 1.6.0
-    // TODO: looping is broken in audiomixer still
-    // https://bugzilla.gnome.org/show_bug.cgi?id=757563
-    //       works if always flushing
-    if (!(bt_machine_make_internal_element (self, PART_ADDER, "adder",
-                "adder")))
-      goto Error;
+    // create the mixer element
+    if (bt_experiments_check_active (BT_EXPERIMENT_AUDIO_MIXER)) {
+      GstClockTime tick_duration;
+
+#if GST_CHECK_VERSION (1,6,0)
+      GST_FIXME ("Using audiomixer, not stable yet");
+#else
+      GST_WARNING ("Using audiomixer requires at least gstreamer 1.6.0");
+#endif
+
+      // Try the new audiomixer
+      /* TODO: request-pad creation fails for audiomixer ?#%&!
+       * fixed: c1fa51953c7985bf59e45a96da796b08fa02fff4
+       *        > 1.6.0
+       */
+      /* TODO: looping is broken in audiomixer still
+       * https://bugzilla.gnome.org/show_bug.cgi?id=757563
+       * The test suite has a test_loop and it works for audiomixer too.
+       * - the problem is that the the events seem to work, but with audiomixer, we
+       *   don't get audio after sending a non-flusing seek
+       */
+      if (!(bt_machine_make_internal_element (self, PART_ADDER, "audiomixer",
+                  "audiomixer")))
+        goto Error;
+      // TODO: needs to be updated when the tempo changes
+      bt_child_proxy_get (self->priv->song, "song-info::tick-duration",
+          &tick_duration, NULL);
+      g_object_set (machines[PART_ADDER], "output-buffer-duration",
+          tick_duration, NULL);
+    } else {
+      // Use adder
+      if (!(bt_machine_make_internal_element (self, PART_ADDER, "adder",
+                  "adder")))
+        goto Error;
+    }
     g_object_set (machines[PART_ADDER], "caps", bt_default_caps, NULL);
 
     if (!BT_IS_SINK_MACHINE (self)) {
