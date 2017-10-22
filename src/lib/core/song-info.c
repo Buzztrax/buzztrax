@@ -160,8 +160,8 @@ bt_song_info_tempo_changed (const BtSongInfo * const self)
   self->priv->tick_duration =
       (GstClockTime) (0.5 + ((GST_SECOND * 60.0) / ticks_per_minute));
 
-  GST_INFO ("calculating songs tick-time, tpm=%lf, %" G_GUINT64_FORMAT,
-      ticks_per_minute, self->priv->tick_duration);
+  GST_INFO ("calculating songs tick-time, tpm=%lf, %" GST_TIME_FORMAT,
+      ticks_per_minute, GST_TIME_ARGS (self->priv->tick_duration));
   g_object_notify ((GObject *) self, "tick-duration");
 }
 
