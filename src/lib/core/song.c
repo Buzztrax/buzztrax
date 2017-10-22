@@ -253,6 +253,7 @@ G_DEFINE_TYPE_WITH_CODE (BtSong, bt_song, G_TYPE_OBJECT,
   gst_event_new_seek ((r), GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH | \
       GST_SEEK_FLAG_SEGMENT, GST_SEEK_TYPE_SET, (s), GST_SEEK_TYPE_SET, (e))
 
+// If we flush, we drop part of the audio that hae not been rendered
 #define MAKE_SEEK_EVENT_L(r,s,e) \
   gst_event_new_seek ((r), GST_FORMAT_TIME, GST_SEEK_FLAG_SEGMENT, \
       GST_SEEK_TYPE_SET, (s), GST_SEEK_TYPE_SET, (e))
