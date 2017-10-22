@@ -813,6 +813,6 @@ bt_song_info_class_init (BtSongInfoClass * const klass)
   g_object_class_install_property (gobject_class, SONG_INFO_TICK_DURATION,
       g_param_spec_uint64 ("tick-duration",
           "tick duration property",
-          "the duration for a tick in µs calculated form the song tempo",
+          "the duration for a tick in ns calculated form the song tempo",
           1, G_MAXUINT64, 1, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 }
