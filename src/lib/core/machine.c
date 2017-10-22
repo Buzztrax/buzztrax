@@ -319,23 +319,49 @@ bt_machine_state_get_type (void)
 //-- signal handler
 
 static void
-bt_machine_on_duration_changed (BtSequence * const sequence,
-    const GParamSpec * const arg, gconstpointer const user_data)
+bt_machine_update_segment_duration (BtMachine * self, GstClockTime duration)
 {
-  const BtMachine *const self = BT_MACHINE (user_data);
   const GstElement *elem = self->priv->machines[PART_MACHINE];
-  GstClockTime duration, tick_duration;
-  glong length;
 
-  GST_DEBUG_OBJECT (self, "length changed");
-
-  g_object_get (sequence, "length", &length, NULL);
-  bt_child_proxy_get (self->priv->song, "song-info::tick-duration",
-      &tick_duration, NULL);
-  duration = tick_duration * length;
   GST_BASE_SRC (elem)->segment.duration = duration;
   GST_INFO_OBJECT (self, "duration: %" GST_TIME_FORMAT,
       GST_TIME_ARGS (duration));
+}
+
+static void
+bt_machine_on_duration_changed (BtSequence * const sequence,
+    const GParamSpec * const arg, gconstpointer const user_data)
+{
+  BtMachine *self = BT_MACHINE (user_data);
+  GstClockTime tick_duration;
+  glong seq_length;
+
+  GST_DEBUG_OBJECT (self, "sequence length changed");
+
+  g_object_get (sequence, "length", &seq_length, NULL);
+  bt_child_proxy_get (self->priv->song, "song-info::tick-duration",
+      &tick_duration, NULL);
+  bt_machine_update_segment_duration (self, tick_duration * seq_length);
+}
+
+static void
+bt_machine_on_tempo_changed (BtSongInfo * const song_info,
+    const GParamSpec * const arg, gconstpointer const user_data)
+{
+  BtMachine *self = BT_MACHINE (user_data);
+  GstClockTime tick_duration;
+  glong seq_length;
+
+  GST_DEBUG_OBJECT (self, "sequence length changed");
+
+  g_object_get (song_info, "tick-duration", &tick_duration, NULL);
+  bt_child_proxy_get (self->priv->song, "sequence::length", &seq_length, NULL);
+  bt_machine_update_segment_duration (self, tick_duration * seq_length);
+
+  if (bt_experiments_check_active (BT_EXPERIMENT_AUDIO_MIXER)) {
+    g_object_set (self->priv->machines[PART_ADDER],
+        "output-buffer-duration", tick_duration, NULL);
+  }
 }
 
 //-- helper methods
@@ -1106,13 +1132,18 @@ bt_machine_init_interfaces (const BtMachine * const self)
   // sync duration with song
   if (GST_IS_BASE_SRC (machine)) {
     BtSequence *sequence;
+    BtSongInfo *song_info;
 
-    g_object_get ((gpointer) (self->priv->song), "sequence", &sequence, NULL);
+    g_object_get ((gpointer) (self->priv->song), "sequence", &sequence,
+        "song-info", &song_info, NULL);
     bt_machine_on_duration_changed (sequence, NULL, (gpointer) self);
     g_signal_connect_object (sequence, "notify::length",
         G_CALLBACK (bt_machine_on_duration_changed), (gpointer) self, 0);
+    g_signal_connect_object (song_info, "notify::tick-duration",
+        G_CALLBACK (bt_machine_on_tempo_changed), (gpointer) self, 0);
 
     g_object_unref (sequence);
+    g_object_unref (song_info);
     GST_INFO ("  duration sync initialized");
   }
   GST_INFO ("machine element instantiated and interfaces initialized");
@@ -1549,26 +1580,24 @@ bt_machine_activate_adder (BtMachine * const self)
 #else
       GST_WARNING ("Using audiomixer requires at least gstreamer 1.6.0");
 #endif
-
       // Try the new audiomixer
-      /* TODO: request-pad creation fails for audiomixer ?#%&!
+      /* TODO: request-pad creation requeres audiomixer > 1.6.0
        * fixed: c1fa51953c7985bf59e45a96da796b08fa02fff4
-       *        > 1.6.0
        */
-      /* TODO: looping is broken in audiomixer still
+      /* TODO: looping is still broken in audiomixer
        * https://bugzilla.gnome.org/show_bug.cgi?id=757563
-       * The test suite has a test_loop and it works for audiomixer too.
-       * - the problem is that the the events seem to work, but with audiomixer, we
-       *   don't get audio after sending a non-flusing seek
+       */
+      /* TODO: backwards playback is still broken in audiomixer
        */
       if (!(bt_machine_make_internal_element (self, PART_ADDER, "audiomixer",
                   "audiomixer")))
         goto Error;
-      // TODO: needs to be updated when the tempo changes
       bt_child_proxy_get (self->priv->song, "song-info::tick-duration",
           &tick_duration, NULL);
-      g_object_set (machines[PART_ADDER], "output-buffer-duration",
-          tick_duration, NULL);
+      g_object_set (machines[PART_ADDER],
+          "output-buffer-duration", tick_duration,
+          // TODO: latency=1 is a workaround to avoid overqueueing
+          "latency", G_GUINT64_CONSTANT (1), NULL);
     } else {
       // Use adder
       if (!(bt_machine_make_internal_element (self, PART_ADDER, "adder",
