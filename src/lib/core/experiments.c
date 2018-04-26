@@ -58,7 +58,7 @@ bt_experiments_init (gchar ** flags)
  *
  * Check if the experimental code should run.
  *
- * Returns: %True if all experiments are active
+ * Returns: %TRUE if all experiments are active
  */
 gboolean
 bt_experiments_check_active (BtExperimentFlags experiments)

@@ -82,7 +82,7 @@ bt_gst_registry_get_element_factories_matching_all_categories (const gchar *
 /**
  * bt_gst_element_factory_get_pad_template:
  * @factory: element factory
- * @name: name of the pad-template, e.g. "src" or "sink_%u"
+ * @name: name of the pad-template, e.g. "src" or "sink_%%u"
  *
  * Lookup a pad template by name.
  *
