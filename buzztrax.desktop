@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Buzztrax
+Comment=Modular music composer
+Comment[fr]=Compositeur de musique modulaire
+TryExec=buzztrax-edit
+Exec=buzztrax-edit
+Icon=buzztrax
+Type=Application
+Categories=AudioVideo;Audio;Music
