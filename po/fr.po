@@ -141,12 +141,12 @@ msgstr "Mauvaise racine dans le document XML."
 #. default name for new songs
 #: ../src/lib/core/song-info.c:122
 msgid "untitled song"
-msgstr "musique sans titre"
+msgstr "morceau sans titre"
 
 #: ../src/lib/core/songio/bsl/buzztrax-songio-buzz.desktop.in.h:1
 #: ../src/ui/edit/buzztrax-edit.desktop.in.h:1
 msgid "Buzztrax Music Editor"
-msgstr "Éditeur de musiques Buzztrax"
+msgstr "Éditeur de musique Buzztrax"
 
 #: ../src/lib/core/songio/bsl/song-io-buzz.c:2385
 #, c-format
@@ -266,7 +266,7 @@ msgstr "Éditer les fichiers musicaux Buzztrax"
 
 #: ../src/ui/edit/change-log.c:643
 msgid "unsaved song"
-msgstr "musique non sauvegardée"
+msgstr "morceau non sauvegardée"
 
 #. the song recovery has been finished
 #: ../src/ui/edit/crash-recover-dialog.c:174
@@ -275,11 +275,11 @@ msgstr "Récupération terminée"
 
 #: ../src/ui/edit/crash-recover-dialog.c:175
 msgid "The selected song has been recovered successful."
-msgstr "La musique sélectionnée a été récupérée avec succès."
+msgstr "Le morceau sélectionné a été récupéré avec succès."
 
 #: ../src/ui/edit/crash-recover-dialog.c:176
 msgid "Please check the song and save it if everything is alright."
-msgstr "Veuillez vérifier la musique et de la sauvegarder si tout est en ordre."
+msgstr "Veuillez vérifier le morceau et de le sauvegarder si tout est en ordre."
 
 #. FIXME(ensonic): the log is still there
 #. * - this dialog should be a warning
@@ -1310,16 +1310,16 @@ msgstr "Ouvrir un morceau"
 #: ../src/ui/edit/main-window.c:684 ../src/ui/edit/main-window.c:945
 #, c-format
 msgid "Can't save song '%s'."
-msgstr "Ne peut sauvegarder la musique « %s »."
+msgstr "Ne peut sauvegarder le morceau « %s »."
 
 #: ../src/ui/edit/main-window.c:685 ../src/ui/edit/main-window.c:932
 #: ../src/ui/edit/main-window.c:946
 msgid "Can't save song"
-msgstr "Ne peut sauvegarder la musique"
+msgstr "Ne peut sauvegarder le morceau"
 
 #: ../src/ui/edit/main-window.c:720
 msgid "Save a song"
-msgstr "Sauvegarder la musique"
+msgstr "Sauvegarder le morceau"
 
 #: ../src/ui/edit/main-window.c:870 ../src/ui/edit/render-dialog.c:660
 msgid "Format"
