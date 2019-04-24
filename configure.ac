@@ -19,7 +19,7 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 
 dnl dependencies
-REQ_GLIB=2.32.0
+REQ_GLIB=2.44.0
 REQ_GTK=3.4
 dnl TODO(ensonic): probably need to bump to 1.6.0 for working gstcontext
 REQ_GST=1.2.0
@@ -492,7 +492,7 @@ AC_SUBST(PACKAGE_ORIGIN)
 
 dnl Check for gtk-doc.
 m4_ifdef([GTK_DOC_CHECK], [
-GTK_DOC_CHECK([1.14],[--flavour no-tmpl])
+GTK_DOC_CHECK([1.29],[--flavour no-xslt])
 ],[
 AM_CONDITIONAL([ENABLE_GTK_DOC], false)
 ])
