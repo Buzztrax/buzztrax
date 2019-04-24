@@ -656,7 +656,7 @@ AM_CONDITIONAL(WITH_UPDATE_ICON_CACHE, test "$enable_update_icon_cache" != "no")
 
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)
 AC_PATH_PROG(UPDATE_DESKTOP_DATABASE, update-desktop-database)
-AC_PATH_PROG(UPDATE_ICON_CACHE, gtk-update-icon-cache-3.0)
+AC_PATH_PROGS(UPDATE_ICON_CACHE, gtk-update-icon-cache, gtk-update-icon-cache-3.0)
 
 dnl Substitutes
 
