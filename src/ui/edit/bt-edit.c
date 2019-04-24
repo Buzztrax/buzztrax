@@ -87,6 +87,8 @@ main (gint argc, gchar ** argv)
   textdomain (GETTEXT_PACKAGE);
 #endif /* ENABLE_NLS */
 
+  bt_setup_for_local_install ();
+
   GOptionEntry options[] = {
     {"version", '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK,
         (gpointer) parse_goption_arg, N_("Print application version"), NULL}

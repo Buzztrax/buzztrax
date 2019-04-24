@@ -748,14 +748,8 @@ if test ! `echo "$PKG_CONFIG_PATH:/usr" | tr \: \\n | grep $prefix` ; then
 echo "
 You are installing buzztrax libraries into a location that is not yet known to
 system. In order for other buzztrax modules to find them and the application to
-work with all features please register the location (see README.md for details):
-export LD_LIBRARY_PATH=$prefix/lib:\$LD_LIBRARY_PATH
-export MANPATH=\$MANPATH:$prefix/share/man
-export DEVHELP_SEARCH_PATH="\$DEVHELP_SEARCH_PATH:$prefix/share/gtk-doc/html"
-export PKG_CONFIG_PATH="\$PKG_CONFIG_PATH:$prefix/lib/pkgconfig"
-export GST_PLUGIN_PATH_1_0="\$GST_PLUGIN_PATH:$prefix/lib/gstreamer-1.0"
-export XDG_DATA_DIRS="\$XDG_DATA_DIRS:$prefix/share"
-export GI_TYPELIB_PATH="\$GI_TYPELIB_PATH:$prefix/lib/girepository"
+work with all features please register the location in the environment (see
+README.md 'installing locally' for details).
 "
 fi
 

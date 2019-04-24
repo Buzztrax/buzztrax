@@ -62,6 +62,8 @@ gboolean bt_init_check(gint *argc, gchar **argv[], GError **err);
 void bt_init(gint *argc, gchar **argv[]);
 void bt_deinit(void);
 
+void bt_setup_for_local_install();
+
 #ifndef BT_CORE_C
 extern const guint bt_major_version;
 extern const guint bt_minor_version;

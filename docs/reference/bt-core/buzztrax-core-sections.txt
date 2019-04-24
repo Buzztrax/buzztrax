@@ -701,6 +701,7 @@ bt_deinit
 bt_major_version
 bt_micro_version
 bt_minor_version
+bt_setup_for_local_install
 return_if_disposed
 return_val_if_disposed
 safe_string

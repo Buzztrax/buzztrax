@@ -56,23 +56,35 @@ Use following options for ./autogen.sh or ./configure
     --with-gconf-source=xml::/home/ensonic/.gconf/
     --with-desktop-dir=/home/ensonic/.gnome2/vfolders/
 
-when installing the package to e.g. $HOME/buzztrax remember to set these
-environment variables:
+when installing the package to e.g. $HOME/buzztrax you ned to set a few
+environment variables. To use the apps these variables are enough:
 
     # libraries:
     export LD_LIBRARY_PATH=$HOME/buzztrax/lib:$LD_LIBRARY_PATH
-    # online help: (as root)
-    export OMF_DIR="$OMF_DIR:$HOME/buzztrax/share/omf"
-    scrollkeeper-update
-    # devhelp:
-    export DEVHELP_SEARCH_PATH="$DEVHELP_SEARCH_PATH:$HOME/buzztrax/share/gtk-doc/html"
-    # pkg-config:
-    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztrax/lib/pkgconfig"
     # gstreamer
-    export GST_PLUGIN_PATH_1.0="$HOME/buzztrax/lib/gstreamer-1.0"
+    export GST_PLUGIN_PATH="$HOME/buzztrax/lib/gstreamer-1.0"
     # mime-database & icon-themes:
     export XDG_DATA_DIRS="$XDG_DATA_DIRS:$HOME/buzztrax/share"
     update-mime-database $HOME/buzztrax/share/mime/
+
+to see the manual in yelp, you can skip this if reading the help
+from buzztrax-edit's help menu is good enough for you:
+
+    export OMF_DIR="$OMF_DIR:$HOME/buzztrax/share/omf"
+
+Likewise for the man-pages to be found:
+
+    export MANPATH=\$MANPATH:$prefix/share/man
+
+For developers:
+
+    # see buzztrax help files in devhelp:
+    export DEVHELP_SEARCH_PATH="$DEVHELP_SEARCH_PATH:$HOME/buzztrax/share/gtk-doc/html"
+    # compile against buzztrax libs using pkg-config:
+    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztrax/lib/pkgconfig"
+    #
+    export GI_TYPELIB_PATH="\$GI_TYPELIB_PATH:$prefix/lib/girepository"
+
 
 ## installing in /usr/local
 The default value for the --prefix configure option is /usr/local. Also in that

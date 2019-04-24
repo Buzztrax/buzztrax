@@ -29,6 +29,7 @@ AM_CPPFLAGS = \
 	-DTESTSONGDIR=\"$(abs_top_srcdir)/tests/songs\" \
 	-DG_LOG_DOMAIN=\"buzztrax\" \
 	-DG_SETTINGS_ENABLE_BACKEND \
+	-DTARGET_CPU=\"$(target_cpu)\" \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 

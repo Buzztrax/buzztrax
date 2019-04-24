@@ -324,3 +324,53 @@ bt_deinit (void)
   // deinit libraries
   gst_deinit ();
 }
+
+
+static gboolean
+ensure_path (const gchar * env, const gchar * segment)
+{
+  gboolean modified = FALSE;
+  const gchar *cur_var = g_getenv (env);
+  gchar **path = g_strsplit (cur_var, ":", -1);
+
+  if (!g_strv_contains ((const gchar * const *) path, segment)) {
+    gchar *new_var = g_strconcat (segment, ":", cur_var, NULL);
+    g_setenv (env, new_var, TRUE);
+    g_free (new_var);
+    modified = TRUE;
+  }
+  g_strfreev (path);
+  return modified;
+}
+
+
+/**
+ * bt_setup_for_local_install:
+ *
+ * Checks if for all env-vars are set for the location we run from. If not makes
+ * the neccesary adjustments.
+ *
+ * Note: This must be called before initializing any other library.
+ */
+void
+bt_setup_for_local_install (void)
+{
+  // NOTE: don't call any logging helpers!
+  // printf ("install-prefix is: " PREFIX "\n");
+
+  // probe and update the environment
+  ensure_path ("LD_LIBRARY_PATH", LIBDIR);
+  ensure_path ("XDG_DATA_DIRS", DATADIR);
+
+  gchar *plugin_path =
+      g_build_filename (LIBDIR, "gstreamer-" GST_MAJORMINOR, NULL);
+  if (ensure_path ("GST_PLUGIN_PATH", plugin_path)) {
+    gchar *registry_file = g_build_filename (g_get_user_cache_dir (),
+        PACKAGE_NAME,
+        "gstreamer-" GST_MAJORMINOR "-registry." TARGET_CPU ".bin",
+        NULL);
+    g_setenv ("GST_REGISTRY", registry_file, TRUE);
+    g_free (registry_file);
+  }
+  g_free (plugin_path);
+}
