@@ -33,21 +33,21 @@ BtSequenceView, #sequence-pattern-list, #wave-level-list, #wave-list {
 }
 
 @define-color mute-bg #f0a0a0;
-.mute:prelight, .mute:active {
+.mute:hover, .mute:active {
   background-color: @mute-bg;
   background-image:
        -gtk-gradient(linear, 0 0, 0 1, from(darker(@mute-bg)), to(lighter(@mute-bg)));
 }
 
 @define-color solo-bg #a0a0f0;
-.solo:prelight, .solo:active {
+.solo:hover, .solo:active {
   background-color: @solo-bg;
   background-image:
       -gtk-gradient(linear, 0 0, 0 1, from(darker(@solo-bg)), to(lighter(@solo-bg)));
 }
 
 @define-color bypass-bg #f0d090;
-.bypass:prelight, .bypass:active {
+.bypass:hover, .bypass:active {
   background-color: @bypass-bg;
   background-image:
       -gtk-gradient(linear, 0 0, 0 1, from(darker(@bypass-bg)), to(lighter(@bypass-bg)));
